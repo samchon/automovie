@@ -14,7 +14,7 @@ import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShape
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 
-/**
+/*
  * The open hand a reach carries toward a grasp: the pre-shape whose thumb-index
  * aperture is the peak aperture for the grasped width
  * (`HumanPrehension.aperture`).
@@ -27,15 +27,14 @@ import { HumanPrehension } from "./HumanPrehension";
  * abduction stops at the range's end and reports the aperture it reached.
  */
 export namespace HumanPreshape {
-  /**
+  /*
    * The open pre-shape whose thumb-index aperture is the peak aperture for a
    * width.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @param closed The closed grasp's digit angles.
-   * @param width The grasped width, metres.
-   * @returns The pre-shape's angles and the aperture it reaches, metres.
+   * Parameter body: The body.
+   * Parameter side: The hand.
+   * Parameter closed: The closed grasp's digit angles.
+   * Parameter width: The grasped width, metres.
+   * Returns: The pre-shape's angles and the aperture it reaches, metres.
    */
   export function open(
     body: IAutoMovieMotionHumanBody,
@@ -103,7 +102,7 @@ export namespace HumanPreshape {
   }
 }
 
-/**
+/*
  * The halvings of the opening share's bisection: 2^-30 of the share, far below
  * a joint's resolution.
  */

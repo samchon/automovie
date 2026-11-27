@@ -44,40 +44,58 @@ import { AutoMovieRenderFilmShading } from "./AutoMovieRenderFilmShading.js";
  * by `dispose`; the stage keeps the last probe bake only.
  */
 export class AutoMovieFilmIndirectStage {
-  /**
+  /*
    * The prepass, raw and blurred visibility targets at the last occlusion
    * raster; null until a draw asks for occlusion.
    */
   private targets_: ITargets | null = null;
 
-  /** The last probe bake and its texture; null until a draw asks for probes. */
+  /*
+   * The last probe bake and its texture; null until a draw asks for probes.
+   */
   private probes_: IBake | null = null;
 
-  /** The visibility raster, shared by the patched materials' uniform. */
+  /*
+   * The visibility raster, shared by the patched materials' uniform.
+   */
   private readonly filmResolution_: THREE.Vector2 = new THREE.Vector2(1, 1);
 
-  /** The probe grid's minimum corner, shared by its uniform. */
+  /*
+   * The probe grid's minimum corner, shared by its uniform.
+   */
   private readonly probeMin_: THREE.Vector3 = new THREE.Vector3();
 
-  /** The probe grid's counts, shared by its uniform. */
+  /*
+   * The probe grid's counts, shared by its uniform.
+   */
   private readonly probeCounts_: THREE.Vector3 = new THREE.Vector3(1, 1, 1);
 
-  /** The horizon search's projection, shared by its uniform. */
+  /*
+   * The horizon search's projection, shared by its uniform.
+   */
   private readonly projection_: THREE.Matrix4 = new THREE.Matrix4();
 
-  /** The horizon search's inverse projection, shared by its uniform. */
+  /*
+   * The horizon search's inverse projection, shared by its uniform.
+   */
   private readonly inverseProjection_: THREE.Matrix4 = new THREE.Matrix4();
 
-  /** The horizon search's raster, shared by its uniform. */
+  /*
+   * The horizon search's raster, shared by its uniform.
+   */
   private readonly resolution_: THREE.Vector2 = new THREE.Vector2();
 
-  /** The blur's inverse projection, shared by its uniform. */
+  /*
+   * The blur's inverse projection, shared by its uniform.
+   */
   private readonly blurInverseProjection_: THREE.Matrix4 = new THREE.Matrix4();
 
-  /** The blur's raster, shared by its uniform. */
+  /*
+   * The blur's raster, shared by its uniform.
+   */
   private readonly blurResolution_: THREE.Vector2 = new THREE.Vector2();
 
-  /**
+  /*
    * The uniforms the patched materials read: the visibility texture and its
    * raster, the probe texture with the grid's minimum corner, spacing and
    * counts, and the two switches, which are 1 only during `beauty`.
@@ -93,26 +111,38 @@ export class AutoMovieFilmIndirectStage {
     uFilmProbeCounts: { value: this.probeCounts_ },
   };
 
-  /** The double-sided view-space normal material of the occlusion prepass. */
+  /*
+   * The double-sided view-space normal material of the occlusion prepass.
+   */
   private readonly normal_: THREE.MeshNormalMaterial =
     new THREE.MeshNormalMaterial({ side: THREE.DoubleSide });
 
-  /** The horizon search program. */
+  /*
+   * The horizon search program.
+   */
   private readonly occlusion_: THREE.RawShaderMaterial;
 
-  /** The 4 × 4 blur program over the horizon search's visibility. */
+  /*
+   * The 4 × 4 blur program over the horizon search's visibility.
+   */
   private readonly blur_: THREE.RawShaderMaterial;
 
-  /** The full-frame quad each pass draws with its program. */
+  /*
+   * The full-frame quad each pass draws with its program.
+   */
   private readonly quad_: THREE.Mesh<
     THREE.PlaneGeometry,
     THREE.RawShaderMaterial
   >;
 
-  /** The scene holding only the quad. */
+  /*
+   * The scene holding only the quad.
+   */
   private readonly frame_: THREE.Scene = new THREE.Scene();
 
-  /** A camera the quad's clip-space vertices ignore; `render` needs one. */
+  /*
+   * A camera the quad's clip-space vertices ignore; `render` needs one.
+   */
   private readonly camera_: THREE.OrthographicCamera =
     new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
@@ -262,7 +292,7 @@ export class AutoMovieFilmIndirectStage {
     this.quad_.geometry.dispose();
   }
 
-  /**
+  /*
    * Bake the probes when their request differs from the last bake's (box,
    * spacing, layer or revision), and point the probe uniforms at the bake.
    */
@@ -320,7 +350,9 @@ export class AutoMovieFilmIndirectStage {
     this.probeCounts_.set(volume.counts.x, volume.counts.y, volume.counts.z);
   }
 
-  /** Measure the occlusion visibility of this draw into the visibility target. */
+  /*
+   * Measure the occlusion visibility of this draw into the visibility target.
+   */
   private occlude(
     renderer: IAutoMovieFilmIndirectRenderer,
     scene: THREE.Scene,
@@ -375,7 +407,9 @@ export class AutoMovieFilmIndirectStage {
     }
   }
 
-  /** Draw one full-frame pass into a target. */
+  /*
+   * Draw one full-frame pass into a target.
+   */
   private pass(
     renderer: IAutoMovieFilmIndirectRenderer,
     material: THREE.RawShaderMaterial,
@@ -386,7 +420,9 @@ export class AutoMovieFilmIndirectStage {
     renderer.render(this.frame_, this.camera_);
   }
 
-  /** Size the targets to the raster. */
+  /*
+   * Size the targets to the raster.
+   */
   private prepare(width: number, height: number): ITargets {
     if (
       this.targets_ !== null &&
@@ -419,7 +455,9 @@ export class AutoMovieFilmIndirectStage {
     return this.targets_;
   }
 
-  /** Release the targets. */
+  /*
+   * Release the targets.
+   */
   private release(): void {
     if (this.targets_ === null) return;
     this.targets_.normal.depthTexture?.dispose();
@@ -448,15 +486,21 @@ interface ITargets {
   visibility: THREE.WebGLRenderTarget;
 }
 
-/** The last probe bake and the request it answers. */
+/*
+ * The last probe bake and the request it answers.
+ */
 interface IBake {
-  /** The serialized box, spacing, layer and revision. */
+  /*
+   * The serialized box, spacing, layer and revision.
+   */
   key: string;
 
-  /** The baked grid. */
+  /*
+   * The baked grid.
+   */
   volume: IAutoMovieIrradianceVolume;
 
-  /**
+  /*
    * The grid as nine RGBA float texels per probe row, validity in the first
    * texel's alpha.
    */

@@ -8,20 +8,19 @@ import type {
 
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * A conducting figure laid in the performer's frontal plane: its centre a
  * forearm and six tenths of an upper arm ahead of the body, 0.1 m below the
  * shoulders and half a shoulder half-width toward the baton's side; each beat's
  * ictus at its meter's shares of the figure's half width (toward the body's
  * middle) and half height (`conductFigure.HALF`), cycling through the meter;
  * and the top at the figure's full half height above its centre.
- *
- * @param posture The entry's root and heading.
- * @param measure The performer's measure.
- * @param side The baton hand.
- * @param meter The meter whose figure is beaten.
- * @param count How many beats.
- * @returns The ictuses and the top, world metres.
+ * Parameter posture: The entry's root and heading.
+ * Parameter measure: The performer's measure.
+ * Parameter side: The baton hand.
+ * Parameter meter: The meter whose figure is beaten.
+ * Parameter count: How many beats.
+ * Returns: The ictuses and the top, world metres.
  */
 export function conductFigure(
   posture: Pick<IAutoMovieMotionHumanPosture, ConductFigurePosture>,
@@ -58,9 +57,11 @@ export function conductFigure(
   return { ictus, top: place(0, 1) };
 }
 
-/** The figures and their size. */
+/*
+ * The figures and their size.
+ */
 export namespace conductFigure {
-  /**
+  /*
    * Each meter's ictus points, `[in, up]` in shares of the figure's half width
    * and half height about its centre: Rudolf's figures (_The Grammar of
    * Conducting_, 3rd ed., 1995), each beat's ictus reached by its direction
@@ -90,21 +91,29 @@ export namespace conductFigure {
     ],
   };
 
-  /**
+  /*
    * The figure's half width and half height, metres: provisional, a forearm's
    * sweep.
    */
   export const HALF: number = 0.18;
 }
 
-/** The alternatives of `ConductFigurePosture`'s site. */
+/*
+ * The alternatives of `ConductFigurePosture`'s site.
+ */
 type ConductFigurePosture = "root" | "yaw";
 
-/** The record of `IConductFigure`'s site. */
+/*
+ * The record of `IConductFigure`'s site.
+ */
 interface IConductFigure {
-  /** Each beat's ictus, world metres, in order. */
+  /*
+   * Each beat's ictus, world metres, in order.
+   */
   ictus: IAutoMovieVector3[];
 
-  /** The figure's top, where the preparation starts, world metres. */
+  /*
+   * The figure's top, where the preparation starts, world metres.
+   */
   top: IAutoMovieVector3;
 }

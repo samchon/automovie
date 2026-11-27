@@ -7,11 +7,13 @@ import {
 import { PianoPedalConstruction } from "./PianoPedalConstruction";
 import type { AutoMovieArchetypeInstrument } from "../AutoMovieArchetypeInstrument";
 
-/** The shorthand the construction uses. */
+/*
+ * The shorthand the construction uses.
+ */
 const v: typeof Vector3.create = Vector3.create;
 
-/**
- * How {@link createInstrument} builds an upright piano with its case, keyboard
+/*
+ * How createInstrument builds an upright piano with its case, keyboard
  * of 88 keys numbered from the bottom, fallboard and damper pedal.
  *
  * The piano stands with its back at the origin's `Z` and the keyboard toward
@@ -19,13 +21,17 @@ const v: typeof Vector3.create = Vector3.create;
  * player's left, is at `-X`.
  */
 export namespace KeyboardConstruction {
-  /** The keys of a modern piano. */
+  /*
+   * The keys of a modern piano.
+   */
   export const KEYS: number = 88;
 
-  /** The pitch classes of the black keys, counted in semitones up from C. */
+  /*
+   * The pitch classes of the black keys, counted in semitones up from C.
+   */
   export const BLACK: ReadonlySet<number> = new Set([1, 3, 6, 8, 10]);
 
-  /**
+  /*
    * The construction sizes, metres, which place no contact: `white`, a white
    * key's thickness under its cited top; `blackWidth`, a black key's width, the
    * 13.7 mm the search for the keyboard's sizes gave; `gap`, the gap between
@@ -46,23 +52,22 @@ export namespace KeyboardConstruction {
     fallboard: 0.015,
   };
 
-  /**
+  /*
    * The fallboard's travel, degrees: the quarter turn about its level hinge
    * that lays it, upright at rest, flat over the keys.
    */
   export const FALL: number = 90;
 
-  /**
+  /*
    * Whether a key of the 88, numbered from 1 at the bottom A, is black.
-   *
-   * @param key The key's number, 1 to 88.
-   * @returns True for a black key.
+   * Parameter key: The key's number, 1 to 88.
+   * Returns: True for a black key.
    */
   export function black(key: number): boolean {
     return BLACK.has((key - 1 + 9) % 12);
   }
 
-  /**
+  /*
    * An upright piano: the case behind the keys from the floor to its height,
    * two cheeks either side of the keyboard carrying the key bed, the 88 keys on
    * it, each a part on its own `key<n>` button, and the fallboard standing open
@@ -72,9 +77,8 @@ export namespace KeyboardConstruction {
    * black key sits on the line between its two white neighbours, raised the
    * drawn rise above them and shorter. Each key's site is its middle, and each
    * presses down by the drawn dip.
-   *
-   * @param builder The builder to fill.
-   * @param d The drawn dimensions.
+   * Parameter builder: The builder to fill.
+   * Parameter d: The drawn dimensions.
    */
   export function uprightPiano(builder: Builder, d: Drawn): void {
     const E: typeof ESTIMATES = ESTIMATES;
@@ -185,11 +189,15 @@ export namespace KeyboardConstruction {
   }
 }
 
-/** The builder the construction fills. */
+/*
+ * The builder the construction fills.
+ */
 type Builder = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeInstrument.Affordance,
   AutoMovieArchetypeInstrument.Dimension
 >;
 
-/** The drawn dimensions. */
+/*
+ * The drawn dimensions.
+ */
 type Drawn = Partial<Record<AutoMovieArchetypeInstrument.Dimension, number>>;

@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
-/**
+/*
  * Apply one complete evaluated body-frame pose to the actual flat polygon
  * groups and their diagnostics. Each local probe is a registered rest point
  * minus its bone's rest joint; the actor parent transform composes once.

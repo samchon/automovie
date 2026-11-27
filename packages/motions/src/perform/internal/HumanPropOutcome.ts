@@ -14,7 +14,7 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * How a prop's flight goes on after a contact, from its model body's flight
  * data: the outcome of each contact, and the legs that follow the first one.
  *
@@ -52,7 +52,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * swept again by the flight's one sweep.
  */
 export namespace HumanPropOutcome {
-  /**
+  /*
    * The second a contact's time resolves to, seconds: the microsecond at which
    * the engine's contact specifications and a hit's id read it
    * (`firstAutoMovieContactImpact` brackets a contact a thousandth of this wide
@@ -62,19 +62,18 @@ export namespace HumanPropOutcome {
    */
   export const CONTACT_SECOND: number = 1e-6;
 
-  /**
+  /*
    * A ball's gyration when its body declares none: a uniform solid's 2/5, the
    * uniform density an undeclared mass distribution is taken to have
    * (`IAutoMovieBodyContact.gyration`).
    */
   export const UNIFORM: number = 2 / 5;
 
-  /**
+  /*
    * The quadratic drag a prop's body declares (`IAutoMovieBody.drag`), with its
    * mass; none when it declares none.
-   *
-   * @param prop The prop.
-   * @returns The drag.
+   * Parameter prop: The prop.
+   * Returns: The drag.
    */
   export function drag(
     prop: IAutoMovieMotionHumanProp,
@@ -88,15 +87,14 @@ export namespace HumanPropOutcome {
     };
   }
 
-  /**
+  /*
    * What a contact does by the body's data: stick, pass, bounce or roll, or
    * nothing, so it stays where it struck.
-   *
-   * @param prop The flying prop.
-   * @param struck What it struck.
-   * @returns The engine's outcome, or undefined to stay.
-   * @throws {HumanRefusal} When a potential rebound has no declared normal
-   *   restitution or an invalid ratio.
+   * Parameter prop: The flying prop.
+   * Parameter struck: What it struck.
+   * Returns: The engine's outcome, or undefined to stay.
+   * When a potential rebound has no declared normal
+   * restitution or an invalid ratio.
    */
   export function decide(
     prop: IAutoMovieMotionHumanProp,
@@ -151,18 +149,17 @@ export namespace HumanPropOutcome {
     return undefined;
   }
 
-  /**
+  /*
    * The legs after a first contact, each swept again until the prop sticks,
    * rests, rolls or the film ends.
-   *
-   * @param props The prop, the flight that struck, its meeting, the film's
-   *   seconds left after the launch, the sweep (flight, absolute base, optional
-   *   passed collider and separately the resolved bounce collider) and the
-   *   contact record of a meeting. A passed collider is left behind; a bounced
-   *   collider remains eligible for later entry after certified departure.
-   * @returns The legs, none when the first contact ends the flight.
-   * @throws {HumanRefusal} For a nonfinite or negative horizon/first contact,
-   *   or a later contact whose finite absolute second does not advance.
+   * Parameter props: The prop, the flight that struck, its meeting, the film's
+   * seconds left after the launch, the sweep (flight, absolute base, optional
+   * passed collider and separately the resolved bounce collider) and the
+   * contact record of a meeting. A passed collider is left behind; a bounced
+   * collider remains eligible for later entry after certified departure.
+   * Returns: The legs, none when the first contact ends the flight.
+   * For a nonfinite or negative horizon/first contact,
+   * or a later contact whose finite absolute second does not advance.
    */
   export function legs(
     props: IAutoMovieMotionHumanPropOutcome.ILegsProps,
@@ -349,13 +346,12 @@ export namespace HumanPropOutcome {
     }
   }
 
-  /**
+  /*
    * The state of a leg at a second since the launch.
-   *
-   * @param leg The leg.
-   * @param seconds Seconds since the launch, at or after the leg's start and
-   *   before its end.
-   * @returns The centre's state.
+   * Parameter leg: The leg.
+   * Parameter seconds: Seconds since the launch, at or after the leg's start and
+   * before its end.
+   * Returns: The centre's state.
    */
   export function at(
     leg: IAutoMovieMotionHumanPropOutcome.ILeg,
@@ -364,14 +360,13 @@ export namespace HumanPropOutcome {
     return AutoMoviePhysicalProjectile.continuedAt(leg.segment, seconds);
   }
 
-  /**
+  /*
    * The point a body sticks at: its contact carried its embedding depth on
    * along its velocity; the contact itself for any other outcome.
-   *
-   * @param prop The prop.
-   * @param struck What it struck.
-   * @param state Its state at the contact.
-   * @returns World metres.
+   * Parameter prop: The prop.
+   * Parameter struck: What it struck.
+   * Parameter state: Its state at the contact.
+   * Returns: World metres.
    */
   export function rest(
     prop: IAutoMovieMotionHumanProp,
@@ -393,7 +388,7 @@ export namespace HumanPropOutcome {
       : state.position;
   }
 
-  /**
+  /*
    * A body's radius: its least round shape's, or half its boxes' least extent;
    * none without such a shape.
    */
@@ -403,7 +398,9 @@ export namespace HumanPropOutcome {
     return least === Infinity ? undefined : least;
   }
 
-  /** A shape's half thickness, metres; a hull is not counted. */
+  /*
+   * A shape's half thickness, metres; a hull is not counted.
+   */
   function half(shape: IAutoMoviePhysicalShape): number {
     return shape.kind === "sphere" || shape.kind === "capsule"
       ? shape.radius
@@ -416,7 +413,7 @@ export namespace HumanPropOutcome {
         : Infinity;
   }
 
-  /**
+  /*
    * A segment of a flight whose zero is `base` seconds after the launch, timed
    * from the launch.
    */

@@ -11,12 +11,11 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Read a released upright damper pedal and its hinge in world coordinates.
- *
- * @param context The action's target prop and start time.
- * @returns The plate and hinge geometry needed by the foot rocker.
- * @throws {HumanRefusal} If the prop or the pedal cannot be staged at rest.
+ * Parameter context: The action's target prop and start time.
+ * Returns: The plate and hinge geometry needed by the foot rocker.
+ * If the prop or the pedal cannot be staged at rest.
  */
 export function readPianoPedal(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPianoPedal>,
@@ -107,22 +106,34 @@ export function readPianoPedal(
   };
 }
 
-/** The admitted level plate in world space. */
+/*
+ * The admitted level plate in world space.
+ */
 interface IPedal {
-  /** Centre of the undepressed plate. */
+  /*
+   * Centre of the undepressed plate.
+   */
   point: IAutoMovieVector3;
-  /** Plate axes, used to check the ball lies within the plate. */
+  /*
+   * Plate axes, used to check the ball lies within the plate.
+   */
   rotation: IAutoMovieQuaternion;
-  /** Hinge pivot and positive lateral axis in world space. */
+  /*
+   * Hinge pivot and positive lateral axis in world space.
+   */
   pivot: IAutoMovieVector3;
   axis: IAutoMovieVector3;
-  /** Plate dimensions in metres and hinge travel in degrees. */
+  /*
+   * Plate dimensions in metres and hinge travel in degrees.
+   */
   width: number;
   depth: number;
   travel: number;
 }
 
-/** Report the prop placement the author can correct. */
+/*
+ * Report the prop placement the author can correct.
+ */
 function refuse(value: string, fix: string): never {
   throw new HumanRefusal({
     kind: "reach",

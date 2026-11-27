@@ -9,7 +9,7 @@ import { convexHull2D } from "../../math/internal/convexHull2D";
 import { AutoMoviePhysicalBalance } from "../AutoMoviePhysicalBalance";
 import { physicalBalanceAssessment as Assessment } from "./physicalBalanceAssessment";
 
-/**
+/*
  * A diagonal pair's step (`AutoMoviePhysicalBalance.assess`): both feet moved
  * by one displacement while the other diagonal holds the centre of pressure on
  * its hull (Chen et al. 2022, Section 2.1, Example 1; MIT Cheetah-Software,
@@ -19,25 +19,39 @@ import { physicalBalanceAssessment as Assessment } from "./physicalBalanceAssess
  * then lies inside the new support.
  */
 export namespace physicalBalancePair {
-  /** A pair's planned displacement, its swing and whether it captures. */
+  /*
+   * A pair's planned displacement, its swing and whether it captures.
+   */
   export interface IPair {
-    /** The displacement both feet take. */
+    /*
+     * The displacement both feet take.
+     */
     travel: IAutoMovieVector3;
 
-    /** Its length, metres. */
+    /*
+     * Its length, metres.
+     */
     distance: number;
 
-    /** The swing's duration, seconds. */
+    /*
+     * The swing's duration, seconds.
+     */
     seconds: number;
 
-    /** Whether the capture point lands inside the new support. */
+    /*
+     * Whether the capture point lands inside the new support.
+     */
     viable: boolean;
 
-    /** How far past the new support it lands, metres. */
+    /*
+     * How far past the new support it lands, metres.
+     */
     violation: number;
   }
 
-  /** Plan a pair's displacement. */
+  /*
+   * Plan a pair's displacement.
+   */
   export function pair(
     scope: Assessment.IAssessment,
     lead: IAutoMoviePhysicalSupportPatch,
@@ -134,7 +148,9 @@ export namespace physicalBalancePair {
     };
   }
 
-  /** The recovery a planned pair asks for. */
+  /*
+   * The recovery a planned pair asks for.
+   */
   export function paired(
     scope: Assessment.IAssessment,
     lead: IAutoMoviePhysicalSupportPatch,

@@ -5,24 +5,23 @@ import { HumanFoot } from "../../../posture/internal/HumanFoot";
 import type { IMotionCaptureCase } from "../../internal/IMotionCaptureCase";
 import { FootSlip } from "../FootSlip";
 
-/**
+/*
  * The numeric checks the everyday capture cases report beside their sheets,
  * measured on the displayed poses the sheets draw: foot slip and the foot's
  * height off the floor in the plant windows, a joint's travel per frame,
  * range-of-motion overshoot, and a bounded distance.
  */
 export namespace everydayVerdicts {
-  /**
+  /*
    * The largest slip of a planted foot within any plant window, metres, and
-   * where it happens, by the rule of {@link FootSlip} on the 24 Hz grid. A plant
+   * where it happens, by the rule of FootSlip on the 24 Hz grid. A plant
    * may stand on something raised (a step), so no floor height is asked of the
    * contact here.
-   *
-   * @param performance The performance.
-   * @param subject The person.
-   * @param body The person's body.
-   * @returns Metres, with the action, the foot and the film second of the worst
-   *   slip.
+   * Parameter performance: The performance.
+   * Parameter subject: The person.
+   * Parameter body: The person's body.
+   * Returns: Metres, with the action, the foot and the film second of the worst
+   * slip.
    */
   export function slip(
     performance: IAutoMovieMotionHumanPerformance,
@@ -50,17 +49,16 @@ export namespace everydayVerdicts {
     return worst;
   }
 
-  /**
+  /*
    * The farthest a foot planted on the ground is from the floor within any of
    * its plant windows, metres, and where it happens: the height of the sole
-   * point {@link FootSlip} reads as the contact, above or below zero, on the 24
+   * point FootSlip reads as the contact, above or below zero, on the 24
    * Hz grid. A plant on something raised is not read.
-   *
-   * @param performance The performance.
-   * @param subject The person.
-   * @param body The person's body.
-   * @returns Metres, with the action, the foot and the film second of the worst
-   *   height.
+   * Parameter performance: The performance.
+   * Parameter subject: The person.
+   * Parameter body: The person's body.
+   * Returns: Metres, with the action, the foot and the film second of the worst
+   * height.
    */
   export function grounded(
     performance: IAutoMovieMotionHumanPerformance,
@@ -86,16 +84,15 @@ export namespace everydayVerdicts {
     return worst;
   }
 
-  /**
+  /*
    * The farthest a bone's joint travels in one frame of the 24 Hz grid between
    * two film seconds, metres: a speed limit read on displayed poses.
-   *
-   * @param performance The performance.
-   * @param subject The person.
-   * @param bone The bone.
-   * @param from Film seconds.
-   * @param to Film seconds.
-   * @returns Metres per 1/24 s.
+   * Parameter performance: The performance.
+   * Parameter subject: The person.
+   * Parameter bone: The bone.
+   * Parameter from: Film seconds.
+   * Parameter to: Film seconds.
+   * Returns: Metres per 1/24 s.
    */
   export function travel(
     performance: IAutoMovieMotionHumanPerformance,
@@ -115,13 +112,12 @@ export namespace everydayVerdicts {
     return worst;
   }
 
-  /**
+  /*
    * The largest range-of-motion overshoot of any joint over the performance,
    * degrees.
-   *
-   * @param performance The performance.
-   * @param subject The person.
-   * @returns Degrees; zero when every joint stays inside its range.
+   * Parameter performance: The performance.
+   * Parameter subject: The person.
+   * Returns: Degrees; zero when every joint stays inside its range.
    */
   export function overshoot(
     performance: IAutoMovieMotionHumanPerformance,
@@ -138,18 +134,17 @@ export namespace everydayVerdicts {
     return worst;
   }
 
-  /**
+  /*
    * The margin of stability at a film second (Hof, Gazendam and Sinke 2005):
    * the extrapolated centre of mass, the engine's whole-body centre plus its
    * velocity (a central difference over 1/240 s) over the pendulum's
    * eigenfrequency with a length of 1.34 hip heights, measured to the edge of
    * the hull of both feet's heel, ball and toe points; positive inside.
-   *
-   * @param performance The performance.
-   * @param subject The person.
-   * @param body The person's body.
-   * @param seconds Film seconds.
-   * @returns Metres.
+   * Parameter performance: The performance.
+   * Parameter subject: The person.
+   * Parameter body: The person's body.
+   * Parameter seconds: Film seconds.
+   * Returns: Metres.
    */
   export function stability(
     performance: IAutoMovieMotionHumanPerformance,
@@ -180,14 +175,13 @@ export namespace everydayVerdicts {
     );
   }
 
-  /**
+  /*
    * A verdict that a measured value stays within a limit.
-   *
-   * @param name The check.
-   * @param value The measure.
-   * @param limit The limit.
-   * @param unit `mm` (value in metres, shown in millimetres) or `deg`.
-   * @returns The verdict.
+   * Parameter name: The check.
+   * Parameter value: The measure.
+   * Parameter limit: The limit.
+   * Parameter unit: `mm` (value in metres, shown in millimetres) or `deg`.
+   * Returns: The verdict.
    */
   export function within(
     name: string,
@@ -204,14 +198,13 @@ export namespace everydayVerdicts {
     };
   }
 
-  /**
+  /*
    * The standard checks of a performance: foot slip at most 5 mm and no
    * range-of-motion overshoot.
-   *
-   * @param performance The performance.
-   * @param subject The person.
-   * @param body The person's body.
-   * @returns The verdicts.
+   * Parameter performance: The performance.
+   * Parameter subject: The person.
+   * Parameter body: The person's body.
+   * Returns: The verdicts.
    */
   export function standard(
     performance: IAutoMovieMotionHumanPerformance,
@@ -237,24 +230,38 @@ export namespace everydayVerdicts {
   }
 }
 
-/** The alternatives of `WithinUnit`'s site. */
+/*
+ * The alternatives of `WithinUnit`'s site.
+ */
 type WithinUnit = "mm" | "deg";
 
-/** The record of `IGroundedWorst`'s site. */
+/*
+ * The record of `IGroundedWorst`'s site.
+ */
 type IGroundedWorst = { value: number; where: string };
 
-/** The record of `IGroundedResult`'s site. */
+/*
+ * The record of `IGroundedResult`'s site.
+ */
 type IGroundedResult = { value: number; where: string };
 
-/** The record of `ISlipWorst`'s site. */
+/*
+ * The record of `ISlipWorst`'s site.
+ */
 type ISlipWorst = { value: number; where: string };
 
-/** The record of `ISlipResult`'s site. */
+/*
+ * The record of `ISlipResult`'s site.
+ */
 type ISlipResult = { value: number; where: string };
-/** The alternatives of `PlantPart`'s site. */
+/*
+ * The alternatives of `PlantPart`'s site.
+ */
 type PlantPart = "leftFoot" | "rightFoot";
 
-/** A foot's plant window in film seconds, clipped to its action's own span. */
+/*
+ * A foot's plant window in film seconds, clipped to its action's own span.
+ */
 interface IPlant {
   action: string;
   part: PlantPart;
@@ -264,7 +271,9 @@ interface IPlant {
   ground: boolean;
 }
 
-/** Every foot plant window of a person's performance. */
+/*
+ * Every foot plant window of a person's performance.
+ */
 function plants(
   performance: IAutoMovieMotionHumanPerformance,
   subject: string,

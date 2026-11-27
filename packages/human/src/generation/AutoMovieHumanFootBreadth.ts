@@ -202,7 +202,9 @@ export namespace AutoMovieHumanFootBreadth {
     return { minimum, maximum, breadth: maximum.across - minimum.across };
   }
 
-  /** Read only the two horizontal affine projections; the independent height source contributes exactly zero to both directions. */
+  /*
+   * Read only the two horizontal affine projections; the independent height source contributes exactly zero to both directions.
+   */
   function affine(
     axis: IAutoMovieConstructionAxis,
     along: AutoMovieVector3Tuple,
@@ -262,7 +264,9 @@ export namespace AutoMovieHumanFootBreadth {
       : "Affine source projections must be finite";
   }
 
-  /** The measuring direction is dimensionless; this projection preserves the source's length unit. */
+  /*
+   * The measuring direction is dimensionless; this projection preserves the source's length unit.
+   */
   function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }

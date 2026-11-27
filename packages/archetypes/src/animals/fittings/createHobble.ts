@@ -9,7 +9,7 @@ import {
 } from "../../core/index";
 import { AnnularFitting } from "./AnnularFitting";
 
-/**
+/*
  * A fore hobble: a cuff round each foreleg's cannon and a strap between them.
  *
  * Each cuff is a short ring round the cannon along the leg's axis (`+Y`). The
@@ -22,11 +22,10 @@ import { AnnularFitting } from "./AnnularFitting";
  * slack. The cuffs are posed onto a hobbled equid's forelegs by
  * `AutoMovieArchetypeEquineHobble`. The cuff's width and thickness, the strap's
  * radius and the mass are authored.
- *
- * @param cannon The radius of the cannon the cuffs close round, metres.
- * @param params The strap's length and the model's id.
- * @returns The hobble.
- * @throws {RangeError} For a nonpositive cannon radius or strap length.
+ * Parameter cannon: The radius of the cannon the cuffs close round, metres.
+ * Parameter params: The strap's length and the model's id.
+ * Returns: The hobble.
+ * For a nonpositive cannon radius or strap length.
  */
 export function createHobble(
   cannon: number,
@@ -76,16 +75,22 @@ export function createHobble(
   return builder.build(MASS);
 }
 
-/** A cuff's size. */
+/*
+ * A cuff's size.
+ */
 interface ICuff {
-  /** Width along the leg, metres. */
+  /*
+   * Width along the leg, metres.
+   */
   width: number;
 
-  /** The leather's thickness, metres. */
+  /*
+   * The leather's thickness, metres.
+   */
   thickness: number;
 }
 
-/**
+/*
  * A cuff's width along the leg and its leather's thickness, metres: authored,
  * no maker's listing read gives them.
  */
@@ -94,8 +99,12 @@ const CUFF: ICuff = {
   thickness: 0.008,
 };
 
-/** The strap's radius, metres: authored. */
+/*
+ * The strap's radius, metres: authored.
+ */
 const STRAP: number = 0.008;
 
-/** A hobble's mass, kilograms: authored, no listing read gives it. */
+/*
+ * A hobble's mass, kilograms: authored, no listing read gives it.
+ */
 const MASS: number = 0.3;

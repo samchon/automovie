@@ -14,7 +14,7 @@ import { HUMAN_ENSEMBLE_PRESETS } from "./HUMAN_ENSEMBLE_PRESETS";
 import { HumanAttribute } from "./HumanAttribute";
 import { HumanFormation } from "./HumanFormation";
 
-/**
+/*
  * How an ensemble's members are resolved from its input (`HumanEnsemble`):
  * each member's attributes and proficiency drawn from the group's distributions
  * by its own keys, its body drawn from the pool, its place its formation slot
@@ -23,15 +23,14 @@ import { HumanFormation } from "./HumanFormation";
  * known.
  */
 export namespace HumanEnsembleMembers {
-  /**
+  /*
    * Resolve an ensemble's members, as `HumanEnsemble` documents.
-   *
-   * @param input The ensemble.
-   * @param read Reads a guide's placed root, when the formation follows a
-   *   guide.
-   * @returns The ensemble.
-   * @throws {HumanRefusal} When the count, the pool, a distribution, a role or
-   *   a place cannot be met, naming the ensemble and the axis.
+   * Parameter input: The ensemble.
+   * Parameter read: Reads a guide's placed root, when the formation follows a
+   * guide.
+   * Returns: The ensemble.
+   * When the count, the pool, a distribution, a role or
+   * a place cannot be met, naming the ensemble and the axis.
    */
   export function resolve(
     input: IAutoMovieMotionHumanEnsemble.IInput,
@@ -246,14 +245,16 @@ export namespace HumanEnsembleMembers {
   }
 }
 
-/** A slot as a starting place. */
+/*
+ * A slot as a starting place.
+ */
 function placeOf(
   slot: IAutoMovieMotionHumanFormation.ISlot,
 ): IAutoMovieMotionHumanEnsemble.IPlace {
   return { at: slot.at, yaw: slot.heading };
 }
 
-/**
+/*
  * The free members on a flank: file 0 first, then the last file of each block;
  * without a formation, the first and the last.
  */

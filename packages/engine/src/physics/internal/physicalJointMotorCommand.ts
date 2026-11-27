@@ -7,7 +7,7 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { projectPhysicalJointVelocity } from "./projectPhysicalJointVelocity";
 
-/**
+/*
  * The bounded quaternion PD command of one joint for the solver's implicit
  * velocity motors.
  *

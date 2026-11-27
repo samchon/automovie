@@ -9,7 +9,7 @@ import { lerp } from "../../../math/internal/lerp";
 import { seededValue } from "../../../math/internal/seededValue";
 import { formationGroundRelief } from "./formationGroundRelief";
 
-/**
+/*
  * Where one slot of a formation stands at rest, in world space.
  *
  * The position half of `formationSlot`, taken on its own because a consumer
@@ -21,7 +21,7 @@ import { formationGroundRelief } from "./formationGroundRelief";
  *
  * The slot is laid out in the unit's own frame by its layout and dressing,
  * rotated by `facingDeg` about the anchor, and raised by
- * {@link formationGroundRelief}: the ground under the member, not the ground
+ * formationGroundRelief: the ground under the member, not the ground
  * under the group. With a `reform`, the previous completed layout's point (or
  * the designed point when fromLayout is absent) and target local point are
  * blended by its progress before heading and terrain apply, and the target
@@ -76,7 +76,7 @@ export function formationSlotPosition(
   };
 }
 
-/**
+/*
  * A slot's point in a design laid in blocks: its block's own point by the
  * block's layout (and the block's seed, the design's when absent), turned by
  * the block's facing as the design's facing turns a point, and moved by its
@@ -111,7 +111,9 @@ function blockPoint(
   };
 }
 
-/** A slot's point in the unit's own frame: `x` lateral, `z` depth, in metres. */
+/*
+ * A slot's point in the unit's own frame: `x` lateral, `z` depth, in metres.
+ */
 interface ILocalPoint {
   x: number;
   z: number;
@@ -128,7 +130,7 @@ function blendLocalPoints(
   };
 }
 
-/**
+/*
  * Offset one slot by its layout's dressing tolerance, deterministically.
  *
  * Formed layouts place members on exact geometry, which reads as one figure
@@ -159,7 +161,9 @@ function dressedFormationPoint(
   };
 }
 
-/** One slot's point in the unit's own frame under the given layout. */
+/*
+ * One slot's point in the unit's own frame under the given layout.
+ */
 function localFormationPoint(
   formation: IAutoMovieFormationPlacement,
   slot: number,

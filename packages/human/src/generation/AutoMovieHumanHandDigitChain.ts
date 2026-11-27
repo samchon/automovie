@@ -23,13 +23,19 @@ const { sidedFrame, reflect }: typeof AutoMovieHumanHandSide =
  * along it from the root, from the tip up.
  */
 export namespace AutoMovieHumanHandDigitChain {
-  /** Station step of a digit's carried frame, mm of the form. */
+  /*
+   * Station step of a digit's carried frame, mm of the form.
+   */
   const DIGIT_CARRY: number = 0.25;
 
-  /** Parameter step of a layer's slopes. */
+  /*
+   * Parameter step of a layer's slopes.
+   */
   const SLOPE_STEP: number = 0.05;
 
-  /** Step of a tube's tangent, mm. */
+  /*
+   * Step of a tube's tangent, mm.
+   */
   const STEP: number = 0.2;
 
   /**

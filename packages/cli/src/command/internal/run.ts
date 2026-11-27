@@ -15,7 +15,7 @@ import { AutoMovieCliRender } from "../../render/AutoMovieCliRender";
 import { AutoMovieCliReview } from "../../review/AutoMovieCliReview";
 import { AutoMovieCliScaffold } from "../../scaffold/AutoMovieCliScaffold";
 
-/**
+/*
  * The `automovie` CLI entry. `argv` is the full process vector; its first two
  * positions (executable and script) are skipped.
  *
@@ -51,9 +51,8 @@ import { AutoMovieCliScaffold } from "../../scaffold/AutoMovieCliScaffold";
  * stringifying an unusual thrown value, or writing stderr, can itself throw.
  * The executable assigns the result to `process.exitCode` so queued output can
  * drain.
- *
- * @param argv The full process vector.
- * @returns The exit code.
+ * Parameter argv: The full process vector.
+ * Returns: The exit code.
  */
 export async function run(argv: readonly string[]): Promise<number> {
   try {
@@ -206,7 +205,7 @@ Options:
   -v, --version   Print the version as a standalone request.
 `;
 
-/**
+/*
  * Write one created installation into `directory`, then list the written files
  * and the next steps. A non-empty directory is refused unless `force` is set,
  * which writes over same-path files and keeps every other file.
@@ -241,7 +240,7 @@ function write(
   );
 }
 
-/**
+/*
  * Replace an incomplete catalog atomically. A concurrent updater or editor
  * leaves this invocation free to retry.
  */
@@ -277,7 +276,7 @@ function completeCatalogs(file: string): void {
   }
 }
 
-/**
+/*
  * This package's version, read at runtime from the package root's `package.json`
  * (`require`, not an `import`, so it stays outside `rootDir`). `__dirname`
  * resolves to `src/command/internal` under ttsx and `lib/command/internal` when published; the file sits three
@@ -290,13 +289,17 @@ function packageVersion(): string {
   return manifest.version;
 }
 
-/** The field of this package's `package.json` the command reads. */
+/*
+ * The field of this package's `package.json` the command reads.
+ */
 interface IAutoMovieCliManifest {
-  /** The package's version, as `npm` publishes it. */
+  /*
+   * The package's version, as `npm` publishes it.
+   */
   version: string;
 }
 
-/**
+/*
  * One stderr block: the error's message, then each distinct cause value's
  * message on its own `caused by:` line. Values outside `Error` are stringified
  * and end the chain. Repeated object identity or primitive value stops

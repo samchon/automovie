@@ -7,7 +7,7 @@ import type {
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { normalizeAutoMovieShadowFilter } from "./normalizeAutoMovieShadowFilter";
 
-/**
+/*
  * Resolve supported shadow allocation and submission multiplicity together. One
  * light owns one shadow map; a point light rasterizes six cube faces.
  * Directional and spot VSM add two fullscreen filtering triangles after their

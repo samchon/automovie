@@ -13,7 +13,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import type { braceBody } from "./braceBody";
 import { gestureHands } from "./gestureHands";
 
-/**
+/*
  * A brace's arms and its plan (`brace.plan`): each palm's goal ahead of the
  * sternum along the force, out to the shoulder, facing the force or turned up
  * to receive a body, the arms rising from the entry's to hold the palms there
@@ -21,9 +21,8 @@ import { gestureHands } from "./gestureHands";
  * feet's plants, and the plan writing the arms on the body posture. Read from
  * the plan's context, body, force line, stepping foot, timing and body
  * posture.
- *
- * @param scope What the plan's arms are planned from.
- * @returns The planned arms and the plan.
+ * Parameter scope: What the plan's arms are planned from.
+ * Returns: The planned arms and the plan.
  */
 export function braceArms(scope: braceArms.IScope): braceArms.IArms {
   const {
@@ -211,68 +210,112 @@ export function braceArms(scope: braceArms.IScope): braceArms.IArms {
   return { arms, planned };
 }
 
-/** What a brace's arms read and what they are. */
+/*
+ * What a brace's arms read and what they are.
+ */
 export namespace braceArms {
-  /** What a brace plan plans its arms from. */
+  /*
+   * What a brace plan plans its arms from.
+   */
   export interface IScope {
-    /** The action's context. */
+    /*
+     * The action's context.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBrace.IParams>;
 
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The body's measure. */
+    /*
+     * The body's measure.
+     */
     m: IAutoMovieMotionHumanBody["measure"];
 
-    /** The action's parameters. */
+    /*
+     * The action's parameters.
+     */
     p: IAutoMovieMotionHumanBrace.IParams;
 
-    /** The brace's seconds. */
+    /*
+     * The brace's seconds.
+     */
     duration: number;
 
-    /** The force's line toward its source, on the floor. */
+    /*
+     * The force's line toward its source, on the floor.
+     */
     toward: IAutoMovieVector3;
 
-    /** The body's left, on the floor. */
+    /*
+     * The body's left, on the floor.
+     */
     left: IAutoMovieVector3;
 
-    /** The foot that steps back. */
+    /*
+     * The foot that steps back.
+     */
     back: AutoMovieHumanSide;
 
-    /** When the stepping foot leaves and lands, seconds. */
+    /*
+     * When the stepping foot leaves and lands, seconds.
+     */
     swing: readonly [number, number];
 
-    /** The plan's events. */
+    /*
+     * The plan's events.
+     */
     events: IAutoMovieMotionHumanActionPlan["events"];
 
-    /** The physical window. */
+    /*
+     * The physical window.
+     */
     window: HumanPhysics.Window;
 
-    /** The posture without its arms (`braceBody`). */
+    /*
+     * The posture without its arms (`braceBody`).
+     */
     bodyAt: braceBody.BodyAt;
 
-    /** The lead time to the set posture, seconds (`brace.SET`). */
+    /*
+     * The lead time to the set posture, seconds (`brace.SET`).
+     */
     SET: number;
 
-    /** How far ahead of the sternum the palms come (`brace.AHEAD`). */
+    /*
+     * How far ahead of the sternum the palms come (`brace.AHEAD`).
+     */
     AHEAD: number;
 
-    /** How far out from the sternum each palm stands (`brace.SPREAD`). */
+    /*
+     * How far out from the sternum each palm stands (`brace.SPREAD`).
+     */
     SPREAD: number;
 
-    /** How far below the sternum the palms receive a body (`brace.RECEIVE`). */
+    /*
+     * How far below the sternum the palms receive a body (`brace.RECEIVE`).
+     */
     RECEIVE: number;
 
-    /** The elbows' outward hint (`brace.ELBOW_OUT`). */
+    /*
+     * The elbows' outward hint (`brace.ELBOW_OUT`).
+     */
     ELBOW_OUT: number;
   }
 
-  /** The planned arms and the plan. */
+  /*
+   * The planned arms and the plan.
+   */
   export interface IArms {
-    /** Each arm's planned trajectory. */
+    /*
+     * Each arm's planned trajectory.
+     */
     arms: Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Played>;
 
-    /** The plan. */
+    /*
+     * The plan.
+     */
     planned: IAutoMovieMotionHumanActionPlan;
   }
 }

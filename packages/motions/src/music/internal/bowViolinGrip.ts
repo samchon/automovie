@@ -4,17 +4,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Prepare where the held bow's grip goes for a stroke: the bow turned by its
  * stroke rotation, with the hair point at a share from frog to tip laid on the
  * sounding point, lifted off the string along its outward normal.
- *
- * @param contact The sounding point on the string, world metres.
- * @param outward The string bar's outward normal, unit.
- * @param rotation The bow's stroke rotation from its held frame.
- * @param frog The hair's frog end in the bow's held frame, metres.
- * @param hair The hair from frog to tip in the bow's held frame, metres.
- * @returns The grip's world point at a hair share and a lift, metres.
+ * Parameter contact: The sounding point on the string, world metres.
+ * Parameter outward: The string bar's outward normal, unit.
+ * Parameter rotation: The bow's stroke rotation from its held frame.
+ * Parameter frog: The hair's frog end in the bow's held frame, metres.
+ * Parameter hair: The hair from frog to tip in the bow's held frame, metres.
+ * Returns: The grip's world point at a hair share and a lift, metres.
  */
 export function bowViolinGrip(
   contact: IAutoMovieVector3,

@@ -23,7 +23,9 @@ import { AutoMovieHumanTrunkSolver } from "./AutoMovieHumanTrunkSolver";
  * The section is mirror-symmetric, so the legs part exactly on the midline.
  */
 export namespace AutoMovieHumanTrunkConstruction {
-  /** Uniform phases of the chains' rings: two per control point of the 256-control section. */
+  /*
+   * Uniform phases of the chains' rings: two per control point of the 256-control section.
+   */
   const SAMPLES: number = 512;
 
   /**

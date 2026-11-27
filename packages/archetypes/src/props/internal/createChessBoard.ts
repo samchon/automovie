@@ -8,16 +8,15 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 
-/**
+/*
  * A chessboard lying flat with a socket on every named square.
  *
  * The board lies in the `XZ` plane, its origin the centre of its underside. The
  * files `a` to `h` run along `+X` and the ranks `1` to `8` along `+Z`, so White
  * sits at `-Z`. Each square's socket is at the centre of its face, upright,
  * where a piece's `base` is set; `top` is the board's playing surface.
- *
- * @param params The optional scene id.
- * @returns The inert board and its contact frames, metres.
+ * Parameter params: The optional scene id.
+ * Returns: The inert board and its contact frames, metres.
  */
 export function createChessBoard(
   params: AutoMovieArchetypeChessBoard.IParams = {},
@@ -74,7 +73,7 @@ export function createChessBoard(
   return builder.build(BOARD.mass);
 }
 
-/**
+/*
  * FIDE's Standards of Chess Equipment, section 3.3: "The side of the square
  * should measure 5-6 cm. Four pawns should fit on one square"
  * (handbook.fide.com, version effective until 28 February 2026, read
@@ -88,7 +87,9 @@ const BOARD: Readonly<AutoMovieArchetypeChessBoard.IBoard> = {
   mass: 1.2,
 };
 
-/** The files from White's left, along `+X`. */
+/*
+ * The files from White's left, along `+X`.
+ */
 const FILES: readonly AutoMovieArchetypeChessBoard.File[] = [
   "a",
   "b",
@@ -100,7 +101,9 @@ const FILES: readonly AutoMovieArchetypeChessBoard.File[] = [
   "h",
 ];
 
-/** The ranks from White's side, along `+Z`. */
+/*
+ * The ranks from White's side, along `+Z`.
+ */
 const RANKS: readonly AutoMovieArchetypeChessBoard.Rank[] = [
   "1",
   "2",

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-/**
+/*
  * Turn a motion case's drawn figure into a ghost: every mesh under the root
  * draws with a translucent flat colour, so an uninterrupted source motion, a
  * seed fan or an earlier pose overlays the actual figure without hiding it.
@@ -13,11 +13,10 @@ import * as THREE from "three";
  * opaque surfaces, so a ghost never occludes the solid figure.
  *
  * It throws for an opacity outside (0, 1].
- *
- * @param root The figure's root object.
- * @param color SRGB hex colour.
- * @param opacity Opacity in (0, 1].
- * @returns Disposes the ghost material.
+ * Parameter root: The figure's root object.
+ * Parameter color: SRGB hex colour.
+ * Parameter opacity: Opacity in (0, 1].
+ * Returns: Disposes the ghost material.
  */
 export function applyMotionCaptureGhost(
   root: THREE.Object3D,

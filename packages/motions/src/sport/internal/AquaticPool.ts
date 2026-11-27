@@ -22,13 +22,13 @@ import { AquaticPosture } from "./AquaticPosture";
 import { AquaticWallContact } from "./AquaticWallContact";
 import { swim } from "./swim";
 
-/**
+/*
  * Pool racing starts, stroke and wall reversal. World Aquatics distinguishes
  * crawl wall contact from the simultaneous separated breaststroke touch (7.7).
  * Puel et al. (PMID 22176710) motivate separating rotation, plant and push.
  */
 export namespace AquaticPool {
-  /**
+  /*
    * Pool race with an authored short course, resolved wall contacts and a
    * reused stroke cycle on either course.
    */
@@ -345,17 +345,27 @@ export namespace AquaticPool {
     };
   }
 
-  /** Calibrated wall crossing and horizontal clearance for the swimmer's lane. */
+  /*
+   * Calibrated wall crossing and horizontal clearance for the swimmer's lane.
+   */
   interface IEdge {
-    /** Forward distance from the entered root to the wall plane, in metres. */
+    /*
+     * Forward distance from the entered root to the wall plane, in metres.
+     */
     distance: number;
-    /** Which named frame owns the wall contact. */
+    /*
+     * Which named frame owns the wall contact.
+     */
     point: string;
-    /** The displayed face at an action second. */
+    /*
+     * The displayed face at an action second.
+     */
     face(seconds: number): AquaticWallContact.Face;
   }
 
-  /** Bind the named wall face and the starting distance of the swimmer's lane. */
+  /*
+   * Bind the named wall face and the starting distance of the swimmer's lane.
+   */
   function laneEdge(
     context: AquaticPosture.Context,
     support: string,
@@ -441,13 +451,19 @@ export namespace AquaticPool {
   }
 }
 
-/** The alternatives of `RaceStroke`'s site. */
+/*
+ * The alternatives of `RaceStroke`'s site.
+ */
 type RaceStroke = "breaststroke" | "frontCrawl";
 
-/** The alternatives of `RaceKind`'s site. */
+/*
+ * The alternatives of `RaceKind`'s site.
+ */
 type RaceKind = "crawlStartTurn" | "breaststrokeStartTurn";
 
-/** Give an unstaged wall the lane's normal and true vertical depth axis. */
+/*
+ * Give an unstaged wall the lane's normal and true vertical depth axis.
+ */
 function wallRotation(forward: IAutoMovieVector3): IAutoMovieQuaternion {
   return HumanHand.align(
     { normal: HumanMaterialContact.NORMAL, forward: { x: 0, y: 0, z: -1 } },

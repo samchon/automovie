@@ -26,14 +26,16 @@ import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { admitLapSupport } from "./admitLapSupport";
 import { requireOtherPerformer } from "./requireOtherPerformer";
 
-/**
+/*
  * How far behind the seat's front edge the sit law rests the seat socket, short
  * of the sitter's thigh, metres: `IAutoMovieMotionHumanSeated`'s 0.05 m
  * clearance.
  */
 const CLEARANCE: number = 0.05;
 
-/** Both displayed thighs and their knee endpoints define the receiver frame. */
+/*
+ * Both displayed thighs and their knee endpoints define the receiver frame.
+ */
 const LEGS: ReadonlySet<AutoMovieHumanoidBone> = new Set([
   "leftUpperLeg",
   "rightUpperLeg",
@@ -41,16 +43,20 @@ const LEGS: ReadonlySet<AutoMovieHumanoidBone> = new Set([
   "rightLowerLeg",
 ]);
 
-/** The two receiving sides of a lap. */
+/*
+ * The two receiving sides of a lap.
+ */
 const THIGHS: readonly ["thighFrontLeft", "thighFrontRight"] = [
   "thighFrontLeft",
   "thighFrontRight",
 ];
 
-/** Contact tolerance for jointed, paired body surfaces, metres. */
+/*
+ * Contact tolerance for jointed, paired body surfaces, metres.
+ */
 const BEARING: number = 0.01;
 
-/**
+/*
  * Sit on a seated partner's lap. The lap is the seated partner's thighs where
  * they are at the start: its height is the top of the two thighs' middles
  * (`thighFrontLeft` and `thighFrontRight`), its heading the partner's hips to
@@ -267,7 +273,9 @@ function planSitOnLap(
   return result;
 }
 
-/** Read the displayed lap axes and bounds from one partner observation. */
+/*
+ * Read the displayed lap axes and bounds from one partner observation.
+ */
 function lap(
   partner: IAutoMovieMotionHumanPerformerReader,
   subject: string,
@@ -302,7 +310,7 @@ function lap(
   };
 }
 
-/**
+/*
  * Sit on a seated partner's lap. The lap is the seated partner's thighs where
  * they are at the start: its height is the top of the two thighs' middles
  * (`thighFrontLeft` and `thighFrontRight`), its heading the partner's hips to
@@ -320,10 +328,16 @@ export const sitOnLap: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSitOn
     plan: planSitOnLap,
   };
 
-/** The same-second thigh placement and the posture reader's yaw carrier. */
+/*
+ * The same-second thigh placement and the posture reader's yaw carrier.
+ */
 interface ILap {
-  /** Receiver bones needed by the physical pairing. */
+  /*
+   * Receiver bones needed by the physical pairing.
+   */
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-  /** The heading and mean height of the thighs' top surfaces. */
+  /*
+   * The heading and mean height of the thighs' top surfaces.
+   */
   frame: IAutoMovieRigidTransform;
 }

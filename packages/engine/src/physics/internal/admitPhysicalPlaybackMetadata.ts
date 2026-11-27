@@ -7,7 +7,7 @@ import type {
 
 import { contactReceiptFault } from "./contactReceiptFault";
 
-/**
+/*
  * Refuse inconsistent causal metadata even when an archive has a valid
  * integrity trailer: budgets, references, clocks, orderings, unit normals and
  * allocation residuals. Contact episodes must fit the archive's film duration

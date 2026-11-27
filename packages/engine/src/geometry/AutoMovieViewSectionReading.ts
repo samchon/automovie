@@ -119,20 +119,26 @@ export namespace AutoMovieViewSectionReading {
   }
 }
 
-/** Full source Hessian [value,s,p,ss,sp,pp]; p is not the polar clock. */
+/*
+ * Full source Hessian [value,s,p,ss,sp,pp]; p is not the polar clock.
+ */
 type Source = IAutoMovieConicFieldJet.IJet;
 
-/** Convert the original numerical premise into its named failure record. */
+/*
+ * Convert the original numerical premise into its named failure record.
+ */
 function failure(detail: string): IAutoMovieConicArcField.IFailure {
   return { kind: "failure", detail };
 }
 
-/** Compare one explicit tuple primal with the numeric snapshot. */
+/*
+ * Compare one explicit tuple primal with the numeric snapshot.
+ */
 function same(value: Source, numeric: number): boolean {
   return value[0] === numeric;
 }
 
-/**
+/*
  * Check the fixed control/weight snapshot without requiring unused auxiliary
  * Hessians.
  */
@@ -173,7 +179,7 @@ function patchMatches(
   return true;
 }
 
-/**
+/*
  * Keep signed curvature products in logarithmic scale until the original final
  * exponential.
  */
@@ -190,7 +196,9 @@ function curvatureProduct(
   );
 }
 
-/** Remove the material clock with the unchanged normal shape-derivative formula. */
+/*
+ * Remove the material clock with the unchanged normal shape-derivative formula.
+ */
 function lift(
   reading: IAutoMovieConicArcField.IReading,
 ): IAutoMovieViewSectionField.IRead {

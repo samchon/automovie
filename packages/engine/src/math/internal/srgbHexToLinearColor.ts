@@ -2,7 +2,7 @@ import type { IAutoMovieColor } from "@automovie/interface";
 
 import { linearColorToSrgbHex } from "./linearColorToSrgbHex";
 
-/**
+/*
  * Decode one sRGB `#RRGGBB` swatch into the linear color materials are typed
  * in.
  *
@@ -40,7 +40,7 @@ export function srgbHexToLinearColor(hex: string): IAutoMovieColor {
   };
 }
 
-/**
+/*
  * The exact `#RRGGBB` swatch form every authored palette string is written in.
  *
  * Three separate capture groups rather than one six-digit run, so a channel is
@@ -50,7 +50,7 @@ export function srgbHexToLinearColor(hex: string): IAutoMovieColor {
  */
 const SRGB_HEX_SWATCH: RegExp = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i;
 
-/**
+/*
  * The sRGB electro-optical transfer function of IEC 61966-2-1.
  *
  * Written with the standard's own constants rather than three.js's pre-divided

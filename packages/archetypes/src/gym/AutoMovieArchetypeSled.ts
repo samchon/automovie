@@ -10,7 +10,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** What no source read gives. */
+/*
+ * What no source read gives.
+ */
 const UNREAD: string =
   "the Rogue pages read give no distance between the uprights; inside the base's width";
 

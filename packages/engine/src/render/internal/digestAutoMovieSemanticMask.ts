@@ -3,7 +3,7 @@ import { IAutoMovieSemanticMask } from "@automovie/interface";
 import { autoMovieRenderDigest } from "./autoMovieRenderDigest";
 import { canonicalAutoMovieSemanticMaskPayload } from "./canonicalAutoMovieSemanticMaskPayload";
 
-/**
+/*
  * Return the digest of one mask's complete canonical payload.
  *
  * Every semantic field participates, while collection order does not. Entries,

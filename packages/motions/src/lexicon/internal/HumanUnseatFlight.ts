@@ -1,7 +1,9 @@
 import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/** The projectile with a push built over `TAKE`, at `t` seconds. */
+/*
+ * The projectile with a push built over `TAKE`, at `t` seconds.
+ */
 function position(
   origin: IAutoMovieVector3,
   velocity: IAutoMovieVector3,
@@ -20,7 +22,9 @@ function position(
   };
 }
 
-/** The least positive root of a t^2 + b t + c = 0, if any. */
+/*
+ * The least positive root of a t^2 + b t + c = 0, if any.
+ */
 function first(a: number, b: number, c: number): number | undefined {
   if (Math.abs(a) < 1e-12) return b < 0 ? -c / b : undefined;
   const d: number = b * b - 4 * a * c;
@@ -32,14 +36,13 @@ function first(a: number, b: number, c: number): number | undefined {
   return roots.length === 0 ? undefined : Math.min(...roots);
 }
 
-/**
+/*
  * Solve a flight from its release to the height `floor`.
- *
- * @param origin The root at the release.
- * @param velocity Its velocity then.
- * @param push The velocity the fall adds.
- * @param floor The root's height when it lands.
- * @returns The flight.
+ * Parameter origin: The root at the release.
+ * Parameter velocity: Its velocity then.
+ * Parameter push: The velocity the fall adds.
+ * Parameter floor: The root's height when it lands.
+ * Returns: The flight.
  */
 export function HumanUnseatFlight(
   origin: IAutoMovieVector3,
@@ -87,7 +90,7 @@ export function HumanUnseatFlight(
   };
 }
 
-/**
+/*
  * The closed-form path of a rider leaving a saddle (`HumanUnseat`): from the
  * release the root keeps the saddle's velocity and gains the fall's push over
  * `TAKE` seconds at a constant rate, so the velocity has no jump; it flies
@@ -95,43 +98,62 @@ export function HumanUnseatFlight(
  * floor under Coulomb friction until it stops.
  */
 export namespace HumanUnseatFlight {
-  /** Seconds the fall's push builds over (provisional). */
+  /*
+   * Seconds the fall's push builds over (provisional).
+   */
   export const TAKE: number = 0.2;
 
-  /** Sliding friction of a clothed body on turf (provisional). */
+  /*
+   * Sliding friction of a clothed body on turf (provisional).
+   */
   export const FRICTION: number = 0.5;
 
-  /** One flight. */
+  /*
+   * One flight.
+   */
   export interface IFlight {
-    /** The root at the release. */
+    /*
+     * The root at the release.
+     */
     origin: IAutoMovieVector3;
 
-    /** The root's velocity at the release. */
+    /*
+     * The root's velocity at the release.
+     */
     velocity: IAutoMovieVector3;
 
-    /** The velocity the fall adds over `TAKE`. */
+    /*
+     * The velocity the fall adds over `TAKE`.
+     */
     push: IAutoMovieVector3;
 
-    /** Seconds from the release to the landing. */
+    /*
+     * Seconds from the release to the landing.
+     */
     land: number;
 
-    /** The root at the landing. */
+    /*
+     * The root at the landing.
+     */
     landed: IAutoMovieVector3;
 
-    /** The root's level velocity on landing. */
+    /*
+     * The root's level velocity on landing.
+     */
     slide: IAutoMovieVector3;
 
-    /** Seconds from the landing until the slide stops. */
+    /*
+     * Seconds from the landing until the slide stops.
+     */
     stop: number;
   }
 
-  /**
+  /*
    * The root at a second after the release: flying until the landing, then
    * sliding to a stop.
-   *
-   * @param flight The flight.
-   * @param t Seconds from the release.
-   * @returns World metres.
+   * Parameter flight: The flight.
+   * Parameter t: Seconds from the release.
+   * Returns: World metres.
    */
   export function at(flight: IFlight, t: number): IAutoMovieVector3 {
     if (t <= flight.land)

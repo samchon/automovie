@@ -10,16 +10,15 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * The obstacle a prop is, at a second.
- *
- * @param context The action's context.
- * @param subject The obstacle's prop subject.
- * @param from Where the performer stands, world metres; from behind the edge's
- *   face the near side is the top's far edge.
- * @returns The near side, the height and the depth.
- * @throws {HumanRefusal} When the prop declares no edge or top, no depth, or a
- *   non-positive height or depth.
+ * Parameter context: The action's context.
+ * Parameter subject: The obstacle's prop subject.
+ * Parameter from: Where the performer stands, world metres; from behind the edge's
+ * face the near side is the top's far edge.
+ * Returns: The near side, the height and the depth.
+ * When the prop declares no edge or top, no depth, or a
+ * non-positive height or depth.
  */
 export function HumanObstacle(
   context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
@@ -90,7 +89,7 @@ export function HumanObstacle(
   };
 }
 
-/**
+/*
  * A low obstacle as a stepping-over act reads it: the middle of its near side
  * on the floor, its height and its depth.
  *
@@ -102,18 +101,28 @@ export function HumanObstacle(
  * aperture.
  */
 export namespace HumanObstacle {
-  /** An obstacle where it stands. */
+  /*
+   * An obstacle where it stands.
+   */
   export interface IObstacle {
-    /** The middle of its near side on the floor, world metres. */
+    /*
+     * The middle of its near side on the floor, world metres.
+     */
     at: IAutoMovieVector3;
 
-    /** Its height, metres. */
+    /*
+     * Its height, metres.
+     */
     height: number;
 
-    /** Its depth across the near side, metres. */
+    /*
+     * Its depth across the near side, metres.
+     */
     depth: number;
   }
 }
 
-/** The alternatives of `OfContext`'s site. */
+/*
+ * The alternatives of `OfContext`'s site.
+ */
 type OfContext = "prop" | "start";

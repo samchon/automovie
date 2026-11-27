@@ -5,7 +5,7 @@ import type {
 
 import { AutoMovieCurveMath64 as M } from "../../AutoMovieCurveMath64";
 
-/**
+/*
  * Evaluate a rational Hermite transfinite chart and its analytic first
  * partials. Four boundary functions carry position, along-edge tangent, cross
  * derivative and its along-edge derivative, in bottom/right/top/left order.
@@ -109,7 +109,9 @@ export function evaluateAutoMovieHermiteGregory64(
     }
   return result;
 
-  /** Hermite endpoint position/derivative bases and their first derivatives. */
+  /*
+   * Hermite endpoint position/derivative bases and their first derivatives.
+   */
   function basis(t: number): number[][] {
     const t2: number = t * t,
       t3: number = t2 * t;
@@ -118,7 +120,9 @@ export function evaluateAutoMovieHermiteGregory64(
       [6 * t2 - 6 * t, 3 * t2 - 4 * t + 1, -6 * t2 + 6 * t, 3 * t2 - 2 * t],
     ];
   }
-  /** Accumulate one vector contribution and its explicit product derivatives. */
+  /*
+   * Accumulate one vector contribution and its explicit product derivatives.
+   */
   function add(
     p: AutoMovieVector3Tuple,
     weight: number,
@@ -129,7 +133,9 @@ export function evaluateAutoMovieHermiteGregory64(
     result.du = M.add(result.du, M.scale(p, du));
     result.dv = M.add(result.dv, M.scale(p, dv));
   }
-  /** The corner tensor uses the same basis and derivatives as both interpolants. */
+  /*
+   * The corner tensor uses the same basis and derivatives as both interpolants.
+   */
   function subtract(p: AutoMovieVector3Tuple, i: number, j: number): void {
     add(
       p,

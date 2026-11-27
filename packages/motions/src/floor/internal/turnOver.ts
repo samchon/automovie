@@ -30,10 +30,14 @@ import { lieDownPoses } from "./lieDownPoses";
 import { lyingTurn } from "./lyingTurn";
 import { turnOverToward } from "./turnOverToward";
 
-/** Seconds of each quarter turn (provisional). */
+/*
+ * Seconds of each quarter turn (provisional).
+ */
 const QUARTER: number = 1;
 
-/** The limb postures at each quarter turn, from the back over the left side. */
+/*
+ * The limb postures at each quarter turn, from the back over the left side.
+ */
 const KEYS: readonly IAutoMovieMotionHumanLieDown.IPose[] = [
   lieDownPoses.POSES.supine,
   lieDownPoses.POSES.lateralLeft,
@@ -41,7 +45,7 @@ const KEYS: readonly IAutoMovieMotionHumanLieDown.IPose[] = [
   lieDownPoses.POSES.lateralRight,
 ];
 
-/**
+/*
  * Turn over while lying. The body turns about its own long axis (`lyingTurn`)
  * from the position it lies in to the requested one, a quarter turn at a time,
  * through each side posture between; a turn between the back and the front
@@ -61,7 +65,7 @@ export const turnOver: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTurnO
     plan: planTurnOver,
   };
 
-/**
+/*
  * Turn over while lying. The body turns about its own long axis (`lyingTurn`)
  * from the position it lies in to the requested one, a quarter turn at a time,
  * through each side posture between; a turn between the back and the front
@@ -212,7 +216,9 @@ function planTurnOver(
   return { ...planned, base: { kind: "lying" } };
 }
 
-/** The support's height: the named prop surface's, or the floor's. */
+/*
+ * The support's height: the named prop surface's, or the floor's.
+ */
 function height(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTurnOver>,
   on: IAutoMovieMotionHumanTurnOver.IOn | undefined,

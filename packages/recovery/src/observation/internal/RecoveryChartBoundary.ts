@@ -8,7 +8,7 @@ import type {
 
 import { RecoveryBezierFit as F } from "../../fitting/RecoveryBezierFit";
 
-/**
+/*
  * Own one fitted curve and accepted pointwise phase chart per private boundary
  * path. Private incidence words identify equality, including reversed order;
  * equal positions on different words never weld. Public boundary IDs are new

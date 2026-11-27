@@ -12,7 +12,7 @@ import { EquineStirrup } from "./EquineStirrup";
 import type { EquineTack } from "./EquineTack";
 import { QuadrupedAttachments } from "../quadruped/QuadrupedAttachments";
 
-/**
+/*
  * An equid's riding tack, laid on its body: a riding saddle with its seat,
  * pommel and cantle, two stirrups on their leathers, two reins from the mouth
  * back to the hands, and the lead rope beside the head. It is kept apart from
@@ -24,13 +24,13 @@ import { QuadrupedAttachments } from "../quadruped/QuadrupedAttachments";
  * massless, no maker's weight having been read for it.
  */
 export namespace EquineSaddle {
-  /**
+  /*
    * Flexible reins/lead follow two declared span anchors, so none is a rigid
    * head-carried part.
    */
   export const HEAD: readonly string[] = [];
 
-  /**
+  /*
    * The length of strap a hand closes on, metres, for a rein and for the lead
    * rope: a hand's breadth and a half, and two; estimates, no source read gives
    * them.
@@ -40,7 +40,7 @@ export namespace EquineSaddle {
     lead: 0.3,
   };
 
-  /**
+  /*
    * A pillion pad's depth along the back and its thickness, metres: estimates,
    * no source read gives them.
    */
@@ -49,13 +49,17 @@ export namespace EquineSaddle {
     thick: 0.03,
   };
 
-  /** The gap between the cantle and a pillion pad's front, metres: an estimate. */
+  /*
+   * The gap between the cantle and a pillion pad's front, metres: an estimate.
+   */
   export const SADDLE_GAP: number = 0.02;
 
-  /** Width of the legacy pillion and trick pieces, metres. */
+  /*
+   * Width of the legacy pillion and trick pieces, metres.
+   */
   export const SEAT_WIDTH: number = 0.3;
 
-  /**
+  /*
    * The riding saddle's mass, kilograms: the Wintec 500 All Purpose's
    * "Approximate weight: 5.4 kg/11.9 lb", stirrup straps and girth not
    * included, at its maker's page
@@ -69,20 +73,19 @@ export namespace EquineSaddle {
    */
   export const WEIGHT: number = 5.4;
 
-  /**
+  /*
    * A lead rope's diameter, metres: 5/8 in, a Weaver Leather cotton lead seen
    * only in retailer listings.
    */
   export const LEAD: number = (5 / 8) * AutoMovieArchetypeUnits.INCH;
 
-  /**
+  /*
    * Lay the riding saddle, its stirrups and its reins on an equid under
    * construction.
-   *
-   * @param builder The equid under construction, its body laid.
-   * @param d The equid's dimensions.
-   * @param rig The equid's rest rig.
-   * @param trick Whether the pommel carries the trick saddle's outer grips.
+   * Parameter builder: The equid under construction, its body laid.
+   * Parameter d: The equid's dimensions.
+   * Parameter rig: The equid's rest rig.
+   * Parameter trick: Whether the pommel carries the trick saddle's outer grips.
    */
   export function lay(
     builder: AutoMovieArchetypeBuilder<
@@ -131,15 +134,14 @@ export namespace EquineSaddle {
     }
   }
 
-  /**
+  /*
    * Lay one rein from the corner of the mouth back to where the hand holds it
    * above the withers, with its `leftRein` or `rightRein` contact. Every
    * bridled tack lays the same reins.
-   *
-   * @param builder The equid under construction, its body laid.
-   * @param d The equid's dimensions.
-   * @param rig The equid's rest rig.
-   * @param side The rein's side: `left` on `+X`, `right` on `-X`.
+   * Parameter builder: The equid under construction, its body laid.
+   * Parameter d: The equid's dimensions.
+   * Parameter rig: The equid's rest rig.
+   * Parameter side: The rein's side: `left` on `+X`, `right` on `-X`.
    */
   export function rein(
     builder: AutoMovieArchetypeBuilder<
@@ -187,22 +189,21 @@ export namespace EquineSaddle {
     );
   }
 
-  /**
+  /*
    * A bareback seat's depth along the back, metres: an estimate of the stretch
    * behind the withers a rider sits on, no source read gives it.
    */
   export const BAREBACK: number = 0.45;
 
-  /**
+  /*
    * Lay a bareback bridle: the two reins and a `seat` contact on the horse's
    * own back where a saddle would sit, with no saddle, stirrup or handle. The
    * seat is sat astride and mounted from the near side; its height is the back
    * itself, so the rider sits a saddle's thickness lower than in the riding
    * saddle.
-   *
-   * @param builder The equid under construction, its body laid.
-   * @param d The equid's dimensions.
-   * @param rig The equid's rest rig.
+   * Parameter builder: The equid under construction, its body laid.
+   * Parameter d: The equid's dimensions.
+   * Parameter rig: The equid's rest rig.
    */
   export function bareback(
     builder: AutoMovieArchetypeBuilder<
@@ -228,14 +229,13 @@ export namespace EquineSaddle {
     rein(builder, d, rig, "right");
   }
 
-  /**
+  /*
    * Lay a pillion pad on the loins behind the riding saddle's cantle, with the
    * passenger's `pillion` seat astride on it, entered from the near side. Lay
    * the saddle first.
-   *
-   * @param builder The equid under construction, its saddle laid.
-   * @param d The equid's dimensions.
-   * @param rig The equid's rest rig.
+   * Parameter builder: The equid under construction, its saddle laid.
+   * Parameter d: The equid's dimensions.
+   * Parameter rig: The equid's rest rig.
    */
   export function pillion(
     builder: AutoMovieArchetypeBuilder<
@@ -266,7 +266,7 @@ export namespace EquineSaddle {
     });
   }
 
-  /**
+  /*
    * A trick saddle's fittings, metres: the horn's height over the pommel, a
    * side strap's drop below the seat and the hippodrome strap's height over it;
    * estimates, no source read gives them.
@@ -281,15 +281,14 @@ export namespace EquineSaddle {
     hippodrome: 0.03,
   };
 
-  /**
+  /*
    * Lay a trick rider's fittings on the riding saddle: a tall horn over the
    * pommel, a handhold on each side of it, a foot strap hanging on each side
    * for the drags and a hippodrome strap across the seat that a standing
    * rider's feet go under. Lay the saddle first.
-   *
-   * @param builder The equid under construction, its saddle laid.
-   * @param d The equid's dimensions.
-   * @param rig The equid's rest rig.
+   * Parameter builder: The equid under construction, its saddle laid.
+   * Parameter d: The equid's dimensions.
+   * Parameter rig: The equid's rest rig.
    */
   export function trick(
     builder: AutoMovieArchetypeBuilder<
@@ -376,13 +375,12 @@ export namespace EquineSaddle {
     });
   }
 
-  /**
+  /*
    * Lay the lead rope's held run beside the head on the equid's left, up to the
    * halter, with its `lead` contact.
-   *
-   * @param builder The equid under construction.
-   * @param nose The rig's nose.
-   * @param h The height at the withers, metres.
+   * Parameter builder: The equid under construction.
+   * Parameter nose: The rig's nose.
+   * Parameter h: The height at the withers, metres.
    */
   export function lead(
     builder: AutoMovieArchetypeBuilder<

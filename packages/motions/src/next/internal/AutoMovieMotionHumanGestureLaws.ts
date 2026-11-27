@@ -7,12 +7,12 @@ import { HumanEmblem as HumanEmblemSource } from "../../lexicon/internal/HumanEm
 import { HumanGestureRows as HumanGestureRowsSource } from "../../lexicon/internal/HumanGestureRows";
 import { HumanUpperRows as HumanUpperRowsSource } from "../../lexicon/internal/HumanUpperRows";
 
-/**
+/*
  * The gesture family's laws, helpers and rows, each the shipped value under its
  * family name (`AutoMovieMotionHumanGesture`), with its own comment.
  */
 export namespace AutoMovieMotionHumanGestureLaws {
-  /**
+  /*
    * A communicative gesture while standing: the hand, head or trunk moves
    * through Kendon's phases (Kendon 1980; McNeill 1992, Hand and Mind):
    * preparation from rest to the stroke's start, the stroke that carries the
@@ -21,7 +21,7 @@ export namespace AutoMovieMotionHumanGestureLaws {
    * The feet stay planted and the body stands as the stand law places it;
    * performed over a carrier (a walk, a seat, a ride) the body is the
    * carrier's, instant by instant, and the gesture takes only the parts it
-   * moves. Each moving hand is an effector goal ({@link gestureStroke}), solved
+   * moves. Each moving hand is an effector goal (gestureStroke), solved
    * by inverse kinematics with a natural elbow hint widened by the gesture and
    * the Effort; the moving arms are planned over the whole gesture as one
    * trajectory (`gestureHands.planned`): from what the entry left to the
@@ -41,7 +41,7 @@ export namespace AutoMovieMotionHumanGestureLaws {
    * depth at the measured rates of standing bows, down in 1.21 s and up in 1.38
    * s for 60 degrees, held 0.95 s at the deepest (Kawabata et al. 2009, ISBS
    * 27). The Effort's tempo scales every phase, its extent the gesture's size
-   * and its elbow term the arm's width ({@link HumanEffort}).
+   * and its elbow term the arm's width (HumanEffort).
    *
    * The plan names the hands it moves (`hands`), so a gesture with a hand that
    * holds a prop is refused, naming the free hand.
@@ -53,7 +53,7 @@ export namespace AutoMovieMotionHumanGestureLaws {
    */
   export import gesture = gestureLaw;
 
-  /**
+  /*
    * One arm phrase on a target: the hand visits a place, strokes along a path
    * or oscillates about a pose, on the standard instants of a phrase (Kendon
    * 1980's preparation, stroke, hold and retraction as BML's `ready`,
@@ -97,14 +97,14 @@ export namespace AutoMovieMotionHumanGestureLaws {
    */
   export import armPhrase = armPhraseLaw;
 
-  /**
+  /*
    * The signals a gesture's stroke rides, each a function of the stroke's share
    * in [0, 1] that starts at rest: a windowed oscillation for the repeated
    * strokes, a single rise and fall, and a rise held to the end.
    */
   export import gestureSignal = gestureSignalLaw;
 
-  /**
+  /*
    * The stroke of each gesture: where each hand surface goes, turned which way
    * and in which shape, as a function of the stroke's progress, and which
    * joints a gesture moves directly.
@@ -112,14 +112,14 @@ export namespace AutoMovieMotionHumanGestureLaws {
    * Hand gestures are effector goals. Each names a hand surface, a world point
    * and a hand rotation; the gesture law transports the hand there in the
    * preparation phase and back in the retraction, and the arm is solved by
-   * inverse kinematics ({@link HumanHand}). Points are built in the performer's
+   * inverse kinematics (HumanHand). Points are built in the performer's
    * own frame (`x` left, `y` up, `z` forward from the root) from the body's
    * measure, or on a target or on the body's own face, so every gesture fits
    * any stature and proportion. A place of the air is written in the names of
-   * {@link AutoMovieMotionHumanTargetGrid.Place} (a height, a lateral and a
+   * AutoMovieMotionHumanTargetGrid.Place (a height, a lateral and a
    * distance, with a nudge in arm lengths where the stroke moves about it), a
-   * hand's turn in the axes of {@link HumanHand.Direction}, and a joint angle as
-   * a level of {@link AutoMovieMotionHumanRange}:
+   * hand's turn in the axes of HumanHand.Direction, and a joint angle as
+   * a level of AutoMovieMotionHumanRange:
    *
    * - `wave`: the open palm faces forward beside the head, at eye height, outside
    *   the shoulder and near; the hand swings side to side `0.06` arm lengths,
@@ -163,8 +163,8 @@ export namespace AutoMovieMotionHumanGestureLaws {
    *   times a second (provisional).
    *
    * Gestures of the head, shoulders and trunk are joint angles, stated by
-   * {@link gestureJoints}; pointing and self-touch read the posed trunk in
-   * {@link gestureTouch}; the strokes ride the signals of {@link gestureSignal}.
+   * gestureJoints; pointing and self-touch read the posed trunk in
+   * gestureTouch; the strokes ride the signals of gestureSignal.
    * Amplitudes and distances that express the gesture's size scale with the
    * Effort extent; contact points and the pointing line do not. Each hand goal
    * widens the elbow's hanging hint by its own share of the upper arm (`out`:
@@ -174,7 +174,7 @@ export namespace AutoMovieMotionHumanGestureLaws {
    */
   export import gestureStroke = gestureStrokeLaw;
 
-  /**
+  /*
    * Arm goals that put hand surfaces on their points, the contact first and the
    * hand's turn as close as the arm allows.
    *
@@ -183,16 +183,15 @@ export namespace AutoMovieMotionHumanGestureLaws {
    * contact (`AutoMovieMotionHumanArm.goal`), so where the arm cannot turn the
    * hand as asked the posture resolver re-aims the wrist until the surface
    * stays on its point and the rotation gives way.
-   *
-   * @param body The body.
-   * @param posture The posture the arms are added to.
-   * @param requests One target per moving hand; a target's `curl` is not read
-   *   here.
-   * @returns The posture with the arm goals set.
+   * Parameter body: The body.
+   * Parameter posture: The posture the arms are added to.
+   * Parameter requests: One target per moving hand; a target's `curl` is not read
+   * here.
+   * Returns: The posture with the arm goals set.
    */
   export const handGoals: typeof handGoalsLaw = handGoalsLaw;
 
-  /**
+  /*
    * The gestures as rows: each kind of `gesture` (emblems, self-adaptors and
    * displays, Ekman and Friesen 1969) under a name of its own, with every other
    * axis of the law open (the side, the target, the count, the hold, the
@@ -205,14 +204,14 @@ export namespace AutoMovieMotionHumanGestureLaws {
    */
   export import HumanGestureRows = HumanGestureRowsSource;
 
-  /**
+  /*
    * Emblems: gestures with a fixed meaning, each a row of a shipped action.
    * Register the ones a film uses (`HumanPerformance.IInput.laws`,
    * `HumanChain.extend`).
    */
   export import HumanEmblem = HumanEmblemSource;
 
-  /**
+  /*
    * The upper-body acts re-expressed as rows over the arm's phrases: each row
    * is `armPhrase` with its phrase, its hand and the shape of its target fixed,
    * so a gesture, a touch, a hand at rest, a hand to the face and a wipe share
@@ -230,13 +229,13 @@ export namespace AutoMovieMotionHumanGestureLaws {
    * in the performer's frame, so a row fits any body; the shares are
    * provisional, set from each act's description with no measured source read.
    *
-   * Duration of every row (the phrase's timing, {@link armPhrase}): the hand
+   * Duration of every row (the phrase's timing, armPhrase): the hand
    * reaches its place in the free-space time of its travel and returns in as
    * long again, `0.25 + 0.5 D` seconds for `D` metres, about 0.5 s for a 0.5 m
-   * reach ({@link AutoMovieMotionHumanTiming.transport}). A visit (a hand on the
+   * reach (AutoMovieMotionHumanTiming.transport). A visit (a hand on the
    * hip, a phone to the ear, a hat on) holds the place for a beat, 0.4 s,
    * unless `hold` names another pause
-   * ({@link AutoMovieMotionHumanTiming.PAUSES}). An oscillation (a wave, a rub,
+   * (AutoMovieMotionHumanTiming.PAUSES). An oscillation (a wave, a rub,
    * a scratch, a stir) lasts 2 beats, 0.8 s, unless `cycles` says more.
    * `manner.pace` and the Effort `time` factor scale every phase. All of these
    * are provisional.

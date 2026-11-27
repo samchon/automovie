@@ -8,7 +8,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { deliveryCropNdc } from "./deliveryCropNdc";
 
-/**
+/*
  * Whether a world-space sphere may intersect a perspective-camera frustum.
  *
  * The sphere's centre is brought into the camera frame and its signed distance
@@ -26,16 +26,15 @@ import { deliveryCropNdc } from "./deliveryCropNdc";
  * conversion. Finite centres, valid lens scalars, nearly unit camera rotation
  * and representable intermediate products are premises; boundary rounding is
  * not certified.
- *
- * @param props.camera Camera placement, looking down its local −Z.
- * @param props.center Sphere centre in world metres.
- * @param props.radius Sphere radius in metres.
- * @param props.near Near clip depth in metres.
- * @param props.far Far clip depth in metres.
- * @param props.halfY Vertical half-field tangent, `tan(fovY / 2)`.
- * @param props.aspect Frame width over height.
- * @param props.crop Delivery crop, or the whole gate when omitted.
- * @returns False only when the sphere is wholly outside some frustum plane.
+ * Parameter props.camera: Camera placement, looking down its local −Z.
+ * Parameter props.center: Sphere centre in world metres.
+ * Parameter props.radius: Sphere radius in metres.
+ * Parameter props.near: Near clip depth in metres.
+ * Parameter props.far: Far clip depth in metres.
+ * Parameter props.halfY: Vertical half-field tangent, `tan(fovY / 2)`.
+ * Parameter props.aspect: Frame width over height.
+ * Parameter props.crop: Delivery crop, or the whole gate when omitted.
+ * Returns: False only when the sphere is wholly outside some frustum plane.
  */
 export function intersectsPerspectiveFrustumSphere(
   props: IAutoMovieIntersectsPerspectiveFrustumSphere.IProps,

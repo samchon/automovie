@@ -9,7 +9,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** Newborn proportions read from a growth chart are not yet applied. */
+/*
+ * Newborn proportions read from a growth chart are not yet applied.
+ */
 const STAGED: string =
   "a swaddled infant: a coarse newborn-sized bundle, its dimensions and mass provisional estimates";
 

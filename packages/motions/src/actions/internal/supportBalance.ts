@@ -13,7 +13,7 @@ import { prepareBearingTrunkBalance } from "../../everyday/internal/prepareBeari
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { prepareSupportCorrection } from "./prepareSupportCorrection";
 
-/**
+/*
  * Apply the authored clock of a support action or its composition after the
  * constraint keys fix their times.
  */
@@ -84,7 +84,9 @@ export function supportBalance<P extends HumanPhysics.IBalanced>(
   };
 }
 
-/** Contacts carried on the lumbar subtree by the whole-body key fit. */
+/*
+ * Contacts carried on the lumbar subtree by the whole-body key fit.
+ */
 function upper(contact: IAutoMovieMotionHumanContactWindow): boolean {
   return (
     contact.part === "back" ||

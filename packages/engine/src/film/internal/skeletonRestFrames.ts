@@ -8,7 +8,7 @@ import {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Every bone's rest-pose frame in model space, composed down the parent chain.
  *
  * A bone's frame is its parent's frame composed with its own rest translation

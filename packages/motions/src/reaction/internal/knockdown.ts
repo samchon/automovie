@@ -34,7 +34,7 @@ import { KnockdownFloor } from "./KnockdownFloor";
 import { ReactionFeet } from "./ReactionFeet";
 import { ReactionSource } from "./ReactionSource";
 
-/**
+/*
  * A knockdown: the legs give way and the body goes down away from the blow,
  * sitting onto the floor and falling back to lie supine.
  *
@@ -60,19 +60,23 @@ import { ReactionSource } from "./ReactionSource";
  * detailed falls belong to tier 2 of the kickboxing research.
  */
 export namespace knockdown {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "knockdown";
 
-  /**
+  /*
    * A knockdown's content is a staged fall, so its balance is judged
    * (`IAutoMovieMotionHumanActionLaw.physical`).
    */
   export const physical: boolean = true;
 
-  /** Cancel table: none; a knocked-down performer stays down for the count. */
+  /*
+   * Cancel table: none; a knocked-down performer stays down for the count.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-  /**
+  /*
    * A reaction interrupts whatever the body was doing, at any instant, as a
    * reflex.
    */
@@ -80,23 +84,26 @@ export namespace knockdown {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
 
-  /** Seat contact, seconds. */
+  /*
+   * Seat contact, seconds.
+   */
   export const SEATED: number = 0.45;
 
-  /** Back on the floor, seconds. */
+  /*
+   * Back on the floor, seconds.
+   */
   export const DOWN: number = 1.1;
 
-  /**
+  /*
    * The root height that rests a posture on the floor: its lowest collision
    * point at zero.
-   *
-   * @param body The body.
-   * @param posture The posture, its root height ignored.
-   * @param resolution Optional exact FK reader/supplier borrowed from the
-   *   current synchronous body's planning operation.
-   * @param projection Optional genuine same-body ROM metadata preparation
-   *   borrowed from that operation; every current joint remains projected.
-   * @returns The root height, metres.
+   * Parameter body: The body.
+   * Parameter posture: The posture, its root height ignored.
+   * Parameter resolution: Optional exact FK reader/supplier borrowed from the
+   * current synchronous body's planning operation.
+   * Parameter projection: Optional genuine same-body ROM metadata preparation
+   * borrowed from that operation; every current joint remains projected.
+   * Returns: The root height, metres.
    */
   export function rest(
     body: IAutoMovieMotionHumanBody,
@@ -107,14 +114,13 @@ export namespace knockdown {
     return KnockdownFloor.rest(body, posture, resolution, projection);
   }
 
-  /**
+  /*
    * Prepare this body's exact floor rest for a support or floor interval.
-   *
-   * @param body The canonical body with unchanged rig, rest geometry and
-   *   profile throughout the owning plan.
-   * @returns The native floor reader accepting each current posture and
-   *   optional synchronous FK/ROM loans; root Y is ignored and height is in
-   *   metres.
+   * Parameter body: The canonical body with unchanged rig, rest geometry and
+   * profile throughout the owning plan.
+   * Returns: The native floor reader accepting each current posture and
+   * optional synchronous FK/ROM loans; root Y is ignored and height is in
+   * metres.
    */
   export function prepareRest(
     body: IAutoMovieMotionHumanBody,
@@ -122,14 +128,13 @@ export namespace knockdown {
     return KnockdownFloor.prepareRest(body);
   }
 
-  /**
+  /*
    * A knockdown's timetable: the body rolls back from `ROLLING` of the way to
    * its seat, lands seated `SEATED` in (the `stroke`), is down on its back
    * `DOWN` in (`relax`), and lies `hold` seconds, one by default.
-   *
-   * @param hold The seconds the body lies.
-   * @returns The clock with `rolling`, `seated`, `stroke`, `down` and `relax`.
-   * @throws {Error} When the lying time is negative.
+   * Parameter hold: The seconds the body lies.
+   * Returns: The clock with `rolling`, `seated`, `stroke`, `down` and `relax`.
+   * When the lying time is negative.
    */
   export function timetable(hold: number | undefined): IAutoMovieMotionClock {
     const lie: number = hold ?? 1;
@@ -142,12 +147,11 @@ export namespace knockdown {
       { name: "relax", seconds: DOWN },
     ]);
   }
-  /**
+  /*
    * Plan a knockdown.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {Error} When the lying time is negative.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the lying time is negative.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKnockdown.IParams>,
@@ -378,10 +382,14 @@ export namespace knockdown {
     return out;
   }
 
-  /** When the trunk starts rolling back, as a share of the time to the seat. */
+  /*
+   * When the trunk starts rolling back, as a share of the time to the seat.
+   */
   const ROLLING: number = 0.6;
 
-  /** A heading difference wrapped into (-180, 180]. */
+  /*
+   * A heading difference wrapped into (-180, 180].
+   */
   function angle(degrees: number): number {
     return ((((degrees + 180) % 360) + 360) % 360) - 180;
   }

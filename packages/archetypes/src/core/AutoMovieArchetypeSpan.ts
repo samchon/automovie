@@ -303,7 +303,7 @@ export namespace AutoMovieArchetypeSpan {
     };
   }
 
-  /**
+  /*
    * Endpoint semantics stay with this namespace while graph/geometry work has
    * one shared owner.
    */
@@ -322,7 +322,9 @@ export namespace AutoMovieArchetypeSpan {
     );
   }
 
-  /** A held extension is a physical length, never a missing or negative anchor. */
+  /*
+   * A held extension is a physical length, never a missing or negative anchor.
+   */
   function overhang(archetype: string, id: string, end: IEnd): number {
     const value: number = end.overhang === undefined ? 0 : end.overhang;
     if (
@@ -338,7 +340,9 @@ export namespace AutoMovieArchetypeSpan {
     return value;
   }
 
-  /** One existing refusal type carries the original physical request. */
+  /*
+   * One existing refusal type carries the original physical request.
+   */
   function refuse(
     archetype: string,
     id: string,

@@ -111,7 +111,7 @@ export namespace AutoMovieConstructionWidths {
     return { part: partLaw, host: hostLaw };
   }
 
-  /**
+  /*
    * One side's law in millimetres; `square` says whether that side's rail
    * offsets square to the curve, where the curvature law also bounds the chord
    * by the curve's own bend toward the rail (`bend`).
@@ -242,13 +242,12 @@ export namespace AutoMovieConstructionWidths {
     }
   }
 
-  /**
+  /*
    * The turn between the outward normals of the result's two faces at a traced
    * point: the host's outward normal and the part's, turned inward for a diff.
-   *
-   * @param curve The traced curve and its sides.
-   * @param p The point.
-   * @returns The angle, radians in `[0, pi]`.
+   * Parameter curve: The traced curve and its sides.
+   * Parameter p: The point.
+   * Returns: The angle, radians in `[0, pi]`.
    */
   function turn(
     curve: IAutoMovieConstructionWidths.ITraced,
@@ -266,7 +265,7 @@ export namespace AutoMovieConstructionWidths {
     return Math.acos(Math.max(-1, Math.min(1, c)));
   }
 
-  /**
+  /*
    * The greater principal curvature of one side's surface at a traced point,
    * signed positive where the surface turns toward its outward normal, the side
    * a fold's ball rolls on: the inverse of the largest ball that touches the
@@ -281,12 +280,11 @@ export namespace AutoMovieConstructionWidths {
    * the roots of `k^2 - 2 H k + K`, `H` and `K` the mean and Gaussian
    * curvatures from the two fundamental forms; the outward normal is the
    * host's, and the part's turned inward for a diff, as `turn` reads them.
-   *
-   * @param curve The traced curve and its sides.
-   * @param p The traced point.
-   * @param side Which surface.
-   * @returns The curvature, 1 per mm; 0 or less where the surface turns away
-   *   from the fold in every direction or its chart degenerates.
+   * Parameter curve: The traced curve and its sides.
+   * Parameter p: The traced point.
+   * Parameter side: Which surface.
+   * Returns: The curvature, 1 per mm; 0 or less where the surface turns away
+   * from the fold in every direction or its chart degenerates.
    */
   function concave(
     curve: IAutoMovieConstructionWidths.ITraced,
@@ -317,7 +315,7 @@ export namespace AutoMovieConstructionWidths {
     return mean + Math.sqrt(Math.max(0, mean * mean - gauss));
   }
 
-  /**
+  /*
    * The traced curve's geodesic curvature in one side's surface, signed
    * positive where the curve turns toward that side's rail: the inverse radius
    * past which a square offset of the curve stops being regular.
@@ -337,12 +335,11 @@ export namespace AutoMovieConstructionWidths {
    * `AutoMovieSolidRail.at`'s: the part's toward the host's outward normal for
    * a merge and against it for a diff, the host's toward the part's outward
    * normal.
-   *
-   * @param curve The traced curve and its sides.
-   * @param p The traced point.
-   * @param side Which surface's rail.
-   * @returns The curvature, 1 per mm; 0 where the speed, the normal or the side
-   *   vanishes, where the rail solve refuses too.
+   * Parameter curve: The traced curve and its sides.
+   * Parameter p: The traced point.
+   * Parameter side: Which surface's rail.
+   * Returns: The curvature, 1 per mm; 0 where the speed, the normal or the side
+   * vanishes, where the rail solve refuses too.
    */
   function toward(
     curve: IAutoMovieConstructionWidths.ITraced,
@@ -381,14 +378,13 @@ export namespace AutoMovieConstructionWidths {
     return (dot(k, d) / length) * Math.sign(facing);
   }
 
-  /**
+  /*
    * The absolute normal curvature of a surface across a curve: in the direction
    * `d = n x T` square to the curve's tangent `T` in the tangent plane, `|II(d,
    * d) / I(d, d)|`.
-   *
-   * @param j The surface's jet at the point.
-   * @param tangent The curve's tangent there.
-   * @returns The curvature, 1 per mm, 0 where the chart degenerates.
+   * Parameter j: The surface's jet at the point.
+   * Parameter tangent: The curve's tangent there.
+   * Returns: The curvature, 1 per mm, 0 where the chart degenerates.
    */
   function across(j: IAutoMovieSolidSurface.IJet, tangent: Vec3): number {
     const n: Vec3 = cross(j.u, j.v);
@@ -415,13 +411,12 @@ export namespace AutoMovieConstructionWidths {
     return Math.abs(second / first);
   }
 
-  /**
+  /*
    * The periodic cubic B-spline through values at uniform parameters from a
    * start, one turn.
-   *
-   * @param values The values, mm.
-   * @param start The parameter of the first value.
-   * @returns The law.
+   * Parameter values: The values, mm.
+   * Parameter start: The parameter of the first value.
+   * Returns: The law.
    */
   function periodic(
     values: readonly number[],

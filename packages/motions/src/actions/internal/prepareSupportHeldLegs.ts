@@ -16,16 +16,15 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { type prepareSupportHeldFrames } from "./prepareSupportHeldFrames";
 
-/**
+/*
  * A reader of the lowest collider of a support interval's held legs as their
  * goals fit them, reading only their chains (`prepareSupportInterval`), with
  * the legs' seeds at a posture and their swivels carried between two seeds.
  * Moved unchanged out of `prepareSupportInterval` to keep that file under the
  * repository's 500-line limit.
- *
- * @param body The unchanged body.
- * @param frames The interval's held-limb frames.
- * @returns The reader; null where no leg is held.
+ * Parameter body: The unchanged body.
+ * Parameter frames: The interval's held-limb frames.
+ * Returns: The reader; null where no leg is held.
  */
 export function prepareSupportHeldLegs(
   body: IAutoMovieMotionHumanBody,
@@ -131,14 +130,22 @@ export function prepareSupportHeldLegs(
   };
 }
 
-/** Companion types of {@link prepareSupportHeldLegs}. */
+/*
+ * Companion types of prepareSupportHeldLegs.
+ */
 export namespace prepareSupportHeldLegs {
-  /** A held leg's limb goal name: the legs are the limbs a floor lift clears. */
+  /*
+   * A held leg's limb goal name: the legs are the limbs a floor lift clears.
+   */
   export type HeldLeg = `${AutoMovieHumanSide}Leg`;
 
-  /** The held legs' readers. */
+  /*
+   * The held legs' readers.
+   */
   export interface IReader {
-    /** The lowest collider of the held legs fitted on a posture, world metres. */
+    /*
+     * The lowest collider of the held legs fitted on a posture, world metres.
+     */
     lowest(
       posture: IAutoMovieMotionHumanPosture,
       read: ReturnType<typeof prepareHumanPoseResolution>,
@@ -146,14 +153,16 @@ export namespace prepareSupportHeldLegs {
       near?: IAutoMovieMotionHumanResolveHumanPosture.INear,
     ): number;
 
-    /** The held legs' seeds as the resolver fits them on a posture. */
+    /*
+     * The held legs' seeds as the resolver fits them on a posture.
+     */
     seeds(
       posture: IAutoMovieMotionHumanPosture,
       read: ReturnType<typeof prepareHumanPoseResolution>,
       project: ReturnType<typeof prepareHumanPostureProjection>,
     ): IAutoMovieMotionHumanResolveHumanPosture.INear;
 
-    /**
+    /*
      * Two seeds' swivels carried at a share, the shorter way round on a common
      * branch.
      */

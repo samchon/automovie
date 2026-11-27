@@ -17,19 +17,19 @@ import { prepareWalkLegLean } from "./prepareWalkLegLean";
 import { walkLegRise } from "./walkLegRise";
 import { walkRockerReachBoundary } from "./walkRockerReachBoundary";
 
-/**
+/*
  * The two-bone geometry of a stepping leg, read without solving it: where the
  * knee's bend puts the shank and the thigh for a hip and an ankle, by the law
  * of cosines on the segment lengths.
  */
 export namespace walkLeg {
-  /**
+  /*
    * Degrees a foot keeps inside the ankle's plantar limit (`PLANTAR`) and its
    * dorsal one, loaded or unloaded (`ANKLE_DORSIFLEXION`).
    */
   export const ANKLE: number = 2;
 
-  /**
+  /*
    * The ankle's plantarflexion limit, degrees: the lesser of the two feet's in
    * the range table (`DEFAULT_HUMANOID_ROM`, the AAOS norm of 50 as
    * `ANKLE_DORSIFLEXION` relays it).
@@ -44,24 +44,27 @@ export namespace walkLeg {
     }),
   );
 
-  /**
+  /*
    * Fixed body/heading preparation of the shank's forward lean from vertical
    * along a heading (`prepareWalkLegLean`).
    */
   export const prepareLean: typeof prepareWalkLegLean = prepareWalkLegLean;
 
-  /** What the leg's angles read of a body: its thigh's and shank's lengths. */
+  /*
+   * What the leg's angles read of a body: its thigh's and shank's lengths.
+   */
   export interface ILegs {
-    /** The body's measure. */
+    /*
+     * The body's measure.
+     */
     measure: Pick<IAutoMovieMotionHumanBody["measure"], "thigh" | "shank">;
   }
 
-  /**
+  /*
    * Prepare the fixed lengths of a knee's thigh-to-reach angle.
-   *
-   * @param body The unchanged measured thigh/shank geometry, metres.
-   * @returns The same cosine-law angle in radians for every actual hip-to-ankle
-   *   reach in metres.
+   * Parameter body: The unchanged measured thigh/shank geometry, metres.
+   * Returns: The same cosine-law angle in radians for every actual hip-to-ankle
+   * reach in metres.
    */
   export function prepareBehind(
     body: walkLeg.ILegs,
@@ -86,15 +89,14 @@ export namespace walkLeg {
     };
   }
 
-  /**
+  /*
    * How far a leg's thigh trails behind vertical in the pelvis's sagittal
    * plane: the hip-to-ankle line's angle less the knee's.
-   *
-   * @param body The body.
-   * @param hip The hip joint, world metres.
-   * @param ankle The ankle, world metres.
-   * @param yaw The pelvis's heading, degrees.
-   * @returns Degrees, positive trailing.
+   * Parameter body: The body.
+   * Parameter hip: The hip joint, world metres.
+   * Parameter ankle: The ankle, world metres.
+   * Parameter yaw: The pelvis's heading, degrees.
+   * Returns: Degrees, positive trailing.
    */
   export function trailing(
     body: walkLeg.ILegs,
@@ -105,13 +107,12 @@ export namespace walkLeg {
     return prepareTrailing(body, yaw)(hip, ankle);
   }
 
-  /**
+  /*
    * Prepare one pelvis heading for repeated trailing-thigh queries.
-   *
-   * @param body The unchanged body's measured leg lengths.
-   * @param yaw The unchanged pelvis heading, degrees.
-   * @returns The same trailing-positive degree angle for each actual
-   *   world-metre hip and ankle.
+   * Parameter body: The unchanged body's measured leg lengths.
+   * Parameter yaw: The unchanged pelvis heading, degrees.
+   * Returns: The same trailing-positive degree angle for each actual
+   * world-metre hip and ankle.
    */
   export function prepareTrailing(
     body: walkLeg.ILegs,
@@ -134,17 +135,16 @@ export namespace walkLeg {
       Math.PI;
   }
 
-  /**
+  /*
    * Prepare one exact heading through a foot's repeated ankle-clearance trials:
    * a foot that bears no weight, its rotation kept inside the unloaded ankle's
    * range relative to its shank (`ANKLE_DORSIFLEXION.unloaded` and `PLANTAR`),
    * less `ANKLE`.
-   *
-   * @param body The measured leg geometry, fixed through the trials.
-   * @param heading The foot heading in degrees at this trial loop's start.
-   * @returns The rotation clamp for a hip, an ankle and a foot rotation; a
-   *   rotation of another heading prepares its own lean instead of reusing the
-   *   fixed-heading geometry.
+   * Parameter body: The measured leg geometry, fixed through the trials.
+   * Parameter heading: The foot heading in degrees at this trial loop's start.
+   * Returns: The rotation clamp for a hip, an ankle and a foot rotation; a
+   * rotation of another heading prepares its own lean instead of reusing the
+   * fixed-heading geometry.
    */
   export function prepareAnkleRange(
     body: IAutoMovieMotionHumanBody,
@@ -177,26 +177,25 @@ export namespace walkLeg {
     };
   }
 
-  /**
+  /*
    * The pitch a planted foot takes about its toes' joint once its shank leans
    * past the ankle's dorsal limit: the forefoot rocker begins where the ankle
    * can bend no further (Perry and Burnfield), so the ball never slides.
    *
    * The room is the ankle's distance from its dorsal limit, less `ANKLE`, and
    * the rise is `rise` on it.
-   *
-   * @param body The body.
-   * @param side The foot.
-   * @param hip The hip joint, world metres.
-   * @param pivot The toes' joint the foot turns about, world metres.
-   * @param heading The foot's heading, degrees.
-   * @param pitch The asked pitch, degrees, negative toes-down.
-   * @param width The room, degrees, under which the heel begins to rise; zero
-   *   keeps the asked pitch until the limit itself.
-   * @param dorsal The ankle's dorsal limit, degrees: an unloaded foot's
-   *   (`ANKLE_DORSIFLEXION.unloaded`) when absent, more as the foot takes
-   *   weight (`dorsal`).
-   * @returns The pitch, no higher than the asked one.
+   * Parameter body: The body.
+   * Parameter side: The foot.
+   * Parameter hip: The hip joint, world metres.
+   * Parameter pivot: The toes' joint the foot turns about, world metres.
+   * Parameter heading: The foot's heading, degrees.
+   * Parameter pitch: The asked pitch, degrees, negative toes-down.
+   * Parameter width: The room, degrees, under which the heel begins to rise; zero
+   * keeps the asked pitch until the limit itself.
+   * Parameter dorsal: The ankle's dorsal limit, degrees: an unloaded foot's
+   * (`ANKLE_DORSIFLEXION.unloaded`) when absent, more as the foot takes
+   * weight (`dorsal`).
+   * Returns: The pitch, no higher than the asked one.
    */
   export function heelRise(
     body: IAutoMovieMotionHumanBody,
@@ -218,7 +217,7 @@ export namespace walkLeg {
     )(hip, pitch);
   }
 
-  /**
+  /*
    * The ankle's dorsal limit of a foot by its contact state, degrees: a foot
    * that bears any share of the body's weight the weight-bearing limit (39,
    * Konor, Morton, Eckerson and Grindstaff 2012, Int J Sports Phys Ther
@@ -227,27 +226,25 @@ export namespace walkLeg {
    * as the take's range audit reads it by the contact window: the studies
    * measure the two conditions, and no study relates the limit to a partial
    * load, so none is interpolated between them.
-   *
-   * @param share The share of the body's weight the foot bears, 0 to 1.
-   * @returns Degrees.
+   * Parameter share: The share of the body's weight the foot bears, 0 to 1.
+   * Returns: Degrees.
    */
   export function dorsal(share: number): number {
     return share > 0 ? ANKLE_DORSIFLEXION.loaded : ANKLE_DORSIFLEXION.unloaded;
   }
 
-  /**
+  /*
    * Prepare one fixed sole contact's rocker search for varying hips and
    * pitches.
-   *
-   * @param body The body's fixed segment lengths and foot socket.
-   * @param side The foot.
-   * @param pivot The fixed toe-joint contact, world metres.
-   * @param heading The fixed foot heading, degrees.
-   * @param width The fixed dorsal-room onset, degrees.
-   * @param dorsal The ankle's fixed dorsal limit, degrees; the unloaded foot's
-   *   when absent (`dorsal`).
-   * @returns The heel-rise rule for a world-space hip, asked pitch and optional
-   *   current dorsal limit.
+   * Parameter body: The body's fixed segment lengths and foot socket.
+   * Parameter side: The foot.
+   * Parameter pivot: The fixed toe-joint contact, world metres.
+   * Parameter heading: The fixed foot heading, degrees.
+   * Parameter width: The fixed dorsal-room onset, degrees.
+   * Parameter dorsal: The ankle's fixed dorsal limit, degrees; the unloaded foot's
+   * when absent (`dorsal`).
+   * Returns: The heel-rise rule for a world-space hip, asked pitch and optional
+   * current dorsal limit.
    */
   export function prepareHeelRise(
     body: IAutoMovieMotionHumanBody,
@@ -291,7 +288,7 @@ export namespace walkLeg {
       );
   }
 
-  /**
+  /*
    * The room left to a stance's ankle before its dorsal limit, degrees, under
    * which a stepping foot's heel begins to rise (provisional): the heel is
    * leaving the floor by 10° of dorsiflexion (Perry and Burnfield), a third of
@@ -301,7 +298,7 @@ export namespace walkLeg {
    */
   export const ROCKER: number = 12;
 
-  /**
+  /*
    * The unloaded ankle's clamp of a foot's pitch against its shank's lean,
    * under a prepared heading.
    */
@@ -323,7 +320,7 @@ export namespace walkLeg {
       : HumanFoot.rotation(direction.heading, clamped);
   }
 
-  /**
+  /*
    * The room a planted foot's ankle keeps before its dorsal limit (`dorsal`,
    * less `ANKLE`) at a shank's lean and a pitch, degrees: what `heelRise`
    * keeps.
@@ -332,7 +329,7 @@ export namespace walkLeg {
     return -lean + dorsal - ANKLE - pitch;
   }
 
-  /**
+  /*
    * The least hip-to-ankle distance, metres, a knee angle is divided by: a
    * nanometre, under which hip and ankle coincide to every pose's resolution
    * and the angle is undefined.
@@ -340,5 +337,7 @@ export namespace walkLeg {
   const COINCIDENT: number = 1e-9;
 }
 
-/** The alternatives of `PLANTARBone`'s site. */
+/*
+ * The alternatives of `PLANTARBone`'s site.
+ */
 type PLANTARBone = "leftFoot" | "rightFoot";

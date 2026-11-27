@@ -197,20 +197,28 @@ export namespace AutoMovieHumanHandAttachment {
   }
 }
 
-/**
+/*
  * Selected skin datum and the original joint's separate coordinate
  * availability.
  */
 interface Placement {
-  /** Supported source skin root, calibration mm. */
+  /*
+   * Supported source skin root, calibration mm.
+   */
   root: AutoMovieVector3Tuple;
-  /** Actual parent material section at that root. */
+  /*
+   * Actual parent material section at that root.
+   */
   section: IAutoMovieHumanHandAttachment.ISection;
-  /** Original anatomical joint coordinate, with unavailability preserved. */
+  /*
+   * Original anatomical joint coordinate, with unavailability preserved.
+   */
   jointSection: IAutoMovieHumanHandAttachment.ISection | null;
 }
 
-/** The parent depth chord is along +v at fixed radial +u, not the old +u span. */
+/*
+ * The parent depth chord is along +v at fixed radial +u, not the old +u span.
+ */
 function chord(
   section: IAutoMovieHumanHandAttachment.ISection,
 ): [number, number] {
@@ -245,7 +253,7 @@ function chord(
   return [Math.min(...result), Math.max(...result)];
 }
 
-/**
+/*
  * Bracket an actual parent exit along one child-depth ray, including the
  * parent's changing planes.
  */
@@ -337,7 +345,7 @@ function edge(
   };
 }
 
-/**
+/*
  * Keep an interior joint; otherwise select the best supported candidate on its
  * proximal first-bone extension.
  */

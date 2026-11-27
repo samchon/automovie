@@ -13,23 +13,22 @@ import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionH
 import { AutoMovieMotionHumanRise } from "../../compose/internal/AutoMovieMotionHumanRise";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 
-/**
+/*
  * The body of a kiss at a share of its solved angles: risen on the toes by the
  * heel raise, leaned from the hips by the pitch and the roll, and, standing,
  * lowered onto the planted legs. The one model both the kiss's solve and its
  * displayed body read, so the mouth the solve places is the mouth the figure
  * shows. The feet stay planted, so no balance is solved: the lean and the rise
  * are the kiss's key poses within their ranges.
- *
- * @param body The body.
- * @param posture The posture the kiss is written over.
- * @param stance Both feet as they stand.
- * @param solved The lean's pitch and roll and the heel raise, degrees, with
- *   optional supported descent in metres.
- * @param share The share of each angle, 0 to 1.
- * @param seated Whether a seat bears the body: it neither rises nor is lowered
- *   onto the feet.
- * @returns The posture; its neck and head are the given posture's.
+ * Parameter body: The body.
+ * Parameter posture: The posture the kiss is written over.
+ * Parameter stance: Both feet as they stand.
+ * Parameter solved: The lean's pitch and roll and the heel raise, degrees, with
+ * optional supported descent in metres.
+ * Parameter share: The share of each angle, 0 to 1.
+ * Parameter seated: Whether a seat bears the body: it neither rises nor is lowered
+ * onto the feet.
+ * Returns: The posture; its neck and head are the given posture's.
  */
 export function kissBody(
   body: IAutoMovieMotionHumanBody,
@@ -89,7 +88,9 @@ export function kissBody(
   return { ...leaned, root: sink === 0 ? root : { ...root, y: root.y - sink } };
 }
 
-/** The alternatives of `KissBodySolved`'s site. */
+/*
+ * The alternatives of `KissBodySolved`'s site.
+ */
 type KissBodySolved =
   | "pitch"
   | "roll"

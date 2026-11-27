@@ -5,7 +5,7 @@ import type {
 
 import { autoMovieSphericalBasis } from "./autoMovieSphericalBasis";
 
-/**
+/*
  * Bake one irradiance probe from its cube: project the radiance the six faces
  * saw onto order-2 spherical harmonics and convolve them with the clamped
  * cosine, so `autoMovieIrradianceOf` gives the irradiance in lux of a receiver
@@ -24,9 +24,8 @@ import { autoMovieSphericalBasis } from "./autoMovieSphericalBasis";
  *
  * The probe is invalid when more than a quarter of all texels see back faces,
  * because it then sits inside a solid and sees the inside of a closed shell.
- *
- * @throws When `size` is not a positive safe integer, there are not six faces,
- *   or a face's arrays are shorter than `size²` texels.
+ * When `size` is not a positive safe integer, there are not six faces,
+ * or a face's arrays are shorter than `size²` texels.
  */
 export function projectAutoMovieIrradianceProbe(
   props: IAutoMovieProjectIrradianceProbe.IProps,
@@ -86,7 +85,7 @@ export function projectAutoMovieIrradianceProbe(
   };
 }
 
-/**
+/*
  * Cosine-lobe convolution of bands 0, 1 and 2: π, 2π/3 and π/4 (Ramamoorthi and
  * Hanrahan 2001, equation 8).
  */

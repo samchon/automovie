@@ -5,7 +5,7 @@ import type {
   IAutoMoviePhysicalSegment,
 } from "@automovie/interface";
 
-/**
+/*
  * The same articulated tree held from another segment: every joint on the path
  * from the old root to the new one is inverted, so the new root is the fixed
  * base of a fixed-pivot solve and the old root moves through the inverted
@@ -17,10 +17,9 @@ import type {
  * tan(a_z / 2), 1)` and its inverse negates the three vector parts, so the
  * inverted joint's coordinates are the negated originals and every ROM limit is
  * kept.
- *
- * @param profile An admitted fixed-pivot tree.
- * @param root The segment to hold.
- * @returns The rerooted profile, sharing every unchanged joint and segment.
+ * Parameter profile: An admitted fixed-pivot tree.
+ * Parameter root: The segment to hold.
+ * Returns: The rerooted profile, sharing every unchanged joint and segment.
  */
 export function rerootPhysicalProfile(
   profile: IAutoMoviePhysicalProfile,

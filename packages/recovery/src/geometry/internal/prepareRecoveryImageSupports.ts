@@ -7,7 +7,7 @@ import type {
 import { assertRecoveryImageChart } from "./assertRecoveryImageChart";
 import { isRecoveryPositiveSafeInteger } from "../../internal/isRecoveryPositiveSafeInteger";
 
-/**
+/*
  * Admit measured image supports and prepare their common physical row chart.
  * Retain every original row inside the shared interval; interpolate other views
  * linearly only within their measured domains. This changes neither image bytes

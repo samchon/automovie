@@ -1,4 +1,4 @@
-/**
+/*
  * The stable address of one stored subject, as subject description and diff
  * spell it.
  *
@@ -10,10 +10,9 @@
  * one kind spell the same address; nothing here detects that. Single instances
  * carry their own address form, `autoMovieInstanceAddress`, because it depends
  * on the set's layout.
- *
- * @param subject The subject kind followed by the ids that name it, in the
- *   order the address spells them.
- * @returns The subject's address.
+ * Parameter subject: The subject kind followed by the ids that name it, in the
+ * order the address spells them.
+ * Returns: The subject's address.
  */
 export const autoMovieSubjectAddress = (
   ...subject:

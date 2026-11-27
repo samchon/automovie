@@ -20,7 +20,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { walkFoot } from "./walkFoot";
 import { walkPoleFrame } from "./walkPoleFrame";
 
-/**
+/*
  * A long held prop carried along a walk or a run: a prop held in one hand or
  * two whose end lies farther from the carrying grip than the hand hangs above
  * the floor at rest would drag that end if it hung with the swinging hand, so
@@ -42,56 +42,67 @@ import { walkPoleFrame } from "./walkPoleFrame";
  * (`walkFoot.CLEARANCE`). One hand turns the prop about its own grip.
  */
 export namespace walkPoleCarriage {
-  /**
+  /*
    * The carried prop's elevation above the horizontal at the run's start,
    * degrees: a long approach's carry (Coaches Insider, "Pole carry and drop").
    */
   export const CARRY: number = 70;
 
-  /**
+  /*
    * A carried prop, its hands and its line in the heading's frame from the
    * root.
    */
   export interface IHold {
-    /** The prop and its holding hands. */
+    /*
+     * The prop and its holding hands.
+     */
     pole: walkPoleFrame.IPole;
 
-    /** Each holding arm's shoulder joint, metres. */
+    /*
+     * Each holding arm's shoulder joint, metres.
+     */
     shoulders: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
 
-    /** The fulcrum: the lower hand's grip, or the only hand's, metres. */
+    /*
+     * The fulcrum: the lower hand's grip, or the only hand's, metres.
+     */
     fulcrum: IAutoMovieVector3;
 
-    /**
+    /*
      * The way across the body the carried line leans, degrees from ahead toward
      * the trunk's middle.
      */
     across: number;
 
-    /**
+    /*
      * The lowering to the next action's plant; none when the walk is not cut
      * into one.
      */
     drop?: IDrop;
   }
 
-  /** The lowering of a carried prop to a plant. */
+  /*
+   * The lowering of a carried prop to a plant.
+   */
   export interface IDrop {
-    /** The walk's second the cut falls at. */
+    /*
+     * The walk's second the cut falls at.
+     */
     to: number;
 
-    /** The elevation by the cut, degrees: the plant's, below the horizontal. */
+    /*
+     * The elevation by the cut, degrees: the plant's, below the horizontal.
+     */
     elevation: number;
   }
 
-  /**
+  /*
    * The props carried long as the action enters.
-   *
-   * @param context The action's context.
-   * @param events The walk's events, as shares of its duration.
-   * @param duration The walk's seconds.
-   * @returns The carried props; none when no hand holds a prop whose end would
-   *   reach the floor hanging.
+   * Parameter context: The action's context.
+   * Parameter events: The walk's events, as shares of its duration.
+   * Parameter duration: The walk's seconds.
+   * Returns: The carried props; none when no hand holds a prop whose end would
+   * reach the floor hanging.
    */
   export function prepare(
     context: Pick<IAutoMovieMotionHumanActionContext, PrepareContext>,
@@ -202,16 +213,15 @@ export namespace walkPoleCarriage {
     return out;
   }
 
-  /**
+  /*
    * The grip windows by which the walk takes each carried prop over for the
    * whole action, the carrying hand's first so it carries and the other
    * steadies (`HumanPerformanceHold`): a hand the action drives is not carried
    * with the trunk by the performance (`HumanSegment.drives`), and a driven
    * held hand must take its prop over
    * (`IAutoMovieMotionHumanActionPlan.hands`).
-   *
-   * @param holds The carried props.
-   * @returns One grip window per holding hand, over the whole action.
+   * Parameter holds: The carried props.
+   * Returns: One grip window per holding hand, over the whole action.
    */
   export function grips(
     holds: readonly IHold[],
@@ -229,15 +239,14 @@ export namespace walkPoleCarriage {
     );
   }
 
-  /**
+  /*
    * The holds the walk keeps: each carried prop stays in its hands with the
    * fingers they entered with, from the walk's start, so an action cut into the
    * walk at any second (a vault out of its run) enters with the prop held, as a
    * draw from a carrier leaves its prop held (`drawFromCarrier`).
-   *
-   * @param context The action's context.
-   * @param holds The carried props.
-   * @returns One hold per holding hand, from the action's start.
+   * Parameter context: The action's context.
+   * Parameter holds: The carried props.
+   * Returns: One hold per holding hand, from the action's start.
    */
   export function kept(
     context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
@@ -255,18 +264,17 @@ export namespace walkPoleCarriage {
     );
   }
 
-  /**
+  /*
    * The posture with each holding hand's goal at a second of the walk: the
    * line's elevation then (`CARRY`, lowered to a plant by the cut, never so low
    * the end nears the floor), turned about the fulcrum and from across the body
    * to straight ahead, placed by the holds and carried by the root and the
    * heading.
-   *
-   * @param body The body.
-   * @param posture The walk's posture.
-   * @param holds The carried props.
-   * @param seconds The walk's second.
-   * @returns The posture with those hands' goals.
+   * Parameter body: The body.
+   * Parameter posture: The walk's posture.
+   * Parameter holds: The carried props.
+   * Parameter seconds: The walk's second.
+   * Returns: The posture with those hands' goals.
    */
   export function write(
     body: IAutoMovieMotionHumanBody,
@@ -332,7 +340,7 @@ export namespace walkPoleCarriage {
     return written;
   }
 
-  /**
+  /*
    * The walk's second of a cut at its own event or share, or undefined when the
    * event is not the walk's.
    */
@@ -348,7 +356,7 @@ export namespace walkPoleCarriage {
     return found === undefined ? undefined : found.share * duration;
   }
 
-  /**
+  /*
    * The unit line at an elevation, leaning `across` degrees from ahead toward
    * the trunk's middle from the carrying side, in the heading's frame.
    */
@@ -367,19 +375,27 @@ export namespace walkPoleCarriage {
     };
   }
 
-  /** Degrees to radians. */
+  /*
+   * Degrees to radians.
+   */
   function radians(angle: number): number {
     return (angle * Math.PI) / 180;
   }
 
-  /** Radians to degrees. */
+  /*
+   * Radians to degrees.
+   */
   function degrees(angle: number): number {
     return (angle * 180) / Math.PI;
   }
 }
 
-/** The alternatives of `PrepareContext`'s site. */
+/*
+ * The alternatives of `PrepareContext`'s site.
+ */
 type PrepareContext = "body" | "entry" | "prop" | "cut";
 
-/** A right angle, degrees: the carrying elbow's flexion, the forearm forward. */
+/*
+ * A right angle, degrees: the carrying elbow's flexion, the forearm forward.
+ */
 const RIGHT: number = 90;

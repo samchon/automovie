@@ -69,11 +69,10 @@ export namespace AutoMovieHumanTrunkAssembly {
     return AutoMovieHumanSeamKnot.assemble(order, all, between);
   }
 
-  /**
+  /*
    * A left sector as the right side's: evaluated at `2 pi - t` and mirrored.
-   *
-   * @param left The left sector.
-   * @returns The right sector.
+   * Parameter left: The left sector.
+   * Returns: The right sector.
    */
   function mirror(
     left: IAutoMovieHumanTrunkAssembly.Sector,

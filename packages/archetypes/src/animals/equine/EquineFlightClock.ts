@@ -12,22 +12,21 @@ import { EquinePitch } from "./EquinePitch";
 import type { QuadrupedRidePose } from "../quadruped/QuadrupedRidePose";
 import type { QuadrupedStridePlan } from "../quadruped/QuadrupedStridePlan";
 
-/**
+/*
  * A planned jump's events on one assembled ride's film clock, and the swings
  * its flight carries.
  */
 export namespace EquineFlightClock {
-  /**
+  /*
    * A planned jump's events on the film clock of one assembled ride: the
    * push-off, final hind liftoff, first fore landing and the end of the landing
    * stance, the published jump cues, and the trunk's pitch through them.
-   *
-   * @param flight The planned flight, or undefined for a ride without a jump.
-   * @param strides The assembled stride plan.
-   * @param centre The body's rest centre of mass, model metres, about which the
-   *   trunk turns in flight.
-   * @returns The flight's seconds, cues and trunk pitch; zeros, no cues and no
-   *   pitch without a jump.
+   * Parameter flight: The planned flight, or undefined for a ride without a jump.
+   * Parameter strides: The assembled stride plan.
+   * Parameter centre: The body's rest centre of mass, model metres, about which the
+   * trunk turns in flight.
+   * Returns: The flight's seconds, cues and trunk pitch; zeros, no cues and no
+   * pitch without a jump.
    */
   export function of(
     flight: EquineJump.IFlight | undefined,
@@ -61,14 +60,13 @@ export namespace EquineFlightClock {
     };
   }
 
-  /**
+  /*
    * Whether the jump's flight carries a swing: one that lifts before the held
    * phase and lands after it.
-   *
-   * @param flight The planned flight, if any.
-   * @param liftoff The swing's liftoff phase.
-   * @param coming The swing's landing phase.
-   * @returns True for a swing spanning the hold.
+   * Parameter flight: The planned flight, if any.
+   * Parameter liftoff: The swing's liftoff phase.
+   * Parameter coming: The swing's landing phase.
+   * Returns: True for a swing spanning the hold.
    */
   export function carries(
     flight: EquineJump.IFlight | undefined,
@@ -80,7 +78,7 @@ export namespace EquineFlightClock {
     );
   }
 
-  /**
+  /*
    * A hoof's goal at a course state and a swing share, as the hoof track gives
    * it.
    */
@@ -89,7 +87,7 @@ export namespace EquineFlightClock {
     "x" | "z" | "orientation" | "surface"
   >;
 
-  /**
+  /*
    * The goal of a swing the flying body carries: the hoof leaves with the body,
    * so its goal is its liftoff goal in the body's own frame at liftoff, blended
    * by the swing's progress to its landing goal in the body's frame at landing.
@@ -99,18 +97,17 @@ export namespace EquineFlightClock {
    * sinks as the trunk turns nose-up about them in the push-off, so the carried
    * hoof is kept on or above the ground, as a swinging hoof rises above a crest
    * (`QuadrupedHoofTrack.target`).
-   *
-   * @param aim The hoof track's goal at a course state with its displayed
-   *   placement, at a swing share.
-   * @param shown The course state at a second with the body's displayed
-   *   placement.
-   * @param current The current course state with the body's displayed
-   *   placement.
-   * @param liftoff The swing's liftoff second.
-   * @param landing The swing's landing second.
-   * @param along The swing's progress, zero to one.
-   * @returns The carried goal, its support plane the ground's as the current
-   *   body sees it.
+   * Parameter aim: The hoof track's goal at a course state with its displayed
+   * placement, at a swing share.
+   * Parameter shown: The course state at a second with the body's displayed
+   * placement.
+   * Parameter current: The current course state with the body's displayed
+   * placement.
+   * Parameter liftoff: The swing's liftoff second.
+   * Parameter landing: The swing's landing second.
+   * Parameter along: The swing's progress, zero to one.
+   * Returns: The carried goal, its support plane the ground's as the current
+   * body sees it.
    */
   export function swing(
     aim: (state: AutoMovieArchetypeCourse.IState, amount: number) => IAim,
@@ -181,26 +178,40 @@ export namespace EquineFlightClock {
     };
   }
 
-  /** One assembly's flight events. */
+  /*
+   * One assembly's flight events.
+   */
   export interface IClock {
-    /** Film second both hinds are down for the push-off. */
+    /*
+     * Film second both hinds are down for the push-off.
+     */
     push: number;
-    /** Film second of final hind liftoff. */
+    /*
+     * Film second of final hind liftoff.
+     */
     takeoff: number;
-    /** Film second of first fore landing. */
+    /*
+     * Film second of first fore landing.
+     */
     landing: number;
-    /** Film second the first fore stance ends. */
+    /*
+     * Film second the first fore stance ends.
+     */
     absorb: number;
-    /** The published jump cues. */
+    /*
+     * The published jump cues.
+     */
     instants: readonly EquineFootwork.IInstant[];
-    /**
+    /*
      * The trunk's planned height and pitch through the jump; absent without a
      * jump.
      */
     pitch?: EquinePitch.IPlan;
   }
 
-  /** A goal's support plane: its own, else the model floor under it. */
+  /*
+   * A goal's support plane: its own, else the model floor under it.
+   */
   function floor(end: IAim): AutoMovieArchetypeQuadrupedFooting.ISurface {
     return (
       end.surface ?? {

@@ -6,7 +6,7 @@ import type {
 import { AUTOMOVIE_QUADRATIC_INFINITY } from "../../constants/AUTOMOVIE_QUADRATIC_INFINITY";
 import { admitAutoMovieQuadraticProgram } from "./admitAutoMovieQuadraticProgram";
 
-/**
+/*
  * Admits a sparse-row quadratic program and lays its constraint matrix out in
  * the compressed sparse column form the engine numerical kernel reads.
  *
@@ -16,11 +16,10 @@ import { admitAutoMovieQuadraticProgram } from "./admitAutoMovieQuadraticProgram
  * exactly zero is kept as an explicit entry. A null row endpoint becomes
  * `-AUTOMOVIE_QUADRATIC_INFINITY` or `AUTOMOVIE_QUADRATIC_INFINITY`, the
  * kernel's unbounded sentinel.
- *
- * @param input Program in sparse-row form; it is only read.
- * @returns Kernel input whose `columns`, `rowIndices`, `values`, `lower` and
- *   `upper` are new arrays, while `diagonal`, `linear` and `initial` are the
- *   caller's own arrays, so mutating them later changes the assembled program.
+ * Parameter input: Program in sparse-row form; it is only read.
+ * Returns: Kernel input whose `columns`, `rowIndices`, `values`, `lower` and
+ * `upper` are new arrays, while `diagonal`, `linear` and `initial` are the
+ * caller's own arrays, so mutating them later changes the assembled program.
  */
 export function assembleAutoMovieQuadraticProgram(
   input: [IAutoMovieSolveQuadraticProgram.IInput][0],

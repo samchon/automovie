@@ -1,4 +1,6 @@
-/** Interpolate admitted channel arrays of equal width without mutating them. */
+/*
+ * Interpolate admitted channel arrays of equal width without mutating them.
+ */
 export function lerpChannelValues(
   a: number[],
   b: number[],

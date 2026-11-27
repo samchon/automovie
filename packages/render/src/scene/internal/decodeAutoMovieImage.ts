@@ -1,10 +1,14 @@
 import type { IAutoMovieImage } from "@automovie/interface";
 import * as THREE from "three";
 
-/** The eight-byte PNG signature (W3C PNG, 2nd edition, section 5.2). */
+/*
+ * The eight-byte PNG signature (W3C PNG, 2nd edition, section 5.2).
+ */
 const SIGNATURE: readonly number[] = [137, 80, 78, 71, 13, 10, 26, 10];
 
-/** Samples per pixel for each decoded colour type. */
+/*
+ * Samples per pixel for each decoded colour type.
+ */
 const CHANNELS: ReadonlyMap<number, number> = new Map([
   [0, 1],
   [2, 3],
@@ -12,7 +16,7 @@ const CHANNELS: ReadonlyMap<number, number> = new Map([
   [6, 4],
 ]);
 
-/**
+/*
  * Decode an image a model carries into an RGBA texture the shot cache owns like
  * a loaded asset.
  *
@@ -145,7 +149,7 @@ export const decodeAutoMovieImage: (
   return texture;
 };
 
-/**
+/*
  * The Paeth predictor of PNG section 9.4: the neighbour nearest the linear
  * estimate, ties to left, then up.
  */

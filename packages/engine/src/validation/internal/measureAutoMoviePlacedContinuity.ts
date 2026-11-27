@@ -5,7 +5,7 @@ import { Vector3 } from "../../math/Vector3";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 import { validateTransformScalars } from "./validateTransformScalars";
 
-/**
+/*
  * Check one raw placed transform, a declared continuous pair, or a custody
  * rule. The timeline owner supplies actual endpoints in film presentation
  * seconds. Equal times are allowed for a required seam. A known cut or declared
@@ -55,7 +55,7 @@ export function measureAutoMoviePlacedContinuity(
   return { status: "checked", violations: collector.items };
 }
 
-/**
+/*
  * Compare a continuous endpoint pair: admit both clocks, transforms and limits,
  * then measure translation distance in metres and shortest rotation in radians
  * against the limits. A cut or declared break is excluded and a missing

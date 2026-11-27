@@ -18,7 +18,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanFormation } from "./HumanFormation";
 
-/**
+/*
  * Background members handed to the instanced population layer: their places as
  * one formation design, and their motion as a cycle of a performed template
  * member's own displayed poses, so a background soldier marches the march the
@@ -35,19 +35,18 @@ import { HumanFormation } from "./HumanFormation";
  * overrides.
  */
 export namespace HumanPopulation {
-  /**
+  /*
    * An ensemble's formation as one formation design: its blocks as the design's
    * blocks (`IAutoMovieFormationBlock`), its frame at a film second as the
    * design's anchor and facing turned about (the engine lays a layout's depth
    * ahead, the formation behind), and every member that is performed as a hero
    * override, so the population layer draws the others.
-   *
-   * @param ensemble The ensemble, standing in a formation.
-   * @param props The design's id and model group, and the film second its frame
-   *   is read at.
-   * @returns The design.
-   * @throws {HumanRefusal} When the ensemble has no formation or no population
-   *   member.
+   * Parameter ensemble: The ensemble, standing in a formation.
+   * Parameter props: The design's id and model group, and the film second its frame
+   * is read at.
+   * Returns: The design.
+   * When the ensemble has no formation or no population
+   * member.
    */
   export function design(
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -106,17 +105,16 @@ export namespace HumanPopulation {
         ),
     };
   }
-  /**
+  /*
    * A template member's cycle: its displayed poses over one stride from the
    * first heel strike at or after `from`, at `samples` even phases.
-   *
-   * @param performance The performance the template is performed in.
-   * @param template The template's subject.
-   * @param from The film second the cycle is sought from.
-   * @param samples How many phases; positive.
-   * @returns The cycle.
-   * @throws {HumanRefusal} When no stepping action of the template holds a
-   *   whole stride from `from`.
+   * Parameter performance: The performance the template is performed in.
+   * Parameter template: The template's subject.
+   * Parameter from: The film second the cycle is sought from.
+   * Parameter samples: How many phases; positive.
+   * Returns: The cycle.
+   * When no stepping action of the template holds a
+   * whole stride from `from`.
    */
   export function cycle(
     performance: HumanPopulation.IPerformance,
@@ -222,22 +220,21 @@ export namespace HumanPopulation {
     };
   }
 
-  /**
+  /*
    * Hold the displayed pose at the chosen stand's `settled` event. Every phase
    * uses that pose with zero stride, expressed at the slot origin facing +Z
    * with the root height measured above the stand's floor. The segment's placed
    * duration gives the period of the pose take. The take may use a settled
    * event at the end when the performance still displays that stand at the
    * event.
-   *
-   * @param performance The performance containing the template stand.
-   * @param template The template's subject id.
-   * @param from Film second used to select the template's active stand.
-   * @param samples Positive integral phase count below 2^32, matching other
-   *   takes baked with this one.
-   * @returns A held `stand` take.
-   * @throws {HumanRefusal} When the selected action has no settled stand on
-   *   ground within its placed span or the sample count is invalid.
+   * Parameter performance: The performance containing the template stand.
+   * Parameter template: The template's subject id.
+   * Parameter from: Film second used to select the template's active stand.
+   * Parameter samples: Positive integral phase count below 2^32, matching other
+   * takes baked with this one.
+   * Returns: A held `stand` take.
+   * When the selected action has no settled stand on
+   * ground within its placed span or the sample count is invalid.
    */
   export function standing(
     performance: HumanPopulation.IPerformance,
@@ -318,16 +315,22 @@ export namespace HumanPopulation {
     };
   }
 
-  /** What a take reads of the performance: its segments and displayed poses. */
+  /*
+   * What a take reads of the performance: its segments and displayed poses.
+   */
   export interface IPerformance {
-    /** The template's placed actions, in placement order. */
+    /*
+     * The template's placed actions, in placement order.
+     */
     segments(subject: string): readonly ISegment[];
 
-    /** The displayed pose at a film second. */
+    /*
+     * The displayed pose at a film second.
+     */
     pose(subject: string, seconds: number): IAutoMoviePose;
   }
 
-  /**
+  /*
    * What a take reads of a placed action: its name and placement, its plan's
    * events, length and contacts, and its body and entry state.
    */
@@ -343,32 +346,52 @@ export namespace HumanPopulation {
   };
 }
 
-/** The record of `ICycleNextS`'s site. */
+/*
+ * The record of `ICycleNextS`'s site.
+ */
 type ICycleNextS = { seconds: number; side: string };
 
-/** The record of `ICycleNext`'s site. */
+/*
+ * The record of `ICycleNext`'s site.
+ */
 type ICycleNext = { seconds: number; side: string };
 
-/** The record of `ICycleStart`'s site. */
+/*
+ * The record of `ICycleStart`'s site.
+ */
 type ICycleStart = { seconds: number; side: string };
 
-/** The record of `ICycleStrikesB`'s site. */
+/*
+ * The record of `ICycleStrikesB`'s site.
+ */
 type ICycleStrikesB = { seconds: number };
 
-/** The record of `ICycleStrikesA`'s site. */
+/*
+ * The record of `ICycleStrikesA`'s site.
+ */
 type ICycleStrikesA = { seconds: number };
 
-/** The record of `ICycleStrikesS`'s site. */
+/*
+ * The record of `ICycleStrikesS`'s site.
+ */
 type ICycleStrikesS = { seconds: number };
 
-/** The record of `ICycleStrikesResult`'s site. */
+/*
+ * The record of `ICycleStrikesResult`'s site.
+ */
 type ICycleStrikesResult = { seconds: number; side: string };
 
-/** The record of `ICycleStrikesItem`'s site. */
+/*
+ * The record of `ICycleStrikesItem`'s site.
+ */
 type ICycleStrikesItem = { seconds: number; side: string };
 
-/** The record of `IDesignResult`'s site. */
+/*
+ * The record of `IDesignResult`'s site.
+ */
 type IDesignResult = { slot: number; actor: string };
 
-/** The record of `IDesignOrigin`'s site. */
+/*
+ * The record of `IDesignOrigin`'s site.
+ */
 type IDesignOrigin = { at: IAutoMovieVector3; heading: number };

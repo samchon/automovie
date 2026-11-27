@@ -17,33 +17,43 @@ import { resolveHumanPostureSource } from "../../posture/internal/resolveHumanPo
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { courseLimbSwivelKnots } from "./courseLimbSwivelKnots";
 
-/**
+/*
  * The swivel-and-branch course of a plan's limb goals, read by a display that
  * keeps the goals and places each limb in closed form at the course's swivel
  * (`IAutoMovieSwivelNear.prescribed`, `courseLimbSwivels.swivels`).
  */
 export namespace courseLimbSwivels {
-  /** What a swivel course is fitted from. */
+  /*
+   * What a swivel course is fitted from.
+   */
   export interface IPrepare {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The plan's posture, with its goals, at a second since the plan's start. */
+    /*
+     * The plan's posture, with its goals, at a second since the plan's start.
+     */
     posture(seconds: number): IAutoMovieMotionHumanPosture;
 
-    /** The limbs whose swivels are coursed. */
+    /*
+     * The limbs whose swivels are coursed.
+     */
     limbs: readonly AutoMovieHumanLimb[];
 
-    /** The seconds since the plan's start the course covers. */
+    /*
+     * The seconds since the plan's start the course covers.
+     */
     span: ISpan;
 
-    /**
+    /*
      * Seconds inside the span the course keeps a knot at (the plan's events);
      * none when absent.
      */
     instants?: readonly number[];
 
-    /**
+    /*
      * Each limb's swivel and branch as the span is entered (the arm a display
      * showed at the cut into the plan), at which the first knot is placed; the
      * first knot is cold when absent.
@@ -51,19 +61,24 @@ export namespace courseLimbSwivels {
     entry?: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>;
   }
 
-  /** The seconds a course covers. */
+  /*
+   * The seconds a course covers.
+   */
   export interface ISpan {
-    /** The first second, from the plan's start. */
+    /*
+     * The first second, from the plan's start.
+     */
     start: number;
 
-    /** The last second. */
+    /*
+     * The last second.
+     */
     end: number;
   }
-  /**
+  /*
    * The bones a limb's fit writes, in chain order, its end joint third.
-   *
-   * @param limb The limb.
-   * @returns The upper and lower segment, the end joint, and a leg's toes.
+   * Parameter limb: The limb.
+   * Returns: The upper and lower segment, the end joint, and a leg's toes.
    */
   export function chain(
     limb: AutoMovieHumanLimb,
@@ -80,12 +95,14 @@ export namespace courseLimbSwivels {
     }
   }
 
-  /** Each coursed limb's swivel and branch at a second. */
+  /*
+   * Each coursed limb's swivel and branch at a second.
+   */
   export type Swivels = (
     seconds: number,
   ) => ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>;
 
-  /**
+  /*
    * The swivel-and-branch course of a plan's limb goals, for a display that
    * keeps the goals and places each limb in closed form at the course's swivel
    * (`IAutoMovieSwivelNear.prescribed`).
@@ -110,10 +127,9 @@ export namespace courseLimbSwivels {
    * searches. The knots and the path through them are made in order when the
    * course is made, so a read only evaluates them and the course is the same in
    * any reading order.
-   *
-   * @param props The posture reader, the limbs, the span and the knotted
-   *   instants.
-   * @returns Each limb's swivel and branch at a second.
+   * Parameter props: The posture reader, the limbs, the span and the knotted
+   * instants.
+   * Returns: Each limb's swivel and branch at a second.
    */
   export function swivels(props: IPrepare): Swivels {
     const { body, posture: goals, limbs, span }: IPrepare = props;
@@ -295,7 +311,7 @@ export namespace courseLimbSwivels {
     };
   }
 
-  /**
+  /*
    * The limbs' swivels and branches at one knot
    * (`courseLimbSwivelKnots.ISwivelKnot`).
    */

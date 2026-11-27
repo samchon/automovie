@@ -120,7 +120,9 @@ export namespace AutoMovieHumanF1NativeRootLaw {
     };
   }
 
-  /** Direct complete native source adapter used only by the existing original clock calculation. */
+  /*
+   * Direct complete native source adapter used only by the existing original clock calculation.
+   */
   function surface(name: string, reader: IAutoMovieLoftViewFullSource.IReader): IAutoMovieSolidSurface {
     return {
       name,

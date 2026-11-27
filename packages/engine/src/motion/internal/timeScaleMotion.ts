@@ -6,7 +6,7 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-/**
+/*
  * Multiply an admitted clip's seconds clock by a positive finite factor.
  * Keyframe times, duration and optional stride period/phase scale together;
  * pose and expression values are borrowed and unchanged.

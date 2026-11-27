@@ -6,7 +6,7 @@ import * as THREE from "three";
 
 import { IAutoMovieTextureResolver } from "../IAutoMovieTextureResolver.js";
 
-/**
+/*
  * Resolve one material texture binding to a configured `three.js` texture.
  *
  * A missing binding, a missing resolver or an unresolved asset leaves the slot

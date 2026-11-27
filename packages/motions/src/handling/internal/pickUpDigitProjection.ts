@@ -38,7 +38,9 @@ function solve(input: number[][], values: number[]): number[] {
   return rows.map((row) => row[size]!);
 }
 
-/** Fit the two gripping digits in the clinical joint chart at one prepared instant. */
+/*
+ * Fit the two gripping digits in the clinical joint chart at one prepared instant.
+ */
 export function pickUpDigitProjection(
   read: (angles: readonly number[]) => number[],
   aperture: number,
@@ -96,10 +98,14 @@ export function pickUpDigitProjection(
   return { angles, error: Math.sqrt(score(errors)) };
 }
 
-/** Result of projecting the digit angles at one prepared instant. */
+/*
+ * Result of projecting the digit angles at one prepared instant.
+ */
 export namespace pickUpDigitProjection {
   export interface IProjection {
-    /** The feasible point in clinical degrees and its residual in metres. */
+    /*
+     * The feasible point in clinical degrees and its residual in metres.
+     */
     angles: number[];
     error: number;
   }

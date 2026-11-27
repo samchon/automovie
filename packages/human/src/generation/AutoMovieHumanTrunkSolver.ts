@@ -40,7 +40,7 @@ import { AutoMovieHumanTrunkShapes } from "./AutoMovieHumanTrunkShapes";
  * anatomy test reports.
  */
 export namespace AutoMovieHumanTrunkSolver {
-  /**
+  /*
    * Passes closing the tapes and the courses together; the second only corrects
    * what the first moved.
    */
@@ -88,7 +88,9 @@ export namespace AutoMovieHumanTrunkSolver {
     return solution;
   }
 
-  /** The last solution per inputs object, with what it was solved from. */
+  /*
+   * The last solution per inputs object, with what it was solved from.
+   */
   const SOLVED: WeakMap<
     IAutoMovieHumanTrunkInputs,
     {
@@ -133,11 +135,10 @@ export namespace AutoMovieHumanTrunkSolver {
     return solution(context(fixed), st);
   }
 
-  /**
+  /*
    * The fixed landmarks of a solve.
-   *
-   * @param fixed The fixed inputs.
-   * @returns The context.
+   * Parameter fixed: The fixed inputs.
+   * Returns: The context.
    */
   function context(
     fixed: IAutoMovieHumanTrunkSolver.IFixed,
@@ -176,11 +177,10 @@ export namespace AutoMovieHumanTrunkSolver {
     };
   }
 
-  /**
+  /*
    * The control pitch of the crotch ring: its perimeter over its 256 controls.
-   *
-   * @param radius The hip tape over 2 pi, mm.
-   * @returns The pitch, mm.
+   * Parameter radius: The hip tape over 2 pi, mm.
+   * Returns: The pitch, mm.
    */
   function ringPitch(radius: number): number {
     return (
@@ -189,12 +189,11 @@ export namespace AutoMovieHumanTrunkSolver {
     );
   }
 
-  /**
+  /*
    * The start of the solve: the population's landmark places and rings a tenth
    * wider than circles of the tapes.
-   *
-   * @param ctx The context.
-   * @returns The initial state.
+   * Parameter ctx: The context.
+   * Returns: The initial state.
    */
   function start(ctx: IAutoMovieHumanTrunkContext): IAutoMovieHumanTrunkState {
     const inputs: IAutoMovieHumanTrunkInputs = ctx.fixed.inputs;
@@ -229,12 +228,11 @@ export namespace AutoMovieHumanTrunkSolver {
     };
   }
 
-  /**
+  /*
    * The solved trunk's published pieces.
-   *
-   * @param ctx The context.
-   * @param st The solved state.
-   * @returns The solution.
+   * Parameter ctx: The context.
+   * Parameter st: The solved state.
+   * Returns: The solution.
    */
   function solution(
     ctx: IAutoMovieHumanTrunkContext,

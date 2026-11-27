@@ -82,8 +82,12 @@ export namespace AutoMovieHumanArmGuides {
   }
 }
 
-/** Channels of a row: four guides' three numbers and four sectors' one. */
+/*
+ * Channels of a row: four guides' three numbers and four sectors' one.
+ */
 const CHANNELS: number = 16;
 
-/** Walk lengths closer than this are one row, mm: a copied boundary row is exact to rounding. */
+/*
+ * Walk lengths closer than this are one row, mm: a copied boundary row is exact to rounding.
+ */
 const MERGE: number = 1e-6;

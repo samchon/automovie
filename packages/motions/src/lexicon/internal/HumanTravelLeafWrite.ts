@@ -12,13 +12,12 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanTravelLeaf } from "./HumanTravelLeaf";
 
-/**
+/*
  * Read the body and handle on the action clock, with optional closed digits.
  *
  * Part of `HumanTravelLeaf.openDoor`'s plan, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `write`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `write`.
  */
 export function HumanTravelLeafWrite(
   prepared: HumanTravelLeafWrite.IPrepared,
@@ -73,9 +72,13 @@ export function HumanTravelLeafWrite(
   return write;
 }
 
-/** The `write` of `HumanTravelLeaf.openDoor`'s plan and what it reads. */
+/*
+ * The `write` of `HumanTravelLeaf.openDoor`'s plan and what it reads.
+ */
 export namespace HumanTravelLeafWrite {
-  /** The body and handle at an action second. */
+  /*
+   * The body and handle at an action second.
+   */
   export type Write = (
     at: number,
     channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
@@ -84,24 +87,38 @@ export namespace HumanTravelLeafWrite {
     fingers?: IAutoMovieMotionHumanPosture["joints"],
   ) => IAutoMovieMotionHumanPosture;
 
-  /** What `HumanTravelLeaf.openDoor`'s plan prepared for its `write`. */
+  /*
+   * What `HumanTravelLeaf.openDoor`'s plan prepared for its `write`.
+   */
   export interface IPrepared {
-    /** The plan's action context. */
+    /*
+     * The plan's action context.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTravelLeaf.IParams>;
 
-    /** The plan's body. */
+    /*
+     * The plan's body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The opening hand. */
+    /*
+     * The opening hand.
+     */
     side: AutoMovieHumanSide;
 
-    /** The handle's hold at a film second. */
+    /*
+     * The handle's hold at a film second.
+     */
     grip: (film: number) => Parameters<typeof HumanMountRider.hold>[3];
 
-    /** The plan's `shown`. */
+    /*
+     * The plan's `shown`.
+     */
     shown: IAutoMovieMotionHumanActionPlan["posture"];
 
-    /** The digits closed on the handle as the hand takes it. */
+    /*
+     * The digits closed on the handle as the hand takes it.
+     */
     closed: IAutoMovieMotionHumanPosture["joints"];
   }
 }

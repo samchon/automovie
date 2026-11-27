@@ -4,7 +4,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Project one unanchored particle through authored static colliders, then
  * resolved moving capsules, preserving the running contact count.
  */
@@ -28,7 +28,7 @@ export const projectSoftBodyContacts: (
   return total;
 };
 
-/**
+/*
  * Visit static collider rows in order, counting a projection when any
  * coordinate changes.
  */
@@ -61,7 +61,7 @@ const resolveContacts: (
   return resolved;
 };
 
-/**
+/*
  * Visit resolved moving capsules in order after static projection, using the
  * same coordinate-change count.
  */
@@ -91,7 +91,7 @@ const resolveCapsuleContacts: (
   return resolved;
 };
 
-/**
+/*
  * Escape a capsule's nearest segment point; zero axial distance uses the
  * original deterministic fallback axis.
  */
@@ -165,7 +165,7 @@ const escapeCapsule: (
   predicted[base + 2] = closestZ + dz * factor;
 };
 
-/**
+/*
  * Move a penetrating point along the admitted plane normal; normal scale
  * remains the domain validator's responsibility.
  */
@@ -194,7 +194,7 @@ const escapePlane: (
   predicted[base + 2] += nz * push;
 };
 
-/**
+/*
  * Escape a sphere radially, with the original centre fallback when no radial
  * direction exists.
  */
@@ -225,7 +225,7 @@ const escapeSphere: (
   predicted[base + 2] = collider.center.z + dz * factor;
 };
 
-/**
+/*
  * Choose the strictly least-penetrated box face; first-axis and maximum-side
  * ties preserve the original deterministic policy.
  */

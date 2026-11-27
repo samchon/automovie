@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Project a pixel fundamental matrix onto the supplied-calibration essential
  * manifold and return all four relative-pose candidates. Arrays are row-major;
  * each candidate maps first-camera coordinates to second-camera coordinates.

@@ -25,121 +25,161 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { kiss } from "./kiss";
 import { kissPose } from "./kissPose";
 
-/**
+/*
  * The embrace from behind's one solve and what it reads (`embraceFromBehind`):
  * the stance and head solved as one constrained problem, the neck's added
  * angles, the chest's contact with the partner's torso, and the refusals.
  */
 export namespace embraceFromBehindSolve {
-  /** The neck's two bones a resting head bends over. */
+  /*
+   * The neck's two bones a resting head bends over.
+   */
   export type NeckBone = "neck" | "head";
 
-  /** A freedom's range in the solve, metres or radians. */
+  /*
+   * A freedom's range in the solve, metres or radians.
+   */
   export interface IRange {
-    /** The least value. */
+    /*
+     * The least value.
+     */
     low: number;
 
-    /** The greatest value. */
+    /*
+     * The greatest value.
+     */
     high: number;
   }
 
-  /**
+  /*
    * One solved embrace: the root's advance and shift on the planted feet, the
    * lean's pitch and roll, the head's turn, and the neck's flexion and side
    * bend.
    */
   export interface ISolved {
-    /** The root's advance along the heading on the planted feet, metres. */
+    /*
+     * The root's advance along the heading on the planted feet, metres.
+     */
     advance: number;
 
-    /** The root's shift to the left on the planted feet, metres. */
+    /*
+     * The root's shift to the left on the planted feet, metres.
+     */
     shift: number;
 
-    /** The forward lean from the hips, degrees. */
+    /*
+     * The forward lean from the hips, degrees.
+     */
     pitch: number;
 
-    /** The side lean from the hips, degrees. */
+    /*
+     * The side lean from the hips, degrees.
+     */
     roll: number;
 
-    /** How far the body sinks on bent knees, metres. */
+    /*
+     * How far the body sinks on bent knees, metres.
+     */
     sink: number;
 
-    /**
+    /*
      * The heels' raise, degrees: the rise onto the forefeet that lifts the
      * chin.
      */
     raise: number;
 
-    /** The head's turn, degrees. */
+    /*
+     * The head's turn, degrees.
+     */
     twist: number;
 
-    /** The neck's flexion, degrees. */
+    /*
+     * The neck's flexion, degrees.
+     */
     flexion: number;
 
-    /** The side bend over the neck and head, degrees. */
+    /*
+     * The side bend over the neck and head, degrees.
+     */
     tilt: number;
 
-    /**
+    /*
      * The neck's protraction, degrees: lower-neck flexion countered by
      * upper-neck extension.
      */
     protract: number;
 
-    /** The chin's distance from the shoulder at the solution, metres. */
+    /*
+     * The chin's distance from the shoulder at the solution, metres.
+     */
     miss: number;
   }
 
-  /** A solved embrace with the partner's bone its chest bears on. */
+  /*
+   * A solved embrace with the partner's bone its chest bears on.
+   */
   export interface IPlaced extends ISolved {
-    /**
+    /*
      * The partner's torso bone whose collider lies nearest the chest's: the
      * chest's computed contact.
      */
     chest: AutoMovieHumanoidBone;
   }
 
-  /**
+  /*
    * The partner's surfaces the embrace bears on: the torso's colliders (the
    * back the chest lies on), the shoulder region's bone's colliders (the
    * shoulder the head rests on) and the region's point on them (where the chin
    * goes).
    */
   export interface ISurfaces {
-    /** The signed distance to the partner's torso colliders. */
+    /*
+     * The signed distance to the partner's torso colliders.
+     */
     back: (
       point: IAutoMovieVector3,
     ) => IAutoMovieMotionHumanColliders.IDistance;
 
-    /** The signed distance to the colliders of the shoulder region's bone. */
+    /*
+     * The signed distance to the colliders of the shoulder region's bone.
+     */
     top: (point: IAutoMovieVector3) => IAutoMovieMotionHumanColliders.IDistance;
 
-    /** The shoulder region's point, world metres. */
+    /*
+     * The shoulder region's point, world metres.
+     */
     rest: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * The miss under which a region rests on another, metres (provisional: a skin
    * contact, as `headRest`'s).
    */
   export const NEAR: number = 0.01;
 
-  /** The lean's forward range, degrees: the kiss's own. */
+  /*
+   * The lean's forward range, degrees: the kiss's own.
+   */
   const PITCH: readonly [number, number] = [-10, 45];
 
-  /** Radians in a degree. */
+  /*
+   * Radians in a degree.
+   */
   const RADIAN: number = Math.PI / 180;
 
-  /** The partner's torso bones whose colliders are the back the chest lies on. */
+  /*
+   * The partner's torso bones whose colliders are the back the chest lies on.
+   */
   export const TORSO: ReadonlySet<AutoMovieHumanoidBone> =
     new Set<AutoMovieHumanoidBone>(["spine", "chest", "upperChest"]);
 
-  /**
+  /*
    * How far the body may sink on bent knees to bring the chin down, metres
    * (provisional: a slight knee bend).
    */
   const SINK: number = 0.12;
 
-  /**
+  /*
    * The neck's flexion, side bend and turn at a share, added over the posture's
    * own.
    */
@@ -172,7 +212,7 @@ export namespace embraceFromBehindSolve {
     };
   }
 
-  /**
+  /*
    * The embrace's stance and head, solved once at preparation as one
    * constrained problem: the head on the partner's shoulder, the chest on the
    * partner's back, the two bodies clear of each other, or the refusal.
@@ -376,7 +416,7 @@ export namespace embraceFromBehindSolve {
     return { ...best, miss, chest: chest.bone as AutoMovieHumanoidBone };
   }
 
-  /**
+  /*
    * A contact's violation: the least signed distance from the audit's probes of
    * a body's parts (`HumanAuditModel.frame`) to the surface they bear on, with
    * the surface's nearest bone.
@@ -407,12 +447,16 @@ export namespace embraceFromBehindSolve {
     return least!;
   }
 
-  /** Degrees of an angle in radians. */
+  /*
+   * Degrees of an angle in radians.
+   */
   export function degrees(radians: number): number {
     return radians / RADIAN;
   }
 
-  /** A reach refusal of the embrace. */
+  /*
+   * A reach refusal of the embrace.
+   */
   export function refusal(
     partner: string,
     reason: string,

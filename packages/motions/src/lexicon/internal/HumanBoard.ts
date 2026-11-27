@@ -27,22 +27,24 @@ import { HumanBoardHandoverStill } from "./HumanBoardHandoverStill";
 import { HumanBoardKey } from "./HumanBoardKey";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
-/** Seconds the landed seat takes to settle (provisional). */
+/*
+ * Seconds the landed seat takes to settle (provisional).
+ */
 const SETTLE: number = 0.3;
 
-/**
+/*
  * Seconds the holding hand takes to close on its hold from the take-off
  * (provisional).
  */
 const GRASP: number = 0.15;
 
-/**
+/*
  * The share of the flight a held hand keeps its hold for: to the landing, so
  * the support passes from the hold to the seat with no gap.
  */
 const LET_GO: number = 1;
 
-/**
+/*
  * Board a moving carrier's seat (`IAutoMovieMotionHumanBoard`): in the seat
  * contact's moving frame the root travels from where it takes off to its seated
  * place on the seat by a minimum-jerk share, so it leaves and lands with the
@@ -62,22 +64,16 @@ export const HumanBoard: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBoa
     plan: planHumanBoard,
   };
 
-/**
+/*
  * Admit the boarding, solve the seated key in the seat's frame, then sample.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the steps and the refusals: bad time or height, a take-off moving too fast against the seat, and a way too long, too high or too deep.
- * @evidence contracts/development/implementation.md#principled-implementation The relative take-off velocity is the central difference of the performer's own root against the seat's; the seated key is `seated.point` and `seated.root` on the seat with the upright back's angles.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the key, the bounds, then the sampler.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A boarding outside the bounds is refused, never shortened.
- * @evidence contracts/development/implementation.md#efficient-algorithms One key per plan; a sample reads one seat frame and at most one held point.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The key is shared by every sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the key and the carrier reader.
  */
 function planHumanBoard(context: Context): IAutoMovieMotionHumanActionPlan {
   return plan(context);
 }
 
-/** Admit, solve the key and sample. */
+/*
+ * Admit, solve the key and sample.
+ */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanBoard = context.params;
   const flight: number = params.duration ?? 0.6;
@@ -394,5 +390,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   );
 }
 
-/** The law's context. */
+/*
+ * The law's context.
+ */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBoard>;

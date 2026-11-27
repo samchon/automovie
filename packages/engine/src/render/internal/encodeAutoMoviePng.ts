@@ -1,6 +1,6 @@
 import type { IAutoMovieEncodePng } from "@automovie/interface";
 
-/**
+/*
  * Encode raw 8-bit pixels as a PNG file in the padded base64 an
  * `IAutoMovieImage` carries, for an image code generates together with a
  * model.
@@ -16,16 +16,15 @@ import type { IAutoMovieEncodePng } from "@automovie/interface";
  * of no compression: the file is the raw size plus about 0.1 percent. Base64
  * follows RFC 4648 section 4 without `Buffer` or `btoa`, so the bytes are the
  * same in Node and every browser.
- *
- * @param props.width Image width in pixels, a positive integer
- * @param props.height Image height in pixels, a positive integer
- * @param props.channels Samples per pixel: 1 grey, 2 grey and alpha, 3 RGB, 4
- *   RGBA
- * @param props.pixels Row-major samples, the first row first, `width * height *
- *   channels` bytes; only read
- * @returns Padded base64 of the PNG file, without a `data:` prefix
- * @throws {Error} When a dimension is not a positive integer, the channel count
- *   is not 1 to 4, or the pixel buffer has the wrong length
+ * Parameter props.width: Image width in pixels, a positive integer
+ * Parameter props.height: Image height in pixels, a positive integer
+ * Parameter props.channels: Samples per pixel: 1 grey, 2 grey and alpha, 3 RGB, 4
+ * RGBA
+ * Parameter props.pixels: Row-major samples, the first row first, `width * height *
+ * channels` bytes; only read
+ * Returns: Padded base64 of the PNG file, without a `data:` prefix
+ * When a dimension is not a positive integer, the channel count
+ * is not 1 to 4, or the pixel buffer has the wrong length
  */
 export function encodeAutoMoviePng(props: IAutoMovieEncodePng.IProps): string {
   const { width, height, channels, pixels } = props;
@@ -88,15 +87,21 @@ export function encodeAutoMoviePng(props: IAutoMovieEncodePng.IProps): string {
   return base64(file);
 }
 
-/** `\x89PNG\r\n\x1a\n`. */
+/*
+ * `\x89PNG\r\n\x1a\n`.
+ */
 const SIGNATURE: Uint8Array = new Uint8Array([
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
 ]);
 
-/** PNG colour type for one to four channels: grey, grey-alpha, RGB, RGBA. */
+/*
+ * PNG colour type for one to four channels: grey, grey-alpha, RGB, RGBA.
+ */
 const COLOR_TYPES: readonly number[] = [0, 4, 2, 6];
 
-/** Reflected CRC-32 table of polynomial 0xEDB88320 (PNG annex D). */
+/*
+ * Reflected CRC-32 table of polynomial 0xEDB88320 (PNG annex D).
+ */
 const CRC_TABLE: Uint32Array = ((): Uint32Array => {
   const table: Uint32Array = new Uint32Array(256);
   for (let n: number = 0; n < 256; ++n) {
@@ -108,16 +113,17 @@ const CRC_TABLE: Uint32Array = ((): Uint32Array => {
   return table;
 })();
 
-/** Base64 alphabet of RFC 4648 section 4. */
+/*
+ * Base64 alphabet of RFC 4648 section 4.
+ */
 const ALPHABET: string =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-/**
+/*
  * One chunk: length, type, data and the CRC-32 of type and data.
- *
- * @param type Four-letter chunk type
- * @param data Chunk data
- * @returns The chunk's bytes
+ * Parameter type: Four-letter chunk type
+ * Parameter data: Chunk data
+ * Returns: The chunk's bytes
  */
 function chunk(type: string, data: Uint8Array): Uint8Array {
   const out: Uint8Array = new Uint8Array(12 + data.length);
@@ -131,12 +137,11 @@ function chunk(type: string, data: Uint8Array): Uint8Array {
   return out;
 }
 
-/**
+/*
  * Write a big-endian unsigned 32-bit integer.
- *
- * @param bytes Target
- * @param at Offset
- * @param value Integer in `[0, 2^32)`
+ * Parameter bytes: Target
+ * Parameter at: Offset
+ * Parameter value: Integer in `[0, 2^32)`
  */
 function writeUint32(bytes: Uint8Array, at: number, value: number): void {
   bytes[at] = (value >>> 24) & 0xff;
@@ -145,11 +150,10 @@ function writeUint32(bytes: Uint8Array, at: number, value: number): void {
   bytes[at + 3] = value & 0xff;
 }
 
-/**
+/*
  * Concatenate byte arrays.
- *
- * @param parts Arrays in order
- * @returns One new array
+ * Parameter parts: Arrays in order
+ * Returns: One new array
  */
 function concat(parts: Uint8Array[]): Uint8Array {
   const out: Uint8Array = new Uint8Array(
@@ -163,11 +167,10 @@ function concat(parts: Uint8Array[]): Uint8Array {
   return out;
 }
 
-/**
+/*
  * Padded base64 of bytes.
- *
- * @param bytes Bytes to encode
- * @returns The encoding
+ * Parameter bytes: Bytes to encode
+ * Returns: The encoding
  */
 function base64(bytes: Uint8Array): string {
   const out: string[] = [];

@@ -8,18 +8,17 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { jumpJoints } from "./jumpJoints";
 import type { jumpPush } from "./jumpPush";
 
-/**
+/*
  * The lowered raw push posture from the same paths used at release.
- *
- * @param props The completed push inputs and its own root curve.
- * @param paths The prepared push paths.
- * @param seconds Local phase seconds, held at its endpoints.
- * @param resolution Optional exact FK reader or lazy supplier borrowed only for
- *   this synchronous phase evaluation.
- * @param prepared Optional fixed-body joint-prefix/lowering writers owned by
- *   this same jump plan; omitted calls retain ordinary live joint-table and
- *   dimension reads.
- * @returns The raw posture after the ordinary planted-leg lowering.
+ * Parameter props: The completed push inputs and its own root curve.
+ * Parameter paths: The prepared push paths.
+ * Parameter seconds: Local phase seconds, held at its endpoints.
+ * Parameter resolution: Optional exact FK reader or lazy supplier borrowed only for
+ * this synchronous phase evaluation.
+ * Parameter prepared: Optional fixed-body joint-prefix/lowering writers owned by
+ * this same jump plan; omitted calls retain ordinary live joint-table and
+ * dimension reads.
+ * Returns: The raw posture after the ordinary planted-leg lowering.
  */
 export function jumpPushPosture(
   props: jumpPush.IProps,
@@ -62,17 +61,17 @@ export function jumpPushPosture(
     : prepared.lower(posture, read);
 }
 
-/**
+/*
  * Two unchanged-body prerequisites owned by the actual jump plan, never query
  * poses or borrowed workspaces.
  */
 interface IPrepared {
-  /**
+  /*
    * Original relaxed/upright prefix and arm separation; every sample still owns
    * its table/arm tuples.
    */
   joints: ReturnType<typeof jumpJoints.prepare>;
-  /**
+  /*
    * Original minimum-knee reach; every actual plant, hip and lowering remains
    * current.
    */

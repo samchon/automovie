@@ -29,7 +29,7 @@ import { observeRecoverySourceSlabs } from "../../geometry/internal/observeRecov
 import { observeRecoverySourceTerminals } from "../../geometry/internal/observeRecoverySourceTerminals";
 import { prepareRecoveryMeshIncidence } from "../../geometry/internal/prepareRecoveryMeshIncidence";
 
-/**
+/*
  * Observe all source contours at a finite collection of caller-defined physical
  * planes. Admission, scalar face indexing, incidence, cutting and material
  * orientation are prepared once for the collection. Original coordinates and

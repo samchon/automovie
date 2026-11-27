@@ -3,7 +3,7 @@ import type {
   IAutoMovieSolidMeshPlan,
 } from "@automovie/interface";
 
-/**
+/*
  * Label each triangle with its region: the triangles joined across sides that
  * are no source constraint.
  *
@@ -22,11 +22,10 @@ import type {
  * owners read; a side whose identity is a constraint never joins. Each label is
  * the least triangle index of its region, so labels do not depend on the order
  * sides are visited.
- *
- * @param triangles Positive triangle occurrences of one face, each corner's
- *   lift relative to its first.
- * @param constraints Subdivided source constraints, which bound the regions.
- * @returns For each triangle index, the least triangle index of its region.
+ * Parameter triangles: Positive triangle occurrences of one face, each corner's
+ * lift relative to its first.
+ * Parameter constraints: Subdivided source constraints, which bound the regions.
+ * Returns: For each triangle index, the least triangle index of its region.
  */
 export function regionAutoMovieSolidMesh(
   triangles: readonly IAutoMovieSolidMeshPlan.ITriangle[],
@@ -41,7 +40,9 @@ export function regionAutoMovieSolidMesh(
     (_: IAutoMovieSolidMeshPlan.ITriangle, index: number): number => index,
   );
 
-  /** The region's least index, halving the path on the way. */
+  /*
+   * The region's least index, halving the path on the way.
+   */
   const find: (index: number) => number = (index: number): number => {
     let at: number = index;
     while (parent[at] !== at) {
@@ -77,7 +78,7 @@ export function regionAutoMovieSolidMesh(
   );
 }
 
-/**
+/*
  * Canonical indexed edge identity retaining the relative period turn, as the
  * insertion and legalization owners read it.
  */

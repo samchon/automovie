@@ -10,7 +10,7 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
-/**
+/*
  * The detour that lays a transport of an arms' course clear of the body
  * (`HumanArmTrajectoryLaid`): where the course's reading finds an arm's probe
  * inside a shape past what the admission allows, or a corner of the body inside
@@ -25,25 +25,29 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
  * reach); its place and its size here are the reading's own.
  */
 export namespace HumanArmTrajectoryClear {
-  /** A change of a transport's path laid as a bump. */
+  /*
+   * A change of a transport's path laid as a bump.
+   */
   export interface IDetour {
-    /** The share of the transport's path the change is whole at, in (0, 1). */
+    /*
+     * The share of the transport's path the change is whole at, in (0, 1).
+     */
     share: number;
 
-    /**
+    /*
      * Each arm's change of coordinates there, the model's units; zeros for an
      * arm left as it is.
      */
     delta: number[][];
 
-    /**
+    /*
      * How far past what the admission allows the pair or the sweep the detour
      * answers lay before it, millimetres.
      */
     depth: number;
   }
 
-  /**
+  /*
    * The largest change of any coordinate a transport's first detour makes,
    * coordinate units: the arm optimiser's first trust region
    * (`HumanArmOptimiser`'s schedule), inside which the pairs' linearisation is
@@ -51,34 +55,33 @@ export namespace HumanArmTrajectoryClear {
    */
   export const REGION: number = 8;
 
-  /**
+  /*
    * The widest region a detour may grow to, coordinate units: the arm
    * optimiser's widest (`HumanArmOptimiser`'s schedule).
    */
   export const WIDEST: number = 32;
 
-  /**
+  /*
    * The factor a transport's region grows by after a detour that made it
    * shallower: TrajOpt's trust_expand_ratio, the arm optimiser's own.
    */
   export const EXPAND: number = 1.5;
 
-  /**
+  /*
    * The detour of a transport's deepest waypoint, none where every pair of
    * every waypoint inside the transport is within what the admission allows.
-   *
-   * @param c The course's context.
-   * @param x The course's coordinates, each arm at each waypoint.
-   * @param at Their reading (`M.evaluate`).
-   * @param from The transport's first waypoint.
-   * @param to Its last waypoint.
-   * @param shares The share of its path each waypoint of the transport stands
-   *   at, by waypoint.
-   * @param region The largest change of any coordinate the detour may make,
-   *   coordinate units.
-   * @returns Each arm's detour, at its own deepest waypoint; none for an arm
-   *   whose every pair and sweep inside the transport lies within what the
-   *   admission allows.
+   * Parameter c: The course's context.
+   * Parameter x: The course's coordinates, each arm at each waypoint.
+   * Parameter at: Their reading (`M.evaluate`).
+   * Parameter from: The transport's first waypoint.
+   * Parameter to: Its last waypoint.
+   * Parameter shares: The share of its path each waypoint of the transport stands
+   * at, by waypoint.
+   * Parameter region: The largest change of any coordinate the detour may make,
+   * coordinate units.
+   * Returns: Each arm's detour, at its own deepest waypoint; none for an arm
+   * whose every pair and sweep inside the transport lies within what the
+   * admission allows.
    */
   export function detour(
     c: M.IContext,
@@ -109,14 +112,13 @@ export namespace HumanArmTrajectoryClear {
     return out;
   }
 
-  /**
+  /*
    * A detour's weight at a share of the path: 1 at its own share, 0 at both
    * ends, a cubic ease (`3u^2 - 2u^3`) on each side, so the path leaves and
    * meets its ends and the detour's peak with no step in its slope.
-   *
-   * @param share The path's share.
-   * @param at The detour's share.
-   * @returns The weight in [0, 1].
+   * Parameter share: The path's share.
+   * Parameter at: The detour's share.
+   * Returns: The weight in [0, 1].
    */
   export function bump(share: number, at: number): number {
     if (!(share > 0 && share < 1)) return 0;
@@ -124,7 +126,7 @@ export namespace HumanArmTrajectoryClear {
     return u * u * (3 - 2 * u);
   }
 
-  /**
+  /*
    * One arm's detour of a transport (`detour`): its deepest waypoint's change,
    * none where it lies within what the admission allows.
    */
@@ -260,30 +262,46 @@ export namespace HumanArmTrajectoryClear {
   }
 }
 
-/** The record of `IOfArmRowsItem`'s site. */
+/*
+ * The record of `IOfArmRowsItem`'s site.
+ */
 type IOfArmRowsItem = { coef: number[]; gain: number };
-/** The record of `ILeastRow`'s site. */
+/*
+ * The record of `ILeastRow`'s site.
+ */
 type ILeastRow = { coef: number[] };
 
-/** The record of `ILeastYRow`'s site. */
+/*
+ * The record of `ILeastYRow`'s site.
+ */
 type ILeastYRow = { gain: number };
 
-/** The record of `ILeastGramQ`'s site. */
+/*
+ * The record of `ILeastGramQ`'s site.
+ */
 type ILeastGramQ = { coef: number[] };
 
-/** The record of `ILeastGramP`'s site. */
+/*
+ * The record of `ILeastGramP`'s site.
+ */
 type ILeastGramP = { coef: number[] };
 
-/** The record of `ILeastChosenRow`'s site. */
+/*
+ * The record of `ILeastChosenRow`'s site.
+ */
 type ILeastChosenRow = { coef: number[]; gain: number };
 
-/** The record of `ILeastChosenItem`'s site. */
+/*
+ * The record of `ILeastChosenItem`'s site.
+ */
 type ILeastChosenItem = { coef: number[]; gain: number };
 
-/** The record of `ILeastRowsItem`'s site. */
+/*
+ * The record of `ILeastRowsItem`'s site.
+ */
 type ILeastRowsItem = { coef: number[]; gain: number };
 
-/**
+/*
  * The change meeting the rows that need a gain, by damped least squares
  * (Wampler 1986, IEEE Trans SMC 16:93; Nakamura and Hanafusa 1986, J Dyn Syst
  * Meas Control 108:163): `A' (A A' + lambda^2 I)^-1 gain`, the damping a share
@@ -334,14 +352,14 @@ function least(
     : step;
 }
 
-/**
+/*
  * The damping of the detour's least squares, a share of the strongest row's
  * squared norm (provisional: a row a tenth as sensitive as the strongest is met
  * about halfway).
  */
 const DAMPING: number = 0.01;
 
-/**
+/*
  * A small dense system by Gaussian elimination with partial pivoting; none when
  * singular.
  */
@@ -371,14 +389,22 @@ function solve(a: number[][], b: number[]): number[] | undefined {
   return out;
 }
 
-/** The deepest sweep of a transport and where its row is made. */
+/*
+ * The deepest sweep of a transport and where its row is made.
+ */
 interface ISweptRow {
-  /** The sweep. */
+  /*
+   * The sweep.
+   */
   sweep: HumanArmTrajectorySweep.ISwept;
 
-  /** Whether its row is made at its step's later end, other. */
+  /*
+   * Whether its row is made at its step's later end, other.
+   */
   later: boolean;
 
-  /** The waypoint whose interval it was read over, its shape's frame. */
+  /*
+   * The waypoint whose interval it was read over, its shape's frame.
+   */
   read: number;
 }

@@ -3,7 +3,9 @@ import type {
   IAutoMovieRecoverySceneWork,
 } from "@automovie/interface";
 
-/** Charge aggregate scene work before an action, without geometry rollback. */
+/*
+ * Charge aggregate scene work before an action, without geometry rollback.
+ */
 export function spendRecoverySceneWork(
   work: IAutoMovieRecoverySceneWork,
   budget: IAutoMovieRecoveryCameraSceneBudget,

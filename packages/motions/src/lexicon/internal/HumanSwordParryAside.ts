@@ -8,7 +8,7 @@ import type {
 
 import { HumanSword } from "./HumanSword";
 
-/**
+/*
  * How far a parry carries a taken blade aside, world metres: square to the
  * defender's front, level, toward the side of the defender's centre line the
  * meeting lies on, until the whole attacking blade, from its grip's end to its

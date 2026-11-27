@@ -1,6 +1,6 @@
 import { IAutoMovieBuiltSpace } from "@automovie/interface";
 
-/**
+/*
  * The ids of one space and of every space below it through `parent` links.
  *
  * The containment fold the space queries share: a storey contains what its

@@ -7,7 +7,7 @@ import type {
 import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
 import { witnessAutoMovieSolidChartTriangle } from "./witnessAutoMovieSolidChartTriangle";
 
-/**
+/*
  * Select a represented left-side probe with an independently checked corridor.
  *
  * A boundary walk is one face cycle: the face lies on the left of every one of
@@ -47,7 +47,7 @@ export function probeAutoMovieSolidMesh(
   return "visibility left-side probe has no admitted represented corridor";
 }
 
-/**
+/*
  * A witnessed probe on the left of one boundary edge, null when that edge
  * admits no represented corridor, or a named arithmetic failure.
  */
@@ -123,7 +123,7 @@ function corridor(
   return null;
 }
 
-/**
+/*
  * Floating distance proposes a probe only; witness checks decide the
  * represented corridor.
  */
@@ -144,7 +144,9 @@ function distance(
   return Math.hypot(x - at * (dx / length), y - at * (dy / length));
 }
 
-/** Same finite midpoint formula used by the visibility owner. */
+/*
+ * Same finite midpoint formula used by the visibility owner.
+ */
 function midpoint(
   a: Readonly<AutoMovieVector2Tuple>,
   b: Readonly<AutoMovieVector2Tuple>,
@@ -155,7 +157,9 @@ function midpoint(
   ];
 }
 
-/** Local cover images for one-period source primitives. */
+/*
+ * Local cover images for one-period source primitives.
+ */
 function images(
   value: number,
   a: Readonly<AutoMovieVector2Tuple>,
@@ -168,7 +172,9 @@ function images(
   return [nearest - 1, nearest, nearest + 1];
 }
 
-/** Unoriented segment identity includes the relative cover turn. */
+/*
+ * Unoriented segment identity includes the relative cover turn.
+ */
 function key(edge: IAutoMovieSolidMeshConstraints.ISegment): string {
   return edge.a < edge.b || (edge.a === edge.b && edge.turn > 0)
     ? `${edge.a}/${edge.b}/${edge.turn}`

@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Credit the balls a baked precision shot drops into a pocket or a cup, in the
  * order they drop.
  *
@@ -20,13 +20,12 @@ import type {
  * the whole ball has passed the bed, to the mouth whose plan reach holds it at
  * that frame. A ball that falls below the bed outside every reach left the
  * table over a rail and is never credited.
- *
- * @param params The `balls` to credit, each one rigid sphere whose centre of
- *   mass is its centre, the table's `pockets` at bed height and the baked
- *   `result` shot.
- * @returns The pocketed balls in drop order; empty when none drops.
- * @throws {RangeError} When a ball has no sphere shape, there is no pocket, or
- *   a ball is missing from the cache.
+ * Parameter params: The `balls` to credit, each one rigid sphere whose centre of
+ * mass is its centre, the table's `pockets` at bed height and the baked
+ * `result` shot.
+ * Returns: The pocketed balls in drop order; empty when none drops.
+ * When a ball has no sphere shape, there is no pocket, or
+ * a ball is missing from the cache.
  */
 export function pocketedBalls(
   params: pocketedBalls.IRead,
@@ -81,19 +80,31 @@ export function pocketedBalls(
   return out;
 }
 
-/** What a pocket credit reads of a baked shot. */
+/*
+ * What a pocket credit reads of a baked shot.
+ */
 export namespace pocketedBalls {
-  /** A ball: its id and its profile's first segment, a sphere about its centre. */
+  /*
+   * A ball: its id and its profile's first segment, a sphere about its centre.
+   */
   export interface IBall {
-    /** The ball's body id in the deck cache. */
+    /*
+     * The ball's body id in the deck cache.
+     */
     id: IAutoMovieMotionHumanPrecisionDeck.IRigid["id"];
 
-    /** Its placed pose; the credit reads the cache, not this. */
+    /*
+     * Its placed pose; the credit reads the cache, not this.
+     */
     pose?: IAutoMovieMotionHumanPrecisionDeck.IRigid["pose"];
 
-    /** Its profile, the first segment its sphere and centre of mass. */
+    /*
+     * Its profile, the first segment its sphere and centre of mass.
+     */
     profile: {
-      /** The profile's segments. */
+      /*
+       * The profile's segments.
+       */
       segments: readonly Pick<
         IAutoMoviePhysicalSegment,
         "shapes" | "centerOfMass"
@@ -101,28 +112,42 @@ export namespace pocketedBalls {
     };
   }
 
-  /** The balls, the mouths and the baked shot. */
+  /*
+   * The balls, the mouths and the baked shot.
+   */
   export interface IRead {
-    /** The balls to credit. */
+    /*
+     * The balls to credit.
+     */
     balls: readonly IBall[];
 
-    /** The table's pockets at bed height. */
+    /*
+     * The table's pockets at bed height.
+     */
     pockets: readonly IAutoMovieMotionHumanPrecisionDeck.IPocket[];
 
-    /** The baked shot: its release and its cache's frames. */
+    /*
+     * The baked shot: its release and its cache's frames.
+     */
     result: Pick<IAutoMovieMotionHumanPrecisionDeck.IResult, "release"> & {
-      /** The shot's physics cache. */
+      /*
+       * The shot's physics cache.
+       */
       cache: Pick<IAutoMoviePhysicsCache, "at" | "duration" | "rate">;
     };
   }
 }
 
-/** The horizontal distance between two points, metres. */
+/*
+ * The horizontal distance between two points, metres.
+ */
 function plan(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
   return Math.hypot(a.x - b.x, a.z - b.z);
 }
 
-/** A ball's sphere radius, metres. */
+/*
+ * A ball's sphere radius, metres.
+ */
 function radius(ball: pocketedBalls.IBall): number {
   const segment:
     | Pick<IAutoMoviePhysicalSegment, "shapes" | "centerOfMass">

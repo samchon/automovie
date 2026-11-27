@@ -10,7 +10,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** The table's size, from a secondary summary of the apparatus norms. */
+/*
+ * The table's size, from a secondary summary of the apparatus norms.
+ */
 const NORMS: string =
   "the vaulting table of the FIG apparatus norms, 135 cm high for men and 125 cm for women, 120 cm long and 90 cm wide, each to 1 cm, as Wikipedia's Vault (gymnastics) gives them (https://en.wikipedia.org/wiki/Vault_(gymnastics)); the norms were not read";
 
@@ -140,7 +142,9 @@ export function create(
     mass: "kg",
   };
 
-  /** The bands every table shares. */
+  /*
+   * The bands every table shares.
+   */
   const SHARED: Readonly<
     Record<"length" | "width" | "mass", IAutoMovieArchetypeBand>
   > = {

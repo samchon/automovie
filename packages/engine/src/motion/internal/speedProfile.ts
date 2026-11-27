@@ -1,6 +1,6 @@
 import type { IAutoMovieSpeedProfile } from "@automovie/interface";
 
-/**
+/*
  * Progress along a path in time from speed marks: how far a moving thing has
  * gone and how fast it goes at any film second, with its acceleration and
  * braking bounded, in closed form.
@@ -23,16 +23,15 @@ import type { IAutoMovieSpeedProfile } from "@automovie/interface";
  * A braking phase is evaluated back from its end, so a distance stretch ends at
  * its stretch's length and its mark exactly, with no rounding carried in from
  * the phases before it.
- *
- * @param props The start, the rates and the stretches.
- * @returns The profile.
- * @throws {Error} When the start, a given rate, a speed, a length, a duration
- *   or a cap is not finite or not in its range, a stretch that changes speed
- *   lacks a rate it needs, a distance stretch's mark lies outside what its
- *   length can reach from its entry speed (`speedProfileReach`), its cap is
- *   below its entry or its mark, or a seconds stretch changes speed faster than
- *   the rates allow: a caller's defect, since a caller admits its own input
- *   with its own refusals.
+ * Parameter props: The start, the rates and the stretches.
+ * Returns: The profile.
+ * When the start, a given rate, a speed, a length, a duration
+ * or a cap is not finite or not in its range, a stretch that changes speed
+ * lacks a rate it needs, a distance stretch's mark lies outside what its
+ * length can reach from its entry speed (`speedProfileReach`), its cap is
+ * below its entry or its mark, or a seconds stretch changes speed faster than
+ * the rates allow: a caller's defect, since a caller admits its own input
+ * with its own refusals.
  */
 export function speedProfile(
   props: IAutoMovieSpeedProfile.IProps,

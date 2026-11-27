@@ -10,7 +10,7 @@ import {
 import { ServiceCabinet } from "./ServiceCabinet";
 import type { AutoMovieArchetypeMachine } from "../AutoMovieArchetypeMachine";
 
-/**
+/*
  * A cash machine with a shelf, keypad button, card, cash and receipt sockets
  * and an exposed touchscreen.
  *
@@ -19,13 +19,12 @@ import type { AutoMovieArchetypeMachine } from "../AutoMovieArchetypeMachine";
  * touchscreen keeps its read height and lies on the cabinet's front face, read
  * with model `+Y` up: the real screen sits recessed behind the fascia, and the
  * coarse cabinet box has no recess, so the recess is dropped.
- *
- * @param params The scene identifier and any dimensions to fix inside their
- *   bands.
- * @param seed The seed for the draws the author leaves open.
- * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
- *   selected profile.
+ * Parameter params: The scene identifier and any dimensions to fix inside their
+ * bands.
+ * Parameter seed: The seed for the draws the author leaves open.
+ * Returns: The fixed model with its typed contacts.
+ * If a supplied override lies outside the
+ * selected profile.
  */
 export function createAtm(
   params: AutoMovieArchetypeAtm.IParams = {},
@@ -38,16 +37,22 @@ export function createAtm(
   return cabinet.builder.build(cabinet.mass);
 }
 
-/** The shape of {@link SHELF}. */
+/*
+ * The shape of SHELF.
+ */
 interface IShelf {
-  /** The `height` entry. */
+  /*
+   * The `height` entry.
+   */
   height: number;
 
-  /** The `out` entry. */
+  /*
+   * The `out` entry.
+   */
   out: number;
 }
 
-/**
+/*
  * An ATM's shelf, metres: its top 763 mm up, protruding 174 mm from the fascia
  * (NCR SS32 p. 9).
  */
@@ -56,25 +61,37 @@ const SHELF: Readonly<IShelf> = {
   out: 174 * AutoMovieArchetypeUnits.MILLIMETRE,
 };
 
-/** The fascia items NCR's guide places. */
+/*
+ * The fascia items NCR's guide places.
+ */
 type AtmItem = "key5" | "cardReader" | "cash" | "receipt";
 
-/** One fascia item's placement, in millimetres and clock hours. */
+/*
+ * One fascia item's placement, in millimetres and clock hours.
+ */
 interface IAtmItem {
-  /** Height above the base. */
+  /*
+   * Height above the base.
+   */
   height: number;
 
-  /** Depth from the shelf's front. */
+  /*
+   * Depth from the shelf's front.
+   */
   depth: number;
 
-  /** Distance from the No. 5 key on the front elevation. */
+  /*
+   * Distance from the No. 5 key on the front elevation.
+   */
   distance: number;
 
-  /** Clock position from the No. 5 key. */
+  /*
+   * Clock position from the No. 5 key.
+   */
   clock: number;
 }
 
-/**
+/*
  * An ATM's fascia items, from NCR's guide: each one's height from the base and
  * depth from the shelf's front (pp. 14-15), and its distance on the front
  * elevation and clock position from the No. 5 key (pp. 17-18), in millimetres
@@ -87,19 +104,27 @@ const ITEMS: Readonly<Record<AtmItem, Readonly<IAtmItem>>> = {
   receipt: { height: 1154, depth: 170, distance: 472, clock: 1 },
 };
 
-/** The shape of {@link SCREEN}. */
+/*
+ * The shape of SCREEN.
+ */
 interface IScreen {
-  /** The `height` entry. */
+  /*
+   * The `height` entry.
+   */
   height: number;
 
-  /** The `depth` entry. */
+  /*
+   * The `depth` entry.
+   */
   depth: number;
 
-  /** The `size` entry. */
+  /*
+   * The `size` entry.
+   */
   size: number;
 }
 
-/**
+/*
  * An ATM's 15 in touchscreen, from NCR's guide: its height from the base and
  * depth from the shelf's front, millimetres (pp. 14-15), on the keypad's centre
  * line as drawn, and its 381 mm diagonal. The depth is the source value of the
@@ -112,16 +137,22 @@ const SCREEN: Readonly<IScreen> = {
   size: 381,
 };
 
-/** The shape of {@link ESTIMATES}. */
+/*
+ * The shape of ESTIMATES.
+ */
 interface IEstimates {
-  /** The `shelf` entry. */
+  /*
+   * The `shelf` entry.
+   */
   shelf: number;
 
-  /** The `aspect` entry. */
+  /*
+   * The `aspect` entry.
+   */
   aspect: number;
 }
 
-/**
+/*
  * The construction values no source read gives, each an estimate no act reads
  * and no band declares: `shelf`, an ATM shelf's thickness in metres; `aspect`,
  * the screen's width over its height, 4:3, the shape of a 1024 × 768 panel,
@@ -129,7 +160,7 @@ interface IEstimates {
  */
 const ESTIMATES: Readonly<IEstimates> = { shelf: 0.03, aspect: 4 / 3 };
 
-/**
+/*
  * Build an ATM's shelf and its fascia items' contacts: the shelf across the
  * fascia's foot, and each item at its read height and depth, across the fascia
  * from the No. 5 key by the remaining leg of its elevation distance after its
@@ -137,11 +168,10 @@ const ESTIMATES: Readonly<IEstimates> = { shelf: 0.03, aspect: 4 / 3 };
  * centre line. `key5` is the No. 5 key, a button pressed along `-Z`;
  * `cardReader`, `cash` and `receipt` are the slots, sockets whose `+Y` points
  * out of the fascia; `screen` the touchscreen, a surface on the cabinet's front
- * face sized from its diagonal and {@link ESTIMATES}' aspect.
- *
- * @param builder The builder to fill.
- * @param width The fascia's width, metres.
- * @param depth The cabinet's depth, metres.
+ * face sized from its diagonal and ESTIMATES' aspect.
+ * Parameter builder: The builder to fill.
+ * Parameter width: The fascia's width, metres.
+ * Parameter depth: The cabinet's depth, metres.
  */
 function fascia(
   builder: AutoMovieArchetypeBuilder<

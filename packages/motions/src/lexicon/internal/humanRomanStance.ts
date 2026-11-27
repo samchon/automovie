@@ -6,17 +6,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A Roman ride's stance, one foot on each of two seats: the hips a hip height
  * above the seats' middle, heading along the seats' mean forward, each ankle an
  * ankle height above its seat and planted, each knee bending toward a point a
  * shank ahead of and above its foot.
- *
- * @param measure The body's heights and shank.
- * @param entry The entry posture the stance keeps the rest of.
- * @param left The left seat's frame.
- * @param right The right seat's frame.
- * @returns The standing posture.
+ * Parameter measure: The body's heights and shank.
+ * Parameter entry: The entry posture the stance keeps the rest of.
+ * Parameter left: The left seat's frame.
+ * Parameter right: The right seat's frame.
+ * Returns: The standing posture.
  */
 export function humanRomanStance(
   measure: Pick<IAutoMovieBodyMeasure, "ankleHeight" | "shank" | "hipHeight">,
@@ -71,14 +70,15 @@ export function humanRomanStance(
   };
 }
 
-/** The Roman ride's stance. */
+/*
+ * The Roman ride's stance.
+ */
 export namespace humanRomanStance {
-  /**
+  /*
    * The seats' spacing the legs can stand across: at least the hips' own width,
    * at most both legs spread 30 degrees from the vertical beside it.
-   *
-   * @param measure The body's legs and hips.
-   * @returns The least and the greatest spacing, metres.
+   * Parameter measure: The body's legs and hips.
+   * Returns: The least and the greatest spacing, metres.
    */
   export function span(
     measure: Pick<IAutoMovieBodyMeasure, "thigh" | "shank" | "hipHalfWidth">,

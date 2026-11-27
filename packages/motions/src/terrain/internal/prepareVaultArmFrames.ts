@@ -16,7 +16,9 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** World frames of the wrists and elbows at one prepared support sample. */
+/*
+ * World frames of the wrists and elbows at one prepared support sample.
+ */
 const ARMS: ReadonlySet<AutoMovieHumanoidBone> = new Set([
   "leftHand",
   "leftLowerArm",
@@ -24,12 +26,16 @@ const ARMS: ReadonlySet<AutoMovieHumanoidBone> = new Set([
   "rightLowerArm",
 ]);
 
-/** Axis pair used to sample orientation without quaternion sign changes. */
+/*
+ * Axis pair used to sample orientation without quaternion sign changes.
+ */
 const X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
-/** The other measured axis of each wrist's orthonormal frame. */
+/*
+ * The other measured axis of each wrist's orthonormal frame.
+ */
 const Y: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
+/*
  * Prepare the preceding support's arm frames across a fixed named vault. Keep
  * every published stance event as an exact interpolation knot. Sample two wrist
  * axes and reconstruct their basis to remain stable through turns.
@@ -102,25 +108,39 @@ export function prepareVaultArmFrames(
   };
 }
 
-/** Frames read by the vault's reaching and peeling wrist goals. */
+/*
+ * Frames read by the vault's reaching and peeling wrist goals.
+ */
 export namespace prepareVaultArmFrames {
-  /** The displayed arm frame, in world metres and unit quaternion axes. */
+  /*
+   * The displayed arm frame, in world metres and unit quaternion axes.
+   */
   export interface IFrame {
-    /** The displayed wrist position. */
+    /*
+     * The displayed wrist position.
+     */
     wrist: IAutoMovieVector3;
-    /** The bend goal's reference at the displayed elbow. */
+    /*
+     * The bend goal's reference at the displayed elbow.
+     */
     elbow: IAutoMovieVector3;
-    /** The displayed wrist orientation. */
+    /*
+     * The displayed wrist orientation.
+     */
     rotation: IAutoMovieQuaternion;
   }
 }
 
-/** Flatten a vector into this prepared curve's contiguous sample. */
+/*
+ * Flatten a vector into this prepared curve's contiguous sample.
+ */
 function components(v: IAutoMovieVector3): [number, number, number] {
   return [v.x, v.y, v.z];
 }
 
-/** Read one vector from a prepared curve's sample. */
+/*
+ * Read one vector from a prepared curve's sample.
+ */
 function at(sample: readonly number[], i: number): IAutoMovieVector3 {
   return { x: sample[i]!, y: sample[i + 1]!, z: sample[i + 2]! };
 }

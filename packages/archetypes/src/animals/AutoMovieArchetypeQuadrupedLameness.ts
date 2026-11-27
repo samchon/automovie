@@ -173,7 +173,9 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
       };
     };
 
-    /** Report an inadmissible lameness. */
+    /*
+     * Report an inadmissible lameness.
+     */
     function refuse(reason: string): never {
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
@@ -187,7 +189,9 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
     }
   }
 
-  /** The sin² weight of a limb's current stance, zero in swing. */
+  /*
+   * The sin² weight of a limb's current stance, zero in swing.
+   */
   function share(
     strides: QuadrupedStridePlan.IPlan,
     phase: number,
@@ -199,7 +203,9 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
     return u >= 0 && u <= 1 ? Math.sin(Math.PI * u) ** 2 : 0;
   }
 
-  /** The nod angle, radians, that lifts the head's centre by a height. */
+  /*
+   * The nod angle, radians, that lifts the head's centre by a height.
+   */
   function raise(parts: readonly IAutoMovieModelPart[], lift: number): number {
     const root: IAutoMovieVector3 = end(parts, "neck");
     const head: IAutoMovieVector3 = Vector3.subtract(
@@ -210,7 +216,9 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
     return Math.asin((lift + head.y) / reach) - Math.atan2(head.y, head.z);
   }
 
-  /** A part's centre, model metres. */
+  /*
+   * A part's centre, model metres.
+   */
   function centre(
     parts: readonly IAutoMovieModelPart[],
     id: string,
@@ -223,7 +231,9 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
     return part.transform.translation;
   }
 
-  /** A bar's lower end along its local -Y, model metres: the neck's root. */
+  /*
+   * A bar's lower end along its local -Y, model metres: the neck's root.
+   */
   function end(
     parts: readonly IAutoMovieModelPart[],
     id: string,
@@ -247,7 +257,7 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
     );
   }
 
-  /**
+  /*
    * The grade's multiple of the detection threshold: 1, 2 and 4, authored and
    * provisional above the subtle grade.
    */

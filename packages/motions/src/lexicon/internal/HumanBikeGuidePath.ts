@@ -1,56 +1,70 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * The guide's path: the bicycle's sampled course, its stops and the athlete's
  * steps along it.
  */
 export namespace HumanBikeGuidePath {
-  /**
+  /*
    * Step length over stature at a normal walk (Murray, Drought and Kory 1964;
    * Grieve and Gear 1966).
    */
   export const STEP: number = 0.41;
 
-  /**
+  /*
    * Running cadence, steps per second: about 170 steps a minute at a
    * recreational run (Heiderscheit et al. 2011, Med Sci Sports Exerc 43:296).
    */
   export const CADENCE: number = 2.8;
 
-  /**
+  /*
    * Swing time of one foot, seconds: provisional, about 40 % of a one-second
    * stride.
    */
   export const SWING: number = 0.4;
 
-  /**
+  /*
    * One step: the path distance its print stands at and when it lands, action
    * seconds.
    */
   export interface IStep {
-    /** Path distance of the print, metres. */
+    /*
+     * Path distance of the print, metres.
+     */
     at: number;
 
-    /** Landing second. */
+    /*
+     * Landing second.
+     */
     land: number;
   }
 
-  /** The athlete's path beside the bicycle, sampled once at planning. */
+  /*
+   * The athlete's path beside the bicycle, sampled once at planning.
+   */
   export interface IPath {
-    /** Action seconds of each sample. */
+    /*
+     * Action seconds of each sample.
+     */
     times: number[];
 
-    /** Root path distance at each sample, metres, nondecreasing. */
+    /*
+     * Root path distance at each sample, metres, nondecreasing.
+     */
     distances: number[];
 
-    /** World root path point at each sample, metres. */
+    /*
+     * World root path point at each sample, metres.
+     */
     points: IAutoMovieVector3[];
 
-    /** Bicycle heading change since the start at each sample, degrees. */
+    /*
+     * Bicycle heading change since the start at each sample, degrees.
+     */
     turns: number[];
   }
 
-  /**
+  /*
    * The path distances at which the athlete comes to a stop: the start of each
    * pause of at least the swing time, and the path's end.
    */
@@ -74,7 +88,7 @@ export namespace HumanBikeGuidePath {
     return ends;
   }
 
-  /**
+  /*
    * The steps of one run from a stop to the next: the walking step, longer
    * where the bicycle runs faster than that step at a running cadence carries
    * the athlete, read at the speed where each step starts, with a remainder
@@ -106,7 +120,9 @@ export namespace HumanBikeGuidePath {
     return steps;
   }
 
-  /** The first sample index at which the path has covered a distance. */
+  /*
+   * The first sample index at which the path has covered a distance.
+   */
   export function indexAt(path: IPath, distance: number): number {
     let low: number = 0;
     let high: number = path.distances.length - 1;
@@ -118,7 +134,7 @@ export namespace HumanBikeGuidePath {
     return low;
   }
 
-  /**
+  /*
    * The action second at which the path first covers a distance, interpolated
    * between samples.
    */

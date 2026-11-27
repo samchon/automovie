@@ -7,7 +7,7 @@ import { IDENTITY_FORMATION_SLOT_STATE } from "../../../constants/IDENTITY_FORMA
 import { lerp } from "../../../math/internal/lerp";
 import { ease } from "../../../motion/internal/ease";
 
-/**
+/*
  * Sample what one named member of a unit is doing differently at one time.
  *
  * The unit-level sampler answers for the whole crowd at once; this answers for

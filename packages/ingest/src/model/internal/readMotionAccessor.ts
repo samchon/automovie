@@ -4,7 +4,7 @@ import { SHAPE_COMPONENTS } from "./SHAPE_COMPONENTS";
 import { accessorReader } from "./accessorReader";
 import { object } from "./object";
 
-/**
+/*
  * Read a finite non-sparse FLOAT accessor into caller-owned motion values.
  *
  * The source inventories and byte ranges are already admitted. The requested

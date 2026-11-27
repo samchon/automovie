@@ -5,7 +5,7 @@ import type {
 
 import { AUTOMOVIE_PRODUCTION_AAC_PROFILE } from "../AUTOMOVIE_PRODUCTION_AAC_PROFILE.js";
 
-/**
+/*
  * Refuse a probed MP4 audio track that is not the AAC profile the delivery
  * encoder writes.
  *
@@ -17,8 +17,7 @@ import { AUTOMOVIE_PRODUCTION_AAC_PROFILE } from "../AUTOMOVIE_PRODUCTION_AAC_PR
  * what the track presents. The first difference, in that order, throws an
  * `Error` whose message starts with `unsupported-audio-profile.<field>` and
  * names the expected and observed values.
- *
- * @param actual The audio track facts a probe read from the file.
+ * Parameter actual: The audio track facts a probe read from the file.
  */
 export const assertProductionAacProfile: (
   actual: IAutoMovieProductionAudioProbe,

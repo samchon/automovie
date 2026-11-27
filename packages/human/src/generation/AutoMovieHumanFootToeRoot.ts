@@ -46,5 +46,7 @@ export namespace AutoMovieHumanFootToeRoot {
   }
 }
 
-/** Least length of a toe's own sections before its cap, mm: the tip's three rings and one shaft step. */
+/*
+ * Least length of a toe's own sections before its cap, mm: the tip's three rings and one shaft step.
+ */
 const OWN: number = 3;

@@ -11,7 +11,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/**
+/*
  * No source read gives the rail's height, its posts' spacing or a turn's
  * radius: estimates.
  */

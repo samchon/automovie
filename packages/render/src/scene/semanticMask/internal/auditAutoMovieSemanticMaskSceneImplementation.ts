@@ -7,7 +7,7 @@ import { maskRoots } from "./maskRoots.js";
 import { nearest } from "./nearest.js";
 import { unresolvedOf } from "./unresolvedOf.js";
 
-/**
+/*
  * Join a supplied palette to assembled scene roots in both directions without
  * painting or mutating the scene. Unresolved lists drawable entries with no
  * claimed object root; unaddressed counts Mesh objects lacking a nearest

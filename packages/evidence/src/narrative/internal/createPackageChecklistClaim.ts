@@ -8,7 +8,7 @@ import type { IPackageChecklistClaimProps } from "../IPackageChecklistClaimProps
 import { BODY_ROOT } from "./utilities/BODY_ROOT";
 import { createEvidenceFiles } from "./utilities/createEvidenceFiles";
 
-/**
+/*
  * Creates one work-local contract claim.
  *
  * Every selected host answers every H2 item of the document and may not exclude
@@ -100,7 +100,7 @@ export function createPackageChecklistClaim(
   };
 }
 
-/**
+/*
  * Keeps the package API on the tracked work-owned contract subtree.
  *
  * Existing work-owned `naturalness` addresses remain valid. The caller selects

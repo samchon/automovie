@@ -73,7 +73,7 @@ export namespace AutoMovieHumanNeutralShoulder {
   /** Width of a station bin of the arm's radius profile, mm. */
   export const BIN: number = 5;
 
-  /**
+  /*
    * The least abduction at which the straight arm's skin clears the trunk and
    * the leg beside it.
    *
@@ -119,26 +119,29 @@ export namespace AutoMovieHumanNeutralShoulder {
     return (Math.asin(Math.min(1, widest)) * 180) / Math.PI;
   }
 
-  /** The straight arm's radius along its length. */
+  /*
+   * The straight arm's radius along its length.
+   */
   interface IProfile {
-    /** Depth under the shoulder from which the arm's skin is its own, mm. */
+    /*
+     * Depth under the shoulder from which the arm's skin is its own, mm.
+     */
     from: number;
 
-    /**
+    /*
      * Depth under the shoulder to which the arm and hand reach, mm: the
      * fingertips.
      */
     to: number;
 
-    /**
+    /*
      * The arm's radius at a depth under the shoulder, mm.
-     *
-     * @param t Depth along the straight arm, mm.
+     * Parameter t: Depth along the straight arm, mm.
      */
     radius(t: number): number;
   }
 
-  /**
+  /*
    * The arm's radius profile from its own skin, or the forearm's joint radius
    * from the elbow down when the rings hold no arm chain.
    */

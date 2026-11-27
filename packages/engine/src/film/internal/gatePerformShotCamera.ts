@@ -12,7 +12,7 @@ import { describeInvalidValue } from "../../validation/internal/describeInvalidV
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 import { validatePerformShotFraming } from "./validatePerformShotFraming";
 
-/**
+/*
  * Settle the shot's cameras once the live one is elected: fall back to a camera
  * when no `frame` action elected one, gate the blocking's coverage angles, and
  * gate every camera a move is compiled from.
@@ -28,13 +28,12 @@ import { validatePerformShotFraming } from "./validatePerformShotFraming";
  *    position, because the framing solve divides by `tan(fovY / 2)`; a camera
  *    whose move is a `whip` must also carry a finite rotation, since a whip
  *    pans from it. An unused degenerate camera fails nothing.
- *
- * @param context The shot's staged tables and collector.
- * @param props.liveCamera The camera the frame actions elected, or null.
- * @param props.frames The frame jobs of the live camera.
- * @param props.coverage The blocking's coverage intents, or none.
- * @returns The live camera id, null only when the scene has no camera, and the
- *   coverage jobs that passed.
+ * Parameter context: The shot's staged tables and collector.
+ * Parameter props.liveCamera: The camera the frame actions elected, or null.
+ * Parameter props.frames: The frame jobs of the live camera.
+ * Parameter props.coverage: The blocking's coverage intents, or none.
+ * Returns: The live camera id, null only when the scene has no camera, and the
+ * coverage jobs that passed.
  */
 export function gatePerformShotCamera(
   context: IAutoMovieEnginePerformShotGateContext,
@@ -83,7 +82,9 @@ export function gatePerformShotCamera(
   return { liveCamera, coverageJobs };
 }
 
-/** Gate the blocking's coverage intents against the elected live camera. */
+/*
+ * Gate the blocking's coverage intents against the elected live camera.
+ */
 function gateCoverage(
   context: IAutoMovieEnginePerformShotGateContext,
   liveCamera: string | null,
@@ -154,7 +155,9 @@ function gateCoverage(
   return jobs;
 }
 
-/** Refuse a camera the framing solve cannot compile a move from. */
+/*
+ * Refuse a camera the framing solve cannot compile a move from.
+ */
 function validateFramingCamera(
   context: IAutoMovieEnginePerformShotGateContext,
   camera: IAutoMovieCamera,

@@ -6,10 +6,10 @@ import {
 import { Vector3 } from "../../math/Vector3";
 import { AutoMovieGravity } from "../AutoMovieGravity";
 
-/**
+/*
  * Solve the **launch velocity** that lands a projectile fired from `origin` at
  * fixed `speed` onto `target` under a constant `gravity`: the inverse of the
- * forward {@link projectileAt} simulation, and the missing half of the `launch`
+ * forward projectileAt simulation, and the missing half of the `launch`
  * verb (the model says "loose the arrow at speed s"; the engine finds the aim
  * that connects). Returns `null` when the target is out of range at that
  * speed.

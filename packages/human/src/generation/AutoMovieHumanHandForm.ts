@@ -40,19 +40,29 @@ const { rootOf, crestOf, arcPoints, firstOf }: typeof AutoMovieHumanHandWeb =
  * to the palm's last ring, the digits' laws and the webs that part them.
  */
 export namespace AutoMovieHumanHandForm {
-  /** Phase over which the heel's target hands from the palm's run to the thumb's. */
+  /*
+   * Phase over which the heel's target hands from the palm's run to the thumb's.
+   */
   const OWN_FADE: number = 0.6;
 
-  /** Angles at which the arm's last ring holds its radius. */
+  /*
+   * Angles at which the arm's last ring holds its radius.
+   */
   const RADII: number = 720;
 
-  /** Phases averaged for the centre of the section at the wrist crease. */
+  /*
+   * Phases averaged for the centre of the section at the wrist crease.
+   */
   const CREASE_PHASES: number = 256;
 
-  /** Station step of a parent's outward direction at its ring, mm of the form. */
+  /*
+   * Station step of a parent's outward direction at its ring, mm of the form.
+   */
   const OUTWARD_STEP: number = 0.05;
 
-  /** Spacing of the palm's sections, mm of the form. */
+  /*
+   * Spacing of the palm's sections, mm of the form.
+   */
   const PALM_STEP: number = 4;
 
   let built: IAutoMovieHumanHandForm | null = null;
@@ -89,7 +99,9 @@ export namespace AutoMovieHumanHandForm {
     );
   }
 
-  /** The hand. */
+  /*
+   * The hand.
+   */
   function make(): IAutoMovieHumanHandForm {
     const prior: IAutoMovieHumanArmPrior.IHandPrior =
       AutoMovieHumanArmPrior.PRIOR.hand;

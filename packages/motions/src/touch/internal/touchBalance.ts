@@ -17,7 +17,7 @@ import { prepareHumanTrunkBalance } from "../../everyday/internal/prepareHumanTr
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
 
-/**
+/*
  * Prepare the requested correction for a grounded touch. The stance is already
  * written when the correction reads it. The arm reaches its fixed site from the
  * corrected body, and the existing hip or lumbar balance owner sees that arm's
@@ -29,15 +29,14 @@ import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSa
  * instants inside it a knot, and read between those knots from a knot course
  * (`prepareHumanKnotCourse`, a minimum-jerk path after Flash and Hogan 1985, J.
  * Neurosci. 5(7):1688), so a read searches nothing.
- *
- * @param body The canonical body.
- * @param window The admitted action-local balance window.
- * @param side The working arm.
- * @param arm The arm's working goal on the current stance.
- * @param clock The touch's clock, whose instants are knots of the shift.
- * @param written The stance as written before the correction, composed once
- *   here for a hip correction.
- * @returns The correction, or none when balance does not apply.
+ * Parameter body: The canonical body.
+ * Parameter window: The admitted action-local balance window.
+ * Parameter side: The working arm.
+ * Parameter arm: The arm's working goal on the current stance.
+ * Parameter clock: The touch's clock, whose instants are knots of the shift.
+ * Parameter written: The stance as written before the correction, composed once
+ * here for a hip correction.
+ * Returns: The correction, or none when balance does not apply.
  */
 export function touchBalance(
   body: IAutoMovieMotionHumanBody,

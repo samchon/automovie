@@ -75,7 +75,7 @@ export namespace AutoMovieHumanHeadNosePart {
     }
     const n: [number, number] = plan.landmarks.nasion;
     const sn: [number, number] = plan.landmarks.subnasale;
-    /**
+    /*
      * The own nasal chord, extended only for the buried end under the
      * columella.
      */
@@ -212,7 +212,7 @@ export namespace AutoMovieHumanHeadNosePart {
     };
   }
 
-  /**
+  /*
    * The body's anterior profile, world X at a height, calibration mm.
    *
    * Above pronasale it is the straight chord nasion-pronasale; below it the
@@ -263,7 +263,7 @@ export namespace AutoMovieHumanHeadNosePart {
     const upperRoot: number = base(top) - depth;
     const lowerRoot: number = base(bottom) - depth;
 
-    /**
+    /*
      * Chord ordinate through pronasale and an end landmark, at a height on that
      * side.
      */

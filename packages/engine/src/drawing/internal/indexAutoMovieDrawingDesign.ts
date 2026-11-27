@@ -11,7 +11,7 @@ import {
 import { builtEnvironmentWorldMatrices } from "../../architecture/internal/builtEnvironmentWorldMatrices";
 import { autoMovieDrawingPartTriangles } from "./autoMovieDrawingPartTriangles";
 
-/**
+/*
  * Index one validated built environment for a drawing derivation.
  *
  * Builds the id lookups every derivation needs, stages every element with
@@ -22,9 +22,8 @@ import { autoMovieDrawingPartTriangles } from "./autoMovieDrawingPartTriangles";
  *
  * The environment must be valid: parents must resolve and be acyclic, as
  * `validateBuiltEnvironment` enforces, or staging throws.
- *
- * @param environment Validated design to index.
- * @returns The index, owned by the caller for one derivation.
+ * Parameter environment: Validated design to index.
+ * Returns: The index, owned by the caller for one derivation.
  */
 export const indexAutoMovieDrawingDesign = (
   environment: IAutoMovieBuiltEnvironment,

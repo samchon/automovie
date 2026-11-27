@@ -15,13 +15,12 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { stand } from "./stand";
 import { supportContact } from "./supportContact";
 
-/**
+/*
  * Prepare the shape shared by a support stance's distinct transfer keys.
- *
- * @param body The stance's fixed performer.
- * @param base The action's joint-space entry.
- * @returns A planning-local reader placing each stance's fixed shape above its
- *   current contact targets and root.
+ * Parameter body: The stance's fixed performer.
+ * Parameter base: The action's joint-space entry.
+ * Returns: A planning-local reader placing each stance's fixed shape above its
+ * current contact targets and root.
  */
 export function prepareSupportPreference(
   body: IAutoMovieMotionHumanBody,
@@ -50,18 +49,24 @@ export function prepareSupportPreference(
   };
 }
 
-/** A key's actual contact targets in world metres. */
+/*
+ * A key's actual contact targets in world metres.
+ */
 type AutoMovieSupportPreferencePlace = (
   contact: IAutoMovieMotionHumanSupport.IContact,
 ) => IAutoMovieVector3 | null;
 
-/** A prepared stance shape placed over the current support sites. */
+/*
+ * A prepared stance shape placed over the current support sites.
+ */
 type AutoMovieSupportPreferenceRead = (
   from: IAutoMovieMotionHumanPosture,
   place: AutoMovieSupportPreferencePlace,
 ) => IAutoMovieMotionHumanPosture;
 
-/** Prepare the actual projected geometry of one stated angular preference. */
+/*
+ * Prepare the actual projected geometry of one stated angular preference.
+ */
 function prepareStance(
   body: IAutoMovieMotionHumanBody,
   base: IAutoMovieMotionHumanPosture,

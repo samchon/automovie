@@ -1,6 +1,6 @@
 import type { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
 
-/**
+/*
  * Cholesky factor of a symmetric positive-definite banded matrix, using the
  * standard triangular recurrence. The OSQP reduced systems supply this premise
  * through convex curvature and positive regularization (Stellato et al. 2020,
@@ -30,12 +30,11 @@ import type { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace"
  * grows such rows as its iterates near the solution (a constraint's weight
  * `lambda / t` without bound), where the 1e-300 floor would divide the factor
  * by 1e-150 and overflow it.
- *
- * @param matrices Owned finite canonical upper system and matching preallocated
- *   forward rows, with nonnegative integer n/band and compatible row lengths.
- * @param dependent The share of a diagonal entry under which its radicand is
- *   taken for a dependent row (`SKIP`); absent, the 1e-300 floor alone.
- * @returns The same owner storing U and exact mirrored lower coefficients.
+ * Parameter matrices: Owned finite canonical upper system and matching preallocated
+ * forward rows, with nonnegative integer n/band and compatible row lengths.
+ * Parameter dependent: The share of a diagonal entry under which its radicand is
+ * taken for a dependent row (`SKIP`); absent, the 1e-300 floor alone.
+ * Returns: The same owner storing U and exact mirrored lower coefficients.
  */
 export function HumanQuadraticCholesky(
   matrices: Work.IFactor,
@@ -67,7 +66,7 @@ export function HumanQuadraticCholesky(
   return matrices;
 }
 
-/**
+/*
  * A dependent row's pivot, the square root of Wright's (1999) huge diagonal
  * 1e64: its factor entries and its step's component vanish to rounding.
  */

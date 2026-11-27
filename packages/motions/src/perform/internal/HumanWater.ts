@@ -17,19 +17,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Fresh water's density, kg/m^3: the engine's default when the water states
  * none.
  */
 const FRESH: number = 1000;
 
-/**
+/*
  * Drag coefficient of a flat plate across the flow (Hoerner, Fluid-Dynamic
  * Drag, 1965).
  */
 const PLATE: number = 1.17;
 
-/**
+/*
  * A body the water carries: the water's forces on every segment
  * (`AutoMovieEngineMotionHydrodynamics`) summed over the posed body, the height at which
  * a still body floats, and a glide slowed by drag, integrated at plan time by
@@ -50,31 +50,36 @@ const PLATE: number = 1.17;
  * initial buoyant trim. Free heave and rotation remain outside this model.
  */
 export namespace HumanWater {
-  /**
+  /*
    * What the water reads of a body: its segments' colliders and its mass, the
    * bone and point of each segment's centre of mass, and its stature.
    */
   export interface IBody {
-    /** The segments, each with its colliders, and the body's mass, kg. */
+    /*
+     * The segments, each with its colliders, and the body's mass, kg.
+     */
     profile: Pick<IAutoMovieMotionHumanBody["profile"], "segments" | "mass">;
-    /** Each segment's centre of mass on its bone. */
+    /*
+     * Each segment's centre of mass on its bone.
+     */
     massModel: {
       segments: readonly Pick<
         IAutoMovieResolveCenterOfMass.ISegment,
         "bone" | "point"
       >[];
     };
-    /** The stature, metres. */
+    /*
+     * The stature, metres.
+     */
     measure: Pick<IAutoMovieMotionHumanBody["measure"], "stature">;
   }
-  /**
+  /*
    * The water's forces on a posed body moving at one velocity.
-   *
-   * @param body The body.
-   * @param bones The posed bones.
-   * @param velocity The body's velocity relative to the water, m/s.
-   * @param water The water.
-   * @returns The summed forces.
+   * Parameter body: The body.
+   * Parameter bones: The posed bones.
+   * Parameter velocity: The body's velocity relative to the water, m/s.
+   * Parameter water: The water.
+   * Returns: The summed forces.
    */
   export function sum(
     body: IBody,
@@ -138,14 +143,13 @@ export namespace HumanWater {
     return { buoyancy, drag, submerged, volume };
   }
 
-  /**
+  /*
    * How far a still body must be lowered so its buoyancy equals its weight: the
    * root's vertical offset from the posed bones at which it floats.
-   *
-   * @param body The body.
-   * @param bones The posed bones.
-   * @param water The water.
-   * @returns Metres to add to the root's height, or null for a body that sinks.
+   * Parameter body: The body.
+   * Parameter bones: The posed bones.
+   * Parameter water: The water.
+   * Returns: Metres to add to the root's height, or null for a body that sinks.
    */
   export function float(
     body: IBody,
@@ -181,17 +185,16 @@ export namespace HumanWater {
     return low;
   }
 
-  /**
+  /*
    * A glide: the horizontal speed of a body held in its shape and slowed by the
    * water's drag, integrated from `v0`.
-   *
-   * @param body The body.
-   * @param bones The posed bones, in the water.
-   * @param direction The glide's horizontal direction, unit.
-   * @param v0 The starting speed, m/s.
-   * @param seconds The glide's length, seconds.
-   * @param water The water.
-   * @returns The speed's trajectory, its state `[speed, distance]`.
+   * Parameter body: The body.
+   * Parameter bones: The posed bones, in the water.
+   * Parameter direction: The glide's horizontal direction, unit.
+   * Parameter v0: The starting speed, m/s.
+   * Parameter seconds: The glide's length, seconds.
+   * Parameter water: The water.
+   * Returns: The speed's trajectory, its state `[speed, distance]`.
    */
   export function glide(
     body: IBody,
@@ -222,7 +225,7 @@ export namespace HumanWater {
     });
   }
 
-  /**
+  /*
    * Integrate the longitudinal travel of one keyed stroke from rest.
    *
    * Positions on a uniformly sampled stroke phase are differentiated at the
@@ -232,13 +235,12 @@ export namespace HumanWater {
    * inverse square. The trajectory therefore stores metres and metres per unit
    * phase. The model uses the body mass for the translating hip target and
    * omits longitudinal momentum redistribution from the posed limbs.
-   *
-   * @param body The swimming body.
-   * @param bonesAt The resolved stroke skeleton on [0,1], with the hip target
-   *   fixed and prescribed movement at rest at both endpoints.
-   * @param direction World horizontal heading, unit.
-   * @param water The horizontal surface and medium density.
-   * @returns Longitudinal trajectory with state [distance, phase velocity].
+   * Parameter body: The swimming body.
+   * Parameter bonesAt: The resolved stroke skeleton on [0,1], with the hip target
+   * fixed and prescribed movement at rest at both endpoints.
+   * Parameter direction: World horizontal heading, unit.
+   * Parameter water: The horizontal surface and medium density.
+   * Returns: Longitudinal trajectory with state [distance, phase velocity].
    */
   export function stroke(
     body: IBody,
@@ -335,7 +337,9 @@ export namespace HumanWater {
     });
   }
 
-  /** Place a segment's bone-local centre of mass in the world. */
+  /*
+   * Place a segment's bone-local centre of mass in the world.
+   */
   function centre(
     bone: IAutoMovieResolvedBone,
     point: IAutoMovieVector3,
@@ -346,12 +350,11 @@ export namespace HumanWater {
     );
   }
 
-  /**
+  /*
    * Bones moved vertically.
-   *
-   * @param bones The bones.
-   * @param dy Metres.
-   * @returns The moved bones.
+   * Parameter bones: The bones.
+   * Parameter dy: Metres.
+   * Returns: The moved bones.
    */
   function shifted(
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,

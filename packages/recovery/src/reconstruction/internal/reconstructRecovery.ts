@@ -11,7 +11,7 @@ import type {
 import { realizeAutoMovieRecoveryAnalyticDomains } from "./realizeAutoMovieRecoveryAnalyticDomains";
 import { realizeAutoMovieRecoveryTensorFamilies } from "./realizeAutoMovieRecoveryTensorFamilies";
 
-/**
+/*
  * Generate saved ordinary tensor families and retained curve-only event or
  * legacy domains. Delegated groups have one tensor owner and are not also tiled
  * by the contour operator. Shared analytic end-curve coefficients are admitted

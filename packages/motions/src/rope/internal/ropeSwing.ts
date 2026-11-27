@@ -24,7 +24,7 @@ import { GymnasticsFlight } from "../../sport/internal/GymnasticsFlight";
 import { ropeLine } from "./ropeLine";
 import { ropeSwingCourse } from "./ropeSwingCourse";
 
-/**
+/*
  * Swing on an upright rope and let go onto a landing. The body hangs from the
  * rope's anchor as a pendulum of radius `R`, the anchor-to-hips length at the
  * take-off: `theta(t) = theta0 cos(omega t)`, `omega = sqrt(g / R)` (the
@@ -34,13 +34,12 @@ import { ropeSwingCourse } from "./ropeSwingCourse";
  * the forward half swing whose touchdown, at standing hip height over the
  * landing, lies nearest the landing's centre. The body then absorbs into the
  * stand on the landing.
- *
- * @param context The action's context, standing at the take-off holding the
- *   rope's height.
- * @param p The swing.
- * @returns The swing, flight and landing.
- * @throws {HumanRefusal} If the rope cannot reach the take-off or no release
- *   lands within `TOLERANCE` of the landing.
+ * Parameter context: The action's context, standing at the take-off holding the
+ * rope's height.
+ * Parameter p: The swing.
+ * Returns: The swing, flight and landing.
+ * If the rope cannot reach the take-off or no release
+ * lands within `TOLERANCE` of the landing.
  */
 export function ropeSwing(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRope.IParams>,
@@ -286,22 +285,30 @@ export function ropeSwing(
   };
 }
 
-/**
+/*
  * How far the landing may lie from the nearest reachable touchdown, metres
  * (provisional: within a step).
  */
 const TOLERANCE: number = 0.3;
 
-/** Seconds to absorb the landing into the stand (provisional). */
+/*
+ * Seconds to absorb the landing into the stand (provisional).
+ */
 const ABSORB: number = 0.35;
 
-/** Seconds the body takes to swing off the take-off onto the rope (provisional). */
+/*
+ * Seconds the body takes to swing off the take-off onto the rope (provisional).
+ */
 const STEP_OFF: number = 0.3;
 
-/** Release instants searched over the forward half swing. */
+/*
+ * Release instants searched over the forward half swing.
+ */
 const SAMPLES: number = 96;
 
-/** Which joints the first displayed hang solves for the rest of the swing. */
+/*
+ * Which joints the first displayed hang solves for the rest of the swing.
+ */
 const ARM_BONES: readonly AutoMovieHumanoidBone[] = [
   "leftShoulder",
   "leftUpperArm",
@@ -313,30 +320,46 @@ const ARM_BONES: readonly AutoMovieHumanoidBone[] = [
   "rightHand",
 ];
 
-/** The chosen release. */
+/*
+ * The chosen release.
+ */
 interface IRelease {
-  /** Seconds after the take-off. */
+  /*
+   * Seconds after the take-off.
+   */
   release: number;
 
-  /** Seconds of flight to touchdown. */
+  /*
+   * Seconds of flight to touchdown.
+   */
   flight: number;
 
-  /** The touchdown's horizontal miss of the landing's centre, metres. */
+  /*
+   * The touchdown's horizontal miss of the landing's centre, metres.
+   */
   miss: number;
 
-  /** The hips at release, world metres. */
+  /*
+   * The hips at release, world metres.
+   */
   from: IAutoMovieVector3;
 
-  /** Their velocity at release, metres per second. */
+  /*
+   * Their velocity at release, metres per second.
+   */
   velocity: IAutoMovieVector3;
 }
 
-/** A horizontal unit vector at right angles to a horizontal direction. */
+/*
+ * A horizontal unit vector at right angles to a horizontal direction.
+ */
 function perpendicular(direction: IAutoMovieVector3): IAutoMovieVector3 {
   return { x: direction.z, y: 0, z: -direction.x };
 }
 
-/** The world centre of a fixed prop's surface affordance. */
+/*
+ * The world centre of a fixed prop's surface affordance.
+ */
 function surfaceCentre(
   context: IAutoMovieMotionHumanActionContext,
   subject: string,

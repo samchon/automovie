@@ -14,7 +14,7 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-/**
+/*
  * The seeds of the native path's dependent cutters (the armpit's slit and the nostrils) once their root or source has changed. A literal
  * unchanged root keeps its original search. A cutter whose host is a source face (the nostrils, cut from the nose) is seeded where its
  * declared seed line enters that source, derived from both sources (`AutoMovieHumanNativeRadialContact`). A cutter whose host is a band
@@ -22,15 +22,21 @@ import type {
  * worker's measurement of the slit's trace decides that seed.
  */
 export namespace AutoMovieHumanF1NativeRootContact {
-  /** One emitted seed and detached observations of the input prior's source scope. */
+  /*
+   * One emitted seed and detached observations of the input prior's source scope.
+   */
   export interface IResult {
-    /** Closed existing engine search/point input, with one mm-to-m conversion. */
+    /*
+     * Closed existing engine search/point input, with one mm-to-m conversion.
+     */
     seed: IAutoMovieConstructionSeed;
-    /** Source-addressed observations, not proof that Newton finds a contact. */
+    /*
+     * Source-addressed observations, not proof that Newton finds a contact.
+     */
     observation: IAutoMovieHumanF1NativeRoot.ISeedTransport;
   }
 
-  /**
+  /*
    * PENDING the armpit worker's report on the slit's trace failure, which decides this seed: f1's operator contact observations for the
    * armpit's slit on its band, copied from human/.shots/native-round-20261117-0404/f1.json, operators.rows[owner,kind=diff-seed].actual
    * (SHA256 68f77cc5a906ecbc4641c39c162a10fef162310633a7952973a16ef25f4659f3; also in f1.operator-inputs.json meet-end events, SHA256
@@ -50,17 +56,9 @@ export namespace AutoMovieHumanF1NativeRootContact {
     },
   };
 
-  /**
+  /*
    * The seed of a changed or unchanged dependent cutter. `host`, the host's own source, is present exactly when the host face is a source
    * (the nose for the nostrils): its seed is derived. Absent, the host is a band and the stored chart applies (the armpit's slit, pending).
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation An unchanged root keeps its transported original search; a source host is seeded where the declared seed line (its phase and material window) enters the host's current source; a band host keeps its declared pending chart.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Three explicit branches decided by the root's identity and by whether the host is a source, not by a cutter's name.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No contact is read from an output for a source host; a seed outside either current domain is refused without clipping, widening or retry.
-   * @evidence contracts/development/common.md#meaningful-documentation States units (mm and radians here, metres in the emitted seed) and the pending armpit scope.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One reader per source and one radial scan of 64 steps plus a bracketed root.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Each call serves one cutter.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Readers live for the call; the result holds plain numbers.
    */
   export function create(
     spec: IAutoMovieHumanF1NativeRoot.IRootSpec,
@@ -110,7 +108,9 @@ export namespace AutoMovieHumanF1NativeRootContact {
     };
   }
 
-  /** The seed where the cutter's declared seed line, its phase over its material window shares, enters the host source. */
+  /*
+   * The seed where the cutter's declared seed line, its phase over its material window shares, enters the host source.
+   */
   function derived(
     current: IAutoMovieViewPart,
     source: IAutoMovieLoftViewFullSource.IReader,
@@ -155,13 +155,21 @@ export namespace AutoMovieHumanF1NativeRootContact {
     };
   }
 
-  /** A stored contact in kernel mm/radians and its actual face names. */
+  /*
+   * A stored contact in kernel mm/radians and its actual face names.
+   */
   interface IPrior {
-    /** Exact original source name and host chart owner. */
+    /*
+     * Exact original source name and host chart owner.
+     */
     host: string;
-    /** Cutter material coordinate, mm/radians. */
+    /*
+     * Cutter material coordinate, mm/radians.
+     */
     part: readonly [number, number];
-    /** Host source or mean-chord band chart coordinate, mm/radians. */
+    /*
+     * Host source or mean-chord band chart coordinate, mm/radians.
+     */
     hostAt: readonly [number, number];
   }
 }

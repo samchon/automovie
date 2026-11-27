@@ -4,7 +4,7 @@ import type {
   IAutoMovieRasterLabel,
 } from "@automovie/interface";
 
-/**
+/*
  * Put a picture's legend on the picture itself, in the corner where it hides
  * the least of what was drawn: one row per entry, a square of the entry's
  * colour followed by the label stamp's text `<label> <count>`, so a reader of
@@ -107,7 +107,7 @@ export function stampAutoMovieDrawLegend(
   );
 }
 
-/**
+/*
  * Rows of a stamped label box in font pixels: five glyph rows and two of
  * padding above and below, as the label stamp draws it.
  */

@@ -7,7 +7,9 @@ import { appendCameraIntentArtifact } from "./appendCameraIntentArtifact";
 import { pushViolation } from "./pushViolation";
 import { validateClipArtifact } from "./validateClipArtifact";
 
-/** Inspect alternate-camera takes, their clips and camera intent metadata. */
+/*
+ * Inspect alternate-camera takes, their clips and camera intent metadata.
+ */
 export function appendShotCoverageArtifact(
   coverage: readonly IAutoMovieShotCoverage[],
   path: string,

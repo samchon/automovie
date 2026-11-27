@@ -10,7 +10,7 @@ import {
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { engineDiagnostic } from "./engineDiagnostic";
 
-/**
+/*
  * Validate cue ids, intervals, intensities, compiled stream correspondence,
  * event inclusion and same-zone ordering. Each source cue must match its unique
  * materialized stream's envelope and event binding. Event times must be finite

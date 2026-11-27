@@ -3,7 +3,7 @@ import type {
   IAutoMovieRenderTargetRenderer,
 } from "@automovie/interface";
 
-/**
+/*
  * Read a capture host's graphics probe as a render-target renderer identity, or
  * `null` when no probe ran.
  *

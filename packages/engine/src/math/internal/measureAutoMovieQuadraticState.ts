@@ -17,15 +17,15 @@ import type {
 
 import { addAutoMovieQuadraticProduct } from "./addAutoMovieQuadraticProduct";
 
-/**
+/*
  * Measure homogeneous equations and original-coordinate termination quantities.
  * Residual signs are rx=-Px-A'z-q_tau and rz=Ax+s-b_tau. Costs divide by tau
  * and undo objective scaling; infeasibility quantities remain homogeneous.
  * Stable Euclidean norms retain the preceding solver's residual definitions.
  * Product/addition corrections remain through sparse residuals and costs; the
  * gap is formed before the two reported costs round to individual numbers.
- * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/residuals.rs}
- * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/info.rs}
+ * https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/residuals.rs
+ * https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/info.rs
  */
 export function measureAutoMovieQuadraticState(
   data: IAutoMovieQuadraticConicProgram,
@@ -147,7 +147,7 @@ export function measureAutoMovieQuadraticState(
   };
 }
 
-/**
+/*
  * Round each twofold component only where the vector API needs one binary64
  * value.
  */
@@ -158,7 +158,9 @@ function rounded(values: Float64Array, count: number): Float64Array {
   );
 }
 
-/** Scaled sum-of-squares keeps finite Euclidean norms away from overflow. */
+/*
+ * Scaled sum-of-squares keeps finite Euclidean norms away from overflow.
+ */
 function scaledNorm(
   values: Float64Array,
   scales: Float64Array,

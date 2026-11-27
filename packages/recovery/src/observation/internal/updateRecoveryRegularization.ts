@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryRegularizationUpdate } from "@automovie/interface";
 
-/**
+/*
  * React to one selected increment using its undamped computed agreement. The
  * multiplier is the unclamped reciprocal accepted-radius rule from Ceres
  * levenberg_marquardt_strategy.cc, blob
@@ -60,7 +60,9 @@ export function updateRecoveryRegularization(
   return result;
 }
 
-/** Whether a decrease is a number rather than an overflow. */
+/*
+ * Whether a decrease is a number rather than an overflow.
+ */
 function bounded(value: number): boolean {
   return value !== Infinity && value !== -Infinity;
 }

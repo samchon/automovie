@@ -8,7 +8,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { designFrameScale } from "./designFrameScale";
 
-/**
+/*
  * Map one source-space point onto world metres through its frame.
  *
  * With `s` the settled metres-per-unit, the point becomes `origin` plus
@@ -22,10 +22,9 @@ import { designFrameScale } from "./designFrameScale";
  *
  * Throws an `Error` when the frame's scale is unsettled: producing a number
  * there is the exact failure this whole graph exists to prevent.
- *
- * @param frame Frame the point was read in.
- * @param point Source-space point in the frame's own units.
- * @returns World position in metres.
+ * Parameter frame: Frame the point was read in.
+ * Parameter point: Source-space point in the frame's own units.
+ * Returns: World position in metres.
  */
 export function designReferenceWorldPoint(
   frame: IAutoMovieDesignSourceFrame,
@@ -58,10 +57,14 @@ export function designReferenceWorldPoint(
   return Vector3.add(rotated, transform.translation);
 }
 
-/** Axes no longer than this threshold are returned without normalization. */
+/*
+ * Axes no longer than this threshold are returned without normalization.
+ */
 const AXIS_EPSILON: number = 1e-12;
 
-/** Normalize an axis longer than the threshold; otherwise return it unchanged. */
+/*
+ * Normalize an axis longer than the threshold; otherwise return it unchanged.
+ */
 const unit: (value: IAutoMovieVector3) => IAutoMovieVector3 = (
   value: IAutoMovieVector3,
 ): IAutoMovieVector3 => {

@@ -5,7 +5,7 @@ import type { IAutoMovieInspectorAction } from "../IAutoMovieInspectorAction.js"
 import type { IAutoMovieInspectorState } from "../IAutoMovieInspectorState.js";
 import { readAutoMovieInspectorAddress } from "./readAutoMovieInspectorAddress.js";
 
-/**
+/*
  * Apply one edit to the inspector's request, the only way its request changes.
  *
  * The request is written as named text values by
@@ -92,7 +92,9 @@ export function reduceAutoMovieInspectorState(
   );
 }
 
-/** The key each toggle edits. */
+/*
+ * The key each toggle edits.
+ */
 const LISTS: Record<IAutoMovieInspectorAction.IToggle["type"], string> = {
   select: "parts",
   hide: "hide",
@@ -100,7 +102,7 @@ const LISTS: Record<IAutoMovieInspectorAction.IToggle["type"], string> = {
   marks: "marks",
 };
 
-/**
+/*
  * The state a reading gives: its request, or the previous request with the
  * refusal.
  */
@@ -118,7 +120,9 @@ function read(
   }
 }
 
-/** Rewrite one comma-separated key; an empty list removes the key. */
+/*
+ * Rewrite one comma-separated key; an empty list removes the key.
+ */
 function edit(
   values: Map<string, string>,
   key: string,

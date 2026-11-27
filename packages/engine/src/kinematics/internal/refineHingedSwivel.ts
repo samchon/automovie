@@ -1,6 +1,6 @@
 import { hingedArmSwivel } from "../hingedArmSwivel";
 
-/**
+/*
  * Refine one swivel bracket by the articulation's original golden-section
  * search (Kiefer 1953), preserving the caller's complete candidate ordering. A
  * tie closes onto both probes so mirrored equal probes keep mirrored brackets.
@@ -8,13 +8,12 @@ import { hingedArmSwivel } from "../hingedArmSwivel";
  * probe angles become bit-identical, their next tie collapses both ends to that
  * number and every later probe is identical. Return their original final
  * comparison instead of repeating guaranteed-identical work.
- *
- * @param probe Actual scorer at a swivel angle, degrees.
- * @param better Whether the first candidate is strictly ahead of the second.
- * @param angle Centre of the two-step bracket, degrees.
- * @param passes Original refinement count, including a near fit's
- *   tolerance-derived count.
- * @returns The strictly better final probe, or the first on a complete tie.
+ * Parameter probe: Actual scorer at a swivel angle, degrees.
+ * Parameter better: Whether the first candidate is strictly ahead of the second.
+ * Parameter angle: Centre of the two-step bracket, degrees.
+ * Parameter passes: Original refinement count, including a near fit's
+ * tolerance-derived count.
+ * Returns: The strictly better final probe, or the first on a complete tie.
  */
 export function refineHingedSwivel<T>(
   probe: (angle: number) => T,
@@ -55,8 +54,12 @@ export function refineHingedSwivel<T>(
   return better(atOuter, atInner) ? atOuter : atInner;
 }
 
-/** The original articulation's fixed swivel step, degrees. */
+/*
+ * The original articulation's fixed swivel step, degrees.
+ */
 const STEP: number = hingedArmSwivel.STEP;
 
-/** The original golden-section contraction factor. */
+/*
+ * The original golden-section contraction factor.
+ */
 const GOLDEN: number = hingedArmSwivel.GOLDEN;

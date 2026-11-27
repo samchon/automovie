@@ -4,19 +4,18 @@ import { Vector3 } from "@automovie/engine";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { StreetFixtureDraw } from "./StreetFixtureDraw";
 
-/**
+/*
  * A ground-standing steel bollard with a shaft grip and a top surface.
  *
  * The installed height and selected Reliance pipe diameter supply the shaft,
  * its bar and its top support. The lowest point of the fixture stands on Y =
  * 0.
- *
- * @param params The scene identifier, model choice and supported dimension
- *   overrides.
- * @param seed The seed for the draws the author leaves open.
- * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
- *   selected profile.
+ * Parameter params: The scene identifier, model choice and supported dimension
+ * overrides.
+ * Parameter seed: The seed for the draws the author leaves open.
+ * Returns: The fixed model with its typed contacts.
+ * If a supplied override lies outside the
+ * selected profile.
  */
 export function createBollard(
   params: AutoMovieArchetypeBollard.IParams = {},

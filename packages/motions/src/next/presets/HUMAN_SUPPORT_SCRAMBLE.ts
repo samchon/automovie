@@ -5,11 +5,13 @@ import { HumanSupportContacts } from "./HumanSupportContacts";
 
 const { FEET, on } = HumanSupportContacts;
 
-/** Lead with the left foot while the right knee carries the body onto the ledge. */
+/*
+ * Lead with the left foot while the right knee carries the body onto the ledge.
+ */
 const HALF_KNEEL: IAutoMovieMotionHumanSupport.IStance["prefer"] =
   getUp.halfKneeling("left");
 
-/**
+/*
  * The scramble preset: up onto a ledge, the palms on its top half a forearm and
  * hand's length in from the edge, a knee up onto the edge, the other foot up
  * beside it while the hands still bear. Release the hands over the supported

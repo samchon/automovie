@@ -5,7 +5,7 @@ import { AutoMovieRenderFormationCycle } from "../../formationCycle/index.js";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 import type { AutoMovieRenderInspectionMaterial } from "../../AutoMovieRenderInspectionMaterial.js";
 
-/**
+/*
  * Shade each mesh a request's colour patterns match in that colour for one
  * picture, and return the call that gives each its own material back.
  *

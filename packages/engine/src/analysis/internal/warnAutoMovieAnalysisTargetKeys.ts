@@ -1,6 +1,6 @@
 import type { IAutoMovieWarnAnalysisTargetKeys } from "@automovie/interface";
 
-/**
+/*
  * Report every declared target that names no metric the study reports.
  *
  * A target nobody can apply is the quietest way a report reads `meets`.

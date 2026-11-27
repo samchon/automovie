@@ -32,7 +32,7 @@ import { ReactionSource } from "./ReactionSource";
 import { collapseClock } from "./collapseClock";
 import { knockdown } from "./knockdown";
 
-/**
+/*
  * A staged collapse in a chosen direction and tone, for a faint or a fatal hit
  * (`IAutoMovieMotionHumanCollapse`). `backward` is the knockdown itself; the
  * other directions drop onto the knees by `knockdown.SEATED`, about the
@@ -44,29 +44,34 @@ import { knockdown } from "./knockdown";
  * `CollapseFold`'s.
  */
 export namespace collapse {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "collapse";
 
-  /**
+  /*
    * A collapse is a staged fall, so its balance is judged over the fall
    * (`IAutoMovieMotionHumanActionLaw.physical`).
    */
   export const physical: boolean = true;
 
-  /** Cancel table: none; a collapsed performer stays down. */
+  /*
+   * Cancel table: none; a collapsed performer stays down.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-  /** A collapse interrupts whatever the body was doing, at any instant. */
+  /*
+   * A collapse interrupts whatever the body was doing, at any instant.
+   */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
 
-  /**
+  /*
    * Plan a collapse.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} On `sag` or `seconds` when negative.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * On `sag` or `seconds` when negative.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCollapse.IParams>,
@@ -256,7 +261,7 @@ export namespace collapse {
     };
   }
 
-  /**
+  /*
    * The floor contacts a collapse declares: the knees from their landing, a
    * protective body's hands before its trunk, and the trunk's lie.
    */
@@ -313,7 +318,9 @@ export namespace collapse {
     return [...knees, ...hands, ...trunk];
   }
 
-  /** A heading difference wrapped into (-180, 180]. */
+  /*
+   * A heading difference wrapped into (-180, 180].
+   */
   function angle(degrees: number): number {
     return ((((degrees + 180) % 360) + 360) % 360) - 180;
   }

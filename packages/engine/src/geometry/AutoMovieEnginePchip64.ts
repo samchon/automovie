@@ -146,7 +146,9 @@ export class AutoMovieEnginePchip64 {
     return out;
   }
 
-  /** Powers relative to each interval start. */
+  /*
+   * Powers relative to each interval start.
+   */
   private readonly coefficients: readonly (readonly [
     number,
     number,
@@ -154,10 +156,14 @@ export class AutoMovieEnginePchip64 {
     number,
   ])[];
 
-  /** Owned coordinate snapshot used by admission and evaluation. */
+  /*
+   * Owned coordinate snapshot used by admission and evaluation.
+   */
   private readonly xs: readonly number[];
 
-  /** Limit the endpoint to the first secant sign and its three-times bound. */
+  /*
+   * Limit the endpoint to the first secant sign and its three-times bound.
+   */
   private static edge(h0: number, h1: number, m0: number, m1: number): number {
     const width: number = h0 + h1;
     const d: number = ((2 * h0 + h1) * m0 - h0 * m1) / width;
@@ -170,7 +176,9 @@ export class AutoMovieEnginePchip64 {
   }
 }
 
-/** Convert finite ordered stations to the segment secants. */
+/*
+ * Convert finite ordered stations to the segment secants.
+ */
 function stationSecants(widths: readonly number[], values: readonly number[]): number[] {
   return widths.map(
     (width: number, i: number): number => (values[i + 1]! - values[i]!) / width,

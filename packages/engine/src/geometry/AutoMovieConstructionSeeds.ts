@@ -34,13 +34,13 @@ export namespace AutoMovieConstructionSeeds {
   /** Stations and phases of the coarse grid a step's first foot starts from. */
   export const GRID: [number, number] = [16, 32];
 
-  /**
+  /*
    * Twenty trial steps, starting at full weight, bound local safeguarding work;
    * exhaustion is not a global absence result.
    */
   const BACKTRACKINGS: number = 20;
 
-  /**
+  /*
    * Conventional Armijo sufficient-decrease factor, matching PETSc
    * SNESLINESEARCHBT's documented default rather than an anatomical fit.
    */
@@ -127,13 +127,12 @@ export namespace AutoMovieConstructionSeeds {
       : `no admissible meeting converged from ${starts} local starts on each of the part's ${lines} station lines at phases ${phases.map((p: number): string => p.toFixed(4)).join(", ")} between stations ${a} and ${b} mm; this bounded search does not prove no crossing`;
   }
 
-  /**
+  /*
    * One station line's search: the walk at `phase` from station `a` to station
    * `b`, mm, one step per layer between them, each step's foot on the host and
    * the meeting solved from it.
-   *
-   * @returns The first admitted meeting, with `phase` as its phase, or the
-   *   number of local starts tried when none was admitted.
+   * Returns: The first admitted meeting, with `phase` as its phase, or the
+   * number of local starts tried when none was admitted.
    */
   function along(
     a: number,
@@ -235,7 +234,7 @@ export namespace AutoMovieConstructionSeeds {
     return steps.length;
   }
 
-  /**
+  /*
    * Armijo-Newton on the original physical residual P(s,phase)-H(y,theta).
    *
    * For the exact Newton direction, the directional derivative of |F|^2/2 is
@@ -378,7 +377,7 @@ export namespace AutoMovieConstructionSeeds {
     return gap <= tolerance ? x : null;
   }
 
-  /**
+  /*
    * The chart point of a coarse grid over the surface's domain nearest a world
    * point.
    */

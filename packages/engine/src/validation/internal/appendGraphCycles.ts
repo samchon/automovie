@@ -3,7 +3,7 @@ import type {
   IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
-/**
+/*
  * Report every link that closes a cycle in a graph of declared ids.
  *
  * Nodes are visited depth first in declaration order, following each node's
@@ -17,12 +17,11 @@ import type {
  * The walk keeps its own stack instead of recursing, so a chain as long as the
  * whole graph, such as a revision history thousands deep, cannot overflow the
  * call stack.
- *
- * @param nodes Graph nodes with their outgoing links, the violation path to
- *   report a cycle on, and the value to report there.
- * @param message Violation message, such as `design revision graph must be
- *   acyclic`.
- * @param collector Sink that receives the violations.
+ * Parameter nodes: Graph nodes with their outgoing links, the violation path to
+ * report a cycle on, and the value to report there.
+ * Parameter message: Violation message, such as `design revision graph must be
+ * acyclic`.
+ * Parameter collector: Sink that receives the violations.
  */
 export const appendGraphCycles = (
   nodes: IAutoMovieAppendGraphCycles.INodes,

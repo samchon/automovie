@@ -8,9 +8,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** Companion types of {@link HumanContactWindow}. */
+/*
+ * Companion types of HumanContactWindow.
+ */
 export namespace HumanContactWindow {
-  /** The body parts a contact window can name, as data. */
+  /*
+   * The body parts a contact window can name, as data.
+   */
   export const PARTS: readonly IAutoMovieMotionHumanContactWindow["part"][] = [
     "leftFoot",
     "rightFoot",
@@ -30,7 +34,7 @@ export namespace HumanContactWindow {
     "chest",
   ];
 
-  /**
+  /*
    * The ways a part bears, as data. `bear` is a part that carries weight
    * without being a foot's plant: a knee or a shin on the floor, a palm on a
    * vault, a forearm on a table.
@@ -45,7 +49,7 @@ export namespace HumanContactWindow {
     "bear",
   ];
 
-  /**
+  /*
    * The surface region each part touches with when a window names no `region`:
    * a foot's sole, a hand's palm, the seat bones, the upper back, the outer
    * face of an arm segment, the front of a thigh and a knee, the back of the
@@ -73,42 +77,44 @@ export namespace HumanContactWindow {
     chest: "sternum",
   };
 
-  /** The kinds that bear the body's weight when no `load` says otherwise. */
+  /*
+   * The kinds that bear the body's weight when no `load` says otherwise.
+   */
   export const BEARING: readonly IAutoMovieMotionHumanContactWindow["kind"][] =
     ["plant", "pivot", "seat", "lie", "bear"];
 
-  /**
+  /*
    * The samples per second a foot path is read at: the source's rate
    * ("Supersample data to 60 fps", `generate_database.py` below).
    */
   export const RATE: number = 60;
 
-  /**
+  /*
    * The toe speed below which a foot is in contact, metres per second
    * (`contact_velocity_threshold = 0.15`, `generate_database.py`).
    */
   export const THRESHOLD: number = 0.15;
 
-  /**
+  /*
    * The width of the majority vote over the contact samples
    * (`ndimage.median_filter(..., size=6, mode='nearest')`,
    * `generate_database.py`).
    */
   export const FILTER: number = 6;
 
-  /**
+  /*
    * How far the animated toe may leave a locked contact before the lock lets
    * go, metres (`ik_unlock_radius = 0.2f`, `controller.cpp` below).
    */
   export const UNLOCK: number = 0.2;
 
-  /**
+  /*
    * The half-life of the blend into and out of a lock, seconds
    * (`ik_blending_halflife = 0.1f`, `controller.cpp`).
    */
   export const HALFLIFE: number = 0.1;
 
-  /**
+  /*
    * A plan's foot windows timed by its planned toe path.
    *
    * A port of orangeduck/Motion-Matching, `resources/generate_database.py` at
@@ -150,12 +156,11 @@ export namespace HumanContactWindow {
    * is what `locked` lays on the plan's leg goals, read linearly between
    * samples. Where the plan gives a floor, the shown contact is also held at
    * least at it, as the source clamps its IK target above its ground.
-   *
-   * @param props The declared windows, the plan's length and its toe path.
-   * @returns The windows, the feet's timed by their path, and the locks'
-   *   offsets.
-   * @throws {Error} When the plan is shorter than the four samples the source's
-   *   end extrapolation reads.
+   * Parameter props: The declared windows, the plan's length and its toe path.
+   * Returns: The windows, the feet's timed by their path, and the locks'
+   * offsets.
+   * When the plan is shorter than the four samples the source's
+   * end extrapolation reads.
    */
   export function fromPath(props: IPath): IContacts {
     const count: number = Math.floor(props.duration * RATE) + 1;
@@ -247,18 +252,17 @@ export namespace HumanContactWindow {
     };
   }
 
-  /**
+  /*
    * A plan's posture with each foot's lock laid on its leg goal: the goal's
    * point and bend moved by the lock's offset from the animated toe at the
    * second (`fromPath`), as the source's controller moves the heel's IK target
    * by the locked contact's offset (`controller.cpp`). A leg with no world goal
    * is left as it is.
-   *
-   * @param posture The plan's posture at the second.
-   * @param path The plan's contacts, timed and locked.
-   * @param seconds The action's second.
-   * @param duration The plan's length, seconds.
-   * @returns The posture with its feet locked.
+   * Parameter posture: The plan's posture at the second.
+   * Parameter path: The plan's contacts, timed and locked.
+   * Parameter seconds: The action's second.
+   * Parameter duration: The plan's length, seconds.
+   * Returns: The posture with its feet locked.
    */
   export function locked(
     posture: IAutoMovieMotionHumanPosture,
@@ -292,24 +296,32 @@ export namespace HumanContactWindow {
     return { ...posture, limbs };
   }
 
-  /** A foot a path times. */
+  /*
+   * A foot a path times.
+   */
   export type Foot = "leftFoot" | "rightFoot";
 
-  /** What a foot's windows are timed from. */
+  /*
+   * What a foot's windows are timed from.
+   */
   export interface IPath {
-    /** The plan's windows as the law declares them. */
+    /*
+     * The plan's windows as the law declares them.
+     */
     windows: readonly IAutoMovieMotionHumanContactWindow[];
 
-    /** The plan's length, seconds. */
+    /*
+     * The plan's length, seconds.
+     */
     duration: number;
 
-    /**
+    /*
      * Both feet's toe joints at an action second, each in the frame of the
      * support it bears on, metres.
      */
     toes: (seconds: number) => Toes;
 
-    /**
+    /*
      * The least height a foot's toe joint may be shown at over the support
      * beneath a point of its frame, metres: that support's height there plus
      * the toe joint's height above its sole, the source's `ik_foot_height`
@@ -319,31 +331,43 @@ export namespace HumanContactWindow {
     floor?: (foot: Foot, toe: IAutoMovieVector3) => number;
   }
 
-  /** Both feet's toe joints, metres. */
+  /*
+   * Both feet's toe joints, metres.
+   */
   export type Toes = Readonly<Record<Foot, IAutoMovieVector3>>;
 
-  /** A plan's feet timed and locked by their toe path. */
+  /*
+   * A plan's feet timed and locked by their toe path.
+   */
   export interface IContacts {
-    /** The plan's windows, the feet's timed by their path. */
+    /*
+     * The plan's windows, the feet's timed by their path.
+     */
     windows: IAutoMovieMotionHumanContactWindow[];
 
-    /**
+    /*
      * Each foot's lock offset from its animated toe at every sample of `RATE`,
      * world metres.
      */
     offsets: Readonly<Record<Foot, readonly IAutoMovieVector3[]>>;
   }
 
-  /** A run of samples in contact, inclusive. */
+  /*
+   * A run of samples in contact, inclusive.
+   */
   export interface IRun {
-    /** The run's first sample. */
+    /*
+     * The run's first sample.
+     */
     first: number;
 
-    /** The run's last sample. */
+    /*
+     * The run's last sample.
+     */
     last: number;
   }
 
-  /**
+  /*
    * The contact states of one toe path sampled at `RATE`: the source's
    * velocity, threshold and median filter.
    */
@@ -389,7 +413,9 @@ export namespace HumanContactWindow {
     return filtered;
   }
 
-  /** The runs of consecutive samples in contact. */
+  /*
+   * The runs of consecutive samples in contact.
+   */
   function runsOf(states: readonly boolean[]): IRun[] {
     const runs: IRun[] = [];
     states.forEach((on: boolean, t: number): void => {
@@ -401,7 +427,7 @@ export namespace HumanContactWindow {
     return runs;
   }
 
-  /**
+  /*
    * One foot's lock offsets over its samples: the source's `contact_update` run
    * at the step `1 / RATE` from `contact_reset`, its blends by
    * `inertialize_transition` and `inertialize_update`, the offset of the shown
@@ -479,20 +505,30 @@ export namespace HumanContactWindow {
     return out;
   }
 
-  /** `fast_negexpf` (`common.h`): the source's approximation of `exp(-x)`. */
+  /*
+   * `fast_negexpf` (`common.h`): the source's approximation of `exp(-x)`.
+   */
   function negexp(x: number): number {
     return 1 / (1 + x + 0.48 * x * x + 0.235 * x * x * x);
   }
 
-  /** `contact_update`'s `eps`, the finite difference's guard. */
+  /*
+   * `contact_update`'s `eps`, the finite difference's guard.
+   */
   const EPSILON: number = 1e-8;
 
-  /** `halflife_to_damping`'s `eps`. */
+  /*
+   * `halflife_to_damping`'s `eps`.
+   */
   const DAMPING_EPSILON: number = 1e-5;
 
-  /** `LN2f`, `common.h`. */
+  /*
+   * `LN2f`, `common.h`.
+   */
   const LN2: number = 0.69314718056;
 
-  /** The feet a path times. */
+  /*
+   * The feet a path times.
+   */
   const FEET: readonly Foot[] = ["leftFoot", "rightFoot"];
 }

@@ -9,7 +9,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** The accessibility standard's ramp clauses. */
+/*
+ * The accessibility standard's ramp clauses.
+ */
 const ADA: string =
   "2010 ADA Standards (https://www.access-board.gov/ada/chapter/ch04/)";
 

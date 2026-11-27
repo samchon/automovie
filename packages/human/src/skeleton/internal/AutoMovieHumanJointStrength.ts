@@ -1,6 +1,6 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
-/**
+/*
  * Peak joint torque models of Harbo, Brincks and Andersen (2012), "Maximal
  * isokinetic and isometric muscle strength of major muscle groups related to
  * age, body mass, height, and sex in 178 healthy subjects", Eur J Appl Physiol
@@ -74,7 +74,7 @@ const HARBO: Readonly<Record<string, IMotion>> = {
   },
 };
 
-/**
+/*
  * Peak isometric hip torques per kilogram of body mass, N m/kg, for the motions
  * Harbo et al. did not measure: McNabb, Sanchez, Selfe, Reeves and Callaghan
  * (2024), "Handheld dynamometry: Validity and reliability of measuring hip
@@ -92,7 +92,7 @@ const MCNABB: Readonly<Record<string, number>> = {
   hipExternalRotation: 0.66,
 };
 
-/**
+/*
  * The clinical channels the models cover, by the bone the joint moves: the
  * motion toward the channel's clinical maximum, then toward its minimum. The
  * rig's clinical signs (`DEFAULT_HUMANOID_ROM`, `HUMANOID_REST_FRAME`) put
@@ -118,12 +118,12 @@ const COVERED: Readonly<
   Hand: { flexion: ["wristExtension", "wristFlexion"] },
 };
 
-/**
+/*
  * The strength the canonical Human's joints have: a person's peak joint torques
  * by sex, height and mass at the stated adult age.
  */
 export namespace AutoMovieHumanJointStrength {
-  /**
+  /*
    * The adult age the canonical profile represents, years, stated rather than
    * measured.
    */
@@ -139,16 +139,15 @@ export namespace AutoMovieHumanJointStrength {
     mass: number;
   }
 
-  /**
+  /*
    * A clinical channel's peak torques toward its clinical maximum and minimum,
    * N m: Harbo et al.'s regressions, McNabb et al.'s per-kilogram means for
    * the hip's abduction, adduction and rotations, or undefined where neither
    * measured the motions.
-   *
-   * @param person The person.
-   * @param bone The bone the joint moves.
-   * @param channel The clinical channel.
-   * @returns The two peak torques, or undefined.
+   * Parameter person: The person.
+   * Parameter bone: The bone the joint moves.
+   * Parameter channel: The clinical channel.
+   * Returns: The two peak torques, or undefined.
    */
   export function of(
     person: IPerson,
@@ -173,16 +172,22 @@ export namespace AutoMovieHumanJointStrength {
   }
 }
 
-/**
+/*
  * A sex-specific peak-torque regression: intercept, age, height and mass
  * coefficients.
  */
 type Model = readonly [number, number, number, number];
 
-/** One motion's male and female models. */
+/*
+ * One motion's male and female models.
+ */
 interface IMotion {
-  /** Men. */
+  /*
+   * Men.
+   */
   male: Model;
-  /** Women. */
+  /*
+   * Women.
+   */
   female: Model;
 }

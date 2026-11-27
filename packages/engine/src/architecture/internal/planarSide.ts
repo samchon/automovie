@@ -2,7 +2,7 @@ import { IAutoMoviePlanarPoint } from "@automovie/interface";
 
 import { PLANAR_EPSILON } from "../../geometry/PLANAR_EPSILON";
 
-/**
+/*
  * Which side of the directed line `from -> to` a point falls on: `1` left, `-1`
  * right, `0` on the line.
  *
@@ -12,11 +12,10 @@ import { PLANAR_EPSILON } from "../../geometry/PLANAR_EPSILON";
  * `point - from`, so the tolerance grows with the size of the figure and never
  * falls below the absolute floor. A degenerate line, `from` equal to `to`, puts
  * every point on it.
- *
- * @param from Start of the directed line, in the caller's planar frame.
- * @param to End of the directed line, in the same frame.
- * @param point Point to classify, in the same frame.
- * @returns `1`, `-1` or `0` as described above.
+ * Parameter from: Start of the directed line, in the caller's planar frame.
+ * Parameter to: End of the directed line, in the same frame.
+ * Parameter point: Point to classify, in the same frame.
+ * Returns: `1`, `-1` or `0` as described above.
  */
 export function planarSide(
   from: IAutoMoviePlanarPoint,

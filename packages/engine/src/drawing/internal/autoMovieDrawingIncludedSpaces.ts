@@ -3,7 +3,7 @@ import {
   IAutoMovieDrawingView,
 } from "@automovie/interface";
 
-/**
+/*
  * The logical spaces a view draws, descendants included, or `null` for all.
  *
  * An empty `view.spaces` filter means every space. Otherwise the named spaces
@@ -12,11 +12,10 @@ import {
  * the named record would draw an empty sheet for every building that partitions
  * its floors. A named space the design does not declare stays in the set and
  * selects nothing; the caller reports it as a gap.
- *
- * @param environment The validated design, whose space parents resolve and are
- *   acyclic.
- * @param view The view whose space filter applies.
- * @returns The included space ids, or `null` when the view does not filter.
+ * Parameter environment: The validated design, whose space parents resolve and are
+ * acyclic.
+ * Parameter view: The view whose space filter applies.
+ * Returns: The included space ids, or `null` when the view does not filter.
  */
 export const autoMovieDrawingIncludedSpaces = (
   environment: IAutoMovieBuiltEnvironment,

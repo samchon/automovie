@@ -8,7 +8,7 @@ import type {
 
 import { RecoveryChartLeafAssembly } from "./RecoveryChartLeafAssembly";
 
-/**
+/*
  * Assemble fitted chart fields using one canonical boundary coefficient
  * registry. Equal declared boundary intervals share four exact coefficient IDs,
  * including reversal; coincident independent sheets retain distinct IDs.

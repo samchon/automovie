@@ -1,13 +1,12 @@
 import type { AutoMovieHumanSide } from "@automovie/interface";
 
-/**
+/*
  * The target turn nearest the current one, a half turn going over the named
  * side.
- *
- * @param current The current turn, degrees.
- * @param named The turn named, degrees.
- * @param via The side a half turn goes over.
- * @returns The target turn, degrees.
+ * Parameter current: The current turn, degrees.
+ * Parameter named: The turn named, degrees.
+ * Parameter via: The side a half turn goes over.
+ * Returns: The target turn, degrees.
  */
 export function turnOverToward(
   current: number,

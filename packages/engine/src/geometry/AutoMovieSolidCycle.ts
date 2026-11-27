@@ -328,7 +328,7 @@ export namespace AutoMovieSolidCycle {
       : v + period * Math.round((reference - v) / period);
   }
 
-  /**
+  /*
    * The removed side of a cycle's directed chords as its owner built it
    * (`IAutoMovieSolidCycle.IExactSegment.sense`): a hole removes its polygon's
    * inside, the left of its chords when its signed chart area is positive, and
@@ -353,26 +353,28 @@ export namespace AutoMovieSolidCycle {
     return Math.sign(area) * (cycle.kind === "hole" ? 1 : -1);
   }
 
-  /**
+  /*
    * Cycle-invariant values; coordinates and kind are owned unchanged by the
    * caller.
    */
   interface IPrepared {
-    /** Lowest and highest unwrapped v of a hole or an island (`span`). */ span?: [
+    /*
+     * Lowest and highest unwrapped v of a hole or an island (`span`).
+     */ span?: [
       number,
       number,
     ];
-    /**
+    /*
      * Original winding endpoint and its integer turn relative to the segment
      * start.
      */ ends?: [number, number, number][];
-    /**
+    /*
      * Per winding segment, whether both its vertices lie on the cycle's exact
      * curve (`IAutoMovieSolidCycle.ICycle.along`).
      */ on?: boolean[];
   }
 
-  /**
+  /*
    * Whether a segment's two stored vertices lie on the exact curve, as its
    * builder evaluated them.
    */
@@ -384,7 +386,7 @@ export namespace AutoMovieSolidCycle {
     return curve(a[1]) === a[0] && curve(b[1]) === b[0];
   }
 
-  /**
+  /*
    * Preserve the original raw endpoint's x/y-before-start-phase access and
    * exception order.
    */
@@ -398,7 +400,7 @@ export namespace AutoMovieSolidCycle {
     return [u, v, Math.round((a[1] - v) / period)];
   }
 
-  /**
+  /*
    * The lowest and highest phase of a hole or an island along its own unwrapped
    * chart; `[Infinity, -Infinity]` on an empty chart.
    *
@@ -429,7 +431,7 @@ export namespace AutoMovieSolidCycle {
     return [low, high];
   }
 
-  /**
+  /*
    * Crossing parity of the ray from `(u, w)` toward lower `u` against a hole's
    * or an island's polygon, `w` already on the polygon's branch.
    */
@@ -452,7 +454,9 @@ export namespace AutoMovieSolidCycle {
     return inside;
   }
 
-  /** The original parity and tie arithmetic, with optional invariant values. */
+  /*
+   * The original parity and tie arithmetic, with optional invariant values.
+   */
   function read(
     cycle: Pick<IAutoMovieSolidCycle.ICycle, "kind" | "chart" | "along">,
     u: number,
@@ -525,7 +529,9 @@ export namespace AutoMovieSolidCycle {
   }
 }
 
-/** A value reduced to `[0, period)`. */
+/*
+ * A value reduced to `[0, period)`.
+ */
 function reduce(x: number, period: number): number {
   const r: number = x % period;
   return r < 0 ? r + period : r;

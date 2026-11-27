@@ -8,7 +8,7 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * A convex collider's support point: its world point farthest along a
  * direction, `s(d) = argmax_{p in S} p . d`, the mapping GJK and EPA query a
  * convex solid through (Gilbert, Johnson and Keerthi 1988; van den Bergen 2003,
@@ -18,11 +18,10 @@ import { Vector3 } from "../../math/Vector3";
  * axis end farther along it plus the radius; a box's the corner whose signs
  * match the direction's in the box frame; a hull's the vertex of greatest dot
  * product. A zero direction returns the shape's centre.
- *
- * @param pose The shape's parent pose, world metres.
- * @param shape The shape.
- * @param direction A world direction; its length is not used.
- * @returns The support point, world metres.
+ * Parameter pose: The shape's parent pose, world metres.
+ * Parameter shape: The shape.
+ * Parameter direction: A world direction; its length is not used.
+ * Returns: The support point, world metres.
  */
 export function physicalShapeSupport(
   pose: IAutoMovieRigidTransform,

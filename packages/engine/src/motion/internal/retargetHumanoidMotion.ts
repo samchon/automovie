@@ -28,7 +28,7 @@ import { validateTransformScalars } from "../../validation/internal/validateTran
 import { preserveRetargetContacts } from "./preserveRetargetContacts";
 import { validateRetargetContacts } from "./validateRetargetContacts";
 
-/**
+/*
  * Retarget an admitted clinical clip from one normalized rig to another,
  * scaling root translation by positive explicit scale or target/source rest
  * height and preserving root rotation. Source, rig/mapping and enabled
@@ -381,7 +381,7 @@ const validateRestFrames: (
     }
 };
 
-/**
+/*
  * The rig's rest-pose vertical extent: `height` drives the root-motion scale,
  * `floor` is the world Y its lowest bone sits at, the ground plane the contact
  * pass judges stance against, so a rig authored with its feet above the origin
@@ -406,13 +406,17 @@ const restVerticalSpan: (skeleton: IAutoMovieSkeleton) => {
 };
 
 const characterizeRig: (props: {
-  /** Rig whose unchanged topology and ROM constrain correction. */ skeleton: IAutoMovieSkeleton;
+  /*
+   * Rig whose unchanged topology and ROM constrain correction.
+   */ skeleton: IAutoMovieSkeleton;
   binding: IAutoMovieProfileBinding | undefined;
   height: number;
   jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
   restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
 }) => IAutoMovieHumanoidRigCharacterization = (props: {
-  /** Rig whose unchanged topology and ROM constrain correction. */
+  /*
+   * Rig whose unchanged topology and ROM constrain correction.
+   */
   skeleton: IAutoMovieSkeleton;
   binding: IAutoMovieProfileBinding | undefined;
   height: number;

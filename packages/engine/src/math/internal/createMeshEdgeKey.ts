@@ -1,4 +1,4 @@
-/**
+/*
  * Choose an exact key for pairs of welded vertex identities.
  *
  * A mesh consumer supplies the welded population once, then calls this key

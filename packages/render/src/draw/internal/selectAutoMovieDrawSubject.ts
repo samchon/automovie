@@ -1,4 +1,4 @@
-/**
+/*
  * Choose the subject a draw page creates from the names its module offers: the
  * named one, or with no name the only one.
  *

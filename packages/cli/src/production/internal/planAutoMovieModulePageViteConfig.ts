@@ -1,6 +1,6 @@
 import type { AutoMovieCliProductionPageTypes } from "../AutoMovieCliProductionPageTypes";
 
-/**
+/*
  * The Vite configuration every page `writeAutoMovieModulePage` writes is served
  * or built with: the page's folder as the root, the production's configuration
  * file and public folder, quiet logging, and the page itself as the dependency

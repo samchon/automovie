@@ -8,10 +8,14 @@ import {
 } from "../../core";
 import { AutoMovieArchetypeTray } from "../AutoMovieArchetypeTray";
 
-/** Model-space points and dimensions use metres. */
+/*
+ * Model-space points and dimensions use metres.
+ */
 const v: typeof Vector3.create = Vector3.create;
 
-/** Resolve a recorded carrier and build its common floor and walls. */
+/*
+ * Resolve a recorded carrier and build its common floor and walls.
+ */
 function draw<Id extends AutoMovieArchetypeTray.Affordance>(
   kind: AutoMovieArchetypeTray.Kind,
   params: Omit<AutoMovieArchetypeTray.IParams, "kind">,
@@ -76,12 +80,14 @@ function draw<Id extends AutoMovieArchetypeTray.Affordance>(
   return { builder, d };
 }
 
-/**
+/*
  * Open hand carriers with shared floor and wall geometry and separate gripping
  * arrangements.
  */
 export namespace TrayConstruction {
-  /** The contact ids {@link servingTray} builds or reads. */
+  /*
+   * The contact ids servingTray builds or reads.
+   */
   export type ServingTrayContact =
     | "inside"
     | "leftHandle"
@@ -89,7 +95,7 @@ export namespace TrayConstruction {
     | "palm"
     | "rest";
 
-  /**
+  /*
    * Build a low serving tray with opposing end grips, a flat-hand hold under
    * its floor's centre for a waiter's carry and a socket there for a glass.
    */
@@ -145,10 +151,14 @@ export namespace TrayConstruction {
     return builder.build(d.mass);
   }
 
-  /** The contact ids {@link basket} builds or reads. */
+  /*
+   * The contact ids basket builds or reads.
+   */
   export type BasketContact = "inside" | "handle";
 
-  /** Build a deep carry basket with an overhead grip. */
+  /*
+   * Build a deep carry basket with an overhead grip.
+   */
   export function basket(
     params: Omit<AutoMovieArchetypeTray.IParams, "kind">,
     seed?: number,
@@ -195,17 +205,25 @@ export namespace TrayConstruction {
   }
 }
 
-/** The model-space construction for the selected contact IDs. */
+/*
+ * The model-space construction for the selected contact IDs.
+ */
 type Builder<Id extends AutoMovieArchetypeTray.Affordance> = AutoMovieArchetypeBuilder<
   Id,
   AutoMovieArchetypeTray.Dimension
 >;
 
-/** What {@link draw} prepares for its caller. */
+/*
+ * What draw prepares for its caller.
+ */
 interface IDrawResult<Id extends AutoMovieArchetypeTray.Affordance> {
-  /** The prepared `builder` this call returns. */
+  /*
+   * The prepared `builder` this call returns.
+   */
   builder: Builder<Id | "inside">;
 
-  /** The prepared `d` this call returns. */
+  /*
+   * The prepared `d` this call returns.
+   */
   d: Record<AutoMovieArchetypeTray.Dimension, number>;
 }

@@ -13,10 +13,12 @@ import type { HumanSegmentPose } from "./HumanSegmentPose";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { readHumanSegmentLeaf } from "./readHumanSegmentLeaf";
 
-/** The arms, whose leaf fits the entry seeds (`entered`). */
+/*
+ * The arms, whose leaf fits the entry seeds (`entered`).
+ */
 const ARMS: readonly AutoMovieHumanLimb[] = ["leftArm", "rightArm"];
 
-/**
+/*
  * The anchor course of a displayed second's arm fits: each fit's swivel and
  * branch, prescribed (`IAutoMovieSwivelNear.prescribed`), as
  * `courseLimbSwivels` gives the plan's own arms. Anchors lie on a fixed grid of
@@ -24,7 +26,7 @@ const ARMS: readonly AutoMovieHumanLimb[] = ["leftArm", "rightArm"];
  * the least waypoint spacing of a planned arm, between which a goal at a daily
  * reach's peak speed travels at most that plan's spacing. The anchors are
  * solved when the performance is prepared
- * ({@link readHumanSegmentAnchors.prepare}). A fit both anchors around a second
+ * (readHumanSegmentAnchors.prepare). A fit both anchors around a second
  * give on one branch lies on the minimum-jerk path through its run of anchors
  * (Flash and Hogan 1985, `HumanMinimumJerkSpline`: a quintic between each two
  * whose position, velocity and acceleration carry across each anchor), its
@@ -36,10 +38,9 @@ const ARMS: readonly AutoMovieHumanLimb[] = ["leftArm", "rightArm"];
  * arm keeps clear of (Tolani, Goswami and Badler 2000, §3.2.4: the swivel is
  * the one free parameter of an arm on its goal). None before the performance is
  * prepared.
- *
- * @param segment The action.
- * @param t Film seconds.
- * @returns The arm fits' seeds by name, or none.
+ * Parameter segment: The action.
+ * Parameter t: Film seconds.
+ * Returns: The arm fits' seeds by name, or none.
  */
 export function readHumanSegmentAnchors(
   segment: readHumanSegmentAnchors.IAnchored,
@@ -135,9 +136,11 @@ export function readHumanSegmentAnchors(
   return out;
 }
 
-/** The anchor course's preparation. */
+/*
+ * The anchor course's preparation.
+ */
 export namespace readHumanSegmentAnchors {
-  /**
+  /*
    * What a read takes of an action: its time zero, its plan's duration and its
    * prepared anchors.
    */
@@ -145,11 +148,13 @@ export namespace readHumanSegmentAnchors {
     IAutoMovieMotionHumanSegment,
     "start" | "prepared"
   > {
-    /** The plan's duration. */
+    /*
+     * The plan's duration.
+     */
     plan: Pick<IAutoMovieMotionHumanActionPlan, "duration">;
   }
 
-  /**
+  /*
    * Every anchor's arm fits of an action, chained from its start: the first
    * continues the leaf arms the entry displays (`HumanLimbFit.seed` on its
    * pose), the rest of its fits read cold, and each later one continues the one
@@ -158,11 +163,10 @@ export namespace readHumanSegmentAnchors {
    * swivel a display holds a limb's branch by. Each anchor is one leaf read on
    * the placed performance with every overlay, so an anchor's fits depend on
    * the action alone, never on which second was read first.
-   *
-   * @param person The person.
-   * @param segment The action.
-   * @param prepared The reads' preparation.
-   * @returns The anchors' arm fits, by anchor index.
+   * Parameter person: The person.
+   * Parameter segment: The action.
+   * Parameter prepared: The reads' preparation.
+   * Returns: The anchors' arm fits, by anchor index.
    */
   export function prepare(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -200,7 +204,7 @@ export namespace readHumanSegmentAnchors {
   }
 }
 
-/**
+/*
  * An anchor's film second: the plan second `index` spacings in, clamped to the
  * plan.
  */
@@ -212,7 +216,7 @@ function second(
   return segment.start + Math.min(segment.plan.duration, index * spacing);
 }
 
-/**
+/*
  * Each leaf arm's swivel and branch as the segment's entry displays it, by its
  * fit's name; an arm the entry pose cannot seed is left to a cold fit.
  */

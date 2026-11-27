@@ -8,29 +8,51 @@ import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBi
 import { PhysicalTargetInterval as Interval } from "../PhysicalTargetInterval";
 import { planPhysicalRootSupportTargets } from "./planPhysicalRootSupportTargets";
 
-/**
+/*
  * Optional endpoint IK owns only chains disjoint from balance posture. Its
  * cached pose/twist endpoints survive native checkpoint continuation together.
  */
 export function trackPhysicalRootSupportTargets(input: {
-  /** Admitted provider and endpoint budget. */ body: IAutoMoviePhysicalSimulationInput.IBody;
-  /** Native ownership and cached plans. */ bound: Bound;
-  /** Current declared endpoint effort. */ target: IAutoMoviePhysicalSimulationInput.ITarget;
-  /** Current motor references, updated together. */ goals: Record<
+  /*
+   * Admitted provider and endpoint budget.
+   */ body: IAutoMoviePhysicalSimulationInput.IBody;
+  /*
+   * Native ownership and cached plans.
+   */ bound: Bound;
+  /*
+   * Current declared endpoint effort.
+   */ target: IAutoMoviePhysicalSimulationInput.ITarget;
+  /*
+   * Current motor references, updated together.
+   */ goals: Record<
     string,
     IAutoMovieSamplePhysicalTarget.IResult
   >;
-  /** Root's actual native pose and authority. */ root: {
+  /*
+   * Root's actual native pose and authority.
+   */ root: {
     bone: string;
     pose: IAutoMovieRigidTransform;
     dynamic: boolean;
   };
-  /** Coordinates already owned by balance posture. */ excluded: ReadonlySet<string>;
-  /** Enclosing cache interval. */ step: number;
-  /** Native tick time in seconds. */ seconds: number;
-  /** Declared native ticks per second. */ nativeRate: number;
-  /** Recovery-state revision, shared with preceding posture fits. */ revision: number;
-  /** Positive declared cache frequency. */ rate: number;
+  /*
+   * Coordinates already owned by balance posture.
+   */ excluded: ReadonlySet<string>;
+  /*
+   * Enclosing cache interval.
+   */ step: number;
+  /*
+   * Native tick time in seconds.
+   */ seconds: number;
+  /*
+   * Declared native ticks per second.
+   */ nativeRate: number;
+  /*
+   * Recovery-state revision, shared with preceding posture fits.
+   */ revision: number;
+  /*
+   * Positive declared cache frequency.
+   */ rate: number;
 }): void {
   const { body, bound, goals }: typeof input = input;
   const policy: IAutoMoviePhysicalSimulationInput.IBody["supportTracking"] =

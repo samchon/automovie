@@ -6,18 +6,17 @@ import type {
 import { affordanceFollowedTravel } from "./affordanceFollowedTravel";
 import { interpolateAffordanceTravel } from "./interpolateAffordanceTravel";
 
-/**
+/*
  * The unique leader travel that gives a requested follower travel.
- *
- * @param follows The coupling, in each articulation's travel unit.
- * @param follower The requested follower travel.
- * @param domain The leader's legal range, when known. Its forward images admit
- *   and recover the exact endpoints before inverse arithmetic can round outside
- *   them.
- * @returns The leader travel, or null for a non-finite value, a zero ratio, a
- *   malformed or non-monotone table, or a request outside the table's image.
- *   This does not grant permission to drive a follower; `reversible` grants
- *   that at the state boundary.
+ * Parameter follows: The coupling, in each articulation's travel unit.
+ * Parameter follower: The requested follower travel.
+ * Parameter domain: The leader's legal range, when known. Its forward images admit
+ * and recover the exact endpoints before inverse arithmetic can round outside
+ * them.
+ * Returns: The leader travel, or null for a non-finite value, a zero ratio, a
+ * malformed or non-monotone table, or a request outside the table's image.
+ * This does not grant permission to drive a follower; `reversible` grants
+ * that at the state boundary.
  */
 export function affordanceLeadingTravel(
   follows: IAutoMovieAffordanceCoupling,
@@ -95,13 +94,15 @@ export function affordanceLeadingTravel(
   return Math.abs(leader) < Infinity ? leader : null;
 }
 
-/** A segment's signed width, measured at half scale when subtraction overflows. */
+/*
+ * A segment's signed width, measured at half scale when subtraction overflows.
+ */
 function usableSpan(from: number, to: number): number {
   const width: number = to - from;
   return Math.abs(width) < Infinity ? width : to * 0.5 - from * 0.5;
 }
 
-/**
+/*
  * Refuse values outside the legal domain's forward image, recover its exact
  * bounds, or leave an interior request to inversion.
  */

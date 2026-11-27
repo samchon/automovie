@@ -3,9 +3,13 @@ import type {
   AutoMovieHumanLimb,
 } from "@automovie/interface";
 
-/** Companion types of {@link HumanPosture}. */
+/*
+ * Companion types of HumanPosture.
+ */
 export namespace HumanPosture {
-  /** The limbs of {@link Limb}, as data. */
+  /*
+   * The limbs of Limb, as data.
+   */
   export const LIMBS = [
     "leftArm",
     "rightArm",
@@ -13,8 +17,8 @@ export namespace HumanPosture {
     "rightLeg",
   ] as const satisfies readonly NonNullable<AutoMovieHumanLimb>[];
 
-  /**
-   * The digits of {@link Digit}, as data, the left hand's first, each thumb to
+  /*
+   * The digits of Digit, as data, the left hand's first, each thumb to
    * little finger.
    */
   export const DIGITS = [

@@ -5,14 +5,13 @@ import type {
 
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 
-/**
+/*
  * Each key-to-key joint blend of the route (`prepareHumanShapeBlend`), from
  * each key to the next.
  *
  * Part of `lieDown.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `blend`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `blend`.
  */
 export function lieDownBlend(
   prepared: lieDownBlend.IPrepared,
@@ -29,11 +28,17 @@ export function lieDownBlend(
     );
 }
 
-/** The `blend` of `lieDown.plan`, built from what that plan prepared. */
+/*
+ * The `blend` of `lieDown.plan`, built from what that plan prepared.
+ */
 export namespace lieDownBlend {
-  /** What `lieDown.plan` prepared for its `blend`. */
+  /*
+   * What `lieDown.plan` prepared for its `blend`.
+   */
   export interface IPrepared {
-    /** The `keys` `lieDown.plan` prepared. */
+    /*
+     * The `keys` `lieDown.plan` prepared.
+     */
     keys: IAutoMovieMotionHumanLieDown.IPose[];
   }
 }

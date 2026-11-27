@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadr
 import { QuadrupedBodyProfile } from "../quadruped/QuadrupedBodyProfile";
 import { DeerCohorts } from "./DeerCohorts";
 
-/**
+/*
  * A coarse adult Boso sika body with separately sampled same-sex skeletal
  * controls.
  *
@@ -22,14 +22,13 @@ import { DeerCohorts } from "./DeerCohorts";
  * directions remain explicitly authored estimates. Head dimensions describe the
  * cleaned skull; using them for a coarse capsule does not recover soft tissue.
  * The producer owns antlers and any authored tack separately.
- *
- * @param withersHeight Admitted instance height in metres; only undefined
- *   defaults to its selected reference, while null is invalid.
- * @param cohort Whole adult sex/age reference, male by default; no juvenile
- *   transfer is supported.
- * @returns Fresh coarse controls, with unknown segment mass fractions and foot
- *   material absent.
- * @throws {RangeError} For a nonpositive or nonfinite instance height.
+ * Parameter withersHeight: Admitted instance height in metres; only undefined
+ * defaults to its selected reference, while null is invalid.
+ * Parameter cohort: Whole adult sex/age reference, male by default; no juvenile
+ * transfer is supported.
+ * Returns: Fresh coarse controls, with unknown segment mass fractions and foot
+ * material absent.
+ * For a nonpositive or nonfinite instance height.
  */
 export function buildDeerBody(
   withersHeight?: number,
@@ -71,7 +70,7 @@ export function buildDeerBody(
   });
 }
 
-/**
+/*
  * Authored construction parameters for an unmeasured standing soft-tissue
  * proxy; coat colors are authored too.
  */
@@ -95,15 +94,23 @@ const CONSTRUCTION: Readonly<IDeerConstruction> = {
 };
 
 interface IDeerConstruction extends QuadrupedBodyProfile.IConstruction {
-  /** Unmeasured distal limb control / height. */
+  /*
+   * Unmeasured distal limb control / height.
+   */
   distalLength: number;
 
-  /** Straight neck control length / height. */
+  /*
+   * Straight neck control length / height.
+   */
   neckLength: number;
 
-  /** Neck radius / height. */
+  /*
+   * Neck radius / height.
+   */
   neckRadius: number;
 
-  /** Short tail length / height. */
+  /*
+   * Short tail length / height.
+   */
   tailLength: number;
 }

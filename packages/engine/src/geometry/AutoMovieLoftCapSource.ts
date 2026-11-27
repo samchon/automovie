@@ -79,10 +79,12 @@ export namespace AutoMovieLoftCapSource {
   }
 }
 
-/** A retained original closed end, with legacy absence still permitted. */
+/*
+ * A retained original closed end, with legacy absence still permitted.
+ */
 type Pole = NonNullable<IAutoMovieLoftChain["pole"]>;
 
-/**
+/*
  * Exact numeric compatibility/frame/lift binding; source callbacks are
  * separate.
  */
@@ -102,7 +104,9 @@ function binding(layer: IAutoMovieLoftChain.ILayer): string {
   ]);
 }
 
-/** The full check of a cap source against its chain's end. */
+/*
+ * The full check of a cap source against its chain's end.
+ */
 function check(chain: IAutoMovieLoftChain, pole: Pole): void {
   const source: IAutoMovieLoftCapSource.ISource = pole.source!;
   if (source.point.length !== 3)

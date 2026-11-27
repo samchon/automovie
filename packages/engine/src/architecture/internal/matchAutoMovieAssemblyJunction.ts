@@ -6,7 +6,7 @@ import type {
   IAutoMovieResolvedAssembly,
 } from "@automovie/interface";
 
-/**
+/*
  * Report which construction roles survive a junction between two build-ups.
  *
  * Two walls meeting at a corner are two build-ups on one measuring line, and
@@ -28,15 +28,14 @@ import type {
  * roles follow the left side's first-appearance order; broken roles list the
  * left side's first, then the right side's. A negative or non-finite tolerance
  * throws an `Error`.
- *
- * @param props.left Build-up on one side of the junction, resolved on the
- *   shared line.
- * @param props.right Build-up on the other side, resolved on the same line as
- *   `left`.
- * @param props.tolerance Greatest metre gap between two spans still counted as
- *   aligned.
- * @returns The continuous roles with their spans and overlap, and the roles
- *   only one side carries.
+ * Parameter props.left: Build-up on one side of the junction, resolved on the
+ * shared line.
+ * Parameter props.right: Build-up on the other side, resolved on the same line as
+ * `left`.
+ * Parameter props.tolerance: Greatest metre gap between two spans still counted as
+ * aligned.
+ * Returns: The continuous roles with their spans and overlap, and the roles
+ * only one side carries.
  */
 export function matchAutoMovieAssemblyJunction(
   props: IAutoMovieMatchAssemblyJunction.IProps,
@@ -69,19 +68,29 @@ export function matchAutoMovieAssemblyJunction(
   return { continuous, broken };
 }
 
-/** The hull and summed thickness of layers sharing one role. */
+/*
+ * The hull and summed thickness of layers sharing one role.
+ */
 interface IRoleSpan {
-  /** Least signed layer endpoint. */
+  /*
+   * Least signed layer endpoint.
+   */
   min: number;
 
-  /** Greatest signed layer endpoint. */
+  /*
+   * Greatest signed layer endpoint.
+   */
   max: number;
 
-  /** Sum of matching layer thicknesses. */
+  /*
+   * Sum of matching layer thicknesses.
+   */
   thickness: number;
 }
 
-/** Fold one build-up's layers into one span per role, in first-seen order. */
+/*
+ * Fold one build-up's layers into one span per role, in first-seen order.
+ */
 const rolesOf: (
   assembly: IAutoMovieResolvedAssembly,
 ) => Map<string, IRoleSpan> = (

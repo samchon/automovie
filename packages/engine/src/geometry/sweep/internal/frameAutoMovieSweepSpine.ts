@@ -6,7 +6,7 @@ import type {
 import { loadAutoMovieSweepSpine } from "./loadAutoMovieSweepSpine";
 import { pathAutoMovieSweepTransport } from "./pathAutoMovieSweepTransport";
 
-/**
+/*
  * Compile a spine into its curve, tangent and rotation-minimizing frames.
  *
  * The curve is the centripetal Catmull-Rom spline through the points (Yuksel,
@@ -32,13 +32,12 @@ import { pathAutoMovieSweepTransport } from "./pathAutoMovieSweepTransport";
  * approximates the rotation-minimizing frame to fourth order in the step. The
  * table holds 64 steps per spine segment; a query between two entries reflects
  * once more from the entry below it.
- *
- * @param spine The spine, only read.
- * @returns The compiled path.
- * @throws Error when the spine has fewer than two points, a point, the normal
- *   or an end tangent is not finite or an end tangent is zero, two consecutive
- *   points coincide, the path reverses at a point, the normal is parallel to
- *   the first tangent, or the tangent vanishes somewhere on the path.
+ * Parameter spine: The spine, only read.
+ * Returns: The compiled path.
+ * Error when the spine has fewer than two points, a point, the normal
+ * or an end tangent is not finite or an end tangent is zero, two consecutive
+ * points coincide, the path reverses at a point, the normal is parallel to
+ * the first tangent, or the tangent vanishes somewhere on the path.
  */
 export const frameAutoMovieSweepSpine: (
   spine: IAutoMovieSweepSpine,

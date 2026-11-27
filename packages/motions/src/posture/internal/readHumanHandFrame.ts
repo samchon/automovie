@@ -1,7 +1,7 @@
 import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHand, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * Read a hand surface using its actual body-declared digit region bone.
  * HumanHand owns surface classification and local offset construction.
  */
@@ -34,9 +34,11 @@ export function readHumanHandFrame(
   };
 }
 
-/** Exact world-bone demand and fixed point geometry of a hand-surface read. */
+/*
+ * Exact world-bone demand and fixed point geometry of a hand-surface read.
+ */
 export namespace readHumanHandFrame {
-  /**
+  /*
    * Prepare a point-only read for fixed admitted body/side/surface/form
    * geometry. The first non-digit read looks up the hand before
    * acquiring/copying its offset, then each actual bones map produces one fresh
@@ -68,7 +70,7 @@ export namespace readHumanHandFrame {
     };
   }
 
-  /**
+  /*
    * Request precisely the frames the same surface read consumes.
    *
    * The boolean is HumanHand.digital's result for this surface; output is a
@@ -94,15 +96,21 @@ export namespace readHumanHandFrame {
   }
 }
 
-/** Current rigid world frames read by both complete and point-only hand queries. */
+/*
+ * Current rigid world frames read by both complete and point-only hand queries.
+ */
 type Bones = ReadonlyMap<AutoMovieHumanoidBone, WorldBone>;
-/** The alternatives of `WorldBone2`'s site. */
+/*
+ * The alternatives of `WorldBone2`'s site.
+ */
 type WorldBone2 = "worldPosition" | "worldRotation";
 
-/** The two current world transform values used by hand-surface seating. */
+/*
+ * The two current world transform values used by hand-surface seating.
+ */
 type WorldBone = Pick<IAutoMovieResolvedBone, WorldBone2>;
 
-/**
+/*
  * Preserve cold point arithmetic and its position/local-point/rotation argument
  * order.
  */
@@ -114,7 +122,9 @@ function worldPoint(
   return Vector3.add(position, Quaternion.rotateVector(rotation, point));
 }
 
-/** Preserve the original body-owned digital surface key and its actual bone. */
+/*
+ * Preserve the original body-owned digital surface key and its actual bone.
+ */
 function region(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,

@@ -5,7 +5,7 @@ import {
 
 import { autoMovieStoryTime } from "./autoMovieStoryTime";
 
-/**
+/*
  * Map a shot-local window onto the story-clock interval it occupies, in
  * seconds.
  *
@@ -14,7 +14,7 @@ import { autoMovieStoryTime } from "./autoMovieStoryTime";
  * event window inside it. Two windows may overlap here while their shots sit
  * far apart in the cut, which is a relationship a cut list cannot express.
  *
- * Both ends go through {@link autoMovieStoryTime}, so the interval keeps the
+ * Both ends go through autoMovieStoryTime, so the interval keeps the
  * window's order exactly when the pin's rate is positive. Nothing is validated
  * here: a non-finite bound or pin yields a non-finite end, and an inverted
  * window yields an inverted interval, for the caller to refuse.

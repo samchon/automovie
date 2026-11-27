@@ -21,7 +21,7 @@ import { prepareTerrainGrades } from "../prepareTerrainGrades";
 import { terrainTrees } from "../terrainTrees";
 import { terrainWoods } from "../terrainWoods";
 
-/**
+/*
  * Create a world-aligned terrain module with named placement and route frames.
  *
  * The module origin is its southwest plan corner. Resolve building elevations
@@ -31,9 +31,8 @@ import { terrainWoods } from "../terrainWoods";
  * excludes ground in both outputs, and still water uses its own nonwalkable
  * patch. An optional tree disk produces a compact instance recipe, and an
  * optional wood an explicit one whose trees each clear those features.
- *
- * @param recipe Extent, optional relief and features in module-local metres.
- * @returns A definition to place in a composed environment.
+ * Parameter recipe: Extent, optional relief and features in module-local metres.
+ * Returns: A definition to place in a composed environment.
  */
 export function createTerrain(
   recipe: IAutoMovieTerrainRecipe,
@@ -221,46 +220,56 @@ export function createTerrain(
   };
 }
 
-/** Default coarse appearance for bare, dry ground. */
+/*
+ * Default coarse appearance for bare, dry ground.
+ */
 const EARTH: string = "#85846a";
 
-/** Default coarse appearance for still inland water. */
+/*
+ * Default coarse appearance for still inland water.
+ */
 const WATER: string = "#618ca2";
 
-/** Default permitted vertical mesh error in metres. */
+/*
+ * Default permitted vertical mesh error in metres.
+ */
 const MESH_TOLERANCE: number = 0.01;
 
-/** A placed grade path ready to check against the approved ground lattice. */
+/*
+ * A placed grade path ready to check against the approved ground lattice.
+ */
 type IPath = ReturnType<typeof prepareTerrainGrades>["paths"][number];
 
-/**
+/*
  * The base relief before grades: an analytic rule or a sampler with its first
  * bake pitch.
  */
 interface ITerrainBase {
-  /**
+  /*
    * The analytic rule of level or planar relief; undefined when the relief must
    * be baked.
    */
   rule: IAutoMovieHeightRule | undefined;
 
-  /**
+  /*
    * The first bake pitch in metres the relief alone needs; infinite for an
    * analytic rule.
    */
   pitch: number;
 
-  /** The base height in world metres at a world plan point. */
+  /*
+   * The base height in world metres at a world plan point.
+   */
   sample: (point: { x: number; z: number }) => number;
 
-  /**
+  /*
    * What the author can change when the bake's sample budget refuses this
    * relief.
    */
   advice?: string;
 }
 
-/**
+/*
  * Select the authoritative height and choose sufficient sampling density for
  * relief and local grades.
  */
@@ -290,7 +299,9 @@ function terrainHeight(
   );
 }
 
-/** Define an analytic base without allocating the sampled relief record. */
+/*
+ * Define an analytic base without allocating the sampled relief record.
+ */
 function terrainBase(
   context: IAutoMovieEnvironmentModule.IContext,
   recipe: IAutoMovieTerrainRecipe,
@@ -344,7 +355,7 @@ function terrainBase(
   };
 }
 
-/**
+/*
  * Fractal gradient-noise relief: `base + amplitude * noise(p / wavelength)`
  * over local plan coordinates, so it never leaves the mean plus or minus the
  * amplitude, and the same environment seed reproduces it.
@@ -394,7 +405,7 @@ function noiseBase(
   };
 }
 
-/**
+/*
  * Split only holed footprints because compact world surfaces carry one outer
  * ring each.
  */
@@ -418,7 +429,9 @@ function worldPieces(
   );
 }
 
-/** A terminal frame's forward axis follows the direction of travel. */
+/*
+ * A terminal frame's forward axis follows the direction of travel.
+ */
 function routeEnd(
   path: IPath,
   rule: IAutoMovieHeightRule,

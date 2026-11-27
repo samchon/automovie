@@ -41,7 +41,7 @@ import { AutoMoviePhysicalSupportTracking } from "../AutoMoviePhysicalSupportTra
 import { AutoMoviePhysicalWorldBalanceTracking } from "../AutoMoviePhysicalWorldBalanceTracking";
 import { AutoMoviePhysicalWorldJointTracking } from "../AutoMoviePhysicalWorldJointTracking";
 
-/**
+/*
  * Apply bounded PD forces and equal-opposite joint torques before the fixed
  * step.
  */
@@ -455,7 +455,7 @@ export function trackPhysicalWorld(
   }
 }
 
-/**
+/*
  * The planted poses of a body's segments: authored, each support limb's
  * carriers moved by the offset a landed recovery step left it.
  */
@@ -479,5 +479,7 @@ function plantedPoses(
   return out;
 }
 
-/** No balance posture is excluded when that controller is inactive. */
+/*
+ * No balance posture is excluded when that controller is inactive.
+ */
 const NO_POSTURE: ReadonlySet<string> = new Set();

@@ -2,7 +2,7 @@ import {
   AutoMovieEngineMotionSampling,
 } from "@automovie/engine";
 
-/**
+/*
  * The included joint angles of one horse limb at a phase of its swimming
  * stroke.
  *
@@ -26,13 +26,12 @@ import {
  * give an order or a phase name but no percentage, the event's phase is
  * authored inside that phase and stated in `EVENTS`. Shoulder and hip were not
  * measured; the humerus and femur swing between authored slopes, `SWING`.
- *
- * @param end The fore or the hind stroke.
- * @param phase The stroke phase in cycles; any finite number, wrapped to [0,
- *   1).
- * @returns The three included angles of that end's measured joints and the
- *   slope of its upper bone, degrees.
- * @throws {RangeError} For a nonfinite phase.
+ * Parameter end: The fore or the hind stroke.
+ * Parameter phase: The stroke phase in cycles; any finite number, wrapped to [0,
+ * 1).
+ * Returns: The three included angles of that end's measured joints and the
+ * slope of its upper bone, degrees.
+ * For a nonfinite phase.
  */
 export function EquineSwimStroke(
   end: EquineSwimStroke.End,
@@ -48,35 +47,49 @@ export function EquineSwimStroke(
   };
 }
 
-/** Types and cited tables of {@link EquineSwimStroke}. */
+/*
+ * Types and cited tables of EquineSwimStroke.
+ */
 export namespace EquineSwimStroke {
-  /** The fore or the hind stroke. */
+  /*
+   * The fore or the hind stroke.
+   */
   export type End = "fore" | "hind";
 
-  /** A phase interval, start and end in cycles. */
+  /*
+   * A phase interval, start and end in cycles.
+   */
   export type Span = readonly [number, number];
 
-  /**
+  /*
    * One joint's measured extremes and the stroke phases they occur at.
    *
    * `flexion` and `extension` are included degrees in the source's convention;
    * `flexed` and `extended` are phases in cycles from the stroke's start.
    */
   export interface IJoint {
-    /** Mean maximal flexion, degrees. */
+    /*
+     * Mean maximal flexion, degrees.
+     */
     flexion: number;
 
-    /** Mean maximal extension, degrees. */
+    /*
+     * Mean maximal extension, degrees.
+     */
     extension: number;
 
-    /** Phase of maximal flexion, cycles in [0, 1). */
+    /*
+     * Phase of maximal flexion, cycles in [0, 1).
+     */
     flexed: number;
 
-    /** Phase of maximal extension, cycles in [0, 1). */
+    /*
+     * Phase of maximal extension, cycles in [0, 1).
+     */
     extended: number;
   }
 
-  /**
+  /*
    * One end's four channels, proximal to distal.
    *
    * Fore: `swing` the humerus slope, then the elbow's dorsal, the carpus's
@@ -87,47 +100,65 @@ export namespace EquineSwimStroke {
    * `extension` the protracted one.
    */
   export interface IEnd {
-    /** Upper bone slope, authored. */
+    /*
+     * Upper bone slope, authored.
+     */
     swing: IJoint;
 
-    /** Elbow or stifle. */
+    /*
+     * Elbow or stifle.
+     */
     upper: IJoint;
 
-    /** Carpus or tarsus. */
+    /*
+     * Carpus or tarsus.
+     */
     middle: IJoint;
 
-    /** Fetlock. */
+    /*
+     * Fetlock.
+     */
     lower: IJoint;
   }
 
-  /** One end's angles at one phase, degrees, named as in {@link IEnd}. */
+  /*
+   * One end's angles at one phase, degrees, named as in IEnd.
+   */
   export interface IAngles {
-    /** Upper bone slope from straight down toward the front. */
+    /*
+     * Upper bone slope from straight down toward the front.
+     */
     swing: number;
 
-    /** Elbow dorsal or stifle caudal included angle. */
+    /*
+     * Elbow dorsal or stifle caudal included angle.
+     */
     upper: number;
 
-    /** Carpus palmar or tarsus dorsal included angle. */
+    /*
+     * Carpus palmar or tarsus dorsal included angle.
+     */
     middle: number;
 
-    /** Fore or hind fetlock palmar/plantar included angle. */
+    /*
+     * Fore or hind fetlock palmar/plantar included angle.
+     */
     lower: number;
   }
 
-  /**
+  /*
    * The forelimb's protraction, cycles: 13.5 to 73 % (forelimb study, Table 2
    * footnote).
    */
   export const FORE_PROTRACTION: Span = [0.135, 0.73];
 
-  /**
+  /*
    * The hindlimb's protraction, cycles: its measured 0.8 s protraction of a 1.2
    * s cycle (hindlimb study, Table 1), from the cycle start.
    */
   export const HIND_PROTRACTION: Span = [0, 0.8 / 1.2];
 
-  /**
+  /*
    * The joint extremes and their phases. Angles are the studies' Table 2
    * swimming means: fore elbow 52.8/125.9, carpus 60.9/156.7, fetlock
    * 111.4/188.3; hind stifle 60.5/111.5, tarsus 43.7/154.7, fetlock 76.8/188.9
@@ -166,7 +197,9 @@ export namespace EquineSwimStroke {
   };
 }
 
-/** One joint's angle on its two minimum-jerk segments between its extremes. */
+/*
+ * One joint's angle on its two minimum-jerk segments between its extremes.
+ */
 function cycle(joint: EquineSwimStroke.IJoint, phase: number): number {
   const { flexion, extension, flexed, extended } = joint;
   const toFlexion: number = wrap(flexed - extended);
@@ -179,7 +212,9 @@ function cycle(joint: EquineSwimStroke.IJoint, phase: number): number {
   );
 }
 
-/** A phase difference in [0, 1). */
+/*
+ * A phase difference in [0, 1).
+ */
 function wrap(value: number): number {
   return value - Math.floor(value);
 }

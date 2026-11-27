@@ -2,19 +2,23 @@ import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
-/**
- * The per-vertex arithmetic of {@link AutoMovieSkinnedMesh}'s CPU skin, over a
- * joint table of {@link AutoMovieSkinBlend.STRIDE} numbers per joint: `K_j` (16,
+/*
+ * The per-vertex arithmetic of AutoMovieSkinnedMesh's CPU skin, over a
+ * joint table of AutoMovieSkinBlend.STRIDE numbers per joint: `K_j` (16,
  * column-major), its rotation quaternion (4) and its dual part (4).
  */
 export namespace AutoMovieSkinBlend {
-  /** Numbers per joint in a table: `K_j`, rotation, dual part. */
+  /*
+   * Numbers per joint in a table: `K_j`, rotation, dual part.
+   */
   export const STRIDE: number = 24;
 
-  /** 64 float32 roundings, 64 * 2^-24, relative to the largest coordinate. */
+  /*
+   * 64 float32 roundings, 64 * 2^-24, relative to the largest coordinate.
+   */
   export const GPU_RELATIVE_ERROR: number = 2 ** -18;
 
-  /**
+  /*
    * Dual quaternion blend of one vertex from the table entries at offsets
    * `a..d`: align each influence to the largest-weight one (lowest slot on a
    * tie), sum, normalize by the rotation's length and apply; a direction takes
@@ -95,7 +99,7 @@ export namespace AutoMovieSkinBlend {
     out[at + 2] = z;
   }
 
-  /**
+  /*
    * Weighted sum of `K_j p` over the four influences at offsets `a..d`, Three's
    * linear blend over normalized weights. Writes three numbers into `out` at
    * `at`.
@@ -133,7 +137,9 @@ export namespace AutoMovieSkinBlend {
       affine(t, d, 2, px, py, pz) * wd;
   }
 
-  /** Skeleton slots with a nonzero weight on some vertex, ascending. */
+  /*
+   * Skeleton slots with a nonzero weight on some vertex, ascending.
+   */
   export function usedJoints(
     indices: THREE.BufferAttribute,
     weights: THREE.BufferAttribute,
@@ -150,7 +156,7 @@ export namespace AutoMovieSkinBlend {
     );
   }
 
-  /**
+  /*
    * The backing array of a tightly packed, unnormalized attribute of `size`
    * components, else null so the caller reads through Three's accessors.
    */
@@ -165,7 +171,9 @@ export namespace AutoMovieSkinBlend {
       : null;
   }
 
-  /** An attribute's version; an interleaved one reports its buffer's. */
+  /*
+   * An attribute's version; an interleaved one reports its buffer's.
+   */
   export function versionOf(
     attribute: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
   ): number {
@@ -175,7 +183,9 @@ export namespace AutoMovieSkinBlend {
   }
 }
 
-/** Row `row` of the joint at `o` applied to the point, `(K_j p)[row]`. */
+/*
+ * Row `row` of the joint at `o` applied to the point, `(K_j p)[row]`.
+ */
 function affine(
   t: Float64Array,
   o: number,
@@ -192,7 +202,7 @@ function affine(
   );
 }
 
-/**
+/*
  * -1 when the rotation at `o` lies in the other hemisphere from the pivot's at
  * `p`, else 1.
  */

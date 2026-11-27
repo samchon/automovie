@@ -8,7 +8,7 @@ import type {
 
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 
-/**
+/*
  * The draws and the bound rules every slot function of the seeded variation
  * shares.
  *
@@ -20,21 +20,21 @@ import { HumanSkill } from "../../skill/internal/HumanSkill";
  * what a slot, a spread and a stream are.
  */
 export namespace AutoMovieMotionHumanVariationDraw {
-  /**
+  /*
    * How many spreads from its mean a component may lie (provisional; the two
    * spreads `AutoMovieMotionManner.BOUNDS` uses, checked by
    * `test_motion_compose_variation_bounded`).
    */
   export const TRUNCATE: number = 2;
 
-  /**
+  /*
    * The share of the way from a value to the nearer edge of its name's cell an
    * offset may reach (provisional, checked by
    * `test_motion_compose_variation_named`).
    */
   export const MARGIN: number = 0.8;
 
-  /**
+  /*
    * The steps of the additive recurrence by the number of components (Roberts
    * 2018, "The unreasonable effectiveness of quasirandom sequences"): the
    * inverse golden ratio for one component, the powers of the inverse plastic
@@ -52,12 +52,11 @@ export namespace AutoMovieMotionHumanVariationDraw {
     ],
   ];
 
-  /**
+  /*
    * The uniform values of one repeat of a slot.
-   *
-   * @param draws The slot's stream and the repeat's index.
-   * @param count The slot's number of components, 1 to 3.
-   * @returns One value in [0, 1) per component.
+   * Parameter draws: The slot's stream and the repeat's index.
+   * Parameter count: The slot's number of components, 1 to 3.
+   * Returns: One value in [0, 1) per component.
    */
   export function uniforms(
     draws: IAutoMovieMotionHumanActionContext.ISeries,
@@ -69,12 +68,11 @@ export namespace AutoMovieMotionHumanVariationDraw {
     });
   }
 
-  /**
+  /*
    * The truncated standard normal values of one repeat of a slot.
-   *
-   * @param draws The slot's stream and the repeat's index.
-   * @param count The slot's number of components, 1 to 3.
-   * @returns One value in [-`TRUNCATE`, `TRUNCATE`] per component.
+   * Parameter draws: The slot's stream and the repeat's index.
+   * Parameter count: The slot's number of components, 1 to 3.
+   * Returns: One value in [-`TRUNCATE`, `TRUNCATE`] per component.
    */
   export function normals(
     draws: IAutoMovieMotionHumanActionContext.ISeries,
@@ -85,12 +83,11 @@ export namespace AutoMovieMotionHumanVariationDraw {
     );
   }
 
-  /**
+  /*
    * A point of the disc of `TRUNCATE` spreads under a standard normal on each
    * axis.
-   *
-   * @param draws The slot's stream and the repeat's index.
-   * @returns Two coordinates in spreads, at most `TRUNCATE` from the origin.
+   * Parameter draws: The slot's stream and the repeat's index.
+   * Returns: Two coordinates in spreads, at most `TRUNCATE` from the origin.
    */
   export function disc(
     draws: IAutoMovieMotionHumanActionContext.ISeries,
@@ -104,18 +101,17 @@ export namespace AutoMovieMotionHumanVariationDraw {
     ];
   }
 
-  /**
+  /*
    * The cell rule: `MARGIN` of the distance from a value to the nearer edge of
    * the cell of the name nearest it.
    *
    * A cell's edge is the midpoint with the neighbouring name. The first and the
    * last name, which have one neighbour, take the same distance on their open
    * side.
-   *
-   * @param names The values of an axis's names, in the axis's unit.
-   * @param value The value.
-   * @returns The bound, in the axis's unit; 0 when the value lies on or past an
-   *   edge.
+   * Parameter names: The values of an axis's names, in the axis's unit.
+   * Parameter value: The value.
+   * Returns: The bound, in the axis's unit; 0 when the value lies on or past an
+   * edge.
    */
   export function cell(names: readonly number[], value: number): number {
     const sorted: number[] = [...names].sort((a: number, b: number) => a - b);
@@ -135,12 +131,11 @@ export namespace AutoMovieMotionHumanVariationDraw {
     return Math.max(0, MARGIN * Math.min(value - low, high - value));
   }
 
-  /**
+  /*
    * A right-handed orthonormal basis whose first vector lies along a direction.
-   *
-   * @param direction The direction, any length; a zero direction takes +Z.
-   * @returns Three unit vectors: along the direction, across it and across
-   *   both.
+   * Parameter direction: The direction, any length; a zero direction takes +Z.
+   * Returns: Three unit vectors: along the direction, across it and across
+   * both.
    */
   export function basis(direction: IAutoMovieVector3): IAutoMovieVector3[] {
     const along: IAutoMovieVector3 =
@@ -155,13 +150,12 @@ export namespace AutoMovieMotionHumanVariationDraw {
     return [along, first, Vector3.cross(along, first)];
   }
 
-  /**
+  /*
    * A row of the spread table at the source's skill on one axis.
-   *
-   * @param source The action's variation.
-   * @param axis The skill axis the spread is read on.
-   * @param spread The spread's novice and elite values.
-   * @returns The spread at `variation` 1, in the row's unit.
+   * Parameter source: The action's variation.
+   * Parameter axis: The skill axis the spread is read on.
+   * Parameter spread: The spread's novice and elite values.
+   * Returns: The spread at `variation` 1, in the row's unit.
    */
   export function quantity(
     source: IAutoMovieMotionHumanVariation.ISource,
@@ -171,18 +165,17 @@ export namespace AutoMovieMotionHumanVariationDraw {
     return HumanSkill.quantity(source.skill, axis, spread[0], spread[1]);
   }
 
-  /**
+  /*
    * A one-component offset: a truncated normal draw times the spread, the
    * spread shrunk until `TRUNCATE` spreads fit the bound.
-   *
-   * @param source The action's variation.
-   * @param key The slot key.
-   * @param axis The skill axis the spread is read on.
-   * @param spread The spread's novice and elite values.
-   * @param scale A factor on the spread: 1 for an absolute offset, the value
-   *   for a relative one.
-   * @param bound The largest size of the offset.
-   * @returns The offset, in the spread's unit; 0 with no spread or no room.
+   * Parameter source: The action's variation.
+   * Parameter key: The slot key.
+   * Parameter axis: The skill axis the spread is read on.
+   * Parameter spread: The spread's novice and elite values.
+   * Parameter scale: A factor on the spread: 1 for an absolute offset, the value
+   * for a relative one.
+   * Parameter bound: The largest size of the offset.
+   * Returns: The offset, in the spread's unit; 0 with no spread or no room.
    */
   export function scalar(
     source: IAutoMovieMotionHumanVariation.ISource,
@@ -203,21 +196,26 @@ export namespace AutoMovieMotionHumanVariationDraw {
   }
 }
 
-/** The alternatives of `NormalsCount`'s site. */
+/*
+ * The alternatives of `NormalsCount`'s site.
+ */
 type NormalsCount = 1 | 2 | 3;
 
-/** The alternatives of `UniformsCount`'s site. */
+/*
+ * The alternatives of `UniformsCount`'s site.
+ */
 type UniformsCount = 1 | 2 | 3;
 
-/** The mass of the standard normal below `-TRUNCATE`: `Phi(-2)`. */
+/*
+ * The mass of the standard normal below `-TRUNCATE`: `Phi(-2)`.
+ */
 const TAIL: number = 0.022750131948179195;
 
-/**
+/*
  * The standard normal's quantile function, by Acklam's rational approximation
  * (relative error below 1.15e-9).
- *
- * @param p A probability in (0, 1).
- * @returns The value the standard normal lies below with probability `p`.
+ * Parameter p: A probability in (0, 1).
+ * Returns: The value the standard normal lies below with probability `p`.
  */
 function quantile(p: number): number {
   const tail = (q: number): number =>
@@ -234,31 +232,39 @@ function quantile(p: number): number {
   );
 }
 
-/**
+/*
  * Below this probability, and above its complement, the quantile uses its tail
  * form.
  */
 const LOW: number = 0.02425;
 
-/** The numerator of the quantile's central form. */
+/*
+ * The numerator of the quantile's central form.
+ */
 const A: readonly [number, number, number, number, number, number] = [
   -3.969683028665376e1, 2.209460984245205e2, -2.759285104469687e2,
   1.38357751867269e2, -3.066479806614716e1, 2.506628277459239,
 ];
 
-/** The denominator of the quantile's central form. */
+/*
+ * The denominator of the quantile's central form.
+ */
 const B: readonly [number, number, number, number, number] = [
   -5.447609879822406e1, 1.615858368580409e2, -1.556989798598866e2,
   6.680131188771972e1, -1.328068155288572e1,
 ];
 
-/** The numerator of the quantile's tail form. */
+/*
+ * The numerator of the quantile's tail form.
+ */
 const C: readonly [number, number, number, number, number, number] = [
   -7.784894002430293e-3, -3.223964580411365e-1, -2.400758277161838,
   -2.549732539343734, 4.374664141464968, 2.938163982698783,
 ];
 
-/** The denominator of the quantile's tail form. */
+/*
+ * The denominator of the quantile's tail form.
+ */
 const D: readonly [number, number, number, number] = [
   7.784695709041462e-3, 3.224671290700398e-1, 2.445134137142996,
   3.754408661907416,

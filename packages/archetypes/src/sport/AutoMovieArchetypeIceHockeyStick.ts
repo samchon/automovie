@@ -5,10 +5,14 @@ import type { AutoMovieArchetype } from "../core";
 import { StickBuild } from "./internal/StickBuild";
 import type { AutoMovieArchetypeStick } from "./AutoMovieArchetypeStick";
 
-/** Points in the local model frame, in metres. */
+/*
+ * Points in the local model frame, in metres.
+ */
 const v: typeof Vector3.create = Vector3.create;
 
-/** The retained ice hockey blade thickness, metres. A shape estimate. */
+/*
+ * The retained ice hockey blade thickness, metres. A shape estimate.
+ */
 const BLADE: number = 0.015;
 
 /** Canonical producer and authoring contract for IceHockeyStick. */

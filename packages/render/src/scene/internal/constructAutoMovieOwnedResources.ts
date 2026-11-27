@@ -1,6 +1,6 @@
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
-/**
+/*
  * Own resources from their first successful allocation until a synchronous
  * producer transfers its complete result. The producer registers each object
  * immediately, including objects not yet attached to its returned scene graph.

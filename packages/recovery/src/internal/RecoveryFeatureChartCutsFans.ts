@@ -3,7 +3,9 @@ import type {
   IAutoMovieRecoveryFeatureChartCuts,
 } from "@automovie/interface";
 
-/** Create stable incident-fan labeling for declared feature edges. */
+/*
+ * Create stable incident-fan labeling for declared feature edges.
+ */
 export function RecoveryFeatureChartCutsFans(
   faceWords: (
     triangles: readonly (readonly [number, number, number])[],

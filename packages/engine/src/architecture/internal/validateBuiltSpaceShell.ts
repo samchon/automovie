@@ -8,7 +8,7 @@ import { Vector3 } from "../../math/Vector3";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 import { builtSpaceShellVolume } from "./builtSpaceShellVolume";
 
-/**
+/*
  * Check shell indices, finite facet areas, paired edges and positive signed
  * volume.
  *
@@ -25,10 +25,9 @@ import { builtSpaceShellVolume } from "./builtSpaceShellVolume";
  * count/index, unusable facet area or unmatched edge does. Findings can
  * therefore include a vertex-count finding plus one later structural finding
  * and non-finite component findings.
- *
- * @param shell Shell to check.
- * @param path Violation path of the shell, such as `$input.spaces[0].shell`.
- * @param collector Sink that receives the violations.
+ * Parameter shell: Shell to check.
+ * Parameter path: Violation path of the shell, such as `$input.spaces[0].shell`.
+ * Parameter collector: Sink that receives the violations.
  */
 export function validateBuiltSpaceShell(
   shell: IAutoMovieSpaceShell,
@@ -111,5 +110,7 @@ export function validateBuiltSpaceShell(
     );
 }
 
-/** A facet whose doubled area is this small or smaller bounds nothing. */
+/*
+ * A facet whose doubled area is this small or smaller bounds nothing.
+ */
 const FACET_AREA_EPSILON: number = 1e-12;

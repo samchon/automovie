@@ -18,31 +18,35 @@ import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 
-/**
+/*
  * An arms' course laid without optimisation and read by the trajectory model
  * (`HumanArmTrajectory.admitted`): kept when the model admits it, the
  * optimiser's seed and frame grid when not.
  */
 export namespace HumanArmTrajectoryLaid {
-  /**
+  /*
    * A laid course as `admitted` read it, and what that reading built, which a
    * following `HumanArmTrajectory.solve` of the same problem reads instead of
    * building it again.
    */
   export interface IAdmitted {
-    /** Each arm's trajectory through the course, in the problem's order. */
+    /*
+     * Each arm's trajectory through the course, in the problem's order.
+     */
     trajectories: IAutoMovieMotionHumanArmTrajectory.Trajectory[];
 
-    /** Whether the model admits the course. */
+    /*
+     * Whether the model admits the course.
+     */
     admitted: boolean;
 
-    /**
+    /*
      * The model term that refuses the course (`M.IEvaluation.worst.term`);
      * empty when admitted.
      */
     refused: string;
 
-    /**
+    /*
      * The reading: the context builder bound to the problem's body and arms
      * (`HumanArmTrajectoryContext.prepare`) and the context of the course's
      * waypoints, in the mirror image `solve` reads the problem in.
@@ -50,7 +54,7 @@ export namespace HumanArmTrajectoryLaid {
     read: IRead;
   }
 
-  /**
+  /*
    * A course laid without optimisation, admitted when it meets what a solved
    * trajectory must meet. The caller gives each arm on the hold, where its
    * goal's fit puts it; the reach and the return are laid here, in the model's
@@ -74,17 +78,16 @@ export namespace HumanArmTrajectoryLaid {
    * `solve` refuses by. The caller gives waypoints no more than a frame apart,
    * so the course is read on the frame grid a solved trajectory is admitted
    * on.
-   *
-   * @param problem The problem on the course's waypoints.
-   * @param held Each arm's clinical triples at each waypoint of the hold, in
-   *   the problem's order; a waypoint of the reach or the return is not read.
-   * @param tempo The explicit replan's duration multiplier. It recovers the
-   *   original seconds for the law's pace, which is never held below
-   *   `M.ENVELOPE`, whether or not the span stretches.
-   * @param inheritedPace The original action's speed bound in metres per second
-   *   by time, retained on another contact branch.
-   * @returns The course's readers, its admission with the refusing term, and
-   *   its reading; a course not admitted is `solve`'s seed.
+   * Parameter problem: The problem on the course's waypoints.
+   * Parameter held: Each arm's clinical triples at each waypoint of the hold, in
+   * the problem's order; a waypoint of the reach or the return is not read.
+   * Parameter tempo: The explicit replan's duration multiplier. It recovers the
+   * original seconds for the law's pace, which is never held below
+   * `M.ENVELOPE`, whether or not the span stretches.
+   * Parameter inheritedPace: The original action's speed bound in metres per second
+   * by time, retained on another contact branch.
+   * Returns: The course's readers, its admission with the refusing term, and
+   * its reading; a course not admitted is `solve`'s seed.
    */
   export function admitted(
     problem: HumanArmTrajectory.IProblem,
@@ -113,14 +116,13 @@ export namespace HumanArmTrajectoryLaid {
     );
   }
 
-  /**
+  /*
    * Admit a changed hold on its original frames, sites, and pace. Lay the
    * transports again and read the entire new path in those prepared frames.
-   *
-   * @param course The original laid course of the same canonical problem.
-   * @param held The replacement hold in the course's arm order.
-   * @param tempo The explicit replan's duration multiplier.
-   * @returns A fresh admission of the replacement hold.
+   * Parameter course: The original laid course of the same canonical problem.
+   * Parameter held: The replacement hold in the course's arm order.
+   * Parameter tempo: The explicit replan's duration multiplier.
+   * Returns: A fresh admission of the replacement hold.
    */
   export function readmit(
     course: IAdmitted,
@@ -136,24 +138,36 @@ export namespace HumanArmTrajectoryLaid {
     );
   }
 
-  /** The prepared inputs and verdict shared by admission and fallback. */
+  /*
+   * The prepared inputs and verdict shared by admission and fallback.
+   */
   interface IRead {
-    /** The input in the frame the context was prepared in. */
+    /*
+     * The input in the frame the context was prepared in.
+     */
     readonly problem: HumanArmTrajectory.IProblem;
 
-    /** The context builder. */
+    /*
+     * The context builder.
+     */
     of: ReturnType<typeof HumanArmTrajectoryContext.prepare>;
 
-    /** The context at the course's waypoints, the frame grid of the span. */
+    /*
+     * The context at the course's waypoints, the frame grid of the span.
+     */
     context: M.IContext;
 
-    /** The course's coordinates at those waypoints, each arm's. */
+    /*
+     * The course's coordinates at those waypoints, each arm's.
+     */
     x: number[][][];
 
-    /** The bounded rates given to the returned trajectory reader. */
+    /*
+     * The bounded rates given to the returned trajectory reader.
+     */
     rates?: Knots.IRates;
 
-    /**
+    /*
      * The model's reading of the course there; absent for a stretch cut from a
      * refused course (`HumanArmTrajectory.solve`), which is solved from that
      * course alone.
@@ -161,16 +175,22 @@ export namespace HumanArmTrajectoryLaid {
     evaluation?: M.IEvaluation;
   }
 
-  /** The inputs shared by every admission of a different hold in one problem. */
+  /*
+   * The inputs shared by every admission of a different hold in one problem.
+   */
   type IPrepared = Pick<IRead, "problem" | "of" | "context">;
 
-  /** Each arm's coordinates at authored hold waypoints, in problem order. */
+  /*
+   * Each arm's coordinates at authored hold waypoints, in problem order.
+   */
   type IHeld = readonly (readonly (
     | IAutoMovieMotionHumanArmClearance.IArm
     | undefined
   )[])[];
 
-  /** Lay, time and certify the path on the prepared problem's frames. */
+  /*
+   * Lay, time and certify the path on the prepared problem's frames.
+   */
   function layCourse(
     prepared: IPrepared,
     held: IHeld,
@@ -448,7 +468,7 @@ export namespace HumanArmTrajectoryLaid {
   }
 }
 
-/**
+/*
  * The detours a laid course's transports are laid round at most, each round one
  * per transport at its deepest waypoint: the detour is the pairs'
  * linearisation, so a pair nonlinear past it is met by the next round, and a

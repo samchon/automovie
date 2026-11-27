@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
 
-/**
+/*
  * A strike's trunk turn laid on the trunk it enters with: the spine and the
  * chest each twisted by the given share, their flexion and side bend kept.
  *
@@ -10,12 +10,11 @@ import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
  * reading 4 to 5 degrees back from the hips at impact.
  */
 export namespace StrikingTwist {
-  /**
+  /*
    * The spine and the chest twisted on the entry's trunk.
-   *
-   * @param joints The entry's clinical angles.
-   * @param degrees The twist at each of the spine and the chest, degrees.
-   * @returns The spine's and the chest's angles.
+   * Parameter joints: The entry's clinical angles.
+   * Parameter degrees: The twist at each of the spine and the chest, degrees.
+   * Returns: The spine's and the chest's angles.
    */
   export function trunk(
     joints: IAutoMovieMotionHumanPosture["joints"],
@@ -32,5 +31,7 @@ export namespace StrikingTwist {
   }
 }
 
-/** The alternatives of `TrunkResult`'s site. */
+/*
+ * The alternatives of `TrunkResult`'s site.
+ */
 type TrunkResult = "spine" | "chest";

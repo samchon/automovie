@@ -20,7 +20,7 @@ import { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
 import { physicalShapeSurfaceAnchor } from "./physicalShapeSurfaceAnchor";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
-/**
+/*
  * Compile contact and separation rows against resolved source and receiver
  * placements. Both exact and linearized reads use the same pair of poses.
  */
@@ -148,7 +148,9 @@ export function preparePhysicalContactBindingRows(
         rows: { bones, measure, linearize: (): typeof measure => measure },
       };
 
-      /** Borrow the actual source collider at the candidate transform. */
+      /*
+       * Borrow the actual source collider at the candidate transform.
+       */
       function first(
         poses: IAutoMoviePoses,
       ): IAutoMoviePreparePhysicalGeometry.ICollider {
@@ -159,7 +161,9 @@ export function preparePhysicalContactBindingRows(
           pose: sourcePose.read(poses),
         };
       }
-      /** Borrow the same receiver used by both nonlinear and local model rows. */
+      /*
+       * Borrow the same receiver used by both nonlinear and local model rows.
+       */
       function second(
         poses: IAutoMoviePoses,
       ): IAutoMoviePreparePhysicalGeometry.ICollider {
@@ -174,7 +178,7 @@ export function preparePhysicalContactBindingRows(
   );
 }
 
-/**
+/*
  * Admission owns selector validity; the call-local fitter borrows declared
  * geometry.
  */

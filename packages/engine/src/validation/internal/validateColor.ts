@@ -5,7 +5,7 @@ import type {
 
 import { linearColorToSrgbHex } from "../../math/internal/linearColorToSrgbHex";
 
-/**
+/*
  * Append every out-of-range linear RGBA field and contradictory display label.
  * RGB and non-null alpha must be finite within [0,1]. Hex is null or #RRGGBB
  * and, when present, must equal the quantized sRGB encoding of the linear RGB
@@ -14,11 +14,10 @@ import { linearColorToSrgbHex } from "../../math/internal/linearColorToSrgbHex";
  * It reports individual fields below `path`, without mutating or decoding the
  * label into the authoritative numeric channels. An out-of-range RGB triple
  * skips only the dependent label-consistency check.
- *
- * @param color The color record.
- * @param path Prefix used for every field finding.
- * @param collector Caller-owned sink receiving findings in RGB, alpha, hex
- *   order.
+ * Parameter color: The color record.
+ * Parameter path: Prefix used for every field finding.
+ * Parameter collector: Caller-owned sink receiving findings in RGB, alpha, hex
+ * order.
  */
 export function validateColor(
   color: IAutoMovieColor,
@@ -56,5 +55,7 @@ export function validateColor(
   }
 }
 
-/** The optional display label uses exactly three eight-bit sRGB channels. */
+/*
+ * The optional display label uses exactly three eight-bit sRGB channels.
+ */
 const HEX_COLOR_PATTERN: RegExp = /^#[0-9A-Fa-f]{6}$/;

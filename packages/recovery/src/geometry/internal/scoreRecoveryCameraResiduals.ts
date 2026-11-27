@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryCameraResidualsScoreOperation } from "@automovie/interface";
 
-/**
+/*
  * Collect finite absolute residuals within an inclusive pixel threshold.
  * Returned indices preserve observation order; quantiles use linear
  * interpolation at (N-1)*q. Empty support has null diagnostics, never a perfect

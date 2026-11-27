@@ -16,10 +16,12 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { ropeSkipHop } from "./ropeSkipHop";
 
-/** The two sides that share each support and flight phase. */
+/*
+ * The two sides that share each support and flight phase.
+ */
 const SIDES = ["left", "right"] as const;
 
-/**
+/*
  * One low two-foot hop in place, designed to accompany a single rope turn.
  * Register with `HumanChain.extend({ ropeSkip })` and the performance's laws.
  *
@@ -38,7 +40,7 @@ export const ropeSkip = {
     ropeSkip: [{ window: [1, 1], kind: "inertialize", entry: 0 }],
   },
 
-  /**
+  /*
    * Plan one bipedal support, flight, and recovery cycle using the entry's
    * ground stance. Both ankle goals and the root translate together in flight.
    */

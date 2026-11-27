@@ -3,7 +3,7 @@ import {
   IAutoMovieDesignSourceFrame,
 } from "@automovie/interface";
 
-/**
+/*
  * The metres-per-unit a frame has actually settled on, or null.
  *
  * Returns `metersPerUnit` of the scale candidate whose id equals `frame.scale`.
@@ -11,9 +11,8 @@ import {
  * left `scale` null because the scale is unknown, or `scale` names an id no
  * candidate carries, which `validateDesignReference` refuses. The first
  * candidate with the id wins.
- *
- * @param frame Source frame whose settled scale is read.
- * @returns Metres per source unit, or null when the scale is unsettled.
+ * Parameter frame: Source frame whose settled scale is read.
+ * Returns: Metres per source unit, or null when the scale is unsettled.
  */
 export function designFrameScale(
   frame: IAutoMovieDesignSourceFrame,

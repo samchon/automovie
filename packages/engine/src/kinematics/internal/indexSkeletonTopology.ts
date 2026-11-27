@@ -8,7 +8,7 @@ import {
 import { indexSkeletonTopologyChildren } from "./indexSkeletonTopologyChildren";
 import { SKELETON_ROOT_PARENT } from "../SKELETON_ROOT_PARENT";
 
-/**
+/*
  * Index a skeleton's parent-child topology once, for forward-kinematics work
  * repeated over many poses of the same skeleton.
  *
@@ -20,8 +20,7 @@ import { SKELETON_ROOT_PARENT } from "../SKELETON_ROOT_PARENT";
  * caller that later changes `skeleton.bones` must build a new one. Duplicate
  * bone names throw before traversal because one identity cannot own two parent
  * links or two rest transforms.
- *
- * @param skeleton Rig to index; read, never modified.
+ * Parameter skeleton: Rig to index; read, never modified.
  */
 export function indexSkeletonTopology(
   skeleton: IAutoMovieSkeleton,

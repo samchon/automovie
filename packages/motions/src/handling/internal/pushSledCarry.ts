@@ -6,39 +6,48 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Carry the two grips of a floor load by one already resolved chest frame. Only
  * heading turns the load; its grip and elbow points keep their original heights
  * while the walk's chest translates and turns across the floor.
  */
 export namespace pushSledCarry {
-  /** The wrist and elbow hint a hand takes at a load's handle. */
+  /*
+   * The wrist and elbow hint a hand takes at a load's handle.
+   */
   export interface IHold {
-    /** World wrist position in metres and rest-relative hand rotation. */
+    /*
+     * World wrist position in metres and rest-relative hand rotation.
+     */
     wrist: IAutoMovieMotionHumanHand.IWrist;
 
-    /** World elbow hint, metres. */
+    /*
+     * World elbow hint, metres.
+     */
     bend: IAutoMovieVector3;
   }
 
-  /** One current chest's yaw-only transform of the fixed arrival frame. */
+  /*
+   * One current chest's yaw-only transform of the fixed arrival frame.
+   */
   export interface IFrame {
-    /** The shared floor turn from the arrival, around world +Y. */
+    /*
+     * The shared floor turn from the arrival, around world +Y.
+     */
     turn: IAutoMovieQuaternion;
 
-    /**
+    /*
      * Carry the arrival wrist/elbow by this actual chest frame, returning fresh
      * world-metre wrist/hint records with their original point heights.
      */
     hold: (hold: pushSledCarry.IHold) => pushSledCarry.IHold;
   }
 
-  /**
+  /*
    * Prepare the arrival frame for all grasp samples and runtime hands.
-   *
-   * @param arrived The fixed chest frame at grip closure.
-   * @returns A carrier of a hold onto an actual current chest frame and its yaw
-   *   turn.
+   * Parameter arrived: The fixed chest frame at grip closure.
+   * Returns: A carrier of a hold onto an actual current chest frame and its yaw
+   * turn.
    */
   export function prepare(
     arrived: IAutoMovieResolvedBone,
@@ -77,7 +86,9 @@ export namespace pushSledCarry {
   }
 }
 
-/** Read a quaternion's world heading with the push's original +Z convention. */
+/*
+ * Read a quaternion's world heading with the push's original +Z convention.
+ */
 function heading(rotation: IAutoMovieQuaternion): number {
   const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
     x: 0,

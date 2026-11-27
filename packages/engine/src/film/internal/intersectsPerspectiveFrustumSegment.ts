@@ -9,7 +9,7 @@ import { Vector3 } from "../../math/Vector3";
 import { deliveryCropNdc } from "./deliveryCropNdc";
 import { localSegmentMeetsPerspectiveFrustum } from "./localSegmentMeetsPerspectiveFrustum";
 
-/**
+/*
  * Whether a world-space segment intersects a perspective-camera frustum.
  *
  * The frustum is the intersection of six half-spaces, so it is convex and the
@@ -20,17 +20,16 @@ import { localSegmentMeetsPerspectiveFrustum } from "./localSegmentMeetsPerspect
  * neither end of the subject is on screen while its middle fills the frame.
  * Testing chosen points, the base, the top or the midpoint, reports such a
  * subject absent; clipping finds it. Touching a face counts as meeting it, and
- * a malformed crop throws the `RangeError` of {@link deliveryCropNdc}.
- *
- * @param props.camera Camera placement, looking down its local −Z.
- * @param props.from Segment start in world metres.
- * @param props.to Segment end in world metres.
- * @param props.near Near clip depth in metres.
- * @param props.far Far clip depth in metres.
- * @param props.halfY Vertical half-field tangent, `tan(fovY / 2)`.
- * @param props.aspect Frame width over height.
- * @param props.crop Delivery crop, or the whole gate when omitted.
- * @returns True when some point of the segment lies inside or on the frustum.
+ * a malformed crop throws the `RangeError` of deliveryCropNdc.
+ * Parameter props.camera: Camera placement, looking down its local −Z.
+ * Parameter props.from: Segment start in world metres.
+ * Parameter props.to: Segment end in world metres.
+ * Parameter props.near: Near clip depth in metres.
+ * Parameter props.far: Far clip depth in metres.
+ * Parameter props.halfY: Vertical half-field tangent, `tan(fovY / 2)`.
+ * Parameter props.aspect: Frame width over height.
+ * Parameter props.crop: Delivery crop, or the whole gate when omitted.
+ * Returns: True when some point of the segment lies inside or on the frustum.
  */
 export function intersectsPerspectiveFrustumSegment(
   props: IAutoMovieIntersectsPerspectiveFrustumSegment.IProps,

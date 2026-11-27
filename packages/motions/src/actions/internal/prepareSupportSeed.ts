@@ -17,18 +17,17 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Start a static support solve from its predecessor aligned onto the new keyed
  * contact. Knee and trunk contacts move the root, since those sites have no
  * wrist or ankle chain ending at them. Held hands and feet then counter that
  * movement through their own analytic fits. The resulting pose is a candidate
  * for the original whole-body constraint merit.
- *
- * @param body The same body as the support being fitted.
- * @param from The predecessor with its previously solved joint angles.
- * @param contacts The authored supports, in the order of the targets.
- * @param targets The fit's actual per-contact world placements.
- * @returns The candidate, absent when no knee or trunk contact names a place.
+ * Parameter body: The same body as the support being fitted.
+ * Parameter from: The predecessor with its previously solved joint angles.
+ * Parameter contacts: The authored supports, in the order of the targets.
+ * Parameter targets: The fit's actual per-contact world placements.
+ * Returns: The candidate, absent when no knee or trunk contact names a place.
  */
 export function prepareSupportSeed(
   body: IAutoMovieMotionHumanBody,
@@ -198,53 +197,79 @@ export function prepareSupportSeed(
   return { ...shifted, joints, limbs: {} };
 }
 
-/** An articulated contact that the body fit must bring to its target. */
+/*
+ * An articulated contact that the body fit must bring to its target.
+ */
 interface IEffector {
-  /** The side's arm or leg, if the contact rides its endpoint. */
+  /*
+   * The side's arm or leg, if the contact rides its endpoint.
+   */
   limb?: AutoMovieHumanLimb;
 
-  /** Its wrist or ankle when there is a limb. */
+  /*
+   * Its wrist or ankle when there is a limb.
+   */
   end?: AutoMovieHumanoidBone;
 
-  /** Its elbow or knee when there is a limb. */
+  /*
+   * Its elbow or knee when there is a limb.
+   */
   middle?: AutoMovieHumanoidBone;
 
-  /** The shoulder or hip of the limb. */
+  /*
+   * The shoulder or hip of the limb.
+   */
   start?: AutoMovieHumanoidBone;
 
-  /** The point for the static fit, in its declared goal frame. */
+  /*
+   * The point for the static fit, in its declared goal frame.
+   */
   target: IAutoMovieMotionHumanBodyFitTypes.ITarget;
 
-  /** A floor-bearing foot supplies its own sole height when y is implicit. */
+  /*
+   * A floor-bearing foot supplies its own sole height when y is implicit.
+   */
   floor?: boolean;
 }
 
-/** An optional additional starting pose for a severely displaced support. */
+/*
+ * An optional additional starting pose for a severely displaced support.
+ */
 type Seed = IAutoMovieMotionHumanPosture | undefined;
 
-/** A fully specified Cartesian goal constrains all world coordinates. */
+/*
+ * A fully specified Cartesian goal constrains all world coordinates.
+ */
 const AXES: NonNullable<IAutoMovieMotionHumanBodyFitTypes.ITarget["axes"]> = [
   "x",
   "y",
   "z",
 ];
 
-/** A directional upper bound on the hip placement sphere. */
+/*
+ * A directional upper bound on the hip placement sphere.
+ */
 interface ICap {
   normal: IAutoMovieVector3;
   limit: number;
 }
 
-/** A geometrically available root displacement. */
+/*
+ * A geometrically available root displacement.
+ */
 type SeedPoint = IAutoMovieVector3 | undefined;
 
-/** A single planted knee where closed-form reach caps apply. */
+/*
+ * A single planted knee where closed-form reach caps apply.
+ */
 type Knee = IEffector | undefined;
 
-/** Floating-point guard on the unit-vector dot products. */
+/*
+ * Floating-point guard on the unit-vector dot products.
+ */
 const SPHERE_ROUNDOFF: number = 8 * Number.EPSILON;
 
-/**
+/*
  * A placed knee leaves its hip a sphere of thigh radius. Holding each other
  * endpoint within its chain's length cuts the sphere by a plane:
  *

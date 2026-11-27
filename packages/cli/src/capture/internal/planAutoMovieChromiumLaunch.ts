@@ -1,7 +1,7 @@
 import type { AutoMovieCliCaptureBackend } from "../AutoMovieCliCaptureBackend";
 import type { AutoMovieCliCaptureTypes } from "../AutoMovieCliCaptureTypes";
 
-/**
+/*
  * The Chromium switches and executable for a capture backend.
  *
  * | Backend    | Switches                                                    | Named         |

@@ -32,20 +32,19 @@ import { ladderAccessSurface } from "./ladderAccessSurface";
 import { planLadderAccessBounds } from "./planLadderAccessBounds";
 import { seatLadderAccessGrips } from "./seatLadderAccessGrips";
 
-/**
+/*
  * Connect a fixed rung ladder's floor and upper surface in either direction.
  * Every target is a floor point, a point on a real rung or rail, or the
  * landing's surface. The shared support planner fits each change of load. The
  * ascent ends with both feet at an edge stance just inside the landing's near
  * edge; a descent first steps each foot, one at a time, from where the
  * performer stands to that edge stance, then replays the ascent backwards.
- *
- * @param context The actor and fixed placed geometry.
- * @param ladder The existing physical rung geometry.
- * @param exit The upper supporting surface and selected direction.
- * @returns A fully staged continuous multi-contact route.
- * @throws {HumanRefusal} If the geometry and initial standing stance do not
- *   admit the route or a contact cannot bear.
+ * Parameter context: The actor and fixed placed geometry.
+ * Parameter ladder: The existing physical rung geometry.
+ * Parameter exit: The upper supporting surface and selected direction.
+ * Returns: A fully staged continuous multi-contact route.
+ * If the geometry and initial standing stance do not
+ * admit the route or a contact cannot bear.
  */
 export function planLadderAccess(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClimbLadder.IParams>,

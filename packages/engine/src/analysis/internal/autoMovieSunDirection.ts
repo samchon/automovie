@@ -5,7 +5,7 @@ import type {
 
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Turn a solved sun position into the unit world direction from the site toward
  * the sun.
  *
@@ -18,12 +18,11 @@ import { Vector3 } from "../../math/Vector3";
  * A staged sun light's `direction` is this vector negated, since a light's
  * local -Z is its direction of travel. The result is also the `sun` of an
  * `IAutoMovieEnvironmentInstant`.
- *
- * @param props The site's north and ground, and the sun position.
- * @returns Unit world vector toward the sun; below the ground plane when the
- *   elevation is negative.
- * @throws Error when `north` is parallel to `ground.up`, which leaves no
- *   heading on the ground plane.
+ * Parameter props: The site's north and ground, and the sun position.
+ * Returns: Unit world vector toward the sun; below the ground plane when the
+ * elevation is negative.
+ * Error when `north` is parallel to `ground.up`, which leaves no
+ * heading on the ground plane.
  */
 export function autoMovieSunDirection(
   props: IAutoMovieSunDirection.IProps,
@@ -53,7 +52,7 @@ export function autoMovieSunDirection(
   );
 }
 
-/**
+/*
  * Smallest horizontal share of `north` that still names a heading. Below it,
  * `north` lies within about 0.2 arcseconds of the up axis, where rounding in
  * the projection decides the heading rather than the authored vector.

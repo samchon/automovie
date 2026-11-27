@@ -12,7 +12,7 @@ import { ExerciseKey } from "../internal/ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 import { prepareWorkoutKeyFrames } from "../internal/prepareWorkoutKeyFrames";
 
-/**
+/*
  * The exercises of the workout law done on the hands and the toes or feet : the
  * push-up, the plank, the mountain climber, the burpee, the downward dog and
  * the cobra.
@@ -27,19 +27,18 @@ import { prepareWorkoutKeyFrames } from "../internal/prepareWorkoutKeyFrames";
  * elbows; a burpee has no jump.
  */
 export namespace WorkoutFloor {
-  /**
+  /*
    * The share of the straight arm's length the shoulders stand above the floor
    * in a plank (provisional): the elbows a little soft.
    */
   export const REACH: number = 0.95;
 
-  /**
+  /*
    * The whole-body pitch of a straight body on its toes with the shoulders at a
    * height.
-   *
-   * @param body The body.
-   * @param height The shoulders' height above the floor, metres.
-   * @returns Degrees; 90 is level.
+   * Parameter body: The body.
+   * Parameter height: The shoulders' height above the floor, metres.
+   * Returns: Degrees; 90 is level.
    */
   export function plank(
     body: IAutoMovieMotionHumanBody,
@@ -50,14 +49,13 @@ export namespace WorkoutFloor {
     return 90 - (Math.asin(Math.min(1, height / length)) * 180) / Math.PI;
   }
 
-  /**
+  /*
    * The key of a family of keys by pitch whose shoulders stand a height above
    * its toes' joints.
-   *
-   * @param body The body.
-   * @param height The shoulders' height above the toes' joints, metres.
-   * @param key The key at a pitch, degrees.
-   * @returns The key whose pitch gives that height.
+   * Parameter body: The body.
+   * Parameter height: The shoulders' height above the toes' joints, metres.
+   * Parameter key: The key at a pitch, degrees.
+   * Returns: The key whose pitch gives that height.
    */
   export function pitched(
     body: IAutoMovieMotionHumanBody,
@@ -88,7 +86,9 @@ export namespace WorkoutFloor {
     return key((steep + level) / 2);
   }
 
-  /** Only shoulder and toe positions determine the pitch residual. */
+  /*
+   * Only shoulder and toe positions determine the pitch residual.
+   */
   const PITCHED: ReadonlySet<AutoMovieHumanoidBone> = new Set([
     "leftUpperArm",
     "rightUpperArm",
@@ -96,17 +96,16 @@ export namespace WorkoutFloor {
     "rightToes",
   ]);
 
-  /**
+  /*
    * The key of a family of keys by roll that rests on its side on two supports
    * at once: the roll at which the lowest point of the `on` colliders lies
    * level with the lowest point of the `with` colliders, as a side plank lies
    * on its forearm and its feet.
-   *
-   * @param body The body.
-   * @param on The bones that bear besides the feet, such as a forearm and its
-   *   hand.
-   * @param key The key at a roll, degrees; negative tips the body to its left.
-   * @returns The key at that roll.
+   * Parameter body: The body.
+   * Parameter on: The bones that bear besides the feet, such as a forearm and its
+   * hand.
+   * Parameter key: The key at a roll, degrees; negative tips the body to its left.
+   * Returns: The key at that roll.
    */
   export function rolled(
     body: IAutoMovieMotionHumanBody,
@@ -145,7 +144,7 @@ export namespace WorkoutFloor {
     return key((upright + side) / 2);
   }
 
-  /**
+  /*
    * The top of a push-up: a straight body on the toes and the straight arms;
    * the hands `raise` degrees out, the relaxed arm's abduction when unstated
    * (`stand.abduction`).
@@ -165,7 +164,7 @@ export namespace WorkoutFloor {
         ),
     );
 
-  /**
+  /*
    * The bottom of a push-up: the same line lowered until the upper arms are
    * level, the shoulders at the elbows' height over upright forearms (NSCA's
    * description of the bottom position); the hands `raise` degrees out as at
@@ -186,7 +185,9 @@ export namespace WorkoutFloor {
         ),
     );
 
-  /** The hands and the toes bear. */
+  /*
+   * The hands and the toes bear.
+   */
   const PRONE: readonly IAutoMovieMotionHumanWorkoutKind.ISupport[] = [
     { part: "leftHand", kind: "plant" },
     { part: "rightHand", kind: "plant" },
@@ -194,14 +195,18 @@ export namespace WorkoutFloor {
     { part: "rightFoot", kind: "plant" },
   ];
 
-  /** The exercises. */
+  /*
+   * The exercises.
+   */
   export const KINDS: Readonly<
     Record<
       IAutoMovieMotionHumanWorkoutFloor.Name,
       IAutoMovieMotionHumanWorkoutKind
     >
   > = {
-    /** A push-up: 1 s down, 1 s up (provisional). */
+    /*
+     * A push-up: 1 s down, 1 s up (provisional).
+     */
     pushUp: {
       base: "leaning",
       anchor: "hips",
@@ -218,7 +223,9 @@ export namespace WorkoutFloor {
       ],
     },
 
-    /** A wide push-up: the hands 30 degrees out (provisional). */
+    /*
+     * A wide push-up: the hands 30 degrees out (provisional).
+     */
     widePushUp: {
       base: "leaning",
       anchor: "hips",
@@ -235,7 +242,9 @@ export namespace WorkoutFloor {
       ],
     },
 
-    /** A plank on the straight arms, held 30 s. */
+    /*
+     * A plank on the straight arms, held 30 s.
+     */
     plank: {
       base: "leaning",
       anchor: "hips",
@@ -251,7 +260,7 @@ export namespace WorkoutFloor {
       ],
     },
 
-    /**
+    /*
      * A mountain climber: from the plank, one knee driven to the chest,
      * alternating; the hands bear and stay.
      */
@@ -294,7 +303,7 @@ export namespace WorkoutFloor {
       },
     },
 
-    /**
+    /*
      * A burpee without its jump: a crouch on the hands, the feet shot back to
      * the plank and brought in again.
      */
@@ -340,7 +349,7 @@ export namespace WorkoutFloor {
       ],
     },
 
-    /**
+    /*
      * The downward dog of yoga: the hips high over the flat feet and the hands,
      * held 15 s (provisional).
      */
@@ -367,7 +376,7 @@ export namespace WorkoutFloor {
       ],
     },
 
-    /**
+    /*
      * The cobra of yoga: lying face down, the chest raised over the hands, held
      * 10 s (provisional).
      */

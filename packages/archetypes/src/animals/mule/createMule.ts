@@ -5,7 +5,7 @@ import "../AutoMovieArchetypeEquineEarProfiles";
 import "../equine/HORSE_BANDS";
 import "../horse/createHorse";
 
-/**
+/*
  * A mule with its tack: the horse's build (`AutoMovieArchetypeEquine.equid`) at
  * a mule's size, under a riding saddle, in a driving harness or under a pack
  * saddle, with the horse's contacts.
@@ -21,14 +21,13 @@ import "../horse/createHorse";
  * ear-length/breadth/height means, as AutoMovieArchetypeEquineEarProfiles
  * documents. Their thickness and diagonal neutral pose are authored rectangular
  * proxies, not anatomy.
- *
- * @param params The sex, the tack and any dimension the author fixes.
- * @param seed The seed that draws the sex and every dimension left free inside
- *   its band; absent, the female, and each dimension the middle of its band.
- * @returns The mule.
- * @throws {AutoMovieArchetypeRefusal} For a sex not in `MEASURES`, a fixed
- *   dimension outside its band (the height is the sex's own, so fixing it is
- *   refused), or a tack that is not one of `AutoMovieArchetypeEquine.TACKS`.
+ * Parameter params: The sex, the tack and any dimension the author fixes.
+ * Parameter seed: The seed that draws the sex and every dimension left free inside
+ * its band; absent, the female, and each dimension the middle of its band.
+ * Returns: The mule.
+ * For a sex not in `MEASURES`, a fixed
+ * dimension outside its band (the height is the sex's own, so fixing it is
+ * refused), or a tack that is not one of `AutoMovieArchetypeEquine.TACKS`.
  */
 export function createMule(
   params: AutoMovieArchetypeMule.IParams = {},

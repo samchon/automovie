@@ -13,7 +13,7 @@ import { DEFAULT_KEYPOINT_BONES } from "../DEFAULT_KEYPOINT_BONES";
 import { projectToNdc } from "./projectToNdc";
 import { resolveCameraAt } from "./resolveCameraAt";
 
-/**
+/*
  * Project one posed actor's joints to normalized 2D frame keypoints, the
  * OpenPose-style conditioning automovie can emit exactly because it knows every
  * bone's 3D position.
@@ -29,10 +29,9 @@ import { resolveCameraAt } from "./resolveCameraAt";
  * The order follows joints. FK uses default engine joint axes and rest frames;
  * coincidence with a renderer requires those same conventions, and these
  * numerical outputs establish no observed rendered pixels.
- *
- * @param props The pose, rig, staged placement, camera, instant and output
- *   options.
- * @returns One keypoint per requested joint the rig has.
+ * Parameter props: The pose, rig, staged placement, camera, instant and output
+ * options.
+ * Returns: One keypoint per requested joint the rig has.
  */
 export function resolvePoseKeypoints(
   props: IAutoMovieResolvePoseKeypoints.IProps,
@@ -97,5 +96,7 @@ export function resolvePoseKeypoints(
   return keypoints;
 }
 
-/** Assumed render aspect (width / height); the scene camera carries none. */
+/*
+ * Assumed render aspect (width / height); the scene camera carries none.
+ */
 const DEFAULT_ASPECT: number = 16 / 9;

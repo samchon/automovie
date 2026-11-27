@@ -17,7 +17,7 @@ import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 import { validateDeclaredReferences } from "../../validation/internal/validateDeclaredReferences";
 import { validateDesignSourceFrame } from "./validateDesignSourceFrame";
 
-/**
+/*
  * Validate one observed design reference as evidence.
  *
  * The record is checked as a self-consistent observation, never as a design: a
@@ -44,13 +44,12 @@ import { validateDesignSourceFrame } from "./validateDesignSourceFrame";
  * Observed points are in frame units and must lie within the frame's `bounds`
  * (0 to width, 0 to height); each primitive family has its own point-count
  * bounds, and only `text` and `level-marker` carry literal text. Frames are
- * judged by {@link validateDesignSourceFrame}. Every id is unique, the digest is
+ * judged by validateDesignSourceFrame. Every id is unique, the digest is
  * a lowercase `sha256:` hex digest, and the media is a supported type. Findings
  * are returned with `$input` paths and nothing throws; the asset bytes behind
  * `digest` are not read here.
- *
- * @param props.reference Observed design reference to validate.
- * @returns Success, or every violation found.
+ * Parameter props.reference: Observed design reference to validate.
+ * Returns: Success, or every violation found.
  */
 export function validateDesignReference(
   props: IAutoMovieValidateDesignReference.IProps,
@@ -338,7 +337,9 @@ export function validateDesignReference(
   return out.toValidation();
 }
 
-/** Media declared by an observation, without inspecting the asset bytes. */
+/*
+ * Media declared by an observation, without inspecting the asset bytes.
+ */
 const DESIGN_REFERENCE_MEDIA: Readonly<
   Record<IAutoMovieDesignReference["media"], true>
 > = {
@@ -349,16 +350,22 @@ const DESIGN_REFERENCE_MEDIA: Readonly<
   "image/vnd.dxf": true,
 };
 
-/** Inclusive point-count bounds for an observed primitive. */
+/*
+ * Inclusive point-count bounds for an observed primitive.
+ */
 interface IPointCountRange {
-  /** Fewest points the primitive can carry. */
+  /*
+   * Fewest points the primitive can carry.
+   */
   readonly min: number;
 
-  /** Most points the primitive can carry, or Infinity without an upper bound. */
+  /*
+   * Most points the primitive can carry, or Infinity without an upper bound.
+   */
   readonly max: number;
 }
 
-/**
+/*
  * Every raw mark family an observation may record, and the point count each one
  * carries. A Map excludes inherited names such as `toString` from lookup.
  */
@@ -371,7 +378,7 @@ const PRIMITIVE_POINTS: ReadonlyMap<string, IPointCountRange> = new Map([
   ["level-marker", { min: 1, max: 1 }],
 ]);
 
-/**
+/*
  * Issue kinds recognized in raw observations, checked against the authoring
  * contract.
  */
@@ -386,7 +393,9 @@ const DESIGN_ISSUE_KINDS: Readonly<
   other: true,
 };
 
-/** One primitive: its frame, family, point count, points and literal text. */
+/*
+ * One primitive: its frame, family, point count, points and literal text.
+ */
 function validatePrimitive(
   primitive: IAutoMovieObservedPrimitive,
   owner: IAutoMovieDesignSourceFrame | undefined,
@@ -457,7 +466,9 @@ function validatePrimitive(
     );
 }
 
-/** One issue: a known kind, a detail, and subjects that resolve once each. */
+/*
+ * One issue: a known kind, a detail, and subjects that resolve once each.
+ */
 function validateIssue(
   issue: IAutoMovieDesignIssue,
   primitiveIds: ReadonlySet<string>,

@@ -2,19 +2,19 @@ import type { IAutoMovieMotionHumanDrinkingArm } from "@automovie/interface";
 
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
 
-/**
+/*
  * The leans toward the face a drinking vessel is tried at: their step, their
  * bound and the walk that finds the least one an arm is admitted at
  * (`AutoMovieMotionHumanTouchDrink` admits each).
  */
 export namespace AutoMovieMotionHumanDrinkingLean {
-  /**
+  /*
    * The step between the leans toward the face a held vessel is tried at,
    * degrees (provisional).
    */
   export const STEP: number = 5;
 
-  /**
+  /*
    * The most a held vessel is leaned toward the face to let the arm hold it as
    * a drinker does, degrees: the lean that lays its wall level. A liquid at
    * rest keeps a level surface, so a vessel of height `H` and radius `r` filled
@@ -33,31 +33,36 @@ export namespace AutoMovieMotionHumanDrinkingLean {
    */
   export const MOST: number = 90;
 
-  /**
+  /*
    * The step between the leans the walk tries first, degrees, inside whose
-   * first admitting bracket it tries every {@link STEP} (provisional).
+   * first admitting bracket it tries every STEP (provisional).
    */
   export const COARSE: number = 15;
 
-  /** What one lean's attempt saw of the arms it tried, for the walk. */
+  /*
+   * What one lean's attempt saw of the arms it tried, for the walk.
+   */
   export interface IMisses {
-    /** Forget the last attempt's arms; called when an attempt starts. */
+    /*
+     * Forget the last attempt's arms; called when an attempt starts.
+     */
     begin: () => void;
 
-    /** Show an arm the attempt tried. */
+    /*
+     * Show an arm the attempt tried.
+     */
     see: (arm: IAutoMovieMotionHumanDrinkingArm.IArm) => void;
 
-    /**
+    /*
      * The least miss of the vessel's axis among the arms shown since the start
      * that drink, degrees; none when none drinks.
      */
     least: () => number | undefined;
   }
 
-  /**
+  /*
    * A reader of the arms one lean's attempt tried.
-   *
-   * @returns The reader, holding nothing yet.
+   * Returns: The reader, holding nothing yet.
    */
   export function misses(): IMisses {
     let miss: number | undefined;
@@ -76,9 +81,9 @@ export namespace AutoMovieMotionHumanDrinkingLean {
     };
   }
 
-  /**
-   * The least lean an attempt admits, in {@link STEP} degrees up to {@link MOST}:
-   * every {@link COARSE} degrees first, then every step from the bracket's low
+  /*
+   * The least lean an attempt admits, in STEP degrees up to MOST:
+   * every COARSE degrees first, then every step from the bracket's low
    * end up to the coarse lean that admitted, which returns the least admitting
    * lean when admission holds at every lean above the least one inside the
    * bracket.
@@ -94,12 +99,11 @@ export namespace AutoMovieMotionHumanDrinkingLean {
    * tried at once, nearest it first: the window an arm is admitted in is two
    * steps wide and may hold no coarse lean, and past it the miss grows again,
    * so the coarse walk alone steps over it.
-   *
-   * @param attempt One lean's admission: its answer, or none.
-   * @param off After an attempt, the least miss of the vessel's axis among the
-   *   arms it tried that drink, degrees; none when no arm it tried drinks.
-   * @returns The answer at the least lean admitted; none when no lean tried
-   *   admits.
+   * Parameter attempt: One lean's admission: its answer, or none.
+   * Parameter off: After an attempt, the least miss of the vessel's axis among the
+   * arms it tried that drink, degrees; none when no arm it tried drinks.
+   * Returns: The answer at the least lean admitted; none when no lean tried
+   * admits.
    */
   export function least<T>(
     attempt: (lean: number) => T | undefined,

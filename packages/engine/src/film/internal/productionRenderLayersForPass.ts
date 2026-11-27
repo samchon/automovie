@@ -3,7 +3,7 @@ import {
   type IAutoMovieProductionRenderLayersForPass,
 } from "@automovie/interface";
 
-/**
+/*
  * The layers one render pass draws for one film frame.
  *
  * Beauty is alpha-composited, so the `beauty` pass gets every layer with its
@@ -14,10 +14,9 @@ import {
  * outgoing layer first. Every result is a deep copy, so a caller mutating it
  * cannot alter the frame another pass reads. A guide pass over an empty layer
  * list throws a `TypeError`; a sampled film frame always has at least one.
- *
- * @param frame The sampled film frame, layers in outgoing-then-incoming order.
- * @param pass The render pass being drawn.
- * @returns New layers for the pass: all of them for beauty, one otherwise.
+ * Parameter frame: The sampled film frame, layers in outgoing-then-incoming order.
+ * Parameter pass: The render pass being drawn.
+ * Returns: New layers for the pass: all of them for beauty, one otherwise.
  */
 export function productionRenderLayersForPass<Layer extends { weight: number }>(
   frame: IAutoMovieProductionRenderLayersForPass.IFrame<Layer>,

@@ -5,20 +5,19 @@ import { ArchetypeDraw, type AutoMovieArchetype } from "../../core/index";
 import { StageBladeConstruction } from "./StageBladeConstruction";
 
 
-/**
+/*
  * Padded fencing stage prop.
  *
  * A round visual guard and capped shaft surround the one-hand grip. The
  * selected profile determines the visible guard and colour. Every profile
  * declares its point; the sabre, which also touches with its blade, declares
  * the edge of its whole blade above the guard.
- *
- * @param params The scene identity and optional display length in metres, with
- *   the chosen fencing silhouette.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter params: The scene identity and optional display length in metres, with
+ * the chosen fencing silhouette.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function createStageFencingProp(
   params: AutoMovieArchetypeStageFencingProp.IParams,

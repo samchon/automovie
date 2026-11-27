@@ -1,7 +1,7 @@
 import { canonicalizeAutoMovieCaptionText } from "./canonicalizeAutoMovieCaptionText.js";
 import { escapeWebVttText } from "./escapeWebVttText.js";
 
-/**
+/*
  * Serialize one authored caption as a WebVTT cue payload.
  *
  * The caption is canonicalized first, so the payload shows exactly the lines

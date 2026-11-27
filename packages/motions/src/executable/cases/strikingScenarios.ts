@@ -12,7 +12,7 @@ import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { StrikingLimb } from "./StrikingLimb";
 import type { StrikingVerdicts } from "./StrikingVerdicts";
 
-/**
+/*
  * The striking scenarios of the capture, authored for two bodies: subject `a`
  * at the origin facing +Z and subject `b` a gap ahead, facing back.
  *
@@ -39,10 +39,9 @@ import type { StrikingVerdicts } from "./StrikingVerdicts";
  * body stands where its own limb works; the shares are provisional readings
  * that put the tall man where the fixed gaps of the first captures had him (1.1
  * and 1.0 m). The clinch range is the gap at which the two guards just touch.
- *
- * @param A Subject `a`'s body.
- * @param B Subject `b`'s body.
- * @returns Each scenario by its family name, built on demand.
+ * Parameter A: Subject `a`'s body.
+ * Parameter B: Subject `b`'s body.
+ * Returns: Each scenario by its family name, built on demand.
  */
 export function strikingScenarios(
   A: IAutoMovieMotionHumanBody,
@@ -208,42 +207,56 @@ export function strikingScenarios(
     }),
   };
 }
-/**
- * Companion declarations of {@link strikingScenarios}: a scenario's record, the
+/*
+ * Companion declarations of strikingScenarios: a scenario's record, the
  * family names and the range shares.
  */
 export namespace strikingScenarios {
-  /** One scenario. */
+  /*
+   * One scenario.
+   */
   export interface IScenario {
-    /** Subject `a`'s chain. */
+    /*
+     * Subject `a`'s chain.
+     */
     a: IAutoMovieMotionHumanChain;
 
-    /** Subject `b`'s chain; undefined when `a` strikes at no one. */
+    /*
+     * Subject `b`'s chain; undefined when `a` strikes at no one.
+     */
     b: IAutoMovieMotionHumanChain | undefined;
 
-    /** The gap between the two roots along +Z, metres. */
+    /*
+     * The gap between the two roots along +Z, metres.
+     */
     gap: number;
 
-    /**
+    /*
      * A chain of `a` drawn as a translucent figure, the uninterrupted source of
      * a redirect.
      */
     ghost: IAutoMovieMotionHumanChain | undefined;
 
-    /** A chain of `a` whose planning must be refused as an illegal cut. */
+    /*
+     * A chain of `a` whose planning must be refused as an illegal cut.
+     */
     late: IAutoMovieMotionHumanChain | undefined;
 
-    /**
+    /*
      * The part classes each strike is declared to meet, by its segment id; a
      * strike not named may meet any.
      */
     meets: Record<string, readonly StrikingVerdicts.Class[]>;
 
-    /** The comparison seed and strike for an observed cover after contact. */
+    /*
+     * The comparison seed and strike for an observed cover after contact.
+     */
     coverAfterContact?: { seed: string; strike: string };
   }
 
-  /** Every family name, in capture order. */
+  /*
+   * Every family name, in capture order.
+   */
   export const FAMILIES: readonly string[] = [
     "striking-jab-cover",
     "striking-crosses",
@@ -255,34 +268,36 @@ export namespace strikingScenarios {
     "striking-observed-cover",
   ];
 
-  /**
+  /*
    * A jab's range as a share of the bare arm's length; provisional, the tall
    * man's 1.1 m.
    */
   export const JAB_RANGE: number = 1.3;
 
-  /**
+  /*
    * A rear straight's range as a share of the bare arm's length; provisional,
    * the tall man's 1.0 m.
    */
   export const CROSS_RANGE: number = 1.2;
 
-  /**
+  /*
    * A round kick's range as a share of the bare leg's length; provisional, the
    * tall man's 1.1 m.
    */
   export const KICK_RANGE: number = 0.9;
 
-  /**
+  /*
    * A redirected round kick's range as a share of the bare leg's length;
    * provisional, the tall man's 1.0 m.
    */
   export const REDIRECT_RANGE: number = 0.85;
 }
-/** The alternatives of `TouchingExtentSign`'s site. */
+/*
+ * The alternatives of `TouchingExtentSign`'s site.
+ */
 type TouchingExtentSign = 1 | -1;
 
-/**
+/*
  * The root gap at which two bodies, each holding its chain's last pose and
  * facing the other along +Z, just touch along that line: posed once two metres
  * apart, the attacker's foremost and the defender's hindmost collider extents

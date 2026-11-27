@@ -13,7 +13,7 @@ import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { HumanWeaponPresentElbowOn } from "./HumanWeaponPresentElbowOn";
 
-/**
+/*
  * Two arms on one weapon with their elbows placed outside each other: at each
  * second each arm's elbow is put on the circle one upper arm from its shoulder
  * and one forearm from its wrist, at the point nearest outward and a little

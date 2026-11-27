@@ -8,7 +8,7 @@ import { Quaternion } from "../../../math/Quaternion";
 import { Vector3 } from "../../../math/Vector3";
 import { transformFormationPoint } from "./transformFormationPoint";
 
-/**
+/*
  * Compose a promoted hero's source-authored node transform with formation
  * placement and motion.
  *
@@ -18,21 +18,20 @@ import { transformFormationPoint } from "./transformFormationPoint";
  * source-owned.
  *
  * Exactly: translation is the slot position carried through the sampled
- * formation state by {@link transformFormationPoint}, plus `source.translation -
+ * formation state by transformFormationPoint, plus `source.translation -
  * base.translation`, and rotation is a yaw of `baseFacingDeg +
  * motion.facingOffsetDeg` degrees about +Y applied after
  * `inverse(base.rotation) * source.rotation`. The authored displacement is
  * added in world axes, so it is neither turned by the formation's facing nor
  * scaled by its spacing. Units are metres and degrees. Geometry measurement and
  * the viewer's instanced formation both place heroes through here.
- *
- * @param base Builder-owned hero slot transform in the designed formation.
- * @param source Authored node transform at the sampled time.
- * @param anchor Formation anchor the slot is laid out around.
- * @param motion Sampled formation state: translation, facing offset and spacing
- *   scale.
- * @param baseFacingDeg Designed formation heading in degrees, default 0.
- * @returns A new world transform for the promoted hero.
+ * Parameter base: Builder-owned hero slot transform in the designed formation.
+ * Parameter source: Authored node transform at the sampled time.
+ * Parameter anchor: Formation anchor the slot is laid out around.
+ * Parameter motion: Sampled formation state: translation, facing offset and spacing
+ * scale.
+ * Parameter baseFacingDeg: Designed formation heading in degrees, default 0.
+ * Returns: A new world transform for the promoted hero.
  */
 export function composeFormationHeroTransform(
   base: IAutoMovieTransform,
@@ -54,5 +53,7 @@ export function composeFormationHeroTransform(
   };
 }
 
-/** World up, the axis every formation heading turns about. */
+/*
+ * World up, the axis every formation heading turns about.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

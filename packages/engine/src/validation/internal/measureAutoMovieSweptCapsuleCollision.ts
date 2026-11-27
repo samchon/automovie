@@ -6,7 +6,7 @@ import type {
 
 import { closestPointsBetweenSegments } from "../../math/internal/closestPointsBetweenSegments";
 
-/**
+/*
  * Find a sampled depth violation or prove clearance for a certified affine
  * capsule pair, with explicit work and numerical limits.
  *
@@ -16,11 +16,10 @@ import { closestPointsBetweenSegments } from "../../math/internal/closestPointsB
  * distance bound. Each ambiguous cell can contribute a sampled witness and
  * split into two cells. The existing segment query only chooses points to
  * verify. Its rounded distance cannot certify a clear interval.
- *
- * @param props A single admitted source interval with no interior trajectory or
- *   allowance knot.
- * @returns Clearance, one sampled violation with its local bracket, or
- *   explicitly incomplete coverage.
+ * Parameter props: A single admitted source interval with no interior trajectory or
+ * allowance knot.
+ * Returns: Clearance, one sampled violation with its local bracket, or
+ * explicitly incomplete coverage.
  */
 export function measureAutoMovieSweptCapsuleCollision(
   props: Sweep.IProps,
@@ -121,62 +120,102 @@ export function measureAutoMovieSweptCapsuleCollision(
   return { status: "clear", basis, compared };
 }
 
-/** A closed, outward-rounded binary64 interval. */
+/*
+ * A closed, outward-rounded binary64 interval.
+ */
 interface IRange {
-  /** Lower bound. */
+  /*
+   * Lower bound.
+   */
   low: number;
-  /** Upper bound. */
+  /*
+   * Upper bound.
+   */
   high: number;
 }
 
-/** One bounded point at a normalized sample time. */
+/*
+ * One bounded point at a normalized sample time.
+ */
 interface IPoint {
-  /** Approximate point, used only to find useful candidates. */
+  /*
+   * Approximate point, used only to find useful candidates.
+   */
   value: IAutoMovieVector3;
-  /** Enclosures of the actual affine point. */
+  /*
+   * Enclosures of the actual affine point.
+   */
   bounds: Record<keyof IAutoMovieVector3, IRange>;
 }
 
-/** The two endpoint pairs at one sample of the uninterrupted affine law. */
+/*
+ * The two endpoint pairs at one sample of the uninterrupted affine law.
+ */
 interface ISample {
-  /** Normalized parameter in the originally supplied interval. */
+  /*
+   * Normalized parameter in the originally supplied interval.
+   */
   at: number;
-  /** First capsule's axis endpoints. */
+  /*
+   * First capsule's axis endpoints.
+   */
   first: readonly [IPoint, IPoint];
-  /** Second capsule's axis endpoints. */
+  /*
+   * Second capsule's axis endpoints.
+   */
   second: readonly [IPoint, IPoint];
 }
 
-/** Sampled contact whose axis-point distance is independently bounded. */
+/*
+ * Sampled contact whose axis-point distance is independently bounded.
+ */
 interface IWitness {
-  /** Rounded signed gap between the selected axis points, less both radii. */
+  /*
+   * Rounded signed gap between the selected axis points, less both radii.
+   */
   separation: number;
-  /** Rounded world point inside the ideal overlap, weighted by radius. */
+  /*
+   * Rounded world point inside the ideal overlap, weighted by radius.
+   */
   point: IAutoMovieVector3;
 }
 
-/** A queued time cell whose endpoint geometry can serve both child cells. */
+/*
+ * A queued time cell whose endpoint geometry can serve both child cells.
+ */
 interface ICell {
-  /** Included opening sample. */
+  /*
+   * Included opening sample.
+   */
   start: ISample;
-  /** Included closing sample. */
+  /*
+   * Included closing sample.
+   */
   end: ISample;
 }
 
-/** Fixed read order for bounds and witness coordinates. */
+/*
+ * Fixed read order for bounds and witness coordinates.
+ */
 const AXES: readonly (keyof IAutoMovieVector3)[] = ["x", "y", "z"];
 
-/** One private scratch cell for synchronous binary64 successor reads. */
+/*
+ * One private scratch cell for synchronous binary64 successor reads.
+ */
 const BITS: DataView = new DataView(new ArrayBuffer(8));
 
-/** Check the finite, positive-radius geometry supplied by the source. */
+/*
+ * Check the finite, positive-radius geometry supplied by the source.
+ */
 function admissible(span: Sweep.ISpan): boolean {
   return (
     (span.basis === "displayed" || span.basis === "proxy") && span.radius > 0
   );
 }
 
-/** Enclose an affine read once for both endpoints of each segment. */
+/*
+ * Enclose an affine read once for both endpoints of each segment.
+ */
 function sample(first: Sweep.ISpan, second: Sweep.ISpan, at: number): ISample {
   return {
     at,
@@ -191,7 +230,9 @@ function sample(first: Sweep.ISpan, second: Sweep.ISpan, at: number): ISample {
   };
 }
 
-/** Read approximate and bounded values for a world point. */
+/*
+ * Read approximate and bounded values for a world point.
+ */
 function samplePoint(
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
@@ -211,12 +252,16 @@ function samplePoint(
   };
 }
 
-/** A candidate-only read with exact endpoint ownership. */
+/*
+ * A candidate-only read with exact endpoint ownership.
+ */
 function blend(a: number, b: number, at: number): number {
   return at === 0 ? a : at === 1 ? b : a * (1 - at) + b * at;
 }
 
-/** Round every coefficient, multiplication and addition outward. */
+/*
+ * Round every coefficient, multiplication and addition outward.
+ */
 function blendBounds(a: IRange, b: IRange, at: number): IRange {
   if (at === 0) return a;
   if (at === 1) return b;
@@ -230,7 +275,7 @@ function blendBounds(a: IRange, b: IRange, at: number): IRange {
   };
 }
 
-/**
+/*
  * Accumulate an outward-rounded lower squared distance between both swept
  * boxes.
  */
@@ -245,7 +290,9 @@ function squaredBoxGap(cell: ICell): number {
   return squared;
 }
 
-/** Enclose the projection of a moving segment using its four corners. */
+/*
+ * Enclose the projection of a moving segment using its four corners.
+ */
 function spanAxis(
   start: ISample["first"],
   end: ISample["first"],
@@ -261,7 +308,7 @@ function spanAxis(
   };
 }
 
-/**
+/*
  * Verify a candidate using two genuine axis points and a distance upper bound.
  * Candidate fractions are reconstructed and clamped, so errors in the nearest
  * point search can only weaken this proof, never create a violating point.
@@ -306,7 +353,9 @@ function measureWitness(
   };
 }
 
-/** Read the rounded position of the same axis point whose distance was bounded. */
+/*
+ * Read the rounded position of the same axis point whose distance was bounded.
+ */
 function pointAlong(segment: ISample["first"], at: number): IAutoMovieVector3 {
   const [first, second]: [IAutoMovieVector3, IAutoMovieVector3] = [
     segment[0].value,
@@ -319,7 +368,9 @@ function pointAlong(segment: ISample["first"], at: number): IAutoMovieVector3 {
   };
 }
 
-/** Recover a candidate fraction from the widest represented component. */
+/*
+ * Recover a candidate fraction from the widest represented component.
+ */
 function along(segment: ISample["first"], point: IAutoMovieVector3): number {
   let width: number = 0;
   let chosen: keyof IAutoMovieVector3 = "x";
@@ -335,7 +386,9 @@ function along(segment: ISample["first"], point: IAutoMovieVector3): number {
   return Math.max(0, Math.min(1, fraction));
 }
 
-/** Return the next larger binary64 value, including at zero and overflow. */
+/*
+ * Return the next larger binary64 value, including at zero and overflow.
+ */
 function up(value: number): number {
   if (value === Infinity) return value;
   if (value === 0) return Number.MIN_VALUE;
@@ -345,7 +398,9 @@ function up(value: number): number {
   return BITS.getFloat64(0);
 }
 
-/** Return the previous binary64 value by reversing order through negation. */
+/*
+ * Return the previous binary64 value by reversing order through negation.
+ */
 function down(value: number): number {
   return -up(-value);
 }

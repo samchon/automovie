@@ -6,7 +6,7 @@ import type {
 
 import { createCompiledSlotSummary } from "./createCompiledSlotSummary";
 
-/**
+/*
  * Exact bounds and running-mean centroid of one contiguous slot range.
  *
  * Shared by the compiled formation and compiled instance-set kernels, because a

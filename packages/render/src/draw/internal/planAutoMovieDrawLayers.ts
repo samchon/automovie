@@ -3,7 +3,7 @@ import type { IAutoMoviePlaybackLayer } from "@automovie/interface";
 
 import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
 
-/**
+/*
  * The layers a draw subject's film picture composites at a second, outgoing
  * first, or null when the picture is the live placement alone.
  *
@@ -16,11 +16,10 @@ import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
  * It throws when a layer is an outgoing shot and the subject supplies no
  * `seekShot` to place it, naming the subject, the second, the entry and
  * `seekShot`.
- *
- * @param name The subject's name, which a refusal names.
- * @param scene The created subject.
- * @param seconds The second drawn.
- * @returns The layers, or null for the live placement alone.
+ * Parameter name: The subject's name, which a refusal names.
+ * Parameter scene: The created subject.
+ * Parameter seconds: The second drawn.
+ * Returns: The layers, or null for the live placement alone.
  */
 export function planAutoMovieDrawLayers(
   name: string,

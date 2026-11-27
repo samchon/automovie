@@ -6,7 +6,7 @@ import type {
 
 import { AUTO_MOVIE_INSPECTION_PALETTE } from "../../AUTO_MOVIE_INSPECTION_PALETTE.js";
 
-/**
+/*
  * List what the colours of a picture's marks mean: each drawn kind once, with
  * the number of its marks drawn in its colour, and for each kind with flagged
  * marks one entry in the flag colour, labelled `<label> (flagged)`, with their

@@ -8,41 +8,56 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A shared walk of a coupled pair: both feet of each performer step one
  * displacement over a window, alternating, the root carried on its own profile
  * by the law that uses it (`hostageHold`, `heldHostage`).
  */
 export namespace PairWalk {
-  /** One foot's step over the walk: which foot, when, from where to where. */
+  /*
+   * One foot's step over the walk: which foot, when, from where to where.
+   */
   export interface IStep {
-    /** The stepping foot. */
+    /*
+     * The stepping foot.
+     */
     side: AutoMovieHumanSide;
-    /** When it lifts, seconds since the action's start. */
+    /*
+     * When it lifts, seconds since the action's start.
+     */
     from: number;
-    /** When it lands, seconds since the action's start. */
+    /*
+     * When it lands, seconds since the action's start.
+     */
     to: number;
-    /** Where it lifts from, world metres. */
+    /*
+     * Where it lifts from, world metres.
+     */
     start: IAutoMovieVector3;
-    /** Where it lands, world metres. */
+    /*
+     * Where it lands, world metres.
+     */
     end: IAutoMovieVector3;
   }
 
-  /** The longest step, metres: a short backward step (authored). */
+  /*
+   * The longest step, metres: a short backward step (authored).
+   */
   export const STEP: number = 0.3;
 
-  /** How high a stepping foot lifts, metres: authored. */
+  /*
+   * How high a stepping foot lifts, metres: authored.
+   */
   export const LIFT: number = 0.04;
 
-  /**
+  /*
    * The steps that carry both feet a displacement over a window, the feet
    * alternating, the last step closing the trailing foot.
-   *
-   * @param entry The entry state, its feet.
-   * @param travel The displacement, world metres.
-   * @param from The window's start, seconds.
-   * @param to The window's end, seconds.
-   * @returns The steps in order.
+   * Parameter entry: The entry state, its feet.
+   * Parameter travel: The displacement, world metres.
+   * Parameter from: The window's start, seconds.
+   * Parameter to: The window's end, seconds.
+   * Returns: The steps in order.
    */
   export function steps(
     entry: Pick<IAutoMovieMotionHumanEntryState, "feet">,
@@ -77,14 +92,13 @@ export namespace PairWalk {
     return out;
   }
 
-  /**
+  /*
    * The feet's goals at a second.
-   *
-   * @param entry The entry state.
-   * @param steps The walk's steps.
-   * @param seconds Seconds since the action's start.
-   * @param knee The knee's hint from an ankle.
-   * @returns The two leg goals.
+   * Parameter entry: The entry state.
+   * Parameter steps: The walk's steps.
+   * Parameter seconds: Seconds since the action's start.
+   * Parameter knee: The knee's hint from an ankle.
+   * Returns: The two leg goals.
    */
   export function legs(
     entry: Pick<IAutoMovieMotionHumanEntryState, "feet">,
@@ -121,12 +135,11 @@ export namespace PairWalk {
     return out;
   }
 
-  /**
+  /*
    * Each foot's plant windows outside its steps, as shares of a duration.
-   *
-   * @param steps The walk's steps.
-   * @param duration The action's duration, seconds.
-   * @returns The contact windows.
+   * Parameter steps: The walk's steps.
+   * Parameter duration: The action's duration, seconds.
+   * Returns: The contact windows.
    */
   export function plants(
     steps: readonly IStep[],

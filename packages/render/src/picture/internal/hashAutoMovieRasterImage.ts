@@ -1,6 +1,6 @@
 import type { IAutoMovieRasterImage } from "@automovie/interface";
 
-/**
+/*
  * The content hash a capture records for a still: `sha256:` and 64 lowercase
  * hex digits over the picture's width and height, each a big-endian 32-bit
  * integer, followed by its red, green and blue bytes row by row.
@@ -89,7 +89,9 @@ export function hashAutoMovieRasterImage(image: IAutoMovieRasterImage): string {
   return `sha256:${Array.from(state, (word: number): string => word.toString(16).padStart(8, "0")).join("")}`;
 }
 
-/** SHA-256 round constants, FIPS 180-4 section 4.2.2. */
+/*
+ * SHA-256 round constants, FIPS 180-4 section 4.2.2.
+ */
 const K: Uint32Array = Uint32Array.from([
   0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1,
   0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
@@ -104,7 +106,9 @@ const K: Uint32Array = Uint32Array.from([
   0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
 ]);
 
-/** Rotate a 32-bit word right. */
+/*
+ * Rotate a 32-bit word right.
+ */
 function rotate(value: number, bits: number): number {
   return ((value >>> bits) | (value << (32 - bits))) >>> 0;
 }

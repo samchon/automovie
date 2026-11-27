@@ -16,7 +16,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { placeHumanHandSurface } from "../../posture/internal/placeHumanHandSurface";
 
-/**
+/*
  * What an arm primitive is given: a hand surface's target, the origin the hand
  * leaves from and returns to, and the wrist goal the two make.
  *
@@ -24,15 +24,14 @@ import { placeHumanHandSurface } from "../../posture/internal/placeHumanHandSurf
  * so the carry, the move and the phrases read them without reading each other.
  */
 export namespace AutoMovieMotionHumanArmTarget {
-  /**
+  /*
    * Where a hand surface is on a pose, as an origin in a floor frame.
-   *
-   * @param body The body.
-   * @param bones The pose's resolved bones.
-   * @param frame The performer's floor frame at that pose.
-   * @param side The hand.
-   * @param surface The surface.
-   * @returns The origin.
+   * Parameter body: The body.
+   * Parameter bones: The pose's resolved bones.
+   * Parameter frame: The performer's floor frame at that pose.
+   * Parameter side: The hand.
+   * Parameter surface: The surface.
+   * Returns: The origin.
    */
   export function origin(
     body: IAutoMovieMotionHumanBody,
@@ -56,12 +55,11 @@ export namespace AutoMovieMotionHumanArmTarget {
     };
   }
 
-  /**
+  /*
    * An origin's surface point in the world on a posture.
-   *
-   * @param posture The posture whose root and heading carry the origin.
-   * @param from The origin.
-   * @returns The world point, metres.
+   * Parameter posture: The posture whose root and heading carry the origin.
+   * Parameter from: The origin.
+   * Returns: The world point, metres.
    */
   export function point(
     posture: Pick<IAutoMovieMotionHumanPosture, PointPosture>,
@@ -73,15 +71,14 @@ export namespace AutoMovieMotionHumanArmTarget {
     );
   }
 
-  /**
+  /*
    * The limb goal that puts a hand surface on its target: the wrist placed for
    * the asked rotation, and the surface declared as the goal's contact so the
    * resolver keeps it on the point when the rotation is out of range.
-   *
-   * @param body The body.
-   * @param side The arm.
-   * @param target The target.
-   * @returns The goal.
+   * Parameter body: The body.
+   * Parameter side: The arm.
+   * Parameter target: The target.
+   * Returns: The goal.
    */
   export function goal(
     body: IAutoMovieMotionHumanBody,
@@ -111,15 +108,14 @@ export namespace AutoMovieMotionHumanArmTarget {
     return fromWrist(wrist, target.bend, contact);
   }
 
-  /**
+  /*
    * Keep an already placed wrist and its actual elbow hint as a contact goal.
-   *
-   * @param wrist Actual wrist point/rotation from the owning surface placement.
-   * @param bend Actual world-metre elbow hint, including a completed default
-   *   search.
-   * @param contact Original hand-local surface offset in metres.
-   * @returns A fresh goal wrapper borrowing these numerical payloads; a contact
-   *   shorter than 1e-9 metres is absent.
+   * Parameter wrist: Actual wrist point/rotation from the owning surface placement.
+   * Parameter bend: Actual world-metre elbow hint, including a completed default
+   * search.
+   * Parameter contact: Original hand-local surface offset in metres.
+   * Returns: A fresh goal wrapper borrowing these numerical payloads; a contact
+   * shorter than 1e-9 metres is absent.
    */
   export function fromWrist(
     wrist: IAutoMovieMotionHumanHand.IWrist,
@@ -129,17 +125,16 @@ export namespace AutoMovieMotionHumanArmTarget {
     return assembled(wrist, bend, contact, !(Vector3.length(contact) < 1e-9));
   }
 
-  /**
+  /*
    * Prepare a fixed hand surface, shape, rotation and bend for varying points.
    * The body's geometry stays unchanged for this reader's lifetime; changed
    * hand geometry or fixed values require new preparation.
-   *
-   * @param body The body that supplies the actual hand surface offset once.
-   * @param side The fixed acting arm.
-   * @param target Fixed world rotation/bend and local surface/shape, without
-   *   the varying surface point or curl.
-   * @returns Fresh original wrist/contact goals for each actual world surface
-   *   point in metres.
+   * Parameter body: The body that supplies the actual hand surface offset once.
+   * Parameter side: The fixed acting arm.
+   * Parameter target: Fixed world rotation/bend and local surface/shape, without
+   * the varying surface point or curl.
+   * Returns: Fresh original wrist/contact goals for each actual world surface
+   * point in metres.
    */
   export function prepareGoal(
     body: IAutoMovieMotionHumanBody,
@@ -168,7 +163,9 @@ export namespace AutoMovieMotionHumanArmTarget {
     };
   }
 
-  /** Prepare a fixed local hand surface while world placement keeps varying. */
+  /*
+   * Prepare a fixed local hand surface while world placement keeps varying.
+   */
   export function prepareSurfaceGoal(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
@@ -198,7 +195,7 @@ export namespace AutoMovieMotionHumanArmTarget {
       );
   }
 
-  /**
+  /*
    * Emit target rows of one body, side, surface and shape, each carrying the
    * surface's hand-local offset read once for all of them.
    */
@@ -229,7 +226,7 @@ export namespace AutoMovieMotionHumanArmTarget {
     });
   }
 
-  /**
+  /*
    * Emit sided target rows of one body, side, surface and shape, each carrying
    * the surface's hand-local offset read once for all of them.
    */
@@ -262,34 +259,52 @@ export namespace AutoMovieMotionHumanArmTarget {
   }
 }
 
-/** The alternatives of `PrepareSidedTargetPlacement`'s site. */
+/*
+ * The alternatives of `PrepareSidedTargetPlacement`'s site.
+ */
 type PrepareSidedTargetPlacement = "surface" | "shape";
 
-/** The alternatives of `PrepareSidedTargetPlacementResult`'s site. */
+/*
+ * The alternatives of `PrepareSidedTargetPlacementResult`'s site.
+ */
 type PrepareSidedTargetPlacementResult = "surface" | "shape";
 
-/** The alternatives of `PrepareTargetPlacement`'s site. */
+/*
+ * The alternatives of `PrepareTargetPlacement`'s site.
+ */
 type PrepareTargetPlacement = "surface" | "shape";
 
-/** The alternatives of `PrepareTargetPlacementResult`'s site. */
+/*
+ * The alternatives of `PrepareTargetPlacementResult`'s site.
+ */
 type PrepareTargetPlacementResult = "surface" | "shape";
 
-/** The alternatives of `PrepareSurfaceGoalTarget`'s site. */
+/*
+ * The alternatives of `PrepareSurfaceGoalTarget`'s site.
+ */
 type PrepareSurfaceGoalTarget = "point" | "rotation" | "bend";
 
-/** The alternatives of `PrepareSurfaceGoalTargetResult`'s site. */
+/*
+ * The alternatives of `PrepareSurfaceGoalTargetResult`'s site.
+ */
 type PrepareSurfaceGoalTargetResult = "point" | "rotation" | "bend";
 
-/** The alternatives of `PrepareGoalTarget`'s site. */
+/*
+ * The alternatives of `PrepareGoalTarget`'s site.
+ */
 type PrepareGoalTarget = "point" | "curl";
 
-/** The alternatives of `PointPosture`'s site. */
+/*
+ * The alternatives of `PointPosture`'s site.
+ */
 type PointPosture = "root" | "yaw";
 
-/** The alternatives of `OriginBonesEntry`'s site. */
+/*
+ * The alternatives of `OriginBonesEntry`'s site.
+ */
 type OriginBonesEntry = "worldPosition" | "worldRotation";
 
-/**
+/*
  * The one goal field assembly; preparation may share the fixed contact
  * decision.
  */

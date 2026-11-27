@@ -9,7 +9,7 @@ import { loadAutoMovieProductionModule } from "../../production/internal/loadAut
 import { readAutoMovieInspectHostOptions } from "./readAutoMovieInspectHostOptions";
 import { serveAutoMovieInspectorPage } from "./serveAutoMovieInspectorPage";
 
-/**
+/*
  * Run `automovie inspect` in a production or package: serve the inspector page
  * over a subject module, print its address with the request as the query, and
  * keep serving until the process is interrupted.

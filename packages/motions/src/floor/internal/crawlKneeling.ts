@@ -14,7 +14,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { crawlFeet } from "./crawlFeet";
 import { crawlFrame } from "./crawlFrame";
 
-/**
+/*
  * The posture on hands and knees with each limb at a place and the hips' middle
  * `level` metres along, each hip joint a thigh from its knee
  * (`crawlFrame.over`): on the way down the hips sit `back` behind and the trunk
@@ -22,9 +22,8 @@ import { crawlFrame } from "./crawlFrame";
  * and the palms are laid on their places unless `palms` is false.
  *
  * Part of `crawl.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `kneeling`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `kneeling`.
  */
 export function crawlKneeling(
   prepared: crawlKneeling.IPrepared,
@@ -101,57 +100,87 @@ export function crawlKneeling(
   };
 }
 
-/** The `kneeling` of `crawl.plan`, built from what that plan prepared. */
+/*
+ * The `kneeling` of `crawl.plan`, built from what that plan prepared.
+ */
 export namespace crawlKneeling {
-  /** What `crawl.plan` prepared for its `kneeling`. */
+  /*
+   * What `crawl.plan` prepared for its `kneeling`.
+   */
   export interface IPrepared {
-    /** The `m` `crawl.plan` prepared. */
+    /*
+     * The `m` `crawl.plan` prepared.
+     */
     m: IAutoMovieMotionHumanBody["measure"];
 
-    /** The `frame` `crawl.plan` prepared. */
+    /*
+     * The `frame` `crawl.plan` prepared.
+     */
     frame: ReturnType<typeof crawlFeet.planted>["frame"];
 
-    /** The `forward` `crawl.plan` prepared. */
+    /*
+     * The `forward` `crawl.plan` prepared.
+     */
     forward: IAutoMovieVector3;
 
-    /** The `nominal` `crawl.plan` prepared. */
+    /*
+     * The `nominal` `crawl.plan` prepared.
+     */
     nominal: Record<IAutoMovieMotionHumanCrawl.Limb, IAutoMovieVector3>;
 
-    /** The `separation` `crawl.plan` prepared. */
+    /*
+     * The `separation` `crawl.plan` prepared.
+     */
     separation: number;
 
-    /** The `pitch` `crawl.plan` prepared. */
+    /*
+     * The `pitch` `crawl.plan` prepared.
+     */
     pitch: number;
 
-    /** The `posed` `crawl.plan` prepared. */
+    /*
+     * The `posed` `crawl.plan` prepared.
+     */
     posed: (
       share: number,
       degrees: number,
       hike?: number,
     ) => IAutoMovieMotionHumanPosture;
 
-    /** The `rootFor` `crawl.plan` prepared. */
+    /*
+     * The `rootFor` `crawl.plan` prepared.
+     */
     rootFor: (
       tilted: IAutoMovieMotionHumanPosture,
       hips: IAutoMovieVector3,
     ) => IAutoMovieVector3;
 
-    /** The `sides` `crawl.plan` prepared. */
+    /*
+     * The `sides` `crawl.plan` prepared.
+     */
     sides: readonly ["left", "right"];
 
-    /** The `tucks` `crawl.plan` prepared. */
+    /*
+     * The `tucks` `crawl.plan` prepared.
+     */
     tucks: ReturnType<typeof crawlFeet.planted>["tucks"];
 
-    /** The `placements` `crawl.plan` prepared. */
+    /*
+     * The `placements` `crawl.plan` prepared.
+     */
     placements: Record<
       AutoMovieHumanSide,
       ReturnType<typeof HumanFoot.prepareAt>
     >;
 
-    /** The `footContacts` `crawl.plan` prepared. */
+    /*
+     * The `footContacts` `crawl.plan` prepared.
+     */
     footContacts: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
-    /** The `laid` `crawl.plan` prepared. */
+    /*
+     * The `laid` `crawl.plan` prepared.
+     */
     laid: ReturnType<typeof crawlFrame.prepareLaid>;
   }
 }

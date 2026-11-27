@@ -1,16 +1,15 @@
 import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 
-/**
+/*
  * Prepare column gathers in the original CSR contribution order. Each column
  * retains increasing row and original entry positions, including duplicates, so
  * a scalar accumulator sees exactly the original scatter sequence. Coefficients
  * stay in their owning scaled CSR buffer.
- *
- * @param n Admitted variable count.
- * @param start Original CSR offsets, one per row and a final end.
- * @param cols Original admitted columns, with at most Int32 entries.
- * @returns Column offsets and parallel source row/CSR positions, independent of
- *   coefficient values.
+ * Parameter n: Admitted variable count.
+ * Parameter start: Original CSR offsets, one per row and a final end.
+ * Parameter cols: Original admitted columns, with at most Int32 entries.
+ * Returns: Column offsets and parallel source row/CSR positions, independent of
+ * coefficient values.
  */
 export function HumanQuadraticTranspose(
   n: number,

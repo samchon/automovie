@@ -143,14 +143,16 @@ export namespace Matrix4 {
     z: m[2]! * p.x + m[6]! * p.y + m[10]! * p.z + m[14]!,
   });
 
-  /** Canonical X, Y and Z axes, the identity basis. */
+  /*
+   * Canonical X, Y and Z axes, the identity basis.
+   */
   const AXES: readonly IAutoMovieVector3[] = [
     { x: 1, y: 0, z: 0 },
     { x: 0, y: 1, z: 0 },
     { x: 0, y: 0, z: 1 },
   ];
 
-  /**
+  /*
    * Replaces each null (collapsed) column of a unit basis with its orthonormal
    * completion, leaving every present column unchanged.
    */
@@ -181,7 +183,7 @@ export namespace Matrix4 {
     return AXES.slice();
   };
 
-  /**
+  /*
    * The identity basis turned by the shortest arc that carries canonical axis
    * `axis` onto the unit vector `direction`, with that column set to
    * `direction` itself.

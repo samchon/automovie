@@ -1,7 +1,7 @@
 import { AutoMovieEngineRandom } from "@automovie/engine";
 
 
-/**
+/*
  * The seed of a part drawn under a parent seed: an environment occurrence under
  * its recipe, a building leaf under its occurrence, a furnishing piece under
  * its kit.
@@ -12,11 +12,10 @@ import { AutoMovieEngineRandom } from "@automovie/engine";
  * double holds exactly below `Number.MAX_SAFE_INTEGER` in whole hexadecimal
  * digits, so the derived seed is itself a valid archetype seed and is drawn
  * from as any authored one is.
- *
- * @param seed The parent seed.
- * @param ids Stable ids of the part, outermost first; they name the part, never
- *   an ordinal, so adding a sibling leaves every other part's seed unchanged.
- * @returns The part's seed, an integer in [0, 2^52).
+ * Parameter seed: The parent seed.
+ * Parameter ids: Stable ids of the part, outermost first; they name the part, never
+ * an ordinal, so adding a sibling leaves every other part's seed unchanged.
+ * Returns: The part's seed, an integer in [0, 2^52).
  */
 export function deriveArchetypeSeed(seed: number, ...ids: string[]): number {
   return Number.parseInt(

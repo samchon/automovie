@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryChartCollar } from "@automovie/interface";
 
-/**
+/*
  * Partition one unit UV square into an affine boundary collar and local leaves.
  * Side knots are bottom, right, top and left, increasing in chart u or v. Every
  * outer leaf edge lies within one supplied side interval. The initial partition

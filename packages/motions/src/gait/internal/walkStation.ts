@@ -17,7 +17,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { WalkPath } from "../../actions/internal/WalkPath";
 import { walkPaced } from "../../actions/internal/walkPaced";
 
-/**
+/*
  * A stepping plan walked to keep station on a moving point: a formation's slot,
  * a steered course, or a person followed. While the point moves, the walker's
  * speed along its own way follows the point's, and once the point has stopped
@@ -44,15 +44,14 @@ import { walkPaced } from "../../actions/internal/walkPaced";
  * leaves the plan as it is. The plan's clock slows with the speed, so a slower
  * walker steps as long and less often, and one whose point pauses holds its
  * stride where it is.
- *
- * @param plan The walker's stepping plan at its own pace, laid along the
- *   point's way.
- * @param where Where the point is at a film second.
- * @param from The film second the walker's plan begins.
- * @param rests The film second the point comes to rest.
- * @returns The plan at the point's speed.
- * @throws {HumanRefusal} When the clock would need more than `TICKS` entries, a
- *   station kept past the longest walk timed.
+ * Parameter plan: The walker's stepping plan at its own pace, laid along the
+ * point's way.
+ * Parameter where: Where the point is at a film second.
+ * Parameter from: The film second the walker's plan begins.
+ * Parameter rests: The film second the point comes to rest.
+ * Returns: The plan at the point's speed.
+ * When the clock would need more than `TICKS` entries, a
+ * station kept past the longest walk timed.
  */
 export function walkStation(
   plan: walkStation.IPlan,
@@ -181,89 +180,98 @@ export function walkStation(
   return walkPaced(plan, tick, clock);
 }
 
-/** Constants of {@link walkStation}. */
+/*
+ * Constants of walkStation.
+ */
 export namespace walkStation {
-  /** The world axes which contribute to travelled ground distance. */
+  /*
+   * The world axes which contribute to travelled ground distance.
+   */
   export type HorizontalPoint = Pick<
     IAutoMovieVector3,
     WalkStationHorizontalPoint2
   >;
 
-  /** Read the displayed root's horizontal coordinates at an action-local second. */
+  /*
+   * Read the displayed root's horizontal coordinates at an action-local second.
+   */
   export type HorizontalRoot = (seconds: number) => HorizontalPoint;
 
-  /**
+  /*
    * The placed walking plan, with its exact horizontal-only projection when
    * available.
    */
   export interface IPlan extends IAutoMovieMotionHumanActionPlan {
-    /** The same horizontal coordinates that a root posture request would read. */
+    /*
+     * The same horizontal coordinates that a root posture request would read.
+     */
     horizontalRoot?: HorizontalRoot;
   }
 
-  /**
+  /*
    * The gain of speed matching, per second: a follower's acceleration per unit
    * of speed difference from the leader (Rio, Rhea and Warren 2014, J Vis
    * 14(2):4, Table 1).
    */
   export const GAIN: number = 1.87;
 
-  /**
+  /*
    * The most of its gait's cruising speed a follower matches (provisional:
    * beyond it a walk would have to become a run).
    */
   export const FASTEST: number = 1.5;
 
-  /**
+  /*
    * Seconds between two readings of the point's place (provisional: a few
    * readings a step).
    */
   export const STEP: number = 0.25;
 
-  /**
+  /*
    * Seconds between two entries of the follower's clock (provisional: under a
    * film frame).
    */
   export const TICK: number = 0.02;
 
-  /** The most entries a clock holds: ten minutes of them, which no shot reaches. */
+  /*
+   * The most entries a clock holds: ten minutes of them, which no shot reaches.
+   */
   export const TICKS: number = 30_000;
 
-  /**
+  /*
    * Instants of the plan at which its way is read (provisional: a step is read
    * several times over).
    */
   export const SAMPLES: number = 80;
 
-  /**
+  /*
    * The share of its cruising speed under which the plan is taken to be
    * stopping (provisional).
    */
   export const CRUISE: number = 0.9;
 
-  /**
+  /*
    * The fastest a member's dress deviation swings, hertz (provisional: once in
    * about two strides of a march at quick time).
    */
   export const DRESS_FREQUENCY: number = 0.25;
 
-  /**
+  /*
    * Metres between two kept corners of a slot's way handed to the stepping plan
    * (provisional: about a stride, so no corner falls within one step of the
    * last).
    */
   export const SPACING: number = 1;
 
-  /**
+  /*
    * A walk's context with a station resolved into its way: `to` the slot where
    * the frame comes to rest and `via` the slot's way from the action's start,
    * its corners kept `SPACING` apart. A context without a station is returned
    * as it is.
-   *
-   * @param context The walk's context.
-   * @returns The context the stepping plan reads.
-   * @throws {HumanRefusal} When the station ends before the action starts, or a
-   *   guide frame's station names no end.
+   * Parameter context: The walk's context.
+   * Returns: The context the stepping plan reads.
+   * When the station ends before the action starts, or a
+   * guide frame's station names no end.
    */
   export function resolve<
     P extends IAutoMovieMotionHumanWalkStation.IStationed,
@@ -309,14 +317,13 @@ export namespace walkStation {
     };
   }
 
-  /**
+  /*
    * The film second a walk's station ends: its `until`, or its frame's rest.
-   *
-   * @param context The walk's context.
-   * @param station The station.
-   * @returns The second.
-   * @throws {HumanRefusal} When a fixed or guide frame's station names no end,
-   *   or it ends before the action starts.
+   * Parameter context: The walk's context.
+   * Parameter station: The station.
+   * Returns: The second.
+   * When a fixed or guide frame's station names no end,
+   * or it ends before the action starts.
    */
   export function rests(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWalkStation.IStationed>,
@@ -352,7 +359,7 @@ export namespace walkStation {
     return until;
   }
 
-  /**
+  /*
    * A cadenced walk's way on its station: the share of its way its pelvis has
    * gone at each second of the walk, where the slot then projects onto that way
    * (its nearest point, as path following reads a target), never going back. A
@@ -371,11 +378,10 @@ export namespace walkStation {
    * Nothing when the gait draws its own tempo (`walkStation` keeps its station
    * by speed matching), when the walk keeps no station, or when the slot does
    * not move.
-   *
-   * @param context The walk's context, its station resolved.
-   * @param gait Whether the gait's cadence is called.
-   * @param cruise The walk's cruising speed, m/s.
-   * @returns The way to hand to the stepping plan, or nothing.
+   * Parameter context: The walk's context, its station resolved.
+   * Parameter gait: Whether the gait's cadence is called.
+   * Parameter cruise: The walk's cruising speed, m/s.
+   * Returns: The way to hand to the stepping plan, or nothing.
    */
   export function cadenced(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWalkStation.IStationed>,
@@ -437,13 +443,12 @@ export namespace walkStation {
     };
   }
 
-  /**
+  /*
    * The point a walk's station keeps at a film second: its slot, moved by the
    * member's slow dress deviation when the station carries one.
-   *
-   * @param context The walk's context.
-   * @param station The station.
-   * @returns The slot's floor point at a second.
+   * Parameter context: The walk's context.
+   * Parameter station: The station.
+   * Returns: The slot's floor point at a second.
    */
   export function point(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWalkStation.IStationed>,
@@ -484,8 +489,12 @@ export namespace walkStation {
       });
     };
   }
-  /** The record of `IWalkStationPointDress`'s site. */
+  /*
+   * The record of `IWalkStationPointDress`'s site.
+   */
   type IWalkStationPointDress = { bound: number; seed: string };
 }
-/** The alternatives of `WalkStationHorizontalPoint2`'s site. */
+/*
+ * The alternatives of `WalkStationHorizontalPoint2`'s site.
+ */
 type WalkStationHorizontalPoint2 = "x" | "z";

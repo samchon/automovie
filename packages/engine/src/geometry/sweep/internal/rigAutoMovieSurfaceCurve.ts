@@ -8,13 +8,13 @@ import {
 
 import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
 
-/**
+/*
  * Shortest tangent part a curve keeps in a sweep's tangent plane before it is
  * refused as meeting the sweep along its normal.
  */
 const FLAT: number = 1e-9;
 
-/**
+/*
  * Compile a network curve for per-pose evaluation.
  *
  * The curve is the centripetal Catmull-Rom spline through its start node, its
@@ -26,17 +26,16 @@ const FLAT: number = 1e-9;
  * node; under the other rules it takes the declared direction. Through points,
  * the normal and the direction ride the curve's bone when it has one, and the
  * nodes are written by their own rig.
- *
- * @param props.name The curve's name, for diagnostics.
- * @param props.curve The curve, only read.
- * @param props.from The start node.
- * @param props.to The end node.
- * @param props.bone Bone index of the through points, normal and direction, or
- *   -1 for none.
- * @param props.bones The rig's bone motions, or null for a rig without bones.
- * @returns The curve's rig.
- * @throws Error from `update` when the curve meets a sweep along its normal or
- *   the spline is refused by `transportAutoMovieSweepSpine`.
+ * Parameter props.name: The curve's name, for diagnostics.
+ * Parameter props.curve: The curve, only read.
+ * Parameter props.from: The start node.
+ * Parameter props.to: The end node.
+ * Parameter props.bone: Bone index of the through points, normal and direction, or
+ * -1 for none.
+ * Parameter props.bones: The rig's bone motions, or null for a rig without bones.
+ * Returns: The curve's rig.
+ * Error from `update` when the curve meets a sweep along its normal or
+ * the spline is refused by `transportAutoMovieSweepSpine`.
  */
 export const rigAutoMovieSurfaceCurve: (
   props: IAutoMovieRigSurfaceCurve.IProps,

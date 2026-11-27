@@ -1,7 +1,7 @@
 import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
 
-/**
+/*
  * A support interval's root lift over its share, planned once and read by every
  * displayed sample (`prepareSupportInterval`): the lift that clears the held
  * legs of the floor is fitted exactly at knots AutoKnots places over the share
@@ -12,11 +12,10 @@ import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSa
  * Simpson integral tests both read each tested middle, so a lift that rises and
  * falls between two knots fails the integral test even where the middle lies on
  * the line through them.
- *
- * @param least The share of the interval one frame of the grid takes: the frame
- *   grid's interval over the interval's seconds.
- * @param exact The exact root lift at a share.
- * @returns The course's reader.
+ * Parameter least: The share of the interval one frame of the grid takes: the frame
+ * grid's interval over the interval's seconds.
+ * Parameter exact: The exact root lift at a share.
+ * Returns: The course's reader.
  */
 export function prepareSupportLiftCourse(
   least: number,
@@ -37,14 +36,22 @@ export function prepareSupportLiftCourse(
   };
 }
 
-/** Companion types of {@link prepareSupportLiftCourse}. */
+/*
+ * Companion types of prepareSupportLiftCourse.
+ */
 export namespace prepareSupportLiftCourse {
-  /** The exact root lift at a share of the interval, metres. */
+  /*
+   * The exact root lift at a share of the interval, metres.
+   */
   export type Exact = (share: number) => number;
 
-  /** A planned lift: its reader. */
+  /*
+   * A planned lift: its reader.
+   */
   export interface ICourse {
-    /** The lift at a share, metres, read from the prepared knots. */
+    /*
+     * The lift at a share, metres, read from the prepared knots.
+     */
     read(share: number): number;
   }
 }

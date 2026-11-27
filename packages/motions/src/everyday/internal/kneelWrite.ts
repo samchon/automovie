@@ -19,7 +19,7 @@ import type { prepareKneelClock } from "./prepareKneelClock";
 import { prepareKneelFoot } from "./prepareKneelFoot";
 import type { prepareKneelPhases } from "./prepareKneelPhases";
 
-/**
+/*
  * A kneel's body at a second (`kneel.plan`): while it stands on its feet the
  * hips run their course along the heading and ride as high as the less extended
  * leg reaches its foot, capped after the foot lands, the pelvis tipped to keep
@@ -27,9 +27,8 @@ import type { prepareKneelPhases } from "./prepareKneelPhases";
  * follow it; each moving foot is turned toes down about its toe pads as a
  * weightless ankle reaches. Read from the plan's body, keys, phase geometry,
  * clock, courses and landing heights.
- *
- * @param scope What the plan's body is written from.
- * @returns The writer of the body at a second.
+ * Parameter scope: What the plan's body is written from.
+ * Returns: The writer of the body at a second.
  */
 export function kneelWrite(scope: kneelWrite.IScope): kneelWrite.Write {
   const {
@@ -206,88 +205,113 @@ export function kneelWrite(scope: kneelWrite.IScope): kneelWrite.Write {
   return write;
 }
 
-/** What a kneel's body writer reads and what it is. */
+/*
+ * What a kneel's body writer reads and what it is.
+ */
 export namespace kneelWrite {
-  /** What a kneel plan writes its body from. */
+  /*
+   * What a kneel plan writes its body from.
+   */
   export interface IScope {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The standing posture. */
+    /*
+     * The standing posture.
+     */
     standing: IAutoMovieMotionHumanPosture;
 
-    /** The standing heading, degrees. */
+    /*
+     * The standing heading, degrees.
+     */
     yaw: number;
 
-    /** The key states. */
+    /*
+     * The key states.
+     */
     keys: kneelKeys.IKey[];
 
-    /** The solved keys. */
+    /*
+     * The solved keys.
+     */
     solved: kneelKeys.IKeys;
 
-    /** The kneeling hips' distance along the heading, metres. */
+    /*
+     * The kneeling hips' distance along the heading, metres.
+     */
     kneeling: number;
 
-    /** The kneeling hips' offset aside, metres. */
+    /*
+     * The kneeling hips' offset aside, metres.
+     */
     aside: IAutoMovieVector3;
 
-    /** The leg's length, metres. */
+    /*
+     * The leg's length, metres.
+     */
     length: number;
 
-    /** Each phase's feet and root line (`prepareKneelPhases`). */
+    /*
+     * Each phase's feet and root line (`prepareKneelPhases`).
+     */
     geometry: ReturnType<typeof prepareKneelPhases>;
 
-    /** The phase at a second (`prepareKneelClock`). */
+    /*
+     * The phase at a second (`prepareKneelClock`).
+     */
     at: ReturnType<typeof prepareKneelClock<kneelPhaseTable.IPhase>>;
 
-    /** The hips' courses down and up, set after the writer is built. */
+    /*
+     * The hips' courses down and up, set after the writer is built.
+     */
     courses: Course[];
 
-    /**
+    /*
      * The balance weight at a travel second.
-     *
-     * @param second Travel seconds.
-     * @returns The weight.
+     * Parameter second: Travel seconds.
+     * Returns: The weight.
      */
     weightAt: (second: number) => number;
 
-    /**
+    /*
      * The landed hips' height on the step's own course, once read.
-     *
-     * @returns The height, metres, or undefined before it is read.
+     * Returns: The height, metres, or undefined before it is read.
      */
     landedKey: () => number | undefined;
 
-    /**
+    /*
      * The landed hips' height on the balance course, once read.
-     *
-     * @returns The height, metres, or undefined before it is read.
+     * Returns: The height, metres, or undefined before it is read.
      */
     landedBalance: () => number | undefined;
 
-    /** The stepping leg's extension share (`kneel.REACH`). */
+    /*
+     * The stepping leg's extension share (`kneel.REACH`).
+     */
     REACH: number;
 
-    /** The lifted foot's turn's ease, seconds. */
+    /*
+     * The lifted foot's turn's ease, seconds.
+     */
     EASE: number;
   }
 
-  /**
+  /*
    * The hips' place along the heading at a second.
-   *
-   * @param seconds Travel seconds.
-   * @returns The distance, metres.
+   * Parameter seconds: Travel seconds.
+   * Returns: The distance, metres.
    */
   export type Course = (seconds: number) => number;
 
-  /**
+  /*
    * The body at a second.
-   *
-   * @param posture The posture under the body.
-   * @param seconds Travel seconds.
-   * @param along The hips' place along the heading asked by a course's solve.
-   * @param resolution The borrowed forward-kinematics source, if any.
-   * @returns The posture.
+   * Parameter posture: The posture under the body.
+   * Parameter seconds: Travel seconds.
+   * Parameter along: The hips' place along the heading asked by a course's solve.
+   * Parameter resolution: The borrowed forward-kinematics source, if any.
+   * Returns: The posture.
    */
   export type Write = (
     posture: IAutoMovieMotionHumanPosture,

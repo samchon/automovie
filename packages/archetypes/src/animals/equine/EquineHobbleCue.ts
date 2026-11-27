@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeEquineStanceCue } from "../AutoMovieArchetypeEquineStanceCue";
 
-/**
+/*
  * The stance row of a hobbled equid: with its forelegs strapped together it
  * moves by short hops, both fores lifted and set down ahead together, the hinds
  * stepping up after them.

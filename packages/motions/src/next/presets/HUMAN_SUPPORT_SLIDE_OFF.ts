@@ -5,7 +5,7 @@ import { HumanSupportContacts } from "./HumanSupportContacts";
 
 const { FEET, on } = HumanSupportContacts;
 
-/**
+/*
  * Seated upright on a surface: the hip and the knee at a right angle, the
  * seated reference posture (ANSI/HFES 100-2007), the arms left to hang as the
  * body's relaxed arms, which the support planner lays under every stated
@@ -22,7 +22,7 @@ const SEATED: IAutoMovieMotionHumanSupport.IStance["prefer"] = {
   },
 };
 
-/**
+/*
  * The slide-off preset: seated upright on a table's edge with the seat and the
  * hands beside it half a forearm and hand's length back from the edge, the feet
  * down to the floor, standing. Each of its 3 stances takes the planner's

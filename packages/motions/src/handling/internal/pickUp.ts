@@ -10,7 +10,7 @@ import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieM
 import { pickUpPosture } from "./pickUpPosture";
 import { planPickUpGrasp } from "./planPickUpGrasp";
 
-/**
+/*
  * Reaching for a prop's grip, grasping it and lifting it clear.
  *
  * The goal is the grip, not the arm: the hand's grip socket is brought onto the
@@ -73,17 +73,21 @@ import { planPickUpGrasp } from "./planPickUpGrasp";
  * with the step named.
  */
 export namespace pickUp {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "pickUp";
 
-  /**
+  /*
    * May be performed over a carrier, as a seated rider takes a revolver from
    * its holster: it then claims only the reaching arm and its hand
    * (`pickUpOver`).
    */
   export const overlay: boolean = true;
 
-  /** Cancel table. */
+  /*
+   * Cancel table.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
@@ -111,7 +115,7 @@ export namespace pickUp {
     ],
   };
 
-  /**
+  /*
    * The share of the reach over which the arm leaves its entry pose by a blend
    * of its joints, before the transport's goal alone leads it to the grip
    * (provisional: 0.6, ahead of the last stretch the hand makes along the
@@ -119,20 +123,21 @@ export namespace pickUp {
    */
   export const LEAVE: number = 0.6;
 
-  /** The load phase between contact and lift-off, seconds; provisional. */
+  /*
+   * The load phase between contact and lift-off, seconds; provisional.
+   */
   export const LOAD: number = 0.15;
 
-  /**
+  /*
    * Plan a pick up.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When no lowering brings the grip within reach, no
-   *   grasp serves the use, the hand cannot rise as far as the lift asks, or a
-   *   second hand asks to lift independently of the hand already carrying the
-   *   prop.
-   * @throws {Error} When the lift is negative, or the prop has no such
-   *   affordance or no colliders.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When no lowering brings the grip within reach, no
+   * grasp serves the use, the hand cannot rise as far as the lift asks, or a
+   * second hand asks to lift independently of the hand already carrying the
+   * prop.
+   * When the lift is negative, or the prop has no such
+   * affordance or no colliders.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
@@ -140,19 +145,19 @@ export namespace pickUp {
     return planPickUpGrasp(context);
   }
 
-  /**
+  /*
    * The grasp plan with an optional resolved interception (`planPickUpGrasp`),
    * kept on the law for the moving pick-up that supplies one.
    */
   export const planGrasp: typeof planPickUpGrasp = planPickUpGrasp;
 
-  /**
+  /*
    * Whether a wrist goal lies within the straight arm's reach from its shoulder
    * (`pickUpPosture.reaches`), which the put down reads too.
    */
   export const reaches: typeof pickUpPosture.reaches = pickUpPosture.reaches;
 
-  /**
+  /*
    * Refuse a wrist goal beyond the straight arm's reach from its shoulder
    * (`pickUpPosture.reachable`), which the put down reads too.
    */

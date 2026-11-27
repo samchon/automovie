@@ -1,6 +1,6 @@
 import type { IAutoMovieRenderSpec } from "@automovie/interface";
 
-/**
+/*
  * The ffmpeg argument vector that encodes a `frameName` image sequence into the
  * spec's H.264 MP4.
  *

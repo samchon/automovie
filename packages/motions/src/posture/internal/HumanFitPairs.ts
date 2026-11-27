@@ -10,11 +10,10 @@ import type {
 import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanJacobian } from "./HumanJacobian";
 
-/**
+/*
  * The pairs a body's deep fold brings together.
- *
- * @param body The body.
- * @returns The pairs.
+ * Parameter body: The body.
+ * Returns: The pairs.
  */
 export function HumanFitPairs(
   body: IAutoMovieMotionHumanBody,
@@ -63,7 +62,7 @@ export function HumanFitPairs(
   return out;
 }
 
-/**
+/*
  * The pairs of body segments a deep fold brings together in a whole-body fit
  * (`HumanBodyFit`), each kept apart by a gap row: an arm's upper arm and
  * forearm against each thigh, its forearm against each shank, and the chest
@@ -78,51 +77,68 @@ export function HumanFitPairs(
  * line joining them.
  */
 export namespace HumanFitPairs {
-  /**
+  /*
    * One capsule: a segment from a bone's joint to its child's joint, at a
    * radius.
    */
   export interface ICapsule {
-    /** The bone whose joint starts the segment and whose motion carries it. */
+    /*
+     * The bone whose joint starts the segment and whose motion carries it.
+     */
     bone: AutoMovieHumanoidBone;
 
-    /** The child bone whose joint ends the segment. */
+    /*
+     * The child bone whose joint ends the segment.
+     */
     end: AutoMovieHumanoidBone;
 
-    /** The capsule's radius, metres. */
+    /*
+     * The capsule's radius, metres.
+     */
     radius: number;
   }
 
-  /** Two capsules kept apart. */
+  /*
+   * Two capsules kept apart.
+   */
   export interface IPair {
-    /** The first capsule. */
+    /*
+     * The first capsule.
+     */
     a: ICapsule;
 
-    /** The second capsule. */
+    /*
+     * The second capsule.
+     */
     b: ICapsule;
   }
 
-  /** A pair's reading at one posture. */
+  /*
+   * A pair's reading at one posture.
+   */
   export interface IGap {
-    /**
+    /*
      * The distance between the two surfaces, metres; negative where they
      * overlap.
      */
     distance: number;
 
-    /** The closest point on the first capsule's axis, world metres. */
+    /*
+     * The closest point on the first capsule's axis, world metres.
+     */
     a: IAutoMovieVector3;
 
-    /** The closest point on the second capsule's axis, world metres. */
+    /*
+     * The closest point on the second capsule's axis, world metres.
+     */
     b: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * A pair's gap at a posture.
-   *
-   * @param bones The posed bones.
-   * @param pair The pair.
-   * @returns The gap and the closest points.
+   * Parameter bones: The posed bones.
+   * Parameter pair: The pair.
+   * Returns: The gap and the closest points.
    */
   export function gap(
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -142,18 +158,17 @@ export namespace HumanFitPairs {
     };
   }
 
-  /**
+  /*
    * A pair's row of one step: its gap kept at or above minus `band`, in
    * millimetres per solved unit, linearised by the closest points' velocities
    * along the line from the second to the first.
-   *
-   * @param step The step's motions and units, and the reading it starts from.
-   * @param pair The pair.
-   * @param band How far the gap may fall below nought unpriced, metres.
-   * @param mm Millimetres in a metre, the rows' unit.
-   * @param prepared Optional completed gap for this exact pair and step.at's
-   *   unchanged bones; freshly measured when absent.
-   * @returns The row and the reading it linearises.
+   * Parameter step: The step's motions and units, and the reading it starts from.
+   * Parameter pair: The pair.
+   * Parameter band: How far the gap may fall below nought unpriced, metres.
+   * Parameter mm: Millimetres in a metre, the rows' unit.
+   * Parameter prepared: Optional completed gap for this exact pair and step.at's
+   * unchanged bones; freshly measured when absent.
+   * Returns: The row and the reading it linearises.
    */
   export function row(
     step: Pick<HumanBodyFitRows.IStep, RowStep>,
@@ -194,5 +209,7 @@ export namespace HumanFitPairs {
   }
 }
 
-/** The alternatives of `RowStep`'s site. */
+/*
+ * The alternatives of `RowStep`'s site.
+ */
 type RowStep = "at" | "motions" | "units" | "index" | "price";

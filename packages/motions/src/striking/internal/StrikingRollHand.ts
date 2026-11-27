@@ -14,17 +14,16 @@ import { StrikingHeld } from "./StrikingHeld";
 import { StrikingRoll } from "./StrikingRoll";
 import { StrikingStrain } from "./StrikingStrain";
 
-/**
+/*
  * Prepare the unchanged tool and world-axis geometry of a roll search. Every
  * placement still ranks the original grid against its actual posture, then
  * physically fits/refines the same preferred candidates.
- *
- * @param context The unchanged canonical body used by every search.
- * @param tool The unchanged held tool and hand side.
- * @param back Metres behind the working point of the point being placed.
- * @param axis The unchanged world line, normalized by the original rule.
- * @param cone The unchanged allowed lean, degrees.
- * @returns A reader of the chosen hand at a changing world point and posture.
+ * Parameter context: The unchanged canonical body used by every search.
+ * Parameter tool: The unchanged held tool and hand side.
+ * Parameter back: Metres behind the working point of the point being placed.
+ * Parameter axis: The unchanged world line, normalized by the original rule.
+ * Parameter cone: The unchanged allowed lean, degrees.
+ * Returns: A reader of the chosen hand at a changing world point and posture.
  */
 export function StrikingRollHand(
   context: Pick<IAutoMovieMotionHumanActionContext, "body">,
@@ -124,14 +123,15 @@ export function StrikingRollHand(
   };
 }
 
-/** The hand frames a roll searches. */
+/*
+ * The hand frames a roll searches.
+ */
 export namespace StrikingRollHand {
-  /**
+  /*
    * A unit perpendicular to an axis: across it from the vertical, or from +Z
    * when the axis is near vertical.
-   *
-   * @param along The unit axis.
-   * @returns The unit perpendicular.
+   * Parameter along: The unit axis.
+   * Returns: The unit perpendicular.
    */
   export function aside(along: IAutoMovieVector3): IAutoMovieVector3 {
     return Vector3.normalize(
@@ -142,15 +142,14 @@ export namespace StrikingRollHand {
     );
   }
 
-  /**
+  /*
    * The tool's run tilted off its axis: tilted about the perpendicular, then
    * turned about the axis.
-   *
-   * @param along The unit axis.
-   * @param aside The unit perpendicular.
-   * @param tilt The tilt, degrees.
-   * @param around The turn about the axis, degrees.
-   * @returns The unit run.
+   * Parameter along: The unit axis.
+   * Parameter aside: The unit perpendicular.
+   * Parameter tilt: The tilt, degrees.
+   * Parameter around: The turn about the axis, degrees.
+   * Returns: The unit run.
    */
   export function run(
     along: IAutoMovieVector3,
@@ -164,13 +163,12 @@ export namespace StrikingRollHand {
     );
   }
 
-  /**
+  /*
    * The search grid of tilt, turn about the axis and roll about the run,
    * degrees: the untilted run rolled every 30 degrees, and each tilt every 10
    * degrees within the cone turned every 45 degrees and rolled every 30.
-   *
-   * @param cone The greatest tilt, degrees.
-   * @returns The [tilt, around, turn] triples.
+   * Parameter cone: The greatest tilt, degrees.
+   * Returns: The [tilt, around, turn] triples.
    */
   export function grid(cone: number): number[][] {
     const grid: number[][] = [];
@@ -184,7 +182,9 @@ export namespace StrikingRollHand {
   }
 }
 
-/** Exact finite angle identity; do not conflate negative and positive zero. */
+/*
+ * Exact finite angle identity; do not conflate negative and positive zero.
+ */
 function key(values: readonly number[]): string {
   return values
     .map((value: number): string =>
@@ -193,17 +193,27 @@ function key(values: readonly number[]): string {
     .join("/");
 }
 
-/** The record of `IStrikingRollHandCandidate`'s site. */
+/*
+ * The record of `IStrikingRollHandCandidate`'s site.
+ */
 type IStrikingRollHandCandidate = { values: number[] };
 
-/** The record of `IStrikingRollHandB`'s site. */
+/*
+ * The record of `IStrikingRollHandB`'s site.
+ */
 type IStrikingRollHandB = { rank: number };
 
-/** The record of `IStrikingRollHandA`'s site. */
+/*
+ * The record of `IStrikingRollHandA`'s site.
+ */
 type IStrikingRollHandA = { rank: number };
 
-/** The record of `IStrikingRollHandCandidatesResult`'s site. */
+/*
+ * The record of `IStrikingRollHandCandidatesResult`'s site.
+ */
 type IStrikingRollHandCandidatesResult = { values: number[]; rank: number };
 
-/** The record of `IStrikingRollHandCandidatesItem`'s site. */
+/*
+ * The record of `IStrikingRollHandCandidatesItem`'s site.
+ */
 type IStrikingRollHandCandidatesItem = { values: number[]; rank: number };

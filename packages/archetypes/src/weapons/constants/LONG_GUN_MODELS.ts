@@ -1,7 +1,7 @@
 import { AutoMovieArchetypeUnits } from "../../core";
 import type { AutoMovieArchetypeLongGun } from "../AutoMovieArchetypeLongGun";
 
-/**
+/*
  * Each kind's models whole, the default first: the Colt sheet's weights, 6.9 lb
  * (3.13 kg), 6.5 lb (2.95 kg) and 6.4 lb (2.90 kg); the Short Land musket's
  * length and barrel (Museums Victoria ST 21813); the M1903's 43.46 in, 8.69 lb

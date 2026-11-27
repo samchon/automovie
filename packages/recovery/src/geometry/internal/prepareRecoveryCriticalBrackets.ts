@@ -1,6 +1,8 @@
 import type { IAutoMovieRecoveryCriticalBracketsPreparationOperation } from "@automovie/interface";
 
-/** Prepare critical physical brackets and retain explicit unresolvable gaps. */
+/*
+ * Prepare critical physical brackets and retain explicit unresolvable gaps.
+ */
 export function prepareRecoveryCriticalBrackets(
   criticals: Parameters<IAutoMovieRecoveryCriticalBracketsPreparationOperation.Operation>[0],
   heights: Parameters<IAutoMovieRecoveryCriticalBracketsPreparationOperation.Operation>[1],

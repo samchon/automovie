@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * The catenary of a slack line's length between two points, sampled from the
  * first to the second (Irvine 1981, Cable Structures): `y = a (cosh((x − x0) /
  * a) − cosh(−x0 / a))` along the level run `h` between the ends, its parameter
@@ -8,11 +8,10 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * 2a`, and its vertex `x0 = h / 2 − a atanh(v / L)` placing it through both
  * ends. Ends that share a vertical hang the line straight down from them,
  * folded at its low point.
- *
- * @param from The near end.
- * @param to The far end.
- * @param length The line's length, longer than the ends' distance.
- * @returns The drawn points, the near end first and the far end last.
+ * Parameter from: The near end.
+ * Parameter to: The far end.
+ * Parameter length: The line's length, longer than the ends' distance.
+ * Returns: The drawn points, the near end first and the far end last.
  */
 export function humanTetherCatenary(
   from: IAutoMovieVector3,
@@ -59,8 +58,12 @@ export function humanTetherCatenary(
   );
 }
 
-/** The sampling of {@link humanTetherCatenary}. */
+/*
+ * The sampling of humanTetherCatenary.
+ */
 export namespace humanTetherCatenary {
-  /** The pieces a slack line is drawn in. */
+  /*
+   * The pieces a slack line is drawn in.
+   */
   export const SAMPLES: number = 16;
 }

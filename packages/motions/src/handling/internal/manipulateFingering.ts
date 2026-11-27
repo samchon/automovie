@@ -11,19 +11,18 @@ import { typeText } from "../../everyday/internal/typeText";
 import { manipulate } from "./manipulate";
 import { manipulateReach } from "./manipulateReach";
 
-/**
+/*
  * The digits of a keyed contact sequence (`manipulate`): each contact's own
  * digit, or the Viterbi path over the five digits of its hand that minimizes
  * the travel of the limiting part over each stroke, accounting for the lift and
  * descent of a reused digit. The wrist stands where the plan places it for that
  * digit's press (`manipulateReach`, in the rotation the hand keeps for the
  * act), so a difference of two such places is the wrist's travel.
- *
- * @param body The body.
- * @param contacts The contacts with their sites.
- * @param sides Each contact's hand.
- * @param rotation Each hand's rotation for the act, from its rest.
- * @returns Each contact's digit.
+ * Parameter body: The body.
+ * Parameter contacts: The contacts with their sites.
+ * Parameter sides: Each contact's hand.
+ * Parameter rotation: Each hand's rotation for the act, from its rest.
+ * Returns: Each contact's digit.
  */
 export function manipulateFingering(
   body: IAutoMovieMotionHumanBody,

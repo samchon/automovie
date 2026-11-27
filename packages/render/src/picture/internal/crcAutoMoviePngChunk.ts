@@ -1,4 +1,4 @@
-/**
+/*
  * The CRC-32 a PNG chunk carries, over the chunk's type and data bytes.
  *
  * PNG's CRC is the ISO 3309 / ITU-T V.42 polynomial `0xedb88320` (reflected),
@@ -13,7 +13,9 @@ export function crcAutoMoviePngChunk(bytes: Uint8Array): number {
   return (crc ^ 0xffffffff) >>> 0;
 }
 
-/** The CRC-32 lookup table, built once when the module loads. */
+/*
+ * The CRC-32 lookup table, built once when the module loads.
+ */
 const TABLE: Uint32Array = ((): Uint32Array => {
   const table: Uint32Array = new Uint32Array(256);
   for (let n: number = 0; n < 256; n++) {

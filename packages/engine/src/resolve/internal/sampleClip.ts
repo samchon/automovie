@@ -17,7 +17,7 @@ import { channelKey } from "./channelKey";
 import { lerpChannelValues } from "./lerpChannelValues";
 import { slerpChannelValues } from "./slerpChannelValues";
 
-/**
+/*
  * Sample every admitted track at finite clip-local seconds, clamped or
  * duration-wrapped. STEP changes at exact keys, LINEAR uses quaternion slerp
  * where declared, and cubic Hermite scales tangents by segment duration and
@@ -45,7 +45,7 @@ export function sampleClip(
   return out;
 }
 
-/**
+/*
  * Sample one track at an already-normalized `time`. Splits on interpolation
  * mode: `step` holds the left key, `linear` lerps (slerp for rotations), and
  * `cubicspline` evaluates the glTF cubic Hermite spline from the keyframes'
@@ -104,7 +104,7 @@ const sampleTrack: (
     : lerpChannelValues(valueAt(lo), valueAt(hi), localT);
 };
 
-/**
+/*
  * GlTF cubic-spline (Hermite) evaluation between keyframes `lo` and `hi`. Each
  * keyframe stores `[inTangent, value, outTangent]`; the spline uses `lo`'s
  * out-tangent and `hi`'s in-tangent, scaled by the segment's `span`. Rotation
@@ -152,9 +152,9 @@ const normalizeQuatArray: (q: number[]) => number[] = (
   return [n.x, n.y, n.z, n.w];
 };
 
-/**
+/*
  * The clip's own duration. Duration comes from the shared contract
- * ({@link clipDurationFault}), so the artifact gate that exists to spare a
+ * (clipDurationFault), so the artifact gate that exists to spare a
  * consumer this throw refuses exactly what would reach it (#1353).
  */
 const validateSampleTime: (duration: number) => void = (
@@ -164,7 +164,7 @@ const validateSampleTime: (duration: number) => void = (
   if (fault !== null) throw new Error(`sampleClip clip ${fault.message}`);
 };
 
-/**
+/*
  * One track's keyframe payload, read through the shared contract. The sampler
  * throws its FIRST fault: reaching an unreadable track means every gate in
  * front of this one let it through, which is an engine defect rather than an

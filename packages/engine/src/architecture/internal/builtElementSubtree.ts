@@ -1,6 +1,6 @@
 import { IAutoMovieBuiltElement } from "@automovie/interface";
 
-/**
+/*
  * The ids of some elements and of every element below them through `parent`
  * links.
  *
@@ -9,10 +9,9 @@ import { IAutoMovieBuiltElement } from "@automovie/interface";
  * an unvalidated record terminates, because each id enters the set once. The
  * set's iteration order is breadth-first discovery order from the roots in the
  * order given.
- *
- * @param elements Every element of one environment.
- * @param roots Element ids to start from.
- * @returns The roots and all their descendants.
+ * Parameter elements: Every element of one environment.
+ * Parameter roots: Element ids to start from.
+ * Returns: The roots and all their descendants.
  */
 export function builtElementSubtree(
   elements: readonly IAutoMovieBuiltElement[],

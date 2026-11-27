@@ -10,23 +10,31 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeLongTool } from "../AutoMovieArchetypeLongTool";
 
-/** Finney's measured Bolivian sling. */
+/*
+ * Finney's measured Bolivian sling.
+ */
 const FINNEY: string =
   "Finney, An Archaeological and Experimental Study of the Sling (PhD thesis, Bournemouth University, 2005), p. 167, fig. 4.6: a Bolivian camelid-wool sling 1780 mm long in total, its main cords about 6 mm across, its pouch 155 mm long and 40 mm wide at most (https://eprints.bournemouth.ac.uk/396/1/Jon_Bryant_Finney.pdf)";
 
-/** Skov's measured sling speeds. */
+/*
+ * Skov's measured sling speeds.
+ */
 const SKOV: string =
   "Skov, Experimental Sling Use (MA thesis, University of Nebraska, 2013), Table 5, p. 65: average projectile speeds by technique measured at 0.45 m/s, underhand 32.1 m/s to overhand 43.3 m/s (https://digitalcommons.unl.edu/cgi/viewcontent.cgi?article=1032&context=anthrotheses)";
 
-/** The Basketmaker atlatl. */
+/*
+ * The Basketmaker atlatl.
+ */
 const BASKETMAKER: string =
   'Kidder and Guernsey, Archeological Explorations in Northeastern Arizona, BAE Bulletin 65 (1919), pp. 178-179: "Its length over all is 26 inches; width of spur end 1 3/8 inches; of grip end 7/8 inch"; "The spur is 3 inches from the end"; "The handle proper begins 4 inches from the butt" (https://repository.si.edu/handle/10088/15532)';
 
-/** Pettigrew's measured dart speeds. */
+/*
+ * Pettigrew's measured dart speeds.
+ */
 const PETTIGREW: string =
   "Pettigrew, The Ballistics of Archaic North American Atlatls and Darts (MA thesis, University of Arkansas, 2015), Table 2, p. 25: typical and hard throws by seven atlatlists, 16.7 to 28.7 m/s, filmed over 3 m from the launch (https://scholarworks.uark.edu/context/etd/article/2168/viewcontent/Pettigrew_uark_0011O_11678.pdf)";
 
-/**
+/*
  * The two throwers among the long tools: a hand sling and a spear-thrower
  * (atlatl), each with its read sizes and the measured speeds it throws at, and
  * the contacts a throwing act reads.
@@ -39,7 +47,7 @@ const PETTIGREW: string =
  * takes the dart's butt, facing along the shaft.
  */
 export namespace Throwers {
-  /**
+  /*
    * The finger loop's size and the knot's, metres, and an atlatl's thickness,
    * metres: estimates, no source read giving them (searched: Finney 2005, Skov
    * 2013, Carter 1933, Kidder and Guernsey 1919, Museums Victoria;
@@ -55,7 +63,7 @@ export namespace Throwers {
     thickness: 0.012,
   };
 
-  /**
+  /*
    * The bands of a sling and an atlatl, each a read figure or a measured
    * spread, the unread masses estimates.
    */
@@ -113,12 +121,11 @@ export namespace Throwers {
     },
   };
 
-  /**
+  /*
    * Lay a sling: its two cords from the hand down to the pouch, the finger loop
    * and the release knot at the top.
-   *
-   * @param builder The tool under construction.
-   * @param d The tool's dimensions.
+   * Parameter builder: The tool under construction.
+   * Parameter d: The tool's dimensions.
    */
   export function sling(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -173,12 +180,11 @@ export namespace Throwers {
     });
   }
 
-  /**
+  /*
    * Lay an atlatl: a flat shaft from its butt to its spur end, the handle at
    * the butt and the spur near the far end.
-   *
-   * @param builder The tool under construction.
-   * @param d The tool's dimensions.
+   * Parameter builder: The tool under construction.
+   * Parameter d: The tool's dimensions.
    */
   export function atlatl(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -218,11 +224,15 @@ export namespace Throwers {
   }
 }
 
-/** A long tool under construction. */
+/*
+ * A long tool under construction.
+ */
 type Builder = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeLongTool.Affordance,
   AutoMovieArchetypeLongTool.Dimension
 >;
 
-/** A long tool's drawn dimensions. */
+/*
+ * A long tool's drawn dimensions.
+ */
 type Drawn = Readonly<Partial<Record<AutoMovieArchetypeLongTool.Dimension, number>>>;

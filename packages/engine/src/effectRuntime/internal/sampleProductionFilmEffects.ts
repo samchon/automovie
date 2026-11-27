@@ -10,7 +10,7 @@ import { sampleCompiledEffect } from "./sampleCompiledEffect";
 import { validateProductionFilmEffectIdentity } from "./validateProductionFilmEffectIdentity";
 import { validateProductionFilmEffectRuntime } from "./validateProductionFilmEffectRuntime";
 
-/**
+/*
  * Sample film-owned effects at one builder-owned full-rate timeline frame.
  *
  * Returns one sample per runtime in input order, each taken at the frame's

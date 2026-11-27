@@ -1,4 +1,4 @@
-/**
+/*
  * Fold one full safe-integer seed into a domain-separated 32-bit state.
  *
  * Both 32-bit words participate, so values separated by 2^32 remain distinct.

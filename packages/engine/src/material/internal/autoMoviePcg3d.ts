@@ -1,4 +1,4 @@
-/**
+/*
  * The PCG3D integer hash of three unsigned 32-bit words (Jarzynski and Olano
  * 2020, "Hash functions for GPU rendering", JCGT 9(3), section 4).
  *
@@ -9,8 +9,7 @@
  * renderer compiles return the same words. Inputs are read as unsigned 32-bit
  * integers (`x >>> 0`), so a negative lattice coordinate hashes as its two's
  * complement, exactly as GLSL's `uint(int)` conversion keeps the bit pattern.
- *
- * @returns Three words within [0, 2³²).
+ * Returns: Three words within [0, 2³²).
  */
 export function autoMoviePcg3d(
   x: number,

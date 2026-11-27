@@ -114,7 +114,7 @@ export namespace AutoMovieLoftCapRead {
   }
 }
 
-/**
+/*
  * Finite returned frame data is distinct from a callback throwing its own
  * error.
  */

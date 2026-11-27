@@ -1,6 +1,6 @@
 import type { IAutoMovieScenePayload } from "@automovie/interface";
 
-/**
+/*
  * `INT. CASTLE COURTYARD - DAWN`: the screenplay slug of one scene, with the
  * location and time of day upper-cased.
  *

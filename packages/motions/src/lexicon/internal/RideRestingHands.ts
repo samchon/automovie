@@ -14,15 +14,14 @@ import type {
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/**
+/*
  * Read the resting hands where the ride is entered.
- *
- * @param body The body.
- * @param seated The seated posture the ride is entered with.
- * @param entry The pose displayed at the entry.
- * @param sides The hands that take no grip of the ride.
- * @returns Each such hand's wrist and elbow in the seated root frame; none for
- *   no side.
+ * Parameter body: The body.
+ * Parameter seated: The seated posture the ride is entered with.
+ * Parameter entry: The pose displayed at the entry.
+ * Parameter sides: The hands that take no grip of the ride.
+ * Returns: Each such hand's wrist and elbow in the seated root frame; none for
+ * no side.
  */
 export function RideRestingHands(
   body: IAutoMovieMotionHumanBody,
@@ -59,7 +58,7 @@ export function RideRestingHands(
   return rests;
 }
 
-/**
+/*
  * A ride's hands that take none of its grips (`HumanRide`): an arm its seated
  * entry poses by its joints, which the trunk carries, and an arm that keeps a
  * held prop where the entry displays it (`HeldRideArms`), which the support
@@ -73,15 +72,21 @@ export function RideRestingHands(
  * each second.
  */
 export namespace RideRestingHands {
-  /** A resting hand's wrist in the seated posture's root frame. */
+  /*
+   * A resting hand's wrist in the seated posture's root frame.
+   */
   export interface IRest {
-    /** The wrist from the seated root, in the seated heading's frame, metres. */
+    /*
+     * The wrist from the seated root, in the seated heading's frame, metres.
+     */
     offset: IAutoMovieVector3;
 
-    /** The hand's rotation in the seated heading's frame. */
+    /*
+     * The hand's rotation in the seated heading's frame.
+     */
     turn: IAutoMovieQuaternion;
 
-    /**
+    /*
      * The elbow from the seated root, in the seated heading's frame, metres:
      * the arm's bend hint, so the arm keeps the side its elbow was displayed
      * on.
@@ -89,16 +94,17 @@ export namespace RideRestingHands {
     elbow: IAutoMovieVector3;
   }
 
-  /** Each resting hand's wrist, by side. */
+  /*
+   * Each resting hand's wrist, by side.
+   */
   export type Rests = Partial<Record<AutoMovieHumanSide, IRest>>;
 
-  /**
+  /*
    * A resting hand's arm goal on a posture: its wrist, its turn and its elbow
    * carried by the posture's root and heading.
-   *
-   * @param rest The hand's wrist and elbow in the seated root frame.
-   * @param posture The ride's posture at the second, articulated.
-   * @returns The arm's goal, world metres.
+   * Parameter rest: The hand's wrist and elbow in the seated root frame.
+   * Parameter posture: The ride's posture at the second, articulated.
+   * Returns: The arm's goal, world metres.
    */
   export function place(
     rest: IRest,

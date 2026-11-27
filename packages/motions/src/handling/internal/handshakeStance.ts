@@ -10,13 +10,12 @@ import type {
 import { stand } from "../../actions/internal/stand";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 
-/**
+/*
  * The handshake's standing shoulder and sternum offsets from one actual trunk.
- *
- * @param body The body whose stand posture fixes the approach geometry.
- * @param side The shaking hand.
- * @returns World-metre offsets from the stand law's zero floor origin and
- *   heading.
+ * Parameter body: The body whose stand posture fixes the approach geometry.
+ * Parameter side: The shaking hand.
+ * Returns: World-metre offsets from the stand law's zero floor origin and
+ * heading.
  */
 export function handshakeStance(
   body: IAutoMovieMotionHumanBody,

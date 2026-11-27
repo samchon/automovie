@@ -6,13 +6,13 @@ import type {
 
 import { HumanLanceCouchCarriage } from "./HumanLanceCouchCarriage";
 
-/**
+/*
  * How near the horse's shapes a hand, forearm or elbow may come, metres: half a
  * hand's thickness with the skin (provisional).
  */
 const CLEAR: number = 0.06;
 
-/**
+/*
  * A point's least signed distance from shapes in their common frame, metres:
  * exact for a sphere, a capsule and a box, and from a hull's bounding sphere
  * about its centroid, which never reads a hull nearer than it is.
@@ -69,13 +69,12 @@ function apart(
   return least;
 }
 
-/**
+/*
  * Whether a carriage keeps its grip, the middle of its forearm and its elbow
  * clear of the horse's shapes by `CLEAR`.
- *
- * @param horse The horse's body.
- * @param laid The carriage, in the seat frame.
- * @returns Whether every point clears.
+ * Parameter horse: The horse's body.
+ * Parameter laid: The carriage, in the seat frame.
+ * Returns: Whether every point clears.
  */
 export function HumanLanceCouchClear(
   horse: HumanLanceCouchClear.IHorseBody,
@@ -92,17 +91,21 @@ export function HumanLanceCouchClear(
   );
 }
 
-/** `HumanLanceCouchClear` and its records. */
+/*
+ * `HumanLanceCouchClear` and its records.
+ */
 export namespace HumanLanceCouchClear {
-  /**
+  /*
    * The horse's body as a carriage keeps clear of it: its rest shapes, and
    * where the seat lies in its model.
    */
   export interface IHorseBody {
-    /** The horse's physical shapes in its model frame. */
+    /*
+     * The horse's physical shapes in its model frame.
+     */
     shapes: readonly IAutoMoviePhysicalShape[];
 
-    /**
+    /*
      * The seat contact's point in the horse's model frame, metres; the seat
      * frame's axes are the model's.
      */

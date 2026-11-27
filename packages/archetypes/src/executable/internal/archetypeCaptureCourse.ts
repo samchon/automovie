@@ -1,6 +1,6 @@
 import { type AutoMovieArchetypeCourse } from "../../core";
 
-/**
+/*
  * A course for the moving subjects: a short straight, a quarter turn to the
  * left, a short straight.
  */

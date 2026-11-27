@@ -7,7 +7,7 @@ import {
 
 import { Quaternion } from "../../math/Quaternion";
 
-/**
+/*
  * Enclose emitted recipe-local stems and leaf cards for installation
  * containment.
  *
@@ -26,7 +26,7 @@ export function plantingCanopyBounds(
   const min: IAutoMovieVector3 = { x: Infinity, y: Infinity, z: Infinity };
   const max: IAutoMovieVector3 = { x: -Infinity, y: -Infinity, z: -Infinity };
 
-  /**
+  /*
    * Fold one point and its axis-aligned radial support into this fresh
    * envelope.
    */

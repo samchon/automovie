@@ -20,7 +20,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 
-/**
+/*
  * The advance of a stroke: how the body goes with a held tool's cut, thrust or
  * presentation. The leading foot, the one on the tool's side, leaves the floor,
  * lands its travel ahead along a line and comes back; the pelvis is carried a
@@ -31,16 +31,24 @@ import { StrikingTarget } from "./StrikingTarget";
  * (`HumanSword.aim`).
  */
 export namespace StrikingAdvance {
-  /** The leading foot's travel in a lunge, a share of the stature (provisional). */
+  /*
+   * The leading foot's travel in a lunge, a share of the stature (provisional).
+   */
   export const LUNGE: number = 0.45;
 
-  /** The leading foot's travel in a step, a share of the stature (provisional). */
+  /*
+   * The leading foot's travel in a step, a share of the stature (provisional).
+   */
   export const STEP: number = 0.2;
 
-  /** The pelvis's travel as a share of the leading foot's (provisional). */
+  /*
+   * The pelvis's travel as a share of the leading foot's (provisional).
+   */
   export const CARRY: number = 0.55;
 
-  /** The leading foot's full travel of an advance, metres. */
+  /*
+   * The leading foot's full travel of an advance, metres.
+   */
   export const travel = (
     context: {
       body: { measure: Pick<IAutoMovieMotionHumanBody["measure"], "stature"> };
@@ -51,15 +59,14 @@ export namespace StrikingAdvance {
       ? 0
       : (advance === "lunge" ? LUNGE : STEP) * context.body.measure.stature;
 
-  /**
+  /*
    * An advancing stroke's foot plants: the rear foot throughout; the lead foot
    * until the stroke starts and again from the stroke, to the relax unless the
    * striker stays forward.
-   *
-   * @param lead The lead side, the advancing foot's.
-   * @param clock The stroke's phrase clock.
-   * @param stay Whether the striker stays forward.
-   * @returns The plants, shares of the stroke.
+   * Parameter lead: The lead side, the advancing foot's.
+   * Parameter clock: The stroke's phrase clock.
+   * Parameter stay: Whether the striker stays forward.
+   * Returns: The plants, shares of the stroke.
    */
   export const plants = (
     lead: AutoMovieHumanSide,
@@ -85,7 +92,7 @@ export namespace StrikingAdvance {
       plant(`${lead}Foot`, share("stroke"), stay ? 1 : share("relax")),
     ];
   };
-  /**
+  /*
    * The entry base, or the lead foot's advance on the stroke's phrase clock.
    * Travel is metres from strokeStart to stroke, followed by the original
    * relax-to-end recovery unless stay keeps the landed foot.
@@ -132,20 +139,19 @@ export namespace StrikingAdvance {
     };
   };
 
-  /**
+  /*
    * The body with its lead foot advanced along the given world line. The pelvis
    * follows CARRY of the foot's travel and the original native lower keeps both
    * legs in reach; raised is metres or null for planting.
-   *
-   * @param context The current native body and entry posture/feet.
-   * @param lead The advancing foot.
-   * @param line The world horizontal travel direction.
-   * @param along Metres of lead-foot travel.
-   * @param raised Swinging foot height in metres, or null when planted.
-   * @param resolution Optional exact FK source borrowed only for this
-   *   synchronous same-body evaluation.
-   * @returns The original carried and lowered posture with both actual leg
-   *   goals.
+   * Parameter context: The current native body and entry posture/feet.
+   * Parameter lead: The advancing foot.
+   * Parameter line: The world horizontal travel direction.
+   * Parameter along: Metres of lead-foot travel.
+   * Parameter raised: Swinging foot height in metres, or null when planted.
+   * Parameter resolution: Optional exact FK source borrowed only for this
+   * synchronous same-body evaluation.
+   * Returns: The original carried and lowered posture with both actual leg
+   * goals.
    */
   export const stood = (
     context: Pick<IAutoMovieMotionHumanActionContext, StoodContext>,
@@ -202,8 +208,12 @@ export namespace StrikingAdvance {
   };
 }
 
-/** The alternatives of `StoodContext`'s site. */
+/*
+ * The alternatives of `StoodContext`'s site.
+ */
 type StoodContext = "body" | "entry";
 
-/** The alternatives of `BasePlantPart`'s site. */
+/*
+ * The alternatives of `BasePlantPart`'s site.
+ */
 type BasePlantPart = "leftFoot" | "rightFoot";

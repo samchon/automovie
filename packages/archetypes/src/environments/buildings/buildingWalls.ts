@@ -5,7 +5,7 @@ import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 import type { IAutoMovieEnvironmentBuildingPoint } from "../IAutoMovieEnvironmentBuildingPoint";
 import type { buildingPlans } from "./buildingPlans";
 
-/**
+/*
  * Split room edges at incident endpoints, identify shared walls, and bind each
  * opening.
  *
@@ -72,40 +72,62 @@ export function buildingWalls(
   return wallsInOrder;
 }
 
-/** Normalized plan segments and their authored aperture bindings. */
+/*
+ * Normalized plan segments and their authored aperture bindings.
+ */
 export namespace buildingWalls {
-  /** One positive-length wall in a local XZ storey. */
+  /*
+   * One positive-length wall in a local XZ storey.
+   */
   export interface IWall {
-    /** Deterministic coordinate key within the level. */
+    /*
+     * Deterministic coordinate key within the level.
+     */
     readonly key: string;
 
-    /** Canonical segment start. */
+    /*
+     * Canonical segment start.
+     */
     readonly from: IAutoMovieProfilePoint;
 
-    /** Canonical segment end. */
+    /*
+     * Canonical segment end.
+     */
     readonly to: IAutoMovieProfilePoint;
 
-    /** Room id on the local +Z side, or null outside. */
+    /*
+     * Room id on the local +Z side, or null outside.
+     */
     left: string | null;
 
-    /** Room id on the local -Z side, or null outside. */
+    /*
+     * Room id on the local -Z side, or null outside.
+     */
     right: string | null;
 
-    /** Apertures in this wall in declared order. */
+    /*
+     * Apertures in this wall in declared order.
+     */
     readonly openings: IBinding[];
   }
 
-  /** An authored aperture with its orientation in the chosen wall. */
+  /*
+   * An authored aperture with its orientation in the chosen wall.
+   */
   export interface IBinding {
-    /** Opening in the original metre plan. */
+    /*
+     * Opening in the original metre plan.
+     */
     readonly opening: AutoMovieEnvironment.IBuildingOpening;
 
-    /** Whether a half-turn carries wall +Z into the requested opening direction. */
+    /*
+     * Whether a half-turn carries wall +Z into the requested opening direction.
+     */
     readonly turn: boolean;
   }
 }
 
-/**
+/*
  * Order a straight segment by X then Z, preserving exact authored point
  * identities.
  */
@@ -113,12 +135,14 @@ function compare(a: IAutoMovieProfilePoint, b: IAutoMovieProfilePoint): number {
   return a.x - b.x || a.y - b.y;
 }
 
-/** Make the normalized key; JSON numeric spellings collapse negative zero. */
+/*
+ * Make the normalized key; JSON numeric spellings collapse negative zero.
+ */
 function pointKey(point: IAutoMovieProfilePoint): string {
   return `${point.x},${point.y}`;
 }
 
-/**
+/*
  * Check whether an authored endpoint exactly names the already-admitted wall
  * endpoint.
  */

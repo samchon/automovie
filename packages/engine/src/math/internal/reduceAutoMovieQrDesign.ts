@@ -5,7 +5,7 @@ import type {
 
 import { overflowsBinary64 } from "./overflowsBinary64";
 
-/**
+/*
  * Compress original least-squares rows by streaming Givens rotations. The
  * returned upper design and transformed right side preserve the variable
  * dependent objective; the remaining orthogonal residual is a constant term. No

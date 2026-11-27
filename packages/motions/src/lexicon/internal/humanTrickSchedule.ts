@@ -7,16 +7,15 @@ import type {
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * A trick ride's schedule: each figure's transfer then its hold, one after
  * another, the ride ending back in the seat; at a second the current figure and
  * the minimum-jerk share of its transfer, and a `kind:index` cue where each
  * transfer ends.
- *
- * @param figures The figures in order.
- * @returns The schedule.
- * @throws {HumanRefusal} When there is no figure, the last is not a seat, a
- *   transfer has no length, a hold is negative, or a pickup names no prop.
+ * Parameter figures: The figures in order.
+ * Returns: The schedule.
+ * When there is no figure, the last is not a seat, a
+ * transfer has no length, a hold is negative, or a pickup names no prop.
  */
 export function humanTrickSchedule(
   figures: readonly IAutoMovieMotionHumanTrick.IFigure[],
@@ -80,33 +79,48 @@ export function humanTrickSchedule(
   };
 }
 
-/** The trick ride's schedule. */
+/*
+ * The trick ride's schedule.
+ */
 export namespace humanTrickSchedule {
-  /** A second's figure and its transfer's share. */
+  /*
+   * A second's figure and its transfer's share.
+   */
   export interface IAt {
-    /** The current figure's index. */
+    /*
+     * The current figure's index.
+     */
     index: number;
 
-    /** The minimum-jerk share of its transfer, 0 to 1. */
+    /*
+     * The minimum-jerk share of its transfer, 0 to 1.
+     */
     share: number;
   }
 
-  /** The figures' starts, the ride's length, its cues and its reader. */
+  /*
+   * The figures' starts, the ride's length, its cues and its reader.
+   */
   export interface ISchedule {
-    /** Each figure's start, seconds. */
+    /*
+     * Each figure's start, seconds.
+     */
     starts: number[];
 
-    /** The ride's seconds. */
+    /*
+     * The ride's seconds.
+     */
     duration: number;
 
-    /** Each figure's cue where its transfer ends. */
+    /*
+     * Each figure's cue where its transfer ends.
+     */
     events: IAutoMovieMotionEvent[];
 
-    /**
+    /*
      * The figure and share at a second.
-     *
-     * @param t Seconds into the ride.
-     * @returns The figure and its transfer's share.
+     * Parameter t: Seconds into the ride.
+     * Returns: The figure and its transfer's share.
      */
     at(t: number): IAt;
   }

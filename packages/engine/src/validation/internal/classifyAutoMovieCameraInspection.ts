@@ -1,6 +1,6 @@
 import type { IAutoMovieCameraInspection } from "@automovie/interface";
 
-/**
+/*
  * Grades one active requirement against delivery framing and occlusion
  * evidence.
  */

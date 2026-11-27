@@ -16,7 +16,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * When both hands and feet take homologous, fully placed sites, transfer the
  * better supported side's clinical angles to the other. The translation fits
  * all four material sites in least squares. The whole-body solver independently
@@ -143,7 +143,9 @@ type TargetAt = (part: Part) => IAutoMovieVector3;
 
 type Angles = NonNullable<IAutoMovieMotionHumanPosture["joints"]["hips"]>;
 
-/** World displacement of the named material point to its actual goal. */
+/*
+ * World displacement of the named material point to its actual goal.
+ */
 function error(bones: Frames, target: Target): IAutoMovieVector3 {
   const bone: IAutoMovieResolvedBone = bones.get(target.bone)!;
   const point: IAutoMovieVector3 =

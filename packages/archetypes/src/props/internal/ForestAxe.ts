@@ -9,15 +9,19 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeLongTool } from "../AutoMovieArchetypeLongTool";
 
-/** Gränsfors Bruk's Scandinavian Forest Axe, read at the maker. */
+/*
+ * Gränsfors Bruk's Scandinavian Forest Axe, read at the maker.
+ */
 const FOREST_AXE: string =
   "Gränsfors Bruk Scandinavian Forest Axe 430, 64 cm and 1,2 kg (https://www.gransforsbruk.com/en/p/scandinavian-forest-axe); The Axe Book (Gränsfors Bruks AB 2005, ISBN 91-975532-5-5, p. 9, https://www.canadianoutdoorequipment.com/downloads/TheAxeBook.pdf): a 3 1/2 in face, a 25 in hickory handle and a 2 lb head";
 
-/** The same axe as a retailer measures it. */
+/*
+ * The same axe as a retailer measures it.
+ */
 const FOREST_AXE_SHOP: string =
   "Knives and Tools, Gränsfors Bruk Scandinavian Forest Axe 430 (GS430): 65 cm overall, head 16.3 cm long, 9 cm high and 2.6 cm thick, sharpened length 9 cm, head 900 g, 1,200 g (https://knivesandtools.co.uk/en/pt/-gransfors-bruk-scandinavian-forest-axe-430.htm), a retailer's measurement";
 
-/**
+/*
  * The forest axe among the long tools: Gränsfors Bruk's Scandinavian Forest Axe
  * as its maker and a retailer give it, its bands and its builder, kept apart
  * from `createLongTool` so each file stays within its size.
@@ -27,7 +31,7 @@ const FOREST_AXE_SHOP: string =
  * back flush with the poll, and both hands hold the handle as the `shaft` bar.
  */
 export namespace ForestAxe {
-  /**
+  /*
    * Shagbark hickory's density at 12 % moisture, kilograms per cubic metre,
    * which sizes an axe's handle from its mass (The Wood Database,
    * https://www.wood-database.com/shagbark-hickory/, average dried weight 800
@@ -35,14 +39,16 @@ export namespace ForestAxe {
    */
   export const HICKORY: number = 800;
 
-  /**
+  /*
    * An axe head's thickness across `X`, metres: the retailer's 2.6 cm at the
    * poll. No act reads it, and the head's inertia about the swing's axis does
    * not depend on it.
    */
   export const HEAD_THICKNESS: number = 0.026;
 
-  /** The forest axe's bands; it has no drawn shaft diameter. */
+  /*
+   * The forest axe's bands; it has no drawn shaft diameter.
+   */
   export const BANDS: Readonly<
     Partial<Record<AutoMovieArchetypeLongTool.Dimension, IAutoMovieArchetypeBand>>
   > = {
@@ -76,7 +82,7 @@ export namespace ForestAxe {
     ),
   };
 
-  /**
+  /*
    * Builds the axe on the long tool's builder: the head on the floor and its
    * edge, then the handle and the bar both hands hold.
    *
@@ -84,10 +90,9 @@ export namespace ForestAxe {
    * the handle's length below the head, weighs the read handle mass: d = sqrt(4
    * m / (pi rho L)); the head and the handle carry their read masses as
    * shares.
-   *
-   * @param builder The long tool's builder.
-   * @param d The drawn dimensions: the length, the edge, the head's length and
-   *   mass, and the mass.
+   * Parameter builder: The long tool's builder.
+   * Parameter d: The drawn dimensions: the length, the edge, the head's length and
+   * mass, and the mass.
    */
   export function build(builder: Builder, d: Drawn): void {
     const length: number = d.length!;
@@ -140,11 +145,15 @@ export namespace ForestAxe {
   }
 }
 
-/** A long tool under construction. */
+/*
+ * A long tool under construction.
+ */
 type Builder = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeLongTool.Affordance,
   AutoMovieArchetypeLongTool.Dimension
 >;
 
-/** A long tool's drawn dimensions. */
+/*
+ * A long tool's drawn dimensions.
+ */
 type Drawn = Readonly<Partial<Record<AutoMovieArchetypeLongTool.Dimension, number>>>;

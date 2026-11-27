@@ -1,6 +1,6 @@
 import type { IAutoMovieMeshQueryHierarchy } from "@automovie/interface";
 
-/**
+/*
  * Refit an admitted hierarchy's fixed partition with fresh replacement entries.
  * The internal query owner supplies one replacement for every original leaf
  * entry, retaining its population and identity. Replacement bounds must enclose

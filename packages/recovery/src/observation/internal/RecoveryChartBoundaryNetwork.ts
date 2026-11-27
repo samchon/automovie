@@ -7,7 +7,7 @@ import { RecoveryChartBoundaryNetworkAugment } from "./RecoveryChartBoundaryNetw
 import { RecoveryChartBoundaryNetworkBindings } from "./RecoveryChartBoundaryNetworkBindings";
 import { RecoveryChartBoundaryNetworkRegistry } from "./RecoveryChartBoundaryNetworkRegistry";
 
-/**
+/*
  * Reconcile private quarter cuts before fitting shared maximal boundary arcs.
  * Physical keys, base-edge ancestry and exact numeric fractions declare
  * sharing; equal positions alone never identify a bank. Inputs remain

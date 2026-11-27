@@ -205,7 +205,9 @@ export namespace AutoMovieHumanHeadNeckScalars {
   }
 }
 
-/** Prepare only the authored scalar; admission failure is not a replacement source. */
+/*
+ * Prepare only the authored scalar; admission failure is not a replacement source.
+ */
 function prepare(
   outline: IAutoMovieViewPart.IOutline,
 ): IAutoMovieViewOutline.IOutline {

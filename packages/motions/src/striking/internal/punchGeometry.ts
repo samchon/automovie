@@ -41,13 +41,13 @@ import { punchFootwork } from "./punchFootwork";
 import type { punchLaunch } from "./punchLaunch";
 import type { punchReach } from "./punchReach";
 
-/**
+/*
  * A built punch: the stroke of the wrist from the launch through the contact
  * back to the guard, composed with the footwork into a posture per second.
  *
- * The contact is solved first ({@link punchContact}), the feet and the trunk
- * follow it ({@link punchFootwork}), and the wrist travels on superposed
- * minimum-jerk units through the contact point ({@link StrikingStroke}). A punch
+ * The contact is solved first (punchContact), the feet and the trunk
+ * follow it (punchFootwork), and the wrist travels on superposed
+ * minimum-jerk units through the contact point (StrikingStroke). A punch
  * stopped on a body holds for the dwell, then its arm and its trunk's turn
  * retrace the approach back to the launch, the wrist carried onto the guard it
  * returns to: every configuration of the approach up to the first contact was
@@ -64,27 +64,34 @@ import type { punchReach } from "./punchReach";
  * elbow jumped 15 cm between two solutions.
  */
 export namespace punchGeometry {
-  /** A punch's out, back and sag shares at a second. */
+  /*
+   * A punch's out, back and sag shares at a second.
+   */
   export interface IPhases {
-    /** Out to the shown reach. */
+    /*
+     * Out to the shown reach.
+     */
     out(seconds: number): number;
 
-    /** Back over the recoil. */
+    /*
+     * Back over the recoil.
+     */
     back(seconds: number): number;
 
-    /** The guard's sag: in with the recoil, out again over the drop. */
+    /*
+     * The guard's sag: in with the recoil, out again over the drop.
+     */
     sag(seconds: number): number;
   }
 
-  /**
+  /*
    * A punch's phases on minimum-jerk shares: out over the time to the shown
    * reach, back over the recoil, and the guard sagging with the recoil and
    * rising again over the drop after it, none without a drop.
-   *
-   * @param shown When the punch shows its full reach, seconds.
-   * @param recoil The recoil's seconds.
-   * @param drop The guard's drop's seconds.
-   * @returns The shares.
+   * Parameter shown: When the punch shows its full reach, seconds.
+   * Parameter recoil: The recoil's seconds.
+   * Parameter drop: The guard's drop's seconds.
+   * Returns: The shares.
    */
   export function phases(shown: number, recoil: number, drop: number): IPhases {
     const back = (t: number): number => AutoMovieEngineMotionSampling.minimumJerkShare((t - shown) / recoil);
@@ -96,24 +103,29 @@ export namespace punchGeometry {
     };
   }
 
-  /** How far a stopped punch has returned, and the stroke clock it shows. */
+  /*
+   * How far a stopped punch has returned, and the stroke clock it shows.
+   */
   export interface IReturn {
-    /** The return's share, 0 to 1. */
+    /*
+     * The return's share, 0 to 1.
+     */
     w: number;
 
-    /** The stroke's clock, run back from the stop. */
+    /*
+     * The stroke's clock, run back from the stop.
+     */
     clock: number;
   }
 
-  /**
+  /*
    * A punch stopped at its contact returns to the guard after the dwell on a
    * minimum-jerk share over the rest of the punch, its stroke run back from the
    * stop by that share.
-   *
-   * @param seconds The punch's seconds.
-   * @param stop The stop's seconds.
-   * @param duration The punch's seconds in all.
-   * @returns The share and the clock.
+   * Parameter seconds: The punch's seconds.
+   * Parameter stop: The stop's seconds.
+   * Parameter duration: The punch's seconds in all.
+   * Returns: The share and the clock.
    */
   export function returned(
     seconds: number,
@@ -127,36 +139,56 @@ export namespace punchGeometry {
     return { w, clock: stop * (1 - w) };
   }
 
-  /** A punch's timing. */
+  /*
+   * A punch's timing.
+   */
   export interface ITiming {
-    /** The punching side. */
+    /*
+     * The punching side.
+     */
     side: AutoMovieHumanSide;
 
-    /** The stance's lead side. */
+    /*
+     * The stance's lead side.
+     */
     lead: AutoMovieHumanSide;
 
-    /** Lead or rear hand. */
+    /*
+     * Lead or rear hand.
+     */
     which: TimingWhich;
 
-    /** Launch to contact, seconds. */
+    /*
+     * Launch to contact, seconds.
+     */
     delivery: number;
 
-    /** Launch to the contact or the feint's shown peak, seconds. */
+    /*
+     * Launch to the contact or the feint's shown peak, seconds.
+     */
     shown: number;
 
-    /** The return to the guard, seconds. */
+    /*
+     * The return to the guard, seconds.
+     */
     recoil: number;
 
-    /** The guard drop. */
+    /*
+     * The guard drop.
+     */
     drop: IAutoMovieMotionHumanStrikingSkill.IGuardDrop;
 
-    /** The whole punch, seconds. */
+    /*
+     * The whole punch, seconds.
+     */
     duration: number;
   }
 
-  /** A built punch. */
+  /*
+   * A built punch.
+   */
   export interface IGeometry {
-    /**
+    /*
      * The complete posture at local seconds, borrowing only current same-body
      * FK/ROM metadata.
      */
@@ -166,25 +198,28 @@ export namespace punchGeometry {
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
     ): IAutoMovieMotionHumanPosture;
 
-    /** The feet's contact windows. */
+    /*
+     * The feet's contact windows.
+     */
     contacts: IAutoMovieMotionHumanContactWindow[];
 
-    /** What the punch decided. */
+    /*
+     * What the punch decided.
+     */
     record: IAutoMovieMotionHumanStrikingRecord.IRecord;
   }
 
-  /**
+  /*
    * Build a punch's geometry from its first posture evaluation.
-   *
-   * @param context The action's context.
-   * @param timing The punch's timing.
-   * @param fixed The committed stop's second, null when the arm met nothing,
-   *   undefined when the punch offers no weapon.
-   * @param tangent The varied point within a person's region, when the punch
-   *   varies.
-   * @param entered What the punch reads of its own entry alone (`punchLaunch`),
-   *   made once for the plan.
-   * @returns The geometry.
+   * Parameter context: The action's context.
+   * Parameter timing: The punch's timing.
+   * Parameter fixed: The committed stop's second, null when the arm met nothing,
+   * undefined when the punch offers no weapon.
+   * Parameter tangent: The varied point within a person's region, when the punch
+   * varies.
+   * Parameter entered: What the punch reads of its own entry alone (`punchLaunch`),
+   * made once for the plan.
+   * Returns: The geometry.
    */
   export function build(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPunch.IParams>,
@@ -544,8 +579,12 @@ export namespace punchGeometry {
   }
 }
 
-/** The alternatives of `BuildOff`'s site. */
+/*
+ * The alternatives of `BuildOff`'s site.
+ */
 type BuildOff = "leftArm" | "rightArm";
 
-/** The alternatives of `TimingWhich`'s site. */
+/*
+ * The alternatives of `TimingWhich`'s site.
+ */
 type TimingWhich = "lead" | "rear";

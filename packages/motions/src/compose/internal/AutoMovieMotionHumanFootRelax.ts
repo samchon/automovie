@@ -19,17 +19,16 @@ import { hipJoints } from "../../posture/internal/hipJoints";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
-/**
+/*
  * How far a foot must roll past the roll asked of it so the ankle stays within
  * its range: the shank's lean across the foot from the vertical, the hip over
  * the ankle, less the ankle's own roll range (`DEFAULT_HUMANOID_ROM`'s foot
  * abduction), signed as `HumanFoot.roll`.
- *
- * @param hip The hip joint, world metres.
- * @param ankle The ankle joint, world metres.
- * @param heading The foot's heading, degrees.
- * @param asked The roll the placement asks, degrees.
- * @returns Degrees to add to the roll; zero within the range.
+ * Parameter hip: The hip joint, world metres.
+ * Parameter ankle: The ankle joint, world metres.
+ * Parameter heading: The foot's heading, degrees.
+ * Parameter asked: The roll the placement asks, degrees.
+ * Returns: Degrees to add to the roll; zero within the range.
  */
 function sideways(
   hip: IAutoMovieVector3,
@@ -55,38 +54,37 @@ function sideways(
       : 0;
 }
 
-/**
+/*
  * The ankle's least roll, degrees: the foot's abduction range's low end
  * (`DEFAULT_HUMANOID_ROM`).
  */
 const ROLL_LEAST: number = DEFAULT_HUMANOID_ROM.leftFoot!.abduction!.min;
 
-/**
+/*
  * The ankle's greatest roll, degrees: the foot's abduction range's high end
  * (`DEFAULT_HUMANOID_ROM`).
  */
 const ROLL_MOST: number = DEFAULT_HUMANOID_ROM.leftFoot!.abduction!.max;
 
-/**
+/*
  * The placement a foot bearing a share of the weight can hold.
- *
- * @param body The body.
- * @param posture The posture written so far, read for its root, heading and
- *   pelvis.
- * @param side Which foot.
- * @param placement The placement the law asks.
- * @param share The share of the weight the foot bears, 0 to 1; none when
- *   absent.
- * @param grounded Whether the forefoot is on the floor, so the heel rises about
- *   it; a foot in the air turns about its ankle instead.
- * @param ball Whether the heel rises about the ball the foot bears on, for a
- *   support held under the ball (a line, a stirrup); about the toes' joint when
- *   false.
- * @param edge The forefoot edge a foot rolled past the ankle's range bears on
- *   and turns about, in the foot's rest frame from the ankle
- *   (`HumanFoot.edge`); the pivot above when absent.
- * @returns The placement with its heel raised about the toes' joint where the
- *   ask would pass the limit, else the ask.
+ * Parameter body: The body.
+ * Parameter posture: The posture written so far, read for its root, heading and
+ * pelvis.
+ * Parameter side: Which foot.
+ * Parameter placement: The placement the law asks.
+ * Parameter share: The share of the weight the foot bears, 0 to 1; none when
+ * absent.
+ * Parameter grounded: Whether the forefoot is on the floor, so the heel rises about
+ * it; a foot in the air turns about its ankle instead.
+ * Parameter ball: Whether the heel rises about the ball the foot bears on, for a
+ * support held under the ball (a line, a stirrup); about the toes' joint when
+ * false.
+ * Parameter edge: The forefoot edge a foot rolled past the ankle's range bears on
+ * and turns about, in the foot's rest frame from the ankle
+ * (`HumanFoot.edge`); the pivot above when absent.
+ * Returns: The placement with its heel raised about the toes' joint where the
+ * ask would pass the limit, else the ask.
  */
 export function AutoMovieMotionHumanFootRelax(
   body: IAutoMovieMotionHumanBody,
@@ -173,7 +171,7 @@ export function AutoMovieMotionHumanFootRelax(
   return foot;
 }
 
-/**
+/*
  * A foot kept within the ankle's dorsal range for its contact state. A foot
  * bearing any of the body's weight dorsiflexes as far as the loaded limit, one
  * bearing nothing only to the passive one (`ANKLE_DORSIFLEXION`; the binary
@@ -189,23 +187,22 @@ export function AutoMovieMotionHumanFootRelax(
  * to its lift (`load`), the contact state the limit is read by.
  */
 export namespace AutoMovieMotionHumanFootRelax {
-  /**
+  /*
    * How many times the heel's rise is corrected for the lean it changes; the
    * lean moves by a fraction of the rise, so the residual shrinks
    * geometrically.
    */
   export const PASSES: number = 3;
 
-  /**
+  /*
    * Whether a planted foot bears at an action second, as the share the limit
    * reads (`walkLeg.dorsal`): it bears strictly between its landing and its
    * lift, the contact window's own state, with no ramp of its own between the
    * two limits, which no study relates to a partial load.
-   *
-   * @param seconds The action second.
-   * @param leave The second the foot lifts.
-   * @param at The second the plant began.
-   * @returns 1 between the landing and the lift, 0 at and outside them.
+   * Parameter seconds: The action second.
+   * Parameter leave: The second the foot lifts.
+   * Parameter at: The second the plant began.
+   * Returns: 1 between the landing and the lift, 0 at and outside them.
    */
   export function load(
     seconds: number,

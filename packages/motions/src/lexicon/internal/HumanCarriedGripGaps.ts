@@ -7,22 +7,26 @@ import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 import { HumanCarriedStraddle } from "./HumanCarriedStraddle";
 import { HumanCarriedWristCircle } from "./HumanCarriedWristCircle";
 
-/**
+/*
  * Measure the current occupied wrists and, for a straddle, the knees against
  * their actual support.
  */
 export namespace HumanCarriedGripGaps {
-  /**
+  /*
    * A second planted bearer's support height fixes one further world
    * coordinate.
    */
   export interface IPlantedContact {
-    /** Region on the borne body carried by this second support. */
+    /*
+     * Region on the borne body carried by this second support.
+     */
     region: AutoMovieHumanoidRegion;
-    /** The second bearer's resting region height above the common floor, metres. */
+    /*
+     * The second bearer's resting region height above the common floor, metres.
+     */
     height: number;
   }
-  /**
+  /*
    * Prepare the fixed palm geometry once for every active hand in the key-pose
    * fit.
    */
@@ -83,7 +87,7 @@ export namespace HumanCarriedGripGaps {
         : gaps;
     };
   }
-  /**
+  /*
    * Distance in metres beyond the bearing arm's real wrist reach, or at most
    * zero within reach.
    */
@@ -97,7 +101,7 @@ export namespace HumanCarriedGripGaps {
     return prepareGap(bearer, side, shape)(bones, place);
   }
 
-  /**
+  /*
    * The changing palm normal places its wrist while the fixed hand geometry is
    * shared.
    */
@@ -141,7 +145,9 @@ type IRead = HumanCarriedCouplingFit.IRead;
 
 type Gaps = (reading: IRead) => number[];
 
-/** The current gap for one bearing arm at a known surface. */
+/*
+ * The current gap for one bearing arm at a known surface.
+ */
 type Gap = (
   bones: Bones,
   place: IAutoMovieMotionHumanCarriedCouplingPose.IHold,

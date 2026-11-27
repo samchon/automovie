@@ -107,7 +107,9 @@ export namespace AutoMovieHumanNeutralThumbCmc {
     return Turn.straighten(body, `${side}ThumbMetacarpal`, hand, along);
   }
 
-  /** A chain's rings as point lists. */
+  /*
+   * A chain's rings as point lists.
+   */
   function ringsOf(
     chain: IAutoMovieHumanChainRings,
   ): AutoMovieVector3Tuple[][] {
@@ -123,7 +125,9 @@ export namespace AutoMovieHumanNeutralThumbCmc {
     );
   }
 
-  /** The mean of points. */
+  /*
+   * The mean of points.
+   */
   function centroid(
     points: readonly AutoMovieVector3Tuple[],
   ): AutoMovieVector3Tuple {
@@ -139,33 +143,45 @@ export namespace AutoMovieHumanNeutralThumbCmc {
     );
   }
 
-  /**
+  /*
    * One ring of a chain's skin as a slab: its centroid, its plane's normal
    * (along the line through its neighbours' centroids), the slab's half
    * thickness (half the gap to the neighbours either side) and its outline in
    * its own plane.
    */
   interface ISlab {
-    /** The ring's centroid. */
+    /*
+     * The ring's centroid.
+     */
     centre: AutoMovieVector3Tuple;
 
-    /** Unit normal of the ring's plane. */
+    /*
+     * Unit normal of the ring's plane.
+     */
     normal: AutoMovieVector3Tuple;
 
-    /** Half thickness of the slab the ring stands for, mm. */
+    /*
+     * Half thickness of the slab the ring stands for, mm.
+     */
     half: number;
 
-    /** First in-plane axis. */
+    /*
+     * First in-plane axis.
+     */
     e1: AutoMovieVector3Tuple;
 
-    /** Second in-plane axis. */
+    /*
+     * Second in-plane axis.
+     */
     e2: AutoMovieVector3Tuple;
 
-    /** The ring in its plane, `[along e1, along e2]`. */
+    /*
+     * The ring in its plane, `[along e1, along e2]`.
+     */
     outline: [number, number][];
   }
 
-  /**
+  /*
    * A chain's rings as slabs, read once per chain: every point the scan
    * tests reads the same slabs, so their centroids, normals and outlines are
    * fixed before the scan.
@@ -196,7 +212,7 @@ export namespace AutoMovieHumanNeutralThumbCmc {
     });
   }
 
-  /**
+  /*
    * Whether a point lies inside a chain's skin: within the slab of the ring
    * whose plane it is nearest, and inside that ring's outline in its plane
    * (crossing number).

@@ -3,12 +3,12 @@ import type { IAutoMovieMotionHumanPianoPedal } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * The damper pedal's stroke clock: which strokes a pedalling admits, and how
  * far down the pedal is at any instant.
  */
 export namespace pianoPedalStroke {
-  /**
+  /*
    * Admit the strokes: at least one, each with `0 < from < at <= release < to <
    * duration`, none starting before the previous one ended.
    */
@@ -43,7 +43,7 @@ export namespace pianoPedalStroke {
     }
   }
 
-  /**
+  /*
    * The pedal's travel fraction at `seconds`: 0 between strokes, 1 from a
    * stroke's `at` to its `release`, and a minimum-jerk share of the press and
    * of the release in between.
@@ -72,7 +72,9 @@ export namespace pianoPedalStroke {
   }
 }
 
-/** Report a stroke clock the author can correct. */
+/*
+ * Report a stroke clock the author can correct.
+ */
 function refuse(axis: string, value: number, fix: string): never {
   throw new HumanRefusal({
     kind: "parameter",

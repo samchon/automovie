@@ -5,7 +5,7 @@ import type {
 
 import { AUTOMOVIE_EXPRESSION_PRESET_CHANNELS } from "./AUTOMOVIE_EXPRESSION_PRESET_CHANNELS.js";
 
-/**
+/*
  * The expression channels a VRM or imported model receives for MPEG-4 viseme
  * weights: each viseme adds its weight to one of the five mouth presets and to
  * that preset's ARKit channels times their factors.
@@ -19,9 +19,8 @@ import { AUTOMOVIE_EXPRESSION_PRESET_CHANNELS } from "./AUTOMOVIE_EXPRESSION_PRE
  * preset closes them. So `{ aa: 0.5, O: 0.5 }` gives `jawOpen` 0.5 × 1 + 0.5 ×
  * 0.6 = 0.8. Weights are clamped to [0, 1] before they are summed; sums are not
  * clamped here.
- *
- * @param visemes The viseme weights.
- * @returns Each preset and channel the weights set, with its summed weight.
+ * Parameter visemes: The viseme weights.
+ * Returns: Each preset and channel the weights set, with its summed weight.
  */
 export function autoMovieVisemeChannelWeights(
   visemes: IAutoMovieHumanVisemeWeights,
@@ -40,7 +39,7 @@ export function autoMovieVisemeChannelWeights(
   return mouth;
 }
 
-/**
+/*
  * The mouth preset of each viseme, or null for a closed mouth; the rows are
  * explained on `autoMovieVisemeChannelWeights`.
  */

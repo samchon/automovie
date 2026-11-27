@@ -3,7 +3,7 @@ import type * as THREE from "three";
 
 import { SCENE_MASK_KEY } from "../SCENE_MASK_KEY.js";
 
-/**
+/*
  * Hand a built scene the palette its `mask` pass must paint it with.
  *
  * The scene carries it, rather than every caller passing it down, for the same

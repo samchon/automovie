@@ -3,7 +3,7 @@ import type {
   IAutoMovieRecoveryAnnularChartPreparation,
 } from "@automovie/interface";
 
-/**
+/*
  * Cut a private oriented annular triangle chart along an observed edge path.
  * Two coherent boundary cycles become bottom/top and the duplicated seam
  * becomes left/right. Original positions and faces stay private observations

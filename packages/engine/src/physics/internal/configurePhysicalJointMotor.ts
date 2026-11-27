@@ -10,9 +10,9 @@ import type { AutoMovieXpbdJoint } from "../AutoMovieXpbdJoint";
 import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
 import { physicalJointMotorCommand } from "./physicalJointMotorCommand";
 
-/**
+/*
  * Apply one joint's bounded quaternion PD command
- * ({@link physicalJointMotorCommand}) to its joint's implicit velocity motors,
+ * (physicalJointMotorCommand) to its joint's implicit velocity motors,
  * each with its axis's declared torque bound in both directions, refusing
  * non-finite values.
  */

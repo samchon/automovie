@@ -6,7 +6,7 @@ import type {
 
 import { steerAutoMovieCrowdGeometry } from "./steerAutoMovieCrowdGeometry";
 
-/**
+/*
  * The arrivals and the contacts of a steered crowd, read at the integration's
  * knots (`steerAutoMovieCrowd`): an agent arrives at the first knot its centre
  * lies within its radius of its destination, and a pair of agents, or an agent
@@ -15,15 +15,14 @@ import { steerAutoMovieCrowdGeometry } from "./steerAutoMovieCrowdGeometry";
  *
  * Moved unchanged out of `steerAutoMovieCrowd` to keep that file under the
  * repository's 500-line limit.
- *
- * @param agents The agents in the order given.
- * @param obstacles The obstacles.
- * @param slot Each given agent's index in the stacked state's canonical order.
- * @param trajectory The integrated crowd.
- * @param from The interval's first second.
- * @param to The interval's last second.
- * @returns Each agent's arrival (null when it never arrives) and the contacts
- *   in knot order.
+ * Parameter agents: The agents in the order given.
+ * Parameter obstacles: The obstacles.
+ * Parameter slot: Each given agent's index in the stacked state's canonical order.
+ * Parameter trajectory: The integrated crowd.
+ * Parameter from: The interval's first second.
+ * Parameter to: The interval's last second.
+ * Returns: Each agent's arrival (null when it never arrives) and the contacts
+ * in knot order.
  */
 export function steerAutoMovieCrowdContacts(
   agents: readonly IAutoMovieCrowdAgent[],
@@ -107,26 +106,42 @@ export function steerAutoMovieCrowdContacts(
   return { arrival, contacts };
 }
 
-/** Companion types of {@link steerAutoMovieCrowdContacts}. */
+/*
+ * Companion types of steerAutoMovieCrowdContacts.
+ */
 export namespace steerAutoMovieCrowdContacts {
-  /** The pass's readings. */
+  /*
+   * The pass's readings.
+   */
   export interface IResult {
-    /** Each given agent's first arrival, seconds; null when it never arrives. */
+    /*
+     * Each given agent's first arrival, seconds; null when it never arrives.
+     */
     arrival: IAutoMovieCrowdAgent.ICourse["arrival"][];
 
-    /** The contacts, in the order they are confirmed. */
+    /*
+     * The contacts, in the order they are confirmed.
+     */
     contacts: IAutoMovieCrowdAgent.IContact[];
   }
 
-  /** An overlap still open at the latest knot. */
+  /*
+   * An overlap still open at the latest knot.
+   */
   export interface IOpen {
-    /** The first knot it was read at, seconds. */
+    /*
+     * The first knot it was read at, seconds.
+     */
     seconds: number;
 
-    /** Its depth there, metres. */
+    /*
+     * Its depth there, metres.
+     */
     depth: number;
 
-    /** The successive knots it has been read at. */
+    /*
+     * The successive knots it has been read at.
+     */
     ticks: number;
   }
 }

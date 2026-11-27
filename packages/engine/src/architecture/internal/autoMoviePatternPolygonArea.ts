@@ -1,16 +1,15 @@
 import type { IAutoMoviePatternPoint } from "@automovie/interface";
 
-/**
+/*
  * The unsigned area, in square metres, a face-local outline encloses.
  *
  * The outline closes from its last corner to its first and may wind either way.
  * With suitable finite intermediates, fewer than three corners give zero; an
  * empty ring always gives zero. Non-finite input/products can instead yield
  * `NaN` or infinity.
- *
- * @param polygon Simple outline in face-local metres.
- * @returns The absolute shoelace result; non-finite intermediates can yield
- *   `NaN` or infinity.
+ * Parameter polygon: Simple outline in face-local metres.
+ * Returns: The absolute shoelace result; non-finite intermediates can yield
+ * `NaN` or infinity.
  */
 export function autoMoviePatternPolygonArea(
   polygon: readonly IAutoMoviePatternPoint[],

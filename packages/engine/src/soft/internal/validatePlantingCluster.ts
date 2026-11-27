@@ -11,7 +11,7 @@ import { validateSoftInteger as integer } from "./validateSoftInteger";
 import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
 import { validateSoftVector as vector } from "./validateSoftVector";
 
-/**
+/*
  * Admit a typed cluster's finite region, positive scale intervals, safe seed
  * and bounded member/attempt counts. It does not prove all requested placements
  * fit; arrangement returns explicit rejected slots when sampling cannot satisfy

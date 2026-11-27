@@ -6,7 +6,7 @@ import type {
   IAutoMovieRenderObservationBreach,
 } from "@automovie/interface";
 
-/**
+/*
  * Check what one capture actually drew against the report that cleared it.
  *
  * Report measurements are exact or conservative preflight bounds. Drawing less

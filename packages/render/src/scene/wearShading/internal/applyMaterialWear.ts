@@ -10,10 +10,12 @@ import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
 import { readAutoMovieBufferAttribute } from "../../internal/readAutoMovieBufferAttribute.js";
 import { AUTOMOVIE_PROCEDURAL_NOISE_GLSL } from "../../AUTOMOVIE_PROCEDURAL_NOISE_GLSL.js";
 
-/** Texels per row of the feature edge texture. */
+/*
+ * Texels per row of the feature edge texture.
+ */
 const ROW: number = 1024;
 
-/**
+/*
  * Wear one geometry and material pair: measure the geometry's feature edges at
  * bind pose, store them in a float data texture, and patch the material so each
  * fragment mixes its base colour and roughness toward the edge and grime layers
@@ -37,9 +39,8 @@ const ROW: number = 1024;
  * procedural surface's roughness. The patch is registered through
  * `AutoMovieRenderMaterial.addShaderPatch`, so the material must belong to this
  * geometry alone: its texture uniform is this geometry's.
- *
- * @returns The non-indexed worn geometry and the edge texture; the caller owns
- *   both and disposes them with the part.
+ * Returns: The non-indexed worn geometry and the edge texture; the caller owns
+ * both and disposes them with the part.
  */
 export const applyMaterialWear: (
   geometry: THREE.BufferGeometry,

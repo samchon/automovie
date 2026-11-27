@@ -12,18 +12,17 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { ExerciseKey } from "./ExerciseKey";
 
-/**
+/*
  * Own actual key-to-frame observations within one synchronous workout geometry
  * search. A key's posed representation has no limb/digit/rotation goals, but
  * arbitrary key producers may change clinical joints at every trial, so every
  * actual key retains ordinary complete canonical admission.
- *
- * @param body The unchanged canonical body of this pitch or roll search.
- * @param requested Fixed output bone demand; omission preserves the complete
- *   map.
- * @returns A current authored-key reader yielding a fresh raw view with
- *   borrowed key joint tuples and a fresh actual bone map; release the reader
- *   when this search returns or throws.
+ * Parameter body: The unchanged canonical body of this pitch or roll search.
+ * Parameter requested: Fixed output bone demand; omission preserves the complete
+ * map.
+ * Returns: A current authored-key reader yielding a fresh raw view with
+ * borrowed key joint tuples and a fresh actual bone map; release the reader
+ * when this search returns or throws.
  */
 export function prepareWorkoutKeyFrames(
   body: IAutoMovieMotionHumanBody,
@@ -60,13 +59,17 @@ export function prepareWorkoutKeyFrames(
   };
 }
 
-/** The record of `IPrepareWorkoutKeyFramesResult2`'s site. */
+/*
+ * The record of `IPrepareWorkoutKeyFramesResult2`'s site.
+ */
 type IPrepareWorkoutKeyFramesResult2 = {
   posture: IAutoMovieMotionHumanPosture;
   bones: ReturnType<typeof poseBones>;
 };
 
-/** The record of `IPrepareWorkoutKeyFramesResult`'s site. */
+/*
+ * The record of `IPrepareWorkoutKeyFramesResult`'s site.
+ */
 type IPrepareWorkoutKeyFramesResult = {
   posture: IAutoMovieMotionHumanPosture;
   bones: ReturnType<typeof poseBones>;

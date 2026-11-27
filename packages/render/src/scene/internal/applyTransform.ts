@@ -1,7 +1,7 @@
 import type { IAutoMovieTransform } from "@automovie/interface";
 import type * as THREE from "three";
 
-/**
+/*
  * Copy an admitted local TRS to a borrowed Three object: metre translation,
  * engine x/y/z/w quaternion and dimensionless scale. The host updates world
  * matrices when needed; this adapter does not normalize or repair source data.

@@ -9,7 +9,7 @@ import { adjacentAutoMovieFloat64 as outward } from "../../math/internal/adjacen
 import { measureAutoMovieProjectionIntervals } from "./measureAutoMovieProjectionIntervals";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Bound how far from its root any contact of an anchored fan with one support
  * triangle can lie.
  *
@@ -33,11 +33,10 @@ import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
  * Throws when either triangle is not three finite vertices, when the support's
  * edge differences overflow, or, through the shared enclosure arithmetic, when
  * an enclosure step overflows.
- *
- * @param fan Root followed by the two row corners.
- * @param support One original host triangle.
- * @returns The proof flag, the cap in metres, and the slab quantities behind
- *   it.
+ * Parameter fan: Root followed by the two row corners.
+ * Parameter support: One original host triangle.
+ * Returns: The proof flag, the cap in metres, and the slab quantities behind
+ * it.
  */
 export function boundAutoMovieTriangleAttachmentContact(
   fan: readonly IAutoMovieVector3[],

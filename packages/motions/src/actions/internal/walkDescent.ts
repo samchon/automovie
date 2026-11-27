@@ -1,6 +1,6 @@
 import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 
-/**
+/*
  * The pelvis's descent onto a landing leg, scheduled ahead of the leg's own
  * claim.
  *
@@ -21,37 +21,44 @@ import { AutoMovieEngineMotionSampling } from "@automovie/engine";
  * the schedule.
  */
 export namespace walkDescent {
-  /** A swing's scheduled descent. */
+  /*
+   * A swing's scheduled descent.
+   */
   export interface IPlan {
-    /** The share of the swing at which the schedule meets the leg's claim. */
+    /*
+     * The share of the swing at which the schedule meets the leg's claim.
+     */
     until: number;
 
-    /** The lowering the leg asks there, metres. */
+    /*
+     * The lowering the leg asks there, metres.
+     */
     need: number;
 
-    /** That lowering's rate there, metres per share of the swing. */
+    /*
+     * That lowering's rate there, metres per share of the swing.
+     */
     rate: number;
 
-    /**
+    /*
      * That lowering's acceleration there, metres per squared share of the
      * swing.
      */
     bend: number;
   }
 
-  /**
+  /*
    * The share of a swing at which its descent begins: mid-swing, where the
    * schedule turns from the stance the foot left to the one it lands in.
    */
   export const START: number = 0.5;
 
-  /**
+  /*
    * Schedule a swing's descent.
-   *
-   * @param need The lowering the swinging leg asks at a share of its swing,
-   *   metres, negative by its slack.
-   * @returns The schedule, meeting the claim at its largest sampled value with
-   *   the claim's rate and acceleration there, by backward differences.
+   * Parameter need: The lowering the swinging leg asks at a share of its swing,
+   * metres, negative by its slack.
+   * Returns: The schedule, meeting the claim at its largest sampled value with
+   * the claim's rate and acceleration there, by backward differences.
    */
   export function plan(need: (u: number) => number): IPlan {
     // The leg folds through mid-swing and asks nothing there, so the search
@@ -76,15 +83,14 @@ export namespace walkDescent {
     };
   }
 
-  /**
+  /*
    * A swinging leg's claim on the pelvis under its schedule.
-   *
-   * @param schedule The swing's schedule.
-   * @param u The share of the swing, from `START` on.
-   * @param actual The lowering the leg asks at that share, metres.
-   * @param from The claim the descent starts from, metres: a foot's that asks
-   *   nothing.
-   * @returns The claim, metres.
+   * Parameter schedule: The swing's schedule.
+   * Parameter u: The share of the swing, from `START` on.
+   * Parameter actual: The lowering the leg asks at that share, metres.
+   * Parameter from: The claim the descent starts from, metres: a foot's that asks
+   * nothing.
+   * Returns: The claim, metres.
    */
   export function claim(
     schedule: IPlan,
@@ -104,7 +110,7 @@ export namespace walkDescent {
     );
   }
 
-  /**
+  /*
    * The shares of a swing's second half sampled for its largest claim
    * (provisional): the claim is smooth, and the schedule meets it at the
    * sampled share with its rate and acceleration there, whichever share that
@@ -112,7 +118,7 @@ export namespace walkDescent {
    */
   const SAMPLES: number = 16;
 
-  /**
+  /*
    * The share of a swing over which the claim's rate and acceleration are
    * differenced: the second difference's rounding error, the reach solve's
    * nanometre root tolerance over `STEP^2`, stays near 1e-4 m per squared

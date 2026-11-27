@@ -7,13 +7,17 @@ import type {
 import { validDigest } from "./validDigest.js";
 import { validWaveAudioIdentity } from "./validWaveAudioIdentity.js";
 
-/** Sample rate of a placeholder stem: the sound plan's fixed mix rate. */
+/*
+ * Sample rate of a placeholder stem: the sound plan's fixed mix rate.
+ */
 const PLACEHOLDER_SAMPLE_RATE: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;
 
-/** Channel count of a placeholder stem: the sound plan's fixed stereo mix. */
+/*
+ * Channel count of a placeholder stem: the sound plan's fixed stereo mix.
+ */
 const PLACEHOLDER_CHANNELS: IAutoMovieProductionSoundPlan["channels"] = 2;
 
-/**
+/*
  * Copy the planned audio asset identities sorted by path, refusing any that is
  * invalid.
  *

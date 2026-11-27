@@ -10,16 +10,15 @@ import type {
 
 import { turnHumanPosture } from "../../posture/internal/turnHumanPosture";
 
-/**
+/*
  * The pose of a posture's directly set joints and root, for forward kinematics
  * of its trunk without solving its limbs.
- *
- * @param body The body supplying its skeleton id.
- * @param posture The root, heading and whole-body rotation; its limb goals are
- *   ignored.
- * @param joints The clinical-degree joint angles to pose; a bone whose entry is
- *   absent stands at zero.
- * @returns A fresh pose whose root is the posture's turned root.
+ * Parameter body: The body supplying its skeleton id.
+ * Parameter posture: The root, heading and whole-body rotation; its limb goals are
+ * ignored.
+ * Parameter joints: The clinical-degree joint angles to pose; a bone whose entry is
+ * absent stands at zero.
+ * Returns: A fresh pose whose root is the posture's turned root.
  */
 export function authoredHumanTrunkPose(
   body: IAutoMovieMotionHumanBody,

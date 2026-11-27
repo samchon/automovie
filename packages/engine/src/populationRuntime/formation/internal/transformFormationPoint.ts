@@ -3,7 +3,9 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** Apply one sampled formation state to a designed world-space point. */
+/*
+ * Apply one sampled formation state to a designed world-space point.
+ */
 export function transformFormationPoint(
   point: IAutoMovieVector3,
   anchor: IAutoMovieVector3,

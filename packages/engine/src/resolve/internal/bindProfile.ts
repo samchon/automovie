@@ -6,7 +6,7 @@ import {
   type IAutoMovieProfileApplication,
 } from "@automovie/interface";
 
-/**
+/*
  * Bind every supported semantic node reference through an own boneMap entry and
  * optional placement prefix. Pointer channels retain their global addresses.
  * Mismatched profile ids and missing node mappings throw before a bound result
@@ -53,7 +53,9 @@ export function bindProfile(
   return { limits, drivers };
 }
 
-/** Remap every node reference one driver carries, exhaustively by type. */
+/*
+ * Remap every node reference one driver carries, exhaustively by type.
+ */
 const mapDriver: (
   driver: IAutoMovieDriver,
   mapNode: (key: string) => string,

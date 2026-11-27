@@ -1,14 +1,13 @@
 import type { IAutoMovieMotionHumanFirefighting } from "@automovie/interface";
 
-/**
+/*
  * Advance a two-member hose team and work the line: the operator carries the
  * line by its nozzle grip, the backup grips without carrying it, each walks the
  * advance, then works the line in their role (`hoseLine`).
- *
- * @param nozzle The operator's chain and standing place.
- * @param backup The backup member's chain and standing place.
- * @param params The line, the advance, the target and the sweeps.
- * @returns Both chains after the drill, the operator's first.
+ * Parameter nozzle: The operator's chain and standing place.
+ * Parameter backup: The backup member's chain and standing place.
+ * Parameter params: The line, the advance, the target and the sweeps.
+ * Returns: Both chains after the drill, the operator's first.
  */
 export function hoseTeam(
   nozzle: IAutoMovieMotionHumanFirefighting.ITeamMember,

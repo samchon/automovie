@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanStance } from "@automovie/interface";
 
-/**
+/*
  * The squatSit preset of `crouch`: Squatting fully, the heels up, and holding
  * three seconds (provisional). Spread into `crouch`'s parameters; the
  * `squatSit` row reads it.

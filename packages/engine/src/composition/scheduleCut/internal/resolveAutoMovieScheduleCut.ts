@@ -12,18 +12,17 @@ import type {
 import { AutoMovieScheduleError } from "../../AutoMovieScheduleError";
 import { AutoMovieScheduleWalk } from "../../AutoMovieScheduleWalk";
 import { normalizeAutoMovieScheduleCut } from "./normalizeAutoMovieScheduleCut";
-/**
+/*
  * Resolve an intent's cut.
- *
- * @param walk The walk.
- * @param intent The intent.
- * @param timing Its timing.
- * @param start Where it starts, film seconds.
- * @param context What the laws see while it is placed.
- * @returns The cut, or undefined when nothing cuts it.
- * @throws {AutoMovieScheduleError} When the law, anchor, event or share is
- *   invalid.
- * @throws {TypeError} When its cut is malformed or ambiguous.
+ * Parameter walk: The walk.
+ * Parameter intent: The intent.
+ * Parameter timing: Its timing.
+ * Parameter start: Where it starts, film seconds.
+ * Parameter context: What the laws see while it is placed.
+ * Returns: The cut, or undefined when nothing cuts it.
+ * When the law, anchor, event or share is
+ * invalid.
+ * When its cut is malformed or ambiguous.
  */
 export function resolveAutoMovieScheduleCut(
   walk: IAutoMovieScheduleWalk.IWalk,

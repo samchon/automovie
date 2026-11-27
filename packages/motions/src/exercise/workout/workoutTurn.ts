@@ -8,13 +8,12 @@ import { ExerciseKey } from "../internal/ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 import { WorkoutStance } from "./WorkoutStance";
 
-/**
+/*
  * A full turn on the left foot's ball with the arms as given at its half: a
  * workout kind of three steps, stood, half turned and closed.
- *
- * @param seconds Each half turn's seconds.
- * @param arms The arms at the half turn.
- * @returns The turn's workout kind.
+ * Parameter seconds: Each half turn's seconds.
+ * Parameter arms: The arms at the half turn.
+ * Returns: The turn's workout kind.
  */
 export function workoutTurn(
   seconds: number,

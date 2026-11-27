@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadr
 import { QuadrupedBodyProfile } from "../quadruped/QuadrupedBodyProfile";
 import { CamelCohorts } from "./CamelCohorts";
 
-/**
+/*
  * A coarse dromedary body from explicit body and limb reference cohorts.
  *
  * Diop et al. 2020, REMVT 73:247-254, measured 131 Mauritanian adult females
@@ -24,14 +24,13 @@ import { CamelCohorts } from "./CamelCohorts";
  * Egyptian limb controls keep the existing ratios to the 1.847 m pooled
  * reference, uniformly scaled to the selected height as provisional
  * construction. They are not new measurements of that morphotype's limbs.
- *
- * @param withersHeight Admitted instance height in metres; only undefined
- *   defaults to the selected reference, while null is invalid.
- * @param cohort Whole pooled or classified adult-female reference; pooled by
- *   default.
- * @returns Fresh coarse body controls; the producer owns the separate hump and
- *   tack.
- * @throws {RangeError} For nonpositive or nonfinite instance height.
+ * Parameter withersHeight: Admitted instance height in metres; only undefined
+ * defaults to the selected reference, while null is invalid.
+ * Parameter cohort: Whole pooled or classified adult-female reference; pooled by
+ * default.
+ * Returns: Fresh coarse body controls; the producer owns the separate hump and
+ * tack.
+ * For nonpositive or nonfinite instance height.
  */
 export function buildCamelBody(
   withersHeight?: number,
@@ -74,7 +73,7 @@ export function buildCamelBody(
   });
 }
 
-/**
+/*
  * Mostafa/Khalil 2018 Table3, normal external conformation means in metres; no
  * paired height.
  */
@@ -84,14 +83,18 @@ const SEGMENTS: Readonly<ICamelLimbSegments> = {
 };
 
 interface ICamelLimbSegments {
-  /** Shoulder-elbow, elbow-carpus, carpus-fetlock and reported fore digit. */
+  /*
+   * Shoulder-elbow, elbow-carpus, carpus-fetlock and reported fore digit.
+   */
   fore: readonly [number, number, number, number];
 
-  /** Hip-stifle, stifle-tarsal, tarsal-fetlock and reported hind digit. */
+  /*
+   * Hip-stifle, stifle-tarsal, tarsal-fetlock and reported hind digit.
+   */
   hind: readonly [number, number, number, number];
 }
 
-/**
+/*
  * Authored rigid-bar interpretation. None of these directions is a measured
  * joint angle.
  */
@@ -112,6 +115,8 @@ const CONSTRUCTION: Readonly<ICamelConstruction> = {
 };
 
 interface ICamelConstruction extends QuadrupedBodyProfile.IConstruction {
-  /** Unknown tail's authored length / withers height. */
+  /*
+   * Unknown tail's authored length / withers height.
+   */
   tailLength: number;
 }

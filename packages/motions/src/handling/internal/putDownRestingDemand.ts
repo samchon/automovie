@@ -11,7 +11,7 @@ import type {
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { StrikingRoll } from "../../striking/internal/StrikingRoll";
 
-/**
+/*
  * The pose a put down that lays its prop at an authored resting attitude (a
  * card turned face up) demands of the grip an earlier pick up is choosing: the
  * prop at its place and attitude, held as the candidate grip holds it.
@@ -27,11 +27,10 @@ import { StrikingRoll } from "../../striking/internal/StrikingRoll";
  * The demanded line is the prop's own up axis through its origin, kept for a
  * hand's length: the two points the placement's limits hold, so the demand
  * judges the grip as the placement will.
- *
- * @param ahead The put down as known before it is planned, with the candidate
- *   grip.
- * @returns The demanded pose, or none when the placement asks no resting
- *   attitude, names a socket or a bone, or is not this grip's.
+ * Parameter ahead: The put down as known before it is planned, with the candidate
+ * grip.
+ * Returns: The demanded pose, or none when the placement asks no resting
+ * attitude, names a socket or a bone, or is not this grip's.
  */
 export function putDownRestingDemand(
   ahead: IAutoMovieMotionHumanActionLaw.IAhead<IAutoMovieMotionHumanPutDown.IParams>,

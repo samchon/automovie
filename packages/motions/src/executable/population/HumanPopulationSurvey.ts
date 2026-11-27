@@ -2,7 +2,7 @@ import type { IAutoMovieHumanBodyAnatomy } from "@automovie/interface";
 
 import { HUMAN_POPULATION_SURVEY } from "./HUMAN_POPULATION_SURVEY";
 
-/**
+/*
  * The published statistics every test person is built from and checked against:
  * the ANSUR 1988 summary statistics per sex (Gordon et al. 1989;
  * `packages/human/docs/sources/ansur-1988-boundary-people.md`), the FaceBase
@@ -10,10 +10,14 @@ import { HUMAN_POPULATION_SURVEY } from "./HUMAN_POPULATION_SURVEY";
  * and the body domain the Human score declares for adult people.
  */
 export namespace HumanPopulationSurvey {
-  /** A surveyed sex; each has its own statistics table. */
+  /*
+   * A surveyed sex; each has its own statistics table.
+   */
   export type Sex = "female" | "male";
 
-  /** The surveyed measures, in the order of {@link SURVEY}'s vectors. */
+  /*
+   * The surveyed measures, in the order of SURVEY's vectors.
+   */
   export const VARIABLES: readonly Variable[] = [
     "stature",
     "mass",
@@ -55,7 +59,9 @@ export namespace HumanPopulationSurvey {
     "earProtrusion",
   ];
 
-  /** One surveyed measure, a name of {@link VARIABLES}. */
+  /*
+   * One surveyed measure, a name of VARIABLES.
+   */
   export type Variable =
     | "stature"
     | "mass"
@@ -96,31 +102,47 @@ export namespace HumanPopulationSurvey {
     | "earBreadth"
     | "earProtrusion";
 
-  /** One sex's summary statistics. */
+  /*
+   * One sex's summary statistics.
+   */
   export interface ISurvey {
-    /** Subjects with every measure. */
+    /*
+     * Subjects with every measure.
+     */
     n: number;
 
-    /** Means, mm (mass in kg). */
+    /*
+     * Means, mm (mass in kg).
+     */
     mean: number[];
 
-    /** Standard deviations. */
+    /*
+     * Standard deviations.
+     */
     sd: number[];
 
-    /** Least value any subject has. */
+    /*
+     * Least value any subject has.
+     */
     min: number[];
 
-    /** Greatest value any subject has. */
+    /*
+     * Greatest value any subject has.
+     */
     max: number[];
 
-    /** Lower triangle of the correlation matrix: row i holds r(i + 1, 0..i). */
+    /*
+     * Lower triangle of the correlation matrix: row i holds r(i + 1, 0..i).
+     */
     r: number[][];
   }
 
-  /** Normal deviate of the 1st and 99th percentiles. */
+  /*
+   * Normal deviate of the 1st and 99th percentiles.
+   */
   export const Z: number = 2.326;
 
-  /**
+  /*
    * Half-width of a population relation's band in standard deviations: the
    * normal 99.73 % range. A real adult falls outside one of twenty relations by
    * chance in about 5 % of cases, while the combinations this guard exists for
@@ -129,20 +151,22 @@ export namespace HumanPopulationSurvey {
    */
   export const BAND: number = 3;
 
-  /**
+  /*
    * ANSUR 1988 working databases, every subject with all 38 measures (2,208
    * women, 1,774 men; `ansur-1988-boundary-people.md` lists each column). Mass
    * is the survey's weight in kg.
    */
   export const SURVEY: Record<Sex, ISurvey> = HUMAN_POPULATION_SURVEY;
 
-  /** ANSUR 1988 body-mass index, kg/m2, mean and SD per sex. */
+  /*
+   * ANSUR 1988 body-mass index, kg/m2, mean and SD per sex.
+   */
   export const BMI: Record<Sex, readonly [number, number]> = {
     female: [23.3357, 2.649],
     male: [25.4194, 3.0004],
   };
 
-  /**
+  /*
    * Adult facial means, mm, of the 3D Facial Norms database, ages 20 to 40
    * (Weinberg et al. 2016; `weinberg-2016-3d-facial-norms.md`), for the face
    * inputs the body survey does not measure.
@@ -176,7 +200,7 @@ export namespace HumanPopulationSurvey {
     },
   };
 
-  /**
+  /*
    * ANSUR II palm length over hand length, the ratio of the sex's means (108.7
    * / 181.1 and 116.5 / 193.3; `ansur-ii.md`).
    */
@@ -185,7 +209,7 @@ export namespace HumanPopulationSurvey {
     male: 116.5 / 193.3,
   };
 
-  /**
+  /*
    * The declared range of each body measure for adult people: a statement of
    * what the generator supports, not a measurement. `HumanPopulation.audit`
    * holds every person's measures inside it and every tape inside the surveyed
@@ -227,7 +251,9 @@ export namespace HumanPopulationSurvey {
   };
 }
 
-/** The alternatives of `EntryItemEntry`'s site. */
+/*
+ * The alternatives of `EntryItemEntry`'s site.
+ */
 type EntryItemEntry =
   | "faceHeight"
   | "mandibularWidth"

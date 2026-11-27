@@ -22,7 +22,9 @@ import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanSegment } from "./HumanSegment";
 
-/** The bones under each limb, by the part of the bone's name after its side. */
+/*
+ * The bones under each limb, by the part of the bone's name after its side.
+ */
 const LIMBS: Readonly<Record<string, LimbKind>> = {
   Shoulder: "Arm",
   UpperArm: "Arm",
@@ -34,7 +36,7 @@ const LIMBS: Readonly<Record<string, LimbKind>> = {
   Toes: "Leg",
 };
 
-/**
+/*
  * The bindings of a performance: each worn prop whose wear carries a link
  * (`IAutoMovieMotionPropWear.link`) holds the wearer's bound limbs where they
  * were when it went on, within the link's slack, until a later grip, wear or
@@ -44,12 +46,11 @@ const LIMBS: Readonly<Record<string, LimbKind>> = {
  * any layer over a held limb is.
  */
 export namespace HumanPerformanceBonds {
-  /**
+  /*
    * Add a binding layer to each wearer for every linked wear placed.
-   *
-   * @param self The placed performance, its schedule resolved.
-   * @throws {HumanRefusal} When a link names both or neither end, has a bad
-   *   slack, or binds a bone outside the limbs or two bones of one limb.
+   * Parameter self: The placed performance, its schedule resolved.
+   * When a link names both or neither end, has a bad
+   * slack, or binds a bone outside the limbs or two bones of one limb.
    */
   export function attach(self: IAutoMovieMotionHumanPerformanceState): void {
     for (const person of self.people.values())
@@ -87,7 +88,9 @@ export namespace HumanPerformanceBonds {
   }
 }
 
-/** The limbs a link binds, refusing a malformed link. */
+/*
+ * The limbs a link binds, refusing a malformed link.
+ */
 function admit(
   wearer: string,
   wear: IAutoMovieMotionPropWear,
@@ -149,7 +152,7 @@ function admit(
   return [first, second];
 }
 
-/**
+/*
  * The limb that carries a bone, with its end and middle bones; none for the
  * trunk and the head.
  */
@@ -169,7 +172,7 @@ function limbOf(bone: AutoMovieHumanoidBone): IBound | undefined {
   };
 }
 
-/**
+/*
  * The binding layer: each bound limb's end and middle joint as the wearer
  * showed them when the prop went on, read once. Two bound limbs are kept in the
  * frame of the bone they hang from (the chest for arms, whose shoulders ride
@@ -321,42 +324,58 @@ function layer(
   };
 }
 
-/** The kind of limb a bone lies on. */
+/*
+ * The kind of limb a bone lies on.
+ */
 type LimbKind = "Arm" | "Leg";
 
-/** A value a refused link names. */
+/*
+ * A value a refused link names.
+ */
 type Refused = string | number;
 
-/** A limb channel of the posture. */
+/*
+ * A limb channel of the posture.
+ */
 type Limb = keyof IAutoMovieMotionHumanPosture["limbs"];
 
-/** A limb a binding holds: its channel and the bones that end and bend it. */
+/*
+ * A limb a binding holds: its channel and the bones that end and bend it.
+ */
 interface IBound {
-  /** The limb's channel. */
+  /*
+   * The limb's channel.
+   */
   limb: Limb;
 
-  /**
+  /*
    * The bone at its end: the hand or the foot, whose origin is the wrist or the
    * ankle.
    */
   end: AutoMovieHumanoidBone;
 
-  /**
+  /*
    * The bone at its middle joint: the forearm or the shin, whose origin is the
    * elbow or the knee.
    */
   middle: AutoMovieHumanoidBone;
 }
 
-/** One bound limb's end and middle joint, kept from the binding. */
+/*
+ * One bound limb's end and middle joint, kept from the binding.
+ */
 interface IKept {
-  /** The wrist or the ankle. */
+  /*
+   * The wrist or the ankle.
+   */
   point: IAutoMovieVector3;
 
-  /** The elbow or the knee. */
+  /*
+   * The elbow or the knee.
+   */
   bend: IAutoMovieVector3;
 
-  /**
+  /*
    * The hand's or the foot's rotation from its rest, so the bound hand keeps
    * the turn it was bound in.
    */

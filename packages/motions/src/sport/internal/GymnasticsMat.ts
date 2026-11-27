@@ -17,7 +17,7 @@ import { GymnasticsFlight } from "./GymnasticsFlight";
 import type { IPreparedGymnasticsFrame } from "./IPreparedGymnasticsFrame";
 import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
 
-/**
+/*
  * Coming down lying on a landing surface after a jump over a bar: the high
  * jump's and the pole vault's landing on the mat.
  *
@@ -34,26 +34,31 @@ import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
  * body slides on the surface as its centre slows.
  */
 export namespace GymnasticsMat {
-  /** Seconds from the touchdown to lying on the back (provisional). */
+  /*
+   * Seconds from the touchdown to lying on the back (provisional).
+   */
   export const SETTLE: number = 0.6;
 
-  /** Seconds lying still after it (provisional). */
+  /*
+   * Seconds lying still after it (provisional).
+   */
   export const HOLD: number = 0.6;
 
-  /**
+  /*
    * The posture after a touchdown on the back.
-   *
-   * @param props The body, its mass model, the touchdown posture written by
-   *   joints with no roll, the centre's velocity at the touchdown, m/s, and the
-   *   surface's height, world metres.
-   * @returns The posture at seconds since the touchdown, in [0, SETTLE + HOLD];
-   *   the last one beyond. Optional second/third arguments borrow the
-   *   synchronous parent's exact FK source and genuine ROM projector, without
-   *   retaining either.
+   * Parameter props: The body, its mass model, the touchdown posture written by
+   * joints with no roll, the centre's velocity at the touchdown, m/s, and the
+   * surface's height, world metres.
+   * Returns: The posture at seconds since the touchdown, in [0, SETTLE + HOLD];
+   * the last one beyond. Optional second/third arguments borrow the
+   * synchronous parent's exact FK source and genuine ROM projector, without
+   * retaining either.
    */
   export function lie(
     props: IAutoMovieMotionHumanGymnasticsMat.ILieProps & {
-      /** Root height that keeps the displayed silhouette on a finite face. */
+      /*
+       * Root height that keeps the displayed silhouette on a finite face.
+       */
       support?(posture: IAutoMovieMotionHumanPosture, seconds: number): number;
     },
   ): (

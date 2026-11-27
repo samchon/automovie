@@ -6,7 +6,7 @@ import {
 import { builtEnvelopeFaceCorners } from "./builtEnvelopeFaceCorners";
 import { builtEnvironmentEnvelopeFaces } from "./builtEnvironmentEnvelopeFaces";
 
-/**
+/*
  * Every meeting of two exposed facades of one building unit.
  *
  * Facades of the same building qualify by vertex proximity within the thicker
@@ -21,7 +21,7 @@ import { builtEnvironmentEnvelopeFaces } from "./builtEnvironmentEnvelopeFaces";
  * wall-thickness proximity allowance, and its normal bisects the two
  * probe-oriented face normals. This proxy does not prove a shared edge or exact
  * geometric intersection. Results are sorted by id; an exposed face's unowned
- * space throws through {@link builtEnvironmentEnvelopeFaces}.
+ * space throws through builtEnvironmentEnvelopeFaces.
  */
 export function builtEnvironmentEnvelopeCorners(
   environment: IAutoMovieBuiltEnvironment,

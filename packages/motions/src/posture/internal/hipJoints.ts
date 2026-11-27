@@ -11,18 +11,17 @@ import type {
 import { HumanBoneGroups } from "./HumanBoneGroups";
 import { poseBones } from "./poseBones";
 
-/**
+/*
  * The two hip joints under a root: they depend only on the root, its rotation
  * and the pelvis joint, so a turned or listed pelvis counts and no other joint
  * needs posing.
- *
- * @param body The body.
- * @param root The root, world metres.
- * @param rotation The root's world rotation.
- * @param pelvis The pelvis joint's clinical angles, degrees; rest when absent.
- * @param prepared Optional exact FK reader borrowed from this synchronous
- *   person evaluation; never retained in the two returned points.
- * @returns Each hip joint, world metres.
+ * Parameter body: The body.
+ * Parameter root: The root, world metres.
+ * Parameter rotation: The root's world rotation.
+ * Parameter pelvis: The pelvis joint's clinical angles, degrees; rest when absent.
+ * Parameter prepared: Optional exact FK reader borrowed from this synchronous
+ * person evaluation; never retained in the two returned points.
+ * Returns: Each hip joint, world metres.
  */
 export function hipJoints(
   body: IAutoMovieMotionHumanBody,
@@ -54,7 +53,9 @@ export function hipJoints(
   return { left: hipOf(bones, "left"), right: hipOf(bones, "right") };
 }
 
-/** Read one fresh hip origin without allocating a per-query side closure. */
+/*
+ * Read one fresh hip origin without allocating a per-query side closure.
+ */
 function hipOf(
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   side: AutoMovieHumanSide,

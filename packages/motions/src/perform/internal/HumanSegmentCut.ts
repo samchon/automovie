@@ -9,24 +9,23 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanSegment } from "./HumanSegment";
 
-/**
+/*
  * Whether one placed action may be cut into the next: the interrupt row that
  * legalises the cut, read from the two laws' cancel tables.
  */
 export namespace HumanSegmentCut {
-  /**
+  /*
    * The interrupt row that legalises entering an action at a second, or
    * undefined when nothing is interrupted.
-   *
-   * @param subject The person, for messages.
-   * @param previous The person's previous action.
-   * @param before Its schedule entry.
-   * @param name The action entered.
-   * @param start The entry second.
-   * @param accepts The entered action's own table of what may be cut into it.
-   * @returns The row, or undefined for a first action, a gap or a natural end.
-   * @throws {Error} When the previous action is cut outside every legal window,
-   *   listing them.
+   * Parameter subject: The person, for messages.
+   * Parameter previous: The person's previous action.
+   * Parameter before: Its schedule entry.
+   * Parameter name: The action entered.
+   * Parameter start: The entry second.
+   * Parameter accepts: The entered action's own table of what may be cut into it.
+   * Returns: The row, or undefined for a first action, a gap or a natural end.
+   * When the previous action is cut outside every legal window,
+   * listing them.
    */
   export function row(
     subject: string,
@@ -99,7 +98,7 @@ export namespace HumanSegmentCut {
     });
   }
 
-  /**
+  /*
    * What `row` reads of the previous action: its name, its span, its plan's
    * duration and events, and its law's interrupt table and family.
    */
@@ -107,16 +106,24 @@ export namespace HumanSegmentCut {
     IAutoMovieMotionHumanSegment,
     "name" | "start" | "end"
   > & {
-    /** The plan's duration and events. */
+    /*
+     * The plan's duration and events.
+     */
     plan: Pick<IAutoMovieMotionHumanSegment["plan"], "duration" | "events">;
 
-    /** The law's interrupt table and family. */
+    /*
+     * The law's interrupt table and family.
+     */
     law: Pick<IAutoMovieMotionHumanActionLaw, "interrupts" | "family">;
   };
 
-  /** What `row` reads of the previous action's schedule entry: its cut and end. */
+  /*
+   * What `row` reads of the previous action's schedule entry: its cut and end.
+   */
   export type IBefore = Pick<IAutoMovieScheduleEntry, "cut" | "end">;
 }
 
-/** The alternatives of `RowFoundW`'s site. */
+/*
+ * The alternatives of `RowFoundW`'s site.
+ */
 type RowFoundW = number | string;

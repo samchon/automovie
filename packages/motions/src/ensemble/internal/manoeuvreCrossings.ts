@@ -9,7 +9,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanCrowd } from "./HumanCrowd";
 import { HumanFormation } from "./HumanFormation";
 
-/**
+/*
  * Refuse a manoeuvre whose ways cross: each member read on its way at its
  * travel's speed from its delay, every 1/24 s, against every other.
  */
@@ -117,20 +117,30 @@ export function manoeuvreCrossings(
   }
 }
 
-/** Companion types of {@link manoeuvreCrossings}. */
+/*
+ * Companion types of manoeuvreCrossings.
+ */
 export namespace manoeuvreCrossings {
-  /** What the check reads of a member: its name and its shoulders' breadth. */
+  /*
+   * What the check reads of a member: its name and its shoulders' breadth.
+   */
   export interface IMember
     extends
       Pick<IAutoMovieMotionHumanEnsemble.IMember, "subject">,
       HumanCrowd.IHalfMember {}
 
-  /** What the check reads of the ensemble: its id and its members. */
+  /*
+   * What the check reads of the ensemble: its id and its members.
+   */
   export interface IEnsemble {
-    /** The ensemble's input, for its id. */
+    /*
+     * The ensemble's input, for its id.
+     */
     input: Pick<IAutoMovieMotionHumanEnsemble.IEnsemble["input"], "id">;
 
-    /** The members, by index. */
+    /*
+     * The members, by index.
+     */
     members: readonly IMember[];
   }
 }

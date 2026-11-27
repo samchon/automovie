@@ -7,13 +7,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Sweep two solid rail profiles through the same frames the carrier reads.
- *
- * @param id Scoped static rail model id.
- * @param course Admitted local course with ordered stations.
- * @param gauge Rail midpoint separation, in metres.
- * @returns One generated model with two indexed rail strips.
+ * Parameter id: Scoped static rail model id.
+ * Parameter course: Admitted local course with ordered stations.
+ * Parameter gauge: Rail midpoint separation, in metres.
+ * Returns: One generated model with two indexed rail strips.
  */
 export function createTrackedRails(
   id: string,
@@ -108,7 +107,7 @@ export function createTrackedRails(
   };
 }
 
-/**
+/*
  * Each coarse rail is 0.1 m wide and 0.12 m high, with its top at course
  * height.
  */

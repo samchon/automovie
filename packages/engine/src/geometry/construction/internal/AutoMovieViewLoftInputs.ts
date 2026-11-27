@@ -9,7 +9,9 @@ import type {
 
 import { AutoMovieViewOutline } from "../../AutoMovieViewOutline";
 
-/** Prepare ViewLoft's existing value readers, reusing retained direct sources. */
+/*
+ * Prepare ViewLoft's existing value readers, reusing retained direct sources.
+ */
 export function AutoMovieViewLoftInputs(
   part: IAutoMovieViewPart,
   source: IAutoMovieLoftViewSource.ISource | null,
@@ -44,7 +46,9 @@ export function AutoMovieViewLoftInputs(
   if (part.pole === "top" || part.pole === "both")
     ends.top = part.stations[part.stations.length - 1]!;
 
-  /** Preserve source identity and every original admission/read diagnostic. */
+  /*
+   * Preserve source identity and every original admission/read diagnostic.
+   */
   const curve: (
     name: string,
     outline: IAutoMovieViewPart.IOutline,
@@ -73,7 +77,9 @@ export function AutoMovieViewLoftInputs(
     };
   };
 
-  /** An absent departure is the authored constant-zero departure law. */
+  /*
+   * An absent departure is the authored constant-zero departure law.
+   */
   const quarters: (
     name: string,
     outlines:

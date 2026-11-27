@@ -10,7 +10,7 @@ import { momentAutoMovieSweepSections } from "./momentAutoMovieSweepSections";
 import { settleAutoMovieSweepVolume } from "./settleAutoMovieSweepVolume";
 import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Compile the volume-settled joint-scale update of a sealed sweep rig.
  *
  * Section moments and the authored sweep's rest-volume target are computed
@@ -19,18 +19,17 @@ import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
  * network's separate girth multipliers apply after that settlement, matching
  * the rig's existing ordering; the target is the authored sweep's volume before
  * girth correction.
- *
- * @param props.surface The immutable compiled authored sweep, metre units
- * @param props.orientation Current shared pose frames, updated before this
- *   writer
- * @param props.joints Which authored station indices are joints
- * @param props.scaleU Sealed registered scale parameters along u
- * @param props.girth Shared radial correction factors, refreshed in place by
- *   the owning rig
- * @param props.scales Receives the final scale per registered slot
- * @param props.writeFrame The rig's packed-frame serializer used during
- *   compilation
- * @returns A pose writer that updates the supplied scale buffer in place
+ * Parameter props.surface: The immutable compiled authored sweep, metre units
+ * Parameter props.orientation: Current shared pose frames, updated before this
+ * writer
+ * Parameter props.joints: Which authored station indices are joints
+ * Parameter props.scaleU: Sealed registered scale parameters along u
+ * Parameter props.girth: Shared radial correction factors, refreshed in place by
+ * the owning rig
+ * Parameter props.scales: Receives the final scale per registered slot
+ * Parameter props.writeFrame: The rig's packed-frame serializer used during
+ * compilation
+ * Returns: A pose writer that updates the supplied scale buffer in place
  */
 export function preserveAutoMovieSweepVolume(
   props: IAutoMoviePreserveSweepVolume.IProps,

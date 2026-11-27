@@ -85,7 +85,7 @@ export namespace AutoMovieConstructionState {
     state.trims.length = s.trims;
   }
 
-  /**
+  /*
    * A deep copy of a cycle, by the cycle's own copy, so a snapshot keeps its
    * exact curve and boundary readers (`AutoMovieSolidCycle.copy`).
    */

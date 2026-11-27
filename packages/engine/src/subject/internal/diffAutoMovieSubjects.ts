@@ -21,7 +21,7 @@ import { autoMovieSubjectMemberSummary } from "./autoMovieSubjectMemberSummary";
 import { createAutoMovieSubjectPartIndex } from "./createAutoMovieSubjectPartIndex";
 import { describeAutoMovieSubjects } from "./describeAutoMovieSubjects";
 
-/**
+/*
  * Compare two compiled subject inventories without rendering either artifact.
  *
  * Added and removed subjects are exclusive. A common subject may be both moved
@@ -45,11 +45,10 @@ import { describeAutoMovieSubjects } from "./describeAutoMovieSubjects";
  * Come out in render-id order. `unchanged` is a summary: the total plus at most
  * `AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT` sampled ids. A negative or non-finite
  * tolerance throws a `RangeError`.
- *
- * @param beforeArtifact Compiled artifact of the earlier revision.
- * @param afterArtifact Compiled artifact of the later revision.
- * @param tolerance Absolute comparison tolerance, as described above.
- * @returns The classified changes and the unchanged summary.
+ * Parameter beforeArtifact: Compiled artifact of the earlier revision.
+ * Parameter afterArtifact: Compiled artifact of the later revision.
+ * Parameter tolerance: Absolute comparison tolerance, as described above.
+ * Returns: The classified changes and the unchanged summary.
  */
 export const diffAutoMovieSubjects: (
   beforeArtifact: IAutoMovieSubjectArtifact,
@@ -123,7 +122,9 @@ export const diffAutoMovieSubjects: (
   };
 };
 
-/** One revision indexed once for every comparison of a diff. */
+/*
+ * One revision indexed once for every comparison of a diff.
+ */
 interface IRevision {
   artifact: IAutoMovieSubjectArtifact;
   inventory: Map<string, IAutoMovieSubjectDescription>;
@@ -134,7 +135,9 @@ interface IRevision {
   usage: Map<string, IModelUsage> | null;
 }
 
-/** Where one runtime model is drawn in a revision. */
+/*
+ * Where one runtime model is drawn in a revision.
+ */
 interface IModelUsage {
   elements: number;
   instances: number;
@@ -310,7 +313,7 @@ const fanoutOf: (
   };
 };
 
-/**
+/*
  * Every runtime model's elements, compact members and drawing sets in one
  * revision, computed on first use by regenerating each slot's selection once.
  */
@@ -363,7 +366,7 @@ const changedPrototypeSelections: (
   return changed;
 };
 
-/**
+/*
  * The prototype one compiled slot draws, keyed with the runtime model it draws.
  *
  * The draw is the instance member's own weighted selection, so a diff counts a
@@ -400,7 +403,7 @@ const selectedPrototype: (
   return { key: JSON.stringify(["selected", selected.id, model]), model };
 };
 
-/**
+/*
  * Structural equality with an absolute numeric tolerance. Two quaternion-shaped
  * records compare as rotations, so a sign flip is no change; arrays compare
  * element by element; records compare every key either side defines, ignoring

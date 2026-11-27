@@ -10,7 +10,7 @@ import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAn
 import { swingTwistBasis } from "../swingTwistBasis";
 import { swingTwistRange } from "../swingTwistRange";
 
-/**
+/*
  * Invert a swing-twist disc coordinate through the original placed arithmetic.
  * Optional caller-owned state shares only unchanged frame/source/axis/affine
  * metadata for the actual prepared endpoint blender. A direct caller supplies
@@ -47,9 +47,13 @@ export function placeSwingTwistChart(
   return Quaternion.normalize(Quaternion.multiply(aimed, turned));
 }
 
-/** Private numerical preparation for the actual fixed-endpoint chart blender. */
+/*
+ * Private numerical preparation for the actual fixed-endpoint chart blender.
+ */
 export namespace placeSwingTwistChart {
-  /** Release this reader with its fixed endpoint pair and unchanged rig. */
+  /*
+   * Release this reader with its fixed endpoint pair and unchanged rig.
+   */
   export function prepare(
     joint: swingTwistRange.IPrepared,
     radius: IRadius,
@@ -68,23 +72,37 @@ export namespace placeSwingTwistChart {
   }
 }
 
-/** A disc coordinate pair and clinical-degree twist, as the chart produces. */
+/*
+ * A disc coordinate pair and clinical-degree twist, as the chart produces.
+ */
 type IPlace = ReturnType<typeof swingTwistRange.chart>;
 
-/** Existing region-radius owner, passed without constructing a per-read closure. */
+/*
+ * Existing region-radius owner, passed without constructing a per-read closure.
+ */
 type IRadius = typeof swingTwistRange.radius;
 
-/** One fixed chart inversion's prepared scalar metadata. */
+/*
+ * One fixed chart inversion's prepared scalar metadata.
+ */
 interface IState {
-  /** Admitted swing frame. */
+  /*
+   * Admitted swing frame.
+   */
   basis: IAutoMovieSwingTwistBasis.IBasis;
 
-  /** Source normalization of the swing axis. */
+  /*
+   * Source normalization of the swing axis.
+   */
   aim: ReturnType<typeof AutoMovieEngineMath.prepareRotationBetween>;
 
-  /** Fixed twist axis. */
+  /*
+   * Fixed twist axis.
+   */
   turn: ReturnType<typeof Quaternion.prepareAxisAngle>;
 
-  /** Fixed affine operands of the twist conversion. */
+  /*
+   * Fixed affine operands of the twist conversion.
+   */
   rig: ReturnType<typeof AutoMovieEngineRigAngle.prepareToRigAngle>;
 }

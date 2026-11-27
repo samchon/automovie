@@ -3,7 +3,7 @@ import type { IAutoMovieAffordance } from "@automovie/interface";
 
 import { poleVaultSwing } from "./poleVaultSwing";
 
-/**
+/*
  * A vaulting pole's bend through a swing, as its hinged chain shows it.
  *
  * The pole between the planted tip and the top hand is the pinned elastica
@@ -18,12 +18,11 @@ import { poleVaultSwing } from "./poleVaultSwing";
  * integrated curvature over its dual domain, from the middle of the link below
  * it to the middle of the link above, so each link lies along the curve's
  * tangent at its middle.
- *
- * @param swing The swing.
- * @param affordances The pole's affordances, its hinges among them, in the
- *   pole's own frame with its plant end at the origin and its length along
- *   `+Y`.
- * @returns The bend's reader.
+ * Parameter swing: The swing.
+ * Parameter affordances: The pole's affordances, its hinges among them, in the
+ * pole's own frame with its plant end at the origin and its length along
+ * `+Y`.
+ * Returns: The bend's reader.
  */
 export function poleVaultBend(
   swing: poleVaultSwing.ISwing,
@@ -102,40 +101,48 @@ export function poleVaultBend(
   };
 }
 
-/** Companion types of {@link poleVaultBend}. */
+/*
+ * Companion types of poleVaultBend.
+ */
 export namespace poleVaultBend {
-  /** The bent chain at an instant of the swing. */
+  /*
+   * The bent chain at an instant of the swing.
+   */
   export interface IChain {
-    /** The chain's chord from the tip to the top hand, metres. */
+    /*
+     * The chain's chord from the tip to the top hand, metres.
+     */
     chord: number;
 
-    /**
+    /*
      * The direction of the link the top hand holds from that chord, radians,
      * toward the bow.
      */
     top: number;
   }
 
-  /** A bend's reader. */
+  /*
+   * A bend's reader.
+   */
   export interface IBend {
-    /** The hinges' ids, from the tip up. */
+    /*
+     * The hinges' ids, from the tip up.
+     */
     hinges: readonly string[];
 
-    /**
+    /*
      * A hinge's travel at a second of the swing, degrees: the turn from the
      * link below it to the link above.
-     *
-     * @param k The hinge's index in `hinges`.
-     * @param seconds Seconds after the plant.
-     * @returns The travel.
+     * Parameter k: The hinge's index in `hinges`.
+     * Parameter seconds: Seconds after the plant.
+     * Returns: The travel.
      */
     turn(k: number, seconds: number): number;
 
-    /**
+    /*
      * The chain at a second of the swing.
-     *
-     * @param seconds Seconds after the plant.
-     * @returns Its chord and the held link's direction.
+     * Parameter seconds: Seconds after the plant.
+     * Returns: Its chord and the held link's direction.
      */
     chain(seconds: number): IChain;
   }

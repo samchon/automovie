@@ -8,7 +8,7 @@ import { ease } from "../../motion/internal/ease";
 import { actorWeightedArmPose } from "./actorWeightedArmPose";
 import { createDynamicActorPoseClip } from "./createDynamicActorPoseClip";
 
-/**
+/*
  * Bake a moving strike goal with an easeIn envelope to the 40% peak and easeOut
  * retraction over the remaining positive second duration. An unresolved target
  * sample returns null.

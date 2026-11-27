@@ -8,7 +8,7 @@ import { HUMAN_ARCHERY_THROW_JAVELIN } from "../../next/presets/HUMAN_ARCHERY_TH
 import { HUMAN_ARCHERY_THROW_KNIFE } from "../../next/presets/HUMAN_ARCHERY_THROW_KNIFE";
 import { throwObject } from "../../throwing/internal/throwObject";
 
-/**
+/*
  * Thrown weapons as rows of `throwObject`, each throwing the held prop the
  * composition names (`prop`), which rides the hand to the release and then
  * flies. Every row throws overarm with the style's 0.5 s windup, at a release
@@ -32,7 +32,9 @@ import { throwObject } from "../../throwing/internal/throwObject";
  *   the launch leaves from (`throwObjectLever`).
  */
 export namespace HumanThrownWeapon {
-  /** Throw a javelin overarm, its shaft along its flight. */
+  /*
+   * Throw a javelin overarm, its shaft along its flight.
+   */
   export const throwJavelin: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["thrownWeapon"]["throwJavelin"]
   > = AutoMovieMotionHumanActionRow.of(
@@ -41,7 +43,9 @@ export namespace HumanThrownWeapon {
     HUMAN_ARCHERY_THROW_JAVELIN,
   );
 
-  /** Throw a spear overarm, its shaft along its flight. */
+  /*
+   * Throw a spear overarm, its shaft along its flight.
+   */
   export const throwSpear: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["thrownWeapon"]["throwSpear"]
   > = AutoMovieMotionHumanActionRow.of(
@@ -50,7 +54,9 @@ export namespace HumanThrownWeapon {
     HUMAN_ARCHERY_THROW_JAVELIN,
   );
 
-  /** Throw a knife overarm, spinning whole half turns to the target. */
+  /*
+   * Throw a knife overarm, spinning whole half turns to the target.
+   */
   export const throwKnife: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["thrownWeapon"]["throwKnife"]
   > = AutoMovieMotionHumanActionRow.of(
@@ -59,35 +65,45 @@ export namespace HumanThrownWeapon {
     HUMAN_ARCHERY_THROW_KNIFE,
   );
 
-  /** Lob a grenade overarm. */
+  /*
+   * Lob a grenade overarm.
+   */
   export const throwGrenade: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["thrownWeapon"]["throwGrenade"]
   > = AutoMovieMotionHumanActionRow.of("throwGrenade", throwObject, {
     style: "overarm",
   });
 
-  /** Hurl a stone overarm. */
+  /*
+   * Hurl a stone overarm.
+   */
   export const hurlStone: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["thrownWeapon"]["hurlStone"]
   > = AutoMovieMotionHumanActionRow.of("hurlStone", throwObject, {
     style: "overarm",
   });
 
-  /** Hurl a bottle overarm. */
+  /*
+   * Hurl a bottle overarm.
+   */
   export const hurlBottle: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["thrownWeapon"]["hurlBottle"]
   > = AutoMovieMotionHumanActionRow.of("hurlBottle", throwObject, {
     style: "overarm",
   });
 
-  /** Sling a stone from the sling the composition names (`implement`). */
+  /*
+   * Sling a stone from the sling the composition names (`implement`).
+   */
   export const sling: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["thrownWeapon"]["sling"]
   > = AutoMovieMotionHumanActionRow.of("sling", throwObject, {
     style: "overarm",
   });
 
-  /** Cast a dart with the atlatl the composition names (`implement`). */
+  /*
+   * Cast a dart with the atlatl the composition names (`implement`).
+   */
   export const castAtlatl: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["thrownWeapon"]["castAtlatl"]
   > = AutoMovieMotionHumanActionRow.of("castAtlatl", throwObject, {

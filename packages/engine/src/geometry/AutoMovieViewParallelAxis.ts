@@ -130,7 +130,7 @@ export namespace AutoMovieViewParallelAxis {
     return axis.parallel === undefined ? null : copy(axis.parallel);
   }
 
-  /**
+  /*
    * Copy one source declaration without converting its metre units.
    *
    * Copies every coordinate knot list, parameter record and basis to isolate

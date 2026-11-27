@@ -25,13 +25,13 @@ import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContac
 import { AquaticEdge } from "./AquaticEdge";
 import { AquaticPosture } from "./AquaticPosture";
 
-/**
+/*
  * Seconds of the whole lift-out, shared by the rescuer and the victim:
  * provisional.
  */
 const DURATION: number = 5;
 
-/**
+/*
  * Shares of the phases: the victim faces the wall with its arms up and the
  * rescuer takes its wrists, the hips rise to the deck, the trunk folds over
  * onto it, the victim lies.
@@ -40,35 +40,37 @@ const FACE: number = 0.2;
 const LIFT: number = 0.55;
 const OVER: number = 0.75;
 
-/** The share by which the rescuer has let go and stands. */
+/*
+ * The share by which the rescuer has let go and stands.
+ */
 const RELEASE: number = 0.65;
 
-/**
+/*
  * The highest deck above the water a rescuer lifts a victim onto, metres:
  * provisional, about a standing rescuer's knee.
  */
 const FREEBOARD: number = 0.6;
 
-/**
+/*
  * The victim's hips out from the wall as it hangs and rises, metres:
  * provisional, the chest clear of the wall.
  */
 const WALL: number = 0.25;
 
-/**
+/*
  * The hanging victim's hips below the surface, metres: provisional, the chest
  * at the surface.
  */
 const HANG: number = 0.3;
 
-/**
+/*
  * How far the rescuer's hips sink at the deepest squat and draw back, over
  * stature: provisional.
  */
 const SQUAT: number = 0.22;
 const BACK: number = 0.06;
 
-/**
+/*
  * An assisted removal from the water as the American Red Cross Lifeguarding
  * manual describes it: the victim faces the wall with its arms raised, the
  * rescuer on the deck beside its line squats and grips both wrists (`grip`),
@@ -80,7 +82,9 @@ const BACK: number = 0.06;
  * higher above the water than `FREEBOARD` is refused.
  */
 export namespace AquaticLiftOut {
-  /** The victim: faces the wall, is raised by its wrists and lies over the edge. */
+  /*
+   * The victim: faces the wall, is raised by its wrists and lies over the edge.
+   */
   export function lifted(
     context: AquaticPosture.Context,
     water: number,
@@ -189,7 +193,7 @@ export namespace AquaticLiftOut {
     return plan;
   }
 
-  /**
+  /*
    * The rescuer: squats on the deck, grips the wrists, straightens to lift and
    * lets go.
    */
@@ -436,7 +440,9 @@ export namespace AquaticLiftOut {
     });
   }
 
-  /** The named edge, or a refusal when its deck is too high to lift onto. */
+  /*
+   * The named edge, or a refusal when its deck is too high to lift onto.
+   */
   function deckOf(
     context: AquaticPosture.Context,
     water: number,
@@ -455,7 +461,9 @@ export namespace AquaticLiftOut {
     return edge;
   }
 
-  /** The named partner's subject id, or a refusal. */
+  /*
+   * The named partner's subject id, or a refusal.
+   */
   function partnerOf(context: AquaticPosture.Context): string {
     const partner: string | undefined = context.params.partner;
     if (partner === undefined)
@@ -470,11 +478,15 @@ export namespace AquaticLiftOut {
     return partner;
   }
 
-  /** An angle wrapped to (-180, 180] degrees. */
+  /*
+   * An angle wrapped to (-180, 180] degrees.
+   */
   function wrap(degrees: number): number {
     return degrees - 360 * Math.ceil((degrees - 180) / 360);
   }
 }
 
-/** The victim's hand bone each rescuer hand grips at the wrist. */
+/*
+ * The victim's hand bone each rescuer hand grips at the wrist.
+ */
 type Wrists = Readonly<Record<AutoMovieHumanSide, AutoMovieHumanoidBone>>;

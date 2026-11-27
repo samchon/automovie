@@ -22,9 +22,13 @@ import { basisOf } from "./basisOf";
 import { orientChainEffector } from "./orientChainEffector";
 import { prepareHingedChainAt } from "./prepareHingedChainAt";
 
-/** Companion types of `fitHingedChainAt`. */
+/*
+ * Companion types of `fitHingedChainAt`.
+ */
 export namespace fitHingedChainAt {
-  /** Place a chain at a prescribed swivel without searching. */
+  /*
+   * Place a chain at a prescribed swivel without searching.
+   */
   export function place(
     props: IAutoMovieFitChainToTargetProps,
     swivel: number,
@@ -49,7 +53,7 @@ export namespace fitHingedChainAt {
     blocked: number;
   }
 
-  /**
+  /*
    * A hinged chain's joint angles at a swivel and bend branch before the range
    * of motion applies, with no placement, clamp or projection: the root's and
    * the mid joint's decomposition of the swivel's pose, as `fitHingedChainAt`
@@ -62,15 +66,14 @@ export namespace fitHingedChainAt {
    * (theta_4) and the wrist's three angles read as one spherical joint, which a
    * caller choosing the swivel and a free turn of the end rotation compares
    * with the joints' ranges (section 3.3, "Joint limits").
-   *
-   * @param props The fit request: source pose, chain, rig tables and target; an
-   *   optional effector rotation.
-   * @param swivel The swivel, degrees, in the frame `IAutoMovieSwivelNear` and
-   *   the fit's seeds use.
-   * @param branch The bend branch, 0 or 1; clamped to the branches the target
-   *   has.
-   * @returns The angles, clinical degrees; null when the chain is not a hinged
-   *   two-bone chain or is degenerate.
+   * Parameter props: The fit request: source pose, chain, rig tables and target; an
+   * optional effector rotation.
+   * Parameter swivel: The swivel, degrees, in the frame `IAutoMovieSwivelNear` and
+   * the fit's seeds use.
+   * Parameter branch: The bend branch, 0 or 1; clamped to the branches the target
+   * has.
+   * Returns: The angles, clinical degrees; null when the chain is not a hinged
+   * two-bone chain or is degenerate.
    */
   export function free(
     props: IAutoMovieFitChainToTargetProps,
@@ -147,7 +150,7 @@ export namespace fitHingedChainAt {
   }
 }
 
-/**
+/*
  * A hinged two-bone chain posed at a prescribed swivel and bend branch, with no
  * search, score or continuation: the closed-form articulation a caller that
  * chooses its own swivel (an arm course) evaluates.
@@ -169,17 +172,16 @@ export namespace fitHingedChainAt {
  *
  * The same swivel's joint angles before the range of motion applies are
  * `fitHingedChainAt.free`'s, read without placing the chain.
- *
- * @param props The fit request: source pose, chain, rig tables and target; an
- *   optional effector rotation.
- * @param swivel The swivel, degrees, in the frame `IAutoMovieSwivelNear` and
- *   the fit's seeds use.
- * @param branch The bend branch, 0 or 1; clamped to the branches the target
- *   has.
- * @returns The posed chain, its seed, the shortfall from the target on the
- *   legal shell, metres, whether the range of motion moved a joint off the
- *   swivel's pose, and the obstruction's reading there; null when the chain is
- *   not a hinged two-bone chain or is degenerate.
+ * Parameter props: The fit request: source pose, chain, rig tables and target; an
+ * optional effector rotation.
+ * Parameter swivel: The swivel, degrees, in the frame `IAutoMovieSwivelNear` and
+ * the fit's seeds use.
+ * Parameter branch: The bend branch, 0 or 1; clamped to the branches the target
+ * has.
+ * Returns: The posed chain, its seed, the shortfall from the target on the
+ * legal shell, metres, whether the range of motion moved a joint off the
+ * swivel's pose, and the obstruction's reading there; null when the chain is
+ * not a hinged two-bone chain or is degenerate.
  */
 function placeHingedChainAt(
   props: IAutoMovieFitChainToTargetProps,
@@ -244,7 +246,7 @@ function placeHingedChainAt(
   };
 }
 
-/**
+/*
  * The root's and the mid joint's clinical angles of a swivel's pose before the
  * range of motion applies, each decomposed on its prepared basis in its own
  * domain.
@@ -276,7 +278,7 @@ function decomposed(
   ];
 }
 
-/**
+/*
  * The end joint's angles at the swivel before its range applies: the requested
  * effector rotation relative to the mid bone posed by the hinge alone (no
  * distal twist), decomposed on the end joint's clinical basis in its own
@@ -327,16 +329,22 @@ function freeEffector(
   };
 }
 
-/** The end joint's angles and both their Euler charts. */
+/*
+ * The end joint's angles and both their Euler charts.
+ */
 interface IEffector {
-  /** The reading the end joint's domain chooses. */
+  /*
+   * The reading the end joint's domain chooses.
+   */
   pose: IAutoMovieJointPose;
 
-  /** The principal and the alternate chart. */
+  /*
+   * The principal and the alternate chart.
+   */
   charts: fitHingedChainAt.Charts;
 }
 
-/**
+/*
  * A joint rotation's two Euler readings, clinical degrees: the principal chart
  * and the other triple that composes to the same rotation
  * (`alternateRigJointAngles`), each lifted through the joint's rest frame as

@@ -1,9 +1,9 @@
 import { IAutoMovieColor } from "@automovie/interface";
 
-/**
+/*
  * Encode a linear color as the `#RRGGBB` swatch that displays it.
  *
- * The quantized inverse of {@link srgbHexToLinearColor}, and the shared way to
+ * The quantized inverse of srgbHexToLinearColor, and the shared way to
  * write an `IAutoMovieColor.hex` label or a bare sRGB palette entry from a
  * triple. Without it the contract's promise that `hex` is derived from the
  * linear components is an obligation with nothing behind it, which is what left
@@ -20,7 +20,9 @@ export function linearColorToSrgbHex(
   return `#${srgbHexChannel(color.r)}${srgbHexChannel(color.g)}${srgbHexChannel(color.b)}`;
 }
 
-/** One linear component as its two lowercase hexadecimal display digits. */
+/*
+ * One linear component as its two lowercase hexadecimal display digits.
+ */
 const srgbHexChannel: (component: number) => string = (
   component: number,
 ): string => {
@@ -31,8 +33,8 @@ const srgbHexChannel: (component: number) => string = (
     .padStart(2, "0");
 };
 
-/**
- * The inverse of {@link srgbChannelToLinear}, with the exact `1 / 2.4` exponent
+/*
+ * The inverse of srgbChannelToLinear, with the exact `1 / 2.4` exponent
  * rather than the truncated one three.js encodes with.
  */
 const linearChannelToSrgb: (component: number) => number = (

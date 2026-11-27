@@ -60,7 +60,9 @@ export namespace AutoMovieHumanArmF1Lines {
     const indices: number[] = [];
     const identity: Map<AutoMovieVector3Tuple, number> = new Map();
 
-    /** Read each original perimeter against its own measured distal normal. */
+    /*
+     * Read each original perimeter against its own measured distal normal.
+     */
     function orientation(ring: IAutoMovieHumanArmF1Lines.IFixedRing): number {
       return Math.sign(
         AutoMovieHumanArmCurveSpec.dot(
@@ -127,7 +129,7 @@ export namespace AutoMovieHumanArmF1Lines {
     return { positions, indices };
   }
 
-  /**
+  /*
    * Quarter shoulders in the order lateral-posterior, posterior-medial,
    * medial-anterior, anterior-lateral, held inside [0.02, 0.98].
    */

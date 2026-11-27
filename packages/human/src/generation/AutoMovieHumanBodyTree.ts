@@ -233,7 +233,9 @@ export namespace AutoMovieHumanBodyTree {
     };
   }
 
-  /** Resolve the original leaves without changing unchanged operator or head subtree identities. */
+  /*
+   * Resolve the original leaves without changing unchanged operator or head subtree identities.
+   */
   function sourceNode(
     root: IAutoMovieConstructionNode,
     parts: ReadonlyMap<string, IAutoMovieViewPart>,

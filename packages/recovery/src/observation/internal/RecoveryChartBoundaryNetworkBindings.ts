@@ -7,7 +7,9 @@ import type {
   IAutoMovieRecoveryChartBoundaryNetworkRegistry,
 } from "@automovie/interface";
 
-/** Bind maximal physical arcs to all copied chart sides after augmentation. */
+/*
+ * Bind maximal physical arcs to all copied chart sides after augmentation.
+ */
 export function RecoveryChartBoundaryNetworkBindings(
   input: Parameters<IAutoMovieRecoveryChartBoundaryNetworkBindings.Operation>[0],
   context: Parameters<IAutoMovieRecoveryChartBoundaryNetworkBindings.Operation>[1],

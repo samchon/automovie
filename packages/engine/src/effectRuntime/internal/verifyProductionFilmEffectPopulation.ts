@@ -11,7 +11,7 @@ import { productionFilmEffectTimelineFrameRate } from "./productionFilmEffectTim
 import { sortProductionFilmEffectCues } from "./sortProductionFilmEffectCues";
 import { validateProductionFilmEffectRuntime } from "./validateProductionFilmEffectRuntime";
 
-/**
+/*
  * Prove that one persisted runtime population is the exact executable
  * projection of the current timeline's effect track.
  *

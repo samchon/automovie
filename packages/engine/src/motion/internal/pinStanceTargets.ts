@@ -8,7 +8,7 @@ import {
 import { STATIC_SUPPORT_HEIGHT_EPSILON } from "../constants/STATIC_SUPPORT_HEIGHT_EPSILON";
 import { contactMask } from "./contactMask";
 
-/**
+/*
  * Group each leg's stance into inclusive runs and assign one fixed model-frame
  * contact per run. On a timed support change, the prior target survives while
  * it remains supported at the same height. A run beginning at frame zero
@@ -60,7 +60,7 @@ export function pinStanceTargets(
   return { plants, targets };
 }
 
-/**
+/*
  * Track each contacting foot on the scope clock and reuse a pin while its
  * surface remains eligible.
  */
@@ -119,7 +119,9 @@ function pinTimedStanceTargets(
   return { plants, targets };
 }
 
-/** Contiguous `true` runs of a contact mask, as inclusive frame ranges. */
+/*
+ * Contiguous `true` runs of a contact mask, as inclusive frame ranges.
+ */
 const stanceRuns: (
   contact: readonly boolean[],
 ) => Array<{ start: number; end: number }> = (

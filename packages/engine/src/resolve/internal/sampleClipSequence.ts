@@ -6,7 +6,7 @@ import {
 import { channelKey } from "./channelKey";
 import { sampleClip } from "./sampleClip";
 
-/**
+/*
  * Select each channel's latest first key that has started at finite shot
  * seconds, breaking equal starts by later clip order. All clips are
  * sampled/validated, but future tracks acquire no authority. Winning sampled

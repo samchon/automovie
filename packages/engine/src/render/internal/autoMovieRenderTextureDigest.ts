@@ -12,7 +12,7 @@ import { materialTextureSlots } from "../../validation/internal/materialTextureS
 import { autoMovieRenderDigest } from "./autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
-/**
+/*
  * Fingerprint upload facts and their actual object-sharing relation. Runtime
  * equality tokens group sorted stable owner/asset use locations; their random
  * spelling never enters the digest. Renaming tokens preserves identity, while
@@ -296,7 +296,9 @@ export function autoMovieRenderTextureDigest(
   );
 }
 
-/** Collect object equivalence without serializing the host's equality token. */
+/*
+ * Collect object equivalence without serializing the host's equality token.
+ */
 const addGroup: (
   groups: Map<string, Set<string>>,
   identity: string,

@@ -8,30 +8,41 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeStorage } from "../AutoMovieArchetypeStorage";
 
-/** The shorthand every construction uses. */
+/*
+ * The shorthand every construction uses.
+ */
 const v: typeof Vector3.create = Vector3.create;
 
-/** Painted steel. */
+/*
+ * Painted steel.
+ */
 const STEEL: string = "#8f979e";
 
-/** A wooden carcass. */
+/*
+ * A wooden carcass.
+ */
 const WOOD: string = "#9b7a55";
 
-/** A wooden front. */
+/*
+ * A wooden front.
+ */
 const FRONT: string = "#b08a60";
 
-/** Dark metal hardware. */
+/*
+ * Dark metal hardware.
+ */
 const HARDWARE: string = "#55595f";
 
-/** White laminate. */
+/*
+ * White laminate.
+ */
 const LAMINATE: string = "#efece6";
 
-/**
+/*
  * A rectangle's corners in a stack-top's plane, centred.
- *
- * @param width Along `X`, metres.
- * @param depth Along `Z`, metres.
- * @returns Four corners.
+ * Parameter width: Along `X`, metres.
+ * Parameter depth: Along `Z`, metres.
+ * Returns: Four corners.
  */
 function rectangle(width: number, depth: number): IAutoMovieVector3[] {
   return [
@@ -42,13 +53,13 @@ function rectangle(width: number, depth: number): IAutoMovieVector3[] {
   ];
 }
 
-/**
- * How {@link createStorage} builds each kind of cabinet: a wardrobe, a chest of
+/*
+ * How createStorage builds each kind of cabinet: a wardrobe, a chest of
  * drawers or a filing cabinet, a locker and a bookcase, each standing on the
  * floor at the origin with its front toward `+Z`.
  */
 export namespace StorageConstruction {
-  /**
+  /*
    * How each drawer cabinet is made: `count`, its drawers, a chest's three and
    * the HON 510's four; `pulls`, whether each drawer front carries a bar pull,
    * which no source read places on the filing cabinet; `color`, its finish.
@@ -63,20 +74,20 @@ export namespace StorageConstruction {
     filingCabinet: { count: 4, pulls: false, color: STEEL },
   };
 
-  /**
+  /*
    * A single-tier locker's hat shelf above the locker's bottom, metres: Penco
    * Vanguard specification, "Hat shelf 48 inches from locker bottom"
    * (https://www.pencoproducts.com/media/3677/vanguard-snapshot-specs_jan2019.pdf).
    */
   export const LOCKER_SHELF: number = 48 * AutoMovieArchetypeUnits.INCH;
 
-  /**
+  /*
    * A bookcase's shelves above its bottom, as the BILLY's one fixed and four
    * adjustable.
    */
   export const SHELVES: number = 5;
 
-  /**
+  /*
    * The construction sizes no source read gives, metres, each an estimate:
    * `panel`, a door's, front's or wall's thickness; `pull`, how far a pull
    * stands off a front and how thick its bar is; `grip`, a pull's length;
@@ -89,14 +100,13 @@ export namespace StorageConstruction {
     plinth: number;
   }> = { panel: 0.02, pull: 0.012, grip: 0.12, plinth: 0.12 };
 
-  /**
+  /*
    * The `push` face on the `+X` side, where a cabinet is pushed when it is
    * moved, and its `top`.
-   *
-   * @param builder The builder to fill.
-   * @param width The cabinet along `X`, metres.
-   * @param height Along `Y`, metres.
-   * @param depth Along `Z`, metres.
+   * Parameter builder: The builder to fill.
+   * Parameter width: The cabinet along `X`, metres.
+   * Parameter height: Along `Y`, metres.
+   * Parameter depth: Along `Z`, metres.
    */
   export function faces(
     builder: Builder,
@@ -126,13 +136,12 @@ export namespace StorageConstruction {
     });
   }
 
-  /**
+  /*
    * A wardrobe: a carcass box and two doors meeting at the middle, each hinged
    * on its outer edge and pulled near the meeting edge; a positive travel
    * swings a door out toward `+Z`.
-   *
-   * @param builder The builder to fill.
-   * @param d The drawn dimensions.
+   * Parameter builder: The builder to fill.
+   * Parameter d: The drawn dimensions.
    */
   export function wardrobe(builder: Builder, d: Drawn): void {
     const E: typeof ESTIMATES = ESTIMATES;
@@ -195,14 +204,13 @@ export namespace StorageConstruction {
     }
   }
 
-  /**
+  /*
    * A chest of drawers or a filing cabinet: a carcass box and a stack of
    * drawers, each a front, its pull where the cabinet has them, and a box
    * behind it on a slider that runs out along `+Z`, numbered from the bottom.
-   *
-   * @param builder The builder to fill.
-   * @param d The drawn dimensions.
-   * @param make The cabinet's drawer count, pulls and finish.
+   * Parameter builder: The builder to fill.
+   * Parameter d: The drawn dimensions.
+   * Parameter make: The cabinet's drawer count, pulls and finish.
    */
   export function drawers(
     builder: Builder,
@@ -279,7 +287,7 @@ export namespace StorageConstruction {
     }
   }
 
-  /**
+  /*
    * A single-tier steel locker on its legs: a hollow body of back, sides, roof
    * and bottom with its hat shelf, closed by a door hung on its `-X` edge.
    *
@@ -287,9 +295,8 @@ export namespace StorageConstruction {
    * a locker door's opening, so the door stays shut. `shelf1` is the hat shelf,
    * a `stack-top` 48 in above the locker's bottom. No handle is declared, since
    * no source read places the recessed handle.
-   *
-   * @param builder The builder to fill.
-   * @param d The drawn dimensions.
+   * Parameter builder: The builder to fill.
+   * Parameter d: The drawn dimensions.
    */
   export function locker(builder: Builder, d: Drawn): void {
     const t: number = ESTIMATES.panel;
@@ -369,13 +376,12 @@ export namespace StorageConstruction {
     faces(builder, width, top, depth);
   }
 
-  /**
+  /*
    * An open bookcase: sides, roof and back round a hollow, a plinth at its
    * foot, and its shelves at even steps of its height, numbered from the
    * bottom, each a `stack-top`.
-   *
-   * @param builder The builder to fill.
-   * @param d The drawn dimensions.
+   * Parameter builder: The builder to fill.
+   * Parameter d: The drawn dimensions.
    */
   export function bookcase(builder: Builder, d: Drawn): void {
     const t: number = ESTIMATES.panel;
@@ -421,11 +427,15 @@ export namespace StorageConstruction {
   }
 }
 
-/** The builder every construction fills. */
+/*
+ * The builder every construction fills.
+ */
 type Builder = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeStorage.Affordance,
   AutoMovieArchetypeStorage.Dimension
 >;
 
-/** The drawn dimensions. */
+/*
+ * The drawn dimensions.
+ */
 type Drawn = Partial<Record<AutoMovieArchetypeStorage.Dimension, number>>;

@@ -2,7 +2,7 @@ import { AutoMovieArchetypeUnits } from "../../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import type { QuadrupedProportions } from "./QuadrupedProportions";
 
-/**
+/*
  * Map one declared coarse shape into the quadruped's shared rigid-bar format.
  *
  * Shape dimensions are metres at their stated reference withers height. The
@@ -14,14 +14,13 @@ import type { QuadrupedProportions } from "./QuadrupedProportions";
  * AutoMovieArchetypeQuadrupedBody owns the subsequent explicit neutral
  * connection to its parent solids; it does not change these reference
  * measurements or infer measured joint anatomy.
- *
- * @param props Reference shape, four controls per limb, authored construction,
- *   colors and optional admitted instance height.
- * @returns Fresh dimensionless body controls, with metre lateral inset for the
- *   height.
- * @throws {RangeError} For invalid/nonfinite dimensions, impossible
- *   capsule/trunk extents, invalid construction ratios or unrepresentable
- *   normalized output.
+ * Parameter props: Reference shape, four controls per limb, authored construction,
+ * colors and optional admitted instance height.
+ * Returns: Fresh dimensionless body controls, with metre lateral inset for the
+ * height.
+ * For invalid/nonfinite dimensions, impossible
+ * capsule/trunk extents, invalid construction ratios or unrepresentable
+ * normalized output.
  */
 export function QuadrupedBodyProfile(
   props: QuadrupedBodyProfile.IProps,
@@ -138,104 +137,156 @@ export function QuadrupedBodyProfile(
   };
 }
 
-/** Input contracts shared by the ox, camel and deer profile adapters. */
+/*
+ * Input contracts shared by the ox, camel and deer profile adapters.
+ */
 export namespace QuadrupedBodyProfile {
-  /**
+  /*
    * Reference shape in metres; each adapter documents measured versus authored
    * fields.
    */
   export interface IMeasures {
-    /** Reference withers height used to normalize all lengths. */
+    /*
+     * Reference withers height used to normalize all lengths.
+     */
     withers: number;
 
-    /** Circular trunk's desired circumference. */
+    /*
+     * Circular trunk's desired circumference.
+     */
     girth: number;
 
-    /** Shoulder landmark to rear buttock landmark along the forward axis. */
+    /*
+     * Shoulder landmark to rear buttock landmark along the forward axis.
+     */
     body: number;
 
-    /** Straight neck control length. */
+    /*
+     * Straight neck control length.
+     */
     neck: number;
 
-    /** Neck cylinder radius, not circumference. */
+    /*
+     * Neck cylinder radius, not circumference.
+     */
     neckRadius: number;
 
-    /** Head capsule's complete axial extent, including both end caps. */
+    /*
+     * Head capsule's complete axial extent, including both end caps.
+     */
     head: number;
 
-    /** Desired head capsule diameter; strictly less than its axial extent. */
+    /*
+     * Desired head capsule diameter; strictly less than its axial extent.
+     */
     headDiameter: number;
 
-    /** Straight tail control length. */
+    /*
+     * Straight tail control length.
+     */
     tail: number;
   }
 
-  /**
+  /*
    * Authored rigid-bar geometry, not anatomical joint ranges or measured static
    * poses.
    */
   export interface IConstruction {
-    /** Withers sphere radius / height, in (0, 1). */
+    /*
+     * Withers sphere radius / height, in (0, 1).
+     */
     withersRadius: number;
 
-    /** Body-length share reserved between hip and rounded rump, in (0, 1). */
+    /*
+     * Body-length share reserved between hip and rounded rump, in (0, 1).
+     */
     pelvisRun: number;
 
-    /** Neck root's drop below back / height, in [0, back). */
+    /*
+     * Neck root's drop below back / height, in [0, back).
+     */
     neckRootDrop: number;
 
-    /** Neck elevation above forward horizontal, degrees. */
+    /*
+     * Neck elevation above forward horizontal, degrees.
+     */
     neckPitch: number;
 
-    /** Head axis below forward horizontal, degrees. */
+    /*
+     * Head axis below forward horizontal, degrees.
+     */
     headPitch: number;
 
-    /** Tail down from rearward horizontal, degrees. */
+    /*
+     * Tail down from rearward horizontal, degrees.
+     */
     tailPitch: number;
 
-    /** Tail cylinder radius / height, positive. */
+    /*
+     * Tail cylinder radius / height, positive.
+     */
     tailRadius: number;
 
-    /** Tail root displacement up/rearward / barrel radius, in [0, 1]. */
+    /*
+     * Tail root displacement up/rearward / barrel radius, in [0, 1].
+     */
     tailDock: number;
 
-    /** Foot inward placement / barrel radius, in [0, 1). */
+    /*
+     * Foot inward placement / barrel radius, in [0, 1).
+     */
     inset: number;
 
-    /**
+    /*
      * Four initial fore directions from down, degrees, before shared
      * parent-solid neutral connection.
      */
     forePitch: readonly [number, number, number, number];
 
-    /**
+    /*
      * Four initial hind directions from down, degrees, before shared
      * parent-solid neutral connection.
      */
     hindPitch: readonly [number, number, number, number];
 
-    /** Four positive limb bar radii / height. */
+    /*
+     * Four positive limb bar radii / height.
+     */
     barRadii: readonly [number, number, number, number];
   }
 
-  /** One caller-normalized shape with construction and display inputs. */
+  /*
+   * One caller-normalized shape with construction and display inputs.
+   */
   export interface IProps {
-    /** SI reference measurements/proxies and their normalization height. */
+    /*
+     * SI reference measurements/proxies and their normalization height.
+     */
     measures: IMeasures;
 
-    /** Four fore control lengths in metres at reference height. */
+    /*
+     * Four fore control lengths in metres at reference height.
+     */
     fore: readonly [number, number, number, number];
 
-    /** Four hind control lengths in metres at reference height. */
+    /*
+     * Four hind control lengths in metres at reference height.
+     */
     hind: readonly [number, number, number, number];
 
-    /** Explicit authored directions and shape ratios. */
+    /*
+     * Explicit authored directions and shape ratios.
+     */
     construction: IConstruction;
 
-    /** Authored display colors; no photometric measurement is implied. */
+    /*
+     * Authored display colors; no photometric measurement is implied.
+     */
     colors: Readonly<QuadrupedProportions.IColors>;
 
-    /** Admitted instance height in metres, defaulting to the reference height. */
+    /*
+     * Admitted instance height in metres, defaulting to the reference height.
+     */
     withersHeight?: number;
   }
 }

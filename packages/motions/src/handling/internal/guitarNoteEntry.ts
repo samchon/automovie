@@ -6,9 +6,13 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** Admission rules for the coordinated contacts of a staged guitar note. */
+/*
+ * Admission rules for the coordinated contacts of a staged guitar note.
+ */
 export namespace guitarNoteEntry {
-  /** Admit strictly increasing contact and clearance times. */
+  /*
+   * Admit strictly increasing contact and clearance times.
+   */
   export function timing(
     p: Pick<IAutoMovieMotionHumanGuitarNote, NoteTimes>,
   ): void {
@@ -23,7 +27,9 @@ export namespace guitarNoteEntry {
       });
   }
 
-  /** Admit the two free fingers the note uses. */
+  /*
+   * Admit the two free fingers the note uses.
+   */
   export function hands(holds: IAutoMovieMotionHumanEntryState["holds"]): void {
     if (holds.left !== undefined || holds.right !== undefined)
       throw new HumanRefusal({
@@ -35,7 +41,9 @@ export namespace guitarNoteEntry {
       });
   }
 
-  /** Admit a guitar independently staged on a fixed frame. */
+  /*
+   * Admit a guitar independently staged on a fixed frame.
+   */
   export function instrument(
     subject: string,
     prop: Pick<IAutoMovieMotionHumanPropReader["prop"], "fixed" | "motion" | "worn" | "mounted">,
@@ -51,5 +59,7 @@ export namespace guitarNoteEntry {
   }
 }
 
-/** A note's ordered contact times in seconds. */
+/*
+ * A note's ordered contact times in seconds.
+ */
 type NoteTimes = "stopAt" | "pluckAt" | "releaseAt" | "duration";

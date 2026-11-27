@@ -6,7 +6,9 @@ import type {
 import { validateRecoveryMapMetricRow } from "./validateRecoveryMapMetricRow";
 import { validateRecoveryMapMetricScales } from "./validateRecoveryMapMetricScales";
 
-/** Bind one point-first upper factor and original column scales to its actions. */
+/*
+ * Bind one point-first upper factor and original column scales to its actions.
+ */
 export function createRecoveryMapTriangularMetric(
   triangles: readonly (readonly (readonly number[])[])[],
   camera: readonly (readonly number[])[],
@@ -184,7 +186,9 @@ export function createRecoveryMapTriangularMetric(
   };
 }
 
-/** Whether a metric action entry overflowed binary64. */
+/*
+ * Whether a metric action entry overflowed binary64.
+ */
 function overflowed(value: number): boolean {
   return value === Infinity || value === -Infinity;
 }

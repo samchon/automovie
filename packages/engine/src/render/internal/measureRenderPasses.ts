@@ -7,7 +7,7 @@ import { measureAutoMovieRenderFeeds } from "./measureAutoMovieRenderFeeds";
 import type { AutoMovieEngineRenderMeasureTypes } from "../AutoMovieEngineRenderMeasureTypes";
 import type { measureRenderTextures } from "./measureRenderTextures";
 
-/**
+/*
  * The render inventory's frame-pass phase: the lights, their shadow passes, the
  * outline pass, the surface feeds' scene passes and the background.
  *
@@ -24,9 +24,8 @@ import type { measureRenderTextures } from "./measureRenderTextures";
  * its background as one more call of two triangles. Every count adds in the
  * order the inventory always added it, so the totals keep their floating-point
  * sums.
- *
- * @returns The counts with every pass added, the shadow map count and the feed
- *   measure whose targets and bytes join the texture totals.
+ * Returns: The counts with every pass added, the shadow map count and the feed
+ * measure whose targets and bytes join the texture totals.
  */
 export function measureRenderPasses(
   props: measureRenderPasses.IProps,
@@ -126,38 +125,62 @@ export function measureRenderPasses(
   return { drawCalls, triangles, shadowMaps: casters.length, feeds };
 }
 
-/** What the frame-pass phase reads and returns. */
+/*
+ * What the frame-pass phase reads and returns.
+ */
 export namespace measureRenderPasses {
-  /** The subject, the shadow casters and the opaque counts so far. */
+  /*
+   * The subject, the shadow casters and the opaque counts so far.
+   */
   export interface IProps {
-    /** The measured subject; only read. */
+    /*
+     * The measured subject; only read.
+     */
     subject: IAutoMovieRenderSubject;
 
-    /** The lights that render a shadow map. */
+    /*
+     * The lights that render a shadow map.
+     */
     casters: readonly measureRenderTextures.ICaster[];
 
-    /** Draw calls every earlier phase counted, the opaque frame. */
+    /*
+     * Draw calls every earlier phase counted, the opaque frame.
+     */
     drawCalls: number;
 
-    /** Triangles every earlier phase counted, the opaque frame. */
+    /*
+     * Triangles every earlier phase counted, the opaque frame.
+     */
     triangles: number;
 
-    /** Appends one owner row. */
+    /*
+     * Appends one owner row.
+     */
     add: IAutoMovieMeasureRenderSimulation.IProps["add"];
   }
 
-  /** The counts with every pass and the feed measure. */
+  /*
+   * The counts with every pass and the feed measure.
+   */
   export interface IResult {
-    /** Draw calls with every pass added. */
+    /*
+     * Draw calls with every pass added.
+     */
     drawCalls: number;
 
-    /** Triangles with every pass added. */
+    /*
+     * Triangles with every pass added.
+     */
     triangles: number;
 
-    /** Shadow maps the frame renders, one per caster. */
+    /*
+     * Shadow maps the frame renders, one per caster.
+     */
     shadowMaps: number;
 
-    /** The surface feeds' targets, bytes and passes. */
+    /*
+     * The surface feeds' targets, bytes and passes.
+     */
     feeds: AutoMovieEngineRenderMeasureTypes.IFeedResult;
   }
 }

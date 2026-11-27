@@ -11,7 +11,7 @@ import { AutoMovieMotionHumanArmPhrase } from "./AutoMovieMotionHumanArmPhrase";
 import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
 
-/**
+/*
  * Arm primitives: a hand surface carried to a target, kept on it and taken
  * back.
  *
@@ -32,50 +32,65 @@ import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
  * in the performer's own floor frame, so it follows the body.
  */
 export namespace AutoMovieMotionHumanArm {
-  /** {@link AutoMovieMotionHumanArmTarget.origin}. */
+  /*
+   * AutoMovieMotionHumanArmTarget.origin.
+   */
   export const origin: typeof AutoMovieMotionHumanArmTarget.origin =
     AutoMovieMotionHumanArmTarget.origin;
 
-  /** {@link AutoMovieMotionHumanArmTarget.point}. */
+  /*
+   * AutoMovieMotionHumanArmTarget.point.
+   */
   export const point: typeof AutoMovieMotionHumanArmTarget.point =
     AutoMovieMotionHumanArmTarget.point;
 
-  /** {@link AutoMovieMotionHumanArmTarget.goal}. */
+  /*
+   * AutoMovieMotionHumanArmTarget.goal.
+   */
   export const goal: typeof AutoMovieMotionHumanArmTarget.goal =
     AutoMovieMotionHumanArmTarget.goal;
 
-  /**
+  /*
    * Fixed-geometry goal producer owned by
    * AutoMovieMotionHumanArmTarget.prepareGoal.
    */
   export const prepareGoal: typeof AutoMovieMotionHumanArmTarget.prepareGoal =
     AutoMovieMotionHumanArmTarget.prepareGoal;
 
-  /** {@link AutoMovieMotionHumanArmAngles.angles}. */
+  /*
+   * AutoMovieMotionHumanArmAngles.angles.
+   */
   export const angles: typeof AutoMovieMotionHumanArmAngles.angles =
     AutoMovieMotionHumanArmAngles.angles;
 
-  /** The pose an action is entered with, as a course reads it. */
+  /*
+   * The pose an action is entered with, as a course reads it.
+   */
   export interface IEntry {
-    /** The displayed pose at the action's entry. */
+    /*
+     * The displayed pose at the action's entry.
+     */
     pose: IAutoMoviePose;
   }
 
-  /** What carries an action's entry: an action's context, or a stated pose. */
+  /*
+   * What carries an action's entry: an action's context, or a stated pose.
+   */
   export interface IEntered {
-    /** The entry. */
+    /*
+     * The entry.
+     */
     entry: IEntry;
   }
 
-  /**
+  /*
    * An arm's angles as its action is entered: the one entry arm record every
    * course leaves from unless its law states another rest, so a course plans
    * from the entry state (transitions.md, "Carry resolved entry state through
    * cuts"; "Plan the target action from that entry state").
-   *
-   * @param context What carries the entry.
-   * @param side The arm.
-   * @returns The arm's angles in the entry pose.
+   * Parameter context: What carries the entry.
+   * Parameter side: The arm.
+   * Returns: The arm's angles in the entry pose.
    */
   export function entered(
     context: IEntered,
@@ -84,59 +99,87 @@ export namespace AutoMovieMotionHumanArm {
     return AutoMovieMotionHumanArmAngles.angles(context.entry.pose, side);
   }
 
-  /** {@link AutoMovieMotionHumanArmCarry.carry}. */
+  /*
+   * AutoMovieMotionHumanArmCarry.carry.
+   */
   export const carry: typeof AutoMovieMotionHumanArmCarry.carry =
     AutoMovieMotionHumanArmCarry.carry;
 
-  /** {@link AutoMovieMotionHumanArmCarry.carried}. */
+  /*
+   * AutoMovieMotionHumanArmCarry.carried.
+   */
   export const carried: typeof AutoMovieMotionHumanArmCarry.carried =
     AutoMovieMotionHumanArmCarry.carried;
 
-  /** {@link AutoMovieMotionHumanArmPlanned.stated}. */
+  /*
+   * AutoMovieMotionHumanArmPlanned.stated.
+   */
   export const stated: typeof AutoMovieMotionHumanArmPlanned.stated =
     AutoMovieMotionHumanArmPlanned.stated;
 
-  /** {@link AutoMovieMotionHumanArmPlanned.together}. */
+  /*
+   * AutoMovieMotionHumanArmPlanned.together.
+   */
   export const together: typeof AutoMovieMotionHumanArmPlanned.together =
     AutoMovieMotionHumanArmPlanned.together;
 
-  /** {@link AutoMovieMotionHumanArmMove.move}. */
+  /*
+   * AutoMovieMotionHumanArmMove.move.
+   */
   export const move: typeof AutoMovieMotionHumanArmMove.move =
     AutoMovieMotionHumanArmMove.move;
 
-  /** {@link AutoMovieMotionHumanArmMove.reach}. */
+  /*
+   * AutoMovieMotionHumanArmMove.reach.
+   */
   export const reach: typeof AutoMovieMotionHumanArmMove.reach =
     AutoMovieMotionHumanArmMove.reach;
 
-  /** {@link AutoMovieMotionHumanArmMove.hold}. */
+  /*
+   * AutoMovieMotionHumanArmMove.hold.
+   */
   export const hold: typeof AutoMovieMotionHumanArmMove.hold =
     AutoMovieMotionHumanArmMove.hold;
 
-  /** {@link AutoMovieMotionHumanArmMove.retract}. */
+  /*
+   * AutoMovieMotionHumanArmMove.retract.
+   */
   export const retract: typeof AutoMovieMotionHumanArmMove.retract =
     AutoMovieMotionHumanArmMove.retract;
 
-  /** {@link AutoMovieMotionHumanArmPhrase.bearing}. */
+  /*
+   * AutoMovieMotionHumanArmPhrase.bearing.
+   */
   export const bearing: typeof AutoMovieMotionHumanArmPhrase.bearing =
     AutoMovieMotionHumanArmPhrase.bearing;
 
-  /** {@link AutoMovieMotionHumanArmPhrase.visit}. */
+  /*
+   * AutoMovieMotionHumanArmPhrase.visit.
+   */
   export const visit: typeof AutoMovieMotionHumanArmPhrase.visit =
     AutoMovieMotionHumanArmPhrase.visit;
 
-  /** {@link AutoMovieMotionHumanArmPhrase.stroke}. */
+  /*
+   * AutoMovieMotionHumanArmPhrase.stroke.
+   */
   export const stroke: typeof AutoMovieMotionHumanArmPhrase.stroke =
     AutoMovieMotionHumanArmPhrase.stroke;
 
-  /** {@link AutoMovieMotionHumanArmPhrase.strike}. */
+  /*
+   * AutoMovieMotionHumanArmPhrase.strike.
+   */
   export const strike: typeof AutoMovieMotionHumanArmPhrase.strike =
     AutoMovieMotionHumanArmPhrase.strike;
 
-  /** {@link AutoMovieMotionHumanArmPhrase.oscillate}. */
+  /*
+   * AutoMovieMotionHumanArmPhrase.oscillate.
+   */
   export const oscillate: typeof AutoMovieMotionHumanArmPhrase.oscillate =
     AutoMovieMotionHumanArmPhrase.oscillate;
 
-  /** {@link AutoMovieMotionHumanArmPhrase.swing}. */
+  /*
+   * AutoMovieMotionHumanArmPhrase.swing.
+   */
   export const swing: typeof AutoMovieMotionHumanArmPhrase.swing =
     AutoMovieMotionHumanArmPhrase.swing;
 }

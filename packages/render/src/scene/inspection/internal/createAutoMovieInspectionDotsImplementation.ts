@@ -4,7 +4,7 @@ import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "../../AUTO_MOVIE_INSPECTION_DEPTH_LEAD.js";
 
-/**
+/*
  * Make the points object inspection marks draw their places with: one
  * screen-sized square per vertex, one colour per vertex, unlit and outside fog
  * and tone mapping.

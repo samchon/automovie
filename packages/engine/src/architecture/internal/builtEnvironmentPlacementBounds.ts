@@ -8,7 +8,7 @@ import {
 import { builtEnvironmentElementPartBounds } from "./builtEnvironmentElementPartBounds";
 import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 
-/**
+/*
  * Resolve one building element or compact population to its current world box.
  *
  * An environment-owned element is measured as the union of the part boxes its

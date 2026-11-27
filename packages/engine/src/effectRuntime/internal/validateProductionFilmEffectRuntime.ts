@@ -10,7 +10,7 @@ import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonica
 import { AutoMovieFilmEffectRuntimeError } from "../AutoMovieFilmEffectRuntimeError";
 import { productionFilmEffectFrameRate } from "./productionFilmEffectFrameRate";
 
-/**
+/*
  * Check semantic integrity of a structurally admitted persisted film-effect
  * runtime.
  *
@@ -89,7 +89,9 @@ export function validateProductionFilmEffectRuntime(
     );
 }
 
-/** Digest one record, refusing a value canonical JSON cannot encode. */
+/*
+ * Digest one record, refusing a value canonical JSON cannot encode.
+ */
 function recomputedDigest(
   runtime: IAutoMovieCompiledFilmEffect,
   value: object,

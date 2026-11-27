@@ -4,7 +4,7 @@ import type {
   IAutoMovieTessellateContourPath64,
 } from "@automovie/interface";
 
-/**
+/*
  * Generate an indexed surface from saved physical polygon identities and P/Q
  * paths. P emits (P_i,Q_j,P_next); Q emits (Q_next,P_i,Q_j). Positive XZ rings
  * and increasing Y stations give outward winding on an ordinary exterior slab.

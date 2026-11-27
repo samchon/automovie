@@ -22,7 +22,7 @@ import { AutoMovieRenderPicture } from "../../picture/AutoMovieRenderPicture.js"
 import { reduceAutoMovieInspectionEpisodes } from "../../scene/inspection/internal/reduceAutoMovieInspectionEpisodes.js";
 import type { IAutoMovieRenderDrawnVideoProps } from "../IAutoMovieRenderDrawnVideoProps.js";
 
-/**
+/*
  * Render a drawn subject into one video: draw every frame of its clock through
  * the draw page's function, write each as a PNG, then encode them once.
  *
@@ -275,11 +275,17 @@ export async function renderAutoMovieDrawnVideo(props: IAutoMovieRenderDrawnVide
   return { ...drawn, args, frameRate: plan.frameRate };
 }
 
-/** The admitted lines and the mouth track handed to the subject. */
+/*
+ * The admitted lines and the mouth track handed to the subject.
+ */
 interface ISpeech {
-  /** The adopted lines, admitted on the film clock. */
+  /*
+   * The adopted lines, admitted on the film clock.
+   */
   lines: IAutoMovieMixFilmSound.ILine[];
 
-  /** The mouth track handed to the subject. */
+  /*
+   * The mouth track handed to the subject.
+   */
   track: IAutoMovieDialogueMouthTrack;
 }

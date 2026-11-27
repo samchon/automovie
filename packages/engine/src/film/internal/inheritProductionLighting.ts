@@ -6,7 +6,7 @@ import {
 import { autoMovieStoryTime } from "./autoMovieStoryTime";
 import { resolveProductionLighting } from "./resolveProductionLighting";
 
-/**
+/*
  * One shot's lights at one shot-local instant, with the production's sources
  * inherited at the story moment the shot's pin places that instant at.
  *

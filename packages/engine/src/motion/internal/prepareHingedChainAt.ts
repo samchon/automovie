@@ -11,14 +11,13 @@ import { basisOf } from "./basisOf";
 import { prepareChainFit } from "./prepareChainFit";
 import { readHingeRange } from "./readHingeRange";
 
-/**
+/*
  * Prepare one hinged two-bone request for evaluation at chosen swivels: the
  * fit's own chain preparation, clinical bases, hinge range, swivel chain and
  * bend-branch roots, with no search.
- *
- * @param props The fit request.
- * @returns The prepared chain, or null when it is not a hinged two-bone chain
- *   (the mid joint's abduction is mobile) or is degenerate.
+ * Parameter props: The fit request.
+ * Returns: The prepared chain, or null when it is not a hinged two-bone chain
+ * (the mid joint's abduction is mobile) or is degenerate.
  */
 export function prepareHingedChainAt(
   props: IAutoMovieFitChainToTargetProps,
@@ -60,26 +59,42 @@ export function prepareHingedChainAt(
   return { workspace, prepared, upperBasis, lowerBasis, chain, branches };
 }
 
-/** The prepared parts of {@link prepareHingedChainAt}. */
+/*
+ * The prepared parts of prepareHingedChainAt.
+ */
 export namespace prepareHingedChainAt {
-  /** One prepared hinged request. */
+  /*
+   * One prepared hinged request.
+   */
   export interface IPrepared {
-    /** The fit's chain workspace: clamp, pose writer and rig. */
+    /*
+     * The fit's chain workspace: clamp, pose writer and rig.
+     */
     workspace: prepareChainFit.IWorkspace;
 
-    /** Its rest geometry and clinical domains. */
+    /*
+     * Its rest geometry and clinical domains.
+     */
     prepared: NonNullable<prepareChainFit.IWorkspace["prepared"]>;
 
-    /** The root joint's clinical basis. */
+    /*
+     * The root joint's clinical basis.
+     */
     upperBasis: IAutoMovieJointAxes;
 
-    /** The mid joint's clinical basis. */
+    /*
+     * The mid joint's clinical basis.
+     */
     lowerBasis: IAutoMovieJointAxes;
 
-    /** The swivel chain toward the request's target. */
+    /*
+     * The swivel chain toward the request's target.
+     */
     chain: IAutoMovieHingedChainGeometry;
 
-    /** The bend branches in `hingedArmSwivel.branches` order, at least one. */
+    /*
+     * The bend branches in `hingedArmSwivel.branches` order, at least one.
+     */
     branches: IAutoMovieHingedArmSwivel.IStop[];
   }
 }

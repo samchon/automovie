@@ -15,7 +15,7 @@ import { StanceVerdicts } from "./StanceVerdicts";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture case of the sprint start: `athletics-set`, the crouch from quiet
  * standing into the set position, held 1.5 s to the gun.
  *
@@ -28,9 +28,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  * mm (Slawinski et al. 2010, as Valamatos et al. 2022, section 4.1.2, report
  * it). The block settings determine hip height; it is not a fixed level
  * relative to the shoulders.
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function athleticsCases(
   bodies: readonly string[] = ["m-average"],

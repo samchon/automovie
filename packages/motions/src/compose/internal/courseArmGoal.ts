@@ -22,7 +22,7 @@ import { composeAutoMovieMotionHumanAction } from "./composeAutoMovieMotionHuman
 import { courseArmGoalBase } from "./courseArmGoalBase";
 import { courseArmGoalShownRests } from "./courseArmGoalShownRests";
 
-/**
+/*
  * A law's arm goal, written afresh at every second of its plan, planned instead
  * as one admitted course of the arm over a span
  * (`AutoMovieMotionHumanArm.carried` with the span).
@@ -51,14 +51,13 @@ import { courseArmGoalShownRests } from "./courseArmGoalShownRests";
  * keeps the angles its course ended with, carried by the body: a hand that
  * holds what it lifted rides up with a body that straightens, with no goal left
  * to solve.
- *
- * @param props The plan, the arm, its rest, its span and the carry's optional
- *   members.
- * @returns The plan with the arm written by its planned course.
- * @throws {HumanRefusal} When no arm course meets the trajectory's constraints
- *   (`AutoMovieMotionHumanArm.carried`), as the plan is composed.
- * @throws {Error} When the plan writes no goal for the arm at an instant the
- *   course reads.
+ * Parameter props: The plan, the arm, its rest, its span and the carry's optional
+ * members.
+ * Returns: The plan with the arm written by its planned course.
+ * When no arm course meets the trajectory's constraints
+ * (`AutoMovieMotionHumanArm.carried`), as the plan is composed.
+ * When the plan writes no goal for the arm at an instant the
+ * course reads.
  */
 export function courseArmGoal(
   props: courseArmGoal.IProps,
@@ -265,33 +264,36 @@ export function courseArmGoal(
   return coursed;
 }
 
-/** Companion types, records and readers of `courseArmGoal`. */
+/*
+ * Companion types, records and readers of `courseArmGoal`.
+ */
 export namespace courseArmGoal {
-  /**
+  /*
    * The plan whose posture writes the arm's goal: a coursed plan's law plan,
    * any other plan itself. A law-side judgement of the goal (a strike's event
    * on its target, a lift's height) reads this, since the coursed posture
    * writes the arm's angles and no goal.
-   *
-   * @param plan A plan, coursed or not.
-   * @returns The plan that writes the goal.
+   * Parameter plan: A plan, coursed or not.
+   * Returns: The plan that writes the goal.
    */
   export function goals(
     plan: IAutoMovieMotionHumanActionPlan,
   ): IAutoMovieMotionHumanActionPlan {
     return plan.goals ?? plan;
   }
-  /**
+  /*
    * One arm a course lays: its side, its rest, its span and the carry's own
    * per-arm members.
    */
   export interface IArm extends Partial<
     Pick<IAutoMovieMotionHumanArmCarry.ICarry, CourseArmGoalArm>
   > {
-    /** The arm. */
+    /*
+     * The arm.
+     */
     side: AutoMovieHumanSide;
 
-    /**
+    /*
      * The arm's angles a course starting with the action leaves from, and the
      * arm from which the display's course of the plan's own goal runs to a
      * course that starts later, which leaves from where that one shows the arm
@@ -301,7 +303,7 @@ export namespace courseArmGoal {
      */
     rest?: IAutoMovieMotionHumanArmAngles.IAngles;
 
-    /**
+    /*
      * The arm's own instants, for an arm of `with` whose span differs; the
      * course's `span` when absent. Arms laid together whose spans differ stay
      * one trajectory problem, each arm's site read on its own hold
@@ -310,31 +312,33 @@ export namespace courseArmGoal {
     span?: IAutoMovieMotionHumanArmPlanned.ISpan;
   }
 
-  /** A plan whose arm goals are to be planned as one course. */
+  /*
+   * A plan whose arm goals are to be planned as one course.
+   */
   export interface IProps
     extends
       Omit<IArm, "span">,
       Partial<Pick<IAutoMovieMotionHumanArmCarry.ICarry, CourseArmGoalProps>> {
-    /**
+    /*
      * The action's context: its body, and the arms it is entered with, every
      * course's rest where its arm states none (`IArm.rest`).
      */
     context: IContext;
 
-    /**
+    /*
      * The law's plan, whose posture writes every coursed arm's goal at every
      * second the course reads.
      */
     plan: IAutoMovieMotionHumanActionPlan;
 
-    /**
+    /*
      * The course's instants, seconds since the plan's start: the reach from
      * `start` to `ready`, the hold on the plan's goal to `relax`, the return to
      * `end`.
      */
     span: IAutoMovieMotionHumanArmPlanned.ISpan;
 
-    /**
+    /*
      * The other arm, laid in the same course as one trajectory problem: a
      * support hand, or the second hand on one implement (a two-handed blade, a
      * club, a bat, a putter), whose closing segments name each other in `grasp`
@@ -343,7 +347,7 @@ export namespace courseArmGoal {
      */
     with?: readonly IArm[];
 
-    /**
+    /*
      * The law's plan without the coursed arms' goals, for a goal that reads
      * another performer (a punch on a defender, a hand on a partner): the
      * course is laid on its posture, so laying never evaluates the live goal
@@ -352,7 +356,7 @@ export namespace courseArmGoal {
      */
     base?: IAutoMovieMotionHumanActionPlan;
 
-    /**
+    /*
      * What the arm does after its span: the plan's own goal again ("goal", the
      * default), fitted on the body as it moves on, or the angles its course
      * ended with ("angles"), carried by the body, for a hand that holds what it
@@ -360,18 +364,17 @@ export namespace courseArmGoal {
      */
     after?: After;
   }
-  /**
+  /*
    * A span with the plan's events inside its hold as its knots
    * (`IAutoMovieMotionHumanArmPlanned.ISpan.knots`): each event carries the
    * goal's pose at its instant, so the course has a waypoint there, as trajopt
    * imposes a pose term at a timestep (github.com/joschu/trajopt,
    * `src/trajopt/problem_description.cpp`; Schulman et al. 2014, IJRR 33:1251,
    * section VII-B). The hold's own ends are waypoints already.
-   *
-   * @param span The span, seconds since the plan's start.
-   * @param events The plan's events, seconds since the plan's start.
-   * @returns The span with its knots, ascending and without repeats; the span
-   *   itself when no event lies inside its hold.
+   * Parameter span: The span, seconds since the plan's start.
+   * Parameter events: The plan's events, seconds since the plan's start.
+   * Returns: The span with its knots, ascending and without repeats; the span
+   * itself when no event lies inside its hold.
    */
   export function knotted(
     span: IAutoMovieMotionHumanArmPlanned.ISpan,
@@ -387,25 +390,26 @@ export namespace courseArmGoal {
     return { ...span, knots };
   }
 
-  /**
+  /*
    * What a course reads of its action's context: the body, and the pose the
    * action is entered with, whose arms are every course's rest where its arm
    * states none. An action's context is one; a helper that lays a course from
    * another pose (a seed, an address) states that pose as the entry.
    */
   export interface IContext extends AutoMovieMotionHumanArm.IEntered {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
   }
 
-  /**
+  /*
    * An arm's rest: the one its law states, else the arm as the action is
    * entered (`AutoMovieMotionHumanArm.entered`), so a course plans from the
    * entry state (transitions.md, "Carry resolved entry state through cuts").
-   *
-   * @param context The action's context.
-   * @param arm The arm.
-   * @returns Its rest angles.
+   * Parameter context: The action's context.
+   * Parameter arm: The arm.
+   * Returns: Its rest angles.
    */
   export function rest(
     context: IContext,
@@ -414,38 +418,51 @@ export namespace courseArmGoal {
     return arm.rest ?? AutoMovieMotionHumanArm.entered(context, arm.side);
   }
 
-  /** The arm limb a side names. */
+  /*
+   * The arm limb a side names.
+   */
   export type Limb = "leftArm" | "rightArm";
-  /** The bones of an arm whose angles the course writes. */
+  /*
+   * The bones of an arm whose angles the course writes.
+   */
   export type Bone = `${AutoMovieHumanSide}${"UpperArm" | "LowerArm" | "Hand"}`;
 
-  /**
+  /*
    * The bones of an arm whose angles the course writes, kept after it.
-   *
-   * @param side The arm.
-   * @returns The upper arm, the forearm and the hand.
+   * Parameter side: The arm.
+   * Returns: The upper arm, the forearm and the hand.
    */
   export function bones(side: AutoMovieHumanSide): readonly Bone[] {
     return [`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`];
   }
 
-  /** A borrowed same-body forward-kinematics reader of a posture read. */
+  /*
+   * A borrowed same-body forward-kinematics reader of a posture read.
+   */
   export type Resolution = Parameters<
     IAutoMovieMotionHumanActionPlan["posture"]
   >[2];
 
-  /** A borrowed same-body range-of-motion projector of a posture read. */
+  /*
+   * A borrowed same-body range-of-motion projector of a posture read.
+   */
   export type Projection = Parameters<
     IAutoMovieMotionHumanActionPlan["posture"]
   >[3];
 
-  /** A named instant of the plan's clock. */
+  /*
+   * A named instant of the plan's clock.
+   */
   export type Instant = Parameters<typeof AutoMovieMotionClock>[1][number];
 
-  /** What a coursed arm does after its span (`IProps.after`). */
+  /*
+   * What a coursed arm does after its span (`IProps.after`).
+   */
   export type After = "goal" | "angles";
 
-  /** The alternatives of `CourseArmGoalArm`'s site. */
+  /*
+   * The alternatives of `CourseArmGoalArm`'s site.
+   */
   type CourseArmGoalArm =
     | "disc"
     | "skinDistance"
@@ -455,9 +472,13 @@ export namespace courseArmGoal {
     | "on"
     | "hold";
 
-  /** The alternatives of `CourseArmGoalProps`'s site. */
+  /*
+   * The alternatives of `CourseArmGoalProps`'s site.
+   */
   type CourseArmGoalProps = "together" | "beside" | "pace";
 
-  /** The alternatives of `CourseArmGoalRestArm`'s site. */
+  /*
+   * The alternatives of `CourseArmGoalRestArm`'s site.
+   */
   type CourseArmGoalRestArm = "side" | "rest";
 }

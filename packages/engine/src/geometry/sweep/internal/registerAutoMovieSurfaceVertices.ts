@@ -4,7 +4,7 @@ import type {
   IAutoMovieSweepRig,
 } from "@automovie/interface";
 
-/**
+/*
  * Create the vertex registry of a surface rig.
  *
  * A point is one vertex per identity. Points other than sweep points get their
@@ -18,9 +18,8 @@ import type {
  * finalization binds dependent geometric node writers and probes once, before
  * sweep sealing. This field is independent of later control pins. Registering
  * or binding after finalization, or finalizing twice, is refused.
- *
- * @param sweepRig The rig of a sweep by name.
- * @returns The empty registry.
+ * Parameter sweepRig: The rig of a sweep by name.
+ * Returns: The empty registry.
  */
 export const registerAutoMovieSurfaceVertices: (
   sweepRig: (name: string) => IAutoMovieSweepRig,
@@ -127,7 +126,7 @@ export const registerAutoMovieSurfaceVertices: (
   };
 };
 
-/**
+/*
  * A sweep point awaiting its writer: the sweep, domain point, the finest
  * spacing reported on each side, and the writer once made.
  */

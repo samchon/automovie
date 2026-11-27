@@ -5,7 +5,9 @@ import type {
 
 import type { AutoMovieArchetypeRide } from "../AutoMovieArchetypeRide";
 
-/** The contact geometry returned by a towed ride sample. */
+/*
+ * The contact geometry returned by a towed ride sample.
+ */
 export namespace ArchetypeTowedGeometry {
   /**
    * One tow read, supplying only the selected current material and contact

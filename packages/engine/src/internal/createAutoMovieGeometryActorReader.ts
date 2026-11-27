@@ -18,7 +18,7 @@ import { Transform } from "../math/Transform";
 import { AutoMovieEngineMotionSampling } from "../motion/AutoMovieEngineMotionSampling";
 import { sampleClipSequence } from "../resolve/internal/sampleClipSequence";
 
-/**
+/*
  * Read actor roots, bones and pose summaries from borrowed compiled shots at
  * shot-local seconds; ambiguous actors and unresolved records throw.
  */

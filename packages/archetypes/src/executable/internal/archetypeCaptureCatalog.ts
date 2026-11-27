@@ -29,7 +29,7 @@ import { archetypeCaptureRest } from "./archetypeCaptureRest";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 import { archetypeCaptureSupportProps } from "./archetypeCaptureSupportProps";
 
-/**
+/*
  * The archetypes the capture subjects module draws, by subject name: subjects
  * that each hold every kind of a few related producers at the middle of their
  * bands (a family's props take three), one holding the articulated states a
@@ -37,8 +37,7 @@ import { archetypeCaptureSupportProps } from "./archetypeCaptureSupportProps";
  *
  * This is an inspection list, not a registry: nothing in the package reads it
  * but `subjects.ts`, and a production calls the producers themselves.
- *
- * @returns The subjects by name.
+ * Returns: The subjects by name.
  */
 export function archetypeCaptureCatalog(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
@@ -383,30 +382,34 @@ export function archetypeCaptureCatalog(): Readonly<
   };
 }
 
-/** Companion types of {@link archetypeCaptureCatalog}. */
+/*
+ * Companion types of archetypeCaptureCatalog.
+ */
 export namespace archetypeCaptureCatalog {
-  /** One archetype drawn in a subject, under its own object name. */
+  /*
+   * One archetype drawn in a subject, under its own object name.
+   */
   export interface IMember {
-    /**
+    /*
      * The object's name in the scene, the first segment of its parts' and
      * marks' paths.
      */
     name: string;
 
-    /**
+    /*
      * Immutable neutral model; quadruped sources enable independent rig
      * observations.
      */
     reference?: AutoMovieArchetype;
 
-    /**
+    /*
      * The archetype at a second of the subject's clock, and its root's
      * placement in the world when it moves.
      */
     at(seconds: number): {
       archetype: AutoMovieArchetype;
       placement?: IAutoMovieTransform;
-      /**
+      /*
        * Authored/solved terminal axis goals from this same sample, model
        * metres; absent when the consumer exposes none.
        */
@@ -417,18 +420,24 @@ export namespace archetypeCaptureCatalog {
     };
   }
 
-  /**
+  /*
    * One drawn subject: its members, which the subjects module sets apart along
    * a diagonal when there are several.
    */
   export interface ISubject {
-    /** The archetypes drawn. */
+    /*
+     * The archetypes drawn.
+     */
     members: readonly IMember[];
 
-    /** Running time in seconds of a moving subject; absent for a still one. */
+    /*
+     * Running time in seconds of a moving subject; absent for a still one.
+     */
     duration?: number;
 
-    /** Named instants of a moving subject. */
+    /*
+     * Named instants of a moving subject.
+     */
     instants?: readonly { seconds: number; label: string }[];
   }
 }

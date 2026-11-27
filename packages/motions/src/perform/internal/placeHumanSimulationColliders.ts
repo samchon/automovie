@@ -19,7 +19,7 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
-/**
+/*
  * The scene's solids a simulated window can strike, as kinematic bodies of the
  * window's world: every prop with colliders and every obstacle whose bounds
  * over the window come within the bodies' reach, so a body that falls onto a
@@ -35,15 +35,14 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * contact pair then combines that one value. A kinematic body's mass never
  * enters the solve, so each carries a unit mass and inertia only for profile
  * admission.
- *
- * @param state The resolved performance.
- * @param subjects The simulated performers.
- * @param clock The window's first film second, interval count and rate.
- * @param reach The bodies' swept world box over the window, metres.
- * @param material The simulated bodies' contact material.
- * @returns The kinematic bodies and the box widened to contain them.
- * @throws {HumanRefusal} When an obstacle with openings comes within reach: one
- *   convex solid cannot keep its openings open.
+ * Parameter state: The resolved performance.
+ * Parameter subjects: The simulated performers.
+ * Parameter clock: The window's first film second, interval count and rate.
+ * Parameter reach: The bodies' swept world box over the window, metres.
+ * Parameter material: The simulated bodies' contact material.
+ * Returns: The kinematic bodies and the box widened to contain them.
+ * When an obstacle with openings comes within reach: one
+ * convex solid cannot keep its openings open.
  */
 export function placeHumanSimulationColliders(
   state: IAutoMovieMotionHumanPerformanceState,
@@ -119,43 +118,63 @@ export function placeHumanSimulationColliders(
   return { bodies, box };
 }
 
-/** Companion types of {@link placeHumanSimulationColliders}. */
+/*
+ * Companion types of placeHumanSimulationColliders.
+ */
 export namespace placeHumanSimulationColliders {
-  /**
+  /*
    * A window's grid: its first film second, interval count and intervals per
    * second.
    */
   export interface IClock {
-    /** First film second, step zero. */
+    /*
+     * First film second, step zero.
+     */
     from: number;
 
-    /** Intervals in the window. */
+    /*
+     * Intervals in the window.
+     */
     count: number;
 
-    /** Intervals per second. */
+    /*
+     * Intervals per second.
+     */
     rate: number;
   }
 
-  /** A world-axis box, metres. */
+  /*
+   * A world-axis box, metres.
+   */
   export interface IBox {
-    /** Least corner. */
+    /*
+     * Least corner.
+     */
     minimum: IAutoMovieVector3;
 
-    /** Greatest corner. */
+    /*
+     * Greatest corner.
+     */
     maximum: IAutoMovieVector3;
   }
 
-  /** The solids within reach and the box that holds them and the reach. */
+  /*
+   * The solids within reach and the box that holds them and the reach.
+   */
   export interface IResult {
-    /** Kinematic bodies, props then obstacles, in the performance's order. */
+    /*
+     * Kinematic bodies, props then obstacles, in the performance's order.
+     */
     bodies: IAutoMoviePhysicalSimulationInput.IBody[];
 
-    /** The reach widened to the solids' bounds. */
+    /*
+     * The reach widened to the solids' bounds.
+     */
     box: IBox;
   }
 }
 
-/**
+/*
  * Whether a simulated performer grips or wears the prop at some instant of the
  * window.
  */
@@ -173,7 +192,7 @@ function carried(
   );
 }
 
-/**
+/*
  * An obstacle's frame at a film second: its motion's place and heading, or the
  * world frame when it stands still.
  */
@@ -200,7 +219,9 @@ function frame(
   };
 }
 
-/** Whether any collider comes within the box at any step. */
+/*
+ * Whether any collider comes within the box at any step.
+ */
 function within(
   frames: readonly IAutoMovieRigidTransform[],
   shapes: readonly IAutoMoviePhysicalShape[],
@@ -224,7 +245,9 @@ function within(
   );
 }
 
-/** Widen the box to every collider at every step. */
+/*
+ * Widen the box to every collider at every step.
+ */
 function grow(
   box: placeHumanSimulationColliders.IBox,
   frames: readonly IAutoMovieRigidTransform[],
@@ -243,7 +266,9 @@ function grow(
     }
 }
 
-/** One kinematic single-segment body following its frames. */
+/*
+ * One kinematic single-segment body following its frames.
+ */
 function solid(
   id: string,
   frames: readonly IAutoMovieRigidTransform[],

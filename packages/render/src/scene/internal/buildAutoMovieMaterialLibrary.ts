@@ -12,7 +12,7 @@ import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResou
 import { materialTextureBindings } from "./materialTextureBindings.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
-/**
+/*
  * Build the exact model material identities requested by simulated surfaces.
  *
  * Model parts cite materials inside one model, but water, soft furnishing, and

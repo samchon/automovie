@@ -10,7 +10,7 @@ import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotio
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import type { kneelKeys } from "./kneelKeys";
 
-/**
+/*
  * A planted foot left behind its hip as the other knee comes down ahead of it,
  * as a lunge's trailing foot: kept flat while its ankle stays within its
  * dorsiflexion range, otherwise up on its toes by the least heel rise that
@@ -18,13 +18,12 @@ import type { kneelKeys } from "./kneelKeys";
  * and the toes extending by the rise up to their range. The ankle's flexion is
  * read on the knee the two-bone leg puts between the hip and the ankle, bent
  * toward the body's forward, the leg's pole.
- *
- * @param body The body.
- * @param side The leg.
- * @param hip The leg's hip joint in the key, world metres.
- * @param foot The planted foot.
- * @param forward The body's forward, the direction the knee bends toward.
- * @returns The foot, flat or on its toes.
+ * Parameter body: The body.
+ * Parameter side: The leg.
+ * Parameter hip: The leg's hip joint in the key, world metres.
+ * Parameter foot: The planted foot.
+ * Parameter forward: The body's forward, the direction the knee bends toward.
+ * Returns: The foot, flat or on its toes.
  */
 export function kneelTrailingFoot(
   body: IAutoMovieMotionHumanBody,
@@ -117,7 +116,7 @@ export function kneelTrailingFoot(
   return raised(hi);
 }
 
-/**
+/*
  * Halvings of the heel's rise, from a right angle to below a thousandth of a
  * degree.
  */

@@ -7,7 +7,9 @@ import {
 import { AutoMovieEngineSpace } from "../AutoMovieEngineSpace";
 
 
-/** Choose an anchor from the widest convex piece of a footprint. */
+/*
+ * Choose an anchor from the widest convex piece of a footprint.
+ */
 export const footprintInteriorPoint: (
   footprint: IAutoMovieFootprint,
 ) => IAutoMovieFootprintInteriorPoint.IResult = (

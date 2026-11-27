@@ -1,4 +1,4 @@
-/**
+/*
  * Select the articulations of one admitted pose on a rooted rig, as numbers.
  *
  * A query begins, writes each successfully admitted articulation by its bone's
@@ -8,11 +8,10 @@
  * component differs from the selection before, signed zeros told apart. A query
  * that does not complete (its admission threw) leaves the last completed
  * selection as it is.
- *
- * @param count The rig's rooted bones.
- * @param baseline The articulation a row no query writes is selected at, four
- *   numbers a row (x, y, z, w); the identity for every row when absent.
- * @returns The tracker.
+ * Parameter count: The rig's rooted bones.
+ * Parameter baseline: The articulation a row no query writes is selected at, four
+ * numbers a row (x, y, z, w); the identity for every row when absent.
+ * Returns: The tracker.
  */
 export function preparePoseResolutionChanges(
   count: number,
@@ -71,20 +70,26 @@ export function preparePoseResolutionChanges(
   };
 }
 
-/** The tracker's type. */
+/*
+ * The tracker's type.
+ */
 export namespace preparePoseResolutionChanges {
-  /** The selection of one live operation on an immutable rig. */
+  /*
+   * The selection of one live operation on an immutable rig.
+   */
   export interface ITracker {
-    /**
+    /*
      * The completed selection, four numbers a row (x, y, z, w): read after
      * `complete`, never written by a reader.
      */
     readonly selected: Float64Array;
 
-    /** Start a query's writes without changing the completed selection. */
+    /*
+     * Start a query's writes without changing the completed selection.
+     */
     begin(): void;
 
-    /**
+    /*
      * Record one admitted articulation's four components (x, y, z, w); a later
      * write of its row wins, and an undefined row is ignored.
      */
@@ -96,13 +101,15 @@ export namespace preparePoseResolutionChanges {
       w: number,
     ): void;
 
-    /**
+    /*
      * Select every row's last write of this query, or its baseline, and advance
      * the version when any component changed.
      */
     complete(): void;
 
-    /** The count of completions that changed the selection. */
+    /*
+     * The count of completions that changed the selection.
+     */
     version(): number;
   }
 }

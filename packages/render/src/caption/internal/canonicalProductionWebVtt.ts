@@ -10,7 +10,7 @@ import { serializeAutoMovieWebVttSingleLineText } from "./serializeAutoMovieWebV
 import { webVttCaptionLanguage } from "./webVttCaptionLanguage.js";
 import { webVttTime } from "./webVttTime.js";
 
-/**
+/*
  * Serialize a compiled timeline's caption track as the one canonical WebVTT
  * file its caption deliverable must equal byte for byte.
  *
@@ -65,7 +65,7 @@ export const canonicalProductionWebVtt: (
 
 type ICaptionCue = IAutoMovieFilmTimeline["tracks"]["captions"][number];
 
-/**
+/*
  * Map the authored edge to a snapped line, with automatic placement for legacy
  * cues.
  */

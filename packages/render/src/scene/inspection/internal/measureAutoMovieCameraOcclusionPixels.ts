@@ -13,7 +13,7 @@ import { hasMaterialDisplacement } from "./hasMaterialDisplacement.js";
 import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
 import { renderAutoMovieCameraOcclusionMasks } from "./renderAutoMovieCameraOcclusionMasks.js";
 
-/**
+/*
  * Measure target-only and composited pixel occupancy for an admitted Draw
  * frame.
  *
@@ -24,11 +24,10 @@ import { renderAutoMovieCameraOcclusionMasks } from "./renderAutoMovieCameraOccl
  * frame. Pixels outside the rectangle cannot hold the subject. The audit has no
  * budget: it runs only in the capture and delivery hosts, which must complete
  * it, so any refusal is a scene or renderer the binary masks cannot reproduce.
- *
- * @param props Renderer, original scene and camera, required subject and
- *   delivered raster.
- * @returns The isolated and visible pixel counts with the passes rendered, or
- *   the reason the frame cannot be audited this way.
+ * Parameter props: Renderer, original scene and camera, required subject and
+ * delivered raster.
+ * Returns: The isolated and visible pixel counts with the passes rendered, or
+ * the reason the frame cannot be audited this way.
  */
 export function measureAutoMovieCameraOcclusionPixels(
   props: IProps,
@@ -227,33 +226,45 @@ export function measureAutoMovieCameraOcclusionPixels(
   });
 }
 
-/** Outcomes of one delivery pixel audit. */
+/*
+ * Outcomes of one delivery pixel audit.
+ */
 export namespace measureAutoMovieCameraOcclusionPixels {
-  /** An exact matched count, or the reason the frame cannot be audited. */
+  /*
+   * An exact matched count, or the reason the frame cannot be audited.
+   */
   export type IResult =
     | {
-        /** The subject's pixels were counted. */
+        /*
+         * The subject's pixels were counted.
+         */
         status: "measured";
 
-        /**
+        /*
          * Delivered pixels of the subject alone, and the subset still visible
          * in the composite.
          */
         pixels: IAutoMovieCameraInspection.IPixels;
 
-        /** Passes rendered: zero when the subject's box misses the raster. */
+        /*
+         * Passes rendered: zero when the subject's box misses the raster.
+         */
         passes: 0 | 1 | 2;
       }
     | {
-        /** The scene, renderer or subject cannot be audited with binary masks. */
+        /*
+         * The scene, renderer or subject cannot be audited with binary masks.
+         */
         status: "unsupported";
 
-        /** Why the audit refused. */
+        /*
+         * Why the audit refused.
+         */
         reason: string;
       };
 }
 
-/**
+/*
  * Bounds the native samples the subject's projected box can reach, widened by
  * the same two-sample guard as the blocker overlap test and aligned outward to
  * whole delivered pixels. Undefined when the box misses the raster.
@@ -298,7 +309,9 @@ function subjectRegion(
     : { x: x[0], y: y[0], width: x[1] - x[0], height: y[1] - y[0] };
 }
 
-/** Checks the native callbacks that could otherwise change either mask draw. */
+/*
+ * Checks the native callbacks that could otherwise change either mask draw.
+ */
 function nativeRenderCallbacks(object: THREE.Object3D): boolean {
   return (
     object.onBeforeRender === THREE.Object3D.prototype.onBeforeRender &&
@@ -306,7 +319,9 @@ function nativeRenderCallbacks(object: THREE.Object3D): boolean {
   );
 }
 
-/** Admits only built-in rigid surface coverage reproduced by the binary mask. */
+/*
+ * Admits only built-in rigid surface coverage reproduced by the binary mask.
+ */
 function nativeOpaqueMaterial(material: THREE.Material): boolean {
   if (
     !(
@@ -347,7 +362,9 @@ function nativeOpaqueMaterial(material: THREE.Material): boolean {
   );
 }
 
-/** Projects the enclosing box only where the homogeneous divide is continuous. */
+/*
+ * Projects the enclosing box only where the homogeneous divide is continuous.
+ */
 function projectRange(
   bounds: THREE.Box3,
   projection: THREE.Matrix4,
@@ -370,26 +387,42 @@ function projectRange(
   return { min, max };
 }
 
-/** One full audit of an original placed Draw frame. */
+/*
+ * One full audit of an original placed Draw frame.
+ */
 interface IProps {
-  /** Native Draw renderer, with the default framebuffer selected. */
+  /*
+   * Native Draw renderer, with the default framebuffer selected.
+   */
   renderer: THREE.WebGLRenderer;
 
-  /** Original scene before inspection, with its source semantic binding. */
+  /*
+   * Original scene before inspection, with its source semantic binding.
+   */
   scene: THREE.Scene;
 
-  /** Original delivery camera with the delivery aspect and crop realized. */
+  /*
+   * Original delivery camera with the delivery aspect and crop realized.
+   */
   camera: THREE.PerspectiveCamera;
 
-  /** Source-resolved root of the current subject requirement. */
+  /*
+   * Source-resolved root of the current subject requirement.
+   */
   target: THREE.Object3D;
 
-  /** Delivered raster width in pixels. */
+  /*
+   * Delivered raster width in pixels.
+   */
   width: number;
 
-  /** Delivered raster height in pixels. */
+  /*
+   * Delivered raster height in pixels.
+   */
   height: number;
 
-  /** Native Draw samples along a side of each delivered pixel. */
+  /*
+   * Native Draw samples along a side of each delivered pixel.
+   */
   factor: 1 | 2;
 }

@@ -22,11 +22,10 @@ import { crawlFeet } from "./crawlFeet";
 import { crawlFrame } from "./crawlFrame";
 import { prepareCrawlDownResolution } from "./prepareCrawlDownResolution";
 
-/**
+/*
  * Build the way down.
- *
- * @param props What it is built from.
- * @returns The way down.
+ * Parameter props: What it is built from.
+ * Returns: The way down.
  */
 export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
   const body: IAutoMovieMotionHumanBody = props.body;
@@ -107,7 +106,9 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
   ): IAutoMovieMotionHumanPosture =>
     crawlFrame.armed(body, posture, holding, toward ?? holding, share);
 
-  /** Both palm goals are overwritten here; keep their original flat fingers. */
+  /*
+   * Both palm goals are overwritten here; keep their original flat fingers.
+   */
   const heldKneeling: (
     base: IAutoMovieMotionHumanPosture,
     back: number,
@@ -125,12 +126,12 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
     lean: number;
     angles: Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>;
     ends: number[];
-    /**
+    /*
      * The feet-supported sitting key, solved as the way down is built when the
      * hips own a balance window; none otherwise.
      */
     satBalance: number | undefined;
-    /**
+    /*
      * The hips and lean when the hands first reach their fixed places, solved
      * with `satBalance`; none otherwise.
      */
@@ -434,7 +435,7 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
   };
 }
 
-/**
+/*
  * The way down from standing onto the hands and the knees, or onto the hands
  * and the feet of a bear crawl, as the supports take the body one after
  * another.
@@ -463,28 +464,38 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
  * far the limbs' joints travel over it.
  */
 export namespace crawlDown {
-  /** The way down built. */
+  /*
+   * The way down built.
+   */
   export interface IDown {
-    /** The posture over a base at a second before the way down ends. */
+    /*
+     * The posture over a base at a second before the way down ends.
+     */
     write(
       base: IAutoMovieMotionHumanPosture,
       seconds: number,
       weight?: number,
     ): IAutoMovieMotionHumanPosture;
 
-    /**
+    /*
      * The second the knees land, or come to where a bear crawl holds them over
      * the floor.
      */
     knees: number;
 
-    /** The second the hands land. */
+    /*
+     * The second the hands land.
+     */
     hands: number;
 
-    /** The seconds the way down takes. */
+    /*
+     * The seconds the way down takes.
+     */
     seconds: number;
   }
 }
 
-/** The record of `IStatesBack`'s site. */
+/*
+ * The record of `IStatesBack`'s site.
+ */
 type IStatesBack = { sat: number; leant: number };

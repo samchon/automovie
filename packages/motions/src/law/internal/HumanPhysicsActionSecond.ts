@@ -6,7 +6,9 @@ import type {
 import { HumanPhysics } from "./HumanPhysics";
 import { HumanPhysicsInvalid } from "./HumanPhysicsInvalid";
 
-/** Resolve a bound or request its local clock's named events. */
+/*
+ * Resolve a bound or request its local clock's named events.
+ */
 export function HumanPhysicsActionSecond(
   bound: IAutoMovieMotionHumanBalance.IBound,
   field: string,
@@ -54,25 +56,39 @@ export function HumanPhysicsActionSecond(
   };
 }
 
-/** The two ways a bound reaches its action-local second. */
+/*
+ * The two ways a bound reaches its action-local second.
+ */
 export namespace HumanPhysicsActionSecond {
-  /** A resolved direct bound or a named occurrence to read from the clock. */
+  /*
+   * A resolved direct bound or a named occurrence to read from the clock.
+   */
   export type Bound =
     | {
-        /** A start, end or resolved external instant. */
+        /*
+         * A start, end or resolved external instant.
+         */
         kind: "second";
 
-        /** Its action-local second. */
+        /*
+         * Its action-local second.
+         */
         value: number;
       }
     | {
-        /** A named occurrence of the current action. */
+        /*
+         * A named occurrence of the current action.
+         */
         kind: "events";
 
-        /** Resolve the occurrence against the local named events in order. */
+        /*
+         * Resolve the occurrence against the local named events in order.
+         */
         read(events: readonly IAutoMovieMotionEvent[]): number;
       };
 }
 
-/** The action clock's numeric extent. */
+/*
+ * The action clock's numeric extent.
+ */
 type Timing = Pick<HumanPhysics.ITiming, "duration">;

@@ -23,14 +23,14 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { HumanGaze } from "./HumanGaze";
 
-/**
+/*
  * Standing and turning the eyes, head and trunk to a target, either at once or,
  * when cued by something seen or heard, after a seeded reaction time: the
  * orienting response of a bystander.
  *
  * The feet stay planted where they are (the stand law places the body), and the
  * gaze goal is the eyes' lines on the target, recruited eyes, head and trunk in
- * that order ({@link HumanGaze}); the target is tracked while the action lasts.
+ * that order (HumanGaze); the target is tracked while the action lasts.
  * Use the gaze layer to look while doing something else; this action is for a
  * gaze that is the whole performance or that must turn the trunk.
  *
@@ -50,7 +50,9 @@ import { HumanGaze } from "./HumanGaze";
  * head and trunk end their turn.
  */
 export namespace look {
-  /** Admit the starting yaw in degrees when the performer has no cue. */
+  /*
+   * Admit the starting yaw in degrees when the performer has no cue.
+   */
   export function admitCue(yaw: number, cue: IAutoMovieMotionHumanLook.IParams["cue"]): void {
     if (cue === undefined && Math.abs(yaw) > FIELD)
       throw new HumanRefusal({
@@ -62,10 +64,12 @@ export namespace look {
         fix: 'declare the cue that draws the look (cue: "seen" or "signal"), or turn toward the target first',
       });
   }
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "look";
 
-  /**
+  /*
    * Cancel table: a look holds no contact beyond the stand, so it can be cut
    * anywhere.
    */
@@ -82,24 +86,25 @@ export namespace look {
     look: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
-  /**
+  /*
    * A look may be performed over a carrier: it claims the head, and the trunk
    * when the shift recruits it.
    */
   export const overlay: boolean = true;
 
-  /** Half the attended field ahead, degrees. */
+  /*
+   * Half the attended field ahead, degrees.
+   */
   export const FIELD: number = 60;
 
-  /**
+  /*
    * Plan a look: refuse an uncued target outside the attended field, draw a
    * cued look's reaction time, split the gaze shift over eyes, head and trunk,
    * time each part, and return standing postures aimed at the tracked target.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When an uncued target lies outside the attended
-   *   field, or the duration is not positive.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When an uncued target lies outside the attended
+   * field, or the duration is not positive.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLook.IParams>,
@@ -230,14 +235,13 @@ export namespace look {
     };
   }
 
-  /**
+  /*
    * The ex-Gaussian parameters of an orienting reaction, seconds: mu 0.26 s to
    * 0.22 s, sigma 35 ms to 25 ms and tau 70 ms to 40 ms on the `reaction` axis
    * (provisional), mu 40 ms lower for an acoustic cue (Welford 1980).
-   *
-   * @param skill The skill; its `reaction` axis scales the parameters.
-   * @param cue Visual or acoustic.
-   * @returns The parameters.
+   * Parameter skill: The skill; its `reaction` axis scales the parameters.
+   * Parameter cue: Visual or acoustic.
+   * Returns: The parameters.
    */
   export function reactionLaw(
     skill: IAutoMovieMotionHumanSkill,
@@ -252,14 +256,13 @@ export namespace look {
     };
   }
 
-  /**
+  /*
    * A simple reaction time to a cue, seconds: an ex-Gaussian draw (a normal
    * plus an exponential) with skill-scaled parameters.
-   *
-   * @param skill The skill; its `reaction` axis scales the parameters.
-   * @param random The stream; reads indices 0 to 2.
-   * @param cue Visual or acoustic.
-   * @returns Seconds; at least 0.1.
+   * Parameter skill: The skill; its `reaction` axis scales the parameters.
+   * Parameter random: The stream; reads indices 0 to 2.
+   * Parameter cue: Visual or acoustic.
+   * Returns: Seconds; at least 0.1.
    */
   function reaction(
     skill: IAutoMovieMotionHumanSkill,
@@ -273,11 +276,17 @@ export namespace look {
   }
 }
 
-/** The alternatives of `ReactionLawCue`'s site. */
+/*
+ * The alternatives of `ReactionLawCue`'s site.
+ */
 type ReactionLawCue = "seen" | "signal";
 
-/** The alternatives of `ReactionCue`'s site. */
+/*
+ * The alternatives of `ReactionCue`'s site.
+ */
 type ReactionCue = "seen" | "signal";
 
-/** The record of `IPlanFirst`'s site. */
+/*
+ * The record of `IPlanFirst`'s site.
+ */
 type IPlanFirst = { yaw: number; pitch: number };

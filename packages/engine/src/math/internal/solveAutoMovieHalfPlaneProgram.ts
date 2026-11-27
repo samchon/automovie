@@ -1,6 +1,6 @@
 import type { IAutoMovieSolveHalfPlaneProgram } from "@automovie/interface";
 
-/**
+/*
  * The point of a disc nearest a preferred point that satisfies a set of
  * half-planes in the plane, or, when no point satisfies them all, the point of
  * the disc that violates the worst of them least: the two- and
@@ -25,16 +25,15 @@ import type { IAutoMovieSolveHalfPlaneProgram } from "@automovie/interface";
  * half-planes, which the projected programs carry unchanged while only the
  * later ones are relaxed. When the hard half-planes leave no point of the disc
  * between them, every half-plane is relaxed alike.
- *
- * @param lines The half-planes, in order.
- * @param radius The disc's radius about the origin, positive.
- * @param preferred The preferred point.
- * @param hard How many leading half-planes the fallback keeps, from 0 (the
- *   default) to their count.
- * @returns The point found, and whether every half-plane holds at it.
- * @throws {Error} When the radius is not positive and finite, `hard` is not a
- *   whole count within the half-planes, a direction is not a unit vector, or a
- *   value is not finite: a caller's defect.
+ * Parameter lines: The half-planes, in order.
+ * Parameter radius: The disc's radius about the origin, positive.
+ * Parameter preferred: The preferred point.
+ * Parameter hard: How many leading half-planes the fallback keeps, from 0 (the
+ * default) to their count.
+ * Returns: The point found, and whether every half-plane holds at it.
+ * When the radius is not positive and finite, `hard` is not a
+ * whole count within the half-planes, a direction is not a unit vector, or a
+ * value is not finite: a caller's defect.
  */
 export function solveAutoMovieHalfPlaneProgram(
   lines: readonly IAutoMovieSolveHalfPlaneProgram.ILine[],
@@ -94,38 +93,46 @@ export function solveAutoMovieHalfPlaneProgram(
 type IPoint = IAutoMovieSolveHalfPlaneProgram.IPoint;
 type ILine = IAutoMovieSolveHalfPlaneProgram.ILine;
 
-/** Below this, two directions count as parallel and a determinant as zero. */
+/*
+ * Below this, two directions count as parallel and a determinant as zero.
+ */
 const EPSILON: number = 1e-9;
 
-/**
+/*
  * A squared direction length this close to 1 has its length inside the 1e-6
  * unit band: (1 - 1e-6)^2 = 1 - 2e-6 + 1e-12 bounds it, less a margin far above
  * rounding.
  */
 const UNIT_INSIDE: number = 1.99e-6;
 
-/**
+/*
  * A squared length this far from 1 has its length outside the band: (1 +
  * 1e-6)^2 = 1 + 2e-6 + 1e-12 bounds it, plus the same margin.
  */
 const UNIT_OUTSIDE: number = 2.01e-6;
 
-/** The determinant of two plane vectors, `a.x b.y - a.y b.x`. */
+/*
+ * The determinant of two plane vectors, `a.x b.y - a.y b.x`.
+ */
 function det(a: IPoint, b: IPoint): number {
   return a.x * b.y - a.y * b.x;
 }
 
-/** The dot product of two plane vectors. */
+/*
+ * The dot product of two plane vectors.
+ */
 function dot(a: IPoint, b: IPoint): number {
   return a.x * b.x + a.y * b.y;
 }
 
-/** `a + s b`. */
+/*
+ * `a + s b`.
+ */
 function along(a: IPoint, s: number, b: IPoint): IPoint {
   return { x: a.x + s * b.x, y: a.y + s * b.y };
 }
 
-/**
+/*
  * The one-dimensional program on line `index`: the point of that line, within
  * the disc and inside the half-planes before it, nearest the preferred point
  * (or furthest along `direction` when `directional`); null when there is none.
@@ -175,7 +182,7 @@ function program1(
   return along(line.point, Math.min(right, Math.max(left, t)), line.direction);
 }
 
-/**
+/*
  * The two-dimensional program: the point of the disc inside every half-plane
  * nearest the preferred point (or furthest along it when `directional`), and
  * the index of the half-plane it failed on, `lines.length` when none.
@@ -217,7 +224,7 @@ function program2(
   return { failed: lines.length, point };
 }
 
-/**
+/*
  * The three-dimensional program from the half-plane the two-dimensional one
  * failed on: the point of the disc whose greatest signed distance into the
  * half-planes is least, each violated half-plane in turn bounding the earlier

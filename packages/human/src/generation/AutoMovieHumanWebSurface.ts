@@ -28,7 +28,9 @@ const { sampled }: typeof AutoMovieHumanWebCurve = AutoMovieHumanWebCurve;
  * close on the crest as the square of the row.
  */
 export namespace AutoMovieHumanWebSurface {
-  /** Rows below a crest over which its levels close as the square of the row. */
+  /*
+   * Rows below a crest over which its levels close as the square of the row.
+   */
   const CREST_ROWS: number = 2;
 
   /** The surface's laws for a count of rows.
@@ -179,17 +181,27 @@ export namespace AutoMovieHumanWebSurface {
 
 type Vec3 = AutoMovieVector3Tuple;
 
-/** A web column's end levels and its chart's points there. */
+/*
+ * A web column's end levels and its chart's points there.
+ */
 interface IEnds {
-  /** Level of the column's first row. */
+  /*
+   * Level of the column's first row.
+   */
   top: number;
 
-  /** Level of its last row. */
+  /*
+   * Level of its last row.
+   */
   bottom: number;
 
-  /** The chart's point at the first row's level. */
+  /*
+   * The chart's point at the first row's level.
+   */
   atTop: Vec3;
 
-  /** The chart's point at the last row's level. */
+  /*
+   * The chart's point at the last row's level.
+   */
   atBottom: Vec3;
 }

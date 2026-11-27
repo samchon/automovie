@@ -3,15 +3,14 @@ import type {
   IAutoMovieMotionHumanPushPullLean,
 } from "@automovie/interface";
 
-/**
+/*
  * The trunk's incline from the vertical for a haul.
- *
- * @param body The body.
- * @param way The way the load is moved; a drag reads as a push.
- * @param load The declared load level.
- * @param height The handles' height above the floor, metres.
- * @returns Degrees, positive leaning forward toward the way the body faces,
- *   negative leaning back.
+ * Parameter body: The body.
+ * Parameter way: The way the load is moved; a drag reads as a push.
+ * Parameter load: The declared load level.
+ * Parameter height: The handles' height above the floor, metres.
+ * Returns: Degrees, positive leaning forward toward the way the body faces,
+ * negative leaning back.
  */
 export function pushPullLean(
   body: {
@@ -33,7 +32,7 @@ export function pushPullLean(
   return way === "pull" ? -angle : angle;
 }
 
-/**
+/*
  * How far the trunk leans when a load is pushed, pulled or dragged by its
  * handles, by the load's declared level and the handles' height.
  *
@@ -57,7 +56,7 @@ export function pushPullLean(
  * no other height.
  */
 export namespace pushPullLean {
-  /**
+  /*
    * The peak torso angle, degrees, by way, load and handle height (Lett and
    * McGill 2006, figure 9, the two groups' size-weighted mean).
    */
@@ -83,11 +82,17 @@ export namespace pushPullLean {
   };
 }
 
-/** The alternatives of `OfTableEntry`'s site. */
+/*
+ * The alternatives of `OfTableEntry`'s site.
+ */
 type OfTableEntry = "waist" | "shoulder";
 
-/** The alternatives of `OfWay`'s site. */
+/*
+ * The alternatives of `OfWay`'s site.
+ */
 type OfWay = IAutoMovieMotionHumanPushPullLean.Way | "drag";
 
-/** The alternatives of `EntryEntryEntry`'s site. */
+/*
+ * The alternatives of `EntryEntryEntry`'s site.
+ */
 type EntryEntryEntry = "waist" | "shoulder";

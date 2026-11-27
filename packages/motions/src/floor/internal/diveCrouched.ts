@@ -5,15 +5,14 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { dive } from "./dive";
 
-/**
+/*
  * The take-off crouch at a second: the minimum-jerk crouch, the feet rolling
  * onto their toes over its last `TOE_OFF` seconds with the toes bent at their
  * joints so they stay on the floor.
  *
  * Part of `dive.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `crouched`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `crouched`.
  */
 export function diveCrouched(
   prepared: diveCrouched.IPrepared,
@@ -53,20 +52,32 @@ export function diveCrouched(
   };
 }
 
-/** The `crouched` of `dive.plan`, built from what that plan prepared. */
+/*
+ * The `crouched` of `dive.plan`, built from what that plan prepared.
+ */
 export namespace diveCrouched {
-  /** What `dive.plan` prepared for its `crouched`. */
+  /*
+   * What `dive.plan` prepared for its `crouched`.
+   */
   export interface IPrepared {
-    /** The `crouch` `dive.plan` prepared. */
+    /*
+     * The `crouch` `dive.plan` prepared.
+     */
     crouch: number;
 
-    /** The `toeOff` `dive.plan` prepared. */
+    /*
+     * The `toeOff` `dive.plan` prepared.
+     */
     toeOff: number;
 
-    /** The `lift` `dive.plan` prepared. */
+    /*
+     * The `lift` `dive.plan` prepared.
+     */
     lift: dive.Lift;
 
-    /** The `crouchedOn` `dive.plan` prepared. */
+    /*
+     * The `crouchedOn` `dive.plan` prepared.
+     */
     crouchedOn: (
       share: number,
       on?: dive.Feet,
@@ -74,7 +85,9 @@ export namespace diveCrouched {
       projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
     ) => IAutoMovieMotionHumanPosture;
 
-    /** The `rolled` `dive.plan` prepared. */
+    /*
+     * The `rolled` `dive.plan` prepared.
+     */
     rolled: (lift: dive.Lift) => dive.Feet;
   }
 }

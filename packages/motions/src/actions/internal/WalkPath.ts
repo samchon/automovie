@@ -1,19 +1,27 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/** A fixed floor polyline by arc length, the path a stepping gait follows. */
+/*
+ * A fixed floor polyline by arc length, the path a stepping gait follows.
+ */
 export class WalkPath {
-  /** Cumulative arc length at each point. */
+  /*
+   * Cumulative arc length at each point.
+   */
   private readonly cumulative: number[];
 
-  /** Fixed differences and original cumulative-length spans, in point order. */
+  /*
+   * Fixed differences and original cumulative-length spans, in point order.
+   */
   private readonly segments: readonly ISegment[];
 
-  /** Total length, metres. */
+  /*
+   * Total length, metres.
+   */
   public readonly length: number;
 
-  /**
-   * @param points The fixed floor points in order, world metres; keep them
-   *   unchanged until this path is released.
+  /*
+   * Parameter points: The fixed floor points in order, world metres; keep them
+   * unchanged until this path is released.
    */
   public constructor(private readonly points: readonly IAutoMovieVector3[]) {
     this.cumulative = [0];
@@ -40,11 +48,10 @@ export class WalkPath {
       });
   }
 
-  /**
+  /*
    * The point at an arc length, clamped to the ends.
-   *
-   * @param s Arc length, metres.
-   * @returns The floor point.
+   * Parameter s: Arc length, metres.
+   * Returns: The floor point.
    */
   public at(s: number): IAutoMovieVector3 {
     const c: number = Math.min(this.length, Math.max(0, s));
@@ -62,12 +69,11 @@ export class WalkPath {
     return { x: a.x + segment.dx * u, y: 0, z: a.z + segment.dz * u };
   }
 
-  /**
+  /*
    * The arc length of the polyline's point nearest a floor point: each
    * segment's closest point, the nearest of them, the first on a tie.
-   *
-   * @param point The floor point, world metres; `y` is not read.
-   * @returns Arc length, metres.
+   * Parameter point: The floor point, world metres; `y` is not read.
+   * Returns: Arc length, metres.
    */
   public nearest(point: IAutoMovieVector3): number {
     let best: number = 0;
@@ -99,13 +105,12 @@ export class WalkPath {
     return best;
   }
 
-  /**
+  /*
    * The heading of the chord across an arc length's neighbourhood, degrees
    * about +Y (0 faces +Z).
-   *
-   * @param s Arc length, metres.
-   * @param width Half the neighbourhood, metres.
-   * @returns The heading.
+   * Parameter s: Arc length, metres.
+   * Parameter width: Half the neighbourhood, metres.
+   * Returns: The heading.
    */
   public heading(s: number, width: number): number {
     const w: number = Math.max(width, 1e-3);
@@ -120,23 +125,33 @@ export class WalkPath {
   }
 }
 
-/** Exact fixed prerequisites for one original floor-path segment. */
+/*
+ * Exact fixed prerequisites for one original floor-path segment.
+ */
 interface ISegment {
-  /** The segment's first point, world metres. */
+  /*
+   * The segment's first point, world metres.
+   */
   from: IAutoMovieVector3;
 
-  /** The segment's x extent, metres. */
+  /*
+   * The segment's x extent, metres.
+   */
   dx: number;
 
-  /** The segment's z extent, metres. */
+  /*
+   * The segment's z extent, metres.
+   */
   dz: number;
 
-  /**
+  /*
    * The segment's arc length, metres, as the difference of the cumulative
    * lengths at its ends.
    */
   span: number;
 
-  /** The arc length squared, square metres, the projection's denominator. */
+  /*
+   * The arc length squared, square metres, the projection's denominator.
+   */
   squared: number;
 }

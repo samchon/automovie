@@ -6,12 +6,16 @@ import type {
 
 import { minimumJerk as minimumJerkImplementation } from "./minimumJerk";
 
-/** Original component order shared by both actual result demands. */
+/*
+ * Original component order shared by both actual result demands.
+ */
 const COMPONENTS: readonly ["x", "y", "z"] = ["x", "y", "z"];
 
-/** Private overlapping minimum-jerk evaluator used by the Trajectory owner. */
+/*
+ * Private overlapping minimum-jerk evaluator used by the Trajectory owner.
+ */
 export namespace superposeMinimumJerk {
-  /**
+  /*
    * A point moved by overlapping minimum-jerk units, each adding its own
    * displacement over its own time window.
    *
@@ -28,12 +32,11 @@ export namespace superposeMinimumJerk {
    * and velocity/acceleration/state records. Every unit still receives its
    * original positive-duration check and normalized-time admission; an empty unit
    * list performs no time admission, as in the complete reader.
-   *
-   * @param origin Where the point starts, metres.
-   * @param units Displacements in metres with their start and duration in
-   *   seconds.
-   * @param seconds The instant.
-   * @returns Position (m), velocity (m/s) and acceleration (m/s²).
+   * Parameter origin: Where the point starts, metres.
+   * Parameter units: Displacements in metres with their start and duration in
+   * seconds.
+   * Parameter seconds: The instant.
+   * Returns: Position (m), velocity (m/s) and acceleration (m/s²).
    */
   export function superpose(
     origin: IAutoMovieVector3,
@@ -48,7 +51,7 @@ export namespace superposeMinimumJerk {
     ) as IAutoMovieSuperposeMinimumJerk.IState;
   }
 
-  /**
+  /*
    * The same accumulated position in metres, with one fresh point and no
    * velocity/acceleration/state records. Original unit order, positive-duration
    * admission, normalized-time refusal and position arithmetic remain; empty
@@ -62,10 +65,14 @@ export namespace superposeMinimumJerk {
     return evaluate(origin, units, seconds, false) as IAutoMovieVector3;
   }
 
-  /** Only the two actual public demands select this private result union. */
+  /*
+   * Only the two actual public demands select this private result union.
+   */
   type IReading = IAutoMovieSuperposeMinimumJerk.IState | IAutoMovieVector3;
 
-    /** One original accumulation, computing derivatives only for complete state. */
+    /*
+     * One original accumulation, computing derivatives only for complete state.
+     */
   function evaluate(
     origin: IAutoMovieVector3,
     units: readonly IAutoMovieSuperposeMinimumJerk.IUnit[],

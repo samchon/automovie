@@ -7,11 +7,11 @@ import {
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { bakedTransformFromChannels } from "./bakedTransformFromChannels";
 
-/**
+/*
  * Resolve a node's baked world transform from a sequence of object-motion clips
  * at one shot-local instant, the way playback reads them.
  *
- * Channels are selected by {@link sampleClipSequence}: per channel, the track
+ * Channels are selected by sampleClipSequence: per channel, the track
  * whose first key started latest by `t` wins, ties going to the later clip, and
  * a track that has not started writes nothing. Translation and rotation are
  * therefore chosen independently, so disjoint producer clips compose and a

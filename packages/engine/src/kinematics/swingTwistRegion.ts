@@ -47,23 +47,25 @@ export namespace swingTwistRegion {
   }
 }
 
-/**
+/*
  * The fastest the region's radius may change with the azimuth, degrees per
  * degree (provisional: three, so a projection's step is at most about three
  * times the azimuth's step).
  */
 const SLOPE: number = 3;
 
-/** The step of the scan for the farthest reached swing on a ray, degrees. */
+/*
+ * The step of the scan for the farthest reached swing on a ray, degrees.
+ */
 const SCAN: number = 0.5;
 
-/**
+/*
  * The bisections that refine it: twenty halve half a degree to under a
  * millionth.
  */
 const HALVINGS: number = 20;
 
-/**
+/*
  * How far before a grid step, degrees, the closed form's interval of reached
  * swings must begin for the step's cell to count as inside from the step on:
  * far above the interval's own margins (a sine widened by 1e-9 moves an end by
@@ -72,7 +74,9 @@ const HALVINGS: number = 20;
  */
 const COVERED: number = 0.01;
 
-/** The region's radius on each ray: reached, widened and raised. */
+/*
+ * The region's radius on each ray: reached, widened and raised.
+ */
 function build(
   constraint: IAutoMovieJointConstraint,
   joint: IAutoMovieJointRotationFrame,
@@ -85,7 +89,7 @@ function build(
   );
 }
 
-/**
+/*
  * The farthest swing along each ray at which the flexion and abduction
  * intervals reach the direction, found by a scan from the far end in `SCAN`
  * degree steps toward the rest direction and refined by `HALVINGS` bisections.
@@ -190,7 +194,7 @@ function reach(
   return table;
 }
 
-/**
+/*
  * The scan's own answer on a ray, placed from the closed form instead of
  * searched for, or null when the closed form does not place it.
  *
@@ -240,7 +244,7 @@ function latticed(
   return cell + low * (SCAN / cells);
 }
 
-/**
+/*
  * Whether the swing cone removes no direction the flexion and abduction
  * intervals reach: the greatest combined swing over the box, `2 acos(cos(f / 2)
  * cos(a / 2))` at the least product of the two half-angle cosines, is within
@@ -287,7 +291,7 @@ function coneFree(constraint: IAutoMovieJointConstraint): boolean {
   );
 }
 
-/**
+/*
  * A proximal twist turns about the rest axis outside the flexion and the
  * abduction, so it carries every reached direction around the rest direction by
  * its own angle: on a hip flexed forward it swings the thigh sideways. The
@@ -343,7 +347,7 @@ function widen(
   return turned;
 }
 
-/**
+/*
  * Where the region's edge runs along a ray the farthest reach jumps between two
  * rays, and a projection along the rays would jump with it. So the radius is
  * raised to the least function at or above it that turns no faster than `SLOPE`
@@ -378,7 +382,7 @@ function raise(table: Float64Array): Float64Array {
   return raised;
 }
 
-/**
+/*
  * Whether the flexion and abduction intervals, with no twist and within the
  * swing cone, reach a direction in either reading. The caller maps its inner
  * and outer factors to flexion and abduction respectively. The mapped flexion
@@ -445,7 +449,9 @@ function reached(
   return false;
 }
 
-/** Test one clinical reading with the same frame, interval and swing-cone order. */
+/*
+ * Test one clinical reading with the same frame, interval and swing-cone order.
+ */
 function admits(
   constraint: IAutoMovieJointConstraint,
   frame: IAutoMovieRestFrame | undefined,
@@ -467,7 +473,9 @@ function admits(
   );
 }
 
-/** A vector with its part along a unit axis taken off. */
+/*
+ * A vector with its part along a unit axis taken off.
+ */
 function flat(
   v: IAutoMovieVector3,
   axis: IAutoMovieVector3,

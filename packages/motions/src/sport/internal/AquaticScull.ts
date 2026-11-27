@@ -36,13 +36,13 @@ const SIDES = [
 ] as const;
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
+/*
  * A rower at a named racing-shell station. The rower's cycle drives its actual
  * oar swivels, dips and seat carriage. Crew phase is an authored film offset.
  * The hull's rigid course stays with the placed scene prop.
  */
 export namespace AquaticScull {
-  /**
+  /*
    * Lay three repeated cycles for one person on their own traveling seat, with
    * anatomically bound handles and footplates. The sequence landmarks use
    * Cuijpers et al. at 26 strokes a minute (doi:10.1111/sms.12800, corrected by
@@ -251,7 +251,9 @@ export namespace AquaticScull {
   }
 }
 
-/** One complete periodic drive with lift and an unloaded return. */
+/*
+ * One complete periodic drive with lift and an unloaded return.
+ */
 function stroke(total: number): IStroke {
   const at: number = total - Math.floor(total);
   const recovery: number = Math.max(0, (at - EXTRACTION) / (1 - EXTRACTION));
@@ -264,7 +266,9 @@ function stroke(total: number): IStroke {
   };
 }
 
-/** The anatomical seat socket bears in the middle of the moving seat surface. */
+/*
+ * The anatomical seat socket bears in the middle of the moving seat surface.
+ */
 function seatPoint(seat: AquaticProp.IContact): IAutoMovieVector3 {
   return Vector3.add(
     seat.world.translation,
@@ -276,7 +280,7 @@ function seatPoint(seat: AquaticProp.IContact): IAutoMovieVector3 {
   );
 }
 
-/**
+/*
  * Turn the foot along the stretcher's toe-facing X axis and put its sole ball
  * on the plate.
  */
@@ -300,7 +304,7 @@ function stretcher(
   };
 }
 
-/**
+/*
  * Intersect both legs' reach along the actual modeled rail; stop short of knee
  * lock.
  */
@@ -358,23 +362,37 @@ function admitRail(
 
 type Station = IAutoMovieMotionHumanAquatic.Station;
 
-/** The stroke cycle at one instant. */
+/*
+ * The stroke cycle at one instant.
+ */
 interface IStroke {
-  /** Drive progress: 0 at the catch, 1 at extraction, back to 0 over recovery. */
+  /*
+   * Drive progress: 0 at the catch, 1 at extraction, back to 0 over recovery.
+   */
   drive: number;
 
-  /** Blade lift out of the water over recovery, in [0, 1]. */
+  /*
+   * Blade lift out of the water over recovery, in [0, 1].
+   */
   lift: number;
 }
 
-/** A foot goal set on a stretcher plate. */
+/*
+ * A foot goal set on a stretcher plate.
+ */
 interface IStretcherGoal {
-  /** World ankle target, metres. */
+  /*
+   * World ankle target, metres.
+   */
   ankle: IAutoMovieVector3;
 
-  /** World foot rotation. */
+  /*
+   * World foot rotation.
+   */
   rotation: IAutoMovieQuaternion;
 
-  /** The sole ball offset in the foot frame, metres. */
+  /*
+   * The sole ball offset in the foot frame, metres.
+   */
   contact: IAutoMovieVector3;
 }

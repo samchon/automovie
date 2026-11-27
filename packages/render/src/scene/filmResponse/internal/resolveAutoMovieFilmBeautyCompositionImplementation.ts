@@ -5,7 +5,7 @@ import type {
 
 import { isAutoMovieDisplayBlendWeight } from "../../internal/isAutoMovieDisplayBlendWeight.js";
 
-/**
+/*
  * Resolve a builder-sampled beauty layer list into one explicit compositor.
  *
  * One fractional layer means color over black, while two complementary layers

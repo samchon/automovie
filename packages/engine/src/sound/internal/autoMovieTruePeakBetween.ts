@@ -1,6 +1,6 @@
 import { AUTOMOVIE_TRUE_PEAK_PHASES } from "../constants/AUTOMOVIE_TRUE_PEAK_PHASES";
 
-/**
+/*
  * The largest absolute value of the three 4× interpolants between two
  * neighbouring samples of one channel (ITU-R BS.1770-5 Annex 2).
  *
@@ -8,12 +8,11 @@ import { AUTOMOVIE_TRUE_PEAK_PHASES } from "../constants/AUTOMOVIE_TRUE_PEAK_PHA
  * from 0 to 23, is read `t` strides after `samples[start]`. The interpolants
  * lie a quarter, a half and three quarters of a sample after `x[n]`. The caller
  * supplies a whole window; zeros stand for samples outside the signal.
- *
- * @param samples Samples holding the window.
- * @param start Index of `x[n − 11]`.
- * @param stride Distance between consecutive samples of the channel: 1 for a
- *   mono run, 2 for one channel of interleaved stereo.
- * @returns The largest absolute interpolant, a linear amplitude.
+ * Parameter samples: Samples holding the window.
+ * Parameter start: Index of `x[n − 11]`.
+ * Parameter stride: Distance between consecutive samples of the channel: 1 for a
+ * mono run, 2 for one channel of interleaved stereo.
+ * Returns: The largest absolute interpolant, a linear amplitude.
  */
 export function autoMovieTruePeakBetween(
   samples: ArrayLike<number>,
@@ -34,14 +33,22 @@ export function autoMovieTruePeakBetween(
   return Math.max(Math.abs(quarter), Math.abs(half), Math.abs(threeQuarters));
 }
 
-/** The quarter-sample phase. */
+/*
+ * The quarter-sample phase.
+ */
 const QUARTER: Float64Array = AUTOMOVIE_TRUE_PEAK_PHASES[0]!;
 
-/** The half-sample phase. */
+/*
+ * The half-sample phase.
+ */
 const HALF: Float64Array = AUTOMOVIE_TRUE_PEAK_PHASES[1]!;
 
-/** The three-quarter-sample phase. */
+/*
+ * The three-quarter-sample phase.
+ */
 const THREE_QUARTERS: Float64Array = AUTOMOVIE_TRUE_PEAK_PHASES[2]!;
 
-/** Taps per phase. */
+/*
+ * Taps per phase.
+ */
 const TAPS: number = QUARTER.length;

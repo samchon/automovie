@@ -11,7 +11,7 @@ import { POSITIONAL_TARGET_SHAPE } from "../../perform/POSITIONAL_TARGET_SHAPE";
 import { positionalTargetFault } from "../../perform/internal/positionalTargetFault";
 import { resolveTargetPoint } from "../../perform/internal/resolveTargetPoint";
 
-/**
+/*
  * Gate one positional target of a performance and resolve it to a world point,
  * or report why it cannot be and answer `null`.
  *
@@ -33,17 +33,16 @@ import { resolveTargetPoint } from "../../perform/internal/resolveTargetPoint";
  * 4. The point comes from the live resolver at `seconds` when it answers, and
  *    otherwise from the staged placements and opening formation points; a
  *    missing or non-finite point is refused naming the id that failed.
- *
- * @param context The shot's staged tables and collector.
- * @param props.target The target as authored.
- * @param props.path Violation path of the target.
- * @param props.label Name of the target in id messages, such as `lookAt
- *   target`.
- * @param props.subject Name of the target in point messages, such as `a lookAt
- *   target`.
- * @param props.seconds Shot-local instant the live resolver is asked at.
- * @param props.formationsFramed Whether the target asks where to point a lens.
- * @returns The resolved world point in metres, or `null` after a violation.
+ * Parameter context: The shot's staged tables and collector.
+ * Parameter props.target: The target as authored.
+ * Parameter props.path: Violation path of the target.
+ * Parameter props.label: Name of the target in id messages, such as `lookAt
+ * target`.
+ * Parameter props.subject: Name of the target in point messages, such as `a lookAt
+ * target`.
+ * Parameter props.seconds: Shot-local instant the live resolver is asked at.
+ * Parameter props.formationsFramed: Whether the target asks where to point a lens.
+ * Returns: The resolved world point in metres, or `null` after a violation.
  */
 export function resolvePerformShotTarget(
   context: ITargetContext,
@@ -99,7 +98,9 @@ export function resolvePerformShotTarget(
   return point;
 }
 
-/** The staged lookups and collector one positional target reads. */
+/*
+ * The staged lookups and collector one positional target reads.
+ */
 type ITargetContext = Pick<
   IAutoMovieEnginePerformShotGateContext,
   | "out"
@@ -112,7 +113,9 @@ type ITargetContext = Pick<
   | "targetAt"
 >;
 
-/** Check the ids a target carries, answering whether resolution may read it. */
+/*
+ * Check the ids a target carries, answering whether resolution may read it.
+ */
 function validateTargetIds(
   context: ITargetContext,
   target: IAutoMovieActionTarget,
@@ -158,7 +161,9 @@ function validateTargetIds(
   return true;
 }
 
-/** Check that a bone target names a rigged staged actor carrying the bone. */
+/*
+ * Check that a bone target names a rigged staged actor carrying the bone.
+ */
 function validateBoneTarget(
   context: ITargetContext,
   node: string,

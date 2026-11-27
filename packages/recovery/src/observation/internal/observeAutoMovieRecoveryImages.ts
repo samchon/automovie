@@ -9,7 +9,7 @@ import type {
 import { assertRecoveryImageChart } from "../../geometry/internal/assertRecoveryImageChart";
 import { isRecoveryPositiveSafeInteger } from "../../internal/isRecoveryPositiveSafeInteger";
 
-/**
+/*
  * Measure opaque row supports using a supplied fixed RGB background and
  * cameras. This deterministic threshold is suitable for controlled-background
  * captures; shadows, reflections and foreground colours close to the background

@@ -22,7 +22,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { collapse } from "./collapse";
 import { stopDropRollTimeline } from "./stopDropRollTimeline";
 
-/**
+/*
  * Stop, drop and roll (`IAutoMovieMotionHumanFirefight.IStopDropRoll`): the
  * NFPA's steps to safety for burning clothes (NFPA, Steps to Safety,
  * https://www.saskatoon.ca/sites/default/files/STEPSTOSAFETY__1-pager_FIRES.pdf):
@@ -38,30 +38,41 @@ import { stopDropRollTimeline } from "./stopDropRollTimeline";
  * line. The hands stay on the face, carried by the head, throughout.
  */
 export namespace stopDropRoll {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "stopDropRoll";
 
-  /** Cancel table: none; the drill rolls to its end. */
+  /*
+   * Cancel table: none; the drill rolls to its end.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-  /** How long the body stands stopped before it drops, seconds: authored. */
+  /*
+   * How long the body stands stopped before it drops, seconds: authored.
+   */
   export const STOP: number = stopDropRollTimeline.STOP;
 
-  /** How long one roll onto a side and back takes, seconds: authored. */
+  /*
+   * How long one roll onto a side and back takes, seconds: authored.
+   */
   export const ROLL: number = stopDropRollTimeline.ROLL;
 
-  /** How far each roll turns the body, degrees: onto its side. */
+  /*
+   * How far each roll turns the body, degrees: onto its side.
+   */
   export const TURN: number = 90;
 
-  /** How long the hands take to come over the face, seconds: authored. */
+  /*
+   * How long the hands take to come over the face, seconds: authored.
+   */
   export const COVER: number = 0.4;
 
-  /**
+  /*
    * Plan stop, drop and roll.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} On `rolls` when not a positive whole number.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * On `rolls` when not a positive whole number.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IStopDropRoll>,
@@ -243,7 +254,7 @@ export namespace stopDropRoll {
   }
 }
 
-/**
+/*
  * A hand over the face, in the head's frame: the wrist below the cheek and the
  * elbow tucked in front of the chest, below the chin, so a roll onto the side
  * lies on the arm's flank rather than its point; the hand's attitude left to

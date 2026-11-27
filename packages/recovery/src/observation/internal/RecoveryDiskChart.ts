@@ -6,7 +6,7 @@ import type {
 
 import { prepareRecoveryDiskBoundary } from "../../geometry/internal/prepareRecoveryDiskBoundary";
 
-/**
+/*
  * Divide one coherent private triangle disk into four physical-arclength sides.
  * A maximum boundary turn meeting cornerDegrees anchors the chart, with stable
  * physical-key ties followed by the complete coherent cyclic key-word context;

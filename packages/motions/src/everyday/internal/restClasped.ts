@@ -16,7 +16,7 @@ import { placeHumanHandSurface } from "../../posture/internal/placeHumanHandSurf
 import { HumanTrunk } from "./HumanTrunk";
 import { restForearm } from "./restForearm";
 
-/**
+/*
  * The rest goals of two hands laid one on the other against the trunk: in front
  * of the pelvis or behind it.
  *
@@ -39,14 +39,14 @@ import { restForearm } from "./restForearm";
  * fingers, so the two are settled by a few rounds of substitution.
  */
 export namespace restClasped {
-  /**
+  /*
    * The elbow flexion the hands clasped in front settle at, degrees
    * (provisional: no measurement of this stance was located; the arms hang a
    * little short of straight).
    */
   export const FLEXION: number = 30;
 
-  /**
+  /*
    * Both hands' goals clasped in front of the pelvis.
    *
    * The left palm lies on the front midline of the trunk at the height where
@@ -56,12 +56,11 @@ export namespace restClasped {
    * one. Found by bisection since a higher place is nearer the shoulder. The
    * height stays between the groin and the abdomen regions: a long arm bends
    * more at the groin and a short one straightens toward the abdomen.
-   *
-   * @param body The body.
-   * @param posture The standing posture.
-   * @param elbows Each elbow's bend hint, world metres.
-   * @returns Both goals.
-   * @throws {Error} When the trunk has no front surface at the height.
+   * Parameter body: The body.
+   * Parameter posture: The standing posture.
+   * Parameter elbows: Each elbow's bend hint, world metres.
+   * Returns: Both goals.
+   * When the trunk has no front surface at the height.
    */
   export function front(
     body: IAutoMovieMotionHumanBody,
@@ -176,7 +175,7 @@ export namespace restClasped {
     return goals((lo + hi) / 2);
   }
 
-  /**
+  /*
    * Both hands' goals clasped behind the pelvis: the back of the left hand on
    * the back midline of the trunk 0.03 of the stature below the lower back
    * region (the sacrum; provisional), and the back of the right hand in the
@@ -186,12 +185,11 @@ export namespace restClasped {
    * joined, interlocking the thumbs so that the palm of the right hand is
    * outward"). Relaxed, the left fingers curled past the right wrist into the
    * right forearm.
-   *
-   * @param body The body.
-   * @param posture The standing posture.
-   * @param elbows Each elbow's bend hint, world metres.
-   * @returns Both goals.
-   * @throws {Error} When the trunk has no back surface at the height.
+   * Parameter body: The body.
+   * Parameter posture: The standing posture.
+   * Parameter elbows: Each elbow's bend hint, world metres.
+   * Returns: Both goals.
+   * When the trunk has no back surface at the height.
    */
   export function behind(
     body: IAutoMovieMotionHumanBody,
@@ -241,19 +239,27 @@ export namespace restClasped {
   }
 }
 
-/** The record of `IFrontGoalsPlace`'s site. */
+/*
+ * The record of `IFrontGoalsPlace`'s site.
+ */
 type IFrontGoalsPlace = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 
-/** The record of `IFrontAtResult`'s site. */
+/*
+ * The record of `IFrontAtResult`'s site.
+ */
 type IFrontAtResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 
-/** The record of `IFrontAt`'s site. */
+/*
+ * The record of `IFrontAt`'s site.
+ */
 type IFrontAt = {
   point: IAutoMovieVector3;
   normal: IAutoMovieVector3;
 };
 
-/** The unit direction a posture faces, world frame. */
+/*
+ * The unit direction a posture faces, world frame.
+ */
 function heading(posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 {
   return HumanFrame.point(
     { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
@@ -261,7 +267,7 @@ function heading(posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 {
   );
 }
 
-/**
+/*
  * Both shoulder joints of a posture, world metres: they ride the trunk, not the
  * arm's goal.
  */
@@ -274,7 +280,9 @@ function joints(
   };
 }
 
-/** Midline collider and shoulder frames used by one clasp placement search. */
+/*
+ * Midline collider and shoulder frames used by one clasp placement search.
+ */
 const FRAMES: ReadonlySet<AutoMovieHumanoidBone> =
   new Set<AutoMovieHumanoidBone>([
     "hips",
@@ -287,13 +295,19 @@ const FRAMES: ReadonlySet<AutoMovieHumanoidBone> =
     "leftUpperArm",
     "rightUpperArm",
   ]);
-/** The alternatives of `SegmentTo`'s site. */
+/*
+ * The alternatives of `SegmentTo`'s site.
+ */
 type SegmentTo = "LowerArm" | "Hand";
 
-/** The alternatives of `SegmentFrom`'s site. */
+/*
+ * The alternatives of `SegmentFrom`'s site.
+ */
 type SegmentFrom = "UpperArm" | "LowerArm";
 
-/** A rest length between two joints of an arm, metres. */
+/*
+ * A rest length between two joints of an arm, metres.
+ */
 function segment(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
@@ -306,7 +320,9 @@ function segment(
   );
 }
 
-/** The record of `IPrepareLaidFixed`'s site. */
+/*
+ * The record of `IPrepareLaidFixed`'s site.
+ */
 type IPrepareLaidFixed = {
   upper: number;
   lower: number;
@@ -314,7 +330,7 @@ type IPrepareLaidFixed = {
   align: ReturnType<typeof HumanHand.prepareAlignment>;
 };
 
-/**
+/*
  * A hand surface laid on a surface point in a shape: its normal turned into the
  * surface's outward normal exactly, and the fingers along the forearm as far as
  * that allows. The wrist depends on the fingers and the forearm on the wrist,
@@ -373,13 +389,15 @@ function prepareLaid(
   };
 }
 
-/** Actual world surface inputs of one fixed hand/shoulder configuration. */
+/*
+ * Actual world surface inputs of one fixed hand/shoulder configuration.
+ */
 type Lay = (
   point: IAutoMovieVector3,
   normal: IAutoMovieVector3,
 ) => IAutoMovieMotionHumanRest.IGoal;
 
-/**
+/*
  * A hand surface laid on a surface of the left hand as the left hand holds its
  * own goal.
  */

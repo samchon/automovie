@@ -7,7 +7,7 @@ import type {
 import type { IPhysicalContactPoseReference } from "./IPhysicalContactPoseReference";
 import { preparePhysicalContactBindingRows } from "./preparePhysicalContactBindingRows";
 
-/**
+/*
  * Prepare one body's relationship witnesses. Same-body endpoints follow the
  * candidate and outside receivers read the original actual snapshot.
  */

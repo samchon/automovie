@@ -17,13 +17,11 @@ import type { prepareSkeletonPoseResolution } from "../../kinematics/internal/pr
 import type { IRekeyPlantedFeetProps } from "./IRekeyPlantedFeetProps";
 import { fitSeededChainToTarget } from "./fitSeededChainToTarget";
 
-/**
+/*
  * Emit one corrected keyframe per admitted parallel time/pose/target sample
  * using the same unchanged skeleton topology as stance detection. Only targeted
  * leg chains are fitted; roots, expressions and other joints persist, while the
  * prior corrected pose ranks equally accurate bend choices.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States parallel sample premise, topology/clinical agreement, unchanged root/expression/non-chain data and continuity-only prior-pose use.
  */
 export function rekeyPlantedFeet(
   props: IRekeyPlantedFeetProps,
@@ -63,9 +61,9 @@ export function rekeyPlantedFeet(
   return keyframes;
 }
 
-/**
+/*
  * The frame's joints with every pinned leg re-solved onto its target: planted
- * legs get their {@link fitSeededChainToTarget} articulation, everything else is
+ * legs get their fitSeededChainToTarget articulation, everything else is
  * carried through unchanged.
  */
 const plantedJoints: (

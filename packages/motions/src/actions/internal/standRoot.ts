@@ -8,7 +8,7 @@ import type {
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { standUpright } from "./standUpright";
 
-/**
+/*
  * The root of a quiet stance over two ankle points (`stand.root`): the pelvis
  * over the feet's midpoint as it stands over its rest feet, shifted forward by
  * the upright alignment's lean (`standUpright`), `drop` below its rest height
@@ -17,13 +17,12 @@ import { standUpright } from "./standUpright";
  * farther from its ankle than the quiet stance does, so each leg spans its foot
  * with the quiet stance's knee, as a person settles into a wide stance. The
  * quiet stance itself is unchanged.
- *
- * @param body The body.
- * @param feet Ankle points, world metres.
- * @param yaw The heading, degrees.
- * @param drop How far the quiet stance's root sits below its rest height,
- *   metres.
- * @returns The root, world metres.
+ * Parameter body: The body.
+ * Parameter feet: Ankle points, world metres.
+ * Parameter yaw: The heading, degrees.
+ * Parameter drop: How far the quiet stance's root sits below its rest height,
+ * metres.
+ * Returns: The root, world metres.
  */
 export function standRoot(
   body: IAutoMovieMotionHumanBody,
@@ -62,7 +61,7 @@ export function standRoot(
   return { ...placed, y };
 }
 
-/**
+/*
  * The root before the legs' reach: over the feet's midpoint, leaned, `drop`
  * below the rest height.
  */

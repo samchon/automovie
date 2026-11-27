@@ -134,11 +134,10 @@ export namespace AutoMovieArchetypePony {
     };
   }
 
-  /**
+  /*
    * A breed's height at the withers and heart girth, metres.
-   *
-   * @param breed The breed's measures.
-   * @returns The figures.
+   * Parameter breed: The breed's measures.
+   * Returns: The figures.
    */
   function measures(
     breed: EquineSegments.IBreed,

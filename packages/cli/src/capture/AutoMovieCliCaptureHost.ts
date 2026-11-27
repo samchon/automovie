@@ -64,22 +64,30 @@ export class AutoMovieCliCaptureHost {
    */
   public readonly backend: string;
 
-  /** The production's root folder. */
+  /*
+   * The production's root folder.
+   */
   private readonly root: string;
 
-  /**
+  /*
    * Per-call milliseconds for page navigation, draw-function readiness, subject
    * creation and drawing.
    */
   private readonly timeout: number;
 
-  /** The launched browser. */
+  /*
+   * The launched browser.
+   */
   private readonly browser: IAutoMovieCliChromium.IBrowser;
 
-  /** The served draw page. */
+  /*
+   * The served draw page.
+   */
   private readonly page: { url: string; close: () => Promise<void> };
 
-  /** Hold opened resources; `open` acquires them. */
+  /*
+   * Hold opened resources; `open` acquires them.
+   */
   private constructor(props: {
     render: typeof Render;
     backend: string;

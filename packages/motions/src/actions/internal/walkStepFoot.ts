@@ -12,14 +12,14 @@ import { stand } from "./stand";
 import { walkFoot } from "./walkFoot";
 import { walkReach } from "./walkReach";
 
-/**
+/*
  * Each foot's schedule in a walk's footstep plan (`walkSteps`): from its
  * footfalls, the stance it holds before its first toe-off, the swing between a
  * toe-off and the next heel strike, and the stance on each footprint after it,
  * the rockers of each stance being `walkFoot`'s.
  */
 export namespace walkStepFoot {
-  /**
+  /*
    * The toe-off pitch of a straight step, degrees toes-down: the toes' joints
    * are extended about 55° at the end of pre-swing, the toes still flat on the
    * floor and the knee 40° bent (Perry and Burnfield). A shallower foot leaves
@@ -28,7 +28,7 @@ export namespace walkStepFoot {
    */
   export const PUSH: number = 55;
 
-  /**
+  /*
    * The share of its straight push-off pitch a foot turned from the pelvis by
    * `walkReach.TWIST` keeps: the ankle plantarflexion at toe-off of a step turn
    * against straight walking, 1.37° against 10.37° (Ficanha, Rastgaar, Moridian
@@ -39,62 +39,88 @@ export namespace walkStepFoot {
    */
   export const TURNED_SHARE: number = 1.37 / 10.37;
 
-  /** One footfall. */
+  /*
+   * One footfall.
+   */
   export interface IStep {
-    /** The foot. */
+    /*
+     * The foot.
+     */
     side: AutoMovieHumanSide;
 
-    /** When the heel strikes, seconds. */
+    /*
+     * When the heel strikes, seconds.
+     */
     heelStrike: number;
 
-    /** When the foot left for this footfall, seconds. */
+    /*
+     * When the foot left for this footfall, seconds.
+     */
     toeOff: number;
 
-    /** The foot flat on its footprint. */
+    /*
+     * The foot flat on its footprint.
+     */
     flat: IAutoMovieMotionHumanFoot.IPlacement;
 
-    /** The footprint's heading, degrees. */
+    /*
+     * The footprint's heading, degrees.
+     */
     heading: number;
 
-    /**
+    /*
      * The toe-off pitch of the foot leaving for this footfall, degrees,
      * negative.
      */
     push: number;
 
-    /**
+    /*
      * Whether the foot travels backward to this footfall: its stances' rockers
      * run in reverse (`walkFoot.prepareStance`). False when absent.
      */
     backward?: boolean;
 
-    /** The next forefoot or heel plant carried from an outgoing run. */
+    /*
+     * The next forefoot or heel plant carried from an outgoing run.
+     */
     inherited?: IInherited;
   }
 
-  /** Material contact and the displayed foot arriving at it. */
+  /*
+   * Material contact and the displayed foot arriving at it.
+   */
   export interface IInherited extends IAutoMovieMotionHumanWalkFoot.IFoot {
-    /** Contact offset in the entering foot's own frame, if declared. */
+    /*
+     * Contact offset in the entering foot's own frame, if declared.
+     */
     contact?: IAutoMovieVector3;
-    /** Fixed world contact point, metres. */
+    /*
+     * Fixed world contact point, metres.
+     */
     anchor: IAutoMovieVector3;
-    /** Foot socket that retains the anchor through the first stance. */
+    /*
+     * Foot socket that retains the anchor through the first stance.
+     */
     socket: "heel" | "mtp";
   }
 
-  /**
+  /*
    * A foot that enters a walk in the air, as a hurdler's trail leg comes over
    * the bar: where it is and how fast it moves at the start.
    */
   export interface IAirborne {
-    /** The foot at the start: its placement, world metres, and toes. */
+    /*
+     * The foot at the start: its placement, world metres, and toes.
+     */
     foot: IAutoMovieMotionHumanWalkFoot.IFoot;
 
-    /** Its ankle's velocity at the start, world metres per second. */
+    /*
+     * Its ankle's velocity at the start, world metres per second.
+     */
     velocity: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * Set each footfall's push-off: a foot turned from the pelvis at its toe-off
    * pushes off less, since a turning step pivots more and pushes less in the
    * sagittal plane (Hase and Stein 1999): the pitch falls to `TURNED_SHARE` of
@@ -102,12 +128,11 @@ export namespace walkStepFoot {
    * `walkReach.TWIST`, linearly between (the interpolation is provisional, no
    * intermediate turn having been read), and a leg kept straight leaves the
    * floor nearly flat, a steep push-off needing the knee it does not bend.
-   *
-   * @param steps The footfalls, in order; each one's `push` is set.
-   * @param start Each foot flat where the walk begins.
-   * @param yaw The pelvis's heading at a second, degrees.
-   * @param push The straight step's push-off pitch, degrees toes-down.
-   * @param stiff The leg kept straight, if any.
+   * Parameter steps: The footfalls, in order; each one's `push` is set.
+   * Parameter start: Each foot flat where the walk begins.
+   * Parameter yaw: The pelvis's heading at a second, degrees.
+   * Parameter push: The straight step's push-off pitch, degrees toes-down.
+   * Parameter stiff: The leg kept straight, if any.
    */
   export function pushed(
     steps: readonly IStep[],
@@ -136,15 +161,14 @@ export namespace walkStepFoot {
     }
   }
 
-  /**
+  /*
    * The named instants and each foot's stance spans of a walk's footfalls.
-   *
-   * @param steps The footfalls, in order.
-   * @param last The last footfall, seconds.
-   * @param duration The walk's length, seconds.
-   * @returns Each foot's numbered toe-offs and heel strikes with the last
-   *   footfall and the arrival, in time order, and each foot's stances from the
-   *   start to the end.
+   * Parameter steps: The footfalls, in order.
+   * Parameter last: The last footfall, seconds.
+   * Parameter duration: The walk's length, seconds.
+   * Returns: Each foot's numbered toe-offs and heel strikes with the last
+   * footfall and the arrival, in time order, and each foot's stances from the
+   * start to the end.
    */
   export function windows(
     steps: readonly IStep[],
@@ -184,24 +208,23 @@ export namespace walkStepFoot {
     return { events, stances };
   }
 
-  /**
+  /*
    * A foot's schedule over its footfalls.
-   *
-   * @param body The body.
-   * @param side The foot.
-   * @param start The foot flat where the walk begins.
-   * @param own The foot's footfalls, in order.
-   * @param typical The gait's cruising stance, seconds, which an opening or
-   *   closing stance's rockers take their shares of
-   *   (`walkFoot.prepareStance`).
-   * @param raised How far the gait holds the heels off the floor, degrees.
-   * @param inPlace A stepping turn without a heel strike or forefoot push.
-   * @param airborne A foot entered in the air, its first footfall's toe-off at
-   *   the start: its first swing leaves from where it is, with the velocity it
-   *   entered with, instead of from an opening stance. Absent for a foot
-   *   standing at the start.
-   * @returns The foot's scheduled stance at a second, with its swing while it
-   *   swings.
+   * Parameter body: The body.
+   * Parameter side: The foot.
+   * Parameter start: The foot flat where the walk begins.
+   * Parameter own: The foot's footfalls, in order.
+   * Parameter typical: The gait's cruising stance, seconds, which an opening or
+   * closing stance's rockers take their shares of
+   * (`walkFoot.prepareStance`).
+   * Parameter raised: How far the gait holds the heels off the floor, degrees.
+   * Parameter inPlace: A stepping turn without a heel strike or forefoot push.
+   * Parameter airborne: A foot entered in the air, its first footfall's toe-off at
+   * the start: its first swing leaves from where it is, with the velocity it
+   * entered with, instead of from an opening stance. Absent for a foot
+   * standing at the start.
+   * Returns: The foot's scheduled stance at a second, with its swing while it
+   * swings.
    */
   export function schedule(
     body: IAutoMovieMotionHumanBody,
@@ -318,51 +341,69 @@ export namespace walkStepFoot {
   }
 }
 
-/** The record of `IScheduleEndsResult`'s site. */
+/*
+ * The record of `IScheduleEndsResult`'s site.
+ */
 type IScheduleEndsResult = {
   from: IAutoMovieMotionHumanWalkFoot.IFoot;
   to: IAutoMovieMotionHumanWalkFoot.IFoot;
 };
 
-/** The record of `IScheduleEndsItem`'s site. */
+/*
+ * The record of `IScheduleEndsItem`'s site.
+ */
 type IScheduleEndsItem = {
   from: IAutoMovieMotionHumanWalkFoot.IFoot;
   to: IAutoMovieMotionHumanWalkFoot.IFoot;
 };
 
-/** The record of `IWindowsStancesItem`'s site. */
+/*
+ * The record of `IWindowsStancesItem`'s site.
+ */
 type IWindowsStancesItem = {
   side: AutoMovieHumanSide;
   from: number;
   to: number;
 };
 
-/** The record of `IWindowsB`'s site. */
+/*
+ * The record of `IWindowsB`'s site.
+ */
 type IWindowsB = { name: string; seconds: number };
 
-/** The record of `IWindowsA`'s site. */
+/*
+ * The record of `IWindowsA`'s site.
+ */
 type IWindowsA = { name: string; seconds: number };
 
-/** The record of `IWindowsEventsItem`'s site. */
+/*
+ * The record of `IWindowsEventsItem`'s site.
+ */
 type IWindowsEventsItem = { name: string; seconds: number };
 
-/** The record of `IWindowsResult`'s site. */
+/*
+ * The record of `IWindowsResult`'s site.
+ */
 type IWindowsResult = {
   events: IWindowsEventsItemResult[];
   stances: IWindowsStancesItemResult[];
 };
 
-/** The record of `IWindowsStancesItemResult`'s site. */
+/*
+ * The record of `IWindowsStancesItemResult`'s site.
+ */
 type IWindowsStancesItemResult = {
   side: AutoMovieHumanSide;
   from: number;
   to: number;
 };
 
-/** The record of `IWindowsEventsItemResult`'s site. */
+/*
+ * The record of `IWindowsEventsItemResult`'s site.
+ */
 type IWindowsEventsItemResult = { name: string; seconds: number };
 
-/**
+/*
  * Ease a previously scheduled landing into its new gait about the same sole
  * datum.
  */

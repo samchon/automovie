@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 
-/**
+/*
  * A slender hand tool worked by its tip: an artist's paintbrush, a conductor's
  * baton, a sewing needle or a knitting needle.
  *
@@ -20,10 +20,9 @@ import {
  * end of the shaft's radius (`radius`); `stitch` is the flat just behind a
  * knitting needle's tip where a stitch sits, the surface the other needle's tip
  * enters, facing `+Y`.
- *
- * @param params The kind and the optional scene id.
- * @returns The tool and its contacts, metres.
- * @throws {AutoMovieArchetypeRefusal} For a kind outside the set.
+ * Parameter params: The kind and the optional scene id.
+ * Returns: The tool and its contacts, metres.
+ * For a kind outside the set.
  */
 export function createCraftTool(
   params: AutoMovieArchetypeCraftTool.IParams,
@@ -92,7 +91,7 @@ export function createCraftTool(
   return builder.build(size.mass);
 }
 
-/**
+/*
  * Each kind's size, metres and kilograms. No source is read: every figure is a
  * provisional construction estimate of the common article (an artist's
  * long-handled brush, a conductor's baton, a hand-sewing needle, a straight

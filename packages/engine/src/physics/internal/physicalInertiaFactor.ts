@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * Factor a symmetric positive-definite inertia tensor without choosing axes.
  *
  * The upper triangle is authoritative, as for LAPACK DPOSV with UPLO=U;
@@ -24,7 +24,9 @@ export function physicalInertiaFactor(
   const zz: number = tensor[2]![2]!;
   if (xx <= 0 || yy <= 0 || zz <= 0) return null;
 
-  /** Direct multiplication shares the same authoritative symmetric entries. */
+  /*
+   * Direct multiplication shares the same authoritative symmetric entries.
+   */
   const apply: (vector: IAutoMovieVector3) => IAutoMovieVector3 = (
     vector: IAutoMovieVector3,
   ): IAutoMovieVector3 => ({
@@ -64,7 +66,9 @@ export function physicalInertiaFactor(
   const independentY: boolean = xy === 0 && yz === 0;
   const independentZ: boolean = xz === 0 && yz === 0;
 
-  /** Forward/back substitution lends no scratch or right-hand-side record. */
+  /*
+   * Forward/back substitution lends no scratch or right-hand-side record.
+   */
   const solve: (vector: IAutoMovieVector3) => IAutoMovieVector3 = (
     vector: IAutoMovieVector3,
   ): IAutoMovieVector3 => {
@@ -89,21 +93,23 @@ export function physicalInertiaFactor(
   };
 }
 
-/** Operations over one copied symmetric physical tensor in a fixed frame. */
+/*
+ * Operations over one copied symmetric physical tensor in a fixed frame.
+ */
 export namespace physicalInertiaFactor {
-  /**
+  /*
    * Fixed-frame tensor operations using the factory's copied upper triangle.
    * All outputs are fresh; the borrowed input vector is neither changed nor
    * retained.
    */
   export interface IPrepared {
-    /**
+    /*
      * Solve A*x=vector in the common frame, with output units divided by
      * inertia.
      */
     solve(vector: IAutoMovieVector3): IAutoMovieVector3;
 
-    /**
+    /*
      * Apply A*vector in the common frame, with output units multiplied by
      * inertia.
      */

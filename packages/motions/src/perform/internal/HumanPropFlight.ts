@@ -20,7 +20,7 @@ import { HumanPropOutcome } from "./HumanPropOutcome";
 import { HumanPropSweep } from "./HumanPropSweep";
 import { launchPropProjectile } from "./launchPropProjectile";
 
-/**
+/*
  * Props that fly: every launch an action publishes
  * (`IHumanActionPlan.launches`) turns its prop into the engine's flight
  * (`projectileAt`) from the launch until the next grip or launch takes custody.
@@ -52,19 +52,18 @@ import { launchPropProjectile } from "./launchPropProjectile";
  * unended.
  */
 export namespace HumanPropFlight {
-  /**
+  /*
    * A prop's flights in film order: those the performance prepared once it was
    * placed (`IAutoMovieMotionHumanPerformanceState.flights`), or those the
    * placed performance gives now.
-   *
-   * @param self The performance.
-   * @param subject The prop.
-   * @param through Optional film second limiting a point-in-time read during
-   *   placement. Full hit scans omit it, and completed performances always use
-   *   the final horizon.
-   * @returns The flights.
-   * @throws {HumanRefusal} When the final flight does not reach a staged
-   *   interception.
+   * Parameter self: The performance.
+   * Parameter subject: The prop.
+   * Parameter through: Optional film second limiting a point-in-time read during
+   * placement. Full hit scans omit it, and completed performances always use
+   * the final horizon.
+   * Returns: The flights.
+   * When the final flight does not reach a staged
+   * interception.
    */
   export function flights(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -74,16 +73,15 @@ export namespace HumanPropFlight {
     return self.flights.get(subject) ?? sweep(self, subject, through);
   }
 
-  /**
+  /*
    * Sweep a prop's flights from the placed launches: every launch flown in film
    * order, each until the next takes custody, with the staged interceptions
    * admitted once the schedule is resolved. What the performance prepares.
-   *
-   * @param self The performance.
-   * @param subject The prop.
-   * @param through Optional film second limiting a point-in-time read during
-   *   placement.
-   * @returns The flights.
+   * Parameter self: The performance.
+   * Parameter subject: The prop.
+   * Parameter through: Optional film second limiting a point-in-time read during
+   * placement.
+   * Returns: The flights.
    */
   export function sweep(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -153,7 +151,9 @@ export namespace HumanPropFlight {
     return out;
   }
 
-  /** Find the latest flight still displaying this prop at the given film second. */
+  /*
+   * Find the latest flight still displaying this prop at the given film second.
+   */
   export function active(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
@@ -177,7 +177,7 @@ export namespace HumanPropFlight {
     return undefined;
   }
 
-  /**
+  /*
    * Read two frames of one approach, without resweeping the placed flight at
    * the earlier sample.
    */
@@ -209,17 +209,16 @@ export namespace HumanPropFlight {
     };
   }
 
-  /**
+  /*
    * A prop's world frame at a film second from its latest flight launched at or
    * after `since` (the latest grip's start, which a launch after it ends), or
    * undefined when no such flight has been launched by then.
-   *
-   * @param self The performance.
-   * @param subject The prop.
-   * @param seconds Film seconds.
-   * @param since Film second before which a launch is overtaken by a later
-   *   grip.
-   * @returns The frame, or undefined.
+   * Parameter self: The performance.
+   * Parameter subject: The prop.
+   * Parameter seconds: Film seconds.
+   * Parameter since: Film second before which a launch is overtaken by a later
+   * grip.
+   * Returns: The frame, or undefined.
    */
   export function frame(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -238,7 +237,9 @@ export namespace HumanPropFlight {
       : HumanPropFlightFrame.sample(self, latest, seconds);
   }
 
-  /** Check each staged grip against the completed, still uncached flight list. */
+  /*
+   * Check each staged grip against the completed, still uncached flight list.
+   */
   function admitCaptures(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
@@ -290,7 +291,7 @@ export namespace HumanPropFlight {
     }
   }
 
-  /**
+  /*
    * Fly one launch to its first contact and on, by the outcome its body's data
    * give.
    */
@@ -451,7 +452,9 @@ export namespace HumanPropFlight {
   }
 }
 
-/** The record of `IFlightsLaunchesItem`'s site. */
+/*
+ * The record of `IFlightsLaunchesItem`'s site.
+ */
 type IFlightsLaunchesItem = {
   seconds: number;
   source: IAutoMovieMotionHumanPropFlight.IFlight["source"];

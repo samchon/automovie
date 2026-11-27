@@ -4,7 +4,7 @@ import { DOG_BODY_MEASURES } from "./constants/DOG_BODY_MEASURES";
 import type { IDogBodyMeasures } from "./structures/IDogBodyMeasures";
 import type { DogCohort } from "./typings/DogCohort";
 
-/**
+/*
  * A coarse Husky control rig from one whole morphometric cohort mean.
  *
  * Huson, Srikanth and Ellis 2025, Genes 16:1355, Table 1 reports tape-measured
@@ -20,10 +20,9 @@ import type { DogCohort } from "./typings/DogCohort";
  * construction is authored geometry, not measured canine pose. Circular cross
  * sections, straight neck/tail and the head's eye-width radius are construction
  * proxies. No canine segment masses or paw material are known here.
- *
- * @param cohort The complete measured cohort, never a blend of its traits.
- * @returns Its coarse control proportions; no anatomical or visual validation
- *   is claimed.
+ * Parameter cohort: The complete measured cohort, never a blend of its traits.
+ * Returns: Its coarse control proportions; no anatomical or visual validation
+ * is claimed.
  */
 export function buildDogBody(
   cohort: DogCohort,

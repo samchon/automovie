@@ -1,6 +1,6 @@
 import type { IAutoMovieAngleRange } from "@automovie/interface";
 
-/**
+/*
  * The full-turn alias of an angle nearest an interval: one inside it when any
  * is, the angle itself first; otherwise the alias with the least overshoot, the
  * lower one on a tie. A `null` interval is the immobile one, which admits only
@@ -12,10 +12,9 @@ import type { IAutoMovieAngleRange } from "@automovie/interface";
  * error has no alias at exactly 0; left unaliased it would score a full turn of
  * overshoot and lose a chart choice to a far worse chart, on rounding noise
  * alone.
- *
- * @param angle Degrees.
- * @param range The interval, degrees; `null` for an immobile axis.
- * @returns The alias, degrees.
+ * Parameter angle: Degrees.
+ * Parameter range: The interval, degrees; `null` for an immobile axis.
+ * Returns: The alias, degrees.
  */
 export function nearestAngleAlias(
   angle: number,

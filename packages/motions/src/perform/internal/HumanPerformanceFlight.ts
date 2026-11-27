@@ -10,7 +10,7 @@ import { HumanPerformanceStagedFlightRotation } from "./HumanPerformanceStagedFl
 import { flyPerformanceFlight } from "./flyPerformanceFlight";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
-/**
+/*
  * Hand each placed flight its rigid turn after placement and contacts. Authored
  * turn counts use the performance's staged default: exact unwrapped angles
  * about the law's composed centre, with its existing articulation and heading.
@@ -53,7 +53,7 @@ import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
  * instants. Every physical acceptance bound remains unchanged.
  */
 export namespace HumanPerformanceFlight {
-  /**
+  /*
    * The original embedded orientation RMS and same-unit sensitivity-matrix
    * budgets, with no absolute floor. This local state estimate does not bound
    * the dense angular rate or its inertia-conditioned momentum error; the
@@ -64,16 +64,15 @@ export namespace HumanPerformanceFlight {
     absolute: 0,
   };
 
-  /**
+  /*
    * Turn every placed flight of a performance.
-   *
-   * @param self The performance, placed and its contacts resolved.
-   * @param people The people.
-   * @param observation Optional native cumulative history-work observer,
-   *   borrowed only during planning; no diagnostic callback is invoked by this
-   *   pass.
-   * @throws {HumanRefusal} For invalid staged data or physical turns the
-   *   take-off cannot meet.
+   * Parameter self: The performance, placed and its contacts resolved.
+   * Parameter people: The people.
+   * Parameter observation: Optional native cumulative history-work observer,
+   * borrowed only during planning; no diagnostic callback is invoked by this
+   * pass.
+   * For invalid staged data or physical turns the
+   * take-off cannot meet.
    */
   export function flights(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -133,7 +132,7 @@ export namespace HumanPerformanceFlight {
     }
   }
 
-  /**
+  /*
    * Hand back authored turns without constructing a physical history or
    * take-off problem.
    */
@@ -189,18 +188,24 @@ export namespace HumanPerformanceFlight {
   }
 }
 
-/** The record of `IACCURACYItem`'s site. */
+/*
+ * The record of `IACCURACYItem`'s site.
+ */
 type IACCURACYItem = { relative: number; absolute: number };
-/** The alternatives of `Playback`'s site. */
+/*
+ * The alternatives of `Playback`'s site.
+ */
 type Playback = "step" | "times" | "table";
 
-/** Numeric playback data shared by staged and physical rotation policies. */
+/*
+ * Numeric playback data shared by staged and physical rotation policies.
+ */
 type IPlayback = Pick<
   Parameters<typeof HumanPerformanceFlightRotation>[0],
   Playback
 >;
 
-/**
+/*
  * Sample the existing playback grid once, without retaining its displayed-pose
  * reader.
  */

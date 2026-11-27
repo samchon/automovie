@@ -6,7 +6,7 @@ import type {
 
 import { normalizeRecoveryImagePoints } from "./normalizeRecoveryImagePoints";
 
-/**
+/*
  * Fit x2 transpose F x1 = 0 with normalized original-design eight-point SVD.
  * Rank two is imposed in the normalized image chart before denormalization,
  * following Hartley's normalized algorithm; this is an algebraic initializer,

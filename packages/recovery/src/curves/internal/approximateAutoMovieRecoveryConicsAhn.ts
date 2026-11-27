@@ -7,7 +7,7 @@ import type {
 
 import { AutoMovieRecoveryConicApproximation as C } from "../AutoMovieRecoveryConicApproximation";
 
-/**
+/*
  * Construct G1 bitangent conics using Ahn's control-triangle subdivision
  * scheme.
  *
@@ -49,7 +49,9 @@ export function approximateAutoMovieRecoveryConicsAhn(
   let unresolved: number = 0;
   const reasons: Map<string, number> = new Map();
 
-  /** Assemble evidence without retaining callback closures or observed samples. */
+  /*
+   * Assemble evidence without retaining callback closures or observed samples.
+   */
   const result: (
     status: IAutoMovieConicApproximation.IResult["status"],
   ) => IAutoMovieConicApproximation.IResult = (
@@ -75,7 +77,9 @@ export function approximateAutoMovieRecoveryConicsAhn(
     "Numerical adaptation: Ahn's full characterization theorem/error function was unavailable; radial-correspondence samples do not certify Hausdorff distance or global minimality.",
   );
 
-  /** Reject corrupt observations rather than creating substitute coordinates. */
+  /*
+   * Reject corrupt observations rather than creating substitute coordinates.
+   */
   const observe: (
     t: number,
     order?: 1 | 2 | 3,
@@ -99,7 +103,9 @@ export function approximateAutoMovieRecoveryConicsAhn(
     return [p[0], p[1]];
   };
 
-  /** Source-minus-origin vectors keep determinants translation invariant. */
+  /*
+   * Source-minus-origin vectors keep determinants translation invariant.
+   */
   const minus: (
     a: Readonly<AutoMovieVector2Tuple>,
     b: Readonly<AutoMovieVector2Tuple>,
@@ -108,14 +114,18 @@ export function approximateAutoMovieRecoveryConicsAhn(
     b: Readonly<AutoMovieVector2Tuple>,
   ): Readonly<AutoMovieVector2Tuple> => [a[0] - b[0], a[1] - b[1]];
 
-  /** A work item retains only source interval, subdivision depth and its cause. */
+  /*
+   * A work item retains only source interval, subdivision depth and its cause.
+   */
   interface Interval {
     a: number;
     b: number;
     depth: number;
   }
 
-  /** A radial correspondence needs no nearest-point solve during weight search. */
+  /*
+   * A radial correspondence needs no nearest-point solve during weight search.
+   */
   interface Radial {
     u: number;
     apex: number;
@@ -123,7 +133,7 @@ export function approximateAutoMovieRecoveryConicsAhn(
     idealWeight: number;
   }
 
-  /**
+  /*
    * Attempt one admissible triangle. Undefined requests source subdivision;
    * nonfinite observations throw and are reported at the operation boundary.
    */
@@ -317,7 +327,9 @@ export function approximateAutoMovieRecoveryConicsAhn(
       samples.push({ u, apex: b1, scale: C.distance(p1, base), idealWeight });
     }
 
-    /** Signed distance along a fixed apex ray is monotone in positive weight. */
+    /*
+     * Signed distance along a fixed apex ray is monotone in positive weight.
+     */
     const residual: (sample: Radial, weight: number) => number = (
       sample: Radial,
       weight: number,

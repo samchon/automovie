@@ -268,14 +268,13 @@ export namespace AutoMovieViewParameter {
   }
 }
 
-/**
+/*
  * Two angle maps sharing an endpoint: the transfer's jet with the common
  * square-root factor cancelled, absent where its ratio of roots overflows.
- *
- * @param common The station's distance from the shared endpoint.
- * @param other Its distance from the source's other endpoint.
- * @param reach Its distance from the target's other endpoint.
- * @param shift The other endpoints' difference, target less source.
+ * Parameter common: The station's distance from the shared endpoint.
+ * Parameter other: Its distance from the source's other endpoint.
+ * Parameter reach: Its distance from the target's other endpoint.
+ * Parameter shift: The other endpoints' difference, target less source.
  */
 function shared(
   common: number,
@@ -294,7 +293,9 @@ function shared(
   return [Math.sqrt(reach) / root, ratio * roots];
 }
 
-/** Whether a quotient's magnitude stays within binary64, before it is formed. */
+/*
+ * Whether a quotient's magnitude stays within binary64, before it is formed.
+ */
 function divides(numerator: number, denominator: number): boolean {
   return (
     denominator !== 0 &&
@@ -302,12 +303,14 @@ function divides(numerator: number, denominator: number): boolean {
   );
 }
 
-/** Whether a product's magnitude stays within binary64, before it is formed. */
+/*
+ * Whether a product's magnitude stays within binary64, before it is formed.
+ */
 function fits(x: number, y: number): boolean {
   return y === 0 || Math.abs(x) <= Number.MAX_VALUE / Math.abs(y);
 }
 
-/**
+/*
  * Exact map identity compares the actual endpoint data, allowing equal-value
  * copies.
  */

@@ -17,7 +17,7 @@ import { alignHumanHandSurface } from "./alignHumanHandSurface";
 import { placeHumanHandSurface } from "./placeHumanHandSurface";
 import { readHumanHandFrame } from "./readHumanHandFrame";
 
-/**
+/*
  * A hand brought to a target: which wrist point and hand rotation put a chosen
  * hand surface (the palm, the grip centre, the fist, the back of the hand, a
  * digit's tip or pad, or the wrist itself) on a world frame, under a stated
@@ -44,10 +44,10 @@ import { readHumanHandFrame } from "./readHumanHandFrame";
  *
  * A rotation is the hand's world rotation from its rest, the form
  * `HumanPosture.IGoal.rotation` and `fitChainToTarget`'s `effectorRotation`
- * take. It is built by aligning two directions: {@link HumanHand.align} turns a
+ * take. It is built by aligning two directions: HumanHand.align turns a
  * surface's rest normal onto a world normal exactly and its rest forward onto a
  * world forward as closely as a direction across the normal allows;
- * {@link HumanHand.rotation} does the same for the anatomical pair of where the
+ * HumanHand.rotation does the same for the anatomical pair of where the
  * fingers point and where the palm faces (rest: left fingers +X, right fingers
  * -X, both palms -Y, `HUMANOID_REST_FRAME`).
  *
@@ -82,20 +82,24 @@ import { readHumanHandFrame } from "./readHumanHandFrame";
  * hand rotation that turns about the forearm's length, within its range of
  * pronation and supination, and the wrist the rest by flexion and deviation. A
  * rotation beyond either range is clamped and its surface lands off the point
- * by the clamped share; {@link HumanHand.frame} reads where the surface really
+ * by the clamped share; HumanHand.frame reads where the surface really
  * is, so audits report that residual. Asked about 140 degrees or more of
  * forearm turn away from the hand's own rotation at its place, the nearer limit
  * changes sides and the hand with it, so a law keeps an asked rotation on one
  * side of that across its instants (`test_human_motion_core_hand_rotation`).
  */
 export namespace HumanHand {
-  /** The sides of {@link Side}, as data. */
+  /*
+   * The sides of Side, as data.
+   */
   export const SIDES = [
     "left",
     "right",
   ] as const satisfies readonly NonNullable<AutoMovieHumanSide>[];
 
-  /** The surfaces of {@link Surface}, as data. */
+  /*
+   * The surfaces of Surface, as data.
+   */
   export const SURFACES = [
     "palm",
     "grip",
@@ -114,7 +118,9 @@ export namespace HumanHand {
     "littlePad",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanHand.Surface>[];
 
-  /** The surfaces of {@link DigitSurface}, as data. */
+  /*
+   * The surfaces of DigitSurface, as data.
+   */
   export const DIGIT_SURFACES = [
     "thumbTip",
     "thumbPad",
@@ -128,12 +134,11 @@ export namespace HumanHand {
     "littlePad",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanHand.DigitSurface>[];
 
-  /**
+  /*
    * Whether a surface lies on a digit's distal phalanx, so it moves with the
    * fingers rather than with the hand bone.
-   *
-   * @param surface The surface.
-   * @returns Whether it is a digit's tip or pad.
+   * Parameter surface: The surface.
+   * Returns: Whether it is a digit's tip or pad.
    */
   export function digital(
     surface: IAutoMovieMotionHumanHand.Surface,
@@ -141,13 +146,12 @@ export namespace HumanHand {
     return (DIGIT_SURFACES as readonly string[]).includes(surface);
   }
 
-  /**
+  /*
    * The bone a surface rides: a digit's tip and pad ride its distal phalanx,
    * every other surface the hand.
-   *
-   * @param side The hand.
-   * @param surface The surface.
-   * @returns The bone.
+   * Parameter side: The hand.
+   * Parameter surface: The surface.
+   * Returns: The bone.
    */
   export function bone(
     side: AutoMovieHumanSide,
@@ -158,7 +162,9 @@ export namespace HumanHand {
     return `${side}${digit[0]!.toUpperCase()}${digit.slice(1)}Distal` as AutoMovieHumanoidBone;
   }
 
-  /** The hand shapes of {@link Shape}, as data. */
+  /*
+   * The hand shapes of Shape, as data.
+   */
   export const SHAPES = [
     "relaxed",
     "flat",
@@ -167,12 +173,11 @@ export namespace HumanHand {
     "bridge",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanHand.Shape>[];
 
-  /**
+  /*
    * The finger joints of a hand shape, clinical degrees.
-   *
-   * @param side The hand.
-   * @param form The shape.
-   * @returns Angles for every finger and thumb segment of that hand.
+   * Parameter side: The hand.
+   * Parameter form: The shape.
+   * Returns: Angles for every finger and thumb segment of that hand.
    */
   export function shape(
     side: AutoMovieHumanSide,
@@ -181,17 +186,16 @@ export namespace HumanHand {
     return HumanHandShape(side, form);
   }
 
-  /**
+  /*
    * A hand surface's frame relative to the wrist joint under a shape, in the
    * hand's rest frame.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @param surface The surface.
-   * @param form The hand shape; it matters only for a digit's tip or pad.
-   * @param curl Extra flexion of the fingers over the shape, degrees, as a kind
-   *   of touch curls them; it matters only for a digit's tip or pad.
-   * @returns The frame, its point measured from the wrist joint.
+   * Parameter body: The body.
+   * Parameter side: The hand.
+   * Parameter surface: The surface.
+   * Parameter form: The hand shape; it matters only for a digit's tip or pad.
+   * Parameter curl: Extra flexion of the fingers over the shape, degrees, as a kind
+   * of touch curls them; it matters only for a digit's tip or pad.
+   * Returns: The frame, its point measured from the wrist joint.
    */
   export function offset(
     body: IAutoMovieMotionHumanBody,
@@ -244,18 +248,17 @@ export namespace HumanHand {
     }
   }
 
-  /**
+  /*
    * The rotation that turns a rest frame's normal onto a world normal exactly
    * and its forward onto a world forward as closely as possible: each pair is
    * completed to a right-handed orthonormal frame (the normal, the forward's
    * component across it, and their cross product), and the rotation is the
    * world frame times the inverse of the rest frame, both read by the engine's
    * `quaternionFromAutoMovieBasis`.
-   *
-   * @param rest The surface's rest normal and forward.
-   * @param world The requested world normal and forward.
-   * @returns The rotation.
-   * @throws {Error} When a forward is parallel to its normal.
+   * Parameter rest: The surface's rest normal and forward.
+   * Parameter world: The requested world normal and forward.
+   * Returns: The rotation.
+   * When a forward is parallel to its normal.
    */
   export function align(
     rest: Pick<IAutoMovieMotionHumanHand.IFrame, AlignRest>,
@@ -264,21 +267,20 @@ export namespace HumanHand {
     return alignHumanHandSurface(rest, world);
   }
 
-  /**
+  /*
    * Invert the rest basis at preparation and admit each actual world frame when
    * it is read.
    */
   export const prepareAlignment: typeof alignHumanHandSurface.prepare =
     alignHumanHandSurface.prepare;
 
-  /**
+  /*
    * The hand's world rotation from its rest for an anatomical orientation: the
    * fingers met exactly, the palm as closely as a direction across the fingers
    * allows.
-   *
-   * @param side The hand.
-   * @param orientation Where the fingers point and the palm faces.
-   * @returns The rotation.
+   * Parameter side: The hand.
+   * Parameter orientation: Where the fingers point and the palm faces.
+   * Returns: The rotation.
    */
   export function rotation(
     side: AutoMovieHumanSide,
@@ -290,7 +292,9 @@ export namespace HumanHand {
     });
   }
 
-  /** The axes of {@link Axis}, as data. */
+  /*
+   * The axes of Axis, as data.
+   */
   export const AXES = [
     "out",
     "in",
@@ -300,17 +304,16 @@ export namespace HumanHand {
     "back",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanHand.Axis>[];
 
-  /**
+  /*
    * The world unit vector of a named direction for a hand of a performer
    * heading `yaw`.
-   *
-   * @param side The acting hand, which `out` and `in` mirror by.
-   * @param yaw The performer's heading, degrees about +Y.
-   * @param direction The direction, on any rung.
-   * @returns The unit vector, world frame.
-   * @throws {Error} When a between joins opposite axes or its share lies
-   *   outside [0, 1], when explicit components are all zero, or when an
-   *   explicit source is empty.
+   * Parameter side: The acting hand, which `out` and `in` mirror by.
+   * Parameter yaw: The performer's heading, degrees about +Y.
+   * Parameter direction: The direction, on any rung.
+   * Returns: The unit vector, world frame.
+   * When a between joins opposite axes or its share lies
+   * outside [0, 1], when explicit components are all zero, or when an
+   * explicit source is empty.
    */
   export function direction(
     side: AutoMovieHumanSide,
@@ -320,13 +323,12 @@ export namespace HumanHand {
     return HumanHandDirection(side, yaw, direction);
   }
 
-  /**
+  /*
    * The hand's world rotation from its rest for a named orientation.
-   *
-   * @param side The hand.
-   * @param yaw The performer's heading, degrees about +Y.
-   * @param facing Where the fingers point and the palm faces, by name.
-   * @returns The rotation.
+   * Parameter side: The hand.
+   * Parameter yaw: The performer's heading, degrees about +Y.
+   * Parameter facing: Where the fingers point and the palm faces, by name.
+   * Returns: The rotation.
    */
   export function facing(
     side: AutoMovieHumanSide,
@@ -339,17 +341,16 @@ export namespace HumanHand {
     });
   }
 
-  /**
+  /*
    * The wrist goal that puts a hand surface on a world point with the hand
    * turned by a given rotation.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @param surface The surface brought to the point.
-   * @param at The world point, metres.
-   * @param turn The hand's world rotation from its rest.
-   * @param form The hand shape.
-   * @returns The wrist point and the rotation.
+   * Parameter body: The body.
+   * Parameter side: The hand.
+   * Parameter surface: The surface brought to the point.
+   * Parameter at: The world point, metres.
+   * Parameter turn: The hand's world rotation from its rest.
+   * Parameter form: The hand shape.
+   * Returns: The wrist point and the rotation.
    */
   export function place(
     body: IAutoMovieMotionHumanBody,
@@ -368,18 +369,17 @@ export namespace HumanHand {
     return placeHumanHandSurface(local.point, at, turn);
   }
 
-  /**
+  /*
    * The wrist goal that lays a hand surface's frame on a world frame: its point
    * on the target point, its normal along the target normal and its forward
    * toward the target forward. A grasp passes the handle's frame turned so the
    * palm faces into the object and the forward runs along the wrapped axis.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @param surface The surface.
-   * @param target The world frame.
-   * @param form The hand shape.
-   * @returns The wrist point and the rotation.
+   * Parameter body: The body.
+   * Parameter side: The hand.
+   * Parameter surface: The surface.
+   * Parameter target: The world frame.
+   * Parameter form: The hand shape.
+   * Returns: The wrist point and the rotation.
    */
   export function reach(
     body: IAutoMovieMotionHumanBody,
@@ -397,18 +397,17 @@ export namespace HumanHand {
     return place(body, side, surface, target.point, align(local, target), form);
   }
 
-  /**
+  /*
    * Where a hand surface is on a displayed pose: its world frame from the
    * resolved bones, for audits that report a missed or range-limited contact
    * (the distance to the target and the angle between normals).
-   *
-   * @param body The body.
-   * @param bones The pose's resolved bones.
-   * @param side The hand.
-   * @param surface The surface.
-   * @param form The hand shape the pose holds; it matters only for a digit's
-   *   tip or pad.
-   * @returns The world frame.
+   * Parameter body: The body.
+   * Parameter bones: The pose's resolved bones.
+   * Parameter side: The hand.
+   * Parameter surface: The surface.
+   * Parameter form: The hand shape the pose holds; it matters only for a digit's
+   * tip or pad.
+   * Returns: The world frame.
    */
   export function frame(
     body: IAutoMovieMotionHumanBody,
@@ -430,7 +429,7 @@ export namespace HumanHand {
     );
   }
 
-  /**
+  /*
    * Actual hand and body-declared digit-region bones consumed by frame,
    * including custom/fallback region metadata.
    */
@@ -442,7 +441,7 @@ export namespace HumanHand {
     return readHumanHandFrame.bones(body, side, surface, digital(surface));
   }
 
-  /**
+  /*
    * Prepare fixed body/side/surface/form point geometry; current bones return
    * fresh points, while digits keep complete original frame seating.
    */
@@ -462,26 +461,38 @@ export namespace HumanHand {
   }
 }
 
-/** The alternatives of `FrameBonesEntry`'s site. */
+/*
+ * The alternatives of `FrameBonesEntry`'s site.
+ */
 type FrameBonesEntry = "worldPosition" | "worldRotation";
 
-/** The alternatives of `AlignWorld`'s site. */
+/*
+ * The alternatives of `AlignWorld`'s site.
+ */
 type AlignWorld = "normal" | "forward";
 
-/** The alternatives of `AlignRest`'s site. */
+/*
+ * The alternatives of `AlignRest`'s site.
+ */
 type AlignRest = "normal" | "forward";
 
-/** The alternatives of `OffsetSide`'s site. */
+/*
+ * The alternatives of `OffsetSide`'s site.
+ */
 type OffsetSide = "Left" | "Right";
 
-/** Canonical left rest basis, inverted once at construction. */
+/*
+ * Canonical left rest basis, inverted once at construction.
+ */
 const LEFT_ROTATION: ReturnType<typeof alignHumanHandSurface.prepare> =
   alignHumanHandSurface.prepare({
     normal: { x: 1, y: 0, z: 0 },
     forward: { x: 0, y: -1, z: 0 },
   });
 
-/** Canonical right rest directions; no world frame or result is retained. */
+/*
+ * Canonical right rest directions; no world frame or result is retained.
+ */
 const RIGHT_ROTATION: ReturnType<typeof alignHumanHandSurface.prepare> =
   alignHumanHandSurface.prepare({
     normal: { x: -1, y: 0, z: 0 },

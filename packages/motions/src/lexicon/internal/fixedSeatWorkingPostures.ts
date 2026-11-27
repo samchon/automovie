@@ -22,7 +22,9 @@ const BONES: readonly AutoMovieHumanoidBone[] = [
   "leftShoulder",
   "rightShoulder",
 ];
-/** Move only the trunk coordinates that the closed bilateral fit supplied. */
+/*
+ * Move only the trunk coordinates that the closed bilateral fit supplied.
+ */
 function withTrunk(base: Posture, target: Joints, share: number): Posture {
   const joints: Joints = { ...base.joints };
   for (const bone of BONES) {
@@ -36,7 +38,7 @@ function withTrunk(base: Posture, target: Joints, share: number): Posture {
   }
   return { ...base, joints };
 }
-/**
+/*
  * Alternatives to an unsupported pelvic tilt on one working seat. Foot
  * placement is prepared once in the seat's actual frame. At a changing grip the
  * ordinary authoring remains first where the tilt is supported. Otherwise both
@@ -132,10 +134,12 @@ export function fixedSeatWorkingPostures(
     }
   };
 }
-/** A rejected candidate's actual obstruction, supplied by the native pair model. */
+/*
+ * A rejected candidate's actual obstruction, supplied by the native pair model.
+ */
 export namespace fixedSeatWorkingPostures {
   export interface IFeedback {
-    /**
+    /*
      * The failed static evaluation identified a neck or head surface inside an
      * arm.
      */

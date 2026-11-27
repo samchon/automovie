@@ -9,16 +9,15 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { dive } from "./dive";
 
-/**
+/*
  * The take-off's crouch at a share: a third of the way into the dive's shape,
  * the root lowered with the legs planted on the entry's feet or on the rolled
  * feet, so the knees bend under it instead of the straight legs sinking into
  * the floor.
  *
  * Part of `dive.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `crouchedOn`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `crouchedOn`.
  */
 export function diveCrouchedOn(
   prepared: diveCrouchedOn.IPrepared,
@@ -58,30 +57,46 @@ export function diveCrouchedOn(
   };
 }
 
-/** The `crouchedOn` of `dive.plan`, built from what that plan prepared. */
+/*
+ * The `crouchedOn` of `dive.plan`, built from what that plan prepared.
+ */
 export namespace diveCrouchedOn {
-  /** What `dive.plan` prepared for its `crouchedOn`. */
+  /*
+   * What `dive.plan` prepared for its `crouchedOn`.
+   */
   export interface IPrepared {
-    /** The `shape` `dive.plan` prepared. */
+    /*
+     * The `shape` `dive.plan` prepared.
+     */
     shape: dive.ShapeReader;
 
-    /** The `ankleMid` `dive.plan` prepared. */
+    /*
+     * The `ankleMid` `dive.plan` prepared.
+     */
     ankleMid: (
       posture: IAutoMovieMotionHumanPosture,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
     ) => IAutoMovieVector3;
 
-    /** The `ankles` `dive.plan` prepared. */
+    /*
+     * The `ankles` `dive.plan` prepared.
+     */
     ankles: IAutoMovieVector3;
 
-    /** The `stature` `dive.plan` prepared. */
+    /*
+     * The `stature` `dive.plan` prepared.
+     */
     stature: number;
 
-    /** The `plant` `dive.plan` prepared. */
+    /*
+     * The `plant` `dive.plan` prepared.
+     */
     plant: ReturnType<typeof AutoMovieMotionHumanTrunk.preparePlanted>;
 
-    /** The `body` `dive.plan` prepared. */
+    /*
+     * The `body` `dive.plan` prepared.
+     */
     body: IAutoMovieMotionHumanBody;
   }
 }

@@ -12,7 +12,7 @@ import { DeerCohorts } from "./DeerCohorts";
 import { buildDeerBody } from "./buildDeerBody";
 import { createCohortQuadruped } from "../quadruped/createCohortQuadruped";
 
-/**
+/*
  * A coarse adult Boso sika reference with sex-matched controls and male
  * antlers.
  *
@@ -22,16 +22,15 @@ import { createCohortQuadruped } from "../quadruped/createCohortQuadruped";
  * disk is seated inside the head capsule. Source tip width remains the coarse
  * beam-axis tip spacing; the finite tube ends do not reconstruct the measured
  * antler's outer tip surfaces.
- *
- * @param params Optional fixed adult cohort, authored mass, antler presence,
- *   timing coordinate and lead.
- * @param seed Without a fixed cohort, draws whole adult references uniformly;
- *   seedless construction retains the male reference. An explicit antler
- *   request admits only the sourced male reference.
- * @returns The model; bare selected male/female references use their respective
- *   60.4/39.5 kg means.
- * @throws {AutoMovieArchetypeRefusal} For unsupported cohorts, female antlers,
- *   invalid mass/lead, or a lead without explicitly authored whole-model mass.
+ * Parameter params: Optional fixed adult cohort, authored mass, antler presence,
+ * timing coordinate and lead.
+ * Parameter seed: Without a fixed cohort, draws whole adult references uniformly;
+ * seedless construction retains the male reference. An explicit antler
+ * request admits only the sourced male reference.
+ * Returns: The model; bare selected male/female references use their respective
+ * 60.4/39.5 kg means.
+ * For unsupported cohorts, female antlers,
+ * invalid mass/lead, or a lead without explicitly authored whole-model mass.
  */
 export function createDeer(
   params: AutoMovieArchetypeDeer.IParams = {},

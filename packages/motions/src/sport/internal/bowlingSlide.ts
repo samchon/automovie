@@ -18,19 +18,19 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { hipJoints } from "../../posture/internal/hipJoints";
 import { bowlingSlideSchedule } from "./bowlingSlideSchedule";
 
-/**
+/*
  * The swinging toe's least clearance over the floor, metres: the minimum toe
  * clearance of gait, 12.9 mm (Winter 1992).
  */
 const TOE_CLEARANCE: number = 0.0129;
 
-/**
+/*
  * The share of the leg's length the trailing leg reaches behind, its knee just
  * short of straight (provisional, the stroke address's leg reach).
  */
 const REACH: number = 0.98;
 
-/**
+/*
  * Carry the body on the sliding foot opposite the delivery hand.
  *
  * Seiferheld et al. (2023), section 1 and Figure 2, place the final slide after
@@ -59,14 +59,13 @@ export const bowlingSlide: IAutoMovieMotionHumanActionLaw<Parameters> = {
   plan,
 };
 
-/**
+/*
  * Prepare the slide and the distinct recovery step without changing entry
  * posture or fixed foot ownership outside the moving intervals.
- *
- * @param context The actual entry feet, body and authored film-local times.
- * @returns Timed leg targets and the supporting foot windows.
- * @throws {HumanRefusal} When the timing or the body-scaled distance cannot be
- *   used.
+ * Parameter context: The actual entry feet, body and authored film-local times.
+ * Returns: Timed leg targets and the supporting foot windows.
+ * When the timing or the body-scaled distance cannot be
+ * used.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<Parameters>,
@@ -297,5 +296,7 @@ function plan(
   };
 }
 
-/** The authored final glide of a one-handed bowling approach. */
+/*
+ * The authored final glide of a one-handed bowling approach.
+ */
 type Parameters = IAutoMovieMotionHumanBowlingSlide.IParams;

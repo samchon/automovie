@@ -4,17 +4,16 @@ import { Vector3 } from "@automovie/engine";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { LongImplementDraw } from "./LongImplementDraw";
 
-/**
+/*
  * Mop with a wide pad and a two-hand shaft. Fixed `upperGrip` and `lowerGrip`
  * handles on the clear shaft take the two hands of a floor stroke.
- *
- * @param params The optional scene ID and any fixed free dimension in metres or
- *   kilograms.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses
- *   the original defaults.
- * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
- *   outside its admitted recipe.
+ * Parameter params: The optional scene ID and any fixed free dimension in metres or
+ * kilograms.
+ * Parameter seed: The seed for the recorded recipe. Without a seed, the draw uses
+ * the original defaults.
+ * Returns: The model with its named contact frames in model space.
+ * When the model or a fixed parameter lies
+ * outside its admitted recipe.
  */
 export function createMop(
   params: Pick<
@@ -64,5 +63,7 @@ export function createMop(
   return builder.build(d.mass!);
 }
 
-/** The pad block's height, metres. */
+/*
+ * The pad block's height, metres.
+ */
 const PAD: number = 0.03;

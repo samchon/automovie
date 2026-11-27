@@ -1,7 +1,7 @@
 import type { AuthoredLayer } from "../../AuthoredLayer";
 import { isCanonLayer } from "../isCanonLayer";
 
-/**
+/*
  * Names the layer-scoped documents one layer answers, narrowest last.
  *
  * Placement is decided by who can truthfully answer an item, so the axis is the

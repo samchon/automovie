@@ -21,7 +21,9 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
-/** A point given in a frame, in the world. */
+/*
+ * A point given in a frame, in the world.
+ */
 function carryHumanPoint(
   frame: IAutoMovieRigidTransform,
   point: IAutoMovieVector3,
@@ -37,14 +39,13 @@ function carryHumanPoint(
   };
 }
 
-/**
+/*
  * The model-aligned frame of a carrier's contact at each film second.
- *
- * @param support The carrier.
- * @param on The carrier's subject id, for refusals.
- * @param id The contact's id.
- * @returns The reader.
- * @throws {HumanRefusal} When the carrier declares no such contact.
+ * Parameter support: The carrier.
+ * Parameter on: The carrier's subject id, for refusals.
+ * Parameter id: The contact's id.
+ * Returns: The reader.
+ * When the carrier declares no such contact.
  */
 export function HumanMountedFrame(
   support: IAutoMovieMotionHumanPropReader,
@@ -86,7 +87,7 @@ export function HumanMountedFrame(
   };
 }
 
-/**
+/*
  * The moving frame a mounted performance is planned in: one of the carrier's
  * own contacts, read where the carrier has it at each film second, with its
  * axes turned back to the carrier model's own (`+Z` the carrier's front, `+Y`
@@ -95,18 +96,19 @@ export function HumanMountedFrame(
  * stays on the saddle or the pad the contact belongs to.
  */
 export namespace HumanMountedFrame {
-  /** A carrier frame at a film second. */
+  /*
+   * A carrier frame at a film second.
+   */
   export type Reader = (film: number) => IAutoMovieRigidTransform;
 
-  /**
+  /*
    * A carrier contact's world point at a film second: the carrier's own moving
    * reading, or the contact's model point under the carrier's frame where it
    * publishes none.
-   *
-   * @param support The carrier.
-   * @param id The contact's id, which the carrier declares.
-   * @param film Film seconds.
-   * @returns World metres.
+   * Parameter support: The carrier.
+   * Parameter id: The contact's id, which the carrier declares.
+   * Parameter film: Film seconds.
+   * Returns: World metres.
    */
   export function contact(
     support: IAutoMovieMotionHumanPropReader,
@@ -122,17 +124,16 @@ export namespace HumanMountedFrame {
     return carryHumanPoint(support.frame(film), declared.frame.translation);
   }
 
-  /**
+  /*
    * The hands the entry already holds on the first figure's contacts: each
    * whose arm goal lies in the world within a hand's length of the contact it
    * is to hold, as a ride's held reins do.
-   *
-   * @param body The body.
-   * @param entry The entered posture, in the world.
-   * @param support The carrier.
-   * @param first The first figure.
-   * @param film The performance's start, film seconds.
-   * @returns The hands held from the start.
+   * Parameter body: The body.
+   * Parameter entry: The entered posture, in the world.
+   * Parameter support: The carrier.
+   * Parameter first: The first figure.
+   * Parameter film: The performance's start, film seconds.
+   * Returns: The hands held from the start.
    */
   export function held(
     body: IAutoMovieMotionHumanBody,
@@ -157,29 +158,30 @@ export namespace HumanMountedFrame {
     }
     return out;
   }
-  /** The identity frame a posture is planned in before it is carried. */
+  /*
+   * The identity frame a posture is planned in before it is carried.
+   */
   export const LOCAL: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
 
-  /**
+  /*
    * Seconds either side a carrier's surge is read over when it declares no
    * stride (provisional).
    */
   export const SURGE: number = 0.5;
 
-  /**
+  /*
    * The carrier's forward acceleration at a second, metres per second squared:
    * its course's surge, as when a horse bolts or pulls up, without its strides'
    * own fore-and-aft pulses.
-   *
-   * @param carrier The frame reader.
-   * @param film Film seconds.
-   * @param stride The carrier's stride period, seconds; `SURGE` either side
-   *   when absent.
-   * @returns The acceleration along the carrier's level forward, positive when
-   *   it speeds up.
+   * Parameter carrier: The frame reader.
+   * Parameter film: Film seconds.
+   * Parameter stride: The carrier's stride period, seconds; `SURGE` either side
+   * when absent.
+   * Returns: The acceleration along the carrier's level forward, positive when
+   * it speeds up.
    */
   export function surge(
     carrier: Reader,
@@ -205,16 +207,15 @@ export namespace HumanMountedFrame {
     return (second.x * ahead.x + second.z * ahead.z) / level;
   }
 
-  /**
+  /*
    * A posture re-expressed from one frame to another: its world points and
    * goals carried rigidly, and its whole attitude, heading, pitch and roll,
    * turned by the frames' turn, the heading kept on the unwrapped branch the
    * posture had.
-   *
-   * @param posture The posture in `from`.
-   * @param from The frame the posture is given in.
-   * @param to The frame it is moved to.
-   * @returns The moved posture.
+   * Parameter posture: The posture in `from`.
+   * Parameter from: The frame the posture is given in.
+   * Parameter to: The frame it is moved to.
+   * Returns: The moved posture.
    */
   export function move(
     posture: IAutoMovieMotionHumanPosture,
@@ -242,20 +243,19 @@ export namespace HumanMountedFrame {
     };
   }
 
-  /**
+  /*
    * Lay a carried plan's arms in the carrier's own frame: the plan's world
    * postures are brought into the carrier contact's frame, where a held hold
    * barely moves, the arms are laid there by `lay` (a planned arm course), and
    * the laid postures are carried back into the world at each second. A course
    * laid in the world would chase a hold the carrier sweeps away between its
    * instants.
-   *
-   * @param plan The plan, its postures in the world.
-   * @param carrier The carrier contact's frame reader.
-   * @param start The plan's start, film seconds.
-   * @param lay Lays the arms on a plan whose postures are in the carrier's
-   *   frame.
-   * @returns The plan with its arms laid in the carrier's frame.
+   * Parameter plan: The plan, its postures in the world.
+   * Parameter carrier: The carrier contact's frame reader.
+   * Parameter start: The plan's start, film seconds.
+   * Parameter lay: Lays the arms on a plan whose postures are in the carrier's
+   * frame.
+   * Returns: The plan with its arms laid in the carrier's frame.
    */
   export function coursed(
     plan: IAutoMovieMotionHumanActionPlan,
@@ -296,22 +296,21 @@ export namespace HumanMountedFrame {
     };
   }
 
-  /**
+  /*
    * How far out from a held limb's surface the palm lies, metres: a hand's
    * thickness (provisional).
    */
   export const SKIN: number = 0.03;
 
-  /**
+  /*
    * Where a hand holds a partner's bone: on the partner's body surface, out
    * from the partner's hips through the bone, level, by the thigh's radius and
    * the palm's thickness; the bone's joint itself where it stands over the
    * hips.
-   *
-   * @param partner The partner as the performance reads it.
-   * @param bone The bone held.
-   * @param film Film seconds.
-   * @returns World metres.
+   * Parameter partner: The partner as the performance reads it.
+   * Parameter bone: The bone held.
+   * Parameter film: Film seconds.
+   * Returns: World metres.
    */
   export function partnerHold(
     partner: IAutoMovieMotionHumanPerformerReader,
@@ -337,5 +336,7 @@ export namespace HumanMountedFrame {
   }
 }
 
-/** The alternatives of `MoveAttitude`'s site. */
+/*
+ * The alternatives of `MoveAttitude`'s site.
+ */
 type MoveAttitude = "yaw" | "pitch" | "roll";

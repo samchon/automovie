@@ -18,7 +18,7 @@ import { swingTwistBasis } from "../swingTwistBasis";
 import { swingTwistRegion } from "../swingTwistRegion";
 import { swivelArcs } from "../swivelArcs";
 
-/**
+/*
  * The arcs of swivels a joint's swing-twist range provably refuses, merged
  * (`swivelArcs.union`), for a joint whose bone-local rotation is a fixed
  * rotation turned about a fixed axis by the swivel: the twist past its rig
@@ -26,12 +26,11 @@ import { swivelArcs } from "../swivelArcs";
  * one sinusoid of the swivel exceeds `MARGIN`, as `swingTwistExcludedSwivels`
  * states them (Tolani, Goswami and Badler 2000, section 3.2.3: a joint limit
  * maps to an interval of the swivel).
- *
- * @param props The joint and its rotation by swivel; `joint` is the frame the
- *   range reads it in.
- * @returns The merged refused arcs, degrees; every swivel when they cover a
- *   turn; none for a joint without a swing-twist gate, without `joint`, or read
- *   on another basis or rest frame than the range's own.
+ * Parameter props: The joint and its rotation by swivel; `joint` is the frame the
+ * range reads it in.
+ * Returns: The merged refused arcs, degrees; every swivel when they cover a
+ * turn; none for a joint without a swing-twist gate, without `joint`, or read
+ * on another basis or rest frame than the range's own.
  */
 export function swingTwistRefusedArcs(
   props: IAutoMovieBoxExcludedSwivels.IProps,
@@ -115,22 +114,28 @@ export function swingTwistRefusedArcs(
   return swivelArcs.union(arcs);
 }
 
-/**
+/*
  * The rotation's half-angle readings and its rest direction's cosine at one
  * swivel.
  */
 interface ISample {
-  /** The quaternion's vector part along the rest direction. */
+  /*
+   * The quaternion's vector part along the rest direction.
+   */
   s: number;
 
-  /** The quaternion's scalar part. */
+  /*
+   * The quaternion's scalar part.
+   */
   w: number;
 
-  /** The rest direction's cosine with its image. */
+  /*
+   * The rest direction's cosine with its image.
+   */
   d: number;
 }
 
-/**
+/*
  * How far past a bound, in sine or cosine units, a reading must lie to be
  * refused: the joints' tolerance (`ROM_TOLERANCE`) in radians, past the
  * rounding of every step.

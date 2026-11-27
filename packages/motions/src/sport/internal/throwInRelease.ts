@@ -10,17 +10,16 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { throwObjectLaunch } from "../../throwing/internal/throwObjectLaunch";
 
-/**
+/*
  * Publish the prop held in both hands until a football throw-in releases it. An
  * implied ball needs neither grips nor a launch.
- *
- * @param params The optional ball subject and world aim point.
- * @param clock The action clock whose stroke is the release.
- * @param point The release point in world metres.
- * @param degrees The rise of the path's release velocity, in degrees.
- * @returns Both grip windows and the release when a real ball is named.
- * @throws {HumanRefusal} If the named ball has no aim point or the point is
- *   unreachable at the given angle.
+ * Parameter params: The optional ball subject and world aim point.
+ * Parameter clock: The action clock whose stroke is the release.
+ * Parameter point: The release point in world metres.
+ * Parameter degrees: The rise of the path's release velocity, in degrees.
+ * Returns: Both grip windows and the release when a real ball is named.
+ * If the named ball has no aim point or the point is
+ * unreachable at the given angle.
  */
 export function throwInRelease(
   params: IAutoMovieMotionHumanBallSport.IParams,
@@ -73,7 +72,9 @@ export function throwInRelease(
   };
 }
 
-/** The record of `IThrowInReleaseResult`'s site. */
+/*
+ * The record of `IThrowInReleaseResult`'s site.
+ */
 type IThrowInReleaseResult = {
   contacts: IAutoMovieMotionHumanContactWindow[];
   launches: IAutoMovieMotionPropLaunch[];

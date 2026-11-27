@@ -7,7 +7,7 @@ import { crossesAutoMovieFrustumPlane } from "./crossesAutoMovieFrustumPlane.js"
 import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
 import { measureAutoMovieCameraFrameEdgeSurface } from "./measureAutoMovieCameraFrameEdgeSurface.js";
 
-/**
+/*
  * Measure where the sides of the delivered frame cut a required subject.
  *
  * The subject's world box, or its certified envelope, crosses a side plane when
@@ -23,12 +23,11 @@ import { measureAutoMovieCameraFrameEdgeSurface } from "./measureAutoMovieCamera
  * When some side has an extent and the meshes are readable,
  * AutoMovieRenderInspectionCamera.measureFrameEdgeSurface confirms or clears the cut on the
  * drawn surface and measures the visible fraction.
- *
- * @param props Delivery camera, subject bounds and meshes, and the triangle
- *   budget.
- * @returns `inside` when the bounds cross no side plane, `crossed` with the
- *   crossed sides, their extents and the surface outcome, or `unmeasured` with
- *   the reason the bounds or projection cannot be read.
+ * Parameter props: Delivery camera, subject bounds and meshes, and the triangle
+ * budget.
+ * Returns: `inside` when the bounds cross no side plane, `crossed` with the
+ * crossed sides, their extents and the surface outcome, or `unmeasured` with
+ * the reason the bounds or projection cannot be read.
  */
 export function measureAutoMovieCameraFrameEdge(
   props: AutoMovieRenderInspectionCamera.IFrameEdgeProps,
@@ -115,7 +114,7 @@ export function measureAutoMovieCameraFrameEdge(
   };
 }
 
-/**
+/*
  * Three orders the normalized inward planes right, left, bottom, top, far,
  * near.
  */
@@ -127,7 +126,9 @@ const SIDES: readonly AutoMovieRenderInspectionCamera.IAutoMovieRenderInspection
 ];
 
 
-/** Copy and admit a certified envelope, rejecting empty or non-finite boxes. */
+/*
+ * Copy and admit a certified envelope, rejecting empty or non-finite boxes.
+ */
 function toBox(input: IAutoMovieSubjectBox): Box3 | undefined {
   const box: Box3 = new Box3(
     new Vector3(input.min.x, input.min.y, input.min.z),
@@ -140,7 +141,7 @@ function toBox(input: IAutoMovieSubjectBox): Box3 | undefined {
     : undefined;
 }
 
-/**
+/*
  * The vertices of the box's part on the inner side of the plane: kept corners
  * and edge crossings.
  */

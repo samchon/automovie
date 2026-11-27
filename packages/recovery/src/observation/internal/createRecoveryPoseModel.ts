@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Pixel epipolar model and its five local calibrated-pose derivatives. Rotation
  * increments act on the left in radians; translation increments use two raw
  * directions of the admitted near-unit translation. The complete signed Sampson

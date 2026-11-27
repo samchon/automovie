@@ -6,7 +6,7 @@ import type {
 import { AutoMovieMotionHumanTargetGrid } from "../../compose/internal/AutoMovieMotionHumanTargetGrid";
 import { prepareHumanKnotCourse } from "../../posture/internal/prepareHumanKnotCourse";
 
-/**
+/*
  * Prepare a choku-zuki fist's path over the punch's progress `u` in [0, 1]: its
  * shares of the way from the chamber to the aim, `[inward, ahead]`, the inward
  * share moving the fist across toward the midline and the ahead share moving it
@@ -23,11 +23,10 @@ import { prepareHumanKnotCourse } from "../../posture/internal/prepareHumanKnotC
  * share of the path's chord length (chord-length parametrisation, Lee 1989,
  * Computer-Aided Design 21(6):363), the lengths read from the rest body
  * standing upright.
- *
- * @param body The body: its measures and its rest shoulder.
- * @param chamber The chamber's offset from the shoulder joint, metres, outward
- *   positive: outward, up and ahead.
- * @returns The path's reader, `[inward, ahead]` at a progress.
+ * Parameter body: The body: its measures and its rest shoulder.
+ * Parameter chamber: The chamber's offset from the shoulder joint, metres, outward
+ * positive: outward, up and ahead.
+ * Returns: The path's reader, `[inward, ahead]` at a progress.
  */
 export function prepareChokuZukiPath(
   body: Pick<IAutoMovieMotionHumanBody, "measure" | "rest">,

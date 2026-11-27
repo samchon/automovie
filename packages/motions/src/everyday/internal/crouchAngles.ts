@@ -3,21 +3,20 @@ import type { IAutoMovieMotionHumanCrouch } from "@automovie/interface";
 import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * A crouch's leg angles at its lowest pose: the shank tilts forward by the
  * crouching ankle's dorsiflexion (no more than the ankle's range) plus the heel
  * lift, and the thigh by the rest of the depth's knee flexion, refused where
  * that leaves the hip's flexion range no room before the trunk inclines.
- *
- * @param knee The depth's knee flexion, degrees.
- * @param ankle The crouching ankle's dorsiflexion, degrees.
- * @param heel The heel lift, degrees; none with the heels flat.
- * @param depth The depth asked, for the refusal.
- * @param heels The heels asked, for the refusal.
- * @returns The ankle's dorsiflexion, the shank's and the thigh's tilts and the
- *   hip's flexion range, degrees.
- * @throws {HumanRefusal} On `depth` where the thigh's tilt reaches the hip's
- *   flexion range.
+ * Parameter knee: The depth's knee flexion, degrees.
+ * Parameter ankle: The crouching ankle's dorsiflexion, degrees.
+ * Parameter heel: The heel lift, degrees; none with the heels flat.
+ * Parameter depth: The depth asked, for the refusal.
+ * Parameter heels: The heels asked, for the refusal.
+ * Returns: The ankle's dorsiflexion, the shank's and the thigh's tilts and the
+ * hip's flexion range, degrees.
+ * On `depth` where the thigh's tilt reaches the hip's
+ * flexion range.
  */
 export function crouchAngles(
   knee: number,
@@ -52,20 +51,32 @@ export function crouchAngles(
   return { dorsiflexion, shankTilt, thighTilt, hipRange };
 }
 
-/** A crouch's leg angles. */
+/*
+ * A crouch's leg angles.
+ */
 export namespace crouchAngles {
-  /** The leg's angles at the lowest pose, degrees. */
+  /*
+   * The leg's angles at the lowest pose, degrees.
+   */
   export interface IAngles {
-    /** The ankle's dorsiflexion. */
+    /*
+     * The ankle's dorsiflexion.
+     */
     dorsiflexion: number;
 
-    /** The shank's forward tilt. */
+    /*
+     * The shank's forward tilt.
+     */
     shankTilt: number;
 
-    /** The thigh's forward tilt. */
+    /*
+     * The thigh's forward tilt.
+     */
     thighTilt: number;
 
-    /** The hip's flexion range. */
+    /*
+     * The hip's flexion range.
+     */
     hipRange: number;
   }
 }

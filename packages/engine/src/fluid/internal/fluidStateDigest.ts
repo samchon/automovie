@@ -1,6 +1,6 @@
 import { IAutoMovieFluidState } from "@automovie/interface";
 
-/**
+/*
  * A 32-bit FNV-1a digest of selected fluid-state numbers, as eight lowercase
  * hex digits.
  *
@@ -19,7 +19,7 @@ import { IAutoMovieFluidState } from "@automovie/interface";
 export function fluidStateDigest(state: IAutoMovieFluidState): string {
   const view: DataView = new DataView(new ArrayBuffer(8));
   let hash: number = 0x811c9dc5;
-  /**
+  /*
    * Serialize one Number into the reused eight-byte view and fold its bytes in
    * order into the call-local unsigned hash; constant work retains no per-value
    * history.

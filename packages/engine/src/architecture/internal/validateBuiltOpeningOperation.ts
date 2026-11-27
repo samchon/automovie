@@ -13,13 +13,13 @@ import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds
 import { builtElementSubtree } from "./builtElementSubtree";
 import { validateBuiltTravelMotion } from "./validateBuiltTravelMotion";
 
-/**
+/*
  * Validate the movable panels, named states, and hardware of one opening.
  *
  * An operated opening must name the element it fills, and declare at least one
  * panel and one state. Each panel needs a unique id, an element that resolves
  * and is the filling element or below it, a positive width and height, and a
- * valid travel by {@link validateBuiltTravelMotion}. No element may be driven by
+ * valid travel by validateBuiltTravelMotion. No element may be driven by
  * two members of the whole work, because one element carries one displacement:
  * `driven` records which member already drives each element across every
  * opening and connector, and is updated here. Each state needs a unique id and
@@ -27,13 +27,12 @@ import { validateBuiltTravelMotion } from "./validateBuiltTravelMotion";
  * must resolve. Hardware needs unique ids, a non-blank kind, and an element
  * that resolves when it names one. Findings are pushed under `path`; an opening
  * with no operation is skipped.
- *
- * @param props.opening Opening whose operation is checked.
- * @param props.path Violation path of the opening.
- * @param props.elements Every element of the work.
- * @param props.elementIds Declared element ids.
- * @param props.driven Which member already drives each element, updated.
- * @param props.collector Sink that receives the violations.
+ * Parameter props.opening: Opening whose operation is checked.
+ * Parameter props.path: Violation path of the opening.
+ * Parameter props.elements: Every element of the work.
+ * Parameter props.elementIds: Declared element ids.
+ * Parameter props.driven: Which member already drives each element, updated.
+ * Parameter props.collector: Sink that receives the violations.
  */
 export function validateBuiltOpeningOperation(
   props: IAutoMovieValidateBuiltOpeningOperation.IProps,

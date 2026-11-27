@@ -13,7 +13,7 @@ import type {
 import { convertAutoMovieRecoveryCurves } from "../../curves/internal/convertAutoMovieRecoveryCurves";
 import { AutoMovieRecoveryMeshSections } from "../AutoMovieRecoveryMeshSections";
 
-/**
+/*
  * Observe a registered mesh and return source-free cubic coefficients and
  * incidence. Inputs are borrowed and remain unchanged. Numerical fitting
  * failures are reported by the observation owner; unsupported local components

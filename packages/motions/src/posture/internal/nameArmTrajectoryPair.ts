@@ -3,18 +3,17 @@ import type { IAutoMovieMotionHumanArmGeometry } from "@automovie/interface";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
-/**
+/*
  * A probe and the shape it enters, named for a refusal: the arm segment the
  * probe rides (a digit's own bone for a probe on a digit) with the bone of a
  * collider probe off the digits, and the bone the shape rides, with its
  * collider part, so a law can fix the path at its cause.
- *
- * @param c The context.
- * @param a The arm.
- * @param k The waypoint.
- * @param probe The probe's index.
- * @param shape The shape's index.
- * @returns The probe and shape as words.
+ * Parameter c: The context.
+ * Parameter a: The arm.
+ * Parameter k: The waypoint.
+ * Parameter probe: The probe's index.
+ * Parameter shape: The shape's index.
+ * Returns: The probe and shape as words.
  */
 export function nameArmTrajectoryPair(
   c: M.IContext,
@@ -61,5 +60,7 @@ export function nameArmTrajectoryPair(
   return `the ${segment}'s probe ${probe}${on} inside ${target === undefined ? `shape ${shape}` : `the obstacle ${target.bone} (shape ${shape}, collider part ${target.part})`}`;
 }
 
-/** The digits' part of a bone name. */
+/*
+ * The digits' part of a bone name.
+ */
 const DIGIT: RegExp = /(Thumb|Index|Middle|Ring|Little)/;

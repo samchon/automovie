@@ -12,7 +12,7 @@ import { AutoMovieViewerInspector } from "../../AutoMovieViewerInspector.js";
 import type { IAutoMovieInspectorAction } from "../../IAutoMovieInspectorAction.js";
 import type { IAutoMovieInspectorProps } from "../../IAutoMovieInspectorProps.js";
 
-/**
+/*
  * Copy or edit the address and, when the host supplies a command, copy its
  * capture command in the selected shell syntax.
  *
@@ -145,13 +145,19 @@ export function AutoMovieInspectorRequestPanel(
 
 export namespace AutoMovieInspectorRequestPanel {
   export interface IProps {
-    /** The request shown. */
+    /*
+     * The request shown.
+     */
     request: IAutoMovieCapturePlanRequest;
 
-    /** Where an edited text goes. */
+    /*
+     * Where an edited text goes.
+     */
     dispatch: (action: IAutoMovieInspectorAction) => void;
 
-    /** Executable and fixed arguments from the host for the optional command. */
+    /*
+     * Executable and fixed arguments from the host for the optional command.
+     */
     captureCommand?: IAutoMovieInspectorProps["captureCommand"];
   }
 }

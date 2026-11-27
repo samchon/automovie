@@ -1,4 +1,4 @@
-/**
+/*
  * How a performer perceives another: a tracked person is read where the
  * performer saw them a reaction time earlier, never at the instant being
  * solved. A limb that reads its target at the current instant cannot be dodged
@@ -16,14 +16,14 @@
  *   them as perceived only on its way there.
  */
 export namespace HumanPerception {
-  /**
+  /*
    * How long before an instant a tracked person is read, seconds: a simple
    * visual reaction time, inside the 200 to 300 ms of adults (Welford 1980,
    * Reaction Times; provisional until each action's own study sets it).
    */
   export const REACTION: number = 0.25;
 
-  /**
+  /*
    * How long a hand in contact with a partner takes to answer the partner's
    * movement, seconds: the onset of the long-latency feedback response to a
    * perturbation of a held limb, about 50 ms (Pruszynski and Scott 2012, Exp

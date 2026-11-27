@@ -74,7 +74,7 @@ import { HumanUnseat } from "./HumanUnseat";
 import { HumanWallRun } from "./HumanWallRun";
 import { stageBladeFootwork } from "./stageBladeFootwork";
 
-/**
+/*
  * The laws of the lexicon's body families, from the emblems to the floor rolls,
  * by export key (`HUMAN_LEXICON_FAMILIES`).
  */

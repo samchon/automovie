@@ -12,7 +12,7 @@ import type {
 import { pianoPedal } from "./pianoPedal";
 import { pianoScore } from "./pianoScore";
 
-/**
+/*
  * Play a keyboard score while the right foot works the damper pedal. Both parts
  * start on the same seated pose. The pedal owns the right leg and its contact
  * schedule, while the score writes the hands. Keys and pedal retain their
@@ -25,7 +25,7 @@ export const pianoPerformance: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
     plan,
   };
 
-/**
+/*
  * Join the two parts without adding a second transition or moving the bench.
  */
 function plan(

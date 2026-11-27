@@ -7,7 +7,7 @@ import {
 
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Index opening actors by node and compare every prior actor or report its
  * absence.
  */
@@ -48,7 +48,7 @@ export function compareContinuityBoundary(
   });
 }
 
-/**
+/*
  * Compare one actor's translation, normalized facing angle and prior persistent
  * mount to its opening state.
  *
@@ -111,7 +111,7 @@ const compareActor: (
     );
 };
 
-/**
+/*
  * Normalize both facing vectors, clamp their dot and return acos in degrees.
  *
  * Shared Vector3 arithmetic gives the usual angle for finite nonzero facing
@@ -140,7 +140,7 @@ const angleBetweenDeg: (
   return (Math.acos(clamped) * 180) / Math.PI;
 };
 
-/**
+/*
  * Require the same parent and bone on a non-null incoming mount.
  *
  * Mount persistence is identity equality rather than world-position proximity.

@@ -8,7 +8,7 @@ import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 import { readAutoMovieDrawnRanges } from "./readAutoMovieDrawnRanges.js";
 
-/**
+/*
  * Measure how far a required subject's drawn surface reaches in front of the
  * delivery near plane inside the delivered frame.
  *
@@ -18,14 +18,13 @@ import { readAutoMovieDrawnRanges } from "./readAutoMovieDrawnRanges.js";
  * entered the subject. Each drawn triangle is clipped to the four side planes
  * (Sutherland-Hodgman); signed distance to the near plane is linear over the
  * remaining convex polygon, so its deepest point is a polygon vertex.
- *
- * @param props Delivery camera, admitted subject meshes and the triangle
- *   budget.
- * @returns `clear` when no drawn surface crosses, `clipped` with the deepest
- *   intrusion in metres, its world surface point and the near-plane point at
- *   the same delivered pixel, `over-budget` when the triangles to examine
- *   exceed the budget, or `unmeasured` with the reason the subject cannot be
- *   checked.
+ * Parameter props: Delivery camera, admitted subject meshes and the triangle
+ * budget.
+ * Returns: `clear` when no drawn surface crosses, `clipped` with the deepest
+ * intrusion in metres, its world surface point and the near-plane point at
+ * the same delivered pixel, `over-budget` when the triangles to examine
+ * exceed the budget, or `unmeasured` with the reason the subject cannot be
+ * checked.
  */
 export function measureAutoMovieCameraNearClip(
   props: AutoMovieRenderInspectionCamera.INearClipProps,
@@ -186,7 +185,9 @@ export function measureAutoMovieCameraNearClip(
   };
 }
 
-/** Signed distance from the plane to the box corner deepest against its normal. */
+/*
+ * Signed distance from the plane to the box corner deepest against its normal.
+ */
 function leastDistance(box: Box3, plane: Plane): number {
   const { x, y, z } = plane.normal;
   return (
@@ -197,7 +198,9 @@ function leastDistance(box: Box3, plane: Plane): number {
   );
 }
 
-/** The same plane facing the other way. */
+/*
+ * The same plane facing the other way.
+ */
 function flip(plane: Plane): Plane {
   return plane.clone().negate();
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Names the tree of a production's own contracts, relative to its directory.
  *
  * The `work` and `language` families a production adopts live here directly,

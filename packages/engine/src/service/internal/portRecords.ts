@@ -3,7 +3,9 @@ import {
   IAutoMovieServicePort,
 } from "@automovie/interface";
 
-/** Map port ids to their source records, retaining the first declaration. */
+/*
+ * Map port ids to their source records, retaining the first declaration.
+ */
 export function portRecords(
   network: IAutoMovieServiceNetwork,
 ): Map<string, IAutoMovieServicePort> {

@@ -10,7 +10,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 
-/**
+/*
  * How far a guard facing a person steps back so that the two fighters' guards,
  * both held, stand clear of each other: no joint of either body inside the
  * other's colliders (the partner verdict's reading, `HumanColliders.distance`),
@@ -30,14 +30,13 @@ import { StrikingTarget } from "./StrikingTarget";
  * bracket doubled until it clears.
  */
 export namespace StrikingGuardYield {
-  /**
+  /*
    * The step back of a guard from the person it faces, half of what keeps the
    * two guards held clear, or null when they already clear or the guard faces
    * no person.
-   *
-   * @param context The guard's context.
-   * @param own The fighter's own guard held at `set`, as its stance lays it.
-   * @returns The step, world metres on the floor, or null.
+   * Parameter context: The guard's context.
+   * Parameter own: The fighter's own guard held at `set`, as its stance lays it.
+   * Returns: The step, world metres on the floor, or null.
    */
   export function back(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuard.IParams>,
@@ -149,15 +148,14 @@ export namespace StrikingGuardYield {
     return separate(axis, apart, gap);
   }
 
-  /**
+  /*
    * Find the least clear separation on a floor axis, and share its displacement
    * equally between two animated bodies. The starting overlap sets the first
    * search scale and expansion stops at the separation of the bodies.
-   *
-   * @param axis The horizontal unit axis toward the other body.
-   * @param apart The initial separation of the bodies, metres.
-   * @param gap The signed clearance after one total separating move, metres.
-   * @returns The first body's half displacement, or null when already clear.
+   * Parameter axis: The horizontal unit axis toward the other body.
+   * Parameter apart: The initial separation of the bodies, metres.
+   * Parameter gap: The signed clearance after one total separating move, metres.
+   * Returns: The first body's half displacement, or null when already clear.
    */
   export function separate(
     axis: IAutoMovieVector3,
@@ -177,18 +175,17 @@ export namespace StrikingGuardYield {
     return Vector3.scale(axis, -step / 2);
   }
 
-  /**
+  /*
    * A body's guard held at `set` about a stance centre on the floor: the feet
    * on their stance places, the root sunk over them, turned to the stance
    * heading with the face kept on the line, the chin tucked and the gloves up,
    * over the angles the body entered with, as the guard law holds it.
-   *
-   * @param body The body.
-   * @param stance The lead and the line.
-   * @param centre The stance centre, world metres on the floor.
-   * @param entry The clinical angles the body enters the guard with; none, the
-   *   rest pose, when absent.
-   * @returns The posture.
+   * Parameter body: The body.
+   * Parameter stance: The lead and the line.
+   * Parameter centre: The stance centre, world metres on the floor.
+   * Parameter entry: The clinical angles the body enters the guard with; none, the
+   * rest pose, when absent.
+   * Returns: The posture.
    */
   export function held(
     body: IAutoMovieMotionHumanBody,
@@ -245,19 +242,19 @@ export namespace StrikingGuardYield {
     };
   }
 
-  /**
+  /*
    * How far one foot stands ahead of the other along the heading before it
    * leads, metres (`StrikingTarget.lead`'s).
    */
   export const LEAD: number = 0.02;
 
-  /**
+  /*
    * The width the step is bisected to, metres: a tenth of the millimetre the
    * partner verdict reports a depth in.
    */
   export const TOLERANCE: number = 1e-4;
 
-  /**
+  /*
    * The angles a person holds at a second as their placed actions write them,
    * the posture their guard keeps under its own; none, the rest pose, where the
    * reader has no placed path or their actions there are not placed yet (a
@@ -277,17 +274,23 @@ export namespace StrikingGuardYield {
     }
   }
 
-  /** The horizontal forward of a heading. */
+  /*
+   * The horizontal forward of a heading.
+   */
   function forwardOf(yaw: number): IAutoMovieVector3 {
     const r: number = (yaw * Math.PI) / 180;
     return { x: Math.sin(r), y: 0, z: Math.cos(r) };
   }
 }
 
-/** The record of `IBackRoot`'s site. */
+/*
+ * The record of `IBackRoot`'s site.
+ */
 type IBackRoot = { position: IAutoMovieVector3; yaw: number };
 
-/** The peer frames used to infer the stance center, heading and lead. */
+/*
+ * The peer frames used to infer the stance center, heading and lead.
+ */
 const STANCE_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
   "hips",
   "leftFoot",

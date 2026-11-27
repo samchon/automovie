@@ -10,12 +10,12 @@ import { HumanAidWalk as HumanAidWalkLaw } from "../../lexicon/internal/HumanAid
 import { HumanCaneSweep as HumanCaneSweepLaw } from "../../lexicon/internal/HumanCaneSweep";
 import { HumanCrutchWalk as HumanCrutchWalkLaw } from "../../lexicon/internal/HumanCrutchWalk";
 
-/**
+/*
  * The gait family's laws and helpers, each the shipped function under its
  * family name (`AutoMovieMotionHumanGait`), with its own comment.
  */
 export namespace AutoMovieMotionHumanGaitLaws {
-  /**
+  /*
    * Walking to a floor point in whole steps, ending with the feet side by side.
    *
    * Speed comes from dynamic similarity (Alexander 1984): people of different
@@ -30,16 +30,16 @@ export namespace AutoMovieMotionHumanGaitLaws {
    *
    * Each foot follows the three rockers of stance with its contact point fixed
    * on the floor, and swings between footprints on a minimum-jerk path lifted
-   * clear of the floor ({@link walkSteps}): 60 % stance and 40 % swing of each
+   * clear of the floor (walkSteps): 60 % stance and 40 % swing of each
    * stride, so each double support lasts a tenth of a stride (Perry and
    * Burnfield). The pelvis advances fastest near double support and slowest
    * near midstance. Its height follows the two contact heights and accounts for
    * the raised leg's share of the 4–5 cm whole-body excursion. It sways 2 cm
    * toward the stance foot and lowers wherever a planted leg cannot reach its
-   * foot, so no plant is ever stretched off its point ({@link walkReach}). A
+   * foot, so no plant is ever stretched off its point (walkReach). A
    * swing joins the stance its foot left, as the leg reached it at toe-off, to
    * the stance it lands in, as the leg reaches it at heel strike
-   * ({@link walkFoot}), and the pelvis reads a swinging foot only through those
+   * (walkFoot), and the pelvis reads a swinging foot only through those
    * two stances. The pelvis turns 4° and tilts 4° with the stride, the chest
    * counter-rotates, and the arms swing opposite the legs about 15° with the
    * elbows bent 15 to 30° (Perry and Burnfield, normal gait kinematics).
@@ -50,7 +50,7 @@ export namespace AutoMovieMotionHumanGaitLaws {
    */
   export import walk = walkLaw;
 
-  /**
+  /*
    * Running to a floor point, at a jog, a run or a sprint: the walk's footprint
    * plan in a running gait, with a flight phase between stances.
    *
@@ -85,14 +85,14 @@ export namespace AutoMovieMotionHumanGaitLaws {
    */
   export import run = runLaw;
 
-  /**
+  /*
    * Walking up to a person, a prop or a point and stopping at an interpersonal
    * distance, facing it.
    *
    * The goal is the stop, not the steps: the front of the performer's chest
    * (the sternum region) must end `gap` short of the target, horizontally,
    * along the line from where the performer stands to the target
-   * ({@link HumanProxemics}). The law turns that goal into the floor point the
+   * (HumanProxemics). The law turns that goal into the floor point the
    * feet's midpoint must reach, `gap` plus the chest's lead over the feet back
    * from the target, and lets the walk law place whole steps to it, so the stop
    * is exact without sliding (the walk's footprints are inverse-kinematics
@@ -119,7 +119,7 @@ export namespace AutoMovieMotionHumanGaitLaws {
    * round on the side that deviates least. Walkers moving past each other are
    * not avoided here; reciprocal avoidance belongs to the engine. An Effort
    * sets the walk's step length, arm swing and elbow width
-   * ({@link HumanEffort}); bound flow's elbows held in cannot be shown, since
+   * (HumanEffort); bound flow's elbows held in cannot be shown, since
    * the walk only widens them.
    *
    * With `track`, a person who moves is followed: their placed root is read
@@ -136,7 +136,7 @@ export namespace AutoMovieMotionHumanGaitLaws {
    */
   export import approach = approachLaw;
 
-  /**
+  /*
    * Walking to a floor point while carrying a load or pushing a wheeled one: a
    * bag in one hand, a box in both hands before the body, a child on the hip,
    * or a cart or stroller pushed by its handle.
@@ -183,7 +183,7 @@ export namespace AutoMovieMotionHumanGaitLaws {
    */
   export import carryLoad = carryLaw;
 
-  /**
+  /*
    * A floor-aid gait with an explicit prop curve and body fitting on the same
    * clock.
    *
@@ -201,7 +201,7 @@ export namespace AutoMovieMotionHumanGaitLaws {
    */
   export const aidWalk: typeof HumanAidWalkLaw = HumanAidWalkLaw;
 
-  /**
+  /*
    * Walking on two crutches: a crutch gait on the support law, the crutches
    * advancing on their own track and the body swinging on the hands.
    *
@@ -228,7 +228,7 @@ export namespace AutoMovieMotionHumanGaitLaws {
    */
   export const crutchWalk: typeof HumanCrutchWalkLaw = HumanCrutchWalkLaw;
 
-  /**
+  /*
    * Sweep a long cane while walking, performed over the walk. The cane hand is
    * held at the midline, `AHEAD` of the forearm before the hips at the waist's
    * height (the hand's place in the walker's moving frame). The walk's own
@@ -250,7 +250,7 @@ export namespace AutoMovieMotionHumanGaitLaws {
    */
   export const caneSweep: typeof HumanCaneSweepLaw = HumanCaneSweepLaw;
 
-  /**
+  /*
    * Heel strikes entrained to a beat track: which beat each strike answers and
    * when it lands, by the linear phase-correction model of sensorimotor
    * synchronisation (Vorberg and Wing 1996, reviewed by Repp 2005, Psychon Bull
@@ -273,7 +273,7 @@ export namespace AutoMovieMotionHumanGaitLaws {
    */
   export import walkCadence = walkCadenceLaw;
 
-  /**
+  /*
    * How far two legs of one body pass into each other, read as the tangle audit
    * reads them: each leg posed as the posture shows it (its hip, knee and ankle
    * and its thigh's and shank's rotations, `HumanLegChain`, and its foot's
@@ -286,7 +286,7 @@ export namespace AutoMovieMotionHumanGaitLaws {
    */
   export import walkLegClearance = walkLegClearanceLaw;
 
-  /**
+  /*
    * A stepping plan walked to keep station on a moving point: a formation's
    * slot, a steered course, or a person followed. While the point moves, the
    * walker's speed along its own way follows the point's, and once the point
@@ -314,19 +314,18 @@ export namespace AutoMovieMotionHumanGaitLaws {
    * not move leaves the plan as it is. The plan's clock slows with the speed,
    * so a slower walker steps as long and less often, and one whose point pauses
    * holds its stride where it is.
-   *
-   * @param plan The walker's stepping plan at its own pace, laid along the
-   *   point's way.
-   * @param where Where the point is at a film second.
-   * @param from The film second the walker's plan begins.
-   * @param rests The film second the point comes to rest.
-   * @returns The plan at the point's speed.
-   * @throws {HumanRefusal} When the clock would need more than `TICKS` entries,
-   *   a station kept past the longest walk timed.
+   * Parameter plan: The walker's stepping plan at its own pace, laid along the
+   * point's way.
+   * Parameter where: Where the point is at a film second.
+   * Parameter from: The film second the walker's plan begins.
+   * Parameter rests: The film second the point comes to rest.
+   * Returns: The plan at the point's speed.
+   * When the clock would need more than `TICKS` entries,
+   * a station kept past the longest walk timed.
    */
   export const walkStation: typeof walkStationLaw = walkStationLaw;
 
-  /**
+  /*
    * The footstep plan of a walk: footprints, their heel-strike and toe-off
    * times, each foot's scheduled stance, and the pelvis path, all as closed
    * functions of seconds.

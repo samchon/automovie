@@ -27,7 +27,7 @@ import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajecto
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { pickUp } from "./pickUp";
 
-/**
+/*
  * The parts a held tool's work shares between `write` and `workHeld`: a surface
  * the other hand holds still, the reach refusal of a working point, the other
  * hand's tool kept on the work, the fingers' drives of the tool's articulations
@@ -43,14 +43,13 @@ import { pickUp } from "./pickUp";
  * (`IAutoMovieMotionPropMount`).
  */
 export namespace writeWith {
-  /**
+  /*
    * Whether a surface prop is stationary for a stroke: fixed in the scene, or
    * held at entry by the hand that does not stroke, which holds still.
-   *
-   * @param context The action's context.
-   * @param on The surface prop's subject.
-   * @param side The stroking hand.
-   * @returns Whether the surface may carry the stroke.
+   * Parameter context: The action's context.
+   * Parameter on: The surface prop's subject.
+   * Parameter side: The stroking hand.
+   * Returns: Whether the surface may carry the stroke.
    */
   export function stationary(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -67,15 +66,14 @@ export namespace writeWith {
     );
   }
 
-  /**
+  /*
    * Refuse a working point whose wrist lies beyond the arm.
-   *
-   * @param context The action's context.
-   * @param side The working hand.
-   * @param points The working point's targets, world metres.
-   * @param lever The working point from the wrist, world-turned, metres.
-   * @throws {HumanRefusal} With the distance, when any wrist lies beyond the
-   *   straight arm.
+   * Parameter context: The action's context.
+   * Parameter side: The working hand.
+   * Parameter points: The working point's targets, world metres.
+   * Parameter lever: The working point from the wrist, world-turned, metres.
+   * With the distance, when any wrist lies beyond the
+   * straight arm.
    */
   export function reach(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -87,23 +85,22 @@ export namespace writeWith {
       pickUp.reachable(context, side, Vector3.subtract(point, lever));
   }
 
-  /**
+  /*
    * The other hand's held tool kept on one point of the work through the
    * stroke: its arm primitive, its grip contact, its kept hold and fingers.
-   *
-   * @param context The action's context.
-   * @param steady The steadying tool and its point.
-   * @param side The stroking hand; the other one steadies.
-   * @param origin The surface's origin, world metres.
-   * @param facing The surface's attitude, world.
-   * @param clock The stroke's clock.
-   * @param turn The steadying tool's turn about the surface's normal (`splay`);
-   *   none when absent.
-   * @param together The group the stroking arm is planned in, so the two arms
-   *   are one problem over one span; planned alone when absent.
-   * @returns The steadying hand's parts.
-   * @throws {HumanRefusal} When the other hand does not hold the tool, the tool
-   *   has no such point, or the point is beyond the arm.
+   * Parameter context: The action's context.
+   * Parameter steady: The steadying tool and its point.
+   * Parameter side: The stroking hand; the other one steadies.
+   * Parameter origin: The surface's origin, world metres.
+   * Parameter facing: The surface's attitude, world.
+   * Parameter clock: The stroke's clock.
+   * Parameter turn: The steadying tool's turn about the surface's normal (`splay`);
+   * none when absent.
+   * Parameter together: The group the stroking arm is planned in, so the two arms
+   * are one problem over one span; planned alone when absent.
+   * Returns: The steadying hand's parts.
+   * When the other hand does not hold the tool, the tool
+   * has no such point, or the point is beyond the arm.
    */
   export function steady(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -178,19 +175,18 @@ export namespace writeWith {
     };
   }
 
-  /**
+  /*
    * The steadying tool's aim: the tool as the other hand holds it, its attitude
    * at the entry, its working point from the wrist and the surface point it
    * presses.
-   *
-   * @param context The action's context.
-   * @param steady The steadying tool and its point.
-   * @param side The stroking hand; the other one steadies.
-   * @param origin The surface's origin, world metres.
-   * @param facing The surface's attitude, world.
-   * @returns The aim.
-   * @throws {HumanRefusal} When the other hand does not hold the tool or the
-   *   tool has no such point.
+   * Parameter context: The action's context.
+   * Parameter steady: The steadying tool and its point.
+   * Parameter side: The stroking hand; the other one steadies.
+   * Parameter origin: The surface's origin, world metres.
+   * Parameter facing: The surface's attitude, world.
+   * Returns: The aim.
+   * When the other hand does not hold the tool or the
+   * tool has no such point.
    */
   export function steadyAim(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -231,7 +227,7 @@ export namespace writeWith {
     };
   }
 
-  /**
+  /*
    * The turns about the surface's normal that set two held tools' grips a hand
    * apart: the stroking tool's and the steadying one's, each through its
    * working point, its handle swung toward its own hand's side.
@@ -255,15 +251,14 @@ export namespace writeWith {
    * its least distance from the steadying grip is the least over those
    * segments, each a closed-form point-to-segment distance. Grips already that
    * far apart are left as held.
-   *
-   * @param body The body.
-   * @param facing The surface's attitude, world.
-   * @param stroke The stroking tool's working point at the stroke's start and
-   *   its lever, world metres.
-   * @param steady The steadying tool's working point and lever, world metres.
-   * @param path The stroking working point's vertices in order, world metres;
-   *   the start alone when absent.
-   * @returns The stroking tool's turn and the steadying tool's, world.
+   * Parameter body: The body.
+   * Parameter facing: The surface's attitude, world.
+   * Parameter stroke: The stroking tool's working point at the stroke's start and
+   * its lever, world metres.
+   * Parameter steady: The steadying tool's working point and lever, world metres.
+   * Parameter path: The stroking working point's vertices in order, world metres;
+   * the start alone when absent.
+   * Returns: The stroking tool's turn and the steadying tool's, world.
    */
   export function splay(
     body: IAutoMovieMotionHumanActionContext<object>["body"],
@@ -338,51 +333,72 @@ export namespace writeWith {
     return turns(hi);
   }
 
-  /** A held tool's working point and its lever from the wrist. */
+  /*
+   * A held tool's working point and its lever from the wrist.
+   */
   export interface ILever {
-    /** The working point's target, world metres. */
+    /*
+     * The working point's target, world metres.
+     */
     point: IAutoMovieVector3;
 
-    /** The working point from the wrist, world-turned, metres. */
+    /*
+     * The working point from the wrist, world-turned, metres.
+     */
     lever: IAutoMovieVector3;
   }
 
-  /** The two tools' turns about the surface's normal. */
+  /*
+   * The two tools' turns about the surface's normal.
+   */
   export interface ISplay {
-    /** The stroking tool's turn. */
+    /*
+     * The stroking tool's turn.
+     */
     stroke: IAutoMovieQuaternion;
 
-    /** The steadying tool's turn. */
+    /*
+     * The steadying tool's turn.
+     */
     steady: IAutoMovieQuaternion;
   }
 
-  /** The steadying tool's aim. */
+  /*
+   * The steadying tool's aim.
+   */
   export interface IAim {
-    /** The held tool. */
+    /*
+     * The held tool.
+     */
     held: IAutoMovieMotionHumanHeld.IHeld;
 
-    /** The hand's world rotation holding it as at the entry. */
+    /*
+     * The hand's world rotation holding it as at the entry.
+     */
     rotation: IAutoMovieQuaternion;
 
-    /** The working point from the wrist, in the hand's frame, metres. */
+    /*
+     * The working point from the wrist, in the hand's frame, metres.
+     */
     contact: IAutoMovieVector3;
 
-    /** The surface point it presses, world metres. */
+    /*
+     * The surface point it presses, world metres.
+     */
     target: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * The drives of a held tool's articulations across a span of the work.
-   *
-   * @param context The action's context.
-   * @param tool The held tool's subject.
-   * @param drive The articulations and their target travels.
-   * @param duration The work's duration, seconds.
-   * @param from Seconds at which the drives start.
-   * @param to Seconds at which they reach their targets.
-   * @returns One drive per articulation.
-   * @throws {HumanRefusal} When the tool has no such articulation or a target
-   *   lies outside its travel.
+   * Parameter context: The action's context.
+   * Parameter tool: The held tool's subject.
+   * Parameter drive: The articulations and their target travels.
+   * Parameter duration: The work's duration, seconds.
+   * Parameter from: Seconds at which the drives start.
+   * Parameter to: Seconds at which they reach their targets.
+   * Returns: One drive per articulation.
+   * When the tool has no such articulation or a target
+   * lies outside its travel.
    */
   export function drives(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -441,17 +457,16 @@ export namespace writeWith {
     );
   }
 
-  /**
+  /*
    * A prop set on a contact at a share of the work, refused when the contact
    * does not exist: a socket, or a working point such as a fork's face, which
    * the prop then rides as it rides a socket.
-   *
-   * @param context The action's context.
-   * @param mount The prop and the socket.
-   * @param onto The socket's prop.
-   * @param share The share of the work it is set at.
-   * @returns The mount.
-   * @throws {HumanRefusal} When the socket is not on `onto`.
+   * Parameter context: The action's context.
+   * Parameter mount: The prop and the socket.
+   * Parameter onto: The socket's prop.
+   * Parameter share: The share of the work it is set at.
+   * Returns: The mount.
+   * When the socket is not on `onto`.
    */
   export function mount(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -476,15 +491,23 @@ export namespace writeWith {
     return { prop: mount.prop, onto, point: mount.point, from: share };
   }
 
-  /** The steadying hand's parts. */
+  /*
+   * The steadying hand's parts.
+   */
   export interface ISteadied {
-    /** The steadying arm. */
+    /*
+     * The steadying arm.
+     */
     primitive: IAutoMovieMotionHumanPrimitive;
 
-    /** Its grip on the tool. */
+    /*
+     * Its grip on the tool.
+     */
     contact: IAutoMovieMotionHumanContactWindow;
 
-    /** Its kept hold and fingers. */
+    /*
+     * Its kept hold and fingers.
+     */
     hold: IAutoMovieMotionPropHold;
   }
 }

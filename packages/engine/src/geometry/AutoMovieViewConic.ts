@@ -253,16 +253,28 @@ export namespace AutoMovieViewConic {
     return result;
   }
 
-  /** Numeric branch data shared before either capability performs its inverse. */
+  /*
+   * Numeric branch data shared before either capability performs its inverse.
+   */
   interface Selection {
-    /** Original quarter. */ q: number;
-    /** Original-quarter angle. */ local: number;
-    /** Distance to its final end. */ toEnd: number;
-    /** Selected source quarter. */ arc: IAutoMovieViewConic.IQuarter;
-    /** Actual rational piece. */ kind: IAutoMovieViewConic.IRay["kind"];
+    /*
+     * Original quarter.
+     */ q: number;
+    /*
+     * Original-quarter angle.
+     */ local: number;
+    /*
+     * Distance to its final end.
+     */ toEnd: number;
+    /*
+     * Selected source quarter.
+     */ arc: IAutoMovieViewConic.IQuarter;
+    /*
+     * Actual rational piece.
+     */ kind: IAutoMovieViewConic.IRay["kind"];
   }
 
-  /**
+  /*
    * Preserve the existing signed small-distance arithmetic and branch
    * boundaries.
    */
@@ -297,7 +309,7 @@ export namespace AutoMovieViewConic {
     return { q, local, toEnd, arc, kind };
   }
 
-  /**
+  /*
    * Copy one prepared patch's primal values; no preparation formula is
    * repeated.
    */
@@ -324,7 +336,7 @@ export namespace AutoMovieViewConic {
         };
   }
 
-  /**
+  /*
    * The existing bounded native-turn partition, used only to split numerical
    * quadrature. Normalized extents preserve its angular meaning.
    */

@@ -1,4 +1,4 @@
-/**
+/*
  * Solve every placed action of a performance once, each after what it reads: a
  * depth-first topological order of the performance's dependencies (Tarjan 1976,
  * "Edge-disjoint spanning trees and depth-first search", Acta Informatica
@@ -10,10 +10,9 @@
  * reads. A read that returns to an action being solved (a cycle of reads, two
  * people facing each other) reads it as it stands, the back edge a depth-first
  * order leaves; each action is solved exactly once.
- *
- * @param people The performance's people.
- * @param actions The actions of a person to solve, in film order.
- * @param solve Solve one action.
+ * Parameter people: The performance's people.
+ * Parameter actions: The actions of a person to solve, in film order.
+ * Parameter solve: Solve one action.
  */
 export function prepareHumanPerformanceOrder<
   Person extends prepareHumanPerformanceOrder.IPerson,
@@ -52,23 +51,29 @@ export function prepareHumanPerformanceOrder<
   }
 }
 
-/** What {@link prepareHumanPerformanceOrder} reads of people and actions. */
+/*
+ * What prepareHumanPerformanceOrder reads of people and actions.
+ */
 export namespace prepareHumanPerformanceOrder {
-  /**
+  /*
    * A person whose reads the order hooks
    * (`IAutoMovieMotionHumanSegment.IPerson.ready`).
    */
   export interface IPerson {
-    /**
+    /*
      * Solve the person's actions shown at a film second before it is read; set
      * only while the order runs.
      */
     ready?: (seconds: number) => void;
   }
 
-  /** An action placed at a film second. */
+  /*
+   * An action placed at a film second.
+   */
   export interface IAction {
-    /** Film second it becomes active. */
+    /*
+     * Film second it becomes active.
+     */
     entryTime: number;
   }
 }

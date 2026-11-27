@@ -30,7 +30,7 @@ import { HumanSword } from "./HumanSword";
 import { HumanSwordParryAside } from "./HumanSwordParryAside";
 import { HumanSwordTiming } from "./HumanSwordTiming";
 
-/**
+/*
  * The parry of blade work: the strong of the blade brought across an incoming
  * blade where its attack is stopped.
  *
@@ -71,13 +71,13 @@ import { HumanSwordTiming } from "./HumanSwordTiming";
  * there until it turns back.
  */
 export namespace HumanSwordParry {
-  /**
+  /*
    * Where a parry meets the attacking blade, a share of that blade's length
    * back from its point: the middle of its foible (`HumanSword.THIRDS`).
    */
   export const WEAK: number = HumanSword.THIRDS[0];
 
-  /**
+  /*
    * The shares of the attacking blade back from its point a parry slides its
    * meeting to, in order, when the arm cannot hold its blade across the foible:
    * the foible's middle, then the middle's, where the stopped blade stands
@@ -89,7 +89,7 @@ export namespace HumanSwordParry {
     HumanSword.THIRDS[1],
   ];
 
-  /**
+  /*
    * How far a parrying blade may lean from the line square to the attacker's,
    * degrees, and it turns freely about its own line, so the hand that holds it
    * as it took it can close the parry: the friction angle of steel sliding on
@@ -99,7 +99,7 @@ export namespace HumanSwordParry {
    */
   export const LEAN: number = (Math.atan(0.57) * 180) / Math.PI;
 
-  /**
+  /*
    * Where the parry meets: the drill's line, or the attacker's stopped blade
    * read through the attack's anchor, `weak` of its length back from its point;
    * `hand` is the parrying hand's grip in its entry hold, which divides the
@@ -254,7 +254,7 @@ export namespace HumanSwordParry {
     };
   };
 
-  /**
+  /*
    * Parry: the strong of the blade brought across an incoming blade where its
    * attack is stopped, meeting it at `stroke`, or to a line as a drill. A
    * meeting beyond the arm is refused on `target`; an attack without a blade on
@@ -437,7 +437,7 @@ export namespace HumanSwordParry {
       },
     };
 
-  /**
+  /*
    * Where a parry's blade goes: the point its strong meets, the way it points,
    * the way its edge faces, the seconds from the start to the attack's decisive
    * instant, the seconds the stopped attack stays there before it turns back
@@ -456,19 +456,25 @@ export namespace HumanSwordParry {
   }
 }
 
-/** The record of `IParryFound`'s site. */
+/*
+ * The record of `IParryFound`'s site.
+ */
 type IParryFound = {
   share: number;
   frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
 };
 
-/** The record of `IParryChosen`'s site. */
+/*
+ * The record of `IParryChosen`'s site.
+ */
 type IParryChosen = {
   share: number;
   frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
 };
 
-/** The record of `IParryReceivedResult`'s site. */
+/*
+ * The record of `IParryReceivedResult`'s site.
+ */
 type IParryReceivedResult = {
   share: number;
   frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;

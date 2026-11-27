@@ -10,7 +10,7 @@ import type { StrikingWeaponRecord } from "./StrikingWeaponRecord";
 import { StrikingWeaponSample } from "./StrikingWeaponSample";
 import { StrikingWeaponTable } from "./StrikingWeaponTable";
 
-/**
+/*
  * A striking limb as the capsule weapons the performance's joint contact
  * resolution sweeps: the limb's joints read from the striking action's own free
  * course, its posture fitted at the asked second, which is what the figure
@@ -23,26 +23,25 @@ import { StrikingWeaponTable } from "./StrikingWeaponTable";
  * widest girth of its segment to the joint where the shown limb has narrowed.
  */
 export namespace StrikingWeapon {
-  /**
+  /*
    * How long past the planned contact a striking limb stays a weapon and its
    * stop is looked for, seconds, every strike's limb alike (provisional: the
    * through-travel's settling).
    */
   export const TAIL: number = 0.1;
 
-  /**
+  /*
    * The striking action's free course: its posture at a film second before any
    * committed stop moves it.
-   *
-   * @param seconds Film seconds.
-   * @param channels Optional demands whose observed values equal the complete
-   *   course; unsupported producers return the complete posture.
-   * @param resolution Optional exact FK supplier borrowed only for this
-   *   synchronous sample, never retained by the course.
-   * @param projection Optional lazy genuine same-body ROM metadata supplier for
-   *   this unchanged-table sample; never retained, and legacy courses may
-   *   ignore it.
-   * @returns The posture.
+   * Parameter seconds: Film seconds.
+   * Parameter channels: Optional demands whose observed values equal the complete
+   * course; unsupported producers return the complete posture.
+   * Parameter resolution: Optional exact FK supplier borrowed only for this
+   * synchronous sample, never retained by the course.
+   * Parameter projection: Optional lazy genuine same-body ROM metadata supplier for
+   * this unchanged-table sample; never retained, and legacy courses may
+   * ignore it.
+   * Returns: The posture.
    */
   export type Course = (
     seconds: number,
@@ -51,17 +50,16 @@ export namespace StrikingWeapon {
     projection?: () => ReturnType<typeof prepareHumanPostureProjection>,
   ) => IAutoMovieMotionHumanPosture;
 
-  /**
+  /*
    * A striking arm at a film second, fitted on its action's free course: the
    * shoulder, the elbow, the wrist, and the fist's axis end one forearm radius
    * behind the knuckles, so a capsule of that radius from the wrist ends on the
    * knuckles.
-   *
-   * @param body The performer's body.
-   * @param course The action's free course.
-   * @param side The arm's side.
-   * @param seconds Film seconds.
-   * @returns The four axis ends, world metres.
+   * Parameter body: The performer's body.
+   * Parameter course: The action's free course.
+   * Parameter side: The arm's side.
+   * Parameter seconds: Film seconds.
+   * Returns: The four axis ends, world metres.
    */
   export function arm(
     body: IAutoMovieMotionHumanBody,
@@ -88,14 +86,13 @@ export namespace StrikingWeapon {
     );
   }
 
-  /**
+  /*
    * The endpoint reader of a striking limb, prepared once by the plan whose
    * chain reads that limb at every second it scans, and passed to `arm` or
    * `leg`.
-   *
-   * @param body The performer's body.
-   * @param limb The striking limb.
-   * @returns The reader of the limb's three joint frames on a posed body.
+   * Parameter body: The performer's body.
+   * Parameter limb: The striking limb.
+   * Returns: The reader of the limb's three joint frames on a posed body.
    */
   export function frames(
     body: IAutoMovieMotionHumanBody,
@@ -104,14 +101,13 @@ export namespace StrikingWeapon {
     return poseBones.prepare(body, ENDS[limb]);
   }
 
-  /**
+  /*
    * An arm's axis ends on posed bones: the shoulder, the elbow, the wrist, and
    * the fist's axis end one forearm radius behind the knuckles.
-   *
-   * @param body The arm's body.
-   * @param bones Its posed bones, world frame.
-   * @param side The arm's side.
-   * @returns The four axis ends, world metres.
+   * Parameter body: The arm's body.
+   * Parameter bones: Its posed bones, world frame.
+   * Parameter side: The arm's side.
+   * Returns: The four axis ends, world metres.
    */
   export function posed(
     body: IAutoMovieMotionHumanBody,
@@ -140,15 +136,14 @@ export namespace StrikingWeapon {
     ];
   }
 
-  /**
+  /*
    * A striking leg at a film second, fitted on its action's free course: the
    * hip, the knee, the ankle and the ball of the foot.
-   *
-   * @param body The performer's body.
-   * @param course The action's free course.
-   * @param side The leg's side.
-   * @param seconds Film seconds.
-   * @returns The four axis ends, world metres.
+   * Parameter body: The performer's body.
+   * Parameter course: The action's free course.
+   * Parameter side: The leg's side.
+   * Parameter seconds: Film seconds.
+   * Returns: The four axis ends, world metres.
    */
   export function leg(
     body: IAutoMovieMotionHumanBody,
@@ -182,43 +177,52 @@ export namespace StrikingWeapon {
     ];
   }
 
-  /** A limb's capsules. */
+  /*
+   * A limb's capsules.
+   */
   export interface IChain {
-    /** One id per capsule, from the trunk outward. */
+    /*
+     * One id per capsule, from the trunk outward.
+     */
     ids: readonly string[];
 
-    /** The limb that carries them. */
+    /*
+     * The limb that carries them.
+     */
     limb: IAutoMovieMotionWeaponPath["limb"];
 
-    /**
+    /*
      * The radii at each capsule's two axis ends, metres: equal for a capsule of
      * one radius, unequal for a tapered capsule, as a limb narrows from one
      * joint's girth to the next.
      */
     radii: readonly ChainRadiiItem[];
 
-    /** Film second they become live. */
+    /*
+     * Film second they become live.
+     */
     from: number;
 
-    /** Film second they stop being live. */
+    /*
+     * Film second they stop being live.
+     */
     to: number;
 
-    /**
+    /*
      * The reader of the record the ends are read on: kept ends hold while it
      * returns the same object.
      */
     on: StrikingWeaponRecord;
 
-    /**
+    /*
      * The capsules' axis ends at a film second, one more than the capsules:
      * capsule `i` runs from end `i` to end `i + 1`.
-     *
-     * @param seconds Film seconds.
-     * @returns World metres.
+     * Parameter seconds: Film seconds.
+     * Returns: World metres.
      */
     ends(seconds: number): readonly IAutoMovieVector3[];
 
-    /**
+    /*
      * The same ends with the limb's fits continued from a neighbouring second's
      * and their seeds returned (`StrikingWeaponTable.reader`); the capsules
      * read the course through it when it is given.
@@ -226,12 +230,11 @@ export namespace StrikingWeapon {
     read?: StrikingWeaponTable.IRead;
   }
 
-  /**
+  /*
    * A limb's capsules as weapons.
-   *
-   * @param chain The capsules.
-   * @returns One weapon per id.
-   * @throws {Error} When the radii do not match the ids.
+   * Parameter chain: The capsules.
+   * Returns: One weapon per id.
+   * When the radii do not match the ids.
    */
   export function capsules(chain: IChain): IAutoMovieMotionWeaponPath[] {
     if (chain.radii.length !== chain.ids.length)
@@ -258,18 +261,19 @@ export namespace StrikingWeapon {
     );
   }
 
-  /** A weapon's actual centre and optional other capsule end, world metres. */
+  /*
+   * A weapon's actual centre and optional other capsule end, world metres.
+   */
   export type IAxis = readonly [
     IAutoMovieVector3,
     IAutoMovieVector3 | undefined,
   ];
 
-  /**
+  /*
    * Read both ends of one weapon in one synchronous sample.
-   *
-   * @param weapon The original plan weapon, before consumer adapters wrap it.
-   * @param seconds The exact film second requested by the consumer.
-   * @returns Its centre and optional capsule end.
+   * Parameter weapon: The original plan weapon, before consumer adapters wrap it.
+   * Parameter seconds: The exact film second requested by the consumer.
+   * Returns: Its centre and optional capsule end.
    */
   export function read(
     weapon: IAutoMovieMotionWeaponPath,
@@ -278,12 +282,11 @@ export namespace StrikingWeapon {
     return StrikingWeaponSample.read(weapon, seconds);
   }
 
-  /**
+  /*
    * Read requested weapons together at one exact second and context state.
-   *
-   * @param weapons Original plan weapons in the consumer's existing order.
-   * @param seconds The exact film second of this synchronous sample.
-   * @returns One axis per requested weapon, keyed by its original identity.
+   * Parameter weapons: Original plan weapons in the consumer's existing order.
+   * Parameter seconds: The exact film second of this synchronous sample.
+   * Returns: One axis per requested weapon, keyed by its original identity.
    */
   export function sample(
     weapons: readonly IAutoMovieMotionWeaponPath[],
@@ -292,26 +295,29 @@ export namespace StrikingWeapon {
     return StrikingWeaponSample.sample(weapons, seconds);
   }
 
-  /** A shown leg's girths at its joints (`StrikingWeaponGirth.legRadii`). */
+  /*
+   * A shown leg's girths at its joints (`StrikingWeaponGirth.legRadii`).
+   */
   export const legRadii: typeof StrikingWeaponGirth.legRadii =
     StrikingWeaponGirth.legRadii;
 
-  /** A shown arm's girths at its joints (`StrikingWeaponGirth.armRadii`). */
+  /*
+   * A shown arm's girths at its joints (`StrikingWeaponGirth.armRadii`).
+   */
   export const armRadii: typeof StrikingWeaponGirth.armRadii =
     StrikingWeaponGirth.armRadii;
 
-  /**
+  /*
    * A chain capsule's radius at a share of its axis
    * (`StrikingWeaponGirth.girth`).
    */
   export const girth: typeof StrikingWeaponGirth.girth =
     StrikingWeaponGirth.girth;
 
-  /**
+  /*
    * The first of an action's resolved contacts.
-   *
-   * @param events The action's weapons' contacts.
-   * @returns The earliest, or null when the weapons met nothing.
+   * Parameter events: The action's weapons' contacts.
+   * Returns: The earliest, or null when the weapons met nothing.
    */
   export function first(
     events: readonly IAutoMovieMotionWeaponContact[],
@@ -322,14 +328,13 @@ export namespace StrikingWeapon {
     return best;
   }
 
-  /**
+  /*
    * The axis of one capsule of a chain.
-   *
-   * @param chain The capsules.
-   * @param id The capsule's id.
-   * @param seconds Film seconds.
-   * @returns Its two axis ends, world metres.
-   * @throws {Error} When the chain has no such capsule.
+   * Parameter chain: The capsules.
+   * Parameter id: The capsule's id.
+   * Parameter seconds: Film seconds.
+   * Returns: Its two axis ends, world metres.
+   * When the chain has no such capsule.
    */
   export function axis(
     chain: Pick<IChain, AxisChain>,
@@ -342,7 +347,7 @@ export namespace StrikingWeapon {
     return [ends[i]!, ends[i + 1]!];
   }
 
-  /**
+  /*
    * A capsule's radius members as a weapon carries them: a tail radius only
    * where the capsule tapers.
    */
@@ -355,19 +360,27 @@ export namespace StrikingWeapon {
   }
 }
 
-/** The alternatives of `AxisChain`'s site. */
+/*
+ * The alternatives of `AxisChain`'s site.
+ */
 type AxisChain = "ids" | "ends";
 
-/** The alternatives of `RadiusResult`'s site. */
+/*
+ * The alternatives of `RadiusResult`'s site.
+ */
 type RadiusResult = "radius" | "tailRadius";
 
-/** A capsule's radii at its two axis ends, metres. */
+/*
+ * A capsule's radii at its two axis ends, metres.
+ */
 type RadiusRadii = readonly [number, number];
 
-/** A chain capsule's radii at its two axis ends, metres. */
+/*
+ * A chain capsule's radii at its two axis ends, metres.
+ */
 type ChainRadiiItem = readonly [number, number];
 
-/**
+/*
  * Fixed demanded limb outputs; FK still admits all joints and computes every
  * required ancestor.
  */
@@ -396,7 +409,7 @@ const ENDS: Readonly<
   ]),
 };
 
-/**
+/*
  * A striking leg depends on its base and trunk, while arms are fitted later and
  * cannot move it.
  */

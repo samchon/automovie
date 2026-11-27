@@ -5,7 +5,7 @@ import {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-/**
+/*
  * Bake a live pose callback at 24 Hz plus exact caller landmarks over a
  * positive second duration. Return null if any callback sample cannot resolve;
  * successful samples form a non-looping linear clinical-pose clip.

@@ -8,20 +8,19 @@ import type {
 import { HumanFootRotation } from "./HumanFootRotation";
 import { humanFootOffset } from "./humanFootOffset";
 
-/**
+/*
  * Prepare the ankle of a foot pivoting about a sole point fixed in the world,
  * for a search that reads many pitches and keeps none of them.
- *
- * @param body The body owning the sole socket.
- * @param side The foot.
- * @param pivot Which socket stays fixed.
- * @param at The socket's fixed world position, metres.
- * @param heading The fixed foot heading, degrees about +Y.
- * @returns A reader of pitch in degrees, positive toes up, giving the ankle of
- *   `HumanFoot.preparePivot`'s placement at that pitch with the toes flat and
- *   no roll, world metres. The reader owns the returned record and overwrites
- *   it at its next read, so a caller reads the three components before reading
- *   another pitch and never keeps the record.
+ * Parameter body: The body owning the sole socket.
+ * Parameter side: The foot.
+ * Parameter pivot: Which socket stays fixed.
+ * Parameter at: The socket's fixed world position, metres.
+ * Parameter heading: The fixed foot heading, degrees about +Y.
+ * Returns: A reader of pitch in degrees, positive toes up, giving the ankle of
+ * `HumanFoot.preparePivot`'s placement at that pitch with the toes flat and
+ * no roll, world metres. The reader owns the returned record and overwrites
+ * it at its next read, so a caller reads the three components before reading
+ * another pitch and never keeps the record.
  */
 export function prepareHumanFootAnkle(
   body: humanFootOffset.IBody,
@@ -64,5 +63,7 @@ export function prepareHumanFootAnkle(
   };
 }
 
-/** The alternatives of `PrepareHumanFootAnklePivot`'s site. */
+/*
+ * The alternatives of `PrepareHumanFootAnklePivot`'s site.
+ */
 type PrepareHumanFootAnklePivot = "heel" | "ball" | "toe" | "sole" | "mtp";

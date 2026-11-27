@@ -12,9 +12,11 @@ import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanFitTargetSlopes } from "./HumanFitTargetSlopes";
 import { HumanJacobian } from "./HumanJacobian";
 
-/** Effector constraints in world axes, a fixed frame or a moving bone frame. */
+/*
+ * Effector constraints in world axes, a fixed frame or a moving bone frame.
+ */
 export namespace HumanFitTargets {
-  /**
+  /*
    * What the target rows read of a body reading: each target's effector point
    * and turn, and the posed bones a moving goal frame rides.
    */
@@ -23,13 +25,17 @@ export namespace HumanFitTargets {
     "points" | "turns" | "bones"
   >;
 
-  /** A target row and its reading on the target's own body coordinates. */
+  /*
+   * A target row and its reading on the target's own body coordinates.
+   */
   export type IRead = Pick<HumanBodyFitRows.IRead, "row"> & {
-    /** The actual scalar read in metres or radians. */
+    /*
+     * The actual scalar read in metres or radians.
+     */
     f: (r: IReading) => number;
   };
 
-  /**
+  /*
    * What the target rows read of a step: its reading, the variables' motions
    * and units, the variable domain, the goals and the floor's price.
    */
@@ -37,17 +43,18 @@ export namespace HumanFitTargets {
     HumanBodyFitRows.IStep,
     "motions" | "units" | "index" | "targets" | "price"
   > & {
-    /** The reading the step starts from. */
+    /*
+     * The reading the step starts from.
+     */
     at: IReading;
   };
 
-  /**
+  /*
    * Append point, point-bound, rotation and normal rows.
-   *
-   * @param step The current whole-body linearisation.
-   * @param equal The row owner's interval builder, in metres or radians.
-   * @param mm Its units multiplier.
-   * @returns The target rows.
+   * Parameter step: The current whole-body linearisation.
+   * Parameter equal: The row owner's interval builder, in metres or radians.
+   * Parameter mm: Its units multiplier.
+   * Returns: The target rows.
    */
   export function rows(
     step: IStep,
@@ -209,13 +216,12 @@ export namespace HumanFitTargets {
     return rows;
   }
 
-  /**
+  /*
    * Signed exact-point errors or excess outside the point bound, then turns.
-   *
-   * @param target The goal and physical radius, if any.
-   * @param r The current body reading.
-   * @param k Its target index.
-   * @returns Metres and radians in row order.
+   * Parameter target: The goal and physical radius, if any.
+   * Parameter r: The current body reading.
+   * Parameter k: Its target index.
+   * Returns: Metres and radians in row order.
    */
   export function misses(
     target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
@@ -242,14 +248,13 @@ export namespace HumanFitTargets {
     return out;
   }
 
-  /**
+  /*
    * Actual distance to the target centre and orientation error.
-   *
-   * @param target The goal.
-   * @param r The current body reading.
-   * @param k Its index.
-   * @returns Point distance in millimetres, without subtracting its physical
-   *   radius, and turn in degrees.
+   * Parameter target: The goal.
+   * Parameter r: The current body reading.
+   * Parameter k: Its index.
+   * Returns: Point distance in millimetres, without subtracting its physical
+   * radius, and turn in degrees.
    */
   export function residual(
     target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
@@ -272,7 +277,9 @@ export namespace HumanFitTargets {
     };
   }
 
-  /** Rotation vector taking current to goal, in the shared frame's radians. */
+  /*
+   * Rotation vector taking current to goal, in the shared frame's radians.
+   */
   export function turn(
     goal: IAutoMovieQuaternion,
     current: IAutoMovieQuaternion,
@@ -293,7 +300,9 @@ export namespace HumanFitTargets {
       : Vector3.scale(v, (2 * Math.atan2(sine, Math.abs(q.w))) / sine);
   }
 
-  /** Least turn from the desired normal to the effector normal, radians. */
+  /*
+   * Least turn from the desired normal to the effector normal, radians.
+   */
   export function tilt(
     target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
     rotation: IAutoMovieQuaternion,
@@ -310,7 +319,9 @@ export namespace HumanFitTargets {
       : Vector3.scale(axis, angle / sine);
   }
 
-  /** Two orthonormal transverse directions of a finite nonzero normal. */
+  /*
+   * Two orthonormal transverse directions of a finite nonzero normal.
+   */
   export function across(
     normal: IAutoMovieVector3,
   ): [IAutoMovieVector3, IAutoMovieVector3] {
@@ -329,39 +340,55 @@ export namespace HumanFitTargets {
   }
 }
 
-/** The record of `IResidualResult`'s site. */
+/*
+ * The record of `IResidualResult`'s site.
+ */
 type IResidualResult = { point: number; turn: number };
 
-/** The alternatives of `MissesOutAxis`'s site. */
+/*
+ * The alternatives of `MissesOutAxis`'s site.
+ */
 type MissesOutAxis = "x" | "y" | "z";
 
-/** The alternatives of `RowsAxesItem`'s site. */
+/*
+ * The alternatives of `RowsAxesItem`'s site.
+ */
 type RowsAxesItem = "x" | "y" | "z";
-/** The record of `IFrameAnchor`'s site. */
+/*
+ * The record of `IFrameAnchor`'s site.
+ */
 type IFrameAnchor = {
-  /** The bone whose velocity carries the frame, when it moves. */
+  /*
+   * The bone whose velocity carries the frame, when it moves.
+   */
   bone: AutoMovieHumanoidBone | undefined;
 
-  /** Rotation from the world into the goal frame. */
+  /*
+   * Rotation from the world into the goal frame.
+   */
   inverse: IAutoMovieQuaternion;
 };
 
-/** An effector expressed in its goal's reference frame. */
+/*
+ * An effector expressed in its goal's reference frame.
+ */
 interface IFrame {
   point: IAutoMovieVector3;
   turn: IAutoMovieQuaternion;
 
-  /**
+  /*
    * Present for a fixed or moving goal frame. Its inverse also transforms this
    * model's relative twists.
    */
   anchor?: IFrameAnchor;
 }
 
-/** The additive identity for world or goal-frame velocities. */
+/*
+ * The additive identity for world or goal-frame velocities.
+ */
 const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
-/**
+/*
  * Read each new goal frame on its actual anchor, sharing that same inverse with
  * the current model's relative twists.
  */
@@ -386,7 +413,9 @@ function frame(
   );
 }
 
-/** Express the effector and its turn in the supplied goal frame. */
+/*
+ * Express the effector and its turn in the supplied goal frame.
+ */
 function expressed(
   r: HumanFitTargets.IReading,
   k: number,
@@ -405,7 +434,9 @@ function expressed(
   };
 }
 
-/** Relative twists include the anchor's velocity at the effector point. */
+/*
+ * Relative twists include the anchor's velocity at the effector point.
+ */
 function relative(
   target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
   r: HumanFitTargets.IReading,
@@ -438,10 +469,14 @@ function relative(
     ),
   };
 }
-/** The alternatives of `ErrorAxesItem`'s site. */
+/*
+ * The alternatives of `ErrorAxesItem`'s site.
+ */
 type ErrorAxesItem = "x" | "y" | "z";
 
-/** Point error projected on the declared axes; a bound is a metric radius. */
+/*
+ * Point error projected on the declared axes; a bound is a metric radius.
+ */
 function error(
   target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
   point: IAutoMovieVector3,

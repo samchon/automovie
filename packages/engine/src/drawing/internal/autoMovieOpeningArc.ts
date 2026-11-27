@@ -5,7 +5,7 @@ import {
 
 import { AUTOMOVIE_OPENING_BULGE_EPSILON } from "../AUTOMOVIE_OPENING_BULGE_EPSILON";
 
-/**
+/*
  * The circular arc one opening-profile edge bulges along, or `null` when the
  * edge is straight.
  *
@@ -14,13 +14,12 @@ import { AUTOMOVIE_OPENING_BULGE_EPSILON } from "../AUTOMOVIE_OPENING_BULGE_EPSI
  * places its sagitta by. The centre therefore sits on the chord's right for a
  * positive bulge, at a signed distance that runs to infinity as the bulge goes
  * to zero, and the sweep runs clockwise, which is what puts the arc on the
- * left. A bulge within {@link AUTOMOVIE_OPENING_BULGE_EPSILON} of zero, or an
+ * left. A bulge within AUTOMOVIE_OPENING_BULGE_EPSILON of zero, or an
  * edge with coincident ends, is straight.
- *
- * @param from Edge start, in profile-frame metres.
- * @param to Edge end, in profile-frame metres.
- * @param bulge The edge's bulge; validation keeps it within `[-1, 1]`.
- * @returns The arc's circle, start angle and signed sweep, or `null`.
+ * Parameter from: Edge start, in profile-frame metres.
+ * Parameter to: Edge end, in profile-frame metres.
+ * Parameter bulge: The edge's bulge; validation keeps it within `[-1, 1]`.
+ * Returns: The arc's circle, start angle and signed sweep, or `null`.
  */
 export const autoMovieOpeningArc = (
   from: IAutoMoviePlanarPoint,

@@ -7,16 +7,15 @@ import type {
 
 import { createHumanPostureRotation } from "../../posture/internal/createHumanPostureRotation";
 
-/**
+/*
  * Playback of a flight's supplied orientation about its composed centre,
  * constructed outside the performance's shape-evaluation scope: each table
  * interval's slerp of the unturned root is prepared here, and a read takes the
  * interval its second falls in, the centre lerped across it and the turn the
  * orientation gives over the unturned root there.
- *
- * @param props The flight's clock, its table of centres and unturned roots, and
- *   its orientation.
- * @returns The rotation at a second since the flight's start.
+ * Parameter props: The flight's clock, its table of centres and unturned roots, and
+ * its orientation.
+ * Returns: The rotation at a second since the flight's start.
  */
 export function HumanPerformanceFlightRotation(
   props: HumanPerformanceFlightRotation.IProps,
@@ -54,28 +53,43 @@ export function HumanPerformanceFlightRotation(
   };
 }
 
-/** The inputs of {@link HumanPerformanceFlightRotation}. */
+/*
+ * The inputs of HumanPerformanceFlightRotation.
+ */
 export namespace HumanPerformanceFlightRotation {
-  /** A flight's clock, table and orientation. */
+  /*
+   * A flight's clock, table and orientation.
+   */
   export interface IProps {
-    /** The flight's start, film seconds. */
+    /*
+     * The flight's start, film seconds.
+     */
     start: number;
-    /** The table's first second. */
+    /*
+     * The table's first second.
+     */
     t0: number;
-    /** Its last second. */
+    /*
+     * Its last second.
+     */
     t1: number;
-    /** Its spacing, seconds. */
+    /*
+     * Its spacing, seconds.
+     */
     step: number;
-    /** Its seconds, `t0` to `t1` a step apart. */
+    /*
+     * Its seconds, `t0` to `t1` a step apart.
+     */
     times: readonly number[];
-    /** Each second's composed centre and unturned root. */
+    /*
+     * Each second's composed centre and unturned root.
+     */
     table: readonly IRow[];
-    /**
+    /*
      * The flight's orientation at a second over its unturned root.
-     *
-     * @param seconds Film seconds.
-     * @param root The unturned root there.
-     * @returns The orientation.
+     * Parameter seconds: Film seconds.
+     * Parameter root: The unturned root there.
+     * Returns: The orientation.
      */
     orientation: (
       seconds: number,
@@ -83,11 +97,17 @@ export namespace HumanPerformanceFlightRotation {
     ) => IAutoMovieQuaternion;
   }
 
-  /** One second of a flight's table. */
+  /*
+   * One second of a flight's table.
+   */
   export interface IRow {
-    /** The composed centre the body turns about. */
+    /*
+     * The composed centre the body turns about.
+     */
     about: IAutoMovieVector3;
-    /** The unturned root. */
+    /*
+     * The unturned root.
+     */
     root: IAutoMovieQuaternion;
   }
 }

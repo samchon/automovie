@@ -21,7 +21,7 @@ import { HumanLimbView } from "./HumanLimbView";
 import { mirrorHumanLimbSource } from "./mirrorHumanLimbSource";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
-/**
+/*
  * Solve one limb fit directly, every time, with no memory of earlier fits.
  *
  * The fit runs on the records it reads and no others (`HumanLimbView.of`): its
@@ -36,26 +36,25 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
  * into the whole pose (`HumanLimbView.merged`), whose other records and root
  * stay the caller's own objects. The whole pose is admitted in order once,
  * before the fit's first forward-kinematics read (`HumanLimbView.admitted`).
- *
- * @param body The performer's body.
- * @param pose The pose before the fit.
- * @param limb The limb.
- * @param goal Its goal, attached or not.
- * @param placed The arms already placed.
- * @param rival Where the other arm's wrist will be, while it is still to be
- *   fitted.
- * @param near A nearby fit of the same limb to continue; omitted, the fit is
- *   solved cold.
- * @param resolution Optional FK reader or lazy supplier borrowed from the
- *   caller's synchronous evaluation.
- * @param policy The ordinary fit, or the owned continuous curve's current
- *   hinged correction.
- * @param admission The admission the fits of one pose share
- *   (`HumanLimbView.IAdmission`); absent, this fit admits the whole pose
- *   itself.
- * @returns The pose with the limb fitted, the seed that continues it and its
- *   value; records the fit leaves unchanged are shared with the input pose,
- *   which callers treat as immutable.
+ * Parameter body: The performer's body.
+ * Parameter pose: The pose before the fit.
+ * Parameter limb: The limb.
+ * Parameter goal: Its goal, attached or not.
+ * Parameter placed: The arms already placed.
+ * Parameter rival: Where the other arm's wrist will be, while it is still to be
+ * fitted.
+ * Parameter near: A nearby fit of the same limb to continue; omitted, the fit is
+ * solved cold.
+ * Parameter resolution: Optional FK reader or lazy supplier borrowed from the
+ * caller's synchronous evaluation.
+ * Parameter policy: The ordinary fit, or the owned continuous curve's current
+ * hinged correction.
+ * Parameter admission: The admission the fits of one pose share
+ * (`HumanLimbView.IAdmission`); absent, this fit admits the whole pose
+ * itself.
+ * Returns: The pose with the limb fitted, the seed that continues it and its
+ * value; records the fit leaves unchanged are shared with the input pose,
+ * which callers treat as immutable.
  */
 export function solveHumanLimbFit(
   body: IAutoMovieMotionHumanBody,
@@ -84,11 +83,13 @@ export function solveHumanLimbFit(
   );
 }
 
-/** The same solve without the root-position frame. */
+/*
+ * The same solve without the root-position frame.
+ */
 export namespace solveHumanLimbFit {
-  /**
+  /*
    * Solve one limb fit in the world frame the pose is given in: the reduced
-   * pose, a left limb's mirror image and the merge of {@link solveHumanLimbFit},
+   * pose, a left limb's mirror image and the merge of solveHumanLimbFit,
    * without its root-position frame. `HumanLimbFit.fit` and
    * `HumanLimbFit.continued` are this solve.
    */
@@ -118,7 +119,7 @@ export namespace solveHumanLimbFit {
     );
   }
 }
-/**
+/*
  * Reduce, mirror a left limb, move into the frame when asked, solve the right
  * chain, merge back.
  */
@@ -213,10 +214,16 @@ function solved(
   return merged === out.pose ? out : { ...out, pose: merged };
 }
 
-/** The alternatives of `SolveHumanLimbFitPolicy`'s site. */
+/*
+ * The alternatives of `SolveHumanLimbFitPolicy`'s site.
+ */
 type SolveHumanLimbFitPolicy = "ordinary" | "continuous";
-/** The alternatives of `SolveHumanLimbFitWorldPolicy`'s site. */
+/*
+ * The alternatives of `SolveHumanLimbFitWorldPolicy`'s site.
+ */
 type SolveHumanLimbFitWorldPolicy = "ordinary" | "continuous";
 
-/** The alternatives of `SolvedPolicy`'s site. */
+/*
+ * The alternatives of `SolvedPolicy`'s site.
+ */
 type SolvedPolicy = "ordinary" | "continuous";

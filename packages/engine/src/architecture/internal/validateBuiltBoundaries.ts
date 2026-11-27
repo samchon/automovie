@@ -11,7 +11,7 @@ import { validateDeclaredReferences } from "../../validation/internal/validateDe
 import { appendBuiltRegionDefects } from "./appendBuiltRegionDefects";
 import { builtOutlineIsClosed } from "./builtOutlineIsClosed";
 
-/**
+/*
  * Validate a building's boundaries and the faces openings are cut in.
  *
  * Each boundary needs a unique id, a non-blank kind, one or two spaces it
@@ -19,14 +19,13 @@ import { builtOutlineIsClosed } from "./builtOutlineIsClosed";
  * each. A stated face needs a finite origin, a unit rotation, a positive
  * thickness, and an outline of at least 3 distinct finite corners that encloses
  * area without crossing itself. Findings are pushed under `<root>.boundaries`.
- *
- * @param environment Building whose boundaries are checked.
- * @param root Violation path of the building record, `$input`.
- * @param spaceIds Declared space ids.
- * @param elementIds Declared element ids.
- * @param collector Sink that receives the violations.
- * @returns The declared boundary ids, and every face that passed its checks by
- *   boundary id, so openings are only placed on a usable face.
+ * Parameter environment: Building whose boundaries are checked.
+ * Parameter root: Violation path of the building record, `$input`.
+ * Parameter spaceIds: Declared space ids.
+ * Parameter elementIds: Declared element ids.
+ * Parameter collector: Sink that receives the violations.
+ * Returns: The declared boundary ids, and every face that passed its checks by
+ * boundary id, so openings are only placed on a usable face.
  */
 export function validateBuiltBoundaries(
   environment: IAutoMovieBuiltEnvironment,

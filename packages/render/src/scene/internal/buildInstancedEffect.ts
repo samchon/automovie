@@ -9,7 +9,7 @@ import * as THREE from "three";
 import type { IAutoMovieEffectViewerObject } from "../IAutoMovieEffectViewerObject.js";
 import type { IAutoMovieEffectViewerStats } from "../IAutoMovieEffectViewerStats.js";
 
-/**
+/*
  * Build a compiled effect as fixed-capacity camera-facing billboard instances.
  * Numeric particles come from the engine's absolute fixed-step sampler. The
  * current tree exposes this producer without a production scene/film caller.

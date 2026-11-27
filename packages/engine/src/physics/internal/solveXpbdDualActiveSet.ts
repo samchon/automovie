@@ -1,6 +1,6 @@
 import type { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
 
-/**
+/*
  * A small dense convex quadratic program by the dual active-set method of
  * Goldfarb and Idnani (1983, "A numerically stable dual method for solving
  * strictly convex quadratic programs", Mathematical Programming 27): `min 1/2
@@ -22,10 +22,9 @@ import type { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
  * valid choice of the dual method), so a solve whose active set did not change
  * adds exactly those rows and drops none. The objective's diagonal factor `L`
  * is the same for every solve of one diagonal.
- *
- * @param problem The objective, the rows and the preferred inequalities.
- * @returns The minimizer and its active inequalities, or null when the rows are
- *   infeasible or the method does not finish within its bound.
+ * Parameter problem: The objective, the rows and the preferred inequalities.
+ * Returns: The minimizer and its active inequalities, or null when the rows are
+ * infeasible or the method does not finish within its bound.
  */
 export function solveXpbdDualActiveSet(
   problem: AutoMovieEnginePhysics.ISolveXpbdDualActiveSetProblem,

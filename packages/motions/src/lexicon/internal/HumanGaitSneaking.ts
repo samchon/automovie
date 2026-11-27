@@ -3,7 +3,7 @@ import type { IAutoMovieMotionHumanWalkGait } from "@automovie/interface";
 import { walk } from "../../gait/internal/walk";
 import { HumanGait } from "./HumanGait";
 
-/**
+/*
  * The sneak's slow short steps with the arms held close (`HumanGait.SNEAK`),
  * with what the variant adds: its pelvis drop or its raised heels.
  */

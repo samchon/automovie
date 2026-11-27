@@ -32,13 +32,13 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { pullCoverWay } from "./pullCoverWay";
 
-/**
+/*
  * How far above the skin the gripping hand's grip socket rides, metres
  * (provisional: the closed fist's half depth over a blanket's thickness).
  */
 const OVER: number = 0.05;
 
-/**
+/*
  * Each hand's way up the body, its own side's regions from the thigh to the
  * chest.
  */
@@ -49,7 +49,7 @@ const WAY: Readonly<
   right: ["thighFrontRight", "liver", "chestRight"],
 };
 
-/**
+/*
  * Pull a cover up while lying, or push it off. Each hand's way runs over its
  * own side of the lying body, from the thigh's front over the upper abdomen to
  * the chest (`WAY`), each region `OVER` out along its normal, read on the
@@ -69,7 +69,7 @@ export const pullCover: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPull
     plan: planPullCover,
   };
 
-/**
+/*
  * Pull a cover up while lying, or push it off. Each hand's way runs over its
  * own side of the lying body, from the thigh's front over the upper abdomen to
  * the chest (`WAY`), each region `OVER` out along its normal, read on the

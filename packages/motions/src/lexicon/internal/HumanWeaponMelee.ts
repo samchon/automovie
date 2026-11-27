@@ -11,7 +11,7 @@ import { touch } from "../../touch/internal/touch";
 import { HumanSword } from "./HumanSword";
 import { HumanSwordThrust } from "./HumanSwordThrust";
 
-/**
+/*
  * One-handed melee weapons and the firearm's reload under film names, each a
  * blade row with the blade timing of `IAutoMovieMotionHumanSword` (a cut's edge
  * at 6 to 10 m/s, a thrust's point at 2.6 to 3.2 m/s, by skill), and each a row
@@ -26,7 +26,9 @@ import { HumanSwordThrust } from "./HumanSwordThrust";
  * exchanged.
  */
 export namespace HumanWeaponMelee {
-  /** A club or a bat swung level at a person or a thing. */
+  /*
+   * A club or a bat swung level at a person or a thing.
+   */
   export const clubSwing: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponMelee"]["clubSwing"]
   > = AutoMovieMotionHumanActionRow.of(
@@ -35,7 +37,9 @@ export namespace HumanWeaponMelee {
     HUMAN_BLADE_CLUB_SWING,
   );
 
-  /** A club or a baton brought down from overhead. */
+  /*
+   * A club or a baton brought down from overhead.
+   */
   export const clubStrike: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponMelee"]["clubStrike"]
   > = AutoMovieMotionHumanActionRow.of(
@@ -44,21 +48,25 @@ export namespace HumanWeaponMelee {
     HUMAN_BLADE_CLUB_STRIKE,
   );
 
-  /** A knife slashed across from the knife hand's side. */
+  /*
+   * A knife slashed across from the knife hand's side.
+   */
   export const knifeSlash: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponMelee"]["knifeSlash"]
   > = AutoMovieMotionHumanActionRow.of("knifeSlash", HumanSword.cut, {
     from: "forehand",
   });
 
-  /** A knife slashed back across from the off side. */
+  /*
+   * A knife slashed back across from the off side.
+   */
   export const knifeBackslash: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponMelee"]["knifeBackslash"]
   > = AutoMovieMotionHumanActionRow.of("knifeBackslash", HumanSword.cut, {
     from: "backhand",
   });
 
-  /**
+  /*
    * A knife driven forward, the point first, with the least advance that
    * reaches.
    */
@@ -70,7 +78,7 @@ export namespace HumanWeaponMelee {
     {},
   );
 
-  /**
+  /*
    * A knife held point down (taken by its `reverseGrip`) and driven down from
    * overhead.
    */
@@ -80,7 +88,7 @@ export namespace HumanWeaponMelee {
     from: "above",
   });
 
-  /**
+  /*
    * A reload: the support hand's palm pressed once to the magazine well the
    * composition names.
    */

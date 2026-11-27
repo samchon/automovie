@@ -45,28 +45,34 @@ import { AutoMovieConstructionProfileSkin } from "./AutoMovieConstructionProfile
 import { AutoMovieConstructionSplitRealize } from "./AutoMovieConstructionSplitRealize";
 import { fairAutoMovieSolidMesh } from "./fairAutoMovieSolidMesh";
 
-/**
+/*
  * Realize operator and boundary records with no final skin when explicitly
  * requested.
  */
 export function realizeAutoMovieConstruction(
   construction: IAutoMovieConstruction,
   props: IAutoMovieConstructionRealization.IProps & {
-    /** Omit only the final skin. */
+    /*
+     * Omit only the final skin.
+     */
     skin: false;
   },
 ): IAutoMovieConstructionRealization.IWithoutSkin;
 
-/** Realize the normal required mesh when the skin request is omitted or true. */
+/*
+ * Realize the normal required mesh when the skin request is omitted or true.
+ */
 export function realizeAutoMovieConstruction(
   construction: IAutoMovieConstruction,
   props: IAutoMovieConstructionRealization.IProps & {
-    /** Draw the final skin, also the default when omitted. */
+    /*
+     * Draw the final skin, also the default when omitted.
+     */
     skin?: true;
   },
 ): IAutoMovieConstructionRealization.IRealization;
 
-/**
+/*
  * A runtime boolean request returns either result; callers must distinguish
  * mesh from null.
  */
@@ -77,7 +83,7 @@ export function realizeAutoMovieConstruction(
   | IAutoMovieConstructionRealization.IRealization
   | IAutoMovieConstructionRealization.IWithoutSkin;
 
-/**
+/*
  * Realize a construction tree: loft declared views or explicit complete
  * sources, apply joins, continuation, splits
  * (`AutoMovieConstructionSplitRealize`: an open end split into two children's
@@ -99,11 +105,10 @@ export function realizeAutoMovieConstruction(
  * subtree. A trim's feet are solved to a thousandth of the chord tolerance. A
  * face's open end closes on its pole by a fan; an end with neither a pole nor a
  * shared ring stays open.
- *
- * @param construction The tree, metres and radians.
- * @param props Positive metre chord tolerance, default-on skin and optional
- *   immutable evaluated millimetre sources for explicit leaves.
- * @returns The realization.
+ * Parameter construction: The tree, metres and radians.
+ * Parameter props: Positive metre chord tolerance, default-on skin and optional
+ * immutable evaluated millimetre sources for explicit leaves.
+ * Returns: The realization.
  */
 export function realizeAutoMovieConstruction(
   construction: IAutoMovieConstruction,
@@ -117,7 +122,9 @@ export function realizeAutoMovieConstruction(
     );
   AutoMovieConstructionAdmission.admit(construction.root);
 
-  /** The call's request, read once without changing construction admission. */
+  /*
+   * The call's request, read once without changing construction admission.
+   */
   const withSkin: boolean = props.skin !== false;
   const S: number = AutoMovieConstructionViews.SCALE;
   const chord: number = props.chord * S;
@@ -136,12 +143,16 @@ export function realizeAutoMovieConstruction(
     diagnostics: [],
     overrides: new Map(),
   };
-  /** Append a named premise without altering previously retained diagnostics. */
+  /*
+   * Append a named premise without altering previously retained diagnostics.
+   */
   function report(node: string, contract: string, detail: string): void {
     state.diagnostics.push({ node, contract, detail });
   }
 
-  /** Preserve each operator diagnostic's order under its construction node. */
+  /*
+   * Preserve each operator diagnostic's order under its construction node.
+   */
   function absorb(
     node: string,
     list: readonly IAutoMovieLoftContract.IDiagnostic[],
@@ -149,7 +160,7 @@ export function realizeAutoMovieConstruction(
     for (const d of list) report(node, d.contract, d.detail);
   }
 
-  /**
+  /*
    * Resolve each leaf once, then loft the actual definition before publishing
    * any face.
    */
@@ -233,7 +244,7 @@ export function realizeAutoMovieConstruction(
     }
   }
 
-  /**
+  /*
    * Realize the part transactionally against the host already retained by this
    * node.
    */
@@ -242,7 +253,9 @@ export function realizeAutoMovieConstruction(
     const snapshot: IAutoMovieConstructionState.ISnapshot =
       AutoMovieConstructionState.snap(body, state);
     walk(node.part);
-    /** Restore the same host checkpoint when this join cannot be retained. */
+    /*
+     * Restore the same host checkpoint when this join cannot be retained.
+     */
     function fail(contract: string, detail: string): void {
       report(node.name, contract, detail);
       AutoMovieConstructionState.restore(body, state, snapshot);
@@ -365,7 +378,7 @@ export function realizeAutoMovieConstruction(
     });
   }
 
-  /**
+  /*
    * Publish a shared open end only after the part's actual boundary is
    * realized.
    */
@@ -373,7 +386,7 @@ export function realizeAutoMovieConstruction(
     AutoMovieConstructionContinuationRealize(node, body, state, walk, report);
   }
 
-  /**
+  /*
    * Leave the existing face unchanged when the declared trim cannot be
    * prepared.
    */
@@ -434,7 +447,9 @@ export function realizeAutoMovieConstruction(
     state.trims.push(t);
   }
 
-  /** Dispatch only the closed construction union in containment order. */
+  /*
+   * Dispatch only the closed construction union in containment order.
+   */
   function walk(node: IAutoMovieConstructionNode): void {
     switch (node.type) {
       case "view":
@@ -552,7 +567,9 @@ export function realizeAutoMovieConstruction(
   const published: IAutoMovieSolidBody.IPublished =
     AutoMovieSolidBody.publish(body);
 
-  /** Shared result fields in their original order, before either mesh variant. */
+  /*
+   * Shared result fields in their original order, before either mesh variant.
+   */
   const records: Omit<
     IAutoMovieConstructionRealization.IRealization,
     "mesh" | "diagnostics"

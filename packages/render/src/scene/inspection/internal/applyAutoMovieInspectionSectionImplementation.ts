@@ -4,7 +4,7 @@ import type { AutoMovieRenderInspection } from "../../AutoMovieRenderInspection.
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import { applyAutoMovieSectionPlanes } from "../../internal/applyAutoMovieSectionPlanes.js";
 
-/**
+/*
  * Cut every material of a scene by one section plane, and return the call that
  * puts each material's clipping state and the renderer's clipping switch back
  * as they were.

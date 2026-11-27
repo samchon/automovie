@@ -11,7 +11,7 @@ import type { AutoMovieArchetypeCar } from "../AutoMovieArchetypeCar";
 import { CarSteering } from "./CarSteering";
 import { CourseWheelTravel } from "./CourseWheelTravel";
 
-/**
+/*
  * A car driven along a course: its root on the path, its steering wheel turned
  * as the path's curvature asks with its front road wheels steering with it, and
  * its road wheels rolling with the distance.
@@ -29,14 +29,13 @@ import { CourseWheelTravel } from "./CourseWheelTravel";
  * length of its own Ackermann path. Signed distances accumulate through leg
  * boundaries before wrapping the spin travel into the articulated wheel's
  * range.
- *
- * @param car The car.
- * @param course The course its root follows, or its plan, such as a timed
- *   course's.
- * @returns The ride, with the course's instants.
- * @throws {AutoMovieArchetypeRefusal} When the path bends tighter than the
- *   car's steering lock allows, giving the least radius at the leg or, on a
- *   timed course, the sample, or the course is malformed.
+ * Parameter car: The car.
+ * Parameter course: The course its root follows, or its plan, such as a timed
+ * course's.
+ * Returns: The ride, with the course's instants.
+ * When the path bends tighter than the
+ * car's steering lock allows, giving the least radius at the leg or, on a
+ * timed course, the sample, or the course is malformed.
  */
 export function driveCar(
   car: AutoMovieArchetype<
@@ -123,7 +122,9 @@ export function driveCar(
             ),
           ),
         );
-  /** A signed material distance in the knob's travel range. */
+  /*
+   * A signed material distance in the knob's travel range.
+   */
   const spin = (distance: number): number => {
     const angle: number = (distance / (Math.PI * diameter)) * 360;
     return ((angle % 360) + 360) % 360;

@@ -37,16 +37,20 @@ const { sampled, leaving, H }: typeof AutoMovieHumanWebCurve =
  * margin's radius and the deepest column.
  */
 export namespace AutoMovieHumanWebColumns {
-  /** Phases of a child's section read for its angles. */
+  /*
+   * Phases of a child's section read for its angles.
+   */
   const TABLE: number = 2048;
 
-  /**
+  /*
    * A cell's side about a crest in margin radii: the dihedral across it is about
    * as many radians at the saddle's own radius.
    */
   const CELL: number = 0.35;
 
-  /** An angle brought into (-pi, pi]. */
+  /*
+   * An angle brought into (-pi, pi].
+   */
   function wrapPi(a: number): number {
     return Math.atan2(Math.sin(a), Math.cos(a));
   }
@@ -419,5 +423,7 @@ export namespace AutoMovieHumanWebColumns {
 
 type Vec3 = AutoMovieVector3Tuple;
 
-/** A column away from the pinches. */
+/*
+ * A column away from the pinches.
+ */
 type Plain = Extract<IAutoMovieHumanWebColumn, { kind: "plain" }>;

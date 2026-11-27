@@ -3,14 +3,13 @@ import type {
   IAutoMovieMotionHumanPianoScore,
 } from "@automovie/interface";
 
-/**
+/*
  * A piano score's events (`pianoScore`): each scored key, in score order, is
  * down at its `at` and up at its `to`, `keyDown<n>` and `keyUp<n>` numbered
  * from 1, as shares of the score's duration, every event sorted by its share.
- *
- * @param notes The scored keys, in score order.
- * @param duration The score's duration, seconds; positive.
- * @returns The events, by share.
+ * Parameter notes: The scored keys, in score order.
+ * Parameter duration: The score's duration, seconds; positive.
+ * Returns: The events, by share.
  */
 export function pianoScoreEvents(
   notes: readonly IAutoMovieMotionHumanPianoScore.INote[],

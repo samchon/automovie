@@ -138,7 +138,9 @@ export namespace AutoMovieConstructionPortBand {
     )
       return "the part's phase between the band's columns does not advance with its clock";
 
-    /** The part's phase at a band clock with two derivatives. */
+    /*
+     * The part's phase at a band clock with two derivatives.
+     */
     const phase = (c: number): [number, number, number] => {
       const [x, x1, x2]: [number, number, number] = delta.at(c);
       return [sense * c + x, sense + x1, x2];
@@ -186,7 +188,9 @@ export namespace AutoMovieConstructionPortBand {
       }
     }
 
-    /** The rail's chart curve on the part at a band clock. */
+    /*
+     * The rail's chart curve on the part at a band clock.
+     */
     const rail = (c: number): ICurve2 => {
       const [chi, chi1, chi2]: [number, number, number] = phase(c);
       const [r, r1, r2]: [number, number, number] = child.rail.at(chi);
@@ -197,7 +201,9 @@ export namespace AutoMovieConstructionPortBand {
       };
     };
 
-    /** The host's direction of reading, `g d`, into the port curve. */
+    /*
+     * The host's direction of reading, `g d`, into the port curve.
+     */
     const inside = (c: number): ICurve2 => {
       const [g, g1, g2]: [number, number, number] = ga.at(c);
       const { d, first, second }: { d: V2; first: V2; second: V2 } =
@@ -212,7 +218,7 @@ export namespace AutoMovieConstructionPortBand {
       };
     };
 
-    /**
+    /*
      * The part's direction of reading, `g (into, 0)`, from its rail into its
      * kept side.
      */
@@ -345,10 +351,12 @@ export namespace AutoMovieConstructionPortBand {
     };
   }
 
-  /** `sigma(1)`, the farthest cross parameter either side is read at. */
+  /*
+   * `sigma(1)`, the farthest cross parameter either side is read at.
+   */
   const SIGMA_END: number = 0.4;
 
-  /**
+  /*
    * The cross parameter `sigma(s) = s (1 + 3 s) / (1 + 3 s + 6 s^2)` with its
    * first and second derivatives; its denominator has no real root.
    */
@@ -364,7 +372,7 @@ export namespace AutoMovieConstructionPortBand {
     return [value, first, second];
   }
 
-  /**
+  /*
    * The quintic Hermite value weight `W(s) = (1 - s)^3 (1 + 3 s + 6 s^2)` with
    * its first and second derivatives.
    */
@@ -376,7 +384,7 @@ export namespace AutoMovieConstructionPortBand {
     ];
   }
 
-  /**
+  /*
    * One side's term `W(t) E(sigma(t), c)` of the blend at its own share `t`,
    * its cross derivatives turned into the band's share `s` by `ds / dt =
    * sign`.
@@ -410,13 +418,13 @@ export namespace AutoMovieConstructionPortBand {
     };
   }
 
-  /**
+  /*
    * The host's reading: the surface itself along its direction, one node of
    * weight 1.
    */
   const DIRECT: readonly (readonly [number, number])[] = [[1, 1]];
 
-  /**
+  /*
    * The part's reading: Hestenes' reflection of its kept side across its rail
    * (M. R. Hestenes, "Extension of the range of a differentiable function",
    * Duke Math. J. 8, 1941), nodes `(lambda, kappa)` with `sum kappa = 1`, `sum
@@ -433,7 +441,7 @@ export namespace AutoMovieConstructionPortBand {
     [1, 3],
   ];
 
-  /**
+  /*
    * A side's surface read from its seam curve `x(c)` along `m(c)`: `sum kappa
    * F(x(c) + lambda t m(c))` over the nodes, with its 2-jet in `(t, c)` by the
    * chain rule on the surface's own 2-jet at each point read.
@@ -503,7 +511,9 @@ export namespace AutoMovieConstructionPortBand {
     return out;
   }
 
-  /** Two 2-jets summed. */
+  /*
+   * Two 2-jets summed.
+   */
   function add(a: IJet2, b: IJet2): IJet2 {
     return {
       p: combine([
@@ -533,7 +543,9 @@ export namespace AutoMovieConstructionPortBand {
     };
   }
 
-  /** A vector times a number. */
+  /*
+   * A vector times a number.
+   */
   function scale(a: Vec3, k: number): Vec3 {
     return [a[0] * k, a[1] * k, a[2] * k];
   }

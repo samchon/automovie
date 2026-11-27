@@ -18,12 +18,18 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { AquaticPosture } from "./AquaticPosture";
 
-/** The two contacts are fitted and checked independently in the wall frame. */
+/*
+ * The two contacts are fitted and checked independently in the wall frame.
+ */
 export namespace AquaticWallContact {
-  /** The wall face with +Y into the pool and local X and Z along its edges. */
+  /*
+   * The wall face with +Y into the pool and local X and Z along its edges.
+   */
   export type Face = HumanSupportStepPlants.ISurface;
 
-  /** Bind each of the two wall effector anchors and its actual posed footprint. */
+  /*
+   * Bind each of the two wall effector anchors and its actual posed footprint.
+   */
   export function prepare(
     context: AquaticPosture.Context,
     kind: "Hand" | "Foot",
@@ -240,7 +246,9 @@ export namespace AquaticWallContact {
     };
   }
 
-  /** Use the displayed joints at an outgoing wall boundary to start the blend. */
+  /*
+   * Use the displayed joints at an outgoing wall boundary to start the blend.
+   */
   export function key(
     context: AquaticPosture.Context,
     posture: IAutoMovieMotionHumanPosture,
@@ -258,28 +266,42 @@ export namespace AquaticWallContact {
     };
   }
 
-  /** Prepared anchors and exact posing from the current material frame. */
+  /*
+   * Prepared anchors and exact posing from the current material frame.
+   */
   export interface IContactPair {
-    /** Initial keyed body positioned around the pair's midpoint. */
+    /*
+     * Initial keyed body positioned around the pair's midpoint.
+     */
     start: IAutoMovieMotionHumanPosture;
-    /** Put another phase key at the same authored wall depth before planting. */
+    /*
+     * Put another phase key at the same authored wall depth before planting.
+     */
     center(
       posture: IAutoMovieMotionHumanPosture,
       wall: Face,
     ): IAutoMovieMotionHumanPosture;
-    /** Hand or foot material anchors, left then right. */
+    /*
+     * Hand or foot material anchors, left then right.
+     */
     anchor: readonly IAutoMovieVector3[];
-    /** Both effectors on the wall at the current phase pose. */
+    /*
+     * Both effectors on the wall at the current phase pose.
+     */
     make(
       posture: IAutoMovieMotionHumanPosture,
       wall: Face,
     ): IAutoMovieMotionHumanPosture;
-    /** Check each displayed socket and the extent of its footprint. */
+    /*
+     * Check each displayed socket and the extent of its footprint.
+     */
     verify(posture: IAutoMovieMotionHumanPosture, wall: Face): number[];
   }
 }
 
-/** One displayed effect's fixed wall orientation and actual local footprint. */
+/*
+ * One displayed effect's fixed wall orientation and actual local footprint.
+ */
 interface IEffector {
   side: AutoMovieHumanSide;
   bone: AutoMovieHumanoidBone;
@@ -290,7 +312,9 @@ interface IEffector {
   bend: IAutoMovieVector3;
 }
 
-/** Identify the specific body part that cannot make its declared contact. */
+/*
+ * Identify the specific body part that cannot make its declared contact.
+ */
 function refusal(
   support: string | undefined,
   part: AutoMovieHumanoidBone,

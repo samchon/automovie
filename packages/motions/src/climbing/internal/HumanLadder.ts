@@ -13,14 +13,13 @@ import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * The ladder a prop declares, where it stands at a film second.
- *
- * @param context The action's context.
- * @param subject The ladder's prop subject.
- * @returns The ladder.
- * @throws {HumanRefusal} When the prop is no fixture, declares fewer than two
- *   rungs, leans more than `UPRIGHT` or spaces its rungs outside OSHA's band.
+ * Parameter context: The action's context.
+ * Parameter subject: The ladder's prop subject.
+ * Returns: The ladder.
+ * When the prop is no fixture, declares fewer than two
+ * rungs, leans more than `UPRIGHT` or spaces its rungs outside OSHA's band.
  */
 export function HumanLadder(
   context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
@@ -158,31 +157,30 @@ export function HumanLadder(
   };
 }
 
-/**
+/*
  * A ladder as a climb reads it off the scene's prop: a fixture whose rungs are
  * its `rung1` upward, each a bar facing the climber (`createLadder`'s
  * contacts), placed where the scene stands it.
  */
 export namespace HumanLadder {
-  /**
+  /*
    * A rung's radius, metres, when the ladder's rung declares no aperture
    * (provisional).
    */
   export const RUNG: number = 0.015;
 
-  /**
+  /*
    * The most the rungs' line may lean from upright, degrees (provisional): a
    * fixed ladder's.
    */
   export const UPRIGHT: number = 5;
 
-  /**
+  /*
    * A rung's centre at a lateral place.
-   *
-   * @param ladder The ladder.
-   * @param index The rung, 1 the lowest; 0 is the floor under the rungs.
-   * @param x The lateral place in the ladder's frame, metres, `x` left.
-   * @returns World metres.
+   * Parameter ladder: The ladder.
+   * Parameter index: The rung, 1 the lowest; 0 is the floor under the rungs.
+   * Parameter x: The lateral place in the ladder's frame, metres, `x` left.
+   * Returns: World metres.
    */
   export function rung(
     ladder: IAutoMovieMotionHumanLadder.ILadder,
@@ -192,12 +190,11 @@ export namespace HumanLadder {
     return prepareRung(ladder)(index, x);
   }
 
-  /**
+  /*
    * Prepare the rung material read by one climb's footprint and grip plan.
-   *
-   * @param ladder The unchanged resolved ladder at the action's start.
-   * @returns A fresh world-metre rung centre for a rung index and local lateral
-   *   x in metres.
+   * Parameter ladder: The unchanged resolved ladder at the action's start.
+   * Returns: A fresh world-metre rung centre for a rung index and local lateral
+   * x in metres.
    */
   export function prepareRung(
     ladder: IAutoMovieMotionHumanLadder.ILadder,
@@ -238,5 +235,7 @@ export namespace HumanLadder {
   }
 }
 
-/** The alternatives of `OfContext`'s site. */
+/*
+ * The alternatives of `OfContext`'s site.
+ */
 type OfContext = "prop" | "start";

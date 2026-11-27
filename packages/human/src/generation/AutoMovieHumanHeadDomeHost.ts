@@ -333,16 +333,8 @@ export namespace AutoMovieHumanHeadDomeHost {
     );
   }
 
-  /**
+  /*
    * Locate a plane using an already-admitted identical parent source.
-   *
-   * @evidence contracts/common.md#principled-implementation Uses original parallel-plane bracketing and preserves exact domain endpoint incidence.
-   * @evidence contracts/common.md#clear-and-simple-design Plane-only and surface-contact factories share one inverse without another admission.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts An unbracketed point throws rather than clamping or assuming a world-coordinate station.
-   * @evidence contracts/common.md#meaningful-documentation Returns parameter null because plane incidence alone is not a surface contact.
-   * @evidence contracts/performance.md#efficient-algorithms At most fifty-six actual-axis queries, each retaining its owner's cost, with fixed vector storage.
-   * @evidence contracts/performance.md#reuse-equivalent-work Borrows its caller's original source admission.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns only the caller-owned source/frame query datum.
    */
   function locate(
     parent: IAutoMovieViewPart,

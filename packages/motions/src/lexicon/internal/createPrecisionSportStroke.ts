@@ -33,7 +33,7 @@ import { addressPrecisionStroke } from "./addressPrecisionStroke";
 import { coursePrecisionStroke } from "./coursePrecisionStroke";
 import { precisionStrokeTool } from "./precisionStrokeTool";
 
-/**
+/*
  * Build one row of the held stroke planner. All rows use a resolved ball
  * surface, with a witnessed hand-to-implement-to-ball chain at the authored
  * event. The line and arc paths share the holding and fitting machinery of
@@ -425,7 +425,9 @@ export function createPrecisionSportStroke<P extends Stroke>(
   };
 }
 
-/** The shared authorship contract. Cue strokes also name a supporting surface. */
+/*
+ * The shared authorship contract. Cue strokes also name a supporting surface.
+ */
 type Stroke = IAutoMovieMotionHumanLexiconPrecisionSportParams.IHand &
   Partial<
     Pick<IAutoMovieMotionHumanLexiconPrecisionSportParams.IStroke, "tool">
@@ -434,7 +436,9 @@ type Stroke = IAutoMovieMotionHumanLexiconPrecisionSportParams.IHand &
     Pick<IAutoMovieMotionHumanLexiconPrecisionSportParams.ICue, "bridge">
   >;
 
-/** The held implement an implement row names; a bare-hand row names none. */
+/*
+ * The held implement an implement row names; a bare-hand row names none.
+ */
 function implement(params: Stroke): string {
   if (params.tool !== undefined) return params.tool;
   throw new HumanRefusal({
@@ -446,13 +450,13 @@ function implement(params: Stroke): string {
   });
 }
 
-/**
+/*
  * The cue's least lean over the bed while the bridge hand bears on it, degrees;
  * provisional.
  */
 const BRIDGE_INCLINE: number = 27;
 
-/**
+/*
  * Positive, finite authored timing and speed, with admission kept at the
  * stroke.
  */

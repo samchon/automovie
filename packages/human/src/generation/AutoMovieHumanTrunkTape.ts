@@ -299,15 +299,14 @@ export namespace AutoMovieHumanTrunkTape {
     return { shoulder: r, diagnostics: [] };
   }
 
-  /**
+  /*
    * A mass's central level cut from its original side curves. The actual
    * straight AP declaration and world-Y up prove that this level intersects
    * each source section on its +/-v guides; no loft surface or phase search
    * supplies these points. A changed plane is refused, not silently omitted.
-   *
-   * @param mass The mass.
-   * @param y The height, mm.
-   * @returns Original-curve samples `[x,z]`, mm, or the unsupported premise.
+   * Parameter mass: The mass.
+   * Parameter y: The height, mm.
+   * Returns: Original-curve samples `[x,z]`, mm, or the unsupported premise.
    */
   function cut(
     mass: IAutoMovieHumanTrunkTape.IMass,
@@ -365,21 +364,22 @@ export namespace AutoMovieHumanTrunkTape {
     return out;
   }
 
-  /**
+  /*
    * Intervals along each original mass side edge; the resulting hull is
    * sampled, not a continuous perimeter certificate.
    */
   const LINE_SAMPLES: number = 64;
 
-  /** Height off the plane under which a sample lies on it, mm. */
+  /*
+   * Height off the plane under which a sample lies on it, mm.
+   */
   const ON_PLANE: number = 1e-6;
 
-  /**
+  /*
    * The perimeter of a point set's convex hull (Andrew's monotone chain).
-   *
-   * @param points The points `[x, z]`.
-   * @param vertices Optional output for the selected boundary witnesses.
-   * @returns The hull's perimeter, mm.
+   * Parameter points: The points `[x, z]`.
+   * Parameter vertices: Optional output for the selected boundary witnesses.
+   * Returns: The hull's perimeter, mm.
    */
   function hull(
     points: readonly [number, number][],

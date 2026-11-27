@@ -11,7 +11,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** The World Athletics rule as read. */
+/*
+ * The World Athletics rule as read.
+ */
 const RULE: string =
   "World Athletics Competition and Technical Rules, 2020 edition (https://athletics.lv/file/download/61151), Technical Rule 36.6 and 36.8, the hammer";
 
@@ -70,7 +72,9 @@ export namespace AutoMovieArchetypeHammerThrow {
     mass: "kg",
   };
 
-  /** A band of the rule. */
+  /*
+   * A band of the rule.
+   */
   const band = (
     unit: AutoMovieArchetypeBandUnit,
     minimum: number,

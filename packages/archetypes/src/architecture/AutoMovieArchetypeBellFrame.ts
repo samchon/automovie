@@ -10,7 +10,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** Visual reference for the flared bell and its raised bands. */
+/*
+ * Visual reference for the flared bell and its raised bands.
+ */
 const BELL: string =
   "The Met, Refectory Bell (https://www.metmuseum.org/art/collection/search/640179)";
 /** Creates a deterministic bell frame fixture and exposes its construction parameters. */

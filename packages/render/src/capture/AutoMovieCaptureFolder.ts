@@ -9,10 +9,14 @@ import type {
 
 import { AutoMovieRenderCaptureRecord } from "./AutoMovieRenderCaptureRecord.js";
 
-/** The record's file name. */
+/*
+ * The record's file name.
+ */
 const RECORD: string = "record.json";
 
-/** The folder of kept rounds beneath the root. */
+/*
+ * The folder of kept rounds beneath the root.
+ */
 const ROUNDS: string = "rounds";
 
 /**
@@ -55,7 +59,9 @@ const ROUNDS: string = "rounds";
  * ```
  */
 export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
-  /** Where files are read and written. */
+  /*
+   * Where files are read and written.
+   */
   private readonly storage: IAutoMovieCaptureStorage;
 
   /** Path of the folder, the root or a round beneath it, without a trailing `/`. */
@@ -73,13 +79,19 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
   /** Path of the compared round's folder, or null without a comparison. */
   public readonly reference: string | null;
 
-  /** Names claimed so far, in the order claimed. */
+  /*
+   * Names claimed so far, in the order claimed.
+   */
   private readonly claimed: Set<string>;
 
-  /** Names written so far, in the order written. */
+  /*
+   * Names written so far, in the order written.
+   */
   private readonly written: Set<string>;
 
-  /** Hold an opened folder; `open` prepares it. */
+  /*
+   * Hold an opened folder; `open` prepares it.
+   */
   private constructor(props: IOpenedFolder) {
     this.storage = props.storage;
     this.directory = props.directory;
@@ -270,7 +282,9 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
   }
 }
 
-/** Read and parse a record, rejecting text that is not one. */
+/*
+ * Read and parse a record, rejecting text that is not one.
+ */
 async function readRecord(
   storage: IAutoMovieCaptureStorage,
   path: string,

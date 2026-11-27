@@ -7,7 +7,7 @@ import type {
 
 import { createAutoMovieCollisionFinding } from "./createAutoMovieCollisionFinding.js";
 
-/**
+/*
  * Check a layer's source-certified motion cells between placed frames.
  *
  * Each cell takes its allowed depth from the layer's whole-part named windows
@@ -16,9 +16,8 @@ import { createAutoMovieCollisionFinding } from "./createAutoMovieCollisionFindi
  * certified cells, every deformable body and the layer as a whole disclose
  * their motion between frames as unverified, without holding a required layer
  * back.
- *
- * @param props The layer's cells, windows, parts, clocks, budget and report
- *   sinks.
+ * Parameter props: The layer's cells, windows, parts, clocks, budget and report
+ * sinks.
  */
 export function observeAutoMovieSweptCollision(
   props: observeAutoMovieSweptCollision.IProps,
@@ -118,45 +117,73 @@ export function observeAutoMovieSweptCollision(
   }
 }
 
-/** The motion cells of one layer and the sinks the observer shares with them. */
+/*
+ * The motion cells of one layer and the sinks the observer shares with them.
+ */
 export namespace observeAutoMovieSweptCollision {
-  /** A source-certified motion cell between two named parts. */
+  /*
+   * A source-certified motion cell between two named parts.
+   */
   export interface ICell {
-    /** The two part paths. */
+    /*
+     * The two part paths.
+     */
     readonly paths: readonly [string, string];
-    /** The Engine cell, without the depth the layer's windows decide. */
+    /*
+     * The Engine cell, without the depth the layer's windows decide.
+     */
     readonly props: Omit<Sweep.IProps, "maxPenetration">;
-    /** Film seconds minus layer seconds. */
+    /*
+     * Film seconds minus layer seconds.
+     */
     readonly filmOffset: number;
   }
 
-  /** The cells, windows, groups, budget and report sinks of one layer. */
+  /*
+   * The cells, windows, groups, budget and report sinks of one layer.
+   */
   export interface IProps {
-    /** Certified cells, or undefined when the source supplies none. */
+    /*
+     * Certified cells, or undefined when the source supplies none.
+     */
     readonly sweeps: readonly ICell[] | undefined;
-    /** The layer's named windows. */
+    /*
+     * The layer's named windows.
+     */
     readonly allowances: readonly Collision.IAllowance[];
-    /** The managed group of each collected part. */
+    /*
+     * The managed group of each collected part.
+     */
     readonly groups: ReadonlyMap<string, Collision.IGroup>;
-    /** Interval work the frame may still spend. */
+    /*
+     * Interval work the frame may still spend.
+     */
     readonly budget: { sweptCells: number };
-    /** The layer's coverage key builder. */
+    /*
+     * The layer's coverage key builder.
+     */
     readonly key: (...parts: string[]) => string;
-    /** The layer's coverage sink; `required` overrides the layer's requirement. */
+    /*
+     * The layer's coverage sink; `required` overrides the layer's requirement.
+     */
     readonly report: (
       identity: string,
       status: Diagnostic.ICoverage["status"],
       reason: string,
       required?: boolean,
     ) => void;
-    /** The frame's finding sink. */
+    /*
+     * The frame's finding sink.
+     */
     readonly findings: Diagnostic.IFinding[];
-    /** The layer's shot path, when known. */
+    /*
+     * The layer's shot path, when known.
+     */
     readonly shotPath?: string;
   }
 }
 
-/**
+/*
  * The tightest whole-part named allowance active over a whole closed motion
  * cell, zero when none names the pair, or "split" when a window starts or ends
  * inside it. Joint-scoped windows cannot attribute a capsule cell.

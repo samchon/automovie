@@ -8,7 +8,9 @@ import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEngi
 import { AutoMovieEnginePhysicalPushRecovery as Recovery } from "./AutoMovieEnginePhysicalPushRecovery";
 import { AutoMovieEnginePhysicalSupportSpanContacts as Contacts } from "./AutoMovieEnginePhysicalSupportSpanContacts";
 
-/** The closed forms a placement reads. */
+/*
+ * The closed forms a placement reads.
+ */
 const { ZULU, add, outline, toLocal, toWorld }: typeof AutoMovieEnginePhysicalDisturbanceForm =
   AutoMovieEnginePhysicalDisturbanceForm;
 

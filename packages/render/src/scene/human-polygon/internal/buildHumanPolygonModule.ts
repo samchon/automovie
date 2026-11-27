@@ -6,7 +6,7 @@ import * as THREE from "three";
 
 import { humanPolygonTopology as LoftMesh } from "./humanPolygonTopology.js";
 
-/**
+/*
  * Assemble one rigid display module from its already selected sections.
  *
  * The caller owns shape selection, shared boundaries, materials and every
@@ -96,7 +96,7 @@ export function buildHumanPolygonModule(
     diagnostic.add(new THREE.LineLoop(lines, lineMaterial));
   }
 
-  /**
+  /*
    * Preserve triangle orientation selected from the actual source ring winding.
    *
    * Principled implementation: Appends original triangle indices and reverses
@@ -252,9 +252,11 @@ export function buildHumanPolygonModule(
   return { group, diagnostic, part };
 }
 
-/** Explicit section inputs shared by the display selector and mesh assembler. */
+/*
+ * Explicit section inputs shared by the display selector and mesh assembler.
+ */
 export namespace buildHumanPolygonModule {
-  /**
+  /*
    * One original polygon section, with physical half dimensions.
    *
    * Principled implementation: Carries registered metre centre/half-extents and
@@ -270,23 +272,33 @@ export namespace buildHumanPolygonModule {
    * temporary vectors/records.
    */
   export interface ISection {
-    /** Centre in the skeleton's registered rest frame. */
+    /*
+     * Centre in the skeleton's registered rest frame.
+     */
     centre: THREE.Vector3;
 
-    /** Half dimension along the section's first in-plane axis. */
+    /*
+     * Half dimension along the section's first in-plane axis.
+     */
     depth: number;
 
-    /** Half dimension along its second in-plane axis. */
+    /*
+     * Half dimension along its second in-plane axis.
+     */
     breadth: number;
 
-    /** Actual registered points when a source section owns the shape and phase. */
+    /*
+     * Actual registered points when a source section owns the shape and phase.
+     */
     points?: THREE.Vector3[];
 
-    /** Separate front-anchored projected polygon arclength for display joining. */
+    /*
+     * Separate front-anchored projected polygon arclength for display joining.
+     */
     displayCoordinates?: readonly number[];
   }
 
-  /**
+  /*
    * Query the frontmost local triangle X for a face attachment at Y/Z. The
    * caller supplies the emitted indexed triangle geometry and its actual local
    * bounds. A +X ray starts behind those bounds, accepts either winding and
@@ -335,5 +347,7 @@ export namespace buildHumanPolygonModule {
   }
 }
 
-/** Explicit polygon LOD, independent of body dimensions. */
+/*
+ * Explicit polygon LOD, independent of body dimensions.
+ */
 const SIDES: number = 8;

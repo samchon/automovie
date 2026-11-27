@@ -4,7 +4,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { AutoMovieArchetypeBuilder } from "../../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 
-/**
+/*
  * A coarse mandible laid inside the head capsule and hinged at an authored
  * temporomandibular point.
  *
@@ -30,29 +30,38 @@ export namespace QuadrupedJaw {
     hinge: number;
   }
 
-  /** The jaw's neutral geometry in the model's space. */
+  /*
+   * The jaw's neutral geometry in the model's space.
+   */
   export interface IGeometry {
-    /** The temporomandibular hinge, the capsule's upper cap centre. */
+    /*
+     * The temporomandibular hinge, the capsule's upper cap centre.
+     */
     hinge: IAutoMovieVector3;
 
-    /** The chin, the capsule's lower cap centre. */
+    /*
+     * The chin, the capsule's lower cap centre.
+     */
     chin: IAutoMovieVector3;
 
-    /** The capsule's radius, metres. */
+    /*
+     * The capsule's radius, metres.
+     */
     radius: number;
 
-    /** The unit lateral axis the jaw opens about, pointing to the animal's left. */
+    /*
+     * The unit lateral axis the jaw opens about, pointing to the animal's left.
+     */
     axis: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * The jaw inside a head capsule.
-   *
-   * @param head The neutral head capsule: poll, nose and radius.
-   * @param profile The authored jaw construction.
-   * @returns The jaw's neutral geometry.
-   * @throws {RangeError} For fractions outside their ranges or a degenerate
-   *   head.
+   * Parameter head: The neutral head capsule: poll, nose and radius.
+   * Parameter profile: The authored jaw construction.
+   * Returns: The jaw's neutral geometry.
+   * For fractions outside their ranges or a degenerate
+   * head.
    */
   export function geometry(
     head: Pick<
@@ -94,14 +103,13 @@ export namespace QuadrupedJaw {
     };
   }
 
-  /**
+  /*
    * Lay the jaw capsule as the part `jaw`.
-   *
-   * @param builder The body under construction.
-   * @param head The neutral head capsule.
-   * @param profile The authored jaw construction.
-   * @param color The coat's colour.
-   * @throws {RangeError} As `geometry` refuses.
+   * Parameter builder: The body under construction.
+   * Parameter head: The neutral head capsule.
+   * Parameter profile: The authored jaw construction.
+   * Parameter color: The coat's colour.
+   * As `geometry` refuses.
    */
   export function lay<Id extends string, Dimension extends string>(
     builder: AutoMovieArchetypeBuilder<Id, Dimension>,

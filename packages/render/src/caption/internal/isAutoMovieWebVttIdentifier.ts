@@ -1,4 +1,4 @@
-/**
+/*
  * Whether a string can be written verbatim as a WebVTT cue identifier or header
  * text.
  *

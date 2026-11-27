@@ -15,7 +15,7 @@ import { AutoMovieEngineModel } from "../../model/AutoMovieEngineModel";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { engineDiagnostic } from "./engineDiagnostic";
 
-/**
+/*
  * Check bounded formation cues against participating compiled formations,
  * runtime gait repertoire, finite state, layout and nonoverlapping intervals.
  */

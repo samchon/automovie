@@ -14,7 +14,7 @@ import type {
 import { AutoMovieRecoveryEventCurve as E } from "../../observation/AutoMovieRecoveryEventCurve";
 import { compileAutoMovieRecoveryNativeNamedChart as compile } from "./compileAutoMovieRecoveryNativeNamedChart";
 
-/**
+/*
  * Assemble named native-parent Coons charts and quarantine conflicting
  * incidents. Every boundary name owns its complete four coefficients. Endpoint
  * names own native endpoint values independently of occurrence direction. Valid

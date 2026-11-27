@@ -1,6 +1,6 @@
 import { autoMovieProceduralHash } from "./autoMovieProceduralHash";
 
-/**
+/*
  * The cellular distances of procedural stone, in lattice units: the distances
  * `f1` and `f2` from the point to the nearest and second-nearest feature points
  * (Worley 1996, "A cellular texture basis function", SIGGRAPH).
@@ -12,9 +12,8 @@ import { autoMovieProceduralHash } from "./autoMovieProceduralHash";
  * cube side away, so both distances are exact whenever they are at most one
  * side; a larger distance can miss a nearer point two cubes away, which the
  * renderer misses identically.
- *
- * @param seed Unsigned 32-bit seed.
- * @returns `[f1, f2]` at the lattice-unit point `(x, y, z)`.
+ * Parameter seed: Unsigned 32-bit seed.
+ * Returns: `[f1, f2]` at the lattice-unit point `(x, y, z)`.
  */
 export function autoMovieProceduralCells(
   seed: number,

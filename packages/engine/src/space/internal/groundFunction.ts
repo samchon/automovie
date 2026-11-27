@@ -1,4 +1,6 @@
-/** Adapt a scalar ground height or preserve a supplied ground callback. */
+/*
+ * Adapt a scalar ground height or preserve a supplied ground callback.
+ */
 export const groundFunction: (
   ground: number | ((x: number, z: number) => number),
 ) => (x: number, z: number) => number = (

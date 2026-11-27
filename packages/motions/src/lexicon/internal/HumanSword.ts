@@ -23,7 +23,7 @@ import { StrikingTarget } from "../../striking/internal/StrikingTarget";
 import { HumanSwordCutAt } from "./HumanSwordCutAt";
 import { HumanSwordTiming } from "./HumanSwordTiming";
 
-/**
+/*
  * Blade work with the blade as the effector: the cut on the eight lines, and
  * what every blade action shares. `HumanSwordThrust` holds the thrust,
  * `HumanSwordGuard` the guards and `HumanSwordParry` the parry.
@@ -48,7 +48,7 @@ import { HumanSwordTiming } from "./HumanSwordTiming";
  * the cut's speed are provisional.
  */
 export namespace HumanSword {
-  /**
+  /*
    * Where each cut comes from, across the line to the target: `out` and `up`
    * parts of a unit direction.
    */
@@ -65,13 +65,13 @@ export namespace HumanSword {
     aboveBackhand: [-Math.SQRT1_2, Math.SQRT1_2],
   };
 
-  /**
+  /*
    * The blade's turn from its chamber to the cut's contact, degrees
    * (provisional).
    */
   export const SWING: number = 110;
 
-  /**
+  /*
    * The middles of a blade's three parts, shares of its length from one end:
    * the fencing masters' division of the blade into the forte by the hilt, the
    * middle and the foible by the point (Angelo 1763, The School of Fencing),
@@ -83,7 +83,7 @@ export namespace HumanSword {
     5 / 6,
   ];
 
-  /**
+  /*
    * Where a cut lands, as a share of the held thing's edge from its end by the
    * hand (`StrikingHeld.ITool.span`): the centre of percussion of a uniform bar
    * swung about that end, two thirds of it, where the blow leaves no shock in
@@ -97,26 +97,26 @@ export namespace HumanSword {
     parry: THIRDS[0],
   };
 
-  /**
+  /*
    * How far a thrusting blade's line may leave the line from the shoulder to
    * the target, degrees, so the hand that holds it as it took it can drive it
    * (provisional).
    */
   export const CONE: number = 40;
 
-  /**
+  /*
    * The share of the arm's length a target may lie from the shoulder, less the
    * blade, before an advance is taken (provisional).
    */
   export const REACH: number = 0.9;
 
-  /**
+  /*
    * The gap between two blades' centre lines where they meet, metres: two half
    * thicknesses of the archetypes' 5 mm blades.
    */
   export const GAP: number = 0.005;
 
-  /**
+  /*
    * The sword point's peak speed in an attack, metres a second, novice and
    * elite: 2.6 and 3.2 in the lunge (Chen et al. 2017, PLoS ONE, a scoping
    * review of fencing biomechanics, as the research records it). A cut's edge
@@ -129,11 +129,10 @@ export namespace HumanSword {
     Record<SPEEDEntryItem, readonly [number, number]>
   > = { thrust: [2.6, 3.2], cut: [6, 10] };
 
-  /**
+  /*
    * Read the held blade and the performer's axes at an action's entry.
-   *
-   * @param context The action's context.
-   * @returns The setup.
+   * Parameter context: The action's context.
+   * Returns: The setup.
    */
   export const setup = (
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.IWield>,
@@ -189,7 +188,7 @@ export namespace HumanSword {
     };
   };
 
-  /**
+  /*
    * Read an attack's target, line and advance: the target named, or with none a
    * stand-in opponent of the performer's own measure whose sternum lies
    * straight ahead at the arm's `REACH` and the landing part's span from the
@@ -296,16 +295,18 @@ export namespace HumanSword {
     };
   };
 
-  /**
+  /*
    * The bisections of an advance's travel down to the least that reaches: the
    * full travel's 2^-20, under a micrometre.
    */
   const TRAVEL_BISECTIONS: number = 20;
 
-  /** The clock of an attack (`HumanSwordTiming.timed`). */
+  /*
+   * The clock of an attack (`HumanSwordTiming.timed`).
+   */
   export const timed: typeof HumanSwordTiming.timed = HumanSwordTiming.timed;
 
-  /**
+  /*
    * The blade hand's grip frame as the entry pose holds it, world: where a
    * stroke leaves from and returns to.
    */
@@ -323,7 +324,7 @@ export namespace HumanSword {
     };
   };
 
-  /**
+  /*
    * The share of its path an attack runs: all of it, a feint's shown share, or,
    * parried, as far as the parry meets it: a parry closes its line with the
    * hand a forearm ahead of the shoulders (`HumanSwordParry`'s guard), across
@@ -356,7 +357,7 @@ export namespace HumanSword {
     return s1 < guard ? Math.min(1, (s0 - guard) / (s0 - s1)) : 1;
   };
 
-  /**
+  /*
    * Whether a parried attack's blade is taken by its parry (`IAttack.taken`),
    * so it has no return and ends where it was stopped; never a feint's.
    */
@@ -365,7 +366,7 @@ export namespace HumanSword {
     params.outcome === "parried" &&
     params.feint === undefined;
 
-  /**
+  /*
    * Where a held blade's weak lies, `THIRDS[0]` of its length back from its
    * point, for a hand frame.
    */
@@ -384,14 +385,18 @@ export namespace HumanSword {
       ),
     );
 
-  /** What an author can change when a target is out of reach. */
+  /*
+   * What an author can change when a target is out of reach.
+   */
   export const FIX: string =
     "name an advance (a step or a lunge), stand closer, or aim at a nearer target";
 
-  /** {@link HumanSwordCutAt}, read through this namespace. */
+  /*
+   * HumanSwordCutAt, read through this namespace.
+   */
   export const cutAt: typeof HumanSwordCutAt = HumanSwordCutAt;
 
-  /**
+  /*
    * The cut at a blade's edge speed, 6 m/s at novice to 10 m/s at elite
    * (`SPEED.cut`, provisional): `cutAt` of that band.
    */
@@ -399,14 +404,22 @@ export namespace HumanSword {
     cutAt(SPEED.cut);
 }
 
-/** The alternatives of `StoppedContext`'s site. */
+/*
+ * The alternatives of `StoppedContext`'s site.
+ */
 type StoppedContext = "body" | "params";
 
-/** The alternatives of `HeldContext`'s site. */
+/*
+ * The alternatives of `HeldContext`'s site.
+ */
 type HeldContext = "body" | "entry";
 
-/** The alternatives of `SPEEDEntryItem`'s site. */
+/*
+ * The alternatives of `SPEEDEntryItem`'s site.
+ */
 type SPEEDEntryItem = "thrust" | "cut";
 
-/** The alternatives of `LANDSEntryItem`'s site. */
+/*
+ * The alternatives of `LANDSEntryItem`'s site.
+ */
 type LANDSEntryItem = "cut" | "parry";

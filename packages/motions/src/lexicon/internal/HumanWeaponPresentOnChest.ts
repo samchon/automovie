@@ -5,7 +5,7 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-/**
+/*
  * A hand frame kept on a chest: where it lay on one chest's frame, carried onto
  * another's.
  */

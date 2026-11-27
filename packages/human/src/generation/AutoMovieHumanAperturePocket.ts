@@ -15,13 +15,17 @@ import { AutoMovieHumanApertureConstruction } from "./AutoMovieHumanApertureCons
  * meridians and their common posterior pole are a closure convention.
  */
 export namespace AutoMovieHumanAperturePocket {
-  /** Meridian tessellation; geometry is the cubic, not a stack of flat walls. */
+  /*
+   * Meridian tessellation; geometry is the cubic, not a stack of flat walls.
+   */
   const STEPS: number = 24;
 
-  /** Points a meridian is measured at before its steps are chosen. */
+  /*
+   * Points a meridian is measured at before its steps are chosen.
+   */
   const DENSE: number = 128;
 
-  /**
+  /*
    * Longest first handle of a meridian, in the rim's distance from the
    * opening's axis. A handle of a third of the chord to the pole, 3 mm, is
    * longer than a nostril is half wide, 2.4 mm: the wall ran on across the
@@ -31,7 +35,9 @@ export namespace AutoMovieHumanAperturePocket {
    */
   const HANDLE: number = 0.5;
 
-  /** A point of a meridian's cubic. */
+  /*
+   * A point of a meridian's cubic.
+   */
   function cubic(c: IControls, t: number): number[] {
     return c[0].map(
       (value: number, a: number): number =>
@@ -42,7 +48,7 @@ export namespace AutoMovieHumanAperturePocket {
     );
   }
 
-  /**
+  /*
    * A meridian's share of its length plus its turning times a radius of a
    * chord over pi, so a half turn counts as one chord, at each of DENSE
    * steps of its parameter.
@@ -85,7 +91,7 @@ export namespace AutoMovieHumanAperturePocket {
     return out.map((v: number): number => v / (out[DENSE]! || 1));
   }
 
-  /**
+  /*
    * Each meridian's points, rim and pole excluded, at equal steps of its own
    * length plus turning. Uniform steps of the parameter put the turn under
    * the rim within one or two of them, 40 to 60 degrees a step, which shaded
@@ -213,6 +219,8 @@ export namespace AutoMovieHumanAperturePocket {
     );
   }
 
-  /** A meridian's cubic controls: rim, first handle, last handle, pole. */
+  /*
+   * A meridian's cubic controls: rim, first handle, last handle, pole.
+   */
   type IControls = [number[], number[], number[], number[]];
 }

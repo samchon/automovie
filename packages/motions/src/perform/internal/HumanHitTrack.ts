@@ -16,7 +16,7 @@ import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformanceHits } from "./HumanPerformanceHits";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
-/**
+/*
  * A struck subject's hits as a track of named instants, so an action is synced
  * to a hit as to any instant (`sync({ hit })`).
  *
@@ -32,17 +32,20 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * read instead.
  */
 export namespace HumanHitTrack {
-  /** The instant name of every hit on a track. */
+  /*
+   * The instant name of every hit on a track.
+   */
   export const EVENT: string = "hit";
 
-  /** The prefix of a hit track's name. */
+  /*
+   * The prefix of a hit track's name.
+   */
   export const PREFIX: string = "hit:";
 
-  /**
+  /*
    * The name of a hit's track.
-   *
-   * @param hit The hit.
-   * @returns `hit:<on>` or `hit:<on>:<by>`.
+   * Parameter hit: The hit.
+   * Returns: `hit:<on>` or `hit:<on>:<by>`.
    */
   export function name(hit: IAutoMovieMotionHumanHitTrack.IHit): string {
     return hit.by === undefined
@@ -50,12 +53,11 @@ export namespace HumanHitTrack {
       : `${PREFIX}${hit.on}:${hit.by}`;
   }
 
-  /**
+  /*
    * A hit track's instants, or undefined for a name that is no hit track.
-   *
-   * @param self The performance being placed.
-   * @param of The track's name.
-   * @returns The instants.
+   * Parameter self: The performance being placed.
+   * Parameter of: The track's name.
+   * Returns: The instants.
    */
   export function instants(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -87,7 +89,7 @@ export namespace HumanHitTrack {
       );
   }
 
-  /**
+  /*
    * The melee hits on a person while placing: each placed weapon of another
    * person swept against them alone.
    */

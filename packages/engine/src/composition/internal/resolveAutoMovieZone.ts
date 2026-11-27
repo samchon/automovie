@@ -4,16 +4,15 @@ import type {
   IAutoMovieZone,
 } from "@automovie/interface";
 
-/**
+/*
  * The point of a zone a move goes to: a named landmark, or the zone's centre
  * moved toward a bearing by a share of its radius, so a scene names where to go
  * and the set decides the coordinates.
- *
- * @param zones The set's zones.
- * @param id The zone id.
- * @param where A landmark name, or a bearing (radians from +Z toward +X) and a
- *   share in [0, 1] of the radius; the centre when absent.
- * @returns The world point.
+ * Parameter zones: The set's zones.
+ * Parameter id: The zone id.
+ * Parameter where: A landmark name, or a bearing (radians from +Z toward +X) and a
+ * share in [0, 1] of the radius; the centre when absent.
+ * Returns: The world point.
  */
 export function resolveAutoMovieZone(
   zones: readonly IAutoMovieZone[],

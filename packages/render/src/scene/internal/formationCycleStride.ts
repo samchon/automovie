@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-/**
+/*
  * Estimate ground metres per baked cycle from the lowest part's trajectory.
  *
  * The lowest sampled part is used as a possible ground-contact proxy. Half its

@@ -7,7 +7,7 @@ import type {
 import { type AutoMovieArchetype, AutoMovieArchetypeRefusal } from "../../core";
 import { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 
-/**
+/*
  * Refuse a muzzle reach whose head or neck passes through a forelimb.
  *
  * Every bar of the shared quadruped is a capsule or cylinder, so two bars
@@ -15,12 +15,11 @@ import { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedB
  * the sum of their radii. The head and the neck are checked against each of the
  * eight forelimb bars of the posed equid; a bar the target lies on, within its
  * radius, is the surface the muzzle is meant to touch and is skipped.
- *
- * @param archetype The producer's name, for the refusal.
- * @param posed The posed equid's parts, model space.
- * @param point The reach's target, model space.
- * @throws {AutoMovieArchetypeRefusal} When the head or neck overlaps a forelimb
- *   bar that does not bear the target, with the overlap in metres.
+ * Parameter archetype: The producer's name, for the refusal.
+ * Parameter posed: The posed equid's parts, model space.
+ * Parameter point: The reach's target, model space.
+ * When the head or neck overlaps a forelimb
+ * bar that does not bear the target, with the overlap in metres.
  */
 export function EquineHeadClearance(
   archetype: string,
@@ -68,19 +67,29 @@ export function EquineHeadClearance(
   }
 }
 
-/** A capsule or cylinder part's axis and radius, model space. */
+/*
+ * A capsule or cylinder part's axis and radius, model space.
+ */
 interface ISegment {
-  /** Its start. */
+  /*
+   * Its start.
+   */
   from: IAutoMovieVector3;
 
-  /** Its end. */
+  /*
+   * Its end.
+   */
   to: IAutoMovieVector3;
 
-  /** Its radius, metres. */
+  /*
+   * Its radius, metres.
+   */
   radius: number;
 }
 
-/** Read a bar part's axis, or null for any other part. */
+/*
+ * Read a bar part's axis, or null for any other part.
+ */
 function bar(part: IAutoMovieModelPart): ISegment | null {
   const geometry: IAutoMovieModelPart["geometry"] = part.geometry;
   if (

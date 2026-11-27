@@ -1,6 +1,6 @@
 import { spliceTangentNormal } from "./spliceTangentNormal.js";
 
-/**
+/*
  * Blend detail slopes into the base tangent-space normal by whiteout blending.
  * The shared splice owner expands the native chunk once and refuses a shader
  * with no supported tangent-space projection boundary.

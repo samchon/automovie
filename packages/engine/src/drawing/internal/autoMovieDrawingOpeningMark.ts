@@ -14,10 +14,10 @@ import { autoMovieOpeningOutlinePoints } from "./autoMovieOpeningOutlinePoints";
 import { projectAutoMovieDrawingPoint } from "./projectAutoMovieDrawingPoint";
 import { roundAutoMovieDrawingPoint } from "./roundAutoMovieDrawingPoint";
 
-/**
+/*
  * One opening as a drawing can state it, and what that statement rests on.
  *
- * The size and basis come from {@link autoMovieOpeningNominalExtent}, the rule
+ * The size and basis come from autoMovieOpeningNominalExtent, the rule
  * the schedule also reads: an opening with its own void is marked with `basis:
  * "profile"`, its hull size, and its drafted outline placed on the host
  * boundary's face and projected onto the page on the grid; one sized by its
@@ -25,11 +25,10 @@ import { roundAutoMovieDrawingPoint } from "./roundAutoMovieDrawingPoint";
  * extent is not the hole's shape; one with neither is `basis: "none"` with
  * `null` sizes. Validation guarantees a profiled opening's host boundary has a
  * face, which the outline placement relies on.
- *
- * @param design Index of the validated design.
- * @param frame The view's page basis.
- * @param opening Opening to mark.
- * @returns The opening's mark, carrying its identity, basis, outline and size.
+ * Parameter design: Index of the validated design.
+ * Parameter frame: The view's page basis.
+ * Parameter opening: Opening to mark.
+ * Returns: The opening's mark, carrying its identity, basis, outline and size.
  */
 export const autoMovieDrawingOpeningMark = (
   design: IAutoMovieDrawingDesignIndex,

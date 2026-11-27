@@ -5,7 +5,9 @@ import type {
 
 import { pushViolation } from "./pushViolation";
 
-/** Append shot-event findings using the canonical shot-local clock policy. */
+/*
+ * Append shot-event findings using the canonical shot-local clock policy.
+ */
 export function appendShotEventsArtifact(
   events: readonly IAutoMovieInteractionEvent[],
   path: string,
@@ -42,7 +44,7 @@ export function appendShotEventsArtifact(
   });
 }
 
-/**
+/*
  * The slack the shot-local event clock carries at its upper bound, matching
  * `performShot`'s own landing comparison so the two cannot disagree about an
  * event that lands exactly on the shot end.

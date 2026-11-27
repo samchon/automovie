@@ -3,7 +3,7 @@ import type * as THREE from "three";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 import { createDualQuaternionSkinningShaderPatch } from "./createDualQuaternionSkinningShaderPatch.js";
 
-/**
+/*
  * Make a material draw skinned meshes with dual quaternion skinning instead of
  * Three's linear blend. A mesh drawn without skinning compiles the patch away,
  * because every replacement sits under `USE_SKINNING`. Register it before the

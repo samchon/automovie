@@ -2,7 +2,7 @@ import type * as THREE from "three";
 
 import { AUTOMOVIE_SURFACE_GRAPHIC_KEY } from "../../AUTOMOVIE_SURFACE_GRAPHIC_KEY.js";
 
-/**
+/*
  * Hide every currently visible surface graphic root in a scene and return the
  * restore that shows them again.
  *

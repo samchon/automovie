@@ -8,7 +8,7 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
 import { toolCaseHeld } from "./internal/toolCaseHeld";
 import { toolCasePot } from "./internal/toolCasePot";
 
-/**
+/*
  * Capture cases of the cyclic tool-use family, four cycles each with the right
  * hand from quiet standing, the tool first taken up from a bench beside the
  * right hand: `tool-hammer` on a nail at bench height, `tool-saw` over a cut
@@ -20,11 +20,10 @@ import { toolCasePot } from "./internal/toolCasePot";
  * displayed grip socket and hand through the tool's offset in the hand, lies
  * within 10 mm of the work point (the issue's tip-meets-work bound, at decision
  * 11's declared accuracy).
- *
- * @param bodies The sweep bodies; `m-average` when absent.
- * @param only Whether to build a case with this name, or every case when
- *   absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies; `m-average` when absent.
+ * Parameter only: Whether to build a case with this name, or every case when
+ * absent.
+ * Returns: The cases.
  */
 export function toolCases(
   bodies: readonly string[] = ["m-average"],
@@ -139,5 +138,7 @@ export function toolCases(
   return out;
 }
 
-/** The record of `IToolCasesWorst`'s site. */
+/*
+ * The record of `IToolCasesWorst`'s site.
+ */
 type IToolCasesWorst = { value: number; where: string };

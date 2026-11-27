@@ -16,7 +16,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { handReach } from "./handReach";
 import { palmSagitta } from "./palmSagitta";
 
-/**
+/*
  * Where a palm braces on its own thigh just above the knee, the hand support of
  * a low posture (Kingma, Faber and van Dieen 2016, J Biomech 49:881, on
  * supporting the trunk with a hand on the thigh "just above the knee"), read on
@@ -24,11 +24,10 @@ import { palmSagitta } from "./palmSagitta";
  * knee on the thigh's front, so the heel of the hand rests just above the
  * kneecap and the fingers reach toward it; the outward normal there, and the
  * thigh's direction toward the knee the fingers lie along.
- *
- * @param body The body, for its thigh regions.
- * @param side The thigh.
- * @returns A reader of the resolved thigh, knee and shoulder bones. The result
- *   gives the clearance-adjusted palm site, normal and knee direction.
+ * Parameter body: The body, for its thigh regions.
+ * Parameter side: The thigh.
+ * Returns: A reader of the resolved thigh, knee and shoulder bones. The result
+ * gives the clearance-adjusted palm site, normal and knee direction.
  */
 export function braceOnThighPoint(
   body: IAutoMovieMotionHumanBody,
@@ -219,24 +218,34 @@ export function braceOnThighPoint(
   };
 }
 
-/** The palm site and its orientation in the actual thigh's frame. */
+/*
+ * The palm site and its orientation in the actual thigh's frame.
+ */
 interface IBrace {
-  /** World metres, out from the collider by the hand's contact depth. */
+  /*
+   * World metres, out from the collider by the hand's contact depth.
+   */
   point: IAutoMovieVector3;
 
-  /** The outward world normal of the thigh region. */
+  /*
+   * The outward world normal of the thigh region.
+   */
   normal: IAutoMovieVector3;
 
-  /** Rotation seating the open palm along this thigh. */
+  /*
+   * Rotation seating the open palm along this thigh.
+   */
   rotation: IAutoMovieQuaternion;
 }
 
-/** The bones displayed by a single braced posture. */
+/*
+ * The bones displayed by a single braced posture.
+ */
 type IRead = (
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
 ) => IBrace;
 
-/**
+/*
  * A tenth of a millimetre resolves the surface intersection below skin
  * tolerance.
  */

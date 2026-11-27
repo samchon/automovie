@@ -91,7 +91,7 @@ export namespace AutoMovieViewOutlineRead {
     };
   }
 
-  /**
+  /*
    * Preserve exact pole zeros and the admitted parameter's original polynomial
    * value.
    */

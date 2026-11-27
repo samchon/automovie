@@ -12,7 +12,7 @@ import type {
 import { autoMovieCaptionLanguageComparisonKey } from "./autoMovieCaptionLanguageComparisonKey.js";
 import { canonicalizeAutoMovieCaptionText } from "./canonicalizeAutoMovieCaptionText.js";
 
-/**
+/*
  * Measure caption readability through one injected, identity-bearing runtime
  * and judge each cue against its language's profile.
  *
@@ -98,7 +98,9 @@ export const inspectAutoMovieCaptionReadabilityWithRuntime: (
   };
 };
 
-/** Number of items an iterable yields, without materializing them. */
+/*
+ * Number of items an iterable yields, without materializing them.
+ */
 const countItems: (items: Iterable<unknown>) => number = (
   items: Iterable<unknown>,
 ): number => {

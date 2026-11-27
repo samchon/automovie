@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 
-/**
+/*
  * A straight run of charged hose ending in a nozzle.
  *
  * The line runs along `+Z` from its tail at the origin to the nozzle's tip at
@@ -19,9 +19,8 @@ import {
  * riding `flex`, the line's bend at the operator's hold, which turns the run
  * behind it about the vertical to either side; `tip` is the outlet, its `+Y`
  * the stream's direction along `+Z`.
- *
- * @param params The optional scene id.
- * @returns The hose line and its contacts, metres.
+ * Parameter params: The optional scene id.
+ * Returns: The hose line and its contacts, metres.
  */
 export function createHoseLine(
   params: AutoMovieArchetypeHoseLine.IParams = {},
@@ -153,7 +152,7 @@ export function createHoseLine(
   return builder.build(SIZE.mass);
 }
 
-/**
+/*
  * A charged 1 3/4 in (44 mm) attack line with a fog nozzle, the hand line a
  * two-member team advances. The hose's bore is its trade size; its outer
  * diameter, the nozzle's proportions, the members' spacing, the bail's swing

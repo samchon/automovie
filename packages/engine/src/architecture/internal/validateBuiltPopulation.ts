@@ -6,7 +6,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/**
+/*
  * Check exactly what a building owns about one population it stages.
  *
  * The whole instance-set design is the production builder's to validate, and it
@@ -26,10 +26,9 @@ import {
  * positive scatter radius, or positive integer rows, columns and layers with
  * positive spacing and a capacity of at least the count. Nothing is thrown;
  * every defect becomes one violation.
- *
- * @param population The set and its prototype box, as a building records them.
- * @param path Path prefix the violations are reported under.
- * @param collector Collector the violations are appended to.
+ * Parameter population: The set and its prototype box, as a building records them.
+ * Parameter path: Path prefix the violations are reported under.
+ * Parameter collector: Collector the violations are appended to.
  */
 export function validateBuiltPopulation(
   population: Pick<IAutoMovieBuiltPopulation, "set" | "prototypeBounds">,
@@ -44,10 +43,14 @@ export function validateBuiltPopulation(
   validateSet(population.set, `${path}.set`, collector);
 }
 
-/** Largest deviation from unit norm a stated slot rotation may carry. */
+/*
+ * Largest deviation from unit norm a stated slot rotation may carry.
+ */
 const UNIT_QUATERNION_EPSILON: number = 1e-6;
 
-/** The three world axes every vector check walks. */
+/*
+ * The three world axes every vector check walks.
+ */
 const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
 
 const validatePrototypeBounds: (
@@ -289,7 +292,9 @@ const positiveInteger: (
     );
 };
 
-/** Report a range whose finite minimum lies above its finite maximum. */
+/*
+ * Report a range whose finite minimum lies above its finite maximum.
+ */
 const ordered: (
   min: number,
   max: number,
@@ -312,7 +317,9 @@ const ordered: (
     );
 };
 
-/** A missing value is reported like a non-positive one, for unvalidated JSON. */
+/*
+ * A missing value is reported like a non-positive one, for unvalidated JSON.
+ */
 const positive: (
   value: number | undefined,
   path: string,

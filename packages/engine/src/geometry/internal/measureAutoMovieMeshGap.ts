@@ -6,7 +6,7 @@ import type {
 import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
-/**
+/*
  * The least Euclidean distance between two triangle surfaces in one metre
  * frame.
  *
@@ -26,10 +26,9 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * boxes first, and a pair of boxes no nearer than the running least distance is
  * skipped, which changes no answer; the walk stops at a distance of 0. The
  * surfaces are only read.
- *
- * @param first One prepared surface.
- * @param second The other prepared surface, in the same frame.
- * @returns The least distance in metres.
+ * Parameter first: One prepared surface.
+ * Parameter second: The other prepared surface, in the same frame.
+ * Returns: The least distance in metres.
  */
 export function measureAutoMovieMeshGap(
   first: measureAutoMovieMeshGap.ISurface,
@@ -40,31 +39,38 @@ export function measureAutoMovieMeshGap(
   return Math.sqrt(best.distance2);
 }
 
-/** The prepared surfaces the gap reads. */
+/*
+ * The prepared surfaces the gap reads.
+ */
 export namespace measureAutoMovieMeshGap {
-  /**
+  /*
    * One surface prepared for gap measurement: a box hierarchy over its
    * triangles, each holding its nine corner coordinates in metres.
    */
   export interface ISurface {
-    /** The hierarchy's root, enclosing every triangle. */
+    /*
+     * The hierarchy's root, enclosing every triangle.
+     */
     root: IAutoMovieMeshQueryHierarchy<ITriangle>;
   }
 
-  /** One triangle's nine corner coordinates, in corner order, with its box. */
+  /*
+   * One triangle's nine corner coordinates, in corner order, with its box.
+   */
   export interface ITriangle extends IAutoMovieMeshQueryHierarchy.IEntry {
-    /** Corner coordinates in metres: x, y, z of each corner in turn. */
+    /*
+     * Corner coordinates in metres: x, y, z of each corner in turn.
+     */
     corners: Float64Array;
   }
 
-  /**
+  /*
    * Prepare a mesh's triangles for gap measurement.
-   *
-   * @param mesh The surface; only read.
-   * @param label Name the refusals give it.
-   * @returns The prepared surface.
-   * @throws On a malformed index buffer, a non-finite position or a mesh
-   *   without triangles.
+   * Parameter mesh: The surface; only read.
+   * Parameter label: Name the refusals give it.
+   * Returns: The prepared surface.
+   * On a malformed index buffer, a non-finite position or a mesh
+   * without triangles.
    */
   export function surface(mesh: IAutoMovieMesh, label: string): ISurface {
     const indices: number[] = triangleIndicesOf(mesh, label);
@@ -96,10 +102,14 @@ export namespace measureAutoMovieMeshGap {
   }
 }
 
-/** A node of a prepared surface's hierarchy. */
+/*
+ * A node of a prepared surface's hierarchy.
+ */
 type INode = IAutoMovieMeshQueryHierarchy<measureAutoMovieMeshGap.ITriangle>;
 
-/** Squared distance between two boxes, a lower bound for anything inside them. */
+/*
+ * Squared distance between two boxes, a lower bound for anything inside them.
+ */
 const boxDistance2: (
   a: { low: number[]; high: number[] },
   b: { low: number[]; high: number[] },
@@ -119,7 +129,7 @@ const boxDistance2: (
   return total;
 };
 
-/**
+/*
  * Walk two hierarchies together. A pair of nodes no nearer than the running
  * least distance is skipped; otherwise the node with more entries below it, a
  * branch before a leaf, is split and its children are visited nearest first,
@@ -176,7 +186,9 @@ const visit: (
   }
 };
 
-/** A box's extents summed over its axes, which decides which node to split. */
+/*
+ * A box's extents summed over its axes, which decides which node to split.
+ */
 const boxSpan: (node: INode) => number = (node: INode): number =>
   node.high[0]! -
   node.low[0]! +
@@ -185,7 +197,9 @@ const boxSpan: (node: INode) => number = (node: INode): number =>
   node.high[2]! -
   node.low[2]!;
 
-/** Squared distance between two triangles that do not cross. */
+/*
+ * Squared distance between two triangles that do not cross.
+ */
 const triangleDistance2: (a: Float64Array, b: Float64Array) => number = (
   a: Float64Array,
   b: Float64Array,
@@ -211,7 +225,7 @@ const triangleDistance2: (a: Float64Array, b: Float64Array) => number = (
   return least;
 };
 
-/**
+/*
  * Squared distance from the point at `p[at..at+2]` to the interior of triangle
  * `t`, or Infinity when the point does not project inside it or the triangle
  * has no area; its edges answer those cases.
@@ -254,7 +268,7 @@ const faceDistance2: (
   return (offset * offset) / nn;
 };
 
-/**
+/*
  * Squared distance between segment `p[i]`-`p[j]` and segment `q[k]`-`q[l]`, by
  * Ericson's clamped closest-point parameters; a segment of zero length is read
  * as its point.
@@ -315,6 +329,8 @@ const segmentDistance2: (
   return x * x + y * y + z * z;
 };
 
-/** A parameter held to the segment, [0, 1]. */
+/*
+ * A parameter held to the segment, [0, 1].
+ */
 const clamp: (value: number) => number = (value: number): number =>
   Math.min(1, Math.max(0, value));

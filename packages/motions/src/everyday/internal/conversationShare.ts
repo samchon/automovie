@@ -3,14 +3,13 @@ import type {
   IAutoMovieMotionHumanGaze,
 } from "@automovie/interface";
 
-/**
+/*
  * The share of a film span in which the requests target a person's face. A
  * request ends at its release or the next request, whichever comes first. This
  * measures authored attention without modeling the layer's physical blend.
- *
- * @param params The gaze requests in chronological order and the span's start
- *   and end in film seconds, the end greater than the start.
- * @returns The share in [0, 1].
+ * Parameter params: The gaze requests in chronological order and the span's start
+ * and end in film seconds, the end greater than the start.
+ * Returns: The share in [0, 1].
  */
 export function conversationShare(
   params: IAutoMovieMotionHumanConversation.IShare,

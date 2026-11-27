@@ -350,12 +350,16 @@ export namespace AutoMovieHumanNativeScaleProfile {
   }
 }
 
-/** The calibration's endpoint-flat quintic share, held at 0 and 1 outside its interval; the same expression term for term. */
+/*
+ * The calibration's endpoint-flat quintic share, held at 0 and 1 outside its interval; the same expression term for term.
+ */
 function smooth(t: number): number {
   return t <= 0 ? 0 : t >= 1 ? 1 : t * t * t * (10 + t * (-15 + 6 * t));
 }
 
-/** The quintic share and its first and second station derivatives over a span of `length` mm; both derivatives vanish outside (0, 1). */
+/*
+ * The quintic share and its first and second station derivatives over a span of `length` mm; both derivatives vanish outside (0, 1).
+ */
 function weight(t: number, length: number): [number, number, number] {
   if (t <= 0) return [0, 0, 0];
   if (t >= 1) return [1, 0, 0];

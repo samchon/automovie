@@ -29,7 +29,7 @@ import { HumanTrunk } from "./HumanTrunk";
 import { stepOverPath } from "./stepOverPath";
 import { stepOverSwing } from "./stepOverSwing";
 
-/**
+/*
  * Stepping over a low obstacle placed in the scene, a kerb or a hurdle
  * (`HumanObstacle`), from standing in front of it: the lead foot lifts over it
  * and lands beyond, then the trail foot follows and lands beside it, both feet
@@ -89,10 +89,14 @@ import { stepOverSwing } from "./stepOverSwing";
  * Events: `leadToeOff`, `leadContact`, `trailToeOff`, `trailContact`.
  */
 export namespace stepOver {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "stepOver";
 
-  /** Cancel table: a crossing completes before anything else. */
+  /*
+   * Cancel table: a crossing completes before anything else.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [{ window: ["trailContact", 1], kind: "inertialize", entry: 0 }],
     walk: [
@@ -105,52 +109,51 @@ export namespace stepOver {
     ],
   };
 
-  /**
+  /*
    * How far the lead foot lifts its toes as they pass over the obstacle's near
    * side, degrees toes-up (provisional): the toe clears the edge with the ankle
    * lower than a level foot's would be.
    */
   export const TOE_UP: number = 35;
 
-  /**
+  /*
    * How far the trail foot rises on its ball while the pelvis leaves it during
    * the lead swing, degrees toes-down (provisional, the forefoot rocker of a
    * stance foot the body passes over, Perry and Burnfield).
    */
   export const PUSH: number = 30;
 
-  /**
+  /*
    * Sole clearance over the obstacle's top, metres (provisional; Patla and
    * Rietdyk 1993).
    */
   export const MARGIN: number = 0.1;
 
-  /**
+  /*
    * Sole clearance of the trail foot over the obstacle's top, metres: the
    * trailing toe clears obstacles by 146 mm on average whatever their height
    * (Chou and Draganich 1997, J Biomech 30:331).
    */
   export const TRAIL: number = 0.146;
 
-  /**
+  /*
    * Onset and duration of the first half of forward transfer, shares of the
    * crossing.
    */
   const TRANSFER: readonly [number, number] = [0.12, 0.38];
 
-  /**
+  /*
    * Seconds before the trail's contact at which its landing pitch is read: a
    * microsecond, inside the swing's last instant.
    */
   const CONTACT: number = 1e-6;
 
-  /**
+  /*
    * Plan a step over.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the prop declares no edge or depth, or the
-   *   obstacle is too far, behind, too high or too deep to cross in one step.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the prop declares no edge or depth, or the
+   * obstacle is too far, behind, too high or too deep to cross in one step.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStepOver.IParams>,

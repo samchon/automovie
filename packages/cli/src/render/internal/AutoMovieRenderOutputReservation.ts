@@ -3,7 +3,7 @@ import * as path from "node:path";
 
 import { readAutoMovieErrorCode } from "../../file/internal/readAutoMovieErrorCode";
 
-/**
+/*
  * The publish lock of one render output folder: a `.render-publish` directory
  * holding exactly one process ticket, installed by an atomic rename, so two
  * renders never publish into one folder at once.
@@ -12,7 +12,9 @@ import { readAutoMovieErrorCode } from "../../file/internal/readAutoMovieErrorCo
  * reclaimed; a live or unreadable owner refuses the second render.
  */
 export class AutoMovieRenderOutputReservation {
-  /** Claims a destination with an atomically installed process ticket. */
+  /*
+   * Claims a destination with an atomically installed process ticket.
+   */
   public static async reserve(
     staging: string,
     reservation: string,
@@ -59,7 +61,9 @@ export class AutoMovieRenderOutputReservation {
     );
   }
 
-  /** Removes the exact process ticket and only an empty reservation directory. */
+  /*
+   * Removes the exact process ticket and only an empty reservation directory.
+   */
   public static async release(
     reservation: string,
     ticket: string,
@@ -72,7 +76,9 @@ export class AutoMovieRenderOutputReservation {
     await AutoMovieRenderOutputReservation.removeEmpty(reservation);
   }
 
-  /** Treats a process as gone only when the operating system confirms it. */
+  /*
+   * Treats a process as gone only when the operating system confirms it.
+   */
   private static processAlive(pid: number): boolean {
     try {
       process.kill(pid, 0);
@@ -86,7 +92,9 @@ export class AutoMovieRenderOutputReservation {
     }
   }
 
-  /** A later invocation may already have installed its own ticket. */
+  /*
+   * A later invocation may already have installed its own ticket.
+   */
   private static async removeEmpty(reservation: string): Promise<void> {
     await fs.rmdir(reservation).catch((error: unknown): void => {
       const code: unknown = readAutoMovieErrorCode(error);

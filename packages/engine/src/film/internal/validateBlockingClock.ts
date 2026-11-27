@@ -4,7 +4,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/**
+/*
  * Locate duplicate beat ids, the unknown selected beat, and its nonpositive
  * duration.
  */
@@ -43,5 +43,7 @@ export function validateBlockingClock(
     );
 }
 
-/** The identity and duration of the beat the blocking chooses. */
+/*
+ * The identity and duration of the beat the blocking chooses.
+ */
 type BlockingClock = Pick<IAutoMovieBlocking, "beat" | "duration">;

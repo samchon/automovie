@@ -9,7 +9,7 @@ import { StrikingTarget } from "./StrikingTarget";
 import type { defendFootwork } from "./defendFootwork";
 import { defendGoals } from "./defendGoals";
 
-/**
+/*
  * A built defence: what the defender sees at its read second turned into a
  * posture per second.
  *
@@ -21,20 +21,19 @@ import { defendGoals } from "./defendGoals";
  * margin) outside the weapon and shifts the root 0.3 of it, 2 % of stature
  * down; a `roll` drops the root two head radii with a 15 degree forward lean; a
  * `sway` leans back until the head clears. The arms and the checking leg go to
- * goals on the defender's own body ({@link defendGoals}), reached from the guard
+ * goals on the defender's own body (defendGoals), reached from the guard
  * with the movement's minimum-jerk share and left again over the recovery. A
  * check stands over the supporting foot, the root moved 0.6 of the way to its
  * ankle. The shares are provisional.
  */
 export namespace defendGeometry {
-  /**
+  /*
    * How far into its movement a defence is at a second: in on a minimum-jerk
    * share over the movement from the start, out over the recovery from the
    * hold.
-   *
-   * @param timing The defence's start, movement, hold and recovery, seconds.
-   * @param seconds The defence's seconds.
-   * @returns 0 to 1.
+   * Parameter timing: The defence's start, movement, hold and recovery, seconds.
+   * Parameter seconds: The defence's seconds.
+   * Returns: 0 to 1.
    */
   export function weight(
     timing: Pick<ITiming, "begin" | "movement" | "hold" | "recovery">,
@@ -46,14 +45,13 @@ export namespace defendGeometry {
     );
   }
 
-  /**
+  /*
    * The trunk's tilt that carries the head a lateral distance: its arcsine over
    * the trunk's length.
-   *
-   * @param lateral The head's displacement, metres.
-   * @param trunk The trunk's length, eyes to hips, metres.
-   * @returns Degrees.
-   * @throws {Error} When the displacement reaches the trunk's length.
+   * Parameter lateral: The head's displacement, metres.
+   * Parameter trunk: The trunk's length, eyes to hips, metres.
+   * Returns: Degrees.
+   * When the displacement reaches the trunk's length.
    */
   export function tilt(lateral: number, trunk: number): number {
     if (!(lateral < trunk))
@@ -63,52 +61,73 @@ export namespace defendGeometry {
     return (Math.asin(lateral / trunk) * 180) / Math.PI;
   }
 
-  /** A defence's timing, seconds from its start unless stated. */
+  /*
+   * A defence's timing, seconds from its start unless stated.
+   */
   export interface ITiming {
-    /** The struck region. */
+    /*
+     * The struck region.
+     */
     region: AutoMovieHumanoidRegion;
 
-    /** The strike. */
+    /*
+     * The strike.
+     */
     attack: IAutoMovieMotionHumanPlacedAction;
 
-    /** The movement's start. */
+    /*
+     * The movement's start.
+     */
     begin: number;
 
-    /** The movement's duration. */
+    /*
+     * The movement's duration.
+     */
     movement: number;
 
-    /** When the return starts. */
+    /*
+     * When the return starts.
+     */
     hold: number;
 
-    /** The return's duration. */
+    /*
+     * The return's duration.
+     */
     recovery: number;
 
-    /** The whole defence. */
+    /*
+     * The whole defence.
+     */
     duration: number;
 
-    /** Film second the defender reads the strike. */
+    /*
+     * Film second the defender reads the strike.
+     */
     read: number;
   }
 
-  /** A built defence. */
+  /*
+   * A built defence.
+   */
   export interface IGeometry {
-    /**
+    /*
      * The complete posture at action-relative seconds, borrowing only this
      * synchronous body's optional FK/ROM sources.
      */
     posture: IAutoMovieMotionHumanActionPlan["posture"];
 
-    /** The feet's contact windows. */
+    /*
+     * The feet's contact windows.
+     */
     contacts: IAutoMovieMotionHumanContactWindow[];
   }
 
-  /**
+  /*
    * Build a defence's geometry from what the defender sees at its read second.
-   *
-   * @param context The action's context.
-   * @param timing The defence's timing.
-   * @param footwork Any pending touchdown inherited by this defence.
-   * @returns The geometry.
+   * Parameter context: The action's context.
+   * Parameter timing: The defence's timing.
+   * Parameter footwork: Any pending touchdown inherited by this defence.
+   * Returns: The geometry.
    */
   export function build(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
@@ -366,13 +385,12 @@ export namespace defendGeometry {
     };
   }
 
-  /**
+  /*
    * The defender's side a region lies on: its own side, or the lead side for a
    * central region.
-   *
-   * @param region The struck region.
-   * @param lead The stance's lead side.
-   * @returns The side.
+   * Parameter region: The struck region.
+   * Parameter lead: The stance's lead side.
+   * Returns: The side.
    */
   export function attacked(
     region: AutoMovieHumanoidRegion,
@@ -385,14 +403,13 @@ export namespace defendGeometry {
         : lead;
   }
 
-  /**
+  /*
    * The feet's windows: both planted, except a checking leg off the floor from
    * its read to its end.
-   *
-   * @param checking The checking leg's side, undefined when both feet stay.
-   * @param timing The movement's start and the whole duration, seconds.
-   * @param support The inherited touchdown and release times, when present.
-   * @returns The windows.
+   * Parameter checking: The checking leg's side, undefined when both feet stay.
+   * Parameter timing: The movement's start and the whole duration, seconds.
+   * Parameter support: The inherited touchdown and release times, when present.
+   * Returns: The windows.
    */
   export function windows(
     checking: AutoMovieHumanSide | undefined,
@@ -424,13 +441,12 @@ export namespace defendGeometry {
     );
   }
 
-  /**
+  /*
    * Which way a side roll rolls the body: away from the incoming direction's
    * side, -1 when it comes from the left of the heading, 1 otherwise.
-   *
-   * @param yaw The heading, degrees.
-   * @param direction The incoming direction.
-   * @returns -1 or 1.
+   * Parameter yaw: The heading, degrees.
+   * Parameter direction: The incoming direction.
+   * Returns: -1 or 1.
    */
   export function sideRoll(yaw: number, direction: IAutoMovieVector3): number {
     const r: number = (yaw * Math.PI) / 180;
@@ -439,5 +455,7 @@ export namespace defendGeometry {
   }
 }
 
-/** The alternatives of `WindowsTiming`'s site. */
+/*
+ * The alternatives of `WindowsTiming`'s site.
+ */
 type WindowsTiming = "begin" | "duration";

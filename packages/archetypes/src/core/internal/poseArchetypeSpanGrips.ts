@@ -8,18 +8,17 @@ import { AutoMovieArchetypeFrame } from "../AutoMovieArchetypeFrame";
 import { AutoMovieArchetypeRefusal } from "../AutoMovieArchetypeRefusal";
 import type { AutoMovieArchetypeSpan } from "../AutoMovieArchetypeSpan";
 
-/**
+/*
  * Align explicitly held span frames while keeping their carrier origins fixed.
- *
- * @param archetype Producer identity used by a physical refusal.
- * @param spans Declared current spans, with overhang marking their held ends.
- * @param states The corresponding already computed endpoints.
- * @param affordances Current independent contact records before line alignment.
- * @returns Changed held frames and unchanged other contacts, without input
- *   mutation.
- * @throws {AutoMovieArchetypeRefusal} For incompatible shared axes, non-rigid
- *   held frames or a rein whose complete held run does not fit its physical
- *   line.
+ * Parameter archetype: Producer identity used by a physical refusal.
+ * Parameter spans: Declared current spans, with overhang marking their held ends.
+ * Parameter states: The corresponding already computed endpoints.
+ * Parameter affordances: Current independent contact records before line alignment.
+ * Returns: Changed held frames and unchanged other contacts, without input
+ * mutation.
+ * For incompatible shared axes, non-rigid
+ * held frames or a rein whose complete held run does not fit its physical
+ * line.
  */
 export function poseArchetypeSpanGrips(
   archetype: string,
@@ -131,7 +130,7 @@ export function poseArchetypeSpanGrips(
     },
   );
 
-  /**
+  /*
    * The original request identifies an unsupported physical held-line
    * condition.
    */

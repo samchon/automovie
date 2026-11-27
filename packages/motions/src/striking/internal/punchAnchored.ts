@@ -10,15 +10,14 @@ import { punchContact } from "./punchContact";
 import { punchGeometry } from "./punchGeometry";
 import type { punchReach } from "./punchReach";
 
-/**
+/*
  * The arm's reference configuration at a clock: the launch's anchor blended
  * toward each moved correction's anchor by its minimum-jerk share, joint by
  * joint (`blendHumanJoint`).
  *
  * Part of `punchGeometry.build`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `anchored`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `anchored`.
  */
 export function punchAnchored(
   prepared: punchAnchored.IPrepared,
@@ -58,15 +57,16 @@ export function punchAnchored(
   };
 }
 
-/** The `anchored` of `punchGeometry.build`, built from what that plan prepared. */
+/*
+ * The `anchored` of `punchGeometry.build`, built from what that plan prepared.
+ */
 export namespace punchAnchored {
-  /**
+  /*
    * How far a correction has carried the arm at a second: the minimum-jerk
    * share over its own span.
-   *
-   * @param seconds The punch's seconds from its launch clock's origin.
-   * @param correction The correction's start and length.
-   * @returns 0 to 1.
+   * Parameter seconds: The punch's seconds from its launch clock's origin.
+   * Parameter correction: The correction's start and length.
+   * Returns: 0 to 1.
    */
   export function share(
     seconds: number,
@@ -77,24 +77,38 @@ export namespace punchAnchored {
     );
   }
 
-  /** What `punchGeometry.build` prepared for its `anchored`. */
+  /*
+   * What `punchGeometry.build` prepared for its `anchored`.
+   */
   export interface IPrepared {
-    /** The `anchor` `punchGeometry.build` prepared. */
+    /*
+     * The `anchor` `punchGeometry.build` prepared.
+     */
     anchor: (reach: punchReach.IReach) => IAutoMovieHumanLimbReference;
 
-    /** The `contact` `punchGeometry.build` prepared. */
+    /*
+     * The `contact` `punchGeometry.build` prepared.
+     */
     contact: punchContact.IContact;
 
-    /** The `corrections` `punchGeometry.build` prepared. */
+    /*
+     * The `corrections` `punchGeometry.build` prepared.
+     */
     corrections: (t: number) => readonly punchReach.ICorrection[];
 
-    /** The `t0` `punchGeometry.build` prepared. */
+    /*
+     * The `t0` `punchGeometry.build` prepared.
+     */
     t0: number;
 
-    /** The `body` `punchGeometry.build` prepared. */
+    /*
+     * The `body` `punchGeometry.build` prepared.
+     */
     body: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPunch.IParams>["body"];
 
-    /** The `side` `punchGeometry.build` prepared. */
+    /*
+     * The `side` `punchGeometry.build` prepared.
+     */
     side: punchGeometry.ITiming["side"];
   }
 }

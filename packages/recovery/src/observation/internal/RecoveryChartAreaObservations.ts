@@ -7,7 +7,7 @@ import type {
 
 import { RecoveryChartPhysicalJet as P } from "./RecoveryChartPhysicalJet";
 
-/**
+/*
  * Integrate private piecewise-affine source observations inside axis-aligned
  * leaves. Positive UV triangles are clipped at the tensor knots before a
  * seven-by-seven Gauss rule on a Duffy triangle supplies physical-area weighted

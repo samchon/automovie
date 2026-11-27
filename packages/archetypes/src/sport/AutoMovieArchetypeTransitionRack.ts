@@ -9,11 +9,15 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** No rack maker's page was read. */
+/*
+ * No rack maker's page was read.
+ */
 const STAGED: string =
   "a triathlon transition rack bay: bar height and bay length are provisional staging estimates, no maker's page was read";
 
-/** Frame colour. */
+/*
+ * Frame colour.
+ */
 const STEEL: string = "#9aa1a6";
 
 /** Constructs the transition rack archetype from its recipe. */

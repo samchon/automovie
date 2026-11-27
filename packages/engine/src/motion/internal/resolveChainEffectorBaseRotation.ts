@@ -15,7 +15,7 @@ import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinem
 import type { prepareSkeletonPoseResolution } from "../../kinematics/internal/prepareSkeletonPoseResolution";
 import { Quaternion } from "../../math/Quaternion";
 
-/**
+/*
  * Recover the fixed mid-to-effector rotation of a supported descendant chain
  * from two already resolved frames. An unsupported chain keeps the legacy
  * effector-own rest rotation, or identity when its bone is missing. The
@@ -53,9 +53,11 @@ export function resolveChainEffectorBaseRotation(
   return resolveChainEffectorBaseRotation.fromPrepared(props, lower, end);
 }
 
-/** The shared ancestry admission and fixed-frame recovery of chain preparation. */
+/*
+ * The shared ancestry admission and fixed-frame recovery of chain preparation.
+ */
 export namespace resolveChainEffectorBaseRotation {
-  /**
+  /*
    * Recover an admitted chain's fixed frame, reusing a completed lower inverse
    * when available. Completed FK must have admitted the same end articulation
    * and unchanged non-chain records. The caller owns remaining upper/mid
@@ -123,7 +125,7 @@ export namespace resolveChainEffectorBaseRotation {
     );
   }
 
-  /**
+  /*
    * Whether one root-reachable bone lies strictly below another in the same
    * unchanged rooted topology; root reachability excludes detached cycles.
    *
@@ -164,7 +166,7 @@ export namespace resolveChainEffectorBaseRotation {
   }
 }
 
-/**
+/*
  * Source end articulation and clinical mappings corresponding to completed FK
  * frames.
  */

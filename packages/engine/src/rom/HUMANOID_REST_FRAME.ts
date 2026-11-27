@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 
 
-/**
+/*
  * Bones of each arm from the clavicle to the fingertips, without the side
  * prefix.
  */
@@ -31,16 +31,20 @@ const ARM: readonly string[] = [
   "LittleDistal",
 ];
 
-/** Bones of each leg from the hip to the toes, without the side prefix. */
+/*
+ * Bones of each leg from the hip to the toes, without the side prefix.
+ */
 const LEG: readonly string[] = ["UpperLeg", "LowerLeg", "Foot", "Toes"];
 
-/**
+/*
  * Bones whose fingertip-ward motions read on the hand's basis, without the side
  * prefix.
  */
 const HAND: readonly string[] = ARM.slice(3);
 
-/** A reversed axis at the rig's own rest. */
+/*
+ * A reversed axis at the rig's own rest.
+ */
 const REVERSED: IAutoMovieAxisFrame = { sign: -1, neutral: 0 };
 
 /**

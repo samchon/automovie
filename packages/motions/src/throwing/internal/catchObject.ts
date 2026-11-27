@@ -39,7 +39,7 @@ import { HumanGlove } from "./HumanGlove";
 import { catchObjectApproach } from "./catchObjectApproach";
 import { catchObjectFingers } from "./catchObjectFingers";
 
-/**
+/*
  * Catching an object thrown by another action: the hands meet it where its path
  * enters the reach, give with it, and bring it to the chest.
  *
@@ -74,10 +74,14 @@ import { catchObjectFingers } from "./catchObjectFingers";
  * chest, and a held prop handed from the throw.
  */
 export namespace catchObject {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "catchObject";
 
-  /** Cancel table: a secured catch is thrown back, stood with, or walked with. */
+  /*
+   * Cancel table: a secured catch is thrown back, stood with, or walked with.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     ballSport: [
       { window: ["secured", 1], kind: "inertialize", entry: 0, blend: 0.2 },
@@ -103,28 +107,30 @@ export namespace catchObject {
     ],
   };
 
-  /**
+  /*
    * May be performed over a carrier, such as seated or while another action
    * carries the body: it claims only the parts it moves.
    */
   export const overlay: boolean = true;
 
-  /**
+  /*
    * How far ahead of the root the object is met, arm lengths
    * (`catchObjectApproach.REACH`).
    */
   export const REACH: number = catchObjectApproach.REACH;
 
-  /**
+  /*
    * The height a self-tossed object is caught at on its way down
    * (`catchObjectApproach.TOSS`).
    */
   export const TOSS: number = catchObjectApproach.TOSS;
 
-  /** How far the hands give with the object after contact, metres (provisional). */
+  /*
+   * How far the hands give with the object after contact, metres (provisional).
+   */
   export const GIVE: number = 0.1;
 
-  /**
+  /*
    * The turns of the fingers about the palm's normal tried on the ball, degrees
    * from upward: the whole way round in steps of 30.
    */
@@ -132,31 +138,40 @@ export namespace catchObject {
     0, 30, -30, 60, -60, 90, -90, 120, -120, 150, -150, 180,
   ];
 
-  /** How long the give takes, seconds (provisional). */
+  /*
+   * How long the give takes, seconds (provisional).
+   */
   export const GIVE_TIME: number = 0.15;
 
-  /** A staged intercept read from the canonical prop at one authored second. */
+  /*
+   * A staged intercept read from the canonical prop at one authored second.
+   */
   export interface IInterception {
-    /** The contact's action-local second. */
+    /*
+     * The contact's action-local second.
+     */
     contact: number;
 
-    /** World velocity immediately before contact, in metres per second. */
+    /*
+     * World velocity immediately before contact, in metres per second.
+     */
     speed: IAutoMovieVector3;
 
-    /** The ball's world centre on the action clock up to contact. */
+    /*
+     * The ball's world centre on the action clock up to contact.
+     */
     before(seconds: number): IAutoMovieVector3;
   }
-  /**
+  /*
    * Plan a catch.
-   *
-   * @param context The action's context.
-   * @param interception An optional realized interception supplied by
-   *   `stageCatch`.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the anchor is not a throw, the ball declares no
-   *   size, the glove is not worn on the one catching hand or has no pocket,
-   *   the path never comes within reach, or the catch would start before the
-   *   action.
+   * Parameter context: The action's context.
+   * Parameter interception: An optional realized interception supplied by
+   * `stageCatch`.
+   * Returns: The plan.
+   * When the anchor is not a throw, the ball declares no
+   * size, the glove is not worn on the one catching hand or has no pocket,
+   * the path never comes within reach, or the catch would start before the
+   * action.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IParams>,

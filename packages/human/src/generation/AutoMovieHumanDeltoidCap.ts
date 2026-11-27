@@ -14,7 +14,9 @@ import { AutoMovieHumanShoulderCap } from "./AutoMovieHumanShoulderCap";
  * at the point where both stand at the same lateral place.
  */
 export namespace AutoMovieHumanDeltoidCap {
-  /** Smallest lateral half size kept, mm: under it the cap is the girdle's. */
+  /*
+   * Smallest lateral half size kept, mm: under it the cap is the girdle's.
+   */
   const MINIMUM: number = 0.5;
 
   /**

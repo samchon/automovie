@@ -187,7 +187,9 @@ export namespace AutoMovieHumanHandPalm {
       ): IAutoMovieContourLoft64.ISection => {
         const curve: IAutoMovieCubicBezierCurve64 = row.loops[0]!.curve;
 
-        /** Express this source cubic in the numerical chart of its own plane. */
+        /*
+         * Express this source cubic in the numerical chart of its own plane.
+         */
         function read(
           p: Readonly<AutoMovieVector3Tuple>,
         ): AutoMovieVector3Tuple {
@@ -427,7 +429,9 @@ export namespace AutoMovieHumanHandPalm {
     };
   }
 
-  /** The recorded chart after converting its handedness to capture world. */
+  /*
+   * The recorded chart after converting its handedness to capture world.
+   */
   function physicalPlane(
     row: IAutoMovieHumanHandPalm.IFixedSection,
   ): IPhysicalPlane {
@@ -437,7 +441,9 @@ export namespace AutoMovieHumanHandPalm {
     return { origin: world(row.originMm), u, v, normal: S.cross(v, u) };
   }
 
-  /** Signed orientation of a closed ring as seen from its section normal. */
+  /*
+   * Signed orientation of a closed ring as seen from its section normal.
+   */
   function orientation(
     ring: readonly AutoMovieVector3Tuple[],
     plane: IPhysicalPlane,
@@ -457,7 +463,9 @@ export namespace AutoMovieHumanHandPalm {
     );
   }
 
-  /** A polygonal edge represented by exact linear cubic spans. */
+  /*
+   * A polygonal edge represented by exact linear cubic spans.
+   */
   function linearRing(
     name: string,
     points: readonly AutoMovieVector3Tuple[],
@@ -483,7 +491,7 @@ export namespace AutoMovieHumanHandPalm {
     };
   }
 
-  /**
+  /*
    * Convert native reference axes to capture-world axes by reflecting Z at the
    * same scale.
    */
@@ -495,7 +503,9 @@ export namespace AutoMovieHumanHandPalm {
     return [x, y, -z];
   }
 
-  /** Sum two vectors in the same absolute chart. */
+  /*
+   * Sum two vectors in the same absolute chart.
+   */
   function added(
     a: AutoMovieVector3Tuple,
     b: AutoMovieVector3Tuple,
@@ -503,7 +513,9 @@ export namespace AutoMovieHumanHandPalm {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
-  /** Scale a vector uniformly in the same chart. */
+  /*
+   * Scale a vector uniformly in the same chart.
+   */
   function scaled(
     p: AutoMovieVector3Tuple,
     factor: number,
@@ -511,7 +523,9 @@ export namespace AutoMovieHumanHandPalm {
     return [p[0] * factor, p[1] * factor, p[2] * factor];
   }
 
-  /** Displacement from b to a in their shared frame and units. */
+  /*
+   * Displacement from b to a in their shared frame and units.
+   */
   function difference(
     a: AutoMovieVector3Tuple,
     b: AutoMovieVector3Tuple,
@@ -519,7 +533,7 @@ export namespace AutoMovieHumanHandPalm {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
-  /**
+  /*
    * Retile both observed palm collar spans in world millimetres without
    * changing any rim vertex.
    */
@@ -537,7 +551,7 @@ export namespace AutoMovieHumanHandPalm {
     return indices;
   }
 
-  /**
+  /*
    * Replace one collar strip while retaining its exact indexed rims and
    * winding.
    */
@@ -625,7 +639,9 @@ export namespace AutoMovieHumanHandPalm {
       },
     );
 
-    /** Compare indexed rim winding independently from the physical curve order. */
+    /*
+     * Compare indexed rim winding independently from the physical curve order.
+     */
     function boundary(faces: readonly number[]): Map<string, number> {
       const uses: Map<string, number> = new Map();
       for (let i: number = 0; i < faces.length; i += 3)
@@ -659,15 +675,25 @@ export namespace AutoMovieHumanHandPalm {
     return [...indices.slice(0, begin), ...tiles, ...indices.slice(end)];
   }
 
-  /** One physical reference plane in capture-world millimetres. */
+  /*
+   * One physical reference plane in capture-world millimetres.
+   */
   interface IPhysicalPlane {
-    /** Absolute capture-world millimetre origin. */
+    /*
+     * Absolute capture-world millimetre origin.
+     */
     origin: AutoMovieVector3Tuple;
-    /** Unit first tangent in capture-world axes. */
+    /*
+     * Unit first tangent in capture-world axes.
+     */
     u: AutoMovieVector3Tuple;
-    /** Unit second tangent after the native chart reflection. */
+    /*
+     * Unit second tangent after the native chart reflection.
+     */
     v: AutoMovieVector3Tuple;
-    /** Distal normal derived from the retained chart handedness. */
+    /*
+     * Distal normal derived from the retained chart handedness.
+     */
     normal: AutoMovieVector3Tuple;
   }
 }

@@ -10,7 +10,7 @@ import {
 
 import { impactRecoil } from "../../physics/internal/impactRecoil";
 
-/**
+/*
  * Bake a three-stop rest/flinch/rest reaction over positive seconds, using the
  * impact recoil clamped to the supplied rig. Peak defaults to min(0.16,
  * duration*0.4); neutral axes stay null even when a custom ROM excludes numeric

@@ -16,7 +16,7 @@ import type {
 
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 
-/**
+/*
  * Keep the hands an action holds by contact on their contacts while a trunk
  * layer moves the chest, the shoulder girdles and the head under them.
  *
@@ -38,13 +38,12 @@ import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
  * to the layer. A new goal bends its elbow toward where the elbow stood before
  * the layer, so with the layer at rest the fit gives the arm the action gave it
  * and the goal comes and goes without a step.
- *
- * @param before The posture the action gives, before the layer.
- * @param after The posture with the layer's joint angles added.
- * @param seconds The film second.
- * @param context The layer's context: the body, the active action and the
- *   borrowed FK.
- * @returns `after`, with a limb goal for each held hand.
+ * Parameter before: The posture the action gives, before the layer.
+ * Parameter after: The posture with the layer's joint angles added.
+ * Parameter seconds: The film second.
+ * Parameter context: The layer's context: the body, the active action and the
+ * borrowed FK.
+ * Returns: `after`, with a limb goal for each held hand.
  */
 export function affectHeldHands(
   before: IAutoMovieMotionHumanPosture,
@@ -182,9 +181,11 @@ export function affectHeldHands(
   return { ...after, joints, limbs };
 }
 
-/** The layer inputs read while securing a held prop's contacts. */
+/*
+ * The layer inputs read while securing a held prop's contacts.
+ */
 export namespace affectHeldHands {
-  /**
+  /*
    * What the hold reads of a layer's context: the performer, its body, the
    * active action and the borrowed FK.
    */
@@ -194,7 +195,7 @@ export namespace affectHeldHands {
   >;
 }
 
-/**
+/*
  * The bones on the way from one bone to another, below the lowest bone both
  * hang from, each end included.
  */
@@ -227,49 +228,61 @@ function between(
   return [...below(up(a)), ...below(above)];
 }
 
-/**
+/*
  * A hand the layer keeps on its contact: the bone it rides, when the contact is
  * on the performer's own body.
  */
 interface IHold {
-  /** The hand's side. */
+  /*
+   * The hand's side.
+   */
   side: AutoMovieHumanSide;
 
-  /** How far the hold applies, 0 to 1, eased at its window's edges. */
+  /*
+   * How far the hold applies, 0 to 1, eased at its window's edges.
+   */
   weight: number;
 
-  /**
+  /*
    * The performer's own bone the hand touches; absent for a contact outside the
    * body.
    */
   bone: AutoMovieHumanoidBone | undefined;
 }
 
-/**
+/*
  * Seconds over which a hold eases in before its contact window and out after it
  * (provisional: a tenth of a second, as a lifted foot's turn eases).
  */
 const EASE: number = 0.1;
 
-/** Each side's arm limb. */
+/*
+ * Each side's arm limb.
+ */
 const ARM: Readonly<Record<AutoMovieHumanSide, AutoMovieHumanLimb>> = {
   left: "leftArm",
   right: "rightArm",
 };
 
-/** Each side's elbow bone, whose pre-layer place hints a new goal's bend. */
+/*
+ * Each side's elbow bone, whose pre-layer place hints a new goal's bend.
+ */
 const ELBOW: Readonly<Record<AutoMovieHumanSide, AutoMovieHumanoidBone>> = {
   left: "leftLowerArm",
   right: "rightLowerArm",
 };
 
-/** Each side's hand bone, which is also the hand's contact part. */
+/*
+ * Each side's hand bone, which is also the hand's contact part.
+ */
 const HAND: Readonly<Record<AutoMovieHumanSide, AutoMovieHumanoidBone>> = {
   left: "leftHand",
   right: "rightHand",
 };
 
-/** The body's prepared reader of both hands and every touched bone. */
+/*
+ * The body's prepared reader of both hands and every touched bone.
+ */
 function reader(
   body: IAutoMovieMotionHumanBody,
   holds: readonly IHold[],

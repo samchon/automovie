@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-/**
+/*
  * The group node's own origin, which every local offset is measured about.
  *
  * Frozen because one object stands in two of the engine's parameter slots at
@@ -14,12 +14,12 @@ import * as THREE from "three";
  */
 const ROOT_ORIGIN: IAutoMovieVector3 = Object.freeze({ x: 0, y: 0, z: 0 });
 
-/**
+/*
  * Where one designed point stands inside the group node, once the unit's own
  * heading and the current spacing have opened or closed the arrangement.
  *
  * The arithmetic is the engine's, called rather than copied: this is
- * {@link transformFormationPoint} measured about the root's own origin, because
+ * transformFormationPoint measured about the root's own origin, because
  * the group node above already carries the anchor, the cue's travel and the
  * cue's turn, so the unit state passed here is at rest apart from the spacing.
  *

@@ -18,7 +18,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { throwObjectForm } from "./throwObjectForm";
 
-/**
+/*
  * The throw's trunk and its release place, read by `throwObject`.
  *
  * The trunk is a twist shared by the chest and the spine with a forward
@@ -34,14 +34,13 @@ import { throwObjectForm } from "./throwObjectForm";
  * `throwObjectForm.PLACES` release from that shoulder.
  */
 export namespace throwObjectRelease {
-  /**
+  /*
    * The trunk's joints for a twist and a forward inclination.
-   *
-   * @param joints The posture's joints.
-   * @param twist The trunk's twist, degrees; positive toward the performer's
-   *   left.
-   * @param tilt The forward inclination, degrees.
-   * @returns The joints with the chest and the spine written.
+   * Parameter joints: The posture's joints.
+   * Parameter twist: The trunk's twist, degrees; positive toward the performer's
+   * left.
+   * Parameter tilt: The forward inclination, degrees.
+   * Returns: The joints with the chest and the spine written.
    */
   export function trunk(
     joints: IAutoMovieMotionHumanPosture["joints"],
@@ -59,30 +58,41 @@ export namespace throwObjectRelease {
     ).joints;
   }
 
-  /** What the release place is read from. */
+  /*
+   * What the release place is read from.
+   */
   export interface IProps {
-    /** The thrower. */
+    /*
+     * The thrower.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The throwing hand. */
+    /*
+     * The throwing hand.
+     */
     side: AutoMovieHumanSide;
 
-    /** The style. */
+    /*
+     * The style.
+     */
     style: IAutoMovieMotionHumanThrowObjectForm.Style;
 
-    /** The standing posture the places are read on. */
+    /*
+     * The standing posture the places are read on.
+     */
     standing: IAutoMovieMotionHumanPosture;
 
-    /** The hand's world rotation at release. */
+    /*
+     * The hand's world rotation at release.
+     */
     held: IAutoMovieQuaternion;
   }
 
-  /**
+  /*
    * The grip's place at release.
-   *
-   * @param props The thrower, the hand, the style, the standing posture and the
-   *   held rotation.
-   * @returns World metres.
+   * Parameter props: The thrower, the hand, the style, the standing posture and the
+   * held rotation.
+   * Returns: World metres.
    */
   export function point(props: IProps): IAutoMovieVector3 {
     const { body, side, style, standing } = props;

@@ -31,7 +31,7 @@ import { HumanClaspClearance } from "./HumanClaspClearance";
 import { HumanGraspSearch } from "./HumanGraspSearch";
 import { HumanGrip } from "./HumanGrip";
 
-/**
+/*
  * Two people's hands clasping each other, palm on palm: the open hand each
  * offers, the turn each hand takes in its palm's plane, chosen for both
  * together, and the partner's hand as the colliders the fingers close on.
@@ -76,46 +76,63 @@ import { HumanGrip } from "./HumanGrip";
  * digits (`HumanGrip.close`).
  */
 export namespace HumanClasp {
-  /** One partner's hand in the clasp. */
+  /*
+   * One partner's hand in the clasp.
+   */
   export interface IHand {
-    /** The person's subject id. */
+    /*
+     * The person's subject id.
+     */
     subject: string;
 
-    /** The person's body. */
+    /*
+     * The person's body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The standing posture the arm is fitted in. */
+    /*
+     * The standing posture the arm is fitted in.
+     */
     posture: IAutoMovieMotionHumanPosture;
 
-    /** Where the palm faces, world unit vector. */
+    /*
+     * Where the palm faces, world unit vector.
+     */
     palm: IAutoMovieVector3;
 
-    /** Where the fingers point before the turn, world unit vector. */
+    /*
+     * Where the fingers point before the turn, world unit vector.
+     */
     fingers: IAutoMovieVector3;
   }
 
-  /** The clasp both partners take. */
+  /*
+   * The clasp both partners take.
+   */
   export interface IChoice {
-    /** This person's grip: its turn, its wrist goal, its shown hand and its arm. */
+    /*
+     * This person's grip: its turn, its wrist goal, its shown hand and its arm.
+     */
     mine: IAutoMovieMotionHumanGrasp.IReach;
 
-    /** The partner's grip, as the partner will take it. */
+    /*
+     * The partner's grip, as the partner will take it.
+     */
     theirs: IAutoMovieMotionHumanGrasp.IReach;
 
-    /**
+    /*
      * The least gap of either open hand's phalanges to the other's forearm,
      * metres.
      */
     clearance: number;
   }
 
-  /**
+  /*
    * The offered hand: flat, the thumb's three joints extended to the end of the
    * body's range.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @returns Clinical degrees of every digit bone of that hand.
+   * Parameter body: The body.
+   * Parameter side: The hand.
+   * Returns: Clinical degrees of every digit bone of that hand.
    */
   export function open(
     body: IAutoMovieMotionHumanBody,
@@ -139,8 +156,8 @@ export namespace HumanClasp {
     return joints;
   }
 
-  /**
-   * The turns of a clasping hand about its palm's normal that {@link choose}
+  /*
+   * The turns of a clasping hand about its palm's normal that choose
    * tries, degrees: half a quarter turn either way in steps of 7.5. A hand
    * turned farther than the wrist deviates is no longer offered along its
    * forearm, and the low elbow ends between two steps of 15 on the sweep's
@@ -151,7 +168,7 @@ export namespace HumanClasp {
     (_: unknown, i: number): number => -45 + 7.5 * i,
   );
 
-  /**
+  /*
    * The upper limits of the upper-arm bands of the Rapid Upper Limb Assessment,
    * degrees of the upper arm from hanging: 20, 45 and 90 (McAtamney and Corlett
    * 1993, Applied Ergonomics 24(2):91). A higher band is a costlier posture, so
@@ -159,7 +176,7 @@ export namespace HumanClasp {
    */
   export const BANDS: readonly number[] = [20, 45, 90];
 
-  /**
+  /*
    * The largest miss of a fit that still counts as reaching the clasp and the
    * pump's top and bottom, millimetres of the hand (the position's miss plus
    * the rotation's arc over the hand's length, `HumanGraspSearch`): the limb
@@ -170,17 +187,16 @@ export namespace HumanClasp {
    */
   export const REACHED: number = HumanArmTrajectoryTerms.TOLERANCE;
 
-  /**
+  /*
    * Choose both hands' turns about their palms' normals, with each palm socket
    * on the meeting point.
-   *
-   * @param side The shaking hand of both.
-   * @param meet The meeting point, world metres.
-   * @param amplitude The pump's amplitude about the point, metres; its top and
-   *   bottom are keys of every fit.
-   * @param mine This person's hand.
-   * @param theirs The partner's hand.
-   * @returns Both grips and their clearance.
+   * Parameter side: The shaking hand of both.
+   * Parameter meet: The meeting point, world metres.
+   * Parameter amplitude: The pump's amplitude about the point, metres; its top and
+   * bottom are keys of every fit.
+   * Parameter mine: This person's hand.
+   * Parameter theirs: The partner's hand.
+   * Returns: Both grips and their clearance.
    */
   export function choose(
     side: AutoMovieHumanSide,
@@ -355,19 +371,18 @@ export namespace HumanClasp {
     };
   }
 
-  /**
+  /*
    * Close one partner's digits round the other's hand at the clasp. The two
    * hands close in the order of their subject ids: the first closes from its
    * open hand on the second's open hand, and the second then closes on the
    * first's closed hand, so neither hand's digits end inside the other's (the
    * curl stops each phalanx on what it meets). Both partners compute both
    * closures from the same choice, so each shows the hand the other closed on.
-   *
-   * @param side The shaking hand of both.
-   * @param choice The clasp.
-   * @param mine This person's hand.
-   * @param theirs The partner's hand.
-   * @returns This person's closed digit angles, clinical degrees.
+   * Parameter side: The shaking hand of both.
+   * Parameter choice: The clasp.
+   * Parameter mine: This person's hand.
+   * Parameter theirs: The partner's hand.
+   * Returns: This person's closed digit angles, clinical degrees.
    */
   export function close(
     side: AutoMovieHumanSide,
@@ -433,14 +448,13 @@ export namespace HumanClasp {
     ).joints;
   }
 
-  /**
+  /*
    * A person's hand as the colliders another hand closes on: the hand, the
    * forearm and every digit on one side, placed by their posed bones.
-   *
-   * @param body The person.
-   * @param bones Their posed bones, world frame.
-   * @param side The hand.
-   * @returns The placed colliders.
+   * Parameter body: The person.
+   * Parameter bones: Their posed bones, world frame.
+   * Parameter side: The hand.
+   * Returns: The placed colliders.
    */
   export function colliders(
     body: IAutoMovieMotionHumanBody,
@@ -476,10 +490,12 @@ export namespace HumanClasp {
   }
 }
 
-/** The record of `IChooseBest`'s site. */
+/*
+ * The record of `IChooseBest`'s site.
+ */
 type IChooseBest = { i: number; j: number; clear: number; cost: number };
 
-/**
+/*
  * An angle in degrees carried as the arc it swings at a length in metres,
  * millimetres.
  */

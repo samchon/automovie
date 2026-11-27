@@ -3,17 +3,16 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-/**
+/*
  * Prepare the linear blend of two clinical joint maps (two hand shapes, or two
  * postures' or exercise keys' joints): every bone either map names, a bone a
  * map leaves out read as zero, each axis at `from + (to - from) * weight`. It
  * is the one owner of a linear joint-space blend; a joint blended as a rotation
  * is `blendHumanJoint`'s.
- *
- * @param from The first shape, clinical degrees by bone; read now.
- * @param to The second shape in the same axes; read now.
- * @returns The blend at a unitless weight, fresh tuples, without clipping or a
- *   time profile.
+ * Parameter from: The first shape, clinical degrees by bone; read now.
+ * Parameter to: The second shape in the same axes; read now.
+ * Returns: The blend at a unitless weight, fresh tuples, without clipping or a
+ * time profile.
  */
 export function prepareHumanShapeBlend(
   from: Readonly<IAutoMovieMotionHumanPosture["joints"]>,
@@ -43,20 +42,28 @@ export function prepareHumanShapeBlend(
   };
 }
 
-/**
+/*
  * One bone's first-shape angles and second-minus-first difference, clinical
  * degrees.
  */
 interface IKey {
-  /** The bone. */
+  /*
+   * The bone.
+   */
   bone: AutoMovieHumanoidBone;
 
-  /** The first shape's three clinical angles. */
+  /*
+   * The first shape's three clinical angles.
+   */
   origin: readonly [number, number, number];
 
-  /** The second shape's angles less the first's. */
+  /*
+   * The second shape's angles less the first's.
+   */
   difference: readonly [number, number, number];
 }
 
-/** The angles of a bone a shape leaves out. */
+/*
+ * The angles of a bone a shape leaves out.
+ */
 const ZERO: readonly [0, 0, 0] = [0, 0, 0];

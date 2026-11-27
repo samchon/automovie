@@ -7,7 +7,7 @@ import { MESH_WELD_GRID } from "../../constants/MESH_WELD_GRID";
 import { resolveAutoMovieMeshPhysicalVertices } from "../../math/internal/resolveAutoMovieMeshPhysicalVertices";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
-/**
+/*
  * Weld a mesh's triangle corners into the identities its topology is measured
  * over, the one weld `inspectAutoMovieMeshTopology` and
  * `measureAutoMovieMeshPieces` share.
@@ -19,12 +19,11 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * triangle whose corners round onto fewer than three lattice cells is
  * degenerate: its ordinal is listed and its corners carry no identity. The mesh
  * is only read.
- *
- * @param mesh Mesh to weld.
- * @param label Name the refusals give the mesh.
- * @returns The index run, each corner's identity and the degenerate ordinals.
- * @throws The `triangleIndicesOf` refusal for a malformed index buffer, and the
- *   physical correspondence refusals.
+ * Parameter mesh: Mesh to weld.
+ * Parameter label: Name the refusals give the mesh.
+ * Returns: The index run, each corner's identity and the degenerate ordinals.
+ * The `triangleIndicesOf` refusal for a malformed index buffer, and the
+ * physical correspondence refusals.
  */
 export const weldAutoMovieMeshCorners: (
   mesh: IAutoMovieMesh,
@@ -77,26 +76,34 @@ export const weldAutoMovieMeshCorners: (
   };
 };
 
-/** The result of welding one mesh's triangle corners. */
+/*
+ * The result of welding one mesh's triangle corners.
+ */
 export namespace weldAutoMovieMeshCorners {
-  /** One mesh's corners welded into topology identities. */
+  /*
+   * One mesh's corners welded into topology identities.
+   */
   export interface IResult {
-    /**
+    /*
      * The mesh's triangle index run, borrowed as `triangleIndicesOf` returns
      * it.
      */
     indices: number[];
 
-    /**
+    /*
      * Each index entry's identity, an integer in `[0, identities)`, or -1 for
      * every corner of a degenerate triangle.
      */
     corners: number[];
 
-    /** Ascending ordinals of the degenerate triangles. */
+    /*
+     * Ascending ordinals of the degenerate triangles.
+     */
     degenerate: number[];
 
-    /** How many identities the corners range over. */
+    /*
+     * How many identities the corners range over.
+     */
     identities: number;
   }
 }

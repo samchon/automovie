@@ -15,10 +15,10 @@ import type {
 import { composeLocalTransform } from "../../internal/composeLocalTransform";
 import { humanoidBoneOfName } from "../../internal/humanoidBoneOfName";
 
-/**
+/*
  * Retarget a parsed glTF's skins onto a normalized humanoid
- * {@link IAutoMovieSkeleton} by matching joint names to
- * {@link AutoMovieHumanoidBone} slots.
+ * IAutoMovieSkeleton by matching joint names to
+ * AutoMovieHumanoidBone slots.
  *
  * This naming-based mapper currently has test callers in this repository.
  * Production motion adoption uses an explicit mapping against inspected nodes,
@@ -33,7 +33,7 @@ import { humanoidBoneOfName } from "../../internal/humanoidBoneOfName";
  * The hierarchy is rebuilt over mapped joints only: a bone's parent is its
  * nearest mapped ancestor in the node tree, and the local TRS of every skipped
  * helper node between them composes into the bone's rest, because
- * {@link IAutoMovieBone.rest} is relative to `parent` and a dropped helper
+ * IAutoMovieBone.rest is relative to `parent` and a dropped helper
  * offset or roll would misplace every bone beneath it. With finite
  * unit-quaternion TRS inputs, composition represents the affine product up to
  * floating-point rounding when each helper scale commutes with its child
@@ -41,14 +41,13 @@ import { humanoidBoneOfName } from "../../internal/humanoidBoneOfName";
  * raw node TRS. A root bone keeps its own local TRS, since armature and scene
  * transforms belong to the imported object rather than the skeleton. Bones
  * carry no constraint.
- *
- * @param doc Parsed document; it is only read.
- * @param skeletonId Id copied verbatim to the returned skeleton; defaults to
- *   "skeleton" and is not validated here.
- * @returns The skeleton with bones in first-claim order, or `null` when no skin
- *   joint maps to the required `hips` slot.
- * @throws {Error} When a mapped joint's ancestors loop, which no glTF node
- *   hierarchy may.
+ * Parameter doc: Parsed document; it is only read.
+ * Parameter skeletonId: Id copied verbatim to the returned skeleton; defaults to
+ * "skeleton" and is not validated here.
+ * Returns: The skeleton with bones in first-claim order, or `null` when no skin
+ * joint maps to the required `hips` slot.
+ * When a mapped joint's ancestors loop, which no glTF node
+ * hierarchy may.
  */
 export function humanoidSkeleton(
   doc: Document,

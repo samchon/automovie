@@ -12,7 +12,7 @@ import { admitRecoveryCameraScene } from "./admitRecoveryCameraScene";
 import { createRecoveryCameraScene } from "./createRecoveryCameraScene";
 import { observeRecoveryCameraSet } from "./observeRecoveryCameraSet";
 
-/**
+/*
  * Estimate one bounded sparse component from fixed calibrated RGB images. Views
  * zero/one are the explicit seed. Further images are selected by existing map
  * support, registered independently, then committed with new registered-view

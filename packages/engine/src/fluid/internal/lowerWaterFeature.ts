@@ -9,7 +9,7 @@ import { sampleFluidDomain } from "./sampleFluidDomain";
 import { sampleFluidSpray } from "./sampleFluidSpray";
 import { simulateFluidDomain } from "./simulateFluidDomain";
 
-/**
+/*
  * Lower one bound water feature to its state, surface and spray at a shot
  * second.
  *

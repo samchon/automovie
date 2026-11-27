@@ -1,10 +1,10 @@
-/**
+/*
  * The kick's form: every coefficient of its contact solve, its carriage of the
  * body and its chamber, each with its source or marked provisional where no
  * study gives the value.
  */
 export namespace KickForm {
-  /**
+  /*
    * Knee flexion band at contact by technique, degrees: not locked, not jammed
    * (kickboxing research: "a bent knee can remain at delivery").
    */
@@ -12,13 +12,13 @@ export namespace KickForm {
     Record<FLEXIONEntryItem, readonly [number, number]>
   > = { round: [5, 40], push: [5, 35] };
 
-  /**
+  /*
    * Share of the shank from the knee at which the round kick's shin lands: the
    * lower shin (kickboxing research, surfaces table).
    */
   export const SHIN_SHARE: number = 0.7;
 
-  /**
+  /*
    * Where the target lies from the turned pelvis's forward toward the kicking
    * side at contact, degrees, by height band. A full turnover would put it at
    * 90 degrees and lift the leg by abduction alone, but the rig's hip abducts
@@ -32,26 +32,26 @@ export namespace KickForm {
     high: 15,
   };
 
-  /**
+  /*
    * The least lean of the whole body away from the target, degrees (provisional
    * reading of coaching photographs of low kicks).
    */
   export const LEAN_LEAST: number = 5;
 
-  /**
+  /*
    * The most lean of the whole body away from the target, degrees (provisional
    * reading of coaching photographs of head kicks).
    */
   export const LEAN_MOST: number = 40;
 
-  /**
+  /*
    * The step between the leans a kick tries, least first, degrees (provisional:
    * fine enough that the next lean changes the hip's height by under a tenth of
    * the thigh).
    */
   export const LEAN_STEP: number = 5;
 
-  /**
+  /*
    * Support heel raise and the most the support foot turns on its ball at
    * contact, degrees (provisional reading of the pivot on the ball).
    */
@@ -60,26 +60,26 @@ export namespace KickForm {
     turn: 60,
   };
 
-  /**
+  /*
    * The push kick's impact speed share: it drives through rather than snaps
    * (provisional, no measured teep).
    */
   export const PUSH_SPEED_SHARE: number = 0.8;
 
-  /**
+  /*
    * Knee flexion at the chamber key, degrees: the heel folded toward the thigh
    * (provisional reading of coaching photographs; inside the knee's 150 degree
    * range).
    */
   export const CHAMBER_FLEXION: number = 115;
 
-  /**
+  /*
    * The push kick's backward tip of the body at contact, degrees (provisional
    * reading of coaching photographs of the teep).
    */
   export const PUSH_PITCH: number = 8;
 
-  /**
+  /*
    * The most the push kick's thigh rises above the level at its chamber,
    * degrees: the knee is lifted to the target's height, as far as the hip
    * flexes with a folded knee (120 degrees from the standing leg, the clinical
@@ -87,27 +87,27 @@ export namespace KickForm {
    */
   export const PUSH_RAISE_MOST: number = 30;
 
-  /**
+  /*
    * How much of its shank's turn a push kick's ankle takes up while the leg
    * extends, degrees, so the sole faces the target before the knee is straight:
    * the ankle's dorsiflexion (20 degrees, the clinical range, AAOS).
    */
   export const PUSH_ANKLE_GIVE: number = 20;
 
-  /**
+  /*
    * Share of the way the root travels from its entry to over the support ankle
    * at contact (provisional: the centre of mass stays inside the support foot's
    * length).
    */
   export const CENTRE_SHARE: number = 0.8;
 
-  /**
+  /*
    * The most the support foot steps up toward a target beyond reach, as a share
    * of the stance length (provisional).
    */
   export const STEP_SHARE: number = 0.5;
 
-  /**
+  /*
    * The most the support foot steps back from a target too close, as a share of
    * the stature: a step, so no longer than the longest single backward step
    * measured, 75.4 % (SD 3.2) of height in younger women (Schulz, Ashton-Miller
@@ -115,7 +115,7 @@ export namespace KickForm {
    */
   export const STEP_BACK_SHARE: number = 0.754;
 
-  /**
+  /*
    * The least horizontal distance along the line the kicking hip keeps from the
    * planned point when the support foot steps up, as a share of the thigh
    * (provisional: within a thigh's length the knee passes the target and the
@@ -123,7 +123,7 @@ export namespace KickForm {
    */
   export const STEP_ROOM_SHARE: number = 1;
 
-  /**
+  /*
    * Share of the chamber phase by which the extension's unit overlaps the
    * chamber's, so the ankle rounds the chamber point instead of resting on it
    * (Flash and Hogan 1985 fit via-point movements by such overlapping units;
@@ -131,7 +131,7 @@ export namespace KickForm {
    */
   export const VIA_OVERLAP: number = 0.4;
 
-  /**
+  /*
    * The share of the lift by which the knee has folded to its chamber, the hip
    * taking the whole lift: one half. A leg leaving the floor folds its knee
    * before its thigh swings: in walking the knee is flexed 40 degrees at
@@ -143,20 +143,20 @@ export namespace KickForm {
    */
   export const KNEE_LEAD: number = 0.5;
 
-  /**
+  /*
    * The most the fitted leg may miss its solved ankle, and the support ball its
    * plant, for a kick to count as reached, metres (the limb fit's own
    * convergence scale).
    */
   export const TOLERANCE: number = 1e-3;
 
-  /**
+  /*
    * The most the fitted leg's weapon surface may lie from the planned point for
    * a kick to count as reached, metres: the capture verdicts' extension bound.
    */
   export const RESIDUAL: number = 0.015;
 
-  /**
+  /*
    * The round kick's travel at contact, as weights on the horizontal axis
    * across the line (toward the support side), on the line, and on the vertical
    * by height band: the shin arrives mostly across, slightly forward, cutting
@@ -169,7 +169,7 @@ export namespace KickForm {
     vertical: { low: -0.25, middle: 0, high: 0.1 },
   };
 
-  /**
+  /*
    * The height bands' upper bounds: low below this share of the waist height,
    * middle below this share of the shoulder height (provisional).
    */
@@ -178,55 +178,67 @@ export namespace KickForm {
     middle: 1.02,
   };
 
-  /**
+  /*
    * Share of the leg's full length a kick treats as its comfortable range when
    * it reads a target's standing distance (provisional).
    */
   export const RANGE_SHARE: number = 0.9;
 
-  /**
+  /*
    * The upward weight of the round kick's knee bend direction beside its
    * travel, so the knee leads above the shin (provisional).
    */
   export const BEND_RISE: number = 0.3;
 
-  /**
+  /*
    * How far the knee's bend hint sits from the solved knee, as a share of the
    * thigh (provisional).
    */
   export const HINT_SHARE: number = 0.25;
 
-  /**
+  /*
    * The foot capsule's radius as a share of the ankle height (provisional: half
    * the foot's depth).
    */
   export const FOOT_RADIUS_SHARE: number = 0.5;
 
-  /**
+  /*
    * Share of the recoil over which the foot returns from its contact rotation
    * to its chamber rotation, the first of the stroke's two return units
-   * ({@link StrikingStroke}).
+   * (StrikingStroke).
    */
   export const RECHAMBER_SHARE: number = 0.45;
 }
 
-/** The record of `IBAND`'s site. */
+/*
+ * The record of `IBAND`'s site.
+ */
 type IBAND = { readonly low: number; readonly middle: number };
 
-/** The record of `ITRAVEL`'s site. */
+/*
+ * The record of `ITRAVEL`'s site.
+ */
 type ITRAVEL = {
   readonly across: number;
   readonly along: number;
   readonly vertical: Readonly<Record<VerticalEntryItem, number>>;
 };
 
-/** The alternatives of `VerticalEntryItem`'s site. */
+/*
+ * The alternatives of `VerticalEntryItem`'s site.
+ */
 type VerticalEntryItem = "low" | "middle" | "high";
 
-/** The record of `IPIVOT`'s site. */
+/*
+ * The record of `IPIVOT`'s site.
+ */
 type IPIVOT = { readonly raise: number; readonly turn: number };
 
-/** The alternatives of `AZIMUTHEntryItem`'s site. */
+/*
+ * The alternatives of `AZIMUTHEntryItem`'s site.
+ */
 type AZIMUTHEntryItem = "low" | "middle" | "high";
-/** The alternatives of `FLEXIONEntryItem`'s site. */
+/*
+ * The alternatives of `FLEXIONEntryItem`'s site.
+ */
 type FLEXIONEntryItem = "round" | "push";

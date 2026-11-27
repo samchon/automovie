@@ -1,11 +1,10 @@
 import type { IAutoMoviePhysicalRecoveryState } from "@automovie/interface";
 
-/**
+/*
  * Where a limb's step under way is recorded: its latest unresolved record.
- *
- * @param steps The recovery's recorded steps, in time order.
- * @param bone The limb's endpoint bone.
- * @returns The record's index, or -1 when the limb has none.
+ * Parameter steps: The recovery's recorded steps, in time order.
+ * Parameter bone: The limb's endpoint bone.
+ * Returns: The record's index, or -1 when the limb has none.
  */
 export function physicalRecoveryStepRecord(
   steps: IAutoMoviePhysicalRecoveryState["steps"],

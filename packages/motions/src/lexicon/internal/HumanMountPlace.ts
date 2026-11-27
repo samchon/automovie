@@ -17,7 +17,7 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { HumanMount } from "./HumanMount";
 import { HumanMountPush } from "./HumanMountPush";
 
-/**
+/*
  * A seated thigh's flexion off its pelvis, degrees: the two-link knee
  * (`HumanMountPush.knee`) read in the pelvis's sagittal plane, forward of its
  * downward axis.
@@ -54,7 +54,7 @@ function hipFlexion(
   );
 }
 
-/**
+/*
  * The hip's flexion range's upper bound, degrees: the range table's for the
  * body's thigh.
  */
@@ -70,21 +70,20 @@ function hipRange(
   return constraint?.flexion?.max ?? Infinity;
 }
 
-/**
+/*
  * A foot's end on a high seat.
- *
- * @param body The body.
- * @param side The foot.
- * @param hip The seated hip joint, world metres.
- * @param yaw The seated heading, degrees.
- * @param pitch The seated pelvis's pitch, degrees, forward positive.
- * @param astride Whether the seat is sat astride.
- * @param tread The rest's tread the ball goes on, world metres, if the seat
- *   names one for this side.
- * @param under The floor's height, world metres.
- * @returns The end.
- * @throws {HumanRefusal} When the rest the leg spans asks the hip to flex past
- *   its range from the seated pelvis, with that range.
+ * Parameter body: The body.
+ * Parameter side: The foot.
+ * Parameter hip: The seated hip joint, world metres.
+ * Parameter yaw: The seated heading, degrees.
+ * Parameter pitch: The seated pelvis's pitch, degrees, forward positive.
+ * Parameter astride: Whether the seat is sat astride.
+ * Parameter tread: The rest's tread the ball goes on, world metres, if the seat
+ * names one for this side.
+ * Parameter under: The floor's height, world metres.
+ * Returns: The end.
+ * When the rest the leg spans asks the hip to flex past
+ * its range from the seated pelvis, with that range.
  */
 export function HumanMountPlace(
   body: IAutoMovieMotionHumanBody,
@@ -166,24 +165,34 @@ export function HumanMountPlace(
   };
 }
 
-/**
+/*
  * Where each foot ends on a high seat (`HumanMountOn`): on its rest when the
  * seated leg reaches it, on the floor when the hanging leg would pass it,
  * hanging under a thigh in the direction `HumanMount.HANG` gives otherwise.
  */
 export namespace HumanMountPlace {
-  /** Where a foot ends and what bears it there. */
+  /*
+   * Where a foot ends and what bears it there.
+   */
   export interface IPlace {
-    /** The foot's final placement. */
+    /*
+     * The foot's final placement.
+     */
     foot: HumanMount.IFoot;
 
-    /** Whether it bears on a rest or the floor there. */
+    /*
+     * Whether it bears on a rest or the floor there.
+     */
     rests: boolean;
 
-    /** Whether the leg reaches the seat's declared footrest. */
+    /*
+     * Whether the leg reaches the seat's declared footrest.
+     */
     tread: boolean;
 
-    /** The height of what bears it, world metres. */
+    /*
+     * The height of what bears it, world metres.
+     */
     height: number;
   }
 }

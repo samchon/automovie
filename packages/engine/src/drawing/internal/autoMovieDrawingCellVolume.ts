@@ -7,13 +7,17 @@ import { Vector3 } from "../../math/Vector3";
 import { convexHull2D } from "../../math/internal/convexHull2D";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
-/** Distance in metres within which a corner counts as on or inside a plane. */
+/*
+ * Distance in metres within which a corner counts as on or inside a plane.
+ */
 const ON_PLANE_TOLERANCE: number = 1e-6;
 
-/** Determinant below which three plane normals do not meet in one corner. */
+/*
+ * Determinant below which three plane normals do not meet in one corner.
+ */
 const SINGULAR_DETERMINANT: number = 1e-9;
 
-/**
+/*
  * Volume of one bounded convex cell in cubic metres, from its own half-spaces,
  * or `null` when the cell is unbounded or degenerate.
  *
@@ -29,10 +33,9 @@ const SINGULAR_DETERMINANT: number = 1e-9;
  * top would otherwise report zero, and a wedge with two capping planes would
  * report a wrong number. Planes repeated exactly or as a scaled copy are
  * counted once, so a repeated half-space adds no second cone.
- *
- * @param planes The cell's half-spaces `normal . p <= offset`; normals must be
- *   non-zero, which validation enforces, and need not be unit length.
- * @returns The cell's volume in cubic metres, or `null`.
+ * Parameter planes: The cell's half-spaces `normal . p <= offset`; normals must be
+ * non-zero, which validation enforces, and need not be unit length.
+ * Returns: The cell's volume in cubic metres, or `null`.
  */
 export const autoMovieDrawingCellVolume = (
   planes: readonly IAutoMovieHalfSpacePlane[],
@@ -132,7 +135,9 @@ export const autoMovieDrawingCellVolume = (
   return volume;
 };
 
-/** Two unit axes spanning the plane whose unit normal is given. */
+/*
+ * Two unit axes spanning the plane whose unit normal is given.
+ */
 const faceBasis = (
   normal: IAutoMovieVector3,
 ): { right: IAutoMovieVector3; up: IAutoMovieVector3 } => {
@@ -146,7 +151,9 @@ const faceBasis = (
   return { right, up: Vector3.cross(normal, right) };
 };
 
-/** The one point three planes share, or `null` when two are parallel. */
+/*
+ * The one point three planes share, or `null` when two are parallel.
+ */
 const intersectPlanes = (
   first: IUnitPlane,
   second: IUnitPlane,
@@ -169,7 +176,9 @@ const intersectPlanes = (
   );
 };
 
-/** A half-space restated with a unit normal, so its offset is a distance. */
+/*
+ * A half-space restated with a unit normal, so its offset is a distance.
+ */
 interface IUnitPlane {
   normal: IAutoMovieVector3;
   offset: number;

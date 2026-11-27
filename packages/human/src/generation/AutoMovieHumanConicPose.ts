@@ -33,7 +33,9 @@ import type {
  */
 export namespace AutoMovieHumanConicPose {
 
-  /** Twists under this many radians are none: far above the rounding of an angle between unit vectors (1e-16), far below any joint's motion. */
+  /*
+   * Twists under this many radians are none: far above the rounding of an angle between unit vectors (1e-16), far below any joint's motion.
+   */
   const NO_TWIST: number = 1e-12;
 
   /**
@@ -139,7 +141,9 @@ export namespace AutoMovieHumanConicPose {
     };
   }
 
-  /** The stations where a course's law changes: its start, each turn's start and end, and its end. */
+  /*
+   * The stations where a course's law changes: its start, each turn's start and end, and its end.
+   */
   function breaks(c: IAutoMovieHumanConicPose.ICourse): number[] {
     return [
       0,

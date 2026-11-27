@@ -26,19 +26,23 @@ import { pathAutoMovieSweepTransport } from "./pathAutoMovieSweepTransport";
 import { sampleAutoMovieSweepSection } from "./sampleAutoMovieSweepSection";
 import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Directions each section is sampled in; the radius between two is linear in
  * angle.
  */
 const DIRECTIONS: number = 512;
 
-/** Cached rows of guided radii before the cache is cleared. */
+/*
+ * Cached rows of guided radii before the cache is cleared.
+ */
 const CACHE_LIMIT: number = 8192;
 
-/** Parameter step of the central differences for normals and derivatives. */
+/*
+ * Parameter step of the central differences for normals and derivatives.
+ */
 const STEP: number = 1e-4;
 
-/**
+/*
  * Compile a sweep into an evaluable surface.
  *
  * Under direction correspondence, the default, each station's section is
@@ -95,14 +99,13 @@ const STEP: number = 1e-4;
  * interpolates key-ellipse orientations (Hyun et al. 2005, The Visual Computer
  * 21(8-10):542-550), and held beyond the end stations;
  * `loadAutoMovieSweepSpine` and `orientAutoMovieSweep` compute both.
- *
- * @param sweep The sweep, only read and retained by the returned surface.
- * @returns The compiled surface.
- * @throws Error when the spine is refused by `frameAutoMovieSweepSpine`, a
- *   section by `sampleAutoMovieSweepSection`, a station, guide or feature is
- *   out of range, unordered or not finite, or two guides share a direction;
- *   and, when a row is first evaluated, when a profile, guide, feature or scale
- *   query is non-positive or not finite.
+ * Parameter sweep: The sweep, only read and retained by the returned surface.
+ * Returns: The compiled surface.
+ * Error when the spine is refused by `frameAutoMovieSweepSpine`, a
+ * section by `sampleAutoMovieSweepSection`, a station, guide or feature is
+ * out of range, unordered or not finite, or two guides share a direction;
+ * and, when a row is first evaluated, when a profile, guide, feature or scale
+ * query is non-positive or not finite.
  */
 export const compileAutoMovieSweep: (
   sweep: IAutoMovieSweep,
@@ -374,13 +377,13 @@ export const compileAutoMovieSweep: (
   };
 };
 
-/**
+/*
  * Samples of a smooth section under parameter correspondence; a polygon is
  * sampled at its corners.
  */
 const PARAMETER_SAMPLES: number = 512;
 
-/**
+/*
  * Compile one loop of a sweep by parameter: each station's curve sampled at the
  * same parameters, each sample's coordinates interpolated along the spine by
  * the spline, linear between samples.
@@ -445,7 +448,7 @@ function compileLoop(
   };
 }
 
-/**
+/*
  * Correct a row of section radii by the guides, the Gordon surface's guide term
  * less its tensor term.
  *
@@ -485,10 +488,14 @@ function guide(
   return out;
 }
 
-/** One loop of a sweep by parameter: its point at any spine and loop parameter. */
+/*
+ * One loop of a sweep by parameter: its point at any spine and loop parameter.
+ */
 interface ICompiledLoop {
   point: (u: number, v: number) => IAutoMovieSweepSection.IPoint;
 }
 
-/** One compiled silhouette guide. */
+/*
+ * One compiled silhouette guide.
+ */
 type ICompiledGuide = IAutoMovieCompileSweepGuideOutput;

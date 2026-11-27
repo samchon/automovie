@@ -17,7 +17,7 @@ import type { readAutoMovieCollisionMesh } from "./readAutoMovieCollisionMesh.js
 import { readAutoMovieCollisionTopology } from "./readAutoMovieCollisionTopology.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 
-/**
+/*
  * Read each drawn instance of a batch, named by the generator's slot when it
  * recorded one.
  *
@@ -25,12 +25,11 @@ import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
  * instance is a world envelope over its static geometry or every baked sample
  * of its playing cycle, with a surface posed by the vertex stage's own law. A
  * zero-scale instance draws nothing and is skipped.
- *
- * @param mesh The drawn batch.
- * @param identity Path prefix for instances without a generator record.
- * @param budget Posed vertices the frame may still spend; charged when a
- *   surface is read.
- * @param add Receives each part, its lazy surface and any unsupported reason.
+ * Parameter mesh: The drawn batch.
+ * Parameter identity: Path prefix for instances without a generator record.
+ * Parameter budget: Posed vertices the frame may still spend; charged when a
+ * surface is read.
+ * Parameter add: Receives each part, its lazy surface and any unsupported reason.
  */
 export function readAutoMovieCollisionInstances(
   mesh: THREE.InstancedMesh,
@@ -131,7 +130,7 @@ export function readAutoMovieCollisionInstances(
   }
 }
 
-/**
+/*
  * Admit stock surfaces drawn by the default program, or by the formation cycle
  * program when the batch has a cycle: the cycle's patch alone, since the
  * envelope follows only the cycle's vertex law and another patch would move the
@@ -153,7 +152,7 @@ function admits(mesh: THREE.InstancedMesh, cyclic: boolean): boolean {
   );
 }
 
-/**
+/*
  * The vertex stage's law for one member: fract(phase + advance + radius *
  * turn), with the radius read from the instance translation in the unit's XZ
  * plane, then the part's mixed baked matrix and the member's placement.
@@ -200,7 +199,7 @@ function cyclePose(
   };
 }
 
-/**
+/*
  * Linear mixes of two samples keep each point inside their segment, so the
  * samples bound every phase.
  */
@@ -239,7 +238,9 @@ function cycleBounds(
   return result;
 }
 
-/** One stored rest-to-posed matrix, read exactly as the table holds it. */
+/*
+ * One stored rest-to-posed matrix, read exactly as the table holds it.
+ */
 function exactSample(
   take: IAutoMovieFormationCycleTake,
   cycle: IAutoMovieFormationCycle,

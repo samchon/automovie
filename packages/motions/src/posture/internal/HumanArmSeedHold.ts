@@ -19,18 +19,17 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmWristShell } from "./HumanArmWristShell";
 
-/**
+/*
  * The arms' configuration at one waypoint of the hold with every hand on its
  * site and every arm clear.
- *
- * @param problem The hold's problem.
- * @param context The context prepared on the full knot set.
- * @param k The hold's knot index.
- * @param given The previous hold's coordinates or the caller's preferred seed.
- * @param proposed The course's proposed coordinates at this knot.
- * @returns Each arm's admitted coordinates.
- * @throws {HumanRefusal} When the reach bound or the inverse kinematics
- *   refuses.
+ * Parameter problem: The hold's problem.
+ * Parameter context: The context prepared on the full knot set.
+ * Parameter k: The hold's knot index.
+ * Parameter given: The previous hold's coordinates or the caller's preferred seed.
+ * Parameter proposed: The course's proposed coordinates at this knot.
+ * Returns: Each arm's admitted coordinates.
+ * When the reach bound or the inverse kinematics
+ * refuses.
  */
 export function HumanArmSeedHold(
   problem: HumanArmSeed.IProblem,
@@ -300,10 +299,12 @@ export function HumanArmSeedHold(
     fix: "put the hand on a site its arm reaches with the body clear",
   });
 }
-/** The record of `IInstantAt`'s site. */
+/*
+ * The record of `IInstantAt`'s site.
+ */
 type IInstantAt = { x: number[][][]; evaluation: M.IEvaluation };
 
-/**
+/*
  * Predict the next hold pose using the site and the carried pose in this knot's
  * frames. A riding site is read from the other arm in the same pose. Correct a
  * proposed pose towards the nearest region point so a nearly admitted contact

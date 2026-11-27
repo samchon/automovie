@@ -8,17 +8,16 @@ import type { IAutoMoviePhysicalBalanceTrace } from "../IAutoMoviePhysicalBalanc
 import { physicalRecoverySwing } from "./physicalRecoverySwing";
 import { resolvePhysicalRecoveryStep } from "./resolvePhysicalRecoveryStep";
 
-/**
+/*
  * The balance controller's handoff phase (`advancePhysicalBalance`): authored
  * motion taking endpoints back. A step under way on an endpoint the authored
  * motion now owns cancels every step under way, counted neither as a landing
  * nor as a fall; an endpoint's retained landing offset is handed back to the
  * authored motion and the handoff recorded.
- *
- * @param input The recovery's state, the endpoints authored motion owns this
- *   substep, the present local seconds and the trace to record into, if any.
- * @returns The state after the handoff, a new one, or the input itself when
- *   nothing is handed back; the input is never written.
+ * Parameter input: The recovery's state, the endpoints authored motion owns this
+ * substep, the present local seconds and the trace to record into, if any.
+ * Returns: The state after the handoff, a new one, or the input itself when
+ * nothing is handed back; the input is never written.
  */
 export function physicalBalanceHandoff(input: {
   state: Readonly<IAutoMoviePhysicalRecoveryState>;

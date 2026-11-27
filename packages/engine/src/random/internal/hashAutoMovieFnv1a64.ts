@@ -1,4 +1,4 @@
-/**
+/*
  * The 64-bit FNV-1a hash of a byte sequence, as sixteen lowercase hexadecimal
  * digits (Fowler, Noll and Vo; IETF draft-eastlake-fnv: offset basis
  * 0xcbf29ce484222325, prime 0x100000001b3). Each byte is xored into the low
@@ -6,9 +6,8 @@
  * two 32-bit words: the low word's product with 0x1b3 is below 2^41 and exact
  * in a double, and the prime's 2^40 term moves the low word eight bits into the
  * high word. A fast, well-dispersing non-cryptographic hash.
- *
- * @param bytes The bytes.
- * @returns The hash, `/^[0-9a-f]{16}$/`.
+ * Parameter bytes: The bytes.
+ * Returns: The hash, `/^[0-9a-f]{16}$/`.
  */
 export function hashAutoMovieFnv1a64(bytes: Iterable<number>): string {
   let high: number = 0xcbf29ce4;

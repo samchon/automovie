@@ -9,7 +9,7 @@ import { GhoshConicApproximationBalance as balance } from "./GhoshConicApproxima
 import { GhoshConicApproximationDisplacement as displacement } from "./GhoshConicApproximationDisplacement";
 import { AutoMovieRecoveryConicApproximation as C } from "../AutoMovieRecoveryConicApproximation";
 
-/**
+/*
  * Numerically reproduce the endpoint-bitangent equioscillation construction of
  * Ghosh, Petitjean and Vegter, Approximation by Conic Splines (2007), sections
  * 3.2–3.4 and 6, DOI 10.1007/s11786-007-0004-8.
@@ -36,19 +36,25 @@ export function approximateAutoMovieRecoveryConicsGhosh(
   curve: IAutoMoviePlanarCurveSource,
   options: IAutoMovieConicApproximation.IOptions,
 ): IAutoMovieConicApproximation.IResult {
-  /** A source point and its Euclidean unit normal, in the caller's frame. */
+  /*
+   * A source point and its Euclidean unit normal, in the caller's frame.
+   */
   interface Sample {
     point: Readonly<AutoMovieVector2Tuple>;
     normal: Readonly<AutoMovieVector2Tuple>;
   }
 
-  /** Source and normal expressed in the endpoint tangent triangle. */
+  /*
+   * Source and normal expressed in the endpoint tangent triangle.
+   */
   interface Coordinate {
     value: readonly number[];
     normal: readonly number[];
   }
 
-  /** A pending chart never crosses a caller-supplied source break. */
+  /*
+   * A pending chart never crosses a caller-supplied source break.
+   */
   interface Interval {
     a: number;
     b: number;
@@ -63,7 +69,7 @@ export function approximateAutoMovieRecoveryConicsGhosh(
   let sourceFailure: string | undefined;
   const roundoff: number = 128 * Number.EPSILON;
 
-  /**
+  /*
    * Root-rounding residual admission changes the decision, never the source
    * jet.
    */
@@ -80,7 +86,9 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     return Math.abs(C.cross(v, a)) <= roundoff * scale;
   }
 
-  /** Count every source callback and reject nonfinite data at its first use. */
+  /*
+   * Count every source callback and reject nonfinite data at its first use.
+   */
   function point(
     t: number,
     order: 0 | 1 | 2 | 3 | 4 = 0,
@@ -103,7 +111,9 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     }
   }
 
-  /** Form a local vector without retaining or modifying the source tuple. */
+  /*
+   * Form a local vector without retaining or modifying the source tuple.
+   */
   function subtract(
     a: Readonly<AutoMovieVector2Tuple>,
     b: Readonly<AutoMovieVector2Tuple>,
@@ -111,7 +121,9 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     return [a[0] - b[0], a[1] - b[1]];
   }
 
-  /** Sample proposition 2.3; this is evidence of admission, not a proof of it. */
+  /*
+   * Sample proposition 2.3; this is evidence of admission, not a proof of it.
+   */
   function admit(a: number, b: number): "regular" | "line" | string {
     let sign: number = 0;
     let trend: number = 0;
@@ -196,7 +208,9 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     return "regular";
   }
 
-  /** Exact straight input is a declared extension beyond the paper's premise. */
+  /*
+   * Exact straight input is a declared extension beyond the paper's premise.
+   */
   function line(
     a: number,
     b: number,
@@ -231,7 +245,9 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     };
   }
 
-  /** Fit the one-parameter bitangent family, never free least-squares controls. */
+  /*
+   * Fit the one-parameter bitangent family, never free least-squares controls.
+   */
   function fit(a: number, b: number): IAutoMovieRegisteredConicArc | undefined {
     const p: Readonly<AutoMovieVector2Tuple> = point(a);
     const q: Readonly<AutoMovieVector2Tuple> = point(b);
@@ -253,7 +269,9 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     const area: number = C.cross(x, y);
     if (area === 0) return undefined;
 
-    /** Affine barycentric coordinates are linear, including along a normal. */
+    /*
+     * Affine barycentric coordinates are linear, including along a normal.
+     */
     function coordinates(sample: Sample): Coordinate {
       const delta: Readonly<AutoMovieVector2Tuple> = subtract(sample.point, p);
       const l1: number = C.cross(delta, y) / area;
@@ -263,7 +281,9 @@ export function approximateAutoMovieRecoveryConicsGhosh(
       return { value: [1 - l1 - l2, l1, l2], normal: [-n1 - n2, n1, n2] };
     }
 
-    /** Source evaluation is cached once across the coefficient bisections. */
+    /*
+     * Source evaluation is cached once across the coefficient bisections.
+     */
     function sample(t: number): Coordinate | undefined {
       const position: Readonly<AutoMovieVector2Tuple> = point(t);
       const tangent: Readonly<AutoMovieVector2Tuple> = point(t, 1);
@@ -345,7 +365,9 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     };
   }
 
-  /** Construct an immutable report, with omissions distinct from fit precision. */
+  /*
+   * Construct an immutable report, with omissions distinct from fit precision.
+   */
   function result(): IAutoMovieConicApproximation.IResult {
     return {
       method:

@@ -10,7 +10,7 @@ import type {
   IAutoMovieRecoveryObservationTransportRefused,
 } from "@automovie/interface";
 
-/**
+/*
  * Transport a closed observation chart through uniquely ordered persistent
  * anchors. Incoming anchor phases stay fixed; intervening observations use
  * physical PL arc fractions. A crossing of the incoming seam inserts one

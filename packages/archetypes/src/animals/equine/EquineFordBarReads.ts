@@ -4,9 +4,13 @@ import type { IAutoMovieModelPart } from "@automovie/interface";
 import { type AutoMovieArchetype } from "../../core";
 import { EquineFordConstants } from "./EquineFordConstants";
 
-/** Read the articulated bar a ford clearance calculation uses. */
+/*
+ * Read the articulated bar a ford clearance calculation uses.
+ */
 export namespace EquineFordBarReads {
-  /** A part of a model. */
+  /*
+   * A part of a model.
+   */
   export function part(
     model: Pick<AutoMovieArchetype, "parts">,
     id: string,
@@ -19,7 +23,9 @@ export namespace EquineFordBarReads {
     return found;
   }
 
-  /** The highest surface of a bar, metres in its model. */
+  /*
+   * The highest surface of a bar, metres in its model.
+   */
   export function top(bar: IAutoMovieModelPart): number {
     const solid: EquineFordConstants.IBar = shape(bar);
     const up: number = Quaternion.rotateVectorY(
@@ -34,7 +40,9 @@ export namespace EquineFordBarReads {
     );
   }
 
-  /** A bar's cylinder or capsule. */
+  /*
+   * A bar's cylinder or capsule.
+   */
   export function shape(bar: IAutoMovieModelPart): EquineFordConstants.IBar {
     const geometry: IAutoMovieModelPart["geometry"] = bar.geometry;
     if (

@@ -1,7 +1,7 @@
 import type { HumanKnot } from "./HumanKnot";
 import { prepareHumanKnotCourse } from "./prepareHumanKnotCourse";
 
-/**
+/*
  * Place the knots of an expensive vector function adaptively and join them by
  * the shared knot course: AutoKnots (Vitenti, de Simoni, Penna-Lima and Barroso
  * 2024, "AutoKnots: Adaptive Knot Allocation for Spline Interpolation",
@@ -38,9 +38,8 @@ import { prepareHumanKnotCourse } from "./prepareHumanKnotCourse";
  * `absolute`); and the refinement pass resets no sub-interval whose excess over
  * the mean width is within 16 ulps of the interval's length, since widths equal
  * in exact arithmetic differ by rounding alone.
- *
- * @param props The function, its interval, the tolerance and the limits.
- * @returns The knots and their course.
+ * Parameter props: The function, its interval, the tolerance and the limits.
+ * Returns: The knots and their course.
  */
 export function prepareHumanAdaptiveKnots(
   props: prepareHumanAdaptiveKnots.IProps,
@@ -57,19 +56,20 @@ export function prepareHumanAdaptiveKnots(
     });
   return { times: knots.times, values: knots.values, course: knots.course };
 }
-/** Companion types of {@link prepareHumanAdaptiveKnots}. */
+/*
+ * Companion types of prepareHumanAdaptiveKnots.
+ */
 export namespace prepareHumanAdaptiveKnots {
-  /**
+  /*
    * AutoKnots where each evaluation is seeded from the knot before it, and a
    * sub-interval converges only where the caller's own condition holds too: a
    * solve whose answer continues its neighbour's (a branch kept, a swivel
    * continued). The initial knots are evaluated in ascending order, each from
    * the one before; a midpoint is evaluated from its sub-interval's first
    * knot.
-   *
-   * @param props The seeded function, its interval, the tolerance, the extra
-   *   condition and the limits.
-   * @returns The knots, each with its payload, and their course.
+   * Parameter props: The seeded function, its interval, the tolerance, the extra
+   * condition and the limits.
+   * Returns: The knots, each with its payload, and their course.
    */
   export function seeded<T>(props: ISeededProps<T>): ISeededKnots<T> {
     const refine: number = props.refine ?? 1;
@@ -214,82 +214,103 @@ export namespace prepareHumanAdaptiveKnots {
     };
   }
 
-  /** One evaluation: the function's values and what the solve gave besides. */
+  /*
+   * One evaluation: the function's values and what the solve gave besides.
+   */
   export interface IPoint<T> {
-    /** The values, one per component. */
+    /*
+     * The values, one per component.
+     */
     values: readonly number[];
 
-    /** The solve's own result, which seeds the evaluation after it. */
+    /*
+     * The solve's own result, which seeds the evaluation after it.
+     */
     payload: T;
   }
 
-  /** What seeded knots are placed for (`seeded`). */
+  /*
+   * What seeded knots are placed for (`seeded`).
+   */
   export interface ISeededProps<T> extends Omit<IProps, "evaluate"> {
-    /**
+    /*
      * The function at a time, seeded from the knot before it.
-     *
-     * @param time The time.
-     * @param near The knot the evaluation continues; none for the first.
-     * @returns The evaluation.
+     * Parameter time: The time.
+     * Parameter near: The knot the evaluation continues; none for the first.
+     * Returns: The evaluation.
      */
     evaluate(time: number, near: IPoint<T> | undefined): IPoint<T>;
 
-    /**
+    /*
      * The caller's own condition on a tested midpoint, besides the paper's.
-     *
-     * @param middle The midpoint's evaluation.
-     * @param left The sub-interval's first knot.
-     * @param right Its last.
-     * @returns Whether the sub-interval may converge.
+     * Parameter middle: The midpoint's evaluation.
+     * Parameter left: The sub-interval's first knot.
+     * Parameter right: Its last.
+     * Returns: Whether the sub-interval may converge.
      */
     accept?(middle: IPoint<T>, left: IPoint<T>, right: IPoint<T>): boolean;
   }
 
-  /** Seeded knots, each with its payload. */
+  /*
+   * Seeded knots, each with its payload.
+   */
   export interface ISeededKnots<T> extends IKnots {
-    /** Each knot's payload. */
+    /*
+     * Each knot's payload.
+     */
     payloads: readonly T[];
   }
-  /** What the knots are placed for. */
+  /*
+   * What the knots are placed for.
+   */
   export interface IProps {
-    /** The interval's first time. */
+    /*
+     * The interval's first time.
+     */
     from: number;
 
-    /** The interval's last time, after `from`. */
+    /*
+     * The interval's last time, after `from`.
+     */
     to: number;
 
-    /**
+    /*
      * The function at a time: one value per component, the same count at every
      * time. Each call is a knot.
-     *
-     * @param time The time.
-     * @returns The values.
+     * Parameter time: The time.
+     * Returns: The values.
      */
     evaluate(time: number): readonly number[];
 
-    /** The acceptance tolerance, from the call site's own requirement. */
+    /*
+     * The acceptance tolerance, from the call site's own requirement.
+     */
     tolerance: Tolerance;
 
-    /**
+    /*
      * Event times inside the interpolation interval, included in the first
      * grid.
      */
     requiredTimes?: readonly number[];
 
-    /** Refinement passes (`refine`); one when absent, as the paper advises. */
+    /*
+     * Refinement passes (`refine`); one when absent, as the paper advises.
+     */
     refine?: number;
 
-    /**
+    /*
      * The standard deviations past the mean width that reset a sub-interval in
      * refinement (`refine_ns`); one when absent, as the paper advises.
      */
     deviations?: number;
 
-    /** The most knots (`max_nodes`); unbounded when absent. */
+    /*
+     * The most knots (`max_nodes`); unbounded when absent.
+     */
     maxKnots?: number;
   }
 
-  /**
+  /*
    * The paper's tolerance: relative `δ` with scale `ε`, or the absolute limit
    * of that criterion as `δ → 0` with `δ ε` held at the bound, where the
    * requirement is in the function's own units (a millimetre, a degree).
@@ -298,45 +319,71 @@ export namespace prepareHumanAdaptiveKnots {
     | { kind: "relative"; relative: number; scale: number }
     | { kind: "absolute"; absolute: number };
 
-  /** The placed knots and their course. */
+  /*
+   * The placed knots and their course.
+   */
   export interface IKnots {
-    /** The knots' times, ascending. */
+    /*
+     * The knots' times, ascending.
+     */
     times: readonly number[];
 
-    /** The function's values at the knots. */
+    /*
+     * The function's values at the knots.
+     */
     values: readonly (readonly number[])[];
 
-    /** The shared knot course through them. */
+    /*
+     * The shared knot course through them.
+     */
     course: prepareHumanKnotCourse.ICourse;
   }
 }
 
-/** A tested sub-interval's midpoint knot and whether it passed. */
+/*
+ * A tested sub-interval's midpoint knot and whether it passed.
+ */
 interface ISplit<T> {
-  /** The midpoint. */
+  /*
+   * The midpoint.
+   */
   at: number;
 
-  /** The evaluation there. */
+  /*
+   * The evaluation there.
+   */
   point: prepareHumanAdaptiveKnots.IPoint<T>;
 
-  /** Whether every criterion held there. */
+  /*
+   * Whether every criterion held there.
+   */
   pass: boolean;
 }
 
-/** The paper's initial knot count: the not-a-knot spline's least. */
+/*
+ * The paper's initial knot count: the not-a-knot spline's least.
+ */
 const INITIAL: number = 6;
 
-/** The relative rounding of a sum of a few doubles: a handful of ulps. */
+/*
+ * The relative rounding of a sum of a few doubles: a handful of ulps.
+ */
 const ROUNDING: number = 16 * Number.EPSILON;
 
-/** The status a converged sub-interval reaches (`s_conv`). */
+/*
+ * The status a converged sub-interval reaches (`s_conv`).
+ */
 const CONVERGED: number = 1;
 
-/** Three-point Gauss-Legendre nodes on [-1, 1] and their weights. */
+/*
+ * Three-point Gauss-Legendre nodes on [-1, 1] and their weights.
+ */
 const NODES: readonly number[] = [-Math.sqrt(3 / 5), 0, Math.sqrt(3 / 5)];
 const WEIGHTS: readonly number[] = [5 / 9, 8 / 9, 5 / 9];
 
-/** The shared knot course through the knots at their own times. */
+/*
+ * The shared knot course through the knots at their own times.
+ */
 function join(
   times: readonly number[],
   values: readonly (readonly number[])[],
@@ -352,7 +399,9 @@ function join(
   );
 }
 
-/** The course's integral over [a, b], per component. */
+/*
+ * The course's integral over [a, b], per component.
+ */
 function gauss(
   course: prepareHumanKnotCourse.ICourse,
   a: number,

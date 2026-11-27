@@ -11,57 +11,74 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * A rope as a taut line: a fixed prop's `bar` affordance between its two ends
  * in world metres, its axis along the bar's `+X`. The upper end of an upright
  * line is its anchor.
  */
 export namespace ropeLine {
-  /** The placement reader and film start a rope line uses. */
+  /*
+   * The placement reader and film start a rope line uses.
+   */
   export type IRead = Pick<
     IAutoMovieMotionHumanActionContext,
     "prop" | "start"
   >;
 
-  /** The staged action's root and fallback target reader. */
+  /*
+   * The staged action's root and fallback target reader.
+   */
   export interface IAim {
-    /** Root of the character on the climb's entering frame. */
+    /*
+     * Root of the character on the climb's entering frame.
+     */
     entry: { posture: Pick<IAutoMovieMotionHumanPosture, "root"> };
 
-    /** Resolve any unstaged target on its film clock. */
+    /*
+     * Resolve any unstaged target on its film clock.
+     */
     aim: IAutoMovieMotionHumanActionContext["aim"];
   }
 
-  /** A rope line in world metres. */
+  /*
+   * A rope line in world metres.
+   */
   export interface ILine {
-    /** The line's lower end, or its `-X` end when level, world metres. */
+    /*
+     * The line's lower end, or its `-X` end when level, world metres.
+     */
     low: IAutoMovieVector3;
 
-    /**
+    /*
      * The line's upper end, the anchor, or its `+X` end when level, world
      * metres.
      */
     high: IAutoMovieVector3;
 
-    /** Unit direction from low to high. */
+    /*
+     * Unit direction from low to high.
+     */
     axis: IAutoMovieVector3;
 
-    /** Length, metres. */
+    /*
+     * Length, metres.
+     */
     length: number;
 
-    /** The floor the rope's prop stands on, its origin's height, world metres. */
+    /*
+     * The floor the rope's prop stands on, its origin's height, world metres.
+     */
     floor: number;
   }
 
-  /**
+  /*
    * Read a rope line.
-   *
-   * @param context The action's context.
-   * @param subject The rope prop.
-   * @param id Its bar affordance.
-   * @returns The line.
-   * @throws {HumanRefusal} If the prop moves or has no bar of that id with a
-   *   length.
+   * Parameter context: The action's context.
+   * Parameter subject: The rope prop.
+   * Parameter id: Its bar affordance.
+   * Returns: The line.
+   * If the prop moves or has no bar of that id with a
+   * length.
    */
   export function read(context: IRead, subject: string, id: string): ILine {
     const reader: IAutoMovieMotionHumanPropReader = context.prop(subject);
@@ -94,12 +111,11 @@ export namespace ropeLine {
     };
   }
 
-  /**
+  /*
    * The point of a line at a height, clamped to its ends.
-   *
-   * @param line The line.
-   * @param height The height, world metres.
-   * @returns The point on the line at that height, or the nearer end.
+   * Parameter line: The line.
+   * Parameter height: The height, world metres.
+   * Returns: The point on the line at that height, or the nearer end.
    */
   export function atHeight(line: ILine, height: number): IAutoMovieVector3 {
     if (Math.abs(line.axis.y) < 1e-6)
@@ -111,13 +127,12 @@ export namespace ropeLine {
     );
   }
 
-  /**
+  /*
    * The rope crossings' refusal.
-   *
-   * @param axis The refused parameter's path.
-   * @param value The refused value.
-   * @param reason Why it is refused.
-   * @returns The refusal to throw.
+   * Parameter axis: The refused parameter's path.
+   * Parameter value: The refused value.
+   * Parameter reason: Why it is refused.
+   * Returns: The refusal to throw.
    */
   export function refusal(
     axis: string,
@@ -133,15 +148,14 @@ export namespace ropeLine {
     });
   }
 
-  /**
+  /*
    * Aim a staged point of the named rope, else the action's own target.
-   *
-   * @param context The action's context.
-   * @param rope The rope prop.
-   * @param staged The rope's staged points by name, world metres.
-   * @param line The rope's line, which a hand's grip faces square across toward
-   *   the climber.
-   * @returns The aim the support law reads.
+   * Parameter context: The action's context.
+   * Parameter rope: The rope prop.
+   * Parameter staged: The rope's staged points by name, world metres.
+   * Parameter line: The rope's line, which a hand's grip faces square across toward
+   * the climber.
+   * Returns: The aim the support law reads.
    */
   export function aim(
     context: IAim,

@@ -1,4 +1,4 @@
-/**
+/*
  * Whole dromedary reference means from one measured Mauritanian sample.
  *
  * Diop et al. 2020, REMVT 73:247-254, doi:10.19182/remvt.31948, Table II,
@@ -18,31 +18,47 @@ export namespace CamelCohorts {
     | "maur4"
     | "maur5";
 
-  /** One complete body-reference vector in metres, without an unknown mass. */
+  /*
+   * One complete body-reference vector in metres, without an unknown mass.
+   */
   export interface IMeasures {
-    /** Ground to withers, excluding the hump, metres. */
+    /*
+     * Ground to withers, excluding the hump, metres.
+     */
     withers: number;
-    /** Chest circumference excluding the hump, metres. */
+    /*
+     * Chest circumference excluding the hump, metres.
+     */
     girth: number;
-    /** Shoulder point to ischial point, metres. */
+    /*
+     * Shoulder point to ischial point, metres.
+     */
     body: number;
-    /** Larynx to neck attachment at the brisket, metres. */
+    /*
+     * Larynx to neck attachment at the brisket, metres.
+     */
     neck: number;
-    /** Mid-neck circumference, metres. */
+    /*
+     * Mid-neck circumference, metres.
+     */
     neckGirth: number;
-    /** Occipital crest to nose tip, metres. */
+    /*
+     * Occipital crest to nose tip, metres.
+     */
     head: number;
-    /**
+    /*
      * Tape path between ears via the occipital crest, used as a coarse
      * diameter.
      */
     headBreadth: number;
   }
 
-  /** Previous pooled reference, retained explicitly for canonical construction. */
+  /*
+   * Previous pooled reference, retained explicitly for canonical construction.
+   */
   export const DEFAULT: Name = "mauritanian-adult-female";
 
-  /**
+  /*
    * Every explicit source-reference choice; the pooled mean is not a
    * morphotype.
    */
@@ -55,7 +71,9 @@ export namespace CamelCohorts {
     "maur5",
   ];
 
-  /** Authored equal-choice palette of the five measured group means only. */
+  /*
+   * Authored equal-choice palette of the five measured group means only.
+   */
   export const DRAW: readonly Name[] = [
     "maur1",
     "maur2",
@@ -64,7 +82,7 @@ export namespace CamelCohorts {
     "maur5",
   ];
 
-  /**
+  /*
    * Diop Table II centimetre means converted once to metres; Maur3 neck girth
    * preserves the printed extra digit.
    */

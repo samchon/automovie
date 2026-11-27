@@ -11,23 +11,31 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** The whiteboard read. */
+/*
+ * The whiteboard read.
+ */
 const GHENT_M1: string =
   "Ghent M1 Series spec sheet PSS-M1: H x W 24 x 36 7/16, 36 7/16 x 48 15/32, 36 7/16 x 60 15/32, and 48 15/32 high by 48 15/32, 60 15/32, 72 1/2, 87 29/32, 96 17/32, 120 19/32, 144 19/32 or 192 19/32 in wide, a 5/8 in deep frame and a tray projecting 3 1/8 in (https://cdn.shopify.com/s/files/1/0272/6150/1542/files/m1_spec_sheets.pdf)";
 
-/** The whiteboard's mounting read. */
+/*
+ * The whiteboard's mounting read.
+ */
 const LETHBRIDGE: string =
   'University of Lethbridge design standard: "Classroom whiteboards - base to be mounted 915mm above the floor" (https://ulethbridge.ca/node/9433)';
 
-/** The chalkboard read. */
+/*
+ * The chalkboard read.
+ */
 const CLARIDGE: string =
   "Claridge Series 8 sheet V062226: chalkboards in standard sizes (H x W) 2 x 3, 2 x 4, 3 x 4, 4 x 4, 4 x 5, 4 x 6, 4 x 8, 4 x 10, 4 x 12, 4 x 14 and 4 x 16 ft, about 1/2 in thick overall, a 1 in tray (https://claridgeproducts.com/wp-content/uploads/2023/08/Series8-sheet.pdf)";
 
-/** The notice board read. */
+/*
+ * The notice board read.
+ */
 const GHENT_059: string =
   "Ghent 059 Series drawing PSS-059: cork boards 3 x 5, 4 x 4, 4 x 5, 4 x 6 and 4 x 8 ft (H x W), an 11/16 in deep frame (https://www.mybinding.com/cdn/shop/files/Ghent-Premium-Aluminum-Frame-Cork-Bulletin-Board-spec-sheet.pdf)";
 
-/**
+/*
  * Each standard size read, height and width in inches: Ghent M1's by its own
  * figures, Claridge's and Ghent 059's by their feet.
  */
@@ -59,12 +67,11 @@ const INCHES: Readonly<
   "4x16ft": [48, 192],
 };
 
-/**
+/*
  * A kind's standard sizes as model records, each its height and width in
  * metres.
- *
- * @param names The kind's sizes, its default first.
- * @returns Each size's figures, in the given order.
+ * Parameter names: The kind's sizes, its default first.
+ * Returns: Each size's figures, in the given order.
  */
 function sized(
   names: readonly AutoMovieArchetypeBoard.Size[],
@@ -87,13 +94,15 @@ function sized(
   );
 }
 
-/**
+/*
  * The construction sizes no source read gives, metres, each an estimate no act
  * reads and no band declares: `lip`, a tray's lip height.
  */
 const ESTIMATES: Readonly<{ lip: number }> = { lip: 0.02 };
 
-/** The readable name of each kind. */
+/*
+ * The readable name of each kind.
+ */
 const NAMES: Readonly<Record<AutoMovieArchetypeBoard.Kind, string>> = {
   whiteboard: "whiteboard",
   blackboard: "blackboard",

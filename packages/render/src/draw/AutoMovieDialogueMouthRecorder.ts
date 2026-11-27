@@ -30,7 +30,9 @@ export class AutoMovieDialogueMouthRecorder {
   /** The mouths handed to the subject, which record every read. */
   public readonly mouths: IAutoMovieDialogueMouths;
 
-  /** What the subject read since the last `clear`, by actor in first-read order. */
+  /*
+   * What the subject read since the last `clear`, by actor in first-read order.
+   */
   private readonly read: Map<string, IAutoMovieDrawnMouth> = new Map();
 
   /** Sample `track` for every read of `mouths`. */

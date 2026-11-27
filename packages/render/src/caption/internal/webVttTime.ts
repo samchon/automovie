@@ -1,4 +1,4 @@
-/**
+/*
  * Spell one non-negative integer millisecond offset as a WebVTT timestamp,
  * `hh:mm:ss.ttt`.
  *

@@ -7,7 +7,7 @@ import type {
 
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 
-/**
+/*
  * Form the side, back and slotted front walls of an upright lift shaft.
  * Openings are measured in the front wall's own metre plane. The side walls run
  * between the front and rear plates without entering the cab clearance.
@@ -57,31 +57,45 @@ export function liftShaftParts(
   ];
 }
 
-/** Shaft inputs and its shared rigid box producer. */
+/*
+ * Shaft inputs and its shared rigid box producer.
+ */
 export namespace liftShaftParts {
-  /**
+  /*
    * The local bounds and cut data of a shaft, all in metres. The four walls
    * share a rectangular plan and one wall thickness. Each door cut uses the
    * wall kernel's face-opening coordinates.
    */
   export interface IProps extends Omit<IAutoMovieBuildWall.IProps, "depth"> {
-    /** Thickness of each sheet, along its local normal. */
+    /*
+     * Thickness of each sheet, along its local normal.
+     */
     thickness: number;
 
-    /** Common centre elevation in shaft-local metres. */
+    /*
+     * Common centre elevation in shaft-local metres.
+     */
     centerY: number;
 
-    /** Forward outer face of the shaft, local +Z. */
+    /*
+     * Forward outer face of the shaft, local +Z.
+     */
     front: number;
 
-    /** Rear outer face of the shaft, local −Z. */
+    /*
+     * Rear outer face of the shaft, local −Z.
+     */
     back: number;
 
-    /** Model-local material id shared by the shaft parts. */
+    /*
+     * Model-local material id shared by the shaft parts.
+     */
     material: string | null;
   }
 
-  /** Build an unrotated box from its centre and dimensions in lift-local metres. */
+  /*
+   * Build an unrotated box from its centre and dimensions in lift-local metres.
+   */
   export function box(
     id: string,
     material: string | null,

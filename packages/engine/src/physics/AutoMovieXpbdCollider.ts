@@ -40,7 +40,9 @@ export class AutoMovieXpbdCollider {
   /** Whether it only reports overlaps. */
   public readonly sensor: boolean;
 
-  /** The shape's own box in its frame: centre and half-extents, metres. */
+  /*
+   * The shape's own box in its frame: centre and half-extents, metres.
+   */
   private readonly box: AutoMovieXpbdCollider.IBox;
   /**
    * Create a collider on a body.
@@ -175,7 +177,9 @@ export namespace AutoMovieXpbdCollider {
   }
 }
 
-/** The box of a shape in its own frame. */
+/*
+ * The box of a shape in its own frame.
+ */
 function enclose(shape: IAutoMoviePhysicalShape): AutoMovieXpbdCollider.IBox {
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   if (shape.kind === "sphere")

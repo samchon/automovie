@@ -11,7 +11,7 @@ import { requiredRecoveryCameraTrials } from "./requiredRecoveryCameraTrials";
 import { sampleRecoveryCameraIndices } from "./sampleRecoveryCameraIndices";
 import { scoreRecoveryCameraResiduals } from "./scoreRecoveryCameraResiduals";
 
-/**
+/*
  * Search a planar explanation of the final fixed epipolar-inlier population.
  * Four-point homographies compete with symmetric pixel transfer. Absence of a
  * dominant model requires the conditional trial target for the forbidden

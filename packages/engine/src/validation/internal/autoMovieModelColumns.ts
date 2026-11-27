@@ -15,7 +15,9 @@ import {
 import { PRIMITIVE_RADIAL_SEGMENTS } from "../../geometry/PRIMITIVE_RADIAL_SEGMENTS";
 import { PRIMITIVE_SPHERE_RINGS } from "../../geometry/PRIMITIVE_SPHERE_RINGS";
 
-/** Measure filled rest-axis cores of the engine's tessellated primitive solids. */
+/*
+ * Measure filled rest-axis cores of the engine's tessellated primitive solids.
+ */
 export function autoMovieModelColumns(
   model: Pick<IAutoMovieModel, "parts" | "skeleton">,
 ): IAutoMovieModelColumn[] {
@@ -33,7 +35,7 @@ export function autoMovieModelColumns(
   );
 }
 
-/**
+/*
  * Where each bone rests on the model's own vertical axis, above its origin.
  *
  * A bone is on that axis when it and every bone above it rest with no sideways
@@ -81,7 +83,7 @@ const axialBoneHeights: (
   return heights;
 };
 
-/**
+/*
  * The column one part fills on its model's axis, or `null` when it fills none.
  *
  * A part's own scale is applied rather than refused, because a scaled part is
@@ -123,10 +125,12 @@ const axialPartColumn: (
   return radius > 0 && half > 0 ? { radius, bottom, top } : null;
 };
 
-/** The scale a part with no transform of its own is drawn at. */
+/*
+ * The scale a part with no transform of its own is drawn at.
+ */
 const UNIT_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
-/**
+/*
  * Half-extents of the primitive envelope for scaled-envelope admission; the
  * capsule's conservative admission requires a finite total H+2R.
  */
@@ -154,7 +158,7 @@ function primitiveOuterExtents(
   }
 }
 
-/**
+/*
  * Height above the model's origin at which one part rides, or `null` off-axis.
  *
  * A part rides a bone, or the model's origin when it rides no bone at all, and
@@ -179,7 +183,7 @@ const axialPartHeight: (
     : null;
 };
 
-/**
+/*
  * True when one displacement or turn leaves the model's vertical axis alone.
  *
  * A quaternion with no `x` and no `z` part turns about the vertical and nothing
@@ -192,7 +196,7 @@ const vertical: (value: { x: number; z: number }) => boolean = (value: {
   z: number;
 }): boolean => value.x === 0 && value.z === 0;
 
-/**
+/*
  * A pure axial TRS matrix preserves horizontal lengths only when
  * hypot(1-2_y_y,2_y_w) is one. Near-unit admission permits shrinkage or
  * expansion, so those frames are omitted without an epsilon or quaternion
@@ -207,7 +211,7 @@ function axialIsometry(rotation: IAutoMovieQuaternion): boolean {
   );
 }
 
-/**
+/*
  * The solid one primitive shape certainly holds, as half-extents about its own
  * centre.
  *

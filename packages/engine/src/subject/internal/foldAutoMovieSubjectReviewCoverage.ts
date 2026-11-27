@@ -10,7 +10,7 @@ import {
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 
-/**
+/*
  * Fold planned subject viewpoints against current observation receipts.
  *
  * Observations are the production verifier's typed receipts. One whose target
@@ -105,7 +105,7 @@ export const foldAutoMovieSubjectReviewCoverage = (
   };
 };
 
-/**
+/*
  * Throw unless the context names exactly the resolved unit and a canonical
  * compile, plan and runtime.
  */
@@ -125,7 +125,7 @@ const validateCurrentContext = (
     );
 };
 
-/**
+/*
  * Throw unless every viewpoint has a unique id, a positive distance and a unit
  * direction.
  */
@@ -152,12 +152,14 @@ const validateViewpointPlan = (
   }
 };
 
-/** Whether the observation's target names its own subject. */
+/*
+ * Whether the observation's target names its own subject.
+ */
 const isComplete = (
   observation: IAutoMovieCurrentSubjectReviewObservation,
 ): boolean => observation.target.subject === observation.subject;
 
-/**
+/*
  * Whether an observation was captured in exactly the current revision, compile,
  * plan and runtime.
  */

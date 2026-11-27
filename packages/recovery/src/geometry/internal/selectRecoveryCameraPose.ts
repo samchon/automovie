@@ -7,7 +7,7 @@ import type {
 import { calibrateRecoveryEpipolarMatrix } from "./calibrateRecoveryEpipolarMatrix";
 import { triangulateRecoveryCameraPoint } from "./triangulateRecoveryCameraPoint";
 
-/**
+/*
  * Measure all four calibrated pose branches on one fixed correspondence set.
  * The largest positive-depth count supplies a candidate; equal winning counts
  * remain explicitly ambiguous even though deterministic order names a

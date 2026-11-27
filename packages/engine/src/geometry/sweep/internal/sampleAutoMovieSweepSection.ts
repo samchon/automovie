@@ -6,16 +6,20 @@ import type {
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { parameterizeAutoMovieSweepSection } from "./parameterizeAutoMovieSweepSection";
 
-/** Curve samples per segment when bracketing a polar angle. */
+/*
+ * Curve samples per segment when bracketing a polar angle.
+ */
 const DENSITY: number = 64;
-/** Fewest curve samples whatever the segment count. */
+/*
+ * Fewest curve samples whatever the segment count.
+ */
 const MINIMUM_SAMPLES: number = 1024;
-/**
+/*
  * Bisection steps that place a radius on the curve, each halving the parameter
  * interval.
  */
 const BISECTIONS: number = 40;
-/**
+/*
  * Sample a section's radius from its origin at evenly spaced polar angles.
  *
  * Radius `k` lies along angle `2 pi k / count`, measured counterclockwise from
@@ -35,13 +39,12 @@ const BISECTIONS: number = 40;
  * successive points and turn once in total, or the curve is refused, because
  * the sampled walk would not pair its points by direction. This finite walk
  * does not certify monotone polar angle between probes.
- *
- * @param props.section The section, only read.
- * @param props.count Number of angles, an integer of at least 3.
- * @returns Radii in metres, one per angle, all positive.
- * @throws Error when the count is not an integer of at least 3, the section's
- *   numbers are not finite or out of range, or the curve passes through its
- *   origin, winds clockwise or is not star-shaped about it.
+ * Parameter props.section: The section, only read.
+ * Parameter props.count: Number of angles, an integer of at least 3.
+ * Returns: Radii in metres, one per angle, all positive.
+ * Error when the count is not an integer of at least 3, the section's
+ * numbers are not finite or out of range, or the curve passes through its
+ * origin, winds clockwise or is not star-shaped about it.
  */
 export const sampleAutoMovieSweepSection: (
   props: IAutoMovieSampleSweepSection.IProps,

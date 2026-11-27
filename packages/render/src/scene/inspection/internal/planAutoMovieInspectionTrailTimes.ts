@@ -1,6 +1,6 @@
 import type { IAutoMoviePlanInspectionTrailTimesProps } from "@automovie/interface";
 
-/**
+/*
  * The seconds a trail is sampled at for one drawn second: a grid of `ticks` per
  * second through the drawn second, reaching `reach` seconds before and after
  * it, clipped to the subject's running time.

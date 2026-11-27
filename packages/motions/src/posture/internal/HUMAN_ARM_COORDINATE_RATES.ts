@@ -1,4 +1,4 @@
-/**
+/*
  * Each arm coordinate's velocity limit, coordinate units (degrees) per second,
  * in the coordinates' order (`HumanArmGeometry.DIMENSIONS`): the shoulder's
  * chart (two), the shoulder's twist, the elbow's flexion, abduction and twist,

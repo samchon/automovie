@@ -26,12 +26,12 @@ import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmBase } from "./AutoMovieMotionHumanArmBase";
 import { AutoMovieMotionHumanTiming } from "./AutoMovieMotionHumanTiming";
 
-/**
+/*
  * Physical observations used by arm planning and target feedback: travel
  * duration, perceived goals and rigid contact sites on the actual body.
  */
 export namespace AutoMovieMotionHumanArmObservation {
-  /**
+  /*
    * The time a reach on the joint-space blend from one arm to another takes:
    * its wrist's arc timed as a reach-to-grasp to a point by the two-factor
    * movement-time model (McIntosh, Mon-Williams and Tresilian 2018,
@@ -39,17 +39,16 @@ export namespace AutoMovieMotionHumanArmObservation {
    * peak that timing gives its straight course (Flash and Hogan 1985's
    * minimum-jerk peak, `HumanArmTrajectoryModel.UNIT`), so a detour takes
    * proportionally longer.
-   *
-   * @param body The body.
-   * @param posture The posture the arm moves in.
-   * @param side The arm.
-   * @param from The arm at the start.
-   * @param to The arm at the end.
-   * @param source Optional exact FK source borrowed from this same synchronous
-   *   unchanged-body plan.
-   * @param projection Optional genuine same-body ROM metadata borrowed by the
-   *   actual raw-base solve.
-   * @returns Seconds.
+   * Parameter body: The body.
+   * Parameter posture: The posture the arm moves in.
+   * Parameter side: The arm.
+   * Parameter from: The arm at the start.
+   * Parameter to: The arm at the end.
+   * Parameter source: Optional exact FK source borrowed from this same synchronous
+   * unchanged-body plan.
+   * Parameter projection: Optional genuine same-body ROM metadata borrowed by the
+   * actual raw-base solve.
+   * Returns: Seconds.
    */
   export function reaching(
     body: IAutoMovieMotionHumanBody,
@@ -79,23 +78,22 @@ export namespace AutoMovieMotionHumanArmObservation {
     return reachingPose(body, base, side, from, to, resolution);
   }
 
-  /**
+  /*
    * Measure the original blended-arm reach duration on an actual solved base. A
    * planner that already resolved its only planned arm's removed-goal base may
    * use that same complete pose instead of resolving it again.
-   *
-   * @param body The unchanged body whose rig admits every probe sample.
-   * @param base The actual canonical base pose; the measured arm's three joints
-   *   are replaced by each blend sample, while its fingers and ancestors remain
-   *   this base's.
-   * @param side The measured arm.
-   * @param from The original starting arm rotations.
-   * @param to The original ending arm rotations.
-   * @param source Optional exact FK source borrowed only until this measurement
-   *   returns or throws.
-   * @param maximumSpeed Optional elbow and wrist travel limit in metres per
-   *   second over minimum-jerk progress.
-   * @returns The transport time in seconds.
+   * Parameter body: The unchanged body whose rig admits every probe sample.
+   * Parameter base: The actual canonical base pose; the measured arm's three joints
+   * are replaced by each blend sample, while its fingers and ancestors remain
+   * this base's.
+   * Parameter side: The measured arm.
+   * Parameter from: The original starting arm rotations.
+   * Parameter to: The original ending arm rotations.
+   * Parameter source: Optional exact FK source borrowed only until this measurement
+   * returns or throws.
+   * Parameter maximumSpeed: Optional elbow and wrist travel limit in metres per
+   * second over minimum-jerk progress.
+   * Returns: The transport time in seconds.
    */
   export function reachingPose(
     body: IAutoMovieMotionHumanBody,
@@ -117,19 +115,18 @@ export namespace AutoMovieMotionHumanArmObservation {
       : Math.max(aimed, rate!.peak / maximumSpeed);
   }
 
-  /**
+  /*
    * The longest of the elbow's, the wrist's and the middle fingertip's arcs on
    * the joint-space blend from one arm to another, read on an actual solved
    * base as `reachingPose` reads them.
-   *
-   * @param body The unchanged body whose rig admits every probe sample.
-   * @param base The actual canonical base pose.
-   * @param side The measured arm.
-   * @param from The starting arm rotations.
-   * @param to The ending arm rotations.
-   * @param source Optional exact FK source borrowed only until this measurement
-   *   returns or throws.
-   * @returns Metres.
+   * Parameter body: The unchanged body whose rig admits every probe sample.
+   * Parameter base: The actual canonical base pose.
+   * Parameter side: The measured arm.
+   * Parameter from: The starting arm rotations.
+   * Parameter to: The ending arm rotations.
+   * Parameter source: Optional exact FK source borrowed only until this measurement
+   * returns or throws.
+   * Returns: Metres.
    */
   export function longest(
     body: IAutoMovieMotionHumanBody,
@@ -142,22 +139,21 @@ export namespace AutoMovieMotionHumanArmObservation {
     return Math.max(...arcs(body, base, side, from, to, source));
   }
 
-  /**
-   * {@link reaching} from an arm at rest to the arm a posture's solve fits for a
+  /*
+   * reaching from an arm at rest to the arm a posture's solve fits for a
    * goal, with the posture's pose without that arm resolved once for both: the
    * base the arcs are measured on and, where the arm is the last limb the solve
    * fits and fits alone (`isHumanArmAlone`), the pose the goal's arm is fitted
    * on.
-   *
-   * @param body The body.
-   * @param posture The posture the arm moves in; its own goal for this arm is
-   *   not read.
-   * @param side The arm.
-   * @param from The arm at the start.
-   * @param goal The arm's goal at the end, world or attached.
-   * @param maximumSpeed Optional elbow and wrist travel limit in metres per
-   *   second during transport.
-   * @returns Seconds.
+   * Parameter body: The body.
+   * Parameter posture: The posture the arm moves in; its own goal for this arm is
+   * not read.
+   * Parameter side: The arm.
+   * Parameter from: The arm at the start.
+   * Parameter goal: The arm's goal at the end, world or attached.
+   * Parameter maximumSpeed: Optional elbow and wrist travel limit in metres per
+   * second during transport.
+   * Returns: Seconds.
    */
   export function reachingGoal(
     body: IAutoMovieMotionHumanBody,
@@ -214,22 +210,21 @@ export namespace AutoMovieMotionHumanArmObservation {
     );
   }
 
-  /**
+  /*
    * How far a planned arm's goal has moved at a second of its hold since the
    * plan perceived it: the site the goal puts the hand on now (a person one
    * frame behind), less the site the plan used for that second, both on the
    * pose at the second. Zero wherever the goal has not moved since the plan.
-   *
-   * @param body The body.
-   * @param carry The arm.
-   * @param posture The posture so far at the second.
-   * @param seconds The second, on the hold.
-   * @param source Optional same-body FK metadata borrowed through the solve and
-   *   both goal callbacks.
-   * @param projection Optional genuine same-body ROM metadata borrowed through
-   *   the solve and goal callbacks.
-   * @returns The sites' difference, metres, the contact in the hand's frame,
-   *   and the base the arm is read against.
+   * Parameter body: The body.
+   * Parameter carry: The arm.
+   * Parameter posture: The posture so far at the second.
+   * Parameter seconds: The second, on the hold.
+   * Parameter source: Optional same-body FK metadata borrowed through the solve and
+   * both goal callbacks.
+   * Parameter projection: Optional genuine same-body ROM metadata borrowed through
+   * the solve and goal callbacks.
+   * Returns: The sites' difference, metres, the contact in the hand's frame,
+   * and the base the arm is read against.
    */
   export function moved(
     body: IAutoMovieMotionHumanBody,
@@ -287,7 +282,9 @@ export namespace AutoMovieMotionHumanArmObservation {
       },
     };
   }
-  /** Read the goal as the action plan perceives it at this local second. */
+  /*
+   * Read the goal as the action plan perceives it at this local second.
+   */
   export function aim(
     carry: IAutoMovieMotionHumanArmPlanned.IPlanned,
     posture: IAutoMovieMotionHumanPosture,
@@ -303,20 +300,22 @@ export namespace AutoMovieMotionHumanArmObservation {
     );
   }
 
-  /**
+  /*
    * What of an arm's carry its site reads: the side, the skin distance the hand
    * keeps and the contact disc.
    */
   export type ISited = Pick<IAutoMovieMotionHumanArmPlanned.IPlanned, Sited>;
 
-  /**
+  /*
    * What the arms are read against at an instant
    * (`AutoMovieMotionHumanArmBase`).
    */
   export const based: typeof AutoMovieMotionHumanArmBase =
     AutoMovieMotionHumanArmBase;
 
-  /** Convert an arm goal to its physical contact site on the actual pose. */
+  /*
+   * Convert an arm goal to its physical contact site on the actual pose.
+   */
   export function site(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
@@ -361,20 +360,26 @@ export namespace AutoMovieMotionHumanArmObservation {
   }
 }
 
-/** The alternatives of `Sited`'s site. */
+/*
+ * The alternatives of `Sited`'s site.
+ */
 type Sited = "side" | "skinDistance" | "disc";
 
-/** The record of `IMovedResult`'s site. */
+/*
+ * The record of `IMovedResult`'s site.
+ */
 type IMovedResult = {
   error: IAutoMovieVector3;
   contact: IAutoMovieVector3;
   base: HumanArmTrajectory.IProblem["bases"][number];
 };
 
-/** The alternatives of `ReachingGoalLimb`'s site. */
+/*
+ * The alternatives of `ReachingGoalLimb`'s site.
+ */
 type ReachingGoalLimb = "leftArm" | "rightArm";
 
-/**
+/*
  * The chords an arc of the blend is measured on: a probe at most `R` from the
  * shoulder, the farthest probe's distance from it on the straight rest arm,
  * turning at most half a turn traces at most `πR`, and `N` equal chords of it
@@ -397,7 +402,7 @@ function arcSamples(
   return Math.ceil(Math.PI * Math.sqrt((Math.PI * reach) / (24 * tolerance)));
 }
 
-/**
+/*
  * The elbow's, the wrist's and the middle fingertip's arcs on the joint-space
  * blend from one arm to another, metres, on an actual solved base
  * (`reachingPose`, `longest`).

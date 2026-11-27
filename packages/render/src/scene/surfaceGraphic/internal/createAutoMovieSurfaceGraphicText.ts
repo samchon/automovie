@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-/**
+/*
  * Flat glyph geometry of one text layer on a surface face, in the surface's
  * reading frame.
  *

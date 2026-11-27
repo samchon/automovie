@@ -6,16 +6,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Read a sole point in ankle-local metres with its actual toe articulation.
- *
- * @param body The canonical body owning rest joints and sole sockets.
- * @param side The foot.
- * @param point The sole socket, or the metatarsophalangeal joint itself.
- * @param toes Toe flexion in degrees, positive lifting the toes; zero when
- *   absent.
- * @returns The original ankle-local offset; a foot-owned socket keeps its
- *   borrowed point, while articulated/joint offsets are fresh.
+ * Parameter body: The canonical body owning rest joints and sole sockets.
+ * Parameter side: The foot.
+ * Parameter point: The sole socket, or the metatarsophalangeal joint itself.
+ * Parameter toes: Toe flexion in degrees, positive lifting the toes; zero when
+ * absent.
+ * Returns: The original ankle-local offset; a foot-owned socket keeps its
+ * borrowed point, while articulated/joint offsets are fresh.
  */
 export function humanFootOffset(
   body: humanFootOffset.IBody,
@@ -36,12 +35,16 @@ export function humanFootOffset(
   return articulated(joint, socket.point, toes);
 }
 
-/** Fixed ankle-local socket preparation for an action's changing toe angles. */
+/*
+ * Fixed ankle-local socket preparation for an action's changing toe angles.
+ */
 export namespace humanFootOffset {
-  /** What a sole point reads of a body: its rest joints and its sockets. */
+  /*
+   * What a sole point reads of a body: its rest joints and its sockets.
+   */
   export type IBody = Pick<IAutoMovieMotionHumanBody, "rest" | "surfaces">;
 
-  /**
+  /*
    * Resolve actual rest/socket geometry once, then evaluate actual toe flexion.
    * MTP queries return fresh subtraction values and foot-owned sockets retain
    * their ordinary borrowed point. The body geometry must stay unchanged until
@@ -73,7 +76,9 @@ export namespace humanFootOffset {
       articulated(joint, socket.point, toes);
   }
 }
-/** The unchanged joint translation after the socket's actual toe rotation. */
+/*
+ * The unchanged joint translation after the socket's actual toe rotation.
+ */
 function articulated(
   joint: IAutoMovieVector3,
   point: IAutoMovieVector3,
@@ -82,12 +87,18 @@ function articulated(
   return Vector3.add(joint, Quaternion.rotateVector(FLEXION(toes), point));
 }
 
-/** The private unchanged negative lateral toe-flexion axis. */
+/*
+ * The private unchanged negative lateral toe-flexion axis.
+ */
 const FLEXION: ReturnType<typeof Quaternion.prepareAxisAngle> =
   Quaternion.prepareAxisAngle({ x: -1, y: 0, z: 0 });
 
-/** The alternatives of `HumanFootOffsetPoint`'s site. */
+/*
+ * The alternatives of `HumanFootOffsetPoint`'s site.
+ */
 type HumanFootOffsetPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
 
-/** The alternatives of `HumanFootOffsetPreparePoint`'s site. */
+/*
+ * The alternatives of `HumanFootOffsetPreparePoint`'s site.
+ */
 type HumanFootOffsetPreparePoint = "heel" | "ball" | "toe" | "sole" | "mtp";

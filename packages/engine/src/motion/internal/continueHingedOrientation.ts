@@ -25,7 +25,7 @@ import type { prepareChainFit } from "./prepareChainFit";
 import { readHingeRange } from "./readHingeRange";
 import { resolvePreparedChainFrames } from "./resolvePreparedChainFrames";
 
-/**
+/*
  * Continue an explicit constrained curve through orientation-exact swivel
  * roots. The ordinary public cold scorer is unchanged. This policy requires a
  * hinged lower joint without distal twist, a native two-axis box effector, an
@@ -39,16 +39,15 @@ import { resolvePreparedChainFrames } from "./resolvePreparedChainFrames";
  * clamped, oriented and checked through actual FK, ROM and requested pole side.
  * An ambiguous equal-distance branch declines. The deterministic curve owner
  * still checks phase events and actual continuity.
- *
- * @param props Current model-metre point, world rotation and unchanged
- *   goal/source fields.
- * @param workspace Matching actually admitted source and fixed clinical rig.
- * @param near The explicit curve's deterministic branch and degree swivel
- *   bracket.
- * @param observe Optional actual root-trial/accepted observations; never
- *   changes admission and releases with the call.
- * @returns The independently verified current oriented pose/seed, or null for
- *   ordinary near/cold fallback.
+ * Parameter props: Current model-metre point, world rotation and unchanged
+ * goal/source fields.
+ * Parameter workspace: Matching actually admitted source and fixed clinical rig.
+ * Parameter near: The explicit curve's deterministic branch and degree swivel
+ * bracket.
+ * Parameter observe: Optional actual root-trial/accepted observations; never
+ * changes admission and releases with the call.
+ * Returns: The independently verified current oriented pose/seed, or null for
+ * ordinary near/cold fallback.
  */
 export function continueHingedOrientation(
   props: IAutoMovieFitChainToTargetProps,
@@ -248,7 +247,9 @@ export function continueHingedOrientation(
   return best;
 }
 
-/** Read-only provenance of the actual uniquely admitted root return. */
+/*
+ * Read-only provenance of the actual uniquely admitted root return.
+ */
 export namespace continueHingedOrientation {
   /** Actual local uniqueness and work facts; no trajectory or goal is certified. */
   export interface IRoot {
@@ -264,7 +265,7 @@ export namespace continueHingedOrientation {
     readonly accepted: number;
   }
 
-  /**
+  /*
    * Return copied facts only for this actual result with unchanged pose and
    * seed.
    */
@@ -281,12 +282,16 @@ export namespace continueHingedOrientation {
   }
 }
 
-/** Conjugation stays linear in the known homogeneous half-angle coefficients. */
+/*
+ * Conjugation stays linear in the known homogeneous half-angle coefficients.
+ */
 function conjugate(value: IAutoMovieQuaternion): IAutoMovieQuaternion {
   return { x: -value.x, y: -value.y, z: -value.z, w: value.w };
 }
 
-/** Retain the requested bend hemisphere under the ordinary hint degeneracy gate. */
+/*
+ * Retain the requested bend hemisphere under the ordinary hint degeneracy gate.
+ */
 function samePole(
   root: IAutoMovieVector3,
   point: IAutoMovieVector3,

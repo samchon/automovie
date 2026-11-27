@@ -8,7 +8,9 @@ import {
 import { AutoMovieArchetypeCarryBasket } from "./AutoMovieArchetypeCarryBasket";
 import { AutoMovieArchetypeServingTray } from "./AutoMovieArchetypeServingTray";
 
-/** What no source read gives. */
+/*
+ * What no source read gives.
+ */
 const UNREAD: string = "the IKEA pages read give no weight of the item alone";
 
 /** Constructs the tray archetype from its recipe. */

@@ -14,7 +14,7 @@ import { HUMAN_MILITARY_DRILL_TAKE_FIRELOCK } from "../../next/presets/HUMAN_MIL
 import { touch } from "../../touch/internal/touch";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
 
-/**
+/*
  * The musket's drill, the one musket lexicon: the 1764 Manual Exercise's carry
  * positions, its Prime and Load in its own order, and its firings, each a row
  * of a shipped law on the musket's, the cartridge's and the pouch's
@@ -46,7 +46,7 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  * planned.
  */
 export namespace HumanMusketDrill {
-  /**
+  /*
    * Take the firelock: the musket taken up by its butt in the left hand, the
    * hand that carries it shouldered ("Quit the left Hand and place it strong
    * Upon the Butt", the 1764 Manual Exercise, Shoulder your Firelocks).
@@ -59,7 +59,7 @@ export namespace HumanMusketDrill {
     HUMAN_MILITARY_DRILL_TAKE_FIRELOCK,
   );
 
-  /**
+  /*
    * Shoulder arms: the manual's Position of a Soldier under Arms, "the firelock
    * to be carried on the left Shoulder", "the Flat of the Butt, to be supported
    * against the hip-bone ... that it may stand before the Hollow of the
@@ -75,19 +75,25 @@ export namespace HumanMusketDrill {
     HUMAN_MILITARY_DRILL_SHOULDER_ARMS,
   );
 
-  /** Order arms: set the butt down by the foot. */
+  /*
+   * Order arms: set the butt down by the foot.
+   */
   export const orderArms: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["orderArms"]
   > = AutoMovieMotionHumanActionRow.of("orderArms", putDown, {});
 
-  /** Handle cartridge: take one from the pouch. */
+  /*
+   * Handle cartridge: take one from the pouch.
+   */
   export const handleCartridge: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["handleCartridge"]
   > = AutoMovieMotionHumanActionRow.of("handleCartridge", pickUp, {
     handle: "body",
   });
 
-  /** Bite the cartridge: its end brought to the mouth. */
+  /*
+   * Bite the cartridge: its end brought to the mouth.
+   */
   export const biteCartridge: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["biteCartridge"]
   > = AutoMovieMotionHumanActionRow.of(
@@ -96,17 +102,23 @@ export namespace HumanMusketDrill {
     HUMAN_MILITARY_DRILL_BITE_CARTRIDGE,
   );
 
-  /** Prime: the cartridge brought to the pan. */
+  /*
+   * Prime: the cartridge brought to the pan.
+   */
   export const prime: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["prime"]
   > = AutoMovieMotionHumanActionRow.of("prime", touch, {});
 
-  /** Shut the pan: the frizzen closed. */
+  /*
+   * Shut the pan: the frizzen closed.
+   */
   export const shutPan: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["shutPan"]
   > = AutoMovieMotionHumanActionRow.of("shutPan", operate, {});
 
-  /** Cast about: the musket brought before the body, the muzzle up. */
+  /*
+   * Cast about: the musket brought before the body, the muzzle up.
+   */
   export const castAbout: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["castAbout"]
   > = AutoMovieMotionHumanActionRow.of(
@@ -117,27 +129,35 @@ export namespace HumanMusketDrill {
     },
   );
 
-  /** Charge with cartridge: the cartridge set into the muzzle. */
+  /*
+   * Charge with cartridge: the cartridge set into the muzzle.
+   */
   export const charge: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["charge"]
   > = AutoMovieMotionHumanActionRow.of("charge", putDown, {});
 
-  /** Draw the rammer from its pipe. */
+  /*
+   * Draw the rammer from its pipe.
+   */
   export const drawRammer: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["drawRammer"]
   > = AutoMovieMotionHumanActionRow.of("drawRammer", operate, {});
 
-  /** Ram down the cartridge: the rod inserted into the bore and withdrawn. */
+  /*
+   * Ram down the cartridge: the rod inserted into the bore and withdrawn.
+   */
   export const ramDown: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["ramDown"]
   > = AutoMovieMotionHumanActionRow.of("ramDown", operate, {});
 
-  /** Return the rammer to its pipe. */
+  /*
+   * Return the rammer to its pipe.
+   */
   export const returnRammer: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["returnRammer"]
   > = AutoMovieMotionHumanActionRow.of("returnRammer", putDown, {});
 
-  /**
+  /*
    * Seize: the right hand raised from the side to take the shouldered firelock
    * by the small of its stock, "the right hand is raised briskly from the right
    * Side, and seizes the Firelock across the breast" (the 1764 Manual Exercise,
@@ -152,7 +172,7 @@ export namespace HumanMusketDrill {
     HUMAN_MILITARY_DRILL_SEIZE,
   );
 
-  /**
+  /*
    * Recover: the firelock brought from the shoulder upright before the body,
    * "the Butt close to the left breast, but not pressed, the Firelock
    * perpendicular, opposite the left Side of the Face" (the 1764 Manual
@@ -167,7 +187,7 @@ export namespace HumanMusketDrill {
     carriage: "recover",
   });
 
-  /**
+  /*
    * Make ready: the cock drawn to full cock, over `recover`
    * (`HumanChain.over`).
    */
@@ -175,7 +195,9 @@ export namespace HumanMusketDrill {
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["makeReady"]
   > = AutoMovieMotionHumanActionRow.of("makeReady", operate, {});
 
-  /** Present: the musket to the cheek on the line. */
+  /*
+   * Present: the musket to the cheek on the line.
+   */
   export const presentMusket: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["presentMusket"]
   > = AutoMovieMotionHumanActionRow.of(
@@ -184,7 +206,9 @@ export namespace HumanMusketDrill {
     {},
   );
 
-  /** Fire: the trigger pulled, the lock falling. */
+  /*
+   * Fire: the trigger pulled, the lock falling.
+   */
   export const fireMusket: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["musketDrill"]["fireMusket"]
   > = AutoMovieMotionHumanActionRow.of(

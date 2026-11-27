@@ -302,7 +302,7 @@ export namespace AutoMoviePhysicalRootTracking {
   };
 }
 
-/**
+/*
  * The torque the swinging hip exerts on its thigh, world N m: the swing drive's
  * demand already accumulated at that hip (`advancePhysicalBalance`). Its
  * reaction turns the torso, so the stance supports add it to the torso's moment
@@ -337,7 +337,7 @@ function swingHip(
   return Quaternion.rotateVector(frame, local);
 }
 
-/**
+/*
  * Set a body's momentum task for the motors' whole-body solve while a stance
  * limb presses the floor, with its support transitions
  * (`physicalRootTransitions`), and keep in the cache, at its instants, the

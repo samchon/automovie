@@ -1,18 +1,17 @@
 import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 
-/**
+/*
  * Prepare factor-only entry positions for rows not already column-ordered.
  * Sorting by column and original CSR position preserves the exact order of
  * duplicate coefficients. Each upper K(i,j) cell still sees its original a-at-i
  * then b-at-j contribution sequence; writes to other cells commute. ADMM and
  * residual products continue reading the untouched original CSR.
- *
- * @param start Admitted original CSR row offsets, m+1 entries.
- * @param cols Admitted original CSR columns; stored entry positions fit Int32.
- * @param ordered One for nondecreasing original columns, zero otherwise, one
- *   per row.
- * @returns Packed original entry positions for unordered rows; absent when all
- *   rows already have the factor order.
+ * Parameter start: Admitted original CSR row offsets, m+1 entries.
+ * Parameter cols: Admitted original CSR columns; stored entry positions fit Int32.
+ * Parameter ordered: One for nondecreasing original columns, zero otherwise, one
+ * per row.
+ * Returns: Packed original entry positions for unordered rows; absent when all
+ * rows already have the factor order.
  */
 export function HumanQuadraticFactorOrder(
   start: Int32Array,

@@ -9,11 +9,13 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** The high chair read. */
+/*
+ * The high chair read.
+ */
 const ANTILOP: string =
   "IKEA ANTILOP high chair: width 56 cm, depth 59 cm, height 90 cm, seat height 54 cm, seat width 25 cm and depth 22 cm (https://www.ikea.com.tr/en/p89041709)";
 
-/**
+/*
  * The construction sizes no source read gives, metres, each an estimate no act
  * reads and no band declares: `leg`, a leg's diameter; `shell`, the seat
  * shell's thickness.

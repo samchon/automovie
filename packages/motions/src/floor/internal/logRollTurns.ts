@@ -7,13 +7,13 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * A log roll's advance: each half turn carries the pelvis half the chest's
  * cross-section perimeter, as a rolling log advances, and the roll takes a
  * whole number of half turns.
  */
 export namespace logRollTurns {
-  /**
+  /*
    * The chest's cross-section perimeter, metres: Ramanujan's approximation for
    * the ellipse of its breadth and depth.
    */
@@ -25,7 +25,7 @@ export namespace logRollTurns {
     return Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
   }
 
-  /**
+  /*
    * The half turns: the count, or as many as bring the pelvis nearest the place,
    * rounded to the end's parity.
    */

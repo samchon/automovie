@@ -5,7 +5,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core";
 
-/**
+/*
  * The shared contacts of a small flat tabletop prop that rests on, and stacks
  * on, another: a playing card, a gaming chip, a banknote or a die.
  *
@@ -19,13 +19,12 @@ export namespace TabletopStack {
   /** The contact ids every stackable tabletop prop builds. */
   export type Contact = "grip" | "base" | "top";
 
-  /**
+  /*
    * Lay the pinch and the two stacking sockets.
-   *
-   * @param builder The prop under construction.
-   * @param height The prop's height from its underside to its upper face,
-   *   metres.
-   * @param aperture The width the fingertips close across, metres.
+   * Parameter builder: The prop under construction.
+   * Parameter height: The prop's height from its underside to its upper face,
+   * metres.
+   * Parameter aperture: The width the fingertips close across, metres.
    */
   export function contacts<Id extends string, D extends string>(
     builder: AutoMovieArchetypeBuilder<Contact | Id, D>,

@@ -1,15 +1,14 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
 
-/**
+/*
  * Admit the resolved sample rate in Hz before a validator samples its motion.
  * Report a range finding at the motion's sampleRate field for a nonfinite or
  * nonpositive value. The caller chooses the default and handles other
  * findings.
- *
- * @param collector The caller's mutable diagnostic collector.
- * @param path The owning diagnostic path, without the sampleRate member.
- * @param sampleRate Resolved sample rate in Hz.
- * @returns Whether the rate satisfies the finite positive requirement.
+ * Parameter collector: The caller's mutable diagnostic collector.
+ * Parameter path: The owning diagnostic path, without the sampleRate member.
+ * Parameter sampleRate: Resolved sample rate in Hz.
+ * Returns: Whether the rate satisfies the finite positive requirement.
  */
 export function admitMotionSampleRate(
   collector: IAutoMovieViolationCollector,

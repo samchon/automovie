@@ -35,17 +35,16 @@ import { jumpTouchdownRotation } from "./jumpTouchdownRotation";
 import { prepareJumpPosture } from "./prepareJumpPosture";
 import { rangeSteppingFoot } from "./rangeSteppingFoot";
 
-/**
+/*
  * A jump's timed phases and its plan (`jump.plan`): the push, the flight, the
  * absorption and the rise retimed by the manner, the events and contacts, the
  * push-off from the entry's own values and rates, the absorption and rise
  * paths, the ground postures before and after the flight, and the prepared
  * airborne posture. Read from the plan's context, take-off, landing and
  * flight.
- *
- * @param scope What the plan's phases are built from.
- * @returns The plan.
- * @throws {HumanRefusal} When the requested rotating landing is incompatible.
+ * Parameter scope: What the plan's phases are built from.
+ * Returns: The plan.
+ * When the requested rotating landing is incompatible.
  */
 export function jumpPhases(
   scope: jumpPhases.IScope,
@@ -196,7 +195,9 @@ export function jumpPhases(
     start: caughtEnds.start,
     end: caughtEnds.end,
   };
-  /** The actual current landing demands before swing clearance. */
+  /*
+   * The actual current landing demands before swing clearance.
+   */
   const landingAtRoot: (
     root: IAutoMovieVector3,
     t: number,
@@ -257,7 +258,9 @@ export function jumpPhases(
   ): IAutoMovieVector3 =>
     t <= settled ? absorbRoot(t - touchdown) : riseRoot(t - settled);
 
-  /** Read the current ground posture on the settled landing path. */
+  /*
+   * Read the current ground posture on the settled landing path.
+   */
   const landingAt = (
     seconds: number,
     read: ReturnType<typeof prepareHumanPoseResolution>,
@@ -377,119 +380,197 @@ export function jumpPhases(
   return result;
 }
 
-/** What a jump's phases read. */
+/*
+ * What a jump's phases read.
+ */
 export namespace jumpPhases {
-  /** What a jump plan builds its phases from. */
+  /*
+   * What a jump plan builds its phases from.
+   */
   export interface IScope {
-    /** The action's context. */
+    /*
+     * The action's context.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanJump.IParams>;
 
-    /** The push-off duration, seconds (`jump.PUSH`). */
+    /*
+     * The push-off duration, seconds (`jump.PUSH`).
+     */
     PUSH: number;
 
-    /** The landing absorption duration, seconds (`jump.ABSORB`). */
+    /*
+     * The landing absorption duration, seconds (`jump.ABSORB`).
+     */
     ABSORB: number;
 
-    /** The rise to standing, seconds (`jump.RISE`). */
+    /*
+     * The rise to standing, seconds (`jump.RISE`).
+     */
     RISE: number;
 
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The body's mass model. */
+    /*
+     * The body's mass model.
+     */
     model: IAutoMovieResolveCenterOfMass.IModel;
 
-    /** The action's entry. */
+    /*
+     * The action's entry.
+     */
     entry: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanJump.IParams>["entry"];
 
-    /** The entry root. */
+    /*
+     * The entry root.
+     */
     root0: IAutoMovieVector3;
 
-    /** The entry root's velocity. */
+    /*
+     * The entry root's velocity.
+     */
     v0: IAutoMovieVector3;
 
-    /** The take-off foot. */
+    /*
+     * The take-off foot.
+     */
     takeoff: AutoMovieHumanSide;
 
-    /** The reaching foot. */
+    /*
+     * The reaching foot.
+     */
     reaching: AutoMovieHumanSide;
 
-    /** The take-off foot's entry placement. */
+    /*
+     * The take-off foot's entry placement.
+     */
     support: IAutoMovieMotionHumanFoot.IPlacement;
 
-    /** The take-off foot's heading, degrees. */
+    /*
+     * The take-off foot's heading, degrees.
+     */
     supportHeading: number;
 
-    /** The take-off foot's pitch, degrees. */
+    /*
+     * The take-off foot's pitch, degrees.
+     */
     supportPitch: number;
 
-    /** The take-off foot's heel. */
+    /*
+     * The take-off foot's heel.
+     */
     heel: IAutoMovieVector3;
 
-    /** The take-off foot's ball. */
+    /*
+     * The take-off foot's ball.
+     */
     ball: IAutoMovieVector3;
 
-    /** The upright stand's alignment. */
+    /*
+     * The upright stand's alignment.
+     */
     upright: IAutoMovieMotionHumanStandUpright.IAlignment;
 
-    /** The jump's heading, degrees. */
+    /*
+     * The jump's heading, degrees.
+     */
     heading: number;
 
-    /** The withdrawn free ankle in the body frame. */
+    /*
+     * The withdrawn free ankle in the body frame.
+     */
     tuck: IAutoMovieVector3;
 
-    /** The knee planes at take-off. */
+    /*
+     * The knee planes at take-off.
+     */
     knee: jumpPush.IProps["knee"];
 
-    /** The take-off root. */
+    /*
+     * The take-off root.
+     */
     rootT: IAutoMovieVector3;
 
-    /** Each foot's landing footprint. */
+    /*
+     * Each foot's landing footprint.
+     */
     landing: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
-    /** The knee planes at landing. */
+    /*
+     * The knee planes at landing.
+     */
     landingKnee: jumpPush.IProps["knee"];
 
-    /** Each landing footprint's heading, degrees. */
+    /*
+     * Each landing footprint's heading, degrees.
+     */
     landingYaw: Record<AutoMovieHumanSide, number>;
 
-    /** Each landing foot's contact offset. */
+    /*
+     * Each landing foot's contact offset.
+     */
     landingContact: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
-    /** The landing's heading, degrees. */
+    /*
+     * The landing's heading, degrees.
+     */
     landingHeading: number;
 
-    /** The turn from the take-off heading to the landing's, degrees. */
+    /*
+     * The turn from the take-off heading to the landing's, degrees.
+     */
     headingChange: number;
 
-    /** The landing surface's height, metres. */
+    /*
+     * The landing surface's height, metres.
+     */
     rise: number;
 
-    /** The standing root. */
+    /*
+     * The standing root.
+     */
     rootS: IAutoMovieVector3;
 
-    /** The centre of mass at take-off. */
+    /*
+     * The centre of mass at take-off.
+     */
     comT: IAutoMovieVector3;
 
-    /** The caught landing. */
+    /*
+     * The caught landing.
+     */
     caught: jumpLanding.ILanding;
 
-    /** The endpoints to the caught landing. */
+    /*
+     * The endpoints to the caught landing.
+     */
     caughtEnds: jumpEndpoints.IEnds;
 
-    /** The centre of mass at the caught touchdown. */
+    /*
+     * The centre of mass at the caught touchdown.
+     */
     caughtCentre: IAutoMovieVector3;
 
-    /** The vertical take-off speed, metres a second. */
+    /*
+     * The vertical take-off speed, metres a second.
+     */
     vy: jumpFlight.IFlight["vy"];
 
-    /** The flight's time, seconds. */
+    /*
+     * The flight's time, seconds.
+     */
     T: jumpFlight.IFlight["T"];
 
-    /** The centre's launch velocity. */
+    /*
+     * The centre's launch velocity.
+     */
     launch: jumpFlight.IFlight["launch"];
 
-    /** The centre's landing velocity. */
+    /*
+     * The centre's landing velocity.
+     */
     land: jumpFlight.IFlight["land"];
   }
 }

@@ -9,17 +9,16 @@ import type {
 
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/**
+/*
  * The rotation one hand keeps through a keyed contact sequence (`manipulate`):
  * the fingers toward the hand's first site from the body's root, laid across
  * the site's normal, and the palm against the normal. The plan places the hand
  * with it and the fingering reads every digit's tip where it puts it, so both
  * see one hand.
- *
- * @param hold The posture the act is entered with.
- * @param presses The sequence's sites with their hands, in order.
- * @param side The hand.
- * @returns The hand's world rotation from its rest.
+ * Parameter hold: The posture the act is entered with.
+ * Parameter presses: The sequence's sites with their hands, in order.
+ * Parameter side: The hand.
+ * Returns: The hand's world rotation from its rest.
  */
 export function manipulateFacing(
   hold: IAutoMovieMotionHumanPosture,

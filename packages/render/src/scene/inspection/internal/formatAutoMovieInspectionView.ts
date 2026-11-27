@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Write an inspection view as the text `parseAutoMovieInspectionView` reads, so
  * a view chosen in one host repeats in another.
  *
@@ -37,7 +37,9 @@ export function formatAutoMovieInspectionView(
   );
 }
 
-/** A vector as `x,y,z`. */
+/*
+ * A vector as `x,y,z`.
+ */
 function triple(vector: IAutoMovieVector3): string {
   return `${vector.x},${vector.y},${vector.z}`;
 }

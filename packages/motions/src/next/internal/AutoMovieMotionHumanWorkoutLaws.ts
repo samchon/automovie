@@ -6,12 +6,12 @@ import { stiltWalk as stiltWalkLaw } from "../../exercise/internal/stiltWalk";
 import { stretch as stretchLaw } from "../../exercise/internal/stretch";
 import { workout as workoutLaw } from "../../exercise/internal/workout";
 
-/**
+/*
  * The workout family's laws, each the shipped function under its family name
  * (`AutoMovieMotionHumanWorkout`), with its own comment.
  */
 export namespace AutoMovieMotionHumanWorkoutLaws {
-  /**
+  /*
    * A standing bodyweight exercise counted in repetitions: the squat, the
    * forward lunge, high knees and the jumping jack (ACSM's Guidelines for
    * Exercise Testing and Prescription, 11th ed.).
@@ -51,7 +51,7 @@ export namespace AutoMovieMotionHumanWorkoutLaws {
    */
   export import exercise = exerciseLaw;
 
-  /**
+  /*
    * A standing static stretch or yoga pose held and released: the neck side
    * bend, the cross-body shoulder stretch, the overhead side bend, the standing
    * quadriceps stretch holding the ankle, and the tree pose (ACSM's Guidelines,
@@ -85,7 +85,7 @@ export namespace AutoMovieMotionHumanWorkoutLaws {
    */
   export import stretch = stretchLaw;
 
-  /**
+  /*
    * An exercise, a stretch or a pose done on a support that is not only the
    * feet, or with the feet kept under a moving trunk: the body gets from
    * standing into the exercise's first posture, passes through the postures of
@@ -115,7 +115,7 @@ export namespace AutoMovieMotionHumanWorkoutLaws {
    */
   export import workout = workoutLaw;
 
-  /**
+  /*
    * One low two-foot hop in place, designed to accompany a single rope turn.
    * Register with `HumanChain.extend({ ropeSkip })` and the performance's
    * laws.
@@ -130,7 +130,7 @@ export namespace AutoMovieMotionHumanWorkoutLaws {
    */
   export const ropeSkip: typeof ropeSkipLaw = ropeSkipLaw;
 
-  /**
+  /*
    * A walk along a line too narrow for a normal gait (balance beam, tightrope).
    * Each step puts a foot one foot's length ahead of the other on the line,
    * heel to toe, turned out `TURN` degrees from it; a stepping foot swings over
@@ -159,7 +159,7 @@ export namespace AutoMovieMotionHumanWorkoutLaws {
    */
   export import lineWalk = lineWalkLaw;
 
-  /**
+  /*
    * A walk on stilts. Each foot stands strapped on its stilt's platform and
    * carries the stilt with it, so the stilts' tips are the only floor contacts;
    * the feet bear on the platforms' height as on a raised floor. The steps are
@@ -174,7 +174,7 @@ export namespace AutoMovieMotionHumanWorkoutLaws {
    */
   export import stiltWalk = stiltWalkLaw;
 
-  /**
+  /*
    * Drive a visible rope on the clock of a placed two-foot skip.
    *
    * The central cable runs transversely and revolves over the neutral body
@@ -186,11 +186,10 @@ export namespace AutoMovieMotionHumanWorkoutLaws {
    * thumb side. The cable can flex where it joins that end. A film host poses
    * its two barrels and supplies the unindexed cord to the existing soft-prop
    * draw binding. This is a derived staging curve.
-   *
-   * @returns A seekable film-time sampler, undefined outside the surviving
-   *   action.
-   * @throws {HumanRefusal} For invalid dimensions, an incompatible action, or a
-   *   rope that cannot span the sampled pose above the floor.
+   * Returns: A seekable film-time sampler, undefined outside the surviving
+   * action.
+   * For invalid dimensions, an incompatible action, or a
+   * rope that cannot span the sampled pose above the floor.
    */
   export const prepareRopeSkip: typeof prepareRopeSkipLaw = prepareRopeSkipLaw;
 }

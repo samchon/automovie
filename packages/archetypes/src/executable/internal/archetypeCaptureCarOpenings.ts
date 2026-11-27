@@ -5,11 +5,10 @@ import { AutoMovieArchetypeCar } from "../../vehicles";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
-/**
+/*
  * Rear-access states of every coarse car class, without a performer.
- *
- * @returns One closed/open comparison subject covering rear doors/windows and
- *   each class's load opening.
+ * Returns: One closed/open comparison subject covering rear doors/windows and
+ * each class's load opening.
  */
 export function archetypeCaptureCarOpenings(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>

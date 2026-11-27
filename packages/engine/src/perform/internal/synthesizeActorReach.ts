@@ -15,7 +15,7 @@ import { createActorJabClip } from "./createActorJabClip";
 import { createDynamicActorExtendClip } from "./createDynamicActorExtendClip";
 import { createDynamicActorJabClip } from "./createDynamicActorJabClip";
 
-/**
+/*
  * Synthesize native point, strike and reach arm targets for one actor action.
  * The selected gesture branch already admitted its rig; a reach retains its
  * original missing-rig refusal. Borrowed geometry and clinical mappings remain
@@ -104,34 +104,48 @@ export function synthesizeActorReach(props: IProps): IAutoMovieMotion | null {
       );
 }
 
-/** Current staged/live target and frame readers borrowed from one actor action. */
+/*
+ * Current staged/live target and frame readers borrowed from one actor action.
+ */
 interface IContext {
-  /** Actual actor identity and resumed context of this action. */
+  /*
+   * Actual actor identity and resumed context of this action.
+   */
   actor: string;
   ctx: IAutoMovieActorContext;
 
-  /** Current placements and the original action's rigid staged frame. */
+  /*
+   * Current placements and the original action's rigid staged frame.
+   */
   nodes: Map<string, IAutoMovieVector3>;
   staticFrame: IAutoMovieActorWorldFrame;
 
-  /** The original live target resolver, invoked at every original sample. */
+  /*
+   * The original live target resolver, invoked at every original sample.
+   */
   resolveTarget: (
     target: IAutoMovieActionTarget,
     nodes: Map<string, IAutoMovieVector3>,
     seconds: number,
   ) => IAutoMovieVector3 | null;
 
-  /** Current rigid actor frame; called only after a sample's target resolves. */
+  /*
+   * Current rigid actor frame; called only after a sample's target resolves.
+   */
   frameAt: (seconds: number) => IAutoMovieActorWorldFrame;
 
-  /** Original dynamic-path admission query; bones short-circuit it as before. */
+  /*
+   * Original dynamic-path admission query; bones short-circuit it as before.
+   */
   actorFrameAt?: (
     actor: string,
     seconds: number,
   ) => IAutoMovieActorWorldFrame | null;
 }
 
-/** Gesture duration is read before target resolution; reaches read it afterward. */
+/*
+ * Gesture duration is read before target resolution; reaches read it afterward.
+ */
 type IProps = IContext &
   (
     | {

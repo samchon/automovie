@@ -25,7 +25,7 @@ import type { IPrepareAutoMovieSurfaceGraphicsProps } from "../../IPrepareAutoMo
 import { buildAutoMovieSurfaceGraphicKey } from "./buildAutoMovieSurfaceGraphicKey.js";
 import { createAutoMovieSurfaceGraphicMaterial } from "./createAutoMovieSurfaceGraphicMaterial.js";
 
-/**
+/*
  * Build a shot's surface graphics once, before any frame is drawn, and mount
  * each on its prop.
  *
@@ -318,13 +318,15 @@ export async function prepareAutoMovieSurfaceGraphics(
   };
 }
 
-/**
+/*
  * Lift of every graphic above its surface along the frame's `+Y`, metres: half
  * a millimetre, so the face does not fight the prop's own surface for depth.
  */
 const LIFT: number = 0.0005;
 
-/** The decoded-texture key of an image id as a node of `model` resolves it. */
+/*
+ * The decoded-texture key of an image id as a node of `model` resolves it.
+ */
 function imageKey(model: IAutoMovieModel, asset: string): string {
   return (model.images ?? []).some(
     (image: IAutoMovieImage): boolean => image.id === asset,
@@ -333,7 +335,7 @@ function imageKey(model: IAutoMovieModel, asset: string): string {
     : `asset:${asset}`;
 }
 
-/**
+/*
  * Decode one image layer's texture into `textures` unless an earlier layer
  * already did: a carried image from its own bytes, a project asset through the
  * host's loader. Either way the texture is sRGB with its first row at `v = 0`.
@@ -364,28 +366,42 @@ async function prepareImage(
   texture.needsUpdate = true;
 }
 
-/** One feed layer's render target, its stand-in material and its mounted mesh. */
+/*
+ * One feed layer's render target, its stand-in material and its mounted mesh.
+ */
 interface IFeed {
-  /** The target the camera's view is drawn into. */
+  /*
+   * The target the camera's view is drawn into.
+   */
   target: THREE.WebGLRenderTarget;
 
-  /** The graphic's background, shown in place of the feed inside any feed. */
+  /*
+   * The graphic's background, shown in place of the feed inside any feed.
+   */
   standIn: THREE.Material;
 
-  /** Id of the camera the feed shows. */
+  /*
+   * Id of the camera the feed shows.
+   */
   camera: string;
 
-  /** The feed layer's mesh, wearing one material at a time. */
+  /*
+   * The feed layer's mesh, wearing one material at a time.
+   */
   mesh: THREE.Mesh<THREE.BufferGeometry, THREE.Material>;
 
-  /** The key group holding the mesh, visible while its key is in force. */
+  /*
+   * The key group holding the mesh, visible while its key is in force.
+   */
   group: THREE.Group;
 
-  /** The film response stage the feed draws through, made on its first use. */
+  /*
+   * The film response stage the feed draws through, made on its first use.
+   */
   stage: AutoMovieFilmResponseStage | null;
 }
 
-/**
+/*
  * The shader patch that decodes a feed's sampled picture from sRGB while
  * `encoded.value` is 1, because the film response stage writes its picture
  * encoded for a display, so the screen's white is the graphic's luminance. At 0

@@ -13,7 +13,7 @@ import type {
 
 import { HumanDigitFit } from "../../posture/internal/HumanDigitFit";
 
-/**
+/*
  * A planned arm's hand fingers as the plan carries them: one finger state, in
  * joint space, that the planner reads the hand by and the display plays
  * unchanged, MoveIt's grasp convention (`moveit_msgs/Grasp`,
@@ -31,17 +31,16 @@ import { HumanDigitFit } from "../../posture/internal/HumanDigitFit";
  * give positions alone.
  */
 export namespace AutoMovieMotionHumanArmPlayed {
-  /**
+  /*
    * A hand's finger state at one instant of the plan, in joint space.
-   *
-   * @param body The body.
-   * @param pose The instant's base pose, the planned arms left out.
-   * @param posture The instant's posture so far, whose digit goals for this
-   *   hand the state fits.
-   * @param side The hand.
-   * @param arm The arm at its goal's fit there, read only when the hand has a
-   *   digit goal.
-   * @returns The hand's digit joints, clinical degrees, by bone.
+   * Parameter body: The body.
+   * Parameter pose: The instant's base pose, the planned arms left out.
+   * Parameter posture: The instant's posture so far, whose digit goals for this
+   * hand the state fits.
+   * Parameter side: The hand.
+   * Parameter arm: The arm at its goal's fit there, read only when the hand has a
+   * digit goal.
+   * Returns: The hand's digit joints, clinical degrees, by bone.
    */
   export function grasp(
     body: IAutoMovieMotionHumanBody,
@@ -58,14 +57,13 @@ export namespace AutoMovieMotionHumanArmPlayed {
     );
   }
 
-  /**
+  /*
    * The finger state played over the plan's instants: linear in each joint
    * between neighbouring instants, held at the first before them and at the
    * last after them.
-   *
-   * @param times The instants, seconds, ascending.
-   * @param states The finger state at each instant.
-   * @returns The state at a second.
+   * Parameter times: The instants, seconds, ascending.
+   * Parameter states: The finger state at each instant.
+   * Returns: The state at a second.
    */
   export function prepare(
     times: readonly number[],
@@ -103,16 +101,15 @@ export namespace AutoMovieMotionHumanArmPlayed {
     };
   }
 
-  /**
+  /*
    * A posture with a planned arm written as joints and its hand's fingers as
    * the plan plays them; the arm's limb goal and the hand's digit goals are
    * removed, so no fit after the plan moves either.
-   *
-   * @param posture The posture before the arm.
-   * @param side The arm.
-   * @param arm The arm's joints.
-   * @param digits The hand's finger state.
-   * @returns The posture.
+   * Parameter posture: The posture before the arm.
+   * Parameter side: The arm.
+   * Parameter arm: The arm's joints.
+   * Parameter digits: The hand's finger state.
+   * Returns: The posture.
    */
   export function written(
     posture: IAutoMovieMotionHumanPosture,
@@ -147,19 +144,29 @@ export namespace AutoMovieMotionHumanArmPlayed {
   }
 }
 
-/** A hand's digit joints, clinical degrees, by bone. */
+/*
+ * A hand's digit joints, clinical degrees, by bone.
+ */
 type Fingers = IAutoMovieMotionHumanPosture["joints"];
 
-/** A posture's digit goals. */
+/*
+ * A posture's digit goals.
+ */
 type Goals = NonNullable<IAutoMovieMotionHumanPosture["digits"]>;
 
-/** A joint's clinical flexion, abduction and twist, degrees. */
+/*
+ * A joint's clinical flexion, abduction and twist, degrees.
+ */
 type Angles = readonly [number, number, number];
 
-/** The two hands. */
+/*
+ * The two hands.
+ */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
-/** The fingers of a hand. */
+/*
+ * The fingers of a hand.
+ */
 const FINGERS: readonly string[] = [
   "Thumb",
   "Index",
@@ -168,7 +175,9 @@ const FINGERS: readonly string[] = [
   "Little",
 ];
 
-/** Each hand's digits, thumb first, as the posture names their goals. */
+/*
+ * Each hand's digits, thumb first, as the posture names their goals.
+ */
 const HAND_DIGITS: Readonly<
   Record<AutoMovieHumanSide, readonly AutoMovieHumanDigit[]>
 > = {
@@ -182,7 +191,9 @@ const HAND_DIGITS: Readonly<
   ],
 };
 
-/** Both hands' digit bones, each finger's chain in order. */
+/*
+ * Both hands' digit bones, each finger's chain in order.
+ */
 const DIGIT_BONES: readonly AutoMovieHumanoidBone[] = SIDES.flatMap(
   (side: AutoMovieHumanSide): AutoMovieHumanoidBone[] =>
     FINGERS.flatMap((name: string): AutoMovieHumanoidBone[] =>
@@ -190,7 +201,9 @@ const DIGIT_BONES: readonly AutoMovieHumanoidBone[] = SIDES.flatMap(
     ),
 );
 
-/** A hand's own digit goals among a posture's, or none where it has none. */
+/*
+ * A hand's own digit goals among a posture's, or none where it has none.
+ */
 function own(
   digits: IAutoMovieMotionHumanPosture["digits"],
   side: AutoMovieHumanSide,
@@ -207,7 +220,7 @@ function own(
   return found ? out : undefined;
 }
 
-/**
+/*
  * A hand's digit joints as a pose has them, by bone; a digit the pose sets no
  * joint for is absent.
  */
@@ -228,7 +241,7 @@ function of(pose: IAutoMoviePose, side: AutoMovieHumanSide): Fingers {
   return out;
 }
 
-/**
+/*
  * A pose with one arm's joints at given clinical angles, every other joint as
  * it was; an arm joint the pose lacks is added.
  */

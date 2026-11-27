@@ -1,4 +1,4 @@
-/**
+/*
  * Decode an RFC 2397 data URI into exact payload octets.
  *
  * Canonical base64 spelling includes zero unused padding bits under RFC 4648

@@ -1,6 +1,6 @@
 import type { Plane, Vector3 } from "three";
 
-/**
+/*
  * Clip the first `count` vertices of a convex polygon to the plane's inward
  * half-space. The plane itself is inside. Write to separate preallocated output
  * vectors and return the number of vertices written.

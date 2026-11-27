@@ -94,7 +94,9 @@ export namespace AutoMovieEngineMotionChainTwist {
   }
 }
 
-/** Same distal law for pose-only callers and the immediate orientation consumer. */
+/*
+ * Same distal law for pose-only callers and the immediate orientation consumer.
+ */
 function splitPose(
   props: IAutoMovieFitChainToTargetProps,
   axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>,

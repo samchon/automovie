@@ -36,7 +36,7 @@ import { athleticsSetPrimitives } from "./athleticsSetPrimitives";
 import { sprintStartBlocks } from "./sprintStartBlocks";
 import { sprintStartSet } from "./sprintStartSet";
 
-/**
+/*
  * The sprint start's crouch into the set position and its hold until the gun :
  * the hands on the start line, the front foot and the rear foot on their
  * blocks.
@@ -73,40 +73,46 @@ import { sprintStartSet } from "./sprintStartSet";
  * `blockExit`. The knee-down marks posture is a separate phase.
  */
 export namespace athletics {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "athletics";
 
-  /** Cancel table: the gun releases the start into a run. */
+  /*
+   * Cancel table: the gun releases the start into a run.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       run: ["fromRelax", "reflex"],
       stand: ["fromRelax", "smooth"],
     });
 
-  /**
+  /*
    * The front knee's included angle in the set, degrees: 90 (SD 8) measured
    * with the anthropometry-driven block setting (Cavedon et al. 2019, PLoS One
    * 14:e0213979, table 2), Harland and Steele's (1997) "about 90".
    */
   export const FRONT: number = sprintStartSet.FRONT;
 
-  /**
+  /*
    * The front block's distance behind the start line, a share of the leg's
    * length (greater trochanter to lateral malleolus): the anthropometry-driven
    * setting (Cavedon et al. 2019, table 2).
    */
   export const FRONT_DISTANCE: number = sprintStartSet.FRONT_DISTANCE;
 
-  /**
+  /*
    * The rear knee's included angle in the set, degrees (`sprintStartSet.REAR`),
    * from which the rear block is placed.
    */
   export const REAR: readonly [number, number] = sprintStartSet.REAR;
 
-  /** The front hip's included angle in the set, degrees (`sprintStartSet.HIP`). */
+  /*
+   * The front hip's included angle in the set, degrees (`sprintStartSet.HIP`).
+   */
   export const HIP: readonly [number, number] = sprintStartSet.HIP;
 
-  /**
+  /*
    * The whole body's centre of mass behind the start line in the set, metres
    * along the ground, by the sprinter's sex as the sources stratify it: 22.9 cm
    * for elite men (Slawinski et al. 2010, J Strength Cond Res 24:896, n = 6)
@@ -118,35 +124,36 @@ export namespace athletics {
   export const CENTRE: Readonly<Record<CENTREEntryItem, number>> =
     sprintStartSet.CENTRE;
 
-  /**
+  /*
    * The front block's face from the floor, degrees (provisional, within a
    * competition block's adjustment).
    */
   export const FRONT_BLOCK: number = sprintStartSet.FRONT_BLOCK;
 
-  /**
+  /*
    * The rear block's face from the floor, degrees (provisional, within a
    * competition block's adjustment).
    */
   export const REAR_BLOCK: number = sprintStartSet.REAR_BLOCK;
 
-  /**
+  /*
    * The arm extension of the initial geometric guess (provisional), owned by
    * sprintStartSet; the fitted stance is free to change it.
    */
   export const REACH: number = sprintStartSet.REACH;
 
-  /** The crouch's seconds (provisional, `athleticsClock.CROUCH`). */
+  /*
+   * The crouch's seconds (provisional, `athleticsClock.CROUCH`).
+   */
   export const CROUCH: number = athleticsClock.CROUCH;
 
-  /**
+  /*
    * Plan a sprint start.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative, the optional drive is not
-   *   positive, a named block's plates are missing, misaligned or contradict
-   *   `front` (`sprintStartBlocks`), or the set cannot be fitted to them.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the hold is negative, the optional drive is not
+   * positive, a named block's plates are missing, misaligned or contradict
+   * `front` (`sprintStartBlocks`), or the set cannot be fitted to them.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanAthletics.IParams>,
@@ -443,11 +450,17 @@ export namespace athletics {
   }
 }
 
-/** The alternatives of `PlanFlexedBone2`'s site. */
+/*
+ * The alternatives of `PlanFlexedBone2`'s site.
+ */
 type PlanFlexedBone2 = "spine" | "chest";
 
-/** The alternatives of `PlanFlexionsEntry`'s site. */
+/*
+ * The alternatives of `PlanFlexionsEntry`'s site.
+ */
 type PlanFlexionsEntry = "spine" | "chest";
 
-/** The alternatives of `CENTREEntryItem`'s site. */
+/*
+ * The alternatives of `CENTREEntryItem`'s site.
+ */
 type CENTREEntryItem = "female" | "male";

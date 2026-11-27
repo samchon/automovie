@@ -2,7 +2,7 @@ import { readAutoMoviePageTimeout } from "../../page/internal/readAutoMoviePageT
 import type { AutoMovieCliCaptureTypes } from "../AutoMovieCliCaptureTypes";
 import { AUTOMOVIE_CAPTURE_OPTIONS } from "./AUTOMOVIE_CAPTURE_OPTIONS";
 
-/**
+/*
  * Split the options of `automovie capture` into the host's own,
  * `AUTOMOVIE_CAPTURE_OPTIONS`, and the capture request's, which
  * `parseAutoMovieCapturePlanRequest` reads.

@@ -8,7 +8,7 @@ import { pushViolation } from "./pushViolation";
 import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";
 
-/**
+/*
  * Inspect carried camera-clearance status, camera identity and sample-plan
  * evidence.
  */
@@ -138,7 +138,9 @@ export function appendCameraClearanceArtifact(
   );
 }
 
-/** Count shared-clock intervals without allocating a hostile-sized grid. */
+/*
+ * Count shared-clock intervals without allocating a hostile-sized grid.
+ */
 function clearanceIntervalCount(
   duration: number,
   sampleRate: number,

@@ -115,7 +115,7 @@ export namespace AutoMovieHumanHeadEarParts {
         plate,
         (prior.helix[0]! * s) / 2,
       );
-      /**
+      /*
        * A ridge follows the source course; its attachment failure remains
        * visible to the tree.
        */
@@ -153,7 +153,7 @@ export namespace AutoMovieHumanHeadEarParts {
         return source;
       };
       ridge("ear.helix", helixCourse, prior.helix);
-      /**
+      /*
        * The retained inward distance is a breadth-scaled offset from the
        * posterior course, not a shortened straight oval.
        */
@@ -261,7 +261,7 @@ export namespace AutoMovieHumanHeadEarParts {
     return out;
   }
 
-  /**
+  /*
    * The plate boundary is the outside rim, not a tube centreline. Offset the
    * retained circular helix inward by its existing radius. The upper source
    * control then solves the exact natural-axis height bound T-R; this is a
@@ -380,7 +380,9 @@ export namespace AutoMovieHumanHeadEarParts {
     return course;
   }
 
-  /** One ear part. */
+  /*
+   * One ear part.
+   */
   function part(
     name: string,
     parent: string,

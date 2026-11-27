@@ -1,4 +1,4 @@
-/**
+/*
  * Sum the volume a sweep encloses from its section moments, its scale at the
  * step midpoints and its frames at every half step.
  *
@@ -10,12 +10,11 @@
  * sweep-based deformation with the first-moment terms of an off-centre section.
  * It counts a region twice where neighbouring sections cross, so it measures
  * the sweep's own volume only while the surface has no self-intersection.
- *
- * @param moments Area, `M_x`, `M_y` per step, `3 n` numbers; only read.
- * @param scales Scale at each step's midpoint, `n` numbers; only read.
- * @param frames Frames at `u = j / (2 n)` for `j` from 0 to `2 n`, twelve
- *   numbers each as `IAutoMovieSweepTransport.frame` writes them; only read.
- * @returns Cubic metres.
+ * Parameter moments: Area, `M_x`, `M_y` per step, `3 n` numbers; only read.
+ * Parameter scales: Scale at each step's midpoint, `n` numbers; only read.
+ * Parameter frames: Frames at `u = j / (2 n)` for `j` from 0 to `2 n`, twelve
+ * numbers each as `IAutoMovieSweepTransport.frame` writes them; only read.
+ * Returns: Cubic metres.
  */
 export const integrateAutoMovieSweepVolume: (
   moments: Float64Array,
@@ -44,7 +43,7 @@ export const integrateAutoMovieSweepVolume: (
   return volume;
 };
 
-/**
+/*
  * The change from frame `a` to frame `b` of the vector at offset `k`, the
  * origin or an axis, against frame `m`'s normal.
  */

@@ -5,7 +5,7 @@ import {
   IAutoMovieGeometryResult,
 } from "@automovie/interface";
 
-/**
+/*
  * Resolve an exact film-global frame or frame-grid second to its latest owning
  * canonical segment and source-shot frame. Admit old untagged single selectors
  * at this boundary. A missing timeline, invalid or mixed time, off-grid second
@@ -76,7 +76,9 @@ export function measureAutoMovieGeometryFilmTime(
   };
 }
 
-/** Normalize an old or current selector to one exact clock representation. */
+/*
+ * Normalize an old or current selector to one exact clock representation.
+ */
 function admitFilmTime(value: unknown): IAutoMovieFilmTime {
   if (value !== null && typeof value === "object" && !Array.isArray(value)) {
     const fields: Partial<Record<"type" | "frame" | "seconds", unknown>> =

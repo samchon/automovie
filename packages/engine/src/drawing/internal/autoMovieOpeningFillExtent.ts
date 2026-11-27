@@ -6,7 +6,7 @@ import {
 import { autoMovieDrawingRange } from "./autoMovieDrawingRange";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
-/**
+/*
  * The nominal width and height a set of world corners stands for, on the
  * drawing grid, reading world `+Y` as up.
  *
@@ -16,11 +16,10 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * every report of a fill's size labels it as the leaf's and not the hole's. An
  * empty corner set yields non-finite spans, so callers pass at least one
  * corner.
- *
- * @param corners World corners in metres, such as a filling element's triangle
- *   corners or a room box's two extremes.
- * @returns The wider horizontal span as `width` and the vertical span as
- *   `height`, in metres.
+ * Parameter corners: World corners in metres, such as a filling element's triangle
+ * corners or a room box's two extremes.
+ * Returns: The wider horizontal span as `width` and the vertical span as
+ * `height`, in metres.
  */
 export const autoMovieOpeningFillExtent = (
   corners: readonly IAutoMovieVector3[],
@@ -34,7 +33,9 @@ export const autoMovieOpeningFillExtent = (
   };
 };
 
-/** Extent of the corners along one world axis. */
+/*
+ * Extent of the corners along one world axis.
+ */
 const span = (
   corners: readonly IAutoMovieVector3[],
   axis: "x" | "y" | "z",
@@ -45,7 +46,9 @@ const span = (
   return range.max - range.min;
 };
 
-/** One coordinate of every corner, without building an array. */
+/*
+ * One coordinate of every corner, without building an array.
+ */
 function* axisValues(
   corners: readonly IAutoMovieVector3[],
   axis: "x" | "y" | "z",

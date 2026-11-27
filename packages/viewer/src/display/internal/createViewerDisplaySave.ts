@@ -1,7 +1,7 @@
 import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
 import { createViewerDisplayPublication } from "./createViewerDisplayPublication.js";
 
-/**
+/*
  * Copy a completed display before asynchronously encoding and saving it. The
  * caller owns completion, facts and commitment. One encoder/upload and one
  * latest pending bitmap bound work; failed snapshots retain the previous

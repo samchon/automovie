@@ -31,7 +31,7 @@ import { observeAutoMoviePlacedInspection } from "./observeAutoMoviePlacedInspec
 import { readAutoMovieDrawResult } from "./readAutoMovieDrawResult.js";
 import { selectAutoMovieDrawSubject } from "./selectAutoMovieDrawSubject.js";
 
-/**
+/*
  * Install the draw-only function on a page: read the props the host injected,
  * and answer `describe` and `draw` for the subject they name, drawing offscreen
  * with no interface.
@@ -186,35 +186,47 @@ export function installAutoMovieDraw<Props = unknown>(
   );
 }
 
-/**
+/*
  * Side of the block the beauty pass is drawn at and averaged down from, so its
  * edges are antialiased by area: two, the supersampling the motion harness drew
  * its stills at.
  */
 const SUPERSAMPLE = 2 as const;
 
-/** The created subject and the page's renderer. */
+/*
+ * The created subject and the page's renderer.
+ */
 interface ILoaded {
-  /** The subject's name. */
+  /*
+   * The subject's name.
+   */
   name: string;
 
-  /** The created subject. */
+  /*
+   * The created subject.
+   */
   scene: IAutoMovieDrawScene;
 
-  /** The renderer, on a canvas never attached to the document. */
+  /*
+   * The renderer, on a canvas never attached to the document.
+   */
   renderer: THREE.WebGLRenderer;
 
-  /** The subject's placement, inspection and dialogue mouths. */
+  /*
+   * The subject's placement, inspection and dialogue mouths.
+   */
   placement: AutoMovieDrawPlacement;
 
-  /**
+  /*
    * The beauty pass's stages and a transition's held layers; they allocate
    * nothing for a subject that never asks for them.
    */
   beauty: AutoMovieDrawBeauty;
 }
 
-/** Draw one call on the loaded page, as `installAutoMovieDraw` states. */
+/*
+ * Draw one call on the loaded page, as `installAutoMovieDraw` states.
+ */
 async function drawCall(
   loaded: ILoaded,
   call: IAutoMovieDrawCall,

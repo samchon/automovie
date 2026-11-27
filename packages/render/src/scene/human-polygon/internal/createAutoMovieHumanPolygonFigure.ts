@@ -5,10 +5,10 @@ import type { AutoMovieHumanPolygon } from "../../AutoMovieHumanPolygon.js";
 import { buildHumanCartoonFace } from "./buildHumanCartoonFace.js";
 import { buildHumanPolygon } from "./buildHumanPolygon.js";
 
-/**
+/*
  * A posed polygon figure with its cartoon face: the original polygon drawing
- * ({@link AutoMovieHumanPolygon.build}) built once from the evaluator's neutral output,
- * and a face ({@link AutoMovieHumanCartoon.buildFace}) on its actual head front.
+ * (AutoMovieHumanPolygon.build) built once from the evaluator's neutral output,
+ * and a face (AutoMovieHumanCartoon.buildFace) on its actual head front.
  *
  * `place` applies an evaluated pose to the existing groups and rebuilds the
  * face only when the head pose or expression changes by value, disposing the
@@ -19,17 +19,18 @@ import { buildHumanPolygon } from "./buildHumanPolygon.js";
  * The figure stays deliberately simple: a fix corrects a wrong value within the
  * same primitives, never adds geometry, detail or realism, because its job is a
  * cheap, deterministic silhouette for motion checks and diffusion hints.
- *
- * @returns The figure's root object, its drawing, the pose port and disposal.
+ * Returns: The figure's root object, its drawing, the pose port and disposal.
  */
 export function createAutoMovieHumanPolygonFigure(input: {
-  /**
+  /*
    * Evaluate a pose to rest bones and placements; called once with the neutral
    * pose.
    */ evaluate: (
     pose: Readonly<Record<string, never>>,
   ) => Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">;
-  /** RGB overrides by emitted bone. */ partColors?: Readonly<
+  /*
+   * RGB overrides by emitted bone.
+   */ partColors?: Readonly<
     Record<string, number>
   >;
 }): AutoMovieHumanPolygon.IFigure {

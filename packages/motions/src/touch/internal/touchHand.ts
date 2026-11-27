@@ -25,18 +25,17 @@ import type { touchCrossedSupport } from "./touchCrossedSupport";
 import { touchHold } from "./touchHold";
 import { touchRegion } from "./touchRegion";
 
-/**
+/*
  * One touching hand's primitives (`touch`): the hand laid on its region the way
  * its layout lays it, its elbow hint from where the hand meets its place (end
  * on from its elbow, or kept by a held tool's grasp), and the touch's stroke,
  * rests, stand-off and support on that hand. A ruled or drawn site already lies
  * off the region's point by up to its radius, so the hand lands about the site
  * only in the room that radius has left, the offset read once at the entry.
- *
- * @param prepared The touch's prepared values.
- * @param side The touching hand.
- * @param target The region it touches.
- * @returns The hand's primitives.
+ * Parameter prepared: The touch's prepared values.
+ * Parameter side: The touching hand.
+ * Parameter target: The region it touches.
+ * Returns: The hand's primitives.
  */
 export function touchHand(
   prepared: touchHand.IPrepared,
@@ -205,67 +204,109 @@ export function touchHand(
   });
 }
 
-/** Companion types of {@link touchHand}. */
+/*
+ * Companion types of touchHand.
+ */
 export namespace touchHand {
-  /** What the touch's plan prepared before its hands. */
+  /*
+   * What the touch's plan prepared before its hands.
+   */
   export interface IPrepared {
-    /** The touch's context. */
+    /*
+     * The touch's context.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>;
 
-    /** The first hand, which a site and a held prop belong to. */
+    /*
+     * The first hand, which a site and a held prop belong to.
+     */
     first: AutoMovieHumanSide;
 
-    /** A region at a second, on the posture as the stance leans it. */
+    /*
+     * A region at a second, on the posture as the stance leans it.
+     */
     region: (
       target: IAutoMovieMotionTarget,
     ) => ReturnType<ReturnType<typeof touchRegion.reader>>;
 
-    /** The first hand's region without its site. */
+    /*
+     * The first hand's region without its site.
+     */
     unsited: ReturnType<typeof touchRegion.reader>;
 
-    /** A region as the hand lying on a person feels it. */
+    /*
+     * A region as the hand lying on a person feels it.
+     */
     felt: ReturnType<typeof touchRegion.reader>;
 
-    /** Whether the stance leans. */
+    /*
+     * Whether the stance leans.
+     */
     leaning: boolean;
 
-    /** Each hand's layout on its region. */
+    /*
+     * Each hand's layout on its region.
+     */
     laid: touchHold.Lay;
 
-    /** The posture the arms are solved on at plan time. */
+    /*
+     * The posture the arms are solved on at plan time.
+     */
     reached: IAutoMovieMotionHumanPosture;
 
-    /** The posture the stroke is entered from. */
+    /*
+     * The posture the stroke is entered from.
+     */
     risen: IAutoMovieMotionHumanPosture;
 
-    /** The touching part of the hand. */
+    /*
+     * The touching part of the hand.
+     */
     effector: IAutoMovieMotionHumanTouchEffector.IEffector;
 
-    /** A held tool's grasp the first hand keeps, if any. */
+    /*
+     * A held tool's grasp the first hand keeps, if any.
+     */
     kept: IAutoMovieMotionHumanGrasp.IKey | null;
 
-    /** The touch's clock. */
+    /*
+     * The touch's clock.
+     */
     clock: IAutoMovieMotionClock;
 
-    /** The touch's kind. */
+    /*
+     * The touch's kind.
+     */
     kind: IAutoMovieMotionHumanTouchForm.Kind;
 
-    /** The stroke's repetitions. */
+    /*
+     * The stroke's repetitions.
+     */
     count: number;
 
-    /** The manner's extent. */
+    /*
+     * The manner's extent.
+     */
     extent: number;
 
-    /** The hands' shared trajectory, if any. */
+    /*
+     * The hands' shared trajectory, if any.
+     */
     together: IAutoMovieMotionHumanArmPlanned.ITogether | undefined;
 
-    /** The crossed-support attempt this plan is, if any. */
+    /*
+     * The crossed-support attempt this plan is, if any.
+     */
     attempt: touchCrossedSupport.IAttempt | undefined;
 
-    /** Each hand's rests. */
+    /*
+     * Each hand's rests.
+     */
     resting: ReturnType<typeof AutoMovieMotionHumanTouchContacts.sided>;
 
-    /** The hand's stand-off from its region, metres. */
+    /*
+     * The hand's stand-off from its region, metres.
+     */
     standoff: number;
   }
 }

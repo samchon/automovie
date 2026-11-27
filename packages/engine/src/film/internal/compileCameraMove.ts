@@ -15,15 +15,15 @@ import { FRAMING_AIM_FRACTION } from "../FRAMING_AIM_FRACTION";
 import { FRAMING_HEIGHT_FRACTION } from "../FRAMING_HEIGHT_FRACTION";
 import { lookRotation } from "./lookRotation";
 
-/**
+/*
  * Compile a camera's `frame` entries into one clip of its world translation and
  * rotation, the deterministic shot grammar.
  *
  * Framing fixes the distance and the aim. The frame must show the framing's
- * {@link FRAMING_HEIGHT_FRACTION} multiple of the subject's height vertically
+ * FRAMING_HEIGHT_FRACTION multiple of the subject's height vertically
  * and of its width (twice `radius`) horizontally, each by the pinhole fit `d =
  * (visible / 2) / tan(half-angle)`, and the camera stands at whichever distance
- * is larger. It aims at {@link FRAMING_AIM_FRACTION} of the height above the
+ * is larger. It aims at FRAMING_AIM_FRACTION of the height above the
  * subject's base. The camera approaches along its staged bearing, the direction
  * from the aim point to the staged camera, so the side staging chose is kept
  * and only the distance is solved; a camera staged on the aim point uses +Z.
@@ -72,21 +72,20 @@ import { lookRotation } from "./lookRotation";
  * and must not overlap, which `performShot` checks. Returns null for no
  * entries, and throws an `Error` for a framing or move outside the grammar, an
  * invalid `frameRate`, or a frame index that is not a safe integer.
- *
- * @param props.clipId - Id the returned clip carries.
- * @param props.camera - The staged camera: its id names the tracks, its
- *   vertical field of view sets the fit, and its transform sets the bearing and
- *   the whip's position.
- * @param props.entries - Frame actions with their resolved subjects.
- * @param props.shotDuration - Shot length in seconds; the clip's duration.
- * @param props.aspect - Frame width over height for the horizontal fit. A
- *   camera states only its vertical field of view, so without this a subject
- *   with a `radius` cannot be fitted across the delivered frame. Omitted,
- *   non-finite or non-positive, it is 1, an assumed square frame; a narrower
- *   portrait output requires its actual aspect and is not bounded by that
- *   fallback. A subject with no `radius` is unaffected.
- * @param props.frameRate - Exact delivery frame rate the moving paths are keyed
- *   at; omitted, 24 frames per second.
+ * Parameter props.clipId: - Id the returned clip carries.
+ * Parameter props.camera: - The staged camera: its id names the tracks, its
+ * vertical field of view sets the fit, and its transform sets the bearing and
+ * the whip's position.
+ * Parameter props.entries: - Frame actions with their resolved subjects.
+ * Parameter props.shotDuration: - Shot length in seconds; the clip's duration.
+ * Parameter props.aspect: - Frame width over height for the horizontal fit. A
+ * camera states only its vertical field of view, so without this a subject
+ * with a `radius` cannot be fitted across the delivered frame. Omitted,
+ * non-finite or non-positive, it is 1, an assumed square frame; a narrower
+ * portrait output requires its actual aspect and is not bounded by that
+ * fallback. A subject with no `radius` is unaffected.
+ * Parameter props.frameRate: - Exact delivery frame rate the moving paths are keyed
+ * at; omitted, 24 frames per second.
  */
 export function compileCameraMove(
   props: IAutoMovieCompileCameraMove.IProps,
@@ -114,7 +113,7 @@ export function compileCameraMove(
     else keys.push({ t, pos, rot });
   }
 
-  /**
+  /*
    * Start an entry at `t`: from a reached pose it differs from, keep that pose
    * as its own key just before `t`, so the change is a step at `t` and not a
    * ramp across the previous entry, which replacing the reached key would be.
@@ -241,7 +240,9 @@ export function compileCameraMove(
         ? { x: -1, y: 0, z: 0 }
         : Vector3.normalize(side);
 
-    /** Fit position to the current base and orient toward the selected aim base. */
+    /*
+     * Fit position to the current base and orient toward the selected aim base.
+     */
     function framedAt(
       base: IAutoMovieVector3,
       d: number,
@@ -256,17 +257,23 @@ export function compileCameraMove(
       return { t: 0, pos, rot: lookRotation(Vector3.subtract(target, pos)) };
     }
 
-    /** Eased progress of a key time through the span; a zero span is complete. */
+    /*
+     * Eased progress of a key time through the span; a zero span is complete.
+     */
     function eased(t: number): number {
       return ease("easeInOut", t1 > t0 ? (t - t0) / (t1 - t0) : 1);
     }
 
-    /** Camera distance from the aim at a key time, eased from start to end. */
+    /*
+     * Camera distance from the aim at a key time, eased from start to end.
+     */
     function distanceAt(t: number): number {
       return fromDistance + (toDistance - fromDistance) * eased(t);
     }
 
-    /** Write one key, the span's first through {@link begin}. */
+    /*
+     * Write one key, the span's first through begin.
+     */
     function key(
       t: number,
       pos: IAutoMovieVector3,
@@ -343,7 +350,9 @@ export function compileCameraMove(
     holdUntil(t1, i);
   });
 
-  /** Hold the last pose to a span's end when another entry follows it. */
+  /*
+   * Hold the last pose to a span's end when another entry follows it.
+   */
   function holdUntil(t1: number, i: number): void {
     const last: IKey = keys[keys.length - 1]!;
     if (i + 1 < entries.length && t1 > last.t + SAME_INSTANT)
@@ -382,25 +391,37 @@ export function compileCameraMove(
   };
 }
 
-/** World up: the horizon a camera keeps level. */
+/*
+ * World up: the horizon a camera keeps level.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** A whip pan snaps to its new aim in this many seconds. */
+/*
+ * A whip pan snaps to its new aim in this many seconds.
+ */
 const WHIP_SECONDS: number = 0.2;
 
-/** An orbit sweeps this many degrees about world up over its span. */
+/*
+ * An orbit sweeps this many degrees about world up over its span.
+ */
 const ORBIT_DEGREES: number = 45;
 
-/** A push-in starts at this multiple of the framed distance. */
+/*
+ * A push-in starts at this multiple of the framed distance.
+ */
 const PUSH_IN_FROM: number = 1.25;
 
-/** A push-in ends at this multiple of the framed distance. */
+/*
+ * A push-in ends at this multiple of the framed distance.
+ */
 const PUSH_IN_TO: number = 0.8;
 
-/** A truck crosses this multiple of the framed distance toward screen-left. */
+/*
+ * A truck crosses this multiple of the framed distance toward screen-left.
+ */
 const TRUCK_DISTANCE: number = 1;
 
-/**
+/*
  * Frame rate the moving paths are keyed at when the caller states no delivery
  * rate: 24 frames per second, the theatrical sound-film rate.
  */
@@ -409,30 +430,40 @@ const FALLBACK_FRAME_RATE: IAutoMovieProductionFrameRate = {
   denominator: 1,
 };
 
-/** Seconds within which two key times are the same instant. */
+/*
+ * Seconds within which two key times are the same instant.
+ */
 const SAME_INSTANT: number = 1e-9;
 
-/**
+/*
  * Seconds before an entry's start at which a step keeps the reached pose: far
- * above {@link SAME_INSTANT} and far below any delivery frame interval, so the
+ * above SAME_INSTANT and far below any delivery frame interval, so the
  * frame before the start still shows the reached pose and the frame at the
  * start shows the new one.
  */
 const STEP_SECONDS: number = 1e-6;
 
-/** One camera key: shot-local seconds, world position and world rotation. */
+/*
+ * One camera key: shot-local seconds, world position and world rotation.
+ */
 interface IKey {
-  /** Shot-local seconds. */
+  /*
+   * Shot-local seconds.
+   */
   t: number;
 
-  /** World position in metres. */
+  /*
+   * World position in metres.
+   */
   pos: IAutoMovieVector3;
 
-  /** World rotation. */
+  /*
+   * World rotation.
+   */
   rot: IAutoMovieQuaternion;
 }
 
-/**
+/*
  * Whether a key already holds a pose: positions within 1e-9 m and rotations
  * within 1e-12 of the same orientation, either quaternion sign.
  */
@@ -452,7 +483,7 @@ function samePose(
   );
 }
 
-/**
+/*
  * Key times of one moving span: its start, every delivery frame strictly inside
  * it, and its end, in shot-local seconds.
  *

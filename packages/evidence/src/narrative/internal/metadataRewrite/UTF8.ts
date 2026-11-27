@@ -1,6 +1,6 @@
 import { TextDecoder } from "node:util";
 
-/**
+/*
  * Decodes strict UTF-8 while preserving a leading byte order mark.
  *
  * Principled implementation: Node TextDecoder uses fatal UTF-8 decoding and

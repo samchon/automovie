@@ -10,11 +10,11 @@ import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { designLineageRecord } from "./designLineageRecord";
 import { requireDesignVariant } from "./requireDesignVariant";
 
-/**
+/*
  * Compare two alternatives of a lineage the caller has already validated.
  *
- * This is the comparison {@link designLineageCompare} and
- * {@link designLineageDecisionComparisons} answer with after their own single
+ * This is the comparison designLineageCompare and
+ * designLineageDecisionComparisons answer with after their own single
  * validation, so a decision with many options validates once rather than once
  * per pair. It assumes a valid lineage: a change keyed twice on one subject and
  * aspect is a contradiction validation refuses, and here the later change would
@@ -25,12 +25,11 @@ import { requireDesignVariant } from "./requireDesignVariant";
  * leaves the aspect at the base revision. Differences are ordered by subject
  * and then aspect in UTF-16 code-unit order, and `common` lists, in the same
  * order, every lineage subject neither alternative changes.
- *
- * @param lineage A lineage `validateDesignLineage` accepts.
- * @param left Id of the variant reported on the `left` side.
- * @param right Id of the variant reported on the `right` side.
- * @returns The shared revision, both ids, the untouched subjects, and every
- *   differing (subject, aspect) pair.
+ * Parameter lineage: A lineage `validateDesignLineage` accepts.
+ * Parameter left: Id of the variant reported on the `left` side.
+ * Parameter right: Id of the variant reported on the `right` side.
+ * Returns: The shared revision, both ids, the untouched subjects, and every
+ * differing (subject, aspect) pair.
  */
 export function compareDesignVariants(
   lineage: IAutoMovieDesignLineage,
@@ -89,7 +88,9 @@ export function compareDesignVariants(
   };
 }
 
-/** One variant's changes keyed by subject and aspect. */
+/*
+ * One variant's changes keyed by subject and aspect.
+ */
 const keyed: (
   changes: readonly IAutoMovieDesignChange[],
 ) => Map<string, IAutoMovieDesignChange> = (

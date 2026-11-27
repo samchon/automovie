@@ -6,15 +6,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * An item to put on, shaped as `AutoMovieArchetypeWearable.create` shapes it and
  * lying where the hand takes it: a 0.3 m hat 0.12 m high facing the way it is
  * worn, held at its brim's right side, or 0.14 m spectacles facing the body,
  * held at the bridge, each with its `wear` socket.
- *
- * @param item The item.
- * @param at Where it lies, world metres.
- * @returns The prop.
+ * Parameter item: The item.
+ * Parameter at: Where it lies, world metres.
+ * Returns: The prop.
  */
 export function dressCaseWearable(
   item: IAutoMovieMotionHumanDress.Item,
@@ -76,9 +75,11 @@ export function dressCaseWearable(
   };
 }
 
-/** The items' wear sockets. */
+/*
+ * The items' wear sockets.
+ */
 export namespace dressCaseWearable {
-  /**
+  /*
    * The wear sockets of the two items, in their own frames, as
    * `AutoMovieArchetypeWearable.create` declares them.
    */

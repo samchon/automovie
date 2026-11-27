@@ -19,7 +19,7 @@ import { putDown } from "./putDown";
 import { putDownTarget } from "./putDownTarget";
 import type { putDownTravel } from "./putDownTravel";
 
-/**
+/*
  * Register and stage an aligned solid-object insertion and seated handoff.
  *
  * Use with HumanChain.extend({ putDownAperture }) and supply the law to
@@ -47,12 +47,11 @@ export const putDownAperture: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
     plan,
   };
 
-/**
+/*
  * Resolve the distinct, aligned receiver frames and ask placement to join them.
- *
- * @param context The action entry state, grip and authored receptacle.
- * @returns The staged placement plan with an aperture event before seating.
- * @throws {HumanRefusal} If the named grip, opening or seat cannot be used.
+ * Parameter context: The action entry state, grip and authored receptacle.
+ * Returns: The staged placement plan with an aperture event before seating.
+ * If the named grip, opening or seat cannot be used.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDownAperture>,
@@ -213,7 +212,7 @@ function plan(
   });
 }
 
-/**
+/*
  * The placing arm laid as one admitted course over the whole placement
  * (`courseArmGoal`): it holds the plan's own goal at every second, the carry,
  * the insertion, the release and the retreat, with branch and swivel continuity

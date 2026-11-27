@@ -4,7 +4,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * The world volume one run occupies, span by span.
  *
  * Each straight leg of the centre line gets its own box grown by the run's

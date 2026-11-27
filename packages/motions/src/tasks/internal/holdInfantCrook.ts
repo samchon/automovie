@@ -7,31 +7,32 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** The world up. */
+/*
+ * The world up.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
+/*
  * Shoulder flexion of the cradling upper arm, degrees: provisional, the elbow
  * carried forward of the trunk's side.
  */
 const FLEXION: number = 35;
 
-/**
+/*
  * How far the cradling forearm turns forward from straight across the front,
  * degrees: provisional, clear of the trunk.
  */
 const ACROSS: number = 25;
 
-/**
+/*
  * The cradling arm of a hold.
- *
- * @param body The body.
- * @param side The holding arm.
- * @param hold The hold.
- * @param shoulder The holding shoulder's joint, world metres.
- * @param forward The body's level forward, unit.
- * @param toward The level unit toward the holding side.
- * @returns The elbow and the wrist.
+ * Parameter body: The body.
+ * Parameter side: The holding arm.
+ * Parameter hold: The hold.
+ * Parameter shoulder: The holding shoulder's joint, world metres.
+ * Parameter forward: The body's level forward, unit.
+ * Parameter toward: The level unit toward the holding side.
+ * Returns: The elbow and the wrist.
  */
 export function holdInfantCrook(
   body: IAutoMovieMotionHumanBody,
@@ -79,7 +80,7 @@ export function holdInfantCrook(
   };
 }
 
-/**
+/*
  * The arm an infant lies along in the cradle and the feed (`holdInfant`): the
  * upper arm hangs forward of the trunk, flexed `FLEXION` from hanging, and the
  * forearm runs across the front, turned `ACROSS` forward, rising from the wrist
@@ -88,19 +89,27 @@ export function holdInfantCrook(
  * arm's reach.
  */
 export namespace holdInfantCrook {
-  /** A hold that lays the infant along the forearm. */
+  /*
+   * A hold that lays the infant along the forearm.
+   */
   export type Lying = Exclude<IAutoMovieMotionHumanHoldInfant.Hold, "shoulder">;
 
-  /** Where the cradling arm's elbow and wrist lie, world metres. */
+  /*
+   * Where the cradling arm's elbow and wrist lie, world metres.
+   */
   export interface ICrook {
-    /** The elbow, under the infant's nape. */
+    /*
+     * The elbow, under the infant's nape.
+     */
     elbow: IAutoMovieVector3;
 
-    /** The wrist of the hand under the infant's seat. */
+    /*
+     * The wrist of the hand under the infant's seat.
+     */
     wrist: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * How far the cradling forearm rises from the wrist to the elbow, degrees, so
    * the infant's head lies above its seat: slightly in the cradle, half sitting
    * for a feed so the milk runs down (provisional, the slopes 0.15 and 0.5).

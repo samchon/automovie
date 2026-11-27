@@ -9,10 +9,12 @@ import { buildAutoMovieMediumShader } from "./internal/buildAutoMovieMediumShade
 import { collectAutoMovieMediumLights } from "./internal/collectAutoMovieMediumLights.js";
 import { readAutoMovieSceneMedium } from "./internal/readAutoMovieSceneMedium.js";
 
-/** The golden ratio's conjugate, the step of the dither shift per sample. */
+/*
+ * The golden ratio's conjugate, the step of the dither shift per sample.
+ */
 const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
 
-/**
+/*
  * The film response stage's participating-medium pass: march the scene's
  * physical haze over the linear beauty target, in place, right after the
  * scene's linear light is drawn.
@@ -31,13 +33,19 @@ const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
  * true, because a disabled renderer leaves stale maps behind.
  */
 export class AutoMovieFilmMediumPass {
-  /** The march output, or null before the first medium draw. */
+  /*
+   * The march output, or null before the first medium draw.
+   */
   private target_: THREE.WebGLRenderTarget | null = null;
 
-  /** March programs by light signature. */
+  /*
+   * March programs by light signature.
+   */
   private readonly programs_: Map<string, THREE.RawShaderMaterial> = new Map();
 
-  /** The copy program writing the march back over the linear colour. */
+  /*
+   * The copy program writing the march back over the linear colour.
+   */
   private readonly copy_: THREE.RawShaderMaterial = new THREE.RawShaderMaterial(
     {
       glslVersion: THREE.GLSL3,
@@ -49,44 +57,62 @@ export class AutoMovieFilmMediumPass {
     },
   );
 
-  /** The full-frame quad. */
+  /*
+   * The full-frame quad.
+   */
   private readonly quad_: THREE.Mesh<THREE.PlaneGeometry, THREE.Material> =
     new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.copy_);
 
-  /** The scene holding only the quad. */
+  /*
+   * The scene holding only the quad.
+   */
   private readonly frame_: THREE.Scene = new THREE.Scene();
 
-  /** A camera the quad's clip-space vertices ignore. */
+  /*
+   * A camera the quad's clip-space vertices ignore.
+   */
   private readonly camera_: THREE.OrthographicCamera =
     new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-  /** Put the quad in its scene; nothing is allocated on the GPU yet. */
+  /*
+   * Put the quad in its scene; nothing is allocated on the GPU yet.
+   */
   public constructor() {
     this.quad_.frustumCulled = false;
     this.frame_.add(this.quad_);
   }
 
-  /**
+  /*
    * March the scene's medium over `linear`, in place, when the scene carries
    * one; the renderer's target is restored before returning or throwing.
    */
   public apply(props: {
-    /** The renderer, whose shadow maps the scene's render just drew. */
+    /*
+     * The renderer, whose shadow maps the scene's render just drew.
+     */
     renderer: IAutoMovieFilmResponseRenderer;
 
-    /** The scene, carrying its medium. */
+    /*
+     * The scene, carrying its medium.
+     */
     scene: THREE.Scene;
 
-    /** The camera the linear target was drawn through. */
+    /*
+     * The camera the linear target was drawn through.
+     */
     camera: THREE.Camera;
 
-    /** The linear target with its depth texture. */
+    /*
+     * The linear target with its depth texture.
+     */
     linear: THREE.WebGLRenderTarget;
 
-    /** The accumulation sample index, 0 for a single draw. */
+    /*
+     * The accumulation sample index, 0 for a single draw.
+     */
     index: number;
 
-    /**
+    /*
      * How the picture's alpha is kept; absent marches an opaque picture, as
      * `buildAutoMovieMediumShader` states for each.
      */
@@ -188,7 +214,9 @@ export class AutoMovieFilmMediumPass {
     }
   }
 
-  /** Release the target, the programs and the quad. */
+  /*
+   * Release the target, the programs and the quad.
+   */
   public dispose(): void {
     this.target_?.dispose();
     this.target_ = null;
@@ -198,7 +226,9 @@ export class AutoMovieFilmMediumPass {
     this.quad_.geometry.dispose();
   }
 
-  /** The march target at a raster, made or remade as needed. */
+  /*
+   * The march target at a raster, made or remade as needed.
+   */
   private prepare(width: number, height: number): THREE.WebGLRenderTarget {
     if (
       this.target_ !== null &&

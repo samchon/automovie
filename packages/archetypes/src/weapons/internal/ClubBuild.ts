@@ -10,35 +10,51 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeClub } from "../AutoMovieArchetypeClub";
 
-/** The professional rule on a bat's size. */
+/*
+ * The professional rule on a bat's size.
+ */
 const RULE: string =
   "Official Baseball Rules 2024, rule 3.02(a), a bat at most 2.61 in across at its thickest (https://www.baseball.ca/uploads/files/2024%20Rules/2024%20MLB%20Official%20Rules%20-%20EN.pdf)";
 
-/** A maker's straight batons. */
+/*
+ * A maker's straight batons.
+ */
 const BATON: string =
   "Monadnock MP straight polycarbonate batons, 24 and 26 in long and 1.25 in across (https://www.defense-technology.com/?p=2138)";
 
-/**
+/*
  * The measured club recipes, seed draw and model contacts retained by the bat
  * and screen practice prop.
  */
 export namespace ClubBuild {
-  /** The retained barrel length in metres. */
+  /*
+   * The retained barrel length in metres.
+   */
   export const BARREL: number = 10 * AutoMovieArchetypeUnits.INCH;
 
-  /** The retained strike distance from the tip in metres. */
+  /*
+   * The retained strike distance from the tip in metres.
+   */
   export const SWEET: number = 5.5 * AutoMovieArchetypeUnits.INCH;
 
-  /** The retained knob diameter in metres. */
+  /*
+   * The retained knob diameter in metres.
+   */
   export const KNOB: number = 2 * AutoMovieArchetypeUnits.INCH;
 
-  /** The retained knob length in metres. */
+  /*
+   * The retained knob length in metres.
+   */
   export const KNOB_LENGTH: number = 0.02;
 
-  /** The retained hand span in metres. */
+  /*
+   * The retained hand span in metres.
+   */
   export const HANDS: number = 0.25;
 
-  /** The retained dimension units. */
+  /*
+   * The retained dimension units.
+   */
   export const UNITS: Readonly<
     Record<AutoMovieArchetypeClub.Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -48,7 +64,9 @@ export namespace ClubBuild {
     mass: "kg",
   };
 
-  /** The retained measured profiles. */
+  /*
+   * The retained measured profiles.
+   */
   export const MODELS: Readonly<
     Record<
       AutoMovieArchetypeClub.Kind,
@@ -86,7 +104,9 @@ export namespace ClubBuild {
     },
   };
 
-  /** The retained free-dimension bands. */
+  /*
+   * The retained free-dimension bands.
+   */
   export const BANDS: Readonly<
     Record<
       AutoMovieArchetypeClub.Kind,
@@ -123,22 +143,32 @@ export namespace ClubBuild {
     },
   };
 
-  /** The values {@link draw} accepts at this place in its signature. */
+  /*
+   * The values draw accepts at this place in its signature.
+   */
   export type DrawMaterial = "wood" | "plastic";
 
-  /** What {@link draw} prepares for its caller. */
+  /*
+   * What draw prepares for its caller.
+   */
   export interface IDrawResult {
-    /** The prepared `builder` this call returns. */
+    /*
+     * The prepared `builder` this call returns.
+     */
     builder: AutoMovieArchetypeBuilder<
       AutoMovieArchetypeClub.Affordance,
       AutoMovieArchetypeClub.Dimension
     >;
 
-    /** The prepared `d` this call returns. */
+    /*
+     * The prepared `d` this call returns.
+     */
     d: Partial<Record<AutoMovieArchetypeClub.Dimension, number>>;
   }
 
-  /** Draw the bat or screen practice profile under its original club namespace. */
+  /*
+   * Draw the bat or screen practice profile under its original club namespace.
+   */
   export function draw(
     kind: AutoMovieArchetypeClub.Kind,
     params: Readonly<Omit<AutoMovieArchetypeClub.IParams, "kind">>,
@@ -163,19 +193,20 @@ export namespace ClubBuild {
     return { builder, d };
   }
 
-  /** The values {@link contacts} accepts at this place in its signature. */
+  /*
+   * The values contacts accepts at this place in its signature.
+   */
   export type ContactsGrip = "two-hand" | "power";
 
-  /**
+  /*
    * Attach the original grip and facing surface in the built model frame.
-   *
-   * @param builder The builder that receives the saved prop's contacts.
-   * @param length The model's full length along local Y, in metres.
-   * @param thick The radius at its scene-contact surface, in metres.
-   * @param held The model radius at the grip, in metres.
-   * @param middle The grip midpoint along local Y, in metres.
-   * @param span The extent of the grip along local Y, in metres.
-   * @param grip The grip convention used by the stored prop shape.
+   * Parameter builder: The builder that receives the saved prop's contacts.
+   * Parameter length: The model's full length along local Y, in metres.
+   * Parameter thick: The radius at its scene-contact surface, in metres.
+   * Parameter held: The model radius at the grip, in metres.
+   * Parameter middle: The grip midpoint along local Y, in metres.
+   * Parameter span: The extent of the grip along local Y, in metres.
+   * Parameter grip: The grip convention used by the stored prop shape.
    */
   export function contacts(
     builder: AutoMovieArchetypeBuilder<

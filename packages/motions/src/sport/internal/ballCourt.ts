@@ -29,7 +29,7 @@ import { ballCourtClock } from "./ballCourtClock";
 import { ballCourtHand } from "./ballCourtHand";
 import { ballCourtSphere } from "./ballCourtSphere";
 
-/**
+/*
  * Plan a planted basketball or handball phrase on the same clock as its
  * release. Basketball's return from the floor and the handball throw keep the
  * actual ball as a single performance prop. The contest waves and raises the
@@ -38,12 +38,11 @@ import { ballCourtSphere } from "./ballCourtSphere";
  * 10:73–80, distinguishes grounded and airborne handball delivery. This first
  * grounded version uses a planted base and a separate arm cocking and delivery
  * phase. Phase durations and limb targets are provisional staging values.
- *
- * @param context The ball-sport action instance and its actor and prop readers.
- * @param kind The checked court phrase selected by ballSport.
- * @returns Planted motion with named beats and, for a release, a grip window
- *   and the one prop launch.
- * @throws {HumanRefusal} For an unavailable spherical prop or required aim.
+ * Parameter context: The ball-sport action instance and its actor and prop readers.
+ * Parameter kind: The checked court phrase selected by ballSport.
+ * Returns: Planted motion with named beats and, for a release, a grip window
+ * and the one prop launch.
+ * For an unavailable spherical prop or required aim.
  */
 export function ballCourt(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallSport.IParams>,
@@ -227,7 +226,9 @@ export function ballCourt(
     launches: [...(plan.launches ?? []), launch],
   };
 }
-/** The court phrases handled by this planner. */
+/*
+ * The court phrases handled by this planner.
+ */
 type Kind =
   | "dribbleRelease"
   | "chestPass"
@@ -236,7 +237,9 @@ type Kind =
   | "handballThrow"
   | "highHandContest";
 
-/** The record of `IPHRASESEntryItem`'s site. */
+/*
+ * The record of `IPHRASESEntryItem`'s site.
+ */
 type IPHRASESEntryItem = {
   depth: number;
   lean: number;
@@ -245,7 +248,7 @@ type IPHRASESEntryItem = {
   flight: number;
 };
 
-/**
+/*
  * Planted motion parameters. Depth scales by stature; lean is forward degrees.
  * Durations are provisional seconds.
  */
@@ -288,7 +291,9 @@ const PHRASES: Readonly<Record<Kind, IPHRASESEntryItem>> = {
   },
 };
 
-/** Rotate a direction or body-relative offset into the performer's heading. */
+/*
+ * Rotate a direction or body-relative offset into the performer's heading.
+ */
 function turn(yaw: number, local: IAutoMovieVector3): IAutoMovieVector3 {
   return HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, local);
 }

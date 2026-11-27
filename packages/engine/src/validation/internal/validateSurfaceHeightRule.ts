@@ -3,7 +3,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/**
+/*
  * Admit constant/plane finite parameters or a finite heightfield with positive
  * pitch, safe dimensions>=2 and exact row-major count.
  */
@@ -41,7 +41,7 @@ export function validateSurfaceHeightRule(
     );
 }
 
-/**
+/*
  * Require finite strictly positive lattice pitch.
  *
  * Pitch semantics are distinct from signed height/slope scalars.

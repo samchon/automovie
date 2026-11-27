@@ -4,19 +4,18 @@ import type {
   IAutoMovieMotionHumanProp,
 } from "@automovie/interface";
 
-/**
+/*
  * Attach an authored swing and settle to a digital stage prop's link hinge.
  *
  * Keyframes give hinge travel in degrees at seconds relative to a film instant.
  * The connecting curve stays between neighbouring travels and settles at each
  * key. The performance places and retains the final state. This track gives the
  * connector and its terminal part the same articulation.
- *
- * @param prop A digital prop with a poseable `link` hinge.
- * @param start The film second or schedule cue the track starts at.
- * @param keys At least two ordered keys, starting at zero seconds.
- * @returns The prop with the new track appended.
- * @throws {Error} For a missing hinge or inadmissible time or hinge travel.
+ * Parameter prop: A digital prop with a poseable `link` hinge.
+ * Parameter start: The film second or schedule cue the track starts at.
+ * Parameter keys: At least two ordered keys, starting at zero seconds.
+ * Returns: The prop with the new track appended.
+ * For a missing hinge or inadmissible time or hinge travel.
  */
 export function withHumanStagePropLink(
   prop: IAutoMovieMotionHumanProp,
@@ -80,13 +79,21 @@ export function withHumanStagePropLink(
   return { ...prop, tracks: [...(prop.tracks ?? []), track] };
 }
 
-/** One key on a scene-authored link track. */
+/*
+ * One key on a scene-authored link track.
+ */
 export namespace withHumanStagePropLink {
-  /** Hinge travel at a track-local instant. */
+  /*
+   * Hinge travel at a track-local instant.
+   */
   export interface IKey {
-    /** Seconds after the track begins. */
+    /*
+     * Seconds after the track begins.
+     */
     seconds: number;
-    /** Hinge travel in degrees. */
+    /*
+     * Hinge travel in degrees.
+     */
     degrees: number;
   }
 }

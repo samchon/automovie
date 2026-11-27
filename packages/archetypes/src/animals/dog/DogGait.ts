@@ -2,7 +2,7 @@ import { AutoMovieArchetypeEquineGait } from "../AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "../AutoMovieArchetypeQuadrupedGait";
 import { DOG_BODY_MEASURES } from "./constants/DOG_BODY_MEASURES";
 
-/**
+/*
  * Provisional canine timing with measured walk data and faster point
  * prototypes.
  *
@@ -44,7 +44,9 @@ import { DOG_BODY_MEASURES } from "./constants/DOG_BODY_MEASURES";
  * proxies for every gait.
  */
 export namespace DogGait {
-  /** Canine walking interval and two provisional faster experimental points. */
+  /*
+   * Canine walking interval and two provisional faster experimental points.
+   */
   export const TABLE: AutoMovieArchetypeQuadrupedGait.ITable = {
     order: ["walk", "trot", "gallop"],
     gaits: {

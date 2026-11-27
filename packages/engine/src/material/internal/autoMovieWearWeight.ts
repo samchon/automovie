@@ -5,7 +5,7 @@ import type {
 
 import { autoMovieProceduralFractal } from "./autoMovieProceduralFractal";
 
-/**
+/*
  * One wear layer's weight at a point: the CPU reference of the worn material's
  * fragment shader.
  *
@@ -15,13 +15,12 @@ import { autoMovieProceduralFractal } from "./autoMovieProceduralFractal";
  * cells one layer width wide, so breakup patches are about as wide as the band
  * they interrupt. The weight is zero at and beyond `width` from the edge and at
  * most `n` on it.
- *
- * @param layer The admitted layer.
- * @param distance Metres from the point to the nearest feature edge of the
- *   layer's sign.
- * @param seed The wear record's seed.
- * @param point The bind-pose object-space point, metres.
- * @returns The weight within [0, 1].
+ * Parameter layer: The admitted layer.
+ * Parameter distance: Metres from the point to the nearest feature edge of the
+ * layer's sign.
+ * Parameter seed: The wear record's seed.
+ * Parameter point: The bind-pose object-space point, metres.
+ * Returns: The weight within [0, 1].
  */
 export function autoMovieWearWeight(
   layer: IAutoMovieMaterialWear.ILayer,

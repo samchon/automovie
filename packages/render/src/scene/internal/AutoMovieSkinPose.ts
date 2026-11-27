@@ -4,41 +4,57 @@ import * as THREE from "three";
 import { AutoMovieSkinBlend } from "./AutoMovieSkinBlend.js";
 import { readAutoMovieBufferAttribute } from "./readAutoMovieBufferAttribute.js";
 
-/**
+/*
  * The CPU pose of one skinned mesh: posed positions under a complete dependency
  * key, the exact extent, and the joint-only safe sphere. Owned by
- * {@link AutoMovieSkinnedMesh}, which documents the operator order, the key and
+ * AutoMovieSkinnedMesh, which documents the operator order, the key and
  * the sphere's derivation; this class holds the state and the passes.
  */
 export class AutoMovieSkinPose {
-  /** Posed local positions under the key, three per vertex. */
+  /*
+   * Posed local positions under the key, three per vertex.
+   */
   public posed: Float32Array = new Float32Array(0);
 
-  /** Unpadded posed box of the cache. */
+  /*
+   * Unpadded posed box of the cache.
+   */
   public readonly extent: THREE.Box3 = new THREE.Box3();
 
-  /** Largest distance of a cached vertex from the centre of {@link extent}. */
+  /*
+   * Largest distance of a cached vertex from the centre of extent.
+   */
   public radius: number = 0;
 
-  /** Largest absolute cached coordinate, the scale of the float32 error. */
+  /*
+   * Largest absolute cached coordinate, the scale of the float32 error.
+   */
   public largest: number = 0;
 
-  /** Geometry the cache was read from; null before the first evaluation. */
+  /*
+   * Geometry the cache was read from; null before the first evaluation.
+   */
   private source: THREE.BufferGeometry | null = null;
 
-  /** Whether a writer invalidated since the key was last checked. */
+  /*
+   * Whether a writer invalidated since the key was last checked.
+   */
   private stale: boolean = true;
 
-  /** Skeleton slots weighing on at least one vertex of {@link source}. */
+  /*
+   * Skeleton slots weighing on at least one vertex of source.
+   */
   private used: Int32Array = new Int32Array(0);
 
-  /**
+  /*
    * Attribute versions, morph influences and `K_j` of the used joints at
    * evaluation.
    */
   private key: Float64Array = new Float64Array(0);
 
-  /** Rest sphere and weighted joints of a geometry at its attribute versions. */
+  /*
+   * Rest sphere and weighted joints of a geometry at its attribute versions.
+   */
   private rest: {
     geometry: THREE.BufferGeometry | null;
     version: string;
@@ -53,22 +69,28 @@ export class AutoMovieSkinPose {
     used: new Int32Array(0),
   };
 
-  /** @param mesh The skinned mesh this pose belongs to. */
+  /*
+   * Parameter mesh: The skinned mesh this pose belongs to.
+   */
   public constructor(private readonly mesh: AutoMovieSkinPose.IMesh) {}
 
-  /** Mark the key for checking at the next query. */
+  /*
+   * Mark the key for checking at the next query.
+   */
   public invalidate(): void {
     this.stale = true;
   }
 
-  /** Forget the cache entirely, as a copied mesh must. */
+  /*
+   * Forget the cache entirely, as a copied mesh must.
+   */
   public reset(): void {
     this.source = null;
     this.rest.geometry = null;
     this.stale = true;
   }
 
-  /**
+  /*
    * Bring the cache to the current key, evaluating the vertices only when it
    * changed.
    */
@@ -237,7 +259,7 @@ export class AutoMovieSkinPose {
       count === 0 ? 0 : Math.max(-minX, maxX, -minY, maxY, -minZ, maxZ, 0);
   }
 
-  /**
+  /*
    * Write a safe posed sphere from the joints alone, without the vertices;
    * false when no useful finite bound follows (a live morph, or weighted
    * rotations too far apart), and the caller takes the exact sphere.
@@ -335,13 +357,12 @@ export class AutoMovieSkinPose {
     return true;
   }
 
-  /**
+  /*
    * Write joint `j`'s `K_j`, rotation and dual part into `out` at `offset`.
-   *
-   * @param mesh The mesh whose bind matrices conjugate the bone transform.
-   * @param j Skeleton slot.
-   * @param out Joint table.
-   * @param offset Start of the joint's entry.
+   * Parameter mesh: The mesh whose bind matrices conjugate the bone transform.
+   * Parameter j: Skeleton slot.
+   * Parameter out: Joint table.
+   * Parameter offset: Start of the joint's entry.
    */
   public static joint(
     mesh: AutoMovieSkinPose.IMesh,
@@ -373,7 +394,9 @@ export class AutoMovieSkinPose {
     out[offset + 23] = 0.5 * (-tx * x - ty * y - tz * z);
   }
 
-  /** The shared joint table, grown to at least `bones` entries. */
+  /*
+   * The shared joint table, grown to at least `bones` entries.
+   */
   private static table(bones: number): Float64Array {
     if (scratch.length < bones * STRIDE)
       scratch = new Float64Array(bones * STRIDE);
@@ -382,7 +405,9 @@ export class AutoMovieSkinPose {
 }
 
 export namespace AutoMovieSkinPose {
-  /** What a pose reads from its mesh. */
+  /*
+   * What a pose reads from its mesh.
+   */
   export interface IMesh extends Pick<
     THREE.SkinnedMesh,
     | "geometry"
@@ -391,20 +416,24 @@ export namespace AutoMovieSkinPose {
     | "bindMatrix"
     | "bindMatrixInverse"
   > {
-    /** Blend the shader draws this skin with. */
+    /*
+     * Blend the shader draws this skin with.
+     */
     method: NonNullable<IAutoMovieMeshSkin["method"]>;
   }
 }
 
 const STRIDE: number = AutoMovieSkinBlend.STRIDE;
 
-/**
+/*
  * Least pairwise |q_k . q_l| the joint-only sphere accepts; below it the bound
  * is too loose and the vertices decide.
  */
 const MINIMUM_ALIGNMENT: number = 0.25;
 
-/** Joint table of the mesh being evaluated, indexed by skeleton slot. */
+/*
+ * Joint table of the mesh being evaluated, indexed by skeleton slot.
+ */
 let scratch: Float64Array = new Float64Array(0);
 
 const IDENTITY: THREE.Matrix4 = new THREE.Matrix4();

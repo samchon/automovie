@@ -14,11 +14,11 @@ import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEng
 import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 import { validateModel } from "../../validation/internal/validateModel";
 
-/**
+/*
  * The FORGE consumer's object side: accept a prop an agent authored as data
  * (crude primitive proxy, rich meaning: body, affordances, self-declared
  * articulation, D011), returning the spec itself on success or every violation
- * of the contracts below at once. {@link forgeCast} forges the performers; this
+ * of the contracts below at once. forgeCast forges the performers; this
  * forges the things they hold, open, and stack.
  *
  * The model contract: `model.id` equals `node` (the staged scene joins on it,
@@ -43,7 +43,7 @@ import { validateModel } from "../../validation/internal/validateModel";
  * the prop's root) without a cycle; each joint's optional `mesh` naming a part
  * of this prop's own model, and no part claimed by two joints; the binding
  * targeting the declared profile; every `boneMap` value naming a declared node;
- * and every semantic key the profile references ({@link profileSemanticKeys})
+ * and every semantic key the profile references (profileSemanticKeys)
  * mapped. `bindProfile` would throw on the first missing key, so reporting all
  * of them lets one correction round see the whole list, and a spec that passes
  * binds without a throw.
@@ -93,25 +93,37 @@ export function forgeProp(spec: IAutoMoviePropSpec): IAutoMovieForgedProp {
   return { success: true, prop: spec };
 }
 
-/** The builder-sealed ingest closure of an imported appearance. */
+/*
+ * The builder-sealed ingest closure of an imported appearance.
+ */
 type IImportedClosure = NonNullable<IAutoMovieModel["imported"]>;
 
-/** One sealed asset path and digest of an imported appearance. */
+/*
+ * One sealed asset path and digest of an imported appearance.
+ */
 type IImportedAsset = IImportedClosure["assets"][number];
 
-/** One sealed LOD level of an imported appearance. */
+/*
+ * One sealed LOD level of an imported appearance.
+ */
 type IImportedLod = IImportedClosure["lod"][number];
 
-/** An articulation node with the index it was first declared at. */
+/*
+ * An articulation node with the index it was first declared at.
+ */
 interface IDeclaredNode {
-  /** The first declaration of the node id. */
+  /*
+   * The first declaration of the node id.
+   */
   node: IAutoMovieNode;
 
-  /** Its index in `articulation.nodes`, for duplicate and cycle reports. */
+  /*
+   * Its index in `articulation.nodes`, for duplicate and cycle reports.
+   */
   index: number;
 }
 
-/**
+/*
  * The escape hatch to an external asset, opened exactly as far as the record
  * can be checked.
  *
@@ -285,11 +297,11 @@ function gateImportedAppearance(
     );
 }
 
-/**
+/*
  * Gate the prop's declared joints, and what each of them carries.
  *
  * The model is here for the `mesh` payload. An articulation node is an
- * {@link IAutoMovieNode}, so it can name the piece of the prop that rides it,
+ * IAutoMovieNode, so it can name the piece of the prop that rides it,
  * and that reference is the whole of how a declared joint becomes a part that
  * visibly moves: without it a hinge turns an empty frame while the leaf stands
  * still, which is a shot that validates clean and shows nothing. The reference

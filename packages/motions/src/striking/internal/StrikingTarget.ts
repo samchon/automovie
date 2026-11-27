@@ -14,23 +14,22 @@ import type {
 
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 
-/**
+/*
  * The relations every striking law reads from its entry state and its target:
  * which side leads, the line to the target, the feet as placed, and how a foot
  * steps along the line or pivots on its ball.
  */
 export namespace StrikingTarget {
-  /**
+  /*
    * Where an unaimed strike goes: at the line's height (low below the hips by
    * 0.3 thighs, high half a head-radius under the head's top, the chest
    * otherwise) and the range given, or the range read for that height, along
    * the stance's forward from the stance's centre.
-   *
-   * @param m The striker's heights and lengths.
-   * @param target The unaimed target's line and range.
-   * @param from The stance's centre and forward.
-   * @param range The range for a height, metres.
-   * @returns The point, world metres.
+   * Parameter m: The striker's heights and lengths.
+   * Parameter target: The unaimed target's line and range.
+   * Parameter from: The stance's centre and forward.
+   * Parameter range: The range for a height, metres.
+   * Returns: The point, world metres.
    */
   export function unaimed(
     m: Pick<
@@ -55,7 +54,7 @@ export namespace StrikingTarget {
     };
   }
 
-  /**
+  /*
    * How long before its start an action reads another performer to plan,
    * seconds: one film frame. Perception precedes action, and the rule keeps
    * every plan-time read in the other's earlier actions, so two performers
@@ -64,12 +63,11 @@ export namespace StrikingTarget {
    */
   export const LOOK: number = 1 / 24;
 
-  /**
+  /*
    * The leading side of an entry: the foot farther ahead along the body's
    * heading, orthodox (`left`) when the feet are level.
-   *
-   * @param entry The entry state.
-   * @returns The leading side.
+   * Parameter entry: The entry state.
+   * Returns: The leading side.
    */
   export function lead(entry: {
     posture: Pick<IAutoMovieMotionHumanPosture, "yaw">;
@@ -87,14 +85,13 @@ export namespace StrikingTarget {
     return ahead > 0.02 ? "right" : "left";
   }
 
-  /**
+  /*
    * The horizontal unit line from a root to a target, or the heading's forward
    * when the target stands over the root.
-   *
-   * @param root The root, world metres.
-   * @param target The target point, world metres.
-   * @param yaw The fallback heading, degrees.
-   * @returns A horizontal unit vector.
+   * Parameter root: The root, world metres.
+   * Parameter target: The target point, world metres.
+   * Parameter yaw: The fallback heading, degrees.
+   * Returns: A horizontal unit vector.
    */
   export function line(
     root: IAutoMovieVector3,
@@ -111,21 +108,19 @@ export namespace StrikingTarget {
     return { x: Math.sin(r), y: 0, z: Math.cos(r) };
   }
 
-  /**
+  /*
    * The line's heading.
-   *
-   * @param line A horizontal unit vector.
-   * @returns Degrees about +Y.
+   * Parameter line: A horizontal unit vector.
+   * Returns: Degrees about +Y.
    */
   export function heading(line: IAutoMovieVector3): number {
     return (Math.atan2(line.x, line.z) * 180) / Math.PI;
   }
 
-  /**
+  /*
    * The entry's feet as placements.
-   *
-   * @param entry The entry state.
-   * @returns Each foot's ankle and rotation.
+   * Parameter entry: The entry state.
+   * Returns: Each foot's ankle and rotation.
    */
   export function feet(entry: {
     posture: Pick<IAutoMovieMotionHumanPosture, "yaw">;
@@ -146,14 +141,13 @@ export namespace StrikingTarget {
     };
   }
 
-  /**
+  /*
    * A foot moved along a line and lifted.
-   *
-   * @param foot The foot.
-   * @param line The horizontal unit line.
-   * @param distance How far along it, metres.
-   * @param lift How high above its place, metres.
-   * @returns The moved foot.
+   * Parameter foot: The foot.
+   * Parameter line: The horizontal unit line.
+   * Parameter distance: How far along it, metres.
+   * Parameter lift: How high above its place, metres.
+   * Returns: The moved foot.
    */
   export function slide(
     foot: IAutoMovieMotionHumanFoot.IPlacement,
@@ -171,16 +165,15 @@ export namespace StrikingTarget {
     };
   }
 
-  /**
+  /*
    * A foot turned about its ball, which stays fixed on the floor, with its heel
    * raised: the forefoot pivot of a rear-hand punch or a kick's support foot.
-   *
-   * @param body The body.
-   * @param side The foot.
-   * @param foot Its current placement, including any inherited heel tilt.
-   * @param turn The turn about the ball, degrees about +Y.
-   * @param raise The heel raise, degrees (the foot's pitch, toes down).
-   * @returns The pivoted foot.
+   * Parameter body: The body.
+   * Parameter side: The foot.
+   * Parameter foot: Its current placement, including any inherited heel tilt.
+   * Parameter turn: The turn about the ball, degrees about +Y.
+   * Parameter raise: The heel raise, degrees (the foot's pitch, toes down).
+   * Returns: The pivoted foot.
    */
   export function pivot(
     body: IAutoMovieMotionHumanBody,
@@ -205,20 +198,19 @@ export namespace StrikingTarget {
     };
   }
 
-  /**
+  /*
    * A strike's aim at a film second: the context's aim for a person, a prop or
    * a point; for no target, a virtual opponent's point built from the
    * performer's own measure on the stance's line (the heading turned back by
    * the stance turn when the feet are staggered), at the line's height (low:
    * the thigh's upper third, middle: the chest, high: the head less half its
    * radius) and at the technique's range unless the target names one.
-   *
-   * @param context The action's context.
-   * @param target The target.
-   * @param seconds Film seconds.
-   * @param range The technique's range from the stance centre, metres, given
-   *   the line height.
-   * @returns World point.
+   * Parameter context: The action's context.
+   * Parameter target: The target.
+   * Parameter seconds: Film seconds.
+   * Parameter range: The technique's range from the stance centre, metres, given
+   * the line height.
+   * Returns: World point.
    */
   export function aim(
     context: IAutoMovieMotionHumanActionContext,
@@ -230,13 +222,12 @@ export namespace StrikingTarget {
     return unaimed(context.body.measure, target, stance(context.entry), range);
   }
 
-  /**
+  /*
    * The line a virtual opponent stands on: from midway between the entry's
    * ankles, along the heading turned back by the stance turn when the feet are
    * staggered (a 5 cm stagger decides).
-   *
-   * @param entry The action's entry.
-   * @returns The stance centre and the unit direction toward the opponent.
+   * Parameter entry: The action's entry.
+   * Returns: The stance centre and the unit direction toward the opponent.
    */
   export function stance(entry: {
     posture: Pick<IAutoMovieMotionHumanPosture, "yaw">;

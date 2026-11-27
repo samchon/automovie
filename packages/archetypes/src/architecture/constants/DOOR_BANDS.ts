@@ -6,11 +6,15 @@ import {
 import { ADA_RANGES } from "./ADA_RANGES";
 import type { AutoMovieArchetypeDoor } from "../AutoMovieArchetypeDoor";
 
-/** The accessibility standard's door clauses. */
+/*
+ * The accessibility standard's door clauses.
+ */
 const ADA: string =
   "2010 ADA Standards (https://www.access-board.gov/ada/chapter/ch04/)";
 
-/** The bands every door shares. */
+/*
+ * The bands every door shares.
+ */
 const LEAF: Readonly<
   Partial<Record<AutoMovieArchetypeDoor.Dimension, IAutoMovieArchetypeBand>>
 > = {
@@ -30,7 +34,9 @@ const LEAF: Readonly<
   ),
 };
 
-/** The bands of a hinged door's swing. */
+/*
+ * The bands of a hinged door's swing.
+ */
 const SWING: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
   "degrees",
   90,
@@ -39,7 +45,7 @@ const SWING: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
   true,
 );
 
-/**
+/*
  * The band of each free dimension of a door, by hardware and for a sliding
  * door, with the source it was read at; `AutoMovieArchetypeDoor.BANDS` is this table.
  */

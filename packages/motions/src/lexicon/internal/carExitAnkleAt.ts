@@ -3,7 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
 
-/**
+/*
  * Samples the car exit's ankle path. The ankle lifts inside, crosses above the
  * sill at the supplied minimum clearance height and lowers outside.
  */

@@ -10,7 +10,7 @@ import { walkLeg } from "../../actions/internal/walkLeg";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import type { KickChamber } from "./KickChamber";
 
-/**
+/*
  * The kicking leg's plant on its forefoot rocker: as the weight leaves the foot
  * its ankle bends no further than the share of the weight it still bears allows
  * (`walkLeg.dorsal`), a weightless ankle's at the launch, so the heel rises
@@ -18,12 +18,11 @@ import type { KickChamber } from "./KickChamber";
  * `rangeSteppingFoot` rocks a stepping foot). A plant held flat left the foot
  * at the loaded limit as it left the floor (the cover breach's door kick: 39
  * degrees, 19 past a weightless ankle).
- *
- * @param body The body.
- * @param side The kicking side.
- * @param plant The kicking leg on the floor at the launch.
- * @returns The rocker for a hip, the plant's displacement and the ankle's
- *   dorsal limit.
+ * Parameter body: The body.
+ * Parameter side: The kicking side.
+ * Parameter plant: The kicking leg on the floor at the launch.
+ * Returns: The rocker for a hip, the plant's displacement and the ankle's
+ * dorsal limit.
  */
 export function KickRocker(
   body: IAutoMovieMotionHumanBody,
@@ -75,9 +74,11 @@ export function KickRocker(
   };
 }
 
-/** Companion types of {@link KickRocker}. */
+/*
+ * Companion types of KickRocker.
+ */
 export namespace KickRocker {
-  /**
+  /*
    * The rocker at a hip, the plant's displacement in world metres and the
    * ankle's dorsal limit in degrees.
    */
@@ -87,12 +88,18 @@ export namespace KickRocker {
     dorsal: number,
   ) => IRocked;
 
-  /** The plant's foot on its forefoot rocker. */
+  /*
+   * The plant's foot on its forefoot rocker.
+   */
   export interface IRocked {
-    /** The foot's placement. */
+    /*
+     * The foot's placement.
+     */
     foot: IAutoMovieMotionHumanFoot.IPlacement;
 
-    /** The toes' extension from the foot, degrees, keeping them flat. */
+    /*
+     * The toes' extension from the foot, degrees, keeping them flat.
+     */
     toes: number;
   }
 }

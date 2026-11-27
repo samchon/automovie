@@ -13,18 +13,17 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { jumpPush } from "./jumpPush";
 import { walkLeg } from "./walkLeg";
 
-/**
+/*
  * The raw end of the planted push, shared with the airborne initial state. All
  * carried entry rates vanish here; the heel rule still reads the actual
  * terminal hip, so its pitch is not replaced by the provisional request.
- *
- * @param props The push's body, geometry and knee rule, without its timed root
- *   path.
- * @param root The unlowered terminal root, world metres.
- * @param resolution Optional exact FK source borrowed only for this synchronous
- *   terminal hip read.
- * @returns The terminal pelvis/toes and leg goals; the caller still owns
- *   lowering and physical resolution.
+ * Parameter props: The push's body, geometry and knee rule, without its timed root
+ * path.
+ * Parameter root: The unlowered terminal root, world metres.
+ * Parameter resolution: Optional exact FK source borrowed only for this synchronous
+ * terminal hip read.
+ * Returns: The terminal pelvis/toes and leg goals; the caller still owns
+ * lowering and physical resolution.
  */
 export function jumpPushEnd(
   props: Pick<jumpPush.IProps, JumpPushEndProps>,
@@ -100,10 +99,14 @@ export function jumpPushEnd(
   };
 }
 
-/** The alternatives of `JumpPushEndResult`'s site. */
+/*
+ * The alternatives of `JumpPushEndResult`'s site.
+ */
 type JumpPushEndResult = "joints" | "limbs";
 
-/** The alternatives of `JumpPushEndProps`'s site. */
+/*
+ * The alternatives of `JumpPushEndProps`'s site.
+ */
 type JumpPushEndProps =
   | "body"
   | "takeoff"

@@ -12,20 +12,19 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
-/**
+/*
  * Prepare the crawl's two flat-palm frames. Each current palm is placed once,
  * and that actual wrist supplies both the original default elbow search and the
  * canonical contact-goal assembly; the goal names the searched elbow place
  * (`elbow: "placed"`), so the arm's fit takes it rather than searching again.
- *
- * @param body The unchanged body and hand surfaces for this crawl plan.
- * @param forward Fixed world heading used by both flat palms; callbacks must
- *   not mutate it.
- * @param flat The crawl frame owner's immutable side-only flat digit shapes.
- * @returns A current-posture/palm-point writer preserving left-then-right order
- *   for actual native callbacks that keep current root/trunk/forward unchanged
- *   within the call, borrowing optional parent FK only during that call.
- *   Generic callbacks use crawlFrame.laid.
+ * Parameter body: The unchanged body and hand surfaces for this crawl plan.
+ * Parameter forward: Fixed world heading used by both flat palms; callbacks must
+ * not mutate it.
+ * Parameter flat: The crawl frame owner's immutable side-only flat digit shapes.
+ * Returns: A current-posture/palm-point writer preserving left-then-right order
+ * for actual native callbacks that keep current root/trunk/forward unchanged
+ * within the call, borrowing optional parent FK only during that call.
+ * Generic callbacks use crawlFrame.laid.
  */
 export function prepareCrawlPalms(
   body: IAutoMovieMotionHumanBody,

@@ -3,13 +3,13 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { AutoMovieArchetypeQuadrupedLimb } from "../AutoMovieArchetypeQuadrupedLimb";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 
-/**
+/*
  * Halvings of a search over the pelvis's turn: far below a micro-radian over
  * its range.
  */
 const STEPS: number = 60;
 
-/**
+/*
  * The pelvis turning in the sagittal plane at the lumbosacral joint, carrying
  * both hip joints fore and aft so the hind limbs follow a planted hoof's reach,
  * as the shoulder blade does for a fore (`QuadrupedScapula`).
@@ -24,51 +24,59 @@ const STEPS: number = 60;
  * (`high`), and at the chosen root the turn nearest rest that does (`turn`).
  */
 export namespace QuadrupedPelvis {
-  /** The bone that turns: the hindquarters bar, the femurs' parent. */
+  /*
+   * The bone that turns: the hindquarters bar, the femurs' parent.
+   */
   export const BONE = "hindquarters" as const;
 
-  /**
+  /*
    * The pelvis's flexion-extension range during locomotion, degrees: 8.2 (Back
    * et al. 1996, as `AutoMovieArchetypeEquineGait.FOLLOW` cites).
    */
   export const RANGE: number = 8.2;
 
-  /** One hind's hip and the root constraint it must meet. */
+  /*
+   * One hind's hip and the root constraint it must meet.
+   */
   export interface IHip {
-    /** The lumbosacral joint and this hip at rest. */
+    /*
+     * The lumbosacral joint and this hip at rest.
+     */
     joint: QuadrupedScapula.IJoint;
 
-    /** The hind's ankle goal. */
+    /*
+     * The hind's ankle goal.
+     */
     goal: IAutoMovieVector3;
 
-    /** The hind's radial reach. */
+    /*
+     * The hind's radial reach.
+     */
     reach: AutoMovieArchetypeQuadrupedLimb.IRange;
   }
 
-  /**
+  /*
    * The highest root translation at which one turn of the pelvis within range
    * lets every hind reach its goal.
-   *
-   * @param hips Each hind's hip and constraint.
-   * @returns The bound, metres; negative infinity when no turn lets them all
-   *   reach.
+   * Parameter hips: Each hind's hip and constraint.
+   * Returns: The bound, metres; negative infinity when no turn lets them all
+   * reach.
    */
   export function high(hips: readonly IHip[]): number {
     const best: number = search(hips, 0);
     return lowest(hips, best, 0, false);
   }
 
-  /**
+  /*
    * The turn nearest rest at which every hind reaches its goal at a root
    * translation.
-   *
-   * @param hips Each hind's hip and constraint.
-   * @param height The chosen root translation, metres.
-   * @param margin The coordinate roundoff budget, metres: each hip is aimed
-   *   this far inside its reach so the exact limb solve admits it.
-   * @returns The turn, radians, right-handed about +X; zero when the rest hips
-   *   reach; the best turn when none lets all reach, which the limb solve then
-   *   refuses.
+   * Parameter hips: Each hind's hip and constraint.
+   * Parameter height: The chosen root translation, metres.
+   * Parameter margin: The coordinate roundoff budget, metres: each hip is aimed
+   * this far inside its reach so the exact limb solve admits it.
+   * Returns: The turn, radians, right-handed about +X; zero when the rest hips
+   * reach; the best turn when none lets all reach, which the limb solve then
+   * refuses.
    */
   export function turn(
     hips: readonly IHip[],
@@ -88,7 +96,7 @@ export namespace QuadrupedPelvis {
     return far;
   }
 
-  /**
+  /*
    * The turn maximising the hinds' joint bound, by golden-section search over
    * the range.
    */
@@ -106,7 +114,7 @@ export namespace QuadrupedPelvis {
     return (a + b) / 2;
   }
 
-  /**
+  /*
    * The lowest of the hinds' highest root translations at a turn; an
    * unreachable hind counts its horizontal excess below its goal when
    * `extended`, else negative infinity.

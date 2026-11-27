@@ -151,7 +151,7 @@ export namespace AutoMoviePhysicalHullFaces {
   }
 }
 
-/**
+/*
  * Use actual reflected coordinates in the same face membership, loop and
  * summary owners.
  */
@@ -185,7 +185,7 @@ function reflectedHull(
   return summarize(points, faces, used, source.tolerance);
 }
 
-/**
+/*
  * Preserve the same ordered vertex, sphere and face-distance reductions for
  * both producers.
  */

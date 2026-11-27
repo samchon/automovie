@@ -5,13 +5,13 @@ import { AutoMovieMotionHumanResolve } from "../compose/internal/AutoMovieMotion
 import { MotionBodies } from "./internal/MotionBodies";
 import type { humanPolygonMan } from "./internal/humanPolygonMan";
 
-/**
+/*
  * Prints what every place name, height, lateral, distance, elbow preset and
  * range level is on each body of the capture sweep, then the solved elbow
  * beside the `hang` preset on each of them, so an author reads a spec's metres
  * and degrees before running a capture.
  *
- * Run it with `pnpm --filter @automovie/motions node:resolve`.
+ * Run it with `pnpm --filter
  */
 const main = (): void => {
   const men: humanPolygonMan.IPolygonMan[] = MotionBodies.SWEEP.map(

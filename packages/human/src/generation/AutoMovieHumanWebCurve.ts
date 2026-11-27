@@ -25,13 +25,19 @@ export namespace AutoMovieHumanWebCurve {
   /** Station step of a surface derivative, mm. */
   export const H: number = 0.05;
 
-  /** Samples of a column read for its levels. */
+  /*
+   * Samples of a column read for its levels.
+   */
   const LEVEL_SAMPLES: number = 256;
 
-  /** Most Illinois steps of a level's bracket on the curve's own parameter. */
+  /*
+   * Most Illinois steps of a level's bracket on the curve's own parameter.
+   */
   const STEPS: number = 40;
 
-  /** Depth within which a point lies on its level, mm. */
+  /*
+   * Depth within which a point lies on its level, mm.
+   */
   const LEVEL: number = 1e-9;
 
   /**

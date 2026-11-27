@@ -14,7 +14,7 @@ import { createRecoveryCameraEstimate } from "./createRecoveryCameraEstimate";
 import { extractRecoveryImageFeatures } from "./extractRecoveryImageFeatures";
 import { matchRecoveryImageFeatures } from "./matchRecoveryImageFeatures";
 
-/**
+/*
  * Observe automatic image correspondences and estimate a calibrated relative
  * pose. Two unchanged RGB charts, corrected supplied intrinsics and a static
  * scene are caller premises. Integer coordinates denote pixel centres.

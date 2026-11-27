@@ -4,13 +4,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A ball as a prop: its `grip` at its centre with its diameter as the aperture,
  * the contact `createBall` declares.
- *
- * @param centre The ball's centre, world metres.
- * @param radius Its radius, metres.
- * @returns The ball.
+ * Parameter centre: The ball's centre, world metres.
+ * Parameter radius: Its radius, metres.
+ * Returns: The ball.
  */
 export function ballStrikeCaseBall(
   centre: IAutoMovieVector3,

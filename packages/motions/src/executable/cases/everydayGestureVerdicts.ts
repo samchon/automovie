@@ -7,7 +7,7 @@ import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { MotionPlaceVerdicts } from "./MotionPlaceVerdicts";
 import { everydayGestureSwings } from "./internal/everydayGestureSwings";
 
-/**
+/*
  * The checks that a gesture performs its own goal, measured on the displayed
  * poses of its stroke (from `strokeStart` to `strokeEnd`), so a figure that
  * never made the gesture fails them:
@@ -36,15 +36,14 @@ import { everydayGestureSwings } from "./internal/everydayGestureSwings";
  * Thresholds other than the head range are provisional, set at about half of
  * each gesture's planned size so they test that the gesture happens, not its
  * exact size.
- *
- * @param kind The gesture.
- * @param performance The performance.
- * @param body The body.
- * @param from Stroke start, film seconds.
- * @param to Stroke end, film seconds.
- * @param cycles The stroke's declared repetitions.
- * @returns The verdicts; empty for gestures the capture already checks (point,
- *   clap, touches, bow).
+ * Parameter kind: The gesture.
+ * Parameter performance: The performance.
+ * Parameter body: The body.
+ * Parameter from: Stroke start, film seconds.
+ * Parameter to: Stroke end, film seconds.
+ * Parameter cycles: The stroke's declared repetitions.
+ * Returns: The verdicts; empty for gestures the capture already checks (point,
+ * clap, touches, bow).
  */
 export function everydayGestureVerdicts(
   kind: IAutoMovieMotionHumanGestureStroke.Kind,

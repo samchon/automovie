@@ -6,7 +6,7 @@ import type {
 
 import { createRecoveryMapTriangularMetric } from "./createRecoveryMapTriangularMetric";
 
-/**
+/*
  * Retain the upper arrowhead of a consistently scaled point-first bundle QR.
  * Physical vectors list camera coordinates before the three coordinates per
  * landmark; elimination internally orders points first. The solve and covector

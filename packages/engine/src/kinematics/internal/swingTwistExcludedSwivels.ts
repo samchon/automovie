@@ -10,7 +10,7 @@ import type {
 import { swingTwistRefusedArcs } from "./swingTwistRefusedArcs";
 import { swivelArcs } from "../swivelArcs";
 
-/**
+/*
  * The swivels a joint's swing-twist range provably refuses: for a joint whose
  * bone-local rotation is a fixed rotation turned about a fixed axis by the
  * swivel (the chain root of `hingedArmSwivel.pose`), a test of whether every
@@ -47,34 +47,35 @@ import { swivelArcs } from "../swivelArcs";
  * swing-twist gate, a twist interval of a full turn or more and a greatest
  * radius of a half turn refuse nothing, so the test only ever says less than
  * the range would.
- *
- * @param props The joint and its rotation by swivel.
- * @returns Whether every swivel in `[low, high]`, degrees, is refused; a joint
- *   with nothing to refuse refuses no swivel.
+ * Parameter props: The joint and its rotation by swivel.
+ * Returns: Whether every swivel in `[low, high]`, degrees, is refused; a joint
+ * with nothing to refuse refuses no swivel.
  */
 export function swingTwistExcludedSwivels(props: {
-  /**
+  /*
    * The basis the caller decomposes the rotation on, admitted and normalized
    * (`normalizeJointAxes`).
    */
   basis: IAutoMovieJointAxes;
 
-  /** The rest frame the caller lifts its angles by; omitted, they are clinical. */
+  /*
+   * The rest frame the caller lifts its angles by; omitted, they are clinical.
+   */
   frame?: IAutoMovieRestFrame | undefined;
 
-  /**
+  /*
    * The joint's resolved range of motion; one without a swing-twist gate
    * refuses nothing.
    */
   constraint: IAutoMovieJointConstraint | null;
 
-  /**
+  /*
    * The frame the range reads the joint in (`scanJointRom`'s: the caller's
    * rig's, or `swingTwistRange.of`'s).
    */
   joint: IAutoMovieJointRotationFrame;
 
-  /**
+  /*
    * The joint's bone-local rotation at a swivel, degrees: a fixed rotation
    * turned about a fixed axis by the swivel.
    */

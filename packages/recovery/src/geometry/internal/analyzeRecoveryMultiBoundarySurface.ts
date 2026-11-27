@@ -3,7 +3,9 @@ import type {
   IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation,
 } from "@automovie/interface";
 
-/** Analyze coherent private surface incidence and complete boundary cycles. */
+/*
+ * Analyze coherent private surface incidence and complete boundary cycles.
+ */
 export function analyzeRecoveryMultiBoundarySurface(
   vertices: Parameters<IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation.Operation>[0],
   triangles: Parameters<IAutoMovieRecoveryMultiBoundarySurfaceAnalysisOperation.Operation>[1],

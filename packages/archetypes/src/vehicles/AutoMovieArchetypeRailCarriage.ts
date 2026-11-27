@@ -10,7 +10,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** Nominal concrete density for the schematic slab, kilograms per cubic metre. */
+/*
+ * Nominal concrete density for the schematic slab, kilograms per cubic metre.
+ */
 const CONCRETE_DENSITY: number = 2_400;
 
 /** Constructs the rail carriage archetype from its recipe. */
@@ -419,7 +421,9 @@ export namespace AutoMovieArchetypeRailCarriage {
     return builder.build(65_000 * AutoMovieArchetypeUnits.POUND);
   }
 
-  /** All slider pairs from negative to positive Z on the two sides. */
+  /*
+   * All slider pairs from negative to positive Z on the two sides.
+   */
   const DOORS = {
     far: [
       ["farDoor0", "farDoor0Follower"],
@@ -517,7 +521,9 @@ export namespace AutoMovieArchetypeRailCarriage {
     return builder.build(CONCRETE_DENSITY * depth * length * height);
   }
 
-  /** Unit shared by the seat-height input, band and record. */
+  /*
+   * Unit shared by the seat-height input, band and record.
+   */
   const UNITS: Readonly<
     Record<
       AutoMovieArchetypeRailCarriage.Dimension,
@@ -527,7 +533,7 @@ export namespace AutoMovieArchetypeRailCarriage {
     seatHeight: "m",
   };
 
-  /**
+  /*
    * Rail transfer-seat guidance gives the scenic seat contact height above the
    * finished floor.
    */
@@ -541,7 +547,9 @@ export namespace AutoMovieArchetypeRailCarriage {
     ),
   };
 
-  /** Provisional thicknesses and interior staging dimensions in metres. */
+  /*
+   * Provisional thicknesses and interior staging dimensions in metres.
+   */
   const ESTIMATES: Readonly<{
     coupler: number;
     doorHeight: number;
@@ -559,27 +567,39 @@ export namespace AutoMovieArchetypeRailCarriage {
     seatBack: 0.48,
   };
 
-  /** Neutral stainless finish for the carriage shell and grab rails. */
+  /*
+   * Neutral stainless finish for the carriage shell and grab rails.
+   */
   const STEEL: AutoMovieArchetypeBuilder.IOptions = {
     color: "#bfc8ce",
     surface: "steel",
   };
 
-  /** Low-reflectance floor and underframe silhouette. */
+  /*
+   * Low-reflectance floor and underframe silhouette.
+   */
   const DARK: AutoMovieArchetypeBuilder.IOptions = { color: "#363d46" };
 
-  /** Tinted fixed sash represented by a thin panel. */
+  /*
+   * Tinted fixed sash represented by a thin panel.
+   */
   const GLASS: AutoMovieArchetypeBuilder.IOptions = {
     color: "#526d7e",
     density: 0.4,
   };
 
-  /** Colored upholstery distinguishes the passenger supports from the shell. */
+  /*
+   * Colored upholstery distinguishes the passenger supports from the shell.
+   */
   const SEAT: AutoMovieArchetypeBuilder.IOptions = { color: "#326878" };
 
-  /** Leader, moving toward +Z, then follower, moving toward −Z. */
+  /*
+   * Leader, moving toward +Z, then follower, moving toward −Z.
+   */
   type DoorPair = (typeof DOORS)[keyof typeof DOORS][number];
 
-  /** The six independently controlled pairs' leaf ids. */
+  /*
+   * The six independently controlled pairs' leaf ids.
+   */
   type DoorId = DoorPair[number];
 }

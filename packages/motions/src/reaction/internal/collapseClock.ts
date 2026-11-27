@@ -7,15 +7,14 @@ import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionCloc
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { knockdown } from "./knockdown";
 
-/**
+/*
  * A forward, sideways or in-place collapse's timetable: the body sags for `sag`
  * seconds, its knees meet the floor `knockdown.SEATED` later (the `stroke`), it
  * is down `knockdown.DOWN` after the sag, and it lies `hold` seconds (one by
  * default).
- *
- * @param params The sag and the hold, seconds.
- * @returns The clock with `sag`, `knees`, `stroke` and `down`.
- * @throws {HumanRefusal} When the sag or the hold is negative.
+ * Parameter params: The sag and the hold, seconds.
+ * Returns: The clock with `sag`, `knees`, `stroke` and `down`.
+ * When the sag or the hold is negative.
  */
 export function collapseClock(
   params: Pick<IAutoMovieMotionHumanCollapse.IParams, "sag" | "hold">,

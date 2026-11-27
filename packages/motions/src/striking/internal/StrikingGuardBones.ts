@@ -3,13 +3,12 @@ import type {
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
 
-/**
+/*
  * The canonical bone outputs needed to place both fighting guard gloves. This
  * is fixed region/shoulder metadata of an unchanged body, not posed FK.
- *
- * @param body The canonical body whose skeleton and surface table stay fixed
- *   after creation.
- * @returns A fresh read-only set of at most eight bone names.
+ * Parameter body: The canonical body whose skeleton and surface table stay fixed
+ * after creation.
+ * Returns: A fresh read-only set of at most eight bone names.
  */
 export function StrikingGuardBones(
   body: IAutoMovieMotionHumanBody,

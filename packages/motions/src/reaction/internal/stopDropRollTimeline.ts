@@ -2,15 +2,14 @@ import type { IAutoMovieMotionEvent } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Stop, drop and roll's timetable: the body stands stopped `STOP`, drops over
  * the collapse's own length, then rolls onto a side and back `rolls` times
  * (four by default), `ROLL` each; cued `stop`, `drop`, `down` and `end`.
- *
- * @param rolls The rolls asked, rounded; four when absent.
- * @param down The drop's seconds, the protective forward collapse's length.
- * @returns The rolls, the seconds and the cues.
- * @throws {HumanRefusal} When the rolls round to no positive whole number.
+ * Parameter rolls: The rolls asked, rounded; four when absent.
+ * Parameter down: The drop's seconds, the protective forward collapse's length.
+ * Returns: The rolls, the seconds and the cues.
+ * When the rolls round to no positive whole number.
  */
 export function stopDropRollTimeline(
   rolls: number | undefined,
@@ -39,23 +38,37 @@ export function stopDropRollTimeline(
   };
 }
 
-/** Stop, drop and roll's timetable. */
+/*
+ * Stop, drop and roll's timetable.
+ */
 export namespace stopDropRollTimeline {
-  /** How long the body stands stopped before it drops, seconds: authored. */
+  /*
+   * How long the body stands stopped before it drops, seconds: authored.
+   */
   export const STOP: number = 0.3;
 
-  /** How long one roll onto a side and back takes, seconds: authored. */
+  /*
+   * How long one roll onto a side and back takes, seconds: authored.
+   */
   export const ROLL: number = 0.9;
 
-  /** The rolls, the seconds and the cues. */
+  /*
+   * The rolls, the seconds and the cues.
+   */
   export interface ITimeline {
-    /** The whole rolls. */
+    /*
+     * The whole rolls.
+     */
     rolls: number;
 
-    /** The action's seconds. */
+    /*
+     * The action's seconds.
+     */
     duration: number;
 
-    /** The action's cues. */
+    /*
+     * The action's cues.
+     */
     events: IAutoMovieMotionEvent[];
   }
 }

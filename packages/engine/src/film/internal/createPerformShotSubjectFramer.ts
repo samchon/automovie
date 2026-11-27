@@ -35,7 +35,7 @@ import { nodeSubjectExtent } from "./nodeSubjectExtent";
 import { resolvedPerformShotPoint } from "./resolvedPerformShotPoint";
 import { unionSubjectBoxes } from "./unionSubjectBoxes";
 
-/**
+/*
  * Build the function that turns a gated camera subject into the framed subject
  * the camera grammar solves from.
  *
@@ -53,19 +53,18 @@ import { unionSubjectBoxes } from "./unionSubjectBoxes";
  *
  * Any other subject resolves to one point, from the live resolver when it
  * answers and the staged placements otherwise, and is boxed through
- * {@link nodeSubjectBox} from the geometry its model draws, falling back to its
+ * nodeSubjectBox from the geometry its model draws, falling back to its
  * rig span and then the stand-in height. A baked node's framed base follows its
  * full world frame. An actor translation or live bone target moves with the
  * fixed offset of its staged subject box. A camera subject holds still.
- *
- * @param context The shot's staged tables.
- * @param props.models Compiler-owned models of the staged nodes, if any.
- * @param props.formationMotions The shot's compact formation cues.
- * @param props.motions The compiled actor clips by node id.
- * @param props.objectMotions Every object clip in producer order.
- * @param props.rotations Each staged node's world rotation, by id.
- * @returns A function from a gated subject and optional move start in
- *   shot-local seconds to its framed subject. The start defaults to zero.
+ * Parameter context: The shot's staged tables.
+ * Parameter props.models: Compiler-owned models of the staged nodes, if any.
+ * Parameter props.formationMotions: The shot's compact formation cues.
+ * Parameter props.motions: The compiled actor clips by node id.
+ * Parameter props.objectMotions: Every object clip in producer order.
+ * Parameter props.rotations: Each staged node's world rotation, by id.
+ * Returns: A function from a gated subject and optional move start in
+ * shot-local seconds to its framed subject. The start defaults to zero.
  */
 export function createPerformShotSubjectFramer(
   context: AutoMovieEngineFilmTypes.ICreatePerformShotSubjectFramerContext,
@@ -84,7 +83,7 @@ export function createPerformShotSubjectFramer(
     for (const track of clip.tracks)
       if (track.channel.kind === "node" && track.channel.path === "translation")
         drivenNodes.add(track.channel.node);
-  /**
+  /*
    * Prepare a node's model-space extent, with a rig fallback when the model has
    * no measured extent.
    */
@@ -105,7 +104,9 @@ export function createPerformShotSubjectFramer(
       rig === null ? null : computeRestHeight(rig),
     );
   }
-  /** The staged rotation and scale of a node, at a supplied translation. */
+  /*
+   * The staged rotation and scale of a node, at a supplied translation.
+   */
   function placement(
     node: string | null,
     translation: IAutoMovieVector3,
@@ -150,7 +151,9 @@ export function createPerformShotSubjectFramer(
             member: formationMemberExtent(formation, props.models),
           });
       }
-      /** Evaluate all group boxes on one freshly sampled shot instant. */
+      /*
+       * Evaluate all group boxes on one freshly sampled shot instant.
+       */
       function groupBox(seconds: number): IAutoMovieSubjectBox | null {
         const channels:
           | ReadonlyMap<string, IAutoMovieSampledChannel>
@@ -260,17 +263,25 @@ export function createPerformShotSubjectFramer(
   };
 }
 
-/** A resolved group node's fixed extent and current placement reader. */
+/*
+ * A resolved group node's fixed extent and current placement reader.
+ */
 interface IGroupNodeFraming {
-  /** The placed node id. */
+  /*
+   * The placed node id.
+   */
   node: string;
-  /** Its model-space rest, rig or stand-in extent. */
+  /*
+   * Its model-space rest, rig or stand-in extent.
+   */
   extent: IAutoMovieSubjectBox;
-  /** Its staged or actor-driven base. */
+  /*
+   * Its staged or actor-driven base.
+   */
   at: (seconds: number) => IAutoMovieVector3;
 }
 
-/**
+/*
  * Read the actor clip under the staged facing, or null when neither drives
  * actor translation.
  */

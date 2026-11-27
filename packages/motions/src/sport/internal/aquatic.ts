@@ -21,21 +21,27 @@ import { AquaticSail } from "./AquaticSail";
 import { AquaticScull } from "./AquaticScull";
 import { AquaticTeam } from "./AquaticTeam";
 
-/**
+/*
  * Sequences in a pool or on a small craft. The planner owns the actor's clock;
  * every moving hull or grip is sampled from the performance at that same
  * second.
  */
 export namespace aquatic {
-  /** The registered action key. */
+  /*
+   * The registered action key.
+   */
   export const name: AutoMovieMotionHumanActionKey = "aquatic";
 
-  /** Only the recovered ending is an authored interruption window. */
+  /*
+   * Only the recovered ending is an authored interruption window.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** Plan the selected aquatic sequence from the entered body and scene. */
+  /*
+   * Plan the selected aquatic sequence from the entered body and scene.
+   */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanAquatic.IParams>,
   ): IAutoMovieMotionHumanActionPlan {

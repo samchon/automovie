@@ -5,7 +5,9 @@ import type {
 
 import { compareAutoMovieRenderTarget } from "./compareAutoMovieRenderTarget";
 
-/** Read the reported and current digests, for a one-line staleness log. */
+/*
+ * Read the reported and current digests, for a one-line staleness log.
+ */
 export function autoMovieRenderTargetSummary(
   props: IAutoMovieCompareRenderTarget.IProps,
 ): string {

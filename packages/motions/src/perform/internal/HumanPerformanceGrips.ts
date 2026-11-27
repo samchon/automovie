@@ -4,14 +4,13 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 
-/**
+/*
  * Every grip and worn/mounted span on one prop in film order: the spans the
  * performance prepared (`IAutoMovieMotionHumanPerformanceState.grips`), or,
  * while the schedule is resolved, those its placed actions give now.
- *
- * @param self The performance.
- * @param subject The prop whose spans are read.
- * @returns The spans.
+ * Parameter self: The performance.
+ * Parameter subject: The prop whose spans are read.
+ * Returns: The spans.
  */
 export function HumanPerformanceGrips(
   self: IAutoMovieMotionHumanPerformanceState,
@@ -20,16 +19,17 @@ export function HumanPerformanceGrips(
   return self.grips.get(subject) ?? HumanPerformanceGrips.assemble(self, subject);
 }
 
-/** The assembly of a prop's spans. */
+/*
+ * The assembly of a prop's spans.
+ */
 export namespace HumanPerformanceGrips {
-  /**
+  /*
    * Collect every grip and worn/mounted span on one prop in film order from
    * the placed actions, their holds, wears and mounts and the prop's own
    * declaration, with no offset yet.
-   *
-   * @param self The performance.
-   * @param subject The prop whose spans are collected.
-   * @returns The spans.
+   * Parameter self: The performance.
+   * Parameter subject: The prop whose spans are collected.
+   * Returns: The spans.
    */
   export function assemble(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -39,7 +39,9 @@ export namespace HumanPerformanceGrips {
   }
 }
 
-/** The spans of {@link HumanPerformanceGrips.assemble}. */
+/*
+ * The spans of HumanPerformanceGrips.assemble.
+ */
 function collect(
   self: IAutoMovieMotionHumanPerformanceState,
   subject: string,

@@ -23,20 +23,19 @@ import type { walkFoot } from "./walkFoot";
 import type { walkLocomoteSwings } from "./walkLocomoteSwings";
 import { walkReach } from "./walkReach";
 
-/**
+/*
  * Prepare one stepping take's standing alignment and assemble its posture
  * before arm carriage, writing only requested leg goals.
- *
- * @param body The take's fixed body.
- * @param gait Its trunk lean and arm geometry.
- * @param arms The authored and manner-scaled arm swing multiplier.
- * @param elbows The authored added shoulder abduction, degrees.
- * @param steps The take's fixed step clock and phase readers.
- * @param solve The take's same-second pelvis/foot solve, sharing the phase and
- *   amount this reader already evaluated at that exact second.
- * @param swings The scheduled transitions between stance and flight.
- * @returns A clamped action-second reader; omitted leg/channel demand writes
- *   the complete posture.
+ * Parameter body: The take's fixed body.
+ * Parameter gait: Its trunk lean and arm geometry.
+ * Parameter arms: The authored and manner-scaled arm swing multiplier.
+ * Parameter elbows: The authored added shoulder abduction, degrees.
+ * Parameter steps: The take's fixed step clock and phase readers.
+ * Parameter solve: The take's same-second pelvis/foot solve, sharing the phase and
+ * amount this reader already evaluated at that exact second.
+ * Parameter swings: The scheduled transitions between stance and flight.
+ * Returns: A clamped action-second reader; omitted leg/channel demand writes
+ * the complete posture.
  */
 export function walkPosture(
   body: IAutoMovieMotionHumanBody,
@@ -172,33 +171,43 @@ export function walkPosture(
     read(seconds, legs, channels, resolution, adjust);
 }
 
-/**
+/*
  * The record a stepping take's solve hands the posture, and the chest's
  * counter-rotation.
  */
 export namespace walkPosture {
-  /** The settled feet and pelvis the gait's posture reads at one second. */
+  /*
+   * The settled feet and pelvis the gait's posture reads at one second.
+   */
   export interface ISettled {
-    /** Each foot as its schedule has it. */
+    /*
+     * Each foot as its schedule has it.
+     */
     feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanWalkFoot.IScheduled>;
 
-    /** The pelvis joint's clinical angles, degrees. */
+    /*
+     * The pelvis joint's clinical angles, degrees.
+     */
     hips: readonly [number, number, number];
 
-    /** The pelvis lowered onto its stances. */
+    /*
+     * The pelvis lowered onto its stances.
+     */
     settled: walkReach.IGround;
 
-    /** Each foot as reached from the settled pelvis. */
+    /*
+     * Each foot as reached from the settled pelvis.
+     */
     reached: Record<AutoMovieHumanSide, walkFoot.IEnd>;
   }
 
-  /**
+  /*
    * The pelvis's turn and tilt with the stride, degrees either way (Perry and
    * Burnfield, normal gait kinematics: about 4° each).
    */
   export const PELVIS: number = 4;
 
-  /**
+  /*
    * The chest's counter-rotation against the stride at full gait, degrees: the
    * pelvis's own turn, mirrored. The thorax turns against the pelvis at
    * ordinary walking speeds (relative phase about -140° at 1.5 m/s, Lamoth et

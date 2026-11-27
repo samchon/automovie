@@ -9,7 +9,7 @@ import { describeInvalidValue } from "../../../validation/internal/describeInval
 import { validateCameraClearanceEnvelope } from "./validateCameraClearanceEnvelope";
 import { validateCameraDepthPrecision } from "./validateCameraDepthPrecision";
 
-/**
+/*
  * Validate one staged camera's lens, depth range, depth precision, aim and
  * clearance envelope, and return the look direction composition aims it along.
  *
@@ -19,18 +19,17 @@ import { validateCameraDepthPrecision } from "./validateCameraDepthPrecision";
  * vector. When the position and the resolved target are both finite, the
  * direction from the camera to the target must have finite components and be at
  * least 1e-9 m long, so a camera naming itself has no look axis. The depth
- * precision is checked by {@link validateCameraDepthPrecision} and an authored
- * clearance envelope by {@link validateCameraClearanceEnvelope}. Violations go
+ * precision is checked by validateCameraDepthPrecision and an authored
+ * clearance envelope by validateCameraClearanceEnvelope. Violations go
  * to `out` under `path`. The node id's uniqueness is the caller's check,
  * against every placement in the scene.
- *
- * @param camera The staged camera.
- * @param path Violation path of the camera.
- * @param placedPoints The positions a node target resolves against, keyed by
- *   node id.
- * @param out Collector the violations are appended to.
- * @returns The unnormalized direction from the camera to its target, metres, or
- *   `undefined` when the aim was refused or could not be derived.
+ * Parameter camera: The staged camera.
+ * Parameter path: Violation path of the camera.
+ * Parameter placedPoints: The positions a node target resolves against, keyed by
+ * node id.
+ * Parameter out: Collector the violations are appended to.
+ * Returns: The unnormalized direction from the camera to its target, metres, or
+ * `undefined` when the aim was refused or could not be derived.
  */
 export function validateStageCamera(
   camera: IAutoMovieStageCamera,
@@ -93,5 +92,7 @@ export function validateStageCamera(
   return direction;
 }
 
-/** A camera and its target closer than this, in metres, have no look axis. */
+/*
+ * A camera and its target closer than this, in metres, have no look axis.
+ */
 const LOOK_DISTANCE_EPSILON: number = 1e-9;

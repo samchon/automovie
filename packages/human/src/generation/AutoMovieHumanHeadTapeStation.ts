@@ -32,7 +32,7 @@ export namespace AutoMovieHumanHeadTapeStation {
     let curve: IAutoMovieLoftSectionNative.ICurve | undefined;
     let pointReader: ((phase: number) => AutoMovieVector3Tuple) | undefined;
 
-    /**
+    /*
      * Only an explicit actual evaluation constructs this immutable numeric
      * station.
      */
@@ -80,12 +80,14 @@ export namespace AutoMovieHumanHeadTapeStation {
     const endpoints: Map<number, IAutoMovieHumanHeadTapeStation.IPrepared> =
       new Map();
 
-    /** A new arbitrary station is transient until a successful endpoint query. */
+    /*
+     * A new arbitrary station is transient until a successful endpoint query.
+     */
     function at(station: number): IAutoMovieHumanHeadTapeStation.IPrepared {
       return endpoints.get(station) ?? prepare(reader, station);
     }
 
-    /**
+    /*
      * Retention follows successful evaluation and is bounded by the two actual
      * endpoints.
      */

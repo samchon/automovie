@@ -1,6 +1,6 @@
 import type { IAutoMovieAuditEncodedPresentationExpected, IAutoMovieAuditEncodedPresentationProbe } from "@automovie/interface";
 
-/**
+/*
  * Check an encoded delivery's probe against its commissioned profile: exactly
  * one H.264 video stream of the raster and integer frame rate and one AAC audio
  * stream of the sample rate and channel count, each starting at zero and
@@ -8,9 +8,8 @@ import type { IAutoMovieAuditEncodedPresentationExpected, IAutoMovieAuditEncoded
  * base, so AAC end padding never passes for film duration. Refuses missing or
  * extra streams, wrong codecs, rasters or rates, and truncated or extended
  * presentations. It cannot establish listening or picture quality.
- *
- * @param probe FFprobe `-show_streams -of json` output, parsed.
- * @param expected The commissioned profile.
+ * Parameter probe: FFprobe `-show_streams -of json` output, parsed.
+ * Parameter expected: The commissioned profile.
  */
 export function auditAutoMovieEncodedPresentation(
   probe: IAutoMovieAuditEncodedPresentationProbe,

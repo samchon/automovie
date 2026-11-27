@@ -2,20 +2,19 @@ import type { IAutoMovieSweep } from "@automovie/interface";
 
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 
-/**
+/*
  * Compile a positive radius or scale profile spanning the sweep's whole spine.
  *
  * The C2 scalar spline permits signed overshoot, even when all knots are
  * positive. Radius and scale consumers require positive finite values, so a
  * queried undershoot or arithmetic overflow is refused without clamping the
  * curve or changing its interpolation.
- *
- * @param entries Positive finite values on increasing knots from u 0 to 1
- * @param what The owning guide or scale's diagnostic name
- * @returns The compiled profile, refusing a non-positive or non-finite query
- *   result
- * @throws Error for a profile that does not span the spine, invalid knot/value
- *   data or an invalid queried result
+ * Parameter entries: Positive finite values on increasing knots from u 0 to 1
+ * Parameter what: The owning guide or scale's diagnostic name
+ * Returns: The compiled profile, refusing a non-positive or non-finite query
+ * result
+ * Error for a profile that does not span the spine, invalid knot/value
+ * data or an invalid queried result
  */
 export function compileAutoMovieSweepProfile(
   entries: readonly IAutoMovieSweep.IKnot[],

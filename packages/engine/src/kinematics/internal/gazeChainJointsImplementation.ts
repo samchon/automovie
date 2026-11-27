@@ -9,7 +9,9 @@ import type {
 } from "@automovie/interface";
 
 import { getConstraint } from "../../rom/internal/getConstraint";
-/** Shared gaze-chain implementation used by the Kinematics owner. */
+/*
+ * Shared gaze-chain implementation used by the Kinematics owner.
+ */
 export const gazeChainJointsImplementation: IGazeChainJointsImplementation = {
   run: runGazeChainJoints,
   prepare: prepareGazeChainJoints,
@@ -22,13 +24,17 @@ interface IGazeChainJointsImplementation {
   ): (flexionDeg: number, twistDeg: number) => IAutoMovieJointPose[];
 }
 
-/** The bone a gaze is expressed on: the last link, and the one the eyes ride. */
+/*
+ * The bone a gaze is expressed on: the last link, and the one the eyes ride.
+ */
 const HEAD: AutoMovieHumanoidBone = "head";
 
-/** The bone that carries whatever the head cannot hold legally. */
+/*
+ * The bone that carries whatever the head cannot hold legally.
+ */
 const NECK: AutoMovieHumanoidBone = "neck";
 
-/**
+/*
  * Distribute one solved aim over the gaze chain, `neck` then `head`, so a gaze
  * the rig's declared ranges can hold compiles inside them.
  *
@@ -53,13 +59,12 @@ const NECK: AutoMovieHumanoidBone = "neck";
  * because rotating a neck the head does not hang from would not move the head.
  * A missing per-bone constraint falls back to the default humanoid ROM, as the
  * gate does.
- *
- * @param props.rig The actor's resolved skeleton, or `null` when it has none.
- * @param props.flexionDeg Sagittal aim in degrees, `+` down, matching the pose
- *   axis.
- * @param props.twistDeg Transverse aim in degrees about the chain's long axis.
- * @returns The joints of the aim pose, parent first; abduction is always
- *   `null`, and a neck axis that carries nothing is `null`.
+ * Parameter props.rig: The actor's resolved skeleton, or `null` when it has none.
+ * Parameter props.flexionDeg: Sagittal aim in degrees, `+` down, matching the pose
+ * axis.
+ * Parameter props.twistDeg: Transverse aim in degrees about the chain's long axis.
+ * Returns: The joints of the aim pose, parent first; abduction is always
+ * `null`, and a neck axis that carries nothing is `null`.
  */
 function runGazeChainJoints(
   props: IAutoMovieGazeChainJoints.IProps,
@@ -74,39 +79,40 @@ function runGazeChainJoints(
   return resolved(props, headRom, neckRom);
 }
 
-/** Fixed-rig preparation for the same canonical cervical distribution. */
-/**
+/*
+ * Fixed-rig preparation for the same canonical cervical distribution.
+ */
+/*
  * Bind one unchanged rig for repeated actual clinical-degree aims.
+ * Parameter rig: The unchanged resolved skeleton, or null for the original
+ * single-head policy.
+ * Returns: Fresh parent-first joints at every flexion/twist pair. Rig
+ * structure and constraints are first demanded by an actual query; each
+ * axis and only its used min/max bound is captured on first actual need,
+ * after which that metadata must remain unchanged.
  *
- * @param rig The unchanged resolved skeleton, or null for the original
- *   single-head policy.
- * @returns Fresh parent-first joints at every flexion/twist pair. Rig
- *   structure and constraints are first demanded by an actual query; each
- *   axis and only its used min/max bound is captured on first actual need,
- *   after which that metadata must remain unchanged.
- *
- *   Defines fixed rig/ROM lifetime, degree signs inherited from
- *   gazeChainJoints, lazy first-use admission, original fallback and fresh
- *   outputs. The same greedy head-first capacity and unclamped residual owner
- *   distributes every current axis. Fixed topology selects the same
- *   head/neck/default constraints, with null axes immobile and a missing or
- *   disconnected chain retaining the single-head result. One lazy cervical
- *   source preparation feeds the shared raw numerical owner; private lazy
- *   range snapshots preserve first-needed axis/bound order without a second
- *   split algorithm. Original null/fallback/parent rules, shareOf formulas,
- *   residuals, nullable neck axes and output order remain. Unused bounds are
- *   not eagerly read, failed field reads are not retained, and no aim is
- *   clamped to hide insufficient combined range. Two O(B) bone searches and
- *   constraint selection run once across Q aims; at most four axis references
- *   and eight min/max scalar observations are prepared lazily. Each query
- *   retains fixed scalar arithmetic and fresh output joints, with no measured
- *   speedup claim. This explicit API requires the rig/default cervical
- *   metadata to stay unchanged. Only topology and first-observed range
- *   prerequisites are shared; each flexion/twist request is evaluated afresh
- *   and no joint, pose, direction, target or time answer is reused. The
- *   caller owns one reader, its fixed rig and at most two constraints/four
- *   range snapshots/eight bound scalars until release. Queries add no
- *   retained aim, output, dynamic workspace or growing history.
+ * Defines fixed rig/ROM lifetime, degree signs inherited from
+ * gazeChainJoints, lazy first-use admission, original fallback and fresh
+ * outputs. The same greedy head-first capacity and unclamped residual owner
+ * distributes every current axis. Fixed topology selects the same
+ * head/neck/default constraints, with null axes immobile and a missing or
+ * disconnected chain retaining the single-head result. One lazy cervical
+ * source preparation feeds the shared raw numerical owner; private lazy
+ * range snapshots preserve first-needed axis/bound order without a second
+ * split algorithm. Original null/fallback/parent rules, shareOf formulas,
+ * residuals, nullable neck axes and output order remain. Unused bounds are
+ * not eagerly read, failed field reads are not retained, and no aim is
+ * clamped to hide insufficient combined range. Two O(B) bone searches and
+ * constraint selection run once across Q aims; at most four axis references
+ * and eight min/max scalar observations are prepared lazily. Each query
+ * retains fixed scalar arithmetic and fresh output joints, with no measured
+ * speedup claim. This explicit API requires the rig/default cervical
+ * metadata to stay unchanged. Only topology and first-observed range
+ * prerequisites are shared; each flexion/twist request is evaluated afresh
+ * and no joint, pose, direction, target or time answer is reused. The
+ * caller owns one reader, its fixed rig and at most two constraints/four
+ * range snapshots/eight bound scalars until release. Queries add no
+ * retained aim, output, dynamic workspace or growing history.
  */
 function prepareGazeChainJoints(
   rig: IAutoMovieSkeleton | null,
@@ -131,7 +137,7 @@ function prepareGazeChainJoints(
   };
 }
 
-/**
+/*
  * How much of `need` one joint may legally take on one axis.
  *
  * A `null` range is **immobile**, not unconstrained: `validateJointRom` refuses
@@ -149,7 +155,7 @@ function shareOf(need: number, range: IAutoMovieAngleRange | null): number {
     : Math.max(need, Math.min(range.min, 0));
 }
 
-/**
+/*
  * Original degree inputs, read only when the selected branch actually needs
  * them.
  */
@@ -158,20 +164,28 @@ interface IAngles {
   twistDeg: number;
 }
 
-/** Only these two axes participate in the existing gaze-chain law. */
+/*
+ * Only these two axes participate in the existing gaze-chain law.
+ */
 type Constraint = Pick<IAutoMovieJointConstraint, "flexion" | "twist">;
 
-/** Original first-match head predicate, without a per-query closure. */
+/*
+ * Original first-match head predicate, without a per-query closure.
+ */
 function isHead(entry: IAutoMovieBone): boolean {
   return entry.bone === HEAD;
 }
 
-/** Original first-match neck predicate, without a per-query closure. */
+/*
+ * Original first-match neck predicate, without a per-query closure.
+ */
 function isNeck(entry: IAutoMovieBone): boolean {
   return entry.bone === NECK;
 }
 
-/** Preserve the original missing/disconnected-chain head-only field read order. */
+/*
+ * Preserve the original missing/disconnected-chain head-only field read order.
+ */
 function single(props: IAngles): IAutoMovieJointPose[] {
   return [
     {
@@ -183,7 +197,9 @@ function single(props: IAngles): IAutoMovieJointPose[] {
   ];
 }
 
-/** Each actual flexion finishes its residual before the twist getter is read. */
+/*
+ * Each actual flexion finishes its residual before the twist getter is read.
+ */
 function resolved(
   props: IAngles,
   headRom: Constraint,
@@ -216,7 +232,9 @@ function resolved(
     : [head];
 }
 
-/** Capture only the actual axis reference first requested by the shared split. */
+/*
+ * Capture only the actual axis reference first requested by the shared split.
+ */
 function fixedConstraint(source: Constraint): Constraint {
   let flexion: IAutoMovieAngleRange | null = null;
   let twist: IAutoMovieAngleRange | null = null;
@@ -240,7 +258,9 @@ function fixedConstraint(source: Constraint): Constraint {
   };
 }
 
-/** A positive/negative request admits only the original max/min field it uses. */
+/*
+ * A positive/negative request admits only the original max/min field it uses.
+ */
 function fixedRange(
   source: IAutoMovieAngleRange | null,
 ): IAutoMovieAngleRange | null {

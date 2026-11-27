@@ -1,6 +1,6 @@
 import { parseAutoMovieCaptionLanguage } from "./parseAutoMovieCaptionLanguage.js";
 
-/**
+/*
  * Return the ASCII case-folded identity of a well-formed RFC 5646 language tag,
  * or null for a malformed tag.
  *

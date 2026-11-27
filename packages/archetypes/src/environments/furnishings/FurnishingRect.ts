@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Plan rectangles and placed rest boxes in a furnished room's frame.
  *
  * The room planner and its relation resolver share these: a placement turns a
@@ -15,58 +15,85 @@ import type {
  * height, so two pieces whose plans overlap conflict at any elevation.
  */
 export namespace FurnishingRect {
-  /** XZ occupancy in the room frame, in metres. */
+  /*
+   * XZ occupancy in the room frame, in metres.
+   */
   export interface IRect {
-    /** Lower X edge. */
+    /*
+     * Lower X edge.
+     */
     minX: number;
 
-    /** Upper X edge. */
+    /*
+     * Upper X edge.
+     */
     maxX: number;
 
-    /** Lower Z edge. */
+    /*
+     * Lower Z edge.
+     */
     minZ: number;
 
-    /** Upper Z edge. */
+    /*
+     * Upper Z edge.
+     */
     maxZ: number;
   }
 
-  /** A model placed in the room frame with its turned plan box. */
+  /*
+   * A model placed in the room frame with its turned plan box.
+   */
   export interface IPlacement {
-    /** The placed model. */
+    /*
+     * The placed model.
+     */
     model: IAutoMovieModel;
 
-    /** The model's measured rest box in its own frame, in metres. */
+    /*
+     * The model's measured rest box in its own frame, in metres.
+     */
     bounds: IAutoMoviePropBox;
 
-    /** Model origin on X, in metres. */
+    /*
+     * Model origin on X, in metres.
+     */
     x: number;
 
-    /** Model origin on Y above the floor, in metres. */
+    /*
+     * Model origin on Y above the floor, in metres.
+     */
     y: number;
 
-    /** Model origin on Z, in metres. */
+    /*
+     * Model origin on Z, in metres.
+     */
     z: number;
 
-    /** Unit yaw used for both the box and the staged transform. */
+    /*
+     * Unit yaw used for both the box and the staged transform.
+     */
     rotation: IAutoMovieQuaternion;
 
-    /** Box of the turned model, translated into the room frame. */
+    /*
+     * Box of the turned model, translated into the room frame.
+     */
     rect: IRect;
   }
 
-  /** Box-coordinate tolerance in metres, as in prop placement. */
+  /*
+   * Box-coordinate tolerance in metres, as in prop placement.
+   */
   export const EPSILON: number = 1e-9;
 
-  /**
+  /*
    * Place a model at a room position and heading with its underside on the
    * floor, and project its turned rest box onto XZ.
-   *
-   * @param model The placed model.
-   * @param bounds Its measured rest box.
-   * @param x Origin X in metres.
-   * @param z Origin Z in metres.
-   * @param heading Turn about +Y in degrees.
-   * @returns The placement, its origin lifted by the box's underside depth.
+   * Parameter model: The placed model.
+   * Parameter bounds: Its measured rest box.
+   * Parameter x: Origin X in metres.
+   * Parameter z: Origin Z in metres.
+   * Parameter heading: Turn about +Y in degrees.
+   * Returns: The placement, its origin lifted by the box's underside depth.
    */
   export function locate(
     model: IAutoMovieModel,
@@ -90,7 +117,9 @@ export namespace FurnishingRect {
     };
   }
 
-  /** The XZ rectangle of a model-local box. */
+  /*
+   * The XZ rectangle of a model-local box.
+   */
   export function plan(bounds: IAutoMoviePropBox): IRect {
     return {
       minX: bounds.min.x,
@@ -100,7 +129,9 @@ export namespace FurnishingRect {
     };
   }
 
-  /** Enclose the four corners of a yawed rectangle in the room frame. */
+  /*
+   * Enclose the four corners of a yawed rectangle in the room frame.
+   */
   export function project(box: IRect, rotation: IAutoMovieQuaternion): IRect {
     const corners: IAutoMovieVector3[] = [];
     for (const x of [box.minX, box.maxX])
@@ -114,7 +145,9 @@ export namespace FurnishingRect {
     };
   }
 
-  /** Translate an occupied XZ rectangle. */
+  /*
+   * Translate an occupied XZ rectangle.
+   */
   export function shift(box: IRect, x: number, z: number): IRect {
     return {
       minX: box.minX + x,
@@ -124,7 +157,7 @@ export namespace FurnishingRect {
     };
   }
 
-  /**
+  /*
    * Whether two rectangles share area; touching within the tolerance is
    * allowed.
    */
@@ -135,7 +168,9 @@ export namespace FurnishingRect {
     );
   }
 
-  /** Whether the whole box lies inside the recipient bounds. */
+  /*
+   * Whether the whole box lies inside the recipient bounds.
+   */
   export function within(box: IRect, room: IRect): boolean {
     return (
       box.minX >= room.minX - EPSILON &&
@@ -145,7 +180,9 @@ export namespace FurnishingRect {
     );
   }
 
-  /** Name the first occupied or reserved rectangle this box enters. */
+  /*
+   * Name the first occupied or reserved rectangle this box enters.
+   */
   export function obstruction(
     box: IRect,
     blocked: ReadonlyMap<string, IRect>,
@@ -154,12 +191,11 @@ export namespace FurnishingRect {
     return undefined;
   }
 
-  /**
+  /*
    * Accept a placement only when its box fits the room and enters no blocked
    * rectangle, then block its box under its role.
-   *
-   * @throws Naming the occurrence and role when the box leaves the room or
-   *   enters a blocked rectangle, naming that rectangle.
+   * Naming the occurrence and role when the box leaves the room or
+   * enters a blocked rectangle, naming that rectangle.
    */
   export function claim(
     id: string,

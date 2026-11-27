@@ -8,7 +8,7 @@ import type {
 import { AutoMovieArchetypeFrame } from "../../core";
 import type { AutoMovieArchetypeWheelchair } from "../AutoMovieArchetypeWheelchair";
 
-/**
+/*
  * Adapt the wheelchair ride's contact reader for one scripted handrim stroke.
  * At the catch, select the material point at the authored angle from chair up,
  * positive toward the front. At each sample, carry the same point on the
@@ -18,13 +18,12 @@ import type { AutoMovieArchetypeWheelchair } from "../AutoMovieArchetypeWheelcha
  * translating film seconds into ride seconds if the course starts later. For a
  * repeated stroke, build a reader for each catch and dispatch during that
  * stroke's time interval.
- *
- * @param ride The wheelchair ride whose placement and rotation are sampled.
- * @param catchAt Seconds on the ride clock when the hand meets the rim.
- * @param degrees Angle at the catch, measured in chair coordinates.
- * @returns A reader yielding a rim point with a radial +Y and tangential +X.
- * @throws {RangeError} When catch time or angle is outside the finite ride
- *   domain.
+ * Parameter ride: The wheelchair ride whose placement and rotation are sampled.
+ * Parameter catchAt: Seconds on the ride clock when the hand meets the rim.
+ * Parameter degrees: Angle at the catch, measured in chair coordinates.
+ * Returns: A reader yielding a rim point with a radial +Y and tangential +X.
+ * When catch time or angle is outside the finite ride
+ * domain.
  */
 export function wheelchairHandrimFrame(
   ride: ReturnType<typeof AutoMovieArchetypeWheelchair.ride>,

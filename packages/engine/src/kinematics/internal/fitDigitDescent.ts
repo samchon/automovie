@@ -2,7 +2,7 @@ import type { IAutoMovieFitDigitDescent } from "@automovie/interface";
 
 import { descendDigitTasks } from "./descendDigitTasks";
 
-/**
+/*
  * One prioritized descent of a digit's fit: a primary residual (where the point
  * goes) met first, and a secondary one (how it is turned, how its joints
  * couple) bettered only in what the primary leaves free, inside the range the
@@ -44,10 +44,9 @@ import { descendDigitTasks } from "./descendDigitTasks";
  * zero squared secondary cannot admit any strictly improving trial and returns
  * immediately. With no variables, the projected point and empty-column primary
  * Jacobian are the only possible result.
- *
- * @param props The start, the residuals, the projection, the resolution and the
- *   primary's tolerance.
- * @returns The variables where the descent stops, projected.
+ * Parameter props: The start, the residuals, the projection, the resolution and the
+ * primary's tolerance.
+ * Returns: The variables where the descent stops, projected.
  */
 export function fitDigitDescent(
   props: IAutoMovieFitDigitDescent.IProps,

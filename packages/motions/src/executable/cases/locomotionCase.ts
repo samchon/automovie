@@ -20,14 +20,13 @@ import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { FootSlip } from "./FootSlip";
 import { locomotionCaseInstants } from "./internal/locomotionCaseInstants";
 
-/**
+/*
  * One walk or run capture case of `locomotionCases`: one body walks or runs to
  * its goal at the row's pace, with the frames, trails and verdicts that
  * builder's documentation lists.
- *
- * @param input The body, the row's law, pace, Froude number, label, goal and
- *   extra walk parameters, and the prepared polygon men and bodies.
- * @returns The case.
+ * Parameter input: The body, the row's law, pace, Froude number, label, goal and
+ * extra walk parameters, and the prepared polygon men and bodies.
+ * Returns: The case.
  */
 export function locomotionCase(
   input: locomotionCase.IInput,
@@ -402,89 +401,134 @@ export function locomotionCase(
   };
 }
 
-/** Companion types of `locomotionCase`. */
+/*
+ * Companion types of `locomotionCase`.
+ */
 export namespace locomotionCase {
-  /**
+  /*
    * One row of the locomotion sweep on one body, with its prepared bodies.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's meaning and unit.
-   * @evidence contracts/development/design.md#principled-representation The row as locomotionCases lists it, plus the bodies it prepared.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by locomotionCases and read only by locomotionCase.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Only the values the case reads.
    */
   export interface IInput {
-    /** The swept body's name. */
+    /*
+     * The swept body's name.
+     */
     who: string;
 
-    /** The performers' body names, one per lane. */
+    /*
+     * The performers' body names, one per lane.
+     */
     names: readonly string[];
 
-    /** The law the row performs and its pace. */
+    /*
+     * The law the row performs and its pace.
+     */
     gait: IGait;
 
-    /** The pace's Froude number. */
+    /*
+     * The pace's Froude number.
+     */
     froude: number;
 
-    /** The case label. */
+    /*
+     * The case label.
+     */
     label: string;
 
-    /** The goal, world metres. */
+    /*
+     * The goal, world metres.
+     */
     to: IAutoMovieVector3;
 
-    /** Extra walk parameters. */
+    /*
+     * Extra walk parameters.
+     */
     extra: Omit<IAutoMovieMotionHumanWalkParams, LocomotionCaseInputExtra>;
 
-    /** The prepared polygon men. */
+    /*
+     * The prepared polygon men.
+     */
     men: humanPolygonMan.IPolygonMan[];
 
-    /** Their motion bodies. */
+    /*
+     * Their motion bodies.
+     */
     bodies: IAutoMovieMotionHumanBody[];
   }
 
-  /** The locomotion laws the sweep runs. */
+  /*
+   * The locomotion laws the sweep runs.
+   */
   export type Law = IGait["law"];
 
-  /** A row's law and its pace, the pace one of that law's own. */
+  /*
+   * A row's law and its pace, the pace one of that law's own.
+   */
   export type IGait =
     | { law: "walk"; pace: LocomotionCaseOne }
     | { law: "run"; pace: LocomotionCaseOne2 };
 }
 
-/** The record of `ILocomotionCasePartsResult`'s site. */
+/*
+ * The record of `ILocomotionCasePartsResult`'s site.
+ */
 type ILocomotionCasePartsResult = { h: number; p: number; r: number };
 
-/** The alternatives of `LocomotionCasePhase`'s site. */
+/*
+ * The alternatives of `LocomotionCasePhase`'s site.
+ */
 type LocomotionCasePhase = "stance" | "swing";
 
-/** The record of `ILocomotionCasePop`'s site. */
+/*
+ * The record of `ILocomotionCasePop`'s site.
+ */
 type ILocomotionCasePop = { value: number; where: string };
 
-/** The record of `ILocomotionCaseTurnEntry`'s site. */
+/*
+ * The record of `ILocomotionCaseTurnEntry`'s site.
+ */
 type ILocomotionCaseTurnEntry = { value: number; where: string };
 
-/** The alternatives of `LocomotionCaseTurnEntry`'s site. */
+/*
+ * The alternatives of `LocomotionCaseTurnEntry`'s site.
+ */
 type LocomotionCaseTurnEntry = "stance" | "swing";
 
-/** The record of `ILocomotionCaseReach`'s site. */
+/*
+ * The record of `ILocomotionCaseReach`'s site.
+ */
 type ILocomotionCaseReach = { value: number; where: string };
 
-/** The record of `ILocomotionCaseSink`'s site. */
+/*
+ * The record of `ILocomotionCaseSink`'s site.
+ */
 type ILocomotionCaseSink = { value: number; where: string };
 
-/** The record of `ILocomotionCaseSlip`'s site. */
+/*
+ * The record of `ILocomotionCaseSlip`'s site.
+ */
 type ILocomotionCaseSlip = { value: number; where: string };
 
-/** The record of `ILocomotionCaseDriftItem`'s site. */
+/*
+ * The record of `ILocomotionCaseDriftItem`'s site.
+ */
 type ILocomotionCaseDriftItem = { at: IAutoMovieVector3; drift: number };
 
-/** The record of `ILocomotionCaseTrailsItem`'s site. */
+/*
+ * The record of `ILocomotionCaseTrailsItem`'s site.
+ */
 type ILocomotionCaseTrailsItem = { color: number; points: IAutoMovieVector3[] };
 
-/** The alternatives of `LocomotionCaseOne2`'s site. */
+/*
+ * The alternatives of `LocomotionCaseOne2`'s site.
+ */
 type LocomotionCaseOne2 = "jog" | "run" | "sprint";
 
-/** The alternatives of `LocomotionCaseOne`'s site. */
+/*
+ * The alternatives of `LocomotionCaseOne`'s site.
+ */
 type LocomotionCaseOne = "slow" | "normal" | "fast";
 
-/** The alternatives of `LocomotionCaseInputExtra`'s site. */
+/*
+ * The alternatives of `LocomotionCaseInputExtra`'s site.
+ */
 type LocomotionCaseInputExtra = "to" | "pace";

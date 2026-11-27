@@ -1,6 +1,8 @@
 import { HumanRefusal } from "../HumanRefusal";
 
-/** A parameter error with the balance term the author needs to correct. */
+/*
+ * A parameter error with the balance term the author needs to correct.
+ */
 export function HumanPhysicsInvalid(
   field: string,
   value: unknown,

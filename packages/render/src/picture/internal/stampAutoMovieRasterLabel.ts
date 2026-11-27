@@ -3,7 +3,7 @@ import type {
   IAutoMovieRasterPoint,
 } from "@automovie/interface";
 
-/**
+/*
  * Burn a short caption, such as a film second or a mark's label, into a
  * picture, white on a dark box, so a thumbnail on a contact sheet still says
  * which moment it shows and a mark says what it is.
@@ -54,7 +54,9 @@ export function stampAutoMovieRasterLabel(
   }
 }
 
-/** Fill a clamped rectangle of the frame with one opaque colour. */
+/*
+ * Fill a clamped rectangle of the frame with one opaque colour.
+ */
 function fill(
   raster: IAutoMovieRasterImage,
   x: number,
@@ -81,7 +83,9 @@ function fill(
     }
 }
 
-/** 3 × 5 glyphs, one 3-bit row each, most significant bit on the left. */
+/*
+ * 3 × 5 glyphs, one 3-bit row each, most significant bit on the left.
+ */
 const GLYPHS: Readonly<Record<string, readonly number[]>> = {
   "0": [7, 5, 5, 5, 7],
   "1": [2, 6, 2, 2, 7],

@@ -253,7 +253,9 @@ export namespace AutoMovieHumanHeadNeckCurves {
     };
   }
 
-  /** Prepare the actual native conic, including its shared-curvature ends. */
+  /*
+   * Prepare the actual native conic, including its shared-curvature ends.
+   */
   function section(
     extents: [number, number, number, number],
     work?: IAutoMovieHumanHeadNeckCurves.IWork,
@@ -274,7 +276,7 @@ export namespace AutoMovieHumanHeadNeckCurves {
     return value;
   }
 
-  /**
+  /*
    * Read the unchanged native conic in the exact fixed normal-plane metric. Its
    * original derivative [du/(1+m²), -m*du/(1+m²), dv] has norm
    * hypot(du/hypot(1,m), dv). Two native targets supply a real difference; this

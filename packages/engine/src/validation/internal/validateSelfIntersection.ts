@@ -21,7 +21,7 @@ import { fkReachableBones } from "./fkReachableBones";
 import { admitMotionSampleRate } from "./admitMotionSampleRate";
 import { validateCapsule } from "./validateCapsule";
 
-/**
+/*
  * Sample valid capsule pairs through FK and warn when segment distance is less
  * than summed radii. A nonfinite or nonpositive rate yields a range finding
  * before the pose sweep.
@@ -118,7 +118,7 @@ export function validateSelfIntersection(
 
 const DEFAULT_SAMPLE_RATE: number = 24;
 
-/**
+/*
  * Read admitted endpoint world positions from the sampled resolved map.
  *
  * ValidateCapsule's reachability gate supplies the non-null lookup premise.
@@ -144,7 +144,7 @@ const resolveCapsule: (
   to: resolved.get(capsule.to)!,
 });
 
-/**
+/*
  * Round a diagnostic quantity to three decimals with
  * Math.round(value*1000)/1000.
  *

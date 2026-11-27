@@ -6,7 +6,7 @@ import "../constants/SWORD_BANDS";
 import "../constants/SWORD_MODELS";
 import "./createSwordShapes";
 
-/**
+/*
  * A blade held by its hilt: a longsword, an arming sword, a sabre, a katana, a
  * rapier, a dagger or a knife.
  *
@@ -23,15 +23,14 @@ import "./createSwordShapes";
  * the centre of mass at the drawn `balance` above the guard, the hilt's parts
  * taking what the blade's taper leaves. `properties` gives the centre and the
  * inertia, and `moment` the inertia about the grip that a cut works against.
- *
- * @param params The kind, the model where the kind has read models, and any
- *   dimension the author fixes.
- * @param seed The seed that picks the model left free and draws every dimension
- *   left free inside its band; absent, the first model and the middle of each
- *   band.
- * @returns The weapon.
- * @throws {AutoMovieArchetypeRefusal} For a model not of the kind, a fixed
- *   dimension outside its band, or one the model gives.
+ * Parameter params: The kind, the model where the kind has read models, and any
+ * dimension the author fixes.
+ * Parameter seed: The seed that picks the model left free and draws every dimension
+ * left free inside its band; absent, the first model and the middle of each
+ * band.
+ * Returns: The weapon.
+ * For a model not of the kind, a fixed
+ * dimension outside its band, or one the model gives.
  */
 export function createSword(
   params: AutoMovieArchetypeSword.IParams,

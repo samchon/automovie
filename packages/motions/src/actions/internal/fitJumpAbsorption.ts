@@ -17,7 +17,7 @@ import type { jumpLanding } from "./jumpLanding";
 import { jumpPath } from "./jumpPath";
 import { jumpState } from "./jumpState";
 
-/**
+/*
  * Fit a rotating floor landing's absorption to its planted soles.
  *
  * The incoming downward speed can drive the knee and ankle through more flexion
@@ -25,15 +25,14 @@ import { jumpState } from "./jumpState";
  * supported endpoint when needed. If the incoming speed makes even the shallow
  * course dip too far, test stronger braking at impact with the same incoming
  * velocity, duration and footprint frame.
- *
- * @param body The jumping body used for ground fitting.
- * @param landing The unchanged footprints and nominal world-root endpoints.
- * @param velocity The ballistic world velocity at touchdown, metres per second.
- * @param seconds The absorption phase's duration in seconds.
- * @param demand The current lowered posture at a candidate world root and
- *   seconds since touchdown.
- * @returns The tested absorption endpoint and its initial vertical
- *   acceleration.
+ * Parameter body: The jumping body used for ground fitting.
+ * Parameter landing: The unchanged footprints and nominal world-root endpoints.
+ * Parameter velocity: The ballistic world velocity at touchdown, metres per second.
+ * Parameter seconds: The absorption phase's duration in seconds.
+ * Parameter demand: The current lowered posture at a candidate world root and
+ * seconds since touchdown.
+ * Returns: The tested absorption endpoint and its initial vertical
+ * acceleration.
  */
 export function fitJumpAbsorption(
   body: IAutoMovieMotionHumanBody,
@@ -78,7 +77,9 @@ export function fitJumpAbsorption(
   ).filter((t: number): boolean => t < seconds);
   times.push(seconds);
 
-  /** Maximum sampled sole residual minus the existing metre budget. */
+  /*
+   * Maximum sampled sole residual minus the existing metre budget.
+   */
   const excess = (depth: number, acceleration: number): number => {
     const root: IAutoMovieVector3 = { ...absorbed, y: stood.y - depth };
     const path: ReturnType<typeof jumpPath.prepare> = jumpPath.prepare(
@@ -117,7 +118,9 @@ export function fitJumpAbsorption(
     }
     return miss - limit;
   };
-  /** At one acceleration, return the deepest verified endpoint in the bracket. */
+  /*
+   * At one acceleration, return the deepest verified endpoint in the bracket.
+   */
   const fit = (acceleration: number): fitJumpAbsorption.IPath | undefined => {
     const deep: number = excess(span, acceleration);
     if (deep <= 0) return { root: absorbed, acceleration };
@@ -144,13 +147,19 @@ export function fitJumpAbsorption(
   return fit((-4 * velocity.y) / seconds) ?? authored;
 }
 
-/** Boundary values for the jump's grounded absorption path. */
+/*
+ * Boundary values for the jump's grounded absorption path.
+ */
 export namespace fitJumpAbsorption {
-  /** Grounded endpoint in world metres and initial vertical acceleration. */
+  /*
+   * Grounded endpoint in world metres and initial vertical acceleration.
+   */
   export interface IPath {
-    /** The world root at the end of absorption, metres. */
+    /*
+     * The world root at the end of absorption, metres.
+     */
     root: IAutoMovieVector3;
-    /**
+    /*
      * Upward acceleration at the start of absorption, metres per second
      * squared.
      */

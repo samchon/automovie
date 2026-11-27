@@ -15,7 +15,7 @@ import { resolveAutoMovieFfmpeg } from "../../ffmpeg/internal/resolveAutoMovieFf
 import { runAutoMovieFfmpeg } from "../../ffmpeg/internal/runAutoMovieFfmpeg";
 import { sameAutoMovieReviewFile } from "./sameAutoMovieReviewFile";
 
-/**
+/*
  * Create or explicitly rebind a review mark from a published film's verified
  * native clock. Replay extracts the exact original frame indices as stills with
  * adjacent context, after checking the current video bytes against the saved
@@ -118,14 +118,18 @@ export async function reviewAutoMovieFile(
   return mark;
 }
 
-/** Native clock terms verified by the successful delivery's continuous decode. */
+/*
+ * Native clock terms verified by the successful delivery's continuous decode.
+ */
 interface IAutoMovieReviewClock {
   frameCount: number;
   timeBase: IAutoMovieDeliveryContentAudit.Ratio;
   ticksPerFrame: number;
 }
 
-/** Verifies the render report corresponds to the current file. */
+/*
+ * Verifies the render report corresponds to the current file.
+ */
 async function readPublishedReview(
   file: string,
   sha256: string,
@@ -157,7 +161,9 @@ async function readPublishedReview(
   };
 }
 
-/** Reads the complete native grid already established on the same encoded bytes. */
+/*
+ * Reads the complete native grid already established on the same encoded bytes.
+ */
 async function readClock(
   delivery: unknown,
   sha256: string,
@@ -204,7 +210,9 @@ async function readClock(
   return { frameCount: count, timeBase, ticksPerFrame };
 }
 
-/** Resolves a point or interval to the decoded frames intersecting its scope. */
+/*
+ * Resolves a point or interval to the decoded frames intersecting its scope.
+ */
 function windowAt(
   clock: IAutoMovieReviewClock,
   requested: IAutoMovieCliReviewObservation["requested"],
@@ -235,7 +243,9 @@ function windowAt(
   };
 }
 
-/** Finds the first native clock boundary at or above a film second. */
+/*
+ * Finds the first native clock boundary at or above a film second.
+ */
 function firstBoundaryAtOrAfter(
   clock: IAutoMovieReviewClock,
   time: number,
@@ -250,7 +260,7 @@ function firstBoundaryAtOrAfter(
   return first;
 }
 
-/**
+/*
  * Seconds relative to the published presentation zero, derived from native
  * ticks.
  */
@@ -261,14 +271,18 @@ function seconds(clock: IAutoMovieReviewClock, frame: number): number {
   });
 }
 
-/** Seconds represented by an exact timestamp, for display and request lookup. */
+/*
+ * Seconds represented by an exact timestamp, for display and request lookup.
+ */
 function timestampSeconds(
   time: IAutoMovieDeliveryContentAudit.ITimestamp,
 ): number {
   return (time.ticks * time.timeBase[0]) / time.timeBase[1];
 }
 
-/** Identifies the one authored occurrence or exposes a cut boundary or overlap. */
+/*
+ * Identifies the one authored occurrence or exposes a cut boundary or overlap.
+ */
 function resolveCut(
   cut: unknown,
   clock: IAutoMovieReviewClock | null,
@@ -329,7 +343,7 @@ function resolveCut(
     : { state: "resolved", ...selected };
 }
 
-/**
+/*
  * Extracts a few adjacent stills from the verified original, using the file
  * capture planner.
  */
@@ -390,7 +404,7 @@ async function replay(props: {
   }
 }
 
-/**
+/*
  * A short display address keeps the request distinct from native frame
  * coverage.
  */
@@ -405,7 +419,9 @@ function address(mark: IAutoMovieCliReviewObservation): string {
     : `${position}. Frames ${observed.firstFrame}–${observed.endFrame - 1}, PTS ${observed.start.ticks}–${observed.end.ticks} at ${observed.start.timeBase.join("/")} s per tick`;
 }
 
-/** Reports the old address and any verified absence from a replacement cut. */
+/*
+ * Reports the old address and any verified absence from a replacement cut.
+ */
 function originalAddress(
   old: IAutoMovieCliReviewObservation,
   replacement: { subject: string; cut: unknown } | null,
@@ -429,7 +445,9 @@ function originalAddress(
     : occurrence;
 }
 
-/** Reads JSON with a useful filename on a missing or malformed record. */
+/*
+ * Reads JSON with a useful filename on a missing or malformed record.
+ */
 async function json(file: string): Promise<unknown> {
   try {
     return JSON.parse(await fs.readFile(file, "utf8"));
@@ -438,27 +456,37 @@ async function json(file: string): Promise<unknown> {
   }
 }
 
-/** Production-relative when possible, with stable slash syntax on disk. */
+/*
+ * Production-relative when possible, with stable slash syntax on disk.
+ */
 function relative(root: string, file: string): string {
   return path.relative(root, file).split(path.sep).join("/");
 }
 
-/** A decoded JSON object. */
+/*
+ * A decoded JSON object.
+ */
 function record(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-/** A positive safe integer clock term. */
+/*
+ * A positive safe integer clock term.
+ */
 function positiveInteger(value: unknown): value is number {
   return whole(value) && value > 0;
 }
 
-/** A nonnegative safe integer frame or occurrence index. */
+/*
+ * A nonnegative safe integer frame or occurrence index.
+ */
 function whole(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
 }
 
-/** A finite nonnegative film second. */
+/*
+ * A finite nonnegative film second.
+ */
 function nonnegative(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value) && value >= 0;
 }

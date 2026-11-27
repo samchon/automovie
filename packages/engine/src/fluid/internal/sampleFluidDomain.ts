@@ -5,7 +5,7 @@ import {
 
 import { simulateFluidDomain } from "./simulateFluidDomain";
 
-/**
+/*
  * Sample a fluid domain at a shot second using its fixed-step clock.
  *
  * The selected step is `floor(max(time, 0) / fixedStepSeconds + 1e-9)`. The

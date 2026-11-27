@@ -20,7 +20,7 @@ import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
 
-/**
+/*
  * A planned arm that follows a person who moves: the feed-forward plan
  * (`AutoMovieMotionHumanArmPlanned.planned`, the person as perceived when it
  * was made) plus a feedback correction driven only by how far the goal has
@@ -29,7 +29,7 @@ import { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
  * than the plan's own pace leaves it room for.
  */
 export namespace AutoMovieMotionHumanArmFollow {
-  /**
+  /*
    * The arm of a planned carry that follows its goal.
    *
    * The correction is zero at `start`; on the reach the goal's motion counts by
@@ -48,13 +48,12 @@ export namespace AutoMovieMotionHumanArmFollow {
    * is filled from `start` once, in order, when the follower is made, which
    * its arm makes once the performance is placed
    * (`IAutoMovieMotionHumanPrimitive.ready`).
-   *
-   * @param body The body.
-   * @param carry The arm.
-   * @param span The span's instants.
-   * @param plan The planned arm.
-   * @param before The posture so far at any second.
-   * @returns The arm at a second.
+   * Parameter body: The body.
+   * Parameter carry: The arm.
+   * Parameter span: The span's instants.
+   * Parameter plan: The planned arm.
+   * Parameter before: The posture so far at any second.
+   * Returns: The arm at a second.
    */
   export function follower(
     body: IAutoMovieMotionHumanBody,
@@ -317,7 +316,7 @@ export namespace AutoMovieMotionHumanArmFollow {
   }
 }
 
-/**
+/*
  * The correction's grid, seconds: the frame grid the planner's hold is sampled
  * on (`AutoMovieMotionHumanArmCourse.STEP`).
  */

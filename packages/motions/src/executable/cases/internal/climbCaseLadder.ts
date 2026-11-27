@@ -5,12 +5,11 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-/**
+/*
  * A fixed ladder as a fixture prop: ten rungs `rung1` upward at 0.3 m (OSHA
  * 1910.23(b)(2)), 0.41 m wide and 30 mm round, its rungs 0.35 m ahead of the
  * origin along `+Z`, each facing the climber at `-Z` as `createLadder`'s do.
- *
- * @returns The ladder.
+ * Returns: The ladder.
  */
 export function climbCaseLadder(): IAutoMovieMotionHumanProp {
   // Each rung's frame turns +Y to -Z, toward the climber.

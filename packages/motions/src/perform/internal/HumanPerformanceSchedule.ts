@@ -11,13 +11,13 @@ import { HumanPerformancePlace } from "./HumanPerformancePlace";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanScheduleRefusal } from "./HumanScheduleRefusal";
 
-/**
+/*
  * The composition resolved on the film clock: the engine's schedule resolver
  * given this performance's laws, the alignment of an action synced to an
  * instant, and the cut of an action at a proximity.
  */
 export namespace HumanPerformanceSchedule {
-  /**
+  /*
    * Place the composition with the engine's resolver, every action planned by
    * its law. What the resolver cannot place (an anchor or an event the
    * composition names and does not have, an anchor used twice) reaches the
@@ -128,7 +128,7 @@ export namespace HumanPerformanceSchedule {
     }
   }
 
-  /**
+  /*
    * The second an action must start at for one of its instants to fall on a
    * target second. The time to that instant depends on the state the action is
    * entered from, which depends on when it starts, so it is planned at the
@@ -266,7 +266,7 @@ export namespace HumanPerformanceSchedule {
     return start;
   }
 
-  /**
+  /*
    * The drawn latency a synced action waits after its instant
    * (`HumanChainCore.ISync.latency`), 0 for an action synced without one: the
    * performer's own draw (`HumanResponse.latency`), keyed by the performer, the
@@ -314,7 +314,7 @@ export namespace HumanPerformanceSchedule {
     );
   }
 
-  /**
+  /*
    * The bracket width at which a proximity cut's second is taken, seconds: the
    * width the search it replaces reached, twenty halvings of a 24 Hz frame (`1
    * / 24 / 2 ** 20`, about 4e-8 s), so a cut is placed no more coarsely than
@@ -322,7 +322,7 @@ export namespace HumanPerformanceSchedule {
    */
   export const CUT: number = 1 / 24 / 2 ** 20;
 
-  /**
+  /*
    * The share of the latest segment's active span at which a proximity cut
    * happens: the 24 Hz grid is scanned for the first frame within the distance,
    * and the crossing is found between it and the frame before by the Illinois
@@ -415,17 +415,27 @@ export namespace HumanPerformanceSchedule {
   }
 }
 
-/** The record of `IProximityPlaced`'s site. */
+/*
+ * The record of `IProximityPlaced`'s site.
+ */
 type IProximityPlaced = { start: number; duration: number };
 
-/** The record of `IAlign2`'s site. */
+/*
+ * The record of `IAlign2`'s site.
+ */
 type IAlign2 = { subject: string; meeting: IAutoMovieMotionMeeting };
 
-/** The record of `IAlign`'s site. */
+/*
+ * The record of `IAlign`'s site.
+ */
 type IAlign = { subject: string; meeting: IAutoMovieMotionMeeting };
 
-/** The record of `IAlignMeetingsItem`'s site. */
+/*
+ * The record of `IAlignMeetingsItem`'s site.
+ */
 type IAlignMeetingsItem = { subject: string; meeting: IAutoMovieMotionMeeting };
 
-/** The record of `IResolvePlaced`'s site. */
+/*
+ * The record of `IResolvePlaced`'s site.
+ */
 type IResolvePlaced = { start: number; duration: number };

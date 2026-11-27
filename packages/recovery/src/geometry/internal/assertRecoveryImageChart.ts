@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryImageChartAssertOperation } from "@automovie/interface";
 
-/**
+/*
  * Admit the finite metric pixel chart and verify measured row/cell coordinates.
  * Adjacent occupied rows must form one eight-connected foreground component.
  * The relative binary64 bound covers arithmetic roundoff, not segmentation or

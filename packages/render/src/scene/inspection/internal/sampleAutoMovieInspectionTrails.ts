@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 import { AutoMovieRenderInspectionPath } from "../../AutoMovieRenderInspectionPath.js";
 
-/**
+/*
  * Sample where every object a path pattern selects is, at each of a window's
  * seconds, so a still can show the path it travels.
  *
@@ -42,16 +42,22 @@ import { AutoMovieRenderInspectionPath } from "../../AutoMovieRenderInspectionPa
  * ```
  */
 export async function sampleAutoMovieInspectionTrails(props: {
-  /** The scene the subject is built into. */
+  /*
+   * The scene the subject is built into.
+   */
   scene: THREE.Scene;
 
-  /** Path pattern of the objects whose trails are sampled. */
+  /*
+   * Path pattern of the objects whose trails are sampled.
+   */
   pattern: string;
 
-  /** The film seconds to sample. */
+  /*
+   * The film seconds to sample.
+   */
   times: readonly number[];
 
-  /**
+  /*
    * Place the subject at a film second; resolves once the subject is ready to
    * be read there.
    */
@@ -116,7 +122,7 @@ export async function sampleAutoMovieInspectionTrails(props: {
   );
 }
 
-/**
+/*
  * Distance in metres within which every sample of a trail counts as one place:
  * a micrometre, far below anything a picture shows.
  */

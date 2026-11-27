@@ -9,21 +9,24 @@ import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMoti
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** Mean contact time in seconds for a single-finger swipe (Jeong, Table 2.6). */
+/*
+ * Mean contact time in seconds for a single-finger swipe (Jeong, Table 2.6).
+ */
 const SWIPE_SECONDS: number = 0.2851;
 
-/** Normalized endpoint tolerance used by `HumanSegmentEntry` and `HumanSegmentCut`. */
+/*
+ * Normalized endpoint tolerance used by `HumanSegmentEntry` and `HumanSegmentCut`.
+ */
 const CONTACT_SHARE_TOLERANCE: number = 1e-9;
 
-/**
+/*
  * Prepare the touchscreen stroke's clock and its straight path. The hand
  * approaches from rest, presses along the screen and withdraws to rest. Those
  * phases remain distinct at the action's actual film time.
- *
- * @param props The entry, authored stroke points and chosen timing.
- * @returns The phrase's clock, the contact's endpoints in local seconds and
- *   the point of the stroke at a progress share.
- * @throws {HumanRefusal} If the film clock cannot distinguish the three phases.
+ * Parameter props: The entry, authored stroke points and chosen timing.
+ * Returns: The phrase's clock, the contact's endpoints in local seconds and
+ * the point of the stroke at a progress share.
+ * If the film clock cannot distinguish the three phases.
  */
 export function swipeTouchscreenStroke(
   props: swipeTouchscreenStroke.IProps,
@@ -78,45 +81,73 @@ export function swipeTouchscreenStroke(
   };
 }
 
-/** Inputs and clocks of the touchscreen stroke. */
+/*
+ * Inputs and clocks of the touchscreen stroke.
+ */
 export namespace swipeTouchscreenStroke {
-  /** The points and times of a swipe. */
+  /*
+   * The points and times of a swipe.
+   */
   export interface IProps {
-    /** The contact's opening point, world metres. */
+    /*
+     * The contact's opening point, world metres.
+     */
     first: IAutoMovieVector3;
 
-    /** The contact's closing point, world metres. */
+    /*
+     * The contact's closing point, world metres.
+     */
     last: IAutoMovieVector3;
 
-    /** The fingertip's rest point, world metres. */
+    /*
+     * The fingertip's rest point, world metres.
+     */
     rest: IAutoMovieVector3;
 
-    /** The chosen contact duration before tempo, seconds. */
+    /*
+     * The chosen contact duration before tempo, seconds.
+     */
     seconds: number;
 
-    /** Action start in the film, seconds. */
+    /*
+     * Action start in the film, seconds.
+     */
     start: number;
 
-    /** The factor multiplying each moving span. */
+    /*
+     * The factor multiplying each moving span.
+     */
     tempo: number;
   }
 
-  /** A clock and the points it reads through the contact. */
+  /*
+   * A clock and the points it reads through the contact.
+   */
   export interface IStroke {
-    /** The complete phrase clock, in local seconds. */
+    /*
+     * The complete phrase clock, in local seconds.
+     */
     clock: IAutoMovieMotionClock;
 
-    /** Local second when the glass first bears. */
+    /*
+     * Local second when the glass first bears.
+     */
     touchIn: number;
 
-    /** Local second when the glass stops bearing. */
+    /*
+     * Local second when the glass stops bearing.
+     */
     touchOut: number;
 
-    /** Place the linear stroke at its local progress. */
+    /*
+     * Place the linear stroke at its local progress.
+     */
     point(progress: number): IAutoMovieVector3;
   }
 
-  /** Admit the authored contact seconds or use Jeong's measured duration. */
+  /*
+   * Admit the authored contact seconds or use Jeong's measured duration.
+   */
   export function seconds(duration?: number): number {
     return HumanBound.above("duration", duration ?? SWIPE_SECONDS, 0, "s");
   }

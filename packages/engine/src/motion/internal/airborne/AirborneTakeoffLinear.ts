@@ -10,7 +10,7 @@ import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import { AirborneTakeoffQuadrature } from "../AirborneTakeoffQuadrature";
 import { AutoMovieEngineMotionTrajectory } from "../../AutoMovieEngineMotionTrajectory";
 
-/**
+/*
  * The linearized shooting relation `angle = turning L - lagging` in the
  * take-off frame: `turning = integral I^-1 dt`, `lagging = integral I^-1 h
  * dt`.
@@ -26,17 +26,16 @@ import { AutoMovieEngineMotionTrajectory } from "../../AutoMovieEngineMotionTraj
  * the relation A L-b. It controls seed quadrature, not the nonlinear flight or
  * its sensitivities. The latter still determine the full-request physical
  * residual and admission.
- *
- * @param props The shape history, flight, request, momentum ceiling and
- *   integration mode.
- * @param into The rotation from the root's axes into the take-off frame.
- * @param angularTolerance The resolved shooting angular budget, radians;
- *   omitted callers retain the fixed-grid seed. Adaptive physical integration
- *   uses its own unchanged relative/absolute budgets.
- * @returns The matrix in seconds per kg m² and the relative-motion angle in
- *   radians.
- * @throws {Error} In fixed mode, when the step is not positive and finite or
- *   its count over the flight is not a safe integer.
+ * Parameter props: The shape history, flight, request, momentum ceiling and
+ * integration mode.
+ * Parameter into: The rotation from the root's axes into the take-off frame.
+ * Parameter angularTolerance: The resolved shooting angular budget, radians;
+ * omitted callers retain the fixed-grid seed. Adaptive physical integration
+ * uses its own unchanged relative/absolute budgets.
+ * Returns: The matrix in seconds per kg m² and the relative-motion angle in
+ * radians.
+ * In fixed mode, when the step is not positive and finite or
+ * its count over the flight is not a safe integer.
  */
 export function AirborneTakeoffLinear(
   props: Pick<
@@ -53,16 +52,24 @@ export function AirborneTakeoffLinear(
   into: IAutoMovieQuaternion,
   angularTolerance?: number,
 ): { turning: number[][]; lagging: number[] } {
-  /** A single inverse-inertia sample and its relative-motion rate. */
+  /*
+   * A single inverse-inertia sample and its relative-motion rate.
+   */
   interface ISample {
-    /** Inverse tensor in takeoff axes, 1/(kg m squared). */
+    /*
+     * Inverse tensor in takeoff axes, 1/(kg m squared).
+     */
     inverse: number[][];
 
-    /** I inverse times shape momentum, radians/second. */
+    /*
+     * I inverse times shape momentum, radians/second.
+     */
     lag: IAutoMovieVector3;
   }
 
-  /** The two completed linear integrals. */
+  /*
+   * The two completed linear integrals.
+   */
   type Relation = { turning: number[][]; lagging: number[] };
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   let intoBasis: IAutoMovieVector3[] | undefined;
@@ -218,29 +225,30 @@ export function AirborneTakeoffLinear(
   return { turning, lagging };
 }
 
-/** The three-variable linear solve shared by the shooting start and Newton step. */
+/*
+ * The three-variable linear solve shared by the shooting start and Newton step.
+ */
 export namespace AirborneTakeoffLinear {
-  /**
+  /*
    * Adapt matrix rows to the engine's three-column linear solver without
    * mutation.
+   * Parameter a: Three matrix rows, read only.
+   * Parameter b: Three right-hand-side components, read only.
+   * Returns: A fresh solution, or null for non-finite inputs or a matrix the
+   * engine's singularity test rejects.
    *
-   * @param a Three matrix rows, read only.
-   * @param b Three right-hand-side components, read only.
-   * @returns A fresh solution, or null for non-finite inputs or a matrix the
-   *   engine's singularity test rejects.
-   *
-   *   States row orientation, the right-hand side, input ownership and the
-   *   nullable result. Admits finite entries, then delegates the unchanged
-   *   Cramer solve and determinant-to-column-norm rejection to
-   *   AutoMovieSolidVector.solve3; this is not a conditioning or error
-   *   certificate. Check finiteness, copy three columns and the right-hand
-   *   side, then delegate. Preserves the shooting solver's prior finite and
-   *   singular behavior without a clamp, damping term or alternate numeric
-   *   policy. Constant work and storage for the fixed three-by-three system.
-   *   One adapter serves both the linearized takeoff start and every Newton
-   *   correction; the determinant algebra remains engine-owned. Input rows and
-   *   right-hand side are never mutated or retained; only fresh triples reach
-   *   the engine solver, and only its fresh result escapes.
+   * States row orientation, the right-hand side, input ownership and the
+   * nullable result. Admits finite entries, then delegates the unchanged
+   * Cramer solve and determinant-to-column-norm rejection to
+   * AutoMovieSolidVector.solve3; this is not a conditioning or error
+   * certificate. Check finiteness, copy three columns and the right-hand
+   * side, then delegate. Preserves the shooting solver's prior finite and
+   * singular behavior without a clamp, damping term or alternate numeric
+   * policy. Constant work and storage for the fixed three-by-three system.
+   * One adapter serves both the linearized takeoff start and every Newton
+   * correction; the determinant algebra remains engine-owned. Input rows and
+   * right-hand side are never mutated or retained; only fresh triples reach
+   * the engine solver, and only its fresh result escapes.
    */
   export function solve(
     a: readonly number[][],

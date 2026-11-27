@@ -11,14 +11,13 @@ import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 
-/**
+/*
  * The Jacobians of every probe, the contact and the hand's rotation of every
  * arm at every inner waypoint; an outer waypoint's are empty.
- *
- * @param c The context.
- * @param x Each arm's coordinates at each waypoint.
- * @param at The iterate's evaluation.
- * @returns Per arm and waypoint, its Jacobians.
+ * Parameter c: The context.
+ * Parameter x: Each arm's coordinates at each waypoint.
+ * Parameter at: The iterate's evaluation.
+ * Returns: Per arm and waypoint, its Jacobians.
  */
 export function HumanArmTrajectoryJacobians(
   c: M.IContext,
@@ -40,7 +39,7 @@ export function HumanArmTrajectoryJacobians(
   );
 }
 
-/**
+/*
  * The Jacobians an arms' trajectory's convex subproblem
  * (`HumanArmTrajectoryConvex`) linearises its constraints on, about an iterate:
  * each coordinate's segment twists (`HumanArmJacobian`), every point moving
@@ -49,63 +48,73 @@ export function HumanArmTrajectoryJacobians(
  * on the point Jacobian).
  */
 export namespace HumanArmTrajectoryJacobians {
-  /**
+  /*
    * The hair the hand is turned by, coordinate units, in the rotation-vector
    * central difference.
    */
   export const HAIR: number = 1e-4;
 
-  /**
+  /*
    * A segment's motion per coordinate unit: its origin's, millimetres, and its
    * turn, radians.
    */
   export interface IMotion {
-    /** The origin's motion, millimetres per coordinate unit. */
+    /*
+     * The origin's motion, millimetres per coordinate unit.
+     */
     origin: IAutoMovieVector3;
 
-    /** The turn, radians per coordinate unit. */
+    /*
+     * The turn, radians per coordinate unit.
+     */
     omega: IAutoMovieVector3;
   }
 
-  /** Every Jacobian of one arm at one waypoint, a column per free coordinate. */
+  /*
+   * Every Jacobian of one arm at one waypoint, a column per free coordinate.
+   */
   export interface IJacobian {
-    /**
+    /*
      * A probe's motion, millimetres per coordinate unit, a vector per free
      * coordinate, read from the prepared numeric columns. An outer waypoint has
      * no columns.
-     *
-     * @param probe The probe.
-     * @returns Its columns.
+     * Parameter probe: The probe.
+     * Returns: Its columns.
      */
     probe(probe: number): IAutoMovieVector3[];
 
-    /** The contact's motion, millimetres per coordinate unit. */
+    /*
+     * The contact's motion, millimetres per coordinate unit.
+     */
     pad: IAutoMovieVector3[];
 
-    /** The hand's rotation vector off its site, degrees per coordinate unit. */
+    /*
+     * The hand's rotation vector off its site, degrees per coordinate unit.
+     */
     hand: IAutoMovieVector3[];
 
-    /**
+    /*
      * The farthest any probe moves per unit of every coordinate together,
      * millimetres: what a trust region lets a probe travel.
      */
     move: number;
 
-    /** Each segment's motion. */
+    /*
+     * Each segment's motion.
+     */
     segments: Record<SegmentsEntryItem, IMotion>[];
   }
 
-  /**
+  /*
    * The Jacobians of one arm at one waypoint, the entry `of` makes there: every
    * probe's, the contact's and the hand rotation's columns at an inner
    * waypoint, empty arrays and no move at an outer one.
-   *
-   * @param c The context.
-   * @param x Each arm's coordinates at each waypoint.
-   * @param at The iterate's evaluation.
-   * @param a The arm.
-   * @param k The waypoint.
-   * @returns Its Jacobians.
+   * Parameter c: The context.
+   * Parameter x: Each arm's coordinates at each waypoint.
+   * Parameter at: The iterate's evaluation.
+   * Parameter a: The arm.
+   * Parameter k: The waypoint.
+   * Returns: Its Jacobians.
    */
   export function waypoint(
     c: M.IContext,
@@ -219,18 +228,17 @@ export namespace HumanArmTrajectoryJacobians {
     return entry;
   }
 
-  /**
+  /*
    * The motion of a point riding one of an arm's segments, per coordinate: the
    * segment's origin's motion plus its turn about it.
-   *
-   * @param at The iterate's evaluation.
-   * @param jac The iterate's Jacobians.
-   * @param b The arm.
-   * @param k The waypoint.
-   * @param owner The segment the point rides.
-   * @param p The point, world metres.
-   * @returns Its motion, millimetres per coordinate unit, a column per free
-   *   coordinate.
+   * Parameter at: The iterate's evaluation.
+   * Parameter jac: The iterate's Jacobians.
+   * Parameter b: The arm.
+   * Parameter k: The waypoint.
+   * Parameter owner: The segment the point rides.
+   * Parameter p: The point, world metres.
+   * Returns: Its motion, millimetres per coordinate unit, a column per free
+   * coordinate.
    */
   export function carried(
     at: M.IEvaluation,
@@ -254,16 +262,15 @@ export namespace HumanArmTrajectoryJacobians {
     );
   }
 
-  /**
+  /*
    * The derivative of the hand's rotation vector off its site along the hand's
    * world turn per coordinate unit, degrees: the vector read with the hand
    * turned a hair either way about that turn, so the logarithm's own curvature
    * at a residual off the site is kept.
-   *
-   * @param site The site's rotation.
-   * @param hand The hand's rotation.
-   * @param omega The hand's turn per coordinate unit, radians.
-   * @returns Degrees per coordinate unit.
+   * Parameter site: The site's rotation.
+   * Parameter hand: The hand's rotation.
+   * Parameter omega: The hand's turn per coordinate unit, radians.
+   * Returns: Degrees per coordinate unit.
    */
   export function turned(
     site: IAutoMovieQuaternion,
@@ -286,7 +293,7 @@ export namespace HumanArmTrajectoryJacobians {
     return Vector3.scale(Vector3.subtract(read(1), read(-1)), 1 / (2 * HAIR));
   }
 
-  /**
+  /*
    * Complete a fresh cross-product vector as a point's motion in millimetres.
    * Each component keeps the original origin + cross-component * 1000 grouping;
    * only this unobserved fresh vector is written before return.
@@ -302,7 +309,7 @@ export namespace HumanArmTrajectoryJacobians {
     return out;
   }
 
-  /**
+  /*
    * A current segment twist in the convex subproblem's millimetres, borrowing
    * only its angular vector.
    */
@@ -311,14 +318,22 @@ export namespace HumanArmTrajectoryJacobians {
   }
 }
 
-/** The alternatives of `CarriedColumnEntry`'s site. */
+/*
+ * The alternatives of `CarriedColumnEntry`'s site.
+ */
 type CarriedColumnEntry = "upper" | "lower" | "hand";
 
-/** The alternatives of `CarriedOwner`'s site. */
+/*
+ * The alternatives of `CarriedOwner`'s site.
+ */
 type CarriedOwner = "upper" | "lower" | "hand";
 
-/** The alternatives of `WaypointFramesEntry`'s site. */
+/*
+ * The alternatives of `WaypointFramesEntry`'s site.
+ */
 type WaypointFramesEntry = "upper" | "lower" | "hand";
 
-/** The alternatives of `SegmentsEntryItem`'s site. */
+/*
+ * The alternatives of `SegmentsEntryItem`'s site.
+ */
 type SegmentsEntryItem = "upper" | "lower" | "hand";

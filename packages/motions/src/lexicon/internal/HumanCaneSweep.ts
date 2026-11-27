@@ -30,21 +30,21 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { humanCaneSweepTouches } from "./humanCaneSweepTouches";
 
-/**
+/*
  * How far beyond the body's widest part the tip touches, metres: about an inch
  * (Kim, Wall Emerson and Naghshineh 2017, the arc about one inch beyond the
  * widest part of the body).
  */
 const BEYOND: number = 0.025;
 
-/**
+/*
  * How far ahead of the hips the cane hand is held, as a share of the forearm
  * (provisional: the arm reached forward at the midline, the elbow a little
  * bent).
  */
 const AHEAD: number = 0.8;
 
-/**
+/*
  * Sweep a long cane while walking, performed over the walk. The cane hand is
  * held at the midline, `AHEAD` of the forearm before the hips at the waist's
  * height (the hand's place in the walker's moving frame). The walk's own steps
@@ -326,7 +326,7 @@ function planHumanCaneSweep(
   });
 }
 
-/**
+/*
  * Sweep a long cane while walking, performed over the walk. The cane hand is
  * held at the midline, `AHEAD` of the forearm before the hips at the waist's
  * height (the hand's place in the walker's moving frame). The walk's own steps

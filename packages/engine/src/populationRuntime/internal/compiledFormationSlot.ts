@@ -7,7 +7,7 @@ import type {
 import { formationSlotPosition } from "../formation/internal/formationSlotPosition";
 import { formationSlotRecord } from "../formation/internal/formationSlotRecord";
 
-/**
+/*
  * Regenerate one exact member of a compiled formation in constant memory.
  *
  * The compiled record is what a viewer draws and what a shot source is handed,
@@ -18,9 +18,9 @@ import { formationSlotRecord } from "../formation/internal/formationSlotRecord";
  * it. The only thing the record spells differently from a design is a hero,
  * which is a promoted slot rather than an override.
  *
- * The identity law is not restated here. This and {@link formationSlot} for a
+ * The identity law is not restated here. This and formationSlot for a
  * grounded design both hand the slot's actor and position to
- * {@link formationSlotRecord}, which names the hero actor or the slot-derived
+ * formationSlotRecord, which names the hero actor or the slot-derived
  * node and carries the base model, the designed heading and the seeded motion
  * phase. A test pins the two answers equal for every slot of a compiled
  * formation.

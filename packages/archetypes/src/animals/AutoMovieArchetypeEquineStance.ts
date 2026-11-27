@@ -269,7 +269,9 @@ export namespace AutoMovieArchetypeEquineStance {
     };
   }
 
-  /** A refusal of a response. */
+  /*
+   * A refusal of a response.
+   */
   function refuse(
     archetype: string,
     axis: string,
@@ -287,7 +289,9 @@ export namespace AutoMovieArchetypeEquineStance {
     });
   }
 
-  /** A bar's start frame, the origin its rig link uses. */
+  /*
+   * A bar's start frame, the origin its rig link uses.
+   */
   function frameOf(part: IAutoMovieModelPart): IAutoMovieTransform {
     const transform: IAutoMovieTransform = part.transform!;
     return {
@@ -303,7 +307,9 @@ export namespace AutoMovieArchetypeEquineStance {
     };
   }
 
-  /** A limb's terminal endpoint, the far end of its last bar. */
+  /*
+   * A limb's terminal endpoint, the far end of its last bar.
+   */
   function endpoint(
     parts: ReadonlyMap<string, IAutoMovieModelPart>,
     limb: AutoMovieArchetypeQuadrupedBody.Limb,
@@ -322,7 +328,9 @@ export namespace AutoMovieArchetypeEquineStance {
     );
   }
 
-  /** A bar part's length. */
+  /*
+   * A bar part's length.
+   */
   function height(part: IAutoMovieModelPart): number {
     return part.geometry.type === "primitive" &&
       (part.geometry.shape.type === "capsule" ||
@@ -332,5 +340,7 @@ export namespace AutoMovieArchetypeEquineStance {
   }
 }
 
-/** A named instant of a ride. */
+/*
+ * A named instant of a ride.
+ */
 type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

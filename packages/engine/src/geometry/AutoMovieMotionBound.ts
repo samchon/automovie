@@ -321,7 +321,9 @@ export namespace AutoMovieMotionBound {
   }
 }
 
-/** A coordinate vector plus another scaled: `a + s b`, componentwise. */
+/*
+ * A coordinate vector plus another scaled: `a + s b`, componentwise.
+ */
 const combine = (
   a: readonly number[],
   b: readonly number[],

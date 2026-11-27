@@ -25,7 +25,7 @@ import { sourceOrientation } from "../../geometry/internal/sourceOrientation";
 import { observeRecoverySection } from "../../geometry/internal/observeRecoverySection";
 import { prepareRecoveryMeshIncidence } from "../../geometry/internal/prepareRecoveryMeshIncidence";
 
-/**
+/*
  * Fit only explicitly failed, rebound raw source contours into a new patch.
  * Original coefficient artifacts are opaque external references. The caller
  * verifies their bytes and actual tolerance/corner/orientation policy before
@@ -381,12 +381,16 @@ export function resumeAutoMovieRecoveryContours<
   }
 }
 
-/** A raw contour's address: its saved coordinate and raw contour ordinal. */
+/*
+ * A raw contour's address: its saved coordinate and raw contour ordinal.
+ */
 function address(coordinateMm: number, contourIndex: number): string {
   return `${coordinateMm}/${contourIndex}`;
 }
 
-/** Whether a saved section's frame equals the resumed plane frame exactly. */
+/*
+ * Whether a saved section's frame equals the resumed plane frame exactly.
+ */
 function sameFrame(
   saved: IAutoMovieRecoverySavedSection["frame"],
   actual: IAutoMovieRecoveryContourResume["frame"],

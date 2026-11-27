@@ -1,13 +1,12 @@
 import { planAutoMovieDeliveryInput } from "./planAutoMovieDeliveryInput";
 
-/**
+/*
  * Plans a read-only decode of a known present audio stream into interleaved
  * little-endian 32-bit floating point samples. Its decoded frame log and PCM
  * byte count provide independent timing and content evidence.
- *
- * @param path The delivery file to decode.
- * @returns Shell-free FFmpeg arguments with PCM on stdout and frame timing on
- *   stderr.
+ * Parameter path: The delivery file to decode.
+ * Returns: Shell-free FFmpeg arguments with PCM on stdout and frame timing on
+ * stderr.
  */
 export function planAutoMovieDeliveryAudioDecode(path: string): string[] {
   return [

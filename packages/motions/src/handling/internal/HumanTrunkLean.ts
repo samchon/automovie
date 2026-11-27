@@ -18,7 +18,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/**
+/*
  * A trunk leaned forward to bring work within the arms: a hip hinge, the whole
  * body above the legs pitched about the hip joints' axis by the least angle
  * that puts every asked wrist within its arm from the turned shoulder. A
@@ -38,15 +38,14 @@ import { poseBones } from "../../posture/internal/poseBones";
  * reads and the pelvis's own pitch).
  */
 export namespace HumanTrunkLean {
-  /**
+  /*
    * A posture hinged forward about its hip joints' axis by an angle.
-   *
-   * @param body The body.
-   * @param posture The posture; its legs keep their goals.
-   * @param degrees The forward pitch about the hip axis, degrees.
-   * @param hanging The arms that hang free under gravity, as they hang before
-   *   the hinge (`hang`); none when absent.
-   * @returns The hinged posture.
+   * Parameter body: The body.
+   * Parameter posture: The posture; its legs keep their goals.
+   * Parameter degrees: The forward pitch about the hip axis, degrees.
+   * Parameter hanging: The arms that hang free under gravity, as they hang before
+   * the hinge (`hang`); none when absent.
+   * Returns: The hinged posture.
    */
   export function lean(
     body: IAutoMovieMotionHumanBody,
@@ -89,15 +88,14 @@ export namespace HumanTrunkLean {
     return { ...hinged, limbs };
   }
 
-  /**
+  /*
    * How a free arm hangs before a hinge: its shoulder, elbow and wrist joints
    * and its hand's attitude as the pose shows them, read once for the hinge to
    * carry (`lean`).
-   *
-   * @param body The body.
-   * @param pose The pose the arm hangs in, the act's entry.
-   * @param side The arm.
-   * @returns The hanging arm, world.
+   * Parameter body: The body.
+   * Parameter pose: The pose the arm hangs in, the act's entry.
+   * Parameter side: The arm.
+   * Returns: The hanging arm, world.
    */
   export function hang(
     body: IAutoMovieMotionHumanBody,
@@ -123,17 +121,16 @@ export namespace HumanTrunkLean {
     };
   }
 
-  /**
+  /*
    * A base the hinge moves: without the windows in which the base declares
    * itself still (`still`, `legsStill`) whenever a hinge is asked. Inside a
    * legs-still window the display fits the legs once and keeps their joints
    * relative to the pelvis, on the premise that the root and the trunk do not
    * move; a hinge pitches the root, so a kept window would swing the planted
    * knees and feet with the pelvis instead of holding them.
-   *
-   * @param base The law's base plan.
-   * @param degrees The deepest hinge the law asks, degrees.
-   * @returns The base, its still windows dropped when the hinge is positive.
+   * Parameter base: The law's base plan.
+   * Parameter degrees: The deepest hinge the law asks, degrees.
+   * Returns: The base, its still windows dropped when the hinge is positive.
    */
   export function moving(
     base: IAutoMovieMotionHumanActionPlan,
@@ -144,14 +141,13 @@ export namespace HumanTrunkLean {
     return hinged;
   }
 
-  /**
+  /*
    * The least hinge that brings every asked wrist within its arm.
-   *
-   * @param context The action's context; its entry posture is hinged.
-   * @param wrists The wrists asked, each with its arm and attitude.
-   * @returns The hinge, degrees.
-   * @throws {HumanRefusal} When no hinge within the hip's remaining flexion
-   *   reaches every wrist.
+   * Parameter context: The action's context; its entry posture is hinged.
+   * Parameter wrists: The wrists asked, each with its arm and attitude.
+   * Returns: The hinge, degrees.
+   * When no hinge within the hip's remaining flexion
+   * reaches every wrist.
    */
   export function least(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -212,37 +208,57 @@ export namespace HumanTrunkLean {
     return (low * 180) / Math.PI;
   }
 
-  /** A free arm as it hangs before a hinge (`hang`), world. */
+  /*
+   * A free arm as it hangs before a hinge (`hang`), world.
+   */
   export interface IHanging {
-    /** The arm. */
+    /*
+     * The arm.
+     */
     side: AutoMovieHumanSide;
 
-    /** The shoulder joint. */
+    /*
+     * The shoulder joint.
+     */
     shoulder: IAutoMovieVector3;
 
-    /** The elbow joint. */
+    /*
+     * The elbow joint.
+     */
     elbow: IAutoMovieVector3;
 
-    /** The wrist joint. */
+    /*
+     * The wrist joint.
+     */
     wrist: IAutoMovieVector3;
 
-    /** The hand's attitude. */
+    /*
+     * The hand's attitude.
+     */
     rotation: IAutoMovieQuaternion;
   }
 
-  /** A wrist a law asks of an arm. */
+  /*
+   * A wrist a law asks of an arm.
+   */
   export interface IWrist {
-    /** The arm. */
+    /*
+     * The arm.
+     */
     side: AutoMovieHumanSide;
 
-    /** The wrist, world metres. */
+    /*
+     * The wrist, world metres.
+     */
     point: IAutoMovieVector3;
 
-    /** The hand's attitude, world. */
+    /*
+     * The hand's attitude, world.
+     */
     rotation: IAutoMovieQuaternion;
   }
 
-  /**
+  /*
    * The hip joints' axis of a posture: their midpoint and the unit direction
    * from the right joint to the left.
    */
@@ -265,7 +281,7 @@ export namespace HumanTrunkLean {
     };
   }
 
-  /**
+  /*
    * The hip flexion the legs leave the hinge, degrees: `HumanTrunk.pelvisLimit`
    * over the leg goals' ankles, less the pelvis's own pitch; the whole margin
    * of the hip's range when the posture holds no leg goals.
@@ -298,7 +314,9 @@ export namespace HumanTrunkLean {
     );
   }
 
-  /** An arm's shoulder joint on a posture, world metres. */
+  /*
+   * An arm's shoulder joint on a posture, world metres.
+   */
   function shoulder(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -314,12 +332,18 @@ export namespace HumanTrunkLean {
     ).get(bone)!.worldPosition;
   }
 
-  /** The hip joints' axis: a point on it and its unit direction, world. */
+  /*
+   * The hip joints' axis: a point on it and its unit direction, world.
+   */
   interface IAxis {
-    /** The joints' midpoint, metres. */
+    /*
+     * The joints' midpoint, metres.
+     */
     point: IAutoMovieVector3;
 
-    /** Unit direction from the right joint to the left. */
+    /*
+     * Unit direction from the right joint to the left.
+     */
     axis: IAutoMovieVector3;
   }
 }

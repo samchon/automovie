@@ -15,7 +15,7 @@ import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { ROOM_CLEARANCES } from "./ROOM_CLEARANCES";
 import { furnishRoom } from "./furnishRoom";
 
-/**
+/*
  * Furnish an office: repeated desks, each with an office chair facing it, on
  * the room's grid, a filing cabinet on the `-x` wall and a bookcase on the `+x`
  * wall.
@@ -26,15 +26,14 @@ import { furnishRoom } from "./furnishRoom";
  * face the desk, with its front at the desk's edge. The filing cabinet stands
  * near the `-x` wall's run corner, as far from it as its clear floor overhangs
  * the cabinet, and keeps the forward-approach clear floor of
- * {@link ROOM_CLEARANCES}.clearFloor in front, named `forward approach`; the
+ * ROOM_CLEARANCES.clearFloor in front, named `forward approach`; the
  * bookcase starts at the `+x` wall's run corner. The desk groups take the first
  * grid slots clear of both and of that clearance. The figure is a coarse layout
  * rule, not an accessibility claim.
- *
- * @param params The room layout and the positive number of desks.
- * @returns The placed-room module.
- * @throws When a piece or clearance leaves the room or overlaps, or the desks
- *   do not fit, naming the role or the `desks` count.
+ * Parameter params: The room layout and the positive number of desks.
+ * Returns: The placed-room module.
+ * When a piece or clearance leaves the room or overlaps, or the desks
+ * do not fit, naming the role or the `desks` count.
  */
 export function createOfficeKit(
   params: AutoMovieEnvironmentFurnishing.IOfficeKitParams,

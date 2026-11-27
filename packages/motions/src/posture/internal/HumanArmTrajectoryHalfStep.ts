@@ -8,7 +8,7 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
-/**
+/*
  * An arm's course from a read waypoint to the next, as the swept readings take
  * it: the arm placed at every frame on the way, each place carried into a
  * shape's frame at the waypoint read so the shape's own motion is taken out
@@ -16,31 +16,43 @@ import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  * screen reads before any exact query.
  */
 export namespace HumanArmTrajectoryHalfStep {
-  /** The arm at one frame of an interval. */
+  /*
+   * The arm at one frame of an interval.
+   */
   export interface IStep {
-    /** The frame's waypoint. */
+    /*
+     * The frame's waypoint.
+     */
     at: number;
 
-    /** The arm placed there, its collider probes where they are placed. */
+    /*
+     * The arm placed there, its collider probes where they are placed.
+     */
     placed: IAutoMovieMotionHumanArmGeometry.IPlaced;
   }
 
-  /** The arm at the next read waypoint and on the way to it. */
+  /*
+   * The arm at the next read waypoint and on the way to it.
+   */
   export interface INear {
-    /** The next read waypoint. */
+    /*
+     * The next read waypoint.
+     */
     at: number;
 
-    /** The arm placed there, with its collider probes. */
+    /*
+     * The arm placed there, with its collider probes.
+     */
     placed: IAutoMovieMotionHumanArmGeometry.IPlaced;
 
-    /**
+    /*
      * The arm at every frame from the waypoint read to the next, in that order,
      * the waypoint read left out and the next last.
      */
     path: readonly IStep[];
   }
 
-  /**
+  /*
    * How far each probe and each shape travels on the way to the next read
    * waypoint, in world, at most: a probe's farthest place from its place at the
    * waypoint read, and a shape's centre's step plus its bounding radius times
@@ -49,21 +61,24 @@ export namespace HumanArmTrajectoryHalfStep {
    * summed.
    */
   export interface ITravel {
-    /** Each probe's farthest place on the way, metres; zero without one. */
+    /*
+     * Each probe's farthest place on the way, metres; zero without one.
+     */
     probes: Float64Array;
 
-    /** Each shape's farthest point's step on the way, metres. */
+    /*
+     * Each shape's farthest point's step on the way, metres.
+     */
     shapes: Float64Array;
   }
 
-  /**
+  /*
    * A probe's world place in an arm placed at a frame: its placed place where
    * the collider probes are placed, carried by its segment otherwise.
-   *
-   * @param frame The frame.
-   * @param placed The arm placed there.
-   * @param probe The probe.
-   * @returns World metres.
+   * Parameter frame: The frame.
+   * Parameter placed: The arm placed there.
+   * Parameter probe: The probe.
+   * Returns: World metres.
    */
   export function point(
     frame: IAutoMovieMotionHumanArmGeometry.IFrame,
@@ -92,16 +107,15 @@ export namespace HumanArmTrajectoryHalfStep {
     );
   }
 
-  /**
+  /*
    * The travel bounds of a waypoint's probes and shapes on the way to the next
    * read waypoint (`ITravel`).
-   *
-   * @param c The context.
-   * @param a The arm.
-   * @param k The waypoint.
-   * @param placed The arm placed at `k`.
-   * @param near The arm on the way to the next read waypoint.
-   * @returns The bounds.
+   * Parameter c: The context.
+   * Parameter a: The arm.
+   * Parameter k: The waypoint.
+   * Parameter placed: The arm placed at `k`.
+   * Parameter near: The arm on the way to the next read waypoint.
+   * Returns: The bounds.
    */
   export function travel(
     c: M.IContext,
@@ -145,18 +159,17 @@ export namespace HumanArmTrajectoryHalfStep {
     return { probes, shapes };
   }
 
-  /**
+  /*
    * The least signed distance from a segment to a shape its bounding sphere
    * allows: the segment's distance to the sphere's centre, in closed form at
    * the segment's point nearest it, less the radius. The shape lies in the
    * sphere, so every point's distance to it is at least its distance to the
    * centre less the radius, and the segment's, the least over its points, at
    * least this.
-   *
-   * @param shape The shape.
-   * @param a The segment's one end, world metres.
-   * @param b Its other end.
-   * @returns Metres; negative where the segment enters the sphere.
+   * Parameter shape: The shape.
+   * Parameter a: The segment's one end, world metres.
+   * Parameter b: Its other end.
+   * Returns: Metres; negative where the segment enters the sphere.
    */
   export function sphere(
     shape: IAutoMovieMotionHumanArmGeometry.IShape,
@@ -181,17 +194,16 @@ export namespace HumanArmTrajectoryHalfStep {
     );
   }
 
-  /**
+  /*
    * A point at waypoint `from + 1` carried into a shape's frame at `from`, and
    * the turn that carries a direction with it: the point itself and no turn
    * where the shape is not the same segment at both.
-   *
-   * @param c The context.
-   * @param a The arm.
-   * @param from The earlier waypoint.
-   * @param shape The shape's index in the frames at `from` and `from + 1`.
-   * @param p The point at `from + 1`, world metres.
-   * @returns The point in the frame at `from`, and the turn.
+   * Parameter c: The context.
+   * Parameter a: The arm.
+   * Parameter from: The earlier waypoint.
+   * Parameter shape: The shape's index in the frames at `from` and `from + 1`.
+   * Parameter p: The point at `from + 1`, world metres.
+   * Returns: The point in the frame at `from`, and the turn.
    */
   export function relative(
     c: M.IContext,
@@ -203,18 +215,17 @@ export namespace HumanArmTrajectoryHalfStep {
     return carry(c, a, from, from + 1, shape, p);
   }
 
-  /**
+  /*
    * A point at waypoint `there` carried into a shape's frame at `here`, and the
    * turn that carries a direction with it; the point and no turn where the
    * shape is not the same segment at both.
-   *
-   * @param c The context.
-   * @param a The arm.
-   * @param here The waypoint whose frame the point is carried into.
-   * @param there The waypoint the point is placed at.
-   * @param shape The shape's index in the frames at both.
-   * @param p The point at `there`, world metres.
-   * @returns The point in the frame at `here`, and the turn.
+   * Parameter c: The context.
+   * Parameter a: The arm.
+   * Parameter here: The waypoint whose frame the point is carried into.
+   * Parameter there: The waypoint the point is placed at.
+   * Parameter shape: The shape's index in the frames at both.
+   * Parameter p: The point at `there`, world metres.
+   * Returns: The point in the frame at `here`, and the turn.
    */
   export function carry(
     c: M.IContext,
@@ -240,5 +251,7 @@ export namespace HumanArmTrajectoryHalfStep {
   }
 }
 
-/** The alternatives of `PointOwner`'s site. */
+/*
+ * The alternatives of `PointOwner`'s site.
+ */
 type PointOwner = "upper" | "lower" | "hand";

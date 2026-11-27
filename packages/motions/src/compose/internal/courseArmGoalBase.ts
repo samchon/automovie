@@ -9,16 +9,15 @@ import type {
 import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 import { courseArmGoal } from "./courseArmGoal";
 
-/**
+/*
  * The base a coursed plan is composed on (`courseArmGoal`): the plan with each
  * coursed arm's goal left out over its span, the plan's own arm before it, and
  * after it the angles its course ended with or the arm the course returns it
  * to; once laid, a second where every coursed arm is on its course asks the law
  * for every channel but those arms. Read from the course's props, plan, arms,
  * kept and returned angles, posture reader, and whether and how it is laid.
- *
- * @param scope What the course builds its base from.
- * @returns The base plan.
+ * Parameter scope: What the course builds its base from.
+ * Returns: The base plan.
  */
 export function courseArmGoalBase(
   scope: courseArmGoalBase.IScope,
@@ -127,15 +126,16 @@ export function courseArmGoalBase(
   return base;
 }
 
-/** What the base of a coursed plan reads. */
+/*
+ * What the base of a coursed plan reads.
+ */
 export namespace courseArmGoalBase {
-  /**
+  /*
    * An arm's angles where its course ended, read off the composition.
-   *
-   * @param composed The composition.
-   * @param end The arm's span end, plan seconds.
-   * @param side The arm.
-   * @returns The arm's joints there.
+   * Parameter composed: The composition.
+   * Parameter end: The arm's span end, plan seconds.
+   * Parameter side: The arm.
+   * Returns: The arm's joints there.
    */
   export function ended(
     composed: IAutoMovieMotionHumanActionPlan,
@@ -150,32 +150,43 @@ export namespace courseArmGoalBase {
     return out;
   }
 
-  /** What a course builds its base from. */
+  /*
+   * What a course builds its base from.
+   */
   export interface IScope {
-    /** The course's props. */
+    /*
+     * The course's props.
+     */
     props: courseArmGoal.IProps;
 
-    /** The law's plan. */
+    /*
+     * The law's plan.
+     */
     plan: IAutoMovieMotionHumanActionPlan;
 
-    /** The arms coursed together, the course's own first. */
+    /*
+     * The arms coursed together, the course's own first.
+     */
     arms: readonly courseArmGoal.IArm[];
 
-    /** Each arm's ending angles, solved when the coursed plan is prepared. */
+    /*
+     * Each arm's ending angles, solved when the coursed plan is prepared.
+     */
     kept: Map<courseArmGoal.Limb, IAutoMovieMotionHumanPosture["joints"]>;
 
-    /** Each arm's return target, solved when the course is built. */
+    /*
+     * Each arm's return target, solved when the course is built.
+     */
     returned: Map<courseArmGoal.Limb, IAutoMovieMotionHumanPosture["joints"]>;
 
-    /**
+    /*
      * The plan's posture at a second.
-     *
-     * @param seconds Seconds since the plan's start.
-     * @param resolution The borrowed forward-kinematics reader, if any.
-     * @param projection The borrowed range-of-motion projector, if any.
-     * @param channels The channels demanded of the plan; every channel when
-     *   absent.
-     * @returns The plan's posture.
+     * Parameter seconds: Seconds since the plan's start.
+     * Parameter resolution: The borrowed forward-kinematics reader, if any.
+     * Parameter projection: The borrowed range-of-motion projector, if any.
+     * Parameter channels: The channels demanded of the plan; every channel when
+     * absent.
+     * Returns: The plan's posture.
      */
     read: (
       seconds: number,
@@ -184,17 +195,15 @@ export namespace courseArmGoalBase {
       channels?: readonly AutoMovieMotionHumanChannel[],
     ) => IAutoMovieMotionHumanPosture;
 
-    /**
+    /*
      * Whether the course is laid: the composition exists.
-     *
-     * @returns Whether it is laid.
+     * Returns: Whether it is laid.
      */
     laid: () => boolean;
 
-    /**
+    /*
      * The composition, read only once the course is laid.
-     *
-     * @returns The composed plan.
+     * Returns: The composed plan.
      */
     composed: () => IAutoMovieMotionHumanActionPlan;
   }

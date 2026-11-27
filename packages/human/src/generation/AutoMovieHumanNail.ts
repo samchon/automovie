@@ -57,7 +57,9 @@ export namespace AutoMovieHumanNail {
     return Math.abs(z) <= tabled(plan.edges, x);
   }
 
-  /** A table `[at, value][]` with `at` increasing, read at a place: straight between its rows and held past its ends. */
+  /*
+   * A table `[at, value][]` with `at` increasing, read at a place: straight between its rows and held past its ends.
+   */
   function tabled(table: readonly [number, number][], at: number): number {
     let i: number = 0;
     while (i < table.length - 2 && at >= table[i + 1]![0]) i += 1;
@@ -65,19 +67,29 @@ export namespace AutoMovieHumanNail {
     return a[1] + (b[1] - a[1]) * Math.max(0, Math.min(1, (at - a[0]) / (b[0] - a[0])));
   }
 
-  /** The bed's net spacing over the ramp's half width: a roll is resolved by samplings a quarter of it apart (the lofting skill's fitting rule). */
+  /*
+   * The bed's net spacing over the ramp's half width: a roll is resolved by samplings a quarter of it apart (the lofting skill's fitting rule).
+   */
   const NET: number = 0.5;
 
-  /** The bed's depth under the plate's upper face over the fold's depth: the skin under the plate only has to stay inside the plate's body. */
+  /*
+   * The bed's depth under the plate's upper face over the fold's depth: the skin under the plate only has to stay inside the plate's body.
+   */
   const UNDER: number = 0;
 
-  /** The ramp's half width over the fold's depth. */
+  /*
+   * The ramp's half width over the fold's depth.
+   */
   const RAMP: number = 2;
 
-  /** Phases a ring of the skin is read at before a point on it is refined: a digit's section turns by 2 degrees between two of them. */
+  /*
+   * Phases a ring of the skin is read at before a point on it is refined: a digit's section turns by 2 degrees between two of them.
+   */
   const RING: number = 180;
 
-  /** The ellipse's shoulder: `sqrt(2) - 1`, the conic through the middle of a quarter ellipse. */
+  /*
+   * The ellipse's shoulder: `sqrt(2) - 1`, the conic through the middle of a quarter ellipse.
+   */
   const ELLIPSE: number = Math.SQRT2 - 1;
 
   const sub = (a: readonly number[], b: readonly number[]): AutoMovieVector3Tuple => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
@@ -89,19 +101,25 @@ export namespace AutoMovieHumanNail {
     return [a[0] / n, a[1] / n, a[2] / n];
   };
 
-  /** Stations along the bed the nail's frame is fitted over. */
+  /*
+   * Stations along the bed the nail's frame is fitted over.
+   */
   const BED: number = 9;
 
-  /**
+  /*
    * How far the fitted skin may stand off the digit across the plate, mm: the greatest rms of f1's fitted tip sections (0.08 to
    * 0.17 mm, the body note's dome table). Over the plate's half width it is the angle a level roll read on that skin can be off by.
    */
   const FIT_RMS: number = 0.17;
 
-  /** The golden section's share, `(sqrt(5) - 1) / 2`. */
+  /*
+   * The golden section's share, `(sqrt(5) - 1) / 2`.
+   */
   const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
 
-  /** The vector a 3 by 3 matrix takes to a given one, by determinants; `null` where the matrix has none. */
+  /*
+   * The vector a 3 by 3 matrix takes to a given one, by determinants; `null` where the matrix has none.
+   */
   function solved(matrix: readonly number[][], vector: readonly number[]): number[] | null {
     const det = (m: readonly number[][]): number => m[0]![0]! * (m[1]![1]! * m[2]![2]! - m[1]![2]! * m[2]![1]!) - m[0]![1]! * (m[1]![0]! * m[2]![2]! - m[1]![2]! * m[2]![0]!) + m[0]![2]! * (m[1]![0]! * m[2]![1]! - m[1]![1]! * m[2]![0]!);
     const whole: number = det(matrix);
@@ -109,7 +127,7 @@ export namespace AutoMovieHumanNail {
     return [0, 1, 2].map((k: number): number => det(matrix.map((row: number[], a: number): number[] => row.map((x: number, b: number): number => (b === k ? vector[a]! : x)))) / whole);
   }
 
-  /**
+  /*
    * The middle weight of the conic from a level crown to an upright side extreme that turns on `radius` at the crown, where a conic of
    * weight `w` and depth `drop` turns on `2 w^2 side^2 / drop`, and has fallen `sagitta` at the edge. By bisection between the section
    * model's bounds of a shoulder `w / (1 + w)`, 0.03 and 0.85; where no weight between them passes through the edge, the ellipse's.
@@ -149,7 +167,9 @@ export namespace AutoMovieHumanNail {
     return x * x * x * (10 + x * (-15 + 6 * x));
   }
 
-  /** Read a skin in a frame. */
+  /*
+   * Read a skin in a frame.
+   */
   function reader(skin: IAutoMovieHumanNail.ISkin, frame: IAutoMovieHumanNail.IFrame): IReader {
     const lateral: AutoMovieVector3Tuple = cross(frame.distal, frame.dorsal);
     const at = (station: number, phase: number): AutoMovieVector3Tuple => {
@@ -767,51 +787,83 @@ export namespace AutoMovieHumanNail {
     };
   }
 
-  /** One section of the plate, in its own chart about its crown. */
+  /*
+   * One section of the plate, in its own chart about its crown.
+   */
   interface ISection {
-    /** The edge's distance from the median line, mm. */
+    /*
+     * The edge's distance from the median line, mm.
+     */
     edge: number;
 
-    /** The side extreme's distance from the median line, mm. */
+    /*
+     * The side extreme's distance from the median line, mm.
+     */
     side: number;
 
-    /** How far the side extreme stands under the crown, mm. */
+    /*
+     * How far the side extreme stands under the crown, mm.
+     */
     drop: number;
 
-    /** The middle weight of the upper face's conic from the crown to the side extreme. */
+    /*
+     * The middle weight of the upper face's conic from the crown to the side extreme.
+     */
     weight: number;
 
-    /** How far the edge stands under the crown, mm. */
+    /*
+     * How far the edge stands under the crown, mm.
+     */
     sagitta: number;
 
-    /** The section's turn about the plate's course from the nail's dorsal direction toward its lateral, radians. */
+    /*
+     * The section's turn about the plate's course from the nail's dorsal direction toward its lateral, radians.
+     */
     turn: number;
 
-    /** How far the plate's edge lies under the mean of the skin's two edges there, mm; negative where it stands over them. */
+    /*
+     * How far the plate's edge lies under the mean of the skin's two edges there, mm; negative where it stands over them.
+     */
     under: number;
 
-    /** Half the skin's breadth there, mm. */
+    /*
+     * Half the skin's breadth there, mm.
+     */
     reach: number;
   }
 
-  /** A skin read in a frame: `[along the distal axis, dorsal height, lateral]` from the frame's origin. */
+  /*
+   * A skin read in a frame: `[along the distal axis, dorsal height, lateral]` from the frame's origin.
+   */
   interface IReader {
-    /** The frame's lateral direction, `distal x dorsal`. */
+    /*
+     * The frame's lateral direction, `distal x dorsal`.
+     */
     lateral: AutoMovieVector3Tuple;
 
-    /** The chart point's frame coordinates. */
+    /*
+     * The chart point's frame coordinates.
+     */
     at: (station: number, phase: number) => AutoMovieVector3Tuple;
 
-    /** The station whose point at a phase stands a distance along the distal axis. */
+    /*
+     * The station whose point at a phase stands a distance along the distal axis.
+     */
     station: (x: number, phase: number) => number;
 
-    /** The phase and station of the dorsal skin at a distance along and a lateral offset. */
+    /*
+     * The phase and station of the dorsal skin at a distance along and a lateral offset.
+     */
     find: (x: number, z: number) => { station: number; phase: number; height: number };
 
-    /** The skin's ring a distance along, at `RING` equal steps of phase from 0. */
+    /*
+     * The skin's ring a distance along, at `RING` equal steps of phase from 0.
+     */
     ring: (x: number) => AutoMovieVector3Tuple[];
 
-    /** The skin's lateral extent at a distance along: `[least, greatest]`. */
+    /*
+     * The skin's lateral extent at a distance along: `[least, greatest]`.
+     */
     extent: (x: number) => [number, number];
   }
 }

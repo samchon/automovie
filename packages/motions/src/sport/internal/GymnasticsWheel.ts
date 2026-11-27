@@ -15,7 +15,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * The supported phase of a gymnastic turn: the body, a shape that changes with
  * the angle of its turn, rolls over its spokes (a foot, both feet, a hand, both
  * hands) as a wheel rolls without slipping, the lowest spoke bearing at every
@@ -34,19 +34,18 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * is integrated: how fast the angle grows is the law's.
  */
 export namespace GymnasticsWheel {
-  /**
+  /*
    * How much lower a later spoke must reach to take the weight from an earlier
    * one, metres: two spokes level within it keep the earlier.
    */
   const LEVEL: number = 1e-3;
 
-  /**
+  /*
    * Roll a body's shape over its spokes.
-   *
-   * @param props The body, the shape at an angle (its root at the origin), the
-   *   spokes in order of preference, the root's floor place at angle 0, the
-   *   last angle and the angle between rows.
-   * @returns The table.
+   * Parameter props: The body, the shape at an angle (its root at the origin), the
+   * spokes in order of preference, the root's floor place at angle 0, the
+   * last angle and the angle between rows.
+   * Returns: The table.
    */
   export function roll(
     props: IAutoMovieMotionHumanGymnasticsWheel.IRollProps,
@@ -146,17 +145,16 @@ export namespace GymnasticsWheel {
     };
   }
 
-  /**
+  /*
    * The contact windows of a rolled table: one per joint of each run of a
    * bearing spoke, a joint's windows joined when it bears on through a change
    * of spoke (a foot bearing alone, then with the other).
-   *
-   * @param wheel The table.
-   * @param spokes Its spokes.
-   * @param share Pure, total angle-to-time conversion for this fixed turn,
-   *   returning its action share; the law's analytic or inverse minimum-jerk
-   *   clock.
-   * @returns The windows, in order of their start.
+   * Parameter wheel: The table.
+   * Parameter spokes: Its spokes.
+   * Parameter share: Pure, total angle-to-time conversion for this fixed turn,
+   * returning its action share; the law's analytic or inverse minimum-jerk
+   * clock.
+   * Returns: The windows, in order of their start.
    */
   export function contacts(
     wheel: IAutoMovieMotionHumanGymnasticsWheel.IWheel,
@@ -210,15 +208,14 @@ export namespace GymnasticsWheel {
     );
   }
 
-  /**
+  /*
    * The seconds at which a wheel turned through `until` degrees on one
    * minimum-jerk progress over `duration` reaches an angle: the inverse of the
    * progress, by bisection.
-   *
-   * @param angle The angle, degrees.
-   * @param until The whole turn, degrees.
-   * @param duration The turn's seconds.
-   * @returns Seconds since the turn's start.
+   * Parameter angle: The angle, degrees.
+   * Parameter until: The whole turn, degrees.
+   * Parameter duration: The turn's seconds.
+   * Returns: Seconds since the turn's start.
    */
   export function when(angle: number, until: number, duration: number): number {
     // The ends are exact: minimum-jerk progress is flat at both, so a
@@ -236,12 +233,11 @@ export namespace GymnasticsWheel {
     return ((low + high) / 2) * duration;
   }
 
-  /**
+  /*
    * The height of a wrist over a palm laid flat on the floor, the height a
    * hand's spoke bears at above its surface.
-   *
-   * @param body The body.
-   * @returns Metres.
+   * Parameter body: The body.
+   * Returns: Metres.
    */
   export function laid(body: IAutoMovieMotionHumanBody): number {
     return AutoMovieMotionHumanPlaced.wrist(body, "left", {
@@ -252,30 +248,42 @@ export namespace GymnasticsWheel {
   }
 }
 
-/** The alternatives of `ContactsAtKey`'s site. */
+/*
+ * The alternatives of `ContactsAtKey`'s site.
+ */
 type ContactsAtKey = number | "-0";
 
-/** The alternatives of `ContactsTimesEntry`'s site. */
+/*
+ * The alternatives of `ContactsTimesEntry`'s site.
+ */
 type ContactsTimesEntry = number | "-0";
 
-/**
+/*
  * One ordered contact run before its fixed geometric endpoint angles become
  * times.
  */
 interface IContactRun {
-  /** The bone that bears throughout this contiguous run. */
+  /*
+   * The bone that bears throughout this contiguous run.
+   */
   part: IAutoMovieMotionHumanContactWindow["part"];
 
-  /** The first bearing row's angle, degrees. */
+  /*
+   * The first bearing row's angle, degrees.
+   */
   from: number;
 
-  /** The last bearing row's angle, degrees. */
+  /*
+   * The last bearing row's angle, degrees.
+   */
   to: number;
 
-  /** The last bearing row's index, used only to join contiguous rows. */
+  /*
+   * The last bearing row's index, used only to join contiguous rows.
+   */
   row: number;
 
-  /**
+  /*
    * The support retained from the run's first row, as in the original contact
    * rule.
    */

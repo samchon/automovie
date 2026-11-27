@@ -28,7 +28,7 @@ import { HumanGraspDemand } from "./HumanGraspDemand";
 import { HumanGraspUsePreparation } from "./HumanGraspUsePreparation";
 import { HumanGraspWorn } from "./HumanGraspWorn";
 
-/**
+/*
  * A grasp chosen for what the tool is taken up for, and not only for the reach:
  * the use names the tool's working point and how the tool's line, from its
  * handle to that point, lies to the forearm when it is presented.
@@ -40,7 +40,9 @@ import { HumanGraspWorn } from "./HumanGraspWorn";
  * the line of its use.
  */
 export namespace HumanGraspUse {
-  /** The tool line's rise above the level line when presented, degrees, by use. */
+  /*
+   * The tool line's rise above the level line when presented, degrees, by use.
+   */
   export const RISE: Readonly<
     Record<IAutoMovieMotionHumanGraspUse.IUse["line"], number>
   > = {
@@ -52,7 +54,7 @@ export namespace HumanGraspUse {
     worn: 0,
   };
 
-  /**
+  /*
    * The turns about a handle's axis tried for a grasp chosen for a use,
    * degrees: the whole way round in steps of 30, since the side the use needs
    * may be the far one. The authored side comes first and the far side last, so
@@ -63,7 +65,7 @@ export namespace HumanGraspUse {
     0, 30, -30, 60, -60, 90, -90, 120, -120, 150, -150, 180,
   ];
 
-  /**
+  /*
    * The tilts of the hand about its approach tried for a grasp chosen for a
    * use, degrees, the untilted grip first: up to 60 either way, the oblique
    * grip a blade held along the forearm takes with the rest left to the wrist's
@@ -74,25 +76,24 @@ export namespace HumanGraspUse {
     0, 15, -15, 30, -30, 45, -45, 60, -60,
   ];
 
-  /**
+  /*
    * The refinement step of the roll about the tool's line when it is presented,
    * and the spacing of the rolls tried first round it, degrees (search
    * resolution: an eighth of a turn, halving to under 6).
    */
   export const ROLL: number = 45;
 
-  /**
+  /*
    * Where a tool's grip is presented for a use ahead of the body: ahead of the
    * shoulder by six tenths of the arm and a tenth below it, where a tool is
    * held to be aimed (provisional shares). The grasp chosen for a use is judged
    * with the grip there (`presented`), and a law that presents the tool puts it
    * there (`StrikingRoll.hand`), so the pose a grasp is judged at is the pose a
    * law presents.
-   *
-   * @param bones The body's bones where it presents the tool.
-   * @param side The hand.
-   * @param yaw The body's heading, degrees.
-   * @returns The grip socket's place, world metres.
+   * Parameter bones: The body's bones where it presents the tool.
+   * Parameter side: The hand.
+   * Parameter yaw: The body's heading, degrees.
+   * Returns: The grip socket's place, world metres.
    */
   export function place(
     bones: ReadonlyMap<
@@ -119,23 +120,22 @@ export namespace HumanGraspUse {
     };
   }
 
-  /**
+  /*
    * The pose a tool is presented in for its use, as a key the grasp must also
    * hold: the grip at the place a law presents it (`place`), and the hand
    * turned so that the tool's line lies on the line the use names, in the plane
    * the body faces.
-   *
-   * @param props The action's context, the prop and its handle, the hand, the
-   *   hand the arm shows for the candidate grasp, the use, and how far the
-   *   closed hand at a wrist keeps out of the body's other parts, metres,
-   *   negative inside (every roll alike when absent).
-   * @param closure The prop's world frame at grasp closure, or the entry frame
-   *   when omitted.
-   * @returns The key pose.
-   * @throws {HumanRefusal} An `affordance` refusal on `use` when the prop
-   *   declares no such working point, listing its contacts; a `parameter`
-   *   refusal on `use` for an `along` line ahead of the body, listing the other
-   *   lines.
+   * Parameter props: The action's context, the prop and its handle, the hand, the
+   * hand the arm shows for the candidate grasp, the use, and how far the
+   * closed hand at a wrist keeps out of the body's other parts, metres,
+   * negative inside (every roll alike when absent).
+   * Parameter closure: The prop's world frame at grasp closure, or the entry frame
+   * when omitted.
+   * Returns: The key pose.
+   * An `affordance` refusal on `use` when the prop
+   * declares no such working point, listing its contacts; a `parameter`
+   * refusal on `use` for an `along` line ahead of the body, listing the other
+   * lines.
    */
   export function presented(
     props: IAutoMovieMotionHumanGraspUse.IPresentedProps,

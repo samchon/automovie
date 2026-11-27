@@ -19,7 +19,7 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 import { prepareCrawlPalms } from "./prepareCrawlPalms";
 
-/**
+/*
  * The pieces the crawls on the hands share: where a wrist stands over its flat
  * palm, the palms laid on their floor points, a body tilted forward by a pitch
  * with its pelvis turned about the spine's axis, the root that puts the hip
@@ -28,32 +28,31 @@ import { prepareCrawlPalms } from "./prepareCrawlPalms";
  * the feet are `crawlFeet`'s.
  */
 export namespace crawlFrame {
-  /**
+  /*
    * The chest's share of the turn that levels the shoulders over a hiked
    * pelvis; the lumbar spine takes the rest (as
    * `AutoMovieMotionHumanTrunk.CHEST`).
    */
   export const CHEST: number = 0.6;
 
-  /**
+  /*
    * The most a crawl's trunk is pitched in a search, degrees: past horizontal,
    * beyond any body on its hands.
    */
   export const PITCH: number = 120;
 
-  /**
+  /*
    * The halvings of a pitch search: `PITCH` to under a ten-thousandth of a
    * degree.
    */
   export const HALVINGS: number = 24;
 
-  /**
+  /*
    * The trunk's pitch at which a reading of the body stops holding, sought
    * between upright and `PITCH`.
-   *
-   * @param short Whether the shoulders still fall short of their place at a
-   *   pitch, degrees; true at upright and false past the place.
-   * @returns The pitch, degrees.
+   * Parameter short: Whether the shoulders still fall short of their place at a
+   * pitch, degrees; true at upright and false past the place.
+   * Returns: The pitch, degrees.
    */
   export function pitched(short: (degrees: number) => boolean): number {
     let lo: number = 0;
@@ -66,14 +65,13 @@ export namespace crawlFrame {
     return (lo + hi) / 2;
   }
 
-  /**
+  /*
    * Each wrist over its flat palm on the floor, in the floor frame of the
    * heading from the palm.
-   *
-   * @param body The body.
-   * @param standing The standing posture the crawl starts from.
-   * @param forward The heading's unit vector.
-   * @returns Each wrist from its palm, metres in the heading's frame.
+   * Parameter body: The body.
+   * Parameter standing: The standing posture the crawl starts from.
+   * Parameter forward: The heading's unit vector.
+   * Returns: Each wrist from its palm, metres in the heading's frame.
    */
   export function wrists(
     body: IAutoMovieMotionHumanBody,
@@ -98,16 +96,15 @@ export namespace crawlFrame {
     return { left: wrist("left"), right: wrist("right") };
   }
 
-  /**
+  /*
    * A posture with both palms laid flat on floor points: each hand shaped flat
    * and its arm's goal the one that puts the palm on its point facing up, the
    * fingers along the heading.
-   *
-   * @param body The body.
-   * @param posture The posture whose trunk the arms hang from.
-   * @param palm Each palm's floor point, world metres.
-   * @param forward The heading's unit vector.
-   * @returns The posture with the two arm goals and the flat hands.
+   * Parameter body: The body.
+   * Parameter posture: The posture whose trunk the arms hang from.
+   * Parameter palm: Each palm's floor point, world metres.
+   * Parameter forward: The heading's unit vector.
+   * Returns: The posture with the two arm goals and the flat hands.
    */
   export function laid(
     body: IAutoMovieMotionHumanBody,
@@ -138,7 +135,7 @@ export namespace crawlFrame {
     return out;
   }
 
-  /**
+  /*
    * Prepare the two flat-palm target frames for one crawl plan. Only their
    * floor points and the current trunk change; each arm's original default
    * elbow solve still runs on that posture and point.
@@ -150,13 +147,12 @@ export namespace crawlFrame {
     return prepareCrawlPalms(body, forward, FLAT);
   }
 
-  /**
+  /*
    * Write the crawl's flat fingers without constructing palm goals. This serves
    * descent phases whose joint-space arm writer replaces both goals
    * immediately, while retaining the laid posture's finger fallback.
-   *
-   * @param posture The current kneeling posture with its leg goals.
-   * @returns A new posture and joint map, with all other fields preserved.
+   * Parameter posture: The current kneeling posture with its leg goals.
+   * Returns: A new posture and joint map, with all other fields preserved.
    */
   export function flatHands(
     posture: IAutoMovieMotionHumanPosture,
@@ -167,17 +163,16 @@ export namespace crawlFrame {
     };
   }
 
-  /**
+  /*
    * A posture with both arms written by their joints, carried in joint space
    * from held angles toward others by a share, each hand shaped flat with them
    * (`HumanHand.shape`), and the arms' goals removed.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @param held Each arm's angles at share 0.
-   * @param toward Each arm's angles at share 1.
-   * @param share The share, in [0, 1].
-   * @returns The posture.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Parameter held: Each arm's angles at share 0.
+   * Parameter toward: Each arm's angles at share 1.
+   * Parameter share: The share, in [0, 1].
+   * Returns: The posture.
    */
   export function armed(
     body: IAutoMovieMotionHumanBody,
@@ -189,7 +184,7 @@ export namespace crawlFrame {
     return writeArms(body, posture, held, toward, share);
   }
 
-  /**
+  /*
    * Prepare the descent's fixed arm-angle endpoints. Body/angles remain
    * unchanged while the current trunk, finger fallbacks and share vary.
    */
@@ -231,20 +226,19 @@ export namespace crawlFrame {
       writeArms(body, posture, held, toward, share, readers);
   }
 
-  /**
+  /*
    * The body tilted forward by a pitch at a share of the way down, its pelvis
    * turned about the spine's axis and the spine and the chest turning it back,
    * the arms hanging as the body's relaxed arms (`stand.relaxed`).
-   *
-   * @param body The body.
-   * @param yaw The heading, degrees about +Y.
-   * @param share The share of the way down, 0 standing and 1 on the hands.
-   * @param degrees The whole body's forward pitch on the hands, degrees.
-   * @param hike The pelvis's turn about the spine's axis, degrees; positive
-   *   lifts the left hip.
-   * @param neck The neck's flexion on the hands, degrees; negative lifts the
-   *   gaze.
-   * @returns The posture at the origin, with no limb goal.
+   * Parameter body: The body.
+   * Parameter yaw: The heading, degrees about +Y.
+   * Parameter share: The share of the way down, 0 standing and 1 on the hands.
+   * Parameter degrees: The whole body's forward pitch on the hands, degrees.
+   * Parameter hike: The pelvis's turn about the spine's axis, degrees; positive
+   * lifts the left hip.
+   * Parameter neck: The neck's flexion on the hands, degrees; negative lifts the
+   * gaze.
+   * Returns: The posture at the origin, with no limb goal.
    */
   export function posed(
     body: IAutoMovieMotionHumanBody,
@@ -270,21 +264,20 @@ export namespace crawlFrame {
     };
   }
 
-  /**
+  /*
    * The hips over two knees: each hip joint a thigh from its knee, at its place
    * along the heading from a level point, so their middle is the pelvis's
    * height and their difference its turn about the spine's axis.
-   *
-   * @param thigh The thigh's length, metres.
-   * @param level The hips' middle on the floor, world metres.
-   * @param forward The heading's unit vector.
-   * @param knees Each knee joint, world metres.
-   * @param ahead How far each hip joint lies before the level point, metres
-   *   along the heading.
-   * @param separation The hip joints' distance, metres.
-   * @param pitch The trunk's pitch, degrees.
-   * @returns The hips' middle, world metres, and the pelvis's turn, degrees,
-   *   positive lifting the left hip.
+   * Parameter thigh: The thigh's length, metres.
+   * Parameter level: The hips' middle on the floor, world metres.
+   * Parameter forward: The heading's unit vector.
+   * Parameter knees: Each knee joint, world metres.
+   * Parameter ahead: How far each hip joint lies before the level point, metres
+   * along the heading.
+   * Parameter separation: The hip joints' distance, metres.
+   * Parameter pitch: The trunk's pitch, degrees.
+   * Returns: The hips' middle, world metres, and the pelvis's turn, degrees,
+   * positive lifting the left hip.
    */
   export function over(
     thigh: number,
@@ -317,13 +310,12 @@ export namespace crawlFrame {
     };
   }
 
-  /**
+  /*
    * The root that puts a tilted posture's hip joints' middle at a place.
-   *
-   * @param body The body.
-   * @param tilted The posture whose heading and pelvis count.
-   * @param hips The hip joints' middle, world metres.
-   * @returns The root, world metres.
+   * Parameter body: The body.
+   * Parameter tilted: The posture whose heading and pelvis count.
+   * Parameter hips: The hip joints' middle, world metres.
+   * Returns: The root, world metres.
    */
   export function rootFor(
     body: IAutoMovieMotionHumanBody,
@@ -338,7 +330,7 @@ export namespace crawlFrame {
     );
     return Vector3.subtract(hips, Vector3.lerp(joints.left, joints.right, 0.5));
   }
-  /**
+  /*
    * Fixed clinical pairs use their numerical owner; changing pairs share one
    * synchronous metadata pass.
    */
@@ -390,7 +382,9 @@ export namespace crawlFrame {
     return { ...posture, joints, limbs };
   }
 
-  /** Side-only flat clinical shapes are immutable inputs to both palm writers. */
+  /*
+   * Side-only flat clinical shapes are immutable inputs to both palm writers.
+   */
   const FLAT: Readonly<
     Record<AutoMovieHumanSide, IAutoMovieMotionHumanPosture["joints"]>
   > = {
@@ -398,7 +392,7 @@ export namespace crawlFrame {
     right: HumanHand.shape("right", "flat"),
   };
 
-  /**
+  /*
    * The same deterministic digit order is used when reading held finger
    * endpoints.
    */
@@ -409,15 +403,21 @@ export namespace crawlFrame {
     right: Object.keys(FLAT.right) as AutoMovieHumanoidBone[],
   };
 
-  /** Six arm-joint fixed-endpoint readers owned by one descent plan. */
+  /*
+   * Six arm-joint fixed-endpoint readers owned by one descent plan.
+   */
   type IArmReaders = Record<
     AutoMovieHumanSide,
     Record<ArmReadersEntryEntry, ReturnType<typeof blendHumanJoint.between>>
   >;
 }
 
-/** The alternatives of `ArmReadersEntryEntry`'s site. */
+/*
+ * The alternatives of `ArmReadersEntryEntry`'s site.
+ */
 type ArmReadersEntryEntry = "upper" | "lower" | "hand";
 
-/** The record of `IOverResult`'s site. */
+/*
+ * The record of `IOverResult`'s site.
+ */
 type IOverResult = { point: IAutoMovieVector3; hike: number };

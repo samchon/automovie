@@ -1,6 +1,6 @@
 import type { IAutoMoviePhysicalTrackingWithdrawn } from "@automovie/interface";
 
-/**
+/*
  * Whether a body's default tracking is withdrawn at one tick.
  *
  * Tracking is withdrawn only when the effective body strength is zero and no

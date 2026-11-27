@@ -8,7 +8,7 @@ import * as THREE from "three";
 import type { IAutoMovieAnalysisOverlayObject } from "../IAutoMovieAnalysisOverlayObject.js";
 import { autoMovieAnalysisRampColor } from "./autoMovieAnalysisRampColor.js";
 
-/**
+/*
  * Draw one analysis result as a field of coloured points.
  *
  * The overlay consumes the artifact's selected metric samples rather than
@@ -32,19 +32,27 @@ export const buildAnalysisOverlayObject: (props: {
   domain?: { min: number; max: number };
   material?: THREE.PointsMaterial;
 }) => IAutoMovieAnalysisOverlayObject = (props: {
-  /** Run to draw. */
+  /*
+   * Run to draw.
+   */
   run: IAutoMovieAnalysisRun;
-  /** Metric key whose spatial field is drawn. */
+  /*
+   * Metric key whose spatial field is drawn.
+   */
   metric: string;
-  /**
+  /*
    * Point size in world metres for the material this call creates; defaults to
-   * `0.1`. A lent {@link material} keeps its own size, because the caller that
+   * `0.1`. A lent material keeps its own size, because the caller that
    * built it already decided.
    */
   size?: number;
-  /** Explicit ramp domain; defaults to the drawn samples' own range. */
+  /*
+   * Explicit ramp domain; defaults to the drawn samples' own range.
+   */
   domain?: { min: number; max: number };
-  /** Point material; a vertex-coloured default is created when absent. */
+  /*
+   * Point material; a vertex-coloured default is created when absent.
+   */
   material?: THREE.PointsMaterial;
 }): IAutoMovieAnalysisOverlayObject => {
   const run: IAutoMovieAnalysisRun = props.run;

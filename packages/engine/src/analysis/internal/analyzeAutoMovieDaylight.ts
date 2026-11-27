@@ -25,7 +25,7 @@ import { resolveAutoMovieDaylightRequest } from "./resolveAutoMovieDaylightReque
 import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
 import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
 
-/**
+/*
  * Measure one workplane under one declared instant, one set of shades and one
  * set of luminaires.
  *
@@ -321,7 +321,7 @@ export function analyzeAutoMovieDaylight(
   });
 }
 
-/**
+/*
  * Multiply declared beam illuminance by positive normal/sun incidence,
  * returning zero behind the face or when the convex-solid union blocks the sky
  * ray. Unit resolved directions are the caller premise; this helper does not
@@ -357,7 +357,7 @@ const beamIlluminance: (props: {
   return props.illuminance * incidence;
 };
 
-/**
+/*
  * Place cell (i,j) at half-cell offsets on the request's normalized U/V axes,
  * in model metres from its origin. Admitted positive dimensions/counts and
  * in-range loop indices are premises; oblique axes form a parallelogram and
@@ -386,7 +386,7 @@ const gridPoint: (
   };
 };
 
-/**
+/*
  * Sum then divide a nonempty illuminance list in stored order; the positive
  * admitted grid count supplies nonemptiness. This binary64 mean has ordinary
  * summation error and can overflow before division.

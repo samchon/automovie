@@ -15,59 +15,85 @@ import { HumanArmTrajectoryShapeOwners } from "./HumanArmTrajectoryShapeOwners";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanAuditModel } from "./HumanAuditModel";
 
-/**
+/*
  * Collision pairs against moving arm colliders: the two solved arms against
  * each other, and the body's and external segments' corners inside an arm.
  * HumanArmTrajectoryPairs exposes these readings alongside the forward pairs.
  */
 export namespace HumanArmTrajectoryOverlap {
-  /**
+  /*
    * An arm's deepest probe in a collider shape of the other arm, read the same
    * way.
    */
   export interface ICrossing {
-    /** The arm whose probe it is. */
+    /*
+     * The arm whose probe it is.
+     */
     a: number;
-    /** The arm's deepest probe. */
+    /*
+     * The arm's deepest probe.
+     */
     probe: number;
-    /** The other arm's shape, placed. */
+    /*
+     * The other arm's shape, placed.
+     */
     shape: IAutoMovieMotionHumanArmGeometry.IShape;
-    /** The other arm's segment the shape rides on. */
+    /*
+     * The other arm's segment the shape rides on.
+     */
     owner: CrossingOwner;
-    /** The shape's bone. */
+    /*
+     * The shape's bone.
+     */
     bone: string;
-    /** How far the probe lies below what it may, millimetres. */
+    /*
+     * How far the probe lies below what it may, millimetres.
+     */
     short: number;
-    /** Whether the pair is a declared rest. */
+    /*
+     * Whether the pair is a declared rest.
+     */
     rested: boolean;
   }
 
-  /**
+  /*
    * A corner of the body or an external segment
    * (`HumanArmGeometry.IFrame.body`) inside a collider shape of the arm, read
    * the same way.
    */
   export interface IEmbedded {
-    /** The corner's index in the frame's body corners. */
+    /*
+     * The corner's index in the frame's body corners.
+     */
     corner: number;
-    /** The arm's shape, placed. */
+    /*
+     * The arm's shape, placed.
+     */
     shape: IAutoMovieMotionHumanArmGeometry.IShape;
-    /**
+    /*
      * The shape's index among the arm's colliders
      * (`HumanArmGeometry.colliders`).
      */
     index: number;
-    /** The arm's segment the shape rides on. */
+    /*
+     * The arm's segment the shape rides on.
+     */
     owner: EmbeddedOwner;
-    /** The corner's bone. */
+    /*
+     * The corner's bone.
+     */
     bone: string;
-    /** How far the corner lies below what it may, millimetres. */
+    /*
+     * How far the corner lies below what it may, millimetres.
+     */
     short: number;
-    /** Whether the pair is a declared rest. */
+    /*
+     * Whether the pair is a declared rest.
+     */
     rested: boolean;
   }
 
-  /**
+  /*
    * Each arm's deepest collider probe against each of the other arm's collider
    * shapes at a waypoint, by the probe's segment and the shape.
    *
@@ -75,15 +101,14 @@ export namespace HumanArmTrajectoryOverlap {
    * link pair (`HumanAuditModel.certify`); a pair certified clear past the cut
    * is left unread with that bound, and the pairs left are read probe by probe,
    * each bounded first as `HumanArmTrajectoryPairs.deepest` bounds its probes.
-   *
-   * @param c The context.
-   * @param k The waypoint.
-   * @param first The first arm placed there.
-   * @param second The second arm placed there.
-   * @param cut How far short of its bound a pair may be left unread,
-   *   millimetres (`HumanArmTrajectoryPairs.CUT` where the reading's users need
-   *   no more); every pair in reach is read when absent.
-   * @returns The pairs by arm, segment and shape.
+   * Parameter c: The context.
+   * Parameter k: The waypoint.
+   * Parameter first: The first arm placed there.
+   * Parameter second: The second arm placed there.
+   * Parameter cut: How far short of its bound a pair may be left unread,
+   * millimetres (`HumanArmTrajectoryPairs.CUT` where the reading's users need
+   * no more); every pair in reach is read when absent.
+   * Returns: The pairs by arm, segment and shape.
    */
   export function crossing(
     c: M.IContext,
@@ -245,7 +270,7 @@ export namespace HumanArmTrajectoryOverlap {
     return out;
   }
 
-  /**
+  /*
    * Each body or external part's deepest corner inside each of the arm's own
    * collider shapes at a waypoint, the reverse of the forward pair reading. The
    * tangle audit reads every pair both ways and takes the deeper; only own-body
@@ -255,16 +280,15 @@ export namespace HumanArmTrajectoryOverlap {
    * (`HumanAuditModel.certify`); a pair certified clear past the cut is left
    * unread with that bound, and only the pairs left read their corners, each
    * bounded first as `HumanArmTrajectoryPairs.deepest` bounds its probes.
-   *
-   * @param c The context.
-   * @param a The arm.
-   * @param k The waypoint.
-   * @param placed The arm placed there.
-   * @param cut How far short of its bound a pair may be left unread,
-   *   millimetres (`HumanArmTrajectoryPairs.CUT` where the reading's users need
-   *   no more; negative, how little past it, for a reader that refuses only
-   *   past a slack); every pair in reach is read when absent.
-   * @returns The pairs by body part and arm shape.
+   * Parameter c: The context.
+   * Parameter a: The arm.
+   * Parameter k: The waypoint.
+   * Parameter placed: The arm placed there.
+   * Parameter cut: How far short of its bound a pair may be left unread,
+   * millimetres (`HumanArmTrajectoryPairs.CUT` where the reading's users need
+   * no more; negative, how little past it, for a reader that refuses only
+   * past a slack); every pair in reach is read when absent.
+   * Returns: The pairs by body part and arm shape.
    */
   export function embedded(
     c: M.IContext,
@@ -464,14 +488,22 @@ export namespace HumanArmTrajectoryOverlap {
   }
 }
 
-/** The alternatives of `EmbeddedVisitOwn`'s site. */
+/*
+ * The alternatives of `EmbeddedVisitOwn`'s site.
+ */
 type EmbeddedVisitOwn = "upperArm" | "lowerArm" | "hand";
 
-/** The alternatives of `EmbeddedOwner`'s site. */
+/*
+ * The alternatives of `EmbeddedOwner`'s site.
+ */
 type EmbeddedOwner = "upper" | "lower" | "hand";
 
-/** The alternatives of `CrossingOwner`'s site. */
+/*
+ * The alternatives of `CrossingOwner`'s site.
+ */
 type CrossingOwner = "upper" | "lower" | "hand";
 
-/** The segment of the arm a collider shape rides on. */
+/*
+ * The segment of the arm a collider shape rides on.
+ */
 type Owner = HumanArmTrajectoryShapeOwners.Owner;

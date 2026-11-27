@@ -14,7 +14,7 @@ import { physicalShapeNearest } from "./physicalShapeNearest";
 import { physicalShapePairDistanceWires } from "./physicalShapePairDistanceWires";
 import { physicalShapePenetration } from "./physicalShapePenetration";
 
-/**
+/*
  * The contact between two convex colliders: their signed distance, the unit
  * normal from the first toward the second and each one's surface witness.
  *
@@ -29,12 +29,11 @@ import { physicalShapePenetration } from "./physicalShapePenetration";
  * direction and witnesses are the Expanding Polytope Algorithm's
  * (`physicalShapePenetration`); a round wire whose core stays outside keeps the
  * exact core distance less its radius.
- *
- * @param poseA The first shape's parent pose, world metres.
- * @param shapeA The first shape.
- * @param poseB The second shape's parent pose, world metres.
- * @param shapeB The second shape.
- * @returns The contact, world metres.
+ * Parameter poseA: The first shape's parent pose, world metres.
+ * Parameter shapeA: The first shape.
+ * Parameter poseB: The second shape's parent pose, world metres.
+ * Parameter shapeB: The second shape.
+ * Returns: The contact, world metres.
  */
 export function physicalShapePairContact(
   poseA: IAutoMovieRigidTransform,

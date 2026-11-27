@@ -6,7 +6,7 @@ import type {
   IAutoMoviePlaneFrame,
 } from "@automovie/interface";
 
-/**
+/*
  * Admit immutable source positions, incidence and scalar heights once. The
  * caller keeps every supplied array unchanged until all queries finish. Each
  * query accepts original face IDs in strictly increasing order; candidates

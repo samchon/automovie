@@ -60,10 +60,14 @@ import { stampAutoMovieDrawLegend } from "./internal/stampAutoMovieDrawLegend.js
  * ```
  */
 export class AutoMovieDrawSession {
-  /** The page, owned until `close`. */
+  /*
+   * The page, owned until `close`.
+   */
   private readonly page: IAutoMovieDrawPage;
 
-  /** Milliseconds any one page call may take. */
+  /*
+   * Milliseconds any one page call may take.
+   */
   private readonly timeout: number;
 
   /** The subject the page created, as a capture plans against it. */
@@ -78,7 +82,9 @@ export class AutoMovieDrawSession {
    */
   public readonly backend: string;
 
-  /** Hold an opened page; `open` prepares it. */
+  /*
+   * Hold an opened page; `open` prepares it.
+   */
   private constructor(props: {
     page: IAutoMovieDrawPage;
     timeout: number;
@@ -280,7 +286,7 @@ export class AutoMovieDrawSession {
   }
 }
 
-/**
+/*
  * Settle with `task`, or reject naming `what` once `timeout` milliseconds pass
  * first.
  */

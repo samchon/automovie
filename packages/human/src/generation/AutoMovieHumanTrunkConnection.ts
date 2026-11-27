@@ -258,10 +258,12 @@ export namespace AutoMovieHumanTrunkConnection {
   }
 }
 
-/** A physical-station scalar value and its available first two derivatives. */
+/*
+ * A physical-station scalar value and its available first two derivatives.
+ */
 type Scalar = readonly [number, number, number];
 
-/**
+/*
  * Reproduce every old polynomial span by its value/two jets, changing only this
  * named boundary in the same source clock.
  */

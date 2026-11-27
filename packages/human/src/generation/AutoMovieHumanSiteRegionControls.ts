@@ -342,7 +342,7 @@ export namespace AutoMovieHumanSiteRegionControls {
   }
 }
 
-/**
+/*
  * Compare authored normalized components, including explicit null
  * auto-components and absence.
  */
@@ -355,7 +355,9 @@ function sameJet(
     : Object.is(a.first, b.first) && Object.is(a.second, b.second);
 }
 
-/** The complete four-edge jet declaration belongs to the generating input. */
+/*
+ * The complete four-edge jet declaration belongs to the generating input.
+ */
 function sameQuarters(
   a: IAutoMovieHumanSectionSite["jets"],
   b: IAutoMovieHumanSectionSite["jets"],

@@ -2,7 +2,7 @@ import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 
 import { pushViolation } from "./pushViolation";
 
-/**
+/*
  * Require a finite value between independently configured open/closed
  * endpoints.
  *

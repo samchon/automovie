@@ -8,7 +8,7 @@ import {
 import { unionSubjectBoxes } from "../../film/internal/unionSubjectBoxes";
 import { builtInstanceSetPlacementBounds } from "./builtInstanceSetPlacementBounds";
 
-/**
+/*
  * Resolve one building element or population to its reported box and part-box
  * proxies, or null when unresolved.
  *
@@ -16,7 +16,7 @@ import { builtInstanceSetPlacementBounds } from "./builtInstanceSetPlacementBoun
  * measurement or a batch table. Their union has element-origin-point basis when
  * both corners are equal and element-geometry-bounds otherwise. A point can
  * arise from the world-origin fallback or genuine degenerate geometry.
- * Populations delegate to {@link builtInstanceSetPlacementBounds}: compact
+ * Populations delegate to builtInstanceSetPlacementBounds: compact
  * layouts use an envelope law, explicit layouts fold stored transforms, and
  * along-route throws.
  *

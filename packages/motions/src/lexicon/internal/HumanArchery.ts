@@ -30,7 +30,7 @@ import { release } from "../../throwing/internal/release";
 import { HumanArcheryCue } from "./HumanArcheryCue";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
 
-/**
+/*
  * Archery under its own names. Shared grasp and placement laws take the same
  * inert prop from its slot to a moving socket. The release rows can hand it off
  * to a scene-authored animation carrier on a film cue.
@@ -72,19 +72,23 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  * composition's choice of hand and anchor, not a law.
  */
 export namespace HumanArchery {
-  /** Take an arrow by its shaft. */
+  /*
+   * Take an arrow by its shaft.
+   */
   export const takeArrow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["takeArrow"]
   > = AutoMovieMotionHumanActionRow.of("takeArrow", pickUp, {
     handle: "nockGrip",
   });
 
-  /** The nocking as a plain put-down row, before the arrow's own nock is named. */
+  /*
+   * The nocking as a plain put-down row, before the arrow's own nock is named.
+   */
   const nockRow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["nockArrow"]
   > = AutoMovieMotionHumanActionRow.of("nockArrow", putDown, {});
 
-  /**
+  /*
    * Set the arrow's nock on the bow's string: the arrow's own `nock` socket is
    * the one laid on the receiver when the composition names no other, so the
    * placement holds that socket on the string (a contact task) where the wrist
@@ -109,7 +113,9 @@ export namespace HumanArchery {
       nockRow.demands?.({ ...ahead, params: byNock(ahead.params) }) ?? [],
   };
 
-  /** Hold the bow out in one hand on the line from the face to the target. */
+  /*
+   * Hold the bow out in one hand on the line from the face to the target.
+   */
   export const presentBow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["presentBow"]
   > = AutoMovieMotionHumanActionRow.of(
@@ -118,12 +124,14 @@ export namespace HumanArchery {
     HUMAN_ARCHERY_PRESENT_BOW,
   );
 
-  /** The draw as a plain operation row, before the bow is read off the bow arm. */
+  /*
+   * The draw as a plain operation row, before the bow is read off the bow arm.
+   */
   const drawRow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["drawBow"]
   > = AutoMovieMotionHumanActionRow.of("drawBow", operate, {});
 
-  /**
+  /*
    * Draw the string back to the anchor, over `presentBow`: the string is read
    * where the bow arm carries the bow (`onBowArm`).
    */
@@ -139,7 +147,7 @@ export namespace HumanArchery {
       drawRow.plan(toAnchor(onBowArm(context))),
   };
 
-  /**
+  /*
    * Open the drawing hand or perform the authored hand-off at the same named
    * event.
    */
@@ -166,12 +174,16 @@ export namespace HumanArchery {
     },
   };
 
-  /** Span a crossbow by its string or its crank. */
+  /*
+   * Span a crossbow by its string or its crank.
+   */
   export const spanCrossbow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["spanCrossbow"]
   > = AutoMovieMotionHumanActionRow.of("spanCrossbow", operate, {});
 
-  /** Present the crossbow at the cheek with the prop's fixed rail mark. */
+  /*
+   * Present the crossbow at the cheek with the prop's fixed rail mark.
+   */
   export const presentCrossbow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["presentCrossbow"]
   > = {
@@ -201,7 +213,9 @@ export namespace HumanArchery {
       }),
   };
 
-  /** Play the crossbow cue and transfer the named bolt to its continuation. */
+  /*
+   * Play the crossbow cue and transfer the named bolt to its continuation.
+   */
   export const shootCrossbow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["shootCrossbow"]
   > = {
@@ -235,7 +249,7 @@ export namespace HumanArchery {
   };
 }
 
-/**
+/*
  * The draw's context with the string drawn to the anchor: the archer draws to
  * the face, never to the bow's own limit, the string to the chin with the index
  * finger under the jaw (the under-chin anchor of target archery), so the
@@ -243,9 +257,8 @@ export namespace HumanArchery {
  * string's run along its slider from where it rests to the chin's surface
  * point, at most the travel the composition gives; a chin not ahead along the
  * draw keeps the given travel.
- *
- * @param context The draw's context, its bow read off the bow arm.
- * @returns The context whose slider travel ends at the anchor.
+ * Parameter context: The draw's context, its bow read off the bow arm.
+ * Returns: The context whose slider travel ends at the anchor.
  */
 function toAnchor(
   context: IAutoMovieMotionHumanActionContext<
@@ -317,18 +330,17 @@ function toAnchor(
   };
 }
 
-/**
+/*
  * The finger curl over the relaxed shape the drawing hand holds the string in,
  * degrees: the slider grip `operate` takes a slider with (`operateHand`).
  */
 const DRAW_CURL: number = 40;
 
-/**
+/*
  * The nocking's parameters with the arrow's own `nock` socket laid on the
  * receiver when the composition names none.
- *
- * @param params The nocking's parameters.
- * @returns The parameters naming the arrow's socket.
+ * Parameter params: The nocking's parameters.
+ * Returns: The parameters naming the arrow's socket.
  */
 function byNock(
   params: IAutoMovieMotionHumanLexiconParams["archery"]["nockArrow"],
@@ -338,7 +350,7 @@ function byNock(
     : { ...params, onto: { ...params.onto, via: "nock" } };
 }
 
-/**
+/*
  * The draw's context with the bow read off the bow arm, never off the bow's
  * displayed frame. The bow is rigid in the other hand's grip frame
  * (`AutoMovieMotionHumanHeld`, read at the entry), so the string the drawing
@@ -349,9 +361,8 @@ function byNock(
  * displayed bow instead would read the very posture being fitted, since the bow
  * hangs on this performer's own hand. A draw on a prop the other hand does not
  * hold is left as it is.
- *
- * @param context The draw's context.
- * @returns The context whose bow reader and aim read the bow arm's grip.
+ * Parameter context: The draw's context.
+ * Returns: The context whose bow reader and aim read the bow arm's grip.
  */
 function onBowArm(
   context: IAutoMovieMotionHumanActionContext<
@@ -443,10 +454,12 @@ function onBowArm(
     },
   };
 }
-/** The alternatives of `CrossbowMarksContext`'s site. */
+/*
+ * The alternatives of `CrossbowMarksContext`'s site.
+ */
 type CrossbowMarksContext = "params" | "prop";
 
-/**
+/*
  * Read the modeled presentation marks when the caller leaves them open.
  * Planning and grasp prediction see the same defaults.
  */

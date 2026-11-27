@@ -5,19 +5,18 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-/**
+/*
  * Rigid frames of position and rotation, composed and taken relative: a prop
  * kept in a bone's frame while it rides the bone, a hand kept in the chest's
  * frame while the trunk carries it, a stuck arrow kept in the frame of what it
  * struck.
  */
 export namespace HumanPropFrame {
-  /**
+  /*
    * A frame given in `parent`'s frame, in the world.
-   *
-   * @param parent The parent's world frame.
-   * @param local The frame in the parent's frame.
-   * @returns The world frame.
+   * Parameter parent: The parent's world frame.
+   * Parameter local: The frame in the parent's frame.
+   * Returns: The world frame.
    */
   export function compose(
     parent: IAutoMovieRigidTransform,
@@ -34,12 +33,11 @@ export namespace HumanPropFrame {
     };
   }
 
-  /**
-   * A world frame in `parent`'s frame: the inverse of {@link compose}.
-   *
-   * @param parent The parent's world frame.
-   * @param world The world frame.
-   * @returns The frame in the parent's frame.
+  /*
+   * A world frame in `parent`'s frame: the inverse of compose.
+   * Parameter parent: The parent's world frame.
+   * Parameter world: The world frame.
+   * Returns: The frame in the parent's frame.
    */
   export function relative(
     parent: IAutoMovieRigidTransform,
@@ -55,12 +53,11 @@ export namespace HumanPropFrame {
     };
   }
 
-  /**
+  /*
    * The parent frame that places a local child frame at a world frame.
-   *
-   * @param world The child's destination in the world.
-   * @param local The child's frame relative to its parent.
-   * @returns The parent frame, solving parent times local equals world.
+   * Parameter world: The child's destination in the world.
+   * Parameter local: The child's frame relative to its parent.
+   * Returns: The parent frame, solving parent times local equals world.
    */
   export function parent(
     world: IAutoMovieRigidTransform,
@@ -78,11 +75,10 @@ export namespace HumanPropFrame {
     };
   }
 
-  /**
+  /*
    * A resolved bone's world frame.
-   *
-   * @param bone The bone's world position and rotation.
-   * @returns The frame.
+   * Parameter bone: The bone's world position and rotation.
+   * Returns: The frame.
    */
   export function bone(
     bone: IAutoMovieMotionHumanPropFrame.IBoneBone,

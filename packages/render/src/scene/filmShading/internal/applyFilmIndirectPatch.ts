@@ -4,7 +4,7 @@ import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 
-/**
+/*
  * Give one lit material the film's indirect shading: the probes' one-bounce
  * irradiance at the fragment's world position and normal, times its diffuse
  * albedo over ? (`BRDF_Lambert`), is added to its indirect diffuse light, and
@@ -28,8 +28,7 @@ import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
  * indirect light. A material is patched once; a material whose compile hook was
  * set outside `AutoMovieRenderMaterial.addShaderPatch` is refused with an error naming it,
  * because the shared seam would replace that hook.
- *
- * @returns Whether the material is lit and now carries the patch.
+ * Returns: Whether the material is lit and now carries the patch.
  */
 export function applyFilmIndirectPatch(
   material: THREE.Material,

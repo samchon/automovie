@@ -10,13 +10,13 @@ import { AutoMovieEngineSpace } from "../../space/index";
 
 import { surfaceHeightAt } from "../../space/internal/surfaceHeightAt";
 
-/**
+/*
  * Plan distance, in metres, within which a point counts as on a clip edge or a
  * lattice cut as on the footprint's edge.
  */
 const CLIP_EPSILON: number = 1e-10;
 
-/**
+/*
  * Tessellate exactly the support surface that engine height queries read.
  *
  * The footprint is taken as the convex pieces whose union is the region itself,
@@ -29,7 +29,7 @@ const CLIP_EPSILON: number = 1e-10;
  * Level and planar patches fan each piece. Heightfields split each piece at
  * every lattice coordinate inside its plan bounds, clip each lattice cell
  * against the piece, and evaluate every resulting vertex through
- * {@link surfaceHeightAt}. Every vertex therefore sits exactly on the bilinear
+ * surfaceHeightAt. Every vertex therefore sits exactly on the bilinear
  * rule that feet and placement queries obey; inside a cell the drawn surface is
  * the fan's planar interpolation of those vertices, which departs from the
  * bilinear patch where a cell is twisted.
@@ -37,9 +37,8 @@ const CLIP_EPSILON: number = 1e-10;
  * Positions are world metres with Y up, triangles face +Y, and vertices with
  * identical plan coordinates are shared, so their normals are the normalized
  * sum of the incident face normals.
- *
- * @param surface Support surface to draw.
- * @returns A new indexed mesh, or `null` when the footprint encloses no area.
+ * Parameter surface: Support surface to draw.
+ * Returns: A new indexed mesh, or `null` when the footprint encloses no area.
  */
 export const tessellateSurface: (
   surface: IAutoMovieSurface,
@@ -87,7 +86,7 @@ export const tessellateSurface: (
   return tessellatePolygons(surface, cells);
 };
 
-/**
+/*
  * Ascending cut coordinates: the span's two ends and every lattice line
  * strictly inside it.
  */
@@ -115,7 +114,7 @@ const latticeCuts: (
   );
 };
 
-/**
+/*
  * Sutherland-Hodgman clip of a plan polygon against a counter-clockwise convex
  * polygon.
  */
@@ -156,7 +155,7 @@ const clipConvexPolygon: (
   return output;
 };
 
-/**
+/*
  * Plan cross product of the edge and the point: positive on the edge's inner
  * side.
  */
@@ -171,7 +170,7 @@ const edgeDistance: (
 ): number =>
   (to.x - from.x) * (point.z - from.z) - (to.z - from.z) * (point.x - from.x);
 
-/**
+/*
  * Fan each convex plan polygon, lifting every shared plan vertex once by the
  * surface's height rule.
  */
@@ -208,7 +207,7 @@ const tessellatePolygons: (
   return { positions, normals: vertexNormals(positions, indices), indices };
 };
 
-/**
+/*
  * Normalized sum of the area-weighted normals of the triangles around each
  * vertex.
  */

@@ -4,18 +4,17 @@ import { Vector3 } from "@automovie/engine";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { StreetFixtureDraw } from "./StreetFixtureDraw";
 
-/**
+/*
  * A stepped traffic cone with its top grasp and square base on the pavement.
  *
  * The Brimar proportions shape the cone after the chosen height class and its
  * original mass draw. The lowest point of the fixture stands on Y = 0.
- *
- * @param params The scene identifier, model choice and supported dimension
- *   overrides.
- * @param seed The seed for the draws the author leaves open.
- * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
- *   selected profile.
+ * Parameter params: The scene identifier, model choice and supported dimension
+ * overrides.
+ * Parameter seed: The seed for the draws the author leaves open.
+ * Returns: The fixed model with its typed contacts.
+ * If a supplied override lies outside the
+ * selected profile.
  */
 export function createTrafficCone(
   params: AutoMovieArchetypeTrafficCone.IParams = {},
@@ -70,19 +69,27 @@ export function createTrafficCone(
   return builder.build(d.mass!);
 }
 
-/** The shape of {@link CONE}. */
+/*
+ * The shape of CONE.
+ */
 interface ICone {
-  /** The `base` entry. */
+  /*
+   * The `base` entry.
+   */
   base: number;
 
-  /** The `foot` entry. */
+  /*
+   * The `foot` entry.
+   */
   foot: number;
 
-  /** The `top` entry. */
+  /*
+   * The `top` entry.
+   */
   top: number;
 }
 
-/**
+/*
  * The Brimar 28 in cone's proportions to its height: its square base, its
  * cone's foot and its top (13.4, 9.8 and 2.1 in of 28).
  */
@@ -92,5 +99,7 @@ const CONE: Readonly<ICone> = {
   top: 2.1 / 28,
 };
 
-/** The estimated share of the cone height used by its base plate. */
+/*
+ * The estimated share of the cone height used by its base plate.
+ */
 const PLATE_RATIO: number = 0.04;

@@ -9,7 +9,7 @@ import type {
 import { operateDrive } from "./operateDrive";
 import { operateInsert } from "./operateInsert";
 
-/**
+/*
  * The moving part of an operated mechanism on a prop that does not articulate,
  * as the mechanism's own geometry moves it: a button's face in along its axis,
  * a knob turned about it, a slider's handle along it, a leaf's handle about its
@@ -18,16 +18,15 @@ import { operateInsert } from "./operateInsert";
  * part instead (`operateDrive.part`).
  */
 export namespace operateState {
-  /**
+  /*
    * The moving part's place at a progress of its movement.
-   *
-   * @param mechanism The mechanism.
-   * @param place The part's place at rest: its point and outward normal.
-   * @param hinge The hinge line, for a leaf: a point of it, and its unit axis,
-   *   the vertical when absent.
-   * @param progress 0 at rest, 1 at the end of the movement.
-   * @returns The point and the normal, and the roll about the normal in
-   *   degrees.
+   * Parameter mechanism: The mechanism.
+   * Parameter place: The part's place at rest: its point and outward normal.
+   * Parameter hinge: The hinge line, for a leaf: a point of it, and its unit axis,
+   * the vertical when absent.
+   * Parameter progress: 0 at rest, 1 at the end of the movement.
+   * Returns: The point and the normal, and the roll about the normal in
+   * degrees.
    */
   export function at(
     mechanism: IAutoMovieMotionHumanOperate.Mechanism,
@@ -38,13 +37,12 @@ export namespace operateState {
     return prepare(mechanism, place, hinge)(progress);
   }
 
-  /**
+  /*
    * Prepare a rigid mechanism's fixed axis geometry before its progress varies.
-   *
-   * @param mechanism The unchanged authored mechanism and travel.
-   * @param place Its initial world point and outward normal.
-   * @param hinge Its fixed hinge line when it swings.
-   * @returns The actual point, normal and roll at each supplied progress.
+   * Parameter mechanism: The unchanged authored mechanism and travel.
+   * Parameter place: Its initial world point and outward normal.
+   * Parameter hinge: Its fixed hinge line when it swings.
+   * Returns: The actual point, normal and roll at each supplied progress.
    */
   export function prepare(
     mechanism: IAutoMovieMotionHumanOperate.Mechanism,

@@ -2,7 +2,7 @@ import { AUTOMOVIE_RENDER_OPTIONS } from "./AUTOMOVIE_RENDER_OPTIONS";
 import type { AutoMovieCliRenderTypes } from "../AutoMovieCliRenderTypes";
 import { readAutoMoviePageTimeout } from "../../page/internal/readAutoMoviePageTimeout";
 
-/**
+/*
  * Split the options of `automovie render` into the command's own,
  * `AUTOMOVIE_RENDER_OPTIONS`, and the request's, which
  * `parseAutoMovieCapturePlanRequest` reads for the request's `subject`.

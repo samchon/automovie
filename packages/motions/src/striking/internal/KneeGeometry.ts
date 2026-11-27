@@ -22,29 +22,36 @@ import { StrikingBody } from "./StrikingBody";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 
-/** The original knee's contact key, separated from its phase/contact law. */
+/*
+ * The original knee's contact key, separated from its phase/contact law.
+ */
 export namespace KneeGeometry {
-  /** A settled hip and the knee solved from it. */
+  /*
+   * A settled hip and the knee solved from it.
+   */
   export interface ISettled {
-    /** The hip the carriage settles on, world metres. */
+    /*
+     * The hip the carriage settles on, world metres.
+     */
     hip: IAutoMovieVector3;
 
-    /** The knee's solve from that hip. */
+    /*
+     * The knee's solve from that hip.
+     */
     solved: KneeReach.ISolution;
   }
 
-  /**
+  /*
    * Settle the hip at the fixed point of the carriage: solve from the hip,
    * carry the body under that solve, read the hip it leaves, and repeat until
    * the hip moves within `TOLERANCE`; a pass that does not shrink the move
    * cannot converge and is refused.
-   *
-   * @param start The hip before any carriage, world metres.
-   * @param reach The knee's solve from a hip.
-   * @param carry The hip the carriage leaves under a solve.
-   * @param refuse The refusal for a move that does not shrink, metres.
-   * @returns The settled hip and its solve.
-   * @throws {HumanRefusal} When the carriage does not settle.
+   * Parameter start: The hip before any carriage, world metres.
+   * Parameter reach: The knee's solve from a hip.
+   * Parameter carry: The hip the carriage leaves under a solve.
+   * Parameter refuse: The refusal for a move that does not shrink, metres.
+   * Returns: The settled hip and its solve.
+   * When the carriage does not settle.
    */
   export function settle(
     start: IAutoMovieVector3,
@@ -66,58 +73,75 @@ export namespace KneeGeometry {
     }
   }
 
-  /**
+  /*
    * The place tolerance the carriage's hip settles to, metres: the limb
    * solver's own (`HumanArmTrajectoryTerms.TOLERANCE`, a millimetre).
    */
   export const TOLERANCE: number = HumanArmTrajectoryTerms.TOLERANCE / 1000;
 
-  /** The original thigh and shank directions in the world frame. */
+  /*
+   * The original thigh and shank directions in the world frame.
+   */
   export interface ILeg {
-    /** From the hip to the knee. */
+    /*
+     * From the hip to the knee.
+     */
     thigh: IAutoMovieVector3;
 
-    /** From the knee to the ankle. */
+    /*
+     * From the knee to the ankle.
+     */
     shank: IAutoMovieVector3;
   }
 
-  /** The original solved knee key and the course it is reached on. */
+  /*
+   * The original solved knee key and the course it is reached on.
+   */
   export interface IGeometry extends KneeReach.ISolution {
-    /** The target point, world metres. */
+    /*
+     * The target point, world metres.
+     */
     target: IAutoMovieVector3;
 
-    /** The hips' turn to the thigh's heading, degrees. */
+    /*
+     * The hips' turn to the thigh's heading, degrees.
+     */
     turn: number;
 
-    /** The leg as the stance has it. */
+    /*
+     * The leg as the stance has it.
+     */
     from: ILeg;
 
-    /** The leg at the contact. */
+    /*
+     * The leg at the contact.
+     */
     to: ILeg;
 
-    /**
+    /*
      * What the stance's planted ankle lies from the ankle `from` puts under the
      * stance's hip, world metres: zero unless the stance stretches the leg past
      * its length.
      */
     slack: IAutoMovieVector3;
 
-    /** The driven foot's world rotation at the contact. */
+    /*
+     * The driven foot's world rotation at the contact.
+     */
     foot: IAutoMovieQuaternion;
   }
 
-  /**
+  /*
    * Build the knee law's original target/carriage/contact interpolation key.
-   *
-   * @param context The actual knee action's unchanged planning context.
-   * @param side The kicking side already selected by the law.
-   * @param feet The actual entry foot placements.
-   * @param carriage The law's original lowered/pivoted carriage producer.
-   * @returns The same measured reach/key used by the free and displayed
-   *   courses.
-   * @throws {HumanRefusal} A `reach` refusal when solving the knee again from
-   *   the hip its carriage leaves stops shrinking that hip's move before it is
-   *   within `TOLERANCE`.
+   * Parameter context: The actual knee action's unchanged planning context.
+   * Parameter side: The kicking side already selected by the law.
+   * Parameter feet: The actual entry foot placements.
+   * Parameter carriage: The law's original lowered/pivoted carriage producer.
+   * Returns: The same measured reach/key used by the free and displayed
+   * courses.
+   * A `reach` refusal when solving the knee again from
+   * the hip its carriage leaves stops shrinking that hip's move before it is
+   * within `TOLERANCE`.
    */
   export function solve(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKnee.IParams>,

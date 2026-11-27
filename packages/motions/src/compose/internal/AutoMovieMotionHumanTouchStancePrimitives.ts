@@ -12,15 +12,14 @@ import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import type { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import type { AutoMovieMotionHumanTouchStanceMoves } from "./AutoMovieMotionHumanTouchStanceMoves";
 
-/**
+/*
  * The primitives of a solved touch stance
  * (`IAutoMovieMotionHumanTouchStance.IStance.primitives`): the girdle, the
  * heels, the turn and the lean written over the stroke's envelope, with an
  * optional correction, read from the stance's solved angles, lean and posture
  * moves.
- *
- * @param scope What the stance solved.
- * @returns The stance's primitives on a clock.
+ * Parameter scope: What the stance solved.
+ * Returns: The stance's primitives on a clock.
  */
 export function AutoMovieMotionHumanTouchStancePrimitives(
   scope: AutoMovieMotionHumanTouchStancePrimitives.IScope,
@@ -140,44 +139,72 @@ export function AutoMovieMotionHumanTouchStancePrimitives(
   };
 }
 
-/** What the primitives of a solved touch stance read. */
+/*
+ * What the primitives of a solved touch stance read.
+ */
 export namespace AutoMovieMotionHumanTouchStancePrimitives {
-  /** What a solved touch stance writes its primitives from. */
+  /*
+   * What a solved touch stance writes its primitives from.
+   */
   export interface IScope {
-    /** The stance's props. */
+    /*
+     * The stance's props.
+     */
     props: IAutoMovieMotionHumanTouchStance.IProps;
 
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanTouchStance.IProps["body"];
 
-    /** The feet the heels rise on; none when absent. */
+    /*
+     * The feet the heels rise on; none when absent.
+     */
     feet: IAutoMovieMotionHumanRise.Stance | undefined;
 
-    /** The girdle's lift, degrees. */
+    /*
+     * The girdle's lift, degrees.
+     */
     girdle: number;
 
-    /** The heels' rise, degrees. */
+    /*
+     * The heels' rise, degrees.
+     */
     raise: number;
 
-    /** The trunk's turn, degrees. */
+    /*
+     * The trunk's turn, degrees.
+     */
     turn: number;
 
-    /** Whether the stance leans. */
+    /*
+     * Whether the stance leans.
+     */
     leaning: boolean;
 
-    /** The lean on the turned trunk. */
+    /*
+     * The lean on the turned trunk.
+     */
     lean: IAutoMovieMotionHumanLeanInto.ILean;
 
-    /** The lean's pitch at the stroke's start. */
+    /*
+     * The lean's pitch at the stroke's start.
+     */
     arrival: number;
 
-    /** The girdle and heel move (`AutoMovieMotionHumanTouchStanceMoves`). */
+    /*
+     * The girdle and heel move (`AutoMovieMotionHumanTouchStanceMoves`).
+     */
     moved: AutoMovieMotionHumanTouchStanceMoves.IMoves["moved"];
 
-    /** The trunk's turn (`AutoMovieMotionHumanTouchStanceMoves`). */
+    /*
+     * The trunk's turn (`AutoMovieMotionHumanTouchStanceMoves`).
+     */
     twisted: AutoMovieMotionHumanTouchStanceMoves.IMoves["twisted"];
 
-    /** The raised feet's fit (`AutoMovieMotionHumanTouchStanceMoves`). */
+    /*
+     * The raised feet's fit (`AutoMovieMotionHumanTouchStanceMoves`).
+     */
     planted: AutoMovieMotionHumanTouchStanceMoves.IMoves["planted"];
   }
 }

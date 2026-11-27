@@ -5,7 +5,9 @@ import type {
 
 import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
 
-/** Shared rotation-between implementation used by the Kinematics owner. */
+/*
+ * Shared rotation-between implementation used by the Kinematics owner.
+ */
 export const aimRotationImplementation: IAimRotationImplementation = {
   run(from: IAutoMovieVector3, to: IAutoMovieVector3): IAutoMovieQuaternion {
     return AutoMovieEngineMath.rotationBetween(from, to);

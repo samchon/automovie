@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import { reportAutoMovieResourceRetirement } from "../../internal/reportAutoMovieResourceRetirement.js";
 
-/**
+/*
  * Own the optional part-colour materials beside an existing polygon drawing.
  *
  * Geometry and the default clay belong to the caller. Each replacement builds
@@ -15,32 +15,39 @@ import { reportAutoMovieResourceRetirement } from "../../internal/reportAutoMovi
  * completeRetirement only after the entire drawing retires successfully. This
  * preserves resource attempt order, one-attempt semantics and uncertain
  * ownership on failure.
- *
- * @param material Borrowed default clay, also used as the clone template.
- * @param partMeshes Existing meshes indexed by their actual emitted bone names.
- * @returns Colour replacement and the drawing owner's retirement hooks.
+ * Parameter material: Borrowed default clay, also used as the clone template.
+ * Parameter partMeshes: Existing meshes indexed by their actual emitted bone names.
+ * Returns: Colour replacement and the drawing owner's retirement hooks.
  */
 export function createHumanPolygonPalette(
   material: THREE.MeshStandardMaterial,
   partMeshes: ReadonlyMap<string, THREE.Mesh>,
 ): {
-  /** Validate and replace colours; undefined restores the borrowed clay. */
+  /*
+   * Validate and replace colours; undefined restores the borrowed clay.
+   */
   setPartColors: (colors?: Readonly<Record<string, number>>) => void;
 
-  /** Original sticky replacement cause for the drawing's outer collector. */
+  /*
+   * Original sticky replacement cause for the drawing's outer collector.
+   */
   readonly failure: { error: unknown } | undefined;
 
-  /** Attempt current materials once under the caller's sticky disposal guard. */
+  /*
+   * Attempt current materials once under the caller's sticky disposal guard.
+   */
   dispose: () => void;
 
-  /** Drop pool references only after the whole drawing retired successfully. */
+  /*
+   * Drop pool references only after the whole drawing retired successfully.
+   */
   completeRetirement: () => void;
 } {
   let colorMaterials: Map<number, THREE.MeshStandardMaterial> = new Map();
   let colorFailure: { error: unknown } | undefined;
   const uncertainMaterials: Set<THREE.MeshStandardMaterial> = new Set();
 
-  /**
+  /*
    * Preserve complete palette replacement before retiring the previous pool.
    *
    * Principled implementation: Admits RGB values, builds all assignments with
@@ -135,9 +142,11 @@ export function createHumanPolygonPalette(
   };
 }
 
-/** Colour input semantics shared by admission and later replacements. */
+/*
+ * Colour input semantics shared by admission and later replacements.
+ */
 export namespace createHumanPolygonPalette {
-  /**
+  /*
    * Admit optional RGB overrides before allocation and during replacement.
    * Every supplied value, including an unmatched part entry, must be an integer
    * in [0, 0xffffff]. Undefined admits the default clay; invalid values throw.

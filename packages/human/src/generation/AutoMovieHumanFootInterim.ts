@@ -264,7 +264,9 @@ export namespace AutoMovieHumanFootInterim {
     );
   }
 
-  /** Author only the replacement dorsal scalar from the actual ankle contact; the foot and toes share these original coefficients. */
+  /*
+   * Author only the replacement dorsal scalar from the actual ankle contact; the foot and toes share these original coefficients.
+   */
   function roof(
     foot: IAutoMovieHumanFootPart.IInput,
     connection: IAutoMovieHumanFootConnection.IAnkle,

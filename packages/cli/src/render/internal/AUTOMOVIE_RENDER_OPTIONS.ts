@@ -1,4 +1,4 @@
-/**
+/*
  * The options `automovie render` takes for itself, written `--<name>`; of the
  * capture request grammar it takes only `subject`, the subject rendered, and
  * `passes`, the control channels drawn beside the film at every frame.

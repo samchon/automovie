@@ -2,7 +2,7 @@ import type { IContractLocation } from "../../../internal/IContractLocation";
 import { createReferenceRoot } from "../../../internal/createReferenceRoot";
 import { createContractDirectory } from "./createContractDirectory";
 
-/**
+/*
  * Resolves the reference root of the contract tree owning one family.
  *
  * Bundled references such as `principles/screenplay.md` start at the skills
@@ -12,12 +12,11 @@ import { createContractDirectory } from "./createContractDirectory";
  *
  * The same local Markdown bytes are both pre-draft instructions and later
  * evidence targets. Config constructs the graph but owns no document mirror.
- *
- * @param contracts The production location and optional shared tree; read, not
- *   retained.
- * @param scope The contract family the reference addresses.
- * @returns The `/`-separated root relative to the production's configuration
- *   directory.
+ * Parameter contracts: The production location and optional shared tree; read, not
+ * retained.
+ * Parameter scope: The contract family the reference addresses.
+ * Returns: The `/`-separated root relative to the production's configuration
+ * directory.
  */
 export function createContractRoot(
   contracts: IContractLocation,

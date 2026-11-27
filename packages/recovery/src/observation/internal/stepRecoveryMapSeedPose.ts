@@ -2,7 +2,7 @@ import type { IAutoMovieRecoveryMapPose } from "@automovie/interface";
 
 import { stepRecoveryRelativePose } from "./stepRecoveryRelativePose";
 
-/**
+/*
  * Apply the map seed's left rotation and current-radius sphere chart. Its raw
  * translation coefficients define r*normalize(t+Bz), with r=norm(t) held
  * constant at this base. Initial poses and points are not rescaled.

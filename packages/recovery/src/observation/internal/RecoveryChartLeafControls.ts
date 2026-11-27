@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryChartLeafControls } from "@automovie/interface";
 
-/**
+/*
  * Couple a complete axis-aligned unit-square leaf partition with C0 bicubics.
  * axis 0 edges increase in u; axis 1 edges increase in v. Patch sides are
  * bottom, right, top, left and all side parameters increase. Equal UV scalar

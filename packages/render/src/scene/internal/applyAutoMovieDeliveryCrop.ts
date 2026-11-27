@@ -2,7 +2,7 @@ import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieDeliveryCrop } from "@automovie/interface";
 import type * as THREE from "three";
 
-/**
+/*
  * Apply one normalized delivery crop to a `three.js` perspective camera.
  *
  * The crop is a digital gate window: it changes only the projection matrix,

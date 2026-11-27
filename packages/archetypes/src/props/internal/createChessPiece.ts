@@ -9,17 +9,16 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 
-/**
+/*
  * One chess piece standing on its base.
  *
  * The piece stands along `+Y` from the centre of its base at the origin. Its
  * `base` socket is that origin, set on a board square's socket to place it; its
  * `grip` is a precision pinch at the head, where a player takes a piece, as
  * FIDE's laws have a move made with one hand.
- *
- * @param params The piece's kind, side and optional scene id.
- * @returns The inert piece and its contact frames, metres.
- * @throws {AutoMovieArchetypeRefusal} For a kind or side outside the set.
+ * Parameter params: The piece's kind, side and optional scene id.
+ * Returns: The inert piece and its contact frames, metres.
+ * For a kind or side outside the set.
  */
 export function createChessPiece(
   params: AutoMovieArchetypeChessPiece.IParams,
@@ -86,7 +85,7 @@ export function createChessPiece(
   return builder.build(MASS_PER_HEIGHT * height);
 }
 
-/**
+/*
  * FIDE's Standards of Chess Equipment, section 2.3: "King – 9.5 cm", "Queen –
  * 8.5 cm", "Bishop – 7 cm", "Knight – 6 cm", "Rook – 5.5 cm", "Pawn – 5 cm";
  * section 2.4: "The diameter of a piece's base should measure 40-50% of its
@@ -103,13 +102,13 @@ const HEIGHTS: Readonly<Record<AutoMovieArchetypeChessPiece.Kind, number>> = {
   pawn: 0.05,
 };
 
-/**
+/*
  * A piece's base diameter as a share of its height, within FIDE's 40 to 50
  * percent.
  */
 const BASE: number = 0.45;
 
-/**
+/*
  * A weighted piece's mass per metre of height, kilograms: a provisional
  * estimate.
  */

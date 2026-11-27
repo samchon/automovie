@@ -8,13 +8,13 @@ import type {
 
 import { AutoMovieHumanConicLoft } from "../generation/AutoMovieHumanConicLoft";
 
-/**
+/*
  * Samples round a section ring; a multiple of four, so the guides' quarter
  * phases are ring samples.
  */
 const PHASES: number = 48;
 
-/**
+/*
  * Largest gap in millimetres between two stations a guide and the axis pass
  * through.
  */

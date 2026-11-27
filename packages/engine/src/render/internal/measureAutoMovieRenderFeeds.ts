@@ -12,14 +12,14 @@ import type { AutoMovieEngineRenderMeasureTypes } from "../AutoMovieEngineRender
 import { autoMovieSurfaceFeedWidth } from "./autoMovieSurfaceFeedWidth";
 import { measureAutoMovieFilmResponseTargets } from "./measureAutoMovieFilmResponseTargets";
 
-/**
+/*
  * Measure the render targets and passes a subject's surface-graphic feed layers
  * commit the renderer to, as `prepareAutoMovieSurfaceGraphics` builds them.
  *
  * Every feed layer of every key owns one render target for the whole shot,
- * `pixels` high and {@link autoMovieSurfaceFeedWidth} wide, the rule `render`
+ * `pixels` high and autoMovieSurfaceFeedWidth wide, the rule `render`
  * allocates by, so each is one texture allocation of
- * {@link FEED_BYTES_PER_PIXEL} bytes per pixel. A shown feed redraws the scene
+ * FEED_BYTES_PER_PIXEL bytes per pixel. A shown feed redraws the scene
  * once into its target, so a frame can add as many scene passes as the feed
  * layers shown at once: one key per track is in force, so the bound is the
  * largest feed count of any key, summed over the tracks.
@@ -27,14 +27,13 @@ import { measureAutoMovieFilmResponseTargets } from "./measureAutoMovieFilmRespo
  * A directly rendered film, `subject.film`, draws each feed through its optics
  * on a film response stage of the feed's own, so every feed layer also holds
  * that stage's targets at its raster,
- * {@link measureAutoMovieFilmResponseTargets}, and, when the scene carries a
+ * measureAutoMovieFilmResponseTargets, and, when the scene carries a
  * medium, the stage's half-float march target.
  *
  * The face size is the `surface` affordance the track names on the model its
  * node stages; it throws, naming the track, when that cannot be resolved.
- *
- * @param subject The subject whose surface graphics are measured.
- * @returns One row per track with feeds, in track order, and the totals.
+ * Parameter subject: The subject whose surface graphics are measured.
+ * Returns: One row per track with feeds, in track order, and the totals.
  */
 export function measureAutoMovieRenderFeeds(
   subject: IAutoMovieRenderSubject,
@@ -141,10 +140,12 @@ export function measureAutoMovieRenderFeeds(
   };
 }
 
-/** Bytes of one RGBA half-float texel, a medium march target's. */
+/*
+ * Bytes of one RGBA half-float texel, a medium march target's.
+ */
 const HALF: number = 8;
 
-/**
+/*
  * Bytes one feed render-target pixel holds: four for its RGBA8 colour texture
  * and four for the 24-bit depth renderbuffer three.js gives a
  * `WebGLRenderTarget` by default, stored in a 32-bit word.

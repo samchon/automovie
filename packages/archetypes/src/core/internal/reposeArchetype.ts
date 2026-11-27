@@ -9,16 +9,15 @@ import { AutoMovieArchetypeFrame } from "../AutoMovieArchetypeFrame";
 import type { AutoMovieArchetypeMass } from "../AutoMovieArchetypeMass";
 import type { IAutoMovieArchetypeProps } from "../IAutoMovieArchetypeProps";
 
-/**
+/*
  * Replace posed parts and, when supplied, every declared contact's frame.
- *
- * @param rest The producer's original contact identities, semantics and rest
- *   mass data.
- * @param parts Independently posed model parts.
- * @param frames Complete contact-frame bindings, or absent to preserve rest
- *   contacts without a material owner. A material site follows its posed part.
- * @returns New props retaining the producer's closed contact id vocabulary.
- * @throws {RangeError} For incomplete or unknown contact-frame bindings.
+ * Parameter rest: The producer's original contact identities, semantics and rest
+ * mass data.
+ * Parameter parts: Independently posed model parts.
+ * Parameter frames: Complete contact-frame bindings, or absent to preserve rest
+ * contacts without a material owner. A material site follows its posed part.
+ * Returns: New props retaining the producer's closed contact id vocabulary.
+ * For incomplete or unknown contact-frame bindings.
  */
 export function reposeArchetype<
   Id extends string,
@@ -53,7 +52,9 @@ export function reposeArchetype<
   return { ...rest, parts, affordances };
 }
 
-/** Derive undeclared contact updates by the same rigid motion as their part. */
+/*
+ * Derive undeclared contact updates by the same rigid motion as their part.
+ */
 function materialSites<I extends string, D extends string>(
   rest: Pick<IAutoMovieArchetypeProps<I, D>, "parts" | "affordances">,
   posed: readonly IAutoMovieModelPart[],
@@ -104,7 +105,9 @@ function materialSites<I extends string, D extends string>(
   );
 }
 
-/** Model origin for geometry with no explicit part transform. */
+/*
+ * Model origin for geometry with no explicit part transform.
+ */
 const IDENTITY: IAutoMovieTransform = AutoMovieArchetypeFrame.upright({
   x: 0,
   y: 0,

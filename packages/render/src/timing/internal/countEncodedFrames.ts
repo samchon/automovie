@@ -1,11 +1,10 @@
-/**
+/*
  * Count whole frames on the encoded grid by rounding the requested duration to
  * the nearest frame. Unusable clocks produce zero frames and a count outside
  * the safe integer range throws.
- *
- * @param fps The frame rate in frames per second.
- * @param durationSeconds The requested running time in seconds.
- * @returns The number of frames the encoder samples.
+ * Parameter fps: The frame rate in frames per second.
+ * Parameter durationSeconds: The requested running time in seconds.
+ * Returns: The number of frames the encoder samples.
  */
 export function countEncodedFrames(
   fps: number,

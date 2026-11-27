@@ -22,15 +22,14 @@ import { exercise } from "../../exercise/internal/exercise";
 import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { AutoMovieMotionHumanBaseball as baseball } from "./AutoMovieMotionHumanBaseball";
 
-/**
+/*
  * A fielder's ground ball: the crouch to the ball and both hands placed, the
  * gloved left on the floor ahead of the shoulders open forward and up with the
  * fingers down, the right over it.
  *
  * Part of `baseball.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `groundBall`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `groundBall`.
  */
 export function baseballGroundBall(
   prepared: baseballGroundBall.IPrepared,
@@ -178,48 +177,70 @@ export function baseballGroundBall(
   };
 }
 
-/** The `groundBall` of `baseball.plan`, built from what that plan prepared. */
+/*
+ * The `groundBall` of `baseball.plan`, built from what that plan prepared.
+ */
 export namespace baseballGroundBall {
-  /**
+  /*
    * Optional same-person exact FK source used only during an actual current
    * place observation.
    */
   export type IFK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
 
-  /** What `baseball.plan` prepared for its `groundBall`. */
+  /*
+   * What `baseball.plan` prepared for its `groundBall`.
+   */
   export interface IPrepared {
-    /** The `local` `baseball.plan` prepared. */
+    /*
+     * The `local` `baseball.plan` prepared.
+     */
     local: (
       posture: IAutoMovieMotionHumanPosture,
       v: IAutoMovieVector3,
     ) => IAutoMovieVector3;
 
-    /** The `entry` `baseball.plan` prepared. */
+    /*
+     * The `entry` `baseball.plan` prepared.
+     */
     entry: IAutoMovieMotionHumanPosture;
 
-    /** The `arm` `baseball.plan` prepared. */
+    /*
+     * The `arm` `baseball.plan` prepared.
+     */
     arm: number;
 
-    /** The `body` `baseball.plan` prepared. */
+    /*
+     * The `body` `baseball.plan` prepared.
+     */
     body: IAutoMovieMotionHumanActionContext["body"];
 
-    /** The `m` `baseball.plan` prepared. */
+    /*
+     * The `m` `baseball.plan` prepared.
+     */
     m: IAutoMovieMotionHumanActionContext["body"]["measure"];
 
-    /** The `modifiers` `baseball.plan` prepared. */
+    /*
+     * The `modifiers` `baseball.plan` prepared.
+     */
     modifiers: IAutoMovieMotionManner.IModifiers;
 
-    /** The `context` `baseball.plan` prepared. */
+    /*
+     * The `context` `baseball.plan` prepared.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBaseball.IParams>;
 
-    /** The `crouch` `baseball.plan` prepared. */
+    /*
+     * The `crouch` `baseball.plan` prepared.
+     */
     crouch: (
       depth: number,
       pitch: number,
       legs?: readonly AutoMovieHumanSide[],
     ) => IAutoMovieMotionHumanPrimitive;
 
-    /** The `placed` `baseball.plan` prepared. */
+    /*
+     * The `placed` `baseball.plan` prepared.
+     */
     placed: (
       side: AutoMovieHumanSide,
       place: IAutoMovieMotionHumanPlaced.IArm["place"],

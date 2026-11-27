@@ -1,7 +1,7 @@
 import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanForce, IAutoMovieMotionHumanImpulse, IAutoMoviePhysicalProfile, IAutoMoviePhysicalSegment, IAutoMoviePhysicalSimulationInput, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * A performance's impulses on a simulated window's performers, as the solver's
  * impulses on its grid.
  *
@@ -13,14 +13,13 @@ import type { AutoMovieHumanoidBone, IAutoMovieBone, IAutoMovieMotionHumanBody, 
  * (`AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePlace`) or a bone-local point; it acts on
  * the profile segment that carries the site's bone, the bone's own or its
  * nearest ancestor's.
- *
- * @param forces Every force of the performance.
- * @param bodies The simulated performers' bodies, by subject.
- * @param profiles The profiles the window solves, by subject: the bodies' with
- *   the hands welded.
- * @param bones Each simulated performer's displayed bones, by step.
- * @param clock The window's first film second, interval count and rate.
- * @returns The solver's impulses, in the performance's order.
+ * Parameter forces: Every force of the performance.
+ * Parameter bodies: The simulated performers' bodies, by subject.
+ * Parameter profiles: The profiles the window solves, by subject: the bodies' with
+ * the hands welded.
+ * Parameter bones: Each simulated performer's displayed bones, by step.
+ * Parameter clock: The window's first film second, interval count and rate.
+ * Returns: The solver's impulses, in the performance's order.
  */
 export function placeHumanSimulationImpulses(
   forces: readonly IAutoMovieMotionHumanForce[],
@@ -85,31 +84,38 @@ export function placeHumanSimulationImpulses(
     );
 }
 
-/** Companion types and helpers of {@link placeHumanSimulationImpulses}. */
+/*
+ * Companion types and helpers of placeHumanSimulationImpulses.
+ */
 export namespace placeHumanSimulationImpulses {
-  /**
+  /*
    * A window's grid: its first film second, interval count and intervals per
    * second.
    */
   export interface IClock {
-    /** First film second, step zero. */
+    /*
+     * First film second, step zero.
+     */
     from: number;
 
-    /** Intervals in the window. */
+    /*
+     * Intervals in the window.
+     */
     count: number;
 
-    /** Intervals per second. */
+    /*
+     * Intervals per second.
+     */
     rate: number;
   }
 
-  /**
+  /*
    * The profile segment carrying a rig bone: its own, or its nearest
    * ancestor's.
-   *
-   * @param body The body, for its rig's parents.
-   * @param profile The profile whose segments carry the bone.
-   * @param bone The rig bone.
-   * @returns The segment's bone; the rig's root when no ancestor carries one.
+   * Parameter body: The body, for its rig's parents.
+   * Parameter profile: The profile whose segments carry the bone.
+   * Parameter bone: The rig bone.
+   * Returns: The segment's bone; the rig's root when no ancestor carries one.
    */
   export function carrier(
     body: IAutoMovieMotionHumanBody,

@@ -7,7 +7,7 @@ import { AutoMovieMotionHumanActionRow } from "../../law/AutoMovieMotionHumanAct
 import { HUMAN_HAND_TO_BODY_COVER_FACE } from "../../next/presets/HUMAN_HAND_TO_BODY_COVER_FACE";
 import { handToFace } from "./handToFace";
 
-/**
+/*
  * Cover the face with both bare hands. The open palms settle on the cheeks with
  * the fingers upward toward the eyes. The head bows into the cover as both
  * hands arrive at `atFace`. The `seconds` parameter sets the additional hold

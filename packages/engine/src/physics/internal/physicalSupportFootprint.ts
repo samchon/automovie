@@ -12,7 +12,7 @@ import { physicalShapeBoundsImplementation } from "./physicalShapeBoundsImplemen
 import { AutoMovieEnginePhysicalStanceBalance } from "../AutoMovieEnginePhysicalStanceBalance";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
-/**
+/*
  * The floor-plane outline of a limb's support patch: its contact carriers'
  * bearing face projected straight down, hull vertices exactly and other shapes
  * by their bounds' corners, the face being the vertices within the foot-lift
@@ -20,16 +20,13 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
  * each of its points is touching this step, so a balance command that unloads a
  * point does not shrink the region it is commanded within, while a side or a
  * toe held off the floor does not widen it.
- *
- * @param profile The body's profile.
- * @param poses The carriers' poses: the native segments, or fixed world
- *   transforms such as the planted pose.
- * @param limb The support limb; omitted contacts select its own bone.
- * @param floor The floor height, world metres.
- * @returns The projected points at the floor height, world metres; empty when
- *   the limb has no shape.
- * @evidence contracts/development/common.md#meaningful-documentation States what is projected, how each shape kind is read and why the outline is independent of momentary contact.
- * @evidence contracts/development/implementation.md#principled-implementation Reads the given poses and the profile's own shapes; nothing is assumed of the limb's anatomy.
+ * Parameter profile: The body's profile.
+ * Parameter poses: The carriers' poses: the native segments, or fixed world
+ * transforms such as the planted pose.
+ * Parameter limb: The support limb; omitted contacts select its own bone.
+ * Parameter floor: The floor height, world metres.
+ * Returns: The projected points at the floor height, world metres; empty when
+ * the limb has no shape.
  */
 export function physicalSupportFootprint(
   profile: IAutoMoviePhysicalProfile,
@@ -82,20 +79,21 @@ export function physicalSupportFootprint(
   );
 }
 
-/** The support functions of {@link physicalSupportFootprint}. */
+/*
+ * The support functions of physicalSupportFootprint.
+ */
 export namespace physicalSupportFootprint {
-  /**
+  /*
    * Whether a limb is grounded: a point of one of its contact carriers'
    * colliders lies within the contact skin of the floor, `LIFT` above it
    * (`AutoMovieEnginePhysicalStanceBalance.LIFT`). A foot rolled onto an edge is grounded; a
    * lifted one is not.
-   *
-   * @param profile The body's profile.
-   * @param poses The carriers' poses: the native segments or fixed world
-   *   transforms.
-   * @param limb The support limb; omitted contacts select its own bone.
-   * @param floor The floor height, world metres.
-   * @returns Whether the limb is grounded.
+   * Parameter profile: The body's profile.
+   * Parameter poses: The carriers' poses: the native segments or fixed world
+   * transforms.
+   * Parameter limb: The support limb; omitted contacts select its own bone.
+   * Parameter floor: The floor height, world metres.
+   * Returns: Whether the limb is grounded.
    */
   export function grounded(
     profile: IAutoMoviePhysicalProfile,
@@ -123,13 +121,12 @@ export namespace physicalSupportFootprint {
     });
   }
 
-  /**
+  /*
    * Every collider the world binds for a segment: its drawn shapes and its
    * simulation-only contact shapes, such as a foot's sole box, which are what
    * meets the floor.
-   *
-   * @param segment The profile segment.
-   * @returns The drawn shapes, then the contact shapes.
+   * Parameter segment: The profile segment.
+   * Returns: The drawn shapes, then the contact shapes.
    */
   export function colliders(
     segment: IAutoMoviePhysicalSegment,
@@ -137,12 +134,11 @@ export namespace physicalSupportFootprint {
     return [...segment.shapes, ...(segment.contactShapes ?? [])];
   }
 
-  /**
+  /*
    * A shape's corner vertices in its segment's frame: a hull's points and a
    * box's eight corners exactly; none for a rounded shape.
-   *
-   * @param shape The shape.
-   * @returns The vertices, metres, or undefined for a rounded shape.
+   * Parameter shape: The shape.
+   * Returns: The vertices, metres, or undefined for a rounded shape.
    */
   export function corners(
     shape: IAutoMoviePhysicalShape,
@@ -169,7 +165,9 @@ export namespace physicalSupportFootprint {
   }
 }
 
-/** A segment's pose from native bodies or fixed transforms. */
+/*
+ * A segment's pose from native bodies or fixed transforms.
+ */
 function poseOf(
   poses:
     | ReadonlyMap<string, AutoMovieXpbdBody>

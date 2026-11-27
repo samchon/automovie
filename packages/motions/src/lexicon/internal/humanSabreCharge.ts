@@ -7,14 +7,13 @@ import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanSabreForm } from "./HumanSabreForm";
 
-/**
+/*
  * Admit a mounted sabre's carry and charge: the carry has some length and the
  * charge's transition to the engage takes some time within one gallop stride
  * (`HumanSabreForm.STRIDE`).
- *
- * @param params The carry's seconds and the charge's transition.
- * @throws {HumanRefusal} When either has no length or the transition is longer
- *   than a stride.
+ * Parameter params: The carry's seconds and the charge's transition.
+ * When either has no length or the transition is longer
+ * than a stride.
  */
 export function humanSabreCharge(
   params: Pick<IAutoMovieMotionHumanSabre, "duration" | "transition">,
@@ -37,15 +36,16 @@ export function humanSabreCharge(
     });
 }
 
-/** The sabre's charge. */
+/*
+ * The sabre's charge.
+ */
 export namespace humanSabreCharge {
-  /**
+  /*
    * The charge's cues: `charge` where it starts and `engaged` a transition
    * later, each clamped to the carry; none without a charge.
-   *
-   * @param params The carry's seconds and the charge's transition.
-   * @param from The charge's start, seconds; none for a carry alone.
-   * @returns The cues.
+   * Parameter params: The carry's seconds and the charge's transition.
+   * Parameter from: The charge's start, seconds; none for a carry alone.
+   * Returns: The cues.
    */
   export function events(
     params: Pick<IAutoMovieMotionHumanSabre, "duration" | "transition">,

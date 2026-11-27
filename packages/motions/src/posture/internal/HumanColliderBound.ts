@@ -5,16 +5,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A containing sphere for one admitted profile collider in its own frame. The
  * existing HumanColliders.bound facade serves motion broad phases; this owner
  * keeps their shared kind formulas separate from posed queries.
- *
- * @param shape Admitted sphere, Y capsule, box or convex hull in local metres.
- * @returns A fresh record with shape-local centre and containing radius in
- *   metres; a hull centre is borrowed unchanged from its existing geometry
- *   owner.
- * @throws {Error} For an unknown shape kind.
+ * Parameter shape: Admitted sphere, Y capsule, box or convex hull in local metres.
+ * Returns: A fresh record with shape-local centre and containing radius in
+ * metres; a hull centre is borrowed unchanged from its existing geometry
+ * owner.
+ * For an unknown shape kind.
  */
 export function HumanColliderBound(
   shape: IAutoMoviePhysicalShape,
@@ -33,10 +32,16 @@ export function HumanColliderBound(
   throw new Error("Unknown physical shape kind");
 }
 
-/** The record of `IHumanColliderBoundResult`'s site. */
+/*
+ * The record of `IHumanColliderBoundResult`'s site.
+ */
 type IHumanColliderBoundResult = {
-  /** Shape-local sphere centre, metres; borrowed for a hull and otherwise fresh. */
+  /*
+   * Shape-local sphere centre, metres; borrowed for a hull and otherwise fresh.
+   */
   centre: IAutoMovieVector3;
-  /** Containing radius, metres. */
+  /*
+   * Containing radius, metres.
+   */
   radius: number;
 };

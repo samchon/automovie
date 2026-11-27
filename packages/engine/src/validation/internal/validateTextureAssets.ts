@@ -20,7 +20,7 @@ import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCo
 import { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "../AUTO_MOVIE_MAX_TEXTURE_EDGE";
 import { materialTextureSlots } from "./materialTextureSlots";
 
-/**
+/*
  * Cross-check every sampled material, environment and surface-graphic image
  * with manifest registration, production consumer authorization, media/edge
  * facts and consistent color intent. A binding or surface image that names an
@@ -204,14 +204,18 @@ export function validateTextureAssets(
   return out.toValidation();
 }
 
-/** Media types a material's PBR slot may bind. */
+/*
+ * Media types a material's PBR slot may bind.
+ */
 const MATERIAL_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
   "image/png",
   "image/jpeg",
   "image/webp",
 ]);
 
-/** Media types a scene environment may bind. */
+/*
+ * Media types a scene environment may bind.
+ */
 const ENVIRONMENT_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
   "image/png",
   "image/jpeg",
@@ -219,7 +223,7 @@ const ENVIRONMENT_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
   "image/vnd.radiance",
 ]);
 
-/**
+/*
  * Return the legacy string id or structured binding's asset field.
  *
  * One identity read serves ledger lookup and declared-use tracking.
@@ -238,7 +242,7 @@ const bindingAsset: (binding: string | IAutoMovieTextureReference) => string = (
   binding: string | IAutoMovieTextureReference,
 ): string => (typeof binding === "string" ? binding : binding.asset);
 
-/**
+/*
  * Map Radiance header media to linear and supported8-bit image media to srgb
  * environment intent.
  *
@@ -264,7 +268,7 @@ const environmentIntent: (
 ): "srgb" | "linear" =>
   facts.mediaType === "image/vnd.radiance" ? "linear" : "srgb";
 
-/**
+/*
  * Check registration, exact production/consumer authorization, allowed header
  * media and positive bounded pixel edges.
  *

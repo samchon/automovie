@@ -6,21 +6,20 @@ import type {
 
 import { describeInvalidValue } from "../../../validation/internal/describeInvalidValue";
 
-/**
+/*
  * Admit the stage's physical haze and return it for the scene, verbatim.
  *
- * {@link IAutoMovieMedium} carries three facts and each is checked: scattering
+ * IAutoMovieMedium carries three facts and each is checked: scattering
  * and absorption coefficients per metre, at least zero, since a negative
  * coefficient has no extinction meaning; and a Henyey-Greenstein parameter
  * strictly inside (−1, 1), where the phase function is finite. A stage that
  * also authors `fog` or `fogVisibility` is refused at `$input.medium`, because
  * the fog's renderer law and the medium's scattering would both fade the same
  * air.
- *
- * @param staging The authored stage.
- * @param out Collector the violations are appended to.
- * @returns The admitted medium, or undefined when none is authored, `null` is
- *   authored, or it was refused.
+ * Parameter staging: The authored stage.
+ * Parameter out: Collector the violations are appended to.
+ * Returns: The admitted medium, or undefined when none is authored, `null` is
+ * authored, or it was refused.
  */
 export function resolveStagedMedium(
   staging: Pick<IAutoMovieStage, "medium" | "fog" | "fogVisibility">,

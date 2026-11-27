@@ -2,7 +2,7 @@ import type { IAutoMovieObservedRenderResult } from "@automovie/interface";
 
 import type { IAutoMovieRendererFrameCounters } from "../../IAutoMovieRendererFrameCounters.js";
 
-/**
+/*
  * Draw one complete frame while measuring renderer-confirmed submissions.
  *
  * `WebGLRenderer.info` is the authority for calls and triangles because it is

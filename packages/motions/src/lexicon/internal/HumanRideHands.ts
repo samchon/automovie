@@ -34,30 +34,29 @@ import { measureRidePalmDepth } from "./measureRidePalmDepth";
 import { readRideHandles } from "./readRideHandles";
 import { sideRideGrips } from "./sideRideGrips";
 
-/**
+/*
  * Fixed-seat thorax excursion from finish to catch (Agius et al. 2023, §4.1),
  * degrees.
  */
 const ROWING: readonly [number, number] = [-28, 49];
 
-/**
+/*
  * Read the hands of a ride.
- *
- * @param context The ride's context, for the body, the start and the hands
- *   asked.
- * @param on The support's subject id.
- * @param support The support.
- * @param seated The seated posture the ride is entered with.
- * @param origin The support's frame when the ride begins.
- * @param take Seconds a hand takes to reach what it holds.
- * @param shown For a law entered with hands already holding: the pose displayed
- *   where the plan begins and the hands that hold there. Each such rein keeps
- *   the crossing it is displayed with (`crossRideReinGrip`); none when every
- *   hand takes its hold.
- * @returns The hands.
- * @throws {HumanRefusal} When a hand names a point the support lacks, the
- *   support declares no colliders to close on, or no crossing of a rein the
- *   hand takes lies within its arm's ranges.
+ * Parameter context: The ride's context, for the body, the start and the hands
+ * asked.
+ * Parameter on: The support's subject id.
+ * Parameter support: The support.
+ * Parameter seated: The seated posture the ride is entered with.
+ * Parameter origin: The support's frame when the ride begins.
+ * Parameter take: Seconds a hand takes to reach what it holds.
+ * Parameter shown: For a law entered with hands already holding: the pose displayed
+ * where the plan begins and the hands that hold there. Each such rein keeps
+ * the crossing it is displayed with (`crossRideReinGrip`); none when every
+ * hand takes its hold.
+ * Returns: The hands.
+ * When a hand names a point the support lacks, the
+ * support declares no colliders to close on, or no crossing of a rein the
+ * hand takes lies within its arm's ranges.
  */
 export function HumanRideHands(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>,
@@ -424,27 +423,29 @@ export function HumanRideHands(
   };
 }
 
-/**
+/*
  * The hands of a ride (`HumanRide`): the support's points they are told to
  * hold, checked against the support, the trunk's lean that brings them in
  * reach, where each point is at a film second, and the fingers closed on the
  * support's own colliders where the ride begins.
  */
 export namespace HumanRideHands {
-  /**
+  /*
    * Material-aware round handles and rein contacts over the ride's ordinary
    * hold geometry.
    */
   export interface IMaterialGrip
     extends IAutoMovieMotionHumanMountRider.IHoldGrip {
-    /**
+    /*
      * Metres from the palm centreline to its skin at the authored holding
      * station.
      */
     palmDepth?: number;
-    /** A rein meets the body's actual wrist-relative palm surface. */
+    /*
+     * A rein meets the body's actual wrist-relative palm surface.
+     */
     reinPalm?: IAutoMovieMotionHumanHand.IFrame;
-    /**
+    /*
      * Degrees a rein's hold turns about its outward normal from fingers square
      * across the line: the angle the line crosses the fist at
      * (`crossRideReinGrip`); none holds the fingers square.
@@ -452,33 +453,45 @@ export namespace HumanRideHands {
     cross?: number;
   }
 
-  /**
+  /*
    * Where a law is entered with hands already holding: the pose displayed
    * there, the hands that hold in it and the posture the law before wrote.
    */
   export interface IShown {
-    /** The pose displayed where the plan begins. */
+    /*
+     * The pose displayed where the plan begins.
+     */
     pose: IAutoMoviePose;
 
-    /** The hands that hold in it. */
+    /*
+     * The hands that hold in it.
+     */
     holding: ReadonlySet<AutoMovieHumanSide>;
 
-    /**
+    /*
      * The posture the law before wrote there, whose arm goals asked the holding
      * hands' turns.
      */
     posture: IAutoMovieMotionHumanPosture;
   }
 
-  /** {@link IHumanRideHandsHandle}, read through this namespace. */
+  /*
+   * IHumanRideHandsHandle, read through this namespace.
+   */
   export type IHandle = IHumanRideHandsHandle;
 
-  /** {@link IHumanRideHandsHands}, read through this namespace. */
+  /*
+   * IHumanRideHandsHands, read through this namespace.
+   */
   export type IHands = IHumanRideHandsHands;
 }
 
-/** The alternatives of `OfBowAngles`'s site. */
+/*
+ * The alternatives of `OfBowAngles`'s site.
+ */
 type OfBowAngles = "yaw" | "pitch" | "roll";
 
-/** Each hand's current, complete support-relative hold. */
+/*
+ * Each hand's current, complete support-relative hold.
+ */
 type Grips = Partial<Record<AutoMovieHumanSide, HumanRideHands.IMaterialGrip>>;

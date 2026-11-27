@@ -4,7 +4,9 @@ import {
 } from "@automovie/interface";
 
 
-/** The hand and every finger and thumb segment, without the side prefix. */
+/*
+ * The hand and every finger and thumb segment, without the side prefix.
+ */
 const HAND: readonly string[] = [
   "Hand",
   "ThumbMetacarpal",

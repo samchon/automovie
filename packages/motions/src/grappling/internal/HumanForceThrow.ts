@@ -6,7 +6,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { HumanForceExchange } from "./HumanForceExchange";
 
-/**
+/*
  * The throw of a pulled body whose base has broken: the swing over the
  * thrower's fulcrum, the release where the centre comes level with it and the
  * flight to the landing, for `HumanForceResponse`'s `thrown`.
@@ -16,16 +16,15 @@ import { HumanForceExchange } from "./HumanForceExchange";
  * placed region at that instant.
  */
 export namespace HumanForceThrow {
-  /**
+  /*
    * Plan the throw after the broken base: the swing about the thrower's
    * fulcrum, the release and the flight to the landing.
-   *
-   * @param context The thrown body's context.
-   * @param props The state at the broken base.
-   * @returns The plan from the action's start.
-   * @throws {HumanRefusal} A `participant` refusal on `fulcrum` with no
-   *   thrower, fulcrum or placed thrower posture; a `parameter` refusal on
-   *   `outcome` when the swing stops before the vertical.
+   * Parameter context: The thrown body's context.
+   * Parameter props: The state at the broken base.
+   * Returns: The plan from the action's start.
+   * A `participant` refusal on `fulcrum` with no
+   * thrower, fulcrum or placed thrower posture; a `parameter` refusal on
+   * `outcome` when the swing stops before the vertical.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanForceResponse.IParams>,
@@ -274,13 +273,12 @@ export namespace HumanForceThrow {
     };
   }
 
-  /**
+  /*
    * A force site's world point on resolved bones.
-   *
-   * @param body The body.
-   * @param bones Its resolved bones.
-   * @param at The site: a region or a bone's point.
-   * @returns World metres.
+   * Parameter body: The body.
+   * Parameter bones: Its resolved bones.
+   * Parameter at: The site: a region or a bone's point.
+   * Returns: World metres.
    */
   export function site(
     body: Pick<IAutoMovieMotionHumanBody, "surfaces">,
@@ -302,12 +300,16 @@ export namespace HumanForceThrow {
     );
   }
 
-  /** A vector's component by index. */
+  /*
+   * A vector's component by index.
+   */
   function component(v: IAutoMovieVector3, i: number): number {
     return i === 0 ? v.x : i === 1 ? v.y : v.z;
   }
 
-  /** A 3x3 tensor applied to a vector. */
+  /*
+   * A 3x3 tensor applied to a vector.
+   */
   function apply(tensor: number[][], v: IAutoMovieVector3): IAutoMovieVector3 {
     return {
       x: tensor[0]![0]! * v.x + tensor[0]![1]! * v.y + tensor[0]![2]! * v.z,
@@ -317,5 +319,7 @@ export namespace HumanForceThrow {
   }
 }
 
-/** The record of `IPlanState`'s site. */
+/*
+ * The record of `IPlanState`'s site.
+ */
 type IPlanState = { angle: number; rate: number };

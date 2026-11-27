@@ -8,7 +8,7 @@ import { boxRefusedArcs } from "./boxRefusedArcs";
 import { swingTwistExcludedSwivels } from "./swingTwistExcludedSwivels";
 import { swivelArcs } from "../swivelArcs";
 
-/**
+/*
  * The swivels a joint's three-angle box provably refuses: for a joint whose
  * bone-local rotation is a fixed rotation turned about a fixed axis by the
  * swivel (the chain root of `hingedArmSwivel.pose`), a test of whether every
@@ -45,10 +45,9 @@ import { swivelArcs } from "../swivelArcs";
  * union, of two arcs) and a middle interval met twice by the half turn the
  * middle angle covers refuse nothing, so the test only ever says less than the
  * box would.
- *
- * @param props The joint and its rotation by swivel.
- * @returns Whether every swivel in `[low, high]`, degrees, is refused; a joint
- *   with nothing to refuse refuses no swivel.
+ * Parameter props: The joint and its rotation by swivel.
+ * Returns: Whether every swivel in `[low, high]`, degrees, is refused; a joint
+ * with nothing to refuse refuses no swivel.
  */
 export function boxExcludedSwivels(
   props: IAutoMovieBoxExcludedSwivels.IProps,

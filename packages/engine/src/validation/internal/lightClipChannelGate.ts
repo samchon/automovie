@@ -11,7 +11,7 @@ import { parseLightPointer } from "../../resolve/internal/parseLightPointer";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { pushViolation } from "./pushViolation";
 
-/**
+/*
  * Create a gate for canonical light pointers and shared property value types,
  * optionally checking staged light presence and kind.
  */

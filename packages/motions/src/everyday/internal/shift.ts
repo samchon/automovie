@@ -27,7 +27,7 @@ import { prepareSeatedPalms } from "./prepareSeatedPalms";
 import { seated } from "./seated";
 import { seatedHands } from "./seatedHands";
 
-/**
+/*
  * Shifting along a bench while seated: the seat socket slides sideways along
  * the seat by the requested distance, while the feet stay planted and the hands
  * stay on the thighs.
@@ -52,7 +52,9 @@ import { seatedHands } from "./seatedHands";
  * `seatContact` (bearing fully again as it ends).
  */
 export namespace shift {
-  /** Admit a sideways displacement in metres within the planted thigh span. */
+  /*
+   * Admit a sideways displacement in metres within the planted thigh span.
+   */
   export function travel(thigh: number, by: number): number {
     const limit: number = 0.35 * thigh;
     if (!(Math.abs(by) <= limit))
@@ -66,16 +68,20 @@ export namespace shift {
       });
     return by;
   }
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "shift";
 
-  /**
+  /*
    * The share of the slide over which the buttocks unweight at its start, and
    * bear fully again before its end (provisional).
    */
   const UNWEIGHT: number = 0.15;
 
-  /** Cancel table: after setting down a shift may continue sitting. */
+  /*
+   * Cancel table: after setting down a shift may continue sitting.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     rise: [
       {
@@ -88,12 +94,11 @@ export namespace shift {
     shift: [{ window: ["seatContact", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /**
+  /*
    * Plan a shift.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the shift exceeds the planted legs' side reach.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the shift exceeds the planted legs' side reach.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanShift.IParams>,
@@ -261,12 +266,16 @@ export namespace shift {
     });
     return planned;
 
-    /** Socket and leg goals before the finite seat's height correction. */
+    /*
+     * Socket and leg goals before the finite seat's height correction.
+     */
     function raw(seconds: number): IAutoMovieMotionHumanPosture {
       return placed(seconds, false);
     }
 
-    /** Keep the ankles placed while the hull follows the receiving surface. */
+    /*
+     * Keep the ankles placed while the hull follows the receiving surface.
+     */
     function placed(
       seconds: number,
       corrected: boolean = true,
@@ -281,7 +290,9 @@ export namespace shift {
       return { ...entry, root, limbs: legged(root, feet) };
     }
 
-    /** Follow the authored socket and observe the current legs at their plants. */
+    /*
+     * Follow the authored socket and observe the current legs at their plants.
+     */
     function read(
       seconds: number,
       _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],

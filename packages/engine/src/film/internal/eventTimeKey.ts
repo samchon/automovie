@@ -1,4 +1,4 @@
-/**
+/*
  * The time segment of an interaction event id: shot-local seconds written with
  * `toFixed(6)` formatting, as in `hit:arrow:foe:1.250000`.
  *

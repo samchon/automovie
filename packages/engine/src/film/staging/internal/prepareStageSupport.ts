@@ -11,7 +11,7 @@ import { preparedSurfaceContains } from "../../../space/internal/preparedSurface
 import { surfaceHeightAt } from "../../../space/internal/surfaceHeightAt";
 import type { IStageGround } from "../IStageGround";
 
-/**
+/*
  * Prepare each cited footprint once for actor-scoped staging and performance
  * queries.
  */
@@ -101,7 +101,9 @@ export function prepareStageSupport(
   );
 }
 
-/** Index of the last inclusive boundary on a nonempty, increasing clock. */
+/*
+ * Index of the last inclusive boundary on a nonempty, increasing clock.
+ */
 function windowAt(boundaries: readonly number[], time: number): number {
   let low: number = 0;
   let high: number = boundaries.length;

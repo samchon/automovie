@@ -7,7 +7,7 @@ import {
 import { propBoundsOverlap } from "../../film/internal/propBoundsOverlap";
 import { serviceMaintenanceBounds } from "./serviceMaintenanceBounds";
 
-/**
+/*
  * Which nodes' maintenance envelopes a world volume intrudes on.
  *
  * This is the seam a prop, a piece of furniture or a second discipline is

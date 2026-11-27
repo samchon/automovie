@@ -1,7 +1,7 @@
 import type { IAutoMovieViewerTurntableOptions } from "../../IAutoMovieViewerTurntableOptions.js";
 import type { IAutoMovieViewerViewpoint } from "../../IAutoMovieViewerViewpoint.js";
 
-/**
+/*
  * Generate fresh viewpoints in elevation-ring then azimuth order, with rounded
  * whole-degree ids. Positive integer count, a nonempty ring list, positive
  * multiplier and duplicate ids are checked; finite angles/multiplier and a
@@ -38,7 +38,9 @@ export function autoMovieViewerTurntableViewpoints(
   return viewpoints;
 }
 
-/** Signed whole degrees as a fixed-width label, so ids sort as they read. */
+/*
+ * Signed whole degrees as a fixed-width label, so ids sort as they read.
+ */
 function degreeLabel(degrees: number): string {
   const rounded: number = Math.round(degrees);
   const magnitude: string = Math.abs(rounded).toString().padStart(3, "0");

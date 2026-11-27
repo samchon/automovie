@@ -16,7 +16,7 @@ import { guidePassFramePattern } from "./guidePassFramePattern.js";
 import { normalizeGuidePasses } from "./normalizeGuidePasses.js";
 import { planGuidePassOutputs } from "./planGuidePassOutputs.js";
 
-/**
+/*
  * Split a `planSequenceRender` manifest into `chunkFrames`-sized, independently
  * renderable chunks and the plan to concatenate them.
  *
@@ -31,7 +31,7 @@ import { planGuidePassOutputs } from "./planGuidePassOutputs.js";
  *
  * When `passes` is given, every chunk also plans its per-pass frame paths
  * through `planGuidePassOutputs`, with chunk-local indices, and the plan gains
- * one {@link IAutoMovieRenderPassManifest} per pass. Omitting `passes` omits
+ * one IAutoMovieRenderPassManifest per pass. Omitting `passes` omits
  * every pass field; an empty list plans empty pass sets; an unknown pass name
  * throws before any chunk is built. Throws when `chunkFrames` is not a positive
  * integer.
@@ -166,11 +166,13 @@ export const planChunkedSequenceRender: (
   };
 };
 
-/** The path's last segment, after the final `/` or `\`. */
+/*
+ * The path's last segment, after the final `/` or `\`.
+ */
 const baseName: (path: string) => string = (path: string): string =>
   path.slice(Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\")) + 1);
 
-/**
+/*
  * Escape one concat-demuxer entry for its single-quoted file line. A quoted
  * string cannot contain `'`, so each apostrophe closes the quote, emits an
  * escaped quote, and reopens it (`'` becomes `'\''`), the grammar ffmpeg's
@@ -179,7 +181,7 @@ const baseName: (path: string) => string = (path: string): string =>
 const escapeConcatEntry: (name: string) => string = (name: string): string =>
   name.replace(/'/g, "'\\''");
 
-/**
+/*
  * Insert a `.<label>` tag before the output's extension, or append it when the
  * basename has none. The extension dot is searched only within the basename, so
  * a dotted directory such as `out.v2/render` tags the file, not the directory.

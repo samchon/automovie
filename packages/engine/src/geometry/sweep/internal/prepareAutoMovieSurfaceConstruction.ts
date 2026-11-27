@@ -5,7 +5,7 @@ import type {
   IAutoMovieSweepRig,
 } from "@automovie/interface";
 
-/**
+/*
  * Register observation writers while a network rig is still open, then read
  * them after its girth solve and final rest evaluation.
  *
@@ -16,12 +16,11 @@ import type {
  * observations. Feature observations read the compiled field's own smooth
  * domain course. No observation enters the cage registry, changes a sampling
  * cell or adds a vertex.
- *
- * @param props Network, shared rig lookups and optional segment counts
- * @returns A one-use reader producing caller-owned rest polylines; subsequent
- *   reads and requests without counts return an empty array
- * @throws Error for missing, invalid or unknown counts or any sweep/curve
- *   refusal
+ * Parameter props: Network, shared rig lookups and optional segment counts
+ * Returns: A one-use reader producing caller-owned rest polylines; subsequent
+ * reads and requests without counts return an empty array
+ * Error for missing, invalid or unknown counts or any sweep/curve
+ * refusal
  */
 export function prepareAutoMovieSurfaceConstruction(
   props: IAutoMoviePrepareSurfaceConstruction.IProps,
@@ -147,10 +146,14 @@ export function prepareAutoMovieSurfaceConstruction(
   };
 }
 
-/** One pre-registered point writer. */
+/*
+ * One pre-registered point writer.
+ */
 type IWriter = (out: Float64Array, at: number) => void;
 
-/** One observation's metadata and generating writers. */
+/*
+ * One observation's metadata and generating writers.
+ */
 interface IEntry {
   kind: IAutoMovieSurfaceConstruction["kind"];
   name: string;

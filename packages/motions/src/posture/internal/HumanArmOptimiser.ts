@@ -18,7 +18,7 @@ import type { HumanQuadraticInteriorSession } from "./HumanQuadraticInteriorSess
 import { HumanQuadraticProgram as QP } from "./HumanQuadraticProgram";
 import { HumanSequentialConvex as SCO } from "./HumanSequentialConvex";
 
-/**
+/*
  * TrajOpt's solve of an arms' waypoints (Schulman et al. 2014, "Motion planning
  * with sequential convex optimization and convex collision checking", IJRR
  * 33:1251) under `HumanArmTrajectoryModel`'s objective and constraints:
@@ -35,46 +35,53 @@ import { HumanSequentialConvex as SCO } from "./HumanSequentialConvex";
  * solver fails.
  */
 export namespace HumanArmOptimiser {
-  /** An optimised course: its waypoints, their reading and the coefficient. */
+  /*
+   * An optimised course: its waypoints, their reading and the coefficient.
+   */
   export interface IOptimised {
-    /** Each arm's coordinates at each waypoint. */
+    /*
+     * Each arm's coordinates at each waypoint.
+     */
     x: number[][][];
 
-    /**
+    /*
      * Each arm's velocity and acceleration at each knot, where the waypoints
      * are knots on a finer frame grid; absent where they are read themselves.
      */
     rates?: Knots.IRates;
 
-    /** Their reading, which admits or refuses the path played. */
+    /*
+     * Their reading, which admits or refuses the path played.
+     */
     evaluation: M.IEvaluation;
 
-    /** The merit coefficient the solve ended at. */
+    /*
+     * The merit coefficient the solve ended at.
+     */
     penalty: number;
   }
 
-  /**
+  /*
    * Optimise from an iterate.
-   *
-   * @param context The problem's context.
-   * @param start Each arm's coordinates at each waypoint; the first and the
-   *   last waypoint stay.
-   * @param from The merit coefficient to start at, a solve continued from an
-   *   earlier one of the same problem on other waypoints (`penalty` of its
-   *   result), set as trajopt's caller sets `merit_error_coeff_`; trajopt's
-   *   trajectory setting when absent.
-   * @param fine The context at the frame grid's instants over the same span.
-   *   When it holds more instants than `context`, the waypoints are knots:
-   *   every evaluation and linearisation is the grid's, on the knots'
-   *   interpolant, and the steps are the knots' (`HumanArmTrajectoryKnots`);
-   *   absent, or for a still configuration, the waypoints are read themselves.
-   * @param rates The knots' velocities and accelerations to start from; the
-   *   minimum-jerk spline's through `start` when absent (`Knots.rates`).
-   * @param pinned The hold poses whose positions stay fixed.
-   * @param fixSite The hold's hard contact equality, at its projection or a
-   *   point selected within an inscribed region.
-   * @returns The last iterate at the waypoints, its evaluation and the merit
-   *   coefficient it was reached at.
+   * Parameter context: The problem's context.
+   * Parameter start: Each arm's coordinates at each waypoint; the first and the
+   * last waypoint stay.
+   * Parameter from: The merit coefficient to start at, a solve continued from an
+   * earlier one of the same problem on other waypoints (`penalty` of its
+   * result), set as trajopt's caller sets `merit_error_coeff_`; trajopt's
+   * trajectory setting when absent.
+   * Parameter fine: The context at the frame grid's instants over the same span.
+   * When it holds more instants than `context`, the waypoints are knots:
+   * every evaluation and linearisation is the grid's, on the knots'
+   * interpolant, and the steps are the knots' (`HumanArmTrajectoryKnots`);
+   * absent, or for a still configuration, the waypoints are read themselves.
+   * Parameter rates: The knots' velocities and accelerations to start from; the
+   * minimum-jerk spline's through `start` when absent (`Knots.rates`).
+   * Parameter pinned: The hold poses whose positions stay fixed.
+   * Parameter fixSite: The hold's hard contact equality, at its projection or a
+   * point selected within an inscribed region.
+   * Returns: The last iterate at the waypoints, its evaluation and the merit
+   * coefficient it was reached at.
    */
   export function optimise(
     context: M.IContext,
@@ -288,7 +295,7 @@ export namespace HumanArmOptimiser {
     };
   }
 
-  /**
+  /*
    * The knots' rates nearest an iterate's within the coordinates' velocity
    * limits (`HUMAN_ARM_COORDINATE_RATES`), the moving knots' clamped and the
    * others kept, as the waypoints are projected into their ranges (`closest`),
@@ -311,7 +318,7 @@ export namespace HumanArmOptimiser {
       ),
     };
   }
-  /**
+  /*
    * The waypoints nearest an iterate inside the coordinates' hard ranges
    * (`OptProb::getClosestFeasiblePoint`): each inner waypoint projected by
    * `HumanArmTrajectoryModel.ranged`, the others kept.
@@ -331,7 +338,7 @@ export namespace HumanArmOptimiser {
     );
   }
 
-  /**
+  /*
    * Each variable's hard range as a step from the iterate, the variable laid
    * out as `HumanArmTrajectoryModel.stepped` reads it: a boxed coordinate's
    * bounds less its value, the chart's two unbounded (its disc is met by the
@@ -391,7 +398,7 @@ export namespace HumanArmOptimiser {
     return out;
   }
 
-  /**
+  /*
    * An iterate moved by a subproblem's solution: the positions by
    * `HumanArmTrajectoryModel.stepped`, the knots' velocities and accelerations
    * by their own steps, projected where a knot lies on a bound
@@ -442,52 +449,74 @@ export namespace HumanArmOptimiser {
     };
   }
 
-  /**
+  /*
    * The solve's iterate: each arm's coordinates at each waypoint, and where the
    * waypoints are knots on a finer grid, each knot's velocity and
    * acceleration.
    */
   interface IIterate {
-    /** Each arm's coordinates at each waypoint. */
+    /*
+     * Each arm's coordinates at each waypoint.
+     */
     x: number[][][];
-    /** The knots' rates; absent where the waypoints are read themselves. */
+    /*
+     * The knots' rates; absent where the waypoints are read themselves.
+     */
     rates?: Knots.IRates;
   }
-  /**
+  /*
    * An iterate's reading for the loop: the model's, with its greatest
    * violation.
    */
   interface IReading extends M.IEvaluation {
-    /** The worst violation past its slack (`IWorst.value`). */
+    /*
+     * The worst violation past its slack (`IWorst.value`).
+     */
     greatest: number;
   }
 
-  /** A variable's hard range as a step from the iterate. */
+  /*
+   * A variable's hard range as a step from the iterate.
+   */
   interface IRange {
-    /** The least step. */
+    /*
+     * The least step.
+     */
     low: number;
 
-    /** The greatest step. */
+    /*
+     * The greatest step.
+     */
     high: number;
 
-    /** The trust box's scale in the variable's own units. */
+    /*
+     * The trust box's scale in the variable's own units.
+     */
     scale: number;
   }
 
-  /** The coefficient the session's scales were taken at. */
+  /*
+   * The coefficient the session's scales were taken at.
+   */
   interface IScaled {
-    /** The coefficient; absent before the first solve. */
+    /*
+     * The coefficient; absent before the first solve.
+     */
     at?: number;
   }
 
-  /** A coordinate's hard range, as the context holds it. */
+  /*
+   * A coordinate's hard range, as the context holds it.
+   */
   type Bound = M.IContext["bounds"][number][number];
 }
 
-/** Degrees in a radian: the arm's coordinates are near a degree a unit. */
+/*
+ * Degrees in a radian: the arm's coordinates are near a degree a unit.
+ */
 const DEGREES: number = 180 / Math.PI;
 
-/**
+/*
  * Trajopt's trajectory settings (`OptimizeProblem`, `problem_description.cpp`
  * lines 247-250 at commit 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c,
  * BSD-2-Clause): `max_iter_` 40, `min_approx_improve_frac_` .001,

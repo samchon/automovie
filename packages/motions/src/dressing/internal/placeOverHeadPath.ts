@@ -14,31 +14,39 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
 
-/**
+/*
  * How far above the crown the loop's plane passes, metres (provisional: clear
  * of the hair).
  */
 const CLEAR: number = 0.06;
 
-/**
+/*
  * How far off the chest the loop's front rests beyond the holding hands'
  * clearance (`IProps.clearance`), metres: half a pendant's thickness.
  */
 const REST: number = 0.003;
 
-/** How finely the front's fall is searched, degrees. */
+/*
+ * How finely the front's fall is searched, degrees.
+ */
 const STEP: number = 1;
 
-/** Refuse an unresolved sweep within one hundredth of the skin distance. */
+/*
+ * Refuse an unresolved sweep within one hundredth of the skin distance.
+ */
 const SWEEP_RESOLUTION: number = AutoMovieMotionHumanAuditSkin.BUILT / 100;
 
-/** The model's up, along which a loop's normal lies. */
+/*
+ * The model's up, along which a loop's normal lies.
+ */
 const NORMAL: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** The model's forward, from a loop's back toward its front. */
+/*
+ * The model's forward, from a loop's back toward its front.
+ */
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
-/**
+/*
  * The path of a neck loop set over a partner's head, as frames of the loop,
  * from where the hand holds it to where it is worn.
  *
@@ -56,90 +64,135 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * then translates and pitches it to the nape on one segment.
  */
 export namespace placeOverHeadPath {
-  /** What the path is prepared from. */
+  /*
+   * What the path is prepared from.
+   */
   export interface IProps {
-    /** The loop's world frame as the hand holds it at entry. */
+    /*
+     * The loop's world frame as the hand holds it at entry.
+     */
     start: IAutoMovieRigidTransform;
 
-    /** The loop's back point (`wear`) in its own frame, metres. */
+    /*
+     * The loop's back point (`wear`) in its own frame, metres.
+     */
     wear: IAutoMovieVector3;
 
-    /** The loop's front (`front`) in its own frame, metres. */
+    /*
+     * The loop's front (`front`) in its own frame, metres.
+     */
     front: IAutoMovieVector3;
 
-    /** The loop's centre, the middle of its `opening`, in its own frame, metres. */
+    /*
+     * The loop's centre, the middle of its `opening`, in its own frame, metres.
+     */
     centre: IAutoMovieVector3;
 
-    /** Half the opening's clear breadth, metres. */
+    /*
+     * Half the opening's clear breadth, metres.
+     */
     halfBreadth: number;
 
-    /** The partner's body. */
+    /*
+     * The partner's body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The partner's displayed bones where the path is read. */
+    /*
+     * The partner's displayed bones where the path is read.
+     */
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-    /**
+    /*
      * How far off the chest the hands holding the loop's front must stay,
      * metres: the gripping hand's depth below its handle and the audit's skin.
      */
     clearance: number;
 
-    /** Prepared geometric distances of the chosen hands and rigid loop. */
+    /*
+     * Prepared geometric distances of the chosen hands and rigid loop.
+     */
     handGap?: IHandGap;
   }
 
-  /** The checked parts as measurements of a candidate rigid loop frame. */
+  /*
+   * The checked parts as measurements of a candidate rigid loop frame.
+   */
   export interface IHandGap {
-    /** Geometric gap of both grips to the partner's shoulders and chest. */
+    /*
+     * Geometric gap of both grips to the partner's shoulders and chest.
+     */
     shoulders: (frame: IAutoMovieRigidTransform) => number;
 
-    /** Sweeps are available when the loop declares its collision shapes. */
+    /*
+     * Sweeps are available when the loop declares its collision shapes.
+     */
     sweeps?: {
-      /** Passage around the head, when both hands hold the loop. */
+      /*
+       * Passage around the head, when both hands hold the loop.
+       */
       assisted: ISweep;
 
-      /** Final placement by the carrier alone. */
+      /*
+       * Final placement by the carrier alone.
+       */
       carried: ISweep;
     };
   }
 
-  /** Signed gap and maximum distance of any checked point from a pivot. */
+  /*
+   * Signed gap and maximum distance of any checked point from a pivot.
+   */
   export interface ISweep {
-    /** The distance to the nearest obstacle at a placed frame, metres. */
+    /*
+     * The distance to the nearest obstacle at a placed frame, metres.
+     */
     gap: (frame: IAutoMovieRigidTransform) => number;
 
-    /** A bound on the distance of any checked point from a local pivot. */
+    /*
+     * A bound on the distance of any checked point from a local pivot.
+     */
     radius: (pivot: IAutoMovieVector3) => number;
   }
 
-  /** The prepared path. */
+  /*
+   * The prepared path.
+   */
   export interface IPath {
-    /** The loop's frame at a progress in [0, 1]. */
+    /*
+     * The loop's frame at a progress in [0, 1].
+     */
     at: (progress: number) => IAutoMovieRigidTransform;
 
-    /** The frame above the crown, where the hands reach highest. */
+    /*
+     * The frame above the crown, where the hands reach highest.
+     */
     apex: IAutoMovieRigidTransform;
 
-    /** The worn frame. */
+    /*
+     * The worn frame.
+     */
     worn: IAutoMovieRigidTransform;
 
-    /** The length the pivots travel, metres. */
+    /*
+     * The length the pivots travel, metres.
+     */
     length: number;
 
-    /** Where the assisting hand releases, as a fraction of the stroke. */
+    /*
+     * Where the assisting hand releases, as a fraction of the stroke.
+     */
     assistUntil?: number;
   }
 
-  /**
+  /*
    * The terminal angle at or below the material's fall that leaves both hands
    * the audit skin's distance from the partner. Probe upward from the preferred
    * angle, then refine the first crossing bracket.
-   *
-   * @param limit The angle permitted by the medal and chest, in degrees.
-   * @param gap The smaller of the hands' signed clearances at the angle, in
-   *   metres.
-   * @returns The admitted terminal angle, or undefined when no bracket clears.
+   * Parameter limit: The angle permitted by the medal and chest, in degrees.
+   * Parameter gap: The smaller of the hands' signed clearances at the angle, in
+   * metres.
+   * Returns: The admitted terminal angle, or undefined when no bracket clears.
    */
   export function settledFall(
     limit: number,
@@ -160,14 +213,13 @@ export namespace placeOverHeadPath {
     return off;
   }
 
-  /**
+  /*
    * Arc length of the loop's front as it falls about the side-to-side axis
    * through the nape.
-   *
-   * @param front The front point in the loop's frame.
-   * @param wear The fixed nape point in the loop's frame.
-   * @param degrees The fall angle in degrees.
-   * @returns Metres travelled by the front.
+   * Parameter front: The front point in the loop's frame.
+   * Parameter wear: The fixed nape point in the loop's frame.
+   * Parameter degrees: The fall angle in degrees.
+   * Returns: Metres travelled by the front.
    */
   export function fallArc(
     front: IAutoMovieVector3,
@@ -178,17 +230,16 @@ export namespace placeOverHeadPath {
     return (radius * degrees * Math.PI) / 180;
   }
 
-  /**
+  /*
    * Certify the whole span of a signed-distance function by subdivision. A
    * signed distance changes by at most the distance its probe travels, and the
    * minimum of such distances inherits the same bound. The midpoint's remaining
    * margin therefore covers a whole subspan when it exceeds the maximum probe
    * travel from that midpoint to either end.
-   *
-   * @param gap The minimum signed distance along a uniform parameter.
-   * @param travel The largest change in probe position per unit parameter.
-   * @param minimum The required clearance, metres.
-   * @returns Whether all points of the span have the clearance.
+   * Parameter gap: The minimum signed distance along a uniform parameter.
+   * Parameter travel: The largest change in probe position per unit parameter.
+   * Parameter minimum: The required clearance, metres.
+   * Returns: Whether all points of the span have the clearance.
    */
   export function clearsSweep(
     gap: (share: number) => number,
@@ -210,11 +261,10 @@ export namespace placeOverHeadPath {
     return gap(0) >= minimum && gap(1) >= minimum && check(0, 1);
   }
 
-  /**
+  /*
    * Prepare the path.
-   *
-   * @param props The loop and the partner.
-   * @returns The path.
+   * Parameter props: The loop and the partner.
+   * Returns: The path.
    */
   export function prepare(props: IProps): IPath {
     const region = (
@@ -391,16 +441,24 @@ export namespace placeOverHeadPath {
     };
   }
 
-  /** One key frame and the loop point it pivots on into the next. */
+  /*
+   * One key frame and the loop point it pivots on into the next.
+   */
   interface IKey {
-    /** The loop's world frame. */
+    /*
+     * The loop's world frame.
+     */
     frame: IAutoMovieRigidTransform;
 
-    /** The loop point, in its own frame, the segment from this key pivots on. */
+    /*
+     * The loop point, in its own frame, the segment from this key pivots on.
+     */
     pivot: IAutoMovieVector3;
   }
 
-  /** Check a translation of the pivot combined with the shortest rotation. */
+  /*
+   * Check a translation of the pivot combined with the shortest rotation.
+   */
   function clear(a: IKey, b: IKey, sweep: ISweep): boolean {
     const travel: number =
       Vector3.distance(pivotOf(a.frame, a.pivot), pivotOf(b.frame, a.pivot)) +
@@ -413,7 +471,9 @@ export namespace placeOverHeadPath {
     );
   }
 
-  /** The carrier slides the released loop forward as its front descends. */
+  /*
+   * The carrier slides the released loop forward as its front descends.
+   */
   function carriedFall(
     neck: IKey,
     limit: number,
@@ -427,7 +487,9 @@ export namespace placeOverHeadPath {
     }
   }
 
-  /** The same uniform motion is used by the certificate and the path. */
+  /*
+   * The same uniform motion is used by the certificate and the path.
+   */
   function between(a: IKey, b: IKey, share: number): IAutoMovieRigidTransform {
     return aligned(
       Quaternion.slerp(a.frame.rotation, b.frame.rotation, share),
@@ -437,7 +499,9 @@ export namespace placeOverHeadPath {
   }
 }
 
-/** Put a loop's local pivot on the world anchor under the chosen rotation. */
+/*
+ * Put a loop's local pivot on the world anchor under the chosen rotation.
+ */
 function aligned(
   rotation: IAutoMovieQuaternion,
   local: IAutoMovieVector3,
@@ -449,7 +513,9 @@ function aligned(
   };
 }
 
-/** A loop point's world place on a frame. */
+/*
+ * A loop point's world place on a frame.
+ */
 function pivotOf(
   frame: IAutoMovieRigidTransform,
   local: IAutoMovieVector3,

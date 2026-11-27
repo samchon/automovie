@@ -4,9 +4,9 @@ import type * as THREE from "three";
 
 import { applyLightState } from "./applyLightState.js";
 
-/**
+/*
  * Drive scene lights from a shot's `lightMotions`: evaluate the clips at
- * `seconds` through the engine's {@link resolveShotLighting} and write each
+ * `seconds` through the engine's resolveShotLighting and write each
  * resolved light onto the `THREE.Light` that `resolve` returns for its **id**.
  *
  * The render side of #1348, and the reason the axis is not a false green: the
@@ -17,11 +17,11 @@ import { applyLightState } from "./applyLightState.js";
  * Lights are resolved by id and never by position. `buildScene` adds them as
  * top-level children and the segmentation mask palette is keyed by top-level
  * child index, so an index-addressed light would silently re-target whenever
- * staging inserts one; {@link IAutoMovieSceneObject.lights} is the id index
+ * staging inserts one; IAutoMovieSceneObject.lights is the id index
  * built for exactly this call.
  *
  * Every staged light is written, not only the ones a clip addresses, which is
- * the deliberate difference from {@link applyObjectMotion}. That helper owns no
+ * the deliberate difference from applyObjectMotion. That helper owns no
  * rest poses, so it must leave an unaddressed channel alone; a light carries
  * its rest on the scene, so writing all of them makes the viewer's lighting a
  * pure function of scene, clips and time. A host swapping clips mid-scene gets

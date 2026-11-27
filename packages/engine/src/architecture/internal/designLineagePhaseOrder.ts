@@ -3,7 +3,7 @@ import { IAutoMovieDesignLineage } from "@automovie/interface";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { requireValidDesignLineage } from "./requireValidDesignLineage";
 
-/**
+/*
  * Order the construction plan deterministically.
  *
  * The plan is a graph, so many orders satisfy it and the authoring order is not
@@ -15,9 +15,8 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * Returns every phase id once, each after all of its `requires`. An invalid
  * lineage, including a cyclic plan or a prerequisite naming no phase, throws an
  * `Error` before ordering.
- *
- * @param lineage Lineage whose phases are ordered.
- * @returns Every phase id, prerequisites first, ties broken by lowest id.
+ * Parameter lineage: Lineage whose phases are ordered.
+ * Returns: Every phase id, prerequisites first, ties broken by lowest id.
  */
 export function designLineagePhaseOrder(
   lineage: IAutoMovieDesignLineage,
@@ -49,7 +48,9 @@ export function designLineagePhaseOrder(
   return order;
 }
 
-/** Insert one id into a code-unit-sorted list, keeping it sorted. */
+/*
+ * Insert one id into a code-unit-sorted list, keeping it sorted.
+ */
 const insertSorted: (sorted: string[], id: string) => void = (
   sorted: string[],
   id: string,

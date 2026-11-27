@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Build the staged positional-target table from camera translations followed by
  * node translations, in world metres. Node entries win an illegally repeated
  * camera/node id; values are borrowed from the scene and the map belongs to the

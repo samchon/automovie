@@ -34,7 +34,7 @@ import { validateSparseAccessor } from "./validateSparseAccessor";
 import { vrmHumanoidBones } from "./vrmHumanoidBones";
 import { isAutoMovieExternalModelIngestProfile } from "./isAutoMovieExternalModelIngestProfile";
 
-/**
+/*
  * Parse and validate exact external model bytes before compilation.
  *
  * The container is chosen by the path suffix: `.gltf` is UTF-8 JSON, `.glb` and
@@ -48,7 +48,7 @@ import { isAutoMovieExternalModelIngestProfile } from "./isAutoMovieExternalMode
  * their declared and resident bytes; and every non-data buffer sidecar must
  * come back from `resolveResource` with the declared length, while URI images
  * require nonempty bytes. The selected profile then adds its own requirements,
- * as {@link AutoMovieExternalModelIngestProfile} lists. This is a fixed-profile
+ * as AutoMovieExternalModelIngestProfile lists. This is a fixed-profile
  * admission gate, not a complete glTF validator: material/texture links and
  * unconsumed attributes are left to host loaders, sparse payload contents and
  * image media formats are not decoded here, and the skin/motion owners state
@@ -57,15 +57,14 @@ import { isAutoMovieExternalModelIngestProfile } from "./isAutoMovieExternalMode
  *
  * Under `vrm-humanoid-v1`, `VRMC_vrm` is read with VRM 1.0 bone names, so a
  * 1.0-beta file that still writes thumbs the VRM 0.x way is read as 1.0.
- *
- * @param props.path Project-relative source path; its suffix selects the
- *   container.
- * @param props.bytes Resident container bytes; they are only read.
- * @param props.profile Caller-selected profile, refused unless supported.
- * @param props.resolveResource Returns a sidecar's bytes for a URI, or `null`
- *   when unavailable; it is called once per external buffer and image URI
- *   entry, with caller-owned cost and effects.
- * @returns New facts that hold no reference to the input bytes.
+ * Parameter props.path: Project-relative source path; its suffix selects the
+ * container.
+ * Parameter props.bytes: Resident container bytes; they are only read.
+ * Parameter props.profile: Caller-selected profile, refused unless supported.
+ * Parameter props.resolveResource: Returns a sidecar's bytes for a URI, or `null`
+ * when unavailable; it is called once per external buffer and image URI
+ * entry, with caller-owned cost and effects.
+ * Returns: New facts that hold no reference to the input bytes.
  */
 export function inspectAutoMovieExternalModelBytes(
   props: IAutoMovieExternalModelInspection.IProps,

@@ -17,40 +17,56 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
-/**
+/*
  * Live small-craft contacts for grips which ride a prop or its articulated
  * parts.
  */
 export namespace AquaticProp {
-  /** The model placements and grip geometry at one film instant. */
+  /*
+   * The model placements and grip geometry at one film instant.
+   */
   export interface IContacts {
-    /** The moving prop's rigid frame. */
+    /*
+     * The moving prop's rigid frame.
+     */
     frame: IAutoMovieRigidTransform;
-    /** A required named affordance and its world placement. */
+    /*
+     * A required named affordance and its world placement.
+     */
     require(id: string, kind: IAutoMovieAffordance["kind"]): IContact;
   }
 
-  /**
+  /*
    * Where a hand may slide along a long round handle: toward the shoulder,
    * within the handle's length.
    */
   export interface IReach {
-    /** The holding arm's shoulder, world metres. */
+    /*
+     * The holding arm's shoulder, world metres.
+     */
     shoulder: IAutoMovieVector3;
 
-    /** The handle's graspable length, metres. */
+    /*
+     * The handle's graspable length, metres.
+     */
     length: number;
   }
 
-  /** One named affordance and its frame in world space. */
+  /*
+   * One named affordance and its frame in world space.
+   */
   export interface IContact {
-    /** The named contact in the provider's current model frame. */
+    /*
+     * The named contact in the provider's current model frame.
+     */
     affordance: IAutoMovieAffordance;
-    /** The same contact placed in world metres and its current world rotation. */
+    /*
+     * The same contact placed in world metres and its current world rotation.
+     */
     world: Pick<IAutoMovieTransform, ContactWorld>;
   }
 
-  /**
+  /*
    * Compose contact frames with the prop's current world frame. A planner that
    * drives its own articulation supplies those same writer values explicitly,
    * so its endpoints also resolve while the plan is being placed.
@@ -115,7 +131,7 @@ export namespace AquaticProp {
     };
   }
 
-  /**
+  /*
    * Fit the hand's grip center to a rotating handle on a moving hull. The hand
    * may give at its rotation limit while its anatomical grip stays on the axis
    * of the handle.
@@ -182,5 +198,7 @@ export namespace AquaticProp {
   }
 }
 
-/** The alternatives of `ContactWorld`'s site. */
+/*
+ * The alternatives of `ContactWorld`'s site.
+ */
 type ContactWorld = "translation" | "rotation";

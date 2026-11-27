@@ -29,12 +29,12 @@ import { HUMAN_TOUCH_SQUEEZE } from "../presets/HUMAN_TOUCH_SQUEEZE";
 import { HUMAN_TOUCH_STROKE } from "../presets/HUMAN_TOUCH_STROKE";
 import { HUMAN_TOUCH_TAP } from "../presets/HUMAN_TOUCH_TAP";
 
-/**
+/*
  * The touch family's owners, rows and presets, each the shipped value under its
  * family name (`AutoMovieMotionHumanTouch`), with its own comment.
  */
 export namespace AutoMovieMotionHumanTouchRows {
-  /**
+  /*
    * What touches in a touch: a hand surface, or the tip of a tool the hand
    * holds, stated in the hand's anatomical axes (where the fingers point, where
    * the palm faces and where the thumb points at rest) as shares of the hand's
@@ -45,7 +45,7 @@ export namespace AutoMovieMotionHumanTouchRows {
    */
   export import AutoMovieMotionHumanTouchEffector = AutoMovieMotionHumanTouchEffectorSource;
 
-  /**
+  /*
    * The kinds of a touch and how each moves in the region's surface frame: the
    * social touch gestures of Jung et al. 2017 (the corpus of social touch)
    * reduced to a lift off the surface along its normal (a tap, a pat), a travel
@@ -58,7 +58,7 @@ export namespace AutoMovieMotionHumanTouchRows {
    */
   export import AutoMovieMotionHumanTouchForm = AutoMovieMotionHumanTouchFormSource;
 
-  /**
+  /*
    * An effector laid on a region at rest, before any stroke moves it: the arm
    * goal that lays it, what its two directions lie on by the touch's lay, the
    * elbow's hint for that goal, the arm solved there as the reference every
@@ -68,7 +68,7 @@ export namespace AutoMovieMotionHumanTouchRows {
    */
   export import AutoMovieMotionHumanTouchLaid = AutoMovieMotionHumanTouchLaidSource;
 
-  /**
+  /*
    * The direction a hand lies on a surface region when the arm chooses it
    * (`lay`), and the direction a hand that continues its forearm points at a
    * place (`reach`). Read by the touch stroke (`AutoMovieMotionHumanTouch`),
@@ -76,7 +76,7 @@ export namespace AutoMovieMotionHumanTouchRows {
    */
   export import AutoMovieMotionHumanTouchPath = AutoMovieMotionHumanTouchPathSource;
 
-  /**
+  /*
    * What the body behind the arm does so a hand reaches a region its arm alone
    * does not: the shoulder girdle lifted and a rise onto the toes for a region
    * above the shoulder, then a lean from the hips for what is still beyond the
@@ -102,7 +102,7 @@ export namespace AutoMovieMotionHumanTouchRows {
    */
   export import AutoMovieMotionHumanTouchStance = AutoMovieMotionHumanTouchStanceSource;
 
-  /**
+  /*
    * How a held vessel is turned about its own upright axis at a region, so the
    * arm that brings it there keeps it upright, and how far it is leaned.
    *
@@ -120,7 +120,7 @@ export namespace AutoMovieMotionHumanTouchRows {
    */
   export import AutoMovieMotionHumanTouchUpright = AutoMovieMotionHumanTouchUprightSource;
 
-  /**
+  /*
    * How far a vessel is leaned toward the face at the lips, and turned there,
    * so the arm that brings it holds it as a person drinks: the least lean, in
    * `LEAN_STEP` degrees up to `LEAN`, whose fitted arm drinks with the vessel
@@ -134,7 +134,7 @@ export namespace AutoMovieMotionHumanTouchRows {
    */
   export import AutoMovieMotionHumanTouchDrink = AutoMovieMotionHumanTouchDrinkSource;
 
-  /**
+  /*
    * A seated reach with the trunk below the arm in task priority: the hand's
    * target first, and when the arm alone falls short, a lean of the trunk
    * forward, which the seat bears: the hips flex the trunk over the seat and
@@ -152,7 +152,7 @@ export namespace AutoMovieMotionHumanTouchRows {
    */
   export import HumanSeatedReach = HumanSeatedReachSource;
 
-  /**
+  /*
    * Hold on with the hands (`IAutoMovieMotionHumanClasp`): the entry posture
    * carried by its own carrier's contact, or standing where it is, while each
    * named hand reaches its hold over `REACH` and follows it: a partner's
@@ -164,7 +164,7 @@ export namespace AutoMovieMotionHumanTouchRows {
    */
   export const HumanClasp: typeof HumanClaspSource = HumanClaspSource;
 
-  /**
+  /*
    * A limp body laid across a saddle (`IAutoMovieMotionHumanDrape`): in the
    * carrier contact's frame the body lies face down across the seat, its trunk
    * level and pointing to the head's side, the hips resting on the seat a
@@ -178,21 +178,21 @@ export namespace AutoMovieMotionHumanTouchRows {
    */
   export const HumanDrape: typeof HumanDrapeSource = HumanDrapeSource;
 
-  /**
+  /*
    * Things two people do together or to each other in company, as rows of
    * shipped actions and as mutual records over them (`HumanChain.mutual`).
    * Register the rows a film uses.
    */
   export import HumanSocial = HumanSocialSource;
 
-  /**
+  /*
    * Things two people do as partners in sport and dance, each a row of a law
    * whose roles share a stated instant or a meeting. Register the rows a film
    * uses.
    */
   export import HumanPartner = HumanPartnerSource;
 
-  /**
+  /*
    * The contact strokes as rows: each kind of `touch` under a name of its own,
    * the site, the effector, the side and the target open, so one row serves
    * every site.
@@ -203,81 +203,81 @@ export namespace AutoMovieMotionHumanTouchRows {
    */
   export import HumanTouchRows = HumanTouchRowsSource;
 
-  /**
+  /*
    * The values the `touchTap` row of `HumanTouchRows` fixes on `touch`, spread
    * into its parameters. `touch` of kind `tap`: 3 taps of 0.3 s, then 0.4 s on
    * the place, in all 1.3 s after the reach; a light attention-getting touch on
-   * a shoulder or an arm ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count`
+   * a shoulder or an arm (AutoMovieMotionHumanTouchForm.FORMS; `count`
    * and `hold` override; provisional except the stroke).
    */
   export const TAP: typeof HUMAN_TOUCH_TAP = HUMAN_TOUCH_TAP;
 
-  /**
+  /*
    * The values the `touchPat` row of `HumanTouchRows` fixes on `touch`, spread
    * into its parameters. `touch` of kind `pat`: 3 pats of 0.4 s, then 0.4 s,
    * 1.6 s after the reach; comfort, praise, a friendly pat
-   * ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override;
+   * (AutoMovieMotionHumanTouchForm.FORMS; `count` and `hold` override;
    * provisional except the stroke).
    */
   export const PAT: typeof HUMAN_TOUCH_PAT = HUMAN_TOUCH_PAT;
 
-  /**
+  /*
    * The values the `touchStroke` row of `HumanTouchRows` fixes on `touch`,
    * spread into its parameters. `touch` of kind `stroke`: one stroke at a 5
    * cm/s peak (the pleasant-touch rate, Loken et al. 2009), about 5 s for a 0.2
    * m hand, then 0.4 s; a caress, soothing
-   * ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override;
+   * (AutoMovieMotionHumanTouchForm.FORMS; `count` and `hold` override;
    * provisional except the stroke).
    */
   export const STROKE: typeof HUMAN_TOUCH_STROKE = HUMAN_TOUCH_STROKE;
 
-  /**
+  /*
    * The values the `touchRub` row of `HumanTouchRows` fixes on `touch`, spread
    * into its parameters. `touch` of kind `rub`: 3 rubs of 0.5 s, then 0.4 s,
    * 1.9 s after the reach; warming, soothing, rubbing a shoulder or a back
-   * ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override;
+   * (AutoMovieMotionHumanTouchForm.FORMS; `count` and `hold` override;
    * provisional except the stroke).
    */
   export const RUB: typeof HUMAN_TOUCH_RUB = HUMAN_TOUCH_RUB;
 
-  /**
+  /*
    * The values the `touchPress` row of `HumanTouchRows` fixes on `touch`,
    * spread into its parameters. `touch` of kind `press`: one press of 0.4 s,
    * then held 1.2 s, 1.6 s after the reach; a firm touch, pushing a button on a
-   * person, steadying ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and
+   * person, steadying (AutoMovieMotionHumanTouchForm.FORMS; `count` and
    * `hold` override; provisional except the stroke).
    */
   export const PRESS: typeof HUMAN_TOUCH_PRESS = HUMAN_TOUCH_PRESS;
 
-  /**
+  /*
    * The values the `touchSqueeze` row of `HumanTouchRows` fixes on `touch`,
    * spread into its parameters. `touch` of kind `squeeze`: one squeeze of 0.4 s
    * with the fingers curled 20 degrees, held 1.2 s, 1.6 s after the reach;
    * reassurance, a grip on an arm or a hand
-   * ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override;
+   * (AutoMovieMotionHumanTouchForm.FORMS; `count` and `hold` override;
    * provisional except the stroke).
    */
   export const SQUEEZE: typeof HUMAN_TOUCH_SQUEEZE = HUMAN_TOUCH_SQUEEZE;
 
-  /**
+  /*
    * The values the `touchHold` row of `HumanTouchRows` fixes on `touch`, spread
    * into its parameters. `touch` of kind `hold`: one placement of 0.4 s, then
    * held 1.2 s, 1.6 s after the reach; a hand laid on a shoulder or an arm
-   * ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and `hold` override;
+   * (AutoMovieMotionHumanTouchForm.FORMS; `count` and `hold` override;
    * provisional except the stroke).
    */
   export const HOLD: typeof HUMAN_TOUCH_HOLD = HUMAN_TOUCH_HOLD;
 
-  /**
+  /*
    * The values the `touchScratch` row of `HumanTouchRows` fixes on `touch`,
    * spread into its parameters. `touch` of kind `scratch`: 3 scratches of 0.2 s
    * with curled fingers, then 0.4 s, 1.0 s after the reach; an itch, scratching
-   * the head or an arm ({@link AutoMovieMotionHumanTouchForm.FORMS}; `count` and
+   * the head or an arm (AutoMovieMotionHumanTouchForm.FORMS; `count` and
    * `hold` override; provisional except the stroke).
    */
   export const SCRATCH: typeof HUMAN_TOUCH_SCRATCH = HUMAN_TOUCH_SCRATCH;
 
-  /**
+  /*
    * The values the `salute` row of `HumanEmblem` fixes on `touch`, spread into
    * its parameters. The military hand salute (US Army TC 3-21.5): the
    * forefinger's end at the right brow, the hand in line with the forearm, the
@@ -286,7 +286,7 @@ export namespace AutoMovieMotionHumanTouchRows {
   export const EMBLEM_SALUTE: typeof HUMAN_TOUCH_EMBLEM_SALUTE =
     HUMAN_TOUCH_EMBLEM_SALUTE;
 
-  /**
+  /*
    * The values the `handOnHeart` row of `HumanEmblem` fixes on `touch`, spread
    * into its parameters. A hand on the heart: the right palm on the left
    * chest.
@@ -294,7 +294,7 @@ export namespace AutoMovieMotionHumanTouchRows {
   export const EMBLEM_HAND_ON_HEART: typeof HUMAN_TOUCH_EMBLEM_HAND_ON_HEART =
     HUMAN_TOUCH_EMBLEM_HAND_ON_HEART;
 
-  /**
+  /*
    * The values the `blownKissSend` row of `HumanEmblem` fixes on `touch`,
    * spread into its parameters. The blown kiss's send, performed after
    * `blownKiss`: the open hand, palm up, swept forward from the lips and held a
@@ -307,21 +307,21 @@ export namespace AutoMovieMotionHumanTouchRows {
   export const EMBLEM_BLOWN_KISS_SEND: typeof HUMAN_TOUCH_EMBLEM_BLOWN_KISS_SEND =
     HUMAN_TOUCH_EMBLEM_BLOWN_KISS_SEND;
 
-  /**
+  /*
    * The values the `coverMouth` row of `HumanEmblem` fixes on `touch`, spread
    * into its parameters. A hand over the mouth, as at a gasp or a yawn.
    */
   export const EMBLEM_COVER_MOUTH: typeof HUMAN_TOUCH_EMBLEM_COVER_MOUTH =
     HUMAN_TOUCH_EMBLEM_COVER_MOUTH;
 
-  /**
+  /*
    * The values the `coverEars` row of `HumanEmblem` fixes on `touch`, spread
    * into its parameters. Both hands over the ears.
    */
   export const EMBLEM_COVER_EARS: typeof HUMAN_TOUCH_EMBLEM_COVER_EARS =
     HUMAN_TOUCH_EMBLEM_COVER_EARS;
 
-  /**
+  /*
    * The values the `shoulderPat` row of `HumanSocial` fixes on `touch`, spread
    * into its parameters. A pat on the partner's shoulder; the composition gives
    * the shoulder as the target. Two pats of 0.4 s, then 0.4 s, 1.2 s after the
@@ -331,7 +331,7 @@ export namespace AutoMovieMotionHumanTouchRows {
   export const SOCIAL_SHOULDER_PAT: typeof HUMAN_TOUCH_SOCIAL_SHOULDER_PAT =
     HUMAN_TOUCH_SOCIAL_SHOULDER_PAT;
 
-  /**
+  /*
    * The values the `comfort` row of `HumanSocial` fixes on `touch`, spread into
    * its parameters. A comforting hand held on the partner. Held 2 s after the
    * reach (provisional); condolence, reassurance.
@@ -339,7 +339,7 @@ export namespace AutoMovieMotionHumanTouchRows {
   export const SOCIAL_COMFORT: typeof HUMAN_TOUCH_SOCIAL_COMFORT =
     HUMAN_TOUCH_SOCIAL_COMFORT;
 
-  /**
+  /*
    * The values the `firmPress` row of `HumanSocial` fixes on `touch`, spread
    * into its parameters. A firm, slow pat or press of the palm on the partner
    * (Laban's press: strong, sustained, direct); the composition gives the
@@ -349,7 +349,7 @@ export namespace AutoMovieMotionHumanTouchRows {
   export const SOCIAL_FIRM_PRESS: typeof HUMAN_TOUCH_SOCIAL_FIRM_PRESS =
     HUMAN_TOUCH_SOCIAL_FIRM_PRESS;
 
-  /**
+  /*
    * The values the `danceHold` row of `HumanPartner` fixes on `touch`, spread
    * into its parameters. The follower's hold of a walking partner dance once
    * both stand: her left palm laid on the leader and held 1.5 s. The

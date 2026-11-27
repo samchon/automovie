@@ -13,7 +13,7 @@ import {
 } from "../core";
 import { ADA_RANGES } from "./constants/ADA_RANGES";
 
-/**
+/*
  * A DIN 6337 lever's arm off the plane square to its bore, degrees: the
  * drawing's 20.
  */
@@ -274,17 +274,16 @@ export namespace AutoMovieArchetypeControl {
   };
 }
 
-/**
+/*
  * One DIN 6337 row in metres and kilograms, from the sheet's millimetres and
  * grams.
- *
- * @param length The length l1, millimetres.
- * @param knob The knob d5, millimetres.
- * @param arm The arm d6, millimetres.
- * @param hub The hub d3, millimetres.
- * @param bore The hub's length b along the bore, millimetres.
- * @param grams The mass, grams.
- * @returns The lever's figures.
+ * Parameter length: The length l1, millimetres.
+ * Parameter knob: The knob d5, millimetres.
+ * Parameter arm: The arm d6, millimetres.
+ * Parameter hub: The hub d3, millimetres.
+ * Parameter bore: The hub's length b along the bore, millimetres.
+ * Parameter grams: The mass, grams.
+ * Returns: The lever's figures.
  */
 function row(
   length: number,

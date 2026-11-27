@@ -3,7 +3,7 @@ import type {
   IAutoMovieSubdivisionSurface,
 } from "@automovie/interface";
 
-/**
+/*
  * Displace a subdivided surface along its normals by one height per vertex, the
  * relief that is finer than a cage can carry, such as an engraved groove or a
  * tendon's ridge.
@@ -24,14 +24,13 @@ import type {
  * self-intersections. The heights usually come from a field evaluated at each
  * vertex's `locateAutoMovieSurfaceVertices` location, which depends on no pose,
  * so a posed surface takes the same heights.
- *
- * @param props.surface The subdivided surface, only read; the result shares its
- *   topology, UV and parameter arrays.
- * @param props.heights One height per vertex, metres, finite, positive outward.
- * @returns The displaced surface: new positions, limit positions and normals
- *   over the same topology.
- * @throws Error when the heights do not match the vertices or are not finite,
- *   or a displacement turns the quads around a normal over.
+ * Parameter props.surface: The subdivided surface, only read; the result shares its
+ * topology, UV and parameter arrays.
+ * Parameter props.heights: One height per vertex, metres, finite, positive outward.
+ * Returns: The displaced surface: new positions, limit positions and normals
+ * over the same topology.
+ * Error when the heights do not match the vertices or are not finite,
+ * or a displacement turns the quads around a normal over.
  */
 export const displaceAutoMovieSurface: (
   props: IAutoMovieDisplaceSurface.IProps,

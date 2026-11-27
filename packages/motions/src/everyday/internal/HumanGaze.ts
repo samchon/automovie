@@ -22,7 +22,7 @@ import { HumanGazeLayer } from "./HumanGazeLayer";
 import { blendGazeJoint } from "./blendGazeJoint";
 import { readHumanGazeBones } from "./readHumanGazeBones";
 
-/**
+/*
  * Gaze as a goal: the eyes' lines brought onto a target, with the eyes, the
  * head and neck and the trunk recruited in that order as the target lies
  * farther from where the body faces.
@@ -61,13 +61,13 @@ import { readHumanGazeBones } from "./readHumanGazeBones";
  * as the vestibulo-ocular reflex does, and a moving target is pursued.
  */
 export namespace HumanGaze {
-  /**
+  /*
    * Final eye-in-head eccentricity before the head joins, degrees (Freedman
    * 2008).
    */
   export const EYES: number = 15;
 
-  /**
+  /*
    * The head and neck's comfortable share, degrees: a yaw of 60, between the 54
    * and 68 degrees of cervical rotation measured in crossing a street and
    * reversing a car (Bennett, Schenk and Simmons 2002, J Spinal Disord Tech
@@ -81,16 +81,17 @@ export namespace HumanGaze {
     up: 30,
   };
 
-  /** The trunk's share of yaw, degrees (provisional). */
+  /*
+   * The trunk's share of yaw, degrees (provisional).
+   */
   export const TRUNK: number = 40;
-  /**
+  /*
    * Split a gaze direction over the eyes, the head and the trunk.
-   *
-   * @param yaw Direction from the trunk's facing, degrees, positive to the
-   *   performer's left.
-   * @param pitch Direction from level, degrees, positive down.
-   * @param recruit Which segments may join; `auto` is `trunk`.
-   * @returns The split.
+   * Parameter yaw: Direction from the trunk's facing, degrees, positive to the
+   * performer's left.
+   * Parameter pitch: Direction from level, degrees, positive down.
+   * Parameter recruit: Which segments may join; `auto` is `trunk`.
+   * Returns: The split.
    */
   export function split(
     yaw: number,
@@ -118,37 +119,34 @@ export namespace HumanGaze {
     };
   }
 
-  /**
+  /*
    * Seconds of a saccade of an amplitude (the main sequence, Bahill et al.
    * 1975).
-   *
-   * @param amplitude Degrees.
-   * @returns Seconds.
+   * Parameter amplitude: Degrees.
+   * Returns: Seconds.
    */
   export function saccade(amplitude: number): number {
     return (2.2 * Math.abs(amplitude) + 21) / 1000;
   }
 
-  /**
+  /*
    * Seconds of a head or trunk turn of an amplitude (provisional).
-   *
-   * @param amplitude Degrees.
-   * @returns Seconds.
+   * Parameter amplitude: Degrees.
+   * Returns: Seconds.
    */
   export function turn(amplitude: number): number {
     return 0.15 + 0.004 * Math.abs(amplitude);
   }
 
-  /**
+  /*
    * The direction of a world point from the eyes' midpoint, as yaw and pitch
    * about the posture's hips frame.
-   *
-   * @param body The body.
-   * @param posture The posture, without gaze.
-   * @param point The world point.
-   * @param resolution Optional exact FK reader or lazy supplier borrowed from
-   *   this synchronous evaluation.
-   * @returns Yaw (positive left) and pitch (positive down), degrees.
+   * Parameter body: The body.
+   * Parameter posture: The posture, without gaze.
+   * Parameter point: The world point.
+   * Parameter resolution: Optional exact FK reader or lazy supplier borrowed from
+   * this synchronous evaluation.
+   * Returns: Yaw (positive left) and pitch (positive down), degrees.
    */
   export function direction(
     body: IAutoMovieMotionHumanBody,
@@ -177,23 +175,22 @@ export namespace HumanGaze {
     };
   }
 
-  /**
+  /*
    * The posture with its gaze on a point: trunk and head blended toward their
    * shares by `weights`, then each eye solved exactly against the head it rides
    * and blended by its own weight.
-   *
-   * @param body The body.
-   * @param posture The posture without gaze.
-   * @param point The world point.
-   * @param recruit Which segments may join.
-   * @param weights How far each part has moved toward its share, each in [0,
-   *   1].
-   * @param resolution Optional exact workspace borrowed only within this
-   *   synchronous gaze evaluation.
-   * @param towards Direction already computed from these exact body, posture
-   *   and point inputs; computed here when absent.
-   * @returns The posture with the trunk, neck, head and eyes set; limb goals
-   *   unchanged.
+   * Parameter body: The body.
+   * Parameter posture: The posture without gaze.
+   * Parameter point: The world point.
+   * Parameter recruit: Which segments may join.
+   * Parameter weights: How far each part has moved toward its share, each in [0,
+   * 1].
+   * Parameter resolution: Optional exact workspace borrowed only within this
+   * synchronous gaze evaluation.
+   * Parameter towards: Direction already computed from these exact body, posture
+   * and point inputs; computed here when absent.
+   * Returns: The posture with the trunk, neck, head and eyes set; limb goals
+   * unchanged.
    */
   export function aim(
     body: IAutoMovieMotionHumanBody,
@@ -320,17 +317,16 @@ export namespace HumanGaze {
     return { ...posture, joints };
   }
 
-  /**
+  /*
    * A gaze layer: from `from` the eyes, head and trunk turn toward the target
    * on their own timings and track it; from `to` they return. A request that
    * begins while an earlier one still holds the gaze turns the parts on from
    * where that one has them, so the gaze moves from target to target without
    * passing through rest.
-   *
-   * @param requests The gazes, in time order; each one's `from` after the
-   *   previous one's `from`.
-   * @param name The layer's name; `gaze` when absent.
-   * @returns The layer.
+   * Parameter requests: The gazes, in time order; each one's `from` after the
+   * previous one's `from`.
+   * Parameter name: The layer's name; `gaze` when absent.
+   * Returns: The layer.
    */
   export function layer(
     requests: readonly IAutoMovieMotionHumanGaze.ILayer[],
@@ -340,16 +336,22 @@ export namespace HumanGaze {
   }
 }
 
-/** The record of `IAimFacingTarget`'s site. */
+/*
+ * The record of `IAimFacingTarget`'s site.
+ */
 type IAimFacingTarget = { yaw: number; pitch: number };
 
-/** The record of `IAimTowards`'s site. */
+/*
+ * The record of `IAimTowards`'s site.
+ */
 type IAimTowards = { yaw: number; pitch: number };
 
-/** The record of `IHEADItem`'s site. */
+/*
+ * The record of `IHEADItem`'s site.
+ */
 type IHEADItem = { yaw: number; down: number; up: number };
 
-/**
+/*
  * One gaze axis split: the first part's share up to `first` either way, then
  * the next part's up to its limit on that side.
  */
@@ -366,7 +368,9 @@ function splitShare(
   return [lead, next];
 }
 
-/** Add an axial twist to one joint, keeping its other two angles. */
+/*
+ * Add an axial twist to one joint, keeping its other two angles.
+ */
 function addGazeTwist(
   joints: IAutoMovieMotionHumanPosture["joints"],
   bone: AutoMovieHumanoidBone,
@@ -376,5 +380,7 @@ function addGazeTwist(
   joints[bone] = [base[0], base[1], base[2] + twist];
 }
 
-/** The angles of a bone the record holds none for. */
+/*
+ * The angles of a bone the record holds none for.
+ */
 const ZERO: readonly [number, number, number] = [0, 0, 0];

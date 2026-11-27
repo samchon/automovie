@@ -90,16 +90,15 @@ export namespace AutoMovieHumanLegGuides {
     });
   }
 
-  /**
+  /*
    * A guide along the leg: its three channels, each carried between its
    * landmark rows by the natural cubic spline (C2).
-   *
-   * @param guide The guide.
-   * @param bones The joints' heights, which place the rows.
-   * @param ends The neighbours' rings as the first and last rows, `[rho,
-   *   rho_theta, rho_thetatheta]` each.
-   * @returns The guide at a station: its angle, radius and the two angle
-   *   derivatives.
+   * Parameter guide: The guide.
+   * Parameter bones: The joints' heights, which place the rows.
+   * Parameter ends: The neighbours' rings as the first and last rows, `[rho,
+   * rho_theta, rho_thetatheta]` each.
+   * Returns: The guide at a station: its angle, radius and the two angle
+   * derivatives.
    */
   function profile(
     guide: IAutoMovieHumanLegSectionRows.IGuide,

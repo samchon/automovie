@@ -7,7 +7,7 @@ import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPrepar
 import { HumanQuadraticSolve } from "./HumanQuadraticSolve";
 import { HumanQuadraticValue } from "./HumanQuadraticValue";
 
-/**
+/*
  * A convex quadratic program with banded curvature and sparse rows, solved by
  * OSQP (Stellato, Banjac, Goulart, Bemporad and Boyd 2020, "OSQP: an operator
  * splitting solver for quadratic programs", Math Program Comput 12:637):
@@ -48,7 +48,7 @@ import { HumanQuadraticValue } from "./HumanQuadraticValue";
  * including diagonal systems and supplied curvature padding.
  */
 export namespace HumanQuadraticProgram {
-  /**
+  /*
    * Relative residual tolerance, OSQP's eps_rel; it does not bound each
    * variable's error independently of conditioning.
    *
@@ -57,13 +57,12 @@ export namespace HumanQuadraticProgram {
    */
   export const TOLERANCE: number = 1e-3;
 
-  /**
+  /*
    * A solve's multipliers by its rows' keys, for the next convexification to
    * start from.
-   *
-   * @param problem The problem solved.
-   * @param state Its solve's iterates.
-   * @returns Each keyed row's multiplier.
+   * Parameter problem: The problem solved.
+   * Parameter state: Its solve's iterates.
+   * Returns: Each keyed row's multiplier.
    */
   export function multipliers(
     problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
@@ -78,18 +77,17 @@ export namespace HumanQuadraticProgram {
     return out;
   }
 
-  /**
+  /*
    * The minimiser.
-   *
-   * @param problem The problem; its numeric storage remains unchanged during
-   *   this synchronous solve.
-   * @param warm The iterates of a solve of the same rows; zero when absent.
-   * @param duals Multipliers by row key from a solve of other rows that
-   *   linearise the same constraints, read when `warm` is absent.
-   * @returns The unscaled iterates and termination status; `x` is a minimiser
-   *   only when solved or polished.
-   * @throws {RangeError} For malformed or nonfinite input, noninvertible
-   *   scaling, or nonfinite numerical results.
+   * Parameter problem: The problem; its numeric storage remains unchanged during
+   * this synchronous solve.
+   * Parameter warm: The iterates of a solve of the same rows; zero when absent.
+   * Parameter duals: Multipliers by row key from a solve of other rows that
+   * linearise the same constraints, read when `warm` is absent.
+   * Returns: The unscaled iterates and termination status; `x` is a minimiser
+   * only when solved or polished.
+   * For malformed or nonfinite input, noninvertible
+   * scaling, or nonfinite numerical results.
    */
   export function solve(
     problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
@@ -105,16 +103,15 @@ export namespace HumanQuadraticProgram {
     );
   }
 
-  /**
+  /*
    * Prepare one fixed numeric convexification for solves with other intervals.
    * The model snapshots P, q and all ordered row coefficients; changing them
    * requires a new model, while each solve receives its current row bounds.
-   *
-   * @param problem Finite convex banded data, unchanged while preparation
-   *   admits and snapshots it.
-   * @returns A model owning preparation, exact factors and reusable scratch.
-   * @throws {RangeError} For the same malformed data or scaling failures as
-   *   solve.
+   * Parameter problem: Finite convex banded data, unchanged while preparation
+   * admits and snapshots it.
+   * Returns: A model owning preparation, exact factors and reusable scratch.
+   * For the same malformed data or scaling failures as
+   * solve.
    */
   export function prepare(
     problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
@@ -122,24 +119,23 @@ export namespace HumanQuadraticProgram {
     return HumanQuadraticModel(problem, TOLERANCE);
   }
 
-  /**
+  /*
    * The minimiser by the interior-point method (`HumanQuadraticInterior`), for
    * a caller whose curvature is badly conditioned for the operator splitting of
    * `solve`: a second-order method's iteration count does not grow with that
    * conditioning.
-   *
-   * @param problem The problem; its numeric storage remains unchanged during
-   *   this synchronous solve.
-   * @param session The caller's session of solves of one optimisation
-   *   (`HumanQuadraticInteriorSession.ISession`): its first solve's scales
-   *   serve the later ones, a solve of the same rows starts from the one
-   *   before, and the solver's scratch is kept between them; absent, the solve
-   *   is alone and cold.
-   * @returns The unscaled iterates with status `solved`, to the interior
-   *   method's own accuracy; undefined when it did not converge, and the caller
-   *   solves by `solve` or a prepared model.
-   * @throws {RangeError} For malformed or nonfinite input or noninvertible
-   *   scaling, as `solve` throws.
+   * Parameter problem: The problem; its numeric storage remains unchanged during
+   * this synchronous solve.
+   * Parameter session: The caller's session of solves of one optimisation
+   * (`HumanQuadraticInteriorSession.ISession`): its first solve's scales
+   * serve the later ones, a solve of the same rows starts from the one
+   * before, and the solver's scratch is kept between them; absent, the solve
+   * is alone and cold.
+   * Returns: The unscaled iterates with status `solved`, to the interior
+   * method's own accuracy; undefined when it did not converge, and the caller
+   * solves by `solve` or a prepared model.
+   * For malformed or nonfinite input or noninvertible
+   * scaling, as `solve` throws.
    */
   export function interior(
     problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
@@ -148,16 +144,15 @@ export namespace HumanQuadraticProgram {
     return HumanQuadraticInterior(problem, session);
   }
 
-  /**
+  /*
    * The value of `1/2 x^T P x + q^T x` plus each soft row's penalty: a trust
    * region's model of the merit.
-   *
-   * @param problem The problem.
-   * @param x Finite current variables, or the exact zero origin when absent;
-   *   problem data must already be admitted finite.
-   * @param observe Optional synchronous read-only consumer of each soft row's
-   *   actual interval excess in row order; it must not mutate problem or x.
-   * @returns The value.
+   * Parameter problem: The problem.
+   * Parameter x: Finite current variables, or the exact zero origin when absent;
+   * problem data must already be admitted finite.
+   * Parameter observe: Optional synchronous read-only consumer of each soft row's
+   * actual interval excess in row order; it must not mutate problem or x.
+   * Returns: The value.
    */
   export function value(
     problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,

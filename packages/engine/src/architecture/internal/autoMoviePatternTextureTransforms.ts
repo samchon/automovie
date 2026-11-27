@@ -9,7 +9,7 @@ import type {
 import { positive } from "../../geometry/internal/positive";
 import { Quaternion } from "../../math/Quaternion";
 
-/**
+/*
  * Say how each laid piece samples its material, in the UV transform the PBR
  * record already carries.
  *
@@ -31,7 +31,7 @@ import { Quaternion } from "../../math/Quaternion";
  * sub-rectangle the cut left it rather than being renormalized over its own
  * outline, because a renormalized cut piece would show the whole image squeezed
  * into the surviving sliver. The sheet is turned by the piece's own
- * {@link IAutoMoviePatternPlacement.grainDeg}, so a board whose grain runs along
+ * IAutoMoviePatternPlacement.grainDeg, so a board whose grain runs along
  * it samples straight while a slab set across the grain samples across it.
  *
  * One call states one material's sheet. A run whose zones carry different
@@ -110,19 +110,29 @@ export function autoMoviePatternTextureTransforms(
   return { transforms, sheared };
 }
 
-/** Greatest relative skew a UV transform is still counted as free of. */
+/*
+ * Greatest relative skew a UV transform is still counted as free of.
+ */
 const SHEAR_EPSILON: number = 1e-9;
 
-/** A two-component UV quantity: a matrix row or sheet point, in turns. */
+/*
+ * A two-component UV quantity: a matrix row or sheet point, in turns.
+ */
 interface IUvRow {
-  /** First component. */
+  /*
+   * First component.
+   */
   x: number;
 
-  /** Second component. */
+  /*
+   * Second component.
+   */
   y: number;
 }
 
-/** Where a face point falls on a sheet turned by the grain, in turns. */
+/*
+ * Where a face point falls on a sheet turned by the grain, in turns.
+ */
 const sheetPoint: (
   point: IAutoMoviePatternPoint,
   origin: IAutoMoviePatternPoint,

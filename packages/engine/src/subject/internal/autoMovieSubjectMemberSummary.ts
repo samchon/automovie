@@ -3,7 +3,7 @@ import { IAutoMovieSubjectMemberSummary } from "@automovie/interface";
 import { AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT } from "../../constants/AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT";
 import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 
-/**
+/*
  * One page of a subject id list: the total, and at most
  * `AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT` ids in render-id order starting at
  * `offset`.
@@ -11,10 +11,9 @@ import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovi
  * The offset is clamped to the total, so a page past the end is empty with
  * `offset` equal to `total`; `omitted` counts every id not on the page, before
  * it as well as after. The input is copied, not sorted in place.
- *
- * @param ids Subject addresses in any order.
- * @param offset Rank of the first id on the page, a whole number from 0.
- * @returns The page summary.
+ * Parameter ids: Subject addresses in any order.
+ * Parameter offset: Rank of the first id on the page, a whole number from 0.
+ * Returns: The page summary.
  */
 export const autoMovieSubjectMemberSummary = (
   ids: readonly string[],

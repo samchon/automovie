@@ -1,6 +1,8 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
 
-/** Append a type violation for a value outside a safe-integer interval. */
+/*
+ * Append a type violation for a value outside a safe-integer interval.
+ */
 export function validateSoftInteger(
   out: IAutoMovieViolationCollector,
   path: string,

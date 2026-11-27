@@ -1,4 +1,4 @@
-/**
+/*
  * The smaller of two values with the corner where they cross rounded off, so a
  * quantity that follows whichever of two curves is lower changes over from one
  * to the other with a continuous rate.
@@ -10,13 +10,12 @@
  * equal. Its first derivative in either argument is continuous. The larger of
  * two values is the same rule negated: `-smoothMinimum(-a, -b, width)`, which
  * never falls below the plain maximum.
- *
- * @param a The first value.
- * @param b The second value.
- * @param width The difference under which the two blend, in their unit;
- *   positive.
- * @returns The rounded minimum.
- * @throws If a value is not finite or the width is not positive and finite.
+ * Parameter a: The first value.
+ * Parameter b: The second value.
+ * Parameter width: The difference under which the two blend, in their unit;
+ * positive.
+ * Returns: The rounded minimum.
+ * If a value is not finite or the width is not positive and finite.
  */
 export function smoothMinimum(a: number, b: number, width: number): number {
   if (!(width > 0))

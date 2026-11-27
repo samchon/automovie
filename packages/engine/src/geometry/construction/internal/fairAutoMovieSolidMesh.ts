@@ -3,7 +3,7 @@ import type {
   IAutoMovieSolidMesh,
 } from "@automovie/interface";
 
-/**
+/*
  * Fair a drawn mesh over the regions about given vertices: the discrete
  * thin-plate fill of a hole, the triangles within each region moved so that the
  * bi-Laplacian of their positions vanishes, with the two rings of vertices
@@ -48,11 +48,10 @@ import type {
  * A moved vertex keeps its owner and chart coordinates, which then name the
  * surface point it was moved from: the fill belongs to no surface. Topology,
  * indices and every vertex outside the regions are unchanged.
- *
- * @param mesh The drawn mesh, mm; its positions are changed in place.
- * @param regions Each region's sources as vertex indices of the mesh, at least
- *   one, and its radius along the mesh, mm, positive and finite.
- * @returns How many distinct positions were moved.
+ * Parameter mesh: The drawn mesh, mm; its positions are changed in place.
+ * Parameter regions: Each region's sources as vertex indices of the mesh, at least
+ * one, and its radius along the mesh, mm, positive and finite.
+ * Returns: How many distinct positions were moved.
  */
 export function fairAutoMovieSolidMesh(
   mesh: IAutoMovieSolidMesh.IMesh,

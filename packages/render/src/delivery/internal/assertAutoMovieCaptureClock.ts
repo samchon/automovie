@@ -3,15 +3,14 @@ import type {
   IAutoMovieAssertCaptureClockHost,
 } from "@automovie/interface";
 
-/**
+/*
  * Refuse a capture page that is not ready or does not expose the commissioned
  * clock, before any sound is prepared or pixel captured: the page must be
  * ready, report the commissioned duration and frame rate, and count exactly
  * `durationSeconds * fps` frames, an integer. Readiness is no visual or
  * physical acceptance.
- *
- * @param host Values read from the capture page.
- * @param expected The commissioned duration and rate.
+ * Parameter host: Values read from the capture page.
+ * Parameter expected: The commissioned duration and rate.
  */
 export function assertAutoMovieCaptureClock(
   host: IAutoMovieAssertCaptureClockHost,

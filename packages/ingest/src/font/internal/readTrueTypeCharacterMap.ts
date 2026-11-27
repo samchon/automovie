@@ -1,6 +1,6 @@
 import type { TrueTypeByteReader } from "./TrueTypeByteReader";
 
-/**
+/*
  * Read a font's Unicode character map: which glyph each code point selects,
  * from the `cmap` table (ISO/IEC 14496-22, section 5.2.1).
  *
@@ -11,15 +11,14 @@ import type { TrueTypeByteReader } from "./TrueTypeByteReader";
  * exactly, including the `idRangeOffset` indirection and modulo-65536
  * `idDelta`. Code point U+FFFF and glyph 0 (`.notdef`) map nothing, so a code
  * point the font cannot draw is absent instead of silently drawing `.notdef`.
- *
- * @param reader Bounds-checked reader over the font bytes.
- * @param offset Byte offset of the `cmap` table.
- * @param glyphCount `maxp` glyph count; a mapping to a glyph at or past it
- *   refuses.
- * @returns Code point to glyph index, in increasing code point order.
- * @throws {Error} No Unicode subtable of format 4 or 12 exists, a field lies
- *   outside the bytes, or a mapping names a glyph past the glyph count or a
- *   code point past U+10FFFF.
+ * Parameter reader: Bounds-checked reader over the font bytes.
+ * Parameter offset: Byte offset of the `cmap` table.
+ * Parameter glyphCount: `maxp` glyph count; a mapping to a glyph at or past it
+ * refuses.
+ * Returns: Code point to glyph index, in increasing code point order.
+ * No Unicode subtable of format 4 or 12 exists, a field lies
+ * outside the bytes, or a mapping names a glyph past the glyph count or a
+ * code point past U+10FFFF.
  */
 export function readTrueTypeCharacterMap(
   reader: TrueTypeByteReader,

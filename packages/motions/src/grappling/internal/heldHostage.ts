@@ -12,7 +12,7 @@ import type {
 
 import { PairWalk } from "./PairWalk";
 
-/**
+/*
  * The hostage of a hold (`IAutoMovieMotionHumanHostageHold.IHeld`): the body
  * keeps the posture it entered with and walks backward with the holder for
  * `SECONDS`, its root following the holder's displayed root and its feet
@@ -20,23 +20,26 @@ import { PairWalk } from "./PairWalk";
  * composed before the hostage, so its root is placed to be read.
  */
 export namespace heldHostage {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "heldHostage";
 
-  /** Cancel table: none. */
+  /*
+   * Cancel table: none.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-  /**
+  /*
    * How long the hostage is held, seconds: authored, the hold's default with
    * its reach and the walk back.
    */
   export const SECONDS: number = 5;
 
-  /**
+  /*
    * Plan the hostage.
-   *
-   * @param context The action's context.
-   * @returns The plan.
+   * Parameter context: The action's context.
+   * Returns: The plan.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHostageHold.IHeld>,

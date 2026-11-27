@@ -249,19 +249,27 @@ export namespace AutoMovieSolidMeshConstraints {
   }
 }
 
-/** One indexed point in the universal cover of a periodic chart. */
+/*
+ * One indexed point in the universal cover of a periodic chart.
+ */
 interface Cut {
-  /** Original shared vertex identity. */
+  /*
+   * Original shared vertex identity.
+   */
   id: number;
 
-  /** Integer period added to that vertex's stored phase. */
+  /*
+   * Integer period added to that vertex's stored phase.
+   */
   turn: number;
 
-  /** Representable lifted coordinates for predicates and ordering only. */
+  /*
+   * Representable lifted coordinates for predicates and ordering only.
+   */
   point: Readonly<AutoMovieVector2Tuple>;
 }
 
-/**
+/*
  * Exact represented-point membership on a closed straight segment; no identity
  * is inferred from it.
  */
@@ -279,7 +287,7 @@ function on(
   );
 }
 
-/**
+/*
  * Three neighbouring images cover a primitive of at most one period; the
  * midpoint calculation avoids overflow.
  */

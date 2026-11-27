@@ -18,7 +18,7 @@ import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { drawFromCarrierPulling } from "./drawFromCarrierPulling";
 
-/**
+/*
  * The pulled carrier's pivot. A long blade leaves its scabbard low and in front
  * as the other hand draws the scabbard back: first along its own line, the frog
  * riding the belt, by the least slide that brings the drawn wrist within
@@ -203,31 +203,37 @@ export function drawFromCarrierPivot(
   };
 }
 
-/** `drawFromCarrierPivot` and its records. */
+/*
+ * `drawFromCarrierPivot` and its records.
+ */
 export namespace drawFromCarrierPivot {
-  /**
+  /*
    * The two roots of a point's slide back along a carrier's line that put it at
    * an arm's reach from a shoulder, metres; the reach holds between them.
    */
   export interface IRoots {
-    /** The lesser root. */
+    /*
+     * The lesser root.
+     */
     low: number;
 
-    /** The greater root. */
+    /*
+     * The greater root.
+     */
     high: number;
   }
 
-  /**
+  /*
    * A pulled carrier's pivot: the frames its slide and turn about its hanger
    * give.
    */
   export interface IPivot {
-    /**
+    /*
      * The drawn object's world frame at a share of the pivot and a slider
      * travel, metres.
      */
     blade(share: number, travel: number): IAutoMovieRigidTransform;
-    /**
+    /*
      * A frame carried rigidly with the carrier by a share of the pivot: the
      * pulling hand's wrist.
      */

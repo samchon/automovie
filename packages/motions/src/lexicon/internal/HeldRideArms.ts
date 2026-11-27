@@ -15,11 +15,10 @@ import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionH
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/**
+/*
  * Keep each hand that holds a prop and takes none of the ride's grips.
- *
- * @param context The ride's context.
- * @returns The posture and the records that keep the props held.
+ * Parameter context: The ride's context.
+ * Returns: The posture and the records that keep the props held.
  */
 export function HeldRideArms(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>,
@@ -68,7 +67,7 @@ export function HeldRideArms(
   };
 }
 
-/**
+/*
  * The hands a ride keeps holding what they brought into it (`HumanRide`).
  *
  * A hand that holds a prop and takes none of the ride's grips would otherwise
@@ -83,18 +82,24 @@ export function HeldRideArms(
  * length and leaves it held.
  */
 export namespace HeldRideArms {
-  /** The seated posture with each held hand kept, and what keeps its prop held. */
+  /*
+   * The seated posture with each held hand kept, and what keeps its prop held.
+   */
   export interface IKept {
-    /**
+    /*
      * The seated posture to carry, each held hand's arm a goal where the entry
      * displays it.
      */
     posture: IAutoMovieMotionHumanPosture;
 
-    /** A grip window on each held prop through the ride. */
+    /*
+     * A grip window on each held prop through the ride.
+     */
     contacts: IAutoMovieMotionHumanContactWindow[];
 
-    /** The hold each held prop is left in. */
+    /*
+     * The hold each held prop is left in.
+     */
     holds: IAutoMovieMotionPropHold[];
   }
 }

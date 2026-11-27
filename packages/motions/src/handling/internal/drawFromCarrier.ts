@@ -36,7 +36,7 @@ import { drawFromCarrierPulling } from "./drawFromCarrierPulling";
 import { pickUp } from "./pickUp";
 import { putDownTarget } from "./putDownTarget";
 
-/**
+/*
  * Draw a gripped object out of its carrier along a straight line, the inverse
  * of aperture placement (`putDownAperture`): a sword drawn from its scabbard.
  * Register it with `HumanChain.extend({ drawFromCarrier })` or by name, and
@@ -97,24 +97,16 @@ export const drawFromCarrier: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
     plan,
   };
 
-/**
+/*
  * Read the line on the carrier and move the gripped object along it.
- *
- * @param context The entry with the object gripped and seated.
- * @returns The draw.
- * @throws {HumanRefusal} On `prop` when the hand does not hold it or the drawn
- *   wrist lies beyond the arm, on `from` when the carrier is not named, on
- *   `from.aperture` when the two affordances are not a straight aligned line or
- *   the fitted hand leaves its planned place on the grip by more than
- *   `drawFromCarrierJudge.GRIP`, and on `from.point` when the object is not
- *   seated there.
- * @evidence contracts/development/common.md#meaningful-documentation States the input, the plan and each refusal.
- * @evidence contracts/development/implementation.md#principled-implementation Each moving hand is planned as one admitted course over the draw (`courseArmGoal`), judged on its goals. The world frames of both affordances come from `putDownTarget` as for aperture placement; the object rides the slide socket the drive moves along the line, and the grip's rigid offset O from the displayed hand and object gives the following wrist frame P O^-1 at each object frame P.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the grip, read the line, check the seat and reach, drive the slide and pose one following transport, then judge the fitted hand.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unseated object or an unreachable opening is refused, never moved or clamped; the seated tolerance is aperture placement's own seat tolerance.
- * @evidence contracts/development/implementation.md#efficient-algorithms Two affordance reads, one hand pose and `drawFromCarrierJudge.JUDGED` + 1 posture fits at plan time; constant work per sample.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses `putDownTarget`, `HumanPrehension` and the pickup's reach.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan closes over the transport, the held posture and the bend.
+ * Parameter context: The entry with the object gripped and seated.
+ * Returns: The draw.
+ * On `prop` when the hand does not hold it or the drawn
+ * wrist lies beyond the arm, on `from` when the carrier is not named, on
+ * `from.aperture` when the two affordances are not a straight aligned line or
+ * the fitted hand leaves its planned place on the grip by more than
+ * `drawFromCarrierJudge.GRIP`, and on `from.point` when the object is not
+ * seated there.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDrawFromCarrier>,
@@ -487,7 +479,7 @@ function plan(
       });
 }
 
-/**
+/*
  * How far the gripped object's frame may sit from the seat when the draw
  * starts, metres: aperture placement's 15 mm seat tolerance.
  */

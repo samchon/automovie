@@ -12,7 +12,7 @@ import { mixHumanPosture } from "../../posture/internal/mixHumanPosture";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { humanDrapeLying } from "./humanDrapeLying";
 
-/**
+/*
  * A limp body laid across a saddle (`IAutoMovieMotionHumanDrape`): in the
  * carrier contact's frame the body lies face down across the seat, its trunk
  * level and pointing to the head's side, the hips resting on the seat a trunk's
@@ -31,10 +31,14 @@ export const HumanDrape: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanDra
     plan: planHumanDrape,
   };
 
-/** The law's context. */
+/*
+ * The law's context.
+ */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDrape>;
 
-/** Admit the times, lay the posture once, then sample. */
+/*
+ * Admit the times, lay the posture once, then sample.
+ */
 function planHumanDrape(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanDrape = context.params;
   const carrier: HumanMountedFrame.Reader = HumanMountedFrame(

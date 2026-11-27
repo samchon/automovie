@@ -4,20 +4,19 @@ import { InstrumentBuild } from "./InstrumentBuild";
 import { KeyboardConstruction } from "./KeyboardConstruction";
 
 
-/**
+/*
  * An upright piano with articulating keys, fallboard and damper pedal.
  *
  * The piano stands with its back at the origin's Z, its keyboard toward +Z and
  * the bass keys at -X. A foot presses damperPedal and each key has its own
  * travel.
- *
- * @param params The optional identifier and dimensions fixed within their
- *   recorded bands.
- * @param seed The seed for free dimensions. The band midpoints apply without a
- *   seed.
- * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
- *   cannot be realized.
+ * Parameter params: The optional identifier and dimensions fixed within their
+ * recorded bands.
+ * Parameter seed: The seed for free dimensions. The band midpoints apply without a
+ * seed.
+ * Returns: The model with its named contacts in its local frame.
+ * When a supplied dimension or choice
+ * cannot be realized.
  */
 export function createUprightPiano(
   params: AutoMovieArchetypeUprightPiano.IParams = {},

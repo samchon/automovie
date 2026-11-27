@@ -36,7 +36,7 @@ import { StrikingTarget } from "./StrikingTarget";
 import { footStrikeChamber } from "./footStrikeChamber";
 import { footStrikeContacts } from "./footStrikeContacts";
 
-/**
+/*
  * The foot strikes (`IAutoMovieMotionHumanFootStrike`): the kicking ankle from
  * its plant through a chamber to the contact and back, the support leg planted
  * on its ball, the pelvis turned, spun or lifted as the technique and its
@@ -55,69 +55,76 @@ import { footStrikeContacts } from "./footStrikeContacts";
  * bends toward the line between the hip and the ankle's goal, raised.
  */
 export namespace footStrike {
-  /** Action key. */
+  /*
+   * Action key.
+   */
   export const name: AutoMovieMotionHumanActionKey = "footStrike";
 
-  /** Cancel table: a foot strike chains into another from its impact. */
+  /*
+   * Cancel table: a foot strike chains into another from its impact.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     footStrike: [
       { window: ["impact", 1], kind: "inertialize", entry: 0, blend: 0.12 },
     ],
   };
 
-  /**
+  /*
    * The share of the extension unit at which the foot meets the target (Wąsik
    * 2011).
    */
   export const MEET: number = 0.82;
 
-  /**
+  /*
    * A side kick's launch to contact, seconds: the middle of Pieter and Pieter's
    * 0.70 to 0.84 s.
    */
   export const SIDE: number = 0.77;
 
-  /**
+  /*
    * The round kick's preparation, chamber and extension to contact, seconds
    * (Gavagan and Sayers 2017).
    */
   export const KICK: number = 0.074 + 0.25 * 1.02;
 
-  /** The round kick's recoil, seconds (Gavagan and Sayers 2017). */
+  /*
+   * The round kick's recoil, seconds (Gavagan and Sayers 2017).
+   */
   export const RECOIL: number = 0.65;
 
-  /**
+  /*
    * The share of the chamber the kicking foot stays planted before it leaves
    * (provisional).
    */
   export const RELEASE: number = 0.1;
 
-  /**
+  /*
    * The share of the foot's rise it leads its travel by, and of its return it
    * sets down after (provisional).
    */
   export const LEAD: number = 0.2;
 
-  /**
+  /*
    * The share of the leg's length a low target is reached at, short of straight
    * (provisional).
    */
   export const STRAIGHT: number = 0.97;
 
-  /**
+  /*
    * The most the hips drop for a low target, a share of the leg's length
    * (provisional).
    */
   export const DROP: number = 0.25;
 
-  /** A jump's added time and its height, a share of the leg (provisional). */
+  /*
+   * A jump's added time and its height, a share of the leg (provisional).
+   */
   export const JUMP: readonly [seconds: number, height: number] = [0.15, 0.25];
 
-  /**
+  /*
    * Plan a foot strike.
-   *
-   * @param context The action's context.
-   * @returns The plan, whose decisive instant is `impact`.
+   * Parameter context: The action's context.
+   * Returns: The plan, whose decisive instant is `impact`.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFootStrike.IParams>,

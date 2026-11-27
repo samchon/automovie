@@ -11,7 +11,7 @@ import {
 import { Vector3 } from "../../math/Vector3";
 import { requireBuiltConnector } from "./requireBuiltConnector";
 
-/**
+/*
  * Measure one connector's traversal shape: climb, run, length, slope, stations.
  *
  * A station's facing is answered as authored or as `null`, never as a heading
@@ -76,7 +76,7 @@ export function builtConnectorGeometry(
   };
 }
 
-/**
+/*
  * The point an arc length reaches along a route polyline.
  *
  * The caller has already refused a route with no measurable length, so the

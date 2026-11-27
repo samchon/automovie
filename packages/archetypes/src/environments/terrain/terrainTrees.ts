@@ -14,14 +14,13 @@ import type {
 import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { AutoMovieArchetypeTree } from "../../nature/AutoMovieArchetypeTree";
 
-/**
+/*
  * Create compact vegetation disks with a shared grounded model prototype.
- *
- * @param context The placed scope and independent seed.
- * @param recipe Named disks and parcel extent in local plan metres.
- * @param ground The accepted authoritative world-Y rule.
- * @param protectedArea Query for the first pad, route or hole within a disk.
- * @returns The prototypes and world scatter laws, with no per-tree nodes.
+ * Parameter context: The placed scope and independent seed.
+ * Parameter recipe: Named disks and parcel extent in local plan metres.
+ * Parameter ground: The accepted authoritative world-Y rule.
+ * Parameter protectedArea: Query for the first pad, route or hole within a disk.
+ * Returns: The prototypes and world scatter laws, with no per-tree nodes.
  */
 export function terrainTrees(
   context: IAutoMovieEnvironmentModule.IContext,

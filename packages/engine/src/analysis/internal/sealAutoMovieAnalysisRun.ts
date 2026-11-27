@@ -11,7 +11,7 @@ import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEng
 import { autoMovieAnalysisRunDigest } from "./autoMovieAnalysisRunDigest";
 import { validateAutoMovieAnalysisRunContents } from "./validateAutoMovieAnalysisRunContents";
 
-/**
+/*
  * Seal one run: digest the settings, check the record, and digest it only once
  * it is known to validate.
  *

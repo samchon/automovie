@@ -9,7 +9,7 @@ import { walk } from "../../gait/internal/walk";
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 import { HumanGait } from "./HumanGait";
 
-/**
+/*
  * A mood's gait: the normal walk in the manner preset of the mood's name, a
  * tempo factor slowing the speed by itself (the Froude number by its square),
  * with the mood's lean.
@@ -37,5 +37,7 @@ export function HumanGaitMood(
   };
 }
 
-/** The alternatives of `MoodName`'s site. */
+/*
+ * The alternatives of `MoodName`'s site.
+ */
 type MoodName = "sad" | "proud";

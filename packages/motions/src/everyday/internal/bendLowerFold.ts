@@ -11,19 +11,18 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { bendLower } from "./bendLower";
 
-/**
+/*
  * How deep a solved key folds the trunk into the thighs, metres beyond the rest
  * pose as the tangle audit reads it: the trunk's segments above the pelvis
  * against the thighs, on the key at its full depth. A lowering whose key is
  * also its display (the pick-up's) refuses a fold past the audit's skin and
  * lowers into a squat instead, the knees and hips lowering the trunk rather
  * than the lumbar spine folding it on (Kingma et al. 2010, J Biomech 43:1440).
- *
- * @param body The body.
- * @param upright The standing posture lowered.
- * @param lateral The frontal inclination the key takes, degrees.
- * @param solved The solved lowering.
- * @returns Metres, 0 when the trunk clears the thighs.
+ * Parameter body: The body.
+ * Parameter upright: The standing posture lowered.
+ * Parameter lateral: The frontal inclination the key takes, degrees.
+ * Parameter solved: The solved lowering.
+ * Returns: Metres, 0 when the trunk clears the thighs.
  */
 export function bendLowerFold(
   body: IAutoMovieMotionHumanBody,
@@ -55,7 +54,7 @@ export function bendLowerFold(
   return deepest;
 }
 
-/**
+/*
  * The trunk's segments a lowering folds onto the thighs: those above the
  * pelvis, which shares the hip joints with the thighs and so overlaps them by
  * its build.

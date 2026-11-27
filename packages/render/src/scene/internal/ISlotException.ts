@@ -2,7 +2,7 @@ import type { IAutoMovieFormationSlot } from "@automovie/interface";
 
 import type { IChunkObject } from "./IChunkObject.js";
 
-/**
+/*
  * One member a per-member cue names, found once at build rather than per frame.
  *
  * Authored sparse members are located once during construction; later updates
@@ -12,15 +12,23 @@ import type { IChunkObject } from "./IChunkObject.js";
  * record does not establish complete upstream cue admission.
  */
 export interface ISlotException {
-  /** Zero-based slot inside the whole formation. */
+  /*
+   * Zero-based slot inside the whole formation.
+   */
   slot: number;
 
-  /** The chunk whose instance buffers hold this member. */
+  /*
+   * The chunk whose instance buffers hold this member.
+   */
   chunk: IChunkObject;
 
-  /** This member's index inside that chunk's anonymous slots. */
+  /*
+   * This member's index inside that chunk's anonymous slots.
+   */
   index: number;
 
-  /** This member's designed placement, kept so it can be re-derived cheaply. */
+  /*
+   * This member's designed placement, kept so it can be re-derived cheaply.
+   */
   designed: IAutoMovieFormationSlot;
 }

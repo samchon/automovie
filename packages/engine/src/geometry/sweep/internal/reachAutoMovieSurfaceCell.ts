@@ -1,11 +1,10 @@
-/**
+/*
  * The spacing a sample gives its cell below and above one axis, infinite where
  * that side is not reached.
- *
- * @param step Signed spacing between adjacent samples
- * @param first Whether this is the first sample
- * @param last Whether this is the last sample
- * @returns Below and above spacing; negative steps reverse the end roles
+ * Parameter step: Signed spacing between adjacent samples
+ * Parameter first: Whether this is the first sample
+ * Parameter last: Whether this is the last sample
+ * Returns: Below and above spacing; negative steps reverse the end roles
  */
 export function reachAutoMovieSurfaceCell(
   step: number,

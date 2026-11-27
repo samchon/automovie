@@ -7,7 +7,7 @@ import type {
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * A rope hop's timetable and lift: the flight (0.26 s by default, the rope's
  * simultaneous-foot crossing 0.13 s after takeoff in Silva and Pellegrini 2009
  * placed at the apex) centred in the period (1.7 Hz by default). The root rises
@@ -15,13 +15,12 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * ground, dips on a cubic over the compression (at most 0.18 s), reaching its
  * deepest a third of the way from takeoff or landing, with the launch speed `g
  * flight / 2` at takeoff.
- *
- * @param params The flight and the period, seconds.
- * @param start The action's film start, seconds.
- * @returns The hop's times, cues and lift.
- * @throws {HumanRefusal} When the flight lies outside 0.12 to 0.36 s, the
- *   period does not exceed it, or the phases do not keep distinct instants on
- *   the action and film clocks.
+ * Parameter params: The flight and the period, seconds.
+ * Parameter start: The action's film start, seconds.
+ * Returns: The hop's times, cues and lift.
+ * When the flight lies outside 0.12 to 0.36 s, the
+ * period does not exceed it, or the phases do not keep distinct instants on
+ * the action and film clocks.
  */
 export function ropeSkipHop(
   params: Pick<
@@ -111,39 +110,56 @@ export function ropeSkipHop(
   };
 }
 
-/** The rope hop. */
+/*
+ * The rope hop.
+ */
 export namespace ropeSkipHop {
-  /** The hop's phases, cues and lift. */
+  /*
+   * The hop's phases, cues and lift.
+   */
   export interface IHop {
-    /** The period, seconds. */
+    /*
+     * The period, seconds.
+     */
     duration: number;
 
-    /** The flight, seconds. */
+    /*
+     * The flight, seconds.
+     */
     flight: number;
 
-    /** The takeoff, seconds. */
+    /*
+     * The takeoff, seconds.
+     */
     takeoff: number;
 
-    /** The rope passing under the feet at the apex, seconds. */
+    /*
+     * The rope passing under the feet at the apex, seconds.
+     */
     under: number;
 
-    /** The landing, seconds. */
+    /*
+     * The landing, seconds.
+     */
     landed: number;
 
-    /** The rope's cues. */
+    /*
+     * The rope's cues.
+     */
     events: IAutoMovieMotionEvent[];
 
-    /**
+    /*
      * The root's rise above the stance at a second.
-     *
-     * @param seconds Action seconds.
-     * @returns Metres; negative while the legs compress.
+     * Parameter seconds: Action seconds.
+     * Returns: Metres; negative while the legs compress.
      */
     lift(seconds: number): number;
   }
 }
 
-/** Check that every phase sample occupies a distinct finite clock instant. */
+/*
+ * Check that every phase sample occupies a distinct finite clock instant.
+ */
 function ordered(times: readonly number[]): boolean {
   return times.every(
     (time: number, i: number): boolean => i === 0 || times[i - 1]! < time,

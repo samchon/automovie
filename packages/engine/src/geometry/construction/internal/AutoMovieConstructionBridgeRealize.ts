@@ -16,7 +16,7 @@ import { AutoMovieConstructionViews } from "../../AutoMovieConstructionViews";
 import { AutoMovieLoftAdmissionError } from "../../AutoMovieLoftAdmissionError";
 import { AutoMovieSolidMesh } from "../../AutoMovieSolidMesh";
 
-/**
+/*
  * Realize a continuation with a band
  * (`IAutoMovieConstructionContinuation.band`): the host's open end and the
  * part's ring at `rail` inside it joined by one band round the whole ring, so
@@ -40,12 +40,11 @@ import { AutoMovieSolidMesh } from "../../AutoMovieSolidMesh";
  * rail cycle. A broken premise restores the checkpoint and records one
  * diagnostic under the continuation's name; a foreign error restores it and
  * propagates.
- *
- * @param node The continuation, its band declared.
- * @param body The body the faces join.
- * @param state The walk's state.
- * @param walk Realizes a subtree.
- * @param report Records a diagnostic.
+ * Parameter node: The continuation, its band declared.
+ * Parameter body: The body the faces join.
+ * Parameter state: The walk's state.
+ * Parameter walk: Realizes a subtree.
+ * Parameter report: Records a diagnostic.
  */
 export function AutoMovieConstructionBridgeRealize(
   node: IAutoMovieConstructionBridgeRealize.INode,
@@ -267,12 +266,16 @@ export function AutoMovieConstructionBridgeRealize(
   }
 }
 
-/** Whether a chain closes in a pole at that end. */
+/*
+ * Whether a chain closes in a pole at that end.
+ */
 function closed(chain: IAutoMovieLoftChain, side: "bottom" | "top"): boolean {
   return chain.pole?.end === side || chain.opposite?.end === side;
 }
 
-/** Whether a face's end is already trimmed or shared. */
+/*
+ * Whether a face's end is already trimmed or shared.
+ */
 function cut(
   body: IAutoMovieSolidBody.IBody,
   index: number,
@@ -283,7 +286,9 @@ function cut(
   );
 }
 
-/** The end station of a chain, mm. */
+/*
+ * The end station of a chain, mm.
+ */
 function end(chain: IAutoMovieLoftChain, side: "bottom" | "top"): number {
   return chain.layers[side === "bottom" ? 0 : chain.layers.length - 1]!.y;
 }

@@ -1,6 +1,6 @@
 import type { PrecisionStrokeForms } from "./PrecisionStrokeForms";
 
-/**
+/*
  * Every precision stroke row's fixed form by the row's name: the working point
  * the implement meets the ball with, its down, sweep, draw, turn and loft in
  * degrees, the impact second and the one-handed or bridged grip. The rows of

@@ -163,7 +163,7 @@ export namespace AutoMovieHumanHeadSectionConstraints {
     return result / (1 + result);
   }
 
-  /**
+  /*
    * Verify the actual native residual within 128 binary64 epsilons of its
    * length scale, the source-constraint roundoff convention. This is not bit
    * identity with sixty bisections, anatomical tolerance or admission of failed
@@ -176,7 +176,7 @@ export namespace AutoMovieHumanHeadSectionConstraints {
     );
   }
 
-  /**
+  /*
    * Radius of the engine-owned original section; no validity fallback changes
    * its shape.
    */
@@ -201,7 +201,7 @@ export namespace AutoMovieHumanHeadSectionConstraints {
     return value;
   }
 
-  /**
+  /*
    * Basic finite input bounds only. Actual positive curvature, representable G2
    * end domains and convexity remain separate engine premises; these bounds do
    * not prove residual continuity.

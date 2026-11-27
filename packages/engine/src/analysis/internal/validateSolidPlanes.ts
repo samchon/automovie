@@ -5,7 +5,7 @@ import {
 
 import { AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES } from "../AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES";
 
-/**
+/*
  * Check the half-spaces of one convex blocker.
  *
  * Shared by the context validator and by every adapter that accepts an authored
@@ -20,13 +20,12 @@ import { AUTOMOVIE_ANALYSIS_MIN_SOLID_PLANES } from "../AUTOMOVIE_ANALYSIS_MIN_S
  * normals longer than `1e-12`, and finite offsets. Whether the planes enclose a
  * non-empty, bounded region is not checked, so four or more planes describing
  * an unbounded or empty set pass.
- *
- * @param planes Half-spaces whose intersection is the solid; a point is inside
- *   one when `dot(normal, point) <= offset`.
- * @param path Violation path of the plane array, such as
- *   `$input.occluders[0].planes`.
- * @param label Kind of solid named in every message, such as `occluder`.
- * @param out Caller-owned sink the violations are appended to.
+ * Parameter planes: Half-spaces whose intersection is the solid; a point is inside
+ * one when `dot(normal, point) <= offset`.
+ * Parameter path: Violation path of the plane array, such as
+ * `$input.occluders[0].planes`.
+ * Parameter label: Kind of solid named in every message, such as `occluder`.
+ * Parameter out: Caller-owned sink the violations are appended to.
  */
 export function validateSolidPlanes(
   planes: readonly IAutoMovieHalfSpacePlane[],

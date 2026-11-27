@@ -1,7 +1,9 @@
 import { markdownFiles } from "./markdownFiles";
 import { normalizeFile } from "./normalizeFile";
 
-/** Selects an explicit safe population or the complete Markdown union. */
+/*
+ * Selects an explicit safe population or the complete Markdown union.
+ */
 export function selectFiles(
   beforeRoot: string,
   afterRoot: string,

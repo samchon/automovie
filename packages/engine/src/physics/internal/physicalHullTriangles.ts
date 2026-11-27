@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * The triangles of the convex hull of a point set, as index triples wound
  * counter clockwise seen from outside, by quickhull.
  *
@@ -13,14 +13,13 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * new ones. A point within `tolerance` of every plane never joins, so coplanar
  * points come out as several triangles of one plane, or as no vertex at all,
  * and a caller that wants faces groups the points by plane afterwards.
- *
- * @param points Shape-local points, metres.
- * @param tolerance The distance within which a point counts as on a plane,
- *   metres, finite and not negative.
- * @returns The triangles as consecutive index triples; empty when the points
- *   span no volume beyond the tolerance.
- * @throws {Error} When the horizon of a point is not one closed loop, which a
- *   convex hull's always is.
+ * Parameter points: Shape-local points, metres.
+ * Parameter tolerance: The distance within which a point counts as on a plane,
+ * metres, finite and not negative.
+ * Returns: The triangles as consecutive index triples; empty when the points
+ * span no volume beyond the tolerance.
+ * When the horizon of a point is not one closed loop, which a
+ * convex hull's always is.
  */
 export function physicalHullTriangles(
   points: readonly IAutoMovieVector3[],
@@ -180,43 +179,69 @@ export function physicalHullTriangles(
   return out;
 }
 
-/** One triangle of the growing hull. */
+/*
+ * One triangle of the growing hull.
+ */
 interface ITriangle {
-  /** Point indices, counter clockwise seen from outside. */
+  /*
+   * Point indices, counter clockwise seen from outside.
+   */
   corners: [number, number, number];
 
-  /** Outward normal, unit length unless the corners are collinear. */
+  /*
+   * Outward normal, unit length unless the corners are collinear.
+   */
   normal: [number, number, number];
 
-  /** The plane's distance from the origin along the normal. */
+  /*
+   * The plane's distance from the origin along the normal.
+   */
   offset: number;
 
-  /** The triangle across the edge leaving each corner. */
+  /*
+   * The triangle across the edge leaving each corner.
+   */
   neighbours: [ITriangle | null, ITriangle | null, ITriangle | null];
 
-  /** Points filed in front of this triangle. */
+  /*
+   * Points filed in front of this triangle.
+   */
   outside: number[];
 
-  /** Whether the triangle is still on the hull. */
+  /*
+   * Whether the triangle is still on the hull.
+   */
   alive: boolean;
 }
 
-/** An edge of a removed region, with the surviving triangle across it. */
+/*
+ * An edge of a removed region, with the surviving triangle across it.
+ */
 interface IEdge {
-  /** The edge's first point, in the removed triangle's winding. */
+  /*
+   * The edge's first point, in the removed triangle's winding.
+   */
   from: number;
 
-  /** The edge's second point. */
+  /*
+   * The edge's second point.
+   */
   to: number;
 
-  /** The surviving triangle across the edge. */
+  /*
+   * The surviving triangle across the edge.
+   */
   beyond: ITriangle;
 
-  /** Which of that triangle's edges this is. */
+  /*
+   * Which of that triangle's edges this is.
+   */
   side: number;
 }
 
-/** A triangle through three points, its normal by the right-hand rule. */
+/*
+ * A triangle through three points, its normal by the right-hand rule.
+ */
 function triangle(
   points: readonly IAutoMovieVector3[],
   i: number,
@@ -241,7 +266,9 @@ function triangle(
   };
 }
 
-/** Signed distance of a point in front of a triangle's plane. */
+/*
+ * Signed distance of a point in front of a triangle's plane.
+ */
 function distance(face: ITriangle, p: IAutoMovieVector3): number {
   return (
     face.normal[0] * p.x +
@@ -251,7 +278,9 @@ function distance(face: ITriangle, p: IAutoMovieVector3): number {
   );
 }
 
-/** Make two triangles each other's neighbour across the given edges. */
+/*
+ * Make two triangles each other's neighbour across the given edges.
+ */
 function join(a: ITriangle, edge: number, b: ITriangle, other: number): void {
   a.neighbours[edge] = b;
   b.neighbours[other] = a;

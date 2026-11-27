@@ -440,7 +440,9 @@ export namespace AutoMovieArchetypeRide {
           fix: "give the line its two ends at least",
         });
 
-    /** The span owner resolves the posed endpoint before world placement. */
+    /*
+     * The span owner resolves the posed endpoint before world placement.
+     */
     const world = (
       model: Readonly<{
         archetype: string;
@@ -459,7 +461,7 @@ export namespace AutoMovieArchetypeRide {
           model.affordances,
         ),
       );
-    /**
+    /*
      * Solve the current support once. Only a demanded frame or line lays its
      * geometry.
      */

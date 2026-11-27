@@ -5,14 +5,13 @@ import type {
 
 import type { touchHold } from "./touchHold";
 
-/**
+/*
  * Share a touch's fixed entry-layout decisions during one plan construction.
  * Each declared hand/target pair is evaluated here, in declaration order;
  * callers receive fresh scalar layout records.
- *
- * @param hands The at-most-two hand/target pairs this touch actually plans.
- * @param read The layout calculation over this plan's fixed entry/body inputs.
- * @returns The same layout reader with completed declared decisions shared.
+ * Parameter hands: The at-most-two hand/target pairs this touch actually plans.
+ * Parameter read: The layout calculation over this plan's fixed entry/body inputs.
+ * Returns: The same layout reader with completed declared decisions shared.
  */
 export function touchLayouts(
   hands: readonly (readonly [AutoMovieHumanSide, IAutoMovieMotionTarget])[],

@@ -2,7 +2,7 @@ import type { IAutoMovieRecoveryImageFeaturesExtractionOperation } from "@automo
 
 import { filterRecoveryImageGaussian } from "./filterRecoveryImageGaussian";
 
-/**
+/*
  * Observe bounded multiscale Harris points and oriented gradient histograms.
  * Harris derivative sigma 1, integration 1.5 and average-gradient orientation
  * sigma 4.5 follow Brown, Szeliski and Winder (2005):

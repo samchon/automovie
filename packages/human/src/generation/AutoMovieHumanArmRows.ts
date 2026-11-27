@@ -32,7 +32,9 @@ import type {
  * table owns what the rows say.
  */
 export namespace AutoMovieHumanArmRows {
-  /** The channels at each landmark station: the four lines' three numbers each, then the four sectors' one. */
+  /*
+   * The channels at each landmark station: the four lines' three numbers each, then the four sectors' one.
+   */
   const ROWS: Readonly<Record<AutoMovieHumanArmStation, readonly number[]>> = {
     "u0.3": [
       0.99, 0.087, -0.145, 1.084, -0.099, -0.235, 0.973, 0.123, 0.256, 0.909,

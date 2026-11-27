@@ -6,15 +6,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A stair rail's line in the world, as a hand slides along it: the bar's
  * centre, its axis and its up, and how far along the axis either way the hand
  * can hold, the bar's half length less half its aperture.
- *
- * @param model The stair prop's world frame.
- * @param bar The rail's bar affordance, with its length.
- * @returns The line, or null for a bar that does not run along the flight, its
- *   axis within 60 degrees of the vertical.
+ * Parameter model: The stair prop's world frame.
+ * Parameter bar: The rail's bar affordance, with its length.
+ * Returns: The line, or null for a bar that does not run along the flight, its
+ * axis within 60 degrees of the vertical.
  */
 export function climbStairsRailLine(
   model: IAutoMovieRigidTransform,
@@ -52,29 +51,41 @@ export function climbStairsRailLine(
   };
 }
 
-/** Companion constants and types of {@link climbStairsRailLine}. */
+/*
+ * Companion constants and types of climbStairsRailLine.
+ */
 export namespace climbStairsRailLine {
-  /**
+  /*
    * The least squared horizontal share of a rail's unit axis, a quarter: an
    * axis within 60 degrees of the vertical runs up a post, not along a flight.
    */
   export const LEVEL: number = 0.25;
 
-  /** A rail's line. */
+  /*
+   * A rail's line.
+   */
   export interface ILine {
-    /** The bar's centre, world metres. */
+    /*
+     * The bar's centre, world metres.
+     */
     center: IAutoMovieVector3;
 
-    /** The bar's unit axis. */
+    /*
+     * The bar's unit axis.
+     */
     along: IAutoMovieVector3;
 
-    /** The bar's unit up. */
+    /*
+     * The bar's unit up.
+     */
     normal: IAutoMovieVector3;
 
-    /** How far either way along the axis a hand can hold, metres. */
+    /*
+     * How far either way along the axis a hand can hold, metres.
+     */
     end: number;
 
-    /**
+    /*
      * Where on the rail a hand holds for a root: the root's horizontal place
      * read along the axis, kept within `end`.
      */

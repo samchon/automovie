@@ -7,17 +7,16 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 
-/**
+/*
  * Give each anchored layer its instants before anything is placed: a layer
  * whose window waits for no action (a film second or a cue track's instant at
  * both ends) has them already, so actions can be synced to them, and the
  * resolver reads them as one more cue track (`self.layered`); any other
  * anchored layer is listed with none yet.
- *
- * @param self The performance's state, whose `layered` tracks are set.
- * @param input The performance's input.
- * @throws {HumanRefusal} When a layer anchor is already the name of another
- *   layer or of a cue track.
+ * Parameter self: The performance's state, whose `layered` tracks are set.
+ * Parameter input: The performance's input.
+ * When a layer anchor is already the name of another
+ * layer or of a cue track.
  */
 export function anchorHumanPerformanceLayers(
   self: IAutoMovieMotionHumanPerformanceState,

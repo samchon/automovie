@@ -10,13 +10,12 @@ import {
   AutoMovieArchetypeUnits,
 } from "../../core";
 
-/**
+/*
  * A ten-pin bowling pin standing at its own base origin, so ten independent
  * instances can move after a hit.
- *
- * @param params Optional pin id, distinct across the rack.
- * @param seed Seed for mass.
- * @returns The pin, including its base and the widest part to use as targets.
+ * Parameter params: Optional pin id, distinct across the rack.
+ * Parameter seed: Seed for mass.
+ * Returns: The pin, including its base and the widest part to use as targets.
  */
 export function createBowlingPin(
   params: { id?: string } = {},
@@ -79,7 +78,7 @@ export function createBowlingPin(
   return builder.build(mass);
 }
 
-/**
+/*
  * Height and diameter pairs in inches, from the USBC Bowling Pin Dimensions
  * table.
  */
@@ -100,7 +99,9 @@ const PROFILE: readonly [number, number][] = [
   [13.5, 2.547],
 ];
 
-/** Crown stations used to close the shell at the USBC nominal 15 in height. */
+/*
+ * Crown stations used to close the shell at the USBC nominal 15 in height.
+ */
 const CROWN: readonly [number, number][] = [
   [14.3, 2.2],
   [14.8, 1.4],

@@ -15,18 +15,17 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/**
+/*
  * A ring dresser's steadying palm (`slipRing`): laid on the partner's own
  * forearm collider on the side facing the steadying shoulder. When the
  * partner presents their wrist toward the dresser, the palm settles at the
  * nearest site that leaves room for the palm and fingers. Its fingers point
  * along the dresser's approach projected onto the contact plane. Read from
  * the action's entry stance, bodies and presented hand.
- *
- * @param scope What the plan lays the steadying palm from.
- * @returns The steadying hand's target.
- * @throws {HumanRefusal} When the hand does not fit between the joints or the
- *   forearm collider cannot be reached by the support ray.
+ * Parameter scope: What the plan lays the steadying palm from.
+ * Returns: The steadying hand's target.
+ * When the hand does not fit between the joints or the
+ * forearm collider cannot be reached by the support ray.
  */
 export function slipRingSteady(
   scope: slipRingSteady.IScope,
@@ -136,7 +135,7 @@ export function slipRingSteady(
   });
 }
 
-/**
+/*
  * Project the approach onto the contact plane by subtracting its component
  * along the unit normal `n`, giving `v - n (v · n)`.
  * See Gilbert Strang, MIT 18.06 Lecture 15, Projections onto Subspaces.
@@ -151,32 +150,52 @@ function across(
   );
 }
 
-/** What a ring dresser's steadying palm reads. */
+/*
+ * What a ring dresser's steadying palm reads.
+ */
 export namespace slipRingSteady {
-  /** What a ring plan lays its steadying palm from. */
+  /*
+   * What a ring plan lays its steadying palm from.
+   */
   export interface IScope {
-    /** The participant whose surface the hand steadies. */
+    /*
+     * The participant whose surface the hand steadies.
+     */
     subject: string;
 
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The partner's body. */
+    /*
+     * The partner's body.
+     */
     partner: IAutoMovieMotionHumanBody;
 
-    /** The partner's bones at the action's start. */
+    /*
+     * The partner's bones at the action's start.
+     */
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-    /** The partner's presented hand. */
+    /*
+     * The partner's presented hand.
+     */
     hand: AutoMovieHumanSide;
 
-    /** The dresser's steadying hand. */
+    /*
+     * The dresser's steadying hand.
+     */
     steady: AutoMovieHumanSide;
 
-    /** The steadying shoulder at entry, world metres. */
+    /*
+     * The steadying shoulder at entry, world metres.
+     */
     shoulder: IAutoMovieVector3;
 
-    /** The steadying elbow's hanging bend point, world metres. */
+    /*
+     * The steadying elbow's hanging bend point, world metres.
+     */
     bend: IAutoMovieVector3;
   }
 }

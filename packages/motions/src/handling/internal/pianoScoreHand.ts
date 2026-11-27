@@ -3,7 +3,9 @@ import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionInterval";
 import { type resolvePianoScoreVoicing } from "./resolvePianoScoreVoicing";
 
-/** Find the current voicing or the destination of the hand's transport. */
+/*
+ * Find the current voicing or the destination of the hand's transport.
+ */
 export function pianoScoreHand(
   timeline: readonly IVoicing[],
   returnAt: number,
@@ -38,20 +40,32 @@ export function pianoScoreHand(
   return { note, previous, transport };
 }
 
-/** `pianoScoreHand` and its records. */
+/*
+ * `pianoScoreHand` and its records.
+ */
 export namespace pianoScoreHand {
-  /** One hand's position on its voicing and the preceding transport. */
+  /*
+   * One hand's position on its voicing and the preceding transport.
+   */
   export interface ISample {
-    /** The voicing the hand plays or travels to. */
+    /*
+     * The voicing the hand plays or travels to.
+     */
     note: IVoicing;
 
-    /** The voicing before it, none for the first. */
+    /*
+     * The voicing before it, none for the first.
+     */
     previous: IVoicing | undefined;
 
-    /** The hand's transport from the previous voicing, a share in [0, 1]. */
+    /*
+     * The hand's transport from the previous voicing, a share in [0, 1].
+     */
     transport: number;
   }
 }
 
-/** A hand placement shared by every key in a voicing. */
+/*
+ * A hand placement shared by every key in a voicing.
+ */
 type IVoicing = resolvePianoScoreVoicing.Voicing;

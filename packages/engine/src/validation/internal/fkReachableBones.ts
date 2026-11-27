@@ -6,7 +6,7 @@ import {
 
 import { AutoMovieEngineKinematics } from "../../kinematics";
 
-/**
+/*
  * Return reachableBoneNames' fresh copy of root-reachable bone names, using a
  * supplied unchanged-skeleton topology or building one.
  */

@@ -119,7 +119,7 @@ export namespace AutoMovieHumanF1 {
   export const ROOT_CONTROLS: IAutoMovieHumanF1.IRootControls =
     AutoMovieHumanF1RootControls;
 
-  /**
+  /*
    * The least shoulder of a toe's arcs (`AutoMovieHumanConicSection.ILayout.least`). The big toe's arc from its top to its medial side held
    * shoulders of 0.24 and 0.27 at its last two knots, 43 and 53 mm: an arc that hugs its chord turns at its ends, and the toe's medial side
    * stood a corner that its short cap carried into a fan of facets (`toes.front` px 640..790 x 440..540, folds of 33 degrees). The bound is
@@ -128,7 +128,7 @@ export namespace AutoMovieHumanF1 {
    */
   const TOE_LEAST: number = 0.3;
 
-  /**
+  /*
    * The length of a toe's dome as a share of its section's mean reach where the dome starts (`rounded`). The big toe's reference section
    * reaches 7.95 mm on average 3.13 mm before its tip and 10.97 mm at 13.13 mm (its fitted fields at 53 and 43 mm, within 0.6 mm of the
    * skin): a half ellipse through the first whose foot stands on the wall is 8 mm long on a reach of 10 mm. A dome as long as its reach
@@ -136,7 +136,7 @@ export namespace AutoMovieHumanF1 {
    */
   const TOE_DOME: number = 0.8;
 
-  /**
+  /*
    * The largest turn of a toe's ring between two neighbouring phases, radians (`AutoMovieHumanConicLoft.IFamily.turn`), the arm's. On the
    * uniform 48 phases a toe takes by its girth, the big toe's medial side, where its section turns fastest, stood as flat strips along the toe
    * that read as a fan of facets from the front (`toes.front` px 640..790 x 440..540), as the forefoot's edge did on the leg's uniform phases.
@@ -146,7 +146,7 @@ export namespace AutoMovieHumanF1 {
    */
   const TOE_TURN: number = 0.1;
 
-  /**
+  /*
    * Rings a toe's dome is meshed in (`AutoMovieHumanConicLoft.ITip.rings`). The dome turns its normal a quarter turn from the wall to the
    * tip, and the cap's twelve rings, at equal steps of the root of the distance to the tip, turned it 6 to 9 degrees each: under flat
    * shading every toe's tip stood as a bullseye of bands (`toes.front` px 200..260 x 520..570 and 540..600 x 440..500). Thirty turn it
@@ -154,7 +154,7 @@ export namespace AutoMovieHumanF1 {
    */
   const TOE_CAP_RINGS: number = 30;
 
-  /**
+  /*
    * A toe whose closed end is a round dome: its cap starts as far before its tip as `TOE_DOME` of the mean reach of its section there
    * (the mean of its four extents), so the end is a half ellipsoid on that section.
    *
@@ -165,8 +165,7 @@ export namespace AutoMovieHumanF1 {
    * still shrink fast there, the cap continued their taper to a point. Started where the dome's length is its share of the reach (found by
    * fixed-point iteration from the last knot), the cap's law draws the dome itself. A toe also holds its arcs at `TOE_LEAST`, and one
    * whose fit held an arc under it spaces its phases by `TOE_TURN`.
-   *
-   * @param family A toe as fitted, closing at its last knot.
+   * Parameter family: A toe as fitted, closing at its last knot.
    */
   function rounded(
     family: IAutoMovieHumanConicLoft.IFamily,
@@ -285,7 +284,9 @@ export namespace AutoMovieHumanF1 {
     },
   ];
 
-  /** The four fingers in order across the hand, starting with the index. */
+  /*
+   * The four fingers in order across the hand, starting with the index.
+   */
   const EMPTY_PROBE_FINGERS: readonly string[] = [
     "finger.index",
     "finger.middle",
@@ -348,7 +349,7 @@ export namespace AutoMovieHumanF1 {
     return resolve(pose, chain, true);
   }
 
-  /**
+  /*
    * Same frame/source composer; legacy compatibility and native prior stages resolve roots separately.
    *
    * `locals` gives a person's coordinates of the stored datums in their segments' frames (`AutoMovieHumanF1Centres.local`): with it
@@ -578,7 +579,7 @@ export namespace AutoMovieHumanF1 {
       ),
     );
   }
-  /**
+  /*
    * The crotch's seam: the curve both legs' bands start from, under the perineum from the front fork to the back one, in place of the
    * straight chord across the trunk's end. On the chord the two bands met at each fork in a corner, and their triangles folded through
    * each other there (178 degrees), a slit seen from the front.
@@ -602,7 +603,7 @@ export namespace AutoMovieHumanF1 {
     fair: [0.35, 0.35],
   };
 
-  /**
+  /*
    * The limbs split at their ends, Birn's hand: the palm lofted on past the knuckles, its end cut into one opening per finger along the
    * webs, and each opening bridged to its finger by a band. The hand's end at 595 mm on the arm's course, which turns at the middle
    * finger's first joint toward the four fingers' mean direction, faces the fingers, so each band runs on to its finger. The web lines are
@@ -628,7 +629,7 @@ export namespace AutoMovieHumanF1 {
    * and a bump at the little finger's; at 0.7 everywhere the fill under the plantar forks bulged below the sole; at 0.8 on the back the toes
    * read as webbed far up.
    */
-  /**
+  /*
    * Complete original host-end web chords, mm, from the independent accepted
    * before.payload original split definitions. These are F1 normalization
    * coefficients, not measured clinical dimensions or new web-depth rules.
@@ -787,7 +788,7 @@ export namespace AutoMovieHumanF1 {
     },
   };
 
-  /**
+  /*
    * The largest turn of a limb's ring between two neighbouring phases, radians (`AutoMovieHumanConicLoft.IFamily.turn`); a limb absent here
    * keeps uniform phases. The leg's 160 uniform phases, set by the thigh's girth, turned by up to 0.83 rad each round the forefoot's outer
    * edge and up to 0.94 at the ankle (the lofted rings read every millimetre of station), and the outer edge of the forefoot showed as level
@@ -807,7 +808,7 @@ export namespace AutoMovieHumanF1 {
    */
   export const ARM_TO_MM: number = AutoMovieHumanF1ArmEnd.TO_MM;
 
-  /**
+  /*
    * The band joining the arm's end to the hand (`IAutoMovieConstructionContinuation.band`): its rail into the hand, mm, its columns and its
    * rows. The rail, 10 mm, puts the hand's ring at 458, past the fit's first knot interval (448 to 468 at its 10 mm midpoint), so the band
    * meets the hand where its sections are fitted, not at their free start. 256 columns space the wrist's 165 mm girth 0.65 mm apart, finer
@@ -819,10 +820,12 @@ export namespace AutoMovieHumanF1 {
     rows: 12,
   };
 
-  /** Chord of the thumb's blend on either side of the curve where it meets the hand, mm: at 1 mm it folds in the acute web beside the index finger. */
+  /*
+   * Chord of the thumb's blend on either side of the curve where it meets the hand, mm: at 1 mm it folds in the acute web beside the index finger.
+   */
   const THUMB_CHORD_MM: number = 0.5;
 
-  /**
+  /*
    * The width of the skin faired about the thumb's blend, mm (`IAutoMovieConstructionJoin.fair`). The blend, 0.5 mm wide, met the hand in a
    * crisp ledge round the thumb's dorsal root (`limbview` close to [212, 972, 425], a scratch render of the arm's split alone). Faired over
    * 1.5 mm the fill folded the blend itself (edges folding by 90 degrees or more on the arm's split, 8 to 38); over 3 to 6 mm the ledge
@@ -834,7 +837,7 @@ export namespace AutoMovieHumanF1 {
    */
   const THUMB_FAIR_MM: number = 14;
 
-  /**
+  /*
    * The width of the skin faired about each of the ear's merges, mm (`IAutoMovieConstructionJoin.fair`): 4 mm round the plate's root on the
    * head, where the auricle leaves the skull in a soft sulcus, and 1 mm about each tube's blend. At half a tube's width (3 and 2.4 mm, as
    * the thumb's is about half the thumb's) the two tubes' fills met over the narrow scapha at 1,566 to 1,572 mm and the antihelix's walk
@@ -846,7 +849,7 @@ export namespace AutoMovieHumanF1 {
     root: 4,
   };
 
-  /**
+  /*
    * How many station lines round each part the seed searches of the ear's joins walk, phase first (`IAutoMovieConstructionSearchSeed.phases`):
    * which line of a part meets its host is a property of both surfaces, not of the part, so a fixed phase holds for one person only. On f1's
    * lens(1) plate the helix's phase-0 line stays outside the plate over its whole search (shares 0 to 0.5) and its first crossing line
@@ -855,16 +858,18 @@ export namespace AutoMovieHumanF1 {
    */
   const EAR_SEED_LINES: number = 8;
 
-  /** How far behind its first joint the thumb's root closes in a point, inside the hand, mm. */
+  /*
+   * How far behind its first joint the thumb's root closes in a point, inside the hand, mm.
+   */
   const ROOT_MM: number = 10;
 
-  /**
+  /*
    * Station spacing of the layers and derived outlines of a sewn family, mm. Each part adds stations of its own where its section turns fast,
    * so 4 mm is admitted whole; at 2 mm the engine read one toe's middle section as degenerate, and at 8 mm it refuses the arm's face.
    */
   const LAYER_MM: number = 4;
 
-  /**
+  /*
    * Where the arm's band lands on it, mm from its first station, at the +Z arm's phases `2 pi j / 24`, joined by the periodic cubic. Behind
    * the armpit's crease the trunk's side and the arm's inner side meet in a slit, its top at 1,272 to 1,274 mm 25 to 35 mm behind the
    * crease's datum, and the arm's side falls 2 to 4 mm for each millimetre outward from it (`vault`, a scratch survey of the skin in planes
@@ -915,7 +920,7 @@ export namespace AutoMovieHumanF1 {
   export const NOSE_RAILS_MM: readonly number[] =
     AutoMovieHumanF1RootRails.nose;
 
-  /**
+  /*
    * The nose's band's cross profiles (`IAutoMovieConstructionPort.IProfile`), depths in metres along its inward normal, on its loop clock
    * (0 at the dorsum, a quarter turn at the +Z wing, a half turn under the columella). Read by `FamilyConicScan.ts band band.nose 64`: the
    * reference skin's depth below the plain band along its normal at shares 0.1 to 0.9 of its span, with the sidewall's net
@@ -968,19 +973,19 @@ export namespace AutoMovieHumanF1 {
     },
   ];
 
-  /**
+  /*
    * Spacing of a digit's layers at its root, mm, and how far from its first station that holds, mm. Each digit meets its limb in a curve a few
    * millimetres across with a blend 1 mm wide; on layers 4 mm apart the digit's root was a few flat facets.
    */
   const WEB_LAYER_MM: number = 1;
 
-  /**
+  /*
    * Trunk station from which its layers are spaced on the skin over the crown (`construction` `domed`), mm: 1,640 mm high, above the ears
    * (their roots reach 1,610 mm) and below where the skull's top turns over toward the vertex.
    */
   const CROWN_MM: number = 860;
 
-  /**
+  /*
    * The trunk's mesh over the face, apart from its nets: from station 690 to 830 mm (the chin to the brow) layers at most 1 mm apart, and
    * phases at most 0.016 rad apart round the whole trunk (`IFamily.phase`). The layers and phases had followed the face's finest nets (the
    * chin's 0.95 mm rows, the eyes' 105 columns); with those nets coarsened for their own sake to 1.4 to 2 mm rows and 73 columns, the face's
@@ -990,7 +995,7 @@ export namespace AutoMovieHumanF1 {
   const TRUNK_FACE_LAYERS: [number, number, number] = [690, 830, 1];
   const TRUNK_PHASE: number = 0.016;
 
-  /**
+  /*
    * The rows by which a net cuts its family's layers (`leaf`), where they are not the net's own: a layer interval inside a net's window is
    * cut as fine as `(stations[1] - stations[0]) / (rows - 3)`, and these nets were stored at coarser grids for their numbers' sake
    * (issue #3197, stage B2), which would have thinned the layers with them (the nose's from 54 to 41).
@@ -1002,21 +1007,21 @@ export namespace AutoMovieHumanF1 {
     "nose.under": 31,
   };
 
-  /**
+  /*
    * The nose's largest phase step, radians (`IFamily.phase`): the column of its finest net as it was last accepted, `nose.under` at 39
    * columns over its window of 2.0416 to 4.2416 rad, which gave the nose 104 phases. That net is stored at 21 columns now (issue #3197,
    * stage B2), and the nose's phases would have followed it down to 64. Tessellation, not shape.
    */
   const NOSE_PHASE: number = (4.2416 - 2.0416) / (39 - 3);
 
-  /**
+  /*
    * Station spacing of the fingers' and the thumb's layers past their roots, mm. At the body's 4 mm the digits' rings showed as fine level
    * stripes along the thumb and the fingers under flat shading (`hand.high-oblique` px 610..660 x 520..580, a fold of 30 degrees at the
    * thumb's [238.8, 942, 427.7]), where a finger's section turns faster along it than the trunk's does; at 2 mm they are gone.
    */
   const FINGER_LAYER_MM: number = 2;
 
-  /**
+  /*
    * The largest turn of a finger's or the thumb's ring between two neighbouring phases, radians (`AutoMovieHumanConicLoft.IFamily.turn`),
    * as the arm's (`PHASE_TURN`). On phases set by its girth the thumb's flat side turned into its edges between few columns and drew a
    * sawtooth of long thin facets along the thumb (`limbview` close to [236, 945, 427]), the stripes `hand.high-oblique` showed.
@@ -1024,7 +1029,7 @@ export namespace AutoMovieHumanF1 {
   const FINGER_TURN: number = 0.1;
   const WEB_REACH_MM: number = 12;
 
-  /**
+  /*
    * When a layer is added midway between two of a family that carries reliefs: its skin there stands off the middle of the chord between the
    * two by more than `sagitta` mm at some phase. No interval is cut below `least` mm. Layers are level rings, so a fold that crosses them
    * aslant, as the one under the breast does, is drawn in steps as tall as the layers are apart; where the skin turns that fast the layers
@@ -1057,10 +1062,12 @@ export namespace AutoMovieHumanF1 {
     ],
   };
 
-  /** Columns round each band and rows across it. */
+  /*
+   * Columns round each band and rows across it.
+   */
   const BAND: { count: number; rows: number } = { count: 96, rows: 8 };
 
-  /**
+  /*
    * Columns round each leg's band at the crotch and round each arm's at the armscye. A band twists from its loop's direction to its ring's, so
    * each of its quads is two triangles of different slope, and a column wider than about 2 mm shows as a pair of stripes: at 96 columns a ring
    * of facets stood round each thigh, at 144 upright hatching, and at 288, 2 mm apart round a thigh's girth of 565 mm, neither.
@@ -1068,41 +1075,41 @@ export namespace AutoMovieHumanF1 {
   const THIGH_COLUMNS: number = 288;
   const SHOULDER_COLUMNS: number = 192;
 
-  /**
+  /*
    * Grid stations across each arm's band. Each column's ribbons take their own scale (`ribbons: "column"`), so in front of the armpit and
    * over the cap the band arches from the trunk to the arm over its whole length instead of hugging its chord, and its rows must follow
    * that arch as the splits' rows follow theirs (`IFan.rows`).
    */
   const ARMSCYE_ROWS: number = 24;
 
-  /**
+  /*
    * Spacing of the breast's layers, mm. Over the dome a ring moves 1.5 to 4 mm across the skin for each millimetre of station, so layers
    * 4 mm apart stood as concentric steps on `fold.front`, and at 1 mm the rings still showed as ring facets folding by about 4 degrees
    * ([118, 1272, 90]).
    */
   const BREAST_LAYER_MM: number = 0.5;
 
-  /**
+  /*
    * Largest distance between the breast's neighbouring phases, mm (`AutoMovieHumanConicLoft.IFamily.pitch`). At the figure's 4 mm the
    * breast's girth of about 315 mm took about 80 phases, and with its layers half a millimetre apart the dome still showed radial spokes
    * and ring facets on `fold.front` (px 300..500 x 200..300): the phases' facets, converging on the tip. 1.5 mm is the ear rim's pitch.
    */
   const BREAST_PITCH_MM: number = 1.5;
-  /**
+  /*
    * Columns round the nose's band. Its rail is a curve on the nose, which the band's end meets exactly only at its columns; between them the
    * band's own interpolation stood 0.03 mm off the nose's rail at 96 columns, and a nostril's cut, which crosses there, could not place its
    * crossing from one face to the next (`AutoMovieSolidClip.CROSSING`, 0.01 mm).
    */
   const NOSE_COLUMNS: number = 192;
 
-  /**
+  /*
    * The nostril's rim, mm: the width of its cut's blend on either side of the curve, and how far its cutter is drawn in so the opening,
    * widened by the blend, keeps the hollow's own size. The reference's rim, the alar rim and the sill, is a roll of about 1.5 to 2 mm radius
    * (`FamilyConicFigure.ts nose`, from below); with a blend of 0.15 mm the generated rim was a knife's edge.
    */
   const NOSTRIL_RIM_MM: number = 1.5;
 
-  /**
+  /*
    * Columns round a nostril's blend and rows across it. An edge with a roll is resolved only when every sampling across it is at most
    * a quarter of the roll (lofting.md, Fitting and verification), 0.375 mm of the rim's 1.5. On 48 columns, equal steps of the cutter's
    * phase, the traced curve, 25.5 mm long, had its columns 0.28 to 0.98 mm apart, and 4 rows spanned the 2.21 mm from rail to rail 0.55 mm
@@ -1113,7 +1120,7 @@ export namespace AutoMovieHumanF1 {
    */
   const NOSTRIL_BLEND: { count: number; rows: number } = { count: 48, rows: 4 };
 
-  /**
+  /*
    * Spacing of a nostril cutter's layers over its whole length, mm. The cutter's wall turns from its flared mouth into the canal within
    * about 2.5 mm of station above the cut (its station line at 0.4 rad round turns 72 degrees between 10.4 and 13 mm along its course,
    * where its knots at 9 and 11 mm change its section by 7 mm), and on layers 1.6 mm apart there the mesh folded 64 to 72 degrees along
@@ -1122,7 +1129,7 @@ export namespace AutoMovieHumanF1 {
    */
   const NOSTRIL_LAYER_MM: number = 0.5;
 
-  /**
+  /*
    * The nostril cutter's mouth, mm along its course: its first fitted knot (`AutoMovieHumanF1Nostril`, sections read from 9 mm), whose
    * section the lead carries out of the nose; the cut meets the floor 8 to 10 mm along it. And how far its later knots and its closed end are
    * moved on (`spreadOut`), mm: fitted, the section moves 7 mm between the knots at 9 and 11 mm, a flare whose station line turns 72 degrees
@@ -1134,14 +1141,14 @@ export namespace AutoMovieHumanF1 {
   const NOSTRIL_MOUTH_MM: number = 9;
   const NOSTRIL_SPREAD_MM: number = 2;
 
-  /**
+  /*
    * Spacing of the armpit slit cutter's layers, mm (`AutoMovieHumanF1Axilla`). Its sections narrow from the dome under the crease's front
    * to the cusp behind it within about 20 mm of station, and its cut runs along the arm's band, so its rings stand a millimetre apart as a
    * digit's root's do (`WEB_LAYER_MM`).
    */
   const AXILLA_LAYER_MM: number = 1;
 
-  /**
+  /*
    * Where the slit's cut is seeded: at the middle of the longest branch of its cutter's measured crossing with the skin, on the +Z side;
    * the twin's phase is mirrored, since a twin's `v` is negated. The cutter's surface, sampled every 0.5 mm at 720 phases from tip to tip
    * and classed inside or outside the realized body by the nearest triangle's side (`isect`, a scratch probe), meets the band in one
@@ -1156,7 +1163,7 @@ export namespace AutoMovieHumanF1 {
     from: 0.613,
     to: 0.669,
   };
-  /**
+  /*
    * The radius the skin is faired over where the breast's band fans against the trunk below the breast's side, mm, about the thorax's
    * datum `AutoMovieHumanF1Joints.breastFan` on the +Z side and its mirror image on the other: a dark dash on `fold.left`
    * (px 600..640 x 335..345), folds of 14 degrees in the band's own triangles (`creases.ts`), where the loop's distance falls from 56 to
@@ -1164,7 +1171,7 @@ export namespace AutoMovieHumanF1 {
    */
   const BREAST_FAN_FILL_MM: number = 4;
 
-  /**
+  /*
    * The trunk's chart of a point of the figure's frame at a pose: its station along the trunk's course and its coordinates across it, `u`
    * along the chart's `up` and `v = u x t` as the engine charts a course, whose angle `atan2(v, u)` is the chart's phase. The point is
    * mapped into the pelvis's frame, the trunk's own, and read there about the trunk's course, so a port loop read through it follows a
@@ -1190,29 +1197,31 @@ export namespace AutoMovieHumanF1 {
     };
   }
 
-  /**
+  /*
    * How far outside the arm's ring the port loop stands on the trunk's own skin, mm. With the rail 10 mm in, at 6 mm every column of the band
    * leaves the trunk toward the ring and reaches it along the arm's own direction (`FamilyConicArmscye.ts`), 6 to 19 mm long. At 3 mm with
    * the rail 3 mm in the same held, but a band 4 mm long turned from the trunk's skin to the arm's so sharply that it showed as a line round
    * the shoulder.
    */
   const ARMSCYE_MARGIN_MM: number = 6;
-  /**
+  /*
    * How far below the armpit's crease the arm's ring is still followed by the loop, mm. The ring 10 mm into the arm dips 25 mm below the
    * crease, since the arm hangs down from it; a loop that follows it there cuts away the trunk's side up to the crease, and the band is a
    * web across the hollow.
    */
   const ARMPIT_DROP_MM: number = -6;
-  /** Width of the smooth maximum by which the loop meets that floor, mm: the loop rounds onto the floor over about this much height. */
+  /*
+   * Width of the smooth maximum by which the loop meets that floor, mm: the loop rounds onto the floor over about this much height.
+   */
   const ARMPIT_ROUND_MM: number = 12;
-  /**
+  /*
    * How far the loop's floor sinks where the arm's rail is shortest, mm, by the rail's share of its dip elsewhere. At 23 mm the floor is
    * 4 mm under the ring there, so the smooth maximum and the margin leave the loop 1 to 2 mm under the ring, across the slit from it: sunk
    * 18 mm the loop stood level with the ring and 16 columns left the trunk against it; sunk 28 or 40 mm it stood 3 to 6 mm under the ring
    * and up to 17 columns reached the arm against the arm's own direction, which falls 2 mm a millimetre there.
    */
   const ARMPIT_SINK_MM: number = 23;
-  /**
+  /*
    * How far from the breast's course the trunk's own skin starts round the port, mm, at the clocks `2 pi j / 8` about the course: 0 up, a
    * quarter turn to the side, a half turn down, three quarters toward the median line. The port's loop stands there. Under the breast it is
    * the fold's lower edge, where the chest begins (`FamilyConicBody.ts BREAST_CHEST_MM`, read off the skin's profile in half-planes about
@@ -1226,12 +1235,12 @@ export namespace AutoMovieHumanF1 {
    * underside to 1.5 mm inside this curve, and elsewhere the skin to 1 mm inside the ring (`FamilyConicBody.ts BREAST_CLIP_MM`).
    */
   const BREAST_CHEST_MM: number[] = [62, 62, 56, 47, 52, 50, 54, 60];
-  /**
+  /*
    * How far outside the nose's rail curve its port loop stands on the face, mm: the rail lies 2 mm in front of the alar groove on the wing's
    * face (`FamilyConicBody.ts nose`), so 2.5 mm puts the loop in the groove and outside the box the face leaves to the nose.
    */
   const NOSE_MARGIN_MM: number = 2.5;
-  /**
+  /*
    * How much farther out the nose's loop stands under the columella, mm, at the loop's lowest clock, falling off as `(-cos c)^6` (half of
    * it about 10 mm to either side of the median line, nothing at the wings). The reference's lip turns forward into the subnasale over 6 mm of
    * height (its front at 120.6, 121.1, 122.2 and 124 mm forward at 1,538, 1,540, 1,542 and 1,544 mm, `FamilyConicScan.ts alar`); a loop 2.5 mm
@@ -1240,7 +1249,9 @@ export namespace AutoMovieHumanF1 {
    */
   const NOSE_SUBNASAL_MM: number = 2.5;
 
-  /** Original non-native pose producer; no supplied native field falls back through this path. */
+  /*
+   * Original non-native pose producer; no supplied native field falls back through this path.
+   */
   function legacyArmscye(
     side: 1 | -1,
     placed: IAutoMovieHumanF1.IAssembly = assemble(),
@@ -1306,7 +1317,9 @@ export namespace AutoMovieHumanF1 {
     return around(outline, SHOULDER_COLUMNS, ARMSCYE_MARGIN_MM, armpit.v, side);
   }
 
-  /** Original non-native pose producer; no supplied native field falls back through this path. */
+  /*
+   * Original non-native pose producer; no supplied native field falls back through this path.
+   */
   function legacyMammary(
     side: 1 | -1,
     placed: IAutoMovieHumanF1.IAssembly = assemble(),
@@ -1386,7 +1399,9 @@ export namespace AutoMovieHumanF1 {
     );
   }
 
-  /** Original non-native pose producer; no supplied native field falls back through this path. */
+  /*
+   * Original non-native pose producer; no supplied native field falls back through this path.
+   */
   function legacyNostril(
     placed: IAutoMovieHumanF1.IAssembly = assemble(),
   ): IAutoMovieConstructionPortLoop {
@@ -1429,7 +1444,9 @@ export namespace AutoMovieHumanF1 {
     );
   }
 
-  /** Original non-native pose producer; no supplied native field falls back through this path. */
+  /*
+   * Original non-native pose producer; no supplied native field falls back through this path.
+   */
   function around(
     outline: [number, number][],
     columns: number,
@@ -1523,13 +1540,13 @@ export namespace AutoMovieHumanF1 {
     return side > 0 ? placed.roots.arm[0] : placed.roots.arm[1];
   }
 
-  /**
+  /*
    * The share of its lead an extreme may be drawn in by (`drawnIn`): at half, the extreme keeps as much of its lead over its nearer
    * neighbour as it gives up, the same margin from the stored section as from the section whose quarter has closed.
    */
   const DRAWN_SHARE: number = 0.5;
 
-  /**
+  /*
    * A family with every section drawn in by a distance: at each knot each of the four extremes moves inward along its own normal, the
    * front and back ones along `u` and the side ones along `v`, and the shoulders, shares of their arcs, stay. A curve's parallel at a
    * distance has its extremes on the normals through the curve's extremes, so the drawn-in extreme keeps its other coordinate. A cutter
@@ -1539,9 +1556,8 @@ export namespace AutoMovieHumanF1 {
    * `DRAWN_SHARE` of its lead over the nearer of them, the smaller. Drawn toward the mean of the extremes by 1.5 mm, the nostril's front
    * extreme, which leads its lateral neighbour by 1.05 mm, kept 0.63 mm of that lead while both moved in both coordinates, and the four
    * extremes left their normals by 0.42 to 1.02 mm; a made section leading by 0.2 mm fell 0.25 mm behind (`test_human_f1_nostril_rim`).
-   *
-   * @param family The family, whose layout's four extremes come in (u, v) pairs: front (+u), side (+v), back (-u), side (-v).
-   * @param mm The distance, mm.
+   * Parameter family: The family, whose layout's four extremes come in (u, v) pairs: front (+u), side (+v), back (-u), side (-v).
+   * Parameter mm: The distance, mm.
    */
   function drawnIn(
     family: IAutoMovieHumanConicLoft.IFamily,
@@ -1592,14 +1608,13 @@ export namespace AutoMovieHumanF1 {
     return { ...family, values };
   }
 
-  /**
+  /*
    * A family whose knots past `mouth`, and its closed end, are moved on along its course by a distance: the section at `mouth` and every
    * section before it stay, and the change from it to the next knot's section is drawn over that much more station. A cutter whose wall
    * turns from its flared mouth into its canal within a few millimetres is spread so it turns more gently.
-   *
-   * @param family The family.
-   * @param mouth The station of the last knot that stays, mm.
-   * @param mm The distance, mm.
+   * Parameter family: The family.
+   * Parameter mouth: The station of the last knot that stays, mm.
+   * Parameter mm: The distance, mm.
    */
   function spreadOut(
     family: IAutoMovieHumanConicLoft.IFamily,
@@ -1622,7 +1637,9 @@ export namespace AutoMovieHumanF1 {
     };
   }
 
-  /** Whether the "mm" field at `f` starts a (u, v) pair: an even count of "mm" fields runs up to it. */
+  /*
+   * Whether the "mm" field at `f` starts a (u, v) pair: an even count of "mm" fields runs up to it.
+   */
   function pairsBefore(units: string[], f: number): boolean {
     let run: number = 0;
     for (let g: number = f - 1; g >= 0 && units[g] === "mm"; --g) ++run;
@@ -3107,33 +3124,51 @@ export namespace AutoMovieHumanF1 {
     return pieces;
   }
 
-  /** A limb whose open end is split into its knuckled digits. */
+  /*
+   * A limb whose open end is split into its knuckled digits.
+   */
   interface IFan {
-    /** The digits in the seams' order, from the little finger or the little toe (`fanSeams`). */
+    /*
+     * The digits in the seams' order, from the little finger or the little toe (`fanSeams`).
+     */
     digits: string[];
 
-    /** Each seam's web line, knots `[along, depth]` in metres in its plane (`IAutoMovieConstructionSplit.IProfile`). */
+    /*
+     * Each seam's web line, knots `[along, depth]` in metres in its plane (`IAutoMovieConstructionSplit.IProfile`).
+     */
     webs: [number, number][][];
 
-    /** The bands' turn at each fork, radians of clock. */
+    /*
+     * The bands' turn at each fork, radians of clock.
+     */
     corner: number;
 
-    /** The share of its length each band's ribbon keeps at a fork (`IAutoMovieConstructionSplit.IProfile.reach`); absent, the whole. */
+    /*
+     * The share of its length each band's ribbon keeps at a fork (`IAutoMovieConstructionSplit.IProfile.reach`); absent, the whole.
+     */
     reach?: number;
 
-    /** Whether the bands leave the limb's end square to its ring (`IAutoMovieConstructionSplit.IProfile.square`); absent, along its station lines. */
+    /*
+     * Whether the bands leave the limb's end square to its ring (`IAutoMovieConstructionSplit.IProfile.square`); absent, along its station lines.
+     */
     square?: boolean;
 
-    /** The radius of the skin faired about each fork, as a share of its seam's chord (`IAutoMovieConstructionSplit.IProfile.fair`), one for both forks or `[palm or sole, back]`; absent, the forks stay as drawn. */
+    /*
+     * The radius of the skin faired about each fork, as a share of its seam's chord (`IAutoMovieConstructionSplit.IProfile.fair`), one for both forks or `[palm or sole, back]`; absent, the forks stay as drawn.
+     */
     fair?: number | [number, number];
 
-    /** Where each digit's band lands on it, mm past its first station, the web. */
+    /*
+     * Where each digit's band lands on it, mm past its first station, the web.
+     */
     rail: number;
 
-    /** Columns round each band, a quarter on each seam it takes. */
+    /*
+     * Columns round each band, a quarter on each seam it takes.
+     */
     columns: number;
 
-    /**
+    /*
      * Grid stations across each band (`IAutoMovieConstructionSplit.rows`). At the bands' default 8, rows up to 2 mm apart drew the fork
      * fills as facets and folded the bands where a column turns, beside the hand's palm forks (173 degrees on the middle finger's band) and
      * in front of the toes' plantar forks (179); at 24 the hand's split keeps one edge folding by 90 degrees or more (8 before) and the
@@ -3142,8 +3177,12 @@ export namespace AutoMovieHumanF1 {
     rows: number;
   }
 
-  /** Native anatomy fields have a distinct fixed-reference entry. These original producers preserve the existing non-native posed constructor. */
-  /** A point in the trunk's chart: its station along the trunk's course from the course's foot, mm, and its coordinates across it, mm. */
+  /*
+   * Native anatomy fields have a distinct fixed-reference entry. These original producers preserve the existing non-native posed constructor.
+   */
+  /*
+   * A point in the trunk's chart: its station along the trunk's course from the course's foot, mm, and its coordinates across it, mm.
+   */
   interface IChart {
     station: number;
     u: number;

@@ -22,7 +22,9 @@ import { EquineLateral } from "./EquineLateral";
 import type { QuadrupedRidePose } from "../quadruped/QuadrupedRidePose";
 import type { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped";
 
-/** Admission and sample goals for individually authored equine footwork. */
+/*
+ * Admission and sample goals for individually authored equine footwork.
+ */
 export namespace EquineFootwork {
   /** Named equine film-animation technique on one course leg. */
   export type Technique =
@@ -33,11 +35,17 @@ export namespace EquineFootwork {
     | AutoMovieArchetypeEquineBank.ISlide
     | AutoMovieArchetypeEquineScramble.IScramble;
 
-  /** A named film-second cue a technique adds to the ride. */
+  /*
+   * A named film-second cue a technique adds to the ride.
+   */
   export interface IInstant {
-    /** Film second. */
+    /*
+     * Film second.
+     */
     seconds: number;
-    /** The cue's name. */
+    /*
+     * The cue's name.
+     */
     label: string;
   }
 
@@ -59,54 +67,69 @@ export namespace EquineFootwork {
     advance: number;
   }
 
-  /** Admit a reusable individual film-footwork plan and its authored timed cues. */
+  /*
+   * Admit a reusable individual film-footwork plan and its authored timed cues.
+   */
   export interface IPlan {
-    /**
+    /*
      * Original course leg numbers, zero-based, explicitly authored for
      * rein-back.
      */
     readonly backing: ReadonlySet<number>;
-    /** Additional named film-second cues owned by the authored technique. */
+    /*
+     * Additional named film-second cues owned by the authored technique.
+     */
     readonly instants: readonly IInstant[];
-    /** Authored interval if the route ends with an arena slide. */
+    /*
+     * Authored interval if the route ends with an arena slide.
+     */
     readonly slide?: ISlide;
-    /** Admitted lateral figures, in leg order. */
+    /*
+     * Admitted lateral figures, in leg order.
+     */
     readonly lateral: readonly EquineLateral.IWindow[];
-    /** The admitted jump, when a leg names one. */
+    /*
+     * The admitted jump, when a leg names one.
+     */
     readonly jump?: EquineJump.IRequest;
-    /** Admitted slides down steep banks, in leg order. */
+    /*
+     * Admitted slides down steep banks, in leg order.
+     */
     readonly bank: readonly AutoMovieArchetypeEquineBank.IWindow[];
-    /** Admitted scrambles up steep banks, in leg order. */
+    /*
+     * Admitted scrambles up steep banks, in leg order.
+     */
     readonly scramble: readonly AutoMovieArchetypeEquineScramble.IWindow[];
-    /**
+    /*
      * The bank faces' edges, whose crossing pitches the trunk along its
      * support.
      */
     readonly edges: readonly EquineEdge.IEdge[];
-    /** The root's course distance at a film second. */
+    /*
+     * The root's course distance at a film second.
+     */
     readonly distance: (second: number) => number;
   }
 
-  /**
+  /*
    * Freeze authored equine technique choices after validating their route
    * context.
-   *
-   * @param archetype Exact source archetype identity.
-   * @param course Caller-owned course before sampling.
-   * @param plan Its admitted geometry and speed profile.
-   * @param gait Optional fixed gait in the public ride request.
-   * @param hooves The neutral hoof endpoints in model metres, which fix the
-   *   pirouette heading.
-   * @param centred The moving stance centres, under each attachment, which fix
-   *   the shoulder-in heading.
-   * @param reach The fore limb's length, attachment to hoof, metres, which
-   *   bounds a scramble's climb per bound.
-   * @param tail The rigid tail, which bounds a bank slide's sit.
-   * @returns Independent registration for the gait selector, event reader, goal
-   *   sampler, lateral headings and the jump request.
-   * @throws {AutoMovieArchetypeRefusal} For an unsupported animal, travel
-   *   context, inconsistent authored timing, an inadmissible lateral figure,
-   *   jump or baulk, or a second jump.
+   * Parameter archetype: Exact source archetype identity.
+   * Parameter course: Caller-owned course before sampling.
+   * Parameter plan: Its admitted geometry and speed profile.
+   * Parameter gait: Optional fixed gait in the public ride request.
+   * Parameter hooves: The neutral hoof endpoints in model metres, which fix the
+   * pirouette heading.
+   * Parameter centred: The moving stance centres, under each attachment, which fix
+   * the shoulder-in heading.
+   * Parameter reach: The fore limb's length, attachment to hoof, metres, which
+   * bounds a scramble's climb per bound.
+   * Parameter tail: The rigid tail, which bounds a bank slide's sit.
+   * Returns: Independent registration for the gait selector, event reader, goal
+   * sampler, lateral headings and the jump request.
+   * For an unsupported animal, travel
+   * context, inconsistent authored timing, an inadmissible lateral figure,
+   * jump or baulk, or a second jump.
    */
   export function prepare(
     archetype: string,
@@ -299,7 +322,9 @@ export namespace EquineFootwork {
       ...(jump === undefined ? {} : { jump }),
     };
 
-    /** Report the authored leg that cannot supply the requested footwork. */
+    /*
+     * Report the authored leg that cannot supply the requested footwork.
+     */
     function refuse(index: number, reason: string): never {
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
@@ -313,12 +338,11 @@ export namespace EquineFootwork {
     }
   }
 
-  /**
+  /*
    * Return the two alternating diagonal phases of a rein-back stride.
-   *
-   * @param limb The named hoof.
-   * @returns Stride fraction, zero for the left fore and right hind, one half
-   *   for the opposite diagonal.
+   * Parameter limb: The named hoof.
+   * Returns: Stride fraction, zero for the left fore and right hind, one half
+   * for the opposite diagonal.
    */
   export function reinBackPhase(
     limb: AutoMovieArchetypeQuadrupedBody.Limb,
@@ -326,16 +350,15 @@ export namespace EquineFootwork {
     return limb === "leftFore" || limb === "rightHind" ? 0 : 0.5;
   }
 
-  /**
+  /*
    * Blend a hind hoof into an explicitly moving floor contact and retain it
    * through the stop.
-   *
-   * @param slide Admitted sliding window, if supplied.
-   * @param second The film second for the current pose.
-   * @param neutral The neutral terminal point in model metres.
-   * @param goal Current gait's candidate foot goal.
-   * @returns Current foot goal, with the two stance channels blended only
-   *   inside the authored slide.
+   * Parameter slide: Admitted sliding window, if supplied.
+   * Parameter second: The film second for the current pose.
+   * Parameter neutral: The neutral terminal point in model metres.
+   * Parameter goal: Current gait's candidate foot goal.
+   * Returns: Current foot goal, with the two stance channels blended only
+   * inside the authored slide.
    */
   export function slideGoal(
     slide: ISlide | undefined,
@@ -368,15 +391,14 @@ export namespace EquineFootwork {
     };
   }
 
-  /**
+  /*
    * The trunk's pitch a technique adds at a film second, degrees, positive
    * nose-down: a bank slide sits the horse back on its haunches by
    * `AutoMovieArchetypeEquineBank.SIT`, and a bank face's edges pitch the trunk
    * along its support as it crosses them (`EquineEdge`).
-   *
-   * @param plan The admitted technique plan.
-   * @param second The film second.
-   * @returns The pitch, zero outside a slide.
+   * Parameter plan: The admitted technique plan.
+   * Parameter second: The film second.
+   * Returns: The pitch, zero outside a slide.
    */
   export function sit(plan: IPlan, second: number): number {
     return (
@@ -387,20 +409,19 @@ export namespace EquineFootwork {
     );
   }
 
-  /**
+  /*
    * A hoof's goal under the admitted techniques: a scramble's bounds for either
    * pair, then, for a hind, an arena slide's moving contact and a bank slide's
    * sliding seat.
-   *
-   * @param plan The admitted technique plan.
-   * @param second The film second.
-   * @param fore Whether the hoof is a fore.
-   * @param neutral The hoof's neutral point, model metres.
-   * @param attachment The limb's attachment, model metres.
-   * @param goal The gait's goal.
-   * @param placement The body's world placement.
-   * @param footing The course's prepared footing.
-   * @returns The goal.
+   * Parameter plan: The admitted technique plan.
+   * Parameter second: The film second.
+   * Parameter fore: Whether the hoof is a fore.
+   * Parameter neutral: The hoof's neutral point, model metres.
+   * Parameter attachment: The limb's attachment, model metres.
+   * Parameter goal: The gait's goal.
+   * Parameter placement: The body's world placement.
+   * Parameter footing: The course's prepared footing.
+   * Returns: The goal.
    */
   export function limbGoal(
     plan: IPlan,
@@ -436,16 +457,22 @@ export namespace EquineFootwork {
         );
   }
 
-  /**
+  /*
    * An admitted slide interval with its terminal stop already fixed by the
    * route.
    */
   interface ISlide {
-    /** Slide entry begins at this film second, on the original route. */
+    /*
+     * Slide entry begins at this film second, on the original route.
+     */
     from: number;
-    /** Both hind feet reach their authored slide targets at this film second. */
+    /*
+     * Both hind feet reach their authored slide targets at this film second.
+     */
     contact: number;
-    /** Model-space offset of the two hind footprints, metres. */
+    /*
+     * Model-space offset of the two hind footprints, metres.
+     */
     advance: number;
   }
 }

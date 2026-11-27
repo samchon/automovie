@@ -16,7 +16,9 @@ import type {
  * as one whose module wrote them all out.
  */
 export namespace AutoMovieHumanConicRelief {
-  /** How many heights each expanded net's module stores, by the expanded `heights` array itself. */
+  /*
+   * How many heights each expanded net's module stores, by the expanded `heights` array itself.
+   */
   const STORED: WeakMap<readonly number[], number> = new WeakMap();
 
   /**

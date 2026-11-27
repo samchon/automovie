@@ -13,7 +13,7 @@ import { propBoundsOverlap } from "../../film/internal/propBoundsOverlap";
 import { builtEnvironmentPartBoxes } from "./builtEnvironmentPartBoxes";
 import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 
-/**
+/*
  * Find positive-volume intersections of placed bodies' axis-aligned part-box
  * proxies.
  *
@@ -22,7 +22,7 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
  * disjoint union boxes; compared counts active candidate comparisons and is not
  * a full operation or timing measurement.
  *
- * Exact box-face contact is excluded by {@link propBoundsOverlap}. Positive
+ * Exact box-face contact is excluded by propBoundsOverlap. Positive
  * overlap is a bounds finding, not proof of mesh interpenetration: part boxes
  * include empty space, and a population envelope includes gaps between members.
  * Volume and fraction grade these proxies, not occupied material.
@@ -133,16 +133,24 @@ export function builtEnvironmentPlacementOverlapSweep(
   };
 }
 
-/** One resolved body with its locator and its position in body order. */
+/*
+ * One resolved body with its locator and its position in body order.
+ */
 interface ISweptBody extends IAutoMovieBuiltPlacementBody {
-  /** The locator the body was resolved from. */
+  /*
+   * The locator the body was resolved from.
+   */
   locator: IAutoMovieBuiltPlacementBodyLocator;
 
-  /** Position among resolved bodies, which breaks ties and orders each pair. */
+  /*
+   * Position among resolved bodies, which breaks ties and orders each pair.
+   */
   index: number;
 }
 
-/** The volume of one box, zero when any extent is flat. */
+/*
+ * The volume of one box, zero when any extent is flat.
+ */
 function boxVolume(box: IAutoMovieSubjectBox): number {
   return (
     Math.max(0, box.max.x - box.min.x) *
@@ -151,7 +159,9 @@ function boxVolume(box: IAutoMovieSubjectBox): number {
   );
 }
 
-/** How much solid a body's parts hold, which is not the volume of its box. */
+/*
+ * How much solid a body's parts hold, which is not the volume of its box.
+ */
 const solidVolume: (parts: readonly IAutoMovieSubjectBox[]) => number = (
   parts: readonly IAutoMovieSubjectBox[],
 ): number =>
@@ -161,7 +171,9 @@ const solidVolume: (parts: readonly IAutoMovieSubjectBox[]) => number = (
     0,
   );
 
-/** The volume two boxes share, zero when they only touch or miss. */
+/*
+ * The volume two boxes share, zero when they only touch or miss.
+ */
 const sharedVolume: (
   left: IAutoMovieSubjectBox,
   right: IAutoMovieSubjectBox,

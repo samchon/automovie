@@ -622,7 +622,7 @@ export namespace AutoMovieMeshExtract {
     return h00 * v0 + h10 * h * m0 + h01 * v1 + h11 * h * m1;
   }
 
-  /**
+  /*
    * Chains a section's segments through their shared crossings: chains start
    * first at crossings of other than two segments (the ends of open chains),
    * then anywhere on what remains (closed loops). Consecutive coincident points
@@ -693,7 +693,7 @@ export namespace AutoMovieMeshExtract {
     return { loops, dangling };
   }
 
-  /**
+  /*
    * A cut's outer boundaries. Open chains are joined end to end, always the
    * nearest pair of ends first while that gap stays within the bridge: first
    * only a chain's tail to a chain's head (the winding agrees, so the join
@@ -814,7 +814,9 @@ export namespace AutoMovieMeshExtract {
     return { outer, gaps, unclosed: open.length };
   }
 
-  /** The signed shoelace area of a closed polygon, positive counter-clockwise. */
+  /*
+   * The signed shoelace area of a closed polygon, positive counter-clockwise.
+   */
   function shoelace(points: readonly (readonly [number, number])[]): number {
     let out: number = 0;
     for (let i: number = 0; i < points.length; ++i) {
@@ -825,7 +827,9 @@ export namespace AutoMovieMeshExtract {
     return out;
   }
 
-  /** Even-odd point-in-polygon by a ray along +x. */
+  /*
+   * Even-odd point-in-polygon by a ray along +x.
+   */
   function contains(
     polygon: readonly (readonly [number, number])[],
     p: readonly [number, number],
@@ -847,7 +851,7 @@ export namespace AutoMovieMeshExtract {
     return inside;
   }
 
-  /**
+  /*
    * A loop normalised to the unit clock: knot clocks from 0, points, and
    * tangents per clock unit.
    */
@@ -857,7 +861,7 @@ export namespace AutoMovieMeshExtract {
     tangents: [number, number][];
   }
 
-  /**
+  /*
    * Turns a reduced loop counter-clockwise, starts it at its +a extreme knot
    * and rescales it to the unit clock.
    */
@@ -927,7 +931,7 @@ export namespace AutoMovieMeshExtract {
     return { clocks, points, tangents };
   }
 
-  /**
+  /*
    * A normalised loop's point and its first and second clock derivatives at a
    * clock, wrapped into [0, 1).
    */
@@ -980,7 +984,7 @@ export namespace AutoMovieMeshExtract {
     ];
   }
 
-  /**
+  /*
    * The cubic Hermite basis at normalised u: value at 0, slope at 0, value at
    * 1, slope at 1.
    */
@@ -990,7 +994,7 @@ export namespace AutoMovieMeshExtract {
     return [2 * u3 - 3 * u2 + 1, u3 - 2 * u2 + u, -2 * u3 + 3 * u2, u3 - u2];
   }
 
-  /**
+  /*
    * The parameter distance from sample i forward to sample j, one period added
    * when j does not follow i.
    */
@@ -1003,40 +1007,58 @@ export namespace AutoMovieMeshExtract {
     return period !== null && j <= i ? t[j]! + period - t[i]! : t[j]! - t[i]!;
   }
 
-  /** The dense samples of a run or loop with its knot data per coordinate. */
+  /*
+   * The dense samples of a run or loop with its knot data per coordinate.
+   */
   interface ISpans {
-    /** Parameter per sample, increasing. */
+    /*
+     * Parameter per sample, increasing.
+     */
     t: readonly number[];
 
-    /** Period of a loop's parameter; null for an open run. */
+    /*
+     * Period of a loop's parameter; null for an open run.
+     */
     period: number | null;
 
-    /** Sample values per coordinate. */
+    /*
+     * Sample values per coordinate.
+     */
     values: readonly (readonly number[])[];
 
-    /** Knot slopes per coordinate, per sample (read at alive knots only). */
+    /*
+     * Knot slopes per coordinate, per sample (read at alive knots only).
+     */
     slopes: number[][];
   }
 
-  /**
+  /*
    * The removal problem: spans plus the pins, the held slope components and the
    * stop rule.
    */
   interface IRemoval extends ISpans {
-    /** Slope components held at their value (zero), per coordinate per sample. */
+    /*
+     * Slope components held at their value (zero), per coordinate per sample.
+     */
     fixed: readonly (readonly boolean[])[];
 
-    /** Samples never removed. */
+    /*
+     * Samples never removed.
+     */
     keep: readonly boolean[];
 
-    /** Largest admitted deviation. */
+    /*
+     * Largest admitted deviation.
+     */
     tolerance: number;
 
-    /** Fewest knots left. */
+    /*
+     * Fewest knots left.
+     */
     minimum: number;
   }
 
-  /**
+  /*
    * The samples strictly inside the span from i to j, with their span parameter
    * u in (0, 1) and the span length h.
    */
@@ -1057,7 +1079,7 @@ export namespace AutoMovieMeshExtract {
     return { k, u, h };
   }
 
-  /**
+  /*
    * The largest distance of a span's inner samples from the span, with the
    * given slopes at its ends.
    */
@@ -1085,7 +1107,9 @@ export namespace AutoMovieMeshExtract {
     return worst;
   }
 
-  /** The largest deviation over all spans between consecutive alive knots. */
+  /*
+   * The largest deviation over all spans between consecutive alive knots.
+   */
   function worstSpan(spans: ISpans, alive: readonly number[]): number {
     const at: (i: number) => number[] = (i: number): number[] =>
       spans.slopes.map((s: number[]): number => s[i]!);
@@ -1100,7 +1124,7 @@ export namespace AutoMovieMeshExtract {
     return worst;
   }
 
-  /**
+  /*
    * The cost of removing a knot between alive neighbours a and b, with a0
    * before a and b1 after b (null past an open run's ends): the slopes of a and
    * b are refitted by least squares to the inner samples of the spans (a0, a),
@@ -1188,7 +1212,7 @@ export namespace AutoMovieMeshExtract {
     return { cost, ma, mb };
   }
 
-  /**
+  /*
    * Greedy knot removal: the alive knot whose refitted removal deviates least
    * goes, while that deviation stays within the tolerance; the refitted slopes
    * of its neighbours are written back. Returns the alive sample indices in
@@ -1250,7 +1274,9 @@ export namespace AutoMovieMeshExtract {
     return alive;
   }
 
-  /** The indices `0 .. count - 1` not excluded, in order. */
+  /*
+   * The indices `0 .. count - 1` not excluded, in order.
+   */
   function keptIndices(count: number, excluded: readonly number[]): number[] {
     const out: Set<number> = new Set(excluded);
     const kept: number[] = [];
@@ -1258,7 +1284,7 @@ export namespace AutoMovieMeshExtract {
     return kept;
   }
 
-  /**
+  /*
    * Topographic prominence of the local extremum at `i`: on each side, how far
    * the run falls from it (rises, for a minimum) before it passes the
    * extremum's value or ends; the smaller side.
@@ -1277,7 +1303,9 @@ export namespace AutoMovieMeshExtract {
     return out;
   }
 
-  /** A run of samples bending one way, by unwrapped indices. */
+  /*
+   * A run of samples bending one way, by unwrapped indices.
+   */
   interface IRun {
     first: number;
     last: number;
@@ -1285,7 +1313,7 @@ export namespace AutoMovieMeshExtract {
     strength: number;
   }
 
-  /**
+  /*
    * The prominent inflections of a sequence of bends. Nonzero bends are grouped
    * into runs of one sign; while the weakest run's sagitta stays within the
    * noise threshold it is merged with its neighbours into their sign
@@ -1293,13 +1321,12 @@ export namespace AutoMovieMeshExtract {
    * dissolve into the bend they ride on. Each boundary between two surviving
    * runs is an inflection: the middle of the zero bends between them, else the
    * side whose bend is nearer zero.
-   *
-   * @param bend Signed bend per sample; zero bends belong to no run.
-   * @param cyclic Whether the samples close into a loop; runs then wrap and use
-   *   unwrapped indices.
-   * @param sagitta Signed sagitta of the run `first .. last` of bend sign
-   *   `sign` against the chord between its outer neighbours.
-   * @param noise Largest sagitta still treated as noise.
+   * Parameter bend: Signed bend per sample; zero bends belong to no run.
+   * Parameter cyclic: Whether the samples close into a loop; runs then wrap and use
+   * unwrapped indices.
+   * Parameter sagitta: Signed sagitta of the run `first .. last` of bend sign
+   * `sign` against the chord between its outer neighbours.
+   * Parameter noise: Largest sagitta still treated as noise.
    */
   function inflections(
     bend: readonly number[],

@@ -21,7 +21,7 @@ import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContac
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Ride a seesaw seat: the seated ride with the hands on the handles
  * (`HumanRide`), and the feet planted on the ground while the seat is so low
  * that the soles, hanging below it as the seated entry holds them, would meet
@@ -29,10 +29,9 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * ahead of the seat just before it comes that low, stays while it is, and is
  * lifted just after it rises again; no ankle ever goes below its height over
  * the ground.
- *
- * @param context The seated entry, the beam and its points.
- * @returns The ride with the ground contacts of the low end.
- * @throws {HumanRefusal} For a ride the seat refuses.
+ * Parameter context: The seated entry, the beam and its points.
+ * Returns: The ride with the ground contacts of the low end.
+ * For a ride the seat refuses.
  */
 export function HumanSeesawRide(
   context: IAutoMovieMotionHumanActionContext<Params>,
@@ -223,7 +222,9 @@ type Plan = IAutoMovieMotionHumanActionPlan;
 
 type Posture = IAutoMovieMotionHumanPosture;
 
-/** Feet and toes needed to read the displayed soles. */
+/*
+ * Feet and toes needed to read the displayed soles.
+ */
 const SOLES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
   "leftFoot",
   "leftToes",
@@ -231,29 +232,43 @@ const SOLES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
   "rightToes",
 ]);
 
-/** Seconds a foot takes to reach the ground or leave it (provisional staging). */
+/*
+ * Seconds a foot takes to reach the ground or leave it (provisional staging).
+ */
 const PLACE: number = 0.25;
 
-/**
+/*
  * How high a foot arcs over the ground as it is placed or lifted, metres
  * (provisional staging).
  */
 const LIFT: number = 0.05;
 
-/** One foot's planted interval, in ride seconds. */
+/*
+ * One foot's planted interval, in ride seconds.
+ */
 interface ILow {
-  /** The free sole first reaches the floor. */
+  /*
+   * The free sole first reaches the floor.
+   */
   from: number;
 
-  /** The free sole leaves the floor. */
+  /*
+   * The free sole leaves the floor.
+   */
   to: number;
 
-  /** The sole point kept still throughout. */
+  /*
+   * The sole point kept still throughout.
+   */
   socket: IAutoMovieMotionHumanFoot.ISocket;
 
-  /** The level foot's ankle and heading for that sole point. */
+  /*
+   * The level foot's ankle and heading for that sole point.
+   */
   planted: IAutoMovieMotionHumanFoot.IPlacement;
 
-  /** The fixed sole offset from the planted ankle, in the foot's frame. */
+  /*
+   * The fixed sole offset from the planted ankle, in the foot's frame.
+   */
   offset: IAutoMovieVector3;
 }

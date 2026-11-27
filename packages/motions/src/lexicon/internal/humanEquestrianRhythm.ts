@@ -1,7 +1,7 @@
 import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionHumanRide } from "@automovie/interface";
 
-/**
+/*
  * A rider's response to the horse at a second of an equestrian ride. Collected
  * walk and trot pitch the pelvis against the saddle in early stance, twice a
  * stride, 1.5 and 2.5 degrees (Byström et al., PMID 20525053 and 19469236);
@@ -11,11 +11,10 @@ import type { IAutoMovieMotionHumanRide } from "@automovie/interface";
  * liftoff to first fore landing, Clayton 1989) and settles over the recovery;
  * the trunk folds most at mid-flight. A look back turns on a minimum-jerk share
  * to its peak and back.
- *
- * @param input The stride's gait and phase, the fade's weight, the jump and the
- *   look, at a ride second.
- * @returns The saddle pitch and roll, degrees, the two-point rise, the flight's
- *   fold and the look's turn, each 0 to 1 but the angles.
+ * Parameter input: The stride's gait and phase, the fade's weight, the jump and the
+ * look, at a ride second.
+ * Returns: The saddle pitch and roll, degrees, the two-point rise, the flight's
+ * fold and the look's turn, each 0 to 1 but the angles.
  */
 export function humanEquestrianRhythm(
   input: humanEquestrianRhythm.IInput,
@@ -52,74 +51,115 @@ export function humanEquestrianRhythm(
   };
 }
 
-/** The equestrian rhythm. */
+/*
+ * The equestrian rhythm.
+ */
 export namespace humanEquestrianRhythm {
-  /** A jump's approach, takeoff, landing and recovery, ride seconds, in order. */
+  /*
+   * A jump's approach, takeoff, landing and recovery, ride seconds, in order.
+   */
   export type Jump = readonly [number, number, number, number];
 
-  /** A stride's gait and how far through it the ride is. */
+  /*
+   * A stride's gait and how far through it the ride is.
+   */
   export interface IStride {
-    /** The gait. */
+    /*
+     * The gait.
+     */
     gait: IAutoMovieMotionHumanRide.IEquestrianStride["gait"];
 
-    /** The canter's or gallop's lead. */
+    /*
+     * The canter's or gallop's lead.
+     */
     lead?: IAutoMovieMotionHumanRide.IEquestrianStride["lead"];
 
-    /** The phase between two touchdowns, 0 to 1. */
+    /*
+     * The phase between two touchdowns, 0 to 1.
+     */
     phase: number;
   }
 
-  /** A look back over a shoulder. */
+  /*
+   * A look back over a shoulder.
+   */
   export interface ILook {
-    /** Ride seconds of the greatest turn. */
+    /*
+     * Ride seconds of the greatest turn.
+     */
     peak: number;
 
-    /** Half the turn's seconds. */
+    /*
+     * Half the turn's seconds.
+     */
     half: number;
   }
 
-  /** What the rhythm reads at a second. */
+  /*
+   * What the rhythm reads at a second.
+   */
   export interface IInput {
-    /** Ride seconds. */
+    /*
+     * Ride seconds.
+     */
     at: number;
 
-    /** The gait response's fade weight, 0 to 1. */
+    /*
+     * The gait response's fade weight, 0 to 1.
+     */
     active: number;
 
-    /** The stride under way, if any. */
+    /*
+     * The stride under way, if any.
+     */
     stride?: IStride;
 
-    /** The jump, if any. */
+    /*
+     * The jump, if any.
+     */
     jump?: Jump;
 
-    /** The look back, if any. */
+    /*
+     * The look back, if any.
+     */
     look?: ILook;
   }
 
-  /** The rider's response. */
+  /*
+   * The rider's response.
+   */
   export interface IResponse {
-    /** The saddle's pitch, degrees. */
+    /*
+     * The saddle's pitch, degrees.
+     */
     pitch: number;
 
-    /** The saddle's roll, degrees. */
+    /*
+     * The saddle's roll, degrees.
+     */
     roll: number;
 
-    /** The two-point rise, 0 to 1. */
+    /*
+     * The two-point rise, 0 to 1.
+     */
     rise: number;
 
-    /** The flight's fold, 0 to 1. */
+    /*
+     * The flight's fold, 0 to 1.
+     */
     airborne: number;
 
-    /** The look's turn, 0 to 1. */
+    /*
+     * The look's turn, 0 to 1.
+     */
     turn: number;
   }
 
-  /**
+  /*
    * The phase between adjacent touchdowns, at rest outside the track.
-   *
-   * @param touchdowns The touchdowns, ride seconds, increasing.
-   * @param at Ride seconds.
-   * @returns 0 to 1.
+   * Parameter touchdowns: The touchdowns, ride seconds, increasing.
+   * Parameter at: Ride seconds.
+   * Returns: 0 to 1.
    */
   export function phase(touchdowns: readonly number[], at: number): number {
     let low: number = 0;
@@ -133,13 +173,12 @@ export namespace humanEquestrianRhythm {
     return (at - touchdowns[low]!) / (touchdowns[high]! - touchdowns[low]!);
   }
 
-  /**
+  /*
    * The two-point rise: approached smoothly, held in flight, settled after the
    * landing.
-   *
-   * @param jump The jump, if any.
-   * @param at Ride seconds.
-   * @returns 0 to 1.
+   * Parameter jump: The jump, if any.
+   * Parameter at: Ride seconds.
+   * Returns: 0 to 1.
    */
   export function jumping(jump: Jump | undefined, at: number): number {
     if (jump === undefined) return 0;

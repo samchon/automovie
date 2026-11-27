@@ -2,7 +2,7 @@ import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS } from "../AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS";
 import { isAutoMovieMaterialExtension } from "./isAutoMovieMaterialExtension";
 
-/**
+/*
  * Select material/texture-category names absent from
  * AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS, deduplicate and sort by code
  * units.

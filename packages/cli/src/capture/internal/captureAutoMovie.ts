@@ -20,7 +20,7 @@ import type { AutoMovieCliCaptureTypes } from "../AutoMovieCliCaptureTypes";
 import { readAutoMovieCaptureHostOptions } from "./readAutoMovieCaptureHostOptions";
 import { readAutoMovieVideoProbe } from "./readAutoMovieVideoProbe";
 
-/**
+/*
  * Run `automovie capture` in a production: read the options through the request
  * grammar, capture a subject drawn by the draw page or a video file's own
  * frames, print what was written, and resolve to the exit status.
@@ -213,7 +213,7 @@ export async function captureAutoMovie(
   return failed.length === 0 ? 0 : 1;
 }
 
-/**
+/*
  * The finding outcome, then each fixed, new, worse or unmatched finding, one
  * per line.
  */

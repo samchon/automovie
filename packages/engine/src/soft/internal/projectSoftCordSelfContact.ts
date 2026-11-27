@@ -1,6 +1,6 @@
 import type { IAutoMovieProjectSoftCordSelfContact } from "@automovie/interface";
 
-/**
+/*
  * Project detected nonadjacent cord-segment penetrations along the line between
  * their closest points, with Coulomb friction, in place on predicted positions.
  * One ordered pass does not certify separation of every pair.
@@ -34,10 +34,9 @@ import type { IAutoMovieProjectSoftCordSelfContact } from "@automovie/interface"
  * skipped. The declared `dt * referenceSpeed <= thickness` admission bound does
  * not clamp actual particle speed; this discrete projection is not continuous
  * collision detection and cannot rule out tunnelling.
- *
- * @param props The cord's particles, its previous and predicted positions,
- *   inverse masses and contact.
- * @returns How many pairs were in contact.
+ * Parameter props: The cord's particles, its previous and predicted positions,
+ * inverse masses and contact.
+ * Returns: How many pairs were in contact.
  */
 export function projectSoftCordSelfContact(
   props: IAutoMovieProjectSoftCordSelfContact.IProps,
@@ -84,7 +83,9 @@ export function projectSoftCordSelfContact(
   return contacts;
 }
 
-/** The buffers and coefficient one pair's projection reads. */
+/*
+ * The buffers and coefficient one pair's projection reads.
+ */
 interface IPair {
   position: Float64Array<ArrayBufferLike>;
   predicted: Float64Array<ArrayBufferLike>;
@@ -92,7 +93,7 @@ interface IPair {
   friction: number;
 }
 
-/**
+/*
  * Project one pair of segments apart and apply friction between them, returning
  * whether they were in contact.
  */
@@ -163,7 +164,7 @@ const separate: (
   return true;
 };
 
-/**
+/*
  * The shares along two segments of their closest points, each in [0, 1]
  * (Ericson 2005, section 5.1.9, `ClosestPtSegmentSegment`).
  */
@@ -209,7 +210,9 @@ const closest: (
   return [s, t];
 };
 
-/** The distance between two particles of a buffer. */
+/*
+ * The distance between two particles of a buffer.
+ */
 const distance: (
   x: Float64Array<ArrayBufferLike>,
   i: number,

@@ -9,7 +9,7 @@ import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRe
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
-/**
+/*
  * Hide meshes and draw actual bone-to-child-bone segments over black.
  *
  * Segments are written in world metres from the real scene Bone hierarchy at

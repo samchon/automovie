@@ -7,7 +7,7 @@ import {
 import { adjacentAutoMovieFloat64 } from "../../math/internal/adjacentAutoMovieFloat64";
 import { quaternionInterpolationCriticalRatios } from "../../math/internal/quaternionInterpolationCriticalRatios";
 
-/**
+/*
  * Add analytical rotation extrema and one-sided key samples to shot admission.
  *
  * Clips must have passed transform-track admission. Each loop repeats the same
@@ -55,7 +55,9 @@ export function authoredRotationCriticalTimes(
   return times;
 }
 
-/** Read an admitted linear rotation key in glTF x/y/z/w order. */
+/*
+ * Read an admitted linear rotation key in glTF x/y/z/w order.
+ */
 function keyQuaternion(
   track: IAutoMovieTrack,
   index: number,

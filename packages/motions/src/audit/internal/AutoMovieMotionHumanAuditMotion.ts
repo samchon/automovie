@@ -4,20 +4,26 @@ import type {
   IAutoMovieMotionHumanContactWindow,
 } from "@automovie/interface";
 
-/**
+/*
  * Contact-window, floor and sample-grid readers for the canonical motion-audit
  * contract.
  */
 export namespace AutoMovieMotionHumanAuditMotion {
-  /** Random access to the audit lattice including its optional final endpoint. */
+  /*
+   * Random access to the audit lattice including its optional final endpoint.
+   */
   export interface IGrid {
-    /** Number of sampled instants. */
+    /*
+     * Number of sampled instants.
+     */
     length: number;
-    /** Film second at a zero-based index in this grid. */
+    /*
+     * Film second at a zero-based index in this grid.
+     */
     at(index: number): number;
   }
 
-  /**
+  /*
    * Every declared contact window of a person in film seconds: a window's
    * shares are of its action's own duration from the action's start, and the
    * action only holds the body from its entry to its end, so the window is
@@ -25,10 +31,9 @@ export namespace AutoMovieMotionHumanAuditMotion {
    * last action a person holds the pose it ended on to the film's end, so a
    * window that holds them at that action's own end goes on holding them to the
    * film's end.
-   *
-   * @param motion The motion.
-   * @param subject The person.
-   * @returns The windows, in action order.
+   * Parameter motion: The motion.
+   * Parameter subject: The person.
+   * Returns: The windows, in action order.
    */
   export function windows(
     motion: IAutoMovieMotionHumanAuditMotionContract,
@@ -59,7 +64,7 @@ export namespace AutoMovieMotionHumanAuditMotion {
     return out;
   }
 
-  /**
+  /*
    * The floor under a person, read at film seconds from the supports their
    * bearing contacts (a plant, a pivot, a seat, a lying or a borne contact)
    * declare: the height of the ground they bear on (a raised bank, a tread, the
@@ -71,11 +76,10 @@ export namespace AutoMovieMotionHumanAuditMotion {
    * that point and gives no floor plane. While the motion says water carries
    * the person (`IAutoMovieMotionHumanAuditMotion.water`) only a ground contact
    * gives a floor. With no bearing contact yet, the world plane `y = 0`.
-   *
-   * @param motion The motion.
-   * @param subject The person.
-   * @returns The reader: world metres, or `null` where no floor is under the
-   *   person.
+   * Parameter motion: The motion.
+   * Parameter subject: The person.
+   * Returns: The reader: world metres, or `null` where no floor is under the
+   * person.
    */
   export function floors(
     motion: IAutoMovieMotionHumanAuditMotionContract,
@@ -119,7 +123,7 @@ export namespace AutoMovieMotionHumanAuditMotion {
     };
   }
 
-  /**
+  /*
    * The floor under one foot and its leg, where the person stands on two levels
    * (a tread and the next, the two sides of a step): the lowest of the person's
    * floor (`floors`), the ground the foot's own bearing contact declares while
@@ -128,12 +132,11 @@ export namespace AutoMovieMotionHumanAuditMotion {
    * none. It is never above the person's floor: a foot leaving a lower tread is
    * read on that tread, and a foot resting on a raised footrest, which declares
    * a height and not a plane, is read no higher than the person's.
-   *
-   * @param motion The motion.
-   * @param subject The person.
-   * @param side The foot.
-   * @returns The reader: world metres, or `null` where no floor is under the
-   *   person.
+   * Parameter motion: The motion.
+   * Parameter subject: The person.
+   * Parameter side: The foot.
+   * Returns: The reader: world metres, or `null` where no floor is under the
+   * person.
    */
   export function feet(
     motion: IAutoMovieMotionHumanAuditMotionContract,
@@ -171,16 +174,15 @@ export namespace AutoMovieMotionHumanAuditMotion {
     };
   }
 
-  /**
+  /*
    * The film seconds a check samples between two instants: `from`, then every
    * `1 / rate` after it, and `to` itself when the grid does not land on it, so
    * neither end of a window is left unread.
-   *
-   * @param from Film seconds.
-   * @param to Film seconds, at least `from`.
-   * @param rate Samples per second, positive.
-   * @returns The instants, ascending.
-   * @throws {Error} When the rate is not positive or the span is reversed.
+   * Parameter from: Film seconds.
+   * Parameter to: Film seconds, at least `from`.
+   * Parameter rate: Samples per second, positive.
+   * Returns: The instants, ascending.
+   * When the rate is not positive or the span is reversed.
    */
   export function grid(from: number, to: number, rate: number): number[] {
     const indexed: IGrid = lattice(from, to, rate);
@@ -189,7 +191,9 @@ export namespace AutoMovieMotionHumanAuditMotion {
     return out;
   }
 
-  /** Index the same audit grid without visiting any of its samples. */
+  /*
+   * Index the same audit grid without visiting any of its samples.
+   */
   export function lattice(from: number, to: number, rate: number): IGrid {
     if (!(rate > 0)) throw new Error("An audit grid needs a positive rate");
     if (!(to >= from)) throw new Error("An audit grid needs from <= to");
@@ -203,10 +207,14 @@ export namespace AutoMovieMotionHumanAuditMotion {
   }
 }
 
-/** The alternatives of `FeetPart`'s site. */
+/*
+ * The alternatives of `FeetPart`'s site.
+ */
 type FeetPart = "leftFoot" | "rightFoot";
 
-/** The contact kinds that bear the body on their support. */
+/*
+ * The contact kinds that bear the body on their support.
+ */
 const BEARING: readonly IAutoMovieMotionHumanContactWindow["kind"][] = [
   "plant",
   "pivot",

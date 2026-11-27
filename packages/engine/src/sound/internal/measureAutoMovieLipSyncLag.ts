@@ -2,7 +2,7 @@ import type { IAutoMovieMeasureLipSyncLag } from "@automovie/interface";
 
 import { AUTOMOVIE_LIP_SYNC } from "../AUTOMOVIE_LIP_SYNC";
 
-/**
+/*
  * Measure the lag between a speaker's mouth and a line's loudness by normalized
  * cross-correlation.
  *
@@ -14,9 +14,8 @@ import { AUTOMOVIE_LIP_SYNC } from "../AUTOMOVIE_LIP_SYNC";
  * one. The verdict follows `AUTOMOVIE_LIP_SYNC`: inconclusive for a constant
  * series or a peak below the minimum, otherwise pass inside the BT.1359-1
  * window and fail outside it.
- *
- * @param props The two series over the same window and the film rate.
- * @returns The lag in frames and milliseconds, its correlation and the verdict.
+ * Parameter props: The two series over the same window and the film rate.
+ * Returns: The lag in frames and milliseconds, its correlation and the verdict.
  */
 export function measureAutoMovieLipSyncLag(
   props: IAutoMovieMeasureLipSyncLag.IProps,
@@ -72,7 +71,7 @@ export function measureAutoMovieLipSyncLag(
   };
 }
 
-/**
+/*
  * Standardize a series to zero mean and unit variance, or return null for a
  * constant one; a non-finite value throws.
  */

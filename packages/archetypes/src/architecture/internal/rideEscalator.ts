@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core";
 import type { AutoMovieArchetypeEscalator } from "../AutoMovieArchetypeEscalator";
-/**
+/*
  * An escalator running at its rated speed in one direction, read on the ride's
  * clock: second 0 is when each named station holds its tread.
  *
@@ -18,12 +18,11 @@ import type { AutoMovieArchetypeEscalator } from "../AutoMovieArchetypeEscalator
  * incline, which a climb on the moving steps reads. Each handrail moves at the
  * step band's speed, as EN 115-1 couples them, at the handrail height above the
  * tread under it.
- *
- * @param escalator The installed escalator.
- * @param placement Its world placement.
- * @param direction The running direction: `up` moves treads from the lower comb
- *   to the upper comb.
- * @returns The tread, flight and handrail frames on the ride's clock.
+ * Parameter escalator: The installed escalator.
+ * Parameter placement: Its world placement.
+ * Parameter direction: The running direction: `up` moves treads from the lower comb
+ * to the upper comb.
+ * Returns: The tread, flight and handrail frames on the ride's clock.
  */
 export function rideEscalator(
   escalator: AutoMovieArchetype<
@@ -87,7 +86,11 @@ export function rideEscalator(
     },
   };
 }
-/** A unit scale: the rides move rigid frames. */
+/*
+ * A unit scale: the rides move rigid frames.
+ */
 const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
-/** The identity rotation of a level tread. */
+/*
+ * The identity rotation of a level tread.
+ */
 const LEVEL: IAutoMovieTransform["rotation"] = { x: 0, y: 0, z: 0, w: 1 };

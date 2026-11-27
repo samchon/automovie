@@ -10,12 +10,16 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeStageBladeProp } from "../AutoMovieArchetypeStageBladeProp";
 
-/** Overall display length is measured along the prop's long axis. */
+/*
+ * Overall display length is measured along the prop's long axis.
+ */
 const UNITS: Readonly<Record<AutoMovieArchetypeStageBladeProp.Dimension, "m">> = {
   length: "m",
 };
 
-/** Admitted digital display lengths. */
+/*
+ * Admitted digital display lengths.
+ */
 const LENGTH: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
   0.55,
   1.45,
@@ -23,7 +27,7 @@ const LENGTH: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
   true,
 );
 
-/**
+/*
  * Each display profile gives its default length in metres, and the relative
  * locations and sizes of its visual features. They are authored silhouettes.
  */
@@ -74,23 +78,22 @@ const PROFILES = {
   }
 >;
 
-/**
+/*
  * Build a padded hand-held silhouette.
  *
  * The common digital profile has a grip, capped shaft and optional
  * form-specific guard detail.
- *
- * @param kind The selected stored profile label.
- * @param twoHand Whether the contact admits an authored two-hand pose.
- * @param decorate Places any guard and profile-dependent details.
- * @param edge The striking part as shares of the length from the handle's end,
- *   for a silhouette that cuts; none for a point weapon.
- * @param params The scene identifier and display length in metres.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames: the grip, the
- *   point and any edge.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter kind: The selected stored profile label.
+ * Parameter twoHand: Whether the contact admits an authored two-hand pose.
+ * Parameter decorate: Places any guard and profile-dependent details.
+ * Parameter edge: The striking part as shares of the length from the handle's end,
+ * for a silhouette that cuts; none for a point weapon.
+ * Parameter params: The scene identifier and display length in metres.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames: the grip, the
+ * point and any edge.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function StageBladeConstruction(
   kind: AutoMovieArchetypeStageBladeProp.Kind,
@@ -194,23 +197,39 @@ export function StageBladeConstruction(
   return builder.build(0.2);
 }
 
-/** Shared display measurements and guard geometry. */
+/*
+ * Shared display measurements and guard geometry.
+ */
 export namespace StageBladeConstruction {
-  /** Model-space locations and sizes for a form’s additional geometry. */
+  /*
+   * Model-space locations and sizes for a form’s additional geometry.
+   */
   export interface IProfile {
-    /** The total display length, in metres. */
+    /*
+     * The total display length, in metres.
+     */
     length: number;
-    /** The guard’s position along the handle from the origin in metres. */
+    /*
+     * The guard’s position along the handle from the origin in metres.
+     */
     gripLength: number;
-    /** The guard’s outer radius in metres. */
+    /*
+     * The guard’s outer radius in metres.
+     */
     guardRadius: number;
-    /** The guard’s depth in metres along +Y. */
+    /*
+     * The guard’s depth in metres along +Y.
+     */
     guardDepth: number;
-    /** The radius of the visible shaft in metres. */
+    /*
+     * The radius of the visible shaft in metres.
+     */
     shaftRadius: number;
   }
 
-  /** The builder and measurements of the chosen display prop. */
+  /*
+   * The builder and measurements of the chosen display prop.
+   */
   export type Decorate = (
     builder: AutoMovieArchetypeBuilder<
       AutoMovieArchetypeStageBladeProp.Affordance,
@@ -222,7 +241,9 @@ export namespace StageBladeConstruction {
   /** A striking part as shares of the length from the handle's end: from, to. */
   export type Span = readonly [from: number, to: number];
 
-  /** Add the cylindrical guard used by fencing and practice silhouettes. */
+  /*
+   * Add the cylindrical guard used by fencing and practice silhouettes.
+   */
   export function roundGuard(
     builder: Parameters<Decorate>[0],
     profile: IProfile,

@@ -9,7 +9,7 @@ import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionH
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { kneelKeys } from "./kneelKeys";
 
-/**
+/*
  * Prepare one foot's course between fixed kneeling keys. A stationary toe joint
  * remains the pivot while pitch changes; a moving one follows the foot's
  * straight way between its two prepared rigid placements, raised by a lift
@@ -18,14 +18,13 @@ import { kneelKeys } from "./kneelKeys";
  * time left, while the lift 4 c l (1 - l) vanishes only linearly in it, so the
  * sole leaves and meets the floor moving straight up and down, at no horizontal
  * speed, as a foot set down onto its toes does instead of skating onto them.
- *
- * @param body The fixed body of this plan.
- * @param side The foot.
- * @param from Its entry key, immutable during the course.
- * @param to Its exit key, immutable during the course.
- * @param clearance The moving foot's vertical clearance in metres.
- * @returns The placement, bearing state and toe flexion in degrees at a
- *   progress share and the phase's linear share.
+ * Parameter body: The fixed body of this plan.
+ * Parameter side: The foot.
+ * Parameter from: Its entry key, immutable during the course.
+ * Parameter to: Its exit key, immutable during the course.
+ * Parameter clearance: The moving foot's vertical clearance in metres.
+ * Returns: The placement, bearing state and toe flexion in degrees at a
+ * progress share and the phase's linear share.
  */
 export function prepareKneelFoot(
   body: IAutoMovieMotionHumanBody,
@@ -101,39 +100,37 @@ export function prepareKneelFoot(
   };
 }
 
-/**
- * Companion constants and readers of {@link prepareKneelFoot}: the share by
+/*
+ * Companion constants and readers of prepareKneelFoot: the share by
  * which a foot landing heel up has struck its toes, and when a foot's course
  * ends and starts within its phase.
  */
 export namespace prepareKneelFoot {
-  /**
+  /*
    * The share of a phase's linear time by which a foot landing heel up has
    * struck its toes, the rest left for the knee to come down over them
    * (provisional).
    */
   export const STRIKE: number = 0.8;
 
-  /**
+  /*
    * When a foot's course ends, as a share of its phase: `STRIKE` for a foot
    * that moves and lands heel up on its toes, the phase's end otherwise.
-   *
-   * @param from The foot's entry key.
-   * @param to The foot's exit key.
-   * @returns The share.
+   * Parameter from: The foot's entry key.
+   * Parameter to: The foot's exit key.
+   * Returns: The share.
    */
   export function arrival(from: kneelKeys.IFoot, to: kneelKeys.IFoot): number {
     return !kneelKeys.still(from, to) && to.pitch < 0 ? STRIKE : 1;
   }
 
-  /**
+  /*
    * When a foot's course starts, as a share of its phase: `1 - STRIKE` for a
    * foot that moves off a heel-up stance on its toes, the phase's start
    * otherwise.
-   *
-   * @param from The foot's entry key.
-   * @param to The foot's exit key.
-   * @returns The share.
+   * Parameter from: The foot's entry key.
+   * Parameter to: The foot's exit key.
+   * Returns: The share.
    */
   export function departure(
     from: kneelKeys.IFoot,
@@ -143,14 +140,18 @@ export namespace prepareKneelFoot {
   }
 }
 
-/** The record of `IPrepareKneelFootResult2`'s site. */
+/*
+ * The record of `IPrepareKneelFootResult2`'s site.
+ */
 type IPrepareKneelFootResult2 = {
   placement: IAutoMovieMotionHumanFoot.IPlacement;
   planted: boolean;
   toes: number;
 };
 
-/** The record of `IPrepareKneelFootResult`'s site. */
+/*
+ * The record of `IPrepareKneelFootResult`'s site.
+ */
 type IPrepareKneelFootResult = {
   placement: IAutoMovieMotionHumanFoot.IPlacement;
   planted: boolean;

@@ -29,29 +29,31 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { LongToolStroke } from "./LongToolStroke";
 
-/**
+/*
  * Seconds the hands take to bring the tool from where it is held to the
  * stroke's start, and back after: provisional.
  */
 const REACH: number = 0.6;
 
-/**
+/*
  * The farthest a trailing hand's grip reaches from its shoulder at a stroke's
  * contact, over the arm's length to the grip: provisional, a straight arm with
  * the shoulder drawn forward.
  */
 const REACH_LIMIT: number = 1.05;
 
-/** The deepest a trunk bows toward a low work point, degrees: provisional. */
+/*
+ * The deepest a trunk bows toward a low work point, degrees: provisional.
+ */
 const BOW: number = 45;
 
-/**
+/*
  * How far the pelvis sinks for work at the ground, over stature: provisional, a
  * wide working stance.
  */
 const SINK: number = 0.06;
 
-/**
+/*
  * Work with a long tool in two hands, standing, in cycles at a work point
  * (`IAutoMovieMotionHumanLongTool`): the trailing hand holds the tool rigid
  * near the shaft's end, so the face is a fixed offset in that hand's frame
@@ -73,15 +75,21 @@ const SINK: number = 0.06;
  * a stuck head.
  */
 export namespace longTool {
-  /** The action's key. */
+  /*
+   * The action's key.
+   */
   export const name: AutoMovieMotionHumanActionKey = "longTool";
 
-  /** Work stops at the recovery. */
+  /*
+   * Work stops at the recovery.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: ["recover", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** Plan the strokes. */
+  /*
+   * Plan the strokes.
+   */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLongTool.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
@@ -294,7 +302,7 @@ export namespace longTool {
     });
   }
 
-  /**
+  /*
    * A hand closed round a line at a point, the palm toward it from the chest's
    * side.
    */
@@ -333,7 +341,7 @@ export namespace longTool {
     };
   }
 
-  /**
+  /*
    * The trailing elbow's hint: below the middle of the arm, out toward its own
    * side.
    */

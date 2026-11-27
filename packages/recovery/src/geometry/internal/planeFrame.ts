@@ -10,7 +10,7 @@ import { mul } from "../../internal/mesh-observations/mul";
 import { norm } from "../../internal/mesh-observations/norm";
 import { sub } from "../../internal/mesh-observations/sub";
 
-/**
+/*
  * Builds an orthonormal cutting frame whose v follows the projected reference
  * and u cross v = n.
  */

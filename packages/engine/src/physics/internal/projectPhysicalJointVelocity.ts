@@ -8,7 +8,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { AutoMoviePhysicalJointChart } from "../AutoMoviePhysicalJointChart";
 
-/**
+/*
  * Project a motor's requested relative angular velocity onto the linearized
  * native coordinate box for the next substep: each coordinate's rate held
  * between the rates that reach its axis's ends within the substep.
@@ -31,13 +31,12 @@ import { AutoMoviePhysicalJointChart } from "../AutoMoviePhysicalJointChart";
  * half-space passes bound work and preserve already admissible requests. This
  * constrains motor intent, not actual velocities or poses; native constraints
  * and the declared motor torque caps still govern motion.
- *
- * @param current The joint's relative rotation.
- * @param axes Its free axes and their ranges.
- * @param requested The requested relative angular velocity, per axis.
- * @param dt The substep, seconds.
- * @param order The joint's sequential chart, when it declares one.
- * @returns The projected velocity.
+ * Parameter current: The joint's relative rotation.
+ * Parameter axes: Its free axes and their ranges.
+ * Parameter requested: The requested relative angular velocity, per axis.
+ * Parameter dt: The substep, seconds.
+ * Parameter order: The joint's sequential chart, when it declares one.
+ * Returns: The projected velocity.
  */
 export function projectPhysicalJointVelocity(
   current: IAutoMovieQuaternion,

@@ -12,14 +12,16 @@ import type {
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import type { HumanPropSweep } from "./HumanPropSweep";
 
-/**
+/*
  * The hands a prop's flight sweep reads (`HumanPropSweep`): a collider read
  * only until a handback, the sides a handback names, a prop held still, the
  * carriers that bear a prop over a span, and whether any action launches a
  * prop.
  */
 export namespace HumanPropSweepHands {
-  /** Whether any action launches a prop. */
+  /*
+   * Whether any action launches a prop.
+   */
   export function launched(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
@@ -35,7 +37,7 @@ export namespace HumanPropSweepHands {
     return false;
   }
 
-  /**
+  /*
    * A collider present only before a flight second: from it on, the handback's
    * fitted approach owns the meeting, so the collider is absent.
    */
@@ -65,7 +67,7 @@ export namespace HumanPropSweepHands {
     };
   }
 
-  /**
+  /*
    * The handback launcher's hands its fit owns at the launch: the hands that
    * touch the prop and the hands that hold a prop then (the instrument that
    * strikes), each side once.
@@ -88,7 +90,7 @@ export namespace HumanPropSweepHands {
     return [...sides];
   }
 
-  /**
+  /*
    * A prop's frame when it stands still over a sweep: nothing moves it by
    * itself, wears it, mounts it, pulls it on a line, and no grip holds it in
    * the span (a fixture's grips bear on it and never carry it). Undefined when
@@ -127,7 +129,7 @@ export namespace HumanPropSweepHands {
     return HumanPerformanceRead.prop(self, prop.subject, from);
   }
 
-  /**
+  /*
    * The people's grips that carry a prop over a sweep, when people's grips are
    * all that move it: none when it moves by itself, rides another prop or a
    * line pulls it.

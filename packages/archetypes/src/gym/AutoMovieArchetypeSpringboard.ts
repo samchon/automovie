@@ -9,7 +9,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** What the figures come from. */
+/*
+ * What the figures come from.
+ */
 const FIG: string =
   "FIG Apparatus Norms (2022), vault springboard: 1.20 m long, 0.60 m wide, its front edge 0.20 m high (https://www.gymnastics.sport/site/pages/education-apparatus.php)";
 

@@ -10,15 +10,15 @@ import type {
 
 import { validateAutoMovieMaterialAssembly } from "./validateAutoMovieMaterialAssembly";
 
-/**
+/*
  * Place a validated build-up on the host's own signed measuring line.
  *
  * This is the step that makes a build-up a dimension rather than a list. The
- * first layer's outer face starts at {@link IAutoMovieMaterialAssembly.offset},
+ * first layer's outer face starts at IAutoMovieMaterialAssembly.offset,
  * each layer advances along the stacking axis in the declared sense, and the
  * summed thickness is the overall dimension the host must be drawn at. A caller
  * that sizes a wall from `total` and cuts an opening through it can then ask
- * {@link autoMovieAssemblyOpeningReveal} what the opening finishes at.
+ * autoMovieAssemblyOpeningReveal what the opening finishes at.
  *
  * An invalid build-up is refused here rather than resolved into numbers that
  * look usable, the same way a built environment refuses to lower.
@@ -29,11 +29,10 @@ import { validateAutoMovieMaterialAssembly } from "./validateAutoMovieMaterialAs
  * ends. `total` sums thicknesses and the overall `end` is offset plus signed
  * total, which can differ from the final accumulated layer end by rounding.
  * Failed validation throws an `Error` naming its first finding.
- *
- * @param props.assembly Layered build-up to place.
- * @param props.substances Substances the layers may cite, or omitted.
- * @param props.host Host dimension the layers must sum to, or omitted.
- * @returns The placed layers, the total and the assembly's signed extent.
+ * Parameter props.assembly: Layered build-up to place.
+ * Parameter props.substances: Substances the layers may cite, or omitted.
+ * Parameter props.host: Host dimension the layers must sum to, or omitted.
+ * Returns: The placed layers, the total and the assembly's signed extent.
  */
 export function resolveAutoMovieMaterialAssembly(
   props: IAutoMovieValidateMaterialAssembly.IProps,

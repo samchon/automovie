@@ -2,7 +2,7 @@ import { IAutoMovieFilmTimeline } from "@automovie/interface";
 
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 
-/**
+/*
  * Order film effect cues by start frame, then by code-unit cue id.
  *
  * This is the one order a runtime population is written in and verified

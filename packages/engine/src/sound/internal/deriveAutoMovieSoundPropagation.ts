@@ -3,7 +3,7 @@ import {
   IAutoMovieProductionSoundEvent,
 } from "@automovie/interface";
 
-/**
+/*
  * Derive distance gain, one film-clock arrival and the selected
  * segment/spectral outcome.
  */
@@ -103,7 +103,7 @@ export const deriveAutoMovieSoundPropagation: (
   };
 };
 
-/**
+/*
  * Refuse a non-finite or nonpositive speed/frame-rate scalar before delay
  * arithmetic; the caller supplies its diagnostic label.
  */
@@ -114,7 +114,7 @@ const assertFinitePositive: (value: number, label: string) => void = (
   if (value <= 0) throw new Error(`${label} must be finite and positive`);
 };
 
-/**
+/*
  * Refuse a non-finite or negative distance/absorption/coefficient scalar while
  * preserving admitted zero.
  */
@@ -125,7 +125,7 @@ const assertFiniteNonnegative: (value: number, label: string) => void = (
   if (value < 0) throw new Error(`${label} must be finite and non-negative`);
 };
 
-/**
+/*
  * Require a safe whole frame value at or above the caller's bound, without
  * rounding fractional or unsafe input.
  */

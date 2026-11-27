@@ -18,7 +18,7 @@ import { formatLightPointer } from "../../resolve/internal/formatLightPointer";
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { placeTransformedPoint } from "./placeTransformedPoint";
 
-/**
+/*
  * Bake the position, aim and optional switching of a practical light from a
  * prop's existing motion. Darius Khondji describes using the actors'
  * flashlights as visible sources in [American Cinematographer's account of
@@ -155,13 +155,19 @@ export function compilePracticalLightMotion(
   return { id, name: null, duration, loop: false, tracks };
 }
 
-/** Model-local forward axis of an emitter's contact frame. */
+/*
+ * Model-local forward axis of an emitter's contact frame.
+ */
 const EMITTER_FORWARD: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** The spotlight model projects along its local negative Z. */
+/*
+ * The spotlight model projects along its local negative Z.
+ */
 const SPOT_FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
 
-/** Overlay the canonical started object channels independently on staged TRS. */
+/*
+ * Overlay the canonical started object channels independently on staged TRS.
+ */
 function practicalPropWorld(
   prop: IAutoMovieCompilePracticalLightMotion["prop"],
   clips: readonly IAutoMovieClip[],
@@ -200,7 +206,9 @@ function practicalPropWorld(
   };
 }
 
-/** Build a standard pointer track using the same property widths as admission. */
+/*
+ * Build a standard pointer track using the same property widths as admission.
+ */
 function practicalTrack(
   light: string,
   property: AutoMovieLightProperty,

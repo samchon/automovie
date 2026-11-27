@@ -7,9 +7,11 @@ import type {
 import { Quaternion } from "../Quaternion";
 import { Vector3 } from "../Vector3";
 
-/** Quaternion swing and twist decomposition operations. */
+/*
+ * Quaternion swing and twist decomposition operations.
+ */
 export namespace AutoMovieEngineMathSwingTwist {
-/**
+/*
  * Split a rotation into a twist about a given axis and the swing that is left,
  * `q = swing * twist`, the swing-twist decomposition.
  *
@@ -21,12 +23,11 @@ export namespace AutoMovieEngineMathSwingTwist {
  * vanishes and the twist is undefined; this returns the identity twist and the
  * whole rotation as swing, the convention the joint code relies on, since any
  * twist then gives the same swing magnitude.
- *
- * @param rotation A unit quaternion.
- * @param axis The twist axis, in the same frame as the rotation; need not be
- *   unit length.
- * @returns The swing and the twist, unit quaternions with `rotation = swing *
- *   twist`.
+ * Parameter rotation: A unit quaternion.
+ * Parameter axis: The twist axis, in the same frame as the rotation; need not be
+ * unit length.
+ * Returns: The swing and the twist, unit quaternions with `rotation = swing *
+ * twist`.
  */
 export function swingTwist(
   rotation: IAutoMovieQuaternion,
@@ -44,17 +45,18 @@ export function swingTwist(
   };
 }
 
-/** Compute the twist component alone. */
+/*
+ * Compute the twist component alone.
+ */
 
-/**
+/*
  * The twist of `swingTwist` alone, for a reader that discards the swing (a
  * swing-twist range reads the swing from where the axis goes): the same
  * projection and renormalisation, or null where the projection vanishes and
  * `swingTwist` returns the identity twist.
- *
- * @param rotation A unit quaternion.
- * @param axis The twist axis; need not be unit length.
- * @returns The twist, or null where it is undefined.
+ * Parameter rotation: A unit quaternion.
+ * Parameter axis: The twist axis; need not be unit length.
+ * Returns: The twist, or null where it is undefined.
  */
 export function swingTwistComponent(
   rotation: IAutoMovieQuaternion,

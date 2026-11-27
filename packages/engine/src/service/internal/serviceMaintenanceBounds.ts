@@ -1,6 +1,6 @@
 import { IAutoMoviePropBox, IAutoMovieServiceNode } from "@automovie/interface";
 
-/**
+/*
  * The world keep-out volume a node needs to be serviced, or `null`.
  *
  * The authored box is node-local so that moving the equipment moves the space

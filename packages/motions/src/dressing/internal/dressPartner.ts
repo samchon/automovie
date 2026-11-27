@@ -19,13 +19,13 @@ import { armPhrase } from "../../everyday/internal/armPhrase";
 import { HumanTrunkLean } from "../../handling/internal/HumanTrunkLean";
 import { requireOtherPerformer } from "../../touch/internal/requireOtherPerformer";
 
-/**
+/*
  * How far up a region's normal must point for the item to be set down onto it
  * from above: within 45 degrees of up.
  */
 const UP: number = Math.SQRT1_2;
 
-/**
+/*
  * Dress another performer. The dresser's hand carries the held item to the
  * partner's region by the arm phrase that visits a target, the item is worn on
  * the partner's bone under that region from the phrase's stroke, when the hand
@@ -45,7 +45,7 @@ export const dressPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanD
     plan: planDressPartner,
   };
 
-/**
+/*
  * Dress another performer. The dresser's hand carries the held item to the
  * partner's region by the arm phrase that visits a target, the item is worn on
  * the partner's bone under that region from the phrase's stroke, when the hand

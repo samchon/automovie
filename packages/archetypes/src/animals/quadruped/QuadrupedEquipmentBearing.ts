@@ -5,7 +5,7 @@ import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadr
 import type { AutoMovieArchetypeQuadrupedEquipment } from "../AutoMovieArchetypeQuadrupedEquipment";
 import type { QuadrupedEquipmentPlan } from "./QuadrupedEquipmentPlan";
 
-/**
+/*
  * Visible body-bearing rails connecting the body to its clear frame.
  *
  * Each rail is a real finite cylinder tangent along a positive axial interval
@@ -16,16 +16,15 @@ import type { QuadrupedEquipmentPlan } from "./QuadrupedEquipmentPlan";
  * circles and their displayed polygonal courses both meet.
  */
 export namespace QuadrupedEquipmentBearing {
-  /**
+  /*
    * Seat a neck-parallel rail and connect its midpoint to the beam.
-   *
-   * @param plan The current complete-equipment preflight, before builder
-   *   emission.
-   * @param rig Canonical neck axis and cylinder radius, metres.
-   * @param yoke Already admitted authored yoke dimensions.
-   * @param beam The existing real lateral beam's midpoint; its clearance stays
-   *   unchanged.
-   * @param color Display color without a physical-material inference.
+   * Parameter plan: The current complete-equipment preflight, before builder
+   * emission.
+   * Parameter rig: Canonical neck axis and cylinder radius, metres.
+   * Parameter yoke: Already admitted authored yoke dimensions.
+   * Parameter beam: The existing real lateral beam's midpoint; its clearance stays
+   * unchanged.
+   * Parameter color: Display color without a physical-material inference.
    */
   export function yoke(
     plan: QuadrupedEquipmentPlan,
@@ -62,7 +61,9 @@ export namespace QuadrupedEquipmentBearing {
       yoke.clearance,
     );
 
-    /** An axis station and the shared tangency normal define each endpoint. */
+    /*
+     * An axis station and the shared tangency normal define each endpoint.
+     */
     function point(station: number): IAutoMovieVector3 {
       return Vector3.add(
         Vector3.add(rig.neck, Vector3.scale(direction, station)),
@@ -71,16 +72,15 @@ export namespace QuadrupedEquipmentBearing {
     }
   }
 
-  /**
+  /*
    * Seat one longitudinal rail on the closed upper flank and join both frame
    * ends.
-   *
-   * @param plan The current atomic equipment preflight.
-   * @param rig Trunk capsule's centre height and radius, metres.
-   * @param pack Already admitted authored pack dimensions and axial fit.
-   * @param side The existing side identity used by the frame's real parts.
-   * @param rail The corresponding existing upper frame rail's midpoint.
-   * @param color Display color without a material-physics inference.
+   * Parameter plan: The current atomic equipment preflight.
+   * Parameter rig: Trunk capsule's centre height and radius, metres.
+   * Parameter pack: Already admitted authored pack dimensions and axial fit.
+   * Parameter side: The existing side identity used by the frame's real parts.
+   * Parameter rail: The corresponding existing upper frame rail's midpoint.
+   * Parameter color: Display color without a material-physics inference.
    */
   export function pack(
     plan: QuadrupedEquipmentPlan,
@@ -125,7 +125,7 @@ export namespace QuadrupedEquipmentBearing {
       );
   }
 
-  /**
+  /*
    * Choose the nearest shared closed-upper-flank vertex that admits a straight
    * link. The common +Z placement maps the primitive's radial XZ plane onto
    * model XY; both ends of the contact use opposite vertices of its same even
@@ -167,7 +167,9 @@ export namespace QuadrupedEquipmentBearing {
     return selected;
   }
 
-  /** Coincident axes already join; every positive connecting span is a real rod. */
+  /*
+   * Coincident axes already join; every positive connecting span is a real rod.
+   */
   function join(
     plan: QuadrupedEquipmentPlan,
     id: string,

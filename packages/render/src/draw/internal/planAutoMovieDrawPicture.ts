@@ -4,7 +4,7 @@ import type { IAutoMoviePlaybackLayer } from "@automovie/interface";
 import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
 import { planAutoMovieDrawLayers } from "./planAutoMovieDrawLayers.js";
 
-/**
+/*
  * Plan a draw subject's picture at a second: the layers a film picture
  * composites, the layer the picture shows most of, which every record of the
  * frame follows, and the entry that layer is placed as.
@@ -20,25 +20,30 @@ import { planAutoMovieDrawLayers } from "./planAutoMovieDrawLayers.js";
  *
  * It throws what `planAutoMovieDrawLayers` throws for an outgoing shot the
  * subject cannot place.
- *
- * @param name The subject's name, which a refusal names.
- * @param scene The created subject.
- * @param seconds The second drawn.
- * @returns The layers and the shown layer, both null outside a transition, and
- *   the placed entry.
+ * Parameter name: The subject's name, which a refusal names.
+ * Parameter scene: The created subject.
+ * Parameter seconds: The second drawn.
+ * Returns: The layers and the shown layer, both null outside a transition, and
+ * the placed entry.
  */
 export function planAutoMovieDrawPicture(
   name: string,
   scene: Pick<IAutoMovieDrawScene, "sequence" | "cut" | "seekShot">,
   seconds: number,
 ): {
-  /** The layers a film picture composites, outgoing first, or null. */
+  /*
+   * The layers a film picture composites, outgoing first, or null.
+   */
   layers: IAutoMoviePlaybackLayer[] | null;
 
-  /** One of `layers`, the shot the picture shows most of, or null. */
+  /*
+   * One of `layers`, the shot the picture shows most of, or null.
+   */
   shown: IAutoMoviePlaybackLayer | null;
 
-  /** The entry and shot the picture is placed as, or null without a `cut`. */
+  /*
+   * The entry and shot the picture is placed as, or null without a `cut`.
+   */
   placed: Pick<IAutoMoviePlaybackLayer, "entry" | "shot"> | null;
 } {
   const layers: IAutoMoviePlaybackLayer[] | null = planAutoMovieDrawLayers(

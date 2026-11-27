@@ -22,16 +22,24 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanMountRider } from "./HumanMountRider";
 import { humanAidWalkGrip } from "./humanAidWalkGrip";
 
-/** The prop's visible lift for authored film clearance, metres. */
+/*
+ * The prop's visible lift for authored film clearance, metres.
+ */
 const LIFT: number = 0.04;
 
-/** Support alignment of the aid to the floor, in metres. */
+/*
+ * Support alignment of the aid to the floor, in metres.
+ */
 const FLOOR: number = 0.01;
 
-/** Fixed world vertical for floor, pivot and grip reads. */
+/*
+ * Fixed world vertical for floor, pivot and grip reads.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** Name the aid or route setting that prevents motion. */
+/*
+ * Name the aid or route setting that prevents motion.
+ */
 function refuse(axis: string, value: unknown, reason: string): never {
   throw new HumanRefusal({
     kind: "affordance",
@@ -42,7 +50,9 @@ function refuse(axis: string, value: unknown, reason: string): never {
   });
 }
 
-/** Keep the named planted foot when its other foot makes the next step. */
+/*
+ * Keep the named planted foot when its other foot makes the next step.
+ */
 function foot(
   side: AutoMovieHumanSide,
   at: IAutoMovieVector3,
@@ -54,7 +64,9 @@ function foot(
   };
 }
 
-/** Resolve the same lift, touchdown and stationary windows for prop and body. */
+/*
+ * Resolve the same lift, touchdown and stationary windows for prop and body.
+ */
 function course(
   start: IAutoMovieRigidTransform,
   props: IAutoMovieMotionHumanAidWalk,
@@ -108,7 +120,7 @@ function course(
   return { ready, moves };
 }
 
-/**
+/*
  * Read the supported prop pose or its single minimum-jerk swing between
  * placements.
  */
@@ -143,7 +155,7 @@ function frameAt(
   return stable;
 }
 
-/**
+/*
  * A floor-aid gait with an explicit prop curve and body fitting on the same
  * clock.
  *
@@ -414,30 +426,40 @@ export const HumanAidWalk: IAutoMovieMotionHumanAidWalk.ILaw = {
   },
 };
 
-/**
+/*
  * One prop advance and the floor poses it joins, in film seconds and world
  * metres.
  */
 interface IAdvance {
-  /** Lift begins. */
+  /*
+   * Lift begins.
+   */
   from: number;
 
-  /** The next tip becomes planted. */
+  /*
+   * The next tip becomes planted.
+   */
   to: number;
 
-  /** Start and finish floor poses. */
+  /*
+   * Start and finish floor poses.
+   */
   floor: readonly [IAutoMovieRigidTransform, IAutoMovieRigidTransform];
 }
 
-/** The aid's course: when the body is ready and each advance after it. */
+/*
+ * The aid's course: when the body is ready and each advance after it.
+ */
 interface ICourse {
-  /**
+  /*
    * Seconds from the action's start of the opening stance that settles the
    * grip, a quarter of the first station's time; the first advance begins
    * then.
    */
   ready: number;
 
-  /** Each aid advance in order. */
+  /*
+   * Each aid advance in order.
+   */
   moves: readonly IAdvance[];
 }

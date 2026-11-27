@@ -3,7 +3,7 @@ import type {
   IAutoMoviePoses,
 } from "@automovie/interface";
 
-/**
+/*
  * Freeze local witnesses once and differentiate only rows affected by the
  * probed joint subtree. Every row remains present, including invariant self
  * distances.

@@ -1,6 +1,6 @@
 import { AutoMovieDrawingProjection } from "@automovie/interface";
 
-/**
+/*
  * Whether a projection cuts: removes the material on the viewer's side of its
  * plane and drafts what the plane passes through.
  *
@@ -8,9 +8,8 @@ import { AutoMovieDrawingProjection } from "@automovie/interface";
  * and a section all draw cut linework and room regions, while an elevation only
  * projects. A new projection added to the closed union is a cutting one unless
  * this rule is changed with it.
- *
- * @param projection The view's projection.
- * @returns `true` for every projection other than `elevation`.
+ * Parameter projection: The view's projection.
+ * Returns: `true` for every projection other than `elevation`.
  */
 export const autoMovieDrawingHasCut = (
   projection: AutoMovieDrawingProjection,

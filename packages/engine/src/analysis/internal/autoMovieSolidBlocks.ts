@@ -2,7 +2,7 @@ import type { IAutoMovieSolidBlockQuery } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Whether a ray from `origin` along a unit `direction` is stopped by one convex
  * solid before `maxDistance`.
  *
@@ -43,7 +43,7 @@ export function autoMovieSolidBlocks(
   return exit > 0;
 }
 
-/**
+/*
  * A ray whose slope against a plane, the cosine between the ray and the plane's
  * unit normal, is this small or smaller runs parallel to it.
  */

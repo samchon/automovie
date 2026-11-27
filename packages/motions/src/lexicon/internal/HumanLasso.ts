@@ -32,7 +32,7 @@ import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { humanLassoAdmit } from "./humanLassoAdmit";
 
-/**
+/*
  * The swinging wrist's circle overhead, metres, the hand turning mostly at the
  * wrist; the throw's reach-out time, seconds; the dally's radius round the
  * horn, metres, and seconds per turn (provisional stage readings).
@@ -44,18 +44,24 @@ const SWING: Readonly<Record<SWINGEntryItem, number>> = {
   turn: 0.5,
 };
 
-/** The farthest a loop is thrown, metres (provisional). */
+/*
+ * The farthest a loop is thrown, metres (provisional).
+ */
 const REACH: number = 12;
 
-/** The bone whose joint the entry holds the hand at: the right hand. */
+/*
+ * The bone whose joint the entry holds the hand at: the right hand.
+ */
 const HAND: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
   ["rightHand"],
 );
 
-/** The world up. */
+/*
+ * The world up.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
+/*
  * Rope from the saddle (`IAutoMovieMotionHumanLasso`): carried on the saddle,
  * the rider's wrist circles over the right shoulder, one turn per stride of the
  * horse's own stride cue (or per second); the hand takes the turn its arm
@@ -72,11 +78,15 @@ export const HumanLasso: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLas
     plan: planHumanLasso,
   };
 
-/** Admit the throw, lay the swing and the launch, then sample. */
+/*
+ * Admit the throw, lay the swing and the launch, then sample.
+ */
 function planHumanLasso(context: Context): IAutoMovieMotionHumanActionPlan {
   return plan(context);
 }
-/** Admit, lay the circle and the launch, and sample. */
+/*
+ * Admit, lay the circle and the launch, and sample.
+ */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanLasso = context.params;
   const entered: IAutoMovieMotionHumanBase = context.entry.base;
@@ -402,8 +412,12 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   );
 }
 
-/** The law's context. */
+/*
+ * The law's context.
+ */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLasso>;
 
-/** The alternatives of `SWINGEntryItem`'s site. */
+/*
+ * The alternatives of `SWINGEntryItem`'s site.
+ */
 type SWINGEntryItem = "radius" | "throw" | "wrap" | "turn";

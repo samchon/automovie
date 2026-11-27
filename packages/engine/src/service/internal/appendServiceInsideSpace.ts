@@ -2,7 +2,7 @@ import type { IAutoMovieAppendServiceInsideSpace } from "@automovie/interface";
 
 import { propSpaceContainsBounds } from "../../film/internal/propSpaceContainsBounds";
 
-/**
+/*
  * Hold one authored world point inside the logical space its node stands in.
  *
  * A node is placed in a room, and a port is the point a run is anchored to, so

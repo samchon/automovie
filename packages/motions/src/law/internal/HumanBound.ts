@@ -2,7 +2,7 @@ import type { IAutoMovieMotionHumanRefusal } from "@automovie/interface";
 
 import { HumanRefusal } from "../HumanRefusal";
 
-/**
+/*
  * The numeric bounds of an action's parameters, each a check that refuses with
  * the range it accepts.
  *
@@ -17,14 +17,13 @@ import { HumanRefusal } from "../HumanRefusal";
  * satisfies none.
  */
 export namespace HumanBound {
-  /**
+  /*
    * A count: the value rounded to the nearest whole number, not below a floor.
-   *
-   * @param axis The parameter's name.
-   * @param value The value given.
-   * @param minimum The least count; 1 when absent.
-   * @returns The whole count.
-   * @throws {HumanRefusal} When the count is below the floor.
+   * Parameter axis: The parameter's name.
+   * Parameter value: The value given.
+   * Parameter minimum: The least count; 1 when absent.
+   * Returns: The whole count.
+   * When the count is below the floor.
    */
   export function whole(
     axis: string,
@@ -42,15 +41,14 @@ export namespace HumanBound {
     });
   }
 
-  /**
+  /*
    * A value not below a floor.
-   *
-   * @param axis The parameter's name.
-   * @param value The value given.
-   * @param minimum The floor.
-   * @param unit The unit of the value; a pure number when absent.
-   * @returns The value.
-   * @throws {HumanRefusal} When the value is below the floor or not finite.
+   * Parameter axis: The parameter's name.
+   * Parameter value: The value given.
+   * Parameter minimum: The floor.
+   * Parameter unit: The unit of the value; a pure number when absent.
+   * Returns: The value.
+   * When the value is below the floor or not finite.
    */
   export function least(
     axis: string,
@@ -62,15 +60,14 @@ export namespace HumanBound {
     throw refuse(axis, value, { kind: "range", minimum, maximum: null, unit });
   }
 
-  /**
+  /*
    * A value above a floor that is itself excluded.
-   *
-   * @param axis The parameter's name.
-   * @param value The value given.
-   * @param minimum The excluded floor.
-   * @param unit The unit of the value; a pure number when absent.
-   * @returns The value.
-   * @throws {HumanRefusal} When the value is not above the floor or not finite.
+   * Parameter axis: The parameter's name.
+   * Parameter value: The value given.
+   * Parameter minimum: The excluded floor.
+   * Parameter unit: The unit of the value; a pure number when absent.
+   * Returns: The value.
+   * When the value is not above the floor or not finite.
    */
   export function above(
     axis: string,
@@ -88,17 +85,16 @@ export namespace HumanBound {
     });
   }
 
-  /**
+  /*
    * A value inside a band.
-   *
-   * @param axis The parameter's name.
-   * @param value The value given.
-   * @param minimum The band's lower end.
-   * @param maximum The band's upper end.
-   * @param unit The unit of the value; a pure number when absent.
-   * @param open Which ends are excluded; none when absent.
-   * @returns The value.
-   * @throws {HumanRefusal} When the value lies outside the band.
+   * Parameter axis: The parameter's name.
+   * Parameter value: The value given.
+   * Parameter minimum: The band's lower end.
+   * Parameter maximum: The band's upper end.
+   * Parameter unit: The unit of the value; a pure number when absent.
+   * Parameter open: Which ends are excluded; none when absent.
+   * Returns: The value.
+   * When the value lies outside the band.
    */
   export function within(
     axis: string,
@@ -126,7 +122,9 @@ export namespace HumanBound {
     });
   }
 
-  /** The refusal of a value outside a range. */
+  /*
+   * The refusal of a value outside a range.
+   */
   function refuse(
     axis: string,
     value: number,

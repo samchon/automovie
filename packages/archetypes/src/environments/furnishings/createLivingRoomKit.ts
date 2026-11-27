@@ -14,7 +14,7 @@ import {
 import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { furnishRoom } from "./furnishRoom";
 
-/**
+/*
  * Furnish a living room: a sofa centred on the `-z` wall, a coffee table facing
  * it, two armchairs facing the sofa across the table and a bookcase centred on
  * the `-x` wall.
@@ -28,11 +28,10 @@ import { furnishRoom } from "./furnishRoom";
  * The room is measured from its floor centre and follows the kit's placement
  * frame. No clearance is cited: no published standard read for this kit gives a
  * distance between a sofa and a coffee table.
- *
- * @param params The room layout and the sofa-to-table gap.
- * @returns The placed-room module.
- * @throws When a piece leaves the room or overlaps another piece or a
- *   `keepClear` area, naming the role.
+ * Parameter params: The room layout and the sofa-to-table gap.
+ * Returns: The placed-room module.
+ * When a piece leaves the room or overlaps another piece or a
+ * `keepClear` area, naming the role.
  */
 export function createLivingRoomKit(
   params: AutoMovieEnvironmentFurnishing.ILivingRoomKitParams,

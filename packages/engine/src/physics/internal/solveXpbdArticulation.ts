@@ -18,7 +18,7 @@ import { solveXpbdArticulationContacts } from "./solveXpbdArticulationContacts";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
 import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 
-/**
+/*
  * The joint motors' velocity pass over whole articulations, by the
  * articulated-body algorithm (Featherstone 2008, "Rigid Body Dynamics
  * Algorithms", chapter 7) in its impulse form (`AutoMovieXpbdArticulation`).
@@ -42,18 +42,17 @@ import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
  * position pass after the prediction has stepped past it.
  */
 export namespace solveXpbdArticulation {
-  /**
+  /*
    * Solve every motor-driven tree's motors at once and return the joints
    * outside the forest (closing a loop or with a kinematic child), which the
    * caller solves pair by pair.
-   *
-   * @param joints The world's joints, in creation order.
-   * @param h The substep, seconds.
-   * @param contacts The step's contacts, for the trees' supports.
-   * @param tasks The root tasks the trees' supports should meet, by root body.
-   * @param warm Each tree's warm start for its supports' cascade, by root body;
-   *   a tree's entry is created on its first task.
-   * @returns The joints outside the forest, in creation order.
+   * Parameter joints: The world's joints, in creation order.
+   * Parameter h: The substep, seconds.
+   * Parameter contacts: The step's contacts, for the trees' supports.
+   * Parameter tasks: The root tasks the trees' supports should meet, by root body.
+   * Parameter warm: Each tree's warm start for its supports' cascade, by root body;
+   * a tree's entry is created on its first task.
+   * Returns: The joints outside the forest, in creation order.
    */
   export function motors(
     joints: readonly AutoMovieXpbdJoint[],
@@ -80,7 +79,7 @@ export namespace solveXpbdArticulation {
     return kept.loops;
   }
 
-  /**
+  /*
    * Apply a linear impulse at a point of a body through its whole articulation:
    * the impulse form of the articulated-body algorithm (Featherstone 2008,
    * section 7.5; Mirtich 1996, "Impulse-based dynamic simulation of rigid body
@@ -91,12 +90,11 @@ export namespace solveXpbdArticulation {
    * the chest alone sets it moving away from its limbs and leaves the joints'
    * position pass to drag them after it. A body no joint attaches is its own
    * tree, and the change is the rigid body's own.
-   *
-   * @param joints The world's joints, in creation order.
-   * @param body The struck body.
-   * @param point The world point the impulse acts at, metres.
-   * @param impulse The world linear impulse, newton seconds.
-   * @throws {Error} When the struck body's tree has a singular inertia.
+   * Parameter joints: The world's joints, in creation order.
+   * Parameter body: The struck body.
+   * Parameter point: The world point the impulse acts at, metres.
+   * Parameter impulse: The world linear impulse, newton seconds.
+   * When the struck body's tree has a singular inertia.
    */
   export function impulse(
     joints: readonly AutoMovieXpbdJoint[],
@@ -129,24 +127,27 @@ export namespace solveXpbdArticulation {
     );
   }
 
-  /**
+  /*
    * The world's forest: its bodies' nodes and the joints outside it, the
    * model's connectivity (its parent array, Featherstone 2008, section 4.1.2).
    */
   export interface IForest {
-    /** Every jointed body's node. */
+    /*
+     * Every jointed body's node.
+     */
     nodes: ReadonlyMap<AutoMovieXpbdBody, INode>;
 
-    /** The joints outside the forest, in creation order. */
+    /*
+     * The joints outside the forest, in creation order.
+     */
     loops: readonly AutoMovieXpbdJoint[];
   }
 
-  /**
+  /*
    * The world's forest: each joint whose child is dynamic, has no parent edge
    * yet and lies in another tree than its parent becomes a tree edge.
-   *
-   * @param joints The world's joints, in creation order.
-   * @returns The forest's nodes and the joints outside it.
+   * Parameter joints: The world's joints, in creation order.
+   * Returns: The forest's nodes and the joints outside it.
    */
   export function forest(joints: readonly AutoMovieXpbdJoint[]): IForest {
     const nodes: Map<AutoMovieXpbdBody, INode> = new Map();
@@ -169,29 +170,41 @@ export namespace solveXpbdArticulation {
     return { nodes, loops };
   }
 
-  /** One body of the forest. */
+  /*
+   * One body of the forest.
+   */
   export interface INode {
-    /** The world's body. */
+    /*
+     * The world's body.
+     */
     body: AutoMovieXpbdBody;
 
-    /** The joint to its parent; absent at a root. */
+    /*
+     * The joint to its parent; absent at a root.
+     */
     edge?: AutoMovieXpbdJoint;
 
-    /** Its parent node; absent at a root. */
+    /*
+     * Its parent node; absent at a root.
+     */
     parent?: INode;
 
-    /** Its child nodes, in joint creation order. */
+    /*
+     * Its child nodes, in joint creation order.
+     */
     children: INode[];
   }
 
-  /** The node's root. */
+  /*
+   * The node's root.
+   */
   export function root(node: INode): INode {
     let top: INode = node;
     while (top.parent !== undefined) top = top.parent;
     return top;
   }
 
-  /**
+  /*
    * A tree's states and edges, depth-first from its root so every edge follows
    * its parent's.
    */
@@ -224,7 +237,9 @@ export namespace solveXpbdArticulation {
     return tree;
   }
 
-  /** Add a propagation's velocity changes to every dynamic body of its tree. */
+  /*
+   * Add a propagation's velocity changes to every dynamic body of its tree.
+   */
   function apply(
     tree: AutoMovieXpbdArticulation.ITree,
     response: AutoMovieXpbdArticulation.IResponse,
@@ -250,13 +265,17 @@ export namespace solveXpbdArticulation {
     );
   }
 
-  /** A node waiting in the depth-first walk with its state's index. */
+  /*
+   * A node waiting in the depth-first walk with its state's index.
+   */
   interface IVisit {
     node: INode;
     state: number;
   }
 
-  /** The node of a body, created on first use. */
+  /*
+   * The node of a body, created on first use.
+   */
   function nodeOf(
     nodes: Map<AutoMovieXpbdBody, INode>,
     body: AutoMovieXpbdBody,
@@ -269,7 +288,9 @@ export namespace solveXpbdArticulation {
     return found;
   }
 
-  /** Solve one tree's motors, from its root. */
+  /*
+   * Solve one tree's motors, from its root.
+   */
   function solveTree(
     top: INode,
     h: number,
@@ -310,7 +331,9 @@ export namespace solveXpbdArticulation {
     apply(tree, held.response);
   }
 
-  /** A body's state with its own spatial inertia about the origin. */
+  /*
+   * A body's state with its own spatial inertia about the origin.
+   */
   function state(
     body: AutoMovieXpbdBody,
     origin: IAutoMovieVector3,
@@ -321,7 +344,9 @@ export namespace solveXpbdArticulation {
     };
   }
 
-  /** An edge's free axes: columns, motors and present relative velocities. */
+  /*
+   * An edge's free axes: columns, motors and present relative velocities.
+   */
   function axes(
     joint: AutoMovieXpbdJoint,
     origin: IAutoMovieVector3,
@@ -393,7 +418,7 @@ export namespace solveXpbdArticulation {
     );
   }
 
-  /**
+  /*
    * Hold every free motor whose impulse `b - h c qd'` exceeds its cap on that
    * impulse's direction at the cap; true when any was newly held.
    */
@@ -429,7 +454,7 @@ export namespace solveXpbdArticulation {
     return clamped;
   }
 
-  /**
+  /*
    * Lock every free axis whose rate after the solve carries its coordinate onto
    * or past one of its bounds over the substep (`reachesXpbdJointBound`), so an
    * axis moving outward at its limit is held at zero rate (prescribed motion,
@@ -471,7 +496,9 @@ export namespace solveXpbdArticulation {
     return locked;
   }
 
-  /** Each joint-frame axis by name. */
+  /*
+   * Each joint-frame axis by name.
+   */
   const UNIT: Readonly<Record<string, IAutoMovieVector3>> = {
     x: { x: 1, y: 0, z: 0 },
     y: { x: 0, y: 1, z: 0 },

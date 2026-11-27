@@ -19,7 +19,7 @@ import { ExerciseKey } from "../internal/ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 import { WorkoutStance } from "./WorkoutStance";
 
-/**
+/*
  * The gym's standing movements of the workout law: free-weight exercises a
  * programme names beside the ones the other tables hold, shown here without
  * their load unless the author names one (`load`): the bent-over row, the curl,
@@ -42,7 +42,9 @@ import { WorkoutStance } from "./WorkoutStance";
  * `WorkoutEquipment` owns bench and box support.
  */
 export namespace WorkoutGym {
-  /** Prepare the two-handed bar path when the exercise has no prop. */
+  /*
+   * Prepare the two-handed bar path when the exercise has no prop.
+   */
   export function prepareEmptyBar(
     body: IAutoMovieMotionHumanBody,
     kind: "snatch" | "cleanAndJerk",
@@ -107,7 +109,7 @@ export namespace WorkoutGym {
     };
   }
 
-  /**
+  /*
    * A key from the whole body's part and the limbs' angles, on the body it is
    * built for (`ExerciseKey.from`).
    */
@@ -119,7 +121,7 @@ export namespace WorkoutGym {
     (body: IAutoMovieMotionHumanBody): IAutoMovieMotionHumanExerciseKey.IKey =>
       ExerciseKey.from(body, trunk, both);
 
-  /**
+  /*
    * A squat's bottom: the trunk pitched, the knees bent over shanks that lean,
    * with the arms as given.
    */
@@ -134,7 +136,9 @@ export namespace WorkoutGym {
       { ...ExerciseKey.stood(pitch, knee, shank), ...arms },
     );
 
-  /** A standing kind on both feet whose repetition goes between two keys. */
+  /*
+   * A standing kind on both feet whose repetition goes between two keys.
+   */
   const pair = (
     reps: number,
     low: readonly [Keyed, number, string, string],
@@ -153,14 +157,16 @@ export namespace WorkoutGym {
       ],
     );
 
-  /** The exercises. */
+  /*
+   * The exercises.
+   */
   export const KINDS: Readonly<
     Record<
       IAutoMovieMotionHumanWorkoutGym.Name,
       IAutoMovieMotionHumanWorkoutKind
     >
   > = {
-    /**
+    /*
      * A bent-over row: the trunk held at 60 degrees, the elbows drawn back past
      * it.
      */
@@ -180,14 +186,16 @@ export namespace WorkoutGym {
       ],
     ),
 
-    /** A curl: the elbows bent from straight to full, the upper arms still. */
+    /*
+     * A curl: the elbows bent from straight to full, the upper arms still.
+     */
     curl: pair(
       5,
       [key({}, { raise: 5, elbow: 5, twist: 0 }), 1.2, "lower", "down"],
       [key({}, { raise: 5, elbow: 140 }), 0.9, "curl", "top"],
     ),
 
-    /**
+    /*
      * An overhead triceps extension: the upper arms beside the head, the elbows
      * straightened.
      */
@@ -207,21 +215,25 @@ export namespace WorkoutGym {
       ],
     ),
 
-    /** A lateral raise: the arms lifted out to the shoulders' height. */
+    /*
+     * A lateral raise: the arms lifted out to the shoulders' height.
+     */
     lateralRaise: pair(
       5,
       [key({}, { raise: 8, elbow: 10 }), 1.2, "lower", "down"],
       [key({}, { raise: 88, elbow: 10 }), 0.9, "raise", "top"],
     ),
 
-    /** A front raise: the arms lifted forward to the shoulders' height. */
+    /*
+     * A front raise: the arms lifted forward to the shoulders' height.
+     */
     frontRaise: pair(
       5,
       [key({}, { raise: 3, elbow: 5 }), 1.2, "lower", "down"],
       [key({}, { shoulder: 88, raise: 3, elbow: 5 }), 0.9, "raise", "top"],
     ),
 
-    /**
+    /*
      * A shrug: the shoulder girdles lifted 20 degrees toward the ears and
      * lowered, the arms hanging (provisional).
      */
@@ -231,7 +243,9 @@ export namespace WorkoutGym {
       [key({}, { elbow: 5, shrug: 20 }), 0.6, "shrug", "top"],
     ),
 
-    /** A calf raise: both heels lifted over the toes' joints, which stay. */
+    /*
+     * A calf raise: both heels lifted over the toes' joints, which stay.
+     */
     calfRaise: WorkoutStance(
       ["leftToes", "rightToes"],
       WorkoutStance.FEET,
@@ -253,7 +267,7 @@ export namespace WorkoutGym {
       true,
     ),
 
-    /**
+    /*
      * A front squat: the hands at the shoulders with the elbows high, the trunk
      * more upright than a back squat's.
      */
@@ -268,7 +282,9 @@ export namespace WorkoutGym {
       ],
     ),
 
-    /** A goblet squat: both hands before the chest. */
+    /*
+     * A goblet squat: both hands before the chest.
+     */
     gobletSquat: pair(
       5,
       [key({}, { shoulder: 35, raise: 5, elbow: 135 }), 1.2, "rise", "top"],
@@ -280,7 +296,7 @@ export namespace WorkoutGym {
       ],
     ),
 
-    /**
+    /*
      * A split squat: a split stance lowered and raised, the feet where the
      * stance put them.
      */
@@ -309,7 +325,7 @@ export namespace WorkoutGym {
       true,
     ),
 
-    /**
+    /*
      * A wall sit: the thighs level over upright shanks, the trunk upright, held
      * 30 s.
      */
@@ -325,7 +341,7 @@ export namespace WorkoutGym {
       ],
     ),
 
-    /**
+    /*
      * A Romanian deadlift: a hinge to 60 degrees over soft knees, the arms
      * hanging.
      */
@@ -343,7 +359,9 @@ export namespace WorkoutGym {
       ),
     },
 
-    /** A good morning: the same hinge with the hands behind the head. */
+    /*
+     * A good morning: the same hinge with the hands behind the head.
+     */
     goodMorning: pair(
       5,
       [key({}, { shoulder: 20, raise: 80, elbow: 140 }), 1.2, "rise", "top"],
@@ -355,7 +373,9 @@ export namespace WorkoutGym {
       ],
     ),
 
-    /** A power clean with the pull, catch and standing rack on separate events. */
+    /*
+     * A power clean with the pull, catch and standing rack on separate events.
+     */
     powerClean: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
@@ -364,7 +384,7 @@ export namespace WorkoutGym {
       clean,
     ),
 
-    /**
+    /*
      * A clean followed by a squat jerk. The IWF separates the rack and standing
      * recovery from the dip, drive and overhead receive; the squat receive
      * follows the shape compared with the lunge-style jerk in PMID 39337870.
@@ -414,7 +434,7 @@ export namespace WorkoutGym {
       ],
     ),
 
-    /**
+    /*
      * A snatch as its positions: the wide start, the full extension, the catch
      * in an overhead squat, and standing up under the locked arms.
      */
@@ -460,7 +480,9 @@ export namespace WorkoutGym {
     ),
   };
 
-  /** The clean's shared pull, receiving support and rack. */
+  /*
+   * The clean's shared pull, receiving support and rack.
+   */
   function clean(
     body: IAutoMovieMotionHumanBody,
   ): IAutoMovieMotionHumanWorkoutKind.IStep[] {
@@ -495,7 +517,9 @@ export namespace WorkoutGym {
     ];
   }
 
-  /** A key of the body's, built once the body is known. */
+  /*
+   * A key of the body's, built once the body is known.
+   */
   type Keyed = (
     body: IAutoMovieMotionHumanBody,
   ) => IAutoMovieMotionHumanExerciseKey.IKey;

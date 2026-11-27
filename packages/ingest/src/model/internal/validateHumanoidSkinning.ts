@@ -5,7 +5,7 @@ import { integerIndex } from "./integerIndex";
 import { object } from "./object";
 import { requiredArray } from "./requiredArray";
 
-/**
+/*
  * Check complete mesh/skin bindings and collect joints actually receiving
  * positive weights.
  *

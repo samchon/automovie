@@ -214,38 +214,26 @@ export namespace AutoMovieHumanNeckSurface {
   }
 }
 
-/**
+/*
  * One continuous source address found by centre-height crossing.
- *
- * @evidence contracts/common.md#principled-implementation A chain reference and material station identify the existing evaluated source course.
- * @evidence contracts/common.md#clear-and-simple-design The temporary pair is all the root finder needs to communicate with section sampling.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The address is evaluated from the source rather than replaced by a copied fixture coordinate.
- * @evidence contracts/common.md#meaningful-documentation The members state ownership and calibration-mm station units.
- * @evidenceExclude contracts/performance.md#efficient-algorithms This interface executes no address search.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This interface coordinates no computation or effects.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Its transient use is owned by course and derive; the type acquires no resource.
  */
 interface ICourse {
-  /** Actual chain owning the address. */
+  /*
+   * Actual chain owning the address.
+   */
   chain: IAutoMovieLoftChain;
 
-  /** Source material station in calibration mm. */
+  /*
+   * Source material station in calibration mm.
+   */
   station: number;
 }
 
-/**
+/*
  * Resolve a bracketed crossing of an actual centre path and a world height.
  * Adjacent principal intervals may report the same endpoint; that one address
  * is retained once. Distinct chain addresses remain distinct and are refused as
  * ambiguous, even when their heights happen to agree.
- *
- * @evidence contracts/common.md#principled-implementation Sign-changing principal intervals bracket continuous Loft.axis height; bisection resolves their addresses without station/world-height identity.
- * @evidence contracts/common.md#clear-and-simple-design One local search returns one source address and refuses missing or multiple detected roots.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Interval endpoints only bracket roots; the function never chooses a nearest layer or clamps an absent target.
- * @evidence contracts/common.md#meaningful-documentation The comment and derive contract state shared-endpoint deduplication, ambiguity and the unproved hidden-reversal limitation.
- * @evidence contracts/performance.md#efficient-algorithms The search scans L intervals with at most 64 evaluations for each sign-changing interval; its endpoint list is bounded by detected crossings.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous single-target search coordinates no requests, phases or external effects.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Root references remain in the local array until return or throw; no chain reference enters the returned display descriptor.
  */
 function course(
   chains: readonly IAutoMovieLoftChain[],

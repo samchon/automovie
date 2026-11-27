@@ -419,23 +419,27 @@ export function AutoMovieInspector(
   );
 }
 
-/** No labels, the state before a paused picture places any. */
+/*
+ * No labels, the state before a paused picture places any.
+ */
 const UNLABELLED: IAutoMovieInspectorScene.ILabels = {
   labels: [],
   lineHeight: 0,
   dropped: 0,
 };
 
-/** Below this width, in pixels, the sections move under the transport. */
+/*
+ * Below this width, in pixels, the sections move under the transport.
+ */
 const NARROW: number = 900;
 
-/**
+/*
  * Most recent incidents the Diagnostics section keeps; the console keeps every
  * one.
  */
 const INCIDENT_LIMIT: number = 50;
 
-/**
+/*
  * One collapsible section of the column: a heading that says what is active,
  * over its panel.
  */
@@ -463,7 +467,7 @@ function Section(props: {
   );
 }
 
-/**
+/*
  * Describe a sample's clock to the millisecond without inventing an output
  * frame; the logged object keeps the exact seconds.
  */
@@ -474,7 +478,9 @@ function describeTime(time: IAutoMovieInspectionDiagnostics.ITime): string {
     : `${seconds} (frame ${time.outputFrame})`;
 }
 
-/** Display the named parts and the checker-owned measurements of one finding. */
+/*
+ * Display the named parts and the checker-owned measurements of one finding.
+ */
 function describeFinding(
   observation: IAutoMovieInspectionDiagnostics.IObservation,
 ): string {
@@ -491,7 +497,7 @@ function describeFinding(
   ].join(" · ");
 }
 
-/**
+/*
  * Show the strongest current finding and any limits on what this sample could
  * check.
  */

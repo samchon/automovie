@@ -7,7 +7,7 @@ import {
 import { integrateAutoMovieSweepVolume } from "./integrateAutoMovieSweepVolume";
 import { momentAutoMovieSweepSections } from "./momentAutoMovieSweepSections";
 
-/**
+/*
  * Measure the volume a sweep encloses between its end sections.
  *
  * A planar section of area `A(u)` moving with spine point `C(u)` and plane
@@ -29,9 +29,8 @@ import { momentAutoMovieSweepSections } from "./momentAutoMovieSweepSections";
  * The formula counts a region twice where neighbouring sections cross, as on
  * the inside of a tight bend, so it measures the sweep's own volume only while
  * the surface has no self-intersection.
- *
- * @param surface A compiled sweep, only read.
- * @returns Cubic metres.
+ * Parameter surface: A compiled sweep, only read.
+ * Returns: Cubic metres.
  */
 export const measureAutoMovieSweepVolume: (
   surface: IAutoMovieSweepSurface,

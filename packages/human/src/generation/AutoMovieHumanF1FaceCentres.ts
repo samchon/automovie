@@ -46,7 +46,9 @@ export namespace AutoMovieHumanF1FaceCentres {
     return [a[0] / l, a[1] / l, a[2] / l];
   };
 
-  /** A frame from an exact Z and a hint for X: X is the hint made square to Z, Y = Z x X. */
+  /*
+   * A frame from an exact Z and a hint for X: X is the hint made square to Z, Y = Z x X.
+   */
   function fromZX(origin: AutoMovieVector3Tuple, z: AutoMovieVector3Tuple, x: AutoMovieVector3Tuple): IAutoMovieHumanSegmentFrame {
     const Z: AutoMovieVector3Tuple = unit(z);
     const X: AutoMovieVector3Tuple = unit(along(x, Z, -dot(x, Z)));

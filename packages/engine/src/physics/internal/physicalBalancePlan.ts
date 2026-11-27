@@ -12,9 +12,11 @@ import type { physicalBalanceStance } from "./physicalBalanceStance";
 import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "../AutoMovieEnginePhysicalPlanarPolygon";
 import { AutoMovieEnginePhysicalSupportSpanContacts as Contacts } from "../AutoMovieEnginePhysicalSupportSpanContacts";
 
-/** The plan phase's result and pendulum rate. */
+/*
+ * The plan phase's result and pendulum rate.
+ */
 export namespace physicalBalancePlan {
-  /**
+  /*
    * The balance controller's plan phase (`advancePhysicalBalance`), one for every
    * body whatever its contacts: the pendulum's rate, the plan's capture point and
    * the assessment the settle phase reads. A step out of a fall is the prepared
@@ -33,11 +35,10 @@ export namespace physicalBalancePlan {
    *   (`AutoMovieEnginePhysicalBipedPressure`).
    * - The assessment is the capture point against the planted contacts' hull
    *   (`AutoMovieEnginePhysicalSupportSpanContacts.hull`).
-   *
-   * @param input The recovery's state after the ramp phase, the body's readings,
-   *   the stance read from that state and the trace to record into, if any.
-   * @returns The state after the plan, a new one; no held goals; and the
-   *   assessment the settle phase reads. The input is never written.
+   * Parameter input: The recovery's state after the ramp phase, the body's readings,
+   * the stance read from that state and the trace to record into, if any.
+   * Returns: The state after the plan, a new one; no held goals; and the
+   * assessment the settle phase reads. The input is never written.
    */
   export function run(
     input: Parameters<typeof physicalBalancePlanImplementation>[0],
@@ -45,32 +46,41 @@ export namespace physicalBalancePlan {
     return physicalBalancePlanImplementation(input);
   }
 
-  /** What the plan reads of the body's readings. */
+  /*
+   * What the plan reads of the body's readings.
+   */
   export type ISense = physicalAuthoredCapture.ISense &
     Pick<
       AutoMovieEnginePhysicalBalanceTypes.ISense,
       "center" | "velocity" | "gravity" | "floor" | "seconds"
     >;
 
-  /** The plan's result. */
+  /*
+   * The plan's result.
+   */
   export interface IResult {
-    /** The state after the plan. */
+    /*
+     * The state after the plan.
+     */
     state: IAutoMoviePhysicalRecoveryState;
 
-    /** The endpoint goals the plan holds, world metres, by bone; none here. */
+    /*
+     * The endpoint goals the plan holds, world metres, by bone; none here.
+     */
     goals: Record<string, IAutoMovieVector3>;
 
-    /** The stance's assessment, which the settle phase's policies read. */
+    /*
+     * The stance's assessment, which the settle phase's policies read.
+     */
     assessment: IAutoMoviePhysicalBalance.IResult;
   }
 
-  /**
+  /*
    * The pendulum's rate, IHMC's omega0: sqrt(g / z0), z0 the authored centre of
    * mass's height over the floor (`physicalAuthoredCapture.center`).
-   *
-   * @param sense The body's readings.
-   * @param state The recovery's state.
-   * @returns The rate, per second.
+   * Parameter sense: The body's readings.
+   * Parameter state: The recovery's state.
+   * Returns: The rate, per second.
    */
   export function omega(
     sense: ISense,

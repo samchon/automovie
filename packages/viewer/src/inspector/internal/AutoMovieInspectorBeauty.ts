@@ -7,7 +7,7 @@ import type * as THREE from "three";
 
 import type { IAutoMovieInspectorSceneHost } from "../IAutoMovieInspectorSceneHost.js";
 
-/**
+/*
  * The inspector's beauty picture: a subject's optics and indirect shading
  * through the stages the draw page delivers one sample with.
  *
@@ -23,32 +23,50 @@ import type { IAutoMovieInspectorSceneHost } from "../IAutoMovieInspectorSceneHo
  * releases them.
  */
 export class AutoMovieInspectorBeauty {
-  /** The stage giving a subject's optics their response. */
+  /*
+   * The stage giving a subject's optics their response.
+   */
   private readonly response_: AutoMovieFilmResponseStage =
     new AutoMovieFilmResponseStage();
 
-  /** The stage measuring a subject's indirect shading around the draw. */
+  /*
+   * The stage measuring a subject's indirect shading around the draw.
+   */
   private readonly indirect_: AutoMovieFilmIndirectStage =
     new AutoMovieFilmIndirectStage();
 
-  /** Draw the placed subject's beauty picture at `seconds` onto the canvas. */
+  /*
+   * Draw the placed subject's beauty picture at `seconds` onto the canvas.
+   */
   public draw(props: {
-    /** The inspector's renderer. */
+    /*
+     * The inspector's renderer.
+     */
     renderer: IAutoMovieInspectorSceneHost.IRenderer;
 
-    /** The created subject, placed at `seconds`. */
+    /*
+     * The created subject, placed at `seconds`.
+     */
     instance: IAutoMovieDrawScene;
 
-    /** The camera drawn through. */
+    /*
+     * The camera drawn through.
+     */
     camera: THREE.Camera;
 
-    /** The drawn second. */
+    /*
+     * The drawn second.
+     */
     seconds: number;
 
-    /** Drawn raster width in device pixels. */
+    /*
+     * Drawn raster width in device pixels.
+     */
     width: number;
 
-    /** Drawn raster height in device pixels. */
+    /*
+     * Drawn raster height in device pixels.
+     */
     height: number;
   }): void {
     const { renderer, instance, camera, seconds, width, height }: typeof props =
@@ -81,7 +99,9 @@ export class AutoMovieInspectorBeauty {
     );
   }
 
-  /** Release both stages. */
+  /*
+   * Release both stages.
+   */
   public dispose(): void {
     this.response_.dispose();
     this.indirect_.dispose();

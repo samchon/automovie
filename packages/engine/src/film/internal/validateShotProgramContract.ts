@@ -7,7 +7,7 @@ import {
   IAutoMovieStageActor,
 } from "@automovie/interface";
 
-/**
+/*
  * Hold a built shot program to its registration before `compileDefinedShot`
  * stages it, returning every `build`-phase `contract-mismatch` diagnostic at
  * once; an empty list means the program may be staged.
@@ -160,5 +160,7 @@ export function validateShotProgramContract<Context>(
   return diagnostics;
 }
 
-/** One returned event sample: a contract event id and its claimed time. */
+/*
+ * One returned event sample: a contract event id and its claimed time.
+ */
 type IEventSample = IAutoMovieShotProgram["eventSamples"][number];

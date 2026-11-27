@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { createAutoMovieResourceRetirement } from "./createAutoMovieResourceRetirement.js";
 
-/**
+/*
  * Display caller-supplied generating polylines in model metres without
  * refitting. Closed lines omit the repeated endpoint. The builder owns one
  * material and one geometry per line, registers allocations before attachment

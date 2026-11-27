@@ -13,17 +13,16 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import type { HumanGrasp } from "./HumanGrasp";
 
-/**
+/*
  * Prepare one prop's handle as a grasp target at changing world frames of the
  * prop: its grip point alone, its hand frame (point, inward approach, wrapped
  * axis and width), or the complete target with the prop's colliders and grip
  * kind.
- *
- * @param prop The prop, unchanged through the plan.
- * @param id The handle affordance.
- * @returns Point, frame and complete target readers of a world prop frame.
- * @throws {HumanRefusal} An `affordance` refusal when the prop declares no such
- *   handle, listing its affordances, or no colliders.
+ * Parameter prop: The prop, unchanged through the plan.
+ * Parameter id: The handle affordance.
+ * Returns: Point, frame and complete target readers of a world prop frame.
+ * An `affordance` refusal when the prop declares no such
+ * handle, listing its affordances, or no colliders.
  */
 export function HumanGraspTarget(
   prop: IAutoMovieMotionHumanProp,
@@ -136,15 +135,21 @@ export function HumanGraspTarget(
   };
 }
 
-/** The record of `IHumanGraspTargetResult`'s site. */
+/*
+ * The record of `IHumanGraspTargetResult`'s site.
+ */
 type IHumanGraspTargetResult = {
-  /** The handle's world grip point. */
+  /*
+   * The handle's world grip point.
+   */
   point: (frame: IAutoMovieRigidTransform) => IAutoMovieVector3;
 
-  /** The handle's grip point, approach, wrapped axis and width. */
+  /*
+   * The handle's grip point, approach, wrapped axis and width.
+   */
   frame: (frame: IAutoMovieRigidTransform) => HumanGrasp.IFrame;
 
-  /**
+  /*
    * The hand frame with the prop's colliders and the handle's grip kind
    * (`power` when it names none).
    */

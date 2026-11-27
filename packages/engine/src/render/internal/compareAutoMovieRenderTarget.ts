@@ -7,7 +7,7 @@ import {
 
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
-/**
+/*
  * Decide whether a report is still evidence about the target in front of you.
  *
  * A budget verdict is a claim about a specific renderer drawing specific bytes

@@ -20,7 +20,9 @@ import { HumanSupportCarry } from "../../carrier/internal/HumanSupportCarry";
 import { PreparedHumanIntervals } from "../../perform/internal/PreparedHumanIntervals";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
-/** Each world goal that can follow the stair body or a held foot. */
+/*
+ * Each world goal that can follow the stair body or a held foot.
+ */
 const LIMBS: readonly AutoMovieHumanLimb[] = [
   "leftArm",
   "rightArm",
@@ -28,14 +30,16 @@ const LIMBS: readonly AutoMovieHumanLimb[] = [
   "rightLeg",
 ];
 
-/** A carry that leaves everything where it is. */
+/*
+ * A carry that leaves everything where it is.
+ */
 const STILL: IAutoMovieMotionHumanSupportCarry.ICarry = {
   point: (p: IAutoMovieVector3): IAutoMovieVector3 => p,
   turn: { x: 0, y: 0, z: 0, w: 1 },
   yaw: 0,
 };
 
-/**
+/*
  * A flight climbed onto a moving prop, carried footprint by footprint: the
  * climb is planned in the world as the prop stood at its start, a foot on a
  * floor print stays where it stands in the world, and a foot on a tread aims at
@@ -44,11 +48,10 @@ const STILL: IAutoMovieMotionHumanSupportCarry.ICarry = {
  * The root and the heading pass from the floor's stillness to the prop's carry
  * as the weight passes onto it, from the first tread touchdown to the last
  * floor print's lift.
- *
- * @param context The action's context.
- * @param plan The climb planned in the world at the start.
- * @param prop The moving prop the flight belongs to.
- * @returns The carried plan.
+ * Parameter context: The action's context.
+ * Parameter plan: The climb planned in the world at the start.
+ * Parameter prop: The moving prop the flight belongs to.
+ * Returns: The carried plan.
  */
 export function climbStairsCarry(
   context: climbStairsCarry.IContext,
@@ -244,56 +247,62 @@ export function climbStairsCarry(
   };
 }
 
-/** Companions of {@link climbStairsCarry}. */
+/*
+ * Companions of climbStairsCarry.
+ */
 export namespace climbStairsCarry {
-  /**
+  /*
    * What the carry reads of an action's context: its start and its props'
    * frames.
    */
   export interface IContext {
-    /** The action's film start, seconds. */
+    /*
+     * The action's film start, seconds.
+     */
     start: number;
 
-    /** A prop's frame reader by subject. */
+    /*
+     * A prop's frame reader by subject.
+     */
     prop: (subject: string) => Pick<IAutoMovieMotionHumanPropReader, "frame">;
   }
 
-  /** What `boarded` reads: the entry ankles and the ankle's own height. */
+  /*
+   * What `boarded` reads: the entry ankles and the ankle's own height.
+   */
   export interface IBoarding {
-    /** The entry's feet. */
+    /*
+     * The entry's feet.
+     */
     entry: {
-      /** Each foot's ankle. */
+      /*
+       * Each foot's ankle.
+       */
       feet: Record<
         AutoMovieHumanSide,
         Pick<IAutoMovieMotionHumanEntryState.IFoot, "ankle">
       >;
     };
 
-    /** The body's ankle height. */
+    /*
+     * The body's ankle height.
+     */
     body: { measure: Pick<IAutoMovieBodyMeasure, "ankleHeight"> };
   }
 
-  /**
+  /*
    * How far above the world floor a standing ankle's own height may lie and
    * still stand on it, metres (provisional: a sole's give).
    */
   const FLOOR: number = 0.02;
 
-  /**
+  /*
    * Whether the body already stands on the moving prop at the climb's start, a
    * rider on an escalator's steps rather than one boarding from the floor: its
    * feet stand raised off the world floor, which only the prop beneath them
    * holds up.
-   *
-   * @param context The action's context.
-   * @returns Whether the feet stand above the world floor.
-   * @evidence contracts/development/common.md#meaningful-documentation States the test and its use.
-   * @evidence contracts/development/implementation.md#principled-implementation Each entry ankle against the world floor raised by the body's own ankle height.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Two feet, one comparison each.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The floor is the world's; a raised fixed floor under a moving prop is not staged here.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure function of the entry.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * Parameter context: The action's context.
+   * Returns: Whether the feet stand above the world floor.
    */
   export function boarded(context: IBoarding): boolean {
     return (["left", "right"] as const).every(
@@ -304,7 +313,9 @@ export namespace climbStairsCarry {
   }
 }
 
-/** A foot's plant windows, in order. */
+/*
+ * A foot's plant windows, in order.
+ */
 function footPlants(
   contacts: readonly IAutoMovieMotionHumanContactWindow[],
   part: IAutoMovieMotionHumanContactWindow["part"],

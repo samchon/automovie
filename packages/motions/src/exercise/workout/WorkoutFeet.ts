@@ -9,7 +9,7 @@ import type {
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 
-/**
+/*
  * The feet of a workout that stands: a foot the kind never moves is held by the
  * leg's solve on the place it stands on at the entry, and a foot the body turns
  * on stays on its ball, turned by the key's own turn.
@@ -21,14 +21,13 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
  * without it.
  */
 export namespace WorkoutFeet {
-  /**
+  /*
    * The keeper of a kind's feet.
-   *
-   * @param context The action's context.
-   * @param kind The exercise.
-   * @param yaw The heading the exercise is entered on, degrees.
-   * @returns What gives a placed posture its bearing legs' goals; the posture
-   *   itself for a kind that is not anchored on its stance.
+   * Parameter context: The action's context.
+   * Parameter kind: The exercise.
+   * Parameter yaw: The heading the exercise is entered on, degrees.
+   * Returns: What gives a placed posture its bearing legs' goals; the posture
+   * itself for a kind that is not anchored on its stance.
    */
   export function keep(
     context: Pick<IAutoMovieMotionHumanActionContext, KeepContext>,
@@ -106,39 +105,61 @@ export namespace WorkoutFeet {
     };
   }
 
-  /** Fixed entry geometry needed by each support's actual contact rule. */
+  /*
+   * Fixed entry geometry needed by each support's actual contact rule.
+   */
   type IPlan = IPlan2 & Plan;
 }
 
-/** The alternatives of `Plan`'s site. */
+/*
+ * The alternatives of `Plan`'s site.
+ */
 type Plan = IPlan3 | IPlan4;
 
-/** The record of `IPlan4`'s site. */
+/*
+ * The record of `IPlan4`'s site.
+ */
 type IPlan4 = {
-  /** A turn about the metatarsophalangeal contact. */
+  /*
+   * A turn about the metatarsophalangeal contact.
+   */
   kind: "pivot";
-  /** The fixed contact in world metres. */
+  /*
+   * The fixed contact in world metres.
+   */
   at: ReturnType<typeof HumanFoot.point>;
-  /** The entry heading in degrees. */
+  /*
+   * The entry heading in degrees.
+   */
   heading: number;
 };
 
-/** The record of `IPlan3`'s site. */
+/*
+ * The record of `IPlan3`'s site.
+ */
 type IPlan3 = {
-  /** An unturned plant. */
+  /*
+   * An unturned plant.
+   */
   kind: "plant";
-  /**
+  /*
    * The fixed entry placement's goal reader, with its current-root knee
    * hint.
    */
   goal: ReturnType<typeof AutoMovieMotionHumanLeg.prepareGoal>;
 };
 
-/** The record of `IPlan2`'s site. */
+/*
+ * The record of `IPlan2`'s site.
+ */
 type IPlan2 = {
-  /** The bearing leg. */
+  /*
+   * The bearing leg.
+   */
   side: AutoMovieHumanSide;
 };
 
-/** The alternatives of `KeepContext`'s site. */
+/*
+ * The alternatives of `KeepContext`'s site.
+ */
 type KeepContext = "body" | "entry";

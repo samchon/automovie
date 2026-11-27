@@ -34,7 +34,7 @@ import { deriveAutoMovieSoundPropagation } from "./deriveAutoMovieSoundPropagati
 import { productionCaptionDialogueLine } from "./productionCaptionDialogueLine";
 import { resolveProductionSoundEventCues } from "./resolveProductionSoundEventCues";
 
-/**
+/*
  * Lower semantic shot events and authored cues/dialogue onto one finished-film
  * sound clock.
  */
@@ -211,7 +211,7 @@ export function deriveProductionSoundPlan(
   };
 }
 
-/**
+/*
  * One subject's contribution to an event's sound source: where its members are
  * centered, how many there are, and how far they lie from that center.
  *
@@ -219,20 +219,24 @@ export function deriveProductionSoundPlan(
  * a uniform-box approximation and combine by the parallel-axis identity.
  */
 interface IAutoMovieSoundMass {
-  /**
+  /*
    * Modeled centre in the shot's world metre frame; temporary subject records
    * may borrow it.
    */
   centroid: IAutoMovieVector3;
 
-  /** Equal-source member count supplied by the compiled subject. */
+  /*
+   * Equal-source member count supplied by the compiled subject.
+   */
   count: number;
 
-  /** Modeled mean squared radius about centroid, in square metres. */
+  /*
+   * Modeled mean squared radius about centroid, in square metres.
+   */
   variance: number;
 }
 
-/**
+/*
  * Where an event's sound comes from, how much of it there is, and how far it is
  * spread: the extended incoherent source its subjects add up to.
  *
@@ -260,7 +264,7 @@ interface IAutoMovieSoundMass {
  * third of the squared half-diagonal.
  *
  * A formation's box is transformed by its live cue first
- * ({@link transformFormationBounds}), because a cue that rescales spacing
+ * (transformFormationBounds), because a cue that rescales spacing
  * changes the bounding-box approximation used by the mix.
  *
  * Throwing when nothing resolves also covers the degenerate group: a subject
@@ -377,7 +381,7 @@ const resolveSourceMass: (
   return { centroid, count, variance };
 };
 
-/**
+/*
  * The mean squared distance from the center of an axis-aligned box to a point
  * drawn uniformly inside it: `(hx^2 + hy^2 + hz^2)/3` over its half-extents.
  *
@@ -395,7 +399,9 @@ const boxVariance: (bounds: IAutoMovieFormationBounds) => number = (
   return (x * x + y * y + z * z) / 3;
 };
 
-/** Defensively retain the exact selected propagation profile in the plan. */
+/*
+ * Defensively retain the exact selected propagation profile in the plan.
+ */
 const clonePropagationProfile: (
   profile: IAutoMovieSoundPropagationProfile,
 ) => IAutoMovieSoundPropagationProfile = (
@@ -407,7 +413,9 @@ const clonePropagationProfile: (
   assumptions: [...profile.assumptions],
 });
 
-/** Defensively retain the exact selected room-response source in the plan. */
+/*
+ * Defensively retain the exact selected room-response source in the plan.
+ */
 const cloneAcousticProfile: (
   profile: IAutoMovieAcousticResponseProfile,
 ) => IAutoMovieAcousticResponseProfile = (
@@ -431,7 +439,7 @@ const cloneAcousticProfile: (
           : { provider: { ...profile.provider } }),
       };
 
-/**
+/*
  * Fold UTF-16 code units through 32bit FNV arithmetic to seed the procedural
  * palette; collisions are allowed and this value does not certify plan or asset
  * identity.
@@ -445,7 +453,7 @@ const soundSeed: (value: string) => number = (value: string): number => {
   return hash >>> 0;
 };
 
-/**
+/*
  * Clip the calculated pan to the declared scalar interval; NaN remains NaN for
  * malformed spatial arithmetic rather than being replaced by a plausible
  * direction.

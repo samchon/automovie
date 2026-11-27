@@ -8,10 +8,10 @@ import {
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { validateSolidPlanes } from "./validateSolidPlanes";
 
-/**
+/*
  * Refuse malformed blocker identifiers and half-space fields.
  *
- * The rule is {@link validateSolidPlanes}, raised to a throw: an adapter reading
+ * The rule is validateSolidPlanes, raised to a throw: an adapter reading
  * an authored shading solid has no honest result to return for a solid with no
  * faces, so it stops rather than producing one. Sharing the rule is what keeps
  * a neighbour's mass and the building's own canopy held to one standard.
@@ -24,10 +24,9 @@ import { validateSolidPlanes } from "./validateSolidPlanes";
  * Plane count and finite fields do not prove the intersection bounded or
  * nonempty; validateSolidPlanes deliberately leaves those geometric properties
  * unchecked.
- *
- * @param solids Authored convex blockers, checked in list order.
- * @param label Kind of solid named in messages and paths, such as `shading
- *   solid`.
+ * Parameter solids: Authored convex blockers, checked in list order.
+ * Parameter label: Kind of solid named in messages and paths, such as `shading
+ * solid`.
  */
 export function assertAutoMovieAnalysisSolids(
   solids: readonly IAutoMovieAnalysisSolid[],

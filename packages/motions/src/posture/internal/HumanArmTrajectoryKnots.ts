@@ -7,7 +7,7 @@ import { HumanArmTrajectoryRateProjection } from "./HumanArmTrajectoryRateProjec
 import { HumanMinimumJerkSpline } from "./HumanMinimumJerkSpline";
 import { HumanQuinticSegment } from "./HumanQuinticSegment";
 
-/**
+/*
  * An arms' trajectory optimised on few knots and constrained on the whole frame
  * grid: the change of variables between the two.
  *
@@ -27,17 +27,16 @@ import { HumanQuinticSegment } from "./HumanQuinticSegment";
  * solved again.
  */
 export namespace HumanArmTrajectoryKnots {
-  /**
+  /*
    * The interpolant's weights: each grid instant's coordinates as a sum over
    * the two knots of its segment, each knot's position, velocity and
    * acceleration (`IWeight.block` 0, 1 and 2), the quintic that meets both
    * knots' position, velocity and acceleration (`basis`), so a grid instant
    * reads six of the knots' values and the subproblem on the knots stays
    * banded.
-   *
-   * @param knots The knots' seconds, ascending.
-   * @param grid The grid instants' seconds over the same span.
-   * @returns For each grid instant, the weight of each knot value it reads.
+   * Parameter knots: The knots' seconds, ascending.
+   * Parameter grid: The grid instants' seconds over the same span.
+   * Returns: For each grid instant, the weight of each knot value it reads.
    */
   export function weights(
     knots: readonly number[],
@@ -69,14 +68,13 @@ export namespace HumanArmTrajectoryKnots {
     });
   }
 
-  /**
+  /*
    * A knot's own time scale, seconds: the mean of its neighbouring segments,
    * the one segment at an end. Its velocity and acceleration are the
    * subproblem's variables times it, once and twice (`weights`).
-   *
-   * @param knots The knots' seconds.
-   * @param k The knot.
-   * @returns The scale.
+   * Parameter knots: The knots' seconds.
+   * Parameter k: The knot.
+   * Returns: The scale.
    */
   export function span(knots: readonly number[], k: number): number {
     const n: number = knots.length;
@@ -84,42 +82,61 @@ export namespace HumanArmTrajectoryKnots {
     const after: number = k + 1 < n ? knots[k + 1]! - knots[k]! : 0;
     return k > 0 && k + 1 < n ? (before + after) / 2 : before + after;
   }
-  /** One knot value's weight in a grid instant's coordinates. */
+  /*
+   * One knot value's weight in a grid instant's coordinates.
+   */
   export interface IWeight {
-    /** The knot. */
+    /*
+     * The knot.
+     */
     knot: number;
-    /** Its position (0), velocity (1) or acceleration (2). */
+    /*
+     * Its position (0), velocity (1) or acceleration (2).
+     */
     block: number;
-    /** The weight. */
+    /*
+     * The weight.
+     */
     weight: number;
   }
 
-  /** Each arm's velocities and accelerations at each knot, per second. */
+  /*
+   * Each arm's velocities and accelerations at each knot, per second.
+   */
   export interface IRates {
-    /** Each arm's velocity at each knot, coordinate units a second. */
+    /*
+     * Each arm's velocity at each knot, coordinate units a second.
+     */
     velocities: number[][][];
-    /** Each arm's acceleration at each knot, coordinate units a second². */
+    /*
+     * Each arm's acceleration at each knot, coordinate units a second².
+     */
     accelerations: number[][][];
   }
 
-  /** The preceding knot and the interpolated position at a given time. */
+  /*
+   * The preceding knot and the interpolated position at a given time.
+   */
   export interface IPosition {
-    /** The preceding knot, or the endpoint outside the course. */
+    /*
+     * The preceding knot, or the endpoint outside the course.
+     */
     knot: number;
-    /** Each coordinate's position. */
+    /*
+     * Each coordinate's position.
+     */
     coordinates: number[];
   }
 
-  /**
+  /*
    * Prepare the quintics through the supplied position, velocity and
    * acceleration boundary values. A position sample needs only the active
    * segment's coefficients (Flash and Hogan 1985).
-   *
-   * @param knots The knots' seconds, ascending.
-   * @param x The coordinates at each knot.
-   * @param velocities The velocities at each knot.
-   * @param accelerations The accelerations at each knot.
-   * @returns The position and knot at a second on the course.
+   * Parameter knots: The knots' seconds, ascending.
+   * Parameter x: The coordinates at each knot.
+   * Parameter velocities: The velocities at each knot.
+   * Parameter accelerations: The accelerations at each knot.
+   * Returns: The position and knot at a second on the course.
    */
   export function positions(
     knots: readonly number[],
@@ -164,15 +181,14 @@ export namespace HumanArmTrajectoryKnots {
     };
   }
 
-  /**
+  /*
    * The rates a course of positions starts from: the minimum-jerk spline's
    * through them (`HumanMinimumJerkSpline.derivatives`), at rest at its ends,
    * the seed of the knots' own velocities and accelerations, which the
    * optimiser then moves.
-   *
-   * @param knots The knots' seconds.
-   * @param x Each arm's coordinates at each knot.
-   * @returns Their rates.
+   * Parameter knots: The knots' seconds.
+   * Parameter x: Each arm's coordinates at each knot.
+   * Returns: Their rates.
    */
   export function rates(
     knots: readonly number[],
@@ -196,12 +212,11 @@ export namespace HumanArmTrajectoryKnots {
     };
   }
 
-  /**
+  /*
    * Prepare the laid course's rates within the arm's native continuous ROM.
-   *
-   * @param context The knot clock and the native coordinate ranges.
-   * @param x Each arm's coordinates at each knot.
-   * @returns The shared rates for admission and playback.
+   * Parameter context: The knot clock and the native coordinate ranges.
+   * Parameter x: Each arm's coordinates at each knot.
+   * Returns: The shared rates for admission and playback.
    */
   export function bounded(
     context: Parameters<typeof HumanArmTrajectoryRateProjection>[0],
@@ -214,16 +229,15 @@ export namespace HumanArmTrajectoryKnots {
     );
   }
 
-  /**
+  /*
    * An arm's position, velocity and acceleration at a second on its knots'
    * quintics: the knots' own rates carried onto other knots exactly.
-   *
-   * @param knots The knots' seconds.
-   * @param x The arm's coordinates at each knot.
-   * @param velocities Its velocity at each knot.
-   * @param accelerations Its acceleration at each knot.
-   * @param seconds The second.
-   * @returns Its position, velocity and acceleration there.
+   * Parameter knots: The knots' seconds.
+   * Parameter x: The arm's coordinates at each knot.
+   * Parameter velocities: Its velocity at each knot.
+   * Parameter accelerations: Its acceleration at each knot.
+   * Parameter seconds: The second.
+   * Returns: Its position, velocity and acceleration there.
    */
   export function at(
     knots: readonly number[],
@@ -256,16 +270,15 @@ export namespace HumanArmTrajectoryKnots {
     });
     return [out[0]!, out[1]!, out[2]!];
   }
-  /**
+  /*
    * Every arm's coordinates at the grid instants: on the knots' own quintics
    * where their rates are given, else on the minimum-jerk spline through the
    * positions.
-   *
-   * @param knots The knots' seconds.
-   * @param grid The grid instants' seconds.
-   * @param x Each arm's coordinates at each knot.
-   * @param rates Each arm's velocities and accelerations at each knot.
-   * @returns Each arm's coordinates at each grid instant.
+   * Parameter knots: The knots' seconds.
+   * Parameter grid: The grid instants' seconds.
+   * Parameter x: Each arm's coordinates at each knot.
+   * Parameter rates: Each arm's velocities and accelerations at each knot.
+   * Returns: Each arm's coordinates at each grid instant.
    */
   export function read(
     knots: readonly number[],
@@ -288,18 +301,17 @@ export namespace HumanArmTrajectoryKnots {
       },
     );
   }
-  /**
+  /*
    * Sample a local repair against the original clock. An interior end inherits
    * the original curve's central tangent. A true end keeps its rest tangent.
    * The caller admits the resulting grid after joining it to the outside rows.
-   *
-   * @param times The solved interval's ordered knot seconds.
-   * @param x Each arm's solved coordinates at those knots.
-   * @param grid The whole laid course's frame seconds.
-   * @param laid The original coordinates used to measure each join's tangent.
-   * @param from The first frame of the repair.
-   * @param to The last frame of the repair.
-   * @returns The repair's frame rows, including both unchanged endpoint poses.
+   * Parameter times: The solved interval's ordered knot seconds.
+   * Parameter x: Each arm's solved coordinates at those knots.
+   * Parameter grid: The whole laid course's frame seconds.
+   * Parameter laid: The original coordinates used to measure each join's tangent.
+   * Parameter from: The first frame of the repair.
+   * Parameter to: The last frame of the repair.
+   * Returns: The repair's frame rows, including both unchanged endpoint poses.
    */
   export function splice(
     times: readonly number[],
@@ -338,14 +350,13 @@ export namespace HumanArmTrajectoryKnots {
     return played;
   }
 
-  /**
+  /*
    * A grid subproblem carried onto the knots' steps.
-   *
-   * @param c The knots' context; the grid's has the same arms and coordinates.
-   * @param w The interpolant's weights (`weights`).
-   * @param model The subproblem in the grid's steps.
-   * @returns The same subproblem in the knots' steps: each moving knot's
-   *   position, velocity and acceleration steps, `3 width` of them a knot.
+   * Parameter c: The knots' context; the grid's has the same arms and coordinates.
+   * Parameter w: The interpolant's weights (`weights`).
+   * Parameter model: The subproblem in the grid's steps.
+   * Returns: The same subproblem in the knots' steps: each moving knot's
+   * position, velocity and acceleration steps, `3 width` of them a knot.
    */
   export function reduce(
     c: Pick<M.IContext, "width" | "n" | "open">,
@@ -467,7 +478,7 @@ export namespace HumanArmTrajectoryKnots {
   }
 }
 
-/**
+/*
  * The quintic Hermite basis of a minimum-jerk segment (Flash and Hogan 1985, J.
  * Neurosci. 5(7):1688): the quintic that meets both ends' position, velocity
  * and acceleration, `p0 H0 + h v0 H1 + h² a0 H2 + p1 H3 + h v1 H4 + h² a1 H5`

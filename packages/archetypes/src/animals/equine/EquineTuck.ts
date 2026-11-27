@@ -9,7 +9,7 @@ import type { AutoMovieArchetypeQuadrupedFooting } from "../AutoMovieArchetypeQu
 import { AutoMovieArchetypeQuadrupedLimb } from "../AutoMovieArchetypeQuadrupedLimb";
 import type { QuadrupedRidePose } from "../quadruped/QuadrupedRidePose";
 
-/**
+/*
  * The limb tuck of a jump's flight: each fore's carpus folds to the jumping
  * horse's measured maximum, each hind shortens by its measured greatest
  * shortening, and the hoof hangs from the folded limb.
@@ -25,14 +25,14 @@ import type { QuadrupedRidePose } from "../quadruped/QuadrupedRidePose";
  * the hock fold.
  */
 export namespace EquineTuck {
-  /**
+  /*
    * The fore's carpal fold at the height of the tuck, degrees: the mean of St
    * George et al. 2021's trailing (128.3) and leading (130.7) fore maxima,
    * intermediate group.
    */
   export const FOLD: number = (128.3 + 130.7) / 2;
 
-  /**
+  /*
    * The hindlimb's greatest shortening in the jump's flight, metres at the
    * cohort's height: St George et al. 2021's maximum hindlimb (hip to hoof)
    * shortening, -0.4 +/- 0.1 m for both hinds in the intermediate group, Table
@@ -41,22 +41,23 @@ export namespace EquineTuck {
    */
   export const SHORTENING: number = 0.4 / 1.553;
 
-  /** One limb's prepared tuck. */
+  /*
+   * One limb's prepared tuck.
+   */
   export type Tuck = (
     goal: QuadrupedRidePose.IGoal,
     weight: number,
   ) => QuadrupedRidePose.IGoal;
 
-  /**
+  /*
    * Prepare one limb's tuck from its neutral chain.
-   *
-   * @param chain The limb's neutral joint points, model metres, attachment
-   *   first and hoof endpoint last.
-   * @param fold The tuck's greatest fold, degrees.
-   * @param fore Whether the chain is a fore's.
-   * @returns The tuck reader.
-   * @throws {RangeError} Through `AutoMovieArchetypeQuadrupedLimb.prepare` for
-   *   an unsupported chain.
+   * Parameter chain: The limb's neutral joint points, model metres, attachment
+   * first and hoof endpoint last.
+   * Parameter fold: The tuck's greatest fold, degrees.
+   * Parameter fore: Whether the chain is a fore's.
+   * Returns: The tuck reader.
+   * Through `AutoMovieArchetypeQuadrupedLimb.prepare` for
+   * an unsupported chain.
    */
   export function prepare(
     chain: readonly IAutoMovieVector3[],
@@ -112,20 +113,19 @@ export namespace EquineTuck {
     };
   }
 
-  /**
+  /*
    * The weight of the tuck through one carried swing. A fore's rises from its
    * liftoff to final hind liftoff and falls from the middle of the flight to
    * its landing. A hind's rises from final hind liftoff to first fore landing
    * and falls to its own landing: St George et al. 2021 put the hinds' greatest
    * shortening at 68.5 to 87 % of the jump stride, late in the flight.
-   *
-   * @param seconds The film second.
-   * @param lift The swing's liftoff second.
-   * @param takeoff Final hind liftoff.
-   * @param landing First fore landing.
-   * @param land The swing's landing second.
-   * @param fore Whether the swing is a fore's.
-   * @returns The weight, zero to one.
+   * Parameter seconds: The film second.
+   * Parameter lift: The swing's liftoff second.
+   * Parameter takeoff: Final hind liftoff.
+   * Parameter landing: First fore landing.
+   * Parameter land: The swing's landing second.
+   * Parameter fore: Whether the swing is a fore's.
+   * Returns: The weight, zero to one.
    */
   export function weight(
     seconds: number,
@@ -147,12 +147,11 @@ export namespace EquineTuck {
     );
   }
 
-  /**
+  /*
    * The four limbs' prepared tucks.
-   *
-   * @param limbs The neutral limb chains.
-   * @param withers The height at the withers, metres.
-   * @returns The fore and hind tucks.
+   * Parameter limbs: The neutral limb chains.
+   * Parameter withers: The height at the withers, metres.
+   * Returns: The fore and hind tucks.
    */
   export function fores(
     limbs: Readonly<
@@ -168,13 +167,12 @@ export namespace EquineTuck {
     };
   }
 
-  /**
+  /*
    * One hind's tuck: the hock fold at which the hind's greatest reach, hip to
    * hoof, is its standing length less SHORTENING of the withers.
-   *
-   * @param chain The hind's neutral joint points.
-   * @param withers The height at the withers, metres.
-   * @returns The tuck reader.
+   * Parameter chain: The hind's neutral joint points.
+   * Parameter withers: The height at the withers, metres.
+   * Returns: The tuck reader.
    */
   export function hind(
     chain: readonly IAutoMovieVector3[],
@@ -199,15 +197,25 @@ export namespace EquineTuck {
     return prepare(chain, low, false);
   }
 
-  /** The four limbs' tucks. */
+  /*
+   * The four limbs' tucks.
+   */
   export interface IFores {
-    /** The left fore's tuck. */
+    /*
+     * The left fore's tuck.
+     */
     leftFore: Tuck;
-    /** The right fore's tuck. */
+    /*
+     * The right fore's tuck.
+     */
     rightFore: Tuck;
-    /** The left hind's tuck. */
+    /*
+     * The left hind's tuck.
+     */
     leftHind: Tuck;
-    /** The right hind's tuck. */
+    /*
+     * The right hind's tuck.
+     */
     rightHind: Tuck;
   }
 }

@@ -25,7 +25,9 @@ import {
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import { hasMaterialDisplacement } from "./hasMaterialDisplacement.js";
 
-/** Finds bounded depth-order witnesses on ordinary rigid, opaque mesh surfaces. */
+/*
+ * Finds bounded depth-order witnesses on ordinary rigid, opaque mesh surfaces.
+ */
 export function sampleAutoMovieCameraOcclusion(
   props: IProps,
 ): IAutoMovieCameraInspection.IWitnesses | undefined {
@@ -148,34 +150,54 @@ export function sampleAutoMovieCameraOcclusion(
   return witnesses;
 }
 
-/** A fixed projection-space sample grid inside the admitted bounds rectangle. */
+/*
+ * A fixed projection-space sample grid inside the admitted bounds rectangle.
+ */
 const SAMPLE_OFFSETS: readonly number[] = [0.2, 0.5, 0.8];
 
-/** Actual delivery camera and one required subject passing coarse framing. */
+/*
+ * Actual delivery camera and one required subject passing coarse framing.
+ */
 interface IProps {
-  /** Original scene including candidate blockers. */
+  /*
+   * Original scene including candidate blockers.
+   */
   scene: Scene;
 
-  /** Output camera with crop, viewport shape and world transform realized. */
+  /*
+   * Output camera with crop, viewport shape and world transform realized.
+   */
   camera: Camera;
 
-  /** Resolved displayed root of the required subject. */
+  /*
+   * Resolved displayed root of the required subject.
+   */
   target: Object3D;
 
-  /** Admitted enclosing world bounds of the required subject. */
+  /*
+   * Admitted enclosing world bounds of the required subject.
+   */
   bounds: Box3;
 
-  /** Combined world-to-delivery clip projection. */
+  /*
+   * Combined world-to-delivery clip projection.
+   */
   projection: Matrix4;
 
-  /** Six delivery clip planes. */
+  /*
+   * Six delivery clip planes.
+   */
   frustum: Frustum;
 
-  /** Total candidate triangle count allowed for this witness pass. */
+  /*
+   * Total candidate triangle count allowed for this witness pass.
+   */
   triangleBudget: number;
 }
 
-/** Admits the native raycast only for the matching ordinary opaque depth path. */
+/*
+ * Admits the native raycast only for the matching ordinary opaque depth path.
+ */
 function supportsRay(mesh: Mesh): boolean {
   if (
     mesh.constructor !== Mesh ||
@@ -228,16 +250,20 @@ function supportsRay(mesh: Mesh): boolean {
   );
 }
 
-/** Axis-aligned interval in normalized delivery coordinates. */
+/*
+ * Axis-aligned interval in normalized delivery coordinates.
+ */
 interface IRectangle {
-  /** Left, bottom, right and top coordinates, respectively. */
+  /*
+   * Left, bottom, right and top coordinates, respectively.
+   */
   minX: number;
   minY: number;
   maxX: number;
   maxY: number;
 }
 
-/**
+/*
  * The delivery rectangle enclosing box corners, with a safe whole-frame
  * fallback.
  */

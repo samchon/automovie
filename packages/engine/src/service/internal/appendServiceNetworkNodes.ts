@@ -7,7 +7,7 @@ import {
 
 import { appendServiceInsideSpace } from "./appendServiceInsideSpace";
 
-/**
+/*
  * Check node placement and ports while retaining first declaration paths for
  * later connectivity diagnostics.
  */

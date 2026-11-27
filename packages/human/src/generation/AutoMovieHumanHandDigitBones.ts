@@ -35,7 +35,9 @@ const { at: palmarShare }: typeof AutoMovieHumanDigitPalmarShare =
  * the webs.
  */
 export namespace AutoMovieHumanHandDigitBones {
-  /** Spacing of a finger's centre line along its bones, mm. */
+  /*
+   * Spacing of a finger's centre line along its bones, mm.
+   */
   const FINGER_STEP: number = 0.25;
 
   /**
@@ -230,15 +232,14 @@ export namespace AutoMovieHumanHandDigitBones {
     };
   }
 
-  /**
+  /*
    * A section's points at its knots: the four-guide ring
    * (`AutoMovieHumanDigitRing`, radial side, palmar, ulnar side and dorsal
    * guides) when the count allows four sectors of at least four spans, else
    * the two-half section; the uniform cubic B-spline of the controls read
    * where an interpolating consumer reads it, so the guides' jets survive.
-   *
-   * @param shape The section's shape, mm.
-   * @param count Control points.
+   * Parameter shape: The section's shape, mm.
+   * Parameter count: Control points.
    */
   function sectionKnots(
     shape: IAutoMovieHumanDigitSection.IShape,

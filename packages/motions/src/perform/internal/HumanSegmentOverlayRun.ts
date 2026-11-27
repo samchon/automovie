@@ -6,19 +6,18 @@ import type {
 
 import { HumanSegment } from "./HumanSegment";
 
-/**
+/*
  * When a person's overlays run and hand their channels on
  * (HumanSegmentOverlay): the overlays running at a second, an overlay chain's
  * next act reading its entry where the act before it ends, and how far an
  * overlay still holds its channels or a held prop past its end.
  */
 export namespace HumanSegmentOverlayRun {
-  /**
+  /*
    * The overlays that run at a second.
-   *
-   * @param person The person.
-   * @param seconds Film seconds.
-   * @returns The overlays, in placement order.
+   * Parameter person: The person.
+   * Parameter seconds: Film seconds.
+   * Returns: The overlays, in placement order.
    */
   export function running(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -30,15 +29,14 @@ export namespace HumanSegmentOverlayRun {
     );
   }
 
-  /**
+  /*
    * Read a state with the overlays that end at a second handing their channels
    * on there: an overlay chain's next act is placed at the instant the act
    * before it ends, and reads its entry from that act's end, not from the
    * carrier the act would release to were nothing to follow it.
-   *
-   * @param seconds The film second the next act enters at.
-   * @param run The read.
-   * @returns What the read returns.
+   * Parameter seconds: The film second the next act enters at.
+   * Parameter run: The read.
+   * Returns: What the read returns.
    */
   export function handing<T>(seconds: number, run: () => T): T {
     const enclosing: number | undefined = entering;
@@ -50,16 +48,20 @@ export namespace HumanSegmentOverlayRun {
     }
   }
 
-  /**
+  /*
    * The second an overlay chain's next act enters at, while its entry is read
    * (`HumanSegmentOverlayRun.handing`).
    */
   let entering: number | undefined;
 
-  /** Seconds two instants of one handoff may differ by. */
+  /*
+   * Seconds two instants of one handoff may differ by.
+   */
   const HANDOFF: number = 1e-9;
 
-  /** Whether two overlays claim a channel in common. */
+  /*
+   * Whether two overlays claim a channel in common.
+   */
   function shares(
     a: IAutoMovieMotionHumanSegment.IOverlay,
     b: IAutoMovieMotionHumanSegment.IOverlay,
@@ -69,7 +71,7 @@ export namespace HumanSegmentOverlayRun {
     );
   }
 
-  /**
+  /*
    * Whether an overlay hands its channels on at its end: to one that enters
    * then, or to the act whose entry is being read there
    * (`HumanSegmentOverlayRun.handing`).
@@ -88,7 +90,7 @@ export namespace HumanSegmentOverlayRun {
     );
   }
 
-  /**
+  /*
    * Whether an overlay's hand on a side holds a prop on past the overlay's end:
    * the overlay drives that hand, and a hold of it began by the end and lasts
    * beyond it, so the prop stays in the hand after the overlay is gone.
@@ -109,7 +111,7 @@ export namespace HumanSegmentOverlayRun {
     );
   }
 
-  /**
+  /*
    * How far an overlay still holds its channels at a second, released to the
    * carrier over the fade before its end unless it hands them on.
    */

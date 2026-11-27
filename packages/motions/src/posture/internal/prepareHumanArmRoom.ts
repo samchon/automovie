@@ -16,7 +16,7 @@ import { HumanArmClearance } from "./HumanArmClearance";
 import { HumanColliders } from "./HumanColliders";
 import { poseBones } from "./poseBones";
 
-/**
+/*
  * One arm's room (`HumanArmClearance.room`) read for many joint angles of that
  * arm in one pose: a search that turns only the arm (a swing's added abduction)
  * reads the same number for each candidate as `room` does, while the rest of
@@ -27,25 +27,24 @@ import { poseBones } from "./poseBones";
  * recomposes only the bones below the shoulder, and only those bones' profile
  * segments are placed again; every other bone and placed segment is the one
  * read at preparation, which no joint of the arm moves.
- *
- * @param body The body.
- * @param pose The pose; the trunk, the legs and the other arm are read where it
- *   puts them, once.
- * @param side The arm.
- * @param others Another body's placed colliders in the arm's way; none when
- *   absent.
- * @param baseline What each of the two readings may keep, degrees; none when
- *   absent.
- * @param operation The synchronous evaluation's FK reader, whose conversions
- *   the preparation shares; a private one when absent.
- * @param read The pose's bones and placed segments, where the caller holds them
- *   for this very pose's values (`HumanArmSwing.of`'s second arm, posed as the
- *   first left it); read here when absent.
- * @param threshold Optional decision boundary. Once the actual excess exceeds
- *   it a witness suffices. Without it the complete numeric maximum is
- *   returned.
- * @returns The room of the arm at given joint angles, degrees, as
- *   `HumanArmClearance.room` reads it.
+ * Parameter body: The body.
+ * Parameter pose: The pose; the trunk, the legs and the other arm are read where it
+ * puts them, once.
+ * Parameter side: The arm.
+ * Parameter others: Another body's placed colliders in the arm's way; none when
+ * absent.
+ * Parameter baseline: What each of the two readings may keep, degrees; none when
+ * absent.
+ * Parameter operation: The synchronous evaluation's FK reader, whose conversions
+ * the preparation shares; a private one when absent.
+ * Parameter read: The pose's bones and placed segments, where the caller holds them
+ * for this very pose's values (`HumanArmSwing.of`'s second arm, posed as the
+ * first left it); read here when absent.
+ * Parameter threshold: Optional decision boundary. Once the actual excess exceeds
+ * it a witness suffices. Without it the complete numeric maximum is
+ * returned.
+ * Returns: The room of the arm at given joint angles, degrees, as
+ * `HumanArmClearance.room` reads it.
  */
 export function prepareHumanArmRoom(
   body: IAutoMovieMotionHumanBody,
@@ -191,9 +190,11 @@ export function prepareHumanArmRoom(
     return measure(bones, current, prepared);
   };
 }
-/** The readings a caller may hand the preparation (`IRead`). */
+/*
+ * The readings a caller may hand the preparation (`IRead`).
+ */
 export namespace prepareHumanArmRoom {
-  /**
+  /*
    * Whether writing an arm back (`HumanArmClearance.posed`) leaves every record
    * of its three joints with the values it holds.
    */
@@ -221,19 +222,18 @@ export namespace prepareHumanArmRoom {
     });
   }
 
-  /**
+  /*
    * A pose's bones and placed segments, as `poseBones` and
    * `HumanColliders.placed` give them.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States what the two members are and whose readings they are.
-   * @evidence contracts/development/design.md#principled-representation The two readings the preparation takes of its pose, handed in as they are.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The bones and the segments, nothing else.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Neither is copied or edited by the preparation (it copies the map and the array before replacing entries).
    */
   export interface IRead {
-    /** Each bone's frame. */
+    /*
+     * Each bone's frame.
+     */
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-    /** The placed segments, in the profile's order. */
+    /*
+     * The placed segments, in the profile's order.
+     */
     placed: IAutoMovieMotionHumanColliders.IPlaced[];
   }
 }

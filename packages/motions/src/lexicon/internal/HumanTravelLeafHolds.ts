@@ -17,14 +17,13 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanTravelLeaf } from "./HumanTravelLeaf";
 
-/**
+/*
  * Whether the arm keeps the hand on the handle from a posture: its own fit
  * shows the wrist within `HumanTravelLeaf.HOLD` of where the hold asks it.
  *
  * Part of `HumanTravelLeaf.openDoor`'s plan, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `holds`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `holds`.
  */
 export function HumanTravelLeafHolds(
   prepared: HumanTravelLeafHolds.IPrepared,
@@ -76,9 +75,13 @@ export function HumanTravelLeafHolds(
   return holds;
 }
 
-/** The `holds` of `HumanTravelLeaf.openDoor`'s plan and what it reads. */
+/*
+ * The `holds` of `HumanTravelLeaf.openDoor`'s plan and what it reads.
+ */
 export namespace HumanTravelLeafHolds {
-  /** Whether the hand keeps the handle from a posture at a second. */
+  /*
+   * Whether the hand keeps the handle from a posture at a second.
+   */
   export type Holds = (
     posture: IAutoMovieMotionHumanPosture,
     t: number,
@@ -86,18 +89,28 @@ export namespace HumanTravelLeafHolds {
     projection: ReturnType<typeof prepareHumanPostureProjection>,
   ) => boolean;
 
-  /** What `HumanTravelLeaf.openDoor`'s plan prepared for its `holds`. */
+  /*
+   * What `HumanTravelLeaf.openDoor`'s plan prepared for its `holds`.
+   */
   export interface IPrepared {
-    /** The plan's action context. */
+    /*
+     * The plan's action context.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTravelLeaf.IParams>;
 
-    /** The plan's body. */
+    /*
+     * The plan's body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The opening hand. */
+    /*
+     * The opening hand.
+     */
     side: AutoMovieHumanSide;
 
-    /** The handle's hold at a film second. */
+    /*
+     * The handle's hold at a film second.
+     */
     grip: (film: number) => Parameters<typeof HumanMountRider.hold>[3];
   }
 }

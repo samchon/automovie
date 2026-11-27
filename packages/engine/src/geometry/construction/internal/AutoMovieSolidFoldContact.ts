@@ -17,7 +17,7 @@ const {
   unit,
 }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 
-/**
+/*
  * Where a ball rolling in a fold touches its two walls, read in the plane
  * square to the fold's curve with each wall as its circle of curvature across
  * the curve.
@@ -39,23 +39,26 @@ const {
  * here in the section instead of marched).
  */
 export namespace AutoMovieSolidFoldContact {
-  /** Newton steps of one contact. */
+  /*
+   * Newton steps of one contact.
+   */
   export const STEPS: number = 40;
 
-  /** Relative residual between the two centres a contact accepts, of the radius. */
+  /*
+   * Relative residual between the two centres a contact accepts, of the radius.
+   */
   export const ROUNDING: number = 1e-13;
 
-  /**
+  /*
    * The chords from a fold's curve point to the ball's two contacts.
-   *
-   * @param part The part's surface.
-   * @param face The host face the point lies on.
-   * @param diff Whether the join is a diff, whose kept part wall faces into the
-   *   part.
-   * @param p The curve point with both preimages.
-   * @param radius The ball's radius, mm.
-   * @returns The host's and the part's chord, mm, or null where the walls do
-   *   not make a fold there or the solve does not settle.
+   * Parameter part: The part's surface.
+   * Parameter face: The host face the point lies on.
+   * Parameter diff: Whether the join is a diff, whose kept part wall faces into the
+   * part.
+   * Parameter p: The curve point with both preimages.
+   * Parameter radius: The ball's radius, mm.
+   * Returns: The host's and the part's chord, mm, or null where the walls do
+   * not make a fold there or the solve does not settle.
    */
   export function chords(
     part: IAutoMovieSolidSurface,
@@ -79,7 +82,7 @@ export namespace AutoMovieSolidFoldContact {
     const nB: Vec3 | null = inPlane(rawB, face.orientation);
     if (nA === null || nB === null) return null;
 
-    /**
+    /*
      * One wall in the section: its kept direction, toward the other wall's
      * outward normal, and its curvature toward its own.
      */
@@ -115,7 +118,7 @@ export namespace AutoMovieSolidFoldContact {
     const mound: { e: Vec3; n: Vec3; k: number } | null = wall(a, nA, nB);
     if (host === null || mound === null) return null;
 
-    /**
+    /*
      * A wall's circle at an arc length: its point from the curve point, the
      * ball's centre from it and the centre's rate.
      */
@@ -183,8 +186,12 @@ export namespace AutoMovieSolidFoldContact {
       : null;
   }
 }
-/** World vector, mm. */
+/*
+ * World vector, mm.
+ */
 type Vec3 = AutoMovieVector3Tuple;
 
-/** A surface's 2-jet. */
+/*
+ * A surface's 2-jet.
+ */
 type IJet = IAutoMovieSolidSurface.IJet;

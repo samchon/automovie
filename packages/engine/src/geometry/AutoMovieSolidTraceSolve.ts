@@ -149,12 +149,14 @@ export namespace AutoMovieSolidTraceSolve {
   ): IAutoMovieSolidIntersection.IPoint | null {
     let current: IAutoMovieSolidIntersection.IPoint = from;
 
-    /** Signed original interval, also the maximum recovered proposal. */
+    /*
+     * Signed original interval, also the maximum recovered proposal.
+     */
     const span: number = target - from.t;
     let h: number = span;
     let halvings: number = 0;
 
-    /**
+    /*
      * Every accepted or rejected meeting candidate spends the same product work
      * budget.
      */
@@ -195,10 +197,12 @@ export namespace AutoMovieSolidTraceSolve {
       );
       const length: number = norm(sub(predicted, current.point));
 
-      /** The unchanged world-space predictor allowance, in mm. */
+      /*
+       * The unchanged world-space predictor allowance, in mm.
+       */
       const allowance: number = 0.25 * length + 10 * tolerance;
 
-      /**
+      /*
        * A missing correction is rejected; a present one keeps the original
        * defect norm.
        */
@@ -260,17 +264,16 @@ export namespace AutoMovieSolidTraceSolve {
       : { ...p, theta: p.theta + theta, phi: p.phi + phi, t: p.t + t };
   }
 
-  /**
+  /*
    * One meeting point at a parameter, by Newton from a guess, with its jets.
-   *
-   * @param part The attached part.
-   * @param host The host.
-   * @param law The parameter's equation.
-   * @param t The parameter.
-   * @param guess `[s, phi, y, theta]` to start from.
-   * @param tolerance Largest gap accepted, mm.
-   * @returns The point, or null when Newton does not reach the tolerance within
-   *   {@link STEPS} or `J` is singular at the solution.
+   * Parameter part: The attached part.
+   * Parameter host: The host.
+   * Parameter law: The parameter's equation.
+   * Parameter t: The parameter.
+   * Parameter guess: `[s, phi, y, theta]` to start from.
+   * Parameter tolerance: Largest gap accepted, mm.
+   * Returns: The point, or null when Newton does not reach the tolerance within
+   * STEPS or `J` is singular at the solution.
    */
   function solveOn(
     part: IAutoMovieSolidSurface,
@@ -463,7 +466,9 @@ export namespace AutoMovieSolidTraceSolve {
     return point(a, b, law, t, x, currentFace, observation);
   }
 
-  /** The 4 by 4 Jacobian by rows: the meeting's three, then the parameter's. */
+  /*
+   * The 4 by 4 Jacobian by rows: the meeting's three, then the parameter's.
+   */
   function jacobian(
     a: IJet,
     b: IJet,
@@ -482,10 +487,9 @@ export namespace AutoMovieSolidTraceSolve {
     ];
   }
 
-  /**
+  /*
    * The point's jets from the two surfaces' jets at a solution.
-   *
-   * @returns The point, or null when `J` is singular.
+   * Returns: The point, or null when `J` is singular.
    */
   function point(
     a: IJet,

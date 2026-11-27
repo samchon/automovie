@@ -11,7 +11,7 @@ import { walk } from "../../gait/internal/walk";
 import { HumanCrowd } from "./HumanCrowd";
 import { HumanManoeuvre } from "./HumanManoeuvre";
 
-/**
+/*
  * Each member's way to its new slot through the crowd's steering pass
  * (`HumanCrowd.steer`), the members walking from where they stand at the word:
  * the steered course sampled every `STEERED` seconds, ending on the slot. The

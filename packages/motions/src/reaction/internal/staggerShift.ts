@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * The level shift of a stagger's root that puts the displayed centre of mass on
  * the pendulum's course, from two readings of its residual: the residual with
  * no shift, and the residual left once that first residual is the shift.
@@ -16,11 +16,10 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * mm outside the feet's hull at 1.4 s pushed sideways, 12 mm at 1.71 s pushed
  * backward) read the same with the two-term sum and with this one, so that
  * remainder is not their cause.
- *
- * @param first The residual with no shift, world metres, level.
- * @param second The residual with the first residual as the shift, world
- *   metres, level.
- * @returns The shift, world metres, level.
+ * Parameter first: The residual with no shift, world metres, level.
+ * Parameter second: The residual with the first residual as the shift, world
+ * metres, level.
+ * Returns: The shift, world metres, level.
  */
 export function staggerShift(
   first: IAutoMovieVector3,
@@ -36,7 +35,7 @@ export function staggerShift(
   return { x: summed(first.x, second.x), y: 0, z: summed(first.z, second.z) };
 }
 
-/**
+/*
  * The greatest share of a root's shift that the centre of mass may fail to
  * follow for the shift to be extrapolated: one half, above the two legs' 40 %
  * of the body's mass (de Leva 1996, J Biomech 29:1223, the male thigh, shank

@@ -1,4 +1,4 @@
-/**
+/*
  * The pelvis's heading through a stepping gait, a curve through the headings
  * its footfalls give it: at each heel strike the pelvis faces midway between
  * the two feet it stands on, so neither hip turns further than the other.
@@ -8,12 +8,14 @@
  * constant wherever the knots are, so a straight walk keeps its heading.
  */
 export class WalkTurn {
-  /** The heading's rate at each knot, degrees per second. */
+  /*
+   * The heading's rate at each knot, degrees per second.
+   */
   private readonly rates: number[];
 
-  /**
-   * @param knots The headings in degrees at ascending seconds, unwrapped so
-   *   neighbours never differ by a full turn; at least one.
+  /*
+   * Parameter knots: The headings in degrees at ascending seconds, unwrapped so
+   * neighbours never differ by a full turn; at least one.
    */
   public constructor(private readonly knots: readonly IWalkTurnKnotsItem[]) {
     const slope: (i: number) => number = (i: number): number =>
@@ -35,11 +37,10 @@ export class WalkTurn {
     });
   }
 
-  /**
+  /*
    * The heading at an instant, held at the first and last knots outside them.
-   *
-   * @param seconds The instant.
-   * @returns Degrees.
+   * Parameter seconds: The instant.
+   * Returns: Degrees.
    */
   public at(seconds: number): number {
     const first: IAtFirst = this.knots[0]!;
@@ -71,16 +72,26 @@ export class WalkTurn {
   }
 }
 
-/** The record of `IAtB`'s site. */
+/*
+ * The record of `IAtB`'s site.
+ */
 type IAtB = { seconds: number; yaw: number };
 
-/** The record of `IAtA`'s site. */
+/*
+ * The record of `IAtA`'s site.
+ */
 type IAtA = { seconds: number; yaw: number };
 
-/** The record of `IAtLast`'s site. */
+/*
+ * The record of `IAtLast`'s site.
+ */
 type IAtLast = { seconds: number; yaw: number };
 
-/** The record of `IAtFirst`'s site. */
+/*
+ * The record of `IAtFirst`'s site.
+ */
 type IAtFirst = { seconds: number; yaw: number };
-/** The record of `IWalkTurnKnotsItem`'s site. */
+/*
+ * The record of `IWalkTurnKnotsItem`'s site.
+ */
 type IWalkTurnKnotsItem = { seconds: number; yaw: number };

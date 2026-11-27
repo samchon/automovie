@@ -10,7 +10,7 @@ import { exactPlaybackHardCut } from "./exactPlaybackHardCut";
 import { playbackEntryAt } from "./playbackEntryAt";
 import { playbackSampleAt } from "./playbackSampleAt";
 
-/**
+/*
  * Resolve a saved take's source occurrence against an already prepared,
  * admitted cut.
  *

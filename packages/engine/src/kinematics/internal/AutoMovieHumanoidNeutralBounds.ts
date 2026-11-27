@@ -6,7 +6,7 @@ import type {
 
 import { physicalShapeBoundsImplementation } from "../../physics/internal/physicalShapeBoundsImplementation";
 
-/**
+/*
  * Operation-owned exact neutral segment bounds for sequential body derivation.
  * Ordinary reads are fresh; an optional prepared handle shares the bounds its
  * profile's segments were measured with once at preparation. Geometry stays
@@ -31,7 +31,9 @@ export namespace AutoMovieHumanoidNeutralBounds {
     max: IAutoMovieVector3;
   }
 
-  /** Start a bounds epoch, measuring each segment of the profile once. */
+  /*
+   * Start a bounds epoch, measuring each segment of the profile once.
+   */
   export function prepare(profile: P): IPrepared {
     const bounds: Map<IAutoMoviePhysicalSegment, IBounds> = new Map();
     for (const segment of profile.segments)
@@ -39,7 +41,9 @@ export namespace AutoMovieHumanoidNeutralBounds {
     return { profile, bounds };
   }
 
-  /** Read fresh independent vectors, optionally sharing a live epoch. */
+  /*
+   * Read fresh independent vectors, optionally sharing a live epoch.
+   */
   export function read(
     profile: P,
     segment: IAutoMoviePhysicalSegment,
@@ -55,7 +59,7 @@ export namespace AutoMovieHumanoidNeutralBounds {
     return { min: { ...bounds.min }, max: { ...bounds.max } };
   }
 
-  /**
+  /*
    * End the epoch and invalidate every later read; repeated release is
    * harmless.
    */
@@ -64,10 +68,14 @@ export namespace AutoMovieHumanoidNeutralBounds {
   }
 }
 
-/** Preserve the original component update order without a per-shape axis array. */
+/*
+ * Preserve the original component update order without a per-shape axis array.
+ */
 const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
 
-/** Every original collider contributes in original shape/component order. */
+/*
+ * Every original collider contributes in original shape/component order.
+ */
 function calculate(
   segment: IAutoMoviePhysicalSegment,
 ): AutoMovieHumanoidNeutralBounds.IBounds {

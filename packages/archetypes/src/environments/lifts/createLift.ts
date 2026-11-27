@@ -11,7 +11,7 @@ import { buildLiftEnvironment } from "./buildLiftEnvironment";
 import { liftStopHeights } from "./internal/liftStopHeights";
 import { liftObjectMotion } from "./liftObjectMotion";
 
-/**
+/*
  * Define a lift whose cab, door panels and stopped landings can be staged
  * together by `createEnvironment`. Local +Y is up and +Z points out of the cab.
  * The module exports `<stop>` at the sill, `<stop>/approach` at the landing's
@@ -19,11 +19,10 @@ import { liftObjectMotion } from "./liftObjectMotion";
  * ordinary props with `floor` and aperture-width `sill` affordances. Their
  * existing motion-transfer inputs come from `transfer` for a checked open
  * interval.
- *
- * @param input Lift geometry, named stops and timeline in shot-local seconds.
- * @returns A reusable environment definition and its boarding query.
- * @throws If the timeline is invalid, or on placement if the stops or shaft are
- *   not aligned.
+ * Parameter input: Lift geometry, named stops and timeline in shot-local seconds.
+ * Returns: A reusable environment definition and its boarding query.
+ * If the timeline is invalid, or on placement if the stops or shaft are
+ * not aligned.
  */
 export function createLift(
   input: AutoMovieEnvironment.ILiftProps,
@@ -115,10 +114,14 @@ export function createLift(
   return Object.assign(use, { transfer });
 }
 
-/** One fully open stopped interval, inclusive at both ends, in shot seconds. */
+/*
+ * One fully open stopped interval, inclusive at both ends, in shot seconds.
+ */
 type Interval = { from: number; to: number };
 
-/** Admit the key clock and collect consecutive full-open windows per stop. */
+/*
+ * Admit the key clock and collect consecutive full-open windows per stop.
+ */
 function prepareSchedule(
   props: AutoMovieEnvironment.ILiftProps,
 ): Map<string, Interval[]> {

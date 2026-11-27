@@ -8,7 +8,7 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 import { floorCaseSpan } from "./internal/floorCaseSpan";
 
-/**
+/*
  * Capture cases of the lying and crawling family, each from quiet standing:
  *
  * - `floor-lie-supine`, `floor-lie-prone`, `floor-lie-lateralLeft`: lying down
@@ -22,9 +22,8 @@ import { floorCaseSpan } from "./internal/floorCaseSpan";
  *   middle of each knee stance; and the displayed lift-offs of the left hand
  *   and the right knee, and of the right hand and the left knee, within 10 % of
  *   a cycle of each other (the issue's diagonal pattern).
- *
- * @param bodies The sweep bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function floorCases(
   bodies: readonly string[] = ["m-average"],
@@ -210,14 +209,22 @@ export function floorCases(
   return out;
 }
 
-/** The alternatives of `FloorCasesRisesLimb`'s site. */
+/*
+ * The alternatives of `FloorCasesRisesLimb`'s site.
+ */
 type FloorCasesRisesLimb = "leftHand" | "rightHand" | "leftKnee" | "rightKnee";
 
-/** The record of `IFloorCasesKnee`'s site. */
+/*
+ * The record of `IFloorCasesKnee`'s site.
+ */
 type IFloorCasesKnee = { low: number; high: number };
 
-/** The record of `IFloorCasesHeight`'s site. */
+/*
+ * The record of `IFloorCasesHeight`'s site.
+ */
 type IFloorCasesHeight = { low: number; high: number };
 
-/** The record of `IFloorCasesSlip`'s site. */
+/*
+ * The record of `IFloorCasesSlip`'s site.
+ */
 type IFloorCasesSlip = { value: number; where: string };

@@ -7,7 +7,7 @@ import type {
 
 import { physicalShapeQueryImplementation } from "./physicalShapeQueryImplementation";
 
-/**
+/*
  * Where a world segment comes nearest an admitted sphere, Y capsule, oriented
  * box or convex hull placed by a parent pose: the signed distance, negative
  * when the segment enters the shape, the point of the shape's surface there,
@@ -39,16 +39,15 @@ import { physicalShapeQueryImplementation } from "./physicalShapeQueryImplementa
  * the parameter), and the radius is affine in it, so the difference is convex
  * and the golden-section search finds its minimum for every shape kind, a
  * sphere and a capsule included.
- *
- * @param pose The shape's parent pose, world metres.
- * @param shape The admitted shape.
- * @param a One end of the segment, world metres.
- * @param b The other end, world metres.
- * @param taper The radii the segment is widened by at `a` and at `b`, metres,
- *   not negative; absent for the bare segment.
- * @returns The signed distance in metres (less the widening, for a tapered
- *   segment), the surface point, the outward unit normal and the segment point,
- *   all in the world frame.
+ * Parameter pose: The shape's parent pose, world metres.
+ * Parameter shape: The admitted shape.
+ * Parameter a: One end of the segment, world metres.
+ * Parameter b: The other end, world metres.
+ * Parameter taper: The radii the segment is widened by at `a` and at `b`, metres,
+ * not negative; absent for the bare segment.
+ * Returns: The signed distance in metres (less the widening, for a tapered
+ * segment), the surface point, the outward unit normal and the segment point,
+ * all in the world frame.
  */
 export function physicalShapeNearest(
   pose: IAutoMovieRigidTransform,

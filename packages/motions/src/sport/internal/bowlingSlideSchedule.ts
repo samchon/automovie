@@ -7,7 +7,7 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * The final slide's sides, cues and foot windows. The sliding (lead) foot is
  * the one opposite the delivery hand (Seiferheld et al. 2023, section 1 and
  * Figure 2). Both feet plant until `slideStarted`. The lead foot then bears
@@ -15,13 +15,12 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * drags on the approach until the recovery step lifts it, `TERMINAL` of the way
  * from the stop to `recoveryPlant`, halfway from the stop to the end, and
  * plants there.
- *
- * @param params The glide's times, its distance and the delivery hand.
- * @param leg The leg's length, thigh and shank, metres.
- * @returns The schedule.
- * @throws {HumanRefusal} When the times are not ordered `0 < from < to <
- *   duration`, or the glide is longer than four tenths of the leg, one
- *   walking-length lower-body step.
+ * Parameter params: The glide's times, its distance and the delivery hand.
+ * Parameter leg: The leg's length, thigh and shank, metres.
+ * Returns: The schedule.
+ * When the times are not ordered `0 < from < to <
+ * duration`, or the glide is longer than four tenths of the leg, one
+ * walking-length lower-body step.
  */
 export function bowlingSlideSchedule(
   params: Pick<
@@ -90,30 +89,44 @@ export function bowlingSlideSchedule(
   };
 }
 
-/** The slide's schedule. */
+/*
+ * The slide's schedule.
+ */
 export namespace bowlingSlideSchedule {
-  /**
+  /*
    * The share of the recovery step in which the trailing foot only comes down:
    * terminal swing, the last third of a swing (Perry and Burnfield, Gait
    * Analysis, 2nd ed.).
    */
   export const TERMINAL: number = 1 / 3;
 
-  /** The slide's sides, recovery plant, cues and foot windows. */
+  /*
+   * The slide's sides, recovery plant, cues and foot windows.
+   */
   export interface ISchedule {
-    /** The sliding foot, opposite the delivery hand. */
+    /*
+     * The sliding foot, opposite the delivery hand.
+     */
     lead: AutoMovieHumanSide;
 
-    /** The trailing foot. */
+    /*
+     * The trailing foot.
+     */
     trail: AutoMovieHumanSide;
 
-    /** The recovery plant, action seconds. */
+    /*
+     * The recovery plant, action seconds.
+     */
     settle: number;
 
-    /** The slide's cues. */
+    /*
+     * The slide's cues.
+     */
     events: IAutoMovieMotionEvent[];
 
-    /** Both feet's windows. */
+    /*
+     * Both feet's windows.
+     */
     contacts: IAutoMovieMotionHumanContactWindow[];
   }
 }

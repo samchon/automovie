@@ -180,13 +180,17 @@ export namespace AutoMovieArchetypeTransitBus {
     | "seat";
 }
 
-/** Archetype construction with the bus's contact ids and seating fit. */
+/*
+ * Archetype construction with the bus's contact ids and seating fit.
+ */
 type BusBuilder = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeTransitBus.Affordance,
   AutoMovieArchetypeTransitBus.Dimension
 >;
 
-/** A curbside bay binds its geometry to both moving and fixed affordances. */
+/*
+ * A curbside bay binds its geometry to both moving and fixed affordances.
+ */
 type DoorBay = Readonly<{
   z: number;
   leader: "frontDoor" | "rearDoor";
@@ -197,7 +201,9 @@ type DoorBay = Readonly<{
   railDirection: -1 | 1;
 }>;
 
-/** Extends the deck to both side walls where no tyre crosses floor height. */
+/*
+ * Extends the deck to both side walls where no tyre crosses floor height.
+ */
 function addDeck(
   builder: BusBuilder,
   start: number,
@@ -217,7 +223,9 @@ function addDeck(
     );
 }
 
-/** Closes the two inboard edges of each wheel arch above the deck. */
+/*
+ * Closes the two inboard edges of each wheel arch above the deck.
+ */
 function addWheelHousing(
   builder: BusBuilder,
   side: -1 | 1,
@@ -255,7 +263,9 @@ function addWheelHousing(
     );
 }
 
-/** Adds the coupled pair, its geometric clear opening and passenger contacts. */
+/*
+ * Adds the coupled pair, its geometric clear opening and passenger contacts.
+ */
 function addDoor(builder: BusBuilder, bay: DoorBay): void {
   const x: number = -HALF_WIDTH + WALL + 0.035;
   const paneHeight: number = DOOR_HEIGHT - 1.1;
@@ -345,7 +355,9 @@ function addDoor(builder: BusBuilder, bay: DoorBay): void {
   });
 }
 
-/** Builds a bounded side-wall run; only the sill needs wheel cutouts. */
+/*
+ * Builds a bounded side-wall run; only the sill needs wheel cutouts.
+ */
 function addWall(
   builder: BusBuilder,
   side: -1 | 1,
@@ -410,23 +422,39 @@ function addWall(
     );
 }
 
-/** Vector constructor for metric bus-local dimensions. */
+/*
+ * Vector constructor for metric bus-local dimensions.
+ */
 const v: typeof Vector3.create = Vector3.create;
-/** Half the 102-inch body width. */
+/*
+ * Half the 102-inch body width.
+ */
 const HALF_WIDTH: number = 51 * AutoMovieArchetypeUnits.INCH;
-/** End station of the 40 ft 2 in body. */
+/*
+ * End station of the 40 ft 2 in body.
+ */
 const END: number = 241 * AutoMovieArchetypeUnits.INCH;
-/** Additional length at each end of the 41 ft bumper envelope. */
+/*
+ * Additional length at each end of the 41 ft bumper envelope.
+ */
 const BUMPER: number = 5 * AutoMovieArchetypeUnits.INCH;
-/** Height of the passenger deck and thresholds above the road. */
+/*
+ * Height of the passenger deck and thresholds above the road.
+ */
 const FLOOR: number = 14 * AutoMovieArchetypeUnits.INCH;
-/** Depth of the deck panels below the common walking surface. */
+/*
+ * Depth of the deck panels below the common walking surface.
+ */
 const DECK_DEPTH: number = 0.16;
-/** Mid-coach ceiling height, with a scenic level ceiling. */
+/*
+ * Mid-coach ceiling height, with a scenic level ceiling.
+ */
 const CEILING: number = FLOOR + 95 * AutoMovieArchetypeUnits.INCH;
-/** Height over the diesel model's air conditioner. */
+/*
+ * Height over the diesel model's air conditioner.
+ */
 const ROOF: number = 126 * AutoMovieArchetypeUnits.INCH;
-/**
+/*
  * Clear aisle width across the offered seat models, using the brochure's metric
  * figures.
  */
@@ -435,30 +463,52 @@ const AISLE_BAND: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
   0.61,
   "New Flyer Xcelsior brochure, p. 3, 40-foot Aisle Width (varies with seat model): https://www.newflyer.com/site-content/uploads/2025/12/New-Flyer-Xcelsior-Brochure.pdf",
 );
-/** Side-wall thickness, leaving space behind it for door leaves. */
+/*
+ * Side-wall thickness, leaving space behind it for door leaves.
+ */
 const WALL: number = 0.075;
-/** Elevation of the lower body skirt. */
+/*
+ * Elevation of the lower body skirt.
+ */
 const SKIRT: number = 0.18;
-/** Half the nominal 0.90 m doorway span. */
+/*
+ * Half the nominal 0.90 m doorway span.
+ */
 const LEAF: number = 0.45;
-/** Scenic clearance above both thresholds. */
+/*
+ * Scenic clearance above both thresholds.
+ */
 const DOOR_HEIGHT: number = 2.06;
-/** Tyre width in the 305/70R22.5 nominal size. */
+/*
+ * Tyre width in the 305/70R22.5 nominal size.
+ */
 const TYRE_WIDTH: number = 0.305;
-/** Lateral depth of the floor cutout around each exterior tyre. */
+/*
+ * Lateral depth of the floor cutout around each exterior tyre.
+ */
 const WELL_WIDTH: number = TYRE_WIDTH + 0.2;
-/** Nominal unloaded tyre radius, from rim diameter and sidewall height. */
+/*
+ * Nominal unloaded tyre radius, from rim diameter and sidewall height.
+ */
 const RADIUS: number = 11.25 * AutoMovieArchetypeUnits.INCH + TYRE_WIDTH * 0.7;
-/** Clearance envelope around a tyre in the side fascia. */
+/*
+ * Clearance envelope around a tyre in the side fascia.
+ */
 const ARCH_HALF: number = RADIUS + 0.055;
-/** Upper edge of wheel cutouts and housings. */
+/*
+ * Upper edge of wheel cutouts and housings.
+ */
 const ARCH_TOP: number = 2 * RADIUS + 0.055;
-/** Axle stations on the 283.75-inch wheelbase. */
+/*
+ * Axle stations on the 283.75-inch wheelbase.
+ */
 const AXLES: Readonly<{ front: number; rear: number }> = {
   front: 3.5,
   rear: 3.5 - 283.75 * AutoMovieArchetypeUnits.INCH,
 };
-/** Front boarding bay ahead of the front axle. */
+/*
+ * Front boarding bay ahead of the front axle.
+ */
 const ENTRY: DoorBay = {
   z: 5.05,
   leader: "frontDoor",
@@ -468,7 +518,9 @@ const ENTRY: DoorBay = {
   rail: "frontGrabRail",
   railDirection: -1,
 };
-/** Rear exit bay between the two axles. */
+/*
+ * Rear exit bay between the two axles.
+ */
 const EXIT: DoorBay = {
   z: -1.35,
   leader: "rearDoor",
@@ -478,18 +530,30 @@ const EXIT: DoorBay = {
   rail: "rearGrabRail",
   railDirection: 1,
 };
-/** Painted bus body without operator graphics. */
+/*
+ * Painted bus body without operator graphics.
+ */
 const BODY: AutoMovieArchetypeBuilder.IOptions = { color: "#bfcccf" };
-/** Tinted window marker. */
+/*
+ * Tinted window marker.
+ */
 const GLASS: AutoMovieArchetypeBuilder.IOptions = {
   color: "#48616d",
   density: 0.4,
 };
-/** Floor, tyres and wheel surfaces. */
+/*
+ * Floor, tyres and wheel surfaces.
+ */
 const DARK: AutoMovieArchetypeBuilder.IOptions = { color: "#2d343a" };
-/** Yellow supports visible against the passenger interior. */
+/*
+ * Yellow supports visible against the passenger interior.
+ */
 const RAIL: AutoMovieArchetypeBuilder.IOptions = { color: "#e5b229" };
-/** Headlamp lens marker. */
+/*
+ * Headlamp lens marker.
+ */
 const HEADLAMP: AutoMovieArchetypeBuilder.IOptions = { color: "#e4e4df" };
-/** Rear lamp lens marker. */
+/*
+ * Rear lamp lens marker.
+ */
 const TAILLAMP: AutoMovieArchetypeBuilder.IOptions = { color: "#a53f39" };

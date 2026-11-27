@@ -7,22 +7,21 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Check dock alignment on the film clock through trailing touchdown. Co-moving
  * supports must preserve the deck's position and orientation in the platform's
  * frame and keep both rectangles level. Prop readers provide evaluated frames,
  * so admission samples at intervals of at most 1/120 s. Co-moving admission
  * allows 1 mm at the deck centre and at all four corners, and 0.1 degrees of
  * relative rotation. Stationary docking uses these bounds at each prop frame.
- *
- * @param from The source support and its prop's live world frame reader.
- * @param to The destination support and its prop's live world frame reader.
- * @param start The film second of entry.
- * @param duration Film seconds from entry until trailing touchdown.
- * @param coMoving Compare alignment in the source frame when true, and in the
- *   world otherwise.
- * @throws {HumanRefusal} If a checked sample violates the selected dock
- *   alignment.
+ * Parameter from: The source support and its prop's live world frame reader.
+ * Parameter to: The destination support and its prop's live world frame reader.
+ * Parameter start: The film second of entry.
+ * Parameter duration: Film seconds from entry until trailing touchdown.
+ * Parameter coMoving: Compare alignment in the source frame when true, and in the
+ * world otherwise.
+ * If a checked sample violates the selected dock
+ * alignment.
  */
 export function checkSupportTransferDock(
   from: Endpoint,
@@ -150,28 +149,48 @@ export function checkSupportTransferDock(
   }
 }
 
-/** The alternatives of `EndpointAxis`'s site. */
+/*
+ * The alternatives of `EndpointAxis`'s site.
+ */
 type EndpointAxis = "from" | "to";
 
-/** A named support rectangle and its owning prop's motion. */
+/*
+ * A named support rectangle and its owning prop's motion.
+ */
 interface Endpoint {
-  /** The transfer argument identifying the support. */
+  /*
+   * The transfer argument identifying the support.
+   */
   axis: EndpointAxis;
-  /** Read the owning prop's world frame at a film second. */
+  /*
+   * Read the owning prop's world frame at a film second.
+   */
   frame(seconds: number): IAutoMovieRigidTransform;
-  /** The owning prop's world frame at the transfer start. */
+  /*
+   * The owning prop's world frame at the transfer start.
+   */
   propFrame: IAutoMovieRigidTransform;
-  /** The rectangle's world origin at the transfer start, metres. */
+  /*
+   * The rectangle's world origin at the transfer start, metres.
+   */
   origin: IAutoMovieVector3;
-  /** The rectangle's world orientation at the transfer start. */
+  /*
+   * The rectangle's world orientation at the transfer start.
+   */
   rotation: IAutoMovieQuaternion;
-  /** The rectangle's local half-width, metres. */
+  /*
+   * The rectangle's local half-width, metres.
+   */
   x: number;
-  /** The rectangle's local half-depth, metres. */
+  /*
+   * The rectangle's local half-depth, metres.
+   */
   z: number;
 }
 
-/** Require finite position and unit rotation before quaternion products. */
+/*
+ * Require finite position and unit rotation before quaternion products.
+ */
 function checkFrame(
   admission: AutoMovieEngineViolationCollector,
   endpoint: Endpoint,
@@ -190,7 +209,9 @@ function checkFrame(
     });
 }
 
-/** Require the support surface's normal to point up within the level tolerance. */
+/*
+ * Require the support surface's normal to point up within the level tolerance.
+ */
 function checkLevel(
   endpoint: Endpoint,
   rotation: IAutoMovieQuaternion,
@@ -207,7 +228,9 @@ function checkLevel(
     });
 }
 
-/** Compare positions in world metres at the docking tolerance. */
+/*
+ * Compare positions in world metres at the docking tolerance.
+ */
 function closePoint(
   expected: IAutoMovieVector3,
   actual: IAutoMovieVector3,
@@ -215,7 +238,9 @@ function closePoint(
   return Vector3.length(Vector3.subtract(actual, expected)) <= 0.001;
 }
 
-/** Compare frame origins in metres and their shortest angular difference. */
+/*
+ * Compare frame origins in metres and their shortest angular difference.
+ */
 function aligned(
   expected: IAutoMovieRigidTransform,
   actual: IAutoMovieRigidTransform,

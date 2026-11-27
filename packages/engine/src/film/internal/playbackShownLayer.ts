@@ -1,6 +1,6 @@
 import type { IAutoMoviePlaybackLayer } from "@automovie/interface";
 
-/**
+/*
  * The layer a picture shows most of: the one with the larger weight among the
  * layers `playbackLayersAt` gives, the incoming live layer on a tie.
  *
@@ -9,11 +9,10 @@ import type { IAutoMoviePlaybackLayer } from "@automovie/interface";
  * outgoing shot until the midpoint and the incoming one from it, during a cross
  * dissolve the outgoing shot before the midpoint and the incoming one from it,
  * and outside a transition the live shot.
- *
- * @param layers One or two layers of one instant, as `playbackLayersAt` gives
- *   them.
- * @returns The shown layer.
- * @throws When `layers` is empty.
+ * Parameter layers: One or two layers of one instant, as `playbackLayersAt` gives
+ * them.
+ * Returns: The shown layer.
+ * When `layers` is empty.
  */
 export function playbackShownLayer(
   layers: readonly IAutoMoviePlaybackLayer[],

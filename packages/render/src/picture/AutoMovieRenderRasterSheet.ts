@@ -34,31 +34,49 @@ import { AutoMovieRenderPicture } from "./AutoMovieRenderPicture.js";
  * ```
  */
 export class AutoMovieRenderRasterSheet {
-  /** The sheet pixels, opaque RGBA. */
+  /*
+   * The sheet pixels, opaque RGBA.
+   */
   private readonly sheet: IAutoMovieRasterImage;
 
-  /** Cells filled so far. */
+  /*
+   * Cells filled so far.
+   */
   private count: number;
 
-  /** Number of cells. */
+  /*
+   * Number of cells.
+   */
   private readonly capacity: number;
 
-  /** Cells per row. */
+  /*
+   * Cells per row.
+   */
   private readonly columns: number;
 
-  /** Cell width in pixels. */
+  /*
+   * Cell width in pixels.
+   */
   private readonly cellWidth: number;
 
-  /** Cell height in pixels, the picture alone. */
+  /*
+   * Cell height in pixels, the picture alone.
+   */
   private readonly cellHeight: number;
 
-  /** Height in pixels of the caption strip under each cell. */
+  /*
+   * Height in pixels of the caption strip under each cell.
+   */
   private readonly strip: number;
 
-  /** Lines of caption the strip holds. */
+  /*
+   * Lines of caption the strip holds.
+   */
   private readonly lines: number;
 
-  /** How a picture is reduced into its cell. */
+  /*
+   * How a picture is reduced into its cell.
+   */
   private readonly reduction: IAutoMovieCaptureBudget["reduction"];
 
   /**
@@ -127,7 +145,7 @@ export class AutoMovieRenderRasterSheet {
     return most;
   }
 
-  /**
+  /*
    * The caption's font scale for a cell height: one font pixel per 90 cell
    * pixels, at least one.
    */

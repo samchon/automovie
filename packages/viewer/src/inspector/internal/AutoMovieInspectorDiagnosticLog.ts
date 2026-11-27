@@ -2,10 +2,12 @@ import type { IAutoMovieInspectionDiagnostics as Diagnostics } from "@automovie/
 
 import type { IAutoMovieInspectorScene } from "../IAutoMovieInspectorScene.js";
 
-/** Maximum recent ranges retained for replay deduplication per mounted subject. */
+/*
+ * Maximum recent ranges retained for replay deduplication per mounted subject.
+ */
 const HISTORY_LIMIT: number = 128;
 
-/**
+/*
  * Report confirmed problems when first seen and summarize observed multi-sample
  * spans.
  *
@@ -22,7 +24,7 @@ export class AutoMovieInspectorDiagnosticLog {
   private readonly recent: ISeen[] = [];
   private previous: IPrevious | undefined;
 
-  /**
+  /*
    * The presentation owner supplies how to publish a new incident and a closed
    * observed span.
    */
@@ -33,7 +35,7 @@ export class AutoMovieInspectorDiagnosticLog {
     >,
   ) {}
 
-  /**
+  /*
    * Read the confirmed findings of one successfully painted pose, with the
    * playhead state it was painted at.
    */
@@ -119,7 +121,7 @@ export class AutoMovieInspectorDiagnosticLog {
     this.previous = { scope, time, ...playhead };
   }
 
-  /**
+  /*
    * Report outstanding measured spans when the mount ends and release all
    * retained state.
    */
@@ -130,7 +132,7 @@ export class AutoMovieInspectorDiagnosticLog {
     this.previous = undefined;
   }
 
-  /**
+  /*
    * Report a closed span only if it joins more than one sample and includes a
    * new observation.
    */
@@ -145,7 +147,7 @@ export class AutoMovieInspectorDiagnosticLog {
     });
   }
 
-  /**
+  /*
    * Remember one actual sample, returning whether this is a new visit in the
    * recent history.
    */
@@ -177,7 +179,7 @@ export class AutoMovieInspectorDiagnosticLog {
   }
 }
 
-/**
+/*
  * How the current sample continues the previous one: by uninterrupted playback,
  * by the next output frame, or not at all.
  */
@@ -203,12 +205,16 @@ function linkOf(
     : undefined;
 }
 
-/** A matching checked obligation permits a finding to extend its span. */
+/*
+ * A matching checked obligation permits a finding to extend its span.
+ */
 function checkKey(value: Pick<Diagnostics.IFinding, "check" | "key">): string {
   return JSON.stringify([value.check, value.key]);
 }
 
-/** A run of observations while its last and worst witness can still advance. */
+/*
+ * A run of observations while its last and worst witness can still advance.
+ */
 interface IOpen {
   scope: string;
   basis: IAutoMovieInspectorScene.EpisodeBasis;
@@ -221,7 +227,9 @@ interface IOpen {
   fresh: boolean;
 }
 
-/** The previous painted sample and how the playhead reached it. */
+/*
+ * The previous painted sample and how the playhead reached it.
+ */
 interface IPrevious {
   scope: string;
   time: Diagnostics.ITime;
@@ -229,7 +237,9 @@ interface IPrevious {
   jump: number;
 }
 
-/** Previously seen sample coordinates used only to deduplicate reporting. */
+/*
+ * Previously seen sample coordinates used only to deduplicate reporting.
+ */
 type ISeen =
   | { key: string; kind: "frames"; first: number; last: number }
   | { key: string; kind: "second"; seconds: number };

@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 
-/**
+/*
  * A pair of chopsticks held in the conventional hold: the lower stick fixed
  * against the thumb's base and the ring finger, the upper stick moved by the
  * index and middle fingers.
@@ -19,9 +19,8 @@ import {
  * open at 0, spread `spread` degrees, and closed at `spread`, its tip on the
  * lower one's. `grip` is the hold a third of the way along, `tips` the meeting
  * point of the two tips, where a morsel is pinched.
- *
- * @param params The optional scene id.
- * @returns The chopsticks and their contacts, metres.
+ * Parameter params: The optional scene id.
+ * Returns: The chopsticks and their contacts, metres.
  */
 export function createChopsticks(
   params: AutoMovieArchetypeChopsticks.IParams = {},
@@ -91,7 +90,7 @@ export function createChopsticks(
   return builder.build(SIZE.mass);
 }
 
-/**
+/*
  * An adult's pair of chopsticks: 0.24 m long, the length Hsu and Wu found best
  * for adults, and 6 mm across, the diameter Chan (1999, Int J Ind Ergon) found
  * best for food-pinching efficiency, both as the 2017 MATEC Web of Conferences

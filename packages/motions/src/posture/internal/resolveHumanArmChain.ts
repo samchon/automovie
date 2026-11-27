@@ -7,16 +7,15 @@ import type {
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 
-/**
+/*
  * Parent-first arm-chain forward kinematics for one set of coordinates.
- *
- * @param setup The unchanged arm rig metadata.
- * @param at The current parent frame and optional completed same-frame shoulder
- *   point.
- * @param c The nine arm coordinates.
- * @param readShoulder The shoulder chart calculation.
- * @param readRotation The local-joint projection and composition.
- * @returns Fresh world joint positions and segment rotations, without probes.
+ * Parameter setup: The unchanged arm rig metadata.
+ * Parameter at: The current parent frame and optional completed same-frame shoulder
+ * point.
+ * Parameter c: The nine arm coordinates.
+ * Parameter readShoulder: The shoulder chart calculation.
+ * Parameter readRotation: The local-joint projection and composition.
+ * Returns: Fresh world joint positions and segment rotations, without probes.
  */
 export function resolveHumanArmChain(
   setup: IAutoMovieMotionHumanArmGeometry.ISetup,

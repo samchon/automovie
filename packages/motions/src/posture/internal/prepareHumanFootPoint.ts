@@ -7,14 +7,13 @@ import type {
 
 import { humanFootOffset } from "./humanFootOffset";
 
-/**
+/*
  * Prepare a sole point whose body, socket and toe flexion remain fixed.
- *
- * @param body The socket's body.
- * @param side The foot.
- * @param point The socket to place.
- * @param toes Fixed toe flexion, degrees; zero when absent.
- * @returns A reader of foot placement yielding the same world point as `point`.
+ * Parameter body: The socket's body.
+ * Parameter side: The foot.
+ * Parameter point: The socket to place.
+ * Parameter toes: Fixed toe flexion, degrees; zero when absent.
+ * Returns: A reader of foot placement yielding the same world point as `point`.
  */
 export function prepareHumanFootPoint(
   body: humanFootOffset.IBody,
@@ -27,10 +26,14 @@ export function prepareHumanFootPoint(
     pointAt(local, foot);
 }
 
-/** The alternatives of `PrepareHumanFootPointPoint`'s site. */
+/*
+ * The alternatives of `PrepareHumanFootPointPoint`'s site.
+ */
 type PrepareHumanFootPointPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
 
-/** The common ankle translation and rigid rotation of a prepared local socket. */
+/*
+ * The common ankle translation and rigid rotation of a prepared local socket.
+ */
 function pointAt(
   local: IAutoMovieVector3,
   foot: IAutoMovieMotionHumanFoot.IPlacement,

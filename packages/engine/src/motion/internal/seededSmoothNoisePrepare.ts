@@ -2,7 +2,7 @@ import type { IAutoMovieRandom } from "@automovie/interface";
 
 import { SeededSmoothNoiseInternal } from "./SeededSmoothNoiseInternal";
 
-/**
+/*
  * Bind one pure indexed stream and fixed window. Parameter admission stays at
  * the first read, including an endpoint; endpoints/outside/NaN consume no
  * draws. The first interior read draws indices 0..2*terms-1 in their original
@@ -13,13 +13,12 @@ import { SeededSmoothNoiseInternal } from "./SeededSmoothNoiseInternal";
  * performs every sine evaluation, keeps no time/output history and returns an
  * independent number. Releasing the reader releases its O(T) spectrum and
  * fixed stream reference.
- *
- * @param random The same pure counter-based stream used by direct reads.
- * @param duration Fixed window seconds, with the direct entry's domain.
- * @param maxFrequency Fixed highest frequency in hertz.
- * @param terms Fixed positive safe-integer term count, four by default.
- * @returns A reader of normalized time with the direct function's behavior.
- * @throws {Error} On the first read when the fixed parameters are invalid.
+ * Parameter random: The same pure counter-based stream used by direct reads.
+ * Parameter duration: Fixed window seconds, with the direct entry's domain.
+ * Parameter maxFrequency: Fixed highest frequency in hertz.
+ * Parameter terms: Fixed positive safe-integer term count, four by default.
+ * Returns: A reader of normalized time with the direct function's behavior.
+ * On the first read when the fixed parameters are invalid.
  */
 export function seededSmoothNoisePrepare(
   random: IAutoMovieRandom,

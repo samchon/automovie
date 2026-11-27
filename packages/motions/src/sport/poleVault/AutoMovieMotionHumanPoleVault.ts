@@ -35,7 +35,7 @@ import { poleVaultTakeoffAngle } from "./poleVaultTakeoffAngle";
 import { poleVaultTakeoffFrame } from "./poleVaultTakeoffFrame";
 import { preparePoleVaultPlant } from "./preparePoleVaultPlant";
 
-/**
+/*
  * A pole vault: out of a run, the hand that holds the pole plants its end on
  * the floor ahead at the take-off, the body swings over the planted end with
  * the pole, lets go as the pole stands upright, and flies on to come down lying
@@ -90,43 +90,50 @@ import { preparePoleVaultPlant } from "./preparePoleVaultPlant";
  * Events: `takeoff` (the plant), `release`, `touchdown`, `settled`, `relax`.
  */
 export namespace AutoMovieMotionHumanPoleVault {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "poleVault";
 
-  /** Cancel table: once lying, into rising. */
+  /*
+   * Cancel table: once lying, into rising.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       rise: ["fromRelax", "smooth"],
     });
 
-  /** What may be cut into a vault: a run, at any instant. */
+  /*
+   * What may be cut into a vault: a run, at any instant.
+   */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
   };
 
-  /**
+  /*
    * The least lean of the pole from upright at the plant, degrees
    * (provisional).
    */
   export const LEAN: number = poleVaultLean;
 
-  /** The least run-up speed a vault is planned from, m/s (provisional). */
+  /*
+   * The least run-up speed a vault is planned from, m/s (provisional).
+   */
   export const RUN: number = 1;
 
-  /**
+  /*
    * The most times the plant's wrist goal is corrected by the solved end's
    * height.
    */
   const PLANT: number = 4;
 
-  /**
+  /*
    * Plan a pole vault.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When no hand holds the pole, the run is slower than
-   *   `RUN`, the pole cannot reach the floor, the run cannot bring the pole
-   *   upright, or the body is not above the landing surface at the release.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When no hand holds the pole, the run is slower than
+   * `RUN`, the pole cannot reach the floor, the run cannot bring the pole
+   * upright, or the body is not above the landing surface at the release.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPoleVault.IParams>,
@@ -395,13 +402,12 @@ export namespace AutoMovieMotionHumanPoleVault {
     });
   }
 
-  /**
+  /*
    * What a vault plants as it is entered: the pole, by its planted end, at no
    * less than `LEAN` from upright, so the run cut into the vault lowers it over
    * its last strides (`walkPoleCarriage`).
-   *
-   * @param params The vault's parameters.
-   * @returns The plant.
+   * Parameter params: The vault's parameters.
+   * Returns: The plant.
    */
   export function plants(
     params: IAutoMovieMotionHumanPoleVault.IParams,
@@ -409,7 +415,7 @@ export namespace AutoMovieMotionHumanPoleVault {
     return { prop: params.pole, end: params.end ?? "tip", lean: LEAN };
   }
 
-  /**
+  /*
    * The farthest from the planted end the top hand can grip the pole and still
    * swing it upright from a run (`poleVaultGrip`).
    */

@@ -9,7 +9,7 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 
-/**
+/*
  * A hand's error on its site at a waypoint, the very function the trajectory's
  * evaluation reads (`HumanArmTrajectoryEvaluate`), and its convexification as
  * trajopt's sco convexifies an error function: the value and its
@@ -21,35 +21,44 @@ import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
  * error.
  */
 export namespace HumanArmTrajectorySiteError {
-  /** An error function's reading at the iterate: its values and Jacobian. */
+  /*
+   * An error function's reading at the iterate: its values and Jacobian.
+   */
   export interface IReading {
-    /**
+    /*
      * The slide past the region's disc, millimetres: the constraint's value, at
      * most 0 when met.
      */
     excess: number;
 
-    /** The contact's offsets along the site's free axes, millimetres. */
+    /*
+     * The contact's offsets along the site's free axes, millimetres.
+     */
     offsets: number[];
 
-    /** The variables, as the convex model indexes them. */
+    /*
+     * The variables, as the convex model indexes them.
+     */
     index: number[];
 
-    /** The excess's derivative in each variable. */
+    /*
+     * The excess's derivative in each variable.
+     */
     excessRow: number[];
 
-    /** Each offset's derivative in each variable. */
+    /*
+     * Each offset's derivative in each variable.
+     */
     offsetRows: number[][];
   }
 
-  /**
+  /*
    * Project the contact onto its authored disc and hold each component of the
    * projected point as an equality in the local quadratic program.
-   *
-   * @param error The site's offsets and their Jacobian, in millimetres.
-   * @param radius The site's admissible radius, millimetres.
-   * @param key The rows' key prefix within the quadratic program.
-   * @returns The hard equality rows.
+   * Parameter error: The site's offsets and their Jacobian, in millimetres.
+   * Parameter radius: The site's admissible radius, millimetres.
+   * Parameter key: The rows' key prefix within the quadratic program.
+   * Returns: The hard equality rows.
    */
   export function equalities(
     error: ILinearisation,
@@ -75,17 +84,16 @@ export namespace HumanArmTrajectorySiteError {
     );
   }
 
-  /**
+  /*
    * Constrain the contact to equal a selectable point in an inscribed box. In
    * `d` dimensions each bound is `±radius / sqrt(d)`, so the box's corners lie
    * on the round region. The additional variables move the selected contact
    * from the projection onto the box.
-   *
-   * @param error The site's offsets and their Jacobian, in millimetres.
-   * @param radius The positive radius of the authored region, millimetres.
-   * @param key The rows' key prefix within the quadratic program.
-   * @param first The first additional variable's index in the program.
-   * @returns The hard Cartesian equality and box rows.
+   * Parameter error: The site's offsets and their Jacobian, in millimetres.
+   * Parameter radius: The positive radius of the authored region, millimetres.
+   * Parameter key: The rows' key prefix within the quadratic program.
+   * Parameter first: The first additional variable's index in the program.
+   * Returns: The hard Cartesian equality and box rows.
    */
   export function region(
     error: ILinearisation,
@@ -121,17 +129,16 @@ export namespace HumanArmTrajectorySiteError {
     );
   }
 
-  /**
+  /*
    * The error and its Jacobian in the arms' free coordinates at the waypoint.
-   *
-   * @param c The context.
-   * @param placed The iterate's placements.
-   * @param x Each arm's coordinates at each waypoint, the iterate.
-   * @param a The arm.
-   * @param k The waypoint.
-   * @param site Its site.
-   * @param index The convex model's index of an arm's free coordinate there.
-   * @returns The reading.
+   * Parameter c: The context.
+   * Parameter placed: The iterate's placements.
+   * Parameter x: Each arm's coordinates at each waypoint, the iterate.
+   * Parameter a: The arm.
+   * Parameter k: The waypoint.
+   * Parameter site: Its site.
+   * Parameter index: The convex model's index of an arm's free coordinate there.
+   * Returns: The reading.
    */
   export function read(
     c: M.IContext,
@@ -174,19 +181,27 @@ export namespace HumanArmTrajectorySiteError {
     };
   }
 
-  /** The site components and their linearized coordinates. */
+  /*
+   * The site components and their linearized coordinates.
+   */
   type ILinearisation = Pick<IReading, "offsets" | "index" | "offsetRows">;
 
-  /** The error at one point: the slide's excess and the offsets. */
+  /*
+   * The error at one point: the slide's excess and the offsets.
+   */
   interface IValue {
-    /** The slide past the disc, millimetres. */
+    /*
+     * The slide past the disc, millimetres.
+     */
     excess: number;
 
-    /** The offsets along the free axes, millimetres. */
+    /*
+     * The offsets along the free axes, millimetres.
+     */
     offsets: number[];
   }
 
-  /**
+  /*
    * The evaluation's own site reading with one coordinate moved by a step: the
    * contact's offset from the located site, its slide along the surface past
    * the region's disc, and its offsets along the surface's tangents (on every
@@ -236,5 +251,7 @@ export namespace HumanArmTrajectorySiteError {
   }
 }
 
-/** Sco's finite-difference step (`DEFAULT_EPSILON`, modeling_utils.cpp line 13). */
+/*
+ * Sco's finite-difference step (`DEFAULT_EPSILON`, modeling_utils.cpp line 13).
+ */
 const EPSILON: number = 1e-5;

@@ -1,6 +1,6 @@
 import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
 
-/**
+/*
  * Keep requested draw time separate from the last completed display clock. A
  * completion inherits its synchronous producer's time; an out-of-loop guide
  * redraw preserves the displayed time unless its producer supplies a new one.

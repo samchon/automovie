@@ -6,7 +6,7 @@ import type {
 import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
 import { roundProductionGridTick } from "./roundProductionGridTick";
 
-/**
+/*
  * Map one non-negative film-frame boundary onto a destination integer clock,
  * such as audio samples or WebVTT milliseconds.
  *
@@ -16,12 +16,11 @@ import { roundProductionGridTick } from "./roundProductionGridTick";
  * caller's explicit choices. A frame that is not a non-negative safe integer, a
  * clock rate that is not a positive safe integer, an invalid frame rate, and a
  * tick beyond `Number.MAX_SAFE_INTEGER` each throw an `Error`.
- *
- * @param props.frame Film-frame boundary index, a non-negative safe integer.
- * @param props.frameRate The film's frame rate as an exact ratio.
- * @param props.ticksPerSecond Destination clock rate, a positive safe integer.
- * @param props.rounding How a boundary between two ticks is resolved.
- * @returns The boundary's tick on the destination clock.
+ * Parameter props.frame: Film-frame boundary index, a non-negative safe integer.
+ * Parameter props.frameRate: The film's frame rate as an exact ratio.
+ * Parameter props.ticksPerSecond: Destination clock rate, a positive safe integer.
+ * Parameter props.rounding: How a boundary between two ticks is resolved.
+ * Returns: The boundary's tick on the destination clock.
  */
 export function productionFrameBoundaryToGridTick(
   props: IAutoMovieProductionFrameBoundaryToGridTick.IProps,

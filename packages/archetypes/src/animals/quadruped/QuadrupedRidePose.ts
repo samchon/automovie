@@ -20,26 +20,29 @@ import { QuadrupedRidePoseTypes } from "./QuadrupedRidePoseTypes";
 import type { QuadrupedRidePoseGoals } from "./QuadrupedRidePoseGoals";
 
 const { HINDS } = QuadrupedRidePoseTypes;
-/** Fixed-attachment locomotion lowered through the animal's shared rig. */
+/*
+ * Fixed-attachment locomotion lowered through the animal's shared rig.
+ */
 export namespace QuadrupedRidePose {
   /** The moved type {@link QuadrupedRidePoseGoals.IGoal}. */
   export type IGoal = QuadrupedRidePoseGoals.IGoal;
-  /** The moved type {@link QuadrupedRidePoseGoals.IPrepared}. */
+  /*
+   * The moved type QuadrupedRidePoseGoals.IPrepared.
+   */
   export type IPrepared<
     Id extends string,
     Dimension extends string,
   > = QuadrupedRidePoseGoals.IPrepared<Id, Dimension>;
 
-  /**
+  /*
    * Prepare lengths, terminal solids, carrier policy and shared FK once.
-   *
-   * @param animal The neutral model, never changed by preparation or sampling.
-   * @param species Declared carriage selectors of this ride's producer.
-   * @param source Admitted independent joints and attachments read from that
-   *   same model.
-   * @returns A sampler retaining no caller-owned goal or returned-frame state.
-   * @throws {RangeError} For unsupported terminal solids, malformed neutral
-   *   chains/carriers or physically incompatible current goals.
+   * Parameter animal: The neutral model, never changed by preparation or sampling.
+   * Parameter species: Declared carriage selectors of this ride's producer.
+   * Parameter source: Admitted independent joints and attachments read from that
+   * same model.
+   * Returns: A sampler retaining no caller-owned goal or returned-frame state.
+   * For unsupported terminal solids, malformed neutral
+   * chains/carriers or physically incompatible current goals.
    */
   export function prepare<Id extends string, Dimension extends string>(
     animal: AutoMovieArchetype<Id, Dimension>,
@@ -131,7 +134,7 @@ export namespace QuadrupedRidePose {
     );
     return { sample, frame };
 
-    /**
+    /*
      * The root range four goals admit under one nod, before any chain is
      * solved: the axial goals, the previewed frames, each limb's target and its
      * root constraint relaxed against the body's floor, and how the pelvis and
@@ -207,7 +210,7 @@ export namespace QuadrupedRidePose {
         pelvis,
       };
 
-      /**
+      /*
        * An axial bar's goal turned by an angle about model X from its previewed
        * direction.
        */
@@ -229,7 +232,7 @@ export namespace QuadrupedRidePose {
         };
       }
 
-      /**
+      /*
        * The pelvis's turn at a root height: as far as the hind needing it most
        * requires.
        */
@@ -252,7 +255,9 @@ export namespace QuadrupedRidePose {
           256 * Number.EPSILON * coordinateScale,
         );
       }
-      /** Convert one solid's lift to an exact endpoint/ankle constraint. */
+      /*
+       * Convert one solid's lift to an exact endpoint/ankle constraint.
+       */
       function constraint(
         limb: AutoMovieArchetypeQuadrupedBody.Limb,
       ): AutoMovieArchetypeQuadrupedRootRange.IConstraint {
@@ -323,7 +328,7 @@ export namespace QuadrupedRidePose {
       }
     }
 
-    /**
+    /*
      * Achieve four unchanged foot poses with one explicit whole-body
      * trajectory.
      */
@@ -340,7 +345,9 @@ export namespace QuadrupedRidePose {
         bar,
         pelvis: turn,
       }: ISettled = settle(goals, nod);
-      /** Solve the shared-root limbs and prove their canonical FK. */
+      /*
+       * Solve the shared-root limbs and prove their canonical FK.
+       */
       const geometry = (): ReturnType<typeof pose.position> => {
         const height: number = chooseQuadrupedBodyRoot(
           range,
@@ -382,7 +389,7 @@ export namespace QuadrupedRidePose {
         return pose.position(solved, root, turned);
       };
 
-      /**
+      /*
        * A swinging hoof's endpoint where its leg reaches at the chosen root:
        * its goal where the leg reaches it, otherwise raised under the joint
        * (its forward place kept, or drawn in as far as the leg's reach
@@ -433,7 +440,7 @@ export namespace QuadrupedRidePose {
         }
       return result;
 
-      /**
+      /*
        * A fore limb's shoulder joint at the chosen root: its blade turns only
        * as far as reach needs, and the turn joins the axial goals.
        */
@@ -460,7 +467,7 @@ export namespace QuadrupedRidePose {
       }
     }
 
-    /**
+    /*
      * One contact's frame at the root and axial pose `sample` reaches, read
      * from its carrier's chain alone: the root and the turns the four goals
      * settle, the body's frames lowered from them, and the contact carried by

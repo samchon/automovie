@@ -6,7 +6,7 @@ import {
 
 import { AutoMovieEngineSubjectDescriber } from "../AutoMovieEngineSubjectDescriber";
 
-/**
+/*
  * Describe one stable subject address from a compiled shot artifact.
  *
  * Individual compact instances and placed parts are regenerated only when
@@ -24,11 +24,10 @@ import { AutoMovieEngineSubjectDescriber } from "../AutoMovieEngineSubjectDescri
  * `memberOffset`, clamped to the total. An unknown address, or an offset that
  * is not a whole number of members, throws an `Error`; so does an addressed
  * instance its set cannot regenerate.
- *
- * @param artifact Compiled shot artifact and its revision.
- * @param subjectId Stable subject address in one of the formats above.
- * @param props Optional paging of the member list.
- * @returns The subject's description.
+ * Parameter artifact: Compiled shot artifact and its revision.
+ * Parameter subjectId: Stable subject address in one of the formats above.
+ * Parameter props: Optional paging of the member list.
+ * Returns: The subject's description.
  */
 export function describeAutoMovieSubject(
   artifact: IAutoMovieSubjectArtifact,

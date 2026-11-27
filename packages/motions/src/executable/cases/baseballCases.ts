@@ -18,7 +18,7 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the baseball positions from quiet standing.
  *
  * Every case reports foot slip at most 5 mm (the issue's planted-foot bound)
@@ -31,9 +31,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  * - `baseball-battingStance`: the two fists within a hand's length of each other
  *   at the right shoulder's height, within 10 cm, and the feet at least three
  *   half shoulder widths apart.
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function baseballCases(
   bodies: readonly string[] = ["m-average"],

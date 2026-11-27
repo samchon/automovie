@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanPlanMotionCaptureInstants } from "@automovie/interface";
 
-/**
+/*
  * The instants a motion case's capture draws, each named by the case's own
  * label: one per second written to the millisecond, the resolution a capture
  * names its cells at.
@@ -9,9 +9,8 @@ import type { IAutoMovieMotionHumanPlanMotionCaptureInstants } from "@automovie/
  * the same frame a release begins, are one still, kept at the first second
  * listed and named by every distinct label joined with `/`, so no beat's name
  * is lost. Order is the case's.
- *
- * @param times The case's instants, each with its label.
- * @returns The instants drawn, with their labels.
+ * Parameter times: The case's instants, each with its label.
+ * Returns: The instants drawn, with their labels.
  */
 export function planMotionCaptureInstants(
   times: IAutoMovieMotionHumanPlanMotionCaptureInstants.ITimes,
@@ -36,19 +35,27 @@ export function planMotionCaptureInstants(
   );
 }
 
-/** The record of `IPlanMotionCaptureInstantsResult`'s site. */
+/*
+ * The record of `IPlanMotionCaptureInstantsResult`'s site.
+ */
 type IPlanMotionCaptureInstantsResult = { seconds: number; label: string };
 
-/** The record of `IPlanMotionCaptureInstantsInstant`'s site. */
+/*
+ * The record of `IPlanMotionCaptureInstantsInstant`'s site.
+ */
 type IPlanMotionCaptureInstantsInstant = {
   seconds: number;
   labels: string[];
 };
 
-/** The record of `IPlanMotionCaptureInstantsKnown`'s site. */
+/*
+ * The record of `IPlanMotionCaptureInstantsKnown`'s site.
+ */
 type IPlanMotionCaptureInstantsKnown = { seconds: number; labels: string[] };
 
-/** The record of `IPlanMotionCaptureInstantsInstantsEntry`'s site. */
+/*
+ * The record of `IPlanMotionCaptureInstantsInstantsEntry`'s site.
+ */
 type IPlanMotionCaptureInstantsInstantsEntry = {
   seconds: number;
   labels: string[];

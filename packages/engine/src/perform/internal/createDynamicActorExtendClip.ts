@@ -8,7 +8,7 @@ import { ease } from "../../motion/internal/ease";
 import { actorWeightedArmPose } from "./actorWeightedArmPose";
 import { createDynamicActorPoseClip } from "./createDynamicActorPoseClip";
 
-/**
+/*
  * Bake a moving arm goal with an easeInOut extension over the first half of a
  * positive second duration, then hold its sampled solved articulation. An
  * unresolved target sample returns null.

@@ -13,87 +13,110 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import type { HumanLadder } from "./HumanLadder";
 
-/**
+/*
  * The holds of a rung-ladder climb: each foot's placement on every rung it
  * stands on with its swing arc between them, each hand's grip point on every
  * rung it holds with its path between them, and the legs' placements.
  * `climbLadder` owns the beats and the clock.
  */
 export namespace climbLadderHolds {
-  /**
+  /*
    * How far below the shoulder the hands' first rung is sought, upper-arm
    * lengths (provisional: a grip with the elbow part bent rather than a
    * straight overhead reach).
    */
   export const GRIP_DROP: number = 0.5;
 
-  /** The prepared holds. */
+  /*
+   * The prepared holds.
+   */
   export interface IHolds {
-    /** Each foot's placement on the floor (0) and on each rung it climbs. */
+    /*
+     * Each foot's placement on the floor (0) and on each rung it climbs.
+     */
     footprints: Record<
       AutoMovieHumanSide,
       IAutoMovieMotionHumanFoot.IPlacement[]
     >;
 
-    /** Each foot's swing arc from one footprint to the next. */
+    /*
+     * Each foot's swing arc from one footprint to the next.
+     */
     footArcs: Record<
       AutoMovieHumanSide,
       ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc>[]
     >;
 
-    /** Each leg's prepared placement on its rung. */
+    /*
+     * Each leg's prepared placement on its rung.
+     */
     goals: Record<
       AutoMovieHumanSide,
       ReturnType<typeof AutoMovieMotionHumanLeg.preparePlacement>
     >;
 
-    /** Each hand's grip point on each rung it holds, world metres. */
+    /*
+     * Each hand's grip point on each rung it holds, world metres.
+     */
     handholds: Record<AutoMovieHumanSide, IAutoMovieVector3[]>;
 
-    /** Each hand's path from one handhold to the next. */
+    /*
+     * Each hand's path from one handhold to the next.
+     */
     handArcs: Record<
       AutoMovieHumanSide,
       ReturnType<typeof Vector3.prepareLerp>[]
     >;
   }
 
-  /** The bounds a standing entry must meet before the ladder. */
+  /*
+   * The bounds a standing entry must meet before the ladder.
+   */
   export interface IBounds {
-    /** Largest turn from the ladder's heading, degrees. */
+    /*
+     * Largest turn from the ladder's heading, degrees.
+     */
     facing: number;
 
-    /** Largest distance of the toes from the rungs, metres. */
+    /*
+     * Largest distance of the toes from the rungs, metres.
+     */
     near: number;
 
-    /**
+    /*
      * How far below the shoulder the first hand rung is sought, upper-arm
      * lengths.
      */
     gripDrop: number;
   }
 
-  /** An admitted entry: each foot's lateral place and the hands' first rung. */
+  /*
+   * An admitted entry: each foot's lateral place and the hands' first rung.
+   */
   export interface IAdmitted {
-    /** Each foot's lateral place in the ladder frame, metres. */
+    /*
+     * Each foot's lateral place in the ladder frame, metres.
+     */
     lateral: Record<AutoMovieHumanSide, number>;
 
-    /** The hands' first rung. */
+    /*
+     * The hands' first rung.
+     */
     reach: number;
   }
 
-  /**
+  /*
    * Admit a standing entry before the ladder.
-   *
-   * @param body The canonical motion body.
-   * @param ladder The ladder.
-   * @param yaw The standing heading, degrees.
-   * @param flats The entry's foot placements.
-   * @param count How many rungs the feet climb.
-   * @param bounds The climb's bounds.
-   * @returns The lateral places and the hands' first rung.
-   * @throws {HumanRefusal} When the climber does not face the ladder, stands
-   *   too far from it or beside it, or the ladder has too few rungs above the
-   *   hands.
+   * Parameter body: The canonical motion body.
+   * Parameter ladder: The ladder.
+   * Parameter yaw: The standing heading, degrees.
+   * Parameter flats: The entry's foot placements.
+   * Parameter count: How many rungs the feet climb.
+   * Parameter bounds: The climb's bounds.
+   * Returns: The lateral places and the hands' first rung.
+   * When the climber does not face the ladder, stands
+   * too far from it or beside it, or the ladder has too few rungs above the
+   * hands.
    */
   export function admit(
     body: IAutoMovieMotionHumanBody,
@@ -161,19 +184,18 @@ export namespace climbLadderHolds {
     return { lateral, reach };
   }
 
-  /**
+  /*
    * Prepare the holds.
-   *
-   * @param body The canonical motion body.
-   * @param atRung The rung point reader.
-   * @param quiet The settled stance's foot placements, whose headings the rungs
-   *   keep.
-   * @param flat Each foot's entry placement on the floor.
-   * @param lateral Each foot's lateral place in the ladder frame, metres.
-   * @param count How many rungs the feet climb.
-   * @param reach The hands' first rung.
-   * @param clearance The swing's clearance over a rung, metres.
-   * @returns The holds.
+   * Parameter body: The canonical motion body.
+   * Parameter atRung: The rung point reader.
+   * Parameter quiet: The settled stance's foot placements, whose headings the rungs
+   * keep.
+   * Parameter flat: Each foot's entry placement on the floor.
+   * Parameter lateral: Each foot's lateral place in the ladder frame, metres.
+   * Parameter count: How many rungs the feet climb.
+   * Parameter reach: The hands' first rung.
+   * Parameter clearance: The swing's clearance over a rung, metres.
+   * Returns: The holds.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,

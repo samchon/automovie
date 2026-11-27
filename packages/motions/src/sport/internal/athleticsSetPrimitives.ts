@@ -9,15 +9,14 @@ import type {
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { sprintStartSet } from "./sprintStartSet";
 
-/**
+/*
  * The sprint start's root and trunk primitive: the pelvis and the spine's share
  * of the trunk's tilt brought in by the into-set share and pushed forward by
  * the square of the drive, the root placed under the hips' course.
  *
  * Part of `athletics.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `primitives`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `primitives`.
  */
 export function athleticsSetPrimitives(
   prepared: athleticsSetPrimitives.IPrepared,
@@ -71,42 +70,66 @@ export function athleticsSetPrimitives(
   ];
 }
 
-/** The `primitives` of `athletics.plan`, built from what that plan prepared. */
+/*
+ * The `primitives` of `athletics.plan`, built from what that plan prepared.
+ */
 export namespace athleticsSetPrimitives {
-  /** The alternatives of `PlanFlexedBone`'s site. */
+  /*
+   * The alternatives of `PlanFlexedBone`'s site.
+   */
   export type PlanFlexedBone = "spine" | "chest";
 
-  /** What `athletics.plan` prepared for its `primitives`. */
+  /*
+   * What `athletics.plan` prepared for its `primitives`.
+   */
   export interface IPrepared {
-    /** The `clock` `athletics.plan` prepared. */
+    /*
+     * The `clock` `athletics.plan` prepared.
+     */
     clock: IAutoMovieMotionClock;
 
-    /** The `into` `athletics.plan` prepared. */
+    /*
+     * The `into` `athletics.plan` prepared.
+     */
     into: (seconds: number) => number;
 
-    /** The `drive` `athletics.plan` prepared. */
+    /*
+     * The `drive` `athletics.plan` prepared.
+     */
     drive: (seconds: number) => number;
 
-    /** The `pitchDelta` `athletics.plan` prepared. */
+    /*
+     * The `pitchDelta` `athletics.plan` prepared.
+     */
     pitchDelta: number;
 
-    /** The `target` `athletics.plan` prepared. */
+    /*
+     * The `target` `athletics.plan` prepared.
+     */
     target: ReturnType<typeof sprintStartSet>;
 
-    /** The `flexed` `athletics.plan` prepared. */
+    /*
+     * The `flexed` `athletics.plan` prepared.
+     */
     flexed: (
       joints: IAutoMovieMotionHumanPosture["joints"],
       bone: PlanFlexedBone,
       share: number,
     ) => readonly [number, number, number];
 
-    /** The `hipsAt` `athletics.plan` prepared. */
+    /*
+     * The `hipsAt` `athletics.plan` prepared.
+     */
     hipsAt: ReturnType<typeof Vector3.prepareLerp>;
 
-    /** The `push` `athletics.plan` prepared. */
+    /*
+     * The `push` `athletics.plan` prepared.
+     */
     push: IAutoMovieVector3;
 
-    /** The `hipsRest` `athletics.plan` prepared. */
+    /*
+     * The `hipsRest` `athletics.plan` prepared.
+     */
     hipsRest: IAutoMovieVector3;
   }
 }

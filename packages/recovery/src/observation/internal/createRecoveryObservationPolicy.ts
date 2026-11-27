@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryInput } from "@automovie/interface";
 
-/**
+/*
  * Publish only the declared observation policy, never undeclared caller
  * payloads. Numerical values and vector references are retained without
  * defaults or conversion. Input objects can contain extra runtime properties

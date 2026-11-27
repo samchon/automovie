@@ -12,7 +12,7 @@ import { LIGHT_CHANNEL_PROPERTIES } from "../LIGHT_CHANNEL_PROPERTIES";
 import { parseLightPointer } from "./parseLightPointer";
 import { sampleClip } from "./sampleClip";
 
-/**
+/*
  * Sample admitted shot light clips and apply their canonical light-pointer
  * channels to staged lights. Output preserves staging order and untouched light
  * identity; touched light wrappers borrow unanimated fields.

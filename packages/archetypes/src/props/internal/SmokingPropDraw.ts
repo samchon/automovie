@@ -5,19 +5,23 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 
-/**
+/*
  * Cigarette lengths and the 3R4F reference cigarette, neither read at a primary
  * source.
  */
 const CIGARETTE: string =
   "regular 70 mm to 100s 100 mm (Wikipedia, Cigarette, https://en.wikipedia.org/wiki/Cigarette); the 3R4F reference cigarette's 24.8 mm circumference and 27 mm filter (Adamson et al. 2012, Chemistry Central Journal 6:98, Table 2, seen only in search results)";
 
-/** The seeded recipes originally published as `createSmoking`. */
+/*
+ * The seeded recipes originally published as `createSmoking`.
+ */
 export namespace SmokingPropDraw {
   /** The kinds. */
   export type Kind = "cigarette" | "lighter";
 
-  /** Every kind, for a caller that reads one at run time. */
+  /*
+   * Every kind, for a caller that reads one at run time.
+   */
   export const KINDS: readonly Kind[] = ["cigarette", "lighter"];
 
   /**
@@ -46,7 +50,9 @@ export namespace SmokingPropDraw {
    */
   export type Dimension = "length" | "diameter" | "width" | "filter" | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /*
+   * Each dimension's unit, which its band and any model's figure for it share.
+   */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -78,7 +84,7 @@ export namespace SmokingPropDraw {
   /** The lighters read: BIC's Maxi J26 and Mini J25. */
   export type Model = "J26" | "J25";
 
-  /**
+  /*
    * Each kind's models whole, the default first: a lighter's height (length),
    * thickness (diameter), width and mass, 8.2 x 1.5 x 2.5 cm and 24.667 g for
    * the J26 and 6.2 x 1.1 x 2.2 cm and 13 g for the J25
@@ -94,7 +100,9 @@ export namespace SmokingPropDraw {
     },
   };
 
-  /** The band of each free dimension, by kind; a lighter's are its model's. */
+  /*
+   * The band of each free dimension, by kind; a lighter's are its model's.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
@@ -113,26 +121,31 @@ export namespace SmokingPropDraw {
     lighter: {},
   };
 
-  /** What {@link prepare} prepares for its caller. */
+  /*
+   * What prepare prepares for its caller.
+   */
   export interface IPrepareResult<Id extends Affordance> {
-    /** The prepared `builder` this call returns. */
+    /*
+     * The prepared `builder` this call returns.
+     */
     builder: AutoMovieArchetypeBuilder<Id, Dimension>;
 
-    /** The prepared `d` this call returns. */
+    /*
+     * The prepared `d` this call returns.
+     */
     d: Partial<Record<Dimension, number>>;
   }
 
-  /**
+  /*
    * Prepare an empty builder and the previously recorded smoking dimensions.
-   *
-   * @param params Fixed dimensions in metres or kilograms, an optional scene
-   *   ID, and a model where the saved recipe has one.
-   * @param seed The seed that draws the saved dimensions and model, or
-   *   undefined for the original defaults.
-   * @param kind The saved kind whose recipe is used.
-   * @returns The builder and dimensions the named producer reads.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter
-   *   lies outside its admitted recipe.
+   * Parameter params: Fixed dimensions in metres or kilograms, an optional scene
+   * ID, and a model where the saved recipe has one.
+   * Parameter seed: The seed that draws the saved dimensions and model, or
+   * undefined for the original defaults.
+   * Parameter kind: The saved kind whose recipe is used.
+   * Returns: The builder and dimensions the named producer reads.
+   * When the model or a fixed parameter
+   * lies outside its admitted recipe.
    */
   export function prepare<Id extends Affordance>(
     kind: Kind,

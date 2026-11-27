@@ -2,7 +2,7 @@ import type { IAutoMovieMotionHumanHeldWork } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Admit a held work before any hand moves: it must drive an articulation, move
  * the prop or take another prop, over a finite positive duration.
  *

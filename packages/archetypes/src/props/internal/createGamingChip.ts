@@ -8,16 +8,15 @@ import {
 } from "../../core/index";
 import { TabletopStack } from "./TabletopStack";
 
-/**
+/*
  * One gaming chip lying flat.
  *
  * The chip is a disc in the `XZ` plane, its origin the centre of its underside.
  * Chips stack by the shared tabletop contacts (`TabletopStack`): one chip's
  * `base` mounted on the next one's `top`, so a stack moves with the chip at its
  * bottom.
- *
- * @param params The optional scene id.
- * @returns The inert chip and its contact frames, metres.
+ * Parameter params: The optional scene id.
+ * Returns: The inert chip and its contact frames, metres.
  */
 export function createGamingChip(
   params: AutoMovieArchetypeGamingChip.IParams = {},
@@ -51,7 +50,7 @@ export function createGamingChip(
   return builder.build(CHIP.mass);
 }
 
-/**
+/*
  * A casino gaming chip: "The chips used in United States casinos typically
  * weigh about 10 grams" (English Wikipedia, Casino token, read 2026-11-21). No
  * read source gave the diameter or thickness, so the common 39 mm by 3.3 mm are

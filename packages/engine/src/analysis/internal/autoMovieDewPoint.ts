@@ -1,4 +1,4 @@
-/**
+/*
  * Dew point of moist air by the Magnus form, in degrees Celsius.
  *
  * `gamma = ln(RH) + a*T/(b+T)`, `Td = b*gamma/(a - gamma)`, with `T` in degrees
@@ -11,10 +11,9 @@
  *
  * This is the only dew-point formula in the engine; the envelope analyzer calls
  * it for the indoor air.
- *
- * @param temperature Dry-bulb air temperature in degrees Celsius; finite.
- * @param relativeHumidity Relative humidity as a fraction in `(0, 1]`.
- * @returns Dew-point temperature in degrees Celsius.
+ * Parameter temperature: Dry-bulb air temperature in degrees Celsius; finite.
+ * Parameter relativeHumidity: Relative humidity as a fraction in `(0, 1]`.
+ * Returns: Dew-point temperature in degrees Celsius.
  */
 export function autoMovieDewPoint(
   temperature: number,
@@ -30,7 +29,7 @@ export function autoMovieDewPoint(
   return (MAGNUS_B * gamma) / (MAGNUS_A - gamma);
 }
 
-/**
+/*
  * Magnus coefficients for saturation vapour pressure over water, as published
  * by Sonntag: `a` is dimensionless and `b` is in degrees Celsius.
  *

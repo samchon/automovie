@@ -17,7 +17,7 @@ import { walkPlayback } from "../../actions/internal/walkPlayback";
 import { walkReach } from "../../actions/internal/walkReach";
 import { walkRoot } from "../../actions/internal/walkRoot";
 
-/**
+/*
  * Walking to a floor point in whole steps, ending with the feet side by side.
  *
  * Speed comes from dynamic similarity (Alexander 1984): people of different leg
@@ -32,15 +32,15 @@ import { walkRoot } from "../../actions/internal/walkRoot";
  *
  * Each foot follows the three rockers of stance with its contact point fixed on
  * the floor, and swings between footprints on a minimum-jerk path lifted clear
- * of the floor ({@link walkSteps}): 60 % stance and 40 % swing of each stride,
+ * of the floor (walkSteps): 60 % stance and 40 % swing of each stride,
  * so each double support lasts a tenth of a stride (Perry and Burnfield). The
  * pelvis advances fastest near double support and slowest near midstance. Its
  * height follows the two contact heights and accounts for the raised leg's
  * share of the 4–5 cm whole-body excursion. It sways 2 cm toward the stance
  * foot and lowers wherever a planted leg cannot reach its foot, so no plant is
- * ever stretched off its point ({@link walkReach}). A swing joins the stance its
+ * ever stretched off its point (walkReach). A swing joins the stance its
  * foot left, as the leg reached it at toe-off, to the stance it lands in, as
- * the leg reaches it at heel strike ({@link walkFoot}), and the pelvis reads a
+ * the leg reaches it at heel strike (walkFoot), and the pelvis reads a
  * swinging foot only through those two stances. The pelvis turns 4° and tilts
  * 4° with the stride, the chest counter-rotates, and the arms swing opposite
  * the legs about 15° with the elbows bent 15 to 30° (Perry and Burnfield,
@@ -51,14 +51,18 @@ import { walkRoot } from "../../actions/internal/walkRoot";
  * only varies step timing.
  */
 export namespace walk {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "walk";
 
-  /** Cancel table (`walkCuts`). */
+  /*
+   * Cancel table (`walkCuts`).
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     walkCuts;
 
-  /**
+  /*
    * What a gait lets an overlay take: the arms it would swing, the hands and
    * the head.
    */
@@ -70,7 +74,7 @@ export namespace walk {
     "rightArm",
   ];
 
-  /**
+  /*
    * Froude number of each pace. Normal uses the metabolic minimum reported for
    * ordinary limbs in Optimal walking speed following changes in limb geometry
    * (2011, PMID 21653821). Slow and fast are the slow and the fast outdoor
@@ -87,7 +91,7 @@ export namespace walk {
     fast: 1.72 ** 2 / (AutoMovieGravity.STANDARD * walkRoot.REFERENCE_HIP),
   };
 
-  /**
+  /*
    * The walking gait of a Froude number: a step of `1.2 l Fr^0.25`, at most
    * `longestStep()` hip heights, 40 % of the stride in swing, a mid-swing lift
    * of `LIFT` hip heights, and arms swinging `SHOULDER` degrees about the
@@ -105,22 +109,21 @@ export namespace walk {
     };
   }
 
-  /**
+  /*
    * The hip's flexion at initial contact, degrees: about 20° (Perry and
    * Burnfield's normal sagittal hip kinematics, read through Perry-based
    * summaries; reported from 20 to 30°, 20 the most consistent).
    */
   export const CONTACT_FLEXION: number = 20;
 
-  /**
+  /*
    * The longest walking step, hip heights: the trailing leg at the thigh's
    * largest extension (`walkReach.EXTENSION`, the hip's range less its margin)
    * and the leading leg at its flexion at initial contact (`CONTACT_FLEXION`),
    * both straight from one hip over the floor, put the ankles `sin(EXTENSION) +
    * sin(CONTACT_FLEXION)` hip heights apart; a longer step would ask the
    * trailing hip past its range at toe-off.
-   *
-   * @returns Hip heights, about 0.81.
+   * Returns: Hip heights, about 0.81.
    */
   export function longestStep(): number {
     return (
@@ -129,7 +132,7 @@ export namespace walk {
     );
   }
 
-  /**
+  /*
    * The ankle's lift above its standing height at the middle of the swing, hip
    * heights. The swing's middle, 80 % of the gait cycle, is the middle of Perry
    * and Burnfield's mid-swing (73 to 87 %), between initial swing's end (hip
@@ -150,25 +153,25 @@ export namespace walk {
         (1 - Math.cos((((15 + 25) / 2 - (60 + 25) / 2) * Math.PI) / 180))) /
     0.53;
 
-  /**
+  /*
    * The arms' swing about the shoulder, degrees either way (Perry and
    * Burnfield, normal gait kinematics: about 15°).
    */
   export const SHOULDER: number = 15;
 
-  /**
+  /*
    * The elbow's mean flexion through the stride, degrees: the middle of Perry
    * and Burnfield's 15 to 30° elbow range in gait.
    */
   export const ELBOW: number = (15 + 30) / 2;
 
-  /**
+  /*
    * The elbow's flexion swing about its mean, degrees: half of Perry and
    * Burnfield's 15 to 30° elbow range in gait.
    */
   export const ELBOW_SWING: number = (30 - 15) / 2;
 
-  /**
+  /*
    * The admitted step-length scale (`IAutoMovieMotionHumanWalkParams.stride`):
    * inclusive, dimensionless.
    */
@@ -177,7 +180,7 @@ export namespace walk {
     maximum: 1.3,
   };
 
-  /**
+  /*
    * The admitted arm-swing scale (`IAutoMovieMotionHumanWalkParams.armSwing`):
    * inclusive, dimensionless.
    */
@@ -186,7 +189,7 @@ export namespace walk {
     maximum: 2,
   };
 
-  /**
+  /*
    * The admitted added shoulder abduction
    * (`IAutoMovieMotionHumanWalkParams.elbows`): inclusive, degrees.
    */
@@ -195,18 +198,17 @@ export namespace walk {
     maximum: 30,
   };
 
-  /**
+  /*
    * A walk's forward trunk inclination, degrees (provisional: walkers carry the
    * trunk a few degrees forward of upright, and the inclination grows with
    * speed, Thorstensson et al. 1984, Acta Physiol Scand 121:179).
    */
   export const LEAN: number = 3;
 
-  /**
+  /*
    * Plan a walk.
-   *
-   * @param context The action's context.
-   * @returns The plan.
+   * Parameter context: The action's context.
+   * Returns: The plan.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWalkParams>,
@@ -240,18 +242,24 @@ export namespace walk {
     );
   }
 
-  /**
+  /*
    * Plan stepping locomotion in a gait (walkLocomote), shared by walking and
    * running.
    */
   export const locomote: typeof walkLocomote = walkLocomote;
 }
 
-/** The record of `IELBOWSRANGEItem`'s site. */
+/*
+ * The record of `IELBOWSRANGEItem`'s site.
+ */
 type IELBOWSRANGEItem = { minimum: number; maximum: number };
 
-/** The record of `IARMSWINGRANGEItem`'s site. */
+/*
+ * The record of `IARMSWINGRANGEItem`'s site.
+ */
 type IARMSWINGRANGEItem = { minimum: number; maximum: number };
 
-/** The record of `ISTRIDERANGEItem`'s site. */
+/*
+ * The record of `ISTRIDERANGEItem`'s site.
+ */
 type ISTRIDERANGEItem = { minimum: number; maximum: number };

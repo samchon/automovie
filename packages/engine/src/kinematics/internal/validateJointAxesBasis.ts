@@ -6,12 +6,12 @@ import {
 
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Every reason a joint-axis basis cannot serve the clinical angle conversions,
  * as located issues; an empty list means the basis is usable.
  *
  * Each axis must have finite components and a length above `1e-9`; it need not
- * be unit length, because {@link normalizeJointAxes} normalizes after this
+ * be unit length, because normalizeJointAxes normalizes after this
  * check. When all three axes have a direction, each pair must be orthogonal
  * within an absolute cosine of `1e-6`, so the clinical angles form a real basis
  * instead of silently skewing forward or inverse kinematics. A declared
@@ -19,9 +19,8 @@ import { Vector3 } from "../../math/Vector3";
  * `rotationOrder` is `"flexion-abduction-twist"`, which permits omitted or
  * distal twist placement. Issues are listed in that order, each with a path
  * under `path` such as `<path>.twist.y`.
- *
- * @param axes Basis to check; read, never modified.
- * @param path Diagnostic path prefix naming the caller's input.
+ * Parameter axes: Basis to check; read, never modified.
+ * Parameter path: Diagnostic path prefix naming the caller's input.
  */
 export function validateJointAxesBasis(
   axes: IAutoMovieJointAxes,
@@ -95,13 +94,19 @@ const JOINT_AXES: readonly AutoMovieJointAxis[] = [
   "twist",
 ];
 
-/** Length at or below which an axis names no direction. */
+/*
+ * Length at or below which an axis names no direction.
+ */
 const MIN_AXIS_LENGTH: number = 1e-9;
 
-/** Largest absolute cosine two axes may have and still count as orthogonal. */
+/*
+ * Largest absolute cosine two axes may have and still count as orthogonal.
+ */
 const MAX_AXIS_DOT: number = 1e-6;
 
-/** The axis pairs whose orthogonality is checked, reported on the second. */
+/*
+ * The axis pairs whose orthogonality is checked, reported on the second.
+ */
 const AXIS_PAIRS: readonly (readonly [
   AutoMovieJointAxis,
   AutoMovieJointAxis,

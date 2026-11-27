@@ -15,26 +15,25 @@ import type { EquineObstacle } from "./EquineObstacle";
 import { EquinePitch } from "./EquinePitch";
 import { QuadrupedRestFloor } from "../quadruped/QuadrupedRestFloor";
 
-/**
+/*
  * The least flight that lifts a candidate takeoff's displayed body over every
  * obstacle by the clearance, as the trunk's plan flies it (`EquinePitch`): a
  * closed-form bound with the trunk level, then a bisection with its turn.
- *
- * @param request The admitted jump.
- * @param plan The course plan.
- * @param unflown The candidate's trial assembly without a hold, whose clock
- *   gives its contact seconds.
- * @param candidate The candidate's event phases.
- * @param midair The displayed model at the middle of a flight, where the
- *   trunk is level and the limbs tucked.
- * @param centre The body's rest centre of mass, model metres.
- * @param landed The unheld ride's displayed parts and placement at its first
- *   fore landing, read when the jump has a gap.
- * @param shift Film seconds the approach's stride adjustment moves the takeoff
- *   and every later event, positive later.
- * @returns Seconds from final hind liftoff to first fore landing, or undefined
- *   when the body is over an obstacle before the push-off begins, the speed is
- *   not constant through the jump, or the landing falls past the leg.
+ * Parameter request: The admitted jump.
+ * Parameter plan: The course plan.
+ * Parameter unflown: The candidate's trial assembly without a hold, whose clock
+ * gives its contact seconds.
+ * Parameter candidate: The candidate's event phases.
+ * Parameter midair: The displayed model at the middle of a flight, where the
+ * trunk is level and the limbs tucked.
+ * Parameter centre: The body's rest centre of mass, model metres.
+ * Parameter landed: The unheld ride's displayed parts and placement at its first
+ * fore landing, read when the jump has a gap.
+ * Parameter shift: Film seconds the approach's stride adjustment moves the takeoff
+ * and every later event, positive later.
+ * Returns: Seconds from final hind liftoff to first fore landing, or undefined
+ * when the body is over an obstacle before the push-off begins, the speed is
+ * not constant through the jump, or the landing falls past the leg.
  */
 export function leastEquineFlight(
   request: EquineJump.IRequest,
@@ -190,7 +189,7 @@ export function leastEquineFlight(
     : undefined;
 }
 
-/**
+/*
  * Rotations whose lowest Y reads a part's least X, greatest X, least Z and
  * greatest Z.
  */
@@ -201,19 +200,29 @@ const SIDES: readonly IAutoMovieQuaternion[] = [
   Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
 ];
 
-/**
+/*
  * One part's clearance over one obstacle: its need, its lowest point from the
  * centre of mass and its window after takeoff.
  */
 interface ILimit {
-  /** Metres the part's lowest point must rise. */
+  /*
+   * Metres the part's lowest point must rise.
+   */
   need: number;
-  /** Height of that point above the centre of mass, metres. */
+  /*
+   * Height of that point above the centre of mass, metres.
+   */
   up: number;
-  /** Fore-aft position of the part ahead of the centre of mass, metres. */
+  /*
+   * Fore-aft position of the part ahead of the centre of mass, metres.
+   */
   ahead: number;
-  /** Seconds after takeoff the part reaches the obstacle. */
+  /*
+   * Seconds after takeoff the part reaches the obstacle.
+   */
   first: number;
-  /** Seconds after takeoff the part leaves it. */
+  /*
+   * Seconds after takeoff the part leaves it.
+   */
   last: number;
 }

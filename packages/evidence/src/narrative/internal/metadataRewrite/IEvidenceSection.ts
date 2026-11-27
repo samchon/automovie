@@ -1,16 +1,26 @@
 import type { EvidenceDeclarationKind } from "./EvidenceDeclarationKind";
 
-/** Bounds one evidence annotation section in its original line population. */
+/*
+ * Bounds one evidence annotation section in its original line population.
+ */
 export interface IEvidenceSection {
-  /** Zero-based first source-line index belonging to this annotation. */
+  /*
+   * Zero-based first source-line index belonging to this annotation.
+   */
   start: number;
 
-  /** Exclusive source-line index of the annotation. */
+  /*
+   * Exclusive source-line index of the annotation.
+   */
   end: number;
 
-  /** Declaration family used to select mutable metadata. */
+  /*
+   * Declaration family used to select mutable metadata.
+   */
   kind: EvidenceDeclarationKind;
 
-  /** Character offset of a review fingerprint within the opening line. */
+  /*
+   * Character offset of a review fingerprint within the opening line.
+   */
   fingerprintStart?: number;
 }

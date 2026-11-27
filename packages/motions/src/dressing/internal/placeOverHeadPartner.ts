@@ -9,7 +9,7 @@ import type {
 import { AutoMovieMotionHumanPartnerClear } from "../../compose/internal/AutoMovieMotionHumanPartnerClear";
 import { touchHoldRests } from "../../touch/internal/touchHoldRests";
 
-/**
+/*
  * A place-over-head plan whose arms keep clear of the partner they dress: the
  * partner's body, over which the hands carry the loop and down to whose
  * shoulders they lower it, is both arms' obstacle at every second the course is
@@ -18,13 +18,12 @@ import { touchHoldRests } from "../../touch/internal/touchHoldRests";
  * ones the hands lie on there (`touchHoldRests`), every other one only in the
  * arms' way. A demand that leaves the arms out (the arms on their course) reads
  * neither their goals nor the partner.
- *
- * @param body The dresser's body.
- * @param plan The law's plan, whose posture writes both arms' goals.
- * @param partner The partner's reader.
- * @param start The plan's start, film seconds.
- * @returns The plan with each arm goal's `clear` and `rests` extended by the
- *   partner's segments.
+ * Parameter body: The dresser's body.
+ * Parameter plan: The law's plan, whose posture writes both arms' goals.
+ * Parameter partner: The partner's reader.
+ * Parameter start: The plan's start, film seconds.
+ * Returns: The plan with each arm goal's `clear` and `rests` extended by the
+ * partner's segments.
  */
 export function placeOverHeadPartner(
   body: IAutoMovieMotionHumanBody,
@@ -92,5 +91,7 @@ export function placeOverHeadPartner(
   };
 }
 
-/** The alternatives of `PlaceOverHeadPartnerShouldersRegion`'s site. */
+/*
+ * The alternatives of `PlaceOverHeadPartnerShouldersRegion`'s site.
+ */
 type PlaceOverHeadPartnerShouldersRegion = "shoulderLeft" | "shoulderRight";

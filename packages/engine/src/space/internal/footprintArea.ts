@@ -3,7 +3,7 @@ import type {
   IAutoMovieFootprintRing,
 } from "@automovie/interface";
 
-/**
+/*
  * Plan area of the region, in square metres: the outer ring less its holes.
  *
  * Validation holds every hole strictly inside the outer ring and apart from

@@ -21,7 +21,7 @@ import { AUTOMOVIE_SABINE_CONSTANT } from "../AUTOMOVIE_SABINE_CONSTANT";
 import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
 import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
 
-/**
+/*
  * Solve one room for reverberation, equipment noise and partition performance.
  *
  * Three closed forms, each stated so a reader can check the arithmetic:
@@ -51,7 +51,7 @@ import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKe
  * precision has no level, so the level metrics gap with a reason naming which
  * bound was crossed.
  *
- * Throws on a malformed request (see {@link IAutoMovieAcousticRequest}), on a
+ * Throws on a malformed request (see IAutoMovieAcousticRequest), on a
  * receiver within `1e-12` m of a source, and when the sealed run would fail
  * validation; otherwise the run is always `solved`, with one sound-pressure
  * sample per receiver when a level exists.
@@ -323,10 +323,12 @@ export function analyzeAutoMovieAcoustics(
   });
 }
 
-/** Distances this short or shorter are the same point. */
+/*
+ * Distances this short or shorter are the same point.
+ */
 const EPSILON: number = 1e-12;
 
-/**
+/*
  * Sum precomputed source power times directivity over 4_pi_r^2 at one receiver,
  * refusing distances at or below 1e-12 metres. Typed admitted positions and
  * matching source/power order are premises; intermediate overflow or underflow
@@ -361,7 +363,7 @@ const directField: (
   return energy;
 };
 
-/**
+/*
  * Check headers, positive volume/surface areas, absorption fractions,
  * nonnegative transmission loss, finite source fields and receiver positions;
  * per-list ids are unique and receiver count is capped. Throws the first defect
@@ -437,7 +439,7 @@ const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (
   assertAutoMovieAnalysisTargets(request.targets);
 };
 
-/**
+/*
  * Serialize the study's physical fields and projected targets in fixed
  * list/field order, omitting run header identity. Position records are borrowed
  * into the serialization, so extra fields or custom serialization hooks on them

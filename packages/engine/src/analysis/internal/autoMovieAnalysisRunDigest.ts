@@ -7,7 +7,7 @@ import {
 
 import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
 
-/**
+/*
  * The digest that seals one run's contents.
  *
  * Exported because a run that arrived as JSON has to be checkable by the same
@@ -23,9 +23,8 @@ import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDige
  * encoded JSON value produce different text. JSON normalizes signed zero and
  * writes nonfinite numbers as null; hash collisions are possible. Reordering
  * distinct metrics, samples or warnings changes the digest.
- *
- * @param run Run contents; a `digest` field, if present, is not read.
- * @returns The `sha256:` digest of the canonical text.
+ * Parameter run: Run contents; a `digest` field, if present, is not read.
+ * Returns: The `sha256:` digest of the canonical text.
  */
 export function autoMovieAnalysisRunDigest(
   run: Omit<IAutoMovieAnalysisRun, "digest">,
@@ -33,7 +32,7 @@ export function autoMovieAnalysisRunDigest(
   return autoMovieRenderDigest(runDigestText(run));
 }
 
-/**
+/*
  * Encode the covered run fields as fixed-order JSON-array lines, borrowing
  * typed data without admission. Solved outcomes emit metric/sample/warning
  * rows; other outcomes emit reason/remedy. Work and temporary line/text storage

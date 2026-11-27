@@ -82,7 +82,9 @@ export namespace AutoMovieConstructionComposedEnd {
       ],
     );
 
-    /** Whether a point lies inside a polygon, by crossing parity. */
+    /*
+     * Whether a point lies inside a polygon, by crossing parity.
+     */
     const inside = (q: V2[], p: V2): boolean => {
       let odd: boolean = false;
       for (let k: number = 0; k < q.length; ++k) {
@@ -97,7 +99,7 @@ export namespace AutoMovieConstructionComposedEnd {
       return odd;
     };
 
-    /**
+    /*
      * The crossings of two sections' polygons as phase pairs, each then solved
      * on the curves; or the refusal.
      */
@@ -460,8 +462,12 @@ export namespace AutoMovieConstructionComposedEnd {
     };
   }
 }
-/** World point or direction, mm. */
+/*
+ * World point or direction, mm.
+ */
 type Vec3 = AutoMovieVector3Tuple;
 
-/** A point or a derivative in the end plane's own coordinates, mm. */
+/*
+ * A point or a derivative in the end plane's own coordinates, mm.
+ */
 type V2 = [number, number];

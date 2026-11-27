@@ -140,10 +140,14 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     hook: IHook;
   }
 
-  /** Authored coarse wood/pad color, not a physical material declaration. */
+  /*
+   * Authored coarse wood/pad color, not a physical material declaration.
+   */
   const WOOD: string = "#70543b";
 
-  /** Metal display color; no friction/restitution is inferred from it. */
+  /*
+   * Metal display color; no friction/restitution is inferred from it.
+   */
   const METAL: string = "#575851";
 
   /**
@@ -208,7 +212,7 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     return plan;
   }
 
-  /**
+  /*
    * Plan the beam above the neck/trunk envelope and connect its forward U
    * hitch.
    */
@@ -289,7 +293,7 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     QuadrupedEquipmentBearing.yoke(plan, rig, yoke, centre, WOOD);
   }
 
-  /**
+  /*
    * Fit pads to the side planes; their rails and over-back bridges share those
    * endpoints.
    */

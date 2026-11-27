@@ -4,7 +4,7 @@ import type {
   AutoMovieExpressionPreset,
 } from "@automovie/interface";
 
-/**
+/*
  * The ARKit channels each expression preset drives on a VRM or imported model,
  * with the factor its intensity is multiplied by.
  *

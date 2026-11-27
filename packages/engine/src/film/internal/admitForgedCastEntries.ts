@@ -10,7 +10,7 @@ import {
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { validateModel } from "../../validation/internal/validateModel";
 
-/**
+/*
  * The FORGE consumer: accept the stand-in rigs the forge stage built for the
  * script's `modelRef: null` cast members, keyed by cast node, or every
  * violation of the two contracts below at once.
@@ -26,7 +26,7 @@ import { validateModel } from "../../validation/internal/validateModel";
  * skeleton graph, with its violations remapped from `$input` onto the entry's
  * `$input.entries[i].model` path. Forge adds only the performer rule that a
  * stand-in must have a skeleton; boneless models are props for
- * {@link forgeProp}. The returned models are the entries' own objects, not
+ * forgeProp. The returned models are the entries' own objects, not
  * copies. The result dictionary has no prototype, so every accepted literal
  * node id, including **proto**, is an own entry.
  */
@@ -131,11 +131,17 @@ export function admitForgedCastEntries(
   return { success: true, models };
 }
 
-/** A cast member with the index it was first declared at. */
+/*
+ * A cast member with the index it was first declared at.
+ */
 interface IDeclaredMember {
-  /** The script's first declaration of the node. */
+  /*
+   * The script's first declaration of the node.
+   */
   member: IAutoMovieCastMember;
 
-  /** Its index in `script.cast`, for duplicate reports. */
+  /*
+   * Its index in `script.cast`, for duplicate reports.
+   */
   index: number;
 }

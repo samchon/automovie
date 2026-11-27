@@ -17,14 +17,16 @@ import { HumanGrip } from "../../handling/internal/HumanGrip";
 import { HumanShapeFraming } from "./HumanShapeFraming";
 import { poseBones } from "./poseBones";
 
-/**
+/*
  * What the digit fit reads of a hand on a posed body (`HumanDigitFit`): its
  * digits' names, the bones of its own hand, how deep its phalanges lie in the
  * body's colliders near it, its phalanges' points and a goal carried from a
  * bone's posed frame into the world.
  */
 export namespace HumanDigitReach {
-  /** A hand's digits as the rig names them, thumb first. */
+  /*
+   * A hand's digits as the rig names them, thumb first.
+   */
   export const DIGIT_NAMES: readonly IAutoMovieMotionHumanGrip.Digit[] = [
     "Thumb",
     "Index",
@@ -33,10 +35,12 @@ export namespace HumanDigitReach {
     "Little",
   ];
 
-  /** The bones of a side's own hand, after the side: the hand and its digits. */
+  /*
+   * The bones of a side's own hand, after the side: the hand and its digits.
+   */
   export const OWN: RegExp = /^(Hand|Thumb|Index|Middle|Ring|Little)/;
 
-  /**
+  /*
    * One hand's unchanged phalanx-depth reduction over a caller-owned body
    * placement.
    */
@@ -78,7 +82,7 @@ export namespace HumanDigitReach {
     }
     return deepest;
   }
-  /**
+  /*
    * The body's colliders near a hand, in the world: every shape but its own
    * hand's and forearm's whose bounding sphere lies within a hand's length of the
    * hand.
@@ -124,7 +128,7 @@ export namespace HumanDigitReach {
       );
   };
 
-  /**
+  /*
    * A digit's phalanges as the points of its joints and its tip, world metres, on
    * posed bones.
    */
@@ -149,15 +153,23 @@ export namespace HumanDigitReach {
     return points;
   };
 
-  /** The record of `ICarried`'s site. */
+  /*
+   * The record of `ICarried`'s site.
+   */
   export type ICarried = {
-    /** The digit contact point placed in world metres. */
+    /*
+     * The digit contact point placed in world metres.
+     */
     point: IAutoMovieVector3;
 
-    /** The rotated world normal when the goal specifies one. */
+    /*
+     * The rotated world normal when the goal specifies one.
+     */
     normal?: IAutoMovieVector3;
   };
-  /** A goal's point and normal carried from a bone's posed frame into the world. */
+  /*
+   * A goal's point and normal carried from a bone's posed frame into the world.
+   */
   export const carried: (
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
@@ -190,10 +202,14 @@ export namespace HumanDigitReach {
     };
   };
 
-  /** The record of `INearBodyBall`'s site. */
+  /*
+   * The record of `INearBodyBall`'s site.
+   */
   type INearBodyBall = { centre: IAutoMovieVector3; radius: number };
 
-  /** The record of `ICarriedResult`'s site. */
+  /*
+   * The record of `ICarriedResult`'s site.
+   */
   type ICarriedResult = {
     point: IAutoMovieVector3;
     normal?: IAutoMovieVector3;

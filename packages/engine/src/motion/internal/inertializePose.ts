@@ -14,14 +14,14 @@ import { Quaternion } from "../../math/Quaternion";
 import { inertializeOffset } from "./inertializeOffset";
 import { samplePoseVelocity as samplePoseVelocityImplementation } from "./samplePoseVelocity";
 
-/**
+/*
  * Inertialize a transition between two poses: the target motion plays from the
  * cut, and the source's offset from it decays to zero.
  *
  * At the cut the displayed pose was the source; from then on it is the target
  * plus an offset. Every rotation's offset `q_s q_t^-1` (each joint's
  * articulation and the root's rotation) decays as its rotation vector, per
- * axis, with the angular velocity offset, by {@link inertializeOffset} (Bollo,
+ * axis, with the angular velocity offset, by inertializeOffset (Bollo,
  * GDC 2018), and is applied before the target rotation; the root translation
  * decays per axis the same way. Each is therefore continuous in value and
  * velocity at the cut, reaches the target exactly at its own clamped decay time
@@ -31,7 +31,7 @@ import { samplePoseVelocity as samplePoseVelocityImplementation } from "./sample
  * `[flexion, abduction, twist]` is an Euler chart, and at the chart's gimbal
  * nearly equal rotations have far apart triples, whose per-angle blend swings
  * the bone through poses neither side holds. The blended rotation is lowered to
- * angles through the rig ({@link AutoMovieEngineKinematics.poseJointCodec}), in the chart its range of
+ * angles through the rig (AutoMovieEngineKinematics.poseJointCodec), in the chart its range of
  * motion admits best. A joint with no offset left returns the target's own
  * angles untouched.
  *
@@ -46,21 +46,20 @@ import { samplePoseVelocity as samplePoseVelocityImplementation } from "./sample
  * time, so a caller can evaluate it on any grid. Contact corrections (foot
  * planting, grips) belong after it: an inertialized planted foot would slide in
  * world space (Holden, Dead Blending, 2023).
- *
- * @param source The displayed pose and its velocity at the cut.
- * @param target The target's pose and velocity at the cut.
- * @param duration Requested decay time, seconds; positive.
- * @param through Whether an offset heading to its target faster than the decay
- *   absorbs passes through it and returns, as `inertializeOffset` bounds,
- *   instead of stopping short of it within milliseconds: the "never overshoots"
- *   above is then given up for a bounded acceleration at the cut.
- * @param rig The rig the joints' angles are read through, the one both states'
- *   `spins` were sampled with; the default basis with rest-relative angles when
- *   omitted.
- * @param prepared Optional same-rig codec or lazy getter shared with the actual
- *   source/target rate sampling; the concrete codec retains the existing offset
- *   lifetime.
- * @returns The displayed pose for an elapsed time and the target pose at it.
+ * Parameter source: The displayed pose and its velocity at the cut.
+ * Parameter target: The target's pose and velocity at the cut.
+ * Parameter duration: Requested decay time, seconds; positive.
+ * Parameter through: Whether an offset heading to its target faster than the decay
+ * absorbs passes through it and returns, as `inertializeOffset` bounds,
+ * instead of stopping short of it within milliseconds: the "never overshoots"
+ * above is then given up for a bounded acceleration at the cut.
+ * Parameter rig: The rig the joints' angles are read through, the one both states'
+ * `spins` were sampled with; the default basis with rest-relative angles when
+ * omitted.
+ * Parameter prepared: Optional same-rig codec or lazy getter shared with the actual
+ * source/target rate sampling; the concrete codec retains the existing offset
+ * lifetime.
+ * Returns: The displayed pose for an elapsed time and the target pose at it.
  */
 export function inertializePose(
   source: IAutoMoviePoseState,
@@ -246,10 +245,12 @@ export function inertializePose(
   };
 }
 
-/** World/rotation-vector components in their existing decay evaluation order. */
+/*
+ * World/rotation-vector components in their existing decay evaluation order.
+ */
 const AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
 
-/**
+/*
  * Apply the same scalar hinge offset without creating a per-joint angle
  * closure.
  */
@@ -264,7 +265,7 @@ function hingedAngle(
   return base + inertializeOffset(x, v, duration, elapsed, through).value;
 }
 
-/**
+/*
  * The same decayed rotation-vector exponential, including the original
  * near-zero branch.
  */

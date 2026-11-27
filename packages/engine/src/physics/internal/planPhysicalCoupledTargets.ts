@@ -24,7 +24,7 @@ import { physicalCoupledTargetDependencies } from "./physicalCoupledTargetDepend
 import { preparePhysicalContactTargetRows } from "./preparePhysicalContactTargetRows";
 import { solvePhysicalTargetForest } from "./solvePhysicalTargetForest";
 
-/**
+/*
  * Fit a mutually adjustable group against one candidate scene. Participating
  * roots and outside receivers borrow the simultaneous placement. All admitted
  * geometric rows share one bounded solve. Only convergence supplies goals.
@@ -305,7 +305,9 @@ export function planPhysicalCoupledTargets(input: IInput): IResult {
     ),
   };
 
-  /** Outside bodies retain their original actual placements for the full fit. */
+  /*
+   * Outside bodies retain their original actual placements for the full fit.
+   */
   function resolve(body: string, bone: string): IPhysicalContactPoseReference {
     if (!participating.has(body))
       return {
@@ -326,21 +328,33 @@ type Rows = IAutoMovieLinearizePhysicalTargetRows.IRows;
 
 type Member = {
   readonly body: string;
-  /** The active admitted interval goal. */
+  /*
+   * The active admitted interval goal.
+   */
   readonly target: Target;
-  /** Actual support rows selected for that same interval. */
+  /*
+   * Actual support rows selected for that same interval.
+   */
   readonly supports?: Plan["supports"];
 };
 
 type IInput = {
-  /** Admitted body profiles and relationship budgets. */
+  /*
+   * Admitted body profiles and relationship budgets.
+   */
   readonly scene: IAutoMoviePhysicalSimulationInput.IInput;
-  /** One mutually dependent group, in any order. */
+  /*
+   * One mutually dependent group, in any order.
+   */
   readonly members: readonly Member[];
-  /** World transforms from a single simultaneous snapshot. */
+  /*
+   * World transforms from a single simultaneous snapshot.
+   */
   readonly actual: Plan["actual"];
   readonly geometry: IAutoMoviePreparePhysicalGeometry.IQueries;
-  /** Existing world floor lower bound, metres. */
+  /*
+   * Existing world floor lower bound, metres.
+   */
   readonly floor: number;
 };
 type Witness = IAutoMoviePhysicalCoupledTargetFit.IWitness;
@@ -368,7 +382,9 @@ type PreparedMember = {
   readonly bones: readonly string[];
 };
 
-/** Read one body's local bone view of the qualified world poses. */
+/*
+ * Read one body's local bone view of the qualified world poses.
+ */
 function localView(
   body: string,
   names: readonly string[],

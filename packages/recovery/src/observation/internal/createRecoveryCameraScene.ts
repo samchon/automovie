@@ -26,7 +26,7 @@ import { prepareRecoverySceneFeasibleRouting } from "./prepareRecoverySceneFeasi
 import { prepareRecoverySceneReportCapacity } from "./prepareRecoverySceneReportCapacity";
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 
-/**
+/*
  * Register a bounded calibrated image set into one qualified sparse component.
  * Global conflicting tracks are withheld before even seed geometry. Each new
  * camera uses only existing points, then proposes registered-view point growth

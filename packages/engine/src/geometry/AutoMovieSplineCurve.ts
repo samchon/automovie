@@ -262,7 +262,9 @@ export namespace AutoMovieSplineCurve {
     return [...solve(rx), ...solve(rz)];
   }
 
-  /** Discrete Fourier transform, real and imaginary parts. */
+  /*
+   * Discrete Fourier transform, real and imaginary parts.
+   */
   function transform(
     values: readonly number[],
     turns: ITurns,
@@ -278,7 +280,9 @@ export namespace AutoMovieSplineCurve {
     return [real, imaginary];
   }
 
-  /** Uniform cubic B-spline weights of P_{i-1} .. P_{i+2} at span fraction f. */
+  /*
+   * Uniform cubic B-spline weights of P_{i-1} .. P_{i+2} at span fraction f.
+   */
   function weights(f: number): number[] {
     const g: number = 1 - f;
     return [
@@ -299,7 +303,7 @@ interface ITurns {
   sin: Float64Array;
 }
 
-/**
+/*
  * Compute the two N-by-N turn arrays for a control count, once per fit; sample
  * values and cutoff do not affect them.
  */
@@ -315,7 +319,9 @@ function turnsOf(count: number): ITurns {
   return { cos, sin };
 }
 
-/** Weights of the inverse knot filter by distance. */
+/*
+ * Weights of the inverse knot filter by distance.
+ */
 const FILTER: number[] = Array.from(
   { length: 33 },
   (_: unknown, k: number): number => Math.sqrt(3) * (Math.sqrt(3) - 2) ** k,

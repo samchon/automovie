@@ -25,14 +25,14 @@ import { jointRomOvershoot } from "./jointRomOvershoot";
 import { resolvePose } from "./resolvePose";
 import { skeletonJointAxes } from "./skeletonJointAxes";
 
-/**
+/*
  * The arm pose, upper arm and forearm articulation, that brings the `side` hand
  * onto `target` in the skeleton's model space: the harness `reach` verb made
  * concrete with analytic hinge geometry and the original bounded swivel search
  * for its clinical range of motion.
  *
  * Segment offsets and the shoulder's rest frame come from the skeleton's rest
- * pose, and {@link hingedArmArticulation} solves the chain: the elbow turns only
+ * pose, and hingedArmArticulation solves the chain: the elbow turns only
  * about its own flexion axis, so its abduction and twist are zero as an elbow's
  * immobile axes require, and the shoulder spends the chain's exact swivel
  * freedom on staying inside the rig's declared range of motion. An unreachable
@@ -42,23 +42,22 @@ import { skeletonJointAxes } from "./skeletonJointAxes";
  *
  * The angles are clinical, so `validatePose` can compare them with the ROM
  * table directly. The clinical axes and the rest frame are two halves of one
- * convention: this function applies {@link HUMANOID_JOINT_AXES} under any axes
- * the arm bones declare ({@link skeletonJointAxes}) and so defaults `restFrames`
- * to the matching {@link HUMANOID_REST_FRAME}. Pass a table for a rig with its
+ * convention: this function applies HUMANOID_JOINT_AXES under any axes
+ * the arm bones declare (skeletonJointAxes) and so defaults `restFrames`
+ * to the matching HUMANOID_REST_FRAME. Pass a table for a rig with its
  * own rest convention, or `{}` for raw rest-relative angles.
  *
  * Returns `null` when `side` is not `"left"` or `"right"` (the value arrives
  * from runtime calls), when the upper arm, lower arm or hand is missing, when
  * they are not one parent chain (lower arm under upper arm, hand under lower
  * arm), when the chain is not reachable from a root, when the chain is
- * geometrically degenerate, or when {@link armChainFault} finds an elbow that
+ * geometrically degenerate, or when armChainFault finds an elbow that
  * cannot bend the arm.
- *
- * @param skeleton Rig whose arm is solved; read, never modified.
- * @param side Which arm reaches.
- * @param target Point the hand lands on, in the skeleton's model space.
- * @param restFrames Per-bone rest frames for the clinical lift; defaults to
- *   `HUMANOID_REST_FRAME`.
+ * Parameter skeleton: Rig whose arm is solved; read, never modified.
+ * Parameter side: Which arm reaches.
+ * Parameter target: Point the hand lands on, in the skeleton's model space.
+ * Parameter restFrames: Per-bone rest frames for the clinical lift; defaults to
+ * `HUMANOID_REST_FRAME`.
  */
 export function reachPose(
   skeleton: IAutoMovieSkeleton,
@@ -198,7 +197,9 @@ export function reachPose(
   };
 }
 
-/** A joint whose three clinical angles are all known numbers. */
+/*
+ * A joint whose three clinical angles are all known numbers.
+ */
 interface IAutoMovieClinicalJoint extends IAutoMovieResolvedJointAngles {
   bone: AutoMovieHumanoidBone;
 }

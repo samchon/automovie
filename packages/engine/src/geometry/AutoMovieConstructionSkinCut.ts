@@ -58,7 +58,7 @@ export namespace AutoMovieConstructionSkinCut {
     ];
     const round: number | undefined = input.round;
 
-    /**
+    /*
      * The region's function at a point with each plane's weight in its
      * gradient.
      */
@@ -93,7 +93,7 @@ export namespace AutoMovieConstructionSkinCut {
     const residual = (u: number, psi: number): number =>
       field(surface.jet(u, psi).p).value;
 
-    /**
+    /*
      * The residual's first and second partial derivatives on the skin at a
      * chart point.
      */
@@ -142,7 +142,7 @@ export namespace AutoMovieConstructionSkinCut {
       };
     };
 
-    /**
+    /*
      * The first root from the facing end by the stations' bracket and
      * bisection, or why there is none.
      */
@@ -178,7 +178,9 @@ export namespace AutoMovieConstructionSkinCut {
       table.push(root);
     }
 
-    /** The root at any phase: Newton from the admitted roots, else the bracket. */
+    /*
+     * The root at any phase: Newton from the admitted roots, else the bracket.
+     */
     const solve = (psi: number): number => {
       const x: number = (((psi % turn) + turn) % turn) * (m / turn);
       const k: number = Math.min(m - 1, Math.floor(x));
@@ -224,5 +226,7 @@ export namespace AutoMovieConstructionSkinCut {
   }
 }
 
-/** World point or direction, mm. */
+/*
+ * World point or direction, mm.
+ */
 type Vec3 = AutoMovieVector3Tuple;

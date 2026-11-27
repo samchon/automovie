@@ -9,7 +9,9 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** Prepare a flat palm's contact frame and any carried target surface. */
+/*
+ * Prepare a flat palm's contact frame and any carried target surface.
+ */
 export function prepareBendGoal(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
@@ -90,10 +92,14 @@ export function prepareBendGoal(
   };
 }
 
-/** Displayed world frames of a single resolved posture. */
+/*
+ * Displayed world frames of a single resolved posture.
+ */
 type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-/** The reached wrist and palm contact in the actual lower body's frame. */
+/*
+ * The reached wrist and palm contact in the actual lower body's frame.
+ */
 type Goal = (
   posture: IAutoMovieMotionHumanPosture,
   source?: Parameters<typeof prepareHumanPoseResolution>[0],

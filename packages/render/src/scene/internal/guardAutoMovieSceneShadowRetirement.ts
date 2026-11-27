@@ -3,7 +3,7 @@ import type * as THREE from "three";
 import type { IAutoMovieShadowRetirementHost } from "../IAutoMovieShadowRetirementHost.js";
 import type { IAutoMovieShadowRetirement } from "../IAutoMovieShadowRetirement.js";
 
-/**
+/*
  * Guard an exclusive renderer owner's shadow retirement, subsequent scene
  * passes and budget reads. The record lives on the renderer itself
  * (`IAutoMovieShadowRetirementHost.autoMovieShadowRetirement`), including when

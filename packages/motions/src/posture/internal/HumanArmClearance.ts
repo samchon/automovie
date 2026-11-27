@@ -20,7 +20,7 @@ import { poseBones } from "./poseBones";
 import { prepareHumanJointRom } from "./prepareHumanJointRom";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
-/**
+/*
  * The room a forearm needs beside its own trunk and beside the other arm.
  *
  * The other arm's room is the far side of the chest's median plane: an elbow
@@ -43,13 +43,12 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
  * the carry's two ends hold (`cleared`).
  */
 export namespace HumanArmClearance {
-  /**
+  /*
    * The colliders a forearm may not enter, placed by a pose's bones.
-   *
-   * @param body The body.
-   * @param bones Its posed bones, world frame; only the trunk's are read.
-   * @returns The placed segments of the hips, the spine, the chest, the neck
-   *   and the head.
+   * Parameter body: The body.
+   * Parameter bones: Its posed bones, world frame; only the trunk's are read.
+   * Returns: The placed segments of the hips, the spine, the chest, the neck
+   * and the head.
    */
   export function trunk(
     body: IAutoMovieMotionHumanBody,
@@ -61,20 +60,19 @@ export namespace HumanArmClearance {
     );
   }
 
-  /**
+  /*
    * The colliders a forearm may not enter in a pose whose legs are placed: the
    * trunk's, both whole legs' and those of any arm already placed, the segments
    * the tangle audit reads the arm against.
-   *
-   * @param body The body.
-   * @param bones Its posed bones, world frame, the legs where the pose puts
-   *   them.
-   * @param arms The arms already placed whose upper arm, forearm and hand
-   *   count; none when absent.
-   * @param placed An existing placement of this exact body and bone reading in
-   *   the same unchanged synchronous evaluation; computed here when absent.
-   * @returns The placed segments of `trunk`, of the two legs and of the named
-   *   arms.
+   * Parameter body: The body.
+   * Parameter bones: Its posed bones, world frame, the legs where the pose puts
+   * them.
+   * Parameter arms: The arms already placed whose upper arm, forearm and hand
+   * count; none when absent.
+   * Parameter placed: An existing placement of this exact body and bone reading in
+   * the same unchanged synchronous evaluation; computed here when absent.
+   * Returns: The placed segments of `trunk`, of the two legs and of the named
+   * arms.
    */
   export function obstacles(
     body: IAutoMovieMotionHumanBody,
@@ -90,28 +88,27 @@ export namespace HumanArmClearance {
     );
   }
 
-  /**
+  /*
    * How far a forearm lies inside the room it needs, as degrees of upper arm
    * turn (`HumanArmOvershoot.of`, which states the rule).
-   *
-   * @param body The body, for the forearm's radius and the upper arm's length.
-   * @param shapes The trunk's placed colliders (`trunk`).
-   * @param elbow The elbow, world metres.
-   * @param wrist The wrist, world metres.
-   * @param side The arm.
-   * @param others Placed colliders the wrist has no goal on (another body's);
-   *   none when absent.
-   * @param goal Whether the wrist is where a goal put it, which excuses its own
-   *   depth in `shapes`; a carried arm between its ends has none.
-   * @param rival The world point the other arm's goal will put its wrist at,
-   *   while that arm is still to be fitted; absent, the room is kept unless the
-   *   other arm's colliders are among `shapes`.
-   * @param hint The world point the goal hints the elbow toward; none when
-   *   absent.
-   * @param rests Placed colliders of another body the goal lays the hand on;
-   *   none when absent.
-   * @returns Degrees; 0 when the forearm clears every shape and the elbow keeps
-   *   its side.
+   * Parameter body: The body, for the forearm's radius and the upper arm's length.
+   * Parameter shapes: The trunk's placed colliders (`trunk`).
+   * Parameter elbow: The elbow, world metres.
+   * Parameter wrist: The wrist, world metres.
+   * Parameter side: The arm.
+   * Parameter others: Placed colliders the wrist has no goal on (another body's);
+   * none when absent.
+   * Parameter goal: Whether the wrist is where a goal put it, which excuses its own
+   * depth in `shapes`; a carried arm between its ends has none.
+   * Parameter rival: The world point the other arm's goal will put its wrist at,
+   * while that arm is still to be fitted; absent, the room is kept unless the
+   * other arm's colliders are among `shapes`.
+   * Parameter hint: The world point the goal hints the elbow toward; none when
+   * absent.
+   * Parameter rests: Placed colliders of another body the goal lays the hand on;
+   * none when absent.
+   * Returns: Degrees; 0 when the forearm clears every shape and the elbow keeps
+   * its side.
    */
   export function overshoot(
     body: IAutoMovieMotionHumanBody,
@@ -139,13 +136,12 @@ export namespace HumanArmClearance {
     );
   }
 
-  /**
+  /*
    * A pose with one arm's three joints replaced.
-   *
-   * @param pose The pose.
-   * @param side The arm.
-   * @param arm The arm's joint angles.
-   * @returns The pose, every other joint as it was.
+   * Parameter pose: The pose.
+   * Parameter side: The arm.
+   * Parameter arm: The arm's joint angles.
+   * Returns: The pose, every other joint as it was.
    */
   export function posed(
     pose: IAutoMoviePose,
@@ -178,19 +174,20 @@ export namespace HumanArmClearance {
     };
   }
 
-  /** The bones of the five digits, by their names. */
+  /*
+   * The bones of the five digits, by their names.
+   */
   export const DIGITS: RegExp = /(Thumb|Index|Middle|Ring|Little)/;
 
-  /**
+  /*
    * A pose with one hand's fingers written at given angles, so an arm's room
    * reads the fingers it is shown with: the ones the hand holds at that
    * instant, or those it held where the arm was read.
-   *
-   * @param pose The pose.
-   * @param side The hand.
-   * @param fingers Clinical triples by bone; the other hand's and every other
-   *   bone's are ignored.
-   * @returns The pose, every other joint as it was.
+   * Parameter pose: The pose.
+   * Parameter side: The hand.
+   * Parameter fingers: Clinical triples by bone; the other hand's and every other
+   * bone's are ignored.
+   * Returns: The pose, every other joint as it was.
    */
   export function fingered(
     pose: IAutoMoviePose,
@@ -220,25 +217,24 @@ export namespace HumanArmClearance {
     };
   }
 
-  /**
+  /*
    * A forearm's overshoot (`overshoot`) with the arm at given joint angles in a
    * pose.
-   *
-   * @param body The body.
-   * @param pose The pose; the trunk, the legs and the other arm are read where
-   *   it puts them.
-   * @param side The arm.
-   * @param arm The arm's joint angles, which replace the pose's.
-   * @param others Another body's placed colliders in the arm's way; none when
-   *   absent.
-   * @param baseline What each of the two readings may keep, degrees
-   *   (`IBaseline`); none when absent.
-   * @param prepared An actual FK reader borrowed only through this synchronous
-   *   unchanged-rig search; every pose still receives full admission and fresh
-   *   resolved bones.
-   * @returns Degrees; 0 when the forearm clears the trunk, the thighs, the
-   *   other arm and the others, and no segment of the arm lies deeper in the
-   *   body than at rest or in the quiet stance, each beyond its baseline.
+   * Parameter body: The body.
+   * Parameter pose: The pose; the trunk, the legs and the other arm are read where
+   * it puts them.
+   * Parameter side: The arm.
+   * Parameter arm: The arm's joint angles, which replace the pose's.
+   * Parameter others: Another body's placed colliders in the arm's way; none when
+   * absent.
+   * Parameter baseline: What each of the two readings may keep, degrees
+   * (`IBaseline`); none when absent.
+   * Parameter prepared: An actual FK reader borrowed only through this synchronous
+   * unchanged-rig search; every pose still receives full admission and fresh
+   * resolved bones.
+   * Returns: Degrees; 0 when the forearm clears the trunk, the thighs, the
+   * other arm and the others, and no segment of the arm lies deeper in the
+   * body than at rest or in the quiet stance, each beyond its baseline.
    */
   export function room(
     body: IAutoMovieMotionHumanBody,
@@ -261,7 +257,9 @@ export namespace HumanArmClearance {
     return Math.max(0, terms.forearm, terms.segments);
   }
 
-  /** Read both independent zero-allowance baselines on the same actual arm. */
+  /*
+   * Read both independent zero-allowance baselines on the same actual arm.
+   */
   export function baseline(
     body: IAutoMovieMotionHumanBody,
     pose: IAutoMoviePose,
@@ -285,7 +283,7 @@ export namespace HumanArmClearance {
     };
   }
 
-  /**
+  /*
    * An arm turned at the shoulder and the elbow until its room (`room`) is
    * within an allowance: the least turn, along the first direction of a fixed
    * order that clears it (`HumanArmClearing`), not the nearest clear arm in
@@ -302,18 +300,17 @@ export namespace HumanArmClearance {
    * inside both joints' ranges. The room is not smooth (a forearm leaves one
    * shape as it meets another), so no slope is followed. When no direction
    * clears the arm, the turn with the least room is taken.
-   *
-   * @param body The body.
-   * @param pose The pose the arm is read in.
-   * @param side The arm.
-   * @param arm The arm's joint angles.
-   * @param allowed The room the arm may lack, degrees.
-   * @param others Another body's placed colliders in the arm's way; none when
-   *   absent.
-   * @param baseline What each of `room`'s readings may keep; none when absent.
-   * @param source Optional exact FK reader or lazy supplier borrowed only by
-   *   actual room observations in this synchronous search.
-   * @returns The arm's joint angles, the hand's unchanged.
+   * Parameter body: The body.
+   * Parameter pose: The pose the arm is read in.
+   * Parameter side: The arm.
+   * Parameter arm: The arm's joint angles.
+   * Parameter allowed: The room the arm may lack, degrees.
+   * Parameter others: Another body's placed colliders in the arm's way; none when
+   * absent.
+   * Parameter baseline: What each of `room`'s readings may keep; none when absent.
+   * Parameter source: Optional exact FK reader or lazy supplier borrowed only by
+   * actual room observations in this synchronous search.
+   * Returns: The arm's joint angles, the hand's unchanged.
    */
   export function cleared(
     body: IAutoMovieMotionHumanBody,
@@ -359,7 +356,7 @@ export namespace HumanArmClearance {
   }
 }
 
-/**
+/*
  * Keep overshoot, its allowance read, tangle and its allowance read in original
  * order.
  */
@@ -401,7 +398,9 @@ function roomTerms(
   };
 }
 
-/** No baseline: every reading of an arm's room counts from zero. */
+/*
+ * No baseline: every reading of an arm's room counts from zero.
+ */
 const NONE: IAutoMovieMotionHumanArmClearance.IBaseline = {
   forearm: 0,
   segments: 0,

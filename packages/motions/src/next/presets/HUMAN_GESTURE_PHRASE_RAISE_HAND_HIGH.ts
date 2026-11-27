@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `raiseHandHigh` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. A raised hand: the open hand visits a place above
  * the shoulder, palm forward, and holds it.

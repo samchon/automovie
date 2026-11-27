@@ -3,7 +3,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Signed distance in metres from a section plane to a world point, `n̂·(p −
  * p0)`.
  *

@@ -3,7 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../../math/Vector3";
 import { physicalHullLoop } from "./physicalHullLoop";
 
-/**
+/*
  * The faces of a convex hull from triangles that name its planes, in the order
  * of each face's first triple of points: the order a scan of every triple in
  * ascending index order meets them in.
@@ -18,16 +18,15 @@ import { physicalHullLoop } from "./physicalHullLoop";
  * every plane. The result is then returned only when every candidate supports
  * these points and the faces close a surface, each boundary edge of each face
  * lying on a second face; otherwise null, and the caller searches.
- *
- * @param points Shape-local points, metres.
- * @param extent The greatest distance between two points, metres.
- * @param tolerance The distance within which a point counts as on a plane,
- *   metres, finite.
- * @param triangles Candidate triangles as consecutive index triples.
- * @param carried Whether the candidates come from another point set and must be
- *   verified.
- * @returns The faces with their triples, or null when carried candidates fail
- *   their check.
+ * Parameter points: Shape-local points, metres.
+ * Parameter extent: The greatest distance between two points, metres.
+ * Parameter tolerance: The distance within which a point counts as on a plane,
+ * metres, finite.
+ * Parameter triangles: Candidate triangles as consecutive index triples.
+ * Parameter carried: Whether the candidates come from another point set and must be
+ * verified.
+ * Returns: The faces with their triples, or null when carried candidates fail
+ * their check.
  */
 export function physicalHullPlanes(
   points: readonly IAutoMovieVector3[],
@@ -130,49 +129,77 @@ export function physicalHullPlanes(
   return accepted.length === 0 ? null : result;
 }
 
-/** The records {@link physicalHullPlanes} returns. */
+/*
+ * The records physicalHullPlanes returns.
+ */
 export namespace physicalHullPlanes {
-  /** The faces of one hull. */
+  /*
+   * The faces of one hull.
+   */
   export interface IResult {
-    /** Each face's first triple of point indices, consecutively, in face order. */
+    /*
+     * Each face's first triple of point indices, consecutively, in face order.
+     */
     triples: number[];
 
-    /** The faces, in the order of their triples. */
+    /*
+     * The faces, in the order of their triples.
+     */
     faces: IFace[];
   }
 
-  /** One face by its plane and its boundary's indices. */
+  /*
+   * One face by its plane and its boundary's indices.
+   */
   export interface IFace {
-    /** Outward unit normal, shape-local. */
+    /*
+     * Outward unit normal, shape-local.
+     */
     normal: IAutoMovieVector3;
 
-    /** The plane's distance from the origin along the normal, metres. */
+    /*
+     * The plane's distance from the origin along the normal, metres.
+     */
     offset: number;
 
-    /** Boundary point indices, counter clockwise seen from outside. */
+    /*
+     * Boundary point indices, counter clockwise seen from outside.
+     */
     loop: number[];
   }
 }
 
-/** One supporting plane with the triple it was read from. */
+/*
+ * One supporting plane with the triple it was read from.
+ */
 interface IPlane {
-  /** The triple's indices, ascending. */
+  /*
+   * The triple's indices, ascending.
+   */
   triple: [number, number, number];
 
-  /** Outward unit normal. */
+  /*
+   * Outward unit normal.
+   */
   normal: IAutoMovieVector3;
 
-  /** The plane's distance from the origin along the normal. */
+  /*
+   * The plane's distance from the origin along the normal.
+   */
   offset: number;
 
-  /** Whether each point lies on the plane within the tolerance. */
+  /*
+   * Whether each point lies on the plane within the tolerance.
+   */
   member: boolean[];
 
-  /** Whether the membership can hold a triple other than its own. */
+  /*
+   * Whether the membership can hold a triple other than its own.
+   */
   covering: boolean;
 }
 
-/**
+/*
  * The plane through three points when it supports the hull: its unit normal
  * turned outward, its offset and the points on it. Null when the triple is
  * collinear or points lie on both sides, or on neither.
@@ -233,7 +260,7 @@ function supporting(
   };
 }
 
-/**
+/*
  * The supporting plane of the first triple, in ascending index order, among the
  * points on a plane: the triple a scan of every triple would have met first on
  * that face. The plane itself when its own triple is that one.

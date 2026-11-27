@@ -17,7 +17,7 @@ import { prepareCutExact } from "../../internal/mesh-observations/prepareCutExac
 import { planeFrame } from "./planeFrame";
 import { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence";
 
-/**
+/*
  * Reobserve requested saved planes without reading or fitting a coefficient.
  * The caller verifies native and saved artifact bytes; this function compares
  * their declared source/selection/frame identities and rechecks complete raw
@@ -225,7 +225,7 @@ export function observeRecoveryOrderedCuts(
     sections,
   };
 }
-/**
+/*
  * Measure a chord between two registered observation points in mm. Math.hypot
  * limits intermediate sum overflow but is not exact arithmetic; extreme finite
  * inputs can still produce Infinity, which this helper does not independently

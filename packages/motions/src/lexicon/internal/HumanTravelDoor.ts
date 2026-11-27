@@ -10,7 +10,7 @@ import { walk } from "../../gait/internal/walk";
 import { humanTravelDoorWay } from "./humanTravelDoorWay";
 import { planReducedOpening } from "./planReducedOpening";
 
-/**
+/*
  * Going through a doorway: travel that squares up before a named opening of one
  * of the performance's obstacles, passes through its middle and comes out
  * beyond it. Register `HumanTravelDoor.passThrough` to use it.
@@ -30,7 +30,9 @@ import { planReducedOpening } from "./planReducedOpening";
  * and refuses with the width or headroom the posed body needs.
  */
 export namespace HumanTravelDoor {
-  /** Travel through a named opening. */
+  /*
+   * Travel through a named opening.
+   */
   export const passThrough: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTravelDoor.IParams> =
     {
       name: "passThrough",

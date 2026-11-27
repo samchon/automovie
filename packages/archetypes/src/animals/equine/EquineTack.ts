@@ -7,7 +7,7 @@ import { EquineSaddle } from "./EquineSaddle";
 import { EquineSideSaddle } from "./EquineSideSaddle";
 import { EquineSurcingle } from "./EquineSurcingle";
 
-/**
+/*
  * Lay an equid's tack on its laid body and give the tack's own read mass, which
  * the equid producer adds on top of the equid's drawn mass.
  *
@@ -19,14 +19,13 @@ import { EquineSurcingle } from "./EquineSurcingle";
  * pad (`EquineSurcingle`), `double` the riding saddle with a pillion pad behind
  * it (`EquineSaddle.pillion`), `trick` the riding saddle with a trick rider's
  * horn, handholds and straps (`EquineSaddle.trick`), and `bare` nothing.
- *
- * @param selection The selected tack, with clearance when it needs a croup
- *   piece.
- * @param builder The equid under construction, its body laid.
- * @param d The equid's dimensions.
- * @param rig The equid's rest rig.
- * @returns The tack's mass, kilograms: a saddle's read weight, the rigged pack
- *   saddle's, or 0 for tack whose weight no maker states.
+ * Parameter selection: The selected tack, with clearance when it needs a croup
+ * piece.
+ * Parameter builder: The equid under construction, its body laid.
+ * Parameter d: The equid's dimensions.
+ * Parameter rig: The equid's rest rig.
+ * Returns: The tack's mass, kilograms: a saddle's read weight, the rigged pack
+ * saddle's, or 0 for tack whose weight no maker states.
  */
 export function EquineTack(
   selection: EquineTack.Selection,
@@ -83,9 +82,11 @@ export function EquineTack(
   return 0;
 }
 
-/** Dimensions consumed when assembling tack on the common equid body. */
+/*
+ * Dimensions consumed when assembling tack on the common equid body.
+ */
 export namespace EquineTack {
-  /**
+  /*
    * Common body and tack dimensions provided before the particular tack is
    * assembled.
    */
@@ -96,7 +97,9 @@ export namespace EquineTack {
     >
   >;
 
-  /** The pack variant owns the croup piece clearance above the tail root. */
+  /*
+   * The pack variant owns the croup piece clearance above the tail root.
+   */
   export type Selection =
     | { kind: "pack"; croupClearance: number }
     | { kind: Exclude<AutoMovieArchetypeEquine.Tack, "pack"> };

@@ -6,14 +6,13 @@ import type {
 
 import { HumanFoot } from "./HumanFoot";
 
-/**
+/*
  * Collect the actual bones used by displayed foot sockets and sole outlines.
- *
- * @param body The canonical body whose actual surface and outline frames are
- *   read.
- * @param sides The feet an observation consumes; both when absent.
- * @returns A fresh read-only bone-name union for genuine FK preparation;
- *   ancestors remain the FK owner's responsibility.
+ * Parameter body: The canonical body whose actual surface and outline frames are
+ * read.
+ * Parameter sides: The feet an observation consumes; both when absent.
+ * Returns: A fresh read-only bone-name union for genuine FK preparation;
+ * ancestors remain the FK owner's responsibility.
  */
 export function humanFootBones(
   body: IAutoMovieMotionHumanBody,

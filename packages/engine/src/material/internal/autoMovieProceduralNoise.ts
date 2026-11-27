@@ -1,6 +1,6 @@
 import { autoMoviePcg3d } from "./autoMoviePcg3d";
 
-/**
+/*
  * Seeded three-dimensional gradient noise of procedural surfaces, in lattice
  * units, within [-1, 1]: Perlin's improved noise (Perlin 2002, "Improving
  * noise", SIGGRAPH) with its corner gradients chosen by the PCG3D hash of the
@@ -16,10 +16,9 @@ import { autoMoviePcg3d } from "./autoMoviePcg3d";
  *
  * The renderer's fragment shader evaluates the same arithmetic in 32-bit
  * floats, so the two agree to float rounding.
- *
- * @param seed Unsigned 32-bit seed.
- * @param salt Unsigned 32-bit purpose tag, distinct per use.
- * @returns Noise at the lattice-unit point `(x, y, z)`.
+ * Parameter seed: Unsigned 32-bit seed.
+ * Parameter salt: Unsigned 32-bit purpose tag, distinct per use.
+ * Returns: Noise at the lattice-unit point `(x, y, z)`.
  */
 export function autoMovieProceduralNoise(
   seed: number,
@@ -67,12 +66,16 @@ export function autoMovieProceduralNoise(
   return Math.max(-1, Math.min(1, value));
 }
 
-/** Perlin's 2002 quintic fade. */
+/*
+ * Perlin's 2002 quintic fade.
+ */
 function fade(t: number): number {
   return t * t * t * (t * (t * 6 - 15) + 10);
 }
 
-/** Linear interpolation from `a` to `b` by `t`. */
+/*
+ * Linear interpolation from `a` to `b` by `t`.
+ */
 function lerp(a: number, b: number, t: number): number {
   return a + t * (b - a);
 }

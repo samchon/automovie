@@ -8,7 +8,7 @@ import {
 import { realizeAutoMovieGeometry } from "../../geometry/internal/realizeAutoMovieGeometry";
 import { Matrix4 } from "../../math/Matrix4";
 
-/**
+/*
  * One world box per drawn part of one placed element, in the model's part
  * order, or the element's world origin as a single degenerate box when it draws
  * no vertex.
@@ -45,7 +45,9 @@ export function builtPlacedPartBoxes(
   return [{ min: { ...origin }, max: { ...origin } }];
 }
 
-/** The world box one drawn part fills, or null when it has no vertex. */
+/*
+ * The world box one drawn part fills, or null when it has no vertex.
+ */
 const placedPartBox: (
   part: IAutoMovieModelPart,
   world: number[],

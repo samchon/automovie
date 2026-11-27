@@ -81,7 +81,9 @@ export namespace AutoMovieHumanFootKnots {
     medial: ["medialForefoot", "medialNavicular", "medialColumn"],
   };
 
-  /** The contact regions' knots on the floor, front first: `[a, u]` in foot lengths and breadths. */
+  /*
+   * The contact regions' knots on the floor, front first: `[a, u]` in foot lengths and breadths.
+   */
   const FLOOR: Readonly<
     Record<
       | "contactLateralBall"
@@ -129,13 +131,17 @@ export namespace AutoMovieHumanFootKnots {
     ],
   };
 
-  /** The crest's knots up the ankle's front, lowest first: `[a, u, eta]`, eta in lateral malleolus heights. */
+  /*
+   * The crest's knots up the ankle's front, lowest first: `[a, u, eta]`, eta in lateral malleolus heights.
+   */
   const ANKLE: readonly (readonly [number, number, number])[] = [
     [0.406, 0.39, 1.2],
     [0.377, 0.39, 1.4621],
   ];
 
-  /** The border regions' knots read in the fan's own planes (`AutoMovieHumanFootGuide.fanned`): `[share, a, u, y / L, y / H]`. */
+  /*
+   * The border regions' knots read in the fan's own planes (`AutoMovieHumanFootGuide.fanned`): `[share, a, u, y / L, y / H]`.
+   */
   const FANNED: Readonly<
     Record<
       "lateralHeel" | "medialForefoot" | "medialNavicular",

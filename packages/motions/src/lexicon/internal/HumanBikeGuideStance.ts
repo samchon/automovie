@@ -6,7 +6,7 @@ import type {
 
 import type { IHumanBikeGuidePrint } from "./IHumanBikeGuidePrint";
 
-/**
+/*
  * A planted foot at a second: flat, or rolled about its ball late in a stance
  * that ends.
  */
@@ -36,7 +36,7 @@ export function HumanBikeGuideStance(
   };
 }
 
-/**
+/*
  * Heel rise about the ball by lift-off, degrees: provisional, within the foot's
  * pitch at pre-swing in Perry's Gait Analysis.
  */

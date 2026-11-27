@@ -4,7 +4,7 @@ import { hingedArmSwivel } from "../../kinematics/hingedArmSwivel";
 import { Quaternion } from "../../math/Quaternion";
 import { prepareChainPlant } from "./prepareChainPlant";
 
-/**
+/*
  * The swivel at which a hinged chain's end joint needs the least articulation
  * to take a requested world rotation, in closed form.
  *
@@ -20,14 +20,13 @@ import { prepareChainPlant } from "./prepareChainPlant";
  * projection, so this swivel is a start for a local search, not a certified
  * minimum: the caller accepts the search's result only when the rotation is
  * then met.
- *
- * @param prepared The chain's preparation: the root's world rotation, the mid
- *   joint's rest rotation and the end joint's base rotation.
- * @param posed The branch's poser, bone-local root and mid rotations at a
- *   swivel in degrees.
- * @param wanted The requested world rotation of the end joint.
- * @returns The swivel, degrees in [0, 360); null when the articulation's scalar
- *   part vanishes at both swivels read, so no direction is preferred.
+ * Parameter prepared: The chain's preparation: the root's world rotation, the mid
+ * joint's rest rotation and the end joint's base rotation.
+ * Parameter posed: The branch's poser, bone-local root and mid rotations at a
+ * swivel in degrees.
+ * Parameter wanted: The requested world rotation of the end joint.
+ * Returns: The swivel, degrees in [0, 360); null when the articulation's scalar
+ * part vanishes at both swivels read, so no direction is preferred.
  */
 export function hingedRotationStart(
   prepared: Pick<

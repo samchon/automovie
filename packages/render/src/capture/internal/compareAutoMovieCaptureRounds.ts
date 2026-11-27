@@ -17,7 +17,7 @@ import { diffAutoMovieCaptureFindings } from "./diffAutoMovieCaptureFindings.js"
 import { markAutoMovieCaptureCell } from "./markAutoMovieCaptureCell.js";
 import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
 
-/**
+/*
  * Compare the cells a capture just wrote against an earlier round's, write a
  * difference image for every changed pair, and lay every pair on comparison
  * sheets.
@@ -217,28 +217,44 @@ export async function compareAutoMovieCaptureRounds(
   };
 }
 
-/** The sides shown on one comparison row and any reason they could not pair. */
+/*
+ * The sides shown on one comparison row and any reason they could not pair.
+ */
 interface IRowPair {
-  /** The earlier still, if this entry represents one. */
+  /*
+   * The earlier still, if this entry represents one.
+   */
   earlier: IAutoMovieCaptureCellRecord | null;
 
-  /** This capture's still, if this entry represents one. */
+  /*
+   * This capture's still, if this entry represents one.
+   */
   current: IAutoMovieCaptureCellRecord | null;
 
-  /** Why a row with no counterpart stayed unmatched, if known. */
+  /*
+   * Why a row with no counterpart stayed unmatched, if known.
+   */
   cause?: string;
 }
 
-/** Every row from both captures at one matching key. */
+/*
+ * Every row from both captures at one matching key.
+ */
 interface IRowGroup {
-  /** The earlier capture rows, in plan order. */
+  /*
+   * The earlier capture rows, in plan order.
+   */
   earlier: IAutoMovieCaptureCellRecord[];
 
-  /** The current capture rows, in plan order. */
+  /*
+   * The current capture rows, in plan order.
+   */
   current: IAutoMovieCaptureCellRecord[];
 }
 
-/** Index every occurrence of a row key, keeping the two captures distinct. */
+/*
+ * Index every occurrence of a row key, keeping the two captures distinct.
+ */
 function groupRows(
   rows: Readonly<{
     earlier: readonly IAutoMovieCaptureCellRecord[];
@@ -260,12 +276,16 @@ function groupRows(
   return groups;
 }
 
-/** One capture-clock address, in seconds rounded to comparison precision. */
+/*
+ * One capture-clock address, in seconds rounded to comparison precision.
+ */
 function second(row: IAutoMovieCaptureCellRecord): string {
   return row.time.seconds.toFixed(6);
 }
 
-/** Pair uniquely comparable rows and keep every other row in its plan order. */
+/*
+ * Pair uniquely comparable rows and keep every other row in its plan order.
+ */
 function pairRows(
   round: string,
   match: IAutoMovieCaptureComparisonProps["match"],
@@ -296,7 +316,7 @@ function pairRows(
   > = new Map();
   const causes: Map<IAutoMovieCaptureCellRecord, string> = new Map();
 
-  /**
+  /*
    * A repeated key has no one-to-one match until another known field
    * distinguishes it.
    */
@@ -363,7 +383,9 @@ function pairRows(
   ];
 }
 
-/** Whether two rows pair, and in which mode, before any pixel is read. */
+/*
+ * Whether two rows pair, and in which mode, before any pixel is read.
+ */
 function decide(
   round: string,
   old: IAutoMovieCaptureCellRecord | null,

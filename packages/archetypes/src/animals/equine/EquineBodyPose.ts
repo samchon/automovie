@@ -14,7 +14,7 @@ import { QuadrupedCarriage } from "../quadruped/QuadrupedCarriage";
 import { QuadrupedRestFloor } from "../quadruped/QuadrupedRestFloor";
 import { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped";
 
-/**
+/*
  * A whole-body pose of an equid on its own hooves: its trunk moved as one rigid
  * body, each limb either placed with its hoof at a point or folded off the
  * floor, solved through the rig.
@@ -35,54 +35,74 @@ import { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped";
  * weight transfer, not a load distribution.
  */
 export namespace EquineBodyPose {
-  /**
+  /*
    * A limb whose hoof is placed at a point: on the floor it is a planted
    * support.
    */
   export interface IPlaced {
-    /** Discriminator. */
+    /*
+     * Discriminator.
+     */
     kind: "placed";
 
-    /** The terminal endpoint, base model space, metres. */
+    /*
+     * The terminal endpoint, base model space, metres.
+     */
     anchor: IAutoMovieVector3;
 
-    /** Relative carpus or hock fold, degrees. */
+    /*
+     * Relative carpus or hock fold, degrees.
+     */
     fold: number;
 
-    /**
+    /*
      * The terminal bar's direction in the base model's space, such as a hoof
      * tipped onto its toe; the base direction, a flat hoof, when absent.
      */
     direction?: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * A limb folded off the floor: a chain in the trunk's frame with its joints
    * turned.
    */
   export interface IFolded {
-    /** Discriminator. */
+    /*
+     * Discriminator.
+     */
     kind: "folded";
 
-    /** The five joints it folds from, rest model space. */
+    /*
+     * The five joints it folds from, rest model space.
+     */
     chain: readonly IAutoMovieVector3[];
 
-    /** The turn at each of the four joints, shoulder or hip first, degrees. */
+    /*
+     * The turn at each of the four joints, shoulder or hip first, degrees.
+     */
     turns: readonly [number, number, number, number];
   }
 
-  /** One limb's state. */
+  /*
+   * One limb's state.
+   */
   export type Limb = IPlaced | IFolded;
 
-  /** A whole-body pose. */
+  /*
+   * A whole-body pose.
+   */
   export interface IGoal {
-    /** The trunk's rigid motion. */
+    /*
+     * The trunk's rigid motion.
+     */
     trunk: AutoMovieArchetypeFrame.IMotion;
 
-    /** Each limb's state. */
+    /*
+     * Each limb's state.
+     */
     limbs: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, Limb>>;
 
-    /**
+    /*
      * The tail's turn about the trunk's lateral axis at its dock, degrees,
      * positive raising a tail that hangs back; carried rigidly with the trunk
      * when absent.
@@ -90,9 +110,11 @@ export namespace EquineBodyPose {
     tail?: number;
   }
 
-  /** One equid's rest data and its solver. */
+  /*
+   * One equid's rest data and its solver.
+   */
   export interface IPrepared<Id extends string, D extends string> {
-    /**
+    /*
      * Each limb's five rest joints, shoulder or hip to terminal endpoint, rest
      * model space.
      */
@@ -100,20 +122,26 @@ export namespace EquineBodyPose {
       Record<AutoMovieArchetypeQuadrupedBody.Limb, readonly IAutoMovieVector3[]>
     >;
 
-    /** The rest model's centre of mass. */
+    /*
+     * The rest model's centre of mass.
+     */
     centre: IAutoMovieVector3;
 
-    /** The trunk bar's rest frame. */
+    /*
+     * The trunk bar's rest frame.
+     */
     trunk: IAutoMovieTransform;
 
-    /** Each limb's five posed joints in the trunk's frame (rest model space). */
+    /*
+     * Each limb's five posed joints in the trunk's frame (rest model space).
+     */
     chain(
       limb: AutoMovieArchetypeQuadrupedBody.Limb,
       trunk: AutoMovieArchetypeFrame.IMotion,
       state: Limb,
     ): readonly IAutoMovieVector3[];
 
-    /**
+    /*
      * How far a limb's terminal part reaches below its endpoint when its bar
      * points along a direction.
      */
@@ -122,19 +150,20 @@ export namespace EquineBodyPose {
       direction: IAutoMovieVector3,
     ): number;
 
-    /** The posed equid in the base model's space. */
+    /*
+     * The posed equid in the base model's space.
+     */
     solve(
       goal: IGoal,
       placement: IAutoMovieTransform,
     ): AutoMovieArchetype<Id, D>;
   }
 
-  /**
+  /*
    * Prepare an equid's rest data.
-   *
-   * @param animal The equid at rest, as its producer built it.
-   * @returns The prepared solver.
-   * @throws {RangeError} For a model missing a rig bar.
+   * Parameter animal: The equid at rest, as its producer built it.
+   * Returns: The prepared solver.
+   * For a model missing a rig bar.
    */
   export function prepare<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,
@@ -352,18 +381,17 @@ export namespace EquineBodyPose {
     };
   }
 
-  /**
+  /*
    * A rigid motion: a pitch and a roll about a pivot, then a shift.
-   *
-   * @param pitch Degrees about the heading's +X through the pivot: positive
-   *   raises a forward point.
-   * @param roll Degrees about the heading's +Z through the pivot: positive
-   *   raises the left (+X) side.
-   * @param pivot The point both turns are about, metres.
-   * @param shift The translation after the turns, metres.
-   * @param heading The frame whose X and Z the turns are about, such as a
-   *   stance's yaw after a spin; the base model's own axes when absent.
-   * @returns The motion.
+   * Parameter pitch: Degrees about the heading's +X through the pivot: positive
+   * raises a forward point.
+   * Parameter roll: Degrees about the heading's +Z through the pivot: positive
+   * raises the left (+X) side.
+   * Parameter pivot: The point both turns are about, metres.
+   * Parameter shift: The translation after the turns, metres.
+   * Parameter heading: The frame whose X and Z the turns are about, such as a
+   * stance's yaw after a spin; the base model's own axes when absent.
+   * Returns: The motion.
    */
   export function turn(
     pitch: number,
@@ -393,12 +421,11 @@ export namespace EquineBodyPose {
     };
   }
 
-  /**
+  /*
    * A rigid motion applied to a point.
-   *
-   * @param motion The motion.
-   * @param point The point.
-   * @returns The moved point.
+   * Parameter motion: The motion.
+   * Parameter point: The point.
+   * Returns: The moved point.
    */
   export function point(
     motion: AutoMovieArchetypeFrame.IMotion,
@@ -410,7 +437,7 @@ export namespace EquineBodyPose {
     );
   }
 
-  /**
+  /*
    * Turn each joint of a chain about the lateral axis, carrying everything
    * below it.
    */

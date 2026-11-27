@@ -3,7 +3,7 @@ import {
   IAutoMovieBuiltEnvironment,
 } from "@automovie/interface";
 
-/**
+/*
  * The connector one id names, or a thrown `Error` naming both the environment
  * and the missing id.
  *

@@ -6,7 +6,7 @@ import type {
 
 import { positive } from "../../geometry/internal/positive";
 
-/**
+/*
  * Report what a build-up finishes an opening at.
  *
  * An opening is cut at a structural size and used at a finished one. Every

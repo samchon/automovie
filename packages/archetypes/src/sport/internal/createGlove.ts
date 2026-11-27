@@ -3,7 +3,7 @@ import { Vector3 } from "@automovie/engine";
 
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
-/**
+/*
  * A baseball glove: a fielder's glove or a catcher's mitt.
  *
  * It lies on its back on the floor, the pocket up, the fingers toward `+Z` and
@@ -11,12 +11,11 @@ import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovie
  * wrist opening the hand slides into, its `+Y` out of the opening; `pocket` the
  * catching face a ball comes to, facing up. A glove is worn on the hand
  * (`IHumanProp.worn`), so a catch reads the pocket where the hand carries it.
- *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The glove.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * Parameter params: The kind and any dimension the author fixes.
+ * Parameter seed: The seed that draws every dimension left free inside its band;
+ * absent, each takes the middle of its band.
+ * Returns: The glove.
+ * For a fixed dimension outside its band.
  */
 export function createGlove(
   params: AutoMovieArchetypeGlove.IParams,

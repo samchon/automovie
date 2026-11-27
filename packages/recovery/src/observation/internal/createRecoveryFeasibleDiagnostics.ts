@@ -5,7 +5,7 @@ import type {
 
 import { encodeRecoveryDiagnosticNumber } from "./encodeRecoveryDiagnosticNumber";
 
-/**
+/*
  * Project the completed generic fit's fixed diagnostics into JSON-safe values.
  * Shared camera counts/costs and existing adaptive/curvature reports stay with
  * their original owner. No geometry or raw numeric input is mutated.

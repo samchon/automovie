@@ -11,7 +11,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { AutoMovieMotionHumanArmCarryCourse } from "./AutoMovieMotionHumanArmCarryCourse";
 
-/**
+/*
  * Deprecated: a carry's path is the planner's, so a law moves its arm with
  * `carried` over its clock's span (`ICarry.span`), its goal's point and
  * contact the site, and this share-only carry and its clearing course
@@ -33,26 +33,25 @@ import { AutoMovieMotionHumanArmCarryCourse } from "./AutoMovieMotionHumanArmCar
  * trunk, the thighs, the other arm and the bodies its goal names
  * (`HumanPosture.IGoal.clear`) by the shoulder's abduction and the elbow's
  * flexion (`HumanArmClearance.cleared`), each end keeping its room.
- *
- * @param body The body.
- * @param posture The posture, with the goals of the arms to carry.
- * @param from The held angles of each arm to carry; an arm absent is left as
- *   it is.
- * @param share How far each arm is from its held angles to its goal, clamped
- *   to [0, 1].
- * @param planned The posture with the goals the clearing course is planned
- *   against, the arrival's; the posture's own when absent. A course planned
- *   against a fixed arrival is a constant of the carry, so the arm moves
- *   continuously with the share; one planned against the goal of each second
- *   is solved again as the goal moves, and its least clear turn steps where
- *   it crosses a ridge of the room. The trade is that the keys are exactly
- *   clear for the arrival's goal and clear for the goal of a second only as
- *   far as that goal has moved from it.
- * @param source Optional same-body exact FK source borrowed only through this
- *   synchronous carry.
- * @param projection Optional genuine same-body direct ROM projector; both
- *   actual native pose solves still project every joint.
- * @returns The posture.
+ * Parameter body: The body.
+ * Parameter posture: The posture, with the goals of the arms to carry.
+ * Parameter from: The held angles of each arm to carry; an arm absent is left as
+ * it is.
+ * Parameter share: How far each arm is from its held angles to its goal, clamped
+ * to [0, 1].
+ * Parameter planned: The posture with the goals the clearing course is planned
+ * against, the arrival's; the posture's own when absent. A course planned
+ * against a fixed arrival is a constant of the carry, so the arm moves
+ * continuously with the share; one planned against the goal of each second
+ * is solved again as the goal moves, and its least clear turn steps where
+ * it crosses a ridge of the room. The trade is that the keys are exactly
+ * clear for the arrival's goal and clear for the goal of a second only as
+ * far as that goal has moved from it.
+ * Parameter source: Optional same-body exact FK source borrowed only through this
+ * synchronous carry.
+ * Parameter projection: Optional genuine same-body direct ROM projector; both
+ * actual native pose solves still project every joint.
+ * Returns: The posture.
  */
 export function AutoMovieMotionHumanArmJointCarry(
   body: IAutoMovieMotionHumanBody,

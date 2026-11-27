@@ -18,7 +18,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { touch } from "../../touch/internal/touch";
 import { PairWalk } from "./PairWalk";
 
-/**
+/*
  * A hostage hold from behind (`IAutoMovieMotionHumanHostageHold`). The free arm
  * lies across the hostage's chest or throat and the weapon hand brings the held
  * weapon's point to the authored region, both by one touch held for the hold
@@ -29,20 +29,23 @@ import { PairWalk } from "./PairWalk";
  * the same way.
  */
 export namespace hostageHold {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "hostageHold";
 
-  /** Cancel table: the touch's own. */
+  /*
+   * Cancel table: the touch's own.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     touch.interrupts;
 
-  /**
+  /*
    * Plan a hostage hold.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} On `point` when a weapon comes without its point, on
-   *   `back` or `seconds` out of range, and whatever the touch refuses.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * On `point` when a weapon comes without its point, on
+   * `back` or `seconds` out of range, and whatever the touch refuses.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHostageHold.IParams>,

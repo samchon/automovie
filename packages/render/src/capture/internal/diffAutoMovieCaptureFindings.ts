@@ -7,7 +7,7 @@ import type {
 import { compareAutoMovieInspectionFindings } from "../../scene/inspection/internal/compareAutoMovieInspectionFindings.js";
 import { sameAutoMovieInspectionShotClock } from "../../scene/inspection/internal/sameAutoMovieInspectionShotClock.js";
 
-/**
+/*
  * Compare this round's inspection findings with an earlier round's and decide
  * the round outcome from its errors.
  *
@@ -29,11 +29,10 @@ import { sameAutoMovieInspectionShotClock } from "../../scene/inspection/interna
  * The outcome reads errors only: `worse` when an error is new or carried worse,
  * `better` when none is new, carried worse or unmatched and one is fixed or
  * carried better, and `same` otherwise.
- *
- * @param props The earlier round's audit and this round's, either absent when
- *   that record has no diagnostics.
- * @returns The compared entries and outcome, or `omitted` naming the records
- *   without diagnostics.
+ * Parameter props: The earlier round's audit and this round's, either absent when
+ * that record has no diagnostics.
+ * Returns: The compared entries and outcome, or `omitted` naming the records
+ * without diagnostics.
  */
 export function diffAutoMovieCaptureFindings(
   props: IAutoMovieCaptureFindingDiffProps,
@@ -110,13 +109,19 @@ export function diffAutoMovieCaptureFindings(
   return { state: "compared", outcome, entries };
 }
 
-/** The reducer's saved clocks and sample count for one finding episode. */
+/*
+ * The reducer's saved clocks and sample count for one finding episode.
+ */
 type IEpisode = IAutoMovieInspectionDiagnostics.IEpisode;
 
-/** The reducer's saved coverage of consecutive frames or one isolated sample. */
+/*
+ * The reducer's saved coverage of consecutive frames or one isolated sample.
+ */
 type ICoverageRange = IAutoMovieInspectionDiagnostics.ICoverageRange;
 
-/** A captured film sample or exact witness clock. */
+/*
+ * A captured film sample or exact witness clock.
+ */
 type ITime = IAutoMovieInspectionDiagnostics.ITime;
 
 type IInterval = IAutoMovieInspectionDiagnostics.IInterval;
@@ -127,22 +132,32 @@ interface IUncovered {
   uncovered: IInterval[];
 }
 
-/** One finding identity within one round. */
+/*
+ * One finding identity within one round.
+ */
 interface ISummary {
-  /** Fields that identify the finding across rounds. */
+  /*
+   * Fields that identify the finding across rounds.
+   */
   identity: Omit<IAutoMovieCaptureFindingDiff.IIdentity, "category">;
 
-  /** Address of the coverage shared by the findings of this obligation. */
+  /*
+   * Address of the coverage shared by the findings of this obligation.
+   */
   obligation: string;
 
-  /** The worst observation across the identity's episodes. */
+  /*
+   * The worst observation across the identity's episodes.
+   */
   worst: IAutoMovieInspectionDiagnostics.IObservation;
 
-  /** Episodes whose actual samples must be covered. */
+  /*
+   * Episodes whose actual samples must be covered.
+   */
   episodes: IEpisode[];
 }
 
-/**
+/*
  * Group one round's episodes by identity, keeping the worst observation and
  * every episode's span.
  */
@@ -186,7 +201,9 @@ function summarize(
   return output;
 }
 
-/** Compare two worst witnesses only across mutually checked episode spans. */
+/*
+ * Compare two worst witnesses only across mutually checked episode spans.
+ */
 function carried(
   old: ISummary,
   now: ISummary,
@@ -227,7 +244,9 @@ function carried(
   };
 }
 
-/** Classify an identity only one round has against the other round's coverage. */
+/*
+ * Classify an identity only one round has against the other round's coverage.
+ */
 function lone(
   summary: ISummary,
   other: readonly ICoverageRange[],
@@ -256,7 +275,9 @@ function lone(
     : { ...identity, state: "new", earlier: null, current: summary.worst };
 }
 
-/** Read one audit's first uncovered span among episodes of the same identity. */
+/*
+ * Read one audit's first uncovered span among episodes of the same identity.
+ */
 function findUncovered(
   ranges: readonly ICoverageRange[],
   ...summaries: ISummary[]
@@ -272,7 +293,7 @@ function findUncovered(
   return result;
 }
 
-/**
+/*
  * The identity with the category that counts: an error when either round's
  * worst is one.
  */
@@ -290,12 +311,14 @@ function identityOf(
   };
 }
 
-/** Name the sign of the order. */
+/*
+ * Name the sign of the order.
+ */
 function changeOf(order: number): "worse" | "better" | "same" {
   return order > 0 ? "worse" : order < 0 ? "better" : "same";
 }
 
-/**
+/*
  * Index relevant coverage once in the audit's first-observation order. Keep the
  * reducer's original endpoints as independently observed sample clocks.
  */
@@ -315,7 +338,9 @@ function indexCoverage(
   return indexed;
 }
 
-/** Address an obligation without delimiter ambiguities in its owner fields. */
+/*
+ * Address an obligation without delimiter ambiguities in its owner fields.
+ */
 function obligationKey(
   scope: string,
   row: Pick<IAutoMovieInspectionDiagnostics.ICoverage, "check" | "key">,
@@ -323,7 +348,7 @@ function obligationKey(
   return JSON.stringify([scope, row.check, row.key]);
 }
 
-/**
+/*
  * Match an episode's concrete sampled frames, preserving the temporal bounds of
  * an exact witness that differs from the enclosing sample.
  */
@@ -453,7 +478,9 @@ function gridInterval(anchor: ITime, first: number, last: number): IInterval {
   };
 }
 
-/** Match exact recorded clocks without inferring a retimed shot timestamp. */
+/*
+ * Match exact recorded clocks without inferring a retimed shot timestamp.
+ */
 function sameRecordedSample(left: ITime, right: ITime): boolean {
   return (
     left.filmSeconds === right.filmSeconds &&
@@ -461,7 +488,9 @@ function sameRecordedSample(left: ITime, right: ITime): boolean {
   );
 }
 
-/** Test the regular capture clock, where sample i occurs at i divided by fps. */
+/*
+ * Test the regular capture clock, where sample i occurs at i divided by fps.
+ */
 function sameOutputGrid(left: ITime, right: ITime): boolean {
   if (left.outputFrame === undefined || right.outputFrame === undefined)
     return false;

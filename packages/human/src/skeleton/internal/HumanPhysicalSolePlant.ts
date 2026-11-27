@@ -7,38 +7,49 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** The widest foot turn searched when planting the hull soles, degrees. */
+/*
+ * The widest foot turn searched when planting the hull soles, degrees.
+ */
 const PLANT_RANGE: number = 45;
 
-/** The planting turn's resolution, degrees. */
+/*
+ * The planting turn's resolution, degrees.
+ */
 const PLANT_RESOLUTION: number = 1e-9;
 
-/** Below this gap between a knee's shank reach and the planted ankle, metres, the leg keeps its thigh. */
+/*
+ * Below this gap between a knee's shank reach and the planted ankle, metres, the leg keeps its thigh.
+ */
 const REACH_ROUNDOFF: number = 1e-9;
 
-/**
+/*
  * Planting a standing Human's collider soles at the physics handoff
  * (`AutoMovieHumanPhysicalStandingPose.fit`): the turn that sets a foot's heel and
  * forefoot hulls on the floor, the drop that lets the legs reach the planted
  * ankles, and the shank swing that seeds the native fit.
- *
- * @evidence contracts/development/design.md#principled-representation Each reader takes the canonical profile's joints, world segment frames in metres and the foot's own hull vertices.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Internal to the Human standing transfer; not exported from the package.
  */
 export namespace HumanPhysicalSolePlant {
-  /** One actual collider vertex in its carrier frame. */
+  /*
+   * One actual collider vertex in its carrier frame.
+   */
   export interface IVertex {
-    /** The segment which moves the vertex. */
+    /*
+     * The segment which moves the vertex.
+     */
     bone: string;
 
-    /** The vertex relative to the carrier, metres. */
+    /*
+     * The vertex relative to the carrier, metres.
+     */
     local: IAutoMovieVector3;
 
-    /** The supporting part of the foot when the profile names it. */
+    /*
+     * The supporting part of the foot when the profile names it.
+     */
     region?: "heel" | "forefoot";
   }
 
-  /**
+  /*
    * The foot turned in the direction of the given axis (the ankle's flexion
    * axis) about its forefoot's bearing point until the lowest heel and
    * forefoot hull points share a height, then set down so they lie on the
@@ -109,7 +120,7 @@ export namespace HumanPhysicalSolePlant {
     };
   }
 
-  /**
+  /*
    * How far a body must be set straight down for its knee to stand a shank's
    * length from the ankle of a planted foot, metres: the smaller root, so the
    * shank stays as near its authored line as the planted ankle allows; NaN
@@ -137,7 +148,7 @@ export namespace HumanPhysicalSolePlant {
     return discriminant < 0 ? Number.NaN : offset.y - Math.sqrt(discriminant);
   }
 
-  /**
+  /*
    * Seed one leg to a planted foot from a lowered body: the thigh kept where
    * the knee still stands a shank's length from the planted ankle, which the
    * body's drop gives the leg that needed it most; a leg the drop brought
@@ -259,7 +270,9 @@ export namespace HumanPhysicalSolePlant {
     return true;
   }
 
-  /** Choose one actual lowest vertex in the given anatomical region. */
+  /*
+   * Choose one actual lowest vertex in the given anatomical region.
+   */
   export function lowest(
     points: readonly IVertex[],
     poses: Poses,
@@ -280,7 +293,9 @@ export namespace HumanPhysicalSolePlant {
     return result;
   }
 
-  /** A joint's place in the world, read on its child segment. */
+  /*
+   * A joint's place in the world, read on its child segment.
+   */
   function anchor(
     profile: IAutoMovieFitHumanPhysicalStandingPose.IInput["profile"],
     poses: Poses,
@@ -295,5 +310,7 @@ export namespace HumanPhysicalSolePlant {
   }
 }
 
-/** Segment frames borrowed for one standing transfer. */
+/*
+ * Segment frames borrowed for one standing transfer.
+ */
 type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;

@@ -3,19 +3,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Serialize one collision observation under the shared confidence, depth and
  * path rules.
- *
- * @param key The coverage key the finding answers.
- * @param paths The ordered part paths.
- * @param mode A placed frame or a motion cell.
- * @param confirmed Whether drawn geometry proves the penetration.
- * @param separation Measured signed gap in metres, or null for bounds alone.
- * @param tolerance Allowed depth in metres.
- * @param point World witness point, when measured.
- * @param time The witness clock and, for a motion cell, its interval.
- * @returns A plain finding; confirmed findings are errors, candidates warnings.
+ * Parameter key: The coverage key the finding answers.
+ * Parameter paths: The ordered part paths.
+ * Parameter mode: A placed frame or a motion cell.
+ * Parameter confirmed: Whether drawn geometry proves the penetration.
+ * Parameter separation: Measured signed gap in metres, or null for bounds alone.
+ * Parameter tolerance: Allowed depth in metres.
+ * Parameter point: World witness point, when measured.
+ * Parameter time: The witness clock and, for a motion cell, its interval.
+ * Returns: A plain finding; confirmed findings are errors, candidates warnings.
  */
 export function createAutoMovieCollisionFinding(
   key: string,

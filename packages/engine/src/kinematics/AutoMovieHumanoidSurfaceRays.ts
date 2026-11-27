@@ -159,7 +159,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
         s.share,
       );
     };
-    /**
+    /*
      * The demand is private; every entry still tests all original colliders and
      * the same miss gate.
      */
@@ -216,41 +216,55 @@ export namespace AutoMovieHumanoidSurfaceRays {
     return { at, bounds, local, station, exit, surface };
   }
 
-  /** Actual ray queries share only one fixed rest-shape frame. */
+  /*
+   * Actual ray queries share only one fixed rest-shape frame.
+   */
   type Exit = (
     origin: IAutoMovieVector3,
     direction: IAutoMovieVector3,
   ) => number;
 
-  /**
+  /*
    * A rest collider shares fixed exit/normal metadata, never a ray or surface
    * answer.
    */
   interface IShapeReading {
-    /** Original admitted collider, borrowed only with its unchanged segment. */
+    /*
+     * Original admitted collider, borrowed only with its unchanged segment.
+     */
     shape: IAutoMoviePhysicalShape;
 
-    /** Actual origin/direction intersection through the collider. */
+    /*
+     * Actual origin/direction intersection through the collider.
+     */
     exit: Exit;
 
-    /** The collider's surface normal reader. */
+    /*
+     * The collider's surface normal reader.
+     */
     normal: ReturnType<
       typeof AutoMovieEnginePhysics.physicalShapeNormalPrepare
     >;
   }
 
-  /** The six actual rest observations consumed by anatomical surface owners. */
+  /*
+   * The six actual rest observations consumed by anatomical surface owners.
+   */
   interface ITools {
-    /** Current reader-owned resolved rest bone; missing bones throw. */
+    /*
+     * Current reader-owned resolved rest bone; missing bones throw.
+     */
     at: (bone: AutoMovieHumanoidBone) => IAutoMovieResolvedBone;
 
-    /** Fresh vectors for the segment's exact neutral world-axis bounds. */
+    /*
+     * Fresh vectors for the segment's exact neutral world-axis bounds.
+     */
     bounds: (bone: AutoMovieHumanoidBone) => {
       min: IAutoMovieVector3;
       max: IAutoMovieVector3;
     };
 
-    /**
+    /*
      * Express the actual world point/directions relative to the current rest
      * joint.
      */
@@ -261,7 +275,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
       forward?: IAutoMovieVector3,
     ) => IAutoMovieHumanoidSurfaces.IFrame;
 
-    /**
+    /*
      * Actual anatomical station from rest joints, exact collider centre or a
      * level of the body's stature on a segment.
      */
@@ -271,14 +285,18 @@ export namespace AutoMovieHumanoidSurfaceRays {
         | AutoMovieHumanoidSurfaceRegions.ILevel,
     ) => IAutoMovieVector3;
 
-    /** Actual farthest collider exit point for the current ray. */
+    /*
+     * Actual farthest collider exit point for the current ray.
+     */
     exit: (
       bone: AutoMovieHumanoidBone,
       origin: IAutoMovieVector3,
       direction: IAutoMovieVector3,
     ) => IAutoMovieVector3;
 
-    /** Actual collider exit point and its physical outward normal. */
+    /*
+     * Actual collider exit point and its physical outward normal.
+     */
     surface: (
       bone: AutoMovieHumanoidBone,
       origin: IAutoMovieVector3,
@@ -286,7 +304,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
     ) => IAutoMovieHumanoidSurfaceRays.ISurfacePoint;
   }
 
-  /**
+  /*
    * Prepare the fixed shape frame; every actual ray retains the original exact
    * intersection.
    */
@@ -398,7 +416,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
     };
   }
 
-  /**
+  /*
    * Preserve the ray-sphere discriminant and boundary branch without a per-ray
    * closure.
    */
@@ -417,7 +435,7 @@ export namespace AutoMovieHumanoidSurfaceRays {
   }
 }
 
-/**
+/*
  * Metres a station may sit outside a collider and still count as on it: the
  * colliders are closed sets, so a station on a face or a cap must not miss by
  * rounding.

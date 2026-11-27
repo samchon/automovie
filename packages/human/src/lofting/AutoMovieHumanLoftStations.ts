@@ -99,5 +99,7 @@ export namespace AutoMovieHumanLoftStations {
   }
 }
 
-/** A section's points at the probe phases, mm. */
+/*
+ * A section's points at the probe phases, mm.
+ */
 type Ring = [number, number, number][];

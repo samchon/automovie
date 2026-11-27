@@ -40,10 +40,14 @@ import { AutoMovieHumanUmbilicus } from "./AutoMovieHumanUmbilicus";
  * body.
  */
 export namespace AutoMovieHumanTrunkFeatures {
-  /** Construction level of an additive piece (`construction-levels.md`, Levels). */
+  /*
+   * Construction level of an additive piece (`construction-levels.md`, Levels).
+   */
   const ADDITIVE: number = 3;
 
-  /** Construction level of a subtractive piece. */
+  /*
+   * Construction level of a subtractive piece.
+   */
   const SUBTRACTIVE: number = 4;
 
   /**

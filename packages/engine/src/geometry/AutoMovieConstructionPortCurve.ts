@@ -79,7 +79,7 @@ export namespace AutoMovieConstructionPortCurve {
     const s: number = loop.sense;
     const turn: number = 2 * Math.PI;
 
-    /**
+    /*
      * The normalized chart point of a chart point, its phase on the branch
      * nearest the centre.
      */
@@ -151,11 +151,13 @@ export namespace AutoMovieConstructionPortCurve {
     return kind === "length" ? lengths(child, loop) : phases(child, loop);
   }
 
-  /** The same caller-owned rail callback, without clamping or a new source. */
+  /*
+   * The same caller-owned rail callback, without clamping or a new source.
+   */
   function railAt(side: ISide, psi: number): number {
     return side.along === undefined ? side.station : side.along(psi);
   }
-  /**
+  /*
    * The child's rail phase at each loop point by arclength, for a split's child
    * and a port's alike: the ring is the child's rail read at its station at
    * each phase (`railAt`, a port's rail curve when it has one), and every
@@ -277,7 +279,7 @@ export namespace AutoMovieConstructionPortCurve {
     return out;
   }
 
-  /**
+  /*
    * The child's rail phase at each loop point: the phase whose rail point
    * stands at the loop point's angle about the rail ring's centroid, in the
    * ring's Newell plane; or why none is admitted.

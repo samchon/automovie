@@ -9,13 +9,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** The arm opening's resolution, degrees. */
+/*
+ * The arm opening's resolution, degrees.
+ */
 const RESOLUTION: number = 1e-9;
 
-/** A probe turn that tells outward from inward, degrees. */
+/*
+ * A probe turn that tells outward from inward, degrees.
+ */
 const PROBE: number = 1;
 
-/**
+/*
  * Opening a standing Human's arms at the physics handoff
  * (`AutoMovieHumanPhysicalStandingPose.fit`) so no arm collider starts inside the body.
  *
@@ -34,13 +38,12 @@ const PROBE: number = 1;
  * and the rest of the body is untouched.
  */
 export namespace HumanPhysicalArmRoom {
-  /**
+  /*
    * Open both arms in place.
-   *
-   * @param profile The canonical Human profile.
-   * @param poses The seeded segment frames, changed in place.
-   * @param clearance The gap the arm keeps from every other collider, metres: the fit's contact tolerance.
-   * @returns False when an arm stays inside the body across its shoulder's abduction range.
+   * Parameter profile: The canonical Human profile.
+   * Parameter poses: The seeded segment frames, changed in place.
+   * Parameter clearance: The gap the arm keeps from every other collider, metres: the fit's contact tolerance.
+   * Returns: False when an arm stays inside the body across its shoulder's abduction range.
    */
   export function open(
     profile: Profile,
@@ -53,7 +56,9 @@ export namespace HumanPhysicalArmRoom {
   }
 }
 
-/** Open one arm; false when no abduction in range clears it. */
+/*
+ * Open one arm; false when no abduction in range clears it.
+ */
 function openArm(
   profile: Profile,
   poses: Record<string, IAutoMovieRigidTransform>,
@@ -174,7 +179,9 @@ function openArm(
   return true;
 }
 
-/** The bones a joint's child carries: itself and every bone below it. */
+/*
+ * The bones a joint's child carries: itself and every bone below it.
+ */
 function carried(profile: Profile, root: string): Set<string> {
   const out: Set<string> = new Set([root]);
   for (let grown: boolean = true; grown; ) {
@@ -188,5 +195,7 @@ function carried(profile: Profile, root: string): Set<string> {
   return out;
 }
 
-/** The profile one standing transfer reads. */
+/*
+ * The profile one standing transfer reads.
+ */
 type Profile = IAutoMovieFitHumanPhysicalStandingPose.IInput["profile"];

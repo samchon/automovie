@@ -15,7 +15,7 @@ import { preparePhysicalContactTargetSeed } from "./preparePhysicalContactTarget
 import { readPhysicalScene } from "./readPhysicalScene";
 import { trackPhysicalCoupledTargets } from "./trackPhysicalCoupledTargets";
 
-/**
+/*
  * Resolve collider relationships once per cached interval from the actual
  * simultaneous scene. Only motor goals change; root/support forces have already
  * used their independently declared goals. A target in an admitted coupled
@@ -34,9 +34,13 @@ export function trackPhysicalContactTargets(
   scene?: Record<string, Record<string, IAutoMovieRigidTransform>>,
   state?: IAutoMoviePhysicalRecoveryState,
   peers?: {
-    /** Receipts that can withdraw another group member's target. */
+    /*
+     * Receipts that can withdraw another group member's target.
+     */
     readonly contacts: readonly IAutoMovieContactReceipt[];
-    /** Every body's balance state, for the other group members. */
+    /*
+     * Every body's balance state, for the other group members.
+     */
     readonly recovery: Readonly<
       Record<string, IAutoMoviePhysicalRecoveryState>
     >;

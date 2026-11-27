@@ -1,4 +1,4 @@
-/**
+/*
  * Scalar continuous extensions shared by trajectory construction and reads.
  *
  * The quartic is the existing DOPRI5 nested extension. An optional fifth
@@ -7,19 +7,29 @@
  * https://www.cs.toronto.edu/~wayne/research/papers/enright.pdf.
  */
 export namespace MotionTrajectoryPolynomial {
-  /** The cited two additional derivative nodes, as exact rational inputs. */
+  /*
+   * The cited two additional derivative nodes, as exact rational inputs.
+   */
   export const NODES: readonly [number, number] = [43 / 50, 93 / 100];
 
-  /** Derivative weights of u²(1-u)² and u³(1-u)² at the first node. */
+  /*
+   * Derivative weights of u²(1-u)² and u³(1-u)² at the first node.
+   */
   const first: readonly [number, number] = weights(NODES[0]);
 
-  /** The same derivative weights at the second node. */
+  /*
+   * The same derivative weights at the second node.
+   */
   const second: readonly [number, number] = weights(NODES[1]);
 
-  /** Nonzero determinant of the two distinct interior derivative constraints. */
+  /*
+   * Nonzero determinant of the two distinct interior derivative constraints.
+   */
   const determinant: number = first[0] * second[1] - first[1] * second[0];
 
-  /** Read an increment at share u, preserving the original quartic association. */
+  /*
+   * Read an increment at share u, preserving the original quartic association.
+   */
   export function value(
     u: number,
     a: number,
@@ -34,7 +44,9 @@ export namespace MotionTrajectoryPolynomial {
       : u * (a + w * (b + u * (c + w * (d + u * e))));
   }
 
-  /** Differentiate that same increment with respect to its dimensionless share. */
+  /*
+   * Differentiate that same increment with respect to its dimensionless share.
+   */
   export function slope(
     u: number,
     a: number,
@@ -53,7 +65,9 @@ export namespace MotionTrajectoryPolynomial {
     return e === undefined ? base : base + (3 * u2 - 8 * u3 + 5 * u3 * u) * e;
   }
 
-  /** Complete a C1 cubic with the cited two interior derivatives. */
+  /*
+   * Complete a C1 cubic with the cited two interior derivatives.
+   */
   export function fit(
     a: number,
     b: number,
@@ -72,7 +86,9 @@ export namespace MotionTrajectoryPolynomial {
     ];
   }
 
-  /** The two endpoint-vanishing basis functions' derivative weights. */
+  /*
+   * The two endpoint-vanishing basis functions' derivative weights.
+   */
   function weights(u: number): readonly [number, number] {
     const u2: number = u * u;
     const u3: number = u2 * u;

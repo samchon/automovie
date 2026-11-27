@@ -1,4 +1,4 @@
-/**
+/*
  * Recognizes a flat review carrying a seven-hex-digit fingerprint.
  *
  * Principled implementation: Anchored grammar requires a review keyword,

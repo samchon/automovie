@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanSupport,
 } from "@automovie/interface";
 
-/**
+/*
  * Compose the supports for a grounded step vault through `HumanChain.support`.
  * The palm plants first. The opposite foot joins it on the obstacle, the other
  * foot passes between them, and the supporting foot follows to settle on the
@@ -13,10 +13,11 @@ import type {
  * planner fits the contacts and supplies the ordinary swing over each step.
  * This draft is for a ground drill or low staging within that swing's available
  * clearance. Obstacle collision is outside this fit.
- *
- * @param route The side and the authored locations of the six foot and hand
- *   contacts.
- * @returns Four stances for the canonical support action.
+ * Parameter route: The side and the authored locations of the six foot and hand
+ * contacts.
+ * Returns: Four stances for the canonical support action.
+ * ://londonparkour.com/tutorials/ground-step-vaults/
+ * ://londonparkour.com/tutorials/step-vault-02/
  * @see https://londonparkour.com/tutorials/ground-step-vaults/
  * @see https://londonparkour.com/tutorials/step-vault-02/
  */
@@ -25,7 +26,9 @@ export function stepVaultSupport(
 ): IAutoMovieMotionHumanSupport.IParams {
   const through: AutoMovieHumanSide = route.hand;
   const step: AutoMovieHumanSide = through === "left" ? "right" : "left";
-  /** Build a bearing foot contact at the authored point. */
+  /*
+   * Build a bearing foot contact at the authored point.
+   */
   const foot = (
     side: AutoMovieHumanSide,
     target: IAutoMovieMotionHumanStepVault.Target,

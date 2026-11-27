@@ -1,7 +1,7 @@
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import { QuadrupedBodyProfile } from "../quadruped/QuadrupedBodyProfile";
 
-/**
+/*
  * A coarse adult domestic cat assembled from separate male reference samples.
  *
  * Poradowski et al. 2024 (https://doi.org/10.3390/vetsci11110522), Tables 1–3,
@@ -14,8 +14,7 @@ import { QuadrupedBodyProfile } from "../quadruped/QuadrupedBodyProfile";
  * allowance from snout-to-S3. Circular head width comes from tape circumference
  * and is a shape proxy. Distal bars, stance, pinna plates, soft-tissue radii
  * and the tail carriage are authored.
- *
- * @returns A fresh independent profile for the common body builder.
+ * Returns: A fresh independent profile for the common body builder.
  */
 export function CatBody(): AutoMovieArchetypeQuadrupedBody.IBody {
   const neck: number = 0.07;
@@ -64,9 +63,11 @@ export function CatBody(): AutoMovieArchetypeQuadrupedBody.IBody {
   };
 }
 
-/** Fixed dimensions for the assembled adult-male prototype. */
+/*
+ * Fixed dimensions for the assembled adult-male prototype.
+ */
 export namespace CatBody {
-  /**
+  /*
    * Withers height in metres from Poradowski et al. Tape girth in metres and
    * mass in kilograms come from Madrigal-Valverde et al.
    */

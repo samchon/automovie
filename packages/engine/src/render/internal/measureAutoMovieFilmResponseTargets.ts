@@ -1,6 +1,6 @@
 import { AUTOMOVIE_FILM_GLARE_KERNELS } from "../AUTOMOVIE_FILM_GLARE_KERNELS";
 
-/**
+/*
  * The GPU targets one film response stage allocates at a `width × height` pixel
  * raster, as render's `allocateAutoMovieFilmTargets` makes them.
  *
@@ -11,19 +11,22 @@ import { AUTOMOVIE_FILM_GLARE_KERNELS } from "../AUTOMOVIE_FILM_GLARE_KERNELS";
  * not glare is asked for. Each target and the depth texture is one texture
  * allocation. The film's beauty stage and every surface feed drawn through the
  * film's optics hold one such stage each.
- *
- * @param width Raster width in pixels, positive.
- * @param height Raster height in pixels, positive.
- * @returns The stage's allocations and their bytes.
+ * Parameter width: Raster width in pixels, positive.
+ * Parameter height: Raster height in pixels, positive.
+ * Returns: The stage's allocations and their bytes.
  */
 export function measureAutoMovieFilmResponseTargets(
   width: number,
   height: number,
 ): {
-  /** Texture allocations the stage holds. */
+  /*
+   * Texture allocations the stage holds.
+   */
   targets: number;
 
-  /** Bytes those allocations hold. */
+  /*
+   * Bytes those allocations hold.
+   */
   bytes: number;
 } {
   const levelSize: (at: number) => number = (at: number): number =>
@@ -46,10 +49,12 @@ export function measureAutoMovieFilmResponseTargets(
   };
 }
 
-/** Bytes of one RGBA half-float texel. */
+/*
+ * Bytes of one RGBA half-float texel.
+ */
 const HALF: number = 8;
 
-/**
+/*
  * Bytes of one depth texel: three.js's default depth texture holds 24 bits in a
  * 32-bit word.
  */

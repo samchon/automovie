@@ -2,7 +2,7 @@ import { AutoMovieArchetypeEquineGait } from "../AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "../AutoMovieArchetypeQuadrupedGait";
 import { OX_BODY_MEASURES } from "./constants/OX_BODY_MEASURES";
 
-/**
+/*
  * An ox walk with one observed species-specific speed and clock.
  *
  * Catavitello, Ivanenko and Lacquaniti (2018), eLife 7:e38190, Table 1 and
@@ -31,28 +31,34 @@ import { OX_BODY_MEASURES } from "./constants/OX_BODY_MEASURES";
  * range remain unsupported by this walking point.
  */
 export namespace OxGait {
-  /** Figure 2 supplement 2D, Bostaurus row: mean stride period, seconds. */
+  /*
+   * Figure 2 supplement 2D, Bostaurus row: mean stride period, seconds.
+   */
   const STRIDE: number = 1.3083333333333333;
 
-  /** Figure 2 supplement 2C, FLstanceduration percentage divided by 100. */
+  /*
+   * Figure 2 supplement 2C, FLstanceduration percentage divided by 100.
+   */
   const FORE_DUTY: number = 0.7410615271441992;
 
-  /** Figure 2 supplement 2C, HLstanceduration percentage divided by 100. */
+  /*
+   * Figure 2 supplement 2C, HLstanceduration percentage divided by 100.
+   */
   const HIND_DUTY: number = 0.6880389797326112;
 
-  /**
+  /*
    * Figure 2 supplement 2B, tFL percentage divided by 100, relative to
    * ipsilateral hind touchdown.
    */
   const FORE_PHASE: number = 22.450064886615763 / 100;
 
-  /**
+  /*
    * Figure 2 supplement 2B, tFLcontr percentage divided by 100, on the same
    * hind-referenced clock.
    */
   const OPPOSITE_FORE_PHASE: number = 0.7169512028591289;
 
-  /**
+  /*
    * The observed walk point; zero timing spread is an authored deterministic
    * choice.
    */

@@ -17,19 +17,18 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Placing a whole-body posture so its displayed hips fall on a wanted world
  * point: the hips' offset from the root is read once by resolving the posture
  * at the origin, and the root is the wanted point less that offset. Falls use
  * it to carry a lying or tumbling body along a computed hips path.
  */
 export namespace stuntFallPose {
-  /**
+  /*
    * The displayed hips' offset from the root.
-   *
-   * @param body The canonical motion body.
-   * @param posture The posture, its root anywhere.
-   * @returns Hips minus root, world metres.
+   * Parameter body: The canonical motion body.
+   * Parameter posture: The posture, its root anywhere.
+   * Returns: Hips minus root, world metres.
    */
   export function offset(
     body: IAutoMovieMotionHumanBody,
@@ -44,14 +43,13 @@ export namespace stuntFallPose {
     )!.worldPosition;
   }
 
-  /**
+  /*
    * How far a posture's lowest bone lies above its root, so the posture can
    * rest that bone on a surface.
-   *
-   * @param body The canonical motion body.
-   * @param posture The posture, its root anywhere.
-   * @returns The lowest point of the body's colliders above the root, metres
-   *   (negative below it): the body's surface, as the floor audit reads it.
+   * Parameter body: The canonical motion body.
+   * Parameter posture: The posture, its root anywhere.
+   * Returns: The lowest point of the body's colliders above the root, metres
+   * (negative below it): the body's surface, as the floor audit reads it.
    */
   export function lowest(
     body: IAutoMovieMotionHumanBody,
@@ -67,15 +65,14 @@ export namespace stuntFallPose {
     );
   }
 
-  /**
+  /*
    * Rest a posture on a surface point: its hips over the point and its lowest
    * bone on the surface.
-   *
-   * @param posture The posture.
-   * @param surface The surface point under the hips, world metres.
-   * @param offset The posture's hips offset from its root (`offset`).
-   * @param low The posture's lowest bone above its root (`lowest`).
-   * @returns The posture moved.
+   * Parameter posture: The posture.
+   * Parameter surface: The surface point under the hips, world metres.
+   * Parameter offset: The posture's hips offset from its root (`offset`).
+   * Parameter low: The posture's lowest bone above its root (`lowest`).
+   * Returns: The posture moved.
    */
   export function onto(
     posture: IAutoMovieMotionHumanPosture,
@@ -93,7 +90,7 @@ export namespace stuntFallPose {
     };
   }
 
-  /**
+  /*
    * Rest a posture, a blend of keys among them, on a surface point: its hips
    * over the point and its own lowest collider surface on it, read from one
    * resolve of the posture itself, so a blend of two resting keys does not dip
@@ -103,12 +100,11 @@ export namespace stuntFallPose {
    * through the point: its collider surface reaching furthest against the
    * normal touches the plane, so a body lying along a flight of stairs rests
    * its back on the nosings and not its heels a leg further down.
-   *
-   * @param body The canonical motion body.
-   * @param posture The posture, its root anywhere.
-   * @param surface The surface point under the hips, world metres.
-   * @param normal The surface's upward unit normal; level, `+Y`, when absent.
-   * @returns The posture moved.
+   * Parameter body: The canonical motion body.
+   * Parameter posture: The posture, its root anywhere.
+   * Parameter surface: The surface point under the hips, world metres.
+   * Parameter normal: The surface's upward unit normal; level, `+Y`, when absent.
+   * Returns: The posture moved.
    */
   export function rest(
     body: IAutoMovieMotionHumanBody,
@@ -119,7 +115,7 @@ export namespace stuntFallPose {
     return prepareRest(body)(posture, surface, normal);
   }
 
-  /**
+  /*
    * Bind the body and collider-bone request for changing floor poses. Read each
    * sample's own articulation and its exact minimum on the given plane.
    */
@@ -160,7 +156,7 @@ export namespace stuntFallPose {
     };
   }
 
-  /**
+  /*
    * A fixed joint-only shape's support projection along varying unit normals in
    * the coordinate frame of the supplied posture. Rigid translation and
    * rotation are handled by the caller when selecting the normal and plane.
@@ -186,13 +182,12 @@ export namespace stuntFallPose {
     };
   }
 
-  /**
+  /*
    * The feet of a placed posture, where it stands: each ankle and foot
    * rotation, world.
-   *
-   * @param body The canonical motion body.
-   * @param posture The posture, placed.
-   * @returns Both feet.
+   * Parameter body: The canonical motion body.
+   * Parameter posture: The posture, placed.
+   * Returns: Both feet.
    */
   export function feet(
     body: IAutoMovieMotionHumanBody,
@@ -212,17 +207,16 @@ export namespace stuntFallPose {
     return { left: foot("left"), right: foot("right") };
   }
 
-  /**
+  /*
    * Stand a posture on planted feet: its root moved so its own feet, on
    * average, come over the planted ones and its lowest collider surface rests
    * on the ground, and each leg held to its planted ankle and foot rotation, so
    * a body rising or sinking on its feet does not slide them.
-   *
-   * @param body The canonical motion body.
-   * @param posture The posture, its root anywhere, its legs free.
-   * @param planted Where the feet stand.
-   * @param ground The ground's height, world metres.
-   * @returns The posture moved, its legs planted.
+   * Parameter body: The canonical motion body.
+   * Parameter posture: The posture, its root anywhere, its legs free.
+   * Parameter planted: Where the feet stand.
+   * Parameter ground: The ground's height, world metres.
+   * Returns: The posture moved, its legs planted.
    */
   export function plant(
     body: IAutoMovieMotionHumanBody,
@@ -233,7 +227,9 @@ export namespace stuntFallPose {
     return preparePlant(body, planted, ground)(posture);
   }
 
-  /** Bind a landing's planted feet and the bone demand for the moving knees. */
+  /*
+   * Bind a landing's planted feet and the bone demand for the moving knees.
+   */
   export function preparePlant(
     body: IAutoMovieMotionHumanBody,
     planted: IFeet,
@@ -297,13 +293,12 @@ export namespace stuntFallPose {
     };
   }
 
-  /**
+  /*
    * Place a posture with its hips at a point.
-   *
-   * @param posture The posture.
-   * @param hips The wanted hips, world metres.
-   * @param offset The posture's hips offset from its root.
-   * @returns The posture moved.
+   * Parameter posture: The posture.
+   * Parameter hips: The wanted hips, world metres.
+   * Parameter offset: The posture's hips offset from its root.
+   * Returns: The posture moved.
    */
   export function at(
     posture: IAutoMovieMotionHumanPosture,
@@ -313,17 +308,16 @@ export namespace stuntFallPose {
     return { ...posture, root: Vector3.subtract(hips, offset) };
   }
 
-  /**
+  /*
    * Blend one posture toward another: joints, root, yaw by the shortest arc,
    * pitch and roll; the limbs are the target's, an explicit rotation is left to
    * the blended attitude and the fingers switch halfway.
-   *
-   * @param from The posture at weight 0.
-   * @param to The posture at weight 1.
-   * @param w The weight.
-   * @param joints The same interpolation from a prepared joint blend, if the
-   *   caller's input joint maps are fixed.
-   * @returns The blend.
+   * Parameter from: The posture at weight 0.
+   * Parameter to: The posture at weight 1.
+   * Parameter w: The weight.
+   * Parameter joints: The same interpolation from a prepared joint blend, if the
+   * caller's input joint maps are fixed.
+   * Returns: The blend.
    */
   export function blend(
     from: IAutoMovieMotionHumanPosture,
@@ -352,29 +346,45 @@ export namespace stuntFallPose {
     };
   }
 
-  /** A side of the body. */
+  /*
+   * A side of the body.
+   */
   export type Side = AutoMovieHumanSide;
 
-  /** Where a foot stands. */
+  /*
+   * Where a foot stands.
+   */
   export interface IFoot {
-    /** The ankle, world metres. */
+    /*
+     * The ankle, world metres.
+     */
     ankle: IAutoMovieVector3;
 
-    /** The foot's world rotation from its rest. */
+    /*
+     * The foot's world rotation from its rest.
+     */
     rotation: IAutoMovieQuaternion;
   }
 
-  /** Where both feet stand. */
+  /*
+   * Where both feet stand.
+   */
   export interface IFeet {
-    /** The left foot. */
+    /*
+     * The left foot.
+     */
     left: IFoot;
 
-    /** The right foot. */
+    /*
+     * The right foot.
+     */
     right: IFoot;
   }
 }
 
-/** Reuse the bone demand when measuring different postures at root zero. */
+/*
+ * Reuse the bone demand when measuring different postures at root zero.
+ */
 function prepareAtOrigin(
   body: IAutoMovieMotionHumanBody,
   requested: ReadonlySet<AutoMovieHumanoidBone>,
@@ -400,7 +410,7 @@ function prepareAtOrigin(
   };
 }
 
-/**
+/*
  * The least projection of a resolved body's collider surfaces on a unit normal,
  * metres: how far the body reaches against it.
  */
@@ -415,19 +425,29 @@ function supportAlong(
   return least;
 }
 
-/** A collider's physical shape in its resolved body's frame. */
+/*
+ * A collider's physical shape in its resolved body's frame.
+ */
 interface IShapeFrame {
-  /** The source shape in its own coordinate system. */
+  /*
+   * The source shape in its own coordinate system.
+   */
   shape: IAutoMoviePhysicalShape;
 
-  /** The collider's resolved centre, metres. */
+  /*
+   * The collider's resolved centre, metres.
+   */
   centre: IAutoMovieVector3;
 
-  /** Rotation from the resolved body's frame to the shape's local axes. */
+  /*
+   * Rotation from the resolved body's frame to the shape's local axes.
+   */
   inverse: IAutoMovieQuaternion;
 }
 
-/** Compose the bone transform with the shape's local transform. */
+/*
+ * Compose the bone transform with the shape's local transform.
+ */
 function shapeFrame(
   pose: IAutoMovieRigidTransform,
   shape: IAutoMoviePhysicalShape,
@@ -444,7 +464,9 @@ function shapeFrame(
   };
 }
 
-/** The projection of the shape's furthest point against the given normal. */
+/*
+ * The projection of the shape's furthest point against the given normal.
+ */
 function projectShape(
   { shape, centre, inverse }: IShapeFrame,
   normal: IAutoMovieVector3,
@@ -467,7 +489,7 @@ function projectShape(
   return least;
 }
 
-/**
+/*
  * The lowest point of a resolved body's colliders, world metres: the floor
  * audit's reading of its surface.
  */

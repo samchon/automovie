@@ -10,7 +10,7 @@ import { AutoMovieRenderSemanticMask } from "../semanticMask/index.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
-/**
+/*
  * Per-top-level-node flat colors on a black background.
  *
  * This legacy palette records top-level child position, so inserting a child

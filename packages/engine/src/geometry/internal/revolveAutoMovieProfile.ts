@@ -7,7 +7,7 @@ import {
 import { countAtLeast } from "./countAtLeast";
 import { meshOf } from "./meshOf";
 
-/**
+/*
  * Revolve a radius/height profile around local Y into a closed surface.
  *
  * Each profile point is `x` = radius and `y` = height, in metres. Unlike
@@ -85,26 +85,25 @@ import { meshOf } from "./meshOf";
  * A directional finish therefore wants a meridian within a few degrees of the
  * axis, which is a drum, a shaft, a turret barrel. A sloped or domed form that
  * must carry one is authored as flat faces through
- * {@link buildAutoMoviePolyhedron}, whose per-face frame is isometric, or as a
- * flat cap through {@link AutoMovieEnginePlanarRegion.extrude}, and a spire
- * built as facets is how a spire is built anyway. {@link meshAutoMovieSweep} is
+ * buildAutoMoviePolyhedron, whose per-face frame is isometric, or as a
+ * flat cap through AutoMovieEnginePlanarRegion.extrude, and a spire
+ * built as facets is how a spire is built anyway. meshAutoMovieSweep is
  * not the escape here that it is for the coordinate-less builders. It measures
  * this same pair, a tapered loft shears the same way, and it gives up something
  * this one keeps: the map here is exactly equiareal, while a loft's `v` is path
  * distance rather than surface distance, so a taper or a bend costs it texel
  * density on top of the angle. Where the form has to stay a true surface of
  * revolution, the finish on it stays non-directional.
- *
- * @param props.profile Meridian points from one end to the other, at least two,
- *   with finite coordinates and `x >= 0`.
- * @param props.segments Angular divisions of the full turn, a safe integer of
- *   at least 3.
- * @returns A new unskinned mesh of `(segments + 1) * profile.length` vertices
- *   and `2 * segments * (profile.length - 1)` triangles, with smooth normals
- *   and the metric atlas above.
- * @throws Error when the profile has fewer than two points, a coordinate is not
- *   finite, a radius is negative, or `segments` is not a safe integer of at
- *   least 3.
+ * Parameter props.profile: Meridian points from one end to the other, at least two,
+ * with finite coordinates and `x >= 0`.
+ * Parameter props.segments: Angular divisions of the full turn, a safe integer of
+ * at least 3.
+ * Returns: A new unskinned mesh of `(segments + 1) * profile.length` vertices
+ * and `2 * segments * (profile.length - 1)` triangles, with smooth normals
+ * and the metric atlas above.
+ * Error when the profile has fewer than two points, a coordinate is not
+ * finite, a radius is negative, or `segments` is not a safe integer of at
+ * least 3.
  */
 export const revolveAutoMovieProfile: (
   props: IAutoMovieRevolveProfile.IProps,

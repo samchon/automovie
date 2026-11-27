@@ -17,16 +17,15 @@ import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
 import { operateInsert } from "./operateInsert";
 import { operateState } from "./operateState";
 
-/**
+/*
  * Prepare an operation's original hand geometry for its actual arm targets and
  * the lean's wrist-only reach observations.
- *
- * @param context The unchanged operation, canonical body and actual film start.
- * @param props The fixed initial place, optional actual
- *   articulation/hinge/tool, and original stroke clock.
- * @returns Full current arm targets and world-metre wrist points from the
- *   actual posture and stroke progress, an articulated part read at the
- *   action-relative second given, else at the progress's stroke time.
+ * Parameter context: The unchanged operation, canonical body and actual film start.
+ * Parameter props: The fixed initial place, optional actual
+ * articulation/hinge/tool, and original stroke clock.
+ * Returns: Full current arm targets and world-metre wrist points from the
+ * actual posture and stroke progress, an articulated part read at the
+ * action-relative second given, else at the progress's stroke time.
  */
 export function operateHand(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams>,
@@ -184,19 +183,25 @@ export function operateHand(
   };
 }
 
-/** The record of `IOperateHandFrame`'s site. */
+/*
+ * The record of `IOperateHandFrame`'s site.
+ */
 type IOperateHandFrame = {
   place: IOperateHandFramePlace;
   forward: IAutoMovieVector3;
 };
 
-/** The record of `IOperateHandFramePlace`'s site. */
+/*
+ * The record of `IOperateHandFramePlace`'s site.
+ */
 type IOperateHandFramePlace = {
   point: IAutoMovieVector3;
   normal: IAutoMovieVector3;
 };
 
-/** The record of `IOperateHandResult`'s site. */
+/*
+ * The record of `IOperateHandResult`'s site.
+ */
 type IOperateHandResult = {
   target: (
     posture: IAutoMovieMotionHumanPosture,
@@ -210,7 +215,9 @@ type IOperateHandResult = {
   ) => IAutoMovieVector3;
 };
 
-/** The record of `IOperateHandProps`'s site. */
+/*
+ * The record of `IOperateHandProps`'s site.
+ */
 type IOperateHandProps = {
   clock: IAutoMovieMotionClock;
   place: ReturnType<IAutoMovieMotionHumanActionContext["aim"]>;

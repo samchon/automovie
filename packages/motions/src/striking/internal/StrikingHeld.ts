@@ -19,17 +19,16 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { StrikingHeldFrame } from "./StrikingHeldFrame";
 import { StrikingHeldGoal } from "./StrikingHeldGoal";
 
-/**
+/*
  * Read what a hand holds at an action's entry.
- *
- * @param context The action's context.
- * @param side The holding hand.
- * @param prop The held prop's subject id; absent for the bare hand.
- * @param points The working point, optional working-line origin and edge; a
- *   blade's `point` and `edge` when absent.
- * @returns The tool in the hand's frame.
- * @throws {HumanRefusal} When a named affordance is absent, listing the ones it
- *   has, or named working-line endpoints coincide.
+ * Parameter context: The action's context.
+ * Parameter side: The holding hand.
+ * Parameter prop: The held prop's subject id; absent for the bare hand.
+ * Parameter points: The working point, optional working-line origin and edge; a
+ * blade's `point` and `edge` when absent.
+ * Returns: The tool in the hand's frame.
+ * When a named affordance is absent, listing the ones it
+ * has, or named working-line endpoints coincide.
  */
 export function StrikingHeld(
   context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
@@ -48,7 +47,7 @@ export function StrikingHeld(
   );
 }
 
-/**
+/*
  * A thing held in the hand as the effector of an action: a blade whose point
  * and edge are aimed, a firearm whose muzzle is aimed.
  *
@@ -68,13 +67,12 @@ export function StrikingHeld(
  * wrist cannot turn the hand as asked the point stays and the turn gives way.
  */
 export namespace StrikingHeld {
-  /**
+  /*
    * The cancel table of an action whose effector is a held tool: anything may
    * follow from the named instant on, blended in by inertialization, the grip
    * kept so the tool stays in the hand.
-   *
-   * @param instant The event from which a follow-up may cut in.
-   * @returns The table.
+   * Parameter instant: The event from which a follow-up may cut in.
+   * Returns: The table.
    */
   export const follows = (
     instant: string,
@@ -90,13 +88,12 @@ export namespace StrikingHeld {
     ],
   });
 
-  /**
+  /*
    * A bare hand as the tool: its grip socket, wrist-to-knuckle axis and
    * little-finger side, without reading an entry or a held prop.
-   *
-   * @param body The body whose grip socket supplies the hand's axes.
-   * @param side The hand.
-   * @returns The bare tool in the hand's grip frame.
+   * Parameter body: The body whose grip socket supplies the hand's axes.
+   * Parameter side: The hand.
+   * Returns: The bare tool in the hand's grip frame.
    */
   export function bare(
     body: IAutoMovieMotionHumanBody,
@@ -119,17 +116,16 @@ export namespace StrikingHeld {
     };
   }
 
-  /**
+  /*
    * The tool a held prop is, in the hand's grip frame: what `of` reads at an
    * action's entry, and what a grasp not yet taken would hold (a pick-up's
    * candidate grip, its prop's frame in that grip).
-   *
-   * @param held The prop in the hand's grip frame.
-   * @param points The working point, optional working-line origin and edge; a
-   *   blade's `point` and `edge` when absent.
-   * @returns The tool in the hand's frame.
-   * @throws {HumanRefusal} When a named affordance is absent, listing the ones
-   *   it has, or named working-line endpoints coincide.
+   * Parameter held: The prop in the hand's grip frame.
+   * Parameter points: The working point, optional working-line origin and edge; a
+   * blade's `point` and `edge` when absent.
+   * Returns: The tool in the hand's frame.
+   * When a named affordance is absent, listing the ones
+   * it has, or named working-line endpoints coincide.
    */
   export function read(
     held: IAutoMovieMotionHumanHeld.IHeld,
@@ -141,18 +137,17 @@ export namespace StrikingHeld {
     return StrikingHeldFrame.read(held, points);
   }
 
-  /**
+  /*
    * The hand frame that puts a point of the tool on a world point with the tool
    * turned as asked.
-   *
-   * @param tool The tool.
-   * @param back How far behind the working point the placed point lies along
-   *   the axis, metres; 0 places the working point itself.
-   * @param at Where that point goes, world metres.
-   * @param axis The world direction the tool runs; any non-zero vector.
-   * @param edge The world direction its edge faces; only its part square to the
-   *   axis counts.
-   * @returns The hand's grip frame.
+   * Parameter tool: The tool.
+   * Parameter back: How far behind the working point the placed point lies along
+   * the axis, metres; 0 places the working point itself.
+   * Parameter at: Where that point goes, world metres.
+   * Parameter axis: The world direction the tool runs; any non-zero vector.
+   * Parameter edge: The world direction its edge faces; only its part square to the
+   * axis counts.
+   * Returns: The hand's grip frame.
    */
   export function hand(
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
@@ -171,18 +166,17 @@ export namespace StrikingHeld {
     };
   }
 
-  /**
+  /*
    * Prepare the rigid hand rotation and kept-point offset for a fixed tool
    * orientation, then place fresh hand frames at changing world points.
-   *
-   * @param tool The unchanged held tool's hand-local axis, edge and working
-   *   point.
-   * @param back The kept point's distance behind its working point, metres.
-   * @param axis The unchanged nonzero world line.
-   * @param edge The unchanged world edge direction, squared by hand's existing
-   *   rule.
-   * @returns A world-point reader with independent position and rotation
-   *   outputs.
+   * Parameter tool: The unchanged held tool's hand-local axis, edge and working
+   * point.
+   * Parameter back: The kept point's distance behind its working point, metres.
+   * Parameter axis: The unchanged nonzero world line.
+   * Parameter edge: The unchanged world edge direction, squared by hand's existing
+   * rule.
+   * Returns: A world-point reader with independent position and rotation
+   * outputs.
    */
   export function prepareHand(
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
@@ -203,13 +197,12 @@ export namespace StrikingHeld {
     });
   }
 
-  /**
+  /*
    * A point of the tool in the world on a hand frame.
-   *
-   * @param tool The tool.
-   * @param frame The hand's grip frame.
-   * @param back How far behind the working point along the axis, metres.
-   * @returns World metres.
+   * Parameter tool: The tool.
+   * Parameter frame: The hand's grip frame.
+   * Parameter back: How far behind the working point along the axis, metres.
+   * Returns: World metres.
    */
   export function point(
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
@@ -222,18 +215,17 @@ export namespace StrikingHeld {
     );
   }
 
-  /**
+  /*
    * How far the tool on one hand frame lies from itself on another: the greater
    * of the displacements of the point it keeps and of its working point; a pose
    * that keeps the working point itself reads the line at the tool's own length
    * in place of the kept point, so a tool that keeps its point and points
    * elsewhere is counted.
-   *
-   * @param tool The tool.
-   * @param fitted The hand frame the arm reaches.
-   * @param asked The hand frame asked.
-   * @param back The point the pose keeps, metres behind the working point.
-   * @returns Metres.
+   * Parameter tool: The tool.
+   * Parameter fitted: The hand frame the arm reaches.
+   * Parameter asked: The hand frame asked.
+   * Parameter back: The point the pose keeps, metres behind the working point.
+   * Returns: Metres.
    */
   export function strayed(
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
@@ -246,20 +238,19 @@ export namespace StrikingHeld {
     return Math.max(off(back > 0 ? back : tool.length), off(0));
   }
 
-  /**
+  /*
    * The arm goal that holds the tool on a hand frame, turning about a point of
    * the tool.
-   *
-   * @param context The body.
-   * @param tool The tool.
-   * @param frame The hand's grip frame asked.
-   * @param back The point of the tool that must stay where the frame puts it,
-   *   metres behind the working point.
-   * @param bend The elbow's place where no place of the arm is legal, world
-   *   metres; elsewhere the elbow is left to the body
-   *   (`HumanPosture.IGoal.elbow`).
-   * @returns The goal for the holding arm, with both working-line points
-   *   bounded by the same miss the action judges.
+   * Parameter context: The body.
+   * Parameter tool: The tool.
+   * Parameter frame: The hand's grip frame asked.
+   * Parameter back: The point of the tool that must stay where the frame puts it,
+   * metres behind the working point.
+   * Parameter bend: The elbow's place where no place of the arm is legal, world
+   * metres; elsewhere the elbow is left to the body
+   * (`HumanPosture.IGoal.elbow`).
+   * Returns: The goal for the holding arm, with both working-line points
+   * bounded by the same miss the action judges.
    */
   export function goal(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
@@ -271,15 +262,14 @@ export namespace StrikingHeld {
     return StrikingHeldGoal.goal(context, tool, frame, back, bend);
   }
 
-  /**
+  /*
    * Prepare a fixed held tool's hand-local goal geometry for candidate frames.
-   *
-   * @param context The unchanged canonical body.
-   * @param tool The unchanged held tool and hand side.
-   * @param back Metres behind the working point of the kept point.
-   * @returns A goal reader of the actual world hand frame and fallback bend;
-   *   mutable contact/limit records are fresh, rotation/bend borrow the
-   *   original inputs.
+   * Parameter context: The unchanged canonical body.
+   * Parameter tool: The unchanged held tool and hand side.
+   * Parameter back: Metres behind the working point of the kept point.
+   * Returns: A goal reader of the actual world hand frame and fallback bend;
+   * mutable contact/limit records are fresh, rotation/bend borrow the
+   * original inputs.
    */
   export function prepareGoal(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
@@ -292,12 +282,11 @@ export namespace StrikingHeld {
     return StrikingHeldGoal.prepare(context, tool, back);
   }
 
-  /**
+  /*
    * The grip window that keeps a held prop in its hand through an action; none
    * for the bare hand.
-   *
-   * @param tool The tool.
-   * @returns The contact windows.
+   * Parameter tool: The tool.
+   * Returns: The contact windows.
    */
   export function grips(
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
@@ -307,13 +296,12 @@ export namespace StrikingHeld {
       : [AutoMovieMotionHumanHeld.grip(tool.held)];
   }
 
-  /**
+  /*
    * The hold a held prop is left in when the action ends, with the fingers the
    * hand had closed on it at the entry; none for the bare hand.
-   *
-   * @param context The action's context.
-   * @param tool The tool.
-   * @returns The holds for the plan.
+   * Parameter context: The action's context.
+   * Parameter tool: The tool.
+   * Returns: The holds for the plan.
    */
   export function holds(
     context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
@@ -324,7 +312,7 @@ export namespace StrikingHeld {
       : [AutoMovieMotionHumanHeld.hold(context, tool.held)];
   }
 
-  /**
+  /*
    * The same normalized rigid alignment for one-shot and fixed-orientation
    * placements.
    */
@@ -340,15 +328,21 @@ export namespace StrikingHeld {
     );
   }
 
-  /** A point of the tool from the grip socket, hand frame. */
+  /*
+   * A point of the tool from the grip socket, hand frame.
+   */
   const placed = (
     tool: IAutoMovieMotionHumanStrikingHeld.ITool,
     back: number,
   ): IAutoMovieVector3 => StrikingHeldGoal.offset(tool, back);
 
-  /** The perpendicular axis construction shared with the held-point reader. */
+  /*
+   * The perpendicular axis construction shared with the held-point reader.
+   */
   const square: typeof StrikingHeldFrame.square = StrikingHeldFrame.square;
 }
 
-/** The alternatives of `OfContext`'s site. */
+/*
+ * The alternatives of `OfContext`'s site.
+ */
 type OfContext = "body" | "entry" | "prop" | "subject";

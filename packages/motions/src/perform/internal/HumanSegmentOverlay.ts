@@ -33,19 +33,23 @@ import { overlayContinuations } from "./overlayContinuations";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { unplantedHumanObservation } from "./unplantedHumanObservation";
 
-/**
+/*
  * A carrier's pose with its overlays written over it: which overlays run at a
  * second, and how each one's channels are faded in and out against the body
  * without it.
  */
 export namespace HumanSegmentOverlay {
-  /** A faded pose and the limb contacts its declared windows still hold. */
+  /*
+   * A faded pose and the limb contacts its declared windows still hold.
+   */
   export interface IOverlaid extends HumanSegmentPose.ISeeded {
-    /** World goals have received the root turn; attached goals retain `on`. */
+    /*
+     * World goals have received the root turn; attached goals retain `on`.
+     */
     contacts: IAutoMovieMotionHumanPosture["limbs"];
   }
 
-  /**
+  /*
    * A carrier's posture resolved with every overlay active at a second written
    * over it: each overlay's claimed channels come from its own plan, which was
    * composed on this carrier, and an overlay coming in or going out is blended
@@ -73,23 +77,22 @@ export namespace HumanSegmentOverlay {
    * independently. Leaf, carry and contact fits keep their own poses and seeds
    * while exact FK dependency arithmetic may be shared within this evaluation.
    * Every joint still performs its own interpolation on its actual ends.
-   *
-   * @param person The person.
-   * @param posture The carrier's posture at the second, layers applied.
-   * @param seconds Film seconds.
-   * @param carried The holds the carrier carries at the second.
-   * @param near The fits of a nearby second to continue, if any.
-   * @param source Optional same-body synchronous parent FK source; never
-   *   retained by a result.
-   * @param requested Optional bone observation, forwarded only with no
-   *   holds/near/current contact window and no base or leaf plant, so no later
-   *   IK consumes omitted digit geometry.
-   * @param prepared Optional same-body evaluation preparation, lending genuine
-   *   direct ROM metadata to leaves and complete source evaluation to first
-   *   held-frame capture.
-   * @param carrier The action the overlays ride, whose prepared legs-still fit
-   *   the leaf keeps (`HumanSegmentLegs`); absent, the leaf fits its legs.
-   * @returns The pose, the seeds of its fits and its open contact goals.
+   * Parameter person: The person.
+   * Parameter posture: The carrier's posture at the second, layers applied.
+   * Parameter seconds: Film seconds.
+   * Parameter carried: The holds the carrier carries at the second.
+   * Parameter near: The fits of a nearby second to continue, if any.
+   * Parameter source: Optional same-body synchronous parent FK source; never
+   * retained by a result.
+   * Parameter requested: Optional bone observation, forwarded only with no
+   * holds/near/current contact window and no base or leaf plant, so no later
+   * IK consumes omitted digit geometry.
+   * Parameter prepared: Optional same-body evaluation preparation, lending genuine
+   * direct ROM metadata to leaves and complete source evaluation to first
+   * held-frame capture.
+   * Parameter carrier: The action the overlays ride, whose prepared legs-still fit
+   * the leaf keeps (`HumanSegmentLegs`); absent, the leaf fits its legs.
+   * Returns: The pose, the seeds of its fits and its open contact goals.
    */
   export function overlaid(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -441,18 +444,22 @@ export namespace HumanSegmentOverlay {
     return { pose: fitted.pose, seeds, contacts: built.contacts };
   }
 
-  /** The overlays that run at a second (`HumanSegmentOverlayRun.running`). */
+  /*
+   * The overlays that run at a second (`HumanSegmentOverlayRun.running`).
+   */
   export const running: typeof HumanSegmentOverlayRun.running =
     HumanSegmentOverlayRun.running;
 
-  /**
+  /*
    * Read a state with the overlays that end at a second handing their channels
    * on there (`HumanSegmentOverlayRun.handing`).
    */
   export const handing: typeof HumanSegmentOverlayRun.handing =
     HumanSegmentOverlayRun.handing;
 
-  /** A fresh clinical tuple, without a closure for each interior fade branch. */
+  /*
+   * A fresh clinical tuple, without a closure for each interior fade branch.
+   */
   function angles(
     joint: IAutoMovieJointPose | undefined,
   ): readonly [number, number, number] {
@@ -460,7 +467,9 @@ export namespace HumanSegmentOverlay {
   }
 }
 
-/** The record of `IBuildResult`'s site. */
+/*
+ * The record of `IBuildResult`'s site.
+ */
 type IBuildResult = {
   pose: IAutoMoviePose;
   contacts: IAutoMovieMotionHumanPosture["limbs"];

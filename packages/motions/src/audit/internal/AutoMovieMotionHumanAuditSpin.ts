@@ -8,7 +8,7 @@ import type {
 
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
-/**
+/*
  * Whether every bone turns continuously: the orientation counterpart of the
  * joint-centre continuity audit.
  *
@@ -35,25 +35,26 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  *   a fast smooth spin costs two poses, not ten.
  */
 export namespace AutoMovieMotionHumanAuditSpin {
-  /** How many times a departing interval is halved. */
+  /*
+   * How many times a departing interval is halved.
+   */
   export const LEVELS: number = 10;
 
-  /**
-   * The smallest snap {@link measure} resolves by default, degrees: an
+  /*
+   * The smallest snap measure resolves by default, degrees: an
    * interval's turn must exceed its neighbours' mean by more than this before
    * it is halved, and `AutoMovieMotionHumanVerdicts` bounds the resolved `turn` by it.
    */
   export const SNAP: number = 5;
 
-  /**
+  /*
    * Read how a person's bones turn over the whole motion.
-   *
-   * @param motion The motion.
-   * @param subject The person.
-   * @param rate Grid samples per second.
-   * @param limit The smallest snap resolved, degrees.
-   * @returns The two readings.
-   * @throws {Error} When the rate is not positive.
+   * Parameter motion: The motion.
+   * Parameter subject: The person.
+   * Parameter rate: Grid samples per second.
+   * Parameter limit: The smallest snap resolved, degrees.
+   * Returns: The two readings.
+   * When the rate is not positive.
    */
   export function measure(
     motion: IAutoMovieMotionHumanAuditMotion,
@@ -140,17 +141,21 @@ export namespace AutoMovieMotionHumanAuditSpin {
   }
 }
 
-/** A person's displayed bones at an instant. */
+/*
+ * A person's displayed bones at an instant.
+ */
 type IBones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-/**
+/*
  * The fall of a bisection's excess, from one level to the next, that marks a
  * smooth turn: 2, the geometric mean of a smooth turn's fourfold fall and a
  * snap's none.
  */
 const RICHARDSON: number = 2;
 
-/** The angle between one bone's orientations in two instants, degrees. */
+/*
+ * The angle between one bone's orientations in two instants, degrees.
+ */
 const between = (a: IBones, b: IBones, bone: AutoMovieHumanoidBone): number => {
   const first: IAutoMovieResolvedBone | undefined = a.get(bone);
   const second: IAutoMovieResolvedBone | undefined = b.get(bone);

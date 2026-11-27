@@ -9,16 +9,16 @@ import { rest as restLaw } from "../../everyday/internal/rest";
 import { shift as shiftLaw } from "../../everyday/internal/shift";
 import { shiftStandingWeight as shiftStandingWeightLaw } from "../../everyday/internal/shiftStandingWeight";
 
-/**
+/*
  * The stance family's laws, each the shipped function under its family name
  * (`AutoMovieMotionHumanStance`), with its own comment.
  */
 export namespace AutoMovieMotionHumanStanceLaws {
-  /**
+  /*
    * Quiet standing: both feet planted where they are (or under the hips when
    * entered from the air), the pelvis settling over them, the column upright on
    * the plumb line and inclined slightly forward at the ankles
-   * ({@link standUpright}), arms hanging relaxed, and the body swaying
+   * (standUpright), arms hanging relaxed, and the body swaying
    * slightly.
    *
    * The feet keep their entry plants so a stop never slides them; a foot that
@@ -47,7 +47,7 @@ export namespace AutoMovieMotionHumanStanceLaws {
    */
   export import stand = standLaw;
 
-  /**
+  /*
    * Shifting along a bench while seated: the seat socket slides sideways along
    * the seat by the requested distance, while the feet stay planted and the
    * hands stay on the thighs.
@@ -73,7 +73,7 @@ export namespace AutoMovieMotionHumanStanceLaws {
    */
   export import shift = shiftLaw;
 
-  /**
+  /*
    * Bending down to bring a hand to a low point (the floor, a low shelf, a note
    * on the ground) with the feet planted, by a stoop, a squat or a semi-squat,
    * then straightening up.
@@ -115,7 +115,7 @@ export namespace AutoMovieMotionHumanStanceLaws {
    */
   export import bend = bendLaw;
 
-  /**
+  /*
    * A crouch or a squat held in place: the hips sink over the planted feet to a
    * knee flexion the depth names, the trunk inclines over the feet, the hands
    * come to rest on the thighs above the knees, the body holds, then stands
@@ -161,7 +161,7 @@ export namespace AutoMovieMotionHumanStanceLaws {
    */
   export import crouch = crouchLaw;
 
-  /**
+  /*
    * Bracing for an expected impact, push or a falling body: the stance widens
    * and staggers along the line of the coming force, the body lowers and leans
    * into it, and the hands come up in front, all set before the force arrives.
@@ -195,7 +195,7 @@ export namespace AutoMovieMotionHumanStanceLaws {
    */
   export import brace = braceLaw;
 
-  /**
+  /*
    * Standing with the hands at rest places: in the front pockets, on the hips,
    * arms crossed, clasped in front or behind, behind the head, or the chin on a
    * fist, each hand moved there and held.
@@ -203,7 +203,7 @@ export namespace AutoMovieMotionHumanStanceLaws {
    * Every rest place is an effector goal on the body's own surface: a hand
    * surface is laid on a region with the palm facing into it; the palm and fist
    * sockets lie on the hand's own collider surface, so a laid hand touches the
-   * region rather than sinking into it ({@link HumanHand}). The places, with the
+   * region rather than sinking into it (HumanHand). The places, with the
    * surface and region each uses:
    *
    * - `side`: no goal; the arm hangs relaxed as the stand law holds it.
@@ -246,7 +246,7 @@ export namespace AutoMovieMotionHumanStanceLaws {
    */
   export import rest = restLaw;
 
-  /**
+  /*
    * A small ceremonial curtsy. The Royal Household describes a small curtsy as
    * a traditional optional greeting
    * (https://www.royal.uk/encyclopedia/greeting-the-king-and-queen). Canadian
@@ -271,7 +271,7 @@ export namespace AutoMovieMotionHumanStanceLaws {
    */
   export const curtsy: typeof curtsyLaw = curtsyLaw;
 
-  /**
+  /*
    * The upright alignment of a body's quiet stance, solved from the body's own
    * joints by forward kinematics, once per body.
    *
@@ -294,7 +294,7 @@ export namespace AutoMovieMotionHumanStanceLaws {
    */
   export import standUpright = standUprightLaw;
 
-  /**
+  /*
    * An intentional lateral pelvis shift with both feet planted on the ground.
    * Time to shift, time to hold, and optional time to return are authored
    * independently. The respective transition events are shifted, release and
@@ -312,21 +312,20 @@ export namespace AutoMovieMotionHumanStanceLaws {
   export const shiftStandingWeight: typeof shiftStandingWeightLaw =
     shiftStandingWeightLaw;
 
-  /**
+  /*
    * A palm carried from the angles the arm held onto its own thigh just above
    * the knee (`braceOnThighPoint`), the hand support of a low posture, read on
    * the legs the action has placed.
-   *
-   * @param body The body.
-   * @param side The hand and thigh.
-   * @param rest The arm's angles at weight 0.
-   * @param duration The action's duration, seconds; the arm is written over all
-   *   of it.
-   * @param weight How far the palm is on the thigh at a second, in [0, 1].
-   * @param span The reach, hold and return instants, when the caller has them.
-   * @param group The other arm on the same body.
-   * @param apart Whether the grouped arms remain on their own sides.
-   * @returns The primitive, on the arm's channel.
+   * Parameter body: The body.
+   * Parameter side: The hand and thigh.
+   * Parameter rest: The arm's angles at weight 0.
+   * Parameter duration: The action's duration, seconds; the arm is written over all
+   * of it.
+   * Parameter weight: How far the palm is on the thigh at a second, in [0, 1].
+   * Parameter span: The reach, hold and return instants, when the caller has them.
+   * Parameter group: The other arm on the same body.
+   * Parameter apart: Whether the grouped arms remain on their own sides.
+   * Returns: The primitive, on the arm's channel.
    */
   export const braceOnThigh: typeof braceOnThighLaw = braceOnThighLaw;
 }

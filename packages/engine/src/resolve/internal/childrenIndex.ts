@@ -1,6 +1,8 @@
 import { IAutoMovieNode } from "@automovie/interface";
 
-/** Build the parent → children adjacency the recompose walk needs. */
+/*
+ * Build the parent → children adjacency the recompose walk needs.
+ */
 export function childrenIndex(nodes: IAutoMovieNode[]): Map<string, string[]> {
   const map: Map<string, string[]> = new Map<string, string[]>();
   for (const n of nodes)

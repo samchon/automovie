@@ -5,7 +5,7 @@ import { HumanQuadraticRow } from "./HumanQuadraticRow";
 import { HumanQuadraticSubstitute } from "./HumanQuadraticSubstitute";
 import { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
 
-/**
+/*
  * The linear algebra of `HumanQuadraticProgram`'s OSQP solve on a banded
  * problem: the banded reduced KKT system and its Cholesky factor, the unscaled
  * residuals, the primal infeasibility certificate and the polishing solve on
@@ -14,153 +14,194 @@ import { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
  * row entries and m rows; a row r stores k_r entries.
  */
 export namespace HumanQuadraticBand {
-  /**
+  /*
    * Equilibrated data: `P̄ = c D P D`, `q̄ = c D q`, `Ā = E A D`, `l̄ = E l`,
    * `ū = E u`, and soft weight `c w / E`.
    */
   export interface IScaled {
-    /** The variables. */
+    /*
+     * The variables.
+     */
     n: number;
 
-    /** The rows. */
+    /*
+     * The rows.
+     */
     m: number;
 
-    /** The half-bandwidth. */
+    /*
+     * The half-bandwidth.
+     */
     band: number;
 
-    /**
+    /*
      * The scaled curvature's in-range upper band, without unused trailing
      * padding.
      */
     p: Float64Array[];
 
-    /**
+    /*
      * Admitted canonical P is exactly diagonal; finite positive Ruiz factors
      * preserve its off-diagonal signed zeros, and factors still use the full
      * band.
      */
     diagonal: boolean;
 
-    /**
+    /*
      * Packed sparse P positions with offset 0 first per row; absent metadata
      * uses the full band. Originally nonzero off-diagonal entries remain listed
      * after underflow.
      */
     pPattern?: IScaledPPattern;
 
-    /** The scaled linear term. */
+    /*
+     * The scaled linear term.
+     */
     q: Float64Array;
 
-    /**
+    /*
      * Infinity norm of unchanged scaled q for every dual residual
      * normalization.
      */
     qNorm: number;
 
-    /**
+    /*
      * Infinity norm of q[i]/(c*d[i]), using the unchanged residual
      * multiplication order and its original nonfinite propagation.
      */
     unscaledQNorm: number;
 
-    /** Each row's first entry, compressed; `start[m]` is the entries' count. */
+    /*
+     * Each row's first entry, compressed; `start[m]` is the entries' count.
+     */
     start: Int32Array;
 
-    /** Each entry's variable. */
+    /*
+     * Each entry's variable.
+     */
     cols: Int32Array;
 
-    /** Each entry's scaled coefficient. */
+    /*
+     * Each entry's scaled coefficient.
+     */
     vals: Float64Array;
 
-    /**
+    /*
      * One when a row's retained column indices are nondecreasing; duplicate
      * columns stay in their original order.
      */
     ordered: Uint8Array;
 
-    /**
+    /*
      * CSR entry position of a row with exactly one stored coefficient; -1 for
      * empty or multi-entry rows.
      */
     singleton: Int32Array;
 
-    /**
+    /*
      * Stable factor-only CSR positions for unordered rows; original row
      * products keep their original order.
      */
     factorOrder?: IScaledFactorOrder;
 
-    /**
+    /*
      * Column gathers preserving the original CSR contribution sequence for each
      * variable.
      */
     transpose: IScaledTranspose;
 
-    /** Each row's scaled lower end. */
+    /*
+     * Each row's scaled lower end.
+     */
     lo: Float64Array;
 
-    /** Each row's scaled upper end. */
+    /*
+     * Each row's scaled upper end.
+     */
     hi: Float64Array;
 
-    /** Each soft row's scaled weight; -1 for a hard row. */
+    /*
+     * Each soft row's scaled weight; -1 for a hard row.
+     */
     weight: Float64Array;
 
-    /** The variables' scaling `D`. */
+    /*
+     * The variables' scaling `D`.
+     */
     d: Float64Array;
 
-    /** The rows' scaling `E`. */
+    /*
+     * The rows' scaling `E`.
+     */
     e: Float64Array;
 
-    /** The cost's scaling. */
+    /*
+     * The cost's scaling.
+     */
     c: number;
 
-    /**
+    /*
      * Each unchanged 1/(c*d[i]) for residual unit reversal; residual admission
      * retains the original nonfinite-result handling.
      */
     unscale: Float64Array;
   }
 
-  /**
+  /*
    * Infinity-norm residuals and their normalization scales, in both original
    * and equilibrated units. The solver rejects nonfinite iteration values.
    */
   export interface IResiduals {
-    /** The unscaled primal residual `‖Ax - z‖∞`. */
+    /*
+     * The unscaled primal residual `‖Ax - z‖∞`.
+     */
     primal: number;
 
-    /** Its scale, `max(‖Ax‖∞, ‖z‖∞)`. */
+    /*
+     * Its scale, `max(‖Ax‖∞, ‖z‖∞)`.
+     */
     primalScale: number;
 
-    /** The unscaled dual residual `‖Px + q + Aᵀy‖∞`. */
+    /*
+     * The unscaled dual residual `‖Px + q + Aᵀy‖∞`.
+     */
     dual: number;
 
-    /** Its scale, `max(‖Px‖∞, ‖Aᵀy‖∞, ‖q‖∞)`. */
+    /*
+     * Its scale, `max(‖Px‖∞, ‖Aᵀy‖∞, ‖q‖∞)`.
+     */
     dualScale: number;
 
-    /** The scaled primal residual. */
+    /*
+     * The scaled primal residual.
+     */
     scaledPrimal: number;
 
-    /** Its scale. */
+    /*
+     * Its scale.
+     */
     scaledPrimalScale: number;
 
-    /** The scaled dual residual. */
+    /*
+     * The scaled dual residual.
+     */
     scaledDual: number;
 
-    /** Its scale. */
+    /*
+     * Its scale.
+     */
     scaledDualScale: number;
   }
 
-  /**
+  /*
    * The Cholesky factor of the reduced step system `P̄ + σI + Āᵀ diag(ρ) Ā`.
-   *
-   * @param s The scaled problem.
-   * @param rho Each row's step size.
-   * @param sigma The proximal term.
-   * @param work Optional mutable owner for adaptive factorizations; absent for
-   *   the independently cached initial factor.
-   * @returns Upper U of K=UᵀU; persistent work retains it read-only until an
-   *   exact dependency miss replaces it.
+   * Parameter s: The scaled problem.
+   * Parameter rho: Each row's step size.
+   * Parameter sigma: The proximal term.
+   * Parameter work: Optional mutable owner for adaptive factorizations; absent for
+   * the independently cached initial factor.
+   * Returns: Upper U of K=UᵀU; persistent work retains it read-only until an
+   * exact dependency miss replaces it.
    */
   export function factor(
     s: IScaled,
@@ -197,17 +238,16 @@ export namespace HumanQuadraticBand {
     return upper;
   }
 
-  /**
+  /*
    * Solve `Uᵀ U x = b` into `x`, using the in-place upper factor.
-   *
-   * @param u Completed upper factor and exact forward-row copies, with
-   *   compatible stored dimensions.
-   * @param b The right-hand side.
-   * @param x The solution.
-   * @param relaxed Optional distinct n-entry vector receiving
-   *   alpha*x+(1-alpha)*old during final-value emission.
-   * @param alpha Existing ADMM relaxation coefficient, one when no mixing is
-   *   requested.
+   * Parameter u: Completed upper factor and exact forward-row copies, with
+   * compatible stored dimensions.
+   * Parameter b: The right-hand side.
+   * Parameter x: The solution.
+   * Parameter relaxed: Optional distinct n-entry vector receiving
+   * alpha*x+(1-alpha)*old during final-value emission.
+   * Parameter alpha: Existing ADMM relaxation coefficient, one when no mixing is
+   * requested.
    */
   export function substitute(
     u: Work.IFactor,
@@ -219,20 +259,19 @@ export namespace HumanQuadraticBand {
     HumanQuadraticSubstitute(u, b, x, relaxed, alpha);
   }
 
-  /**
+  /*
    * The residuals of an iterate of the scaled problem (section 3.4): the primal
    * `‖Ax - z‖∞` and the dual `‖Px + q + Aᵀy‖∞` of the unscaled problem with the
    * scales the termination test reads, and the same of the scaled problem,
    * which the step size balances.
-   *
-   * @param s The scaled problem.
-   * @param x The scaled variables.
-   * @param z The scaled row values.
-   * @param y The scaled multipliers.
-   * @param work Disposable solve-local products and diagnostic record.
-   * @param known Optional completed Ax and A-transpose-y from the immediate
-   *   polish producer; x, y and A must be unchanged.
-   * @returns Borrowed residuals, overwritten by the next residual check.
+   * Parameter s: The scaled problem.
+   * Parameter x: The scaled variables.
+   * Parameter z: The scaled row values.
+   * Parameter y: The scaled multipliers.
+   * Parameter work: Disposable solve-local products and diagnostic record.
+   * Parameter known: Optional completed Ax and A-transpose-y from the immediate
+   * polish producer; x, y and A must be unchanged.
+   * Returns: Borrowed residuals, overwritten by the next residual check.
    */
   export function residuals(
     s: IScaled,
@@ -245,21 +284,20 @@ export namespace HumanQuadraticBand {
     return HumanQuadraticResiduals(s, x, z, y, work, known);
   }
 
-  /**
+  /*
    * Whether the multipliers' last change certifies the hard rows primal
    * infeasible (section 3.4): `δy` with `‖Aᵀδy‖∞ <= ε ‖δy‖∞` and `uᵀ max(δy,
    * 0)
    *
    * - Lᵀ min(δy, 0) < -ε ‖δy‖∞`, read unscaled. A soft row is never infeasible,
    *   so it is left out.
-   *
-   * @param s The scaled problem.
-   * @param y The scaled multipliers.
-   * @param before Their values one iteration before, consumed as delta-y
-   *   scratch; the next ADMM iteration overwrites them.
-   * @param epsilon The certificate's tolerance.
-   * @param work Disposable solve-local transpose product.
-   * @returns Whether the rows are certified infeasible.
+   * Parameter s: The scaled problem.
+   * Parameter y: The scaled multipliers.
+   * Parameter before: Their values one iteration before, consumed as delta-y
+   * scratch; the next ADMM iteration overwrites them.
+   * Parameter epsilon: The certificate's tolerance.
+   * Parameter work: Disposable solve-local transpose product.
+   * Returns: Whether the rows are certified infeasible.
    */
   export function infeasible(
     s: IScaled,
@@ -307,7 +345,7 @@ export namespace HumanQuadraticBand {
     return norm <= epsilon * size;
   }
 
-  /**
+  /*
    * The solution polished on its active set (section 4): the rows held on a
    * bound (a hard row whose value and multiplier say so, a soft row resting on
    * its bound with its multiplier below its weight) as equalities, a soft row
@@ -315,15 +353,14 @@ export namespace HumanQuadraticBand {
    * free; the KKT system of those rows, regularised by `δ`, solved in its
    * banded reduced form and refined `refine` times toward the system without
    * it.
-   *
-   * @param s The scaled problem.
-   * @param z The scaled row values.
-   * @param y The scaled multipliers.
-   * @param delta The regularisation.
-   * @param refine The refinement steps.
-   * @param work Disposable ADMM buffers after that phase has ended.
-   * @returns Scaled candidate iterates and borrowed products for their
-   *   immediate residual admission before x, y or A changes.
+   * Parameter s: The scaled problem.
+   * Parameter z: The scaled row values.
+   * Parameter y: The scaled multipliers.
+   * Parameter delta: The regularisation.
+   * Parameter refine: The refinement steps.
+   * Parameter work: Disposable ADMM buffers after that phase has ended.
+   * Returns: Scaled candidate iterates and borrowed products for their
+   * immediate residual admission before x, y or A changes.
    */
   export function polish(
     s: IScaled,
@@ -337,7 +374,9 @@ export namespace HumanQuadraticBand {
   }
 }
 
-/** The record of `IPolishResult`'s site. */
+/*
+ * The record of `IPolishResult`'s site.
+ */
 type IPolishResult = {
   x: Float64Array;
   z: Float64Array;
@@ -345,44 +384,64 @@ type IPolishResult = {
   products: Pick<Work.IWork, PolishProductsResult>;
 };
 
-/** The alternatives of `PolishProductsResult`'s site. */
+/*
+ * The alternatives of `PolishProductsResult`'s site.
+ */
 type PolishProductsResult = "rows" | "transpose";
 
-/** The alternatives of `ResidualsKnown`'s site. */
+/*
+ * The alternatives of `ResidualsKnown`'s site.
+ */
 type ResidualsKnown = "rows" | "transpose";
 
-/** The record of `IScaledTranspose`'s site. */
+/*
+ * The record of `IScaledTranspose`'s site.
+ */
 type IScaledTranspose = {
-  /** N+1 column offsets into the parallel source row and entry buffers. */
+  /*
+   * N+1 column offsets into the parallel source row and entry buffers.
+   */
   start: Int32Array;
 
-  /**
+  /*
    * Original row index of each contribution, in original order within its
    * column.
    */
   rows: Int32Array;
 
-  /** Original CSR entry position supplying the current scaled coefficient. */
+  /*
+   * Original CSR entry position supplying the current scaled coefficient.
+   */
   entries: Int32Array;
 };
 
-/** The record of `IScaledFactorOrder`'s site. */
+/*
+ * The record of `IScaledFactorOrder`'s site.
+ */
 type IScaledFactorOrder = {
-  /**
+  /*
    * Prefix positions of each row's factor-only order; ordered rows own
    * empty spans.
    */
   start: Int32Array;
 
-  /** Original CSR entry positions sorted by column then original position. */
+  /*
+   * Original CSR entry positions sorted by column then original position.
+   */
   entries: Int32Array;
 };
 
-/** The record of `IScaledPPattern`'s site. */
+/*
+ * The record of `IScaledPPattern`'s site.
+ */
 type IScaledPPattern = {
-  /** Exact numeric prefix positions of n curvature rows, with a final end. */
+  /*
+   * Exact numeric prefix positions of n curvature rows, with a final end.
+   */
   start: Float64Array;
 
-  /** Increasing relative column offsets within each original curvature row. */
+  /*
+   * Increasing relative column offsets within each original curvature row.
+   */
   offsets: Float64Array;
 };

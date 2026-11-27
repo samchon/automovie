@@ -11,7 +11,9 @@ import { directionLength } from "./internal/directionLength";
 import { toValidation } from "./internal/toValidation";
 import { violation } from "./internal/violation";
 
-/** Largest deviation from unit norm a stated rotation may carry. */
+/*
+ * Largest deviation from unit norm a stated rotation may carry.
+ */
 const UNIT_QUATERNION_EPSILON: number = 1e-6;
 
 /** Mutable insertion-ordered finding storage shared by validation predicates. */

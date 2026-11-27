@@ -14,7 +14,7 @@ import { object } from "./object";
 import { readMotionAccessor } from "./readMotionAccessor";
 import { requiredArray } from "./requiredArray";
 
-/**
+/*
  * Normalize glTF animation samplers into deterministic node tracks.
  *
  * Empty animation inventories return undefined. Otherwise source-order clips
@@ -203,7 +203,9 @@ type AutoMovieMotionTargetPath =
   | "scale"
   | "weights";
 
-/** Accessor shape each target path's output must use. */
+/*
+ * Accessor shape each target path's output must use.
+ */
 const MOTION_OUTPUT_TYPES: Readonly<
   Record<AutoMovieMotionTargetPath, "SCALAR" | "VEC3" | "VEC4">
 > = {

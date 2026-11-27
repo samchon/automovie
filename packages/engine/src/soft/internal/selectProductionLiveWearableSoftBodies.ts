@@ -3,7 +3,7 @@ import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
 import { productionSoftBodyUsesMovingBoundary } from "./productionSoftBodyUsesMovingBoundary";
 import { readProductionLiveWearableSoftBodies } from "./readProductionLiveWearableSoftBodies";
 
-/**
+/*
  * Resolve a shot's share of the authored production-wide live-soft order.
  * Absent selected domains contribute nothing; present static selections and
  * unselected moving domains throw. No production/viewer caller currently

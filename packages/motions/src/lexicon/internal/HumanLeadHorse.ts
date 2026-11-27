@@ -22,7 +22,7 @@ import { HumanRideHands } from "./HumanRideHands";
 import { admitLeadReach } from "./admitLeadReach";
 import { humanRideGripTiming } from "./humanRideGripTiming";
 
-/**
+/*
  * Keep one handler's hand on the horse's actual moving lead frame.
  *
  * The base action owns steps and the lead remains on the posed horse. The
@@ -36,7 +36,9 @@ export const HumanLeadHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
     plan: planHumanLeadHorse,
   };
 
-/** Fit and verify the displayed hand against one actual moving lead. */
+/*
+ * Fit and verify the displayed hand against one actual moving lead.
+ */
 function planHumanLeadHorse(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLeadHorse>,
 ): IAutoMovieMotionHumanActionPlan {

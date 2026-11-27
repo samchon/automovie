@@ -14,7 +14,7 @@ import { decomposeJointRotationOnBasis } from "../../kinematics/internal/decompo
 import { twoBoneChainArticulation } from "../../kinematics/internal/twoBoneChainArticulation";
 import type { prepareChainFit } from "./prepareChainFit";
 
-/**
+/*
  * Solve one prepared two-bone chain for a model-metre target and bend normal.
  * Return null when analytic articulation is unavailable; otherwise decompose
  * upper and lower rotations through the same prepared clinical domains used by
@@ -69,7 +69,7 @@ export function solvePreparedChainPlant(
   };
 }
 
-/**
+/*
  * Keep each clinical decomposition at its original post-geometry site without a
  * new closure per candidate.
  */

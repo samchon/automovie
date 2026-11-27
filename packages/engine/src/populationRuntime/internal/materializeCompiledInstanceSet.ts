@@ -21,18 +21,18 @@ import { AUTOMOVIE_INSTANCE_CHUNK_SIZE } from "../AUTOMOVIE_INSTANCE_CHUNK_SIZE"
 import { instanceSlot } from "./instanceSlot";
 import { summarizeCompiledSlotChunks } from "./summarizeCompiledSlotChunks";
 
-/**
+/*
  * Compile one world instance set into its compact runtime without expanding it.
  *
  * The record keeps the placement and variation laws, the route snapshot a route
  * layout follows, one bounds and centroid per chunk of
- * {@link AUTOMOVIE_INSTANCE_CHUNK_SIZE} slots, the representation tiers and
+ * AUTOMOVIE_INSTANCE_CHUNK_SIZE slots, the representation tiers and
  * measured or fallback radius of the base model group and every declared
  * prototype, and a digest of every other field. A declared prototype table is
  * compiled with the base group's default first, which is the choice list every
  * member is regenerated against afterwards.
  *
- * Bounds are measured by regenerating each slot through {@link instanceSlot}, so
+ * Bounds are measured by regenerating each slot through instanceSlot, so
  * a member whose seeded variation is non-finite, or whose route is missing or
  * has no length, refuses compilation instead of producing a set no consumer can
  * regenerate. Member radii are supplied host estimates that this kernel does

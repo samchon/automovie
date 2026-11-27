@@ -2,7 +2,9 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { readInspectionNumber } from "./readInspectionNumber.js";
 
-/** Read exactly three comma-separated inspection coordinates. */
+/*
+ * Read exactly three comma-separated inspection coordinates.
+ */
 export function readInspectionVector(text: string): IAutoMovieVector3 | null {
   const parts: string[] = text.split(",");
   if (parts.length !== 3) return null;

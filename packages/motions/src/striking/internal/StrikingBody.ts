@@ -8,7 +8,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * The body facts striking laws read: where a posture puts the shoulders, hips
  * and head before any limb is solved, where a weapon socket sits relative to
  * its wrist or ankle under a hand or foot rotation, the closed fist's finger
@@ -21,22 +21,21 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * for the sole).
  */
 export namespace StrikingBody {
-  /**
+  /*
    * World bones of a posture's trunk: the posture without its limb goals, so
    * the shoulders and hips are where the root, the heading and the trunk joints
    * put them, the points every limb solve starts from.
-   *
-   * @param body The body with topology indexed from its same, unchanged
-   *   skeleton.
-   * @param posture The posture.
-   * @param resolution Optional exact reader or lazy supplier borrowed only
-   *   within this synchronous evaluation.
-   * @param requested Optional output bones whose ancestry is needed; every
-   *   authored joint is still admitted and clamped.
-   * @param projection Optional genuine same-body ROM projector borrowed from
-   *   this synchronous operation; the posture owner checks provenance and still
-   *   projects every current joint.
-   * @returns Resolved bones by rig bone.
+   * Parameter body: The body with topology indexed from its same, unchanged
+   * skeleton.
+   * Parameter posture: The posture.
+   * Parameter resolution: Optional exact reader or lazy supplier borrowed only
+   * within this synchronous evaluation.
+   * Parameter requested: Optional output bones whose ancestry is needed; every
+   * authored joint is still admitted and clamped.
+   * Parameter projection: Optional genuine same-body ROM projector borrowed from
+   * this synchronous operation; the posture owner checks provenance and still
+   * projects every current joint.
+   * Returns: Resolved bones by rig bone.
    */
   export function trunk(
     body: IAutoMovieMotionHumanBody,
@@ -53,16 +52,15 @@ export namespace StrikingBody {
     return poseBones(body, pose, read?.(), requested);
   }
 
-  /**
+  /*
    * Prepare a fixed genuine bone demand for repeated complete trunk queries. No
    * posed result or FK workspace is retained by the returned producer.
-   *
-   * @param body The unchanged canonical body and its existing rig producer.
-   * @param requested Optional real output demand, snapshotted once; all outputs
-   *   when absent.
-   * @returns A reader of each actual posture, optional synchronous FK source
-   *   and optional genuine same-body ROM projector, neither retained by the
-   *   producer.
+   * Parameter body: The unchanged canonical body and its existing rig producer.
+   * Parameter requested: Optional real output demand, snapshotted once; all outputs
+   * when absent.
+   * Returns: A reader of each actual posture, optional synchronous FK source
+   * and optional genuine same-body ROM projector, neither retained by the
+   * producer.
    */
   export function prepareTrunk(
     body: IAutoMovieMotionHumanBody,
@@ -88,17 +86,16 @@ export namespace StrikingBody {
     };
   }
 
-  /**
+  /*
    * A region of a body at its resolved bones.
-   *
-   * @param body The body.
-   * @param bones Its resolved bones.
-   * @param region The region.
-   * @param tangent A point of the region's surface beside its own point, as an
-   *   offset on its tangent plane; absent or zero, the region's own point.
-   * @returns World point and outward normal.
-   * @throws {Error} When an offset is asked of a region the engine does not
-   *   place by a ray.
+   * Parameter body: The body.
+   * Parameter bones: Its resolved bones.
+   * Parameter region: The region.
+   * Parameter tangent: A point of the region's surface beside its own point, as an
+   * offset on its tangent plane; absent or zero, the region's own point.
+   * Returns: World point and outward normal.
+   * When an offset is asked of a region the engine does not
+   * place by a ray.
    */
   export function region(
     body: IAutoMovieMotionHumanBody,
@@ -119,14 +116,13 @@ export namespace StrikingBody {
     );
     return placed;
   }
-  /**
+  /*
    * A region's fixed bone-local frame, including an authored tangent offset.
-   *
-   * @param body The unchanged canonical body supplying the physical skin.
-   * @param region The named anatomical region.
-   * @param tangent Optional fixed offset on its tangent plane; absent or zero
-   *   keeps the prepared centre frame.
-   * @returns The actual engine frame in its owning bone's coordinates.
+   * Parameter body: The unchanged canonical body supplying the physical skin.
+   * Parameter region: The named anatomical region.
+   * Parameter tangent: Optional fixed offset on its tangent plane; absent or zero
+   * keeps the prepared centre frame.
+   * Returns: The actual engine frame in its owning bone's coordinates.
    */
   export function frame(
     body: IAutoMovieMotionHumanBody,
@@ -143,16 +139,15 @@ export namespace StrikingBody {
         );
   }
 
-  /**
+  /*
    * A region's radius: the extent the body built for it with its surfaces
    * (`AutoMovieHumanoidSurfaceExtents`), the disc about its point that is still
    * that region, so a strike aimed within it lands on that region.
-   *
-   * @param body The body.
-   * @param region The region.
-   * @returns The radius, metres.
-   * @throws {Error} When the body's surface table gives the region no extent, a
-   *   defect of the body's producer.
+   * Parameter body: The body.
+   * Parameter region: The region.
+   * Returns: The radius, metres.
+   * When the body's surface table gives the region no extent, a
+   * defect of the body's producer.
    */
   export function radius(
     body: IAutoMovieMotionHumanBody,
@@ -166,14 +161,13 @@ export namespace StrikingBody {
     return extent;
   }
 
-  /**
+  /*
    * A hand or foot socket's offset from its wrist or ankle under a world
    * rotation of that hand or foot.
-   *
-   * @param body The body.
-   * @param socket The socket.
-   * @param rotation The hand's or foot's world rotation from its rest.
-   * @returns The offset, world metres.
+   * Parameter body: The body.
+   * Parameter socket: The socket.
+   * Parameter rotation: The hand's or foot's world rotation from its rest.
+   * Returns: The offset, world metres.
    */
   export function socket(
     body: IAutoMovieMotionHumanBody,
@@ -186,18 +180,17 @@ export namespace StrikingBody {
     );
   }
 
-  /**
+  /*
    * The hand's world rotation that points the fist along a direction with the
    * palm facing a second direction: the rest finger axis (from the wrist to the
    * middle knuckle, along the arm in the T-pose) onto `knuckles` and the rest
    * palm normal (down) toward `palm`.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @param knuckles Where the fist's front faces, world direction.
-   * @param palm Where the palm faces, world direction (not parallel to
-   *   `knuckles`).
-   * @returns The rotation.
+   * Parameter body: The body.
+   * Parameter side: The hand.
+   * Parameter knuckles: Where the fist's front faces, world direction.
+   * Parameter palm: Where the palm faces, world direction (not parallel to
+   * `knuckles`).
+   * Returns: The rotation.
    */
   export function fist(
     body: IAutoMovieMotionHumanBody,
@@ -215,15 +208,14 @@ export namespace StrikingBody {
     );
   }
 
-  /**
+  /*
    * The foot's world rotation that points the toes along a direction with the
    * top of the foot (the instep) facing a second direction: the rest toe axis
    * (+Z) onto `toes`, the rest instep normal (+Y) toward `instep`.
-   *
-   * @param toes Where the toes point, world direction.
-   * @param instep Where the instep faces, world direction (not parallel to
-   *   `toes`).
-   * @returns The rotation.
+   * Parameter toes: Where the toes point, world direction.
+   * Parameter instep: Where the instep faces, world direction (not parallel to
+   * `toes`).
+   * Returns: The rotation.
    */
   export function foot(
     toes: IAutoMovieVector3,
@@ -235,16 +227,15 @@ export namespace StrikingBody {
     );
   }
 
-  /**
+  /*
    * The closed fist's finger and thumb angles, clinical degrees: the
    * metacarpophalangeal, proximal and distal interphalangeal joints at 85, 100
    * and 70 degrees, inside their normal 90, 100 and 80 degree ranges (American
    * Academy of Orthopaedic Surgeons, Joint Motion, 1965), with the thumb folded
    * 40 degrees across the middle phalanges. A finger curl has no effector goal
    * the limb solver could express, so it is set as angles.
-   *
-   * @param side The hand.
-   * @returns Clinical angles by bone.
+   * Parameter side: The hand.
+   * Returns: Clinical angles by bone.
    */
   export function curl(
     side: AutoMovieHumanSide,
@@ -262,15 +253,14 @@ export namespace StrikingBody {
     return out;
   }
 
-  /**
+  /*
    * Another body's collision shapes posed by its bones: every shape of every
    * physical-profile segment (the same shapes its regions are resolved on),
    * each with the posed frame of its segment as `HumanColliders.placed`, the
    * single owner of collider placement, gives it.
-   *
-   * @param body The other body.
-   * @param bones Its resolved bones.
-   * @returns The colliders, named by bone.
+   * Parameter body: The other body.
+   * Parameter bones: Its resolved bones.
+   * Returns: The colliders, named by bone.
    */
   export function colliders(
     body: IAutoMovieMotionHumanBody,
@@ -292,7 +282,7 @@ export namespace StrikingBody {
     );
   }
 
-  /**
+  /*
    * The exact original complete admission/digit path with only limb goals
    * cleared.
    */

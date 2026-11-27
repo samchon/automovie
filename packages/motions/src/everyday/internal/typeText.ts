@@ -31,7 +31,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { typeTextPresses } from "./typeTextPresses";
 
-/**
+/*
  * Typing a text on a keyboard from the posture the performer is in (seated at a
  * desk, or standing at a counter), pressing each key with an index fingertip.
  * The keyboard is the scene's prop: its `homeRow` contact places the keys, its
@@ -70,22 +70,25 @@ import { typeTextPresses } from "./typeTextPresses";
  * `press1` to `pressN`, one per key.
  */
 export namespace typeText {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "typeText";
 
-  /** Cancel table: none; a typing runs through its last press. */
+  /*
+   * Cancel table: none; a typing runs through its last press.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-  /**
+  /*
    * The keyboard a prop declares, where it stands at the action's start: its
    * `homeRow` contact's place, and the heading that faces it from its `+Z`
    * side, where `AutoMovieArchetypeKeyboard.create` puts the typist.
-   *
-   * @param context The action's context.
-   * @param subject The keyboard's prop subject.
-   * @returns The home row's middle and the typist's heading.
-   * @throws {HumanRefusal} When the prop declares no `homeRow` or `keys`, or
-   *   its key field is narrower than the letter rows.
+   * Parameter context: The action's context.
+   * Parameter subject: The keyboard's prop subject.
+   * Returns: The home row's middle and the typist's heading.
+   * When the prop declares no `homeRow` or `keys`, or
+   * its key field is narrower than the letter rows.
    */
   export function board(
     context: Pick<IAutoMovieMotionHumanActionContext, BoardContext>,
@@ -140,49 +143,57 @@ export namespace typeText {
     };
   }
 
-  /** Key pitch, metres (ISO/IEC 9995). */
+  /*
+   * Key pitch, metres (ISO/IEC 9995).
+   */
   export const PITCH: number = 0.01905;
 
-  /**
+  /*
    * The width the letter rows span, metres: the top row's ten keys, staggered a
    * quarter key left of the home row's middle, kept symmetric about it.
    */
   export const WIDTH: number = 2 * 5.25 * 0.01905;
 
-  /** Key travel, metres (provisional). */
+  /*
+   * Key travel, metres (provisional).
+   */
   export const TRAVEL: number = 0.004;
 
-  /** Hover height above a key between presses, metres (provisional). */
+  /*
+   * Hover height above a key between presses, metres (provisional).
+   */
   export const HOVER: number = 0.015;
 
-  /**
+  /*
    * The farthest a home key may lie from its shoulder, as a share of the arm
    * and hand's length (provisional: short of a fully straight arm).
    */
   const REACH: number = 0.95;
 
-  /**
+  /*
    * How far the home row may lie above or below the elbows' height, metres
    * (provisional).
    */
   const HEIGHT: number = 0.15;
 
-  /**
+  /*
    * Seconds before the first press, the time to reach the first key from where
    * the hands are (provisional).
    */
   const LEAD: number = 0.3;
 
-  /** Vertical drop per horizontal metre along the typing fingers (provisional). */
+  /*
+   * Vertical drop per horizontal metre along the typing fingers (provisional).
+   */
   const FINGER_SLOPE: number = -0.5;
 
-  /**
+  /*
    * How far out a typing elbow hangs, as `AutoMovieMotionHumanBend.hang`'s
    * share (provisional).
    */
   const OUT: number = 0.1;
 
-  /**
+  /*
    * The slowest and fastest everyday typists' words a minute (Feit, Weir and
    * Oulasvirta 2016, CHI '16, How We Type, figure 3).
    */
@@ -191,26 +202,27 @@ export namespace typeText {
     fastest: 79,
   };
 
-  /**
+  /*
    * Characters a word in a words-a-minute rate, the typing-test convention Feit
    * et al. 2016 count by.
    */
   const CHARACTERS: number = 5;
 
-  /** The QWERTY letter rows from the top, each with its stagger in keys. */
+  /*
+   * The QWERTY letter rows from the top, each with its stagger in keys.
+   */
   export const ROWS: readonly IROWSItem[] = [
     { keys: "qwertyuiop", stagger: -0.25 },
     { keys: "asdfghjkl", stagger: 0 },
     { keys: "zxcvbnm", stagger: 0.5 },
   ];
 
-  /**
+  /*
    * A key's centre in the keyboard's frame, metres: `x` toward the user's left,
    * `z` away from the user, the home row's middle at the origin.
-   *
-   * @param key A letter or a space.
-   * @returns The centre and the hand that presses it.
-   * @throws {HumanRefusal} When the layout has no such key.
+   * Parameter key: A letter or a space.
+   * Returns: The centre and the hand that presses it.
+   * When the layout has no such key.
    */
   export function key(key: string): IAutoMovieMotionHumanTypeText.IKeyResult {
     const k: string = key.toLowerCase();
@@ -236,13 +248,12 @@ export namespace typeText {
     });
   }
 
-  /**
+  /*
    * Plan typing.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} On an unknown key, an empty text, or a keyboard too
-   *   high, low or far for the body.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * On an unknown key, an empty text, or a keyboard too
+   * high, low or far for the body.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTypeText.IParams>,
@@ -460,14 +471,22 @@ export namespace typeText {
   }
 }
 
-/** The record of `IPlanResult`'s site. */
+/*
+ * The record of `IPlanResult`'s site.
+ */
 type IPlanResult = { name: string; share: number };
 
-/** The record of `IROWSItem`'s site. */
+/*
+ * The record of `IROWSItem`'s site.
+ */
 type IROWSItem = { keys: string; stagger: number };
 
-/** The alternatives of `WPMEntryItem`'s site. */
+/*
+ * The alternatives of `WPMEntryItem`'s site.
+ */
 type WPMEntryItem = "slowest" | "fastest";
 
-/** The alternatives of `BoardContext`'s site. */
+/*
+ * The alternatives of `BoardContext`'s site.
+ */
 type BoardContext = "prop" | "start";

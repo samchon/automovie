@@ -5,7 +5,7 @@ import type {
 
 import { HumanQuadraticProgram as QP } from "./HumanQuadraticProgram";
 
-/**
+/*
  * A problem stated as functions of a vector, convexified as trajopt's sco
  * convexifies one (github.com/joschu/trajopt at commit
  * 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c, BSD-2-Clause, Copyright (c) 2013,
@@ -24,65 +24,84 @@ import { HumanQuadraticProgram as QP } from "./HumanQuadraticProgram";
  * failed step. The result is a problem for `HumanSequentialConvex.minimise`.
  */
 export namespace HumanSequentialConvexFunctions {
-  /** A point: the variables' values. */
+  /*
+   * A point: the variables' values.
+   */
   export type Vector = readonly number[];
 
-  /** A cost (`CostFromFunc`). */
+  /*
+   * A cost (`CostFromFunc`).
+   */
   export interface ICost {
-    /** The cost's value at a point. */
+    /*
+     * The cost's value at a point.
+     */
     f: (x: Vector) => number;
 
-    /**
+    /*
      * Whether it is convexified with its full Hessian (`full_hessian`); its
      * diagonal otherwise.
      */
     full: boolean;
 
-    /**
+    /*
      * The variables it reads (`vars_`); every variable when absent. Its
      * derivatives are taken in these alone.
      */
     variables?: readonly number[];
   }
 
-  /** A constraint function (`ConstraintFromFunc`). */
+  /*
+   * A constraint function (`ConstraintFromFunc`).
+   */
   export interface IConstraint {
-    /** The constraint's values at a point: each 0, or each at most 0. */
+    /*
+     * The constraint's values at a point: each 0, or each at most 0.
+     */
     g: (x: Vector) => Vector;
 
-    /**
+    /*
      * Whether the values are equalities (`EQ`); inequalities `g <= 0` (`INEQ`)
      * otherwise.
      */
     equality: boolean;
 
-    /**
+    /*
      * The variables it reads (`vars_`); every variable when absent. Its
      * Jacobian is taken in these alone.
      */
     variables?: readonly number[];
   }
 
-  /** A problem in functions. */
+  /*
+   * A problem in functions.
+   */
   export interface IFunctions {
-    /** The costs, summed. */
+    /*
+     * The costs, summed.
+     */
     costs: readonly ICost[];
 
-    /** The constraints. */
+    /*
+     * The constraints.
+     */
     constraints: readonly IConstraint[];
 
-    /** Each variable's least value; `-Infinity` where unbounded. */
+    /*
+     * Each variable's least value; `-Infinity` where unbounded.
+     */
     low: Vector;
 
-    /** Each variable's greatest value; `Infinity` where unbounded. */
+    /*
+     * Each variable's greatest value; `Infinity` where unbounded.
+     */
     high: Vector;
   }
 
-  /**
+  /*
    * The problem the loop solves.
-   *
-   * @param functions The costs, the constraints and the bounds.
-   * @returns The problem.
+   * Parameter functions: The costs, the constraints and the bounds.
+   * Returns: The problem.
    */
   export function problem(
     functions: IFunctions,
@@ -108,14 +127,13 @@ export namespace HumanSequentialConvexFunctions {
     };
   }
 
-  /**
+  /*
    * `calcGradAndDiagHess` (num_diff.cpp): central differences of step `EPSILON
    * / 2` either side, the diagonal clipped at zero as `CostFromFunc::convex`
    * clips it.
-   *
-   * @param f The function.
-   * @param x The point.
-   * @returns The gradient and the Hessian, diagonal.
+   * Parameter f: The function.
+   * Parameter x: The point.
+   * Returns: The gradient and the Hessian, diagonal.
    */
   export function diagonalHessian(
     f: (x: Vector) => number,
@@ -142,14 +160,13 @@ export namespace HumanSequentialConvexFunctions {
     return { gradient, hessian };
   }
 
-  /**
+  /*
    * `calcGradHess` (num_diff.cpp): the forward-difference gradient and the
    * forward-difference Jacobian of it, symmetrised, kept on its positive
    * eigenvalues as `CostFromFunc::convex` keeps it.
-   *
-   * @param f The function.
-   * @param x The point.
-   * @returns The gradient and the Hessian's positive part.
+   * Parameter f: The function.
+   * Parameter x: The point.
+   * Returns: The gradient and the Hessian's positive part.
    */
   export function fullHessian(
     f: (x: Vector) => number,
@@ -182,12 +199,11 @@ export namespace HumanSequentialConvexFunctions {
     return { gradient, hessian };
   }
 
-  /**
+  /*
    * `calcForwardNumGrad` (num_diff.cpp).
-   *
-   * @param f The function.
-   * @param x The point.
-   * @returns The gradient.
+   * Parameter f: The function.
+   * Parameter x: The point.
+   * Returns: The gradient.
    */
   export function forwardGradient(
     f: (x: Vector) => number,
@@ -204,13 +220,12 @@ export namespace HumanSequentialConvexFunctions {
     return out;
   }
 
-  /**
+  /*
    * `calcForwardNumJac` (num_diff.cpp): row k the gradient of the function's
    * k-th value.
-   *
-   * @param f The function.
-   * @param x The point.
-   * @returns The Jacobian, rows the values and columns the variables.
+   * Parameter f: The function.
+   * Parameter x: The point.
+   * Returns: The Jacobian, rows the values and columns the variables.
    */
   export function forwardJacobian(
     f: (x: Vector) => Vector,
@@ -232,16 +247,24 @@ export namespace HumanSequentialConvexFunctions {
     );
   }
 
-  /** A function's derivatives at a point. */
+  /*
+   * A function's derivatives at a point.
+   */
   export interface IDerivatives {
-    /** The gradient. */
+    /*
+     * The gradient.
+     */
     gradient: number[];
 
-    /** The Hessian, convexified. */
+    /*
+     * The Hessian, convexified.
+     */
     hessian: number[][];
   }
 
-  /** The costs summed and the constraints' violations at a point. */
+  /*
+   * The costs summed and the constraints' violations at a point.
+   */
   function evaluation(
     functions: IFunctions,
     x: Vector,
@@ -267,7 +290,9 @@ export namespace HumanSequentialConvexFunctions {
     };
   }
 
-  /** The convex model about a point at a merit coefficient, in the step. */
+  /*
+   * The convex model about a point at a merit coefficient, in the step.
+   */
   function model(
     functions: IFunctions,
     x: Vector,
@@ -351,7 +376,7 @@ export namespace HumanSequentialConvexFunctions {
     };
   }
 
-  /**
+  /*
    * A symmetric matrix's positive part, Σ max(λ, 0) v vᵀ over its eigenpairs,
    * the eigenpairs by the cyclic Jacobi method (Golub and Van Loan 2013,
    * "Matrix Computations", 4th ed., section 8.5.3, each rotation the symmetric
@@ -413,12 +438,16 @@ export namespace HumanSequentialConvexFunctions {
     );
   }
 
-  /** Every variable's index of a point. */
+  /*
+   * Every variable's index of a point.
+   */
   function every(x: Vector): number[] {
     return x.map((_: number, i: number): number => i);
   }
 
-  /** An n-by-n matrix of zeros. */
+  /*
+   * An n-by-n matrix of zeros.
+   */
   function square(n: number): number[][] {
     return Array.from({ length: n }, (): number[] =>
       new Array<number>(n).fill(0),
@@ -426,5 +455,7 @@ export namespace HumanSequentialConvexFunctions {
   }
 }
 
-/** Sco's finite-difference step (`DEFAULT_EPSILON`, modeling_utils.cpp line 13). */
+/*
+ * Sco's finite-difference step (`DEFAULT_EPSILON`, modeling_utils.cpp line 13).
+ */
 const EPSILON: number = 1e-5;

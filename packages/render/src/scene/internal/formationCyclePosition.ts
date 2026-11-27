@@ -1,6 +1,6 @@
 import type { IAutoMovieFormationCadence } from "../IAutoMovieFormationCadence.js";
 
-/**
+/*
  * Where one member stands in its cycle, in `[0, 1)`.
  *
  * Phase is the slot's compiled `motionPhase`, derived from the formation seed
@@ -18,7 +18,9 @@ export const formationCyclePosition: (
 ) => number = (
   cadence: Pick<IAutoMovieFormationCadence, "advance" | "turn">,
   phase: number,
-  /** The member's distance from its unit's origin, in meters. */
+  /*
+   * The member's distance from its unit's origin, in meters.
+   */
   radius: number = 0,
 ): number => {
   const raw: number = phase + cadence.advance + radius * cadence.turn;

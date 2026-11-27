@@ -12,7 +12,7 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture case of the handstand: `gymnastics-handstand`, kicked up from quiet
  * standing, held 2 s and stepped down.
  *
@@ -22,9 +22,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  * horizontally of its shoulder (the stacked handstand), the hips above the
  * shoulders and the ankles above the hips, and the centre of mass within half a
  * hand of the line between the hands (balanced over the hands).
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function gymnasticsCases(
   bodies: readonly string[] = ["m-average"],

@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanAudit } from "@automovie/interface";
 
-/**
+/*
  * The audit's default limits, metres unless stated: 10 mm of self-penetration
  * (the skin's give where a hand rests on the body), 5 mm below the floor, 5 mm
  * of slip and of lift (the project's foot verdict bound), a 5 mm jump, a 50 mm

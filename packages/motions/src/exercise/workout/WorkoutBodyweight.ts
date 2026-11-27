@@ -8,7 +8,7 @@ import type {
 import { ExerciseKey } from "../internal/ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 
-/**
+/*
  * The bodyweight movements of the workout law a gym programme names beside the
  * ones the other tables hold. On the floor: the pike push-up, the superman, the
  * bird dog, the lying leg raise, the bicycle crunch, the Russian twist and the
@@ -26,13 +26,17 @@ import { WorkoutKind } from "./WorkoutKind";
  * kept by the angles alone.
  */
 export namespace WorkoutBodyweight {
-  /** Lying on the back with the arms by the sides. */
+  /*
+   * Lying on the back with the arms by the sides.
+   */
   const supine = (
     body: IAutoMovieMotionHumanBody,
   ): IAutoMovieMotionHumanExerciseKey.IKey =>
     ExerciseKey.from(body, { pitch: -90 }, { ankle: -20, elbow: 5 });
 
-  /** A kind done lying or sitting on the floor, the pelvis kept. */
+  /*
+   * A kind done lying or sitting on the floor, the pelvis kept.
+   */
   const floor = (
     base: IAutoMovieMotionHumanWorkoutKind["base"],
     supports: readonly IAutoMovieMotionHumanWorkoutKind.ISupport[],
@@ -50,19 +54,23 @@ export namespace WorkoutBodyweight {
     route,
   });
 
-  /** The back bears. */
+  /*
+   * The back bears.
+   */
   const BACK: readonly IAutoMovieMotionHumanWorkoutKind.ISupport[] = [
     { part: "back", kind: "lie" },
   ];
 
-  /** The exercises. */
+  /*
+   * The exercises.
+   */
   export const KINDS: Readonly<
     Record<
       IAutoMovieMotionHumanWorkoutBodyweight.Name,
       IAutoMovieMotionHumanWorkoutKind
     >
   > = {
-    /**
+    /*
      * A pike push-up: from the hips-high support on the hands and feet, the
      * head lowered between the hands.
      */
@@ -105,7 +113,7 @@ export namespace WorkoutBodyweight {
       ],
     },
 
-    /**
+    /*
      * A superman: lying face down, the arms ahead and the legs lifted off the
      * floor together.
      */
@@ -140,7 +148,7 @@ export namespace WorkoutBodyweight {
       ],
     ),
 
-    /**
+    /*
      * A bird dog: on hands and knees, one arm and the opposite leg reached
      * level, alternating.
      */
@@ -190,7 +198,7 @@ export namespace WorkoutBodyweight {
       ],
     },
 
-    /**
+    /*
      * A lying leg raise: on the back, both straight legs raised to upright and
      * lowered.
      */
@@ -215,7 +223,7 @@ export namespace WorkoutBodyweight {
       ],
     ),
 
-    /**
+    /*
      * A bicycle crunch: on the back, one knee drawn in as the opposite shoulder
      * turns to it, alternating.
      */
@@ -252,7 +260,7 @@ export namespace WorkoutBodyweight {
       true,
     ),
 
-    /**
+    /*
      * A Russian twist: sitting leaned back with the knees bent, the trunk
      * turned to each side in turn.
      */
@@ -287,7 +295,7 @@ export namespace WorkoutBodyweight {
       true,
     ),
 
-    /**
+    /*
      * A dead bug: on the back with the arms up and the hips and knees square,
      * one arm and the opposite leg lowered, alternating.
      */
@@ -325,7 +333,7 @@ export namespace WorkoutBodyweight {
       true,
     ),
 
-    /**
+    /*
      * A dip on two bars at the hips' height: the body lowered between the hands
      * until the upper arms are level, and pressed up.
      */

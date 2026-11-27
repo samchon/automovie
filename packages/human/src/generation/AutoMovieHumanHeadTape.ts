@@ -230,7 +230,7 @@ export namespace AutoMovieHumanHeadTape {
       );
     return { ...selected, evaluations, unavailable };
 
-    /**
+    /*
      * Refine one admitted basin; no producer failure is classified as an
      * unavailable candidate.
      */
@@ -338,7 +338,7 @@ export namespace AutoMovieHumanHeadTape {
     }
   }
 
-  /**
+  /*
    * One scalar closure of the family against the public tape.
    *
    * The family's course length increases with the cranial power over the
@@ -439,7 +439,9 @@ export namespace AutoMovieHumanHeadTape {
   }
 }
 
-/** One accepted trial and its numerical course maximum. */
+/*
+ * One accepted trial and its numerical course maximum.
+ */
 type Trial = IAutoMovieHumanHeadTape.Member & {
   power: number;
   course: IAutoMovieHumanHeadTape.ICourse;

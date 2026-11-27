@@ -3,12 +3,14 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { ArmourProfile } from "./ArmourProfile";
 
-/**
+/*
  * Formula-defined convex wall cells; the shared core alone realizes their
  * hulls.
  */
 export namespace ArmourCell {
-  /** A panel whose six bounds come from the shared profile's boundaries. */
+  /*
+   * A panel whose six bounds come from the shared profile's boundaries.
+   */
   export function box(
     id: string,
     low: IAutoMovieVector3,
@@ -24,7 +26,9 @@ export namespace ArmourCell {
     return { id, points };
   }
 
-  /** The least centre-to-face distance of one complete authored outer course. */
+  /*
+   * The least centre-to-face distance of one complete authored outer course.
+   */
   export function minimumDistance(
     faces: Iterable<readonly IAutoMovieVector3[]>,
     centre: IAutoMovieVector3,
@@ -43,17 +47,16 @@ export namespace ArmourCell {
     return minimum;
   }
 
-  /**
+  /*
    * A radial wall between one planar outer face and a parallel inner face.
-   *
-   * @param cavity A fitted spherical/circular cavity's exact minimum plane
-   *   distance; absent for an inward plate offset.
-   * @param course Radial faces may scale all coordinates; axial faces preserve
-   *   Y endpoints. A lattice is already placed at cavity+wall and shares one
-   *   global inner ratio.
-   * @param minimum The entire unfitted course's least positive face support;
-   *   its shared homothety makes wall a minimum authored normal gauge, not a
-   *   uniform specimen measurement.
+   * Parameter cavity: A fitted spherical/circular cavity's exact minimum plane
+   * distance; absent for an inward plate offset.
+   * Parameter course: Radial faces may scale all coordinates; axial faces preserve
+   * Y endpoints. A lattice is already placed at cavity+wall and shares one
+   * global inner ratio.
+   * Parameter minimum: The entire unfitted course's least positive face support;
+   * its shared homothety makes wall a minimum authored normal gauge, not a
+   * uniform specimen measurement.
    */
   export function radial(
     id: string,
@@ -93,7 +96,9 @@ export namespace ArmourCell {
       ],
     };
 
-    /** The axial course's independently measured segment length never scales. */
+    /*
+     * The axial course's independently measured segment length never scales.
+     */
     function scale(
       point: IAutoMovieVector3,
       factorValue: number,
@@ -106,7 +111,9 @@ export namespace ArmourCell {
     }
   }
 
-  /** The planar face's positive distance from the course's common centre. */
+  /*
+   * The planar face's positive distance from the course's common centre.
+   */
   function distance(
     face: readonly IAutoMovieVector3[],
     centre: IAutoMovieVector3,

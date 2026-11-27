@@ -1,6 +1,8 @@
 import type { IAutoMovieRecoveryUntiltedEstimate } from "@automovie/interface";
 
-/** Copy one selected model's borrowed original dual into fit-owned seed storage. */
+/*
+ * Copy one selected model's borrowed original dual into fit-owned seed storage.
+ */
 export function copyRecoveryUntiltedEstimate(
   estimate: IAutoMovieRecoveryUntiltedEstimate | null,
   width: number,

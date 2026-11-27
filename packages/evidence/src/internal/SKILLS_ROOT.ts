@@ -1,4 +1,4 @@
-/**
+/*
  * Names a production's skills tree relative to its own directory.
  *
  * A standalone production holds its bundled contracts here; a workspace

@@ -12,7 +12,7 @@ import { builtSpaceContainsPoint } from "../../architecture/internal/builtSpaceC
 import { builtSpaceStatesVolume } from "../../architecture/internal/builtSpaceStatesVolume";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
-/**
+/*
  * Decide which logical spaces a camera cannot possibly see.
  *
  * Cell-and-portal culling, run conservatively. Two spaces are joined when
@@ -142,10 +142,12 @@ export function autoMovieRoomVisibility(
   };
 }
 
-/** The exterior, as a node of the portal graph rather than the absence of one. */
+/*
+ * The exterior, as a node of the portal graph rather than the absence of one.
+ */
 const EXTERIOR: string = " exterior";
 
-/**
+/*
  * Every space kept visible from `origin`.
  *
  * The portal closure runs over cells only, and containers are added at the end.

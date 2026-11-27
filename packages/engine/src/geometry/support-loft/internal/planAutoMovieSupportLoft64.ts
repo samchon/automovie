@@ -11,7 +11,7 @@ import { AutoMovieBernsteinAlgebra64 as B } from "../../AutoMovieBernsteinAlgebr
 import { rootsAutoMovieCubicBernstein64 } from "../../curve/internal/rootsAutoMovieCubicBernstein64";
 import type { IAutoMovieSupportLoftPlan64 } from "./IAutoMovieSupportLoftPlan64";
 
-/**
+/*
  * Plan continuous plane-pair boundary curves and feasible incidence events.
  * Three support planes meet when a scalar cubic slack vanishes. Isolated roots
  * use the existing normalized binary64 cubic solver; they are numerical
@@ -321,14 +321,22 @@ export function planAutoMovieSupportLoft64(
   return plan;
 }
 
-/** One feasible isolated triple-plane incidence before station coalescing. */
+/*
+ * One feasible isolated triple-plane incidence before station coalescing.
+ */
 interface ISupportLoftEvent {
-  /** Normalized phase of the determinant root within this span. */
+  /*
+   * Normalized phase of the determinant root within this span.
+   */
   phase: number;
 
-  /** Ascending ordinals of the three incident planes. */
+  /*
+   * Ascending ordinals of the three incident planes.
+   */
   triple: [number, number, number];
 
-  /** Plane-pair curve key used to verify the candidate's feasibility. */
+  /*
+   * Plane-pair curve key used to verify the candidate's feasibility.
+   */
   pair: string;
 }

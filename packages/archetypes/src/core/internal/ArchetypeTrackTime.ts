@@ -1,16 +1,17 @@
 import { AutoMovieArchetypeRefusal } from "../AutoMovieArchetypeRefusal";
 
-/** Finite clock admission shared by mechanism tracks and their recoil consumer. */
+/*
+ * Finite clock admission shared by mechanism tracks and their recoil consumer.
+ */
 export namespace ArchetypeTrackTime {
-  /**
+  /*
    * Admit positive duration and a representably later finite end.
-   *
-   * @param archetype The consumer's refusal name.
-   * @param start Finite film start, including negative seconds.
-   * @param seconds Finite positive duration, seconds.
-   * @returns The finite end strictly later than start.
-   * @throws {AutoMovieArchetypeRefusal} At seconds for invalid duration or
-   *   start for unsupported interval.
+   * Parameter archetype: The consumer's refusal name.
+   * Parameter start: Finite film start, including negative seconds.
+   * Parameter seconds: Finite positive duration, seconds.
+   * Returns: The finite end strictly later than start.
+   * At seconds for invalid duration or
+   * start for unsupported interval.
    */
   export function end(
     archetype: string,
@@ -42,16 +43,15 @@ export namespace ArchetypeTrackTime {
     return result;
   }
 
-  /**
+  /*
    * Read held elapsed time without subtracting outside the admitted interval.
-   *
-   * @param archetype The consumer's refusal name.
-   * @param sample Finite film sample seconds.
-   * @param start Admitted finite start.
-   * @param end Admitted finite end.
-   * @param seconds Admitted positive duration.
-   * @returns Zero before start, duration after end, or interior elapsed time.
-   * @throws {AutoMovieArchetypeRefusal} If the sample cannot locate a film instant.
+   * Parameter archetype: The consumer's refusal name.
+   * Parameter sample: Finite film sample seconds.
+   * Parameter start: Admitted finite start.
+   * Parameter end: Admitted finite end.
+   * Parameter seconds: Admitted positive duration.
+   * Returns: Zero before start, duration after end, or interior elapsed time.
+   * If the sample cannot locate a film instant.
    */
   export function elapsed(
     archetype: string,
@@ -74,13 +74,12 @@ export namespace ArchetypeTrackTime {
     });
   }
 
-  /**
+  /*
    * Exact rounding residual of an admitted start+duration sum.
-   *
-   * @param start Admitted finite start.
-   * @param seconds Admitted positive duration.
-   * @param end Their admitted rounded sum.
-   * @returns The low part of the exact sum, seconds.
+   * Parameter start: Admitted finite start.
+   * Parameter seconds: Admitted positive duration.
+   * Parameter end: Their admitted rounded sum.
+   * Returns: The low part of the exact sum, seconds.
    */
   export function roundingError(
     start: number,
@@ -92,21 +91,20 @@ export namespace ArchetypeTrackTime {
     return b - (end - a);
   }
 
-  /**
+  /*
    * Place a crossing from its nearer time endpoint without collapsing an
    * interior event.
-   *
-   * @param archetype The consumer's refusal name.
-   * @param start Admitted start.
-   * @param end Admitted end.
-   * @param seconds Admitted duration.
-   * @param offset Seconds from the selected endpoint.
-   * @param fromEnd Offset is backward from end when true, forward from start
-   *   otherwise.
-   * @param error Prepared end residual for backward offsets.
-   * @returns A held endpoint or a representably interior finite instant.
-   * @throws {AutoMovieArchetypeRefusal} For unsupported offset or interior
-   *   clock resolution.
+   * Parameter archetype: The consumer's refusal name.
+   * Parameter start: Admitted start.
+   * Parameter end: Admitted end.
+   * Parameter seconds: Admitted duration.
+   * Parameter offset: Seconds from the selected endpoint.
+   * Parameter fromEnd: Offset is backward from end when true, forward from start
+   * otherwise.
+   * Parameter error: Prepared end residual for backward offsets.
+   * Returns: A held endpoint or a representably interior finite instant.
+   * For unsupported offset or interior
+   * clock resolution.
    */
   export function instant(
     archetype: string,

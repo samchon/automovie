@@ -13,14 +13,13 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Prepare fixed ROM and FK metadata for one crawl-descent state search. The
  * caller releases these readers when that synchronous search ends; each posture
  * still undergoes complete canonical projection and fitting.
- *
- * @param body The unchanged body of the descent.
- * @returns Actual shoulder, knee, full-pose and mass-centre readers for current
- *   candidates.
+ * Parameter body: The unchanged body of the descent.
+ * Returns: Actual shoulder, knee, full-pose and mass-centre readers for current
+ * candidates.
  */
 export function prepareCrawlDownResolution(
   body: IAutoMovieMotionHumanBody,
@@ -38,7 +37,9 @@ export function prepareCrawlDownResolution(
     KNEES,
   );
 
-  /** Project and fit each actual candidate before reading its requested frames. */
+  /*
+   * Project and fit each actual candidate before reading its requested frames.
+   */
   const pose: (posture: IAutoMovieMotionHumanPosture) => IAutoMoviePose = (
     posture: IAutoMovieMotionHumanPosture,
   ): IAutoMoviePose =>
@@ -70,21 +71,29 @@ export function prepareCrawlDownResolution(
   };
 }
 
-/**
+/*
  * Actual canonical observations used during one synchronous crawl-descent
  * solve.
  */
 interface IReading {
-  /** The current two shoulders' midpoint, world metres. */
+  /*
+   * The current two shoulders' midpoint, world metres.
+   */
   shoulders(posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3;
 
-  /** The current two knee frames after the original complete limb/digit solve. */
+  /*
+   * The current two knee frames after the original complete limb/digit solve.
+   */
   knees(posture: IAutoMovieMotionHumanPosture): ReturnType<typeof poseBones>;
 
-  /** The current complete canonical pose, for the solved arms at hands-down. */
+  /*
+   * The current complete canonical pose, for the solved arms at hands-down.
+   */
   pose(posture: IAutoMovieMotionHumanPosture): IAutoMoviePose;
 }
 
-/** The sitting-back contact predicate observes only the two knee frames. */
+/*
+ * The sitting-back contact predicate observes only the two knee frames.
+ */
 const KNEES: ReadonlySet<AutoMovieHumanoidBone> =
   new Set<AutoMovieHumanoidBone>(["leftLowerLeg", "rightLowerLeg"]);

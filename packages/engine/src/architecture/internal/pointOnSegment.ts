@@ -3,18 +3,17 @@ import { IAutoMoviePlanarPoint } from "@automovie/interface";
 import { PLANAR_EPSILON } from "../../geometry/PLANAR_EPSILON";
 import { planarSide } from "./planarSide";
 
-/**
+/*
  * Whether a point lies on a closed segment, its endpoints included.
  *
- * The point must be collinear by {@link planarSide} and inside the segment's
+ * The point must be collinear by planarSide and inside the segment's
  * axis-aligned box widened by `PLANAR_EPSILON` (1e-12) on every side. A
  * zero-length segment therefore contains exactly the points within that slack
  * of its one position.
- *
- * @param point Point to test, in the caller's planar frame.
- * @param from One endpoint of the segment, in the same frame.
- * @param to The other endpoint, in the same frame.
- * @returns True when the point is on the segment within the stated tolerance.
+ * Parameter point: Point to test, in the caller's planar frame.
+ * Parameter from: One endpoint of the segment, in the same frame.
+ * Parameter to: The other endpoint, in the same frame.
+ * Returns: True when the point is on the segment within the stated tolerance.
  */
 export function pointOnSegment(
   point: IAutoMoviePlanarPoint,

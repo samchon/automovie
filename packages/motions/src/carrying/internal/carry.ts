@@ -31,7 +31,7 @@ import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShape
 import { carryPlace } from "./carryPlace";
 import { loadedWalkPace } from "./loadedWalkPace";
 
-/**
+/*
  * Walking to a floor point while carrying a load or pushing a wheeled one: a
  * bag in one hand, a box in both hands before the body, a child on the hip, or
  * a cart or stroller pushed by its handle.
@@ -76,10 +76,12 @@ import { loadedWalkPace } from "./loadedWalkPace";
  * and the frozen hand offset of a held prop.
  */
 export namespace carry {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "carry";
 
-  /**
+  /*
    * Cancel table: a carry ends into standing, putting down or handing over at
    * its last footfall.
    */
@@ -110,37 +112,36 @@ export namespace carry {
     ],
   };
 
-  /**
+  /*
    * The head, arms and trunk's share of the body's mass (Winter 2009, Table
    * 4.1).
    */
   export const HAT_MASS: number = 0.678;
 
-  /**
+  /*
    * Where the head, arms and trunk's centre of mass lies from the hips to the
    * shoulders, as a share (Winter 2009, Table 4.1).
    */
   export const HAT_CENTRE: number = 0.626;
 
-  /**
+  /*
    * A pushed handle's forward trunk lean per unit of the cart's mass share,
    * degrees; no located study gives it.
    */
   export const PUSH: number = 40;
 
-  /**
+  /*
    * The trunk's lean that balances a held load over the hips, degrees: the
    * head, arms and trunk tip by `asin(s d / (HAT_MASS h))`, with `s` the load's
    * mass share, `d` the load's offset from the hips' midline (the shoulder's
    * half width for a hanging bag, the hip's for a child, the box's reach ahead)
    * and `h` the height of the trunk's centre above the hips. A pushed handle
    * leans by `PUSH`.
-   *
-   * @param body The body.
-   * @param how How the load is held.
-   * @param load The load's mass share.
-   * @returns Degrees of lean, away from a side load, back from a front one,
-   *   forward over a pushed handle.
+   * Parameter body: The body.
+   * Parameter how: How the load is held.
+   * Parameter load: The load's mass share.
+   * Returns: Degrees of lean, away from a side load, back from a front one,
+   * forward over a pushed handle.
    */
   export function tilt(
     body: { measure: Pick<IAutoMovieMotionHumanBody["measure"], TiltMeasure> },
@@ -163,10 +164,12 @@ export namespace carry {
     );
   }
 
-  /** Seconds over which the hold and the lean grow in (provisional). */
+  /*
+   * Seconds over which the hold and the lean grow in (provisional).
+   */
   export const RAMP: number = 0.4;
 
-  /**
+  /*
    * The one-hand load's hanging arm, clinical `[flexion, abduction, twist]`
    * degrees. The load pulls the arm straight down, so the elbow sits at its
    * range's full extension (`DEFAULT_HUMANOID_ROM`), and the upper arm is
@@ -175,11 +178,10 @@ export namespace carry {
    * beside the thigh's outer surface (the hip joint's half width plus the
    * thigh's radius), reached from the shoulder's half width over the arm's
    * length. A body whose shoulders stand wider than that hangs its arm plumb.
-   *
-   * @param body The body.
-   * @param side The loaded arm.
-   * @returns The upper arm's and the elbow's angles.
-   * @throws {Error} When the range-of-motion table gives the elbow no flexion.
+   * Parameter body: The body.
+   * Parameter side: The loaded arm.
+   * Returns: The upper arm's and the elbow's angles.
+   * When the range-of-motion table gives the elbow no flexion.
    */
   export function hang(
     body: { measure: Pick<IAutoMovieMotionHumanBody["measure"], HangMeasure> },
@@ -200,13 +202,12 @@ export namespace carry {
     return { upper: [0, abduction, 0], lower: [elbow.min, 0, 0] };
   }
 
-  /**
+  /*
    * Plan a carry.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the load's share lies outside [0, 0.25], or the
-   *   walk refuses its destination.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the load's share lies outside [0, 0.25], or the
+   * walk refuses its destination.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarry.IParams>,
@@ -443,10 +444,14 @@ export namespace carry {
   }
 }
 
-/** The record of `IPlanClockResult`'s site. */
+/*
+ * The record of `IPlanClockResult`'s site.
+ */
 type IPlanClockResult = { name: string; seconds: number };
 
-/** The measures a load's lean reads (`carry.tilt`). */
+/*
+ * The measures a load's lean reads (`carry.tilt`).
+ */
 type TiltMeasure =
   | "shoulderHalfWidth"
   | "hipHalfWidth"
@@ -455,7 +460,9 @@ type TiltMeasure =
   | "shoulderHeight"
   | "hipHeight";
 
-/** The measures a hanging arm reads (`carry.hang`). */
+/*
+ * The measures a hanging arm reads (`carry.hang`).
+ */
 type HangMeasure =
   | "hipHalfWidth"
   | "thighRadius"
@@ -464,13 +471,19 @@ type HangMeasure =
   | "upperArm"
   | "forearm";
 
-/** The record of `IHangResult`'s site. */
+/*
+ * The record of `IHangResult`'s site.
+ */
 type IHangResult = {
   upper: readonly [number, number, number];
   lower: readonly [number, number, number];
 };
-/** A same-body FK loan scoped to the current posture evaluation. */
+/*
+ * A same-body FK loan scoped to the current posture evaluation.
+ */
 type FK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
 
-/** One joint's immutable start-to-end interpolation. */
+/*
+ * One joint's immutable start-to-end interpolation.
+ */
 type JointBlend = ReturnType<typeof blendHumanJoint.between>;

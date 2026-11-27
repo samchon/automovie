@@ -1,10 +1,14 @@
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 
-/** The College Physics textbook's table of measured pairs. */
+/*
+ * The College Physics textbook's table of measured pairs.
+ */
 const OPENSTAX: string =
   "OpenStax, College Physics 2e (2022), Table 5.1, Coefficients of Static and Kinetic Friction (https://openstax.org/books/college-physics-2e/pages/5-1-friction)";
 
-/** The Physics Hypertextbook's table, each row with its primary source. */
+/*
+ * The Physics Hypertextbook's table, each row with its primary source.
+ */
 const ELERT: string =
   "G. Elert, The Physics Hypertextbook, Friction, coefficient table (https://physics.info/friction/)";
 
@@ -59,7 +63,9 @@ export namespace AutoMovieArchetypeMaterial {
     readonly source: string;
   }
 
-  /** The admitted names, kept private so callers cannot edit the catalogue. */
+  /*
+   * The admitted names, kept private so callers cannot edit the catalogue.
+   */
   const KINDS: readonly Kind[] = Object.freeze([
     "rubber",
     "wood",

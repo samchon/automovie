@@ -7,7 +7,7 @@ import type {
 import { incircleAutoMovieSolidChart } from "./incircleAutoMovieSolidChart";
 import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
 
-/**
+/*
  * Flip a triangulation's free diagonals until each is locally Delaunay in the
  * face's uniform metric: the constrained Delaunay triangulation (Lawson 1977).
  *
@@ -57,25 +57,24 @@ import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
  * vertex ID's occurrence at lift zero, so a flip and its reverse read the same
  * four represented points. Free diagonals are visited in triangle and corner
  * order, and every flip queues its four outer sides in that order.
- *
- * @param vertices Indexed native chart positions; no coordinate changes.
- * @param constraints Subdivided source constraints, never flipped.
- * @param triangles Positive triangle occurrences covering the region once.
- * @param period Positive phase period, absent for a planar chart.
- * @param indexed Whether the consumer drops lifts into a global index buffer,
- *   which forbids a half-period span.
- * @param occupied Prior global endpoint pairs `minID/maxID` a new diagonal
- *   cannot reuse.
- * @param scale Phase scale of the uniform metric, positive and finite, in
- *   length units per radian.
- * @param local A quadrilateral's own first fundamental form from its four
- *   vertex IDs and their chart points in its cover, as `[shear, scale]` for the
- *   map `(u, v) -> (u + shear v, scale v)`, read in place of `scale`, so the
- *   face is Delaunay in the metric each quadrilateral spans; absent, `scale`
- *   holds everywhere with no shear. A flip and its reverse read the same four
- *   points and so the same form.
- * @returns New positive triangle occurrences over the same region and vertices,
- *   or the broken premise.
+ * Parameter vertices: Indexed native chart positions; no coordinate changes.
+ * Parameter constraints: Subdivided source constraints, never flipped.
+ * Parameter triangles: Positive triangle occurrences covering the region once.
+ * Parameter period: Positive phase period, absent for a planar chart.
+ * Parameter indexed: Whether the consumer drops lifts into a global index buffer,
+ * which forbids a half-period span.
+ * Parameter occupied: Prior global endpoint pairs `minID/maxID` a new diagonal
+ * cannot reuse.
+ * Parameter scale: Phase scale of the uniform metric, positive and finite, in
+ * length units per radian.
+ * Parameter local: A quadrilateral's own first fundamental form from its four
+ * vertex IDs and their chart points in its cover, as `[shear, scale]` for the
+ * map `(u, v) -> (u + shear v, scale v)`, read in place of `scale`, so the
+ * face is Delaunay in the metric each quadrilateral spans; absent, `scale`
+ * holds everywhere with no shear. A flip and its reverse read the same four
+ * points and so the same form.
+ * Returns: New positive triangle occurrences over the same region and vertices,
+ * or the broken premise.
  */
 export function legalizeAutoMovieSolidMesh(
   vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
@@ -215,13 +214,19 @@ export function legalizeAutoMovieSolidMesh(
   return result;
 }
 
-/** One directed side of a triangle: the edge from `corner` to the next corner. */
+/*
+ * One directed side of a triangle: the edge from `corner` to the next corner.
+ */
 interface Side {
-  /** Triangle index. */ triangle: number;
-  /** Corner the side leaves. */ corner: number;
+  /*
+   * Triangle index.
+   */ triangle: number;
+  /*
+   * Corner the side leaves.
+   */ corner: number;
 }
 
-/**
+/*
  * The flipped pair across a shared side, or null when the side is locally
  * Delaunay or a new triangle breaks the planner's representability rules. The
  * first returned triangle is `(P, S, R)` and the second `(S, Q, R)`, so the new
@@ -314,7 +319,7 @@ function flip(
   ];
 }
 
-/**
+/*
  * The planner's ear rule: positive, a represented strict centroid and a
  * sub-half-period span.
  */
@@ -342,7 +347,9 @@ function represented(
   );
 }
 
-/** A triangle side's identity with its relative cover turn. */
+/*
+ * A triangle side's identity with its relative cover turn.
+ */
 function edge(
   triangle: IAutoMovieSolidMeshPlan.ITriangle,
   corner: number,
@@ -355,7 +362,7 @@ function edge(
   );
 }
 
-/**
+/*
  * Canonical indexed edge identity retaining the relative period turn, as the
  * insertion owner reads it.
  */
@@ -367,7 +374,9 @@ function key(a: number, b: number, turn: number): string {
       : `${b}/${a}/${-turn}`;
 }
 
-/** Unoriented global endpoint pair, as the face's occupied set names it. */
+/*
+ * Unoriented global endpoint pair, as the face's occupied set names it.
+ */
 function pair(a: number, b: number): string {
   return `${Math.min(a, b)}/${Math.max(a, b)}`;
 }

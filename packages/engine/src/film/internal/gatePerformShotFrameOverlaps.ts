@@ -3,7 +3,7 @@ import type {
   IAutoMoviePerformShotFrameJob,
 } from "@automovie/interface";
 
-/**
+/*
  * Sort the live camera's frame moves by start, in place, and refuse moves that
  * double-book the camera.
  *
@@ -13,9 +13,8 @@ import type {
  * move's start is another. An `"auto"` duration yields to the next move by
  * definition, so it never overlaps. The sorted order is the one the blocking
  * gate, the camera compile and `cameraIntent` read.
- *
- * @param context The shot's staged tables and collector.
- * @param frames The frame jobs; sorted in place by `action.start`.
+ * Parameter context: The shot's staged tables and collector.
+ * Parameter frames: The frame jobs; sorted in place by `action.start`.
  */
 export function gatePerformShotFrameOverlaps(
   context: IAutoMovieEnginePerformShotGateContext,

@@ -10,7 +10,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** The rule that fixes a competition barbell. */
+/*
+ * The rule that fixes a competition barbell.
+ */
 const IWF: string =
   "International Weightlifting Federation, Technical and Competition Rules and Regulations, the rules on the barbell: the men's bar 20 kg, 2200 mm long, 28 mm across its grip; the women's bar 15 kg, 2010 mm long, 25 mm across its grip; both 1310 mm between the inner collars with sleeves 50 mm across; the largest discs 450 mm across";
 
@@ -215,7 +217,7 @@ export function create(
     load: "kg",
   };
 
-  /**
+  /*
    * The hands' spacing: from a clean's grip to a snatch's. An estimate, not
    * read at a source.
    */
@@ -226,7 +228,9 @@ export function create(
     true,
   );
 
-  /** The load on each side. An estimate of the range a film stages, not a rule. */
+  /*
+   * The load on each side. An estimate of the range a film stages, not a rule.
+   */
   const LOAD: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
     "kg",
     0,

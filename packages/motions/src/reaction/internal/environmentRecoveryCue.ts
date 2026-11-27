@@ -4,65 +4,72 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * The staged hazards that cut a walk: a trip on an obstruction and a slip on a
  * surface, each read as the velocity change it hands the body and its
  * direction.
  */
 export namespace environmentRecoveryCue {
-  /**
+  /*
    * How far the displayed toe may be from the obstruction at the cue, metres
    * (provisional: a toe visibly touching it).
    */
   export const CONTACT: number = 0.025;
 
-  /**
+  /*
    * The least forward toe speed that can trip, metres per second (provisional:
    * a swing, not a foot at rest).
    */
   export const SWING: number = 0.02;
 
-  /**
+  /*
    * The least sliding speed of a slipping sole that sets the slide's direction,
    * metres per second; slower slides go along the heading (provisional).
    */
   export const SLIDE: number = 0.02;
 
-  /**
+  /*
    * The share of the swinging foot's forward speed the trip hands the body as a
    * velocity change (provisional).
    */
   export const TRIP_SHARE: number = 0.28;
 
-  /**
+  /*
    * The share of the excess horizontal load a slip hands the body as a velocity
    * change, seconds (provisional).
    */
   export const SLIP_SHARE: number = 0.18;
 
-  /** A measured cue: its source, velocity change and direction. */
+  /*
+   * A measured cue: its source, velocity change and direction.
+   */
   export interface ICue {
-    /** The named source: the obstruction, the support prop or `floor`. */
+    /*
+     * The named source: the obstruction, the support prop or `floor`.
+     */
     source: string;
 
-    /** The velocity change, metres per second. */
+    /*
+     * The velocity change, metres per second.
+     */
     severity: number;
 
-    /** Its horizontal unit direction. */
+    /*
+     * Its horizontal unit direction.
+     */
     direction: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * A trip: the swinging toe within `CONTACT` of the obstruction and moving
    * forward faster than `SWING` hands the body `TRIP_SHARE` of that speed along
    * the heading.
-   *
-   * @param source The obstruction.
-   * @param nearest The toe's distance to it, metres.
-   * @param forward The toe's forward speed along the heading, m/s.
-   * @param yaw The walker's heading, degrees.
-   * @returns The cue.
-   * @throws {HumanRefusal} When the toe is clear of it or not swinging forward.
+   * Parameter source: The obstruction.
+   * Parameter nearest: The toe's distance to it, metres.
+   * Parameter forward: The toe's forward speed along the heading, m/s.
+   * Parameter yaw: The walker's heading, degrees.
+   * Returns: The cue.
+   * When the toe is clear of it or not swinging forward.
    */
   export function trip(
     source: string,
@@ -83,20 +90,19 @@ export namespace environmentRecoveryCue {
     };
   }
 
-  /**
+  /*
    * A slip: a bearing sole whose required friction exceeds the surface's
    * coefficient hands the body `SLIP_SHARE` of its horizontal load relative to
    * the support, scaled by the friction's shortfall `1 - μ / μ_required`, along
    * its slide (along the heading when it barely slides).
-   *
-   * @param source The support prop or `floor`.
-   * @param relative The load's acceleration relative to the support, m/s².
-   * @param carried The sole's velocity relative to the support, m/s.
-   * @param coefficient The surface's friction coefficient.
-   * @param required The friction the load requires.
-   * @param yaw The walker's heading, degrees.
-   * @returns The cue.
-   * @throws {HumanRefusal} When the surface can still carry the sole.
+   * Parameter source: The support prop or `floor`.
+   * Parameter relative: The load's acceleration relative to the support, m/s².
+   * Parameter carried: The sole's velocity relative to the support, m/s.
+   * Parameter coefficient: The surface's friction coefficient.
+   * Parameter required: The friction the load requires.
+   * Parameter yaw: The walker's heading, degrees.
+   * Returns: The cue.
+   * When the surface can still carry the sole.
    */
   export function slip(
     source: string,
@@ -126,13 +132,12 @@ export namespace environmentRecoveryCue {
     };
   }
 
-  /**
+  /*
    * The recovery's parameter refusal.
-   *
-   * @param axis The refused parameter.
-   * @param value Its value.
-   * @param reason Why it is refused.
-   * @returns The refusal.
+   * Parameter axis: The refused parameter.
+   * Parameter value: Its value.
+   * Parameter reason: Why it is refused.
+   * Returns: The refusal.
    */
   export function refuse(
     axis: string,

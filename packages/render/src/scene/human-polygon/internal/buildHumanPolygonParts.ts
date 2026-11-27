@@ -10,7 +10,7 @@ import * as THREE from "three";
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import type { buildHumanPolygonModule } from "./buildHumanPolygonModule.js";
 
-/**
+/*
  * Emit the mannequin's rigid modules from the engine's ring modules, the one
  * statement of the body's simple solid form: the same rings and ring points the
  * physical profile takes its colliders from, so the drawn surface and the

@@ -1,7 +1,7 @@
 import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
 import type * as THREE from "three";
 
-/**
+/*
  * Describe Three r186's next native map or VSM blur attachment factory.
  * WebGLShadowMap multiplies mapSize by public frame extents and clamps each
  * viewport to floor(maxTextureSize / extent). Point cubes use the resulting

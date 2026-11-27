@@ -13,7 +13,7 @@ import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCo
 import { validateExpression } from "./validateExpression";
 import { validatePose } from "./validatePose";
 
-/**
+/*
  * Admit the motion's skeleton, positive duration, ordered in-range times,
  * bezier controls, frame pose/expression and adjacent-axis speed.
  */
@@ -83,13 +83,13 @@ export function validateMotion(
   return collector.toValidation();
 }
 
-/**
+/*
  * Declared per-axis adjacent-keyframe speed policy in degrees per second,
  * rather than a measured anatomical maximum.
  */
 const MAX_ANGULAR_SPEED_DEG_PER_S: number = 900;
 
-/**
+/*
  * Index prior joints by bone and flag shared axes whose degree delta divided by
  * positive dt exceeds900deg/s.
  *
@@ -151,7 +151,7 @@ const checkAngularSpeed: (
   }
 };
 
-/**
+/*
  * Require four finite controls only for cubicBezier and restrict X controls to
  * inclusive[0,1].
  *

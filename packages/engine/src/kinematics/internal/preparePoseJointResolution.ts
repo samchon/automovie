@@ -12,10 +12,12 @@ import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 import type { preparePoseResolutionChanges } from "./preparePoseResolutionChanges";
 
-/** Null clinical rest genuinely resolves to this exact positive-zero rig angle. */
+/*
+ * Null clinical rest genuinely resolves to this exact positive-zero rig angle.
+ */
 const REST_ANGLE: readonly [number] = [0];
 
-/**
+/*
  * Immutable rig declarations share only factors actually requested at exact rig
  * rest.
  */
@@ -25,7 +27,9 @@ const REST_ANGLES: jointToQuaternionOnBasis.IFixedAngles = {
   twist: REST_ANGLE,
 };
 
-/** Write a composed quaternion's components into the sink. */
+/*
+ * Write a composed quaternion's components into the sink.
+ */
 function store(x: number, y: number, z: number, w: number, sink: ISink): void {
   sink.x = x;
   sink.y = y;
@@ -33,7 +37,7 @@ function store(x: number, y: number, z: number, w: number, sink: ISink): void {
   sink.w = w;
 }
 
-/**
+/*
  * Admit changing ordered joint records on one genuine immutable prepared rig.
  *
  * Static conventions own lazy successful basis, fixed-axis scalar and affine
@@ -230,7 +234,7 @@ export function preparePoseJointResolution(
     },
   };
 
-  /**
+  /*
    * The conversion before the last becomes the last, admitted from `record`,
    * and the last the one before.
    */
@@ -267,7 +271,7 @@ export function preparePoseJointResolution(
     changes.write(known.index, x, y, z, w);
   }
 
-  /**
+  /*
    * Commit one actually admitted reading; name getters stay at their original
    * miss-only sites.
    */
@@ -369,33 +373,47 @@ export function preparePoseJointResolution(
   }
 }
 
-/** Internal immutable conventions and actual-admission operation reader. */
+/*
+ * Internal immutable conventions and actual-admission operation reader.
+ */
 export namespace preparePoseJointResolution {
-  /** Actual immutable clinical inputs and their preparation. */
+  /*
+   * Actual immutable clinical inputs and their preparation.
+   */
   export interface IConvention {
-    /** Own-data raw axes. */
+    /*
+     * Own-data raw axes.
+     */
     axes: IAutoMovieJointAxes;
 
-    /** The normalized basis of those axes. */
+    /*
+     * The normalized basis of those axes.
+     */
     basis: IAutoMovieJointAxes;
 
-    /** Own-data optional affine frames; null coordinates bypass unused maps. */
+    /*
+     * Own-data optional affine frames; null coordinates bypass unused maps.
+     */
     frame?: IAutoMovieRestFrame;
 
-    /**
+    /*
      * Fixed scalar/affine preparation; each produced composer has independent
      * dynamic factors.
      */
     queries: ReturnType<typeof jointToQuaternionOnBasis.prepareScalarQueries>;
 
-    /** The affine prechecks, one reader per axis. */
+    /*
+     * The affine prechecks, one reader per axis.
+     */
     prechecks: Record<
       "flexion" | "abduction" | "twist",
       ReturnType<typeof AutoMovieEngineRigAngle.prepareToRigAngle>
     >;
   }
 
-  /** Prepare one bone's convention from its axes and optional affine frames. */
+  /*
+   * Prepare one bone's convention from its axes and optional affine frames.
+   */
   export function convention(
     axes: IAutoMovieJointAxes,
     frame?: IAutoMovieRestFrame,
@@ -421,27 +439,29 @@ export namespace preparePoseJointResolution {
     };
   }
 
-  /**
+  /*
    * Ordered current admission, isolated from raw records and released with its
    * FK operation.
    */
   export interface IReader {
-    /**
+    /*
      * Start current membership without pretending any record already passed
      * admission.
      */
     begin(): void;
 
-    /**
+    /*
      * Admit one actual record and write its articulation into the operation's
      * selection; a record admitted before is the value it was admitted as.
      */
     admit(joint: IAutoMovieJointPose): void;
 
-    /** The last admitted articulation, as a fresh quaternion. */
+    /*
+     * The last admitted articulation, as a fresh quaternion.
+     */
     rotation(): IAutoMovieQuaternion;
 
-    /**
+    /*
      * Admit actual staged scalar values in the same order, retaining no tuple
      * or joint record.
      */
@@ -452,7 +472,7 @@ export namespace preparePoseJointResolution {
       twist: number | null,
     ): void;
 
-    /**
+    /*
      * Preserve every actual check outside a genuine fixed ancestor demand,
      * selecting no articulation.
      */
@@ -463,7 +483,7 @@ export namespace preparePoseJointResolution {
       twist: number | null,
     ): void;
 
-    /**
+    /*
      * After the actual source scan, write the currently selected rooted
      * articulations into the rows, four numbers a bone; rows of bones the scan
      * did not write are left as they are.
@@ -472,7 +492,7 @@ export namespace preparePoseJointResolution {
   }
 }
 
-/**
+/*
  * Preserve original F/A/T finite/frame admission order before reading the next
  * coordinate.
  */
@@ -487,7 +507,7 @@ function clinical(
   return clinicalValue(value, axis, frame, previous, convention);
 }
 
-/**
+/*
  * The same current finite/frame admission serves record and already-staged
  * scalar inputs.
  */
@@ -509,17 +529,21 @@ function clinicalValue(
   return value;
 }
 
-/** Preserve each actual record-name lookup at the original cache-miss sites. */
+/*
+ * Preserve each actual record-name lookup at the original cache-miss sites.
+ */
 function boneOf(joint: IAutoMovieJointPose): AutoMovieHumanoidBone {
   return joint.bone;
 }
 
-/** A staged entry already owns its actual name; no new property read is needed. */
+/*
+ * A staged entry already owns its actual name; no new property read is needed.
+ */
 function stagedBone(bone: AutoMovieHumanoidBone): AutoMovieHumanoidBone {
   return bone;
 }
 
-/**
+/*
  * One query's scalar composer of a convention
  * (`jointToQuaternionOnBasis.prepareScalarQueries`).
  */
@@ -527,38 +551,52 @@ type IComposer = ReturnType<
   ReturnType<typeof jointToQuaternionOnBasis.prepareScalarQueries>
 >;
 
-/** The most recent successful conversion of one authored bone name. */
+/*
+ * The most recent successful conversion of one authored bone name.
+ */
 interface IReading {
-  /** Static convention selected from the actual immutable rig. */
+  /*
+   * Static convention selected from the actual immutable rig.
+   */
   convention: preparePoseJointResolution.IConvention;
 
-  /** Rooted index, absent for stray or unreachable authored names. */
+  /*
+   * Rooted index, absent for stray or unreachable authored names.
+   */
   index: number | undefined;
 
-  /** Actual last admitted clinical coordinates, in degrees or null rest. */
+  /*
+   * Actual last admitted clinical coordinates, in degrees or null rest.
+   */
   flexion: number | null;
   abduction: number | null;
   twist: number | null;
 
-  /**
+  /*
    * The record those coordinates were admitted from, a value from then on;
    * absent for staged scalars.
    */
   record: IAutoMovieJointPose | undefined;
 
-  /** The last successful conversion's quaternion components. */
+  /*
+   * The last successful conversion's quaternion components.
+   */
   x: number;
   y: number;
   z: number;
   w: number;
 
-  /** The reading's own scalar composer. */
+  /*
+   * The reading's own scalar composer.
+   */
   compose: IComposer;
 
-  /** Latest scan that actually authored this name. */
+  /*
+   * Latest scan that actually authored this name.
+   */
   epoch: number;
 
-  /**
+  /*
    * The successful conversion before the last one, with its exact clinical
    * coordinates. One operation reads a pose and its mirror image, or a pose and
    * the same pose with one limb fitted, in turn, and a single row would convert
@@ -577,7 +615,9 @@ interface IReading {
   };
 }
 
-/** The composer's four components, written by `store` and read at once. */
+/*
+ * The composer's four components, written by `store` and read at once.
+ */
 interface ISink {
   x: number;
   y: number;

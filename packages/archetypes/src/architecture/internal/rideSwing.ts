@@ -11,7 +11,7 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeSwing } from "../AutoMovieArchetypeSwing";
 
-/**
+/*
  * A pumped playground swing on the ride's clock: the hanging seat model
  * (`createSwing.seat`) turns about the beam's pivot axis by the swing angle,
  * positive toward `+Z`.
@@ -25,13 +25,12 @@ import type { AutoMovieArchetypeSwing } from "../AutoMovieArchetypeSwing";
  * those turning points, so the seat is still at each turning point and its path
  * stays smooth while the amplitude grows. Half swings without pumping keep
  * their amplitude.
- *
- * @param swing The installed swing frame.
- * @param placement Its world placement.
- * @param ride The start, the pumped half swings and the angle each adds.
- * @returns The seat's frame and the turning points on the ride's clock.
- * @throws {AutoMovieArchetypeRefusal} For a hanging length, start angle or
- *   increment out of range.
+ * Parameter swing: The installed swing frame.
+ * Parameter placement: Its world placement.
+ * Parameter ride: The start, the pumped half swings and the angle each adds.
+ * Returns: The seat's frame and the turning points on the ride's clock.
+ * For a hanging length, start angle or
+ * increment out of range.
  */
 export function rideSwing(
   swing: AutoMovieArchetype<"ground", AutoMovieArchetypeSwing.Dimension>,
@@ -100,8 +99,12 @@ export function rideSwing(
   };
 }
 
-/** A unit scale: the rides move rigid frames. */
+/*
+ * A unit scale: the rides move rigid frames.
+ */
 const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
-/** The pivot axis: the swing turns about the beam, `+X`. */
+/*
+ * The pivot axis: the swing turns about the beam, `+X`.
+ */
 const AXIS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };

@@ -96,7 +96,9 @@ export namespace AutoMovieLoftPoint {
     };
   }
 
-  /** The sampler whose section and lift rows are combined whole, at once. */
+  /*
+   * The sampler whose section and lift rows are combined whole, at once.
+   */
   function whole(
     chain: IAutoMovieLoftChain,
     s: number,
@@ -140,13 +142,13 @@ export namespace AutoMovieLoftPoint {
     };
   }
 
-  /**
-   * A spline chain's {@link sampler} whose section and lift controls are
+  /*
+   * A spline chain's sampler whose section and lift controls are
    * combined only as its phases read them: a uniform cubic B-spline reads four
    * controls per coordinate at a phase, so a Newton step or a foot search that
    * meets a new station at a phase or two pays for those few controls instead
    * of the whole row. Each control is the same Hermite combination
-   * {@link AutoMovieLoftChain.coefficients} and {@link AutoMovieLoftChain.lift}
+   * AutoMovieLoftChain.coefficients and AutoMovieLoftChain.lift
    * write for the whole row, entry by entry, so every point is the sampler's to
    * the bit.
    */
@@ -262,7 +264,9 @@ export namespace AutoMovieLoftPoint {
     };
   }
 
-  /** One coefficient in the unchanged left-associated Hermite combination order. */
+  /*
+   * One coefficient in the unchanged left-associated Hermite combination order.
+   */
   function scalar(
     a: IAutoMovieStationHermite.IEnd,
     b: IAutoMovieStationHermite.IEnd,
@@ -279,7 +283,9 @@ export namespace AutoMovieLoftPoint {
     );
   }
 
-  /** Unit normal `v x u` of a section frame: up for a horizontal frame. */
+  /*
+   * Unit normal `v x u` of a section frame: up for a horizontal frame.
+   */
   function normal(f: IAutoMovieLoftSectionFrame): [number, number, number] {
     return [
       f.v[1] * f.u[2] - f.v[2] * f.u[1],
@@ -289,7 +295,9 @@ export namespace AutoMovieLoftPoint {
   }
 }
 
-/** Preserve the actual legacy basis value and first phase derivative. */
+/*
+ * Preserve the actual legacy basis value and first phase derivative.
+ */
 function legacyPhase(
   chain: IAutoMovieLoftChain,
   coefficients: number[],
@@ -303,10 +311,14 @@ function legacyPhase(
   return { p: [q[0], q[1]], t: [q[2], q[3]] };
 }
 
-/** One lazily read control component. */
+/*
+ * One lazily read control component.
+ */
 type Pick = (k: number) => number;
 
-/** Existing cubic/quintic endpoint-reader preparation. */
+/*
+ * Existing cubic/quintic endpoint-reader preparation.
+ */
 type Entry = (
   av: Pick,
   am: Pick,

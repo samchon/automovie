@@ -1,6 +1,6 @@
 import type { IAutoMoviePlaybackEntry } from "@automovie/interface";
 
-/**
+/*
  * Locate the last prepared playback entry starting at or before the output
  * second, or strictly before with `includeStart` false.
  *

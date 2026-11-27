@@ -10,11 +10,15 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** The amateur boxing body's ring guide, read. */
+/*
+ * The amateur boxing body's ring guide, read.
+ */
 const AIBA: string =
   "AIBA Ring Manufacturer Guide, 12 February 2014 (https://www.iba.sport/wp-content/uploads/2019/02/AIBA_RING_MANUFACTURER_GUIDE_12.02.2014.pdf)";
 
-/** The sides of the square, as the ring's own `+Z`, `-Z`, `+X` and `-X`. */
+/*
+ * The sides of the square, as the ring's own `+Z`, `-Z`, `+X` and `-X`.
+ */
 const SIDES: readonly ["north", "south", "east", "west"] = [
   "north",
   "south",

@@ -1,6 +1,6 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
-/**
+/*
  * The triangle index run a mesh carries, refused rather than read past its end.
  *
  * An index array that is not a whole number of triangles, or that names a
@@ -11,13 +11,12 @@ import type { IAutoMovieMesh } from "@automovie/interface";
  *
  * Positions are not checked for finiteness; callers that need finite
  * coordinates check them separately.
- *
- * @param mesh Mesh to read.
- * @param label Name the error messages give the mesh.
- * @returns The mesh's own `indices` array, not a copy, or a new consecutive run
- *   when it has none; callers must not mutate it.
- * @throws Error when positions are not whole xyz triples, indices are not whole
- *   triangles, or an index is not a safe integer inside the vertex range.
+ * Parameter mesh: Mesh to read.
+ * Parameter label: Name the error messages give the mesh.
+ * Returns: The mesh's own `indices` array, not a copy, or a new consecutive run
+ * when it has none; callers must not mutate it.
+ * Error when positions are not whole xyz triples, indices are not whole
+ * triangles, or an index is not a safe integer inside the vertex range.
  */
 export function triangleIndicesOf(
   mesh: IAutoMovieMesh,

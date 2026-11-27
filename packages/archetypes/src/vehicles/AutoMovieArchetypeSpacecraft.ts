@@ -11,28 +11,36 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** The capsule's blunt taper and distinct hatch inform the silhouette. */
+/*
+ * The capsule's blunt taper and distinct hatch inform the silhouette.
+ */
 const CAPSULE: string =
   "Smithsonian National Air and Space Museum, Apollo 11 Command Module Columbia (https://airandspace.si.edu/collection-media/NASM-A19700102000-NASM2016-04272)";
-/**
+/*
  * The crew entrance and flight deck give the set two distinct staging
  * destinations.
  */
 const CREW_COMPARTMENT: string =
   "NASA, The Space Shuttle, Flight Deck and Middeck (https://www.nasa.gov/reference/the-space-shuttle/)";
-/** The connecting passage informs the route between the outer walkway and cabin. */
+/*
+ * The connecting passage informs the route between the outer walkway and cabin.
+ */
 const PASSAGE: string =
   "Smithsonian National Air and Space Museum, Airlock Module, Skylab (https://airandspace.si.edu/collection-objects/airlock-module-skylab/nasm_A19761035000)";
-/**
+/*
  * Identifiable handholds give crew contact points to start and stop
  * translating.
  */
 const MOBILITY_AIDS: string =
   "NASA-STD-3001 Volume 2, sections 8.5.2 and 8.5.5 (https://www.nasa.gov/reference/8-0-architecture-vol-2/#8.5)";
 
-/** Panel thickness in metres for this scenic construction. */
+/*
+ * Panel thickness in metres for this scenic construction.
+ */
 const PANEL: number = 0.08;
-/** Nominal aluminium density, kilograms per cubic metre, for the scenic solids. */
+/*
+ * Nominal aluminium density, kilograms per cubic metre, for the scenic solids.
+ */
 const ALUMINIUM_DENSITY: number = 2700;
 
 /** Constructs the spacecraft archetype from its recipe. */
@@ -88,7 +96,9 @@ export function create(
   const glazing: string = "#284955";
   let volume: number = 0;
 
-  /** Add one rectangular scenic solid and account for its material volume. */
+  /*
+   * Add one rectangular scenic solid and account for its material volume.
+   */
   function box(
     id: string,
     size: IAutoMovieVector3,
@@ -99,7 +109,9 @@ export function create(
     volume += size.x * size.y * size.z;
   }
 
-  /** Connect two cross-sectional strip bounds into a closed convex panel. */
+  /*
+   * Connect two cross-sectional strip bounds into a closed convex panel.
+   */
   function panel(
     id: string,
     stations: readonly [number, number],

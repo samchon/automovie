@@ -17,31 +17,35 @@ import { EquineStanceExtras } from "./EquineStanceExtras";
 import { EquineStanceMoves } from "./EquineStanceMoves";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 
-/**
+/*
  * The startle's drop and draw over the planted hooves, metres in the stance's
  * frame: authored.
  */
 const STARTLE: IAutoMovieVector3 = { x: 0, y: -0.05, z: -0.06 };
 
-/** The baulk's brace back, metres: authored. */
+/*
+ * The baulk's brace back, metres: authored.
+ */
 const BAULK: IAutoMovieVector3 = { x: 0, y: -0.02, z: -0.12 };
 
-/**
+/*
  * The haunches' lowering before a rear, and the forehand's before a buck,
  * metres: authored.
  */
 const GATHER: number = 0.06;
 
-/**
+/*
  * The share of an entry spent moving the weight before a support is released:
  * authored.
  */
 const LOAD: number = 0.35;
 
-/** A stepping hoof's peak lift, metres: authored. */
+/*
+ * A stepping hoof's peak lift, metres: authored.
+ */
 const LIFT: number = 0.08;
 
-/**
+/*
  * Folded limbs' joint turns, degrees, shoulder or hip first, positive swinging
  * the distal end back: authored poses.
  */
@@ -53,7 +57,7 @@ const FOLDS: Readonly<Record<Fold, readonly [number, number, number, number]>> =
     kick: [45, -10, 20, 10],
   };
 
-/**
+/*
  * The rows of the stance: for each response, the whole-body pose at each share
  * of its performance.
  *
@@ -67,64 +71,89 @@ const FOLDS: Readonly<Record<Fold, readonly [number, number, number, number]>> =
  * folds from where it was released, so the pose is continuous there.
  */
 export namespace EquineStanceRows {
-  /** Where the stance stands: the trunk's motion and the four hoof anchors. */
+  /*
+   * Where the stance stands: the trunk's motion and the four hoof anchors.
+   */
   export interface IState {
-    /** The trunk's motion. */
+    /*
+     * The trunk's motion.
+     */
     trunk: AutoMovieArchetypeFrame.IMotion;
 
-    /** Each hoof's terminal endpoint. */
+    /*
+     * Each hoof's terminal endpoint.
+     */
     anchors: Readonly<
       Record<AutoMovieArchetypeQuadrupedBody.Limb, IAutoMovieVector3>
     >;
   }
 
-  /** A support event: a hoof leaving or meeting the floor. */
+  /*
+   * A support event: a hoof leaving or meeting the floor.
+   */
   export interface IEvent {
-    /** The instant's label. */
+    /*
+     * The instant's label.
+     */
     label: string;
 
-    /** Whether it falls in the entry; otherwise in the exit. */
+    /*
+     * Whether it falls in the entry; otherwise in the exit.
+     */
     entry: boolean;
 
-    /**
+    /*
      * Its fraction of that phase's time, measured from the phase's start for an
      * entry or a forward exit and from its end for a played-back exit.
      */
     time: number;
   }
 
-  /** One response planned from a state. */
+  /*
+   * One response planned from a state.
+   */
   export interface IPlan {
-    /** The response. */
+    /*
+     * The response.
+     */
     cue: AutoMovieArchetypeEquineStanceCue.Cue;
 
-    /** The state it starts from. */
+    /*
+     * The state it starts from.
+     */
     start: IState;
 
-    /** The state it ends in; the start itself for a response that returns. */
+    /*
+     * The state it ends in; the start itself for a response that returns.
+     */
     end: IState;
 
-    /** The shares the stance solves at admission. */
+    /*
+     * The shares the stance solves at admission.
+     */
     keys: readonly number[];
 
-    /** Its support events. */
+    /*
+     * Its support events.
+     */
     events: readonly IEvent[];
 
-    /** The pose at a share. */
+    /*
+     * The pose at a share.
+     */
     goal(share: number): EquineBodyPose.IGoal;
 
-    /**
+    /*
      * The pose at a second into the hold, for a response that moves while held,
      * such as an air's leaps; absent, the hold keeps the pose at share 1.
      */
     hold?(seconds: number): EquineBodyPose.IGoal;
   }
 
-  /**
+  /*
    * The stance standing still in a state.
-   *
-   * @param state The state.
-   * @returns Every hoof on its anchor under the state's trunk.
+   * Parameter state: The state.
+   * Returns: Every hoof on its anchor under the state's trunk.
    */
   export function still(state: IState): EquineBodyPose.IGoal {
     return {
@@ -133,13 +162,12 @@ export namespace EquineStanceRows {
     };
   }
 
-  /**
+  /*
    * Plan one response from a state.
-   *
-   * @param body The prepared solver.
-   * @param start The state it starts from.
-   * @param cue The response.
-   * @returns Its plan.
+   * Parameter body: The prepared solver.
+   * Parameter start: The state it starts from.
+   * Parameter cue: The response.
+   * Returns: Its plan.
    */
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
@@ -237,7 +265,7 @@ export namespace EquineStanceRows {
     return pitch(body, start, cue);
   }
 
-  /**
+  /*
    * A step aside: each hoof in turn, the weight moved off it first, then swung
    * on a lifted path; the exit settles over the new anchors.
    */
@@ -356,7 +384,7 @@ export namespace EquineStanceRows {
     };
   }
 
-  /**
+  /*
    * A rear or a buck: gather onto the supports that stay, then pitch about them
    * with the released pair folded.
    */
@@ -479,13 +507,19 @@ export namespace EquineStanceRows {
   }
 }
 
-/** A folded limb pose of the rows. */
+/*
+ * A folded limb pose of the rows.
+ */
 type Fold = "foreLift" | "hindLift" | "rear" | "kick";
 
-/** A limb end of the body. */
+/*
+ * A limb end of the body.
+ */
 type End = "Fore" | "Hind";
 
-/** A response that pitches the trunk. */
+/*
+ * A response that pitches the trunk.
+ */
 type Pitched =
   | AutoMovieArchetypeEquineStanceCue.IRear
   | AutoMovieArchetypeEquineStanceCue.IBuck;

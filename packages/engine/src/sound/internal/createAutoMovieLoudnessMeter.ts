@@ -3,7 +3,7 @@ import type { IAutoMovieLoudnessMeter } from "@automovie/interface";
 import { AUTOMOVIE_TRUE_PEAK_PHASES } from "../constants/AUTOMOVIE_TRUE_PEAK_PHASES";
 import { autoMovieTruePeakBetween } from "./autoMovieTruePeakBetween";
 
-/**
+/*
  * Create a streaming ITU-R BS.1770-5 meter for 48 kHz mono or interleaved
  * stereo PCM.
  *
@@ -24,9 +24,8 @@ import { autoMovieTruePeakBetween } from "./autoMovieTruePeakBetween";
  * interpolator reads twelve samples ahead, so `measure` completes the last
  * twelve with zeros past the end on a copy and leaves the meter able to
  * continue.
- *
- * @param channels 1 for mono, 2 for interleaved stereo.
- * @returns A meter that accepts samples in any chunking.
+ * Parameter channels: 1 for mono, 2 for interleaved stereo.
+ * Returns: A meter that accepts samples in any chunking.
  */
 export function createAutoMovieLoudnessMeter(
   channels: 1 | 2,
@@ -125,26 +124,32 @@ export function createAutoMovieLoudnessMeter(
   };
 }
 
-/**
+/*
  * Interpolator taps per phase; twelve on each side of the interpolated
  * interval.
  */
 const TAPS: number = AUTOMOVIE_TRUE_PEAK_PHASES[0]!.length;
 
-/** 100 ms at 48 kHz: one quarter of a gating block and its hop. */
+/*
+ * 100 ms at 48 kHz: one quarter of a gating block and its hop.
+ */
 const SUB_BLOCK: number = 4800;
 
-/** BS.1770-5 Table 1: the high-shelf pre-filter at 48 kHz, numerator. */
+/*
+ * BS.1770-5 Table 1: the high-shelf pre-filter at 48 kHz, numerator.
+ */
 const STAGE1_B: readonly [number, number, number] = [
   1.53512485958697, -2.69169618940638, 1.19839281085285,
 ];
 
-/** BS.1770-5 Table 1: the high-shelf pre-filter at 48 kHz, denominator. */
+/*
+ * BS.1770-5 Table 1: the high-shelf pre-filter at 48 kHz, denominator.
+ */
 const STAGE1_A: readonly [number, number, number] = [
   1, -1.69065929318241, 0.73248077421585,
 ];
 
-/**
+/*
  * BS.1770-5 Table 2: the RLB high-pass at 48 kHz, denominator; its numerator is
  * 1, −2, 1.
  */
@@ -152,7 +157,7 @@ const STAGE2_A: readonly [number, number, number] = [
   1, -1.99004745483398, 0.99007225036621,
 ];
 
-/**
+/*
  * Run one sample of one channel through both K-weighting stages, in direct form
  * I, updating that channel's state.
  */
@@ -185,7 +190,7 @@ const weigh: (filter: Float64Array, channel: number, x: number) => number = (
   return y2;
 };
 
-/**
+/*
  * BS.1770-5 gating: absolute at −70 LUFS, then relative 10 LU below the
  * loudness of the blocks that passed; null when none passes.
  */

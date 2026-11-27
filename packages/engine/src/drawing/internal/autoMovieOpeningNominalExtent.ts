@@ -12,7 +12,7 @@ import { autoMovieDrawingElementTriangles } from "./autoMovieDrawingElementTrian
 import { autoMovieOpeningExtent } from "./autoMovieOpeningExtent";
 import { autoMovieOpeningFillExtent } from "./autoMovieOpeningFillExtent";
 
-/**
+/*
  * The nominal width and height of one opening, and what they were measured
  * from, or `null` when nothing in the design sizes it.
  *
@@ -23,10 +23,9 @@ import { autoMovieOpeningFillExtent } from "./autoMovieOpeningFillExtent";
  * neither, or whose fill has no environment-owned model or no triangles, is
  * `null`. The drawing and the schedule both read this, so a sheet and a
  * schedule cannot size one opening two ways.
- *
- * @param design Index of the validated design that owns the opening.
- * @param opening Opening to size.
- * @returns The basis and the size in metres on the drawing grid, or `null`.
+ * Parameter design: Index of the validated design that owns the opening.
+ * Parameter opening: Opening to size.
+ * Returns: The basis and the size in metres on the drawing grid, or `null`.
  */
 export const autoMovieOpeningNominalExtent = (
   design: IAutoMovieDrawingDesignIndex,

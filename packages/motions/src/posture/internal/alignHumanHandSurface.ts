@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Align the surface's normal exactly and its forward across that normal.
  * World-frame admission precedes rest-frame admission, as in HumanHand.align.
  */
@@ -16,9 +16,11 @@ export function alignHumanHandSurface(
   return composed(basis(world), Quaternion.inverse(basis(rest)));
 }
 
-/** Fixed-rest alignment for repeated actual world direction pairs. */
+/*
+ * Fixed-rest alignment for repeated actual world direction pairs.
+ */
 export namespace alignHumanHandSurface {
-  /**
+  /*
    * Prepare the fixed inverse rest basis once. Each world-frame read projects
    * its own forward direction, refuses a parallel frame and composes the same
    * normalized rotation as the direct entry for admitted geometry.
@@ -54,7 +56,7 @@ export namespace alignHumanHandSurface {
   }
 }
 
-/**
+/*
  * Complete the original projected normal/forward basis, retaining its parallel
  * refusal.
  */
@@ -71,7 +73,9 @@ function basis(
   const f: IAutoMovieVector3 = Vector3.normalize(across);
   return AutoMovieEngineMath.quaternionFromBasis(n, f, Vector3.cross(n, f));
 }
-/** Keep normalization outside the same ordered world-times-inverse-rest product. */
+/*
+ * Keep normalization outside the same ordered world-times-inverse-rest product.
+ */
 function composed(
   world: IAutoMovieQuaternion,
   inverse: IAutoMovieQuaternion,
@@ -79,22 +83,36 @@ function composed(
   return Quaternion.normalize(Quaternion.multiply(world, inverse));
 }
 
-/** The alternatives of `AlignHumanHandSurfaceWorld`'s site. */
+/*
+ * The alternatives of `AlignHumanHandSurfaceWorld`'s site.
+ */
 type AlignHumanHandSurfaceWorld = "normal" | "forward";
 
-/** The alternatives of `AlignHumanHandSurfaceRest`'s site. */
+/*
+ * The alternatives of `AlignHumanHandSurfaceRest`'s site.
+ */
 type AlignHumanHandSurfaceRest = "normal" | "forward";
 
-/** The alternatives of `AlignHumanHandSurfacePrepareWorld`'s site. */
+/*
+ * The alternatives of `AlignHumanHandSurfacePrepareWorld`'s site.
+ */
 type AlignHumanHandSurfacePrepareWorld = "normal" | "forward";
 
-/** The alternatives of `AlignHumanHandSurfacePrepareFixed`'s site. */
+/*
+ * The alternatives of `AlignHumanHandSurfacePrepareFixed`'s site.
+ */
 type AlignHumanHandSurfacePrepareFixed = "normal" | "forward";
-/** The alternatives of `AlignHumanHandSurfacePrepareWorldResult`'s site. */
+/*
+ * The alternatives of `AlignHumanHandSurfacePrepareWorldResult`'s site.
+ */
 type AlignHumanHandSurfacePrepareWorldResult = "normal" | "forward";
 
-/** The alternatives of `AlignHumanHandSurfacePrepareRest`'s site. */
+/*
+ * The alternatives of `AlignHumanHandSurfacePrepareRest`'s site.
+ */
 type AlignHumanHandSurfacePrepareRest = "normal" | "forward";
 
-/** The alternatives of `BasisFrame`'s site. */
+/*
+ * The alternatives of `BasisFrame`'s site.
+ */
 type BasisFrame = "normal" | "forward";

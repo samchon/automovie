@@ -7,7 +7,7 @@ import type {
 import { AutoMovieSolidDomain } from "../../AutoMovieSolidDomain";
 import { AutoMovieSolidTraceObservation as Observation } from "../AutoMovieSolidTraceObservation";
 
-/**
+/*
  * Read a feasible Newton host trial, using declared atlas adjacency at a closed
  * chart boundary.
  *

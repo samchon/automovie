@@ -3,7 +3,7 @@ import { ROM_TOLERANCE } from "@automovie/engine";
 import type { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
-/**
+/*
  * A knotted iterate's rates projected onto the ranges its positions keep: a
  * knot whose bounded coordinate lies on its bound (within the joint's
  * resolution, `ROM_TOLERANCE`) is still on it, its velocity zero (any motion
@@ -12,11 +12,10 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  * the bound tangentially. Both intervals' Bernstein control points are inside
  * the native boxes and the swing disc (each segment is a convex combination of
  * its controls). Scaling one knot's shared rates keeps the joins C².
- *
- * @param c The knots' context.
- * @param x Each arm's coordinates at each knot, in their ranges.
- * @param rates Their velocities and accelerations.
- * @returns The rates projected, fresh arrays.
+ * Parameter c: The knots' context.
+ * Parameter x: Each arm's coordinates at each knot, in their ranges.
+ * Parameter rates: Their velocities and accelerations.
+ * Returns: The rates projected, fresh arrays.
  */
 export function HumanArmTrajectoryRateProjection(
   c: RangeContext,
@@ -79,19 +78,25 @@ export function HumanArmTrajectoryRateProjection(
   return { velocities, accelerations };
 }
 
-/** Physical ranges and the clock shared by the adjacent quintics. */
+/*
+ * Physical ranges and the clock shared by the adjacent quintics.
+ */
 type RangeContext = Pick<
   M.IContext,
   "times" | "n" | "open" | "free" | "bounds" | "rest" | "back"
 >;
 
-/** Two endpoint-relative Bernstein controls of a quintic of signed span `h`. */
+/*
+ * Two endpoint-relative Bernstein controls of a quintic of signed span `h`.
+ */
 function controls(h: number, v: number, a: number): [number, number] {
   const first: number = (h * v) / 5;
   return [first, 2 * first + (h * h * a) / 20];
 }
 
-/** The largest unit step along a control's displacement that stays in the disc. */
+/*
+ * The largest unit step along a control's displacement that stays in the disc.
+ */
 function disc(
   x: number,
   y: number,

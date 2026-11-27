@@ -16,7 +16,7 @@ import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 
 import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 
-/**
+/*
  * Divide the standard door into a fixed frame and a portable hinge-root leaf.
  *
  * The wall cut uses the fixed frame's measured extent. The moving leaf's
@@ -167,31 +167,47 @@ export function buildingDoor(
   };
 }
 
-/** Measured aperture and linked stage models of an existing door instance. */
+/*
+ * Measured aperture and linked stage models of an existing door instance.
+ */
 export namespace buildingDoor {
-  /** One source door expressed as an aperture plus fixed and moving geometry. */
+  /*
+   * One source door expressed as an aperture plus fixed and moving geometry.
+   */
   export interface IDoor {
-    /** Fixed frame in the aperture's original sill-centered coordinates. */
+    /*
+     * Fixed frame in the aperture's original sill-centered coordinates.
+     */
     readonly fixed: IAutoMovieModel;
 
-    /** Articulated leaf drawn as one model under the stage node at the hinge. */
+    /*
+     * Articulated leaf drawn as one model under the stage node at the hinge.
+     */
     readonly leaf: IAutoMovieModel;
 
-    /** Hinge pivot relative to the aperture's center, metres. */
+    /*
+     * Hinge pivot relative to the aperture's center, metres.
+     */
     readonly pivot: IAutoMovieVector3;
 
-    /** Wall cut width and height measured from the fixed frame, metres. */
+    /*
+     * Wall cut width and height measured from the fixed frame, metres.
+     */
     readonly width: number;
     readonly height: number;
 
-    /** Clear passage width and crosswise center after the leaf swings, metres. */
+    /*
+     * Clear passage width and crosswise center after the leaf swings, metres.
+     */
     readonly clearWidth: number;
 
-    /** Clear aperture height below the frame's head, metres. */
+    /*
+     * Clear aperture height below the frame's head, metres.
+     */
     readonly clearHeight: number;
     readonly clearCenter: number;
 
-    /**
+    /*
      * Make the optional authored swing using the closed world orientation and
      * shot seconds.
      */
@@ -199,7 +215,9 @@ export namespace buildingDoor {
   }
 }
 
-/** Offset a model-local transform to the independent hinge-root model frame. */
+/*
+ * Offset a model-local transform to the independent hinge-root model frame.
+ */
 function relativeToPivot(
   frame: IAutoMovieTransform,
   pivot: IAutoMovieVector3,

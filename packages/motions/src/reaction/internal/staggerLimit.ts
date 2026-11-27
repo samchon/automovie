@@ -10,7 +10,7 @@ import { staggerCapture } from "./staggerCapture";
 import { staggerPendulumEntry } from "./staggerPendulumEntry";
 import { staggerRecover } from "./staggerRecover";
 
-/**
+/*
  * The fastest push along a direction a body catches in `STEPS` recovery steps,
  * to `RESOLUTION` and then floored to a whole centimetre per second, with every
  * speed of that grid over `VERIFIED` below it caught too.
@@ -21,15 +21,14 @@ import { staggerRecover } from "./staggerRecover";
  * do not hold (`staggerRecover.recover`). So the pendulum's fastest caught
  * speed bounds the limit from above, and the whole model is bisected between
  * none and that bound. A bound the whole model catches is the limit at once.
- *
- * @param body The body.
- * @param entry The posture the push meets.
- * @param push The push's horizontal unit direction, world.
- * @param above A speed it does not catch, m/s.
- * @param fixed The entry's geometry (`staggerPendulumEntry.prepare`) of this
- *   same body and entry, shared with the plan that was refused; read here when
- *   absent.
- * @returns M/s, a whole centimetre per second.
+ * Parameter body: The body.
+ * Parameter entry: The posture the push meets.
+ * Parameter push: The push's horizontal unit direction, world.
+ * Parameter above: A speed it does not catch, m/s.
+ * Parameter fixed: The entry's geometry (`staggerPendulumEntry.prepare`) of this
+ * same body and entry, shared with the plan that was refused; read here when
+ * absent.
+ * Returns: M/s, a whole centimetre per second.
  */
 export function staggerLimit(
   body: IAutoMovieMotionHumanActionContext["body"],

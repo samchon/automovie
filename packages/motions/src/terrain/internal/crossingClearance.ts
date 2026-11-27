@@ -24,36 +24,35 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Depth a segment that does not bear on a fixture may enter it, metres
  * (provisional: under the audits' built skin give,
  * `AutoMovieMotionHumanAuditSkin.BUILT`).
  */
 const ROOM: number = 0.007;
 
-/**
+/*
  * Depth a hand or foot bearing on the fixture may enter it, metres
  * (provisional: a loaded sole or palm pressed into its support).
  */
 const CONTACT: number = 0.02;
 
-/**
+/*
  * Require the fully posed actor to clear named stationary shapes throughout a
  * crossing. The plan is sampled at the motion signature's times and at its end,
  * each sample resolved and planted as the performance displays it, and every
  * body collider tested against every fixture shape. A segment may enter a shape
  * by `ROOM`, a hand or foot inside a window that bears on that fixture by
  * `CONTACT`.
- *
- * @param context The body and the prop readers, read at the action's start.
- * @param plan The complete crossing, with its airborne rotation already set for
- *   a flight.
- * @param subjects The fixtures: the barrier, or the departure and landing
- *   decks.
- * @param options A tighter check on selected body segments and time knots.
- * @throws {HumanRefusal} For a fixture without stationary shapes, or with the
- *   deepest entry beyond its allowance, naming the bone, fixture, depth and
- *   time.
+ * Parameter context: The body and the prop readers, read at the action's start.
+ * Parameter plan: The complete crossing, with its airborne rotation already set for
+ * a flight.
+ * Parameter subjects: The fixtures: the barrier, or the departure and landing
+ * decks.
+ * Parameter options: A tighter check on selected body segments and time knots.
+ * For a fixture without stationary shapes, or with the
+ * deepest entry beyond its allowance, naming the bone, fixture, depth and
+ * time.
  */
 export function crossingClearance(
   context: Pick<IAutoMovieMotionHumanActionContext, "body" | "prop" | "start">,
@@ -177,21 +176,35 @@ export function crossingClearance(
     });
 }
 
-/** Options for the shared finite-solid crossing check. */
+/*
+ * Options for the shared finite-solid crossing check.
+ */
 export namespace crossingClearance {
-  /** Geometry and time bounds for a law that owns specialized clearance. */
+  /*
+   * Geometry and time bounds for a law that owns specialized clearance.
+   */
   export interface IOptions {
-    /** The body segments that can enter the obstacle. */
+    /*
+     * The body segments that can enter the obstacle.
+     */
     bones?: ReadonlySet<AutoMovieHumanoidBone>;
-    /** Exact shape-change and crossing knots in local seconds. */
+    /*
+     * Exact shape-change and crossing knots in local seconds.
+     */
     marks?: readonly number[];
-    /** Sampling rate per second for interior clearance. */
+    /*
+     * Sampling rate per second for interior clearance.
+     */
     rate?: number;
-    /** Permitted non-bearing penetration in metres. */
+    /*
+     * Permitted non-bearing penetration in metres.
+     */
     allowance?: number;
   }
 
-  /** Posed exterior of both feet, toes and shanks. */
+  /*
+   * Posed exterior of both feet, toes and shanks.
+   */
   export const LOWER_LEGS: ReadonlySet<AutoMovieHumanoidBone> = new Set([
     "leftLowerLeg",
     "leftFoot",
@@ -202,7 +215,9 @@ export namespace crossingClearance {
   ]);
 }
 
-/** Whether two axis-aligned bounds overlap. */
+/*
+ * Whether two axis-aligned bounds overlap.
+ */
 function overlap(
   a: IAutoMoviePhysicalShapeBounds.IResult,
   b: IAutoMoviePhysicalShapeBounds.IResult,
@@ -217,7 +232,9 @@ function overlap(
   );
 }
 
-/** Whether a hand or foot bone bears on the fixture at this share of the action. */
+/*
+ * Whether a hand or foot bone bears on the fixture at this share of the action.
+ */
 function bearing(
   windows: readonly IAutoMovieMotionHumanContactWindow[],
   subject: string,
@@ -246,41 +263,67 @@ function bearing(
   );
 }
 
-/** A fixture shape placed in the world with its bounds. */
+/*
+ * A fixture shape placed in the world with its bounds.
+ */
 interface IFixtureShape {
-  /** The shape in the fixture's frame. */
+  /*
+   * The shape in the fixture's frame.
+   */
   shape: IAutoMoviePhysicalShape;
 
-  /** Its world bounds. */
+  /*
+   * Its world bounds.
+   */
   bounds: IAutoMoviePhysicalShapeBounds.IResult;
 }
 
-/** A named fixture placed at the action's start. */
+/*
+ * A named fixture placed at the action's start.
+ */
 interface IFixture {
-  /** Its subject. */
+  /*
+   * Its subject.
+   */
   subject: string;
 
-  /** Its world frame. */
+  /*
+   * Its world frame.
+   */
   pose: IAutoMovieRigidTransform;
 
-  /** Its shapes. */
+  /*
+   * Its shapes.
+   */
   shapes: IFixtureShape[];
 }
 
-/** The deepest entry of a body segment into a fixture beyond its allowance. */
+/*
+ * The deepest entry of a body segment into a fixture beyond its allowance.
+ */
 interface ICollision {
-  /** The entering bone. */
+  /*
+   * The entering bone.
+   */
   bone: AutoMovieHumanoidBone;
 
-  /** The fixture entered. */
+  /*
+   * The fixture entered.
+   */
   subject: string;
 
-  /** When, seconds since the action's start. */
+  /*
+   * When, seconds since the action's start.
+   */
   seconds: number;
 
-  /** The signed distance, metres; negative inside. */
+  /*
+   * The signed distance, metres; negative inside.
+   */
   gap: number;
 
-  /** The depth beyond the allowance, metres. */
+  /*
+   * The depth beyond the allowance, metres.
+   */
   excess: number;
 }

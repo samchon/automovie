@@ -1,4 +1,4 @@
-/**
+/*
  * The ffmpeg image-sequence input pattern, such as `frame_%05d.png`, that
  * matches every `frameName` written with the same `ext` and `pad`.
  *

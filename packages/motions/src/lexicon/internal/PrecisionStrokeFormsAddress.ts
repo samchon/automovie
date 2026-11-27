@@ -20,20 +20,19 @@ import { PrecisionStrokeForms } from "./PrecisionStrokeForms";
 import { addressPrecisionStroke } from "./addressPrecisionStroke";
 import { precisionStrokeTool } from "./precisionStrokeTool";
 
-/**
+/*
  * Where a striker stands to play a row at a ball: the floor point under the
  * root that puts the striking shoulder (the shoulders' middle for a two-handed
  * grip) on the implement's line, the arm's reach back from the grip, the grip
  * where the held implement puts its working point on the contact; then the
  * nearest stance along that line, further back first, whose contact pose the
  * arm planner finds clear (`contact`), closed on by bisection.
- *
- * @param props The body, the row, the hand, the facing, the ball, the shot and
- *   the implement as the hand holds it.
- * @returns The floor point, world metres.
- * @throws {HumanRefusal} For a row no stroke has registered, or when no stance
- *   within the scan gives a clear contact pose, with the planner's reason at
- *   the line's place.
+ * Parameter props: The body, the row, the hand, the facing, the ball, the shot and
+ * the implement as the hand holds it.
+ * Returns: The floor point, world metres.
+ * For a row no stroke has registered, or when no stance
+ * within the scan gives a clear contact pose, with the planner's reason at
+ * the line's place.
  */
 export function PrecisionStrokeFormsAddress(
   props: PrecisionStrokeForms.IAddress,

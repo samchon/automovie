@@ -8,7 +8,7 @@ import type {
 import { HumanCrutchWalkPlan } from "./HumanCrutchWalkPlan";
 import { crutchWalkCourse } from "./crutchWalkCourse";
 
-/**
+/*
  * Walking on two crutches: a crutch gait on the support law, the crutches
  * advancing on their own track and the body swinging on the hands.
  *
@@ -29,13 +29,6 @@ import { crutchWalkCourse } from "./crutchWalkCourse";
  * and the feet about the tips' midpoint when none is given). The hands hold
  * their grips where the crutch stands at each support key and ride the crutch's
  * lift between them (`carryCrutchHands`).
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the order of each gait, where the weight goes and how the props share the clock.
- * @evidence contracts/development/design.md#principled-representation Support stances whose contacts are the bearing feet and hands, and one track per crutch derived from the same stations.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One law and its crutch track.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The hands bear at the crutches' own grips; no hand or foot place is authored apart from the stations.
- *
- * Each station's `seconds` is the author's, so the speed is its distance over them; no natural value is defined (provisional, missing a study of crutch gait). A crutch advances through the first third of each station and the body swings through the rest; the opening stance takes a quarter of the first station's time.
  */
 export const HumanCrutchWalk: IAutoMovieMotionHumanCrutchWalk.ILaw = {
   name: "crutchWalk",

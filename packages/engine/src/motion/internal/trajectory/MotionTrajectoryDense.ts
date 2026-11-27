@@ -11,7 +11,7 @@ import { MotionTrajectoryPolynomial } from "./MotionTrajectoryPolynomial";
 import type { MotionTrajectoryRead } from "./MotionTrajectoryRead";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
 
-/**
+/*
  * Build a C1 dense step, optionally controlled by a paired physical defect.
  *
  * With rotationDefect, Enright and Hayes (2007), section 2.2, supply two
@@ -26,34 +26,60 @@ import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
  * expanded floating-point coefficients.
  */
 export function MotionTrajectoryDense(props: {
-  /** Step start, seconds. */
+  /*
+   * Step start, seconds.
+   */
   t: number;
-  /** Step duration, seconds. */
+  /*
+   * Step duration, seconds.
+   */
   h: number;
-  /** Owned start vector, borrowed without mutation. */
+  /*
+   * Owned start vector, borrowed without mutation.
+   */
   x: number[];
-  /** Start unit orientation, or null. */
+  /*
+   * Start unit orientation, or null.
+   */
   q: IAutoMovieQuaternion | null;
-  /** The already computed DP5 endpoint vector. */
+  /*
+   * The already computed DP5 endpoint vector.
+   */
   end: number[];
-  /** Endpoint algebra vector, absent without orientation. */
+  /*
+   * Endpoint algebra vector, absent without orientation.
+   */
   rotation: IAutoMovieVector3 | undefined;
-  /** The seven original RHS stages. */
+  /*
+   * The seven original RHS stages.
+   */
   stages: readonly IAutoMovieIntegrateMotionTrajectory.IRate[];
-  /** Their algebra derivatives, absent without orientation. */
+  /*
+   * Their algebra derivatives, absent without orientation.
+   */
   algebra: readonly (IAutoMovieVector3 | undefined)[] | undefined;
-  /** Optional shared empty coefficients for a zero-dimensional vector. */
+  /*
+   * Optional shared empty coefficients for a zero-dimensional vector.
+   */
   empty?: number[][];
-  /** The admitted pure RHS, used for four paired-extension probes. */
+  /*
+   * The admitted pure RHS, used for four paired-extension probes.
+   */
   rate: IAutoMovieIntegrateMotionTrajectory.IProps["f"];
-  /** Optional caller-owned normalized physical rotation defect. */
+  /*
+   * Optional caller-owned normalized physical rotation defect.
+   */
   defect: IAutoMovieIntegrateMotionTrajectory.IProps["rotationDefect"];
 }): {
-  /** Numeric continuous extension with no callbacks. */
+  /*
+   * Numeric continuous extension with no callbacks.
+   */
   step: MotionTrajectoryRead.IDenseStep;
-  /** Largest checked normalized defect, or the first value that rejects. */
+  /*
+   * Largest checked normalized defect, or the first value that rejects.
+   */
   error: number;
-  /**
+  /*
    * Owned first failing physical probe; absent on acceptance or numeric
    * rejection.
    */
@@ -115,11 +141,17 @@ export function MotionTrajectoryDense(props: {
     IAutoMovieIntegrateMotionTrajectory.IProps["rotationDefect"]
   > = props.defect;
 
-  /** One fresh RHS reading and its exact algebra derivative at a probe. */
+  /*
+   * One fresh RHS reading and its exact algebra derivative at a probe.
+   */
   interface ISample {
-    /** Vector/body rate from the actual RHS. */
+    /*
+     * Vector/body rate from the actual RHS.
+     */
     rate: IAutoMovieIntegrateMotionTrajectory.IRate;
-    /** Exact coordinate derivative of the probe's body rate. */
+    /*
+     * Exact coordinate derivative of the probe's body rate.
+     */
     algebra: IAutoMovieVector3;
   }
   const sample: (
@@ -306,7 +338,9 @@ export function MotionTrajectoryDense(props: {
   return { step: v, error };
 }
 
-/** DOPRI5's original continuous-extension weights, from Hairer/Wanner CDOPRI. */
+/*
+ * DOPRI5's original continuous-extension weights, from Hairer/Wanner CDOPRI.
+ */
 const D: readonly number[] = [
   -12715105075 / 11282082432,
   0,
@@ -317,10 +351,12 @@ const D: readonly number[] = [
   69997945 / 29380423,
 ];
 
-/** Numeric coordinate names of a body-frame rotation vector. */
+/*
+ * Numeric coordinate names of a body-frame rotation vector.
+ */
 const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
 
-/**
+/*
  * The method's stage fractions, its endpoints and the two derivative nodes,
  * ascending.
  */
@@ -334,7 +370,9 @@ const METHOD_NODES: readonly number[] = [
   ...MotionTrajectoryPolynomial.NODES,
 ].sort((a: number, b: number): number => a - b);
 
-/** Insert a node into an ascending list unless an equal one is there. */
+/*
+ * Insert a node into an ascending list unless an equal one is there.
+ */
 function insert(nodes: number[], node: number): void {
   let at: number = nodes.length;
   while (at > 0 && nodes[at - 1]! > node) --at;

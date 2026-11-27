@@ -9,7 +9,7 @@ import type {
 
 import { autoMovieVisemeChannelWeights } from "../../scene/internal/autoMovieVisemeChannelWeights.js";
 
-/**
+/*
  * Measure each adopted line's lip-sync lag from the mouth the drawn subject
  * read on each frame, without reading pixels.
  *
@@ -27,25 +27,30 @@ import { autoMovieVisemeChannelWeights } from "../../scene/internal/autoMovieVis
  * it read only the actor's jaw, the figure follows the line's own loudness, as
  * the Human and the polygon man do until #3185 resolves viseme shapes, and the
  * line is `envelope-jaw`. When it read neither, the line is `mouth-not-drawn`.
- *
- * @param props The adopted lines, the mouth track handed to the subject, the
- *   plan's clock and frame count, and the mouths read on each drawn frame.
- * @returns One entry per line, in list order.
+ * Parameter props: The adopted lines, the mouth track handed to the subject, the
+ * plan's clock and frame count, and the mouths read on each drawn frame.
+ * Returns: One entry per line, in list order.
  */
 export function measureAutoMovieDialogueLipSync(props: {
-  /** The adopted lines with their receipts and 48 kHz samples. */
+  /*
+   * The adopted lines with their receipts and 48 kHz samples.
+   */
   lines: readonly IAutoMovieMixFilmSound.ILine[];
 
-  /** The mouth track the subject was handed. */
+  /*
+   * The mouth track the subject was handed.
+   */
   track: IAutoMovieDialogueMouthTrack;
 
-  /** The film clock at 48 kHz and its frame count. */
+  /*
+   * The film clock at 48 kHz and its frame count.
+   */
   plan: Pick<
     IAutoMovieProductionSoundPlan,
     "fps" | "frameRate" | "sampleRate" | "totalFrames"
   >;
 
-  /**
+  /*
    * The mouths the subject read at each output frame, by frame index; absent
    * where it read none.
    */
@@ -136,7 +141,9 @@ export function measureAutoMovieDialogueLipSync(props: {
   );
 }
 
-/** The entry of a line bound to an actor but not measured. */
+/*
+ * The entry of a line bound to an actor but not measured.
+ */
 const unmeasured: (
   entry: IAutoMovieMixFilmSound.ILine,
   planned: IAutoMovieDialogueMouthTrack.ILine,

@@ -10,7 +10,7 @@ import { hingedSwivelPole } from "./hingedSwivelPole";
 import { hingedSwivelSwept } from "./hingedSwivelSwept";
 import { refineHingedSwivel } from "./refineHingedSwivel";
 
-/**
+/*
  * Two-bone arm IK whose mid joint bends only about its own flexion hinge, with
  * the chain root's free swivel spent on the rig's range of motion.
  *
@@ -114,7 +114,7 @@ import { refineHingedSwivel } from "./refineHingedSwivel";
  * Returns `null` for a degenerate chain: a mid or end offset shorter than
  * `1e-6`, a target within `1e-6` of the chain root, a hinge shorter than
  * `1e-6`, or `R` below `1e-9`, a hinge parallel to the far segment that cannot
- * change the span ({@link armChainFault} reports that rig).
+ * change the span (armChainFault reports that rig).
  */
 export function hingedArmArticulation(
   props: AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsHingedArmArticulationProps,
@@ -600,41 +600,55 @@ export function hingedArmArticulation(
   return answer(chosen!);
 }
 
-/** The sweep's swivel step, degrees (`hingedArmSwivel.STEP`). */
+/*
+ * The sweep's swivel step, degrees (`hingedArmSwivel.STEP`).
+ */
 const SWIVEL_STEP: number = hingedArmSwivel.STEP;
 
-/** Golden-section passes per refinement (`hingedArmSwivel.REFINEMENTS`). */
+/*
+ * Golden-section passes per refinement (`hingedArmSwivel.REFINEMENTS`).
+ */
 const REFINEMENTS: number = hingedArmSwivel.REFINEMENTS;
 
-/**
+/*
  * Bisections of a legality edge on a placed pole's walk (`IProps.placed`): a 3
  * degree step halved twenty times, a swivel within three millionths of a degree
  * of the edge.
  */
 const EDGE_BISECTIONS: number = 20;
 
-/**
+/*
  * A legal candidate a placed pole's walk reached and its distance from the
  * pole, degrees (`AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsHingedArmArticulationProps.placed`).
  */
 interface IPlacedEdge {
-  /** The candidate at the pole or at the legality edge nearest it. */
+  /*
+   * The candidate at the pole or at the legality edge nearest it.
+   */
   candidate: IScored;
 
-  /** Degrees from the pole's swivel, 0 at the pole. */
+  /*
+   * Degrees from the pole's swivel, 0 at the pole.
+   */
   distance: number;
 }
 
-/** One bend branch with its index (`hingedArmCandidate.IBranch`). */
+/*
+ * One bend branch with its index (`hingedArmCandidate.IBranch`).
+ */
 type IBranch = hingedArmCandidate.IBranch;
 
-/** Completed work on one branch (`hingedArmCandidate.ISweep`). */
+/*
+ * Completed work on one branch (`hingedArmCandidate.ISweep`).
+ */
 type ISweep = hingedArmCandidate.ISweep;
 
-/** One scored candidate (`hingedArmCandidate.IScored`). */
+/*
+ * One scored candidate (`hingedArmCandidate.IScored`).
+ */
 type IScored = hingedArmCandidate.IScored;
 
-/**
+/*
  * One branch as a sweep pass reads it, with its poser and its completed-work
  * record.
  */

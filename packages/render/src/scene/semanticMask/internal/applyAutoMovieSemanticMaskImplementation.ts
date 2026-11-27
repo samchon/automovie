@@ -13,7 +13,7 @@ import { nearest } from "./nearest.js";
 import { unresolvedOf } from "./unresolvedOf.js";
 import type { AutoMovieRenderSemanticMask } from "../../AutoMovieRenderSemanticMask.js";
 
-/**
+/*
  * Paint a built scene with its stable semantic palette.
  *
  * An attached palette assigns stable semantic colours instead of a top-level
@@ -231,5 +231,7 @@ export function applyAutoMovieSemanticMaskImplementation(props: AutoMovieRenderS
   }
 }
 
-/** Prefix of the viewer group name a compiled instance set is built under. */
+/*
+ * Prefix of the viewer group name a compiled instance set is built under.
+ */
 const INSTANCE_SET_PREFIX: string = "instance-set:";

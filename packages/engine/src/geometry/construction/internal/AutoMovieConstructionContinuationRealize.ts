@@ -13,7 +13,7 @@ import { AutoMovieConstructionRing } from "../../AutoMovieConstructionRing";
 import { AutoMovieConstructionState } from "../../AutoMovieConstructionState";
 import { AutoMovieLoftAdmissionError } from "../../AutoMovieLoftAdmissionError";
 
-/**
+/*
  * Retain a continuation only while both actual open ends survive its subtree.
  *
  * The host is realized first. The ordinary continuation override then admits or
@@ -90,7 +90,9 @@ export function AutoMovieConstructionContinuationRealize(
     error: null,
   };
 
-  /** Keep the diagnostic while discarding every post-checkpoint part effect. */
+  /*
+   * Keep the diagnostic while discarding every post-checkpoint part effect.
+   */
   const fail: (detail: string) => void = (detail: string): void => {
     report(node.name, "shared end", detail);
     AutoMovieConstructionState.restore(body, state, snapshot);
@@ -132,7 +134,9 @@ export function AutoMovieConstructionContinuationRealize(
   }
 }
 
-/** Both a trimmed end and an existing shared end have consumed that boundary. */
+/*
+ * Both a trimmed end and an existing shared end have consumed that boundary.
+ */
 function cut(
   body: IAutoMovieSolidBody.IBody,
   index: number,
@@ -143,7 +147,9 @@ function cut(
   );
 }
 
-/** The principal endpoint is already admitted as a regular open source station. */
+/*
+ * The principal endpoint is already admitted as a regular open source station.
+ */
 function end(chain: IAutoMovieLoftChain, side: "bottom" | "top"): number {
   return chain.layers[side === "bottom" ? 0 : chain.layers.length - 1]!.y;
 }

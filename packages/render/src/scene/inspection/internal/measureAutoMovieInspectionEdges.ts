@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { AUTO_MOVIE_INSPECTION_KINDS } from "../../AUTO_MOVIE_INSPECTION_KINDS.js";
 import type { IAutoMovieInspectionMeasured } from "../../IAutoMovieInspectionMeasured.js";
 
-/**
+/*
  * Read a mesh's triangle edges and return them as one mark lying on the mesh as
  * it is posed, so the triangles are drawn over the shaded surface or alone.
  *
@@ -21,10 +21,14 @@ import type { IAutoMovieInspectionMeasured } from "../../IAutoMovieInspectionMea
  * welded corner.
  */
 export function measureAutoMovieInspectionEdges(props: {
-  /** The mesh to read, drawn and with a position buffer. */
+  /*
+   * The mesh to read, drawn and with a position buffer.
+   */
   mesh: THREE.Mesh;
 
-  /** The mesh's inspection path. */
+  /*
+   * The mesh's inspection path.
+   */
   path: string;
 }): IAutoMovieInspectionMeasured {
   const mesh: THREE.Mesh = props.mesh;
@@ -82,7 +86,9 @@ export function measureAutoMovieInspectionEdges(props: {
   return { anchor: mesh, marks, refresh };
 }
 
-/** The three sides of one triangle, each as its two corner indices. */
+/*
+ * The three sides of one triangle, each as its two corner indices.
+ */
 function sides(a: number, b: number, c: number): [number, number][] {
   return [
     [a, b],

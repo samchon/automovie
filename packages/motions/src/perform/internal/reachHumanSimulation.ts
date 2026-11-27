@@ -7,20 +7,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * The world box a simulated window's bodies can reach: every segment origin
  * their sampled poses cover, from the floor up, widened on every side but the
  * floor by a stature, the most a fallen body lies from where it stood, and by
  * the farthest its centre can coast over the window. That coasting speed is the
  * change the impulses give the lightest body, `sum |J| / m`, plus the fastest
  * its root moves in the samples; friction and the floor only slow it.
- *
- * @param targets Each simulated performer's sampled segment poses, by step.
- * @param bodies The simulated performers' bodies, by subject.
- * @param impulses The window's impulses.
- * @param rate Steps per second.
- * @param floor The floor's height, metres.
- * @returns The box, metres.
+ * Parameter targets: Each simulated performer's sampled segment poses, by step.
+ * Parameter bodies: The simulated performers' bodies, by subject.
+ * Parameter impulses: The window's impulses.
+ * Parameter rate: Steps per second.
+ * Parameter floor: The floor's height, metres.
+ * Returns: The box, metres.
  */
 export function reachHumanSimulation(
   targets: ReadonlyMap<
@@ -100,17 +99,27 @@ export function reachHumanSimulation(
   return box;
 }
 
-/** Companion types of {@link reachHumanSimulation}. */
+/*
+ * Companion types of reachHumanSimulation.
+ */
 export namespace reachHumanSimulation {
-  /** A world-axis box, metres. */
+  /*
+   * A world-axis box, metres.
+   */
   export interface IBox {
-    /** Least corner. */
+    /*
+     * Least corner.
+     */
     minimum: IAutoMovieVector3;
 
-    /** Greatest corner. */
+    /*
+     * Greatest corner.
+     */
     maximum: IAutoMovieVector3;
   }
 }
 
-/** The three world axes. */
+/*
+ * The three world axes.
+ */
 const AXES: readonly (keyof IAutoMovieVector3)[] = ["x", "y", "z"];

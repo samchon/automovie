@@ -429,7 +429,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
     return { kind: "pole" };
   }
 
-  /**
+  /*
    * The test that sorts a chain's cells: the key of the hole a cell with a
    * corner inside one of the chain's root loops belongs to (the chain's name,
    * or the span key of an opening spanning two chains), null for skin; null
@@ -458,7 +458,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
     };
   }
 
-  /**
+  /*
    * Record a left-out cell in its hole, with its corners' chart points and
    * chain.
    */

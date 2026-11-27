@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import type { IAutoMovieInspectorSceneHost } from "../IAutoMovieInspectorSceneHost.js";
 
-/**
+/*
  * The browser's scene host for one canvas: a `WebGLRenderer` drawing into it,
  * the window's animation frames, and the canvas's layout size with the device
  * pixel ratio.

@@ -5,7 +5,9 @@ import type {
   IAutoMovieRecoveryOpenRunsPreparationOperation,
 } from "@automovie/interface";
 
-/** Admit saved open continuation and prepare one-to-one ordinary run ownership. */
+/*
+ * Admit saved open continuation and prepare one-to-one ordinary run ownership.
+ */
 export function prepareRecoveryOpenRuns(
   bundle: Parameters<IAutoMovieRecoveryOpenRunsPreparationOperation.Operation>[0],
   graph: Parameters<IAutoMovieRecoveryOpenRunsPreparationOperation.Operation>[1],

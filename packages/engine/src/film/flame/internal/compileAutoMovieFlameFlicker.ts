@@ -2,7 +2,7 @@ import type { IAutoMovieFlameCue } from "@automovie/interface";
 
 import { sampleAutoMovieFlame } from "./sampleAutoMovieFlame";
 
-/**
+/*
  * The key grid and silhouette areas a flame cue's bound light flickers by.
  *
  * Keys fall at every multiple of 1/120 s in [0, duration], plus the duration
@@ -19,16 +19,24 @@ export function compileAutoMovieFlameFlicker(
   cue: Pick<IAutoMovieFlameCue, "id" | "seed" | "size" | "on">,
   duration: number,
 ): {
-  /** Strictly increasing key times, seconds. */
+  /*
+   * Strictly increasing key times, seconds.
+   */
   times: number[];
 
-  /** Silhouette area at each key, square metres. */
+  /*
+   * Silhouette area at each key, square metres.
+   */
   areas: number[];
 
-  /** Whether each key lies inside the cue's `[start, end)` interval. */
+  /*
+   * Whether each key lies inside the cue's `[start, end)` interval.
+   */
   inside: boolean[];
 
-  /** Mean area over the keys inside the interval, square metres. */
+  /*
+   * Mean area over the keys inside the interval, square metres.
+   */
   mean: number;
 } {
   const count: number = Math.floor(duration * KEY_RATE + 1e-9);
@@ -53,5 +61,7 @@ export function compileAutoMovieFlameFlicker(
   return { times, areas, inside, mean: sum / keys };
 }
 
-/** Keys per second of a flame-bound light's intensity track. */
+/*
+ * Keys per second of a flame-bound light's intensity track.
+ */
 const KEY_RATE: number = 120;

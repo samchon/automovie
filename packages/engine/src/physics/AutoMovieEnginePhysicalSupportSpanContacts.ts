@@ -165,7 +165,9 @@ export namespace AutoMovieEnginePhysicalSupportSpanContacts {
   }
 }
 
-/** A contact's witnesses' centroid. */
+/*
+ * A contact's witnesses' centroid.
+ */
 function mean(contact: AutoMovieEnginePhysicalSupportSpanContacts.IContact): {
   x: number;
   z: number;
@@ -177,7 +179,7 @@ function mean(contact: AutoMovieEnginePhysicalSupportSpanContacts.IContact): {
   };
 }
 
-/**
+/*
  * The least-norm nonnegative weights w with sum w = 1 and sum w d = pivot -
  * mean over the centred points d: the equalities as pairs of opposite rows
  * and -w_i <= 0, for `solveDenseActiveSet`. The pivot is projected into the

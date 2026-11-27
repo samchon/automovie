@@ -21,7 +21,7 @@ import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
 import { validateSoftRestCoincidence as coincident } from "./validateSoftRestCoincidence";
 import { validateSoftVector as vector } from "./validateSoftVector";
 
-/**
+/*
  * Validate typed soft-body fields, structural rest edges, reference joins and
  * the authored travel heuristic.
  *
@@ -335,7 +335,9 @@ export function validateSoftBodyDomain(
   return out.toValidation();
 }
 
-/** Whether a point lies strictly inside one collider. */
+/*
+ * Whether a point lies strictly inside one collider.
+ */
 const embedded: (
   collider: IAutoMovieSoftCollider,
   point: IAutoMovieVector3,
@@ -374,13 +376,17 @@ const embedded: (
   );
 };
 
-/** Euclidean length of one authored vector. */
+/*
+ * Euclidean length of one authored vector.
+ */
 const magnitude: (vector: IAutoMovieVector3) => number = (
   vector: IAutoMovieVector3,
 ): number =>
   Math.sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
 
-/** A particle-indexed array whose length must equal the lattice's own. */
+/*
+ * A particle-indexed array whose length must equal the lattice's own.
+ */
 const length: (
   out: IAutoMovieViolationCollector,
   path: string,

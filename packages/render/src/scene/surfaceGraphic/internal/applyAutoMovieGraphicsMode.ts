@@ -6,7 +6,7 @@ import { overrideAutoMovieRenderModeMaterials } from "../../internal/overrideAut
 import { restoreAutoMovieRenderModeOnce } from "../../internal/restoreAutoMovieRenderModeOnce.js";
 import { AUTOMOVIE_SURFACE_GRAPHIC_KEY } from "../../AUTOMOVIE_SURFACE_GRAPHIC_KEY.js";
 
-/**
+/*
  * The `graphics` pass: surface graphics alone, drawn exactly as the beauty pass
  * draws them, over a transparent background.
  *
@@ -61,7 +61,7 @@ export function applyAutoMovieGraphicsMode(
   };
 }
 
-/**
+/*
  * The holdout of one material: for a blended material below full opacity, a
  * depth-free material that multiplies the colour and alpha beneath it by one
  * minus that opacity; for any other, a depth-only material.

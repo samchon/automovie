@@ -23,20 +23,19 @@ import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { requireEnvironmentFrame } from "./requireEnvironmentFrame";
 
-/**
+/*
  * Place typed modules and prepare the stage and runtime pieces a shot uses.
  *
  * Item keys are stable within the recipe. References address an item's origin
  * or its named anchors. Each module is evaluated once after its inputs resolve.
  * Emitted arrays keep source item order even when a reference is forward.
- *
- * @param recipe Named items, optional seed and optional rigid world frame.
- * @returns The stage set and space, compile runtime records, architectural
- *   records, named world frames and the support of every set piece, judged
- *   against the merged space, the other pieces, the walls furnishing relations
- *   hung pieces on and each building's own sweep at its placement height.
- * @throws For malformed identity or placement, missing or cyclic references,
- *   conflicting emitted identities or invalid support or prop declarations.
+ * Parameter recipe: Named items, optional seed and optional rigid world frame.
+ * Returns: The stage set and space, compile runtime records, architectural
+ * records, named world frames and the support of every set piece, judged
+ * against the merged space, the other pieces, the walls furnishing relations
+ * hung pieces on and each building's own sweep at its placement height.
+ * For malformed identity or placement, missing or cyclic references,
+ * conflicting emitted identities or invalid support or prop declarations.
  */
 export function createEnvironment(
   recipe: IAutoMovieEnvironmentRecipe,
@@ -60,7 +59,7 @@ export function createEnvironment(
   const resolved: Map<string, IAutoMovieEnvironmentContribution> = new Map();
   const stack: Set<string> = new Set();
 
-  /**
+  /*
    * Read a referenced item's origin or named anchor with the caller's
    * diagnostic path.
    */
@@ -80,7 +79,9 @@ export function createEnvironment(
     return entries[name]!;
   }
 
-  /** Require a declared item, keeping the referring source path in a refusal. */
+  /*
+   * Require a declared item, keeping the referring source path in a refusal.
+   */
   function requireItem(key: string, caller: string): IAutoMovieEnvironmentItem {
     const item: IAutoMovieEnvironmentItem | undefined = items.get(key);
     if (item === undefined)
@@ -88,7 +89,9 @@ export function createEnvironment(
     return item;
   }
 
-  /** Track one active dependency and release it even when a producer refuses. */
+  /*
+   * Track one active dependency and release it even when a producer refuses.
+   */
   function withTask<Value>(
     task: string,
     caller: string,
@@ -106,7 +109,9 @@ export function createEnvironment(
     }
   }
 
-  /** Resolve an item's world pose independently of geometry built at that pose. */
+  /*
+   * Resolve an item's world pose independently of geometry built at that pose.
+   */
   function place(key: string, caller: string): IAutoMovieTransform {
     const existing: IAutoMovieTransform | undefined = frames.get(key);
     if (existing !== undefined) return existing;
@@ -139,7 +144,9 @@ export function createEnvironment(
     });
   }
 
-  /** Resolve one contribution, evaluating its definition at most once. */
+  /*
+   * Resolve one contribution, evaluating its definition at most once.
+   */
   function resolve(
     key: string,
     caller: string,
@@ -297,7 +304,7 @@ export function createEnvironment(
   };
 }
 
-/**
+/*
  * Report a JSON-style item path even for source keys containing spaces or
  * quotes.
  */
@@ -305,7 +312,7 @@ function itemPath(key: string): string {
   return `$input.items[${JSON.stringify(key)}]`;
 }
 
-/**
+/*
  * Every authored path has at least one nonblank segment and no implicit
  * trimming.
  */
@@ -321,7 +328,9 @@ function requirePath(value: string, path: string): void {
     throw new Error(`${path}: invalid environment path "${value}"`);
 }
 
-/** Admit stable nonblank identities within a population of owned records. */
+/*
+ * Admit stable nonblank identities within a population of owned records.
+ */
 function requireUnique<Value>(
   values: readonly Value[],
   key: (value: Value) => string,
@@ -336,7 +345,9 @@ function requireUnique<Value>(
   }
 }
 
-/** Keep the first error at the canonical support or prop gate's diagnostic path. */
+/*
+ * Keep the first error at the canonical support or prop gate's diagnostic path.
+ */
 function requireValid(validation: IAutoMovieValidation): void {
   if (validation.success) return;
   const error: IAutoMovieConstraintViolation | undefined =

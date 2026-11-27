@@ -2,10 +2,10 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieEnginePlanarHull } from "../AutoMovieEnginePlanarHull";
 
-/**
+/*
  * 2D convex hull and point queries over the horizontal XZ plane.
  *
- * Points are {@link IAutoMovieVector3}; only `x` and `z` are used (`y` ignored),
+ * Points are IAutoMovieVector3; only `x` and `z` are used (`y` ignored),
  * because support and balance are decided by the ground-plane footprint. The
  * hull is built with Andrew's monotone chain, deterministic (no `Math.random`)
  * so support/topple judgments are reproducible, and canonicalized to
@@ -28,7 +28,9 @@ export function convexHull2D(
   return hull.length >= 3 ? hull : dedupeXZ(hull);
 }
 
-/** Retain the first original point at each projected floor coordinate. */
+/*
+ * Retain the first original point at each projected floor coordinate.
+ */
 const dedupeXZ: (
   points: readonly IAutoMovieVector3[],
 ) => IAutoMovieVector3[] = (

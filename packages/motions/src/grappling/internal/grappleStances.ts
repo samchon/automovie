@@ -12,7 +12,7 @@ import { lieDown } from "../../floor/internal/lieDown";
 import { clinch } from "./clinch";
 import { grappleSumo } from "./grappleSumo";
 
-/**
+/*
  * Floor support keys and hand regions for preplanned grappling performances.
  * The phase shares, turns and body angles are provisional staging values. The
  * IJF atlas identifies the judo silhouettes, and UWW's rules distinguish the
@@ -21,7 +21,7 @@ import { grappleSumo } from "./grappleSumo";
  * The studies do not supply these choreography values.
  */
 export namespace grappleStances {
-  /**
+  /*
    * Illustrative poses separate moving silhouettes within the same rules
    * family.
    */
@@ -117,15 +117,21 @@ export namespace grappleStances {
     },
   };
 
-  /** Unscaled shares at which the paired floor keys arrive. */
+  /*
+   * Unscaled shares at which the paired floor keys arrive.
+   */
   const shares: readonly [number, number, number, number, number] = [
     0.18, 0.38, 0.61, 0.78, 1,
   ];
 
-  /** Shared shoulder-exchange entry and release beat, as a share of the take. */
+  /*
+   * Shared shoulder-exchange entry and release beat, as a share of the take.
+   */
   export const SHOULDER_ENTRY: number = 0.34;
 
-  /** Both feet bearing, with one optionally set down anew by the support law. */
+  /*
+   * Both feet bearing, with one optionally set down anew by the support law.
+   */
   function feet(
     step?: AutoMovieHumanSide,
   ): readonly IAutoMovieMotionHumanSupport.IContact[] {
@@ -138,12 +144,16 @@ export namespace grappleStances {
     );
   }
 
-  /** Switch an authored lead side. */
+  /*
+   * Switch an authored lead side.
+   */
   function other(side: AutoMovieHumanSide): AutoMovieHumanSide {
     return side === "left" ? "right" : "left";
   }
 
-  /** Standing stance which lets the pelvis and trunk turn separately. */
+  /*
+   * Standing stance which lets the pelvis and trunk turn separately.
+   */
   function stance(
     entry: IEntry,
     direction: number,
@@ -169,14 +179,18 @@ export namespace grappleStances {
     };
   }
 
-  /** Read the default duration for a scene, in seconds. */
+  /*
+   * Read the default duration for a scene, in seconds.
+   */
   export function seconds(kind: IAutoMovieMotionHumanGrapple.Kind): number {
     return grappleSumo.is(kind)
       ? grappleSumo.seconds(kind)
       : rows[kind].seconds;
   }
 
-  /** Resolve visible reach sites relative to the partner. */
+  /*
+   * Resolve visible reach sites relative to the partner.
+   */
   export function regions(
     kind: IAutoMovieMotionHumanGrapple.Kind,
     side: AutoMovieHumanSide,
@@ -207,17 +221,16 @@ export namespace grappleStances {
     }
   }
 
-  /**
+  /*
    * Author the support keys over the two actors' shared scene duration.
-   *
-   * @param p The scene.
-   * @param duration The scene's seconds.
-   * @param body The performer's body.
-   * @param partner The partner's body, which a sumo tachiai's contact gap
-   *   reads.
-   * @param pitch A sumo tachiai's trunk pitch, degrees, as the support fit
-   *   takes it (`grappleSumo.keys`); the charge pose's own when absent.
-   * @returns The timed support keys.
+   * Parameter p: The scene.
+   * Parameter duration: The scene's seconds.
+   * Parameter body: The performer's body.
+   * Parameter partner: The partner's body, which a sumo tachiai's contact gap
+   * reads.
+   * Parameter pitch: A sumo tachiai's trunk pitch, degrees, as the support fit
+   * takes it (`grappleSumo.keys`); the charge pose's own when absent.
+   * Returns: The timed support keys.
    */
   export function keys(
     p: IAutoMovieMotionHumanGrapple.IParams,
@@ -328,7 +341,9 @@ export namespace grappleStances {
     return timed(stances, shares, duration);
   }
 
-  /** Prepare the shared planted turn and the receiver's cleared mat poses. */
+  /*
+   * Prepare the shared planted turn and the receiver's cleared mat poses.
+   */
   function shoulderKeys(
     role: IAutoMovieMotionHumanGrapple.Role,
     lead: AutoMovieHumanSide,
@@ -419,7 +434,9 @@ export namespace grappleStances {
     );
   }
 
-  /** Convert cumulative phase shares to the support owner's durations. */
+  /*
+   * Convert cumulative phase shares to the support owner's durations.
+   */
   function timed(
     stances: readonly IAutoMovieMotionHumanSupport.IStance[],
     at: readonly number[],
@@ -436,42 +453,70 @@ export namespace grappleStances {
     );
   }
 
-  /** Whether the receiver finishes on the back, or the actors separate standing. */
+  /*
+   * Whether the receiver finishes on the back, or the actors separate standing.
+   */
   type Finish = "back" | "hold" | "reset";
 
-  /**
+  /*
    * Visible character of one actor's entry, by pelvis and trunk angles in
    * degrees.
    */
   interface IEntry {
-    /** Pelvis turn toward the actor's lead side. */
+    /*
+     * Pelvis turn toward the actor's lead side.
+     */
     turn: number;
-    /** Trunk forward inclination at the entry. */
+    /*
+     * Trunk forward inclination at the entry.
+     */
     pitch: number;
-    /** Trunk tilt toward the actor's lead side. */
+    /*
+     * Trunk tilt toward the actor's lead side.
+     */
     roll: number;
-    /** Trunk twist relative to the pelvis. */
+    /*
+     * Trunk twist relative to the pelvis.
+     */
     twist: number;
-    /** Hip and knee flexion of the entry. */
+    /*
+     * Hip and knee flexion of the entry.
+     */
     depth: number;
-    /** Additional outward arm angle for free hands during the staged pose. */
+    /*
+     * Additional outward arm angle for free hands during the staged pose.
+     */
     armSpread?: number;
   }
 
-  /** Paired preferences and contact family for a staged scene. */
+  /*
+   * Paired preferences and contact family for a staged scene.
+   */
   interface IRow {
-    /** Default scene length in seconds. */
+    /*
+     * Default scene length in seconds.
+     */
     seconds: number;
-    /** Initiating actor's entry. */
+    /*
+     * Initiating actor's entry.
+     */
     initiator: IEntry;
-    /** Receiving actor's response. */
+    /*
+     * Receiving actor's response.
+     */
     receiver: IEntry;
-    /** The shared transition to the final supports. */
+    /*
+     * The shared transition to the final supports.
+     */
     finish: Finish;
-    /** Initiator's right-lead grip family. */
+    /*
+     * Initiator's right-lead grip family.
+     */
     grip: RowGrip;
   }
 }
 
-/** The alternatives of `RowGrip`'s site. */
+/*
+ * The alternatives of `RowGrip`'s site.
+ */
 type RowGrip = "collarSleeve" | "oneLeg" | "bothLegs" | "shoulders" | "mat";

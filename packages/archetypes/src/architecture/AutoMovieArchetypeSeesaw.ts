@@ -11,23 +11,25 @@ import {
 } from "../core/index";
 import { rideSeesaw } from "./internal/rideSeesaw";
 
-/** Construction sizes no source read gives, provisional. */
+/*
+ * Construction sizes no source read gives, provisional.
+ */
 const ESTIMATE: string =
   "Coarse playground construction estimate; no source read gives it";
 
-/**
+/*
  * Seat height above the beam's axis, metres (provisional construction
  * estimate).
  */
 const SEAT: number = 0.08;
 
-/**
+/*
  * A handle's distance inboard of its seat, metres (provisional construction
  * estimate).
  */
 const HANDLE: number = 0.3;
 
-/**
+/*
  * A handle's height above its seat, metres: above a seated rider's thighs, so
  * the forearms reach it clear of them (provisional construction estimate).
  */
@@ -284,14 +286,20 @@ export function create(
   }
 }
 
-/** The handle id at one end of the beam for one of its rider's hands. */
+/*
+ * The handle id at one end of the beam for one of its rider's hands.
+ */
 function handleId(end: BeamEnd, hand: HandSide): AutoMovieArchetypeSeesaw.BeamAffordance {
   if (end > 0) return hand === "Left" ? "frontLeftHandle" : "frontRightHandle";
   return hand === "Left" ? "rearLeftHandle" : "rearRightHandle";
 }
 
-/** The beam's front end, at `+z`, or its rear end. */
+/*
+ * The beam's front end, at `+z`, or its rear end.
+ */
 type BeamEnd = 1 | -1;
 
-/** A rider's hand, capitalised as it appears in a handle id. */
+/*
+ * A rider's hand, capitalised as it appears in a handle id.
+ */
 type HandSide = "Left" | "Right";

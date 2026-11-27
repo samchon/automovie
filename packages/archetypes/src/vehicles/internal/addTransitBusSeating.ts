@@ -6,7 +6,7 @@ import {
 } from "../../core/index";
 import type { AutoMovieArchetypeTransitBus } from "../AutoMovieArchetypeTransitBus";
 
-/**
+/*
  * Adds forward-facing passenger rows and the aisle-side seat contact in
  * bus-local metres.
  */
@@ -31,7 +31,9 @@ export function addTransitBusSeating(
     back: BACK_HEIGHT,
   });
 
-  /** Adds a forward-facing pair with its front edge at frontZ. */
+  /*
+   * Adds a forward-facing pair with its front edge at frontZ.
+   */
   function addSeatRow(side: -1 | 1, frontZ: number): void {
     const key: string = (side === -1 ? "curb-" : "street-") + frontZ;
     const backZ: number = frontZ - SEAT_DEPTH;
@@ -62,21 +64,35 @@ export function addTransitBusSeating(
   }
 }
 
-/** Bus geometry and affordances share the same builder. */
+/*
+ * Bus geometry and affordances share the same builder.
+ */
 type BusBuilder = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeTransitBus.Affordance,
   AutoMovieArchetypeTransitBus.Dimension
 >;
-/** Nominal seat width including the gap between pads. */
+/*
+ * Nominal seat width including the gap between pads.
+ */
 const SEAT_WIDTH: number = 0.41;
-/** Seat pad depth measured back from its front edge. */
+/*
+ * Seat pad depth measured back from its front edge.
+ */
 const SEAT_DEPTH: number = 0.43;
-/** Surface height of a seat pad above the deck. */
+/*
+ * Surface height of a seat pad above the deck.
+ */
 const SEAT_HEIGHT: number = 0.46;
-/** Passenger backrest height above the pad. */
+/*
+ * Passenger backrest height above the pad.
+ */
 const BACK_HEIGHT: number = 0.46;
-/** Upholstery marking the seat contact surfaces. */
+/*
+ * Upholstery marking the seat contact surfaces.
+ */
 const SEAT: AutoMovieArchetypeBuilder.IOptions = { color: "#306f80" };
 
-/** Vector constructor for metric bus-local dimensions. */
+/*
+ * Vector constructor for metric bus-local dimensions.
+ */
 const v: typeof Vector3.create = Vector3.create;

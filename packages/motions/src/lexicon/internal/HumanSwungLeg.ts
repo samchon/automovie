@@ -25,7 +25,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { writtenHumanSeeds } from "../../posture/internal/writtenHumanSeeds";
 import { HumanMountPush } from "./HumanMountPush";
 
-/**
+/*
  * A leg swung over a seat in joint space: the leg's fitted joints where it
  * leaves, where it lands and at the swing's middle, and the curve through them,
  * for a swing whose world course leaves the leg's range. A world course for a
@@ -44,13 +44,17 @@ import { HumanMountPush } from "./HumanMountPush";
  * so the foot still lifts off and lands as the law sets it.
  */
 export namespace HumanSwungLeg {
-  /** One leg's joints by bone, clinical degrees `[flexion, abduction, twist]`. */
+  /*
+   * One leg's joints by bone, clinical degrees `[flexion, abduction, twist]`.
+   */
   export type Joints = IAutoMovieMotionHumanPosture["joints"];
 
-  /** A leg's swing on its action's clock: the seconds it leaves and lands. */
+  /*
+   * A leg's swing on its action's clock: the seconds it leaves and lands.
+   */
   export type Swing = readonly [number, number];
 
-  /**
+  /*
    * A plan whose swinging legs are keyed in joint space where their world
    * course leaves the leg's range: over that swing (`window`) each such leg's
    * world goal gives way to the joints `at` reads between its keys, found once
@@ -58,11 +62,10 @@ export namespace HumanSwungLeg {
    * the leg leaves and lands at rest in its joints as the world course leaves
    * and lands at rest on its feet; elsewhere the plan's posture is returned as
    * it was.
-   *
-   * @param body The body.
-   * @param plan The plan, its legs on their world goals.
-   * @param swingOf Each leg's swing, or null for a leg that does not swing.
-   * @returns The plan with the swinging legs keyed where they must be.
+   * Parameter body: The body.
+   * Parameter plan: The plan, its legs on their world goals.
+   * Parameter swingOf: Each leg's swing, or null for a leg that does not swing.
+   * Returns: The plan with the swinging legs keyed where they must be.
    */
   export function plan(
     body: IAutoMovieMotionHumanBody,
@@ -124,35 +127,46 @@ export namespace HumanSwungLeg {
     };
   }
 
-  /** A swung leg's keys over a swing whose world course leaves the range. */
+  /*
+   * A swung leg's keys over a swing whose world course leaves the range.
+   */
   export interface IKeys {
-    /** The second the window opens, action seconds. */
+    /*
+     * The second the window opens, action seconds.
+     */
     start: number;
 
-    /** The second the window closes, action seconds. */
+    /*
+     * The second the window closes, action seconds.
+     */
     end: number;
 
-    /** The joints where the window opens. */
+    /*
+     * The joints where the window opens.
+     */
     from: Joints;
 
-    /** The joints at the window's middle. */
+    /*
+     * The joints at the window's middle.
+     */
     apex: Joints;
 
-    /** The joints where the window closes. */
+    /*
+     * The joints where the window closes.
+     */
     to: Joints;
   }
 
-  /**
+  /*
    * Prepare the three joint keys of a swing chosen by the law. Its release and
    * landing keep the support course's fitted poses. Only the airborne middle
    * fits the world goal independently, where there is no support to continue.
-   *
-   * @param body The performer.
-   * @param side The swinging leg.
-   * @param span The exact release and landing, action seconds.
-   * @param supported The law's prepared world goals at the two contacts.
-   * @param middle The law's airborne midpoint goal on the same clock.
-   * @returns The keys of the swing read by `at`.
+   * Parameter body: The performer.
+   * Parameter side: The swinging leg.
+   * Parameter span: The exact release and landing, action seconds.
+   * Parameter supported: The law's prepared world goals at the two contacts.
+   * Parameter middle: The law's airborne midpoint goal on the same clock.
+   * Returns: The keys of the swing read by `at`.
    */
   export function anchored(
     body: IAutoMovieMotionHumanBody,
@@ -179,7 +193,7 @@ export namespace HumanSwungLeg {
     };
   }
 
-  /**
+  /*
    * The keys of a swing whose world course leaves the leg's range. The swing is
    * fitted on the frame grid (`STEP`), its first frame cold and each later one
    * continuing the frame before, as a display continues a free leg; a frame
@@ -192,12 +206,11 @@ export namespace HumanSwungLeg {
    * the foot comes off; the landing is fitted as the display fits it, its own
    * fit on a plant or a contact and the continued one otherwise; and the middle
    * is the nearest legal pose to the world course.
-   *
-   * @param body The body.
-   * @param side The leg.
-   * @param asked The law's posture at a second, its leg on its world goal.
-   * @param swing The seconds the leg leaves and lands.
-   * @returns The keys, or null where no frame is pinned.
+   * Parameter body: The body.
+   * Parameter side: The leg.
+   * Parameter asked: The law's posture at a second, its leg on its world goal.
+   * Parameter swing: The seconds the leg leaves and lands.
+   * Returns: The keys, or null where no frame is pinned.
    */
   export function window(
     body: IAutoMovieMotionHumanBody,
@@ -309,7 +322,7 @@ export namespace HumanSwungLeg {
     };
   }
 
-  /**
+  /*
    * The leg's joints a share of the way through its window: each angle on the
    * quadratic through the three keys, `from + (to - from) s + 4 s (1 - s)
    * (apex
@@ -317,11 +330,10 @@ export namespace HumanSwungLeg {
    * - (from + to) / 2)`, held within its range of motion, and a foot that bears
    *   nothing held within the unloaded ankle's dorsal range
    *   (`HumanMountPush.DORSAL`) unless an end key itself bends it further.
-   *
-   * @param body The body, whose joint ranges are read.
-   * @param keys The keys.
-   * @param share 0 where the window opens to 1 where it closes.
-   * @returns The joints.
+   * Parameter body: The body, whose joint ranges are read.
+   * Parameter keys: The keys.
+   * Parameter share: 0 where the window opens to 1 where it closes.
+   * Returns: The joints.
    */
   export function at(
     body: IAutoMovieMotionHumanBody,
@@ -359,7 +371,9 @@ export namespace HumanSwungLeg {
     return out;
   }
 
-  /** Read the leg's fitted joints in the clinical angle order of the keys. */
+  /*
+   * Read the leg's fitted joints in the clinical angle order of the keys.
+   */
   function angles(side: AutoMovieHumanSide, pose: IAutoMoviePose): Joints {
     const out: Joints = {};
     for (const joint of pose.joints)
@@ -372,7 +386,7 @@ export namespace HumanSwungLeg {
     return out;
   }
 
-  /**
+  /*
    * A joint axis's range, degrees: the range table's, zero for an immobile
    * axis, open for an unconstrained one.
    */
@@ -391,26 +405,28 @@ export namespace HumanSwungLeg {
     return [range?.min ?? -Infinity, range?.max ?? Infinity];
   }
 
-  /**
+  /*
    * The frame grid a swing is scanned on, seconds: the display leg chain's
    * (`AutoMovieMotionHumanArmCourse.STEP`).
    */
   const STEP: number = AutoMovieMotionHumanArmCourse.STEP;
 
-  /**
+  /*
    * How near a bound a fitted angle reads as pinned there, degrees: a tenth of
    * a degree, ten times the range table's own tolerance (`ROM_TOLERANCE`), so a
    * fit projected onto a bound is caught.
    */
   const EDGE: number = 10 * ROM_TOLERANCE;
 
-  /** A leg's bones, hip to toes. */
+  /*
+   * A leg's bones, hip to toes.
+   */
   const BONES: Record<AutoMovieHumanSide, readonly AutoMovieHumanoidBone[]> = {
     left: ["leftUpperLeg", "leftLowerLeg", "leftFoot", "leftToes"],
     right: ["rightUpperLeg", "rightLowerLeg", "rightFoot", "rightToes"],
   };
 
-  /**
+  /*
    * The hips and the knees: a fit held at their range has left the knee's
    * closed form, where an ankle held at its range only misses the foot's turn.
    */
@@ -422,7 +438,9 @@ export namespace HumanSwungLeg {
       "rightLowerLeg",
     ]);
 
-  /** The clinical axes in a joint record's order. */
+  /*
+   * The clinical axes in a joint record's order.
+   */
   const AXES: readonly ["flexion", "abduction", "twist"] = [
     "flexion",
     "abduction",
@@ -430,10 +448,12 @@ export namespace HumanSwungLeg {
   ];
 }
 
-/** The alternatives of `AtAngleAxis`'s site. */
+/*
+ * The alternatives of `AtAngleAxis`'s site.
+ */
 type AtAngleAxis = 0 | 1 | 2;
 
-/**
+/*
  * The fits a swing's frame continues: each limb's seed at the frame fitted
  * before it; none before the first.
  */

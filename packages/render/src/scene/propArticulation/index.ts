@@ -1,4 +1,4 @@
-/**
+/*
  * Prop articulation assembly and its result, each owned by its source
  * declaration.
  */

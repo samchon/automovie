@@ -95,6 +95,8 @@ export namespace AutoMovieHumanLegSources {
   }
 }
 
-/** Existing bounded source memoization; no original curve is reconstructed. */
+/*
+ * Existing bounded source memoization; no original curve is reconstructed.
+ */
 const { lazy }: Pick<typeof AutoMovieHumanSiteViewPart, "lazy"> =
   AutoMovieHumanSiteViewPart;

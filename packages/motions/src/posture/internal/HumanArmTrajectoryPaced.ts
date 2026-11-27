@@ -5,7 +5,7 @@ import { HumanArmTrajectoryPace as Pace } from "./HumanArmTrajectoryPace";
 import { HumanArmTrajectoryRetime } from "./HumanArmTrajectoryRetime";
 import { HumanArmTrajectoryStretch as Stretch } from "./HumanArmTrajectoryStretch";
 
-/**
+/*
  * The refusal for time of a span whose solve the law's own pace holds off: the
  * same problem solved again from the same start with the speed bound lifted
  * (each probe's pace unbounded), and, where that path meets every other term,
@@ -15,11 +15,10 @@ import { HumanArmTrajectoryStretch as Stretch } from "./HumanArmTrajectoryStretc
  * starts from it: the same path over a longer span moves within the bound
  * (Hollerbach and Flash 1982, Biol Cybern 44:67). None where the path misses
  * another term without the bound too: the refusal is then the region's.
- *
- * @param grid The span's frame grid and readers.
- * @param refused The refused solution on its refined knots.
- * @param told Where the path is handed on.
- * @returns The refusal for time; none where the pace is not what binds.
+ * Parameter grid: The span's frame grid and readers.
+ * Parameter refused: The refused solution on its refined knots.
+ * Parameter told: Where the path is handed on.
+ * Returns: The refusal for time; none where the pace is not what binds.
  */
 export function HumanArmTrajectoryPaced(
   grid: Stretch.IGrid,

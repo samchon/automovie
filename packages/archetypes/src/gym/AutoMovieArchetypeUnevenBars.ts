@@ -9,7 +9,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** Competition uneven bars dimensions. */
+/*
+ * Competition uneven bars dimensions.
+ */
 const NORMS: string =
   "World Gymnastics Apparatus Norms, WAG 2 §2 (https://www.gymnastics.sport/publicdir/rules/files/en_Apparatus%20Norms.pdf)";
 

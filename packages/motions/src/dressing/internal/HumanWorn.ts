@@ -16,7 +16,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
-/**
+/*
  * Where a wearable sits once worn: its `wear` socket on the body region it goes
  * onto, the socket's `+Y` toward the body (into the region, against the
  * region's outward normal), and the thing turned so its front faces the way the
@@ -24,17 +24,16 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
  * inside on the head's crown, a pair of spectacles' bridge on the nose's bridge).
  */
 export namespace HumanWorn {
-  /**
+  /*
    * The frame a wearable takes on a posture's region.
-   *
-   * @param body The body.
-   * @param posture The posture the region is read on.
-   * @param prop The wearable.
-   * @param region The region it goes onto.
-   * @param turn A turn about the region's normal from facing the body's way,
-   *   degrees; 0 when absent.
-   * @returns The wearable's world frame.
-   * @throws {HumanRefusal} When the wearable declares no `wear` socket.
+   * Parameter body: The body.
+   * Parameter posture: The posture the region is read on.
+   * Parameter prop: The wearable.
+   * Parameter region: The region it goes onto.
+   * Parameter turn: A turn about the region's normal from facing the body's way,
+   * degrees; 0 when absent.
+   * Returns: The wearable's world frame.
+   * When the wearable declares no `wear` socket.
    */
   export function frame(
     body: IAutoMovieMotionHumanBody,
@@ -46,16 +45,15 @@ export namespace HumanWorn {
     return prepareSite(body, posture, prop, region).frame(turn);
   }
 
-  /**
+  /*
    * A wearable's site on a fixed posture, read once and tried at many turns.
-   *
-   * @param body The body.
-   * @param posture The posture whose region receives the wearable.
-   * @param prop The wearable.
-   * @param region The region it goes onto.
-   * @returns `frame`, the wearable's world frame at a turn about the region's
-   *   normal, degrees; `point`, a copy of the region's world point, metres.
-   * @throws {HumanRefusal} When the wearable declares no `wear` socket.
+   * Parameter body: The body.
+   * Parameter posture: The posture whose region receives the wearable.
+   * Parameter prop: The wearable.
+   * Parameter region: The region it goes onto.
+   * Returns: `frame`, the wearable's world frame at a turn about the region's
+   * normal, degrees; `point`, a copy of the region's world point, metres.
+   * When the wearable declares no `wear` socket.
    */
   export function prepareSite(
     body: IAutoMovieMotionHumanBody,
@@ -78,16 +76,15 @@ export namespace HumanWorn {
     return { frame, point: (): IAutoMovieVector3 => ({ ...at.point }) };
   }
 
-  /**
+  /*
    * A wearable's frame on a posture that changes from call to call, such as the
    * stroke that carries it onto the head.
-   *
-   * @param body The body.
-   * @param prop The wearable.
-   * @param region The region it goes onto.
-   * @returns For a posture, a turn in degrees and an optional pose workspace,
-   *   the wearable's world frame.
-   * @throws {HumanRefusal} When the wearable declares no `wear` socket.
+   * Parameter body: The body.
+   * Parameter prop: The wearable.
+   * Parameter region: The region it goes onto.
+   * Returns: For a posture, a turn in degrees and an optional pose workspace,
+   * the wearable's world frame.
+   * When the wearable declares no `wear` socket.
    */
   export function prepareMoving(
     body: IAutoMovieMotionHumanBody,
@@ -116,13 +113,15 @@ export namespace HumanWorn {
   }
 }
 
-/** The record of `IPrepareSiteResult`'s site. */
+/*
+ * The record of `IPrepareSiteResult`'s site.
+ */
 type IPrepareSiteResult = {
   frame: (turn: number) => IAutoMovieRigidTransform;
   point: () => IAutoMovieVector3;
 };
 
-/**
+/*
  * The wearable's `wear` socket, or the refusal naming the contacts it does
  * declare.
  */
@@ -147,7 +146,7 @@ function socketOf(prop: IAutoMovieMotionHumanProp): IAutoMovieAffordance {
   return wear;
 }
 
-/**
+/*
  * The rotation that lays the wear socket on a region: the socket's `+Y` onto
  * the region's inward normal, and the wearable's front onto the body's forward.
  * A socket whose `+Y` runs within about 26 degrees of the wearable's `Z` (|z| >
@@ -186,7 +185,7 @@ function alignment(
     });
 }
 
-/**
+/*
  * The wearable's frame at a turn about the region's normal, its socket on the
  * region's point.
  */

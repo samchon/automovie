@@ -12,7 +12,7 @@ import { createPhysicalKinematicFrame } from "./createPhysicalKinematicFrame";
 import { AutoMoviePhysicalGeometry } from "../AutoMoviePhysicalGeometry";
 import { yieldPhysicalSimulation } from "./yieldPhysicalSimulation";
 
-/**
+/*
  * Compute authored frames and geometric relationships without a dynamics world.
  * Any coupled groups and their report sink come from the same intake.
  */

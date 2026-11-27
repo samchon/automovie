@@ -8,7 +8,7 @@ import type {
 import { Vector3 } from "../../math/Vector3";
 import { normalizeAutoMovieSurfaceFrame } from "./normalizeAutoMovieSurfaceFrame";
 
-/**
+/*
  * Prepare exactly three finite, noncollinear metre points for rigid placement.
  * Their centroid is the origin, point 0 to point 1 is forward, and the ordered
  * edge cross product supplies the normal. Optional referenceNormal chooses its

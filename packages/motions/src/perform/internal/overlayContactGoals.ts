@@ -15,7 +15,7 @@ import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { poseBones } from "../../posture/internal/poseBones";
 import { turnHumanPosture } from "../../posture/internal/turnHumanPosture";
 
-/**
+/*
  * The active limb contacts of one overlay before its fade moves them: a
  * joint-only path contributes its complete displayed limb frame while fading
  * and none at full weight.
@@ -81,7 +81,9 @@ export function overlayContactGoals(
   return contacts;
 }
 
-/** The limb carrying a contact part, if the part belongs to a limb. */
+/*
+ * The limb carrying a contact part, if the part belongs to a limb.
+ */
 function limbOf(
   part: IAutoMovieMotionHumanContactWindow["part"],
 ): AutoMovieHumanLimb | undefined {

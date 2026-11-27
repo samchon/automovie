@@ -5,18 +5,17 @@ import { type AutoMovieArchetype } from "../../core/index";
 import { StageBladeConstruction } from "./StageBladeConstruction";
 
 
-/**
+/*
  * Padded practice sword silhouette.
  *
  * A digital training-sword silhouette with a padded cap, visible binding and a
  * long two-hand grip along +Y. It declares its point and the edge of its
  * monouchi, the striking part.
- *
- * @param params The scene identity and optional display length in metres.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter params: The scene identity and optional display length in metres.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function createStagePracticeSwordProp(
   params: AutoMovieArchetypeStagePracticeSwordProp.IParams = {},

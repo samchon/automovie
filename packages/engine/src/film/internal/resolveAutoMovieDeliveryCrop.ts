@@ -1,6 +1,6 @@
 import { IAutoMovieDeliveryCrop } from "@automovie/interface";
 
-/**
+/*
  * Validate one delivery-gate crop and return a copy of it, or of the whole gate
  * when it is omitted.
  *
@@ -9,11 +9,10 @@ import { IAutoMovieDeliveryCrop } from "@automovie/interface";
  * edge is finite and within `[0, 1]`, `left < right` and `top < bottom`. The
  * result never aliases the caller's object, so render and review consumers
  * share values without sharing mutation.
- *
- * @param crop The authored window, or `undefined` for the whole gate.
- * @returns A fresh crop with the same four edges.
- * @throws {RangeError} When an edge is non-finite or outside `[0, 1]`, or the
- *   window is empty or inverted on either axis.
+ * Parameter crop: The authored window, or `undefined` for the whole gate.
+ * Returns: A fresh crop with the same four edges.
+ * When an edge is non-finite or outside `[0, 1]`, or the
+ * window is empty or inverted on either axis.
  */
 export function resolveAutoMovieDeliveryCrop(
   crop: IAutoMovieDeliveryCrop | undefined,
@@ -32,7 +31,9 @@ export function resolveAutoMovieDeliveryCrop(
   return { ...resolved };
 }
 
-/** The whole uncropped gate, what an omitted crop means. */
+/*
+ * The whole uncropped gate, what an omitted crop means.
+ */
 const WHOLE_DELIVERY_CROP: IAutoMovieDeliveryCrop = {
   left: 0,
   top: 0,

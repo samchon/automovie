@@ -19,21 +19,20 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * The search of a symmetric grip's turns and tilts by the error the arm's fit
  * leaves over the grasp and its stroke (`HumanGrasp.reachable` states the
  * method and its sources), prepared for one body, posture, arm and elbow hint
  * so several queries share one FK workspace.
- *
- * @param body The body, unchanged through the queries.
- * @param posture The posture the arm is fitted in (its other limbs and trunk).
- * @param side The arm.
- * @param bend The grasp's elbow hint, world metres.
- * @param fixedPosture Whether the issuer supplies a fixed posture and material
- *   wrist frames, so a candidate may be fitted after its goal is built.
- * @returns A query over a wrist goal of a turn and a tilt (degrees), the tilts
- *   and turns tried, the stroke's keys, a required measure and the caller's
- *   admission; it returns the chosen reach.
+ * Parameter body: The body, unchanged through the queries.
+ * Parameter posture: The posture the arm is fitted in (its other limbs and trunk).
+ * Parameter side: The arm.
+ * Parameter bend: The grasp's elbow hint, world metres.
+ * Parameter fixedPosture: Whether the issuer supplies a fixed posture and material
+ * wrist frames, so a candidate may be fitted after its goal is built.
+ * Returns: A query over a wrist goal of a turn and a tilt (degrees), the tilts
+ * and turns tried, the stroke's keys, a required measure and the caller's
+ * admission; it returns the chosen reach.
  */
 export function HumanGraspSearch(
   body: IAutoMovieMotionHumanBody,
@@ -56,7 +55,7 @@ export function HumanGraspSearch(
     chain,
   );
 
-  /**
+  /*
    * The hand's characteristic length a rotation's miss is carried over,
    * millimetres.
    */
@@ -291,7 +290,9 @@ export function HumanGraspSearch(
   };
 }
 
-/** The wrist frame and the nonnegative angle cost before any arm fit. */
+/*
+ * The wrist frame and the nonnegative angle cost before any arm fit.
+ */
 interface IPlacement {
   turn: number;
   tilt: number;
@@ -299,13 +300,15 @@ interface IPlacement {
   preference: number;
 }
 
-/** A fitted placement whose grasp error bounds every subsequent stroke. */
+/*
+ * A fitted placement whose grasp error bounds every subsequent stroke.
+ */
 interface ICandidate extends IPlacement {
   grasp: IFitted;
   floor: number;
 }
 
-/**
+/*
  * A query's stroke keys, built lazily from the asked and the displayed grasp
  * wrists.
  */
@@ -314,14 +317,16 @@ type IStroke = (
   shown: IAutoMovieMotionHumanHand.IWrist,
 ) => Iterable<IAutoMovieMotionHumanGrasp.IKey>;
 
-/**
+/*
  * What a grip must hold before its cost counts: a measure and its upper bound,
  * in the caller's unit.
  */
 interface IRequired {
-  /** Largest accepted value of the measure. */
+  /*
+   * Largest accepted value of the measure.
+   */
   bound: number;
-  /**
+  /*
    * The measure of a candidate's per-key errors, judgements and declared
    * bounds.
    */
@@ -332,7 +337,7 @@ interface IRequired {
   ) => number;
 }
 
-/**
+/*
  * One search: goal of a turn and a tilt, the tilts, the stroke, the turns, the
  * required measure and the admission.
  */
@@ -345,28 +350,38 @@ type IQuery = (
   admits?: (wrist: IAutoMovieMotionHumanHand.IWrist) => boolean,
 ) => IAutoMovieMotionHumanGrasp.IReach;
 
-/** The displayed result and scalar reports of one key fit. */
+/*
+ * The displayed result and scalar reports of one key fit.
+ */
 interface IFitted {
-  /** The canonical pose after all coupled limb and digit fits. */
+  /*
+   * The canonical pose after all coupled limb and digit fits.
+   */
   pose: IAutoMoviePose;
 
-  /** The displayed wrist frame, world metres and rest-relative rotation. */
+  /*
+   * The displayed wrist frame, world metres and rest-relative rotation.
+   */
   shown: IAutoMovieMotionHumanHand.IWrist;
 
-  /**
+  /*
    * The wrist's position error plus the hand's rotation error carried as an arc
    * over the hand's length, millimetres.
    */
   miss: number;
 
-  /** The elbow's turn from the hint about the shoulder-to-wrist line, degrees. */
+  /*
+   * The elbow's turn from the hint about the shoulder-to-wrist line, degrees.
+   */
   departure: number;
 
-  /** The key's own judgement, or zero when it declares none. */
+  /*
+   * The key's own judgement, or zero when it declares none.
+   */
   judged: number;
 }
 
-/**
+/*
  * The elbow's turn from the key's hint about the shoulder-to-wrist line,
  * degrees; 0 when either side is degenerate.
  */
@@ -409,7 +424,7 @@ function departureOf(
     : 0;
 }
 
-/**
+/*
  * The rotation angle, degrees, of a unit quaternion whose absolute dot with the
  * asked one is `dot`.
  */

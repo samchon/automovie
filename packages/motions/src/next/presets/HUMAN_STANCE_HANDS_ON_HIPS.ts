@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanStance } from "@automovie/interface";
 
-/**
+/*
  * The handsOnHips preset of `rest`: Hands on the hips: each palm on the side of
  * its own pelvis, the elbows out. Spread into `rest`'s parameters with the
  * hold; the `handsOnHips` row of `HumanStance` fixes these places. Where each

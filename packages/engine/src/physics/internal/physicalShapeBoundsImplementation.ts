@@ -8,7 +8,9 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/** Internal entry points for the composed physical-shape bounds queries. */
+/*
+ * Internal entry points for the composed physical-shape bounds queries.
+ */
 export const physicalShapeBoundsImplementation: {
   physicalShapeBounds: typeof physicalShapeBounds;
   physicalShapeBoundsLowest: typeof physicalShapeBoundsLowest;
@@ -21,16 +23,15 @@ export const physicalShapeBoundsImplementation: {
   physicalShapeBoundsFromFrame,
 };
 
-  /**
- * Exact world axis bounds of the admitted sphere, Y capsule, oriented box or
- * convex hull; a hull's bounds are those of its rotated points.
- *
- * @param pose Parent pose in world metres and an admitted unit rotation.
- * @param shape Admitted local shape geometry and transform, in metres.
- * @returns Fresh world-axis minimum and maximum coordinates.
- * @throws {Error} For an unknown runtime shape kind; admission of numeric
- *   geometry remains the caller's responsibility.
- */
+  /*
+   * Exact world axis bounds of the admitted sphere, Y capsule, oriented box or
+   * convex hull; a hull's bounds are those of its rotated points.
+   * Parameter pose: Parent pose in world metres and an admitted unit rotation.
+   * Parameter shape: Admitted local shape geometry and transform, in metres.
+   * Returns: Fresh world-axis minimum and maximum coordinates.
+   * For an unknown runtime shape kind; admission of numeric
+   * geometry remains the caller's responsibility.
+   */
 function physicalShapeBounds(
   pose: IAutoMovieRigidTransform,
   shape: IAutoMoviePhysicalShape,
@@ -51,7 +52,7 @@ function physicalShapeBounds(
   return physicalShapeBoundsFromFrame(center, rotation, shape);
 }
 
-  /**
+  /*
    * The exact world-axis minimum Y, metres, for a floor-only observation.
    * Compose the needed components of the same admitted parent/local frame,
    * keeping its original Y expression, vertex order and Math.min/NaN behavior.
@@ -79,7 +80,7 @@ function physicalShapeBoundsLowest(
     return lowestFromShapeFrame(centerY, rotation, shape);
   }
 
-  /**
+  /*
    * Exact minimum Y from an actual parent's world Y and unit rotation. The
    * shape's local transform is still applied here. This shares lowest's
    * numerical owner without asking a floor-only caller to construct unused
@@ -102,21 +103,20 @@ function physicalShapeBoundsLowestFromParent(
     );
   }
 
-/**
-   * Read bounds from an actual composed shape centre and orientation. The
-   * centre is in world metres and rotation includes both parent and local shape
-   * rotation; shape.transform has already been applied and is not applied
-   * again. All shape geometry is admitted by the caller.
-   *
-   * This is the same numerical owner as physicalShapeBounds: sphere, capsule
-   * and box extents retain their original expressions and hull extrema retain
-   * original vertex order. It mutates and retains no input.
-   *
-   * @param takeHullPoint Optional synchronous ownership transfer of each fresh
-   *   rotated hull offset in world axes, before translation and after extrema
-   *   consumption. It may adopt or mutate that vector but must not change the
-   *   shape or current frame.
-   */
+/*
+ * Read bounds from an actual composed shape centre and orientation. The
+ * centre is in world metres and rotation includes both parent and local shape
+ * rotation; shape.transform has already been applied and is not applied
+ * again. All shape geometry is admitted by the caller.
+ *
+ * This is the same numerical owner as physicalShapeBounds: sphere, capsule
+ * and box extents retain their original expressions and hull extrema retain
+ * original vertex order. It mutates and retains no input.
+ * Parameter takeHullPoint: Optional synchronous ownership transfer of each fresh
+ * rotated hull offset in world axes, before translation and after extrema
+ * consumption. It may adopt or mutate that vector but must not change the
+ * shape or current frame.
+ */
 function physicalShapeBoundsFromFrame(
     center: IAutoMovieVector3,
     rotation: IAutoMovieRigidTransform["rotation"],
@@ -185,7 +185,7 @@ function physicalShapeBoundsFromFrame(
     };
   }
 
-/**
+/*
  * A sphere's six original centre-plus/minus-radius expressions need no
  * orientation.
  */
@@ -199,16 +199,22 @@ function sphereBounds(
   };
 }
 
-/** Fixed unit directions are read without mutation by quaternion rotation. */
+/*
+ * Fixed unit directions are read without mutation by quaternion rotation.
+ */
 const AXIS_X: Readonly<IAutoMovieVector3> = { x: 1, y: 0, z: 0 };
 
-/** Capsule's length axis and the second oriented-box column. */
+/*
+ * Capsule's length axis and the second oriented-box column.
+ */
 const AXIS_Y: Readonly<IAutoMovieVector3> = { x: 0, y: 1, z: 0 };
 
-/** Third oriented-box column, shared without caller-owned geometry. */
+/*
+ * Third oriented-box column, shared without caller-owned geometry.
+ */
 const AXIS_Z: Readonly<IAutoMovieVector3> = { x: 0, y: 0, z: 1 };
 
-/**
+/*
  * One original minimum-Y kernel consumes already composed non-spherical shape
  * frames.
  */

@@ -2,7 +2,7 @@ import type { IAutoMovieInteractionEvent } from "@automovie/interface";
 
 import { eventTimeKey } from "./eventTimeKey";
 
-/**
+/*
  * The four scripted-cue events one `attachTo` handoff emits: the child is
  * grabbed and attached at `start`, then detached and released at `end`.
  *
@@ -10,18 +10,17 @@ import { eventTimeKey } from "./eventTimeKey";
  * `target`, carries no contact point or reaction, and records `actionIndex`,
  * the authored action's index, so a reader can trace it back. Its id is
  * `<kind>:<child>:<parent>:<time>` with the time written by
- * {@link eventTimeKey}. Repeated participant pairs in one formatted time bin
+ * eventTimeKey. Repeated participant pairs in one formatted time bin
  * collide, and participant ids containing colons can make the delimiter join
  * ambiguous; this constructor does not enforce uniqueness. Times are shot-local
- * seconds. {@link coupleObjects} calls this once per handoff it bakes; a staged
+ * seconds. coupleObjects calls this once per handoff it bakes; a staged
  * mount emits no events at all.
- *
- * @param child Coupled child node id.
- * @param parent Parent node id whose bone carries the child.
- * @param start Shot-local second the child is grabbed and attached.
- * @param end Shot-local second the child is detached and released.
- * @param actionIndex Index of the authored `attachTo` action.
- * @returns Four new events in grab, attach, detach, release order.
+ * Parameter child: Coupled child node id.
+ * Parameter parent: Parent node id whose bone carries the child.
+ * Parameter start: Shot-local second the child is grabbed and attached.
+ * Parameter end: Shot-local second the child is detached and released.
+ * Parameter actionIndex: Index of the authored `attachTo` action.
+ * Returns: Four new events in grab, attach, detach, release order.
  */
 export function handoffEvents(
   child: string,
@@ -52,7 +51,9 @@ export function handoffEvents(
   );
 }
 
-/** The four handoff kinds in emission order, each with the end it fires at. */
+/*
+ * The four handoff kinds in emission order, each with the end it fires at.
+ */
 const HANDOFF_KINDS: ReadonlyArray<
   readonly [IAutoMovieInteractionEvent["kind"], "start" | "end"]
 > = [

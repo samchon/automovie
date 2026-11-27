@@ -7,7 +7,7 @@ import { Vector3 } from "../../math/Vector3";
 import { physicalJointPoint } from "./physicalJointPoint";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
-/**
+/*
  * Compute the unchanged reach-sphere root-lowering request without running
  * endpoint IK whose poses would be discarded. This is a bounded motor intent,
  * never a correction to an actual root.

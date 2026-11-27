@@ -4,19 +4,18 @@ import type { AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotio
 
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 
-/**
+/*
  * A region of a target as a frame: a person's region or a prop's point through
  * the context's aim, a trunk or head region of the performer on the posture,
  * and a limb region of the performer on the entry pose, which a touch that does
  * not move that limb leaves where it was.
- *
- * @param context The action's context.
- * @param target The target.
- * @param seconds Film seconds.
- * @param posture The posture so far.
- * @param entry The supplier of the bones to read a region off the trunk on (the
- *   entry pose's), called only for such a region.
- * @returns The point and the outward normal.
+ * Parameter context: The action's context.
+ * Parameter target: The target.
+ * Parameter seconds: Film seconds.
+ * Parameter posture: The posture so far.
+ * Parameter entry: The supplier of the bones to read a region off the trunk on (the
+ * entry pose's), called only for such a region.
+ * Returns: The point and the outward normal.
  */
 export function touchRegionFrame(
   context: Pick<IAutoMovieMotionHumanActionContext, TouchRegionFrameContext>,
@@ -50,14 +49,20 @@ export function touchRegionFrame(
   );
 }
 
-/** The alternatives of `TouchRegionFrameResult`'s site. */
+/*
+ * The alternatives of `TouchRegionFrameResult`'s site.
+ */
 type TouchRegionFrameResult = "point" | "normal";
 
-/** The supplier of the bones a region off the trunk is read on. */
+/*
+ * The supplier of the bones a region off the trunk is read on.
+ */
 type TouchRegionFrameEntry = () => ReadonlyMap<
   AutoMovieHumanoidBone,
   IAutoMovieResolvedBone
 >;
 
-/** The alternatives of `TouchRegionFrameContext`'s site. */
+/*
+ * The alternatives of `TouchRegionFrameContext`'s site.
+ */
 type TouchRegionFrameContext = "aim" | "body";

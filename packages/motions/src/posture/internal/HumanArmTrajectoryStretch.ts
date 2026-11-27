@@ -13,7 +13,7 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPace as Pace } from "./HumanArmTrajectoryPace";
 import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
 
-/**
+/*
  * One stretch of an arm course solved by trajectory optimisation alone:
  * TrajOpt's penalty sequential convex optimisation on a few knots (Schulman et
  * al. 2014, Algorithm 1, `HumanArmOptimiser`), whose own reading of the knots
@@ -24,78 +24,107 @@ import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
  * where the arm's closed-form fit loses its admissible swivel (`plan`).
  */
 export namespace HumanArmTrajectoryStretch {
-  /** A problem read on given waypoints' seconds. */
+  /*
+   * A problem read on given waypoints' seconds.
+   */
   export type Reading = (
     times: readonly number[],
   ) => HumanArmTrajectory.IProblem;
 
-  /** The context builder the solve reads every refinement's problem with. */
+  /*
+   * The context builder the solve reads every refinement's problem with.
+   */
   export type ContextOf = ReturnType<typeof HumanArmTrajectoryContext.prepare>;
 
-  /** What a solve reads its knots on. */
+  /*
+   * What a solve reads its knots on.
+   */
   export interface IGrid {
-    /**
+    /*
      * The problem on given seconds, in the plan's own reading (mirrored where
      * the plan is).
      */
     reading: Reading;
 
-    /** The context builder. */
+    /*
+     * The context builder.
+     */
     contextOf: ContextOf;
 
-    /** The frame grid's seconds. */
+    /*
+     * The frame grid's seconds.
+     */
     grid: readonly number[];
 
-    /** The frame grid's context, the admission's reading. */
+    /*
+     * The frame grid's context, the admission's reading.
+     */
     fine: M.IContext;
   }
 
-  /** The knots a solve stands on. */
+  /*
+   * The knots a solve stands on.
+   */
   export interface IKnots {
-    /**
+    /*
      * The knots' indices on the frame grid, ascending, its first and last
      * included.
      */
     knots: number[];
 
-    /** The problem on the knots' seconds. */
+    /*
+     * The problem on the knots' seconds.
+     */
     problem: HumanArmTrajectory.IProblem;
 
-    /** Its context. */
+    /*
+     * Its context.
+     */
     context: M.IContext;
   }
 
-  /**
+  /*
    * A solve's end: its knots, their coordinates and their reading on the frame
    * grid.
    */
   export interface ISolved extends IKnots {
-    /** Each arm's coordinates at each knot. */
+    /*
+     * Each arm's coordinates at each knot.
+     */
     x: number[][][];
 
-    /** Each arm's velocity and acceleration at each knot, the optimiser's. */
+    /*
+     * Each arm's velocity and acceleration at each knot, the optimiser's.
+     */
     rates?: Knots.IRates;
 
-    /** Exact hold positions carried through refinement and pacing. */
+    /*
+     * Exact hold positions carried through refinement and pacing.
+     */
     pinned?: HumanArmSeed.IHolds;
 
-    /** The optimiser's last evaluation. */
+    /*
+     * The optimiser's last evaluation.
+     */
     evaluation: M.IEvaluation;
 
-    /** The penalty it reached. */
+    /*
+     * The penalty it reached.
+     */
     penalty: number;
 
-    /** The played interpolant's frame-grid reading. */
+    /*
+     * The played interpolant's frame-grid reading.
+     */
     played: Admission.IReading;
   }
 
-  /**
+  /*
    * The frame grid's instants nearest given seconds, as knots: the first and
    * the last instant always, no instant twice.
-   *
-   * @param grid The frame grid's seconds.
-   * @param of The seconds, ascending.
-   * @returns The knots' grid indices, ascending.
+   * Parameter grid: The frame grid's seconds.
+   * Parameter of: The seconds, ascending.
+   * Returns: The knots' grid indices, ascending.
    */
   export function snap(
     grid: readonly number[],
@@ -115,12 +144,11 @@ export namespace HumanArmTrajectoryStretch {
     return out;
   }
 
-  /**
+  /*
    * The problem and its context on given knots.
-   *
-   * @param on The grid.
-   * @param knots The knots' grid indices.
-   * @returns The knots.
+   * Parameter on: The grid.
+   * Parameter knots: The knots' grid indices.
+   * Returns: The knots.
    */
   export function on(grid: IGrid, knots: number[]): IKnots {
     const problem: HumanArmTrajectory.IProblem = grid.reading(
@@ -129,7 +157,7 @@ export namespace HumanArmTrajectoryStretch {
     return { knots, problem, context: grid.contextOf(problem, grid.fine) };
   }
 
-  /**
+  /*
    * The knots' trajectory solved from a seed, and solved again only where the
    * knots are too few for the course between them.
    *
@@ -150,14 +178,13 @@ export namespace HumanArmTrajectoryStretch {
    * the intervals it splits and an interval of one frame is never split, so the
    * passes are at most the base-two logarithm of the longest interval's
    * frames.
-   *
-   * @param grid The grid.
-   * @param from The knots the seed stands on.
-   * @param seed Each arm's coordinates at each knot.
-   * @param penalty The penalty to start at; the optimiser's own when absent.
-   * @param pinned The solved hold poses. If present, each new hold knot is also
-   *   solved before its position is fixed.
-   * @returns The solve's end, on the knots it ended on.
+   * Parameter grid: The grid.
+   * Parameter from: The knots the seed stands on.
+   * Parameter seed: Each arm's coordinates at each knot.
+   * Parameter penalty: The penalty to start at; the optimiser's own when absent.
+   * Parameter pinned: The solved hold poses. If present, each new hold knot is also
+   * solved before its position is fixed.
+   * Returns: The solve's end, on the knots it ended on.
    */
   export function optimise(
     grid: IGrid,
@@ -265,17 +292,16 @@ export namespace HumanArmTrajectoryStretch {
       ...(pinned === undefined ? {} : { pinned }),
     };
   }
-  /**
+  /*
    * Whether a solve's played trajectory is admitted on the frame grid.
-   *
-   * @param solved The solve's end.
-   * @returns Whether its frame-grid reading is within the tolerance.
+   * Parameter solved: The solve's end.
+   * Returns: Whether its frame-grid reading is within the tolerance.
    */
   export function met(solved: ISolved): boolean {
     return solved.played.evaluation.worst.value <= M.TOLERANCE;
   }
 
-  /**
+  /*
    * The refusal of a solve its frame-grid reading does not admit, in the plan's
    * own reading. A path that breaks anything but its speed (`placement`) is
    * refused for that: no longer span meets it. A path that breaks only its
@@ -283,11 +309,10 @@ export namespace HumanArmTrajectoryStretch {
    * scaling of manipulator trajectories"), so its `duration` refusal names the
    * span its fastest probe's speed over the bound needs, read at the knots and
    * on the frame grid, and the solution it was reached at is told.
-   *
-   * @param grid The grid.
-   * @param last The unadmitted solve.
-   * @param told Where a `duration` refusal's solution is told.
-   * @returns The refusal.
+   * Parameter grid: The grid.
+   * Parameter last: The unadmitted solve.
+   * Parameter told: Where a `duration` refusal's solution is told.
+   * Returns: The refusal.
    */
   export function refused(
     grid: IGrid,
@@ -334,11 +359,10 @@ export namespace HumanArmTrajectoryStretch {
     });
   }
 
-  /**
+  /*
    * Each arm's trajectory a solve's knots play.
-   *
-   * @param solved The solve's end.
-   * @returns Each arm's reader, in the problem's order, and the solution.
+   * Parameter solved: The solve's end.
+   * Returns: Each arm's reader, in the problem's order, and the solution.
    */
   export function played(solved: ISolved): HumanArmTrajectory.ISolved {
     const rates: Knots.IRates =
@@ -365,7 +389,7 @@ export namespace HumanArmTrajectoryStretch {
     };
   }
 
-  /**
+  /*
    * A stretch of a caller's own arm course solved by trajectory optimisation
    * alone: from each arm's given state at the stretch's first instant
    * (`IArm.rest`) to its given state at the last (`IArm.back`), or to its site
@@ -375,15 +399,14 @@ export namespace HumanArmTrajectoryStretch {
    * is open). A caller reaches for it where its closed-form fit loses the
    * admissible swivel it continued; the stretch is one problem, solved once,
    * and refused where its frame-grid reading does not admit it.
-   *
-   * @param read The stretch's problem on given seconds: its first waypoint's
-   *   arms are their `rest`, the last's their `back` where given, every site
-   *   the hand's on the stretch.
-   * @param times The stretch's first knots' seconds, ascending, its first and
-   *   last instants included.
-   * @returns Each arm's trajectory, in the problem's order, and the solution.
-   * @throws {HumanRefusal} When the solve's frame-grid reading does not admit
-   *   it, naming the worst miss.
+   * Parameter read: The stretch's problem on given seconds: its first waypoint's
+   * arms are their `rest`, the last's their `back` where given, every site
+   * the hand's on the stretch.
+   * Parameter times: The stretch's first knots' seconds, ascending, its first and
+   * last instants included.
+   * Returns: Each arm's trajectory, in the problem's order, and the solution.
+   * When the solve's frame-grid reading does not admit
+   * it, naming the worst miss.
    */
   export function plan(
     read: Reading,

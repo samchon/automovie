@@ -18,7 +18,7 @@ import { plantingContainsPoint } from "./plantingContainsPoint";
 import { plantingPruningDistance } from "./plantingPruningDistance";
 import { plantingYaw } from "./plantingYaw";
 
-/**
+/*
  * Derive recipe-local depth-first branches and leaves at one normalized growth
  * stage. Level extension is
  * clamp((stage-onset_level)/(1-onset_(levels-1)),0,1); child-path seeds fix
@@ -33,7 +33,7 @@ export function growPlanting(
   const branches: IAutoMoviePlantingBranch[] = [];
   const leaves: IAutoMoviePlantingLeaf[] = [];
   const span: number = 1 - domain.growth.onset * (structure.levels - 1);
-  /**
+  /*
    * Clamp this admitted level growth law to the normalized extension interval
    * using the recipe-wide positive span.
    */
@@ -44,7 +44,7 @@ export function growPlanting(
     return raw >= 1 ? 1 : raw;
   };
 
-  /**
+  /*
    * Emit one recipe-local branch, its leaf occurrences and surviving children
    * in authored depth-first order, refusing declared cap overflow before
    * publication.
@@ -179,7 +179,7 @@ const SALT_LEAF_SCALE: number = 0x6c656166;
 
 const SALT_LEAF_ROLL: number = 0x726f6c6c;
 
-/**
+/*
  * Leaves borne by one derived branch, in stable index order.
  *
  * The declared leaf cap is enforced **while** blades are emitted rather than
@@ -249,7 +249,9 @@ const bearLeaves: (props: {
   }
 };
 
-/** The world axis one child grows along. */
+/*
+ * The world axis one child grows along.
+ */
 const childAxis: (
   domain: IAutoMoviePlantingDomain,
   parent: IAutoMovieVector3,
@@ -299,7 +301,7 @@ const childAxis: (
   );
 };
 
-/**
+/*
  * A deterministic orthonormal pair perpendicular to one unit axis.
  *
  * Duff et al., "Building an Orthonormal Basis, Revisited" (JCGT 2017). The sign
@@ -326,7 +328,9 @@ const perpendicularFrame: (axis: IAutoMovieVector3) => {
   };
 };
 
-/** The shortest-arc rotation carrying `+y` onto one unit direction. */
+/*
+ * The shortest-arc rotation carrying `+y` onto one unit direction.
+ */
 const shortestArcFromUp: (
   direction: IAutoMovieVector3,
 ) => IAutoMovieQuaternion = (
@@ -343,7 +347,9 @@ const shortestArcFromUp: (
   return { x: x / length, y: 0, z: z / length, w: w / length };
 };
 
-/** One symmetric multiplicative jitter in `[1 − amount, 1 + amount)`. */
+/*
+ * One symmetric multiplicative jitter in `[1 − amount, 1 + amount)`.
+ */
 const jitter: (
   seed: number,
   key: number,
@@ -358,7 +364,9 @@ const jitter: (
   index: number = 0,
 ): number => 1 + amount * (2 * seededValue(seed, key, salt, index) - 1);
 
-/** A unit vector, or the stated fallback when the input has no length. */
+/*
+ * A unit vector, or the stated fallback when the input has no length.
+ */
 const unitOr: (
   value: IAutoMovieVector3,
   fallback: IAutoMovieVector3,

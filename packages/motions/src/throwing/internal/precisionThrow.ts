@@ -12,9 +12,11 @@ import type {
 import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotionHumanTrunk";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/** Geometry added by the three precision delivery styles to the shared throw. */
+/*
+ * Geometry added by the three precision delivery styles to the shared throw.
+ */
 export namespace precisionThrow {
-  /**
+  /*
    * A full windmill arm circle blending from the entry hand pose to the regular
    * release chamber. The radius is proportional to arm length and provisional.
    * See WBSC 2026–2029 Fast Pitch Rule 4.3.3 and Oliver et al., the windmill
@@ -44,7 +46,7 @@ export namespace precisionThrow {
     );
   }
 
-  /**
+  /*
    * Prepare the two-foot bowling stance for a settled solo release. The pelvis
    * descends through knee flexion while the soles hold their entry placements.
    * The depth is a provisional share of leg length. Seiferheld et al.
@@ -80,7 +82,7 @@ export namespace precisionThrow {
           });
   }
 
-  /**
+  /*
    * Add the existing spherical collision input to a precision delivery with a
    * sized ball grip.
    */
@@ -116,5 +118,7 @@ export namespace precisionThrow {
   }
 }
 
-/** The alternatives of `StanceContext`'s site. */
+/*
+ * The alternatives of `StanceContext`'s site.
+ */
 type StanceContext = "body" | "carrier" | "entry";

@@ -11,7 +11,7 @@ import type {
 import { admitAutoMovieQuadraticProgram } from "./admitAutoMovieQuadraticProgram";
 import { polishAutoMovieQuadraticProgram } from "./polishAutoMovieQuadraticProgram";
 
-/**
+/*
  * Polish a Solved native diagonal convex QP in its original coordinates. Exact
  * coefficient copies retain intersected interval metadata; every original row
  * remains in final feasibility, stationarity and complementarity checks.
@@ -154,7 +154,9 @@ export function refineAutoMovieQuadraticProgram(
 }
 
 
-/** Exact interval metadata; original rows and caller arrays remain unchanged. */
+/*
+ * Exact interval metadata; original rows and caller arrays remain unchanged.
+ */
 function intervals(
   input: IAutoMovieSolveQuadraticProgram.IInput,
 ): IAutoMovieQuadraticRefinementInterval[] {
@@ -215,7 +217,9 @@ function intervals(
   return groups;
 }
 
-/** Admission in original row units and the original signed-dual convention. */
+/*
+ * Admission in original row units and the original signed-dual convention.
+ */
 function residuals(
   input: IAutoMovieSolveQuadraticProgram.IInput,
   primal: readonly number[],
@@ -252,7 +256,9 @@ function residuals(
   return { maximumViolation, stationarityResidual, complementarityResidual };
 }
 
-/** Original stationarity formula shared by admission and numerical correction. */
+/*
+ * Original stationarity formula shared by admission and numerical correction.
+ */
 function gradientOf(
   input: IAutoMovieSolveQuadraticProgram.IInput,
   primal: readonly number[],
@@ -270,7 +276,9 @@ function gradientOf(
   return gradient;
 }
 
-/** Original endpoint/null-bound convention, also used to verify dual projection. */
+/*
+ * Original endpoint/null-bound convention, also used to verify dual projection.
+ */
 function complementarityOf(
   row: IAutoMovieSolveQuadraticProgram.IInput["rows"][number],
   value: number,

@@ -5,16 +5,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Attach the existing axis and optional collider probes to a completed arm
  * chain. The chain must be the actual FK of this setup and instant's frame.
- *
- * @param setup The unchanged rig metadata and body measurements.
- * @param at The current frame carrying the fingertip and surface probe offsets.
- * @param chain The completed world joint positions and segment rotations.
- * @param surface Whether to include collider probes after the eight axis
- *   probes.
- * @returns The chain with the same ordered world probes as full arm placement.
+ * Parameter setup: The unchanged rig metadata and body measurements.
+ * Parameter at: The current frame carrying the fingertip and surface probe offsets.
+ * Parameter chain: The completed world joint positions and segment rotations.
+ * Parameter surface: Whether to include collider probes after the eight axis
+ * probes.
+ * Returns: The chain with the same ordered world probes as full arm placement.
  */
 export function placeHumanArmGeometry(
   setup: IAutoMovieMotionHumanArmGeometry.ISetup,
@@ -74,5 +73,7 @@ export function placeHumanArmGeometry(
   };
 }
 
-/** The alternatives of `PlaceHumanArmGeometryOwner`'s site. */
+/*
+ * The alternatives of `PlaceHumanArmGeometryOwner`'s site.
+ */
 type PlaceHumanArmGeometryOwner = "upper" | "lower" | "hand";

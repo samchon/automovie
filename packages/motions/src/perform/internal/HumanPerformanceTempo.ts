@@ -8,7 +8,7 @@ import { AutoMovieMotionHumanArmPlanned } from "../../compose/internal/AutoMovie
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * An action planned at the time its motion needs: a plan whose planned motion
  * moves a hand faster than the speed bound is replanned slower, by the factor
  * its refusal names, the span it needs over the span it had.
@@ -29,18 +29,17 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * applies to every span physics does not fix (`AutoMovieMotionManner`).
  */
 export namespace HumanPerformanceTempo {
-  /**
+  /*
    * An action's plan at the time its motion needs.
-   *
-   * @param law The action's law.
-   * @param context The action's context; its time scale is raised while the
-   *   action is replanned.
-   * @returns The plan.
-   * @throws {HumanRefusal} Whatever the law refuses with on any other ground,
-   *   and a `duration` refusal whose value is the whole time the action needs
-   *   over the time it was first planned at, when the same refusing group (or
-   *   the same refusal outside any group) still refuses after its `REPLANS`
-   *   replans.
+   * Parameter law: The action's law.
+   * Parameter context: The action's context; its time scale is raised while the
+   * action is replanned.
+   * Returns: The plan.
+   * Whatever the law refuses with on any other ground,
+   * and a `duration` refusal whose value is the whole time the action needs
+   * over the time it was first planned at, when the same refusing group (or
+   * the same refusal outside any group) still refuses after its `REPLANS`
+   * replans.
    */
   export function plan<P extends HumanPhysics.IBalanced>(
     law: Pick<IAutoMovieMotionHumanActionLaw<P>, "plan"> & HumanPhysics.ILaw,
@@ -53,15 +52,14 @@ export namespace HumanPerformanceTempo {
     });
   }
 
-  /**
+  /*
    * Prepare a phrase at the time its motion needs, before its events can be
    * placed. A standalone phrase supplies its own handover for these trials.
-   *
-   * @param initial The context for the first trial.
-   * @param prepare The phrase's preparation at a trial's time scale.
-   * @returns The prepared phrase.
-   * @throws {HumanRefusal} At an infeasible scale after the allotted trials,
-   *   or immediately when the refusal is unrelated to duration.
+   * Parameter initial: The context for the first trial.
+   * Parameter prepare: The phrase's preparation at a trial's time scale.
+   * Returns: The prepared phrase.
+   * At an infeasible scale after the allotted trials,
+   * or immediately when the refusal is unrelated to duration.
    */
   export function paced<P>(
     initial: IAutoMovieMotionHumanActionContext<P>,
@@ -139,14 +137,13 @@ export namespace HumanPerformanceTempo {
     }
   }
 
-  /**
+  /*
    * The factor a refusal asks the action's time to grow by: a `duration`
    * refusal of a reach whose feasible range is the span its motion needs, over
    * the span it had; none for any other refusal.
-   *
-   * @param error What the plan threw.
-   * @returns The factor, greater than 1; undefined when the refusal asks no
-   *   more time.
+   * Parameter error: What the plan threw.
+   * Returns: The factor, greater than 1; undefined when the refusal asks no
+   * more time.
    */
   export function slower(error: unknown): number | undefined {
     const read: ISpan | undefined = span(error);
@@ -156,7 +153,9 @@ export namespace HumanPerformanceTempo {
   }
 }
 
-/** Give a standalone preparation trial's solution to its next trial. */
+/*
+ * Give a standalone preparation trial's solution to its next trial.
+ */
 function standalone<P>(
   context: IAutoMovieMotionHumanActionContext<P>,
 ): IAutoMovieMotionHumanActionContext<P> {
@@ -165,7 +164,7 @@ function standalone<P>(
   return { ...context, handover: { warm: trajectory, last: trajectory } };
 }
 
-/**
+/*
  * The span a speed refusal had and the span it needs, seconds; none for any
  * other refusal.
  */
@@ -185,25 +184,37 @@ function span(error: unknown): ISpan | undefined {
   return { had: error.value, needs: error.feasible.minimum };
 }
 
-/** A speed refusal's span: what it had and what it needs, seconds. */
+/*
+ * A speed refusal's span: what it had and what it needs, seconds.
+ */
 interface ISpan {
-  /** The span the motion had. */
+  /*
+   * The span the motion had.
+   */
   had: number;
 
-  /** The span it needs within the speed bound. */
+  /*
+   * The span it needs within the speed bound.
+   */
   needs: number;
 }
 
-/** One refusing source's last refusal: the time scale and the span it had there. */
+/*
+ * One refusing source's last refusal: the time scale and the span it had there.
+ */
 interface ISample {
-  /** The action's time scale. */
+  /*
+   * The action's time scale.
+   */
   tempo: number;
 
-  /** The span the source had, seconds. */
+  /*
+   * The span the source had, seconds.
+   */
   had: number;
 }
 
-/**
+/*
  * The replans one refusing source may have: the time-scaling step, and the
  * secant step a base whose moving spans slow while its held spans keep their
  * seconds needs after it.

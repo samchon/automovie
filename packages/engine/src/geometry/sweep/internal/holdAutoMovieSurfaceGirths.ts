@@ -6,13 +6,17 @@ import type {
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
 
-/** Most rest fits the girth solve runs. */
+/*
+ * Most rest fits the girth solve runs.
+ */
 const MAX_ITERATIONS: number = 24;
 
-/** Largest perimeter error the solve accepts, relative to the perimeter. */
+/*
+ * Largest perimeter error the solve accepts, relative to the perimeter.
+ */
 const TOLERANCE: number = 1e-9;
 
-/**
+/*
  * Gauss-Legendre nodes on 0 to 1 and their weights, five points: exact for
  * polynomials of degree nine.
  */
@@ -24,7 +28,7 @@ const GAUSS: ReadonlyArray<readonly [number, number]> = [
   [0.5 + 0.453089922969332, 0.118463442528095],
 ];
 
-/**
+/*
  * Hold the limit perimeter of a surface network's girth rings, the rings that
  * declare `perimeter`, by solving a radial factor along each sweep.
  *
@@ -53,22 +57,21 @@ const GAUSS: ReadonlyArray<readonly [number, number]> = [
  * before a factor update can enter nonterminating positivity backtracking. The
  * initial diagonal uses each measured perimeter directly, without
  * reconstructing it from a potentially cancellation-dominated residual.
- *
- * @param props.network The network, only read.
- * @param props.rings Each ring's vertices in loop order, from the sampler.
- * @param props.faces The cage's quads, only read.
- * @param props.vertices Number of cage vertices.
- * @param props.sweepRig The rig of a sweep by name, sealed.
- * @param props.rest Evaluates the network at rest and writes the fitted control
- *   positions into `positions`.
- * @param props.positions Receives the rest control positions, `3 * vertices`
- *   numbers.
- * @throws Error when a girth ring's perimeter is not positive and finite, it
- *   also has positions, it does not run once round one sweep at one `u`, a
- *   vertex on or beside it is not a regular interior vertex, two rings of one
- *   sweep share a `u`, a measured perimeter is non-positive or non-finite, a
- *   computed step is non-finite, no representable progress is possible, or the
- *   solve does not converge.
+ * Parameter props.network: The network, only read.
+ * Parameter props.rings: Each ring's vertices in loop order, from the sampler.
+ * Parameter props.faces: The cage's quads, only read.
+ * Parameter props.vertices: Number of cage vertices.
+ * Parameter props.sweepRig: The rig of a sweep by name, sealed.
+ * Parameter props.rest: Evaluates the network at rest and writes the fitted control
+ * positions into `positions`.
+ * Parameter props.positions: Receives the rest control positions, `3 * vertices`
+ * numbers.
+ * Error when a girth ring's perimeter is not positive and finite, it
+ * also has positions, it does not run once round one sweep at one `u`, a
+ * vertex on or beside it is not a regular interior vertex, two rings of one
+ * sweep share a `u`, a measured perimeter is non-positive or non-finite, a
+ * computed step is non-finite, no representable progress is possible, or the
+ * solve does not converge.
  */
 export const holdAutoMovieSurfaceGirths: (
   props: IAutoMovieHoldSurfaceGirths.IProps,
@@ -337,7 +340,7 @@ export const holdAutoMovieSurfaceGirths: (
   );
 };
 
-/**
+/*
  * Solve the dense system `a x = b` of order `n` by Gaussian elimination with
  * partial pivoting, into `x`; `a` and `b` are left intact.
  */

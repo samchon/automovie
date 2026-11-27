@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `phoneToEar` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. A phone to the ear: the hand that holds it visits
  * the ear and stays.

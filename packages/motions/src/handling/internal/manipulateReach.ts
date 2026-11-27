@@ -12,7 +12,7 @@ import type {
 import { typeText } from "../../everyday/internal/typeText";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/**
+/*
  * Where the wrist stands for one press of a keyed contact sequence
  * (`manipulate`): the hand turned as the act keeps it, the pressing digit
  * straight, its tip over the site at typing's hover height (`typeText.HOVER`)
@@ -25,15 +25,14 @@ import { HumanHand } from "../../posture/internal/HumanHand";
  * difference. The knuckle advances along the digit by r - sqrt(r^2 - d^2), and
  * the press is a swing about the first joint that ends on the key, which the
  * digit's own inverse kinematics then fits.
- *
- * @param body The body.
- * @param side The hand.
- * @param digit The pressing digit, as `manipulate.Finger` names it.
- * @param site The site, world metres.
- * @param normal The site's outward unit normal, world.
- * @param depth The key's travel, metres.
- * @param rotation The hand's world rotation from its rest for the act.
- * @returns The wrist's world point.
+ * Parameter body: The body.
+ * Parameter side: The hand.
+ * Parameter digit: The pressing digit, as `manipulate.Finger` names it.
+ * Parameter site: The site, world metres.
+ * Parameter normal: The site's outward unit normal, world.
+ * Parameter depth: The key's travel, metres.
+ * Parameter rotation: The hand's world rotation from its rest for the act.
+ * Returns: The wrist's world point.
  */
 export function manipulateReach(
   body: IAutoMovieMotionHumanBody,
@@ -52,21 +51,20 @@ export function manipulateReach(
   );
 }
 
-/**
+/*
  * Fixed-body preparation for the plan and fingering's repeated press
  * placements.
  */
 export namespace manipulateReach {
-  /**
+  /*
    * Prepare each requested digit's straight geometry in the fixed hand frame.
-   *
-   * @param body The unchanged canonical body and rest skeleton.
-   * @param side The hand.
-   * @param rotation The fixed hand rotation from its rest for this sequence.
-   * @param requested The sequence's digits. Omit to prepare every available
-   *   digit.
-   * @returns The wrist point for a digit, world site and normal, and key depth
-   *   in metres.
+   * Parameter body: The unchanged canonical body and rest skeleton.
+   * Parameter side: The hand.
+   * Parameter rotation: The fixed hand rotation from its rest for this sequence.
+   * Parameter requested: The sequence's digits. Omit to prepare every available
+   * digit.
+   * Returns: The wrist point for a digit, world site and normal, and key depth
+   * in metres.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -154,21 +152,31 @@ export namespace manipulateReach {
   }
 }
 
-/** The first joint of a pressing digit before prefixing its hand side. */
+/*
+ * The first joint of a pressing digit before prefixing its hand side.
+ */
 type FirstJoint =
   | "ThumbMetacarpal"
   | `${"Index" | "Middle" | "Ring" | "Little"}Proximal`;
 
-/** The flat tip and its pivot in a canonical hand. */
+/*
+ * The flat tip and its pivot in a canonical hand.
+ */
 interface IDigitSite {
-  /** The region read from the flat hand. */
+  /*
+   * The region read from the flat hand.
+   */
   surface: `${IAutoMovieMotionHumanManipulate.Finger}Tip`;
 
-  /** The first joint of the span to that tip. */
+  /*
+   * The first joint of the span to that tip.
+   */
   first: FirstJoint;
 }
 
-/** A string address names one of the five authored digit sites. */
+/*
+ * A string address names one of the five authored digit sites.
+ */
 const DIGITS: ReadonlyMap<string, IDigitSite> = new Map<
   IAutoMovieMotionHumanManipulate.Finger,
   IDigitSite
@@ -180,14 +188,22 @@ const DIGITS: ReadonlyMap<string, IDigitSite> = new Map<
   ["little", { surface: "littleTip", first: "LittleProximal" }],
 ]);
 
-/** The actual straight-digit geometry in one fixed hand rotation. */
+/*
+ * The actual straight-digit geometry in one fixed hand rotation.
+ */
 interface IDigit {
-  /** The straight digit's first-joint-to-tip length, metres. */
+  /*
+   * The straight digit's first-joint-to-tip length, metres.
+   */
   radius: number;
 
-  /** Its unit direction in the fixed world hand rotation. */
+  /*
+   * Its unit direction in the fixed world hand rotation.
+   */
   along: IAutoMovieVector3;
 
-  /** Wrist-to-tip offset turned into that same world rotation, metres. */
+  /*
+   * Wrist-to-tip offset turned into that same world rotation, metres.
+   */
   tip: IAutoMovieVector3;
 }

@@ -12,30 +12,35 @@ import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanFitBalance } from "./HumanFitBalance";
 import { HumanJacobian } from "./HumanJacobian";
 
-/**
+/*
  * Included angles and a centre-of-mass position in the whole-body fit. These
  * are relationships of the displayed body, rather than a bone moved as a
  * substitute for them. The sprint set needs its knee, hip and centre
  * constrained together with its four supports.
  */
 export namespace HumanFitGoals {
-  /** The additional quantities of one displayed-body reading. */
+  /*
+   * The additional quantities of one displayed-body reading.
+   */
   export interface IReading {
-    /** Included angles, radians, in goal order. */
+    /*
+     * Included angles, radians, in goal order.
+     */
     angles: number[];
-    /** Segmental centre, world metres; absent when not requested. */
+    /*
+     * Segmental centre, world metres; absent when not requested.
+     */
     centre?: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * Read the goals on resolved bones.
-   *
-   * @param body The body and its mass model.
-   * @param bones The displayed bones.
-   * @param angles The angle goals.
-   * @param centre The requested mass centre, if any.
-   * @returns Radians and world metres.
-   * @throws If an angle or point is invalid, or an angle has a zero ray.
+   * Parameter body: The body and its mass model.
+   * Parameter bones: The displayed bones.
+   * Parameter angles: The angle goals.
+   * Parameter centre: The requested mass centre, if any.
+   * Returns: Radians and world metres.
+   * If an angle or point is invalid, or an angle has a zero ray.
    */
   export function read(
     body: IAutoMovieMotionHumanBody,
@@ -54,13 +59,12 @@ export namespace HumanFitGoals {
     };
   }
 
-  /**
+  /*
    * The actual unsigned angle, radians.
-   *
-   * @param bones The resolved bones.
-   * @param target The three landmarks and valid desired angle.
-   * @returns The included angle, radians.
-   * @throws If the target is invalid or either ray has zero length.
+   * Parameter bones: The resolved bones.
+   * Parameter target: The three landmarks and valid desired angle.
+   * Returns: The included angle, radians.
+   * If the target is invalid or either ray has zero length.
    */
   export function angle(
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -71,11 +75,10 @@ export namespace HumanFitGoals {
     return Math.atan2(Vector3.length(Vector3.cross(u, v)), Vector3.dot(u, v));
   }
 
-  /**
+  /*
    * Validated angle limits in radians; a scalar has coincident limits.
-   *
-   * @param target The geometric angle goal.
-   * @returns Its ordered inclusive limits in radians.
+   * Parameter target: The geometric angle goal.
+   * Returns: Its ordered inclusive limits in radians.
    */
   export function bounds(
     target: IAutoMovieMotionHumanFitGoals.IAngle,
@@ -91,15 +94,14 @@ export namespace HumanFitGoals {
     return [(degrees[0] * Math.PI) / 180, (degrees[1] * Math.PI) / 180];
   }
 
-  /**
+  /*
    * The included angle's analytic derivative per posture-variable unit.
-   *
-   * @param bones The same bones the motions were derived from.
-   * @param motions The existing geometric Jacobian's variable motions.
-   * @param target The three landmarks.
-   * @returns Radians per variable's unit, in motion order.
-   * @throws At collinear rays, where the unsigned angle has no unique
-   *   derivative.
+   * Parameter bones: The same bones the motions were derived from.
+   * Parameter motions: The existing geometric Jacobian's variable motions.
+   * Parameter target: The three landmarks.
+   * Returns: Radians per variable's unit, in motion order.
+   * At collinear rays, where the unsigned angle has no unique
+   * derivative.
    */
   export function slopes(
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -153,12 +155,11 @@ export namespace HumanFitGoals {
     );
   }
 
-  /**
+  /*
    * Unit projection directions of a positional centre goal.
-   *
-   * @param target The positional goal.
-   * @returns Unit world directions, preserving their given order.
-   * @throws If an explicit direction is zero or non-finite.
+   * Parameter target: The positional goal.
+   * Returns: Unit world directions, preserving their given order.
+   * If an explicit direction is zero or non-finite.
    */
   export function directions(
     target: IAutoMovieMotionHumanFitGoals.ICentre,
@@ -181,16 +182,15 @@ export namespace HumanFitGoals {
     );
   }
 
-  /**
+  /*
    * Append the angle and centre equalities using the row owner's builder.
-   *
-   * @param step The whole-body step.
-   * @param equal The existing equality-row builder, receiving already scaled
-   *   slopes.
-   * @param mm The row owner's millimetres/milliradians scale.
-   * @param readColumns Optional lazy centre-velocity producer for this same
-   *   body, bones and ordered motions; called only after angle rows and when a
-   *   centre goal exists.
+   * Parameter step: The whole-body step.
+   * Parameter equal: The existing equality-row builder, receiving already scaled
+   * slopes.
+   * Parameter mm: The row owner's millimetres/milliradians scale.
+   * Parameter readColumns: Optional lazy centre-velocity producer for this same
+   * body, bones and ordered motions; called only after angle rows and when a
+   * centre goal exists.
    */
   export function rows(
     step: HumanBodyFitRows.IStep,
@@ -241,10 +241,12 @@ export namespace HumanFitGoals {
   }
 }
 
-/** The alternatives of `DirectionsAxis`'s site. */
+/*
+ * The alternatives of `DirectionsAxis`'s site.
+ */
 type DirectionsAxis = "x" | "y" | "z" | IAutoMovieVector3;
 
-/**
+/*
  * World mean with the original ordered sums in one owned accumulator; no
  * borrowed bone or point vector is changed.
  */
@@ -273,7 +275,7 @@ function landmark(
   return Vector3.scale(sum, 1 / points.length);
 }
 
-/**
+/*
  * Mean current rigid-point velocity, preparing each world point at its first
  * original read for later unchanged-bone motions.
  */
@@ -301,7 +303,9 @@ function velocity(
   return Vector3.scale(sum, 1 / points.length);
 }
 
-/** Endpoint-minus-vertex rays; a zero ray does not define an included angle. */
+/*
+ * Endpoint-minus-vertex rays; a zero ray does not define an included angle.
+ */
 function rays(
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   target: IAutoMovieMotionHumanFitGoals.IAngle,

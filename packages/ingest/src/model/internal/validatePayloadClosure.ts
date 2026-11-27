@@ -3,7 +3,7 @@ import type { AutoMovieExternalModelResourceResolver } from "@automovie/interfac
 import { decodeDataUri } from "./decodeDataUri";
 import { object } from "./object";
 
-/**
+/*
  * Bind every declared glTF buffer and image to its exact resident payload.
  *
  * The caller has admitted declared counts, lengths, views and URI shapes. Only

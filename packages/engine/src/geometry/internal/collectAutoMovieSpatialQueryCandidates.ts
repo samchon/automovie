@@ -3,7 +3,7 @@ import type {
   IAutoMovieSpatialQueryEntry,
 } from "@automovie/interface";
 
-/**
+/*
  * Collect the hierarchy entries whose boxes can meet a subject box, ordered by
  * the first cell of an XYZ grid they share with the subject.
  *
@@ -22,12 +22,11 @@ import type {
  * cell zero, and indices that overflow to the same infinity compare equal and
  * fall to the ordinal tie-break. No entry geometry, coordinate or contact
  * allowance is changed.
- *
- * @param hierarchy Tree over the resident entries.
- * @param subject Box the candidates must reach.
- * @param cell Positive cell width in metres for ordering and `shared-cell`.
- * @param population Which entries qualify.
- * @returns Qualifying entries by reference, in cell then ordinal order.
+ * Parameter hierarchy: Tree over the resident entries.
+ * Parameter subject: Box the candidates must reach.
+ * Parameter cell: Positive cell width in metres for ordering and `shared-cell`.
+ * Parameter population: Which entries qualify.
+ * Returns: Qualifying entries by reference, in cell then ordinal order.
  */
 export function collectAutoMovieSpatialQueryCandidates<
   T extends IAutoMovieSpatialQueryEntry,

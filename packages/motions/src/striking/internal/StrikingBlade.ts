@@ -32,14 +32,14 @@ import { StrikingBladeOnPath } from "./StrikingBladeOnPath";
 import { StrikingHeld } from "./StrikingHeld";
 import { StrikingSupport } from "./StrikingSupport";
 
-/**
+/*
  * The stroke of a held tool, shared by every blade and firearm action: the tool
  * is taken from where the hand holds it to a ready pose, carried along a path
  * to its decisive pose, kept there and returned, while the feet stay or the
  * leading foot steps or lunges under it.
  *
  * The action states only tool poses (hand frames built by
- * {@link StrikingHeld.hand}); this owns the time course and the body. The clock
+ * StrikingHeld.hand); this owns the time course and the body. The clock
  * is a phrase with the standard instants: the tool leaves the entry hold for
  * the ready pose by `ready`, runs its path from `strokeStart`, is at its
  * decisive pose at `stroke`, follows through to `strokeEnd`, stays until
@@ -54,17 +54,16 @@ import { StrikingSupport } from "./StrikingSupport";
  * and the pelvis come back from `relax` to `end` (`StrikingAdvance`).
  */
 export namespace StrikingBlade {
-  /**
+  /*
    * The holding arm's shoulder on the body as it stands at an instant of an
    * advance, for a caller that measures its reach.
-   *
-   * @param context The action's context.
-   * @param side The arm.
-   * @param advance How the body goes.
-   * @param line The horizontal unit line of the advance.
-   * @param travel How far the advance carries the leading foot, metres; its
-   *   full travel when absent.
-   * @returns The shoulder joint at the decisive instant, world metres.
+   * Parameter context: The action's context.
+   * Parameter side: The arm.
+   * Parameter advance: How the body goes.
+   * Parameter line: The horizontal unit line of the advance.
+   * Parameter travel: How far the advance carries the leading foot, metres; its
+   * full travel when absent.
+   * Returns: The shoulder joint at the decisive instant, world metres.
    */
   export function shoulder(
     context: Pick<IAutoMovieMotionHumanActionContext, ShoulderContext>,
@@ -81,13 +80,12 @@ export namespace StrikingBlade {
     ).get(`${side}UpperArm`)!.worldPosition;
   }
 
-  /**
+  /*
    * A posture with the trunk twisted about its own axis, the chest taking the
    * larger share, as `AutoMovieMotionHumanTrunk.turn` splits it.
-   *
-   * @param posture The posture.
-   * @param degrees The twist added, positive toward the performer's left.
-   * @returns The posture with the chest's and the spine's twist added.
+   * Parameter posture: The posture.
+   * Parameter degrees: The twist added, positive toward the performer's left.
+   * Returns: The posture with the chest's and the spine's twist added.
    */
   export function turned(
     posture: IAutoMovieMotionHumanPosture,
@@ -113,15 +111,14 @@ export namespace StrikingBlade {
     };
   }
 
-  /**
+  /*
    * Plan a stroke.
-   *
-   * @param context The action's context.
-   * @param stroke The stroke.
-   * @param along Whether the recovery draws the tool back along its path to the
-   *   path's start, its guard, and keeps it there, for a stroke whose path
-   *   keeps one basin of the arm; back to the entry hold when absent.
-   * @returns The plan, whose decisive instant is `stroke`.
+   * Parameter context: The action's context.
+   * Parameter stroke: The stroke.
+   * Parameter along: Whether the recovery draws the tool back along its path to the
+   * path's start, its guard, and keeps it there, for a stroke whose path
+   * keeps one basin of the arm; back to the entry hold when absent.
+   * Returns: The plan, whose decisive instant is `stroke`.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext,
@@ -432,17 +429,16 @@ export namespace StrikingBlade {
     };
   }
 
-  /**
+  /*
    * Plan a one-handed stroke with the arm laid as one admitted course
    * (`StrikingBladeCoursed`).
-   *
-   * @param context The action's context.
-   * @param stroke The stroke.
-   * @param travel The arm's own travel from the entry hold to the guard,
-   *   metres.
-   * @returns The plan, whose decisive instant is `stroke`, its arm coursed.
-   * @throws {HumanRefusal} When no arm course meets the trajectory's
-   *   constraints, as the plan is composed.
+   * Parameter context: The action's context.
+   * Parameter stroke: The stroke.
+   * Parameter travel: The arm's own travel from the entry hold to the guard,
+   * metres.
+   * Returns: The plan, whose decisive instant is `stroke`, its arm coursed.
+   * When no arm course meets the trajectory's
+   * constraints, as the plan is composed.
    */
   export function coursed(
     context: IAutoMovieMotionHumanActionContext,
@@ -453,20 +449,28 @@ export namespace StrikingBlade {
   }
 }
 
-/** The alternatives of `TurnedAddBone`'s site. */
+/*
+ * The alternatives of `TurnedAddBone`'s site.
+ */
 type TurnedAddBone = "chest" | "spine";
 
-/** The alternatives of `ShoulderContext`'s site. */
+/*
+ * The alternatives of `ShoulderContext`'s site.
+ */
 type ShoulderContext = "body" | "entry";
 
-/**
+/*
  * The holding arm's anchor at a stroke's decisive pose: the arm's solution
  * there, and its elbow's hint carried on the chest from the shoulder.
  */
 interface IBladeAnchor {
-  /** The arm's solution at the decisive pose. */
+  /*
+   * The arm's solution at the decisive pose.
+   */
   reference: IAutoMovieHumanLimbReference;
 
-  /** The elbow's hint from the shoulder in the chest's frame, metres. */
+  /*
+   * The elbow's hint from the shoulder in the chest's frame, metres.
+   */
   hint: IAutoMovieVector3;
 }

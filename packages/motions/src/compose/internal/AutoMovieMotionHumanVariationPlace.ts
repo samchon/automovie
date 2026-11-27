@@ -14,7 +14,7 @@ import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid
 import { AutoMovieMotionHumanVariation } from "./AutoMovieMotionHumanVariation";
 import { AutoMovieMotionHumanVariationDraw } from "./AutoMovieMotionHumanVariationDraw";
 
-/**
+/*
  * The seeded offset of a place of the air: where a hand arrives within what its
  * named place allows.
  *
@@ -25,7 +25,7 @@ import { AutoMovieMotionHumanVariationDraw } from "./AutoMovieMotionHumanVariati
  * and bounds each axis by that axis's names.
  */
 export namespace AutoMovieMotionHumanVariationPlace {
-  /**
+  /*
    * A place of the air with its offset.
    *
    * The offset is in arm lengths, along and across the arrival and read in the
@@ -38,15 +38,14 @@ export namespace AutoMovieMotionHumanVariationPlace {
    * together flattens the ellipse across it and takes nothing from the other
    * two. An axis with no room, such as the height of a place on the floor,
    * drops out of the offset.
-   *
-   * @param source The action's variation; absent, the record itself is
-   *   returned.
-   * @param key The slot key.
-   * @param body The body whose measure the shares are of.
-   * @param side The acting hand, which the lateral names mirror by.
-   * @param record The place's share record.
-   * @param travel How the hand arrives; absent, only the intent varies.
-   * @returns The varied share record, facing as the input faces.
+   * Parameter source: The action's variation; absent, the record itself is
+   * returned.
+   * Parameter key: The slot key.
+   * Parameter body: The body whose measure the shares are of.
+   * Parameter side: The acting hand, which the lateral names mirror by.
+   * Parameter record: The place's share record.
+   * Parameter travel: How the hand arrives; absent, only the intent varies.
+   * Returns: The varied share record, facing as the input faces.
    */
   export function vary(
     source: IAutoMovieMotionHumanVariation.ISource | undefined,

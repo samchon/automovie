@@ -3,19 +3,18 @@ import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import { compareAutoMovieInspectionFindings } from "./compareAutoMovieInspectionFindings.js";
 import { sameAutoMovieInspectionShotClock } from "./sameAutoMovieInspectionShotClock.js";
 
-/**
+/*
  * Group ordered scene observations into episodes and coalesce their coverage.
  *
  * A repeat of the same scoped sample must carry the same serialized packet. It
  * counts once, even when several capture cells draw it. Only consecutive output
  * indices within one continuity occurrence can extend a range.
- *
- * @param packets Packets in nondecreasing film time for one inspection run. The
- *   producers supply every expected obligation within the visited samples.
- * @param expectedOutputFrames Size of the zero-based delivery frame schedule
- *   when the run must cover it. Sparse capture can omit it.
- * @returns The first and worst witnesses, observed coverage ranges and
- *   independent delivery gate facts.
+ * Parameter packets: Packets in nondecreasing film time for one inspection run. The
+ * producers supply every expected obligation within the visited samples.
+ * Parameter expectedOutputFrames: Size of the zero-based delivery frame schedule
+ * when the run must cover it. Sparse capture can omit it.
+ * Returns: The first and worst witnesses, observed coverage ranges and
+ * independent delivery gate facts.
  */
 export function reduceAutoMovieInspectionEpisodes(
   packets: Iterable<IAutoMovieInspectionDiagnostics>,
@@ -123,31 +122,45 @@ export function reduceAutoMovieInspectionEpisodes(
   };
 }
 
-/** An episode while its end and worst witness can still advance. */
+/*
+ * An episode while its end and worst witness can still advance.
+ */
 type IMutableEpisode = {
   -readonly [K in keyof IAutoMovieInspectionDiagnostics.IEpisode]: IAutoMovieInspectionDiagnostics.IEpisode[K];
 };
 
-/** A coverage range while its last observed clock can still advance. */
+/*
+ * A coverage range while its last observed clock can still advance.
+ */
 type IMutableCoverage = {
   -readonly [K in keyof IAutoMovieInspectionDiagnostics.ICoverageRange]: IAutoMovieInspectionDiagnostics.ICoverageRange[K];
 };
 
-/** The previous observation and open ranges for one continuity occurrence. */
+/*
+ * The previous observation and open ranges for one continuity occurrence.
+ */
 interface IOpenScope {
-  /** Last distinct sample seen for this occurrence. */
+  /*
+   * Last distinct sample seen for this occurrence.
+   */
   packet: IAutoMovieInspectionDiagnostics;
 
   shotClock: IAutoMovieInspectionDiagnostics.ITime;
 
-  /** Episodes with checked coverage in that sample. */
+  /*
+   * Episodes with checked coverage in that sample.
+   */
   episodes: Map<string, IMutableEpisode>;
 
-  /** Coverage ranges with an observation in that sample. */
+  /*
+   * Coverage ranges with an observation in that sample.
+   */
   coverage: Map<string, IMutableCoverage>;
 }
 
-/** Extend matching coverage rows or start new ranges at the current sample. */
+/*
+ * Extend matching coverage rows or start new ranges at the current sample.
+ */
 function appendCoverage(
   packet: IAutoMovieInspectionDiagnostics,
   adjacent: IOpenScope | undefined,
@@ -183,7 +196,7 @@ function appendCoverage(
   return current;
 }
 
-/**
+/*
  * Extend witnessed episodes only if this and the preceding sample checked the
  * evidence.
  */
@@ -246,14 +259,18 @@ function appendEpisodes(
   return current;
 }
 
-/** Encode the two owned identity fields without delimiter ambiguity. */
+/*
+ * Encode the two owned identity fields without delimiter ambiguity.
+ */
 function coverageKey(
   row: Pick<IAutoMovieInspectionDiagnostics.ICoverage, "check" | "key">,
 ): string {
   return JSON.stringify([row.check, row.key]);
 }
 
-/** Test whether one obligation has the same outcome and policy at both samples. */
+/*
+ * Test whether one obligation has the same outcome and policy at both samples.
+ */
 function sameCoverage(
   previous: IAutoMovieInspectionDiagnostics.ICoverage,
   current: IAutoMovieInspectionDiagnostics.ICoverage,

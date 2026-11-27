@@ -12,7 +12,7 @@ import { AutoMovieHumanEyelid } from "./AutoMovieHumanEyelid";
  * jets.
  */
 export namespace AutoMovieHumanEyelidProfile {
-  /**
+  /*
    * Depth of the lid's tuck inside the globe's surface behind the posterior
    * edge, mm. The tuck stands for the conjunctiva lining the lid; any line of
    * sight past the posterior edge meets the globe first, so the tuck only has
@@ -20,13 +20,13 @@ export namespace AutoMovieHumanEyelidProfile {
    */
   const TUCK: number = 1.5;
 
-  /**
+  /*
    * Anterior-surface rows of the lid band, as fractions of the way from the
    * band's outer edge to the start of the rim's rounding.
    */
   const ROWS: readonly number[] = [0.18, 0.36, 0.52, 0.66, 0.78, 0.88, 1];
 
-  /**
+  /*
    * Radius of the anterior edge's rounding as a fraction of the margin depth: a
    * rounded lid edge, not a knife cut.
    */
@@ -57,14 +57,18 @@ export namespace AutoMovieHumanEyelidProfile {
 
     // Points of the column's plane: `u` outward from the contact point in
     // projection, `x` depth from the globe centre.
-    /** Lift the regular profile coordinates into the globe's physical frame. */
+    /*
+     * Lift the regular profile coordinates into the globe's physical frame.
+     */
     function place(u: number, x: number): AutoMovieVector3Tuple {
       return E.add(
         E.add(s.contact, E.scale(s.outward, u)),
         E.scale(g.forward, x - contact),
       );
     }
-    /** Globe depth at the same physical transverse position, in millimetres. */
+    /*
+     * Globe depth at the same physical transverse position, in millimetres.
+     */
     function globe(u: number): number {
       return E.surface(g, E.add(s.contact, E.scale(s.outward, u)));
     }
@@ -186,7 +190,7 @@ export namespace AutoMovieHumanEyelidProfile {
     return points;
   }
 
-  /**
+  /*
    * C1 nonnegative obstacle correction, exactly zero on a clear profile. Unlike
    * an everywhere-positive smooth maximum it leaves a clear outer boundary and
    * its transverse jet unchanged. Its compact quadratic blend majorizes

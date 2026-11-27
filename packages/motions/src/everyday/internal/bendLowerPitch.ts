@@ -15,25 +15,24 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { HumanTrunk } from "./HumanTrunk";
 import { bendLower } from "./bendLower";
 
-/**
+/*
  * The least trunk pitch that brings the shoulder within reach of the target
  * under a strategy, over 0 to `DEEPEST` degrees of inclination: the first of
  * every `SCAN` degrees that reaches, refined by bisection from the one before.
- *
- * @param body The body.
- * @param posture The standing posture.
- * @param target The target.
- * @param side The hand.
- * @param strategy The strategy.
- * @param lean The balance shift per unit sine of the inclination, metres.
- * @param reach How near the shoulder must come to the target, metres;
- *   `bendLower.REACH` of the arm plus the palm's offset when absent, a palm
- *   laid on the target.
- * @returns Degrees.
- * @throws {HumanRefusal} When even `DEEPEST` degrees leaves the target out of
- *   reach, with the lowest height the hand reaches above the target's floor
- *   point over the inclinations tried as the feasible range, or none when the
- *   point lies beyond the arm's reach across the floor at all of them.
+ * Parameter body: The body.
+ * Parameter posture: The standing posture.
+ * Parameter target: The target.
+ * Parameter side: The hand.
+ * Parameter strategy: The strategy.
+ * Parameter lean: The balance shift per unit sine of the inclination, metres.
+ * Parameter reach: How near the shoulder must come to the target, metres;
+ * `bendLower.REACH` of the arm plus the palm's offset when absent, a palm
+ * laid on the target.
+ * Returns: Degrees.
+ * When even `DEEPEST` degrees leaves the target out of
+ * reach, with the lowest height the hand reaches above the target's floor
+ * point over the inclinations tried as the feasible range, or none when the
+ * point lies beyond the arm's reach across the floor at all of them.
  */
 export function bendLowerPitch(
   body: IAutoMovieMotionHumanBody,
@@ -117,14 +116,14 @@ export function bendLowerPitch(
   return hi;
 }
 
-/**
+/*
  * The step of the inclination scan `pitch` closes the reach on, degrees
  * (provisional: fine enough that the gap, which turns once over the range,
  * cannot close and open again between two steps).
  */
 const SCAN: number = 5;
 
-/**
+/*
  * The deepest trunk inclination `pitch` searches, degrees: all the pelvis can
  * tilt before the hip passes its flexion (`HumanTrunk.HIP_FLEXION`) plus the 40
  * degrees of lumbar flexion at full forward bending (Esola et al. 1996, Spine

@@ -20,21 +20,20 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { braceOnThighPoint } from "./braceOnThighPoint";
 
-/**
+/*
  * A palm carried from the angles the arm held onto its own thigh just above the
  * knee (`braceOnThighPoint`), the hand support of a low posture, read on the
  * legs the action has placed.
- *
- * @param body The body.
- * @param side The hand and thigh.
- * @param rest The arm's angles at weight 0.
- * @param duration The action's duration, seconds; the arm is written over all
- *   of it.
- * @param weight How far the palm is on the thigh at a second, in [0, 1].
- * @param span The reach, hold and return instants, when the caller has them.
- * @param group The other arm on the same body.
- * @param apart Whether the grouped arms remain on their own sides.
- * @returns The primitive, on the arm's channel.
+ * Parameter body: The body.
+ * Parameter side: The hand and thigh.
+ * Parameter rest: The arm's angles at weight 0.
+ * Parameter duration: The action's duration, seconds; the arm is written over all
+ * of it.
+ * Parameter weight: How far the palm is on the thigh at a second, in [0, 1].
+ * Parameter span: The reach, hold and return instants, when the caller has them.
+ * Parameter group: The other arm on the same body.
+ * Parameter apart: Whether the grouped arms remain on their own sides.
+ * Returns: The primitive, on the arm's channel.
  */
 export function braceOnThigh(
   body: IAutoMovieMotionHumanBody,

@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-/**
+/*
  * Place labels on a picture: project each labelled path's centre through the
  * camera into pixels and keep a label only where its box overlaps no label kept
  * before it.
@@ -25,23 +25,33 @@ import * as THREE from "three";
  * It throws for a size or scale that is not a positive integer.
  */
 export function placeAutoMovieInspectionLabels(props: {
-  /** What to label: each path with its world box in metres. */
+  /*
+   * What to label: each path with its world box in metres.
+   */
   boxes: readonly {
     path: string;
     min: IAutoMovieVector3;
     max: IAutoMovieVector3;
   }[];
 
-  /** The camera the picture is drawn through. */
+  /*
+   * The camera the picture is drawn through.
+   */
   camera: THREE.Camera;
 
-  /** Picture width in pixels. */
+  /*
+   * Picture width in pixels.
+   */
   width: number;
 
-  /** Picture height in pixels. */
+  /*
+   * Picture height in pixels.
+   */
   height: number;
 
-  /** Size of one font pixel of the stamp, in picture pixels. */
+  /*
+   * Size of one font pixel of the stamp, in picture pixels.
+   */
   scale: number;
 }): IAutoMovieInspectionLabelPlacement {
   for (const [name, value] of [

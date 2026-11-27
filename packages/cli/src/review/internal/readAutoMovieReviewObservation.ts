@@ -2,7 +2,7 @@ import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 
 import type { IAutoMovieCliReviewObservation } from "../IAutoMovieCliReviewObservation";
 
-/**
+/*
  * Admits one stored review receipt with matching requested and observed scope.
  * A still decision covers a single decoded frame when timing is established.
  */
@@ -21,27 +21,37 @@ export function readAutoMovieReviewObservation(
   return value;
 }
 
-/** A decoded JSON object. */
+/*
+ * A decoded JSON object.
+ */
 function record(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-/** Nonempty text remains distinguishable from an absent value. */
+/*
+ * Nonempty text remains distinguishable from an absent value.
+ */
 function text(value: unknown): value is string {
   return typeof value === "string" && value.trim() !== "";
 }
 
-/** An index in a nonnegative output frame grid. */
+/*
+ * An index in a nonnegative output frame grid.
+ */
 function index(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
 }
 
-/** An explicitly requested film second. */
+/*
+ * An explicitly requested film second.
+ */
 function second(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value) && value >= 0;
 }
 
-/** An exact timestamp with two positive rational clock terms. */
+/*
+ * An exact timestamp with two positive rational clock terms.
+ */
 function timestamp(
   value: unknown,
 ): value is IAutoMovieDeliveryContentAudit.ITimestamp {
@@ -54,7 +64,9 @@ function timestamp(
   );
 }
 
-/** Validates the receipt's selected frame bounds and consistent native clock. */
+/*
+ * Validates the receipt's selected frame bounds and consistent native clock.
+ */
 function observed(
   value: unknown,
   from: number,
@@ -94,7 +106,9 @@ function observed(
   );
 }
 
-/** An assigned occurrence or an explicit limit on assignment. */
+/*
+ * An assigned occurrence or an explicit limit on assignment.
+ */
 function cut(value: unknown): value is IAutoMovieCliReviewObservation["cut"] {
   return (
     record(value) &&
@@ -105,7 +119,9 @@ function cut(value: unknown): value is IAutoMovieCliReviewObservation["cut"] {
   );
 }
 
-/** The input shape and cross-field admission of a stored mark. */
+/*
+ * The input shape and cross-field admission of a stored mark.
+ */
 function admitted(
   value: Record<string, unknown>,
 ): value is Record<string, unknown> & IAutoMovieCliReviewObservation {

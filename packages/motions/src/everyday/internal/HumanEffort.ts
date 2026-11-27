@@ -2,7 +2,7 @@ import type { IAutoMovieMotionHumanEffort } from "@automovie/interface";
 
 import { HumanBound } from "../../law/internal/HumanBound";
 
-/**
+/*
  * Laban Effort as numbers: the four motion factors a mood or a character's
  * manner sets, turned into the multipliers everyday laws read for their tempo,
  * extent, steps, arm swing, elbow width and path curvature.
@@ -35,7 +35,7 @@ import { HumanBound } from "../../law/internal/HumanBound";
  * Effort (all zero) leaves every law unchanged.
  */
 export namespace HumanEffort {
-  /**
+  /*
    * Named moods as Effort settings: Laban's eight basic Effort actions use
    * Weight, Time and Space; a mood adds Flow.
    */
@@ -55,12 +55,11 @@ export namespace HumanEffort {
     float: { weight: -1, time: -1, space: -1 },
   };
 
-  /**
+  /*
    * The modifiers of an Effort.
-   *
-   * @param effort The factors; absent ones are neutral.
-   * @returns The modifiers.
-   * @throws {HumanRefusal} When a factor lies outside [-1, 1].
+   * Parameter effort: The factors; absent ones are neutral.
+   * Returns: The modifiers.
+   * When a factor lies outside [-1, 1].
    */
   export function modifiers(
     effort: IAutoMovieMotionHumanEffort.IEffort = {},

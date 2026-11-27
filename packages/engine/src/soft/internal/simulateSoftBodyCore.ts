@@ -22,7 +22,7 @@ import { softBodyParticleDistance } from "./softBodyParticleDistance";
 import { softBodyRestBuffer } from "./softBodyRestBuffer";
 import { solveSoftBodyCompliantSweep } from "./solveSoftBodyCompliantSweep";
 
-/**
+/*
  * Integrate an admitted cloth lattice from its authored rest boundary to one
  * absolute fixed step. Without declared compliance and contact the solve is the
  * plain position-based one, operation for operation. With compliance, each
@@ -337,10 +337,12 @@ export const simulateSoftBodyCore: (
   };
 };
 
-/** The loads of a solve with no multipliers to read them from. */
+/*
+ * The loads of a solve with no multipliers to read them from.
+ */
 const EMPTY: ReadonlyMap<number, IAutoMovieVector3> = new Map();
 
-/**
+/*
  * Overwrite each resolved hard target in the working position buffer, leaving
  * unrelated particles untouched.
  */
@@ -359,7 +361,7 @@ const applyResolvedAnchors: (
   }
 };
 
-/**
+/*
  * Normalize the admitted draught direction with the existing square-root
  * expression, or return zero for no wind.
  */
@@ -380,7 +382,7 @@ const windAxis: (domain: IAutoMovieSoftBodyDomain) => IAutoMovieVector3 = (
   };
 };
 
-/**
+/*
  * Evaluate the declared triangle gust at a fixed-clock time with the existing
  * binary64 phase arithmetic.
  */

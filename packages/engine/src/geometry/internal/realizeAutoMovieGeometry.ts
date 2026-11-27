@@ -7,7 +7,7 @@ import type {
 import { realizeAutoMovieBicubicAtlas64 } from "./realizeAutoMovieBicubicAtlas64";
 import { tessellateToMesh } from "./tessellateToMesh";
 
-/**
+/*
  * Resolve each public geometry recipe through its deterministic engine owner.
  * Mesh input is borrowed unchanged; recipes produce newly owned arrays. Atlas
  * completion and diagnostics describe processing, not shape quality. Retained

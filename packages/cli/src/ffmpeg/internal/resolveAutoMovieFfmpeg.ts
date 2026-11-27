@@ -1,7 +1,7 @@
 import type { AutoMovieFfmpegStaticPath } from "./AutoMovieFfmpegStaticPath";
 import type { IAutoMovieFfmpegSources } from "../IAutoMovieFfmpegSources";
 
-/**
+/*
  * Find the FFmpeg executable a capture of a video file runs: `FFMPEG_PATH` when
  * the environment sets it to a non-blank path, else the binary of the
  * production's `ffmpeg-static`.
@@ -11,9 +11,8 @@ import type { IAutoMovieFfmpegSources } from "../IAutoMovieFfmpegSources";
  * has no binary for this platform refuses naming both `FFMPEG_PATH` and
  * `ffmpeg-static`, so a capture that plans a video says how to supply one
  * before it touches its folder.
- *
- * @param props The environment and the production's loader.
- * @returns The executable's path.
+ * Parameter props: The environment and the production's loader.
+ * Returns: The executable's path.
  */
 export function resolveAutoMovieFfmpeg(props: IAutoMovieFfmpegSources): string {
   const given: string | undefined = props.env.FFMPEG_PATH?.trim();

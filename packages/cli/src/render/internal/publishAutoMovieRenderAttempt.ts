@@ -2,7 +2,7 @@ import * as fs from "node:fs/promises";
 
 import { readAutoMovieErrorCode } from "../../file/internal/readAutoMovieErrorCode";
 
-/**
+/*
  * Installs the approved film, its control channels when the attempt drew them,
  * and then its report. The former film and former `controls/` wait in staging
  * until all are in place; when any step fails they return and whatever was
@@ -14,30 +14,48 @@ import { readAutoMovieErrorCode } from "../../file/internal/readAutoMovieErrorCo
  * `source.sha256`, which is how a reader tells it is stale.
  */
 export async function publishAutoMovieRenderAttempt(paths: {
-  /** The staged encoded film. */
+  /*
+   * The staged encoded film.
+   */
   candidate: string;
 
-  /** Where the film is published. */
+  /*
+   * Where the film is published.
+   */
   video: string;
 
-  /** The staged report. */
+  /*
+   * The staged report.
+   */
   pendingReport: string;
 
-  /** Where the report is published. */
+  /*
+   * Where the report is published.
+   */
   report: string;
 
-  /** Staging path the former film waits at. */
+  /*
+   * Staging path the former film waits at.
+   */
   previous: string;
 
-  /** The attempt's control folder, when it drew control channels. */
+  /*
+   * The attempt's control folder, when it drew control channels.
+   */
   controls?: {
-    /** The staged folder of frames and record. */
+    /*
+     * The staged folder of frames and record.
+     */
     candidate: string;
 
-    /** Where the folder is published, `<out>/controls`. */
+    /*
+     * Where the folder is published, `<out>/controls`.
+     */
     installed: string;
 
-    /** Staging path the former folder waits at. */
+    /*
+     * Staging path the former folder waits at.
+     */
     previous: string;
   };
 }): Promise<void> {

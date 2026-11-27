@@ -7,16 +7,15 @@ import type {
 import { AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal } from "../../core";
 import type { AutoMovieArchetypeRoundaboutRide } from "../AutoMovieArchetypeRoundaboutRide";
 
-/**
+/*
  * A roundabout turned by a pusher on the ride's clock: the disc model
  * (`AutoMovieArchetypeRoundabout.disc`) turns about the spindle by the angle the pusher
  * drives until `release`, then coasts at the angular speed it had at release.
  * Bearing friction over a take's few seconds is neglected (provisional).
- *
- * @param placement The installed roundabout's world placement.
- * @param ride The driven angle and the release second.
- * @returns The disc's angle and frame on the ride's clock.
- * @throws {AutoMovieArchetypeRefusal} For a release before the ride starts.
+ * Parameter placement: The installed roundabout's world placement.
+ * Parameter ride: The driven angle and the release second.
+ * Returns: The disc's angle and frame on the ride's clock.
+ * For a release before the ride starts.
  */
 export function rideRoundabout(
   placement: IAutoMovieTransform,
@@ -50,11 +49,17 @@ export function rideRoundabout(
   };
 }
 
-/** A unit scale: the rides move rigid frames. */
+/*
+ * A unit scale: the rides move rigid frames.
+ */
 const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
-/** The spindle's axis. */
+/*
+ * The spindle's axis.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** The step that reads the driven angle's rate at release, seconds. */
+/*
+ * The step that reads the driven angle's rate at release, seconds.
+ */
 const RATE: number = 1e-3;

@@ -13,9 +13,11 @@ import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinem
 import { Quaternion } from "../../math/Quaternion";
 import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
 
-/** Companion types and helpers of {@link samplePoseVelocity}. */
+/*
+ * Companion types and helpers of samplePoseVelocity.
+ */
 export namespace samplePoseVelocity {
-  /**
+  /*
    * A pose and its rate of change at one instant, read from the pure function of
    * time that produces it.
    *
@@ -34,31 +36,30 @@ export namespace samplePoseVelocity {
    *
    * Each joint's angular velocity (`spins`) is read the way the root's is, from
    * the rotation vectors of its articulation at the same samples
-   * ({@link AutoMovieEngineKinematics.poseJointCodec}), never from the angle rates: at an angle chart's
+   * (AutoMovieEngineKinematics.poseJointCodec), never from the angle rates: at an angle chart's
    * gimbal the angle rates of a smooth rotation are unbounded, while its angular
    * velocity is not.
    *
    * A pose whose limbs are fitted to targets carries each fit's resolution into
    * the difference, divided by `h`. With `continued`, the rate is read from the
    * instant's own fits continued to its neighbours (each seeded with the
-   * instant's choice and refined to {@link samplePoseVelocity.tolerance},
+   * instant's choice and refined to samplePoseVelocity.tolerance,
    * `IAutoMovieSwivelNear`), the instant's sample included, while the pose
    * returned is still `sample`'s: the difference then sees the motion, not the
    * fits' resolution, and a fit whose best basin changes inside the step is read
    * on the branch the instant is on.
-   *
-   * @param sample The pose as a pure function of seconds.
-   * @param seconds The instant.
-   * @param step The difference interval `h`, seconds; 1 ms by default.
-   * @param side Which side of the instant the motion is read from: both by
-   *   default.
-   * @param rig The rig the joints' angles are read through for `spins`; the
-   *   default basis with rest-relative angles when omitted.
-   * @param continued The pose as a pure function of seconds with every fit
-   *   continued from the instant's, the rate's samples; `sample` when omitted.
-   * @param prepared Optional same-rig codec or lazy getter, demanded only after
-   *   the actual samples and joint-rate indexing.
-   * @returns The pose at the instant and its velocity.
+   * Parameter sample: The pose as a pure function of seconds.
+   * Parameter seconds: The instant.
+   * Parameter step: The difference interval `h`, seconds; 1 ms by default.
+   * Parameter side: Which side of the instant the motion is read from: both by
+   * default.
+   * Parameter rig: The rig the joints' angles are read through for `spins`; the
+   * default basis with rest-relative angles when omitted.
+   * Parameter continued: The pose as a pure function of seconds with every fit
+   * continued from the instant's, the rate's samples; `sample` when omitted.
+   * Parameter prepared: Optional same-rig codec or lazy getter, demanded only after
+   * the actual samples and joint-rate indexing.
+   * Returns: The pose at the instant and its velocity.
    */
   export function sample(
     sample: (seconds: number) => IAutoMoviePose,
@@ -179,7 +180,7 @@ export namespace samplePoseVelocity {
     };
   }
 
-  /**
+  /*
    * The swivel tolerance, degrees, a continued fit is refined to for the
    * `continued` samples of a velocity read at `step` that an inertialization of
    * `duration` decays.
@@ -198,10 +199,9 @@ export namespace samplePoseVelocity {
    * step and a 0.4 s decay, where a fit's own resolution
    * (`hingedArmSwivel.RESOLUTION`, 0.0062 degrees) bounds the displacement at
    * 1.6 degrees.
-   *
-   * @param step The difference interval `h`, seconds; positive.
-   * @param duration The decay the read feeds, seconds; positive.
-   * @returns Degrees.
+   * Parameter step: The difference interval `h`, seconds; positive.
+   * Parameter duration: The decay the read feeds, seconds; positive.
+   * Returns: Degrees.
    */
   export function tolerance(step: number, duration: number): number {
     if (!(step > 0) || !(duration > 0))
@@ -211,12 +211,11 @@ export namespace samplePoseVelocity {
     return (ROM_TOLERANCE * step * 3125) / (8 * 256 * duration);
   }
 
-  /**
+  /*
    * The rotation vector (axis times angle in radians) of a unit quaternion,
    * taking the shorter of the two equivalent rotations.
-   *
-   * @param q A unit quaternion.
-   * @returns Its rotation vector.
+   * Parameter q: A unit quaternion.
+   * Returns: Its rotation vector.
    */
   export function rotationVector(q: IAutoMovieQuaternion): IAutoMovieVector3 {
     const sign: number = q.w < 0 ? -1 : 1;
@@ -229,7 +228,7 @@ export namespace samplePoseVelocity {
     return { x: q.x * k, y: q.y * k, z: q.z * k };
   }
 
-  /**
+  /*
    * Read a current articulation/root's rotation vector from the same inverse
    * origin.
    */

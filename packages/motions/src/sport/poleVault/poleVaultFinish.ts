@@ -36,18 +36,17 @@ import type { poleVaultBend } from "./poleVaultBend";
 import type { poleVaultSwing } from "./poleVaultSwing";
 import { prepareGymnasticsPlacement } from "../internal/prepareGymnasticsPlacement";
 
-/**
+/*
  * A vault from its release on (`poleVault.plan`): the grip's state where the
  * pole has recoiled, the centre carried with it at the chord's rate; the flight
  * on the parabola of its velocity at the release, the body keeping the chord's
  * rate, until its lowest shape meets the landing surface; the landing lying
  * there (`GymnasticsMat`); the contacts, events, the released pole's launch and
  * the pole's hinge drives; and the plan over all four phases.
- *
- * @param prepared The vault's prepared values.
- * @returns The vault's plan.
- * @throws {HumanRefusal} When the body is not above the landing surface at the
- *   release.
+ * Parameter prepared: The vault's prepared values.
+ * Returns: The vault's plan.
+ * When the body is not above the landing surface at the
+ * release.
  */
 export function poleVaultFinish(
   prepared: poleVaultFinish.IPrepared,
@@ -345,65 +344,105 @@ export function poleVaultFinish(
   };
 }
 
-/** Companion types of {@link poleVaultFinish}. */
+/*
+ * Companion types of poleVaultFinish.
+ */
 export namespace poleVaultFinish {
-  /** What `poleVault.plan` prepared before its release. */
+  /*
+   * What `poleVault.plan` prepared before its release.
+   */
   export interface IPrepared {
-    /** The vault's context, whose landing prop is read. */
+    /*
+     * The vault's context, whose landing prop is read.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPoleVault.IParams>;
 
-    /** The vaulter's body. */
+    /*
+     * The vaulter's body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The vault's parameters. */
+    /*
+     * The vault's parameters.
+     */
     p: IAutoMovieMotionHumanPoleVault.IParams;
 
-    /** The body's centre-of-mass model. */
+    /*
+     * The body's centre-of-mass model.
+     */
     model: IAutoMovieResolveCenterOfMass.IModel;
 
-    /** The pole as the top hand holds it. */
+    /*
+     * The pole as the top hand holds it.
+     */
     held: IAutoMovieMotionHumanHeld.IHeld;
 
-    /** The pole in the hands that hold it. */
+    /*
+     * The pole in the hands that hold it.
+     */
     pole: walkPoleFrame.IPole;
 
-    /** The top hand. */
+    /*
+     * The top hand.
+     */
     side: AutoMovieHumanSide;
 
-    /** The planted end, world metres. */
+    /*
+     * The planted end, world metres.
+     */
     tipAt: IAutoMovieVector3;
 
-    /** The run's unit heading, world. */
+    /*
+     * The run's unit heading, world.
+     */
     ahead: IAutoMovieVector3;
 
-    /** The take-off's instant, seconds. */
+    /*
+     * The take-off's instant, seconds.
+     */
     off: number;
 
-    /** The vault's take-off. */
+    /*
+     * The vault's take-off.
+     */
     takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff;
 
-    /** The reader of the top hand's grip bones. */
+    /*
+     * The reader of the top hand's grip bones.
+     */
     readGrip: ReturnType<typeof poseBones.prepare>;
 
-    /** The point-mass swing on the flexible pole. */
+    /*
+     * The point-mass swing on the flexible pole.
+     */
     swing: poleVaultSwing.ISwing;
 
-    /** The pole's elastica on its hinged chain. */
+    /*
+     * The pole's elastica on its hinged chain.
+     */
     bend: poleVaultBend.IBend;
 
-    /** The way the pole's hinges turn, 1 or -1. */
+    /*
+     * The way the pole's hinges turn, 1 or -1.
+     */
     bow: number;
 
-    /** The vaulter's posture at seconds since the take-off. */
+    /*
+     * The vaulter's posture at seconds since the take-off.
+     */
     swinging: (t: number) => IAutoMovieMotionHumanPosture;
 
-    /** The articulated material displacement in each hand's grip frame. */
+    /*
+     * The articulated material displacement in each hand's grip frame.
+     */
     swingGripOffset: (
       side: AutoMovieHumanSide,
       seconds: number,
     ) => IAutoMovieRigidTransform;
 
-    /** The push-off's posture at a second, before the take-off. */
+    /*
+     * The push-off's posture at a second, before the take-off.
+     */
     pushing: (
       t: number,
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],

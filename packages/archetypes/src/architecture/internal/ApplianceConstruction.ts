@@ -11,24 +11,31 @@ import {
 import { WasherDrum } from "./WasherDrum";
 import type { AutoMovieArchetypeAppliance } from "../AutoMovieArchetypeAppliance";
 
-/** White enamelled steel. */
+/*
+ * White enamelled steel.
+ */
 const WHITE: string = "#e9eae6";
 
-/** Dark glass and plastic. */
+/*
+ * Dark glass and plastic.
+ */
 const DARK: string = "#3a3d42";
 
-/** Brushed handles and buttons. */
+/*
+ * Brushed handles and buttons.
+ */
 const METAL: string = "#b9bcc0";
 
-/** The shorthand every construction below uses. */
+/*
+ * The shorthand every construction below uses.
+ */
 const v: typeof Vector3.create = Vector3.create;
 
-/**
+/*
  * A rectangle's corners in a stack-top's plane, centred.
- *
- * @param width Along `X`, metres.
- * @param depth Along `Z`, metres.
- * @returns Four corners.
+ * Parameter width: Along `X`, metres.
+ * Parameter depth: Along `Z`, metres.
+ * Returns: Four corners.
  */
 function rectangle(width: number, depth: number): IAutoMovieVector3[] {
   return [
@@ -39,20 +46,19 @@ function rectangle(width: number, depth: number): IAutoMovieVector3[] {
   ];
 }
 
-/**
+/*
  * A hinge on a door's vertical edge whose positive travel swings the door out
  * toward `+Z`.
- *
- * @param at A point of the hinge line, metres.
- * @param side `+1` for a hinge on the `+X` edge, the door reaching toward `-X`;
- *   `-1` for the mirror.
- * @returns The hinge frame, `+Y` along the line and `+X` toward the door.
+ * Parameter at: A point of the hinge line, metres.
+ * Parameter side: `+1` for a hinge on the `+X` edge, the door reaching toward `-X`;
+ * `-1` for the mirror.
+ * Returns: The hinge frame, `+Y` along the line and `+X` toward the door.
  */
 function sideHinge(at: IAutoMovieVector3, side: 1 | -1): IAutoMovieTransform {
   return AutoMovieArchetypeFrame.facing(at, v(0, side, 0), v(-side, 0, 0));
 }
 
-/**
+/*
  * The parts and contacts the named appliance producers build from their drawn
  * dimensions, with the makers' measured counts and openings and the estimated
  * construction sizes.
@@ -63,40 +69,40 @@ function sideHinge(at: IAutoMovieVector3, side: 1 | -1): IAutoMovieTransform {
  * estimates below size only parts no act reads.
  */
 export namespace ApplianceConstruction {
-  /**
+  /*
    * A fridge's shelves, as the maker gives them (Bosch KGN36NL30M, four fridge
    * shelves).
    */
   export const SHELVES: number = 4;
 
-  /**
+  /*
    * The freezer's share of a fridge-freezer's height: its 87 l of the 302 l net
    * capacity of the Bosch KGN36NL30M, the compartments sharing one width and
    * depth.
    */
   export const FREEZER: number = 87 / 302;
 
-  /**
+  /*
    * A fridge door's opening, degrees: the 90 degrees a Bosch KGN 36A63's door
    * opens to 55 mm from the wall
    * (https://www.manualsdir.com/manuals/17511/bosch-kgn-36a63.html?page=6).
    */
   export const FRIDGE_SWING: number = 90;
 
-  /**
+  /*
    * A washing machine door's opening, degrees: the WAN28255GB's "160° opening"
    * on Bosch's sheet
    * (https://media3.bosch-home.com/Documents/specsheet/en-GB/WAN28255GB.pdf).
    */
   export const WASHER_SWING: number = 160;
 
-  /**
+  /*
    * A cooker's hob zones and their diameters, metres, as the Bosch PKF675FP2E
    * hob gives them (https://bosch-home.com/za/en/mkt-product/PKF675FP2E).
    */
   export const ZONES: readonly number[] = [0.145, 0.145, 0.18, 0.21];
 
-  /**
+  /*
    * The construction sizes no source read gives, metres, each an estimate no
    * act reads and no band declares:
    *
@@ -124,7 +130,7 @@ export namespace ApplianceConstruction {
     panel: 0.15,
   };
 
-  /**
+  /*
    * A fridge-freezer: a solid freezer block under a hollow fridge whose four
    * walls and four glass shelves are parts, a door on each, hinged on the `+X`
    * edge, and a handle bar on each near the free edge.
@@ -132,9 +138,8 @@ export namespace ApplianceConstruction {
    * `fridgeHandle` is the fridge door's free edge at the drawn pull height,
    * `freezerHandle` the freezer door's free edge at its top; each rides its
    * door.
-   *
-   * @param builder The builder to fill.
-   * @param d The drawn dimensions.
+   * Parameter builder: The builder to fill.
+   * Parameter d: The drawn dimensions.
    */
   export function refrigerator(builder: Builder, d: Drawn): void {
     const E: typeof ESTIMATES = ESTIMATES;
@@ -241,7 +246,7 @@ export namespace ApplianceConstruction {
     }
   }
 
-  /**
+  /*
    * A freestanding cooker: a body behind a door on its plinth and a fascia
    * above it, the hob's four zones in the top's quarters, a handle across the
    * door's top and four knobs along the fascia.
@@ -249,9 +254,8 @@ export namespace ApplianceConstruction {
    * The hob and its zones are contacts; the oven door, its handle and the knobs
    * are drawn but are not contacts, since no source read places them or gives
    * their travel.
-   *
-   * @param builder The builder to fill.
-   * @param d The drawn dimensions.
+   * Parameter builder: The builder to fill.
+   * Parameter d: The drawn dimensions.
    */
   export function cooker(builder: Builder, d: Drawn): void {
     const E: typeof ESTIMATES = ESTIMATES;
@@ -324,7 +328,7 @@ export namespace ApplianceConstruction {
     });
   }
 
-  /**
+  /*
    * A countertop microwave: walls round the maker's cavity, the cavity on the
    * `-X` side behind a door hinged on that edge, and the control panel on the
    * `+X` side.
@@ -333,9 +337,8 @@ export namespace ApplianceConstruction {
    * cavity leaves; the door and the back share equally what the depth leaves in
    * front of and behind the cavity. The door's hinge states no travel, since
    * the maker gives no opening angle: it stays shut until one is read.
-   *
-   * @param builder The builder to fill.
-   * @param d The drawn dimensions.
+   * Parameter builder: The builder to fill.
+   * Parameter d: The drawn dimensions.
    */
   export function microwave(builder: Builder, d: Drawn): void {
     const height: number = d.height!;
@@ -403,16 +406,15 @@ export namespace ApplianceConstruction {
     });
   }
 
-  /**
+  /*
    * A front-loading washing machine: the body, a round door across it below the
    * control panel and hinged on its `-X` edge, a handle bar at the door's free
    * edge and the programme dial on the panel's `+X` side.
    *
    * The 160 degree door carries the handle at its free edge. Its opening and
    * stable drum floor remain fixed in the body.
-   *
-   * @param builder The builder to fill.
-   * @param d The drawn dimensions.
+   * Parameter builder: The builder to fill.
+   * Parameter d: The drawn dimensions.
    */
   export function washingMachine(builder: Builder, d: Drawn): void {
     const E: typeof ESTIMATES = ESTIMATES;
@@ -474,11 +476,15 @@ export namespace ApplianceConstruction {
   }
 }
 
-/** The builder every kind's construction fills. */
+/*
+ * The builder every kind's construction fills.
+ */
 type Builder = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeAppliance.Affordance,
   AutoMovieArchetypeAppliance.Dimension
 >;
 
-/** The drawn dimensions of one kind. */
+/*
+ * The drawn dimensions of one kind.
+ */
 type Drawn = Partial<Record<AutoMovieArchetypeAppliance.Dimension, number>>;

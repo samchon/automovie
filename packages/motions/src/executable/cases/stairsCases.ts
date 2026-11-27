@@ -15,7 +15,7 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 import { stairsCaseBoxes } from "./internal/stairsCaseBoxes";
 
-/**
+/*
  * Capture cases of the stairs family: a four-tread flight of 170 mm risers and
  * 280 mm treads (2010 ADA 504.2), climbed up step over step, down step over
  * step, and up step by step, each from quiet standing before the first nosing.
@@ -29,9 +29,8 @@ import { stairsCaseBoxes } from "./internal/stairsCaseBoxes";
  * - No socket ever lies more than 10 mm under the floor, a tread or a riser's top
  *   (decision 11);
  * - A planted foot's lowest socket stays within 5 mm of the surface under it.
- *
- * @param bodies The sweep bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function stairsCases(
   bodies: readonly string[] = ["m-average"],
@@ -158,11 +157,17 @@ export function stairsCases(
   return out;
 }
 
-/** The record of `IStairsCasesStance`'s site. */
+/*
+ * The record of `IStairsCasesStance`'s site.
+ */
 type IStairsCasesStance = { value: number; where: string };
 
-/** The record of `IStairsCasesUnder`'s site. */
+/*
+ * The record of `IStairsCasesUnder`'s site.
+ */
 type IStairsCasesUnder = { value: number; where: string };
 
-/** The record of `IStairsCasesNosing`'s site. */
+/*
+ * The record of `IStairsCasesNosing`'s site.
+ */
 type IStairsCasesNosing = { value: number; where: string };

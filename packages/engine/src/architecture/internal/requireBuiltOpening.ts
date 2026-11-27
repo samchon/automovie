@@ -3,7 +3,7 @@ import {
   IAutoMovieBuiltOpening,
 } from "@automovie/interface";
 
-/**
+/*
  * The opening one id names, or a thrown `Error` naming both the environment and
  * the missing id.
  *
@@ -12,10 +12,9 @@ import {
  * The first opening declared under the id is returned; duplicate ids are a
  * contradiction `validateBuiltEnvironment` refuses, not one this lookup
  * re-decides.
- *
- * @param environment Building record holding the opening.
- * @param openingId Id of the opening to resolve.
- * @returns The environment's own opening record, not a copy.
+ * Parameter environment: Building record holding the opening.
+ * Parameter openingId: Id of the opening to resolve.
+ * Returns: The environment's own opening record, not a copy.
  */
 export function requireBuiltOpening(
   environment: IAutoMovieBuiltEnvironment,

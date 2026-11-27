@@ -15,7 +15,7 @@ import { requiredRecoveryCameraTrials } from "./requiredRecoveryCameraTrials";
 import { sampleRecoveryCameraIndices } from "./sampleRecoveryCameraIndices";
 import { scoreRecoveryCameraResiduals } from "./scoreRecoveryCameraResiduals";
 
-/**
+/*
  * Estimate a calibrated pixel epipolar consensus with bounded local refinement.
  * Every proposal is projected to the supplied-calibration essential manifold
  * before scoring. The first bounded proposals with at least eight calibrated

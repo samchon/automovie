@@ -2,7 +2,7 @@ import type { AutoMovieHumanoidBone, AutoMovieHumanoidRegion, IAutoMovieHumanoid
 
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * The tip and the pad of every digit of both hands, as bone-local frames on
  * each digit's distal phalanx.
  *
@@ -20,12 +20,11 @@ import { Vector3 } from "../../math/Vector3";
  *
  * Both sides are resolved; the caller replaces each left frame with its right
  * twin's mirror image, as it does for every region.
- *
- * @param rays The rest-pose readers of the body
- *   (`AutoMovieHumanoidSurfaceRays.tools`).
- * @param profile The body's physical profile, segments keyed by rig bones.
- * @returns The tip and pad frames of every digit, keyed by region.
- * @throws {Error} When a digit bone is missing or a ray misses its colliders.
+ * Parameter rays: The rest-pose readers of the body
+ * (`AutoMovieHumanoidSurfaceRays.tools`).
+ * Parameter profile: The body's physical profile, segments keyed by rig bones.
+ * Returns: The tip and pad frames of every digit, keyed by region.
+ * When a digit bone is missing or a ray misses its colliders.
  */
 export function AutoMovieHumanoidDigitSurfaces(
   rays: Pick<IAutoMovieHumanoidSurfaceReader, "at" | "local" | "surface">,
@@ -87,5 +86,7 @@ export function AutoMovieHumanoidDigitSurfaces(
   return out;
 }
 
-/** The digits, as their rig bone names spell them. */
+/*
+ * The digits, as their rig bone names spell them.
+ */
 const DIGITS = ["Thumb", "Index", "Middle", "Ring", "Little"] as const;

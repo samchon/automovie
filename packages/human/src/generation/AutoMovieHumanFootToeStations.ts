@@ -43,11 +43,17 @@ export namespace AutoMovieHumanFootToeStations {
   }
 }
 
-/** Length short of the cap where the shaft's sections end, mm. */
+/*
+ * Length short of the cap where the shaft's sections end, mm.
+ */
 const TIP: number = 2.5;
 
-/** The tip's sections, mm short of the cap where it closes. */
+/*
+ * The tip's sections, mm short of the cap where it closes.
+ */
 const TIP_SECTIONS: readonly number[] = [1.2, 0.3, 0];
 
-/** Least spacing between kept sections, mm. */
+/*
+ * Least spacing between kept sections, mm.
+ */
 const MIN_GAP: number = 0.1;

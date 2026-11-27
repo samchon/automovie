@@ -3,7 +3,7 @@ import type {
   IAutoMovieSunPosition,
 } from "@automovie/interface";
 
-/**
+/*
  * Solve the topocentric position of the sun for a site and a UTC instant.
  *
  * Solar coordinates follow the low-accuracy method of Meeus, "Astronomical
@@ -30,11 +30,10 @@ import type {
  * centuries of 2000; the Reda and Andreas example site is reproduced within
  * 0.01 degrees. The calendar must lie at or after -4712, where the Julian Day
  * formula holds.
- *
- * @param props Site, instant and atmosphere.
- * @returns Zenith, azimuth eastward from north, and refracted elevation, in
- *   degrees.
- * @throws Error naming the field when an input is out of its domain.
+ * Parameter props: Site, instant and atmosphere.
+ * Returns: Zenith, azimuth eastward from north, and refracted elevation, in
+ * degrees.
+ * Error naming the field when an input is out of its domain.
  */
 export function solveAutoMovieSunPosition(
   props: IAutoMovieSolveSunPosition.IProps,
@@ -137,23 +136,29 @@ export function solveAutoMovieSunPosition(
   return { zenith: 90 - elevation, azimuth, elevation };
 }
 
-/** Degrees to radians. */
+/*
+ * Degrees to radians.
+ */
 const RADIAN: number = Math.PI / 180;
 
-/**
+/*
  * Unrefracted elevation in degrees below which refraction is not applied: the
  * sun's apparent radius, 0.26667 degrees, plus the 0.5667-degree refraction at
  * the horizon (Reda and Andreas 2004, NREL/TP-560-34302, section 3.14).
  */
 const REFRACTION_FLOOR: number = -(0.26667 + 0.5667);
 
-/** Equatorial radius of the Earth in metres (Reda and Andreas 2004, eq. 28). */
+/*
+ * Equatorial radius of the Earth in metres (Reda and Andreas 2004, eq. 28).
+ */
 const EARTH_RADIUS: number = 6378140;
 
-/** One minus the Earth's flattening, `b / a` (Reda and Andreas 2004, eq. 27). */
+/*
+ * One minus the Earth's flattening, `b / a` (Reda and Andreas 2004, eq. 27).
+ */
 const POLAR_RATIO: number = 0.99664719;
 
-/**
+/*
  * Julian Day of a proleptic Gregorian UTC instant (Meeus 1998, equation 7.1),
  * including the fraction of the day.
  */
@@ -176,7 +181,7 @@ const julianDay: (utc: IAutoMovieSolveSunPosition.IUtc) => number = (
   );
 };
 
-/**
+/*
  * Refuse a site, instant or atmosphere outside the solver's domain, naming the
  * field.
  */
@@ -225,7 +230,9 @@ const assertSite: (
     if (!valid) throw new Error(`solveAutoMovieSunPosition: ${message}.`);
 };
 
-/** Whether a value is an integer within `[low, high]`. */
+/*
+ * Whether a value is an integer within `[low, high]`.
+ */
 const integerWithin: (value: number, low: number, high: number) => boolean = (
   value: number,
   low: number,

@@ -1,7 +1,7 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
 import { AutoMovieRenderCapture } from "@automovie/render";
 
-/**
+/*
  * Read the request an address names: its query text, with or without the
  * leading `?`, through the capture plan grammar.
  *

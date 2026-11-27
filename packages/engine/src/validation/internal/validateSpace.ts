@@ -17,7 +17,7 @@ import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCo
 import { validateColor } from "./validateColor";
 import { validateSurfaceHeightRule } from "./validateSurfaceHeightRule";
 
-/**
+/*
  * Admit unique surface ids and resolving walkable ids, finite XZ footprint
  * rings with strictly interior disjoint holes, one ground rule and optional
  * opaque color.
@@ -63,13 +63,13 @@ export function validateSpace(
 
 const MIN_RAMP_AXIS: number = 1e-9;
 
-/**
+/*
  * Absolute double-plan-area admission threshold of 1e-9 square metres; very
  * small nonzero rings are deliberately refused.
  */
 const MIN_RING_DOUBLE_AREA: number = 1e-9;
 
-/**
+/*
  * Delegate footprint and ground admission, then check color and availability.
  *
  * Footprint and height responsibilities are separated by the existing surface
@@ -114,7 +114,7 @@ const validateSurface: (
     );
 };
 
-/**
+/*
  * Build an admitted outer ring and each hole, then require strict nesting and
  * pairwise nonoverlap.
  *
@@ -182,7 +182,7 @@ const validateSurfaceFootprint: (
   });
 };
 
-/**
+/*
  * Ask hole vertices against the outer ring and outer vertices against the hole
  * for boundary classification.
  *
@@ -217,7 +217,7 @@ const ringsTouch: (
       AutoMovieEngineSpace.footprintRingPlacement(hole, point.x, point.z) === "boundary",
   );
 
-/**
+/*
  * Check finite XZ coordinates, at least three points, absolute double area
  * above1e-9 and polygon simplicity.
  *
@@ -278,7 +278,7 @@ const validateRing: (
   return ring;
 };
 
-/**
+/*
  * Require exactly one height rule or anchor/rampTo statement and check finite
  * anchors/nondegenerate ramp axis.
  *

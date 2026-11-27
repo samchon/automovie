@@ -3,7 +3,7 @@ import { Vector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
-/**
+/*
  * A climbing rope hanging from an overhead anchor, as in a gym or from a
  * hovering helicopter's boom.
  *
@@ -13,12 +13,11 @@ import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSe
  * the rope pointing up to the anchor, with the rope's length and radius: a
  * climber grips and locks the feet anywhere along it, and a swinger hangs from
  * it about the anchor.
- *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The rope.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * Parameter params: Any dimension the author fixes.
+ * Parameter seed: The seed that draws every dimension left free inside its band;
+ * absent, each takes the middle of its band.
+ * Returns: The rope.
+ * For a fixed dimension outside its band.
  */
 export function createClimbingRope(
   params: AutoMovieArchetypeClimbingRope.IParams = {},

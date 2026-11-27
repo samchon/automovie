@@ -285,7 +285,7 @@ export namespace HumanObject {
     };
   }
 
-  /**
+  /*
    * Where the feet rest on an object while its seat is sat on: the tread
    * nearest the seat on each side among the object's pedals and stirrups, or,
    * when it has none below the seat, two points of the nearest bar below it, a
@@ -356,7 +356,9 @@ export namespace HumanObject {
   }
 }
 
-/** One model's derived projection belongs to its full articulation provider. */
+/*
+ * One model's derived projection belongs to its full articulation provider.
+ */
 const ARTICULATE_SITES: WeakMap<
   NonNullable<IAutoMovieMotionHumanProp["articulate"]>,
   NonNullable<IAutoMovieMotionHumanProp["articulateSite"]>
@@ -371,15 +373,16 @@ interface ISeatFootrests {
   ids: Partial<Record<AutoMovieHumanSide, string>>;
 }
 
-/** The alternatives of `TiltedResult`'s site. */
+/*
+ * The alternatives of `TiltedResult`'s site.
+ */
 type TiltedResult = "pitch" | "roll";
 
-/**
+/*
  * A seat's pitch and roll in the world, as a posture's, when the seat is not
  * level.
- *
- * @param rotation The seat's world rotation.
- * @returns The tilt, empty for a level seat.
+ * Parameter rotation: The seat's world rotation.
+ * Returns: The tilt, empty for a level seat.
  */
 function tilted(
   rotation: IAutoMovieQuaternion,
@@ -391,7 +394,9 @@ function tilted(
     : { pitch: angles.pitch, roll: angles.roll };
 }
 
-/** Read the posed affordances, colliders and span endpoints in model space. */
+/*
+ * Read the posed affordances, colliders and span endpoints in model space.
+ */
 function posedModel(
   model: IAutoMovieMotionHumanObject.IModel,
 ): IAutoMovieMotionHumanProp.IPosed {

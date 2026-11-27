@@ -13,7 +13,7 @@ import { prepareHumanFootPoint } from "./prepareHumanFootPoint";
 import { prepareHumanFootSole } from "./prepareHumanFootSole";
 import { readHumanFoot } from "./readHumanFoot";
 
-/**
+/*
  * A foot on the floor as a rigid rocker: where its ankle and its sole points
  * are when it pivots about its heel or its ball by a pitch, at a heading.
  *
@@ -38,13 +38,13 @@ import { readHumanFoot } from "./readHumanFoot";
  * `heading` is the foot's yaw about +Y in degrees (0 faces +Z).
  */
 export namespace HumanFoot {
-  /**
+  /*
    * Bound base/socket geometry for one unchanged synchronous displayed-bone
    * reading (`readHumanFoot`); release it with that evaluation.
    */
   export const reading: typeof readHumanFoot = readHumanFoot;
 
-  /**
+  /*
    * The ankle alone of a foot pivoting about a fixed sole point, for a search
    * over pitches (`prepareHumanFootAnkle`); the reader overwrites the record it
    * returns.
@@ -52,28 +52,29 @@ export namespace HumanFoot {
   export const prepareAnkle: typeof prepareHumanFootAnkle =
     prepareHumanFootAnkle;
 
-  /**
+  /*
    * A fixed-articulation reader over a varying world contact
    * (`prepareHumanFootAt`), preserving fresh placement outputs.
    */
   export const prepareAt: typeof prepareHumanFootAt = prepareHumanFootAt;
 
-  /** The sole sockets of {@link Socket}, as data. */
+  /*
+   * The sole sockets of Socket, as data.
+   */
   export const SOCKETS: readonly ["heel", "ball", "toe"] = [
     "heel",
     "ball",
     "toe",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanFoot.Socket>[];
 
-  /**
+  /*
    * A foot's three sole sockets on displayed bones, heel first, each placed on
    * the bone it rides: the toe socket of a profile with jointed toes moves with
    * the toes bone, not with the foot.
-   *
-   * @param body The body.
-   * @param bones The displayed bones.
-   * @param side The foot.
-   * @returns The heel, the ball and the toe.
+   * Parameter body: The body.
+   * Parameter bones: The displayed bones.
+   * Parameter side: The foot.
+   * Returns: The heel, the ball and the toe.
    */
   export function sockets(
     body: IAutoMovieMotionHumanBody,
@@ -99,7 +100,7 @@ export namespace HumanFoot {
     );
   }
 
-  /**
+  /*
    * The height above a foot's lowest sole point within which a part of the sole
    * is on the floor, metres: under half the 12.9 mm mean minimum toe clearance
    * of the swinging foot in normal walking (Winter 1992, Foot trajectory in
@@ -108,7 +109,7 @@ export namespace HumanFoot {
    */
   export const BEARING: number = 0.006;
 
-  /**
+  /*
    * The base of support of displayed bones: the area within the outlines of the
    * feet where they bear on the floor (Winter, Biomechanics and Motor Control
    * of Human Movement, 4th ed., ch. 4: the base of support is the area bounded
@@ -119,12 +120,11 @@ export namespace HumanFoot {
    * Place the sole collider outline on the displayed bones. A foot without a
    * collider outline uses its sole sockets. Points within `BEARING` of the
    * lowest point bear, so lifting the heel shifts support to the forefoot.
-   *
-   * @param body The body.
-   * @param bones The displayed bones.
-   * @param sides The feet that bear; both when absent.
-   * @returns The left foot's bearing points, then the right foot's, world
-   *   metres.
+   * Parameter body: The body.
+   * Parameter bones: The displayed bones.
+   * Parameter sides: The feet that bear; both when absent.
+   * Returns: The left foot's bearing points, then the right foot's, world
+   * metres.
    */
   export function base(
     body: IAutoMovieMotionHumanBody,
@@ -134,14 +134,13 @@ export namespace HumanFoot {
     return readHumanFoot(body, bones).base(sides);
   }
 
-  /**
+  /*
    * The points a placed foot stands on, flat with its toes flat: its sole
    * sockets and the corners of its outline (`outline`), world metres.
-   *
-   * @param body The body.
-   * @param side The foot.
-   * @param foot The foot's placement.
-   * @returns The heel, the ball and the toe, then the outline's corners.
+   * Parameter body: The body.
+   * Parameter side: The foot.
+   * Parameter foot: The foot's placement.
+   * Returns: The heel, the ball and the toe, then the outline's corners.
    */
   export function sole(
     body: IAutoMovieMotionHumanBody,
@@ -151,15 +150,14 @@ export namespace HumanFoot {
     return prepareHumanFootSole(body, side)(foot);
   }
 
-  /**
+  /*
    * The height of a placed foot's lowest sole point, flat-toed (`sole`): the
    * point a swing's clearance is measured at, as gait measures the swinging
    * foot's clearance at its lowest point (Winter 1992).
-   *
-   * @param body The body.
-   * @param side The foot.
-   * @param foot The foot's placement.
-   * @returns The least height of its sole's points, world metres.
+   * Parameter body: The body.
+   * Parameter side: The foot.
+   * Parameter foot: The foot's placement.
+   * Returns: The least height of its sole's points, world metres.
    */
   export function lowest(
     body: IAutoMovieMotionHumanBody,
@@ -173,24 +171,23 @@ export namespace HumanFoot {
     );
   }
 
-  /**
+  /*
    * Flat-toed sole geometry over changing foot placements
    * (`prepareHumanFootSole`), shared only for unchanged body-local geometry.
    */
   export const prepareSole: typeof prepareHumanFootSole = prepareHumanFootSole;
 
-  /**
+  /*
    * A foot's outline on its sole, the corners of its colliders seen from below
    * as frames on its bones (`HumanFootOutline`).
    */
   export const outline: typeof HumanFootOutline = HumanFootOutline;
 
-  /**
+  /*
    * A placement turned on the floor about its ankle's vertical.
-   *
-   * @param foot The placement.
-   * @param degrees The turn about +Y, degrees.
-   * @returns The turned placement; the same one for no turn.
+   * Parameter foot: The placement.
+   * Parameter degrees: The turn about +Y, degrees.
+   * Returns: The turned placement; the same one for no turn.
    */
   export function turned(
     foot: IAutoMovieMotionHumanFoot.IPlacement,
@@ -205,14 +202,13 @@ export namespace HumanFoot {
     };
   }
 
-  /**
+  /*
    * The foot's rotation from rest for a heading, a pitch and a roll.
-   *
-   * @param heading Degrees about +Y.
-   * @param pitch Degrees, positive toes up.
-   * @param roll Degrees about the foot's forward axis, positive lifting its
-   *   outer border on the left foot's side (+X at rest); none when absent.
-   * @returns The rotation.
+   * Parameter heading: Degrees about +Y.
+   * Parameter pitch: Degrees, positive toes up.
+   * Parameter roll: Degrees about the foot's forward axis, positive lifting its
+   * outer border on the left foot's side (+X at rest); none when absent.
+   * Returns: The rotation.
    */
   export const rotation: (
     heading: number,
@@ -220,25 +216,24 @@ export namespace HumanFoot {
     roll?: number,
   ) => IAutoMovieQuaternion = HumanFootRotation;
 
-  /**
+  /*
    * Prepare the exact height component of one fixed articulated socket for
    * actual clearance-only queries.
    */
   export const prepareHeight: typeof prepareHumanFootHeight =
     prepareHumanFootHeight;
 
-  /**
+  /*
    * Actual socket/outline frame bone membership for one unchanged
    * displayed-foot observation.
    */
   export const bones: typeof humanFootBones = humanFootBones;
 
-  /**
+  /*
    * The roll of a foot's rotation about its forward axis, degrees, as
    * `rotation` takes it: the rise of its lateral axis.
-   *
-   * @param rotation The foot's rotation.
-   * @returns Degrees.
+   * Parameter rotation: The foot's rotation.
+   * Returns: Degrees.
    */
   export function roll(rotation: IAutoMovieQuaternion): number {
     const lateral: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
@@ -249,13 +244,12 @@ export namespace HumanFoot {
     return (Math.asin(Math.max(-1, Math.min(1, lateral.y))) * 180) / Math.PI;
   }
 
-  /**
+  /*
    * A foot's heading from its rotation, read off its lateral axis: a pitch
    * leaves that axis level, so the heading holds when a folded shank carries
    * the foot's pitch past vertical, where its forward axis points backward.
-   *
-   * @param rotation The foot's world rotation, a heading and a pitch.
-   * @returns Degrees about +Y.
+   * Parameter rotation: The foot's world rotation, a heading and a pitch.
+   * Returns: Degrees about +Y.
    */
   export function heading(rotation: IAutoMovieQuaternion): number {
     const lateral: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
@@ -266,12 +260,11 @@ export namespace HumanFoot {
     return (Math.atan2(-lateral.z, lateral.x) * 180) / Math.PI;
   }
 
-  /**
+  /*
    * A foot's pitch from its rotation, about the lateral axis `heading` reads,
    * so it runs past ±90° where the foot points past vertical.
-   *
-   * @param rotation The foot's world rotation, a heading and a pitch.
-   * @returns Degrees, positive toes up.
+   * Parameter rotation: The foot's world rotation, a heading and a pitch.
+   * Returns: Degrees, positive toes up.
    */
   export function pitch(rotation: IAutoMovieQuaternion): number {
     const toes: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
@@ -282,12 +275,11 @@ export namespace HumanFoot {
     return pitchAt(toes, heading(rotation));
   }
 
-  /**
+  /*
    * Read heading and toes-up pitch from the same foot rotation, sharing the
    * lateral-axis heading needed by both values.
-   *
-   * @param rotation The foot's world rotation.
-   * @returns A fresh degree-valued pair, preserving pitch beyond vertical.
+   * Parameter rotation: The foot's world rotation.
+   * Returns: A fresh degree-valued pair, preserving pitch beyond vertical.
    */
   export function headingPitch(
     rotation: IAutoMovieQuaternion,
@@ -301,26 +293,25 @@ export namespace HumanFoot {
     return { heading: angle, pitch: pitchAt(toes, angle) };
   }
 
-  /**
+  /*
    * A sole point's offset from the ankle in the foot's rest frame, the toes
    * flexed by an angle.
-   *
-   * @param body The body.
-   * @param side The foot.
-   * @param point Which sole point.
-   * @param toes The toes' flexion, degrees, positive lifting them.
-   * @returns The offset, metres.
+   * Parameter body: The body.
+   * Parameter side: The foot.
+   * Parameter point: Which sole point.
+   * Parameter toes: The toes' flexion, degrees, positive lifting them.
+   * Returns: The offset, metres.
    */
   export const offset: typeof humanFootOffset = humanFootOffset;
 
-  /**
+  /*
    * Fixed body/socket geometry over varying actual toe angles, owned by
    * humanFootOffset.prepare.
    */
   export const prepareOffset: typeof humanFootOffset.prepare =
     humanFootOffset.prepare;
 
-  /**
+  /*
    * A point a foot pivots about: a named sole point, or a point in the foot's
    * rest frame from the ankle (an edge, `edge`).
    */
@@ -332,7 +323,7 @@ export namespace HumanFoot {
     | "mtp"
     | IAutoMovieVector3;
 
-  /**
+  /*
    * A forefoot edge in the foot's rest frame from the ankle: the ball's sole
    * point carried across the foot by half its breadth across the metatarsal
    * heads (`IAutoMovieBodyMeasure.footBreadth`), toward its +X border or its -X
@@ -340,13 +331,12 @@ export namespace HumanFoot {
    * window declares it as the point held
    * (`IAutoMovieMotionHumanContactWindow.socket`) and the foot pivots about
    * it.
-   *
-   * @param body The body.
-   * @param side The foot.
-   * @param border +1 for the +X border, -1 for the -X one.
-   * @param half How far the edge lies from the sole's midline, metres; half the
-   *   foot's breadth when absent.
-   * @returns The edge, metres in the foot's rest frame from the ankle.
+   * Parameter body: The body.
+   * Parameter side: The foot.
+   * Parameter border: +1 for the +X border, -1 for the -X one.
+   * Parameter half: How far the edge lies from the sole's midline, metres; half the
+   * foot's breadth when absent.
+   * Returns: The edge, metres in the foot's rest frame from the ankle.
    */
   export function edge(
     body: IAutoMovieMotionHumanBody,
@@ -363,18 +353,17 @@ export namespace HumanFoot {
     return { ...low, x: low.x + Math.sign(border) * half };
   }
 
-  /**
+  /*
    * The foot placed by pivoting about a sole point fixed on the floor.
-   *
-   * @param body The body.
-   * @param side The foot.
-   * @param pivot Which sole point stays on the floor.
-   * @param at Where that point is, world metres.
-   * @param heading The foot's heading, degrees.
-   * @param pitch The pitch, degrees, positive toes up.
-   * @param toes The toe joint flexion, degrees; zero when absent.
-   * @param roll The foot roll, degrees; zero when absent.
-   * @returns The foot's placement.
+   * Parameter body: The body.
+   * Parameter side: The foot.
+   * Parameter pivot: Which sole point stays on the floor.
+   * Parameter at: Where that point is, world metres.
+   * Parameter heading: The foot's heading, degrees.
+   * Parameter pitch: The pitch, degrees, positive toes up.
+   * Parameter toes: The toe joint flexion, degrees; zero when absent.
+   * Parameter roll: The foot roll, degrees; zero when absent.
+   * Returns: The foot's placement.
    */
   export function pivot(
     body: humanFootOffset.IBody,
@@ -395,14 +384,14 @@ export namespace HumanFoot {
     };
   }
 
-  /**
+  /*
    * Prepare rigid sole geometry for repeated pitch trials under one fixed
    * heading, toe flexion, roll and default contact (`prepareHumanFootPivot`).
    */
   export const preparePivot: typeof prepareHumanFootPivot =
     prepareHumanFootPivot;
 
-  /**
+  /*
    * Where the ankle goes, and how far the toes extend, when a planted foot
    * reaches a rotation other than the one asked for: the foot turns about its
    * contact, which stays where the goal put it, and the toes take back the
@@ -410,13 +399,12 @@ export namespace HumanFoot {
    * the ankle's dorsal range, this is the heel-off of the terminal stance
    * rocker (Perry and Burnfield): the heel rises about the ball and the toes
    * dorsiflex at the metatarsophalangeal joints.
-   *
-   * @param asked The rotation the goal asked for.
-   * @param reached The rotation the limb reached.
-   * @param anchor The contact's world point under the asked rotation.
-   * @param contact The contact in the foot's rest frame, relative to the ankle.
-   * @returns The ankle point and the toes' added flexion, degrees, positive
-   *   lifting them.
+   * Parameter asked: The rotation the goal asked for.
+   * Parameter reached: The rotation the limb reached.
+   * Parameter anchor: The contact's world point under the asked rotation.
+   * Parameter contact: The contact in the foot's rest frame, relative to the ankle.
+   * Returns: The ankle point and the toes' added flexion, degrees, positive
+   * lifting them.
    */
   export function heelOff(
     asked: IAutoMovieQuaternion,
@@ -433,15 +421,14 @@ export namespace HumanFoot {
     };
   }
 
-  /**
+  /*
    * A sole point's world position for a placed foot.
-   *
-   * @param body The body.
-   * @param side The foot.
-   * @param point Which sole point.
-   * @param foot The foot's placement.
-   * @param toes The toes' flexion, degrees, positive lifting them.
-   * @returns The point, world metres.
+   * Parameter body: The body.
+   * Parameter side: The foot.
+   * Parameter point: Which sole point.
+   * Parameter foot: The foot's placement.
+   * Parameter toes: The toes' flexion, degrees, positive lifting them.
+   * Returns: The point, world metres.
    */
   export function point(
     body: humanFootOffset.IBody,
@@ -453,14 +440,16 @@ export namespace HumanFoot {
     return prepareHumanFootPoint(body, side, point, toes)(foot);
   }
 
-  /**
+  /*
    * Prepare a sole point whose body, socket and toe flexion remain fixed
    * (`prepareHumanFootPoint`).
    */
   export const preparePoint: typeof prepareHumanFootPoint =
     prepareHumanFootPoint;
 
-  /** Pitch projected along the same lateral-axis heading, in clinical degrees. */
+  /*
+   * Pitch projected along the same lateral-axis heading, in clinical degrees.
+   */
   function pitchAt(toes: IAutoMovieVector3, angle: number): number {
     const yaw: number = (angle * Math.PI) / 180;
     return (
@@ -471,15 +460,21 @@ export namespace HumanFoot {
   }
 }
 
-/** The alternatives of `PointPoint`'s site. */
+/*
+ * The alternatives of `PointPoint`'s site.
+ */
 type PointPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
 
-/** The record of `IHeadingPitchResult`'s site. */
+/*
+ * The record of `IHeadingPitchResult`'s site.
+ */
 type IHeadingPitchResult = {
   heading: number;
   pitch: number;
 };
 
-/** The unchanged world-up axis shared only as axis-angle scalar preparation. */
+/*
+ * The unchanged world-up axis shared only as axis-angle scalar preparation.
+ */
 const YAW: ReturnType<typeof Quaternion.prepareAxisAngle> =
   Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });

@@ -2,7 +2,9 @@ import type { IAutoMovieMotionHumanSegment } from "@automovie/interface";
 
 import type { IMotionCaptureCase } from "../../internal/IMotionCaptureCase";
 
-/** Every 0.2 s, and every heel strike and toe-off, labelled. */
+/*
+ * Every 0.2 s, and every heel strike and toe-off, labelled.
+ */
 export function locomotionCaseInstants(
   performance: ILocomotionPerformance,
   end: number,
@@ -28,17 +30,27 @@ export function locomotionCaseInstants(
   );
 }
 
-/** The part of a walking segment its instants are read from. */
+/*
+ * The part of a walking segment its instants are read from.
+ */
 interface ILocomotionSegment {
-  /** Film seconds the segment starts. */
+  /*
+   * Film seconds the segment starts.
+   */
   start: IAutoMovieMotionHumanSegment["start"];
 
-  /** Its plan's events and duration. */
+  /*
+   * Its plan's events and duration.
+   */
   plan: Pick<IAutoMovieMotionHumanSegment["plan"], "events" | "duration">;
 }
 
-/** The performance's segments reader, all a walk's instants read. */
+/*
+ * The performance's segments reader, all a walk's instants read.
+ */
 interface ILocomotionPerformance {
-  /** A subject's segments in order. */
+  /*
+   * A subject's segments in order.
+   */
   segments(subject: string): readonly ILocomotionSegment[];
 }

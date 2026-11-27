@@ -294,25 +294,41 @@ export namespace AutoMovieConstructionProfile {
   }
 }
 
-/** One actual original interval and its existing surface-chart consumer. */
+/*
+ * One actual original interval and its existing surface-chart consumer.
+ */
 interface Piece {
-  /** Stable atlas ordinal and direct original neighbor ordinals. */
+  /*
+   * Stable atlas ordinal and direct original neighbor ordinals.
+   */
   index: number;
-  /** Previous ordered piece of this same complete loop. */
+  /*
+   * Previous ordered piece of this same complete loop.
+   */
   previous: number;
-  /** Next ordered piece of this same complete loop. */
+  /*
+   * Next ordered piece of this same complete loop.
+   */
   next: number;
-  /** Value-copied original interval declaration. */
+  /*
+   * Value-copied original interval declaration.
+   */
   piece: IAutoMovieConstructionProfilePiece;
-  /** Value-copied physical loop interval and explicit orientation. */
+  /*
+   * Value-copied physical loop interval and explicit orientation.
+   */
   loop: IAutoMovieConstructionProfileLoop;
-  /** Borrowed immutable original function owner. */
+  /*
+   * Borrowed immutable original function owner.
+   */
   curve: IAutoMovieConstructionProfileSource.ICurve;
-  /** Actual chart surface, physical station mm by normalized piece coordinate. */
+  /*
+   * Actual chart surface, physical station mm by normalized piece coordinate.
+   */
   surface: IAutoMovieSolidSurface;
 }
 
-/**
+/*
  * Finite increasing owned intervals reject overflow as well as collapsed
  * clocks.
  */
@@ -320,7 +336,9 @@ function interval(value: readonly [number, number]): boolean {
   return value[1] > value[0];
 }
 
-/** Check this actual boundary query without claiming whole-domain equivalence. */
+/*
+ * Check this actual boundary query without claiming whole-domain equivalence.
+ */
 function joined(
   end: readonly number[],
   start: readonly number[],
@@ -336,7 +354,7 @@ function joined(
     fail(`Original loop ${loop} has a mismatched actual boundary query.`);
 }
 
-/**
+/*
  * Restriction retains original parameter support without extending actual
  * ownership.
  */
@@ -347,7 +365,7 @@ function inside(
   return value[0] >= owner[0] && value[1] <= owner[1];
 }
 
-/**
+/*
  * Named numerical/source admission failures remain distinct from foreign
  * exceptions.
  */

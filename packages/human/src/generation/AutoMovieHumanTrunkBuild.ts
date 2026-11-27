@@ -66,7 +66,9 @@ import { AutoMovieHumanTrunkViewPart } from "./AutoMovieHumanTrunkViewPart";
  * and left unjoined.
  */
 export namespace AutoMovieHumanTrunkBuild {
-  /** Section controls and ring phases of a mass. */
+  /*
+   * Section controls and ring phases of a mass.
+   */
   const MASS_ORDER: number = 128;
 
   /**
@@ -277,16 +279,15 @@ export namespace AutoMovieHumanTrunkBuild {
     return out(base.view, folds);
   }
 
-  /**
+  /*
    * Both sides of every mass on a base.
-   *
-   * @param input The laws.
-   * @param part The identical original trunk source used for wall placement.
-   * @param diagnostics Where a failed mass is recorded; a pass that only reads
-   *   the masses for the tapes passes a list it drops.
-   * @param sources The actual source results, including failed and intermediate
-   *   tape-pass attempts.
-   * @returns The masses that built.
+   * Parameter input: The laws.
+   * Parameter part: The identical original trunk source used for wall placement.
+   * Parameter diagnostics: Where a failed mass is recorded; a pass that only reads
+   * the masses for the tapes passes a list it drops.
+   * Parameter sources: The actual source results, including failed and intermediate
+   * tape-pass attempts.
+   * Returns: The masses that built.
    */
   function masses(
     input: IAutoMovieHumanTrunkBuild.IInput,
@@ -428,12 +429,11 @@ export namespace AutoMovieHumanTrunkBuild {
     return out;
   }
 
-  /**
+  /*
    * A left law on the right side (J6): the target and up reflected in the
    * median plane; the edges keep their lateral and medial naming.
-   *
-   * @param law The left side's law.
-   * @returns The right side's.
+   * Parameter law: The left side's law.
+   * Returns: The right side's.
    */
   function mirror(
     law: IAutoMovieHumanTrunkBuild.IMassLaw,
@@ -444,21 +444,33 @@ export namespace AutoMovieHumanTrunkBuild {
     return { ...law, target: flip(law.target), up: flip(law.up) };
   }
 
-  /** A built mass. */
+  /*
+   * A built mass.
+   */
   interface IMass {
-    /** Which pair it belongs to. */
+    /*
+     * Which pair it belongs to.
+     */
     kind: "breast" | "gluteal";
 
-    /** Its law, this side's. */
+    /*
+     * Its law, this side's.
+     */
     law: IAutoMovieHumanTrunkBuild.IMassLaw;
 
-    /** Identical original view part, used by source tape cuts. */
+    /*
+     * Identical original view part, used by source tape cuts.
+     */
     source: IAutoMovieViewPart;
 
-    /** Its view node. */
+    /*
+     * Its view node.
+     */
     view: IAutoMovieConstructionView;
 
-    /** The fold's width cap, mm. */
+    /*
+     * The fold's width cap, mm.
+     */
     cap: number;
   }
 }

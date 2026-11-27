@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 
-/**
+/*
  * A folding knife whose blade swings from inside its handle to open and locks
  * there.
  *
@@ -19,9 +19,8 @@ import {
  * at the hinge's end, which the drive's last travel keeps. `grip` is the
  * handle, taken from below; `stud` is the thumb stud on the blade's spine that
  * opens it; `point` the blade's tip.
- *
- * @param params The optional scene id.
- * @returns The knife and its contacts, metres.
+ * Parameter params: The optional scene id.
+ * Returns: The knife and its contacts, metres.
  */
 export function createFoldingKnife(
   params: AutoMovieArchetypeFoldingKnife.IParams = {},
@@ -107,7 +106,7 @@ export function createFoldingKnife(
   return builder.build(SIZE.mass);
 }
 
-/**
+/*
  * A pocket folding knife with a three-inch blade (3 × 0.0254 m). No source is
  * read: the blade, the handle (the closed blade's length plus a bolster), its
  * thickness and width and the mass are provisional construction estimates.

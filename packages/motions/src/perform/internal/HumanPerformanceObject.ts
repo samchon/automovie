@@ -10,7 +10,7 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 
-/**
+/*
  * The state of the props' articulations over the film: what the acts drive
  * (`IHumanActionPlan.drives`) and what the props run themselves
  * (`IHumanProp.tracks`), as one input per coupled degree at each second, and a
@@ -27,22 +27,21 @@ import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
  * for Interaction Tasks): the object declares how it moves, the act drives it.
  */
 export namespace HumanPerformanceObject {
-  /**
+  /*
    * One timed writer of an articulation's travel, the performance's record
    * (`IAutoMovieMotionHumanPerformanceState.IWriter`).
    */
   export type IWriter = IAutoMovieMotionHumanPerformanceState.IWriter;
 
-  /**
+  /*
    * Every writer of a prop's articulations in film order, with its independent
    * degree resolved once: each placed action's drives, clipped to its active
    * span, and the prop's own tracks from their instants: those the performance
    * prepared once every action and its final clipped end was placed, or, while
    * the schedule is resolved, those placed now.
-   *
-   * @param self The performance.
-   * @param prop The prop.
-   * @returns The writers, by their start.
+   * Parameter self: The performance.
+   * Parameter prop: The prop.
+   * Returns: The writers, by their start.
    */
   export function writers(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -51,13 +50,12 @@ export namespace HumanPerformanceObject {
     return self.writers.get(prop.subject) ?? collect(self, prop);
   }
 
-  /**
+  /*
    * Collect a prop's writers from the placed actions and its tracks
-   * ({@link writers}): what the performance prepares.
-   *
-   * @param self The performance.
-   * @param prop The prop.
-   * @returns The writers, by their start.
+   * (writers): what the performance prepares.
+   * Parameter self: The performance.
+   * Parameter prop: The prop.
+   * Returns: The writers, by their start.
    */
   export function collect(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -112,15 +110,14 @@ export namespace HumanPerformanceObject {
     return out;
   }
 
-  /**
+  /*
    * One input per coupled degree of freedom moved by a film second, in its
    * latest writer's coordinate. A new writer replaces the old coordinate; after
    * its end its last travel holds. Other degrees start at rest.
-   *
-   * @param self The performance.
-   * @param prop The prop.
-   * @param seconds Film seconds.
-   * @returns Travel by articulation id.
+   * Parameter self: The performance.
+   * Parameter prop: The prop.
+   * Parameter seconds: Film seconds.
+   * Returns: Travel by articulation id.
    */
   export function state(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -130,14 +127,13 @@ export namespace HumanPerformanceObject {
     return travel(writers(self, prop), seconds);
   }
 
-  /**
+  /*
    * The travel a prop's writers in film order give at a film second
-   * ({@link state}): each independent degree in its latest begun writer's
+   * (state): each independent degree in its latest begun writer's
    * coordinate, read within that writer's window and held at its end.
-   *
-   * @param ordered The writers, by their start.
-   * @param seconds Film seconds.
-   * @returns Travel by articulation id.
+   * Parameter ordered: The writers, by their start.
+   * Parameter seconds: Film seconds.
+   * Returns: Travel by articulation id.
    */
   export function travel(
     ordered: readonly IWriter[],
@@ -154,17 +150,16 @@ export namespace HumanPerformanceObject {
     return out;
   }
 
-  /**
+  /*
    * A named point of a prop in the prop's own frame at a film second: where its
    * posed contact is when something has moved the prop's parts, its rest place
    * otherwise.
-   *
-   * @param self The performance.
-   * @param prop The prop.
-   * @param id The point's name.
-   * @param seconds Film seconds.
-   * @returns The point and its outward normal in the prop's frame, or undefined
-   *   when the prop has no such point.
+   * Parameter self: The performance.
+   * Parameter prop: The prop.
+   * Parameter id: The point's name.
+   * Parameter seconds: Film seconds.
+   * Returns: The point and its outward normal in the prop's frame, or undefined
+   * when the prop has no such point.
    */
   export function point(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -190,13 +185,12 @@ export namespace HumanPerformanceObject {
     };
   }
 
-  /**
+  /*
    * A prop posed at its state at a film second.
-   *
-   * @param self The performance.
-   * @param prop The prop, which articulates.
-   * @param seconds Film seconds.
-   * @returns The posed contacts and colliders.
+   * Parameter self: The performance.
+   * Parameter prop: The prop, which articulates.
+   * Parameter seconds: Film seconds.
+   * Returns: The posed contacts and colliders.
    */
   export function pose(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -206,15 +200,14 @@ export namespace HumanPerformanceObject {
     return prop.articulate!(state(self, prop, seconds));
   }
 
-  /**
+  /*
    * Admit the placed performance's drives: two drives of one independent degree
    * of freedom of one prop that overlap in time are refused, naming both
    * actions, and a drive whose travel leaves its articulation's range is
    * refused where the prop poses it, with the action and the second.
-   *
-   * @param self The placed performance.
-   * @throws {HumanRefusal} A `cut` refusal for overlapping drives; a
-   *   `parameter` refusal for a travel out of range.
+   * Parameter self: The placed performance.
+   * A `cut` refusal for overlapping drives; a
+   * `parameter` refusal for a travel out of range.
    */
   export function admit(self: IAutoMovieMotionHumanPerformanceState): void {
     for (const prop of self.props.values()) {
@@ -263,5 +256,7 @@ export namespace HumanPerformanceObject {
   }
 }
 
-/** The record of `IPointResult`'s site. */
+/*
+ * The record of `IPointResult`'s site.
+ */
 type IPointResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };

@@ -164,7 +164,7 @@ export namespace AutoMoviePhysicalSupportCollector {
             ]
           : [];
 
-        /**
+        /*
          * Whether an identified collider is one of this limb's patch colliders on
          * the body.
          */
@@ -178,7 +178,7 @@ export namespace AutoMoviePhysicalSupportCollector {
           );
         }
 
-        /**
+        /*
          * Equal horizontal witnesses on one carrier describe the same floor
          * application point.
          */

@@ -9,7 +9,7 @@ import type {
 
 import { validateColor } from "./validateColor";
 
-/**
+/*
  * Admit one material's procedural surface: a safe-integer seed within [0, 2³² −
  * 1], a positive scale, two linear colours, two roughness values within [0, 1],
  * a nonnegative relief, an axis exactly when the kind is directional, and a
@@ -86,14 +86,18 @@ export function validateMaterialProcedural(
   if (surface.piece !== undefined) validatePiece(surface.piece, path, props);
 }
 
-/** The kinds whose pattern runs along an axis. */
+/*
+ * The kinds whose pattern runs along an axis.
+ */
 const DIRECTIONAL: readonly IAutoMovieProceduralSurface["kind"][] = [
   "wood",
   "fabric",
   "brushedMetal",
 ];
 
-/** Admit a pattern piece and require UV0 on every part citing its material. */
+/*
+ * Admit a pattern piece and require UV0 on every part citing its material.
+ */
 function validatePiece(
   piece: IAutoMovieProceduralSurface.IPiece,
   path: string,

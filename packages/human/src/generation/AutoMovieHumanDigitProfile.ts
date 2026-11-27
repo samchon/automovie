@@ -231,12 +231,11 @@ export namespace AutoMovieHumanDigitProfile {
     };
   }
 
-  /**
+  /*
    * The creases: Bridgman's four loci for a finger (the line starts at the
    * MCP), the two joints' for the thumb, each as wide as its nearest joint's
    * radius allows.
-   *
-   * @param input The digit's base and loci.
+   * Parameter input: The digit's base and loci.
    */
   function creasesOf(
     input: IAutoMovieHumanDigitProfile.IInput,
@@ -264,12 +263,11 @@ export namespace AutoMovieHumanDigitProfile {
       );
   }
 
-  /**
+  /*
    * The nail plate: its free edge at the cap's start, its root a plate length
    * back. Its size reads only the distal phalanx's length and the section's
    * width; the frame vectors are the plate chart's own axes.
-   *
-   * @param input The digit's base and loci.
+   * Parameter input: The digit's base and loci.
    */
   function plateOf(
     input: IAutoMovieHumanDigitProfile.IInput,
@@ -277,11 +275,10 @@ export namespace AutoMovieHumanDigitProfile {
     return AutoMovieHumanNailPlate.size(plateInput(input));
   }
 
-  /**
+  /*
    * The plate's inputs in its own chart: only the distal phalanx's length and
    * the section's width at the root are read.
-   *
-   * @param input The digit's base and loci.
+   * Parameter input: The digit's base and loci.
    */
   function plateInput(
     input: IAutoMovieHumanDigitProfile.IInput,
@@ -302,8 +299,12 @@ export namespace AutoMovieHumanDigitProfile {
   }
 }
 
-/** Least apex share a section half keeps convex with (`AutoMovieHumanDigitSection`'s domain is (0, 1.5]). */
+/*
+ * Least apex share a section half keeps convex with (`AutoMovieHumanDigitSection`'s domain is (0, 1.5]).
+ */
 const APEX_MIN: number = 0.3;
 
-/** Greatest apex share, the section half's domain end. */
+/*
+ * Greatest apex share, the section half's domain end.
+ */
 const APEX_MAX: number = 1.5;

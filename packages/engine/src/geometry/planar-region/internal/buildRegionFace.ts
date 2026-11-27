@@ -6,7 +6,7 @@ import {
 
 import { triangulateRegion } from "./triangulateRegion";
 
-/**
+/*
  * Build one open planar region, holes cut out, facing local +Z.
  *
  * This is the single-sided counterpart of
@@ -22,10 +22,9 @@ import { triangulateRegion } from "./triangulateRegion";
  * every normal is +Z. The canonical winding makes every triangle face +Z. A
  * malformed ring throws the triangulator's own diagnostic instead of being
  * repaired here. The returned buffers are new.
- *
- * @param props.outer Boundary of the visible region in local XY metres.
- * @param props.holes Voids cut out of the region.
- * @returns A single-sided mesh with metric UVs and no skin.
+ * Parameter props.outer: Boundary of the visible region in local XY metres.
+ * Parameter props.holes: Voids cut out of the region.
+ * Returns: A single-sided mesh with metric UVs and no skin.
  */
 export function buildRegionFace(props: IAutoMoviePlanarRegion): IAutoMovieMesh {
   const region: IAutoMovieRegionTriangulation = triangulateRegion(

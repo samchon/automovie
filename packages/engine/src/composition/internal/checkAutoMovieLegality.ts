@@ -3,14 +3,13 @@ import type {
   IAutoMovieSchedule,
 } from "@automovie/interface";
 
-/**
+/*
  * Check a schedule against a production's rules: each rule's predicate reads
  * one entry in the whole schedule and returns a violation text or null. The
  * engine applies every rule to every entry and reports, never repairs.
- *
- * @param schedule The resolved schedule.
- * @param rules The production's rules.
- * @returns Every violation, by entry then rule order.
+ * Parameter schedule: The resolved schedule.
+ * Parameter rules: The production's rules.
+ * Returns: Every violation, by entry then rule order.
  */
 export function checkAutoMovieLegality(
   schedule: IAutoMovieSchedule,

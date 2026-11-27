@@ -4,7 +4,7 @@ import type {
   IAutoMovieSurfaceSample,
 } from "@automovie/interface";
 
-/**
+/*
  * Compile a bridge patch's interior for per-pose evaluation, returning the
  * writer that fills its rows into a target buffer.
  *
@@ -21,22 +21,21 @@ import type {
  * tangent at the scale of the first row, so near a corner of the loop the
  * columns turn over the points within one row of it rather than at the corner
  * alone, and no column overtakes its neighbour.
- *
- * @param props.from The first loop's points, in order; their `sweep` and
- *   `curve` decide directions.
- * @param props.to The second loop's points, the same count.
- * @param props.fromIndex Vertex index of each first-loop point.
- * @param props.toIndex Vertex index of each second-loop point.
- * @param props.fromRule The first loop's tangent rule.
- * @param props.toRule The second loop's tangent rule.
- * @param props.probes Probe slot of each sweep point of both loops, first loop
- *   then second, -1 for a curve point.
- * @param props.rows Faces along each column.
- * @param props.tension Tangent length over chord length.
- * @param props.interior Vertex index of row `j` of column `k` at `k * (rows -
- *   1) + j - 1`.
- * @returns The writer, which reads the loops' vertices and writes the interior
- *   into the same buffer.
+ * Parameter props.from: The first loop's points, in order; their `sweep` and
+ * `curve` decide directions.
+ * Parameter props.to: The second loop's points, the same count.
+ * Parameter props.fromIndex: Vertex index of each first-loop point.
+ * Parameter props.toIndex: Vertex index of each second-loop point.
+ * Parameter props.fromRule: The first loop's tangent rule.
+ * Parameter props.toRule: The second loop's tangent rule.
+ * Parameter props.probes: Probe slot of each sweep point of both loops, first loop
+ * then second, -1 for a curve point.
+ * Parameter props.rows: Faces along each column.
+ * Parameter props.tension: Tangent length over chord length.
+ * Parameter props.interior: Vertex index of row `j` of column `k` at `k * (rows -
+ * 1) + j - 1`.
+ * Returns: The writer, which reads the loops' vertices and writes the interior
+ * into the same buffer.
  */
 export const rigAutoMovieSurfaceBridge: (
   props: IAutoMovieRigSurfaceBridge.IProps,

@@ -1,4 +1,4 @@
-/**
+/*
  * The first grid instant after a read one that a measured margin does not
  * certify, by conservative advancement (Mirtich 1996, Impulse-based Dynamic
  * Simulation of Rigid Body Systems, ch. 3): a check reads a margin `d` at an
@@ -19,17 +19,16 @@
  * that read every instant would reach first with an uncertified margin, so a
  * scan that reads only the returned instants finds the same first violation as
  * a scan of every instant.
- *
- * @param at The index of the instant read.
- * @param end The index of the grid's last instant, at least `at`.
- * @param margin How far the checked value may move from its reading at `at`
- *   before it can violate, in the unit `travel` gives; zero, negative or NaN
- *   certifies nothing.
- * @param travel The bound on the value's movement from `at` to a later index,
- *   or undefined where none is certified.
- * @returns The least index in `(at, end]` that is not certified, or `end + 1`
- *   when every instant to the end is.
- * @throws {RangeError} When the bound is negative or not a number.
+ * Parameter at: The index of the instant read.
+ * Parameter end: The index of the grid's last instant, at least `at`.
+ * Parameter margin: How far the checked value may move from its reading at `at`
+ * before it can violate, in the unit `travel` gives; zero, negative or NaN
+ * certifies nothing.
+ * Parameter travel: The bound on the value's movement from `at` to a later index,
+ * or undefined where none is certified.
+ * Returns: The least index in `(at, end]` that is not certified, or `end + 1`
+ * when every instant to the end is.
+ * When the bound is negative or not a number.
  */
 export function advanceAutoMovieGrid(
   at: number,

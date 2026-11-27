@@ -20,9 +20,11 @@ import { ProjectileDragFlightImplementation } from "./ProjectileDragFlightImplem
 import { projectilePlaneDeparture } from "./projectilePlaneDeparture";
 import { projectileShapeDeparture } from "./projectileShapeDeparture";
 
-/** Private implementation of the projectile operation and its related readers. */
+/*
+ * Private implementation of the projectile operation and its related readers.
+ */
 export namespace ProjectileFirstContactImplementation {
-  /**
+  /*
    * A projectile's first contact with any of several colliders over a span of its
    * flight: when, where on the struck surface, the surface's outward normal
    * there, and which collider.
@@ -55,18 +57,17 @@ export namespace ProjectileFirstContactImplementation {
    * continuously bounded finite convex shape for a drag-free ball. Rotating tails
    * and opaque colliders retain initial reporting unless their physical model
    * supplies a certificate.
-   *
-   * @param projectile The flight.
-   * @param colliders What it may meet; `projectilePlaneCollider` and
-   *   `projectileShapeCollider` build the common ones.
-   * @param span Seconds since launch the search covers.
-   * @param options The projectile's radius and tail, thinnest collider and
-   *   optional already-resolved initial collider.
-   * @returns The first contact, or null when the flight meets nothing in the
-   *   span.
-   * @throws {RangeError} When the span is not finite and forward, thickness is
-   *   not finite and positive, radius is not finite and non-negative, a tail
-   *   lacks an attitude, or a departure certificate is invalid.
+   * Parameter projectile: The flight.
+   * Parameter colliders: What it may meet; `projectilePlaneCollider` and
+   * `projectileShapeCollider` build the common ones.
+   * Parameter span: Seconds since launch the search covers.
+   * Parameter options: The projectile's radius and tail, thinnest collider and
+   * optional already-resolved initial collider.
+   * Returns: The first contact, or null when the flight meets nothing in the
+   * span.
+   * When the span is not finite and forward, thickness is
+   * not finite and positive, radius is not finite and non-negative, a tail
+   * lacks an attitude, or a departure certificate is invalid.
    */
   export function projectileFirstContact(
     projectile: IAutoMovieProjectile,
@@ -216,7 +217,7 @@ export namespace ProjectileFirstContactImplementation {
     };
   }
 
-  /**
+  /*
    * The sweep's step: `thickness` over the largest speed any point of the
    * projectile reaches in the span, so it moves less than the thinnest collider
    * in one step. A drag-free flight's squared speed is convex in time, so its
@@ -225,11 +226,10 @@ export namespace ProjectileFirstContactImplementation {
    * the span, an infinite one where the thickness outruns any speed, is the
    * span itself. A collider's departure certificate reads the same step as the
    * scan's next grid second.
-   *
-   * @param projectile The flight.
-   * @param span Seconds since launch the search covers.
-   * @param options The projectile's tail and the thinnest collider.
-   * @returns The step, seconds.
+   * Parameter projectile: The flight.
+   * Parameter span: Seconds since launch the search covers.
+   * Parameter options: The projectile's tail and the thinnest collider.
+   * Returns: The step, seconds.
    */
   export function projectileContactStep(
     projectile: IAutoMovieProjectile,
@@ -243,17 +243,16 @@ export namespace ProjectileFirstContactImplementation {
     );
   }
 
-  /**
+  /*
    * The largest speed any point of the projectile reaches between two seconds
    * since launch, metres per second: a drag-free flight's larger end speed (its
    * squared speed is convex in time), a drag flight's finite global bound
    * (`projectileDragFlight.fastest`), plus a spinning tail's turning speed. The
    * sweep's step and its conservative advancement both read it.
-   *
-   * @param projectile The flight.
-   * @param span Seconds since launch.
-   * @param options The projectile's tail.
-   * @returns The bound, metres per second.
+   * Parameter projectile: The flight.
+   * Parameter span: Seconds since launch.
+   * Parameter options: The projectile's tail.
+   * Returns: The bound, metres per second.
    */
   export function projectileContactSpeed(
     projectile: IAutoMovieProjectile,
@@ -282,13 +281,12 @@ export namespace ProjectileFirstContactImplementation {
     return centre + turning;
   }
 
-  /**
+  /*
    * A fixed plane, solid on the side its normal points away from: the ground.
-   *
-   * @param id The collider's id.
-   * @param point A point of the plane, world metres.
-   * @param normal Its outward normal, non-zero.
-   * @returns The collider.
+   * Parameter id: The collider's id.
+   * Parameter point: A point of the plane, world metres.
+   * Parameter normal: Its outward normal, non-zero.
+   * Returns: The collider.
    */
   export function projectilePlaneCollider(
     id: string,
@@ -296,7 +294,9 @@ export namespace ProjectileFirstContactImplementation {
     normal: IAutoMovieVector3,
   ): IAutoMovieProjectileFirstContact.ICollider {
     const n: IAutoMovieVector3 = Vector3.normalize(normal);
-    /** The signed plane height of one endpoint. */
+    /*
+     * The signed plane height of one endpoint.
+     */
     const height = (endpoint: IAutoMovieVector3): number =>
       Vector3.dot(Vector3.subtract(endpoint, point), n);
     return {
@@ -326,7 +326,7 @@ export namespace ProjectileFirstContactImplementation {
     };
   }
 
-  /**
+  /*
    * An admitted convex collider placed by a fixed frame or by a reading on the
    * supplied flight clock. A fixed frame certifies an explicitly resolved
    * departure by the shape's supporting plane at the contact
@@ -336,12 +336,11 @@ export namespace ProjectileFirstContactImplementation {
    * positive-radius sphere on a drag-free flight. The proof only reaches an
    * observed positive clearance for this pair. An opaque reader, or missing
    * continuous bounds, preserves initial contact.
-   *
-   * @param id The collider's id.
-   * @param shape The shape, in its parent's frame.
-   * @param pose A fixed parent pose, an opaque pose reader or a continuously
-   *   bounded pose path in launch seconds.
-   * @returns The collider.
+   * Parameter id: The collider's id.
+   * Parameter shape: The shape, in its parent's frame.
+   * Parameter pose: A fixed parent pose, an opaque pose reader or a continuously
+   * bounded pose path in launch seconds.
+   * Returns: The collider.
    */
   export function projectileShapeCollider(
     id: string,

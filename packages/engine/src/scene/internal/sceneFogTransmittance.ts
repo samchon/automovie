@@ -1,6 +1,6 @@
 import { IAutoMovieFog } from "@automovie/interface";
 
-/**
+/*
  * FogExp2 transmittance at axial camera depth in metres: T(d) = exp(-(density *
  * d)^2). Consumers blend subject * T with fog.color * (1 - T), following the
  * same atmosphere law selected by viewer fog setup.

@@ -8,7 +8,7 @@ import type {
 import { swivelArcs } from "../swivelArcs";
 import { swivelJointReadings } from "../swivelJointReadings";
 
-/**
+/*
  * The swivels at which each limit of a joint's three-angle box is least
  * violated, for a joint whose bone-local rotation is a fixed rotation turned
  * about a fixed axis by the swivel (the chain root of `hingedArmSwivel.pose`).
@@ -28,11 +28,10 @@ import { swivelJointReadings } from "../swivelJointReadings";
  * (`swivelJointReadings.interval`), and a swing cone at the swivel where the
  * joint's twist axis turns least from rest, the greatest `cos f · cos a`
  * (`swivelJointReadings.cone`).
- *
- * @param props The joint and its rotation by swivel; `joint` is not read.
- * @returns The swivels, degrees: the cone's and at most one a bound in each
- *   chart; null for an unconstrained joint or one gated by swing and twist,
- *   whose range the box does not read.
+ * Parameter props: The joint and its rotation by swivel; `joint` is not read.
+ * Returns: The swivels, degrees: the cone's and at most one a bound in each
+ * chart; null for an unconstrained joint or one gated by swing and twist,
+ * whose range the box does not read.
  */
 export function boxLeastSwivels(
   props: IAutoMovieBoxExcludedSwivels.IProps,
@@ -78,10 +77,12 @@ export function boxLeastSwivels(
   return swivels;
 }
 
-/** A joint's three angles as the swivel reads them (`swivelJointReadings.of`). */
+/*
+ * A joint's three angles as the swivel reads them (`swivelJointReadings.of`).
+ */
 type IReading = ReturnType<typeof swivelJointReadings.of>;
 
-/**
+/*
  * Whether some swivel lies past the bound: the sinusoid's greatest value is
  * positive.
  */

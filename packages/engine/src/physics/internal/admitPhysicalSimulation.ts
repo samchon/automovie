@@ -5,7 +5,7 @@ import { admitPhysicalReleasePolicy } from "./admitPhysicalReleasePolicy";
 import { admitPhysicalTargets } from "./admitPhysicalTargets";
 import { validatePhysicalProfile } from "./validatePhysicalProfile";
 
-/**
+/*
  * Admit complete populations, floor dimensions and work budgets before identity
  * or world allocation.
  */

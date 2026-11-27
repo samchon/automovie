@@ -12,7 +12,7 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { ballStrikeCaseBall } from "./internal/ballStrikeCaseBall";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the ball-strike family: `ball-kick`, a standing instep kick
  * of a 0.11 m ball lying before the right foot, 0.15 m ahead of the toes.
  *
@@ -21,9 +21,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  * within 15 mm of the ball's surface (the issue's foot-within-15-mm bound); and
  * no sole socket of the kicking foot below the floor by more than 10 mm at any
  * frame.
- *
- * @param bodies The sweep bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function ballStrikeCases(
   bodies: readonly string[] = ["m-average"],

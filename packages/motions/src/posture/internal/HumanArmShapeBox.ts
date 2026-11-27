@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * The signed distance to the box enclosing the hull in its local frame. Inside
  * the box, the bound is the negative distance to the nearest face. A non-hull
  * yields negative infinity so the exact shape query stays eligible.
@@ -13,10 +13,9 @@ import type {
  * (`physicalShapeSegmentDistance`), and the box is the hull points' least and
  * greatest coordinates on each of the frame's axes, a constant of the hull's
  * points.
- *
- * @param shape The placed shape.
- * @param p The point, world metres.
- * @returns A lower bound on signed clearance in metres.
+ * Parameter shape: The placed shape.
+ * Parameter p: The point, world metres.
+ * Returns: A lower bound on signed clearance in metres.
  */
 export function HumanArmShapeBox(
   shape: IAutoMovieMotionHumanArmGeometry.IShape,
@@ -52,13 +51,14 @@ export function HumanArmShapeBox(
   return Math.sqrt(x * x + y * y + z * z) - ROUNDING;
 }
 
-/** The local box used to bound signed distance to a hull. */
+/*
+ * The local box used to bound signed distance to a hull.
+ */
 export namespace HumanArmShapeBox {
-  /**
+  /*
    * Take a fixed obstacle's axis extrema once when its frame is prepared.
-   *
-   * @param shape The obstacle's borrowed shape.
-   * @returns The hull's local least x, y, z and greatest x, y, z, in metres.
+   * Parameter shape: The obstacle's borrowed shape.
+   * Returns: The hull's local least x, y, z and greatest x, y, z, in metres.
    */
   export function prepare(
     shape: IAutoMovieMotionHumanArmGeometry.IShape["shape"],
@@ -67,7 +67,9 @@ export namespace HumanArmShapeBox {
   }
 }
 
-/** Pack the vertex extrema without changing their order or arithmetic. */
+/*
+ * Pack the vertex extrema without changing their order or arithmetic.
+ */
 function extrema(points: readonly IAutoMovieVector3[]): Float64Array {
   const box: Float64Array = new Float64Array([
     Infinity,
@@ -88,10 +90,12 @@ function extrema(points: readonly IAutoMovieVector3[]): Float64Array {
   return box;
 }
 
-/** The record of `IUnturnQ`'s site. */
+/*
+ * The record of `IUnturnQ`'s site.
+ */
 type IUnturnQ = { x: number; y: number; z: number; w: number };
 
-/**
+/*
  * A vector turned by the inverse of a unit rotation: the rotation's conjugate
  * applied.
  */
@@ -115,7 +119,7 @@ function unturn(
 }
 
 
-/**
+/*
  * Metres taken off the box's distance: far more than the rounding of two
  * rotations and three differences of points a few metres from the origin (about
  * 1e-15 m).

@@ -1,7 +1,7 @@
 import type { IAutoMovieRigidTransform } from "@automovie/interface";
 import { Matrix4, Quaternion, Vector3 } from "three";
 
-/**
+/*
  * Read a positively oriented rigid basis from an admitted finite affine matrix.
  * Scale is discarded only when the original basis can be reconstructed from
  * positive axes and an orthonormal rotation at the supplied tolerance.

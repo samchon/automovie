@@ -10,7 +10,7 @@ import { AutoMovieArchetypeFrame } from "../AutoMovieArchetypeFrame";
 import { AutoMovieArchetypeRefusal } from "../AutoMovieArchetypeRefusal";
 import { AutoMovieArchetypeUnits } from "../AutoMovieArchetypeUnits";
 
-/**
+/*
  * Declared wheel support and exact vertical coupling geometry for planar
  * towing.
  */
@@ -45,24 +45,32 @@ export namespace ArchetypeTowing {
    */
   export type Ground = (x: number, z: number) => IPlane;
 
-  /**
+  /*
    * Prepared geometric operations read by the existing planar heading
    * integrator.
    */
   export interface IPrepared<Id extends string> {
-    /** Front steering, or null for one planar link. */
+    /*
+     * Front steering, or null for one planar link.
+     */
     front: IFront<Id> | null;
-    /** Rear-to-front longitudinal separation, metres; zero for one link. */
+    /*
+     * Rear-to-front longitudinal separation, metres; zero for one link.
+     */
     body: number;
-    /** Horizontal reach and model-X pitch at a world hitch/ground height. */
+    /*
+     * Horizontal reach and model-X pitch at a world hitch/ground height.
+     */
     height: (hitch: number, ground: number) => { reach: number; pitch: number };
-    /**
+    /*
      * The ground datum under the axle for a hitch and a heading: the course
      * datum without declared terrain, else the height that puts the wheel on
      * the authored plane under the axle.
      */
     ground: (hitch: IAutoMovieVector3, theta: number, datum: number) => number;
-    /** Place the supported vehicle and return front/drawbar travels. */
+    /*
+     * Place the supported vehicle and return front/drawbar travels.
+     */
     pose: (
       hitch: IAutoMovieVector3,
       ground: number,
@@ -74,32 +82,39 @@ export namespace ArchetypeTowing {
     };
   }
 
-  /**
+  /*
    * What `prepare` reads of a towed ride's options: explicit axle and front
    * data, producer support and optional authored ground.
    */
   export interface IOptions<Id extends string> {
-    /** Explicit model-space axle point, metres. */
+    /*
+     * Explicit model-space axle point, metres.
+     */
     axle?: IAutoMovieVector3;
-    /** Explicit front steering pivot and articulation. */
+    /*
+     * Explicit front steering pivot and articulation.
+     */
     front?: IFront<Id>;
-    /** Producer-read support. */
+    /*
+     * Producer-read support.
+     */
     support?: Support<Id>;
-    /** Authored ground under a single axle; the course datum when absent. */
+    /*
+     * Authored ground under a single axle; the course datum when absent.
+     */
     ground?: Ground;
   }
 
-  /**
+  /*
    * Admit one producer-declared towing geometry without inferring a vehicle
    * kind.
-   *
-   * @param trailer Neutral source, with its own coupling/articulation frames.
-   * @param coupling Source coupling contact id.
-   * @param options Existing explicit axle/front data plus optional support, and
-   *   optional authored ground under a single axle.
-   * @returns Shared height/projection/placement operations for this source.
-   * @throws {AutoMovieArchetypeRefusal} For contradictory geometry, invalid
-   *   points/axes, unsupported heights or an unreachable vertical hitch.
+   * Parameter trailer: Neutral source, with its own coupling/articulation frames.
+   * Parameter coupling: Source coupling contact id.
+   * Parameter options: Existing explicit axle/front data plus optional support, and
+   * optional authored ground under a single axle.
+   * Returns: Shared height/projection/placement operations for this source.
+   * For contradictory geometry, invalid
+   * points/axes, unsupported heights or an unreachable vertical hitch.
    */
   export function prepare<Id extends string, D extends string>(
     trailer: AutoMovieArchetype<Id, D>,
@@ -257,7 +272,9 @@ export namespace ArchetypeTowing {
     const free: boolean =
       support?.kind === "singleAxle" || pitchId !== undefined;
 
-    /** One lever gives both the heading projection and the exact supported pose. */
+    /*
+     * One lever gives both the heading projection and the exact supported pose.
+     */
     function height(
       hitch: number,
       ground: number,
@@ -293,7 +310,7 @@ export namespace ArchetypeTowing {
         Math.atan2(qy, qz) - Math.atan2(vertical, forward * reach);
       return { reach, pitch: Math.atan2(Math.sin(angle), Math.cos(angle)) };
     }
-    /**
+    /*
      * The datum that seats the wheel on the authored plane under the solved
      * axle.
      */
@@ -419,7 +436,7 @@ export namespace ArchetypeTowing {
       },
     };
 
-    /**
+    /*
      * Coordinate contradictions are refused, rather than choosing one input
      * silently.
      */
@@ -438,7 +455,9 @@ export namespace ArchetypeTowing {
       );
     }
 
-    /** A missing declared freedom is an actionable model/support refusal. */
+    /*
+     * A missing declared freedom is an actionable model/support refusal.
+     */
     function refuse(axis: string, reason: string): never {
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
@@ -452,7 +471,9 @@ export namespace ArchetypeTowing {
     }
   }
 
-  /** Refuse a front axle whose required steering exceeds its lock. */
+  /*
+   * Refuse a front axle whose required steering exceeds its lock.
+   */
   export function checkSteering<Id extends string, D extends string>(
     trailer: AutoMovieArchetype<Id, D>,
     front: IFront<Id> | null,

@@ -6,7 +6,7 @@ import {
 import { Vector3 } from "../../math/Vector3";
 import { AUTOMOVIE_FULL_TURN_EPSILON } from "../AUTOMOVIE_FULL_TURN_EPSILON";
 
-/**
+/*
  * Validate the one degree of freedom a moving member travels on.
  *
  * The label names what is moving so the refusal reads as the author wrote it: a
@@ -19,11 +19,10 @@ import { AUTOMOVIE_FULL_TURN_EPSILON } from "../AUTOMOVIE_FULL_TURN_EPSILON";
  * `2 * PI + AUTOMOVIE_FULL_TURN_EPSILON` radians for the swept-envelope solver.
  * Prismatic values are metres and revolute values radians. Findings use
  * `path`.
- *
- * @param motion Travel to check.
- * @param path Violation path of the motion.
- * @param label What is moving, such as `panel` or `carriage`.
- * @param collector Sink that receives the violations.
+ * Parameter motion: Travel to check.
+ * Parameter path: Violation path of the motion.
+ * Parameter label: What is moving, such as `panel` or `carriage`.
+ * Parameter collector: Sink that receives the violations.
  */
 export function validateBuiltTravelMotion(
   motion: IAutoMovieTravelMotion,
@@ -72,5 +71,7 @@ export function validateBuiltTravelMotion(
     );
 }
 
-/** A travel axis this short or shorter has no direction. */
+/*
+ * A travel axis this short or shorter has no direction.
+ */
 const AXIS_EPSILON: number = 1e-12;

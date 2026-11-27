@@ -20,47 +20,46 @@ import { mixHumanPosture } from "../../posture/internal/mixHumanPosture";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * A wire flight's touches (`IAutoMovieMotionHumanWireFlight.ITouch`): each hand
  * or foot meets its surface around its share of the flight, coming in and going
  * out over `TOUCH` on either side, from the flight's own limb.
  */
 export namespace wireFlightTouches {
-  /**
+  /*
    * How long a touch comes in before its share and goes out after, seconds:
    * authored.
    */
   export const TOUCH: number = 0.3;
 
-  /**
+  /*
    * The shoulder's height on a standing body, in statures (Drillis and Contini
    * 1966: 0.818).
    */
   export const SHOULDER: number = 0.818;
 
-  /**
+  /*
    * The ankle's height above the sole, in statures (Drillis and Contini 1966:
    * 0.039).
    */
   export const ANKLE: number = 0.039;
 
-  /**
+  /*
    * How far the wrist stands off a surface the palm lies on, metres: a palm's
    * half thickness.
    */
   export const PALM: number = 0.015;
 
-  /**
+  /*
    * The flight's plan with its touches.
-   *
-   * @param context The action's context.
-   * @param held The flight's plan.
-   * @param seconds The flight's time, seconds.
-   * @param root The root's point at a second of the flight.
-   * @param touches The touches.
-   * @returns The plan with the touches.
-   * @throws {HumanRefusal} On a touch's `at` outside the flight, and on its
-   *   `target` beyond the limb's reach from the path.
+   * Parameter context: The action's context.
+   * Parameter held: The flight's plan.
+   * Parameter seconds: The flight's time, seconds.
+   * Parameter root: The root's point at a second of the flight.
+   * Parameter touches: The touches.
+   * Returns: The plan with the touches.
+   * On a touch's `at` outside the flight, and on its
+   * `target` beyond the limb's reach from the path.
    */
   export function apply(
     context: Pick<IAutoMovieMotionHumanActionContext, TouchContext>,
@@ -285,47 +284,77 @@ export namespace wireFlightTouches {
     };
   }
 
-  /**
+  /*
    * A ramp's end: the flight's own limb joint and its knee or elbow, in the
    * root's frame, metres.
    */
   interface IRampKey {
-    /** The wrist or ankle. */
+    /*
+     * The wrist or ankle.
+     */
     point: IAutoMovieVector3;
-    /** The elbow or knee. */
+    /*
+     * The elbow or knee.
+     */
     bend: IAutoMovieVector3;
   }
 
-  /** A touch's ramp keys: the two ends of its ramp in and of its ramp out. */
+  /*
+   * A touch's ramp keys: the two ends of its ramp in and of its ramp out.
+   */
   interface IRampKeys {
-    /** The ramp in's start and end. */
+    /*
+     * The ramp in's start and end.
+     */
     in: readonly [IRampKey, IRampKey];
-    /** The ramp out's start and end. */
+    /*
+     * The ramp out's start and end.
+     */
     out: readonly [IRampKey, IRampKey];
   }
 
-  /** One touch placed on the flight. */
+  /*
+   * One touch placed on the flight.
+   */
   interface IPlaced {
-    /** The authored touch. */
+    /*
+     * The authored touch.
+     */
     readonly touch: IAutoMovieMotionHumanWireFlight.ITouch;
-    /** Its second in the flight. */
+    /*
+     * Its second in the flight.
+     */
     readonly at: number;
-    /** Whether a foot touches. */
+    /*
+     * Whether a foot touches.
+     */
     readonly leg: boolean;
-    /** The limb channel this touch writes. */
+    /*
+     * The limb channel this touch writes.
+     */
     readonly limb: AutoMovieHumanLimb;
-    /** The prepared ramp endpoints in the flight's root frame. */
+    /*
+     * The prepared ramp endpoints in the flight's root frame.
+     */
     readonly ramp: IRampKeys;
-    /** The wrist's or the ankle's goal there, world metres. */
+    /*
+     * The wrist's or the ankle's goal there, world metres.
+     */
     readonly point: IAutoMovieVector3;
   }
 
-  /** An admitted contact awaiting its fixed ramp endpoint reads. */
+  /*
+   * An admitted contact awaiting its fixed ramp endpoint reads.
+   */
   interface IAdmitted extends Omit<IPlaced, "ramp"> {
-    /** The side of the body, used to select the joint and bend bones. */
+    /*
+     * The side of the body, used to select the joint and bend bones.
+     */
     readonly side: AutoMovieHumanSide;
   }
 }
 
-/** The flight stage and its typed target reader. */
+/*
+ * The flight stage and its typed target reader.
+ */
 type TouchContext = "body" | "aim" | "start";

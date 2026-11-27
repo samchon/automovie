@@ -211,13 +211,13 @@ export namespace AutoMovieLoftCoefficientSource {
   }
 }
 
-/**
+/*
  * Principal coefficient values remain direct data, with optional explicit
  * pole-coordinate derivatives.
  */
 type Layer = IAutoMovieLoftChain.ILayer;
 
-/**
+/*
  * Station forward jet computed from the stable inverse map, absent at an actual
  * singularity or nonfinite result.
  */
@@ -237,7 +237,7 @@ function forward(
   return result;
 }
 
-/**
+/*
  * Direct layer endpoint in its retained parameter; no parallel value copy can
  * become stale.
  */
@@ -249,7 +249,7 @@ function endpoint(layer: Layer): IAutoMovieStationHermite.IEnd {
   };
 }
 
-/**
+/*
  * Present interpolation metadata must carry its declared map and matching
  * derivative widths.
  */
@@ -267,7 +267,7 @@ function validate(layer: Layer): void {
     );
 }
 
-/**
+/*
  * Actual closing endpoint membership, independent of the first/last surviving
  * section.
  */
@@ -275,7 +275,9 @@ function closed(chain: IAutoMovieLoftChain, end: "bottom" | "top"): boolean {
   return chain.pole?.end === end || chain.opposite?.end === end;
 }
 
-/** Station of a real parameter pole, absent on its open side. */
+/*
+ * Station of a real parameter pole, absent on its open side.
+ */
 function poleStation(
   parameter: IAutoMovieConstructionOutlineParameter,
   end: "bottom" | "top",
@@ -287,7 +289,7 @@ function poleStation(
       : undefined;
 }
 
-/**
+/*
  * Numeric map equality preserves interpolation under value copying without
  * hidden registration identity.
  */

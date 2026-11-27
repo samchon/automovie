@@ -9,18 +9,17 @@ import type {
 
 import { HumanFoot } from "./HumanFoot";
 
-/**
+/*
  * Prepare a foot's fixed articulation while its sole contact moves in space.
- *
- * @param body The fixed body and sole socket owner.
- * @param side The foot.
- * @param pivot The socket whose position varies.
- * @param heading The fixed heading, degrees about +Y.
- * @param pitch The fixed pitch, degrees, positive toes up.
- * @param toes The fixed toe flexion, degrees; zero when absent.
- * @param roll The fixed foot roll, degrees; zero when absent.
- * @returns A reader of the contact in world metres with `HumanFoot.pivot`'s
- *   placement.
+ * Parameter body: The fixed body and sole socket owner.
+ * Parameter side: The foot.
+ * Parameter pivot: The socket whose position varies.
+ * Parameter heading: The fixed heading, degrees about +Y.
+ * Parameter pitch: The fixed pitch, degrees, positive toes up.
+ * Parameter toes: The fixed toe flexion, degrees; zero when absent.
+ * Parameter roll: The fixed foot roll, degrees; zero when absent.
+ * Returns: A reader of the contact in world metres with `HumanFoot.pivot`'s
+ * placement.
  */
 export function prepareHumanFootAt(
   body: IAutoMovieMotionHumanBody,
@@ -46,5 +45,7 @@ export function prepareHumanFootAt(
   });
 }
 
-/** The alternatives of `PrepareHumanFootAtPivot`'s site. */
+/*
+ * The alternatives of `PrepareHumanFootAtPivot`'s site.
+ */
 type PrepareHumanFootAtPivot = "heel" | "ball" | "toe" | "sole" | "mtp";

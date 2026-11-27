@@ -1,6 +1,6 @@
 import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 
-/**
+/*
  * Checks the decoded presentation and classifies each black, frozen and silent
  * interval: inside an authored allowance it is intentional; where the encoder's
  * own input (the drawn frames or the padded soundtrack, measured the same way)
@@ -14,11 +14,10 @@ import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
  * encoding can raise true peak above the value before encoding. Findings retain
  * the effective thresholds and the source evidence needed to reproduce the
  * audit.
- *
- * @param props The hashed artifact, commissioned clock, decoded stream evidence
- *   and the reference measurement of the encoder's input.
- * @returns The coverage and content findings and whether they permit delivering
- *   the artifact.
+ * Parameter props: The hashed artifact, commissioned clock, decoded stream evidence
+ * and the reference measurement of the encoder's input.
+ * Returns: The coverage and content findings and whether they permit delivering
+ * the artifact.
  */
 export function auditAutoMovieDeliveryContent(
   props: Audit,
@@ -181,7 +180,7 @@ const ZERO: Timestamp = { ticks: 0, timeBase: [1, 1] };
 
 const MEDIA: readonly Media[] = ["video", "audio"];
 
-/**
+/*
  * Checks the decoded audio's measured loudness against the targets: integrated
  * loudness outside the tolerance blocks, and so does a true peak over the
  * maximum. A stream without a measurement, or whose blocks all fall under the
@@ -224,7 +223,7 @@ function loudnessFindings(
   return findings;
 }
 
-/**
+/*
  * Checks that decoded evidence starts at zero and continuously covers the
  * commissioned presentation.
  */
@@ -244,7 +243,7 @@ function coversFilm(
   );
 }
 
-/**
+/*
  * Indexes the drawn source's own detector intervals for one medium, clipped to
  * the film. Returns null when the reference does not completely cover the film,
  * so no interval can be attributed to it.
@@ -279,7 +278,7 @@ function referenceWindows(
   return mergeAllowances(windows, filmEnd);
 }
 
-/**
+/*
  * Splits one measured interval at every allowance and reference boundary and
  * labels each piece: allowed pieces are intentional, the rest are drawn when
  * the reference shows the same condition, unexpected when the reference is
@@ -317,7 +316,9 @@ function classify(
   return pieces;
 }
 
-/** Whether a sorted list of half-open windows contains an instant. */
+/*
+ * Whether a sorted list of half-open windows contains an instant.
+ */
 function contains(windows: readonly Interval[], instant: Timestamp): boolean {
   return windows.some(
     (window) =>
@@ -325,34 +326,46 @@ function contains(windows: readonly Interval[], instant: Timestamp): boolean {
   );
 }
 
-/** Checks the positive integer components of a native clock. */
+/*
+ * Checks the positive integer components of a native clock.
+ */
 function validRatio(ratio: Ratio): boolean {
   return ratio.every((value) => value > 0);
 }
 
-/** Guards exact conversion of a timestamp into a rational number. */
+/*
+ * Guards exact conversion of a timestamp into a rational number.
+ */
 function validTimestamp({ timeBase }: Timestamp): boolean {
   return validRatio(timeBase);
 }
 
-/** Returns the numerator of a timestamp expressed in seconds. */
+/*
+ * Returns the numerator of a timestamp expressed in seconds.
+ */
 function numerator({ ticks, timeBase }: Timestamp): bigint {
   return BigInt(ticks) * BigInt(timeBase[0]);
 }
 
-/** Returns the denominator of a timestamp expressed in seconds. */
+/*
+ * Returns the denominator of a timestamp expressed in seconds.
+ */
 function denominator({ timeBase }: Timestamp): bigint {
   return BigInt(timeBase[1]);
 }
 
-/** Orders two timestamps without rounding either clock. */
+/*
+ * Orders two timestamps without rounding either clock.
+ */
 function compare(left: Timestamp, right: Timestamp): number {
   const delta =
     numerator(left) * denominator(right) - numerator(right) * denominator(left);
   return delta < 0n ? -1 : delta > 0n ? 1 : 0;
 }
 
-/** Checks an interval against a duration without rounding its boundaries. */
+/*
+ * Checks an interval against a duration without rounding its boundaries.
+ */
 function durationAtLeast(
   start: Timestamp,
   end: Timestamp,
@@ -366,7 +379,9 @@ function durationAtLeast(
   );
 }
 
-/** Checks the native video endpoint or the two nearest audio sample boundaries. */
+/*
+ * Checks the native video endpoint or the two nearest audio sample boundaries.
+ */
 function matchesEnd(
   media: Media,
   stream: Decoded,
@@ -389,7 +404,9 @@ function matchesEnd(
   );
 }
 
-/** Locates the authored delivery frame containing a measured video boundary. */
+/*
+ * Locates the authored delivery frame containing a measured video boundary.
+ */
 function outputFrame(timestamp: Timestamp, [frames, seconds]: Ratio): number {
   return Number(
     (numerator(timestamp) * BigInt(frames)) /
@@ -397,7 +414,9 @@ function outputFrame(timestamp: Timestamp, [frames, seconds]: Ratio): number {
   );
 }
 
-/** Indexes authored half-open windows and joins overlapping or adjoining ranges. */
+/*
+ * Indexes authored half-open windows and joins overlapping or adjoining ranges.
+ */
 function mergeAllowances(
   authored: readonly IAutoMovieDeliveryContentAudit.IAllowance[],
   filmEnd: Timestamp,

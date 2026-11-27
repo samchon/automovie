@@ -219,7 +219,7 @@ export namespace AutoMovieSolidBlendChain {
     const L: number = chord / count;
     if (!(L > 0)) return null;
 
-    /**
+    /*
      * Every layer uses the same physical chord clock, with station derivatives
      * scaled by L; `rows` holds each column's point and its two cross
      * derivatives.
@@ -239,7 +239,9 @@ export namespace AutoMovieSolidBlendChain {
         AutoMovieVector3Tuple,
       ])[],
     ): IAutoMovieLoftChain.ILayer => {
-      /** World X/Z ribbon components in the level storage plane. */
+      /*
+       * World X/Z ribbon components in the level storage plane.
+       */
       const plane: (k: 0 | 1 | 2, by: number) => number[] = (
         k: 0 | 1 | 2,
         by: number,
@@ -256,7 +258,9 @@ export namespace AutoMovieSolidBlendChain {
           ),
         );
 
-      /** The world Y component is the lift along the level frame's normal. */
+      /*
+       * The world Y component is the lift along the level frame's normal.
+       */
       const height: (k: 0 | 1 | 2, by: number) => number[] = (
         k: 0 | 1 | 2,
         by: number,
@@ -344,14 +348,18 @@ export namespace AutoMovieSolidBlendChain {
   }
 }
 
-/** The world's level frame: `u = +X`, `v = +Z`, normal `v x u = +Y`. */
+/*
+ * The world's level frame: `u = +X`, `v = +Z`, normal `v x u = +Y`.
+ */
 const LEVEL: IAutoMovieLoftSectionFrame = {
   origin: [0, 0, 0],
   u: [1, 0, 0],
   v: [0, 0, 1],
 };
 
-/** A frame that does not move with station. */
+/*
+ * A frame that does not move with station.
+ */
 const STILL: IAutoMovieLoftSectionFrame = {
   origin: [0, 0, 0],
   u: [0, 0, 0],

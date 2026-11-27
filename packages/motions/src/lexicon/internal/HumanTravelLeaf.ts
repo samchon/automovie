@@ -34,7 +34,7 @@ import { HumanTravelLeafShown } from "./HumanTravelLeafShown";
 import { HumanTravelLeafWalk } from "./HumanTravelLeafWalk";
 import { HumanTravelLeafWrite } from "./HumanTravelLeafWrite";
 
-/**
+/*
  * Opening a door by its handle and holding it: the hand reaches the handle,
  * closes on it and goes with it while the leaf swings, the person standing, and
  * walking round with the leaf when the arm alone would lose the handle.
@@ -59,22 +59,24 @@ import { HumanTravelLeafWrite } from "./HumanTravelLeafWrite";
  * instant the hand arrives.
  */
 export namespace HumanTravelLeaf {
-  /**
+  /*
    * How far the arm's fit may leave the wrist from where the hold asks it,
    * metres (the campaign's 5 mm contact bound).
    */
   export const HOLD: number = 0.005;
 
-  /** Seconds the hand takes to reach the handle (provisional). */
+  /*
+   * Seconds the hand takes to reach the handle (provisional).
+   */
   export const TAKE: number = 0.6;
 
-  /**
+  /*
    * The most of the arm's length, shoulder to wrist, the handle may be from the
    * shoulder (provisional: the elbow is not locked straight).
    */
   export const REACH: number = 0.97;
 
-  /**
+  /*
    * Open a door by its handle, standing or following its leaf. The plan checks
    * the hold at every 24th of a second from `TAKE` with the arm's own fit:
    * standing first, and only where standing loses the handle, walking with the
@@ -448,20 +450,28 @@ export namespace HumanTravelLeaf {
     };
 }
 
-/** The record of `IOpenDoorWalkedResult`'s site. */
+/*
+ * The record of `IOpenDoorWalkedResult`'s site.
+ */
 type IOpenDoorWalkedResult = {
   point: IAutoMovieVector3;
   normal: IAutoMovieVector3;
 };
 
-/** The alternatives of `OpenDoorAcross`'s site. */
+/*
+ * The alternatives of `OpenDoorAcross`'s site.
+ */
 type OpenDoorAcross = 1 | -1;
 
-/** The record of `IOpenDoorHandleMoved`'s site. */
+/*
+ * The record of `IOpenDoorHandleMoved`'s site.
+ */
 type IOpenDoorHandleMoved = {
   point: IAutoMovieVector3;
   normal: IAutoMovieVector3;
 };
 
-/** The record of `IOpenDoorRest`'s site. */
+/*
+ * The record of `IOpenDoorRest`'s site.
+ */
 type IOpenDoorRest = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };

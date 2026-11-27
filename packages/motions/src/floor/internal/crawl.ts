@@ -52,7 +52,7 @@ import { crawlWhole } from "./crawlWhole";
 import { floorEntry } from "./floorEntry";
 import { prepareDryKneeSupport } from "./prepareDryKneeSupport";
 
-/**
+/*
  * Crawling on hands and knees along the heading, from standing: the body gets
  * down onto hands and knees, then crawls a number of cycles in the diagonal
  * pattern, each hand moving with the opposite knee like a quadruped's trot
@@ -100,20 +100,28 @@ import { prepareDryKneeSupport } from "./prepareDryKneeSupport";
  * and rising from the crawl.
  */
 export namespace crawl {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "crawl";
 
-  /** Cancel table: none yet; a crawl ends on hands and knees. */
+  /*
+   * Cancel table: none yet; a crawl ends on hands and knees.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-  /** The kinds of {@link Kind}, as data. */
+  /*
+   * The kinds of Kind, as data.
+   */
   export const KINDS = [
     "knees",
     "bear",
     "inchworm",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanCrawl.Kind>[];
 
-  /** Each limb's swing start as a share of the cycle: diagonal pairs together. */
+  /*
+   * Each limb's swing start as a share of the cycle: diagonal pairs together.
+   */
   export const PHASES: Readonly<
     Record<IAutoMovieMotionHumanCrawl.Limb, number>
   > = {
@@ -123,48 +131,55 @@ export namespace crawl {
     leftKnee: 0.5,
   };
 
-  /** One cycle's seconds at a 0.93 m hip height (provisional). */
+  /*
+   * One cycle's seconds at a 0.93 m hip height (provisional).
+   */
   export const CYCLE: number = 1.2;
 
-  /** The stride as a share of the thigh (provisional). */
+  /*
+   * The stride as a share of the thigh (provisional).
+   */
   export const STRIDE: number = 0.6;
 
-  /** The share of a cycle a limb is planted (provisional). */
+  /*
+   * The share of a cycle a limb is planted (provisional).
+   */
   export const DUTY: number = 0.6;
 
-  /** A swinging hand's rise, metres (provisional). */
+  /*
+   * A swinging hand's rise, metres (provisional).
+   */
   export const LIFT: number = 0.04;
 
-  /**
+  /*
    * A swinging knee's rise, metres (provisional): the pelvis hikes it, so it
    * clears the floor by less than a hand.
    */
   export const KNEE_LIFT: number = 0.02;
 
-  /**
+  /*
    * A bear crawl's knees over the floor, metres (provisional): an inch or two,
    * as the exercise is cued.
    */
   export const HOVER: number = 0.05;
 
-  /**
+  /*
    * The shoulder's height over the wrist as a share of the upper arm and the
    * forearm: an elbow just short of straight (provisional).
    */
   export const ARM: number = 0.98;
 
-  /**
+  /*
    * Seconds to get onto hands and knees from the knees or a crouch
    * (provisional).
    */
   export const DOWN: number = 1.5;
 
-  /**
+  /*
    * Plan a crawl.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the cycle count is not a positive integer.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the cycle count is not a positive integer.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrawl.IParams>,

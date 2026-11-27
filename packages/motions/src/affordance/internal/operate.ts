@@ -44,7 +44,7 @@ import { operateInsert } from "./operateInsert";
 import { operateInsertRoute } from "./operateInsertRoute";
 import { operateState } from "./operateState";
 
-/**
+/*
  * Operating an articulated thing with one hand while standing: pressing a
  * button along its axis, turning a knob about its axis, pulling or pushing a
  * drawer along its slide, or swinging a hinged door by its handle.
@@ -94,10 +94,12 @@ import { operateState } from "./operateState";
  * stepping round a door and through it; power grips; pouring about a lip.
  */
 export namespace operate {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "operate";
 
-  /**
+  /*
    * The hand drives the part from strokeStart to strokeEnd. The caller selects
    * the body part that supplies the balancing motion.
    */
@@ -106,7 +108,9 @@ export namespace operate {
     to: { event: "strokeEnd" },
   };
 
-  /** Cancel table: the hand lets go of the part and the body stands or walks. */
+  /*
+   * Cancel table: the hand lets go of the part and the body stands or walks.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
@@ -126,13 +130,13 @@ export namespace operate {
     ],
   };
 
-  /**
+  /*
    * May be performed over a carrier, such as seated or while another action
    * carries the body: it claims only the parts it moves.
    */
   export const overlay: boolean = true;
 
-  /**
+  /*
    * The pace of each mechanism's movement (provisional): a button's press in
    * 0.25 s, a knob at 180 degrees a second, a slider at 0.4 m/s, a door's
    * handle at 0.6 m/s along its arc.
@@ -144,26 +148,28 @@ export namespace operate {
     swing: 0.6,
   };
 
-  /**
+  /*
    * The share of the arm's length the wrist is kept within, so the elbow never
    * locks straight on a part (provisional).
    */
   export const REACH: number = 0.97;
 
-  /**
+  /*
    * The vertical share of a knob's axis from which it counts as a lid's, turned
    * with the fingers ahead instead of up.
    */
   export const UPRIGHT: number = Math.SQRT1_2;
 
-  /**
+  /*
    * The most a stoop to a part below the hips adds to the trunk's pitch,
    * degrees: about the straight-legged hip flexion the hamstrings allow, as a
    * normal straight-leg raise reaches roughly 80 degrees (provisional).
    */
   export const STOOP: number = 80;
 
-  /** The width of each part a hand aims at, metres (provisional). */
+  /*
+   * The width of each part a hand aims at, metres (provisional).
+   */
   export const WIDTH: Readonly<
     Record<IAutoMovieMotionHumanOperate.Mechanism["kind"], number>
   > = {
@@ -174,13 +180,14 @@ export namespace operate {
     insert: 0.03,
   };
 
-  /** The moving part's place at a progress of its movement (operateState.at). */
+  /*
+   * The moving part's place at a progress of its movement (operateState.at).
+   */
   export const state: typeof operateState.at = operateState.at;
-  /**
+  /*
    * Plan an operation.
-   *
-   * @param entered The action's context.
-   * @returns The plan.
+   * Parameter entered: The action's context.
+   * Returns: The plan.
    */
   export function plan(
     entered: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams>,
@@ -424,12 +431,16 @@ export namespace operate {
   }
 }
 
-/** The record of `IPlanStroke`'s site. */
+/*
+ * The record of `IPlanStroke`'s site.
+ */
 type IPlanStroke = {
   contact: NonNullable<IAutoMovieMotionHumanArmPhrase.IStrokeProps["contact"]>;
 };
 
-/** The record of `IPACEItem`'s site. */
+/*
+ * The record of `IPACEItem`'s site.
+ */
 type IPACEItem = {
   press: number;
   turn: number;

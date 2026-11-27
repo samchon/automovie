@@ -19,16 +19,15 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { HumanSurfaceBoard } from "./HumanSurfaceBoard";
 import type { prepareSurfboardPhrase } from "./prepareSurfboardPhrase";
 
-/**
+/*
  * The posture of a staged surfboard phrase (`prepareSurfboardPhrase`) at a
  * second: the mount from the water entry onto the prone deck, the paddle
  * outside the rails, the palms' brace and press, the pelvis tucked under the
  * braced chest, and the stand into the side stance on the feet, each carried by
  * the board's frame. Read from the phrase's body, board, phase shares, entry
  * and prone references.
- *
- * @param scope What the phrase stages its posture from.
- * @returns The posture at a second.
+ * Parameter scope: What the phrase stages its posture from.
+ * Returns: The posture at a second.
  */
 export function prepareSurfboardPosture(
   scope: prepareSurfboardPosture.IScope,
@@ -277,86 +276,135 @@ export function prepareSurfboardPosture(
   };
 }
 
-/** What the posture of a staged surfboard phrase reads. */
+/*
+ * What the posture of a staged surfboard phrase reads.
+ */
 export namespace prepareSurfboardPosture {
-  /** What a surfboard phrase stages its posture from. */
+  /*
+   * What a surfboard phrase stages its posture from.
+   */
   export interface IScope {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The board's deck. */
+    /*
+     * The board's deck.
+     */
     board: HumanSurfaceBoard.IDeck;
 
-    /** The phrase's seconds. */
+    /*
+     * The phrase's seconds.
+     */
     duration: number;
 
-    /**
+    /*
      * The board's frame at a share of the phrase.
-     *
-     * @param share The share.
-     * @returns The frame.
+     * Parameter share: The share.
+     * Returns: The frame.
      */
     at: (share: number) => IAutoMovieRigidTransform;
 
-    /** The phase shares (`prepareSurfboardPhrase.SHARES`). */
+    /*
+     * The phase shares (`prepareSurfboardPhrase.SHARES`).
+     */
     phases: typeof prepareSurfboardPhrase.SHARES;
 
-    /** The lead foot. */
+    /*
+     * The lead foot.
+     */
     lead: AutoMovieHumanSide;
 
-    /** The share the first foot takes the deck at. */
+    /*
+     * The share the first foot takes the deck at.
+     */
     firstFoot: number;
 
-    /** The entry posture. */
+    /*
+     * The entry posture.
+     */
     start: IAutoMovieMotionHumanPosture;
 
-    /** The prone paddling posture. */
+    /*
+     * The prone paddling posture.
+     */
     pronePose: IAutoMovieMotionHumanPosture;
 
-    /** The prone posture's bones. */
+    /*
+     * The prone posture's bones.
+     */
     proneBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-    /** The prone hips' height over the sternum, metres. */
+    /*
+     * The prone hips' height over the sternum, metres.
+     */
     proneHeight: number;
 
-    /** The inverse of the prone heading. */
+    /*
+     * The inverse of the prone heading.
+     */
     inverseProne: IAutoMovieQuaternion;
 
-    /** The entry hips, world metres. */
+    /*
+     * The entry hips, world metres.
+     */
     entryHip: IAutoMovieVector3;
 
-    /** The joints the mount blends. */
+    /*
+     * The joints the mount blends.
+     */
     entryJoints: readonly AutoMovieHumanoidBone[];
 
-    /** The rest hips' offset from the root. */
+    /*
+     * The rest hips' offset from the root.
+     */
     hips: IAutoMovieVector3;
 
-    /** The leg's length, metres. */
+    /*
+     * The leg's length, metres.
+     */
     leg: number;
 
-    /** The prone site on the deck. */
+    /*
+     * The prone site on the deck.
+     */
     prone: IAutoMovieVector3;
 
-    /** The front stance site on the deck. */
+    /*
+     * The front stance site on the deck.
+     */
     front: IAutoMovieVector3;
 
-    /** The rear stance site on the deck. */
+    /*
+     * The rear stance site on the deck.
+     */
     rear: IAutoMovieVector3;
 
-    /** The middle of the stance sites. */
+    /*
+     * The middle of the stance sites.
+     */
     stanceMid: IAutoMovieVector3;
 
-    /** Each palm's site on the deck. */
+    /*
+     * Each palm's site on the deck.
+     */
     palms: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
-    /** The two sides, fitted independently. */
+    /*
+     * The two sides, fitted independently.
+     */
     SIDES: readonly AutoMovieHumanSide[];
   }
 }
-/** The alternatives of `TorsoAngles2`'s site. */
+/*
+ * The alternatives of `TorsoAngles2`'s site.
+ */
 type TorsoAngles2 = "yaw" | "pitch" | "roll";
 
-/** The whole-body heading, pitch and roll of a staged surf posture, degrees. */
+/*
+ * The whole-body heading, pitch and roll of a staged surf posture, degrees.
+ */
 type TorsoAngles = Pick<IAutoMovieMotionHumanPosture, TorsoAngles2>;
 
 // The staging coefficients below are provisional. The cited study orders
@@ -364,73 +412,95 @@ type TorsoAngles = Pick<IAutoMovieMotionHumanPosture, TorsoAngles2>;
 // each value is an authored staging choice that the board-sport test
 // bounds through its support and clearance checks, not a measurement.
 
-/**
+/*
  * Turn of the standing body from the nose into the side stance, degrees
  * (provisional).
  */
 const STANCE_TURN: number = 52;
 
-/**
+/*
  * Trunk pitch removed as the palms press, and again as the feet take the deck,
  * degrees (provisional).
  */
 const PRESS_PITCH: number = 38;
 
-/**
+/*
  * Further pitch removed while the pelvis tucks under the braced chest, degrees
  * (provisional).
  */
 const TUCK_PITCH: number = 48;
 
-/** Spine flexion added at the full tuck, degrees (provisional). */
+/*
+ * Spine flexion added at the full tuck, degrees (provisional).
+ */
 const TUCK_SPINE: number = 75;
 
-/**
+/*
  * Hip rise over the prone height at the full brace, in leg lengths
  * (provisional).
  */
 const BRACE_RISE: number = 0.07;
 
-/** Hip rise at the full palm press, in leg lengths (provisional). */
+/*
+ * Hip rise at the full palm press, in leg lengths (provisional).
+ */
 const PRESS_RISE: number = 0.16;
 
-/** Hip rise at the full tuck, in leg lengths (provisional). */
+/*
+ * Hip rise at the full tuck, in leg lengths (provisional).
+ */
 const TUCK_RISE: number = 0.08;
 
-/** Hip rise when standing on the deck, in leg lengths (provisional). */
+/*
+ * Hip rise when standing on the deck, in leg lengths (provisional).
+ */
 const STAND_RISE: number = 0.45;
 
-/**
+/*
  * Lead foot turn from board-backward toward the stance side, degrees
  * (provisional).
  */
 const LEAD_FOOT_TURN: number = 25;
 
-/**
+/*
  * Trail foot turn from board-backward toward the stance side, degrees
  * (provisional).
  */
 const TRAIL_FOOT_TURN: number = 45;
 
-/** Outward paddle reach, as a share of the board's width (provisional). */
+/*
+ * Outward paddle reach, as a share of the board's width (provisional).
+ */
 const PADDLE_REACH: number = 0.45;
 
-/** Vertical paddle dip around the palm site, metres (provisional). */
+/*
+ * Vertical paddle dip around the palm site, metres (provisional).
+ */
 const PADDLE_DIP: number = 0.06;
 
-/** Fore-aft paddle stroke around the palm site, in leg lengths (provisional). */
+/*
+ * Fore-aft paddle stroke around the palm site, in leg lengths (provisional).
+ */
 const PADDLE_STROKE: number = 0.23;
 
-/** Outward hand spread after release, in upper-arm lengths (provisional). */
+/*
+ * Outward hand spread after release, in upper-arm lengths (provisional).
+ */
 const RECOVER_SPREAD: number = 0.7;
 
-/** Hand rise after release, in leg lengths (provisional). */
+/*
+ * Hand rise after release, in leg lengths (provisional).
+ */
 const RECOVER_RISE: number = 0.55;
 
-/** Forward hand travel after release, in leg lengths (provisional). */
+/*
+ * Forward hand travel after release, in leg lengths (provisional).
+ */
 const RECOVER_FORWARD: number = 0.25;
 
-/** Express one angular displacement on the closest arc. */
+/*
+ * Express one angular displacement on the closest arc.
+ */
 function wrap(degrees: number): number {
   return degrees - 360 * Math.round(degrees / 360);
 }

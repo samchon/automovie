@@ -3,7 +3,7 @@ import type {
   IAutoMoviePhysicalProfile,
 } from "@automovie/interface";
 
-/**
+/*
  * Shared self-contact exclusions for native filtering, goal fitting and audit.
  * Same owners, direct joint neighbours and declared overlapping pivot regions
  * cannot collide with themselves.

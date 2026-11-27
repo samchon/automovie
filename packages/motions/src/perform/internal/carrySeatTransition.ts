@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Keep the authored root while a seat carries it across the whole blend. Joints
  * still take the ordinary transition offset. A seat staged in world coordinates
  * may pass to a moving prop when the two roots meet at the cut.

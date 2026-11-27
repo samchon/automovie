@@ -3,78 +3,100 @@ import type {
   IAutoMovieMotionHumanRacket,
 } from "@automovie/interface";
 
-/**
+/*
  * Film-scale preparation, support and stroke variants for the court skills. The
  * phase ordering follows the observations linked below. All dimensions and
  * timings here are provisional staging values.
  */
 export namespace CourtStrokeProfiles {
-  /** Volleyball cases owned by the court-stroke planner. */
+  /*
+   * Volleyball cases owned by the court-stroke planner.
+   */
   export type VolleyballKind = Extract<
     IAutoMovieMotionHumanBallSport.Kind,
     `volleyball${string}`
   >;
 
-  /** A court attack or reception with either the hand or a held racket. */
+  /*
+   * A court attack or reception with either the hand or a held racket.
+   */
   export type Kind = IAutoMovieMotionHumanRacket.Stroke | VolleyballKind;
 
-  /**
+  /*
    * A vector in x toward the racket or hitting side, y up, z forward. Reaches,
    * drives and tool axes use the same signed frame.
    */
   export type Offset = readonly [number, number, number];
 
-  /**
+  /*
    * A stance and stroke profile in the performer's entry heading. Step and
    * crouch scale by stature, and reaches and swing travel by arm length.
    */
   export interface IProfile {
-    /**
+    /*
      * Lead-foot step from its entry placement, hitting-side and forward shares
      * of stature.
      */
     readonly step: readonly [number, number];
-    /** Whether the foot taking the step is on the hitting side. */
+    /*
+     * Whether the foot taking the step is on the hitting side.
+     */
     readonly sameFoot: boolean;
-    /** Drop of the root at maximum loading, as a share of stature. */
+    /*
+     * Drop of the root at maximum loading, as a share of stature.
+     */
     readonly sink: number;
-    /** Heading, chest turn and pitch at preparation, in degrees. */
+    /*
+     * Heading, chest turn and pitch at preparation, in degrees.
+     */
     readonly chamber: Offset;
-    /** Heading, chest turn and pitch at strike, in degrees. */
+    /*
+     * Heading, chest turn and pitch at strike, in degrees.
+     */
     readonly hit: Offset;
-    /** Striking hand's position relative to the shoulder centre. */
+    /*
+     * Striking hand's position relative to the shoulder centre.
+     */
     readonly reach: Offset;
-    /** Stroke travel direction and amplitude through the striking instant. */
+    /*
+     * Stroke travel direction and amplitude through the striking instant.
+     */
     readonly drive: Offset;
-    /**
+    /*
      * Optional settled wrist offset in arm lengths from the shoulder centre at
      * follow-through end.
      */
     readonly finish?: Offset;
-    /**
+    /*
      * Off hand's preparation offset from its shoulder, or from the shoulder
      * centre for paired contact.
      */
     readonly balance: Offset;
-    /** Facing direction of the palm or racket face at contact. */
+    /*
+     * Facing direction of the palm or racket face at contact.
+     */
     readonly face: Offset;
-    /**
+    /*
      * Racket's longitudinal direction at contact, orthogonalized against the
      * face normal by the planner.
      */
     readonly axis: Offset;
-    /**
+    /*
      * Takeoff to landing in seconds at 1.75 m stature, zero for a planted
      * stroke.
      */
     readonly air: number;
-    /** Seconds to prepare, strike and recover at 1.75 m stature. */
+    /*
+     * Seconds to prepare, strike and recover at 1.75 m stature.
+     */
     readonly beats: readonly [number, number, number];
-    /** Bilateral palm contacts for overhead set and block. */
+    /*
+     * Bilateral palm contacts for overhead set and block.
+     */
     readonly paired?: boolean;
   }
 
-  /**
+  /*
    * Reference movements include volleyball approach and countermovement (Tilp,
    * Wagner and Müller, doi:10.1080/14763140802233231), tennis serve leg and
    * shoulder coordination (Reid et al., PMID 18202570), forehand pelvis and

@@ -18,7 +18,7 @@ import { punchGeometry } from "./punchGeometry";
 import { punchLaunch } from "./punchLaunch";
 import { strikingReadBack } from "./strikingReadBack";
 
-/**
+/*
  * A punch: the fist's knuckles brought onto the target along a measured path
  * and returned to the guard, with the trunk turning and the feet stepping or
  * pivoting to carry the shoulder.
@@ -31,8 +31,8 @@ import { strikingReadBack } from "./strikingReadBack";
  * point less the hand-rotated socket offset, the elbow bend hint and the
  * shoulder carried by the trunk turn shape the arm, and the engine's limb fit
  * solves the joints. The target is tracked online with the visuomotor latency
- * ({@link StrikingAim}); the fist stops on the first surface of the struck body
- * it meets ({@link StrikingStroke}), so a guard on the line is struck instead of
+ * (StrikingAim); the fist stops on the first surface of the struck body
+ * it meets (StrikingStroke), so a guard on the line is struck instead of
  * the face it covers, and two punches thrown at once meet whichever arm or head
  * is in the way.
  *
@@ -45,7 +45,7 @@ import { strikingReadBack } from "./strikingReadBack";
  * and pivots the rear foot on its ball; a lead hook turns the other way. A body
  * punch lowers the root through the knees. When the arm's band falls short, the
  * lead foot steps in by up to one stance length, never past the room in front
- * of the arms ({@link StrikingRoom}) and never toward a target that no place on
+ * of the arms (StrikingRoom) and never toward a target that no place on
  * the line brings within the band, and the rear foot drags from mid-delivery to
  * mid-return (the IBA stepping jab), so no planted foot is left behind a
  * travelling hip; the trunk's turn is shared by the pelvis and the lumbar and
@@ -58,17 +58,21 @@ import { strikingReadBack } from "./strikingReadBack";
  * punch's contact keeps the measured combination intervals, 0.35 s between
  * alternating hands and 0.45 s for the same hand at elite skill (Piorkowski et
  * al. 2011), counted from that contact. The return to the guard takes one
- * alternating interval. Skill scales them ({@link StrikingSkill}): the delivery
+ * alternating interval. Skill scales them (StrikingSkill): the delivery
  * and both intervals by the strike phase's factor, the intervals' scaling
  * derived and provisional (`StrikingSkill.interval`), and a seeded guard drop
  * may hold the returning glove low before it reaches the guard. A feint shows a
  * share of the delivery without contact and returns in the same time.
  */
 export namespace punch {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "punch";
 
-  /** Cancel table: a punch chains into the next punch from its contact on. */
+  /*
+   * Cancel table: a punch chains into the next punch from its contact on.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     punch: [
       {
@@ -81,23 +85,21 @@ export namespace punch {
     ],
   };
 
-  /**
+  /*
    * The hand a punch's parameters resolve to.
-   *
-   * @param params The parameters.
-   * @returns The lead or the rear hand.
+   * Parameter params: The parameters.
+   * Returns: The lead or the rear hand.
    */
   export function hand(params: IAutoMovieMotionHumanPunch.IParams): HandResult {
     return params.hand ?? (params.technique === "uppercut" ? "rear" : "lead");
   }
 
-  /**
+  /*
    * Plan a punch.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {Error} When a feint's share lies outside (0, 1), or the plan is
-   *   read back while it is being built.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When a feint's share lies outside (0, 1), or the plan is
+   * read back while it is being built.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPunch.IParams>,
@@ -368,11 +370,17 @@ export namespace punch {
   }
 }
 
-/** The alternatives of `PlanLimb`'s site. */
+/*
+ * The alternatives of `PlanLimb`'s site.
+ */
 type PlanLimb = "leftArm" | "rightArm";
 
-/** The alternatives of `PlanWhich`'s site. */
+/*
+ * The alternatives of `PlanWhich`'s site.
+ */
 type PlanWhich = "lead" | "rear";
 
-/** The alternatives of `HandResult`'s site. */
+/*
+ * The alternatives of `HandResult`'s site.
+ */
 type HandResult = "lead" | "rear";

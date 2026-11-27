@@ -188,7 +188,9 @@ export namespace AutoMovieHumanJointCentres {
   }
 }
 
-/** Finger bone names and their chains. */
+/*
+ * Finger bone names and their chains.
+ */
 const FINGERS: readonly (readonly [string, string])[] = [
   ["Index", "index"],
   ["Middle", "middle"],
@@ -196,23 +198,31 @@ const FINGERS: readonly (readonly [string, string])[] = [
   ["Little", "little"],
 ];
 
-/** Phases sampling a section for perimeters. */
+/*
+ * Phases sampling a section for perimeters.
+ */
 const PHASES: number[] = Array.from(
   { length: 96 },
   (_: unknown, i: number): number => (2 * Math.PI * i) / 96,
 );
 
-/** First station of a chain. */
+/*
+ * First station of a chain.
+ */
 function start(chain: IAutoMovieLoftChain): number {
   return chain.layers[0]!.y;
 }
 
-/** Last station of a chain. */
+/*
+ * Last station of a chain.
+ */
 function stop(chain: IAutoMovieLoftChain): number {
   return chain.layers[chain.layers.length - 1]!.y;
 }
 
-/** The chain's layer station whose axis point stands nearest a point. */
+/*
+ * The chain's layer station whose axis point stands nearest a point.
+ */
 function nearest(
   chain: IAutoMovieLoftChain,
   p: readonly [number, number, number],
@@ -230,7 +240,9 @@ function nearest(
   return best;
 }
 
-/** Girth radius, perimeter / 2pi, of the section at a station clamped into the chain. */
+/*
+ * Girth radius, perimeter / 2pi, of the section at a station clamped into the chain.
+ */
 function girth(chain: IAutoMovieLoftChain, s: number): number {
   const ring: [number, number, number][] = AutoMovieLoftChain.ring(
     chain,

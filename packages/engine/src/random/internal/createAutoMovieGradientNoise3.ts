@@ -5,7 +5,7 @@ import { createAutoMovieRandom } from "./createAutoMovieRandom";
 import { fadeAutoMovieGradientNoise } from "./fadeAutoMovieGradientNoise";
 import { AutoMovieEngineRandomBounds } from "./AutoMovieEngineRandomBounds";
 
-/**
+/*
  * Seeded three-dimensional gradient noise, a smooth non-periodic value over
  * space in [-1, 1].
  *
@@ -13,14 +13,14 @@ import { AutoMovieEngineRandomBounds } from "./AutoMovieEngineRandomBounds";
  * `createAutoMovieGradientNoise2`: Perlin's gradient lattice (Perlin 1985, "An
  * Image Synthesizer", SIGGRAPH Computer Graphics 19(3)) blended over the eight
  * corners of a cell by the quintic fade of Perlin 2002
- * ({@link fadeAutoMovieGradientNoise}). The value is zero at every lattice
+ * (fadeAutoMovieGradientNoise). The value is zero at every lattice
  * corner and continuous with continuous first and second derivatives.
  *
  * A corner's unit gradient is read from the counter stream of `seed`
- * ({@link createAutoMovieRandom}) at the corner's own index, uniform over the
+ * (createAutoMovieRandom) at the corner's own index, uniform over the
  * sphere by Archimedes' hat-box theorem (height uniform in [-1, 1], azimuth
  * uniform). Corner `(i, j, k)` reads index `((i + B) N + (j + B)) N + (k + B)`
- * with `B = 2^16` ({@link AutoMovieEngineRandom.GRADIENT_NOISE_3_BOUND}) and `N = 2B +
+ * with `B = 2^16` (AutoMovieEngineRandom.GRADIENT_NOISE_3_BOUND) and `N = 2B +
  * 2`. A point admitted by the bound has corners in `[-B, B + 1]` on each axis,
  * so every digit lies in `[0, N)` and the mixed-radix index is one-to-one, with
  * largest value `N^3 - 1`, about 2.25e15, below 2^53.
@@ -30,10 +30,9 @@ import { AutoMovieEngineRandomBounds } from "./AutoMovieEngineRandomBounds";
  * the three axes contributes at most 1/4, so the raw value is at most `sqrt(3)
  * / 2`. The output is the raw value times `2 / sqrt(3)`, clamped to [-1, 1]
  * only to absorb rounding.
- *
- * @param seed Sixteen hexadecimal digits, as `deriveAutoMovieSeed` returns.
- * @returns The noise, taking coordinates in lattice cells; it throws naming
- *   `x`, `y` or `z` when a coordinate is not finite or exceeds `짹B`.
+ * Parameter seed: Sixteen hexadecimal digits, as `deriveAutoMovieSeed` returns.
+ * Returns: The noise, taking coordinates in lattice cells; it throws naming
+ * `x`, `y` or `z` when a coordinate is not finite or exceeds `짹B`.
  */
 export function createAutoMovieGradientNoise3(
   seed: string,
@@ -105,4 +104,6 @@ export function createAutoMovieGradientNoise3(
   };
 }
 
-/** The three-dimensional noise's domain bound. */
+/*
+ * The three-dimensional noise's domain bound.
+ */

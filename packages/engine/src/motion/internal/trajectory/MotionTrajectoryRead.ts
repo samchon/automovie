@@ -9,66 +9,96 @@ import { MotionTrajectoryInterval } from "./MotionTrajectoryInterval";
 import { MotionTrajectoryPolynomial } from "./MotionTrajectoryPolynomial";
 import { MotionTrajectoryQuaternion } from "./MotionTrajectoryQuaternion";
 
-/**
+/*
  * Numeric trajectory readers constructed outside the integration callback's
  * scope.
  */
 export namespace MotionTrajectoryRead {
-  /** The completed fixed grid's numeric knots, states and endpoint derivatives. */
+  /*
+   * The completed fixed grid's numeric knots, states and endpoint derivatives.
+   */
   export interface IFixed {
-    /** Interval start, seconds. */
+    /*
+     * Interval start, seconds.
+     */
     t0: number;
 
-    /** Interval end, seconds. */
+    /*
+     * Interval end, seconds.
+     */
     t1: number;
 
-    /** Fixed step, seconds. */
+    /*
+     * Fixed step, seconds.
+     */
     h: number;
 
-    /** The scalar knot times, including the shortened final step. */
+    /*
+     * The scalar knot times, including the shortened final step.
+     */
     times: number[];
 
-    /** The vector states at those knots. */
+    /*
+     * The vector states at those knots.
+     */
     xs: number[][];
 
-    /** The orientations at those knots; null when absent. */
+    /*
+     * The orientations at those knots; null when absent.
+     */
     qs: (IAutoMovieQuaternion | null)[];
 
-    /** The vector and angular rates at those knots. */
+    /*
+     * The vector and angular rates at those knots.
+     */
     ks: IAutoMovieIntegrateMotionTrajectory.IRate[];
 
-    /** Whether the trajectory includes an orientation. */
+    /*
+     * Whether the trajectory includes an orientation.
+     */
     oriented: boolean;
   }
 
-  /** One accepted adaptive step's numeric continuous extension. */
+  /*
+   * One accepted adaptive step's numeric continuous extension.
+   */
   export interface IDenseStep {
-    /** Step start, seconds. */
+    /*
+     * Step start, seconds.
+     */
     t: number;
 
-    /** Step duration, seconds. */
+    /*
+     * Step duration, seconds.
+     */
     h: number;
 
-    /** Vector state at the start. */
+    /*
+     * Vector state at the start.
+     */
     x: number[];
 
-    /**
+    /*
      * Four quartic or five paired-quintic correction coefficients per vector
      * component.
      */
     terms: number[][];
 
-    /** Start orientation, null when absent. */
+    /*
+     * Start orientation, null when absent.
+     */
     q: IAutoMovieQuaternion | null;
 
-    /**
+    /*
      * Four quartic or five paired-quintic body-frame rotation-vector
      * coefficients.
      */
     turns: IAutoMovieVector3[];
   }
 
-  /** Read a completed fixed grid by its original cubic Hermite extension. */
+  /*
+   * Read a completed fixed grid by its original cubic Hermite extension.
+   */
   export function fixed(
     props: IFixed,
   ): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
@@ -127,7 +157,9 @@ export namespace MotionTrajectoryRead {
     };
   }
 
-  /** Read accepted quartic or paired-quintic DP5(4) continuous extensions. */
+  /*
+   * Read accepted quartic or paired-quintic DP5(4) continuous extensions.
+   */
   export function dense(
     t0: number,
     t1: number,
@@ -173,7 +205,9 @@ export namespace MotionTrajectoryRead {
     };
   }
 
-  /** Copy the common numeric quaternion projection at every public boundary. */
+  /*
+   * Copy the common numeric quaternion projection at every public boundary.
+   */
   function copied(
     read: (time: number) => IAutoMovieQuaternion | null,
   ): (time: number) => IAutoMovieQuaternion | null {
@@ -183,7 +217,7 @@ export namespace MotionTrajectoryRead {
     };
   }
 
-  /**
+  /*
    * Reuse one exact requested time behind the public read boundary. The numeric
    * result may borrow immutable records, but none escapes: each return copies
    * both mutable blocks. Store the key only after a successful read, and

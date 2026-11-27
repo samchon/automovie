@@ -25,7 +25,7 @@ import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolut
 import { resolvePose } from "./resolvePose";
 import { swingTwistRange } from "../swingTwistRange";
 
-/**
+/*
  * Put a point of a digit (its tip or its pad, a frame on its distal phalanx) on
  * a world point, with the digit's own joints alone, inside their range of
  * motion: the inverse kinematics of one finger or the thumb with the hand where
@@ -77,13 +77,12 @@ import { swingTwistRange } from "../swingTwistRange";
  * instead, so its constrained minimum may differ from the original target's. In
  * either case `residual` reports distance to the original target, including any
  * reach traded away, so a caller refuses or accepts by its own bound.
- *
- * @param input The rig, the posed body, the digit's joints and the effector and
- *   target.
- * @returns The digit's fitted joints, the effector's world point and the
- *   residual.
- * @throws {Error} When the digit names no joint, a bone cannot be resolved, or
- *   `rate` is not finite and positive.
+ * Parameter input: The rig, the posed body, the digit's joints and the effector and
+ * target.
+ * Returns: The digit's fitted joints, the effector's world point and the
+ * residual.
+ * When the digit names no joint, a bone cannot be resolved, or
+ * `rate` is not finite and positive.
  */
 export function fitDigitToTarget(
   input: IAutoMovieFitDigitToTarget.IInput,
@@ -347,7 +346,7 @@ export function fitDigitToTarget(
   };
 }
 
-/**
+/*
  * /** Exponential soft IK in the radial coordinate: identity below L-s and L-s
  * exp(-(d-(L-s))/s) above it. For a hinge dividing the straight chain into
  * lengths a and b, the cosine rule gives L-d = k theta² + O(theta⁴), k =
@@ -419,22 +418,30 @@ const softTarget: (
   return Vector3.add(points[0]!, Vector3.scale(delta, eased / distance));
 };
 
-/** A variable of the fit: one free axis of one joint. */
+/*
+ * A variable of the fit: one free axis of one joint.
+ */
 interface IVariable {
   bone: AutoMovieHumanoidBone;
   axis: (typeof AXES)[number];
 
-  /** The axis's range, clinical degrees; none when the joint has no constraint. */
+  /*
+   * The axis's range, clinical degrees; none when the joint has no constraint.
+   */
   range: IAutoMovieAngleRange | null;
 }
 
-/** A private effector reading, world metres and a world normal. */
+/*
+ * A private effector reading, world metres and a world normal.
+ */
 interface IFrame {
   point: IAutoMovieVector3;
   normal: IAutoMovieVector3;
 }
 
-/** Different trial vectors may project to the exact same admitted digit pose. */
+/*
+ * Different trial vectors may project to the exact same admitted digit pose.
+ */
 function sameJoints(
   left: readonly IAutoMovieJointPose[],
   right: readonly IAutoMovieJointPose[],
@@ -454,14 +461,18 @@ function sameJoints(
   return true;
 }
 
-/** One exact candidate's private projected joints and effector reading. */
+/*
+ * One exact candidate's private projected joints and effector reading.
+ */
 interface IReading {
   values: readonly number[];
   joints: IAutoMovieJointPose[];
   frame: IFrame;
 }
 
-/** The clinical axes of a joint, in the order variables are read. */
+/*
+ * The clinical axes of a joint, in the order variables are read.
+ */
 const AXES: readonly ["flexion", "abduction", "twist"] = [
   "flexion",
   "abduction",

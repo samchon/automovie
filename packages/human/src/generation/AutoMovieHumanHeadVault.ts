@@ -245,5 +245,7 @@ export namespace AutoMovieHumanHeadVault {
   }
 }
 
-/** A point of a section. */
+/*
+ * A point of a section.
+ */
 type P2 = [number, number];

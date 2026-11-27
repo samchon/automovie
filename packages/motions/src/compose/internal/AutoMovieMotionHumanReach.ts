@@ -16,7 +16,7 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
 
-/**
+/*
  * Whether a limb can put its end on a point, and what happens when it cannot.
  *
  * An arm's end is its wrist and its root the shoulder joint; a leg's end is its
@@ -30,7 +30,7 @@ import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
  *   and the shortfall in millimetres; the choice for a contact that must be met
  *   (a handshake, a grasp, a strike on a person).
  * - `lean`: the trunk tips forward about the hips by the smallest pitch that
- *   brings the shoulder within reach, up to {@link LEAN_LIMIT}; the choice for a
+ *   brings the shoulder within reach, up to LEAN_LIMIT; the choice for a
  *   reach a person would bend into (a table, an offered object). It refuses
  *   when that limit is not enough, and for a leg, which has no lean.
  * - `clamp`: the goal moves along its line from the root onto the sphere of the
@@ -38,14 +38,18 @@ import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
  *   gesture, a drill without a target).
  */
 export namespace AutoMovieMotionHumanReach {
-  /** The policies of {@link IAutoMovieMotionHumanReach.Policy}, as data. */
+  /*
+   * The policies of IAutoMovieMotionHumanReach.Policy, as data.
+   */
   export const POLICIES = [
     "refuse",
     "lean",
     "clamp",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanReach.Policy>[];
 
-  /** The limbs of {@link IAutoMovieMotionHumanReach.Limb}, as data. */
+  /*
+   * The limbs of IAutoMovieMotionHumanReach.Limb, as data.
+   */
   export const LIMBS = [
     "leftArm",
     "rightArm",
@@ -53,20 +57,19 @@ export namespace AutoMovieMotionHumanReach {
     "rightLeg",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanReach.Limb>[];
 
-  /**
+  /*
    * The most a `lean` adds to the trunk's forward pitch, degrees (provisional):
    * about what a standing person bends into a reach before stepping closer
    * instead.
    */
   export const LEAN_LIMIT: number = 45;
 
-  /**
+  /*
    * The reach from a root joint to a point.
-   *
-   * @param root The limb's root joint, world metres.
-   * @param length The limb's two segments laid straight, metres.
-   * @param point The point the limb's end is asked to take, world metres.
-   * @returns The check.
+   * Parameter root: The limb's root joint, world metres.
+   * Parameter length: The limb's two segments laid straight, metres.
+   * Parameter point: The point the limb's end is asked to take, world metres.
+   * Returns: The check.
    */
   export function measure(
     root: IAutoMovieVector3,
@@ -82,13 +85,12 @@ export namespace AutoMovieMotionHumanReach {
     };
   }
 
-  /**
+  /*
    * A point moved onto the sphere of a limb's reach when it is beyond it.
-   *
-   * @param check The reach toward the point.
-   * @param point The point, world metres.
-   * @returns The point itself when within reach; else the point of the sphere
-   *   on the line from the root to it.
+   * Parameter check: The reach toward the point.
+   * Parameter point: The point, world metres.
+   * Returns: The point itself when within reach; else the point of the sphere
+   * on the line from the root to it.
    */
   export function clamp(
     check: IAutoMovieMotionHumanReach.ICheck,
@@ -104,14 +106,13 @@ export namespace AutoMovieMotionHumanReach {
     );
   }
 
-  /**
+  /*
    * Refuse a goal out of reach.
-   *
-   * @param limb The limb.
-   * @param check The reach toward the point.
-   * @param point The point, world metres.
-   * @throws {Error} When the point is beyond reach, with the limb, the point
-   *   and the shortfall in millimetres.
+   * Parameter limb: The limb.
+   * Parameter check: The reach toward the point.
+   * Parameter point: The point, world metres.
+   * When the point is beyond reach, with the limb, the point
+   * and the shortfall in millimetres.
    */
   export function refuse(
     limb: IAutoMovieMotionHumanReach.Limb,
@@ -131,17 +132,16 @@ export namespace AutoMovieMotionHumanReach {
     });
   }
 
-  /**
+  /*
    * A limb's reach toward a point on a posture.
-   *
-   * @param body The body.
-   * @param posture The posture; its limb goals are not read.
-   * @param limb The limb.
-   * @param point The point the limb's end (the wrist or the ankle) is asked to
-   *   take, world metres.
-   * @param resolution Optional exact FK source borrowed only by this current
-   *   same-body observation.
-   * @returns The check.
+   * Parameter body: The body.
+   * Parameter posture: The posture; its limb goals are not read.
+   * Parameter limb: The limb.
+   * Parameter point: The point the limb's end (the wrist or the ankle) is asked to
+   * take, world metres.
+   * Parameter resolution: Optional exact FK source borrowed only by this current
+   * same-body observation.
+   * Returns: The check.
    */
   export function check(
     body: IAutoMovieMotionHumanBody,
@@ -153,7 +153,9 @@ export namespace AutoMovieMotionHumanReach {
     return checkOn(body, posture, limb, point, resolution);
   }
 
-  /** Bind only unchanged body/limb demand for varying raw root observations. */
+  /*
+   * Bind only unchanged body/limb demand for varying raw root observations.
+   */
   export function prepareCheck(
     body: IAutoMovieMotionHumanBody,
     limb: IAutoMovieMotionHumanReach.Limb,
@@ -177,18 +179,17 @@ export namespace AutoMovieMotionHumanReach {
       checkOn(body, posture, limb, point, resolution, read);
   }
 
-  /**
+  /*
    * The smallest forward pitch that brings an arm's shoulder within reach of a
    * point.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @param limb The arm.
-   * @param point The point the wrist is asked to take, world metres.
-   * @param limit The most pitch to add, degrees; {@link LEAN_LIMIT} by default.
-   * @returns Degrees to add to the posture's pitch, to a hundredth; 0 when the
-   *   point is within reach already.
-   * @throws {Error} When the point stays beyond reach at the limit.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Parameter limb: The arm.
+   * Parameter point: The point the wrist is asked to take, world metres.
+   * Parameter limit: The most pitch to add, degrees; LEAN_LIMIT by default.
+   * Returns: Degrees to add to the posture's pitch, to a hundredth; 0 when the
+   * point is within reach already.
+   * When the point stays beyond reach at the limit.
    */
   export function lean(
     body: IAutoMovieMotionHumanBody,
@@ -220,18 +221,17 @@ export namespace AutoMovieMotionHumanReach {
     return high;
   }
 
-  /**
+  /*
    * A limb's goal made reachable by a policy.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @param limb The limb.
-   * @param point The point the limb's end is asked to take, world metres.
-   * @param policy What to do when the point is out of reach.
-   * @returns The posture and the point after the policy; both unchanged when
-   *   the point is within reach.
-   * @throws {Error} When the policy refuses, when a lean is not enough, and
-   *   when a leg is asked to lean beyond its reach.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Parameter limb: The limb.
+   * Parameter point: The point the limb's end is asked to take, world metres.
+   * Parameter policy: What to do when the point is out of reach.
+   * Returns: The posture and the point after the policy; both unchanged when
+   * the point is within reach.
+   * When the policy refuses, when a lean is not enough, and
+   * when a leg is asked to lean beyond its reach.
    */
   export function fit(
     body: IAutoMovieMotionHumanBody,
@@ -263,10 +263,14 @@ export namespace AutoMovieMotionHumanReach {
   }
 }
 
-/** The alternatives of `LeanLimb`'s site. */
+/*
+ * The alternatives of `LeanLimb`'s site.
+ */
 type LeanLimb = "leftArm" | "rightArm";
 
-/** Actual goal-independent arm roots, with canonical FK owning their ancestry. */
+/*
+ * Actual goal-independent arm roots, with canonical FK owning their ancestry.
+ */
 const SHOULDERS: Readonly<
   Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>
 > = {
@@ -274,7 +278,7 @@ const SHOULDERS: Readonly<
   right: new Set<AutoMovieHumanoidBone>(["rightUpperArm"]),
 };
 
-/**
+/*
  * Preserve cold and prepared root/length policy before the common sphere
  * measure.
  */

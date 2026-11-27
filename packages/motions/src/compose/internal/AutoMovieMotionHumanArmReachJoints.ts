@@ -12,7 +12,7 @@ import type {
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
 
-/**
+/*
  * The arm's joints as Tolani, Goswami and Badler 2000 (Graphical Models 62:353,
  * section 3.3) read them for a free hand attitude: the shoulder's three angles,
  * the hinge, and the wrist's three as one spherical joint whose distal twist
@@ -21,85 +21,132 @@ import type {
  * arm is solved as its mirror image's right) and named on the arm's own side.
  */
 export namespace AutoMovieMotionHumanArmReachJoints {
-  /** The free angles of one family: the root, the hinge and the wrist. */
+  /*
+   * The free angles of one family: the root, the hinge and the wrist.
+   */
   export interface IFreeAngles {
-    /** The root joint. */
+    /*
+     * The root joint.
+     */
     upper: IAutoMovieJointPose;
 
-    /** The mid joint, its hinge only. */
+    /*
+     * The mid joint, its hinge only.
+     */
     lower: IAutoMovieJointPose;
 
-    /** The end joint, its twist the distal twist the forearm takes. */
+    /*
+     * The end joint, its twist the distal twist the forearm takes.
+     */
     effector: IAutoMovieJointPose;
   }
 
-  /** Each axis's range a chart is read against; null for an immobile axis. */
+  /*
+   * Each axis's range a chart is read against; null for an immobile axis.
+   */
   export interface IAxisRanges {
-    /** The flexion's. */
+    /*
+     * The flexion's.
+     */
     flexion: Range;
 
-    /** The abduction's. */
+    /*
+     * The abduction's.
+     */
     abduction: Range;
 
-    /** The twist's. */
+    /*
+     * The twist's.
+     */
     twist: Range;
   }
 
-  /** The ranges F reads, in the fit's frame (the right arm's). */
+  /*
+   * The ranges F reads, in the fit's frame (the right arm's).
+   */
   export interface IRanges {
-    /** The shoulder's. */
+    /*
+     * The shoulder's.
+     */
     upper: IAutoMovieJointConstraint | null;
 
-    /** The forearm's, whose twist the wrist's distal twist is read against. */
+    /*
+     * The forearm's, whose twist the wrist's distal twist is read against.
+     */
     lower: IAutoMovieJointConstraint | null;
 
-    /** The hand's. */
+    /*
+     * The hand's.
+     */
     hand: IAutoMovieJointConstraint | null;
   }
 
-  /** The rig's clamps of the three played joints, in the fit's frame. */
+  /*
+   * The rig's clamps of the three played joints, in the fit's frame.
+   */
   export interface IClamps {
-    /** The shoulder's. */
+    /*
+     * The shoulder's.
+     */
     upper: IClamp;
 
-    /** The forearm's, which takes the wrist's distal twist. */
+    /*
+     * The forearm's, which takes the wrist's distal twist.
+     */
     lower: IClamp;
 
-    /** The hand's. */
+    /*
+     * The hand's.
+     */
     hand: IClamp;
   }
 
-  /** One joint axis's displacement by its clamp. */
+  /*
+   * One joint axis's displacement by its clamp.
+   */
   export interface IDisplaced {
-    /** The joint, its bone without the side prefix. */
+    /*
+     * The joint, its bone without the side prefix.
+     */
     part: Part;
 
-    /** The axis. */
+    /*
+     * The axis.
+     */
     axis: Axis;
 
-    /** How far the clamp moves it, degrees; 0 within the range. */
+    /*
+     * How far the clamp moves it, degrees; 0 within the range.
+     */
     degrees: number;
   }
 
-  /** A joint's axis past its range. */
+  /*
+   * A joint's axis past its range.
+   */
   export interface IPast {
-    /** The bone, on the arm's own side. */
+    /*
+     * The bone, on the arm's own side.
+     */
     bone: AutoMovieHumanoidBone;
 
-    /** The axis. */
+    /*
+     * The axis.
+     */
     axis: Axis;
 
-    /** How far past its range, degrees. */
+    /*
+     * How far past its range, degrees.
+     */
     degrees: number;
   }
 
-  /**
+  /*
    * A chart read at each angle's full-turn alias nearest its axis's range, as
    * the rig reads a chart (`nearestAngleAlias`).
-   *
-   * @param joint The chart's angles, degrees.
-   * @param ranges The axes' ranges; null for an immobile joint.
-   * @returns The angles at those aliases.
+   * Parameter joint: The chart's angles, degrees.
+   * Parameter ranges: The axes' ranges; null for an immobile joint.
+   * Returns: The angles at those aliases.
    */
   export function aliased(
     joint: IAutoMovieJointPose,
@@ -116,11 +163,10 @@ export namespace AutoMovieMotionHumanArmReachJoints {
     };
   }
 
-  /**
+  /*
    * The ranges of the arm's joints on a body, in the fit's frame.
-   *
-   * @param body The body.
-   * @returns The shoulder's, the forearm's and the hand's.
+   * Parameter body: The body.
+   * Returns: The shoulder's, the forearm's and the hand's.
    */
   export function rangesOf(body: IAutoMovieMotionHumanBody): IRanges {
     function of(bone: AutoMovieHumanoidBone): IAutoMovieJointConstraint | null {
@@ -129,14 +175,13 @@ export namespace AutoMovieMotionHumanArmReachJoints {
     return { upper: of(UPPER), lower: of(LOWER), hand: of(HAND) };
   }
 
-  /**
+  /*
    * F's terms (section 3.3): the shoulder's three angles, the hand's flexion
    * and abduction and the distal twist against the forearm's twist range; an
    * axis with no range (an immobile one) is no term.
-   *
-   * @param free The free angles.
-   * @param ranges The joints' ranges.
-   * @returns Each term's angle and range.
+   * Parameter free: The free angles.
+   * Parameter ranges: The joints' ranges.
+   * Returns: Each term's angle and range.
    */
   export function terms(free: IFreeAngles, ranges: IRanges): Term[] {
     const out: Term[] = [];
@@ -152,11 +197,10 @@ export namespace AutoMovieMotionHumanArmReachJoints {
     return out;
   }
 
-  /**
+  /*
    * The rig's clamps of the arm's joints (`AutoMovieEngineKinematics.clampJointToSkeletonOf`).
-   *
-   * @param body The body.
-   * @returns The shoulder's, the forearm's and the hand's.
+   * Parameter body: The body.
+   * Returns: The shoulder's, the forearm's and the hand's.
    */
   export function clampsOf(body: IAutoMovieMotionHumanBody): IClamps {
     return {
@@ -166,14 +210,13 @@ export namespace AutoMovieMotionHumanArmReachJoints {
     };
   }
 
-  /**
+  /*
    * Each joint axis's displacement by the rig's own clamp at the free angles:
    * the shoulder, the forearm with the wrist's distal twist, and the hand
    * without it, in that order, three axes each.
-   *
-   * @param free The free angles.
-   * @param clamps The joints' clamps.
-   * @returns The nine displacements.
+   * Parameter free: The free angles.
+   * Parameter clamps: The joints' clamps.
+   * Returns: The nine displacements.
    */
   export function displaced(free: IFreeAngles, clamps: IClamps): IDisplaced[] {
     const effector: IAutoMovieJointPose = free.effector;
@@ -207,14 +250,13 @@ export namespace AutoMovieMotionHumanArmReachJoints {
     return out;
   }
 
-  /**
+  /*
    * The joint axis farthest past the rig's range, named on the arm's own side
    * (a left arm is solved as its mirror image's right); null when every one is
    * within the range tolerance (`ROM_TOLERANCE`).
-   *
-   * @param side The arm.
-   * @param displacements The joints' displacements by their clamps.
-   * @returns The farthest, or null.
+   * Parameter side: The arm.
+   * Parameter displacements: The joints' displacements by their clamps.
+   * Returns: The farthest, or null.
    */
   export function beyond(
     side: AutoMovieHumanSide,
@@ -235,44 +277,72 @@ export namespace AutoMovieMotionHumanArmReachJoints {
   }
 }
 
-/** A joint's clinical axis. */
+/*
+ * A joint's clinical axis.
+ */
 type Axis = "flexion" | "abduction" | "twist";
 
-/** A free angle, degrees, as a joint pose holds it: absent or null is zero. */
+/*
+ * A free angle, degrees, as a joint pose holds it: absent or null is zero.
+ */
 type Angle = IAutoMovieJointPose["flexion"] | undefined;
 
-/** An axis's range, as a constraint holds it: absent or null is immobile. */
+/*
+ * An axis's range, as a constraint holds it: absent or null is immobile.
+ */
 type Range = IAutoMovieJointConstraint["flexion"] | undefined;
 
-/** One term of F: a free angle, degrees, and its joint's range. */
+/*
+ * One term of F: a free angle, degrees, and its joint's range.
+ */
 type Term = readonly [number, IAutoMovieAngleRange];
 
-/** One joint's clamp by the rig's ranges. */
+/*
+ * One joint's clamp by the rig's ranges.
+ */
 type IClamp = (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
 
-/** An arm joint's bone without the side prefix. */
+/*
+ * An arm joint's bone without the side prefix.
+ */
 type Part = "UpperArm" | "LowerArm" | "Hand";
 
-/** One joint of the arm at the free angles, with its clamp. */
+/*
+ * One joint of the arm at the free angles, with its clamp.
+ */
 interface IJoint {
-  /** The joint, its bone without the side prefix. */
+  /*
+   * The joint, its bone without the side prefix.
+   */
   part: Part;
 
-  /** Its angles, in the fit's frame. */
+  /*
+   * Its angles, in the fit's frame.
+   */
   joint: IAutoMovieJointPose;
 
-  /** Its clamp. */
+  /*
+   * Its clamp.
+   */
   clamp: IClamp;
 }
 
-/** The fit's frame bones: a left arm is solved as its mirror image's right. */
+/*
+ * The fit's frame bones: a left arm is solved as its mirror image's right.
+ */
 const UPPER: AutoMovieHumanoidBone = "rightUpperArm";
 
-/** The fit's frame forearm. */
+/*
+ * The fit's frame forearm.
+ */
 const LOWER: AutoMovieHumanoidBone = "rightLowerArm";
 
-/** The fit's frame hand. */
+/*
+ * The fit's frame hand.
+ */
 const HAND: AutoMovieHumanoidBone = "rightHand";
 
-/** A joint's three clinical axes. */
+/*
+ * A joint's three clinical axes.
+ */
 const AXES: readonly Axis[] = ["flexion", "abduction", "twist"];

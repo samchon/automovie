@@ -11,7 +11,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** World Gymnastics apparatus norms for the rings, MAG 3. */
+/*
+ * World Gymnastics apparatus norms for the rings, MAG 3.
+ */
 const NORMS: string =
   "World Gymnastics Apparatus Norms, MAG 3 §2 (https://www.gymnastics.sport/publicdir/rules/files/en_Apparatus%20Norms.pdf)";
 

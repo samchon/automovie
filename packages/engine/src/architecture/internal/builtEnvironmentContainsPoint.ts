@@ -8,12 +8,12 @@ import { builtSpaceContainsPoint } from "./builtSpaceContainsPoint";
 import { builtSpaceSubtree } from "./builtSpaceSubtree";
 import { requireBuiltSpace } from "./requireBuiltSpace";
 
-/**
+/*
  * Test whether a world point lies in a logical space or any of its child
  * spaces.
  *
  * A storey contains whatever its rooms contain, at any depth. Each space of the
- * subtree is read through {@link builtSpaceContainsPoint}, its own stated volume
+ * subtree is read through builtSpaceContainsPoint, its own stated volume
  * and nothing else, so a subtree that states no volume anywhere contains
  * nothing. Throws for an undeclared space id.
  */

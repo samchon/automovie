@@ -8,56 +8,71 @@ import type {
 
 import type { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * The least vertical component of a side rail's unit axis (provisional: within
  * about 8 degrees of upright).
  */
 const UPRIGHT: number = 0.99;
 
-/**
+/*
  * The two upright side rails of a fixed ladder, which the hands take before the
  * feet cross between the rungs and the landing: the ladder's `bar` affordances
  * whose ids end in `Rail`, sorted to the climber's left and right by their
  * offset in the ladder's frame.
  */
 export namespace ladderAccessRails {
-  /** A side rail in world metres. */
+  /*
+   * A side rail in world metres.
+   */
   export interface IRail {
-    /** The bar affordance's id. */
+    /*
+     * The bar affordance's id.
+     */
     id: string;
 
-    /**
+    /*
      * Its centre's lateral offset in the ladder frame, metres; positive to the
      * climber's left.
      */
     x: number;
 
-    /** Its centre, world metres. */
+    /*
+     * Its centre, world metres.
+     */
     center: IAutoMovieVector3;
 
-    /** Its unit axis, world. */
+    /*
+     * Its unit axis, world.
+     */
     axis: IAutoMovieVector3;
 
-    /** Half its grippable length, metres. */
+    /*
+     * Half its grippable length, metres.
+     */
     half: number;
   }
 
-  /** Both side rails. */
+  /*
+   * Both side rails.
+   */
   export interface IPair {
-    /** The rail at the climber's left. */
+    /*
+     * The rail at the climber's left.
+     */
     left: IRail;
 
-    /** The rail at the climber's right. */
+    /*
+     * The rail at the climber's right.
+     */
     right: IRail;
   }
 
-  /**
+  /*
    * Read the ladder's upright side rails.
-   *
-   * @param ladder The ladder prop's reader.
-   * @param frame The ladder's frame.
-   * @param seconds When to read the prop, film seconds.
-   * @returns Both rails, or undefined when either side lacks an upright rail.
+   * Parameter ladder: The ladder prop's reader.
+   * Parameter frame: The ladder's frame.
+   * Parameter seconds: When to read the prop, film seconds.
+   * Returns: Both rails, or undefined when either side lacks an upright rail.
    */
   export function read(
     ladder: Pick<IAutoMovieMotionHumanPropReader, "prop" | "frame">,

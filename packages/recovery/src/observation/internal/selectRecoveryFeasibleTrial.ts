@@ -6,7 +6,7 @@ import type {
   IAutoMovieRecoverySqpArc,
 } from "@automovie/interface";
 
-/**
+/*
  * Compare qualified full candidates and one half on the same accelerated arc.
  * Tfull precedes Mfull; only a refused Mfull may request one SOCfull. A
  * qualified accelerated full permits one half, with the same base and

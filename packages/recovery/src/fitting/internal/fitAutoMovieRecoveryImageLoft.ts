@@ -19,7 +19,7 @@ import { isRecoveryPositiveSafeInteger } from "../../internal/isRecoveryPositive
 import { isRecoveryUnitInterval } from "../../internal/isRecoveryUnitInterval";
 import { prepareRecoveryImageSupports } from "../../geometry/internal/prepareRecoveryImageSupports";
 
-/**
+/*
  * Infer aligned elliptical sections from calibrated horizontal silhouette
  * supports. At each common physical Y, midpoint = cos(a) centreX + sin(a)
  * centreZ and halfWidth squared = cos(a) squared radiusX squared + sin(a)

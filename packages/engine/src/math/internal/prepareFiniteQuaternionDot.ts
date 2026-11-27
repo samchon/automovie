@@ -1,6 +1,6 @@
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 
-/**
+/*
  * Prepare left-to-right quaternion dots against one unchanged coefficient.
  * Every target must already have finite components; this operation admits no
  * input and adds no normalization. The projector supplies targets only after
@@ -43,7 +43,9 @@ export function prepareFiniteQuaternionDot(
   };
 }
 
-/** Quaternion coordinates in the original dot-product summation order. */
+/*
+ * Quaternion coordinates in the original dot-product summation order.
+ */
 const COMPONENTS: readonly (keyof IAutoMovieQuaternion)[] = [
   "x",
   "y",

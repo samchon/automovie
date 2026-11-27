@@ -2,7 +2,7 @@ import { type IApplyAutoMovieInspectionProps, type IAutoMovieDrawScene, type IAu
 
 import type { IAutoMovieInspectorScene } from "../IAutoMovieInspectorScene.js";
 
-/**
+/*
  * What the inspector learns from a subject placed at its first second: the
  * paths of its scene and of the marks it supplies there, those marks, the kinds
  * it declares, its own views and the viewer's named viewpoints, and its raster
@@ -12,10 +12,14 @@ import type { IAutoMovieInspectorScene } from "../IAutoMovieInspectorScene.js";
  * the caller reads the facts before applying one.
  */
 export function readAutoMovieInspectorFacts(props: {
-  /** The created subject, placed at `seconds`. */
+  /*
+   * The created subject, placed at `seconds`.
+   */
   instance: IAutoMovieDrawScene;
 
-  /** The placed second. */
+  /*
+   * The placed second.
+   */
   seconds: number;
 }): IAutoMovieInspectorScene.IFacts {
   const { instance }: typeof props = props;

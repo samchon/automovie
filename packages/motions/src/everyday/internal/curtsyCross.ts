@@ -7,21 +7,20 @@ import type {
 
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * Where a curtsy crosses its rear foot and carries its pelvis, in the entry's
  * frame: the rear ankle a tenth of a foot's length across the lead ankle, on
  * the lead's side, and behind the lead foot's heel by 0.15 of a foot's length;
  * the pelvis over the lead foot's line, a quarter of the way from its heel to
  * its toe, approached from 0.2 of a foot's length behind that.
- *
- * @param frame The entry's floor frame.
- * @param feet The lead and rear ankles in the frame, metres.
- * @param soles The lead and rear soles' points read along the frame's +Z,
- *   metres.
- * @param lead The lead foot.
- * @param rotation The rear foot's rotation, kept.
- * @returns The crossed rear foot in the world, and the transfer and approach
- *   offsets in the frame.
+ * Parameter frame: The entry's floor frame.
+ * Parameter feet: The lead and rear ankles in the frame, metres.
+ * Parameter soles: The lead and rear soles' points read along the frame's +Z,
+ * metres.
+ * Parameter lead: The lead foot.
+ * Parameter rotation: The rear foot's rotation, kept.
+ * Returns: The crossed rear foot in the world, and the transfer and approach
+ * offsets in the frame.
  */
 export function curtsyCross(
   frame: IAutoMovieMotionHumanFrame,
@@ -55,20 +54,32 @@ export function curtsyCross(
   };
 }
 
-/** A curtsy's crossing. */
+/*
+ * A curtsy's crossing.
+ */
 export namespace curtsyCross {
-  /** The crossed foot and the pelvis's offsets. */
+  /*
+   * The crossed foot and the pelvis's offsets.
+   */
   export interface ICross {
-    /** The rear foot's length along the frame, metres. */
+    /*
+     * The rear foot's length along the frame, metres.
+     */
     length: number;
 
-    /** The crossed rear foot. */
+    /*
+     * The crossed rear foot.
+     */
     crossed: { ankle: IAutoMovieVector3; rotation: IAutoMovieQuaternion };
 
-    /** The pelvis over the lead foot, in the frame. */
+    /*
+     * The pelvis over the lead foot, in the frame.
+     */
     transfer: IAutoMovieVector3;
 
-    /** Where the pelvis approaches it from, in the frame. */
+    /*
+     * Where the pelvis approaches it from, in the frame.
+     */
     approach: IAutoMovieVector3;
   }
 }

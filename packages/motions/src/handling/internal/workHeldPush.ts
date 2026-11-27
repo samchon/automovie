@@ -30,7 +30,7 @@ import { HumanGraspRoll } from "./HumanGraspRoll";
 import { heldDigits } from "./heldDigits";
 import { pickUp } from "./pickUp";
 
-/**
+/*
  * The free hand working a contact of a prop the other hand holds still: the
  * hand that pushes an umbrella's runner up its shaft.
  *
@@ -49,18 +49,17 @@ import { pickUp } from "./pickUp";
  * contact must ride a driven articulation, and its places at the work's start
  * and end, and the holding wrist before the body, must lie within their arms'
  * reach.
- *
- * @param context The action's context.
- * @param subject The held prop.
- * @param site The contact the free hand works.
- * @param side The holding hand; the other one pushes.
- * @param drive The work's authored drives of the held prop.
- * @returns The free arm and its grip under the work's clock and planned drives,
- *   the holding arm that brings the prop before the body, and the larger
- *   travel.
- * @throws {HumanRefusal} When the contact rides no driven articulation, or lies
- *   beyond the free arm even before the body, or the holding wrist there lies
- *   beyond its arm.
+ * Parameter context: The action's context.
+ * Parameter subject: The held prop.
+ * Parameter site: The contact the free hand works.
+ * Parameter side: The holding hand; the other one pushes.
+ * Parameter drive: The work's authored drives of the held prop.
+ * Returns: The free arm and its grip under the work's clock and planned drives,
+ * the holding arm that brings the prop before the body, and the larger
+ * travel.
+ * When the contact rides no driven articulation, or lies
+ * beyond the free arm even before the body, or the holding wrist there lies
+ * beyond its arm.
  */
 export function workHeldPush(
   context: IAutoMovieMotionHumanActionContext<object>,
@@ -239,7 +238,7 @@ export function workHeldPush(
   };
 }
 
-/**
+/*
  * The free hand's grip of the contact on the held prop at a frame: it closes
  * round the contact's line (its `+X`) as a power grip takes any handle
  * (`HumanGrasp.hand`), arriving along the contact's own `-Y`, then rolls about
@@ -293,7 +292,7 @@ function grasp(
   };
 }
 
-/**
+/*
  * How a prop whose contact the free arm cannot reach is brought before the
  * body: the contact's start goes onto the performer's midline at the free
  * elbow's height when the upper arm hangs, a forearm ahead of the shoulder,
@@ -301,8 +300,7 @@ function grasp(
  * posture; and the prop turns about the vertical through it, the least way,
  * until the contact's travel leads toward the free hand's side, away from the
  * hand that holds it, as a pin is pulled out sideways.
- *
- * @returns The contact's new start, world metres, and the turn about it.
+ * Returns: The contact's new start, world metres, and the turn about it.
  */
 function presentation(
   context: IAutoMovieMotionHumanActionContext<object>,
@@ -347,7 +345,9 @@ function presentation(
     rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, degrees),
   };
 }
-/** The holding arm bringing the prop before the body and keeping it there. */
+/*
+ * The holding arm bringing the prop before the body and keeping it there.
+ */
 function present(
   context: IAutoMovieMotionHumanActionContext<object>,
   side: AutoMovieHumanSide,
@@ -383,57 +383,63 @@ function present(
   });
 }
 
-/** The parts {@link workHeldPush} hands its caller. */
+/*
+ * The parts workHeldPush hands its caller.
+ */
 export namespace workHeldPush {
-  /**
+  /*
    * The free hand's part of the work.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names each member.
-   * @evidence contracts/development/design.md#principled-representation Metres, a primitive and a contact window under a clock.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What `workHeld` composes.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required.
    */
   export interface IPush {
-    /** The free wrist's travel to the contact at the start, metres. */
+    /*
+     * The free wrist's travel to the contact at the start, metres.
+     */
     travel: number;
 
-    /** The free arm under the work's clock. */
+    /*
+     * The free arm under the work's clock.
+     */
     arm: (
       clock: IAutoMovieMotionClock,
       drives: readonly IAutoMovieMotionPropDrive[],
     ) => IAutoMovieMotionHumanPrimitive;
 
-    /** The free hand's bearing grip under the work's clock. */
+    /*
+     * The free hand's bearing grip under the work's clock.
+     */
     contact: (
       clock: IAutoMovieMotionClock,
     ) => IAutoMovieMotionHumanContactWindow;
 
-    /** The free hand. */
+    /*
+     * The free hand.
+     */
     side: AutoMovieHumanSide;
 
-    /**
+    /*
      * The holding arm bringing the prop before the body under the work's clock;
      * none when the prop stays where it is.
      */
     holder: (clock: IAutoMovieMotionClock) => IAutoMovieMotionHumanPrimitive[];
   }
 
-  /**
+  /*
    * The free hand's grip of the contact at one frame of the held prop.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names each member.
-   * @evidence contracts/development/design.md#principled-representation World metres and a world attitude, by the contact's travel.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface What the push reads of a grip.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Every member is required.
    */
   export interface IGrasp {
-    /** The contact at a travel, world metres. */
+    /*
+     * The contact at a travel, world metres.
+     */
     place: (travel: number) => IAutoMovieVector3;
 
-    /** The free wrist at a travel, world metres. */
+    /*
+     * The free wrist at a travel, world metres.
+     */
     wrist: (travel: number) => IAutoMovieVector3;
 
-    /** The free hand's attitude, world. */
+    /*
+     * The free hand's attitude, world.
+     */
     turn: IAutoMovieQuaternion;
   }
 }

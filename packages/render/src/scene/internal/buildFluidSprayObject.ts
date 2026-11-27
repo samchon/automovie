@@ -4,7 +4,7 @@ import * as THREE from "three";
 import type { IAutoMovieFluidSprayObject } from "../IAutoMovieFluidSprayObject.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
-/**
+/*
  * Project one bounded spray sample into a `three.js` point cloud.
  *
  * The Engine's admitted sample supplies the capped and distance-thinned
@@ -20,7 +20,9 @@ export const buildFluidSprayObject: (props: {
   material?: THREE.PointsMaterial;
 }) => IAutoMovieFluidSprayObject = (props: {
   sample: IAutoMovieFluidSpraySample;
-  /** Borrowed spray material; a normal-blending default is owned when absent. */
+  /*
+   * Borrowed spray material; a normal-blending default is owned when absent.
+   */
   material?: THREE.PointsMaterial;
 }): IAutoMovieFluidSprayObject => {
   const geometry: THREE.BufferGeometry<

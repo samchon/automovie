@@ -7,27 +7,32 @@ import {
 import { CartWheel } from "./CartWheel";
 import { AutoMovieArchetypeCart } from "../AutoMovieArchetypeCart";
 
-/** The body's paint. */
+/*
+ * The body's paint.
+ */
 const BODY: string = "#2f4f3f";
 
-/** Bare wood. */
+/*
+ * Bare wood.
+ */
 const WOOD: string = "#8b6a43";
 
-/** Iron. */
+/*
+ * Iron.
+ */
 const METAL: string = "#55595f";
 
-/**
+/*
  * The artillery limber among the drawn carriers, on one axle with its pole
  * ahead and its pintle behind, kept apart from `CartDrawn` so each file stays
  * within its size.
  */
 export namespace CartLimber {
-  /**
+  /*
    * An artillery limber: a frame on the axle carrying the ammunition chest, a
    * pole ahead and the pintle hook behind.
-   *
-   * @param builder The carrier under construction.
-   * @param d The drawn dimensions.
+   * Parameter builder: The carrier under construction.
+   * Parameter d: The drawn dimensions.
    */
   export function build(
     builder: AutoMovieArchetypeBuilder<

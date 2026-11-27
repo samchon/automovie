@@ -10,13 +10,12 @@ import type {
 
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 
-/**
+/*
  * Prepare the two court stroke foot placements and the corresponding
  * ground-support windows. Use the vertical flight curve shared with the
  * pelvis.
- *
- * @param support Entry and landing anchors, local clock and flight state.
- * @returns Leg rows and their ground contacts in left-to-right order.
+ * Parameter support: Entry and landing anchors, local clock and flight state.
+ * Returns: Leg rows and their ground contacts in left-to-right order.
  */
 export function courtStrokeFeet({
   body,
@@ -86,56 +85,90 @@ export function courtStrokeFeet({
   return { primitives, contacts };
 }
 
-/** The record of `ISupportFlight`'s site. */
+/*
+ * The record of `ISupportFlight`'s site.
+ */
 type ISupportFlight = {
-  /** Whether the profile calls for flight. */
+  /*
+   * Whether the profile calls for flight.
+   */
   enabled: boolean;
 
-  /** Local second of liftoff. */
+  /*
+   * Local second of liftoff.
+   */
   takeoff: number;
 
-  /** Local second of touchdown. */
+  /*
+   * Local second of touchdown.
+   */
   landing: number;
 
-  /** Whether the given action-local second is strictly inside flight. */
+  /*
+   * Whether the given action-local second is strictly inside flight.
+   */
   airborne: (seconds: number) => boolean;
 
-  /** Current flight height in metres, zero outside flight. */
+  /*
+   * Current flight height in metres, zero outside flight.
+   */
   lift: (seconds: number) => number;
 };
-/** The actual anchoring and flight phases available to the stroke's feet. */
+/*
+ * The actual anchoring and flight phases available to the stroke's feet.
+ */
 interface ISupport {
-  /** Body used to fit both leg goals. */
+  /*
+   * Body used to fit both leg goals.
+   */
   body: IAutoMovieMotionHumanBody;
 
-  /** Both feet's world placements at entry. */
+  /*
+   * Both feet's world placements at entry.
+   */
   stance: Readonly<
     Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>
   >;
 
-  /** World placements at plant or jump landing. */
+  /*
+   * World placements at plant or jump landing.
+   */
   landings: Readonly<
     Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>
   >;
 
-  /** The traveling foot, when the profile calls for a step. */
+  /*
+   * The traveling foot, when the profile calls for a step.
+   */
   stepFoot: AutoMovieHumanSide | undefined;
 
-  /** Full local action clock in seconds. */
+  /*
+   * Full local action clock in seconds.
+   */
   clock: IAutoMovieMotionClock;
 
-  /** Swing clearance in metres. */
+  /*
+   * Swing clearance in metres.
+   */
   clearance: number;
 
-  /** Optional jump phase and shared ballistic displacement. */
+  /*
+   * Optional jump phase and shared ballistic displacement.
+   */
   flight: ISupportFlight;
 }
 
-/** The record of `ICourtStrokeFeetResult`'s site. */
+/*
+ * The record of `ICourtStrokeFeetResult`'s site.
+ */
 type ICourtStrokeFeetResult = {
-  /** The two leg placement rows. */
+  /*
+   * The two leg placement rows.
+   */
   primitives: IAutoMovieMotionHumanPrimitive[];
 
-  /** Their ordered plant windows. */
+  /*
+   * Their ordered plant windows.
+   */
   contacts: IAutoMovieMotionHumanContactWindow[];
 };

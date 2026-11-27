@@ -1,4 +1,4 @@
-/**
+/*
  * Split an extension name on underscores and recognize
  * material/materials/texture/textures segments case-insensitively.
  */

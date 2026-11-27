@@ -1,7 +1,7 @@
 import { accessorElementByteLength } from "./accessorElementByteLength";
 import { object } from "./object";
 
-/**
+/*
  * Admit one accessor's dense byte extent using its component shape and stride.
  *
  * The caller has admitted component type, shape, positive count, nonnegative

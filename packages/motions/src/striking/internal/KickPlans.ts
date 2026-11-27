@@ -7,10 +7,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A kick following a target that moves: one whole plan per goal, superposed.
  *
- * The aim's tracker ({@link StrikingAim}) moves the goal by one correction unit
+ * The aim's tracker (StrikingAim) moves the goal by one correction unit
  * per observation. A kick cannot answer such a unit by displacing its ankle
  * alone: its contact leg is fitted at the edge of the hip's range of motion,
  * where the same hip cannot hold the ankle a few centimetres aside. So each
@@ -26,63 +26,75 @@ import type {
  * it.
  */
 export namespace KickPlans {
-  /** One goal's plan. */
+  /*
+   * One goal's plan.
+   */
   export interface IPlan {
-    /** The planned contact point, world metres. */
+    /*
+     * The planned contact point, world metres.
+     */
     goal: IAutoMovieVector3;
 
-    /** The carriage its contact settled on. */
+    /*
+     * The carriage its contact settled on.
+     */
     carriage: IAutoMovieMotionHumanKickGeometry.ICarriage;
 
-    /** Its leg's free path. */
+    /*
+     * Its leg's free path.
+     */
     leg: IAutoMovieMotionHumanKickGeometry["leg"];
   }
 
-  /** What the superposition is built from. */
+  /*
+   * What the superposition is built from.
+   */
   export interface IProps {
-    /** The plan made at the launch. */
+    /*
+     * The plan made at the launch.
+     */
     first: IPlan;
 
-    /**
+    /*
      * Plan a corrected goal.
-     *
-     * @param previous The plan the correction starts from.
-     * @param goal The corrected contact point, world metres.
-     * @returns The plan.
+     * Parameter previous: The plan the correction starts from.
+     * Parameter goal: The corrected contact point, world metres.
+     * Returns: The plan.
      */
     next(previous: IPlan, goal: IAutoMovieVector3): IPlan;
 
-    /**
+    /*
      * The correction units started by a second, in observation order.
-     *
-     * @param seconds Film seconds.
-     * @returns The units, start and duration in film seconds.
+     * Parameter seconds: Film seconds.
+     * Returns: The units, start and duration in film seconds.
      */
     units(seconds: number): readonly IAutoMovieSuperposeMinimumJerk.IUnit[];
 
-    /** Film second of the kick's time zero. */
+    /*
+     * Film second of the kick's time zero.
+     */
     t0: number;
   }
 
-  /** The superposed plans. */
+  /*
+   * The superposed plans.
+   */
   export interface IPlans {
-    /**
+    /*
      * The carriage shown at a second.
-     *
-     * @param turning Seconds since the kick's start at which the turn is read.
-     * @returns The carriage.
+     * Parameter turning: Seconds since the kick's start at which the turn is read.
+     * Returns: The carriage.
      */
     shown(turning: number): IAutoMovieMotionHumanKickGeometry.ICarriage;
 
-    /**
+    /*
      * The kicking leg's goal on its free path under a given body.
-     *
-     * @param clock Seconds since the start on the leg's own clock.
-     * @param base The body's posture the leg hangs from.
-     * @param shift How far the launch plant has moved, world metres.
-     * @param hip Optional kicking hip from this exact base, shared by the
-     *   same-time candidate paths.
-     * @returns The leg's goal.
+     * Parameter clock: Seconds since the start on the leg's own clock.
+     * Parameter base: The body's posture the leg hangs from.
+     * Parameter shift: How far the launch plant has moved, world metres.
+     * Parameter hip: Optional kicking hip from this exact base, shared by the
+     * same-time candidate paths.
+     * Returns: The leg's goal.
      */
     leg(
       clock: number,
@@ -92,13 +104,12 @@ export namespace KickPlans {
     ): IAutoMovieMotionHumanKickGeometry.ILeg;
   }
 
-  /**
+  /*
    * Superpose a kick's plans.
-   *
-   * @param props The first plan, how a corrected goal is planned, and the
-   *   units.
-   * @returns The shown carriage and leg as pure functions of the kick's
-   *   seconds.
+   * Parameter props: The first plan, how a corrected goal is planned, and the
+   * units.
+   * Returns: The shown carriage and leg as pure functions of the kick's
+   * seconds.
    */
   export function create(props: IProps): IPlans {
     const plans: IPlan[] = [props.first];
@@ -204,15 +215,23 @@ export namespace KickPlans {
     };
   }
 
-  /** One started correction: the plans it moves between and how far it has run. */
+  /*
+   * One started correction: the plans it moves between and how far it has run.
+   */
   interface IStarted {
-    /** The plan before the correction. */
+    /*
+     * The plan before the correction.
+     */
     from: IPlan;
 
-    /** The plan after it. */
+    /*
+     * The plan after it.
+     */
     to: IPlan;
 
-    /** The unit's minimum-jerk progress, in [0, 1]. */
+    /*
+     * The unit's minimum-jerk progress, in [0, 1].
+     */
     weight: number;
   }
 }

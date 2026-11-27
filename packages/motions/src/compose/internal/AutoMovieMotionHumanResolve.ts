@@ -17,7 +17,7 @@ import { AutoMovieMotionHumanRange } from "./AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid";
 
-/**
+/*
  * What an authoring spec is on a body: a place in shares and in metres, an
  * elbow preset in shares and in metres, an amount as a share and in degrees,
  * the inverse from metres to shares, and a table of every name across a set of
@@ -31,15 +31,14 @@ import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid
  * `y` up, `z` forward.
  */
 export namespace AutoMovieMotionHumanResolve {
-  /**
+  /*
    * A place on a body, in shares and in metres.
-   *
-   * @param body The body.
-   * @param side The acting hand.
-   * @param place The place, on any rung.
-   * @returns Both readings.
-   * @throws {Error} When the place is refused by
-   *   `AutoMovieMotionHumanTargetGrid.place`.
+   * Parameter body: The body.
+   * Parameter side: The acting hand.
+   * Parameter place: The place, on any rung.
+   * Returns: Both readings.
+   * When the place is refused by
+   * `AutoMovieMotionHumanTargetGrid.place`.
    */
   export function place(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,
@@ -59,12 +58,11 @@ export namespace AutoMovieMotionHumanResolve {
     };
   }
 
-  /**
+  /*
    * A displacement in metres as the shares a place and a nudge state it in.
-   *
-   * @param body The body.
-   * @param metres The displacement in the performer's floor frame.
-   * @returns The shares per axis and the nudge of the left hand.
+   * Parameter body: The body.
+   * Parameter metres: The displacement in the performer's floor frame.
+   * Returns: The shares per axis and the nudge of the left hand.
    */
   export function shares(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,
@@ -84,13 +82,12 @@ export namespace AutoMovieMotionHumanResolve {
     };
   }
 
-  /**
+  /*
    * An elbow preset on a body, in shares and in metres.
-   *
-   * @param body The body.
-   * @param preset A named preset or the shares themselves.
-   * @param out Extra outward share of the upper arm; 0 by default.
-   * @returns Both readings.
+   * Parameter body: The body.
+   * Parameter preset: A named preset or the shares themselves.
+   * Parameter out: Extra outward share of the upper arm; 0 by default.
+   * Returns: Both readings.
    */
   export function bend(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,
@@ -116,15 +113,14 @@ export namespace AutoMovieMotionHumanResolve {
     };
   }
 
-  /**
+  /*
    * An amount on a joint, as a share of the motion's limit and in degrees.
-   *
-   * @param bone The joint.
-   * @param motion The motion.
-   * @param amount The amount, on any rung.
-   * @returns Both readings.
-   * @throws {Error} When the amount is refused by
-   *   `AutoMovieMotionHumanRange.degrees`.
+   * Parameter bone: The joint.
+   * Parameter motion: The motion.
+   * Parameter amount: The amount, on any rung.
+   * Returns: Both readings.
+   * When the amount is refused by
+   * `AutoMovieMotionHumanRange.degrees`.
    */
   export function amount(
     bone: AutoMovieHumanoidBone,
@@ -142,14 +138,13 @@ export namespace AutoMovieMotionHumanResolve {
     return { share: degrees / whole, degrees };
   }
 
-  /**
+  /*
    * Every name on a set of bodies, as text: one row per whole place, height,
    * lateral, distance and elbow preset with one column per body, then one row
    * per joint motion with one column per level.
-   *
-   * @param bodies The bodies, in column order.
-   * @returns The table, lines joined by a line feed; lengths in metres to three
-   *   decimals, angles in degrees to two.
+   * Parameter bodies: The bodies, in column order.
+   * Returns: The table, lines joined by a line feed; lengths in metres to three
+   * decimals, angles in degrees to two.
    */
   export function table(
     bodies: readonly IAutoMovieMotionHumanResolve.IBody[],
@@ -239,7 +234,7 @@ export namespace AutoMovieMotionHumanResolve {
     return lines.join("\n");
   }
 
-  /**
+  /*
    * The solved elbow beside the `hang` preset on a set of bodies, as text: one
    * row per place with one column per body.
    *
@@ -248,10 +243,9 @@ export namespace AutoMovieMotionHumanResolve {
    * the solved one about the line from the shoulder to the wrist, then the
    * strain of the solved elbow and the strain of the preset's. A place the arm
    * cannot reach reads `out of reach`.
-   *
-   * @param bodies The bodies, in column order.
-   * @returns The table, lines joined by a line feed; angles in whole degrees,
-   *   strains to three decimals.
+   * Parameter bodies: The bodies, in column order.
+   * Returns: The table, lines joined by a line feed; angles in whole degrees,
+   * strains to three decimals.
    */
   export function swivel(
     bodies: IAutoMovieMotionHumanResolve.ISwivelBodies,
@@ -340,12 +334,14 @@ export namespace AutoMovieMotionHumanResolve {
   }
 }
 
-/** The alternatives of `BendPreset`'s site. */
+/*
+ * The alternatives of `BendPreset`'s site.
+ */
 type BendPreset =
   | IAutoMovieMotionHumanBend.Arm
   | IAutoMovieMotionHumanBend.IShares;
 
-/**
+/*
  * The grid places the swivel table lists beside the named ones: the places of
  * `stopPalm`, `wave` and `raiseHand`, and a hand at the hip.
  */
@@ -356,7 +352,7 @@ const SWIVEL_GRIDS: readonly IAutoMovieMotionHumanTargetGrid.IGrid[] = [
   { height: "hip", lateral: "outside", distance: "close" },
 ];
 
-/**
+/*
  * The joints the table lists: the trunk and the head, and the left limbs, which
  * the right mirror.
  */

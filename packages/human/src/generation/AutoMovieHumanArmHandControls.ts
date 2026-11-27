@@ -36,7 +36,9 @@ export namespace AutoMovieHumanArmHandControls {
   }
 }
 
-/** Contact coordinates visit only the known hand domain; scalar support remains shared. */
+/*
+ * Contact coordinates visit only the known hand domain; scalar support remains shared.
+ */
 function region(
   prepared: IAutoMovieHumanSiteControls.IOutput,
   wrist: number,

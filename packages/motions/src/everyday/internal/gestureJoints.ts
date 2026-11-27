@@ -7,7 +7,7 @@ import type {
 import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
 import { gestureSignal } from "./gestureSignal";
 
-/**
+/*
  * The joints a gesture moves directly.
  *
  * Gestures of the head, shoulders and trunk are joint angles because no body
@@ -24,7 +24,7 @@ import { gestureSignal } from "./gestureSignal";
  * pitch, handled by the gesture law.
  */
 export namespace gestureJoints {
-  /**
+  /*
    * The size of each joint gesture at full extent, signed clinical degrees: a
    * level of the joint's range, scaled where the provisional size the namespace
    * doc states lies between two levels (provisional, read from no measured
@@ -32,64 +32,88 @@ export namespace gestureJoints {
    * happens).
    */
   export const ANGLES = {
-    /** The head's flexion in a nod. */
+    /*
+     * The head's flexion in a nod.
+     */
     nod: AutoMovieMotionHumanRange.degrees("head", "flexion", "light"),
 
-    /** The head's turn either way in a shake. */
+    /*
+     * The head's turn either way in a shake.
+     */
     shake: AutoMovieMotionHumanRange.degrees("head", "external", "light"),
 
-    /** The girdles' rise in a shrug. */
+    /*
+     * The girdles' rise in a shrug.
+     */
     shrug: AutoMovieMotionHumanRange.degrees("leftShoulder", "abduction", {
       level: "half",
       scale: 1.2,
     }),
 
-    /** The head's tilt in a shrug. */
+    /*
+     * The head's tilt in a shrug.
+     */
     shrugHead: AutoMovieMotionHumanRange.degrees("head", "abduction", "slight"),
 
-    /** The head's extension in a chin lift. */
+    /*
+     * The head's extension in a chin lift.
+     */
     chinLift: AutoMovieMotionHumanRange.degrees("head", "extension", {
       level: "light",
       scale: 1.2,
     }),
 
-    /** The girdles' retraction in squared shoulders. */
+    /*
+     * The girdles' retraction in squared shoulders.
+     */
     square: AutoMovieMotionHumanRange.degrees("leftShoulder", "extension", {
       level: "deep",
       scale: 0.9,
     }),
 
-    /** The chest's extension in squared shoulders. */
+    /*
+     * The chest's extension in squared shoulders.
+     */
     squareChest: AutoMovieMotionHumanRange.degrees("chest", "extension", {
       level: "light",
       scale: 0.8,
     }),
 
-    /** The chest's flexion in a slump. */
+    /*
+     * The chest's flexion in a slump.
+     */
     slumpChest: AutoMovieMotionHumanRange.degrees("chest", "flexion", {
       level: "light",
       scale: 1.2,
     }),
 
-    /** The spine's flexion in a slump. */
+    /*
+     * The spine's flexion in a slump.
+     */
     slumpSpine: AutoMovieMotionHumanRange.degrees("spine", "flexion", {
       level: "slight",
       scale: 0.75,
     }),
 
-    /** The head's flexion in a slump. */
+    /*
+     * The head's flexion in a slump.
+     */
     slumpHead: AutoMovieMotionHumanRange.degrees("head", "flexion", {
       level: "light",
       scale: 0.9,
     }),
 
-    /** The girdles' protraction in a slump. */
+    /*
+     * The girdles' protraction in a slump.
+     */
     slumpGirdle: AutoMovieMotionHumanRange.degrees("leftShoulder", "flexion", {
       level: "light",
       scale: 1.3,
     }),
 
-    /** The fingers' curl in a beckon. */
+    /*
+     * The fingers' curl in a beckon.
+     */
     beckon: AutoMovieMotionHumanRange.degrees(
       "leftIndexProximal",
       "flexion",
@@ -97,16 +121,15 @@ export namespace gestureJoints {
     ),
   } as const;
 
-  /**
+  /*
    * The joints a gesture sets directly at a share of the stroke, given its
    * envelope (0 at rest, 1 in the stroke).
-   *
-   * @param kind The gesture.
-   * @param u Stroke share in [0, 1].
-   * @param cycles Stroke cycles.
-   * @param envelope How far into the gesture the body is, in [0, 1].
-   * @param extent Effort extent multiplier.
-   * @returns Clinical degrees to add.
+   * Parameter kind: The gesture.
+   * Parameter u: Stroke share in [0, 1].
+   * Parameter cycles: Stroke cycles.
+   * Parameter envelope: How far into the gesture the body is, in [0, 1].
+   * Parameter extent: Effort extent multiplier.
+   * Returns: Clinical degrees to add.
    */
   export function at(
     kind: IAutoMovieMotionHumanGestureStroke.Kind,
@@ -118,16 +141,15 @@ export namespace gestureJoints {
     return pattern(kind, u, cycles, envelope, extent, {}, false);
   }
 
-  /**
+  /*
    * Add the same gesture deltas directly into one caller-owned joint record.
-   *
-   * @param joints The mutable output joint record already copied by the
-   *   gesture.
-   * @param kind The current admitted gesture kind.
-   * @param u Stroke share in [0,1].
-   * @param cycles Stroke cycles.
-   * @param envelope Transport share in [0,1].
-   * @param extent Effort extent multiplier.
+   * Parameter joints: The mutable output joint record already copied by the
+   * gesture.
+   * Parameter kind: The current admitted gesture kind.
+   * Parameter u: Stroke share in [0,1].
+   * Parameter cycles: Stroke cycles.
+   * Parameter envelope: Transport share in [0,1].
+   * Parameter extent: Effort extent multiplier.
    */
   export function add(
     joints: Angles,
@@ -141,10 +163,12 @@ export namespace gestureJoints {
   }
 }
 
-/** The posture's clinical-degree joint record. */
+/*
+ * The posture's clinical-degree joint record.
+ */
 type Angles = IAutoMovieMotionHumanPosture["joints"];
 
-/**
+/*
  * Evaluate a joint gesture at a share, writing its deltas into the record, or
  * adding them to it.
  */
@@ -283,7 +307,9 @@ function pattern(
   }
 }
 
-/** Write one bone's delta, or add it to the bone's angles. */
+/*
+ * Write one bone's delta, or add it to the bone's angles.
+ */
 function write(
   joints: Angles,
   additive: boolean,
@@ -298,5 +324,7 @@ function write(
   } else joints[bone] = [flexion, abduction, twist];
 }
 
-/** The angles of a bone the record holds none for. */
+/*
+ * The angles of a bone the record holds none for.
+ */
 const ZERO: readonly [number, number, number] = [0, 0, 0];

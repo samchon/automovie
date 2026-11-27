@@ -20,7 +20,7 @@ import { AutoMovieArchetypeStairs } from "../../architecture/AutoMovieArchetypeS
 import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 import { buildingModel } from "./buildingModel";
 
-/**
+/*
  * Span named landing frames with a bridge, ramp or flight of stairs.
  *
  * The landing locations give the route direction and run. Adjacent flights can
@@ -29,11 +29,10 @@ import { buildingModel } from "./buildingModel";
  * upper face as its visible geometry.
  *
  * A fitted opening requires a normal approach to its clear section.
- *
- * @param props Named endpoints and the connector's physical dimensions.
- * @returns A placed environment module supplying geometry, support and route.
- * @throws Error for missing anchors, incompatible landing heights, an oblique
- *   fitted opening or invalid flight dimensions.
+ * Parameter props: Named endpoints and the connector's physical dimensions.
+ * Returns: A placed environment module supplying geometry, support and route.
+ * Error for missing anchors, incompatible landing heights, an oblique
+ * fitted opening or invalid flight dimensions.
  */
 export function createPassage(
   props: AutoMovieEnvironment.IPassageProps,
@@ -206,14 +205,16 @@ export function createPassage(
   };
 }
 
-/** Read the declared endpoint's exact anchor path for diagnostics. */
+/*
+ * Read the declared endpoint's exact anchor path for diagnostics.
+ */
 function landingName(
   endpoint: AutoMovieEnvironment.IPassageEndpoint,
 ): string {
   return typeof endpoint === "string" ? endpoint : endpoint.opening;
 }
 
-/**
+/*
  * Center on a physical opening's admitted clear section or use the ordinary
  * anchor.
  */
@@ -247,7 +248,7 @@ function landing(
   };
 }
 
-/**
+/*
  * One slab section in the span frame, ordered along local Z and measured in
  * metres.
  */
@@ -258,7 +259,9 @@ interface ILeg {
   readonly toHeight: number;
 }
 
-/** Construct oppositely wound caps and four planar exterior faces. */
+/*
+ * Construct oppositely wound caps and four planar exterior faces.
+ */
 function slabFaces(
   top: readonly IAutoMovieVector3[],
   depth: number,
@@ -278,7 +281,9 @@ function slabFaces(
   return faces;
 }
 
-/** Place a support corner with the same frame as the staged solid. */
+/*
+ * Place a support corner with the same frame as the staged solid.
+ */
 function place(
   pose: IAutoMovieTransform,
   local: IAutoMovieVector3,

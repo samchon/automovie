@@ -10,7 +10,7 @@ import { poleVaultLean } from "./poleVaultLean";
 import { poleVaultSwing } from "./poleVaultSwing";
 import { poleVaultTakeoffAngle } from "./poleVaultTakeoffAngle";
 
-/**
+/*
  * The farthest from the planted end the top hand can grip the pole and still
  * swing it upright from a run at `speed`: a pole stands only as far as the
  * run's energy carries the vaulter over the planted end (Linthorne 2000: the
@@ -25,16 +25,15 @@ import { poleVaultTakeoffAngle } from "./poleVaultTakeoffAngle";
  * rising at its take-off angle (`poleVaultTakeoffAngle`), on a pole as stiff as
  * `rating`. A swing reaches the release for every grip up to one and for none
  * past it, so the grip is found by bisection on that monotone condition.
- *
- * @param body The vaulter's body.
- * @param side The top hand.
- * @param speed The run's speed, m/s (`run.speed`).
- * @param length The pole's whole length, metres: the farthest grip.
- * @param rating The pole's stiffness rating, kilograms; the vaulter's mass when
- *   absent (NFHS Rule 7-5-3).
- * @returns The grip's distance from the planted end, metres; the whole length
- *   when that already swings upright.
- * @throws {HumanRefusal} When no grip that plants swings upright at that speed.
+ * Parameter body: The vaulter's body.
+ * Parameter side: The top hand.
+ * Parameter speed: The run's speed, m/s (`run.speed`).
+ * Parameter length: The pole's whole length, metres: the farthest grip.
+ * Parameter rating: The pole's stiffness rating, kilograms; the vaulter's mass when
+ * absent (NFHS Rule 7-5-3).
+ * Returns: The grip's distance from the planted end, metres; the whole length
+ * when that already swings upright.
+ * When no grip that plants swings upright at that speed.
  */
 export function poleVaultGrip(
   body: IAutoMovieMotionHumanBody,
@@ -104,7 +103,7 @@ export function poleVaultGrip(
   return low;
 }
 
-/**
+/*
  * The halvings the grip's bisection takes: a pole's length to well under a
  * millimetre.
  */

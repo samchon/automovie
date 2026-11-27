@@ -21,7 +21,7 @@ import { sampleAutoMovieParameterSweep } from "./sampleAutoMovieParameterSweep";
 import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
 import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Compile one sweep of a surface rig: its rest surface, and, when it rides
  * bones, the buffers that re-sweep it per pose as `poseAutoMovieSweep` does.
  *
@@ -46,18 +46,17 @@ import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
  * allowed. Unrepresentable nonzero cell averages, scaled samples and girth
  * products are refused. Girth admission stages every factor, product and probe
  * before committing.
- *
- * @param props.sweep The sweep, only read and retained through its compiled
- *   surface.
- * @param props.binding Bone indices of its spine points and stations, as
- *   `IAutoMovieSweepBinding` names them; omitted, the sweep stays at rest.
- * @param props.preserveVolume Whether posing restores the rest volume at joint
- *   stations.
- * @returns The rig, open for registration.
- * @throws Error when `compileAutoMovieSweep` refuses the sweep, the binding
- *   does not align with it, a slot is registered after `seal`, or a probe cell
- *   is negative or nonfinite; and from `pose` whatever the spine transport
- *   refuses.
+ * Parameter props.sweep: The sweep, only read and retained through its compiled
+ * surface.
+ * Parameter props.binding: Bone indices of its spine points and stations, as
+ * `IAutoMovieSweepBinding` names them; omitted, the sweep stays at rest.
+ * Parameter props.preserveVolume: Whether posing restores the rest volume at joint
+ * stations.
+ * Returns: The rig, open for registration.
+ * Error when `compileAutoMovieSweep` refuses the sweep, the binding
+ * does not align with it, a slot is registered after `seal`, or a probe cell
+ * is negative or nonfinite; and from `pose` whatever the spine transport
+ * refuses.
  */
 export const rigAutoMovieSweep: (
   props: IAutoMovieRigSweep.IProps,
@@ -453,7 +452,7 @@ export const rigAutoMovieSweep: (
   return rig;
 };
 
-/**
+/*
  * One fixed-footprint differential probe; writers own only precompiled sampling
  * terms.
  */

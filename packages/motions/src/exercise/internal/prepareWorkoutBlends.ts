@@ -2,13 +2,12 @@ import type { IAutoMovieMotionHumanExerciseKey } from "@automovie/interface";
 
 import { ExerciseKey } from "./ExerciseKey";
 
-/**
+/*
  * Prepare one key interpolation per distinct endpoint pair in a workout.
  * Repetitions retain their own spans and clock; repeated authored key pairs
  * share only their ordered joint union and endpoint values.
- *
- * @param spans Ordered intervals whose endpoint keys stay unchanged.
- * @returns The same ordered interval readers, each yielding fresh key output.
+ * Parameter spans: Ordered intervals whose endpoint keys stay unchanged.
+ * Returns: The same ordered interval readers, each yielding fresh key output.
  */
 export function prepareWorkoutBlends(
   spans: readonly IPair[],
@@ -43,11 +42,17 @@ export function prepareWorkoutBlends(
   );
 }
 
-/** One existing workout interval's immutable authored endpoint keys. */
+/*
+ * One existing workout interval's immutable authored endpoint keys.
+ */
 interface IPair {
-  /** The interval's starting key. */
+  /*
+   * The interval's starting key.
+   */
   a: IAutoMovieMotionHumanExerciseKey.IKey;
 
-  /** The interval's destination key. */
+  /*
+   * The interval's destination key.
+   */
   b: IAutoMovieMotionHumanExerciseKey.IKey;
 }

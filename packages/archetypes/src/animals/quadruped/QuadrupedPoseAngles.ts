@@ -11,15 +11,14 @@ import { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedB
 import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 
-/**
+/*
  * Prepare shared world-goal lowering for the quadruped rigid tree.
- *
- * @param rig The admitted tree used to prepare reader.
- * @param reader That same tree's independently prepared generic FK reader.
- * @returns A time-independent resolver; omitted limbs preview the axial goals
- *   only.
- * @throws {RangeError} For mismatched vocabulary, unknown/incomplete goals,
- *   nonfinite/degenerate directions or inadmissible rigid root.
+ * Parameter rig: The admitted tree used to prepare reader.
+ * Parameter reader: That same tree's independently prepared generic FK reader.
+ * Returns: A time-independent resolver; omitted limbs preview the axial goals
+ * only.
+ * For mismatched vocabulary, unknown/incomplete goals,
+ * nonfinite/degenerate directions or inadmissible rigid root.
  */
 export function QuadrupedPoseAngles(
   rig: IAutoMovieArticulatedRig<AutoMovieArchetypeQuadrupedBody.Bone>,
@@ -57,7 +56,9 @@ export function QuadrupedPoseAngles(
   ]);
   return resolve;
 
-  /** Resolve one current set without retaining caller inputs or previous output. */
+  /*
+   * Resolve one current set without retaining caller inputs or previous output.
+   */
   function resolve(
     root?: IAutoMovieTransform,
     limbs?: ReadonlyMap<

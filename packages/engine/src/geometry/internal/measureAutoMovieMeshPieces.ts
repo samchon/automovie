@@ -3,7 +3,7 @@ import type { IAutoMovieMesh, IAutoMovieMeshPiece } from "@automovie/interface";
 import { createMeshEdgeKey } from "../../math/internal/createMeshEdgeKey";
 import { weldAutoMovieMeshCorners } from "./weldAutoMovieMeshCorners";
 
-/**
+/*
  * Report the topology of each piece of a mesh: its counts, boundary loops,
  * Euler characteristic, manifoldness, orientability, stored winding and genus.
  *
@@ -33,9 +33,8 @@ import { weldAutoMovieMeshCorners } from "./weldAutoMovieMeshCorners";
  * non-degenerate triangles has no piece. The mesh is only read. A malformed
  * index buffer and invalid physical correspondence throw the same refusals as
  * `inspectAutoMovieMeshTopology`.
- *
- * @param mesh Mesh to measure.
- * @returns One record per piece, in first-triangle order.
+ * Parameter mesh: Mesh to measure.
+ * Returns: One record per piece, in first-triangle order.
  */
 export const measureAutoMovieMeshPieces: (
   mesh: IAutoMovieMesh,
@@ -124,57 +123,83 @@ export const measureAutoMovieMeshPieces: (
   return pieces.map(summarize);
 };
 
-/**
+/*
  * One undirected welded edge: its lower and higher vertex identities, the
  * triangles using it in ordinal order, and whether each of them traverses it
  * from low to high.
  */
 interface IEdge {
-  /** The lower welded vertex identity. */
+  /*
+   * The lower welded vertex identity.
+   */
   low: number;
 
-  /** The higher welded vertex identity. */
+  /*
+   * The higher welded vertex identity.
+   */
   high: number;
 
-  /** The triangles using the edge, in ordinal order. */
+  /*
+   * The triangles using the edge, in ordinal order.
+   */
   uses: number[];
 
-  /** Per use, whether that triangle traverses the edge from low to high. */
+  /*
+   * Per use, whether that triangle traverses the edge from low to high.
+   */
   forward: boolean[];
 }
 
-/** One vertex of a piece: its piece-local number and the fan of its first slot. */
+/*
+ * One vertex of a piece: its piece-local number and the fan of its first slot.
+ */
 interface IVertexTally {
-  /** The vertex's number within its piece, in first-use order. */
+  /*
+   * The vertex's number within its piece, in first-use order.
+   */
   local: number;
 
-  /** The fan root of the corner slot that first used the vertex. */
+  /*
+   * The fan root of the corner slot that first used the vertex.
+   */
   fan: number;
 }
 
-/**
+/*
  * What one piece gathers before it is summarized: its first ordinal, its
  * triangles in ordinal order, its vertices, its edges, and whether some vertex
  * carries more than one fan.
  */
 interface IPieceTally {
-  /** The piece's lowest triangle ordinal. */
+  /*
+   * The piece's lowest triangle ordinal.
+   */
   firstTriangle: number;
 
-  /** The piece's triangles, in ordinal order. */
+  /*
+   * The piece's triangles, in ordinal order.
+   */
   triangles: number[];
 
-  /** The piece's vertices, by welded identity. */
+  /*
+   * The piece's vertices, by welded identity.
+   */
   vertices: Map<number, IVertexTally>;
 
-  /** The piece's undirected edges. */
+  /*
+   * The piece's undirected edges.
+   */
   edges: IEdge[];
 
-  /** Whether some vertex's triangles in the piece form more than one fan. */
+  /*
+   * Whether some vertex's triangles in the piece form more than one fan.
+   */
   fanless: boolean;
 }
 
-/** The record of one gathered piece. */
+/*
+ * The record of one gathered piece.
+ */
 const summarize: (tally: IPieceTally) => IAutoMovieMeshPiece = (
   tally: IPieceTally,
 ): IAutoMovieMeshPiece => {
@@ -216,7 +241,7 @@ const summarize: (tally: IPieceTally) => IAutoMovieMeshPiece = (
   };
 };
 
-/**
+/*
  * Whether a manifold piece's triangles can be flipped so every two-triangle
  * edge is traversed oppositely: a breadth-first two-colouring in which a
  * triangle keeps its neighbour's flip across an edge they traverse oppositely
@@ -258,27 +283,35 @@ const orientableOf: (tally: IPieceTally) => boolean = (
   return true;
 };
 
-/**
+/*
  * A triangle across a two-triangle edge, and whether both traverse that edge
  * the same way.
  */
 interface INeighbour {
-  /** The neighbouring triangle's ordinal. */
+  /*
+   * The neighbouring triangle's ordinal.
+   */
   other: number;
 
-  /** Whether both triangles traverse the shared edge the same way. */
+  /*
+   * Whether both triangles traverse the shared edge the same way.
+   */
   alike: boolean;
 }
 
-/**
+/*
  * A disjoint-set forest over `[0, size)` with path halving, which the piece,
  * fan and loop partitions each use.
  */
 class UnionFind {
-  /** Each element's parent; a root is its own parent. */
+  /*
+   * Each element's parent; a root is its own parent.
+   */
   private readonly parent: number[];
 
-  /** @param size How many elements the forest holds. */
+  /*
+   * Parameter size: How many elements the forest holds.
+   */
   public constructor(size: number) {
     this.parent = Array.from(
       { length: size },
@@ -286,7 +319,9 @@ class UnionFind {
     );
   }
 
-  /** The root of an element's set. */
+  /*
+   * The root of an element's set.
+   */
   public find(at: number): number {
     while (this.parent[at] !== at) {
       this.parent[at] = this.parent[this.parent[at]!]!;
@@ -295,7 +330,9 @@ class UnionFind {
     return at;
   }
 
-  /** Merge the sets of two elements. */
+  /*
+   * Merge the sets of two elements.
+   */
   public join(a: number, b: number): void {
     this.parent[this.find(a)] = this.find(b);
   }

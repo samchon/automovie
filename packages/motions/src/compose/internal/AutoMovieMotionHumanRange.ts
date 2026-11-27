@@ -10,7 +10,7 @@ import type {
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
 
-/**
+/*
  * Amounts by level: how far a joint turns as a share of its range of motion,
  * how far the trunk leans as a share of the reach's lean limit, and how far the
  * root shifts as a share of the stature.
@@ -36,7 +36,9 @@ import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
  * explicit degrees (a magnitude, signed by the motion) with their source.
  */
 export namespace AutoMovieMotionHumanRange {
-  /** The levels of {@link IAutoMovieMotionHumanRange.Level}, as data. */
+  /*
+   * The levels of IAutoMovieMotionHumanRange.Level, as data.
+   */
   export const LEVEL_NAMES = [
     "slight",
     "light",
@@ -45,7 +47,7 @@ export namespace AutoMovieMotionHumanRange {
     "full",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanRange.Level>[];
 
-  /**
+  /*
    * The share of each level (provisional; checked by the fit of the gesture
    * amplitudes and the reaction sizes that were converted onto them, listed in
    * the campaign's pull request).
@@ -60,7 +62,9 @@ export namespace AutoMovieMotionHumanRange {
     full: 0.9,
   };
 
-  /** The motions of {@link IAutoMovieMotionHumanRange.Motion}, as data. */
+  /*
+   * The motions of IAutoMovieMotionHumanRange.Motion, as data.
+   */
   export const MOTIONS = [
     "flexion",
     "extension",
@@ -70,13 +74,12 @@ export namespace AutoMovieMotionHumanRange {
     "internal",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanRange.Motion>[];
 
-  /**
+  /*
    * The share of a level, scaled or not.
-   *
-   * @param amount A level, or a level with a scale.
-   * @returns The share, in (0, 1].
-   * @throws {Error} When the scale lies outside [0.5, 1.5] or the scaled share
-   *   exceeds 1.
+   * Parameter amount: A level, or a level with a scale.
+   * Returns: The share, in (0, 1].
+   * When the scale lies outside [0.5, 1.5] or the scaled share
+   * exceeds 1.
    */
   export function share(amount: ShareAmount): number {
     if (typeof amount === "string") return LEVELS[amount];
@@ -102,16 +105,15 @@ export namespace AutoMovieMotionHumanRange {
     return scaled;
   }
 
-  /**
+  /*
    * The clinical degrees of a joint's motion by an amount.
-   *
-   * @param bone The joint.
-   * @param motion The motion.
-   * @param amount The amount, on any rung.
-   * @returns Signed degrees, as the posture's clinical angles are.
-   * @throws {Error} When the joint has no range, the motion's axis is locked or
-   *   has no room, explicit degrees are negative or past the limit, or an
-   *   explicit source is empty.
+   * Parameter bone: The joint.
+   * Parameter motion: The motion.
+   * Parameter amount: The amount, on any rung.
+   * Returns: Signed degrees, as the posture's clinical angles are.
+   * When the joint has no range, the motion's axis is locked or
+   * has no room, explicit degrees are negative or past the limit, or an
+   * explicit source is empty.
    */
   export function degrees(
     bone: AutoMovieHumanoidBone,
@@ -126,13 +128,12 @@ export namespace AutoMovieMotionHumanRange {
     return Math.sign(end) * amount.degrees;
   }
 
-  /**
+  /*
    * The signed limit a motion of a joint reads.
-   *
-   * @param bone The joint.
-   * @param motion The motion.
-   * @returns Signed degrees, or null when the joint has no range, the motion's
-   *   axis is locked or the limit is 0.
+   * Parameter bone: The joint.
+   * Parameter motion: The motion.
+   * Returns: Signed degrees, or null when the joint has no range, the motion's
+   * axis is locked or the limit is 0.
    */
   export function limit(
     bone: AutoMovieHumanoidBone,
@@ -155,13 +156,12 @@ export namespace AutoMovieMotionHumanRange {
     return end === 0 ? null : end;
   }
 
-  /**
+  /*
    * The trunk's lean by an amount: a share of the reach's lean limit.
-   *
-   * @param amount The amount, on any rung.
-   * @returns Degrees, not negative.
-   * @throws {Error} When explicit degrees are negative or past the limit, or an
-   *   explicit source is empty.
+   * Parameter amount: The amount, on any rung.
+   * Returns: Degrees, not negative.
+   * When explicit degrees are negative or past the limit, or an
+   * explicit source is empty.
    */
   export function lean(amount: IAutoMovieMotionHumanRange.Amount): number {
     const end: number = AutoMovieMotionHumanReach.LEAN_LIMIT;
@@ -171,12 +171,11 @@ export namespace AutoMovieMotionHumanRange {
     return amount.degrees;
   }
 
-  /**
+  /*
    * A root shift as a share of the stature.
-   *
-   * @param body The body.
-   * @param share The share of the stature.
-   * @returns Metres.
+   * Parameter body: The body.
+   * Parameter share: The share of the stature.
+   * Returns: Metres.
    */
   export function shift(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,
@@ -186,12 +185,16 @@ export namespace AutoMovieMotionHumanRange {
   }
 }
 
-/** The alternatives of `ShareAmount`'s site. */
+/*
+ * The alternatives of `ShareAmount`'s site.
+ */
 type ShareAmount =
   | IAutoMovieMotionHumanRange.Level
   | IAutoMovieMotionHumanRange.IScaled;
 
-/** Refuses explicit degrees that are unsourced, negative or past a limit. */
+/*
+ * Refuses explicit degrees that are unsourced, negative or past a limit.
+ */
 function checked(
   amount: IAutoMovieMotionHumanRange.IExplicit,
   most: number,

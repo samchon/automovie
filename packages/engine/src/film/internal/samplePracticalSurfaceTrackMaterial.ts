@@ -1,6 +1,6 @@
 import type { IAutoMoviePracticalSurfaceTrack } from "@automovie/interface";
 
-/**
+/*
  * Read the material at an in-shot time from one admitted practical surface
  * track. The most recent key at or before the requested seconds takes effect.
  */

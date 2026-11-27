@@ -9,7 +9,7 @@ import { midpoint } from "../../math/internal/midpoint";
 import { AutoMovieEngineSpace } from "../../space/index";
 import { surfaceHeightAt } from "../../space/internal/surfaceHeightAt";
 
-/**
+/*
  * How far a staged prop's underside stands above the face it rests on, in
  * metres: negative where it sinks into the support, zero where it touches it,
  * positive where it floats. `null` when no probe of the prop's footprint lies
@@ -27,14 +27,13 @@ import { surfaceHeightAt } from "../../space/internal/surfaceHeightAt";
  * The deepest probe answers, which is what lets a box resting along one edge of
  * a ramp still be resting on it while a box whose near corner has gone through
  * the ramp is not, and it is the same footprint sampling
- * {@link supportContactsFor} decides a scene's supports by. Relief between the
+ * supportContactsFor decides a scene's supports by. Relief between the
  * probes is not read: a support that rises and falls between them is answered
  * where they stand. Edge intersections are not added as probes, so a thin
  * overlap can be missed and even a planar support need not expose its deepest
  * overlapping point to this finite probe set.
- *
- * @param props The face and the prop's world box.
- * @returns The smallest underside rise over the probed points, or `null`.
+ * Parameter props: The face and the prop's world box.
+ * Returns: The smallest underside rise over the probed points, or `null`.
  */
 export function propSupportGap(
   props: IAutoMoviePropSupportGap.IProps,
@@ -64,7 +63,9 @@ export function propSupportGap(
   return gap;
 }
 
-/** Whether a ground-plan point stands under a staged prop's own footprint. */
+/*
+ * Whether a ground-plan point stands under a staged prop's own footprint.
+ */
 function underFootprint(
   point: IAutoMovieVector3,
   bounds: IAutoMoviePropBox,
@@ -77,7 +78,9 @@ function underFootprint(
   );
 }
 
-/** The five ground-plan points a footprint is judged to bear on. */
+/*
+ * The five ground-plan points a footprint is judged to bear on.
+ */
 function footprintProbes(bounds: IAutoMoviePropBox): IAutoMovieVector3[] {
   return [
     { x: bounds.min.x, y: 0, z: bounds.min.z },

@@ -8,13 +8,13 @@ import { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedB
 import { QuadrupedScapula } from "./QuadrupedScapula";
 import type { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped";
 
-/**
+/*
  * Explicit rigid carriers for a quadruped's accessories and contacts. Species
  * nod selectors describe optional producer vocabulary: an absent tack selector
  * creates no attachment and does not require an unbuilt accessory.
  */
 export namespace QuadrupedCarriage {
-  /**
+  /*
    * Bind every accessory/contact to the declared neck or trunk carrier.
    *
    * The 21 bone parts carry themselves and are excluded from parts. Accessories
@@ -24,14 +24,13 @@ export namespace QuadrupedCarriage {
    * held-rein policy. Flexible two-end spans are another owner. Optional
    * producer vocabulary may name absent tack, but duplicate/empty selectors and
    * declarations assigning another bone to neck refuse.
-   *
-   * @param animal The source parts and original affordances, unchanged.
-   * @param species Its declared nod-part/contact selectors and trunk default.
-   * @returns Independent complete accessory-part/contact carrier records; bone
-   *   parts are intentionally absent from the first record.
-   * @throws {RangeError} For missing/sparse arrays, empty/duplicate identities
-   *   or selectors, a missing bone or a nod selector conflicting with a
-   *   self-carried bone.
+   * Parameter animal: The source parts and original affordances, unchanged.
+   * Parameter species: Its declared nod-part/contact selectors and trunk default.
+   * Returns: Independent complete accessory-part/contact carrier records; bone
+   * parts are intentionally absent from the first record.
+   * For missing/sparse arrays, empty/duplicate identities
+   * or selectors, a missing bone or a nod selector conflicting with a
+   * self-carried bone.
    */
   export function of(
     animal: Pick<AutoMovieArchetype, "parts" | "affordances">,
@@ -105,14 +104,16 @@ export namespace QuadrupedCarriage {
     };
   }
 
-  /** A missing identity cannot name an explicit carrier. */
+  /*
+   * A missing identity cannot name an explicit carrier.
+   */
   function identity(value: string | undefined, label: string): string {
     if (value === undefined)
       throw new RangeError(`Quadruped ${label} requires an identity`);
     return value;
   }
 
-  /**
+  /*
    * Optional producer selectors are a vocabulary, not an assertion that tack
    * was built.
    */

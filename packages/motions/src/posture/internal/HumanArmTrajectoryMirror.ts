@@ -4,35 +4,33 @@ import { HumanArmMirror } from "./HumanArmMirror";
 import type { HumanArmTrajectory } from "./HumanArmTrajectory";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
-/**
+/*
  * An arms' trajectory problem (`HumanArmTrajectory.IProblem`) read in the
  * mirror image of its world, so that of a problem and its mirror image one is
  * solved and the other is its mirror to the bit.
  */
 export namespace HumanArmTrajectoryMirror {
-  /**
+  /*
    * Whether the problem is solved in the mirror image of its world: when its
    * first arm is the left. The mirror takes every arm to the other side in
    * order, so of a problem and its mirror image exactly one begins with the
    * right arm, and that one is solved; the other is its mirror. A left arm
    * alone and a pair listed left first are solved as their mirrors, so mirrored
    * scenes give mirrored paths to the bit.
-   *
-   * @param problem The problem.
-   * @returns Whether its first arm is the left.
+   * Parameter problem: The problem.
+   * Returns: Whether its first arm is the left.
    */
   export function leftFirst(problem: HumanArmTrajectory.IProblem): boolean {
     return problem.arms[0]!.side === "left";
   }
 
-  /**
+  /*
    * A refusal read in the mirror image, told in the author's world: every side
    * it names, an arm's, a bone's or a region's, is the mirror image's, so each
    * is the other side of the author's body.
-   *
-   * @param refusal The refusal the mirrored problem's solve gave.
-   * @returns The same refusal with every side its reason and its fix name taken
-   *   to the other.
+   * Parameter refusal: The refusal the mirrored problem's solve gave.
+   * Returns: The same refusal with every side its reason and its fix name taken
+   * to the other.
    */
   export function refusal(refusal: HumanRefusal): HumanRefusal {
     const swap = (text: string): string =>
@@ -53,12 +51,11 @@ export namespace HumanArmTrajectoryMirror {
     });
   }
 
-  /**
+  /*
    * A problem in the mirror image of its world: every arm on the other side,
    * its sites, rests and bases mirrored.
-   *
-   * @param problem The problem.
-   * @returns Its mirror image, each base and site mirrored once.
+   * Parameter problem: The problem.
+   * Returns: Its mirror image, each base and site mirrored once.
    */
   export function mirrored(
     problem: HumanArmTrajectory.IProblem,
@@ -102,7 +99,9 @@ export namespace HumanArmTrajectoryMirror {
   }
 }
 
-/** A site's mirror image across the world's x = 0 plane. */
+/*
+ * A site's mirror image across the world's x = 0 plane.
+ */
 function mirroredSite(site: M.ISite): M.ISite {
   return {
     ...site,
@@ -143,7 +142,9 @@ function mirroredSite(site: M.ISite): M.ISite {
 }
 
 
-/** A side's name and its mirror's. */
+/*
+ * A side's name and its mirror's.
+ */
 const SWAP: Readonly<Record<string, string>> = {
   left: "right",
   right: "left",

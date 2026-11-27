@@ -15,16 +15,15 @@ import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSa
 import { jumpPush } from "./jumpPush";
 import { walkLeg } from "./walkLeg";
 
-/**
+/*
  * A jump push's take-off foot rocker (`jumpPush`): a foot entered on its heel
  * rocker laid flat about its heel, then its heel risen about its toes' joint by
  * the rule a walking stance rises by, read at the hip the planted leg stands
  * from, with the entry's pitch and pitch rate eased out over the rise. Read
  * from the push's body, take-off foot, its heel and ball, duration, entry pitch
  * rate and phase sampler.
- *
- * @param scope What the push builds its rocker from.
- * @returns The rocker's pivots, contacts and pitch.
+ * Parameter scope: What the push builds its rocker from.
+ * Returns: The rocker's pivots, contacts and pitch.
  */
 export function jumpPushRocker(
   scope: jumpPushRocker.IScope,
@@ -161,70 +160,105 @@ export function jumpPushRocker(
   return { lowered, heelAt, ballAt, heelContact, ballContact, pitchAt };
 }
 
-/** What a jump push's rocker reads and what it is. */
+/*
+ * What a jump push's rocker reads and what it is.
+ */
 export namespace jumpPushRocker {
-  /**
+  /*
    * A heel rise's tolerance, degrees: the angular resolution its rule reads
    * flat to (`ROM_TOLERANCE`), the bound AutoKnots places the rise's knots to.
    */
   export const TOLERANCE: number = ROM_TOLERANCE;
 
-  /** What a jump push builds its rocker from. */
+  /*
+   * What a jump push builds its rocker from.
+   */
   export interface IScope {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The foot that pushes off. */
+    /*
+     * The foot that pushes off.
+     */
     takeoff: AutoMovieHumanSide;
 
-    /** The take-off foot's heel, world metres. */
+    /*
+     * The take-off foot's heel, world metres.
+     */
     heel: IAutoMovieVector3;
 
-    /** The take-off foot's toes' joint once flat, world metres. */
+    /*
+     * The take-off foot's toes' joint once flat, world metres.
+     */
     ball: IAutoMovieVector3;
 
-    /** The take-off foot's heading, degrees. */
+    /*
+     * The take-off foot's heading, degrees.
+     */
     supportHeading: number;
 
-    /** The take-off foot's pitch as entered, degrees; positive with the toes up. */
+    /*
+     * The take-off foot's pitch as entered, degrees; positive with the toes up.
+     */
     supportPitch: number;
 
-    /** The push-off's seconds. */
+    /*
+     * The push-off's seconds.
+     */
     P: number;
 
-    /** The take-off foot's entered pitch rate, degrees per second. */
+    /*
+     * The take-off foot's entered pitch rate, degrees per second.
+     */
     rolling: number;
 
-    /** The push's phase sampler (`jumpPush.IPush.sample`). */
+    /*
+     * The push's phase sampler (`jumpPush.IPush.sample`).
+     */
     sample: jumpPush.IPush["sample"];
 
-    /** The shortest carry whose carried-rate term is evaluated, seconds. */
+    /*
+     * The shortest carry whose carried-rate term is evaluated, seconds.
+     */
     CARRY: number;
   }
 
-  /** The rocker's pivots, contacts and pitch. */
+  /*
+   * The rocker's pivots, contacts and pitch.
+   */
   export interface IRocker {
-    /** When the foot comes flat, push seconds; zero for a foot entered flat. */
+    /*
+     * When the foot comes flat, push seconds; zero for a foot entered flat.
+     */
     lowered: number;
 
-    /** The foot about its heel at a pitch, while it comes flat. */
+    /*
+     * The foot about its heel at a pitch, while it comes flat.
+     */
     heelAt: ReturnType<typeof HumanFoot.preparePivot> | undefined;
 
-    /** The foot about its toes' joint at a pitch. */
+    /*
+     * The foot about its toes' joint at a pitch.
+     */
     ballAt: ReturnType<typeof HumanFoot.preparePivot>;
 
-    /** The heel's contact offset, while the foot comes flat. */
+    /*
+     * The heel's contact offset, while the foot comes flat.
+     */
     heelContact: ReturnType<typeof HumanFoot.prepareOffset> | undefined;
 
-    /** The toes' joint's contact offset. */
+    /*
+     * The toes' joint's contact offset.
+     */
     ballContact: ReturnType<typeof HumanFoot.prepareOffset>;
 
-    /**
+    /*
      * The take-off foot's pitch at a push sample.
-     *
-     * @param phase The push sample.
-     * @param resolution The borrowed forward-kinematics reader, if any.
-     * @returns The pitch, degrees.
+     * Parameter phase: The push sample.
+     * Parameter resolution: The borrowed forward-kinematics reader, if any.
+     * Returns: The pitch, degrees.
      */
     pitchAt: (
       phase: jumpPush.IPhase,
@@ -232,14 +266,20 @@ export namespace jumpPushRocker {
     ) => number;
   }
 }
-/** The finite-difference step of the heel rule's slope, seconds. */
+/*
+ * The finite-difference step of the heel rule's slope, seconds.
+ */
 const STEP: number = 1e-3;
 
-/** The record of `IOfEdgeResult`'s site. */
+/*
+ * The record of `IOfEdgeResult`'s site.
+ */
 type IOfEdgeResult = {
   met: number;
   excess: number;
 };
 
-/** The record of `IOfEdge`'s site. */
+/*
+ * The record of `IOfEdge`'s site.
+ */
 type IOfEdge = { met: number; excess: number };

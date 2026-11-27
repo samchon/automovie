@@ -226,7 +226,7 @@ export namespace Vector3 {
     return [result.x, result.y, result.z];
   }
 
-  /**
+  /*
    * The largest component magnitude when it lies outside `[2^-511, 2^511]`, or
    * zero otherwise. Inside that range the largest square is a normal binary64
    * number and the sum of three squares cannot overflow, so the plain formula
@@ -243,7 +243,7 @@ export namespace Vector3 {
     return extremeScale(largest);
   };
 
-  /**
+  /*
    * Shared binary64 magnitude gate; zero and nonfinite inputs retain the
    * ordinary norm path.
    */

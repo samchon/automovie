@@ -3,7 +3,7 @@ import type {
   IAutoMovieTextureReference,
 } from "@automovie/interface";
 
-/**
+/*
  * Identify binding-controlled GPU upload state independently of shader UVs. A
  * source's inherited sampler is shared by all clones that omit a sampler; when
  * its host reports that sampler, an equivalent explicit binding shares the same

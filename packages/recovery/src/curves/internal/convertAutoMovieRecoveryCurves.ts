@@ -7,7 +7,7 @@ import type {
 import { rebindRecoveryCurveAuthorities } from "./rebindRecoveryCurveAuthorities";
 import { convertAutoMovieRecoveryCurve } from "./convertAutoMovieRecoveryCurve";
 
-/**
+/*
  * Copy a saved recovery record into the selected cubic coefficient basis. Every
  * cubic at the record's declared curve places is converted by
  * `convertAutoMovieRecoveryCurve`: a fit's or override's curve, each closed
@@ -16,19 +16,20 @@ import { convertAutoMovieRecoveryCurve } from "./convertAutoMovieRecoveryCurve";
  * unchanged, and the returned record is a copy that shares nothing with the
  * input. Surface nets keep their own representation; their controls bound to a
  * converted curve are reissued from it (`rebindRecoveryCurveAuthorities`).
- *
- * @param input The saved record.
- * @param format The basis to express its cubics in.
- * @returns The record with every cubic in that basis.
- * @throws {Error} When a cubic lacks one positive phase width per span, or a
- *   bound surface control disagrees with its curve authority.
+ * Parameter input: The saved record.
+ * Parameter format: The basis to express its cubics in.
+ * Returns: The record with every cubic in that basis.
+ * When a cubic lacks one positive phase width per span, or a
+ * bound surface control disagrees with its curve authority.
  */
 export function convertAutoMovieRecoveryCurves<
   T extends IAutoMovieRecoveryCurveBundle,
   Format extends AutoMovieRecoveryCurveFormat,
 >(input: T, format: Format): AutoMovieRecoveryCurveData<T, Format>;
 
-/** The implementation: the record with each declared cubic converted. */
+/*
+ * The implementation: the record with each declared cubic converted.
+ */
 export function convertAutoMovieRecoveryCurves(
   input: IAutoMovieRecoveryCurveBundle,
   format: AutoMovieRecoveryCurveFormat,

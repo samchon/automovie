@@ -98,13 +98,13 @@ export class AutoMovieFilmResponseStage {
     return resolveAutoMovieFilmBeautyCompositionImplementation(layers);
   }
 
-  /**
+  /*
    * The targets of the current raster, or null before the first draw with
    * optics.
    */
   private targets_: allocateAutoMovieFilmTargets.ITargets | null = null;
 
-  /**
+  /*
    * The full-frame quad every pass of the stage draws, carrying the pass's
    * program.
    */
@@ -113,48 +113,76 @@ export class AutoMovieFilmResponseStage {
     THREE.RawShaderMaterial
   >;
 
-  /** The scene holding only the quad. */
+  /*
+   * The scene holding only the quad.
+   */
   private readonly frame_: THREE.Scene = new THREE.Scene();
 
-  /** A camera the quad's clip-space vertices ignore; `render` needs one. */
+  /*
+   * A camera the quad's clip-space vertices ignore; `render` needs one.
+   */
   private readonly camera_: THREE.OrthographicCamera =
     new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-  /** The pyramid step program. */
+  /*
+   * The pyramid step program.
+   */
   private readonly downsample_: THREE.RawShaderMaterial;
 
-  /** The separable Gaussian program. */
+  /*
+   * The separable Gaussian program.
+   */
   private readonly blur_: THREE.RawShaderMaterial;
 
-  /** The final response program. */
+  /*
+   * The final response program.
+   */
   private readonly final_: THREE.RawShaderMaterial;
 
-  /** The running sum of a sampled second's sub-frame samples. */
+  /*
+   * The running sum of a sampled second's sub-frame samples.
+   */
   private readonly sum_: AutoMovieFilmSampleSum = new AutoMovieFilmSampleSum();
 
-  /** The participating medium's march over the linear light. */
+  /*
+   * The participating medium's march over the linear light.
+   */
   private readonly medium_: AutoMovieFilmMediumPass =
     new AutoMovieFilmMediumPass();
 
-  /** The blur's texel step, shared by its uniform. */
+  /*
+   * The blur's texel step, shared by its uniform.
+   */
   private readonly step_: THREE.Vector2 = new THREE.Vector2();
 
-  /** The blur's kernel weights, shared by its uniform. */
+  /*
+   * The blur's kernel weights, shared by its uniform.
+   */
   private readonly weights_: number[] = new Array<number>(32).fill(0);
 
-  /** The glare levels' weights, shared by the final pass's uniform. */
+  /*
+   * The glare levels' weights, shared by the final pass's uniform.
+   */
   private readonly glareWeights_: THREE.Vector3 = new THREE.Vector3();
 
-  /** The sensor response matrix, shared by the final pass's uniform. */
+  /*
+   * The sensor response matrix, shared by the final pass's uniform.
+   */
   private readonly response_: THREE.Matrix3 = new THREE.Matrix3();
 
-  /** The grade's slope, shared by the final pass's uniform. */
+  /*
+   * The grade's slope, shared by the final pass's uniform.
+   */
   private readonly slope_: THREE.Vector3 = new THREE.Vector3(1, 1, 1);
 
-  /** The grade's offset, shared by the final pass's uniform. */
+  /*
+   * The grade's offset, shared by the final pass's uniform.
+   */
   private readonly offset_: THREE.Vector3 = new THREE.Vector3();
 
-  /** The grade's power, shared by the final pass's uniform. */
+  /*
+   * The grade's power, shared by the final pass's uniform.
+   */
   private readonly power_: THREE.Vector3 = new THREE.Vector3(1, 1, 1);
 
   /**
@@ -383,7 +411,7 @@ export class AutoMovieFilmResponseStage {
     this.quad_.geometry.dispose();
   }
 
-  /**
+  /*
    * Size the targets to the raster and set the final pass's uniforms from the
    * optics.
    */
@@ -442,7 +470,7 @@ export class AutoMovieFilmResponseStage {
     return targets;
   }
 
-  /**
+  /*
    * Blur the linear frame by every kernel at its level, building the pyramid as
    * deep as the deepest kernel.
    */
@@ -487,7 +515,9 @@ export class AutoMovieFilmResponseStage {
     }
   }
 
-  /** Release the targets, keeping the programs. */
+  /*
+   * Release the targets, keeping the programs.
+   */
   private release(): void {
     if (this.targets_ === null) return;
     this.targets_.linear.depthTexture?.dispose();

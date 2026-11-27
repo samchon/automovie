@@ -6,7 +6,7 @@ import type {
 import { decomposeAutoMovieSingularMatrix } from "../../math/internal/decomposeAutoMovieSingularMatrix";
 import { AutoMovieEnginePhysicalSingularBudget } from "../AutoMovieEnginePhysicalSingularBudget";
 
-/**
+/*
  * Damped least-squares target update with an active set at box boundaries.
  * Re-solve on free columns when a bound coordinate requests outward travel;
  * clipping a complete unconstrained step can otherwise stall every coordinate.

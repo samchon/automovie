@@ -13,16 +13,15 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import type { jumpLanding } from "./jumpLanding";
 
-/**
+/*
  * Set an angular target for the physical solve and admit the handed-back
  * airborne endpoint against the planned planted footprints.
- *
- * @param body The body used to place the sole contact landmarks.
- * @param landed The landing's world footprints and touchdown root.
- * @param centre The planned touchdown COM in world metres.
- * @param headingChange Signed degrees from flight heading to landing heading.
- * @param subject The performer, for a located refusal.
- * @returns The terminal target and its check on the returned rotation.
+ * Parameter body: The body used to place the sole contact landmarks.
+ * Parameter landed: The landing's world footprints and touchdown root.
+ * Parameter centre: The planned touchdown COM in world metres.
+ * Parameter headingChange: Signed degrees from flight heading to landing heading.
+ * Parameter subject: The performer, for a located refusal.
+ * Returns: The terminal target and its check on the returned rotation.
  */
 export function jumpTouchdownRotation(
   body: IAutoMovieMotionHumanBody,
@@ -80,15 +79,12 @@ export function jumpTouchdownRotation(
   };
 }
 
-/** Geometry and read-back for a planted touchdown on the native jump's clock. */
+/*
+ * Geometry and read-back for a planted touchdown on the native jump's clock.
+ */
 export namespace jumpTouchdownRotation {
-  /**
+  /*
    * Native jump ending at a planted stance.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Distinguishes the turned ground phase, physical shooting angle and actual handed-back rotation.
-   * @evidence contracts/development/design.md#principled-representation Holds the target and read-back check derived from the same known landing geometry.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The shape is the flight record's own `IAutoMovieMotionHumanFlight.ITouchdown`; the jump writes it on the native flight request it declares (`touchdown`), where the flight pass reads it.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The required angle is a target for the original solver and grants no ability to override the physical result.
    */
   export type IRequirement = IAutoMovieMotionHumanFlight.ITouchdown;
 }

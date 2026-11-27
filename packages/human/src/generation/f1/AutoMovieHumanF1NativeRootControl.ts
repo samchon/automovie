@@ -8,18 +8,18 @@ import type {
   IAutoMovieViewAxisJet,
 } from "@automovie/interface";
 
-/**
+/*
  * Original target arithmetic, affine course origins and qualified chart priors.
  * Target compensation changes evaluation of the same P, never its geometry.
  * Coordinate priors remain distinct from full relieved-source inversion.
  */
 export namespace AutoMovieHumanF1NativeRootControl {
-  /**
+  /*
    * Constant caliper course map with the original section directions and
    * derivative law.
    */
   export interface IAffine {
-    /**
+    /*
      * Transform only the course origin and its actual derivatives; keep
      * original section bases.
      */
@@ -29,7 +29,7 @@ export namespace AutoMovieHumanF1NativeRootControl {
     ): IAutoMovieViewAxis.IAxis;
   }
 
-  /**
+  /*
    * Carry both original targets by the complete wall response at their clock.
    *
    * Every changed child coordinate sums child, wall, -parent and the same
@@ -71,7 +71,9 @@ export namespace AutoMovieHumanF1NativeRootControl {
       );
     const anchor: V = input.parent[0]!;
 
-    /** Existing directional caliper correction in the original fixed basis. */
+    /*
+     * Existing directional caliper correction in the original fixed basis.
+     */
     function correction(point: V): V {
       if (input.scale[0] === 1 && input.scale[1] === 1) return [0, 0, 0];
       const q: V = subtract(point, anchor);
@@ -101,7 +103,7 @@ export namespace AutoMovieHumanF1NativeRootControl {
     return { parent, child };
   }
 
-  /**
+  /*
    * Preserve the original address residual and unwrapped phase under the same
    * raw-coordinate increment.
    */
@@ -119,7 +121,7 @@ export namespace AutoMovieHumanF1NativeRootControl {
     ];
   }
 
-  /**
+  /*
    * Keep the existing constant affine candidate course policy and physical2.
    * The caller admits its finite basis, anchor and positive scales before
    * acquiring the source. Translation is constant along each returned axis.
@@ -131,7 +133,9 @@ export namespace AutoMovieHumanF1NativeRootControl {
     scale: readonly [number, number],
     anchor: V,
   ): IAffine {
-    /** Existing anchored point map; translation and coordinates use world mm. */
+    /*
+     * Existing anchored point map; translation and coordinates use world mm.
+     */
     function affine(point: V, translation: V): V {
       const q: V = subtract(point, anchor);
       const a: number = (scale[0] - 1) * dot(q, basis.u);
@@ -142,7 +146,9 @@ export namespace AutoMovieHumanF1NativeRootControl {
       ) as V;
     }
 
-    /** The same constant linear part differentiates the origin once and twice. */
+    /*
+     * The same constant linear part differentiates the origin once and twice.
+     */
     function linear(point: V): V {
       const a: number = (scale[0] - 1) * dot(point, basis.u);
       const b: number = (scale[1] - 1) * dot(point, basis.v);
@@ -152,7 +158,7 @@ export namespace AutoMovieHumanF1NativeRootControl {
       ) as V;
     }
 
-    /**
+    /*
      * Preserve original u/v and their derivatives while transforming the course
      * origin.
      */
@@ -167,7 +173,9 @@ export namespace AutoMovieHumanF1NativeRootControl {
       )
         return prior;
 
-      /** The actual original frame with only its origin transformed. */
+      /*
+       * The actual original frame with only its origin transformed.
+       */
       function frame(
         value: IAutoMovieLoftSectionFrame,
       ): IAutoMovieLoftSectionFrame {
@@ -204,7 +212,7 @@ export namespace AutoMovieHumanF1NativeRootControl {
     return { axis };
   }
 
-  /**
+  /*
    * Straight-parent bare-coordinate prior, in mm/radians; not a relieved-skin
    * inverse.
    */
@@ -229,7 +237,7 @@ export namespace AutoMovieHumanF1NativeRootControl {
     ];
   }
 
-  /**
+  /*
    * Same local source-native prior at the original material station, in
    * mm/radians.
    */
@@ -254,7 +262,7 @@ export namespace AutoMovieHumanF1NativeRootControl {
     return [station + dot(q, normal) / speed, Math.atan2(v, u)];
   }
 
-  /**
+  /*
    * The original caliper-frame construction clock, with no anatomical
    * interpretation.
    */
@@ -267,7 +275,7 @@ export namespace AutoMovieHumanF1NativeRootControl {
     return Math.atan2(v, u);
   }
 
-  /**
+  /*
    * Accumulate at most four unchanged target terms with the engine's twofold
    * owner. Inputs and every intermediate high/low must remain finite; even a
    * finite exact final sum can exceed this nonoverflowing evaluation domain.
@@ -292,17 +300,23 @@ export namespace AutoMovieHumanF1NativeRootControl {
     return value;
   }
 
-  /** Fresh component subtraction with unchanged arithmetic. */
+  /*
+   * Fresh component subtraction with unchanged arithmetic.
+   */
   function subtract(a: V, b: V): V {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
-  /** Existing projection onto an original frame direction. */
+  /*
+   * Existing projection onto an original frame direction.
+   */
   function dot(a: V, b: V): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
-  /** Original frame normal in the engine's v-cross-u convention. */
+  /*
+   * Original frame normal in the engine's v-cross-u convention.
+   */
   function cross(a: V, b: V): V {
     return [
       a[1] * b[2] - a[2] * b[1],
@@ -312,7 +326,7 @@ export namespace AutoMovieHumanF1NativeRootControl {
   }
 }
 
-/**
+/*
  * Original world positions in mm, or component derivatives in their named
  * coordinate.
  */

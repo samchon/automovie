@@ -5,7 +5,7 @@ import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
 import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
 
-/**
+/*
  * Teach one material to place its vertices at each member's own cycle position.
  *
  * Injection rather than a bespoke material, because a formation is drawn by

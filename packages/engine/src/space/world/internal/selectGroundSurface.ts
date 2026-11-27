@@ -5,7 +5,9 @@ import type {
 
 import { surfaceContainsPoint } from "./surfaceContainsPoint";
 
-/** Select the first declared world surface containing an XZ point. */
+/*
+ * Select the first declared world surface containing an XZ point.
+ */
 export function selectGroundSurface(
   surfaces: readonly IAutoMovieWorldSurface[],
   point: IAutoMovieGroundQueryPoint,

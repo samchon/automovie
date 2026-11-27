@@ -7,7 +7,7 @@ import type {
 
 import { autoMovieAnalysisSettingsTargets } from "./autoMovieAnalysisSettingsTargets";
 
-/**
+/*
  * Serialize the settings a daylight study's run records: the context id, ground
  * and north, the resolved instant, the ordered context occluders, workplane,
  * shades and luminaires, the sky settings and the projected targets.
@@ -18,12 +18,11 @@ import { autoMovieAnalysisSettingsTargets } from "./autoMovieAnalysisSettingsTar
  *
  * Entry- and text-linear serialization creates temporary projections and the
  * returned string once per study; no request or cache survives sealing.
- *
- * @param request The study request.
- * @param instant The resolved environmental instant, or `null` for an
- *   artificial-light study.
- * @param occluders The context's solids.
- * @returns The settings text the run's digest covers.
+ * Parameter request: The study request.
+ * Parameter instant: The resolved environmental instant, or `null` for an
+ * artificial-light study.
+ * Parameter occluders: The context's solids.
+ * Returns: The settings text the run's digest covers.
  */
 export function autoMovieDaylightSettings(
   request: IAutoMovieDaylightRequest,

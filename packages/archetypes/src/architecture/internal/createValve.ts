@@ -3,7 +3,7 @@ import { Vector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
-/**
+/*
  * A gate valve on a pipe, opened and closed by its handwheel.
  *
  * The pipe runs along `X` lying on the floor, its axis a bore's radius up over
@@ -14,14 +14,13 @@ import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSe
  * travel, since no source read gives its turns from open to closed.
  *
  * It rests on its iron pipe: steel on concrete (`AutoMovieArchetypeFriction`).
- *
- * @param params The model and any dimension the author fixes.
- * @param seed The seed that draws the model when it is not given and every
- *   dimension left free inside its band; absent, the first model and the middle
- *   of each band.
- * @returns The valve.
- * @throws {AutoMovieArchetypeRefusal} For a model the sheet does not list, or a
- *   fixed dimension outside its band.
+ * Parameter params: The model and any dimension the author fixes.
+ * Parameter seed: The seed that draws the model when it is not given and every
+ * dimension left free inside its band; absent, the first model and the middle
+ * of each band.
+ * Returns: The valve.
+ * For a model the sheet does not list, or a
+ * fixed dimension outside its band.
  */
 export function createValve(
   params: AutoMovieArchetypeValve.IParams = {},
@@ -108,7 +107,7 @@ export function createValve(
   return builder.build(d.mass, { rests: "steel" });
 }
 
-/**
+/*
  * The construction sizes no source read gives, metres, each an estimate no act
  * reads and no band declares: `run`, the pipe stub's length either side of the
  * valve as a share of the height; `rim`, the handwheel rim's thickness; `body`,

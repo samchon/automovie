@@ -5,18 +5,17 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A tool or vessel contact frame for the tool captures: at a point, its `+Y`
  * along `out` and its `+X` along `along`, its `+Z` completing the right-handed
  * basis.
- *
- * @param id The contact's id.
- * @param kind The contact's kind.
- * @param at Its point in the prop's frame, metres.
- * @param out Its outward direction, unit.
- * @param along Its long direction, unit, perpendicular to `out`.
- * @param extra Further fields of the contact.
- * @returns The contact.
+ * Parameter id: The contact's id.
+ * Parameter kind: The contact's kind.
+ * Parameter at: Its point in the prop's frame, metres.
+ * Parameter out: Its outward direction, unit.
+ * Parameter along: Its long direction, unit, perpendicular to `out`.
+ * Parameter extra: Further fields of the contact.
+ * Returns: The contact.
  */
 export function toolCaseContact(
   id: string,

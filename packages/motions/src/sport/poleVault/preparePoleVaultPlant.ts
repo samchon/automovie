@@ -8,18 +8,17 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { GymnasticsFlight } from "../internal/GymnasticsFlight";
 
-/**
+/*
  * Fit the pole end to the floor with the vault's original wrist-height secant
  * corrections. Every actual trial keeps its full source solve, original
  * frozen-view re-admission and actual grip observation.
- *
- * @param props The unchanged body/model, held hand, pole-end offset in its grip
- *   frame, initial wrist height, original correction count and synchronous raw
- *   writer of each tried height. The writer must not retain either borrowed
- *   workspace.
- * @returns The final frozen posture, actual pole tip/grip points and world COM,
- *   all in world metres except the posture's clinical degrees. No workspace or
- *   canonical trial pose escapes.
+ * Parameter props: The unchanged body/model, held hand, pole-end offset in its grip
+ * frame, initial wrist height, original correction count and synchronous raw
+ * writer of each tried height. The writer must not retain either borrowed
+ * workspace.
+ * Returns: The final frozen posture, actual pole tip/grip points and world COM,
+ * all in world metres except the posture's clinical degrees. No workspace or
+ * canonical trial pose escapes.
  */
 export function preparePoleVaultPlant(
   props: IPreparePoleVaultPlantProps,
@@ -90,10 +89,14 @@ export function preparePoleVaultPlant(
   };
 }
 
-/** The record of `IPreparePoleVaultPlantLast`'s site. */
+/*
+ * The record of `IPreparePoleVaultPlantLast`'s site.
+ */
 type IPreparePoleVaultPlantLast = { y: number; miss: number };
 
-/** The record of `IPreparePoleVaultPlantResult`'s site. */
+/*
+ * The record of `IPreparePoleVaultPlantResult`'s site.
+ */
 type IPreparePoleVaultPlantResult = {
   posture: IAutoMovieMotionHumanPosture;
   tip: IAutoMovieVector3;
@@ -101,7 +104,9 @@ type IPreparePoleVaultPlantResult = {
   centre: IAutoMovieVector3;
 };
 
-/** The record of `IPreparePoleVaultPlantProps`'s site. */
+/*
+ * The record of `IPreparePoleVaultPlantProps`'s site.
+ */
 type IPreparePoleVaultPlantProps = {
   body: IAutoMovieMotionHumanBody;
   model: IAutoMovieResolveCenterOfMass.IModel;
@@ -116,19 +121,21 @@ type IPreparePoleVaultPlantProps = {
   ) => IAutoMovieMotionHumanPosture;
 };
 
-/**
+/*
  * One actual frozen raw view, its independently admitted canonical pose and
  * fresh grip frames.
  */
 interface ITrial {
-  /** The original limb-goal-free clinical view. */
+  /*
+   * The original limb-goal-free clinical view.
+   */
   posture: IAutoMovieMotionHumanPosture;
-  /**
+  /*
    * Actual canonical re-admission of that view, preserving the original plant
    * pipeline.
    */
   pose: IAutoMoviePose;
-  /**
+  /*
    * Only actual grip/hand frames; canonical ancestry is handled by the body
    * producer.
    */

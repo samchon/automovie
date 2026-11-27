@@ -17,7 +17,7 @@ import { prepareHumanGripHand } from "./prepareHumanGripHand";
 import { prepareHumanPerformanceOrder } from "./prepareHumanPerformanceOrder";
 import { prepareHumanSegment } from "./prepareHumanSegment";
 
-/**
+/*
  * Prepare a resolved performance so that every later read is a pure function of
  * its film second: solve, once, every record its readers evaluate, each after
  * what it reads.
@@ -62,8 +62,7 @@ import { prepareHumanSegment } from "./prepareHumanSegment";
  * carried by hand, and none returns to the span being solved: no performer is
  * carried, through others' hands, by the prop its own hand holds. The live hand
  * and the course it is later read on agree within the course's millimetre. *
- *
- * @param self The resolved performance, every action placed.
+ * Parameter self: The resolved performance, every action placed.
  */
 export function prepareHumanPerformance(
   self: IAutoMovieMotionHumanPerformanceState,
@@ -154,7 +153,9 @@ export function prepareHumanPerformance(
       );
 }
 
-/** Whether a prop declares a soft domain. */
+/*
+ * Whether a prop declares a soft domain.
+ */
 function soft(prop: IAutoMovieMotionHumanProp): boolean {
   return prop.soft !== undefined;
 }

@@ -6,16 +6,15 @@ import type {
 
 import { AutoMovieArchetypeFrame } from "../../../core/AutoMovieArchetypeFrame";
 
-/**
+/*
  * Make a coarse single-seat amusement ride car with a level side threshold.
  *
  * The origin is at track height. The car faces +Z, its threshold is on +X and
  * its seat faces +Z. The body is a visual proxy with no physics or restraint
  * metadata. A production can substitute another admitted rigid carriage while
  * leaving the course unchanged.
- *
- * @param id Model identity, defaulting to coaster-car.
- * @returns A generated model with seat and boarding affordances.
+ * Parameter id: Model identity, defaulting to coaster-car.
+ * Returns: A generated model with seat and boarding affordances.
  */
 export function createCoasterCar(id: string = "coaster-car"): IAutoMovieModel {
   const part = (
@@ -39,7 +38,9 @@ export function createCoasterCar(id: string = "coaster-car"): IAutoMovieModel {
     transform: AutoMovieArchetypeFrame.upright({ x, y, z }),
   });
 
-  /** The boarding and seating heights are the tops of the floor and cushion. */
+  /*
+   * The boarding and seating heights are the tops of the floor and cushion.
+   */
   const floor: number = 0.38;
   const seat: number = floor + 0.43;
   return {

@@ -1,11 +1,10 @@
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
-/**
+/*
  * A context's quadratic terms and their curvature.
- *
- * @param c The context.
- * @returns The record, owned by the caller.
+ * Parameter c: The context.
+ * Returns: The record, owned by the caller.
  */
 export function HumanArmTrajectorySmooth(
   c: M.IContext,
@@ -85,7 +84,7 @@ export function HumanArmTrajectorySmooth(
   return { vars, band, p, terms };
 }
 
-/**
+/*
  * The part of an arms' trajectory's objective that is quadratic in the
  * coordinates themselves (`HumanArmTrajectoryModel`): each free coordinate's
  * squared second difference over the waypoints, and a still configuration's
@@ -95,61 +94,80 @@ export function HumanArmTrajectorySmooth(
  * gradient is read at an iterate.
  */
 export namespace HumanArmTrajectorySmooth {
-  /** One squared residual `weight * r^2` with `r` linear in the coordinates. */
+  /*
+   * One squared residual `weight * r^2` with `r` linear in the coordinates.
+   */
   export interface ITerm {
-    /** The term's weight. */
+    /*
+     * The term's weight.
+     */
     weight: number;
 
-    /** The variables the residual moves with, by index in the convex model. */
+    /*
+     * The variables the residual moves with, by index in the convex model.
+     */
     index: number[];
 
-    /** Each variable's coefficient in the residual. */
+    /*
+     * Each variable's coefficient in the residual.
+     */
     coef: number[];
 
-    /** The arm whose coordinates the residual's value is read from. */
+    /*
+     * The arm whose coordinates the residual's value is read from.
+     */
     arm: number;
 
-    /** The coordinate, among the arm's nine. */
+    /*
+     * The coordinate, among the arm's nine.
+     */
     coordinate: number;
 
-    /** The waypoints the value sums, each with its factor, in the order summed. */
+    /*
+     * The waypoints the value sums, each with its factor, in the order summed.
+     */
     from: readonly (readonly [number, number])[];
 
-    /**
+    /*
      * A constant added to the value: the anchor's coordinate, negated; zero for
      * a second difference.
      */
     offset: number;
   }
 
-  /** The quadratic terms of a context and their curvature. */
+  /*
+   * The quadratic terms of a context and their curvature.
+   */
   export interface ISmooth {
-    /** The convex model's variables. */
+    /*
+     * The convex model's variables.
+     */
     vars: number;
 
-    /** Its half-bandwidth. */
+    /*
+     * Its half-bandwidth.
+     */
     band: number;
 
-    /**
+    /*
      * The terms' summed curvature, twice each weight times its coefficients'
      * outer product.
      */
     p: Float64Array[];
 
-    /**
+    /*
      * The terms, each arm's second differences by waypoint and coordinate, then
      * its anchor's.
      */
     terms: ITerm[];
   }
 
-  /**
+  /*
    * Add the terms' gradient at an iterate to a convex model's linear term: `2 w
    * c r` per term, with `r` its residual at the iterate.
-   *
-   * @param smooth The context's terms.
-   * @param x Each arm's coordinates at each waypoint.
-   * @param q The linear term, added to in place.
+   * Parameter smooth: The context's terms.
+   * Parameter x: Each arm's coordinates at each waypoint.
+   * Parameter q: The linear term, added to in place.
    */
   export function gradient(
     smooth: ISmooth,

@@ -1,4 +1,4 @@
-/**
+/*
  * Fixed settings of room-tone generation, `mixProductionRoomTone`.
  *
  * `bandsHz` are the base-two octave band centres of IEC 61260-1, 1 kHz × 2^k
@@ -13,13 +13,19 @@
  * transient. These are design choices of the generator, not measured values.
  */
 export const AUTOMOVIE_ROOM_TONE: Readonly<{
-  /** Octave band centres in Hz. */
+  /*
+   * Octave band centres in Hz.
+   */
   bandsHz: readonly number[];
 
-  /** Crossfade and free-edge fade length, in seconds. */
+  /*
+   * Crossfade and free-edge fade length, in seconds.
+   */
   crossfadeSeconds: number;
 
-  /** Filter warm-up before a bed's first sample, in seconds. */
+  /*
+   * Filter warm-up before a bed's first sample, in seconds.
+   */
   warmUpSeconds: number;
 }> = {
   bandsHz: [31.25, 62.5, 125, 250, 500, 1000, 2000, 4000, 8000, 16000],

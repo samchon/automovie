@@ -25,7 +25,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import type { ILadderAccessGrip } from "./ILadderAccessGrip";
 import { climbLadderHands } from "./climbLadderHands";
 
-/**
+/*
  * Seat each ladder grip of the access route on its staged point throughout its
  * window, including while another limb moves, and ease the hand onto and off it
  * over up to `SEAT` seconds outside the window, never past half the gap to that
@@ -34,12 +34,11 @@ import { climbLadderHands } from "./climbLadderHands";
  * hand's grip frame, the elbow bent as hanging. A grip held behind the body, as
  * from the landing, keeps the support law's own held-hand fit, which already
  * meets its target; this is decided once per hold, at its middle.
- *
- * @param body The canonical motion body.
- * @param normal World unit direction the gripping palm faces.
- * @param plan The support law's plan of the route.
- * @param grips The route's rung and rail grips and their windows.
- * @returns The route's posture with the arms seated on their grips.
+ * Parameter body: The canonical motion body.
+ * Parameter normal: World unit direction the gripping palm faces.
+ * Parameter plan: The support law's plan of the route.
+ * Parameter grips: The route's rung and rail grips and their windows.
+ * Returns: The route's posture with the arms seated on their grips.
  */
 export function seatLadderAccessGrips(
   body: IAutoMovieMotionHumanBody,
@@ -244,13 +243,15 @@ export function seatLadderAccessGrips(
   };
 }
 
-/**
+/*
  * The longest easing onto or off a grip outside its window, seconds
  * (provisional).
  */
 const SEAT: number = 0.12;
 
-/** The posture reader's arguments after the time. */
+/*
+ * The posture reader's arguments after the time.
+ */
 type SampleRest =
   Parameters<IAutoMovieMotionHumanActionPlan["posture"]> extends [
     number,
@@ -259,35 +260,53 @@ type SampleRest =
     ? Rest
     : never;
 
-/** A grip with its window and easing in plan seconds. */
+/*
+ * A grip with its window and easing in plan seconds.
+ */
 interface ISeat {
-  /** The prepared grip writer for this rung. */
+  /*
+   * The prepared grip writer for this rung.
+   */
   target: ReturnType<typeof climbLadderHands>;
 
-  /** The grip. */
+  /*
+   * The grip.
+   */
   grip: ILadderAccessGrip;
 
-  /** Its window's start, seconds. */
+  /*
+   * Its window's start, seconds.
+   */
   from: number;
 
-  /** Its window's end, seconds. */
+  /*
+   * Its window's end, seconds.
+   */
   to: number;
 
-  /** Whether the grip is held behind the body, left to the support law's fit. */
+  /*
+   * Whether the grip is held behind the body, left to the support law's fit.
+   */
   behind: boolean;
 
-  /** The easing onto it before the start, seconds. */
+  /*
+   * The easing onto it before the start, seconds.
+   */
   prepare: number;
 
-  /** The easing off it after the end, seconds. */
+  /*
+   * The easing off it after the end, seconds.
+   */
   leave: number;
 
-  /**
+  /*
    * The route's wrist position, wrist rotation and elbow position over the
    * easing onto the grip (`hand`).
    */
   onto: (seconds: number) => number[];
 
-  /** The same over the easing off it. */
+  /*
+   * The same over the easing off it.
+   */
   off: (seconds: number) => number[];
 }

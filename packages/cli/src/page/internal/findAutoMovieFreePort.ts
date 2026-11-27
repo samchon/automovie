@@ -1,6 +1,6 @@
 import * as net from "node:net";
 
-/**
+/*
  * A TCP port the operating system reports free on 127.0.0.1 at the moment of
  * asking, for a page server that must not take another server's port.
  *

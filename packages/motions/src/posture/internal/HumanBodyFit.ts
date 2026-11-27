@@ -23,7 +23,7 @@ import { HumanQuadraticProgram } from "./HumanQuadraticProgram";
 import { HumanQuadraticValue } from "./HumanQuadraticValue";
 import { HumanSequentialConvex } from "./HumanSequentialConvex";
 
-/**
+/*
  * A whole-body fit: the static posture nearest a preferred one in which points
  * of the body reach their goals, the parts that bear rest on the floor, nothing
  * passes under it, the centre of mass stands over the base of support and the
@@ -59,25 +59,29 @@ import { HumanSequentialConvex } from "./HumanSequentialConvex";
  * the fit failed, as sco's ends where its convex solver fails.
  */
 export namespace HumanBodyFit {
-  /**
+  /*
    * The price a target's or an angle's own `price` is a share of: a row without
    * one weighs the merit coefficient itself.
    */
   export const PRICE: number = 100;
 
-  /** The shared acceptance precision, metres or radians, owned by the merit. */
+  /*
+   * The shared acceptance precision, metres or radians, owned by the merit.
+   */
   export const TOLERANCE: number = HumanBodyFitMerit.TOLERANCE;
 
-  /**
+  /*
    * How far a row may miss unpriced, metres, in each step's rows and in the
    * merit alike; half the tolerance, so a step that meets its rows holds.
    */
   const BAND: number = HumanBodyFitRows.BAND;
 
-  /** The rows are written in millimetres. */
+  /*
+   * The rows are written in millimetres.
+   */
   const MM: number = HumanBodyFitRows.MM;
 
-  /**
+  /*
    * A collider or a pair farther than this beyond contact is left out of a
    * step's rows, metres: trajopt's contact distance, the largest safety
    * distance plus 0.04 m (`problem_description.cpp` line 549 at commit
@@ -87,12 +91,11 @@ export namespace HumanBodyFit {
    */
   const NEAR: number = 0.04;
 
-  /**
+  /*
    * The fit and what it misses by.
-   *
-   * @param props The fit.
-   * @returns The fitted posture, its constraint residuals and feasibility,
-   *   whether the loop converged and how it ended.
+   * Parameter props: The fit.
+   * Returns: The fitted posture, its constraint residuals and feasibility,
+   * whether the loop converged and how it ended.
    */
   export function fit(
     props: IAutoMovieMotionHumanBodyFitTypes.IProps,
@@ -394,23 +397,35 @@ export namespace HumanBodyFit {
     };
   }
 
-  /** A posture's reading for the fit. */
+  /*
+   * A posture's reading for the fit.
+   */
   type IReading = HumanBodyFitRows.IReading;
 
-  /** A row of a step and the reading it linearises. */
+  /*
+   * A row of a step and the reading it linearises.
+   */
   type IRead = HumanBodyFitRows.IRead;
 
-  /** An iterate's reading for the loop (`HumanBodyFitMerit`). */
+  /*
+   * An iterate's reading for the loop (`HumanBodyFitMerit`).
+   */
   type IEvaluation = HumanBodyFitMerit.IEvaluation & {
-    /** The active signed exterior gaps of this same pose. */
+    /*
+     * The active signed exterior gaps of this same pose.
+     */
     exterior?: readonly HumanFitExterior.IPair[];
   };
 }
 
-/** The alternatives of `Fit`'s site. */
+/*
+ * The alternatives of `Fit`'s site.
+ */
 type Fit = "body" | "posture";
 
-/** Report a signed pair from the fit's already evaluated final pose. */
+/*
+ * Report a signed pair from the fit's already evaluated final pose.
+ */
 function exteriorResidual(
   pair: HumanFitExterior.IPair,
 ): IAutoMovieMotionHumanBodyFitTypes.IExteriorResidual {

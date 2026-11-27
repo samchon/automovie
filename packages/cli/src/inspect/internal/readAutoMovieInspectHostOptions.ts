@@ -1,7 +1,7 @@
 import type { AutoMovieCliInspectTypes } from "../AutoMovieCliInspectTypes";
 import { AUTOMOVIE_INSPECT_OPTIONS } from "./AUTOMOVIE_INSPECT_OPTIONS";
 
-/**
+/*
  * Split the options of `automovie inspect` into the command's own,
  * `AUTOMOVIE_INSPECT_OPTIONS`, and the request the page opens on, which
  * `parseAutoMovieCapturePlanRequest` reads.
@@ -47,5 +47,7 @@ export function readAutoMovieInspectHostOptions(
   return { module, port, props: taken.get("props") ?? null, request };
 }
 
-/** Highest TCP port. */
+/*
+ * Highest TCP port.
+ */
 const PORTS: number = 65_535;

@@ -24,10 +24,12 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { guitarNoteEntry } from "./guitarNoteEntry";
 import { resolveGuitarStringContact } from "./resolveGuitarStringContact";
 
-/** Tolerance for a usable projected shoulder direction, metres. */
+/*
+ * Tolerance for a usable projected shoulder direction, metres.
+ */
 const COINCIDENCE: number = 1e-6;
 
-/**
+/*
  * A left index stops one string while the right index crosses it on a
  * stationary guitar. The left stops at the chosen fret bar's crossing with the
  * string. The right crosses that same string at the soundboard centre's
@@ -52,13 +54,12 @@ export const guitarNote: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGui
     plan,
   };
 
-/**
+/*
  * Resolve the staged instrument and plan the synchronized contact paths.
- *
- * @param context The action's start, performer and authored note.
- * @returns The held base and two time-addressable fingertip motions.
- * @throws {HumanRefusal} For invalid times, an incompatible guitar or occupied
- *   hands, or a wrist beyond the arm's geometric reach.
+ * Parameter context: The action's start, performer and authored note.
+ * Returns: The held base and two time-addressable fingertip motions.
+ * For invalid times, an incompatible guitar or occupied
+ * hands, or a wrist beyond the arm's geometric reach.
  */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const {
@@ -164,7 +165,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   };
 }
 
-/**
+/*
  * Build one arm and index goal from its displayed wrist and the soundboard's
  * normal.
  */
@@ -282,7 +283,9 @@ function handPath(
   };
 }
 
-/** The part of a vector crossing a unit normal. */
+/*
+ * The part of a vector crossing a unit normal.
+ */
 function reject(
   value: IAutoMovieVector3,
   normal: IAutoMovieVector3,
@@ -293,11 +296,15 @@ function reject(
   );
 }
 
-/** Minimum-jerk progress between two ordered instants, clamped at the ends. */
+/*
+ * Minimum-jerk progress between two ordered instants, clamped at the ends.
+ */
 function ease(seconds: number, from: number, to: number): number {
   return AutoMovieMotionInterval.progress(from, to, seconds);
 }
 
-/** A staged guitar note's inputs and entry state. */
+/*
+ * A staged guitar note's inputs and entry state.
+ */
 type Context =
   IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuitarNote>;

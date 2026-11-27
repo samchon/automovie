@@ -25,30 +25,38 @@ import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShape
 import { shankTilt } from "./shankTilt";
 import { unloadedFoot } from "./unloadedFoot";
 
-/** The step that reads the seat's velocity at release, seconds. */
+/*
+ * The step that reads the seat's velocity at release, seconds.
+ */
 const RATE: number = 1e-3;
-/**
+/*
  * The landing's knee give: the pelvis lands this share of its standing height
  * (provisional staging).
  */
 const LAND: number = 0.8;
-/** Seconds from touchdown to standing still (provisional staging). */
+/*
+ * Seconds from touchdown to standing still (provisional staging).
+ */
 const SETTLE: number = 0.4;
 
-/**
+/*
  * How far each upper arm abducts for the landing, degrees (provisional
  * staging).
  */
 const OPEN: number = 35;
 
-/** World vertical. */
+/*
+ * World vertical.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** The bones of an arm and its hand, either side. */
+/*
+ * The bones of an arm and its hand, either side.
+ */
 const ARM: RegExp =
   /^(left|right)(Shoulder|UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/;
 
-/**
+/*
  * Leap off a moving swing seat: the pelvis leaves with the velocity of the
  * seat's point under it at the action's start and follows the projectile under
  * standard gravity until it is `LAND` of its standing height above the ground,
@@ -57,10 +65,9 @@ const ARM: RegExp =
  * its shank so the ankle keeps its angle until it comes flat on landing. The
  * feet then bear flat where they landed and the pelvis rises to standing over
  * them in `SETTLE`.
- *
- * @param context The seated entry on the moving seat and the ground's height.
- * @returns The flight, touchdown and settle.
- * @throws {HumanRefusal} When the pelvis starts below its landing height.
+ * Parameter context: The seated entry on the moving seat and the ground's height.
+ * Returns: The flight, touchdown and settle.
+ * When the pelvis starts below its landing height.
  */
 export function HumanSwingLeap(
   context: IAutoMovieMotionHumanActionContext<Params>,
@@ -291,9 +298,13 @@ export function HumanSwingLeap(
   };
 }
 
-/** Vertical flight admission and timing for the displayed swing release. */
+/*
+ * Vertical flight admission and timing for the displayed swing release.
+ */
 export namespace HumanSwingLeap {
-  /** Solve the later root of y0 + vy t − g t² / 2 = landing in seconds. */
+  /*
+   * Solve the later root of y0 + vy t − g t² / 2 = landing in seconds.
+   */
   export function flight(
     height: number,
     speed: number,

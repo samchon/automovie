@@ -13,7 +13,7 @@ import { QuadrupedCarriage } from "./QuadrupedCarriage";
 import { QuadrupedWorldPose } from "./QuadrupedWorldPose";
 import type { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped";
 
-/**
+/*
  * A quadruped's tail carried over the ground it meets: the tail is articulated
  * at the dock by its coccygeal vertebrae, so where the posed body would sink
  * its hanging tail into the footing beneath, the tail turns about the dock, in
@@ -22,28 +22,27 @@ import type { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped
  * of its posed carriage.
  */
 export namespace QuadrupedTail {
-  /**
+  /*
    * The most the tail turns at the dock from its posed carriage, degrees:
    * provisional, a tail raised from hanging to trailing level behind.
    */
   export const ROM: number = 90;
 
-  /**
+  /*
    * The hair's rest on the footing, metres: the clearance the far end keeps,
    * provisional, so resting is not read as entering.
    */
   export const REST: number = 0.001;
 
-  /**
+  /*
    * Carry a posed model's tail over the footing beneath it.
-   *
-   * @param animal The source animal in its neutral pose.
-   * @param species The animal's species, which names its carriers.
-   * @param model The posed model.
-   * @param placement Its world placement.
-   * @param footing The prepared footing.
-   * @returns The model, its tail turned when it would enter the footing, else
-   *   unchanged.
+   * Parameter animal: The source animal in its neutral pose.
+   * Parameter species: The animal's species, which names its carriers.
+   * Parameter model: The posed model.
+   * Parameter placement: Its world placement.
+   * Parameter footing: The prepared footing.
+   * Returns: The model, its tail turned when it would enter the footing, else
+   * unchanged.
    */
   export function carry<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,

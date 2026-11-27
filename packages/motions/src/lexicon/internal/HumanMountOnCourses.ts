@@ -14,7 +14,7 @@ import { seated } from "../../everyday/internal/seated";
 import { sitHandMeet } from "../../everyday/internal/sitHandMeet";
 import { HumanSwungLeg } from "./HumanSwungLeg";
 
-/**
+/*
  * The limb courses laid over a climb onto a high seat (`HumanMountOn`): a
  * swinging leg is keyed in joint space where its world course leaves the leg's
  * range (`HumanSwungLeg`), since a course over a saddle asks the ankle past
@@ -33,9 +33,8 @@ import { HumanSwungLeg } from "./HumanSwungLeg";
  * trunk at the one point. On a fitted material seat, that rest starts at
  * the supported seated phase. An entry arm first obstructing a rising thigh
  * does not establish a palm hold while either thigh is still settling.
- *
- * @param props The climb's plan, its timing and the swinging legs.
- * @returns The plan with its swung legs and its hands' courses.
+ * Parameter props: The climb's plan, its timing and the swinging legs.
+ * Returns: The plan with its swung legs and its hands' courses.
  */
 export function HumanMountOnCourses(
   props: HumanMountOnCourses.IProps,
@@ -122,41 +121,67 @@ export function HumanMountOnCourses(
   });
 }
 
-/** What the climb's limb courses read. */
+/*
+ * What the climb's limb courses read.
+ */
 export namespace HumanMountOnCourses {
-  /** The climb's plan, its timing and the swinging legs. */
+  /*
+   * The climb's plan, its timing and the swinging legs.
+   */
   export interface IProps {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The climb's lower-body plan, before its swing keys. */
+    /*
+     * The climb's lower-body plan, before its swing keys.
+     */
     plan: IAutoMovieMotionHumanActionPlan;
 
-    /** The entry's pose, the hands' hanging rest. */
+    /*
+     * The entry's pose, the hands' hanging rest.
+     */
     pose: IAutoMoviePose;
 
-    /** The flat palms' extents and thigh-local surface readers. */
+    /*
+     * The flat palms' extents and thigh-local surface readers.
+     */
     palms: ReturnType<typeof prepareSeatedPalms>;
 
-    /** The climb's length to seated, seconds. */
+    /*
+     * The climb's length to seated, seconds.
+     */
     climb: number;
 
-    /** The plan's length, seconds. */
+    /*
+     * The plan's length, seconds.
+     */
     duration: number;
 
-    /** The seated phase has a fitted seat and foot supports. */
+    /*
+     * The seated phase has a fitted seat and foot supports.
+     */
     materialSeat?: true;
 
-    /** The far leg when its crossing uses prepared joint keys. */
+    /*
+     * The far leg when its crossing uses prepared joint keys.
+     */
     crossing?: {
-      /** The side of the crossing thigh and the hand that rests on it. */
+      /*
+       * The side of the crossing thigh and the hand that rests on it.
+       */
       side: AutoMovieHumanSide;
 
-      /** The second the far foot lands on its stirrup. */
+      /*
+       * The second the far foot lands on its stirrup.
+       */
       landing: number;
     };
 
-    /** Each leg's swing, the seconds it leaves and lands, or none. */
+    /*
+     * Each leg's swing, the seconds it leaves and lands, or none.
+     */
     swing: (side: AutoMovieHumanSide) => HumanSwungLeg.Swing | null;
   }
 }

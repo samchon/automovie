@@ -46,7 +46,7 @@ import { throwObjectLever } from "../throwObject/throwObjectLever";
 import { throwObjectRelease } from "../throwObject/throwObjectRelease";
 import { throwObjectSwing } from "../throwObject/throwObjectSwing";
 
-/**
+/*
  * Throwing a held object to a target: overarm, underarm, or a gentle toss.
  *
  * The goal is a launch: the object, held at the hand's grip, leaves the hand at
@@ -61,7 +61,7 @@ import { throwObjectSwing } from "../throwObject/throwObjectSwing";
  * finish are places around the standing shoulder in arm lengths
  * (`throwObjectForm.PLACES`, provisional); the release is read from the
  * shoulder of the trunk's release pose, at the arm's reach for the elbow's
- * flexion where a study gives it ({@link throwObjectRelease}). The hand is drawn
+ * flexion where a study gives it (throwObjectRelease). The hand is drawn
  * back to the chamber on minimum-jerk progress (the windup), then driven on a
  * cubic Hermite curve from rest at the chamber to the launch velocity, taking
  * twice the path's length over the launch speed (the time of constant
@@ -92,16 +92,18 @@ import { throwObjectSwing } from "../throwObject/throwObjectSwing";
  * 1995), and feints.
  */
 export namespace throwObject {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "throwObject";
 
-  /**
+  /*
    * The launch is the throw's physical outcome. Prop flight starts at its own
    * release.
    */
   export const physical: boolean = true;
 
-  /**
+  /*
    * Cancel table: the thrower stands or walks once the follow-through ends, and
    * may catch what it threw from the release on.
    */
@@ -113,27 +115,28 @@ export namespace throwObject {
     walk: [after()],
   };
 
-  /**
+  /*
    * May be performed over a carrier, such as seated or while another action
    * carries the body: it claims only the parts it moves.
    */
   export const overlay: boolean = true;
 
-  /**
+  /*
    * Seconds before and after the release through which the hand carries its
    * launch velocity (`throwObjectForm.CARRY`).
    */
   export const CARRY: number = throwObjectForm.CARRY;
 
-  /** A point of a launch's drag-free path (`throwObjectLaunch.path`). */
+  /*
+   * A point of a launch's drag-free path (`throwObjectLaunch.path`).
+   */
   export const path = throwObjectLaunch.path;
 
-  /**
+  /*
    * Plan a throw.
-   *
-   * @param context The action's context.
-   * @returns The plan with its launch.
-   * @throws {HumanRefusal} When the release angle cannot reach the target.
+   * Parameter context: The action's context.
+   * Returns: The plan with its launch.
+   * When the release angle cannot reach the target.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrowObjectParams>,
@@ -229,7 +232,7 @@ export namespace throwObject {
       fingers: toward,
       palm: Vector3.scale(up, -1),
     });
-    /**
+    /*
      * Actual world grip-surface point and hand attitude, before inverse wrist
      * placement.
      */
@@ -463,7 +466,9 @@ export namespace throwObject {
     };
   }
 
-  /** The cut once the follow-through ends. */
+  /*
+   * The cut once the follow-through ends.
+   */
   function after(): IAutoMovieMotionHumanInterruptRow {
     return {
       window: ["followThrough", 1],
@@ -474,5 +479,7 @@ export namespace throwObject {
   }
 }
 
-/** The alternatives of `GripFrame2`'s site. */
+/*
+ * The alternatives of `GripFrame2`'s site.
+ */
 type GripFrame2 = "point" | "rotation";

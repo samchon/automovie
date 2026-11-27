@@ -8,7 +8,7 @@ import {
 } from "../../core/index";
 import { TabletopStack } from "./TabletopStack";
 
-/**
+/*
  * One playing card lying flat, face down.
  *
  * The card lies in the `XZ` plane, its long side along `Z`, its origin the
@@ -16,9 +16,8 @@ import { TabletopStack } from "./TabletopStack";
  * contacts (`TabletopStack`): a pinch at its upper face, its `base` and its
  * `top`. A deck is cards stacked by their sockets, and a dealt card is put down
  * on a seat's place.
- *
- * @param params The optional scene id.
- * @returns The inert card and its contact frames, metres.
+ * Parameter params: The optional scene id.
+ * Returns: The inert card and its contact frames, metres.
  */
 export function createPlayingCard(
   params: AutoMovieArchetypePlayingCard.IParams = {},
@@ -55,7 +54,7 @@ export function createPlayingCard(
   return builder.build(CARD.mass);
 }
 
-/**
+/*
  * A poker-size playing card: 3½ × 2½ in, Bicycle's poker deck listed as 88 × 63
  * mm (English Wikipedia, Standard 52-card deck, card-size table, read
  * 2026-11-21). The board's thickness and the card's mass are not read, so they

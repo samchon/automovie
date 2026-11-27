@@ -3,7 +3,7 @@ import { Vector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeUnits } from "../../core";
 
-/**
+/*
  * A two-faucet beer tower on a bar counter: a column on a round base under a
  * tee head, a standard faucet out of each side of the head's front.
  *
@@ -16,12 +16,11 @@ import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSe
  * where a tap handle screws on and a hand pulls it. The tap handle itself is
  * not built, and the levers state no travel: no source read gives a handle's
  * length or throw.
- *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The tower.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * Parameter params: Any dimension the author fixes.
+ * Parameter seed: The seed that draws every dimension left free inside its band;
+ * absent, each takes the middle of its band.
+ * Returns: The tower.
+ * For a fixed dimension outside its band.
  */
 export function createBeerTap(
   params: AutoMovieArchetypeBeerTap.IParams = {},
@@ -120,7 +119,7 @@ export function createBeerTap(
   return builder.build(d.mass);
 }
 
-/**
+/*
  * The tower's sizes, metres, from Perlick's air-cooled tee tower EA2110 sheet:
  * `height`, the counter to the top of the head, 12 15/16 in; `column`, 4 5/8 in
  * across; `base`, 6 in across; `head`, the tee head's depth, 6 7/16 in; and
@@ -141,7 +140,7 @@ const TOWER: Readonly<{
   spacing: 5.5 * AutoMovieArchetypeUnits.INCH,
 };
 
-/**
+/*
  * A faucet's sizes, metres, from Micro Matic's 4933 standard faucet drawing:
  * `length`, 62.67 mm from the shank's face; `spout`, the spout 44.03 mm out
  * from the shank's face; `drop`, the spout's tip 42.15 mm under the shank's
@@ -160,7 +159,7 @@ const FAUCET: Readonly<{
   stud: 97.64 * AutoMovieArchetypeUnits.MILLIMETRE,
 };
 
-/**
+/*
  * The construction sizes no source read gives, metres, each an estimate no act
  * reads and no band declares: `plate`, the base plate's thickness; `body`, a
  * faucet body's diameter; `stud`, the lever stud's diameter.

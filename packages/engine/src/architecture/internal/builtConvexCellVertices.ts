@@ -6,7 +6,7 @@ import {
 import { Vector3 } from "../../math/Vector3";
 import { ObservationGeometry } from "./ObservationGeometry";
 
-/**
+/*
  * The corner points of one convex cell's own half-space intersection.
  *
  * A cell is stated as the planes that cut it rather than as the shape those
@@ -17,7 +17,7 @@ import { ObservationGeometry } from "./ObservationGeometry";
  * for a half-space that closes nothing.
  *
  * Planes are normalized first, a plane whose normal is shorter than
- * {@link ObservationGeometry.Epsilon} is ignored, a triple whose normals'
+ * ObservationGeometry.Epsilon is ignored, a triple whose normals'
  * determinant is within that tolerance of zero yields no point, a point outside
  * any plane by more than it is dropped, and corners closer than it are merged.
  * Points are world-space in metres, in the order their first plane triple was
@@ -72,16 +72,24 @@ export function builtConvexCellVertices(
   return vertices;
 }
 
-/** A half-space `dot(normal, point) <= offset`. */
+/*
+ * A half-space `dot(normal, point) <= offset`.
+ */
 interface IPlane {
-  /** Outward normal; unit length once read through {@link unitPlane}. */
+  /*
+   * Outward normal; unit length once read through unitPlane.
+   */
   normal: IAutoMovieVector3;
 
-  /** Offset along the normal, scaled with it. */
+  /*
+   * Offset along the normal, scaled with it.
+   */
   offset: number;
 }
 
-/** Read a plane as a unit normal and its matching offset, or null if degenerate. */
+/*
+ * Read a plane as a unit normal and its matching offset, or null if degenerate.
+ */
 function unitPlane(plane: IPlane): IPlane | null {
   const length: number = Vector3.length(plane.normal);
   if (length <= ObservationGeometry.Epsilon) return null;

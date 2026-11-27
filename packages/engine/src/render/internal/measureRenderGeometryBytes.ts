@@ -7,7 +7,7 @@ import type {
 
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
-/**
+/*
  * The render inventory's geometry memory phase: the resident buffer bytes of
  * every drawn model, added to the ground and simulated bytes the earlier phases
  * counted.
@@ -19,26 +19,37 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
  * every vertex a relief factor of one, each counted once per prototype in
  * 32-bit floats. Each model's bytes join its cost record and one
  * `geometryBytes` row.
- *
- * @returns The geometry bytes of the frame.
+ * Returns: The geometry bytes of the frame.
  */
 export function measureRenderGeometryBytes(props: {
-  /** Ground and simulated buffer bytes the earlier phases counted. */
+  /*
+   * Ground and simulated buffer bytes the earlier phases counted.
+   */
   base: number;
 
-  /** The subject's models by id. */
+  /*
+   * The subject's models by id.
+   */
   byId: ReadonlyMap<string, IAutoMovieModel>;
 
-  /** Ids of the models the population phase drew. */
+  /*
+   * Ids of the models the population phase drew.
+   */
   drawnModels: ReadonlySet<string>;
 
-  /** Ids of the drawn models it flattened into one buffer. */
+  /*
+   * Ids of the drawn models it flattened into one buffer.
+   */
   flattenedModels: ReadonlySet<string>;
 
-  /** Each drawn model's cost record; this phase adds the padding bytes. */
+  /*
+   * Each drawn model's cost record; this phase adds the padding bytes.
+   */
   costs: ReadonlyMap<string, IAutoMovieRenderModelCost>;
 
-  /** Appends one owner row. */
+  /*
+   * Appends one owner row.
+   */
   add: IAutoMovieMeasureRenderSimulation.IProps["add"];
 }): number {
   const { byId, costs, add }: typeof props = props;

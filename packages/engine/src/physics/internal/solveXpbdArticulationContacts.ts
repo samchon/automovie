@@ -10,7 +10,7 @@ import type { solveXpbdContacts } from "./solveXpbdContacts";
 import { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 import { solveXpbdSupportComplementarity } from "./solveXpbdSupportComplementarity";
 
-/**
+/*
  * The pressed supports of an articulation held inside its motors' solve, by
  * impulse-based articulated contact (Mirtich 1996, "Impulse-based Dynamic
  * Simulation of Rigid Body Systems", chapter 6).
@@ -29,7 +29,7 @@ import { solveXpbdSupportComplementarity } from "./solveXpbdSupportComplementari
  * times itself, the float64 scale at which it changes no well-posed solution.
  */
 export namespace solveXpbdArticulationContacts {
-  /**
+  /*
    * The normal impulse a bounded support group's rows may still add over a
    * substep, newton seconds: its force bound over the substep less what the
    * contact passes already gave its patches, and never less than nothing. The
@@ -37,10 +37,9 @@ export namespace solveXpbdArticulationContacts {
    * Section 5.3); what the floor's contact gave, as a landing foot's impact, is
    * the floor's, and the controller cannot take it back through the other
    * supports (unilateral contact).
-   *
-   * @param input The bound, newtons; the substep, seconds; and the impulse the
-   *   contact passes gave the group, newton seconds.
-   * @returns The impulse left, newton seconds.
+   * Parameter input: The bound, newtons; the substep, seconds; and the impulse the
+   * contact passes gave the group, newton seconds.
+   * Returns: The impulse left, newton seconds.
    */
   export function room(input: {
     force: number;
@@ -50,7 +49,7 @@ export namespace solveXpbdArticulationContacts {
     return Math.max(0, Math.max(0, input.force) * input.h - input.given);
   }
 
-  /**
+  /*
    * One support row's unit impulse in IHMC's whole-body objective
    * (`AutoMovieXpbdWorld.IObjective`): its force, its moment about the vertical
    * through the centre of mass when the yaw rate is commanded (develop
@@ -60,13 +59,12 @@ export namespace solveXpbdArticulationContacts {
    * `CoPObjectiveCalculator.computeTask` builds from the wrench in the plane
    * frame (l.24-46: `x_cop J_fz + J_ty` and `y_cop J_fz - J_tx`, the moment
    * about the point on the plane). A torsional row's unit impulse is a moment.
-   *
-   * @param row The support row.
-   * @param point Its point, world metres.
-   * @param body The tree body it acts on.
-   * @param objective The objective.
-   * @returns Its column, the force, the yaw moment if any, then the centre of
-   *   pressure's two moments if any.
+   * Parameter row: The support row.
+   * Parameter point: Its point, world metres.
+   * Parameter body: The tree body it acts on.
+   * Parameter objective: The objective.
+   * Returns: Its column, the force, the yaw moment if any, then the centre of
+   * pressure's two moments if any.
    */
   export function objectiveRow(
     row: Pick<IRow, "direction" | "moment">,
@@ -94,19 +92,18 @@ export namespace solveXpbdArticulationContacts {
     ];
   }
 
-  /**
+  /*
    * The motors' response with the tree held at its pressed supports.
-   *
-   * @param tree The tree.
-   * @param factored Its factor for this substep.
-   * @param base The motors' response as if the tree floated.
-   * @param contacts The step's contacts.
-   * @param h The substep, seconds.
-   * @param task The root's momentum task, when the supports should meet one.
-   * @param warm The tree's active sets from the previous substep, for the
-   *   task's cascade.
-   * @returns The combined response with the impulses to record; `base` itself,
-   *   recording nothing, when no support takes part or the rows are singular.
+   * Parameter tree: The tree.
+   * Parameter factored: Its factor for this substep.
+   * Parameter base: The motors' response as if the tree floated.
+   * Parameter contacts: The step's contacts.
+   * Parameter h: The substep, seconds.
+   * Parameter task: The root's momentum task, when the supports should meet one.
+   * Parameter warm: The tree's active sets from the previous substep, for the
+   * task's cascade.
+   * Returns: The combined response with the impulses to record; `base` itself,
+   * recording nothing, when no support takes part or the rows are singular.
    */
   export function solve(
     tree: AutoMovieXpbdArticulation.ITree,
@@ -193,7 +190,7 @@ export namespace solveXpbdArticulationContacts {
     reverse: number;
   }
 
-  /**
+  /*
    * The base response plus each unknown's response times its impulse, and the
    * support rows' records.
    */
@@ -244,13 +241,12 @@ export namespace solveXpbdArticulationContacts {
     return { response, records };
   }
 
-  /**
+  /*
    * Record the supports' impulses on their contacts, so the step's receipts
    * carry the momentum they gave: a normal row's impulse joins its point's
    * velocity impulse, a patch's tangential impulse joins its dynamic friction
    * impulse.
-   *
-   * @param held The solve to record.
+   * Parameter held: The solve to record.
    */
   export function commit(held: IHeld): void {
     for (const record of held.records)
@@ -373,7 +369,7 @@ export namespace solveXpbdArticulationContacts {
     second: number;
   }
 
-  /**
+  /*
    * The set without the patches of released bodies, its rows renumbered in
    * order; the set itself when none is released.
    */
@@ -402,7 +398,7 @@ export namespace solveXpbdArticulationContacts {
     return kept;
   }
 
-  /**
+  /*
    * The Tikhonov weight on K's diagonal: the square root of float64's machine
    * epsilon.
    */

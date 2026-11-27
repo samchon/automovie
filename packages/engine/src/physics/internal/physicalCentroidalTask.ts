@@ -10,7 +10,7 @@ import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
 import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
-/**
+/*
  * The whole-body momentum task of a root under internal actuation: the ground
  * reaction the supports should give, about the mass center.
  *
@@ -24,9 +24,8 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
  * own shifts (recovery, lowering) move it with the root. A root error read on
  * the root body alone would leave the mass center free whenever the limbs carry
  * it while the root holds still.
- *
- * @param input The body's segments, goals, gains and demands.
- * @returns The task: the mass center, the force and the moment.
+ * Parameter input: The body's segments, goals, gains and demands.
+ * Returns: The task: the mass center, the force and the moment.
  */
 export function physicalCentroidalTask(
   input: AutoMovieEnginePhysicalBalanceTypes.ICentroidalTaskInput,

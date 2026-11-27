@@ -11,19 +11,18 @@ import { BOAT_MODELS } from "../constants/BOAT_MODELS";
 import { BoatHull } from "./BoatHull";
 import { BoatOars } from "./BoatOars";
 
-/**
+/*
  * Assemble a boat with its fixed, positive-Z bow.
  *
  * The hull model and material determine the bottom and the gunwale around the
  * waterline. The outfitting callback owns the contacts beyond the hull.
- *
- * @param kind The fixed hull form.
- * @param outfit Adds the form's seats and other interior equipment.
- * @param params The hull's authored options.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter kind: The fixed hull form.
+ * Parameter outfit: Adds the form's seats and other interior equipment.
+ * Parameter params: The hull's authored options.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function BoatConstruction(
   kind: AutoMovieArchetypeBoat.Kind,
@@ -212,25 +211,43 @@ export function BoatConstruction(
   return builder.build(d.mass!);
 }
 
-/** The hull measurements each fixed-seat boat reads while fitting its supports. */
+/*
+ * The hull measurements each fixed-seat boat reads while fitting its supports.
+ */
 export namespace BoatConstruction {
-  /** Measured support frame inputs in the unposed hull's coordinate system. */
+  /*
+   * Measured support frame inputs in the unposed hull's coordinate system.
+   */
   export interface IHull {
-    /** The resolved base dimensions, including rowboat blade sizes. */
+    /*
+     * The resolved base dimensions, including rowboat blade sizes.
+     */
     d: Readonly<Partial<Record<AutoMovieArchetypeBoat.Dimension, number>>>;
-    /** The bow-to-stern extent. */
+    /*
+     * The bow-to-stern extent.
+     */
     length: number;
-    /** The widest span across the hull. */
+    /*
+     * The widest span across the hull.
+     */
     beam: number;
-    /** The height of the bottom relative to the waterline. */
+    /*
+     * The height of the bottom relative to the waterline.
+     */
     bottom: number;
-    /** The height of the rail relative to the waterline. */
+    /*
+     * The height of the rail relative to the waterline.
+     */
     gunwale: number;
-    /** The transom's half-width, zero for a pointed stem. */
+    /*
+     * The transom's half-width, zero for a pointed stem.
+     */
     stern: number;
   }
 
-  /** Builds the interior and its contacts over the finished hull. */
+  /*
+   * Builds the interior and its contacts over the finished hull.
+   */
   export type Outfit = (
     builder: AutoMovieArchetypeBuilder<
       AutoMovieArchetypeBoat.Affordance,

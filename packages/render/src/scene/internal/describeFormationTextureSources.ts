@@ -7,7 +7,7 @@ import type {
 import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
 import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";
 
-/**
+/*
  * Describe every retained, reachable gait table from its actual owned texture.
  * The bound includes declared takes that have not yet been uploaded, because a
  * later seek can retain them in this context. It is not an observed GLuint

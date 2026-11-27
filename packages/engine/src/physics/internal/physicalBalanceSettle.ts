@@ -12,9 +12,11 @@ import { physicalBalanceExhaustion } from "./physicalBalanceExhaustion";
 import type { AutoMovieEnginePhysicalBalanceTypes } from "../AutoMovieEnginePhysicalBalanceTypes";
 import { physicalRecoveryLimbSwing } from "./physicalRecoveryLimbSwing";
 
-/** What {@link physicalBalanceSettle} settles. */
+/*
+ * What physicalBalanceSettle settles.
+ */
 export namespace physicalBalanceSettle {
-  /**
+  /*
    * The balance controller's settle phase (`advancePhysicalBalance`): the
    * endpoint goals of the limbs no step holds, and the root's tracking strength.
    *
@@ -26,13 +28,12 @@ export namespace physicalBalanceSettle {
    * offset. The root's tracking is withdrawn once unrecoverable support loss
    * has lasted its policy's duration (`physicalBalanceExhaustion`), or set by the
    * bracing policy where one is declared (`physicalBalanceBracing`).
-   *
-   * @param input The recovery's state after the swing phase, the body's
-   *   readings, the goals the plan and swing phases set and the stance's
-   *   assessment.
-   * @returns The state with its loss timer advanced, a new one; every goal,
-   *   those given first; and the root's strength and bracing shift. The input is
-   *   never written.
+   * Parameter input: The recovery's state after the swing phase, the body's
+   * readings, the goals the plan and swing phases set and the stance's
+   * assessment.
+   * Returns: The state with its loss timer advanced, a new one; every goal,
+   * those given first; and the root's strength and bracing shift. The input is
+   * never written.
    */
   export function run(
     input: Parameters<typeof physicalBalanceSettleImplementation>[0],
@@ -40,15 +41,25 @@ export namespace physicalBalanceSettle {
     return physicalBalanceSettleImplementation(input);
   }
 
-  /** The settle phase's result. */
+  /*
+   * The settle phase's result.
+   */
   export interface IResult {
-    /** The state after the settle phase. */
+    /*
+     * The state after the settle phase.
+     */
     state: IAutoMoviePhysicalRecoveryState;
-    /** Every endpoint goal, world metres, by bone. */
+    /*
+     * Every endpoint goal, world metres, by bone.
+     */
     goals: Record<string, IAutoMovieVector3>;
-    /** The root's tracking strength in [0, 1]. */
+    /*
+     * The root's tracking strength in [0, 1].
+     */
     rootStrength: number;
-    /** The bracing policy's horizontal root-target shift, world metres, if any. */
+    /*
+     * The bracing policy's horizontal root-target shift, world metres, if any.
+     */
     rootShift?: IAutoMovieVector3;
   }
 }

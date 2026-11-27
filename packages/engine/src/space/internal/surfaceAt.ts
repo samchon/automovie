@@ -8,7 +8,9 @@ import { prepareSpace } from "./prepareSpace";
 import { preparedSurfaceContains } from "./preparedSurfaceContains";
 import { surfaceHeightAt } from "./surfaceHeightAt";
 
-/** Select the topmost surface at an XZ query, including non-walkable surfaces. */
+/*
+ * Select the topmost surface at an XZ query, including non-walkable surfaces.
+ */
 export const surfaceAt: (
   space: IAutoMovieSpace,
   x: number,

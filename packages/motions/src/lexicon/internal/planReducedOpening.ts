@@ -33,7 +33,7 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { planProneOpening } from "./planProneOpening";
 
-/**
+/*
  * Stage a lowered, side-on or prone crossing of a fixed opening whose sill is
  * at floor height. A duck walks through with the pelvis lowered and the trunk
  * pitched while the root is within a leg length of the solid; a squeeze walks
@@ -42,14 +42,13 @@ import { planProneOpening } from "./planProneOpening";
  * The displayed body's collider envelope over the solid's whole depth must fit
  * the opening's width and height, or the crossing is refused with the dimension
  * the posed body needs.
- *
- * @param context The performer, selected action and scene.
- * @param obstacle The fixed solid containing the named opening.
- * @param opening Its world sill and clear dimensions.
- * @param out Unit vector in the direction of travel.
- * @returns A crossing whose displayed body fits through the depth.
- * @throws {HumanRefusal} For a moving or raised opening, or a sampled part
- *   outside the clear opening.
+ * Parameter context: The performer, selected action and scene.
+ * Parameter obstacle: The fixed solid containing the named opening.
+ * Parameter opening: Its world sill and clear dimensions.
+ * Parameter out: Unit vector in the direction of travel.
+ * Returns: A crossing whose displayed body fits through the depth.
+ * For a moving or raised opening, or a sampled part
+ * outside the clear opening.
  */
 export function planReducedOpening(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTravelDoor.IParams>,
@@ -149,60 +148,74 @@ export function planReducedOpening(
   return { ...plan, yields: [] };
 }
 
-/** Extra clearance to leave around the forehead and jambs, in metres. */
+/*
+ * Extra clearance to leave around the forehead and jambs, in metres.
+ */
 const ROOM: number = 0.005;
 
-/** Extra horizontal margin at each jamb, in metres. */
+/*
+ * Extra horizontal margin at each jamb, in metres.
+ */
 const JAMB: number = 0.002;
 
-/**
+/*
  * The side-on lane's offset toward the actor's back, hip heights (provisional:
  * the flexed knees and toes reach further forward than the back).
  */
 const SIDE_LANE: number = 0.085;
 
-/**
+/*
  * The side-on swing's toe lift over a level sill, metres (provisional: no riser
  * to clear).
  */
 const SIDE_LIFT: number = 0.012;
 
-/**
+/*
  * The most a side step raises the pelvis out of the forward gait's knee bend,
  * hip heights (provisional).
  */
 const SIDE_RISE: number = 0.06;
 
-/**
+/*
  * The share of the leg's length a raised pelvis leaves the stance leg, short of
  * a locked knee (provisional).
  */
 const STRAIGHT: number = 0.997;
 
-/** The deepest duck, as a share of the hip height (provisional: a half squat). */
+/*
+ * The deepest duck, as a share of the hip height (provisional: a half squat).
+ */
 const DROP: number = 0.33;
 
-/**
+/*
  * Clearance the duck adds under the lintel before the trunk's pitch, metres
  * (provisional).
  */
 const HEAD_ROOM: number = 0.06;
-/** The duck's forward trunk pitch at its deepest, degrees (provisional). */
+/*
+ * The duck's forward trunk pitch at its deepest, degrees (provisional).
+ */
 const PITCH: number = 19;
 
-/** The extrema of shapes that overlap the depth, in aperture-local metres. */
+/*
+ * The extrema of shapes that overlap the depth, in aperture-local metres.
+ */
 interface IOpeningEnvelope {
   left: number;
   right: number;
   height: number;
 }
 
-/** Width at the current lateral placement, including both jamb margins. */
+/*
+ * Width at the current lateral placement, including both jamb margins.
+ */
 function widthOf(envelope: IOpeningEnvelope): number {
   return 2 * (Math.max(-envelope.left, envelope.right) + JAMB);
 }
 
-/** Observe the fully fitted body throughout the depth of the fixed opening. */
+/*
+ * Observe the fully fitted body throughout the depth of the fixed opening.
+ */
 function measureOpening(
   body: IAutoMovieMotionHumanBody,
   plan: IAutoMovieMotionHumanActionPlan,
@@ -258,7 +271,7 @@ function measureOpening(
   return envelope;
 }
 
-/**
+/*
  * Fit the standing gait to the doorway without sending its feet off their
  * marks.
  */
@@ -340,7 +353,9 @@ function planReducedWalk(
   return { ...walked, posture };
 }
 
-/** Ease a side step out of the normal forward gait's knee bend. */
+/*
+ * Ease a side step out of the normal forward gait's knee bend.
+ */
 function sideStepPosture(
   body: IAutoMovieMotionHumanBody,
   posture: IAutoMovieMotionHumanPosture,

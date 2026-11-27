@@ -66,10 +66,14 @@ export namespace AutoMovieHumanCourseRuns {
     return [0, ...turns.map((turn: IAutoMovieViewJointedCourse.ITurn): number => turn.start + turn.half), end];
   }
 
-  /** The quintic smoothstep's integral from 0: `5 t^4 / 2 - 3 t^5 + t^6`, which is 5/64 at a half and 1/2 at one. */
+  /*
+   * The quintic smoothstep's integral from 0: `5 t^4 / 2 - 3 t^5 + t^6`, which is 5/64 at a half and 1/2 at one.
+   */
   const lift = (t: number): number => t * t * t * t * (2.5 + t * (-3 + t));
 
-  /** Half of a turn window's blend that falls on the far side of its joint, as a share of the window's half length: 5/32. */
+  /*
+   * Half of a turn window's blend that falls on the far side of its joint, as a share of the window's half length: 5/32.
+   */
   const SHARE: number = 5 / 32;
 
   /**

@@ -3,7 +3,7 @@ import { IAutoMovieSemanticMask } from "@automovie/interface";
 import { canonicalAutoMovieSemanticMaskPayload } from "./canonicalAutoMovieSemanticMaskPayload";
 import { verifyAutoMovieSemanticMask } from "./verifyAutoMovieSemanticMask";
 
-/**
+/*
  * Serialize one mask as the sidecar that travels beside the pixels: pretty
  * JSON, declared field order, one trailing newline.
  *

@@ -48,7 +48,7 @@ import { posedHingeSwing } from "./posedHingeSwing";
 import type { prepareChainFit } from "./prepareChainFit";
 import { readHingeRange } from "./readHingeRange";
 
-/**
+/*
  * The hinged chain's candidate: `hingedArmArticulation`'s swivel sweep with
  * each candidate decomposed through the prepared clinical domains, scored first
  * by the rig's ROM overshoot plus the request's `obstruction` of the
@@ -127,17 +127,16 @@ import { readHingeRange } from "./readHingeRange";
  * legal candidate: its least overshoot is searched for from the swivels at
  * which each limit of the box is least violated (`boxLeastSwivels`, Tolani,
  * Goswami and Badler 2000, section 3.2.3), not by the sweep.
- *
- * @param props The fit request, with merged axes.
- * @param prepared The chain's preparation.
- * @param axes The mid bone's axes; its flexion is the hinge.
- * @param rotation A requested effector rotation, ranked before the hint's side
- *   when given.
- * @param rig The rig of the same unchanged source workspace, carrying the upper
- *   joint's prepared swing region; source-only basis, reference, hinge range
- *   and posed swing may be shared, while every candidate score and callback
- *   remains target-local.
- * @returns The candidate, or null for a degenerate chain.
+ * Parameter props: The fit request, with merged axes.
+ * Parameter prepared: The chain's preparation.
+ * Parameter axes: The mid bone's axes; its flexion is the hinge.
+ * Parameter rotation: A requested effector rotation, ranked before the hint's side
+ * when given.
+ * Parameter rig: The rig of the same unchanged source workspace, carrying the upper
+ * joint's prepared swing region; source-only basis, reference, hinge range
+ * and posed swing may be shared, while every candidate score and callback
+ * remains target-local.
+ * Returns: The candidate, or null for a degenerate chain.
  */
 export function fitHingedChainCandidate(
   props: IAutoMovieFitChainToTargetProps,
@@ -1313,29 +1312,35 @@ export function fitHingedChainCandidate(
   };
 }
 
-/**
+/*
  * The end joint as its rotation error reads it (`fitHingedRotationError`): its
  * clinical basis, rest frame, range and the inverse of its fixed rest
  * rotation.
  */
 interface IEnd {
-  /** The end joint's clinical basis, admitted and normalized. */
+  /*
+   * The end joint's clinical basis, admitted and normalized.
+   */
   basis: IAutoMovieJointAxes;
 
-  /** Its rest frame, when the rig gives one. */
+  /*
+   * Its rest frame, when the rig gives one.
+   */
   frame: IAutoMovieRestFrame | undefined;
 
-  /** Its resolved range of motion. */
+  /*
+   * Its resolved range of motion.
+   */
   constraint: IAutoMovieJointConstraint | null;
 
-  /**
+  /*
    * The inverse of the fixed rotation from the mid bone to the end joint's
    * rest.
    */
   restInverse: IAutoMovieQuaternion;
 }
 
-/**
+/*
  * Read the end joint as `fitHingedRotationError` reads it, from the rig when
  * one is lent.
  */
@@ -1353,14 +1358,14 @@ function endOf(
   };
 }
 
-/**
+/*
  * How far inside a bound, in sine or projected units, a closed-form candidate
  * stands: past the rounding of the fit and of the decomposition, far under the
  * joints' tolerance.
  */
 const INSIDE: number = 1e-7;
 
-/**
+/*
  * Whether two arcs of swivels, degrees, share a swivel: the second taken in the
  * full turn that brings its centre nearest the first's.
  */
@@ -1373,89 +1378,111 @@ function overlapping(
   return b.from + shift <= a.to && a.from <= b.to + shift;
 }
 
-/** The hint side's full-weight distance (`hingedChainSide.SIDED`), metres. */
+/*
+ * The hint side's full-weight distance (`hingedChainSide.SIDED`), metres.
+ */
 const SIDED: number = hingedChainSide.SIDED;
 
-/**
+/*
  * What a candidate reads of its mid rotation alone, read once per rotation
  * record.
  */
 interface IMid {
-  /** The mid rotation the values were read from. */
+  /*
+   * The mid rotation the values were read from.
+   */
   rotation: IAutoMovieQuaternion;
 
-  /** Its clinical angles. */
+  /*
+   * Its clinical angles.
+   */
   joint: IAutoMovieJointPose;
 
-  /** Their ROM overshoot, degrees. */
+  /*
+   * Their ROM overshoot, degrees.
+   */
   overshoot: number;
 
-  /** Their clinical effort. */
+  /*
+   * Their clinical effort.
+   */
   effort: number;
 
-  /** Degrees the mid joint turns from the reference pose's; 0 without one. */
+  /*
+   * Degrees the mid joint turns from the reference pose's; 0 without one.
+   */
   turned: number;
 }
 
-/**
+/*
  * A root rotation's decomposed angles and the overshoot its chart choice scored
  * (NaN where it scored none).
  */
 interface IAngles {
-  /** The candidate's root rotation. */
+  /*
+   * The candidate's root rotation.
+   */
   rotation: IAutoMovieQuaternion;
 
-  /** Its clinical angles. */
+  /*
+   * Its clinical angles.
+   */
   joint: IAutoMovieJointPose;
 
-  /**
+  /*
    * The gate's sum of those angles under the root's ungated constraint,
    * degrees; undefined where the chart choice scored none.
    */
   overshoot: number | undefined;
 }
 
-/**
+/*
  * What each candidate reads besides the hint's side, shared with its lazy exact
  * score.
  */
 interface IReading {
-  /**
+  /*
    * The root's clinical angles; absent where its range read its rotation alone
    * and nothing needed them yet.
    */
   joint: IAutoMovieJointPose | undefined;
 
-  /**
+  /*
    * Completed world frame preceding the lower articulation, for this exact
    * upper candidate.
    */
   above: IAutoMovieQuaternion | undefined;
 
-  /**
+  /*
    * The mid joint's place, world metres; absent when task priority never reads
    * it.
    */
   mid: IAutoMovieVector3 | undefined;
 
-  /** The mid bone's world rotation. */
+  /*
+   * The mid bone's world rotation.
+   */
   lowerWorld: IAutoMovieQuaternion | undefined;
 
-  /**
+  /*
    * Actual clinical effort for continuous-cost policy; unused zero in
    * task-priority mode.
    */
   effort: number;
 
-  /** The ROM overshoot of both joints plus the obstruction, degrees. */
+  /*
+   * The ROM overshoot of both joints plus the obstruction, degrees.
+   */
   overshoot: number;
 
-  /**
+  /*
    * Actual weighted reference turn for continuous-cost policy; task-priority
    * reads it lazily.
    */
   turned: number;
 
-  /** Fixed branch's lower-reference turn, for lazy task-priority comparison. */
+  /*
+   * Fixed branch's lower-reference turn, for lazy task-priority comparison.
+   */
   midTurn: number;
 }

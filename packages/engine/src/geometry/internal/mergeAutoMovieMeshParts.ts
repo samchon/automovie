@@ -9,7 +9,7 @@ import { mergeAutoMovieMeshes } from "./mergeAutoMovieMeshes";
 import { transformAutoMovieMesh } from "./transformAutoMovieMesh";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
-/**
+/*
  * Place rigid members, merge them, and report the index range each one owns.
  *
  * A group is what lets one merged draw call still say which triangles are the
@@ -29,9 +29,8 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  *
  * Throws on a repeated part id and, naming the part, on a malformed
  * index buffer, before any member is placed. Parts are only read.
- *
- * @param parts Members in merge order.
- * @returns The merged mesh and one group per member.
+ * Parameter parts: Members in merge order.
+ * Returns: The merged mesh and one group per member.
  */
 export const mergeAutoMovieMeshParts = (
   parts: readonly IAutoMovieMeshPart[],

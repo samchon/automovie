@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Capture-point feedback toward the actual support hull under an explicit
  * root-target travel bound. This requests a bounded motor target adjustment,
  * never an extra force or a pose write. A failed step alone cannot turn off

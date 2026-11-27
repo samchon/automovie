@@ -4,7 +4,7 @@ import type {
   IAutoMovieInspectionDiagnostics,
 } from "@automovie/interface";
 
-/**
+/*
  * Selects the first usable cursor in each audit while retaining complete
  * details in the report.
  *
@@ -76,7 +76,7 @@ export function listAutoMovieReleaseFindings(
   return details;
 }
 
-/**
+/*
  * Formats the available output frame and film seconds without inventing an
  * audio frame.
  */

@@ -2,7 +2,7 @@ import type { AutoMovieArchetypeCourse } from "../../core";
 import type { AutoMovieArchetypeEquineTeamPlan } from "../AutoMovieArchetypeEquineTeamPlan";
 import type { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped";
 
-/**
+/*
  * One team horse's own course: the team's path offset to its place in the
  * hitch, travelled so that it keeps that place.
  *
@@ -20,12 +20,11 @@ import type { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped
  * horse therefore lags or leads its exact place by `(u - u0)^2 / (2 rate)`
  * metres once the change is done, about a millimetre for the speed ratios of a
  * team's turns. With `stop` the last straight brakes to rest at the same rate.
- *
- * @param team The team's course.
- * @param place The horse's place.
- * @returns The horse's course.
- * @throws {RangeError} When a speed change does not fit inside the leg it
- *   enters.
+ * Parameter team: The team's course.
+ * Parameter place: The horse's place.
+ * Returns: The horse's course.
+ * When a speed change does not fit inside the leg it
+ * enters.
  */
 export function EquineTeamCourse(
   team: AutoMovieArchetypeEquineTeamPlan.IParams,

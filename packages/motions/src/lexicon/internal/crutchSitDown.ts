@@ -34,7 +34,7 @@ import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { crutchSitKit } from "./crutchSitKit";
 import { crutchSitPath } from "./crutchSitPath";
 
-/**
+/*
  * Sit down onto a chair with two crutches, in the prescribed order (Cornell
  * Health and HealthLinkBC, Using crutches), from standing with the crutches
  * standing on their tips beside the body.
@@ -55,11 +55,10 @@ import { crutchSitPath } from "./crutchSitPath";
  * goes from `STANDING` to `SEATED`. As the shoulder drops, the crutches can
  * slide across the floor just far enough to keep the holding wrist clear of the
  * elbow's folded reach limit, with the grip transform kept throughout.
- *
- * @param context The crutch sit's context.
- * @param kit Its shared reads.
- * @returns The order's plan before the arms are coursed.
- * @throws {HumanRefusal} When no seat is named.
+ * Parameter context: The crutch sit's context.
+ * Parameter kit: Its shared reads.
+ * Returns: The order's plan before the arms are coursed.
+ * When no seat is named.
  */
 export function crutchSitDown(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrutchSit>,
@@ -354,7 +353,7 @@ export function crutchSitDown(
   };
 }
 
-/**
+/*
  * The injured leg held off the floor standing, degrees: the crutch walk's
  * three-point gait's hip and knee flexion.
  */
@@ -363,7 +362,7 @@ const STANDING: IAutoMovieHumanLimbReference = {
   lower: [80, 0, 0],
 };
 
-/**
+/*
  * The injured leg held forward off the floor seated, degrees (provisional: the
  * thigh level, the shank 30 degrees forward of vertical).
  */
@@ -372,7 +371,7 @@ const SEATED: IAutoMovieHumanLimbReference = {
   lower: [60, 0, 0],
 };
 
-/**
+/*
  * How far a seated hand rests beside the thigh's side, metres (provisional: a
  * hand's breadth out).
  */

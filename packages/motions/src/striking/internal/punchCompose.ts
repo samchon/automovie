@@ -15,7 +15,7 @@ import { StrikingStance } from "./StrikingStance";
 import { punchFootwork } from "./punchFootwork";
 import { punchGeometry } from "./punchGeometry";
 
-/**
+/*
  * The punch's posture at a time and a clock: the footwork's base or a bare
  * base, the guard raised over it, and the striking arm's wrist at `end` sunk by
  * the drop's sag, its elbow led by the wrist's share of its way from the guard
@@ -24,9 +24,8 @@ import { punchGeometry } from "./punchGeometry";
  * launch toward the anchored one unless bare.
  *
  * Part of `punchGeometry.build`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `compose`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `compose`.
  */
 export function punchCompose(
   prepared: punchCompose.IPrepared,
@@ -136,32 +135,32 @@ export function punchCompose(
   };
 }
 
-/** The `compose` of `punchGeometry.build`, built from what that plan prepared. */
+/*
+ * The `compose` of `punchGeometry.build`, built from what that plan prepared.
+ */
 export namespace punchCompose {
-  /**
+  /*
    * How far the arm's reference has left the launch for the contact: the
    * wrist's share of its way out less its share of the way back, within 0 to
    * 1.
-   *
-   * @param gone The wrist's share of its way out.
-   * @param back The share of the way back.
-   * @returns 0 to 1.
+   * Parameter gone: The wrist's share of its way out.
+   * Parameter back: The share of the way back.
+   * Returns: 0 to 1.
    */
   export function held(gone: number, back: number): number {
     return Math.max(0, Math.min(1, gone - back));
   }
 
-  /**
+  /*
    * The punching elbow's hint: from where it started toward the contact's hint
    * by the wrist's share of its way out, then toward the guard's bend by the
    * share of the way back.
-   *
-   * @param start The elbow's hint at the launch, world metres.
-   * @param hint The contact's elbow hint, world metres.
-   * @param guard The guard's elbow bend, world metres.
-   * @param gone The wrist's share of its way out.
-   * @param back The share of the way back.
-   * @returns The hint, world metres.
+   * Parameter start: The elbow's hint at the launch, world metres.
+   * Parameter hint: The contact's elbow hint, world metres.
+   * Parameter guard: The guard's elbow bend, world metres.
+   * Parameter gone: The wrist's share of its way out.
+   * Parameter back: The share of the way back.
+   * Returns: The hint, world metres.
    */
   export function elbow(
     start: IAutoMovieVector3,
@@ -173,63 +172,99 @@ export namespace punchCompose {
     return Vector3.lerp(Vector3.lerp(start, hint, gone), guard, back);
   }
 
-  /** The record of `IBuildComposeBare`'s site. */
+  /*
+   * The record of `IBuildComposeBare`'s site.
+   */
   export type IBuildComposeBare = {
     base: punchFootwork.IFootwork["base"];
     hint: (clock: number) => IAutoMovieVector3;
   };
 
-  /** The alternatives of `BuildArm`'s site. */
+  /*
+   * The alternatives of `BuildArm`'s site.
+   */
   export type BuildArm = "leftArm" | "rightArm";
 
-  /** What `punchGeometry.build` prepared for its `compose`. */
+  /*
+   * What `punchGeometry.build` prepared for its `compose`.
+   */
   export interface IPrepared {
-    /** The `anchored` `punchGeometry.build` prepared. */
+    /*
+     * The `anchored` `punchGeometry.build` prepared.
+     */
     anchored: (clock: number) => IAutoMovieHumanLimbReference;
 
-    /** The `travelled` `punchGeometry.build` prepared. */
+    /*
+     * The `travelled` `punchGeometry.build` prepared.
+     */
     travelled: (clock: number) => number;
 
-    /** The `back` `punchGeometry.build` prepared. */
+    /*
+     * The `back` `punchGeometry.build` prepared.
+     */
     back: (t: number) => number;
 
-    /** The `footwork` `punchGeometry.build` prepared. */
+    /*
+     * The `footwork` `punchGeometry.build` prepared.
+     */
     footwork: punchFootwork.IFootwork;
 
-    /** The `raised` `punchGeometry.build` prepared. */
+    /*
+     * The `raised` `punchGeometry.build` prepared.
+     */
     raised: (
       guard: ReturnType<typeof StrikingStance.guard>,
       clock: number,
     ) => ReturnType<typeof StrikingStance.guard>;
 
-    /** The `guardAt` `punchGeometry.build` prepared. */
+    /*
+     * The `guardAt` `punchGeometry.build` prepared.
+     */
     guardAt: ReturnType<typeof StrikingStance.prepareGuard>;
 
-    /** The `startElbow` `punchGeometry.build` prepared. */
+    /*
+     * The `startElbow` `punchGeometry.build` prepared.
+     */
     startElbow: IAutoMovieVector3;
 
-    /** The contact elbow hint updated by the prepared tracking corrections. */
+    /*
+     * The contact elbow hint updated by the prepared tracking corrections.
+     */
     hint: (clock: number) => IAutoMovieVector3;
 
-    /** The `arm` `punchGeometry.build` prepared. */
+    /*
+     * The `arm` `punchGeometry.build` prepared.
+     */
     arm: BuildArm;
 
-    /** The `drop` `punchGeometry.build` prepared. */
+    /*
+     * The `drop` `punchGeometry.build` prepared.
+     */
     drop: punchGeometry.ITiming["drop"];
 
-    /** The `sag` `punchGeometry.build` prepared. */
+    /*
+     * The `sag` `punchGeometry.build` prepared.
+     */
     sag: (t: number) => number;
 
-    /** The `rotationAt` `punchGeometry.build` prepared. */
+    /*
+     * The `rotationAt` `punchGeometry.build` prepared.
+     */
     rotationAt: (t: number) => IAutoMovieQuaternion;
 
-    /** The `body` `punchGeometry.build` prepared. */
+    /*
+     * The `body` `punchGeometry.build` prepared.
+     */
     body: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPunch.IParams>["body"];
 
-    /** The `side` `punchGeometry.build` prepared. */
+    /*
+     * The `side` `punchGeometry.build` prepared.
+     */
     side: punchGeometry.ITiming["side"];
 
-    /** The `launch` `punchGeometry.build` prepared. */
+    /*
+     * The `launch` `punchGeometry.build` prepared.
+     */
     launch: IAutoMovieHumanLimbReference;
   }
 }

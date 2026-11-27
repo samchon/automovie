@@ -7,7 +7,7 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeAppliance } from "../AutoMovieArchetypeAppliance";
 
-/**
+/*
  * A washer's visible and physical loading aperture and drum.
  *
  * The 65 litre drum and 160 degree door are the Bosch WAN28255GB's. Its drawing
@@ -19,12 +19,11 @@ import type { AutoMovieArchetypeAppliance } from "../AutoMovieArchetypeAppliance
  * Sources:
  * https://media3.bosch-home.com/Documents/specsheet/en-GB/WAN28255GB.pdf and
  * https://media3.bosch-home.com/Documents/specsheet/en-GB/WAN282X0GB.pdf.
- *
- * @param builder The empty appliance enclosure.
- * @param width Outside width, metres.
- * @param height Outside height, metres.
- * @param front The body plane behind the closed door, metres from the back.
- * @param centre The door center height, metres.
+ * Parameter builder: The empty appliance enclosure.
+ * Parameter width: Outside width, metres.
+ * Parameter height: Outside height, metres.
+ * Parameter front: The body plane behind the closed door, metres from the back.
+ * Parameter centre: The door center height, metres.
  */
 export function WasherDrum(
   builder: AutoMovieArchetypeBuilder<
@@ -105,54 +104,88 @@ export function WasherDrum(
     });
 }
 
-/** One cross section of the elastomer opening or the drum, in metres. */
+/*
+ * One cross section of the elastomer opening or the drum, in metres.
+ */
 interface ISection {
-  /** Vertical center of the section. */
+  /*
+   * Vertical center of the section.
+   */
   centre: number;
-  /** Outside width and height of the appliance. */
+  /*
+   * Outside width and height of the appliance.
+   */
   width: number;
   height: number;
-  /** Circumradius and side count of the unobstructed polygon. */
+  /*
+   * Circumradius and side count of the unobstructed polygon.
+   */
   radius: number;
   sides: number;
-  /** Back and front planes of this section. */
+  /*
+   * Back and front planes of this section.
+   */
   back: number;
   front: number;
-  /** Color of the solid material around the opening. */
+  /*
+   * Color of the solid material around the opening.
+   */
   color: string;
 }
 
-/** Where one angular ray meets the cavity and the outside of the body, metres. */
+/*
+ * Where one angular ray meets the cavity and the outside of the body, metres.
+ */
 interface IDrumStation {
-  /** The ray's point on the polygonal cavity. */
+  /*
+   * The ray's point on the polygonal cavity.
+   */
   interior: IAutoMovieVector3;
 
-  /** The ray's point on the rectangular outside. */
+  /*
+   * The ray's point on the rectangular outside.
+   */
   exterior: IAutoMovieVector3;
 }
 
-/** Keep angular stations in one turn. */
+/*
+ * Keep angular stations in one turn.
+ */
 const TURN: number = 2 * Math.PI;
 
-/** The maker's drum volume, in cubic metres. */
+/*
+ * The maker's drum volume, in cubic metres.
+ */
 const DRUM_VOLUME: number = 0.065;
 
-/** The drum polygon's circumradius, metres; a coarse construction estimate. */
+/*
+ * The drum polygon's circumradius, metres; a coarse construction estimate.
+ */
 const DRUM_RADIUS: number = 0.22;
 
-/** The drum polygon's side count; a coarse construction estimate. */
+/*
+ * The drum polygon's side count; a coarse construction estimate.
+ */
 const DRUM_SIDES: number = 8;
 
-/** The rubber lip's depth, metres; a coarse construction estimate. */
+/*
+ * The rubber lip's depth, metres; a coarse construction estimate.
+ */
 const LIP_DEPTH: number = 0.03;
 
-/** The rubber lip polygon's circumradius, metres, near the 300 mm porthole. */
+/*
+ * The rubber lip polygon's circumradius, metres, near the 300 mm porthole.
+ */
 const LIP_RADIUS: number = 0.15;
 
-/** The rubber lip polygon's side count; a coarse construction estimate. */
+/*
+ * The rubber lip polygon's side count; a coarse construction estimate.
+ */
 const LIP_SIDES: number = 12;
 
-/** Extrude one rectangular surround from exactly shared cross-section vertices. */
+/*
+ * Extrude one rectangular surround from exactly shared cross-section vertices.
+ */
 function shell(
   builder: AutoMovieArchetypeBuilder<
     AutoMovieArchetypeAppliance.Affordance,

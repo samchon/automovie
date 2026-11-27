@@ -17,10 +17,12 @@ import type {
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/** The finger bones' names, as they follow a side in a joint's name. */
+/*
+ * The finger bones' names, as they follow a side in a joint's name.
+ */
 const DIGITS: RegExp = /(Thumb|Index|Middle|Ring|Little)/;
 
-/**
+/*
  * A one-handed handling plan performed over a carrier: the hand's work of a
  * standing plan (a put down, a holstering, a sheathing) carried onto the body
  * the carrier keeps. The standing plan is planned as it is, on the entry's
@@ -32,15 +34,14 @@ const DIGITS: RegExp = /(Thumb|Index|Middle|Ring|Little)/;
  * the world goal.
  */
 export namespace HumanCarriedHand {
-  /**
+  /*
    * The standing plan carried over the carrier.
-   *
-   * @param plan The standing plan.
-   * @param context The action's context, its carrier present.
-   * @param side The working hand.
-   * @param frame The bone the target rides on this body; none for a target in
-   *   the world.
-   * @returns The plan over the carrier.
+   * Parameter plan: The standing plan.
+   * Parameter context: The action's context, its carrier present.
+   * Parameter side: The working hand.
+   * Parameter frame: The bone the target rides on this body; none for a target in
+   * the world.
+   * Returns: The plan over the carrier.
    */
   export function over(
     plan: IAutoMovieMotionHumanActionPlan,
@@ -133,13 +134,12 @@ export namespace HumanCarriedHand {
     };
   }
 
-  /**
+  /*
    * The bone of this performer a target prop rides: worn on it, or mounted on a
    * prop worn on it; none for a prop in the world.
-   *
-   * @param context The action's context.
-   * @param subject The target prop.
-   * @returns The bone, or none.
+   * Parameter context: The action's context.
+   * Parameter subject: The target prop.
+   * Returns: The bone, or none.
    */
   export function riding(
     context: IAutoMovieMotionHumanActionContext<object>,

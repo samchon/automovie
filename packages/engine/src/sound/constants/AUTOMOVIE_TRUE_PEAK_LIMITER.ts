@@ -1,4 +1,4 @@
-/**
+/*
  * Default settings of the master's true-peak limiter, `limitAutoMovieTruePeak`.
  *
  * `ceilingMarginDb` places the limiter's ceiling below the production's maximum
@@ -14,13 +14,19 @@
  * not measured values.
  */
 export const AUTOMOVIE_TRUE_PEAK_LIMITER: Readonly<{
-  /** Decibels between the maximum true peak and the limiter's ceiling. */
+  /*
+   * Decibels between the maximum true peak and the limiter's ceiling.
+   */
   ceilingMarginDb: number;
 
-  /** Look-ahead and attack ramp length, in seconds. */
+  /*
+   * Look-ahead and attack ramp length, in seconds.
+   */
   lookAheadSeconds: number;
 
-  /** Release time constant, in seconds. */
+  /*
+   * Release time constant, in seconds.
+   */
   releaseSeconds: number;
 }> = {
   ceilingMarginDb: 1,

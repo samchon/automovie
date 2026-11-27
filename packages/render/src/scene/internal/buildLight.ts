@@ -5,13 +5,13 @@ import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLigh
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { applyLightState } from "./applyLightState.js";
 
-/**
+/*
  * Build the `three.js` light one staged light plays on, aimed the way the
  * artifact says. The kind decides the class; every value INCLUDING the
- * placement is written by {@link applyLightState}, the same call a shot's
+ * placement is written by applyLightState, the same call a shot's
  * `lightMotions` uses each frame, so placing a light and animating it cannot
  * map `range`, `coneAngle` or the transform two different ways; the two aimed
- * kinds then get their target ({@link aimLight}), which is the half of a light's
+ * kinds then get their target (aimLight), which is the half of a light's
  * placement `three.js` does not read off a quaternion.
  *
  * The placement is deliberately NOT applied a second time here. It used to be,
@@ -64,7 +64,9 @@ export const buildLight: (light: IAutoMovieLight) => THREE.Light = (
 
 let rectAreaLightUniformsInstalled: boolean = false;
 
-/** Install the `RectAreaLight` BRDF lookup tables exactly once per process. */
+/*
+ * Install the `RectAreaLight` BRDF lookup tables exactly once per process.
+ */
 const initRectAreaLightUniforms: () => void = (): void => {
   if (rectAreaLightUniformsInstalled) return;
   rectAreaLightUniformsInstalled = true;
@@ -97,11 +99,11 @@ const applyShadow: (built: THREE.Light, light: IAutoMovieLight) => void = (
   shadow.camera.updateProjectionMatrix();
 };
 
-/**
+/*
  * Point an aimed light along the direction its transform carries.
  *
  * `stage` requires a `direction` for the aimed kinds and lowers it into the
- * scene light's `transform.rotation` ({@link IAutoMovieLight}: "for directional
+ * scene light's `transform.rotation` (IAutoMovieLight: "for directional
  * light only the orientation matters"), but `three.js` does not shine a
  * `DirectionalLight`/`SpotLight` along its quaternion: it shines from its
  * position toward its `target`, which defaults to a fresh object at the world

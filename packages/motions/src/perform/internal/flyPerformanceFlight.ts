@@ -14,7 +14,7 @@ import { HumanSegmentShown } from "./HumanSegmentShown";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { prepareRigidFlightMass } from "./prepareRigidFlightMass";
 
-/**
+/*
  * Integrate one declared physical flight of a placed performance: solve its
  * take-off momentum or use the given one, integrate its rotation over the
  * playback grid, check its native touchdown and hand the turning back to its
@@ -147,7 +147,7 @@ export function flyPerformanceFlight(
   }
   run(prepared, readBones);
 
-  /**
+  /*
    * Integrate the original physical law using either a checked rigid partition
    * or all its original mass parts.
    */
@@ -354,10 +354,12 @@ export function flyPerformanceFlight(
     }
   }
 }
-/** The record of `IMOMENTUMACCURACYItem`'s site. */
+/*
+ * The record of `IMOMENTUMACCURACYItem`'s site.
+ */
 type IMOMENTUMACCURACYItem = { relative: number; absolute: number };
 
-/**
+/*
  * The target-relative dense angular-momentum budget, independently of the
  * orientation's local estimate. If each read differs from the constant model
  * momentum L by at most delta ||L||, two reads differ by at most 2
@@ -371,12 +373,16 @@ const MOMENTUM_ACCURACY: Readonly<IMOMENTUMACCURACYItem> = {
   absolute: 0,
 };
 
-/** A regular playback knot is empty until its unturned pose is first evaluated. */
+/*
+ * A regular playback knot is empty until its unturned pose is first evaluated.
+ */
 type UniformPose = IAutoMoviePose | null;
-/** The alternatives of `Playback2`'s site. */
+/*
+ * The alternatives of `Playback2`'s site.
+ */
 type Playback2 = "step" | "times" | "table";
 
-/**
+/*
  * Numeric playback data shared by staged and physical rotation policies
  * (`HumanPerformanceFlight`'s own).
  */

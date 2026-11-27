@@ -5,14 +5,13 @@ import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryModel } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
 
-/**
+/*
  * Read independently prepared arms as one trajectory on its original frame
  * grid.
- *
- * @param context The complete coupled context, including its pace and swept
- *   pairs.
- * @param tracks Each candidate arm's clinical-angle reader, in context order.
- * @returns The coupled interpolant when it meets the full model, or undefined.
+ * Parameter context: The complete coupled context, including its pace and swept
+ * pairs.
+ * Parameter tracks: Each candidate arm's clinical-angle reader, in context order.
+ * Returns: The coupled interpolant when it meets the full model, or undefined.
  */
 export function certifyHumanArmTracks(
   context: HumanArmTrajectoryModel.IContext,

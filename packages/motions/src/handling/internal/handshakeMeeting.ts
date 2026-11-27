@@ -24,7 +24,7 @@ import { HumanSeatedReach } from "../../touch/internal/HumanSeatedReach";
 import { HumanPrehension } from "./HumanPrehension";
 import { handshakeOffer } from "./handshakeOffer";
 
-/**
+/*
  * The meeting of a handshake (`AutoMovieMotionMeeting`): one record for both
  * partners, the single owner of where the two palms meet, of the line the first
  * partner's fingers point along, and of each partner's seat. The point is
@@ -35,16 +35,17 @@ import { handshakeOffer } from "./handshakeOffer";
  * refused with the offer's own refusal.
  */
 export namespace handshakeMeeting {
-  /** The role both partners take. */
+  /*
+   * The role both partners take.
+   */
   export const ROLE: string = "shaker";
 
-  /**
+  /*
    * The meeting kind of a handshake.
-   *
-   * @param props The shaking hand, the pump's amplitude, the shake's seconds
-   *   and the acting arm of a partner for the mutual goal.
-   * @returns The kind: contacts `meet` (the palms' point) and `along` (that
-   *   point plus the first ordered partner's finger direction, a unit vector).
+   * Parameter props: The shaking hand, the pump's amplitude, the shake's seconds
+   * and the acting arm of a partner for the mutual goal.
+   * Returns: The kind: contacts `meet` (the palms' point) and `along` (that
+   * point plus the first ordered partner's finger direction, a unit vector).
    */
   export function kind(props: IKindProps): IAutoMovieMotionMeetingKind {
     const shoulder = (role: IAutoMovieMotionMeetingRole): IAutoMovieVector3 =>
@@ -88,29 +89,30 @@ export namespace handshakeMeeting {
     };
   }
 
-  /**
+  /*
    * What one partner reads of the meeting: the point with its own finger line,
    * and how far its trunk leans to reach the point.
    */
   export interface IRead {
-    /** The point and this partner's finger line, world. */
+    /*
+     * The point and this partner's finger line, world.
+     */
     meeting: handshakeOffer.IMeeting;
 
-    /**
+    /*
      * The trunk's forward lean, a share of its seated joints' rooms
      * (`HumanSeatedReach.need`); none standing.
      */
     lean: IReadLean;
   }
 
-  /**
+  /*
    * One partner's reading of the shared meeting.
-   *
-   * @param context The partner's action context.
-   * @param side The shaking hand.
-   * @param phases The pump's amplitude, metres, and the shake's seconds.
-   * @param arm The acting arm of a partner for the mutual goal.
-   * @returns The point, this partner's finger line and its lean.
+   * Parameter context: The partner's action context.
+   * Parameter side: The shaking hand.
+   * Parameter phases: The pump's amplitude, metres, and the shake's seconds.
+   * Parameter arm: The acting arm of a partner for the mutual goal.
+   * Returns: The point, this partner's finger line and its lean.
    */
   export function read(
     context: IAutoMovieMotionHumanActionContext<IReadContext>,
@@ -185,16 +187,15 @@ export namespace handshakeMeeting {
     };
   }
 
-  /**
+  /*
    * A handshake's base with the trunk leaned over the seat: in over the reach,
    * held through the pump, out over the return.
-   *
-   * @param body The body.
-   * @param base The standing base.
-   * @param lean The share of the seated joints' rooms at the clasp, and those
-   *   joints.
-   * @param phases The reach's, the shake's and the return's seconds.
-   * @returns The base, unchanged when the lean is none.
+   * Parameter body: The body.
+   * Parameter base: The standing base.
+   * Parameter lean: The share of the seated joints' rooms at the clasp, and those
+   * joints.
+   * Parameter phases: The reach's, the shake's and the return's seconds.
+   * Returns: The base, unchanged when the lean is none.
    */
   export function leaned(
     body: IAutoMovieMotionHumanBody,
@@ -230,22 +231,32 @@ export namespace handshakeMeeting {
   }
 }
 
-/** The record of `ILeanedPhases`'s site. */
+/*
+ * The record of `ILeanedPhases`'s site.
+ */
 type ILeanedPhases = { reach: number; shake: number; back: number };
 
-/** The record of `IReadPhases`'s site. */
+/*
+ * The record of `IReadPhases`'s site.
+ */
 type IReadPhases = { pump: number; shake: number };
 
-/** The record of `IReadContext`'s site. */
+/*
+ * The record of `IReadContext`'s site.
+ */
 type IReadContext = { partner: string };
 
-/** The record of `IReadLean`'s site. */
+/*
+ * The record of `IReadLean`'s site.
+ */
 type IReadLean = {
   share: number;
   joints: IAutoMovieMotionHumanSeatedReach.IJoint[];
 };
 
-/** The record of `IKindProps`'s site. */
+/*
+ * The record of `IKindProps`'s site.
+ */
 type IKindProps = {
   side: AutoMovieHumanSide;
   pump: number;

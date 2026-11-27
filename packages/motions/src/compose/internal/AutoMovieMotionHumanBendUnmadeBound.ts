@@ -13,7 +13,7 @@ import type {
 import { AutoMovieMotionHumanBendEnclosure } from "./AutoMovieMotionHumanBendEnclosure";
 import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
 
-/**
+/*
  * A certified lower bound, over an interval of swivels, of the hand turn's
  * unmade excess: how far the forearm's twist and the wrist's flexion and
  * abduction the hand's turn asks lie past their reserved ranges, the sum the
@@ -60,43 +60,58 @@ import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain
  * where the twist itself is not certified is bounded by 0.
  */
 export namespace AutoMovieMotionHumanBendUnmadeBound {
-  /** The fixed terms of the hand's turn the bound reads. */
+  /*
+   * The fixed terms of the hand's turn the bound reads.
+   */
   export interface IProps {
-    /** The shoulder's parent world rotation, the chain's upper world rotation. */
+    /*
+     * The shoulder's parent world rotation, the chain's upper world rotation.
+     */
     parent: IAutoMovieQuaternion;
 
-    /** The lower arm's rest rotation in the upper arm's frame. */
+    /*
+     * The lower arm's rest rotation in the upper arm's frame.
+     */
     rest: IAutoMovieQuaternion;
 
-    /** The hand's world rotation the goal asks. */
+    /*
+     * The hand's world rotation the goal asks.
+     */
     rotation: IAutoMovieQuaternion;
 
-    /** The forearm's twist axis, as the strain reads it. */
+    /*
+     * The forearm's twist axis, as the strain reads it.
+     */
     axis: IAutoMovieVector3;
 
-    /** The forearm's twist range, degrees; absent, the twist has no excess. */
+    /*
+     * The forearm's twist range, degrees; absent, the twist has no excess.
+     */
     range: IAutoMovieAngleRange | null | undefined;
 
-    /**
+    /*
      * The hand's clinical axes, as the strain decomposes the swing on them;
      * absent, the wrist has no excess.
      */
     handAxes: IAutoMovieJointAxes | undefined;
 
-    /** The hand's rest frame. */
+    /*
+     * The hand's rest frame.
+     */
     handFrame: IAutoMovieRestFrame | undefined;
 
-    /** The hand's range; null, the wrist has no excess. */
+    /*
+     * The hand's range; null, the wrist has no excess.
+     */
     handRange: IAutoMovieJointConstraint | null;
   }
 
-  /**
+  /*
    * Prepare the unmade-excess bound of one sweep.
-   *
-   * @param props The fixed hand terms.
-   * @returns Given a branch's upper-arm rotation by swivel and its hinge
-   *   rotation, the bound's reader over `[low, high]` degrees; null where no
-   *   term can have an excess.
+   * Parameter props: The fixed hand terms.
+   * Returns: Given a branch's upper-arm rotation by swivel and its hinge
+   * rotation, the bound's reader over `[low, high]` degrees; null where no
+   * term can have an excess.
    */
   export function prepare(
     props: IProps,
@@ -244,67 +259,97 @@ export namespace AutoMovieMotionHumanBendUnmadeBound {
   }
 }
 
-/**
+/*
  * The reserved interval of a range: its ends drawn in by the strain's `RESERVE`
  * share of its width.
  */
 interface IReserve {
-  /** The reserved start, degrees. */
+  /*
+   * The reserved start, degrees.
+   */
   lo: number;
 
-  /** The reserved end, degrees. */
+  /*
+   * The reserved end, degrees.
+   */
   hi: number;
 }
-/** The alternatives of `WristSigma`'s site. */
+/*
+ * The alternatives of `WristSigma`'s site.
+ */
 type WristSigma = 1 | -1;
 
-/** The hand's admitted basis, read in the swing's frame, and its reserves. */
+/*
+ * The hand's admitted basis, read in the swing's frame, and its reserves.
+ */
 interface IWrist {
-  /** The flexion axis. */
+  /*
+   * The flexion axis.
+   */
   flexion: IAutoMovieVector3;
 
-  /** The abduction axis. */
+  /*
+   * The abduction axis.
+   */
   abduction: IAutoMovieVector3;
 
-  /** The sign of the handed twist axis along the forearm's axis. */
+  /*
+   * The sign of the handed twist axis along the forearm's axis.
+   */
   sigma: WristSigma;
 
-  /** The hand's rest frame. */
+  /*
+   * The hand's rest frame.
+   */
   frame: IAutoMovieRestFrame | undefined;
 
-  /** The flexion's reserved interval, or null where it has no range. */
+  /*
+   * The flexion's reserved interval, or null where it has no range.
+   */
   flexionReserve: IReserve | null;
 
-  /** The abduction's reserved interval, or null where it has no range. */
+  /*
+   * The abduction's reserved interval, or null where it has no range.
+   */
   abductionReserve: IReserve | null;
 }
 
-/**
+/*
  * Where the forearm's axis turns to, as sinusoids of the swivel: along the
  * hand's flexion and abduction axes and along itself.
  */
 interface IPointing {
-  /** Along the flexion axis. */
+  /*
+   * Along the flexion axis.
+   */
   flexion: IAutoMovieSwivelArcs.ISinusoid;
 
-  /** Along the abduction axis. */
+  /*
+   * Along the abduction axis.
+   */
   abduction: IAutoMovieSwivelArcs.ISinusoid;
 
-  /** Along the forearm's own axis. */
+  /*
+   * Along the forearm's own axis.
+   */
   cosine: IAutoMovieSwivelArcs.ISinusoid;
 }
 
-/** The reader of a branch no bound is certified on. */
+/*
+ * The reader of a branch no bound is certified on.
+ */
 const NONE: (low: number, high: number) => number = (): number => 0;
 
-/**
+/*
  * The largest disagreement of a fitted value with the turn's own the premise
  * admits: rounding of the quaternion products, far below what moves an angle by
  * `SLACK` at `FLOOR`.
  */
 const PREMISE: number = 1e-12;
 
-/** A range's reserved interval, or null for no range. */
+/*
+ * A range's reserved interval, or null for no range.
+ */
 function reserved(
   range: IAutoMovieAngleRange | null | undefined,
 ): IReserve | null {
@@ -314,7 +359,7 @@ function reserved(
   return { lo: range.min + reserve, hi: range.max - reserve };
 }
 
-/**
+/*
  * The hand's basis where the swing identity reads it: proximal twist along the
  * forearm's axis; null otherwise.
  */
@@ -347,17 +392,21 @@ function wristOf(
   };
 }
 
-/** A sinusoid fitted from its values at the parameter's 0, 90 and 180 degrees. */
+/*
+ * A sinusoid fitted from its values at the parameter's 0, 90 and 180 degrees.
+ */
 function fit(values: number[]): IAutoMovieSwivelArcs.ISinusoid {
   return swivelArcs.fitted(values[0]!, values[1]!, values[2]!);
 }
 
-/** The quaternion's vector part along a unit axis. */
+/*
+ * The quaternion's vector part along a unit axis.
+ */
 function dot(q: IAutoMovieQuaternion, unit: IAutoMovieVector3): number {
   return q.x * unit.x + q.y * unit.y + q.z * unit.z;
 }
 
-/**
+/*
  * The least excess of an axis over both charts and every alias after the rest
  * frame's lift.
  */
@@ -384,7 +433,7 @@ function charted(
   );
 }
 
-/**
+/*
  * A rest-relative interval as clinical degrees, `sign · rig + neutral`,
  * ordered.
  */

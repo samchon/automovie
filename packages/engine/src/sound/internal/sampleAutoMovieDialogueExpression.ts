@@ -5,13 +5,12 @@ import type {
 
 import { sampleAutoMovieDialogueVisemeWeights } from "./sampleAutoMovieDialogueVisemeWeights";
 
-/**
+/*
  * Sample a speaker's coarticulated viseme weights at one frame beside the
  * unchanged authored expression.
- *
- * @param props The joined timeline, the frame, the film rate and the authored
- *   expression.
- * @returns The authored layer and the mouth layer's viseme weights.
+ * Parameter props: The joined timeline, the frame, the film rate and the authored
+ * expression.
+ * Returns: The authored layer and the mouth layer's viseme weights.
  */
 export function sampleAutoMovieDialogueExpression(
   props: IAutoMovieSampleDialogueExpression.IProps,

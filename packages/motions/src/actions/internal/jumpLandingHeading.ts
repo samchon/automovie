@@ -2,7 +2,7 @@ import type { IAutoMovieMotionHumanJump } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Choose the heading of a jump's two-foot landing, in degrees about world +Y.
  *
  * A completed somersault restores the body's up axis, so a fractional twist can
@@ -10,11 +10,10 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * fractional somersault needs a different support or recovery action. A turned
  * landing currently requires the level floor because a prop contact does not
  * establish room for the rotated footprints.
- *
- * @param params The authored rotation, destination and optional support.
- * @param heading The heading of the jump's unturned flight.
- * @returns World yaw for touchdown, absorption and the final stance.
- * @throws {HumanRefusal} For an unsupported landing orientation or support.
+ * Parameter params: The authored rotation, destination and optional support.
+ * Parameter heading: The heading of the jump's unturned flight.
+ * Returns: World yaw for touchdown, absorption and the final stance.
+ * For an unsupported landing orientation or support.
  */
 export function jumpLandingHeading(
   params: Pick<IAutoMovieMotionHumanJump.IParams, "rotation" | "to" | "on">,
@@ -46,7 +45,7 @@ export function jumpLandingHeading(
   return heading + 360 * remainder;
 }
 
-/**
+/*
  * How far below one the terminal up axis's cosine to world up may fall and
  * still read as upright: the rounding of a cosine of whole revolutions.
  */

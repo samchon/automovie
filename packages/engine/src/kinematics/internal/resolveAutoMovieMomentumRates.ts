@@ -5,7 +5,7 @@ import type { AutoMovieEngineKinematicsTypes } from "../AutoMovieEngineKinematic
 import { resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
 
 
-/**
+/*
  * Instantaneous centroidal momentum from actual bone-origin rates.
  *
  * The model, posed parts, bones and rates must describe the same instant and
@@ -22,15 +22,14 @@ import { resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
  * body needs finite positive mass. Inputs are borrowed for this synchronous
  * reduction, and every returned vector is fresh. This function does not replace
  * the two-pose momentum API or certify callback derivatives.
- *
- * @param model The same ordered SI mass model that produced posed.
- * @param posed Its rigid parts and mass-weighted centre at this instant.
- * @param bones The actual common-frame bone poses used to produce posed.
- * @param rates Actual common-frame origin and angular derivatives of bones.
- * @returns Instantaneous centre, centre velocity and linear/angular momentum.
- * @throws {Error} When mass, rates or results are nonfinite, total mass is not
- *   positive, part count/masses do not match, or a segment's bone/rate is
- *   missing.
+ * Parameter model: The same ordered SI mass model that produced posed.
+ * Parameter posed: Its rigid parts and mass-weighted centre at this instant.
+ * Parameter bones: The actual common-frame bone poses used to produce posed.
+ * Parameter rates: Actual common-frame origin and angular derivatives of bones.
+ * Returns: Instantaneous centre, centre velocity and linear/angular momentum.
+ * When mass, rates or results are nonfinite, total mass is not
+ * positive, part count/masses do not match, or a segment's bone/rate is
+ * missing.
  */
 export function resolveAutoMovieMomentumRates(
   model: IAutoMovieResolveCenterOfMass.IModel,
@@ -131,11 +130,17 @@ export function resolveAutoMovieMomentumRates(
   };
 }
 
-/** Current rigid-part rates after transferring the bone origin to its COM. */
+/*
+ * Current rigid-part rates after transferring the bone origin to its COM.
+ */
 interface IPartRate {
-  /** Velocity at this part's centre of mass, common-frame metres per second. */
+  /*
+   * Velocity at this part's centre of mass, common-frame metres per second.
+   */
   velocity: IAutoMovieVector3;
 
-  /** Its bone's unchanged angular velocity, common-frame radians per second. */
+  /*
+   * Its bone's unchanged angular velocity, common-frame radians per second.
+   */
   angular: IAutoMovieVector3;
 }

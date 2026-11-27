@@ -4,20 +4,19 @@ import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
 import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace";
 
-/**
+/*
  * Run the existing OSQP iteration on admitted, equilibrated numeric data.
  * Public one-shot solves and fixed-matrix models share this numeric owner.
- *
- * @param rows Current original row keys, unchanged throughout the synchronous
- *   solve.
- * @param s Admitted equilibrated matrices and current scaled intervals in this
- *   row order.
- * @param tolerance The public solver's unchanged relative residual tolerance.
- * @param warm Optional caller-owned unscaled iterates of these ordered rows.
- * @param duals Optional keyed unscaled multipliers when warm is absent.
- * @param memory Optional model-owned scratch; no returned iterate aliases it.
- * @returns Fresh unscaled iterates with the existing termination diagnostics.
- * @throws {RangeError} For incompatible warm data.
+ * Parameter rows: Current original row keys, unchanged throughout the synchronous
+ * solve.
+ * Parameter s: Admitted equilibrated matrices and current scaled intervals in this
+ * row order.
+ * Parameter tolerance: The public solver's unchanged relative residual tolerance.
+ * Parameter warm: Optional caller-owned unscaled iterates of these ordered rows.
+ * Parameter duals: Optional keyed unscaled multipliers when warm is absent.
+ * Parameter memory: Optional model-owned scratch; no returned iterate aliases it.
+ * Returns: Fresh unscaled iterates with the existing termination diagnostics.
+ * For incompatible warm data.
  */
 export function HumanQuadraticSolve(
   rows: readonly Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "key">[],
@@ -299,51 +298,71 @@ export function HumanQuadraticSolve(
   return out;
 }
 
-/** The record of `IHumanQuadraticSolveResidual`'s site. */
+/*
+ * The record of `IHumanQuadraticSolveResidual`'s site.
+ */
 type IHumanQuadraticSolveResidual = { primal: number; dual: number };
 
-/** The step size the solve starts from (OSQP's default). */
+/*
+ * The step size the solve starts from (OSQP's default).
+ */
 const RHO0: number = 0.1;
 
-/** The least and the greatest step size (OSQP's bounds). */
+/*
+ * The least and the greatest step size (OSQP's bounds).
+ */
 const RHO_MIN: number = 1e-6;
 const RHO_MAX: number = 1e6;
 
-/** An equality row's step size as a multiple of the others' (OSQP's). */
+/*
+ * An equality row's step size as a multiple of the others' (OSQP's).
+ */
 const EQUALITY: number = 1e3;
 
-/**
+/*
  * The factor the estimated step size must leave the current one by before the
  * system is factored again (OSQP's adaptive tolerance).
  */
 const ADAPT: number = 5;
 
-/** The proximal term that keeps the step's system definite (OSQP's σ). */
+/*
+ * The proximal term that keeps the step's system definite (OSQP's σ).
+ */
 const SIGMA: number = 1e-6;
 
-/** Over-relaxation (OSQP's α). */
+/*
+ * Over-relaxation (OSQP's α).
+ */
 const ALPHA: number = 1.6;
 
-/**
+/*
  * ADMM iterations per solve at most, a guard behind the residual test (OSQP's
  * default).
  */
 const ITERATIONS: number = 4000;
 
-/** Iterations between two residual tests (OSQP's default). */
+/*
+ * Iterations between two residual tests (OSQP's default).
+ */
 const CHECK: number = 25;
 
-/**
+/*
  * The residual tests' absolute tolerance (OSQP's default); the public owner
  * supplies its unchanged relative tolerance.
  */
 const ABSOLUTE: number = 1e-3;
 
-/** The primal infeasibility certificate's tolerance (OSQP's default). */
+/*
+ * The primal infeasibility certificate's tolerance (OSQP's default).
+ */
 const INFEASIBLE: number = 1e-4;
 
-/** The polishing system's regularisation (OSQP's δ). */
+/*
+ * The polishing system's regularisation (OSQP's δ).
+ */
 const DELTA: number = 1e-6;
 
-/** Iterative refinement steps of the polishing solve (OSQP's default). */
+/*
+ * Iterative refinement steps of the polishing solve (OSQP's default).
+ */
 const REFINE: number = 3;

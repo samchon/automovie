@@ -46,7 +46,7 @@ interface IPenetration {
   pointB: IAutoMovieVector3;
 }
 
-/**
+/*
  * Sample two capsule-proxy actors and return overlap advice, contact events and
  * an optional response.
  */
@@ -231,7 +231,7 @@ export function detectBodyCollision(
   return { validation: collector.toValidation(), events, response };
 }
 
-/**
+/*
  * Validate every capsule of one actor against its own rig, one violation per
  * fault (all capsules are checked so a correction round sees them together).
  * Returns whether the actor's capsules are all usable.

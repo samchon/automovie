@@ -16,18 +16,17 @@ import { HumanForceDrawn } from "./HumanForceDrawn";
 import { HumanForceExchange } from "./HumanForceExchange";
 import { HumanForceThrow } from "./HumanForceThrow";
 
-/**
+/*
  * The response to a pull open at the context's start
  * (`HumanForceResponse.plan`): the pull read from the force input, the base's
  * break by the pendulum law, and the chosen resist, yield or throw built from
  * one tip of the whole body about the ankles.
- *
- * @param context The action's context.
- * @param chosen The outcome to play.
- * @param outcome The balance outcome the impulse at the start gives.
- * @returns The plan.
- * @throws {HumanRefusal} When no pull is open at the start, or the outcome is
- *   not one the pull can produce.
+ * Parameter context: The action's context.
+ * Parameter chosen: The outcome to play.
+ * Parameter outcome: The balance outcome the impulse at the start gives.
+ * Returns: The plan.
+ * When no pull is open at the start, or the outcome is
+ * not one the pull can produce.
  */
 export function humanForceRespond(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanForceResponse.IParams>,
@@ -343,5 +342,7 @@ export function humanForceRespond(
   });
 }
 
-/** The alternatives of `HumanForceRespondPlantPart`'s site. */
+/*
+ * The alternatives of `HumanForceRespondPlantPart`'s site.
+ */
 type HumanForceRespondPlantPart = "leftFoot" | "rightFoot";

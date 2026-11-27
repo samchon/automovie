@@ -22,7 +22,7 @@ import { AutoMovieHumanReferenceOutlines } from "./AutoMovieHumanReferenceOutlin
  * local projection, and the old relief's displaced X/Z is not reused.
  */
 export namespace AutoMovieHumanMassInterim {
-  /**
+  /*
    * The profile of today's trunk masses as the mass part's knots: today's
    * domes rise as the bump `h = A (1 - rho^2)^3` over their footprint
    * (`AutoMovieHumanTrunkFeatureProfile.bump`), so at the share `a` of the
@@ -168,7 +168,9 @@ export namespace AutoMovieHumanMassInterim {
     };
   }
 
-  /** The gluteal footprint for the person's sex. */
+  /*
+   * The gluteal footprint for the person's sex.
+   */
   function glutealTable(
     measures: IAutoMovieHumanBodyMeasures,
   ): IAutoMovieHumanReferenceOutlineTypes.IFootprint {

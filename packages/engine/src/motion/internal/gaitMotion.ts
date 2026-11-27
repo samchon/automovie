@@ -13,7 +13,7 @@ import { addPositiveModulo } from "../../math/internal/addPositiveModulo";
 import { positiveModulo } from "../../math/internal/positiveModulo";
 import { gaitLimbFlexion } from "./gaitLimbFlexion";
 
-/**
+/*
  * Bake one declarative gait cycle into samples+1 evenly timed clinical poses,
  * including a closing copy of cycle phase. Optional phase is seconds into the
  * cycle; gaitCycle records the wrapped seed, and rig-specific ROM validation
@@ -69,7 +69,9 @@ export const gaitMotion: (
   };
 };
 
-/** Wrap a cycle position into `[0, 1)`. */
+/*
+ * Wrap a cycle position into `[0, 1)`.
+ */
 function wrap01(x: number): number {
   return positiveModulo(x, 1);
 }

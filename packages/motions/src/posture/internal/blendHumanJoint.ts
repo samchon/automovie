@@ -13,7 +13,7 @@ import type {
 
 import { readHumanBone } from "../../body/internal/readHumanBone";
 
-/**
+/*
  * Stateless standalone dispatch preserves targeted lookup without a per-call
  * full index.
  */
@@ -30,7 +30,9 @@ const COLD: ILookup = {
   ): IFrame => frameOf(bone, axesOf(body, bone), constraint),
 };
 
-/** Find one joint's last explicit axes, leaving earlier axes as fallback. */
+/*
+ * Find one joint's last explicit axes, leaving earlier axes as fallback.
+ */
 function axesOf(
   body: IBlendBody,
   bone: AutoMovieHumanoidBone,
@@ -45,7 +47,9 @@ function axesOf(
   return HUMANOID_JOINT_AXES[bone];
 }
 
-/** A fixed clinical axis makes interpolation linear in the remaining angles. */
+/*
+ * A fixed clinical axis makes interpolation linear in the remaining angles.
+ */
 function linear(constraint: IAutoMovieJointConstraint | null): boolean {
   return (
     constraint !== null &&
@@ -55,7 +59,9 @@ function linear(constraint: IAutoMovieJointConstraint | null): boolean {
   );
 }
 
-/** One joint's raw axes with their normalized basis and swing-twist chart. */
+/*
+ * One joint's raw axes with their normalized basis and swing-twist chart.
+ */
 function frameOf(
   bone: AutoMovieHumanoidBone,
   axes: IAutoMovieJointAxes | undefined,
@@ -90,7 +96,9 @@ function frameOf(
   };
 }
 
-/** Preserve endpoint returns when an interior frame would refuse its axes. */
+/*
+ * Preserve endpoint returns when an interior frame would refuse its axes.
+ */
 function preparedFrame(
   bone: AutoMovieHumanoidBone,
   axes: IAutoMovieJointAxes | undefined,
@@ -106,7 +114,9 @@ function preparedFrame(
   }
 }
 
-/** Bind only the caller's selected metadata before its time reader escapes. */
+/*
+ * Bind only the caller's selected metadata before its time reader escapes.
+ */
 function prepareLookup(
   body: IBlendBody,
   needed: ReadonlySet<AutoMovieHumanoidBone>,
@@ -164,7 +174,7 @@ function prepareLookup(
   };
 }
 
-/**
+/*
  * A joint's clinical angles part of the way between two readings of them,
  * blended the way the joint moves: a ball joint as a rotation, a joint with
  * fewer freedoms angle by angle.
@@ -206,14 +216,13 @@ function prepareLookup(
  * as abduction the elbow does not own. Such a joint is therefore blended angle
  * by angle, each freedom moving on its own axis, and a freedom it lacks stays
  * where both ends hold it.
- *
- * @param body The body, for the joint's axes and range.
- * @param bone The joint.
- * @param from The `[flexion, abduction, twist]` at share 0, degrees.
- * @param to The same at share 1.
- * @param share How far from `from` to `to`, clamped to [0, 1].
- * @returns The blended `[flexion, abduction, twist]`, degrees; an end is
- *   returned as given.
+ * Parameter body: The body, for the joint's axes and range.
+ * Parameter bone: The joint.
+ * Parameter from: The `[flexion, abduction, twist]` at share 0, degrees.
+ * Parameter to: The same at share 1.
+ * Parameter share: How far from `from` to `to`, clamped to [0, 1].
+ * Returns: The blended `[flexion, abduction, twist]`, degrees; an end is
+ * returned as given.
  */
 export function blendHumanJoint(
   body: IBlendBody,
@@ -225,9 +234,11 @@ export function blendHumanJoint(
   return blend(body, bone, from, to, share, COLD);
 }
 
-/** Metadata preparation for a body's single synchronous multi-joint blend. */
+/*
+ * Metadata preparation for a body's single synchronous multi-joint blend.
+ */
 export namespace blendHumanJoint {
-  /**
+  /*
    * Blend one unchanged endpoint pair while body, canonical rig and tuple
    * values stay unchanged. The pair's numerical branch (a hinge's line, a ball
    * joint's arc or its range-bounded swing and twist) is prepared once here;
@@ -253,18 +264,17 @@ export namespace blendHumanJoint {
     };
   }
 
-  /**
+  /*
    * Prepare the selected joints' constraints, conversion bases and bounded
    * swing regions. A selected hinge needs only its constraint. A name without
    * selected metadata uses the standalone blend, including canonical fallback
    * for an absent bone. The body, axes and ranges stay unchanged for the
    * reader. Each share borrows its input tuples and returns a fresh interior
    * reading.
-   *
-   * @param body The unchanged body for this operation.
-   * @param needed The joints bound before sampling, when known.
-   * @returns A joint blender whose clipped endpoints return the supplied
-   *   tuples.
+   * Parameter body: The unchanged body for this operation.
+   * Parameter needed: The joints bound before sampling, when known.
+   * Returns: A joint blender whose clipped endpoints return the supplied
+   * tuples.
    */
   export function prepare(
     body: IBlendBody,
@@ -289,7 +299,7 @@ export namespace blendHumanJoint {
   }
 }
 
-/**
+/*
  * One interpolation algorithm, with all original endpoint and hinge gates
  * before frame admission.
  */
@@ -327,7 +337,7 @@ function blend(
   return readRotation(blended, rig);
 }
 
-/**
+/*
  * One endpoint pair's interior reader, its branch prepared once: a joint with a
  * fixed freedom blends its angles linearly; a ball joint on the shorter arc of
  * its two rotations, or inside its swing-twist range where it declares one.
@@ -364,7 +374,7 @@ function pair(
     );
 }
 
-/**
+/*
  * Original endpoint literal/axis/frame argument ordering without a per-read
  * closure.
  */
@@ -381,7 +391,9 @@ function rotationOf(
   );
 }
 
-/** Original chart-choice domain construction and clinical readback ordering. */
+/*
+ * Original chart-choice domain construction and clinical readback ordering.
+ */
 function readRotation(
   blended: IAutoMovieQuaternion,
   rig: IFrame,
@@ -395,51 +407,81 @@ function readRotation(
   return [read.flexion, read.abduction, read.twist];
 }
 
-/** The existing body records needed to choose a joint's blend. */
+/*
+ * The existing body records needed to choose a joint's blend.
+ */
 type IBlendBody = Pick<IAutoMovieMotionHumanBody, "bones" | "skeleton">;
 
-/** One bone's admitted conversion basis, clinical chart and optional range. */
+/*
+ * One bone's admitted conversion basis, clinical chart and optional range.
+ */
 interface IFrame {
-  /** The normalized basis the conversions read. */
+  /*
+   * The normalized basis the conversions read.
+   */
   readonly basis: IAutoMovieJointAxes;
 
-  /** The clinical rest mapping used in both directions. */
+  /*
+   * The clinical rest mapping used in both directions.
+   */
   readonly rest: IAutoMovieRestFrame | undefined;
 
-  /** The preferred chart's domain for rotation readback. */
+  /*
+   * The preferred chart's domain for rotation readback.
+   */
   readonly domain: IAutoMovieJointRotationDomain;
 
-  /** The prepared swing-twist range when both a range and raw axes exist. */
+  /*
+   * The prepared swing-twist range when both a range and raw axes exist.
+   */
   readonly range: IRange | undefined;
 }
 
-/** The constraint and chart a bounded rotation blend uses together. */
+/*
+ * The constraint and chart a bounded rotation blend uses together.
+ */
 interface IRange {
-  /** The resolved range constraint. */
+  /*
+   * The resolved range constraint.
+   */
   readonly constraint: IAutoMovieJointConstraint;
 
-  /** Its geometric swing region. */
+  /*
+   * Its geometric swing region.
+   */
   readonly joint: swingTwistRange.IPrepared;
 }
 
-/** Static metadata for one joint selected by the caller. */
+/*
+ * Static metadata for one joint selected by the caller.
+ */
 interface IPreparedJoint {
-  /** Its first-match constraint, or null when no constraint applies. */
+  /*
+   * Its first-match constraint, or null when no constraint applies.
+   */
   readonly constraint: IAutoMovieJointConstraint | null;
 
-  /** Its admitted rotation frame or original admission failure. */
+  /*
+   * Its admitted rotation frame or original admission failure.
+   */
   readonly frame: (() => IFrame) | undefined;
 }
 
-/** The two metadata phases: constraint lookup precedes any ball-joint axes work. */
+/*
+ * The two metadata phases: constraint lookup precedes any ball-joint axes work.
+ */
 interface ILookup {
-  /** First-match override/default resolution, without reading clinical axes. */
+  /*
+   * First-match override/default resolution, without reading clinical axes.
+   */
   constraint(
     body: IBlendBody,
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieJointConstraint | null;
 
-  /** Canonical frame metadata, requested only after the hinge branch. */
+  /*
+   * Canonical frame metadata, requested only after the hinge branch.
+   */
   frame(
     body: IBlendBody,
     bone: AutoMovieHumanoidBone,

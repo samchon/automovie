@@ -12,29 +12,39 @@ import type {
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
-/**
+/*
  * Assign a spherical prop's receiving hands to its staged capture during their
  * fitted approach. The other surfaces still compete for first contact. The
  * completed capture must reach the same ball frame with each designated hand on
  * the ball's surface.
  */
 export namespace HumanPropCatchHands {
-  /** The physically modeled gripping parts of one anchored capture. */
+  /*
+   * The physically modeled gripping parts of one anchored capture.
+   */
   export interface IApproach {
-    /** Catching performer. */
+    /*
+     * Catching performer.
+     */
     subject: string;
 
-    /** Hand named by the captured grip. */
+    /*
+     * Hand named by the captured grip.
+     */
     side: AutoMovieHumanSide;
 
-    /** First film second of the fitted reception. */
+    /*
+     * First film second of the fitted reception.
+     */
     from: number;
 
-    /** Film second when the held state takes custody. */
+    /*
+     * Film second when the held state takes custody.
+     */
     until: number;
   }
 
-  /**
+  /*
    * Select the owning capture's gripping parts at the exact superseding
    * instant.
    */
@@ -54,7 +64,9 @@ export namespace HumanPropCatchHands {
     });
   }
 
-  /** Remove reserved hands and fingers from the current fresh sweep reading. */
+  /*
+   * Remove reserved hands and fingers from the current fresh sweep reading.
+   */
   export function omit(
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     approach: readonly IApproach[],
@@ -73,7 +85,9 @@ export namespace HumanPropCatchHands {
     return bones;
   }
 
-  /** Admit a reserved hold only if the actual fitted hand reaches the sphere. */
+  /*
+   * Admit a reserved hold only if the actual fitted hand reaches the sphere.
+   */
   export function closes(
     self: IAutoMovieMotionHumanPerformanceState,
     grip: IAutoMovieMotionHumanPerformanceState.IGrip,

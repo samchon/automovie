@@ -5,7 +5,7 @@ import type {
 
 import { AUTO_MOVIE_INSPECTION_KINDS } from "../../AUTO_MOVIE_INSPECTION_KINDS.js";
 
-/**
+/*
  * Draw sampled trails as marks for one drawn second: each moving object's path
  * as a line through its samples with a tick at every sample, and the sample of
  * the drawn second emphasised.
@@ -20,11 +20,10 @@ import { AUTO_MOVIE_INSPECTION_KINDS } from "../../AUTO_MOVIE_INSPECTION_KINDS.j
  * | ----------- | --------------------------- | -------------------- |
  * | `trail`     | `trail`                     | Chocolate `d2691e`   |
  * | `trail/now` | `trail at the drawn second` | Dodger blue `1e90ff` |
- *
- * @param trails The trails, as `sampleAutoMovieInspectionTrails` returns them.
- * @param seconds The drawn film second.
- * @returns For each trail its line, when it moves, then its ticks, then its
- *   emphasised tick.
+ * Parameter trails: The trails, as `sampleAutoMovieInspectionTrails` returns them.
+ * Parameter seconds: The drawn film second.
+ * Returns: For each trail its line, when it moves, then its ticks, then its
+ * emphasised tick.
  */
 export function markAutoMovieInspectionTrails(
   trails: readonly IAutoMovieInspectionTrail[],
@@ -80,10 +79,14 @@ export function markAutoMovieInspectionTrails(
   return marks;
 }
 
-/** Legend entry of the trail kind. */
+/*
+ * Legend entry of the trail kind.
+ */
 const TRAIL: { readonly label: string; readonly color: number } =
   AUTO_MOVIE_INSPECTION_KINDS.trail!;
 
-/** Legend entry of the emphasised tick. */
+/*
+ * Legend entry of the emphasised tick.
+ */
 const NOW: { readonly label: string; readonly color: number } =
   AUTO_MOVIE_INSPECTION_KINDS["trail/now"]!;

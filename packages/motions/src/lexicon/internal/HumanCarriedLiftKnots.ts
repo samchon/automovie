@@ -17,7 +17,7 @@ import { prepareHumanAdaptiveKnots } from "../../posture/internal/prepareHumanAd
 import { resolveHumanPostureSource } from "../../posture/internal/resolveHumanPostureSource";
 import { turnHumanPosture } from "../../posture/internal/turnHumanPosture";
 
-/**
+/*
  * The knots a carry's lift or set-down keeps of the carried body's frozen
  * posture (`HumanCarriedLift`): the whole-posture fit of the carry at a second,
  * written by its solved joint angles (`GymnasticsFlight.frozen`), kept at knots
@@ -35,74 +35,94 @@ import { turnHumanPosture } from "../../posture/internal/turnHumanPosture";
  * when the plan is prepared (`prepare`); a read before that fits its own second
  * and keeps nothing.
  */ export namespace HumanCarriedLiftKnots {
-  /**
+  /*
    * The farthest an interpolated posture may put a joint centre from the
    * middle's own fit, metres: the solver's millimetre.
    */
   export const TOLERANCE: number = HumanArmTrajectoryTerms.TOLERANCE / 1000;
 
-  /**
+  /*
    * The shortest interval split, seconds: the frame grid the courses are read
    * on.
    */
   export const STEP: number = AutoMovieMotionHumanArmCourse.STEP;
 
-  /** One kept fit. */
+  /*
+   * One kept fit.
+   */
   export interface IKnot {
-    /** The plan second. */
+    /*
+     * The plan second.
+     */
     seconds: number;
 
-    /** The reading there, the fit's own. */
+    /*
+     * The reading there, the fit's own.
+     */
     reading: IReading;
   }
 
-  /** The frozen posture at a second, with what the set-down's stand reads of it. */
+  /*
+   * The frozen posture at a second, with what the set-down's stand reads of it.
+   */
   export interface IReading {
-    /** The frozen posture: joint angles, heading and root, no limb goals. */
+    /*
+     * The frozen posture: joint angles, heading and root, no limb goals.
+     */
     posture: IAutoMovieMotionHumanPosture;
 
-    /**
+    /*
      * Its authored root, world metres (the posture's `root`, before any
      * whole-body rotation).
      */
     root: IAutoMovieVector3;
 
-    /** Its turned root's world rotation (`turnHumanPosture`). */
+    /*
+     * Its turned root's world rotation (`turnHumanPosture`).
+     */
     rotation: IAutoMovieQuaternion;
   }
 
-  /** A phase's knots. */
+  /*
+   * A phase's knots.
+   */
   export interface ICourse {
-    /** The phase's first plan second. */
+    /*
+     * The phase's first plan second.
+     */
     from: number;
 
-    /** Its last. */
+    /*
+     * Its last.
+     */
     to: number;
 
-    /** Its knots, ascending, once the plan is prepared. */
+    /*
+     * Its knots, ascending, once the plan is prepared.
+     */
     knots?: readonly IKnot[];
   }
-  /** The carry's frozen posture at a plan second. */
+  /*
+   * The carry's frozen posture at a plan second.
+   */
   export type Frozen = (seconds: number) => IAutoMovieMotionHumanPosture;
 
-  /**
+  /*
    * An empty course over a phase.
-   *
-   * @param from The phase's first plan second.
-   * @param to Its last.
-   * @returns The course, fitted when prepared.
+   * Parameter from: The phase's first plan second.
+   * Parameter to: Its last.
+   * Returns: The course, fitted when prepared.
    */
   export function course(from: number, to: number): ICourse {
     return { from, to };
   }
 
-  /**
+  /*
    * Fit a phase's knots where AutoKnots places them on the fit's joint centres.
-   *
-   * @param course The phase's course, its knots set here.
-   * @param body The carried body.
-   * @param frozen The carry's frozen posture at a plan second, fitted for a
-   *   knot.
+   * Parameter course: The phase's course, its knots set here.
+   * Parameter body: The carried body.
+   * Parameter frozen: The carry's frozen posture at a plan second, fitted for a
+   * knot.
    */
   export function prepare(
     course: ICourse,
@@ -136,15 +156,14 @@ import { turnHumanPosture } from "../../posture/internal/turnHumanPosture";
     );
   }
 
-  /**
+  /*
    * The frozen posture at a plan second of the phase: a knot's own fit where
    * the course keeps a knot there, else interpolated between the two knots
    * around it; the second's own fit before the course is prepared.
-   *
-   * @param course The phase's course.
-   * @param seconds The plan second, clamped into the phase.
-   * @param frozen The carry's frozen posture at a plan second.
-   * @returns The reading.
+   * Parameter course: The phase's course.
+   * Parameter seconds: The plan second, clamped into the phase.
+   * Parameter frozen: The carry's frozen posture at a plan second.
+   * Returns: The reading.
    */
   export function read(
     course: ICourse,
@@ -171,7 +190,9 @@ import { turnHumanPosture } from "../../posture/internal/turnHumanPosture";
       (at - a.seconds) / (b.seconds - a.seconds),
     );
   }
-  /** A frozen posture's own reading. */
+  /*
+   * A frozen posture's own reading.
+   */
   function own(posture: IAutoMovieMotionHumanPosture): IReading {
     return {
       posture,
@@ -180,7 +201,7 @@ import { turnHumanPosture } from "../../posture/internal/turnHumanPosture";
     };
   }
 
-  /**
+  /*
    * Every joint centre of a joint-only posture, by its assembly's forward
    * kinematics, as one coordinate vector in the rig's bone order.
    */
@@ -200,7 +221,7 @@ import { turnHumanPosture } from "../../posture/internal/turnHumanPosture";
       ],
     );
   }
-  /**
+  /*
    * Two readings interpolated at a share: angles and positions linearly, the
    * heading the short way round, the turned rotation by slerp.
    */
@@ -263,8 +284,12 @@ import { turnHumanPosture } from "../../posture/internal/turnHumanPosture";
   }
 }
 
-/** The alternatives of `Heading`'s site. */
+/*
+ * The alternatives of `Heading`'s site.
+ */
 type Heading = "yaw" | "pitch" | "roll";
 
-/** A posture's heading angles, degrees. */
+/*
+ * A posture's heading angles, degrees.
+ */
 type IHeading = Pick<IAutoMovieMotionHumanPosture, Heading>;

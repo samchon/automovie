@@ -8,7 +8,7 @@ import { transformedBoxBounds } from "../../math/internal/transformedBoxBounds";
 import { setPieceMatrix } from "../staging/internal/setPieceMatrix";
 import { unionSubjectBoxes } from "./unionSubjectBoxes";
 
-/**
+/*
  * The world-axis-aligned volume one staged prop occupies.
  *
  * A declared `placement.footprint` wins because it is the prop's own statement
@@ -24,10 +24,9 @@ import { unionSubjectBoxes } from "./unionSubjectBoxes";
  * states the use volume when the proxy is too crude. If no part carries a
  * vertex, builtPlacedPartBoxes returns a zero box at the staged piece's world
  * origin.
- *
- * @param props.prop The prop's registry entry.
- * @param props.piece The set piece that stages it.
- * @returns A new world box in metres.
+ * Parameter props.prop: The prop's registry entry.
+ * Parameter props.piece: The set piece that stages it.
+ * Returns: A new world box in metres.
  */
 export function propOccupancyBounds(
   props: IAutoMoviePropOccupancyBounds.IProps,

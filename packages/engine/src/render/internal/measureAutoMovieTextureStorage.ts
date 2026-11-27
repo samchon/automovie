@@ -1,6 +1,6 @@
 import type { IAutoMovieMeasureTextureStorage } from "@automovie/interface";
 
-/**
+/*
  * Count uncompressed two-dimensional texel storage in bytes. Each mip level
  * halves integer dimensions and retains at least one texel on either axis; this
  * is the actual chain, including non-square and non-power-of-two images. The

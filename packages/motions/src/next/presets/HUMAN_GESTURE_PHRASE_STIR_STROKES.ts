@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `stirStrokes` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. Stirring: the fist that holds the spoon circles
  * out and in over the pot.

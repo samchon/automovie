@@ -1,4 +1,4 @@
-/**
+/*
  * Recognizes a review heading with a current-format fingerprint.
  *
  * Principled implementation: Anchored grammar recognizes H2-H4 reviews with

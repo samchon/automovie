@@ -10,7 +10,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { knockdown } from "../../reaction/internal/knockdown";
 import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
 
-/**
+/*
  * The airborne kernel of the gymnastic and jumping laws: a body in flight is a
  * set of joint angles, a heading and a tip, placed where its centre of mass
  * lies on the drag-free parabola its take-off speed gives.
@@ -29,12 +29,11 @@ import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
  * leaves that point on its parabola.
  */
 export namespace GymnasticsFlight {
-  /**
+  /*
    * The mass model of a body.
-   *
-   * @param body The body.
-   * @returns The body's canonical segment model, prepared when that body is
-   *   created.
+   * Parameter body: The body.
+   * Returns: The body's canonical segment model, prepared when that body is
+   * created.
    */
   export function model(
     body: Pick<IAutoMovieMotionHumanBody, "massModel">,
@@ -42,18 +41,17 @@ export namespace GymnasticsFlight {
     return body.massModel;
   }
 
-  /**
+  /*
    * A posture written by its achieved clinical angles, its limb goals cleared
    * and other raw fields kept under their original ownership.
-   *
-   * @param body The body.
-   * @param posture The posture, with or without limb goals.
-   * @param resolution Optional exact FK source borrowed only during this
-   *   synchronous solve.
-   * @param projection Optional genuine same-body ROM projector borrowed only
-   *   during this synchronous solve.
-   * @returns The raw view with actual clinical joints and no limb goals; other
-   *   raw fields, including any digit/rotation demands, remain unchanged.
+   * Parameter body: The body.
+   * Parameter posture: The posture, with or without limb goals.
+   * Parameter resolution: Optional exact FK source borrowed only during this
+   * synchronous solve.
+   * Parameter projection: Optional genuine same-body ROM projector borrowed only
+   * during this synchronous solve.
+   * Returns: The raw view with actual clinical joints and no limb goals; other
+   * raw fields, including any digit/rotation demands, remain unchanged.
    */
   export function frozen(
     body: IAutoMovieMotionHumanBody,
@@ -75,21 +73,20 @@ export namespace GymnasticsFlight {
     );
   }
 
-  /**
+  /*
    * Resolve one actual source once and expose its original frozen clinical view
    * beside the actual canonical pose, so a caller can also read its COM.
-   *
-   * @param body The unchanged canonical body.
-   * @param posture The original raw posture, whose complete goals still resolve
-   *   before freezing.
-   * @param resolution Optional exact FK source borrowed only for this source
-   *   query.
-   * @param projection Optional genuine same-body ROM projector borrowed only
-   *   for this source query.
-   * @returns The raw view with limb goals cleared and the same actual resolver
-   *   pose; copied clinical tuples are separate from canonical joint records,
-   *   while other raw fields, including any digit/rotation demands, retain
-   *   frozen's original borrowed ownership.
+   * Parameter body: The unchanged canonical body.
+   * Parameter posture: The original raw posture, whose complete goals still resolve
+   * before freezing.
+   * Parameter resolution: Optional exact FK source borrowed only for this source
+   * query.
+   * Parameter projection: Optional genuine same-body ROM projector borrowed only
+   * for this source query.
+   * Returns: The raw view with limb goals cleared and the same actual resolver
+   * pose; copied clinical tuples are separate from canonical joint records,
+   * while other raw fields, including any digit/rotation demands, retain
+   * frozen's original borrowed ownership.
    */
   export function freeze(
     body: IAutoMovieMotionHumanBody,
@@ -109,17 +106,16 @@ export namespace GymnasticsFlight {
     return { posture: frozenView(posture, pose), pose };
   }
 
-  /**
+  /*
    * The centre of mass of a posture.
-   *
-   * @param body The body.
-   * @param model Its mass model.
-   * @param posture The posture.
-   * @param resolution Optional exact FK reader or lazy supplier borrowed from
-   *   this synchronous body's evaluation.
-   * @param projection Optional genuine same-body direct ROM projector borrowed
-   *   only during this synchronous reading.
-   * @returns World metres.
+   * Parameter body: The body.
+   * Parameter model: Its mass model.
+   * Parameter posture: The posture.
+   * Parameter resolution: Optional exact FK reader or lazy supplier borrowed from
+   * this synchronous body's evaluation.
+   * Parameter projection: Optional genuine same-body direct ROM projector borrowed
+   * only during this synchronous reading.
+   * Returns: World metres.
    */
   export function centre(
     body: IAutoMovieMotionHumanBody,
@@ -156,14 +152,13 @@ export namespace GymnasticsFlight {
     return AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(model, bones);
   }
 
-  /**
+  /*
    * A posture moved so its centre of mass is at a point.
-   *
-   * @param body The body.
-   * @param model Its mass model.
-   * @param posture A posture written by joints.
-   * @param at Where its centre goes, world metres.
-   * @returns The posture with its root moved.
+   * Parameter body: The body.
+   * Parameter model: Its mass model.
+   * Parameter posture: A posture written by joints.
+   * Parameter at: Where its centre goes, world metres.
+   * Returns: The posture with its root moved.
    */
   export function placed(
     body: IAutoMovieMotionHumanBody,
@@ -178,21 +173,20 @@ export namespace GymnasticsFlight {
     };
   }
 
-  /**
+  /*
    * A posture with no roll turned rigidly about a world point: about the
    * vertical by `yaw`, then about the turned body's left axis by `pitch`, so
    * its heading becomes its own plus `yaw` and its tip its own plus `pitch`.
    * The root and every world limb goal (its point, its bend hint and its
    * rotation) go round with it; a goal attached to a bone moves with that bone
    * already and is kept.
-   *
-   * @param posture The posture, its roll 0.
-   * @param pivot The world point that stays.
-   * @param yaw Degrees about +Y.
-   * @param pitch Degrees of forward tip.
-   * @returns The turned posture.
-   * @throws {Error} When the posture has a roll, which this turn would not
-   *   carry.
+   * Parameter posture: The posture, its roll 0.
+   * Parameter pivot: The world point that stays.
+   * Parameter yaw: Degrees about +Y.
+   * Parameter pitch: Degrees of forward tip.
+   * Returns: The turned posture.
+   * When the posture has a roll, which this turn would not
+   * carry.
    */
   export function turned(
     posture: IAutoMovieMotionHumanPosture,
@@ -203,16 +197,15 @@ export namespace GymnasticsFlight {
     return prepareTurned(posture, pivot)(yaw, pitch);
   }
 
-  /**
+  /*
    * Prepare rigid turns of one unchanged no-roll posture about one fixed
    * world-metre pivot. The caller keeps the source and its borrowed nested
    * articulation/goals unchanged until it releases the returned reader.
-   *
-   * @param posture The original unchanged raw posture, with roll zero.
-   * @param pivot The unchanged world pivot, metres.
-   * @returns A reader of yaw and pitch increments in degrees, retaining the
-   *   original turn order and raw-goal policy.
-   * @throws {Error} When the source has a roll the original turn cannot carry.
+   * Parameter posture: The original unchanged raw posture, with roll zero.
+   * Parameter pivot: The unchanged world pivot, metres.
+   * Returns: A reader of yaw and pitch increments in degrees, retaining the
+   * original turn order and raw-goal policy.
+   * When the source has a roll the original turn cannot carry.
    */
   export function prepareTurned(
     posture: IAutoMovieMotionHumanPosture,
@@ -263,15 +256,14 @@ export namespace GymnasticsFlight {
     };
   }
 
-  /**
+  /*
    * The seconds a centre launched at a height with a vertical speed takes to
    * come down to another height.
-   *
-   * @param from The launch height, metres.
-   * @param vy The vertical launch speed, m/s, positive upward.
-   * @param to The height it comes down to, metres.
-   * @returns Seconds, positive; null when the parabola never reaches that
-   *   height on its way down after the launch.
+   * Parameter from: The launch height, metres.
+   * Parameter vy: The vertical launch speed, m/s, positive upward.
+   * Parameter to: The height it comes down to, metres.
+   * Returns: Seconds, positive; null when the parabola never reaches that
+   * height on its way down after the launch.
    */
   export function fall(from: number, vy: number, to: number): number | null {
     const discriminant: number =
@@ -282,13 +274,12 @@ export namespace GymnasticsFlight {
     return t > 0 ? t : null;
   }
 
-  /**
+  /*
    * The centre of a drag-free flight at a second of it.
-   *
-   * @param from The centre at launch, world metres.
-   * @param velocity The launch velocity, m/s.
-   * @param t Seconds since the launch.
-   * @returns World metres.
+   * Parameter from: The centre at launch, world metres.
+   * Parameter velocity: The launch velocity, m/s.
+   * Parameter t: Seconds since the launch.
+   * Returns: World metres.
    */
   export function at(
     from: IAutoMovieVector3,
@@ -302,16 +293,15 @@ export namespace GymnasticsFlight {
     };
   }
 
-  /**
+  /*
    * The height of the lowest point of a posture's collision shapes.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @param resolution Optional exact FK reader or supplier borrowed from the
-   *   current synchronous touchdown search.
-   * @param projection Optional genuine same-body ROM projector borrowed only
-   *   during this reading.
-   * @returns World metres.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Parameter resolution: Optional exact FK reader or supplier borrowed from the
+   * current synchronous touchdown search.
+   * Parameter projection: Optional genuine same-body ROM projector borrowed only
+   * during this reading.
+   * Returns: World metres.
    */
   export function lowest(
     body: IAutoMovieMotionHumanBody,
@@ -324,13 +314,12 @@ export namespace GymnasticsFlight {
     );
   }
 
-  /**
+  /*
    * Prepare this unchanged body's original lowest-point reading for all actual
    * postures in one touchdown search, without retaining a sample.
-   *
-   * @param body The fixed canonical body, rig and physical profile.
-   * @returns A reader of each current posture and optional synchronous FK/ROM
-   *   loans, returning the original lowest world height in metres.
+   * Parameter body: The fixed canonical body, rig and physical profile.
+   * Returns: A reader of each current posture and optional synchronous FK/ROM
+   * loans, returning the original lowest world height in metres.
    */
   export function prepareLowest(
     body: IAutoMovieMotionHumanBody,
@@ -348,15 +337,14 @@ export namespace GymnasticsFlight {
     ): number => posture.root.y - rest(posture, resolution, projection);
   }
 
-  /**
+  /*
    * The centre and its velocity at a ballistic instant of a plan: an instant
    * from which the plan's displayed centre follows a parabola.
-   *
-   * @param body The body.
-   * @param model Its mass model.
-   * @param plan The plan.
-   * @param seconds The instant, seconds of the plan.
-   * @returns The centre, world metres, and its velocity, m/s.
+   * Parameter body: The body.
+   * Parameter model: Its mass model.
+   * Parameter plan: The plan.
+   * Parameter seconds: The instant, seconds of the plan.
+   * Returns: The centre, world metres, and its velocity, m/s.
    */
   export function launch(
     body: IAutoMovieMotionHumanBody,
@@ -367,16 +355,15 @@ export namespace GymnasticsFlight {
     return prepareGymnasticsLaunch(body, model)(plan, seconds);
   }
 
-  /**
+  /*
    * The first second at which a falling body's lowest point comes down to a
    * height.
-   *
-   * @param from A second at which the lowest point is above the height.
-   * @param until A later second at which it is at or below it.
-   * @param lowest The lowest point's height at a second.
-   * @param height The height, metres.
-   * @returns The second, within a tenth of a millisecond, or within adjacent
-   *   seconds where they lie further apart than that.
+   * Parameter from: A second at which the lowest point is above the height.
+   * Parameter until: A later second at which it is at or below it.
+   * Parameter lowest: The lowest point's height at a second.
+   * Parameter height: The height, metres.
+   * Returns: The second, within a tenth of a millisecond, or within adjacent
+   * seconds where they lie further apart than that.
    */
   export function touchdown(
     from: number,
@@ -395,7 +382,7 @@ export namespace GymnasticsFlight {
     return high;
   }
 
-  /**
+  /*
    * Copy actual canonical clinical values under the original limb-only freeze
    * policy.
    */
@@ -416,10 +403,14 @@ export namespace GymnasticsFlight {
   }
 }
 
-/** The alternatives of `PrepareTurnedAfter`'s site. */
+/*
+ * The alternatives of `PrepareTurnedAfter`'s site.
+ */
 type PrepareTurnedAfter = "yaw" | "pitch" | "roll";
 
-/** The record of `IFreezeResult`'s site. */
+/*
+ * The record of `IFreezeResult`'s site.
+ */
 type IFreezeResult = {
   posture: IAutoMovieMotionHumanPosture;
   pose: IAutoMoviePose;

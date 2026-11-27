@@ -6,21 +6,20 @@ import { HumanQuadraticFactorOrder } from "./HumanQuadraticFactorOrder";
 import type { HumanQuadraticPreparation } from "./HumanQuadraticPreparation";
 import { HumanQuadraticTranspose } from "./HumanQuadraticTranspose";
 
-/**
+/*
  * Compress exact zeros and run the ten-pass modified Ruiz algorithm, or, given
  * an earlier program's variable and cost scales (`fixed`), apply them and one
  * Ruiz row step in one pass.
- *
- * @param problem The admitted program.
- * @param admitted What the admission proved equal to the previous preparation.
- * @param dr Row-sized scratch, the row scales' work, left holding the last row
- *   step.
- * @param previous The caller's previous preparation, whose proved-equal raw
- *   data and topology are shared.
- * @param fixed The variables' and the cost's scales to apply in place of the
- *   ten passes.
- * @returns The new preparation.
- * @throws {RangeError} For nonfinite scaled data or noninvertible scaling.
+ * Parameter problem: The admitted program.
+ * Parameter admitted: What the admission proved equal to the previous preparation.
+ * Parameter dr: Row-sized scratch, the row scales' work, left holding the last row
+ * step.
+ * Parameter previous: The caller's previous preparation, whose proved-equal raw
+ * data and topology are shared.
+ * Parameter fixed: The variables' and the cost's scales to apply in place of the
+ * ten passes.
+ * Returns: The new preparation.
+ * For nonfinite scaled data or noninvertible scaling.
  */
 export function HumanQuadraticEquilibration(
   problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
@@ -339,20 +338,19 @@ export function HumanQuadraticEquilibration(
   };
 }
 
-/**
+/*
  * The equilibration of one quadratic program's data: exact-zero compression and
  * modified Ruiz scaling (Stellato et al. 2020, section 5.1, algorithm 2), and
  * the finite admission of what it produces, the numeric work
  * `HumanQuadraticPreparation` runs on a miss.
  */
 export namespace HumanQuadraticEquilibration {
-  /**
+  /*
    * Whether a buffer equals an admitted one entry by entry, so retention may
    * keep the admitted one.
-   *
-   * @param values The buffer.
-   * @param previous An admitted buffer to compare it with exactly.
-   * @returns Whether the buffer equals `previous` entry by entry.
+   * Parameter values: The buffer.
+   * Parameter previous: An admitted buffer to compare it with exactly.
+   * Returns: Whether the buffer equals `previous` entry by entry.
    */
   export function same(values: Float64Array, previous?: Float64Array): boolean {
     if (previous === undefined || previous.length !== values.length)
@@ -363,7 +361,7 @@ export namespace HumanQuadraticEquilibration {
   }
 }
 
-/**
+/*
  * Return the original reciprocal square root of a bounded Ruiz norm.
  *
  * Uses the existing minimum/maximum scale rule; norms below MIN_SCALE and
@@ -385,9 +383,13 @@ function inverseScale(norm: number): number {
     : 1 / Math.sqrt(Math.min(norm, MAX_SCALE));
 }
 
-/** Passes of the Ruiz equilibration (OSQP's default). */
+/*
+ * Passes of the Ruiz equilibration (OSQP's default).
+ */
 const SCALING: number = 10;
 
-/** The range a norm is held within before it scales (OSQP's bounds). */
+/*
+ * The range a norm is held within before it scales (OSQP's bounds).
+ */
 const MIN_SCALE: number = 1e-4;
 const MAX_SCALE: number = 1e4;

@@ -2,14 +2,13 @@ import type { IAutoMovieMotionClockPhase } from "@automovie/interface";
 
 import { lieDown } from "./lieDown";
 
-/**
+/*
  * The lie's clock phases: getting down, each route key's arrival but the last,
  * the last key's arrival with no time of its own, and the settled hold.
  *
  * Part of `lieDown.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `phases`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `phases`.
  */
 export function lieDownPhases(
   prepared: lieDownPhases.IPrepared,
@@ -25,14 +24,22 @@ export function lieDownPhases(
   ];
 }
 
-/** The `phases` of `lieDown.plan`, built from what that plan prepared. */
+/*
+ * The `phases` of `lieDown.plan`, built from what that plan prepared.
+ */
 export namespace lieDownPhases {
-  /** What `lieDown.plan` prepared for its `phases`. */
+  /*
+   * What `lieDown.plan` prepared for its `phases`.
+   */
   export interface IPrepared {
-    /** The `route` `lieDown.plan` prepared. */
+    /*
+     * The `route` `lieDown.plan` prepared.
+     */
     route: readonly [string, string][];
 
-    /** The `hold` `lieDown.plan` prepared. */
+    /*
+     * The `hold` `lieDown.plan` prepared.
+     */
     hold: number;
   }
 }

@@ -13,17 +13,16 @@ import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { HumanMountRider } from "../../lexicon/internal/HumanMountRider";
 import { readPropGrip } from "./readPropGrip";
 
-/**
+/*
  * Run alongside a roundabout pushing one grab bar: the walk on the ground
  * (`walk`) with the named hand closing on the bar as the walk starts and
  * holding it where the turning disc carries it, read from the scene at each
  * second; the arm reaches and holds it on one planned course
  * (`courseArmGoal`).
- *
- * @param context The standing entry, the walk's path, the disc and the bar.
- * @returns The walk with the hand on the moving bar.
- * @throws {HumanRefusal} When the disc lacks the bar, or the walk refuses its
- *   path.
+ * Parameter context: The standing entry, the walk's path, the disc and the bar.
+ * Returns: The walk with the hand on the moving bar.
+ * When the disc lacks the bar, or the walk refuses its
+ * path.
  */
 export function HumanRoundaboutPush(
   context: IAutoMovieMotionHumanActionContext<Params>,
@@ -92,10 +91,12 @@ type Plan = IAutoMovieMotionHumanActionPlan;
 
 type Posture = IAutoMovieMotionHumanPosture;
 
-/** An open joint-entry reader of one declared posture record. */
+/*
+ * An open joint-entry reader of one declared posture record.
+ */
 type JointEntries = Readonly<Record<string, Posture["joints"]["hips"]>>;
 
-/**
+/*
  * Seconds over which the hand reaches the bar at the walk's start (provisional
  * staging).
  */

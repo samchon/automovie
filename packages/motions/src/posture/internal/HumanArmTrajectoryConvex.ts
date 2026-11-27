@@ -20,7 +20,7 @@ import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 
-/**
+/*
  * The convex subproblem of an arms' trajectory about an iterate
  * (`HumanArmTrajectoryModel`), TrajOpt's: the objective's quadratic model and
  * each constraint linearised by the Jacobians of the probes, the contact and
@@ -30,7 +30,7 @@ import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
  * Jacobian).
  */
 export namespace HumanArmTrajectoryConvex {
-  /**
+  /*
    * The convex subproblem about an iterate: the objective's quadratic model
    * (exact in the accelerations, Gauss-Newton in the steps and the rotation)
    * and each constraint linearised, as soft l1 rows of weight `mu`, the domain
@@ -40,18 +40,17 @@ export namespace HumanArmTrajectoryConvex {
    * commit 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c, BSD-2-Clause; Schulman et
    * al. 2014, section IV-A, `d_check > d_safe`); every other constraint enters
    * at every convexification, as trajopt's do.
-   *
-   * @param c The context.
-   * @param x Each arm's coordinates at each waypoint.
-   * @param at0 The iterate's evaluation.
-   * @param mu The penalty's weight.
-   * @param smooth The context's exact quadratic terms
-   *   (`HumanArmTrajectorySmooth.of` of this context), built once by the
-   *   caller.
-   * @param fixSite The hold's hard contact equality, at its projection or a
-   *   point selected within an inscribed region.
-   * @returns The subproblem in the inner waypoints' free coordinates, waypoint
-   *   by waypoint.
+   * Parameter c: The context.
+   * Parameter x: Each arm's coordinates at each waypoint.
+   * Parameter at0: The iterate's evaluation.
+   * Parameter mu: The penalty's weight.
+   * Parameter smooth: The context's exact quadratic terms
+   * (`HumanArmTrajectorySmooth.of` of this context), built once by the
+   * caller.
+   * Parameter fixSite: The hold's hard contact equality, at its projection or a
+   * point selected within an inscribed region.
+   * Returns: The subproblem in the inner waypoints' free coordinates, waypoint
+   * by waypoint.
    */
   export function convexify(
     c: M.IContext,
@@ -418,10 +417,14 @@ export namespace HumanArmTrajectoryConvex {
   }
 }
 
-/** The alternatives of `ConvexifyCarriedOwner`'s site. */
+/*
+ * The alternatives of `ConvexifyCarriedOwner`'s site.
+ */
 type ConvexifyCarriedOwner = "upper" | "lower" | "hand";
 
-/** A linear form in the subproblem's variables. */
+/*
+ * A linear form in the subproblem's variables.
+ */
 interface ILinear {
   idx: number[];
   coef: number[];

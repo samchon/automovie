@@ -1,4 +1,4 @@
-/**
+/*
  * Pass the detail map's own transformed first UV set to the fragment stage. The
  * caller supplies the native shader chunks and retains the input string.
  */

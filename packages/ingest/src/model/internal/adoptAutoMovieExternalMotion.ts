@@ -21,7 +21,7 @@ import { AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE } from "./AUTOMOVIE_GLTF_M
 import { compareCodeUnits } from "./compareCodeUnits";
 import { composeLocalTransform } from "../../internal/composeLocalTransform";
 
-/**
+/*
  * Select one inspected take and validate the author's native or retarget
  * decision without fetching bytes, choosing a provider or inferring a rig.
  *
@@ -45,11 +45,10 @@ import { composeLocalTransform } from "../../internal/composeLocalTransform";
  * arithmetic and drops shear when a helper's non-uniform scale does not commute
  * with a child rotation; exact agreement proves agreement with that
  * representation, not exact affine geometry.
- *
- * @param props.inspection Inspection of the exact source bytes.
- * @param props.source Manifest identity of those bytes.
- * @param props.decision The author's use of one take.
- * @returns A receipt that shares no objects with its inputs.
+ * Parameter props.inspection: Inspection of the exact source bytes.
+ * Parameter props.source: Manifest identity of those bytes.
+ * Parameter props.decision: The author's use of one take.
+ * Returns: A receipt that shares no objects with its inputs.
  */
 export function adoptAutoMovieExternalMotion(
   props: IAutoMovieExternalMotionAdoptionReceipt.IProps,
@@ -243,7 +242,7 @@ function validateMotionBinding(props: {
   };
 }
 
-/**
+/*
  * The parent and rest a mapped node implies: walk to the nearest mapped
  * ancestor, then fold every unmapped helper's TRS into the node's own, nearest
  * helper first. A node without a mapped ancestor keeps its local TRS.

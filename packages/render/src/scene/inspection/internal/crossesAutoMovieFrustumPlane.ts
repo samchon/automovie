@@ -1,6 +1,6 @@
 import type { Box3, Plane } from "three";
 
-/**
+/*
  * Whether a box reaches past a frustum plane: its corner farthest along the
  * plane's outward side, the one with the least signed distance, lies outside by
  * more than 32 ulps of the arithmetic that places it.
@@ -12,10 +12,9 @@ import type { Box3, Plane } from "three";
  * one plus the magnitudes summed, keeps a corner lying on the plane, which
  * rounds by a few ulps, from counting as a crossing. The camera inspection's
  * framing grade and the frame edge measure test the same way.
- *
- * @param box World-space bounds.
- * @param plane Frustum plane with an inward normal.
- * @returns `true` when part of the box lies outside the plane.
+ * Parameter box: World-space bounds.
+ * Parameter plane: Frustum plane with an inward normal.
+ * Returns: `true` when part of the box lies outside the plane.
  */
 export function crossesAutoMovieFrustumPlane(box: Box3, plane: Plane): boolean {
   const { x, y, z }: Plane["normal"] = plane.normal;

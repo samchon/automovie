@@ -18,16 +18,18 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import type { HumanLungePivot } from "./HumanLungePivot";
 import type { HumanRideHands } from "./HumanRideHands";
 
-/** Up. */
+/*
+ * Up.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
+/*
  * The displayed line hand's largest distance from the line while fully held,
  * metres: the rider attachment contract's 10 mm budget.
  */
 const CONTACT: number = 0.01;
 
-/**
+/*
  * The whip hand's place and aim, provisional: at the hips' height, a little
  * forward and out to its side, the shaft turned toward a circling horse's
  * quarters and below level (a lunging handler holds the whip low behind the
@@ -41,19 +43,18 @@ const WHIP: IWhip = {
   down: 20,
 };
 
-/**
+/*
  * The lunge's hands and feet records (`HumanLunge`): the feet's plant windows
  * between their pivot swings, the whip hand's grip and the line hand's contact
  * check.
  */
 export namespace HumanLungeHands {
-  /**
+  /*
    * The feet's plant windows: each foot on the ground from the action's start
    * to its first swing, between its swings, and from its last to the end.
-   *
-   * @param schedule The pivot steps.
-   * @param seconds The action's length.
-   * @returns The windows, shares of the action.
+   * Parameter schedule: The pivot steps.
+   * Parameter seconds: The action's length.
+   * Returns: The windows, shares of the action.
    */
   export function plants(
     schedule: HumanLungePivot.ISchedule,
@@ -73,14 +74,13 @@ export namespace HumanLungeHands {
     return windows;
   }
 
-  /**
+  /*
    * The whip hand's grip: at the hips' side and front, its shaft aimed down
    * toward the quarters.
-   *
-   * @param body The body.
-   * @param posture The stance, facing the horse.
-   * @param side The whip hand.
-   * @returns The grip the hand closes on.
+   * Parameter body: The body.
+   * Parameter posture: The stance, facing the horse.
+   * Parameter side: The whip hand.
+   * Returns: The grip the hand closes on.
    */
   export function whip(
     body: IAutoMovieMotionHumanBody,
@@ -124,19 +124,18 @@ export namespace HumanLungeHands {
     };
   }
 
-  /**
+  /*
    * Refuse a fully held line hand that misses the line.
-   *
-   * @param body The body.
-   * @param side The line hand.
-   * @param posture The displayed posture.
-   * @param grip The line's grip.
-   * @param name The line's name for the refusal.
-   * @param film The film second.
-   * @param resolution The borrowed forward-kinematics reader, if any.
-   * @param projection The borrowed range-of-motion projector, if any.
-   * @throws {HumanRefusal} When the displayed palm lies more than `CONTACT`
-   *   from the line's surface.
+   * Parameter body: The body.
+   * Parameter side: The line hand.
+   * Parameter posture: The displayed posture.
+   * Parameter grip: The line's grip.
+   * Parameter name: The line's name for the refusal.
+   * Parameter film: The film second.
+   * Parameter resolution: The borrowed forward-kinematics reader, if any.
+   * Parameter projection: The borrowed range-of-motion projector, if any.
+   * When the displayed palm lies more than `CONTACT`
+   * from the line's surface.
    */
   export function verify(
     body: IAutoMovieMotionHumanBody,
@@ -192,10 +191,14 @@ export namespace HumanLungeHands {
       });
   }
 
-  /** The two feet. */
+  /*
+   * The two feet.
+   */
   const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
-  /** One foot's plant window, shares of the action. */
+  /*
+   * One foot's plant window, shares of the action.
+   */
   function plant(
     side: AutoMovieHumanSide,
     from: number,
@@ -211,20 +214,32 @@ export namespace HumanLungeHands {
   }
 }
 
-/** The whip hand's place and aim. */
+/*
+ * The whip hand's place and aim.
+ */
 interface IWhip {
-  /** Forward of the hips, a share of the hip height. */
+  /*
+   * Forward of the hips, a share of the hip height.
+   */
   forward: number;
 
-  /** Out to the whip's side, a share of the hip height. */
+  /*
+   * Out to the whip's side, a share of the hip height.
+   */
   out: number;
 
-  /** Above the floor, a share of the hip height. */
+  /*
+   * Above the floor, a share of the hip height.
+   */
   height: number;
 
-  /** The shaft's turn from the bearing toward the whip's side, degrees. */
+  /*
+   * The shaft's turn from the bearing toward the whip's side, degrees.
+   */
   turn: number;
 
-  /** The shaft's pitch below level, degrees. */
+  /*
+   * The shaft's pitch below level, degrees.
+   */
   down: number;
 }

@@ -11,7 +11,7 @@ import { AutoMovieLoftSectionNative } from "../../AutoMovieLoftSectionNative";
 import { AutoMovieLoftViewRead } from "../../AutoMovieLoftViewRead";
 import { AutoMovieLoftWorldJet } from "./AutoMovieLoftWorldJet";
 
-/**
+/*
  * Read an original positive section's world total2 without first lofting it.
  *
  * Source and axis must belong to the same immutable original part. The axis's
@@ -62,7 +62,7 @@ export function AutoMovieLoftViewWorldJet(
   }
 }
 
-/**
+/*
  * Copy value/first/second origin/u/v data without inventing an absent
  * component.
  */

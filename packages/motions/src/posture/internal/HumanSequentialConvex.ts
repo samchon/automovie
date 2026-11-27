@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanSequentialConvex } from "@automovie/interface";
 
-/**
+/*
  * Penalty sequential convex optimisation with a box trust region, ported line
  * for line from trajopt's `sco::BasicTrustRegionSQP::optimize`
  * (github.com/joschu/trajopt `src/sco/optimizers.cpp`, lines 220-400, at commit
@@ -20,7 +20,7 @@ import type { IAutoMovieMotionHumanSequentialConvex } from "@automovie/interface
  * solve. A model the convex solver cannot solve ends it failed.
  */
 export namespace HumanSequentialConvex {
-  /**
+  /*
    * Sco's defaults (`BasicTrustRegionSQP::initParameters`, `optimizers.cpp`
    * lines 158-176 at the same commit), each in the problem's own units.
    */
@@ -40,14 +40,13 @@ export namespace HumanSequentialConvex {
       trustBoxSize: 0.1,
     };
 
-  /**
+  /*
    * Minimise from an iterate (`BasicTrustRegionSQP::optimize`).
-   *
-   * @param problem The problem.
-   * @param start The first iterate (`initialize`).
-   * @param parameters The loop's parameters.
-   * @returns The last iterate taken, its reading, how the solve ended and the
-   *   merit coefficient it ended at.
+   * Parameter problem: The problem.
+   * Parameter start: The first iterate (`initialize`).
+   * Parameter parameters: The loop's parameters.
+   * Returns: The last iterate taken, its reading, how the solve ended and the
+   * merit coefficient it ended at.
    */
   export function minimise<
     X,
@@ -105,7 +104,7 @@ export namespace HumanSequentialConvex {
     };
   }
 
-  /**
+  /*
    * The SQP loop at one merit coefficient (`optimize`, lines 238-371): one
    * convexification per iteration, the trust-region loop inside it.
    */
@@ -159,17 +158,27 @@ export namespace HumanSequentialConvex {
   }
 }
 
-/** Where one coefficient's SQP loop left the solve. */
+/*
+ * Where one coefficient's SQP loop left the solve.
+ */
 interface ISqp<X, E> {
-  /** The iterate. */
+  /*
+   * The iterate.
+   */
   x: X;
 
-  /** Its exact reading. */
+  /*
+   * Its exact reading.
+   */
   current: E;
 
-  /** The box. */
+  /*
+   * The box.
+   */
   box: number;
 
-  /** How the SQP loop ended. */
+  /*
+   * How the SQP loop ended.
+   */
   status: IAutoMovieMotionHumanSequentialConvex.Status;
 }

@@ -8,7 +8,7 @@ import { ExerciseKey } from "../internal/ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 import { WorkoutStance } from "./WorkoutStance";
 
-/**
+/*
  * The standing lifts and warm-up drills of the workout law: lifts shown without
  * their load (deadlift, back squat, kettlebell swing, overhead press) and
  * drills (arm circles, leg swings, butt kicks, the B-skip, the skipping rope's
@@ -25,14 +25,16 @@ import { WorkoutStance } from "./WorkoutStance";
  * of the feet (`WorkoutLoad`).
  */
 export namespace WorkoutStanding {
-  /** The exercises. */
+  /*
+   * The exercises.
+   */
   export const KINDS: Readonly<
     Record<
       IAutoMovieMotionHumanWorkoutStanding.Name,
       IAutoMovieMotionHumanWorkoutKind
     >
   > = {
-    /**
+    /*
      * A deadlift: from standing down to the bar's height at the shins, the
      * trunk at 70 degrees over knees bent 75, the arms hanging, and back.
      */
@@ -61,7 +63,9 @@ export namespace WorkoutStanding {
       ),
     },
 
-    /** A back squat: the hands at the shoulders, down to a level thigh and up. */
+    /*
+     * A back squat: the hands at the shoulders, down to a level thigh and up.
+     */
     backSquat: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
@@ -94,7 +98,7 @@ export namespace WorkoutStanding {
       ],
     ),
 
-    /**
+    /*
      * A kettlebell swing: from the hinge with the arms between the legs to
      * standing with the arms level.
      */
@@ -134,7 +138,7 @@ export namespace WorkoutStanding {
       ],
     ),
 
-    /**
+    /*
      * An overhead press: from the hands at the shoulders to the arms locked out
      * overhead.
      */
@@ -164,7 +168,7 @@ export namespace WorkoutStanding {
       ),
     },
 
-    /**
+    /*
      * Arm circles: both straight arms forward, overhead, out to the side and
      * down.
      */
@@ -203,7 +207,7 @@ export namespace WorkoutStanding {
       ],
     ),
 
-    /**
+    /*
      * Leg swings: the right leg swung forward and back over the standing left
      * foot.
      */
@@ -237,7 +241,9 @@ export namespace WorkoutStanding {
       ],
     ),
 
-    /** Butt kicks in place: one heel brought to the seat, alternating. */
+    /*
+     * Butt kicks in place: one heel brought to the seat, alternating.
+     */
     buttKicks: WorkoutStance(
       ["hips"],
       [],
@@ -257,7 +263,7 @@ export namespace WorkoutStanding {
       true,
     ),
 
-    /**
+    /*
      * The B-skip in place: the knee driven up and the shank reached forward,
      * alternating.
      */
@@ -286,7 +292,7 @@ export namespace WorkoutStanding {
       true,
     ),
 
-    /**
+    /*
      * A skipping rope's hops: both feet off the floor by 3 % of the stature
      * (provisional), the elbows at the sides.
      */

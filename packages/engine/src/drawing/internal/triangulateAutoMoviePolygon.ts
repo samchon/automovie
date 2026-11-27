@@ -3,7 +3,7 @@ import { IAutoMoviePlanarPoint } from "@automovie/interface";
 import { polygonDoubleArea } from "../../architecture/internal/polygonDoubleArea";
 import { AutoMovieEnginePlanarRegion } from "../../geometry/AutoMovieEnginePlanarRegion";
 
-/**
+/*
  * Ear-clip one simple planar polygon into triangle index triples.
  *
  * Each pass clips the best-scoring remaining corner: a reflex or straight
@@ -14,17 +14,16 @@ import { AutoMovieEnginePlanarRegion } from "../../geometry/AutoMovieEnginePlana
  * always best, so every pass makes progress.
  *
  * Throws an `Error` for fewer than three corners, and with the
- * {@link AutoMovieEnginePlanarRegion.failure} message for a ring that is not one
+ * AutoMovieEnginePlanarRegion.failure message for a ring that is not one
  * unambiguous region, because a triangle of undefined or crossing corners would
  * put a face of nothing into a drawing.
  *
  * The ring is walked counter-clockwise whichever way it was authored, so a
  * clockwise outline triangulates as its own region rather than clipping its
  * reflex corners as ears.
- *
- * @param polygon Simple ring in a planar frame, either winding.
- * @returns `n - 2` triples of indices into `polygon`, each wound
- *   counter-clockwise.
+ * Parameter polygon: Simple ring in a planar frame, either winding.
+ * Returns: `n - 2` triples of indices into `polygon`, each wound
+ * counter-clockwise.
  */
 export const triangulateAutoMoviePolygon = (
   polygon: readonly IAutoMoviePlanarPoint[],
@@ -87,11 +86,15 @@ export const triangulateAutoMoviePolygon = (
   return triangles;
 };
 
-/** Rank a corner: `-1` reflex or straight, `0` covered, else its turn. */
+/*
+ * Rank a corner: `-1` reflex or straight, `0` covered, else its turn.
+ */
 const score = (turn: number, cover: number): number =>
   turn <= 0 ? -1 : cover > 0 ? 0 : turn;
 
-/** The corner at ring position `index` with its two ring neighbours. */
+/*
+ * The corner at ring position `index` with its two ring neighbours.
+ */
 const cornerTriangle = (
   polygon: readonly IAutoMoviePlanarPoint[],
   ring: readonly number[],
@@ -102,7 +105,9 @@ const cornerTriangle = (
   polygon[ring[(index + 1) % ring.length]!]!,
 ];
 
-/** Twice the signed area of a corner's triangle; positive when convex. */
+/*
+ * Twice the signed area of a corner's triangle; positive when convex.
+ */
 const turnAt = (
   polygon: readonly IAutoMoviePlanarPoint[],
   ring: readonly number[],
@@ -115,7 +120,9 @@ const turnAt = (
   );
 };
 
-/** How many other ring corners lie in or on a corner's triangle. */
+/*
+ * How many other ring corners lie in or on a corner's triangle.
+ */
 const coverAt = (
   polygon: readonly IAutoMoviePlanarPoint[],
   ring: readonly number[],
@@ -140,7 +147,9 @@ const coverAt = (
   return count;
 };
 
-/** Whether `point` lies in or on the counter-clockwise triangle `abc`. */
+/*
+ * Whether `point` lies in or on the counter-clockwise triangle `abc`.
+ */
 const inTriangle = (
   point: IAutoMoviePlanarPoint,
   a: IAutoMoviePlanarPoint,

@@ -2,7 +2,7 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * First intersection of the segment `a→b` with a sphere, as the parameter `s ∈
  * [0, 1]` where contact begins (`a + s·(b−a)`), or `null` if the segment never
  * touches the sphere. If `a` already lies inside, returns `0`.

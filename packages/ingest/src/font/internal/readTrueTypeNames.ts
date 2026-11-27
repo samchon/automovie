@@ -2,7 +2,7 @@ import type { IAutoMovieFont } from "@automovie/interface";
 
 import type { TrueTypeByteReader } from "./TrueTypeByteReader";
 
-/**
+/*
  * Read name IDs 1 (family), 13 (licence description) and 14 (licence URL) from
  * a `name` table (ISO/IEC 14496-22, section 5.2.6).
  *
@@ -13,11 +13,10 @@ import type { TrueTypeByteReader } from "./TrueTypeByteReader";
  * is ASCII, because Mac Roman differs from Latin-1 above 0x7F and a guessed
  * decoding would misstate a licence. Records are only described here; no rights
  * are judged.
- *
- * @param reader Bounds-checked reader over the font bytes.
- * @param offset Byte offset of the `name` table.
- * @returns The three names, each `null` when no usable record carries it.
- * @throws {Error} A record or its string lies outside the bytes.
+ * Parameter reader: Bounds-checked reader over the font bytes.
+ * Parameter offset: Byte offset of the `name` table.
+ * Returns: The three names, each `null` when no usable record carries it.
+ * A record or its string lies outside the bytes.
  */
 export function readTrueTypeNames(
   reader: TrueTypeByteReader,
@@ -65,7 +64,9 @@ export function readTrueTypeNames(
   };
 }
 
-/** Decode UTF-16BE code units, surrogate pairs included. */
+/*
+ * Decode UTF-16BE code units, surrogate pairs included.
+ */
 function utf16(reader: TrueTypeByteReader, at: number, length: number): string {
   const units: number[] = [];
   for (let unit: number = 0; unit + 1 < length; unit += 2)

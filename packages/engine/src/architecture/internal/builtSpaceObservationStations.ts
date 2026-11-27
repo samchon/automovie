@@ -22,7 +22,7 @@ import { outlineHull } from "./outlineHull";
 import { polygonBounds } from "./polygonBounds";
 import { requireBuiltSpace } from "./requireBuiltSpace";
 
-/**
+/*
  * The closed interior observation population one logical space owes.
  *
  * Four outward views from the interior centre and four inward views from the
@@ -39,7 +39,7 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * The interior candidate is the accepted volume-box centre, otherwise the first
  * enumerated cell-corner mean that passes containment. Enumeration does not
  * prove the cell closes a bounded volume. Reading height is the box floor plus
- * the lesser of {@link ObservationGeometry.EyeHeightMeters} and half box height.
+ * the lesser of ObservationGeometry.EyeHeightMeters and half box height.
  * A failed raised probe falls back to the interior candidate. Centre views aim
  * along world ±x/±z. Corner/threshold eyes try the fixed inset ladder toward
  * the anchor. Thresholds start from the profile-box centre or host-face
@@ -47,11 +47,10 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * thresholds. Shelled spaces have no cell fallback. Missing bounds/anchor/face,
  * failed eye placement or non-finite/negligible aim yields null poses; an
  * unknown space throws.
- *
- * @param environment Building record holding the space.
- * @param spaceId Logical space to observe.
- * @returns Eight interior stations plus one per opening on the space's
- *   boundaries, or none for a volume-less space.
+ * Parameter environment: Building record holding the space.
+ * Parameter spaceId: Logical space to observe.
+ * Returns: Eight interior stations plus one per opening on the space's
+ * boundaries, or none for a volume-less space.
  */
 export function builtSpaceObservationStations(
   environment: IAutoMovieBuiltEnvironment,
@@ -134,10 +133,14 @@ export function builtSpaceObservationStations(
   return stations;
 }
 
-/** A station's aimed pose, or null when it could not be placed. */
+/*
+ * A station's aimed pose, or null when it could not be placed.
+ */
 type IStationPose = IAutoMovieSpaceObservationStation["pose"];
 
-/** The four outward centre views, along world `-x`, `+x`, `-z` and `+z`. */
+/*
+ * The four outward centre views, along world `-x`, `+x`, `-z` and `+z`.
+ */
 const CENTRE_VIEWS: readonly (readonly [string, IAutoMovieVector3])[] = [
   ["center-x-minus", { x: -1, y: 0, z: 0 }],
   ["center-x-plus", { x: 1, y: 0, z: 0 }],
@@ -145,7 +148,9 @@ const CENTRE_VIEWS: readonly (readonly [string, IAutoMovieVector3])[] = [
   ["center-z-plus", { x: 0, y: 0, z: 1 }],
 ];
 
-/** The four inward corner views, by which box corner each starts from. */
+/*
+ * The four inward corner views, by which box corner each starts from.
+ */
 const CORNER_VIEWS: readonly (readonly [
   string,
   "min" | "max",
@@ -157,10 +162,12 @@ const CORNER_VIEWS: readonly (readonly [
   ["corner-x-plus-z-plus", "max", "max"],
 ];
 
-/** Fractions tried in order when nudging corner and threshold eyes inward. */
+/*
+ * Fractions tried in order when nudging corner and threshold eyes inward.
+ */
 const INSET_FRACTIONS: readonly number[] = [0.05, 0.1, 0.2, 0.35, 0.5];
 
-/**
+/*
  * The point every interior station is measured against, at reading height.
  *
  * The eye stands at reading height above the space's own floor, and a space
@@ -185,7 +192,9 @@ function readingAnchor(
   return builtSpaceContainsPoint(space, eye) ? eye : interior;
 }
 
-/** An interior point of the space, or null when none is found. */
+/*
+ * An interior point of the space, or null when none is found.
+ */
 function interiorCentre(
   space: IAutoMovieBuiltSpace,
   bounds: IAutoMovieSubjectBox,
@@ -216,7 +225,9 @@ function interiorCentre(
   return null;
 }
 
-/** Pull an eye toward the anchor until it lands inside, then aim it there. */
+/*
+ * Pull an eye toward the anchor until it lands inside, then aim it there.
+ */
 function settledPose(
   space: IAutoMovieBuiltSpace,
   from: IAutoMovieVector3,
@@ -229,7 +240,9 @@ function settledPose(
   return null;
 }
 
-/** Aim one station at a target, or refuse it when the two coincide. */
+/*
+ * Aim one station at a target, or refuse it when the two coincide.
+ */
 function aim(
   position: IAutoMovieVector3,
   target: IAutoMovieVector3,
@@ -240,7 +253,7 @@ function aim(
   return { position, direction: Vector3.scale(offset, 1 / length), target };
 }
 
-/**
+/*
  * World centre of one opening's void, or of its host face when uncut, or null
  * when the host boundary states no face to place it on.
  */

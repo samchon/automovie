@@ -1,14 +1,13 @@
-/**
+/*
  * Transclude a same-path root skill section into authored scaffold Markdown.
  */
 export const transcludeMarkdownSection = {
-  /**
+  /*
    * Return the root skill path named by a section marker.
-   *
-   * @param markdown Authored scaffold Markdown.
-   * @param scaffoldPath The file path relative to the instructions layer.
-   * @returns The same repository-relative root path, or `null` without a marker.
-   * @throws When a marker appears outside a safe scaffold skill Markdown path.
+   * Parameter markdown: Authored scaffold Markdown.
+   * Parameter scaffoldPath: The file path relative to the instructions layer.
+   * Returns: The same repository-relative root path, or `null` without a marker.
+   * When a marker appears outside a safe scaffold skill Markdown path.
    */
   sourcePath(markdown: string, scaffoldPath: string): string | null {
     if (markerLines(markdown).length === 0) return null;
@@ -26,15 +25,14 @@ export const transcludeMarkdownSection = {
     return normalized;
   },
 
-  /**
+  /*
    * Replace each standalone `## ${Continuing}` marker with the matching root
    * section, stopping at the next real H1 or H2 heading.
-   *
-   * @param markdown Authored scaffold Markdown.
-   * @param scaffoldPath The file path relative to the instructions layer.
-   * @param sourceMarkdown The same-path root Markdown file.
-   * @returns Markdown with each section marker expanded verbatim.
-   * @throws When the source lacks exactly one real `## Continuing` heading.
+   * Parameter markdown: Authored scaffold Markdown.
+   * Parameter scaffoldPath: The file path relative to the instructions layer.
+   * Parameter sourceMarkdown: The same-path root Markdown file.
+   * Returns: Markdown with each section marker expanded verbatim.
+   * When the source lacks exactly one real `## Continuing` heading.
    */
   expand(
     markdown: string,

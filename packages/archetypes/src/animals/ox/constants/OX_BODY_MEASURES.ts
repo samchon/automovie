@@ -1,4 +1,4 @@
-/**
+/*
  * Bhagat 2022 Table 2, 2614 working Kathani bullocks; means in metres, mass
  * absent.
  */
@@ -14,27 +14,43 @@ export const OX_BODY_MEASURES: Readonly<IOxBodyMeasures> = {
 };
 
 interface IOxBodyMeasures {
-  /** Ground to withers. */
+  /*
+   * Ground to withers.
+   */
   withers: number;
 
-  /** Chest circumference. */
+  /*
+   * Chest circumference.
+   */
   girth: number;
 
-  /** Reported body length; this article does not specify exact landmarks. */
+  /*
+   * Reported body length; this article does not specify exact landmarks.
+   */
   body: number;
 
-  /** Face length, not cleaned skull length. */
+  /*
+   * Face length, not cleaned skull length.
+   */
   head: number;
 
-  /** Forehead width. */
+  /*
+   * Forehead width.
+   */
   headWidth: number;
 
-  /** Reported tail length. */
+  /*
+   * Reported tail length.
+   */
   tail: number;
 
-  /** External ear length. */
+  /*
+   * External ear length.
+   */
   ear: number;
 
-  /** Reported horn length, without a curvature measurement. */
+  /*
+   * Reported horn length, without a curvature measurement.
+   */
   horn: number;
 }

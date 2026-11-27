@@ -12,7 +12,7 @@ const STATUS_ORDER: Readonly<
   Record<IAutoMovieRenderBudgetAssessment["status"], number>
 > = { within: 0, incomplete: 1, "not-run": 2, over: 3 };
 
-/**
+/*
  * Fold caller-supplied assessments into one tier's budget-evidence value. This
  * reducer writes no publication and verifies no report provenance or rendered
  * population.
@@ -25,7 +25,7 @@ const STATUS_ORDER: Readonly<
  *
  * `budgets` is the production's whole declaration, read for `declaredTiers` and
  * for whether this tier was budgeted at all. The assessments must already have
- * been made against {@link selectAutoMovieRenderBudget}'s answer for the same
+ * been made against selectAutoMovieRenderBudget's answer for the same
  * tier; hand them a different budget and `budgeted` describes the declaration
  * while every finding describes something else. The caller supplies one
  * assessment per shot id; sorting alone does not validate that denominator.

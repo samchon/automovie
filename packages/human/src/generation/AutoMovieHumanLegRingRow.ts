@@ -96,7 +96,7 @@ export namespace AutoMovieHumanLegRingRow {
   }
 }
 
-/**
+/*
  * Least-squares `[a, b, c]` of `y = a + b x + c x^2` (normal equations,
  * Cramer's rule).
  */

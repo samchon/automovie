@@ -29,20 +29,19 @@ import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { StrikingRoll } from "../../striking/internal/StrikingRoll";
 
-/**
+/*
  * The load of a workout.
- *
- * @param context The action's context.
- * @param load The load's parameters.
- * @param midfoot Whether a bar in both hands travels over the middle of the
- *   feet.
- * @param turnover Whether to preserve the keyed shoulder-to-bar direction
- *   through turnover and the overhead receive.
- * @param ready The share where the second hand first reaches the load in the
- *   exercise.
- * @returns What the plan needs of it.
- * @throws {HumanRefusal} When the hand does not hold the prop, either handle is
- *   unavailable, or the two handles coincide.
+ * Parameter context: The action's context.
+ * Parameter load: The load's parameters.
+ * Parameter midfoot: Whether a bar in both hands travels over the middle of the
+ * feet.
+ * Parameter turnover: Whether to preserve the keyed shoulder-to-bar direction
+ * through turnover and the overhead receive.
+ * Parameter ready: The share where the second hand first reaches the load in the
+ * exercise.
+ * Returns: What the plan needs of it.
+ * When the hand does not hold the prop, either handle is
+ * unavailable, or the two handles coincide.
  */
 export function WorkoutLoad(
   context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
@@ -392,29 +391,34 @@ export function WorkoutLoad(
   };
 }
 
-/** The bar's level frame a held load is turned to (`WorkoutLoad`). */
+/*
+ * The bar's level frame a held load is turned to (`WorkoutLoad`).
+ */
 export namespace WorkoutLoad {
-  /** The bar's direction and the knuckles' along it. */
+  /*
+   * The bar's direction and the knuckles' along it.
+   */
   export interface ILevel {
-    /** The bar's unit direction, level, toward the performer's other side. */
+    /*
+     * The bar's unit direction, level, toward the performer's other side.
+     */
     across: IAutoMovieVector3;
 
-    /**
+    /*
      * The unit direction the knuckles continue: the forearm square to the bar,
      * straight down when the forearm runs along it.
      */
     forward: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * The level frame of a bar held in one hand: it runs level from the hand to
    * the performer's other side, and the hand is turned about it so the knuckles
    * continue the forearm, a straight wrist.
-   *
-   * @param yaw The performer's heading, degrees.
-   * @param side The holding hand.
-   * @param forearm The forearm from the elbow to the wrist, world.
-   * @returns The bar's direction and the knuckles'.
+   * Parameter yaw: The performer's heading, degrees.
+   * Parameter side: The holding hand.
+   * Parameter forearm: The forearm from the elbow to the wrist, world.
+   * Returns: The bar's direction and the knuckles'.
    */
   export function level(
     yaw: number,
@@ -439,11 +443,17 @@ export namespace WorkoutLoad {
   }
 }
 
-/** The alternatives of `OfBendGoal2`'s site. */
+/*
+ * The alternatives of `OfBendGoal2`'s site.
+ */
 type OfBendGoal2 = "point" | "rotation";
 
-/** The alternatives of `OfBendGoal`'s site. */
+/*
+ * The alternatives of `OfBendGoal`'s site.
+ */
 type OfBendGoal = "point" | "rotation";
 
-/** The alternatives of `OfContext`'s site. */
+/*
+ * The alternatives of `OfContext`'s site.
+ */
 type OfContext = "body" | "entry" | "prop" | "subject";

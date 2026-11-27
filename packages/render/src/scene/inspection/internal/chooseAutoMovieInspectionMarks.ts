@@ -2,7 +2,7 @@ import type { IAutoMovieMark } from "@automovie/interface";
 import type * as THREE from "three";
 import type { AutoMovieRenderInspectionMarks } from "../../AutoMovieRenderInspectionMarks.js";
 
-/**
+/*
  * Choose the supplied marks one picture draws, and group them by the scene
  * object their frame belongs to.
  *
@@ -42,7 +42,9 @@ export function chooseAutoMovieInspectionMarks(
   return { marks, sets };
 }
 
-/** Whether an object and every ancestor are visible. */
+/*
+ * Whether an object and every ancestor are visible.
+ */
 function shown(object: THREE.Object3D): boolean {
   for (
     let current: THREE.Object3D | null = object;

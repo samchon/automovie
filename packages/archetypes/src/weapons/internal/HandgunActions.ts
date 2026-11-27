@@ -9,7 +9,7 @@ import {
 import { AutoMovieArchetypeFirearm } from "./AutoMovieArchetypeFirearm";
 import type { AutoMovieArchetypeHandgun } from "../AutoMovieArchetypeHandgun";
 
-/**
+/*
  * The revolver's and the flintlock pistol's bodies and mechanisms, the handgun
  * standing as `createHandgun` stands it: on the base of its grip at the origin,
  * its muzzle toward `+Z` and its backstrap at `z = 0`, its lock or loading gate
@@ -25,7 +25,7 @@ import type { AutoMovieArchetypeHandgun } from "../AutoMovieArchetypeHandgun";
  * record (records-firearms-revolver.md, records-firearms-flintlock.md).
  */
 export namespace HandgunActions {
-  /**
+  /*
    * The places no source read gives, each an estimate:
    *
    * - `bore`: the barrel's line below the handgun's top, metres.
@@ -94,7 +94,7 @@ export namespace HandgunActions {
     sight: 0.0075,
   };
 
-  /**
+  /*
    * A Single Action Army's hammer travel at its spur, metres: half cock "about
    * three quarters inch from Safety position", the safety "about a quarter
    * inch" back, and full cock "FULLY back (about an inch and three quarters)",
@@ -106,40 +106,37 @@ export namespace HandgunActions {
     full: 1.75 * AutoMovieArchetypeUnits.INCH,
   };
 
-  /**
+  /*
    * A revolver's chambers: "Check each of six chambers", Colt's manual, Section
    * 4; Ruger's Vaquero 5104 holds 6
    * (https://ruger.com/products/vaqueroStainless/specSheets/5104.html).
    */
   export const CHAMBERS: number = 6;
 
-  /**
+  /*
    * The hammer's angle at a travel at its spur, degrees.
-   *
-   * @param travel The spur's travel, metres.
-   * @returns The angle.
+   * Parameter travel: The spur's travel, metres.
+   * Returns: The angle.
    */
   export function hammer(travel: number): number {
     return travel / ESTIMATES.spur / AutoMovieArchetypeUnits.DEGREE;
   }
 
-  /**
+  /*
    * A revolver's sight radius where its maker gives none: from the rear sight's
    * groove over the cylinder's rear to the front sight at the muzzle.
-   *
-   * @param d The revolver's dimensions, its length and barrel drawn or read.
-   * @returns The sight radius, metres.
+   * Parameter d: The revolver's dimensions, its length and barrel drawn or read.
+   * Returns: The sight radius, metres.
    */
   export function radius(d: Drawn): number {
     return d.barrel! + ESTIMATES.cylinder;
   }
 
-  /**
+  /*
    * Lay a revolver: a frame and grip, the barrel, the cylinder with its
    * chambers, the hammer and the loading gate, and the contacts.
-   *
-   * @param builder The handgun under construction.
-   * @param d The handgun's dimensions.
+   * Parameter builder: The handgun under construction.
+   * Parameter d: The handgun's dimensions.
    */
   export function revolver(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -253,12 +250,11 @@ export namespace HandgunActions {
     }
   }
 
-  /**
+  /*
    * Lay a flintlock pistol: a stock with its grip, the barrel and the musket's
    * lock at its breech, and the contacts.
-   *
-   * @param builder The handgun under construction.
-   * @param d The handgun's dimensions.
+   * Parameter builder: The handgun under construction.
+   * Parameter d: The handgun's dimensions.
    */
   export function flintlock(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -297,13 +293,12 @@ export namespace HandgunActions {
     contacts(builder, d, bore, breech, muzzle, "socket");
   }
 
-  /**
+  /*
    * The trigger's part, its face at the read reach from the backstrap and
    * `ESTIMATES.trigger.drop` below the grip's top.
-   *
-   * @param builder The handgun under construction.
-   * @param d The handgun's dimensions.
-   * @param grip The grip's top.
+   * Parameter builder: The handgun under construction.
+   * Parameter d: The handgun's dimensions.
+   * Parameter grip: The grip's top.
    */
   function trigger(builder: Builder, d: Drawn, grip: number): void {
     const t: typeof ESTIMATES.trigger = ESTIMATES.trigger;
@@ -315,17 +310,16 @@ export namespace HandgunActions {
     );
   }
 
-  /**
+  /*
    * The contacts the firearm laws read: the `grip` from behind, the `trigger`'s
    * face at its reach, the `sight` at the breech and the `frontSight` its
    * radius ahead, both on the barrel's line, and the `muzzle`.
-   *
-   * @param builder The handgun under construction.
-   * @param d The handgun's dimensions.
-   * @param bore The barrel's line's height.
-   * @param sight Where the rear sight stands along the gun.
-   * @param muzzle Where the muzzle stands along the gun.
-   * @param mouth The muzzle's kind.
+   * Parameter builder: The handgun under construction.
+   * Parameter d: The handgun's dimensions.
+   * Parameter bore: The barrel's line's height.
+   * Parameter sight: Where the rear sight stands along the gun.
+   * Parameter muzzle: Where the muzzle stands along the gun.
+   * Parameter mouth: The muzzle's kind.
    */
   function contacts(
     builder: Builder,
@@ -392,11 +386,15 @@ export namespace HandgunActions {
   }
 }
 
-/** A handgun under construction. */
+/*
+ * A handgun under construction.
+ */
 type Builder = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeHandgun.Affordance,
   AutoMovieArchetypeHandgun.Dimension
 >;
 
-/** A handgun's drawn and read dimensions. */
+/*
+ * A handgun's drawn and read dimensions.
+ */
 type Drawn = Readonly<Partial<Record<AutoMovieArchetypeHandgun.Dimension, number>>>;

@@ -2,7 +2,7 @@ import type * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
-/**
+/*
  * Rigid parts of a built runtime model, in the one order instancing indexes.
  *
  * The merged instance geometry stamps each vertex with its part index and the

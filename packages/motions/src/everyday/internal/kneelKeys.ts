@@ -15,7 +15,7 @@ import { hipJoints } from "../../posture/internal/hipJoints";
 import { kneelPlace } from "./kneelPlace";
 import { kneelTrailingFoot } from "./kneelTrailingFoot";
 
-/**
+/*
  * The key states of a kneel, solved from the body: standing, the kneeling leg
  * stepped back, on one knee, on both knees and sitting back on the heels.
  *
@@ -35,84 +35,107 @@ import { kneelTrailingFoot } from "./kneelTrailingFoot";
  * J Orthop Res 24:770).
  */
 export namespace kneelKeys {
-  /** A foot's place on the floor. */
+  /*
+   * A foot's place on the floor.
+   */
   export interface IFoot {
-    /** The toes' joint, world metres. */
+    /*
+     * The toes' joint, world metres.
+     */
     at: IAutoMovieVector3;
 
-    /** Degrees about +Y. */
+    /*
+     * Degrees about +Y.
+     */
     heading: number;
 
-    /** Degrees; negative with the heel up. */
+    /*
+     * Degrees; negative with the heel up.
+     */
     pitch: number;
 
-    /** The toes' extension, degrees. */
+    /*
+     * The toes' extension, degrees.
+     */
     toes: number;
 
-    /** Whether the foot bears on the floor. */
+    /*
+     * Whether the foot bears on the floor.
+     */
     planted: boolean;
   }
 
-  /** A key state: the root and both feet. */
+  /*
+   * A key state: the root and both feet.
+   */
   export interface IKey {
-    /** The root, world metres. */
+    /*
+     * The root, world metres.
+     */
     root: IAutoMovieVector3;
 
-    /** The feet. */
+    /*
+     * The feet.
+     */
     feet: Record<AutoMovieHumanSide, IFoot>;
   }
 
-  /** The solved key states and the frame they were solved in. */
+  /*
+   * The solved key states and the frame they were solved in.
+   */
   export interface IKeys {
-    /**
+    /*
      * Standing, stepped back, on one knee, then on both knees and sitting back
      * when asked.
      */
     keys: IKey[];
 
-    /** The heading's unit vector. */
+    /*
+     * The heading's unit vector.
+     */
     forward: IAutoMovieVector3;
 
-    /** The hip joints from the root. */
+    /*
+     * The hip joints from the root.
+     */
     rest: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
-    /**
+    /*
      * The root's place about which it turns as the hips sit back: the first
      * knee's, as the root.
      */
     pivot: IAutoMovieVector3;
 
-    /**
+    /*
      * The standing leg's length from hip joint to ankle as a share of the thigh
      * and the shank.
      */
     extension: number;
   }
 
-  /**
+  /*
    * Knee flexion sitting back on the heels, degrees (Acker et al. 2011; inside
    * the range table's 150).
    */
   export const SIT: number = 145;
 
-  /**
+  /*
    * How far a toe joint may move between keys and still stand, metres: a
    * staying foot differs by round-off, a step by centimetres.
    */
   const STILL: number = 1e-4;
 
-  /**
+  /*
    * Whether a foot keeps its floor point from one key to the next.
-   *
-   * @param from The foot in the first key.
-   * @param to The foot in the second key.
-   * @returns Whether the toe joint stays within `STILL` of its place.
+   * Parameter from: The foot in the first key.
+   * Parameter to: The foot in the second key.
+   * Returns: Whether the toe joint stays within `STILL` of its place.
    */
   export function still(from: IFoot, to: IFoot): boolean {
     return Vector3.length(Vector3.subtract(from.at, to.at)) <= STILL;
   }
 
-  /**
+  /*
    * A range-table limit the kneel needs, signed degrees; throws when the table
    * has none.
    */
@@ -125,17 +148,16 @@ export namespace kneelKeys {
     return end;
   }
 
-  /**
+  /*
    * A foot tucked behind a knee that rests on the floor: on its toes straight
    * behind the knee, the ankle at its dorsiflexion range.
-   *
-   * @param body The body.
-   * @param side The leg.
-   * @param kneeAt The knee joint, world metres.
-   * @param yaw The heading the knee points along, degrees about +Y.
-   * @param floor The height of the toes' joint when the foot stands flat, world
-   *   metres.
-   * @returns The foot.
+   * Parameter body: The body.
+   * Parameter side: The leg.
+   * Parameter kneeAt: The knee joint, world metres.
+   * Parameter yaw: The heading the knee points along, degrees about +Y.
+   * Parameter floor: The height of the toes' joint when the foot stands flat, world
+   * metres.
+   * Returns: The foot.
    */
   export function tucked(
     body: IAutoMovieMotionHumanBody,
@@ -219,14 +241,13 @@ export namespace kneelKeys {
     return foot(back(pitch), pitch);
   }
 
-  /**
+  /*
    * A root's circular path about a pivot from one place to another, as the hips
    * turn about the knees when the body sits back on its heels.
-   *
-   * @param pivot The pivot, world metres.
-   * @param a The root at progress 0.
-   * @param b The root at progress 1.
-   * @returns The root at a progress in [0, 1].
+   * Parameter pivot: The pivot, world metres.
+   * Parameter a: The root at progress 0.
+   * Parameter b: The root at progress 1.
+   * Returns: The root at a progress in [0, 1].
    */
   export function prepareTurn(
     pivot: IAutoMovieVector3,
@@ -256,29 +277,28 @@ export namespace kneelKeys {
       );
   }
 
-  /**
+  /*
    * How far short of the hip's extension range a thigh reaching behind is kept,
    * degrees (provisional).
    */
   const SPARE: number = 5;
 
-  /**
+  /*
    * The width over which `lean`'s corner at zero is rounded, degrees
    * (provisional).
    */
   const ROUND: number = 2;
 
-  /**
+  /*
    * The forward tilt of the pelvis that keeps the legs inside the hips'
    * extension range while a foot stands far behind: people lean the trunk
    * forward as they step back into a lunge, because the hip extends only about
    * 30 degrees against the pelvis.
-   *
-   * @param body The body.
-   * @param hips The hip joints, world metres.
-   * @param ankles The ankles, world metres.
-   * @param forward The heading's unit vector.
-   * @returns Degrees, never negative.
+   * Parameter body: The body.
+   * Parameter hips: The hip joints, world metres.
+   * Parameter ankles: The ankles, world metres.
+   * Parameter forward: The heading's unit vector.
+   * Returns: Degrees, never negative.
    */
   export function lean(
     body: IAutoMovieMotionHumanBody,
@@ -316,16 +336,15 @@ export namespace kneelKeys {
     return (most + Math.sqrt(most * most + ROUND * ROUND)) / 2;
   }
 
-  /**
+  /*
    * Solve the key states.
-   *
-   * @param body The body.
-   * @param standing The standing posture the kneel starts from.
-   * @param kind On one knee, on both knees or sitting back.
-   * @param k The knee that goes down first.
-   * @param at The floor point that knee comes down on, world metres; the
-   *   reverse lunge's when absent.
-   * @returns The key states.
+   * Parameter body: The body.
+   * Parameter standing: The standing posture the kneel starts from.
+   * Parameter kind: On one knee, on both knees or sitting back.
+   * Parameter k: The knee that goes down first.
+   * Parameter at: The floor point that knee comes down on, world metres; the
+   * reverse lunge's when absent.
+   * Returns: The key states.
    */
   export function solve(
     body: IAutoMovieMotionHumanBody,
@@ -482,5 +501,7 @@ export namespace kneelKeys {
   }
 }
 
-/** The alternatives of `SolveKind`'s site. */
+/*
+ * The alternatives of `SolveKind`'s site.
+ */
 type SolveKind = "one" | "both" | "sitBack";

@@ -1,19 +1,18 @@
-/**
+/*
  * The uniform grid a crowd evaluation finds each agent's neighbours with: the
  * stacked state's positions bucketed into square cells of one side, so every
  * agent within that side of another lies in its own cell or one of the eight
  * around it (the uniform-grid neighbour search of particle and crowd
  * simulation; Teschner, Heidelberger, Muller, Pomeranets and Gross 2003,
  * "Optimized spatial hashing for collision detection of deformable objects").
- *
- * @param x The stacked state `[x, z, vx, vz]` per agent, metres and metres per
- *   second.
- * @param n The number of agents.
- * @param cell The cell's side, metres: the largest distance any query must
- *   reach; finite and positive.
- * @returns The query: it writes the agents other than one that lie in its cell
- *   or the eight around it into the caller's buffer of at least `n` entries, in
- *   ascending index, and returns how many.
+ * Parameter x: The stacked state `[x, z, vx, vz]` per agent, metres and metres per
+ * second.
+ * Parameter n: The number of agents.
+ * Parameter cell: The cell's side, metres: the largest distance any query must
+ * reach; finite and positive.
+ * Returns: The query: it writes the agents other than one that lie in its cell
+ * or the eight around it into the caller's buffer of at least `n` entries, in
+ * ascending index, and returns how many.
  */
 export function steerAutoMovieCrowdNeighbours(
   x: readonly number[],
@@ -48,27 +47,28 @@ export function steerAutoMovieCrowdNeighbours(
   };
 }
 
-/** Companion types of {@link steerAutoMovieCrowdNeighbours}. */
+/*
+ * Companion types of steerAutoMovieCrowdNeighbours.
+ */
 export namespace steerAutoMovieCrowdNeighbours {
-  /**
+  /*
    * Write the agents other than agent `k` in its cell and the eight around it
    * into `into`, ascending, and return their count.
    */
   export type Query = (k: number, into: Int32Array) => number;
 
-  /**
+  /*
    * Cell coordinates within this offset of zero key uniquely: a crowd spans far
    * fewer cells.
    */
   const OFFSET: number = 1 << 20;
 
-  /**
+  /*
    * One cell's integer key, unique while both coordinates lie within `OFFSET`
    * of zero; the product stays below 2^42, inside the exact integers.
-   *
-   * @param ix The cell's x coordinate.
-   * @param iz The cell's z coordinate.
-   * @returns The key.
+   * Parameter ix: The cell's x coordinate.
+   * Parameter iz: The cell's z coordinate.
+   * Returns: The key.
    */
   export function key(ix: number, iz: number): number {
     return (ix + OFFSET) * (2 * OFFSET) + (iz + OFFSET);

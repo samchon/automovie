@@ -12,7 +12,7 @@ import { AutoMovieConstructionProfileTopology } from "../../AutoMovieConstructio
 import { AutoMovieLoftAdmissionError } from "../../AutoMovieLoftAdmissionError";
 import { AutoMovieLoftWorldJet } from "./AutoMovieLoftWorldJet";
 
-/**
+/*
  * Exact world chart of one original interval, retained or in its actual
  * neighborhood.
  *
@@ -125,13 +125,15 @@ export function AutoMovieConstructionProfileSurface(
   };
 }
 
-/** Every supplied local value or derivative has two genuine finite components. */
+/*
+ * Every supplied local value or derivative has two genuine finite components.
+ */
 function pair(value: readonly number[]): void {
   if (value.length !== 2)
     fail("Original profile requires two finite local components.");
 }
 
-/**
+/*
  * Copy actual frame value/first/second operands without manufacturing absent
  * data.
  */
@@ -145,7 +147,7 @@ function frameRow(frame: IAutoMovieLoftSectionFrame): number[] {
   return row;
 }
 
-/**
+/*
  * Actual affine clock scaling applies only to the corresponding derivative
  * order.
  */
@@ -156,7 +158,7 @@ function scale(
   return [factor * value[0], factor * value[1]];
 }
 
-/**
+/*
  * Numerical/unavailable admission leaves exceptions from original owners
  * unchanged.
  */

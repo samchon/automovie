@@ -16,12 +16,12 @@ import { refitHumanPosture } from "../../posture/internal/refitHumanPosture";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
 
-/**
+/*
  * The final planted-limb refit of a displayed pose after its range clamp. The
  * pose evaluator retains clamp/transition order and named-seed assembly.
  */
 export namespace HumanSegmentPlant {
-  /**
+  /*
    * Whether a displayed pose's planted limbs already stand on their goals when
    * the final clamp returns: the evaluation fitted each planted goal itself
    * (its leaf fit), nothing moved the pose between that fit and the clamp, and
@@ -30,15 +30,14 @@ export namespace HumanSegmentPlant {
    * contact; when none of them touched the limb, the leaf fit's solution of
    * that same goal is the contact's, and its seed is recorded as the planted
    * stage's.
-   *
-   * @param before The pose the leaf fits left, before the final clamp.
-   * @param clamped The same pose after the clamp, record for record in the same
-   *   order.
-   * @param limbs The current complete goals.
-   * @param seeds The evaluation's named seeds; each planted limb's `planted:`
-   *   seed is set from its `leaf::` seed when the result is true.
-   * @returns Whether every planted limb keeps its leaf solution; false sends
-   *   the pose to {@link fit}.
+   * Parameter before: The pose the leaf fits left, before the final clamp.
+   * Parameter clamped: The same pose after the clamp, record for record in the same
+   * order.
+   * Parameter limbs: The current complete goals.
+   * Parameter seeds: The evaluation's named seeds; each planted limb's `planted:`
+   * seed is set from its `leaf::` seed when the result is true.
+   * Returns: Whether every planted limb keeps its leaf solution; false sends
+   * the pose to fit.
    */
   export function settled(
     before: IAutoMoviePose,
@@ -78,16 +77,15 @@ export namespace HumanSegmentPlant {
     return true;
   }
 
-  /**
+  /*
    * Refit every planted goal on the already clamped displayed pose. With
    * plants, attachment admission precedes resolution even on cold queries.
-   *
-   * @param body The performer whose unchanged rig resolves the goals.
-   * @param pose The pose after the displayed evaluator's final clamp.
-   * @param limbs The current complete goals, including carried or stopped ones.
-   * @param near Nearby fits, matched only by each existing planted-stage name.
-   * @returns The resolver's pose, seeds and values with their original
-   *   ownership.
+   * Parameter body: The performer whose unchanged rig resolves the goals.
+   * Parameter pose: The pose after the displayed evaluator's final clamp.
+   * Parameter limbs: The current complete goals, including carried or stopped ones.
+   * Parameter near: Nearby fits, matched only by each existing planted-stage name.
+   * Returns: The resolver's pose, seeds and values with their original
+   * ownership.
    */
   export function fit(
     body: IAutoMovieMotionHumanBody,

@@ -3,7 +3,7 @@ import { IAutoMovieTransform } from "@automovie/interface";
 import { Quaternion } from "../../math/Quaternion";
 import { placeTransformedPoint } from "./placeTransformedPoint";
 
-/**
+/*
  * Fold a sampled pose root into a node's staged placement, giving the world
  * transform the viewer draws the actor's root at.
  *

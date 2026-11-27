@@ -2,7 +2,7 @@ import { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 
 import { requireBuiltSpace } from "./requireBuiltSpace";
 
-/**
+/*
  * Name the building unit that owns a logical space.
  *
  * A work holds several independently placed building units, so "which building

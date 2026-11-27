@@ -3,7 +3,7 @@ import type { IEvidenceMarkdownReference } from "@wrtnlabs/evidence";
 import type { IContractLocation } from "../../../internal/IContractLocation";
 import { createContractRoot } from "../utilities/createContractRoot";
 
-/**
+/*
  * Creates one reference against a shared contract document.
  *
  * Every shared family is the same relation — anchored H2 items of a document in

@@ -3,7 +3,7 @@ import * as fs from "node:fs/promises";
 import type { AutoMovieCliReviewTypes } from "../AutoMovieCliReviewTypes";
 import { planAutoMovieChromiumLaunch } from "../../capture/internal/planAutoMovieChromiumLaunch";
 
-/**
+/*
  * Record real-time playback of the running inspector page: load it, press its
  * Play button, and record the page as a video while reading its time readout,
  * for a person to watch.
@@ -110,22 +110,26 @@ export async function recordAutoMoviePlayback(
   }
 }
 
-/**
+/*
  * Milliseconds the page may take to load and show its controls: ten minutes,
  * room for a film that prepares its performance before its first frame.
  */
 const PREPARE: number = 600_000;
 
-/** Longest pause between two readings of the time readout, milliseconds. */
+/*
+ * Longest pause between two readings of the time readout, milliseconds.
+ */
 const READING: number = 500;
 
-/**
+/*
  * The time readout the inspector shows: the second and the duration, such as
  * `1.25 / 12.00 s`.
  */
 const READOUT: RegExp = /\d+\.\d+ \/ \d+\.\d+ s/u;
 
-/** The part of `playwright-core`'s `chromium` a playback recording calls. */
+/*
+ * The part of `playwright-core`'s `chromium` a playback recording calls.
+ */
 interface IRecordingChromium {
   launch(options: {
     headless: true;
@@ -134,7 +138,9 @@ interface IRecordingChromium {
   }): Promise<IRecordingBrowser>;
 }
 
-/** A launched browser that opens recording contexts. */
+/*
+ * A launched browser that opens recording contexts.
+ */
 interface IRecordingBrowser {
   newContext(options: {
     viewport: { width: number; height: number };
@@ -143,13 +149,17 @@ interface IRecordingBrowser {
   close(): Promise<void>;
 }
 
-/** A recording browser context. */
+/*
+ * A recording browser context.
+ */
 interface IRecordingContext {
   newPage(): Promise<IRecordingPage>;
   close(): Promise<void>;
 }
 
-/** The page calls a recording makes. */
+/*
+ * The page calls a recording makes.
+ */
 interface IRecordingPage {
   on(event: "pageerror", listener: (error: Error) => void): unknown;
   goto(
@@ -165,7 +175,9 @@ interface IRecordingPage {
   video(): { path(): Promise<string> } | null;
 }
 
-/** A located element. */
+/*
+ * A located element.
+ */
 interface IRecordingLocator {
   first(): IRecordingLocator;
   waitFor(options: { timeout: number }): Promise<void>;

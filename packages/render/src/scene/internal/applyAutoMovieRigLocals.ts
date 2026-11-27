@@ -7,7 +7,7 @@ import type * as THREE from "three";
 import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
 import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose.js";
 
-/**
+/*
  * Display complete evaluator-produced bone locals, including translations
  * caused by omitted intermediate joints. Values are absolute parent-relative
  * transforms, rather than deltas from the build's rest pose. `root` places the
@@ -52,7 +52,7 @@ export function applyAutoMovieRigLocals(
   invalidateAutoMovieSkinnedPose(target.object);
 }
 
-/**
+/*
  * Refuse a malformed local before the adapter begins mutating its target.
  *
  * Principled implementation: Checks exact tuple lengths, finite components and
@@ -80,7 +80,7 @@ function validateLocal(local: IAutoMovieRigLocalTransform, name: string): void {
     );
 }
 
-/**
+/*
  * Copy absolute TR and unit scale, then refresh even a manual local matrix.
  *
  * Principled implementation: Writes tuple components through Three

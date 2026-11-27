@@ -9,7 +9,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { struckSurface } from "./struckSurface";
 import { useTool } from "./useTool";
 
-/**
+/*
  * One scenic downstroke and rebound on a stationary batter head. This opt-in
  * row uses the held working-point arc of `useTool`. The up position after the
  * hit follows the rebound stroke taught in Vic Firth Drumset Lessons 1–2
@@ -25,15 +25,14 @@ export const sideDrumStrike: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
     plan,
   };
 
-/**
+/*
  * Resolve the stationary head and pass one stroke to the held-tool law. The
  * tool law refuses a missing grip or face and a stick the named hand does not
  * already hold.
- *
- * @param context The stroke's body, entry state and scene prop readers.
- * @returns The held-tool plan with its `contact1` decisive instant.
- * @throws {HumanRefusal} When the stick or drum is empty, or the drum head is
- *   missing, moving or tilted.
+ * Parameter context: The stroke's body, entry state and scene prop readers.
+ * Returns: The held-tool plan with its `contact1` decisive instant.
+ * When the stick or drum is empty, or the drum head is
+ * missing, moving or tilted.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSideDrumStrike>,

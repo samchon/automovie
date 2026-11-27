@@ -13,7 +13,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { physicalShapeHull } from "./physicalShapeHull";
 
-/**
+/*
  * Collect every range, reference, mass and tree defect before simulation. This
  * gate never repairs inputs. Mass/centre comparisons allow 1e-8 relative
  * floating-point accumulation; length is in metres. Reference searches and
@@ -288,14 +288,18 @@ export function validatePhysicalProfile(
   return errors;
 }
 
-/**
+/*
  * One of a segment's collider lists with the key its defects are reported
  * under.
  */
 interface IShapeList {
-  /** The list's field name in the segment. */
+  /*
+   * The list's field name in the segment.
+   */
   key: string;
 
-  /** The list's colliders. */
+  /*
+   * The list's colliders.
+   */
   shapes: readonly IAutoMoviePhysicalShape[];
 }

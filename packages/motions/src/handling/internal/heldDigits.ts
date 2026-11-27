@@ -18,7 +18,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/**
+/*
  * The holding hand's digits kept on the moving contacts of a held prop's driven
  * articulations: the thumb in a scissor ring as the blade it rides swings, a
  * fingertip on a chopstick as it pinches.
@@ -32,15 +32,14 @@ import { poseBones } from "../../posture/internal/poseBones";
  * how it faces, so the goal is a place alone and the digit faces as its own
  * joints carry it there. The goal is written in that frame
  * (`IAutoMovieHumanDigitGoal.on`), so it holds whatever the arm does.
- *
- * @param context The action's context.
- * @param held The held prop.
- * @param drive The authored drives.
- * @param drives The planned drives, one per authored drive.
- * @returns The digit goals at an action second; empty when no drive names a
- *   digit.
- * @throws {HumanRefusal} When a digit's contact does not ride its driven
- *   articulation, or that articulation neither turns nor slides.
+ * Parameter context: The action's context.
+ * Parameter held: The held prop.
+ * Parameter drive: The authored drives.
+ * Parameter drives: The planned drives, one per authored drive.
+ * Returns: The digit goals at an action second; empty when no drive names a
+ * digit.
+ * When a digit's contact does not ride its driven
+ * articulation, or that articulation neither turns nor slides.
  */
 export function heldDigits(
   context: IAutoMovieMotionHumanActionContext<object>,
@@ -149,18 +148,19 @@ export function heldDigits(
   };
 }
 
-/** The companion reader of {@link heldDigits}. */
+/*
+ * The companion reader of heldDigits.
+ */
 export namespace heldDigits {
-  /**
+  /*
    * Where a contact riding an articulation lies at a travel, in its prop's
    * frame: turned about a turning joint's `+Y` through its pivot by the travel
    * in degrees (a hinge, a wheel, a knob, a crank), or slid along a slider's
    * `+X` by it in metres.
-   *
-   * @param joint The articulation the contact rides.
-   * @param site The contact.
-   * @param travel The articulation's travel.
-   * @returns Prop-local metres.
+   * Parameter joint: The articulation the contact rides.
+   * Parameter site: The contact.
+   * Parameter travel: The articulation's travel.
+   * Returns: Prop-local metres.
    */
   export function posed(
     joint: IAutoMovieAffordance,
@@ -194,7 +194,7 @@ export namespace heldDigits {
   }
 }
 
-/**
+/*
  * The articulation kinds whose travel is a turn about the frame's `+Y`,
  * degrees; every other moves along `+X`.
  */
@@ -205,7 +205,9 @@ const TURNING: ReadonlySet<string> = new Set([
   "crank",
 ]);
 
-/** Each hand's digits by name. */
+/*
+ * Each hand's digits by name.
+ */
 const DIGITS: Readonly<
   Record<
     AutoMovieHumanSide,
@@ -228,34 +230,50 @@ const DIGITS: Readonly<
   },
 };
 
-/** A digit kept on a contact riding a driven articulation. */
+/*
+ * A digit kept on a contact riding a driven articulation.
+ */
 interface IWorked {
-  /** The digit. */
+  /*
+   * The digit.
+   */
   digit: AutoMovieHumanDigit;
 
-  /** The planned drive of the articulation. */
+  /*
+   * The planned drive of the articulation.
+   */
   drive: IAutoMovieMotionPropDrive;
 
-  /** The digit's pad in the hand's frame as the work begins. */
+  /*
+   * The digit's pad in the hand's frame as the work begins.
+   */
   pad: IAutoMovieVector3;
 
-  /** The articulation's pivot in the hand's frame, metres. */
+  /*
+   * The articulation's pivot in the hand's frame, metres.
+   */
   pivot: IAutoMovieVector3;
 
-  /**
+  /*
    * The unit axis a hinge turns about, or a slider slides along, in the hand's
    * frame.
    */
   axis: IAutoMovieVector3;
 
-  /** Whether the articulation turns (a hinge) rather than slides. */
+  /*
+   * Whether the articulation turns (a hinge) rather than slides.
+   */
   turning: boolean;
 
-  /** The articulation's travel as the work begins. */
+  /*
+   * The articulation's travel as the work begins.
+   */
   start: number;
 }
 
-/** Each digit's pad, the hand surface that bears on its contact. */
+/*
+ * Each digit's pad, the hand surface that bears on its contact.
+ */
 const PADS: Readonly<
   Record<IAutoMovieMotionHumanHeldWork.Digit, IAutoMovieMotionHumanHand.Surface>
 > = {

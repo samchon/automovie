@@ -159,15 +159,19 @@ export namespace AutoMovieLoftSectionConnect {
   }
 }
 
-/** Complete actual basis functions for one regular endpoint. */
+/*
+ * Complete actual basis functions for one regular endpoint.
+ */
 type Basis = Extract<IAutoMovieFamily, { kind: "basis" }>;
 
-/** A kept/transformed layer may retain an explicit endpoint family. */
+/*
+ * A kept/transformed layer may retain an explicit endpoint family.
+ */
 type Layer = IAutoMovieLoftChain.ILayer & {
   sectionSource?: IAutoMovieLoftSectionSource.IEndpoint;
 };
 
-/**
+/*
  * Capture a complete actual basis endpoint rather than a finite collection of
  * phase samples.
  */
@@ -179,7 +183,9 @@ function basis(chain: IAutoMovieLoftChain, station: number): Basis {
   return { kind: "basis", order: prepared.order, rows: prepared.rows };
 }
 
-/** Reflect a whole function once, including actual station derivative signs. */
+/*
+ * Reflect a whole function once, including actual station derivative signs.
+ */
 function orient(field: IAutoMovieFamily, sign: 1 | -1): IAutoMovieFamily {
   if (sign !== 1 && sign !== -1)
     throw new Error("A boundary direction must be 1 or -1.");
@@ -205,7 +211,7 @@ function orient(field: IAutoMovieFamily, sign: 1 | -1): IAutoMovieFamily {
   return { kind: "basis", order: n, rows: [rows[0]!, rows[1]!, rows[2]!] };
 }
 
-/**
+/*
  * Actual native endpoint2 defines a positive extension whose free far end is
  * explicitly constant.
  */
@@ -253,7 +259,7 @@ function create(
   };
 }
 
-/**
+/*
  * These zero derivatives define the free constant extension, never an
  * unavailable actual source.
  */

@@ -11,19 +11,18 @@ import type {
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * A swipe's screen in the world at the action's start (`swipeTouchscreen`): the
  * named surface affordance of a stationary fixture, unscaled and of positive
  * width, its centre, the stroke's two ends at the authored shares of its width
  * along its local X, its outward normal (local Y) and its forward (local Z).
- *
- * @param read The prop's reader.
- * @param params The swipe's prop, screen and two shares of the width.
- * @param start The action's film start, seconds.
- * @returns The screen's world geometry.
- * @throws {HumanRefusal} On a share outside [-0.5, 0.5], two equal shares, or a
- *   screen that is not an unscaled rigid surface of positive width on a fixed,
- *   unmoving, unworn and unmounted prop.
+ * Parameter read: The prop's reader.
+ * Parameter params: The swipe's prop, screen and two shares of the width.
+ * Parameter start: The action's film start, seconds.
+ * Returns: The screen's world geometry.
+ * On a share outside [-0.5, 0.5], two equal shares, or a
+ * screen that is not an unscaled rigid surface of positive width on a fixed,
+ * unmoving, unworn and unmounted prop.
  */
 export function swipeTouchscreenScreen(
   read: Pick<IAutoMovieMotionHumanPropReader, "prop" | "frame">,
@@ -87,23 +86,37 @@ export function swipeTouchscreenScreen(
   };
 }
 
-/** Companion types of {@link swipeTouchscreenScreen}. */
+/*
+ * Companion types of swipeTouchscreenScreen.
+ */
 export namespace swipeTouchscreenScreen {
-  /** A swipe's screen in the world. */
+  /*
+   * A swipe's screen in the world.
+   */
   export interface IScreen {
-    /** The surface's centre, world metres. */
+    /*
+     * The surface's centre, world metres.
+     */
     center: IAutoMovieVector3;
 
-    /** The stroke's first point, world metres. */
+    /*
+     * The stroke's first point, world metres.
+     */
     first: IAutoMovieVector3;
 
-    /** Its last point, world metres. */
+    /*
+     * Its last point, world metres.
+     */
     last: IAutoMovieVector3;
 
-    /** The surface's outward normal. */
+    /*
+     * The surface's outward normal.
+     */
     normal: IAutoMovieVector3;
 
-    /** The surface's forward, the fingertip's pointing. */
+    /*
+     * The surface's forward, the fingertip's pointing.
+     */
     forward: IAutoMovieVector3;
   }
 }

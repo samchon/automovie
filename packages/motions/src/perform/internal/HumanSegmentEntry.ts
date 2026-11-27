@@ -21,22 +21,21 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
-/**
+/*
  * The state a person enters an action from: the displayed pose and its rates at
  * the entry second, the feet, the supports, the base and the holds, read from
  * the action being left (`HumanSegmentPose`). The next action's posture keeps
  * native breathing separate from the displayed state.
  */
 export namespace HumanSegmentEntry {
-  /**
+  /*
    * The state a person enters an action from at a second.
-   *
-   * @param person The person.
-   * @param previous Their previous action, if any.
-   * @param seconds The entry second.
-   * @param blend The inertialization the cut into the action decays over,
-   *   seconds; absent for an action entered over another.
-   * @returns The displayed state and the posture the next action carries.
+   * Parameter person: The person.
+   * Parameter previous: Their previous action, if any.
+   * Parameter seconds: The entry second.
+   * Parameter blend: The inertialization the cut into the action decays over,
+   * seconds; absent for an action entered over another.
+   * Returns: The displayed state and the posture the next action carries.
    */
   export function entry(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -262,15 +261,14 @@ export namespace HumanSegmentEntry {
     };
   }
 
-  /**
+  /*
    * What the body rests on as an action is left at a second: the supports its
    * plan declares open there, preserving each one's frame, region, socket and
    * load. Grips and strikes are excluded. Before any action, both feet bear on
    * the ground.
-   *
-   * @param previous The action left, if any.
-   * @param seconds The film second.
-   * @returns The supports.
+   * Parameter previous: The action left, if any.
+   * Parameter seconds: The film second.
+   * Returns: The supports.
    */
   export function supports(
     previous: ISupportsPrevious | undefined,
@@ -311,7 +309,7 @@ export namespace HumanSegmentEntry {
       );
   }
 
-  /**
+  /*
    * What `supports` reads of the action left: its start and its plan's
    * contacts.
    */
@@ -319,20 +317,21 @@ export namespace HumanSegmentEntry {
     IAutoMovieMotionHumanSegment,
     "start"
   > & {
-    /** The plan's duration and contact windows. */
+    /*
+     * The plan's duration and contact windows.
+     */
     plan: Pick<IAutoMovieMotionHumanSegment["plan"], "duration" | "contacts">;
   };
 
-  /**
+  /*
    * The state a body leaves at a second read from its poses as shown, each
    * sample read once: the reading of a body with no previous action, which
    * stands in its initial posture, or of one entered over its action.
-   *
-   * @param person The person.
-   * @param previous Their previous action, if any.
-   * @param seconds The second.
-   * @param step The difference interval, seconds.
-   * @returns The state and the samples it was read from.
+   * Parameter person: The person.
+   * Parameter previous: Their previous action, if any.
+   * Parameter seconds: The second.
+   * Parameter step: The difference interval, seconds.
+   * Returns: The state and the samples it was read from.
    */
   function shown(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -381,17 +380,16 @@ export namespace HumanSegmentEntry {
     };
   }
 
-  /**
+  /*
    * The state a body leaves an action in at a second, its rates read on the
    * action's fits continued from the second's own
    * (`HumanSegmentPose.continued`) to the tolerance an inertialization over
    * `blend` asks.
-   *
-   * @param person The person.
-   * @param previous The action left.
-   * @param seconds The second.
-   * @param blend The inertialization the state feeds, seconds.
-   * @returns The state and the continued samples it was read from.
+   * Parameter person: The person.
+   * Parameter previous: The action left.
+   * Parameter seconds: The second.
+   * Parameter blend: The inertialization the state feeds, seconds.
+   * Returns: The state and the continued samples it was read from.
    */
   function left(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -411,16 +409,24 @@ export namespace HumanSegmentEntry {
   }
 }
 
-/** The alternatives of `SupportsPart`'s site. */
+/*
+ * The alternatives of `SupportsPart`'s site.
+ */
 type SupportsPart = "leftFoot" | "rightFoot";
 
-/** The alternatives of `EntryResult`'s site. */
+/*
+ * The alternatives of `EntryResult`'s site.
+ */
 type EntryResult =
   | [[AutoMovieHumanSide, IAutoMovieMotionHumanGraspUse.IUse]]
   | [];
 
-/** The alternatives of `EntryPlantedPart2`'s site. */
+/*
+ * The alternatives of `EntryPlantedPart2`'s site.
+ */
 type EntryPlantedPart2 = "leftFoot" | "rightFoot";
 
-/** The alternatives of `EntryPlantedPart`'s site. */
+/*
+ * The alternatives of `EntryPlantedPart`'s site.
+ */
 type EntryPlantedPart = "leftFoot" | "rightFoot";

@@ -16,26 +16,25 @@ import { StrikingStance } from "../../striking/internal/StrikingStance";
 import { StrikingTarget } from "../../striking/internal/StrikingTarget";
 import { staggerBounds } from "./staggerBounds";
 
-/**
+/*
  * The body readings a stagger's legs and trunk share (`StaggerFeet`,
  * `staggerAdmission`, `stagger`): the trunk's shift of the centre of mass, the
  * knee's hint and the share of a swing a foot rises in.
  */
 export namespace staggerKnots {
-  /**
+  /*
    * The centre of mass's shift per sine of the trunk's tilt about the hips, on
    * the entry's feet: the posture tilted `REFERENCE` degrees in pitch and in
    * roll (`AutoMovieMotionHumanLean.pivot`) and its centre of mass read
    * (`HumanBalance.centre`).
-   *
-   * @param body The body.
-   * @param entry The posture the push meets.
-   * @param source Optional same-body FK source borrowed from the surrounding
-   *   synchronous entry observation.
-   * @param projector Optional genuine same-body ROM metadata borrowed by that
-   *   same operation.
-   * @returns The horizontal shift per sine of the pitch and of the roll,
-   *   metres.
+   * Parameter body: The body.
+   * Parameter entry: The posture the push meets.
+   * Parameter source: Optional same-body FK source borrowed from the surrounding
+   * synchronous entry observation.
+   * Parameter projector: Optional genuine same-body ROM metadata borrowed by that
+   * same operation.
+   * Returns: The horizontal shift per sine of the pitch and of the roll,
+   * metres.
    */
   export function bending(
     body: IAutoMovieMotionHumanActionContext["body"],
@@ -92,16 +91,15 @@ export namespace staggerKnots {
     };
   }
 
-  /**
+  /*
    * The point a leg's knee bends toward: ahead over its foot's heading from
    * where the knee rests under the root.
-   *
-   * @param body The body.
-   * @param root The lowered root, world metres.
-   * @param yaw The pelvis's heading, degrees.
-   * @param side The leg.
-   * @param heading The foot's heading, degrees.
-   * @returns World metres.
+   * Parameter body: The body.
+   * Parameter root: The lowered root, world metres.
+   * Parameter yaw: The pelvis's heading, degrees.
+   * Parameter side: The leg.
+   * Parameter heading: The foot's heading, degrees.
+   * Returns: World metres.
    */
   export function kneePole(
     body: IAutoMovieMotionHumanActionContext["body"],
@@ -122,13 +120,12 @@ export namespace staggerKnots {
     );
   }
 
-  /**
+  /*
    * The share of a swing a stepping foot takes to rise clear of the floor: the
    * share of a walking swing its lift takes to set down from the floor's
    * contact height (`walkFoot.prepareSwing`).
-   *
-   * @param body The body.
-   * @returns The share.
+   * Parameter body: The body.
+   * Returns: The share.
    */
   export function risingOf(
     body: IAutoMovieMotionHumanActionContext["body"],
@@ -144,17 +141,23 @@ export namespace staggerKnots {
   }
 }
 
-/** The record of `IBendingShiftMore2`'s site. */
+/*
+ * The record of `IBendingShiftMore2`'s site.
+ */
 type IBendingShiftMore2 = {
   pitch: number;
   roll: number;
 };
 
-/** The record of `IBendingShiftMore`'s site. */
+/*
+ * The record of `IBendingShiftMore`'s site.
+ */
 type IBendingShiftMore = {
   pitch: number;
   roll: number;
 };
 
-/** The alternatives of `BendingEntryResult`'s site. */
+/*
+ * The alternatives of `BendingEntryResult`'s site.
+ */
 type BendingEntryResult = "pitch" | "roll";

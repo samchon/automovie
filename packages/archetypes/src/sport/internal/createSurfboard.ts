@@ -3,7 +3,7 @@ import { Vector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
-/**
+/*
  * A shortboard lying flat on the ground, its length along `Z` and its nose
  * toward `-Z`.
  *
@@ -13,14 +13,13 @@ import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSe
  * one fifth of the board's length to either side of the middle. `rail` is the
  * carry grip on the `+X` edge. Both lower rail lines can be sampled on a moving
  * prop.
- *
- * @param params The board and any dimension the author fixes.
- * @param seed The seed that draws the board when it is not given and every
- *   dimension left free inside its band; absent, the first board and the middle
- *   of each band.
- * @returns The board.
- * @throws {AutoMovieArchetypeRefusal} For a board the chart does not list, or a
- *   fixed dimension outside its band.
+ * Parameter params: The board and any dimension the author fixes.
+ * Parameter seed: The seed that draws the board when it is not given and every
+ * dimension left free inside its band; absent, the first board and the middle
+ * of each band.
+ * Returns: The board.
+ * For a board the chart does not list, or a
+ * fixed dimension outside its band.
  */
 export function createSurfboard(
   params: AutoMovieArchetypeSurfboard.IParams = {},

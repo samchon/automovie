@@ -2,7 +2,7 @@ import type { IAutoMovieMotionHumanActionLaw } from "@automovie/interface";
 
 import { HUMAN_LEXICON_FAMILIES } from "./HUMAN_LEXICON_FAMILIES";
 
-/**
+/*
  * Every row and law of the lexicon by family, as data: what a page, a test and
  * an agent's search read to know which named actions exist beyond the
  * vocabulary. Pass a family's list, or all of them, to a performance's `laws`

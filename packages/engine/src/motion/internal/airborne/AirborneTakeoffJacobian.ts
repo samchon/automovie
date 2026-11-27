@@ -6,7 +6,7 @@ import type {
 
 import { Quaternion } from "../../../math/Quaternion";
 
-/**
+/*
  * The endpoint angle Jacobian of a flight's integrated momentum tangents.
  *
  * For the requested frame's attitude Rx(phi) Rz(theta) Ry(psi), a body rotation
@@ -15,11 +15,10 @@ import { Quaternion } from "../../../math/Quaternion";
  * axes first carries the root-frame tangent into that frame. This is the
  * shooting solver's existing angle differential, factored from its momentum
  * search so it has one numeric owner.
- *
- * @param end Unwrapped endpoint angles in radians, in the requested frame.
- * @param axes The requested frame's unit orientation in the root frame.
- * @param variations Body-frame tangents per momentum direction, in input order.
- * @returns Three rows of angle derivatives per momentum direction.
+ * Parameter end: Unwrapped endpoint angles in radians, in the requested frame.
+ * Parameter axes: The requested frame's unit orientation in the root frame.
+ * Parameter variations: Body-frame tangents per momentum direction, in input order.
+ * Returns: Three rows of angle derivatives per momentum direction.
  */
 export function AirborneTakeoffJacobian(
   end: IAutoMovieSolveAirborneTakeoff.IAngles,

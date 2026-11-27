@@ -18,13 +18,13 @@ import { Matrix4 } from "../../math/Matrix4";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * The column-major world matrix of every element, displaced by its selected
  * operating state.
  *
  * The local matrix is rest transform times joint displacement; the world matrix
  * is parent world times local. Travel consequently carries descendants, and
- * {@link lowerBuiltEnvironment} and element measurements share this staging.
+ * lowerBuiltEnvironment and element measurements share this staging.
  *
  * Omitting stateId selects each operation's current state. A string selects
  * that name wherever declared; an operation without it, or a member without a
@@ -80,7 +80,9 @@ export function builtEnvironmentWorldMatrices(
   return matrices;
 }
 
-/** The element-local displacement every moving member carries in one state. */
+/*
+ * The element-local displacement every moving member carries in one state.
+ */
 const operationDeltas: (
   environment: IAutoMovieBuiltEnvironment,
   stateId: [
@@ -138,7 +140,9 @@ const operationDeltas: (
   return deltas;
 };
 
-/** Place every panel of one opening at the travel a state gives it. */
+/*
+ * Place every panel of one opening at the travel a state gives it.
+ */
 const applyPanelState: (
   panels: readonly IAutoMovieMovablePanel[],
   state: IAutoMovieOperationState,
@@ -158,7 +162,9 @@ const applyPanelState: (
   }
 };
 
-/** Place every carriage of one run at the travel a state gives it. */
+/*
+ * Place every carriage of one run at the travel a state gives it.
+ */
 const applyCarriageState: (
   carriages: readonly IAutoMovieConnectorCarriage[],
   state: IAutoMovieConnectorState,
@@ -178,7 +184,9 @@ const applyCarriageState: (
   }
 };
 
-/** The element-local displacement one moving member carries at one value. */
+/*
+ * The element-local displacement one moving member carries at one value.
+ */
 const travelDelta: (
   motion: IAutoMovieTravelMotion,
   value: number,

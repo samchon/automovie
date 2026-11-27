@@ -7,7 +7,7 @@ import { HumanMusketDrill } from "./HumanMusketDrill";
 import { HumanRevolver } from "./HumanRevolver";
 import { HumanThrownWeapon } from "./HumanThrownWeapon";
 
-/**
+/*
  * The laws of the lexicon's arms-drill families, from the thrown weapons to
  * archery, by export key (`HUMAN_LEXICON_FAMILIES`).
  */

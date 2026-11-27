@@ -4,7 +4,7 @@ import { convexHull2D } from "../../math/internal/convexHull2D";
 import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 
 
-/**
+/*
  * Turn a body's balance at one instant into inspection marks: the centre of
  * mass, or the extrapolated centre the caller balances on, as a point, and the
  * base of support as the polygon around the support points on the floor plane.
@@ -23,13 +23,12 @@ import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
  *
  * Both are in world metres and unanchored. It throws when there is no support
  * point.
- *
- * @param props.path The body's path, which the marks extend.
- * @param props.centre The centre the caller balances on, world metres: the
- *   centre of mass of `resolveAutoMovieCenterOfMass.place`, or its
- *   extrapolation by `resolveAutoMovieCenterOfMass.extrapolate` (Hof 2005).
- * @param props.support The support contact points, world metres.
- * @returns The centre's mark, then the base's.
+ * Parameter props.path: The body's path, which the marks extend.
+ * Parameter props.centre: The centre the caller balances on, world metres: the
+ * centre of mass of `resolveAutoMovieCenterOfMass.place`, or its
+ * extrapolation by `resolveAutoMovieCenterOfMass.extrapolate` (Hof 2005).
+ * Parameter props.support: The support contact points, world metres.
+ * Returns: The centre's mark, then the base's.
  */
 export function markAutoMovieBalance(
   props: IAutoMovieMarkBalance.IProps,

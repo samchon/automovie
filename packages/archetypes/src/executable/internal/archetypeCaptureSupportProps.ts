@@ -11,7 +11,7 @@ import { AutoMovieArchetypeCannon } from "../../weapons";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
-/**
+/*
  * Rowing, seeded-sea and two-body towing consumers for visual inspection. The
  * straight tandem limbers are an authored kinematic demonstration, not a
  * historical train or ground-contact simulation; axle support lets its rigid
@@ -19,10 +19,9 @@ import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
  * travel distances equal. The leader's wheels do not carry its pintle, so
  * towing reads its unchanged rest model along the course; each displayed leader
  * receives its wheel pose only at the requested second.
- *
- * @returns Named calm/sea rides and three supported towing branches: tandem
- *   limbers, a reverse field gun and a four-wheel wagon with its drawbar
- *   hinge.
+ * Returns: Named calm/sea rides and three supported towing branches: tandem
+ * limbers, a reverse field gun and a four-wheel wagon with its drawbar
+ * hinge.
  */
 export function archetypeCaptureSupportProps(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
@@ -121,7 +120,7 @@ export function archetypeCaptureSupportProps(): Readonly<
   };
 }
 
-/**
+/*
  * Public wheel articulations use circumference and equivalent [0,360) degrees,
  * preserving signed rolling without changing geometry.
  */
@@ -136,7 +135,7 @@ function rolling(
   return cart.articulate({ leftSpin: angle, rightSpin: angle });
 }
 
-/**
+/*
  * The source field gun travels trail first, on its real axle and unchanged
  * limber socket.
  */
@@ -201,7 +200,7 @@ function limberedGun(
   };
 }
 
-/**
+/*
  * The four-wheel wagon steers and pitches only its declared drawbar while both
  * axles stay supported.
  */

@@ -14,7 +14,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 
-/**
+/*
  * Resolve a bone action target to world metres using its actor rig and sampled
  * motion, or the rest pose when motion is absent. Non-bone targets, unknown
  * actors/rigs or absent resolved bones return null. Staged heading/position are

@@ -6,7 +6,7 @@ import { HumanQuadraticInteriorSession as Session } from "./HumanQuadraticInteri
 import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
 import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace";
 
-/**
+/*
  * A banded convex quadratic program (`HumanQuadraticProgram.IProblem`) solved
  * by an infeasible-start primal-dual interior-point method with Mehrotra's
  * predictor and corrector, the scheme HPIPM implements (Frison and Diehl 2020,
@@ -89,16 +89,15 @@ import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace"
  * from its point shifted into the interior
  * (`HumanQuadraticInteriorSession.warm`); a warm solve that ends short of
  * `ACCURACY` is solved again cold.
- *
- * @param problem The program; its storage is unchanged during this synchronous
- *   solve.
- * @param session The caller's session; absent, the solve is alone, equilibrated
- *   by the ten passes and started cold.
- * @returns The unscaled variables, each row's value (a hard row's within its
- *   interval) and multiplier, with status `solved`; undefined when the method
- *   did not converge.
- * @throws {RangeError} For malformed input or noninvertible scaling, as
- *   `HumanQuadraticProgram.solve` throws.
+ * Parameter problem: The program; its storage is unchanged during this synchronous
+ * solve.
+ * Parameter session: The caller's session; absent, the solve is alone, equilibrated
+ * by the ten passes and started cold.
+ * Returns: The unscaled variables, each row's value (a hard row's within its
+ * interval) and multiplier, with status `solved`; undefined when the method
+ * did not converge.
+ * For malformed input or noninvertible scaling, as
+ * `HumanQuadraticProgram.solve` throws.
  */
 export function HumanQuadraticInterior(
   problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
@@ -275,7 +274,9 @@ export function HumanQuadraticInterior(
   return run().state;
 }
 
-/** The record of `IHumanQuadraticInteriorWarmed`'s site. */
+/*
+ * The record of `IHumanQuadraticInteriorWarmed`'s site.
+ */
 type IHumanQuadraticInteriorWarmed = {
   state: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
   converged: boolean;

@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 
-/**
+/*
  * A flat board held by one edge: a painter's palette on the thumb, a piece of
  * cloth pinched at its edge while it is sewn, or a ribbon's length stretched
  * for a ceremonial cut.
@@ -19,10 +19,9 @@ import {
  * cloth's `-X` edge between thumb and fingers. `face` is its upper face, the
  * working surface, `width` along `X` and `depth` along `Z` a hand's breadth in
  * from the hold.
- *
- * @param params The kind and the optional scene id.
- * @returns The board and its contacts, metres.
- * @throws {AutoMovieArchetypeRefusal} For a kind outside the set.
+ * Parameter params: The kind and the optional scene id.
+ * Returns: The board and its contacts, metres.
+ * For a kind outside the set.
  */
 export function createPalette(
   params: AutoMovieArchetypePalette.IParams,
@@ -85,7 +84,7 @@ export function createPalette(
   return builder.build(size.mass);
 }
 
-/**
+/*
  * An artist's hand palette, a sheet of cloth and a length of ribbon: flat
  * boards held in one hand, or fixed, while the other works on them. No source
  * is read: every figure is a provisional construction estimate.

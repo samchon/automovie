@@ -9,7 +9,7 @@ import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the household family, from quiet standing with the right
  * hand, at a counter 225 mm below the elbow (Li, Chang and Zhang 2024's
  * preferred band of 200 to 250 mm):
@@ -23,9 +23,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  * and that from `strokeStart` to `strokeEnd` of the wipe the palm socket lies
  * within -10 to +10 mm of the counter's top and within 10 mm of the wipe's
  * planned circle (provisional bounds at decision 11's accuracy).
- *
- * @param bodies The sweep bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function householdCases(
   bodies: readonly string[] = ["m-average"],
@@ -132,5 +131,7 @@ export function householdCases(
   return out;
 }
 
-/** The record of `IHouseholdCasesHeight`'s site. */
+/*
+ * The record of `IHouseholdCasesHeight`'s site.
+ */
 type IHouseholdCasesHeight = { low: number; high: number };

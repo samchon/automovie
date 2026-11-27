@@ -19,7 +19,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
 
-/**
+/*
  * Both crossed-arms goals on upper arms set before the goals: each hangs
  * forward by `FLEXION` or, if more, until its elbow stands the forearm's radius
  * ahead of the sternum, so the forearms clear the chest; the elbows then draw
@@ -30,10 +30,9 @@ import { HumanTrunk } from "./HumanTrunk";
  * on the arm's solution circle, so the solved upper arms are the ones the palms
  * were laid on. Elbows that cannot draw in far enough, or need not draw in at
  * all, keep the nearest feasible width.
- *
- * @param body The body.
- * @param posture The standing posture.
- * @returns Both goals.
+ * Parameter body: The body.
+ * Parameter posture: The standing posture.
+ * Returns: Both goals.
  */
 export function restCrossedArms(
   body: IAutoMovieMotionHumanBody,
@@ -193,7 +192,9 @@ export function restCrossedArms(
   const elbows: Record<AutoMovieHumanSide, IAutoMovieVector3> = elbowsAt(hi);
   return { left: goal("left", elbows).goal, right: goal("right", elbows).goal };
 
-  /** Prepare fixed anatomical values used by every width trial. */
+  /*
+   * Prepare fixed anatomical values used by every width trial.
+   */
   function prepare(side: AutoMovieHumanSide): IArm {
     const shoulder: IAutoMovieVector3 = frame.local(
       bones.get(`${side}UpperArm`)!.worldPosition,
@@ -220,70 +221,100 @@ export function restCrossedArms(
   }
 }
 
-/** The record of `IRestCrossedArmsGoalResult`'s site. */
+/*
+ * The record of `IRestCrossedArmsGoalResult`'s site.
+ */
 type IRestCrossedArmsGoalResult = {
   goal: IAutoMovieMotionHumanRest.IGoal;
   excess: number;
 };
 
-/** The record of `IRestCrossedArmsGoal`'s site. */
+/*
+ * The record of `IRestCrossedArmsGoal`'s site.
+ */
 type IRestCrossedArmsGoal = {
   goal: IAutoMovieMotionHumanRest.IGoal;
   excess: number;
 };
 
-/** The alternatives of `RestCrossedArmsLengthTo2`'s site. */
+/*
+ * The alternatives of `RestCrossedArmsLengthTo2`'s site.
+ */
 type RestCrossedArmsLengthTo2 = "LowerArm" | "Hand";
 
-/** The alternatives of `RestCrossedArmsLengthFrom2`'s site. */
+/*
+ * The alternatives of `RestCrossedArmsLengthFrom2`'s site.
+ */
 type RestCrossedArmsLengthFrom2 = "UpperArm" | "LowerArm";
 
-/** The alternatives of `RestCrossedArmsLengthTo`'s site. */
+/*
+ * The alternatives of `RestCrossedArmsLengthTo`'s site.
+ */
 type RestCrossedArmsLengthTo = "LowerArm" | "Hand";
 
-/** The alternatives of `RestCrossedArmsLengthFrom`'s site. */
+/*
+ * The alternatives of `RestCrossedArmsLengthFrom`'s site.
+ */
 type RestCrossedArmsLengthFrom = "UpperArm" | "LowerArm";
 
-/** Immutable arm geometry read by the crossed-arm width search. */
+/*
+ * Immutable arm geometry read by the crossed-arm width search.
+ */
 interface IArm {
-  /** Shoulder in the performer's floor frame. */
+  /*
+   * Shoulder in the performer's floor frame.
+   */
   shoulder: IAutoMovieVector3;
 
-  /** The shoulder transformed back exactly as the original goal used it. */
+  /*
+   * The shoulder transformed back exactly as the original goal used it.
+   */
   world: IAutoMovieVector3;
 
-  /** Measured upper-arm length, metres. */
+  /*
+   * Measured upper-arm length, metres.
+   */
   upper: number;
 
-  /** Measured forearm length, metres. */
+  /*
+   * Measured forearm length, metres.
+   */
   lower: number;
 
-  /** The arm side's outward world direction. */
+  /*
+   * The arm side's outward world direction.
+   */
   outward: IAutoMovieVector3;
 
-  /** Fixed elbow distance ahead of the shoulder, metres. */
+  /*
+   * Fixed elbow distance ahead of the shoulder, metres.
+   */
   forward: number;
 
-  /** Squared upper-arm length available for down and inward displacement. */
+  /*
+   * Squared upper-arm length available for down and inward displacement.
+   */
   downSquared: number;
 
-  /** Greatest inward displacement from that same length, metres. */
+  /*
+   * Greatest inward displacement from that same length, metres.
+   */
   across: number;
 }
 
-/**
+/*
  * The least forward hang of each upper arm when the arms are crossed, degrees
  * (provisional).
  */
 const FLEXION: number = 20;
 
-/**
+/*
  * The farthest an elbow hangs ahead of its shoulder, as a share of the upper
  * arm: short of a level arm, so it still hangs (provisional).
  */
 const AHEAD: number = 0.9;
 
-/**
+/*
  * Where on the other upper arm a palm lies, as a share of the way from the
  * shoulder to the elbow (the namespace's three quarters).
  */

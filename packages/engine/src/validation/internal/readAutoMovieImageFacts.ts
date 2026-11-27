@@ -1,6 +1,6 @@
 import type { IAutoMovieTextureImageFacts } from "@automovie/interface";
 
-/**
+/*
  * Probe PNG, JPEG, WebP and Radiance dimension headers in order, returning
  * media/edge facts or null.
  */
@@ -11,12 +11,14 @@ export function readAutoMovieImageFacts(
   return readPng(bytes) ?? readJpeg(bytes) ?? readWebp(bytes) ?? readHdr(bytes);
 }
 
-/** `\x89PNG\r\n\x1a\n`, then a 25-byte IHDR whose first two fields are the size. */
+/*
+ * `\x89PNG\r\n\x1a\n`, then a 25-byte IHDR whose first two fields are the size.
+ */
 const PNG_SIGNATURE: number[] = [
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
 ];
 
-/**
+/*
  * Read width/height from the24-byte PNG signature/IHDR prefix.
  *
  * Fixed offsets isolate this container's dimension extraction.
@@ -50,7 +52,7 @@ const readPng: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (
   };
 };
 
-/**
+/*
  * The frame-header markers that carry a JPEG's dimensions.
  *
  * `0xC0`–`0xCF` are start-of-frame EXCEPT `0xC4` (Huffman tables), `0xC8` (a
@@ -62,7 +64,7 @@ const SOF_MARKERS: ReadonlySet<number> = new Set([
   0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf,
 ]);
 
-/**
+/*
  * Walk JPEG marker segments to the first admitted SOF marker and extract
  * dimensions.
  *
@@ -125,7 +127,7 @@ const readJpeg: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (
   return null;
 };
 
-/**
+/*
  * Read RIFF/WEBP first-chunk dimensions from VP8, VP8L or VP8X prefixes.
  *
  * Each closed header variant owns its fixed offsets and packed bit widths.
@@ -175,7 +177,7 @@ const readWebp: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (
   return null;
 };
 
-/**
+/*
  * Inspect the capped ASCII header for the accepted Radiance signature and -Y/+X
  * resolution line.
  *
@@ -217,7 +219,7 @@ const readHdr: (bytes: Uint8Array) => IAutoMovieTextureImageFacts | null = (
   };
 };
 
-/**
+/*
  * Convert a bounded byte range to character codes for container header
  * comparison.
  *
@@ -240,7 +242,7 @@ const ascii: (bytes: Uint8Array, offset: number, length: number) => string = (
   length: number,
 ): string => String.fromCharCode(...bytes.subarray(offset, offset + length));
 
-/**
+/*
  * Combine four big-endian bytes into an unsigned numeric header field.
  *
  * Byte-order arithmetic is shared by PNG dimension reads.
@@ -266,7 +268,7 @@ const beUint32: (bytes: Uint8Array, offset: number) => number = (
   (bytes[offset + 2]! << 8) +
   bytes[offset + 3]!;
 
-/**
+/*
  * Combine two big-endian bytes for JPEG lengths and dimensions.
  *
  * One endian owner serves marker traversal and SOF extraction.
@@ -286,7 +288,7 @@ const beUint16: (bytes: Uint8Array, offset: number) => number = (
   offset: number,
 ): number => (bytes[offset]! << 8) | bytes[offset + 1]!;
 
-/**
+/*
  * Combine two little-endian bytes for WebP dimension fields.
  *
  * The endian rule is separate from variant bit masks.
@@ -306,7 +308,7 @@ const leUint16: (bytes: Uint8Array, offset: number) => number = (
   offset: number,
 ): number => bytes[offset]! | (bytes[offset + 1]! << 8);
 
-/**
+/*
  * Combine three little-endian bytes for extended WebP canvas fields.
  *
  * One fixed-width reader supports both canvas edges.

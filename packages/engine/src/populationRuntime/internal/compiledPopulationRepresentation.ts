@@ -7,7 +7,7 @@ import type {
 import { productionRuntimeModelId } from "../../model/internal/productionRuntimeModelId";
 import { compiledLodModelDigest } from "./compiledLodModelDigest";
 
-/**
+/*
  * The compiled tiers and measured or fallback radius of one population
  * prototype.
  *

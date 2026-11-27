@@ -12,7 +12,7 @@ import type {
 
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/**
+/*
  * The hand targets that carry a wearable along a planned path of its own frame:
  * the hand that holds it, placed so the held item lands on the frame, and a
  * second hand closed on one of the item's handles there.
@@ -27,12 +27,11 @@ import { HumanHand } from "../../posture/internal/HumanHand";
  * grasp.
  */
 export namespace HumanWornItem {
-  /**
+  /*
    * The world point of an item-local point on an item frame.
-   *
-   * @param frame The item's world frame.
-   * @param local The point in the item's frame, metres.
-   * @returns The world point, metres.
+   * Parameter frame: The item's world frame.
+   * Parameter local: The point in the item's frame, metres.
+   * Returns: The world point, metres.
    */
   export function point(
     frame: IAutoMovieRigidTransform,
@@ -44,15 +43,14 @@ export namespace HumanWornItem {
     );
   }
 
-  /**
+  /*
    * The target of the hand that holds the item, for the item on a frame.
-   *
-   * @param body The body.
-   * @param side The holding hand.
-   * @param held The item in that hand's grip frame.
-   * @param frame The item's world frame asked.
-   * @param bend The elbow's bend hint, world metres.
-   * @returns The grip socket's target and the hand's rotation.
+   * Parameter body: The body.
+   * Parameter side: The holding hand.
+   * Parameter held: The item in that hand's grip frame.
+   * Parameter frame: The item's world frame asked.
+   * Parameter bend: The elbow's bend hint, world metres.
+   * Returns: The grip socket's target and the hand's rotation.
    */
   export function holding(
     body: IAutoMovieMotionHumanBody,
@@ -80,17 +78,16 @@ export namespace HumanWornItem {
     };
   }
 
-  /**
+  /*
    * The target of a hand closed on one of the item's handles, for the item on a
    * frame.
-   *
-   * @param body The body.
-   * @param side The grasping hand.
-   * @param frame The item's world frame.
-   * @param handle The handle, in the item's frame.
-   * @param bend The elbow's bend hint, world metres.
-   * @returns The grip socket on the handle, the palm into the item and the
-   *   fingers along the handle.
+   * Parameter body: The body.
+   * Parameter side: The grasping hand.
+   * Parameter frame: The item's world frame.
+   * Parameter handle: The handle, in the item's frame.
+   * Parameter bend: The elbow's bend hint, world metres.
+   * Returns: The grip socket on the handle, the palm into the item and the
+   * fingers along the handle.
    */
   export function grasping(
     body: IAutoMovieMotionHumanBody,

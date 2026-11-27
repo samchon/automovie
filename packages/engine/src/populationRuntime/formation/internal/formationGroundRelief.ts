@@ -6,7 +6,7 @@ import {
 
 import { readGroundHeight } from "../../../space/world/internal/readGroundHeight";
 
-/**
+/*
  * How far the terrain under one point rises above the terrain under the anchor,
  * in metres.
  *

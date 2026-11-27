@@ -5,7 +5,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/**
+/*
  * Append polygon body cue findings under `$input.polygonBodyCues`. Artifact
  * readers resolve placement IDs. Performance supplies a skeleton resolver to
  * require existing bones and disjoint target branches.

@@ -8,7 +8,7 @@ import type {
 import { Vector3 } from "../../math/Vector3";
 import { AutoMoviePhysicalJointChart } from "../AutoMoviePhysicalJointChart";
 
-/**
+/*
  * The directions of a joint's motion subspace at a relative rotation, in its
  * parent's anchor frame: each free axis's, in the joint's axis order, as the
  * articulated solve moves it (the chart's axes at the configuration,
@@ -16,10 +16,9 @@ import { AutoMoviePhysicalJointChart } from "../AutoMoviePhysicalJointChart";
  * without a chart), then the locked ones completing them to a basis: the normal
  * of two free directions, or, for one, the first locked direction made
  * perpendicular to it and their normal.
- *
- * @param joint The joint's profile.
- * @param relative The child's anchor frame relative to the parent's, unit.
- * @returns Three directions: the free ones first, then the locked.
+ * Parameter joint: The joint's profile.
+ * Parameter relative: The child's anchor frame relative to the parent's, unit.
+ * Returns: Three directions: the free ones first, then the locked.
  */
 export function readXpbdJointDirections(
   joint: IAutoMoviePhysicalJoint,
@@ -67,10 +66,14 @@ export function readXpbdJointDirections(
   return [...free, ...locked];
 }
 
-/** The joint frame's axes, in name order. */
+/*
+ * The joint frame's axes, in name order.
+ */
 const AXES: readonly IAutoMoviePhysicalJointAxis["axis"][] = ["x", "y", "z"];
 
-/** Each joint-frame axis by name. */
+/*
+ * Each joint-frame axis by name.
+ */
 const UNIT: Readonly<Record<string, IAutoMovieVector3>> = {
   x: { x: 1, y: 0, z: 0 },
   y: { x: 0, y: 1, z: 0 },

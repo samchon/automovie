@@ -155,7 +155,9 @@ export namespace AutoMovieConicHermite {
     return value > 0 ? value : NaN;
   }
 
-  /** The original inverse, including its exact endpoint and residual policy. */
+  /*
+   * The original inverse, including its exact endpoint and residual policy.
+   */
   function locateReading(
     patch: IAutoMovieConicHermite.IPatch,
     angle: number,

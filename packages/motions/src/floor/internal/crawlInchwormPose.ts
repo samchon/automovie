@@ -16,22 +16,21 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import type { crawlChain } from "./crawlChain";
 import { crawlFrame } from "./crawlFrame";
 
-/**
+/*
  * The posture at a placement.
- *
- * @param body The body.
- * @param chain The chain built for the body's standing.
- * @param frame The floor frame of the heading.
- * @param feet Each foot's ball along the heading, metres in the frame.
- * @param wrists Each wrist along the heading, metres in the frame.
- * @param laid Fixed palm geometry from this unchanged body/frame, or the same
- *   native preparation when omitted; current FK is borrowed only during this
- *   placement.
- * @param source Optional exact FK source belonging only to this synchronous
- *   preference construction.
- * @param projector Optional genuine ROM metadata from that same construction;
- *   every current joint remains projected.
- * @returns The whole body's tilt and its joint angles.
+ * Parameter body: The body.
+ * Parameter chain: The chain built for the body's standing.
+ * Parameter frame: The floor frame of the heading.
+ * Parameter feet: Each foot's ball along the heading, metres in the frame.
+ * Parameter wrists: Each wrist along the heading, metres in the frame.
+ * Parameter laid: Fixed palm geometry from this unchanged body/frame, or the same
+ * native preparation when omitted; current FK is borrowed only during this
+ * placement.
+ * Parameter source: Optional exact FK source belonging only to this synchronous
+ * preference construction.
+ * Parameter projector: Optional genuine ROM metadata from that same construction;
+ * every current joint remains projected.
+ * Returns: The whole body's tilt and its joint angles.
  */
 export function crawlInchwormPose(
   body: IAutoMovieMotionHumanBody,
@@ -54,7 +53,7 @@ export function crawlInchwormPose(
   );
 }
 
-/**
+/*
  * The inchworm's posture at a placement of its hands and feet, by its
  * middle-plane chain (`crawlChain`): the stated posture each stance of the walk
  * is solved from and kept nearest (`HumanSupport.IStance.prefer`), so the
@@ -69,25 +68,24 @@ export function crawlInchwormPose(
  * floor at its place; the posture is then resolved to joint angles.
  */
 export namespace crawlInchwormPose {
-  /**
+  /*
    * How far the knee's bend point lies before the straight leg's middle, as a
    * share of the shank (provisional).
    */
   export const KNEE: number = 0.25;
 
-  /**
+  /*
    * Prepare unchanged body/chain/floor geometry for the inchworm's stance
    * preferences. Each placement still builds four actual limb goals and
    * resolves the complete posture; only frame and sole prerequisites share.
-   *
-   * @param body The unchanged body and its foot/hand geometry.
-   * @param chain The fixed standing-source planar chain.
-   * @param frame Fixed world-metre floor origin and degree heading.
-   * @param laid The existing fixed palm reader, or its original preparation
-   *   when absent.
-   * @returns A fresh clinical-posture builder for current local-metre
-   *   foot-ball/wrist coordinates, borrowing optional FK/ROM inputs only during
-   *   each actual synchronous call.
+   * Parameter body: The unchanged body and its foot/hand geometry.
+   * Parameter chain: The fixed standing-source planar chain.
+   * Parameter frame: Fixed world-metre floor origin and degree heading.
+   * Parameter laid: The existing fixed palm reader, or its original preparation
+   * when absent.
+   * Returns: A fresh clinical-posture builder for current local-metre
+   * foot-ball/wrist coordinates, borrowing optional FK/ROM inputs only during
+   * each actual synchronous call.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,

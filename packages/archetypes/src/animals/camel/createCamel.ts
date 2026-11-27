@@ -6,17 +6,16 @@ import { CamelCohorts } from "./CamelCohorts";
 import { buildCamelBody } from "./buildCamelBody";
 import { createCohortQuadruped } from "../quadruped/createCohortQuadruped";
 
-/**
+/*
  * A coarse single-hump dromedary reference with an explicitly authored pack or
  * lead.
- *
- * @param params Positive authored whole-model kilograms, optional fixed
- *   reference, timing coordinate and equipment.
- * @param seed Without a fixed cohort, selects one whole Maur1-Maur5 mean;
- *   seedless construction retains the pooled mean.
- * @returns The shared quadruped with one coarse identifying hump.
- * @throws {AutoMovieArchetypeRefusal} For invalid mass, tempo or authored
- *   equipment.
+ * Parameter params: Positive authored whole-model kilograms, optional fixed
+ * reference, timing coordinate and equipment.
+ * Parameter seed: Without a fixed cohort, selects one whole Maur1-Maur5 mean;
+ * seedless construction retains the pooled mean.
+ * Returns: The shared quadruped with one coarse identifying hump.
+ * For invalid mass, tempo or authored
+ * equipment.
  */
 export function createCamel(
   params: AutoMovieArchetypeCamel.IParams,

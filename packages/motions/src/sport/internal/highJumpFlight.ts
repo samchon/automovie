@@ -14,13 +14,12 @@ import { GymnasticsFlight } from "./GymnasticsFlight";
 import type { IPreparedGymnasticsFrame } from "./IPreparedGymnasticsFrame";
 import type { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
 
-/**
+/*
  * Prepare the keyed Fosbury flight and solve for touchdown on the back.
- *
- * @param input The takeoff, key poses, launch and landing height.
- * @returns A flight posture reader and the time its lowest shape lands.
- * @throws {HumanRefusal} When the lowest point at the apex does not clear the
- *   landing surface.
+ * Parameter input: The takeoff, key poses, launch and landing height.
+ * Returns: A flight posture reader and the time its lowest shape lands.
+ * When the lowest point at the apex does not clear the
+ * landing surface.
  */
 export function highJumpFlight(input: IHighJumpFlight): IHighJumpAirborne {
   const {
@@ -115,45 +114,71 @@ export function highJumpFlight(input: IHighJumpFlight): IHighJumpAirborne {
   return { flying, down };
 }
 
-/** The takeoff, key poses and world-space inputs for a high jump's flight. */
+/*
+ * The takeoff, key poses and world-space inputs for a high jump's flight.
+ */
 interface IHighJumpFlight {
-  /** The performer. */
+  /*
+   * The performer.
+   */
   body: IAutoMovieMotionHumanBody;
 
-  /** The frozen takeoff posture that supplies the departure joints and heading. */
+  /*
+   * The frozen takeoff posture that supplies the departure joints and heading.
+   */
   from: IAutoMovieMotionHumanPosture;
 
-  /** The arched pose at the apex. */
+  /*
+   * The arched pose at the apex.
+   */
   arch: IAutoMovieMotionHumanExerciseKey.IKey;
 
-  /** The pike target after the apex. */
+  /*
+   * The pike target after the apex.
+   */
   pike: IAutoMovieMotionHumanExerciseKey.IKey;
 
-  /** The reader for canonical placement and floor observations. */
+  /*
+   * The reader for canonical placement and floor observations.
+   */
   prepareFrame: ReturnType<typeof prepareGymnasticsFrame>;
 
-  /** The reader for ordinary flight samples, which need only COM placement. */
+  /*
+   * The reader for ordinary flight samples, which need only COM placement.
+   */
   placeMass: ReturnType<typeof prepareGymnasticsFrame.mass>;
 
-  /** The takeoff centre of mass, in world metres. */
+  /*
+   * The takeoff centre of mass, in world metres.
+   */
   c0: IAutoMovieVector3;
 
-  /** The takeoff velocity, in world metres per second. */
+  /*
+   * The takeoff velocity, in world metres per second.
+   */
   v: IAutoMovieVector3;
 
-  /** The time from takeoff to the apex, in seconds. */
+  /*
+   * The time from takeoff to the apex, in seconds.
+   */
   rising: number;
 
-  /** The landing surface height, in world metres. */
+  /*
+   * The landing surface height, in world metres.
+   */
   surface: number;
 
-  /** The crossbar height, in world metres, for the refusal message. */
+  /*
+   * The crossbar height, in world metres, for the refusal message.
+   */
   bar: number;
 }
 
-/** The flight reader and its touchdown instant. */
+/*
+ * The flight reader and its touchdown instant.
+ */
 interface IHighJumpAirborne {
-  /**
+  /*
    * Sample the posture at seconds since takeoff with optional synchronous FK
    * and projection loans.
    */
@@ -163,6 +188,8 @@ interface IHighJumpAirborne {
     projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
   ) => IAutoMovieMotionHumanPosture;
 
-  /** Touchdown, in seconds since takeoff. */
+  /*
+   * Touchdown, in seconds since takeoff.
+   */
   down: number;
 }

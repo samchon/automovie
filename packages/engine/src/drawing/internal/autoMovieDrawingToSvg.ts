@@ -14,7 +14,7 @@ import {
 import { AUTOMOVIE_DRAWING_ROLES } from "../AUTOMOVIE_DRAWING_ROLES";
 import { AUTOMOVIE_DRAWING_SVG_MARGIN } from "../AUTOMOVIE_DRAWING_SVG_MARGIN";
 
-/**
+/*
  * Serialize one derived drawing as a self-describing SVG sheet.
  *
  * Every line carries its owner, space, layer and role; every region its space,
@@ -28,7 +28,7 @@ import { AUTOMOVIE_DRAWING_SVG_MARGIN } from "../AUTOMOVIE_DRAWING_SVG_MARGIN";
  * The scale is drafting scale: one model metre is `1000 / scale` page
  * millimetres, so a 1:50 plan prints at 1:50, and pen weights and text height
  * are page millimetres. The page is the drawing's extent plus a fixed
- * {@link AUTOMOVIE_DRAWING_SVG_MARGIN} on each side, with y flipped because SVG
+ * AUTOMOVIE_DRAWING_SVG_MARGIN on each side, with y flipped because SVG
  * y grows downward. Numbers are rounded and printed to three decimals and every
  * attribute value is XML-escaped, so one drawing and view yield one byte
  * sequence.
@@ -36,11 +36,10 @@ import { AUTOMOVIE_DRAWING_SVG_MARGIN } from "../AUTOMOVIE_DRAWING_SVG_MARGIN";
  * Throws an `Error` when the view is not the one the drawing was derived from,
  * or its pen has a weight, dash or text height that is not a finite positive
  * number.
- *
- * @param props.drawing Drawing to serialize.
- * @param props.view View the drawing was derived from; supplies the pen.
- * @returns The SVG document, lines separated by `\n`, without a trailing
- *   newline.
+ * Parameter props.drawing: Drawing to serialize.
+ * Parameter props.view: View the drawing was derived from; supplies the pen.
+ * Returns: The SVG document, lines separated by `\n`, without a trailing
+ * newline.
  */
 export const autoMovieDrawingToSvg = (
   props: IAutoMovieDrawingToSvg.IProps,
@@ -238,10 +237,14 @@ export const autoMovieDrawingToSvg = (
   ].join("\n");
 };
 
-/** One SVG attribute as a name and its unescaped value. */
+/*
+ * One SVG attribute as a name and its unescaped value.
+ */
 type Attribute = [string, string];
 
-/** One element: indented and self-closing, or an unindented opening tag. */
+/*
+ * One element: indented and self-closing, or an unindented opening tag.
+ */
 const tag = (
   name: string,
   attributes: readonly Attribute[],
@@ -253,7 +256,7 @@ const tag = (
   return selfClosing ? `  <${name} ${written} />` : `<${name} ${written}>`;
 };
 
-/**
+/*
  * Format one page millimetre value to three fixed decimals.
  *
  * Rounding first keeps a value a whisker below zero from printing a sign: it
@@ -262,7 +265,9 @@ const tag = (
 const number = (value: number): string =>
   (Math.round(value * 1000) / 1000).toFixed(3);
 
-/** Escape the five XML special characters. */
+/*
+ * Escape the five XML special characters.
+ */
 const xml = (text: string): string =>
   text
     .replace(/&/g, "&amp;")

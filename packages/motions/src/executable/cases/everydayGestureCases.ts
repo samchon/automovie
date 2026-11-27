@@ -9,13 +9,12 @@ import { everydayCaseKit } from "./internal/everydayCaseKit";
 import { everydayGestureVerdicts } from "./everydayGestureVerdicts";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * The gesture cases of `everydayCases` (`everyday-gesture-<kind>`): each
  * gesture at rest, mid-preparation, the stroke's start, middle and end,
  * mid-retraction and the end, with the verdicts `everydayCases` lists.
- *
- * @param c The body's case context.
- * @returns The cases.
+ * Parameter c: The body's case context.
+ * Returns: The cases.
  */
 export function everydayGestureCases(
   c: everydayCaseKit.IContext,

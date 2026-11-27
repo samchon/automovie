@@ -7,7 +7,7 @@ import type {
   IAutoMovieRecoveryOpenContinuation,
 } from "@automovie/interface";
 
-/**
+/*
  * Admit source-free analytic ownership and retain every finite native result.
  * Invalid or multiply claimed domains leave the original saved operator owned;
  * valid independent domains remain available. A finite partial atlas owns its

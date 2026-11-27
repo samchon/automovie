@@ -37,7 +37,7 @@ import type { prepareHumanKnotCourse } from "../../posture/internal/prepareHuman
 import { MartialArtStancePhrase } from "./MartialArtStancePhrase";
 import { prepareChokuZukiPath } from "./prepareChokuZukiPath";
 
-/**
+/*
  * Martial-art forms other than kickboxing: the karate horse stance
  * (kiba-dachi), alternating straight punches from it (choku-zuki) and the tai
  * chi push in a bow stance.
@@ -65,32 +65,37 @@ import { prepareChokuZukiPath } from "./prepareChokuZukiPath";
  * animation.
  */
 export namespace martialArt {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "martialArt";
 
-  /** Cancel table. */
+  /*
+   * Cancel table.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
       martialArt: ["fromRelax", "smooth"],
     });
 
-  /**
+  /*
    * A punch's extension and its stay, seconds (VencesBrito et al. 2011: the
    * whole technique in 400 ms).
    */
   export const PUNCH: number = 0.2;
 
-  /** The tai chi push's shift, seconds each way (provisional). */
+  /*
+   * The tai chi push's shift, seconds each way (provisional).
+   */
   export const PUSH: number = 3;
 
-  /**
+  /*
    * Plan a martial-art technique.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the count is not a positive whole number or the
-   *   hold is negative.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the count is not a positive whole number or the
+   * hold is negative.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanMartialArt.IParams>,
@@ -492,7 +497,9 @@ export namespace martialArt {
   }
 }
 
-/** Prepare the shared arm and support clock before exposing the phrase. */
+/*
+ * Prepare the shared arm and support clock before exposing the phrase.
+ */
 function stancePhrase(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanMartialArt.IParams>,
   kind: Parameters<typeof MartialArtStancePhrase>[1],

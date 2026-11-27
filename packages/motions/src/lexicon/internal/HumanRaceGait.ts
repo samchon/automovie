@@ -8,7 +8,7 @@ import type {
 
 import { walk } from "../../gait/internal/walk";
 
-/**
+/*
  * The race walk: a walk driven to a run's speed without a flight. World
  * Athletics rule TR54.2 defines it: one foot is always on the ground, and the
  * advancing leg is straight from its first contact until it passes under the
@@ -24,16 +24,18 @@ import { walk } from "../../gait/internal/walk";
  * contact flexion.
  */
 export namespace HumanRaceGait {
-  /** The race walk's Froude number (provisional, a club walker's speed). */
+  /*
+   * The race walk's Froude number (provisional, a club walker's speed).
+   */
   export const FROUDE: number = 0.9;
 
-  /**
+  /*
    * The swing's duration in step periods: just under one, so a foot is always
    * down (TR54.2).
    */
   export const SWING: number = 0.94;
 
-  /**
+  /*
    * The pelvis's mean drop below a walk's and its vertical oscillation, hip
    * heights (provisional: race walkers flatten the centre of mass's path).
    */
@@ -44,7 +46,7 @@ export namespace HumanRaceGait {
     amplitude: 0.01,
   };
 
-  /**
+  /*
    * The arms' pump: shoulder swing, the elbow's mean flexion and its swing,
    * degrees (provisional).
    */
@@ -54,7 +56,7 @@ export namespace HumanRaceGait {
     swing: 10,
   };
 
-  /**
+  /*
    * A race walk: a walk at a run's pace, one foot always down, the arms
    * pumping.
    */

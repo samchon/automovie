@@ -11,7 +11,7 @@ import { MotionBodies } from "../internal/MotionBodies";
 import { galleryCaseFist } from "./internal/galleryCaseFist";
 import { galleryCaseZero } from "./internal/galleryCaseZero";
 
-/**
+/*
  * Inspection cases of the polygon man itself: `gallery` shows one body in
  * single-joint clinical poses (each instant one pose), and `bodies` stands the
  * three fixture bodies side by side at clinical neutral.
@@ -19,8 +19,7 @@ import { galleryCaseZero } from "./internal/galleryCaseZero";
  * The gallery's verdicts check the frame: a left-arm forward flexion raises the
  * hand on +X (the anatomical left) and in front (+Z), and a right hip flexion
  * carries the right knee forward on -X.
- *
- * @returns The two cases.
+ * Returns: The two cases.
  */
 export function galleryCases(): IMotionCaptureCase[] {
   const body: IAutoMovieHumanCanonicalBody.IBody =
@@ -108,19 +107,27 @@ export function galleryCases(): IMotionCaptureCase[] {
   return [gallery, bodies];
 }
 
-/** The record of `IGalleryCasesGalleryP`'s site. */
+/*
+ * The record of `IGalleryCasesGalleryP`'s site.
+ */
 type IGalleryCasesGalleryP = { label: string };
 
-/** The record of `IGalleryCasesPosesItem`'s site. */
+/*
+ * The record of `IGalleryCasesPosesItem`'s site.
+ */
 type IGalleryCasesPosesItem = {
   label: string;
   joints: Partial<Record<AutoMovieHumanoidBone, [number, number, number]>>;
 };
 
-/** The record of `IJointResult`'s site. */
+/*
+ * The record of `IJointResult`'s site.
+ */
 type IJointResult = { x: number; y: number; z: number };
 
-/** One Human joint's canonical position under a pose. */
+/*
+ * One Human joint's canonical position under a pose.
+ */
 function joint(
   body: IAutoMovieHumanCanonicalBody.IBody,
   pose: IAutoMoviePose,

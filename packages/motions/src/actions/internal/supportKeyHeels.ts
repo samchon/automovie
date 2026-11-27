@@ -7,20 +7,19 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { supportContact } from "./supportContact";
 
-/**
+/*
  * Keep the horizontal heel datum of a foot already on an unnamed floor
  * placement (`supportKey.solved`): each foot whose contact has a floor target
  * holds its heel where its toes and that target put it, or, on the ball or the
  * toe with the heel above the floor, its lowest bearing socket on the target's
  * height.
- *
- * @param body The body.
- * @param from The key before, the seed.
- * @param preferred The posture kept nearest.
- * @param contacts The stance's contacts.
- * @param points Each contact's target point, or null for one without a place.
- * @param miss How far a contact may miss its target, millimetres.
- * @returns The heel targets of the fit.
+ * Parameter body: The body.
+ * Parameter from: The key before, the seed.
+ * Parameter preferred: The posture kept nearest.
+ * Parameter contacts: The stance's contacts.
+ * Parameter points: Each contact's target point, or null for one without a place.
+ * Parameter miss: How far a contact may miss its target, millimetres.
+ * Returns: The heel targets of the fit.
  */ export function supportKeyHeels(
   body: IAutoMovieMotionHumanBody,
   from: IAutoMovieMotionHumanPosture,
@@ -124,16 +123,26 @@ import { supportContact } from "./supportContact";
   });
 }
 
-/** An existing floor toe target and the heel whose horizontal offset it keeps. */
+/*
+ * An existing floor toe target and the heel whose horizontal offset it keeps.
+ */
 interface IHeel {
-  /** The foot whose sole bears on the floor. */
+  /*
+   * The foot whose sole bears on the floor.
+   */
   side: AutoMovieHumanSide;
-  /** The rig's heel socket. */
+  /*
+   * The rig's heel socket.
+   */
   frame: IAutoMovieHumanoidSurfaces.IFrame;
 
-  /** The toe datum's bone. */
+  /*
+   * The toe datum's bone.
+   */
   toes: AutoMovieHumanoidBone;
 
-  /** The toe datum's world-metre target. */
+  /*
+   * The toe datum's world-metre target.
+   */
   target: IAutoMovieVector3;
 }

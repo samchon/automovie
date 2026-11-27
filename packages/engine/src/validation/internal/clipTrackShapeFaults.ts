@@ -5,7 +5,9 @@ import type {
 
 import { channelValueWidth } from "./channelValueWidth";
 
-/** Accumulate ordered keyframe-clock, finite-value and stride faults. */
+/*
+ * Accumulate ordered keyframe-clock, finite-value and stride faults.
+ */
 export function clipTrackShapeFaults(
   track: IAutoMovieClipTrackShapeFaults.ITrack,
   duration: number,

@@ -21,7 +21,7 @@ import { stagger } from "./stagger";
 import { staggerBounds } from "./staggerBounds";
 import { staggerRecovery } from "./staggerRecovery";
 
-/**
+/*
  * One perturbation law whose response follows from the forces on its performer:
  * the body absorbs an impulse within its base, catches it with capture steps,
  * or falls, as the engine's balance outcome decides from the impulse, the
@@ -55,17 +55,19 @@ import { staggerRecovery } from "./staggerRecovery";
  * strategies (Horak and Nashner 1986) are not yet split.
  */
 export namespace perturb {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "perturb";
 
-  /**
+  /*
    * A perturbation's content is the body's physical answer to a force (a shove,
    * a pull, a throw), so its balance is judged
    * (`IAutoMovieMotionHumanActionLaw.physical`).
    */
   export const physical: boolean = true;
 
-  /**
+  /*
    * Cancel table: a perturbation flows into a guard or a knockdown, as a
    * stagger does.
    */
@@ -75,7 +77,7 @@ export namespace perturb {
       knockdown: ["anytime", "quick"],
     });
 
-  /**
+  /*
    * A reaction interrupts whatever the body was doing, at any instant, as a
    * reflex.
    */
@@ -83,15 +85,14 @@ export namespace perturb {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
 
-  /**
+  /*
    * The recovery step's swing time for a push: `stagger`'s step time for a step
    * forward when the push lies within 45 degrees of the heading, backward when
    * within 45 degrees of behind, and to the side otherwise; a push of no level
    * size steps forward.
-   *
-   * @param impulse The push's impulse, N s.
-   * @param yaw The body's heading, degrees.
-   * @returns The swing's seconds.
+   * Parameter impulse: The push's impulse, N s.
+   * Parameter yaw: The body's heading, degrees.
+   * Returns: The swing's seconds.
    */
   export function stepTime(impulse: IAutoMovieVector3, yaw: number): number {
     const facing: IAutoMovieVector3 = {
@@ -112,13 +113,12 @@ export namespace perturb {
           : "side"
     ];
   }
-  /**
+  /*
    * Plan a perturbation.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the author's outcome is not what the impulse
-   *   can produce, or the impulse needs more than one capture step.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the author's outcome is not what the impulse
+   * can produce, or the impulse needs more than one capture step.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPerturb.IParams>,
@@ -309,15 +309,14 @@ export namespace perturb {
     return absorb(context, outcome, push);
   }
 
-  /**
+  /*
    * The absorb: the hips carried along the push and back over the feet by the
    * critically damped pendulum at the body's frequency, the feet planted.
-   *
-   * @param context The action's context.
-   * @param outcome The engine's outcome, for the centre's velocity after the
-   *   impulse.
-   * @param push The push's horizontal direction, world.
-   * @returns The plan.
+   * Parameter context: The action's context.
+   * Parameter outcome: The engine's outcome, for the centre's velocity after the
+   * impulse.
+   * Parameter push: The push's horizontal direction, world.
+   * Returns: The plan.
    */
   function absorb(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPerturb.IParams>,
@@ -407,7 +406,7 @@ export namespace perturb {
     };
   }
 
-  /**
+  /*
    * The absorb's settling time in pendulum time constants: the root of τ - ln τ
    * = 5 past the peak at τ = 1, where the critically damped travel τ e^(1 - τ)
    * of the peak has fallen to e^-4. Newton's method on the convex g(τ) = τ - ln
@@ -422,17 +421,27 @@ export namespace perturb {
   })();
 }
 
-/** The alternatives of `AbsorbPlantPart2`'s site. */
+/*
+ * The alternatives of `AbsorbPlantPart2`'s site.
+ */
 type AbsorbPlantPart2 = "leftFoot" | "rightFoot";
 
-/** The alternatives of `AbsorbPlantPart`'s site. */
+/*
+ * The alternatives of `AbsorbPlantPart`'s site.
+ */
 type AbsorbPlantPart = "leftFoot" | "rightFoot";
 
-/** The alternatives of `PlanChosen`'s site. */
+/*
+ * The alternatives of `PlanChosen`'s site.
+ */
 type PlanChosen = "absorb" | "step" | "fall";
 
-/** The alternatives of `PlanAsked`'s site. */
+/*
+ * The alternatives of `PlanAsked`'s site.
+ */
 type PlanAsked = "auto" | "absorb" | "step" | "fall";
 
-/** The alternatives of `PlanSuffix`'s site. */
+/*
+ * The alternatives of `PlanSuffix`'s site.
+ */
 type PlanSuffix = "Left" | "Right";

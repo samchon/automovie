@@ -1,7 +1,9 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/** Closest point to the preferred root in the intersection of two leg reaches. */
+/*
+ * Closest point to the preferred root in the intersection of two leg reaches.
+ */
 export function prepareMountTransfer(
   preferred: IAutoMovieVector3,
   near: IAutoMovieVector3,
@@ -31,9 +33,13 @@ export function prepareMountTransfer(
   );
 }
 
-/** The closed-form geometric reach used by the transfer and single support. */
+/*
+ * The closed-form geometric reach used by the transfer and single support.
+ */
 export namespace prepareMountTransfer {
-  /** Keep a point inside a ball, preserving the direction to its centre. */
+  /*
+   * Keep a point inside a ball, preserving the direction to its centre.
+   */
   export function restrict(
     point: IAutoMovieVector3,
     centre: IAutoMovieVector3,

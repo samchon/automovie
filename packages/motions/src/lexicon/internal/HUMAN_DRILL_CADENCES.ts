@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanDrillRegulation } from "@automovie/interface";
 
-/**
+/*
  * The drill cadences and paces by regulation, steps a minute and metres.
  *
  * - `british1792`: ordinary time 75, quick time 108 and quickest (wheeling) time

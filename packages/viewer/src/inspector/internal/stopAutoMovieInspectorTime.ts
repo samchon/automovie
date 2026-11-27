@@ -1,7 +1,9 @@
 import type { AutoMovieInspectorPlayhead } from "../AutoMovieInspectorPlayhead.js";
 import type { IAutoMovieInspectorAction } from "../IAutoMovieInspectorAction.js";
 
-/** Return the time edit implied by a transition from playing to stopped. */
+/*
+ * Return the time edit implied by a transition from playing to stopped.
+ */
 export function stopAutoMovieInspectorTime(
   playing: boolean,
   snapshot: AutoMovieInspectorPlayhead.ISnapshot,

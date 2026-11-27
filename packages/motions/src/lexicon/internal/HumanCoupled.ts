@@ -10,7 +10,7 @@ import type {
 import { supportAssist } from "../../actions/internal/supportAssist";
 import { getUp } from "../../floor/internal/getUp";
 
-/**
+/*
  * The two-body compositions: carries with their lift and set-down, a supported
  * walk, and throws and takedowns, each a mutual record over shipped laws, with
  * no law per hold.
@@ -50,7 +50,7 @@ import { getUp } from "../../floor/internal/getUp";
  * no law.
  */
 export namespace HumanCoupled {
-  /**
+  /*
    * Place both roles of an authored grappling scene on the same clock. The
    * performance registers the `grapple` law for both roles.
    *
@@ -77,7 +77,7 @@ export namespace HumanCoupled {
     }),
   };
 
-  /**
+  /*
    * One person carries another: the bearer `bearing`, the borne `borne`,
    * coupled. It lasts `seconds`, 2 s when absent, lift and set-down inside
    * (`IAutoMovieMotionHumanCoupled.ICarry`, provisional); a rescue, a
@@ -113,7 +113,7 @@ export namespace HumanCoupled {
     },
   };
 
-  /**
+  /*
    * Help someone up from the floor: both perform `support`. The helper, from
    * the squat, grips the helped person's wrist where it lies; the helped person
    * rises through sitting and squatting to standing with that hand gripping the
@@ -194,7 +194,7 @@ export namespace HumanCoupled {
     },
   };
 
-  /**
+  /*
    * One person walked between two helpers: each helper `bearing` on its side of
    * a supported walk, the helped person `borne` on both. The walk speed is the
    * bearers' own walk's (use the slow pace of `IAutoMovieMotionHumanWalkParams`
@@ -236,7 +236,9 @@ export namespace HumanCoupled {
     },
   };
 
-  /** The thrower's region each throw turns the thrown body over. */
+  /*
+   * The thrower's region each throw turns the thrown body over.
+   */
   export const FULCRUMS: Readonly<
     Record<IAutoMovieMotionHumanCoupled.Throw, AutoMovieHumanoidRegion>
   > = {
@@ -246,13 +248,13 @@ export namespace HumanCoupled {
     singleLeg: "shoulderRight",
   };
 
-  /**
+  /*
    * The thrown body's region that lies on the fulcrum: the front of the trunk,
    * as a hip or a shoulder throw loads it.
    */
   export const ON: AutoMovieHumanoidRegion = "abdomen";
 
-  /**
+  /*
    * One person throws another: the thrower grips (`clinch`), the thrown answers
    * the pull (`perturb`). Timing is the clinch's and the force input's
    * (`clinch`, `HumanForceExchange`); no timing of its own (provisional); a
@@ -294,29 +296,47 @@ export namespace HumanCoupled {
   };
 }
 
-/** The alternatives of `CastEntryItem3`'s site. */
+/*
+ * The alternatives of `CastEntryItem3`'s site.
+ */
 type CastEntryItem3 = "thrower" | "thrown";
 
-/** The alternatives of `ThrowingRole`'s site. */
+/*
+ * The alternatives of `ThrowingRole`'s site.
+ */
 type ThrowingRole = "thrower" | "thrown";
 
-/** The alternatives of `Throwing`'s site. */
+/*
+ * The alternatives of `Throwing`'s site.
+ */
 type Throwing = "thrower" | "thrown";
 
-/** The alternatives of `CastEntryItem2`'s site. */
+/*
+ * The alternatives of `CastEntryItem2`'s site.
+ */
 type CastEntryItem2 = "helper" | "second" | "helped";
 
-/** The alternatives of `SupportWalkRole`'s site. */
+/*
+ * The alternatives of `SupportWalkRole`'s site.
+ */
 type SupportWalkRole = "helper" | "second" | "helped";
 
-/** The alternatives of `SupportWalk`'s site. */
+/*
+ * The alternatives of `SupportWalk`'s site.
+ */
 type SupportWalk = "helper" | "second" | "helped";
 
-/** The alternatives of `CastEntryItem`'s site. */
+/*
+ * The alternatives of `CastEntryItem`'s site.
+ */
 type CastEntryItem = "bearer" | "borne";
 
-/** The alternatives of `CarryRole`'s site. */
+/*
+ * The alternatives of `CarryRole`'s site.
+ */
 type CarryRole = "bearer" | "borne";
 
-/** The alternatives of `Carry`'s site. */
+/*
+ * The alternatives of `Carry`'s site.
+ */
 type Carry = "bearer" | "borne";

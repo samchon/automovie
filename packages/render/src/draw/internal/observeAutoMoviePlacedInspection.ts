@@ -2,7 +2,7 @@ import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 
 import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
 
-/**
+/*
  * Read production diagnostics once from a settled scene and its delivery
  * camera.
  *
@@ -16,17 +16,16 @@ import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
  * lies on a clock `place` cannot reach, so its sample offers none, and a check
  * that would place other seconds and the drawn one again leaves the shot as
  * placed instead of putting the live entry there.
- *
- * @param subject Subject whose placement has completed.
- * @param seconds Film second at which the subject was placed.
- * @param mode Host that requested this observation.
- * @param auditRaster Optional offscreen renderer and sample factor for a
- *   capture or delivery.
- * @param byShot Whether the subject was placed by `seekShot`; absent or false
- *   for `seek`.
- * @returns The producer's findings and coverage at the subject clock, or
- *   undefined when diagnostics are absent.
- * @throws {Error} If the producer returns another sample's time or frame.
+ * Parameter subject: Subject whose placement has completed.
+ * Parameter seconds: Film second at which the subject was placed.
+ * Parameter mode: Host that requested this observation.
+ * Parameter auditRaster: Optional offscreen renderer and sample factor for a
+ * capture or delivery.
+ * Parameter byShot: Whether the subject was placed by `seekShot`; absent or false
+ * for `seek`.
+ * Returns: The producer's findings and coverage at the subject clock, or
+ * undefined when diagnostics are absent.
+ * If the producer returns another sample's time or frame.
  */
 export function observeAutoMoviePlacedInspection(
   subject: IAutoMovieDrawScene,

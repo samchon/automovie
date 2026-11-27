@@ -21,7 +21,7 @@ import { gestureStrokeTables } from "./gestureStrokeTables";
 import { gestureStrokeUpright } from "./gestureStrokeUpright";
 import { gestureTouch } from "./gestureTouch";
 
-/**
+/*
  * The stroke of each gesture: where each hand surface goes, turned which way
  * and in which shape, as a function of the stroke's progress, and which joints
  * a gesture moves directly.
@@ -29,14 +29,14 @@ import { gestureTouch } from "./gestureTouch";
  * Hand gestures are effector goals. Each names a hand surface, a world point
  * and a hand rotation; the gesture law transports the hand there in the
  * preparation phase and back in the retraction, and the arm is solved by
- * inverse kinematics ({@link HumanHand}). Points are built in the performer's
+ * inverse kinematics (HumanHand). Points are built in the performer's
  * own frame (`x` left, `y` up, `z` forward from the root) from the body's
  * measure, or on a target or on the body's own face, so every gesture fits any
  * stature and proportion. A place of the air is written in the names of
- * {@link AutoMovieMotionHumanTargetGrid.Place} (a height, a lateral and a
+ * AutoMovieMotionHumanTargetGrid.Place (a height, a lateral and a
  * distance, with a nudge in arm lengths where the stroke moves about it), a
- * hand's turn in the axes of {@link HumanHand.Direction}, and a joint angle as a
- * level of {@link AutoMovieMotionHumanRange}:
+ * hand's turn in the axes of HumanHand.Direction, and a joint angle as a
+ * level of AutoMovieMotionHumanRange:
  *
  * - `wave`: the open palm faces forward beside the head, at eye height, outside
  *   the shoulder and near; the hand swings side to side `0.06` arm lengths,
@@ -78,8 +78,8 @@ import { gestureTouch } from "./gestureTouch";
  *   a second (provisional).
  *
  * Gestures of the head, shoulders and trunk are joint angles, stated by
- * {@link gestureJoints}; pointing and self-touch read the posed trunk in
- * {@link gestureTouch}; the strokes ride the signals of {@link gestureSignal}.
+ * gestureJoints; pointing and self-touch read the posed trunk in
+ * gestureTouch; the strokes ride the signals of gestureSignal.
  * Amplitudes and distances that express the gesture's size scale with the
  * Effort extent; contact points and the pointing line do not. Each hand goal
  * widens the elbow's hanging hint by its own share of the upper arm (`out`: 0.3
@@ -88,48 +88,47 @@ import { gestureTouch } from "./gestureTouch";
  * Every value above without a source is provisional.
  */
 export namespace gestureStroke {
-  /**
+  /*
    * The interface stroke input with the gesture's prepared touch geometry. The
    * record (`gestureTouch.IPrepared`) holds motions' own readers, so it extends
    * the dependency-free contract here instead of entering it.
    */
   export interface IInput extends IAutoMovieMotionHumanGestureStroke.IInput {
-    /**
+    /*
      * The plan's touch geometry for this hand, when the gesture prepared it; a
      * stroke read without it computes the geometry itself.
      */
     prepared?: gestureTouch.IPrepared;
 
-    /**
+    /*
      * The bend of the trunk the gesture was entered on, read once per plan
      * (`bend`); a straight trunk when absent.
      */
     bend?: gestureStroke.IBend;
   }
 
-  /**
+  /*
    * Each gesture's timing (`gestureStrokeTables.RHYTHM`), read here with its
    * kind.
    */
   export const RHYTHM: typeof gestureStrokeTables.RHYTHM =
     gestureStrokeTables.RHYTHM;
 
-  /**
+  /*
    * Which hands each gesture moves (`gestureStrokeTables.HANDS`), read here
    * with its kind.
    */
   export const HANDS: typeof gestureStrokeTables.HANDS =
     gestureStrokeTables.HANDS;
 
-  /**
+  /*
    * Extra finger flexion of a stroke, independent of its world hand goal. Only
    * beckoning adds this curl; all other strokes keep their named shape.
-   *
-   * @param kind The gesture's closed kind.
-   * @param u Its stroke share in [0, 1].
-   * @param cycles Its repetition count.
-   * @param extent The fixed effort amplitude multiplier.
-   * @returns Extra flexion, degrees, before the transport envelope.
+   * Parameter kind: The gesture's closed kind.
+   * Parameter u: Its stroke share in [0, 1].
+   * Parameter cycles: Its repetition count.
+   * Parameter extent: The fixed effort amplitude multiplier.
+   * Returns: Extra flexion, degrees, before the transport envelope.
    */
   export function curl(
     kind: IAutoMovieMotionHumanGestureStroke.Kind,
@@ -143,17 +142,16 @@ export namespace gestureStroke {
           (0.5 - 0.5 * Math.cos(2 * Math.PI * cycles * u))
       : 0;
   }
-  /**
+  /*
    * A hand's goal at a share of the stroke.
-   *
-   * @param kind The gesture.
-   * @param side The hand.
-   * @param u Stroke share in [0, 1]; 0 is the goal the preparation reaches.
-   * @param cycles Stroke cycles.
-   * @param input The instant's inputs.
-   * @returns The goal.
-   * @throws {Error} For a gesture that moves no hand, or `point` without a
-   *   target.
+   * Parameter kind: The gesture.
+   * Parameter side: The hand.
+   * Parameter u: Stroke share in [0, 1]; 0 is the goal the preparation reaches.
+   * Parameter cycles: Stroke cycles.
+   * Parameter input: The instant's inputs.
+   * Returns: The goal.
+   * For a gesture that moves no hand, or `point` without a
+   * target.
    */
   export function hand(
     kind: IAutoMovieMotionHumanGestureStroke.Kind,
@@ -234,15 +232,14 @@ export namespace gestureStroke {
     };
   }
 
-  /**
+  /*
    * The bend of a posture's spine from a reference trunk, in the posture's
    * heading frame about its root. Read once on the gesture's entry.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @param reference Trunk joints defining the gesture's neutral placement.
-   *   Each omitted joint is straight.
-   * @returns The bend, or none for a straight trunk.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Parameter reference: Trunk joints defining the gesture's neutral placement.
+   * Each omitted joint is straight.
+   * Returns: The bend, or none for a straight trunk.
    */
   export function bend(
     body: IAutoMovieMotionHumanBody,
@@ -297,26 +294,38 @@ export namespace gestureStroke {
     };
   }
 
-  /** A spine's bend in the heading frame about the root (`bend`). */
+  /*
+   * A spine's bend in the heading frame about the root (`bend`).
+   */
   export interface IBend {
-    /** The chest's turn off the straight trunk. */
+    /*
+     * The chest's turn off the straight trunk.
+     */
     rotation: IAutoMovieQuaternion;
 
-    /** The straight trunk's chest. */
+    /*
+     * The straight trunk's chest.
+     */
     from: IAutoMovieVector3;
 
-    /** The posed chest. */
+    /*
+     * The posed chest.
+     */
     to: IAutoMovieVector3;
   }
 
-  /** The trunk's joints of a body standing straight. */
+  /*
+   * The trunk's joints of a body standing straight.
+   */
   const STRAIGHT = {
     hips: [0, 0, 0],
     spine: [0, 0, 0],
     chest: [0, 0, 0],
   } as const satisfies IAutoMovieMotionHumanPosture["joints"];
 
-  /** The gesture kinds whose hand goals read the posed trunk already. */
+  /*
+   * The gesture kinds whose hand goals read the posed trunk already.
+   */
   const TRUNK_POSED: ReadonlySet<IAutoMovieMotionHumanGestureStroke.Kind> =
     new Set<IAutoMovieMotionHumanGestureStroke.Kind>([
       "point",

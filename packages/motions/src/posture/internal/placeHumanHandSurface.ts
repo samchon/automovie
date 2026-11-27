@@ -5,15 +5,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Place the wrist whose rigidly carried local hand surface meets a world point.
- *
- * @param local The surface point relative to the wrist, in the hand rest frame,
- *   metres.
- * @param at The desired world surface point, metres.
- * @param turn The hand's original world rotation from rest, without added
- *   normalization.
- * @returns A fresh wrist point and the original borrowed rotation.
+ * Parameter local: The surface point relative to the wrist, in the hand rest frame,
+ * metres.
+ * Parameter at: The desired world surface point, metres.
+ * Parameter turn: The hand's original world rotation from rest, without added
+ * normalization.
+ * Returns: A fresh wrist point and the original borrowed rotation.
  */
 export function placeHumanHandSurface(
   local: IAutoMovieVector3,
@@ -23,9 +22,11 @@ export function placeHumanHandSurface(
   return placed(at, turn, Quaternion.rotateVector(turn, local));
 }
 
-/** Fixed local surface and hand rotation for repeated world-point targets. */
+/*
+ * Fixed local surface and hand rotation for repeated world-point targets.
+ */
 export namespace placeHumanHandSurface {
-  /**
+  /*
    * Prepare an immutable surface offset and world rotation.
    *
    * Inputs are the fixed local metre offset and original world quaternion;
@@ -58,7 +59,9 @@ export namespace placeHumanHandSurface {
   }
 }
 
-/** Keep the original final subtraction and ownership in one numerical owner. */
+/*
+ * Keep the original final subtraction and ownership in one numerical owner.
+ */
 function placed(
   at: IAutoMovieVector3,
   turn: IAutoMovieQuaternion,

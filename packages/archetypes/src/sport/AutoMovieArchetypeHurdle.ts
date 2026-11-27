@@ -10,7 +10,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** The World Athletics rule as read. */
+/*
+ * The World Athletics rule as read.
+ */
 const RULE: string =
   "World Athletics Competition and Technical Rules, 2020 edition (https://athletics.lv/file/download/61151), Technical Rule 22.3 and 22.4, the hurdles";
 
@@ -186,7 +188,9 @@ export function create(
     mass: "kg",
   };
 
-  /** A height band: the rule's height to 3 mm either way. */
+  /*
+   * A height band: the rule's height to 3 mm either way.
+   */
   const height = (metres: number, race: string): IAutoMovieArchetypeBand =>
     AutoMovieArchetypeBand.metres(
       metres - 0.003,

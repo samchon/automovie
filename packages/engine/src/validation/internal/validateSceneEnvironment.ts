@@ -10,7 +10,7 @@ import { resolveAutoMovieShadowProfile } from "../../render/internal/resolveAuto
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 import { validateColor } from "./validateColor";
 
-/**
+/*
  * Admit environment image/background, intensity, exposure and shadow policy.
  *
  * A declared image requires a null flat background. Color delegates to
@@ -49,7 +49,9 @@ export function validateSceneEnvironment(
   return out.toValidation();
 }
 
-/** Check a finite scalar's inclusive or exclusive minimum without rewriting it. */
+/*
+ * Check a finite scalar's inclusive or exclusive minimum without rewriting it.
+ */
 function finiteRange(
   value: number,
   min: number,

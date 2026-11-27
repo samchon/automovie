@@ -11,13 +11,13 @@
  */
 import type { IAutoMovieQuadraticConicProgram } from "@automovie/interface";
 
-/**
+/*
  * Apply ten bounded Ruiz diagonal equilibration passes to owned conic arrays.
  * The change x=D_xhat, z=E_zhat/c is invertible; it alters neither the authored
  * objective nor constraints. Original-coordinate residuals undo every scale.
  * Bounds and pass count retain the preceding Clarabel configuration.
- * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/problemdata.rs}
- * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/settings.rs}
+ * https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/problemdata.rs
+ * https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/settings.rs
  */
 export function equilibrateAutoMovieQuadraticProgram(
   data: IAutoMovieQuadraticConicProgram,

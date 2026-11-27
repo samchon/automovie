@@ -10,7 +10,7 @@ import type {
 import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 
-/**
+/*
  * A kneel's foot turned toes down by a share of any excess of its ankle's
  * dorsiflexion over what a weightless ankle reaches
  * (`ANKLE_DORSIFLEXION.unloaded`), the excess read on the knee the fit will
@@ -19,17 +19,16 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
  * the turn, up to their range, so the toe pads keep where they lie: a foot in
  * the air turns without dropping its toes, and a tucked foot rolls its ankle
  * over the toe pads it bears on.
- *
- * @param body The body.
- * @param side The leg.
- * @param pole The leg's pole: the direction its knee bends toward, the body's
- *   forward.
- * @param hip The leg's hip joint, world metres.
- * @param goal The leg goal, its foot turned by `rotation`.
- * @param toes The toes' extension the foot has, degrees.
- * @param weight The share of the excess turned, 0 to 1.
- * @returns The goal and the toes' extension, turned when they must be;
- *   unchanged otherwise.
+ * Parameter body: The body.
+ * Parameter side: The leg.
+ * Parameter pole: The leg's pole: the direction its knee bends toward, the body's
+ * forward.
+ * Parameter hip: The leg's hip joint, world metres.
+ * Parameter goal: The leg goal, its foot turned by `rotation`.
+ * Parameter toes: The toes' extension the foot has, degrees.
+ * Parameter weight: The share of the excess turned, 0 to 1.
+ * Returns: The goal and the toes' extension, turned when they must be;
+ * unchanged otherwise.
  */
 export function kneelLiftedFoot(
   body: IAutoMovieMotionHumanBody,
@@ -146,28 +145,38 @@ export function kneelLiftedFoot(
     toes: toes + extend,
   };
 }
-/** Companion types of {@link kneelLiftedFoot}. */
+/*
+ * Companion types of kneelLiftedFoot.
+ */
 export namespace kneelLiftedFoot {
-  /** A turned foot: its leg goal and its toes' extension, degrees. */
+  /*
+   * A turned foot: its leg goal and its toes' extension, degrees.
+   */
   export interface IFoot {
-    /** The leg goal. */
+    /*
+     * The leg goal.
+     */
     goal: IAutoMovieHumanLimbGoal;
 
-    /** The toes' extension, degrees. */
+    /*
+     * The toes' extension, degrees.
+     */
     toes: number;
   }
 
-  /** A foot point the turn keeps in place. */
+  /*
+   * A foot point the turn keeps in place.
+   */
   export type Pivot = Parameters<typeof HumanFoot.point>[2];
 }
 
-/**
+/*
  * How far off the hip-to-ankle line a bend point must lie to name the knee's
  * side, as a share of that line (provisional: a hundredth).
  */
 const SIDE: number = 0.01;
 
-/**
+/*
  * How far short of the unloaded limit the reading keeps a weightless ankle,
  * degrees: the closed-form knee and the fitted one differ by a few degrees
  * where the pelvis turns (provisional, as `unloadedFoot`'s).

@@ -10,7 +10,7 @@ import {
 
 import { getConstraint } from "../../rom/internal/getConstraint";
 
-/**
+/*
  * Admit a model's gaze declaration against its skeleton.
  *
  * An `"expression"` gaze needs nothing. A `"bone"` gaze needs a skeleton that
@@ -21,11 +21,10 @@ import { getConstraint } from "../../rom/internal/getConstraint";
  * outward for the left eye and inward for the right. An axis the constraint
  * declares immobile (`null`) holds only `0`, and an eye with no constraint at
  * all bounds nothing. Every other `type` is refused.
- *
- * @param lookAt The model's gaze declaration.
- * @param skeleton The model's rig, or `null` for an unrigged model.
- * @param path Diagnostic path of `lookAt`.
- * @param collector Receives the violations.
+ * Parameter lookAt: The model's gaze declaration.
+ * Parameter skeleton: The model's rig, or `null` for an unrigged model.
+ * Parameter path: Diagnostic path of `lookAt`.
+ * Parameter collector: Receives the violations.
  */
 export function validateLookAt(
   lookAt: IAutoMovieLookAt,
@@ -93,12 +92,16 @@ const RANGES: readonly AutoMovieLookAtRange[] = [
 
 const EYES: readonly AutoMovieHumanoidBone[] = ["leftEye", "rightEye"];
 
-/** How far an axis may turn in its positive direction; `0` when immobile. */
+/*
+ * How far an axis may turn in its positive direction; `0` when immobile.
+ */
 const positiveReach: (range: IAutoMovieAngleRange | null) => number = (
   range: IAutoMovieAngleRange | null,
 ): number => Math.max(0, range?.max ?? 0);
 
-/** How far an axis may turn in its negative direction; `0` when immobile. */
+/*
+ * How far an axis may turn in its negative direction; `0` when immobile.
+ */
 const negativeReach: (range: IAutoMovieAngleRange | null) => number = (
   range: IAutoMovieAngleRange | null,
 ): number => Math.max(0, -(range?.min ?? 0));

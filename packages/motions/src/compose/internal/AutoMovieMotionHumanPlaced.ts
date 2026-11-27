@@ -24,7 +24,7 @@ import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid";
 
-/**
+/*
  * An arm carried to a place of the air: the hand surface laid on a point with a
  * facing, the arm's reach, hold and return planned as one trajectory over the
  * span the law states (`AutoMovieMotionHumanArm.carried`) and the fingers
@@ -34,14 +34,13 @@ import { AutoMovieMotionHumanTargetGrid } from "./AutoMovieMotionHumanTargetGrid
  * (`AutoMovieMotionHumanTargetGrid.place`) moved by their own curves.
  */
 export namespace AutoMovieMotionHumanPlaced {
-  /**
+  /*
    * The arm and the fingers laid at a place. The canonical body and configured
    * surface/shape/bend remain unchanged for the primitive's lifetime; the
    * actual place, facing, forward and current posture are read independently at
    * every requested second.
-   *
-   * @param props The arm.
-   * @returns The arm's and the hand's primitives.
+   * Parameter props: The arm.
+   * Returns: The arm's and the hand's primitives.
    */
   export function arm(
     props: IAutoMovieMotionHumanPlaced.IArm,
@@ -89,17 +88,16 @@ export namespace AutoMovieMotionHumanPlaced {
     ];
   }
 
-  /**
+  /*
    * A named grid place of the air around a posture, world metres: the heights
    * are the standing body's above the floor, and the distance and the lateral
    * are read from the floor point the pelvis stands over.
-   *
-   * @param body The body.
-   * @param posture The posture the place is read around, as written so far.
-   * @param side The hand, which the lateral names mirror by.
-   * @param grid The grid names.
-   * @param nudge A nudge in arm lengths; none when absent.
-   * @returns The point.
+   * Parameter body: The body.
+   * Parameter posture: The posture the place is read around, as written so far.
+   * Parameter side: The hand, which the lateral names mirror by.
+   * Parameter grid: The grid names.
+   * Parameter nudge: A nudge in arm lengths; none when absent.
+   * Returns: The point.
    */
   export function grid(
     body: IAutoMovieMotionHumanBody,
@@ -128,16 +126,15 @@ export namespace AutoMovieMotionHumanPlaced {
     ).point;
   }
 
-  /**
+  /*
    * Where a joint of the trunk stands on a posture, world metres.
-   *
-   * @param body The body.
-   * @param posture The posture, as written so far.
-   * @param bone A bone of the trunk, the head or a shoulder girdle, or an upper
-   *   arm, whose joint the girdle carries.
-   * @param resolution Optional same-person FK source borrowed for this raw
-   *   observation only.
-   * @returns The joint's point.
+   * Parameter body: The body.
+   * Parameter posture: The posture, as written so far.
+   * Parameter bone: A bone of the trunk, the head or a shoulder girdle, or an upper
+   * arm, whose joint the girdle carries.
+   * Parameter resolution: Optional same-person FK source borrowed for this raw
+   * observation only.
+   * Returns: The joint's point.
    */
   export function joint(
     body: IAutoMovieMotionHumanBody,
@@ -154,19 +151,18 @@ export namespace AutoMovieMotionHumanPlaced {
     ).get(bone)!.worldPosition;
   }
 
-  /**
+  /*
    * A point carried with the chest from one posture to another: where a point
    * that stood at `point` beside the chest of `standing` lies once the chest
    * has moved to where `posture` holds it. Arms held overhead through a side
    * bend ride the chest this way.
-   *
-   * @param body The body.
-   * @param standing The posture the point was stated on.
-   * @param posture The posture, as written so far.
-   * @param point The point on `standing`, world metres.
-   * @param resolution Optional same-person FK loan borrowed only by the current
-   *   chest observation; the source standing read remains cold.
-   * @returns The point on `posture`, world metres.
+   * Parameter body: The body.
+   * Parameter standing: The posture the point was stated on.
+   * Parameter posture: The posture, as written so far.
+   * Parameter point: The point on `standing`, world metres.
+   * Parameter resolution: Optional same-person FK loan borrowed only by the current
+   * chest observation; the source standing read remains cold.
+   * Returns: The point on `posture`, world metres.
    */
   export function carried(
     body: IAutoMovieMotionHumanBody,
@@ -178,14 +174,13 @@ export namespace AutoMovieMotionHumanPlaced {
     return carryFrom(body, standing)(posture, resolution)(point);
   }
 
-  /**
+  /*
    * Prepare a fixed chest frame for several points carried with a movement.
-   *
-   * @param body The unchanged body whose trunk carries the points.
-   * @param standing The unchanged posture where each source point was authored.
-   * @returns A current-posture reader; each call reads its chest once and
-   *   returns a point transform from the original world frame to the current
-   *   world frame.
+   * Parameter body: The unchanged body whose trunk carries the points.
+   * Parameter standing: The unchanged posture where each source point was authored.
+   * Returns: A current-posture reader; each call reads its chest once and
+   * returns a point transform from the original world frame to the current
+   * world frame.
    */
   export function carryFrom(
     body: IAutoMovieMotionHumanBody,
@@ -228,14 +223,13 @@ export namespace AutoMovieMotionHumanPlaced {
     };
   }
 
-  /**
+  /*
    * The midpoint of the two shoulder joints on a posture, world metres.
-   *
-   * @param body The body.
-   * @param posture The posture, as written so far.
-   * @param resolution Optional current-person FK source borrowed for this raw
-   *   authored-trunk observation.
-   * @returns The point.
+   * Parameter body: The body.
+   * Parameter posture: The posture, as written so far.
+   * Parameter resolution: Optional current-person FK source borrowed for this raw
+   * authored-trunk observation.
+   * Returns: The point.
    */
   export function shoulders(
     body: IAutoMovieMotionHumanBody,
@@ -256,16 +250,15 @@ export namespace AutoMovieMotionHumanPlaced {
     );
   }
 
-  /**
+  /*
    * Where the wrist stands when a hand surface lies on a place.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @param place The point, the direction the surface faces and where the
-   *   fingers point.
-   * @param surface The hand surface; the palm when absent.
-   * @param shape The hand's shape; flat when absent.
-   * @returns The wrist's point, world metres.
+   * Parameter body: The body.
+   * Parameter side: The hand.
+   * Parameter place: The point, the direction the surface faces and where the
+   * fingers point.
+   * Parameter surface: The hand surface; the palm when absent.
+   * Parameter shape: The hand's shape; flat when absent.
+   * Returns: The wrist's point, world metres.
    */
   export function wrist(
     body: IAutoMovieMotionHumanBody,
@@ -287,15 +280,14 @@ export namespace AutoMovieMotionHumanPlaced {
     ).point;
   }
 
-  /**
+  /*
    * The root that puts a point of the resting body at a world point under a
    * posture's turn.
-   *
-   * @param posture The heading, the pitch and the roll.
-   * @param rest The point in the resting body's frame, as `IHumanBody.rest`
-   *   gives a joint.
-   * @param point Where it must stand, world metres.
-   * @returns The root.
+   * Parameter posture: The heading, the pitch and the roll.
+   * Parameter rest: The point in the resting body's frame, as `IHumanBody.rest`
+   * gives a joint.
+   * Parameter point: Where it must stand, world metres.
+   * Returns: The root.
    */
   export function root(
     posture: Pick<IAutoMovieMotionHumanPosture, RootPosture>,
@@ -308,12 +300,11 @@ export namespace AutoMovieMotionHumanPlaced {
     );
   }
 
-  /**
+  /*
    * The resting midpoint of the two shoulder joints, in the resting body's
    * frame.
-   *
-   * @param body The body.
-   * @returns The point `root` takes as a pivot.
+   * Parameter body: The body.
+   * Returns: The point `root` takes as a pivot.
    */
   export function girdle(
     body: Pick<IAutoMovieMotionHumanBody, "rest">,
@@ -325,16 +316,15 @@ export namespace AutoMovieMotionHumanPlaced {
     );
   }
 
-  /**
+  /*
    * The trunk's forward pitch at which the shoulders stand a given height above
    * the hips.
-   *
-   * @param body The body.
-   * @param rise The shoulders' height above the hips, metres; negative when the
-   *   hips stand higher.
-   * @returns Degrees: 0 near the standing trunk, 90 near the level one, more
-   *   with the hips above the shoulders. A rise past the trunk's length gives
-   *   the pitch of the nearest end.
+   * Parameter body: The body.
+   * Parameter rise: The shoulders' height above the hips, metres; negative when the
+   * hips stand higher.
+   * Returns: Degrees: 0 near the standing trunk, 90 near the level one, more
+   * with the hips above the shoulders. A rise past the trunk's length gives
+   * the pitch of the nearest end.
    */
   export function pitch(
     body: Pick<IAutoMovieMotionHumanBody, "rest">,
@@ -354,16 +344,22 @@ export namespace AutoMovieMotionHumanPlaced {
   }
 }
 
-/** The alternatives of `RootPosture`'s site. */
+/*
+ * The alternatives of `RootPosture`'s site.
+ */
 type RootPosture = "yaw" | "pitch" | "roll";
 
-/** The alternatives of `GridPosture`'s site. */
+/*
+ * The alternatives of `GridPosture`'s site.
+ */
 type GridPosture = "root" | "yaw" | "pitch" | "roll";
 
-/** Genuine current-person exact FK source borrowed only by actual observations. */
+/*
+ * Genuine current-person exact FK source borrowed only by actual observations.
+ */
 type IFK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
 
-/**
+/*
  * Genuine current-person ROM metadata forwarded without changing raw
  * authored-trunk policy.
  */

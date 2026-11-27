@@ -31,7 +31,9 @@ export namespace AutoMovieHumanFootLateralForefoot {
   }
 }
 
-/** The region's knots, [share, a, u, y / L, y / H]. Reference median, awaiting a published value. */
+/*
+ * The region's knots, [share, a, u, y / L, y / H]. Reference median, awaiting a published value.
+ */
 const KNOTS: readonly IAutoMovieHumanFootGuide.IFanKnot[] = [
   [0, 0.6803, 0.9882, 0.0345, 0.1218],
   [0.05, 0.6435, 0.999, 0.0367, 0.1294],

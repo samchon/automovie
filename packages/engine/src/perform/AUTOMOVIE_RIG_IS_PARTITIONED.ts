@@ -1,6 +1,8 @@
 import { AutoMovieHumanoidBone } from "@automovie/interface";
 
-/** Hips + both legs (the locomotion / stance region). */
+/*
+ * Hips + both legs (the locomotion / stance region).
+ */
 const LOWER = [
   "hips",
   "leftUpperLeg",
@@ -13,7 +15,9 @@ const LOWER = [
   "rightToes",
 ] as const satisfies readonly AutoMovieHumanoidBone[];
 
-/** Spine/chest + both arms + every finger (the gesture / reach region). */
+/*
+ * Spine/chest + both arms + every finger (the gesture / reach region).
+ */
 const UPPER = [
   "spine",
   "chest",
@@ -58,7 +62,9 @@ const UPPER = [
   "rightLittleDistal",
 ] as const satisfies readonly AutoMovieHumanoidBone[];
 
-/** Neck/head + eyes + jaw (the look-at region). */
+/*
+ * Neck/head + eyes + jaw (the look-at region).
+ */
 const HEAD = [
   "neck",
   "head",
@@ -67,7 +73,9 @@ const HEAD = [
   "jaw",
 ] as const satisfies readonly AutoMovieHumanoidBone[];
 
-/** The proof itself: `true` only while nothing escaped the partition. */
+/*
+ * The proof itself: `true` only while nothing escaped the partition.
+ */
 const RIG_IS_PARTITIONED: UnregionedBone extends never ? true : UnregionedBone =
   true;
 
@@ -84,18 +92,20 @@ const RIG_IS_PARTITIONED: UnregionedBone extends never ? true : UnregionedBone =
  */
 export const AUTOMOVIE_RIG_IS_PARTITIONED: true = RIG_IS_PARTITIONED;
 
-/** A bone some region above owns. */
+/*
+ * A bone some region above owns.
+ */
 type RegionedBone =
   | (typeof LOWER)[number]
   | (typeof UPPER)[number]
   | (typeof HEAD)[number];
 
-/**
+/*
  * A bone no region owns, which must be none of them.
  *
  * The completeness claim below used to be a sentence and a literal 55, checked
  * by a scenario that compared the three arrays only with each other. A bone
- * added to {@link AutoMovieHumanoidBone} and to no region satisfied every one of
+ * added to AutoMovieHumanoidBone and to no region satisfied every one of
  * those assertions while every mask, `fullBody` included, silently stripped it
  * (#1400). The product contract makes that an expected change, since every
  * future rig axis is additive, so the claim is kept by the builder instead:

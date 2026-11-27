@@ -1,4 +1,4 @@
-/**
+/*
  * Names the authored narrative layers, in pipeline order.
  *
  * `treatments` fixes what happens as one flat ordered sequence of event units,

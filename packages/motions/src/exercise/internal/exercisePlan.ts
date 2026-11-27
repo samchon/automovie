@@ -31,13 +31,12 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { exercise } from "./exercise";
 import { exerciseLunge } from "./exerciseLunge";
 
-/**
+/*
  * Plan an exercise.
- *
- * @param context The action's context.
- * @returns The plan.
- * @throws {HumanRefusal} When the count is not a positive whole number or a
- *   tempo span is negative.
+ * Parameter context: The action's context.
+ * Returns: The plan.
+ * When the count is not a positive whole number or a
+ * tempo span is negative.
  */
 export function exercisePlan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanExercise.IParams>,
@@ -445,8 +444,12 @@ export function exercisePlan(
   return { ...plan, ...HumanPhysics.declared(context.params, window) };
 }
 
-/** The alternatives of `PlanPlantPart2`'s site. */
+/*
+ * The alternatives of `PlanPlantPart2`'s site.
+ */
 type PlanPlantPart2 = "leftFoot" | "rightFoot";
 
-/** The alternatives of `PlanPlantPart`'s site. */
+/*
+ * The alternatives of `PlanPlantPart`'s site.
+ */
 type PlanPlantPart = "leftFoot" | "rightFoot";

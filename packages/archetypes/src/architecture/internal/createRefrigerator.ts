@@ -5,20 +5,19 @@ import { ApplianceConstruction } from "./ApplianceConstruction";
 import { FixtureDraw } from "./FixtureDraw";
 import type { AutoMovieArchetypeAppliance } from "../AutoMovieArchetypeAppliance";
 
-/**
+/*
  * A wall-backed fridge-freezer with right-hinged doors, attached handles and
  * four shelf landing surfaces.
  *
  * The hollow cabinet and four shelves remain in
  * `ApplianceConstruction.refrigerator`; each door carries its handle. The
  * fixture is centred on X, with its back at Z = 0 and its front towards +Z.
- *
- * @param params The scene identifier and any dimensions to fix inside their
- *   bands.
- * @param seed The seed for the draws the author leaves open.
- * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
- *   selected profile.
+ * Parameter params: The scene identifier and any dimensions to fix inside their
+ * bands.
+ * Parameter seed: The seed for the draws the author leaves open.
+ * Returns: The fixed model with its typed contacts.
+ * If a supplied override lies outside the
+ * selected profile.
  */
 export function createRefrigerator(
   params: AutoMovieArchetypeRefrigerator.IParams = {},

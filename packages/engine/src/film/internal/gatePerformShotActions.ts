@@ -12,7 +12,7 @@ import { performShotActors } from "./performShotActors";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 import { validatePerformShotFraming } from "./validatePerformShotFraming";
 
-/**
+/*
  * Gate every action of a beat's performance against the staged world and sort
  * the list into the plan the later stages of `performShot` read.
  *
@@ -31,13 +31,12 @@ import { validatePerformShotFraming } from "./validatePerformShotFraming";
  * available. The first camera a `frame` action names becomes the live camera,
  * and a second camera is refused, because a take has one live camera. Every
  * other action joins the stage list and is gated by
- * {@link gatePerformShotStageAction}. Violations go into the context's
+ * gatePerformShotStageAction. Violations go into the context's
  * collector; the plan can still contain actions with violations. performShot
  * consumes it only after the collector is clean.
- *
- * @param context The shot's staged tables and collector.
- * @param actions The performing action list, the revise pass's when present.
- * @returns The plan: live camera, stage list and its paths, and the jobs.
+ * Parameter context: The shot's staged tables and collector.
+ * Parameter actions: The performing action list, the revise pass's when present.
+ * Returns: The plan: live camera, stage list and its paths, and the jobs.
  */
 export function gatePerformShotActions(
   context: IAutoMovieEnginePerformShotGateContext,
@@ -141,7 +140,9 @@ export function gatePerformShotActions(
   return plan;
 }
 
-/** Check an action's actor field and that every actor is staged. */
+/*
+ * Check an action's actor field and that every actor is staged.
+ */
 function gateActors(
   context: IAutoMovieEnginePerformShotGateContext,
   action: IAutoMovieActionCall,
@@ -188,7 +189,9 @@ function gateActors(
   }
 }
 
-/** Check an action's start, duration, span and repeat against the shot. */
+/*
+ * Check an action's start, duration, span and repeat against the shot.
+ */
 function gateTiming(
   context: IAutoMovieEnginePerformShotGateContext,
   action: IAutoMovieActionCall,

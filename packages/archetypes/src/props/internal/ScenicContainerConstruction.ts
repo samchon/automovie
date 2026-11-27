@@ -9,7 +9,9 @@ import {
 } from "../../core";
 import { createScenicContainer } from "./createScenicContainer";
 
-/** Readable names for the five scene props. */
+/*
+ * Readable names for the five scene props.
+ */
 const NAMES: Readonly<Record<createScenicContainer.Kind, string>> = {
   coilBasket: "coil basket",
   woodenFishBasket: "wooden fish basket",
@@ -18,7 +20,7 @@ const NAMES: Readonly<Record<createScenicContainer.Kind, string>> = {
   cargoPod: "cargo pod",
 };
 
-/**
+/*
  * Eight outline points whose opposite cardinal vertices meet the drawn width
  * and depth.
  */
@@ -33,10 +35,14 @@ const OCTAGON: readonly (readonly [number, number])[] = [
   [Math.SQRT1_2, -Math.SQRT1_2],
 ];
 
-/** Shorthand for constructing a point or box size in model coordinates. */
+/*
+ * Shorthand for constructing a point or box size in model coordinates.
+ */
 const v: typeof Vector3.create = Vector3.create;
 
-/** Draw the four dimensions for the selected shape before building its solids. */
+/*
+ * Draw the four dimensions for the selected shape before building its solids.
+ */
 function draw<Id extends DrawContact>(
   kind: createScenicContainer.Kind,
   params: Omit<createScenicContainer.IParams, "kind">,
@@ -61,7 +67,9 @@ function draw<Id extends DrawContact>(
   return { builder, dimensions };
 }
 
-/** Points on one horizontal polygon at the given height and full diameters. */
+/*
+ * Points on one horizontal polygon at the given height and full diameters.
+ */
 function outline(width: number, depth: number, y: number): IAutoMovieVector3[] {
   return OCTAGON.map(
     ([x, z]: readonly [number, number]): IAutoMovieVector3 =>
@@ -69,7 +77,7 @@ function outline(width: number, depth: number, y: number): IAutoMovieVector3[] {
   );
 }
 
-/**
+/*
  * An upward rectangle in the model's X and Z axes, supported at the specified
  * height.
  */
@@ -93,7 +101,7 @@ function surface<Id extends createScenicContainer.Affordance>(
   });
 }
 
-/**
+/*
  * Fixed stacked sections suggest a coiled body and fitted lid in the guide
  * render.
  */
@@ -138,7 +146,7 @@ function coilBasket(
   );
 }
 
-/**
+/*
  * Willow-colored panels widen toward the rim while leaving the open interior
  * clear.
  */
@@ -201,7 +209,7 @@ function fishBasket(
   );
 }
 
-/**
+/*
  * An overhanging plank lid and three differently toned planks define the closed
  * wooden chest.
  */
@@ -226,7 +234,9 @@ function coffer(
   surface(builder, "top", height, width, depth);
 }
 
-/** An uninterrupted floor and ribbed open walls represent a molded dairy crate. */
+/*
+ * An uninterrupted floor and ribbed open walls represent a molded dairy crate.
+ */
 function crate(
   builder: Pick<ShapeWriter<"inside">, CrateWriter>,
   width: number,
@@ -278,7 +288,9 @@ function crate(
   surface(builder, "inside", floor, width - 2 * wall, insideDepth);
 }
 
-/** A fictional faceted pod with a contrasting center shell and flat cap. */
+/*
+ * A fictional faceted pod with a contrasting center shell and flat cap.
+ */
 function pod(
   builder: Pick<ShapeWriter<"top">, PodWriter>,
   width: number,
@@ -318,18 +330,24 @@ function pod(
   );
 }
 
-/**
+/*
  * Scenic container shells and their supported placement surfaces or cargo
  * mounting frame.
  */
 export namespace ScenicContainerConstruction {
-  /** The values {@link baskets} accepts at this place in its signature. */
+  /*
+   * The values baskets accepts at this place in its signature.
+   */
   export type BasketsKind = "coilBasket" | "woodenFishBasket";
 
-  /** The contact ids {@link baskets} builds or reads. */
+  /*
+   * The contact ids baskets builds or reads.
+   */
   export type BasketsContact = "top" | "inside";
 
-  /** Build a lidded coil basket or an open fish basket. */
+  /*
+   * Build a lidded coil basket or an open fish basket.
+   */
   export function baskets(
     kind: BasketsKind,
     params: Omit<createScenicContainer.IParams, "kind">,
@@ -348,7 +366,9 @@ export namespace ScenicContainerConstruction {
     return builder.build(mass);
   }
 
-  /** Build a closed plank coffer with a stacking footprint on its lid. */
+  /*
+   * Build a closed plank coffer with a stacking footprint on its lid.
+   */
   export function closedCoffer(
     params: Omit<createScenicContainer.IParams, "kind">,
     seed?: number,
@@ -368,7 +388,9 @@ export namespace ScenicContainerConstruction {
     return builder.build(mass);
   }
 
-  /** Build an open molded crate with a stacking footprint inside the rim. */
+  /*
+   * Build an open molded crate with a stacking footprint inside the rim.
+   */
   export function openCrate(
     params: Omit<createScenicContainer.IParams, "kind">,
     seed?: number,
@@ -385,7 +407,9 @@ export namespace ScenicContainerConstruction {
     return builder.build(mass);
   }
 
-  /** Replay the scenic cargo pod with its cap stacking footprint. */
+  /*
+   * Replay the scenic cargo pod with its cap stacking footprint.
+   */
   export function scenicPod(
     params: Omit<createScenicContainer.IParams, "kind">,
     seed?: number,
@@ -405,10 +429,14 @@ export namespace ScenicContainerConstruction {
     return builder.build(mass);
   }
 
-  /** The contact ids {@link mountedPod} builds or reads. */
+  /*
+   * The contact ids mountedPod builds or reads.
+   */
   export type MountedPodContact = "top" | "mount";
 
-  /** Build a cargo pod with both a stacking cap and a lower mounting socket. */
+  /*
+   * Build a cargo pod with both a stacking cap and a lower mounting socket.
+   */
   export function mountedPod(
     params: Omit<createScenicContainer.IParams, "kind">,
     seed?: number,
@@ -434,14 +462,14 @@ export namespace ScenicContainerConstruction {
   }
 }
 
-/**
+/*
  * A selected scenic support construction, with all dimensions in the saved
  * units.
  */
 type Builder<Id extends createScenicContainer.Affordance | "mount"> =
   AutoMovieArchetypeBuilder<Id, createScenicContainer.Dimension>;
 
-/**
+/*
  * Shape writers consume their contact IDs without exposing a fluent builder
  * result.
  */
@@ -451,29 +479,47 @@ type ShapeWriter<Id extends createScenicContainer.Affordance> = {
   ) => void;
 };
 
-/** The contact ids {@link draw} can type its builder with. */
+/*
+ * The contact ids draw can type its builder with.
+ */
 type DrawContact = createScenicContainer.Affordance | "mount";
 
-/** What {@link draw} prepares for its caller. */
+/*
+ * What draw prepares for its caller.
+ */
 interface IDrawResult<Id extends DrawContact> {
-  /** The prepared `builder` this call returns. */
+  /*
+   * The prepared `builder` this call returns.
+   */
   builder: Builder<Id>;
 
-  /** The prepared `dimensions` this call returns. */
+  /*
+   * The prepared `dimensions` this call returns.
+   */
   dimensions: Record<createScenicContainer.Dimension, number>;
 }
 
-/** The builder methods {@link coilBasket} uses to add its parts and contacts. */
+/*
+ * The builder methods coilBasket uses to add its parts and contacts.
+ */
 type CoilBasketWriter = "convex" | "affordance";
 
-/** The builder methods {@link fishBasket} uses to add its parts and contacts. */
+/*
+ * The builder methods fishBasket uses to add its parts and contacts.
+ */
 type FishBasketWriter = "convex" | "box" | "affordance";
 
-/** The builder methods {@link coffer} uses to add its parts and contacts. */
+/*
+ * The builder methods coffer uses to add its parts and contacts.
+ */
 type CofferWriter = "box" | "affordance";
 
-/** The builder methods {@link crate} uses to add its parts and contacts. */
+/*
+ * The builder methods crate uses to add its parts and contacts.
+ */
 type CrateWriter = "box" | "affordance";
 
-/** The builder methods {@link pod} uses to add its parts and contacts. */
+/*
+ * The builder methods pod uses to add its parts and contacts.
+ */
 type PodWriter = "convex" | "affordance";

@@ -4,10 +4,12 @@ import { type ChangeEvent, type JSX, useState } from "react";
 
 import type { IAutoMovieInspectorAction } from "../../IAutoMovieInspectorAction.js";
 
-/** The fixed camera a person starts from when choosing one: 4 m in front at eye height, looking at the origin at 1 m. */
+/*
+ * The fixed camera a person starts from when choosing one: 4 m in front at eye height, looking at the origin at 1 m.
+ */
 const FIXED: string = "0,1.6,4:0,1,0";
 
-/**
+/*
  * View: the subject's camera (`film`), a named view (the subject's own or a fitted viewpoint) with orthographic projection, following each second and a focus, or a fixed camera by coordinates, typed with any scale and up its text carries.
  *
  * The panel shows the request's first view, the one the page draws, and writes every change back as one view text through render's `formatAutoMovieInspectionView`, which the reducer replaces the request's views with. A fixed camera and a focus pattern are typed and dispatched when the field is left or Enter is pressed.
@@ -156,13 +158,19 @@ export function AutoMovieInspectorViewPanel(
 
 export namespace AutoMovieInspectorViewPanel {
   export interface IProps {
-    /** The request shown. */
+    /*
+     * The request shown.
+     */
     request: IAutoMovieCapturePlanRequest;
 
-    /** View names the subject offers: its own, then the fitted viewpoints. */
+    /*
+     * View names the subject offers: its own, then the fitted viewpoints.
+     */
     views: readonly string[];
 
-    /** Where edits go. */
+    /*
+     * Where edits go.
+     */
     dispatch: (action: IAutoMovieInspectorAction) => void;
   }
 }

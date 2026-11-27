@@ -1,15 +1,17 @@
 import type { IAutoMovieAxisFrame } from "@automovie/interface";
 
-/** Own clinical angle conversion and its prepared readers. */
+/*
+ * Own clinical angle conversion and its prepared readers.
+ */
 export namespace AutoMovieEngineClinicalAngle {
-    /**
-   * Convert rig degrees to clinical = sign * rig + neutral. Null rest remains
-   * null and an absent frame preserves the angle; an invalid supplied
-   * sign/neutral throws when used. prepare reads the same expression repeatedly
-   * on unchanged frame objects: construction admits nothing, first nonnull use
-   * captures the actual final sign/neutral operands after original validation and
-   * replacement admits anew.
-   */
+    /*
+     * Convert rig degrees to clinical = sign * rig + neutral. Null rest remains
+     * null and an absent frame preserves the angle; an invalid supplied
+     * sign/neutral throws when used. prepare reads the same expression repeatedly
+     * on unchanged frame objects: construction admits nothing, first nonnull use
+     * captures the actual final sign/neutral operands after original validation and
+     * replacement admits anew.
+     */
   export function toClinicalAngle(
     rig: number | null,
     frame: IAutoMovieAxisFrame | undefined,
@@ -17,9 +19,11 @@ export namespace AutoMovieEngineClinicalAngle {
     return convert(rig, frame);
   }
 
-  /** Lazy unchanged-frame arithmetic for actual repeated clinical conversions. */
+  /*
+   * Lazy unchanged-frame arithmetic for actual repeated clinical conversions.
+   */
 
-    /**
+    /*
      * Prepare one lazy reader without reading a frame or angle. Null bypasses
      * unused frames; each used frame object stays unchanged until replacement or
      * release, and failed admission leaves any valid prior reading intact.
@@ -35,22 +39,34 @@ export namespace AutoMovieEngineClinicalAngle {
       ): number | null => convert(rig, frame, state);
     }
 
-  /** Actual immutable affine operands, kept only for the latest prepared frame. */
+  /*
+   * Actual immutable affine operands, kept only for the latest prepared frame.
+   */
   interface IConversionState {
-    /** Installed only after the first successful nonnull actual use. */
+    /*
+     * Installed only after the first successful nonnull actual use.
+     */
     reading?: {
-      /** Borrowed unchanged frame identity, including the absent-frame case. */
+      /*
+       * Borrowed unchanged frame identity, including the absent-frame case.
+       */
       frame: IAutoMovieAxisFrame | undefined;
 
-      /** Original multiplier read before the rig multiplication. */
+      /*
+       * Original multiplier read before the rig multiplication.
+       */
       sign: number;
 
-      /** Original neutral read after that multiplication. */
+      /*
+       * Original neutral read after that multiplication.
+       */
       neutral: number;
     };
   }
 
-  /** Original forward expression with optional unchanged-frame preparation. */
+  /*
+   * Original forward expression with optional unchanged-frame preparation.
+   */
   function convert(
     rig: number | null,
     frame: IAutoMovieAxisFrame | undefined,
@@ -74,7 +90,9 @@ export namespace AutoMovieEngineClinicalAngle {
   }
 }
 
-/** Admit the actual used affine frame before its forward clinical conversion. */
+/*
+ * Admit the actual used affine frame before its forward clinical conversion.
+ */
 function assertAxisFrame(
   label: string,
   frame: IAutoMovieAxisFrame | undefined,

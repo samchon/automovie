@@ -5,7 +5,7 @@ import {
 
 import { AutoMovieEngineSubjectDescriber } from "../AutoMovieEngineSubjectDescriber";
 
-/**
+/*
  * Enumerate directly stored compiled subjects without expanding placed parts or
  * compact instance members.
  *
@@ -13,11 +13,10 @@ import { AutoMovieEngineSubjectDescriber } from "../AutoMovieEngineSubjectDescri
  * every staged scene node as an element, every instance set, and, per built
  * environment, its transform-only groups, logical spaces and building units.
  * Element parts and single instances are left out;
- * {@link describeAutoMovieSubject} answers them by address. Descriptions are
+ * describeAutoMovieSubject answers them by address. Descriptions are
  * sorted by render-id order, and each member page starts at the first member.
- *
- * @param artifact Compiled shot artifact and its revision.
- * @returns One description per stored subject, sorted by id.
+ * Parameter artifact: Compiled shot artifact and its revision.
+ * Returns: One description per stored subject, sorted by id.
  */
 export function describeAutoMovieSubjects(
   artifact: IAutoMovieSubjectArtifact,

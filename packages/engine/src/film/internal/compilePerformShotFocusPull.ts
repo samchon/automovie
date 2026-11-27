@@ -19,7 +19,7 @@ import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { animatedBaseAt } from "./animatedBaseAt";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 
-/**
+/*
  * Admit and resolve one frame action's two focus marks in world metres. The
  * caller consumes located findings before publishing the shot. An automatic
  * frame ends at the next frame's start or the shot end. An explicit frame can
@@ -122,7 +122,9 @@ export function compilePerformShotFocusPull(
     : { focus: from, focusPull: { start, end, to: { ...to } } };
 }
 
-/** Read the timed world point when the live target resolver has no answer. */
+/*
+ * Read the timed world point when the live target resolver has no answer.
+ */
 function sampledPoint(
   context: IAutoMovieEnginePerformShotGateContext,
   props: IAutoMovieCompilePerformShotCameras.IProps,

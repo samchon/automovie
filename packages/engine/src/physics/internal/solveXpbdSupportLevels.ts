@@ -8,13 +8,13 @@ import { AutoMovieXpbdSupportRows as Rows } from "../AutoMovieXpbdSupportRows";
 import { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
 import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 
-/**
+/*
  * The support cascade's levels (`solveXpbdSupportCascade`): one quadratic
  * program over the shared feasible set, the rows whose holds are independent,
  * and the regularization and acceptance they are solved to.
  */
 export namespace solveXpbdSupportLevels {
-  /**
+  /*
    * One level: the warm active-set solve, else the interior-point solve; the warm
    * keys become the level's active set, or none after the fallback.
    */
@@ -69,7 +69,7 @@ export namespace solveXpbdSupportLevels {
       : null;
   }
 
-  /**
+  /*
    * The rows whose holds are independent. A row reads its body's velocity change
    * through its own unit impulse, `(r x d, d)`, so the rows of one patch on one
    * rigid body are dependent exactly when those functionals are: four coplanar
@@ -105,17 +105,21 @@ export namespace solveXpbdSupportLevels {
     return result;
   }
 
-  /** The dot product of two equal-length arrays. */
+  /*
+   * The dot product of two equal-length arrays.
+   */
   export function product(a: readonly number[], b: readonly number[]): number {
     let sum: number = 0;
     for (let m: number = 0; m < a.length; ++m) sum += a[m]! * b[m]!;
     return sum;
   }
 
-  /** The Tikhonov weight: the square root of float64's machine epsilon. */
+  /*
+   * The Tikhonov weight: the square root of float64's machine epsilon.
+   */
   export const REGULARIZATION: number = Math.sqrt(Number.EPSILON);
 
-  /**
+  /*
    * The rows' violation an interior-point solve may leave and still count as
    * solved: the wrench allocation's own acceptance
    * (`distributePhysicalSupportWrench`).

@@ -13,28 +13,34 @@ import { HumanRide } from "./HumanRide";
 import type { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
 import { humanBicycleEffortTimeline } from "./humanBicycleEffortTimeline";
 
-/** Sides of the bicycle contact pairs. */
+/*
+ * Sides of the bicycle contact pairs.
+ */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
-/**
+/*
  * Forward pelvic transfer as a share of vertical effort, provisional for film
  * blocking.
  */
 const FORWARD: number = 0.35;
 
-/**
+/*
  * Additional trunk inclination over the flying saddle, in provisional staging
  * degrees.
  */
 const INCLINE: number = 7;
 
-/** Metres permitted between declared placement and the displayed contact. */
+/*
+ * Metres permitted between declared placement and the displayed contact.
+ */
 const FIT: number = 0.01;
 
-/** Intervals checked in each rising, standing and lowering phase. */
+/*
+ * Intervals checked in each rising, standing and lowering phase.
+ */
 const INTERVALS: number = 8;
 
-/**
+/*
  * Rise from the saddle while both feet follow their pedals and both hands
  * follow the handlebar. The seated ride provides the moving contact targets. A
  * smooth rise into and out of the authored clearance moves the pelvis up and
@@ -57,7 +63,7 @@ export const HumanBicycleEffort: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
     plan: planHumanBicycleEffort,
   };
 
-/**
+/*
  * Rise from the saddle while both feet follow their pedals and both hands
  * follow the handlebar. The seated ride provides the moving contact targets. A
  * smooth rise into and out of the authored clearance moves the pelvis up and
@@ -66,8 +72,6 @@ export const HumanBicycleEffort: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
  * The law uses the distinct body/support states described by the in-field
  * seated and standing sprint study https://www.mdpi.com/1424-8220/24/11/3453 .
  * Its clearance, timing and fore-aft transfer are staging decisions.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the fitted supports, the authored transitions and the measured reference.
  */
 function planHumanBicycleEffort(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBicycleEffort>,
@@ -207,7 +211,7 @@ function planHumanBicycleEffort(
       params: { on, seat, feet, hands, duration: seconds },
     });
 
-  /**
+  /*
    * Move the pelvis relative to the bicycle while retaining the ridden grip and
    * pedal targets.
    */

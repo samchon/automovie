@@ -7,14 +7,13 @@ import { jumpJoints } from "./jumpJoints";
 import type { jumpPush } from "./jumpPush";
 import { stand } from "./stand";
 
-/**
+/*
  * A jump push's arm tracks (`jumpPush`): each upper arm from its entered
  * flexion and rate to the take-off swing, and each elbow's gap from the jump's
  * elbow rule faded with its rate to none at the take-off, read from the push's
  * entry.
- *
- * @param scope What the push builds its arm tracks from.
- * @returns The arm readers.
+ * Parameter scope: What the push builds its arm tracks from.
+ * Returns: The arm readers.
  */
 export function jumpPushArms(scope: jumpPushArms.IScope): jumpPushArms.IArms {
   const { entry }: jumpPushArms.IScope = scope;
@@ -66,51 +65,69 @@ export function jumpPushArms(scope: jumpPushArms.IScope): jumpPushArms.IArms {
   return { swinging, armAt, elbowAt };
 }
 
-/** What a jump push's arm tracks read and what they are. */
+/*
+ * What a jump push's arm tracks read and what they are.
+ */
 export namespace jumpPushArms {
-  /** What a jump push builds its arm tracks from. */
+  /*
+   * What a jump push builds its arm tracks from.
+   */
   export interface IScope {
-    /** The fixed entry snapshot supplying the push's initial values and rates. */
+    /*
+     * The fixed entry snapshot supplying the push's initial values and rates.
+     */
     entry: IAutoMovieMotionHumanEntryState;
   }
 
-  /** The arm readers. */
+  /*
+   * The arm readers.
+   */
   export interface IArms {
-    /** An upper arm's entry flexion rate (`jumpPush.IPush.swinging`). */
+    /*
+     * An upper arm's entry flexion rate (`jumpPush.IPush.swinging`).
+     */
     swinging: jumpPush.IPush["swinging"];
 
-    /** The upper-arm flexion at a push sample (`jumpPush.IPush.arm`). */
+    /*
+     * The upper-arm flexion at a push sample (`jumpPush.IPush.arm`).
+     */
     armAt: jumpPush.IPush["arm"];
 
-    /** An elbow's gap from the elbow rule (`jumpPush.IPush.elbow`). */
+    /*
+     * An elbow's gap from the elbow rule (`jumpPush.IPush.elbow`).
+     */
     elbowAt: jumpPush.IPush["elbow"];
   }
 }
-/**
+/*
  * The original entered shoulder angle, its authored target difference and
  * carried flexion rate, with the entered elbow's gap from the jump's elbow
  * rule.
  */
 interface IArmTrack {
-  /** Entered shoulder flexion, clinical degrees. */
+  /*
+   * Entered shoulder flexion, clinical degrees.
+   */
   from: number;
 
-  /**
+  /*
    * Sixty degrees minus the entered flexion, preserving the original
    * subtraction.
    */
   delta: number;
 
-  /** Entered flexion rate, degrees per second; zero when absent. */
+  /*
+   * Entered flexion rate, degrees per second; zero when absent.
+   */
   rate: number;
 
-  /**
+  /*
    * The entered elbow flexion less the jump's elbow rule at the entered
    * shoulder, clinical degrees; zero when the entry has no elbow.
    */
   bend: number;
 
-  /**
+  /*
    * That gap's entered rate, degrees per second: the elbow's rate less the
    * rule's share of the shoulder's; zero when the entry has no elbow.
    */

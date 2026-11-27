@@ -44,7 +44,7 @@ import { kick } from "../../striking/internal/kick";
 import { knee } from "../../striking/internal/knee";
 import { punch } from "../../striking/internal/punch";
 
-/**
+/*
  * The strikes as rows on the grammar: each named technique is a row of the
  * shipped law that owns its geometry and its outcome, the effector and the side
  * fixed, the target and the accuracy the composition's.
@@ -78,31 +78,31 @@ import { punch } from "../../striking/internal/punch";
  * values are written once.
  */
 export namespace HumanStrike {
-  /**
+  /*
    * A straight punch with the lead hand. Launch to contact 0.310 s at elite
    * skill for a rear-hand straight (Cheraghi et al. 2014), other punches in
    * proportion to their path (`StrikingSkill.lone`), 1.06 times that at novice,
-   * and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}).
+   * and 0.35 s back to the guard (IAutoMovieMotionHumanPunch).
    */
   export const jab: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["jab"]
   > = AutoMovieMotionHumanActionRow.of("jab", punch, HUMAN_STRIKE_JAB);
 
-  /**
+  /*
    * A straight punch with the rear hand. Launch to contact 0.310 s at elite
    * skill for a rear-hand straight (Cheraghi et al. 2014), other punches in
    * proportion to their path (`StrikingSkill.lone`), 1.06 times that at novice,
-   * and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}).
+   * and 0.35 s back to the guard (IAutoMovieMotionHumanPunch).
    */
   export const cross: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["cross"]
   > = AutoMovieMotionHumanActionRow.of("cross", punch, HUMAN_STRIKE_CROSS);
 
-  /**
+  /*
    * A hook with the lead hand. Launch to contact 0.310 s at elite skill for a
    * rear-hand straight (Cheraghi et al. 2014), other punches in proportion to
    * their path (`StrikingSkill.lone`), 1.06 times that at novice, and 0.35 s
-   * back to the guard ({@link IAutoMovieMotionHumanPunch}).
+   * back to the guard (IAutoMovieMotionHumanPunch).
    */
   export const leadHook: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["leadHook"]
@@ -112,11 +112,11 @@ export namespace HumanStrike {
     HUMAN_STRIKE_LEAD_HOOK,
   );
 
-  /**
+  /*
    * A hook with the rear hand. Launch to contact 0.310 s at elite skill for a
    * rear-hand straight (Cheraghi et al. 2014), other punches in proportion to
    * their path (`StrikingSkill.lone`), 1.06 times that at novice, and 0.35 s
-   * back to the guard ({@link IAutoMovieMotionHumanPunch}).
+   * back to the guard (IAutoMovieMotionHumanPunch).
    */
   export const rearHook: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["rearHook"]
@@ -126,11 +126,11 @@ export namespace HumanStrike {
     HUMAN_STRIKE_REAR_HOOK,
   );
 
-  /**
+  /*
    * An uppercut with the lead hand. Launch to contact 0.310 s at elite skill
    * for a rear-hand straight (Cheraghi et al. 2014), other punches in
    * proportion to their path (`StrikingSkill.lone`), 1.06 times that at novice,
-   * and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}).
+   * and 0.35 s back to the guard (IAutoMovieMotionHumanPunch).
    */
   export const leadUppercut: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["leadUppercut"]
@@ -140,11 +140,11 @@ export namespace HumanStrike {
     HUMAN_STRIKE_LEAD_UPPERCUT,
   );
 
-  /**
+  /*
    * An uppercut with the rear hand. Launch to contact 0.310 s at elite skill
    * for a rear-hand straight (Cheraghi et al. 2014), other punches in
    * proportion to their path (`StrikingSkill.lone`), 1.06 times that at novice,
-   * and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}).
+   * and 0.35 s back to the guard (IAutoMovieMotionHumanPunch).
    */
   export const rearUppercut: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["rearUppercut"]
@@ -154,12 +154,12 @@ export namespace HumanStrike {
     HUMAN_STRIKE_REAR_UPPERCUT,
   );
 
-  /**
+  /*
    * A wing chun chain punch with the lead hand: a vertical fist along the
    * centreline. Launch to contact 0.310 s at elite skill for a rear-hand
    * straight (Cheraghi et al. 2014), other punches in proportion to their path
    * (`StrikingSkill.lone`), 1.06 times that at novice, and 0.35 s back to the
-   * guard ({@link IAutoMovieMotionHumanPunch}).
+   * guard (IAutoMovieMotionHumanPunch).
    */
   export const chainPunch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["chainPunch"]
@@ -169,11 +169,11 @@ export namespace HumanStrike {
     HUMAN_STRIKE_CHAIN_PUNCH,
   );
 
-  /**
+  /*
    * A wing chun chain punch with the rear hand. Launch to contact 0.310 s at
    * elite skill for a rear-hand straight (Cheraghi et al. 2014), other punches
    * in proportion to their path (`StrikingSkill.lone`), 1.06 times that at
-   * novice, and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}).
+   * novice, and 0.35 s back to the guard (IAutoMovieMotionHumanPunch).
    */
   export const rearChainPunch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["rearChainPunch"]
@@ -183,10 +183,10 @@ export namespace HumanStrike {
     HUMAN_STRIKE_REAR_CHAIN_PUNCH,
   );
 
-  /**
+  /*
    * Capoeira's meia-lua de frente: the rear leg's straight sweep inward across
    * the front. Launch to contact 0.33 s at elite skill, 1.06 times that at
-   * novice, recoil 0.65 s ({@link IAutoMovieMotionHumanFootStrike}).
+   * novice, recoil 0.65 s (IAutoMovieMotionHumanFootStrike).
    */
   export const meiaLuaDeFrente: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["meiaLuaDeFrente"]
@@ -196,10 +196,10 @@ export namespace HumanStrike {
     HUMAN_STRIKE_MEIA_LUA_DE_FRENTE,
   );
 
-  /**
+  /*
    * Capoeira's armada: a whole turn, then the rear leg's straight sweep
    * outward. Launch to contact 0.66 s at elite skill: a whole turn of 0.33 s,
-   * then the kick's 0.33 s ({@link IAutoMovieMotionHumanFootStrike}).
+   * then the kick's 0.33 s (IAutoMovieMotionHumanFootStrike).
    */
   export const armada: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["armada"]
@@ -209,11 +209,11 @@ export namespace HumanStrike {
     HUMAN_STRIKE_ARMADA,
   );
 
-  /**
+  /*
    * A backfist with the lead hand. Launch to contact 0.310 s at elite skill for
    * a rear-hand straight (Cheraghi et al. 2014), other punches in proportion to
    * their path (`StrikingSkill.lone`), 1.06 times that at novice, and 0.35 s
-   * back to the guard ({@link IAutoMovieMotionHumanPunch}).
+   * back to the guard (IAutoMovieMotionHumanPunch).
    */
   export const backfist: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["backfist"]
@@ -223,11 +223,11 @@ export namespace HumanStrike {
     HUMAN_STRIKE_BACKFIST,
   );
 
-  /**
+  /*
    * A hammerfist with the rear hand. Launch to contact 0.310 s at elite skill
    * for a rear-hand straight (Cheraghi et al. 2014), other punches in
    * proportion to their path (`StrikingSkill.lone`), 1.06 times that at novice,
-   * and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}).
+   * and 0.35 s back to the guard (IAutoMovieMotionHumanPunch).
    */
   export const hammerfist: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["hammerfist"]
@@ -237,11 +237,11 @@ export namespace HumanStrike {
     HUMAN_STRIKE_HAMMERFIST,
   );
 
-  /**
+  /*
    * A palm-heel strike with the rear hand. Launch to contact 0.310 s at elite
    * skill for a rear-hand straight (Cheraghi et al. 2014), other punches in
    * proportion to their path (`StrikingSkill.lone`), 1.06 times that at novice,
-   * and 0.35 s back to the guard ({@link IAutoMovieMotionHumanPunch}).
+   * and 0.35 s back to the guard (IAutoMovieMotionHumanPunch).
    */
   export const palmHeel: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["palmHeel"]
@@ -251,11 +251,11 @@ export namespace HumanStrike {
     HUMAN_STRIKE_PALM_HEEL,
   );
 
-  /**
+  /*
    * A horizontal elbow with the rear arm, swept across the line. Launch to
    * contact 0.310 s at elite skill, the elite cross's (Cheraghi et al. 2014),
    * 1.06 times that at novice (the punch's timing,
-   * {@link IAutoMovieMotionHumanCloseStrike}).
+   * IAutoMovieMotionHumanCloseStrike).
    */
   export const horizontalElbow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["horizontalElbow"]
@@ -265,11 +265,11 @@ export namespace HumanStrike {
     HUMAN_STRIKE_HORIZONTAL_ELBOW,
   );
 
-  /**
+  /*
    * A rising elbow with the rear arm, brought up under the target. Launch to
    * contact 0.310 s at elite skill, the elite cross's (Cheraghi et al. 2014),
    * 1.06 times that at novice (the punch's timing,
-   * {@link IAutoMovieMotionHumanCloseStrike}).
+   * IAutoMovieMotionHumanCloseStrike).
    */
   export const risingElbow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["risingElbow"]
@@ -279,11 +279,11 @@ export namespace HumanStrike {
     HUMAN_STRIKE_RISING_ELBOW,
   );
 
-  /**
+  /*
    * A descending elbow with the rear arm, brought down onto the target. Launch
    * to contact 0.310 s at elite skill, the elite cross's (Cheraghi et al.
    * 2014), 1.06 times that at novice (the punch's timing,
-   * {@link IAutoMovieMotionHumanCloseStrike}).
+   * IAutoMovieMotionHumanCloseStrike).
    */
   export const descendingElbow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["descendingElbow"]
@@ -293,11 +293,11 @@ export namespace HumanStrike {
     HUMAN_STRIKE_DESCENDING_ELBOW,
   );
 
-  /**
+  /*
    * A spinning elbow: a whole turn on the lead ball, the rear elbow landing as
    * it comes past. Launch to contact 0.310 s at elite skill, the elite cross's
    * (Cheraghi et al. 2014), 1.06 times that at novice (the punch's timing,
-   * {@link IAutoMovieMotionHumanCloseStrike}).
+   * IAutoMovieMotionHumanCloseStrike).
    */
   export const spinningElbow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["spinningElbow"]
@@ -307,11 +307,11 @@ export namespace HumanStrike {
     HUMAN_STRIKE_SPINNING_ELBOW,
   );
 
-  /**
+  /*
    * A spinning backfist: a whole turn on the lead ball, the back of the rear
    * fist landing as it comes past. Launch to contact 0.310 s at elite skill,
    * the elite cross's (Cheraghi et al. 2014), 1.06 times that at novice (the
-   * punch's timing, {@link IAutoMovieMotionHumanCloseStrike}).
+   * punch's timing, IAutoMovieMotionHumanCloseStrike).
    */
   export const spinningBackfist: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["spinningBackfist"]
@@ -321,11 +321,11 @@ export namespace HumanStrike {
     HUMAN_STRIKE_SPINNING_BACKFIST,
   );
 
-  /**
+  /*
    * A headbutt: the forehead driven onto the target, the hands on a person's
    * neck. Launch to contact 0.310 s at elite skill, the elite cross's (Cheraghi
    * et al. 2014), 1.06 times that at novice (the punch's timing,
-   * {@link IAutoMovieMotionHumanCloseStrike}).
+   * IAutoMovieMotionHumanCloseStrike).
    */
   export const headbutt: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["headbutt"]
@@ -335,10 +335,10 @@ export namespace HumanStrike {
     HUMAN_STRIKE_HEADBUTT,
   );
 
-  /**
+  /*
    * A side kick with the lead leg: the heel driven along the line, the hip
    * turned over. Launch to contact 0.77 s at elite skill (Pieter and Pieter),
-   * 1.06 times that at novice ({@link IAutoMovieMotionHumanFootStrike}).
+   * 1.06 times that at novice (IAutoMovieMotionHumanFootStrike).
    */
   export const sideKick: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["sideKick"]
@@ -348,10 +348,10 @@ export namespace HumanStrike {
     HUMAN_STRIKE_SIDE_KICK,
   );
 
-  /**
+  /*
    * A back kick with the rear leg: turned away, the heel thrust behind. Launch
    * to contact 0.33 s at elite skill, 1.06 times that at novice, recoil 0.65 s
-   * ({@link IAutoMovieMotionHumanFootStrike}).
+   * (IAutoMovieMotionHumanFootStrike).
    */
   export const backKick: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["backKick"]
@@ -361,10 +361,10 @@ export namespace HumanStrike {
     HUMAN_STRIKE_BACK_KICK,
   );
 
-  /**
+  /*
    * A hook kick with the lead leg: the heel swept toward the kicker's own side.
    * Launch to contact 0.33 s at elite skill, 1.06 times that at novice, recoil
-   * 0.65 s ({@link IAutoMovieMotionHumanFootStrike}).
+   * 0.65 s (IAutoMovieMotionHumanFootStrike).
    */
   export const hookKick: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["hookKick"]
@@ -374,10 +374,10 @@ export namespace HumanStrike {
     HUMAN_STRIKE_HOOK_KICK,
   );
 
-  /**
+  /*
    * A crescent kick with the rear leg: the sole swept away from the kicker's
    * side. Launch to contact 0.33 s at elite skill, 1.06 times that at novice,
-   * recoil 0.65 s ({@link IAutoMovieMotionHumanFootStrike}).
+   * recoil 0.65 s (IAutoMovieMotionHumanFootStrike).
    */
   export const crescentKick: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["crescentKick"]
@@ -387,10 +387,10 @@ export namespace HumanStrike {
     HUMAN_STRIKE_CRESCENT_KICK,
   );
 
-  /**
+  /*
    * An axe kick with the rear leg: the heel brought down from above. Launch to
    * contact 0.33 s at elite skill, 1.06 times that at novice, recoil 0.65 s
-   * ({@link IAutoMovieMotionHumanFootStrike}).
+   * (IAutoMovieMotionHumanFootStrike).
    */
   export const axeKick: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["axeKick"]
@@ -400,19 +400,19 @@ export namespace HumanStrike {
     HUMAN_STRIKE_AXE_KICK,
   );
 
-  /**
+  /*
    * A stomp with the rear leg: the sole driven straight down onto a floor-level
    * target. Launch to contact 0.33 s at elite skill, 1.06 times that at novice,
-   * recoil 0.65 s ({@link IAutoMovieMotionHumanFootStrike}).
+   * recoil 0.65 s (IAutoMovieMotionHumanFootStrike).
    */
   export const stomp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["stomp"]
   > = AutoMovieMotionHumanActionRow.of("stomp", footStrike, HUMAN_STRIKE_STOMP);
 
-  /**
+  /*
    * A leg sweep with the lead leg: the sole reaping the partner's support
    * ankle. Launch to contact 0.33 s at elite skill, 1.06 times that at novice,
-   * recoil 0.65 s ({@link IAutoMovieMotionHumanFootStrike}).
+   * recoil 0.65 s (IAutoMovieMotionHumanFootStrike).
    */
   export const legSweep: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["legSweep"]
@@ -422,10 +422,10 @@ export namespace HumanStrike {
     HUMAN_STRIKE_LEG_SWEEP,
   );
 
-  /**
+  /*
    * A spinning hook kick with the rear leg: a whole turn, then the heel swept
    * across. Launch to contact 0.66 s at elite skill: a whole turn of 0.33 s,
-   * then the kick's 0.33 s ({@link IAutoMovieMotionHumanFootStrike}).
+   * then the kick's 0.33 s (IAutoMovieMotionHumanFootStrike).
    */
   export const spinningHookKick: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["spinningHookKick"]
@@ -435,10 +435,10 @@ export namespace HumanStrike {
     HUMAN_STRIKE_SPINNING_HOOK_KICK,
   );
 
-  /**
+  /*
    * A jumping side kick with the lead leg: off the floor at the contact. Launch
    * to contact 0.92 s at elite skill: the side kick's 0.77 s and 0.15 s of jump
-   * ({@link IAutoMovieMotionHumanFootStrike}).
+   * (IAutoMovieMotionHumanFootStrike).
    */
   export const jumpingSideKick: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["jumpingSideKick"]
@@ -448,10 +448,10 @@ export namespace HumanStrike {
     HUMAN_STRIKE_JUMPING_SIDE_KICK,
   );
 
-  /**
+  /*
    * A round kick with the rear leg's shin. Launch to contact 0.33 s at elite
    * skill, 0.39 s at novice, the whole kick 0.98 to 1.30 s
-   * ({@link IAutoMovieMotionHumanKick}).
+   * (IAutoMovieMotionHumanKick).
    */
   export const roundKick: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["roundKick"]
@@ -461,10 +461,10 @@ export namespace HumanStrike {
     HUMAN_STRIKE_ROUND_KICK,
   );
 
-  /**
+  /*
    * A round kick with the lead leg. Launch to contact 0.33 s at elite skill,
    * 0.39 s at novice, the whole kick 0.98 to 1.30 s
-   * ({@link IAutoMovieMotionHumanKick}).
+   * (IAutoMovieMotionHumanKick).
    */
   export const switchKick: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["switchKick"]
@@ -474,10 +474,10 @@ export namespace HumanStrike {
     HUMAN_STRIKE_SWITCH_KICK,
   );
 
-  /**
+  /*
    * A push kick with the lead foot. Launch to contact 0.33 s at elite skill,
    * 0.39 s at novice, the whole kick 0.98 to 1.30 s
-   * ({@link IAutoMovieMotionHumanKick}).
+   * (IAutoMovieMotionHumanKick).
    */
   export const pushKick: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["pushKick"]
@@ -487,18 +487,18 @@ export namespace HumanStrike {
     HUMAN_STRIKE_PUSH_KICK,
   );
 
-  /**
+  /*
    * A push kick with the rear foot. Launch to contact 0.33 s at elite skill,
    * 0.39 s at novice, the whole kick 0.98 to 1.30 s
-   * ({@link IAutoMovieMotionHumanKick}).
+   * (IAutoMovieMotionHumanKick).
    */
   export const teep: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["teep"]
   > = AutoMovieMotionHumanActionRow.of("teep", kick, HUMAN_STRIKE_TEEP);
 
-  /**
+  /*
    * A knee with the lead leg. Launch to contact 0.22 s at elite skill, 0.65 s
-   * of recoil ({@link IAutoMovieMotionHumanKnee}).
+   * of recoil (IAutoMovieMotionHumanKnee).
    */
   export const leadKnee: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["leadKnee"]
@@ -508,9 +508,9 @@ export namespace HumanStrike {
     HUMAN_STRIKE_LEAD_KNEE,
   );
 
-  /**
+  /*
    * A knee with the rear leg. Launch to contact 0.22 s at elite skill, 0.65 s
-   * of recoil ({@link IAutoMovieMotionHumanKnee}).
+   * of recoil (IAutoMovieMotionHumanKnee).
    */
   export const rearKnee: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["strike"]["rearKnee"]

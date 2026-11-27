@@ -5,14 +5,13 @@ import { StaggerPendulum } from "./StaggerPendulum";
 import type { staggerRecover } from "./staggerRecover";
 import { staggerTransfer } from "./staggerTransfer";
 
-/**
+/*
  * Read the pendulum's held-pressure spans at action-local seconds.
- *
- * @param phases The pendulum's spans, in the order it integrated them, their
- *   starts nondecreasing.
- * @param w The pendulum frequency, radians per second.
- * @param centre The entry centre, world metres.
- * @returns Readers of travel, pressure and extrapolation.
+ * Parameter phases: The pendulum's spans, in the order it integrated them, their
+ * starts nondecreasing.
+ * Parameter w: The pendulum frequency, radians per second.
+ * Parameter centre: The entry centre, world metres.
+ * Returns: Readers of travel, pressure and extrapolation.
  */
 export function staggerPendulumCourses(
   phases: readonly staggerRecover.IPhase[],
@@ -75,34 +74,44 @@ export function staggerPendulumCourses(
   };
 }
 
-/** The record of `IStaggerPendulumCoursesStateAtStart`'s site. */
+/*
+ * The record of `IStaggerPendulumCoursesStateAtStart`'s site.
+ */
 type IStaggerPendulumCoursesStateAtStart = {
   s: IAutoMovieVector3;
   v: IAutoMovieVector3;
   p: IAutoMovieVector3;
 };
 
-/** The record of `IStaggerPendulumCoursesStateAtResult`'s site. */
+/*
+ * The record of `IStaggerPendulumCoursesStateAtResult`'s site.
+ */
 type IStaggerPendulumCoursesStateAtResult = {
   s: IAutoMovieVector3;
   v: IAutoMovieVector3;
   p: IAutoMovieVector3;
 };
 
-/** The record of `IStaggerPendulumCoursesStateAt`'s site. */
+/*
+ * The record of `IStaggerPendulumCoursesStateAt`'s site.
+ */
 type IStaggerPendulumCoursesStateAt = {
   s: IAutoMovieVector3;
   v: IAutoMovieVector3;
   p: IAutoMovieVector3;
 };
 
-/** The record of `IStaggerPendulumCoursesPhaseAtResult`'s site. */
+/*
+ * The record of `IStaggerPendulumCoursesPhaseAtResult`'s site.
+ */
 type IStaggerPendulumCoursesPhaseAtResult = {
   phase: staggerRecover.IPhase;
   u: number;
 };
 
-/** The record of `IStaggerPendulumCoursesPhaseAt`'s site. */
+/*
+ * The record of `IStaggerPendulumCoursesPhaseAt`'s site.
+ */
 type IStaggerPendulumCoursesPhaseAt = {
   phase: staggerRecover.IPhase;
   u: number;

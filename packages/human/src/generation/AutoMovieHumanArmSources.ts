@@ -246,10 +246,14 @@ export namespace AutoMovieHumanArmSources {
   }
 }
 
-/** Original calibration-mm vector. */
+/*
+ * Original calibration-mm vector.
+ */
 type Vec3 = [number, number, number];
 
-/** Actual fixed digit names shared with the bind vocabulary. */
+/*
+ * Actual fixed digit names shared with the bind vocabulary.
+ */
 const FINGERS: readonly ("Index" | "Middle" | "Ring" | "Little")[] = [
   "Index",
   "Middle",
@@ -257,6 +261,8 @@ const FINGERS: readonly ("Index" | "Middle" | "Ring" | "Little")[] = [
   "Little",
 ];
 
-/** The existing call-owned original factory memo; failures are not substituted. */
+/*
+ * The existing call-owned original factory memo; failures are not substituted.
+ */
 const { lazy }: Pick<typeof AutoMovieHumanSiteViewPart, "lazy"> =
   AutoMovieHumanSiteViewPart;

@@ -2,7 +2,7 @@ import type { IAutoMovieChannel } from "@automovie/interface";
 
 import { admitChannel } from "./admitChannel";
 
-/**
+/*
  * Canonical key for a channel. Node channels and pointer channels live in
  * disjoint namespaces (`node:…` vs `ptr:…`) so they can never alias even if a
  * pointer string happened to look like a node path.

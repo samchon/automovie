@@ -6,7 +6,7 @@ import {
 import { builtSpaceSubtree } from "./builtSpaceSubtree";
 import { requireBuiltSpace } from "./requireBuiltSpace";
 
-/**
+/*
  * Report the support patches usable in a logical space and its descendants.
  *
  * Support and walkability are separate facts: a roof deck may carry a prop
@@ -18,10 +18,9 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * the asked space, the patch's surface id, and whether the record lists that id
  * as walkable; entries come back in the record's surface order. Throws an
  * `Error` for an undeclared space id.
- *
- * @param environment Building record to read.
- * @param spaceId Logical space whose support patches are reported.
- * @returns One entry per patch the space or a descendant owns.
+ * Parameter environment: Building record to read.
+ * Parameter spaceId: Logical space whose support patches are reported.
+ * Returns: One entry per patch the space or a descendant owns.
  */
 export function builtEnvironmentSpaceSurfaces(
   environment: IAutoMovieBuiltEnvironment,

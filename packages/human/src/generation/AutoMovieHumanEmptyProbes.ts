@@ -97,7 +97,7 @@ export namespace AutoMovieHumanEmptyProbes {
     fingers: readonly IAutoMovieHumanConicLoft.IFamily[];
   }
 
-  /**
+  /*
    * Station step, mm, at which a gap's walls are first sought along a course
    * before the qualifying station is bisected.
    */
@@ -287,17 +287,23 @@ export namespace AutoMovieHumanEmptyProbes {
       : { name, derivation, reason: probe.reason };
   }
 
-  /** The length of a family's fields' station domain, mm. */
+  /*
+   * The length of a family's fields' station domain, mm.
+   */
   function span(family: IAutoMovieHumanConicLoft.IFamily): number {
     return family.knots.at(-1)! - family.knots[0]!;
   }
 
-  /** A side's name: the family's, followed by `.mirror` for the twin. */
+  /*
+   * A side's name: the family's, followed by `.mirror` for the twin.
+   */
   function label(side: ISide): string {
     return side.reflected ? `${side.family.name}.mirror` : side.family.name;
   }
 
-  /** A number to a hundredth, for a derivation's text. */
+  /*
+   * A number to a hundredth, for a derivation's text.
+   */
   function round(value: number): number {
     return Math.round(value * 100) / 100;
   }

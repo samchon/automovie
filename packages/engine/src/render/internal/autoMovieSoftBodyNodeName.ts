@@ -1,4 +1,4 @@
-/**
+/*
  * Name of the viewer object drawing one soft-body panel.
  *
  * Mirrors `buildSoftBodyObject`. The engine cannot import the viewer and the

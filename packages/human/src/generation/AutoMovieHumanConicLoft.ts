@@ -74,24 +74,26 @@ export namespace AutoMovieHumanConicLoft {
     };
   }
 
-  /** Share of a cap's first section's size under which a coordinate keeps the shared factor (`ITip.own`). */
+  /*
+   * Share of a cap's first section's size under which a coordinate keeps the shared factor (`ITip.own`).
+   */
   const OWN_LEAST: number = 0.05;
 
-  /**
+  /*
    * Knots of a cap between its end section and its tip, besides those two. Where the tube's taper meets the cap's law the outlines' natural
    * cubics ripple, and the ripple falls by about 0.27 per knot; twelve leave 1e-7 of it at the pole, where a section is small enough for any
    * coordinate out of proportion to break its chain.
    */
   const CAP_KNOTS: number = 12;
 
-  /**
+  /*
    * Bounds of a cap's taper `q` (`ITip`): below 1 the tip stands upright, and at 0 the cap leaves a wall that still widens toward its tip
    * level instead of widening on. Allowed to widen on (to -0.5), the nose's cap swelled 14 % past its bulb and the nostrils' cuts came out
    * through its sides: a cap that widens on extrapolates past the skin the wall was fitted to.
    */
   const TAPER: { least: number; most: number } = { least: 0, most: 0.95 };
 
-  /**
+  /*
    * When a station is added midway between two: the model's section there stands off the mean of the two by more than `length` mm in a point's
    * coordinate or by more than `share` in a tangent's angle, rad, or a shoulder. No interval is cut below `least` mm. At a tenth of these
    * tolerances nearly every interval was cut whatever spacing was asked for, and the body's skin held 580,000 triangles at any setting.
@@ -102,7 +104,7 @@ export namespace AutoMovieHumanConicLoft {
     least: 0.25,
   };
 
-  /**
+  /*
    * Largest distance between two neighbouring phases of a part's rings at its widest section, mm; a part has at least 48 phases. With 128
    * phases for every part the trunk's stood 4 mm apart at the head and 9 mm at the hips, wider than its relief nets' 2.5 to 3 mm, which showed
    * as steps, while a finger's stood half a millimetre apart.
@@ -133,7 +135,9 @@ export namespace AutoMovieHumanConicLoft {
     return AutoMovieHumanConicRecentre.axis(base, family.knots, line);
   }
 
-  /** The course through the centres with its chart turned by the roll: the line the origin line is measured from. */
+  /*
+   * The course through the centres with its chart turned by the roll: the line the origin line is measured from.
+   */
   function carried(
     family: Pick<IAutoMovieHumanConicLoft.IFamily, "centres" | "halves" | "up" | "roll">,
   ): IAutoMovieViewAxis.IAxis {
@@ -676,22 +680,23 @@ export namespace AutoMovieHumanConicLoft {
     return { ...made, samples: phases.length, phases };
   }
 
-  /** Phases round a ring that `spaced` reads its length and turn on. */
+  /*
+   * Phases round a ring that `spaced` reads its length and turn on.
+   */
   const SPACING_SAMPLES: number = 1024;
 
-  /**
+  /*
    * A part's ring phases spaced by its rings' length and turn (`IFamily.turn`).
    *
    * Every station's ring of the lofted chain is read at `SPACING_SAMPLES` phases. Over each step between two of them the density is the
    * largest any ring asks for: its chord over `pitch`, its turn there over `turn`, or the step over `finest`, the finest relief net's
    * column. The phases stand at equal shares of that density's integral from phase 0, a multiple of 8 of them and at least 48, as the
    * uniform rule's count is.
-   *
-   * @param chain The part lofted on uniform phases.
-   * @param stations The stations its fields own, mm.
-   * @param pitch Largest distance between neighbouring phases, mm.
-   * @param turn Largest turn between neighbouring phases, radians.
-   * @param finest Finest relief net's column, radians.
+   * Parameter chain: The part lofted on uniform phases.
+   * Parameter stations: The stations its fields own, mm.
+   * Parameter pitch: Largest distance between neighbouring phases, mm.
+   * Parameter turn: Largest turn between neighbouring phases, radians.
+   * Parameter finest: Finest relief net's column, radians.
    */
   function spaced(
     chain: NonNullable<IAutoMovieViewLoft.IResult["chain"]>,

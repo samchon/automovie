@@ -7,7 +7,7 @@ import { HumanGrasp } from "./HumanGrasp";
 import { HumanPrehension } from "./HumanPrehension";
 import { handshake } from "./handshake";
 
-/**
+/*
  * The meeting of a handover (`AutoMovieMotionMeeting`): one record for the
  * giver and the receiver, the single owner of where the object's receiving grip
  * is handed over and of each partner's seat. The place is the mutual goal of
@@ -19,34 +19,43 @@ import { handshake } from "./handshake";
  * cannot bring together is refused with the mutual goal's own error.
  */
 export namespace HumanHandoverMeeting {
-  /** The giver's role. */
+  /*
+   * The giver's role.
+   */
   export const GIVER: string = "giver";
 
-  /** The receiver's role. */
+  /*
+   * The receiver's role.
+   */
   export const RECEIVER: string = "receiver";
 
-  /**
+  /*
    * The mutual goal's inputs of a handover: the height the receiving grip lands
    * at and both acting arms.
    */
   export interface IGoal {
-    /** The receiving grip's height, world metres. */
+    /*
+     * The receiving grip's height, world metres.
+     */
     height: number;
 
-    /** The giver's acting arm. */
+    /*
+     * The giver's acting arm.
+     */
     a: IAutoMovieResolveMutualGoal.ISide;
 
-    /** The receiver's acting arm. */
+    /*
+     * The receiver's acting arm.
+     */
     b: IAutoMovieResolveMutualGoal.ISide;
   }
 
-  /**
+  /*
    * The mutual goal's inputs from both partners as they stand.
-   *
-   * @param input Both partners, the prop, its frame and the receiving grip.
-   * @param exchange The object's middle's height as a share of the partners'
-   *   mean sternum height (`HumanHandover.EXCHANGE`).
-   * @returns The height and both arms.
+   * Parameter input: Both partners, the prop, its frame and the receiving grip.
+   * Parameter exchange: The object's middle's height as a share of the partners'
+   * mean sternum height (`HumanHandover.EXCHANGE`).
+   * Returns: The height and both arms.
    */
   export function goal(
     input: Pick<IAutoMovieMotionHumanHandover.IInput, GoalInput>,
@@ -86,13 +95,12 @@ export namespace HumanHandoverMeeting {
     };
   }
 
-  /**
+  /*
    * The meeting kind of a handover.
-   *
-   * @param props Each partner's acting hand, the prop with its frame at the
-   *   start and the receiving grip, and the exchange share.
-   * @returns The kind: the contact `meet`, where the receiving grip is handed
-   *   over.
+   * Parameter props: Each partner's acting hand, the prop with its frame at the
+   * start and the receiving grip, and the exchange share.
+   * Returns: The kind: the contact `meet`, where the receiving grip is handed
+   * over.
    */
   export function kind(props: IKindProps): IAutoMovieMotionMeetingKind {
     const person: (
@@ -158,7 +166,9 @@ export namespace HumanHandoverMeeting {
   }
 }
 
-/** The record of `IKindProps`'s site. */
+/*
+ * The record of `IKindProps`'s site.
+ */
 type IKindProps = {
   giver: AutoMovieHumanSide;
   receiver: AutoMovieHumanSide;
@@ -168,5 +178,7 @@ type IKindProps = {
   exchange: number;
 };
 
-/** The alternatives of `GoalInput`'s site. */
+/*
+ * The alternatives of `GoalInput`'s site.
+ */
 type GoalInput = "giver" | "receiver" | "prop" | "frame" | "handle";

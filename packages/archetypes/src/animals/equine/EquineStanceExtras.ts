@@ -10,7 +10,7 @@ import { EquineHobbleRows } from "./EquineHobbleRows";
 import { EquineLibertyRows } from "./EquineLibertyRows";
 import type { EquineStanceRows } from "./EquineStanceRows";
 
-/**
+/*
  * The stance rows planned outside the stance's own file: the comfort rows, the
  * liberty cue poses, the encounter's strikes and kicks and the hobbled hops.
  */
@@ -22,11 +22,10 @@ export namespace EquineStanceExtras {
     | AutoMovieArchetypeEquineEncounterCue.Row
     | EquineHobbleCue.Row;
 
-  /**
+  /*
    * Whether a stance cue is planned here.
-   *
-   * @param cue The cue.
-   * @returns Whether `plan` owns it.
+   * Parameter cue: The cue.
+   * Returns: Whether `plan` owns it.
    */
   export function owns(cue: AutoMovieArchetypeEquineStanceCue.Cue): cue is Row {
     return (
@@ -37,13 +36,12 @@ export namespace EquineStanceExtras {
     );
   }
 
-  /**
+  /*
    * Plan one row from a state through its family.
-   *
-   * @param body The prepared solver.
-   * @param start The state it starts from.
-   * @param cue The row.
-   * @returns Its plan.
+   * Parameter body: The prepared solver.
+   * Parameter start: The state it starts from.
+   * Parameter cue: The row.
+   * Returns: Its plan.
    */
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,

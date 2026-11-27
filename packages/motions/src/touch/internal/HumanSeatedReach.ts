@@ -14,7 +14,7 @@ import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotion
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
-/**
+/*
  * A seated reach with the trunk below the arm in task priority: the hand's
  * target first, and when the arm alone falls short, a lean of the trunk
  * forward, which the seat bears: the hips flex the trunk over the seat and the
@@ -30,7 +30,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
  * laws already plan it.
  */
 export namespace HumanSeatedReach {
-  /**
+  /*
    * The trunk's joints above the hips that flex a seated lean, from the lowest;
    * a rig without one leans by the others.
    */
@@ -40,15 +40,14 @@ export namespace HumanSeatedReach {
     "upperChest",
   ];
 
-  /**
+  /*
    * The joints a seated role's trunk can still lean forward by: the hips, their
    * flexion range less the flexion the thigh and the trunk hold, and each spine
    * joint, its range less the flexion its two segments hold; none for a
    * standing role.
-   *
-   * @param role The role, its body, its posture, its bones and whether a seat
-   *   bears it.
-   * @returns The joints from the lowest, each with its room.
+   * Parameter role: The role, its body, its posture, its bones and whether a seat
+   * bears it.
+   * Returns: The joints from the lowest, each with its room.
    */
   export function rooms(
     role: Pick<IAutoMovieMotionMeetingRole, RoomsRole>,
@@ -116,16 +115,15 @@ export namespace HumanSeatedReach {
     );
   }
 
-  /**
+  /*
    * A point of the trunk leaned forward by a share of each joint's room: turned
    * about the body's left through each joint in turn, from the lowest, each
    * joint carried by the turns below it.
-   *
-   * @param role The role's bones and posture.
-   * @param joints The joints and their rooms (`rooms`).
-   * @param point The point, world metres.
-   * @param share The share of each room, in [0, 1].
-   * @returns The leaned point.
+   * Parameter role: The role's bones and posture.
+   * Parameter joints: The joints and their rooms (`rooms`).
+   * Parameter point: The point, world metres.
+   * Parameter share: The share of each room, in [0, 1].
+   * Returns: The leaned point.
    */
   export function lean(
     role: Pick<IAutoMovieMotionMeetingRole, LeanRole>,
@@ -136,16 +134,15 @@ export namespace HumanSeatedReach {
     return prepareLean(role, joints, point)(share);
   }
 
-  /**
+  /*
    * A posture leaned forward by a share of each joint's room: the whole body
    * pitched about the hips for the hip joints, which keeps the hips on the seat
    * (`AutoMovieMotionHumanLean.pivot`), and each spine joint's flexion added.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @param joints The joints and their rooms (`rooms`).
-   * @param share The share of each room, in [0, 1].
-   * @returns The leaned posture; the posture itself when no joint leans.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Parameter joints: The joints and their rooms (`rooms`).
+   * Parameter share: The share of each room, in [0, 1].
+   * Returns: The leaned posture; the posture itself when no joint leans.
    */
   export function posed(
     body: IAutoMovieMotionHumanBody,
@@ -179,20 +176,19 @@ export namespace HumanSeatedReach {
     return { ...pitched, joints: flexed };
   }
 
-  /**
+  /*
    * Where two roles' arms meet, with each seated role's trunk leaned by the
    * least common share of its joints' rooms that lets the arms meet.
-   *
-   * @param roles The two roles, in the meeting's order.
-   * @param sides Their arms, each with its acting shoulder, unleaned, in the
-   *   same order.
-   * @param resolve The meeting's resolution of two arms, throwing when they
-   *   cannot meet.
-   * @param shoulder The acting joint when the authored body's exact shoulder
-   *   path is needed.
-   * @returns The resolution's answer for the leaned arms.
-   * @throws {Error} The resolution's own error when even the full lean cannot
-   *   bring the arms together.
+   * Parameter roles: The two roles, in the meeting's order.
+   * Parameter sides: Their arms, each with its acting shoulder, unleaned, in the
+   * same order.
+   * Parameter resolve: The meeting's resolution of two arms, throwing when they
+   * cannot meet.
+   * Parameter shoulder: The acting joint when the authored body's exact shoulder
+   * path is needed.
+   * Returns: The resolution's answer for the leaned arms.
+   * The resolution's own error when even the full lean cannot
+   * bring the arms together.
    */
   export function goal<Side extends IGoal, Result = IAutoMovieVector3>(
     roles: readonly [IAutoMovieMotionMeetingRole, IAutoMovieMotionMeetingRole],
@@ -244,18 +240,17 @@ export namespace HumanSeatedReach {
     return at(share);
   }
 
-  /**
+  /*
    * One seated role's own least share of its joints' rooms that brings a point
    * within its arm's limit: none when the arm reaches it, the closest shoulder
    * position when the full flexion arc falls short.
-   *
-   * @param role The role.
-   * @param shoulder Its acting shoulder joint, world metres.
-   * @param point The point, world metres.
-   * @param limit The arm's full reach, metres.
-   * @param joint The acting joint when the authored body's exact shoulder path
-   *   is needed.
-   * @returns The share and the joints it is a share of.
+   * Parameter role: The role.
+   * Parameter shoulder: Its acting shoulder joint, world metres.
+   * Parameter point: The point, world metres.
+   * Parameter limit: The arm's full reach, metres.
+   * Parameter joint: The acting joint when the authored body's exact shoulder path
+   * is needed.
+   * Returns: The share and the joints it is a share of.
    */
   export function need(
     role: IAutoMovieMotionMeetingRole,
@@ -294,7 +289,7 @@ export namespace HumanSeatedReach {
     };
   }
 
-  /**
+  /*
    * Fixed role/chain geometry for one synchronous search; every share still
    * performs its actual ordered turns.
    */
@@ -338,7 +333,7 @@ export namespace HumanSeatedReach {
     };
   }
 
-  /**
+  /*
    * Use the placed body's actual flexion charts when the caller knows the
    * moving shoulder.
    */
@@ -365,7 +360,7 @@ export namespace HumanSeatedReach {
             .worldPosition;
   }
 
-  /**
+  /*
    * The share step that moves no shoulder by more than the square root of
    * machine epsilon of its distance to the hips.
    */
@@ -395,19 +390,27 @@ export namespace HumanSeatedReach {
   };
 }
 
-/** The record of `IGoal`'s site. */
+/*
+ * The record of `IGoal`'s site.
+ */
 type IGoal = { shoulder: IAutoMovieVector3 };
 
-/** The alternatives of `PrepareLeanRole`'s site. */
+/*
+ * The alternatives of `PrepareLeanRole`'s site.
+ */
 type PrepareLeanRole = "bones" | "posture";
 
-/** The alternatives of `LeanRole`'s site. */
+/*
+ * The alternatives of `LeanRole`'s site.
+ */
 type LeanRole = "bones" | "posture";
 
-/** The alternatives of `RoomsRole`'s site. */
+/*
+ * The alternatives of `RoomsRole`'s site.
+ */
 type RoomsRole = "body" | "posture" | "bones" | "seated";
 
-/**
+/*
  * Find a reachable witness on the flexion arc, or its closest approach if it
  * misses.
  */

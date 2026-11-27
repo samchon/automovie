@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * The goal maths of bringing a weapon surface onto a target point: where a
  * two-segment limb's middle joint (elbow or knee) and end joint (wrist or
  * ankle) must be for a point on its distal segment to sit on the target, the
@@ -27,35 +27,33 @@ import type {
  * inside the shortest reach either the contact slides along the distal segment
  * toward the middle joint (a jammed kick lands with the upper shin or the knee)
  * or, where the surface is rigid with the end joint (a fist), the middle joint
- * flexes past the band up to {@link JAM_FLEXION}.
+ * flexes past the band up to JAM_FLEXION.
  */
 export namespace StrikingReach {
-  /**
+  /*
    * The most a middle joint flexes when a rigid-ended limb is jammed, degrees:
    * below the elbow's and knee's 145 to 150 degree range.
    */
   export const JAM_FLEXION: number = 140;
 
-  /**
+  /*
    * Reach of a two-segment limb to a point at a flexion.
-   *
-   * @param upper Root to middle joint, metres.
-   * @param along Middle joint to the point, metres.
-   * @param flexion Degrees, 0 straight.
-   * @returns Root-to-point distance, metres.
+   * Parameter upper: Root to middle joint, metres.
+   * Parameter along: Middle joint to the point, metres.
+   * Parameter flexion: Degrees, 0 straight.
+   * Returns: Root-to-point distance, metres.
    */
   export function reach(upper: number, along: number, flexion: number): number {
     const c: number = Math.cos((flexion * Math.PI) / 180);
     return Math.sqrt(upper * upper + along * along + 2 * upper * along * c);
   }
 
-  /**
+  /*
    * Place a limb so a point of its distal segment meets a target.
-   *
-   * @param input The limb and the target.
-   * @returns The goals and the reach status.
-   * @throws {Error} When the target coincides with the root, or the bend
-   *   direction is parallel to the reach.
+   * Parameter input: The limb and the target.
+   * Returns: The goals and the reach status.
+   * When the target coincides with the root, or the bend
+   * direction is parallel to the reach.
    */
   export function chain(
     input: IAutoMovieMotionHumanStrikingReach.IChain,
@@ -143,16 +141,15 @@ export namespace StrikingReach {
     return { middle, end, point, flexion, along, status, gap };
   }
 
-  /**
+  /*
    * A bend hint beside a solved middle joint: the joint pushed further toward
    * its bend side, so the hint defines the bend plane even when the limb is
    * nearly straight.
-   *
-   * @param root The root joint.
-   * @param solution The solve.
-   * @param bend The bend direction the solve used.
-   * @param distance How far beyond the middle joint, metres.
-   * @returns The hint point, world metres.
+   * Parameter root: The root joint.
+   * Parameter solution: The solve.
+   * Parameter bend: The bend direction the solve used.
+   * Parameter distance: How far beyond the middle joint, metres.
+   * Returns: The hint point, world metres.
    */
   export function hint(
     root: IAutoMovieVector3,
@@ -169,17 +166,16 @@ export namespace StrikingReach {
     return Vector3.add(solution.middle, Vector3.scale(side, distance));
   }
 
-  /**
+  /*
    * How far the body must close along the line for a limb to reach: the excess
    * of the root-to-target distance over the limb's comfortable reach (its
    * band's reach at `share` of the way from the shortest to the longest),
    * limited to the entry the stance allows.
-   *
-   * @param distance Root-to-target distance, metres.
-   * @param comfortable The reach the strike prefers to land at, metres.
-   * @param limit The longest entry, metres.
-   * @returns The advance along the line, metres in `[-limit, limit]`; negative
-   *   backs away from a target too close.
+   * Parameter distance: Root-to-target distance, metres.
+   * Parameter comfortable: The reach the strike prefers to land at, metres.
+   * Parameter limit: The longest entry, metres.
+   * Returns: The advance along the line, metres in `[-limit, limit]`; negative
+   * backs away from a target too close.
    */
   export function advance(
     distance: number,

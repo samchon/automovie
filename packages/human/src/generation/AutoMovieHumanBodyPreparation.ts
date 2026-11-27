@@ -249,7 +249,9 @@ export namespace AutoMovieHumanBodyPreparation {
     };
   }
 
-  /** A completed trial is not a final parent when the actual trunk source failed publication. */
+  /*
+   * A completed trial is not a final parent when the actual trunk source failed publication.
+   */
   function completeLeg(context: IAutoMovieHumanBodySources.IOriginal): void {
     const actual: IAutoMovieHumanTrunkBuild.IOutput = trunkSource(context);
     if (actual.trunk === null)

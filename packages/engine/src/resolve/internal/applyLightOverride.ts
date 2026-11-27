@@ -6,7 +6,7 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-/**
+/*
  * Reconstruct an admitted light kind from staged fields and present overrides,
  * preserving optional shadow policy and area extents. Unanimated nested values
  * remain borrowed; the direct helper returns a new light record while shot
@@ -61,7 +61,7 @@ export function applyLightOverride(
   }
 }
 
-/**
+/*
  * The light's placement at this instant: the staged transform with whichever of
  * its translation and rotation a track wrote.
  *

@@ -10,14 +10,18 @@ import {
 } from "../core";
 import { ADA_RANGES } from "./constants/ADA_RANGES";
 
-/** The accessible car read. */
+/*
+ * The accessible car read.
+ */
 const ADA: string =
   "2010 ADA Standards 407.4.1 and Table 407.4.1, centered door: door clear width 42 in (1065 mm), inside car 80 in (2030 mm) side to side, 51 in (1295 mm) back wall to front return, 54 in (1370 mm) back wall to inside face of door; a tolerance of minus 5/8 in (16 mm) on the door (https://www.access-board.gov/ada/chapter/ch04/)";
 
-/** The call button's height read. */
+/*
+ * The call button's height read.
+ */
 const CALL: string = `2010 ADA Standards 407.2.1.1, call buttons "located within one of the reach ranges specified in 308", measured to the centreline of the highest operable part (https://www.access-board.gov/ada/chapter/ch04/); ${ADA_RANGES.reach.source}`;
 
-/**
+/*
  * A landing call station's faceplate, metres: KONE KSS 280's landing call
  * station, 58 wide, 180 high and 15 thick
  * (https://www.kone.com.au/Images/KONE%20KSS280%20Signalisation_tcm46-17878.pdf).
@@ -28,7 +32,7 @@ const STATION: Readonly<{ width: number; height: number; depth: number }> = {
   depth: 0.015,
 };
 
-/**
+/*
  * The construction sizes no source read gives, metres, each an estimate no act
  * reads and no band declares: `wall`, the car's wall and roof thickness;
  * `leaf`, a door leaf's thickness; `across`, the call station's place across

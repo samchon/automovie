@@ -9,7 +9,7 @@ import type {
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 
-/**
+/*
  * Where on a straight transport a hand that starts low over a surface may begin
  * to turn: once the path has lifted its tracked point off the surface by the
  * hand's own extent below that point, so the curled digits, which a turn swings
@@ -24,12 +24,11 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
  * normal, in the hand's shape at the start. The share is the extent over the
  * path's rise along the normal; the turn starts at once where the hand is far
  * from any surface or the path does not rise that far.
- *
- * @param at The transport's start frame.
- * @param start The arm placed at the start, with its collider probes.
- * @param from The tracked point at the start, world metres.
- * @param to The tracked point at the end, world metres.
- * @returns The share of the transport's progress the turn starts at, in [0, 1).
+ * Parameter at: The transport's start frame.
+ * Parameter start: The arm placed at the start, with its collider probes.
+ * Parameter from: The tracked point at the start, world metres.
+ * Parameter to: The tracked point at the end, world metres.
+ * Returns: The share of the transport's progress the turn starts at, in [0, 1).
  */
 export function HumanArmTrajectoryLiftTurn(
   at: IAutoMovieMotionHumanArmGeometry.IFrame,

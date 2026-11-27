@@ -8,7 +8,7 @@ import type {
 import { playbackEntryAt } from "./playbackEntryAt";
 import { playbackSampleAt } from "./playbackSampleAt";
 
-/**
+/*
  * Classify the edit relation between two output instants of one cut.
  *
  * Both instants resolve through the canonical playback mapping, so trims and
@@ -19,10 +19,9 @@ import { playbackSampleAt } from "./playbackSampleAt";
  * entry change, and any transition overlap at either instant, is a cut. A
  * declared break of that shot in `(before, after]` on its clock turns a
  * continuous relation into a discontinuity.
- *
- * @param props The cut, its layout, two output seconds and the deliberate
- *   breaks.
- * @returns The relation, with both shot clocks unless it is unavailable.
+ * Parameter props: The cut, its layout, two output seconds and the deliberate
+ * breaks.
+ * Returns: The relation, with both shot clocks unless it is unavailable.
  */
 export function classifyAutoMoviePlaybackBoundary(
   props: IAutoMovieClassifyPlaybackBoundary.IProps,
@@ -75,7 +74,7 @@ export function classifyAutoMoviePlaybackBoundary(
   return { boundary: broken ? "discontinuity" : "continuous", ...ends };
 }
 
-/**
+/*
  * Whether the incoming entry hard-cuts into the same shot at the source second
  * where the outgoing one stopped.
  */

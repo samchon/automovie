@@ -16,13 +16,13 @@ import { highFive } from "../../touch/internal/highFive";
 import { kiss } from "../../touch/internal/kiss";
 import { touch } from "../../touch/internal/touch";
 
-/**
+/*
  * Things two people do together or to each other in company, as rows of shipped
  * actions and as mutual records over them (`HumanChain.mutual`). Register the
  * rows a film uses.
  */
 export namespace HumanSocial {
-  /**
+  /*
    * A whisper: the lips brought to the partner's ear and held (two seconds,
    * provisional).
    */
@@ -33,7 +33,7 @@ export namespace HumanSocial {
     hold: 2,
   });
 
-  /**
+  /*
    * A kiss on the cheek. The lips stay 0.6 s (`kiss.HOLD`, provisional);
    * greeting, affection.
    */
@@ -43,7 +43,7 @@ export namespace HumanSocial {
     region: "cheekLeft",
   });
 
-  /**
+  /*
    * A kiss on the forehead. The lips stay 0.6 s (`kiss.HOLD`, provisional);
    * tenderness, farewell.
    */
@@ -53,7 +53,7 @@ export namespace HumanSocial {
     region: "forehead",
   });
 
-  /**
+  /*
    * A pat on the partner's shoulder; the composition gives the shoulder as the
    * target. Two pats of 0.4 s, then 0.4 s, 1.2 s after the reach
    * (`AutoMovieMotionHumanTouchForm.FORMS`, provisional); encouragement,
@@ -67,7 +67,7 @@ export namespace HumanSocial {
     HUMAN_TOUCH_SOCIAL_SHOULDER_PAT,
   );
 
-  /**
+  /*
    * A comforting hand held on the partner. Held 2 s after the reach
    * (provisional); condolence, reassurance.
    */
@@ -79,7 +79,7 @@ export namespace HumanSocial {
     HUMAN_TOUCH_SOCIAL_COMFORT,
   );
 
-  /**
+  /*
    * A fist bump, one role of it. The fists stay together 0.1 s, then return in
    * the reach's time (`highFive.REBOUND`, provisional); a friendly greeting
    * between peers.
@@ -90,7 +90,7 @@ export namespace HumanSocial {
     kind: "fist",
   });
 
-  /**
+  /*
    * A low five, one role of it. The hands stay together 0.1 s, then return in
    * the reach's time (`highFive.REBOUND`, provisional); a low-key greeting, a
    * child's game.
@@ -101,7 +101,7 @@ export namespace HumanSocial {
     kind: "low",
   });
 
-  /**
+  /*
    * A sip taken after a toast. Takes the sip as the `sip` drink row does: held
    * 0.5 s at the mouth (`handToFaceRows.ROWS`, provisional).
    */
@@ -111,7 +111,7 @@ export namespace HumanSocial {
     kind: "sip",
   });
 
-  /**
+  /*
    * A fist bump between two people: both perform `fistBump`. With `window`,
    * film seconds, the fists meet no earlier than its `from` and part at its
    * `to` (`AutoMovieMotionMeeting.IWindow`).
@@ -132,7 +132,7 @@ export namespace HumanSocial {
     }),
   };
 
-  /**
+  /*
    * A toast: each role brings the glass its right hand holds to one shared
    * point at the mean of the two chest heights (provisional: no source for a
    * clink's height was read), the glass upright, so the rims meet. Each
@@ -167,7 +167,7 @@ export namespace HumanSocial {
     }),
   };
 
-  /**
+  /*
    * A pinky promise, one role of it: the hands meet at chest height as fists do
    * (first pass; the hooked little fingers are not shaped). The fists meet as a
    * fist bump does (`highFive.REBOUND`, 0.1 s); the hooked fingers are not
@@ -179,7 +179,7 @@ export namespace HumanSocial {
     kind: "fist",
   });
 
-  /**
+  /*
    * Rock, paper, scissors: both players pump a fist three times on one start
    * (first pass: each performs `shakeFist` three times; the shared count is the
    * common start, and the throw's hand shape is not set). Three fist pumps on
@@ -198,7 +198,7 @@ export namespace HumanSocial {
     }),
   };
 
-  /**
+  /*
    * A firm, slow pat or press of the palm on the partner (Laban's press:
    * strong, sustained, direct); the composition gives the region. The press
    * takes 0.4 s and holds 1.2 s (`touch`'s defaults, provisional); steadying,
@@ -212,7 +212,7 @@ export namespace HumanSocial {
     HUMAN_TOUCH_SOCIAL_FIRM_PRESS,
   );
 
-  /**
+  /*
    * A light, quick flick of the fingertips on the partner, as brushing lint off
    * a shoulder (Laban's flick: light, sudden, indirect); the composition gives
    * the region. One stroke lasting a flick's 0.151 s, a proxy from a flick
@@ -227,7 +227,7 @@ export namespace HumanSocial {
     manner: AutoMovieMotionManner.PRESETS.flick,
   });
 
-  /**
+  /*
    * Arm wrestling across a table: both perform `armWrestle` on one point of the
    * table's top, `table` in world metres, and `winner` pins the other after
    * `seconds` of struggle (3 when absent), the forearms ending `pin` degrees
@@ -266,7 +266,7 @@ export namespace HumanSocial {
     },
   };
 
-  /**
+  /*
    * Thumb wrestling, first pass: the clasp of a handshake held through five
    * small pumps (the thumbs' own play is not staged yet). Five pumps at the
    * handshake's 2.43 Hz, about 2.1 s (Tagne et al. 2016; `handshake`), after
@@ -286,7 +286,7 @@ export namespace HumanSocial {
       }),
     };
 
-  /**
+  /*
    * A toast of four: two pairs clink at once, host with guest and third with
    * fourth, each as `toast` does. With `at`, a world point in metres, all four
    * bring their glasses to that one point (first pass: the four rims are asked
@@ -326,56 +326,92 @@ export namespace HumanSocial {
   };
 }
 
-/** The alternatives of `CastEntryItem5`'s site. */
+/*
+ * The alternatives of `CastEntryItem5`'s site.
+ */
 type CastEntryItem5 = "host" | "guest" | "third" | "fourth";
 
-/** The alternatives of `ToastOfFourRole`'s site. */
+/*
+ * The alternatives of `ToastOfFourRole`'s site.
+ */
 type ToastOfFourRole = "host" | "guest" | "third" | "fourth";
 
-/** The alternatives of `ToastOfFour`'s site. */
+/*
+ * The alternatives of `ToastOfFour`'s site.
+ */
 type ToastOfFour = "host" | "guest" | "third" | "fourth";
 
-/** The alternatives of `CastEntryItem4`'s site. */
+/*
+ * The alternatives of `CastEntryItem4`'s site.
+ */
 type CastEntryItem4 = "one" | "other";
 
-/** The alternatives of `ThumbWrestleRole`'s site. */
+/*
+ * The alternatives of `ThumbWrestleRole`'s site.
+ */
 type ThumbWrestleRole = "one" | "other";
 
-/** The alternatives of `ThumbWrestle`'s site. */
+/*
+ * The alternatives of `ThumbWrestle`'s site.
+ */
 type ThumbWrestle = "one" | "other";
 
-/** The alternatives of `CastEntryItem3`'s site. */
+/*
+ * The alternatives of `CastEntryItem3`'s site.
+ */
 type CastEntryItem3 = "one" | "other";
 
-/** The alternatives of `ArmWrestleRole`'s site. */
+/*
+ * The alternatives of `ArmWrestleRole`'s site.
+ */
 type ArmWrestleRole = "one" | "other";
 
-/** The alternatives of `ArmWrestle`'s site. */
+/*
+ * The alternatives of `ArmWrestle`'s site.
+ */
 type ArmWrestle = "one" | "other";
 
-/** The alternatives of `RockPaperScissors`'s site. */
+/*
+ * The alternatives of `RockPaperScissors`'s site.
+ */
 type RockPaperScissors = "one" | "other";
 
-/** The alternatives of `CastEntryItem2`'s site. */
+/*
+ * The alternatives of `CastEntryItem2`'s site.
+ */
 type CastEntryItem2 = "host" | "guest";
 
-/** The alternatives of `ToastRole`'s site. */
+/*
+ * The alternatives of `ToastRole`'s site.
+ */
 type ToastRole = "host" | "guest";
 
-/** The alternatives of `Toast`'s site. */
+/*
+ * The alternatives of `Toast`'s site.
+ */
 type Toast = "host" | "guest";
 
-/** The alternatives of `CastEntryItem`'s site. */
+/*
+ * The alternatives of `CastEntryItem`'s site.
+ */
 type CastEntryItem = "one" | "other";
 
-/** The record of `IBumpParams`'s site. */
+/*
+ * The record of `IBumpParams`'s site.
+ */
 type IBumpParams = { window?: IAutoMovieMotionMeeting.IWindow };
 
-/** The alternatives of `BumpRole`'s site. */
+/*
+ * The alternatives of `BumpRole`'s site.
+ */
 type BumpRole = "one" | "other";
 
-/** The alternatives of `Bump`'s site. */
+/*
+ * The alternatives of `Bump`'s site.
+ */
 type Bump = "one" | "other";
 
-/** The record of `IBump`'s site. */
+/*
+ * The record of `IBump`'s site.
+ */
 type IBump = { window?: IAutoMovieMotionMeeting.IWindow };

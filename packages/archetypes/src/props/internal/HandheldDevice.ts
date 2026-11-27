@@ -10,7 +10,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 
-/** A band in kilograms. */
+/*
+ * A band in kilograms.
+ */
 const kg = (
   minimum: number,
   maximum: number,
@@ -19,23 +21,29 @@ const kg = (
 ): IAutoMovieArchetypeBand =>
   AutoMovieArchetypeBand.of("kg", minimum, maximum, source, provisional);
 
-/**
+/*
  * Apple's phone specification pages; the smallest and largest rows were read on
  * the comparison page by position.
  */
 const PHONE: string =
   "Apple iPhone 16 and 17 technical specifications (https://www.apple.com/iphone-16/specs/, https://www.apple.com/iphone-17/specs/); the extremes from Apple's comparison page (https://www.apple.com/iphone/compare/), its rows matched to models by position";
 
-/** One maker's remote read at its page and two seen in listings. */
+/*
+ * One maker's remote read at its page and two seen in listings.
+ */
 const REMOTE: string =
   "Apple TV 4K technical specifications, Siri Remote (https://www.apple.com/apple-tv-4k/specs/); the larger end from Roku and Amazon remote listings seen only in search results";
 
-/** Shared case construction and the existing records for handheld electronics. */
+/*
+ * Shared case construction and the existing records for handheld electronics.
+ */
 export namespace HandheldDevice {
   /** The kinds of device. */
   export type Kind = "phone" | "camera" | "remote" | "tablet" | "walkieTalkie";
 
-  /** Every kind, for a caller that reads one at run time. */
+  /*
+   * Every kind, for a caller that reads one at run time.
+   */
   export const KINDS: readonly Kind[] = [
     "phone",
     "camera",
@@ -79,7 +87,9 @@ export namespace HandheldDevice {
    */
   export type Dimension = "width" | "height" | "thickness" | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /*
+   * Each dimension's unit, which its band and any model's figure for it share.
+   */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -125,7 +135,7 @@ export namespace HandheldDevice {
     | "liIon2250"
     | "liIon2900";
 
-  /**
+  /*
    * Each kind's models whole, the default first, width x height x thickness and
    * mass:
    *
@@ -185,7 +195,9 @@ export namespace HandheldDevice {
     },
   };
 
-  /** The band of each free dimension, by kind. */
+  /*
+   * The band of each free dimension, by kind.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
@@ -206,16 +218,22 @@ export namespace HandheldDevice {
     walkieTalkie: {},
   };
 
-  /** What {@link draw} prepares for its caller. */
+  /*
+   * What draw prepares for its caller.
+   */
   export interface IDrawResult<Id extends string> {
-    /** The prepared `builder` this call returns. */
+    /*
+     * The prepared `builder` this call returns.
+     */
     builder: AutoMovieArchetypeBuilder<Id, Dimension>;
 
-    /** The prepared `size` this call returns. */
+    /*
+     * The prepared `size` this call returns.
+     */
     size: Record<Dimension, number>;
   }
 
-  /**
+  /*
    * Draws original dimensions in metres and mass in kilograms before geometry
    * is built.
    */
@@ -258,7 +276,9 @@ export namespace HandheldDevice {
     };
   }
 
-  /** Builds a dark rectangular case in metres, centered on its bottom edge. */
+  /*
+   * Builds a dark rectangular case in metres, centered on its bottom edge.
+   */
   export function caseBody<Id extends string>(
     builder: AutoMovieArchetypeBuilder<Id, Dimension>,
     width: number,
@@ -275,7 +295,9 @@ export namespace HandheldDevice {
     );
   }
 
-  /** Faces the front of a case at a given height and depth in metres. */
+  /*
+   * Faces the front of a case at a given height and depth in metres.
+   */
   export function front(
     y: number,
     depth: number,
@@ -287,10 +309,14 @@ export namespace HandheldDevice {
     );
   }
 
-  /** The contact ids {@link smallGrips} builds or reads. */
+  /*
+   * The contact ids smallGrips builds or reads.
+   */
   export type SmallGripsContact = "grip" | "pinch";
 
-  /** Constructs the two grasps of a shallow case. */
+  /*
+   * Constructs the two grasps of a shallow case.
+   */
   export function smallGrips(
     width: number,
     height: number,
@@ -328,16 +354,24 @@ export namespace HandheldDevice {
     ];
   }
 
-  /** The face contact ids {@link fullFace} can add beside the grip. */
+  /*
+   * The face contact ids fullFace can add beside the grip.
+   */
   export type FaceContact = "screen" | "speaker";
 
-  /** The grip together with the face contact a slab adds. */
+  /*
+   * The grip together with the face contact a slab adds.
+   */
   export type FaceAndGrip<Face extends FaceContact> = "grip" | Face;
 
-  /** The values {@link fullFace} accepts at this place in its signature. */
+  /*
+   * The values fullFace accepts at this place in its signature.
+   */
   export type FullFaceKind = "tablet" | "walkieTalkie";
 
-  /** Builds a full-height grip and front surface on the upright slab. */
+  /*
+   * Builds a full-height grip and front surface on the upright slab.
+   */
   export function fullFace<Face extends FaceContact>(
     kind: FullFaceKind,
     name: string,

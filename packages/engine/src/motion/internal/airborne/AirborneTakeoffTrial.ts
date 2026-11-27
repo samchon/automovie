@@ -12,18 +12,17 @@ import { AirborneTakeoffJacobian } from "./AirborneTakeoffJacobian";
 import { MotionTrajectoryPartition } from "../trajectory/MotionTrajectoryPartition";
 import { IntegrateAirborneRotationImplementation } from "../IntegrateAirborneRotationImplementation";
 
-/**
+/*
  * Evaluate shooting points with optional momentum sensitivities. A search point
  * is integrated under the embedded error estimate alone (the integration
  * tolerance); the sampled dense momentum control, which certifies the momentum
  * a displayed flight carries, is paid only by the judged evaluation of the
  * solution (`judged`), the one flight that is played back and refused or
  * accepted.
- *
- * @param props One unchanged physical history, flight and numerical budgets.
- * @param axes Requested turning axes in the takeoff root frame.
- * @param frame Their world orientation at takeoff.
- * @returns Call-local trial, retarget and mesh-release operations.
+ * Parameter props: One unchanged physical history, flight and numerical budgets.
+ * Parameter axes: Requested turning axes in the takeoff root frame.
+ * Parameter frame: Their world orientation at takeoff.
+ * Returns: Call-local trial, retarget and mesh-release operations.
  */
 export function AirborneTakeoffTrial(
   props: IAutoMovieSolveAirborneTakeoff.IProps,
@@ -125,9 +124,11 @@ export function AirborneTakeoffTrial(
   };
 }
 
-/** Physical shooting points and their call-local evaluator. */
+/*
+ * Physical shooting points and their call-local evaluator.
+ */
 export namespace AirborneTakeoffTrial {
-  /**
+  /*
    * A physical trial at takeoff-frame momentum components, kg m squared per
    * second.
    *
@@ -140,19 +141,29 @@ export namespace AirborneTakeoffTrial {
    * second physical state, synthetic derivative or success flag.
    */
   export interface IPoint {
-    /** Fresh local momentum coordinates. */
+    /*
+     * Fresh local momentum coordinates.
+     */
     local: number[];
-    /** Actual unwrapped endpoint in radians. */
+    /*
+     * Actual unwrapped endpoint in radians.
+     */
     end: IAutoMovieSolveAirborneTakeoff.IAngles;
-    /** Endpoint minus the current full stage target, radians. */
+    /*
+     * Endpoint minus the current full stage target, radians.
+     */
     r: number[];
-    /** Angle derivatives for Newton, absent on residual-only and judged trials. */
+    /*
+     * Angle derivatives for Newton, absent on residual-only and judged trials.
+     */
     jacobian: number[][] | undefined;
-    /** The actual numeric flight whose endpoint and residual were observed. */
+    /*
+     * The actual numeric flight whose endpoint and residual were observed.
+     */
     flight: IAutoMovieIntegrateAirborneRotation.IFlight;
   }
 
-  /**
+  /*
    * Trial evaluation and exact-point reuse within one unchanged solve.
    *
    * Defines actual optional-sensitivity evaluation, pure retargeting and
@@ -163,7 +174,7 @@ export namespace AirborneTakeoffTrial {
    * derivative availability, without a public trusted-cache flag.
    */
   export interface IOperation {
-    /**
+    /*
      * Integrate only the requested physical/tangent system, under the momentum
      * control only when judged, or reuse an exactly equal search point having
      * the required data.
@@ -176,9 +187,13 @@ export namespace AirborneTakeoffTrial {
       rejected?: IPoint,
       judged?: boolean,
     ): IPoint;
-    /** Change only the target subtracted from an unchanged physical endpoint. */
+    /*
+     * Change only the target subtracted from an unchanged physical endpoint.
+     */
     retarget(point: IPoint, target: readonly number[]): IPoint;
-    /** Release any operation-owned temporal partition on success or failure. */
+    /*
+     * Release any operation-owned temporal partition on success or failure.
+     */
     clear(): void;
   }
 }

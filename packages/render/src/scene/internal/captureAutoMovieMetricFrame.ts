@@ -5,7 +5,7 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
 import { assertAutoMovieMetricRasterBudget } from "./assertAutoMovieMetricRasterBudget.js";
 import { captureAutoMovieFramebufferRestore } from "./captureAutoMovieFramebufferRestore.js";
 
-/**
+/*
  * Capture the caller's current scene through an explicit calibrated camera. The
  * requested dimensions are physical output pixels, independent of the borrowed
  * renderer's device ratio. A silhouette pass uses black meshes on white,

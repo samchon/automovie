@@ -4,16 +4,15 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/**
+/*
  * Validate one camera-clearance envelope before it reaches the resolved scene.
  *
  * The `body` sphere and a non-null `parentRig` sphere each need a `radius`
  * greater than zero, in metres. Violations go to `out` at `<path>.body.radius`
  * and `<path>.parentRig.radius`.
- *
- * @param value The authored envelope.
- * @param path Violation path of the envelope.
- * @param out Collector the violations are appended to.
+ * Parameter value: The authored envelope.
+ * Parameter path: Violation path of the envelope.
+ * Parameter out: Collector the violations are appended to.
  */
 export function validateCameraClearanceEnvelope(
   value: IAutoMovieCameraClearanceEnvelope,
@@ -25,7 +24,9 @@ export function validateCameraClearanceEnvelope(
     validateSphere(value.parentRig, `${path}.parentRig`, out);
 }
 
-/** One clearance sphere: a positive radius. */
+/*
+ * One clearance sphere: a positive radius.
+ */
 function validateSphere(
   sphere: IAutoMovieCameraClearanceSphere,
   path: string,

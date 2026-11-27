@@ -1,6 +1,6 @@
 import { IAutoMovieGait, IAutoMovieModel } from "@automovie/interface";
 
-/**
+/*
  * The gaits one runtime model can perform, in the order its profiles declare
  * them.
  *
@@ -16,9 +16,8 @@ import { IAutoMovieGait, IAutoMovieModel } from "@automovie/interface";
  * mutate it. A model with no profiles, or whose profiles declare no gaits,
  * yields an empty array. Later profiles' gaits are ignored even when they
  * declare different ones.
- *
- * @param model Runtime model whose profiles are read.
- * @returns The first non-empty profile gait list, or an empty array.
+ * Parameter model: Runtime model whose profiles are read.
+ * Returns: The first non-empty profile gait list, or an empty array.
  */
 export function autoMovieModelGaits(
   model: Pick<IAutoMovieModel, "profiles">,

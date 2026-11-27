@@ -15,7 +15,7 @@ import type { prepareSupportHeldFrames } from "./prepareSupportHeldFrames";
 import { supportContact } from "./supportContact";
 import type { supportPlan } from "./supportPlan";
 
-/**
+/*
  * The sole socket each floor foot holds through its window: its ball, the point
  * a turning foot pivots on, unless at the key it is set down on the ball is off
  * the floor above a bearing heel (`HumanFoot.BEARING`), when its heel. A foot
@@ -24,10 +24,9 @@ import type { supportPlan } from "./supportPlan";
  * it (`IAutoMovieMotionHumanContactWindow.socket`), so the audits read the
  * point the foot holds: a heel swinging about a held ball as the body turns is
  * a pivot, not a slip (the staged clinch's 25 mm).
- *
- * @param body The body.
- * @param keys The solved keys in time order.
- * @returns The held socket by contact; none for a contact not on the floor.
+ * Parameter body: The body.
+ * Parameter keys: The solved keys in time order.
+ * Returns: The held socket by contact; none for a contact not on the floor.
  */
 export function supportHeldSocket(
   body: IAutoMovieMotionHumanBody,
@@ -76,8 +75,12 @@ export function supportHeldSocket(
   ): SupportHeldSocketResult => held.get(supportContact.id(contact));
 }
 
-/** The alternatives of `SupportHeldSocketResult`'s site. */
+/*
+ * The alternatives of `SupportHeldSocketResult`'s site.
+ */
 type SupportHeldSocketResult = "heel" | "ball" | undefined;
 
-/** The alternatives of `SupportHeldSocketHeldEntry`'s site. */
+/*
+ * The alternatives of `SupportHeldSocketHeldEntry`'s site.
+ */
 type SupportHeldSocketHeldEntry = "heel" | "ball";

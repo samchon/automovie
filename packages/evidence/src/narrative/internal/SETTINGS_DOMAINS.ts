@@ -1,4 +1,4 @@
-/**
+/*
  * The scaffold's settings domains under `docs/body/settings`, in reading order.
  *
  * One list serves both the filesystem reader's order and validation and the

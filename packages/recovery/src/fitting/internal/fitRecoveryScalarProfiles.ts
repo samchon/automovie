@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryScalarProfilesFittingOperation } from "@automovie/interface";
 
-/**
+/*
  * Fit co-charted scalar profiles in one clamped uniform cubic B-spline space.
  * Unpivoted Householder QR acts on the original design and all right-hand
  * sides; the diagonal ratio is an operational rank test, not a certified

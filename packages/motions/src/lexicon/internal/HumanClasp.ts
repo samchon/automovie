@@ -18,15 +18,19 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 
-/** Seconds a hand takes to reach its hold (provisional). */
+/*
+ * Seconds a hand takes to reach its hold (provisional).
+ */
 const REACH: number = 0.3;
 
-/** Admit the holds, then sample. */
+/*
+ * Admit the holds, then sample.
+ */
 function planHumanClasp(context: Context): IAutoMovieMotionHumanActionPlan {
   return plan(context);
 }
 
-/**
+/*
  * Hold on with the hands (`IAutoMovieMotionHumanClasp`): the entry posture
  * carried by its own carrier's contact, or standing where it is, while each
  * named hand reaches its hold over `REACH` and follows it: a partner's
@@ -43,7 +47,9 @@ export const HumanClasp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCla
     plan: planHumanClasp,
   };
 
-/** Admit and sample. */
+/*
+ * Admit and sample.
+ */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanClasp = context.params;
   HumanBound.above("duration", params.duration, 0, "s");
@@ -175,5 +181,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     : HumanMountedFrame.coursed(goals, carrier, context.start, lay);
 }
 
-/** The law's context. */
+/*
+ * The law's context.
+ */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClasp>;

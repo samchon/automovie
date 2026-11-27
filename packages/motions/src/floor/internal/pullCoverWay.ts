@@ -1,13 +1,12 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * The point a share of the way along a polyline: its length measured along its
  * pieces, the share clamped to the way.
- *
- * @param way The polyline's points, two or more.
- * @param progress The share of its length, 0 to 1.
- * @returns The point, metres.
+ * Parameter way: The polyline's points, two or more.
+ * Parameter progress: The share of its length, 0 to 1.
+ * Returns: The point, metres.
  */
 export function pullCoverWay(
   way: readonly IAutoMovieVector3[],

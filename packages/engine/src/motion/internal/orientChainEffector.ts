@@ -25,7 +25,7 @@ import { resolveBoneMap } from "./resolveBoneMap";
 import { resolveChainEffectorBaseRotation } from "./resolveChainEffectorBaseRotation";
 import { resolvePreparedChainFrames } from "./resolvePreparedChainFrames";
 
-/**
+/*
  * Turn a fitted effector toward a requested model-frame rotation within its
  * actual clinical domain. A distal mid bone takes its twist share first.
  * Removing the resulting lower rotation and the fixed lower-to-effector frame
@@ -37,18 +37,17 @@ import { resolvePreparedChainFrames } from "./resolvePreparedChainFrames";
  * rotation. Prepared callers reuse that frame and chain-only FK. Standalone
  * callers retain full authored FK admission before deriving it; unsupported
  * chains retain the previous direct-rest fallback.
- *
- * @param props The fit request; without effectorRotation the pose returns
- *   unchanged.
- * @param fitted The fitted pose.
- * @param prepared Preparation for the same root, ancestors, intermediate pose
- *   and merged clinical mappings; only chain articulations may differ.
- * @param rig Optional lazy rig of the same source workspace; basis, clamps,
- *   local projection and fixed inverse remain valid only under unchanged
- *   rig/frame dependencies.
- * @param capture Immediate reader of the final projected rotation and optional
- *   position, when the native rig admitted the lower prefix.
- * @returns The pose with the effector oriented inside its rig's limits.
+ * Parameter props: The fit request; without effectorRotation the pose returns
+ * unchanged.
+ * Parameter fitted: The fitted pose.
+ * Parameter prepared: Preparation for the same root, ancestors, intermediate pose
+ * and merged clinical mappings; only chain articulations may differ.
+ * Parameter rig: Optional lazy rig of the same source workspace; basis, clamps,
+ * local projection and fixed inverse remain valid only under unchanged
+ * rig/frame dependencies.
+ * Parameter capture: Immediate reader of the final projected rotation and optional
+ * position, when the native rig admitted the lower prefix.
+ * Returns: The pose with the effector oriented inside its rig's limits.
  */
 export function orientChainEffector(
   props: IAutoMovieFitChainToTargetProps,

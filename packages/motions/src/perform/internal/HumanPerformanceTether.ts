@@ -14,7 +14,7 @@ import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { humanTetherCatenary } from "./humanTetherCatenary";
 import { humanTetherReach } from "./humanTetherReach";
 
-/**
+/*
  * The lines between props (`IAutoMovieMotionHumanTether`): where a line lies at
  * a second, and how it holds its far prop.
  *
@@ -29,17 +29,16 @@ import { humanTetherReach } from "./humanTetherReach";
  * catenary of its length between its ends (Irvine 1981, Cable Structures).
  */
 export namespace HumanPerformanceTether {
-  /**
+  /*
    * The line as it lies at a second.
-   *
-   * @param self The resolved performance.
-   * @param subject The prop the line runs from.
-   * @param id The line's id.
-   * @param seconds Film seconds.
-   * @param frame Reads a prop's displayed frame.
-   * @returns The ends, the length, whether taut and the drawn points.
-   * @throws {HumanRefusal} For an unknown prop, line or point, or a length of
-   *   no line.
+   * Parameter self: The resolved performance.
+   * Parameter subject: The prop the line runs from.
+   * Parameter id: The line's id.
+   * Parameter seconds: Film seconds.
+   * Parameter frame: Reads a prop's displayed frame.
+   * Returns: The ends, the length, whether taut and the drawn points.
+   * For an unknown prop, line or point, or a length of
+   * no line.
    */
   export function span(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -79,15 +78,14 @@ export namespace HumanPerformanceTether {
     };
   }
 
-  /**
+  /*
    * A prop's frame held by the lines that run to it.
-   *
-   * @param self The resolved performance.
-   * @param subject The prop.
-   * @param seconds Film seconds.
-   * @param rested Its frame as its carriers leave it.
-   * @param frame Reads a prop's displayed frame.
-   * @returns The frame, pulled to each line's length while the prop rests.
+   * Parameter self: The resolved performance.
+   * Parameter subject: The prop.
+   * Parameter seconds: Film seconds.
+   * Parameter rested: Its frame as its carriers leave it.
+   * Parameter frame: Reads a prop's displayed frame.
+   * Returns: The frame, pulled to each line's length while the prop rests.
    */
   export function pull(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -129,24 +127,22 @@ export namespace HumanPerformanceTether {
     return placed;
   }
 
-  /**
+  /*
    * How far a line is stretched past its length at a second: zero when it
    * reaches.
-   *
-   * @param span The line as it lies.
-   * @returns Metres.
+   * Parameter span: The line as it lies.
+   * Returns: Metres.
    */
   export function stretch(span: IAutoMovieMotionHumanTether.ISpan): number {
     return Math.max(0, Vector3.distance(span.from, span.to) - span.length);
   }
 
-  /**
+  /*
    * The lines by far prop, built once when the performance's props are known
    * (`IAutoMovieMotionHumanPerformanceState.tethered`).
-   *
-   * @param props The performance's props, by subject.
-   * @returns Each far prop's lines with the prop each runs from, in prop and
-   *   declaration order.
+   * Parameter props: The performance's props, by subject.
+   * Returns: Each far prop's lines with the prop each runs from, in prop and
+   * declaration order.
    */
   export function index(
     props: ReadonlyMap<string, IAutoMovieMotionHumanProp>,
@@ -162,10 +158,12 @@ export namespace HumanPerformanceTether {
   }
 }
 
-/** A tether found by its far prop: the declaring prop and the line. */
+/*
+ * A tether found by its far prop: the declaring prop and the line.
+ */
 type IHeld = IAutoMovieMotionHumanPerformanceState.ITethered;
 
-/**
+/*
  * Whether a hand or a wear carries the prop at a second. A mount a launch
  * leaves is not read: a flight only pays the line out, so a line long enough
  * never pulls it, and one too short stops it.
@@ -181,7 +179,9 @@ function carried(
   );
 }
 
-/** The line out at a second. */
+/*
+ * The line out at a second.
+ */
 function out(
   self: IAutoMovieMotionHumanPerformanceState,
   tether: IAutoMovieMotionHumanTether,
@@ -201,7 +201,7 @@ function out(
   return Math.max(0, metres);
 }
 
-/**
+/*
  * A driven line's articulation travel at a second, in its own unit: zero,
  * without reading the prop's state, until an action's drive or the prop's own
  * track has begun moving it.
@@ -220,7 +220,9 @@ function paid(
   );
 }
 
-/** Whether a drive or a track on a prop's articulation starts by a second. */
+/*
+ * Whether a drive or a track on a prop's articulation starts by a second.
+ */
 function begun(
   self: IAutoMovieMotionHumanPerformanceState,
   owner: IAutoMovieMotionHumanProp,
@@ -246,7 +248,9 @@ function begun(
   return false;
 }
 
-/** A prop's named point in the world. */
+/*
+ * A prop's named point in the world.
+ */
 function point(
   owner: IAutoMovieMotionHumanProp,
   id: string,
@@ -267,7 +271,9 @@ function point(
   );
 }
 
-/** A declared prop, or a refusal. */
+/*
+ * A declared prop, or a refusal.
+ */
 function prop(
   self: IAutoMovieMotionHumanPerformanceState,
   subject: string,
@@ -280,7 +286,9 @@ function prop(
 
 type RefuseValue = string | number;
 
-/** A tether refusal. */
+/*
+ * A tether refusal.
+ */
 function refuse(
   axis: string,
   value: RefuseValue,

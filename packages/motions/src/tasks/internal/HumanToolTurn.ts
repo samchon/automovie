@@ -4,17 +4,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A held tool's working pose turned about a fixed world axis through a pivot
  * (`useTool`): a hammer's head raised about the grip, a screwdriver turned
  * about its own line through the work point.
- *
- * @param pose The working pose: the grip's world point, metres, and the hand's
- *   world rotation.
- * @param axis The world axis the pose turns about; need not be unit length.
- * @param about The world point the axis passes through, metres.
- * @returns For a turn in degrees (right-handed about `axis`), the turned grip
- *   and hand rotation, fresh records.
+ * Parameter pose: The working pose: the grip's world point, metres, and the hand's
+ * world rotation.
+ * Parameter axis: The world axis the pose turns about; need not be unit length.
+ * Parameter about: The world point the axis passes through, metres.
+ * Returns: For a turn in degrees (right-handed about `axis`), the turned grip
+ * and hand rotation, fresh records.
  */
 export function HumanToolTurn(
   pose: IHumanToolTurnPose,
@@ -33,19 +32,25 @@ export function HumanToolTurn(
   };
 }
 
-/** The record of `IHumanToolTurnResult2`'s site. */
+/*
+ * The record of `IHumanToolTurnResult2`'s site.
+ */
 type IHumanToolTurnResult2 = {
   grip: IAutoMovieVector3;
   rotation: IAutoMovieQuaternion;
 };
 
-/** The record of `IHumanToolTurnResult`'s site. */
+/*
+ * The record of `IHumanToolTurnResult`'s site.
+ */
 type IHumanToolTurnResult = {
   grip: IAutoMovieVector3;
   rotation: IAutoMovieQuaternion;
 };
 
-/** The record of `IHumanToolTurnPose`'s site. */
+/*
+ * The record of `IHumanToolTurnPose`'s site.
+ */
 type IHumanToolTurnPose = {
   grip: IAutoMovieVector3;
   rotation: IAutoMovieQuaternion;

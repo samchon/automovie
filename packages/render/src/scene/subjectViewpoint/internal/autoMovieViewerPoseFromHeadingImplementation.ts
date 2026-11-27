@@ -3,7 +3,7 @@ import * as THREE from "three";
 import type { IAutoMovieViewerSubjectLens } from "../../IAutoMovieViewerSubjectLens.js";
 import type { IAutoMovieViewerSubjectPose } from "../../IAutoMovieViewerSubjectPose.js";
 
-/**
+/*
  * Resolve an inspection heading into a target one metre ahead: yaw zero faces
  * -Z, positive yaw faces -X, and positive pitch points upward. The returned
  * pose borrows position and lens; clip range is checked only by ordered

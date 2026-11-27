@@ -58,7 +58,9 @@ export class AutoMovieSkinnedMesh<
   /** Blend the shader draws this skin with; `linear` is Three's own. */
   public method: NonNullable<IAutoMovieMeshSkin["method"]>;
 
-  /** The cached CPU pose: positions, extent and the joint-only sphere. */
+  /*
+   * The cached CPU pose: positions, extent and the joint-only sphere.
+   */
   private readonly cpu: AutoMovieSkinPose = new AutoMovieSkinPose(this);
 
   /**
@@ -239,10 +241,14 @@ export class AutoMovieSkinnedMesh<
 
 const STRIDE: number = AutoMovieSkinBlend.STRIDE;
 
-/** The four joints of one uncached vertex query. */
+/*
+ * The four joints of one uncached vertex query.
+ */
 const SINGLE: Float64Array = new Float64Array(4 * STRIDE);
 
-/** One uncached query's result. */
+/*
+ * One uncached query's result.
+ */
 const RESULT: Float64Array = new Float64Array(3);
 
 const _index: THREE.Vector4 = new THREE.Vector4();

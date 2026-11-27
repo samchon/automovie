@@ -43,7 +43,7 @@ import { kissPose } from "./kissPose";
 import { kissPresentedHand } from "./kissPresentedHand";
 import { kissProjection } from "./kissProjection";
 
-/**
+/*
  * A kiss while standing: the lips brought to a partner's region (a cheek, the
  * forehead, the crown, the lips, the back of a hand) by leaning the body from
  * the hips and flexing the neck, the head turned to one side for a cheek or the
@@ -69,10 +69,14 @@ import { kissProjection } from "./kissProjection";
  * Events: the phrase instants, with `contact` at `ready` and `part` at `relax`.
  */
 export namespace kiss {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "kiss";
 
-  /** Cancel table. */
+  /*
+   * Cancel table.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
@@ -81,13 +85,17 @@ export namespace kiss {
       flinch: ["anytime", "reflex"],
     });
 
-  /** The head's turn for a cheek or the lips, degrees (provisional). */
+  /*
+   * The head's turn for a cheek or the lips, degrees (provisional).
+   */
   export const TURN: number = 30;
 
-  /** The kiss's hold, seconds (provisional). */
+  /*
+   * The kiss's hold, seconds (provisional).
+   */
   export const HOLD: number = 0.6;
 
-  /**
+  /*
    * The most the body leans to a side, degrees: with both feet planted a side
    * lean from the hips turns one hip into adduction and the other into
    * abduction by the lean, so it is the lesser of the hip's adduction and
@@ -98,13 +106,19 @@ export namespace kiss {
     DEFAULT_HUMANOID_ROM.leftUpperLeg?.abduction?.max ?? 0,
   );
 
-  /** The most the heels rise, degrees (provisional). */
+  /*
+   * The most the heels rise, degrees (provisional).
+   */
   export const RAISE: number = 35;
 
-  /** The miss under which the heels stay down, metres (provisional). */
+  /*
+   * The miss under which the heels stay down, metres (provisional).
+   */
   export const NEAR: number = 0.005;
 
-  /** Resolve which hand participates in the authored meeting. */
+  /*
+   * Resolve which hand participates in the authored meeting.
+   */
   export function handFor(
     region: IAutoMovieMotionHumanKiss.IParams["region"],
     role: IAutoMovieMotionHumanKiss.IParams["handRole"],
@@ -123,7 +137,9 @@ export namespace kiss {
     return hand;
   }
 
-  /** Admit the final measured mouth placement on the named region. */
+  /*
+   * Admit the final measured mouth placement on the named region.
+   */
   export function admitReach(
     region: IAutoMovieMotionHumanKiss.IParams["region"],
     solved: IAutoMovieMotionHumanKiss.ISolved,
@@ -139,18 +155,17 @@ export namespace kiss {
       });
   }
 
-  /**
+  /*
    * The lean, the neck flexion and the heel raise that bring the mouth nearest
    * a point.
-   *
-   * @param context The body.
-   * @param entry The standing posture.
-   * @param stance Both feet as they stand.
-   * @param twist The head's twist, degrees.
-   * @param at The point, world.
-   * @param seated Whether a seat bears the body: no heel is raised then, the
-   *   lean from the seat being all.
-   * @returns The angles, degrees, and the miss, metres.
+   * Parameter context: The body.
+   * Parameter entry: The standing posture.
+   * Parameter stance: Both feet as they stand.
+   * Parameter twist: The head's twist, degrees.
+   * Parameter at: The point, world.
+   * Parameter seated: Whether a seat bears the body: no heel is raised then, the
+   * lean from the seat being all.
+   * Returns: The angles, degrees, and the miss, metres.
    */
   export function solve(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
@@ -332,13 +347,12 @@ export namespace kiss {
     );
   }
 
-  /**
+  /*
    * Plan a kiss.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative, or when the solved lean,
-   *   neck and rise leave the mouth more than `NEAR` from the region.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the hold is negative, or when the solved lean,
+   * neck and rise leave the mouth more than `NEAR` from the region.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKiss.IParams>,
@@ -436,7 +450,9 @@ export namespace kiss {
     // driving the head on into the partner (laws/authoring.md, Out of reach).
     admitReach(p.region, solved);
 
-    /** The direct kiss keeps its own transport and manner. */
+    /*
+     * The direct kiss keeps its own transport and manner.
+     */
     function solo(): IAutoMovieMotionClock {
       const travel: number = Vector3.distance(
         HumanTrunk.region(body, entry, "mouth").point,
@@ -498,5 +514,7 @@ export namespace kiss {
   }
 }
 
-/** The alternatives of `PlanSurface`'s site. */
+/*
+ * The alternatives of `PlanSurface`'s site.
+ */
 type PlanSurface = "point" | "normal";

@@ -5,7 +5,7 @@ import type { IAutoMovieDeliveryProfileFinding } from "./IAutoMovieDeliveryProfi
 import type { IAutoMovieCliDeliveryProbe } from "../IAutoMovieCliDeliveryProbe";
 import { readAutoMovieDeliveryProbe } from "./readAutoMovieDeliveryProbe";
 
-/**
+/*
  * Check an encoded delivery file against the profiles it must carry, before it
  * is published.
  *
@@ -18,15 +18,14 @@ import { readAutoMovieDeliveryProbe } from "./readAutoMovieDeliveryProbe";
  * boxes cannot be read gives one `probe` finding. The asserters and the sRGB
  * code points come from the production's own `render`, so the check is the one
  * the production's package defines.
- *
- * @param props.render The production's render package.
- * @param props.path The encoded candidate.
- * @param props.width The subject's raster width, pixels.
- * @param props.height The subject's raster height, pixels.
- * @param props.frameRate The planned exact frame rate, `[numerator,
- *   denominator]` frames per second.
- * @param props.audio Whether the encoder muxed a soundtrack.
- * @returns The findings, empty when the file conforms.
+ * Parameter props.render: The production's render package.
+ * Parameter props.path: The encoded candidate.
+ * Parameter props.width: The subject's raster width, pixels.
+ * Parameter props.height: The subject's raster height, pixels.
+ * Parameter props.frameRate: The planned exact frame rate, `[numerator,
+ * denominator]` frames per second.
+ * Parameter props.audio: Whether the encoder muxed a soundtrack.
+ * Returns: The findings, empty when the file conforms.
  */
 export async function auditAutoMovieDeliveryProfile(props: {
   render: Pick<
@@ -113,6 +112,8 @@ export async function auditAutoMovieDeliveryProfile(props: {
   return findings;
 }
 
-/** The documented refusal form of both profile asserters. */
+/*
+ * The documented refusal form of both profile asserters.
+ */
 const REFUSAL: RegExp =
   /^unsupported-(video|audio)-profile\.([^:]+): expected ([\s\S]*), observed ([\s\S]*)\.$/u;

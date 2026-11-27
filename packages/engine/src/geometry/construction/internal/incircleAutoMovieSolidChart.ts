@@ -1,6 +1,6 @@
 import type { AutoMovieVector2Tuple } from "@automovie/interface";
 
-/**
+/*
  * Exact in-circle sign of a fourth represented binary64 chart point against the
  * circle through three others.
  *
@@ -13,14 +13,13 @@ import type { AutoMovieVector2Tuple } from "@automovie/interface";
  * integer determinant after the eight inputs are placed on one common dyadic
  * grid. This decides the represented points, without a geometric tolerance,
  * rounding or snapping.
- *
- * @param a First circle point.
- * @param b Second circle point, counter-clockwise after `a`.
- * @param c Third circle point, counter-clockwise after `b`.
- * @param d The point tested.
- * @returns +1 inside, -1 outside and 0 exactly on the circle; for a clockwise
- *   `(a, b, c)` the sign is reversed.
- * @throws RangeError for a nonfinite input coordinate.
+ * Parameter a: First circle point.
+ * Parameter b: Second circle point, counter-clockwise after `a`.
+ * Parameter c: Third circle point, counter-clockwise after `b`.
+ * Parameter d: The point tested.
+ * Returns: +1 inside, -1 outside and 0 exactly on the circle; for a clockwise
+ * `(a, b, c)` the sign is reversed.
+ * RangeError for a nonfinite input coordinate.
  */
 export function incircleAutoMovieSolidChart(
   a: Readonly<AutoMovieVector2Tuple>,
@@ -85,16 +84,22 @@ export function incircleAutoMovieSolidChart(
   return exact > 0n ? 1 : exact < 0n ? -1 : 0;
 }
 
-/** Exact integer significand multiplied by two to exponent. */
+/*
+ * Exact integer significand multiplied by two to exponent.
+ */
 interface Dyadic {
-  /** Signed integer significand; zero has no relevant exponent. */
+  /*
+   * Signed integer significand; zero has no relevant exponent.
+   */
   significand: bigint;
 
-  /** Binary exponent of the integer's least significant bit. */
+  /*
+   * Binary exponent of the integer's least significant bit.
+   */
   exponent: number;
 }
 
-/**
+/*
  * Decode a finite double without arithmetic on its significand. Calls are
  * synchronous and have no callbacks.
  */
@@ -110,18 +115,20 @@ function decode(value: number): Dyadic {
   };
 }
 
-/**
+/*
  * Smallest nonzero difference the filter accepts: a fourth power stays above
  * 2^-800, inside the normal range; a representation boundary, not a geometry
  * tolerance.
  */
 const SMALLEST: number = 2 ** -200;
 
-/**
+/*
  * Largest difference the filter accepts: a fourth power stays below 2^800,
  * inside the finite range.
  */
 const LARGEST: number = 2 ** 200;
 
-/** Fixed decoding storage, never exposed or retained by an input/result. */
+/*
+ * Fixed decoding storage, never exposed or retained by an input/result.
+ */
 const VIEW: DataView = new DataView(new ArrayBuffer(8));

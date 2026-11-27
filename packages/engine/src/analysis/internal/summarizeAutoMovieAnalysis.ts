@@ -15,7 +15,7 @@ import { AUTOMOVIE_ANALYSIS_DOMAINS } from "../AUTOMOVIE_ANALYSIS_DOMAINS";
 import { AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS } from "../AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS";
 import { validateAutoMovieAnalysisRun } from "./validateAutoMovieAnalysisRun";
 
-/**
+/*
  * Roll every run of one design revision into one bounded verdict.
  *
  * The report cannot be cleared by silence. A required domain nobody submitted a

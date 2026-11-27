@@ -28,7 +28,7 @@ import { propSupportFace } from "./propSupportFace";
 import { propSupportGap } from "./propSupportGap";
 import { unionSubjectBoxes } from "./unionSubjectBoxes";
 
-/**
+/*
  * Judge every volume the sound part of a prop registry claims: keep-out
  * clearances, pairwise occupancy, support contact, space containment, opening
  * fit and passage intrusion.
@@ -94,27 +94,39 @@ export function validatePropPlacementGeometry(
   }
 }
 
-/** Tolerance for containment and support-contact comparisons, in metres. */
+/*
+ * Tolerance for containment and support-contact comparisons, in metres.
+ */
 const PLACEMENT_EPSILON: number = 1e-9;
 
-/**
+/*
  * A sound prop with the one piece staging it and its measured world occupancy,
  * retained only during this validation call.
  */
 interface IStagedProp {
-  /** Borrowed registry spec whose forging and unique staging join passed. */
+  /*
+   * Borrowed registry spec whose forging and unique staging join passed.
+   */
   prop: IAutoMoviePropSpec;
 
-  /** Original registry position used to address every geometry finding. */
+  /*
+   * Original registry position used to address every geometry finding.
+   */
   index: number;
 
-  /** The unique borrowed set piece placing this spec's model. */
+  /*
+   * The unique borrowed set piece placing this spec's model.
+   */
   piece: IAutoMovieStageSetPiece;
 
-  /** Admitted occupied environment, or null when no unique in-space join exists. */
+  /*
+   * Admitted occupied environment, or null when no unique in-space join exists.
+   */
   located: IAutoMovieBuiltEnvironment | null;
 
-  /** World-axis-aligned box in metres, measured once for all geometry checks. */
+  /*
+   * World-axis-aligned box in metres, measured once for all geometry checks.
+   */
   occupancy: IAutoMoviePropBox;
 }
 
@@ -126,7 +138,9 @@ function soundBox(box: IAutoMoviePropBox): boolean {
   );
 }
 
-/** Refuse every declared keep-out volume another staged prop's occupancy enters. */
+/*
+ * Refuse every declared keep-out volume another staged prop's occupancy enters.
+ */
 function validateClearances(
   staged: readonly IStagedProp[],
   out: IAutoMovieViolationAppendSink,
@@ -154,7 +168,9 @@ function validateClearances(
   }
 }
 
-/** Refuse two placed props sharing interior volume without a declared contact. */
+/*
+ * Refuse two placed props sharing interior volume without a declared contact.
+ */
 function validateOverlaps(
   staged: readonly IStagedProp[],
   out: IAutoMovieViolationAppendSink,
@@ -181,7 +197,7 @@ function validateOverlaps(
     }
 }
 
-/**
+/*
  * Encode the sorted string pair as JSON, preserving symmetry without delimiter
  * collisions in authored ids.
  */
@@ -189,7 +205,7 @@ function pairKey(left: string, right: string): string {
   return JSON.stringify(left < right ? [left, right] : [right, left]);
 }
 
-/**
+/*
  * Judge every `on-support` relation whose face the record can state.
  *
  * Support needs no logical space: a lamp that only says which table top it
@@ -269,7 +285,7 @@ function validateSupports(
     );
 }
 
-/**
+/*
  * The environment a prop's geometry is judged against.
  *
  * The occupied space answers first, because that is the prop's own statement of
@@ -292,7 +308,9 @@ function judgedEnvironment(
   return environments.get([...cited][0]!) ?? null;
 }
 
-/** Containment, opening fit, and passage intrusion for one located prop. */
+/*
+ * Containment, opening fit, and passage intrusion for one located prop.
+ */
 function validateOccupancy(
   entry: IStagedProp,
   environment: IAutoMovieBuiltEnvironment,
@@ -355,7 +373,7 @@ function validateOccupancy(
   }
 }
 
-/**
+/*
  * Rest-pose world bounds of the element filling an opening, or `null` when the
  * opening is an open cut, its fill draws no model held by the record, or the
  * fill's parent chain is missing or cyclic. First declarations win for

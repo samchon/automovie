@@ -1,7 +1,7 @@
 import type { QuadrupedProportions } from "../quadruped/QuadrupedProportions";
 import { AutoMovieArchetypeHorse } from "../AutoMovieArchetypeHorse";
 
-/**
+/*
  * Equids' limb and back segments measured on the body's surface, by breed, and
  * the bone fractions an equid derives from them against the horse's.
  *
@@ -56,7 +56,7 @@ export namespace EquineSegments {
     hindDigit: number;
   }
 
-  /**
+  /*
    * The breeds, each the mean of its rows: the Thoroughbred, against which the
    * horse's bone fractions were measured, the ponies, and the American Mammoth
    * Jackstock, the one donkey breed the rows measure in number (five; the two
@@ -161,7 +161,7 @@ export namespace EquineSegments {
     },
   };
 
-  /**
+  /*
    * The bone lengths of an equid of a breed, as fractions of the height at the
    * withers: the horse's (`createHorse.LENGTHS`), each measured one scaled by
    * the breed's measure over its withers height against the Thoroughbred's.
@@ -175,9 +175,8 @@ export namespace EquineSegments {
    * al. 2010, which measures neither; pony, donkey and mule osteometry and
    * segment studies, none found), so they keep the horse's fractions:
    * provisional.
-   *
-   * @param breed The breed.
-   * @returns The bone fractions, in `createHorse.LENGTHS`'s form.
+   * Parameter breed: The breed.
+   * Returns: The bone fractions, in `createHorse.LENGTHS`'s form.
    */
   export function lengths(
     breed: IBreed,

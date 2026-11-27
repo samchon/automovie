@@ -1,6 +1,8 @@
 import type { IAutoMovieCurveBoundary64 } from "@automovie/interface";
 
-/** Copy and freeze the complete admitted cubic boundary without touching the source. */
+/*
+ * Copy and freeze the complete admitted cubic boundary without touching the source.
+ */
 export function freezeCurveBoundary(
   source: IAutoMovieCurveBoundary64,
 ): IAutoMovieCurveBoundary64 {

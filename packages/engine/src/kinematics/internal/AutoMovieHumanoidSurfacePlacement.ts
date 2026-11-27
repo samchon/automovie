@@ -6,13 +6,15 @@ import type {
 
 import { Quaternion } from "../../math/Quaternion";
 
-/**
+/*
  * Place an admitted bone-local surface frame in the bone's world frame.
  * Point/normal reads precede the optional forward read as in the original full
  * placement. Every returned vector and wrapper is caller-owned.
  */
 export namespace AutoMovieHumanoidSurfacePlacement {
-  /** Place the admitted frame, including its optional forward vector. */
+  /*
+   * Place the admitted frame, including its optional forward vector.
+   */
   export function run(
     frame: IFrame,
     bone: IBone,
@@ -31,8 +33,10 @@ export namespace AutoMovieHumanoidSurfacePlacement {
     return placed;
   }
 
-  /** Field projections of the same local-to-world surface placement. */
-  /**
+  /*
+   * Field projections of the same local-to-world surface placement.
+   */
+  /*
    * Fresh world point in metres, with no direction reads. Parent-position
    * reference is read before rotation; its XYZ sums follow the same order.
    */
@@ -48,7 +52,9 @@ export namespace AutoMovieHumanoidSurfacePlacement {
     return placed;
   }
 
-  /** Fresh world normal; no point, parent position or forward field is observed. */
+  /*
+   * Fresh world normal; no point, parent position or forward field is observed.
+   */
   export function normal(
     frame: Pick<IFrame, "normal">,
     bone: Pick<IBone, "worldRotation">,
@@ -56,7 +62,9 @@ export namespace AutoMovieHumanoidSurfacePlacement {
     return Quaternion.rotateVector(bone.worldRotation, frame.normal);
   }
 
-  /** Fresh world point/normal only; forward is not observed. */
+  /*
+   * Fresh world point/normal only; forward is not observed.
+   */
   export function pointNormal(
     frame: IFrame,
     bone: IBone,
@@ -68,11 +76,13 @@ export namespace AutoMovieHumanoidSurfacePlacement {
   }
 }
 
-/**
+/*
  * Existing bone-local surface data; geometry and direction admission belongs to
  * its producer.
  */
 type IFrame = IAutoMovieHumanoidSurfaces.IFrame;
 
-/** The actual current placement fields read by every surface projection. */
+/*
+ * The actual current placement fields read by every surface projection.
+ */
 type IBone = Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">;

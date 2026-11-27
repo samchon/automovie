@@ -350,20 +350,24 @@ export namespace AutoMovieHumanPhysicalStandingPose {
   }
 }
 
-/** Arithmetic allowance for coincident double-precision anchors, metres. */
+/*
+ * Arithmetic allowance for coincident double-precision anchors, metres.
+ */
 const ANCHOR_ROUNDOFF: number = 1e-9;
 
-/** Arithmetic allowance for double-precision native angle comparisons, radians. */
+/*
+ * Arithmetic allowance for double-precision native angle comparisons, radians.
+ */
 const ANGLE_ROUNDOFF: number = 1e-9;
 
-/**
+/*
  * The height above the floor within which an authored sole bears on it, metres:
  * the motion foot model's own allowance (`HumanFoot.BEARING`, under half the
  * 12.9 mm mean minimum toe clearance of normal walking, Winter 1992).
  */
 const BEARING: number = 0.006;
 
-/**
+/*
  * The stance knee flexion the body is lowered to at this handoff, radians. A
  * standing leg within a few millimetres of full extension is singular: its
  * joint torques cannot shift vertical load, and balance control by contact
@@ -382,10 +386,14 @@ type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;
 /** The public standing transfer outcome. */
 type Result = IAutoMovieFitHumanPhysicalStandingPose.IResult;
 
-/** One actual collider vertex in its carrier frame. */
+/*
+ * One actual collider vertex in its carrier frame.
+ */
 type IVertex = HumanPhysicalSolePlant.IVertex;
 
-/** Validate one complete world transform before passing it to the solver. */
+/*
+ * Validate one complete world transform before passing it to the solver.
+ */
 function valid(pose: IAutoMovieRigidTransform | undefined): boolean {
   return (
     pose !== undefined &&
@@ -403,7 +411,7 @@ function valid(pose: IAutoMovieRigidTransform | undefined): boolean {
   );
 }
 
-/**
+/*
  * Check the exact positional anchors before adapting orientation and after
  * fitting.
  */
@@ -424,7 +432,9 @@ function anchors(profile: IAutoMoviePhysicalProfile, poses: Poses): boolean {
   });
 }
 
-/** Measure flat true heel and forefoot support and reject any sole penetration. */
+/*
+ * Measure flat true heel and forefoot support and reject any sole penetration.
+ */
 function support(
   feet: readonly IVertex[][],
   poses: Poses,
@@ -452,7 +462,7 @@ function support(
   return base;
 }
 
-/**
+/*
  * How far a straight leg's hip must come down for its knee to bend by `KNEE`:
  * L1 + L2 - sqrt(L1^2 + L2^2 + 2 L1 L2 cos KNEE), with the thigh and shank
  * lengths read between the hip, knee and ankle anchors of the left leg.

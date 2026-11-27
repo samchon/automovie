@@ -181,7 +181,9 @@ export namespace AutoMovieArchetypeQuadrupedEars {
       },
     };
 
-    /** Convert a positive profile ratio to a representable solid extent. */
+    /*
+     * Convert a positive profile ratio to a representable solid extent.
+     */
     function metres(ratio: number): number {
       if (!(withers > 0 && ratio > 0 && ratio <= maximum))
         throw new RangeError("Ear plate dimensions must fit in metres");
@@ -192,13 +194,21 @@ export namespace AutoMovieArchetypeQuadrupedEars {
     }
   }
 
-  /** One fully admitted real plate before either is appended to the body. */
+  /*
+   * One fully admitted real plate before either is appended to the body.
+   */
   interface IPlan {
-    /** Stable head-carried part identity. */
+    /*
+     * Stable head-carried part identity.
+     */
     id: "leftEar" | "rightEar";
-    /** Model-space primitive centre. */
+    /*
+     * Model-space primitive centre.
+     */
     centre: IAutoMovieVector3;
-    /** Unit rigid orientation, local Y along the complete ear length. */
+    /*
+     * Unit rigid orientation, local Y along the complete ear length.
+     */
     rotation: IAutoMovieQuaternion;
   }
 }

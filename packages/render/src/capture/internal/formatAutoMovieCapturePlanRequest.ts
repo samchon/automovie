@@ -8,7 +8,7 @@ import type {
 import { formatAutoMovieInspectionRequest } from "../../scene/inspection/internal/formatAutoMovieInspectionRequest.js";
 import { parseAutoMovieCapturePlanRequest } from "./parseAutoMovieCapturePlanRequest.js";
 
-/**
+/*
  * Write a capture plan request as the named text values
  * `parseAutoMovieCapturePlanRequest` reads, so a request worked out in one host
  * repeats in another as an address, a command line or props.

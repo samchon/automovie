@@ -13,7 +13,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { walkFootStance } from "./walkFootStance";
 import { walkFootTakeoff } from "./walkFootTakeoff";
 
-/**
+/*
  * One foot of a stepping gait at an instant: the rockers of its stance on a
  * footprint (`walkFootStance`) and its swing between two reached stances.
  *
@@ -39,55 +39,75 @@ import { walkFootTakeoff } from "./walkFootTakeoff";
  * local placement correction of Kovar, Schreiner and Gleicher (2002).
  */
 export namespace walkFoot {
-  /** What a stance ends or begins with, which a swing joins. */
+  /*
+   * What a stance ends or begins with, which a swing joins.
+   */
   export interface IEnd {
-    /** The ankle, world metres. */
+    /*
+     * The ankle, world metres.
+     */
     ankle: IAutoMovieVector3;
 
-    /** The foot's world rotation. */
+    /*
+     * The foot's world rotation.
+     */
     rotation: IAutoMovieQuaternion;
 
-    /** The toes' flexion, degrees. */
+    /*
+     * The toes' flexion, degrees.
+     */
     toes: number;
   }
 
-  /** Prepare a foot in stance on a footprint (`walkFootStance`). */
+  /*
+   * Prepare a foot in stance on a footprint (`walkFootStance`).
+   */
   export const prepareStance: typeof walkFootStance = walkFootStance;
 
-  /**
+  /*
    * The fixed inputs of a swing between the stance it left and the stance it
    * lands in.
    */
   export interface ISwing {
-    /** The stance's end the foot leaves. */
+    /*
+     * The stance's end the foot leaves.
+     */
     from: IEnd;
 
-    /** The ankle's velocity as it leaves, world metres per second. */
+    /*
+     * The ankle's velocity as it leaves, world metres per second.
+     */
     velocity: IAutoMovieVector3;
 
-    /**
+    /*
      * The rates its pitch and its toes leave with, degrees per second, carried
      * over the first half of the swing by the engine's `carriedRate`; none when
      * absent.
      */
     rates?: ISwingRates;
 
-    /** The stance's start the foot lands on. */
+    /*
+     * The stance's start the foot lands on.
+     */
     to: IEnd;
 
-    /** The swing's duration, seconds. */
+    /*
+     * The swing's duration, seconds.
+     */
     seconds: number;
 
-    /** The mid-swing lift, hip heights. */
+    /*
+     * The mid-swing lift, hip heights.
+     */
     lift: number;
 
-    /**
+    /*
      * The least clearance of the toe and heel at mid-swing, metres; `CLEARANCE`
      * when absent.
      */
     clearance?: number;
 
-    /**
+    /*
      * How far the ankle bows out horizontally at the middle of its travel,
      * world metres, on the lift's raised-cosine profile over the travel's
      * progress: a swing passing a stance foot on a curve keeps its width
@@ -95,25 +115,26 @@ export namespace walkFoot {
      */
     bow?: IAutoMovieVector3;
 
-    /** Whether the leg is kept straight (`STIFF`, `LEVEL`); false when absent. */
+    /*
+     * Whether the leg is kept straight (`STIFF`, `LEVEL`); false when absent.
+     */
     stiff?: boolean;
 
-    /**
+    /*
      * Whether horizontal travel ends before touchdown. An explicitly settling
      * heel-first swing retains a downward impact speed.
      */
     settles?: boolean;
   }
 
-  /**
+  /*
    * Prepare a swing whose body, endpoint stances and initial rates are fixed.
    * The returned reader accepts its share in any order and owns no sample
    * cache.
-   *
-   * @param body The body whose hip height scales the authored lift.
-   * @param side The swinging foot.
-   * @param props The swing's fixed inputs.
-   * @returns The swinging foot at each share of the swing.
+   * Parameter body: The body whose hip height scales the authored lift.
+   * Parameter side: The swinging foot.
+   * Parameter props: The swing's fixed inputs.
+   * Returns: The swinging foot at each share of the swing.
    */
   export function prepareSwing(
     body: IAutoMovieMotionHumanBody,
@@ -253,17 +274,19 @@ export namespace walkFoot {
     };
   }
 
-  /** The pitch a foot strikes the floor with (`walkFootStance.STRIKE`). */
+  /*
+   * The pitch a foot strikes the floor with (`walkFootStance.STRIKE`).
+   */
   export const STRIKE: number = walkFootStance.STRIKE;
 
-  /**
+  /*
    * The share of a gait's swing lift a leg kept straight is given: with no knee
    * to fold, its foot clears the floor by little (provisional; the hip hike and
    * the outward arc that real stiff-knee walkers add are not modelled).
    */
   export const STIFF: number = 0.3;
 
-  /**
+  /*
    * The share of its swing by which a straight leg's foot is down at its
    * landing height and pitch (provisional): a knee that does not fold cannot
    * hold the heel's rise of toe-off over the floor, so the ankle dorsiflexes
@@ -271,17 +294,19 @@ export namespace walkFoot {
    */
   export const LEVEL: number = 0.4;
 
-  /**
+  /*
    * The steepest toe-off pitch of a leg kept straight, degrees toes-down
    * (provisional): the foot leaves nearly flat, where a folding knee lets it
    * leave at about 55.
    */
   export const STIFF_PUSH: number = 15;
 
-  /** Seconds a raised heel takes to rise and settle (`walkFootStance.RISE`). */
+  /*
+   * Seconds a raised heel takes to rise and settle (`walkFootStance.RISE`).
+   */
   export const RISE: number = walkFootStance.RISE;
 
-  /**
+  /*
    * The least clearance of a swinging foot's toe and heel at mid-swing, metres:
    * the mean minimum toe clearance of level walking, 15.0 mm (SD 4.0 mm, 121
    * adults of 20 to 79 years on a treadmill; 15.1 +- 0.5 mm SEM for the 41 aged
@@ -293,5 +318,7 @@ export namespace walkFoot {
   export const CLEARANCE: number = 0.015;
 }
 
-/** The record of `ISwingRates`'s site. */
+/*
+ * The record of `ISwingRates`'s site.
+ */
 type ISwingRates = { pitch: number; toes: number };

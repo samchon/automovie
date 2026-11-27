@@ -4,7 +4,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/**
+/*
  * Require distinct skeleton endpoints that are declared and FK-reachable, plus
  * finite positive radius.
  */

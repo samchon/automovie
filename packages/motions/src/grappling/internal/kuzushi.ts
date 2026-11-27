@@ -13,7 +13,7 @@ import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanLean } from "../../compose/internal/AutoMovieMotionHumanLean";
 import { HumanBound } from "../../law/internal/HumanBound";
 
-/**
+/*
  * A broken base (kuzushi): the receiver of a judo throw drawn off balance
  * forward, the whole body tipped about the ankles over the toes while the feet
  * stay on the floor, the stage before a throw carries the body over.
@@ -32,10 +32,12 @@ import { HumanBound } from "../../law/internal/HumanBound";
  * Events: `broken` when the lean is full, `relax` when it starts back.
  */
 export namespace kuzushi {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "kuzushi";
 
-  /**
+  /*
    * Cancel table: a broken base may be cut into anything once it is full, as a
    * throw cuts it.
    */
@@ -43,22 +45,23 @@ export namespace kuzushi {
     any: [{ window: ["broken", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** Seconds the body takes to tip and to come back (provisional). */
+  /*
+   * Seconds the body takes to tip and to come back (provisional).
+   */
   export const TIP: number = 0.5;
 
-  /**
+  /*
    * How far forward the body tips when none is asked, degrees (provisional:
    * past the toes for an adult).
    */
   export const DEPTH: number = 15;
 
-  /**
+  /*
    * How far a kuzushi has tipped the body at a second: a minimum-jerk tip over
    * `TIP`, held `hold`, and a minimum-jerk return over `TIP`.
-   *
-   * @param hold The held seconds.
-   * @param seconds The action's seconds.
-   * @returns The tip's share, 0 to 1.
+   * Parameter hold: The held seconds.
+   * Parameter seconds: The action's seconds.
+   * Returns: The tip's share, 0 to 1.
    */
   export function tipped(hold: number, seconds: number): number {
     const t: number = Math.min(2 * TIP + hold, Math.max(0, seconds));
@@ -68,13 +71,12 @@ export namespace kuzushi {
         ? 1
         : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((t - TIP - hold) / TIP);
   }
-  /**
+  /*
    * Plan a broken base.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the depth lies outside (0, 30] degrees or the
-   *   hold is negative.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the depth lies outside (0, 30] degrees or the
+   * hold is negative.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKuzushi.IParams>,

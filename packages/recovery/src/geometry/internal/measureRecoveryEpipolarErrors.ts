@@ -1,7 +1,7 @@
 import { AutoMovieMatrix3 } from "@automovie/engine";
 import type { IAutoMovieRecoveryEpipolarErrorsMeasurementOperation } from "@automovie/interface";
 
-/**
+/*
  * Measure signed Sampson distance and mean two-sided point-to-line distance in
  * the supplied integer-pixel-centre charts. Undefined lines or nonfinite
  * residuals remain null observations and cannot be counted as inliers. Invalid

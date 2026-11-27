@@ -7,19 +7,18 @@ import type { prepareHumanPostureProjection } from "../../posture/internal/prepa
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { prepareSupportContactForm } from "./prepareSupportContactForm";
 
-/**
+/*
  * Read the held joints and contact datums at the two solved support keys.
- *
- * @param body The unchanged body that owns the anatomical sockets.
- * @param a The solved departure posture.
- * @param b The solved arrival posture.
- * @param limbs The hands and feet present at both keys.
- * @param place The resolved contact target lookup.
- * @param read The synchronous pose-resolution workspace.
- * @param project The body's posture projector.
- * @param socket The sole socket each floor foot holds through its window; the
- *   lower of its heel and ball at the key before when absent.
- * @returns World key frames and the rotation pivot in the end-bone frame.
+ * Parameter body: The unchanged body that owns the anatomical sockets.
+ * Parameter a: The solved departure posture.
+ * Parameter b: The solved arrival posture.
+ * Parameter limbs: The hands and feet present at both keys.
+ * Parameter place: The resolved contact target lookup.
+ * Parameter read: The synchronous pose-resolution workspace.
+ * Parameter project: The body's posture projector.
+ * Parameter socket: The sole socket each floor foot holds through its window; the
+ * lower of its heel and ball at the key before when absent.
+ * Returns: World key frames and the rotation pivot in the end-bone frame.
  */
 export function prepareSupportHeldFrames(
   body: IAutoMovieMotionHumanBody,
@@ -89,7 +88,9 @@ export function prepareSupportHeldFrames(
     );
   const before: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = at(a);
   const after: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = at(b);
-  /** Resolve the same anatomical datum the key's support fit constrained. */
+  /*
+   * Resolve the same anatomical datum the key's support fit constrained.
+   */
   const world = (
     target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -170,7 +171,9 @@ export function prepareSupportHeldFrames(
   );
 }
 
-/** A limb's upper and lower bone angles in a key posture, degrees. */
+/*
+ * A limb's upper and lower bone angles in a key posture, degrees.
+ */
 function angles(
   posture: IAutoMovieMotionHumanPosture,
   limb: prepareSupportHeldFrames.IHeld,
@@ -191,12 +194,12 @@ function angles(
     lower: posture.joints[lower] ?? zero,
   };
 }
-/**
+/*
  * The retained contact selection and the solved frames used by support
  * playback.
  */
 export namespace prepareSupportHeldFrames {
-  /**
+  /*
    * The sole socket a floor foot holds through its window, by its contact; none
    * for a contact that holds none.
    */
@@ -204,55 +207,61 @@ export namespace prepareSupportHeldFrames {
     contact: IAutoMovieMotionHumanSupport.IContact,
   ) => PrepareSupportHeldFramesSocket2;
 
-  /**
+  /*
    * A limb retained between two support keys and the bones defining its fit.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Specifies the retained limb, wrist or ankle, elbow or knee and assigned contact.
-   * @evidence contracts/development/design.md#principled-representation Uses the canonical two-bone limb and contact types.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The frame reader uses only these ids and the existing contact.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains the original anatomical contact without inventing another target.
    */
   export interface IHeld {
-    /** The limb goal's name. */
+    /*
+     * The limb goal's name.
+     */
     limb: AutoMovieHumanLimb;
 
-    /** The wrist's or ankle's bone. */
+    /*
+     * The wrist's or ankle's bone.
+     */
     end: AutoMovieHumanoidBone;
 
-    /** The elbow's or knee's bone. */
+    /*
+     * The elbow's or knee's bone.
+     */
     middle: AutoMovieHumanoidBone;
 
-    /** The shared contact supplying the end-effector datum. */
+    /*
+     * The shared contact supplying the end-effector datum.
+     */
     contact: IAutoMovieMotionHumanSupport.IContact;
   }
-  /**
+  /*
    * The solved frames and held datum for one limb at both support keys.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes the endpoint and bend frames, the datum and the local/world units.
-   * @evidence contracts/development/design.md#principled-representation The endpoint pairs and optional point of rotation use canonical vectors, rotations and limb reference angles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplies the frames the interval needs to reconstruct the current two-bone goal.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Carries the observed contact itself and the fitted key configurations.
    */
   export interface IHeldFrames {
-    /** The limb. */
+    /*
+     * The limb.
+     */
     limb: IHeld["limb"];
 
-    /** This limb bears on a fitted above-floor contact. */
+    /*
+     * This limb bears on a fitted above-floor contact.
+     */
     elevated: boolean;
 
-    /** The end joint's position at the key before, then after. */
+    /*
+     * The end joint's position at the key before, then after.
+     */
     point: readonly [IAutoMovieVector3, IAutoMovieVector3];
 
-    /** The end joint's rotation at the key before, then after. */
+    /*
+     * The end joint's rotation at the key before, then after.
+     */
     rotation: readonly [IAutoMovieQuaternion, IAutoMovieQuaternion];
 
-    /**
+    /*
      * The middle joint's position at the key before, then after, the bend's
      * pole.
      */
     bend: readonly [IAutoMovieVector3, IAutoMovieVector3];
 
-    /**
+    /*
      * The limb's own upper and lower bone angles at the key before, then after:
      * the configuration the analytic fit keeps where the end and the pole leave
      * one free (the upper bone's twist), so the fitted limb is each key's own
@@ -263,22 +272,30 @@ export namespace prepareSupportHeldFrames {
       IAutoMovieHumanLimbReference,
     ];
 
-    /**
+    /*
      * The held anatomical point in the wrist or ankle frame and its world place
      * at both keys.
      */
     pivot?: IPrepareSupportHeldFramesHeldFramesPivot;
   }
 
-  /** The record of `IPrepareSupportHeldFramesHeldFramesPivot`'s site. */
+  /*
+   * The record of `IPrepareSupportHeldFramesHeldFramesPivot`'s site.
+   */
   type IPrepareSupportHeldFramesHeldFramesPivot = {
-    /** The offset in the end bone's frame, metres. */
+    /*
+     * The offset in the end bone's frame, metres.
+     */
     local: IAutoMovieVector3;
 
-    /** The socket's world place at the key before, then after. */
+    /*
+     * The socket's world place at the key before, then after.
+     */
     at: readonly [IAutoMovieVector3, IAutoMovieVector3];
   };
 }
 
-/** The alternatives of `PrepareSupportHeldFramesSocket2`'s site. */
+/*
+ * The alternatives of `PrepareSupportHeldFramesSocket2`'s site.
+ */
 type PrepareSupportHeldFramesSocket2 = "heel" | "ball" | undefined;

@@ -65,7 +65,7 @@ import { HumanWeaponFirearm } from "./HumanWeaponFirearm";
 import { HumanWeaponMelee } from "./HumanWeaponMelee";
 import { tuckHair } from "./tuckHair";
 
-/**
+/*
  * The laws of the lexicon's hand and upper-body families, from the floor falls
  * to the defences, by export key (`HUMAN_LEXICON_FAMILIES`).
  */

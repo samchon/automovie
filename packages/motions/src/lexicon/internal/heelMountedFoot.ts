@@ -9,23 +9,22 @@ import type {
 
 import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
 
-/**
+/*
  * A foot bearing on its ball, turned toes-down about the ball by as much as the
  * shank leans forward past the ankle's dorsiflexion range, so the ball keeps
  * its stirrup where a rider's knees come forward over the feet out of the
  * saddle. The knee is where the leg's two bones meet in the plane of the hip,
  * the ankle and the goal's bend point; the lean is the shank's angle from the
  * foot's own up toward its front.
- *
- * @param body The body.
- * @param side The leg.
- * @param goal The leg's goal, its point the ankle, with the ball as its
- *   contact.
- * @param hip The hip joint, in the goal's frame.
- * @param limit The dorsiflexion the ankle may reach, degrees; the range table's
- *   loaded limit when absent, the unloaded one for a foot hanging free.
- * @returns The goal turned about its ball where the ankle would pass its range;
- *   the goal itself otherwise, or when it names no contact or rotation.
+ * Parameter body: The body.
+ * Parameter side: The leg.
+ * Parameter goal: The leg's goal, its point the ankle, with the ball as its
+ * contact.
+ * Parameter hip: The hip joint, in the goal's frame.
+ * Parameter limit: The dorsiflexion the ankle may reach, degrees; the range table's
+ * loaded limit when absent, the unloaded one for a foot hanging free.
+ * Returns: The goal turned about its ball where the ankle would pass its range;
+ * the goal itself otherwise, or when it names no contact or rotation.
  */
 export function heelMountedFoot(
   body: IAutoMovieMotionHumanBody,

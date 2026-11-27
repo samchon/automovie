@@ -12,7 +12,7 @@ import { AutoMovieCurveMath64 as V } from "../../AutoMovieCurveMath64";
 import { planAutoMovieLocalHermite64 } from "./planAutoMovieLocalHermite64";
 import { triangulateAutoMovieParameterCell64 } from "./triangulateAutoMovieParameterCell64";
 
-/**
+/*
  * Stream a conforming open mesh of the local linear physical Hermite field.
  * Input courses are complete millimetre cubic curves with common normalized
  * phase; their direction and ordinary-run graph authority are supplied by the

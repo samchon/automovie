@@ -10,11 +10,13 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** The lectern read. */
+/*
+ * The lectern read.
+ */
 const SAFCO: string =
   "Safco 8915 lectern specification sheet: 23 x 15 3/4 x 46 in high, the reading surface 23 in wide and 15 3/4 in deep sloping at 15 degrees (https://argo.webstaurantstore.com/documents/specsheets/328saf8915mh_specs.pdf)";
 
-/**
+/*
  * The construction sizes no source read gives, metres, each an estimate no act
  * reads and no band declares: `slab`, the reading surface's thickness.
  */

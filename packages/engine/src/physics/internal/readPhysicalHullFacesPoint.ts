@@ -6,28 +6,36 @@ import type {
 
 import { physicalHullFlat } from "./physicalHullFlat";
 
-/** The full-contact signature: the signed distance, surface point and normal. */
+/*
+ * The full-contact signature: the signed distance, surface point and normal.
+ */
 export function readPhysicalHullFacesPoint(
   hull: IAutoMoviePhysicalHullFaces.IHull,
   p: IAutoMovieVector3,
   details: true,
 ): IAutoMoviePhysicalHullNearest.IResult;
 
-/** The scalar signature: the signed distance alone, from a hull built once. */
+/*
+ * The scalar signature: the signed distance alone, from a hull built once.
+ */
 export function readPhysicalHullFacesPoint(
   hull: IAutoMoviePhysicalHullFaces.IHull,
   p: IAutoMovieVector3,
   details: false,
 ): number;
 
-/** Shared proximity computation, including the original full and scalar results. */
+/*
+ * Shared proximity computation, including the original full and scalar results.
+ */
 export function readPhysicalHullFacesPoint(
   hull: IAutoMoviePhysicalHullFaces.IHull,
   p: IAutoMovieVector3,
   details: boolean,
 ): IAutoMoviePhysicalHullNearest.IResult | number;
 
-/** Compute the original nearest hull point or signed distance. */
+/*
+ * Compute the original nearest hull point or signed distance.
+ */
 export function readPhysicalHullFacesPoint(
   hull: IAutoMoviePhysicalHullFaces.IHull,
   p: IAutoMovieVector3,

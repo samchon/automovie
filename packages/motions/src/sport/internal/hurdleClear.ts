@@ -26,7 +26,7 @@ import { crossingClearance } from "../../terrain/internal/crossingClearance";
 import { AthleticsRunUp } from "./AthleticsRunUp";
 import { AthleticsSwing } from "./AthleticsSwing";
 
-/**
+/*
  * A hurdle clearance out of a run. The run is cut at the take-off foot's
  * footfall (`AthleticsRunUp`); that foot pushes off about its toes' joint over
  * the rest of the run's own stance, while the root goes on a cubic Hermite path
@@ -52,10 +52,12 @@ import { AthleticsSwing } from "./AthleticsSwing";
  * Events: `takeoff`, `clear` (the hips over the bar's plane), `touchdown`.
  */
 export namespace hurdleClear {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "hurdle";
 
-  /**
+  /*
    * Cancel table: from the lead foot's touchdown, into the run that takes the
    * stride on, or a stand.
    */
@@ -68,83 +70,86 @@ export namespace hurdleClear {
     ],
   };
 
-  /** What may be cut into a clearance: a run, at the take-off foot's footfall. */
+  /*
+   * What may be cut into a clearance: a run, at the take-off foot's footfall.
+   */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
   };
 
-  /**
+  /*
    * The take-off foot's distance before the bar, metres: 1.8 to 2.4 around the
    * 2.0 to 2.2 measured for men's 110 m hurdles (McDonald and Dapena 1991, Med
    * Sci Sports Exerc 23:1392); the band is provisional.
    */
   export const TAKEOFF: readonly [number, number] = [1.8, 2.4];
 
-  /**
+  /*
    * The lead foot's landing beyond the bar, metres: about 1.1 (McDonald and
    * Dapena 1991; provisional).
    */
   export const LANDING: number = 1.1;
 
-  /**
+  /*
    * The margin each swinging ankle and the hips keep over the bar's top, metres
    * (provisional).
    */
   export const CLEAR: number = 0.05;
 
-  /** The trunk's forward dip at the crossing, degrees (provisional). */
+  /*
+   * The trunk's forward dip at the crossing, degrees (provisional).
+   */
   export const DIP: number = 25;
 
-  /**
+  /*
    * The lead foot's toes drawn up as its heel leads over the bar, degrees of
    * pitch (provisional).
    */
   export const LEAD: number = 15;
 
-  /**
+  /*
    * The trail foot's turn out from the run's heading as its flat sole passes
    * over the bar, degrees (provisional).
    */
   export const TURN: number = 70;
 
-  /**
+  /*
    * The take-off leg's hip-to-ankle reach at toe-off, a share of the leg's
    * length: a knee near 165 degrees (McLean 1994; provisional).
    */
   export const REACH: number = 0.98;
 
-  /**
+  /*
    * The landing leg's hip-to-ankle reach at touchdown, a share of the leg's
    * length: a knee flexed for the landing (provisional).
    */
   export const LAND: number = 0.9;
 
-  /**
+  /*
    * How far the hips have passed the bar when the trail foot crosses it, metres
    * (provisional).
    */
   export const TUCK: number = 0.2;
 
-  /**
+  /*
    * The tucked trail foot's reach out to its side, a share of the leg's length
    * (provisional).
    */
   export const OUT: number = 0.15;
 
-  /**
+  /*
    * Seconds the lead foot bears after its touchdown before the run takes the
    * stride on (provisional).
    */
   export const SETTLE: number = 0.04;
 
-  /**
+  /*
    * Plan a hurdle clearance.
-   *
-   * @param context The action's context, entered from a run.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the entry is no run cut at a footfall, the
-   *   hurdle declares no bar, the take-off lies outside `TAKEOFF`, or a
-   *   displayed lower leg intersects its finite geometry.
+   * Parameter context: The action's context, entered from a run.
+   * Returns: The plan.
+   * When the entry is no run cut at a footfall, the
+   * hurdle declares no bar, the take-off lies outside `TAKEOFF`, or a
+   * displayed lower leg intersects its finite geometry.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHurdleClear.IParams>,

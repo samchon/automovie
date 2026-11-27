@@ -1,4 +1,6 @@
-/** Require a positive safe-integer glTF count or declared byte length. */
+/*
+ * Require a positive safe-integer glTF count or declared byte length.
+ */
 export function positiveInteger(value: unknown, path: string): void {
   if (
     typeof value !== "number" ||

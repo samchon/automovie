@@ -20,7 +20,7 @@ import { prepareChainFitRig } from "./prepareChainFitRig";
 import { prepareChainPlant } from "./prepareChainPlant";
 import { resolveBoneMap } from "./resolveBoneMap";
 
-/**
+/*
  * Prepare the unchanged dependencies of several target fits for one chain. The
  * caller owns the lifetime and keeps the rig, source/reference poses, topology,
  * clinical tables and callbacks unchanged until the fits finish. An optional
@@ -238,7 +238,7 @@ export function prepareChainFit(
   };
   return workspace;
 
-  /**
+  /*
    * Preserve raw FK admission unless the caller supplies its genuine immutable
    * rig.
    */
@@ -259,7 +259,7 @@ export function prepareChainFit(
   }
 }
 
-/**
+/*
  * Index borrowed source/reference records without new admission; later
  * duplicates replace earlier ones without copying joints.
  */
@@ -271,20 +271,26 @@ function indexJoints(
   return indexed;
 }
 
-/** Internal source records and lazy rig data for one unchanged fit operation. */
+/*
+ * Internal source records and lazy rig data for one unchanged fit operation.
+ */
 export namespace prepareChainFit {
-  /**
+  /*
    * Actual model-metre FK and last-record joint maps, read after analytic
    * target admission.
    */
   export interface IReading {
-    /** Source effector position in resolved model metres. */
+    /*
+     * Source effector position in resolved model metres.
+     */
     authored: IAutoMovieVector3;
 
-    /** Last source articulation for each bone, borrowed from the input pose. */
+    /*
+     * Last source articulation for each bone, borrowed from the input pose.
+     */
     authoredAngles: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieJointPose>;
 
-    /**
+    /*
      * Last reference articulation, or source articulation when no reference was
      * supplied.
      */
@@ -294,27 +300,29 @@ export namespace prepareChainFit {
   /** The interface contract (`IAutoMoviePrepareChainFit.IRig`). */
   export type IRig = IAutoMoviePrepareChainFit.IRig;
 
-  /**
+  /*
    * Fixed source request and lazy readings; callers keep all dependencies
    * unchanged until release.
    */
   export interface IWorkspace {
-    /**
+    /*
      * Fixed source request with actual skeleton-declared axes taking
      * precedence.
      */
     props: Omit<IAutoMovieFitChainToTargetProps, "target">;
 
-    /** Exact chain geometry and domains, or null for an inadmissible chain. */
+    /*
+     * Exact chain geometry and domains, or null for an inadmissible chain.
+     */
     prepared: IAutoMoviePreparedChainPlant | null;
 
-    /**
+    /*
      * One lazy preparation shared by all bend/orientation targets of this
      * source.
      */
     rig: IRig;
 
-    /**
+    /*
      * Actually admit the unchanged complete source/root without demanding an
      * unused authored effector frame. A genuine immutable rig with its original
      * own data-method retains all joint/clinical admission with empty FK
@@ -324,13 +332,13 @@ export namespace prepareChainFit {
      */
     admitSource(): void;
 
-    /**
+    /*
      * Fixed source triangle geometry, read only at the first original analytic
      * solve; each target owns its own reach geometry.
      */
     articulation(): ReturnType<typeof twoBoneChainArticulation.prepare>;
 
-    /**
+    /*
      * Fresh pose and joint array with the fixed source's ordered non-bend
      * prefix, then the two supplied articulations.
      */
@@ -339,13 +347,13 @@ export namespace prepareChainFit {
       lower: IAutoMovieJointPose,
     ): IAutoMoviePose;
 
-    /**
+    /*
      * Apply the shared actual rig clamp, resolving its lookup only at first
      * use.
      */
     clamp(joint: IAutoMovieJointPose): IAutoMovieJointPose;
 
-    /**
+    /*
      * Squared-radian turn from a raw candidate quaternion to the fixed
      * last-record reference.
      */
@@ -354,19 +362,19 @@ export namespace prepareChainFit {
       rotation: IAutoMovieQuaternion,
     ): number;
 
-    /**
+    /*
      * Source upper/mid continuity, first read at the original
      * explicit-reference site.
      */
     authoredContinuity(): number;
 
-    /**
+    /*
      * Read actual source FK and joint maps once, after analytic target
      * admission.
      */
     read(): IReading;
 
-    /**
+    /*
      * Read the fixed reference mid frame under the unchanged source root and
      * non-chain pose once.
      */

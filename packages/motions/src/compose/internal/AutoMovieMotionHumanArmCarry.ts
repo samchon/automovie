@@ -27,21 +27,21 @@ import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned
 import { AutoMovieMotionHumanArmPlayed } from "./AutoMovieMotionHumanArmPlayed";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 
-/**
+/*
  * An arm carried toward a goal: the joint-space carry between held angles
  * (`AutoMovieMotionHumanArmAngles`) and a goal, and the primitive that writes
  * an arm, planned over its action (`AutoMovieMotionHumanArmPlanned`) or
  * carried, the members `AutoMovieMotionHumanArm` names.
  */
 export namespace AutoMovieMotionHumanArmCarry {
-  /**
+  /*
    * Deprecated: the joint-space carry between held angles and a goal
    * (`AutoMovieMotionHumanArmJointCarry`).
    */
   export const carry: typeof AutoMovieMotionHumanArmJointCarry =
     AutoMovieMotionHumanArmJointCarry;
 
-  /**
+  /*
    * An arm carried toward a goal by a weight: the arm's whole action planned
    * once as one trajectory with the other arms of its group
    * (`AutoMovieMotionHumanArmPlanned.planned`), read off the posture so far the
@@ -52,12 +52,11 @@ export namespace AutoMovieMotionHumanArmCarry {
    * (`ICarry.tracked`) is the plan with a bounded correction toward the goal
    * read at each second of the hold
    * (`AutoMovieMotionHumanArmFollow.follower`).
-   *
-   * @param props The carry.
-   * @returns The primitive, on the arm's channel.
-   * @throws {HumanRefusal} When a planned arm has no trajectory that meets its
-   *   constraints: when its action is composed (`prepare`), or at the first
-   *   second written where nothing composes it.
+   * Parameter props: The carry.
+   * Returns: The primitive, on the arm's channel.
+   * When a planned arm has no trajectory that meets its
+   * constraints: when its action is composed (`prepare`), or at the first
+   * second written where nothing composes it.
    */
   export function carried(
     props: IAutoMovieMotionHumanArmCarry.ICarry,
@@ -414,14 +413,13 @@ export namespace AutoMovieMotionHumanArmCarry {
     };
   }
 
-  /**
+  /*
    * The law's own speed bound over a group of carries: at each second the
    * fastest any of them declares (`ICarry.pace`); none where no carry declares
    * one, and the planner reads its reach pace.
-   *
-   * @param carries The carries planned together.
-   * @returns The bound, metres per second by the action's seconds, or
-   *   undefined.
+   * Parameter carries: The carries planned together.
+   * Returns: The bound, metres per second by the action's seconds, or
+   * undefined.
    */
   export function pace(
     carries: readonly IAutoMovieMotionHumanArmCarry.ICarry[],
@@ -440,5 +438,7 @@ export namespace AutoMovieMotionHumanArmCarry {
   }
 }
 
-/** The alternatives of `CarriedLimb`'s site. */
+/*
+ * The alternatives of `CarriedLimb`'s site.
+ */
 type CarriedLimb = "leftArm" | "rightArm";

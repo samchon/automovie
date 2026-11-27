@@ -1,4 +1,4 @@
-/**
+/*
  * OMPL's seed generator (`RNGSeedGenerator`, github.com/ompl/ompl
  * src/ompl/util/src/RandomNumbers.cpp lines 51-112 at commit
  * 340bd214be6e87fe758a75e04203d665429b020f, BSD-3-Clause, Copyright (c) 2008,
@@ -18,30 +18,37 @@
  * The generator's state is an explicit record its caller owns.
  */
 export namespace HumanRandomSeeds {
-  /** The seed generator's state: the engine's 24 words, its carry and index. */
+  /*
+   * The seed generator's state: the engine's 24 words, its carry and index.
+   */
   export interface IState {
-    /** The engine's words (`__x_`), 24 bits each. */
+    /*
+     * The engine's words (`__x_`), 24 bits each.
+     */
     words: number[];
 
-    /** The carry (`__c_`). */
+    /*
+     * The carry (`__c_`).
+     */
     carry: number;
 
-    /** The next word's index (`__i_`). */
+    /*
+     * The next word's index (`__i_`).
+     */
     index: number;
   }
 
-  /**
+  /*
    * The engine's default seed (`subtract_with_carry_engine::default_seed`,
    * 19780503), the first seed where none is set.
    */
   export const DEFAULT_SEED: number = 19780503;
 
-  /**
+  /*
    * A seed generator seeded with its first seed (`RNGSeedGenerator::setSeed`,
    * `sGen_.seed(seed)`).
-   *
-   * @param first The first seed, positive.
-   * @returns The generator's state.
+   * Parameter first: The first seed, positive.
+   * Returns: The generator's state.
    */
   export function create(first: number): IState {
     // linear_congruential_engine<uint_fast32_t, 40014, 0, 2147483563>, seeded
@@ -56,12 +63,11 @@ export namespace HumanRandomSeeds {
     return { words, carry: words[R - 1] === 0 ? 1 : 0, index: 0 };
   }
 
-  /**
+  /*
    * The next local seed (`RNGSeedGenerator::nextSeed`): a uniform integer on
    * [1, 1000000000] by libc++'s `uniform_int_distribution`.
-   *
-   * @param state The generator, advanced.
-   * @returns The seed.
+   * Parameter state: The generator, advanced.
+   * Returns: The seed.
    */
   export function next(state: IState): number {
     const lower: number = 1;
@@ -78,7 +84,7 @@ export namespace HumanRandomSeeds {
     return u + lower;
   }
 
-  /**
+  /*
    * Libc++'s `__independent_bits_engine` over the engine (its range 2^24) for a
    * 32-bit result of `w` bits: `n` draws of `w0` bits each (the last `n - n0`
    * of `w0 + 1`), each draw rejected above the largest multiple of its width.
@@ -116,7 +122,9 @@ export namespace HumanRandomSeeds {
     return sp % 2 ** 32;
   }
 
-  /** The engine's next word (`subtract_with_carry_engine::operator()`). */
+  /*
+   * The engine's next word (`subtract_with_carry_engine::operator()`).
+   */
   function draw(state: IState): number {
     const x: number[] = state.words;
     const xs: number = x[(state.index + (R - S)) % R]!;
@@ -131,17 +139,27 @@ export namespace HumanRandomSeeds {
   }
 }
 
-/** The engine's long lag (`r`). */
+/*
+ * The engine's long lag (`r`).
+ */
 const R: number = 24;
 
-/** The engine's short lag (`s`). */
+/*
+ * The engine's short lag (`s`).
+ */
 const S: number = 10;
 
-/** 2^24, the engine's range (`w` = 24 bits). */
+/*
+ * 2^24, the engine's range (`w` = 24 bits).
+ */
 const TWO24: number = 16777216;
 
-/** The seeding engine's multiplier. */
+/*
+ * The seeding engine's multiplier.
+ */
 const LCG_A: number = 40014;
 
-/** The seeding engine's modulus. */
+/*
+ * The seeding engine's modulus.
+ */
 const LCG_M: number = 2147483563;

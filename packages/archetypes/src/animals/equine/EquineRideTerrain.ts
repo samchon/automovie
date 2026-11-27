@@ -15,7 +15,7 @@ import type { QuadrupedRidePose } from "../quadruped/QuadrupedRidePose";
 import { QuadrupedTail } from "../quadruped/QuadrupedTail";
 import type { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped";
 
-/**
+/*
  * A quadruped ride's techniques and terrain, prepared once for its route: the
  * admitted equine footwork, the authored footing, each hoof's foothold kept
  * clear of the footing's concave edges by its own pastern (`QuadrupedCorner`),
@@ -23,13 +23,19 @@ import type { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped
  * tail carried over the footing a bank technique meets (`QuadrupedTail`).
  */
 export namespace EquineRideTerrain {
-  /** The prepared techniques and terrain of one ride. */
+  /*
+   * The prepared techniques and terrain of one ride.
+   */
   export interface ITerrain<Id extends string, D extends string> {
-    /** The admitted equine footwork. */
+    /*
+     * The admitted equine footwork.
+     */
     footwork: EquineFootwork.IPlan;
-    /** The authored footing, absent on level ground. */
+    /*
+     * The authored footing, absent on level ground.
+     */
     ground: AutoMovieArchetypeQuadrupedFooting.IPlan | undefined;
-    /**
+    /*
      * Each hoof's foothold mover, clear of the footing's concave edges by its
      * pastern.
      */
@@ -39,7 +45,7 @@ export namespace EquineRideTerrain {
         (point: IAutoMovieVector3) => IAutoMovieVector3
       >
     >;
-    /**
+    /*
      * A hoof's goal at a film second under the techniques, from its gait's goal
      * in the body's placement.
      */
@@ -49,7 +55,7 @@ export namespace EquineRideTerrain {
       goal: QuadrupedRidePose.IGoal,
       placement: IAutoMovieTransform,
     ) => QuadrupedRidePose.IGoal;
-    /**
+    /*
      * A posed model with its tail carried over the footing, when a bank
      * technique meets a face.
      */
@@ -59,18 +65,17 @@ export namespace EquineRideTerrain {
     ) => AutoMovieArchetype<Id, D>;
   }
 
-  /**
+  /*
    * Prepare a ride's techniques and terrain.
-   *
-   * @param animal The source animal in its neutral pose.
-   * @param species The animal's species.
-   * @param course The ride's course.
-   * @param plan The course plan.
-   * @param gait The ride's fixed gait, if any.
-   * @param rig The animal's admitted joints.
-   * @returns The terrain.
-   * @throws {AutoMovieArchetypeRefusal} As `EquineFootwork.prepare` and
-   *   `AutoMovieArchetypeQuadrupedFooting.prepare` refuse.
+   * Parameter animal: The source animal in its neutral pose.
+   * Parameter species: The animal's species.
+   * Parameter course: The ride's course.
+   * Parameter plan: The course plan.
+   * Parameter gait: The ride's fixed gait, if any.
+   * Parameter rig: The animal's admitted joints.
+   * Returns: The terrain.
+   * As `EquineFootwork.prepare` and
+   * `AutoMovieArchetypeQuadrupedFooting.prepare` refuse.
    */
   export function prepare<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,

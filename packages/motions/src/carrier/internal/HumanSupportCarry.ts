@@ -21,7 +21,9 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { HumanSupportAim } from "./HumanSupportAim";
 import { HumanSupportFrame } from "./HumanSupportFrame";
 
-/** Goals that can be carried through a prop's world motion. */
+/*
+ * Goals that can be carried through a prop's world motion.
+ */
 const LIMBS: readonly AutoMovieHumanLimb[] = [
   "leftArm",
   "rightArm",
@@ -29,13 +31,12 @@ const LIMBS: readonly AutoMovieHumanLimb[] = [
   "rightLeg",
 ];
 
-/**
+/*
  * The carry from a start to a second of a support whose frame a function gives.
- *
- * @param frame The support's world frame at a film second.
- * @param start The film second the posture was planned at.
- * @param seconds The film second carried to.
- * @returns The carry.
+ * Parameter frame: The support's world frame at a film second.
+ * Parameter start: The film second the posture was planned at.
+ * Parameter seconds: The film second carried to.
+ * Returns: The carry.
  */
 export function HumanSupportCarry(
   frame: (seconds: number) => IAutoMovieRigidTransform,
@@ -58,7 +59,7 @@ export function HumanSupportCarry(
   };
 }
 
-/**
+/*
  * The one owner of goals in a moving support's frame: a posture planned in the
  * world at an action's start, expressed in the support's frame there and
  * carried back to the world at every second by the support's rigid motion since
@@ -75,16 +76,15 @@ export function HumanSupportCarry(
  * there.
  */
 export namespace HumanSupportCarry {
-  /**
+  /*
    * Blend the rigid carries that share a staging frame at entry. End weights
    * preserve the exact source or destination carry. Intermediate weights
    * interpolate the carried anchor and take the shortest turn.
-   *
-   * @param from The current support's carry from entry.
-   * @param to The next support's carry from the same entry.
-   * @param anchor An entry-world point near the goals being carried, metres.
-   * @param weight The destination weight from zero to one.
-   * @returns A rigid carry of points, turns and headings.
+   * Parameter from: The current support's carry from entry.
+   * Parameter to: The next support's carry from the same entry.
+   * Parameter anchor: An entry-world point near the goals being carried, metres.
+   * Parameter weight: The destination weight from zero to one.
+   * Returns: A rigid carry of points, turns and headings.
    */
   export function blend(
     from: IAutoMovieMotionHumanSupportCarry.ICarry,
@@ -115,15 +115,14 @@ export namespace HumanSupportCarry {
     };
   }
 
-  /**
+  /*
    * A posture carried: its root, its heading and every limb goal not attached
    * to a bone moved by the carry; joint angles are the body's own and stay.
    * Contacts and task-limit points are end-joint-local offsets and remain
    * unchanged by the world's rigid motion.
-   *
-   * @param carry The carry.
-   * @param posture The posture planned at the start.
-   * @returns The carried posture.
+   * Parameter carry: The carry.
+   * Parameter posture: The posture planned at the start.
+   * Returns: The carried posture.
    */
   export function posture(
     carry: IAutoMovieMotionHumanSupportCarry.ICarry,
@@ -157,7 +156,7 @@ export namespace HumanSupportCarry {
     };
   }
 
-  /**
+  /*
    * An action's entry as the prop it is planned on carries it: the pelvis's and
    * each foot's velocity and acceleration less the prop's own at the action's
    * start (`HumanSupportFrame.at`, the rate of the prop's origin), places and
@@ -166,10 +165,9 @@ export namespace HumanSupportCarry {
    * in the world: a body standing still on a wagon rolling at 2 m/s enters a
    * walk on the bed at rest, not already walking at 2 m/s, or the carry would
    * add the wagon's motion a second time.
-   *
-   * @param context The action's context.
-   * @param prop The prop the action is planned on.
-   * @returns The entry relative to the prop's motion.
+   * Parameter context: The action's context.
+   * Parameter prop: The prop the action is planned on.
+   * Returns: The entry relative to the prop's motion.
    */
   export function entry(
     context: Pick<IAutoMovieMotionHumanActionContext, EntryContext>,
@@ -205,16 +203,15 @@ export namespace HumanSupportCarry {
     };
   }
 
-  /**
+  /*
    * A plan made on a named prop carried by that prop's motion: a walk along a
    * wagon's bed planned on the bed as it stood at the walk's start, each foot
    * planted on the prop.
-   *
-   * @param context The action's context.
-   * @param plan The plan made in the world at the start.
-   * @param prop The prop the body stands or walks on.
-   * @returns The carried plan with its plants on the prop. The prop frame does
-   *   not certify a stationary window in world coordinates.
+   * Parameter context: The action's context.
+   * Parameter plan: The plan made in the world at the start.
+   * Parameter prop: The prop the body stands or walks on.
+   * Returns: The carried plan with its plants on the prop. The prop frame does
+   * not certify a stationary window in world coordinates.
    */
   export function on(
     context: Pick<IAutoMovieMotionHumanActionContext, OnContext>,
@@ -247,7 +244,7 @@ export namespace HumanSupportCarry {
     };
   }
 
-  /**
+  /*
    * A plan carried by the support its action is entered on
    * (`HumanSupportFrame`), claiming the channels it writes over its carrier:
    * the plan an act made in the world at its start, kept on the support.
@@ -257,15 +254,14 @@ export namespace HumanSupportCarry {
    * cannot keep at a frame of the act is refused here. The plan's launches (a
    * shot) are carried to their seconds with it, so a shot leaves the muzzle
    * where the displayed weapon is.
-   *
-   * @param context The action's context.
-   * @param plan The plan made at the start.
-   * @param channels The channels the plan claims over its carrier.
-   * @param aim The line kept on a world target; none when absent.
-   * @returns The carried plan. The ground branch keeps the input's stationarity
-   *   bounds; another support can move its world goals.
-   * @throws {HumanRefusal} When keeping the aim asks the arms to present past
-   *   their bound (`HumanSupportAim.check`).
+   * Parameter context: The action's context.
+   * Parameter plan: The plan made at the start.
+   * Parameter channels: The channels the plan claims over its carrier.
+   * Parameter aim: The line kept on a world target; none when absent.
+   * Returns: The carried plan. The ground branch keeps the input's stationarity
+   * bounds; another support can move its world goals.
+   * When keeping the aim asks the arms to present past
+   * their bound (`HumanSupportAim.check`).
    */
   export function plan(
     context: Pick<IAutoMovieMotionHumanActionContext, PlanContext>,
@@ -338,7 +334,7 @@ export namespace HumanSupportCarry {
     };
   }
 
-  /**
+  /*
    * A launch planned at the start carried to its second: its point and rotation
    * by the carry, its velocity relative to the support turned by the carry's
    * turn, the support's own velocity there (which the act already added) kept.
@@ -378,7 +374,9 @@ export namespace HumanSupportCarry {
   }
 }
 
-/** Read the turn's heading in degrees around world up. */
+/*
+ * Read the turn's heading in degrees around world up.
+ */
 function yawOf(turn: IAutoMovieQuaternion): number {
   const ahead: IAutoMovieVector3 = Quaternion.rotateVector(turn, {
     x: 0,
@@ -388,14 +386,22 @@ function yawOf(turn: IAutoMovieQuaternion): number {
   return (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI;
 }
 
-/** The alternatives of `LaunchContext`'s site. */
+/*
+ * The alternatives of `LaunchContext`'s site.
+ */
 type LaunchContext = "entry" | "prop" | "performer" | "start";
 
-/** The alternatives of `PlanContext`'s site. */
+/*
+ * The alternatives of `PlanContext`'s site.
+ */
 type PlanContext = "entry" | "prop" | "performer" | "start";
 
-/** The alternatives of `OnContext`'s site. */
+/*
+ * The alternatives of `OnContext`'s site.
+ */
 type OnContext = "prop" | "start";
 
-/** The alternatives of `EntryContext`'s site. */
+/*
+ * The alternatives of `EntryContext`'s site.
+ */
 type EntryContext = "entry" | "prop" | "performer" | "start";

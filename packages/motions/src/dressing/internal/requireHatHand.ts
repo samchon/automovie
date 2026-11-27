@@ -2,12 +2,11 @@ import type { AutoMovieHumanSide } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Admit an unoccupied hand for a hat gesture.
- *
- * @param side The selected hand.
- * @param held Its held prop, if any.
- * @throws {HumanRefusal} When the hand is carrying a prop.
+ * Parameter side: The selected hand.
+ * Parameter held: Its held prop, if any.
+ * When the hand is carrying a prop.
  */
 export function requireHatHand(
   side: AutoMovieHumanSide,

@@ -28,7 +28,7 @@ import { admitCarExitSill } from "./admitCarExitSill";
 import { carExitAnkleAt } from "./carExitAnkleAt";
 import { verifyCarExitSill } from "./verifyCarExitSill";
 
-/**
+/*
  * Static rear-seat egress via the adjacent, already-open door. Shippen (2012,
  * IJTTE 2:107–117) studied occupants leaving the rear seat through the nearest
  * door and measured lumbar flexion, lateral bending and axial rotation. This
@@ -37,7 +37,7 @@ import { verifyCarExitSill } from "./verifyCarExitSill";
  * https://pure.coventry.ac.uk/ws/portalfiles/portal/4013131/shippen2comb.pdf
  */
 export namespace HumanTravelCarExit {
-  /**
+  /*
    * Turn and move to the bench edge, pass each foot over the sill, then rise on
    * the exterior floor. Refuses loss of seat support, an opening too narrow or
    * low at seat-off, or a final stance inside. The author supplies the opening
@@ -460,16 +460,26 @@ export namespace HumanTravelCarExit {
     };
 }
 
-/** A quiet placement of both feet. */
+/*
+ * A quiet placement of both feet.
+ */
 type Feet = IAutoMovieMotionHumanEntryState["feet"];
 
-/** The two ankle goal points used by the shared standing stance. */
+/*
+ * The two ankle goal points used by the shared standing stance.
+ */
 type Ankles = Record<AutoMovieHumanSide, IAutoMovieVector3>;
-/** The alternatives of `GetOutPart`'s site. */
+/*
+ * The alternatives of `GetOutPart`'s site.
+ */
 type GetOutPart = "leftFoot" | "rightFoot";
 
-/** The alternatives of `GetOutPosturePart`'s site. */
+/*
+ * The alternatives of `GetOutPosturePart`'s site.
+ */
 type GetOutPosturePart = "leftLeg" | "rightLeg";
 
-/** The record of `IGetOutFrame`'s site. */
+/*
+ * The record of `IGetOutFrame`'s site.
+ */
 type IGetOutFrame = { origin: IAutoMovieVector3; yaw: number };

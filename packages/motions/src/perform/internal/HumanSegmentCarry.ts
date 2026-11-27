@@ -20,14 +20,14 @@ import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
-/**
+/*
  * The carry of a prop an earlier action left held: the holding arm's place in
  * the frame the action that took hold placed the hand in, captured where that
  * action ended, and the arm goals that keep it there on a later pose, a port of
  * MoveIt's pose constraints in a moving link's frame (`carries`).
  */
 export namespace HumanSegmentCarry {
-  /**
+  /*
    * Select the original active holds that ride a carrier at this film second.
    * Earlier riding holds retain priority through their takeover fade.
    *
@@ -76,7 +76,7 @@ export namespace HumanSegmentCarry {
     return out;
   }
 
-  /**
+  /*
    * The arm goals that carry held props: each holding hand's pose goal in a
    * moving link's frame, as MoveIt states a pose constraint in a robot link's
    * frame (moveit/moveit@fdb79acafb24, BSD-3-Clause,
@@ -93,14 +93,13 @@ export namespace HumanSegmentCarry {
    * bone (`on`), so the resolver places it by that bone of whichever pose it
    * fits, the evaluation's and the planted refit's after the displayed clamp
    * alike.
-   *
-   * @param person The person.
-   * @param holds The holds to carry.
-   * @param resolution Optional exact FK reader or lazy supplier from this same
-   *   synchronous person's evaluation; never stored in the hold or result.
-   * @param prepared Optional same-body parent preparation, borrowed by a
-   *   source-pose capture read before the performance is prepared.
-   * @returns Each holding arm with its goal.
+   * Parameter person: The person.
+   * Parameter holds: The holds to carry.
+   * Parameter resolution: Optional exact FK reader or lazy supplier from this same
+   * synchronous person's evaluation; never stored in the hold or result.
+   * Parameter prepared: Optional same-body parent preparation, borrowed by a
+   * source-pose capture read before the performance is prepared.
+   * Returns: Each holding arm with its goal.
    */
   export function carries(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -139,7 +138,7 @@ export namespace HumanSegmentCarry {
     );
   }
 
-  /**
+  /*
    * Whether the arm a fit placed holds its carried goal: MoveIt's
    * `PositionConstraint::decide` (moveit/moveit@fdb79acafb24, BSD-3-Clause,
    * moveit_core/kinematic_constraints/src/kinematic_constraint.cpp: the link's
@@ -150,13 +149,12 @@ export namespace HumanSegmentCarry {
    * region's centre, and the request's tolerance the goal tolerance the arm's
    * plan is solved to (`HumanArmTrajectoryTerms.TOLERANCE`, a millimetre).
    * Refused past it, as a planner refuses a state its path constraint rejects.
-   *
-   * @param person The person.
-   * @param side The carrying hand.
-   * @param goal The carried goal, on its frame bone (`on`).
-   * @param pose The pose the fit placed the arm in.
-   * @param resolution Optional exact FK reader from the same evaluation.
-   * @throws {HumanRefusal} When the hand lies past the tolerance from its goal.
+   * Parameter person: The person.
+   * Parameter side: The carrying hand.
+   * Parameter goal: The carried goal, on its frame bone (`on`).
+   * Parameter pose: The pose the fit placed the arm in.
+   * Parameter resolution: Optional exact FK reader from the same evaluation.
+   * When the hand lies past the tolerance from its goal.
    */
   export function decide(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -200,7 +198,7 @@ export namespace HumanSegmentCarry {
       });
   }
 
-  /**
+  /*
    * A holding arm in its frame at the end of the action that took hold, the
    * attach of `carries`. The link the attach names is the bone the action's own
    * goal for that arm rode there (`on`, read from the plan's goals,
@@ -210,12 +208,11 @@ export namespace HumanSegmentCarry {
    * `base_link` "is rigidly attached to the robot root body", the waist
    * recommended as that body). The performance captures every hold's carry
    * once when it is prepared (`IAutoMovieMotionHumanSegment.IHeld.carry`).
-   *
-   * @param person The person.
-   * @param held The hold.
-   * @param resolution Optional exact FK reader of the same evaluation.
-   * @param prepared Optional same-body preparation.
-   * @returns The holding arm in its frame.
+   * Parameter person: The person.
+   * Parameter held: The hold.
+   * Parameter resolution: Optional exact FK reader of the same evaluation.
+   * Parameter prepared: Optional same-body preparation.
+   * Returns: The holding arm in its frame.
    */
   export function capture(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -272,7 +269,9 @@ export namespace HumanSegmentCarry {
     };
   }
 
-  /** Fresh world bones, optionally borrowing the current operation's exact FK. */
+  /*
+   * Fresh world bones, optionally borrowing the current operation's exact FK.
+   */
   function bones(
     person: IAutoMovieMotionHumanSegment.IPerson,
     pose: IAutoMoviePose,
@@ -283,8 +282,12 @@ export namespace HumanSegmentCarry {
   }
 }
 
-/** The alternatives of `CarriesResult`'s site. */
+/*
+ * The alternatives of `CarriesResult`'s site.
+ */
 type CarriesResult = "leftArm" | "rightArm";
 
-/** The alternatives of `CarriesItemResult`'s site. */
+/*
+ * The alternatives of `CarriesItemResult`'s site.
+ */
 type CarriesItemResult = "leftArm" | "rightArm";

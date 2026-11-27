@@ -17,15 +17,14 @@ import { HumanAttribute } from "./HumanAttribute";
 import { HumanEnsembleMembers } from "./HumanEnsembleMembers";
 import { instance } from "./instance";
 
-/**
+/*
  * Resolve an ensemble's members.
- *
- * @param input The ensemble.
- * @param read Reads a guide's placed root, when the formation follows a guide:
- *   each member's start is its slot at second 0.
- * @returns The ensemble.
- * @throws {HumanRefusal} When the count, the pool, a distribution, a role or a
- *   place cannot be met, naming the ensemble and the axis.
+ * Parameter input: The ensemble.
+ * Parameter read: Reads a guide's placed root, when the formation follows a guide:
+ * each member's start is its slot at second 0.
+ * Returns: The ensemble.
+ * When the count, the pool, a distribution, a role or a
+ * place cannot be met, naming the ensemble and the axis.
  */
 export function HumanEnsemble(
   input: IAutoMovieMotionHumanEnsemble.IInput,
@@ -34,7 +33,7 @@ export function HumanEnsemble(
   return HumanEnsembleMembers.resolve(input, read);
 }
 
-/**
+/*
  * A group of people as one subject: its members resolved from the group's
  * input, handed to a performance as performers and chains, and the seeded
  * choices an author makes over them.
@@ -48,13 +47,12 @@ export function HumanEnsemble(
  * drawn proficiency on the axes `HUMAN_ATTRIBUTE_EFFECTS` names.
  */
 export namespace HumanEnsemble {
-  /**
+  /*
    * The performers to spread into `HumanPerformance.IInput.performers`: every
    * member that is performed, with its body, place, proficiency and attributes;
    * population members are left out.
-   *
-   * @param ensemble The ensemble.
-   * @returns The performers.
+   * Parameter ensemble: The ensemble.
+   * Returns: The performers.
    */
   export function performers(
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -78,11 +76,10 @@ export namespace HumanEnsemble {
       );
   }
 
-  /**
+  /*
    * The members, in index order.
-   *
-   * @param ensemble The ensemble.
-   * @returns The members.
+   * Parameter ensemble: The ensemble.
+   * Returns: The members.
    */
   export function members(
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -90,7 +87,7 @@ export namespace HumanEnsemble {
     return ensemble.members;
   }
 
-  /**
+  /*
    * The members' chains in parallel, in index order: what `build` appends to
    * each fully performed member's empty chain. An instanced member performs the
    * `instance` law for `seconds` over its template, the lowest-index full
@@ -98,14 +95,13 @@ export namespace HumanEnsemble {
    * number of film frames drawn up to `LAG` seconds; templates come first in
    * the group, since an instance reads its template's placed path. Population
    * members are left out.
-   *
-   * @param ensemble The ensemble.
-   * @param build Appends a member's actions to its empty chain.
-   * @param seconds How long instanced members last; required when any member is
-   *   instanced.
-   * @returns The composition.
-   * @throws {HumanRefusal} When an instanced member has no template, or no span
-   *   is given.
+   * Parameter ensemble: The ensemble.
+   * Parameter build: Appends a member's actions to its empty chain.
+   * Parameter seconds: How long instanced members last; required when any member is
+   * instanced.
+   * Returns: The composition.
+   * When an instanced member has no template, or no span
+   * is given.
    */
   export function chains(
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -169,26 +165,25 @@ export namespace HumanEnsemble {
     );
   }
 
-  /**
+  /*
    * The most an instanced member lags its template, seconds (provisional: about
    * one standard deviation of an elite's command latency under the orienting
    * law, sqrt(25^2 + 40^2) ms, `look.reactionLaw`).
    */
   export const LAG: number = 0.047;
 
-  /**
+  /*
    * A member's station in a formation, for the walk family's `station`: its
    * slot, and its slow dress deviation, whose bound is `DRESS` scaled by its
    * discipline (`HUMAN_ATTRIBUTE_EFFECTS.discipline.dress`, the neutral 0.5
    * when absent) and whose draws are the member's own.
-   *
-   * @param ensemble The ensemble.
-   * @param member The member.
-   * @param formation The formation it keeps; the ensemble's when absent.
-   * @param until The film second the station ends; the frame's rest when
-   *   absent.
-   * @returns The station.
-   * @throws {Error} When neither a formation nor the ensemble's is given.
+   * Parameter ensemble: The ensemble.
+   * Parameter member: The member.
+   * Parameter formation: The formation it keeps; the ensemble's when absent.
+   * Parameter until: The film second the station ends; the frame's rest when
+   * absent.
+   * Returns: The station.
+   * When neither a formation nor the ensemble's is given.
    */
   export function station(
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -222,27 +217,26 @@ export namespace HumanEnsemble {
     };
   }
 
-  /**
+  /*
    * The bound of a member's slow dress deviation at the effect's factor 1,
    * metres (provisional: about the 4 cm dressing a formed line keeps, the
    * tolerance the interface's layouts call dressing).
    */
   export const DRESS: number = 0.04;
-  /**
+  /*
    * Which members an authored outcome falls on: exactly `count` of those
    * `among` admits, chosen by the seed, and where an attribute is named the
    * members lower in it more often (weighted sampling without replacement with
    * weight `1 - value`, Efraimidis and Spirakis 2006: the largest keys `u^(1 /
    * w)`).
-   *
-   * @param ensemble The ensemble.
-   * @param count How many, the author's.
-   * @param name The outcome's name, which keys its draws.
-   * @param among Which members may take it; all when absent.
-   * @param weighted The attribute whose low values the outcome favours; uniform
-   *   when absent.
-   * @returns The chosen members' indices, ascending.
-   * @throws {HumanRefusal} When fewer members are admitted than asked.
+   * Parameter ensemble: The ensemble.
+   * Parameter count: How many, the author's.
+   * Parameter name: The outcome's name, which keys its draws.
+   * Parameter among: Which members may take it; all when absent.
+   * Parameter weighted: The attribute whose low values the outcome favours; uniform
+   * when absent.
+   * Returns: The chosen members' indices, ascending.
+   * When fewer members are admitted than asked.
    */
   export function pick(
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -295,15 +289,14 @@ export namespace HumanEnsemble {
       .sort((a: number, b: number): number => a - b);
   }
 
-  /**
+  /*
    * A member-keyed seed for something the production draws per member: its
    * musket, its horse's tempo. The same for the same member and name, and
    * unchanged by adding members.
-   *
-   * @param ensemble The ensemble.
-   * @param index The member.
-   * @param name What the seed is for.
-   * @returns A whole number in [0, 2^32).
+   * Parameter ensemble: The ensemble.
+   * Parameter index: The member.
+   * Parameter name: What the seed is for.
+   * Returns: A whole number in [0, 2^32).
    */
   export function seed(
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -318,20 +311,19 @@ export namespace HumanEnsemble {
     ).uint32(0);
   }
 
-  /**
+  /*
    * Sub-ensembles that walk together, as many pedestrians do in twos and threes
    * (Moussaïd et al. 2010): members are taken in index order, and an ungrouped
    * member starts a group with probability `q` whose size is drawn from
    * `sizes`, taking the next members. With `s` the mean size, a start share `q
    * = share / (s - share (s - 1))` puts `share` of the members in groups on
    * average, since `q s / (q s + 1 - q)` of them are grouped.
-   *
-   * @param ensemble The ensemble.
-   * @param spec The grouped share in [0, 1] and the group sizes allowed, each
-   *   at least 2.
-   * @returns The groups, in index order; members not in one walk alone.
-   * @throws {HumanRefusal} When the share lies outside [0, 1] or a size is
-   *   below 2.
+   * Parameter ensemble: The ensemble.
+   * Parameter spec: The grouped share in [0, 1] and the group sizes allowed, each
+   * at least 2.
+   * Returns: The groups, in index order; members not in one walk alone.
+   * When the share lies outside [0, 1] or a size is
+   * below 2.
    */
   export function groups(
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -385,14 +377,22 @@ export namespace HumanEnsemble {
   }
 }
 
-/** The record of `IPickE`'s site. */
+/*
+ * The record of `IPickE`'s site.
+ */
 type IPickE = { index: number };
 
-/** The record of `IPickB`'s site. */
+/*
+ * The record of `IPickB`'s site.
+ */
 type IPickB = { key: number; index: number };
 
-/** The record of `IPickA`'s site. */
+/*
+ * The record of `IPickA`'s site.
+ */
 type IPickA = { key: number; index: number };
 
-/** The record of `IPickResult`'s site. */
+/*
+ * The record of `IPickResult`'s site.
+ */
 type IPickResult = { index: number; key: number };

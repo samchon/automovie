@@ -13,7 +13,9 @@ import { AutoMovieBernsteinSubdivision64 as S } from "../../AutoMovieBernsteinSu
 import { AutoMovieCurveMath64 as V } from "../../AutoMovieCurveMath64";
 import { AutoMovieLocalHermiteField64 as F } from "../../AutoMovieLocalHermiteField64";
 
-/** Prepare bounded adaptive leaves for one immutable physical Hermite run. */
+/*
+ * Prepare bounded adaptive leaves for one immutable physical Hermite run.
+ */
 export function planAutoMovieLocalHermite64(
   input: IAutoMovieLocalHermiteStream64.Input,
 ): IAutoMoviePlanLocalHermite64.IResult {

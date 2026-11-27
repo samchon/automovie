@@ -26,7 +26,7 @@ import { growPlanting } from "./growPlanting";
 import { validatePlantingCluster } from "./validatePlantingCluster";
 import { validatePlantingDomain } from "./validatePlantingDomain";
 
-/**
+/*
  * Join planting recipes, clusters and installation references, then inspect
  * member canopy bounds in authored rooms.
  */
@@ -332,7 +332,9 @@ export function validatePlantingInstallations(
   return out.toValidation();
 }
 
-/** Re-path one nested validation onto the address the binding knows it by. */
+/*
+ * Re-path one nested validation onto the address the binding knows it by.
+ */
 const repath: (
   out: IAutoMovieViolationCollector,
   path: string,
@@ -347,7 +349,7 @@ const repath: (
     out.items.push({ ...item, path: item.path.replace("$input", path) });
 };
 
-/**
+/*
  * The eight corners of one derived canopy, carried into world space by one
  * member's own transform.
  *
@@ -390,7 +392,7 @@ const corners: (
   return out;
 };
 
-/**
+/*
  * The free-surface elevation of one fluid domain under a world point, or `null`
  * when that domain cannot answer for the point at all.
  *

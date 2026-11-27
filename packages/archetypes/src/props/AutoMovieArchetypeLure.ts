@@ -9,7 +9,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/**
+/*
  * A spinning lure's size and weight, from a maker's catalogue seen in search
  * results.
  */

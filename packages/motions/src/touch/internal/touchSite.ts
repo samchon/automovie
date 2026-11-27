@@ -11,15 +11,14 @@ import { AutoMovieMotionHumanVariationDraw } from "../../compose/internal/AutoMo
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Fix a site for one plan.
- *
- * @param context The action's context, whose `site` series a drawn place is
- *   read from.
- * @param site The site.
- * @returns A function that moves a region's frame to the site, given the
- *   touching arm's shoulder in the world; the normal is kept.
- * @throws {HumanRefusal} When a radius is negative.
+ * Parameter context: The action's context, whose `site` series a drawn place is
+ * read from.
+ * Parameter site: The site.
+ * Returns: A function that moves a region's frame to the site, given the
+ * touching arm's shoulder in the world; the normal is kept.
+ * When a radius is negative.
  */
 export function touchSite(
   context: Pick<IAutoMovieMotionHumanActionContext, "series">,
@@ -82,7 +81,7 @@ export function touchSite(
   };
 }
 
-/**
+/*
  * Where on a region a touch lands: a region is a patch of skin, not one point,
  * so a touch names a place on it. The place is stated by the author, drawn by
  * the seed, or chosen by a rule; on a prop's contact that has a length, it is a
@@ -94,18 +93,17 @@ export function touchSite(
  * no direction in it, `up` is the world's forward.
  */
 export namespace touchSite {
-  /**
+  /*
    * The displacement of a site along a prop's contact, at a film second.
-   *
-   * @param context The action's context, which reads the prop.
-   * @param subject The prop's subject id.
-   * @param id The contact's id, one of the prop's affordances.
-   * @param share How far along the contact from its middle, a share of its
-   *   length in [-0.5, 0.5].
-   * @returns For a film second, the displacement from the contact's middle,
-   *   world metres.
-   * @throws {HumanRefusal} When the share lies outside [-0.5, 0.5], or the prop
-   *   declares no such contact or no length for it.
+   * Parameter context: The action's context, which reads the prop.
+   * Parameter subject: The prop's subject id.
+   * Parameter id: The contact's id, one of the prop's affordances.
+   * Parameter share: How far along the contact from its middle, a share of its
+   * length in [-0.5, 0.5].
+   * Returns: For a film second, the displacement from the contact's middle,
+   * world metres.
+   * When the share lies outside [-0.5, 0.5], or the prop
+   * declares no such contact or no length for it.
    */
   export function span(
     context: Pick<IAutoMovieMotionHumanActionContext, "prop">,

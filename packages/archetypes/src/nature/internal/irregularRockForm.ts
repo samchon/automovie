@@ -7,7 +7,7 @@ import type {
 
 import { AutoMovieArchetypeConvexCell } from "../../core";
 
-/**
+/*
  * A seeded irregular stone as one convex cell, resting on a flat base at `y =
  * 0`, its largest horizontal extent along X and equal to `diameter`.
  *
@@ -22,13 +22,12 @@ import { AutoMovieArchetypeConvexCell } from "../../core";
  * extent, and it scales uniformly until that extent is `diameter`; the plan box
  * is centred on the origin. The hull loses any concavity, acceptable for a
  * coarse form.
- *
- * @param seed Sixteen hexadecimal digits that draw the displacement noise.
- * @param diameter The drawn diameter, metres, positive.
- * @returns The admitted cell, the hull's highest corner and the point where a
- *   +Z ray at half height through the centroid leaves the hull.
- * @throws {Error} When the half-height ray from the centroid's plan position
- *   starts outside the hull, which a convex stone on its base cannot do.
+ * Parameter seed: Sixteen hexadecimal digits that draw the displacement noise.
+ * Parameter diameter: The drawn diameter, metres, positive.
+ * Returns: The admitted cell, the hull's highest corner and the point where a
+ * +Z ray at half height through the centroid leaves the hull.
+ * When the half-height ray from the centroid's plan position
+ * starts outside the hull, which a convex stone on its base cannot do.
  */
 export function irregularRockForm(
   seed: string,
@@ -136,23 +135,29 @@ export function irregularRockForm(
   };
 }
 
-/** Directions on the sphere the stone's corners are cast along. */
+/*
+ * Directions on the sphere the stone's corners are cast along.
+ */
 const DIRECTIONS: number = 64;
 
-/**
+/*
  * The greatest relative swell or dent of a corner, a construction detail no act
  * reads.
  */
 const DISPLACEMENT: number = 0.3;
 
-/**
+/*
  * The fraction of the raw height cut flat as the base, a construction detail no
  * act reads.
  */
 const BASE_CUT: number = 0.2;
 
-/** Octaves of the displacement noise; each halves the scale of the last. */
+/*
+ * Octaves of the displacement noise; each halves the scale of the last.
+ */
 const OCTAVES: number = 3;
 
-/** Amplitude ratio between the displacement noise's octaves. */
+/*
+ * Amplitude ratio between the displacement noise's octaves.
+ */
 const ROUGHNESS: number = 0.5;

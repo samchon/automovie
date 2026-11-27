@@ -17,7 +17,7 @@ import { AutoMovieMotionHumanBendSide } from "./AutoMovieMotionHumanBendSide";
 import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
 import { AutoMovieMotionHumanBendSweep } from "./AutoMovieMotionHumanBendSweep";
 
-/**
+/*
  * The elbow search of `AutoMovieMotionHumanBend`: the swivel sweep of a hand
  * goal's elbow over its circle, each place read for its joints' overshoot, the
  * forearm's clearance of the body and its strain, and the best place under a
@@ -25,36 +25,52 @@ import { AutoMovieMotionHumanBendSweep } from "./AutoMovieMotionHumanBendSweep";
  * are stated on `AutoMovieMotionHumanBend.solve`.
  */
 export namespace AutoMovieMotionHumanBendSearch {
-  /** Three clinical angles of a joint, degrees. */
+  /*
+   * Three clinical angles of a joint, degrees.
+   */
   export interface IAngles {
-    /** Flexion. */
+    /*
+     * Flexion.
+     */
     flexion: number;
 
-    /** Abduction. */
+    /*
+     * Abduction.
+     */
     abduction: number;
 
-    /** Twist. */
+    /*
+     * Twist.
+     */
     twist: number;
   }
 
-  /** One elbow place of a hand goal as the search reads it. */
+  /*
+   * One elbow place of a hand goal as the search reads it.
+   */
   export interface ICandidate {
-    /** The elbow's place, world metres. */
+    /*
+     * The elbow's place, world metres.
+     */
     elbow: IAutoMovieVector3;
 
-    /** The shoulder's clinical angles, degrees. */
+    /*
+     * The shoulder's clinical angles, degrees.
+     */
     angles: IAngles;
 
-    /**
+    /*
      * Degrees out of range plus the forearm's depth inside its clearance of the
      * body as degrees of upper arm turn; 0 when allowed.
      */
     overshoot: number;
 
-    /** The strain, unitless; read on demand where `least` is given. */
+    /*
+     * The strain, unitless; read on demand where `least` is given.
+     */
     strain: number;
 
-    /**
+    /*
      * A certified lower bound of `strain` known without reading it, where the
      * hand's share of the strain is deferred
      * (`AutoMovieMotionHumanBendStrain.least`); absent where `strain` is
@@ -63,31 +79,34 @@ export namespace AutoMovieMotionHumanBendSearch {
     least?: number;
   }
 
-  /**
+  /*
    * What the engine's swivel sweep orders candidates by: `overshoot` first,
    * compared exactly, then `deviation`.
    */
   export interface IScore {
-    /** The first key. */
+    /*
+     * The first key.
+     */
     overshoot: number;
 
-    /** The second key, or its certified lower bound where `exact` is given. */
+    /*
+     * The second key, or its certified lower bound where `exact` is given.
+     */
     deviation: number;
 
-    /**
+    /*
      * The exact second key, read only where its bound cannot decide a
      * comparison (`hingedSwivelAhead`).
      */
     exact?: () => number;
   }
 
-  /**
+  /*
    * The ranking `solve` takes: overshoot first, then the strain, deferred to
    * its certified lower bound where the candidate carries one.
-   *
-   * @param candidate The candidate.
-   * @returns Its score, whose comparisons are the same as with the strain read
-   *   at once.
+   * Parameter candidate: The candidate.
+   * Returns: Its score, whose comparisons are the same as with the strain read
+   * at once.
    */
   export function strained(candidate: ICandidate): IScore {
     return candidate.least === undefined
@@ -99,18 +118,17 @@ export namespace AutoMovieMotionHumanBendSearch {
         };
   }
 
-  /**
+  /*
    * The ranking that takes the elbow place on a point's side of the
    * shoulder-to-wrist line. Candidates within one degree of that side come
    * first, ordered by overshoot then strain plus the radial discrepancy, which
    * is under 0.0002 there. An elbow place has two arm poses, one per bend
    * branch, and this order takes the allowed one. Every other candidate
    * follows, nearer sides first.
-   *
-   * @param shoulder The shoulder, world metres.
-   * @param wrist The wrist, world metres.
-   * @param bend The point whose side is taken, world metres.
-   * @returns The ranking.
+   * Parameter shoulder: The shoulder, world metres.
+   * Parameter wrist: The wrist, world metres.
+   * Parameter bend: The point whose side is taken, world metres.
+   * Returns: The ranking.
    */
   export function toward(
     shoulder: IAutoMovieVector3,
@@ -120,16 +138,15 @@ export namespace AutoMovieMotionHumanBendSearch {
     return AutoMovieMotionHumanBendSide(shoulder, wrist, bend);
   }
 
-  /**
+  /*
    * The strain `search` ranks an elbow place by, read from the rotations of
    * another fit of the same arm (`fitChainToTarget`'s `strain`): the upper
    * arm's bone-local rotation, read in the arm's own clinical frame, and the
    * lower arm's world rotation.
-   *
-   * @param body The body.
-   * @param side The arm.
-   * @param rotation The hand's world rotation, when its turn counts as strain.
-   * @returns The strain of a candidate, or null when the rig has no arm chain.
+   * Parameter body: The body.
+   * Parameter side: The arm.
+   * Parameter rotation: The hand's world rotation, when its turn counts as strain.
+   * Returns: The strain of a candidate, or null when the rig has no arm chain.
    */
   export function strainOf(
     body: IAutoMovieMotionHumanBody,
@@ -180,16 +197,15 @@ export namespace AutoMovieMotionHumanBendSearch {
         (): IAutoMovieQuaternion => lowerWorld,
       );
   }
-  /**
+  /*
    * `AutoMovieMotionHumanBend.solve`'s search with the seed it was chosen at,
    * on one request's trunk prepared once: cold, or continued from a nearby
    * solve's seed; legality first, then the least strain.
-   *
-   * @param props The request; its `fallback` is not read.
-   * @returns The search of the request, given the seed of a nearby solve of the
-   *   same arm to continue (`IAutoMovieSwivelNear`) or none to sweep every
-   *   swivel: the candidate and its swivel and bend branch, or the reason there
-   *   is none.
+   * Parameter props: The request; its `fallback` is not read.
+   * Returns: The search of the request, given the seed of a nearby solve of the
+   * same arm to continue (`IAutoMovieSwivelNear`) or none to sweep every
+   * swivel: the candidate and its swivel and bend branch, or the reason there
+   * is none.
    */
   export function continued(
     props: Pick<IAutoMovieMotionHumanBend.ISolve, ContinuedProps>,
@@ -220,16 +236,15 @@ export namespace AutoMovieMotionHumanBendSearch {
     };
   }
 
-  /**
+  /*
    * The shoulder angles of an unloaded hanging arm: the wrist straight below
    * the shoulder of an upright trunk, as far as the relaxed elbow
    * (`stand.ELBOW`) leaves it, the elbow on the hint's side. The body reads it
    * once per side (`IAutoMovieMotionHumanBody.hanging`).
-   *
-   * @param body The body.
-   * @param side The arm.
-   * @param hint The `hang` preset's hint for an upright trunk at the origin.
-   * @returns The angles, or null when the rig has no arm chain.
+   * Parameter body: The body.
+   * Parameter side: The arm.
+   * Parameter hint: The `hang` preset's hint for an upright trunk at the origin.
+   * Returns: The angles, or null when the rig has no arm chain.
    */
   export function hanging(
     body: IAutoMovieMotionHumanBody,
@@ -273,15 +288,14 @@ export namespace AutoMovieMotionHumanBendSearch {
     );
   }
 
-  /**
+  /*
    * The search `solve` and `strain` share: prepares the chain, refuses a wrist
    * out of reach and returns the best candidate under a ranking.
-   *
-   * @param props The request.
-   * @param rank The ranking of a candidate, given the prepared chain; its
-   *   overshoot is positive wherever the candidate's is, so the swivels the
-   *   upper arm's range refuses are spared.
-   * @returns The candidate, or the reason there is none.
+   * Parameter props: The request.
+   * Parameter rank: The ranking of a candidate, given the prepared chain; its
+   * overshoot is positive wherever the candidate's is, so the swivels the
+   * upper arm's range refuses are spared.
+   * Returns: The candidate, or the reason there is none.
    */
   export function search(
     props: IAutoMovieMotionHumanBend.ISolve,
@@ -292,7 +306,7 @@ export namespace AutoMovieMotionHumanBendSearch {
     return prepare(props)(props, rank);
   }
 
-  /**
+  /*
    * Prepare one unchanged body's trunk/side for actual differently ranked
    * sweeps.
    */
@@ -338,37 +352,59 @@ export namespace AutoMovieMotionHumanBendSearch {
     };
   }
 
-  /** The alternatives of `ContinuedResult2`'s site. */
+  /*
+   * The alternatives of `ContinuedResult2`'s site.
+   */
   type ContinuedResult2 = IContinuedResult2 | string;
 
-  /** The record of `IContinuedResult2`'s site. */
+  /*
+   * The record of `IContinuedResult2`'s site.
+   */
   type IContinuedResult2 = {
     candidate: ICandidate;
     seed: IAutoMovieSwivelSeed;
   };
-  /** The alternatives of `ContinuedResult`'s site. */
+  /*
+   * The alternatives of `ContinuedResult`'s site.
+   */
   type ContinuedResult = IContinuedResult | string;
 
-  /** The record of `IContinuedResult`'s site. */
+  /*
+   * The record of `IContinuedResult`'s site.
+   */
   type IContinuedResult = { candidate: ICandidate; seed: IAutoMovieSwivelSeed };
-  /** The alternatives of `SearchResult`'s site. */
+  /*
+   * The alternatives of `SearchResult`'s site.
+   */
   type SearchResult = ICandidate | string;
 
-  /** The alternatives of `PrepareResult2`'s site. */
+  /*
+   * The alternatives of `PrepareResult2`'s site.
+   */
   type PrepareResult2 = ICandidate | string;
 
-  /** The alternatives of `PrepareResult`'s site. */
+  /*
+   * The alternatives of `PrepareResult`'s site.
+   */
   type PrepareResult = ICandidate | string;
 }
 
-/** The alternatives of `PrepareGoal`'s site. */
+/*
+ * The alternatives of `PrepareGoal`'s site.
+ */
 type PrepareGoal = "point" | "rotation";
 
-/** The alternatives of `PrepareGoalResult`'s site. */
+/*
+ * The alternatives of `PrepareGoalResult`'s site.
+ */
 type PrepareGoalResult = "point" | "rotation";
 
-/** The alternatives of `PrepareProps`'s site. */
+/*
+ * The alternatives of `PrepareProps`'s site.
+ */
 type PrepareProps = "body" | "posture" | "side";
 
-/** The alternatives of `ContinuedProps`'s site. */
+/*
+ * The alternatives of `ContinuedProps`'s site.
+ */
 type ContinuedProps = "body" | "posture" | "side" | "point" | "rotation";

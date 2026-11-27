@@ -6,16 +6,15 @@ import type {
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRide } from "./HumanRide";
 
-/**
+/*
  * A bicycle effort's timeline: the rider rises off the seat no sooner than the
  * ride's take (`HumanRide.TAKE`), stands up after it, lowers no sooner than
  * standing, and sits again between lowering and the end; the rise lifts the
  * body some height. Cues: `seatOff`, `standing`, `lower` and `seatOn`.
- *
- * @param params The effort's seconds, instants and lift.
- * @returns The effort's cues.
- * @throws {HumanRefusal} When the instants are out of order or out of the
- *   effort, or the lift has no height.
+ * Parameter params: The effort's seconds, instants and lift.
+ * Returns: The effort's cues.
+ * When the instants are out of order or out of the
+ * effort, or the lift has no height.
  */
 export function humanBicycleEffortTimeline(
   params: Pick<

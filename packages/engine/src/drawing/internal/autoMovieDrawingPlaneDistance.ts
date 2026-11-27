@@ -5,16 +5,15 @@ import {
 
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Signed distance in metres from a view's cut plane to a world point.
  *
  * The cut plane passes through the frame's origin with the frame's unit normal,
  * which points back at the viewer, so a positive distance is on the viewer's
  * side, the side a cut removes, and a negative one lies beyond the plane.
- *
- * @param frame Page basis whose origin and unit normal define the plane.
- * @param point World point in metres.
- * @returns `(point - origin) . normal`, in metres.
+ * Parameter frame: Page basis whose origin and unit normal define the plane.
+ * Parameter point: World point in metres.
+ * Returns: `(point - origin) . normal`, in metres.
  */
 export const autoMovieDrawingPlaneDistance = (
   frame: IAutoMovieDrawingFrame,

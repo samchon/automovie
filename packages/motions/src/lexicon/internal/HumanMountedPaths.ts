@@ -22,25 +22,24 @@ import type { HumanMountedTimeline } from "./HumanMountedTimeline";
 import { hangMountedLeg } from "./hangMountedLeg";
 import { heelMountedFoot } from "./heelMountedFoot";
 
-/**
+/*
  * The paths a mounted performance (`HumanMounted`) prepares between its key
  * postures: where the hips are, how far the carrier strays from its
  * stride-averaged path while the performance is out of the saddle, and which
  * feet must swing over the carrier on their way to the next figure.
  */
 export namespace HumanMountedPaths {
-  /**
+  /*
    * How far above the higher end of its way a foot that must swing over the
    * carrier passes, thigh lengths (provisional).
    */
   export const RISE: number = 0.25;
 
-  /**
+  /*
    * The middle of a posture's hip joints.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @returns The point, in the posture's frame.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Returns: The point, in the posture's frame.
    */
   export function hips(
     body: IAutoMovieMotionHumanBody,
@@ -55,14 +54,13 @@ export namespace HumanMountedPaths {
     return Vector3.lerp(joints.left, joints.right, 0.5);
   }
 
-  /**
+  /*
    * The point the hips swing about between two keys: the middle of the ankles
    * when both feet stay planted where they are in both keys, as on their
    * stirrups; none otherwise.
-   *
-   * @param from The earlier key.
-   * @param to The later key.
-   * @returns The pivot, or none.
+   * Parameter from: The earlier key.
+   * Parameter to: The later key.
+   * Returns: The pivot, or none.
    */
   export function pivot(
     from: IAutoMovieMotionHumanPosture,
@@ -83,16 +81,15 @@ export namespace HumanMountedPaths {
     return Vector3.lerp(ankles[0]!, ankles[1]!, 0.5);
   }
 
-  /**
+  /*
    * The hips a share of the way between two keys: straight, or about a pivot,
    * the direction turned and the distance from the pivot blended, so the hips
    * never come nearer to or further from the feet than at both ends.
-   *
-   * @param from The earlier hips.
-   * @param to The later hips.
-   * @param about The pivot, or none for a straight way.
-   * @param share 0 to 1.
-   * @returns The hips.
+   * Parameter from: The earlier hips.
+   * Parameter to: The later hips.
+   * Parameter about: The pivot, or none for a straight way.
+   * Parameter share: 0 to 1.
+   * Returns: The hips.
    */
   export function swing(
     from: IAutoMovieVector3,
@@ -118,13 +115,12 @@ export namespace HumanMountedPaths {
     );
   }
 
-  /**
+  /*
    * A posture whose planted feet bearing on their balls are turned toes-down
    * where the shank would lean past the ankle's range (`heelMountedFoot`).
-   *
-   * @param body The body.
-   * @param posture The posture, in any frame.
-   * @returns The posture, its planted leg goals turned where needed.
+   * Parameter body: The body.
+   * Parameter posture: The posture, in any frame.
+   * Returns: The posture, its planted leg goals turned where needed.
    */
   export function heels(
     body: IAutoMovieMotionHumanBody,
@@ -145,12 +141,11 @@ export namespace HumanMountedPaths {
     return { ...posture, limbs };
   }
 
-  /**
+  /*
    * A posture without arm goals: the arms posed by their joints, so a hand's
    * hold blends from where those joints put it.
-   *
-   * @param posture The posture.
-   * @returns The posture without its arm goals.
+   * Parameter posture: The posture.
+   * Returns: The posture without its arm goals.
    */
   export function unarmed(
     posture: IAutoMovieMotionHumanPosture,
@@ -161,15 +156,14 @@ export namespace HumanMountedPaths {
     return { ...posture, limbs };
   }
 
-  /**
+  /*
    * Where a figure's held contacts are at a film second, in the carrier frame
    * then: the points the hands must keep in reach.
-   *
-   * @param support The carrier.
-   * @param figure The figure.
-   * @param now The carrier frame at the second.
-   * @param film Film seconds.
-   * @returns Each holding hand's contact point, in the carrier frame.
+   * Parameter support: The carrier.
+   * Parameter figure: The figure.
+   * Parameter now: The carrier frame at the second.
+   * Parameter film: Film seconds.
+   * Returns: Each holding hand's contact point, in the carrier frame.
    */
   export function grips(
     support: IAutoMovieMotionHumanPropReader,
@@ -192,14 +186,13 @@ export namespace HumanMountedPaths {
     return out;
   }
 
-  /**
+  /*
    * Whether a figure names its supports: a figure that names any is held by
    * those alone, so a foot it does not name leaves its stirrup in the figure's
    * transfer (its window closes where the transfer starts) and hangs; a figure
    * that names none keeps the entry's feet as they were.
-   *
-   * @param figure The figure.
-   * @returns True when it names any support.
+   * Parameter figure: The figure.
+   * Returns: True when it names any support.
    */
   export function names(figure: IAutoMovieMotionHumanMounted.IFigure): boolean {
     return (
@@ -207,16 +200,15 @@ export namespace HumanMountedPaths {
     );
   }
 
-  /**
+  /*
    * The entered seat for a figure: the entry as it was, or, where the figure
    * names the stirrups it keeps, the entry with each planted foot it does not
    * name hanging free (`hangMountedLeg`), a stirrup lost.
-   *
-   * @param body The body.
-   * @param entry The entered posture, in the carrier frame.
-   * @param figure The entered figure.
-   * @param planted Whether each entry foot stands on something.
-   * @returns The figure's key posture.
+   * Parameter body: The body.
+   * Parameter entry: The entered posture, in the carrier frame.
+   * Parameter figure: The entered figure.
+   * Parameter planted: Whether each entry foot stands on something.
+   * Returns: The figure's key posture.
    */
   export function entered(
     body: IAutoMovieMotionHumanBody,
@@ -232,17 +224,16 @@ export namespace HumanMountedPaths {
     return { ...entry, limbs };
   }
 
-  /**
+  /*
    * The contact window a figure's supporting part holds on the carrier: a grip
    * for a hand, a plant for a sole (on its stirrup's own frame when one is
    * named), a knee bearing on its region, the right thigh bearing over its
    * bar.
-   *
-   * @param part The supporting part.
-   * @param on The carrier's subject id.
-   * @param point The carrier's point the part rests on, when the figure names
-   *   one.
-   * @returns The window over the whole performance, which the clock then cuts.
+   * Parameter part: The supporting part.
+   * Parameter on: The carrier's subject id.
+   * Parameter point: The carrier's point the part rests on, when the figure names
+   * one.
+   * Returns: The window over the whole performance, which the clock then cuts.
    */
   export function window(
     part: HumanMountedSeats.Part,
@@ -289,17 +280,16 @@ export namespace HumanMountedPaths {
     return { part: "rightUpperLeg", kind: "bear", from: 0, to: 1, support };
   }
 
-  /**
+  /*
    * How far the carrier contact rises or falls from its stride-averaged path
    * while the performance is out of the saddle, read in world height so the
    * course's own travel does not count.
-   *
-   * @param carrier The carrier frame reader.
-   * @param start The performance's start, film seconds.
-   * @param clock The performance's clock.
-   * @param figures The figures.
-   * @param stride The stride, seconds; none gives 0.
-   * @returns The greatest departure, metres.
+   * Parameter carrier: The carrier frame reader.
+   * Parameter start: The performance's start, film seconds.
+   * Parameter clock: The performance's clock.
+   * Parameter figures: The figures.
+   * Parameter stride: The stride, seconds; none gives 0.
+   * Returns: The greatest departure, metres.
    */
   export function slack(
     carrier: HumanMountedFrame.Reader,
@@ -334,16 +324,15 @@ export namespace HumanMountedPaths {
     return most;
   }
 
-  /**
+  /*
    * The ball a foot pivots about between two keys: the foot planted on its ball
    * in both, the ball on the same place within the campaign's 5 mm contact
    * bound (`HumanMount.ON`), as a foot kept in its stirrup while the seat
    * turns; none otherwise.
-   *
-   * @param from The earlier key.
-   * @param to The later key.
-   * @param side The foot.
-   * @returns The ball, in the keys' frame, or none.
+   * Parameter from: The earlier key.
+   * Parameter to: The later key.
+   * Parameter side: The foot.
+   * Returns: The ball, in the keys' frame, or none.
    */
   export function rested(
     from: IAutoMovieMotionHumanPosture,
@@ -371,19 +360,18 @@ export namespace HumanMountedPaths {
       : undefined;
   }
 
-  /**
+  /*
    * The feet that swing over the carrier into each figure: a foot whose
    * straight way to its next place would pass through the carrier's colliders
    * passes instead through a point above the higher end, `RISE` thighs up,
    * midway along; a foot kept on the same stirrup, or planted on its ball at
    * the same place at both ends (`rested`), stays on it.
-   *
-   * @param seats The seats' context, for the body and the colliders.
-   * @param entry The entered posture in the carrier frame.
-   * @param keys Each figure's key posture.
-   * @param figures The figures.
-   * @param planted Whether each entry foot stands on something.
-   * @returns For each figure, the waypoint of each foot that swings.
+   * Parameter seats: The seats' context, for the body and the colliders.
+   * Parameter entry: The entered posture in the carrier frame.
+   * Parameter keys: Each figure's key posture.
+   * Parameter figures: The figures.
+   * Parameter planted: Whether each entry foot stands on something.
+   * Returns: For each figure, the waypoint of each foot that swings.
    */
   export function arcs(
     seats: HumanMountedSeats.IContext,

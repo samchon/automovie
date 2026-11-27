@@ -1,18 +1,17 @@
 import type { IAutoMovieMotionHumanArmPlanned } from "@automovie/interface";
 
-/**
+/*
  * The span a carry's weight states: where it leaves 0 (`start`), first reaches
  * 1 (`ready`), last leaves 1 (`relax`) and is back at 0 (`end`), or `relax` and
  * `end` at the window's end for a weight that holds 1 to it. Each instant is
  * bracketed on a 1/240 s grid of the window and bisected within its bracket to
  * 1e-12 s, or to the finest bracket a double resolves at seconds that large.
- *
- * @param weight The carry's weight, 0 at its rest and 1 on its goal.
- * @param from The window's first second.
- * @param to The window's last second.
- * @returns The span; none for a weight that states no single reach: one that
- *   never leaves 0 or never reaches 1, starts off 0, ends between its ends, or
- *   leaves 0 again after it returned.
+ * Parameter weight: The carry's weight, 0 at its rest and 1 on its goal.
+ * Parameter from: The window's first second.
+ * Parameter to: The window's last second.
+ * Returns: The span; none for a weight that states no single reach: one that
+ * never leaves 0 or never reaches 1, starts off 0, ends between its ends, or
+ * leaves 0 again after it returned.
  */
 export function AutoMovieMotionHumanArmStated(
   weight: (seconds: number) => number,

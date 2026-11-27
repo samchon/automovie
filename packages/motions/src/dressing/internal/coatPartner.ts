@@ -25,19 +25,19 @@ import { requireOtherPerformer } from "../../touch/internal/requireOtherPerforme
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { wardrobeHands } from "./wardrobeHands";
 
-/**
+/*
  * The wearer's collar below and before the shoulder line, metres: the
  * `wardrobe` jacket's own collar offset.
  */
 const COLLAR: IAutoMovieVector3 = { x: 0, y: -0.085, z: 0.1 };
 
-/**
+/*
  * How long the hand stays on the jacket once it rests on the shoulders,
  * seconds: a beat to settle it.
  */
 const SETTLE: number = 0.28;
 
-/**
+/*
  * Help a partner into a coat. The dresser's holding hand carries the jacket's
  * `wear` socket up to the partner's collar, read from the partner's shoulders
  * and heading at the action's start, and holds it there still for the authored
@@ -56,7 +56,7 @@ export const coatPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCo
     plan: planCoatPartner,
   };
 
-/**
+/*
  * Help a partner into a coat. The dresser's holding hand carries the jacket's
  * `wear` socket up to the partner's collar, read from the partner's shoulders
  * and heading at the action's start, and holds it there still for the authored
@@ -209,7 +209,7 @@ function planCoatPartner(
   });
 }
 
-/**
+/*
  * The partner's collar: mid-shoulders plus the jacket's collar offset, turned
  * to the partner's heading.
  */

@@ -30,7 +30,7 @@ import { GymnasticsWheelPlants } from "./GymnasticsWheelPlants";
 import { cartwheel } from "./cartwheel";
 import { edgeGymnasticsWheelFeet } from "./edgeGymnasticsWheelFeet";
 
-/**
+/*
  * A round-off: a cartwheel that travels along the way the body faced, turns
  * half round about the vertical and lands on both feet at once, facing back
  * where it came from, the entry to a back handspring or a back salto.
@@ -56,10 +56,12 @@ import { edgeGymnasticsWheelFeet } from "./edgeGymnasticsWheelFeet";
  * `feetDown` (the feet bear again), `relax` (the end).
  */
 export namespace roundOff {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "roundOff";
 
-  /**
+  /*
    * Cancel table: from the end, into standing, walking, a handspring or a
    * salto.
    */
@@ -71,30 +73,29 @@ export namespace roundOff {
       salto: ["fromRelax", "smooth"],
     });
 
-  /**
+  /*
    * The round-off's seconds when the author names none (provisional: quicker
    * than the cartwheel's, its rhythm of a tumbling run).
    */
   export const SECONDS: number = 1.2;
 
-  /**
+  /*
    * The wheel's angle by which the first quarter turn is made, degrees
    * (provisional: before the first hand bears).
    */
   export const ENTRY: number = 60;
 
-  /**
+  /*
    * The angle past the handstand over which the legs close and the second
    * quarter turn is made, degrees (provisional).
    */
   export const SNAP: number = 120;
 
-  /**
+  /*
    * The landing shape on a body: the legs together, the knees bent and the arms
    * still up (provisional angles).
-   *
-   * @param body The body.
-   * @returns The key.
+   * Parameter body: The body.
+   * Returns: The key.
    */
   export function landed(
     body: IAutoMovieMotionHumanBody,
@@ -106,14 +107,13 @@ export namespace roundOff {
     );
   }
 
-  /**
+  /*
    * The heading's turn at an angle of the wheel: a quarter turn toward the
    * trailing side over the first `ENTRY` degrees, and a second quarter over
    * `SNAP` past the handstand, each a minimum-jerk share.
-   *
-   * @param sign 1 leading right, -1 leading left.
-   * @param angle The wheel's turn, degrees, 0 to 360.
-   * @returns Degrees.
+   * Parameter sign: 1 leading right, -1 leading left.
+   * Parameter angle: The wheel's turn, degrees, 0 to 360.
+   * Returns: Degrees.
    */
   export function turned(sign: number, angle: number): number {
     return (
@@ -122,12 +122,11 @@ export namespace roundOff {
         90 * AutoMovieEngineMotionSampling.minimumJerkShare((angle - 180) / SNAP))
     );
   }
-  /**
+  /*
    * Plan a round-off.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the seconds are not positive.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the seconds are not positive.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRoundOff.IParams>,
@@ -234,7 +233,9 @@ export namespace roundOff {
       { name: "feetDown", share: feetDown },
       { name: "relax", share: 1 },
     ];
-    /** Read the current wheel angle and straighten the trunk at the exit. */
+    /*
+     * Read the current wheel angle and straighten the trunk at the exit.
+     */
     const carried: (seconds: number) => IAutoMovieMotionHumanPosture = (
       seconds: number,
     ): IAutoMovieMotionHumanPosture => {

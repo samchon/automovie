@@ -11,7 +11,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** The facilities rules, read. */
+/*
+ * The facilities rules, read.
+ */
 const FR: string =
   "FINA Facilities Rules 2017-2021 (https://artisticswimming.ca/wp-content/uploads/2021/10/fina_facilities_2017-2021.pdf)";
 
@@ -326,7 +328,9 @@ export function create(
     grip: 0.03,
   };
 
-  /** The bands every segment shares. */
+  /*
+   * The bands every segment shares.
+   */
   const WALL: Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>> = {
     width: AutoMovieArchetypeBand.metres(
       2.5,

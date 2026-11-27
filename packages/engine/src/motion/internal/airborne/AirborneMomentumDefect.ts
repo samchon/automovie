@@ -11,7 +11,7 @@ import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import { AirborneTabulatedShapeHistory } from "./AirborneTabulatedShapeHistory";
 import type { MotionTrajectoryFailure } from "../../MotionTrajectoryFailure";
 
-/**
+/*
  * Measure a dense flight's angular-momentum defect in the actual mass model.
  *
  * The reconstructed world momentum is R (I omega + h), using the same
@@ -19,16 +19,15 @@ import type { MotionTrajectoryFailure } from "../../MotionTrajectoryFailure";
  * Comparing it directly with the requested world momentum retains inertia
  * anisotropy and cancellation between root and segment motion. An angular
  * rate's relative error alone does not bound this physical error.
- *
- * @param history The pure root-frame shape history of this integration.
- * @param momentum Its unchanged world angular momentum, kg m²/s.
- * @param tolerance Relative momentum share and absolute kg m²/s budget, finite
- *   and nonnegative with at least one positive.
- * @returns A pure reader of seconds, unit world orientation and dense body
- *   angular velocity in rad/s, returning the normalized defect; zero budget
- *   admits only exactly zero defect.
- * @throws {Error} For invalid budgets, nonfinite physical inputs, nonpositive
- *   principal moments or unrepresentable reconstructed momentum.
+ * Parameter history: The pure root-frame shape history of this integration.
+ * Parameter momentum: Its unchanged world angular momentum, kg m²/s.
+ * Parameter tolerance: Relative momentum share and absolute kg m²/s budget, finite
+ * and nonnegative with at least one positive.
+ * Returns: A pure reader of seconds, unit world orientation and dense body
+ * angular velocity in rad/s, returning the normalized defect; zero budget
+ * admits only exactly zero defect.
+ * For invalid budgets, nonfinite physical inputs, nonpositive
+ * principal moments or unrepresentable reconstructed momentum.
  */
 export function AirborneMomentumDefect(
   history: IAutoMovieIntegrateAirborneRotation.IHistory,
@@ -107,102 +106,138 @@ export function AirborneMomentumDefect(
   };
 }
 
-/** Physical context added to the trajectory owner's numeric failure. */
+/*
+ * Physical context added to the trajectory owner's numeric failure.
+ */
 export namespace AirborneMomentumDefect {
-  /** Owned scalar snapshots of one unresolved integration, without raw bones. */
+  /*
+   * Owned scalar snapshots of one unresolved integration, without raw bones.
+   */
   export interface IFailureContext {
-    /** Requested world L, x/y/z, kg m²/s. */
+    /*
+     * Requested world L, x/y/z, kg m²/s.
+     */
     targetMomentum: [number, number, number];
 
-    /**
+    /*
      * Relative share and absolute kg m²/s, or null when physical control was
      * disabled.
      */
     momentumBudget: [number, number] | null;
 
-    /**
+    /*
      * The exact numeric absolute-plus-relative scale used by the metric, kg
      * m²/s.
      */
     momentumScale: number | null;
 
-    /** Principal moments at the unresolved interval's start, x/y/z, kg m². */
+    /*
+     * Principal moments at the unresolved interval's start, x/y/z, kg m².
+     */
     startPrincipalMoments: [number, number, number] | null;
 
-    /** Principal-to-root quaternion x/y/z/w at that same start. */
+    /*
+     * Principal-to-root quaternion x/y/z/w at that same start.
+     */
     startPrincipalRotation: [number, number, number, number] | null;
 
-    /** Relative shape momentum at that start, x/y/z, kg m²/s. */
+    /*
+     * Relative shape momentum at that start, x/y/z, kg m²/s.
+     */
     startRelativeMomentum: [number, number, number] | null;
 
-    /** A secondary start-history problem, preserving the original failure. */
+    /*
+     * A secondary start-history problem, preserving the original failure.
+     */
     startHistoryError: string | null;
 
-    /** Actual first-stage RHS quaternion x/y/z/w, before any knot normalization. */
+    /*
+     * Actual first-stage RHS quaternion x/y/z/w, before any knot normalization.
+     */
     startOrientation: [number, number, number, number] | null;
 
-    /** Its body angular velocity x/y/z, rad/s. */
+    /*
+     * Its body angular velocity x/y/z, rad/s.
+     */
     startBodyRate: [number, number, number] | null;
 
-    /** Endpoint of the last rejected trial, seconds, or null before a rejection. */
+    /*
+     * Endpoint of the last rejected trial, seconds, or null before a rejection.
+     */
     trialEndTime: number | null;
 
-    /** Principal moments at that endpoint, x/y/z, kg m². */
+    /*
+     * Principal moments at that endpoint, x/y/z, kg m².
+     */
     endPrincipalMoments: [number, number, number] | null;
 
-    /** Principal-to-root quaternion x/y/z/w at that endpoint. */
+    /*
+     * Principal-to-root quaternion x/y/z/w at that endpoint.
+     */
     endPrincipalRotation: [number, number, number, number] | null;
 
-    /** Relative shape momentum at that endpoint, x/y/z, kg m²/s. */
+    /*
+     * Relative shape momentum at that endpoint, x/y/z, kg m²/s.
+     */
     endRelativeMomentum: [number, number, number] | null;
 
-    /** A secondary endpoint-history problem, preserving the original failure. */
+    /*
+     * A secondary endpoint-history problem, preserving the original failure.
+     */
     endHistoryError: string | null;
 
-    /** Actual final-stage RHS quaternion x/y/z/w, before knot normalization. */
+    /*
+     * Actual final-stage RHS quaternion x/y/z/w, before knot normalization.
+     */
     endOrientation: [number, number, number, number] | null;
 
-    /** Its body angular velocity x/y/z, rad/s. */
+    /*
+     * Its body angular velocity x/y/z, rad/s.
+     */
     endBodyRate: [number, number, number] | null;
 
-    /** Actual failed physical probe time, seconds, or null without one. */
+    /*
+     * Actual failed physical probe time, seconds, or null without one.
+     */
     failedProbeTime: number | null;
 
-    /** Principal moments at that probe, x/y/z, kg m², or null when unavailable. */
+    /*
+     * Principal moments at that probe, x/y/z, kg m², or null when unavailable.
+     */
     principalMoments: [number, number, number] | null;
 
-    /**
+    /*
      * Principal-to-root quaternion x/y/z/w at the same probe, or null when
      * unavailable.
      */
     principalRotation: [number, number, number, number] | null;
 
-    /**
+    /*
      * Relative shape momentum in root axes, x/y/z, kg m²/s, or null when
      * unavailable.
      */
     relativeMomentum: [number, number, number] | null;
 
-    /**
+    /*
      * The failed dense root-to-world quaternion x/y/z/w, or null without a
      * physical probe.
      */
     denseOrientation: [number, number, number, number] | null;
 
-    /**
+    /*
      * The failed dense body angular velocity x/y/z, rad/s, or null without a
      * physical probe.
      */
     denseBodyRate: [number, number, number] | null;
 
-    /**
+    /*
      * A secondary failed-probe history problem, preserving the original
      * failure.
      */
     historyError: string | null;
   }
 
-  /**
+  /*
    * Add bounded physical snapshots to the same owned, extensible trajectory
    * error. Flat numeric tuples remain visible to ordinary error inspection. The
    * message also carries the complete numeric context when a reporter truncates
@@ -356,7 +391,7 @@ export namespace AirborneMomentumDefect {
   }
 }
 
-/**
+/*
  * Scale vector components before the norm so a small share can keep a large
  * finite target representable.
  */
@@ -375,7 +410,9 @@ function physicalScale(
   );
 }
 
-/** Relative angular-momentum share and absolute kg m²/s budget. */
+/*
+ * Relative angular-momentum share and absolute kg m²/s budget.
+ */
 type MomentumTolerance = Pick<
   IAutoMovieIntegrateMotionTrajectory.ITolerance,
   "relative" | "absolute"

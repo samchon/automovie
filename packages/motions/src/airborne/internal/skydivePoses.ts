@@ -5,7 +5,7 @@ import type {
 
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/**
+/*
  * The parachute jump's key poses, as whole-body tilt and joint angles in
  * degrees (`[flexion, abduction, twist]`), all provisional: the belly-to-earth
  * arch with the hips pressed forward, the limbs spread and bent and the head
@@ -16,7 +16,9 @@ import { HumanHand } from "../../posture/internal/HumanHand";
  * the back, as US Army FM 3-21.220 orders its five points of contact.
  */
 export namespace skydivePoses {
-  /** The belly-to-earth arch. */
+  /*
+   * The belly-to-earth arch.
+   */
   export const ARCH: IAutoMovieMotionHumanLieDown.IPose = pose(88, 0, {
     leg: [-15, 25, 0],
     knee: 45,
@@ -25,7 +27,9 @@ export namespace skydivePoses {
     neck: -35,
   });
 
-  /** The hang under the canopy, the hands up on the toggles. */
+  /*
+   * The hang under the canopy, the hands up on the toggles.
+   */
   export const HANG: IAutoMovieMotionHumanLieDown.IPose = pose(0, 0, {
     leg: [10, 5, 0],
     knee: 15,
@@ -34,7 +38,7 @@ export namespace skydivePoses {
     neck: 0,
   });
 
-  /**
+  /*
    * The arms spread out level at the deployment's snatch, on their way from the
    * arch up to the risers: the hands pass wide of the head.
    */
@@ -46,7 +50,9 @@ export namespace skydivePoses {
     neck: -15,
   });
 
-  /** The flare: both toggles down, feet and knees together, knees bent. */
+  /*
+   * The flare: both toggles down, feet and knees together, knees bent.
+   */
   export const FLARE: IAutoMovieMotionHumanLieDown.IPose = pose(0, 0, {
     leg: [20, 0, 0],
     knee: 25,
@@ -55,16 +61,22 @@ export namespace skydivePoses {
     neck: 0,
   });
 
-  /** One key of the parachute landing fall. */
+  /*
+   * One key of the parachute landing fall.
+   */
   export interface IKey {
-    /** Share of the landing fall. */
+    /*
+     * Share of the landing fall.
+     */
     at: number;
 
-    /** The pose, its roll toward the left side; the right side mirrors it. */
+    /*
+     * The pose, its roll toward the left side; the right side mirrors it.
+     */
     pose: IAutoMovieMotionHumanLieDown.IPose;
   }
 
-  /**
+  /*
    * The landing fall's keys after the flare: the calf, the thigh, the buttock
    * and the push-up muscle; the lying side ends it.
    */
@@ -111,13 +123,12 @@ export namespace skydivePoses {
     },
   ];
 
-  /**
+  /*
    * A pose as a posture at the origin with a heading.
-   *
-   * @param position The pose.
-   * @param yaw The heading, degrees.
-   * @param mirror Whether to roll to the right instead of the left.
-   * @returns The posture, its root at the origin.
+   * Parameter position: The pose.
+   * Parameter yaw: The heading, degrees.
+   * Parameter mirror: Whether to roll to the right instead of the left.
+   * Returns: The posture, its root at the origin.
    */
   export function at(
     position: IAutoMovieMotionHumanLieDown.IPose,
@@ -134,25 +145,39 @@ export namespace skydivePoses {
     };
   }
 
-  /** The angles a pose is made from. */
+  /*
+   * The angles a pose is made from.
+   */
   interface IShape {
-    /** Each thigh's flexion, abduction and twist. */
+    /*
+     * Each thigh's flexion, abduction and twist.
+     */
     leg: readonly [number, number, number];
 
-    /** Each knee's flexion. */
+    /*
+     * Each knee's flexion.
+     */
     knee: number;
 
-    /** Each upper arm's flexion, abduction and twist. */
+    /*
+     * Each upper arm's flexion, abduction and twist.
+     */
     arm: readonly [number, number, number];
 
-    /** Each elbow's flexion. */
+    /*
+     * Each elbow's flexion.
+     */
     elbow: number;
 
-    /** The neck's flexion; negative raises the head. */
+    /*
+     * The neck's flexion; negative raises the head.
+     */
     neck: number;
   }
 
-  /** A symmetric pose with gripping hands. */
+  /*
+   * A symmetric pose with gripping hands.
+   */
   function pose(
     pitch: number,
     roll: number,

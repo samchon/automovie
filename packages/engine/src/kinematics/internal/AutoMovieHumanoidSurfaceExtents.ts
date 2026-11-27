@@ -10,7 +10,7 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * The extent of every region of a body: the radius of the disc about the
  * region's point that is still that region, read from the body's own rest pose.
  * A named region of the skin reaches until the next one begins, so its disc
@@ -84,22 +84,32 @@ export function AutoMovieHumanoidSurfaceExtents(
   return out;
 }
 
-/** Actual world observations owned only by one extent calculation. */
+/*
+ * Actual world observations owned only by one extent calculation.
+ */
 interface IPlaced {
-  /** Original region key, preserving callback/output order. */
+  /*
+   * Original region key, preserving callback/output order.
+   */
   name: AutoMovieHumanoidRegion;
 
-  /** Existing region bone passed to the caller's breadth reader. */
+  /*
+   * Existing region bone passed to the caller's breadth reader.
+   */
   bone: AutoMovieHumanoidBone;
 
-  /** Fresh world point in metres. */
+  /*
+   * Fresh world point in metres.
+   */
   point: IAutoMovieVector3;
 
-  /** Fresh world-facing direction used by the existing positive-dot gate. */
+  /*
+   * Fresh world-facing direction used by the existing positive-dot gate.
+   */
   normal: IAutoMovieVector3;
 }
 
-/**
+/*
  * The least extent of a region, metres: the 10 mm a pressed skin gives, the
  * tolerance a contact on it is read against.
  */

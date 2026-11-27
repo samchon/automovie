@@ -1,4 +1,4 @@
-/**
+/*
  * Compare two strings by UTF-16 code unit.
  *
  * Relational comparison uses the same code-unit order as the native default

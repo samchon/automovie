@@ -3,12 +3,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Every distinct edge of a hull, once, as the pair of its two corner points in
  * the order the faces' loops first walk it.
- *
- * @param hull The hull whose faces are walked.
- * @returns One segment per unordered pair of adjacent corners.
+ * Parameter hull: The hull whose faces are walked.
+ * Returns: One segment per unordered pair of adjacent corners.
  */
 export function physicalHullEdges(
   hull: Pick<IAutoMoviePhysicalHullFaces.IHull, "faces">,

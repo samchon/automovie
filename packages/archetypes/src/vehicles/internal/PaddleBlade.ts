@@ -8,9 +8,11 @@ import {
 
 const v: typeof Vector3.create = Vector3.create;
 
-/** A hand paddle's repeated blade panels, handle frame and blade-tip face. */
+/*
+ * A hand paddle's repeated blade panels, handle frame and blade-tip face.
+ */
 export namespace PaddleBlade {
-  /**
+  /*
    * Build one thin blade from shoulder to tip, tapered in silhouette. The
    * center ridge controls the dihedral for each half across the local Z axis.
    */
@@ -52,7 +54,9 @@ export namespace PaddleBlade {
         );
   }
 
-  /** A grip centered on a round handle, with its +X toward the thumb side. */
+  /*
+   * A grip centered on a round handle, with its +X toward the thumb side.
+   */
   export function grip<Id extends string, Dimension extends string>(
     builder: AutoMovieArchetypeBuilder<Id, Dimension>,
     id: Id,
@@ -74,7 +78,9 @@ export namespace PaddleBlade {
     });
   }
 
-  /** The blade-tip face, with +Y pointing away from the shaft. */
+  /*
+   * The blade-tip face, with +Y pointing away from the shaft.
+   */
   export function tip<Id extends string, Dimension extends string>(
     builder: AutoMovieArchetypeBuilder<Id, Dimension>,
     id: Id,

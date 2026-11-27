@@ -11,7 +11,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { walkTempo } from "../../actions/internal/walkTempo";
 
-/**
+/*
  * Heel strikes entrained to a beat track: which beat each strike answers and
  * when it lands, by the linear phase-correction model of sensorimotor
  * synchronisation (Vorberg and Wing 1996, reviewed by Repp 2005, Psychon Bull
@@ -33,29 +33,32 @@ import { walkTempo } from "../../actions/internal/walkTempo";
  * track's last beat the steps keep the plan's own times.
  */
 export namespace walkCadence {
-  /** The action-clock inputs needed by sensorimotor phase correction. */
+  /*
+   * The action-clock inputs needed by sensorimotor phase correction.
+   */
   export type IContext = Pick<
     IAutoMovieMotionHumanActionContext,
     "attributes" | "cue" | "random" | "skill" | "start"
   >;
 
-  /** The named cue track a cadence follows. */
+  /*
+   * The named cue track a cadence follows.
+   */
   export type ITrack = Pick<IAutoMovieMotionHumanActionContext, "cue">;
 
-  /**
+  /*
    * The film seconds a walker's heel strikes land at, entrained to a beat
    * track, or null when the walker does not lock.
-   *
-   * @param context The walk's context: its skill, attributes, cue tracks and
-   *   draws.
-   * @param cadence The beat track and the foot.
-   * @param strikes The plan's heel strikes, seconds of the plan, in order, with
-   *   the foot of each.
-   * @returns The strikes' film seconds, one per planned strike, or null.
-   * @throws {HumanRefusal} When the beat's period lies more than
-   *   `walkTempo.HOLD` from the walk's own step, outside the gait the steps
-   *   were planned at; and when a phase-corrected step would last no time or
-   *   twice its planned step or more, which no forward time warp carries.
+   * Parameter context: The walk's context: its skill, attributes, cue tracks and
+   * draws.
+   * Parameter cadence: The beat track and the foot.
+   * Parameter strikes: The plan's heel strikes, seconds of the plan, in order, with
+   * the foot of each.
+   * Returns: The strikes' film seconds, one per planned strike, or null.
+   * When the beat's period lies more than
+   * `walkTempo.HOLD` from the walk's own step, outside the gait the steps
+   * were planned at; and when a phase-corrected step would last no time or
+   * twice its planned step or more, which no forward time warp carries.
    */
   export function strikes(
     context: IContext,
@@ -152,13 +155,12 @@ export namespace walkCadence {
     return out;
   }
 
-  /**
+  /*
    * A cadence's beats, film seconds: the track's `beat` instants, or every
    * instant of a track that names none.
-   *
-   * @param context The walk's context.
-   * @param cadence The cadence.
-   * @returns The beats in order.
+   * Parameter context: The walk's context.
+   * Parameter cadence: The cadence.
+   * Returns: The beats in order.
    */
   export function beats(
     context: ITrack,
@@ -173,11 +175,10 @@ export namespace walkCadence {
     );
   }
 
-  /**
+  /*
    * A beat track's period: the median interval between its beats, seconds.
-   *
-   * @param beats The beats, at least two, in order.
-   * @returns The period.
+   * Parameter beats: The beats, at least two, in order.
+   * Returns: The period.
    */
   export function period(beats: readonly number[]): number {
     const intervals: number[] = beats

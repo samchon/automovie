@@ -15,7 +15,7 @@ import type { HumanObstacle } from "./HumanObstacle";
 import { stepOver } from "./stepOver";
 import type { stepOverPath } from "./stepOverPath";
 
-/**
+/*
  * A step over's swings (`stepOverPath`): the heights each sole must clear over
  * the obstacle and the floor either side, a foot pitched about its flat ball,
  * the lead sockets' approach and departure ramps, and each swing's shortest
@@ -23,9 +23,8 @@ import type { stepOverPath } from "./stepOverPath";
  * (`AutoMovieMotionHumanClearance`), the foot leveling and the lead toes
  * lifting as they pass the near side. Read from the crossing's body, feet,
  * obstacle, frame and footprints.
- *
- * @param scope What the crossing's swings are laid from.
- * @returns The swing readers.
+ * Parameter scope: What the crossing's swings are laid from.
+ * Returns: The swing readers.
  */
 export function stepOverPathSwing(
   scope: stepOverPathSwing.IScope,
@@ -280,101 +279,139 @@ export function stepOverPathSwing(
   return { top, heeled, surface, smooth, departure, summit, envelopes, path };
 }
 
-/** What a step over's swings read and what they are. */
+/*
+ * What a step over's swings read and what they are.
+ */
 export namespace stepOverPathSwing {
-  /** What a crossing lays its swings from. */
+  /*
+   * What a crossing lays its swings from.
+   */
   export interface IScope {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The obstacle. */
+    /*
+     * The obstacle.
+     */
     obstacle: HumanObstacle.IObstacle;
 
-    /** The feet's middle on the floor. */
+    /*
+     * The feet's middle on the floor.
+     */
     origin: IAutoMovieVector3;
 
-    /** The crossing's frame. */
+    /*
+     * The crossing's frame.
+     */
     framed: HumanFrame.IPrepared;
 
-    /** The obstacle's near side along the heading, metres. */
+    /*
+     * The obstacle's near side along the heading, metres.
+     */
     near: number;
 
-    /** The obstacle's far side along the heading, metres. */
+    /*
+     * The obstacle's far side along the heading, metres.
+     */
     far: number;
 
-    /** The landing surface's height, metres. */
+    /*
+     * The landing surface's height, metres.
+     */
     ground: number;
 
-    /** The leading foot. */
+    /*
+     * The leading foot.
+     */
     lead: AutoMovieHumanSide;
 
-    /** The trailing foot. */
+    /*
+     * The trailing foot.
+     */
     trail: AutoMovieHumanSide;
 
-    /** The starting ankles. */
+    /*
+     * The starting ankles.
+     */
     feet: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
-    /** The ending ankles. */
+    /*
+     * The ending ankles.
+     */
     end: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
-    /**
+    /*
      * A foot's heading.
-     *
-     * @param side The foot.
-     * @returns The heading, degrees.
+     * Parameter side: The foot.
+     * Returns: The heading, degrees.
      */
     heading: (side: AutoMovieHumanSide) => number;
 
-    /** Each foot's pitched rotation (`HumanFootRotation.prepare`). */
+    /*
+     * Each foot's pitched rotation (`HumanFootRotation.prepare`).
+     */
     pitched: Record<
       AutoMovieHumanSide,
       ReturnType<typeof HumanFootRotation.prepare>
     >;
 
-    /** A flat foot (`stepOverPath.IPlan.flat`). */
+    /*
+     * A flat foot (`stepOverPath.IPlan.flat`).
+     */
     flat: stepOverPath.IPlan["flat"];
   }
 
-  /** The swing readers. */
+  /*
+   * The swing readers.
+   */
   export interface ISwing {
-    /**
+    /*
      * The height a sole clears over the obstacle, from the floor.
-     *
-     * @param side The foot.
-     * @returns The height, metres.
+     * Parameter side: The foot.
+     * Returns: The height, metres.
      */
     top: (side: AutoMovieHumanSide) => number;
 
-    /** A foot pitched about its flat ball (`stepOverPath.IPlan.heeled`). */
+    /*
+     * A foot pitched about its flat ball (`stepOverPath.IPlan.heeled`).
+     */
     heeled: stepOverPath.IPlan["heeled"];
 
-    /**
+    /*
      * The surface a foot's sole is over along the heading.
-     *
-     * @param side The foot.
-     * @param z The distance along the heading, metres.
-     * @returns The surface's height, metres.
+     * Parameter side: The foot.
+     * Parameter z: The distance along the heading, metres.
+     * Returns: The surface's height, metres.
      */
     surface: (side: AutoMovieHumanSide, z: number) => number;
 
-    /** The bounded minimum-jerk share (`stepOverPath.IPlan.smooth`). */
+    /*
+     * The bounded minimum-jerk share (`stepOverPath.IPlan.smooth`).
+     */
     smooth: stepOverPath.IPlan["smooth"];
 
-    /** The trail ankle's height as it leaves, metres. */
+    /*
+     * The trail ankle's height as it leaves, metres.
+     */
     departure: number;
 
-    /** The trail ankle's height over the obstacle, metres. */
+    /*
+     * The trail ankle's height over the obstacle, metres.
+     */
     summit: number;
 
-    /** Each lead socket's least height along the heading. */
+    /*
+     * Each lead socket's least height along the heading.
+     */
     envelopes: Record<IAutoMovieMotionHumanFoot.Socket, (z: number) => number>;
 
-    /**
+    /*
      * A foot's swing from a pitch.
-     *
-     * @param side The foot.
-     * @param start The foot's pitch as it leaves, degrees.
-     * @returns The foot at a share of the swing.
+     * Parameter side: The foot.
+     * Parameter start: The foot's pitch as it leaves, degrees.
+     * Returns: The foot at a share of the swing.
      */
     path: (
       side: AutoMovieHumanSide,

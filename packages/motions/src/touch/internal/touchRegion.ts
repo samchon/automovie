@@ -20,12 +20,12 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { touchSite } from "./touchSite";
 
-/**
+/*
  * Where the touch law reads a region at a second: on which bones, and moved to
  * which site; and how far about that site a hand may land.
  */
 export namespace touchRegion {
-  /**
+  /*
    * The reader of a touch's regions.
    *
    * A leg's region of the performer moves with the hips once the trunk leans,
@@ -33,18 +33,17 @@ export namespace touchRegion {
    * other region is read on the given bones. The first hand's region is moved
    * to its site; a site along a prop's contact is read on the prop's frame at
    * the second, so it follows a prop that moves.
-   *
-   * @param context The action's context.
-   * @param bones The body's bones at the entry, or with the other arm
-   *   presented.
-   * @param side The first hand.
-   * @param target The first hand's target, the one a site applies to.
-   * @param site The first hand's site; the region's own point when absent.
-   * @returns For a target and whether a leg's region follows the legs, the
-   *   region's frame at a posture and a second since the action's start.
-   * @throws {HumanRefusal} When the site's radius is negative, or a site along
-   *   a contact is given without a prop target, with a share outside [-0.5,
-   *   0.5], or on a contact without a length.
+   * Parameter context: The action's context.
+   * Parameter bones: The body's bones at the entry, or with the other arm
+   * presented.
+   * Parameter side: The first hand.
+   * Parameter target: The first hand's target, the one a site applies to.
+   * Parameter site: The first hand's site; the region's own point when absent.
+   * Returns: For a target and whether a leg's region follows the legs, the
+   * region's frame at a posture and a second since the action's start.
+   * When the site's radius is negative, or a site along
+   * a contact is given without a prop target, with a share outside [-0.5,
+   * 0.5], or on a contact without a length.
    */
   export function reader(
     context: Pick<IAutoMovieMotionHumanActionContext, ReaderContext>,
@@ -169,16 +168,15 @@ export namespace touchRegion {
     };
   }
 
-  /**
+  /*
    * The radius about its site a hand may land within on its region: the first
    * hand's site's own radius (drawn or chosen within), else the region's extent
    * on the body it belongs to (a region is an area,
    * `AutoMovieHumanoidSurfaceRegions`); none for a prop or a point.
-   *
-   * @param context The action's context.
-   * @param target The hand's target.
-   * @param site The hand's site, the first hand's only.
-   * @returns Metres, or `undefined`.
+   * Parameter context: The action's context.
+   * Parameter target: The hand's target.
+   * Parameter site: The hand's site, the first hand's only.
+   * Returns: Metres, or `undefined`.
    */
   export function disc(
     context: Pick<IAutoMovieMotionHumanActionContext, DiscContext>,
@@ -197,13 +195,19 @@ export namespace touchRegion {
   }
 }
 
-/** The alternatives of `DiscContext`'s site. */
+/*
+ * The alternatives of `DiscContext`'s site.
+ */
 type DiscContext = "body" | "performer";
 
-/** The alternatives of `ReaderContext`'s site. */
+/*
+ * The alternatives of `ReaderContext`'s site.
+ */
 type ReaderContext = "aim" | "body" | "prop" | "series" | "start";
 
-/** Whether a self region rides a leg, which a lean moves with the hips. */
+/*
+ * Whether a self region rides a leg, which a lean moves with the hips.
+ */
 function onLeg(
   body: IAutoMovieMotionHumanActionContext["body"],
   target: IAutoMovieMotionTarget,

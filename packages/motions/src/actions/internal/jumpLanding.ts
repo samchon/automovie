@@ -9,18 +9,17 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { stand } from "./stand";
 
-/**
+/*
  * The landing's places at a destination.
- *
- * @param body The body.
- * @param to The floor point under the destination, its height ignored.
- * @param heading The jump's heading, degrees about +Y.
- * @param rise The landing surface's height, metres.
- * @param lean The upright stand's forward lean, metres.
- * @param turned Whether the footprints receive the flight's fractional yaw.
- * @param back How far behind the footprints' middle the root touches down,
- *   metres: the flight's capture offset (jump).
- * @returns The places.
+ * Parameter body: The body.
+ * Parameter to: The floor point under the destination, its height ignored.
+ * Parameter heading: The jump's heading, degrees about +Y.
+ * Parameter rise: The landing surface's height, metres.
+ * Parameter lean: The upright stand's forward lean, metres.
+ * Parameter turned: Whether the footprints receive the flight's fractional yaw.
+ * Parameter back: How far behind the footprints' middle the root touches down,
+ * metres: the flight's capture offset (jump).
+ * Returns: The places.
  */
 export function jumpLanding(
   body: IAutoMovieMotionHumanBody,
@@ -92,7 +91,7 @@ export function jumpLanding(
   };
 }
 
-/**
+/*
  * Where a jump comes down, at the height of what it lands on (the floor's 0, a
  * box's top, a step's): both feet flat on footprints at the destination, at the
  * body's rest separation and turned out by the stance angle, and the root's
@@ -103,35 +102,45 @@ export function jumpLanding(
  * below it.
  */
 export namespace jumpLanding {
-  /** The landing's places. */
+  /*
+   * The landing's places.
+   */
   export interface ILanding {
-    /** Each foot flat on its footprint, world metres. */
+    /*
+     * Each foot flat on its footprint, world metres.
+     */
     feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
-    /** The root at touchdown, world metres. */
+    /*
+     * The root at touchdown, world metres.
+     */
     touched: IAutoMovieVector3;
 
-    /** The root absorbed, world metres. */
+    /*
+     * The root absorbed, world metres.
+     */
     absorbed: IAutoMovieVector3;
 
-    /** The root stood upright, world metres. */
+    /*
+     * The root stood upright, world metres.
+     */
     stood: IAutoMovieVector3;
   }
 }
 
-/**
+/*
  * How far below the standing root the root touches down, hip heights
  * (provisional).
  */
 const TOUCH_DROP: number = 0.03;
 
-/**
+/*
  * How far below the standing root the absorption bottoms out, hip heights
  * (provisional).
  */
 const ABSORB_DROP: number = 0.12;
 
-/**
+/*
  * Share of upright lean reached at the ordinary landing's absorption bottom
  * (provisional).
  */

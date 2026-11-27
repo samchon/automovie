@@ -10,7 +10,7 @@ import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 import { autoMovieAnalysisRunDigest } from "./autoMovieAnalysisRunDigest";
 import { validateAutoMovieAnalysisRunContents } from "./validateAutoMovieAnalysisRunContents";
 
-/**
+/*
  * Validate one analysis run as evidence.
  *
  * The contents follow `validateAutoMovieAnalysisRunContents`: an absent

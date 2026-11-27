@@ -7,7 +7,7 @@ import type {
 import { AutoMovieBernsteinAlgebra64 as B } from "../../AutoMovieBernsteinAlgebra64";
 import type { IAutoMovieSupportLoftPlan64 } from "./IAutoMovieSupportLoftPlan64";
 
-/**
+/*
  * Tessellate planned ruled support faces with their own analytic normals. A
  * face nx X + nz Z = h(Y) has outward normal (nx,-dh/dY,nz), including a
  * vanishing edge endpoint where a tensor-chart derivative would collapse.
@@ -266,19 +266,29 @@ export function emitAutoMovieSupportLoft64(
   };
 }
 
-/** One cached physical position shared by its incident render vertices. */
+/*
+ * One cached physical position shared by its incident render vertices.
+ */
 interface IEmittedSupportLoftVertex {
-  /** Canonical metre coordinates in the loft's local XYZ frame. */
+  /*
+   * Canonical metre coordinates in the loft's local XYZ frame.
+   */
   point: [number, number, number];
 
-  /** Ordinal in the mesh's physical source table. */
+  /*
+   * Ordinal in the mesh's physical source table.
+   */
   id: number;
 
-  /** Metre error allowance for another construction of the same vertex. */
+  /*
+   * Metre error allowance for another construction of the same vertex.
+   */
   roundoff: number;
 }
 
-/** Find the canonical key of an incidence component and compress its path. */
+/*
+ * Find the canonical key of an incidence component and compress its path.
+ */
 function incidenceRepresentative(
   map: Map<string, string>,
   key: string,

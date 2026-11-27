@@ -3,18 +3,17 @@ import type {
   IAutoMovieScript,
 } from "@automovie/interface";
 
-/**
+/*
  * Refuse duplicate script beat ids and answer the beat the performance names,
  * the first declaration of its id.
  *
  * Each repeated id is one `type` violation at `$script.beats[<index>].id`
  * naming the index of its first declaration. The performance's beat is looked
  * up among first declarations only, so a duplicate never shadows it.
- *
- * @param context The shot's gate context: its collector and its performance.
- * @param script The script whose beats the performance names.
- * @returns The first beat declared with the performance's beat id, or undefined
- *   when the script has none.
+ * Parameter context: The shot's gate context: its collector and its performance.
+ * Parameter script: The script whose beats the performance names.
+ * Returns: The first beat declared with the performance's beat id, or undefined
+ * when the script has none.
  */
 export function gatePerformShotScript(
   context: IScriptGateContext,
@@ -38,7 +37,9 @@ export function gatePerformShotScript(
   return index === undefined ? undefined : script.beats[index];
 }
 
-/** The lookup reads the requested beat id and reports into the shot's collector. */
+/*
+ * The lookup reads the requested beat id and reports into the shot's collector.
+ */
 type IScriptGateContext = Pick<
   IAutoMovieEnginePerformShotGateContext,
   "out"
@@ -49,5 +50,7 @@ type IScriptGateContext = Pick<
   >;
 };
 
-/** Authored beats are the only script fields used by this gate. */
+/*
+ * Authored beats are the only script fields used by this gate.
+ */
 type IScriptBeats = Pick<IAutoMovieScript, "beats">;

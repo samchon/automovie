@@ -10,20 +10,19 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core/index";
 
-/**
+/*
  * An open-front short-sleeve stage jacket with two hollow sleeve passages.
  *
  * The model's origin is at the middle of the upper back. Positive Y points up
  * and positive Z faces forward. Each sleeve's opening faces up in model space
  * and fits around the wearer's upper arm. One visible zipper pull travels along
  * the placket from its lower stop toward the neck.
- *
- * @param params An optional identity and authored dimensions in metres.
- * @param seed Selects dimensions left unbound by the author.
- * @returns A model with separate front and back collar holds, wear, sleeve,
- *   exit and closure contacts.
- * @throws {AutoMovieArchetypeRefusal} When an authored dimension is outside its
- *   band.
+ * Parameter params: An optional identity and authored dimensions in metres.
+ * Parameter seed: Selects dimensions left unbound by the author.
+ * Returns: A model with separate front and back collar holds, wear, sleeve,
+ * exit and closure contacts.
+ * When an authored dimension is outside its
+ * band.
  */
 export function createStageJacket(
   params: AutoMovieArchetypeStageJacket.IParams = {},
@@ -215,7 +214,9 @@ export function createStageJacket(
   return builder.build(0.46);
 }
 
-/** The bounds of authored coarse garment dimensions in metres. */
+/*
+ * The bounds of authored coarse garment dimensions in metres.
+ */
 const BANDS: Readonly<
   Record<AutoMovieArchetypeStageJacket.Dimension, IAutoMovieArchetypeBand>
 > = {
@@ -257,5 +258,7 @@ const BANDS: Readonly<
   ),
 };
 
-/** Coarse staging proxy wall thickness, in metres. */
+/*
+ * Coarse staging proxy wall thickness, in metres.
+ */
 const WALL: number = 0.012;

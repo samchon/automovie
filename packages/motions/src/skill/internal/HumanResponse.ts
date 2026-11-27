@@ -11,7 +11,7 @@ import { HumanAttribute } from "../../ensemble/internal/HumanAttribute";
 import { look } from "../../everyday/internal/look";
 import { HumanSkill } from "./HumanSkill";
 
-/**
+/*
  * How long a person takes to answer a cue it was waiting for: a spoken command,
  * a drum's signal, a gunshot. The latency a synced action is moved by
  * (`HumanChainCore.ISync.latency`), drawn per performer.
@@ -29,7 +29,7 @@ import { HumanSkill } from "./HumanSkill";
  * man who does not fire is the author's.
  */
 export namespace HumanResponse {
-  /**
+  /*
    * The shortest latency a reaction is given, seconds: a start within 0.1 s of
    * the gun counts as false in athletics because no one reacts faster (World
    * Athletics rule; the fastest valid reaction at Beijing 2008 was 0.118 s,
@@ -38,7 +38,7 @@ export namespace HumanResponse {
    */
   export const FLOOR: number = 0.1;
 
-  /**
+  /*
    * The most a warned, anticipating person's reaction is shortened by the
    * preparatory word, seconds (provisional: an elite's acoustic orienting mean
    * of 0.18 s against the 0.166 s mean fastest reaction of warned sprinters,
@@ -47,16 +47,15 @@ export namespace HumanResponse {
    */
   export const LEAD: number = 0.05;
 
-  /**
+  /*
    * One person's latency.
-   *
-   * @param skill The performer's skill.
-   * @param random The stream, keyed by the performer, the synced action and
-   *   `latency`.
-   * @param latency The kind.
-   * @param warned Whether a preparatory word announced the cue.
-   * @param attributes The performer's attributes.
-   * @returns Seconds after the cue.
+   * Parameter skill: The performer's skill.
+   * Parameter random: The stream, keyed by the performer, the synced action and
+   * `latency`.
+   * Parameter latency: The kind.
+   * Parameter warned: Whether a preparatory word announced the cue.
+   * Parameter attributes: The performer's attributes.
+   * Returns: Seconds after the cue.
    */
   export function latency(
     skill: IAutoMovieMotionHumanSkill,

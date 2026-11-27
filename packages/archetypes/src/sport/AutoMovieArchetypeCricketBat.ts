@@ -5,10 +5,14 @@ import type { AutoMovieArchetype } from "../core";
 import { StickBuild } from "./internal/StickBuild";
 import type { AutoMovieArchetypeStick } from "./AutoMovieArchetypeStick";
 
-/** Points in the local model frame, in metres. */
+/*
+ * Points in the local model frame, in metres.
+ */
 const v: typeof Vector3.create = Vector3.create;
 
-/** The retained cricket handle diameter, metres. A shape estimate. */
+/*
+ * The retained cricket handle diameter, metres. A shape estimate.
+ */
 const HANDLE: number = 0.035;
 
 /** Canonical producer and authoring contract for CricketBat. */

@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanClearance } from "@automovie/interface";
 
-/**
+/*
  * The path of a swinging foot over a profile it must clear: the shortest path
  * from where it leaves to where it lands that stays on or above a required
  * height everywhere between, with its corners rounded.
@@ -17,25 +17,26 @@ import type { IAutoMovieMotionHumanClearance } from "@automovie/interface";
  * radius at a corner; the caller's clearance carries that.
  */
 export namespace AutoMovieMotionHumanClearance {
-  /**
+  /*
    * The most a corner of the path is cut back along each of its sides, metres
    * (provisional).
    */
   export const RADIUS: number = 0.04;
 
-  /** The spacing at which the required height is sampled along the step, metres. */
+  /*
+   * The spacing at which the required height is sampled along the step, metres.
+   */
   export const SPACING: number = 0.001;
 
-  /**
+  /*
    * The clearing path between two points.
-   *
-   * @param from Where the path starts.
-   * @param to Where it ends; farther along the step than `from`.
-   * @param required The least height at a distance along the step, metres; read
-   *   strictly between the two ends.
-   * @returns The path's point at a share of its arc length in [0, 1], with the
-   *   share at which it first stands a height above its start
-   *   (`IPath.lifted`).
+   * Parameter from: Where the path starts.
+   * Parameter to: Where it ends; farther along the step than `from`.
+   * Parameter required: The least height at a distance along the step, metres; read
+   * strictly between the two ends.
+   * Returns: The path's point at a share of its arc length in [0, 1], with the
+   * share at which it first stands a height above its start
+   * (`IPath.lifted`).
    */
   export function path(
     from: IAutoMovieMotionHumanClearance.IPoint,
@@ -152,15 +153,17 @@ export namespace AutoMovieMotionHumanClearance {
     );
   }
 
-  /**
+  /*
    * A clearing path: its point at a share of its arc length, and the first
    * share at which it stands a height above its start.
    */
   export interface IPath {
-    /** The path's point at a share of its arc length in [0, 1]. */
+    /*
+     * The path's point at a share of its arc length in [0, 1].
+     */
     (share: number): IAutoMovieMotionHumanClearance.IPoint;
 
-    /**
+    /*
      * The first share of arc length at which the path stands `height` metres
      * above its start, interpolated within the polyline piece that first
      * reaches it; 1 when it never does, and 1 for a path of zero length.
@@ -168,10 +171,14 @@ export namespace AutoMovieMotionHumanClearance {
     lifted: (height: number) => number;
   }
 
-  /** Segments of a corner's arc. */
+  /*
+   * Segments of a corner's arc.
+   */
   const ARC: number = 8;
 
-  /** A point a share of the way from one point to another. */
+  /*
+   * A point a share of the way from one point to another.
+   */
   const toward = (
     a: IAutoMovieMotionHumanClearance.IPoint,
     b: IAutoMovieMotionHumanClearance.IPoint,

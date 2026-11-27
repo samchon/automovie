@@ -1,6 +1,6 @@
 import { isAutoMovieWebVttIdentifier } from "./isAutoMovieWebVttIdentifier.js";
 
-/**
+/*
  * Return one WebVTT header text or cue identifier verbatim, or throw.
  *
  * WebVTT defines no character references for these lines, so escaping would

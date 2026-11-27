@@ -3,7 +3,7 @@ import * as THREE from "three";
 import type { AutoMovieRenderSceneLayout } from "../AutoMovieRenderSceneLayout.js";
 import { AUTOMOVIE_MATRIX_ELEMENT_LIMIT } from "./AUTOMOVIE_MATRIX_ELEMENT_LIMIT.js";
 
-/**
+/*
  * Construct a native camera for a supplied horizontal metric pixel chart. Pixel
  * centres use column+0.5,row+0.5. Image U projects cos(a) X + sin(a) Z; image V
  * projects negative Y, with pitch in metres per pixel and principal point in

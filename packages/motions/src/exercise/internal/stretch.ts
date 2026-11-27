@@ -39,7 +39,7 @@ import { stretchHoldClock } from "./stretchHoldClock";
 import { stretchOverheadPlace } from "./stretchOverheadPlace";
 import { stretchQuadriceps } from "./stretchQuadriceps";
 
-/**
+/*
  * A standing static stretch or yoga pose held and released: the neck side bend,
  * the cross-body shoulder stretch, the overhead side bend, the standing
  * quadriceps stretch holding the ankle, and the tree pose (ACSM's Guidelines,
@@ -72,10 +72,14 @@ import { stretchQuadriceps } from "./stretchQuadriceps";
  * (sun salutation); they need floor supports for the hands and seat.
  */
 export namespace stretch {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "stretch";
 
-  /** Cancel table. */
+  /*
+   * Cancel table.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
@@ -83,32 +87,37 @@ export namespace stretch {
       walk: ["fromRelax", "smooth"],
     });
 
-  /** How far into the range: `mild` half and `moderate` deep. */
+  /*
+   * How far into the range: `mild` half and `moderate` deep.
+   */
   export const INTENSITY: Readonly<
     Record<INTENSITYEntryItem, IAutoMovieMotionHumanRange.Level>
   > = { mild: "half", moderate: "deep" };
 
-  /** The entry's and the release's seconds (provisional). */
+  /*
+   * The entry's and the release's seconds (provisional).
+   */
   export const ENTER: number = 1.5;
 
-  /** The hold by default, seconds (Bandy et al. 1997). */
+  /*
+   * The hold by default, seconds (Bandy et al. 1997).
+   */
   export const HOLD: number = 30;
 
-  /**
+  /*
    * The bent knee's least flexion in the quadriceps stretch, degrees
    * (provisional).
    */
   export const KNEE: number = 130;
 
-  /**
+  /*
    * The stretch's timetable: entered over `ENTER`, held `hold`, left over
    * `ENTER`, the manner's tempo and hold factor applied; the reach ends as the
    * hold begins, the release opens the way out, the weight shifts halfway in
    * and lowers halfway out.
-   *
-   * @param hold The held seconds.
-   * @param modifiers The manner's timing.
-   * @returns The clock.
+   * Parameter hold: The held seconds.
+   * Parameter modifiers: The manner's timing.
+   * Returns: The clock.
    */
   export function timetable(
     hold: number,
@@ -142,12 +151,11 @@ export namespace stretch {
     ]);
     return clock;
   }
-  /**
+  /*
    * Plan a stretch.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the hold is negative.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStretch.IParams>,
@@ -170,7 +178,9 @@ export namespace stretch {
     return stretchHoldClock.plan(context, clock, build);
   }
 
-  /** Build the native stretch's own writers over the given phase clock. */
+  /*
+   * Build the native stretch's own writers over the given phase clock.
+   */
   function compose(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStretch.IParams>,
     p: IAutoMovieMotionHumanStretch.IParams,
@@ -497,8 +507,12 @@ export namespace stretch {
   }
 }
 
-/** The alternatives of `ComposeBendBone`'s site. */
+/*
+ * The alternatives of `ComposeBendBone`'s site.
+ */
 type ComposeBendBone = "spine" | "chest";
 
-/** The alternatives of `INTENSITYEntryItem`'s site. */
+/*
+ * The alternatives of `INTENSITYEntryItem`'s site.
+ */
 type INTENSITYEntryItem = "mild" | "moderate";

@@ -4,17 +4,16 @@ import type { AutoMovieArchetype } from "../AutoMovieArchetype";
 import { AutoMovieArchetypeArticulation } from "../AutoMovieArchetypeArticulation";
 import { AutoMovieArchetypeRefusal } from "../AutoMovieArchetypeRefusal";
 
-/**
+/*
  * Admit the travels a mechanism track reaches against its own articulation.
- *
- * @param archetype The model owning the articulation.
- * @param articulation The articulation id.
- * @param axis The author's input field, used by a refusal.
- * @param value The author's input value.
- * @param travels Every travel reached by the track, in the articulation's unit.
- * @returns The neutral articulation record used for the range check.
- * @throws {AutoMovieArchetypeRefusal} For a non-articulation or an unsupported
- *   travel.
+ * Parameter archetype: The model owning the articulation.
+ * Parameter articulation: The articulation id.
+ * Parameter axis: The author's input field, used by a refusal.
+ * Parameter value: The author's input value.
+ * Parameter travels: Every travel reached by the track, in the articulation's unit.
+ * Returns: The neutral articulation record used for the range check.
+ * For a non-articulation or an unsupported
+ * travel.
  */
 export function ArchetypeTrackRange<Id extends string>(
   archetype: AutoMovieArchetype<Id, string>,

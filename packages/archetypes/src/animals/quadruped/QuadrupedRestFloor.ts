@@ -10,15 +10,14 @@ import type {
 
 import type { AutoMovieArchetypeConvexCell } from "../../core";
 
-/**
+/*
  * Exact lowest world Y of one posed rigid solid used by a rest cycle.
- *
- * @param part Source or posed part with finite unit-scale transform.
- * @param cells The producer-owned convex cells, when the model supplies them.
- * @returns The lowest surface height, metres; a drawing plane has no solid and
- *   gives Infinity.
- * @throws {RangeError} For an unregistered solid or malformed
- *   dimensions/transforms.
+ * Parameter part: Source or posed part with finite unit-scale transform.
+ * Parameter cells: The producer-owned convex cells, when the model supplies them.
+ * Returns: The lowest surface height, metres; a drawing plane has no solid and
+ * gives Infinity.
+ * For an unregistered solid or malformed
+ * dimensions/transforms.
  */
 export function QuadrupedRestFloor(
   part: IAutoMovieModelPart,

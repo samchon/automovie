@@ -87,7 +87,9 @@ export namespace AutoMovieHumanFootFan {
     return 0.5 * (lo + hi);
   }
 
-  /** The yaw and turn angles at a station. */
+  /*
+   * The yaw and turn angles at a station.
+   */
   function angles(
     line: IAutoMovieHumanFootWebLine.IWebLine,
     station: number,
@@ -112,14 +114,20 @@ export namespace AutoMovieHumanFootFan {
     };
   }
 
-  /** Half the hand-over window: {@link HANDOVER} of the yaw fan's stations. */
+  /*
+   * Half the hand-over window: HANDOVER of the yaw fan's stations.
+   */
   function window(line: IAutoMovieHumanFootWebLine.IWebLine): number {
     return HANDOVER * line.square;
   }
 }
 
-/** Half the yaw-to-turn hand-over window, as a share of the yaw fan's stations. Convention. */
+/*
+ * Half the yaw-to-turn hand-over window, as a share of the yaw fan's stations. Convention.
+ */
 const HANDOVER: number = 0.5;
 
-/** Bisections that close a station inside the hand-over window. */
+/*
+ * Bisections that close a station inside the hand-over window.
+ */
 const BISECTIONS: number = 44;

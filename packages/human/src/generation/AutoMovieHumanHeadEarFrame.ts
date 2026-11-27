@@ -90,7 +90,9 @@ export namespace AutoMovieHumanHeadEarFrame {
     };
   }
 
-  /** Normalize a nondegenerate geometric vector. */
+  /*
+   * Normalize a nondegenerate geometric vector.
+   */
   function unit(v: [number, number, number]): [number, number, number] {
     const length: number = Math.hypot(...v);
     if (!(length > 0 && Number.isFinite(length)))
@@ -98,7 +100,9 @@ export namespace AutoMovieHumanHeadEarFrame {
     return [v[0] / length, v[1] / length, v[2] / length];
   }
 
-  /** Remove the component along a unit vector. */
+  /*
+   * Remove the component along a unit vector.
+   */
   function reject(
     v: [number, number, number],
     u: [number, number, number],

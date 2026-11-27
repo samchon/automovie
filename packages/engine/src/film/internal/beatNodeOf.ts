@@ -1,8 +1,8 @@
 import { IAutoMovieScriptNode } from "@automovie/interface";
 
-/**
+/*
  * The id of the beat-kind node that claims one flat
- * {@link IAutoMovieScript.beats} entry, or null when there is no tree or no node
+ * IAutoMovieScript.beats entry, or null when there is no tree or no node
  * claims it.
  *
  * This is the join `validateScriptTree` enforces one-to-one on a committed

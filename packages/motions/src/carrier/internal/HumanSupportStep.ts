@@ -25,28 +25,33 @@ import { HumanSupportCarry } from "./HumanSupportCarry";
 import { HumanSupportFrame } from "./HumanSupportFrame";
 import { HumanSupportStepPlants } from "./HumanSupportStepPlants";
 
-/** The two feet. */
+/*
+ * The two feet.
+ */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-/** Goals carried by either the individual foot's support or by the body. */
+/*
+ * Goals carried by either the individual foot's support or by the body.
+ */
 const LIMBS: readonly AutoMovieHumanLimb[] = [
   "leftArm",
   "rightArm",
   "leftLeg",
   "rightLeg",
 ];
-/**
+/*
  * Seconds over which a foot's share of the body eases from its plant into its
  * swing (provisional staging).
  */
 const EASE: number = 0.1;
-/** World vertical. */
+/*
+ * World vertical.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
+/*
  * A vertical translation of a plan.
- *
- * @param dy The rise, metres.
- * @returns The carry.
+ * Parameter dy: The rise, metres.
+ * Returns: The carry.
  */
 function translate(dy: number): IAutoMovieMotionHumanSupportCarry.ICarry {
   return {
@@ -56,7 +61,7 @@ function translate(dy: number): IAutoMovieMotionHumanSupportCarry.ICarry {
   };
 }
 
-/**
+/*
  * Step from one support to another, either of which may move: from a fixed
  * landing onto an escalator tread or a walkway band, or off it onto the
  * landing. The walk (`walk`) is planned on the support left as it stood at the
@@ -78,18 +83,19 @@ function translate(dy: number): IAutoMovieMotionHumanSupportCarry.ICarry {
  * vertical turns the feet it bears and the body with them. The walk aims where
  * the arrival point will be when the last foot lands, so the rider compensates
  * for the supports' travel.
- *
- * @param context The standing entry, the arrival point and the two supports.
- * @returns The walk with each foot and the pelvis carried by its support.
- * @throws {HumanRefusal} When the walk refuses its path, or on `to` when the
- *   arrival lies a step above or below the floor the step leaves.
+ * Parameter context: The standing entry, the arrival point and the two supports.
+ * Returns: The walk with each foot and the pelvis carried by its support.
+ * When the walk refuses its path, or on `to` when the
+ * arrival lies a step above or below the floor the step leaves.
  */
 export function HumanSupportStep(
   context: IAutoMovieMotionHumanActionContext<Params>,
 ): Plan {
   const { to, from, onto }: Params = context.params;
 
-  /** Resolve the current displayed material frame when the plant named one. */
+  /*
+   * Resolve the current displayed material frame when the plant named one.
+   */
   const frame = (
     prop: string,
     at: number,
@@ -497,9 +503,13 @@ export function HumanSupportStep(
   };
 }
 
-/** Admission of the height between two nominally level supports. */
+/*
+ * Admission of the height between two nominally level supports.
+ */
 export namespace HumanSupportStep {
-  /** Require a rise within the walked step's bearing interval. */
+  /*
+   * Require a rise within the walked step's bearing interval.
+   */
   export function admitRise(rise: number, onto: string | undefined): void {
     if (Math.abs(rise) > HumanSupportStepPlants.BEARING)
       throw new HumanRefusal({
@@ -526,8 +536,12 @@ type Posture = IAutoMovieMotionHumanPosture;
 
 type Window = IAutoMovieMotionHumanContactWindow;
 
-/** One plant of a foot and the support it bears on. */
+/*
+ * One plant of a foot and the support it bears on.
+ */
 type IPlant = HumanSupportStepPlants.IPlant;
 
-/** A plant keyed by its planned window. */
+/*
+ * A plant keyed by its planned window.
+ */
 type WindowPlant = [Window, IPlant];

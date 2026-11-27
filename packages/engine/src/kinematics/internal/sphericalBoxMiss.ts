@@ -1,6 +1,6 @@
 import { Quaternion } from "../../math/Quaternion";
 
-/**
+/*
  * The spherical distance, degrees, from a unit direction to a rectangle of
  * latitudes and longitudes on the unit sphere: the directions `d(f, a) = (-sin
  * a, cos a sin f, cos a cos f)` with the middle angle `a` inside one interval
@@ -13,16 +13,15 @@ import { Quaternion } from "../../math/Quaternion";
  * middle angle `a` is `-x sin a + c cos a`, `c = y sin e + z cos e` for the
  * meridian at outer angle `e`, greatest at the middle angle nearest `atan2(-x,
  * c)`.
- *
- * @param x The direction's component on the pole axis, the one the middle
- *   angle's sine is the negative of.
- * @param y Its component on the axis the outer angle's sine multiplies.
- * @param z Its component on the axis the outer angle's cosine multiplies.
- * @param middle The middle angle's interval, degrees within a quarter turn
- *   either way.
- * @param outer The outer angle's interval, degrees; null when every outer angle
- *   is inside.
- * @returns The distance, degrees; zero inside the rectangle.
+ * Parameter x: The direction's component on the pole axis, the one the middle
+ * angle's sine is the negative of.
+ * Parameter y: Its component on the axis the outer angle's sine multiplies.
+ * Parameter z: Its component on the axis the outer angle's cosine multiplies.
+ * Parameter middle: The middle angle's interval, degrees within a quarter turn
+ * either way.
+ * Parameter outer: The outer angle's interval, degrees; null when every outer angle
+ * is inside.
+ * Returns: The distance, degrees; zero inside the rectangle.
  */
 export function sphericalBoxMiss(
   x: number,

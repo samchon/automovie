@@ -1,4 +1,6 @@
-/** Evaluate the local polynomial or one of its derivatives in finite binary64. */
+/*
+ * Evaluate the local polynomial or one of its derivatives in finite binary64.
+ */
 export function evaluatePchipPowers(
   c: readonly number[],
   offset: number,

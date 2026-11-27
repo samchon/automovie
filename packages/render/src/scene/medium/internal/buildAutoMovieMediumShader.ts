@@ -1,6 +1,6 @@
 import type { collectAutoMovieMediumLights } from "./collectAutoMovieMediumLights.js";
 
-/**
+/*
  * The GLSL ES 3.00 fragment program that marches a participating medium over
  * the linear beauty target, written for one list of light kinds and shadow
  * kinds.
@@ -162,7 +162,7 @@ ${terms.join("\n")}
 `;
 }
 
-/**
+/*
  * The GLSL expression for light `i`'s shadow visibility at step point `x`,
  * declaring the uniforms it reads; 1 for a light without a drawn shadow.
  */
@@ -212,7 +212,9 @@ function shadowTest(
   return `flatShadow${i}(x)`;
 }
 
-/** Declare light `i`'s point shadow lookup. */
+/*
+ * Declare light `i`'s point shadow lookup.
+ */
 function registerPoint(i: number, uniforms: string[]): void {
   uniforms.push(
     `float pointShadow${i}(vec3 x) { vec3 v = x - uPosition${i}; vec3 a = abs(v); float z = max(max(a.x, a.y), a.z);` +

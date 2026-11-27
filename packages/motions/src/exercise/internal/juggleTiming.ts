@@ -1,7 +1,7 @@
 import { AutoMovieGravity } from "@automovie/engine";
 import type { IAutoMovieMotionHumanJuggle } from "@automovie/interface";
 
-/**
+/*
  * A juggling pattern's times by Shannon's theorem `(F + D) H = (V + D) N` for
  * two hands, the dwell ratio `k = D / (D + V)` held fixed (Beek and Lewbel, The
  * Science of Juggling, 1995): the flight to a height `h` between hands level
@@ -9,11 +9,10 @@ import type { IAutoMovieMotionHumanJuggle } from "@automovie/interface";
  * and the two-ball shower's `(2 k / 3) F / (1 − k)`, its low pass flying a
  * third of the high throw; the vacancy `(1 − k) / k` of the dwell; and the
  * least height whose vacancy is the hand's least.
- *
- * @param props The pattern, its balls, the height, the dwell ratio and the
- *   least vacancy.
- * @returns The flight, the dwell, the vacancy and the least height, seconds and
- *   metres.
+ * Parameter props: The pattern, its balls, the height, the dwell ratio and the
+ * least vacancy.
+ * Returns: The flight, the dwell, the vacancy and the least height, seconds and
+ * metres.
  */
 export function juggleTiming(props: juggleTiming.IProps): juggleTiming.ITiming {
   const g: number = AutoMovieGravity.STANDARD;
@@ -36,31 +35,55 @@ export function juggleTiming(props: juggleTiming.IProps): juggleTiming.ITiming {
   };
 }
 
-/** Companion types of {@link juggleTiming}. */
+/*
+ * Companion types of juggleTiming.
+ */
 export namespace juggleTiming {
-  /** What a pattern's times are solved from. */
+  /*
+   * What a pattern's times are solved from.
+   */
   export interface IProps {
-    /** The pattern. */
+    /*
+     * The pattern.
+     */
     pattern: IAutoMovieMotionHumanJuggle.Pattern;
-    /** How many balls it juggles. */
+    /*
+     * How many balls it juggles.
+     */
     balls: number;
-    /** The throw's height, metres. */
+    /*
+     * The throw's height, metres.
+     */
     height: number;
-    /** The dwell ratio, `D / (D + V)`. */
+    /*
+     * The dwell ratio, `D / (D + V)`.
+     */
     ratio: number;
-    /** The least vacancy a hand needs to reach its catch, seconds. */
+    /*
+     * The least vacancy a hand needs to reach its catch, seconds.
+     */
     vacancy: number;
   }
 
-  /** A pattern's times. */
+  /*
+   * A pattern's times.
+   */
   export interface ITiming {
-    /** The throw's flight, seconds. */
+    /*
+     * The throw's flight, seconds.
+     */
     flight: number;
-    /** How long a hand holds a ball, seconds. */
+    /*
+     * How long a hand holds a ball, seconds.
+     */
     dwell: number;
-    /** How long a hand is empty, seconds. */
+    /*
+     * How long a hand is empty, seconds.
+     */
     vacancy: number;
-    /** The least height whose vacancy is the least asked, metres. */
+    /*
+     * The least height whose vacancy is the least asked, metres.
+     */
     least: number;
   }
 }

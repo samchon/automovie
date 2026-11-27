@@ -5,12 +5,11 @@ import type {
 
 import { HumanBound } from "../../law/internal/HumanBound";
 
-/**
+/*
  * The time of a movement to a place, by the rule the place asks for.
- *
- * @param distance Metres travelled.
- * @param place Whether the place is solid, and its width when it has one.
- * @returns Seconds.
+ * Parameter distance: Metres travelled.
+ * Parameter place: Whether the place is solid, and its width when it has one.
+ * Returns: Seconds.
  */
 export function AutoMovieMotionHumanTiming(
   distance: number,
@@ -21,16 +20,16 @@ export function AutoMovieMotionHumanTiming(
     : AutoMovieMotionHumanTiming.transport(distance);
 }
 
-/**
+/*
  * How long an effector takes to travel a distance.
  *
  * Two rules, and which one a movement takes:
  *
- * - {@link AutoMovieMotionHumanTiming.transport}: a movement in free space (a
+ * - AutoMovieMotionHumanTiming.transport: a movement in free space (a
  *   gesture's preparation, a hand to a rest place, a retraction) lasts `0.25 +
  *   0.5 D` seconds for `D` metres. Provisional: a gesture's preparation lasts a
  *   few tenths of a second and reaching time grows with distance (Fitts 1954).
- * - {@link AutoMovieMotionHumanTiming.aimed}: a movement that must stop on a
+ * - AutoMovieMotionHumanTiming.aimed: a movement that must stop on a
  *   target of a given width lasts `a + b lg A + c W` for an amplitude `A` in
  *   millimetres and a width `W`, the two-factor model McIntosh, Mon-Williams
  *   and Tresilian (2018, J. Exp. Psychol. Hum. Percept. Perform. 44:1022,
@@ -41,45 +40,55 @@ export function AutoMovieMotionHumanTiming(
  *        study's shortest (170 mm) take its value, since the fit is not valid
  *        there.
  *
- * {@link AutoMovieMotionHumanTiming.of} chooses: a place that is solid and has a
+ * AutoMovieMotionHumanTiming.of chooses: a place that is solid and has a
  * width is aimed at, any other is travelled to.
  */
 export namespace AutoMovieMotionHumanTiming {
-  /** The free-space rule's time at no distance, seconds (provisional). */
+  /*
+   * The free-space rule's time at no distance, seconds (provisional).
+   */
   export const BASE: number = 0.25;
 
-  /** The free-space rule's seconds per metre (provisional). */
+  /*
+   * The free-space rule's seconds per metre (provisional).
+   */
   export const RATE: number = 0.5;
 
-  /** McIntosh et al. 2018 two-factor intercept, seconds. */
+  /*
+   * McIntosh et al. 2018 two-factor intercept, seconds.
+   */
   export const INTERCEPT: number = -0.30607;
 
-  /** McIntosh et al. 2018 amplitude slope, seconds per decade of millimetres. */
+  /*
+   * McIntosh et al. 2018 amplitude slope, seconds per decade of millimetres.
+   */
   export const AMPLITUDE: number = 0.29727;
 
-  /** McIntosh et al. 2018 width slope, seconds per metre (0.65 ms per mm). */
+  /*
+   * McIntosh et al. 2018 width slope, seconds per metre (0.65 ms per mm).
+   */
   export const WIDTH: number = 0.65;
 
-  /** The shortest amplitude the fit was measured at, metres. */
+  /*
+   * The shortest amplitude the fit was measured at, metres.
+   */
   export const SHORTEST: number = 0.17;
 
-  /**
+  /*
    * The time of a movement in free space.
-   *
-   * @param distance Metres travelled.
-   * @returns Seconds.
+   * Parameter distance: Metres travelled.
+   * Returns: Seconds.
    */
   export function transport(distance: number): number {
     return BASE + RATE * Math.max(0, distance);
   }
 
-  /**
+  /*
    * The time of a movement that stops on a target.
-   *
-   * @param distance Metres travelled.
-   * @param width The target's width across the grip or the touch, metres; 0 for
-   *   a point.
-   * @returns Seconds.
+   * Parameter distance: Metres travelled.
+   * Parameter width: The target's width across the grip or the touch, metres; 0 for
+   * a point.
+   * Returns: Seconds.
    */
   export function aimed(distance: number, width: number): number {
     return (
@@ -89,7 +98,9 @@ export namespace AutoMovieMotionHumanTiming {
     );
   }
 
-  /** The pauses of {@link IAutoMovieMotionHumanTiming.Pause}, as data. */
+  /*
+   * The pauses of IAutoMovieMotionHumanTiming.Pause, as data.
+   */
   export const PAUSE_NAMES = [
     "none",
     "brief",
@@ -97,7 +108,7 @@ export namespace AutoMovieMotionHumanTiming {
     "long",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanTiming.Pause>[];
 
-  /**
+  /*
    * The seconds of each pause (provisional): `none` is no time, `brief` 0.15
    * (an interrupt's smooth blend), `beat` 0.4 (one swing of the `wave` gesture
    * and the flinch's return), `long` 0.8 (the hold of a posture gesture such as
@@ -112,13 +123,12 @@ export namespace AutoMovieMotionHumanTiming {
     long: 0.8,
   };
 
-  /**
+  /*
    * The seconds of a span.
-   *
-   * @param span The span, on any rung.
-   * @returns Seconds.
-   * @throws {Error} When a scale lies outside [0.5, 1.5], explicit seconds are
-   *   negative or not finite, or an explicit source is empty.
+   * Parameter span: The span, on any rung.
+   * Returns: Seconds.
+   * When a scale lies outside [0.5, 1.5], explicit seconds are
+   * negative or not finite, or an explicit source is empty.
    */
   export function seconds(span: IAutoMovieMotionHumanTiming.Span): number {
     if (typeof span === "string") return PAUSES[span];
@@ -136,12 +146,11 @@ export namespace AutoMovieMotionHumanTiming {
     return span.seconds;
   }
 
-  /**
+  /*
    * The action clock's phrase of a set of roles.
-   *
-   * @param roles The phases by role.
-   * @returns The phrase, in seconds; a hold or a decay left out stays out.
-   * @throws {Error} When a span is refused by `seconds`.
+   * Parameter roles: The phases by role.
+   * Returns: The phrase, in seconds; a hold or a decay left out stays out.
+   * When a span is refused by `seconds`.
    */
   export function phrase(
     roles: IAutoMovieMotionHumanTiming.IRoles,

@@ -128,5 +128,7 @@ export namespace AutoMovieHumanFootToeChain {
 
 type Vec3 = AutoMovieVector3Tuple;
 
-/** Length step of a toe's layers' slopes, mm. */
+/*
+ * Length step of a toe's layers' slopes, mm.
+ */
 const SLOPE_STEP: number = 0.05;

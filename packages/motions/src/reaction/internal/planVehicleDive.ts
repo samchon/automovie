@@ -23,18 +23,17 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { vehicleFront } from "./vehicleFront";
 
-/**
+/*
  * Plan a near-miss dive clear of a moving car: the pedestrian stands while the
  * car comes on its course, then dives to the side (`dive`), timed so that every
  * collider of the body has left the car's width when the car's leading face
  * reaches where the legs stood (`vehicleFront.contact`), and stays out of it to
  * the dive's end. The side defaults to the one whose lateral points away from
  * the car's centre line, the nearer edge of its path.
- *
- * @param context The action's context, standing in the car's course.
- * @returns The plan.
- * @throws {HumanRefusal} When the car never arrives within the horizon, the
- *   dive never clears its width, or it arrives before the dive could clear it.
+ * Parameter context: The action's context, standing in the car's course.
+ * Returns: The plan.
+ * When the car never arrives within the horizon, the
+ * dive never clears its width, or it arrives before the dive could clear it.
  */
 export function planVehicleDive(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanVehicleHit.IDive>,

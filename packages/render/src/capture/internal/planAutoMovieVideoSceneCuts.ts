@@ -1,6 +1,6 @@
 import type { IAutoMoviePlanVideoSceneCutsProps } from "@automovie/interface";
 
-/**
+/*
  * Plan the FFmpeg arguments that detect a video file's scene cuts with the
  * `scdet` filter and write each cut to a report, which
  * `readAutoMovieVideoSceneCuts` reads.

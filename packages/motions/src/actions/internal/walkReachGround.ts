@@ -13,39 +13,38 @@ import { walkReach } from "./walkReach";
 import { walkReachFeet } from "./walkReachFeet";
 import { walkReachStance } from "./walkReachStance";
 
-/**
+/*
  * Settle the pelvis against the stances (`walkReach`): lower the root until
  * every bearing stance's claim on it is met, each stance held by
  * `walkReachStance`.
- *
- * @param body The body.
- * @param root The unconstrained root, world metres.
- * @param planned The pelvis turned toward this stance (`pelvis`).
- * @param feet Each foot as scheduled.
- * @param claims The lowering a foot claims in place of its faded stance's,
- *   metres.
- * @param rocker The room under which a stance's heel begins to rise, degrees;
- *   `walkLeg.ROCKER` when absent. A gait gives less while it starts and stops:
- *   a foot that is not stepping keeps its heel down until its ankle can bend no
- *   further.
- * @param tilt The pelvis's tilt from upright under its settled heading, given
- *   the unlowered root, that heading and the upright hip joints
- *   (`walkReachHeld.tilt`): its world rotation and the hip joints it carries. A
- *   caller that shows the pelvis tilted (a trunk tipped about the hips) gives
- *   it, so the lowering is settled on the hip joints as shown; upright when
- *   absent.
- * @param dorsal Each planted foot's dorsal limit, degrees, by the weight it
- *   bears (`walkLeg.dorsal`); an unloaded foot's for a side absent.
- * @param step The hip's largest vertical step a frame of the caller's planned
- *   course, metres, which eases each leg's reach over a soft band
- *   (`walkReachShort.prepare`); a hard reach when absent.
- * @param solved The root's lowering already solved for this instant in
- *   preparation, metres; the stances are then placed under it with no root
- *   search. Solved here when absent.
- * @param pitches Each foot's pitch its stance rule reached at this instant,
- *   solved in preparation (`IGround.pitches`); a foot is then placed at it with
- *   no search. Solved here for a side absent.
- * @returns The pelvis and each stance as reached.
+ * Parameter body: The body.
+ * Parameter root: The unconstrained root, world metres.
+ * Parameter planned: The pelvis turned toward this stance (`pelvis`).
+ * Parameter feet: Each foot as scheduled.
+ * Parameter claims: The lowering a foot claims in place of its faded stance's,
+ * metres.
+ * Parameter rocker: The room under which a stance's heel begins to rise, degrees;
+ * `walkLeg.ROCKER` when absent. A gait gives less while it starts and stops:
+ * a foot that is not stepping keeps its heel down until its ankle can bend no
+ * further.
+ * Parameter tilt: The pelvis's tilt from upright under its settled heading, given
+ * the unlowered root, that heading and the upright hip joints
+ * (`walkReachHeld.tilt`): its world rotation and the hip joints it carries. A
+ * caller that shows the pelvis tilted (a trunk tipped about the hips) gives
+ * it, so the lowering is settled on the hip joints as shown; upright when
+ * absent.
+ * Parameter dorsal: Each planted foot's dorsal limit, degrees, by the weight it
+ * bears (`walkLeg.dorsal`); an unloaded foot's for a side absent.
+ * Parameter step: The hip's largest vertical step a frame of the caller's planned
+ * course, metres, which eases each leg's reach over a soft band
+ * (`walkReachShort.prepare`); a hard reach when absent.
+ * Parameter solved: The root's lowering already solved for this instant in
+ * preparation, metres; the stances are then placed under it with no root
+ * search. Solved here when absent.
+ * Parameter pitches: Each foot's pitch its stance rule reached at this instant,
+ * solved in preparation (`IGround.pitches`); a foot is then placed at it with
+ * no search. Solved here for a side absent.
+ * Returns: The pelvis and each stance as reached.
  */
 export function walkReachGround(
   body: IAutoMovieMotionHumanBody,
@@ -262,29 +261,35 @@ export function walkReachGround(
   };
 }
 
-/** What a stance's reading returns: its foot as reached and its contact point. */
+/*
+ * What a stance's reading returns: its foot as reached and its contact point.
+ */
 type IGroundRead = {
   end: walkFoot.IEnd;
   contact: IAutoMovieVector3;
   pitch: number;
 };
 
-/** The settled members the feet complete. */
+/*
+ * The settled members the feet complete.
+ */
 type GroundCompleted = "feet" | "contacts";
-/** A pelvis tilted from upright: its world rotation and the hips it carries. */
+/*
+ * A pelvis tilted from upright: its world rotation and the hips it carries.
+ */
 type IGroundTilt = {
   rotation: IAutoMovieQuaternion;
   hips: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 };
 
-/**
+/*
  * The width, metres, to which the root's lowering is solved: a nanometre, under
  * which its error adds less than a micrometre per second to a rate read over a
  * frame.
  */
 const FINE: number = 1e-9;
 
-/**
+/*
  * A cap on the doublings of the root's bracket past the first claim, a guard
  * and not a tolerance: claims that do not rise as the hips lower never enter
  * the loop (see `ground`), and 2⁸ = 256 times the first claim bounds the

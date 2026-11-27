@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * How a strike follows its target: the goal planned at the launch from where
  * the target is predicted to be at contact, and then online corrections, each a
  * minimum-jerk unit superposed on the strike's goal, as the target is seen to
@@ -31,25 +31,24 @@ import type {
  * then exact.
  */
 export namespace StrikingAim {
-  /**
+  /*
    * The observation step, seconds: one film frame at 24 frames a second, every
    * strike's alike.
    */
   export const STEP: number = 1 / 24;
 
-  /**
+  /*
    * The shortest correction unit a strike still starts before its contact,
    * seconds, every strike's alike (provisional).
    */
   export const SHORTEST: number = 0.04;
 
-  /**
+  /*
    * The observation seconds of a strike: from the launch, one per step, up to
    * the last one whose correction still lasts its shortest duration.
-   *
-   * @param timing The timing.
-   * @returns Film seconds, ascending, the launch first.
-   * @throws {Error} When the contact is not after the launch.
+   * Parameter timing: The timing.
+   * Returns: Film seconds, ascending, the launch first.
+   * When the contact is not after the launch.
    */
   export function observations(
     timing: IAutoMovieMotionHumanStrikingAim.ITiming,
@@ -66,16 +65,15 @@ export namespace StrikingAim {
     return out;
   }
 
-  /**
+  /*
    * The target's point predicted at contact from one observation: its point
    * then plus its velocity (a backward difference over one step) times the time
    * left.
-   *
-   * @param aim The target's point at a film second.
-   * @param seconds The observation second.
-   * @param impact The contact second.
-   * @param step The difference step, seconds.
-   * @returns World metres.
+   * Parameter aim: The target's point at a film second.
+   * Parameter seconds: The observation second.
+   * Parameter impact: The contact second.
+   * Parameter step: The difference step, seconds.
+   * Returns: World metres.
    */
   export function predict(
     aim: (seconds: number) => IAutoMovieVector3,
@@ -95,15 +93,14 @@ export namespace StrikingAim {
     );
   }
 
-  /**
+  /*
    * Track a target.
-   *
-   * @param aim The target's point at a film second; called once at each
-   *   observation and a step before it, when the tracker is made.
-   * @param timing The timing.
-   * @param offset A fixed offset added to every prediction (the declared
-   *   accuracy and the seeded scatter), world metres.
-   * @returns The tracker, every observation's prediction made when it is.
+   * Parameter aim: The target's point at a film second; called once at each
+   * observation and a step before it, when the tracker is made.
+   * Parameter timing: The timing.
+   * Parameter offset: A fixed offset added to every prediction (the declared
+   * accuracy and the seeded scatter), world metres.
+   * Returns: The tracker, every observation's prediction made when it is.
    */
   export function track(
     aim: (seconds: number) => IAutoMovieVector3,

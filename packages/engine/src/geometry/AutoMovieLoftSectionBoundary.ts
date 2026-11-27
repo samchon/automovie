@@ -168,11 +168,15 @@ export namespace AutoMovieLoftSectionBoundary {
 /** Actual or explicitly generated scalar value/physical-station derivatives. */
 type Scalar = IAutoMovieViewSectionField.IStationJet;
 
-/** The refusal of a chain source at a boundary. */
+/*
+ * The refusal of a chain source at a boundary.
+ */
 const CHAIN: string =
   "A touch-offset or split-quarter source is a G1 conic chain, phase C1 with sided second derivatives at its joins; it has no eight-scalar boundary law.";
 
-/** Inputs declaring touch offsets or splits belong to a chain. */
+/*
+ * Inputs declaring touch offsets or splits belong to a chain.
+ */
 function chained(
   inputs: IAutoMovieLoftViewRead.IJets | null | undefined,
 ): boolean {
@@ -185,7 +189,7 @@ function chained(
   );
 }
 
-/**
+/*
  * Validate the explicit generating-law coefficients without evaluating a
  * requested derivative.
  */
@@ -227,7 +231,7 @@ function admit(
   return null;
 }
 
-/**
+/*
  * Actual scalar2 admission is distinct from value-only source availability; a
  * chain's inputs are not eight scalars.
  */
@@ -245,7 +249,7 @@ function valid(inputs: IAutoMovieLoftViewRead.IJets): boolean {
   );
 }
 
-/**
+/*
  * Complete fixed-size transformed rows cannot silently select another
  * interpolation law.
  */
@@ -259,7 +263,9 @@ function control(value: IAutoMovieLoftSectionBoundaryControls): boolean {
   );
 }
 
-/** Explicit value copies retain the same exact endpoint/control relation. */
+/*
+ * Explicit value copies retain the same exact endpoint/control relation.
+ */
 function matches(
   inputs: IAutoMovieLoftViewRead.IJets,
   controls: IAutoMovieLoftSectionBoundaryControls,
@@ -273,7 +279,7 @@ function matches(
   );
 }
 
-/**
+/*
  * The original exact endpoint data is never replaced by inverse-transform
  * rounding.
  */
@@ -286,7 +292,9 @@ function copy(
   };
 }
 
-/** Log and logit chain rules use actual physical endpoint derivatives. */
+/*
+ * Log and logit chain rules use actual physical endpoint derivatives.
+ */
 function transform(
   inputs: IAutoMovieLoftViewRead.IJets,
 ): IAutoMovieLoftSectionBoundaryControls {
@@ -312,7 +320,7 @@ function transform(
   };
 }
 
-/**
+/*
  * A stable logistic complement is computed directly rather than by subtracting
  * a rounded one.
  */

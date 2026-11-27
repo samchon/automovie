@@ -8,9 +8,11 @@ import { AutoMovieGravity } from "../../physics/AutoMovieGravity";
 import { physicalHullFacesMass } from "../../physics/internal/physicalHullFacesMass";
 import { physicalShapeHull } from "../../physics/internal/physicalShapeHull";
 
-/** Private implementation bindings for the hydrodynamics owner. */
+/*
+ * Private implementation bindings for the hydrodynamics owner.
+ */
 export namespace ResolveHydrodynamicForceImplementation {
-  /**
+  /*
    * The buoyant and drag forces water puts on one body segment (#3432), the
    * per-segment structure of SWUM (Nakashima, Satou and Miura 2007, J Fluid Sci
    * Tech 2(1):56-67): the limbs move by their joints and the water's forces on
@@ -34,11 +36,10 @@ export namespace ResolveHydrodynamicForceImplementation {
    * every segment, so a limb's drag along and across its axis is the same.
    * Unsteady effects and the free surface's waves are outside a quasi-steady
    * model.
-   *
-   * @param props The segment's volume, its centre and velocity, the water plane
-   *   and the water's density.
-   * @returns The buoyant force, the drag and the submerged volume.
-   * @throws {Error} When the volume or the density is not positive.
+   * Parameter props: The segment's volume, its centre and velocity, the water plane
+   * and the water's density.
+   * Returns: The buoyant force, the drag and the submerged volume.
+   * When the volume or the density is not positive.
    */
   export function resolveHydrodynamicForce(
     props: IAutoMovieResolveHydrodynamicForce.IProps,
@@ -63,17 +64,20 @@ export namespace ResolveHydrodynamicForceImplementation {
     };
   }
 
-  /** Fresh water density near its maximum at 4 °C, kg/m³. */
+  /*
+   * Fresh water density near its maximum at 4 °C, kg/m³.
+   */
   export const WATER: number = 1000;
 
-  /** Textbook drag coefficient of a sphere at subcritical Reynolds numbers. */
+  /*
+   * Textbook drag coefficient of a sphere at subcritical Reynolds numbers.
+   */
   export const DRAG: number = 0.47;
 
-  /**
+  /*
    * A segment's volume from its colliders, summed in closed form.
-   *
-   * @param segment The profile's segment.
-   * @returns Cubic metres.
+   * Parameter segment: The profile's segment.
+   * Returns: Cubic metres.
    */
   export function volume(segment: IAutoMoviePhysicalSegment): number {
     let sum: number = 0;

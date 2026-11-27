@@ -3,15 +3,14 @@ import type {
   IAutoMovieIrradianceVolume,
 } from "@automovie/interface";
 
-/**
+/*
  * The probe grid a film's `probes` box asks for: probes from `min` at
  * `spacing`, `floor((max − min) / spacing + 1e-9) + 1` along each axis, so a
  * box whose sides are whole multiples of the spacing has probes on both faces
  * despite rounding.
- *
- * @param probes The admitted probes request.
- * @returns The grid's origin, pitch and counts, and every probe position in the
- *   volume's order (X fastest, then Y, then Z), world metres.
+ * Parameter probes: The admitted probes request.
+ * Returns: The grid's origin, pitch and counts, and every probe position in the
+ * volume's order (X fastest, then Y, then Z), world metres.
  */
 export function autoMovieIrradianceGrid(
   probes: IAutoMovieFilmShading.IProbes,

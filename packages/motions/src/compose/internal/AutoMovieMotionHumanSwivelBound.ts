@@ -14,7 +14,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Half-plane bounds on an elbow's place, solved in closed form on the circle a
  * wrist's place leaves the elbow (the swivel of Tolani, Goswami and Badler
  * 2000). The elbow on the circle is `C + ρ(u cos ψ + v sin ψ)`, so its signed
@@ -24,13 +24,12 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * such bounds (`AutoMovieMotionHumanDrinkingSwivel`).
  */
 export namespace AutoMovieMotionHumanSwivelBound {
-  /**
+  /*
    * An arm on a posture's trunk, the limbs left unfitted.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @param side The arm.
-   * @returns The arm.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Parameter side: The arm.
+   * Returns: The arm.
    */
   export function arm(
     body: IAutoMovieMotionHumanBody,
@@ -71,17 +70,16 @@ export namespace AutoMovieMotionHumanSwivelBound {
     };
   }
 
-  /**
+  /*
    * Whether an arm can place its wrist with the elbow inside half-plane bounds:
    * the wrist within the arm's reach, and some swivel on the circle it leaves
    * the elbow outside every bound's refused arc. An exact necessary condition
    * of any fit that reaches the wrist with its elbow in the bounds, so a search
    * may drop a candidate it refuses before fitting.
-   *
-   * @param of The arm.
-   * @param point The wrist's place, world metres.
-   * @param bounds The half-planes.
-   * @returns Whether a reaching elbow in the bounds exists.
+   * Parameter of: The arm.
+   * Parameter point: The wrist's place, world metres.
+   * Parameter bounds: The half-planes.
+   * Returns: Whether a reaching elbow in the bounds exists.
    */
   export function admits(
     of: IAutoMovieMotionHumanSwivelBound.IArm,
@@ -146,18 +144,17 @@ export namespace AutoMovieMotionHumanSwivelBound {
     return swivelArcs.union(refused) !== "all";
   }
 
-  /**
+  /*
    * An elbow hint kept inside half-plane bounds: the hint itself when its
    * swivel meets them all, else the place on its circle at the nearest swivel
    * that does, stood the swivel's resolution (`hingedArmSwivel.RESOLUTION`)
    * inside that end. The hint is kept when no swivel meets them all, or the
    * wrist leaves no circle.
-   *
-   * @param of The arm.
-   * @param point The wrist's place, world metres.
-   * @param hint The elbow's hint, world metres.
-   * @param bounds The half-planes.
-   * @returns The hint, world metres.
+   * Parameter of: The arm.
+   * Parameter point: The wrist's place, world metres.
+   * Parameter hint: The elbow's hint, world metres.
+   * Parameter bounds: The half-planes.
+   * Returns: The hint, world metres.
    */
   export function bounded(
     of: IAutoMovieMotionHumanSwivelBound.IArm,
@@ -245,11 +242,17 @@ export namespace AutoMovieMotionHumanSwivelBound {
   }
 }
 
-/** The alternatives of `BoundedMerged`'s site. */
+/*
+ * The alternatives of `BoundedMerged`'s site.
+ */
 type BoundedMerged = IAutoMovieSwivelArcs.IArc[] | "all";
 
-/** The alternatives of `BoundedArc`'s site. */
+/*
+ * The alternatives of `BoundedArc`'s site.
+ */
 type BoundedArc = IAutoMovieSwivelArcs.IArc | "all" | null;
 
-/** The alternatives of `AdmitsArc`'s site. */
+/*
+ * The alternatives of `AdmitsArc`'s site.
+ */
 type AdmitsArc = IAutoMovieSwivelArcs.IArc | "all" | null;

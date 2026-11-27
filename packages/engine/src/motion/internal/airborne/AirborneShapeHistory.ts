@@ -15,7 +15,7 @@ import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 import { AirborneTabulatedShapeHistory } from "./AirborneTabulatedShapeHistory";
 import type { AutoMovieEngineMotionAirborneRotation } from "../../AutoMovieEngineMotionAirborneRotation";
 
-/**
+/*
  * Reduce pure root-frame shapes to exact-time inertia and relative momentum.
  *
  * Difference is the existing central half-interval in seconds. A span moves its
@@ -253,9 +253,11 @@ export function AirborneShapeHistory(
   });
 }
 
-/** Exact numeric prerequisites private to instants produced by this owner. */
+/*
+ * Exact numeric prerequisites private to instants produced by this owner.
+ */
 export namespace AirborneShapeHistory {
-  /**
+  /*
    * Actual simultaneous common-frame bone-origin metres/second and angular
    * radians/second, derived for these exact current bones. Undefined or missing
    * mass-bearing rates retain the original stencil; supplied invalid numbers
@@ -269,7 +271,7 @@ export namespace AirborneShapeHistory {
     | ReadonlyMap<AutoMovieHumanoidBone, AutoMovieEngineKinematicsTypes.IAutoMovieEngineKinematicsBoneRate>
     | undefined;
 
-  /**
+  /*
    * Borrow the issued instant's tensor factor before public principal access.
    * Undefined preserves the principal path for foreign, observed, replaced or
    * non-SPD instants. Returned operators expose no mutable numerical storage.
@@ -280,13 +282,17 @@ export namespace AirborneShapeHistory {
     return AirborneShapeInertia.factor(instant);
   }
 
-  /** A native pure-history reader carries this mark. */
+  /*
+   * A native pure-history reader carries this mark.
+   */
   export interface INative {
-    /** Set by the factories of the pure histories. */
+    /*
+     * Set by the factories of the pure histories.
+     */
     readonly native?: true;
   }
 
-  /**
+  /*
    * Recognize this factory's native pure-history reader for operation-local
    * stage sharing. It proves construction, not smoothness or constant shape.
    */
@@ -298,7 +304,7 @@ export namespace AirborneShapeHistory {
     );
   }
 
-  /**
+  /*
    * Constructor-owned fixed tensor with zero relative momentum over the whole
    * requested live span; ordinary sampled histories return undefined.
    */
@@ -310,7 +316,7 @@ export namespace AirborneShapeHistory {
     return AirborneConstantShapeHistory.constant(history, from, to);
   }
 
-  /**
+  /*
    * Read an issued instant's root-to-principal rotation, or leave a general
    * history output to its existing computation. The returned internal value is
    * borrowed and must not be mutated; its actual coordinates are checked
@@ -342,7 +348,7 @@ export namespace AirborneShapeHistory {
   }
 }
 
-/**
+/*
  * Component identity preserves signed zeros and observes edits to mutable
  * instant records.
  */
@@ -358,23 +364,35 @@ function sameRotation(
   );
 }
 
-/** The numeric sufficient statistics that survive a shape query. */
+/*
+ * The numeric sufficient statistics that survive a shape query.
+ */
 type IInstant = IAutoMovieIntegrateAirborneRotation.IInstant;
 
-/** The public query signature, shared without a second state model. */
+/*
+ * The public query signature, shared without a second state model.
+ */
 type IHistory = IAutoMovieIntegrateAirborneRotation.IHistory;
 
-/** The memo's explicit owner can clear it after planning. */
+/*
+ * The memo's explicit owner can clear it after planning.
+ */
 type ICachedHistory = AutoMovieEngineMotionAirborneRotation.ICachedHistory;
 
-/** A private exact-time mass node retains only numeric physical sufficient data. */
+/*
+ * A private exact-time mass node retains only numeric physical sufficient data.
+ */
 interface INode extends AutoMovieEngineKinematics.IPosedBody {
-  /** Rated nodes admit their tensor before evaluating the current rate producer. */
+  /*
+   * Rated nodes admit their tensor before evaluating the current rate producer.
+   */
   rated?: {
-    /** The same actual posed node's aggregate root-frame tensor. */
+    /*
+     * The same actual posed node's aggregate root-frame tensor.
+     */
     matrix: number[][];
 
-    /**
+    /*
      * A complete valid derivative reduction, or explicit unavailable stencil
      * selection.
      */

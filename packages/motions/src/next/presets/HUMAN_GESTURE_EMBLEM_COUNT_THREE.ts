@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `countThree` row of `HumanEmblem` fixes on `gesture`, spread
  * into its parameters. Counting three on the fingers.
  */

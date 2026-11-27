@@ -9,7 +9,7 @@ import {
   IAutoMovieWetZone,
 } from "@automovie/interface";
 
-/**
+/*
  * Compose a wet zone's plumbing into an independent fluid domain.
  *
  * This is the seam that keeps one model of moving water. The service graph
@@ -128,10 +128,14 @@ export function lowerWetZoneDrainage(
   };
 }
 
-/** Media a floor drain is allowed to discharge into. */
+/*
+ * Media a floor drain is allowed to discharge into.
+ */
 const WASTE_MEDIUM: string = "waste-water";
 
-/** The outgoing waste-water ports a node carries, in declaration order. */
+/*
+ * The outgoing waste-water ports a node carries, in declaration order.
+ */
 const wastePortsOf: (
   node: IAutoMovieServiceNode,
   systems: ReadonlyMap<string, IAutoMovieServiceSystem>,
@@ -151,7 +155,9 @@ const wastePortsOf: (
     );
   });
 
-/** Resolve the lattice cell a node stands over, refusing one that stands off it. */
+/*
+ * Resolve the lattice cell a node stands over, refusing one that stands off it.
+ */
 const cellOf: (
   domain: IAutoMovieFluidDomain,
   node: IAutoMovieServiceNode,
@@ -181,7 +187,9 @@ const cellOf: (
   return { column, row };
 };
 
-/** Name a derived inflow or outflow, refusing to shadow an authored one. */
+/*
+ * Name a derived inflow or outflow, refusing to shadow an authored one.
+ */
 const derivedId: (
   zone: string,
   port: string,

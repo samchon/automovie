@@ -6,7 +6,7 @@ import type { AutoMovieArchetypeQuadrupedGait } from "../AutoMovieArchetypeQuadr
 import type { QuadrupedTimedRoute } from "./QuadrupedTimedRoute";
 import type { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped";
 
-/**
+/*
  * A rider's or a cue's named-gait requests on a timed path: over each
  * film-second interval the ride takes the named gait and lead, as a course leg
  * naming them does; elsewhere the declared change rule chooses by speed.
@@ -35,17 +35,16 @@ export namespace QuadrupedTimedCues {
     cues: readonly ICue[];
   }
 
-  /**
+  /*
    * Split a timed route's one leg at its cues' distances, naming each cued
    * leg's gait and lead.
-   *
-   * @param route The route `QuadrupedTimedRoute.of` read from the plan.
-   * @param cues The requests.
-   * @param archetype The archetype's name, for a refusal.
-   * @returns The route with one leg per cued or uncued stretch, and its leg
-   *   spans with each stretch's fastest speed.
-   * @throws {AutoMovieArchetypeRefusal} For a cue that is not finite, is empty,
-   *   runs backward or overlaps the one before.
+   * Parameter route: The route `QuadrupedTimedRoute.of` read from the plan.
+   * Parameter cues: The requests.
+   * Parameter archetype: The archetype's name, for a refusal.
+   * Returns: The route with one leg per cued or uncued stretch, and its leg
+   * spans with each stretch's fastest speed.
+   * For a cue that is not finite, is empty,
+   * runs backward or overlaps the one before.
    */
   export function split(
     route: QuadrupedTimedRoute.IRoute,
@@ -99,17 +98,27 @@ export namespace QuadrupedTimedCues {
     };
   }
 
-  /** A cue at its plan distances. */
+  /*
+   * A cue at its plan distances.
+   */
   interface ICut {
-    /** Distance where it begins, metres. */
+    /*
+     * Distance where it begins, metres.
+     */
     from: number;
-    /** Distance where it ends, metres. */
+    /*
+     * Distance where it ends, metres.
+     */
     to: number;
-    /** The cue. */
+    /*
+     * The cue.
+     */
     cue: ICue;
   }
 
-  /** The plan's distance at a film second, within its length. */
+  /*
+   * The plan's distance at a film second, within its length.
+   */
   function distance(
     plan: AutoMovieArchetypeCourse.IPlan,
     seconds: number,
@@ -117,7 +126,9 @@ export namespace QuadrupedTimedCues {
     return Math.max(0, Math.min(plan.length, plan.at(seconds).distance));
   }
 
-  /** The fastest speed over a stretch of the plan, scanned every 10 ms. */
+  /*
+   * The fastest speed over a stretch of the plan, scanned every 10 ms.
+   */
   function fastest(
     plan: AutoMovieArchetypeCourse.IPlan,
     from: number,

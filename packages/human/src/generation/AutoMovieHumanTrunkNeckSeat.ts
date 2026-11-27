@@ -28,7 +28,9 @@ import type {
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fixed support records and copied coefficient/lift arrays; the receiving definition borrows frame/source records until it is released, without a new global cache.
  */
 export namespace AutoMovieHumanTrunkNeckSeat {
-  /** Phases the ring is sampled at. */
+  /*
+   * Phases the ring is sampled at.
+   */
   const COUNT: number = 512;
 
   /**
@@ -210,12 +212,11 @@ export namespace AutoMovieHumanTrunkNeckSeat {
     return boundary;
   }
 
-  /**
+  /*
    * The ring at a height at uniform phases.
-   *
-   * @param neck The neck chain.
-   * @param y Height, mm.
-   * @returns The ring's points.
+   * Parameter neck: The neck chain.
+   * Parameter y: Height, mm.
+   * Returns: The ring's points.
    */
   function ringAt(
     neck: IAutoMovieLoftChain,

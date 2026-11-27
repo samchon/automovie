@@ -9,7 +9,7 @@ import type {
   IAutoMovieProductionSoundPlan,
 } from "@automovie/interface";
 
-/**
+/*
  * Plan a film's dialogue mouths from its admitted lines: what each line gives
  * its bound actor's mouth over its speech span.
  *
@@ -24,19 +24,24 @@ import type {
  * (`AutoMovieEngineSound.joinDialogueVisemes`). The same lines and clock give
  * the same track, so a capture and the delivered video hand a subject the same
  * mouths.
- *
- * @param props The admitted lines, the film's speaker bindings and the frame
- *   rate the lines were admitted on.
- * @returns The film's mouth track.
+ * Parameter props: The admitted lines, the film's speaker bindings and the frame
+ * rate the lines were admitted on.
+ * Returns: The film's mouth track.
  */
 export function planAutoMovieDialogueMouths(props: {
-  /** The admitted lines, from `admitAutoMovieFilmDialogue`. */
+  /*
+   * The admitted lines, from `admitAutoMovieFilmDialogue`.
+   */
   lines: readonly IAutoMovieMixFilmSound.ILine[];
 
-  /** The film's speaker-to-actor bindings. */
+  /*
+   * The film's speaker-to-actor bindings.
+   */
   speakers: readonly IAutoMovieDialogueSpeakerBinding[];
 
-  /** The film's exact frame rate the lines were admitted on. */
+  /*
+   * The film's exact frame rate the lines were admitted on.
+   */
   frameRate: IAutoMovieProductionFrameRate;
 }): IAutoMovieDialogueMouthTrack {
   const fps: number = props.frameRate.numerator / props.frameRate.denominator;
@@ -91,5 +96,7 @@ export function planAutoMovieDialogueMouths(props: {
   return { fps, lines };
 }
 
-/** The rate `admitAutoMovieFilmDialogue` decodes every line at. */
+/*
+ * The rate `admitAutoMovieFilmDialogue` decodes every line at.
+ */
 const SAMPLE_RATE: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;

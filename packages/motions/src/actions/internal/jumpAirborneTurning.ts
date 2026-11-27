@@ -12,26 +12,27 @@ import { HumanPosturePreparation } from "../../posture/internal/HumanPosturePrep
 import { createHumanPostureRotation } from "../../posture/internal/createHumanPostureRotation";
 import type { jumpTouchdownRotation } from "./jumpTouchdownRotation";
 
-/** An upright touchdown has no attitude offset. */
+/*
+ * An upright touchdown has no attitude offset.
+ */
 const STILL: ITouchdown = {
   about: { x: 0, y: 0, z: 0 },
   axis: { x: 0, y: 1, z: 0 },
   angle: 0,
 };
 
-/**
+/*
  * A flight's turns as plan members: the somersault signed by its way, a side
  * salto's somersault frame turned a quarter about the long axis, and the
  * rotation kept once the pass hands it back.
- *
- * @param rotation The requested turns, none when absent.
- * @param takeoff Seconds of the jump at take-off.
- * @param touchdown Seconds of the jump at touchdown.
- * @param duration The jump's duration, seconds.
- * @param settled Seconds of the jump where the landing's absorption ends.
- * @param touchdownRequirement The native geometry target and check for the
- *   returned rotation.
- * @returns The turning.
+ * Parameter rotation: The requested turns, none when absent.
+ * Parameter takeoff: Seconds of the jump at take-off.
+ * Parameter touchdown: Seconds of the jump at touchdown.
+ * Parameter duration: The jump's duration, seconds.
+ * Parameter settled: Seconds of the jump where the landing's absorption ends.
+ * Parameter touchdownRequirement: The native geometry target and check for the
+ * returned rotation.
+ * Returns: The turning.
  */
 export function jumpAirborneTurning(
   rotation: IAutoMovieMotionHumanJumpAirborne.IRotation | undefined,
@@ -161,45 +162,50 @@ export function jumpAirborneTurning(
   };
 }
 
-/** The turning a flight's plan members carry. */
+/*
+ * The turning a flight's plan members carry.
+ */
 export namespace jumpAirborneTurning {
-  /** A flight's declared turns and the rotation the flight pass hands back. */
+  /*
+   * A flight's declared turns and the rotation the flight pass hands back.
+   */
   export interface ITurning {
-    /**
+    /*
      * Takeoff in action-local seconds, reconstructed from the authored flight
      * share and duration.
      */
     from: number;
-    /**
+    /*
      * Touchdown in action-local seconds, reconstructed from the authored flight
      * share and duration.
      */
     to: number;
 
-    /** The plan's flight members, none for a flight with no turns. */
+    /*
+     * The plan's flight members, none for a flight with no turns.
+     */
     declared: Pick<IAutoMovieMotionHumanActionPlan, FlightMember>;
 
-    /**
+    /*
      * Prepare the handed-back touchdown offset after the native flight pass
      * when landing has a nonempty absorption interval.
      */
     prepareLanding(): void;
 
-    /**
+    /*
      * A posture in flight with the rotation handed back, unchanged before it
      * arrives and outside the flight; at touchdown itself the turn still holds,
      * so the landing's offset (`landed`) starts from it.
-     *
-     * @param placed The posture placed in flight, with its solve.
-     * @param seconds Seconds of the jump.
-     * @returns The posture and its solve, turned.
+     * Parameter placed: The posture placed in flight, with its solve.
+     * Parameter seconds: Seconds of the jump.
+     * Returns: The posture and its solve, turned.
      */
     turned(
       placed: HumanPosturePreparation.IPlaced,
       seconds: number,
     ): HumanPosturePreparation.IPlaced;
 
-    /**
+    /*
      * A landing posture carrying the flight's touchdown attitude away: the
      * laws' own rule at a change of motion (Bollo 2018, inertialization). The
      * turn the flight hands back at touchdown, its residual from the landing's
@@ -209,12 +215,11 @@ export namespace jumpAirborneTurning {
      * angular rate at the impact. A posture rotation turns the root and the
      * free goals only, so the planted feet keep their places and the legs are
      * re-solved onto them.
-     *
-     * @param posture The landing posture.
-     * @param seconds Seconds of the jump.
-     * @returns The posture, turned by the decaying offset, or unchanged outside
-     *   the absorption, without a handed-back turn or with an admitted turned
-     *   stance.
+     * Parameter posture: The landing posture.
+     * Parameter seconds: Seconds of the jump.
+     * Returns: The posture, turned by the decaying offset, or unchanged outside
+     * the absorption, without a handed-back turn or with an admitted turned
+     * stance.
      */
     landed(
       posture: IAutoMovieMotionHumanPosture,
@@ -223,20 +228,28 @@ export namespace jumpAirborneTurning {
   }
 }
 
-/** Action-plan members supplied for an authored turning flight. */
+/*
+ * Action-plan members supplied for an authored turning flight.
+ */
 type FlightMember = "flight" | "airborne";
 
-/**
+/*
  * The flight's actual touchdown attitude: centre, world axis and angle in
  * degrees.
  */
 interface ITouchdown {
-  /** The touchdown centre the turn is about, world metres. */
+  /*
+   * The touchdown centre the turn is about, world metres.
+   */
   about: IAutoMovieVector3;
 
-  /** The turn's unit axis, world. */
+  /*
+   * The turn's unit axis, world.
+   */
   axis: IAutoMovieVector3;
 
-  /** The turn's angle, degrees. */
+  /*
+   * The turn's angle, degrees.
+   */
   angle: number;
 }

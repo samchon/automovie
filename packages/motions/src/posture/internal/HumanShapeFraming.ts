@@ -9,7 +9,7 @@ import type {
 
 import { HumanColliderBound } from "./HumanColliderBound";
 
-/**
+/*
  * A hull's face planes packed four numbers each, the normal then the offset, in
  * the hull's own frame: the same for every posed frame of the same hull (a fit
  * frames a fresh pose's colliders, the planes do not move with it).
@@ -31,7 +31,7 @@ function planes(
   return packed;
 }
 
-/**
+/*
  * A placed shape's bounding sphere (`sphere`) and, for a hull, its face planes,
  * the world point its frame is centred on and the rotation into that frame. A
  * sweep frames its colliders once, when it prepares its room
@@ -59,44 +59,52 @@ export function HumanShapeFraming(
   };
 }
 
-/**
+/*
  * A placed collider shape's bounding sphere and, for a hull, its face planes in
  * its own frame: the bounds a clearance reading tests a point against before it
  * asks the exact distance (`HumanArmOvershoot`), and the sphere a trajectory's
  * shape list screens by (`HumanArmShapes`).
  */
 export namespace HumanShapeFraming {
-  /**
+  /*
    * A placed shape's bounding sphere and, for a hull, its face planes and the
    * frame they are read in.
    */
   export interface IFramed {
-    /** The centre of a sphere the shape lies inside, world metres. */
+    /*
+     * The centre of a sphere the shape lies inside, world metres.
+     */
     centre: IAutoMovieVector3;
 
-    /** That sphere's radius, metres. */
+    /*
+     * That sphere's radius, metres.
+     */
     radius: number;
 
-    /**
+    /*
      * A hull's face planes in its own frame, four numbers each: the outward
      * unit normal and the offset along it; absent for any other shape.
      */
     faces?: Float64Array;
 
-    /** The world point a hull's own frame is centred on. */
+    /*
+     * The world point a hull's own frame is centred on.
+     */
     origin?: IAutoMovieVector3;
 
-    /** The rotation from the world into a hull's own frame. */
+    /*
+     * The rotation from the world into a hull's own frame.
+     */
     inverse?: IAutoMovieQuaternion;
 
-    /**
+    /*
      * The index into `faces` of the face that last showed a point outside,
      * tried first: a sweep's next point mostly lies beyond the same face.
      */
     lead: number;
   }
 
-  /**
+  /*
    * Whether a point surely lies farther outside a shape than `bound`, by a
    * measure never more than its signed distance: its distance from the shape's
    * bounding sphere, then for a hull the greatest of its face planes'
@@ -150,7 +158,7 @@ export namespace HumanShapeFraming {
     return false;
   }
 
-  /**
+  /*
    * A sphere a placed shape lies inside: a hull's own about the mean of its
    * vertices, a sphere itself, a capsule's about its middle reaching its caps,
    * a box's about its centre reaching its corners. A point's signed distance to
@@ -180,5 +188,7 @@ export namespace HumanShapeFraming {
   }
 }
 
-/** The record of `ISphereResult`'s site. */
+/*
+ * The record of `ISphereResult`'s site.
+ */
 type ISphereResult = { centre: IAutoMovieVector3; radius: number };

@@ -9,22 +9,30 @@ import {
 import type { AutoMovieArchetypeEquine } from "../AutoMovieArchetypeEquine";
 import type { QuadrupedAttachments } from "../quadruped/QuadrupedAttachments";
 
-/** The existing rectangular tread's depth and thickness, in metres. */
+/*
+ * The existing rectangular tread's depth and thickness, in metres.
+ */
 const TREAD = { depth: 0.05, thickness: 0.01 };
 
-/** One coarse round stock section with the thickness of the existing tread. */
+/*
+ * One coarse round stock section with the thickness of the existing tread.
+ */
 const STEEL_RADIUS: number = TREAD.thickness / 2;
 
-/** The existing coarse leather's round radius, metres. */
+/*
+ * The existing coarse leather's round radius, metres.
+ */
 const LEATHER_RADIUS: number = 0.008;
 
-/** Traditional Fillis overall height and clear eye width, from AJ Tack. */
+/*
+ * Traditional Fillis overall height and clear eye width, from AJ Tack.
+ */
 const FILLIS = {
   height: 4.5 * AutoMovieArchetypeUnits.INCH,
   eye: 1.25 * AutoMovieArchetypeUnits.INCH,
 };
 
-/**
+/*
  * Lay the physical tread, arch, eye and leather of one conventional stirrup.
  * WO2007052127A1, figures 1 and 2, shows the tread at the bases of the arch and
  * opening 301 for the leather above the foot. AJ Tack's Fillis iron gives the
@@ -34,9 +42,8 @@ const FILLIS = {
  * arch's side stock fits inside the base's rim outside the full clear tread.
  * The leather's two runs pass outside the barrel and close around the eye's
  * lower rail. The authored drop places the tread, including the iron.
- *
- * @param builder The equid being built, with the saddle tree already laid.
- * @param props The placed tread, the saddle edge and the torso section.
+ * Parameter builder: The equid being built, with the saddle tree already laid.
+ * Parameter props: The placed tread, the saddle edge and the torso section.
  */
 export function EquineStirrup(
   builder: AutoMovieArchetypeBuilder<
@@ -201,28 +208,48 @@ export function EquineStirrup(
   });
 }
 
-/** The stirrup's material inputs, measured in its neutral equid frame. */
+/*
+ * The stirrup's material inputs, measured in its neutral equid frame.
+ */
 export namespace EquineStirrup {
-  /** Tread and suspension geometry for one side. */
+  /*
+   * Tread and suspension geometry for one side.
+   */
   export interface IProps {
-    /** Named side; the rig's left is model +X. */
+    /*
+     * Named side; the rig's left is model +X.
+     */
     side: "left" | "right";
-    /** Centre of the tread's bearing top, model metres. */
+    /*
+     * Centre of the tread's bearing top, model metres.
+     */
     tread: IAutoMovieVector3;
-    /** Width across the unobstructed flat tread, metres. */
+    /*
+     * Width across the unobstructed flat tread, metres.
+     */
     width: number;
-    /** Authored drop from the saddle top to this tread, metres. */
+    /*
+     * Authored drop from the saddle top to this tread, metres.
+     */
     drop: number;
-    /** Saddle box side's absolute x and its thickness midpoint y. */
+    /*
+     * Saddle box side's absolute x and its thickness midpoint y.
+     */
     saddle: ISection;
-    /** Barrel cross section, in metres, used by the physical trunk capsule. */
+    /*
+     * Barrel cross section, in metres, used by the physical trunk capsule.
+     */
     barrel: QuadrupedAttachments.ICapsule;
-    /** Saddle leather colour. */
+    /*
+     * Saddle leather colour.
+     */
     color: string;
   }
 }
 
-/** An exterior strap route from the saddle bar to the lower eye rail. */
+/*
+ * An exterior strap route from the saddle bar to the lower eye rail.
+ */
 function outside(props: {
   start: ISection;
   end: ISection;
@@ -247,7 +274,7 @@ function outside(props: {
   return [start, ...tangents(radius, first, last), end];
 }
 
-/**
+/*
  * Outer tangent polygon for a circular span. Every straight segment stays
  * outside the circle; each corner overhang is at most the leather radius.
  */
@@ -269,7 +296,9 @@ function tangents(radius: number, from: number, to: number): ISection[] {
   return points;
 }
 
-/** A point in a section through the equid's barrel, world-aligned metres. */
+/*
+ * A point in a section through the equid's barrel, world-aligned metres.
+ */
 interface ISection {
   x: number;
   y: number;

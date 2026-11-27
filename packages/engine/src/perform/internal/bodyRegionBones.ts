@@ -3,7 +3,7 @@ import {
   AutoMovieHumanoidBone,
 } from "@automovie/interface";
 
-/**
+/*
  * Read the fixed humanoid bone partition for lowerBody, upperBody and head.
  * Face owns expression channels and returns no bones; fullBody returns their
  * union. Fixed partition arrays are borrowed readonly values.
@@ -18,7 +18,9 @@ export function bodyRegionBones(
   return [...LOWER, ...UPPER, ...HEAD]; // fullBody
 }
 
-/** Hips + both legs (the locomotion / stance region). */
+/*
+ * Hips + both legs (the locomotion / stance region).
+ */
 const LOWER: readonly [
   "hips",
   "leftUpperLeg",
@@ -41,7 +43,9 @@ const LOWER: readonly [
   "rightToes",
 ] as const satisfies readonly AutoMovieHumanoidBone[];
 
-/** Spine/chest + both arms + every finger (the gesture / reach region). */
+/*
+ * Spine/chest + both arms + every finger (the gesture / reach region).
+ */
 const UPPER: readonly [
   "spine",
   "chest",
@@ -128,7 +132,9 @@ const UPPER: readonly [
   "rightLittleDistal",
 ] as const satisfies readonly AutoMovieHumanoidBone[];
 
-/** Neck/head + eyes + jaw (the look-at region). */
+/*
+ * Neck/head + eyes + jaw (the look-at region).
+ */
 const HEAD: readonly ["neck", "head", "leftEye", "rightEye", "jaw"] = [
   "neck",
   "head",

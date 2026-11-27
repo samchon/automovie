@@ -6,7 +6,7 @@ import {
 import { transformedBoxBounds } from "../../math/internal/transformedBoxBounds";
 import { setPieceMatrix } from "../staging/internal/setPieceMatrix";
 
-/**
+/*
  * The world-axis-aligned keep-out volumes one staged prop declares, one per
  * `placement.clearance` entry in declaration order, each keeping its id.
  *
@@ -16,10 +16,9 @@ import { setPieceMatrix } from "../staging/internal/setPieceMatrix";
  * filtering here would hide a malformed volume from a source-side search
  * instead of letting `validatePropPlacements` name it. A prop with no placement
  * or no clearance answers an empty list.
- *
- * @param props.prop The prop's registry entry.
- * @param props.piece The set piece that stages it.
- * @returns New world boxes in metres, one per declared clearance.
+ * Parameter props.prop: The prop's registry entry.
+ * Parameter props.piece: The set piece that stages it.
+ * Returns: New world boxes in metres, one per declared clearance.
  */
 export function propClearanceBounds(
   props: IAutoMoviePropClearanceBounds.IProps,

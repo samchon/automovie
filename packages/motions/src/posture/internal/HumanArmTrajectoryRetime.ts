@@ -13,7 +13,7 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanMinimumJerkSpline as S } from "./HumanMinimumJerkSpline";
 import { HumanPathParameterization as TOPP } from "./HumanPathParameterization";
 
-/**
+/*
  * A laid course's time-optimal timing along its own path, and the course
  * retimed on it: TOPP-RA (`HumanPathParameterization`, Pham and Pham 2018) on
  * the path the course plays, its parameter the course's own seconds. The joints
@@ -25,13 +25,12 @@ import { HumanPathParameterization as TOPP } from "./HumanPathParameterization";
  * it in time is read at the new instants.
  */
 export namespace HumanArmTrajectoryRetime {
-  /**
+  /*
    * The time-optimal timing of a course along its path, at rest at both ends.
-   *
-   * @param c The context at the course's instants.
-   * @param x Each arm's coordinates at each instant.
-   * @returns The parameterisation and its time map; the map's last time is the
-   *   least duration that keeps every limit.
+   * Parameter c: The context at the course's instants.
+   * Parameter x: Each arm's coordinates at each instant.
+   * Returns: The parameterisation and its time map; the map's last time is the
+   * least duration that keeps every limit.
    */
   export function timing(
     c: M.IContext,
@@ -125,17 +124,16 @@ export namespace HumanArmTrajectoryRetime {
     };
   }
 
-  /**
+  /*
    * A course retimed onto a span no shorter than its least: the time map slowed
    * uniformly to the span (Hollerbach 1984, every rate divided by the span's
    * ratio to the least, so every limit still holds), read at the context's own
    * instants on the course's path (`ConstAccel::evalParams`).
-   *
-   * @param c The context at the course's instants.
-   * @param x Each arm's coordinates at each instant.
-   * @param timed The course's time map (`timing`).
-   * @param span The span to fill, seconds.
-   * @returns Each arm's coordinates at each of the context's instants.
+   * Parameter c: The context at the course's instants.
+   * Parameter x: Each arm's coordinates at each instant.
+   * Parameter timed: The course's time map (`timing`).
+   * Parameter span: The span to fill, seconds.
+   * Returns: Each arm's coordinates at each of the context's instants.
    */
   export function retimed(
     c: M.IContext,
@@ -179,17 +177,25 @@ export namespace HumanArmTrajectoryRetime {
     );
   }
 
-  /** A course's timing. */
+  /*
+   * A course's timing.
+   */
   export interface ITiming {
-    /** How TOPP-RA ended. */
+    /*
+     * How TOPP-RA ended.
+     */
     status: TOPP.Status;
 
-    /** Its time map. */
+    /*
+     * Its time map.
+     */
     timed: TOPP.ITimed;
   }
 }
 
-/** A coordinate's velocity limit, the arm's table read by coordinate. */
+/*
+ * A coordinate's velocity limit, the arm's table read by coordinate.
+ */
 function rate(i: number): number {
   return RATES[i % G.DIMENSIONS]!;
 }

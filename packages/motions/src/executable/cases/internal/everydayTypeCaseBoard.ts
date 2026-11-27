@@ -6,13 +6,12 @@ import type {
 
 import { typeText } from "../../../everyday/internal/typeText";
 
-/**
+/*
  * A keyboard as a prop: a home row contact at its origin and a key field as
  * wide as the letter rows, the prop placed there and turned so its `+Z` side,
  * where a typist sits, faces the typist at the origin facing `+Z`.
- *
- * @param at The home row's middle, world metres.
- * @returns The keyboard.
+ * Parameter at: The home row's middle, world metres.
+ * Returns: The keyboard.
  */
 export function everydayTypeCaseBoard(
   at: IAutoMovieVector3,

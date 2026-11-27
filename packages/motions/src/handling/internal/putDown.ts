@@ -14,7 +14,7 @@ import { putDownPlan } from "./putDownPlan";
 import { putDownRestingDemand } from "./putDownRestingDemand";
 import { putDownTarget } from "./putDownTarget";
 
-/**
+/*
  * Setting a held prop down at a place and letting go.
  *
  * The goal is the prop's resting frame, not the hand: the author names where
@@ -49,16 +49,20 @@ import { putDownTarget } from "./putDownTarget";
  * opens while tracking it, and eases away afterward.
  */
 export namespace putDown {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "putDown";
 
-  /**
+  /*
    * May be performed over a carrier, as a seated rider holsters a revolver: it
    * then claims only the working arm and its hand (`HumanCarriedHand`).
    */
   export const overlay: boolean = true;
 
-  /** Cancel table. */
+  /*
+   * Cancel table.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
@@ -78,13 +82,17 @@ export namespace putDown {
     ],
   };
 
-  /** The final vertical stretch of the placing transport, metres; provisional. */
+  /*
+   * The final vertical stretch of the placing transport, metres; provisional.
+   */
   export const SETBACK: number = 0.05;
 
-  /** Time the fingers take to open at the release, seconds; provisional. */
+  /*
+   * Time the fingers take to open at the release, seconds; provisional.
+   */
   export const OPEN: number = 0.2;
 
-  /**
+  /*
    * The turns of a free placement's heading tried, degrees from the prop's
    * heading as it is held: the whole way round in the grasp search's steps of
    * 15 (`HumanGrasp.TURNS`), since a prop laid with no authored heading rests
@@ -95,17 +103,18 @@ export namespace putDown {
     (_: unknown, i: number): number => -165 + 15 * i,
   );
 
-  /** {@link putDownPlan}, read through this namespace. */
+  /*
+   * putDownPlan, read through this namespace.
+   */
   export const plan: typeof putDownPlan = putDownPlan;
 
-  /**
+  /*
    * A fixed socket placement asks the earlier grasp to align both sockets; a
    * free placement at an authored resting attitude asks it to lay the prop at
    * that attitude (`putDownRestingDemand`).
-   *
-   * @param ahead The destination, the predicted stance and the candidate grip.
-   * @returns The resting pose when an attitude is authored, the fixed socket
-   *   pose when a named source socket is supplied, otherwise none.
+   * Parameter ahead: The destination, the predicted stance and the candidate grip.
+   * Returns: The resting pose when an attitude is authored, the fixed socket
+   * pose when a named source socket is supplied, otherwise none.
    */
   export function demands(
     ahead: IAutoMovieMotionHumanActionLaw.IAhead<IAutoMovieMotionHumanPutDown.IParams>,

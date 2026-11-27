@@ -7,7 +7,7 @@ import { AutoMovieMotionHumanActionRow } from "../../law/AutoMovieMotionHumanAct
 import { HUMAN_HAND_TO_BODY_WIPE_TEARS } from "../../next/presets/HUMAN_HAND_TO_BODY_WIPE_TEARS";
 import { handToFace } from "./handToFace";
 
-/**
+/*
  * Brush tears from one cheek. The chosen hand rises to its own cheek, wipes up
  * and down along the cheek and returns to its entry pose. `atCheek` marks
  * arrival and `taskEnd` marks the end of the wipe. The side, repetition count,

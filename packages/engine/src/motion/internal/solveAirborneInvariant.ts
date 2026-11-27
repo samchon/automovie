@@ -11,7 +11,7 @@ import { AirborneShapeHistory } from "./airborne/AirborneShapeHistory";
 import { MotionTrajectoryRotation } from "./trajectory/MotionTrajectoryRotation";
 import { AutoMovieEngineMotionTrajectory } from "../AutoMovieEngineMotionTrajectory";
 
-/**
+/*
  * Solve a constructor-proven fixed shape's commuting torque-free rotation.
  *
  * A constant shape has zero relative momentum. Its angular velocity is constant
@@ -23,11 +23,10 @@ import { AutoMovieEngineMotionTrajectory } from "../AutoMovieEngineMotionTraject
  * angular momentum at every instant, including under an explicit physical
  * budget. A rotating curve's sensitivities and physical control, other constant
  * tensors and arbitrary callbacks retain the original integration.
- *
- * @param props The unchanged flight inputs, in the integrator's frames and
- *   units.
- * @returns A fresh-output analytic flight, or undefined when proof or supported
- *   numerical admission is unavailable.
+ * Parameter props: The unchanged flight inputs, in the integrator's frames and
+ * units.
+ * Returns: A fresh-output analytic flight, or undefined when proof or supported
+ * numerical admission is unavailable.
  */
 export function solveAirborneInvariant(
   props: IAutoMovieIntegrateAirborneRotation.IProps,
@@ -97,7 +96,7 @@ export function solveAirborneInvariant(
   return flight(t0, t1, h, q0, rate, tangents);
 }
 
-/**
+/*
  * Own only completed numeric data; endpoint holds and zero rotations still
  * copy.
  */

@@ -11,7 +11,7 @@ import { linearizeRecoveryPoseResiduals } from "../../observation/internal/linea
 import { measureRecoveryEpipolarErrors } from "./measureRecoveryEpipolarErrors";
 import { stepRecoveryRelativePose } from "../../observation/internal/stepRecoveryRelativePose";
 
-/**
+/*
  * Bounded local calibrated-pose least squares on a fixed correspondence subset.
  * Soft-L1 loss has caller-supplied pixel scale. A column-scaled original
  * Jacobian is rank-checked before a damped augmented least-squares step is

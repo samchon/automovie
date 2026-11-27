@@ -7,16 +7,15 @@ import {
 
 import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 
-/**
+/*
  * The materials a subject draws with, as id and name, in render-id order.
  *
  * Without `part`, every material the model declares. With `part`, only the
  * material that part cites, or none when it cites none or names an id the model
  * does not declare.
- *
- * @param model Model whose materials are listed.
- * @param part Part whose one material is listed instead, or omitted.
- * @returns New material records the caller owns.
+ * Parameter model: Model whose materials are listed.
+ * Parameter part: Part whose one material is listed instead, or omitted.
+ * Returns: New material records the caller owns.
  */
 export const autoMovieSubjectMaterials = (
   model: IAutoMovieModel,

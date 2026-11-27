@@ -7,7 +7,7 @@ import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 import { readAutoMovieDrawnRanges } from "./readAutoMovieDrawnRanges.js";
 
-/**
+/*
  * Check a required subject's drawn surface against the sides of the delivered
  * frame.
  *
@@ -20,12 +20,11 @@ import { readAutoMovieDrawnRanges } from "./readAutoMovieDrawnRanges.js";
  * their whole projected area. Front and back faces both count, so a closed
  * surface weighs its silhouette twice in both sums. The far plane is not
  * applied.
- *
- * @param props Subject meshes, frustum planes, projection and the triangle
- *   budget.
- * @returns `cut` with the triangles examined, the opacity of the cut surface
- *   and the visible fraction; `clear`; `over-budget` when the triangles to
- *   examine exceed the budget; or `unmeasured` with the reason.
+ * Parameter props: Subject meshes, frustum planes, projection and the triangle
+ * budget.
+ * Returns: `cut` with the triangles examined, the opacity of the cut surface
+ * and the visible fraction; `clear`; `over-budget` when the triangles to
+ * examine exceed the budget; or `unmeasured` with the reason.
  */
 export function measureAutoMovieCameraFrameEdgeSurface(
   props: IProps,
@@ -135,7 +134,9 @@ export function measureAutoMovieCameraFrameEdgeSurface(
   };
 }
 
-/** Outcomes of one frame-edge surface check. */
+/*
+ * Outcomes of one frame-edge surface check.
+ */
 export namespace measureAutoMovieCameraFrameEdgeSurface {
   /** The subject's drawn surface against the sides of the frame. */
   export type IResult =
@@ -190,7 +191,9 @@ export namespace measureAutoMovieCameraFrameEdgeSurface {
       };
 }
 
-/** Signed distance from the plane to the box corner furthest inside it. */
+/*
+ * Signed distance from the plane to the box corner furthest inside it.
+ */
 function innermost(box: Box3, plane: Plane): number {
   const { x, y, z }: Vector3 = plane.normal;
   return (
@@ -201,7 +204,7 @@ function innermost(box: Box3, plane: Plane): number {
   );
 }
 
-/**
+/*
  * Whether a polygon vertex lies outside a side plane beyond the arithmetic and
  * skin slack.
  */
@@ -221,7 +224,7 @@ function leaves(
   return false;
 }
 
-/**
+/*
  * Absolute area of the polygon's projection in normalized device units
  * (shoelace formula).
  */
@@ -242,26 +245,34 @@ function projectedArea(
   return Math.abs(twice) / 2;
 }
 
-/** A required subject's admitted meshes and the delivery frame's planes. */
+/*
+ * A required subject's admitted meshes and the delivery frame's planes.
+ */
 interface IProps {
-  /**
+  /*
    * Meshes from listAutoMovieCameraSubjectMeshes with current world matrices
    * and poses.
    */
   meshes: readonly Mesh[];
 
-  /**
+  /*
    * The four normalized inward side planes of the delivery frustum, world
    * metres.
    */
   sides: readonly Plane[];
 
-  /** The normalized inward near plane of the delivery frustum, world metres. */
+  /*
+   * The normalized inward near plane of the delivery frustum, world metres.
+   */
   near: Plane;
 
-  /** World-to-clip matrix of the delivery camera, crop and aspect included. */
+  /*
+   * World-to-clip matrix of the delivery camera, crop and aspect included.
+   */
   projection: Matrix4;
 
-  /** Largest number of drawn triangles this call may examine. */
+  /*
+   * Largest number of drawn triangles this call may examine.
+   */
   triangleBudget: number;
 }

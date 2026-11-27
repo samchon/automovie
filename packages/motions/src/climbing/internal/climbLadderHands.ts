@@ -13,15 +13,14 @@ import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotion
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
 
-/**
+/*
  * Place each grip using a pole carried by the climber's trunk through the
  * reach. The wrist follows the rung while the elbow remains on its anatomical
  * side.
- *
- * @param body The climber's measured skeleton and grip geometry.
- * @param normal The ladder's outward world normal.
- * @returns A limb goal for the ordinary bounded two-bone fit at a rung or
- *   between rungs.
+ * Parameter body: The climber's measured skeleton and grip geometry.
+ * Parameter normal: The ladder's outward world normal.
+ * Returns: A limb goal for the ordinary bounded two-bone fit at a rung or
+ * between rungs.
  */
 export function climbLadderHands(
   body: IAutoMovieMotionHumanBody,

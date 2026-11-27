@@ -14,25 +14,41 @@ import { AnnularFitting } from "../fittings/AnnularFitting";
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedLead } from "../AutoMovieArchetypeQuadrupedLead";
 
-/** One admitted collar/lead assembly, prepared without changing a model builder. */
+/*
+ * One admitted collar/lead assembly, prepared without changing a model builder.
+ */
 export class QuadrupedLeadPlan {
-  /** Collar ends, metres in the model frame. */
+  /*
+   * Collar ends, metres in the model frame.
+   */
   readonly #from: IAutoMovieVector3;
   readonly #to: IAutoMovieVector3;
-  /** The collar's fixed local material surrounding the open neck passage. */
+  /*
+   * The collar's fixed local material surrounding the open neck passage.
+   */
   readonly #collar: readonly AutoMovieArchetypeConvexCell.ICell[];
-  /** Straight lead endpoints, metres. */
+  /*
+   * Straight lead endpoints, metres.
+   */
   readonly #attached: IAutoMovieVector3;
   readonly #end: IAutoMovieVector3;
-  /** Authored lead radius and length, metres. */
+  /*
+   * Authored lead radius and length, metres.
+   */
   readonly #radius: number;
   readonly #length: number;
-  /** Lead diameter, metres, read as grip width from the rein affordance. */
+  /*
+   * Lead diameter, metres, read as grip width from the rein affordance.
+   */
   readonly #aperture: number;
-  /** Midpoint grasp of that same real lead. */
+  /*
+   * Midpoint grasp of that same real lead.
+   */
   readonly #frame: IAutoMovieTransform;
 
-  /** Admit one neck and retain its independent fixed-size assembly plan. */
+  /*
+   * Admit one neck and retain its independent fixed-size assembly plan.
+   */
   public constructor(
     rig: AutoMovieArchetypeQuadrupedBody.IRig,
     tack: AutoMovieArchetypeQuadrupedLead.IParams,
@@ -108,7 +124,9 @@ export class QuadrupedLeadPlan {
     );
   }
 
-  /** Emit the admitted collar shell, lead and its grasp into a builder. */
+  /*
+   * Emit the admitted collar shell, lead and its grasp into a builder.
+   */
   public emit<Id extends string, Dimension extends string>(
     builder: AutoMovieArchetypeBuilder<Id, Dimension>,
     id: Id,

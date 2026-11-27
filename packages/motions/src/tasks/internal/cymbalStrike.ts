@@ -9,7 +9,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { struckSurface } from "./struckSurface";
 import { useTool } from "./useTool";
 
-/**
+/*
  * Strike the near edge of a mounted cymbal with the held stick's working point,
  * then lift the stick from the surface. The RITMO cymbal recordings document
  * struck cymbals and damping as distinct playing conditions
@@ -25,14 +25,13 @@ export const cymbalStrike: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanC
     plan,
   };
 
-/**
+/*
  * Validate the stationary edge and delegate the approach, strike, rebound and
  * recovery to the existing plan, which also validates the held tool.
- *
- * @param context The action's inputs, body, entry state and prop readers.
- * @returns The held-stick plan with `contact1` as its decisive instant.
- * @throws {HumanRefusal} When either subject is empty, the hand lacks the stick
- *   or its required contacts, or the edge fails admission.
+ * Parameter context: The action's inputs, body, entry state and prop readers.
+ * Returns: The held-stick plan with `contact1` as its decisive instant.
+ * When either subject is empty, the hand lacks the stick
+ * or its required contacts, or the edge fails admission.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCymbalStrike>,

@@ -11,7 +11,7 @@ import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHiera
 import { triangleIndicesOf } from "./triangleIndicesOf";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Compile a closed oriented surface, or an open oriented sheet, into a
  * nearest-point and signed-distance query.
  *
@@ -49,10 +49,9 @@ import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
  * among equally near features the lowest triangle ordinal wins. A query throws
  * on a point that is not three finite coordinates or whose distance to the
  * surface's box overflows.
- *
- * @param mesh Surface to snapshot.
- * @param options Closed (default) or open boundary contract.
- * @returns The query for one XYZ point.
+ * Parameter mesh: Surface to snapshot.
+ * Parameter options: Closed (default) or open boundary contract.
+ * Returns: The query for one XYZ point.
  */
 export function createAutoMovieSignedMeshQuery(
   mesh: IAutoMovieMesh,
@@ -254,14 +253,16 @@ export function createAutoMovieSignedMeshQuery(
   };
 }
 
-/**
+/*
  * The running nearest feature of one query, rewritten in place as it improves:
  * the owning triangle and its ordinal (Infinity before any), the nearest point,
  * the feature's unnormalized pseudonormal, the squared distance, which feature
  * it is, and whether it lies on an open sheet's rim.
  */
 interface IBest {
-  /** Immutable triangle seed measured at this call's current point, if any. */
+  /*
+   * Immutable triangle seed measured at this call's current point, if any.
+   */
   seed: ITriangle | undefined;
   hit: ITriangle | undefined;
   point: number[];
@@ -272,7 +273,7 @@ interface IBest {
   boundary: boolean;
 }
 
-/**
+/*
  * One welded edge: its lower and higher vertex identities, the sum of its
  * incident face normals (its pseudonormal), its incident triangle count, and
  * low-to-high uses minus high-to-low uses, zero when paired oppositely.
@@ -285,7 +286,7 @@ interface IEdge {
   balance: number;
 }
 
-/**
+/*
  * One directed triangle edge as a closed segment: welded start and end
  * identities, start point, end minus start, its squared length, and the welded
  * edge it lies on.
@@ -299,7 +300,7 @@ interface ITriangleSegment {
   edge: IEdge;
 }
 
-/**
+/*
  * One admitted triangle: its original ordinal, first corner `a`, edges `ab` and
  * `ac`, unit winding normal, the Gram terms `aa`, `bb`, `abac` and their
  * positive determinant for barycentric projection, and its three closed edge
@@ -318,7 +319,9 @@ interface ITriangle extends IAutoMovieMeshQueryHierarchy.IEntry {
   segments: ITriangleSegment[];
 }
 
-/** Componentwise difference, dot product, cross product and unit vector. */
+/*
+ * Componentwise difference, dot product, cross product and unit vector.
+ */
 const subtract = (a: readonly number[], b: readonly number[]): number[] =>
   a.map((value: number, axis: number): number => value - b[axis]!);
 const dot = (a: readonly number[], b: readonly number[]): number =>
@@ -339,7 +342,7 @@ const unit = (vector: readonly number[]): number[] => {
   return vector.map((value: number): number => value / length);
 };
 
-/**
+/*
  * Nearest-first traversal of the hierarchy. A node is entered whenever its box
  * is no farther than the running best, and its children's box distances are
  * measured once here and passed down, so the order and pruning match a
@@ -379,7 +382,7 @@ function visit(
   }
 }
 
-/**
+/*
  * Projection onto the face interior, otherwise onto its three closed segments,
  * written into the running best when it wins.
  *

@@ -105,7 +105,7 @@ export namespace AutoMovieConstructionSplitBand {
     };
   }
 
-  /**
+  /*
    * The strip's columns per mesh column for a curved seam: at a fork the clock
    * spline's tangent mixes the one-sided chords to its neighbours, and a chord
    * deviates from its side's tangent by half that side's turn per column, out
@@ -164,7 +164,9 @@ export namespace AutoMovieConstructionSplitBand {
     return Math.min(16, Math.max(1, Math.ceil(Math.max(...turns))));
   }
 
-  /** One band on exactly `input.count` columns. */
+  /*
+   * One band on exactly `input.count` columns.
+   */
   function build(
     input: IAutoMovieConstructionSplitBand.IInput,
     trace?: IAutoMovieConstructionSplitBandTrace.Sink,
@@ -919,7 +921,7 @@ export namespace AutoMovieConstructionSplitBand {
     return { chain: made.chain, surface };
   }
 
-  /**
+  /*
    * A profiled band's interior cross sections
    * (`IAutoMovieConstructionBandProfile64`): at every share any profile names,
    * each column's point and station derivatives on the plain band, per unit
@@ -929,15 +931,14 @@ export namespace AutoMovieConstructionSplitBand {
    * own turn across the band is left out of the derivatives; the strip stays a
    * C2 piecewise quintic through its rails and these sections, and its rails
    * keep their 2-jets.
-   *
-   * @param plain The plain band's surface: station mm from 0 at the loop to `L`
-   *   at the rail, phase the loop clock.
-   * @param L The plain band's span, mm.
-   * @param n The columns, at clocks `2 pi k / n`.
-   * @param profiles The profiles, depths in mm.
-   * @param normals The surface whose inward unit normal carries the depth, in
-   *   the plain band's chart; absent, the plain band itself.
-   * @returns The sections in increasing share.
+   * Parameter plain: The plain band's surface: station mm from 0 at the loop to `L`
+   * at the rail, phase the loop clock.
+   * Parameter L: The plain band's span, mm.
+   * Parameter n: The columns, at clocks `2 pi k / n`.
+   * Parameter profiles: The profiles, depths in mm.
+   * Parameter normals: The surface whose inward unit normal carries the depth, in
+   * the plain band's chart; absent, the plain band itself.
+   * Returns: The sections in increasing share.
    */
   function sections(
     plain: IAutoMovieSolidSurface,
@@ -1030,7 +1031,7 @@ export namespace AutoMovieConstructionSplitBand {
     );
   }
 
-  /**
+  /*
    * The cubic spline through `(x_i, y_i)` with zero slope at both ends, read as
    * its value and its first and second derivatives: the clamped spline's second
    * derivatives solved by the tridiagonal (Thomas) sweep.
@@ -1111,7 +1112,7 @@ export namespace AutoMovieConstructionSplitBand {
     return 1 - t * t * t * (10 - 15 * t + 6 * t * t);
   }
 
-  /**
+  /*
    * Whether a column, its ribbons scaled by `f` (first by `f`, second by
    * `f^2`), advances monotonically along its chord: the quintic Hermite in the
    * cross parameter `w` written as its six Bezier control points (curves.md,
@@ -1145,20 +1146,20 @@ export namespace AutoMovieConstructionSplitBand {
     );
   }
 
-  /**
+  /*
    * How fast a column's ribbon scale may grow away from a column that needs a
    * smaller one, in natural log per radian of clock: from a column held at a
    * tenth, the field is back at 1 about 0.6 rad round the loop.
    */
   const LOCAL_SLOPE: number = 4;
 
-  /**
+  /*
    * The width of the Gaussian that smooths the scale field along the loop,
    * radians of clock: about five columns of 192.
    */
   const LOCAL_SMOOTH: number = 0.15;
 
-  /**
+  /*
    * Each column's own ribbon scale: a field smooth along the loop that stays at
    * or below every forward column's largest monotone scale. In log scale it is
    * the lower envelope of the columns' targets, each widened by `LOCAL_SLOPE`
@@ -1170,35 +1171,34 @@ export namespace AutoMovieConstructionSplitBand {
    * below it, and the field is read again, so the field is lowered only about
    * the columns that need it. A backward column takes the field of its
    * neighbours, since it turns back at any scale.
+   * Parameter columns: Every column's ribbons, in clock order at `2 pi k / n`.
+   * Parameter backward: The indices of the columns that point back against their
+   * chord.
+   * Parameter factors: The forward columns' largest monotone scales at or below 1,
+   * in their order.
+   * Parameter forward: The forward columns, in their order.
+   * Returns: The scale of every column, or the refusal when a column has no
+   * monotone scale.
    *
-   * @param columns Every column's ribbons, in clock order at `2 pi k / n`.
-   * @param backward The indices of the columns that point back against their
-   *   chord.
-   * @param factors The forward columns' largest monotone scales at or below 1,
-   *   in their order.
-   * @param forward The forward columns, in their order.
-   * @returns The scale of every column, or the refusal when a column has no
-   *   monotone scale.
+   * Scaling one column's first derivatives by `f` and its second by `f^2`
+   * reparameterizes it across the band, so each rail stays G2; a field smooth
+   * in the clock keeps the columns' periodic spline interpolation smooth
+   * along the loop, and the envelope keeps every forward column monotone. No
+   * column is given more than its own monotone scale; a column with none
+   * refuses the band as the common scale does. The work is one envelope, one
+   * smoothing, one lowering and a check per column, repeated only for a
+   * column that fails: O(n^2) for n columns per pass, a few hundred columns
+   * once per band, returning one array of n numbers. It is a numeric field
+   * over already built columns and coordinates no work, and `create` answers
+   * the contracts for the band it builds.
    *
-   *   Scaling one column's first derivatives by `f` and its second by `f^2`
-   *   reparameterizes it across the band, so each rail stays G2; a field smooth
-   *   in the clock keeps the columns' periodic spline interpolation smooth
-   *   along the loop, and the envelope keeps every forward column monotone. No
-   *   column is given more than its own monotone scale; a column with none
-   *   refuses the band as the common scale does. The work is one envelope, one
-   *   smoothing, one lowering and a check per column, repeated only for a
-   *   column that fails: O(n^2) for n columns per pass, a few hundred columns
-   *   once per band, returning one array of n numbers. It is a numeric field
-   *   over already built columns and coordinates no work, and `create` answers
-   *   the contracts for the band it builds.
-   *
-   *   After 64 passes that changed only above-own goals, the last computed field
-   *   receives one uniform attenuation through LocalScaleMinorant. Original
-   *   held factors and the actual projected-control predicate certify it again;
-   *   scaled ribbon jets must stay finite and nonzero first vectors may not
-   *   vanish. The existing settled returns and every predicate-changing refusal
-   *   remain unchanged. This certifies column data, not interpolation between
-   *   columns.
+   * After 64 passes that changed only above-own goals, the last computed field
+   * receives one uniform attenuation through LocalScaleMinorant. Original
+   * held factors and the actual projected-control predicate certify it again;
+   * scaled ribbon jets must stay finite and nonzero first vectors may not
+   * vanish. The existing settled returns and every predicate-changing refusal
+   * remain unchanged. This certifies column data, not interpolation between
+   * columns.
    */
   function local(
     columns: readonly IAutoMovieBlendColumn[],

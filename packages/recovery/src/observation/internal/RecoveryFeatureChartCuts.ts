@@ -11,7 +11,7 @@ import { RecoveryFeatureChartCutsSeams } from "./RecoveryFeatureChartCutsSeams";
 import { RecoveryFeatureChartCutsSubdivide } from "./RecoveryFeatureChartCutsSubdivide";
 import { RecoveryFeatureChartCutsTopology } from "./RecoveryFeatureChartCutsTopology";
 
-/**
+/*
  * Materialize declared feature cuts as private manifold observation charts.
  * Ordinals and unique occurrence keys own topology; repeated physical keys must
  * name exactly equal millimetre coordinates. Source-face pairs admit features,

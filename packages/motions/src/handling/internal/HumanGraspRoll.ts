@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A grasp on a handle rolled about the handle's line so its wrist lies nearest
  * a point, the shoulder of the arm that takes it: the free roll a power grip on
  * a cylinder leaves (grasp synthesis treats a cylindrical handle's grasps as
@@ -17,12 +17,11 @@ import type {
  * nearest the shoulder when that across offset points the way the shoulder lies
  * across the line, so the roll is the signed angle between the two across
  * directions, in closed form.
- *
- * @param grasp The wrist and hand attitude of one grasp on the handle, world.
- * @param point The grip point on the handle's line, world metres.
- * @param axis The handle's line, a unit direction.
- * @param toward The point the wrist is brought nearest, world metres.
- * @returns The rolled grasp.
+ * Parameter grasp: The wrist and hand attitude of one grasp on the handle, world.
+ * Parameter point: The grip point on the handle's line, world metres.
+ * Parameter axis: The handle's line, a unit direction.
+ * Parameter toward: The point the wrist is brought nearest, world metres.
+ * Returns: The rolled grasp.
  */
 export function HumanGraspRoll(
   grasp: IAutoMovieMotionHumanHand.IWrist,

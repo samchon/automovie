@@ -8,7 +8,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 
-/**
+/*
  * The firearm action model the handguns and the long guns share: the lock time,
  * from the sear's release to the firing pin's or hammer's fall, and the
  * flintlock a musket and a pistol both carry (`createLongGun`,
@@ -38,7 +38,7 @@ import {
  * the handgun's and the long gun's bands come from different read guns.
  */
 export namespace AutoMovieArchetypeFirearm {
-  /**
+  /*
    * The M1903's service firing pin's time of fall, seconds: "the time of fall
    * of the usual firing pin in the U. S. rifle is .0057 seconds", J. C. Garand,
    * US Patent 1,780,521 (1930)
@@ -47,7 +47,7 @@ export namespace AutoMovieArchetypeFirearm {
    */
   export const M1903: number = 0.0057;
 
-  /**
+  /*
    * An AR-15's standard hammer's lock time, seconds: "Over 50% lock time
    * reduction over standard hammer (4.4 ms vs. 10ms)", Geissele's Hi-Speed
    * National Match trigger instruction sheet, p. 2
@@ -56,7 +56,7 @@ export namespace AutoMovieArchetypeFirearm {
    */
   export const AR15: number = 0.01;
 
-  /**
+  /*
    * The band a firearm whose own lock time was not found borrows: from the
    * M1903's to the AR-15's.
    */
@@ -68,7 +68,7 @@ export namespace AutoMovieArchetypeFirearm {
     true,
   );
 
-  /**
+  /*
    * The lock's places and angles, none read, each an estimate:
    *
    * - `side`: the lock off the barrel's line toward `-X`, metres.
@@ -114,7 +114,7 @@ export namespace AutoMovieArchetypeFirearm {
     open: 60,
   };
 
-  /**
+  /*
    * A flintlock's lock time, from the lock's firing to the pan's flash:
    * Pletcher, Flintlock Timing, Muzzle Blasts (January 1990), 80 trials of two
    * locks fired electrically and timed to a photocell at the pan, 0.0312 to
@@ -132,12 +132,11 @@ export namespace AutoMovieArchetypeFirearm {
       true,
     );
 
-  /**
+  /*
    * Lay a flintlock on a gun under construction.
-   *
-   * @param builder The gun under construction.
-   * @param hole The touch hole on the barrel's line, at the breech.
-   * @param ids The gun's ids for the cock, its spur, the frizzen and the pan.
+   * Parameter builder: The gun under construction.
+   * Parameter hole: The touch hole on the barrel's line, at the breech.
+   * Parameter ids: The gun's ids for the cock, its spur, the frizzen and the pan.
    */
   export function layFlintlock<
     Affordance extends string,

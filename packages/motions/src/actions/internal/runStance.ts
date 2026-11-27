@@ -9,7 +9,7 @@ import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 import { walkStepFoot } from "./walkStepFoot";
 
-/**
+/*
  * The stance of a gait with a flight, as the spring-mass model of running has
  * it (Blickhan 1989, J Biomech 22:1217; McMahon and Cheng 1990, J Biomech 23
  * Suppl 1:65): the leg lands nearly straight, compresses to mid-stance, where
@@ -30,45 +30,48 @@ import { walkStepFoot } from "./walkStepFoot";
  * push and no shallower than its held heel.
  */
 export namespace runStance {
-  /** A cruising stance's oscillation and push. */
+  /*
+   * A cruising stance's oscillation and push.
+   */
   export interface IStance {
-    /**
+    /*
      * The pelvis's oscillation about standing, hip heights: its mean and its
      * amplitude, lowest at mid-stance.
      */
     bob: IStanceBob;
 
-    /** The toe-off pitch, degrees toes-down. */
+    /*
+     * The toe-off pitch, degrees toes-down.
+     */
     push: number;
   }
 
-  /**
+  /*
    * The knee's flexion at contact and at toe-off, degrees (provisional,
    * Novacheck 1998).
    */
   export const CONTACT: number = 20;
 
-  /**
+  /*
    * The knee's flexion at mid-stance, degrees (provisional, Novacheck 1998:
    * about 40 to 45).
    */
   export const MIDDLE: number = 45;
 
-  /**
+  /*
    * The knee flexion at the mid-stance search's deep end, degrees: well past
    * `MIDDLE` and inside the knee's range.
    */
   const BRACKET: number = 120;
 
-  /**
+  /*
    * A cruising stance of a gait with a flight.
-   *
-   * @param body The body.
-   * @param props The cruising step in metres, the swing in step periods, how
-   *   far ahead of the pelvis the landing ankle lies in steps, how far ahead of
-   *   the ankle the middle of the contact lies in metres, and how far the heel
-   *   is held up through stance, degrees (0 for a heel strike).
-   * @returns The oscillation and the push.
+   * Parameter body: The body.
+   * Parameter props: The cruising step in metres, the swing in step periods, how
+   * far ahead of the pelvis the landing ankle lies in steps, how far ahead of
+   * the ankle the middle of the contact lies in metres, and how far the heel
+   * is held up through stance, degrees (0 for a heel strike).
+   * Returns: The oscillation and the push.
    */
   export function plan(
     body: IAutoMovieMotionHumanBody,
@@ -190,42 +193,53 @@ export namespace runStance {
     };
   }
 
-  /**
+  /*
    * What a foot in flight claims of the pelvis: it bears nothing, so it asks no
    * lowering of its own, only what its stance claimed as it left and what its
    * next stance claims as it lands, passed from one to the other on a
    * minimum-jerk weight (Flash and Hogan 1985), so the pelvis is continuous
    * with its rate through both contact events.
-   *
-   * @param ends The lowering the leg claims at its toe-off and at its heel
-   *   strike, metres.
-   * @param u The share of the swing.
-   * @returns The claim, metres.
+   * Parameter ends: The lowering the leg claims at its toe-off and at its heel
+   * strike, metres.
+   * Parameter u: The share of the swing.
+   * Returns: The claim, metres.
    */
   export function airborne(ends: readonly [number, number], u: number): number {
     const s: number = AutoMovieEngineMotionSampling.minimumJerkShare(Math.min(1, Math.max(0, u)));
     return ends[0] + (ends[1] - ends[0]) * s;
   }
 
-  /** The distance between two points, metres. */
+  /*
+   * The distance between two points, metres.
+   */
   function distance(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
     return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
   }
 }
 
-/** The record of `IPlanReachAt`'s site. */
+/*
+ * The record of `IPlanReachAt`'s site.
+ */
 type IPlanReachAt = { z: number; y: number };
 
-/** The record of `IPlanStruck`'s site. */
+/*
+ * The record of `IPlanStruck`'s site.
+ */
 type IPlanStruck = { z: number; y: number };
 
-/** The record of `IPlanAboutResult`'s site. */
+/*
+ * The record of `IPlanAboutResult`'s site.
+ */
 type IPlanAboutResult = { z: number; y: number };
 
-/** The record of `IPlanAbout`'s site. */
+/*
+ * The record of `IPlanAbout`'s site.
+ */
 type IPlanAbout = { z: number; y: number };
 
-/** The record of `IPlanProps`'s site. */
+/*
+ * The record of `IPlanProps`'s site.
+ */
 type IPlanProps = {
   stride: number;
   share: number;
@@ -234,5 +248,7 @@ type IPlanProps = {
   heels: number;
 };
 
-/** The record of `IStanceBob`'s site. */
+/*
+ * The record of `IStanceBob`'s site.
+ */
 type IStanceBob = { mean: number; amplitude: number };

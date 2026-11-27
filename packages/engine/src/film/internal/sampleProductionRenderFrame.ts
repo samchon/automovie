@@ -8,7 +8,7 @@ import {
 
 import { resolveProductionFrameRate } from "./resolveProductionFrameRate";
 
-/**
+/*
  * Resolve one film-global frame to the shot frames that compose it, with
  * dissolve and fade weights.
  *
@@ -27,10 +27,9 @@ import { resolveProductionFrameRate } from "./resolveProductionFrameRate";
  * the frame is not a safe integer inside `[0, totalFrames)`, when no segment
  * contains it, when a dissolving segment has no predecessor, or when the
  * timeline's rate fields disagree.
- *
- * @param timeline The canonical film timeline.
- * @param globalFrame Film-global frame index.
- * @returns The frame index, its time in seconds, and its weighted layers.
+ * Parameter timeline: The canonical film timeline.
+ * Parameter globalFrame: Film-global frame index.
+ * Returns: The frame index, its time in seconds, and its weighted layers.
  */
 export function sampleProductionRenderFrame(
   timeline: IAutoMovieFilmTimeline,
@@ -98,7 +97,9 @@ export function sampleProductionRenderFrame(
   ]);
 }
 
-/** Stamp layers with independently computed binary64 time at the rational rate. */
+/*
+ * Stamp layers with independently computed binary64 time at the rational rate.
+ */
 function frame(
   timeline: IAutoMovieFilmTimeline,
   globalFrame: number,

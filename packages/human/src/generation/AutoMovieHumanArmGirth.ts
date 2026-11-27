@@ -51,5 +51,7 @@ export namespace AutoMovieHumanArmGirth {
   }
 }
 
-/** Walk lengths closer than this are one knot, mm: a copied boundary knot is exact to rounding. */
+/*
+ * Walk lengths closer than this are one knot, mm: a copied boundary knot is exact to rounding.
+ */
 const MERGE: number = 1e-6;

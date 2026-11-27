@@ -12,7 +12,7 @@ import { AutoMovieEngineScheduleCut } from "../AutoMovieEngineScheduleCut";
 import { AutoMovieSchedulePlace } from "../AutoMovieSchedulePlace";
 import { AutoMovieScheduleWalk } from "../AutoMovieScheduleWalk";
 
-/**
+/*
  * Place a composition on the film clock with the production's pure laws.
  *
  * The walk is depth first in declaration order. A sequence starts each part at
@@ -36,10 +36,9 @@ import { AutoMovieScheduleWalk } from "../AutoMovieScheduleWalk";
  * retained by reference, and legacy intents are copied once for the walk.
  * Callers keep shared intent and state records stable. Pure laws and unchanged
  * inputs give the same schedule.
- *
- * @param composition The composition.
- * @param laws The production's pure timing, outcome and state functions.
- * @returns The placed entries ordered by start time and the total duration.
+ * Parameter composition: The composition.
+ * Parameter laws: The production's pure timing, outcome and state functions.
+ * Returns: The placed entries ordered by start time and the total duration.
  */
 export function resolveAutoMovieSchedule(
   composition: IAutoMovieComposition,
@@ -282,7 +281,9 @@ export function resolveAutoMovieSchedule(
   };
 }
 
-/** Share authored nodes and intents wherever their cuts are already tagged. */
+/*
+ * Share authored nodes and intents wherever their cuts are already tagged.
+ */
 function normalizeCuts(
   node: IAutoMovieComposition,
   normalized: WeakMap<IAutoMovieIntent, IAutoMovieIntent>,
@@ -315,69 +316,95 @@ function normalizeCuts(
   return parts === undefined ? node : { ...node, parts };
 }
 
-/**
+/*
  * A part of a parallel group: where it starts, its placing state and end, and
  * the subjects whose actions it holds.
  */
 interface IAutoMovieSchedulePart {
-  /** The part. */
+  /*
+   * The part.
+   */
   node: IAutoMovieComposition;
 
-  /** Its group's start, film seconds. */
+  /*
+   * Its group's start, film seconds.
+   */
   start: number;
 
-  /** Its end once placed, film seconds. */
+  /*
+   * Its end once placed, film seconds.
+   */
   end: number;
 
-  /** Whether it waits, is being placed, or is placed. */
+  /*
+   * Whether it waits, is being placed, or is placed.
+   */
   status: AutoMovieSchedulePartStatus;
 
-  /** The subjects of its intents. */
+  /*
+   * The subjects of its intents.
+   */
   subjects: ReadonlySet<string>;
 
-  /** The anchors its intents declare. */
+  /*
+   * The anchors its intents declare.
+   */
   anchors: ReadonlySet<string>;
 
-  /**
+  /*
    * The names it may refer an anchor by: its `at` parts' anchors, its cuts'
    * `of` and every string its intents' parameters hold.
    */
   references: ReadonlySet<string>;
 
-  /** Every part of its group, itself included. */
+  /*
+   * Every part of its group, itself included.
+   */
   siblings: readonly IAutoMovieSchedulePart[];
 
-  /**
+  /*
    * How far a sequence part is placed, once a demand placed its leading
    * actions.
    */
   progress?: IAutoMovieScheduleProgress;
 }
 
-/**
+/*
  * How far a sequence is placed: its next part, where that part starts, and the
  * entry its cut waits to name the interrupter of.
  */
 interface IAutoMovieScheduleProgress {
-  /** The index of the next part to place. */
+  /*
+   * The index of the next part to place.
+   */
   next: number;
 
-  /** Where the next part starts, film seconds. */
+  /*
+   * Where the next part starts, film seconds.
+   */
   at: number;
 
-  /** The entry whose cut the next part's leading intent interrupts, if any. */
+  /*
+   * The entry whose cut the next part's leading intent interrupts, if any.
+   */
   cut: number | undefined;
 }
 
-/** A sequence's progress before any part is placed. */
+/*
+ * A sequence's progress before any part is placed.
+ */
 function fresh(start: number): IAutoMovieScheduleProgress {
   return { next: 0, at: start, cut: undefined };
 }
 
-/** A parallel part's placing state. */
+/*
+ * A parallel part's placing state.
+ */
 type AutoMovieSchedulePartStatus = "pending" | "placing" | "placed";
 
-/** The subjects of a composition's intents. */
+/*
+ * The subjects of a composition's intents.
+ */
 function subjects(node: IAutoMovieComposition): Set<string> {
   const out: Set<string> = new Set();
   const visit = (n: IAutoMovieComposition): void => {
@@ -389,7 +416,7 @@ function subjects(node: IAutoMovieComposition): Set<string> {
   return out;
 }
 
-/**
+/*
  * The names a composition may refer an anchor by: the anchor of each `at` part,
  * the `of` of each cut, and every string its intents' parameters hold, where a
  * law names the anchored action it answers. A string that is no anchor's name
@@ -417,7 +444,9 @@ function references(node: IAutoMovieComposition): Set<string> {
   return out;
 }
 
-/** The anchors a composition's intents declare. */
+/*
+ * The anchors a composition's intents declare.
+ */
 function anchors(node: IAutoMovieComposition): Set<string> {
   const out: Set<string> = new Set();
   const visit = (n: IAutoMovieComposition): void => {

@@ -236,7 +236,7 @@ export namespace AutoMovieViewHermite {
     );
   }
 
-  /**
+  /*
    * Binary search in an admitted increasing knot list; outside queries use an
    * end interval. No query state survives.
    */
@@ -251,7 +251,7 @@ export namespace AutoMovieViewHermite {
     return lo;
   }
 
-  /**
+  /*
    * The adjacent smaller nonnegative binary64 factor; an eight-byte local view
    * is released immediately and no scalar ordinate is changed.
    */

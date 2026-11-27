@@ -21,7 +21,7 @@ import { balletPositions } from "./balletPositions";
 import { dance } from "./dance";
 import { prepareDanceBeats } from "./prepareDanceBeats";
 
-/**
+/*
  * Classical ballet on the dance law's beat clock: a position of the feet with a
  * plié or a relevé (`balletPositions`), a pirouette from fourth
  * (`balletPirouette`) and a grand jeté (`balletJete`).
@@ -36,10 +36,12 @@ import { prepareDanceBeats } from "./prepareDanceBeats";
  * prepared by its own run.
  */
 export namespace balletStep {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "balletStep";
 
-  /**
+  /*
    * Cancel table: from its relaxing instant, into standing, another ballet step
    * or a dance.
    */
@@ -51,30 +53,39 @@ export namespace balletStep {
       walk: ["fromRelax", "smooth"],
     });
 
-  /** The default turnout, degrees of each hip's external rotation (provisional). */
+  /*
+   * The default turnout, degrees of each hip's external rotation (provisional).
+   */
   export const TURNOUT: number = 35;
 
-  /** A ballet step's admitted turnout, position and turns. */
+  /*
+   * A ballet step's admitted turnout, position and turns.
+   */
   export interface IAdmitted {
-    /** The turnout, degrees. */
+    /*
+     * The turnout, degrees.
+     */
     turnout: number;
 
-    /** The position of the feet, one to five. */
+    /*
+     * The position of the feet, one to five.
+     */
     position: number;
 
-    /** The turns, one or two. */
+    /*
+     * The turns, one or two.
+     */
     turns: number;
   }
 
-  /**
+  /*
    * Admit a ballet step: a turnout within the hips' external rotation
    * (`TURNOUT` by default), one of the five positions of the feet, and one or
    * two turns.
-   *
-   * @param p The turnout, the position and the turns.
-   * @param outward The hips' lesser external rotation, degrees.
-   * @returns The admitted values.
-   * @throws {HumanRefusal} When a value lies outside its range.
+   * Parameter p: The turnout, the position and the turns.
+   * Parameter outward: The hips' lesser external rotation, degrees.
+   * Returns: The admitted values.
+   * When a value lies outside its range.
    */
   export function admit(
     p: Pick<
@@ -120,15 +131,14 @@ export namespace balletStep {
       });
     return { turnout, position, turns };
   }
-  /**
+  /*
    * Plan a ballet step.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the turnout exceeds the hip's external
-   *   rotation, the split exceeds the hips' flexion and extension, the position
-   *   is not one to five, the turns are not one or two, or the tempo or beat
-   *   count is not admitted.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the turnout exceeds the hip's external
+   * rotation, the split exceeds the hips' flexion and extension, the position
+   * is not one to five, the turns are not one or two, or the tempo or beat
+   * count is not admitted.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallet.IParams>,

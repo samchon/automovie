@@ -7,7 +7,7 @@ import {
 import { resolveAutoMovieMeshPhysicalVertices } from "../../math/internal/resolveAutoMovieMeshPhysicalVertices";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
-/**
+/*
  * Concatenate rigid meshes into one, rebasing each member's indices in declared
  * order.
  *
@@ -38,9 +38,8 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * index buffer that is ragged or names a missing vertex, and a normal, UV,
  * colour or relief buffer not aligned to the member's vertices each throw,
  * naming the member's position in the list.
- *
- * @param meshes Rigid members in merge order, only read.
- * @returns One mesh with every member's triangles.
+ * Parameter meshes: Rigid members in merge order, only read.
+ * Returns: One mesh with every member's triangles.
  */
 export const mergeAutoMovieMeshes = (
   meshes: readonly IAutoMovieMesh[],

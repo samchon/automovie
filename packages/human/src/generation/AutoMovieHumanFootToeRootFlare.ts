@@ -19,8 +19,12 @@ export namespace AutoMovieHumanFootToeRootFlare {
   }
 }
 
-/** The root's flare over the shaft's breadth. Convention, awaiting a published value. */
+/*
+ * The root's flare over the shaft's breadth. Convention, awaiting a published value.
+ */
 const FLARE: number = 0.3;
 
-/** The share of the toe's line, from its metatarsal head, the flare fades over. Convention. */
+/*
+ * The share of the toe's line, from its metatarsal head, the flare fades over. Convention.
+ */
 const FADE: number = 0.45;

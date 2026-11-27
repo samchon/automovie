@@ -11,23 +11,22 @@ import type {
 import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotionHumanHeld";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * The working points and axes read from a held prop's rigid frame. A two-point
  * working line is distinct from a surface normal, and the point's own frame
  * supplies the roll reference, so reading commutes with a rigid scene change.
  */
 export namespace StrikingHeldFrame {
-  /**
+  /*
    * The tool a held prop is, in the hand's grip frame: what `of` reads at an
    * action's entry, and what a grasp not yet taken would hold (a pick-up's
    * candidate grip, its prop's frame in that grip).
-   *
-   * @param held The prop in the hand's grip frame.
-   * @param points The working point, optional working-line origin and edge; a
-   *   blade's `point` and `edge` when absent.
-   * @returns The tool in the hand's frame.
-   * @throws {HumanRefusal} When a named affordance is absent, listing the ones
-   *   it has, or named working-line endpoints coincide.
+   * Parameter held: The prop in the hand's grip frame.
+   * Parameter points: The working point, optional working-line origin and edge; a
+   * blade's `point` and `edge` when absent.
+   * Returns: The tool in the hand's frame.
+   * When a named affordance is absent, listing the ones
+   * it has, or named working-line endpoints coincide.
    */
   export function read(
     held: IAutoMovieMotionHumanHeld.IHeld,
@@ -120,16 +119,15 @@ export namespace StrikingHeldFrame {
     };
   }
 
-  /**
+  /*
    * The unit part of a direction perpendicular to an axis; source-frame
    * alternatives resolve a parallel direction without changing its roll under a
    * rigid scene transform.
-   *
-   * @param axis The unit working axis.
-   * @param direction The preferred edge direction.
-   * @param fallback Alternative directions, the canonical hand axes when
-   *   absent.
-   * @returns A perpendicular unit vector.
+   * Parameter axis: The unit working axis.
+   * Parameter direction: The preferred edge direction.
+   * Parameter fallback: Alternative directions, the canonical hand axes when
+   * absent.
+   * Returns: A perpendicular unit vector.
    */
   export const square = (
     axis: IAutoMovieVector3,
@@ -153,8 +151,12 @@ export namespace StrikingHeldFrame {
   };
 }
 
-/** The record of `IReadEdged`'s site. */
+/*
+ * The record of `IReadEdged`'s site.
+ */
 type IReadEdged = { point: IAutoMovieVector3; direction: IAutoMovieVector3 };
 
-/** The record of `IReadTip`'s site. */
+/*
+ * The record of `IReadTip`'s site.
+ */
 type IReadTip = { point: IAutoMovieVector3; direction: IAutoMovieVector3 };

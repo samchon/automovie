@@ -6,7 +6,7 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * An artistic figure's schedule over its 4 s: the flat scull, the support scull
  * from 1.35 s, the figure at 2.3 s and the return from 3.15 s, all delayed by
  * 0.35 s per phase step; an assisted role grips 0.14 s either side of the
@@ -14,12 +14,11 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * (World Aquatics Artistic Swimming Manual, Group B), its left foot on the left
  * base's right palm and its right foot on the right base's left palm, the hands
  * nearest the group's middle. The timing is authored for this film figure.
- *
- * @param subject The performer.
- * @param params The performer's role, its bases when it flies, and its phase.
- * @returns The schedule.
- * @throws {HumanRefusal} When a flyer has no bases, two of the same, or itself
- *   among them.
+ * Parameter subject: The performer.
+ * Parameter params: The performer's role, its bases when it flies, and its phase.
+ * Returns: The schedule.
+ * When a flyer has no bases, two of the same, or itself
+ * among them.
  */
 export function aquaticArtisticSchedule(
   subject: string,
@@ -90,47 +89,77 @@ export function aquaticArtisticSchedule(
   };
 }
 
-/** The artistic figure's schedule. */
+/*
+ * The artistic figure's schedule.
+ */
 export namespace aquaticArtisticSchedule {
-  /** The figure's seconds. */
+  /*
+   * The figure's seconds.
+   */
   export const DURATION: number = 4;
 
-  /** What the schedule reads of the performer's parameters. */
+  /*
+   * What the schedule reads of the performer's parameters.
+   */
   export interface IParams {
-    /** The performer's part in the figure. */
+    /*
+     * The performer's part in the figure.
+     */
     role?: string;
 
-    /** The flyer's left and right bases. */
+    /*
+     * The flyer's left and right bases.
+     */
     bases?: readonly [string, string];
 
-    /** The performer's delay in 0.35 s steps. */
+    /*
+     * The performer's delay in 0.35 s steps.
+     */
     phase?: number;
   }
 
-  /** The figure's marks, its cues and the flyer's support windows. */
+  /*
+   * The figure's marks, its cues and the flyer's support windows.
+   */
   export interface ISchedule {
-    /** The flyer's bases; none for another role. */
+    /*
+     * The flyer's bases; none for another role.
+     */
     bases: readonly [string, string] | undefined;
 
-    /** The support scull's start, seconds. */
+    /*
+     * The support scull's start, seconds.
+     */
     vertical: number;
 
-    /** The figure's peak, seconds. */
+    /*
+     * The figure's peak, seconds.
+     */
     high: number;
 
-    /** The return's start, seconds. */
+    /*
+     * The return's start, seconds.
+     */
     back: number;
 
-    /** The grip's start, seconds. */
+    /*
+     * The grip's start, seconds.
+     */
     gripStart: number;
 
-    /** The grip's end, seconds. */
+    /*
+     * The grip's end, seconds.
+     */
     gripEnd: number;
 
-    /** The figure's cues. */
+    /*
+     * The figure's cues.
+     */
     events: IAutoMovieMotionEvent[];
 
-    /** The flyer's feet borne on its bases' palms. */
+    /*
+     * The flyer's feet borne on its bases' palms.
+     */
     contacts: IAutoMovieMotionHumanContactWindow[];
   }
 }

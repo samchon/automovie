@@ -2,7 +2,7 @@ import type { IAutoMovieInterpolateMonotone } from "@automovie/interface";
 
 import { AutoMovieMonotone } from "../../AutoMovieMonotone";
 
-/**
+/*
  * Build a shape-preserving piecewise cubic interpolant through knots, the
  * Fritsch-Carlson scheme.
  *
@@ -26,15 +26,14 @@ import { AutoMovieMonotone } from "../../AutoMovieMonotone";
  *
  * A single knot gives a constant curve. Knots must be finite and strictly
  * increasing, with one value per knot.
- *
- * @param props.knots Abscissae, finite and strictly increasing.
- * @param props.values Ordinates, one per knot, finite.
- * @param props.period Repeat length of a periodic curve; omitted, the curve is
- *   open.
- * @returns The interpolant, which evaluates in constant time after a binary
- *   search over the knots.
- * @throws Error when the knots are empty, unsorted or not finite, the values do
- *   not match them, or a period does not exceed the knot span.
+ * Parameter props.knots: Abscissae, finite and strictly increasing.
+ * Parameter props.values: Ordinates, one per knot, finite.
+ * Parameter props.period: Repeat length of a periodic curve; omitted, the curve is
+ * open.
+ * Returns: The interpolant, which evaluates in constant time after a binary
+ * search over the knots.
+ * Error when the knots are empty, unsorted or not finite, the values do
+ * not match them, or a period does not exceed the knot span.
  */
 export const interpolateAutoMovieMonotone: (
   props: IAutoMovieInterpolateMonotone.IProps,

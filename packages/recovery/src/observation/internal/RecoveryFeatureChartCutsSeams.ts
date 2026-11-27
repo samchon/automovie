@@ -6,7 +6,9 @@ import type {
   IAutoMovieRecoveryObservedMeshTopology,
 } from "@automovie/interface";
 
-/** Publish maximal feature arcs with their two actual coherent boundary banks. */
+/*
+ * Publish maximal feature arcs with their two actual coherent boundary banks.
+ */
 export function RecoveryFeatureChartCutsSeams(
   context: Parameters<IAutoMovieRecoveryFeatureChartCutsSeams.Operation>[0],
   fail: Parameters<IAutoMovieRecoveryFeatureChartCutsSeams.Operation>[1],

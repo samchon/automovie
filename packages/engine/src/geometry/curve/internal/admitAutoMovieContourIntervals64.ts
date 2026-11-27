@@ -3,7 +3,9 @@ import type {
   IAutoMoviePlanContourSlabs64Props,
 } from "@automovie/interface";
 
-/** Admit explicit adjacent intervals while retaining independent usable groups. */
+/*
+ * Admit explicit adjacent intervals while retaining independent usable groups.
+ */
 export function admitAutoMovieContourIntervals64(
   props: IAutoMoviePlanContourSlabs64Props,
 ): Map<number, IAutoMovieContourLoft64.IInterval> | undefined {

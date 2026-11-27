@@ -5,7 +5,7 @@ import type {
 
 import { KickboxingRing } from "./KickboxingRing";
 
-/**
+/*
  * The knockdown procedure's clock and corner (GLORY Rules 5.05.B.2 to 5 and
  * Appendix 3.D, as inspected in the kickboxing research): the standing fighter
  * goes to the farthest neutral corner and faces the centre before the count
@@ -15,20 +15,23 @@ import { KickboxingRing } from "./KickboxingRing";
  * a timing the rulebook quotes.
  */
 export namespace KnockdownCount {
-  /** The last number of the count. */
+  /*
+   * The last number of the count.
+   */
   export const TEN: number = 10;
 
-  /** The number at which readiness is assessed. */
+  /*
+   * The number at which readiness is assessed.
+   */
   export const READINESS: number = 8;
 
-  /**
+  /*
    * The second a number lands.
-   *
-   * @param start Film second the count starts (the standing fighter in the
-   *   corner).
-   * @param number A whole number from one to ten.
-   * @returns Film seconds.
-   * @throws {Error} When the number is not one to ten.
+   * Parameter start: Film second the count starts (the standing fighter in the
+   * corner).
+   * Parameter number: A whole number from one to ten.
+   * Returns: Film seconds.
+   * When the number is not one to ten.
    */
   export function number(start: number, number: number): number {
     if (!(number >= 1 && number <= TEN))
@@ -36,13 +39,12 @@ export namespace KnockdownCount {
     return start + number;
   }
 
-  /**
+  /*
    * The neutral corner farther from the fallen fighter.
-   *
-   * @param ring The ring.
-   * @param fallen The fallen fighter's floor point, world metres.
-   * @param margin How far inside the ropes the standing fighter waits, metres.
-   * @returns The corner's floor point, world metres.
+   * Parameter ring: The ring.
+   * Parameter fallen: The fallen fighter's floor point, world metres.
+   * Parameter margin: How far inside the ropes the standing fighter waits, metres.
+   * Returns: The corner's floor point, world metres.
    */
   export function corner(
     ring: IAutoMovieMotionHumanKickboxingRing.IRing,

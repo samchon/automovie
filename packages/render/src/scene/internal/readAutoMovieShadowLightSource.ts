@@ -1,7 +1,7 @@
 import type { IAutoMovieLight } from "@automovie/interface";
 import type * as THREE from "three";
 
-/**
+/*
  * Project one actual punctual light into the Engine's shadow-caster identity.
  * The caller supplies the authored or runtime identity. Native class markers
  * own the kind and castShadow owns participation, independent of visibility.

@@ -1,4 +1,4 @@
-/**
+/*
  * Name of the viewer object drawing one surface graphic track, which is also
  * its semantic mask id: `surface-graphic:<node>/<surface>`.
  *

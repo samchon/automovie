@@ -138,7 +138,9 @@ export namespace swingTwistBasis {
   }
 }
 
-/** The shared swing weights and original per-component direction grouping. */
+/*
+ * The shared swing weights and original per-component direction grouping.
+ */
 function directionOnRay(
   basis: IAutoMovieSwingTwistBasis.IBasis,
   swingRadians: number,

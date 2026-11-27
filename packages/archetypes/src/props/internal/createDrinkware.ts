@@ -4,7 +4,7 @@ import { Vector3 } from "@automovie/engine";
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal } from "../../core";
 import "../constants/DRINKWARE_BANDS";
 
-/**
+/*
  * A drinking vessel: a mug, a cup, a drinking glass, a wine glass, or a beer,
  * water or wine bottle.
  *
@@ -23,14 +23,13 @@ import "../constants/DRINKWARE_BANDS";
  * middle finger are broad and as deep as the thicker of them, so the two
  * fingers pass through it, its bar an industrial handle's read thickness as an
  * analogue; the fingers' hook grip reads the loop's clearance, not the bar.
- *
- * @param params The kind, how full it is and any dimension the author fixes.
- * @param seed The seed that picks the model when none is given and draws every
- *   dimension left free inside its band; absent, the first model and the middle
- *   of each band.
- * @returns The vessel.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or
- *   a fill outside 0 to 1.
+ * Parameter params: The kind, how full it is and any dimension the author fixes.
+ * Parameter seed: The seed that picks the model when none is given and draws every
+ * dimension left free inside its band; absent, the first model and the middle
+ * of each band.
+ * Returns: The vessel.
+ * For a fixed dimension outside its band or
+ * a fill outside 0 to 1.
  */
 export function createDrinkware(
   params: AutoMovieArchetypeDrinkware.IParams,
@@ -251,7 +250,9 @@ export function createDrinkware(
   );
 }
 
-/** The readable name of each kind. */
+/*
+ * The readable name of each kind.
+ */
 const NAMES: Readonly<Record<AutoMovieArchetypeDrinkware.Kind, string>> = {
   mug: "mug",
   cup: "cup",
@@ -262,7 +263,7 @@ const NAMES: Readonly<Record<AutoMovieArchetypeDrinkware.Kind, string>> = {
   wineBottle: "wine bottle",
 };
 
-/**
+/*
  * The flat colour each kind is drawn in, picture only: a glazed mug, clear
  * glass, brown glass for beer, a clear pale blue for water and dark green glass
  * for wine, so the bottles are told apart on a still.
@@ -277,7 +278,9 @@ const COLORS: Readonly<Record<AutoMovieArchetypeDrinkware.Kind, string>> = {
   wineBottle: "#1f4d2b",
 };
 
-/** What each kind holds when full, litres: the capacity its sources state. */
+/*
+ * What each kind holds when full, litres: the capacity its sources state.
+ */
 const CAPACITY: Readonly<Record<AutoMovieArchetypeDrinkware.Kind, number>> = {
   mug: 0.24,
   cup: 0.18,

@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryImageFeaturesMatchingOperation } from "@automovie/interface";
 
-/**
+/*
  * Compare every admitted descriptor pair once and retain unique mutual matches.
  * The strict Euclidean ratio requires a distinct second feature in the other
  * image. Reverse exact ties refuse rather than choosing a material identity by

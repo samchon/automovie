@@ -16,7 +16,9 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { crawlFrame } from "./crawlFrame";
 
-/** Upright lengths and lateral places read by this chain's preparation. */
+/*
+ * Upright lengths and lateral places read by this chain's preparation.
+ */
 const MEASURED: ReadonlySet<AutoMovieHumanoidBone> = new Set([
   "leftUpperArm",
   "rightUpperArm",
@@ -26,14 +28,13 @@ const MEASURED: ReadonlySet<AutoMovieHumanoidBone> = new Set([
   "rightLowerLeg",
 ]);
 
-/**
+/*
  * Build the chain for a body.
- *
- * @param body The body.
- * @param standing The standing posture the walk starts from.
- * @param frame The floor frame of the heading, its origin under the root.
- * @param forward The heading's unit vector.
- * @returns The chain.
+ * Parameter body: The body.
+ * Parameter standing: The standing posture the walk starts from.
+ * Parameter frame: The floor frame of the heading, its origin under the root.
+ * Parameter forward: The heading's unit vector.
+ * Returns: The chain.
  */
 export function crawlChain(
   body: IAutoMovieMotionHumanBody,
@@ -104,18 +105,26 @@ export function crawlChain(
     origin: { x: 0, y: 0, z: 0 },
     yaw,
   });
-  /**
+  /*
    * Fixed foot and leg offsets for one exact elevation, before current
    * translation.
    */
   interface IGeometry {
-    /** Degrees of heel lift. */
+    /*
+     * Degrees of heel lift.
+     */
     heel: number;
-    /** Current native pivot's ankle offset, heading-local metres. */
+    /*
+     * Current native pivot's ankle offset, heading-local metres.
+     */
     ankle: IAutoMovieVector3;
-    /** Hip offset forward from the ankle, metres. */
+    /*
+     * Hip offset forward from the ankle, metres.
+     */
     along: number;
-    /** Hip offset above the ankle, metres. */
+    /*
+     * Hip offset above the ankle, metres.
+     */
     up: number;
   }
   const geometryAt: (lam: number) => IGeometry = (lam: number): IGeometry => {
@@ -288,7 +297,7 @@ export function crawlChain(
   };
 }
 
-/**
+/*
  * The inchworm's reaches, solved on its body in its middle plane: a chain from
  * the feet's balls to the wrists, from which the fold's and the plank's
  * distances from the feet to the hands are read, and the shape at each
@@ -316,87 +325,127 @@ export function crawlChain(
  * tell them apart.
  */
 export namespace crawlChain {
-  /**
+  /*
    * Degrees the fold keeps short of the end of the hip's flexion range
    * (provisional).
    */
   export const SPARE: number = 5;
 
-  /**
+  /*
    * The leg's reach from the hip joint to the ankle as a share of the thigh and
    * the shank: the knee just short of locked (provisional).
    */
   export const LEG: number = 0.99;
 
-  /**
+  /*
    * The arm's reach from the shoulder to the wrist as a share of the upper arm
    * and the forearm: the elbow just short of locked (as `crawl.ARM`).
    */
   export const ARM: number = 0.98;
 
-  /** The leg's lowest elevation the chain is sought at, degrees over the floor. */
+  /*
+   * The leg's lowest elevation the chain is sought at, degrees over the floor.
+   */
   export const LOWEST: number = 5;
 
-  /** A point of the middle plane. */
+  /*
+   * A point of the middle plane.
+   */
   export interface IPlanar {
-    /** Metres forward along the heading from the frame's origin. */
+    /*
+     * Metres forward along the heading from the frame's origin.
+     */
     u: number;
 
-    /** Metres up from the floor. */
+    /*
+     * Metres up from the floor.
+     */
     v: number;
   }
 
-  /** The leg of the chain. */
+  /*
+   * The leg of the chain.
+   */
   export interface ILeg {
-    /** The leg's elevation over the floor toward the hands, degrees; 90 upright. */
+    /*
+     * The leg's elevation over the floor toward the hands, degrees; 90 upright.
+     */
     lam: number;
 
-    /** The heel's lift about the ball, degrees. */
+    /*
+     * The heel's lift about the ball, degrees.
+     */
     heel: number;
 
-    /** The ankles' middle. */
+    /*
+     * The ankles' middle.
+     */
     ankle: IPlanar;
 
-    /** The hip joints' middle. */
+    /*
+     * The hip joints' middle.
+     */
     hips: IPlanar;
   }
 
-  /** The chain solved. */
+  /*
+   * The chain solved.
+   */
   export interface IShape extends ILeg {
-    /** The shoulder joints' middle. */
+    /*
+     * The shoulder joints' middle.
+     */
     shoulders: IPlanar;
 
-    /** The hip angle between the leg and the trunk, degrees. */
+    /*
+     * The hip angle between the leg and the trunk, degrees.
+     */
     hip: number;
   }
 
-  /** The chain built for one body standing. */
+  /*
+   * The chain built for one body standing.
+   */
   export interface IChain {
-    /**
+    /*
      * The chain with the feet's balls' middle at `mu` and the wrists' at
      * `wrist`, both along the heading in metres.
      */
     shape(mu: number, wrist: number): IShape;
 
-    /** The trunk's forward lean from the hips to the shoulders upright, degrees. */
+    /*
+     * The trunk's forward lean from the hips to the shoulders upright, degrees.
+     */
     lean: number;
 
-    /** How far before the balls the wrists reach in the fold, metres. */
+    /*
+     * How far before the balls the wrists reach in the fold, metres.
+     */
     folding: number;
 
-    /** How far before the balls the wrists reach in the plank, metres. */
+    /*
+     * How far before the balls the wrists reach in the plank, metres.
+     */
     plank: number;
 
-    /** Each wrist from its flat palm, metres in the heading's frame. */
+    /*
+     * Each wrist from its flat palm, metres in the heading's frame.
+     */
     wrists: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
-    /** Each palm's lateral place under its shoulder, metres in the floor frame. */
+    /*
+     * Each palm's lateral place under its shoulder, metres in the floor frame.
+     */
     palms: Record<AutoMovieHumanSide, number>;
 
-    /** Each foot's ball standing, in the floor frame. */
+    /*
+     * Each foot's ball standing, in the floor frame.
+     */
     balls: Record<AutoMovieHumanSide, IAutoMovieVector3>;
   }
 }
 
-/** The record of `IOfDescendNearest`'s site. */
+/*
+ * The record of `IOfDescendNearest`'s site.
+ */
 type IOfDescendNearest = { lam: number; residual: number };

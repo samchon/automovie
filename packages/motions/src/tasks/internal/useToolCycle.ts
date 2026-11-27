@@ -9,16 +9,15 @@ import type {
 import { HumanToolWork } from "./HumanToolWork";
 import { useTool } from "./useTool";
 
-/**
+/*
  * The hand at a phase of the work, 0 at a contact and periodic in 1: a hammer's
  * head rising about the wrist and coming down on the work, a saw's teeth
  * running a quarter of the forearm either way of the work point (Starke and
  * Baber 2017, experiment 5), and each other kind's own stroke.
  *
  * Part of `useTool.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `cycle`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `cycle`.
  */
 export function useToolCycle(
   prepared: useToolCycle.IPrepared,
@@ -66,40 +65,64 @@ export function useToolCycle(
   };
 }
 
-/** The `cycle` of `useTool.plan`, built from what that plan prepared. */
+/*
+ * The `cycle` of `useTool.plan`, built from what that plan prepared.
+ */
 export namespace useToolCycle {
-  /** The alternatives of `PlanCycle`'s site. */
+  /*
+   * The alternatives of `PlanCycle`'s site.
+   */
   export type PlanCycle = "grip" | "rotation";
 
-  /** The alternatives of `PlanTurn`'s site. */
+  /*
+   * The alternatives of `PlanTurn`'s site.
+   */
   export type PlanTurn = "grip" | "rotation";
 
-  /** What `useTool.plan` prepared for its `cycle`. */
+  /*
+   * What `useTool.plan` prepared for its `cycle`.
+   */
   export interface IPrepared {
-    /** The `kind` `useTool.plan` prepared. */
+    /*
+     * The `kind` `useTool.plan` prepared.
+     */
     kind: IAutoMovieMotionHumanToolWork.Kind;
 
-    /** The `turn` `useTool.plan` prepared. */
+    /*
+     * The `turn` `useTool.plan` prepared.
+     */
     turn: ((degrees: number) => Pick<useTool.IWork, PlanTurn>) | undefined;
 
-    /** The `pose` `useTool.plan` prepared. */
+    /*
+     * The `pose` `useTool.plan` prepared.
+     */
     pose: useTool.IWork;
 
-    /** The body's forearm length, metres. */
+    /*
+     * The body's forearm length, metres.
+     */
     m: Pick<IAutoMovieMotionHumanBody["measure"], "forearm">;
 
-    /** The `work` `useTool.plan` prepared. */
+    /*
+     * The `work` `useTool.plan` prepared.
+     */
     work: HumanToolWork.IWork;
 
-    /** The `forward` `useTool.plan` prepared. */
+    /*
+     * The `forward` `useTool.plan` prepared.
+     */
     forward: IAutoMovieVector3;
 
-    /** The `left` `useTool.plan` prepared. */
+    /*
+     * The `left` `useTool.plan` prepared.
+     */
     left: IAutoMovieVector3;
   }
 }
 
-/** The record of `IPlanCycleResult`'s site. */
+/*
+ * The record of `IPlanCycleResult`'s site.
+ */
 type IPlanCycleResult = {
   grip: IAutoMovieVector3;
   rotation: IAutoMovieQuaternion;

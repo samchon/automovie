@@ -8,7 +8,9 @@ import {
 
 import { SKELETON_ROOT_PARENT } from "../SKELETON_ROOT_PARENT";
 
-/** Group declared bones by parent. Reject duplicate names before traversal. */
+/*
+ * Group declared bones by parent. Reject duplicate names before traversal.
+ */
 export function indexSkeletonTopologyChildren(
   skeleton: IAutoMovieSkeleton,
 ): IAutoMovieSkeletonTopology["childrenByParent"] {

@@ -11,7 +11,7 @@ import type {
 
 import type { bindHumanSimulationGrips } from "./bindHumanSimulationGrips";
 
-/**
+/*
  * One performer of a simulated window as a body of the engine's input: its
  * sampled poses as targets, and at each step which of its segments the solver
  * owns and how strongly they track.
@@ -35,10 +35,9 @@ import type { bindHumanSimulationGrips } from "./bindHumanSimulationGrips";
  * past-last steps and a partner's release, so the window is cut at those steps
  * once, and each span's physical subtree and bindings are built once and shared
  * by its steps.
- *
- * @param props The performer, its solved profile and samples, the mode and the
- *   window's schedule.
- * @returns The engine body.
+ * Parameter props: The performer, its solved profile and samples, the mode and the
+ * window's schedule.
+ * Returns: The engine body.
  */
 export function planHumanSimulationBody(
   props: planHumanSimulationBody.IProps,
@@ -180,96 +179,128 @@ export function planHumanSimulationBody(
   };
 }
 
-/** Companion types and constants of {@link planHumanSimulationBody}. */
+/*
+ * Companion types and constants of planHumanSimulationBody.
+ */
 export namespace planHumanSimulationBody {
-  /**
+  /*
    * Seconds a physical subtree takes to return to authored motion: the engine's
    * documented default
    * (`IAutoMoviePhysicalSimulationInput.IBody.handoffSeconds`).
    */
   export const HANDOFF: number = 0.2;
 
-  /**
+  /*
    * The engine's default native contact tolerance, metres
    * (`IAutoMoviePhysicalSimulationInput.IInput.contactTolerance`), the residual
    * a binding fit may stop at.
    */
   export const CONTACT_TOLERANCE: number = 0.0001;
 
-  /**
+  /*
    * Bounded geometric updates per binding fit: the engine's admitted maximum
    * (`IAutoMoviePhysicalContactBinding.iterations`).
    */
   export const ITERATIONS: number = 32;
 
-  /** An impulse already placed on the window's grid. */
+  /*
+   * An impulse already placed on the window's grid.
+   */
   export interface IImpulse {
-    /**
+    /*
      * The step whose opening boundary it lands on, 1 to the window's interval
      * count.
      */
     step: number;
 
-    /** The struck performer. */
+    /*
+     * The struck performer.
+     */
     body: string;
 
-    /** The struck profile segment. */
+    /*
+     * The struck profile segment.
+     */
     bone: string;
   }
 
-  /**
+  /*
    * The steps from one cut to the next, over which the solver owns the same
    * segments under the same bindings.
    */
   export interface ISpan {
-    /** The span's first step. */
+    /*
+     * The span's first step.
+     */
     first: number;
 
-    /** The segments the solver owns, in code-unit order. */
+    /*
+     * The segments the solver owns, in code-unit order.
+     */
     dynamicSegments: string[];
 
-    /** The grips bound over the span. */
+    /*
+     * The grips bound over the span.
+     */
     bindings: IAutoMoviePhysicalContactBinding[];
   }
 
-  /** What one performer's body is planned from. */
+  /*
+   * What one performer's body is planned from.
+   */
   export interface IProps {
-    /** The performer, the body's id. */
+    /*
+     * The performer, the body's id.
+     */
     subject: string;
 
-    /**
+    /*
      * The profile the window solves for the performer, welded as
      * `weldHumanSimulationProfile` welds it.
      */
     profile: IAutoMoviePhysicalProfile;
 
-    /** The window's mode. */
+    /*
+     * The window's mode.
+     */
     mode: IAutoMoviePerformanceMode;
 
-    /** The sampled world segment poses, steps 0 to the interval count. */
+    /*
+     * The sampled world segment poses, steps 0 to the interval count.
+     */
     targets: readonly Record<string, IAutoMovieRigidTransform>[];
 
-    /** Every impulse of the window. */
+    /*
+     * Every impulse of the window.
+     */
     impulses: readonly IImpulse[];
 
-    /** Every grip of the window. */
+    /*
+     * Every grip of the window.
+     */
     grips: readonly bindHumanSimulationGrips.IGrip[];
 
-    /**
+    /*
      * Each simulated performer's release step; past the interval count for one
      * never released.
      */
     releases: ReadonlyMap<string, number>;
 
-    /** Coupled-group label by step, then by performer. */
+    /*
+     * Coupled-group label by step, then by performer.
+     */
     groups: ReadonlyMap<number, ReadonlyMap<string, string>>;
 
-    /** The last step the solver may own a segment; later steps hand back. */
+    /*
+     * The last step the solver may own a segment; later steps hand back.
+     */
     end: number;
   }
 }
 
-/** Code-unit order of two ids, the deterministic order of a label. */
+/*
+ * Code-unit order of two ids, the deterministic order of a label.
+ */
 function ordinal(a: string, b: string): number {
   return a < b ? -1 : a > b ? 1 : 0;
 }

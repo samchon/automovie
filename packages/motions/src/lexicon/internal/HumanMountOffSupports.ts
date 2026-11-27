@@ -25,33 +25,51 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/** A dismount's material-frame custody up to the instant it leaves support. */
+/*
+ * A dismount's material-frame custody up to the instant it leaves support.
+ */
 export namespace HumanMountOffSupports {
-  /** A prepared world frame, frozen at the actual release for flight. */
+  /*
+   * A prepared world frame, frozen at the actual release for flight.
+   */
   export interface IFrame extends IRate {
-    /** The last held pose, on the exact release second. */
+    /*
+     * The last held pose, on the exact release second.
+     */
     readonly end: IAutoMovieRigidTransform;
 
-    /** The world frame at an action second. */
+    /*
+     * The world frame at an action second.
+     */
     at(seconds: number): IAutoMovieRigidTransform;
   }
 
-  /** The goal while the foot bears, and its world placement on departing. */
+  /*
+   * The goal while the foot bears, and its world placement on departing.
+   */
   export interface IFoot extends IRate {
-    /** The last supported foot goal. */
+    /*
+     * The last supported foot goal.
+     */
     readonly end: Foot;
 
-    /** The goal at an action second. */
+    /*
+     * The goal at an action second.
+     */
     at(seconds: number): Foot;
   }
 
-  /** The dismount's already-authored world trajectory receives this offset. */
+  /*
+   * The dismount's already-authored world trajectory receives this offset.
+   */
   export type Offset = (elapsed: number) => IAutoMovieRigidTransform;
 
-  /** A stationary frame has neither linear nor angular motion. */
+  /*
+   * A stationary frame has neither linear nor angular motion.
+   */
   const STILL: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
-  /**
+  /*
    * Prepare a named entry plant from its displayed ankle and knee. The raw
    * goal supplies the material ball socket, and the displayed joints supply
    * the branch the solver actually chose.
@@ -141,7 +159,7 @@ export namespace HumanMountOffSupports {
     return out;
   }
 
-  /**
+  /*
    * Read the named material when one is declared. A stationary interval is
    * borrowed only when the original rigid carrier proves the whole hold.
    */
@@ -171,7 +189,7 @@ export namespace HumanMountOffSupports {
     );
   }
 
-  /**
+  /*
    * Keep a displayed pose in the material's coordinates until release. The
    * actual release is prepared once, so a free pose never reads the carrier.
    */
@@ -224,7 +242,7 @@ export namespace HumanMountOffSupports {
     };
   }
 
-  /**
+  /*
    * Follow the held ankle's full rotation with its knee and leave the ball
    * socket and the measured swivel branch in their owning ankle coordinates.
    */
@@ -256,7 +274,7 @@ export namespace HumanMountOffSupports {
     };
   }
 
-  /**
+  /*
    * Add the outgoing material's measured motion to a stationary-ended flight
    * curve. The quintic's first derivative is one at release and its value
    * and derivatives are zero at the destination, so the floor is unaltered.
@@ -285,22 +303,34 @@ export namespace HumanMountOffSupports {
     };
   }
 
-  /** A measured world twist at the exact outgoing support boundary. */
+  /*
+   * A measured world twist at the exact outgoing support boundary.
+   */
   interface IRate {
-    /** Linear velocity, world metres per second. */
+    /*
+     * Linear velocity, world metres per second.
+     */
     readonly velocity: IAutoMovieVector3;
 
-    /** Angular velocity, world radians per second. */
+    /*
+     * Angular velocity, world radians per second.
+     */
     readonly spin: IAutoMovieVector3;
   }
 
-  /** A support's world frame at a film second. */
+  /*
+   * A support's world frame at a film second.
+   */
   type Read = (film: number) => IAutoMovieRigidTransform;
 
-  /** A planted foot's exact world goal, including its complete orientation. */
+  /*
+   * A planted foot's exact world goal, including its complete orientation.
+   */
   type Foot = IAutoMovieHumanLimbGoal & { rotation: IAutoMovieQuaternion };
 
-  /** The source pose and named material readers of the dismount. */
+  /*
+   * The source pose and named material readers of the dismount.
+   */
   type Context = Pick<
     IAutoMovieMotionHumanActionContext,
     "body" | "entry" | "prop" | "start"

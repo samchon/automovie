@@ -13,9 +13,11 @@ import { MotionTrajectoryStepper } from "./trajectory/MotionTrajectoryStepper";
 const { turn, scaled, dexpinv }: typeof MotionTrajectoryRotation =
   MotionTrajectoryRotation;
 
-/** Private integration implementation used by the Motion Trajectory owner. */
+/*
+ * Private integration implementation used by the Motion Trajectory owner.
+ */
 export namespace integrateMotionTrajectory {
-  /**
+  /*
    * A trajectory planned once and read by time: the solution of `dx/dt = f(t, x)`
    * from `t0` to `t1` by classical fourth-order Runge-Kutta at a fixed step, its
    * knots kept with their derivatives and read between them by cubic Hermite
@@ -53,15 +55,14 @@ export namespace integrateMotionTrajectory {
    * This wrapper checks vector lengths and the presence of an angular rate for an
    * oriented state; it does not validate the components of x0, dx or w for
    * finiteness.
-   *
-   * @param props The right-hand side, the start state, the interval and the step.
-   * @returns The trajectory.
-   * @throws {Error} When interval, step, tolerance, partition, failure scope or
-   *   defect-mode combination is invalid, a fixed step's count over the interval
-   *   is not a safe integer, the state is empty, required rate shape is missing,
-   *   a defect is negative/NaN, adaptive refinement reaches time resolution, or
-   *   adaptive stepping needs more than DOPRI5's default maximum of 100000 step
-   *   attempts. Errors from the pure physical model propagate unchanged.
+   * Parameter props: The right-hand side, the start state, the interval and the step.
+   * Returns: The trajectory.
+   * When interval, step, tolerance, partition, failure scope or
+   * defect-mode combination is invalid, a fixed step's count over the interval
+   * is not a safe integer, the state is empty, required rate shape is missing,
+   * a defect is negative/NaN, adaptive refinement reaches time resolution, or
+   * adaptive stepping needs more than DOPRI5's default maximum of 100000 step
+   * attempts. Errors from the pure physical model propagate unchanged.
    */
   export function integrate(
     props: IAutoMovieIntegrateMotionTrajectory.IProps,
@@ -244,13 +245,13 @@ export namespace integrateMotionTrajectory {
     return MotionTrajectoryRead.fixed({ t0, t1, h, times, xs, qs, ks, oriented });
   }
 
-    /**
-   * Actual fixed Hermite knot data; the top-level owner documents its units and
-   * independent arrays.
-   */
+    /*
+     * Actual fixed Hermite knot data; the top-level owner documents its units and
+     * independent arrays.
+     */
   export type IInterval = IAutoMovieMotionTrajectoryInterval;
 
-  /**
+  /*
    * The default step, seconds: a sixtieth of a second, under which the
    * classical method's error stays far below a millimetre for the motions
    * planned (#3424).

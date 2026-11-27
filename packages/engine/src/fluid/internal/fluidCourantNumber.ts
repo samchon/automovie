@@ -1,6 +1,6 @@
 import { IAutoMovieFluidDomain } from "@automovie/interface";
 
-/**
+/*
  * The domain's gravity-wave Courant expression `dt * sqrt(g * H) * sqrt(1/dx² +
  * 1/dz²)`, with H the solver's design referenceDepth.
  *

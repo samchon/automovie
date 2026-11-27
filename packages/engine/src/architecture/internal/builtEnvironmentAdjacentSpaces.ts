@@ -6,7 +6,7 @@ import {
 import { builtConnectorStops } from "./builtConnectorStops";
 import { requireBuiltSpace } from "./requireBuiltSpace";
 
-/**
+/*
  * Return spaces directly joined by a boundary or traversal connector.
  *
  * A run reaches every stop it declares, not only its two ends: a lift serving

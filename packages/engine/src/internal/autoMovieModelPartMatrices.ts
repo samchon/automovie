@@ -7,7 +7,7 @@ import {
 import { resolvePose } from "../kinematics/internal/resolvePose";
 import { Matrix4 } from "../math/Matrix4";
 
-/**
+/*
  * The column-major matrix that carries each part's local geometry into the
  * model's own frame, or `null` for a part already authored in it.
  *
@@ -18,9 +18,8 @@ import { Matrix4 } from "../math/Matrix4";
  * no resolved bone, so a caller can keep its coordinates bit for bit instead of
  * multiplying by an identity. The rest pose is resolved at most once, and only
  * when some part is attached. Units are model metres.
- *
- * @param model Model whose parts are placed.
- * @returns One entry per part object of `model.parts`, in part order.
+ * Parameter model: Model whose parts are placed.
+ * Returns: One entry per part object of `model.parts`, in part order.
  */
 export const autoMovieModelPartMatrices = (
   model: IAutoMovieModel,

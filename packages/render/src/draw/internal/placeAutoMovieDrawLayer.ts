@@ -6,7 +6,7 @@ import type {
 
 import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
 
-/**
+/*
  * Place a draw subject as one layer of its film picture shows it at an output
  * second: on that layer's own entry clock, never on another entry's.
  *
@@ -29,14 +29,13 @@ import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
  * is live at, its in-point or the last representable second before the next
  * entry's start, so a cut's first frame shows nothing of the previous shot and
  * only its shutter trail is shorter.
- *
- * @param name The subject's name, which an error names.
- * @param scene The created subject.
- * @param layer The layer's entry and shot, or null for a subject placed on the
- *   film clock alone.
- * @param seconds The output second placed: the drawn one, a sample's or a
- *   trail's.
- * @returns The subject's placement promise.
+ * Parameter name: The subject's name, which an error names.
+ * Parameter scene: The created subject.
+ * Parameter layer: The layer's entry and shot, or null for a subject placed on the
+ * film clock alone.
+ * Parameter seconds: The output second placed: the drawn one, a sample's or a
+ * trail's.
+ * Returns: The subject's placement promise.
  */
 export async function placeAutoMovieDrawLayer(
   name: string,
@@ -72,7 +71,7 @@ export async function placeAutoMovieDrawLayer(
   );
 }
 
-/**
+/*
  * The largest double below a positive finite `value`, the last second before
  * it; `value` itself for zero, and for an infinite value, which no second
  * reaches.

@@ -1,4 +1,4 @@
-/**
+/*
  * Filter one finite grayscale chart with separable sampled Gaussian kernels.
  * First derivatives use the derivative of the Gaussian, not a finite difference
  * of an unrelated blur. Four-sigma truncation and half-sample reflection follow

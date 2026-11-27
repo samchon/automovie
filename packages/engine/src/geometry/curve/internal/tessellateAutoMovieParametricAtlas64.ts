@@ -8,7 +8,7 @@ import type {
 import { AutoMovieCanonicalBoundary64 as Q } from "../../AutoMovieCanonicalBoundary64";
 import { AutoMovieCurveMath64 as M } from "../../AutoMovieCurveMath64";
 
-/**
+/*
  * Sample finite parametric charts with declared boundary incidence. Fields and
  * first partials use millimetres; output positions use metres. The four sides
  * are bottom/right/top/left, each in its increasing local coordinate. Exact
@@ -349,7 +349,7 @@ export function tessellateAutoMovieParametricAtlas64(
         diagnostics.push(`${patch.id}: no nonzero-area triangle survived`);
       }
 
-      /**
+      /*
        * Canonical owners determine position; the actual chart determines its
        * normal.
        */

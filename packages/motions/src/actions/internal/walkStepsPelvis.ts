@@ -15,15 +15,14 @@ import { walkRoot } from "./walkRoot";
 import { walkStepFoot } from "./walkStepFoot";
 import { walkStride } from "./walkStride";
 
-/**
+/*
  * A walk's feet and pelvis (`walkSteps.plan`): each footfall's straight push,
  * each foot's scheduled stance from its own footfalls, and the pelvis path,
  * progression with smooth start and stop, sway and bob, read from the plan's
  * input, body, footfalls, path, pace and timing.
- *
- * @param scope What the plan schedules its feet and pelvis from.
- * @returns The first left heel strike, each foot's footfalls and schedule, and
- *   the pelvis's path and stride amount.
+ * Parameter scope: What the plan schedules its feet and pelvis from.
+ * Returns: The first left heel strike, each foot's footfalls and schedule, and
+ * the pelvis's path and stride amount.
  */
 export function walkStepsPelvis(
   scope: walkStepsPelvis.IScope,
@@ -130,129 +129,180 @@ export function walkStepsPelvis(
   return { firstLeft, own, foot, root, amount };
 }
 
-/** What a walk's feet and pelvis read and what they are. */
+/*
+ * What a walk's feet and pelvis read and what they are.
+ */
 export namespace walkStepsPelvis {
-  /** What a walk plan schedules its feet and pelvis from. */
+  /*
+   * What a walk plan schedules its feet and pelvis from.
+   */
   export interface IScope {
-    /** Both feet were airborne at an outgoing running cut. */
+    /*
+     * Both feet were airborne at an outgoing running cut.
+     */
     doubleFlight: boolean;
 
-    /** The walk's input. */
+    /*
+     * The walk's input.
+     */
     input: IAutoMovieMotionHumanWalkSteps.IInput;
 
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** Each foot's entered placement, laid flat. */
+    /*
+     * Each foot's entered placement, laid flat.
+     */
     start: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
-    /** The entered pelvis. */
+    /*
+     * The entered pelvis.
+     */
     placement: IAutoMovieVector3;
 
-    /** The walk's path on the floor. */
+    /*
+     * The walk's path on the floor.
+     */
     path: WalkPath;
 
-    /** The walk's pace. */
+    /*
+     * The walk's pace.
+     */
     pace: WalkPace;
 
-    /** A flight gait's stance, if the gait has flight. */
+    /*
+     * A flight gait's stance, if the gait has flight.
+     */
     flight: runStance.IStance | undefined;
 
-    /** What the walk faces; its way when absent. */
+    /*
+     * What the walk faces; its way when absent.
+     */
     facing: IAutoMovieMotionHumanWalkFacing.IFacing | undefined;
 
-    /** Whether the walk turns in place. */
+    /*
+     * Whether the walk turns in place.
+     */
     inPlace: boolean;
 
-    /** A flight gait's held heel rise. */
+    /*
+     * A flight gait's held heel rise.
+     */
     raised: number;
 
-    /** The footfalls. */
+    /*
+     * The footfalls.
+     */
     steps: walkStepFoot.IStep[];
 
-    /**
+    /*
      * The pelvis's heading at a second.
-     *
-     * @param t Action seconds.
-     * @returns The heading, degrees.
+     * Parameter t: Action seconds.
+     * Returns: The heading, degrees.
      */
     yawAt: (t: number) => number;
 
-    /** The step period, seconds. */
+    /*
+     * The step period, seconds.
+     */
     T: number;
 
-    /** The swing, seconds. */
+    /*
+     * The swing, seconds.
+     */
     swing: number;
 
-    /** The opening turn's time, seconds. */
+    /*
+     * The opening turn's time, seconds.
+     */
     lag: number;
 
-    /** The first toe-off, seconds. */
+    /*
+     * The first toe-off, seconds.
+     */
     first: number;
 
-    /** The last heel strike, seconds. */
+    /*
+     * The last heel strike, seconds.
+     */
     last: number;
 
-    /** The step periods a footprint lies ahead of its heel strike. */
+    /*
+     * The step periods a footprint lies ahead of its heel strike.
+     */
     front: number;
 
-    /**
+    /*
      * The pelvis's distance along the path at a second.
-     *
-     * @param t Action seconds.
-     * @returns The distance, metres.
+     * Parameter t: Action seconds.
+     * Returns: The distance, metres.
      */
     progress: (t: number) => number;
 
-    /**
+    /*
      * The path's heading at a distance, nearest the starting heading.
-     *
-     * @param s The distance, metres.
-     * @returns The heading, degrees.
+     * Parameter s: The distance, metres.
+     * Returns: The heading, degrees.
      */
     along$: (s: number) => number;
 
-    /**
+    /*
      * The heading faced at a floor point, nearest the starting heading.
-     *
-     * @param at The floor point.
-     * @returns The heading, degrees.
+     * Parameter at: The floor point.
+     * Returns: The heading, degrees.
      */
     faced$: (at: IAutoMovieVector3) => number;
   }
 
-  /** The feet's schedules and the pelvis's path. */
+  /*
+   * The feet's schedules and the pelvis's path.
+   */
   export interface IPelvis {
-    /** The first left heel strike, seconds. */
+    /*
+     * The first left heel strike, seconds.
+     */
     firstLeft: number;
 
-    /** Each foot's own footfalls. */
+    /*
+     * Each foot's own footfalls.
+     */
     own: Record<AutoMovieHumanSide, walkStepFoot.IStep[]>;
 
-    /**
+    /*
      * A foot's scheduled state at a second.
-     *
-     * @param side The foot.
-     * @param t Action seconds.
-     * @returns The scheduled state.
+     * Parameter side: The foot.
+     * Parameter t: Action seconds.
+     * Returns: The scheduled state.
      */
     foot: (
       side: AutoMovieHumanSide,
       t: number,
     ) => IAutoMovieMotionHumanWalkFoot.IScheduled;
 
-    /** The pelvis path (`IAutoMovieMotionHumanWalkSteps.IPlan.root`). */
+    /*
+     * The pelvis path (`IAutoMovieMotionHumanWalkSteps.IPlan.root`).
+     */
     root: IAutoMovieMotionHumanWalkSteps.IPlan["root"];
 
-    /** The stride's amount (`IAutoMovieMotionHumanWalkSteps.IPlan.amount`). */
+    /*
+     * The stride's amount (`IAutoMovieMotionHumanWalkSteps.IPlan.amount`).
+     */
     amount: IAutoMovieMotionHumanWalkSteps.IPlan["amount"];
   }
 }
 
-/** One footfall (`walkStepFoot.IStep`). */
+/*
+ * One footfall (`walkStepFoot.IStep`).
+ */
 type IStep = walkStepFoot.IStep;
-/** The alternatives of `Plan2`'s site. */
+/*
+ * The alternatives of `Plan2`'s site.
+ */
 type Plan2 = "root" | "amount";
 
-/** The record of `IPlanGaitBob`'s site. */
+/*
+ * The record of `IPlanGaitBob`'s site.
+ */
 type IPlanGaitBob = { mean: number; amplitude: number };

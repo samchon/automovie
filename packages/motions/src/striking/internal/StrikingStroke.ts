@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * One strike's end-joint path (the wrist or the ankle), from its launch through
  * an optional via point (a kick's chamber) to its contact and back, as
  * superposed minimum-jerk units, with the target's online corrections and the
@@ -13,7 +13,7 @@ import type {
  *
  * A strike aims through its target: its delivery unit would end beyond the
  * contact point, at the share where its speed has fallen to the measured share
- * of its peak at impact ({@link impactShare}), so it lands moving fast instead
+ * of its peak at impact (impactShare), so it lands moving fast instead
  * of arriving at rest. The unit's end is placed along the strike's declared
  * impact direction (straight on, across for a hook or a round kick, up for an
  * uppercut), and a correcting unit over the same span puts the joint exactly on
@@ -24,21 +24,20 @@ import type {
  * its return point.
  */
 export namespace StrikingStroke {
-  /**
+  /*
    * How long a weapon stays on the surface it met before it recoils, seconds:
    * the 10 to 20 ms contact of measured punches and kicks (Pędzich et al. 2006;
    * Gavagan and Sayers 2017), taken at its middle.
    */
   export const DWELL: number = 0.015;
 
-  /**
+  /*
    * The share of a minimum-jerk unit at which its speed has fallen to a share
    * of its peak, after the peak: `s'(u) = 30 u^2 (1-u)^2` against the peak
    * 1.875 at the middle, solved for `u(1-u)` and the root above one half.
-   *
-   * @param speed The share of the peak speed, in (0, 1].
-   * @returns The unit share, in [0.5, 1).
-   * @throws {Error} When the speed share lies outside (0, 1].
+   * Parameter speed: The share of the peak speed, in (0, 1].
+   * Returns: The unit share, in [0.5, 1).
+   * When the speed share lies outside (0, 1].
    */
   export function impactShare(speed: number): number {
     if (!(speed > 0 && speed <= 1))
@@ -47,14 +46,13 @@ export namespace StrikingStroke {
     return (1 + Math.sqrt(Math.max(0, 1 - 4 * product))) / 2;
   }
 
-  /**
+  /*
    * The delivery's units: to the via point, then through the contact along the
    * impact direction, plus the correction that puts the joint exactly on the
    * contact point at the contact second.
-   *
-   * @param d The delivery.
-   * @returns Units with film-second starts.
-   * @throws {Error} When the delivery would end before it begins.
+   * Parameter d: The delivery.
+   * Returns: Units with film-second starts.
+   * When the delivery would end before it begins.
    */
   export function delivery(
     d: IAutoMovieMotionHumanStrikingStroke.IDelivery,
@@ -106,14 +104,13 @@ export namespace StrikingStroke {
     return units;
   }
 
-  /**
+  /*
    * Evaluate a stroke causally: its position at a second reads the target's
    * corrections and the struck body only at or before that second.
-   *
-   * @param input The stroke.
-   * @param preparedBack Fixed return point from this committed plan, when
-   *   available. The delivery's tracker must also belong to the same plan.
-   * @returns The evaluator.
+   * Parameter input: The stroke.
+   * Parameter preparedBack: Fixed return point from this committed plan, when
+   * available. The delivery's tracker must also belong to the same plan.
+   * Returns: The evaluator.
    */
   export function create(
     input: IAutoMovieMotionHumanStrikingStroke.IInput,
@@ -221,7 +218,7 @@ export namespace StrikingStroke {
   }
 }
 
-/**
+/*
  * Shared absence of correction units; consumers only spread this private
  * readonly list.
  */

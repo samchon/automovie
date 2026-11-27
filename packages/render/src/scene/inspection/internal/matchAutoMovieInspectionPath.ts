@@ -1,4 +1,4 @@
-/**
+/*
  * Decide whether a path pattern selects an object path.
  *
  * A path is the names from the scene down to an object, joined by `/`. A

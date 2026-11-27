@@ -4,7 +4,7 @@ import {
   type IAutoMovieSemanticMaskResolution,
 } from "@automovie/interface";
 
-/**
+/*
  * Read one rendered colour back to the thing it named, plus everything that
  * contains it.
  *

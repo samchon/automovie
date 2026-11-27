@@ -16,7 +16,7 @@ import { builtSpaceSubtree } from "../../architecture/internal/builtSpaceSubtree
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { validateFluidDomain } from "./validateFluidDomain";
 
-/**
+/*
  * Validate bindings between independent fluid domains and a building's water
  * features.
  *
@@ -199,7 +199,7 @@ export function validateWaterFeatures(
   return out.toValidation();
 }
 
-/**
+/*
  * The first bed point of the lattice standing outside the basin, or `null`.
  *
  * Measures origin plus every cell centre's X/Z and authored bed Y, not the

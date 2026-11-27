@@ -17,7 +17,7 @@ import type {
   IAutoMovieSpace,
 } from "@automovie/interface";
 
-/**
+/*
  * Orchestrate conservative one-frame render costs for budgets and reports.
  * Create one model cache and resource closure, then count staged populations
  * and simulated drawables in order. Resolve materials/textures
@@ -45,7 +45,7 @@ import { measureRenderSimulation } from "./measureRenderSimulation";
 import { measureRenderTextures } from "./measureRenderTextures";
 import { AutoMovieEngineRenderMaterial } from "../AutoMovieEngineRenderMaterial";
 
-/**
+/*
  * Measure what one frame of a subject commits the renderer to.
  *
  * Everything here is exact or an explicit upper bound, and the difference is
@@ -155,7 +155,7 @@ export function measureAutoMovieRenderInventory(
     IAutoMovieMaterial
   >();
   let defaultMaterials: number = 0;
-  /**
+  /*
    * Count the material one simulated drawable binds.
    *
    * A named material is the same object a model part would bind, so it joins

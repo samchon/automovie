@@ -13,7 +13,7 @@ import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
-/**
+/*
  * The closest material point of the union of hand and digit solids to the
  * requested site.
  */
@@ -57,15 +57,14 @@ function skin(
   };
 }
 
-/**
+/*
  * Read each limited point on the actual hand and the site's asked frame.
- *
- * @param site The task and its effector-local point limits.
- * @param at The site's current world frame, including its moving parent.
- * @param own The actual hand.
- * @param frame The posed material colliders of the arm and digits.
- * @returns The points' geometric readings; none for a task without limits.
- * @throws {Error} When limits name no asked rotation.
+ * Parameter site: The task and its effector-local point limits.
+ * Parameter at: The site's current world frame, including its moving parent.
+ * Parameter own: The actual hand.
+ * Parameter frame: The posed material colliders of the arm and digits.
+ * Returns: The points' geometric readings; none for a task without limits.
+ * When limits name no asked rotation.
  */
 export function HumanArmTrajectoryLimits(
   site: M.ISite,
@@ -106,36 +105,45 @@ export function HumanArmTrajectoryLimits(
   );
 }
 
-/**
+/*
  * Hard task points carried by an effector, read identically by the trajectory
  * merit, convex model and fine configuration check. A point's target follows
  * the site's asked frame, including a site riding the other arm.
  */
 export namespace HumanArmTrajectoryLimits {
-  /** One task point's current and asked places and its numerical bound. */
+  /*
+   * One task point's current and asked places and its numerical bound.
+   */
   export interface IRead {
-    /** The effector-carried point, world metres. */
+    /*
+     * The effector-carried point, world metres.
+     */
     contact: IAutoMovieVector3;
-    /** The point's target on the site's asked frame, world metres. */
+    /*
+     * The point's target on the site's asked frame, world metres.
+     */
     point: IAutoMovieVector3;
-    /** Its current displacement, millimetres. */
+    /*
+     * Its current displacement, millimetres.
+     */
     distance: number;
-    /** The law's bound less the solver's allowance, millimetres, never negative. */
+    /*
+     * The law's bound less the solver's allowance, millimetres, never negative.
+     */
     allowance: number;
   }
 
-  /**
+  /*
    * Linearise the limited points' distance bounds at one hold waypoint.
-   *
-   * @param c The trajectory context.
-   * @param at The current merit evaluation and its placements.
-   * @param jac The shared segment Jacobians at the iterate.
-   * @param a The arm.
-   * @param k The waypoint.
-   * @param site Its task.
-   * @param weight The exact-penalty weight.
-   * @param index The convex owner's variable mapping.
-   * @returns One affine distance row per nonzero task-point residual.
+   * Parameter c: The trajectory context.
+   * Parameter at: The current merit evaluation and its placements.
+   * Parameter jac: The shared segment Jacobians at the iterate.
+   * Parameter a: The arm.
+   * Parameter k: The waypoint.
+   * Parameter site: Its task.
+   * Parameter weight: The exact-penalty weight.
+   * Parameter index: The convex owner's variable mapping.
+   * Returns: One affine distance row per nonzero task-point residual.
    */
   export function rows(
     c: M.IContext,

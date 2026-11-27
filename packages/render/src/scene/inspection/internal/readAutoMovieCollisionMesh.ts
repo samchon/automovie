@@ -11,7 +11,7 @@ import type { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderIns
 import { readAutoMovieCollisionTopology } from "./readAutoMovieCollisionTopology.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 
-/**
+/*
  * Read one ordinary drawn mesh: an exact box, a closed static surface or a
  * stock skin.
  *
@@ -19,12 +19,11 @@ import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
  * conservative world envelopes whose drawn surface is posed only when a
  * candidate pair needs it. A skin labels each vertex with its dominant joint,
  * so a named allowance can be scoped to bones.
- *
- * @param mesh The drawn mesh.
- * @param identity Its collision identity and ownership.
- * @param budget Posed vertices the frame may still spend; charged when a
- *   surface is read.
- * @param add Receives the part, its lazy surface and any unsupported reason.
+ * Parameter mesh: The drawn mesh.
+ * Parameter identity: Its collision identity and ownership.
+ * Parameter budget: Posed vertices the frame may still spend; charged when a
+ * surface is read.
+ * Parameter add: Receives the part, its lazy surface and any unsupported reason.
  */
 export function readAutoMovieCollisionMesh(
   mesh: THREE.Mesh,
@@ -94,9 +93,11 @@ export function readAutoMovieCollisionMesh(
   );
 }
 
-/** The callback shape every collision source reports parts through. */
+/*
+ * The callback shape every collision source reports parts through.
+ */
 export namespace readAutoMovieCollisionMesh {
-  /**
+  /*
    * Receives one part, its optional lazy surface and an optional unsupported
    * reason.
    */
@@ -107,7 +108,7 @@ export namespace readAutoMovieCollisionMesh {
   ) => void;
 }
 
-/**
+/*
  * A stock skin's drawn surface, posed by its owner's draw method and charged to
  * the vertex budget only when a candidate pair reads it.
  */
@@ -135,7 +136,7 @@ function readSkin(
   );
 }
 
-/**
+/*
  * Name the joint with the largest weight of each vertex, from the drawn skin
  * buffers.
  */

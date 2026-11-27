@@ -8,7 +8,7 @@ import { Vector3 } from "../../math/Vector3";
 import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds";
 import { validateTransformScalars } from "../../validation/internal/validateTransformScalars";
 
-/**
+/*
  * Validate how one source frame of an observed design reference is read.
  *
  * A frame states its own sheet: a known view, a whole page number from 1, a
@@ -21,10 +21,9 @@ import { validateTransformScalars } from "../../validation/internal/validateTran
  * must be finite, and a present transform must have finite components, a unit
  * rotation and a positive scale. Every finding is pushed to `collector` under
  * `path`; nothing throws.
- *
- * @param frame Frame to validate.
- * @param path Violation path of the frame, such as `$input.frames[0]`.
- * @param collector Sink that receives the violations.
+ * Parameter frame: Frame to validate.
+ * Parameter path: Violation path of the frame, such as `$input.frames[0]`.
+ * Parameter collector: Sink that receives the violations.
  */
 export function validateDesignSourceFrame(
   frame: IAutoMovieDesignSourceFrame,
@@ -151,7 +150,9 @@ export function validateDesignSourceFrame(
     });
 }
 
-/** Drawing families recognized in raw frame data. */
+/*
+ * Drawing families recognized in raw frame data.
+ */
 const DESIGN_FRAME_VIEWS: Readonly<
   Record<IAutoMovieDesignSourceFrame["view"], true>
 > = {
@@ -162,5 +163,7 @@ const DESIGN_FRAME_VIEWS: Readonly<
   perspective: true,
 };
 
-/** Direction length floor and unit-dot slack from parallel. */
+/*
+ * Direction length floor and unit-dot slack from parallel.
+ */
 const AXIS_EPSILON: number = 1e-12;

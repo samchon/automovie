@@ -140,7 +140,7 @@ export namespace AutoMovieLoftRelief {
     return w === 0 ? 2 * Math.PI : w;
   }
 
-  /**
+  /*
    * A tensor-product net over the window with its partials up to second order
    * in station and phase, `[f, f_s, f_t, f_ss, f_st, f_tt]`, zero outside the
    * window.
@@ -180,13 +180,17 @@ export namespace AutoMovieLoftRelief {
   }
 }
 
-/** Phase reduced to `[0, 2 pi)`. */
+/*
+ * Phase reduced to `[0, 2 pi)`.
+ */
 function wrap(t: number): number {
   const r: number = t % (2 * Math.PI);
   return r < 0 ? r + 2 * Math.PI : r;
 }
 
-/** {@link basis} with the weights' second derivatives with respect to x. */
+/*
+ * basis with the weights' second derivatives with respect to x.
+ */
 function second(
   x: number,
   count: number,
@@ -196,7 +200,7 @@ function second(
   return [i, w, d, [1 - f, 3 * f - 2, 1 - 3 * f, f]];
 }
 
-/**
+/*
  * First control index of the span holding parameter x, the span's four weights
  * and their derivatives with respect to x.
  */

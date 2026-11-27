@@ -1,6 +1,6 @@
 import { utf8Bytes } from "./utf8Bytes";
 
-/**
+/*
  * A deterministic 32-bit FNV-1a hash of a string.
  *
  * Used to place a semantic id in the mask palette. FNV-1a rather than the

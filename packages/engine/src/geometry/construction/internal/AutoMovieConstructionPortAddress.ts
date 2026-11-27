@@ -1,6 +1,6 @@
 import type { IAutoMovieConstructionPortLoop } from "@automovie/interface";
 
-/**
+/*
  * One original radial port-chart address in kernel mm and radians.
  *
  * The caller supplies the admitted loop, clock and radial share. Arithmetic

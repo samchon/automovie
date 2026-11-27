@@ -9,7 +9,7 @@ import type { SiegeArm } from "./SiegeArm";
 import { SiegeClearance } from "./SiegeClearance";
 import type { AutoMovieArchetypeSiegeEngine } from "../AutoMovieArchetypeSiegeEngine";
 
-/**
+/*
  * Coarse fittings of the existing tip-carried lever-arm launcher.
  *
  * Hansen 1992 describes axles in bearings, a net pouch, a separate firing catch
@@ -29,14 +29,16 @@ import type { AutoMovieArchetypeSiegeEngine } from "../AutoMovieArchetypeSiegeEn
  * arm mass remains its provisional launch approximation.
  */
 export namespace SiegeStructure {
-  /**
+  /*
    * Tarver 1995 p.155's 5/8-inch manila rope, reused as coarse cord stock for
    * both kinds; no strength or counterweight-replica measurement is implied.
    */
   export const CORD_RADIUS: number =
     ((5 / 8) * AutoMovieArchetypeUnits.INCH) / 2;
 
-  /** Rigid pieces turned by the existing arm hinge; spans follow their ends. */
+  /*
+   * Rigid pieces turned by the existing arm hinge; spans follow their ends.
+   */
   export const ARM_PARTS: readonly string[] = [
     "arm",
     "axle",
@@ -46,7 +48,9 @@ export namespace SiegeStructure {
     "pouch-back",
   ];
 
-  /** Rotating windlass group, carried only by the existing crank. */
+  /*
+   * Rotating windlass group, carried only by the existing crank.
+   */
   export const WINCH_PARTS: readonly string[] = [
     "winch-shaft",
     "winch-drum",
@@ -54,20 +58,21 @@ export namespace SiegeStructure {
     "winch-grip",
   ];
 
-  /** Extracted pin/drawbar and supported crosshead; guides and beds stay fixed. */
+  /*
+   * Extracted pin/drawbar and supported crosshead; guides and beds stay fixed.
+   */
   export const PIN_PARTS: readonly string[] = [
     "release-pin",
     "release-link",
     "release-carriage",
   ];
 
-  /**
+  /*
    * Design a representable moving section at the complete support boundary.
-   *
-   * @param d Drawn source dimensions and complete degree travel interval.
-   * @param e Existing authored frame/control stock; beam caps the moving
-   *   diameter.
-   * @returns Admitted moving radius, metres.
+   * Parameter d: Drawn source dimensions and complete degree travel interval.
+   * Parameter e: Existing authored frame/control stock; beam caps the moving
+   * diameter.
+   * Returns: Admitted moving radius, metres.
    */
   export function radius(
     d: Readonly<Partial<Record<AutoMovieArchetypeSiegeEngine.Dimension, number>>>,
@@ -112,16 +117,15 @@ export namespace SiegeStructure {
     });
   }
 
-  /**
+  /*
    * Construct connected fittings inside the existing authored section
    * envelopes.
-   *
-   * @param builder Engine with its base/posts/arm and kind's contacts recorded.
-   * @param d Existing drawn SI dimensions; no dimension is drawn here.
-   * @param e Existing authored post/beam/box and control sizes.
-   * @param counterweight Whether the short end carries its existing hanging
-   *   box.
-   * @param armRadius The complete tip assembly's admitted section radius.
+   * Parameter builder: Engine with its base/posts/arm and kind's contacts recorded.
+   * Parameter d: Existing drawn SI dimensions; no dimension is drawn here.
+   * Parameter e: Existing authored post/beam/box and control sizes.
+   * Parameter counterweight: Whether the short end carries its existing hanging
+   * box.
+   * Parameter armRadius: The complete tip assembly's admitted section radius.
    */
   export function lay(
     builder: AutoMovieArchetypeBuilder<
@@ -300,7 +304,9 @@ export namespace SiegeStructure {
       "winch",
     );
 
-    /** Each real rod is admitted in its carrier's complete angle domain. */
+    /*
+     * Each real rod is admitted in its carrier's complete angle domain.
+     */
     function rod(
       id: string,
       radius: number,
@@ -327,7 +333,7 @@ export namespace SiegeStructure {
       builder.rod(id, radius, from, to, options);
     }
 
-    /**
+    /*
      * A negative lower support is a real construction refusal, without a gap
      * tolerance.
      */
@@ -339,17 +345,25 @@ export namespace SiegeStructure {
     }
   }
 
-  /** One dimension-derived box, with its complete support bounds. */
+  /*
+   * One dimension-derived box, with its complete support bounds.
+   */
   interface IBox {
-    /** Part identity. */
+    /*
+     * Part identity.
+     */
     id: string;
-    /** Full positive sizes, metres. */
+    /*
+     * Full positive sizes, metres.
+     */
     size: IAutoMovieVector3;
-    /** Neutral centre, model metres. */
+    /*
+     * Neutral centre, model metres.
+     */
     at: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * One homothetic moving section keeps the existing authored cradle
    * proportions.
    */

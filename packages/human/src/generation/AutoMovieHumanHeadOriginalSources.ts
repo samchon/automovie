@@ -115,7 +115,7 @@ export namespace AutoMovieHumanHeadOriginalSources {
     let lowerInner: IAutoMovieHumanHeadFeatures.IFeature[] | undefined;
     let lowerStudies: IAutoMovieViewPart[] | undefined;
 
-    /**
+    /*
      * Prepare only the canonical host and the five factory closures at explicit
      * regional demand.
      */
@@ -128,7 +128,7 @@ export namespace AutoMovieHumanHeadOriginalSources {
       return top;
     }
 
-    /**
+    /*
      * Publish only requested actual originals on their host; raw remains an
      * explicit request on these sources.
      */
@@ -199,7 +199,7 @@ export namespace AutoMovieHumanHeadOriginalSources {
       };
     }
 
-    /**
+    /*
      * Author exactly the requested tape-invariant originals on the pre-closure
      * host, without the closure.
      */
@@ -258,7 +258,9 @@ export namespace AutoMovieHumanHeadOriginalSources {
       );
     }
 
-    /** The closed host's mass and records, at its explicit demand. */
+    /*
+     * The closed host's mass and records, at its explicit demand.
+     */
     function closedHost(): IHost {
       return {
         part: base.closed().tape.part,
@@ -334,31 +336,41 @@ export namespace AutoMovieHumanHeadOriginalSources {
     };
   }
 
-  /**
+  /*
    * One host's mass, its attempt and loft records, and whether it is the closed
    * member.
    */
   interface IHost {
-    /** The mass the requested originals attach to. */
+    /*
+     * The mass the requested originals attach to.
+     */
     part: IAutoMovieViewPart;
 
-    /** Dome attempts authored on this host. */
+    /*
+     * Dome attempts authored on this host.
+     */
     attempts: IAutoMovieHumanHeadDome.IAttempt[];
 
-    /** Raw results already requested on this host. */
+    /*
+     * Raw results already requested on this host.
+     */
     lofts: Map<string, IAutoMovieViewLoft.IResult>;
 
-    /** True for the closed member, the only one lofted as the head. */
+    /*
+     * True for the closed member, the only one lofted as the head.
+     */
     closed: boolean;
   }
 
-  /**
+  /*
    * Top-level originals on the tape-invariant host: the nose and both lips; the
    * orbital domes read up to nasion and stay closed.
    */
   const TOP: ReadonlySet<string> = new Set(["nose", "lip.upper", "lip.lower"]);
 
-  /** Nested originals whose parents are the mass below nasion and the nose. */
+  /*
+   * Nested originals whose parents are the mass below nasion and the nose.
+   */
   const INNER: ReadonlySet<string> = new Set([
     "nose.lobule",
     "nose.ala.left",

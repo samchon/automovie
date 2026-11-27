@@ -1,7 +1,9 @@
 import type { IProjectionSegment } from "./IProjectionSegment";
 import type { IProtectedProjection } from "./IProtectedProjection";
 
-/** Maps a projected byte offset back to the exact original source offset. */
+/*
+ * Maps a projected byte offset back to the exact original source offset.
+ */
 export function originalOffset(
   projection: IProtectedProjection,
   projectedOffset: number,

@@ -1,6 +1,6 @@
 import { IAutoMovieScriptNode } from "@automovie/interface";
 
-/**
+/*
  * The refinement chain above one screenplay node, nearest first and excluding
  * the node itself: `["scene-1", "act-1", "intent"]` for a beat under that
  * scene.
@@ -12,10 +12,9 @@ import { IAutoMovieScriptNode } from "@automovie/interface";
  * cycle, naming the id at fault, because a chain that silently stopped short
  * would misdirect the correction round. When ids repeat, the last node with an
  * id is the one walked.
- *
- * @param tree Every node of the screenplay tree.
- * @param nodeId The node whose ancestors are wanted.
- * @returns Ancestor ids from the parent up to the root.
+ * Parameter tree: Every node of the screenplay tree.
+ * Parameter nodeId: The node whose ancestors are wanted.
+ * Returns: Ancestor ids from the parent up to the root.
  */
 export function scriptAncestors(
   tree: readonly IAutoMovieScriptNode[],

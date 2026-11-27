@@ -7,7 +7,7 @@ import { decaySubdivisionSharpness } from "./decaySubdivisionSharpness";
 import { subdivisionEdgeSmoothness } from "./subdivisionEdgeSmoothness";
 import { subdivisionVertexMask } from "./subdivisionVertexMask";
 
-/**
+/*
  * Refine a vertex's quad one-ring once, giving the one-ring of the vertex's
  * child.
  *
@@ -16,9 +16,8 @@ import { subdivisionVertexMask } from "./subdivisionVertexMask";
  * the new vertex point, by the same rules as `refineSubdivisionPoints`. Every
  * point it needs lies inside the ring's quads, so the ring refines without the
  * rest of the mesh.
- *
- * @param ring The current one-ring.
- * @returns The child's one-ring with decayed sharpness.
+ * Parameter ring: The current one-ring.
+ * Returns: The child's one-ring with decayed sharpness.
  */
 export const stepSubdivisionRing = (
   ring: IAutoMovieSubdivisionRing,

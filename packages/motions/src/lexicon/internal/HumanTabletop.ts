@@ -6,7 +6,7 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Tabletop handling composed from `pickUp` and `putDown`: a chess move with its
  * capture, a deal round the seats, cards laid face up, a shuffle's two held
  * packets joined, a chip stack pushed to the pot, notes counted out and a die
@@ -24,15 +24,14 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * pick and one place, a deal one pair per seat.
  */
 export namespace HumanTabletop {
-  /**
+  /*
    * Move a chess piece to a square, first setting a captured piece aside.
-   *
-   * @param chain The chain the move continues.
-   * @param params The board, piece, target, board state and capture.
-   * @returns The chain after the move.
-   * @throws {HumanRefusal} When the piece is not on the board, the target is
-   *   occupied without its capture, the capture is not on the target, or a
-   *   capture has no place aside.
+   * Parameter chain: The chain the move continues.
+   * Parameter params: The board, piece, target, board state and capture.
+   * Returns: The chain after the move.
+   * When the piece is not on the board, the target is
+   * occupied without its capture, the capture is not on the target, or a
+   * capture has no place aside.
    */
   export function chessMove(
     chain: IAutoMovieMotionHumanChain,
@@ -107,14 +106,13 @@ export namespace HumanTabletop {
       });
   }
 
-  /**
+  /*
    * Deal cards from the top of the deck round the seats, face down.
-   *
-   * @param chain The chain the deal continues.
-   * @param params The cards in dealing order, the seats and the hand.
-   * @returns The chain after the deal.
-   * @throws {HumanRefusal} When no seat is named; the placement refuses a seat
-   *   beyond the arm with its distance.
+   * Parameter chain: The chain the deal continues.
+   * Parameter params: The cards in dealing order, the seats and the hand.
+   * Returns: The chain after the deal.
+   * When no seat is named; the placement refuses a seat
+   * beyond the arm with its distance.
    */
   export function deal(
     chain: IAutoMovieMotionHumanChain,
@@ -146,13 +144,12 @@ export namespace HumanTabletop {
     );
   }
 
-  /**
+  /*
    * Lay cards at given places and attitudes, such as revealing them face up.
-   *
-   * @param chain The chain the laying continues.
-   * @param params The cards and each one's place.
-   * @returns The chain after the cards are laid.
-   * @throws {HumanRefusal} When cards and places differ in number.
+   * Parameter chain: The chain the laying continues.
+   * Parameter params: The cards and each one's place.
+   * Returns: The chain after the cards are laid.
+   * When cards and places differ in number.
    */
   export function lay(
     chain: IAutoMovieMotionHumanChain,
@@ -190,13 +187,12 @@ export namespace HumanTabletop {
     );
   }
 
-  /**
+  /*
    * Lift a shuffle's two packets, one in each hand, and join them.
-   *
-   * @param chain The chain the shuffle continues.
-   * @param params The two packets' carrying cards, the left packet's top and
-   *   the deck's place.
-   * @returns The chain after the packets are joined.
+   * Parameter chain: The chain the shuffle continues.
+   * Parameter params: The two packets' carrying cards, the left packet's top and
+   * the deck's place.
+   * Returns: The chain after the packets are joined.
    */
   export function shuffle(
     chain: IAutoMovieMotionHumanChain,
@@ -213,13 +209,12 @@ export namespace HumanTabletop {
       });
   }
 
-  /**
+  /*
    * Carry a stack on its bottom prop to a new place, as a chip stack is pushed
    * to the pot.
-   *
-   * @param chain The chain the push continues.
-   * @param params The stack's bottom prop and its destination.
-   * @returns The chain after the stack is set down.
+   * Parameter chain: The chain the push continues.
+   * Parameter params: The stack's bottom prop and its destination.
+   * Returns: The chain after the stack is set down.
    */
   export function push(
     chain: IAutoMovieMotionHumanChain,
@@ -232,12 +227,11 @@ export namespace HumanTabletop {
       .putDown({ prop: params.stack, to: params.to, hand });
   }
 
-  /**
+  /*
    * Take a die up and release it onto the table at its place.
-   *
-   * @param chain The chain the roll continues.
-   * @param params The die and its resting place.
-   * @returns The chain after the die rests.
+   * Parameter chain: The chain the roll continues.
+   * Parameter params: The die and its resting place.
+   * Returns: The chain after the die rests.
    */
   export function roll(
     chain: IAutoMovieMotionHumanChain,

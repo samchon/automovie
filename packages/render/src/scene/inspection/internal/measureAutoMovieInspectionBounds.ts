@@ -4,7 +4,7 @@ import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import type { IAutoMovieViewerSubjectBounds } from "../../IAutoMovieViewerSubjectBounds.js";
 import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
 
-/**
+/*
  * Measure the world-space box of what a scene draws now, so a view can be
  * framed on the selection instead of on the whole scene.
  *

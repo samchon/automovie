@@ -23,7 +23,7 @@ import { appendServiceNetworkSystems } from "./appendServiceNetworkSystems";
 import { appendServiceSleeveOnFace } from "./appendServiceSleeveOnFace";
 import { portRecords } from "./portRecords";
 
-/**
+/*
  * Admit a typed distribution network against its served built environment.
  * Vocabulary, references, units, port directions, declared capacity and root
  * reach are checked before conservative run/maintenance interference. Findings
@@ -212,10 +212,12 @@ export function validateServiceNetwork(
   return out.toValidation();
 }
 
-/** Tolerance for a run's end standing on the port it joins, in metres. */
+/*
+ * Tolerance for a run's end standing on the port it joins, in metres.
+ */
 const ENDPOINT_EPSILON: number = 1e-6;
 
-/**
+/*
  * Preserve the first id set while collecting every duplicate-id finding in
  * source order.
  */
@@ -244,7 +246,7 @@ const collectIds: <T extends { id: string }>(
   return ids;
 };
 
-/**
+/*
  * Compare a route endpoint with its port using the declared micrometre
  * tolerance, retaining the original measured gap in the finding.
  */
@@ -272,7 +274,7 @@ const coincident: (
     );
 };
 
-/**
+/*
  * Three-dimensional metre distance with hypot's scaled norm; overflowed
  * endpoint subtraction remains nonfinite.
  */
@@ -281,7 +283,9 @@ const distance: (one: IAutoMovieVector3, other: IAutoMovieVector3) => number = (
   other: IAutoMovieVector3,
 ): number => Math.hypot(other.x - one.x, other.y - one.y, other.z - one.z);
 
-/** Append the service gate's unchanged strict-positive finite scalar diagnostic. */
+/*
+ * Append the service gate's unchanged strict-positive finite scalar diagnostic.
+ */
 const positive: (
   value: number,
   path: string,
@@ -302,7 +306,9 @@ const positive: (
     );
 };
 
-/** Append the service gate's unchanged inclusive-zero finite scalar diagnostic. */
+/*
+ * Append the service gate's unchanged inclusive-zero finite scalar diagnostic.
+ */
 const nonNegative: (
   value: number,
   path: string,

@@ -4,19 +4,18 @@ import { type Document, isMap, parseDocument, stringify, visit } from "yaml";
 
 import type { IAutoMovieTemplateWorkspaceRequest } from "../IAutoMovieTemplateWorkspaceRequest";
 
-/**
+/*
  * Render pnpm settings for a new production or workspace. Given an existing
  * workspace's directory and YAML, fill missing scaffold catalog entries.
  * Existing pins, overrides, workspace members and build policy keep their
  * values. A linked SDK supplies missing scoped packages when their sibling
  * manifests identify them. Other new entries use the installed scaffold's
  * ranges.
- *
- * @param workspace The new layout or the existing workspace whose catalogs the
- *   CLI needs.
- * @returns Workspace YAML, byte-for-byte unchanged when every required entry
- *   exists.
- * @throws If the shipped settings or workspace YAML cannot be read as required.
+ * Parameter workspace: The new layout or the existing workspace whose catalogs the
+ * CLI needs.
+ * Returns: Workspace YAML, byte-for-byte unchanged when every required entry
+ * exists.
+ * If the shipped settings or workspace YAML cannot be read as required.
  */
 export function renderWorkspace(
   workspace: "production" | "workspace" | IAutoMovieTemplateWorkspaceRequest,
@@ -98,14 +97,16 @@ export function renderWorkspace(
   return changed ? document.toString() : workspace.source;
 }
 
-/** Catalog dependencies and build policy collected from shipped manifests. */
+/*
+ * Catalog dependencies and build policy collected from shipped manifests.
+ */
 interface IScaffoldSettings {
   automovie: string[];
   catalogs: Record<string, Record<string, string>>;
   allowBuilds: Record<string, boolean>;
 }
 
-/**
+/*
  * Give this path its own entries, preserving the old values at other uses of
  * its anchor.
  */
@@ -128,14 +129,16 @@ function isolateMapping(
     });
 }
 
-/** Read an optional YAML mapping, refusing malformed pnpm settings before edits. */
+/*
+ * Read an optional YAML mapping, refusing malformed pnpm settings before edits.
+ */
 function mapping(value: unknown, key: string): Map<string, unknown> {
   if (value === undefined || value === null) return new Map();
   if (value instanceof Map) return value;
   throw new Error(`${key} must be a mapping in pnpm-workspace.yaml`);
 }
 
-/**
+/*
  * Resolve a missing scoped SDK package beside the workspace's linked SDK
  * packages.
  */

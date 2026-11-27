@@ -5,7 +5,7 @@ import type {
   IAutoMoviePlanPhysicalContactTargets,
 } from "@automovie/interface";
 
-/**
+/*
  * Select the original actuator chains, expanding to every joint for self
  * avoidance.
  */

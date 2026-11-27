@@ -10,7 +10,7 @@ import {
 import { Vector3 } from "../../math/Vector3";
 import { builtConnectorGeometry } from "./builtConnectorGeometry";
 
-/**
+/*
  * Validate a connector's stations, section spelling, slope, and steps.
  *
  * Consecutive route stations must be more than 1e-9 m apart, and stated station
@@ -23,16 +23,15 @@ import { builtConnectorGeometry } from "./builtConnectorGeometry";
  * in metres. When the route is measurable, the slope must agree with the
  * route's `atan2(|rise|, run)` within 1e-6 rad and the steps must climb and run
  * what the route does within 1e-3 m, both measured by
- * {@link builtConnectorGeometry}. The route is measurable when it has at least
+ * builtConnectorGeometry. The route is measurable when it has at least
  * two finite stations, at least one pair of them distinct, and `measured` is
  * true, which the caller sets only for the first connector bearing an id, the
  * one `builtConnectorGeometry` resolves. Findings are pushed under `path`.
- *
- * @param environment Building the connector belongs to.
- * @param connector Run whose shape is checked.
- * @param path Violation path of the connector.
- * @param measured Whether `builtConnectorGeometry` resolves this record by id.
- * @param collector Sink that receives the violations.
+ * Parameter environment: Building the connector belongs to.
+ * Parameter connector: Run whose shape is checked.
+ * Parameter path: Violation path of the connector.
+ * Parameter measured: Whether `builtConnectorGeometry` resolves this record by id.
+ * Parameter collector: Sink that receives the violations.
  */
 export function validateBuiltConnectorShape(
   environment: IAutoMovieBuiltEnvironment,
@@ -157,16 +156,24 @@ export function validateBuiltConnectorShape(
     );
 }
 
-/** Shortest distance, in metres, two consecutive route stations may sit apart. */
+/*
+ * Shortest distance, in metres, two consecutive route stations may sit apart.
+ */
 const ROUTE_EPSILON: number = 1e-9;
 
-/** Largest disagreement, in metres, between a stated step run and its route. */
+/*
+ * Largest disagreement, in metres, between a stated step run and its route.
+ */
 const STEP_TOLERANCE: number = 1e-3;
 
-/** Largest disagreement, in radians, between a stated slope and its route. */
+/*
+ * Largest disagreement, in radians, between a stated slope and its route.
+ */
 const SLOPE_TOLERANCE: number = 1e-6;
 
-/** A varying section: 2+ stations from 0 to 1, increasing, each positive. */
+/*
+ * A varying section: 2+ stations from 0 to 1, increasing, each positive.
+ */
 const validateSections: (
   sections: readonly IAutoMovieConnectorSection[],
   path: string,

@@ -9,12 +9,12 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-/**
+/*
  * A qualified elliptic-radius cut on the actual parent source, in its original
  * chart branch.
  */
 export namespace AutoMovieHumanF1NativeRootLevel {
-  /**
+  /*
    * Prepare original reference levels and actual radial derivatives once per
    * original root.
    */
@@ -55,7 +55,7 @@ export namespace AutoMovieHumanF1NativeRootLevel {
     });
     return { metric, levels, derivatives, unavailable };
   }
-  /**
+  /*
    * Solve each original chart ray on the current parent; every emitted point
    * belongs to that source.
    */
@@ -352,37 +352,61 @@ export namespace AutoMovieHumanF1NativeRootLevel {
     return { loop: same ? oldLoop : { ...oldLoop, shape: shares }, columns };
   }
 
-  /** Existing physical point and vector representation. */
+  /*
+   * Existing physical point and vector representation.
+   */
   type V = AutoMovieVector3Tuple;
 
-  /** The explicitly supplied original bare calipers and their material site. */
+  /*
+   * The explicitly supplied original bare calipers and their material site.
+   */
   type Metric = NonNullable<IAutoMovieHumanF1NativeRoot.IOriginal["metric"]>;
 
-  /** Current immutable native inputs; no other part or loft is built. */
+  /*
+   * Current immutable native inputs; no other part or loft is built.
+   */
   interface IInput {
-    /** Shared original source calibration. */
+    /*
+     * Shared original source calibration.
+     */
     original: IAutoMovieHumanF1NativeRoot.ICalibration;
-    /** Reused original metric/derivative preparation. */
+    /*
+     * Reused original metric/derivative preparation.
+     */
     prepared: IAutoMovieHumanF1NativeRoot.ILevelOriginal;
-    /** Current actual parent descriptor. */
+    /*
+     * Current actual parent descriptor.
+     */
     parent: IAutoMovieViewPart;
-    /** Its already prepared full source reader. */
+    /*
+     * Its already prepared full source reader.
+     */
     reader: IAutoMovieLoftViewFullSource.IReader;
-    /** Current independently generated child descriptor. */
+    /*
+     * Current independently generated child descriptor.
+     */
     candidate: IAutoMovieViewPart;
-    /** Independent positive root-caliper ratios. */
+    /*
+     * Independent positive root-caliper ratios.
+     */
     scale: readonly [number, number];
   }
 
-  /** A fixed caliper-frame elliptic-radius field and its exact world gradient. */
+  /*
+   * A fixed caliper-frame elliptic-radius field and its exact world gradient.
+   */
   interface IField {
-    /** Dimensionless level. */
+    /*
+     * Dimensionless level.
+     */
     value: (point: V) => number;
-    /** World gradient, per mm. */
+    /*
+     * World gradient, per mm.
+     */
     gradient: (point: V) => V;
   }
 
-  /**
+  /*
    * Normalize two independently supplied bare calipers in their actual fixed
    * source frame.
    */

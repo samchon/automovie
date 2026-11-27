@@ -1,13 +1,12 @@
 import type { IAutoMovieMotionHumanPerformance } from "@automovie/interface";
 
-/**
+/*
  * The two performers of an affection case, trained: `a` at the origin heading
  * +Z and `b` the gap ahead, facing `a` or turned the same way.
- *
- * @param body The body both carry.
- * @param facing Whether `b` turns to face `a`.
- * @param gap Metres from `a` to `b` along +Z.
- * @returns The performers, `a` first.
+ * Parameter body: The body both carry.
+ * Parameter facing: Whether `b` turns to face `a`.
+ * Parameter gap: Metres from `a` to `b` along +Z.
+ * Returns: The performers, `a` first.
  */
 export function affectionCasePerformers<Body>(
   body: Body,
@@ -32,14 +31,20 @@ export function affectionCasePerformers<Body>(
   ];
 }
 
-/** An affection case's performer. */
+/*
+ * An affection case's performer.
+ */
 export namespace affectionCasePerformers {
-  /** A performance's performer, carrying the given body. */
+  /*
+   * A performance's performer, carrying the given body.
+   */
   export type IPerformer<Body> = Omit<
     IAutoMovieMotionHumanPerformance.IInput["performers"][number],
     "body"
   > & {
-    /** The body it carries. */
+    /*
+     * The body it carries.
+     */
     body: Body;
   };
 }

@@ -7,17 +7,16 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * The way through a door: the named obstacle's named opening (its only one when
  * none is named), and the level direction through it at right angles to its
  * width, away from where the walker stands.
- *
- * @param obstacles The performance's obstacles.
- * @param params The obstacle and opening to pass through.
- * @param here Where the walker stands, world metres.
- * @returns The obstacle, its opening, the way out and points along it.
- * @throws {HumanRefusal} When the performance has no such obstacle, the
- *   obstacle has no such opening, or several openings and none is named.
+ * Parameter obstacles: The performance's obstacles.
+ * Parameter params: The obstacle and opening to pass through.
+ * Parameter here: Where the walker stands, world metres.
+ * Returns: The obstacle, its opening, the way out and points along it.
+ * When the performance has no such obstacle, the
+ * obstacle has no such opening, or several openings and none is named.
  */
 export function humanTravelDoorWay(
   obstacles: readonly IAutoMovieMotionHumanObstacle[],
@@ -86,24 +85,33 @@ export function humanTravelDoorWay(
   };
 }
 
-/** The way through a door. */
+/*
+ * The way through a door.
+ */
 export namespace humanTravelDoorWay {
-  /** The way through an opening. */
+  /*
+   * The way through an opening.
+   */
   export interface IWay {
-    /** The obstacle passed through. */
+    /*
+     * The obstacle passed through.
+     */
     obstacle: IAutoMovieMotionHumanObstacle;
 
-    /** Its opening. */
+    /*
+     * Its opening.
+     */
     opening: IAutoMovieMotionObstacleAperture;
 
-    /** The level way through, unit, away from the walker. */
+    /*
+     * The level way through, unit, away from the walker.
+     */
     out: IAutoMovieVector3;
 
-    /**
+    /*
      * A floor point on the way, from the opening's middle.
-     *
-     * @param metres Distance along the way; negative before the sill.
-     * @returns The floor point, world metres.
+     * Parameter metres: Distance along the way; negative before the sill.
+     * Returns: The floor point, world metres.
      */
     along(metres: number): IAutoMovieVector3;
   }

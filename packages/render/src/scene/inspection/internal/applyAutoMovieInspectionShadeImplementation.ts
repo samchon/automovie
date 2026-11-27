@@ -6,7 +6,7 @@ import { applyRenderMode } from "../../internal/applyRenderMode.js";
 import { overrideAutoMovieRenderModeMaterials } from "../../internal/overrideAutoMovieRenderModeMaterials.js";
 import { AUTO_MOVIE_INSPECTION_PALETTE } from "../../AUTO_MOVIE_INSPECTION_PALETTE.js";
 
-/**
+/*
  * Colour every surface of a scene by an inspection shade, and return the call
  * that brings the shade to the scene's current pose and the call that puts the
  * scene's own materials back.
@@ -26,13 +26,15 @@ export function applyAutoMovieInspectionShadeImplementation(
   scene: THREE.Scene,
   shade: AutoMovieInspectionShade,
 ): {
-  /**
+  /*
    * Bring the shade to the scene as it stands now; call it after every change
    * of the scene and before drawing.
    */
   update: () => void;
 
-  /** Put the scene's own materials back and release the shade. */
+  /*
+   * Put the scene's own materials back and release the shade.
+   */
   restore: () => void;
 } {
   const pass: IAutoMovieRenderModeHandle =
@@ -74,7 +76,7 @@ export function applyAutoMovieInspectionShadeImplementation(
   };
 }
 
-/**
+/*
  * Vertex stage of the faces shade: three.js's own deformation, projection and
  * clipping chunks, with no lighting.
  */
@@ -96,7 +98,7 @@ void main() {
 }
 `;
 
-/**
+/*
  * Fragment stage of the faces shade: one of two colours by the side of the
  * triangle seen.
  */

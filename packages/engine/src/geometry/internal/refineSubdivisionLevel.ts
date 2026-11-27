@@ -9,7 +9,7 @@ import { decaySubdivisionSharpness } from "./decaySubdivisionSharpness";
 import { refineSubdivisionPoints } from "./refineSubdivisionPoints";
 import { refineSubdivisionUvs } from "./refineSubdivisionUvs";
 
-/**
+/*
  * Refine a subdivision level once into an all-quad level.
  *
  * Parent corner `c`, at vertex `v` of face `f`, becomes child face `c` with
@@ -21,9 +21,8 @@ import { refineSubdivisionUvs } from "./refineSubdivisionUvs";
  * midpoint towards the neighbouring corner, or the face centroid. The cage's
  * non-quad faces instead give each child quad its own unit square on sub-face
  * `k`, as `IAutoMovieSubdivisionParameter` documents.
- *
- * @param level The level to refine.
- * @returns The next level.
+ * Parameter level: The level to refine.
+ * Returns: The next level.
  */
 export const refineSubdivisionLevel = (
   level: IAutoMovieSubdivisionLevel,

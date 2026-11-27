@@ -7,7 +7,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core";
 
-/**
+/*
  * The shared stock, barrel and handling contacts of an inert period long-arm
  * silhouette, built from one museum record's overall and barrel lengths.
  *
@@ -19,36 +19,54 @@ import {
  * `lay` builds the shared parts and returns the builder for it.
  */
 export namespace StagePeriodGunConstruction {
-  /**
+  /*
    * The read record of one silhouette and its authored proportions, metres and
    * kilograms.
    */
   export interface IProfile {
-    /** The draw namespace and the model's name. */
+    /*
+     * The draw namespace and the model's name.
+     */
     name: string;
 
-    /** The cited record: institution, accession, date and the read figures. */
+    /*
+     * The cited record: institution, accession, date and the read figures.
+     */
     record: string;
 
-    /** Butt plate to muzzle, read. */
+    /*
+     * Butt plate to muzzle, read.
+     */
     overall: number;
 
-    /** Breech to muzzle, read. */
+    /*
+     * Breech to muzzle, read.
+     */
     barrel: number;
 
-    /** The stock's greatest depth, read or estimated as `record` states. */
+    /*
+     * The stock's greatest depth, read or estimated as `record` states.
+     */
     depth: number;
 
-    /** The stock's width, read or estimated as `record` states. */
+    /*
+     * The stock's width, read or estimated as `record` states.
+     */
     width: number;
 
-    /** The barrel's outer radius, estimated. */
+    /*
+     * The barrel's outer radius, estimated.
+     */
     radius: number;
 
-    /** The butt plate to the trigger's face, estimated. */
+    /*
+     * The butt plate to the trigger's face, estimated.
+     */
     pull: number;
 
-    /** The whole gun's mass, read or estimated as `record` states. */
+    /*
+     * The whole gun's mass, read or estimated as `record` states.
+     */
     mass: number;
   }
 
@@ -65,13 +83,12 @@ export namespace StagePeriodGunConstruction {
   /** The dimensions every silhouette records. */
   export type Dimension = "length" | "barrel" | "mass";
 
-  /**
+  /*
    * Lay the stock, wrist, fore-stock, barrel and trigger with the shared
    * contacts.
-   *
-   * @param profile The silhouette's record and proportions.
-   * @param id The model's scene id.
-   * @returns The builder, for the caller's lock and its contacts.
+   * Parameter profile: The silhouette's record and proportions.
+   * Parameter id: The model's scene id.
+   * Returns: The builder, for the caller's lock and its contacts.
    */
   export function lay<Id extends string>(
     profile: IProfile,
@@ -204,12 +221,11 @@ export namespace StagePeriodGunConstruction {
     return builder;
   }
 
-  /**
+  /*
    * Finish a silhouette at its profile's mass.
-   *
-   * @param builder The silhouette with its lock laid.
-   * @param profile The silhouette's record and proportions.
-   * @returns The inert model.
+   * Parameter builder: The silhouette with its lock laid.
+   * Parameter profile: The silhouette's record and proportions.
+   * Returns: The inert model.
    */
   export function build<Id extends string>(
     builder: AutoMovieArchetypeBuilder<Contact | Id, Dimension>,

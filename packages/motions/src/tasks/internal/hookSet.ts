@@ -13,7 +13,7 @@ import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotion
 import { wardrobeHands } from "../../dressing/internal/wardrobeHands";
 import { hookSetTip } from "./hookSetTip";
 
-/**
+/*
  * Set the hook. The hand holding the rod turns it about the grip, the tip
  * rising by the authored angle on a minimum-jerk course in the authored time (a
  * sharp lift), about the horizontal axis square to the rod; the grip stays
@@ -31,7 +31,7 @@ export const hookSet: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHookSe
     plan: planHookSet,
   };
 
-/**
+/*
  * Set the hook. The hand holding the rod turns it about the grip, the tip
  * rising by the authored angle on a minimum-jerk course in the authored time (a
  * sharp lift), about the horizontal axis square to the rod; the grip stays

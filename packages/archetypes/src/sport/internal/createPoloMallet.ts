@@ -3,7 +3,7 @@ import { Vector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
-/**
+/*
  * A polo mallet: a cane shaft with a rubber-wrapped grip and a wrist sling at
  * its top, and a cigar-shaped head set across its foot, struck with the head's
  * long side.
@@ -15,12 +15,11 @@ import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSe
  * working point a swing carries through the ball (`tip`); `face` the head's
  * side toward `+Z`, its `+Y` out of it, the striking side of a forehand (a
  * backhand strikes with the other side).
- *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The mallet.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * Parameter params: Any dimension the author fixes.
+ * Parameter seed: The seed that draws every dimension left free inside its band;
+ * absent, each takes the middle of its band.
+ * Returns: The mallet.
+ * For a fixed dimension outside its band.
  */
 export function createPoloMallet(
   params: AutoMovieArchetypePoloMallet.IParams = {},

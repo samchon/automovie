@@ -120,7 +120,7 @@ export namespace AffordanceArticulation {
     return value;
   }
 
-  /**
+  /*
    * A coordinate's articulations, upstream through follows, or null for an
    * invalid reference or cycle.
    */

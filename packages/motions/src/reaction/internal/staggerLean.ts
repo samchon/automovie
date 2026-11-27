@@ -9,7 +9,7 @@ import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMoti
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { staggerBounds } from "./staggerBounds";
 
-/**
+/*
  * A stagger's trunk and the root that carries it, as prepared curves of the
  * recovery's courses (`staggerRecover`).
  *
@@ -40,17 +40,16 @@ import { staggerBounds } from "./staggerBounds";
  * tilt makes of it, the measured shift per sine of pitch and roll
  * (`staggerKnots.bending`), so the displayed centre of mass keeps the
  * pendulum's course whatever the trunk does.
- *
- * @param body The body.
- * @param entry The posture the push meets.
- * @param walk The centre of mass's travel, the extrapolated centre of mass on
- *   the floor and the entry's centre of mass, world metres, at seconds since
- *   the action's start.
- * @param bend The centre of mass's shift per sine of the trunk's pitch and
- *   roll, metres.
- * @returns The trunk's tilt, degrees, the upright root before any lowering,
- *   world metres, and the reaction's eased share from the entry (0 until the
- *   measured reaction, 1 once the weight shift is done), at a second.
+ * Parameter body: The body.
+ * Parameter entry: The posture the push meets.
+ * Parameter walk: The centre of mass's travel, the extrapolated centre of mass on
+ * the floor and the entry's centre of mass, world metres, at seconds since
+ * the action's start.
+ * Parameter bend: The centre of mass's shift per sine of the trunk's pitch and
+ * roll, metres.
+ * Returns: The trunk's tilt, degrees, the upright root before any lowering,
+ * world metres, and the reaction's eased share from the entry (0 until the
+ * measured reaction, 1 once the weight shift is done), at a second.
  */
 export function staggerLean(
   body: IAutoMovieMotionHumanActionContext["body"],
@@ -117,33 +116,47 @@ export function staggerLean(
   };
 }
 
-/** The record of `IStaggerLeanTrunk`'s site. */
+/*
+ * The record of `IStaggerLeanTrunk`'s site.
+ */
 type IStaggerLeanTrunk = { pitch: number; roll: number };
 
-/** The record of `IStaggerLeanResult2`'s site. */
+/*
+ * The record of `IStaggerLeanResult2`'s site.
+ */
 type IStaggerLeanResult2 = {
   trunk: IStaggerLeanTrunkResult2;
   root: IAutoMovieVector3;
   ease: number;
 };
 
-/** The record of `IStaggerLeanTrunkResult2`'s site. */
+/*
+ * The record of `IStaggerLeanTrunkResult2`'s site.
+ */
 type IStaggerLeanTrunkResult2 = { pitch: number; roll: number };
 
-/** The record of `IStaggerLeanResult`'s site. */
+/*
+ * The record of `IStaggerLeanResult`'s site.
+ */
 type IStaggerLeanResult = {
   trunk: IStaggerLeanTrunkResult;
   root: IAutoMovieVector3;
   ease: number;
 };
 
-/** The record of `IStaggerLeanTrunkResult`'s site. */
+/*
+ * The record of `IStaggerLeanTrunkResult`'s site.
+ */
 type IStaggerLeanTrunkResult = { pitch: number; roll: number };
 
-/** The alternatives of `StaggerLeanBendEntry`'s site. */
+/*
+ * The alternatives of `StaggerLeanBendEntry`'s site.
+ */
 type StaggerLeanBendEntry = "pitch" | "roll";
 
-/** The record of `IStaggerLeanWalk`'s site. */
+/*
+ * The record of `IStaggerLeanWalk`'s site.
+ */
 type IStaggerLeanWalk = {
   course: (seconds: number) => IAutoMovieVector3;
   extrapolated: (seconds: number) => IAutoMovieVector3;

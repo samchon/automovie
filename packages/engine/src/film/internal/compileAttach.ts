@@ -19,14 +19,14 @@ import { Transform } from "../../math/Transform";
 import { Vector3 } from "../../math/Vector3";
 import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 
-/**
+/*
  * Bake the `attachTo` verb into the child object's follow clip, the per-frame
  * realisation of a rigid coupling to a parent's bone (a sword in a hand, a prop
  * on a saddle). The child is not a rig, so, like a projectile, it moves by a
  * node clip of translation and rotation tracks, not a pose motion.
  *
  * Each sample resolves the parent's posed skeleton at that instant through
- * {@link resolveAttachment}, which runs the parent's FK, to compose the child's
+ * resolveAttachment, which runs the parent's FK, to compose the child's
  * bone-local offset into the parent's model space, then composes that onto the
  * parent's world frame: its staged placement, or, when the parent itself rides
  * a coupling this shot, its ridden frame from `parentTransformAt` (#1140):
@@ -145,5 +145,7 @@ export function compileAttach(props: AutoMovieEngineFilmTypes.ICompileAttachProp
   };
 }
 
-/** Default child frame when the author gives no offset. */
+/*
+ * Default child frame when the author gives no offset.
+ */
 const IDENTITY_OFFSET: IAutoMovieTransform = Transform.identity();

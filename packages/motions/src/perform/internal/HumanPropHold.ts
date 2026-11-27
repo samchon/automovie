@@ -1,7 +1,7 @@
 import { Quaternion, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanBody, IAutoMovieQuaternion, IAutoMovieResolvedBone, IAutoMovieRigidTransform, IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * Where a held prop is: the frame a hand holds it in, and a prop held in both
  * of a performer's hands as one rigid thing between them, each hand's grip
  * socket keeping its place on the prop, so neither hand alone turns it.
@@ -14,24 +14,27 @@ import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanBo
  * that one turn, which the two fists share.
  */
 export namespace HumanPropHold {
-  /**
+  /*
    * One hand on the prop: its grip socket's frame and the prop's frame in it,
    * the offset its grip keeps.
    */
   export interface IHand {
-    /** The hand's grip socket, world. */
+    /*
+     * The hand's grip socket, world.
+     */
     hand: IAutoMovieRigidTransform;
 
-    /** The prop's frame in the hand's grip frame. */
+    /*
+     * The prop's frame in the hand's grip frame.
+     */
     offset: IAutoMovieRigidTransform;
   }
 
-  /**
+  /*
    * The prop's frame held in two hands.
-   *
-   * @param a The hand that carries it.
-   * @param b The other hand.
-   * @returns The prop's world frame.
+   * Parameter a: The hand that carries it.
+   * Parameter b: The other hand.
+   * Returns: The prop's world frame.
    */
   export function fit(a: IHand, b: IHand): IAutoMovieRigidTransform {
     const turn: (h: IHand) => IAutoMovieQuaternion = (
@@ -93,14 +96,13 @@ export namespace HumanPropHold {
     };
   }
 
-  /**
+  /*
    * Where a grip holds a prop on given bones: the hand's grip socket with the
    * hand bone's world rotation, or the bone a worn span rides.
-   *
-   * @param body The body the bones are of.
-   * @param bones The bones.
-   * @param grip The holding hand, and the bone of a worn span.
-   * @returns The frame.
+   * Parameter body: The body the bones are of.
+   * Parameter bones: The bones.
+   * Parameter grip: The holding hand, and the bone of a worn span.
+   * Returns: The frame.
    */
   export function frame(
     body: IAutoMovieMotionHumanBody,
@@ -120,7 +122,7 @@ export namespace HumanPropHold {
     };
   }
 
-  /**
+  /*
    * The axis a prop whose line points opposite the sockets' turns half a turn
    * about: across the line, along the prop's up as the hands turn it (its `+Y`,
    * or its `+X` where the up lies on the line), so the half turn keeps that up
@@ -144,5 +146,7 @@ export namespace HumanPropHold {
   }
 }
 
-/** The record of `IFrameGrip`'s site. */
+/*
+ * The record of `IFrameGrip`'s site.
+ */
 type IFrameGrip = { side: AutoMovieHumanSide; bone?: AutoMovieHumanoidBone };

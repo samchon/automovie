@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeRefusal,
 } from "../../core/index";
 
-/**
+/*
  * A load drawn along the ground by a horse's traces rather than rolled on
  * wheels: a walking mouldboard plough, a harrow, a chained log or a sledge on
  * runners.
@@ -24,10 +24,9 @@ import {
  * dimensions are construction estimates, `SIZES`, one set per kind; no maker's
  * drawing was read, so each is provisional, and the author may fix any of
  * them.
- *
- * @param params The kind, any dimension the author fixes, and the load's mass.
- * @returns The load at rest.
- * @throws {AutoMovieArchetypeRefusal} For a nonpositive dimension or mass.
+ * Parameter params: The kind, any dimension the author fixes, and the load's mass.
+ * Returns: The load at rest.
+ * For a nonpositive dimension or mass.
  */
 export function createDragged(
   params: AutoMovieArchetypeDragged.IParams,
@@ -170,13 +169,19 @@ export function createDragged(
 
 
 
-/** A side of the load. */
+/*
+ * A side of the load.
+ */
 type Side = "left" | "right";
 
-/** A side and the sign of `X` on it. */
+/*
+ * A side and the sign of `X` on it.
+ */
 type SideSign = readonly [Side, number];
 
-/** The two sides, `+X` first. */
+/*
+ * The two sides, `+X` first.
+ */
 const SIDES: readonly SideSign[] = [
   ["left", 1],
   ["right", -1],

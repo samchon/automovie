@@ -2,18 +2,17 @@ import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface
 
 import type { HumanQuadraticPreparation as Prep } from "./HumanQuadraticPreparation";
 
-/**
+/*
  * Validate all original entries and compare copied dependencies in one scan.
- *
- * @param problem Original storage, including padding and explicit zeros,
- *   unchanged throughout this synchronous call; readonly row-index arrays may
- *   be shared by consecutive rows.
- * @param prepared Optional copied candidate located by the owning Preparation
- *   cache.
- * @returns Nonzero count, complete numeric equality and exact
- *   curvature/linear/row/topology groups for safe independent raw-data reuse.
- * @throws {RangeError} For malformed dimensions, row storage, bounds, weights,
- *   nonfinite values, band violations or Int32 overflow.
+ * Parameter problem: Original storage, including padding and explicit zeros,
+ * unchanged throughout this synchronous call; readonly row-index arrays may
+ * be shared by consecutive rows.
+ * Parameter prepared: Optional copied candidate located by the owning Preparation
+ * cache.
+ * Returns: Nonzero count, complete numeric equality and exact
+ * curvature/linear/row/topology groups for safe independent raw-data reuse.
+ * For malformed dimensions, row storage, bounds, weights,
+ * nonfinite values, band violations or Int32 overflow.
  */
 export function HumanQuadraticAdmission(
   problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
@@ -133,7 +132,9 @@ export function HumanQuadraticAdmission(
   };
 }
 
-/** The record of `IHumanQuadraticAdmissionResult`'s site. */
+/*
+ * The record of `IHumanQuadraticAdmissionResult`'s site.
+ */
 type IHumanQuadraticAdmissionResult = {
   entries: number;
   same: boolean;
@@ -143,7 +144,7 @@ type IHumanQuadraticAdmissionResult = {
   topology: boolean;
 };
 
-/**
+/*
  * Maximum entry count and column index representable by the signed Int32 CSR
  * arrays.
  */

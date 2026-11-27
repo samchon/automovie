@@ -4,18 +4,17 @@ import { AutoMovieArchetypeBoat } from "../AutoMovieArchetypeBoat";
 import { BoatConstruction } from "./BoatConstruction";
 import { BoatHull } from "./BoatHull";
 
-/**
+/*
  * Tandem canoe.
  *
  * The bow points along +Z at the waterline. Both thwarts face forward for
  * paddlers and the hull is drawn from its selected layup.
- *
- * @param params The scene identity and this hull's accepted dimensions and
- *   catalogue choices.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter params: The scene identity and this hull's accepted dimensions and
+ * catalogue choices.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function createCanoe(
   params: AutoMovieArchetypeCanoe.IParams = {},
@@ -26,7 +25,9 @@ export function createCanoe(
 
 
 
-/** Record this hull's fixed seats. */
+/*
+ * Record this hull's fixed seats.
+ */
 function outfit(
   builder: Parameters<BoatConstruction.Outfit>[0],
   { d, beam, bottom }: BoatConstruction.IHull,

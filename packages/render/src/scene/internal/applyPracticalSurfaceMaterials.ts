@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
 
-/**
+/*
  * Apply an admitted shot's practical surface cues to built prop instances.
  *
  * Before drawing a frame of the shot, call this with its shot-local seconds in
@@ -20,10 +20,9 @@ import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
  * This updates only tracked parts. When reusing a mounted scene across shots,
  * restore its staged materials or author opening tracks for parts whose prior
  * shot changed their material.
- *
- * @throws {RangeError} The tracked shot sample is outside its local interval.
- * @throws {Error} A target has no distinct single-material mesh, or its
- *   selected variant is unavailable.
+ * The tracked shot sample is outside its local interval.
+ * A target has no distinct single-material mesh, or its
+ * selected variant is unavailable.
  */
 export function applyPracticalSurfaceMaterials(
   shot: IAutoMovieShot,

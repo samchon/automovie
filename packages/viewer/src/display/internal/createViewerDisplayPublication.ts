@@ -1,6 +1,6 @@
 import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
 
-/**
+/*
  * Stage an original completed snapshot without publishing its generation. The
  * caller's copy port owns one latest bitmap and leaves it intact on a refused
  * copy. Commit admits that prepared snapshot, or copies a direct active

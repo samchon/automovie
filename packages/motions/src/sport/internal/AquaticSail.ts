@@ -18,7 +18,7 @@ import { AquaticPosture } from "./AquaticPosture";
 import { AquaticSailBounds } from "./AquaticSailBounds";
 import { AquaticSailPosture } from "./AquaticSailPosture";
 
-/**
+/*
  * Dinghy tack and near-side recovery when a tack is aborted. The visible foot
  * transfers follow World Sailing Racing Rules 13 and 42 and Schutt (2017). The
  * sailors cross the boat crouched, facing the way they entered. On a craft that
@@ -29,7 +29,9 @@ import { AquaticSailPosture } from "./AquaticSailPosture";
  * transfers lead the helm's.
  */
 export namespace AquaticSail {
-  /** Two discrete foot transfers, or a near-side recovery when the helm aborts. */
+  /*
+   * Two discrete foot transfers, or a near-side recovery when the helm aborts.
+   */
   export function plan(
     context: AquaticPosture.Context,
     aborted: boolean,
@@ -411,7 +413,9 @@ export namespace AquaticSail {
     );
   }
 
-  /** An ankle's clearance pulse between release and replant. */
+  /*
+   * An ankle's clearance pulse between release and replant.
+   */
   function swing(at: number, from: number, to: number): number {
     return Math.sin(Math.PI * AquaticCrew.span(at, from, to)) ** 2;
   }

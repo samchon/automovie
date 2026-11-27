@@ -257,7 +257,9 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
   }
 }
 
-/** Prepare an actual numeric declaration; original admission failures remain failures. */
+/*
+ * Prepare an actual numeric declaration; original admission failures remain failures.
+ */
 function prepareScalar(
   outline: IAutoMovieViewPart.IOutline,
 ): IAutoMovieViewOutline.IOutline {
@@ -268,7 +270,9 @@ function prepareScalar(
   return prepared;
 }
 
-/** Read the actual regular physical/clock jet, including a valid zero derivative. */
+/*
+ * Read the actual regular physical/clock jet, including a valid zero derivative.
+ */
 function read(
   outline: IAutoMovieViewOutline.IOutline,
   station: number,

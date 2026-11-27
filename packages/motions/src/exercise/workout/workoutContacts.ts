@@ -6,7 +6,9 @@ import type {
 
 import type { workoutSpans } from "./workoutSpans";
 
-/** Each contact part's mirror across the body's midline. */
+/*
+ * Each contact part's mirror across the body's midline.
+ */
 const MIRROR: Readonly<
   Record<
     IAutoMovieMotionHumanContactWindow["part"],
@@ -31,11 +33,10 @@ const MIRROR: Readonly<
   chest: "chest",
 };
 
-/**
+/*
  * Build the windows.
- *
- * @param props What the windows are built from.
- * @returns The contact windows.
+ * Parameter props: What the windows are built from.
+ * Returns: The contact windows.
  */
 export function workoutContacts(
   props: workoutContacts.IProps,
@@ -107,40 +108,60 @@ export function workoutContacts(
   return contacts;
 }
 
-/**
+/*
  * A workout's support windows: each support its kind bears, over the work or
  * over the spans whose two postures name it, on the other side's part in a
  * repetition done on that side, adjacent spans joined, and both feet planted
  * from the settle of a rise back to a recovered stance (`workout`).
  */
 export namespace workoutContacts {
-  /** What the windows are built from. */
+  /*
+   * What the windows are built from.
+   */
   export interface IProps {
-    /** The exercise. */
+    /*
+     * The exercise.
+     */
     kind: Pick<IAutoMovieMotionHumanWorkoutKind, "supports">;
 
-    /** The prop subject the kind's prop supports bear on, when one is named. */
+    /*
+     * The prop subject the kind's prop supports bear on, when one is named.
+     */
     prop: string | undefined;
 
-    /** The spans. */
+    /*
+     * The spans.
+     */
     spans: readonly Pick<workoutSpans.ISpan, "from">[];
 
-    /** Each span's start, seconds. */
+    /*
+     * Each span's start, seconds.
+     */
     starts: readonly number[];
 
-    /** Each repetition span's events and side. */
+    /*
+     * Each repetition span's events and side.
+     */
     between: readonly workoutSpans.IBetween[];
 
-    /** The action's clock. */
+    /*
+     * The action's clock.
+     */
     clock: IAutoMovieMotionClock;
 
-    /** The work's first share. */
+    /*
+     * The work's first share.
+     */
     from: number;
 
-    /** The work's last share. */
+    /*
+     * The work's last share.
+     */
     to: number;
 
-    /** Whether the body rises back to a recovered two-foot stance. */
+    /*
+     * Whether the body rises back to a recovered two-foot stance.
+     */
     recovers: boolean;
   }
 }

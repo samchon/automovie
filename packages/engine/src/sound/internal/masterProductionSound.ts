@@ -12,7 +12,7 @@ import { analyzeProductionSound } from "./analyzeProductionSound";
 import { createAutoMovieLoudnessMeter } from "./createAutoMovieLoudnessMeter";
 import { limitAutoMovieTruePeak } from "./limitAutoMovieTruePeak";
 
-/**
+/*
  * Master a production mix: bring it to its integrated loudness target with one
  * static gain and hold its true peak under the limiter ceiling.
  *
@@ -29,10 +29,9 @@ import { limitAutoMovieTruePeak } from "./limitAutoMovieTruePeak";
  * the target by more than the tolerance. A mix that no block lifts over the −70
  * LUFS absolute gate has no loudness to move and is returned unchanged and
  * unchecked.
- *
- * @param props The plan and the unmastered mix.
- * @returns A fresh master, its analysis and the loudness record with its master
- *   stage.
+ * Parameter props: The plan and the unmastered mix.
+ * Returns: A fresh master, its analysis and the loudness record with its master
+ * stage.
  */
 export function masterProductionSound(
   props: IAutoMovieMasterProductionSound.IProps,
@@ -90,7 +89,7 @@ export function masterProductionSound(
   };
 }
 
-/**
+/*
  * Integrated loudness of an interleaved stereo buffer, or null below the
  * absolute gate.
  */

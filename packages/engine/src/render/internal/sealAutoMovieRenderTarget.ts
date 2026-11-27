@@ -11,7 +11,7 @@ import { autoMovieRenderDigest } from "./autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { normalizeAutoMovieShadowFilter } from "./normalizeAutoMovieShadowFilter";
 
-/**
+/*
  * Seal one render target: the renderer, its settings, and the exact asset bytes
  * a frame will read.
  *

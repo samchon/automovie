@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A court phrase's hand target in the performer's own frame (+X left, +Z
  * ahead), from the shoulders' midpoint, at the stroke's progress `u` and the
  * follow-through's `follow`, both in [0, 1], scaled by the arm's length:
@@ -20,15 +20,14 @@ import type {
  * The shares are provisional staging values (FIBA WABC Level 2 §1.1.1 for the
  * contest's high hand; Wagner et al. 2011, J Sports Sci Med 10:73, for the
  * grounded handball throw).
- *
- * @param kind The court phrase.
- * @param side The hand.
- * @param u The stroke's progress.
- * @param follow The follow-through's progress.
- * @param width The shoulder half width, metres.
- * @param arm The arm's length, metres.
- * @param radius The ball's radius, metres; none for an empty-handed phrase.
- * @returns The hand's offset and its palm's facing, unnormalised.
+ * Parameter kind: The court phrase.
+ * Parameter side: The hand.
+ * Parameter u: The stroke's progress.
+ * Parameter follow: The follow-through's progress.
+ * Parameter width: The shoulder half width, metres.
+ * Parameter arm: The arm's length, metres.
+ * Parameter radius: The ball's radius, metres; none for an empty-handed phrase.
+ * Returns: The hand's offset and its palm's facing, unnormalised.
  */
 export function ballCourtHand(
   kind: ballCourtHand.Kind,
@@ -96,9 +95,13 @@ export function ballCourtHand(
   }
 }
 
-/** The court phrases and their hand targets. */
+/*
+ * The court phrases and their hand targets.
+ */
 export namespace ballCourtHand {
-  /** The court phrases the ball court plans. */
+  /*
+   * The court phrases the ball court plans.
+   */
   export type Kind =
     | "dribbleRelease"
     | "chestPass"
@@ -107,12 +110,18 @@ export namespace ballCourtHand {
     | "handballThrow"
     | "highHandContest";
 
-  /** A hand's target in the performer's frame. */
+  /*
+   * A hand's target in the performer's frame.
+   */
   export interface ITarget {
-    /** The hand's place from the shoulders' midpoint, metres. */
+    /*
+     * The hand's place from the shoulders' midpoint, metres.
+     */
     offset: IAutoMovieVector3;
 
-    /** The palm's facing, unnormalised. */
+    /*
+     * The palm's facing, unnormalised.
+     */
     facing: IAutoMovieVector3;
   }
 }

@@ -7,7 +7,7 @@ import {
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { materializeCompiledFormation } from "./materializeCompiledFormation";
 
-/**
+/*
  * Compile every formation of a production into its compact runtime record.
  *
  * Records are keyed by formation id and inserted in code-unit order of that id,

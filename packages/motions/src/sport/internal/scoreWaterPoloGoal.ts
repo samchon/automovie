@@ -12,22 +12,21 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Tolerance on the mouth's unit up axis for a level scoring plane, unitless
  * rounding.
  */
 const LEVEL: number = 1e-8;
 
-/**
+/*
  * Score the direct, airborne portion of a water polo shot. The same resolved
  * flight that displays the ball supplies its radius, centre, and the first
  * contact or takeover that can end a scoring opportunity. The fixed mouth's +Z
  * faces the field and its +Y begins at the waterline.
- *
- * @param params The `film` displaying both the ball and the fixed goal, the
- *   `ball`'s subject id through catch, carry and shot, and the fixed placed
- *   `goal` with the physical "mouth" aperture.
- * @returns Each credited goal, in film order.
+ * Parameter params: The `film` displaying both the ball and the fixed goal, the
+ * `ball`'s subject id through catch, carry and shot, and the fixed placed
+ * `goal` with the physical "mouth" aperture.
+ * Returns: Each credited goal, in film order.
  */
 export function scoreWaterPoloGoal(
   params: scoreWaterPoloGoal.IGoal,
@@ -110,45 +109,60 @@ export function scoreWaterPoloGoal(
   return cues;
 }
 
-/** What a goal credit reads of the film and its flights. */
+/*
+ * What a goal credit reads of the film and its flights.
+ */
 export namespace scoreWaterPoloGoal {
-  /** A displayed flight of the ball: its timing, projectile, sphere and thrower. */
+  /*
+   * A displayed flight of the ball: its timing, projectile, sphere and thrower.
+   */
   export interface IFlight extends Pick<
     IAutoMovieMotionHumanPropFlight.IFlight,
     "launch" | "end" | "supersededAt" | "capturedAt" | "projectile"
   > {
-    /** The launch as published: its sphere. */
+    /*
+     * The launch as published: its sphere.
+     */
     published: Pick<IAutoMovieMotionPropLaunch, "sphere">;
 
-    /** The segment that threw it: its performer. */
+    /*
+     * The segment that threw it: its performer.
+     */
     source: Pick<IAutoMovieMotionHumanPropFlight.IFlight["source"], "subject">;
   }
 
-  /** The film a credit reads: its length, its props' frames and the flights. */
+  /*
+   * The film a credit reads: its length, its props' frames and the flights.
+   */
   export interface IFilm extends Pick<
     IAutoMovieMotionHumanWaterPolo.IFilm,
     "duration" | "prop"
   > {
-    /**
+    /*
      * A prop's flights in film order.
-     *
-     * @param subject The prop.
-     * @returns Its flights.
+     * Parameter subject: The prop.
+     * Returns: Its flights.
      */
     flights(subject: string): readonly IFlight[];
   }
 
-  /** The goal to credit: the film, the ball and the fixed placed goal. */
+  /*
+   * The goal to credit: the film, the ball and the fixed placed goal.
+   */
   export interface IGoal extends Omit<
     IAutoMovieMotionHumanWaterPolo.IGoal,
     "film"
   > {
-    /** The film displaying the ball and the goal. */
+    /*
+     * The film displaying the ball and the goal.
+     */
     film: IFilm;
   }
 }
 
-/** A fixed aperture and a level frame give the rule its scoring plane. */
+/*
+ * A fixed aperture and a level frame give the rule its scoring plane.
+ */
 function invalidGoal(goal: IAutoMovieMotionHumanProp): HumanRefusal {
   return new HumanRefusal({
     kind: "affordance",

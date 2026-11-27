@@ -13,7 +13,7 @@ import type {
 import { RecoveryChartAssembly } from "./RecoveryChartAssembly";
 import { RecoveryChartBatch as B } from "./RecoveryChartBatch";
 
-/**
+/*
  * Fit the completely registered selected domain and publish its canonical
  * assembly and coverage.
  */

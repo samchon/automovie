@@ -8,7 +8,7 @@ import type {
 import { matchAutoMovieInspectionPath } from "../../scene/inspection/internal/matchAutoMovieInspectionPath.js";
 import { parseAutoMovieInspectionView } from "../../scene/inspection/internal/parseAutoMovieInspectionView.js";
 
-/**
+/*
  * Resolve every pattern a cell's request and view carry against the paths a
  * drawn scene holds: the `parts`, `hide`, `label` and `color` patterns in that
  * order and as written, then the view's focus pattern.
@@ -78,7 +78,9 @@ export function resolveAutoMovieCapturePatterns(
   );
 }
 
-/** The focus pattern a named view carries, as a one-entry list or none. */
+/*
+ * The focus pattern a named view carries, as a one-entry list or none.
+ */
 function focusPatterns(view: IAutoMovieInspectionView): ["focus", string][] {
   if (view.type === "named" && view.focus?.type === "pattern")
     return [["focus", view.focus.pattern]];

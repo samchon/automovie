@@ -7,13 +7,12 @@ import type {
 
 import { prepareDanceFootCourse } from "./prepareDanceFootCourse";
 
-/**
+/*
  * Prepare the ordered footfalls and rigid foot courses of a step-touch or box
  * step. Apply an optional waltz turn at each destination beat.
- *
- * @param steps The figure, beat times, entry foot anchors and step sizes.
- * @returns Each foot's ordered falls and prepared course for posture and
- *   contact planning.
+ * Parameter steps: The figure, beat times, entry foot anchors and step sizes.
+ * Returns: Each foot's ordered falls and prepared course for posture and
+ * contact planning.
  */
 export function prepareDanceSteps({
   kind,
@@ -116,84 +115,132 @@ export function prepareDanceSteps({
   return { paths, courses };
 }
 
-/**
+/*
  * A foot's offset from its stance over the floor, metres: `x` to the body's
  * left, `z` forward.
  */
 interface IOffset {
-  /** To the body's left. */
+  /*
+   * To the body's left.
+   */
   x: number;
 
-  /** Forward. */
+  /*
+   * Forward.
+   */
   z: number;
 
-  /** The footfall's second for a rotated box placement. */
+  /*
+   * The footfall's second for a rotated box placement.
+   */
   seconds?: number;
 }
-/** A landed foot, its half-beat course endpoint and its time. */
+/*
+ * A landed foot, its half-beat course endpoint and its time.
+ */
 interface IFall {
-  /** Which foot lands. */
+  /*
+   * Which foot lands.
+   */
   foot: AutoMovieHumanSide;
 
-  /** Time of the landing, in action-local seconds. */
+  /*
+   * Time of the landing, in action-local seconds.
+   */
   beat: number;
 
-  /** Planned offset from the foot's entry placement, in metres. */
+  /*
+   * Planned offset from the foot's entry placement, in metres.
+   */
   at: IOffset;
 }
 
-/** The alternatives of `StepsKind`'s site. */
+/*
+ * The alternatives of `StepsKind`'s site.
+ */
 type StepsKind = "stepTouch" | "boxStep";
-/** The ordered step figure and its unchanged timing and floor placement inputs. */
+/*
+ * The ordered step figure and its unchanged timing and floor placement inputs.
+ */
 interface ISteps {
-  /** Which stepping pattern to trace. */
+  /*
+   * Which stepping pattern to trace.
+   */
   kind: StepsKind;
 
-  /** First foot when the author specifies one. */
+  /*
+   * First foot when the author specifies one.
+   */
   side?: AutoMovieHumanSide;
 
-  /** Whether the first half of a box moves backward. */
+  /*
+   * Whether the first half of a box moves backward.
+   */
   reverse: boolean;
 
-  /** Number of authored footfalls. */
+  /*
+   * Number of authored footfalls.
+   */
   beats: number;
 
-  /** Action-local second of each one-based beat. */
+  /*
+   * Action-local second of each one-based beat.
+   */
   beatAt: (beat: number) => number;
 
-  /** Nominal seconds between beats, used for the half-beat travels. */
+  /*
+   * Nominal seconds between beats, used for the half-beat travels.
+   */
   period: number;
 
-  /** Step distance, in metres. */
+  /*
+   * Step distance, in metres.
+   */
   distance: number;
 
-  /** Swing clearance, in metres. */
+  /*
+   * Swing clearance, in metres.
+   */
   clearance: number;
 
-  /** World placement of both feet as the action starts. */
+  /*
+   * World placement of both feet as the action starts.
+   */
   stance: Readonly<
     Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>
   >;
 
-  /** World direction toward the dancer's left at entry. */
+  /*
+   * World direction toward the dancer's left at entry.
+   */
   leftward: IAutoMovieVector3;
 
-  /** World direction forward from the dancer at entry. */
+  /*
+   * World direction forward from the dancer at entry.
+   */
   forward: IAutoMovieVector3;
 
-  /** A waltz's shared-pivot turn at each footfall, when used. */
+  /*
+   * A waltz's shared-pivot turn at each footfall, when used.
+   */
   rotate?: (
     placement: IAutoMovieMotionHumanFoot.IPlacement,
     seconds: number,
   ) => IAutoMovieMotionHumanFoot.IPlacement;
 }
 
-/** The record of `IPrepareDanceStepsResult`'s site. */
+/*
+ * The record of `IPrepareDanceStepsResult`'s site.
+ */
 type IPrepareDanceStepsResult = {
-  /** Ordered timed feet for publishing support windows. */
+  /*
+   * Ordered timed feet for publishing support windows.
+   */
   paths: Readonly<Record<AutoMovieHumanSide, readonly IFall[]>>;
 
-  /** The two prepared course readers. */
+  /*
+   * The two prepared course readers.
+   */
   courses: Readonly<
     Record<AutoMovieHumanSide, ReturnType<typeof prepareDanceFootCourse>>
   >;

@@ -14,7 +14,7 @@ import { beatCaptions } from "./caption/internal/beatCaptions.js";
 import { frameTimes } from "./internal/frameTimes.js";
 import { shotBeat } from "./shotBeat.js";
 
-/**
+/*
  * Plan the caption sidecar of one sequence render: which beat's shot is live at
  * every output frame, grouped into spans, each joined to its beat's caption and
  * enclosing scene slug.

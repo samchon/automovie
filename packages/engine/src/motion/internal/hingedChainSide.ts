@@ -2,7 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * The bend hint's side term of a hinged chain's swivel, read in closed form.
  *
  * The mid joint's offset across the root-to-target axis at swivel `s` degrees
@@ -14,21 +14,20 @@ import { Vector3 } from "../../math/Vector3";
  * value over an interval and `peak` gives `p`.
  */
 export namespace hingedChainSide {
-  /**
+  /*
    * The mid joint's distance from the line to the target, metres, from which
    * the bend hint's side weighs in full (provisional: a millimetre, past any
    * rounding of a limb's joints and short of any bend one sees).
    */
   export const SIDED: number = 1e-3;
 
-  /**
+  /*
    * A lower bound of twice the hint-side term over a swivel interval: at the
    * peak when the interval holds it, else at the nearer end.
-   *
-   * @param offset The mid joint's offset across the axis at a swivel, degrees.
-   * @param side The unit hint direction across the axis.
-   * @returns The bound over `low` to `high` degrees; zero for a limb straight
-   *   to within rounding.
+   * Parameter offset: The mid joint's offset across the axis at a swivel, degrees.
+   * Parameter side: The unit hint direction across the axis.
+   * Returns: The bound over `low` to `high` degrees; zero for a limb straight
+   * to within rounding.
    */
   export function bound(
     offset: (swivel: number) => IAutoMovieVector3,
@@ -50,13 +49,12 @@ export namespace hingedChainSide {
     };
   }
 
-  /**
+  /*
    * The swivel at which the hint-side term is least, the pole of two-bone IK.
-   *
-   * @param offset The mid joint's offset across the axis at a swivel, degrees.
-   * @param side The unit hint direction across the axis.
-   * @returns The phase `p`, degrees in [0, 360); null for a limb straight to
-   *   within rounding.
+   * Parameter offset: The mid joint's offset across the axis at a swivel, degrees.
+   * Parameter side: The unit hint direction across the axis.
+   * Returns: The phase `p`, degrees in [0, 360); null for a limb straight to
+   * within rounding.
    */
   export function peak(
     offset: (swivel: number) => IAutoMovieVector3,
@@ -67,7 +65,7 @@ export namespace hingedChainSide {
   }
 }
 
-/**
+/*
  * Below this a bound is lowered, deviation units: a hundred times the float
  * error of reading the same side term two ways (a few operations at 2^-53
  * relative on a term of at most 4), so the bound stays below every candidate it
@@ -75,22 +73,28 @@ export namespace hingedChainSide {
  */
 const ROUNDING: number = 1e-12;
 
-/**
+/*
  * The mid joint's side circle: offset length at 0 degrees, metres; the side
  * dot's amplitude; its phase, degrees.
  */
 interface ICircle {
-  /** The mid joint's offset across the axis at swivel 0, metres. */
+  /*
+   * The mid joint's offset across the axis at swivel 0, metres.
+   */
   off: number;
 
-  /** The amplitude of the side dot over the swivel. */
+  /*
+   * The amplitude of the side dot over the swivel.
+   */
   reach: number;
 
-  /** The swivel at which the side dot is greatest, degrees. */
+  /*
+   * The swivel at which the side dot is greatest, degrees.
+   */
   phase: number;
 }
 
-/**
+/*
  * The circle from the offsets at 0 and 90 degrees; null for a limb straight to
  * within rounding.
  */

@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 
-/**
+/*
  * The drawn objects whose every material states a display colour (`toneMapped:
  * false`), each with its layer mask, so the film response stage draws them
  * after the response and leaves them out of the scene's linear light.

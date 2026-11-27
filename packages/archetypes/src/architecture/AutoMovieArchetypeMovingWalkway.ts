@@ -11,21 +11,25 @@ import {
 } from "../core";
 import { rideMovingWalkway } from "./internal/rideMovingWalkway";
 
-/** The planning guide read for every autowalk figure below. */
+/*
+ * The planning guide read for every autowalk figure below.
+ */
 const KONE: string =
   "KONE Planning Guide for Escalators & Autowalks, sections 5.3, 5.4, 5.8 and 5.12 (https://www.kone.co.uk/Images/Escalator%20planning%20guide%20GBIR_tcm45-86614.pdf)";
 
-/** Construction sizes the guide does not give, provisional. */
+/*
+ * Construction sizes the guide does not give, provisional.
+ */
 const ESTIMATE: string =
   "Coarse film-set construction estimate; no source read gives it";
 
-/**
+/*
  * Thickness drawn for landing plates and the pallet band, metres (provisional
  * construction estimate).
  */
 const PLATE: number = 0.05;
 
-/**
+/*
  * Depth of each fixed landing plate drawn beyond a comb, metres (provisional
  * construction estimate).
  */

@@ -15,113 +15,163 @@ import { staggerClose } from "./staggerClose";
 import { staggerPendulumEntry } from "./staggerPendulumEntry";
 import { staggerStep } from "./staggerStep";
 
-/**
+/*
  * A stagger's recovery from a push (`stagger`): the steps the capture-point
  * rule places over Hof's pendulum (`StaggerPendulum`, `staggerStep`), the order
  * of the feet searched for the fewest steps, then the closing step and the
  * settling (`staggerClose`), each admitted by the legs (`staggerAdmission`).
  */
 export namespace staggerRecover {
-  /** One recovery step. */
+  /*
+   * One recovery step.
+   */
   export interface IStep {
-    /** The stepping foot. */
+    /*
+     * The stepping foot.
+     */
     side: AutoMovieHumanSide;
 
-    /** Where it stood before the step. */
+    /*
+     * Where it stood before the step.
+     */
     from: IAutoMovieMotionHumanFoot.IPlacement;
 
-    /** Where it lands. */
+    /*
+     * Where it lands.
+     */
     to: IAutoMovieMotionHumanFoot.IPlacement;
 
-    /** The swing's start, seconds since the action's start. */
+    /*
+     * The swing's start, seconds since the action's start.
+     */
     start: number;
 
-    /** The landing, seconds since the action's start. */
+    /*
+     * The landing, seconds since the action's start.
+     */
     land: number;
   }
 
-  /** A recovery from a push: its steps and the centre of mass's course. */
+  /*
+   * A recovery from a push: its steps and the centre of mass's course.
+   */
   export interface IRecovery extends ICourses {
-    /** The steps, in order, the closing step last. */
+    /*
+     * The steps, in order, the closing step last.
+     */
     steps: IStep[];
 
-    /**
+    /*
      * The extrapolated centre of mass caught by the last catching step, from
      * the entry's centre of mass over the floor, world metres.
      */
     caught: IAutoMovieVector3;
 
-    /**
+    /*
      * When the centre of mass has come to rest, seconds since the action's
      * start.
      */
     settled: number;
 
-    /**
+    /*
      * The entry's centre of mass, world metres, the origin of `course`'s
      * travel.
      */
     centre: IAutoMovieVector3;
   }
 
-  /** A span's start, held centre of pressure and initial travel/velocity. */
+  /*
+   * A span's start, held centre of pressure and initial travel/velocity.
+   */
   export interface IPhase {
-    /** Its start, seconds since the push. */
+    /*
+     * Its start, seconds since the push.
+     */
     from: number;
 
-    /** Its centre of pressure, from the entry's centre of mass. */
+    /*
+     * Its centre of pressure, from the entry's centre of mass.
+     */
     p: IAutoMovieVector3;
 
-    /** The travel it started from. */
+    /*
+     * The travel it started from.
+     */
     s: IAutoMovieVector3;
 
-    /** The velocity it started from. */
+    /*
+     * The velocity it started from.
+     */
     v: IAutoMovieVector3;
 
-    /**
+    /*
      * Where a weight shift's centre of pressure runs to on its minimum-jerk
      * course from `p` (`staggerTransfer`); held at `p` when absent.
      */
     to?: IAutoMovieVector3;
 
-    /** The weight shift's seconds, with `to`; held at `to` after them. */
+    /*
+     * The weight shift's seconds, with `to`; held at `to` after them.
+     */
     span?: number;
   }
 
-  /** The original prefix state snapshot/restore transfers between foot orders. */
+  /*
+   * The original prefix state snapshot/restore transfers between foot orders.
+   */
   export interface IState {
-    /** The feet. */
+    /*
+     * The feet.
+     */
     feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
-    /** The spans. */
+    /*
+     * The spans.
+     */
     phases: IPhase[];
 
-    /** The steps. */
+    /*
+     * The steps.
+     */
     steps: IStep[];
 
-    /** The travel. */
+    /*
+     * The travel.
+     */
     s: IAutoMovieVector3;
 
-    /** The velocity. */
+    /*
+     * The velocity.
+     */
     v: IAutoMovieVector3;
 
-    /** The second. */
+    /*
+     * The second.
+     */
     t: number;
   }
 
-  /** The courses of the spans, read at seconds since the push. */
+  /*
+   * The courses of the spans, read at seconds since the push.
+   */
   export interface ICourses {
-    /** The centre of mass's travel from the entry's. */
+    /*
+     * The centre of mass's travel from the entry's.
+     */
     course: (seconds: number) => IAutoMovieVector3;
 
-    /** The centre of pressure on the floor, world metres. */
+    /*
+     * The centre of pressure on the floor, world metres.
+     */
     pressure: (seconds: number) => IAutoMovieVector3;
 
-    /** The extrapolated centre of mass on the floor, world metres. */
+    /*
+     * The extrapolated centre of mass on the floor, world metres.
+     */
     extrapolated: (seconds: number) => IAutoMovieVector3;
   }
 
-  /**
+  /*
    * The recovery from a push: the steps the capture-point rule places, the
    * closing step and the centre of mass's course over them.
    *
@@ -132,20 +182,19 @@ export namespace staggerRecover {
    * is taken as implied by the pendulum's, the premise `staggerLimit` states:
    * the search first runs the pendulum alone, and a push it refuses is refused
    * without a single admission.
-   *
-   * @param body The body.
-   * @param entry The posture the push meets.
-   * @param push The push's horizontal unit direction, world.
-   * @param speed The centre of mass's speed after the blow, m/s.
-   * @param righting How long the centre of pressure takes to carry the
-   *   extrapolated centre of mass to rest, seconds.
-   * @param admitted Whether the legs admit each step, the close and the rest;
-   *   the pendulum alone when false, the upper bound `staggerLimit` reads.
-   * @param fixed The entry's geometry (`staggerPendulumEntry.prepare`) of this
-   *   same body and entry, shared by a search over speeds; read here when
-   *   absent.
-   * @returns The recovery, or null when no order of `STEPS` steps catches,
-   *   closes and settles it with every step admitted.
+   * Parameter body: The body.
+   * Parameter entry: The posture the push meets.
+   * Parameter push: The push's horizontal unit direction, world.
+   * Parameter speed: The centre of mass's speed after the blow, m/s.
+   * Parameter righting: How long the centre of pressure takes to carry the
+   * extrapolated centre of mass to rest, seconds.
+   * Parameter admitted: Whether the legs admit each step, the close and the rest;
+   * the pendulum alone when false, the upper bound `staggerLimit` reads.
+   * Parameter fixed: The entry's geometry (`staggerPendulumEntry.prepare`) of this
+   * same body and entry, shared by a search over speeds; read here when
+   * absent.
+   * Returns: The recovery, or null when no order of `STEPS` steps catches,
+   * closes and settles it with every step admitted.
    */
   export function recover(
     body: IAutoMovieMotionHumanActionContext["body"],
@@ -224,7 +273,7 @@ export namespace staggerRecover {
         }
         orders.push(order);
       }
-    /**
+    /*
      * One exactly shared foot-order prefix: its pendulum state and, once read,
      * its admission.
      */

@@ -26,7 +26,7 @@ import { AUTOMOVIE_DRAWING_ROLES } from "../AUTOMOVIE_DRAWING_ROLES";
 import { projectAutoMovieDrawingPoint } from "./projectAutoMovieDrawingPoint";
 import { roundAutoMovieDrawingPoint } from "./roundAutoMovieDrawingPoint";
 
-/**
+/*
  * Draft every line one view draws of one validated design, classified by its
  * relation to the cut plane, deduplicated and in canonical order.
  *
@@ -46,14 +46,13 @@ import { roundAutoMovieDrawingPoint } from "./roundAutoMovieDrawingPoint";
  * zero-length strokes are dropped, each stroke runs from its smaller point,
  * identical strokes are merged, and the result is sorted by role order, layer,
  * owner and points.
- *
- * @param props.environment The validated design.
- * @param props.view The view whose depth bands apply.
- * @param props.frame The view's resolved page basis.
- * @param props.design Index of `environment`.
- * @param props.cut Whether the view's projection cuts.
- * @param props.drawn Whether a kind and space pass the view's filters.
- * @returns The sorted lines and the count of undrawable elements.
+ * Parameter props.environment: The validated design.
+ * Parameter props.view: The view whose depth bands apply.
+ * Parameter props.frame: The view's resolved page basis.
+ * Parameter props.design: Index of `environment`.
+ * Parameter props.cut: Whether the view's projection cuts.
+ * Parameter props.drawn: Whether a kind and space pass the view's filters.
+ * Returns: The sorted lines and the count of undrawable elements.
  */
 export const draftAutoMovieDrawingLines = (
   props: IAutoMovieDraftDrawingLines.IProps,
@@ -113,7 +112,9 @@ export const draftAutoMovieDrawingLines = (
   };
 };
 
-/** One thing the view draws, reduced to what drafting needs to know about it. */
+/*
+ * One thing the view draws, reduced to what drafting needs to know about it.
+ */
 interface IDrawable {
   id: string;
   kind: string;
@@ -121,7 +122,9 @@ interface IDrawable {
   triangles: IAutoMovieDrawingTriangle[];
 }
 
-/** An element placed in the world, carrying its own kind and space. */
+/*
+ * An element placed in the world, carrying its own kind and space.
+ */
 const elementDrawable = (
   design: IAutoMovieDrawingDesignIndex,
   element: IAutoMovieBuiltElement,
@@ -133,7 +136,9 @@ const elementDrawable = (
   triangles: autoMovieDrawingElementTriangles(design, element, model),
 });
 
-/** A face-only boundary's closed slab, carrying its first space. */
+/*
+ * A face-only boundary's closed slab, carrying its first space.
+ */
 const boundaryDrawable = (boundary: IAutoMovieBuiltBoundary): IDrawable => ({
   id: boundary.id,
   kind: boundary.kind,
@@ -141,7 +146,9 @@ const boundaryDrawable = (boundary: IAutoMovieBuiltBoundary): IDrawable => ({
   triangles: autoMovieBoundaryShellTriangles(boundary.face!),
 });
 
-/** Every triangle corner's signed distance from the cut plane. */
+/*
+ * Every triangle corner's signed distance from the cut plane.
+ */
 function* cornerDistances(
   frame: IAutoMovieDrawingFrame,
   triangles: readonly IAutoMovieDrawingTriangle[],
@@ -153,7 +160,9 @@ function* cornerDistances(
   }
 }
 
-/** Draft a drawable's silhouette in one role, clipped unless it is overhead. */
+/*
+ * Draft a drawable's silhouette in one role, clipped unless it is overhead.
+ */
 const draftSilhouette = (
   lines: IAutoMovieDrawingLine[],
   drawable: IDrawable,
@@ -173,7 +182,9 @@ const draftSilhouette = (
   }
 };
 
-/** Whether a world point lies on the cut plane within tolerance. */
+/*
+ * Whether a world point lies on the cut plane within tolerance.
+ */
 const onPlane = (
   frame: IAutoMovieDrawingFrame,
   point: IAutoMovieVector3,
@@ -181,7 +192,9 @@ const onPlane = (
   Math.abs(autoMovieDrawingPlaneDistance(frame, point)) <=
   AUTOMOVIE_DRAWING_EPSILON;
 
-/** Project, round and orient one edge, dropping it when it has no length. */
+/*
+ * Project, round and orient one edge, dropping it when it has no length.
+ */
 const draftEdge = (
   lines: IAutoMovieDrawingLine[],
   drawable: IDrawable,
@@ -207,13 +220,17 @@ const draftEdge = (
   });
 };
 
-/** Order two page points by x, then y. */
+/*
+ * Order two page points by x, then y.
+ */
 const comparePoints = (
   left: IAutoMovieDrawingPoint,
   right: IAutoMovieDrawingPoint,
 ): number => left.x - right.x || left.y - right.y;
 
-/** The identity of one stroke: its role, layer, owner and oriented points. */
+/*
+ * The identity of one stroke: its role, layer, owner and oriented points.
+ */
 const lineKey = (line: IAutoMovieDrawingLine): string =>
   JSON.stringify([
     line.role,
@@ -225,7 +242,9 @@ const lineKey = (line: IAutoMovieDrawingLine): string =>
     line.to.y,
   ]);
 
-/** Canonical stroke order: role precedence, layer, owner, then points. */
+/*
+ * Canonical stroke order: role precedence, layer, owner, then points.
+ */
 const compareLines = (
   left: IAutoMovieDrawingLine,
   right: IAutoMovieDrawingLine,

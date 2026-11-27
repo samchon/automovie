@@ -1,7 +1,9 @@
 import type { IParsedContainer } from "./IParsedContainer";
 import { decodeJson } from "./decodeJson";
 
-/** Decode one GLB 2.0 container's mandatory JSON and optional BIN chunk. */
+/*
+ * Decode one GLB 2.0 container's mandatory JSON and optional BIN chunk.
+ */
 export function decodeGlb(
   bytes: Uint8Array,
   vrmExtension: boolean,

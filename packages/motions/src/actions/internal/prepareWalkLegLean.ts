@@ -6,12 +6,11 @@ import type {
 
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * Prepare the measured two-bone geometry and fixed heading of a stepping shank.
- *
- * @param body The fixed body's thigh and shank lengths, metres.
- * @param heading The fixed heading toward which its knee bends, degrees.
- * @returns The forward shank lean, degrees, for each world-metre hip and ankle.
+ * Parameter body: The fixed body's thigh and shank lengths, metres.
+ * Parameter heading: The fixed heading toward which its knee bends, degrees.
+ * Returns: The forward shank lean, degrees, for each world-metre hip and ankle.
  */
 export function prepareWalkLegLean(
   body: IAutoMovieMotionHumanBody,
@@ -22,16 +21,17 @@ export function prepareWalkLegLean(
     fixed.at(hip, ankle, Vector3.distance(ankle, hip));
 }
 
-/** The same shank geometry behind the rocker's reach screen. */
+/*
+ * The same shank geometry behind the rocker's reach screen.
+ */
 export namespace prepareWalkLegLean {
-  /**
+  /*
    * The shank lean behind a reach screen: bind the body's total leg length and
    * heading, then compute each hip-to-ankle length once.
-   *
-   * @param body The body's thigh and shank lengths, metres.
-   * @param heading The heading toward which its knee bends, degrees.
-   * @returns For a world-metre hip and ankle, undefined beyond thigh plus
-   *   shank, else the forward shank lean in degrees.
+   * Parameter body: The body's thigh and shank lengths, metres.
+   * Parameter heading: The heading toward which its knee bends, degrees.
+   * Returns: For a world-metre hip and ankle, undefined beyond thigh plus
+   * shank, else the forward shank lean in degrees.
    */
   export function bounded(
     body: IAutoMovieMotionHumanBody,
@@ -48,12 +48,16 @@ export namespace prepareWalkLegLean {
   }
 }
 
-/** Private measured prerequisites and one knee-circle calculation. */
+/*
+ * Private measured prerequisites and one knee-circle calculation.
+ */
 interface IGeometry {
-  /** The thigh and the shank end to end, metres. */
+  /*
+   * The thigh and the shank end to end, metres.
+   */
   span: number;
 
-  /**
+  /*
    * The shank's forward lean, degrees, for a hip, an ankle and their distance,
    * metres.
    */
@@ -64,15 +68,19 @@ interface IGeometry {
   ) => number;
 }
 
-/** An angle, radians, as its principal value in (-pi, pi]. */
+/*
+ * An angle, radians, as its principal value in (-pi, pi].
+ */
 function wrap(angle: number): number {
   return Math.atan2(Math.sin(angle), Math.cos(angle));
 }
 
-/** A full turn, radians. */
+/*
+ * A full turn, radians.
+ */
 const TURN: number = 2 * Math.PI;
 
-/**
+/*
  * How far apart, radians, two swings' magnitudes read by `x - 2 pi round(x / 2
  * pi)` must lie for that reading to decide which of their exact wraps
  * (`atan2(sin x, cos x)`) is nearer zero: each reading of an angle within three
@@ -81,13 +89,12 @@ const TURN: number = 2 * Math.PI;
  */
 const DECIDED: number = 1e-9;
 
-/**
+/*
  * Prepare a body's and heading's fixed terms; joint vectors and distances stay
  * call-local.
- *
- * @param body The body's thigh and shank lengths, metres.
- * @param heading The heading toward which the knee bends, degrees.
- * @returns The total leg length and the knee-circle reader.
+ * Parameter body: The body's thigh and shank lengths, metres.
+ * Parameter heading: The heading toward which the knee bends, degrees.
+ * Returns: The total leg length and the knee-circle reader.
  */
 function geometry(body: IAutoMovieMotionHumanBody, heading: number): IGeometry {
   const a: number = body.measure.thigh;

@@ -6,15 +6,14 @@ import {
 
 import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
 
-/**
+/*
  * Compile a spine record into a transport: size it, write its points, starting
  * direction and end tangents, and update it.
- *
- * @param spine The spine, only read.
- * @param frames Whether the transport builds its frame table.
- * @returns The updated transport.
- * @throws Error when an end tangent is not finite or is zero, and whatever
- *   `transportAutoMovieSweepSpine` and its `update` refuse.
+ * Parameter spine: The spine, only read.
+ * Parameter frames: Whether the transport builds its frame table.
+ * Returns: The updated transport.
+ * Error when an end tangent is not finite or is zero, and whatever
+ * `transportAutoMovieSweepSpine` and its `update` refuse.
  */
 export const loadAutoMovieSweepSpine: (
   spine: IAutoMovieSweepSpine,

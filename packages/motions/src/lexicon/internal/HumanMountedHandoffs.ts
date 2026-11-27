@@ -9,16 +9,15 @@ import type {
 import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Each transfer's limb hand-offs: a limb a goal moves at one end of a transfer
  * and its joints at the other has the goal's end fitted once
  * (`resolveHumanPosture`), so the transfer blends joints to joints instead of
  * holding the goal and dropping it at an end.
- *
- * @param body The performer's body.
- * @param entry The entry posture, the first transfer's start.
- * @param keys Each figure's key posture.
- * @returns Per transfer, each handed-off limb's fitted joints by bone.
+ * Parameter body: The performer's body.
+ * Parameter entry: The entry posture, the first transfer's start.
+ * Parameter keys: Each figure's key posture.
+ * Returns: Per transfer, each handed-off limb's fitted joints by bone.
  */
 export function HumanMountedHandoffs(
   body: IAutoMovieMotionHumanBody,
@@ -72,10 +71,14 @@ export function HumanMountedHandoffs(
   );
 }
 
-/** A limb's joints by bone, clinical degrees `[flexion, abduction, twist]`. */
+/*
+ * A limb's joints by bone, clinical degrees `[flexion, abduction, twist]`.
+ */
 type Joints = IAutoMovieMotionHumanPosture["joints"];
 
-/** The four limbs a key may move by a goal. */
+/*
+ * The four limbs a key may move by a goal.
+ */
 const LIMBS: readonly AutoMovieHumanLimb[] = [
   "leftArm",
   "rightArm",

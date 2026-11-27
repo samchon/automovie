@@ -4,7 +4,7 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-/**
+/*
  * Apply a scalar envelope to reachPose's numeric clinical arm axes. Zero weight
  * returns an empty articulation; root remains null. This internal helper
  * assumes all supplied reach joints have numeric axes.

@@ -14,7 +14,7 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/**
+/*
  * The armed partner of a disarm (`IAutoMovieMotionHumanDisarm.IYield`). The
  * partner keeps the posture it entered with; its armed forearm turns with the
  * lever from the defender's grip to the take, and its hand opens at the
@@ -23,24 +23,31 @@ import { HumanHand } from "../../posture/internal/HumanHand";
  * owner at every instant.
  */
 export namespace disarmed {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "disarmed";
 
-  /** Cancel table: none; the partner yields to the end. */
+  /*
+   * Cancel table: none; the partner yields to the end.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-  /** How far the lever turns the armed forearm, degrees of twist: authored. */
+  /*
+   * How far the lever turns the armed forearm, degrees of twist: authored.
+   */
   export const TWIST: number = 70;
 
-  /** How long the partner stays after the take, seconds: authored. */
+  /*
+   * How long the partner stays after the take, seconds: authored.
+   */
   export const AFTER: number = 0.4;
 
-  /**
+  /*
    * When a placed action's named cue falls on the film clock.
-   *
-   * @param placed The placed action: its start and its plan's cues and length.
-   * @param name The cue.
-   * @returns Film seconds, or `undefined` when the plan has no such cue.
+   * Parameter placed: The placed action: its start and its plan's cues and length.
+   * Parameter name: The cue.
+   * Returns: Film seconds, or `undefined` when the plan has no such cue.
    */
   export function instant(
     placed: Pick<IAutoMovieMotionHumanPlacedAction, "start"> & {
@@ -58,14 +65,13 @@ export namespace disarmed {
       ? undefined
       : placed.start + event.share * placed.plan.duration;
   }
-  /**
+  /*
    * Plan the partner's yield.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} On `of` when no disarm by that defender is anchored
-   *   there or it has no `taken` instant, and on `prop` when this performer
-   *   holds nothing.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * On `of` when no disarm by that defender is anchored
+   * there or it has no `taken` instant, and on `prop` when this performer
+   * holds nothing.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDisarm.IYield>,

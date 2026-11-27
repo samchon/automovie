@@ -20,19 +20,23 @@ import { canonicalAutoMoviePatternPolygon } from "./canonicalAutoMoviePatternPol
 import { clipAutoMoviePatternPolygon } from "./clipAutoMoviePatternPolygon";
 import { AUTOMOVIE_MAX_PATTERN_CELLS } from "../AUTOMOVIE_MAX_PATTERN_CELLS";
 
-/** Domain constant separating variant draws from every other seeded decision. */
+/*
+ * Domain constant separating variant draws from every other seeded decision.
+ */
 const VARIANT_DOMAIN: number = 0x7061_7474;
 
-/** Smallest square metre area counted as real coverage. */
+/*
+ * Smallest square metre area counted as real coverage.
+ */
 const AREA_EPSILON: number = 1e-12;
 
-/**
+/*
  * Lay one pattern and measure exactly what was laid.
  *
  * With stable input and a pure generator, the fixed sequence is repeatable in
  * the same numerical runtime: zones in declaration order, rows outermost,
  * columns innermost and candidates in generator order. Engine code samples
- * neither clock nor `Math.random`; variants use {@link seededValue} with the
+ * neither clock nor `Math.random`; variants use seededValue with the
  * pattern seed and an FNV-1a occurrence-id hash. The callback's own purity is a
  * caller premise.
  *
@@ -43,7 +47,7 @@ const AREA_EPSILON: number = 1e-12;
  * the mesh, the instance slot, the finish, and the take-off all cite, so a
  * quantity can be traced back to the exact piece it counted. Quantities are
  * reported per zone and in total, and quality is judged by
- * {@link autoMoviePatternFindings}.
+ * autoMoviePatternFindings.
  *
  * Coordinates are the surface's planar (u, v) metres and angles are degrees. A
  * malformed declaration throws an `Error` naming the field: duplicate ids,
@@ -54,10 +58,9 @@ const AREA_EPSILON: number = 1e-12;
  * beyond its cell's declared reach. Quality defects are not thrown; they are
  * returned as `findings` (sliver, unsupported-piece, module-overlap,
  * joint-deviation, grain-break).
- *
- * @param props.pattern The declaration to lay.
- * @returns The pattern id, every surviving placement, the quantities, and the
- *   quality findings.
+ * Parameter props.pattern: The declaration to lay.
+ * Returns: The pattern id, every surviving placement, the quantities, and the
+ * quality findings.
  */
 export const generateAutoMovieSurfacePattern: (
   props: IAutoMovieGenerateSurfacePattern.IProps,
@@ -113,7 +116,9 @@ export const generateAutoMovieSurfacePattern: (
   };
 };
 
-/** Enumerate one zone's lattice and append every surviving piece. */
+/*
+ * Enumerate one zone's lattice and append every surviving piece.
+ */
 const layZone: (
   pattern: IAutoMovieSurfacePattern,
   zone: IAutoMovieSurfacePatternZone,
@@ -213,7 +218,9 @@ const layZone: (
     }
 };
 
-/** Check the declaration's own fields and canonicalize its exclusions. */
+/*
+ * Check the declaration's own fields and canonicalize its exclusions.
+ */
 const validatePattern: (
   pattern: IAutoMovieSurfacePattern,
 ) => IAutoMoviePatternPoint[][] = (
@@ -267,7 +274,7 @@ const validatePattern: (
   return exclusions;
 };
 
-/**
+/*
  * Judge one generated module and hand back the corners the judgment used.
  *
  * The reach check has to build the module's corners anyway, and the clipper
@@ -305,7 +312,7 @@ const validateCandidate: (
   return corners;
 };
 
-/**
+/*
  * The inclusive lattice range whose cells can still touch the region.
  *
  * A cell contributes when a module reaching `reach` from its origin can still
@@ -335,7 +342,9 @@ const latticeRange: (
   return range;
 };
 
-/** A module rectangle's four corners, counter-clockwise, turned in place. */
+/*
+ * A module rectangle's four corners, counter-clockwise, turned in place.
+ */
 const moduleCorners: (
   candidate: IAutoMoviePatternCandidate,
 ) => IAutoMoviePatternPoint[] = (
@@ -359,7 +368,9 @@ const moduleCorners: (
   );
 };
 
-/** The seeded variant index of one occurrence id, in `[0, variants)`. */
+/*
+ * The seeded variant index of one occurrence id, in `[0, variants)`.
+ */
 const variantOf: (pattern: IAutoMovieSurfacePattern, id: string) => number = (
   pattern: IAutoMovieSurfacePattern,
   id: string,
@@ -371,7 +382,9 @@ const variantOf: (pattern: IAutoMovieSurfacePattern, id: string) => number = (
     ),
   );
 
-/** Fold an occurrence id into a 32-bit integer with FNV-1a. */
+/*
+ * Fold an occurrence id into a 32-bit integer with FNV-1a.
+ */
 const hashOf: (id: string) => number = (id: string): number => {
   let hash: number = 0x811c9dc5;
   for (let index: number = 0; index < id.length; ++index) {
@@ -381,7 +394,9 @@ const hashOf: (id: string) => number = (id: string): number => {
   return hash;
 };
 
-/** One zone's take-off from its own placements and net region area. */
+/*
+ * One zone's take-off from its own placements and net region area.
+ */
 const summarize: (
   zone: string,
   placements: readonly IAutoMoviePatternPlacement[],
@@ -411,7 +426,9 @@ const summarize: (
   };
 };
 
-/** The whole pattern's take-off, summed from its zones. */
+/*
+ * The whole pattern's take-off, summed from its zones.
+ */
 const totalQuantities: (
   pattern: IAutoMovieSurfacePattern,
   placements: readonly IAutoMoviePatternPlacement[],
@@ -457,7 +474,9 @@ const totalQuantities: (
   };
 };
 
-/** The area two convex outlines share, the second canonical. */
+/*
+ * The area two convex outlines share, the second canonical.
+ */
 const overlapArea: (
   subject: readonly IAutoMoviePatternPoint[],
   clipper: readonly IAutoMoviePatternPoint[],
@@ -467,7 +486,9 @@ const overlapArea: (
 ): number =>
   autoMoviePatternPolygonArea(clipAutoMoviePatternPolygon(subject, clipper));
 
-/** The extent of a non-empty outline on both face-local axes. */
+/*
+ * The extent of a non-empty outline on both face-local axes.
+ */
 const spanOf: (polygon: readonly IAutoMoviePatternPoint[]) => IPatternSpan = (
   polygon: readonly IAutoMoviePatternPoint[],
 ): IPatternSpan => {
@@ -495,17 +516,27 @@ const atLeast: (value: number, limit: number, label: string) => void = (
     throw new Error(`${label} must be a finite number >= ${limit}`);
 };
 
-/** The inclusive span of a face-local outline on both axes, in metres. */
+/*
+ * The inclusive span of a face-local outline on both axes, in metres.
+ */
 interface IPatternSpan {
-  /** Least U coordinate. */
+  /*
+   * Least U coordinate.
+   */
   minU: number;
 
-  /** Greatest U coordinate. */
+  /*
+   * Greatest U coordinate.
+   */
   maxU: number;
 
-  /** Least V coordinate. */
+  /*
+   * Least V coordinate.
+   */
   minV: number;
 
-  /** Greatest V coordinate. */
+  /*
+   * Greatest V coordinate.
+   */
   maxV: number;
 }

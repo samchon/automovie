@@ -7,7 +7,7 @@ import type {
 
 import type { HumanArmTrajectory } from "../../posture/internal/HumanArmTrajectory";
 
-/**
+/*
  * What the arms are read against at an instant: the pose with the planned
  * arms in it, the segments their goals keep clear of or lay the hands on
  * (another body's), what no human body carries, and, on an arm's hold, the
@@ -17,11 +17,10 @@ import type { HumanArmTrajectory } from "../../posture/internal/HumanArmTrajecto
  * obstacle or rest of the other arm unless a goal clears it (a steadying
  * palm's presented hand, which the ring hand slides onto); the other arm
  * itself is the crossing pair, read on its own course.
- *
- * @param pose The pose at the instant.
- * @param goals Each arm's goal at the instant.
- * @param holding Whether each arm is on its hold at the instant.
- * @returns The base.
+ * Parameter pose: The pose at the instant.
+ * Parameter goals: Each arm's goal at the instant.
+ * Parameter holding: Whether each arm is on its hold at the instant.
+ * Returns: The base.
  */
 export function AutoMovieMotionHumanArmBase(
   pose: IAutoMoviePose,

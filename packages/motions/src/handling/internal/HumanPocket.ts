@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Small props stowed in the body's pockets. A pocket is a named site on the
  * body, not a cloth: the region of the body surface its opening lies on, so a
  * stowed prop is worn on that region's bone at the region's point and follows
@@ -25,7 +25,9 @@ import type {
  * - Inner breast pockets on the chest (`chestLeft`, `chestRight`).
  */
 export namespace HumanPocket {
-  /** A pocket site. */
+  /*
+   * A pocket site.
+   */
   export type Site =
     | "frontLeft"
     | "frontRight"
@@ -35,7 +37,9 @@ export namespace HumanPocket {
     | "breastLeft"
     | "breastRight";
 
-  /** The body region each site's opening lies on. */
+  /*
+   * The body region each site's opening lies on.
+   */
   export const REGIONS: Readonly<Record<Site, AutoMovieHumanoidRegion>> = {
     frontLeft: "pocketFrontLeft",
     frontRight: "pocketFrontRight",
@@ -46,24 +50,27 @@ export namespace HumanPocket {
     breastRight: "chestRight",
   };
 
-  /**
+  /*
    * A site's mount: the bone its region rides and the prop's frame in that
    * bone's posed frame, metres.
    */
   export interface IMount {
-    /** The bone the region rides. */
+    /*
+     * The bone the region rides.
+     */
     bone: IAutoMovieHumanoidSurfaces.IFrame["bone"];
 
-    /** The prop's frame in the bone's frame: at the region's point, unrotated. */
+    /*
+     * The prop's frame in the bone's frame: at the region's point, unrotated.
+     */
     offset: IAutoMovieRigidTransform;
   }
 
-  /**
+  /*
    * The mount of a pocket site on a body.
-   *
-   * @param body The performer's body.
-   * @param site The pocket.
-   * @returns The bone and the prop's offset on it.
+   * Parameter body: The performer's body.
+   * Parameter site: The pocket.
+   * Returns: The bone and the prop's offset on it.
    */
   export function mount(body: IAutoMovieMotionHumanBody, site: Site): IMount {
     const region: IAutoMovieHumanoidSurfaces.IFrame =
@@ -89,14 +96,13 @@ export namespace HumanPocket {
     };
   }
 
-  /**
+  /*
    * A prop that starts stowed in a performer's pocket.
-   *
-   * @param prop The placed prop.
-   * @param subject The performer.
-   * @param body The performer's body.
-   * @param site The pocket.
-   * @returns The prop, worn at the pocket from the film's start.
+   * Parameter prop: The placed prop.
+   * Parameter subject: The performer.
+   * Parameter body: The performer's body.
+   * Parameter site: The pocket.
+   * Returns: The prop, worn at the pocket from the film's start.
    */
   export function stow(
     prop: IAutoMovieMotionHumanProp,
@@ -107,14 +113,13 @@ export namespace HumanPocket {
     return { ...prop, worn: { subject, ...mount(body, site) } };
   }
 
-  /**
+  /*
    * Take a stowed prop out of its pocket into a hand.
-   *
-   * @param chain The performer's chain.
-   * @param prop The stowed prop.
-   * @param handle The prop's grip affordance.
-   * @param hand The taking hand.
-   * @returns The chain with the pickup appended.
+   * Parameter chain: The performer's chain.
+   * Parameter prop: The stowed prop.
+   * Parameter handle: The prop's grip affordance.
+   * Parameter hand: The taking hand.
+   * Returns: The chain with the pickup appended.
    */
   export function takeOut<Chain extends IAutoMovieMotionHumanChainCore>(
     chain: Chain,
@@ -125,15 +130,14 @@ export namespace HumanPocket {
     return chain.act("pickUp", { prop, handle, hand, lift: 0 });
   }
 
-  /**
+  /*
    * Put a held prop back into a pocket.
-   *
-   * @param chain The performer's chain.
-   * @param prop The held prop.
-   * @param body The performer's body.
-   * @param site The pocket.
-   * @param hand The holding hand.
-   * @returns The chain with the put-down onto the pocket appended.
+   * Parameter chain: The performer's chain.
+   * Parameter prop: The held prop.
+   * Parameter body: The performer's body.
+   * Parameter site: The pocket.
+   * Parameter hand: The holding hand.
+   * Returns: The chain with the put-down onto the pocket appended.
    */
   export function putBack<Chain extends IAutoMovieMotionHumanChainCore>(
     chain: Chain,

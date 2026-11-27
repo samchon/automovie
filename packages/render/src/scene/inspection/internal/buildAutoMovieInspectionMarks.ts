@@ -9,7 +9,7 @@ import type { IAutoMovieInspectionOverlay } from "../../IAutoMovieInspectionOver
 import { createAutoMovieInspectionStrokes } from "./createAutoMovieInspectionStrokes.js";
 import { followAutoMovieInspectionSource } from "./followAutoMovieInspectionSource.js";
 
-/**
+/*
  * Build marks into drawable lines and points, one line object and one points
  * object per anchor, that follow their anchors.
  *
@@ -113,31 +113,45 @@ export function buildAutoMovieInspectionMarks(
   };
 }
 
-/**
+/*
  * One anchor's built marks: the marks, their vertex buffers and the objects
  * drawing them.
  */
 interface IBuilt {
-  /** The anchor, or null for world space. */
+  /*
+   * The anchor, or null for world space.
+   */
   anchor: THREE.Object3D | null;
 
-  /** The marks, in build order. */
+  /*
+   * The marks, in build order.
+   */
   marks: IAutoMovieMark[];
 
-  /** Two xyz vertices per line segment, shared with the line geometry. */
+  /*
+   * Two xyz vertices per line segment, shared with the line geometry.
+   */
   lines: Float32Array;
 
-  /** One xyz vertex per dot, shared with the points geometry. */
+  /*
+   * One xyz vertex per dot, shared with the points geometry.
+   */
   dots: Float32Array;
 
-  /** The line object, absent when no mark draws a line. */
+  /*
+   * The line object, absent when no mark draws a line.
+   */
   strokes: LineSegments2 | null;
 
-  /** The points object, absent when no mark draws a dot. */
+  /*
+   * The points object, absent when no mark draws a dot.
+   */
   points: THREE.Points | null;
 }
 
-/** The line segments and dots a mark draws, after refusing a malformed mark. */
+/*
+ * The line segments and dots a mark draws, after refusing a malformed mark.
+ */
 function admit(mark: IAutoMovieMark): { segments: number; points: number } {
   const refuse: (problem: string) => never = (problem: string): never => {
     throw new Error(`Mark "${mark.path}" of kind ${mark.kind} ${problem}`);
@@ -174,7 +188,9 @@ function admit(mark: IAutoMovieMark): { segments: number; points: number } {
   return { segments: n * 5, points: 0 };
 }
 
-/** Rewrite one anchor's vertex buffers from its marks' current coordinates. */
+/*
+ * Rewrite one anchor's vertex buffers from its marks' current coordinates.
+ */
 function write(entry: IBuilt): void {
   let line: number = 0;
   let dot: number = 0;
@@ -219,7 +235,9 @@ function write(entry: IBuilt): void {
     if (object !== null) markChanged(object.geometry);
 }
 
-/** The shaft and four head lines of one arrow, as ten xyz points taken in pairs. */
+/*
+ * The shaft and four head lines of one arrow, as ten xyz points taken in pairs.
+ */
 function arrowLines(
   origins: readonly number[],
   vectors: readonly number[],
@@ -259,7 +277,7 @@ function arrowLines(
   return out;
 }
 
-/**
+/*
  * Tell three.js that a geometry's positions were rewritten in place, and bound
  * the new positions: the geometry measured its bounds when it was made, before
  * the first write, so they would otherwise stay those of the zero buffer.
@@ -276,7 +294,7 @@ function markChanged(geometry: THREE.BufferGeometry): void {
   geometry.computeBoundingSphere();
 }
 
-/**
+/*
  * Give a drawn object its anchor's world placement, or world space when it has
  * none.
  */

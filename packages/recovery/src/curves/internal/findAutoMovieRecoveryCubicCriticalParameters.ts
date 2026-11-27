@@ -4,7 +4,7 @@ import type {
   IAutoMovieCubicCriticalParameters,
 } from "@automovie/interface";
 
-/**
+/*
  * Locate isolated cubic regularity and affine-curvature candidates
  * analytically.
  *

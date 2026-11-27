@@ -8,18 +8,22 @@ import { HumanPopulationAccess } from "./HumanPopulationAccess";
 import { HumanPopulationConditional } from "./HumanPopulationConditional";
 import type { HumanPopulationSurvey } from "./HumanPopulationSurvey";
 
-/**
+/*
  * How a body measure reads from the survey: directly where the survey measures
  * its definition, through an anchor where it does not.
  */
 export namespace HumanPopulationAnchors {
-  /** A body measure the survey measures by its definition. */
+  /*
+   * A body measure the survey measures by its definition.
+   */
   export type Direct = readonly [
     Exclude<keyof IAutoMovieHumanBodyAnatomy, "sex">,
     Variable,
   ];
 
-  /** A body measure the survey does not measure by its definition. */
+  /*
+   * A body measure the survey does not measure by its definition.
+   */
   export type Anchored =
     | "backNeckToWaist"
     | "acrossBackShoulderWidth"
@@ -28,27 +32,35 @@ export namespace HumanPopulationAnchors {
     | "forearmCircumference"
     | "inseam";
 
-  /** An anchored head, ear or hand input. */
+  /*
+   * An anchored head, ear or hand input.
+   */
   export type Part = "earBreadth" | "thumbLength" | "vertexToNasion";
 
-  /**
+  /*
    * A course the survey does not measure by its definition, carried by the
    * surveyed measure nearest it: the course is that measure times the ratio the
    * sex's reference people show between their course and the measure the survey
    * expects of them given their own surveyed inputs.
    */
   export interface IAnchor {
-    /** The surveyed measure that carries the course. */
+    /*
+     * The surveyed measure that carries the course.
+     */
     proxy: Variable;
 
-    /** The reference's surveyed inputs the proxy is expected from. */
+    /*
+     * The reference's surveyed inputs the proxy is expected from.
+     */
     given: Variable[];
 
-    /** The course on a reference. */
+    /*
+     * The course on a reference.
+     */
     read: (p: P) => number;
   }
 
-  /**
+  /*
    * Body measures whose definition the survey measures: the field and its
    * measure.
    */
@@ -72,7 +84,9 @@ export namespace HumanPopulationAnchors {
     ["handCircumference", "handCircumference"],
   ];
 
-  /** Body measures carried by an anchor. */
+  /*
+   * Body measures carried by an anchor.
+   */
   export const ANCHORED: readonly Anchored[] = [
     "backNeckToWaist",
     "acrossBackShoulderWidth",
@@ -81,7 +95,9 @@ export namespace HumanPopulationAnchors {
     "forearmCircumference",
     "inseam",
   ];
-  /** Each anchored course and its carrier. */
+  /*
+   * Each anchored course and its carrier.
+   */
   export const ANCHORS: Record<ANCHORSEntry, IAnchor> = {
     // Neck to waist over the natural waist back length (cervicale to waist).
     backNeckToWaist: {
@@ -152,13 +168,12 @@ export namespace HumanPopulationAnchors {
     },
   };
 
-  /**
+  /*
    * The mean ratio of an anchored course to the survey's expectation of its
    * carrier on the sex's references.
-   *
-   * @param sex The surveyed sex.
-   * @param a The anchor.
-   * @returns The ratio the course takes over its carrier.
+   * Parameter sex: The surveyed sex.
+   * Parameter a: The anchor.
+   * Returns: The ratio the course takes over its carrier.
    */
   export function ratio(sex: Sex, a: IAnchor): number {
     const refs: P[] = HumanPopulationAccess.REFERENCES[sex];
@@ -181,15 +196,16 @@ export namespace HumanPopulationAnchors {
     );
   }
 
-  /** The alternatives of `ANCHORSEntry`'s site. */
+  /*
+   * The alternatives of `ANCHORSEntry`'s site.
+   */
   type ANCHORSEntry = Anchored | Part;
 
-  /**
+  /*
    * A reference's surveyed input.
-   *
-   * @param p The reference's inputs.
-   * @param v The surveyed measure.
-   * @returns The input that stands for the measure.
+   * Parameter p: The reference's inputs.
+   * Parameter v: The surveyed measure.
+   * Returns: The input that stands for the measure.
    */
   function surveyed(p: P, v: Variable): number {
     const k: IAutoMovieHumanBodyMeasures = HumanPopulationAccess.measures(p);

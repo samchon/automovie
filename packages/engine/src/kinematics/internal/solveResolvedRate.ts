@@ -2,7 +2,7 @@ import { addAutoMovieQuadraticProduct } from "../../math/internal/addAutoMovieQu
 import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
 import type { AutoMovieEngineKinematicsTypes } from "../AutoMovieEngineKinematicsTypes";
 
-/**
+/*
  * Solve the current square differential kinematics J(q) qdot = goalRate. Rows
  * and the matching goal rate use the same task frame and physical unit; each
  * column uses its actual coordinate unit, so output is that unit/second.
@@ -24,14 +24,13 @@ import type { AutoMovieEngineKinematicsTypes } from "../AutoMovieEngineKinematic
  * residuals, scaled backward errors, an inverse-based infinity condition
  * estimate and the computed inverse defect. These are numerical diagnostics,
  * not certified forward-error bounds or a physical acceptance tolerance.
- *
- * @param jacobian Current finite nonempty square task-row/coordinate-column
- *   matrix.
- * @param goalRate Current finite task derivative, in the same row units/second.
- * @param rowScale Positive finite physical scale for each task row, unchanged
- *   during the call.
- * @returns Fresh rates/diagnostics, or an explicit unsupported, pivot-refused
- *   or unrepresentable result.
+ * Parameter jacobian: Current finite nonempty square task-row/coordinate-column
+ * matrix.
+ * Parameter goalRate: Current finite task derivative, in the same row units/second.
+ * Parameter rowScale: Positive finite physical scale for each task row, unchanged
+ * during the call.
+ * Returns: Fresh rates/diagnostics, or an explicit unsupported, pivot-refused
+ * or unrepresentable result.
  */
 export function solveResolvedRate(
   jacobian: readonly (readonly number[])[],
@@ -156,7 +155,7 @@ export function solveResolvedRate(
   };
 }
 
-/**
+/*
  * Accumulate a signed dot; only original residuals also demand the absolute
  * denominator.
  */

@@ -4,7 +4,7 @@ import { AutoMovieHumanConicSection } from "../AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "../AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "../AutoMovieHumanF1Placement";
 
-/**
+/*
  * f1's concha tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
  * It is the cutter of the ear's bowl, cut from the figure after the ear is attached.
  *

@@ -301,7 +301,9 @@ export namespace AutoMoviePhysicalSpanPose {
     delete state.icp;
     state.revision = (state.revision ?? 0) + 1;
   }
-  /** The body's actual poses judged by `admissible`. */
+  /*
+   * The body's actual poses judged by `admissible`.
+   */
   function handable(bound: Pick<Bound, "segments">, body: IBody): boolean {
     const segments = bound.segments?.get(body.id);
     const limit: number | undefined = body.handoffLimits?.maximumLinearError;

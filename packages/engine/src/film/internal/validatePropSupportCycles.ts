@@ -5,7 +5,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/**
+/*
  * Refuse a prop that transitively rests on, plugs into, or hangs from itself
  * through `prop-affordance` relations.
  *
@@ -15,9 +15,8 @@ import {
  * back edge is reported at its closing relation under
  * `$input.props[i].placement.relations[j].target.prop`, visiting props in
  * declaration order.
- *
- * @param props The prop registry in declaration order.
- * @param out Collector the violations are appended to.
+ * Parameter props: The prop registry in declaration order.
+ * Parameter out: Collector the violations are appended to.
  */
 export function validatePropSupportCycles(
   props: readonly IAutoMoviePropSpec[],

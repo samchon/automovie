@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanManoeuvre } from "@automovie/interface";
 
-/**
+/*
  * The drills as rows over the four choices of a manoeuvre, so a new drill
  * (deploying on the head, by the rear) is a row, not code.
  *

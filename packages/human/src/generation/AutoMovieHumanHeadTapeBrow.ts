@@ -173,7 +173,7 @@ export namespace AutoMovieHumanHeadTapeBrow {
     }
     return finish();
 
-    /**
+    /*
      * Brent's safeguarded parabolic search for the length maximum inside [low,
      * high].
      */
@@ -257,7 +257,9 @@ export namespace AutoMovieHumanHeadTapeBrow {
       throw new Error("Head brow tape posterior search resolution unresolved");
     }
 
-    /** Publish the best measured course with the existing boundary refusals. */
+    /*
+     * Publish the best measured course with the existing boundary refusals.
+     */
     function finish(): IAutoMovieHumanHeadTape.ICourse {
       const selected: IAutoMovieHumanHeadTape.ICourse | null =
         best as IAutoMovieHumanHeadTape.ICourse | null;

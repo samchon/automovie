@@ -5,7 +5,7 @@ import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import { HumanQuadraticEquilibration as Equilibration } from "./HumanQuadraticEquilibration";
 import type { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
 
-/**
+/*
  * Numeric preparation shared by solves of one convexification. Modified Ruiz
  * equilibration follows Stellato et al. 2020, section 5.1, algorithm 2
  * (`HumanQuadraticEquilibration`). A preparation belongs to its caller
@@ -18,25 +18,24 @@ import type { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace"
  * row entries, Z stored entries after exact-zero compression and m rows.
  */
 export namespace HumanQuadraticPreparation {
-  /**
+  /*
    * Admit every original entry, omit exact zero coefficients and equilibrate P,
    * q and A. Nonzero order, duplicate indices and empty rows are preserved. The
    * owner's last preparation is reused when its data and the scaling it was
    * built on are this program's; q participates in the cost scaling and
    * therefore also invalidates preparation when it changes.
-   *
-   * @param problem The convex banded program; bounds may be infinite on their
-   *   absent sides.
-   * @param fixed The variables' and the cost's scales of an earlier program of
-   *   the same variables (one optimisation's first subproblem, `IScaling`): the
-   *   program is then scaled by them in one pass and each row by one Ruiz row
-   *   step on them, in place of the ten passes; ignored when its length is not
-   *   the program's. Absent, the ten passes run.
-   * @param owner The caller's record of its last preparation, read as the
-   *   candidate and replaced by this one; absent, nothing is shared or kept.
-   * @returns The numeric core with fresh scaled bounds and weights.
-   * @throws {RangeError} For malformed or nonfinite data, an original row
-   *   outside the band, or noninvertible scaling.
+   * Parameter problem: The convex banded program; bounds may be infinite on their
+   * absent sides.
+   * Parameter fixed: The variables' and the cost's scales of an earlier program of
+   * the same variables (one optimisation's first subproblem, `IScaling`): the
+   * program is then scaled by them in one pass and each row by one Ruiz row
+   * step on them, in place of the ten passes; ignored when its length is not
+   * the program's. Absent, the ten passes run.
+   * Parameter owner: The caller's record of its last preparation, read as the
+   * candidate and replaced by this one; absent, nothing is shared or kept.
+   * Returns: The numeric core with fresh scaled bounds and weights.
+   * For malformed or nonfinite data, an original row
+   * outside the band, or noninvertible scaling.
    */
   export function scaled(
     problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
@@ -73,19 +72,18 @@ export namespace HumanQuadraticPreparation {
     if (owner !== undefined) owner.prepared = prepared;
     return { ...core, lo, hi, weight };
   }
-  /**
+  /*
    * The initial ADMM factor for these scaled matrices, row step sizes and
    * proximal term. A fixed model keeps the factor it is given
    * (`HumanQuadraticWorkspace.IMemory.initialFactor`) and asks again only when
    * its bound classification changes rho. Adaptive factors and polishing belong
    * to their separate one-shot or persistent workspace owner.
-   *
-   * @param s The scaled program with this solve's bounds and weights.
-   * @param rho This solve's initial positive row step sizes.
-   * @param sigma The positive proximal term.
-   * @returns The immutable initial Cholesky factor.
-   * @throws {RangeError} For nonpositive or nonfinite parameters or a nonfinite
-   *   factor.
+   * Parameter s: The scaled program with this solve's bounds and weights.
+   * Parameter rho: This solve's initial positive row step sizes.
+   * Parameter sigma: The positive proximal term.
+   * Returns: The immutable initial Cholesky factor.
+   * For nonpositive or nonfinite parameters or a nonfinite
+   * factor.
    */
   export function factor(
     s: B.IScaled,
@@ -103,7 +101,7 @@ export namespace HumanQuadraticPreparation {
     return out;
   }
 
-  /**
+  /*
    * The variables' and the cost's equilibration scales of one program, which a
    * later program of the same variables reuses (`scaled`'s `fixed`): any
    * positive diagonal scaling leaves a program's minimiser where it is (the
@@ -112,43 +110,59 @@ export namespace HumanQuadraticPreparation {
    * same step to its own accuracy, read on the data so scaled.
    */
   export interface IScaling {
-    /** The variables' scales, positive, one a variable. */
+    /*
+     * The variables' scales, positive, one a variable.
+     */
     d: Float64Array;
 
-    /** The cost's scale, positive. */
+    /*
+     * The cost's scale, positive.
+     */
     c: number;
   }
 
-  /**
+  /*
    * A caller's record of its last preparation (a session's, a fixed model's),
    * which `scaled` reads as its candidate and replaces.
    */
   export interface IOwner {
-    /** The last preparation `scaled` made or reused for this caller. */
+    /*
+     * The last preparation `scaled` made or reused for this caller.
+     */
     prepared?: IPrepared;
   }
 
-  /** Copied dependencies and current immutable preparation for one owner. */
+  /*
+   * Copied dependencies and current immutable preparation for one owner.
+   */
   export interface IPrepared {
-    /** Original curvature, including its supplied row lengths. */
+    /*
+     * Original curvature, including its supplied row lengths.
+     */
     p: Float64Array[];
 
-    /** Original linear term, since it controls cost equilibration. */
+    /*
+     * Original linear term, since it controls cost equilibration.
+     */
     q: Float64Array;
 
-    /** Original ordered nonzero coefficients, parallel to core.cols. */
+    /*
+     * Original ordered nonzero coefficients, parallel to core.cols.
+     */
     vals: Float64Array;
 
-    /** Equilibrated matrices, compression and scales. */
+    /*
+     * Equilibrated matrices, compression and scales.
+     */
     core: ICore;
 
-    /**
+    /*
      * The variables' and cost's scales the core was built on (`scaled`'s
      * `fixed`), copied; absent for the ten passes.
      */
     fixed?: IScaling;
 
-    /**
+    /*
      * Disposable n-entry scaling work, fully reset before use and excluded from
      * returned scaled cores.
      */
@@ -156,21 +170,27 @@ export namespace HumanQuadraticPreparation {
   }
 }
 
-/** The record of `IPreparedScaling`'s site. */
+/*
+ * The record of `IPreparedScaling`'s site.
+ */
 type IPreparedScaling = {
-  /**
+  /*
    * Current column-scale proposals, overwritten from curvature norms before
    * each pass.
    */
   dx: Float64Array;
 
-  /** Current curvature norms, reset to positive zero before each reduction. */
+  /*
+   * Current curvature norms, reset to positive zero before each reduction.
+   */
   curvature: Float64Array;
 };
-/** The alternatives of `Core`'s site. */
+/*
+ * The alternatives of `Core`'s site.
+ */
 type Core = "lo" | "hi" | "weight";
 
-/**
+/*
  * Shared scaled matrices/scales without solve-local intervals or raw loans.
  *
  * Reuses Band.IScaled's numeric representation but excludes lo/hi/weight, raw
@@ -183,7 +203,7 @@ type Core = "lo" | "hi" | "weight";
  */
 type ICore = Omit<B.IScaled, Core>;
 
-/**
+/*
  * Whether a preparation was built on the scaling a program asks for: both by
  * the ten passes, or both on equal variable and cost scales.
  */

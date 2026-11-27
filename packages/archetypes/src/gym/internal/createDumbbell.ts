@@ -3,19 +3,18 @@ import { Vector3 } from "@automovie/engine";
 
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDensity, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
-/**
+/*
  * A dumbbell: a short handle with a steel head at each end, held in one hand.
  *
  * It lies along `X` with the handle's middle at the origin. Each head is a
  * solid steel cylinder as thick as its own radius times `SQUAT`, sized so the
  * two heads and the handle weigh the dumbbell's mass, so a heavier one is
  * larger. `grip` is the handle, taken from the `-Z` side.
- *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The dumbbell.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * Parameter params: The kind and any dimension the author fixes.
+ * Parameter seed: The seed that draws every dimension left free inside its band;
+ * absent, each takes the middle of its band.
+ * Returns: The dumbbell.
+ * For a fixed dimension outside its band.
  */
 export function createDumbbell(
   params: AutoMovieArchetypeDumbbell.IParams,

@@ -6,13 +6,12 @@ import type {
 
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
-/**
+/*
  * The runs of a frame's body corners that share a part, each with the sphere
  * about its corners (`HumanArmTrajectoryOverlap.embedded`'s first level of its
  * bounding-volume hierarchy).
- *
- * @param body The frame's body corners (`HumanArmGeometry.IFrame.body`).
- * @returns The runs in the corners' order.
+ * Parameter body: The frame's body corners (`HumanArmGeometry.IFrame.body`).
+ * Returns: The runs in the corners' order.
  */
 export function HumanArmTrajectoryClusters(
   body: IAutoMovieMotionHumanArmGeometry.IFrame["body"],
@@ -40,35 +39,44 @@ export function HumanArmTrajectoryClusters(
   return out;
 }
 
-/** A run of body corners and its screen against an arm segment's sphere. */
+/*
+ * A run of body corners and its screen against an arm segment's sphere.
+ */
 export namespace HumanArmTrajectoryClusters {
-  /**
+  /*
    * A run of consecutive body corners of one part
    * (`HumanArmGeometry.IFrame.body`) and the sphere about them.
    */
   export interface ICluster {
-    /** The run's first corner's index. */
+    /*
+     * The run's first corner's index.
+     */
     start: number;
 
-    /** One past the run's last corner's index. */
+    /*
+     * One past the run's last corner's index.
+     */
     end: number;
 
-    /** The corners' mean, world metres. */
+    /*
+     * The corners' mean, world metres.
+     */
     centre: IAutoMovieVector3;
 
-    /** The farthest corner's distance from the centre, metres. */
+    /*
+     * The farthest corner's distance from the centre, metres.
+     */
     radius: number;
   }
 
-  /**
+  /*
    * Whether any corner of a cluster can lie within the reach of a segment's
    * sphere (`HumanArmTrajectoryOverlap.embedded`'s per-corner screen), with a
    * slack far above the rounding of the distances.
-   *
-   * @param cluster The cluster.
-   * @param centre The segment's sphere's centre, world metres.
-   * @param radius The segment's sphere's radius, metres.
-   * @returns Whether a corner of the cluster can be within reach.
+   * Parameter cluster: The cluster.
+   * Parameter centre: The segment's sphere's centre, world metres.
+   * Parameter radius: The segment's sphere's radius, metres.
+   * Returns: Whether a corner of the cluster can be within reach.
    */
   export function reaches(
     cluster: ICluster,
@@ -82,7 +90,7 @@ export namespace HumanArmTrajectoryClusters {
   }
 }
 
-/**
+/*
  * The slack of a cluster's screen over its corners', metres: far below the
  * pairs' reach, far above the rounding of a distance in metres.
  */

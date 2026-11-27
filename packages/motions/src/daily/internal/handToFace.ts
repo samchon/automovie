@@ -54,7 +54,7 @@ import { handToFaceRows } from "./handToFaceRows";
 import { handToFaceSheet } from "./handToFaceSheet";
 import { handToFaceVessel } from "./handToFaceVessel";
 
-/**
+/*
  * A hand-to-face task of daily living while standing: drinking, sipping, eating
  * with a spoon, biting held food, a phone at the ear, reading a held sheet,
  * brushing the teeth, combing the hair, washing the face and wiping the mouth.
@@ -94,10 +94,14 @@ import { handToFaceVessel } from "./handToFaceVessel";
  * the first carries it, as a camera is held in both hands.
  */
 export namespace handToFace {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "handToFace";
 
-  /** Cancel table. */
+  /*
+   * Cancel table.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
@@ -107,13 +111,15 @@ export namespace handToFace {
       flinch: ["anytime", "reflex"],
     });
 
-  /**
+  /*
    * A hand-to-face task may be performed over a carrier: it claims the acting
    * arms, their hands and the head.
    */
   export const overlay: boolean = true;
 
-  /** The tasks' rows. */
+  /*
+   * The tasks' rows.
+   */
   export const ROWS: Readonly<
     Record<
       IAutoMovieMotionHumanHandToFaceRows.Task,
@@ -121,17 +127,16 @@ export namespace handToFace {
     >
   > = handToFaceRows.ROWS;
 
-  /**
+  /*
    * Plan a hand-to-face task.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the count is not a positive whole number, the
-   *   time at the face is negative, `prop` names a prop the hand does not hold
-   *   or a point the prop lacks, a vessel drunk from is held by a grip not
-   *   taken for drinking (`pickUp` without a `use` at the mouth), `grasp` comes
-   *   without a held prop, its point or a region of the face, or `other` comes
-   *   without `grasp` or names a handle the prop lacks.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the count is not a positive whole number, the
+   * time at the face is negative, `prop` names a prop the hand does not hold
+   * or a point the prop lacks, a vessel drunk from is held by a grip not
+   * taken for drinking (`pickUp` without a `use` at the mouth), `grasp` comes
+   * without a held prop, its point or a region of the face, or `other` comes
+   * without `grasp` or names a handle the prop lacks.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandToFace.IParams>,
@@ -496,5 +501,7 @@ export namespace handToFace {
   }
 }
 
-/** The alternatives of `PlanGraspedAt`'s site. */
+/*
+ * The alternatives of `PlanGraspedAt`'s site.
+ */
 type PlanGraspedAt = "point" | "normal";

@@ -1,6 +1,8 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
 
-/** Report a duplicate sibling identity, then record the identity as seen. */
+/*
+ * Report a duplicate sibling identity, then record the identity as seen.
+ */
 export function validateSoftIdentity(
   out: IAutoMovieViolationCollector,
   path: string,

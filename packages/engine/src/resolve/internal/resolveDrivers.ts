@@ -14,7 +14,7 @@ import { lerpChannelValues } from "./lerpChannelValues";
 import { slerpChannelValues } from "./slerpChannelValues";
 import { orderValueDrivers } from "./orderValueDrivers";
 
-/**
+/*
  * Evaluate copy and driven channels in stable dependency order, mutating
  * samples before constraints. Return world/stateful descriptors in original
  * order. Unknown kinds and reciprocal dependencies throw; a null/absent curve
@@ -38,7 +38,9 @@ export function resolveDrivers(
   return deferred;
 }
 
-/** The two channel-space drivers this pass resolves (no world transform needed). */
+/*
+ * The two channel-space drivers this pass resolves (no world transform needed).
+ */
 type ValueDriver = IAutoMovieCopyDriver | IAutoMovieDrivenDriver;
 
 // copy
@@ -103,7 +105,9 @@ const writeBlend: (
   );
 };
 
-/** Current value of a node TRS channel: the sampled override, else rest pose. */
+/*
+ * Current value of a node TRS channel: the sampled override, else rest pose.
+ */
 const readTRS: (
   node: string,
   role: "owner" | "source",
@@ -183,7 +187,7 @@ const applyDriven: (
   setChannel(sampled, channelKey(d.output), d.output, [y]);
 };
 
-/**
+/*
  * A driven driver computes ONE scalar (the interface contract: "one scalar
  * channel computed from another"), so its output must be a scalar-width
  * channel. Node TRS channels are rejected outright: composing `[y]` into world

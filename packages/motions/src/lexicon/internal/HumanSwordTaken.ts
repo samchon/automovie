@@ -19,7 +19,7 @@ import { StrikingBlade } from "../../striking/internal/StrikingBlade";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { HumanSword } from "./HumanSword";
 
-/**
+/*
  * A taken blade: the attacker's blade, stopped by a parry that takes it
  * (`IAutoMovieMotionHumanSword.IAttack.taken`), kept on the parrying blade
  * while that parry carries it aside, then held where it was left until a named
@@ -35,7 +35,7 @@ import { HumanSword } from "./HumanSword";
  * named action's end.
  */
 export namespace HumanSwordTaken {
-  /**
+  /*
    * Taken: the stopped blade kept on the parry that took it while it is carried
    * aside, then held there until `until` ends. A parry that wields no blade is
    * refused on `against`; an action that ends before this starts on `until`.

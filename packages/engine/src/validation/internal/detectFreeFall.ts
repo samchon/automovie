@@ -13,7 +13,7 @@ import { AutoMovieGravity } from "../../physics/AutoMovieGravity";
 import { projectileTrajectory } from "../../physics/internal/projectileTrajectory";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 
-/**
+/*
  * Advise free fall for an unsupported, unattached body that is not already
  * falling.
  */

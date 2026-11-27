@@ -16,13 +16,13 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * The fewest shares of a key-to-key blend read once to find whether any arm
  * leaves its room.
  */
 const SCAN: number = 16;
 
-/**
+/*
  * The trunk as a constraint on a floor law's way between two of its postures.
  * Arm angles blended between two postures can carry a forearm through the body
  * deeper than either end holds it: rolling from the back onto a side, the lower
@@ -35,7 +35,7 @@ const SCAN: number = 16;
  * blended.
  */
 export namespace floorArmRoom {
-  /**
+  /*
    * Prepare the clearance of one floor law's key-to-key blends.
    *
    * Each blend's two keys and evenly spaced blends between them are read here,
@@ -43,13 +43,12 @@ export namespace floorArmRoom {
    * audit's self-penetration allowance; a blend whose arms stay within their
    * allowance at every one of those is left exactly as blended, so only a blend
    * that carries an arm through the body pays a posture resolve per query.
-   *
-   * @param body The body.
-   * @param keys Each blend's posture at a weight, in the law's key order.
-   * @param read An exact FK reader for this preparation.
-   * @param project The body's projection.
-   * @returns The blend at a weight with its arms kept within the keys' blended
-   *   room.
+   * Parameter body: The body.
+   * Parameter keys: Each blend's posture at a weight, in the law's key order.
+   * Parameter read: An exact FK reader for this preparation.
+   * Parameter project: The body's projection.
+   * Returns: The blend at a weight with its arms kept within the keys' blended
+   * room.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -97,16 +96,15 @@ export namespace floorArmRoom {
     };
   }
 
-  /**
+  /*
    * The evenly spaced shares of a blend between two postures a reading keeps
    * every arm within the audit's self-penetration allowance between
    * (`samples`): never fewer than `SCAN`.
-   *
-   * @param body The body's physical profile, whose rest segments and joints
-   *   give each joint's reach.
-   * @param from The blend's first posture.
-   * @param to Its last.
-   * @returns The count of intervals.
+   * Parameter body: The body's physical profile, whose rest segments and joints
+   * give each joint's reach.
+   * Parameter from: The blend's first posture.
+   * Parameter to: Its last.
+   * Returns: The count of intervals.
    */
   export function count(
     body: Pick<IAutoMovieMotionHumanBody, "profile">,
@@ -116,7 +114,7 @@ export namespace floorArmRoom {
     return samples(reaches(body), from, to);
   }
 }
-/**
+/*
  * The shares a blend's scan reads, enough that no arm can sink, between two of
  * them, more than the audit's self-penetration allowance
  * (`AutoMovieMotionHumanAuditLimits.tangle`, 10 mm) deeper into the trunk, a
@@ -163,10 +161,14 @@ function samples(
   );
 }
 
-/** The angles of a joint a posture leaves out. */
+/*
+ * The angles of a joint a posture leaves out.
+ */
 const ZERO: readonly [0, 0, 0] = [0, 0, 0];
 
-/** The colliders the arm room reads: the trunk, the thighs and both arms. */
+/*
+ * The colliders the arm room reads: the trunk, the thighs and both arms.
+ */
 const READ: ReadonlySet<string> = new Set<string>([
   ...HumanArmObstacleBones.TRUNK,
   "leftUpperLeg",
@@ -179,7 +181,7 @@ const READ: ReadonlySet<string> = new Set<string>([
   "rightHand",
 ]);
 
-/**
+/*
  * Read a body's joint reaches from its profile at rest: for each joint that
  * carries some but not all of the read colliders, the longest chain length from
  * it to a read collider's farthest bound, metres.
@@ -256,7 +258,9 @@ function reaches(
   return out;
 }
 
-/** The posture with each arm kept within its allowed room. */
+/*
+ * The posture with each arm kept within its allowed room.
+ */
 function cleared(
   body: IAutoMovieMotionHumanBody,
   posture: IAutoMovieMotionHumanPosture,
@@ -281,7 +285,9 @@ function cleared(
   return turnedAny ? { ...posture, joints } : posture;
 }
 
-/** The room each arm of a resolved pose lacks, degrees. */
+/*
+ * The room each arm of a resolved pose lacks, degrees.
+ */
 function rooms(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose): Rooms {
   return {
     left: HumanArmClearance.room(body, pose, "left", arm(pose, "left")),
@@ -289,7 +295,9 @@ function rooms(body: IAutoMovieMotionHumanBody, pose: IAutoMoviePose): Rooms {
   };
 }
 
-/** The pose a posture resolves to. */
+/*
+ * The pose a posture resolves to.
+ */
 function posed(
   body: IAutoMovieMotionHumanBody,
   posture: IAutoMovieMotionHumanPosture,
@@ -307,7 +315,9 @@ function posed(
   ).pose;
 }
 
-/** An arm's clinical angles as a resolved pose displays them. */
+/*
+ * An arm's clinical angles as a resolved pose displays them.
+ */
 function arm(
   pose: IAutoMoviePose,
   side: AutoMovieHumanSide,
@@ -327,28 +337,46 @@ function arm(
   };
 }
 
-/** Arm rooms by side, degrees. */
+/*
+ * Arm rooms by side, degrees.
+ */
 type Rooms = Record<AutoMovieHumanSide, number>;
 
-/** The record of `IPrepareEnds`'s site. */
+/*
+ * The record of `IPrepareEnds`'s site.
+ */
 type IPrepareEnds = { from: Rooms; to: Rooms };
 
-/** The record of `IPrepareBlend`'s site. */
+/*
+ * The record of `IPrepareBlend`'s site.
+ */
 type IPrepareBlend = { from: Rooms; to: Rooms; flagged: boolean };
-/** The record of `IPrepareAllowedEnds`'s site. */
+/*
+ * The record of `IPrepareAllowedEnds`'s site.
+ */
 type IPrepareAllowedEnds = { from: Rooms; to: Rooms };
 
-/** The record of `IPrepareBlendsItem`'s site. */
+/*
+ * The record of `IPrepareBlendsItem`'s site.
+ */
 type IPrepareBlendsItem = { from: Rooms; to: Rooms; flagged: boolean };
 
-/** A joint's three clinical angles, degrees. */
+/*
+ * A joint's three clinical angles, degrees.
+ */
 type JointAngles = readonly [number, number, number];
 
-/** A profile joint's furthest carried collider. */
+/*
+ * A profile joint's furthest carried collider.
+ */
 interface IJointReach {
-  /** The child bone's declared profile identity. */
+  /*
+   * The child bone's declared profile identity.
+   */
   bone: string;
 
-  /** The maximum carried distance from the joint, metres. */
+  /*
+   * The maximum carried distance from the joint, metres.
+   */
   reach: number;
 }

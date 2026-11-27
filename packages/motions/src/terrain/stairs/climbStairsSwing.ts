@@ -10,7 +10,7 @@ import { AutoMovieMotionHumanAuditContact } from "../../audit/internal/AutoMovie
 import { AutoMovieMotionHumanClearance } from "../../compose/internal/AutoMovieMotionHumanClearance";
 import type { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * Prepare a stair climb's swings (`climbStairs`): each swinging foot takes the
  * shortest path over the flight's profile (`AutoMovieMotionHumanClearance`),
  * travelled on minimum-jerk progress, and lifts before it travels, as a walking
@@ -20,11 +20,10 @@ import type { HumanFrame } from "../../posture/internal/HumanFrame";
  * again on a minimum-jerk weight, so no sole slides while it is still on the
  * floor. Holding the foot back only keeps it farther from the riser it must
  * clear.
- *
- * @param framed The flight's frame, its local +Z along the climb.
- * @param required The least ankle height along the flight for a foot.
- * @returns The swing between a foot's two placements, read at its share in [0,
- *   1].
+ * Parameter framed: The flight's frame, its local +Z along the climb.
+ * Parameter required: The least ankle height along the flight for a foot.
+ * Returns: The swing between a foot's two placements, read at its share in [0,
+ * 1].
  */
 export function climbStairsSwing(
   framed: HumanFrame.IPrepared,

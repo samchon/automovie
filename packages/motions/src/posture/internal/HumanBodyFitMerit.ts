@@ -18,11 +18,10 @@ import { HumanFloorReading } from "./HumanFloorReading";
 import { HumanSequentialConvex } from "./HumanSequentialConvex";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
-/**
+/*
  * The merit of a fit.
- *
- * @param props The fit's resolved inputs.
- * @returns Its evaluation and its feasibility.
+ * Parameter props: The fit's resolved inputs.
+ * Returns: Its evaluation and its feasibility.
  */
 export function HumanBodyFitMerit(
   props: HumanBodyFitMerit.IProps,
@@ -160,21 +159,21 @@ export function HumanBodyFitMerit(
     };
   };
 
-  /**
+  /*
    * The original one-sided feasibility predicate, shared across its separate
    * row families.
    */
   const inside: (d: number) => boolean = (d: number): boolean =>
     d <= HumanBodyFitMerit.TOLERANCE;
 
-  /**
+  /*
    * The original two-sided feasibility predicate, with the same absolute
    * tolerance.
    */
   const close: (d: number) => boolean = (d: number): boolean =>
     Math.abs(d) <= HumanBodyFitMerit.TOLERANCE;
 
-  /**
+  /*
    * Visit array iterators in order, preserving the original spread's treatment
    * of sparse holes.
    */
@@ -272,7 +271,7 @@ export function HumanBodyFitMerit(
   };
 }
 
-/**
+/*
  * The whole-body fit's merit (`HumanBodyFit`): an iterate read on the body,
  * what it misses each row by, the l1 merit of those misses (the objective's
  * pull toward the preferred posture plus each row's miss beyond the band at its
@@ -281,101 +280,141 @@ export function HumanBodyFitMerit(
  * (Nocedal and Wright 2006, section 18.5).
  */
 export namespace HumanBodyFitMerit {
-  /** The tolerance under which a row holds, metres or radians. */
+  /*
+   * The tolerance under which a row holds, metres or radians.
+   */
   export const TOLERANCE: number = 5e-4;
 
-  /** A hard equality's numerical acceptance, from SCO's solved row units. */
+  /*
+   * A hard equality's numerical acceptance, from SCO's solved row units.
+   */
   export const REQUIRED_TOLERANCE: number =
     HumanSequentialConvex.DEFAULTS.cntTolerance / HumanBodyFitRows.MM;
 
-  /**
+  /*
    * What a reading misses each row by, metres or radians: positive where a
    * one-sided row is violated, signed for a goal.
    */
   export interface IMisses {
-    /**
+    /*
      * Each support candidate: a lowest one's distance from the floor, any
      * other's depth under it.
      */
     floor: number[];
 
-    /** The centre's distance outside each edge of the base. */
+    /*
+     * The centre's distance outside each edge of the base.
+     */
     balance: number[];
 
-    /** Each target's misses on its rows. */
+    /*
+     * Each target's misses on its rows.
+     */
     goals: number[][];
 
-    /** Included-angle misses, radians, in goal order. */
+    /*
+     * Included-angle misses, radians, in goal order.
+     */
     angles: number[];
 
-    /** Centre-position misses on its selected axes, metres. */
+    /*
+     * Centre-position misses on its selected axes, metres.
+     */
     centre: number[];
 
-    /** Each pair's overlap. */
+    /*
+     * Each pair's overlap.
+     */
     pairs: number[];
   }
 
-  /** An iterate's reading for the loop. */
+  /*
+   * An iterate's reading for the loop.
+   */
   export interface IEvaluation
     extends IAutoMovieMotionHumanSequentialConvex.IEvaluation {
-    /** The reading. */
+    /*
+     * The reading.
+     */
     r: HumanBodyFitRows.IReading;
 
-    /** Its misses. */
+    /*
+     * Its misses.
+     */
     misses: IMisses;
 
-    /**
+    /*
      * The selected lowest candidate for each bearing part with candidates,
      * preserving part order and repeated indices for overlapping parts.
      */
     touching: readonly number[];
 
-    /**
+    /*
      * Membership of those same selected indices, shared read-only by floor
      * misses and convexification without changing the ordered touching rows.
      */
     touchingSet: ReadonlySet<number>;
 
-    /**
+    /*
      * Actual gap and both current closest witnesses in the fit's unchanged pair
      * order; shared read-only by active pair-row construction.
      */
     gaps: readonly HumanFitPairs.IGap[];
   }
 
-  /** The merit's inputs. */
+  /*
+   * The merit's inputs.
+   */
   export interface IProps extends Pick<
     IAutoMovieMotionHumanBodyFitTypes.IProps,
     Props
   > {
-    /** The variables moved. */
+    /*
+     * The variables moved.
+     */
     variables: readonly IAutoMovieMotionHumanJacobian.IVariable[];
 
-    /** The goals. */
+    /*
+     * The goals.
+     */
     targets: readonly IAutoMovieMotionHumanBodyFitTypes.ITarget[];
 
-    /** The geometric included-angle goals. */
+    /*
+     * The geometric included-angle goals.
+     */
     angles: readonly IAutoMovieMotionHumanFitGoals.IAngle[];
 
-    /** Each part that bears on the floor. */
+    /*
+     * Each part that bears on the floor.
+     */
     bearing: readonly RegExp[];
 
-    /** The fold pairs kept apart. */
+    /*
+     * The fold pairs kept apart.
+     */
     pairs: readonly HumanFitPairs.IPair[];
 
-    /** The preferred posture's variables, the objective's centre. */
+    /*
+     * The preferred posture's variables, the objective's centre.
+     */
     key: Float64Array;
 
-    /** The price of a millimetre a contact misses by (`HumanBodyFit.PRICE`). */
+    /*
+     * The price of a millimetre a contact misses by (`HumanBodyFit.PRICE`).
+     */
     price: number;
   }
 
-  /** The merit of a fit. */
+  /*
+   * The merit of a fit.
+   */
   export interface IMerit {
-    /** The iterate's actual reading, misses, selected supports and merit terms. */
+    /*
+     * The iterate's actual reading, misses, selected supports and merit terms.
+     */
     evaluate(x: Float64Array): IEvaluation;
 
-    /**
+    /*
      * Whether every actual miss holds to its existing physical or numerical
      * bound, with physical point radii receiving no extra distance allowance.
      */
@@ -383,25 +422,33 @@ export namespace HumanBodyFitMerit {
   }
 }
 
-/** The record of `IOfReadBearers`'s site. */
+/*
+ * The record of `IOfReadBearers`'s site.
+ */
 type IOfReadBearers = {
   points: IAutoMovieVector3[];
   owners: AutoMovieHumanoidBone[];
 };
 
-/** The record of `IOfSupportsResult`'s site. */
+/*
+ * The record of `IOfSupportsResult`'s site.
+ */
 type IOfSupportsResult = {
   points: IAutoMovieVector3[];
   owners: AutoMovieHumanoidBone[];
 };
 
-/** The record of `IOfSupports`'s site. */
+/*
+ * The record of `IOfSupports`'s site.
+ */
 type IOfSupports = {
   points: IAutoMovieVector3[];
   owners: AutoMovieHumanoidBone[];
 };
 
-/** The alternatives of `Of`'s site. */
+/*
+ * The alternatives of `Of`'s site.
+ */
 type Of =
   | "body"
   | "posture"
@@ -412,14 +459,22 @@ type Of =
   | "key"
   | "price";
 
-/** The alternatives of `Props`'s site. */
+/*
+ * The alternatives of `Props`'s site.
+ */
 type Props = "body" | "posture" | "balance" | "centre";
 
-/** The rows' violations as they are added: their sum and their greatest. */
+/*
+ * The rows' violations as they are added: their sum and their greatest.
+ */
 interface ISummed {
-  /** The sum, in the misses' units. */
+  /*
+   * The sum, in the misses' units.
+   */
   violation: number;
 
-  /** The greatest single row's, in the same units. */
+  /*
+   * The greatest single row's, in the same units.
+   */
   greatest: number;
 }

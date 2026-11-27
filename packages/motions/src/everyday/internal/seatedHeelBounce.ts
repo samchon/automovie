@@ -23,7 +23,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { seated } from "./seated";
 
-/**
+/*
  * Repeated seated heel raises, with the moving foot rocking about its ball. Qi
  * et al. (2019, doi:10.1038/s41598-019-43824-0) used unilateral seated heel
  * tapping as one of their lower-limb rhythm tasks. Narayanan et al. (2026,
@@ -43,7 +43,9 @@ import { seated } from "./seated";
  * foot, the whole posture rides that prop.
  */
 export namespace seatedHeelBounce {
-  /** A sequence of positive heel beats determines its duration in seconds. */
+  /*
+   * A sequence of positive heel beats determines its duration in seconds.
+   */
   export function beatDuration(beats: number, cadence: number): number {
     if (!(beats >= 1))
       throw new HumanRefusal({
@@ -65,7 +67,9 @@ export namespace seatedHeelBounce {
     return duration;
   }
 
-  /** Admit a seated entry with a flat plant on both feet. */
+  /*
+   * Admit a seated entry with a flat plant on both feet.
+   */
   export function admitBase(
     kind: IAutoMovieMotionHumanEntryState["base"]["kind"],
     seat: IAutoMovieMotionHumanEntryState.ISupport | undefined,
@@ -81,10 +85,14 @@ export namespace seatedHeelBounce {
         fix: "sit with both feet flat on the floor first",
       });
   }
-  /** The action's registry name. */
+  /*
+   * The action's registry name.
+   */
   export const name = "seatedHeelBounce" as const;
 
-  /** A subsequent action can cut at the last heel return. */
+  /*
+   * A subsequent action can cut at the last heel return.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     rise: [{ window: ["heelDown", 1], kind: "inertialize", entry: 0 }],
     seatedHeelBounce: [
@@ -92,13 +100,12 @@ export namespace seatedHeelBounce {
     ],
   };
 
-  /**
+  /*
    * Plan a full number of beats on the seated entry pose.
-   *
-   * @param context The action's body, entry supports and authored beats.
-   * @returns The plan in action seconds.
-   * @throws {HumanRefusal} If timing, entry contacts or peak rotation are
-   *   infeasible.
+   * Parameter context: The action's body, entry supports and authored beats.
+   * Returns: The plan in action seconds.
+   * If timing, entry contacts or peak rotation are
+   * infeasible.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSeatedHeelBounce>,
@@ -183,7 +190,9 @@ export namespace seatedHeelBounce {
       body.surfaces.sockets[side === "left" ? "toeLeft" : "toeRight"].bone ===
       toes;
 
-    /** Rock about the sole's ball and keep the toe at its original height. */
+    /*
+     * Rock about the sole's ball and keep the toe at its original height.
+     */
     const at = (angle: number): IAutoMovieMotionHumanPosture => {
       if (angle === 0) return neutral;
       const placed: IAutoMovieMotionHumanFoot.IPlacement = HumanFoot.pivot(
@@ -246,7 +255,9 @@ export namespace seatedHeelBounce {
       ),
     );
 
-    /** Whether the solved rig realizes a rotation and retains the forefoot. */
+    /*
+     * Whether the solved rig realizes a rotation and retains the forefoot.
+     */
     const fits = (angle: number): boolean => {
       const posture: IAutoMovieMotionHumanPosture = at(angle);
       const toeAngle: number = posture.joints[toes]![0];
@@ -351,11 +362,17 @@ export namespace seatedHeelBounce {
   }
 }
 
-/** The alternatives of `PlanLimb`'s site. */
+/*
+ * The alternatives of `PlanLimb`'s site.
+ */
 type PlanLimb = "leftLeg" | "rightLeg";
 
-/** The alternatives of `PlanToes`'s site. */
+/*
+ * The alternatives of `PlanToes`'s site.
+ */
 type PlanToes = "leftToes" | "rightToes";
 
-/** The alternatives of `PlanPart`'s site. */
+/*
+ * The alternatives of `PlanPart`'s site.
+ */
 type PlanPart = "leftFoot" | "rightFoot";

@@ -15,7 +15,9 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 
-/** The mean of points. */
+/*
+ * The mean of points.
+ */
 const mean = (points: readonly IAutoMovieVector3[]): IAutoMovieVector3 =>
   Vector3.scale(
     points.reduce(
@@ -26,19 +28,18 @@ const mean = (points: readonly IAutoMovieVector3[]): IAutoMovieVector3 =>
     1 / points.length,
   );
 
-/**
+/*
  * The meeting of a mutual action.
- *
- * @param kind The kind.
- * @param roles The roles present, in any order.
- * @param context The film second the meeting starts at.
- * @param window The film seconds it holds over; its natural instants when
- *   absent.
- * @returns The meeting.
- * @throws {HumanRefusal} A `participant` refusal on `roles` with the kind's
- *   range of roles, with no role or more roles than the kind has; on `role`
- *   listing the kind's roles, for a role it does not name; and a `parameter`
- *   refusal on `window` when the window ends before the contact can be made.
+ * Parameter kind: The kind.
+ * Parameter roles: The roles present, in any order.
+ * Parameter context: The film second the meeting starts at.
+ * Parameter window: The film seconds it holds over; its natural instants when
+ * absent.
+ * Returns: The meeting.
+ * A `participant` refusal on `roles` with the kind's
+ * range of roles, with no role or more roles than the kind has; on `role`
+ * listing the kind's roles, for a role it does not name; and a `parameter`
+ * refusal on `window` when the window ends before the contact can be made.
  */
 export function AutoMovieMotionMeeting(
   kind: IAutoMovieMotionMeetingKind,
@@ -206,7 +207,7 @@ export function AutoMovieMotionMeeting(
   };
 }
 
-/**
+/*
  * The meeting of an action two or more performers do together: one frame with
  * the place of each shared contact, and the film seconds all arrive at, hold
  * and leave.
@@ -220,16 +221,15 @@ export function AutoMovieMotionMeeting(
  * each role's law performs alone in the air.
  */
 export namespace AutoMovieMotionMeeting {
-  /**
+  /*
    * A contact of a meeting as the place one performer directs a movement at:
    * the contact's world point, facing back at that performer along the floor.
-   *
-   * @param meeting The meeting.
-   * @param contact The contact's name.
-   * @param posture Where the performer stands.
-   * @returns The place, solid when the meeting is.
-   * @throws {HumanRefusal} A `parameter` refusal on `contact` that lists the
-   *   meeting's contacts, on a contact the meeting lacks.
+   * Parameter meeting: The meeting.
+   * Parameter contact: The contact's name.
+   * Parameter posture: Where the performer stands.
+   * Returns: The place, solid when the meeting is.
+   * A `parameter` refusal on `contact` that lists the
+   * meeting's contacts, on a contact the meeting lacks.
    */
   export function place(
     meeting: IAutoMovieMotionMeeting,
@@ -278,12 +278,11 @@ export namespace AutoMovieMotionMeeting {
     };
   }
 
-  /**
+  /*
    * A meeting's shared instants on one action's own time.
-   *
-   * @param meeting The meeting.
-   * @param start The film second of the action's time zero.
-   * @returns The instants, seconds since the action's start.
+   * Parameter meeting: The meeting.
+   * Parameter start: The film second of the action's time zero.
+   * Returns: The instants, seconds since the action's start.
    */
   export function local(
     meeting: IAutoMovieMotionMeeting,
@@ -297,8 +296,12 @@ export namespace AutoMovieMotionMeeting {
   }
 }
 
-/** The alternatives of `PlacePosture`'s site. */
+/*
+ * The alternatives of `PlacePosture`'s site.
+ */
 type PlacePosture = "root" | "yaw";
 
-/** The alternatives of `OfResult`'s site. */
+/*
+ * The alternatives of `OfResult`'s site.
+ */
 type OfResult = "name" | "subject";

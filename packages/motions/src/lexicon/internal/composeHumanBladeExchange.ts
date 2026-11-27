@@ -7,7 +7,7 @@ import type {
 
 import { HumanBlade } from "./HumanBlade";
 
-/**
+/*
  * Compose a blocked opening and an optional reply for a staged blade exchange.
  * Register the cut and parry rows of HumanBlade with HumanPerformance, and
  * bind, riposte, taken and enGarde when the exchange has a reply. Each chain
@@ -16,15 +16,14 @@ import { HumanBlade } from "./HumanBlade";
  * block's stroke cue comes from the resolved action timing. Answered, the
  * opening is `taken`: the block is a bind that carries its blade aside, the
  * opener keeps the blade there until the reply ends and then returns to guard.
- *
- * @param opening Entry chain of the opening performer.
- * @param responding Entry chain of the responding performer.
- * @param exchange Stable cue id, held-prop subjects, stage marks and block lead
- *   in film seconds.
- * @returns Parallel composition of the two performers, with unchanged entry
- *   chains.
- * @throws {Error} When cast or props coincide, an id is blank, or the lead is
- *   invalid.
+ * Parameter opening: Entry chain of the opening performer.
+ * Parameter responding: Entry chain of the responding performer.
+ * Parameter exchange: Stable cue id, held-prop subjects, stage marks and block lead
+ * in film seconds.
+ * Returns: Parallel composition of the two performers, with unchanged entry
+ * chains.
+ * When cast or props coincide, an id is blank, or the lead is
+ * invalid.
  */
 export function composeHumanBladeExchange(
   opening: IAutoMovieMotionHumanChainCore,

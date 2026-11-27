@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-/**
+/*
  * Read the feature points, world box and thickness of one collision part at one
  * placed instant, for comparing its motion between instants.
  *
@@ -14,9 +14,8 @@ import * as THREE from "three";
  * axis ends, a box's corners or a hull's points, placed by the collider pose
  * and the shape transform. An envelope's features are its eight corners.
  * Thickness is the part's smallest full extent.
- *
- * @param part A collected part.
- * @returns Its pose, or null when the part has no geometry.
+ * Parameter part: A collected part.
+ * Returns: Its pose, or null when the part has no geometry.
  */
 export function readAutoMovieCollisionMotion(
   part: Collision.IPart,
@@ -72,24 +71,33 @@ export function readAutoMovieCollisionMotion(
   };
 }
 
-/** Feature poses and their comparison between instants. */
+/*
+ * Feature poses and their comparison between instants.
+ */
 export namespace readAutoMovieCollisionMotion {
-  /** A part's features, world box and thickness at one instant. */
+  /*
+   * A part's features, world box and thickness at one instant.
+   */
   export interface IPose {
-    /** Feature points in world metres. */
+    /*
+     * Feature points in world metres.
+     */
     readonly points: readonly { x: number; y: number; z: number }[];
-    /** World bounds at the instant. */
+    /*
+     * World bounds at the instant.
+     */
     readonly box: IAutoMovieSubjectBox;
-    /** Smallest full extent in metres. */
+    /*
+     * Smallest full extent in metres.
+     */
     readonly thickness: number;
   }
 
-  /**
+  /*
    * The largest displacement of any feature between two instants.
-   *
-   * @param a The part's earlier pose.
-   * @param b Its later pose.
-   * @returns Metres, or Infinity when the features do not correspond.
+   * Parameter a: The part's earlier pose.
+   * Parameter b: Its later pose.
+   * Returns: Metres, or Infinity when the features do not correspond.
    */
   export function displacement(a: IPose, b: IPose): number {
     if (a.points.length !== b.points.length) return Infinity;
@@ -102,15 +110,14 @@ export namespace readAutoMovieCollisionMotion {
     return largest;
   }
 
-  /**
+  /*
    * Conservative swept bounds between two instants: both world boxes, enlarged
    * by half the largest feature displacement. A feature turning by up to half a
    * revolution leaves its chord by at most half the chord, so the enlargement
    * covers rigid rotation and deformation of that size.
-   *
-   * @param a The earlier pose.
-   * @param b The later pose.
-   * @returns The swept world box.
+   * Parameter a: The earlier pose.
+   * Parameter b: The later pose.
+   * Returns: The swept world box.
    */
   export function swept(a: IPose, b: IPose): IAutoMovieSubjectBox {
     const grow: number = Math.min(displacement(a, b) / 2, 1e9);
@@ -129,7 +136,9 @@ export namespace readAutoMovieCollisionMotion {
   }
 }
 
-/** The defining points and full thickness of a shape in its own frame. */
+/*
+ * The defining points and full thickness of a shape in its own frame.
+ */
 function features(shape: IAutoMoviePhysicalShape): {
   points: THREE.Vector3[];
   thickness: number;
@@ -168,7 +177,9 @@ function features(shape: IAutoMoviePhysicalShape): {
   }
 }
 
-/** The eight corners of a box in a fixed order. */
+/*
+ * The eight corners of a box in a fixed order.
+ */
 function corners(
   min: { x: number; y: number; z: number },
   max: { x: number; y: number; z: number },

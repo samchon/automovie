@@ -11,7 +11,7 @@ import { HumanInteractionMeshSide as Side } from "./HumanInteractionMeshSide";
 import { HumanInteractionMeshStep as Step } from "./HumanInteractionMeshStep";
 import { humanInteractionMeshShape } from "./humanInteractionMeshShape";
 
-/**
+/*
  * Adapt the spatial relations of a multi-body key pose to bodies of other
  * proportions by an interaction mesh (Ho, Komura and Tai 2010, "Spatial
  * relationship preserving character motion adaptation", ACM TOG 29(4), article
@@ -54,15 +54,14 @@ import { humanInteractionMeshShape } from "./humanInteractionMeshShape";
  * contact acceptance.
  */
 export namespace HumanInteractionMesh {
-  /**
+  /*
    * Adapt a key pose.
-   *
-   * @param props The key pose's points, the target bones and contacts, and the
-   *   start.
-   * @returns The adapted points and the mesh.
-   * @throws {Error} When fewer than four points are given, an index is out of
-   *   range, a bone's length is not positive, or the solve cannot meet the
-   *   bones and contacts while preserving the recorded sides.
+   * Parameter props: The key pose's points, the target bones and contacts, and the
+   * start.
+   * Returns: The adapted points and the mesh.
+   * When fewer than four points are given, an index is out of
+   * range, a bone's length is not positive, or the solve cannot meet the
+   * bones and contacts while preserving the recorded sides.
    */
   export function adapt(
     props: IAutoMovieMotionHumanInteractionMesh.IProps,
@@ -368,7 +367,9 @@ export namespace HumanInteractionMesh {
     return { points: points(x, n), mesh };
   }
 
-  /** The solved Cartesian points, indexed as in the reference. */
+  /*
+   * The solved Cartesian points, indexed as in the reference.
+   */
   function points(x: Float64Array, n: number): IAutoMovieVector3[] {
     return Array.from(
       { length: n },
@@ -380,35 +381,37 @@ export namespace HumanInteractionMesh {
     );
   }
 
-  /** Cartesian coordinates within each mesh point. */
+  /*
+   * Cartesian coordinates within each mesh point.
+   */
   const AXES: readonly number[] = [0, 1, 2];
 
-  /**
+  /*
    * Tightening factor for the equality penalty from Byrd, Nocedal and Waltz's
    * steered penalty schedule.
    */
   const PENALTY_GROWTH: number = 10;
 
-  /**
+  /*
    * Gap below which the adaptive barrier responds to conditioning (Li et al.
    * 2020 technical supplement §6).
    */
   const NEAR: number = 1e-9;
 
-  /**
+  /*
    * Maximum barrier stiffness relative to its starting scale (Li et al. 2020
    * technical supplement §6).
    */
   const STIFFNESS_LIMIT: number = 100;
 
-  /**
+  /*
    * The characteristic clearance of the conditioning measurement and its
    * curvature multiplier (Li et al. 2020 technical supplement §6).
    */
   const CONDITIONING_DISTANCE: number = 1e-8;
   const CONDITIONING_CURVATURE: number = 1e11;
 
-  /**
+  /*
    * The IPC conditioning scale, using the deformation diagonal in place of
    * lumped nodal mass.
    */
@@ -430,37 +433,59 @@ export namespace HumanInteractionMesh {
     return (CONDITIONING_CURVATURE * background) / curvature;
   }
 
-  /** One unchanged Cartesian Laplacian row and its reference coordinate. */
+  /*
+   * One unchanged Cartesian Laplacian row and its reference coordinate.
+   */
   interface ILaplace {
-    /** Which global coordinates the row reads. */
+    /*
+     * Which global coordinates the row reads.
+     */
     index: readonly number[];
 
-    /** Linear coefficients in those coordinates. */
+    /*
+     * Linear coefficients in those coordinates.
+     */
     coef: readonly number[];
 
-    /** Reference differential coordinate, metres. */
+    /*
+     * Reference differential coordinate, metres.
+     */
     goal: number;
   }
 
-  /** Merit, exact feasibility and contraction of previously near sides. */
+  /*
+   * Merit, exact feasibility and contraction of previously near sides.
+   */
   interface IEvaluation {
-    /** Laplacian deformation, equality penalty and active barrier energy. */
+    /*
+     * Laplacian deformation, equality penalty and active barrier energy.
+     */
     energy: number;
 
-    /** The energy of the active barrier before applying its stiffness. */
+    /*
+     * The energy of the active barrier before applying its stiffness.
+     */
     barrier: number;
 
-    /** The worst bone or contact residual in metres. */
+    /*
+     * The worst bone or contact residual in metres.
+     */
     worst: number;
 
-    /** Number of elements that lost positive orientation. */
+    /*
+     * Number of elements that lost positive orientation.
+     */
     flipped: number;
 
-    /** Whether a side already near its barrier moved closer during this trial. */
+    /*
+     * Whether a side already near its barrier moved closer during this trial.
+     */
     closing: boolean;
   }
 
-  /** A sparse linear coordinate. */
+  /*
+   * A sparse linear coordinate.
+   */
   function coordinate(
     x: Float64Array,
     index: readonly number[],
@@ -471,7 +496,9 @@ export namespace HumanInteractionMesh {
     return value;
   }
 
-  /** Points as one array, x then y then z by point. */
+  /*
+   * Points as one array, x then y then z by point.
+   */
   const flat: (points: readonly IAutoMovieVector3[]) => Float64Array = (
     points: readonly IAutoMovieVector3[],
   ): Float64Array =>
@@ -479,7 +506,9 @@ export namespace HumanInteractionMesh {
       points.flatMap((p: IAutoMovieVector3): number[] => [p.x, p.y, p.z]),
     );
 
-  /** A contact's world-metre relative offset. */
+  /*
+   * A contact's world-metre relative offset.
+   */
   const offset: (
     c: IAutoMovieMotionHumanInteractionMesh.IContact,
   ) => number[] = (

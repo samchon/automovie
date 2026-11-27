@@ -1,13 +1,15 @@
 import type { IAutoMovieProductionRenderTier } from "@automovie/interface";
 
-/** The tier an omitted declaration means: exact final output. */
+/*
+ * The tier an omitted declaration means: exact final output.
+ */
 const FINAL_TIER: Readonly<IAutoMovieProductionRenderTier> = {
   kind: "final",
   resolutionScale: 1,
   frameStep: 1,
 };
 
-/**
+/*
  * Return a copy of the declared render tier, or the final tier when none is
  * declared, refusing any other shape.
  *

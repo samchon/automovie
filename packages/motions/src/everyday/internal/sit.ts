@@ -46,7 +46,7 @@ import { sitHandSpans } from "./sitHandSpans";
 import { sitHands } from "./sitHands";
 import { sitPlace } from "./sitPlace";
 
-/**
+/*
  * Sitting down on a chair, bench or stool from standing in front of it: the
  * body's seat socket is lowered onto the seat while the trunk leans forward and
  * the feet stay where they stand.
@@ -55,7 +55,7 @@ import { sitPlace } from "./sitPlace";
  * Munih 1990, J Biomech 23:1123): the hips travel back and down, the trunk
  * flexes forward to keep the weight over the feet until the seat takes it, then
  * the trunk settles into the seated posture. The goal is the seat socket on its
- * point on the seat ({@link seated}); the root follows from that goal and the
+ * point on the seat (seated); the root follows from that goal and the
  * trunk's pitch, the planted legs and the hands are solved by inverse
  * kinematics. The socket moves back over the first 70 % of the descent, no
  * further than keeps the centre of mass where it stands over the feet until a
@@ -85,14 +85,16 @@ import { sitPlace } from "./sitPlace";
  * window starts at contact.
  *
  * A seat above 1.2 of the popliteal height, or one sat astride, is got onto
- * instead ({@link HumanMountOn}): the feet leave the floor for the seat's rests
+ * instead (HumanMountOn): the feet leave the floor for the seat's rests
  * or hang, under the same parameters, events and cancel table.
  */
 export namespace sit {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "sit";
 
-  /**
+  /*
    * Cancel table. Sitting is abandoned for standing only until `commit`, while
    * both feet still stand on the floor: the seat's contact on a seat inside the
    * band, and the first foot leaving the floor on a high seat. Past it the body
@@ -118,35 +120,41 @@ export namespace sit {
     shift: [{ window: ["seated", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /**
+  /*
    * Largest heading difference from the seat's at which a sit starts, degrees
    * (provisional: a small turn the descent absorbs).
    */
   const FACING: number = 20;
 
-  /**
+  /*
    * Shares of the descent: the seat takes the body at `CONTACT`, the socket
    * travels back over `ACROSS`, comes down from `DOWN` and the trunk peaks by
    * `FLEXED` (provisional, as the namespace states).
    */
   const CONTACT: number = 0.75;
 
-  /** See `CONTACT`. */
+  /*
+   * See `CONTACT`.
+   */
   const ACROSS: number = 0.7;
 
-  /** See `CONTACT`. */
+  /*
+   * See `CONTACT`.
+   */
   const DOWN: number = 0.1;
 
-  /** See `CONTACT`. */
+  /*
+   * See `CONTACT`.
+   */
   const FLEXED: number = 0.45;
 
-  /**
+  /*
    * The share of the descent at which a hand leaves for its armrest
    * (provisional).
    */
   const REACHING: number = 0.2;
 
-  /**
+  /*
    * Where the crossed left foot sets down, by shares of the feet's rest
    * spacing: `ahead` of the right ankle, `over` across it, and the `lift` of
    * its swing (provisional).
@@ -157,21 +165,20 @@ export namespace sit {
     lift: 0.3,
   };
 
-  /**
+  /*
    * Seconds the left foot takes to cross over the right ankle once seated
    * (provisional).
    */
   export const CROSS: number = 0.6;
 
-  /**
+  /*
    * Plan a sit.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the seat is too low for the body, the performer
-   *   does not face away from it, the feet are out of reach of a seat inside
-   *   the band, the body stands more than a leg's length from a high seat, or
-   *   `lean` has no backrest.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the seat is too low for the body, the performer
+   * does not face away from it, the feet are out of reach of a seat inside
+   * the band, the body stands more than a leg's length from a high seat, or
+   * `lean` has no backrest.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSit.IParams>,
@@ -682,5 +689,7 @@ export namespace sit {
   }
 }
 
-/** The alternatives of `CROSSEDEntryItem`'s site. */
+/*
+ * The alternatives of `CROSSEDEntryItem`'s site.
+ */
 type CROSSEDEntryItem = "ahead" | "over" | "lift";

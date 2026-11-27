@@ -32,7 +32,7 @@ import { ballCourt } from "./ballCourt";
 import { courtStroke } from "./courtStroke";
 import { throwInRelease } from "./throwInRelease";
 
-/**
+/*
  * Team ball skills. The original stationary dribble, volleyball dig and set,
  * and football throw-in retain their implied-ball poses. With a held prop the
  * throw-in releases it through `at` at the specified elevation. Performance
@@ -63,10 +63,12 @@ import { throwInRelease } from "./throwInRelease";
  * same action clock and composing primitives.
  */
 export namespace ballSport {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "ballSport";
 
-  /**
+  /*
    * Cancel table. A staged catch may cut in from the stroke, once the ball has
    * left the hands: a dribbler gathers the rebound, a passer takes the return.
    */
@@ -78,64 +80,69 @@ export namespace ballSport {
       stageCatch: ["fromStroke", "smooth"],
     });
 
-  /** Dribble bounces per second (provisional). */
+  /*
+   * Dribble bounces per second (provisional).
+   */
   export const BOUNCES: number = 2;
 
-  /**
+  /*
    * How far behind the head's joint the throw-in's hands are drawn, arm lengths
    * (provisional).
    */
   export const BEHIND: number = 0.15;
 
-  /**
+  /*
    * The throw-in's backward arch of the trunk about the hips at `ready`,
    * degrees (provisional).
    */
   export const ARCH: number = 10;
 
-  /**
+  /*
    * The throw-in's forward flexion of the trunk about the hips at the release,
    * degrees (provisional).
    */
   export const FLEX: number = 15;
 
-  /**
+  /*
    * The rise of the throw-in's hand path, degrees: the distance-best release
    * angle (Linthorne and Everett 2006).
    */
   export const RELEASE: number = 30;
 
-  /**
+  /*
    * A football's radius, metres (size 5, 68 to 70 cm around, the Laws of the
    * Game).
    */
   export const BALL: number = 0.11;
 
-  /**
+  /*
    * How far below the horizontal the dig's platform points before the contact,
    * degrees (provisional).
    */
   export const PLATFORM: number = 40;
 
-  /** How far the dig's platform lifts at the contact, degrees (provisional). */
+  /*
+   * How far the dig's platform lifts at the contact, degrees (provisional).
+   */
   export const LIFT: number = 10;
 
-  /**
+  /*
    * The share of the arm's length the hands of a dig or a throw-in's release
    * reach from the shoulders (provisional).
    */
   export const REACH: number = 0.9;
 
-  /** The set position's entry and the return, seconds (provisional). */
+  /*
+   * The set position's entry and the return, seconds (provisional).
+   */
   export const READY: number = 0.5;
 
-  /**
+  /*
    * Plan a ball skill.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the count is invalid or a modeled release lacks
-   *   its required reachable aim or prop.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the count is invalid or a modeled release lacks
+   * its required reachable aim or prop.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallSport.IParams>,

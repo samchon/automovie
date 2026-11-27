@@ -27,7 +27,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { crutchHeldLegSweptDepth } from "./crutchHeldLegSweptDepth";
 
-/**
+/*
  * Trajopt's sco settings for a joint-space course (`OptimizeProblem`,
  * src/trajopt/problem_description.cpp lines 244-257, github.com/joschu/trajopt
  * at commit 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c, BSD-2-Clause), the same
@@ -44,16 +44,18 @@ const LEG: Readonly<IAutoMovieMotionHumanSequentialConvex.IParameters> = {
   minTrustBoxSize: (1e-4 * 180) / Math.PI,
 };
 
-/**
+/*
  * A knot's variables: the hip's flexion, abduction and twist, the knee's
  * flexion and the ankle's flexion.
  */
 const WIDTH: number = 5;
 
-/** The leg's segments the held leg's course keeps clear, by bone suffix. */
+/*
+ * The leg's segments the held leg's course keeps clear, by bone suffix.
+ */
 const LEG_BONES: readonly string[] = ["UpperLeg", "LowerLeg", "Foot", "Toes"];
 
-/**
+/*
  * The injured leg a crutch gait holds off the floor once the hands bear
  * (Physiopedia, Crutches: the three-point gait; HealthLinkBC, Using crutches).
  * From its bearing pose the leg lifts and folds to the held hip and knee
@@ -61,10 +63,9 @@ const LEG_BONES: readonly string[] = ["UpperLeg", "LowerLeg", "Foot", "Toes"];
  * (`plan`, TrajOpt's collision constraint), its first knot the leg as it bears,
  * the ankle dorsiflexing by the shank's tilt up to a weightless ankle's limit
  * (`ANKLE_DORSIFLEXION.unloaded`) so the toes do not pitch down.
- *
- * @param props The leg, its timing and the posture it lifts from.
- * @returns The writer of a posture with the leg held, the base posture's other
- *   parts kept.
+ * Parameter props: The leg, its timing and the posture it lifts from.
+ * Returns: The writer of a posture with the leg held, the base posture's other
+ * parts kept.
  */
 export function crutchHeldLeg(
   props: crutchHeldLeg.IProps,
@@ -387,19 +388,20 @@ export function crutchHeldLeg(
     return posed(base, from, course(seconds).coordinates, s);
   };
 }
-/** Companion types of {@link crutchHeldLeg}. */
+/*
+ * Companion types of crutchHeldLeg.
+ */
 export namespace crutchHeldLeg {
-  /**
+  /*
    * The held leg's timesteps: the fold from the lift to the held pose cut into
    * TrajOpt's evenly spaced timesteps, its arm trajectories' eleven (Schulman
    * et al. 2013, RSS, section VI), the leg being one limb's chain as an arm is;
    * then the law's contact events after the held pose, each a timestep of its
    * own where the law puts it.
-   *
-   * @param lifted The second the leg leaves its bearing.
-   * @param held The second it is held.
-   * @param events The law's contact events, seconds.
-   * @returns The timesteps, ascending.
+   * Parameter lifted: The second the leg leaves its bearing.
+   * Parameter held: The second it is held.
+   * Parameter events: The law's contact events, seconds.
+   * Returns: The timesteps, ascending.
    */
   export function timesteps(
     lifted: number,
@@ -415,78 +417,112 @@ export namespace crutchHeldLeg {
       ...events.filter((t: number): boolean => t > held),
     ];
   }
-  /** The leg to hold and when. */
+  /*
+   * The leg to hold and when.
+   */
   export interface IProps {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The injured side. */
+    /*
+     * The injured side.
+     */
     side: AutoMovieHumanSide;
 
-    /** When the foot leaves the floor, action seconds. */
+    /*
+     * When the foot leaves the floor, action seconds.
+     */
     lifted: number;
 
-    /** When the leg is held, action seconds. */
+    /*
+     * When the leg is held, action seconds.
+     */
     held: number;
 
-    /** The held hip flexion, degrees. */
+    /*
+     * The held hip flexion, degrees.
+     */
     hip: number;
 
-    /** The held knee flexion, degrees. */
+    /*
+     * The held knee flexion, degrees.
+     */
     knee: number;
 
-    /** The law's posture before the leg is held, by action second. */
+    /*
+     * The law's posture before the leg is held, by action second.
+     */
     read: (seconds: number) => IAutoMovieMotionHumanPosture;
 
-    /**
+    /*
      * The height of the level beneath the held foot at an action second, world
      * metres, where the law gives no flight; the held angles alone when neither
      * is given.
      */
     floor?: (seconds: number) => number;
 
-    /** The flight beneath the held foot, its treads and nosings. */
+    /*
+     * The flight beneath the held foot, its treads and nosings.
+     */
     stairs?: IStairs;
 
-    /**
+    /*
      * The law's phase instants after the leg is held, action seconds: the
      * course's further knots.
      */
     knots?: readonly number[];
   }
 
-  /** A flight's profile in the vertical plane of its climb. */
+  /*
+   * A flight's profile in the vertical plane of its climb.
+   */
   export interface IStairs {
-    /** Where its distances ahead are measured from, world metres. */
+    /*
+     * Where its distances ahead are measured from, world metres.
+     */
     origin: IAutoMovieVector3;
 
-    /** The climb's horizontal direction, a unit vector. */
+    /*
+     * The climb's horizontal direction, a unit vector.
+     */
     forward: IAutoMovieVector3;
 
-    /** Its levels, nearest first. */
+    /*
+     * Its levels, nearest first.
+     */
     steps: readonly IStep[];
   }
 
-  /** One level of a flight: solid below its height from where it begins. */
+  /*
+   * One level of a flight: solid below its height from where it begins.
+   */
   export interface IStep {
-    /** Where it begins ahead of the origin, metres. */
+    /*
+     * Where it begins ahead of the origin, metres.
+     */
     from: number;
 
-    /** Its height, world metres. */
+    /*
+     * Its height, world metres.
+     */
     height: number;
   }
 
-  /**
+  /*
    * The leg where it starts to fold: its hip's and knee's angles and its
    * ankle's, degrees.
    */
   export interface IRaised extends IAutoMovieHumanLimbReference {
-    /** The ankle's `[flexion, abduction, twist]`, degrees. */
+    /*
+     * The ankle's `[flexion, abduction, twist]`, degrees.
+     */
     foot: readonly [number, number, number];
   }
 }
 
-/**
+/*
  * TrajOpt's timestep count for an arm trajectory (Schulman et al. 2013, RSS,
  * section VI).
  */

@@ -5,7 +5,7 @@ import type {
 
 import { autoMovieIrradianceOf } from "./autoMovieIrradianceOf";
 
-/**
+/*
  * The irradiance a receiver gets from a baked probe grid: trilinear
  * interpolation over the eight probes around the point, with the weights of
  * invalid probes dropped and the rest renormalized to sum to one (Greger,
@@ -16,8 +16,7 @@ import { autoMovieIrradianceOf } from "./autoMovieIrradianceOf";
  * on each axis, so a point outside the box takes the probes of the nearest face
  * (or edge, or corner). With no valid probe among the eight the result is
  * zero.
- *
- * @returns `[r, g, b]` irradiance in lux.
+ * Returns: `[r, g, b]` irradiance in lux.
  */
 export function sampleAutoMovieIrradianceVolume(
   props: IAutoMovieSampleIrradianceVolume.IProps,

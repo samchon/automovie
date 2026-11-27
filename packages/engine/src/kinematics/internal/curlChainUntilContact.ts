@@ -18,7 +18,7 @@ import { AutoMovieEngineKinematics } from "../AutoMovieEngineKinematics";
 import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
 import { resolvePose } from "./resolvePose";
 
-/**
+/*
  * Close articulated chains (fingers and thumb) around an object: each joint,
  * proximal first, flexes until a capsule of its chain first touches the
  * object's colliders or its flexion reaches the rig's range of motion, and the
@@ -61,14 +61,15 @@ import { resolvePose } from "./resolvePose";
  * fixed chain and joint order. A step larger than the thinnest part of an
  * object can step a phalanx past it; the default of 1 degree moves a 0.1 m
  * phalanx tip less than 2 mm.
- *
- * @param input The rig, the pose to curl, the chains and the colliders.
- * @returns The curled pose and each chain's final angles and gap.
- * @throws {Error} When a chain names a bone the pose cannot resolve, the radius
- *   or step is not positive, or a collider is malformed.
+ * Parameter input: The rig, the pose to curl, the chains and the colliders.
+ * Returns: The curled pose and each chain's final angles and gap.
+ * When a chain names a bone the pose cannot resolve, the radius
+ * or step is not positive, or a collider is malformed.
  */
 export namespace curlChainUntilContact {
-  /** Execute proximal-first contact closure across the requested chains. */
+  /*
+   * Execute proximal-first contact closure across the requested chains.
+   */
   export function run(
     input: IAutoMovieCurlChainUntilContact.IInput,
   ): IAutoMovieCurlChainUntilContact.IResult {
@@ -254,9 +255,11 @@ export namespace curlChainUntilContact {
     return { pose: pose(), chains: reports };
   }
 
-  /** Companion types of {@link curlChainUntilContact}. */
+  /*
+   * Companion types of curlChainUntilContact.
+   */
 
-  /**
+  /*
    * How far a curled digit's angle may move with the limb that carries it,
    * degrees: a point the limb carries moves by no more than the limb's reach
    * times the joints' tolerance (`ROM_TOLERANCE`, in radians) when the limb's
@@ -266,17 +269,18 @@ export namespace curlChainUntilContact {
    * contact far finer (a step bisected 30 times); this is the change a curled
    * digit shows when the limb's resolution moves the hand, not the curl's
    * precision.
-   *
-   * @param reach The limb's reach, metres: its two segments' lengths.
-   * @param lever The joint's lever, metres: its length to the digit's tip.
-   * @returns Degrees.
+   * Parameter reach: The limb's reach, metres: its two segments' lengths.
+   * Parameter lever: The joint's lever, metres: its length to the digit's tip.
+   * Returns: Degrees.
    */
   export function resolution(reach: number, lever: number): number {
     return (ROM_TOLERANCE * reach) / lever;
   }
 }
 
-/** Refuse a shape whose dimensions cannot give a distance. */
+/*
+ * Refuse a shape whose dimensions cannot give a distance.
+ */
 function validate(shape: IAutoMoviePhysicalShape): void {
   let ok: boolean;
   if (shape.kind === "sphere") ok = shape.radius > 0;
@@ -297,7 +301,7 @@ function validate(shape: IAutoMoviePhysicalShape): void {
     throw new Error(`A collider ${shape.id} has non-positive dimensions`);
 }
 
-/**
+/*
  * The bisections whose final bracket width a joint's contact search closes to:
  * a step of one degree to under a billionth of a degree, far finer than a
  * joint's tolerance, so the positive side kept is the contact's own angle.

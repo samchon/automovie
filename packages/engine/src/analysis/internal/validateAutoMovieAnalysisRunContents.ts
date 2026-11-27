@@ -11,7 +11,7 @@ import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 import { autoMovieAnalysisTargetMet } from "./autoMovieAnalysisTargetMet";
 import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
 
-/**
+/*
  * Check every field of one analysis run except its seal.
  *
  * The rules all defend the same line: an absent measurement must stay visibly
@@ -33,9 +33,8 @@ import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../AUTOMOVIE_ANALYSIS_MAX_SAMPLE
  * `at-most`. Other nested fields must already have the declared shape: reading
  * a missing `solver.id` container or sample position can throw a `TypeError`,
  * so this is not a total unknown-JSON schema validator.
- *
- * @param run Run contents to check, with or without a digest.
- * @param out Caller-owned sink the violations are appended to.
+ * Parameter run: Run contents to check, with or without a digest.
+ * Parameter out: Caller-owned sink the violations are appended to.
  */
 export function validateAutoMovieAnalysisRunContents(
   run: Omit<IAutoMovieAnalysisRun, "digest">,
@@ -198,7 +197,7 @@ export function validateAutoMovieAnalysisRunContents(
   }
 }
 
-/**
+/*
  * Check one metric's value, gap, target and verdict against each other under
  * the typed nested-record premise.
  *

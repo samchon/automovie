@@ -10,15 +10,23 @@ import { CareBedConstruction } from "./CareBedConstruction";
 import { MATTRESS_SIZES } from "../constants/MATTRESS_SIZES";
 import { AutoMovieArchetypeBed } from "../AutoMovieArchetypeBed";
 
-/** Bed and stretcher constructions sharing measured sizing and rest dimensions. */
+/*
+ * Bed and stretcher constructions sharing measured sizing and rest dimensions.
+ */
 export namespace BedConstruction {
-  /** The values {@link platform} accepts at this place in its signature. */
+  /*
+   * The values platform accepts at this place in its signature.
+   */
   export type PlatformKind = "single" | "double" | "mattress";
 
-  /** The contact ids {@link platform} builds or reads. */
+  /*
+   * The contact ids platform builds or reads.
+   */
   export type PlatformContact = "surface" | "leftSide" | "rightSide";
 
-  /** Build a household bed or a mattress laid on the floor. */
+  /*
+   * Build a household bed or a mattress laid on the floor.
+   */
   export function platform(
     kind: PlatformKind,
     params: Omit<AutoMovieArchetypeBed.IParams, "kind">,
@@ -77,7 +85,9 @@ export namespace BedConstruction {
     return builder.build(d.mass!);
   }
 
-  /** The contact ids {@link hospital} builds or reads. */
+  /*
+   * The contact ids hospital builds or reads.
+   */
   export type HospitalContact =
     | "surface"
     | "leftSide"
@@ -85,7 +95,7 @@ export namespace BedConstruction {
     | "leftRail"
     | "rightRail";
 
-  /**
+  /*
    * Build a wheeled hospital bed with its patient surface, side seats, and
    * siderails.
    */
@@ -99,10 +109,14 @@ export namespace BedConstruction {
     return builder.build(d.mass!);
   }
 
-  /** The contact ids {@link gurney} builds or reads. */
+  /*
+   * The contact ids gurney builds or reads.
+   */
   export type GurneyContact = "surface" | "leftSide" | "rightSide";
 
-  /** Build a stretcher on casters with a supported patient surface. */
+  /*
+   * Build a stretcher on casters with a supported patient surface.
+   */
   export function gurney(
     params: Omit<AutoMovieArchetypeBed.IParams, "kind">,
     seed?: number,
@@ -113,10 +127,14 @@ export namespace BedConstruction {
     return builder.build(d.mass!);
   }
 
-  /** The contact ids {@link crib} builds or reads. */
+  /*
+   * The contact ids crib builds or reads.
+   */
   export type CribContact = "surface" | "leftRail" | "rightRail";
 
-  /** Build a crib with a mattress and graspable top rails. */
+  /*
+   * Build a crib with a mattress and graspable top rails.
+   */
   export function crib(
     params: Omit<AutoMovieArchetypeBed.IParams, "kind">,
     seed?: number,
@@ -127,7 +145,9 @@ export namespace BedConstruction {
     return builder.build(d.mass!);
   }
 
-  /** The contact ids {@link bunk} builds or reads. */
+  /*
+   * The contact ids bunk builds or reads.
+   */
   export type BunkContact =
     | "surface"
     | "leftSide"
@@ -135,7 +155,9 @@ export namespace BedConstruction {
     | "upper"
     | "guard";
 
-  /** Build a bunk bed with two sleep surfaces and a graspable guard rail. */
+  /*
+   * Build a bunk bed with two sleep surfaces and a graspable guard rail.
+   */
   export function bunk(
     params: Omit<AutoMovieArchetypeBed.IParams, "kind">,
     seed?: number,
@@ -147,25 +169,35 @@ export namespace BedConstruction {
   }
 }
 
-/** The model-space construction for the selected contact IDs. */
+/*
+ * The model-space construction for the selected contact IDs.
+ */
 type Builder<Id extends AutoMovieArchetypeBed.Affordance> = AutoMovieArchetypeBuilder<
   Id,
   AutoMovieArchetypeBed.Dimension
 >;
 
-/** Model dimensions in the legacy family's recorded units. */
+/*
+ * Model dimensions in the legacy family's recorded units.
+ */
 type Dimensions = Partial<Record<AutoMovieArchetypeBed.Dimension, number>>;
 
-/** A started construction: its builder and its drawn dimensions. */
+/*
+ * A started construction: its builder and its drawn dimensions.
+ */
 interface IDrawn<Id extends AutoMovieArchetypeBed.Affordance> {
-  /** The model-space builder for the selected contact ids. */
+  /*
+   * The model-space builder for the selected contact ids.
+   */
   builder: Builder<Id>;
 
-  /** The drawn and fixed dimensions in the family's recorded units. */
+  /*
+   * The drawn and fixed dimensions in the family's recorded units.
+   */
   d: Dimensions;
 }
 
-/**
+/*
  * Select the existing size, then draw the remaining dimensions in the saved
  * stream.
  */

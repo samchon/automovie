@@ -1,6 +1,6 @@
 import { AUTOMOVIE_REC709_XYZ } from "../../AUTOMOVIE_REC709_XYZ";
 
-/**
+/*
  * The colour of a black body at `kelvin`, as linear Rec. 709 RGB with luminance
  * Y = 1: the light colour a tungsten lamp, a candle or daylight of that
  * temperature casts, and the white that `IAutoMovieFilmOptics.whiteBalance`
@@ -8,7 +8,7 @@ import { AUTOMOVIE_REC709_XYZ } from "../../AUTOMOVIE_REC709_XYZ";
  *
  * The chromaticity is the cubic approximation of the Planckian locus by Kim et
  * al. (2002), whose coefficients cover 1667 K to 25000 K; the result is mapped
- * from XYZ by {@link AUTOMOVIE_REC709_XYZ}. Saturated low temperatures leave the
+ * from XYZ by AUTOMOVIE_REC709_XYZ. Saturated low temperatures leave the
  * Rec. 709 gamut slightly, so a channel may be a little below zero; it is
  * returned as computed, because clamping it would change the white the balance
  * adapts.

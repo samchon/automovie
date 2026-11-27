@@ -17,7 +17,7 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { standRelaxed } from "./standRelaxed";
 
-/**
+/*
  * The relaxed hanging arms of a body over the stance it actually stands in: the
  * quiet stance's relaxed arms (`standRelaxed`), each shoulder abducted further
  * by the least angle that leaves that hand's digits clear of the body in this
@@ -27,13 +27,12 @@ import { standRelaxed } from "./standRelaxed";
  * moves the thigh under the hand, so the rule is read again on the thighs as
  * they stand. An arm already clear keeps the quiet abduction, so a stance near
  * the quiet one hangs its arms as every other stand does.
- *
- * @param body The body.
- * @param stances The standing postures the arms hang in, clear of every one (a
- *   stand's entry and settled stances, the ends of its settle); their own arm
- *   and digit angles are replaced.
- * @returns The two arms' and hands' clinical angles.
- * @throws {Error} When the shoulder has no abduction range.
+ * Parameter body: The body.
+ * Parameter stances: The standing postures the arms hang in, clear of every one (a
+ * stand's entry and settled stances, the ends of its settle); their own arm
+ * and digit angles are replaced.
+ * Returns: The two arms' and hands' clinical angles.
+ * When the shoulder has no abduction range.
  */
 export function standClearArms(
   body: IAutoMovieMotionHumanBody,
@@ -79,13 +78,13 @@ export function standClearArms(
   return out;
 }
 
-/**
+/*
  * Whether a side's hand, hung at an abduction, sinks its digits into the body
  * in one stance.
  */
 type Sinks = (side: AutoMovieHumanSide, abduction: number) => boolean;
 
-/**
+/*
  * The digit-depth reader of one stance: resolved once, a candidate re-clamping
  * one upper arm's record.
  */
@@ -176,5 +175,7 @@ function sinking(
     ) > 0;
 }
 
-/** A digit's bone. */
+/*
+ * A digit's bone.
+ */
 const DIGIT: RegExp = /(Thumb|Index|Middle|Ring|Little)/;

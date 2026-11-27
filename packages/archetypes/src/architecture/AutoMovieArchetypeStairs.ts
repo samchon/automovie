@@ -13,14 +13,16 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/**
+/*
  * The building code's stair clauses, read in a state adoption of the model
  * code.
  */
 const IBC: string =
   "IBC 2021, read in its Illinois adoption (https://up.codes/viewer/illinois/ibc-2021/chapter/10/means-of-egress)";
 
-/** The accessibility standard's handrail clauses. */
+/*
+ * The accessibility standard's handrail clauses.
+ */
 const ADA: string =
   "2010 ADA Standards (https://www.access-board.gov/ada/chapter/ch05/)";
 

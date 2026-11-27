@@ -5,7 +5,7 @@ import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonica
 import { AutoMoviePhysicsCache } from "../AutoMoviePhysicsCache";
 import { physicalProfileWithoutHulls } from "./physicalProfileWithoutHulls";
 
-/**
+/*
  * Hash every admitted sampled value without retaining one film-sized JSON
  * string.
  */

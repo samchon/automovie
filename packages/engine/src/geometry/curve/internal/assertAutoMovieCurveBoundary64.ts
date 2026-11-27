@@ -5,15 +5,14 @@ import type {
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
 import { assertFiniteCurveVector } from "./assertFiniteCurveVector";
 
-/**
+/*
  * Admit a named closed cubic section and its complete longitudinal
  * first-variation control field. Section phase widths must sum exactly to one
  * turn; fullJ is measured per longitudinal millimetre.
- *
- * @param boundary Section positions in millimetres and matching mm-per-mm
- *   first-variation controls.
- * @throws Error on any missing coefficient, identity, topology or physical-unit
- *   mismatch.
+ * Parameter boundary: Section positions in millimetres and matching mm-per-mm
+ * first-variation controls.
+ * Error on any missing coefficient, identity, topology or physical-unit
+ * mismatch.
  */
 export function assertAutoMovieCurveBoundary64(
   boundary: IAutoMovieCurveBoundary64,

@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanCarriedDrag,
 } from "@automovie/interface";
 
-/**
+/*
  * The carries in which the carried body trails on the floor: the armpit drag,
  * the collar drag and the ankle drag. Each is a row of `HumanCarried.CARRIES`,
  * read by `borne` and `bearing` like any carry; the dragger walks backward
@@ -26,7 +26,9 @@ import type {
  * on it by a contact solve.
  */
 export namespace HumanCarriedDrag {
-  /** The drags. */
+  /*
+   * The drags.
+   */
   export const CARRIES: Readonly<
     Record<
       IAutoMovieMotionHumanCarriedDrag.Name,

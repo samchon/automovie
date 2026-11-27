@@ -19,7 +19,7 @@ import { boundAutoMovieTriangleAttachmentContact } from "./boundAutoMovieTriangl
 import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
-/**
+/*
  * Compile a resident surface into a conservative whole-feature separation
  * query.
  *
@@ -67,10 +67,9 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * returned query's `separated` runs the same walk and stops at the first
  * triangle whose bound falls below the target; since the running bound only
  * falls, its decision equals the full measurement's and it never spends more.
- *
- * @param mesh Resident surface, snapshotted.
- * @param representation Coordinates the snapshot measures.
- * @returns The compiled query.
+ * Parameter mesh: Resident surface, snapshotted.
+ * Parameter representation: Coordinates the snapshot measures.
+ * Returns: The compiled query.
  */
 export function createAutoMovieMeshSeparationQuery(
   mesh: IAutoMovieMesh,
@@ -317,28 +316,42 @@ export function createAutoMovieMeshSeparationQuery(
   );
 }
 
-/** One resident triangle in the snapshot. */
+/*
+ * One resident triangle in the snapshot.
+ */
 interface IResidentTriangle extends IAutoMovieMeshQueryHierarchy.IEntry {
-  /** Original triangle ordinal. */
+  /*
+   * Original triangle ordinal.
+   */
   id: number;
 
-  /** Corners in the measured representation. */
+  /*
+   * Corners in the measured representation.
+   */
   vertices: IAutoMovieVector3[];
 
-  /** Corners as binary64 source coordinates, for attachment seats. */
+  /*
+   * Corners as binary64 source coordinates, for attachment seats.
+   */
   reference: IAutoMovieVector3[];
 }
 
-/** The three coordinate names in XYZ order. */
+/*
+ * The three coordinate names in XYZ order.
+ */
 const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
 
-/** The three unit coordinate directions box pruning projects along. */
+/*
+ * The three unit coordinate directions box pruning projects along.
+ */
 const UNIT_AXES: readonly IAutoMovieVector3[] = [
   { x: 1, y: 0, z: 0 },
   { x: 0, y: 1, z: 0 },
   { x: 0, y: 0, z: 1 },
 ];
 
-/** Whether a run slot holds a vector with three finite coordinates. */
+/*
+ * Whether a run slot holds a vector with three finite coordinates.
+ */
 const finiteVertex = (p: IAutoMovieVector3 | undefined | null): boolean =>
   p !== undefined && p !== null;

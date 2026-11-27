@@ -17,14 +17,13 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSoftBoundary } from "./HumanPerformanceSoftBoundary";
 import { HumanPerformanceSoftBudget } from "./HumanPerformanceSoftBudget";
 
-/**
+/*
  * Read the whole solve the performance prepared for a soft prop.
- *
- * @param state The performance.
- * @param subject The soft prop.
- * @returns The solve.
- * @throws {HumanRefusal} When the performance has no soft prop with this id.
- * @throws {Error} When a declared domain reaches a reader before preparation.
+ * Parameter state: The performance.
+ * Parameter subject: The soft prop.
+ * Returns: The solve.
+ * When the performance has no soft prop with this id.
+ * When a declared domain reaches a reader before preparation.
  */
 export function HumanPerformanceSoft(
   state: IAutoMovieMotionHumanPerformanceState,
@@ -36,7 +35,9 @@ export function HumanPerformanceSoft(
   throw new Error(`Soft prop ${subject} has not been prepared`);
 }
 
-/** Read a declared soft domain or report the available soft props. */
+/*
+ * Read a declared soft domain or report the available soft props.
+ */
 function domainOf(
   state: IAutoMovieMotionHumanPerformanceState,
   subject: string,
@@ -61,7 +62,9 @@ function domainOf(
   return domain;
 }
 
-/** A soft prop's whole solve from the placed performance. */
+/*
+ * A soft prop's whole solve from the placed performance.
+ */
 function solve(
   state: IAutoMovieMotionHumanPerformanceState,
   subject: string,
@@ -244,7 +247,7 @@ function solve(
   };
 }
 
-/**
+/*
  * A performance's soft props: each solved once from the displayed poses of the
  * people who hold it or whose bodies it lies on, at its domain's own fixed
  * step, and read by film seconds.
@@ -273,14 +276,13 @@ function solve(
  * solver's multipliers).
  */
 export namespace HumanPerformanceSoft {
-  /**
+  /*
    * Solve a soft prop over the placed performance: what the performance
    * prepares once every action, stop and flight is resolved.
-   *
-   * @param state The performance.
-   * @param subject The soft prop.
-   * @returns The solve.
-   * @throws {HumanRefusal} When the prop is not soft.
+   * Parameter state: The performance.
+   * Parameter subject: The soft prop.
+   * Returns: The solve.
+   * When the prop is not soft.
    */
   export function prepare(
     state: IAutoMovieMotionHumanPerformanceState,
@@ -289,13 +291,12 @@ export namespace HumanPerformanceSoft {
     return solve(state, subject);
   }
 
-  /**
+  /*
    * The particles a soft domain anchors to a hand bone (`actor-bone` on
    * `leftHand` or `rightHand`): a lanyard or a cord the hand holds from the
    * start, whose pull is that hand's load as a grip's is.
-   *
-   * @param domain The domain, with any grips' anchors already swapped in.
-   * @returns The hand anchors, in the domain's order.
+   * Parameter domain: The domain, with any grips' anchors already swapped in.
+   * Returns: The hand anchors, in the domain's order.
    */
   export function held(
     domain: IAutoMovieSoftBodyDomain,
@@ -317,15 +318,14 @@ export namespace HumanPerformanceSoft {
     );
   }
 
-  /**
+  /*
    * A soft prop's particle positions at a film second.
-   *
-   * @param state The performance.
-   * @param subject The soft prop.
-   * @param seconds Film seconds, clamped to the performance.
-   * @returns World metres, row-major `[x, y, z, ...]`.
-   * @throws {HumanRefusal} When the prop is not soft or its span exceeds its
-   *   domain's step budget.
+   * Parameter state: The performance.
+   * Parameter subject: The soft prop.
+   * Parameter seconds: Film seconds, clamped to the performance.
+   * Returns: World metres, row-major `[x, y, z, ...]`.
+   * When the prop is not soft or its span exceeds its
+   * domain's step budget.
    */
   export function at(
     state: IAutoMovieMotionHumanPerformanceState,
@@ -345,18 +345,17 @@ export namespace HumanPerformanceSoft {
     );
   }
 
-  /**
+  /*
    * The force a soft prop pulls a gripping hand with at a film second: the
    * step's anchor force from the compliant solver, the step before the second's
    * (a force is held over its step, not interpolated).
-   *
-   * @param state The performance.
-   * @param subject The soft prop.
-   * @param person The gripping person.
-   * @param side The hand.
-   * @param seconds Film seconds.
-   * @returns Newtons, world frame; zero when the hand does not hold it or the
-   *   domain declares no compliance.
+   * Parameter state: The performance.
+   * Parameter subject: The soft prop.
+   * Parameter person: The gripping person.
+   * Parameter side: The hand.
+   * Parameter seconds: Film seconds.
+   * Returns: Newtons, world frame; zero when the hand does not hold it or the
+   * domain declares no compliance.
    */
   export function load(
     state: IAutoMovieMotionHumanPerformanceState,
@@ -374,7 +373,7 @@ export namespace HumanPerformanceSoft {
     return solved.loads[k]?.get(`${person}:${side}`) ?? { x: 0, y: 0, z: 0 };
   }
 
-  /**
+  /*
    * Every soft prop's pull on the hands that grip it, as sustained forces for
    * the display-time load and balance: one record per grip window on a soft
    * prop, on the gripping person's palm of that side, over the window, and one
@@ -383,9 +382,8 @@ export namespace HumanPerformanceSoft {
    * second (`load`). The coupling is one-way per solve: the cloth is solved
    * from the displayed body, and the body's lean is then read from these
    * forces, never fed back into the solve or into a law's plan.
-   *
-   * @param state The performance.
-   * @returns The forces, in prop and grip order.
+   * Parameter state: The performance.
+   * Returns: The forces, in prop and grip order.
    */
   export function sustained(
     state: IAutoMovieMotionHumanPerformanceState,
@@ -450,8 +448,12 @@ export namespace HumanPerformanceSoft {
   }
 }
 
-/** The alternatives of `OfWhole`'s site. */
+/*
+ * The alternatives of `OfWhole`'s site.
+ */
 type OfWhole = "steps" | "loads";
 
-/** The alternatives of `OfSolveResult`'s site. */
+/*
+ * The alternatives of `OfSolveResult`'s site.
+ */
 type OfSolveResult = "steps" | "loads";

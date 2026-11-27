@@ -13,13 +13,12 @@ import type {
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 
-/**
+/*
  * The native wrist's inner reach radius. A flexion hinge with locked abduction
  * and a distal forearm twist has a proven radius. Other rigs use zero, the
  * lower bound valid without those assumptions.
- *
- * @param setup The native arm setup.
- * @returns The conservative minimum wrist radius, metres.
+ * Parameter setup: The native arm setup.
+ * Returns: The conservative minimum wrist radius, metres.
  */
 export function HumanArmWristShell(
   setup: IAutoMovieMotionHumanArmGeometry.ISetup,
@@ -51,20 +50,21 @@ export function HumanArmWristShell(
   );
 }
 
-/** The radius primitive of a bounded two-bone wrist shell. */
+/*
+ * The radius primitive of a bounded two-bone wrist shell.
+ */
 export namespace HumanArmWristShell {
-  /**
+  /*
    * The hinge's squared span is a sinusoid of its angle (Tolani, Goswami and
    * Badler 2000, section 3.2). Read its two end stops and any interior minimum.
    * Distal twist can move the wrist by at most twice its perpendicular distance
    * to the twist axis, which the reverse triangle inequality subtracts from the
    * hinge-only radius.
-   *
-   * @param upper The upper arm's offset in the lower arm's rest frame.
-   * @param lower The wrist's offset in the same frame.
-   * @param axes The unit flexion and distal-twist axes.
-   * @param range The flexion stops, degrees relative to rest.
-   * @returns The lower bound on the wrist radius, metres.
+   * Parameter upper: The upper arm's offset in the lower arm's rest frame.
+   * Parameter lower: The wrist's offset in the same frame.
+   * Parameter axes: The unit flexion and distal-twist axes.
+   * Parameter range: The flexion stops, degrees relative to rest.
+   * Returns: The lower bound on the wrist radius, metres.
    */
   export function radius(
     upper: IAutoMovieVector3,
@@ -100,5 +100,7 @@ export namespace HumanArmWristShell {
   }
 }
 
-/** The two admitted unit axes that affect wrist span. */
+/*
+ * The two admitted unit axes that affect wrist span.
+ */
 type WristAxes = Pick<IAutoMovieJointAxes, "flexion" | "twist">;

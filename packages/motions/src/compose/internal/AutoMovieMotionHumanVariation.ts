@@ -10,14 +10,13 @@ import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionHumanTiming } from "./AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanVariationDraw } from "./AutoMovieMotionHumanVariationDraw";
 
-/**
+/*
  * The source of an action's variation.
- *
- * @param context The action's skill and series.
- * @param manner The manner; its `variation` and `consistency` are read.
- * @returns The source, or `undefined` when the variation is absent or 0.
- * @throws {Error} When an active variation or its consistency lies outside [0,
- *   1].
+ * Parameter context: The action's skill and series.
+ * Parameter manner: The manner; its `variation` and `consistency` are read.
+ * Returns: The source, or `undefined` when the variation is absent or 0.
+ * When an active variation or its consistency lies outside [0,
+ * 1].
  */
 export function AutoMovieMotionHumanVariation(
   context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
@@ -47,7 +46,7 @@ export function AutoMovieMotionHumanVariation(
   };
 }
 
-/**
+/*
  * The seeded offset of a symbolic slot: how one performance of an action
  * differs from the next.
  *
@@ -82,7 +81,7 @@ export function AutoMovieMotionHumanVariation(
  * variation every function returns its input and reads no draw.
  */
 export namespace AutoMovieMotionHumanVariation {
-  /**
+  /*
    * The spread across a movement's arrival direction as a share of the spread
    * along it (provisional ratio; the ellipse's direction is from Gordon et al.
    * 1994, Exp Brain Res 99:97, and van Beers et al. 2004, J Neurophysiol
@@ -90,7 +89,7 @@ export namespace AutoMovieMotionHumanVariation {
    */
   export const ACROSS: number = 0.5;
 
-  /**
+  /*
    * The spread of each slot type at `variation` 1, for a novice and for an
    * elite:
    *
@@ -131,7 +130,7 @@ export namespace AutoMovieMotionHumanVariation {
     curvature: [0.02, 0.015],
   };
 
-  /**
+  /*
    * The largest offset of a slot type whose bound is a fixed size: a direction
    * in degrees, a preset bend as a share of the upper arm and a curvature as a
    * share of the path's length (provisional; twice the novice's spread, so a
@@ -143,13 +142,15 @@ export namespace AutoMovieMotionHumanVariation {
     curvature: 0.04,
   };
 
-  /** The tangent offset of no variation: the region's own point. */
+  /*
+   * The tangent offset of no variation: the region's own point.
+   */
   export const CENTRE: IAutoMovieMotionHumanVariation.ITangent = {
     up: 0,
     out: 0,
   };
 
-  /**
+  /*
    * A strike point's tangent offset within its region.
    *
    * The offset is in metres on the region's tangent plane. Its spread is
@@ -157,11 +158,10 @@ export namespace AutoMovieMotionHumanVariation {
    * radius, and `a` is 1 along the weapon's travel on the plane and `ACROSS`
    * across it. The offset is drawn on a disc of `TRUNCATE` spreads and its
    * bound is `r`, so the point stays in its region.
-   *
-   * @param source The striker's variation; absent, `CENTRE` is returned.
-   * @param key The slot key.
-   * @param props The radius, the scatter and the travel.
-   * @returns The offset from the region's point.
+   * Parameter source: The striker's variation; absent, `CENTRE` is returned.
+   * Parameter key: The slot key.
+   * Parameter props: The radius, the scatter and the travel.
+   * Returns: The offset from the region's point.
    */
   export function strike(
     source: IAutoMovieMotionHumanVariation.ISource | undefined,
@@ -202,21 +202,20 @@ export namespace AutoMovieMotionHumanVariation {
     };
   }
 
-  /**
+  /*
    * A direction with its offset.
    *
    * The offset is a turn in degrees about the stated direction, with spread
    * `SPREADS.direction`, drawn on a disc of `TRUNCATE` spreads. Its bound is
    * the smaller of `BOUNDS.direction` and `MARGIN` of half the angle to the
    * nearest other named direction.
-   *
-   * @param source The action's variation; absent, the vector itself is
-   *   returned.
-   * @param key The slot key.
-   * @param vector The direction, any frame; its length is kept.
-   * @param gap The angle to the nearest other named direction, degrees; absent,
-   *   only `BOUNDS.direction` binds.
-   * @returns The turned direction.
+   * Parameter source: The action's variation; absent, the vector itself is
+   * returned.
+   * Parameter key: The slot key.
+   * Parameter vector: The direction, any frame; its length is kept.
+   * Parameter gap: The angle to the nearest other named direction, degrees; absent,
+   * only `BOUNDS.direction` binds.
+   * Returns: The turned direction.
    */
   export function direction(
     source: IAutoMovieMotionHumanVariation.ISource | undefined,
@@ -266,19 +265,18 @@ export namespace AutoMovieMotionHumanVariation {
     );
   }
 
-  /**
+  /*
    * A phase's duration with its offset.
    *
    * The offset is in seconds with spread `SPREADS.duration`. Its bound is half
    * the duration, so a phase is never shorter than 0.5 or longer than 1.5 of
    * its length and a clock built from varied phases keeps its instants in
    * order. A span physics fixes is not passed through.
-   *
-   * @param source The action's variation; absent, the duration itself is
-   *   returned.
-   * @param key The slot key.
-   * @param seconds The phase's duration, seconds.
-   * @returns The varied duration, seconds.
+   * Parameter source: The action's variation; absent, the duration itself is
+   * returned.
+   * Parameter key: The slot key.
+   * Parameter seconds: The phase's duration, seconds.
+   * Returns: The varied duration, seconds.
    */
   export function duration(
     source: IAutoMovieMotionHumanVariation.ISource | undefined,
@@ -299,17 +297,16 @@ export namespace AutoMovieMotionHumanVariation {
     );
   }
 
-  /**
+  /*
    * A pause with its offset.
    *
    * The offset is a factor on the pause with spread `SPREADS.pause`. Its bound
    * is the smaller of the cell rule over `AutoMovieMotionHumanTiming.PAUSES`
    * and half the pause (the scale rung's [0.5, 1.5]). A pause of 0 stays 0.
-   *
-   * @param source The action's variation; absent, the pause itself is returned.
-   * @param key The slot key.
-   * @param seconds The pause, seconds.
-   * @returns The varied pause, seconds.
+   * Parameter source: The action's variation; absent, the pause itself is returned.
+   * Parameter key: The slot key.
+   * Parameter seconds: The pause, seconds.
+   * Returns: The varied pause, seconds.
    */
   export function pause(
     source: IAutoMovieMotionHumanVariation.ISource | undefined,
@@ -337,16 +334,24 @@ export namespace AutoMovieMotionHumanVariation {
   }
 }
 
-/** The alternatives of `OfManner`'s site. */
+/*
+ * The alternatives of `OfManner`'s site.
+ */
 type OfManner = "variation" | "consistency";
 
-/** The alternatives of `OfContext`'s site. */
+/*
+ * The alternatives of `OfContext`'s site.
+ */
 type OfContext = "skill" | "series";
 
-/** The alternatives of `BOUNDSEntryItem`'s site. */
+/*
+ * The alternatives of `BOUNDSEntryItem`'s site.
+ */
 type BOUNDSEntryItem = "direction" | "bend" | "curvature";
 
-/** The alternatives of `SPREADSEntryItem`'s site. */
+/*
+ * The alternatives of `SPREADSEntryItem`'s site.
+ */
 type SPREADSEntryItem =
   | "place"
   | "strike"

@@ -18,7 +18,7 @@ import { addAutoMovieQuadraticProduct } from "./addAutoMovieQuadraticProduct";
 import { orderAutoMovieQuadraticMatrix } from "./orderAutoMovieQuadraticMatrix";
 import { overflowsBinary64 } from "./overflowsBinary64";
 
-/**
+/*
  * Own sparse LDL-transpose factors of [diag(P), A'; A, -diag(H)]. H is zero for
  * equality rows and s/z for inequalities. Symbolic elimination and ordering are
  * reused within this solve; only diagonal values change between iterations.
@@ -31,10 +31,9 @@ import { overflowsBinary64 } from "./overflowsBinary64";
  * The regularization/refinement constants retain Clarabel 0.11.1 defaults.
  * Finite refinement is not a convergence proof: the interior-point owner must
  * still establish the original primal/dual residual and objective-gap tests.
- *
- * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/qdldl/qdldl.rs}
- * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/core/kktsolvers/direct/quasidef/directldlkktsolver.rs}
- * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/settings.rs}
+ * https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/qdldl/qdldl.rs
+ * https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/core/kktsolvers/direct/quasidef/directldlkktsolver.rs
+ * https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/settings.rs
  */
 export function createAutoMovieQuadraticFactor(
   data: IAutoMovieQuadraticConicProgram,
@@ -118,7 +117,9 @@ export function createAutoMovieQuadraticFactor(
   const correction: Float64Array = new Float64Array(size);
   let valid: boolean = false;
 
-  /** Solve the currently stabilized factors in permuted coordinates. */
+  /*
+   * Solve the currently stabilized factors in permuted coordinates.
+   */
   const substitute: (target: Float64Array, rhs: Float64Array) => void = (
     target: Float64Array,
     rhs: Float64Array,
@@ -139,7 +140,9 @@ export function createAutoMovieQuadraticFactor(
     }
   };
 
-  /** Residual uses av's true diagonal, never its factor stabilization. */
+  /*
+   * Residual uses av's true diagonal, never its factor stabilization.
+   */
   const residual: (rhs: Float64Array, x: Float64Array) => number = (
     rhs: Float64Array,
     x: Float64Array,
@@ -162,7 +165,9 @@ export function createAutoMovieQuadraticFactor(
   };
   return {
     nonzeros: fill,
-    /** Recompute numeric factors after replacing only the cone diagonal. */
+    /*
+     * Recompute numeric factors after replacing only the cone diagonal.
+     */
     update(h: Float64Array): boolean {
       valid = false;
       let maxDiagonal: number = 0;
@@ -219,7 +224,9 @@ export function createAutoMovieQuadraticFactor(
       valid = true;
       return true;
     },
-    /** Return an owned solution, or refuse nonfinite factors/refinement. */
+    /*
+     * Return an owned solution, or refuse nonfinite factors/refinement.
+     */
     solve(rhs: Float64Array): Float64Array | undefined {
       if (!valid || rhs.length !== size) return undefined;
       const permuted: Float64Array = new Float64Array(size);

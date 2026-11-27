@@ -23,7 +23,7 @@ import { fitSeatedAnkleCrossSweep } from "./fitSeatedAnkleCrossSweep";
 
 const RAD = Math.PI / 180;
 
-/**
+/*
  * Surface convergence, metres, within the existing one-centimetre placement
  * fit.
  */
@@ -38,7 +38,9 @@ function angleTravel(a: IAutoMovieJointPose, b: IAutoMovieJointPose): number {
   );
 }
 
-/** Timing is a separate concern from the certified segment's angle curve. */
+/*
+ * Timing is a separate concern from the certified segment's angle curve.
+ */
 function interpolateSeatedAnkleCross(
   a: ILegPose,
   b: ILegPose,
@@ -58,7 +60,7 @@ function interpolateSeatedAnkleCross(
   return { hip: between(a.hip, b.hip), knee: between(a.knee, b.knee) };
 }
 
-/**
+/*
  * Fit the ankle against the carrying leg's posed body; first travel outside
  * that leg, then over it, then settle vertically into its bearing region. The
  * seat, supporting leg, and planted foot keep the entry pose throughout.
@@ -354,9 +356,13 @@ export function fitSeatedAnkleCross(
   return undefined;
 }
 
-/** Interpolate the exact joint-space curve admitted by the fit. */
+/*
+ * Interpolate the exact joint-space curve admitted by the fit.
+ */
 export namespace fitSeatedAnkleCross {
-  /** Sample one fitted segment independently of its downstream timing. */
+  /*
+   * Sample one fitted segment independently of its downstream timing.
+   */
   export const interpolate = interpolateSeatedAnkleCross;
 }
 
@@ -432,5 +438,7 @@ interface IReading {
   order: number;
 }
 
-/** The record of `IUpperSurfaceResult`'s site. */
+/*
+ * The record of `IUpperSurfaceResult`'s site.
+ */
 type IUpperSurfaceResult = { y: number; normal: IAutoMovieVector3 };

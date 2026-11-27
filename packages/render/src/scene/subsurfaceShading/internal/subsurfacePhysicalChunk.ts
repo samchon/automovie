@@ -1,7 +1,7 @@
 import { SUBSURFACE_TARGET } from "../../SUBSURFACE_TARGET.js";
 import { SUBSURFACE_TEXTURE_SIZE } from "../SUBSURFACE_TEXTURE_SIZE.js";
 
-/**
+/*
  * Replace the supported physical direct-diffuse line with the current RGB table
  * lookup while preserving all other supplied chunk text. An absent target
  * refuses before returning source; only the first exact occurrence is

@@ -5,16 +5,15 @@ import type {
 
 import type { AutoMovieArchetypeConvexCell } from "../../core";
 
-/**
+/*
  * A part's conservative physical bound for the footing's pole query
  * (`AutoMovieArchetypeQuadrupedFooting`): a box, sphere or capsule as itself,
  * any other round bar, such as a cylinder or cone, by the capsule of its radius
  * and height, which contains it.
- *
- * @param part The part with its world transform.
- * @param cells The producer's convex solids, if supplied.
- * @returns The physical shape.
- * @throws {RangeError} For a plane or a non-primitive part.
+ * Parameter part: The part with its world transform.
+ * Parameter cells: The producer's convex solids, if supplied.
+ * Returns: The physical shape.
+ * For a plane or a non-primitive part.
  */
 export function QuadrupedObstacleShape(
   part: IAutoMovieModelPart,

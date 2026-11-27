@@ -6,14 +6,13 @@ import type {
 
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 
-/**
+/*
  * The pelvis's path.
- *
- * @param stance The root before the climb and after each step.
- * @param clock The step clock, with `toeOff<n>` and `treadContact<n>`.
- * @param steps How many steps.
- * @param duration The climb's seconds.
- * @returns The root at a second.
+ * Parameter stance: The root before the climb and after each step.
+ * Parameter clock: The step clock, with `toeOff<n>` and `treadContact<n>`.
+ * Parameter steps: How many steps.
+ * Parameter duration: The climb's seconds.
+ * Returns: The root at a second.
  */
 export function climbStairsPelvis(
   stance: readonly IAutoMovieVector3[],

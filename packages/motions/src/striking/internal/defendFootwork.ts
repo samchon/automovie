@@ -10,15 +10,14 @@ import { StrikingTarget } from "./StrikingTarget";
 import type { defendGeometry } from "./defendGeometry";
 import { strikingStepSupport } from "./strikingStepSupport";
 
-/**
+/*
  * Continue an interrupted step beneath the defence's own clock. A checking leg
  * that bears at the cut can lift once the other foot has landed.
- *
- * @param context The displayed cut entry.
- * @param timing The defence's own action-relative timing.
- * @param checking The checking foot, when the defence lifts one.
- * @returns The shared landing, release and displayed leg goals, or undefined
- *   when the defence starts from settled feet.
+ * Parameter context: The displayed cut entry.
+ * Parameter timing: The defence's own action-relative timing.
+ * Parameter checking: The checking foot, when the defence lifts one.
+ * Returns: The shared landing, release and displayed leg goals, or undefined
+ * when the defence starts from settled feet.
  */
 export function defendFootwork(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
@@ -76,28 +75,35 @@ export function defendFootwork(
   };
 }
 
-/** The landing a defence completes after a cut from an interrupted step. */
+/*
+ * The landing a defence completes after a cut from an interrupted step.
+ */
 export namespace defendFootwork {
-  /** When each foot lands and when a checking leg leaves. */
+  /*
+   * When each foot lands and when a checking leg leaves.
+   */
   export interface ISchedule {
-    /** Each foot's touchdown, seconds; 0 for a foot already down. */
+    /*
+     * Each foot's touchdown, seconds; 0 for a foot already down.
+     */
     touchdown: Record<AutoMovieHumanSide, number>;
 
-    /** The checking leg's release, seconds. */
+    /*
+     * The checking leg's release, seconds.
+     */
     release: number;
   }
 
-  /**
+  /*
    * The footwork's schedule after a step: a landing foot touches down at the
    * defence's start or halfway through its movement, whichever is later; a
    * check by the bearing leg waits for that landing, any other leaves at the
    * start.
-   *
-   * @param timing The defence's start and movement, seconds.
-   * @param landing Which feet are still landing.
-   * @param checking The checking leg, if any.
-   * @param bearing The leg that bore the step, if any.
-   * @returns The schedule.
+   * Parameter timing: The defence's start and movement, seconds.
+   * Parameter landing: Which feet are still landing.
+   * Parameter checking: The checking leg, if any.
+   * Parameter bearing: The leg that bore the step, if any.
+   * Returns: The schedule.
    */
   export function schedule(
     timing: Pick<defendGeometry.ITiming, "begin" | "movement">,
@@ -116,16 +122,15 @@ export namespace defendFootwork {
     };
   }
 
-  /**
+  /*
    * Whether a foot bears at a second: once it has touched down, and for the
    * checking leg, not between its release and the defence's end.
-   *
-   * @param side The foot.
-   * @param seconds The defence's seconds.
-   * @param schedule The touchdowns and the release.
-   * @param checking The checking leg, if any.
-   * @param duration The defence's seconds in all.
-   * @returns Whether it bears.
+   * Parameter side: The foot.
+   * Parameter seconds: The defence's seconds.
+   * Parameter schedule: The touchdowns and the release.
+   * Parameter checking: The checking leg, if any.
+   * Parameter duration: The defence's seconds in all.
+   * Returns: Whether it bears.
    */
   export function down(
     side: AutoMovieHumanSide,
@@ -140,29 +145,26 @@ export namespace defendFootwork {
     );
   }
 
-  /**
+  /*
    * The landing a defence completes after a cut from an interrupted step,
    * shared by its waiting and reacting poses, on the defence's own clock.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each foot's touchdown second, the checking leg's release second and the leg goals read at a local second.
-   * @evidence contracts/development/design.md#principled-representation Local seconds per foot and for the release, and a closed-form leg reader over the same clock.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by defendFootwork and read by the defence's waiting pose, its geometry and its contact windows.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts A foot that bears at the cut touches down at zero, so no flag duplicates the landing record.
    */
   export interface ISupport {
-    /**
+    /*
      * Each foot's touchdown second on the defence's clock; zero for a foot that
      * bears at the cut.
      */
     touchdown: Record<AutoMovieHumanSide, number>;
 
-    /**
+    /*
      * The second the checking leg may leave the floor, after the other foot has
      * landed.
      */
     release: number;
 
-    /** The displayed leg goals at a second of the defence. */
+    /*
+     * The displayed leg goals at a second of the defence.
+     */
     legs(seconds: number): ReturnType<typeof StrikingStance.legs>;
   }
 }

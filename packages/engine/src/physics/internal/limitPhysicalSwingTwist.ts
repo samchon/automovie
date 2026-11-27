@@ -8,7 +8,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { PhysicalRotationVector } from "../PhysicalRotationVector";
 
-/**
+/*
  * A joint rotation brought inside its clinical swing-twist limit (Baerlocher
  * and Boulic 2001, "Parametrization and range of motion of the ball-and-socket
  * joint", The Visual Computer 17(7)).
@@ -22,10 +22,9 @@ import { PhysicalRotationVector } from "../PhysicalRotationVector";
  * ends on the vector's side, it is scaled back onto the ellipse along its own
  * direction. The limited rotation is the limited swing times the limited twist;
  * a rotation inside the limit is returned as given.
- *
- * @param limit The joint's swing-twist limit.
- * @param rotation The joint frame's relative rotation.
- * @returns The limited rotation.
+ * Parameter limit: The joint's swing-twist limit.
+ * Parameter rotation: The joint frame's relative rotation.
+ * Returns: The limited rotation.
  */
 export function limitPhysicalSwingTwist(
   limit: IAutoMoviePhysicalJoint.ISwingTwist,

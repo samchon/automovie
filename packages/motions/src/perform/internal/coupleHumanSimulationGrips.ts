@@ -1,6 +1,6 @@
 import type { bindHumanSimulationGrips } from "./bindHumanSimulationGrips";
 
-/**
+/*
  * The coupled groups of a simulated window at each step: performers who grip
  * each other while both still track are fitted together against one snapshot,
  * each connected set of such pairs one group.
@@ -8,12 +8,11 @@ import type { bindHumanSimulationGrips } from "./bindHumanSimulationGrips";
  * A one-way grip is no group: its receiver is read where the solver put it,
  * which the engine's individual fit already does. The label names the group's
  * members, so a step's group is the same string wherever it holds.
- *
- * @param grips Every grip of the window.
- * @param releases Each simulated performer's release step; past the interval
- *   count for one never released.
- * @param end The last step the solver may own a segment.
- * @returns Each step's labels by performer; a step without a group is absent.
+ * Parameter grips: Every grip of the window.
+ * Parameter releases: Each simulated performer's release step; past the interval
+ * count for one never released.
+ * Parameter end: The last step the solver may own a segment.
+ * Returns: Each step's labels by performer; a step without a group is absent.
  */
 export function coupleHumanSimulationGrips(
   grips: readonly coupleHumanSimulationGrips.IGrip[],
@@ -63,16 +62,22 @@ export function coupleHumanSimulationGrips(
   return groups;
 }
 
-/** What a coupling reads of a grip. */
+/*
+ * What a coupling reads of a grip.
+ */
 export namespace coupleHumanSimulationGrips {
-  /** A grip's two performers and its steps. */
+  /*
+   * A grip's two performers and its steps.
+   */
   export type IGrip = Pick<
     bindHumanSimulationGrips.IGrip,
     "subject" | "partner" | "from" | "to"
   >;
 }
 
-/** Code-unit order of two ids, the deterministic order of a label. */
+/*
+ * Code-unit order of two ids, the deterministic order of a label.
+ */
 function ordinal(a: string, b: string): number {
   return a < b ? -1 : a > b ? 1 : 0;
 }

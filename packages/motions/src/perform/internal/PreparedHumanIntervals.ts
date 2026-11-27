@@ -1,15 +1,23 @@
-/** Prepare lookups over an immutable list of action seconds. */
+/*
+ * Prepare lookups over an immutable list of action seconds.
+ */
 export namespace PreparedHumanIntervals {
-  /** A closed interval on the action clock. */
+  /*
+   * A closed interval on the action clock.
+   */
   export interface IInterval {
-    /** The first included second. */
+    /*
+     * The first included second.
+     */
     readonly from: number;
 
-    /** The last included second. */
+    /*
+     * The last included second.
+     */
     readonly to: number;
   }
 
-  /**
+  /*
    * Find the first sorted key at or after the requested second. Return the key
    * count if every key precedes it.
    */
@@ -21,7 +29,9 @@ export namespace PreparedHumanIntervals {
     return bound(length, at, second, false);
   }
 
-  /** Find the first sorted key strictly after the requested second. */
+  /*
+   * Find the first sorted key strictly after the requested second.
+   */
   export function upperBound(
     length: number,
     at: (index: number) => number,
@@ -30,7 +40,7 @@ export namespace PreparedHumanIntervals {
     return bound(length, at, second, true);
   }
 
-  /**
+  /*
    * Index closed intervals by their declared priority. Store every endpoint and
    * each open space between consecutive endpoints as separate leaves, so a
    * shared second can have a different owner from either side. A phase is
@@ -98,7 +108,9 @@ export namespace PreparedHumanIntervals {
     };
   }
 
-  /** Search a sorted prefix whose keys precede the selected boundary. */
+  /*
+   * Search a sorted prefix whose keys precede the selected boundary.
+   */
   function bound(
     length: number,
     at: (index: number) => number,

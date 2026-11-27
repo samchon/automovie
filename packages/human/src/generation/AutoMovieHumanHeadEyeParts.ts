@@ -33,7 +33,7 @@ import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns call-owned source records and retains fixed immutable diameter data, without a global person, source image or prepared callback.
  */
 export namespace AutoMovieHumanHeadEyeParts {
-  /**
+  /*
    * External radii [AP, superior-inferior, lateral], world mm, from Bekerman
    * 2014 Table 1: axial Group II and sclera-to-sclera rows. The small observed
    * side difference is not a significant population rule.
@@ -45,7 +45,7 @@ export namespace AutoMovieHumanHeadEyeParts {
     right: [23.422 / 2, 23.799 / 2, 24.156 / 2],
   };
 
-  /**
+  /*
    * Angular intervals of each ellipse; the engine owns the C2 interpolation
    * between these sites.
    */
@@ -88,7 +88,7 @@ export namespace AutoMovieHumanHeadEyeParts {
           (_: unknown, i: number): number =>
             -r[0] * k * Math.cos((Math.PI * i) / INTERVALS),
         );
-        /**
+        /*
          * One exact ellipse at its sites, interpolated by the engine in its
          * declared pole parameter.
          */
@@ -144,7 +144,7 @@ export namespace AutoMovieHumanHeadEyeParts {
     ];
   }
 
-  /**
+  /*
    * Source fissure volumes, for curve inspection before any lid trim is wired.
    * Shin's upper cubic is mapped by its chord residual; the lower parabola is
    * an explicit construction convention. Rana 2023's MRD1:MRD2 3.5:5.2 sets the
@@ -326,7 +326,7 @@ export namespace AutoMovieHumanHeadEyeParts {
     );
   }
 
-  /**
+  /*
    * Evaluate authored controls only to publish source values; the engine owns
    * every actual interpolated curve.
    */
@@ -339,7 +339,7 @@ export namespace AutoMovieHumanHeadEyeParts {
     );
   }
 
-  /**
+  /*
    * The common angle parameter normalizes to the original Bezier t. Its
    * millimetre domain spans the public 3D chord length; it is neither world Z
    * nor arc length. Changing that domain never changes a world control.
@@ -352,7 +352,7 @@ export namespace AutoMovieHumanHeadEyeParts {
         : length * Math.sin((Math.PI * t) / 2) ** 2;
   }
 
-  /**
+  /*
    * Declare the cubic exactly with values and normalized first/second jets. A
    * common explicit angle parameter prevents radial pole admission from
    * changing the polynomial's parameter. The pupil knot is a named site, not a
@@ -387,9 +387,13 @@ export namespace AutoMovieHumanHeadEyeParts {
     };
   }
 
-  /** Four source Bernstein controls, scalar values in calibration mm. */
+  /*
+   * Four source Bernstein controls, scalar values in calibration mm.
+   */
   type ICubic = readonly [number, number, number, number];
 
-  /** Fixed chart-coordinate records accepted by the engine source-axis owner. */
+  /*
+   * Fixed chart-coordinate records accepted by the engine source-axis owner.
+   */
   type IOrigin = Parameters<typeof AutoMovieHumanHeadSourceAxis.of>[0];
 }

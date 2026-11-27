@@ -19,7 +19,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 
-/**
+/*
  * How a presented weapon is held, read once per plan: the weapon as the
  * shooting hand holds it, whether it is a long gun (a prop with a `foreEnd`),
  * and where the support hand takes it, beside the shooting hand on a handgun
@@ -31,7 +31,7 @@ import { StrikingHeld } from "../../striking/internal/StrikingHeld";
  * fit then holds it within its own range.
  */
 export namespace HumanWeaponHeld {
-  /**
+  /*
    * The hand a weapon action holds the weapon in: the right when the parameters
    * name none.
    */
@@ -39,7 +39,7 @@ export namespace HumanWeaponHeld {
     p: IAutoMovieMotionHumanWeaponPresent.IWield,
   ): AutoMovieHumanSide => p.hand ?? "right";
 
-  /**
+  /*
    * How the hand holds the weapon at an action's start, by the points it is
    * read at (`StrikingHeld`).
    */
@@ -57,17 +57,16 @@ export namespace HumanWeaponHeld {
     ): IAutoMovieMotionHumanStrikingHeld.ITool =>
       StrikingHeld(context, hand(context.params), context.params.gun, points);
 
-  /**
+  /*
    * Read the weapon once per plan: the tool as the hand holds it, a long gun
    * refused in one hand, and the support hand's place.
-   *
-   * @param context The action's parameters, props and body.
-   * @param read How the weapon is held, by the points it is read at: as the
-   *   hand holds it at the action's start (`held`), or as a grip not yet taken
-   *   would hold it (`IHumanActionLaw.IGrip.tool`), for a grasp the action is
-   *   asked to judge.
-   * @returns The setup.
-   * @throws {HumanRefusal} When a long gun is asked in one hand.
+   * Parameter context: The action's parameters, props and body.
+   * Parameter read: How the weapon is held, by the points it is read at: as the
+   * hand holds it at the action's start (`held`), or as a grip not yet taken
+   * would hold it (`IHumanActionLaw.IGrip.tool`), for a grasp the action is
+   * asked to judge.
+   * Returns: The setup.
+   * When a long gun is asked in one hand.
    */
   export const setup = (
     context: Pick<
@@ -164,17 +163,16 @@ export namespace HumanWeaponHeld {
     };
   };
 
-  /**
+  /*
    * The support hand's hold for a pose: a long gun's fore-end is a handle with
    * a length, so a hand whose arm cannot reach its middle takes it nearer, up
    * to half that length back; beyond that the pose is refused.
-   *
-   * @param context The action's context.
-   * @param s The setup.
-   * @param pose The shooting hand's frame in the pose.
-   * @param posture The posture the pose is taken in.
-   * @returns The support hand's hold, or null for none.
-   * @throws {HumanRefusal} When the support arm cannot reach the fore-end.
+   * Parameter context: The action's context.
+   * Parameter s: The setup.
+   * Parameter pose: The shooting hand's frame in the pose.
+   * Parameter posture: The posture the pose is taken in.
+   * Returns: The support hand's hold, or null for none.
+   * When the support arm cannot reach the fore-end.
    */
   export const supported = (
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
@@ -237,17 +235,16 @@ export namespace HumanWeaponHeld {
     });
   };
 
-  /**
+  /*
    * The least step along a line from a point that brings it within a distance
    * of a centre: 0 when it already is, the smaller root of `|d + s u|^2 = r^2`
    * ahead of it otherwise, with `d` the point's offset from the centre and `u`
    * the line's unit direction; undefined when the line never comes that near
    * ahead.
-   *
-   * @param d The point's offset from the centre, metres.
-   * @param u The line's unit direction.
-   * @param r The distance, metres.
-   * @returns The step, metres, or undefined.
+   * Parameter d: The point's offset from the centre, metres.
+   * Parameter u: The line's unit direction.
+   * Parameter r: The distance, metres.
+   * Returns: The step, metres, or undefined.
    */
   export const rise = (
     d: IAutoMovieVector3,
@@ -263,7 +260,7 @@ export namespace HumanWeaponHeld {
     return step >= 0 ? step : undefined;
   };
 
-  /**
+  /*
    * A presenting plan over a carrier: carried by the support it is entered on
    * (`HumanSupportCarry`), claiming the trunk's turn and the holding arms and
    * hands, so it runs over a stand, a ride or a stance on a moving floor; a
@@ -302,11 +299,17 @@ export namespace HumanWeaponHeld {
   };
 }
 
-/** The alternatives of `SetupHands`'s site. */
+/*
+ * The alternatives of `SetupHands`'s site.
+ */
 type SetupHands = 1 | 2;
 
-/** The alternatives of `SetupContext`'s site. */
+/*
+ * The alternatives of `SetupContext`'s site.
+ */
 type SetupContext = "params" | "prop" | "body";
 
-/** The alternatives of `HeldContext`'s site. */
+/*
+ * The alternatives of `HeldContext`'s site.
+ */
 type HeldContext = "body" | "entry" | "prop" | "subject" | "params";

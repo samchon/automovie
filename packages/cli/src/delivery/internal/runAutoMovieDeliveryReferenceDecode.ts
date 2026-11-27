@@ -5,7 +5,7 @@ import { readAutoMovieDeliveryDecode } from "./readAutoMovieDeliveryDecode";
 import { runAutoMovieDeliverySourceAudioDecode } from "./runAutoMovieDeliverySourceAudioDecode";
 import { runAutoMovieFfmpeg } from "../../ffmpeg/internal/runAutoMovieFfmpeg";
 
-/**
+/*
  * Measures what the encoder was given, with the same detectors and thresholds
  * as the delivered file: the drawn image sequence and the soundtrack as the
  * encoder pads and cuts it. The audit attributes a delivered black, frozen or
@@ -15,14 +15,13 @@ import { runAutoMovieFfmpeg } from "../../ffmpeg/internal/runAutoMovieFfmpeg";
  * is exactly what produced the delivery: the first `-i` with the `-framerate`
  * before it is the picture, a second `-i` is the soundtrack, and the last `-t`
  * is the cut. Call it while the drawn frames still exist.
- *
- * @param binary The FFmpeg executable already resolved by the delivery host.
- * @param encoder The argument vector the delivery encode ran with.
- * @param expected The commissioned frame count and rational frame rate.
- * @param thresholds The effective detector settings of the delivery audit.
- * @param run The established FFmpeg process owner.
- * @returns Reference evidence per medium: decoded, missing when the encoder had
- *   no soundtrack, or uncovered with its reason.
+ * Parameter binary: The FFmpeg executable already resolved by the delivery host.
+ * Parameter encoder: The argument vector the delivery encode ran with.
+ * Parameter expected: The commissioned frame count and rational frame rate.
+ * Parameter thresholds: The effective detector settings of the delivery audit.
+ * Parameter run: The established FFmpeg process owner.
+ * Returns: Reference evidence per medium: decoded, missing when the encoder had
+ * no soundtrack, or uncovered with its reason.
  */
 export async function runAutoMovieDeliveryReferenceDecode(
   binary: string,
@@ -80,7 +79,7 @@ export async function runAutoMovieDeliveryReferenceDecode(
 type Audit = IAutoMovieDeliveryContentAudit.IProps;
 type Stream = IAutoMovieDeliveryContentAudit.Stream;
 
-/**
+/*
  * Reads the picture input, its frame rate, an optional soundtrack and the cut
  * from an encoder vector.
  */

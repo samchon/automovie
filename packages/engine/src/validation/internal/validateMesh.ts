@@ -12,7 +12,7 @@ import { appendMeshTopology } from "./appendMeshTopology";
 import { AUTOMOVIE_ARKIT_CHANNELS } from "../AUTOMOVIE_ARKIT_CHANNELS";
 import { AUTOMOVIE_EXPRESSION_PRESETS } from "../AUTOMOVIE_EXPRESSION_PRESETS";
 
-/**
+/*
  * Admit tuple/cardinality buffers, dense finite numeric elements, vertex
  * references, skin bindings, morph targets and their drivers, and shared welded
  * topology.
@@ -23,7 +23,7 @@ export const validateMesh: (
   boneNames: ReadonlySet<string>,
   collector: IAutoMovieViolationCollector,
 ) => void = (
-  /**
+  /*
    * Typed array/null and skin-record structure; this owner admits entries and
    * cardinality without a total unknown-object schema gate.
    */
@@ -148,7 +148,7 @@ export const validateMesh: (
   appendMeshTopology(mesh, path, collector, false);
 };
 
-/**
+/*
  * Require length divisible by tuple arity and inspect every indexed scalar for
  * finiteness.
  *
@@ -187,7 +187,7 @@ const validateTupleBuffer: (
     );
 };
 
-/**
+/*
  * Require exact scalar count against the supplied per-vertex cardinality.
  *
  * The attribute/skin owner supplies the semantic expected length/message.
@@ -224,7 +224,7 @@ const validateBufferLength: (
     );
 };
 
-/**
+/*
  * Require four references/weights per vertex, declared unique joints, dense
  * bounded weights/references and finite weight sums within1e-6 of one.
  *
@@ -328,7 +328,7 @@ const validateMeshSkin: (
   }
 };
 
-/**
+/*
  * Require each morph target to carry a unique name, one finite delta triple per
  * vertex for positions and for non-null normals, and, when driven, a skeleton
  * bone, a nonempty finite strictly increasing curve and a name no expression

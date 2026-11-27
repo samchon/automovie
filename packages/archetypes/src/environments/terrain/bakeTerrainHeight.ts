@@ -5,20 +5,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Bake one bounded lattice with a checked vertical mesh approximation error.
- *
- * @param id Stable terrain identity for diagnostics.
- * @param origin Column-zero and row-zero world XZ coordinates in metres.
- * @param size Width and depth in metres.
- * @param pitch Largest allowed spacing in either direction, in metres.
- * @param tolerance Largest permitted vertical error against the bilinear
- *   surface, in metres.
- * @param height Shared grade evaluator in world metres.
- * @param advice Optional sentence the sample-budget refusal appends, naming
- *   what in the relief drives the lattice and which fields lower it.
- * @returns The canonical sampled support rule used by both scene and world
- *   records.
+ * Parameter id: Stable terrain identity for diagnostics.
+ * Parameter origin: Column-zero and row-zero world XZ coordinates in metres.
+ * Parameter size: Width and depth in metres.
+ * Parameter pitch: Largest allowed spacing in either direction, in metres.
+ * Parameter tolerance: Largest permitted vertical error against the bilinear
+ * surface, in metres.
+ * Parameter height: Shared grade evaluator in world metres.
+ * Parameter advice: Optional sentence the sample-budget refusal appends, naming
+ * what in the relief drives the lattice and which fields lower it.
+ * Returns: The canonical sampled support rule used by both scene and world
+ * records.
  */
 export function bakeTerrainHeight(
   id: string,
@@ -78,13 +77,17 @@ export function bakeTerrainHeight(
   }
 }
 
-/** Memory budget for one regularly sampled terrain height record. */
+/*
+ * Memory budget for one regularly sampled terrain height record.
+ */
 const MAX_SAMPLES: number = 1_000_000;
 
-/** A stored bilinear terrain lattice. */
+/*
+ * A stored bilinear terrain lattice.
+ */
 type IHeightfield = Extract<IAutoMovieHeightRule, { kind: "heightfield" }>;
 
-/**
+/*
  * Conservative maximum linear-interpolation error over all complete lattice
  * cells.
  */

@@ -17,7 +17,7 @@ import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { StrikingQuality } from "../../striking/internal/StrikingQuality";
 import type { PrecisionStrokeForms } from "./PrecisionStrokeForms";
 
-/**
+/*
  * What a precision stroke strikes with, read from the implement as the hand
  * holds it: the tool in the hand's frame, its face, and the second hand's place
  * on its handle. The stroke reads it from its entry
@@ -31,16 +31,15 @@ import type { PrecisionStrokeForms } from "./PrecisionStrokeForms";
  * close on a swung implement's handle, the second grip socket two fists' widths
  * from the first along the axis toward the butt; a cue, a one-handed stroke and
  * a bare hand have none.
- *
- * @param body The body.
- * @param side The striking hand.
- * @param form The row's form.
- * @param held The implement in the striking hand's grip frame; none for a bare
- *   hand.
- * @param entry The pose the stroke starts from, whose hand frame a bare palm is
- *   read in.
- * @returns The tool, its face in the hand's frame and the second hand's place.
- * @throws {HumanRefusal} When the implement lacks the row's working point.
+ * Parameter body: The body.
+ * Parameter side: The striking hand.
+ * Parameter form: The row's form.
+ * Parameter held: The implement in the striking hand's grip frame; none for a bare
+ * hand.
+ * Parameter entry: The pose the stroke starts from, whose hand frame a bare palm is
+ * read in.
+ * Returns: The tool, its face in the hand's frame and the second hand's place.
+ * When the implement lacks the row's working point.
  */
 export function precisionStrokeTool(
   body: IAutoMovieMotionHumanBody,
@@ -87,7 +86,9 @@ export function precisionStrokeTool(
   };
 }
 
-/** The palm's normal in the hand bone's frame at the entry pose. */
+/*
+ * The palm's normal in the hand bone's frame at the entry pose.
+ */
 function palm(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
@@ -105,17 +106,27 @@ function palm(
   );
 }
 
-/** Companion types of `precisionStrokeTool`. */
+/*
+ * Companion types of `precisionStrokeTool`.
+ */
 export namespace precisionStrokeTool {
-  /** A precision stroke's tool. */
+  /*
+   * A precision stroke's tool.
+   */
   export interface IStrokeTool {
-    /** The tool in the striking hand's grip frame, its axis squared to the face. */
+    /*
+     * The tool in the striking hand's grip frame, its axis squared to the face.
+     */
     tool: IAutoMovieMotionHumanStrikingHeld.ITool;
 
-    /** The working face's outward direction in the hand bone's frame. */
+    /*
+     * The working face's outward direction in the hand bone's frame.
+     */
     face: IAutoMovieVector3;
 
-    /** The second hand's place on the handle; null when no second hand holds it. */
+    /*
+     * The second hand's place on the handle; null when no second hand holds it.
+     */
     support: IAutoMovieMotionHumanStrikingBlade.ISupport | null;
   }
 }

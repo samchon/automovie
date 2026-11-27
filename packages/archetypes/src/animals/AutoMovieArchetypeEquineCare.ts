@@ -209,19 +209,29 @@ export namespace AutoMovieArchetypeEquineCare {
     };
   }
 
-  /** A bar part's axis and radius, model space. */
+  /*
+   * A bar part's axis and radius, model space.
+   */
   interface IBar {
-    /** Its start. */
+    /*
+     * Its start.
+     */
     from: IAutoMovieVector3;
 
-    /** Its end. */
+    /*
+     * Its end.
+     */
     to: IAutoMovieVector3;
 
-    /** Its radius, metres. */
+    /*
+     * Its radius, metres.
+     */
     radius: number;
   }
 
-  /** Read a bar part's axis. */
+  /*
+   * Read a bar part's axis.
+   */
   function bar(part: IAutoMovieModelPart): IBar {
     const geometry: IAutoMovieModelPart["geometry"] = part.geometry;
     if (

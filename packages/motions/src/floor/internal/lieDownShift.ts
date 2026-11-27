@@ -8,15 +8,14 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { floorEntry } from "./floorEntry";
 import { lieDownPelvis } from "./lieDownPelvis";
 
-/**
+/*
  * The root's floor shift that keeps a standing entry's feet in place: the stood
  * pelvis less the pelvis at this posture through the first phase, and less the
  * landed pelvis after it; none for an entry already down.
  *
  * Part of `lieDown.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `shift`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `shift`.
  */
 export function lieDownShift(
   prepared: lieDownShift.IPrepared,
@@ -42,14 +41,22 @@ export function lieDownShift(
   };
 }
 
-/** The `shift` of `lieDown.plan`, built from what that plan prepared. */
+/*
+ * The `shift` of `lieDown.plan`, built from what that plan prepared.
+ */
 export namespace lieDownShift {
-  /** What `lieDown.plan` prepared for its `shift`. */
+  /*
+   * What `lieDown.plan` prepared for its `shift`.
+   */
   export interface IPrepared {
-    /** The `entered` `lieDown.plan` prepared. */
+    /*
+     * The `entered` `lieDown.plan` prepared.
+     */
     entered: floorEntry.IStart["entered"];
 
-    /** The `pelvisOf` `lieDown.plan` prepared. */
+    /*
+     * The `pelvisOf` `lieDown.plan` prepared.
+     */
     pelvisOf: (
       posed: IAutoMovieMotionHumanPosture,
       read: ReturnType<typeof prepareHumanPoseResolution>,
@@ -57,10 +64,14 @@ export namespace lieDownShift {
       current?: lieDownPelvis.Feet,
     ) => IAutoMovieVector3;
 
-    /** The `landed` `lieDown.plan` prepared. */
+    /*
+     * The `landed` `lieDown.plan` prepared.
+     */
     landed: IAutoMovieVector3 | undefined;
 
-    /** The `stood` `lieDown.plan` prepared. */
+    /*
+     * The `stood` `lieDown.plan` prepared.
+     */
     stood: IAutoMovieVector3 | undefined;
   }
 }

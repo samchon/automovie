@@ -135,7 +135,7 @@ function computeRegion(input: {
   return Polygon.intersect(raw, reachable);
 }
 
-/**
+/*
  * Steps 1 and 2: the raw region before the reachable cut, the hull of the
  * predicted capture points and the far circle's points; undefined when the
  * capture point lies inside the support (l.165-175), empty when a ray misses
@@ -218,7 +218,7 @@ function rawRegion(input: {
   return Polygon.hull(raw);
 }
 
-/**
+/*
  * Where the ray from b along v leaves the circle about a of radius r, the
  * larger root of |b + l v - a|^2 = r^2 (CaptureRegionMathTools l.33-71, after
  * J. Pratt's notes of 18 February 2009); undefined when the ray's line misses

@@ -14,7 +14,7 @@ import { readWorld } from "./readWorld";
 import { recompose } from "./recompose";
 import { validateInfluence } from "./validateInfluence";
 
-/**
+/*
  * Solve an admitted world-space chain by CCD or FABRIK with a positive
  * safe-integer iteration budget, default 10, and a 1e-6 metre residual
  * early-out. Blend positions and shortest-arc rotations by influence, then
@@ -63,19 +63,19 @@ export function applyIterativeIK(
   writeChain(d, world, matrices, before, after, childrenById, localById);
 }
 
-/**
+/*
  * Default finite iteration budget when the driver leaves iterations null. It
  * bounds solver work without promising convergence for every chain.
  */
 const DEFAULT_ITERATIONS: number = 10;
 
-/**
+/*
  * Tip-to-goal early-out tolerance in metres; this numeric residual does not
  * certify a visual threshold or joint range of motion.
  */
 const CONVERGENCE_EPSILON: number = 1e-6;
 
-/**
+/*
  * Deterministic fallback direction for the measure-zero degenerate where a
  * FABRIK pass lands two adjacent joints on the same point (the segment
  * direction is undefined). Any fixed unit vector restores totality without
@@ -94,7 +94,7 @@ const readIterations: (iterations: number | null) => number = (
   return iterations;
 };
 
-/**
+/*
  * Cyclic coordinate descent: back-to-front, rotate each joint so the tip swings
  * toward the goal, positions only (rotations are lowered afterward).
  */
@@ -132,7 +132,7 @@ const solveCcd: (
   return p;
 };
 
-/**
+/*
  * FABRIK: alternate backward (tip pinned to the goal) and forward (root pinned
  * home) passes that re-place each joint at its exact segment length. A goal
  * beyond total reach resolves directly as full extension toward it: FABRIK's
@@ -198,7 +198,9 @@ const solveFabrik: (
   return p;
 };
 
-/** Unit vector of `v`, or the deterministic fallback when `v` is degenerate. */
+/*
+ * Unit vector of `v`, or the deterministic fallback when `v` is degenerate.
+ */
 const unitOr: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
   v: IAutoMovieVector3,
 ): IAutoMovieVector3 =>
@@ -208,7 +210,7 @@ const unitOr: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
 // promoted there (#643) so the iterative solvers, the analytic twoBone
 // lowering, and the aim driver all share one deadzone-free implementation.
 
-/**
+/*
  * Lower the positional solve into the world map: each non-tip joint's rotation
  * gets its segment's shortest-arc delta, everything blends by `influence`, and
  * the tip's subtree recomposes (the two-bone convention).

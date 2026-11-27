@@ -279,7 +279,9 @@ export class QuadrupedEquipmentPlan {
   }
 }
 
-/** An admitted cylindrical bar, kept outside the builder until the plan fits. */
+/*
+ * An admitted cylindrical bar, kept outside the builder until the plan fits.
+ */
 interface IRodPart {
   kind: "rod";
   id: string;
@@ -289,7 +291,9 @@ interface IRodPart {
   color: string;
 }
 
-/** An admitted box, kept outside the builder until the plan fits. */
+/*
+ * An admitted box, kept outside the builder until the plan fits.
+ */
 interface IBoxPart {
   kind: "box";
   id: string;

@@ -11,9 +11,11 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeArmour } from "../AutoMovieArchetypeArmour";
 
-/** Named envelopes and fitting boundaries shared by every armour wall. */
+/*
+ * Named envelopes and fitting boundaries shared by every armour wall.
+ */
 export namespace ArmourProfile {
-  /**
+  /*
    * Explicit coarse shirt/torso topology, dimensionless and not historical
    * measurements.
    */
@@ -29,59 +31,77 @@ export namespace ArmourProfile {
     sleeveHeightShare: 1 / 3,
   };
 
-  /** One closed convex wall cell in model metres. */
+  /*
+   * One closed convex wall cell in model metres.
+   */
   export interface ICell {
-    /** Stable identity within the produced piece. */
+    /*
+     * Stable identity within the produced piece.
+     */
     id: string;
-    /** Convex wall corners, model metres. */
+    /*
+     * Convex wall corners, model metres.
+     */
     points: readonly IAutoMovieVector3[];
-    /**
+    /*
      * One already admitted immutable cell, reused only at rigidly equivalent
      * sectors.
      */
     prepared?: AutoMovieArchetypeConvexCell.ICell;
-    /** Proper rigid placement of a reused local cell; absent is identity. */
+    /*
+     * Proper rigid placement of a reused local cell; absent is identity.
+     */
     rotation?: IAutoMovieQuaternion;
   }
 
-  /** Source record, admitted fitting boundary and coarse wall dimensions. */
+  /*
+   * Source record, admitted fitting boundary and coarse wall dimensions.
+   */
   export interface IProfile {
-    /** Public kind and selected original museum record. */
+    /*
+     * Public kind and selected original museum record.
+     */
     kind: AutoMovieArchetypeArmour.Kind;
-    /** Selected original museum record, including its partial-artifact scope. */
+    /*
+     * Selected original museum record, including its partial-artifact scope.
+     */
     model: AutoMovieArchetypeArmour.Model;
-    /** Whether an admitted body boundary was supplied. */
+    /*
+     * Whether an admitted body boundary was supplied.
+     */
     fitted: boolean;
-    /**
+    /*
      * Literal record width, height and depth, unchanged in the public
      * dimensions.
      */
     record: IAutoMovieVector3;
-    /**
+    /*
      * Nominal covered-section width/height/depth; mail sleeves retain the
      * independent record spread.
      */
     outer: IAutoMovieVector3;
-    /**
+    /*
      * Cavity width, height and depth; radial fitted guards use half its width
      * as body radius.
      */
     inner: IAutoMovieVector3;
-    /**
+    /*
      * Plate band value: exact fitted normal gauge, minimum on unfitted
      * elliptical walls; zero for mail.
      */
     plate: number;
-    /** Existing provisional modern helmet pad; zero outside helmets. */
+    /*
+     * Existing provisional modern helmet pad; zero outside helmets.
+     */
     pad: number;
-    /**
+    /*
      * Positive wall gauge, a minimum on unfitted ellipses, or mail's explicit
      * equivalent wall.
      */
     wall: number;
   }
 
-  /**
+  /*
    * Resolve a whole record and admitted body's exact existing fitting
    * dimensions.
    */
@@ -152,7 +172,9 @@ export namespace ArmourProfile {
     return { kind, model, fitted, record, outer, inner, plate, pad, wall };
   }
 
-  /** The shirt's torso/neck/side/sleeve coverage is shared with ArmourTorso. */
+  /*
+   * The shirt's torso/neck/side/sleeve coverage is shared with ArmourTorso.
+   */
   function mailWall(
     size: IAutoMovieVector3,
     spread: number,
@@ -198,7 +220,9 @@ export namespace ArmourProfile {
     return wall;
   }
 
-  /** Geometrically impossible data remains an actionable producer refusal. */
+  /*
+   * Geometrically impossible data remains an actionable producer refusal.
+   */
   function refuse(kind: AutoMovieArchetypeArmour.Kind, reason: string): never {
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",

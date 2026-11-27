@@ -9,15 +9,14 @@ import type {
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 
-/**
+/*
  * The lie's base window from the settled instant: the seat bearing for a seated
  * position, else the back lying for every lying position (the contact parts
  * have no chest or side); the plan adds the feet's pivots after it.
  *
  * Part of `lieDown.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `contacts`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `contacts`.
  */
 export function lieDownContacts(
   prepared: lieDownContacts.IPrepared,
@@ -90,20 +89,34 @@ export function lieDownContacts(
   ];
 }
 
-/** The `contacts` of `lieDown.plan`, built from what that plan prepared. */
+/*
+ * The `contacts` of `lieDown.plan`, built from what that plan prepared.
+ */
 export namespace lieDownContacts {
-  /** What `lieDown.plan` prepared for its `contacts`. */
+  /*
+   * What `lieDown.plan` prepared for its `contacts`.
+   */
   export interface IPrepared {
-    /** Body carrying the displayed colliders. */
+    /*
+     * Body carrying the displayed colliders.
+     */
     body: IAutoMovieMotionHumanBody;
-    /** The settled posture whose exterior receives support. */
+    /*
+     * The settled posture whose exterior receives support.
+     */
     posture: IAutoMovieMotionHumanPosture;
-    /** The intended lying position. */
+    /*
+     * The intended lying position.
+     */
     position: IAutoMovieMotionHumanLieDown.Position;
-    /** The `sitting` `lieDown.plan` prepared. */
+    /*
+     * The `sitting` `lieDown.plan` prepared.
+     */
     sitting: boolean;
 
-    /** The `settled` `lieDown.plan` prepared. */
+    /*
+     * The `settled` `lieDown.plan` prepared.
+     */
     settled: number;
   }
 }

@@ -4,7 +4,7 @@ import type {
   IAutoMoviePlaybackTimeline,
 } from "@automovie/interface";
 
-/**
+/*
  * Map a film's cut onto the frames a render drew: one row per timeline entry,
  * in entry order, with the output frames that entry is live in.
  *
@@ -25,13 +25,15 @@ import type {
  * It throws for a timeline with no entries, which has no entry to be live in.
  */
 export function planAutoMovieDeliveredCut(props: {
-  /**
+  /*
    * The film's cut on the output clock, entries in sequence order with
    * non-decreasing starts.
    */
   timeline: IAutoMoviePlaybackTimeline;
 
-  /** The drawn frames' instants in output seconds, increasing. */
+  /*
+   * The drawn frames' instants in output seconds, increasing.
+   */
   times: readonly number[];
 }): IAutoMovieDeliveredCutEntry[] {
   const { entries }: IAutoMoviePlaybackTimeline = props.timeline;

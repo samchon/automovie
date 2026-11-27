@@ -1,6 +1,6 @@
 import type { AutoMovieViewerInspector } from "../AutoMovieViewerInspector.js";
 
-/**
+/*
  * Keep a page's address query equal to inspector request text through the host's location and history.
  * The current path, hash and history state are preserved; unchanged text writes nothing and an empty
  * request clears the query. This touches no global state.

@@ -13,7 +13,7 @@ import { placeHumanHandSurface } from "../../posture/internal/placeHumanHandSurf
 import { useTool } from "./useTool";
 import { useToolCycle } from "./useToolCycle";
 
-/**
+/*
  * The hand's complete grip goal at a second: the work's cycle at its stroke
  * period between the ready and recovery instants and its half-phase edge
  * outside them, with the arm's bend on a via-point course.
@@ -25,9 +25,8 @@ import { useToolCycle } from "./useToolCycle";
  * (`HumanMinimumJerkSpline.cyclic`): quintic segments whose jerk and snap are
  * continuous at every knot, the last joined to the first across the cycle. A
  * read evaluates the path; it solves nothing.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `target`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `target`.
  */
 export function useToolTarget(
   prepared: useToolTarget.IPrepared,
@@ -102,39 +101,61 @@ export function useToolTarget(
   };
 }
 
-/** The `target` of `useTool.plan`, built from what that plan prepared. */
+/*
+ * The `target` of `useTool.plan`, built from what that plan prepared.
+ */
 export namespace useToolTarget {
-  /** What `useTool.plan` prepared for its `target`. */
+  /*
+   * What `useTool.plan` prepared for its `target`.
+   */
   export interface IPrepared {
-    /** The work's hand at a phase, 0 at a contact and periodic in 1. */
+    /*
+     * The work's hand at a phase, 0 at a contact and periodic in 1.
+     */
     cycle: (phase: number) => Pick<useTool.IWork, useToolCycle.PlanCycle>;
 
-    /** Seconds at which the work begins. */
+    /*
+     * Seconds at which the work begins.
+     */
     ready: number;
 
-    /** Seconds at which the recovery begins. */
+    /*
+     * Seconds at which the recovery begins.
+     */
     recover: number;
 
-    /** The hand at the cycle's half phase, held outside the work. */
+    /*
+     * The hand at the cycle's half phase, held outside the work.
+     */
     edge: ReturnType<IPrepared["cycle"]>;
 
-    /** Seconds of one stroke. */
+    /*
+     * Seconds of one stroke.
+     */
     strokePeriod: number;
 
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The working arm's side. */
+    /*
+     * The working arm's side.
+     */
     side: AutoMovieHumanSide;
 
-    /** The grip's offset in the hand's frame. */
+    /*
+     * The grip's offset in the hand's frame.
+     */
     gripOffset: IAutoMovieVector3;
 
-    /** The posture the work is entered in, whose trunk the bends are solved on. */
+    /*
+     * The posture the work is entered in, whose trunk the bends are solved on.
+     */
     entry: IAutoMovieMotionHumanPosture;
   }
 
-  /**
+  /*
    * The cycle's knots: the phases where its sinusoid is at an extreme or an
    * inflection, the quarter phases, at which the bend is solved once. These are
    * the sinusoid's analytic branch points, exact in closed form, so no adaptive
@@ -142,16 +163,15 @@ export namespace useToolTarget {
    */
   export const KNOTS: number = 4;
 
-  /**
+  /*
    * The bend's course at a phase: the minimum-jerk segment between the two
    * knots around it (`HumanMinimumJerkSpline.quintic`), the wrap segment from
    * the last knot to the first.
-   *
-   * @param x The knots' places, world metres.
-   * @param path The knots' velocities and accelerations on the periodic path.
-   * @param h The phase between two knots.
-   * @param phase The phase, in [0, 1).
-   * @returns The elbow's place, world metres.
+   * Parameter x: The knots' places, world metres.
+   * Parameter path: The knots' velocities and accelerations on the periodic path.
+   * Parameter h: The phase between two knots.
+   * Parameter phase: The phase, in [0, 1).
+   * Returns: The elbow's place, world metres.
    */
   export function course(
     x: readonly (readonly number[])[],

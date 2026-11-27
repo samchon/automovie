@@ -10,7 +10,7 @@ import type { AutoMovieEnginePhysicalBalanceTypes } from "../AutoMovieEnginePhys
 import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "../AutoMovieEnginePhysicalPlanarPolygon";
 import { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
 
-/**
+/*
  * One solve of IHMC's capture-point feedback program over x = (dCoP, dCMP): the
  * centre of pressure's offset from its feed-forward and the pivot's offset from
  * the centre of pressure, with the angular momentum on, as Zulu's
@@ -25,11 +25,13 @@ import { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
  *
  * A program the solver cannot solve gives null, as `solve()` returns false then
  * (l.871-882).
- *
- * @param input The program's terms. Points and matrices are in the caller's
- *   horizontal frame, metres; weights are the reference's, the rate weights
- *   already divided by the control period squared.
- * @returns The feedback pair, or null.
+ * Parameter input: The program's terms. Points and matrices are in the caller's
+ * horizontal frame, metres; weights are the reference's, the rate weights
+ * already divided by the control period squared.
+ * Returns: The feedback pair, or null.
+ * ://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/4d2cfccb1e2307d7c98455d4bb942ca8742839c2/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/capturePoint/controller/ICPControllerQPSolver.java
+ * ://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/4d2cfccb1e2307d7c98455d4bb942ca8742839c2/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/capturePoint/controller/ICPControllerQPInputCalculator.java
+ * ://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/4d2cfccb1e2307d7c98455d4bb942ca8742839c2/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/capturePoint/controller/ICPControllerQPConstraintCalculator.java
  * @see https://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/4d2cfccb1e2307d7c98455d4bb942ca8742839c2/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/capturePoint/controller/ICPControllerQPSolver.java
  * @see https://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/4d2cfccb1e2307d7c98455d4bb942ca8742839c2/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/capturePoint/controller/ICPControllerQPInputCalculator.java
  * @see https://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/4d2cfccb1e2307d7c98455d4bb942ca8742839c2/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/capturePoint/controller/ICPControllerQPConstraintCalculator.java
@@ -135,7 +137,7 @@ export function physicalIcpControllerQp(
 }
 
 
-/**
+/*
  * The centre of pressure on the support's hull shrunk by the safe distance, as
  * rows on dCoP offset by the feed-forward: A (dCoP + o) <= b, so A dCoP <= b -
  * A o (`formulateCoPConstraint` l.660-669, `ConstraintToConvexRegion`
@@ -158,7 +160,7 @@ function copRows(
   );
 }
 
-/**
+/*
  * The total feedback's magnitude bound (l.777-811;
  * `calculateMaxFeedbackMagnitudeConstraint` l.29-36, l.46-131): T (dCoP + dCMP)
  * within [-max, max] per axis. A row with an infinite bound holds for every x
@@ -179,7 +181,7 @@ function magnitudeRows(
   ].filter((row: AutoMovieEnginePhysics.ISolveDenseActiveSetRow): boolean => row.b !== Infinity);
 }
 
-/**
+/*
  * The total feedback's rate bound (l.816-851;
  * `calculateMaxFeedbackRateConstraint` l.142-176): dCoP + dCMP within the
  * previous total plus or minus dt times the rate, per axis.
@@ -198,7 +200,9 @@ function rateRows(
   ];
 }
 
-/** A 2 x 2 matrix's inverse (`UnrolledInverseFromMinor_DDRM.inv`, l.113). */
+/*
+ * A 2 x 2 matrix's inverse (`UnrolledInverseFromMinor_DDRM.inv`, l.113).
+ */
 function invert(
   m: AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpMatrix,
 ): AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpMatrix {
@@ -209,7 +213,9 @@ function invert(
   ];
 }
 
-/** A scalar times the 2 x 2 identity (`MatrixTools.setDiagonal`). */
+/*
+ * A scalar times the 2 x 2 identity (`MatrixTools.setDiagonal`).
+ */
 function diagonal(value: number): AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpMatrix {
   return [
     [value, 0],
@@ -217,7 +223,9 @@ function diagonal(value: number): AutoMovieEnginePhysicalBalanceTypes.IIcpContro
   ];
 }
 
-/** A 2 x 2 block added into the 4 x 4 matrix at a row and column. */
+/*
+ * A 2 x 2 block added into the 4 x 4 matrix at a row and column.
+ */
 function addBlock(
   target: number[][],
   row: number,
@@ -229,7 +237,7 @@ function addBlock(
       target[row + i]![column + j]! += block[i]![j]!;
 }
 
-/**
+/*
  * (x - o)^T w (x - o) on the variable pair at an index (`computeQuadraticTask`
  * l.182-192): w on the block's diagonal, w o into the linear term.
  */
@@ -245,7 +253,9 @@ function quadraticTask(
   g[index + 1]! += weight * objective.y;
 }
 
-/** A task input's terms added to the program (`submitDynamicsTask` l.271-280). */
+/*
+ * A task input's terms added to the program (`submitDynamicsTask` l.271-280).
+ */
 function submit(
   h: number[][],
   g: number[],

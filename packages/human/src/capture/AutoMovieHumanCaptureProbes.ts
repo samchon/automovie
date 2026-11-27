@@ -104,7 +104,7 @@ export namespace AutoMovieHumanCaptureProbes {
 }
 
 
-/**
+/*
  * Legend text, colour and flag of each probe state, in the order they are
  * tested.
  */
@@ -123,7 +123,7 @@ const STATES: Readonly<
   empty: { label: "empty probe", color: 0x00c853, flagged: false },
 };
 
-/**
+/*
  * Every member family's course point and section anchor points at each of its
  * knots, metres in the pieces' frame, with a mirrored family's reflected in the
  * median plane `z = 0`. A knot whose section chain the engine refuses gives its
@@ -162,7 +162,7 @@ function hullPoints(
   return points;
 }
 
-/**
+/*
  * The winding query over all generated pieces as one triangle surface, or null
  * when none has a triangle.
  */

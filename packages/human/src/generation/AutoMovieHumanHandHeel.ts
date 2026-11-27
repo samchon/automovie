@@ -44,7 +44,9 @@ const { wholeSkin }: typeof AutoMovieHumanHandStar = AutoMovieHumanHandStar;
  * hand's skin untouched.
  */
 export namespace AutoMovieHumanHandHeel {
-  /** Step of the phase for the crease jet's derivatives, radians. */
+  /*
+   * Step of the phase for the crease jet's derivatives, radians.
+   */
   const PHASE_STEP: number = 1e-3;
 
   /**

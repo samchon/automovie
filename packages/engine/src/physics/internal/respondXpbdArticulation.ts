@@ -22,7 +22,7 @@ import { readXpbdJointDirections } from "./readXpbdJointDirections";
 import { readXpbdJointRelation } from "./readXpbdJointRelation";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
 
-/**
+/*
  * The articulated response of the trees a pass's contacts touch to positional
  * impulses (Kokkevis 2004, "Practical physics for articulated characters", Game
  * Developers Conference; Featherstone 2008, section 7.5): a contact's
@@ -38,10 +38,9 @@ import type { solveXpbdContacts } from "./solveXpbdContacts";
  * past its limit; an axis once held stays held for the pass. The move is taken
  * in joint space: the root by its change and every other body placed from its
  * parent by the joint transform at the moved coordinates (`place`).
- *
- * @param joints The world's joints, in creation order.
- * @param contacts The pass's contacts; only the trees they touch are prepared.
- * @returns The responder for one position pass.
+ * Parameter joints: The world's joints, in creation order.
+ * Parameter contacts: The pass's contacts; only the trees they touch are prepared.
+ * Returns: The responder for one position pass.
  */
 export function respondXpbdArticulation(
   joints: readonly AutoMovieXpbdJoint[],
@@ -79,21 +78,31 @@ export function respondXpbdArticulation(
   };
 }
 
-/** A tree built and factored for one position pass. */
+/*
+ * A tree built and factored for one position pass.
+ */
 interface IPrepared {
-  /** The tree. */
+  /*
+   * The tree.
+   */
   tree: AutoMovieXpbdArticulation.ITree;
 
-  /** Its edges' joints, in the tree's edge order. */
+  /*
+   * Its edges' joints, in the tree's edge order.
+   */
   joints: AutoMovieXpbdJoint[];
 
-  /** Each of its bodies' state index. */
+  /*
+   * Each of its bodies' state index.
+   */
   index: Map<AutoMovieXpbdBody, number>;
 
-  /** Its factor at `h = 0`, with the axes held so far. */
+  /*
+   * Its factor at `h = 0`, with the axes held so far.
+   */
   factored: AutoMovieXpbdArticulation.IFactor;
 
-  /**
+  /*
    * Each edge's free coordinates as the pass has moved them
    * (`readXpbdJointCoordinate`); none for an axis with no coordinate of its
    * own.
@@ -101,25 +110,39 @@ interface IPrepared {
   coordinates: (number | null)[][];
 }
 
-/** A response's velocity changes and joint rates, per unit multiplier. */
+/*
+ * A response's velocity changes and joint rates, per unit multiplier.
+ */
 interface IMove {
-  /** Each state's spatial velocity change. */
+  /*
+   * Each state's spatial velocity change.
+   */
   change: number[][];
 
-  /** Each edge's free-axis rate changes. */
+  /*
+   * Each edge's free-axis rate changes.
+   */
   rates: number[][];
 }
 
-/** A joint's relation before a move: its relative rotation and anchor gap. */
+/*
+ * A joint's relation before a move: its relative rotation and anchor gap.
+ */
 interface IRelation {
-  /** The child's anchor frame relative to the parent's, normalised. */
+  /*
+   * The child's anchor frame relative to the parent's, normalised.
+   */
   relative: IAutoMovieQuaternion;
 
-  /** The child's anchor less the parent's, world, metres. */
+  /*
+   * The child's anchor less the parent's, world, metres.
+   */
   gap: IAutoMovieVector3;
 }
 
-/** Build and factor one tree for a position pass; none when singular. */
+/*
+ * Build and factor one tree for a position pass; none when singular.
+ */
 function prepare(top: AutoMovieXpbdArticulation.INode): IPrepared | null {
   const joints: AutoMovieXpbdJoint[] = [];
   const tree: AutoMovieXpbdArticulation.ITree = AutoMovieXpbdArticulation.build(
@@ -151,7 +174,7 @@ function prepare(top: AutoMovieXpbdArticulation.INode): IPrepared | null {
   };
 }
 
-/**
+/*
  * The response of the impulses' trees to the impulses acting together: one
  * propagation per impulse through its tree's factor, summed per tree, and the
  * row's generalised inverse mass read from the sum.
@@ -226,7 +249,7 @@ function respond(
   };
 }
 
-/**
+/*
  * Hold every free axis a move by a multiplier would carry onto or past one of
  * its bounds and factor its tree again; a tree that turns singular answers none
  * for the rest of the pass. True when any axis was newly held.
@@ -269,7 +292,7 @@ function limit(
   return held;
 }
 
-/**
+/*
  * Take one tree's move by a multiplier in joint space: the root by its own
  * change, every other body placed by its joint's model at its new position
  * variables, parents first (Featherstone 2008, chapter 4: a body's pose is its
@@ -308,7 +331,9 @@ function advance(tree: IPrepared, move: IMove, scale: number): void {
   );
 }
 
-/** A joint's relation at the present poses. */
+/*
+ * A joint's relation at the present poses.
+ */
 function relate(joint: AutoMovieXpbdJoint): IRelation {
   return {
     relative: readXpbdJointRelation(joint),
@@ -319,7 +344,9 @@ function relate(joint: AutoMovieXpbdJoint): IRelation {
   };
 }
 
-/** A body's world point of a frame position given in its body frame. */
+/*
+ * A body's world point of a frame position given in its body frame.
+ */
 function anchor(
   body: AutoMovieXpbdBody,
   position: IAutoMovieVector3,
@@ -333,7 +360,7 @@ function anchor(
   );
 }
 
-/**
+/*
  * Place a joint's child from its parent's present pose by the joint's model at
  * its new position variables (Featherstone 2008, chapter 4, the joint transform
  * `X_J(q)`): a chart's free angles moved by their changes and the rest of the
@@ -405,7 +432,9 @@ function place(
   );
 }
 
-/** Two equal-shaped arrays of rows added entry by entry. */
+/*
+ * Two equal-shaped arrays of rows added entry by entry.
+ */
 function add(left: number[][], right: number[][]): number[][] {
   return left.map((row: number[], i: number): number[] =>
     row.map((value: number, j: number): number => value + right[i]![j]!),

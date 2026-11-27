@@ -17,68 +17,92 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 
-/**
+/*
  * The footprints of a support step (`HumanSupportStep`): which support each of
  * the walk's plants bears on, read from the supports' declared surfaces where
  * the foot lands, and how far a footprint is slid to keep off an edge or lifted
  * onto a moving surface it arrives on.
  */
 export namespace HumanSupportStepPlants {
-  /**
+  /*
    * How far above or below a surface a footprint may lie and still bear on it,
    * metres: a tread's or a comb plate's own thickness (provisional).
    */
   export const BEARING: number = 0.1;
 
-  /**
+  /*
    * The cosine between a footprint's length and an edge's normal past which the
    * footprint crosses the edge more head-on than side-on: 45 degrees.
    */
   export const HEAD_ON: number = Math.SQRT1_2;
 
-  /** One plant of a foot on the planned walk and the support it bears on. */
+  /*
+   * One plant of a foot on the planned walk and the support it bears on.
+   */
   export interface IPlant {
-    /** The planned window. */
+    /*
+     * The planned window.
+     */
     window: IAutoMovieMotionHumanContactWindow;
 
-    /** Whether it bears on the support arrived on rather than the one left. */
+    /*
+     * Whether it bears on the support arrived on rather than the one left.
+     */
     arrived: boolean;
 
-    /** Its touchdown, seconds of the step. */
+    /*
+     * Its touchdown, seconds of the step.
+     */
     down: number;
 
-    /** Named material frame that carries this footprint after touchdown. */
+    /*
+     * Named material frame that carries this footprint after touchdown.
+     */
     site?: string;
 
-    /**
+    /*
      * How far it is slid along a surface to keep off an edge, and lifted onto a
      * moving surface it arrives on, world metres.
      */
     shift: IAutoMovieVector3;
 
-    /** The height of the fixed landing it bears on, world metres. */
+    /*
+     * The height of the fixed landing it bears on, world metres.
+     */
     floor: number;
   }
 
-  /** One declared surface of a support in the world. */
+  /*
+   * One declared surface of a support in the world.
+   */
   export interface ISurface {
-    /** The affordance id of an authored support, when available. */
+    /*
+     * The affordance id of an authored support, when available.
+     */
     id?: string;
 
-    /** Its centre. */
+    /*
+     * Its centre.
+     */
     origin: IAutoMovieVector3;
 
-    /** Its frame's world rotation: +Y up, width along X, depth along Z. */
+    /*
+     * Its frame's world rotation: +Y up, width along X, depth along Z.
+     */
     rotation: IAutoMovieQuaternion;
 
-    /** Its extent along X, metres. */
+    /*
+     * Its extent along X, metres.
+     */
     width: number;
 
-    /** Its extent along Z, metres. */
+    /*
+     * Its extent along Z, metres.
+     */
     depth: number;
   }
 
-  /**
+  /*
    * A point moved by a support's motion between two seconds of the step; the
    * ground keeps it.
    */
@@ -89,47 +113,62 @@ export namespace HumanSupportStepPlants {
     point: IAutoMovieVector3,
   ) => IAutoMovieVector3;
 
-  /** What the assignment reads of the step. */
+  /*
+   * What the assignment reads of the step.
+   */
   export interface IStep {
-    /** The step's context. */
+    /*
+     * The step's context.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISupportStepParams>;
 
-    /** A point moved by a support's motion. */
+    /*
+     * A point moved by a support's motion.
+     */
     moved: Moved;
 
-    /** The height the walk is planned at, world metres. */
+    /*
+     * The height the walk is planned at, world metres.
+     */
     level: number;
 
-    /**
+    /*
      * How far the entry's soles sit from the declared surface they stand on,
      * metres.
      */
     settled: number;
   }
 
-  /** What a support's surfaces are read from: the step's start and props. */
+  /*
+   * What a support's surfaces are read from: the step's start and props.
+   */
   export interface ISurfacesContext {
-    /** The step's start, film seconds. */
+    /*
+     * The step's start, film seconds.
+     */
     start: number;
 
-    /** A support's affordances and its frame at a film second. */
+    /*
+     * A support's affordances and its frame at a film second.
+     */
     prop(subject: string): {
       prop: Pick<IAutoMovieMotionHumanProp, "affordances">;
       frame(
         seconds: number,
       ): Pick<IAutoMovieRigidTransform, "position" | "rotation">;
-      /** Optional displayed material frame of an articulated surface. */
+      /*
+       * Optional displayed material frame of an articulated surface.
+       */
       site?(id: string, seconds: number): IAutoMovieRigidTransform;
     };
   }
 
-  /**
+  /*
    * A support's declared surfaces in the world at a second.
-   *
-   * @param context The step's context.
-   * @param prop The support.
-   * @param at Seconds of the step.
-   * @returns The surfaces.
+   * Parameter context: The step's context.
+   * Parameter prop: The support.
+   * Parameter at: Seconds of the step.
+   * Returns: The surfaces.
    */
   export function surfaces(
     context: ISurfacesContext,
@@ -171,12 +210,11 @@ export namespace HumanSupportStepPlants {
       );
   }
 
-  /**
+  /*
    * A world point in a surface's frame.
-   *
-   * @param surface The surface.
-   * @param point The point.
-   * @returns The point in the surface's frame.
+   * Parameter surface: The surface.
+   * Parameter point: The point.
+   * Returns: The point in the surface's frame.
    */
   export function local(
     surface: ISurface,
@@ -188,12 +226,11 @@ export namespace HumanSupportStepPlants {
     );
   }
 
-  /**
+  /*
    * Whether a surface bears a point: within its extent and `BEARING` of it.
-   *
-   * @param surface The surface.
-   * @param point The point.
-   * @returns Whether it bears it.
+   * Parameter surface: The surface.
+   * Parameter point: The point.
+   * Returns: Whether it bears it.
    */
   export function holds(surface: ISurface, point: IAutoMovieVector3): boolean {
     const at: IAutoMovieVector3 = local(surface, point);
@@ -204,7 +241,9 @@ export namespace HumanSupportStepPlants {
     );
   }
 
-  /** The smallest horizontal translation to contain the whole sole on a face. */
+  /*
+   * The smallest horizontal translation to contain the whole sole on a face.
+   */
   export function fit(
     surface: ISurface,
     footprint: readonly IAutoMovieVector3[],
@@ -225,20 +264,19 @@ export namespace HumanSupportStepPlants {
       : Quaternion.rotateVector(surface.rotation, { x, y: 0, z });
   }
 
-  /**
+  /*
    * Each foot's plants in time order and the support each bears on: the entry's
    * on the support left, each new one on the support whose surface holds the
    * middle of the foot where it lands. A new footprint is slid along the
    * surface, the least it takes, to lie wholly on the moving support that bears
    * it, or wholly off the one beside it. A step off the support that crosses
    * its edge head-on keeps its lane beside the other foot.
-   *
-   * @param step The step.
-   * @param walked The walk planned on the support left.
-   * @param land The last touchdown, seconds of the step.
-   * @param leave The first touchdown on the support arrived on, seconds of the
-   *   step.
-   * @returns Each foot's plants.
+   * Parameter step: The step.
+   * Parameter walked: The walk planned on the support left.
+   * Parameter land: The last touchdown, seconds of the step.
+   * Parameter leave: The first touchdown on the support arrived on, seconds of the
+   * step.
+   * Returns: Each foot's plants.
    */
   export function assign(
     step: IStep,
@@ -396,7 +434,9 @@ export namespace HumanSupportStepPlants {
   }
 }
 
-/** A sole's extrema in the deck's horizontal material coordinates. */
+/*
+ * A sole's extrema in the deck's horizontal material coordinates.
+ */
 interface IBounds {
   left: number;
   right: number;
@@ -404,7 +444,9 @@ interface IBounds {
   front: number;
 }
 
-/** Project all sole points onto one material plane. */
+/*
+ * Project all sole points onto one material plane.
+ */
 function bounds(
   surface: HumanSupportStepPlants.ISurface,
   sole: readonly IAutoMovieVector3[],
@@ -427,13 +469,17 @@ function bounds(
   return { left, right, back, front };
 }
 
-/** Minimum translation of one finite interval inside its support. */
+/*
+ * Minimum translation of one finite interval inside its support.
+ */
 function correction(low: number, high: number, extent: number): number | null {
   if (high - low > extent + 1e-12) return null;
   return Math.max(0, -extent / 2 - low) + Math.min(0, extent / 2 - high);
 }
 
-/** Move clear of the nearby deck on the side the step is already taking. */
+/*
+ * Move clear of the nearby deck on the side the step is already taking.
+ */
 function outside(
   surface: HumanSupportStepPlants.ISurface,
   sole: readonly IAutoMovieVector3[],

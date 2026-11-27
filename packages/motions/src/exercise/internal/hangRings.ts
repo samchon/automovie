@@ -21,7 +21,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * A workout's writer whose fists are hung on two grips, as still rings are hung
  * (rings): the hanging kinds keep the two fists' middle on the support's
  * middle, which leaves each fist off its own grip by however far the arms'
@@ -32,13 +32,12 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * over `REACH` seconds before the window and after it the fist moves from where
  * the keyed arm holds it to the grip and back. A support of one grip leaves the
  * writer as it is.
- *
- * @param write The workout's keyed writer.
- * @param context The action's context; its `on` names the support.
- * @param contacts The plan's contact windows, read for the hands' grips on the
- *   support.
- * @param duration The action's seconds.
- * @returns The writer with the fists laid on their grips.
+ * Parameter write: The workout's keyed writer.
+ * Parameter context: The action's context; its `on` names the support.
+ * Parameter contacts: The plan's contact windows, read for the hands' grips on the
+ * support.
+ * Parameter duration: The action's seconds.
+ * Returns: The writer with the fists laid on their grips.
  */
 export function hangRings(
   write: IAutoMovieMotionHumanPrimitive["write"],
@@ -174,30 +173,44 @@ export function hangRings(
     return limbs === keyed.limbs ? keyed : { ...keyed, limbs };
   };
 }
-/**
+/*
  * Seconds a fist takes to come onto its grip before the window and to leave it
  * after (provisional: the workout's setup beat).
  */
 const REACH: number = 0.25;
 
-/** The alternatives of `FistLimb`'s site. */
+/*
+ * The alternatives of `FistLimb`'s site.
+ */
 type FistLimb = "leftArm" | "rightArm";
 
-/** One fist laid on its grip over the plan's windows. */
+/*
+ * One fist laid on its grip over the plan's windows.
+ */
 interface IFist {
-  /** The side. */
+  /*
+   * The side.
+   */
   side: AutoMovieHumanSide;
 
-  /** The arm's limb. */
+  /*
+   * The arm's limb.
+   */
   limb: FistLimb;
 
-  /** The hand and forearm bones. */
+  /*
+   * The hand and forearm bones.
+   */
   hand: AutoMovieHumanoidBone;
   lower: AutoMovieHumanoidBone;
 
-  /** The grip's world point. */
+  /*
+   * The grip's world point.
+   */
   grip: IAutoMovieVector3;
 
-  /** The share of the goal at an action second. */
+  /*
+   * The share of the goal at an action second.
+   */
   weight(seconds: number): number;
 }

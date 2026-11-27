@@ -15,7 +15,9 @@ import { createAutoMovieProductionCheckInputScope } from "./createAutoMovieProdu
 import { importAutoMovieProductionCheckEntry } from "./importAutoMovieProductionCheckEntry.mjs";
 import { readAutoMovieErrorCode } from "../../file/internal/readAutoMovieErrorCode";
 
-/** Load check definitions and bind their local sources to the bytes Node loaded. */
+/*
+ * Load check definitions and bind their local sources to the bytes Node loaded.
+ */
 export async function loadAutoMovieProductionCheckModule(
   root: string,
   module: string,
@@ -206,7 +208,9 @@ export async function loadAutoMovieProductionCheckModule(
   return { targets, sources };
 }
 
-/** Confirm a bare import belongs to a package Node can resolve natively. */
+/*
+ * Confirm a bare import belongs to a package Node can resolve natively.
+ */
 function isInstalledPackageFile(
   specifier: string,
   importer: string,

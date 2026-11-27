@@ -3,7 +3,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Resolve a staged node, literal point or complete group to world metres. Node
  * and point results alias their supplied vectors. A group returns a fresh
  * centroid with each named node or formation weighted once; an empty group or
@@ -13,12 +13,11 @@ import {
  * Relative goals and live bones need facing, camera or rig inputs and return
  * null here. Callers validate target shapes and finite coordinates first. A
  * group naming formations requires their world-point table too.
- *
- * @param target The admitted positional target or unsupported relative/live
- *   kind.
- * @param nodes Staged node and camera positions, read without mutation.
- * @param formations Compact formation positions, each one centroid member.
- * @returns The aliased node/point vector, a fresh group centroid, or null.
+ * Parameter target: The admitted positional target or unsupported relative/live
+ * kind.
+ * Parameter nodes: Staged node and camera positions, read without mutation.
+ * Parameter formations: Compact formation positions, each one centroid member.
+ * Returns: The aliased node/point vector, a fresh group centroid, or null.
  */
 export function resolveTargetPoint(
   target: IAutoMovieActionTarget,

@@ -26,7 +26,7 @@ import { AutoMovieEngineJointRomScan } from "../../rom/internal/AutoMovieEngineJ
 import { AutoMovieEngineMotionJointProjection } from "../AutoMovieEngineMotionJointProjection";
 import { AutoMovieEngineMotionDistalTwist } from "../AutoMovieEngineMotionDistalTwist";
 
-/**
+/*
  * The part of a chain fit's rig that the rig alone fixes: what
  * `prepareChainFitRig` reads of the skeleton, the merged clinical axes, the
  * rest frames and the chain's pose-independent records, and nothing of a source
@@ -39,14 +39,13 @@ import { AutoMovieEngineMotionDistalTwist } from "../AutoMovieEngineMotionDistal
  *
  * Every member of the chain's three joints is prepared here; a bone outside the
  * chain is computed directly where it is asked for.
- *
- * @param props The rig, the chain and the merged clinical tables, unchanged for
- *   the record's life.
- * @param fixed The chain's pose-independent records: its two joints' domains
- *   and its fixed lower-to-effector rotation. Null for a chain that could not
- *   be prepared, whose domains and effector rest are then read from the
- *   skeleton as `prepareChainFitRig` read them.
- * @returns The rig-only members and the fixed hinge span.
+ * Parameter props: The rig, the chain and the merged clinical tables, unchanged for
+ * the record's life.
+ * Parameter fixed: The chain's pose-independent records: its two joints' domains
+ * and its fixed lower-to-effector rotation. Null for a chain that could not
+ * be prepared, whose domains and effector rest are then read from the
+ * skeleton as `prepareChainFitRig` read them.
+ * Returns: The rig-only members and the fixed hinge span.
  */
 export function prepareChainRigConstants(
   props: Pick<
@@ -78,7 +77,9 @@ export function prepareChainRigConstants(
   const clampAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
     skeletonJointAxes(props.skeleton, HUMANOID_JOINT_AXES);
 
-  /** The swing-twist frame of a gated bone, prepared with its region. */
+  /*
+   * The swing-twist frame of a gated bone, prepared with its region.
+   */
   const rangeOf = (
     bone: AutoMovieHumanoidBone,
     domain: IAutoMovieJointRotationDomain,
@@ -219,35 +220,55 @@ export function prepareChainRigConstants(
   return rig;
 }
 
-/** One chain joint's rig-only members, prepared with the rig. */
+/*
+ * One chain joint's rig-only members, prepared with the rig.
+ */
 interface IJoint {
-  /** The joint's bone. */
+  /*
+   * The joint's bone.
+   */
   bone: AutoMovieHumanoidBone;
 
-  /** The skeleton's record of the bone, when it has one. */
+  /*
+   * The skeleton's record of the bone, when it has one.
+   */
   record: IAutoMovieBone | undefined;
 
-  /** The bone's domain. */
+  /*
+   * The bone's domain.
+   */
   domain: IAutoMovieJointRotationDomain;
 
-  /** The bone's normalized clinical axes. */
+  /*
+   * The bone's normalized clinical axes.
+   */
   basis: IAutoMovieJointAxes;
 
-  /** The rest frame its composer was prepared on. */
+  /*
+   * The rest frame its composer was prepared on.
+   */
   frame: IAutoMovieRestFrame | undefined;
 
-  /** The bone's record composer on that frame. */
+  /*
+   * The bone's record composer on that frame.
+   */
   compose: ReturnType<typeof jointToQuaternionOnBasis.prepare>;
 
-  /** The bone's ROM clamp. */
+  /*
+   * The bone's ROM clamp.
+   */
   clamp: (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
 
-  /** The bone's ROM overshoot scorer. */
+  /*
+   * The bone's ROM overshoot scorer.
+   */
   overshoot: (
     joint: IAutoMovieJointPose,
     rotation?: IAutoMovieQuaternion,
   ) => number;
 
-  /** The bone's rotation-only overshoot scorer, or null. */
+  /*
+   * The bone's rotation-only overshoot scorer, or null.
+   */
   rotatedOvershoot: ((rotation: IAutoMovieQuaternion) => number) | null;
 }

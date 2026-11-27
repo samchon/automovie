@@ -28,13 +28,13 @@ import { readHumanSegmentLegs } from "./readHumanSegmentLegs";
 import { unfollowedHumanChannels } from "./unfollowedHumanChannels";
 import { unplantedHumanObservation } from "./unplantedHumanObservation";
 
-/**
+/*
  * The arms, placed at the anchor course (`readHumanSegmentAnchors`) where the
  * plan's own course does not place them.
  */
 const ARMS: readonly AutoMovieHumanLimb[] = ["leftArm", "rightArm"];
 
-/**
+/*
  * Whether a plan second lies inside the plan's legs-still window
  * (`IAutoMovieMotionHumanActionPlan.legsStill`), where the legs keep one fit.
  */
@@ -49,7 +49,7 @@ function still(
   );
 }
 
-/**
+/*
  * Read the action before its entering offset, including current holds and
  * overlays. A read with no fits of its own places the arms at the plan's swivel
  * course (`readHumanSegmentLeaf.swivels`) and every other arm fit at the
@@ -221,9 +221,11 @@ export function readHumanSegmentLeaf(
   };
 }
 
-/** Records produced by one pre-transition leaf evaluation. */
+/*
+ * Records produced by one pre-transition leaf evaluation.
+ */
 export namespace readHumanSegmentLeaf {
-  /**
+  /*
    * A plan's swivel course of every arm goal it writes
    * (`courseLimbSwivels.swivels`): knots on the frame grid and at the plan's
    * events, each continuing the one before, solved once when the performance is
@@ -234,11 +236,10 @@ export namespace readHumanSegmentLeaf {
    * (`HumanLimbFit.seed` on the entry's pose), so an arm whose goal carries on
    * across a cut keeps the branch and swivel it was shown with rather than a
    * cold fit's, which may take the other elbow side for the same goal.
-   *
-   * @param plan The segment's plan.
-   * @param body The performer's body.
-   * @param entry The displayed pose the segment is entered with.
-   * @returns The course.
+   * Parameter plan: The segment's plan.
+   * Parameter body: The performer's body.
+   * Parameter entry: The displayed pose the segment is entered with.
+   * Returns: The course.
    */
   export function swivels(
     plan: IAutoMovieMotionHumanActionPlan,
@@ -271,15 +272,25 @@ export namespace readHumanSegmentLeaf {
     });
   }
 
-  /** The composed posture and the fits produced on this read. */
+  /*
+   * The composed posture and the fits produced on this read.
+   */
   export interface IReading {
-    /** Authored posture with the overlay contacts. */
+    /*
+     * Authored posture with the overlay contacts.
+     */
     posture: IAutoMovieMotionHumanPosture;
-    /** Objects still borne by this action. */
+    /*
+     * Objects still borne by this action.
+     */
     carried: IAutoMovieMotionHumanSegment.IHeld[];
-    /** The resolved displayed pose. */
+    /*
+     * The resolved displayed pose.
+     */
     pose: IAutoMoviePose;
-    /** Continuation seeds for the fitted limbs. */
+    /*
+     * Continuation seeds for the fitted limbs.
+     */
     seeds: HumanSegmentPose.IFits;
   }
 }

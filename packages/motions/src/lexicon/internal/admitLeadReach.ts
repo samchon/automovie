@@ -8,15 +8,14 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Admit the distance from the displayed hand contact to the lead's skin.
- *
- * @param hand The displayed wrist frame.
- * @param contact The contact offset in the hand frame, metres. Absent uses
- *   the wrist origin.
- * @param lead The lead point, outward normal and optional radius, metres.
- * @param location The hand and lead at the film second being checked.
- * @throws {HumanRefusal} On `leadReach` if the distance exceeds 10 mm.
+ * Parameter hand: The displayed wrist frame.
+ * Parameter contact: The contact offset in the hand frame, metres. Absent uses
+ * the wrist origin.
+ * Parameter lead: The lead point, outward normal and optional radius, metres.
+ * Parameter location: The hand and lead at the film second being checked.
+ * On `leadReach` if the distance exceeds 10 mm.
  */
 export function admitLeadReach(
   hand: HandFrame,
@@ -53,19 +52,25 @@ export function admitLeadReach(
     });
 }
 
-/** The displayed hand fields that place its contact point in world metres. */
+/*
+ * The displayed hand fields that place its contact point in world metres.
+ */
 type HandFrame = Pick<
   IAutoMovieResolvedBone,
   "worldPosition" | "worldRotation"
 >;
 
-/** The lead geometry that locates its skin in world metres. */
+/*
+ * The lead geometry that locates its skin in world metres.
+ */
 type LeadFrame = Pick<
   IAutoMovieMotionHumanMountRider.IHoldGrip,
   "point" | "normal" | "radius"
 >;
 
-/** The hand, prop and lead contact named at the failed film second. */
+/*
+ * The hand, prop and lead contact named at the failed film second.
+ */
 interface ILeadLocation {
   side: AutoMovieHumanSide;
   subject: string;
@@ -73,5 +78,7 @@ interface ILeadLocation {
   film: number;
 }
 
-/** The displayed lead grip's permitted miss, metres. */
+/*
+ * The displayed lead grip's permitted miss, metres.
+ */
 const LIMIT: number = 0.01;

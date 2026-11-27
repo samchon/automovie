@@ -13,7 +13,7 @@ import { mixHumanPosture } from "../../posture/internal/mixHumanPosture";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { humanRomanStance } from "./humanRomanStance";
 
-/**
+/*
  * Roman riding (`IAutoMovieMotionHumanRoman`): each foot planted on its own
  * horse's moving seat, the root standing over their middle at the hip's height,
  * facing their mean heading; the stand is reached from the entry over `step` by
@@ -28,10 +28,14 @@ export const HumanRoman: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanRom
     plan: planHumanRoman,
   };
 
-/** The law's context. */
+/*
+ * The law's context.
+ */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRoman>;
 
-/** Admit the times and the span, then sample. */
+/*
+ * Admit the times and the span, then sample.
+ */
 function planHumanRoman(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanRoman = context.params;
   const step: number = params.step ?? 0.6;

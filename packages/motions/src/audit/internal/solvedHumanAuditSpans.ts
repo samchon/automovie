@@ -12,7 +12,7 @@ import type {
 import { splitSolvedHumanAuditSpan } from "./splitSolvedHumanAuditSpan";
 import { subtractHumanAuditInterval } from "./subtractHumanAuditInterval";
 
-/**
+/*
  * A person's placed actions as the audit reads them where windows of the
  * performance were solved (`HumanPerformance.simulate`): inside a window, the
  * parts the solver owns are judged by the solver's contacts, not by the plants
@@ -31,12 +31,11 @@ import { subtractHumanAuditInterval } from "./subtractHumanAuditInterval";
  * judgement (`physical: false`): the solver's dynamics are the body's balance.
  * Every check that reads only the displayed bones (floor, tangle, range,
  * continuity, partner) reads the pieces as before.
- *
- * @param spans The person's placed actions, film seconds.
- * @param subject The person.
- * @param body The person's body, for its regions.
- * @param simulations The performance's solved windows.
- * @returns The actions as the audit reads them.
+ * Parameter spans: The person's placed actions, film seconds.
+ * Parameter subject: The person.
+ * Parameter body: The person's body, for its regions.
+ * Parameter simulations: The performance's solved windows.
+ * Returns: The actions as the audit reads them.
  */
 export function solvedHumanAuditSpans(
   spans: readonly IAutoMovieMotionHumanAuditMotion.ISpan[],
@@ -68,30 +67,41 @@ export function solvedHumanAuditSpans(
   return read;
 }
 
-/** Companion types and readers of {@link solvedHumanAuditSpans}. */
+/*
+ * Companion types and readers of solvedHumanAuditSpans.
+ */
 export namespace solvedHumanAuditSpans {
-  /** Where and what of a person a solved window owns. */
+  /*
+   * Where and what of a person a solved window owns.
+   */
   export interface IOwned {
-    /** First film second the solver owns a segment of the person. */
+    /*
+     * First film second the solver owns a segment of the person.
+     */
     from: number;
 
-    /** Last film second it does, the window's end when it never hands back. */
+    /*
+     * Last film second it does, the window's end when it never hands back.
+     */
     to: number;
 
-    /** The segments it owns at some instant of the span. */
+    /*
+     * The segments it owns at some instant of the span.
+     */
     bones: ReadonlySet<string>;
 
-    /** Whether it owns the root segment, the body's whole support. */
+    /*
+     * Whether it owns the root segment, the body's whole support.
+     */
     root: boolean;
   }
 
-  /**
+  /*
    * What of a person one solved window owns, from its ownership record.
-   *
-   * @param record The solved window.
-   * @param subject The person.
-   * @returns The owned span and segments; null when the window owns none of the
-   *   person.
+   * Parameter record: The solved window.
+   * Parameter subject: The person.
+   * Returns: The owned span and segments; null when the window owns none of the
+   * person.
    */
   export function owned(
     record: IAutoMovieMotionHumanSimulation,
@@ -158,17 +168,16 @@ export namespace solvedHumanAuditSpans {
     };
   }
 
-  /**
+  /*
    * The parts of a film span where no solved window owns any of the named
    * segments of a person: the span less each window's owned span that takes one
    * of them, in order.
-   *
-   * @param simulations The performance's solved windows.
-   * @param subject The person.
-   * @param segments The segments asked about.
-   * @param from First film second of the span.
-   * @param to Last film second of the span.
-   * @returns The unsolved parts, each a first and last film second.
+   * Parameter simulations: The performance's solved windows.
+   * Parameter subject: The person.
+   * Parameter segments: The segments asked about.
+   * Parameter from: First film second of the span.
+   * Parameter to: Last film second of the span.
+   * Returns: The unsolved parts, each a first and last film second.
    */
   export function unsolved(
     simulations: readonly IAutoMovieMotionHumanSimulation[],
@@ -190,10 +199,12 @@ export namespace solvedHumanAuditSpans {
     return pieces;
   }
 
-  /** A first and last film second. */
+  /*
+   * A first and last film second.
+   */
   export type Interval = readonly [number, number];
 
-  /**
+  /*
    * The canonical foot segments, whose unloaded range a solved window
    * supersedes.
    */
@@ -205,10 +216,12 @@ export namespace solvedHumanAuditSpans {
   ];
 }
 
-/** A solver contact episode of the person as a bearing window, film seconds. */
+/*
+ * A solver contact episode of the person as a bearing window, film seconds.
+ */
 type IContact = splitSolvedHumanAuditSpan.IContact;
 
-/**
+/*
  * The person's solver contact episodes with the floor and the props: what bears
  * the body; a grip on another person is a grip, not a bearing.
  */
@@ -242,7 +255,7 @@ function contacts(
   return out;
 }
 
-/**
+/*
  * The segments a contact window's part names: its region's bone, else the bones
  * the part spans.
  */
@@ -265,13 +278,15 @@ function bones(
     );
 }
 
-/**
+/*
  * The id prefix of a prop's kinematic body in a solved window
  * (`placeHumanSimulationColliders`).
  */
 const PROP: string = "prop:";
 
-/** The contact part each canonical segment bears with. */
+/*
+ * The contact part each canonical segment bears with.
+ */
 const PARTS: Readonly<
   Record<string, IAutoMovieMotionHumanContactWindow["part"]>
 > = {

@@ -26,13 +26,13 @@ import { HumanProxemics } from "./HumanProxemics";
 import { HumanTrunk } from "./HumanTrunk";
 import { approachAbeam } from "./approachAbeam";
 
-/**
+/*
  * Walking up to a person, a prop or a point and stopping at an interpersonal
  * distance, facing it.
  *
  * The goal is the stop, not the steps: the front of the performer's chest (the
  * sternum region) must end `gap` short of the target, horizontally, along the
- * line from where the performer stands to the target ({@link HumanProxemics}).
+ * line from where the performer stands to the target (HumanProxemics).
  * The law turns that goal into the floor point the feet's midpoint must reach,
  * `gap` plus the chest's lead over the feet back from the target, and lets the
  * walk law place whole steps to it, so the stop is exact without sliding (the
@@ -59,7 +59,7 @@ import { approachAbeam } from "./approachAbeam";
  * walker's chest breadth, a waypoint abeam that person takes the walk round on
  * the side that deviates least. Walkers moving past each other are not avoided
  * here; reciprocal avoidance belongs to the engine. An Effort sets the walk's
- * step length, arm swing and elbow width ({@link HumanEffort}); bound flow's
+ * step length, arm swing and elbow width (HumanEffort); bound flow's
  * elbows held in cannot be shown, since the walk only widens them.
  *
  * With `track`, a person who moves is followed: their placed root is read ahead
@@ -75,17 +75,23 @@ import { approachAbeam } from "./approachAbeam";
  * `arrive`), and `depart` where the walk waited.
  */
 export namespace approach {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "approach";
 
-  /** Cancel table: an approach is a walk and is cut as one. */
+  /*
+   * Cancel table: an approach is a walk and is cut as one.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     walk.interrupts;
 
-  /** What it yields to an overlay: the walk's own. */
+  /*
+   * What it yields to an overlay: the walk's own.
+   */
   export const yields: IAutoMovieMotionHumanActionLaw["yields"] = walk.yields;
 
-  /**
+  /*
    * Lateral clearance a walker keeps from a person it passes, metres: the
    * lateral half axis of the elliptical personal space walkers keep while
    * circumventing a person, 0.48 m on average (Gerin-Lajoie, Richards and
@@ -94,16 +100,15 @@ export namespace approach {
    */
   export const CLEARANCE: number = 0.5;
 
-  /**
+  /*
    * Plan an approach: the stop point from the gap, waypoints round the people
    * to avoid, and the walk law's plan to that stop, corrected once by where the
    * arriving sternum actually lands.
-   *
-   * @param context The action's context.
-   * @returns The walk's plan to the stop point.
-   * @throws {HumanRefusal} When the target is already nearer than the gap, a
-   *   side or tracking is asked of a target that is not a person, or a tracked
-   *   person is composed after this performer.
+   * Parameter context: The action's context.
+   * Returns: The walk's plan to the stop point.
+   * When the target is already nearer than the gap, a
+   * side or tracking is asked of a target that is not a person, or a tracked
+   * person is composed after this performer.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanApproach.IParams>,
@@ -220,7 +225,7 @@ export namespace approach {
     return wait < 1e-6 ? walked : walkDelayed(walked, wait);
   }
 
-  /**
+  /*
    * How far ahead a tracked person's placed root is read for where they come to
    * rest, seconds. A numerical policy bounding the scan at `HORIZON /
    * REST_STEP` reads: a minute, longer than any one shot a follower is planned
@@ -228,7 +233,7 @@ export namespace approach {
    */
   export const HORIZON: number = 60;
 
-  /**
+  /*
    * Seconds between two reads of a tracked person's placed root: one walking
    * step, 0.50 to 0.56 s at the 1.8 to 2.0 steps a second of 800 pedestrians
    * (Pachi and Ji 2005, Struct Eng 83(3):36), so a stop is found within the
@@ -236,7 +241,7 @@ export namespace approach {
    */
   export const REST_STEP: number = 0.5;
 
-  /**
+  /*
    * How far a tracked person's root may move between two reads and still count
    * as at rest, metres. A numerical policy: the millimetre the balance margins
    * are reported in (`HumanBalance.TOLERANCE` resolves to half of it), far
@@ -244,7 +249,7 @@ export namespace approach {
    */
   export const REST_MOVE: number = 1e-3;
 
-  /**
+  /*
    * How far a tracked person's heading may turn between two reads and still
    * count as at rest, degrees. A numerical policy: a tenth of a degree carries
    * a shoulder, about 0.2 m from the root, by 0.35 mm, under `REST_MOVE`, so a
@@ -252,7 +257,7 @@ export namespace approach {
    */
   export const REST_TURN: number = 0.1;
 
-  /**
+  /*
    * How far a tracked person's way must leave the straight line for the
    * follower to take it by their places, and how near either end such a place
    * is dropped, metres: the lateral clearance walkers keep from a person
@@ -262,7 +267,7 @@ export namespace approach {
    */
   export const BEND: number = CLEARANCE;
 
-  /**
+  /*
    * How long after a tracked person has stopped a walk that waited for them
    * arrives, seconds: a follower's visual-motor delay, the mean optimal delay
    * between a leader's and a follower's acceleration (420 ms; Rio, Rhea and
@@ -270,13 +275,12 @@ export namespace approach {
    */
   export const LAG: number = 0.42;
 
-  /**
+  /*
    * How far the front of the chest stands ahead of the ankles' midpoint in the
    * standing posture, metres: the sternum region's forward offset with the
    * body's upright alignment and lean.
-   *
-   * @param body The body.
-   * @returns Metres.
+   * Parameter body: The body.
+   * Returns: Metres.
    */
   export function chest(body: IAutoMovieMotionHumanBody): number {
     const posture: IAutoMovieMotionHumanPosture = stand.posture(
@@ -294,7 +298,7 @@ export namespace approach {
     return sternum.z - ankles;
   }
 
-  /**
+  /*
    * The turn from one heading to another, degrees in [-180, 180), so a heading
    * crossing ±180 is not read as a whole turn.
    */
@@ -302,7 +306,7 @@ export namespace approach {
     return ((((to - from) % 360) + 540) % 360) - 180;
   }
 
-  /**
+  /*
    * Plan the walk to the stop place of a target given where it is: the stop,
    * the waypoints, the walk and its one arrival correction.
    */
@@ -467,5 +471,7 @@ export namespace approach {
   }
 }
 
-/** The record of `IToStop`'s site. */
+/*
+ * The record of `IToStop`'s site.
+ */
 type IToStop = { at: IAutoMovieVector3; yaw: number };

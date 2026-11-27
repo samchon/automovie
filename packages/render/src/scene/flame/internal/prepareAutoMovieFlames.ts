@@ -20,7 +20,7 @@ import type { IAutoMovieFlamesObject } from "../../IAutoMovieFlamesObject.js";
 import type { IPrepareAutoMovieFlamesProps } from "../../IPrepareAutoMovieFlamesProps.js";
 import { createAutoMovieFlameMaterial } from "./createAutoMovieFlameMaterial.js";
 
-/**
+/*
  * Build a shot's flames once and mount each on its prop.
  *
  * Every cue becomes one mesh named `flame:<node>/<cue id>`, parented to the
@@ -166,7 +166,9 @@ export function prepareAutoMovieFlames(
   };
 }
 
-/** A Three geometry over an engine mesh's positions, normals and indices. */
+/*
+ * A Three geometry over an engine mesh's positions, normals and indices.
+ */
 function toGeometry(mesh: IAutoMovieMesh): THREE.BufferGeometry {
   const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
   geometry.setAttribute(
@@ -181,7 +183,7 @@ function toGeometry(mesh: IAutoMovieMesh): THREE.BufferGeometry {
   return geometry;
 }
 
-/**
+/*
  * A bound flame's colour and luminance from the light its binding drives: the
  * light clip with the binding's id names the light by its intensity pointer
  * `/lights/<id>/intensity`, whose escaped id is unescaped per RFC 6901.

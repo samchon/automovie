@@ -7,7 +7,7 @@ import * as THREE from "three";
 
 import type { IAutoMovieRendererEnvironmentHandle } from "../IAutoMovieRendererEnvironmentHandle.js";
 
-/**
+/*
  * Configure exposure, tone mapping and shadow policy for one pass. Structural
  * passes bypass all three so their values remain geometric facts.
  *

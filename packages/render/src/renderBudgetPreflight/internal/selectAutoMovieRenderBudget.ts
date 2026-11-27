@@ -1,6 +1,6 @@
 import { IAutoMovieRenderBudget } from "@automovie/interface";
 
-/**
+/*
  * Select the budget a render job targets, or `null` when the production
  * declared none for this tier.
  *

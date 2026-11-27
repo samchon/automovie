@@ -11,12 +11,16 @@ import { AutoMovieContourSlit64 as Slit } from "./AutoMovieContourSlit64";
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
 import { assertAutoMovieCurve64 } from "./curve/internal/assertAutoMovieCurve64";
 
-/** Local vector aliases preserve the engine's complete binary64 arithmetic. */
+/*
+ * Local vector aliases preserve the engine's complete binary64 arithmetic.
+ */
 const add: typeof M.add = M.add,
   sub: typeof M.sub = M.sub,
   mul: typeof M.scale = M.scale;
-/** Three-dimensional projection helpers in one common physical chart. */
-/**
+/*
+ * Three-dimensional projection helpers in one common physical chart.
+ */
+/*
  * Stable private binding preserves internal call ownership across the public
  * facade.
  */

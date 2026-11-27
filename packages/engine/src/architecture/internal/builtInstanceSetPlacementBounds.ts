@@ -15,7 +15,7 @@ import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEng
 import { builtPointBounds } from "./builtPointBounds";
 import { validateBuiltPopulation } from "./validateBuiltPopulation";
 
-/**
+/*
  * The world box one compact population and its prototype geometry occupy.
  *
  * The placement law and authored prototype-local box define an envelope. Grid
@@ -32,14 +32,13 @@ import { validateBuiltPopulation } from "./validateBuiltPopulation";
  * `validateBuiltEnvironment` refuses such a population outright, so this throws
  * only for a caller handing over a world set directly.
  *
- * Every other input is checked by {@link validateBuiltPopulation}, the same
+ * Every other input is checked by validateBuiltPopulation, the same
  * rules the building validator applies, and the first violation is thrown as a
  * `RangeError` naming its path under `$input`. The box is world-space, in
  * metres, and inclusive.
- *
- * @param set The population's instance-set design.
- * @param prototypeBounds The prototype's model-local box, in metres.
- * @returns A new world box enclosing every member the set can place.
+ * Parameter set: The population's instance-set design.
+ * Parameter prototypeBounds: The prototype's model-local box, in metres.
+ * Returns: A new world box enclosing every member the set can place.
  */
 export function builtInstanceSetPlacementBounds(
   set: IAutoMovieInstanceSetDesign,
@@ -116,16 +115,22 @@ export function builtInstanceSetPlacementBounds(
   };
 }
 
-/** The world up axis every population heading turns about. */
+/*
+ * The world up axis every population heading turns about.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** A grid or lattice layout, the two kinds bounded by their hull slots. */
+/*
+ * A grid or lattice layout, the two kinds bounded by their hull slots.
+ */
 type IGridLayout = Extract<
   IAutoMovieInstanceSetDesign["layout"],
   { kind: "grid" } | { kind: "lattice" }
 >;
 
-/** Place one layout-local point under the set's anchor and base heading. */
+/*
+ * Place one layout-local point under the set's anchor and base heading.
+ */
 const placeInstancePoint: (
   set: IAutoMovieInstanceSetDesign,
   point: IAutoMovieVector3,
@@ -143,7 +148,9 @@ const placeInstancePoint: (
   };
 };
 
-/** Scale one model-local point per axis. */
+/*
+ * Scale one model-local point per axis.
+ */
 const scaled: (
   point: IAutoMovieVector3,
   scale: IAutoMovieVector3,
@@ -156,14 +163,18 @@ const scaled: (
   z: point.z * scale.z,
 });
 
-/** The eight corners of one model-local box, duplicates included when flat. */
+/*
+ * The eight corners of one model-local box, duplicates included when flat.
+ */
 const prototypeBoxCorners: (
   bounds: IAutoMovieBuiltPopulation["prototypeBounds"],
 ) => IAutoMovieVector3[] = (
   bounds: IAutoMovieBuiltPopulation["prototypeBounds"],
 ): IAutoMovieVector3[] => boxCorners(bounds.min, bounds.max);
 
-/** Every combination of per-axis extremes between two corners. */
+/*
+ * Every combination of per-axis extremes between two corners.
+ */
 const boxCorners: (
   min: IAutoMovieVector3,
   max: IAutoMovieVector3,
@@ -177,7 +188,9 @@ const boxCorners: (
     ),
   );
 
-/** The prototype offset shared by every compact, non-explicit layout slot. */
+/*
+ * The prototype offset shared by every compact, non-explicit layout slot.
+ */
 const prototypeOffsetBounds: (
   set: IAutoMovieInstanceSetDesign,
   corners: readonly IAutoMovieVector3[],
@@ -241,7 +254,7 @@ const prototypeOffsetBounds: (
   )!;
 };
 
-/**
+/*
  * The set-local points that can carry a deterministic layout's extremes.
  *
  * A rotated point set's world box is the box of its convex hull's corners, so a
@@ -279,7 +292,9 @@ const instanceSetExtremeSlots: (
   );
 };
 
-/** The hull corners of `count` slots laid row-major into `columns` columns. */
+/*
+ * The hull corners of `count` slots laid row-major into `columns` columns.
+ */
 const gridExtremeCells: (
   count: number,
   columns: number,

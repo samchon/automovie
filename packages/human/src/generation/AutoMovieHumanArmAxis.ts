@@ -46,7 +46,9 @@ export namespace AutoMovieHumanArmAxis {
       (plane: IAutoMovieHumanArmAxis.IFixedChart): number => plane.stationMm,
     );
 
-    /** Reflect the native chart once into capture-world millimetres. */
+    /*
+     * Reflect the native chart once into capture-world millimetres.
+     */
     const world: (point: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = ([
       x,
       y,
@@ -54,7 +56,9 @@ export namespace AutoMovieHumanArmAxis {
     ]: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [x, y, -z];
     const J: typeof AutoMovieHumanArmJet = AutoMovieHumanArmJet;
 
-    /** Preserve the observed station parameter when continuing one chart vector. */
+    /*
+     * Preserve the observed station parameter when continuing one chart vector.
+     */
     const vector: (
       read: (p: IAutoMovieHumanArmAxis.IFixedChart) => AutoMovieVector3Tuple,
     ) => (s: number) => AutoMovieVector3Jet2 = (
@@ -89,7 +93,9 @@ export namespace AutoMovieHumanArmAxis {
       },
     );
 
-    /** Orthonormalize the continued frame and retain its analytic derivatives. */
+    /*
+     * Orthonormalize the continued frame and retain its analytic derivatives.
+     */
     function frame(s: number): {
       origin: AutoMovieVector3Jet2;
       u: AutoMovieVector3Jet2;
@@ -115,7 +121,9 @@ export namespace AutoMovieHumanArmAxis {
             : AutoMovieViewParameter.inverseJet(parameter, s);
         if (inverse === null) return null;
 
-        /** Apply the caller's parameter jet without changing the physical frame. */
+        /*
+         * Apply the caller's parameter jet without changing the physical frame.
+         */
         const derivatives: (
           vector: AutoMovieVector3Jet2,
         ) => AutoMovieVector3Jet2 = (
@@ -260,13 +268,17 @@ export namespace AutoMovieHumanArmAxis {
   }
 }
 
-/** Spacing of the turn's samples, mm. */
+/*
+ * Spacing of the turn's samples, mm.
+ */
 const STEP: number = 0.25;
 
-/** Passes placing the turn's middle; each leaves a fraction of the last miss. */
+/*
+ * Passes placing the turn's middle; each leaves a fraction of the last miss.
+ */
 const PASSES: number = 4;
 
-/**
+/*
  * Where, along the humerus' line from the shoulder centre, it passes closest to
  * the forearm's line through a point.
  */

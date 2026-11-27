@@ -8,82 +8,107 @@ import type {
 import { HumanBound } from "../../law/internal/HumanBound";
 import type { crutchHeldLeg } from "./crutchHeldLeg";
 
-/** World vertical. */
+/*
+ * World vertical.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
+/*
  * How high a crutch tip clears a nosing as it moves, metres (provisional, as
  * the crutch walk's lift).
  */
 const LIFT: number = 0.04;
 
-/**
+/*
  * The first nosing's distance ahead of the toes when the author gives none,
  * metres: the climb's own default (`climbStairsFlight.START`).
  */
 const START: number = 0.05;
 
-/**
+/*
  * Where on its tread a foot's ball and a crutch's tip come down, as a share of
  * the tread measured from its front edge back (provisional: the ball over the
  * tread's rear part, the toes inside its front edge).
  */
 const ON: number = 0.7;
 
-/**
+/*
  * The crutch stair climb's flight and clock, shared by the law's plan and the
  * track the scene's crutch props read, so both derive every crutch frame and
  * tread from the same flight.
  */
 export namespace crutchStairsFlight {
-  /** One crutch move: when it lifts and plants, and the level it leaves. */
+  /*
+   * One crutch move: when it lifts and plants, and the level it leaves.
+   */
   export interface IMove {
-    /** Lift, seconds since the climb's start. */
+    /*
+     * Lift, seconds since the climb's start.
+     */
     from: number;
 
-    /** Plant, seconds since the climb's start. */
+    /*
+     * Plant, seconds since the climb's start.
+     */
     to: number;
 
-    /** The level left. */
+    /*
+     * The level left.
+     */
     level: number;
   }
 
-  /** The climb's resolved shape and clock. */
+  /*
+   * The climb's resolved shape and clock.
+   */
   export interface IClimb {
-    /** +1 going up, -1 going down. */
+    /*
+     * +1 going up, -1 going down.
+     */
     sign: number;
 
-    /** Each riser's height, metres. */
+    /*
+     * Each riser's height, metres.
+     */
     riser: number;
 
-    /** Each tread's depth, metres. */
+    /*
+     * Each tread's depth, metres.
+     */
     tread: number;
 
-    /** The first nosing's distance ahead of the toes, metres. */
+    /*
+     * The first nosing's distance ahead of the toes, metres.
+     */
     start: number;
 
-    /** Seconds before the first step: the hands take the grips. */
+    /*
+     * Seconds before the first step: the hands take the grips.
+     */
     ready: number;
 
-    /** Seconds each step takes. */
+    /*
+     * Seconds each step takes.
+     */
     step: number;
 
-    /** Each crutch move. */
+    /*
+     * Each crutch move.
+     */
     moves: readonly IMove[];
   }
 
-  /**
+  /*
    * The climb's shape and clock from its parameters, refused where the climb's
    * own bounds refuse: a riser above 0.35 of the hip height, a tread shorter
    * than 0.6 of the foot, a rounded count below one or a step of no time.
    * Going up the sound foot steps first, then the crutches; going down the
    * crutches first.
-   *
-   * @param params The climb.
-   * @param hipHeight The body's hip height, metres, or none for a track.
-   * @param footLength The body's foot length, metres, or none for a track.
-   * @returns The resolved climb.
-   * @throws {HumanRefusal} On a bound the climb refuses.
+   * Parameter params: The climb.
+   * Parameter hipHeight: The body's hip height, metres, or none for a track.
+   * Parameter footLength: The body's foot length, metres, or none for a track.
+   * Returns: The resolved climb.
+   * On a bound the climb refuses.
    */
   export function resolve(
     params: IAutoMovieMotionHumanCrutchStairs,
@@ -121,13 +146,12 @@ export namespace crutchStairsFlight {
     };
   }
 
-  /**
+  /*
    * How far ahead of the toes, and how high from the entry floor, a level's
    * foot or tip comes down: `ON` of its tread back from the front edge.
-   *
-   * @param climb The climb.
-   * @param k The level, 0 for the entry floor.
-   * @returns The offset, metres, z ahead and y up.
+   * Parameter climb: The climb.
+   * Parameter k: The level, 0 for the entry floor.
+   * Returns: The offset, metres, z ahead and y up.
    */
   export function level(climb: IClimb, k: number): IAutoMovieVector3 {
     return k === 0
@@ -139,15 +163,14 @@ export namespace crutchStairsFlight {
         };
   }
 
-  /**
+  /*
    * The flight's profile along its climb: the entry floor, then each tread from
    * its nosing on, each a riser above (going up) or below (going down) the one
    * before.
-   *
-   * @param climb The climb.
-   * @param ground The entry floor's height, world metres.
-   * @returns The levels, nearest first, each from where it begins ahead of the
-   *   toes' start.
+   * Parameter climb: The climb.
+   * Parameter ground: The entry floor's height, world metres.
+   * Returns: The levels, nearest first, each from where it begins ahead of the
+   * toes' start.
    */
   export function profile(
     climb: IClimb,
@@ -164,15 +187,14 @@ export namespace crutchStairsFlight {
     ];
   }
 
-  /**
+  /*
    * A crutch's frame at a second: planted at its level, or on its move's path,
    * up first and then over going up, over first and then down going down,
    * clearing the nosing by `LIFT`.
-   *
-   * @param climb The climb.
-   * @param start The crutch's staged frame.
-   * @param seconds Seconds since the climb's start.
-   * @returns The frame, world metres.
+   * Parameter climb: The climb.
+   * Parameter start: The crutch's staged frame.
+   * Parameter seconds: Seconds since the climb's start.
+   * Returns: The frame, world metres.
    */
   export function frameAt(
     climb: IClimb,
@@ -214,15 +236,14 @@ export namespace crutchStairsFlight {
     return place(level(climb, k));
   }
 
-  /**
+  /*
    * How many treads the sound foot stands past for a plant window opening at a
    * second: the window of a tread opens when the foot is set down there, after
    * its step's foot stance begins (each step's start going up, its middle going
    * down).
-   *
-   * @param climb The climb.
-   * @param seconds The window's opening, seconds since the climb's start.
-   * @returns The tread count, 0 for the entry floor.
+   * Parameter climb: The climb.
+   * Parameter seconds: The window's opening, seconds since the climb's start.
+   * Returns: The tread count, 0 for the entry floor.
    */
   export function arrived(climb: IClimb, seconds: number): number {
     let k: number = 0;

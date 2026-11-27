@@ -5,7 +5,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/**
+/*
  * Require one connected root and resolvable acyclic ancestry using declared
  * names, parent edges and traversal.
  */

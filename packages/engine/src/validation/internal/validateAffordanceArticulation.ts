@@ -9,20 +9,19 @@ import { affordanceFollowedTravel } from "./affordanceFollowedTravel";
 import { affordanceLeadingTravel } from "./affordanceLeadingTravel";
 import { affordanceTravelRange } from "./affordanceTravelRange";
 
-/**
+/*
  * Admit a model's articulation references: every `parts` id names a part of the
  * model, sits on an articulation kind and is claimed once; every `rides` and
  * every `follows` chain is independently acyclic; and each coupling names
  * another articulation, gives one finite ratio or a table spanning its leader's
  * range, stays within its follower's range, and is one-to-one when marked
  * reversible.
- *
- * @param affordances The model's affordances, in authored order.
- * @param parts The model's part ids.
- * @param path The caller-relative path of the affordance list, such as
- *   `$input.affordances`.
- * @param collector The caller's collector; each fault is appended at the
- *   offending field.
+ * Parameter affordances: The model's affordances, in authored order.
+ * Parameter parts: The model's part ids.
+ * Parameter path: The caller-relative path of the affordance list, such as
+ * `$input.affordances`.
+ * Parameter collector: The caller's collector; each fault is appended at the
+ * offending field.
  */
 export function validateAffordanceArticulation(
   affordances: readonly IAutoMovieAffordance[],
@@ -123,18 +122,19 @@ export function validateAffordanceArticulation(
   });
 }
 
-/** The kinds whose travel moves parts and riding affordances. */
+/*
+ * The kinds whose travel moves parts and riding affordances.
+ */
 const ARTICULATIONS: ReadonlySet<IAutoMovieAffordance["kind"]> =
   AffordanceArticulation.KINDS;
 
-/**
+/*
  * Admit one follower's coupling, its invertibility when requested, and its
  * acyclic follows chain.
- *
- * @param follower The affordance that declares `follows`.
- * @param byId The model's affordances by id.
- * @param fp The path of its `follows`.
- * @param collector The caller's collector.
+ * Parameter follower: The affordance that declares `follows`.
+ * Parameter byId: The model's affordances by id.
+ * Parameter fp: The path of its `follows`.
+ * Parameter collector: The caller's collector.
  */
 function admitFollows(
   follower: IAutoMovieAffordance,

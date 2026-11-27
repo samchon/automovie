@@ -6,7 +6,7 @@ import type {
   IAutoMovieRecoverySourceHalfedge,
 } from "@automovie/interface";
 
-/**
+/*
  * Observe component incidence, orientation parity, links and boundary cycles in
  * one query.
  */

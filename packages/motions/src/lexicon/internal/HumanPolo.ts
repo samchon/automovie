@@ -32,7 +32,7 @@ import { HumanPoloForm } from "./HumanPoloForm";
 import { HumanPoloHand } from "./HumanPoloHand";
 import { humanPoloTimetable } from "./humanPoloTimetable";
 
-/**
+/*
  * A polo stroke from the saddle (`IAutoMovieMotionHumanPolo`): carried on the
  * saddle, the rider rises in the stirrups and turns the shoulders toward the
  * swing's side; the arm and the held mallet turn as one about the right
@@ -50,26 +50,22 @@ export const HumanPolo: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPolo
     plan: planHumanPolo,
   };
 
-/** The law's context. */
+/*
+ * The law's context.
+ */
 type Context =
   IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPolo.IPolo>;
 
-/**
+/*
  * Admit the stroke, lay the swing's plane at the contact, then sample.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the steps and the refusals: a non-seated entry, a bad lean, speed or contact time, a ball whose distance from the shoulder no wrist deviation within its range meets, and a swing whose head would pass through the horse.
- * @evidence contracts/development/implementation.md#principled-implementation The shoulder is the risen and turned posture's own right shoulder joint, resolved in the carrier contact's frame, and the lean tips it about the posture's root in closed form; the lean is the least that brings the shoulder over the ball's line, or the most admitted; the wrist stands the arm's reach at the elbow's flexion from it, the held mallet at the angle the grip holds it to the fingers and turned further by the wrist's deviation, so the head's distance from the shoulder is a closed form of the deviation, solved for the ball's; the arm and the mallet turn rigidly about the shoulder, the arm's angle in the plane still at the carry and the top, short of the shoulder's flexion end along the upright trunk, then following minimum-jerk pieces to the contact angle that puts the head on the ball and on to the finish, the lean growing over the downswing, and the deviation running from neutral at the carry to the radial end at the top and the solved one at the contact; the head is held to the ball only at the contact, the hand's turn elsewhere asked as a rotation the course meets as closely as the arm allows.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the plane, the station, the refusals, then the sampler.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unreachable ball or a swing into the horse is refused, never bent.
- * @evidence contracts/development/implementation.md#efficient-algorithms One tool read, one shoulder resolve restricted to the upper arm, a closed-form lean bisection, and seventeen clearance samples per plan; a sample reads one carrier frame and writes one arm goal.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The plane, the tool and the hand's geometry are shared by every sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the plane, the tool and the carrier reader.
  */
 function planHumanPolo(context: Context): IAutoMovieMotionHumanActionPlan {
   return plan(context);
 }
 
-/** Admit, lay the plane and sample. */
+/*
+ * Admit, lay the plane and sample.
+ */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanPolo.IPolo = context.params;
   const entered: IAutoMovieMotionHumanBase = context.entry.base;

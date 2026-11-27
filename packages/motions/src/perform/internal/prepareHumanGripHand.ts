@@ -11,7 +11,7 @@ import { prepareHumanAdaptiveKnots } from "../../posture/internal/prepareHumanAd
 import type { prepareHumanKnotCourse } from "../../posture/internal/prepareHumanKnotCourse";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
-/**
+/*
  * A hand span's hand course: the holder's displayed grip socket frame over the
  * span, solved once the performance's actions are prepared, so a read of the
  * held prop (`HumanPerformanceHoldKit`) reads this course and never the
@@ -28,10 +28,9 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * courses. They meet at the same sampled frame with zero fitted rates. When
  * the following action keeps the entry frame, its later frames cannot change
  * the earlier interpolation.
- *
- * @param self The performance, its actions prepared.
- * @param grip The hand span.
- * @returns The hand frame at a film second of the span.
+ * Parameter self: The performance, its actions prepared.
+ * Parameter grip: The hand span.
+ * Returns: The hand frame at a film second of the span.
  */
 export function prepareHumanGripHand(
   self: IAutoMovieMotionHumanPerformanceState,
@@ -82,7 +81,9 @@ export function prepareHumanGripHand(
     };
   };
 
-  /** Fit over each action interval using only that interval's hand frames. */
+  /*
+   * Fit over each action interval using only that interval's hand frames.
+   */
   function prepare(): (seconds: number) => readonly number[] {
     const breaks: Set<number> = new Set();
     for (const parts of [person.segments, person.overlays])
@@ -133,7 +134,9 @@ export function prepareHumanGripHand(
     };
   }
 
-  /** Position and two frame axes, with a Euclidean millimetre budget. */
+  /*
+   * Position and two frame axes, with a Euclidean millimetre budget.
+   */
   function coordinates(seconds: number): readonly number[] {
     const frame: IAutoMovieRigidTransform = read(seconds);
     const x: IAutoMovieVector3 = Vector3.add(
@@ -158,7 +161,7 @@ export function prepareHumanGripHand(
   }
 }
 
-/**
+/*
  * The rotation whose columns are an orthonormal right-handed basis (Shepperd
  * 1978, J. Guidance Control 1(3):223, the larger-diagonal branch).
  */

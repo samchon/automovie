@@ -6,7 +6,7 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Resolve an authored support point from its owning bone, including rigs
  * without a separate foot bone.
  */

@@ -18,7 +18,7 @@ import { readWorld } from "./readWorld";
 import { recompose } from "./recompose";
 import { validateInfluence } from "./validateInfluence";
 
-/**
+/*
  * Apply world-space aim, parent and analytic/iterative IK in producer order,
  * updating matrices and recomposing affected descendants. Springs and malformed
  * two-bone chains remain deferred. Geometry must be admitted
@@ -83,7 +83,7 @@ const applyAim: (
   recompose(d.owner, world, localById, childrenById);
 };
 
-/**
+/*
  * Child-Of: the owner inherits the parent node's world frame, component by
  * component (translation / rotation / scale), keeping its own value for the
  * components the flags leave off. Then its subtree recomposes.
@@ -120,7 +120,7 @@ const applyParent: (
   recompose(d.owner, world, localById, childrenById);
 };
 
-/**
+/*
  * Analytic two-bone IK: rotate a 3-node limb (`root → mid → tip`) so the tip
  * reaches `goal`, bending in the plane the pole picks (or the limb's current
  * plane). The interior angles come from the law of cosines over the two bone
@@ -289,7 +289,9 @@ const validateAimVector: (
     throw new Error(`world driver aim ${label} must be non-zero`);
 };
 
-/** Some unit vector perpendicular to `v` (for a straight limb's free bend). */
+/*
+ * Some unit vector perpendicular to `v` (for a straight limb's free bend).
+ */
 const anyPerp: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
   v: IAutoMovieVector3,
 ): IAutoMovieVector3 => {
@@ -299,7 +301,7 @@ const anyPerp: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
     : Vector3.normalize(Vector3.cross(v, { x: 1, y: 0, z: 0 }));
 };
 
-/**
+/*
  * The world-space orientation that points `aimAxis` (owner-local) along `dir`,
  * then twists about `dir` to bring `upAxis` as close as possible to `worldUp`
  * (the standard two-step aim constraint). If `worldUp` (or the rolled up
@@ -342,7 +344,9 @@ const aimRotation: (
   return Quaternion.multiply(r2, r1);
 };
 
-/** Component of `v` perpendicular to the unit axis `f`. */
+/*
+ * Component of `v` perpendicular to the unit axis `f`.
+ */
 const projectPerp: (
   v: IAutoMovieVector3,
   f: IAutoMovieVector3,

@@ -288,7 +288,7 @@ export namespace AutoMovieConstructionSplitCompose {
         place(seam.forks[0].point)[0],
         place(seam.forks[1].point)[0],
       ];
-      /**
+      /*
        * One child's cut by the seam plane as a depth at a place along the
        * chord, by bisection on its phase over its covered arc.
        */
@@ -387,7 +387,7 @@ export namespace AutoMovieConstructionSplitCompose {
     };
   }
 
-  /**
+  /*
    * A declared plane in kernel coordinates: metres in its frame to mm, its
    * normal made unit; null for a zero normal.
    */
@@ -415,5 +415,7 @@ export namespace AutoMovieConstructionSplitCompose {
   }
 }
 
-/** World point or direction, mm. */
+/*
+ * World point or direction, mm.
+ */
 type Vec3 = AutoMovieVector3Tuple;

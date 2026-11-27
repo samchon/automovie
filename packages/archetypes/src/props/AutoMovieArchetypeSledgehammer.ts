@@ -9,7 +9,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** No maker's page was read. */
+/*
+ * No maker's page was read.
+ */
 const STAGED: string =
   "a long-handled striking tool: its dimensions and mass are provisional estimates, no maker's page was read";
 

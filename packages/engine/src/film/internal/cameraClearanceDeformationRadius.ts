@@ -6,12 +6,12 @@ import {
 
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
-/**
+/*
  * A pose-independent radius about a model's origin that contains its supplied
  * portable part geometry in any pose of its rig, in model-space metres.
  * External bytes and renderer-only deformation are outside this bound.
  *
- * `extent` is the model's rest-pose box from {@link computeModelRestExtent}. A
+ * `extent` is the model's rest-pose box from computeModelRestExtent. A
  * rest point `p` bound at a joint whose root-to-joint chain length is `c` lies
  * at most `|p| + c` from that joint; after any joint rotations the joint stays
  * within `c` of the root, so the posed point stays within `|p| + 2c` of the
@@ -40,7 +40,9 @@ export function cameraClearanceDeformationRadius(
   return radius;
 }
 
-/** Farthest of the box's eight corners from the model origin. */
+/*
+ * Farthest of the box's eight corners from the model origin.
+ */
 function originRadius(extent: {
   min: IAutoMovieVector3;
   max: IAutoMovieVector3;
@@ -53,7 +55,9 @@ function originRadius(extent: {
   return radius;
 }
 
-/** Longest root-to-bone translation sum over the bones geometry rides. */
+/*
+ * Longest root-to-bone translation sum over the bones geometry rides.
+ */
 function maximumRigReach(model: IAutoMovieModel): number {
   const skeleton: IAutoMovieModel["skeleton"] = model.skeleton;
   if (skeleton === null) return 0;

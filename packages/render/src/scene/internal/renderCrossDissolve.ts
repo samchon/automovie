@@ -3,7 +3,7 @@ import * as THREE from "three";
 import type { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor.js";
 import { renderCrossDissolveFrames } from "./renderCrossDissolveFrames.js";
 
-/**
+/*
  * Cross-dissolve two beauty poses of one scene through a caller-owned
  * compositor, optionally wrapping each draw.
  */
@@ -24,7 +24,7 @@ export const renderCrossDissolve: (
   poseOutgoing: () => void,
   poseIncoming: () => void,
   alpha: number,
-  /**
+  /*
    * Wrap each source draw, for example to own reversible source-local renderer
    * configuration. Structural guide products select their dominant layer before
    * rendering and must never use this beauty compositor.

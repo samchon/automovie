@@ -14,16 +14,15 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
-/**
+/*
  * Read the approach an event is entered from.
- *
- * @param context The event's context; its entry is read.
- * @param minimum The least approach speed the event takes, m/s.
- * @param axis The parameter that names the take-off foot, for refusals.
- * @param foot The authored take-off foot, when named.
- * @returns The approach, or `undefined` when the entry does not cut a run.
- * @throws {HumanRefusal} When the run is cut where the named foot, or exactly
- *   one foot, is not planted, or when the body moves slower than `minimum`.
+ * Parameter context: The event's context; its entry is read.
+ * Parameter minimum: The least approach speed the event takes, m/s.
+ * Parameter axis: The parameter that names the take-off foot, for refusals.
+ * Parameter foot: The authored take-off foot, when named.
+ * Returns: The approach, or `undefined` when the entry does not cut a run.
+ * When the run is cut where the named foot, or exactly
+ * one foot, is not planted, or when the body moves slower than `minimum`.
  */
 export function AthleticsRunUp(
   context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
@@ -86,44 +85,55 @@ export function AthleticsRunUp(
   };
 }
 
-/**
+/*
  * The run-up a field event is entered from: a `run` cut at the footfall of the
  * take-off foot (`HumanChain.until`), its speed and heading read from the
  * displayed entry. Jumps, vaults and throws that start from an approach read it
  * here, so one rule decides what an admissible approach is.
  */
 export namespace AthleticsRunUp {
-  /** An approach as the event is entered from it. */
+  /*
+   * An approach as the event is entered from it.
+   */
   export interface IApproach {
-    /** The planted take-off foot. */
+    /*
+     * The planted take-off foot.
+     */
     foot: AutoMovieHumanSide;
 
-    /** The body's horizontal speed at the entry, m/s. */
+    /*
+     * The body's horizontal speed at the entry, m/s.
+     */
     speed: number;
 
-    /** The horizontal direction of travel, a unit world vector. */
+    /*
+     * The horizontal direction of travel, a unit world vector.
+     */
     heading: IAutoMovieVector3;
 
-    /** The take-off foot's planted ankle, world metres. */
+    /*
+     * The take-off foot's planted ankle, world metres.
+     */
     ankle: IAutoMovieVector3;
 
-    /** Seconds of the take-off foot's stance the run had left at the cut. */
+    /*
+     * Seconds of the take-off foot's stance the run had left at the cut.
+     */
     stance: number;
 
-    /**
+    /*
      * The hips joint where the run planned it at the end of that stance, world
      * metres.
      */
     toeOff: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * The hips joint of a posture in the world: its rest offset from the root
    * turned by the posture's heading.
-   *
-   * @param body The body whose rest gives the offset.
-   * @param posture The posture.
-   * @returns World metres.
+   * Parameter body: The body whose rest gives the offset.
+   * Parameter posture: The posture.
+   * Returns: World metres.
    */
   export function hips(
     body: IAutoMovieMotionHumanBody,
@@ -138,16 +148,15 @@ export namespace AthleticsRunUp {
     );
   }
 
-  /**
+  /*
    * The take-off foot's placement over the rest of the run's stance, as the run
    * planned it.
-   *
-   * @param context The event's context, entered from a run.
-   * @param foot The planted take-off foot.
-   * @param seconds Seconds after the cut, within the stance the approach
-   *   reports.
-   * @returns The ankle point and foot rotation the run's leg goal holds then,
-   *   or the entry's foot when the run sets no goal.
+   * Parameter context: The event's context, entered from a run.
+   * Parameter foot: The planted take-off foot.
+   * Parameter seconds: Seconds after the cut, within the stance the approach
+   * reports.
+   * Returns: The ankle point and foot rotation the run's leg goal holds then,
+   * or the entry's foot when the run sets no goal.
    */
   export function stance(
     context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
@@ -171,5 +180,7 @@ export namespace AthleticsRunUp {
   }
 }
 
-/** The alternatives of `OfContext`'s site. */
+/*
+ * The alternatives of `OfContext`'s site.
+ */
 type OfContext = "body" | "entry";

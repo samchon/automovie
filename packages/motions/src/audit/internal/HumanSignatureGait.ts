@@ -2,18 +2,17 @@ import type { IAutoMovieMotionHumanSignature } from "@automovie/interface";
 
 import { AutoMovieMotionHumanSignature } from "../AutoMovieMotionHumanSignature";
 
-/**
+/*
  * The gait over a window of steady travel
  * (`AutoMovieMotionHumanSignature.gait`): the share of the window's samples
  * each foot bears on the floor, the footfalls, a foot's contact counted once a
  * stride (`AutoMovieMotionHumanSignature.STRIDE`), and the cadence from the
  * mean interval between them.
- *
- * @param reader The performer.
- * @param from The window's start, seconds.
- * @param to The window's end, seconds.
- * @param rate Samples per second.
- * @returns The duty factor, the cadence in steps a minute and the strikes.
+ * Parameter reader: The performer.
+ * Parameter from: The window's start, seconds.
+ * Parameter to: The window's end, seconds.
+ * Parameter rate: Samples per second.
+ * Returns: The duty factor, the cadence in steps a minute and the strikes.
  */
 export function HumanSignatureGait(
   reader: IAutoMovieMotionHumanSignature.IReader,

@@ -8,7 +8,7 @@ import type {
 
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 
-/**
+/*
  * The tool's frame at a progress along its path at a second, carried with the
  * advance and a followed target: a followed target moves the landing with it,
  * and on an advancing stroke the hand is carried by what the shoulder is ahead
@@ -16,9 +16,8 @@ import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
  * through its own hand.
  *
  * Part of `StrikingBlade.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `onPath`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `onPath`.
  */
 export function StrikingBladeOnPath(
   prepared: StrikingBladeOnPath.IPrepared,
@@ -73,23 +72,33 @@ export function StrikingBladeOnPath(
   };
 }
 
-/** The `onPath` of `StrikingBlade.plan`, built from what that plan prepared. */
+/*
+ * The `onPath` of `StrikingBlade.plan`, built from what that plan prepared.
+ */
 export namespace StrikingBladeOnPath {
-  /** What `StrikingBlade.plan` prepared for its `onPath`. */
+  /*
+   * What `StrikingBlade.plan` prepared for its `onPath`.
+   */
   export interface IPrepared {
-    /** The `stroke` `StrikingBlade.plan` prepared. */
+    /*
+     * The `stroke` `StrikingBlade.plan` prepared.
+     */
     stroke: Pick<
       IAutoMovieMotionHumanStrikingBlade.IStroke,
       "path" | "stop" | "follow" | "advance"
     >;
 
-    /** The `shoulderOf` `StrikingBlade.plan` prepared. */
+    /*
+     * The `shoulderOf` `StrikingBlade.plan` prepared.
+     */
     shoulderOf: (
       posture: IAutoMovieMotionHumanPosture,
       read?: () => ReturnType<typeof HumanTrunk.resolve>,
     ) => IAutoMovieVector3;
 
-    /** The `borne` `StrikingBlade.plan` prepared. */
+    /*
+     * The `borne` `StrikingBlade.plan` prepared.
+     */
     borne: () => readonly [IAutoMovieVector3, IAutoMovieVector3];
   }
 }

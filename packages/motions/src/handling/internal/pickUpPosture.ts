@@ -19,7 +19,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { pickUpPostureLeaned } from "./pickUpPostureLeaned";
 import { pickUpPostureShoulder } from "./pickUpPostureShoulder";
 
-/**
+/*
  * The body a pick up reaches from, and the reach it reads.
  *
  * A grip the arm reaches from the posture the action is entered in is taken
@@ -40,10 +40,12 @@ import { pickUpPostureShoulder } from "./pickUpPostureShoulder";
  * person stands and steps closer first.
  */
 export namespace pickUpPosture {
-  /** The lowerings a pick-up's stance is chosen among, in its order. */
+  /*
+   * The lowerings a pick-up's stance is chosen among, in its order.
+   */
   export type Lowering = "auto" | "squat";
 
-  /**
+  /*
    * The furthest a seated trunk leans forward from the seat to reach, degrees:
    * a search bound (provisional: no source gives the trunk's angle from
    * vertical at a seated reach's limit; a seated pick up from the floor flexes
@@ -52,7 +54,7 @@ export namespace pickUpPosture {
    */
   export const SEATED_LEAN: number = 60;
 
-  /**
+  /*
    * How far a seated person reaches from the shoulder, shares of the arm's
    * length (acromion to fingertip, the hand included), straight ahead and to
    * the reaching arm's side: 163.3 and 125.2 percent (Haas et al. 2023, PLoS
@@ -62,22 +64,28 @@ export namespace pickUpPosture {
    */
   export const SEATED_REACH: readonly [number, number] = [1.633, 1.2515];
 
-  /**
+  /*
    * The original lowering, borrowing observations only for the current person
    * call.
    */
   export interface IStance {
-    /** The posture at the bottom: the entry's, or the entry lowered. */
+    /*
+     * The posture at the bottom: the entry's, or the entry lowered.
+     */
     posture: IAutoMovieMotionHumanPosture;
 
-    /** The body at a share down, entry at zero and bottom at one. */
+    /*
+     * The body at a share down, entry at zero and bottom at one.
+     */
     at: (
       share: number,
       resolution?: IFK,
       projection?: IROM,
     ) => IAutoMovieMotionHumanPosture;
 
-    /** Carry the lowering onto a current posture of the same base. */
+    /*
+     * Carry the lowering onto a current posture of the same base.
+     */
     lower: (
       posture: IAutoMovieMotionHumanPosture,
       share: number,
@@ -85,27 +93,26 @@ export namespace pickUpPosture {
       projection?: IROM,
     ) => IAutoMovieMotionHumanPosture;
 
-    /**
+    /*
      * The adjustment step the stance takes, if any: the stepping foot and the
      * shares of the way down at which it leaves the floor and lands.
      */
     step?: IStanceStep;
   }
 
-  /**
+  /*
    * The entry's body lowered until the arm reaches a grip, the trunk leaned
    * toward a grip beside or behind the shoulder rather than pitched away from
    * it; a seated body is leaned instead.
-   *
-   * @param context The action's context; its entry posture is lowered.
-   * @param side The reaching arm.
-   * @param grip The grip point, world metres.
-   * @param reach How near the shoulder must come to the grip, metres; a palm
-   *   laid on it when absent (`bendLowerPitch`).
-   * @returns The lowered stance.
-   * @throws {HumanRefusal} When the entry neither stands nor sits, or no
-   *   lowering or lean brings the shoulder within reach: the person stands and
-   *   steps closer first.
+   * Parameter context: The action's context; its entry posture is lowered.
+   * Parameter side: The reaching arm.
+   * Parameter grip: The grip point, world metres.
+   * Parameter reach: How near the shoulder must come to the grip, metres; a palm
+   * laid on it when absent (`bendLowerPitch`).
+   * Returns: The lowered stance.
+   * When the entry neither stands nor sits, or no
+   * lowering or lean brings the shoulder within reach: the person stands and
+   * steps closer first.
    */
   export function lowered(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -219,16 +226,15 @@ export namespace pickUpPosture {
     return { posture: at(1), at, lower };
   }
 
-  /**
+  /*
    * Whether a wrist goal lies within the straight arm's reach from its shoulder
    * in a posture: the reach `reachable` refuses beyond, for a grasp search to
    * admit by (`HumanGrasp.reachable`'s `admits`), so the search never chooses a
    * wrist the law then refuses.
-   *
-   * @param context The action's context.
-   * @param side The arm.
-   * @param posture The posture the arm reaches from; the entry's when absent.
-   * @returns Whether a wrist goal is within reach.
+   * Parameter context: The action's context.
+   * Parameter side: The arm.
+   * Parameter posture: The posture the arm reaches from; the entry's when absent.
+   * Returns: Whether a wrist goal is within reach.
    */
   export function reaches(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -246,16 +252,15 @@ export namespace pickUpPosture {
       Vector3.length(Vector3.subtract(wrist.point, from)) <= limit + 1e-6;
   }
 
-  /**
+  /*
    * Refuse a wrist goal beyond the straight arm's reach from its shoulder in a
    * posture.
-   *
-   * @param context The action's context.
-   * @param side The arm.
-   * @param wrist The wrist goal, world metres.
-   * @param posture The posture the arm reaches from; the entry's when absent.
-   * @throws {HumanRefusal} When the goal is farther than the upper arm and
-   *   forearm together: the person bends or steps closer first.
+   * Parameter context: The action's context.
+   * Parameter side: The arm.
+   * Parameter wrist: The wrist goal, world metres.
+   * Parameter posture: The posture the arm reaches from; the entry's when absent.
+   * When the goal is farther than the upper arm and
+   * forearm together: the person bends or steps closer first.
    */
   export function reachable(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -280,16 +285,18 @@ export namespace pickUpPosture {
   }
 }
 
-/** The record of `IStanceStep`'s site. */
+/*
+ * The record of `IStanceStep`'s site.
+ */
 type IStanceStep = { side: AutoMovieHumanSide; off: number; on: number };
 
-/**
+/*
  * Optional parent-owned exact FK source for this same current person
  * evaluation.
  */
 type IFK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
 
-/**
+/*
  * Genuine current-person ROM projection borrowed only by actual solved
  * observations.
  */

@@ -1,4 +1,4 @@
-/**
+/*
  * Map a command line onto the named text values
  * `parseAutoMovieCapturePlanRequest` reads, the command's whole share of
  * reading a request.

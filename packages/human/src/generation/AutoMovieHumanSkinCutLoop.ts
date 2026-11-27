@@ -35,7 +35,9 @@ export namespace AutoMovieHumanSkinCutLoop {
     reach: number;
   }
 
-  /** Steps a ray is walked in before the crossing is bracketed. */
+  /*
+   * Steps a ray is walked in before the crossing is bracketed.
+   */
   const STEPS: number = 256;
 
   /**

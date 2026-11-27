@@ -11,7 +11,7 @@ import { emptyMeshTarget } from "../../internal/emptyMeshTarget";
 import { positive } from "../../internal/positive";
 import { triangulateRegion } from "./triangulateRegion";
 
-/**
+/*
  * Extrude a free-form planar region, holes and all, into a closed prism along
  * local Z spanning `-depth / 2` to `+depth / 2`.
  *
@@ -38,11 +38,10 @@ import { triangulateRegion } from "./triangulateRegion";
  * depth. Inputs are only read; every output buffer is new. A nonpositive depth
  * and an invalid region throw, the latter with the triangulator's diagnostic
  * labelled `polygon`.
- *
- * @param props.outer Outer boundary in local XY metres.
- * @param props.holes Voids through the whole depth.
- * @param props.depth Positive extrusion depth along local Z, in metres.
- * @returns A closed mesh with flat normals and metric UVs.
+ * Parameter props.outer: Outer boundary in local XY metres.
+ * Parameter props.holes: Voids through the whole depth.
+ * Parameter props.depth: Positive extrusion depth along local Z, in metres.
+ * Returns: A closed mesh with flat normals and metric UVs.
  */
 export function extrudeRegion(
   props: IAutoMoviePlanarRegionExtrusion,
@@ -103,7 +102,9 @@ export function extrudeRegion(
   return { ...target, skin: null };
 }
 
-/** The top and bottom caps: outward normal sign and the Z side it sits on. */
+/*
+ * The top and bottom caps: outward normal sign and the Z side it sits on.
+ */
 const CAPS: ReadonlyArray<readonly [outward: 1 | -1, side: 1 | -1]> = [
   [1, 1],
   [-1, -1],

@@ -16,7 +16,7 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the solo dance steps, eight beats at 120 bpm from quiet
  * standing.
  *
@@ -30,9 +30,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  *   of where it comes to rest) within one frame of its beat, and a footfall on
  *   every beat;
  * - `dance-boxStep`: the same two readings of its footfalls.
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function danceCases(
   bodies: readonly string[] = ["m-average"],
@@ -200,5 +199,7 @@ export function danceCases(
   return out;
 }
 
-/** The alternatives of `DanceCasesExtremesSign`'s site. */
+/*
+ * The alternatives of `DanceCasesExtremesSign`'s site.
+ */
 type DanceCasesExtremesSign = 1 | -1;

@@ -10,7 +10,7 @@ import { realizeAutoMovieGeometry } from "../../geometry/internal/realizeAutoMov
 import { Matrix4 } from "../../math/Matrix4";
 import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint";
 
-/**
+/*
  * Triangles of one model part in the model's frame, with the part's own
  * transform applied.
  *
@@ -25,10 +25,9 @@ import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint
  * whole `x, y, z` triples, the index array is not whole triangles, or an index
  * is not an integer naming one of the vertices: drawing whatever prefix happens
  * to divide evenly would hide an authoring defect behind a plausible outline.
- *
- * @param model Model owning the part; used for its id in failures.
- * @param part Part whose geometry and transform are read.
- * @returns The part's triangles in model-frame metres.
+ * Parameter model: Model owning the part; used for its id in failures.
+ * Parameter part: Part whose geometry and transform are read.
+ * Returns: The part's triangles in model-frame metres.
  */
 export function autoMovieDrawingPartTriangles(
   model: IAutoMovieModel,

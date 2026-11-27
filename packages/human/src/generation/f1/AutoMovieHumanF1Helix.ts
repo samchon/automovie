@@ -4,7 +4,7 @@ import { AutoMovieHumanConicSection } from "../AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "../AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "../AutoMovieHumanF1Placement";
 
-/**
+/*
  * f1's helix on the +Z side, the rolled rim of the ear, merged onto the ear's plate (`AutoMovieHumanF1Plate`) and the head once the plate is
  * on the head; the other side is its mirror image in the median plane.
  *

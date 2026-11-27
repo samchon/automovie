@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryChartRefinementClosure } from "@automovie/interface";
 
-/**
+/*
  * Close a private rectangle split under laminar opposed interface intervals.
  * Bounds are global unit-square [u0,u1,v0,v1] coordinates; axes 0 and 1 vary u
  * and v. An exact endpoint sweep first establishes one covering layer over

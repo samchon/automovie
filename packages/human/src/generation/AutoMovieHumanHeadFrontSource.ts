@@ -181,7 +181,9 @@ export namespace AutoMovieHumanHeadFrontSource {
     };
   }
 
-  /** Prepare the declared scalar without replacing a failed source. */
+  /*
+   * Prepare the declared scalar without replacing a failed source.
+   */
   function prepare(
     outline: IAutoMovieViewPart.IOutline,
   ): IAutoMovieViewOutline.IOutline {
@@ -193,7 +195,9 @@ export namespace AutoMovieHumanHeadFrontSource {
     return source;
   }
 
-  /** Keep parameter jets even where a physical station jet is singular. */
+  /*
+   * Keep parameter jets even where a physical station jet is singular.
+   */
   function read(
     source: IAutoMovieViewOutline.IOutline,
     station: number,

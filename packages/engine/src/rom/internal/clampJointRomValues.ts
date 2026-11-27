@@ -13,7 +13,7 @@ import { swingTwistRange } from "../../kinematics/swingTwistRange";
 import { abductionRange } from "./abductionRange";
 import { swingConeBlend } from "./swingConeBlend";
 
-/**
+/*
  * Project one joint, given as its bone and its three clinical angles, into its
  * admitted range: the projection `clampJointRom` documents, read from the
  * angles themselves so a writer that has them (a posture's assembly) makes the
@@ -23,15 +23,14 @@ import { swingConeBlend } from "./swingConeBlend";
  * neutral; a ball joint gated by swing and twist is brought into its range as a
  * rotation and read back in the reading the box prefers, a joint already inside
  * coming back as given.
- *
- * @param bone The joint's bone.
- * @param flexion Its flexion, degrees, or null at rest.
- * @param abduction Its abduction, degrees, or null at rest.
- * @param twist Its twist, degrees, or null at rest.
- * @param constraint Its resolved range.
- * @param rig The bone's frame as the caller's rig resolves it; the humanoid
- *   tables' when absent.
- * @returns A fresh joint record in range.
+ * Parameter bone: The joint's bone.
+ * Parameter flexion: Its flexion, degrees, or null at rest.
+ * Parameter abduction: Its abduction, degrees, or null at rest.
+ * Parameter twist: Its twist, degrees, or null at rest.
+ * Parameter constraint: Its resolved range.
+ * Parameter rig: The bone's frame as the caller's rig resolves it; the humanoid
+ * tables' when absent.
+ * Returns: A fresh joint record in range.
  */
 export function clampJointRomValues(
   bone: AutoMovieHumanoidBone,
@@ -52,22 +51,23 @@ export function clampJointRomValues(
   );
 }
 
-/** The record form's entry. */
+/*
+ * The record form's entry.
+ */
 export namespace clampJointRomValues {
-  /**
+  /*
    * The same projection, handing back `input`, the record the angles were read
    * from, where the projected angles are its own (`Object.is` each): a clamp
    * output is a value, as an admitted record is, so a record already in range
    * is its own clamp. Absent, a fresh record is returned.
-   *
-   * @param bone The joint's bone.
-   * @param flexion Its flexion, degrees, or null at rest.
-   * @param abduction Its abduction, degrees, or null at rest.
-   * @param twist Its twist, degrees, or null at rest.
-   * @param constraint Its resolved range.
-   * @param rig The bone's frame as the caller's rig resolves it.
-   * @param input The record of these angles, when the caller has one.
-   * @returns The record in range: `input` itself when nothing moved.
+   * Parameter bone: The joint's bone.
+   * Parameter flexion: Its flexion, degrees, or null at rest.
+   * Parameter abduction: Its abduction, degrees, or null at rest.
+   * Parameter twist: Its twist, degrees, or null at rest.
+   * Parameter constraint: Its resolved range.
+   * Parameter rig: The bone's frame as the caller's rig resolves it.
+   * Parameter input: The record of these angles, when the caller has one.
+   * Returns: The record in range: `input` itself when nothing moved.
    */
   export function into(
     bone: AutoMovieHumanoidBone,
@@ -82,7 +82,7 @@ export namespace clampJointRomValues {
   }
 }
 
-/**
+/*
  * The input record where the projected angles are its own, else a fresh record
  * of them.
  */
@@ -101,7 +101,9 @@ function record(
     : { bone, flexion, abduction, twist };
 }
 
-/** The projection of `clampJointRomValues`, with the record form's input. */
+/*
+ * The projection of `clampJointRomValues`, with the record form's input.
+ */
 function project(
   bone: AutoMovieHumanoidBone,
   flexion: number | null,
@@ -191,7 +193,7 @@ function project(
   return record(bone, f, a, t, input);
 }
 
-/**
+/*
  * One axis into its interval: null rest stays null, an immobile axis (no
  * interval) goes to neutral.
  */
@@ -208,14 +210,14 @@ function clampAxis(
       : angle;
 }
 
-/**
+/*
  * How far past a swing-twist range a joint may lie and count as on its edge,
  * degrees: a millionth, above the rounding of a rotation read back into
  * angles.
  */
 const EDGE: number = 1e-6;
 
-/**
+/*
  * The point of `allowed` closest to neutral: neutral itself when the range
  * brackets it, else the nearer bound. This is the swing cone's pull target: the
  * joint's most-retracted reachable articulation on that axis.

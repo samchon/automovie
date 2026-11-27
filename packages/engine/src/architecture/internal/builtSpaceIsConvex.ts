@@ -1,6 +1,6 @@
 import { IAutoMovieBuiltSpace } from "@automovie/interface";
 
-/**
+/*
  * Is the space's stated volume a single convex region?
  *
  * A caller deciding one rectangle against a convex region only has to test its
@@ -11,9 +11,8 @@ import { IAutoMovieBuiltSpace } from "@automovie/interface";
  * Only a celled space with exactly one cell answers true. A shell answers false
  * even when its triangles happen to bound a convex solid, and so does a space
  * that states no volume.
- *
- * @param space Logical space whose stated volume is classified.
- * @returns True only for a shell-less space with exactly one cell.
+ * Parameter space: Logical space whose stated volume is classified.
+ * Returns: True only for a shell-less space with exactly one cell.
  */
 export function builtSpaceIsConvex(space: IAutoMovieBuiltSpace): boolean {
   return space.shell === undefined && space.cells.length === 1;

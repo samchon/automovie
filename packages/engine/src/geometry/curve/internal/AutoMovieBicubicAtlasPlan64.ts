@@ -14,7 +14,7 @@ import { AutoMovieCurveMath64 as V } from "../../AutoMovieCurveMath64";
 import { prepareAutoMovieBicubicAtlasBoundary64 } from "./prepareAutoMovieBicubicAtlasBoundary64";
 import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Admit canonical atlas coefficients and plan adaptive leaves under the
  * original shared cell budget.
  */

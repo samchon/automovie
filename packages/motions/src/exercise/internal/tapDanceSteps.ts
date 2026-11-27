@@ -1,47 +1,71 @@
 import type { IAutoMovieMotionHumanTapDance } from "@automovie/interface";
 
-/**
+/*
  * The strike tables of the tap steps: each strike's foot, quarter beat,
  * setting, landing place, bearing and sound.
  */
 export namespace tapDanceSteps {
-  /** Where a strike lands relative to where the foot stood. */
+  /*
+   * Where a strike lands relative to where the foot stood.
+   */
   export type Where = "home" | "front" | "back";
 
-  /** One strike of a step. */
+  /*
+   * One strike of a step.
+   */
   export interface IStrike {
-    /** The leading foot or the other. */
+    /*
+     * The leading foot or the other.
+     */
     foot: StrikeFoot;
 
-    /** Quarter beats from the step's first beat. */
+    /*
+     * Quarter beats from the step's first beat.
+     */
     at: number;
 
-    /** How the foot is set down. */
+    /*
+     * How the foot is set down.
+     */
     mode: IAutoMovieMotionHumanTapDance.Part;
 
-    /** Where it lands. */
+    /*
+     * Where it lands.
+     */
     where: Where;
 
-    /** Whether it bears after landing. */
+    /*
+     * Whether it bears after landing.
+     */
     bears: boolean;
 
-    /** The part that sounds; silent when absent. */
+    /*
+     * The part that sounds; silent when absent.
+     */
     sound?: IAutoMovieMotionHumanTapDance.Part;
 
-    /** Whether the foot rolls onto it without lifting (a rise or a heel's drop). */
+    /*
+     * Whether the foot rolls onto it without lifting (a rise or a heel's drop).
+     */
     roll?: boolean;
   }
 
-  /** One step's strikes and its length in beats. */
+  /*
+   * One step's strikes and its length in beats.
+   */
   export interface IStep {
-    /** The strikes in time order. */
+    /*
+     * The strikes in time order.
+     */
     strikes: readonly IStrike[];
 
-    /** Its length in beats. */
+    /*
+     * Its length in beats.
+     */
     beats: number;
   }
 
-  /**
+  /*
    * The steps' strike tables: shuffle, flap, ball change, heel drop, cramp roll
    * and a single time step.
    */
@@ -246,5 +270,7 @@ export namespace tapDanceSteps {
   };
 }
 
-/** The alternatives of `StrikeFoot`'s site. */
+/*
+ * The alternatives of `StrikeFoot`'s site.
+ */
 type StrikeFoot = "lead" | "other";

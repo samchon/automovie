@@ -4,19 +4,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Measure a displayed glide in the equipment's midpoint heading and the
  * surface's plane. A straight glide or a circular glide with tangent equipment
  * can advance while leaving transverse displacement near zero. An intended skid
  * can use the same reading with a different expected transverse displacement.
  * The stationary plant audit keeps its original world-position check.
- *
- * @param before The first displayed equipment contact, from a pose or prop.
- * @param after The next displayed contact of the same equipment.
- * @param surface The plane both samples are staged against.
- * @returns The longitudinal and transverse displacements and last normal gap.
- * @throws {RangeError} If the plane has no normal or a usable gliding direction
- *   cannot be recovered from the two samples.
+ * Parameter before: The first displayed equipment contact, from a pose or prop.
+ * Parameter after: The next displayed contact of the same equipment.
+ * Parameter surface: The plane both samples are staged against.
+ * Returns: The longitudinal and transverse displacements and last normal gap.
+ * If the plane has no normal or a usable gliding direction
+ * cannot be recovered from the two samples.
  */
 export function measureSurfaceGlide(
   before: IAutoMovieMotionHumanSurface.IGlideSample,

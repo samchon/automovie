@@ -7,13 +7,12 @@ import type {
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 
-/**
+/*
  * Share rig preparation and exact FK prerequisites across one person's
  * synchronous displayed evaluation, including its transition-rate samples. The
  * body and its rig stay unchanged until that evaluation returns or throws.
- *
- * @param body The unchanged performer body of every borrowing stage.
- * @returns Metadata and a lazy FK reader; no pose history or fit is retained.
+ * Parameter body: The unchanged performer body of every borrowing stage.
+ * Returns: Metadata and a lazy FK reader; no pose history or fit is retained.
  */
 export function prepareHumanSegmentPose(
   body: IAutoMovieMotionHumanBody,
@@ -21,7 +20,9 @@ export function prepareHumanSegmentPose(
   return fresh(body, prepareHumanPostureProjection(body));
 }
 
-/** One independent FK workspace paired only with an owner-issued ROM mapper. */
+/*
+ * One independent FK workspace paired only with an owner-issued ROM mapper.
+ */
 function fresh(
   body: IAutoMovieMotionHumanBody,
   clamp: ReturnType<typeof prepareHumanPostureProjection>,
@@ -35,9 +36,11 @@ function fresh(
   };
 }
 
-/** Operation-owned preparation borrowed by displayed-pose stages. */
+/*
+ * Operation-owned preparation borrowed by displayed-pose stages.
+ */
 export namespace prepareHumanSegmentPose {
-  /**
+  /*
    * Issue independent evaluations within one synchronous unchanged-body scan:
    * the body's ROM metadata is prepared once here; each invocation creates a
    * fresh FK workspace and retains no prior workspace or result. Changed
@@ -49,7 +52,7 @@ export namespace prepareHumanSegmentPose {
     return (): IPrepared => fresh(body, clamp);
   }
 
-  /**
+  /*
    * One synchronous evaluation's rig metadata and lazily demanded FK.
    *
    * The seeded evaluator checks the unchanged body's identity and lends only
@@ -57,13 +60,17 @@ export namespace prepareHumanSegmentPose {
    * every use; no time, target or solved answer is stored here.
    */
   export interface IPrepared {
-    /** Same body identity required by every borrower. */
+    /*
+     * Same body identity required by every borrower.
+     */
     readonly body: IAutoMovieMotionHumanBody;
 
-    /** Project each actual pose through the unchanged rig's ordinary ROM. */
+    /*
+     * Project each actual pose through the unchanged rig's ordinary ROM.
+     */
     clamp(pose: IAutoMoviePose): IAutoMoviePose;
 
-    /**
+    /*
      * First demand acquires the exact reader; release this getter with the
      * evaluation.
      */

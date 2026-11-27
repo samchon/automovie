@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * What a person reacts to without being touched: a gunshot's or a cannon's
  * report reaches a listener when its sound has crossed the distance between
  * them, so a startle synced to it begins that much after the shot.
@@ -15,13 +15,12 @@ import type {
  * latency is the sync's to add (`latency: "reaction"`).
  */
 export namespace HumanReaction {
-  /**
+  /*
    * The film second a shot's report reaches a listener.
-   *
-   * @param shot Where and when the shot is fired, world metres and film
-   *   seconds.
-   * @param listener Where the listener hears it, world metres.
-   * @returns The film second the sound arrives.
+   * Parameter shot: Where and when the shot is fired, world metres and film
+   * seconds.
+   * Parameter listener: Where the listener hears it, world metres.
+   * Returns: The film second the sound arrives.
    */
   export function report(
     shot: IAutoMovieMotionHumanReaction.IReportShot,

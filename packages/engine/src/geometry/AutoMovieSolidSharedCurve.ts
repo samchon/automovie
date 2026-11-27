@@ -90,7 +90,9 @@ export namespace AutoMovieSolidSharedCurve {
     const turn: number = 2 * Math.PI;
     const period: number = part.period ?? turn;
 
-    /** One refusal. */
+    /*
+     * One refusal.
+     */
     const refuse = (
       contract: string,
       detail: string,
@@ -99,7 +101,7 @@ export namespace AutoMovieSolidSharedCurve {
       diagnostics: [{ producer, level: 6, contract, detail }],
     });
 
-    /**
+    /*
      * The curve's point at a clock with the part's foot from a chart guess, or
      * the premise that failed.
      */
@@ -332,7 +334,7 @@ export namespace AutoMovieSolidSharedCurve {
       );
     const sense: number = area > 0 ? 1 : -1;
 
-    /**
+    /*
      * Both rails' sides at a point: the host's outside the loop, the part's
      * from the normals on a fold arc and from the loop on a smooth one.
      */
@@ -418,10 +420,16 @@ export namespace AutoMovieSolidSharedCurve {
   }
 }
 
-/** World point or derivative, mm. */
+/*
+ * World point or derivative, mm.
+ */
 type Vec3 = AutoMovieVector3Tuple;
-/** A surface's 2-jet at a chart point. */
+/*
+ * A surface's 2-jet at a chart point.
+ */
 type IJet = IAutoMovieSolidSurface.IJet;
 
-/** A point of the shared curve. */
+/*
+ * A point of the shared curve.
+ */
 type IPoint = IAutoMovieSolidIntersection.IPoint;

@@ -7,7 +7,7 @@ import type {
 import type { IAutoMovieEvidenceDevelopmentProps } from "../IAutoMovieEvidenceDevelopmentProps";
 import { SKILLS_ROOT } from "../../internal/SKILLS_ROOT";
 
-/**
+/*
  * Creates the claims of the enabled production-specific development contracts.
  *
  * Each enabled stage selects the exported declarations of its source folders
@@ -30,16 +30,14 @@ import { SKILLS_ROOT } from "../../internal/SKILLS_ROOT";
  */
 export function createDevelopmentContractClaims(
   props: IAutoMovieEvidenceDevelopmentProps & {
-    /**
+    /*
      * Reference root of the skills tree holding the stage checklists, relative
      * to the directory of `evidence.config.ts` with `/` separators; `..`
      * segments reach a workspace's shared tree.
-     *
-     * @default ".agents/skills"
      */
     skills?: string;
 
-    /**
+    /*
      * Whether, with an enabled composition stage, the composition and entities
      * must also realize every instruction section, as under narrative mode
      * none, where no narrative layer cites them. The caller passes it only when

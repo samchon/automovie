@@ -5,32 +5,38 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeCar } from "../AutoMovieArchetypeCar";
 
-/** The hatchbacks, read at their maker's specification pages. */
+/*
+ * The hatchbacks, read at their maker's specification pages.
+ */
 const HONDA: string =
   "Honda UK specifications (https://www.honda.co.uk/cars/new/jazz-hybrid/specifications.html, https://www.honda.co.uk/cars/new/civic-hybrid/specifications.html)";
 
-/**
+/*
  * The sedans, read at a secondary source: one search for each maker's sheet
  * found none.
  */
 const TOYOTA: string =
   "the Toyota Corolla (E210) saloon and Camry (XV70) infoboxes, secondary: one search for each maker's sheet found none (https://en.wikipedia.org/wiki/Toyota_Corolla_(E210), https://en.wikipedia.org/wiki/Toyota_Camry_(XV70))";
 
-/** The short van, read at its maker's technical specification. */
+/*
+ * The short van, read at its maker's technical specification.
+ */
 const TRANSIT: string =
   "Ford Transit Custom 2023 technical specification, L1H1 van, p. 3 (https://www.fordpers.be/content/documents/news/2023/2023_10_09_transit_custom_2023_technical_specification_eu.pdf)";
 
-/**
+/*
  * The long van, read at a dealer's guide only: one search for the maker's sheet
  * found none.
  */
 const TRANSIT_LONG: string =
   "the vansdirect.co.uk sizing guide's L2 H1 Transit Custom, secondary: one search for Ford's L2 sheet found none (https://www.vansdirect.co.uk/load-sizing-guide/ford-transit-custom-dimensions/)";
 
-/** A tyre's outer diameter from its size (`AutoMovieArchetypeUnits.tyre`). */
+/*
+ * A tyre's outer diameter from its size (`AutoMovieArchetypeUnits.tyre`).
+ */
 const tyre: typeof AutoMovieArchetypeUnits.tyre = AutoMovieArchetypeUnits.tyre;
 
-/**
+/*
  * The Jazz's body, every grade's but the Crosstar's: 4089 x 1694 x 1526 mm on a
  * 2517 mm wheelbase.
  */
@@ -42,7 +48,7 @@ const JAZZ: Readonly<Partial<Record<AutoMovieArchetypeCar.Dimension, number>>> =
     wheelbase: 2.517,
   };
 
-/**
+/*
  * The Civic's body, every grade's: 4560 x 1802 x 1408 mm on a 2734 mm
  * wheelbase.
  */
@@ -55,7 +61,7 @@ const CIVIC: Readonly<
   wheelbase: 2.734,
 };
 
-/**
+/*
  * The Transit Custom's front overhang, metres: 958 mm from the front of the van
  * to the front wheels' centre, CarExpert's MK3 listings and a Ford brochure
  * seen in search results, secondary; with the 992 mm rear overhang it closes
@@ -64,7 +70,7 @@ const CIVIC: Readonly<
  */
 const TRANSIT_NOSE: number = 0.958;
 
-/**
+/*
  * The Transit Custom L1's read figures, the L2's load length being derived from
  * them: Ford's specification, p. 3.
  */
@@ -79,13 +85,13 @@ const TRANSIT_L1: Readonly<
   loadLength: 2.394,
 };
 
-/**
+/*
  * The Transit Custom L2's overall length, metres: the dealer's guide's 5,450
  * mm.
  */
 const TRANSIT_L2_LENGTH: number = 5.45;
 
-/**
+/*
  * The Transit Custom's tyres: 215/65 R16C on its standard wheels, 215/60 R17C
  * on its optional ones (p. 2).
  */
@@ -101,7 +107,7 @@ const TRANSIT_TYRES: Readonly<
   r17c: { wheelDiameter: tyre(215, 60, 17) },
 };
 
-/**
+/*
  * The Ranger's tyres, by wheel option rather than drive: 255/70R17 on the
  * 17-inch wheels, 255/65R18 on the 18-inch (p. 2).
  */
@@ -117,7 +123,7 @@ const RANGER_TYRES: Readonly<
   r18: { wheelDiameter: tyre(255, 65, 18) },
 };
 
-/**
+/*
  * The read car models by class: each model's figures whole, the ranges a single
  * model's source states inside it, and the tyres a model is offered on, picked
  * as their own axis.

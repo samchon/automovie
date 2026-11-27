@@ -1,4 +1,4 @@
-/**
+/*
  * The height ranges of the 2010 ADA Standards that more than one archetype
  * reads, each in the standard's own metric figures:
  *
@@ -25,17 +25,23 @@ export const ADA_RANGES: Readonly<Record<"reach" | "hardware", IRange>> = {
   },
 };
 
-/**
+/*
  * One height range the 2010 ADA Standards set, metres above the floor, with the
  * clause that sets it.
  */
 interface IRange {
-  /** The least height. */
+  /*
+   * The least height.
+   */
   low: number;
 
-  /** The greatest height. */
+  /*
+   * The greatest height.
+   */
   high: number;
 
-  /** The clause, quoted with its address. */
+  /*
+   * The clause, quoted with its address.
+   */
   source: string;
 }

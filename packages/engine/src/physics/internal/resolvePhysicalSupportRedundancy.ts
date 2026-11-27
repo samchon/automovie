@@ -16,7 +16,7 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation";
 
-/**
+/*
  * Return a warm support seed's redundant coordinates to the authored posture.
  *
  * A warm seed keeps the previous fit's task-space choice, such as which way a
@@ -36,7 +36,7 @@ import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation
  * bounded fit corrects the task within the same tolerance.
  *
  * Coordinates are the native independent twist coordinates θ = 2 atan(q_axis /
- * w) owned by {@link projectPhysicalJointRotation}. The Jacobian uses central
+ * w) owned by projectPhysicalJointRotation. The Jacobian uses central
  * differences with the error-optimal step ε^(1/3); its truncation and rounding
  * noise is of relative order ε^(2/3), far below the tolerance budget, so
  * numerically null directions always return. ROM projection follows the
@@ -244,7 +244,9 @@ export function resolvePhysicalSupportRedundancy(
   }
   return result;
 
-  /** Endpoint XYZ for every limb, plus each planted floor witness height. */
+  /*
+   * Endpoint XYZ for every limb, plus each planted floor witness height.
+   */
   function rows(
     poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
   ): number[] {
@@ -254,7 +256,9 @@ export function resolvePhysicalSupportRedundancy(
     );
   }
 
-  /** One limb's rows: its endpoint XYZ, plus its planted floor witness heights. */
+  /*
+   * One limb's rows: its endpoint XYZ, plus its planted floor witness heights.
+   */
   function limbRows(
     poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
     limb: IAutoMovieFootfallPattern["limbs"][number],
@@ -277,7 +281,9 @@ export function resolvePhysicalSupportRedundancy(
     ];
   }
 
-  /** A limb's floor witnesses, read while it is planted. */
+  /*
+   * A limb's floor witnesses, read while it is planted.
+   */
   function witnesses(limb: IAutoMovieFootfallPattern["limbs"][number]): {
     bone: string;
     localPoint: IAutoMovieRigidTransform["position"];
@@ -285,7 +291,9 @@ export function resolvePhysicalSupportRedundancy(
     return input.planted.has(limb.bone) ? (limb.floorPoints ?? []) : [];
   }
 
-  /** Whether a probe moving these bones moves any of a limb's rows. */
+  /*
+   * Whether a probe moving these bones moves any of a limb's rows.
+   */
   function touches(
     limb: IAutoMovieFootfallPattern["limbs"][number],
     moved: ReadonlySet<string>,
@@ -298,7 +306,7 @@ export function resolvePhysicalSupportRedundancy(
     );
   }
 
-  /**
+  /*
    * One probe that changes a single coordinate, copying only that joint's
    * subtree.
    */
@@ -324,7 +332,7 @@ export function resolvePhysicalSupportRedundancy(
     return poses;
   }
 
-  /**
+  /*
    * Native twist-coordinate rotation of one joint; locked axes keep their
    * admitted value.
    */
@@ -343,7 +351,9 @@ export function resolvePhysicalSupportRedundancy(
   }
 }
 
-/** Independent twist coordinate of one admitted joint rotation. */
+/*
+ * Independent twist coordinate of one admitted joint rotation.
+ */
 function angle(
   rotation: IAutoMovieRigidTransform["rotation"],
   axis: IAutoMoviePhysicalJointAxis,

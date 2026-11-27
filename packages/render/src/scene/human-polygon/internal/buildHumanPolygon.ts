@@ -13,7 +13,7 @@ import { buildHumanPolygonParts } from "./buildHumanPolygonParts.js";
 import { createHumanPolygonPalette } from "./createHumanPolygonPalette.js";
 import { prepareHumanPolygonPresentation } from "./prepareHumanPolygonPresentation.js";
 
-/**
+/*
  * Draw a rigid polygon blockout from the generated skeleton, in metres.
  *
  * Every module is procedural and comes from the skeleton alone: joint
@@ -36,21 +36,22 @@ import { prepareHumanPolygonPresentation } from "./prepareHumanPolygonPresentati
  * The head attachment uses the head joint's rest axes: +X forward, +Y up and +Z
  * left. Its bounds describe the emitted polygon, before the posed transform.
  * The caller may attach a face to `head.object` in that same local frame.
- *
- * @param output Generated bones and placements.
- * @param options Optional display colours keyed by emitted bone name and
- *   authored cues sampled on the shot-local source clock.
- * @returns Owned surface, actual bone/mesh registries, pose/palette ports,
- *   generating sections, head attachment and cleanup. Local probe points use
- *   registered rest point minus the corresponding rest joint; actor-root
- *   placement belongs to the parent.
+ * Parameter output: Generated bones and placements.
+ * Parameter options: Optional display colours keyed by emitted bone name and
+ * authored cues sampled on the shot-local source clock.
+ * Returns: Owned surface, actual bone/mesh registries, pose/palette ports,
+ * generating sections, head attachment and cleanup. Local probe points use
+ * registered rest point minus the corresponding rest joint; actor-root
+ * placement belongs to the parent.
  */
 export function buildHumanPolygon(
   output: Pick<IAutoMovieHumanSkeleton.IOutput, "bones" | "posed">,
   options: {
-    /** RGB hex overrides for matching emitted parts; omitted parts retain clay. */
+    /*
+     * RGB hex overrides for matching emitted parts; omitted parts retain clay.
+     */
     partColors?: Readonly<Record<string, number>>;
-    /**
+    /*
      * Source pose, actor frame and authored polygon cues for optional
      * time-based drawing.
      */
@@ -68,7 +69,7 @@ export function buildHumanPolygon(
   for (const placement of output.posed)
     placements.set(placement.bone, placement);
 
-  /**
+  /*
    * Resolve an original construction joint or refuse its missing identity.
    *
    * Principled implementation: Reads the fixed rest map by exact bone id and
@@ -124,7 +125,7 @@ export function buildHumanPolygon(
     | undefined;
   let retirementFailure: { error: unknown } | undefined;
 
-  /**
+  /*
    * Guard the existing palette lifetime before replacing display colours.
    *
    * Principled implementation: Refuses a disposed drawing and delegates RGB
@@ -145,7 +146,7 @@ export function buildHumanPolygon(
     palette.setPartColors(colors);
   };
 
-  /**
+  /*
    * Register the original module's actual surface and diagnostic bone frames.
    *
    * Principled implementation: Calls the unchanged module assembler with the
@@ -202,7 +203,7 @@ export function buildHumanPolygon(
     return group;
   };
 
-  /**
+  /*
    * Preserve original one-attempt resource retirement and sticky failures.
    *
    * Principled implementation: Attempts every owned geometry/material/palette

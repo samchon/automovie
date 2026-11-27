@@ -1,7 +1,7 @@
 import type { IAutoMovieMeshMorphTarget } from "@automovie/interface";
 import type * as THREE from "three";
 
-/**
+/*
  * Read the names and drivers of the pose-driven morph targets `buildModel`
  * recorded on a mesh, or null when it has none. The record is an internal typed
  * handoff from the builder to `applyPose`; arbitrary foreign userData values

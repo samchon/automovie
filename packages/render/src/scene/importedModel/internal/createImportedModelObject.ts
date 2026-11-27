@@ -5,8 +5,8 @@ import { AUTOMOVIE_HUMANOID_BONE_SLOTS } from "../../internal/AUTOMOVIE_HUMANOID
 import type { IAutoMovieImportedModelOptions } from "../../IAutoMovieImportedModelOptions.js";
 import type { IAutoMovieModelObject } from "../../IAutoMovieModelObject.js";
 
-/**
- * Wrap an imported runtime object as an {@link IAutoMovieModelObject}.
+/*
+ * Wrap an imported runtime object as an IAutoMovieModelObject.
  * The wrapper isolates caller-owned root transforms, normalizes supported
  * humanoid bones, and carries expression targets and frame callbacks through.
  * Imported content remains one runtime object, without part-addressable

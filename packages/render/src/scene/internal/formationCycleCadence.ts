@@ -4,7 +4,7 @@ import type { IAutoMovieFormationCadence } from "../IAutoMovieFormationCadence.j
 import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
 import type { IAutoMovieFormationCycleTake } from "../IAutoMovieFormationCycleTake.js";
 
-/**
+/*
  * Fold one unit's cue segments into the cycles its members have turned over.
  *
  * The two accumulators are what a member needs and all it needs: everyone in a

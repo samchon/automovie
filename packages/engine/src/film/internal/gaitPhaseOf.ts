@@ -3,7 +3,7 @@ import { IAutoMovieGaitCycle, IAutoMovieMotion } from "@automovie/interface";
 import { addPositiveModulo } from "../../math/internal/addPositiveModulo";
 import { positiveModulo } from "../../math/internal/positiveModulo";
 
-/**
+/*
  * Seconds into a clip's stride cycle at `localTime`, or `null` when the clip
  * states no cycle to resume.
  *
@@ -16,10 +16,9 @@ import { positiveModulo } from "../../math/internal/positiveModulo";
  * looping clip of non-positive duration answers `null`. The phase is in `[0,
  * period)` seconds. `resolveBeatEnd` and `resolveBeatOpening` store it as an
  * actor's `gaitPhase`, which the next beat resumes mid-stride from.
- *
- * @param clip The validated clip the actor plays.
- * @param localTime Clip-local seconds at the instant being resumed from.
- * @returns The phase in seconds, or `null` when there is no cycle.
+ * Parameter clip: The validated clip the actor plays.
+ * Parameter localTime: Clip-local seconds at the instant being resumed from.
+ * Returns: The phase in seconds, or `null` when there is no cycle.
  */
 export function gaitPhaseOf(
   clip: IAutoMovieMotion,

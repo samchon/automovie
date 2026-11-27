@@ -5,7 +5,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { ArchetypeDraw, type AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeUnits } from "../../core";
 import "../constants/WHEELCHAIR_SHEET";
 
-/**
+/*
  * A manual wheelchair: a self-propelled chair on large rear wheels with
  * handrims, or an attendant-propelled transport chair on small ones, each with
  * its seat, back, armrests, footplates and push handles.
@@ -23,15 +23,14 @@ import "../constants/WHEELCHAIR_SHEET";
  * Stage a seated push and release with `AutoMovieArchetypeWheelchair.handrimFrame` and
  * `HumanHandrimStroke` on a course authored through `AutoMovieArchetypeWheelchair.ride`. A pushing
  * attendant holds the handles with `HumanRide`'s hands or a carry.
- *
- * @param params The kind, its read model and any dimension the author fixes
- *   inside its model's ranges.
- * @param seed The seed that picks the model and draws the footrest's reach and
- *   any overall length its row gives as a range; absent, the first model and
- *   each range's middle.
- * @returns The wheelchair.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its model's
- *   range, or a model the kind does not offer.
+ * Parameter params: The kind, its read model and any dimension the author fixes
+ * inside its model's ranges.
+ * Parameter seed: The seed that picks the model and draws the footrest's reach and
+ * any overall length its row gives as a range; absent, the first model and
+ * each range's middle.
+ * Returns: The wheelchair.
+ * For a fixed dimension outside its model's
+ * range, or a model the kind does not offer.
  */
 export function createWheelchair(
   params: AutoMovieArchetypeWheelchair.IParams = {},

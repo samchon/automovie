@@ -1,14 +1,13 @@
 import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 
-/**
+/*
  * Reads native video timing and detector markers from a successful FFmpeg
  * delivery decode. It also identifies the input's first audio stream when one
  * is listed, allowing the host to decide whether the audio pass is required.
- *
- * @param log Complete stderr from a successful video decode.
- * @param expected Commissioned rational frame rate and frame count.
- * @returns Decoded video evidence and the independently observed audio stream
- *   status.
+ * Parameter log: Complete stderr from a successful video decode.
+ * Parameter expected: Commissioned rational frame rate and frame count.
+ * Returns: Decoded video evidence and the independently observed audio stream
+ * status.
  */
 export async function readAutoMovieDeliveryDecode(
   log: string,
@@ -188,17 +187,25 @@ interface IMarker {
   ptsTime: string;
 }
 
-/** Decoded streams and the listed primary audio stream when present. */
+/*
+ * Decoded streams and the listed primary audio stream when present.
+ */
 interface IDeliveryDecode {
-  /** Native video presentation and observations. */
+  /*
+   * Native video presentation and observations.
+   */
   video: Stream;
-  /** Audio availability before the host's separate decode. */
+  /*
+   * Audio availability before the host's separate decode.
+   */
   audio: Stream;
-  /** The listed primary audio stream for the second decoder pass. */
+  /*
+   * The listed primary audio stream for the second decoder pass.
+   */
   audioIndex?: number;
 }
 
-/**
+/*
  * Resolves paired transitions to exact decoded frame starts, allowing an open
  * range at verified EOF.
  */

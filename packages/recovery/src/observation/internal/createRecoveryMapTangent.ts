@@ -1,4 +1,6 @@
-/** Construct two raw coefficient directions for an admitted seed translation. */
+/*
+ * Construct two raw coefficient directions for an admitted seed translation.
+ */
 export function createRecoveryMapTangent(
   t: readonly [number, number, number],
 ): [number, number, number][] {

@@ -11,7 +11,9 @@ import { createRecoveryMapTangent } from "./createRecoveryMapTangent";
 import { differentiateRecoveryMapProjection } from "./differentiateRecoveryMapProjection";
 import { validateRecoveryMapMetricScales } from "./validateRecoveryMapMetricScales";
 
-/** Assemble lagged fixed-dual local curvature in original-design scaled units. */
+/*
+ * Assemble lagged fixed-dual local curvature in original-design scaled units.
+ */
 export function assembleRecoveryMapCurvature(
   state: IAutoMovieRecoveryMapState,
   intrinsics: readonly (readonly number[])[],

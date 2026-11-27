@@ -20,11 +20,11 @@ import { AutoMovieRenderSceneSpace } from "../buildSpace.js";
 import { applySceneMedium } from "../medium/internal/applySceneMedium.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
-/**
- * Build a `three.js` scene from an {@link IAutoMovieScene}.
+/*
+ * Build a `three.js` scene from an IAutoMovieScene.
  *
  * `getModelObject` resolves a node's `model` id to a built
- * {@link IAutoMovieModelObject}. If the same model id appears in multiple nodes
+ * IAutoMovieModelObject. If the same model id appears in multiple nodes
  * it should return a distinct object each call (a `three.js` object can live in
  * one place only). Each node is wrapped in a group placed at its world
  * transform, so node placement and a pose's own root transform compose
@@ -43,7 +43,7 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  *
  * A scene carrying a `space` also gets its structural ground (#1173): the
  * standable surfaces become real meshes under one `SPACE_GROUP_NAME` group (see
- * {@link AutoMovieRenderSceneSpace.buildObject}), so guide passes describe a
+ * AutoMovieRenderSceneSpace.buildObject), so guide passes describe a
  * world instead of actors floating in a void. Their ordinary material writes
  * no beauty colour or depth, because a semantic support declaration is not
  * evidence that physical floor geometry exists. The group follows the nodes

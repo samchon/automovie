@@ -1,6 +1,6 @@
 
 
-/**
+/*
  * Triangulate a parameter rectangle using its existing perimeter samples only.
  * The immutable perimeter starts at the bottom-left corner and traverses
  * bottom, right, top and left counterclockwise. Each side is monotone and

@@ -9,7 +9,7 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * The contact manifold of two touching convex colliders along a known normal:
  * the points of the patch where they press, each with its witness on both
  * shapes.
@@ -29,14 +29,13 @@ import { Vector3 } from "../../math/Vector3";
  * each point's separation along `n` is the two features' gap there. Crossing
  * edges, which touch at one point, return no point: the caller keeps the
  * nearest-feature witnesses.
- *
- * @param poseA The first shape's parent pose, world metres.
- * @param shapeA The first shape.
- * @param poseB The second shape's parent pose, world metres.
- * @param shapeB The second shape.
- * @param normal Unit world normal from the first shape toward the second.
- * @param band Depth below a support plane still counted as touching, metres.
- * @returns The patch points in hull order; empty for crossing edges.
+ * Parameter poseA: The first shape's parent pose, world metres.
+ * Parameter shapeA: The first shape.
+ * Parameter poseB: The second shape's parent pose, world metres.
+ * Parameter shapeB: The second shape.
+ * Parameter normal: Unit world normal from the first shape toward the second.
+ * Parameter band: Depth below a support plane still counted as touching, metres.
+ * Returns: The patch points in hull order; empty for crossing edges.
  */
 export function physicalShapeContactManifold(
   poseA: IAutoMovieRigidTransform,
@@ -74,19 +73,29 @@ export function physicalShapeContactManifold(
   });
 }
 
-/** Companion types of {@link physicalShapeContactManifold}. */
+/*
+ * Companion types of physicalShapeContactManifold.
+ */
 
 
-/** A point in the contact plane. */
+/*
+ * A point in the contact plane.
+ */
 interface IFlat {
-  /** Coordinate along the plane's first axis, metres. */
+  /*
+   * Coordinate along the plane's first axis, metres.
+   */
   x: number;
 
-  /** Coordinate along the plane's second axis, metres. */
+  /*
+   * Coordinate along the plane's second axis, metres.
+   */
   y: number;
 }
 
-/** A shape's support set along a direction, within the band. */
+/*
+ * A shape's support set along a direction, within the band.
+ */
 function feature(
   pose: IAutoMovieRigidTransform,
   shape: IAutoMoviePhysicalShape,
@@ -145,7 +154,7 @@ function feature(
     );
 }
 
-/**
+/*
  * The height along `n` at which the line through `p` along `n` meets a feature:
  * its plane for three or more points, the segment's line for two, the point's
  * own height for one.
@@ -202,7 +211,9 @@ function height(
   return Vector3.dot(first, n);
 }
 
-/** A unit vector perpendicular to a unit vector. */
+/*
+ * A unit vector perpendicular to a unit vector.
+ */
 function perpendicular(n: IAutoMovieVector3): IAutoMovieVector3 {
   const seed: IAutoMovieVector3 =
     Math.abs(n.x) <= Math.abs(n.y) && Math.abs(n.x) <= Math.abs(n.z)
@@ -214,7 +225,7 @@ function perpendicular(n: IAutoMovieVector3): IAutoMovieVector3 {
   return Vector3.scale(v, 1 / Vector3.length(v));
 }
 
-/**
+/*
  * Counter-clockwise convex hull, merging points within the band; one or two
  * points for a degenerate set.
  */
@@ -250,7 +261,7 @@ function hull(points: readonly IFlat[], band: number): IFlat[] {
   return [unique[0]!, unique[unique.length - 1]!];
 }
 
-/**
+/*
  * The intersection of two hulls; empty when two crossing segments meet at one
  * point.
  */
@@ -279,7 +290,7 @@ function intersect(a: IFlat[], b: IFlat[], band: number): IFlat[] {
   return low === high ? [at(low)] : [at(low), at(high)];
 }
 
-/**
+/*
  * A polygon (Sutherland-Hodgman) or a segment (Cyrus-Beck) clipped by a
  * counter-clockwise convex polygon.
  */
@@ -322,13 +333,15 @@ function clip(subject: IFlat[], window: IFlat[]): IFlat[] {
   }
   return output;
 }
-/** Where an edge crosses the clip line. */
+/*
+ * Where an edge crosses the clip line.
+ */
 function cut(s: IFlat, e: IFlat, ds: number, de: number): IFlat {
   const t: number = ds / (ds - de);
   return { x: s.x + (e.x - s.x) * t, y: s.y + (e.y - s.y) * t };
 }
 
-/**
+/*
  * Twice the signed area of the triangle `p q r`; positive when `r` lies left of
  * `p -> q`.
  */

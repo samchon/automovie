@@ -7,7 +7,7 @@ import type {
 
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * Prepare each typing hand's ordered key presses and evaluate the first
  * unfinished press by binary search. A press reaches its key over the `REACH`
  * share of the nominal interval before its time and lifts over the `LIFT` share
@@ -15,15 +15,14 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
  * both shares are taken of that hand's actual gap instead, so the lift ends
  * where the next transport starts and the fingertip moves continuously from key
  * to key.
- *
- * @param keys Keys in text order, in the keyboard's local frame.
- * @param times Their strictly increasing press times, seconds.
- * @param interval The nominal key interval, seconds.
- * @param home Each hand's local home key.
- * @param frame The keyboard's fixed world frame.
- * @param hover Fingertip height between presses, metres.
- * @param travel Key depression below the home-row plane, metres.
- * @returns A pure world-space fingertip reader for either hand at any second.
+ * Parameter keys: Keys in text order, in the keyboard's local frame.
+ * Parameter times: Their strictly increasing press times, seconds.
+ * Parameter interval: The nominal key interval, seconds.
+ * Parameter home: Each hand's local home key.
+ * Parameter frame: The keyboard's fixed world frame.
+ * Parameter hover: Fingertip height between presses, metres.
+ * Parameter travel: Key depression below the home-row plane, metres.
+ * Returns: A pure world-space fingertip reader for either hand at any second.
  */
 export function typeTextPresses(
   keys: readonly ITypeTextPressesKeysItem[],
@@ -102,49 +101,63 @@ export function typeTextPresses(
   };
 }
 
-/** The record of `ITypeTextPressesKeysItem`'s site. */
+/*
+ * The record of `ITypeTextPressesKeysItem`'s site.
+ */
 type ITypeTextPressesKeysItem = {
   at: IAutoMovieVector3;
   side: AutoMovieHumanSide;
 };
 
-/** One key's press and the previous key state on the same hand. */
+/*
+ * One key's press and the previous key state on the same hand.
+ */
 interface IPress {
-  /** The pressed key's local position. */
+  /*
+   * The pressed key's local position.
+   */
   at: IAutoMovieVector3;
 
-  /** Press instant, seconds since typing starts. */
+  /*
+   * Press instant, seconds since typing starts.
+   */
   press: number;
 
-  /** The previous key or this hand's home key. */
+  /*
+   * The previous key or this hand's home key.
+   */
   from: IAutoMovieVector3;
 
-  /**
+  /*
    * When the fingertip leaves the previous key for this one, seconds since
    * typing starts.
    */
   start: number;
 
-  /**
+  /*
    * Seconds from `start` to the press, positive since the press times strictly
    * increase.
    */
   span: number;
 
-  /** Seconds the lift takes after the press, positive. */
+  /*
+   * Seconds the lift takes after the press, positive.
+   */
   lift: number;
 
-  /** This key's completed lift, seconds since typing starts. */
+  /*
+   * This key's completed lift, seconds since typing starts.
+   */
   end: number;
 }
 
-/**
+/*
  * The share of an interval a fingertip takes to reach its key (provisional: the
  * law's 40 %).
  */
 const REACH: number = 0.4;
 
-/**
+/*
  * The share of an interval a fingertip takes to lift off its key, the rest of
  * it.
  */

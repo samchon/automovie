@@ -3,7 +3,7 @@ import {
   IAutoMovieBuiltSpace,
 } from "@automovie/interface";
 
-/**
+/*
  * The logical space one id names, or a thrown `Error` naming both the
  * environment and the missing id.
  *

@@ -5,7 +5,7 @@ import { nonNegativeInteger } from "./nonNegativeInteger";
 import { object } from "./object";
 import { positiveInteger } from "./positiveInteger";
 
-/**
+/*
  * Admit sparse accessor byte ranges within validated glTF buffer views.
  *
  * Absent sparse metadata does nothing. Present metadata needs a positive count

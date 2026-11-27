@@ -14,19 +14,18 @@ import { pickUpAdjust } from "../../handling/internal/pickUpAdjust";
 import type { pickUpPosture } from "../../handling/internal/pickUpPosture";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * A touch's stance, chosen between two candidates in this order as Vahrenkamp
  * et al. 2013's Algorithm 1 tries base poses
  * (`AutoMovieMotionHumanTouchStance.choose`): the existing base, and, for a
  * grounded performer with an external target, one step. The arm keeps the very
  * same target and the step uses the pick-up's reach adjustment, on the reach
  * and return portions of the touch's clock.
- *
- * @param props The touch's standing reach and wrist goal.
- * @param mayStep Whether both feet bear the touch and the target is external.
- * @returns The stance and the corresponding base builder.
- * @throws {HumanRefusal} The planted reach's refusal, followed by the step's,
- *   when neither candidate reaches.
+ * Parameter props: The touch's standing reach and wrist goal.
+ * Parameter mayStep: Whether both feet bear the touch and the target is external.
+ * Returns: The stance and the corresponding base builder.
+ * The planted reach's refusal, followed by the step's,
+ * when neither candidate reaches.
  */
 export function touchStance(
   props: IAutoMovieMotionHumanTouchStance.IProps,
@@ -49,23 +48,35 @@ export function touchStance(
   });
 }
 
-/** Types shared by the touch and its base selection. */
+/*
+ * Types shared by the touch and its base selection.
+ */
 export namespace touchStance {
-  /** The entry and optional carrier a base may read. */
+  /*
+   * The entry and optional carrier a base may read.
+   */
   export type IContext = Pick<
     IAutoMovieMotionHumanActionContext,
     TouchStanceContext
   >;
 
-  /** The candidate bases a touch's stance is chosen among. */
+  /*
+   * The candidate bases a touch's stance is chosen among.
+   */
   export type Base = "planted" | "stepped";
 
-  /** The chosen stance and the same base it was solved on. */
+  /*
+   * The chosen stance and the same base it was solved on.
+   */
   export interface IChosen {
-    /** The pose and remaining motions of the shoulder, heels and trunk. */
+    /*
+     * The pose and remaining motions of the shoulder, heels and trunk.
+     */
     stance: IAutoMovieMotionHumanTouchStance.IStance;
 
-    /** Builds the base over the touch's clock and its own support windows. */
+    /*
+     * Builds the base over the touch's clock and its own support windows.
+     */
     base: (
       context: IContext,
       clock: IAutoMovieMotionClock,
@@ -73,7 +84,9 @@ export namespace touchStance {
   }
 }
 
-/** Builds the ordinary held or carried base. */
+/*
+ * Builds the ordinary held or carried base.
+ */
 function planted(
   context: touchStance.IContext,
   clock: IAutoMovieMotionClock,
@@ -81,12 +94,11 @@ function planted(
   return AutoMovieMotionHumanBase.under(context, clock.duration);
 }
 
-/**
+/*
  * The stepped candidate: the pick-up's one step toward the wrist's goal whose
  * landed stance reaches, its feet rolling onto the forefeet after they land.
- *
- * @throws {HumanRefusal} A reach refusal when no step of the adjustment lands a
- *   stance that reaches.
+ * A reach refusal when no step of the adjustment lands a
+ * stance that reaches.
  */
 function stepped(
   props: IAutoMovieMotionHumanTouchStance.IProps,
@@ -199,5 +211,7 @@ function stepped(
   };
 }
 
-/** The alternatives of `TouchStanceContext`'s site. */
+/*
+ * The alternatives of `TouchStanceContext`'s site.
+ */
 type TouchStanceContext = "carrier" | "entry";

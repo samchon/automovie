@@ -1,7 +1,9 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/** The unit part of `v` square to the unit `axis`, or null where none is left. */
+/*
+ * The unit part of `v` square to the unit `axis`, or null where none is left.
+ */
 export function HumanMountPushSquare(
   v: IAutoMovieVector3,
   axis: IAutoMovieVector3,

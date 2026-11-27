@@ -4,7 +4,7 @@ import type {
   IAutoMovieResolveProductionPngProfileProps,
 } from "@automovie/interface";
 
-/**
+/*
  * Resolve one output role to the exact PNG profile its writer must emit.
  *
  * A `waveform` or `spectrogram` picture takes the fixed size the engine's

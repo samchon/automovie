@@ -18,19 +18,19 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanSegment } from "./HumanSegment";
 import { prepareHumanPerformancePlans } from "./prepareHumanPerformancePlans";
 
-/**
+/*
  * What the placed performance does to itself: the holds a grip starts and an
  * action takes over or ends, and the contacts between people resolved into the
  * stops and reactions of those they land on.
  */
 export namespace HumanPerformanceContacts {
-  /**
+  /*
    * The contact scan's step, seconds: a 120th, so a strike of at most a few
    * metres a second moves a few centimetres between samples.
    */
   export const STEP: number = 1 / 120;
 
-  /**
+  /*
    * Settle what a newly planned action does to the props its performer holds,
    * whether it carries the body or rides a carrier: a grip window on a held
    * prop takes that hand over from the hold, any other use of a holding hand is
@@ -103,12 +103,11 @@ export namespace HumanPerformanceContacts {
     }
   }
 
-  /**
+  /*
    * Roll back holds and takeovers in the part of an action removed by a cut.
-   *
-   * @param person The performer whose action was cut.
-   * @param entry The cut action's schedule index.
-   * @param end The inclusive film second where that action now ends.
+   * Parameter person: The performer whose action was cut.
+   * Parameter entry: The cut action's schedule index.
+   * Parameter end: The inclusive film second where that action now ends.
    */
   export function cutHolds(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -128,7 +127,7 @@ export namespace HumanPerformanceContacts {
     person.holds.length = next;
   }
 
-  /**
+  /*
    * Resolve every weapon's first contact at once, in time order, each later
    * weapon seeing the earlier stops as they will be shown: a plan that takes
    * its stops is handed each one as it is committed and settled, so its own
@@ -438,40 +437,54 @@ export namespace HumanPerformanceContacts {
   }
 }
 
-/** The record of `IContactsNearestBest`'s site. */
+/*
+ * The record of `IContactsNearestBest`'s site.
+ */
 type IContactsNearestBest = { subject: string; distance: number };
 
-/** The record of `IContactsInstalled`'s site. */
+/*
+ * The record of `IContactsInstalled`'s site.
+ */
 type IContactsInstalled = {
   stops: IAutoMovieResolveContactEvents.IStops;
   size: number;
 };
 
-/** The record of `IContactsMetEntry`'s site. */
+/*
+ * The record of `IContactsMetEntry`'s site.
+ */
 type IContactsMetEntry = { key: string };
 
-/** The record of `IContactsSiblingsItem`'s site. */
+/*
+ * The record of `IContactsSiblingsItem`'s site.
+ */
 type IContactsSiblingsItem = {
   weapon: IAutoMovieMotionWeaponPath;
   from: number;
   to: number;
 };
 
-/** The record of `IAxisLiveW2`'s site. */
+/*
+ * The record of `IAxisLiveW2`'s site.
+ */
 type IAxisLiveW2 = {
   weapon: IAutoMovieMotionWeaponPath;
   from: number;
   to: number;
 };
 
-/** The record of `IAxisLiveW`'s site. */
+/*
+ * The record of `IAxisLiveW`'s site.
+ */
 type IAxisLiveW = {
   weapon: IAutoMovieMotionWeaponPath;
   from: number;
   to: number;
 };
 
-/** The record of `ILimbsItemEntry`'s site. */
+/*
+ * The record of `ILimbsItemEntry`'s site.
+ */
 type ILimbsItemEntry = {
   weapon: IAutoMovieMotionWeaponPath;
   from: number;

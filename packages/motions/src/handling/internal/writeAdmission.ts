@@ -6,9 +6,13 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The relative motion the writing target can support. */
+/*
+ * The relative motion the writing target can support.
+ */
 export namespace writeAdmission {
-  /** Admit a carried tool distinct from the stationary writing surface. */
+  /*
+   * Admit a carried tool distinct from the stationary writing surface.
+   */
   export function surface(
     tool: string,
     on: string,
@@ -25,7 +29,9 @@ export namespace writeAdmission {
       });
   }
 
-  /** Admit a working point rigidly attached to its carried tool. */
+  /*
+   * Admit a working point rigidly attached to its carried tool.
+   */
   export function tip(
     prop: Pick<Tool, "point" | "articulate">,
     site: Pick<IAutoMovieAffordance, "id" | "kind" | "rides">,
@@ -45,5 +51,7 @@ export namespace writeAdmission {
   }
 }
 
-/** The prop fields that determine whether a tool and its point can move. */
+/*
+ * The prop fields that determine whether a tool and its point can move.
+ */
 type Tool = IAutoMovieMotionHumanPropReader["prop"];

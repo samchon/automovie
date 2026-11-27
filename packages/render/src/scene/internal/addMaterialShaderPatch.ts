@@ -4,7 +4,7 @@ import type { IMaterialShaderPatch } from "../IMaterialShaderPatch.js";
 import { applyMaterialShaderPatches } from "./applyMaterialShaderPatches.js";
 import { readMaterialShaderPatches } from "./readMaterialShaderPatches.js";
 
-/**
+/*
  * Add a shader patch to a material, keeping the ones already on it: three calls
  * one `onBeforeCompile`, so every patch a material carries runs in the order it
  * was added and the program key names them all. A patch whose key the material

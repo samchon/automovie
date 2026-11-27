@@ -14,7 +14,7 @@ import { HumanArmTrajectoryAllowances } from "./HumanArmTrajectoryAllowances";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryWaypoint as W } from "./HumanArmTrajectoryWaypoint";
 
-/**
+/*
  * Share only explicitly fixed native setups; all current waypoint geometry
  * remains actual.
  */
@@ -220,14 +220,13 @@ function built(
   return context;
 }
 
-/**
+/*
  * The context of a problem.
- *
- * @param problem The problem.
- * @param previous The context of the same arms on other waypoints, an earlier
- *   reading of the trajectory a refinement splits, whose speed bound and beyond
- *   reading the new context keeps.
- * @returns The context.
+ * Parameter problem: The problem.
+ * Parameter previous: The context of the same arms on other waypoints, an earlier
+ * reading of the trajectory a refinement splits, whose speed bound and beyond
+ * reading the new context keeps.
+ * Returns: The context.
  */
 export function HumanArmTrajectoryContext(
   problem: HumanArmTrajectoryContext.IProblem,
@@ -236,50 +235,59 @@ export function HumanArmTrajectoryContext(
   return built(problem, previous);
 }
 
-/**
+/*
  * What an arms' trajectory reads, built once per problem
  * (`HumanArmTrajectoryModel.IContext`): each arm's setup and frames, its
  * variables, its hard bounds, every probe's allowance against every shape, and
  * each site's touched collider and normal.
  */
 export namespace HumanArmTrajectoryContext {
-  /**
+  /*
    * What the context is built from: the trajectory's problem, or a still
    * configuration of it.
    */
   export interface IProblem {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The waypoints' seconds. */
+    /*
+     * The waypoints' seconds.
+     */
     times: readonly number[];
 
-    /** What every arm is read against at each waypoint. */
+    /*
+     * What every arm is read against at each waypoint.
+     */
     bases: readonly G.IBase[];
-    /** Native body geometry for the authored hand support, when present. */
+    /*
+     * Native body geometry for the authored hand support, when present.
+     */
     material?: M.IMaterialSource;
 
-    /** The arms. */
+    /*
+     * The arms.
+     */
     arms: readonly IProblemArmsItem[];
 
-    /**
+    /*
      * Whether the problem is a still configuration
      * (`HumanArmTrajectoryModel.IContext.still`).
      */
     still?: boolean;
 
-    /**
+    /*
      * The share of the reach made at a second, 0 at rest and 1 on the hold
      * (`HumanArmTrajectory.IProblem.share`); a grasp's closing and parting keep
      * its depth on the hold by it. Nothing is kept when absent.
-     *
-     * @param seconds Seconds of the problem.
-     * @returns The share, 0 to 1.
+     * Parameter seconds: Seconds of the problem.
+     * Returns: The share, 0 to 1.
      */
     share?: (seconds: number) => number;
   }
 
-  /**
+  /*
    * Bind genuine arm setup metadata for one unchanged-body trajectory
    * operation.
    */
@@ -307,16 +315,15 @@ export namespace HumanArmTrajectoryContext {
       );
   }
 
-  /**
+  /*
    * Project prepared waypoint geometry and pair allowances onto a window of
    * the same physical frames. The last fixed waypoint may read the return
    * arm instead of the rest arm. A window that changes that reference at any
    * waypoint needs a fresh reading.
-   *
-   * @param context The original trajectory's prepared context.
-   * @param frames The window's waypoint indices in that context, in order.
-   * @param still Whether the window omits speeds and sweeps.
-   * @returns The same geometry on the selected clock, if its references agree.
+   * Parameter context: The original trajectory's prepared context.
+   * Parameter frames: The window's waypoint indices in that context, in order.
+   * Parameter still: Whether the window omits speeds and sweeps.
+   * Returns: The same geometry on the selected clock, if its references agree.
    */
   export function window(
     context: M.IContext,
@@ -340,7 +347,9 @@ export namespace HumanArmTrajectoryContext {
     )
       return undefined;
 
-    /** Read the same waypoint fields in the window's order. */
+    /*
+     * Read the same waypoint fields in the window's order.
+     */
     const rows = <T>(fields: readonly (readonly T[])[]): T[][] =>
       fields.map((field: readonly T[]): T[] =>
         frames.map((source: number): T => field[source]!),
@@ -380,7 +389,7 @@ export namespace HumanArmTrajectoryContext {
   }
 }
 
-/**
+/*
  * Each coordinate's hard bounds, every QP's box constraints as in TrajOpt: the
  * twist interval and the elbow's and wrist's ranges of the skeleton, not
  * widened, so no iterate leaves the range forward kinematics clamps to; the
@@ -416,54 +425,68 @@ function boxes(
   return out;
 }
 
-/** The record of `IProblemArmsItem`'s site. */
+/*
+ * The record of `IProblemArmsItem`'s site.
+ */
 type IProblemArmsItem = {
-  /** The arm. */
+  /*
+   * The arm.
+   */
   side: AutoMovieHumanSide;
 
-  /**
+  /*
    * The arm at the first waypoint, and the arm the allowances are read from at
    * every waypoint but a fixed last one.
    */
   rest: IAutoMovieMotionHumanArmClearance.IArm;
 
-  /**
+  /*
    * The arm at the last waypoint, which the allowances there are read from when
    * the waypoint is fixed; `rest` when absent.
    */
   back?: IAutoMovieMotionHumanArmClearance.IArm;
 
-  /** Its site at each waypoint, on the hold. */
+  /*
+   * Its site at each waypoint, on the hold.
+   */
   sites: readonly (M.ISite | undefined)[];
 
-  /** Its segments' declared rests over the hold. */
+  /*
+   * Its segments' declared rests over the hold.
+   */
   rests?: readonly M.IRest[];
 
-  /**
+  /*
    * Its segments that grasp one object with the other arm over the action
    * (`HumanArmTrajectoryModel.IContext.grasped`); none when absent.
    */
   grasp?: readonly M.Segment[];
 
-  /**
+  /*
    * The arm the goal's own solution gives at the hold's start, whose grasping
    * pairs' depth the closing and the parting keep
    * (`HumanArmTrajectoryModel.IContext.grasped`); none when absent.
    */
   guess?: IAutoMovieMotionHumanArmClearance.IArm;
 
-  /**
+  /*
    * The arm a still configuration is drawn to, its distance from it the
    * objective's (`HumanArmTrajectoryModel.IContext.anchor`); none when absent.
    */
   anchor?: IAutoMovieMotionHumanArmClearance.IArm;
 };
 
-/** The record of `IBoxesR`'s site. */
+/*
+ * The record of `IBoxesR`'s site.
+ */
 type IBoxesR = { min: number; max: number };
 
-/** The alternatives of `BoxesKey`'s site. */
+/*
+ * The alternatives of `BoxesKey`'s site.
+ */
 type BoxesKey = "flexion" | "abduction" | "twist";
 
-/** The record of `IBoxesTwist`'s site. */
+/*
+ * The record of `IBoxesTwist`'s site.
+ */
 type IBoxesTwist = { min: number; max: number };

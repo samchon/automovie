@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 
-/**
+/*
  * A plated portion of food: a steak cut at the table, a bite-sized piece of it,
  * or a morsel taken with chopsticks or a serving spoon.
  *
@@ -18,10 +18,9 @@ import {
  * tines pin, facing `+Y`; `base` is the underside, the socket set on a plate;
  * `pick` is the centre of its upper face, where a fork's tines or chopstick
  * tips take it.
- *
- * @param params The kind and the optional scene id.
- * @returns The portion and its contacts, metres.
- * @throws {AutoMovieArchetypeRefusal} For a kind outside the set.
+ * Parameter params: The kind and the optional scene id.
+ * Returns: The portion and its contacts, metres.
+ * For a kind outside the set.
  */
 export function createFoodPortion(
   params: AutoMovieArchetypeFoodPortion.IParams,
@@ -84,7 +83,7 @@ export function createFoodPortion(
   return builder.build(size.mass);
 }
 
-/**
+/*
  * Each portion's size, metres and kilograms. No source is read: every figure is
  * a provisional construction estimate of a plated portion, a bite-sized piece
  * cut from it, and a morsel taken with chopsticks.

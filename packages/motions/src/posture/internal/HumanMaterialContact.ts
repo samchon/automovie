@@ -18,30 +18,48 @@ import { HumanColliderPlacement } from "./HumanColliderPlacement";
 import { poseBones } from "./poseBones";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
-/** Finite bearing faces and their paired contact with displayed Human shapes. */
+/*
+ * Finite bearing faces and their paired contact with displayed Human shapes.
+ */
 export namespace HumanMaterialContact {
-  /** Model-local plane with an ordered boundary in the local XZ plane. */
+  /*
+   * Model-local plane with an ordered boundary in the local XZ plane.
+   */
   export interface IFace {
-    /** Frame carrying +Y out of the material. */
+    /*
+     * Frame carrying +Y out of the material.
+     */
     frame: IAutoMovieRigidTransform;
-    /** Boundary in the frame's local XZ plane, metres. */
+    /*
+     * Boundary in the frame's local XZ plane, metres.
+     */
     outline: readonly IAutoMovieVector3[];
-    /** A prepared shape query in the face frame when the site owns one. */
+    /*
+     * A prepared shape query in the face frame when the site owns one.
+     */
     query?: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeFaceContactPrepare>;
   }
 
-  /** A named finite feature whose geometry moves rigidly with its site. */
+  /*
+   * A named finite feature whose geometry moves rigidly with its site.
+   */
   export interface ISite {
-    /** Support frame that receives the contact. */
+    /*
+     * Support frame that receives the contact.
+     */
     support: IAutoMovieMotionHumanContactWindow.Support;
-    /** The face's origin, rotation and fixed finite perimeter at a second. */
+    /*
+     * The face's origin, rotation and fixed finite perimeter at a second.
+     */
     at(seconds: number): IFace;
   }
 
-  /** Outward normal of every face, in its own frame. */
+  /*
+   * Outward normal of every face, in its own frame.
+   */
   export const NORMAL: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-  /**
+  /*
    * Snapshot a named face's perimeter. A point-only site has no material
    * perimeter. Seat depth runs back from the front edge; a surface or tread is
    * centered. Site reads follow the displayed articulation at the same film
@@ -86,7 +104,9 @@ export namespace HumanMaterialContact {
     };
   }
 
-  /** The finite perimeter in the site's own frame, when the site defines one. */
+  /*
+   * The finite perimeter in the site's own frame, when the site defines one.
+   */
   export function perimeter(
     named: IAutoMovieAffordance,
   ): readonly IAutoMovieVector3[] | undefined {
@@ -116,7 +136,9 @@ export namespace HumanMaterialContact {
     ];
   }
 
-  /** Place a local point on a displayed face. */
+  /*
+   * Place a local point on a displayed face.
+   */
   export function world(
     face: IFace,
     point: IAutoMovieVector3,
@@ -127,7 +149,9 @@ export namespace HumanMaterialContact {
     );
   }
 
-  /** Place a world point in the displayed face's coordinate frame. */
+  /*
+   * Place a world point in the displayed face's coordinate frame.
+   */
   export function local(
     face: IFace,
     point: IAutoMovieVector3,
@@ -138,7 +162,7 @@ export namespace HumanMaterialContact {
     );
   }
 
-  /**
+  /*
    * Project an already-posed physical effector onto the face, returning its
    * signed clearance when the projected point is inside the finite outline.
    */
@@ -177,7 +201,7 @@ export namespace HumanMaterialContact {
       : undefined;
   }
 
-  /**
+  /*
    * Bind the body exterior once. The read places only the selected colliders
    * and returns the lowest eligible contact in the displayed receiving frame.
    */
@@ -216,7 +240,9 @@ export namespace HumanMaterialContact {
     };
   }
 
-  /** Bind a collider demand and the FK needed to read it on any given posture. */
+  /*
+   * Bind a collider demand and the FK needed to read it on any given posture.
+   */
   export function preparePosture(
     body: IAutoMovieMotionHumanBody,
     names: ReadonlySet<AutoMovieHumanoidBone> = body.colliders.bones,
@@ -233,7 +259,9 @@ export namespace HumanMaterialContact {
       material(bones(resolveHumanPosture(body, posture)), face);
   }
 
-  /** Bind actual Human exterior geometry against a horizontal unbounded floor. */
+  /*
+   * Bind actual Human exterior geometry against a horizontal unbounded floor.
+   */
   export function prepareFloor(
     body: IAutoMovieMotionHumanBody,
     names: ReadonlySet<AutoMovieHumanoidBone>,
@@ -272,7 +300,7 @@ export namespace HumanMaterialContact {
     };
   }
 
-  /**
+  /*
    * Find a finite face's first downward crossing in a prepared flight. Brackets
    * are at most 1/120 s wide and refined to a microsecond after a sign change.
    * Entry through the side with an already embedded exterior gives no top-face
@@ -318,23 +346,35 @@ export namespace HumanMaterialContact {
     return undefined;
   }
 
-  /** Both material-local readings of one paired dry-body contact. */
+  /*
+   * Both material-local readings of one paired dry-body contact.
+   */
   export interface IPair {
-    /** The first body's exterior against the second body's material frame. */
+    /*
+     * The first body's exterior against the second body's material frame.
+     */
     first: IAutoMovieMotionHumanContactWindow.IMaterial;
-    /** The second body's exterior against the first body's material frame. */
+    /*
+     * The second body's exterior against the first body's material frame.
+     */
     second: IAutoMovieMotionHumanContactWindow.IMaterial;
   }
 
-  /** One closed interval of measured contact, seconds on the caller's clock. */
+  /*
+   * One closed interval of measured contact, seconds on the caller's clock.
+   */
   export interface IInterval {
-    /** Start with nonpositive signed gap. */
+    /*
+     * Start with nonpositive signed gap.
+     */
     from: number;
-    /** End of the bearing interval. */
+    /*
+     * End of the bearing interval.
+     */
     to: number;
   }
 
-  /**
+  /*
    * Bracket dry contact intervals on a sampled action clock. A nonpositive gap
    * is bearing. Playback consumes the returned immutable intervals.
    */
@@ -375,7 +415,7 @@ export namespace HumanMaterialContact {
     return windows;
   }
 
-  /**
+  /*
    * Bind two body exteriors. Read the nearest actual solids from their
    * displayed frames, and express the common pair in the receiving bones'
    * frames. Both outward directions must face each other.

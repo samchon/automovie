@@ -1,7 +1,7 @@
 import type { NarrativeLayer } from "../NarrativeLayer";
 import type { AutoMovieEvidenceNarrativeScope } from "../AutoMovieEvidenceNarrativeScope";
 
-/**
+/*
  * Selects the authored unit files of one narrative layer.
  *
  * `treatments` is flat and carries no release partition, so its population is
@@ -18,10 +18,14 @@ import type { AutoMovieEvidenceNarrativeScope } from "../AutoMovieEvidenceNarrat
  * The selector is relative to the body root.
  */
 export function createNarrativeUnitFiles(props: {
-  /** The narrative layer whose unit files are selected. */
+  /*
+   * The narrative layer whose unit files are selected.
+   */
   layer: NarrativeLayer;
 
-  /** The complete work, or the exact first part a pilot authors. */
+  /*
+   * The complete work, or the exact first part a pilot authors.
+   */
   scope: AutoMovieEvidenceNarrativeScope;
 }): string[] {
   const { layer, scope } = props;

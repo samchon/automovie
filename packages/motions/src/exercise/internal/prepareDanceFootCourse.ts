@@ -2,20 +2,19 @@ import type { IAutoMovieMotionHumanFoot } from "@automovie/interface";
 
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 
-/**
+/*
  * Prepare a dance foot's fixed footfalls and rigid swing geometry. Each
  * observation independently selects its original half-beat interval; placement,
  * bearing and lateral offsets retain their separate readers.
- *
- * @param path Ordered footfalls with unchanged second-valued beats and
- *   local-metre offsets.
- * @param placements The unchanged actual world placement of each path/origin
- *   offset.
- * @param origin The initial local offset, present in placements.
- * @param period The existing beat period, seconds.
- * @param clearance The original swing height, metres.
- * @returns Independent current-time readers for local offset, fresh rigid
- *   placement and bearing.
+ * Parameter path: Ordered footfalls with unchanged second-valued beats and
+ * local-metre offsets.
+ * Parameter placements: The unchanged actual world placement of each path/origin
+ * offset.
+ * Parameter origin: The initial local offset, present in placements.
+ * Parameter period: The existing beat period, seconds.
+ * Parameter clearance: The original swing height, metres.
+ * Returns: Independent current-time readers for local offset, fresh rigid
+ * placement and bearing.
  */
 export function prepareDanceFootCourse(
   path: readonly IPrepareDanceFootCoursePathItem[],
@@ -83,61 +82,99 @@ export function prepareDanceFootCourse(
   };
 }
 
-/** A fixed floor offset in metres: x to the performer's left, z forward. */
+/*
+ * A fixed floor offset in metres: x to the performer's left, z forward.
+ */
 interface IOffset {
-  /** Metres to the performer's left. */
+  /*
+   * Metres to the performer's left.
+   */
   x: number;
 
-  /** Metres forward. */
+  /*
+   * Metres forward.
+   */
   z: number;
 }
 
-/** One existing held or travelling fixed-endpoint foot course. */
+/*
+ * One existing held or travelling fixed-endpoint foot course.
+ */
 interface IInterval {
-  /** The preceding footfall's local offset. */
+  /*
+   * The preceding footfall's local offset.
+   */
   from: IOffset;
 
-  /** The arriving footfall's local offset. */
+  /*
+   * The arriving footfall's local offset.
+   */
   at: IOffset;
 
-  /** Actual rigid departure and arrival placements, borrowed unchanged. */
+  /*
+   * Actual rigid departure and arrival placements, borrowed unchanged.
+   */
   placements: readonly [
     IAutoMovieMotionHumanFoot.IPlacement,
     IAutoMovieMotionHumanFoot.IPlacement,
   ];
 
-  /** The swing's arc between the two placements, prepared with the course. */
+  /*
+   * The swing's arc between the two placements, prepared with the course.
+   */
   arc: ReturnType<typeof AutoMovieMotionHumanLeg.prepareArc>;
 }
-/** A current interval selection; it is released with this one observation. */
+/*
+ * A current interval selection; it is released with this one observation.
+ */
 interface IReading {
-  /** The existing held or travelling pair. */
+  /*
+   * The existing held or travelling pair.
+   */
   interval: IInterval;
 
-  /** Original half-beat progress, or one while held. */
+  /*
+   * Original half-beat progress, or one while held.
+   */
   swing: number;
 }
 
-/** The record of `IPrepareDanceFootCourseReadNext`'s site. */
+/*
+ * The record of `IPrepareDanceFootCourseReadNext`'s site.
+ */
 type IPrepareDanceFootCourseReadNext = { beat: number; at: IOffset };
 
-/** The record of `IPrepareDanceFootCourseMovingFall`'s site. */
+/*
+ * The record of `IPrepareDanceFootCourseMovingFall`'s site.
+ */
 type IPrepareDanceFootCourseMovingFall = { beat: number; at: IOffset };
 
-/** The record of `IPrepareDanceFootCourseOffsetsFall`'s site. */
+/*
+ * The record of `IPrepareDanceFootCourseOffsetsFall`'s site.
+ */
 type IPrepareDanceFootCourseOffsetsFall = { beat: number; at: IOffset };
 
-/** The record of `IPrepareDanceFootCourseResult`'s site. */
+/*
+ * The record of `IPrepareDanceFootCourseResult`'s site.
+ */
 type IPrepareDanceFootCourseResult = {
-  /** Current local offset in metres, with the original unclipped interpolation. */
+  /*
+   * Current local offset in metres, with the original unclipped interpolation.
+   */
   along: (seconds: number) => IOffset;
 
-  /** Fresh current world ankle and foot rotation from the native arc. */
+  /*
+   * Fresh current world ankle and foot rotation from the native arc.
+   */
   placed: (seconds: number) => IAutoMovieMotionHumanFoot.IPlacement;
 
-  /** Whether the original half-beat swing has completed. */
+  /*
+   * Whether the original half-beat swing has completed.
+   */
   planted: (seconds: number) => boolean;
 };
 
-/** The record of `IPrepareDanceFootCoursePathItem`'s site. */
+/*
+ * The record of `IPrepareDanceFootCoursePathItem`'s site.
+ */
 type IPrepareDanceFootCoursePathItem = { beat: number; at: IOffset };

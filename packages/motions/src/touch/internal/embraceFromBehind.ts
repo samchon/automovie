@@ -26,13 +26,15 @@ import { embraceTrunkClear } from "./embraceTrunkClear";
 import { kissBody } from "./kissBody";
 import { touchHoldRests } from "./touchHoldRests";
 
-/**
+/*
  * The share of the body's weight the leaning chest lays on the partner's back
  * (provisional: a light lean).
  */
 const LEAN: number = 0.1;
 
-/** The real surface points that may reach the partner's midline. */
+/*
+ * The real surface points that may reach the partner's midline.
+ */
 const TIPS: readonly IAutoMovieMotionHumanHand.DigitSurface[] = [
   "thumbTip",
   "indexTip",
@@ -41,7 +43,7 @@ const TIPS: readonly IAutoMovieMotionHumanHand.DigitSurface[] = [
   "littleTip",
 ];
 
-/**
+/*
  * Embrace a partner from behind. The stance and the head are one problem,
  * solved once (`solve`): the chin on the partner's shoulder, toward the
  * shoulder's region, and the chest on the partner's back, each contact collider
@@ -65,8 +67,6 @@ const TIPS: readonly IAutoMovieMotionHumanHand.DigitSurface[] = [
  * keep clear of at every second the course is planned on. Loaded windows: the
  * chest on the partner's torso bone it bears on (`LEAN`), the chin on the
  * shoulder, the palms on the abdomen.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the one solve, its source, the refusals, the hands, the course and the windows.
  */
 function planEmbraceFromBehind(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanEmbraceFromBehind>,
@@ -489,7 +489,7 @@ function planEmbraceFromBehind(
   };
 }
 
-/**
+/*
  * Embrace a partner from behind. The stance and the head are one problem,
  * solved once (`solve`): the chin on the partner's shoulder, toward the
  * shoulder's region, and the chest on the partner's back, each contact collider
@@ -521,7 +521,7 @@ export const embraceFromBehind: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionH
     plan: planEmbraceFromBehind,
   };
 
-/**
+/*
  * The nearest orientation to across the abdomen whose flat fingertips stay
  * on the palm's side. The anatomical ray fixes the abdominal point and its
  * normal before any arm moves. Rodrigues' fixed-axis rotation (Lynch and
@@ -530,7 +530,7 @@ export const embraceFromBehind: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionH
  * as `a cos(turn) + b sin(turn)`. Each tip excludes one open interval per
  * revolution. The closest angle outside their union still points toward the
  * midline.
- *
+ * ://hades.mech.northwestern.edu/images/7/7e/MR-2up-v2.pdf
  * @see https://hades.mech.northwestern.edu/images/7/7e/MR-2up-v2.pdf
  */
 function embraceForward(
@@ -602,7 +602,9 @@ function embraceForward(
   );
 }
 
-/** The first nonnegative angle outside the union of the open intervals. */
+/*
+ * The first nonnegative angle outside the union of the open intervals.
+ */
 function firstOpenTurn(ranges: [number, number][]): number {
   let angle: number = 0;
   for (const [from, to] of ranges.sort(([a], [b]): number => a - b)) {

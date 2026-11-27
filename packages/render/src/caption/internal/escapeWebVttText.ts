@@ -1,4 +1,4 @@
-/**
+/*
  * Escape the three characters WebVTT reads as cue-text syntax: `&`, `<` and
  * `>`.
  *

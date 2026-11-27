@@ -2,7 +2,7 @@ import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
 
 import { shortestRestLength } from "./shortestRestLength";
 
-/**
+/*
  * Report dt*declared reference speed divided by the shortest structural rest
  * edge; no-edge Infinity yields zero. This authored travel ratio is an
  * admission heuristic, not a guarantee against collider tunnelling.

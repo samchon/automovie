@@ -6,7 +6,7 @@ import type {
 import type { swingTwistRange } from "../../kinematics/swingTwistRange";
 import { clampJointRomValues } from "./clampJointRomValues";
 
-/**
+/*
  * Project one joint into admitted axis intervals, preserving null rest and
  * forcing specified immobile axes to zero. Specified nonfinite angles first
  * become neutral. A swing cap blends toward the box point nearest neutral;
@@ -19,13 +19,12 @@ import { clampJointRomValues } from "./clampJointRomValues";
  * (`swingTwistRange.project`: its direction along its great circle from rest,
  * its twist clamped) and read back in the reading the three-angle box prefers;
  * a joint already inside comes back as given.
- *
- * @param joint The joint's clinical angles.
- * @param constraint Its resolved range.
- * @param rig The bone's frame as the caller's rig resolves it; the humanoid
- *   tables' when absent.
- * @returns The joint in range: a value, the input record itself where every
- *   projected angle is its own, else a fresh record; neither is to be edited.
+ * Parameter joint: The joint's clinical angles.
+ * Parameter constraint: Its resolved range.
+ * Parameter rig: The bone's frame as the caller's rig resolves it; the humanoid
+ * tables' when absent.
+ * Returns: The joint in range: a value, the input record itself where every
+ * projected angle is its own, else a fresh record; neither is to be edited.
  */
 export function clampJointRom(
   joint: IAutoMovieJointPose,

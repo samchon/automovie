@@ -6,7 +6,7 @@ import {
 import { Vector3 } from "../Vector3";
 import { overflowsBinary64 } from "./overflowsBinary64";
 
-/**
+/*
  * Evaluate one finite orientation-preserving 3×3 deformation Jacobian. Input
  * and returned matrix use row-major order and dimensionless entries. The
  * cofactor matrix is det(J) times inverse(J)-transpose, so it transports
@@ -58,7 +58,9 @@ export function cofactorAutoMovieJacobian(
   };
 }
 
-/** One product or sum of the determinant, refused where it overflows binary64. */
+/*
+ * One product or sum of the determinant, refused where it overflows binary64.
+ */
 function representable(result: number): number {
   if (overflowsBinary64(result))
     throw new Error(

@@ -7,10 +7,10 @@ import {
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { builtPlacedPartBoxes } from "./builtPlacedPartBoxes";
 
-/**
+/*
  * Every drawn element's part boxes, resolved in one pass over the record.
  *
- * {@link builtEnvironmentElementPartBounds} stages the whole tree per element
+ * builtEnvironmentElementPartBounds stages the whole tree per element
  * query. This batch stages once and indexes models once, then measures each
  * element with the same shared part fold. Answers agree with the single-element
  * query for validated unique element/model ids; forged duplicate model ids

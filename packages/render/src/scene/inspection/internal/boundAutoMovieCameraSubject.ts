@@ -3,18 +3,17 @@ import { Box3, Mesh } from "three";
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
 
-/**
+/*
  * Enclose the current world geometry of a required subject's admitted meshes.
  *
  * A rigid mesh contributes its geometry box under its world matrix. An owned
  * skin contributes its exact posed local extent, already grown by its float32
  * GPU tolerance, under its world matrix; Three keeps posed skinned positions in
  * the mesh's local frame, so the same world transform applies to both.
- *
- * @param meshes Meshes from listAutoMovieCameraSubjectMeshes, with current
- *   world matrices.
- * @returns A finite world box in metres, or undefined when the list is empty or
- *   any contribution is empty or non-finite.
+ * Parameter meshes: Meshes from listAutoMovieCameraSubjectMeshes, with current
+ * world matrices.
+ * Returns: A finite world box in metres, or undefined when the list is empty or
+ * any contribution is empty or non-finite.
  */
 export function boundAutoMovieCameraSubject(
   meshes: readonly Mesh[],
@@ -37,7 +36,9 @@ export function boundAutoMovieCameraSubject(
   return isFiniteBox(combined) ? combined : undefined;
 }
 
-/** Rejects empty, inverted and non-finite bounds, while allowing flat bounds. */
+/*
+ * Rejects empty, inverted and non-finite bounds, while allowing flat bounds.
+ */
 function isFiniteBox(box: Box3): boolean {
   return (
     !box.isEmpty() &&

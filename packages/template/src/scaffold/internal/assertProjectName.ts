@@ -1,4 +1,4 @@
-/**
+/*
  * Trim a project name and refuse one that cannot serve as a portable directory
  * segment and JSON string.
  *
@@ -8,10 +8,9 @@
  * `lpt1` through `lpt9`, with or without an extension. These checks prevent
  * separators and JSON string delimiters; they do not establish npm package-name
  * validity or every filesystem's name and length restrictions.
- *
- * @param name The name as supplied.
- * @returns The trimmed name.
- * @throws When the name is refused.
+ * Parameter name: The name as supplied.
+ * Returns: The trimmed name.
+ * When the name is refused.
  */
 export const assertProjectName: (name: string) => string = (
   name: string,

@@ -8,50 +8,53 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * A posture's static balance as `HumanBalance` reads it: the whole-body centre
  * of mass placed on one solve of the posture, the feet's bearing base, and the
  * centre's offset and margin against that base along the heading.
  */
 export namespace HumanBalanceReading {
-  /**
+  /*
    * A posture's balance: `HumanBalance.offset` and `HumanBalance.margin`,
    * metres, and whether both heels bear.
    */
   export interface IReading {
-    /**
+    /*
      * How far the centre of mass lies ahead of the base's middle along the
      * heading, metres.
      */
     offset: number;
 
-    /** The static margin of stability, metres, positive inside the base. */
+    /*
+     * The static margin of stability, metres, positive inside the base.
+     */
     margin: number;
 
-    /** Whether both heels bear. */
+    /*
+     * Whether both heels bear.
+     */
     flat: boolean;
 
-    /**
+    /*
      * Rigid backward translation to the closest reachable boundary, when
      * requested.
      */
     candidate?: number;
   }
 
-  /**
+  /*
    * A posture's balance, read on one solve of it.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @param resolution The synchronous evaluation's FK reader.
-   * @param projection The body's ROM projection of the solve.
-   * @param frames The prepared bone frames, when the caller reads a fixed
-   *   demand; every bone otherwise.
-   * @param mass The prepared mass model, when the caller holds one; the body's
-   *   own otherwise.
-   * @param propose Whether to propose the rigid backward translation to the
-   *   closest reachable boundary of a centre outside the base.
-   * @returns The offset, margin and heel bearing, metres.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Parameter resolution: The synchronous evaluation's FK reader.
+   * Parameter projection: The body's ROM projection of the solve.
+   * Parameter frames: The prepared bone frames, when the caller reads a fixed
+   * demand; every bone otherwise.
+   * Parameter mass: The prepared mass model, when the caller holds one; the body's
+   * own otherwise.
+   * Parameter propose: Whether to propose the rigid backward translation to the
+   * closest reachable boundary of a centre outside the base.
+   * Returns: The offset, margin and heel bearing, metres.
    */
   export function read(
     body: IAutoMovieMotionHumanBody,
@@ -101,31 +104,38 @@ export namespace HumanBalanceReading {
     };
   }
 
-  /** Common solved geometry needed by all static balance measurements. */
+  /*
+   * Common solved geometry needed by all static balance measurements.
+   */
   export interface IPlaced {
-    /** Borrowed sole geometry bound to this trial's complete displayed FK. */
+    /*
+     * Borrowed sole geometry bound to this trial's complete displayed FK.
+     */
     feet: ReturnType<typeof HumanFoot.reading>;
 
-    /** Actual whole-body mass centre in world metres. */
+    /*
+     * Actual whole-body mass centre in world metres.
+     */
     centre: IAutoMovieVector3;
 
-    /** Original foot-outline bearing points in their original order. */
+    /*
+     * Original foot-outline bearing points in their original order.
+     */
     base: IAutoMovieVector3[];
   }
 
-  /**
+  /*
    * Solve once and prepare only the common mass-centre and support geometry.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @param resolution The FK reader lent by the evaluation; a fresh native one
-   *   when absent.
-   * @param projection The ROM projection of the solve; the body's own when
-   *   absent.
-   * @param frames The prepared bone frames; every bone when absent.
-   * @param mass The prepared mass model; the body's own when absent.
-   * @param sides The feet whose outlines bear; both when absent.
-   * @returns The feet, the mass centre and the bearing base, world metres.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Parameter resolution: The FK reader lent by the evaluation; a fresh native one
+   * when absent.
+   * Parameter projection: The ROM projection of the solve; the body's own when
+   * absent.
+   * Parameter frames: The prepared bone frames; every bone when absent.
+   * Parameter mass: The prepared mass model; the body's own when absent.
+   * Parameter sides: The feet whose outlines bear; both when absent.
+   * Returns: The feet, the mass centre and the bearing base, world metres.
    */
   export function placement(
     body: IAutoMovieMotionHumanBody,
@@ -166,13 +176,12 @@ export namespace HumanBalanceReading {
     };
   }
 
-  /**
+  /*
    * Project the same mass centre and base on the heading without a hull or heel
    * query.
-   *
-   * @param placed The placed centre and base.
-   * @param yaw The heading, as the posture's yaw.
-   * @returns How far the centre lies ahead of the base's middle, metres.
+   * Parameter placed: The placed centre and base.
+   * Parameter yaw: The heading, as the posture's yaw.
+   * Returns: How far the centre lies ahead of the base's middle, metres.
    */
   export function projected(placed: IPlaced, yaw: number): number {
     const forward: IAutoMovieVector3 = heading(yaw);
@@ -186,7 +195,9 @@ export namespace HumanBalanceReading {
     return Vector3.dot(placed.centre, forward) - (rear + front) / 2;
   }
 
-  /** World heading of a yaw, used by the support's directional reads. */
+  /*
+   * World heading of a yaw, used by the support's directional reads.
+   */
   function heading(yaw: number): IAutoMovieVector3 {
     return Quaternion.rotateVector(
       Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),

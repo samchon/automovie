@@ -50,7 +50,7 @@ import { touchRegion } from "./touchRegion";
 import { touchSide } from "./touchSide";
 import { touchStance } from "./touchStance";
 
-/**
+/*
  * One or both hands touch a partner's or the performer's own region with a tap,
  * pat, stroke, rub, press, squeeze, hold or scratch (Jung et al. 2017). Social
  * touches and self-directed touches are rows of this one law, each stating
@@ -73,10 +73,14 @@ import { touchStance } from "./touchStance";
  * touch, the declined handshake's rule.
  */
 export namespace touch {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "touch";
 
-  /** Cancel table. */
+  /*
+   * Cancel table.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     ...AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
@@ -87,13 +91,15 @@ export namespace touch {
     }),
   };
 
-  /**
+  /*
    * A touch may be performed over a carrier: it claims the touching arms and
    * hands, and the trunk when it must lean.
    */
   export const overlay: boolean = true;
 
-  /** Each part's effector (`touchEffectors`). */
+  /*
+   * Each part's effector (`touchEffectors`).
+   */
   export const EFFECTORS: Readonly<
     Record<
       IAutoMovieMotionHumanTouchEffectors.With,
@@ -101,7 +107,7 @@ export namespace touch {
     >
   > = touchEffectors.TABLE;
 
-  /**
+  /*
    * The share of the arm's length (upper arm and forearm) the wrist is kept
    * within before the trunk leans in, so the elbow never locks straight on a
    * region: the one provisional share an operated part is reached by too
@@ -109,17 +115,16 @@ export namespace touch {
    */
   export const REACH: number = operate.REACH;
 
-  /**
+  /*
    * Plan a touch.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the count is not a positive whole number, the
-   *   hold is negative, the clearance is not positive, a site's radius is
-   *   negative, the region is out of reach, `prop` names a prop the hand does
-   *   not hold or a point it lacks, `grasp` comes without a prop, its point or
-   *   a region of the performer's own, or a rest names the other hand's arm on
-   *   a touch of one hand.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the count is not a positive whole number, the
+   * hold is negative, the clearance is not positive, a site's radius is
+   * negative, the region is out of reach, `prop` names a prop the hand does
+   * not hold or a point it lacks, `grasp` comes without a prop, its point or
+   * a region of the performer's own, or a rest names the other hand's arm on
+   * a touch of one hand.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
@@ -133,7 +138,7 @@ export namespace touch {
     );
   }
 
-  /**
+  /*
    * A light, sudden flick of the hand's surface, seconds a stroke: no study of
    * a hair flick or a brushing flick was found, so the duration of a natural
    * flick gesture stands in as a proxy, 0.151 s (151 +- 53 ms, Moyle and
@@ -142,16 +147,15 @@ export namespace touch {
    */
   export const FLICK: number = 0.151;
 
-  /**
+  /*
    * The touch law with each repetition lasting a given time, for a row whose
    * stroke is measured on its own (a flick) rather than read off its form's
    * speed (`AutoMovieMotionHumanTouchForm.FORMS`). Internal to the rows; it
    * adds no parameter to the touch's schema.
-   *
-   * @param seconds Each repetition's length, seconds, before the manner's time
-   *   scale.
-   * @returns The law, the touch's name, cancel table and refusals with the
-   *   repetition fixed.
+   * Parameter seconds: Each repetition's length, seconds, before the manner's time
+   * scale.
+   * Returns: The law, the touch's name, cancel table and refusals with the
+   * repetition fixed.
    */
   export function stroked(
     seconds: number,
@@ -173,7 +177,7 @@ export namespace touch {
     };
   }
 
-  /**
+  /*
    * Build one reach using its actual girdle posture, material sites and
    * transport clock; a given repetition's period replaces the form's.
    */
@@ -490,5 +494,7 @@ export namespace touch {
   }
 }
 
-/** The exact hand layouts and support admitted for one fingertip inclination. */
+/*
+ * The exact hand layouts and support admitted for one fingertip inclination.
+ */
 type AutoMovieTouchFit = readonly [touchHold.Lay, touchStance.IChosen];

@@ -22,12 +22,12 @@ import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
 import { StrikingWeaponTable } from "./StrikingWeaponTable";
 
-/**
+/*
  * A knee strike: the knee driven up and forward onto the target while the hands
  * hold the opponent's head or neck (the clinch) or stay at the guard.
  *
  * The knee is the weapon, and the thigh carries it on a circle about the hip
- * ({@link KneeReach}). The hips square to the thigh's heading, the support foot
+ * (KneeReach). The hips square to the thigh's heading, the support foot
  * pivoting on its ball with them; the pelvis travels along the line until the
  * knee's front is on the target, lowered as far as the planted support leg
  * needs to keep its foot, and the knee is solved from the hip that carriage
@@ -35,18 +35,18 @@ import { StrikingWeaponTable } from "./StrikingWeaponTable";
  * declared miss at maximum reach (`short`), and one closer than the hips can
  * withdraw is `jammed`: the knee lands where it first meets the body.
  *
- * The knee is lifted, then the hips are driven in ({@link KneeForm.LIFT_SHARE}):
+ * The knee is lifted, then the hips are driven in (KneeForm.LIFT_SHARE):
  * the thigh swings about the hip from where the stance had it to its solved
  * elevation on an early clock, the pelvis travels on a late one, and the way
  * back mirrors it. The shank folds under the knee and the toes point down along
- * it ({@link KneeForm.FLEXION}, {@link KneeForm.PLANTAR}), so the foot trails
+ * it (KneeForm.FLEXION, KneeForm.PLANTAR), so the foot trails
  * behind the knee instead of leading it into the opponent's legs. The trunk
  * leans back slightly to keep the centre of mass over the pivoting support
  * foot.
  *
  * The thigh, shank and foot are contact capsules on the shown leg
- * ({@link StrikingWeapon}); first contact stops the knee for its dwell, then it
- * gives way before the met body ({@link StrikingRide}) and retraces its
+ * (StrikingWeapon); first contact stops the knee for its dwell, then it
+ * gives way before the met body (StrikingRide) and retraces its
  * approach.
  *
  * Timing (kickboxing research): the knee rises through the round kick's chamber
@@ -57,17 +57,20 @@ import { StrikingWeaponTable } from "./StrikingWeaponTable";
  * rules check.
  */
 export namespace knee {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "knee";
 
-  /** Cancel table: none; a knee runs to its replant. */
+  /*
+   * Cancel table: none; a knee runs to its replant.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-  /**
+  /*
    * Plan a knee strike.
-   *
-   * @param context The action's context.
-   * @returns The plan.
+   * Parameter context: The action's context.
+   * Returns: The plan.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKnee.IParams>,
@@ -453,10 +456,14 @@ export namespace knee {
   }
 }
 
-/** The alternatives of `PlanLeg`'s site. */
+/*
+ * The alternatives of `PlanLeg`'s site.
+ */
 type PlanLeg = "leftLeg" | "rightLeg";
 
-/** Clinch contact reads only the partner's neck and its required FK ancestry. */
+/*
+ * Clinch contact reads only the partner's neck and its required FK ancestry.
+ */
 const NECK: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
   ["neck"],
 );

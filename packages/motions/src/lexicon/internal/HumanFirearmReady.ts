@@ -9,7 +9,7 @@ import type {
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { StrikingRoll } from "../../striking/internal/StrikingRoll";
 
-/**
+/*
  * Where a firearm is held at a ready position (`HumanWeaponFirearm.present`): a
  * region the doctrine describes, not one pose, and the arm holds the weapon
  * where in it it can.
@@ -20,34 +20,36 @@ import { StrikingRoll } from "../../striking/internal/StrikingRoll";
  * bounds (`StrikingRoll.chosen`).
  */
 export namespace HumanFirearmReady {
-  /**
+  /*
    * A ready position's region: the muzzle's elevation, the weapon's roll about
    * its bore and the hand's place by the chest, each bounded.
    */
   export interface IReady {
-    /**
+    /*
      * The muzzle's elevation above level, degrees: the least, the greatest and
      * the nominal.
      */
     elevation: readonly [number, number, number];
 
-    /** How far the weapon may roll about its bore either way, degrees. */
+    /*
+     * How far the weapon may roll about its bore either way, degrees.
+     */
     roll: number;
 
-    /**
+    /*
      * The hand's place ahead of the chest, shares of the arm: the least, the
      * greatest and the nominal.
      */
     ahead: readonly [number, number, number];
 
-    /**
+    /*
      * The hand's height above the chest, shares of the arm: the least, the
      * greatest (null: the shoulder's height) and the nominal.
      */
     rise: readonly [number, number | null, number];
   }
 
-  /**
+  /*
    * The ready positions' regions, from doctrine where it gives a number.
    *
    * Low ready: the muzzle 30 to 45 degrees below level (US Army TC 3-22.9,
@@ -77,43 +79,58 @@ export namespace HumanFirearmReady {
     },
   };
 
-  /**
+  /*
    * The rolls about the bore tried after none, degrees, inside `IReady.roll`
    * (search resolution).
    */
   export const ROLLS: readonly number[] = [15, -15, 30, -30];
 
-  /** What a ready pose is placed by. */
+  /*
+   * What a ready pose is placed by.
+   */
   export interface IProps {
-    /** The held weapon. */
+    /*
+     * The held weapon.
+     */
     tool: IAutoMovieMotionHumanStrikingHeld.ITool;
 
-    /** The arm's length, metres. */
+    /*
+     * The arm's length, metres.
+     */
     arm: number;
 
-    /** The chest joint, world metres. */
+    /*
+     * The chest joint, world metres.
+     */
     chest: IAutoMovieVector3;
 
-    /** The holding arm's shoulder joint, world metres. */
+    /*
+     * The holding arm's shoulder joint, world metres.
+     */
     shoulder: IAutoMovieVector3;
 
-    /** The level unit direction toward the target. */
+    /*
+     * The level unit direction toward the target.
+     */
     line: IAutoMovieVector3;
 
-    /** Whether the carriage is the low ready; the high ready when false. */
+    /*
+     * Whether the carriage is the low ready; the high ready when false.
+     */
     low: boolean;
 
-    /** The body as it stands at the decisive instant. */
+    /*
+     * The body as it stands at the decisive instant.
+     */
     posture: IAutoMovieMotionHumanStrikingRoll.IChoice["posture"];
   }
 
-  /**
+  /*
    * The hand frame of a ready position.
-   *
-   * @param context The action's context.
-   * @param props The weapon, the arm, the chest, the shoulder, the line and the
-   *   carriage.
-   * @returns The chosen hand frame.
+   * Parameter context: The action's context.
+   * Parameter props: The weapon, the arm, the chest, the shoulder, the line and the
+   * carriage.
+   * Returns: The chosen hand frame.
    */
   export function pose(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
@@ -206,5 +223,7 @@ export namespace HumanFirearmReady {
   }
 }
 
-/** The alternatives of `READYEntryItem`'s site. */
+/*
+ * The alternatives of `READYEntryItem`'s site.
+ */
 type READYEntryItem = "lowReady" | "highReady";

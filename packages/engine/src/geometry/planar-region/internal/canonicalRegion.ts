@@ -7,7 +7,7 @@ import type {
 import { signedArea } from "../../internal/signedArea";
 import { regionFailure } from "./regionFailure";
 
-/**
+/*
  * Validate one planar region and lay its rings out canonically, without cutting
  * triangles.
  *
@@ -22,11 +22,10 @@ import { regionFailure } from "./regionFailure";
  * which of several sections holds the bad ring. Triangles are left to
  * `trianglesOf` because a loft validates and lays out every section but
  * triangulates only its two end caps.
- *
- * @param outer Outer boundary in XY metres.
- * @param holes Voids inside the outer boundary.
- * @param label Name of the region in diagnostics.
- * @returns The canonical layout and its enclosed area.
+ * Parameter outer: Outer boundary in XY metres.
+ * Parameter holes: Voids inside the outer boundary.
+ * Parameter label: Name of the region in diagnostics.
+ * Returns: The canonical layout and its enclosed area.
  */
 export function canonicalRegion(
   outer: readonly IAutoMovieProfilePoint[],

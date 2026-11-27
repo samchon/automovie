@@ -21,7 +21,7 @@ import { HUMAN_GAIT_CONFRONT } from "../../next/presets/HUMAN_GAIT_CONFRONT";
 import { HUMAN_GAIT_ESCORT } from "../../next/presets/HUMAN_GAIT_ESCORT";
 import { HUMAN_GAIT_FOLLOW } from "../../next/presets/HUMAN_GAIT_FOLLOW";
 
-/**
+/*
  * Travel relative to another person, each a row of `approach`: the composition
  * gives the person as the target. Register the ones a film uses.
  *
@@ -40,7 +40,7 @@ import { HUMAN_GAIT_FOLLOW } from "../../next/presets/HUMAN_GAIT_FOLLOW";
  * from the scene.
  */
 export namespace HumanPursuit {
-  /**
+  /*
    * Come up behind a person at the social distance, as a follower closes the
    * gap.
    */
@@ -48,7 +48,7 @@ export namespace HumanPursuit {
     IAutoMovieMotionHumanLexiconParams["pursuit"]["follow"]
   > = AutoMovieMotionHumanActionRow.of("follow", approach, HUMAN_GAIT_FOLLOW);
 
-  /**
+  /*
    * Come to a person's left side at the personal distance, as an escort takes
    * station.
    */
@@ -56,7 +56,9 @@ export namespace HumanPursuit {
     IAutoMovieMotionHumanLexiconParams["pursuit"]["escort"]
   > = AutoMovieMotionHumanActionRow.of("escort", approach, HUMAN_GAIT_ESCORT);
 
-  /** Step up face to face, as a confrontation begins. */
+  /*
+   * Step up face to face, as a confrontation begins.
+   */
   export const confront: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pursuit"]["confront"]
   > = AutoMovieMotionHumanActionRow.of(
@@ -65,7 +67,7 @@ export namespace HumanPursuit {
     HUMAN_GAIT_CONFRONT,
   );
 
-  /**
+  /*
    * Head a moving person off: a run to where they will be when the runner gets
    * there, stopping at arm's length of that place (the handing gap of
    * `HumanProxemics`), not to where they are when it begins.
@@ -137,7 +139,7 @@ export namespace HumanPursuit {
       },
     };
 
-  /**
+  /*
    * Run after a person to arm's length of where they will be, as a chase ends:
    * a chase runs, so it is a row of `intercept` (the run's `run` pace when none
    * is given), never a walk.
@@ -146,13 +148,13 @@ export namespace HumanPursuit {
     IAutoMovieMotionHumanLexiconParams["pursuit"]["chase"]
   > = AutoMovieMotionHumanActionRow.of("chase", intercept, {});
 
-  /**
+  /*
    * Seconds one glance back at a pursuer lasts before the eyes return ahead
    * (provisional: no study of fleeing gaze was read).
    */
   export const GLANCE: number = 0.6;
 
-  /**
+  /*
    * Glances back at a pursuer, as a layer for the performance: each turns the
    * eyes and the head toward the person's head and returns them ahead after
    * `GLANCE` seconds, leaving the trunk to the run.
@@ -162,10 +164,9 @@ export namespace HumanPursuit {
    *   a: [HumanPursuit.glances("b", [1.5, 3.2])];
    * }
    * ```
-   *
-   * @param at The person looked back at, by subject id.
-   * @param seconds The film seconds at which a glance begins.
-   * @returns The layer, for the fleeing performer's `layers`.
+   * Parameter at: The person looked back at, by subject id.
+   * Parameter seconds: The film seconds at which a glance begins.
+   * Returns: The layer, for the fleeing performer's `layers`.
    */
   export function glances(
     at: string,
@@ -184,7 +185,7 @@ export namespace HumanPursuit {
     );
   }
 
-  /**
+  /*
    * A search's stop: seconds stood at each place, and how far to each side the
    * look goes, degrees from straight ahead (provisional: no study of search
    * pauses was read).
@@ -194,7 +195,7 @@ export namespace HumanPursuit {
     aside: 60,
   };
 
-  /**
+  /*
    * Search a set of places: walk to each in turn and stand there a while, as a
    * pursuer who has lost sight of the quarry goes from place to place and stops
    * to look. Each stop is anchored `<name><index>` from 0, so `sweeps` can time
@@ -204,12 +205,11 @@ export namespace HumanPursuit {
    * const chain = HumanPursuit.search(HumanChain.subject("a"), [p, q], "seek");
    * new HumanPerformance({ ..., composition: chain.node, layers: { a: HumanPursuit.sweeps(2, "seek") } });
    * ```
-   *
-   * @param chain The searcher's chain so far.
-   * @param places The floor points visited, in order, world metres.
-   * @param name The stops' anchor prefix; `search` when absent.
-   * @param pause Seconds stood at each place; `SEARCH.pause` when absent.
-   * @returns The chain with a walk and a stand per place.
+   * Parameter chain: The searcher's chain so far.
+   * Parameter places: The floor points visited, in order, world metres.
+   * Parameter name: The stops' anchor prefix; `search` when absent.
+   * Parameter pause: Seconds stood at each place; `SEARCH.pause` when absent.
+   * Returns: The chain with a walk and a stand per place.
    */
   export function search<
     Chain extends {
@@ -229,17 +229,16 @@ export namespace HumanPursuit {
     return out;
   }
 
-  /**
+  /*
    * The looks of a search, as layers for the searcher: at each stop the eyes
    * and the head turn `SEARCH.aside` degrees to the left for the first half of
    * the stop and to the right for the second, then return ahead. Each is
    * windowed on its stop's anchor, so it needs no film second.
-   *
-   * @param count How many stops the search has.
-   * @param name The stops' anchor prefix given to `search`; `search` when
-   *   absent.
-   * @param pause Seconds stood at each place, as given to `search`.
-   * @returns One scheduled layer per stop, for the searcher's `layers`.
+   * Parameter count: How many stops the search has.
+   * Parameter name: The stops' anchor prefix given to `search`; `search` when
+   * absent.
+   * Parameter pause: Seconds stood at each place, as given to `search`.
+   * Returns: One scheduled layer per stop, for the searcher's `layers`.
    */
   export function sweeps(
     count: number,
@@ -280,13 +279,13 @@ export namespace HumanPursuit {
     );
   }
 
-  /**
+  /*
    * How far a flight runs when no distance is given, hip heights (provisional:
    * about eight metres for an adult, out of a room's reach).
    */
   export const FLIGHT: number = 9;
 
-  /**
+  /*
    * Run straight away from a person: a run to the point `metres` from where the
    * performer stands, on the line from the person through the performer.
    * Glances back are a look performed over it.
@@ -334,5 +333,7 @@ export namespace HumanPursuit {
     };
 }
 
-/** The record of `ISEARCHItem`'s site. */
+/*
+ * The record of `ISEARCHItem`'s site.
+ */
 type ISEARCHItem = { pause: number; aside: number };

@@ -39,19 +39,19 @@ import { placeOverHeadPartner } from "./placeOverHeadPartner";
 import { placeOverHeadPath } from "./placeOverHeadPath";
 import { placeOverHeadStance } from "./placeOverHeadStance";
 
-/**
+/*
  * How far the presented loop's nearest edge stands off the chest, metres
  * (provisional: a hand's breadth).
  */
 const PRESENT: number = 0.1;
 
-/**
+/*
  * How far below the shoulders the loop is presented, metres (provisional: at
  * the chest).
  */
 const BELOW: number = 0.2;
 
-/**
+/*
  * Set a neck loop over a partner's head. The loop's path is
  * `placeOverHeadPath`'s, read on the partner's displayed body at the action's
  * start, so a partner who bows, kneels or sits first is met where they are. The
@@ -83,7 +83,7 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
     plan: planPlaceOverHead,
   };
 
-/**
+/*
  * Set a neck loop over a partner's head. The loop's path is
  * `placeOverHeadPath`'s, read on the partner's displayed body at the action's
  * start, so a partner who bows, kneels or sits first is met where they are. The
@@ -107,8 +107,6 @@ export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuman
  * seated partner's nape and chest the dresser hinges at the hips by the least
  * angle that keeps both wrists within their arms along the path
  * (`HumanTrunkLean`), as `dressPartner` reaches a kneeling crown.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the path's owner, who carries the loop, the custody change, the course and both refusals.
  */
 function planPlaceOverHead(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPlaceOverHead>,
@@ -414,7 +412,9 @@ function planPlaceOverHead(
   };
 }
 
-/** Locate the path's release key on the monotone minimum-jerk stroke clock. */
+/*
+ * Locate the path's release key on the monotone minimum-jerk stroke clock.
+ */
 function assistRelease(clock: IAutoMovieMotionClock, share: number): number {
   let lo: number = clock.at("strokeStart");
   let hi: number = clock.at("strokeEnd");
@@ -426,5 +426,7 @@ function assistRelease(clock: IAutoMovieMotionClock, share: number): number {
   return hi;
 }
 
-/** The handle names a neck loop declares. */
+/*
+ * The handle names a neck loop declares.
+ */
 type Handle = "holdLeft" | "holdRight";

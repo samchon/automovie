@@ -12,7 +12,7 @@ import { swingTwistRange } from "../../kinematics/swingTwistRange";
 import { abductionRange } from "./abductionRange";
 import { AutoMovieEngineJointRomScan } from "./AutoMovieEngineJointRomScan";
 
-/**
+/*
  * Append axis range/ROM violations and a combined swing violation to the
  * caller's collector. Null angles mean rest and contribute zero to swing;
  * immobile axes admit null/zero. Field paths and degree overshoots preserve

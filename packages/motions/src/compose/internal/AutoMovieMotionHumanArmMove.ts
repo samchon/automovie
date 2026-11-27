@@ -16,18 +16,17 @@ import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 
-/**
+/*
  * An arm moved between an origin and a target by a weight, and the three
  * windows of it a phrase is made of: the reach, the hold and the retract.
  *
  * The members are `AutoMovieMotionHumanArm`'s, which names them.
  */
 export namespace AutoMovieMotionHumanArmMove {
-  /**
+  /*
    * An arm moved between an origin and a target by a weight.
-   *
-   * @param props The movement.
-   * @returns The primitive, on the arm's and the hand's channels.
+   * Parameter props: The movement.
+   * Returns: The primitive, on the arm's and the hand's channels.
    */
   export function move(props: Move): IAutoMovieMotionHumanPrimitive {
     const limb: MoveLimb = `${props.side}Arm`;
@@ -98,7 +97,7 @@ export namespace AutoMovieMotionHumanArmMove {
     };
   }
 
-  /**
+  /*
    * A point of a path from one point to another that bows out to the arm's own
    * side: the straight path's point plus a sideways deviation that is greatest
    * at the middle and none at both ends (EMOTE's indirect Space). The side is
@@ -137,17 +136,16 @@ export namespace AutoMovieMotionHumanArmMove {
     );
   };
 
-  /**
+  /*
    * A hand carried from an origin to its target between two instants, on the
    * clock's minimum-jerk progress.
-   *
-   * @param body The body.
-   * @param clock The action's clock.
-   * @param side The arm.
-   * @param window The instants the reach starts and arrives at.
-   * @param from Where the hand starts.
-   * @param target The target.
-   * @returns The primitive.
+   * Parameter body: The body.
+   * Parameter clock: The action's clock.
+   * Parameter side: The arm.
+   * Parameter window: The instants the reach starts and arrives at.
+   * Parameter from: Where the hand starts.
+   * Parameter target: The target.
+   * Returns: The primitive.
    */
   export function reach(
     body: IAutoMovieMotionHumanBody,
@@ -169,16 +167,15 @@ export namespace AutoMovieMotionHumanArmMove {
     });
   }
 
-  /**
+  /*
    * A hand kept on its target between two instants; the target may move (a
    * stroke's path, a partner's hand, a carried prop).
-   *
-   * @param body The body.
-   * @param clock The action's clock.
-   * @param side The arm.
-   * @param window The instants the hold starts and ends at.
-   * @param target The target.
-   * @returns The primitive.
+   * Parameter body: The body.
+   * Parameter clock: The action's clock.
+   * Parameter side: The arm.
+   * Parameter window: The instants the hold starts and ends at.
+   * Parameter target: The target.
+   * Returns: The primitive.
    */
   export function hold(
     body: IAutoMovieMotionHumanBody,
@@ -198,17 +195,16 @@ export namespace AutoMovieMotionHumanArmMove {
     });
   }
 
-  /**
+  /*
    * A hand taken from its target back to an origin between two instants, on the
    * clock's minimum-jerk progress.
-   *
-   * @param body The body.
-   * @param clock The action's clock.
-   * @param side The arm.
-   * @param window The instants the retraction starts and arrives at.
-   * @param target The target the hand leaves.
-   * @param to Where the hand ends.
-   * @returns The primitive.
+   * Parameter body: The body.
+   * Parameter clock: The action's clock.
+   * Parameter side: The arm.
+   * Parameter window: The instants the retraction starts and arrives at.
+   * Parameter target: The target the hand leaves.
+   * Parameter to: Where the hand ends.
+   * Returns: The primitive.
    */
   export function retract(
     body: IAutoMovieMotionHumanBody,
@@ -231,24 +227,36 @@ export namespace AutoMovieMotionHumanArmMove {
   }
 }
 
-/** A named target hand's literal finger shape. */
+/*
+ * A named target hand's literal finger shape.
+ */
 type Shape = IAutoMovieMotionHumanHand.Shape;
 
-/** The original finger interpolation in an owned joint record. */
+/*
+ * The original finger interpolation in an owned joint record.
+ */
 type FingerWriter = ReturnType<
   typeof AutoMovieMotionHumanHand.prepareFingerWriter
 >;
 
-/** A move may name a form known to the law during preparation. */
+/*
+ * A move may name a form known to the law during preparation.
+ */
 type Move = IAutoMovieMotionHumanArmTarget.IMove & {
-  /** The expected fixed form, when the target owns one. */
+  /*
+   * The expected fixed form, when the target owns one.
+   */
   fixedShape?: Shape;
 };
 
-/** The alternatives of `MoveLimb`'s site. */
+/*
+ * The alternatives of `MoveLimb`'s site.
+ */
 type MoveLimb = "leftArm" | "rightArm";
 
-/** Prepare the law's one fixed form or the named forms of a varying target. */
+/*
+ * Prepare the law's one fixed form or the named forms of a varying target.
+ */
 function prepareMoveFingers(
   side: AutoMovieHumanSide,
   fixed: Shape | undefined,
@@ -270,7 +278,7 @@ function prepareMoveFingers(
   return (shape: Shape): FingerWriter => writers[shape];
 }
 
-/**
+/*
  * The window's minimum-jerk progress, its two instants resolved once
  * (`AutoMovieMotionClock.prepare`).
  */

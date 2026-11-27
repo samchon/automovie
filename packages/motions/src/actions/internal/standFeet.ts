@@ -19,13 +19,12 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { stand } from "./stand";
 
-/**
+/*
  * Build the foot course from the displayed entry.
- *
- * @param body The body.
- * @param entry The displayed state.
- * @param yaw The quiet heading, degrees.
- * @returns The contact-preserving foot course.
+ * Parameter body: The body.
+ * Parameter entry: The displayed state.
+ * Parameter yaw: The quiet heading, degrees.
+ * Returns: The contact-preserving foot course.
  */
 export function standFeet(
   body: IAutoMovieMotionHumanBody,
@@ -211,20 +210,30 @@ export function standFeet(
   };
 }
 
-/**
+/*
  * A quiet stance's feet, flattened by rolling about the displayed bearing
  * socket. The same contact determines its final ankle and the course to it.
  */
 export namespace standFeet {
-  /** A planted foot's flattening course. */
+  /*
+   * A planted foot's flattening course.
+   */
   export interface ICourse {
-    /** Final ankle points, world metres. */
+    /*
+     * Final ankle points, world metres.
+     */
     flat: Record<AutoMovieHumanSide, IAutoMovieVector3>;
-    /** Read both rockers once for one share; the caller owns the sample. */
+    /*
+     * Read both rockers once for one share; the caller owns the sample.
+     */
     sample(share: number): ISample;
-    /** Mean ankle displacement from the flat targets at share 0 to 1. */
+    /*
+     * Mean ankle displacement from the flat targets at share 0 to 1.
+     */
     offset(share: number): IAutoMovieVector3;
-    /** Write the feet and toes at a share, optionally carried by their support. */
+    /*
+     * Write the feet and toes at a share, optionally carried by their support.
+     */
     write(
       posture: IAutoMovieMotionHumanPosture,
       share: number,
@@ -232,12 +241,18 @@ export namespace standFeet {
     ): IAutoMovieMotionHumanPosture;
   }
 
-  /** One synchronous course reading, shared by root placement and its feet. */
+  /*
+   * One synchronous course reading, shared by root placement and its feet.
+   */
   export interface ISample {
-    /** Mean world-metre ankle displacement from the final flat targets. */
+    /*
+     * Mean world-metre ankle displacement from the final flat targets.
+     */
     offset: IAutoMovieVector3;
 
-    /** Write the already read feet, optionally moved by the current support. */
+    /*
+     * Write the already read feet, optionally moved by the current support.
+     */
     write(
       posture: IAutoMovieMotionHumanPosture,
       carry?: IAutoMovieMotionHumanSupportCarry.ICarry,
@@ -245,23 +260,39 @@ export namespace standFeet {
   }
 }
 
-/** One foot's fixed-contact evaluations. */
+/*
+ * One foot's fixed-contact evaluations.
+ */
 interface IPlan {
-  /** The foot. */
+  /*
+   * The foot.
+   */
   side: AutoMovieHumanSide;
-  /** The ankle and rotation at a share. */
+  /*
+   * The ankle and rotation at a share.
+   */
   at(share: number): IAutoMovieMotionHumanFoot.IPlacement;
-  /** Toe flexion, degrees, at a share. */
+  /*
+   * Toe flexion, degrees, at a share.
+   */
   toes(share: number): number;
-  /** The bearing offset in the foot's frame. */
+  /*
+   * The bearing offset in the foot's frame.
+   */
   contact(share: number): IAutoMovieVector3;
 }
 
-/** Fixed share-one geometry used by both flat targets and completed rockers. */
+/*
+ * Fixed share-one geometry used by both flat targets and completed rockers.
+ */
 interface ISettled {
-  /** The final ankle and foot rotation in the world. */
+  /*
+   * The final ankle and foot rotation in the world.
+   */
   placement: IAutoMovieMotionHumanFoot.IPlacement;
 
-  /** The final bearing offset in the foot's local frame, metres. */
+  /*
+   * The final bearing offset in the foot's local frame, metres.
+   */
   contact: IAutoMovieVector3;
 }

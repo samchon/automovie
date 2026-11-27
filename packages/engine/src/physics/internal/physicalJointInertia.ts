@@ -7,7 +7,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
 
-/**
+/*
  * Project both bodies' world inverse inertia tensors onto each joint axis,
  * giving relative-rotation inertia.
  */

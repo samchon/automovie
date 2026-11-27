@@ -1,6 +1,6 @@
 import { BODY_ROOT } from "./BODY_ROOT";
 
-/**
+/*
  * Gives reference targets an explicit address in the graph's global space.
  *
  * Every inherited reference selects the body, where each layer's authored text

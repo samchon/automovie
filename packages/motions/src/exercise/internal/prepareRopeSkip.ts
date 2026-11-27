@@ -6,7 +6,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/**
+/*
  * Drive a visible rope on the clock of a placed two-foot skip.
  *
  * The central cable runs transversely and revolves over the neutral body height
@@ -18,11 +18,10 @@ import { HumanHand } from "../../posture/internal/HumanHand";
  * The cable can flex where it joins that end. A film host poses its two barrels
  * and supplies the unindexed cord to the existing soft-prop draw binding. This
  * is a derived staging curve.
- *
- * @returns A seekable film-time sampler, undefined outside the surviving
- *   action.
- * @throws {HumanRefusal} For invalid dimensions, an incompatible action, or a
- *   rope that cannot span the sampled pose above the floor.
+ * Returns: A seekable film-time sampler, undefined outside the surviving
+ * action.
+ * For invalid dimensions, an incompatible action, or a
+ * rope that cannot span the sampled pose above the floor.
  */
 export function prepareRopeSkip(
   input: IAutoMovieMotionHumanRopeSkipPresentation,
@@ -340,16 +339,24 @@ export function prepareRopeSkip(
   return sample;
 }
 
-/** Match the displayed-action seam precision in HumanSegmentPose. */
+/*
+ * Match the displayed-action seam precision in HumanSegmentPose.
+ */
 const SEAM_SECONDS: number = 1e-12;
 
-/** The 50 mm reference grip in AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfaces, in metres. */
+/*
+ * The 50 mm reference grip in AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfaces, in metres.
+ */
 const REFERENCE_GRIP_RADIUS: number = 0.025;
 
-/** The measured 7/8-inch barrel used by the standard rope archetype, in metres. */
+/*
+ * The measured 7/8-inch barrel used by the standard rope archetype, in metres.
+ */
 const DEFAULT_HANDLE_DIAMETER: number = (7 / 8) * 0.0254;
 
-/** Project the sole's cited perimeter frames with the actual foot and toe bones. */
+/*
+ * Project the sole's cited perimeter frames with the actual foot and toe bones.
+ */
 function solePoints(
   outline: readonly IAutoMovieHumanoidSurfaces.IFrame[],
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -361,7 +368,9 @@ function solePoints(
   );
 }
 
-/** Clip one coordinate of a segment to a closed interval of its parameter. */
+/*
+ * Clip one coordinate of a segment to a closed interval of its parameter.
+ */
 function clip(
   a: number,
   b: number,
@@ -376,7 +385,9 @@ function clip(
   return from <= to ? [from, to] : null;
 }
 
-/** Aim the circular barrel's +Z axis along the displayed grasp's wrapped axis. */
+/*
+ * Aim the circular barrel's +Z axis along the displayed grasp's wrapped axis.
+ */
 function handle(
   position: IAutoMovieVector3,
   exit: IAutoMovieVector3,
@@ -390,7 +401,9 @@ function handle(
   };
 }
 
-/** Report an infeasible emitted cable or a missed underpass on the film clock. */
+/*
+ * Report an infeasible emitted cable or a missed underpass on the film clock.
+ */
 function refuse(subject: string, seconds: number, reason: string): never {
   throw new HumanRefusal({
     kind: "reach",

@@ -19,7 +19,7 @@ import "./measureDogNeckLength";
 import type { IDogBodyMeasures } from "./structures/IDogBodyMeasures";
 import type { DogCohort } from "./typings/DogCohort";
 
-/**
+/*
  * A coarse Husky prototype from one published Pet, Show or Sled cohort mean.
  *
  * The coarse surface proportions follow measured cohort means. Skeletal
@@ -31,13 +31,12 @@ import type { DogCohort } from "./typings/DogCohort";
  * real rein contact. Without a named cohort its width must fit every selectable
  * neck, so acceptance never depends on the seed. Naming a cohort admits that
  * cohort's own neck length. No saddle exists.
- *
- * @param params Required positive mass in kilograms, optional cohort, tempo and
- *   authored collar.
- * @param seed Picks one whole cohort and the tempo; absent, Pet and mean tempo.
- * @returns The dog, including its parts and optional lead affordance.
- * @throws {AutoMovieArchetypeRefusal} For invalid mass, cohort, tempo or collar
- *   dimensions.
+ * Parameter params: Required positive mass in kilograms, optional cohort, tempo and
+ * authored collar.
+ * Parameter seed: Picks one whole cohort and the tempo; absent, Pet and mean tempo.
+ * Returns: The dog, including its parts and optional lead affordance.
+ * For invalid mass, cohort, tempo or collar
+ * dimensions.
  */
 export function createDog(
   params: AutoMovieArchetypeDog.IParams,

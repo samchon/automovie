@@ -14,7 +14,7 @@ import type {
 
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 
-/**
+/*
  * Prepare one placed collider segment as the segment other segments' probes are
  * read in (`AutoMovieMotionHumanAuditTangleModel.depths`).
  *
@@ -25,13 +25,12 @@ import { HumanColliders } from "../../posture/internal/HumanColliders";
  * probe's depth from above where it is positive; it is a distance difference,
  * so it moves no faster than the probe and the segment move apart, which is
  * what a conservative-advancement certificate needs.
- *
- * @param b The placed segment the probes are read in. Its pose and its shapes'
- *   transforms stay unchanged while the reader is used: the reader belongs to
- *   one reading of one pose.
- * @returns A reader of how deep each probe of another placed segment lies in
- *   `b`: the probes in that segment's frame, the segment and the optional room
- *   array, giving metres per probe, zero outside.
+ * Parameter b: The placed segment the probes are read in. Its pose and its shapes'
+ * transforms stay unchanged while the reader is used: the reader belongs to
+ * one reading of one pose.
+ * Returns: A reader of how deep each probe of another placed segment lies in
+ * `b`: the probes in that segment's frame, the segment and the optional room
+ * array, giving metres per probe, zero outside.
  */
 export function prepareAutoMovieMotionHumanAuditDepths(
   b: IAutoMovieMotionHumanColliders.IPlaced,
@@ -166,13 +165,19 @@ export function prepareAutoMovieMotionHumanAuditDepths(
   };
 }
 
-/** A placed sphere with its certified lower squared distance for outside probes. */
+/*
+ * A placed sphere with its certified lower squared distance for outside probes.
+ */
 interface IProbeBall extends IAutoMovieMotionHumanColliders.IBall {
-  /** Infinity where the ordinary square root does not certify the radius. */
+  /*
+   * Infinity where the ordinary square root does not certify the radius.
+   */
   outsideSquared: number;
 }
 
-/** The identity frame a shape's distance is read in. */
+/*
+ * The identity frame a shape's distance is read in.
+ */
 const IDENTITY: IAutoMovieRigidTransform = {
   position: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },

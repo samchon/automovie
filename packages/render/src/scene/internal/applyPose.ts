@@ -16,8 +16,8 @@ import { applyTransform } from "./applyTransform.js";
 import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose.js";
 import { morphTargetDriversOf } from "./morphTargetDriversOf.js";
 
-/**
- * Apply a {@link IAutoMoviePose} to a built model by running the engine's
+/*
+ * Apply a IAutoMoviePose to a built model by running the engine's
  * forward kinematics and writing each bone's local rotation onto the
  * corresponding `THREE.Bone`. The pose's root transform (if any) is applied to
  * the model root.
@@ -35,7 +35,7 @@ import { morphTargetDriversOf } from "./morphTargetDriversOf.js";
  * `resolveMorphTargetWeights` computes from the same pose, so a corrective
  * follows every applied pose; expression-written targets are left alone. Every
  * skinned mesh then starts a new pose revision
- * ({@link invalidateAutoMovieSkinnedPose}), so its bounds and vertex queries
+ * (invalidateAutoMovieSkinnedPose), so its bounds and vertex queries
  * follow the pose the shader draws.
  *
  * Returns the skeleton bones the FK resolved but the model's bone map does not

@@ -14,7 +14,7 @@ import { AutoMovieMotionHumanChannel as HumanChannels } from "../../compose/inte
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 
-/**
+/*
  * A planned action placed over its carrier: the channels it claims checked
  * against what the carrier yields and what the other overlays of the same span
  * hold, and the overlay added to its performer. Once the schedule is placed,
@@ -22,40 +22,53 @@ import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
  * entire active span.
  */
 export namespace HumanPerformanceOverlays {
-  /** A planned action as `HumanPerformancePlace.place` hands it over. */
+  /*
+   * A planned action as `HumanPerformancePlace.place` hands it over.
+   */
   export interface IPlanned {
-    /** The action's name. */
+    /*
+     * The action's name.
+     */
     name: AutoMovieMotionHumanActionKey;
 
-    /** The parameters it was planned from. */
+    /*
+     * The parameters it was planned from.
+     */
     params: object;
 
-    /** Its law. */
+    /*
+     * Its law.
+     */
     law: IAutoMovieMotionHumanActionLaw<never>;
 
-    /** The context it was planned in. */
+    /*
+     * The context it was planned in.
+     */
     context: IAutoMovieMotionHumanActionContext<never>;
 
-    /** Its plan. */
+    /*
+     * Its plan.
+     */
     plan: IAutoMovieMotionHumanActionPlan;
 
-    /** Film second it starts. */
+    /*
+     * Film second it starts.
+     */
     start: number;
   }
 
-  /**
+  /*
    * Place a planned action over its carrier.
-   *
-   * @param self The performance's state.
-   * @param person The performer.
-   * @param carrier The action that carries the body at the overlay's start.
-   * @param intent The intent placed.
-   * @param entries The schedule entries placed so far.
-   * @param planned The planned action.
-   * @returns The overlay's timing for the schedule: its duration, its contact
-   *   instant when it has one, and its events.
-   * @throws {HumanRefusal} When the carrier keeps a claimed channel or a held
-   *   prop prevents the overlay from using its hand.
+   * Parameter self: The performance's state.
+   * Parameter person: The performer.
+   * Parameter carrier: The action that carries the body at the overlay's start.
+   * Parameter intent: The intent placed.
+   * Parameter entries: The schedule entries placed so far.
+   * Parameter planned: The planned action.
+   * Returns: The overlay's timing for the schedule: its duration, its contact
+   * instant when it has one, and its events.
+   * When the carrier keeps a claimed channel or a held
+   * prop prevents the overlay from using its hand.
    */
   export function place(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -100,15 +113,14 @@ export namespace HumanPerformanceOverlays {
     };
   }
 
-  /**
+  /*
    * Publish the just-placed overlay's scheduled end and check its claims
    * against earlier placements over the actual shared interval.
-   *
-   * @param person The performer whose last overlay was just scheduled.
-   * @param entry The scheduled overlay, including its resolved end in film
-   *   seconds.
-   * @throws {HumanRefusal} When both overlays use a channel during a shared
-   *   span.
+   * Parameter person: The performer whose last overlay was just scheduled.
+   * Parameter entry: The scheduled overlay, including its resolved end in film
+   * seconds.
+   * When both overlays use a channel during a shared
+   * span.
    */
   export function finish(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -147,14 +159,13 @@ export namespace HumanPerformanceOverlays {
     }
   }
 
-  /**
+  /*
    * Check the active spans of carriers that specify their own channel
    * ownership. Placement can add or cut another action after admitting an
    * overlay.
-   *
-   * @param person The performer with every action and overlay placed.
-   * @throws {HumanRefusal} When an overlay still running claims a channel the
-   *   new carrier needs.
+   * Parameter person: The performer with every action and overlay placed.
+   * When an overlay still running claims a channel the
+   * new carrier needs.
    */
   export function validate(person: IAutoMovieMotionHumanSegment.IPerson): void {
     const overlays: IAutoMovieMotionHumanSegment.IOverlay[] = [
@@ -191,7 +202,9 @@ export namespace HumanPerformanceOverlays {
     }
   }
 
-  /** Locate a refusal by the overlay's placement order among actions of its id. */
+  /*
+   * Locate a refusal by the overlay's placement order among actions of its id.
+   */
   function locate(
     person: IAutoMovieMotionHumanSegment.IPerson,
     overlay: IAutoMovieMotionHumanSegment.IOverlay,
@@ -210,7 +223,9 @@ export namespace HumanPerformanceOverlays {
     });
   }
 
-  /** Refuses a claimed channel that the carrier keeps for itself. */
+  /*
+   * Refuses a claimed channel that the carrier keeps for itself.
+   */
   function requireYielded(
     carrier: IAutoMovieMotionHumanSegment,
     name: AutoMovieMotionHumanActionKey,
@@ -237,12 +252,16 @@ export namespace HumanPerformanceOverlays {
   }
 }
 
-/** The record of `IPlaceResult`'s site. */
+/*
+ * The record of `IPlaceResult`'s site.
+ */
 type IPlaceResult = {
   duration: number;
   contact?: number;
   events: IPlaceEventsItemResult[];
 };
 
-/** The record of `IPlaceEventsItemResult`'s site. */
+/*
+ * The record of `IPlaceEventsItemResult`'s site.
+ */
 type IPlaceEventsItemResult = { name: string; share: number };

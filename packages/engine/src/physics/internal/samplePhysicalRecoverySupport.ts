@@ -6,7 +6,7 @@ import type {
 
 import { physicalRecoveryLimbSwing } from "./physicalRecoveryLimbSwing";
 
-/**
+/*
  * Replay a support's actual controller ownership and accepted goal adjustment
  * at one second. Completed future landings cannot alter an earlier sample;
  * authored handoffs end endpoint ownership while retaining the independently

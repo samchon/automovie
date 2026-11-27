@@ -4,7 +4,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { distalEndSwivelReadings } from "../distalEndSwivelReadings";
 import { swivelArcs } from "../swivelArcs";
 
-/**
+/*
  * The swivels at which the end joint of a chain whose mid segment twists
  * distally (a wrist beyond a forearm) cannot take a requested rotation inside
  * its range, as arcs in closed form.
@@ -21,15 +21,14 @@ import { swivelArcs } from "../swivelArcs";
  * request leaves it is not a sinusoid of the swivel, though where it meets an
  * end of its range is (`distalTwistSwivelRange`), and the swivel chosen is the
  * caller's to verify.
- *
- * @param props The end joint, the mid segment's direction by swivel and the
- *   margin.
- * @returns The refused arcs merged over a turn, every swivel, or null when the
- *   analysis does not apply (`distalEndSwivelReadings.of`).
+ * Parameter props: The end joint, the mid segment's direction by swivel and the
+ * margin.
+ * Returns: The refused arcs merged over a turn, every swivel, or null when the
+ * analysis does not apply (`distalEndSwivelReadings.of`).
  */
 export function distalEndSwivelArcs(
   props: distalEndSwivelReadings.IProps & {
-    /**
+    /*
      * How far past a bound, in sine or projected units, a reading must lie to
      * be refused; negative keeps the result strictly inside.
      */

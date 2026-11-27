@@ -8,7 +8,7 @@ import {
 import { playbackCursor } from "./playbackCursor";
 import { sequenceTimeline } from "./sequenceTimeline";
 
-/**
+/*
  * The whole film as one on-screen sample per output frame.
  *
  * There are `round(runtime × fps)` frames sampled at `i / fps`, the same
@@ -17,13 +17,12 @@ import { sequenceTimeline } from "./sequenceTimeline";
  * rounding. A render host drives its per-frame capture from this list: pose the
  * live shot's scene at `time`, blend the outgoing tail when a dissolve is in
  * flight, and write the frame. A non-finite or non-positive `fps` throws an
- * `Error`, and {@link sequenceTimeline} throws for a sequence it cannot lay out,
+ * `Error`, and sequenceTimeline throws for a sequence it cannot lay out,
  * such as an empty one or an unknown shot. Frame storage is uncapped; an
  * excessive count can exceed Array.from's allocation limits.
- *
- * @param sequence The cut to play.
- * @param shots The compiled shots the cut references.
- * @returns One sample per output frame, in frame order.
+ * Parameter sequence: The cut to play.
+ * Parameter shots: The compiled shots the cut references.
+ * Returns: One sample per output frame, in frame order.
  */
 export function playbackFrameSamples(
   sequence: IAutoMovieSequence,

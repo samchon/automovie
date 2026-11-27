@@ -254,19 +254,18 @@ export namespace AutoMovieSchedulePlace {
     );
   }
 
-  /**
+  /*
    * Where a sequence goes on after a part placed at an instant: from the later
    * of the cursor and the part's end, unless the part starts inside the action
    * of its own subject that set the cursor. That action is cut where the part
    * starts (the laws' cancel tables say whether it may be), so what follows
    * starts from the part's end, not from the cut action's uncut one.
-   *
-   * @param walk The walk.
-   * @param first The part's leading intent.
-   * @param start The cursor, film seconds.
-   * @param before How many entries were placed before the part.
-   * @param end The part's end, film seconds.
-   * @returns Where the sequence goes on, film seconds.
+   * Parameter walk: The walk.
+   * Parameter first: The part's leading intent.
+   * Parameter start: The cursor, film seconds.
+   * Parameter before: How many entries were placed before the part.
+   * Parameter end: The part's end, film seconds.
+   * Returns: Where the sequence goes on, film seconds.
    */
   function resume(
     walk: IAutoMovieScheduleWalk.IWalk,

@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * Limit a timed course's knot tangents so no moving cubic runs back along its
  * chord.
  *
@@ -14,11 +14,10 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * fast next knot dips backward before it goes on; within this region its
  * leading term out of the hold points along the chord, so the hold's facing is
  * the motion's.
- *
- * @param times The samples' seconds.
- * @param points The samples' points.
- * @param held Whether each interval holds still.
- * @param tangents The knot tangents, metres per second, scaled in place.
+ * Parameter times: The samples' seconds.
+ * Parameter points: The samples' points.
+ * Parameter held: Whether each interval holds still.
+ * Parameter tangents: The knot tangents, metres per second, scaled in place.
  */
 export function limitMonotoneTangents(
   times: readonly number[],

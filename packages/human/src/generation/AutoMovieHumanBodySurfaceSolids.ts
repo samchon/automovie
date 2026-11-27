@@ -170,7 +170,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
         continue;
       }
       for (const f of body.faces) {
-        /**
+        /*
          * Both roles retain the same published point identities and this-face
          * chart.
          */

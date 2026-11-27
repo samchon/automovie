@@ -5,16 +5,15 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Admit a float beside a swimming horse and cue it: the rider slides off over a
  * positive transition shorter than the float, on a side the water leaves open
  * (sliding off downstream would put the rider under the horse); `slideOff` cues
  * the start and `afloat` the transition's end.
- *
- * @param params The float's seconds, transition, side and blocked sides.
- * @returns The float's cues.
- * @throws {HumanRefusal} When the transition is not positive and shorter than
- *   the float, or the side is blocked.
+ * Parameter params: The float's seconds, transition, side and blocked sides.
+ * Returns: The float's cues.
+ * When the transition is not positive and shorter than
+ * the float, or the side is blocked.
  */
 export function humanFloatBesideAdmit(
   params: Pick<

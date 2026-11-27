@@ -8,19 +8,18 @@ import { readAutoMovieDeliveryDecode } from "./readAutoMovieDeliveryDecode";
 import { runAutoMovieDeliveryAudioDecode } from "./runAutoMovieDeliveryAudioDecode";
 import { runAutoMovieFfmpeg } from "../../ffmpeg/internal/runAutoMovieFfmpeg";
 
-/**
+/*
  * Decodes one encoded delivery to obtain native timing and content evidence.
  * The primary video decode also inventories the source. Audio is decoded only
  * when the source lists a primary audio stream.
- *
- * @param binary The resolved FFmpeg executable.
- * @param artifact The same delivery artifact whose bytes the host hashes.
- * @param expected The commissioned frame count and rational frame rate.
- * @param thresholds Effective video detector and silence thresholds.
- * @param run Process owner with separate binary and text output channels.
- * @param meter Creates the render's loudness meter, when the decoded audio's
- *   loudness and true peak are measured.
- * @returns Native evidence, absence or reasoned uncovered status per stream.
+ * Parameter binary: The resolved FFmpeg executable.
+ * Parameter artifact: The same delivery artifact whose bytes the host hashes.
+ * Parameter expected: The commissioned frame count and rational frame rate.
+ * Parameter thresholds: Effective video detector and silence thresholds.
+ * Parameter run: Process owner with separate binary and text output channels.
+ * Parameter meter: Creates the render's loudness meter, when the decoded audio's
+ * loudness and true peak are measured.
+ * Returns: Native evidence, absence or reasoned uncovered status per stream.
  */
 export async function runAutoMovieDeliveryDecode(
   binary: string,

@@ -3,18 +3,17 @@ import { AutoMovieEngineMath } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
-/**
+/*
  * A rectangular pool water surface at local Y = 0, with positive Y up. The
  * translucent material shows limbs below the swimming plane. The `water`
  * affordance gives a placement reader the same plane and extents.
- *
- * @param params Optional fixed surface dimensions, in metres, and model id.
- * @param seed The seed for omitted dimensions. With no seed, use each band's
- *   midpoint.
- * @returns A visual archetype with water geometry, dimensions and a placement
- *   reference.
- * @throws {AutoMovieArchetypeRefusal} When a fixed dimension is nonfinite or
- *   outside its band.
+ * Parameter params: Optional fixed surface dimensions, in metres, and model id.
+ * Parameter seed: The seed for omitted dimensions. With no seed, use each band's
+ * midpoint.
+ * Returns: A visual archetype with water geometry, dimensions and a placement
+ * reference.
+ * When a fixed dimension is nonfinite or
+ * outside its band.
  */
 export function createPoolWater(
   params: AutoMovieArchetypePoolWater.IParams = {},

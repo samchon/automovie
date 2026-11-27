@@ -3,7 +3,7 @@ import type { IAutoMovieMotionHumanConversation } from "@automovie/interface";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanConversation } from "./HumanConversation";
 
-/**
+/*
  * Plan a participant's gaze from authored turns in a group conversation.
  *
  * At each turn start the listeners look toward the speaker and the speaker
@@ -13,13 +13,12 @@ import { HumanConversation } from "./HumanConversation";
  * listeners shifting to the incoming speaker in questions and replies. Here
  * each change starts on the authored boundary. Consecutive spans with one
  * speaker can redirect their address.
- *
- * @param params The participant, the distinct nonempty subject ids including
- *   silent listeners, the ordered non-overlapping speaking spans in film
- *   seconds, the participant's seeded stream and the eye height in metres.
- * @returns Requests for HumanGaze.layer. The last request of each span releases
- *   at its end.
- * @throws When a subject, span, or eye height falls outside the stated bounds.
+ * Parameter params: The participant, the distinct nonempty subject ids including
+ * silent listeners, the ordered non-overlapping speaking spans in film
+ * seconds, the participant's seeded stream and the eye height in metres.
+ * Returns: Requests for HumanGaze.layer. The last request of each span releases
+ * at its end.
+ * When a subject, span, or eye height falls outside the stated bounds.
  */
 export function conversationGroupGaze(
   params: IAutoMovieMotionHumanConversation.IGroupGaze,

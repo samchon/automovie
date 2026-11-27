@@ -686,10 +686,14 @@ export namespace AutoMovieHumanBodyAnatomy {
   };
 }
 
-/** Perry et al. 2021's fitted wrist circularity at stylion (x = 1 of radiale-stylion), the polynomial 1.4204 - 3.1362 + 1.8798 + 0.5104. */
+/*
+ * Perry et al. 2021's fitted wrist circularity at stylion (x = 1 of radiale-stylion), the polynomial 1.4204 - 3.1362 + 1.8798 + 0.5104.
+ */
 const WRIST_CIRCULARITY: number = 1.4204 - 3.1362 + 1.8798 + 0.5104;
 
-/** Ramanujan's first approximation of the perimeter of an ellipse of semi-axes `a` and `b`. */
+/*
+ * Ramanujan's first approximation of the perimeter of an ellipse of semi-axes `a` and `b`.
+ */
 function ellipsePerimeter(a: number, b: number): number {
   return Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
 }

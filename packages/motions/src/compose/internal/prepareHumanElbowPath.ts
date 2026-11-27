@@ -6,7 +6,9 @@ import type {
 import { prepareHumanAdaptiveKnots } from "../../posture/internal/prepareHumanAdaptiveKnots";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 
-/** Interpolate observed elbow hints while the hand keeps its exact goal. */
+/*
+ * Interpolate observed elbow hints while the hand keeps its exact goal.
+ */
 export function prepareHumanElbowPath(
   duration: number,
   events: readonly number[],

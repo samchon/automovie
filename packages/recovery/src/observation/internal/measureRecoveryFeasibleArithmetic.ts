@@ -5,7 +5,7 @@ import type {
   IAutoMovieSimplexMinimum,
 } from "@automovie/interface";
 
-/**
+/*
  * Bound stored-dual reconstruction separately from actual returned-row error.
  * Stored Float64 inputs are exact here. Sequential multiply/add uses gamma(2m),
  * with an absolute subnormal term, before exact normalization by the weight

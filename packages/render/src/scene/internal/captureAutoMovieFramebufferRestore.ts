@@ -4,7 +4,7 @@ import type { IAutoMovieFramebufferContext } from "../IAutoMovieFramebufferConte
 import type { IAutoMovieFramebufferRenderer } from "../IAutoMovieFramebufferRenderer.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
-/**
+/*
  * Capture the public framebuffer selection and raster rectangle state. A target
  * bind changes effective viewport/scissor. Preserve both configured logical
  * renderer fields and the effective framebuffer's physical rectangle. A

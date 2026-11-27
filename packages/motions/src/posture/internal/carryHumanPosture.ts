@@ -7,17 +7,16 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A posture carried rigidly by a frame that moved: every world point of it (the
  * root and each limb goal that is not attached to a bone) goes where the
  * frame's motion from `origin` to `now` takes it, and the heading turns with
  * the frame. A seated rider on a car and a person on another's back are carried
  * this way.
- *
- * @param posture The posture when the frame was at `origin`.
- * @param origin The carrying frame then.
- * @param now The carrying frame at the instant asked.
- * @returns The carried posture.
+ * Parameter posture: The posture when the frame was at `origin`.
+ * Parameter origin: The carrying frame then.
+ * Parameter now: The carrying frame at the instant asked.
+ * Returns: The carried posture.
  */
 export function carryHumanPosture(
   posture: IAutoMovieMotionHumanPosture,

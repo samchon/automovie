@@ -7,14 +7,13 @@ import { AutoMovieArchetypeTablet } from "../AutoMovieArchetypeTablet";
 import "./HandheldDevice";
 import { AutoMovieArchetypeRadio } from "../AutoMovieArchetypeRadio";
 
-/**
+/*
  * Reads a saved handheld device recipe and calls the producer for its kind.
- *
- * @param params The saved kind, dimensions, model and optional identifier.
- * @param seed The seed used by the selected device.
- * @returns The selected device in its original coordinate frame.
- * @throws {AutoMovieArchetypeRefusal} When the kind, model or dimension is
- *   refused.
+ * Parameter params: The saved kind, dimensions, model and optional identifier.
+ * Parameter seed: The seed used by the selected device.
+ * Returns: The selected device in its original coordinate frame.
+ * When the kind, model or dimension is
+ * refused.
  */
 export function createDevice(
   params: AutoMovieArchetypeDevice.IParams,

@@ -1,17 +1,16 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * The point of the segment from `from` along `slide` at `length` from `grip`,
  * the farther along it of the two where the sphere about the grip meets the
  * segment's line, clamped to the segment; undefined when the sphere misses the
  * line.
- *
- * @param from The segment's start, world metres.
- * @param slide The segment, world metres.
- * @param grip The sphere's centre, world metres.
- * @param length The sphere's radius, metres.
- * @returns The point, or undefined when the sphere misses the line.
+ * Parameter from: The segment's start, world metres.
+ * Parameter slide: The segment, world metres.
+ * Parameter grip: The sphere's centre, world metres.
+ * Parameter length: The sphere's radius, metres.
+ * Returns: The point, or undefined when the sphere misses the line.
  */
 export function poleVaultOnLine(
   from: IAutoMovieVector3,

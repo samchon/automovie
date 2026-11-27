@@ -4,19 +4,19 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * The default apex's part independent of the jump's length, hip heights
  * (provisional).
  */
 const APEX_BASE: number = 0.06;
 
-/**
+/*
  * The default apex's rise per metre of the jump's horizontal length, metres per
  * metre (provisional).
  */
 const APEX_PER_LENGTH: number = 0.1;
 
-/**
+/*
  * A jump's ballistic flight of the centre of mass, the one point gravity alone
  * moves while airborne: from the apex height above take-off (0.06 hip heights
  * plus a tenth of the jump's length when absent, provisional, plus the climb to
@@ -26,35 +26,46 @@ const APEX_PER_LENGTH: number = 0.1;
  * (`v = d / T - g T / 2`, as the engine's ballistic solvers).
  */
 export namespace jumpFlight {
-  /** The flight solved. */
+  /*
+   * The flight solved.
+   */
   export interface IFlight {
-    /** The apex above take-off, metres. */
+    /*
+     * The apex above take-off, metres.
+     */
     apex: number;
 
-    /** The vertical take-off speed, metres per second. */
+    /*
+     * The vertical take-off speed, metres per second.
+     */
     vy: number;
 
-    /** The flight's seconds. */
+    /*
+     * The flight's seconds.
+     */
     T: number;
 
-    /** The centre's velocity at take-off, metres per second. */
+    /*
+     * The centre's velocity at take-off, metres per second.
+     */
     launch: IAutoMovieVector3;
 
-    /** The centre's velocity at touchdown, metres per second. */
+    /*
+     * The centre's velocity at touchdown, metres per second.
+     */
     land: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * Solve the flight between the centre's take-off and touchdown places.
-   *
-   * @param comT The centre at take-off, world metres.
-   * @param comL The centre at touchdown, world metres.
-   * @param asked The apex asked, metres; the default when absent.
-   * @param l The hip height, metres.
-   * @param rise The landing surface's height, metres, for the refusal's words.
-   * @returns The flight.
-   * @throws {HumanRefusal} When the apex is not positive, or does not rise past
-   *   the landing's climb.
+   * Parameter comT: The centre at take-off, world metres.
+   * Parameter comL: The centre at touchdown, world metres.
+   * Parameter asked: The apex asked, metres; the default when absent.
+   * Parameter l: The hip height, metres.
+   * Parameter rise: The landing surface's height, metres, for the refusal's words.
+   * Returns: The flight.
+   * When the apex is not positive, or does not rise past
+   * the landing's climb.
    */
   export function solve(
     comT: IAutoMovieVector3,

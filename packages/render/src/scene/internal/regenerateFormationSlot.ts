@@ -4,7 +4,7 @@ import type {
   IAutoMovieFormationSlot,
 } from "@automovie/interface";
 
-/**
+/*
  * Regenerate one exact slot from compact runtime parameters.
  *
  * The placement itself is the engine's. A viewer that re-derived the layout

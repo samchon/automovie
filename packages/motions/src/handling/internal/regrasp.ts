@@ -30,7 +30,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanGrasp } from "./HumanGrasp";
 
-/**
+/*
  * A held object moved within or with the hand that holds it, without being put
  * down: turned about one of its own axes (a key in a lock, a cap), shifted to
  * another of its grips (a pen turned into a writing grip, a phone from a carry
@@ -67,19 +67,22 @@ import { HumanGrasp } from "./HumanGrasp";
  * keeps the object after.
  */
 export namespace regrasp {
-  /** The law's name, as productions register it. */
+  /*
+   * The law's name, as productions register it.
+   */
   export const name: string = "regrasp";
 
-  /** Cancel table: none declared. */
+  /*
+   * Cancel table: none declared.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
-  /**
+  /*
    * Plan the act.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the hand does not hold the object, a kind's
-   *   input is missing or names no affordance, or a twist's angle is none or
-   *   not finite.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the hand does not hold the object, a kind's
+   * input is missing or names no affordance, or a twist's angle is none or
+   * not finite.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRegrasp.IParams>,
@@ -202,16 +205,15 @@ export namespace regrasp {
     };
   }
 
-  /**
+  /*
    * A regrip's or a roll's in-hand motion: the displacement d(s) in the hand's
    * frame that, composed before the offset the grip stored (R_d p + t_d, R_d
    * R), carries the object from where it is held to its end.
-   *
-   * @param context The action's context.
-   * @param prop The held object.
-   * @param frame Its world frame at the act's start.
-   * @param hand The hand's world frame at the act's start.
-   * @returns The displacement by share.
+   * Parameter context: The action's context.
+   * Parameter prop: The held object.
+   * Parameter frame: Its world frame at the act's start.
+   * Parameter hand: The hand's world frame at the act's start.
+   * Returns: The displacement by share.
    */
   export function inHand(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRegrasp.IParams>,
@@ -316,14 +318,16 @@ export namespace regrasp {
   }
 }
 
-/**
+/*
  * Seconds for a quarter turn, a grip change or a roll across the hand
  * (provisional: no measured key-turning or in-hand manipulation time was
  * found).
  */
 const QUARTER: number = 0.6;
 
-/** A required input, refused when absent. */
+/*
+ * A required input, refused when absent.
+ */
 const need: <T>(value: T | undefined, axis: string) => T = <T>(
   value: T | undefined,
   axis: string,
@@ -339,7 +343,9 @@ const need: <T>(value: T | undefined, axis: string) => T = <T>(
   return value;
 };
 
-/** An affordance of the object, refused with its alternatives when absent. */
+/*
+ * An affordance of the object, refused with its alternatives when absent.
+ */
 const site: (
   prop: IAutoMovieMotionHumanProp,
   id: string,
@@ -367,16 +373,20 @@ const site: (
   return found;
 };
 
-/** The pivot on the affordance's axis and that axis's world direction. */
+/*
+ * The pivot on the affordance's axis and that axis's world direction.
+ */
 interface IAxis {
   pivot: IAutoMovieVector3;
   direction: IAutoMovieVector3;
 }
 
-/** A turn has an axis, while a regrip or roll has only an in-hand transform. */
+/*
+ * A turn has an axis, while a regrip or roll has only an in-hand transform.
+ */
 type OptionalAxis = IAxis | null;
 
-/**
+/*
  * The affordance's +X line in the world. In exact rotation any point on this
  * line defines the same transform. Pin the midpoint of the projected extent of
  * the prop and its affordance so any orientation error has the shortest

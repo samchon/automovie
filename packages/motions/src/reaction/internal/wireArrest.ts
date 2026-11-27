@@ -10,7 +10,7 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * An arrested fall on a wire (`IAutoMovieMotionHumanWireFlight.IArrest`). From
  * where it hangs raised, the body falls free for `drop` under standard gravity,
  * so it reaches `v = sqrt(2 g drop)`; the wire then takes it and decelerates it
@@ -21,39 +21,52 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * bound, or which has no room left above the stop, is refused.
  */
 export namespace wireArrest {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "wireArrest";
 
-  /** Cancel table: none; the wire lowers the body to the floor. */
+  /*
+   * Cancel table: none; the wire lowers the body to the floor.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-  /** How long the body hangs still at the stop, seconds: authored. */
+  /*
+   * How long the body hangs still at the stop, seconds: authored.
+   */
   export const HOLD: number = 0.4;
 
-  /** The fall's speed at the arrest and the room left to stop in. */
+  /*
+   * The fall's speed at the arrest and the room left to stop in.
+   */
   export interface IArrest {
-    /** The speed after the free drop, `sqrt(2 g drop)`, m/s. */
+    /*
+     * The speed after the free drop, `sqrt(2 g drop)`, m/s.
+     */
     speed: number;
 
-    /** The room above the stop after the drop, metres. */
+    /*
+     * The room above the stop after the drop, metres.
+     */
     room: number;
 
-    /** The deceleration the stop needs, `speed² / (2 room)`, m/s². */
+    /*
+     * The deceleration the stop needs, `speed² / (2 room)`, m/s².
+     */
     needed: number;
   }
 
-  /**
+  /*
    * Admit an arrested fall: the body drops freely `drop` metres, then the wire
    * stops it by `stop` above the floor within the room left, no harder than its
    * deceleration bound (twice gravity by default).
-   *
-   * @param params The drop and the stop, metres.
-   * @param top The body's root height at the start, metres.
-   * @param bound The wire's deceleration bound, m/s².
-   * @param lower The lowering's seconds.
-   * @returns The speed, the room and the needed deceleration.
-   * @throws {HumanRefusal} When a value is not positive, no room is left, or
-   *   the stop needs more than the bound.
+   * Parameter params: The drop and the stop, metres.
+   * Parameter top: The body's root height at the start, metres.
+   * Parameter bound: The wire's deceleration bound, m/s².
+   * Parameter lower: The lowering's seconds.
+   * Returns: The speed, the room and the needed deceleration.
+   * When a value is not positive, no room is left, or
+   * the stop needs more than the bound.
    */
   export function arrest(
     params: Pick<IAutoMovieMotionHumanWireFlight.IArrest, "drop" | "stop">,
@@ -105,13 +118,12 @@ export namespace wireArrest {
       });
     return { speed, room, needed };
   }
-  /**
+  /*
    * Plan an arrested fall.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} On `drop`, `stop` or `seconds` out of range, and on
-   *   `deceleration` when the stop needs more than the bound.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * On `drop`, `stop` or `seconds` out of range, and on
+   * `deceleration` when the stop needs more than the bound.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWireFlight.IArrest>,

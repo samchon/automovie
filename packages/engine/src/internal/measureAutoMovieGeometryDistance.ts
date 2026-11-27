@@ -9,7 +9,7 @@ import {
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
 import { Vector3 } from "../math/Vector3";
 
-/**
+/*
  * Measure Euclidean distance in world metres between point, landmark or
  * actor/bone selectors; invalid time or unresolved selectors throw.
  */

@@ -111,7 +111,7 @@ export namespace AutoMovieArchetypeQuadrupedSkeleton {
       ),
     };
 
-    /**
+    /*
      * The part owns its link frame; missing geometry is not rebuilt from
      * defaults.
      */

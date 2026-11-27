@@ -6,25 +6,28 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-/**
+/*
  * A standing weight shift's checks and clock: a foot keeps its plant when its
  * solved ankle stays within `PLANT_DISTANCE` of the entry's and its rotation
  * within half a degree; the shift is reached at `duration`, released after its
  * hold and returned over `returnSeconds` when it returns.
  */
 export namespace shiftStandingWeightSteps {
-  /** Maximum ankle drift from the displayed plant at a fit witness, metres. */
+  /*
+   * Maximum ankle drift from the displayed plant at a fit witness, metres.
+   */
   export const PLANT_DISTANCE: number = 0.003;
 
-  /** Minimum absolute unit-quaternion dot product for 0.5 degrees of foot turn. */
+  /*
+   * Minimum absolute unit-quaternion dot product for 0.5 degrees of foot turn.
+   */
   export const PLANT_TURN: number = Math.cos(Math.PI / 720);
 
-  /**
+  /*
    * Whether a solved foot stays within the plant tolerance of its entry.
-   *
-   * @param bone The solved foot bone's world pose.
-   * @param entry The entry foot's ankle and rotation.
-   * @returns Whether it keeps its plant.
+   * Parameter bone: The solved foot bone's world pose.
+   * Parameter entry: The entry foot's ankle and rotation.
+   * Returns: Whether it keeps its plant.
    */
   export function plants(
     bone: Pick<IAutoMovieResolvedBone, "worldPosition" | "worldRotation">,
@@ -39,14 +42,13 @@ export namespace shiftStandingWeightSteps {
     );
   }
 
-  /**
+  /*
    * The shift's clock instants.
-   *
-   * @param seconds The transfer's seconds.
-   * @param hold The hold's seconds.
-   * @param returnSeconds The return's seconds; none when the shift is held.
-   * @returns `shifted` at the transfer's end and, returning, `release` after
-   *   the hold and `returned` at the end.
+   * Parameter seconds: The transfer's seconds.
+   * Parameter hold: The hold's seconds.
+   * Parameter returnSeconds: The return's seconds; none when the shift is held.
+   * Returns: `shifted` at the transfer's end and, returning, `release` after
+   * the hold and `returned` at the end.
    */
   export function instants(
     seconds: number,

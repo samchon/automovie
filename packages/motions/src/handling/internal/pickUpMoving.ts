@@ -8,7 +8,7 @@ import type {
 import { pickUp } from "./pickUp";
 import { pickUpIntercept } from "./pickUpIntercept";
 
-/**
+/*
  * Intercept a mounted prop on a translating support at an authored time. The
  * hand matches incoming velocity at closure, brakes over the load phase, and
  * lifts with the ordinary pickup's stance, grip and cancellation rules.
@@ -22,7 +22,7 @@ export const pickUpMoving: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanP
     plan: planPickUpMoving,
   };
 
-/**
+/*
  * Intercept a mounted prop on a translating support at an authored time. The
  * hand matches incoming velocity at closure, brakes over the load phase, and
  * lifts with the ordinary pickup's stance, grip and cancellation rules.

@@ -10,7 +10,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/**
+/*
  * Assemble the model validation result in stable diagnostic order. IDs and
  * references precede parts, rigs, body/profile/affordance metadata and
  * materials. Cohesive leaf owners check their typed inputs and append to this
@@ -45,7 +45,7 @@ import { validateTextureBinding } from "./validateTextureBinding";
 import { validateTransformScalars } from "./validateTransformScalars";
 import { validateUniqueValues } from "./validateUniqueValues";
 
-/**
+/*
  * Assemble id/reference, primitive/mesh, skeleton (with declared joint axes),
  * gaze, transform, body/profile/affordance and material checks in stable
  * order.

@@ -9,42 +9,64 @@ import { convexHull2D } from "../../math/internal/convexHull2D";
 import { AutoMoviePhysicalBalance } from "../AutoMoviePhysicalBalance";
 import { physicalBalanceAssessment as Assessment } from "./physicalBalanceAssessment";
 
-/**
+/*
  * One limb's recovery step (`AutoMoviePhysicalBalance.assess`): where it lands,
  * when, and whether it captures and can be unloaded at once.
  */
 export namespace physicalBalanceCandidate {
-  /** One limb's planned step. */
+  /*
+   * One limb's planned step.
+   */
   export interface ICandidate {
-    /** The limb's support. */
+    /*
+     * The limb's support.
+     */
     support: IAutoMoviePhysicalSupportPatch;
 
-    /** Its declared footfall phase. */
+    /*
+     * Its declared footfall phase.
+     */
     phase: number;
 
-    /** The step's length, metres. */
+    /*
+     * The step's length, metres.
+     */
     distance: number;
 
-    /** The limb's lead along the capture point's direction. */
+    /*
+     * The limb's lead along the capture point's direction.
+     */
     lead: number;
 
-    /** The footstep. */
+    /*
+     * The footstep.
+     */
     target: IAutoMovieVector3;
 
-    /** The swing's duration, seconds. */
+    /*
+     * The swing's duration, seconds.
+     */
     seconds: number;
 
-    /** Whether the capture point lands inside the new support. */
+    /*
+     * Whether the capture point lands inside the new support.
+     */
     viable: boolean;
 
-    /** How far past the new support it lands, metres. */
+    /*
+     * How far past the new support it lands, metres.
+     */
     violation: number;
 
-    /** Whether the remaining supports already hold the centre of pressure. */
+    /*
+     * Whether the remaining supports already hold the centre of pressure.
+     */
     unloadable: boolean;
   }
 
-  /** Plan one limb's step; none for a limb that may not step. */
+  /*
+   * Plan one limb's step; none for a limb that may not step.
+   */
   export function candidate(
     scope: Assessment.IAssessment,
     support: IAutoMoviePhysicalSupportPatch,

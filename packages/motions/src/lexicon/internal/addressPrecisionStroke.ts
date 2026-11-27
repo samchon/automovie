@@ -6,7 +6,7 @@ import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Address a ball below the standing hand's reach: hinge the trunk forward at
  * the hips, move the pelvis back so the shoulders stay over their standing
  * place and on by the centre of mass's remaining travel, read once at the full
@@ -20,20 +20,19 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * shoulder-to-grip distance falls monotonically and a bisection finds the
  * boundary. A grip already in reach needs no hinge; one out of reach at the
  * limit takes the limit and leaves the stroke's contact check to refuse.
- *
- * @param body The performer.
- * @param entry The posture the stroke starts from.
- * @param feet The planted feet the stroke keeps.
- * @param side The striking hand.
- * @param grip The grip's world point at impact, metres.
- * @param bridge The other hand's bridge point on a supporting surface, world
- *   metres, which must also come into reach; absent for an unbridged stroke.
- * @param least The smallest hinge in degrees, such as a cue's lean over the
- *   bed; 0 for none.
- * @param pelvisLimit The pelvis's share limit passed to the trunk incline;
- *   Infinity lets the pelvis tilt.
- * @returns The address applied to a posture at a share from 0 to 1 of its full
- *   depth.
+ * Parameter body: The performer.
+ * Parameter entry: The posture the stroke starts from.
+ * Parameter feet: The planted feet the stroke keeps.
+ * Parameter side: The striking hand.
+ * Parameter grip: The grip's world point at impact, metres.
+ * Parameter bridge: The other hand's bridge point on a supporting surface, world
+ * metres, which must also come into reach; absent for an unbridged stroke.
+ * Parameter least: The smallest hinge in degrees, such as a cue's lean over the
+ * bed; 0 for none.
+ * Parameter pelvisLimit: The pelvis's share limit passed to the trunk incline;
+ * Infinity lets the pelvis tilt.
+ * Returns: The address applied to a posture at a share from 0 to 1 of its full
+ * depth.
  */
 export function addressPrecisionStroke(
   body: IAutoMovieMotionHumanBody,
@@ -187,20 +186,20 @@ export function addressPrecisionStroke(
     );
 }
 
-/**
+/*
  * The deepest address hinge, degrees. Golf address trunk flexion is about 30 to
  * 45 degrees (Hume, Keogh and Reid 2005, Sports Med 35:429); the provisional
  * cap leaves room for shorter implements and lower balls.
  */
 const LIMIT: number = 60;
 
-/**
+/*
  * Share of the upper arm and forearm a fitted grip may sit from its shoulder,
  * keeping the elbow off its lock; provisional.
  */
 const ARM: number = 0.95;
 
-/**
+/*
  * Share of the thigh and shank a planted leg may span from hip to ankle,
  * keeping the knee off its lock; provisional.
  */

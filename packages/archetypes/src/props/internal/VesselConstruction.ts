@@ -8,10 +8,12 @@ import {
 } from "../../core";
 import { AutoMovieArchetypeVessel } from "../AutoMovieArchetypeVessel";
 
-/** Create a model-space point in metres. */
+/*
+ * Create a model-space point in metres.
+ */
 const v: typeof Vector3.create = Vector3.create;
 
-/**
+/*
  * Resolve recorded sizing, then lay out the shared open floor, walls and
  * surfaces.
  */
@@ -104,7 +106,9 @@ function draw<Id extends AutoMovieArchetypeVessel.Affordance>(
   return { builder, d };
 }
 
-/** Define a grip from below the bottom floor of a shallow vessel. */
+/*
+ * Define a grip from below the bottom floor of a shallow vessel.
+ */
 function dishGrip(
   builder: {
     affordance(contact: Parameters<Builder<"body">["affordance"]>[0]): void;
@@ -127,12 +131,18 @@ function dishGrip(
   });
 }
 
-/** Shared floor and wall geometry with distinct food, ash and display grips. */
+/*
+ * Shared floor and wall geometry with distinct food, ash and display grips.
+ */
 export namespace VesselConstruction {
-  /** The contact ids {@link bowl} builds or reads. */
+  /*
+   * The contact ids bowl builds or reads.
+   */
   export type BowlContact = "rim" | "inside" | "body";
 
-  /** Build a bowl held from beneath with two hands. */
+  /*
+   * Build a bowl held from beneath with two hands.
+   */
   export function bowl(
     params: Omit<AutoMovieArchetypeVessel.IParams, "kind">,
     seed?: number,
@@ -143,10 +153,14 @@ export namespace VesselConstruction {
     return builder.build(d.mass);
   }
 
-  /** The contact ids {@link ashtray} builds or reads. */
+  /*
+   * The contact ids ashtray builds or reads.
+   */
   export type AshtrayContact = "rim" | "inside" | "body";
 
-  /** Build an ashtray grasped from below. */
+  /*
+   * Build an ashtray grasped from below.
+   */
   export function ashtray(
     params: Omit<AutoMovieArchetypeVessel.IParams, "kind">,
     seed?: number,
@@ -157,10 +171,14 @@ export namespace VesselConstruction {
     return builder.build(d.mass);
   }
 
-  /** The contact ids {@link vase} builds or reads. */
+  /*
+   * The contact ids vase builds or reads.
+   */
   export type VaseContact = "rim" | "inside" | "body";
 
-  /** Build a vase at the model origin with a grip around the middle. */
+  /*
+   * Build a vase at the model origin with a grip around the middle.
+   */
   export function vase(
     params: Omit<AutoMovieArchetypeVessel.IParams, "kind">,
     seed?: number,
@@ -183,10 +201,14 @@ export namespace VesselConstruction {
     return builder.build(d.mass);
   }
 
-  /** The values {@link cookingPot} accepts at this place in its signature. */
+  /*
+   * The values cookingPot accepts at this place in its signature.
+   */
   export type CookingPotKind = "saucepan" | "stockpot";
 
-  /** The contact ids {@link cookingPot} builds or reads. */
+  /*
+   * The contact ids cookingPot builds or reads.
+   */
   export type CookingPotContact =
     | "rim"
     | "inside"
@@ -194,7 +216,9 @@ export namespace VesselConstruction {
     | "leftHandle"
     | "rightHandle";
 
-  /** Build a cooking pot with its own grasp arrangement. */
+  /*
+   * Build a cooking pot with its own grasp arrangement.
+   */
   export function cookingPot(
     kind: CookingPotKind,
     params: Omit<AutoMovieArchetypeVessel.IParams, "kind">,
@@ -264,23 +288,35 @@ export namespace VesselConstruction {
   }
 }
 
-/** The model-space construction for the selected contact IDs. */
+/*
+ * The model-space construction for the selected contact IDs.
+ */
 type Builder<Id extends AutoMovieArchetypeVessel.Affordance> = AutoMovieArchetypeBuilder<
   Id,
   AutoMovieArchetypeVessel.Dimension
 >;
 
-/** The contact ids every vessel draw builds. */
+/*
+ * The contact ids every vessel draw builds.
+ */
 type DrawContact = "inside" | "rim";
 
-/** What {@link draw} prepares for its caller. */
+/*
+ * What draw prepares for its caller.
+ */
 interface IDrawResult<Id extends AutoMovieArchetypeVessel.Affordance> {
-  /** The prepared `builder` this call returns. */
+  /*
+   * The prepared `builder` this call returns.
+   */
   builder: Builder<Id | DrawContact>;
 
-  /** The prepared `d` this call returns. */
+  /*
+   * The prepared `d` this call returns.
+   */
   d: Record<AutoMovieArchetypeVessel.Dimension, number>;
 }
 
-/** The values {@link dishGrip} accepts at this place in its signature. */
+/*
+ * The values dishGrip accepts at this place in its signature.
+ */
 type DishGripGrip = "two-hand" | "precision";

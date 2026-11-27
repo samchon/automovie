@@ -4,7 +4,7 @@ import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import type { IAutoMovieInspectionPath } from "../../IAutoMovieInspectionPath.js";
 import { AutoMovieRenderInspectionPath } from "../../AutoMovieRenderInspectionPath.js";
 
-/**
+/*
  * List every object of a scene that three.js draws, each with its inspection
  * path, in traversal order.
  *

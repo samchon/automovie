@@ -2,7 +2,7 @@ import type { IAutoMovieSubdivisionVertexMask } from "@automovie/interface";
 
 import { decaySubdivisionSharpness } from "./decaySubdivisionSharpness";
 
-/**
+/*
  * The Catmull-Clark vertex-point mask for a vertex with the given fan edge
  * sharpness, including the semi-sharp transition blend.
  *
@@ -16,10 +16,9 @@ import { decaySubdivisionSharpness } from "./decaySubdivisionSharpness";
  * sharpness: the parent rule weighted by the mean parent sharpness of the edges
  * that turn smooth, at most one, and the child rule weighted by the rest, as
  * OpenSubdiv computes it.
- *
- * @param sharpness Sharpness of each fan edge, 10 for boundary edges.
- * @param faceCount Number of fan faces.
- * @returns The vertex, edge-neighbour and face-point weights.
+ * Parameter sharpness: Sharpness of each fan edge, 10 for boundary edges.
+ * Parameter faceCount: Number of fan faces.
+ * Returns: The vertex, edge-neighbour and face-point weights.
  */
 export const subdivisionVertexMask = (
   sharpness: readonly number[],
@@ -56,7 +55,9 @@ export const subdivisionVertexMask = (
   };
 };
 
-/** Number of edges with positive sharpness. */
+/*
+ * Number of edges with positive sharpness.
+ */
 const countSharp: (sharpness: readonly number[]) => number = (
   sharpness: readonly number[],
 ): number =>
@@ -65,11 +66,15 @@ const countSharp: (sharpness: readonly number[]) => number = (
     0,
   );
 
-/** Rule rank by sharp edge count: 0 smooth or dart, 1 crease, 2 corner. */
+/*
+ * Rule rank by sharp edge count: 0 smooth or dart, 1 crease, 2 corner.
+ */
 const rank: (sharp: number) => number = (sharp: number): number =>
   sharp <= 1 ? 0 : sharp === 2 ? 1 : 2;
 
-/** The unblended mask of the rule the sharpness selects. */
+/*
+ * The unblended mask of the rule the sharpness selects.
+ */
 const ruleMask: (
   sharpness: readonly number[],
   faceCount: number,

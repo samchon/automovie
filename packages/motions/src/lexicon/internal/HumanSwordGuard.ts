@@ -16,7 +16,7 @@ import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { StrikingSkill } from "../../striking/internal/StrikingSkill";
 import { HumanSword } from "./HumanSword";
 
-/**
+/*
  * The guards of blade work: the blade taken from where the hand holds it to a
  * named guard and kept there.
  *
@@ -30,7 +30,7 @@ import { HumanSword } from "./HumanSword";
  * guard: what follows is entered from it.
  */
 export namespace HumanSwordGuard {
-  /**
+  /*
    * Each guard: the hilt's place from the blade hand's shoulder in arm lengths,
    * the way the blade points and the way its true edge faces. All provisional,
    * after the figures of Ringeck's gloss of Liechtenauer (vom Tag at the
@@ -77,7 +77,7 @@ export namespace HumanSwordGuard {
     },
   };
 
-  /**
+  /*
    * Take a guard and hold it: the hilt reaches the guard's place after the
    * setting time (`stroke`) and stays to the end.
    */
@@ -125,7 +125,9 @@ export namespace HumanSwordGuard {
     };
 }
 
-/** The record of `IGUARDSEntryItem`'s site. */
+/*
+ * The record of `IGUARDSEntryItem`'s site.
+ */
 type IGUARDSEntryItem = {
   hilt: IAutoMovieMotionHumanSword.IParts;
   point: IAutoMovieMotionHumanSword.IParts;

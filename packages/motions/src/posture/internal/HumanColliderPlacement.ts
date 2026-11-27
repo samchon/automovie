@@ -15,12 +15,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Place the profile in its original order, skipping absent posed bones.
- *
- * @param body Canonical body with unchanged rest/profile metadata.
- * @param bones Current resolved bones, unchanged during this operation.
- * @returns Fresh current placed frames borrowing the neutral shape records.
+ * Parameter body: Canonical body with unchanged rest/profile metadata.
+ * Parameter bones: Current resolved bones, unchanged during this operation.
+ * Returns: Fresh current placed frames borrowing the neutral shape records.
  */
 export function HumanColliderPlacement(
   body: IAutoMovieMotionHumanBody,
@@ -29,19 +28,19 @@ export function HumanColliderPlacement(
   return place(body.colliders.segments, bones);
 }
 
-/**
+/*
  * Profile placement and the per-body neutral mirrored metadata it reads,
  * derived from the body where read or bound once by a prepare companion. Posed
  * frames are always current values, distinct from that neutral data.
  */
 export namespace HumanColliderPlacement {
-  /**
+  /*
    * One placed collider segment: the interface contract
    * (`IAutoMovieMotionHumanColliders.IPlaced`).
    */
   export type IPlaced = IAutoMovieMotionHumanColliders.IPlaced;
 
-  /**
+  /*
    * Bind the actual neutral entries needed by repeated current-bone queries.
    * Request names are snapshotted once; later edits require another reader.
    * Body geometry stays unchanged, while each map supplies fresh posed inputs.
@@ -64,7 +63,9 @@ export namespace HumanColliderPlacement {
     ): IPlaced[] => place(selected, bones);
   }
 
-  /** Exact floor minimum from every current placed shape, world metres. */
+  /*
+   * Exact floor minimum from every current placed shape, world metres.
+   */
   export function lowest(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -72,7 +73,7 @@ export namespace HumanColliderPlacement {
     return minima(body.colliders.segments, bones)[0]!;
   }
 
-  /**
+  /*
    * Bind ordered floor minima for fixed bone-name groups. Omission requests one
    * whole-profile minimum. Each group result starts at Infinity; an actual
    * shape can update several groups in their original group order.
@@ -104,12 +105,11 @@ export namespace HumanColliderPlacement {
     return bindMinima(selected, { count, membership });
   }
 
-  /**
+  /*
    * The colliders at rest of a rig, mirrored left from right: what a body
    * carries (IAutoMovieMotionHumanBody.colliders), made once when it is made.
-   *
-   * @param body The rig, its rest joints and its profile, hulls attached.
-   * @returns The neutral segments and the bones they ride.
+   * Parameter body: The rig, its rest joints and its profile, hulls attached.
+   * Returns: The neutral segments and the bones they ride.
    */
   export function neutral(
     body: Pick<IAutoMovieMotionHumanBody, HumanColliderRig>,
@@ -117,7 +117,7 @@ export namespace HumanColliderPlacement {
     return sided(body);
   }
 
-  /**
+  /*
    * Canonical profile-bearing names for scoped FK before collider queries. The
    * returned set is borrowed read-only while this body definition lives.
    */
@@ -128,7 +128,9 @@ export namespace HumanColliderPlacement {
   }
 }
 
-/** Keep the returned reader outside any source-body or caller-set lexical scope. */
+/*
+ * Keep the returned reader outside any source-body or caller-set lexical scope.
+ */
 function bindMinima(
   segments: readonly ISided[],
   selection?: IMinimaSelection,
@@ -140,7 +142,7 @@ function bindMinima(
   ): number[] => minima(segments, bones, selection);
 }
 
-/**
+/*
  * Stage the original placement phase, then reduce only the demanded scalar
  * bounds.
  */
@@ -196,7 +198,9 @@ function minima(
   return result;
 }
 
-/** One ordered numerical placement serves both full and fixed-demand readers. */
+/*
+ * One ordered numerical placement serves both full and fixed-demand readers.
+ */
 function place(
   segments: readonly ISided[],
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -230,7 +234,7 @@ function place(
   return out;
 }
 
-/**
+/*
  * Read unchanged neutral data, lazily indexing first profile names in original
  * scan order.
  */
@@ -287,7 +291,9 @@ function sided(
   return { segments: out, bones };
 }
 
-/** A neutral row reflected in the median plane: its offset, turn and shapes. */
+/*
+ * A neutral row reflected in the median plane: its offset, turn and shapes.
+ */
 function mirrored(segment: ISided, bone: string): ISided {
   return {
     bone,
@@ -316,38 +322,50 @@ function mirrored(segment: ISided, bone: string): ISided {
   };
 }
 
-/** The same fresh median-plane point reflection serves every neutral row. */
+/*
+ * The same fresh median-plane point reflection serves every neutral row.
+ */
 function mirrorPoint(point: IAutoMovieVector3): IAutoMovieVector3 {
   return { x: -point.x, y: point.y, z: point.z };
 }
 
-/** M R M keeps quaternion X/W and negates Y/Z, without changing normalization. */
+/*
+ * M R M keeps quaternion X/W and negates Y/Z, without changing normalization.
+ */
 function mirrorTurn(
   rotation: IAutoMovieRigidTransform["rotation"],
 ): IAutoMovieRigidTransform["rotation"] {
   return { x: rotation.x, y: -rotation.y, z: -rotation.z, w: rotation.w };
 }
 
-/**
+/*
  * The body fields the neutral collider rows are read from: the rig, its rest
  * joints and the profile, all fixed before any of the body's solves.
  */
 type HumanColliderRig = "profile" | "rest" | "skeleton";
 
-/**
+/*
  * Actual copied name membership; callers cannot supply the numerical group
  * lists.
  */
 interface IMinimaSelection {
-  /** Number of groups, including empty groups. */
+  /*
+   * Number of groups, including empty groups.
+   */
   count: number;
 
-  /** Original ascending group indices for each actual selected bone name. */
+  /*
+   * Original ascending group indices for each actual selected bone name.
+   */
   membership: ReadonlyMap<string, readonly number[]>;
 }
 
-/** Fixed neutral segment data, before current bone placement. */
+/*
+ * Fixed neutral segment data, before current bone placement.
+ */
 type ISided = IAutoMovieMotionHumanColliders.ISegment;
 
-/** The neutral records and the canonical names their placement consumes. */
+/*
+ * The neutral records and the canonical names their placement consumes.
+ */
 type INeutral = IAutoMovieMotionHumanColliders.INeutral;

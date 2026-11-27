@@ -1,6 +1,6 @@
 import { autoMoviePcg3d } from "./autoMoviePcg3d";
 
-/**
+/*
  * The words of one lattice cell under a seed and a salt: `pcg3d(cell ^ key)`,
  * with `key = pcg3d(seed, salt, 0x9E3779B9)`.
  *
@@ -10,13 +10,12 @@ import { autoMoviePcg3d } from "./autoMoviePcg3d";
  * the same cell. The constant third word is the 32-bit golden-ratio fraction, a
  * conventional nonzero filler. The renderer's GLSL form computes the same words
  * (see `autoMoviePcg3d`).
- *
- * @param seed Unsigned 32-bit seed.
- * @param salt Unsigned 32-bit purpose tag.
- * @param i Lattice cell X, an integer.
- * @param j Lattice cell Y, an integer.
- * @param k Lattice cell Z, an integer.
- * @returns Three words within [0, 2³²).
+ * Parameter seed: Unsigned 32-bit seed.
+ * Parameter salt: Unsigned 32-bit purpose tag.
+ * Parameter i: Lattice cell X, an integer.
+ * Parameter j: Lattice cell Y, an integer.
+ * Parameter k: Lattice cell Z, an integer.
+ * Returns: Three words within [0, 2³²).
  */
 export function autoMovieProceduralHash(
   seed: number,

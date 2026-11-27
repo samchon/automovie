@@ -43,7 +43,7 @@ import { riseSeatOff } from "./riseSeatOff";
 import { seated } from "./seated";
 import { seatedCourse } from "./seatedCourse";
 
-/**
+/*
  * Standing up from a seat, in the four phases of sit-to-stand (Schenkman,
  * Berger, Riley, Mann and Hodge 1990, Phys Ther 70:638): flexion momentum,
  * where the trunk flexes forward while the seat still bears the weight;
@@ -88,14 +88,16 @@ import { seatedCourse } from "./seatedCourse";
  * `standing`; the seat window ends at seat-off.
  *
  * A seat above 1.2 of the popliteal height with a foot off the floor, as a bar
- * stool or a saddle is sat on, is got off instead ({@link HumanMountOff}), ahead
+ * stool or a saddle is sat on, is got off instead (HumanMountOff), ahead
  * of the seat or to the side `to` names, with the same events.
  */
 export namespace rise {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "rise";
 
-  /**
+  /*
    * Once the seat releases, the feet bear the pelvis until standing (Schenkman
    * et al., 1990, Phys Ther 70:638).
    */
@@ -105,7 +107,7 @@ export namespace rise {
     to: { event: "standing" },
   };
 
-  /**
+  /*
    * Cancel table: a rise cut before seat-off returns to sitting; after standing
    * it may become anything a stand can.
    */
@@ -129,13 +131,17 @@ export namespace rise {
     ],
   };
 
-  /** Seconds a foot takes to be drawn back (provisional). */
+  /*
+   * Seconds a foot takes to be drawn back (provisional).
+   */
   export const DRAW: number = 0.5;
 
-  /** How high a drawn foot lifts, metres (provisional). */
+  /*
+   * How high a drawn foot lifts, metres (provisional).
+   */
   export const LIFT: number = 0.03;
 
-  /**
+  /*
    * Shank angles forward of vertical the feet are drawn back to, tried in
    * order, degrees: from 12 (provisional, Shepherd and Koh 1996) by 2 up to the
    * dorsiflexion of a foot that bears no weight
@@ -146,37 +152,36 @@ export namespace rise {
     (_: unknown, i: number): number => 12 + 2 * i,
   );
 
-  /**
+  /*
    * The least edging, metres, worth a move: below a millimetre's scale a body
    * does not shift on its seat (provisional).
    */
   const EDGE: number = 0.005;
 
-  /**
+  /*
    * The least horizontal correction of a foot, metres, that draws it back or
    * across (provisional, the namespace's 1 cm).
    */
   const NUDGE: number = 0.01;
 
-  /**
+  /*
    * The share of the rise at which the socket stands over the feet
    * (provisional, the namespace's 85 %).
    */
   const STOOD: number = 0.85;
 
-  /**
+  /*
    * The delay of the socket's rise behind its forward travel after seat-off, as
    * a share of the rise (provisional).
    */
   const LAG: number = 0.03;
 
-  /**
+  /*
    * Plan a rise.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the requested balancing part cannot move on the
-   *   selected support.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the requested balancing part cannot move on the
+   * selected support.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRise.IParams>,
@@ -504,8 +509,12 @@ export namespace rise {
   }
 }
 
-/** The record of `IPlanSat`'s site. */
+/*
+ * The record of `IPlanSat`'s site.
+ */
 type IPlanSat = { seat?: IAutoMovieMotionHumanSeated.ISeat };
 
-/** The alternatives of `PlanEntryHeading`'s site. */
+/*
+ * The alternatives of `PlanEntryHeading`'s site.
+ */
 type PlanEntryHeading = "yaw" | "pitch" | "roll";

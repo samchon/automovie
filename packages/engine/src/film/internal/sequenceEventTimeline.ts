@@ -12,7 +12,7 @@ import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { exactPlaybackHardCut } from "./exactPlaybackHardCut";
 import { preparePlaybackTimeline } from "./preparePlaybackTimeline";
 
-/**
+/*
  * Place every shot interaction event onto the sequence output clock, once per
  * play.
  *
@@ -33,21 +33,20 @@ import { preparePlaybackTimeline } from "./preparePlaybackTimeline";
  * global time, so an event replayed by a flashback lands once per play. The
  * events are ordered by global time, then entry index, then event id by UTF-16
  * code units. Each keeps its shot-local `time` and adds `shotTime`, `entry`,
- * `shot` and `globalTime`. Throws what {@link sequenceTimeline} throws.
+ * `shot` and `globalTime`. Throws what sequenceTimeline throws.
+ * Parameter sequence: The cut, already accepted by `cutSequence`.
+ * Parameter shots: Every shot the cut references.
+ * Returns: Every emitted play of every event, in output order.
  *
- * @param sequence The cut, already accepted by `cutSequence`.
- * @param shots Every shot the cut references.
- * @returns Every emitted play of every event, in output order.
- *
- *   Symbolic trims and retimed plays use exact event membership. On an adjacent
- *   same-shot hard cut involving either, both plays use exact adjoining edges.
- *   When the edges meet, the incoming source start owns the seam. Numeric
- *   duration reconstruction can disagree with that start by binary64 roundoff.
- *   Outside a shared seam the numeric source end is the binary64 sum of the
- *   start and duration. Select an end event explicitly to keep an independently
- *   authored time. If the numeric sum rounds back to the start, an event at
- *   that instant is still an opening event. Other numeric edges retain the
- *   existing tolerance.
+ * Symbolic trims and retimed plays use exact event membership. On an adjacent
+ * same-shot hard cut involving either, both plays use exact adjoining edges.
+ * When the edges meet, the incoming source start owns the seam. Numeric
+ * duration reconstruction can disagree with that start by binary64 roundoff.
+ * Outside a shared seam the numeric source end is the binary64 sum of the
+ * start and duration. Select an end event explicitly to keep an independently
+ * authored time. If the numeric sum rounds back to the start, an event at
+ * that instant is still an opening event. Other numeric edges retain the
+ * existing tolerance.
  */
 export function sequenceEventTimeline(
   sequence: IAutoMovieSequence,
@@ -135,7 +134,9 @@ export function sequenceEventTimeline(
       AutoMovieEngineText.compareCodeUnits(a.id, b.id),
   );
 
-  /** Rates and symbolic anchors introduced strict source membership. */
+  /*
+   * Rates and symbolic anchors introduced strict source membership.
+   */
   function precise(entry: IAutoMoviePlaybackEntry): boolean {
     return (
       entry.playbackRate !== undefined ||
@@ -143,7 +144,9 @@ export function sequenceEventTimeline(
     );
   }
 
-  /** A symbolic end or the end represented by the ordinary numeric span. */
+  /*
+   * A symbolic end or the end represented by the ordinary numeric span.
+   */
   function sourceEnd(entry: IAutoMoviePlaybackEntry, duration: number): number {
     const source: IAutoMovieSequenceEntry = sequence.shots[entry.entry]!;
     return (
@@ -152,7 +155,9 @@ export function sequenceEventTimeline(
     );
   }
 
-  /** A precise play makes both adjoining edges of a same-shot hard cut exact. */
+  /*
+   * A precise play makes both adjoining edges of a same-shot hard cut exact.
+   */
   function preciseHardCut(
     outgoing: IAutoMoviePlaybackEntry,
     incoming: IAutoMoviePlaybackEntry,
@@ -165,10 +170,14 @@ export function sequenceEventTimeline(
   }
 }
 
-/** Original clock tolerance for ordinary numeric plays away from exact seams. */
+/*
+ * Original clock tolerance for ordinary numeric plays away from exact seams.
+ */
 const TIME_EPSILON: number = 1e-9;
 
-/** One play of `event` by `entry`, stamped with its projected `globalTime`. */
+/*
+ * One play of `event` by `entry`, stamped with its projected `globalTime`.
+ */
 function placed(
   event: IAutoMovieInteractionEvent,
   entry: IAutoMoviePlaybackEntry,

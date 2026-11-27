@@ -225,7 +225,9 @@ export namespace hingedArmSwivel {
         : degrees;
   }
 
-  /** A branch's fixed pose generator, shared by direct and prepared entries. */
+  /*
+   * A branch's fixed pose generator, shared by direct and prepared entries.
+   */
   function poseBranch(
     chain: IAutoMovieHingedChainGeometry,
     theta: number,
@@ -244,7 +246,7 @@ export namespace hingedArmSwivel {
     });
   }
 
-  /**
+  /*
    * The mid rotation, the root-to-effector line in the root's frame and the aim
    * at a hinge angle.
    */
@@ -281,18 +283,28 @@ export namespace hingedArmSwivel {
     };
   }
 
-  /** Source-only hinge span coefficients (`hingedArmSpan.IGeometry`). */
+  /*
+   * Source-only hinge span coefficients (`hingedArmSpan.IGeometry`).
+   */
   type IGeometry = hingedArmSpan.IGeometry;
 
-  /** Root-local geometry shared by one target's branch poses. */
+  /*
+   * Root-local geometry shared by one target's branch poses.
+   */
   interface ITargetFrame {
-    /** Unit hinge of the prepared source. */
+    /*
+     * Unit hinge of the prepared source.
+     */
     hinge: IAutoMovieVector3;
-    /** The target goal in the root frame. */
+    /*
+     * The target goal in the root frame.
+     */
     goal: IAutoMovieVector3;
   }
 
-  /** Preserve root/length/target/hinge admission, root order and range stops. */
+  /*
+   * Preserve root/length/target/hinge admission, root order and range stops.
+   */
   function branchStops(
     chain: IAutoMovieHingedChainGeometry,
     source?: hingedArmSpan.ISpan,
@@ -347,6 +359,8 @@ export namespace hingedArmSwivel {
     });
   }
 
-  /** Degrees per radian. */
+  /*
+   * Degrees per radian.
+   */
   const RAD2DEG: number = 180 / Math.PI;
 }

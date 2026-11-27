@@ -13,20 +13,19 @@ import { AutoMovieMotionHumanTouchDrink } from "../../compose/internal/AutoMovie
 import { AutoMovieMotionHumanTouchStance } from "../../compose/internal/AutoMovieMotionHumanTouchStance";
 import { AutoMovieMotionHumanTouchUpright } from "../../compose/internal/AutoMovieMotionHumanTouchUpright";
 
-/**
+/*
  * The first side whose drink is admitted.
- *
- * @param body The body.
- * @param posture The posture the arm is solved on at the region.
- * @param side The hand.
- * @param sides The effectors of the rim's sides, in the order tried
- *   (`HumanHeld.sides`).
- * @param place The region.
- * @param hint The elbow's hint each candidate starts from, world.
- * @param after Where the vessel is held while the drinker drinks.
- * @returns The side and its drink.
- * @throws {HumanRefusal} When no side admits a drink: the first side's reach
- *   refusal, naming every other side's after it; any other refusal at once.
+ * Parameter body: The body.
+ * Parameter posture: The posture the arm is solved on at the region.
+ * Parameter side: The hand.
+ * Parameter sides: The effectors of the rim's sides, in the order tried
+ * (`HumanHeld.sides`).
+ * Parameter place: The region.
+ * Parameter hint: The elbow's hint each candidate starts from, world.
+ * Parameter after: Where the vessel is held while the drinker drinks.
+ * Returns: The side and its drink.
+ * When no side admits a drink: the first side's reach
+ * refusal, naming every other side's after it; any other refusal at once.
  */
 export function handToFaceVessel(
   body: IAutoMovieMotionHumanBody,
@@ -80,7 +79,7 @@ export function handToFaceVessel(
   });
 }
 
-/**
+/*
  * The side of a held vessel's rim a drink is taken from, found by the drink's
  * own admission (`AutoMovieMotionHumanTouchDrink.drinking`): the first side, in
  * the order the held prop lists them (`HumanHeld.sides`, the act's own side
@@ -102,15 +101,23 @@ export function handToFaceVessel(
  * the mouth.
  */
 export namespace handToFaceVessel {
-  /** The side found and its drink. */
+  /*
+   * The side found and its drink.
+   */
   export interface IVessel {
-    /** The effector of the admitted side. */
+    /*
+     * The effector of the admitted side.
+     */
     effector: IAutoMovieMotionHumanTouchEffector.IEffector;
 
-    /** The facing, lean, tilt and elbow hint its arm was admitted with. */
+    /*
+     * The facing, lean, tilt and elbow hint its arm was admitted with.
+     */
     drink: IAutoMovieMotionHumanTouchDrink.IDrink;
   }
 }
 
-/** The alternatives of `OfPlace`'s site. */
+/*
+ * The alternatives of `OfPlace`'s site.
+ */
 type OfPlace = "point" | "normal";

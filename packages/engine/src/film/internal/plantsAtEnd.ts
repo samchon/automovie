@@ -3,7 +3,7 @@ import {
   IAutoMovieBeatEndFootPlant,
 } from "@automovie/interface";
 
-/**
+/*
  * The stance plant each foot holds at `localTime`, the contact the next beat
  * keeps that foot on.
  *
@@ -17,10 +17,9 @@ import {
  * result as an actor's `footPlants`. This selector does not itself validate
  * interval values; NaN comparisons do not establish the stated containment
  * rule.
- *
- * @param plants Stance runs on the ended beat's local clock, or `undefined`.
- * @param localTime The cut instant on the same clock, in seconds.
- * @returns At most one plant per foot, or `null` when none is held.
+ * Parameter plants: Stance runs on the ended beat's local clock, or `undefined`.
+ * Parameter localTime: The cut instant on the same clock, in seconds.
+ * Returns: At most one plant per foot, or `null` when none is held.
  */
 export function plantsAtEnd(
   plants: readonly IAutoMovieBeatEndFootPlant[] | undefined,

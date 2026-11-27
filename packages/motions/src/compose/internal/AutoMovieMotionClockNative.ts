@@ -7,7 +7,9 @@ import type {
 
 import { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
 
-/** Construct a validated clock. */
+/*
+ * Construct a validated clock.
+ */
 export function AutoMovieMotionClockNative(
   duration: number,
   instants: readonly IInstant[],
@@ -70,26 +72,29 @@ export function AutoMovieMotionClockNative(
   };
 }
 
-/**
+/*
  * Clock construction and the readers that resolve a fixed window's two instants
  * once for every sample read on it.
  */
 export namespace AutoMovieMotionClockNative {
-  /** Every action's opening name, at zero seconds. */
+  /*
+   * Every action's opening name, at zero seconds.
+   */
   export const START: string = "start";
 
-  /** Every action's closing name, at its duration. */
+  /*
+   * Every action's closing name, at its duration.
+   */
   export const END: string = "end";
 
-  /**
+  /*
    * A fixed window's uniform and minimum-jerk readers, read through the clock's
    * own `linear` and `progress`, so a clock the author supplies keeps its own
    * timing law.
-   *
-   * @param clock The clock.
-   * @param from The window's opening instant.
-   * @param to The window's closing instant.
-   * @returns The readers.
+   * Parameter clock: The clock.
+   * Parameter from: The window's opening instant.
+   * Parameter to: The window's closing instant.
+   * Returns: The readers.
    */
   export function prepare(
     clock: Pick<IClock, "linear" | "progress">,
@@ -102,14 +107,13 @@ export namespace AutoMovieMotionClockNative {
     };
   }
 
-  /**
+  /*
    * A fixed rise and fall's envelope, read through the clock's own `envelope`,
    * so a clock the author supplies keeps its own timing law.
-   *
-   * @param clock The clock.
-   * @param rise The rise's opening and closing instants.
-   * @param fall The fall's opening and closing instants.
-   * @returns The envelope at a second.
+   * Parameter clock: The clock.
+   * Parameter rise: The rise's opening and closing instants.
+   * Parameter fall: The fall's opening and closing instants.
+   * Returns: The envelope at a second.
    */
   export function prepareEnvelope(
     clock: Pick<IClock, "envelope">,
@@ -119,8 +123,12 @@ export namespace AutoMovieMotionClockNative {
     return (seconds: number): number => clock.envelope(rise, fall, seconds);
   }
 }
-/** The clock record, the interface's. */
+/*
+ * The clock record, the interface's.
+ */
 type IClock = IAutoMovieMotionClock;
 
-/** A named instant, the interface's. */
+/*
+ * A named instant, the interface's.
+ */
 type IInstant = IAutoMovieMotionClockInstant;

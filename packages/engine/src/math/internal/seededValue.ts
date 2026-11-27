@@ -1,6 +1,6 @@
 import { mixSeed } from "./mixSeed";
 
-/**
+/*
  * Return one deterministic half-open [0, 1) sample from ordered seed parts.
  *
  * Callers must include a stable domain constant when the same identities feed

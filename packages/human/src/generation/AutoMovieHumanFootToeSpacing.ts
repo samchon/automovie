@@ -37,11 +37,17 @@ export namespace AutoMovieHumanFootToeSpacing {
   }
 }
 
-/** Least gap between neighbouring toes, mm. Convention. */
+/*
+ * Least gap between neighbouring toes, mm. Convention.
+ */
 const GAP: number = 0.6;
 
-/** Softness of the limit, mm. Convention. */
+/*
+ * Softness of the limit, mm. Convention.
+ */
 const SOFT: number = 0.6;
 
-/** A toe's own breadth over the spacing-limited one, so neighbours meet. Convention. */
+/*
+ * A toe's own breadth over the spacing-limited one, so neighbours meet. Convention.
+ */
 const FILL: number = 1.3;

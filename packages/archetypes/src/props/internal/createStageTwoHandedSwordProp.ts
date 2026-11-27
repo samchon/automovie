@@ -5,17 +5,16 @@ import { type AutoMovieArchetype } from "../../core/index";
 import { StageBladeConstruction } from "./StageBladeConstruction";
 
 
-/**
+/*
  * Padded two-handed sword silhouette.
  *
  * A long padded silhouette with a visible crossguard and a two-hand grip
  * extending along +Y from the model origin.
- *
- * @param params The scene identity and optional display length in metres.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter params: The scene identity and optional display length in metres.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function createStageTwoHandedSwordProp(
   params: AutoMovieArchetypeStageTwoHandedSwordProp.IParams = {},

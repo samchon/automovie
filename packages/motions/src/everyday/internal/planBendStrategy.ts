@@ -46,7 +46,7 @@ import { braceOnThigh } from "./braceOnThigh";
 import { prepareBendGoal } from "./prepareBendGoal";
 import { prepareBendSquat } from "./prepareBendSquat";
 
-/**
+/*
  * Fit one complete lowering of a bend: both arm courses and the held surface,
  * for the requested strategy.
  *
@@ -466,7 +466,9 @@ export function planBendStrategy(
   };
 }
 
-/** World bones of a posture, limbs solved. */
+/*
+ * World bones of a posture, limbs solved.
+ */
 function bones(
   body: IAutoMovieMotionHumanBody,
   posture: IAutoMovieMotionHumanPosture,

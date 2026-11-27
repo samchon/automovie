@@ -1,6 +1,8 @@
 import { isDenseFinite } from "./isDenseFinite";
 
-/** Resolve strictly positive, representable interval widths. */
+/*
+ * Resolve strictly positive, representable interval widths.
+ */
 export function readPchipWidths(coordinates: readonly number[]): number[] {
   if (coordinates.length < 2 || !isDenseFinite(coordinates))
     throw new Error("At least two finite spline coordinates required");

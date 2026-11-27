@@ -1,4 +1,4 @@
-/**
+/*
  * SHA-256 (FIPS 180-4) of a byte sequence, as `sha256:` and lowercase
  * hexadecimal, in synchronous pure TypeScript.
  *
@@ -9,9 +9,8 @@
  * digest `createHash("sha256")` produces for the same bytes. Whole blocks are
  * read straight from the input; only the final one or two padded blocks are
  * copied.
- *
- * @param bytes The bytes to digest; only read.
- * @returns `sha256:` followed by 64 lowercase hexadecimal digits.
+ * Parameter bytes: The bytes to digest; only read.
+ * Returns: `sha256:` followed by 64 lowercase hexadecimal digits.
  */
 export function digestAutoMovieBytes(bytes: Uint8Array): string {
   const state: Uint32Array = Uint32Array.from(INITIAL_STATE);
@@ -38,7 +37,7 @@ export function digestAutoMovieBytes(bytes: Uint8Array): string {
   return hex;
 }
 
-/**
+/*
  * The first 32 bits of the fractional parts of the square roots of the first
  * eight primes.
  */
@@ -47,7 +46,7 @@ const INITIAL_STATE: readonly number[] = [
   0x1f83d9ab, 0x5be0cd19,
 ];
 
-/**
+/*
  * The first 32 bits of the fractional parts of the cube roots of the first 64
  * primes.
  */
@@ -65,12 +64,14 @@ const ROUND_CONSTANTS: Uint32Array = Uint32Array.from([
   0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
 ]);
 
-/** Rotate a 32-bit word right. */
+/*
+ * Rotate a 32-bit word right.
+ */
 function rotate(value: number, bits: number): number {
   return (value >>> bits) | (value << (32 - bits));
 }
 
-/**
+/*
  * Run the 64 SHA-256 rounds over the 64-byte block at `offset`, updating
  * `state`.
  */

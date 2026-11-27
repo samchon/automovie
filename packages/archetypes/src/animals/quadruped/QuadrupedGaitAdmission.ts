@@ -1,21 +1,20 @@
 import { AutoMovieArchetypeRefusal } from "../../core";
 import type { AutoMovieArchetypeQuadrupedGait } from "../AutoMovieArchetypeQuadrupedGait";
 
-/**
+/*
  * Admission of a gait table's optional extensions: landmark swing heights and
  * collected gaits. Kept apart from
  * `AutoMovieArchetypeQuadrupedLocomotion.admit` for that file's size.
  */
 export namespace QuadrupedGaitAdmission {
-  /**
+  /*
    * Admit a gait's landmark elevation, each coordinate from zero to one.
-   *
-   * @param elevation The gait's elevation, if any.
-   * @param axis The gait's refusal axis.
-   * @returns The copied elevation field to spread into the gait, empty when
-   *   absent.
-   * @throws {AutoMovieArchetypeRefusal} For a missing record or a coordinate
-   *   outside zero to one.
+   * Parameter elevation: The gait's elevation, if any.
+   * Parameter axis: The gait's refusal axis.
+   * Returns: The copied elevation field to spread into the gait, empty when
+   * absent.
+   * For a missing record or a coordinate
+   * outside zero to one.
    */
   export function elevation(
     elevation: AutoMovieArchetypeQuadrupedGait.IElevation | undefined,
@@ -32,16 +31,15 @@ export namespace QuadrupedGaitAdmission {
     return { elevation: { fore: elevation.fore, hind: elevation.hind } };
   }
 
-  /**
+  /*
    * Admit a table's collected-gait map: each key an explicit-only gait, each
    * value an automatically ordered gait it is collected out of.
-   *
-   * @param collected The table's map, if any.
-   * @param order The admitted automatic gaits.
-   * @param explicit The admitted explicit-only gaits.
-   * @returns The copied field to spread into the table, empty when absent.
-   * @throws {AutoMovieArchetypeRefusal} For a key that is not explicit-only or
-   *   a value that is not ordered.
+   * Parameter collected: The table's map, if any.
+   * Parameter order: The admitted automatic gaits.
+   * Parameter explicit: The admitted explicit-only gaits.
+   * Returns: The copied field to spread into the table, empty when absent.
+   * For a key that is not explicit-only or
+   * a value that is not ordered.
    */
   export function collected(
     collected: AutoMovieArchetypeQuadrupedGait.ITable["collected"],
@@ -82,7 +80,9 @@ export namespace QuadrupedGaitAdmission {
     return { collected: copy };
   }
 
-  /** One structured admission refusal, in the table admission's terms. */
+  /*
+   * One structured admission refusal, in the table admission's terms.
+   */
   function refuse(axis: string, value: unknown, reason: string): never {
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",

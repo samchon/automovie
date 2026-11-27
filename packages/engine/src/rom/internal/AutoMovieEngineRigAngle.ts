@@ -1,16 +1,18 @@
 import type { IAutoMovieAxisFrame } from "@automovie/interface";
 
-/** Own rig angle conversion and its prepared readers. */
+/*
+ * Own rig angle conversion and its prepared readers.
+ */
 export namespace AutoMovieEngineRigAngle {
-    /**
-   * Convert clinical degrees to rig = (clinical - neutral) / sign. Null rest
-   * remains null and an absent frame preserves the angle; an invalid supplied
-   * sign/neutral throws when used. prepare supplies a lazy operation reader for
-   * unchanged frame objects. Null reads admit no frame; the first nonnull read
-   * validates and captures the exact neutral/sign used by the original
-   * expression. Replacing the frame admits it again, while unchanged identity
-   * reuses only those affine scalars.
-   */
+    /*
+     * Convert clinical degrees to rig = (clinical - neutral) / sign. Null rest
+     * remains null and an absent frame preserves the angle; an invalid supplied
+     * sign/neutral throws when used. prepare supplies a lazy operation reader for
+     * unchanged frame objects. Null reads admit no frame; the first nonnull read
+     * validates and captures the exact neutral/sign used by the original
+     * expression. Replacing the frame admits it again, while unchanged identity
+     * reuses only those affine scalars.
+     */
   export function toRigAngle(
     clinical: number | null,
     frame: IAutoMovieAxisFrame | undefined,
@@ -18,9 +20,11 @@ export namespace AutoMovieEngineRigAngle {
     return convert(clinical, frame);
   }
 
-  /** Lazy fixed-frame arithmetic for actual repeated joint composition. */
+  /*
+   * Lazy fixed-frame arithmetic for actual repeated joint composition.
+   */
 
-    /**
+    /*
      * Prepare one lazy converter; construction reads no frame or angle. Null
      * remains null without admission. Each same-identity frame must stay
      * unchanged until replacement or reader release. A replacement runs the
@@ -37,22 +41,34 @@ export namespace AutoMovieEngineRigAngle {
       ): number | null => convert(clinical, frame, state);
     }
 
-  /** One prepared axis's latest unchanged frame and its actual affine operands. */
+  /*
+   * One prepared axis's latest unchanged frame and its actual affine operands.
+   */
   interface IConversionState {
-    /** Installed only after a successful nonnull read. */
+    /*
+     * Installed only after a successful nonnull read.
+     */
     reading?: {
-      /** Borrowed frame identity, including the absent-frame case. */
+      /*
+       * Borrowed frame identity, including the absent-frame case.
+       */
       frame: IAutoMovieAxisFrame | undefined;
 
-      /** Actual neutral read by the original subtraction. */
+      /*
+       * Actual neutral read by the original subtraction.
+       */
       neutral: number;
 
-      /** Actual sign read after that subtraction. */
+      /*
+       * Actual sign read after that subtraction.
+       */
       sign: number;
     };
   }
 
-  /** The original conversion, optionally reusing one unchanged admitted frame. */
+  /*
+   * The original conversion, optionally reusing one unchanged admitted frame.
+   */
   function convert(
     clinical: number | null,
     frame: IAutoMovieAxisFrame | undefined,
@@ -78,7 +94,9 @@ export namespace AutoMovieEngineRigAngle {
   }
 }
 
-/** Admit the original actual frame reads only when a nonnull angle uses them. */
+/*
+ * Admit the original actual frame reads only when a nonnull angle uses them.
+ */
 function assertAxisFrame(
   label: string,
   frame: IAutoMovieAxisFrame | undefined,

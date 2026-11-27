@@ -4,30 +4,35 @@ import { FixtureDraw } from "./FixtureDraw";
 import { STREET_FIXTURE_BANDS } from "../constants/STREET_FIXTURE_BANDS";
 import { STREET_FIXTURE_MODELS } from "../constants/STREET_FIXTURE_MODELS";
 import type { AutoMovieArchetypeStreetFixture } from "../AutoMovieArchetypeStreetFixture";
-/**
+/*
  * The saved measurements of ground-standing street objects and the round post
  * contact shared by a bollard and lamp post.
  */
 export namespace StreetFixtureDraw {
-    /** The street model's seeded dimensions and its empty builder. */
+    /*
+     * The street model's seeded dimensions and its empty builder.
+     */
     export interface IFixture<Id extends string> {
-        /** A fresh builder with the drawn identity and physical material. */
+        /*
+         * A fresh builder with the drawn identity and physical material.
+         */
         builder: AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeStreetFixture.Dimension>;
-        /** Recorded dimension values in metres or kilograms. */
+        /*
+         * Recorded dimension values in metres or kilograms.
+         */
         d: Partial<Record<AutoMovieArchetypeStreetFixture.Dimension, number>>;
     }
-    /**
+    /*
      * Pick a whole recorded model id where available and draw the fixture's other
      * measurements.
-     *
-     * @param kind The fixture's fixed profile.
-     * @param name The readable display name.
-     * @param material Its physical material.
-     * @param params The scene identifier, dimension overrides and optional model.
-     * @param seed The seed for unresolved choices.
-     * @returns The dimensions and a builder for the selected fixture.
-     * @throws {AutoMovieArchetypeRefusal} For a supplied model or dimension the
-     *   fixed fixture cannot admit.
+     * Parameter kind: The fixture's fixed profile.
+     * Parameter name: The readable display name.
+     * Parameter material: Its physical material.
+     * Parameter params: The scene identifier, dimension overrides and optional model.
+     * Parameter seed: The seed for unresolved choices.
+     * Returns: The dimensions and a builder for the selected fixture.
+     * For a supplied model or dimension the
+     * fixed fixture cannot admit.
      */
     export function begin<Id extends string>(kind: AutoMovieArchetypeStreetFixture.Kind, name: string, material: AutoMovieArchetypeMaterial.Kind, params: Omit<AutoMovieArchetypeStreetFixture.IParams, "kind">, seed?: number): IFixture<Id> {
         const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeStreetFixture.Dimension> = new AutoMovieArchetypeDrawSession("streetFixture", FixtureDraw.streetFixture, seed, params);
@@ -44,13 +49,12 @@ export namespace StreetFixtureDraw {
         });
         return { builder, d };
     }
-    /**
+    /*
      * Place a round bar contact on the centreline of its vertical shaft.
-     *
-     * @param builder The street builder with the shaft geometry.
-     * @param low The lower end of the shaft from the ground, metres.
-     * @param high The upper end of the shaft from the ground, metres.
-     * @param diameter The exposed shaft diameter, metres.
+     * Parameter builder: The street builder with the shaft geometry.
+     * Parameter low: The lower end of the shaft from the ground, metres.
+     * Parameter high: The upper end of the shaft from the ground, metres.
+     * Parameter diameter: The exposed shaft diameter, metres.
      */
     export function shaft(builder: FixtureDraw.IContactWriter<"post">, low: number, high: number, diameter: number): void {
         builder.affordance({

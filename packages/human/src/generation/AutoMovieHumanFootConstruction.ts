@@ -135,7 +135,9 @@ export namespace AutoMovieHumanFootConstruction {
     return OWNED.test(name);
   }
 
-  /** One side's chains, events and poles. */
+  /*
+   * One side's chains, events and poles.
+   */
   interface IFoot {
     chains: IAutoMovieLoftChain[];
     events: IAutoMovieHumanBranchEvent[];
@@ -143,12 +145,11 @@ export namespace AutoMovieHumanFootConstruction {
     nails: IAutoMovieHumanNailWindow[];
   }
 
-  /**
+  /*
    * One side's foot: the left construction with this side's dimensions, reflected.
-   *
-   * @param d The side's dimensions.
-   * @param side Which side.
-   * @param diagnostics The list a degraded piece records into.
+   * Parameter d: The side's dimensions.
+   * Parameter side: Which side.
+   * Parameter diagnostics: The list a degraded piece records into.
    */
   function foot(
     d: IAutoMovieHumanFootFrame.IDimensions,
@@ -238,5 +239,7 @@ export namespace AutoMovieHumanFootConstruction {
   }
 }
 
-/** Chains a foot owns. */
+/*
+ * Chains a foot owns.
+ */
 const OWNED: RegExp = /^(foot|forefoot|toe)\./;

@@ -3,19 +3,18 @@ import { Vector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
-/**
+/*
  * A tightrope or slackline: a wire stretched level between two anchor posts.
  *
  * It stands on the floor with the middle of its span at the origin, the wire
  * along `X`. `bar` is the wire's middle, on its axis, `+Y` up: a walker stands
  * on it anywhere along its length (`lineWalk`, which also takes the sag its
  * load gives it).
- *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The rope.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * Parameter params: Any dimension the author fixes.
+ * Parameter seed: The seed that draws every dimension left free inside its band;
+ * absent, each takes the middle of its band.
+ * Returns: The rope.
+ * For a fixed dimension outside its band.
  */
 export function createTightrope(
   params: AutoMovieArchetypeTightrope.IParams = {},

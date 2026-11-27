@@ -5,7 +5,7 @@ import {
 
 import { seededValue } from "../../../math/internal/seededValue";
 
-/**
+/*
  * The member record one formation slot regenerates to.
  *
  * A design and a compiled formation share this identity law and differ only in

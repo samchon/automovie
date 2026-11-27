@@ -10,7 +10,7 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import type { HumanMountedFrame } from "./HumanMountedFrame";
 
-/**
+/*
  * Bounds of an admitted boarding, in the seat's moving frame (provisional): the
  * most the performer moves relative to the seat at the take-off, metres per
  * second; the farthest level way; the most it rises and drops.
@@ -22,18 +22,17 @@ const BOUNDS: Readonly<Record<BOUNDSEntryItem, number>> = {
   drop: 3,
 };
 
-/**
+/*
  * Admit a boarding: the performer's take-off velocity against the seat (the
  * central difference of its own root against the seat's over a 60th of a
  * second), the level reach, the rise and the drop of its way to the key, all
  * within `BOUNDS`, and the carrier's declared load capacity.
- *
- * @param context The boarding's context.
- * @param carrier The seat contact's moving frame.
- * @param from The entry posture in the seat's frame.
- * @param key The seated key in the seat's frame.
- * @throws {HumanRefusal} On `speed`, `reach`, `rise` or `drop` past its bound,
- *   or on `load` past the carrier's capacity.
+ * Parameter context: The boarding's context.
+ * Parameter carrier: The seat contact's moving frame.
+ * Parameter from: The entry posture in the seat's frame.
+ * Parameter key: The seated key in the seat's frame.
+ * On `speed`, `reach`, `rise` or `drop` past its bound,
+ * or on `load` past the carrier's capacity.
  */
 export function HumanBoardAdmit(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBoard>,
@@ -95,17 +94,18 @@ export function HumanBoardAdmit(
   }
 }
 
-/** The board admission's checks. */
+/*
+ * The board admission's checks.
+ */
 export namespace HumanBoardAdmit {
-  /**
+  /*
    * Admit a boarding's way: the take-off's speed against the seat at most 1.5
    * m/s, and the way from the take-off to the seated key at most 2.5 m across,
    * 1.5 m up and 3 m down (`BOUNDS`).
-   *
-   * @param slip The performer's speed against the seat at the take-off, m/s.
-   * @param from The take-off posture.
-   * @param key The seated key posture.
-   * @throws {HumanRefusal} When any of them exceeds its bound.
+   * Parameter slip: The performer's speed against the seat at the take-off, m/s.
+   * Parameter from: The take-off posture.
+   * Parameter key: The seated key posture.
+   * When any of them exceeds its bound.
    */
   export function way(
     slip: number,
@@ -137,5 +137,7 @@ export namespace HumanBoardAdmit {
   }
 }
 
-/** The alternatives of `BOUNDSEntryItem`'s site. */
+/*
+ * The alternatives of `BOUNDSEntryItem`'s site.
+ */
 type BOUNDSEntryItem = "speed" | "reach" | "rise" | "drop";

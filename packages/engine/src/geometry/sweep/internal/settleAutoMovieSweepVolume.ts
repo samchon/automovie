@@ -1,10 +1,14 @@
-/** Secant steps that settle the joint scale of volume preservation. */
+/*
+ * Secant steps that settle the joint scale of volume preservation.
+ */
 const ROUNDS: number = 8;
 
-/** Relative volume error at which volume preservation stops. */
+/*
+ * Relative volume error at which volume preservation stops.
+ */
 const TOLERANCE: number = 1e-6;
 
-/**
+/*
  * Find the factor on a posed sweep's joint sections that restores its rest
  * volume, by secant steps.
  *
@@ -14,10 +18,9 @@ const TOLERANCE: number = 1e-6;
  * target or two trials give the same volume. Volume preservation in sweep-based
  * deformation rescales the key section at the bent joint the same way (Hyun et
  * al. 2005, The Visual Computer 21(8-10):542-550, Section 4.4).
- *
- * @param target The rest volume, cubic metres.
- * @param volume The posed volume at a joint factor.
- * @returns The last factor tried.
+ * Parameter target: The rest volume, cubic metres.
+ * Parameter volume: The posed volume at a joint factor.
+ * Returns: The last factor tried.
  */
 export const settleAutoMovieSweepVolume: (
   target: number,

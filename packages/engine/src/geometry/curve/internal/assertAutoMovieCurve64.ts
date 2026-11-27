@@ -5,15 +5,14 @@ import type {
   IAutoMovieCurvePrimitive64,
 } from "@automovie/interface";
 
-/**
+/*
  * Reject malformed coefficient fields before evaluation or publication.
  * Successful admission establishes finite dense represented data and a
  * resolvable phase partition; it does not prove regularity, continuity,
  * nonintersection or visibility.
- *
- * @param curve Complete caller-owned primitive; positions are millimetres.
- * @throws Error when representation, finiteness, phase partition or supported
- *   denominator conditions fail.
+ * Parameter curve: Complete caller-owned primitive; positions are millimetres.
+ * Error when representation, finiteness, phase partition or supported
+ * denominator conditions fail.
  */
 export function assertAutoMovieCurve64(
   curve: IAutoMovieCurvePrimitive64,

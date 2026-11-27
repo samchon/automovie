@@ -13,7 +13,7 @@ import { autoMovieAnalysisSettingsTargets } from "./autoMovieAnalysisSettingsTar
 import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
 import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
 
-/**
+/*
  * Solve one space for ventilation, and refuse to pretend it solved the air.
  *
  * What a well-mixed zone model can answer, it answers exactly: the air change
@@ -33,7 +33,7 @@ import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKe
  * it rises without bound, and with none it stays wherever it starts, so no
  * steady state is unique either way.
  *
- * Throws on a malformed request (see {@link IAutoMovieSpaceAirRequest}). The
+ * Throws on a malformed request (see IAutoMovieSpaceAirRequest). The
  * returned run is always `solved` and carries no spatial samples.
  *
  * Finite admitted inputs can still overflow or underflow intermediate
@@ -178,7 +178,7 @@ export function analyzeAutoMovieSpaceAir(
   });
 }
 
-/**
+/*
  * Check nonblank header strings, positive volume, null/nonnegative flow, safe
  * nonnegative occupancy and finite nonnegative carbon-dioxide inputs before
  * target admission. Throws at the first defect; nested typed-record shape is a

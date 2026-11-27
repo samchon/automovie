@@ -34,7 +34,7 @@ import { touchHoldRests } from "./touchHoldRests";
 import { touchLimb } from "./touchLimb";
 import { touchRegion } from "./touchRegion";
 
-/**
+/*
  * How a touch reads the person it touches: as perceived on the way to them, and
  * as they are while the hand is on them.
  *
@@ -53,12 +53,11 @@ import { touchRegion } from "./touchRegion";
  * planned on the way never reads the partner at a contact still to come.
  */
 export namespace touchHold {
-  /**
+  /*
    * Whether the hand lies on its region at a second.
-   *
-   * @param clock The touch's clock.
-   * @param seconds Seconds since the action's start.
-   * @returns True strictly between `ready` and `relax`.
+   * Parameter clock: The touch's clock.
+   * Parameter seconds: Seconds since the action's start.
+   * Returns: True strictly between `ready` and `relax`.
    */
   export function holding(
     clock: IAutoMovieMotionClock,
@@ -67,13 +66,12 @@ export namespace touchHold {
     return seconds > clock.at("ready") && seconds < clock.at("relax");
   }
 
-  /**
+  /*
    * The context whose aim reads a person as they are, for the hold.
-   *
-   * @param context The action's context.
-   * @returns The same context with a person's region placed on their bones a
-   *   held limb's feedback delay before the second; every other target aimed as
-   *   before.
+   * Parameter context: The action's context.
+   * Returns: The same context with a person's region placed on their bones a
+   * held limb's feedback delay before the second; every other target aimed as
+   * before.
    */
   export function felt<
     Context extends Pick<IAutoMovieMotionHumanActionContext, Felt>,
@@ -99,13 +97,12 @@ export namespace touchHold {
     };
   }
 
-  /**
+  /*
    * A region read as perceived outside the hold and as felt inside it.
-   *
-   * @param clock The touch's clock.
-   * @param perceived The region as the touch reads it on the way.
-   * @param held The region as the touch reads it while the hand is on it.
-   * @returns The region at a posture and a second since the action's start.
+   * Parameter clock: The touch's clock.
+   * Parameter perceived: The region as the touch reads it on the way.
+   * Parameter held: The region as the touch reads it while the hand is on it.
+   * Returns: The region at a posture and a second since the action's start.
    */
   export function region(
     clock: IAutoMovieMotionClock,
@@ -125,19 +122,18 @@ export namespace touchHold {
         : perceived(posture, seconds, resolution, projection);
   }
 
-  /**
+  /*
    * The partner's colliders a touch keeps its arm clear of, and the ones it
    * lays the hand on: the segments of the bone that carries the touched region
    * and of the bones jointed to it (`HumanPosture.IGoal.rests`), whose surfaces
    * a hand laid on the region meets, apart from the rest
    * (`HumanPosture.IGoal.clear`).
-   *
-   * @param context The action's context.
-   * @param target The partner and the region the hand is laid on.
-   * @param clock The touch's clock.
-   * @returns The colliders at a second since the action's start, `clear` and
-   *   `rests`: where the partner was a feedback delay before during the hold,
-   *   where the performer saw them a reaction time earlier otherwise.
+   * Parameter context: The action's context.
+   * Parameter target: The partner and the region the hand is laid on.
+   * Parameter clock: The touch's clock.
+   * Returns: The colliders at a second since the action's start, `clear` and
+   * `rests`: where the partner was a feedback delay before during the hold,
+   * where the performer saw them a reaction time earlier otherwise.
    */
   export function others(
     context: Pick<IAutoMovieMotionHumanActionContext, OthersContext>,
@@ -182,19 +178,18 @@ export namespace touchHold {
     };
   }
 
-  /**
+  /*
    * The region and the colliders of a touch of a person as its plan perceives
    * them: where the performer saw the person when the touch starts, a reaction
    * time behind its `start`, whatever second the plan reads them at, so no plan
    * reads the person ahead of the second it is made at
    * (`AutoMovieMotionHumanArm.ICarry.perceived`).
-   *
-   * @param context The action's context.
-   * @param target The person and the region the hand is laid on.
-   * @param clock The touch's clock.
-   * @param perceived The region as the touch reads it on the way.
-   * @returns The region and the colliders at the touch's start, at any posture
-   *   and second.
+   * Parameter context: The action's context.
+   * Parameter target: The person and the region the hand is laid on.
+   * Parameter clock: The touch's clock.
+   * Parameter perceived: The region as the touch reads it on the way.
+   * Returns: The region and the colliders at the touch's start, at any posture
+   * and second.
    */
   export function perceived(
     context: Pick<IAutoMovieMotionHumanActionContext, PerceivedContext>,
@@ -217,7 +212,7 @@ export namespace touchHold {
     };
   }
 
-  /**
+  /*
    * How a touch lays its hand on its region: its along axis on the arm's own
    * direction across the region (`AutoMovieMotionHumanTouchPath.lay`), or the
    * forefinger end on (`reach`), and the tangent its travel runs on: the row's,
@@ -226,14 +221,13 @@ export namespace touchHold {
    * sinks it less, as a person rubs a nape side to side: rubbed up and down its
    * 48 mm, the hand went 39.6 mm into the upper back at the foot of the stroke,
    * and rubbed across the nape not at all.
-   *
-   * @param context The touch's context: the body, the entry and the row's kind,
-   *   manner, tangent, touching surface and elbow.
-   * @param bones The entry's resolved bones.
-   * @param effector The touching surface.
-   * @param placed The touch's region reader (`touchRegion.reader`).
-   * @returns Each hand's lay and travel's tangent, given the hand and its
-   *   target.
+   * Parameter context: The touch's context: the body, the entry and the row's kind,
+   * manner, tangent, touching surface and elbow.
+   * Parameter bones: The entry's resolved bones.
+   * Parameter effector: The touching surface.
+   * Parameter placed: The touch's region reader (`touchRegion.reader`).
+   * Returns: Each hand's lay and travel's tangent, given the hand and its
+   * target.
    */
   export function lay(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
@@ -288,41 +282,53 @@ export namespace touchHold {
     };
   }
 
-  /**
+  /*
    * What a touch lays its effector's along axis on: the arm, the reach or a
    * partner's limb.
    */
   export type Lying = "arm" | "reach" | "limb";
 
-  /** Each hand's lay, given the hand and its target (`lay`). */
+  /*
+   * Each hand's lay, given the hand and its target (`lay`).
+   */
   export type Lay = (
     side: AutoMovieHumanSide,
     target: IAutoMovieMotionTarget,
   ) => ILaid;
 
-  /** How a touch lays its hand (`lay`). */
+  /*
+   * How a touch lays its hand (`lay`).
+   */
   export interface ILaid {
-    /**
+    /*
      * What the effector's along axis lies on
      * (`AutoMovieMotionHumanTouch.ITouch.lay`).
      */
     lay: Lying;
 
-    /** With `limb`, the touched limb's long axis, world. */
+    /*
+     * With `limb`, the touched limb's long axis, world.
+     */
     axis?: IAutoMovieVector3;
 
-    /** The travel's tangent. */
+    /*
+     * The travel's tangent.
+     */
     tangent: IAutoMovieMotionHumanTouchForm.Tangent;
   }
 }
 
-/** The record of `IPerceivedResult2`'s site. */
+/*
+ * The record of `IPerceivedResult2`'s site.
+ */
 type IPerceivedResult2 = {
   clear: IAutoMovieMotionHumanColliders.IPlaced[];
   rests: IAutoMovieMotionHumanColliders.IPlaced[];
 };
 
-/** The record of `IPerceivedResult`'s site. */
+/*
+ * The record of `IPerceivedResult`'s site.
+ */
 type IPerceivedResult = {
   region: IAutoMovieMotionHumanTouch.ITouch["region"];
   others: (
@@ -331,45 +337,65 @@ type IPerceivedResult = {
   ) => IPerceivedOthersResult;
 };
 
-/** The record of `IPerceivedOthersResult`'s site. */
+/*
+ * The record of `IPerceivedOthersResult`'s site.
+ */
 type IPerceivedOthersResult = {
   clear: IAutoMovieMotionHumanColliders.IPlaced[];
   rests: IAutoMovieMotionHumanColliders.IPlaced[];
 };
 
-/** The record of `IPerceivedTarget`'s site. */
+/*
+ * The record of `IPerceivedTarget`'s site.
+ */
 type IPerceivedTarget = { subject: string; region: AutoMovieHumanoidRegion };
 
-/** The alternatives of `PerceivedContext`'s site. */
+/*
+ * The alternatives of `PerceivedContext`'s site.
+ */
 type PerceivedContext = "performer" | "start" | "body";
 
-/** The record of `IOthersResult2`'s site. */
+/*
+ * The record of `IOthersResult2`'s site.
+ */
 type IOthersResult2 = {
   clear: IAutoMovieMotionHumanColliders.IPlaced[];
   rests: IAutoMovieMotionHumanColliders.IPlaced[];
 };
 
-/** The record of `IOthersResult`'s site. */
+/*
+ * The record of `IOthersResult`'s site.
+ */
 type IOthersResult = {
   clear: IAutoMovieMotionHumanColliders.IPlaced[];
   rests: IAutoMovieMotionHumanColliders.IPlaced[];
 };
 
-/** The record of `IOthersTarget`'s site. */
+/*
+ * The record of `IOthersTarget`'s site.
+ */
 type IOthersTarget = { subject: string; region: AutoMovieHumanoidRegion };
 
-/** The alternatives of `OthersContext`'s site. */
+/*
+ * The alternatives of `OthersContext`'s site.
+ */
 type OthersContext = "performer" | "start" | "body";
 
-/** The record of `IFeltResult`'s site. */
+/*
+ * The record of `IFeltResult`'s site.
+ */
 type IFeltResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 
-/** The alternatives of `Felt`'s site. */
+/*
+ * The alternatives of `Felt`'s site.
+ */
 type Felt = "aim" | "performer";
-/** The alternatives of `RubbedPlace`'s site. */
+/*
+ * The alternatives of `RubbedPlace`'s site.
+ */
 type RubbedPlace = "point" | "normal";
 
-/**
+/*
  * The tangent a hand on the performer's own region travels on
  * (`touchHold.lay`).
  */
@@ -458,5 +484,7 @@ function rubbed(
     : "up";
 }
 
-/** Where along its travel the hand is read, shares of the travel each way. */
+/*
+ * Where along its travel the hand is read, shares of the travel each way.
+ */
 const SWEEP: readonly number[] = [-1, -0.5, 0, 0.5, 1];

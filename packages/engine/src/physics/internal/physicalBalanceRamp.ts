@@ -4,7 +4,7 @@ import type { IAutoMoviePhysicalRecoveryState } from "@automovie/interface";
 import { physicalRecoveryLimbSwing } from "./physicalRecoveryLimbSwing";
 import { AutoMovieEnginePhysicalStanceSeat } from "../AutoMovieEnginePhysicalStanceSeat";
 
-/**
+/*
  * The balance controller's landing-ramp phase (`advancePhysicalBalance`): each
  * stance foot's seating advanced by one substep (`AutoMovieEnginePhysicalStanceSeat`), its
  * sole's seating, its low-passed measured load, which decides lift-off and
@@ -24,11 +24,10 @@ import { AutoMovieEnginePhysicalStanceSeat } from "../AutoMovieEnginePhysicalSta
  * segment of their own) left out: a flat foot's sole lies level, an edge
  * lifting raises the spread (Coros, Beaudoin and van de Panne 2010, Section
  * 3.3). The plant only names which vertices form the sole.
- *
- * @param input The recovery's state and the body's readings.
- * @returns The state with every limb not asked to step seated, a new one, or
- *   the input itself when every limb is asked to step; the input is never
- *   written.
+ * Parameter input: The recovery's state and the body's readings.
+ * Returns: The state with every limb not asked to step seated, a new one, or
+ * the input itself when every limb is asked to step; the input is never
+ * written.
  */
 export function physicalBalanceRamp(input: {
   state: Readonly<IAutoMoviePhysicalRecoveryState>;

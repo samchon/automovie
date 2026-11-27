@@ -9,15 +9,14 @@ import type {
 import { binary64SumProductsSign } from "../../math/internal/binary64SumProductsSign";
 import { ProjectileDragFlightImplementation } from "./ProjectileDragFlightImplementation";
 
-/**
+/*
  * Find a clear witness only across certified outward Hermite intervals.
- *
- * @param normal Fixed plane's unit outward normal.
- * @param projectile The already admitted launch with quadratic drag.
- * @param contact Its resolved initial fixed-plane episode and actual gap
- *   reader.
- * @returns An actual positive-gap witness before any certified new entry, or no
- *   certificate.
+ * Parameter normal: Fixed plane's unit outward normal.
+ * Parameter projectile: The already admitted launch with quadratic drag.
+ * Parameter contact: Its resolved initial fixed-plane episode and actual gap
+ * reader.
+ * Returns: An actual positive-gap witness before any certified new entry, or no
+ * certificate.
  */
 export function projectileDragDeparture(
   normal: IAutoMovieVector3,

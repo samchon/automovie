@@ -6,7 +6,7 @@ import type {
 
 import { fitSeatedAnkleCrossShape } from "./fitSeatedAnkleCrossShape";
 
-/**
+/*
  * An axis from a real material witness certifies a pair only when the actual
  * projected solids are farther apart than the same swept displacement bound.
  * The exact pair distance remains authoritative whenever the plane falls

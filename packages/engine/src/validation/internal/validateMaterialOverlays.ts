@@ -3,7 +3,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/**
+/*
  * Admit optional overlay lists: their count, strength and optional numeric
  * factors.
  */
@@ -59,5 +59,7 @@ export function validateMaterialOverlays(
   );
 }
 
-/** The most overlays one material may carry: each samples up to two images. */
+/*
+ * The most overlays one material may carry: each samples up to two images.
+ */
 const MAXIMUM_OVERLAYS: number = 4;

@@ -4,7 +4,7 @@ import type {
   IAutoMovieRequiredMaterialTexturePurposes,
 } from "@automovie/interface";
 
-/**
+/*
  * Resolve implicit lookup consumers from the material/light declarations used.
  * A radius builds its table even at zero. Overlay normal fallback is needed
  * only without a base/detail normal map. Rectangular lighting requires its two

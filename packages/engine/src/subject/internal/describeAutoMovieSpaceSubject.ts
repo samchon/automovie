@@ -10,7 +10,7 @@ import { builtPointBounds } from "../../architecture/internal/builtPointBounds";
 import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 import { autoMovieSubjectMemberSummary } from "./autoMovieSubjectMemberSummary";
 
-/**
+/*
  * Describe one logical space of a built environment as a subject.
  *
  * The space is owned by its parent space and has no model, transform or
@@ -20,12 +20,11 @@ import { autoMovieSubjectMemberSummary } from "./autoMovieSubjectMemberSummary";
  * states, from its shell vertices or the corners of its convex cells by
  * `builtConvexCellVertices`, or null when it states none; and `content`, where
  * its staged content stands, from `builtEnvironmentSpaceContentBounds`.
- *
- * @param environment Environment the space belongs to.
- * @param space Space to describe.
- * @param revision Revision of the artifact being described.
- * @param memberOffset Rank of the first member to name, a whole number from 0.
- * @returns The space's description.
+ * Parameter environment: Environment the space belongs to.
+ * Parameter space: Space to describe.
+ * Parameter revision: Revision of the artifact being described.
+ * Parameter memberOffset: Rank of the first member to name, a whole number from 0.
+ * Returns: The space's description.
  */
 export const describeAutoMovieSpaceSubject = (
   environment: IAutoMovieBuiltEnvironment,

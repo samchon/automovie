@@ -6,7 +6,7 @@ import type {
 import { productionFrameBoundaryToGridTick } from "../../film/internal/productionFrameBoundaryToGridTick";
 import { resolveProductionFrameRate } from "../../film/internal/resolveProductionFrameRate";
 
-/**
+/*
  * The exclusive end frame of a line's speech span: the first frame whose
  * boundary tick on the plan's sample clock is at least the start frame's tick
  * plus the line's sample count.
@@ -17,14 +17,13 @@ import { resolveProductionFrameRate } from "../../film/internal/resolveProductio
  * length at the plan rate, `round(sourceSamples × sampleRate /
  * sourceSampleRate)` for an adopted receipt, which is the length ingest's
  * decode produces.
- *
- * @param clock The film clock and sample rate of the plan the line belongs to.
- * @param startFrame Film-global start frame of the line, a nonnegative safe
- *   integer.
- * @param samples The line's positive sample count at `clock.sampleRate`.
- * @returns The speech end frame, greater than `startFrame`.
- * @throws {Error} When the start frame or the sample count is not a valid
- *   count.
+ * Parameter clock: The film clock and sample rate of the plan the line belongs to.
+ * Parameter startFrame: Film-global start frame of the line, a nonnegative safe
+ * integer.
+ * Parameter samples: The line's positive sample count at `clock.sampleRate`.
+ * Returns: The speech end frame, greater than `startFrame`.
+ * When the start frame or the sample count is not a valid
+ * count.
  */
 export function productionSpeechEndFrame(
   clock: Pick<

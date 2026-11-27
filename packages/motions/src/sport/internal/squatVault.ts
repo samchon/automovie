@@ -31,7 +31,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * A squat vault over a box: the hands set on the near edge of the box's top,
  * the body tucked over them, a push-off into a flight over the box and a
  * landing on both feet beyond its far edge.
@@ -56,10 +56,12 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
  * Events: `handsDown`, `tucked` (the push-off), `touchdown`.
  */
 export namespace squatVault {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "squatVault";
 
-  /**
+  /*
    * Cancel table: a vault in the air cannot be cut; standing again once it has
    * landed, from its `touchdown` on.
    */
@@ -74,32 +76,43 @@ export namespace squatVault {
     ],
   };
 
-  /** A vault's least-speed flight. */
+  /*
+   * A vault's least-speed flight.
+   */
   export interface IArc {
-    /** `h + sqrt(h² + d²)`, metres. */
+    /*
+     * `h + sqrt(h² + d²)`, metres.
+     */
     lift: number;
 
-    /** The launch speed, `sqrt(g lift)`, m/s. */
+    /*
+     * The launch speed, `sqrt(g lift)`, m/s.
+     */
     launch: number;
 
-    /** The launch angle above the level, radians: `atan(lift / d)`. */
+    /*
+     * The launch angle above the level, radians: `atan(lift / d)`.
+     */
     angle: number;
 
-    /** The flight's seconds, `d / (launch cos angle)`. */
+    /*
+     * The flight's seconds, `d / (launch cos angle)`.
+     */
     flight: number;
 
-    /** The launch's rising speed, m/s. */
+    /*
+     * The launch's rising speed, m/s.
+     */
     rise: number;
   }
 
-  /**
+  /*
    * The least-speed ballistic arc that rises `h` over a run `d`: its speed
    * squared is `g (h + sqrt(h² + d²))` and its angle's tangent `(h + sqrt(h² +
    * d²)) / d`.
-   *
-   * @param h The rise, metres.
-   * @param d The level run, metres.
-   * @returns The arc.
+   * Parameter h: The rise, metres.
+   * Parameter d: The level run, metres.
+   * Returns: The arc.
    */
   export function arc(h: number, d: number): IArc {
     const lift: number = h + Math.sqrt(h * h + d * d);
@@ -113,14 +126,13 @@ export namespace squatVault {
       rise: launch * Math.sin(angle),
     };
   }
-  /**
+  /*
    * Plan a squat vault.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the prop has no `surface`, the support planner
-   *   refuses its stances, or the landing lies no farther ahead than the
-   *   push-off.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the prop has no `surface`, the support planner
+   * refuses its stances, or the landing lies no farther ahead than the
+   * push-off.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSquatVault.IParams>,
@@ -313,13 +325,19 @@ export namespace squatVault {
   }
 }
 
-/** The alternatives of `PlanPart`'s site. */
+/*
+ * The alternatives of `PlanPart`'s site.
+ */
 type PlanPart = "leftFoot" | "rightFoot";
 
-/** The record of `IPlanResult`'s site. */
+/*
+ * The record of `IPlanResult`'s site.
+ */
 type IPlanResult = { name: string; share: number };
 
-/** The record of `IPlanE`'s site. */
+/*
+ * The record of `IPlanE`'s site.
+ */
 type IPlanE = {
   name: string;
   share: number;

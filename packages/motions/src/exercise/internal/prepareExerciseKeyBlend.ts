@@ -5,15 +5,14 @@ import type {
 
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 
-/**
+/*
  * Prepare the blend of two fixed exercise keys: linear in joint space, the
  * joints through the one joint-map blend owner (`prepareHumanShapeBlend`, a
  * joint one key leaves out read as zero there) and the tilt, the turn and the
  * lift scalar by scalar.
- *
- * @param a The fixed key at share zero.
- * @param b The fixed key at share one.
- * @returns The key a share of the way from `a` to `b`, the share in [0, 1].
+ * Parameter a: The fixed key at share zero.
+ * Parameter b: The fixed key at share one.
+ * Returns: The key a share of the way from `a` to `b`, the share in [0, 1].
  */
 export function prepareExerciseKeyBlend(
   a: IAutoMovieMotionHumanExerciseKey.IKey,

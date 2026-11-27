@@ -1,7 +1,7 @@
 import type { IAutoMovieViewerCameraDepthPrecisionReport } from "../IAutoMovieViewerCameraDepthPrecisionReport.js";
 import { evaluateAutoMovieViewerCameraDepthPrecision } from "./evaluateAutoMovieViewerCameraDepthPrecision.js";
 
-/**
+/*
  * Refuse a viewer whose observed clips, projection mode or depth bits fail the
  * engine's declared fixed-point capability gate, preserving a passing report.
  *

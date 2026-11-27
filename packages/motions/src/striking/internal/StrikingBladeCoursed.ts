@@ -7,7 +7,7 @@ import type {
 import { courseArmGoal } from "../../compose/internal/courseArmGoal";
 import { precisionStrokePeak } from "../../lexicon/internal/precisionStrokePeak";
 
-/**
+/*
  * Plan a one-handed stroke whose path stays in one basin of the arm (a thrust
  * drawn back from its landing, recovered to its guard) with the arm laid as one
  * admitted course (`courseArmGoal`) instead of a fit per sample: the reach from
@@ -18,16 +18,15 @@ import { precisionStrokePeak } from "../../lexicon/internal/precisionStrokePeak"
  * (`precisionStrokePeak`) and the reach's minimum-jerk peak, 15/8 of its mean
  * speed over the arm's own travel to the guard. A supported stroke is the
  * fitted plan unchanged.
- *
- * @param plan The fitted stroke's planner (`StrikingBlade.plan`).
- * @param context The action's context.
- * @param stroke The stroke.
- * @param travel The arm's own travel from the entry hold to the guard, metres:
- *   the greater of the hand's and the elbow's, which the caller measured on the
- *   two fitted arms.
- * @returns The plan, whose decisive instant is `stroke`, its arm coursed.
- * @throws {HumanRefusal} When no arm course meets the trajectory's constraints,
- *   as the plan is composed.
+ * Parameter plan: The fitted stroke's planner (`StrikingBlade.plan`).
+ * Parameter context: The action's context.
+ * Parameter stroke: The stroke.
+ * Parameter travel: The arm's own travel from the entry hold to the guard, metres:
+ * the greater of the hand's and the elbow's, which the caller measured on the
+ * two fitted arms.
+ * Returns: The plan, whose decisive instant is `stroke`, its arm coursed.
+ * When no arm course meets the trajectory's constraints,
+ * as the plan is composed.
  */
 export function StrikingBladeCoursed(
   plan: StrikingBladeCoursed.Plan,
@@ -58,27 +57,27 @@ export function StrikingBladeCoursed(
   });
 }
 
-/** The planner a coursed stroke lays its arm over. */
+/*
+ * The planner a coursed stroke lays its arm over.
+ */
 export namespace StrikingBladeCoursed {
-  /**
+  /*
    * The peak speed of a minimum-jerk travel: `15 / 8` of the travel over its
    * time (Flash & Hogan 1985), none when there is no time.
-   *
-   * @param travel The travel, metres.
-   * @param ready The seconds it takes.
-   * @returns Metres per second.
+   * Parameter travel: The travel, metres.
+   * Parameter ready: The seconds it takes.
+   * Returns: Metres per second.
    */
   export function pace(travel: number, ready: number): number {
     return ready > 0 ? ((15 / 8) * travel) / ready : 0;
   }
 
-  /**
+  /*
    * A fitted stroke's planner.
-   *
-   * @param context The action's context.
-   * @param stroke The stroke.
-   * @param along Whether the recovery draws the tool back along its path.
-   * @returns The plan.
+   * Parameter context: The action's context.
+   * Parameter stroke: The stroke.
+   * Parameter along: Whether the recovery draws the tool back along its path.
+   * Returns: The plan.
    */
   export type Plan = (
     context: IAutoMovieMotionHumanActionContext,

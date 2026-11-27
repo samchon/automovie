@@ -21,12 +21,12 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { throwObjectLaunch } from "../../throwing/internal/throwObjectLaunch";
 import { AquaticPosture } from "./AquaticPosture";
 
-/**
+/*
  * Water polo support, throwing and defending. The eggbeater follows the opposed
  * kick and hip and foot variables in Oliveira et al. (PMID 25599265).
  */
 export namespace AquaticPolo {
-  /**
+  /*
    * Polo player using opposed eggbeater kicks and a staged attack, block or
    * save.
    */
@@ -56,7 +56,7 @@ export namespace AquaticPolo {
     const mouth: number =
       HumanTrunk.region(body, base, "mouth").point.y - base.root.y;
 
-    /**
+    /*
      * One leg's researched cycle topology, with provisional angle ranges in
      * clinical degrees.
      */

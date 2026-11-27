@@ -10,7 +10,9 @@ import type {
   IAutoMoviePolylineFitInput,
 } from "@automovie/interface";
 
-/** Shared engine vector arithmetic retains the physical coefficient chart. */
+/*
+ * Shared engine vector arithmetic retains the physical coefficient chart.
+ */
 const add: typeof M.add = M.add,
   sub: typeof M.sub = M.sub,
   scale: typeof M.scale = M.scale;
@@ -246,7 +248,9 @@ export namespace RecoveryBezierFit {
     };
   }
 
-  /** Solve arclength-weighted two-handle normal equations in the physical chart. */
+  /*
+   * Solve arclength-weighted two-handle normal equations in the physical chart.
+   */
   function solve(
     p: AutoMovieVector3Tuple[],
     u: number[],
@@ -302,7 +306,7 @@ export namespace RecoveryBezierFit {
     };
   }
 
-  /**
+  /*
    * Restrict each matched chord interval and bound its elevated polynomial
    * difference.
    */
@@ -341,12 +345,16 @@ export namespace RecoveryBezierFit {
     return { sample, bound, split };
   }
 
-  /** Dot product for the physical least-squares and Newton equations. */
+  /*
+   * Dot product for the physical least-squares and Newton equations.
+   */
   function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
-  /** Euclidean point distance in millimetres. */
+  /*
+   * Euclidean point distance in millimetres.
+   */
   function distance(
     a: AutoMovieVector3Tuple,
     b: AutoMovieVector3Tuple,
@@ -354,7 +362,9 @@ export namespace RecoveryBezierFit {
     return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   }
 
-  /** Normalize a measurable tangent without inventing a direction at degeneracy. */
+  /*
+   * Normalize a measurable tangent without inventing a direction at degeneracy.
+   */
   function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     const length: number = Math.hypot(...a);
     if (!(length > 0) || length === Infinity)

@@ -17,7 +17,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { ExerciseKey } from "./ExerciseKey";
 
-/**
+/*
  * A circle dance: the members stand evenly round a centre facing it, hands
  * joined with their neighbours in a low V, and side-step round it, the right
  * foot out on odd beats and the left closing on even ones, so the circle
@@ -30,30 +30,35 @@ import { ExerciseKey } from "./ExerciseKey";
  * to meet across is refused with the widest radius they reach.
  */
 export namespace groupDanceCircle {
-  /** A side step, a share of the feet's spacing (provisional). */
+  /*
+   * A side step, a share of the feet's spacing (provisional).
+   */
   export const STEP: number = 1;
 
-  /**
+  /*
    * The joined hands' height, a share of the stature: a low V hold
    * (provisional).
    */
   export const HAND: number = 0.5;
 
-  /** A travelling foot's lift, a share of the stature (provisional). */
+  /*
+   * A travelling foot's lift, a share of the stature (provisional).
+   */
   export const LIFT: number = 0.03;
 
-  /** A foot's travel into a beat, a share of the beat. */
+  /*
+   * A foot's travel into a beat, a share of the beat.
+   */
   export const TRAVEL: number = 0.45;
 
-  /**
+  /*
    * The circle dance's course.
-   *
-   * @param context The member's context.
-   * @param beats The member's beat clock, its offset already in.
-   * @param shared The shared beat clock, without the member's offset.
-   * @returns The course.
-   * @throws {HumanRefusal} When the centre or the count is missing, or the
-   *   neighbours' hands cannot meet.
+   * Parameter context: The member's context.
+   * Parameter beats: The member's beat clock, its offset already in.
+   * Parameter shared: The shared beat clock, without the member's offset.
+   * Returns: The course.
+   * When the centre or the count is missing, or the
+   * neighbours' hands cannot meet.
    */
   export function course(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGroupDance.IParams>,

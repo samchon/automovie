@@ -185,7 +185,7 @@ export namespace AutoMovieLoftPhaseSource {
   }
 }
 
-/**
+/*
  * Validate explicit prepared rows without selecting geometry by registration
  * identity.
  */
@@ -205,7 +205,7 @@ function validate(at: IAutoMovieLoftPhaseSource.IStation): void {
     throw new Error("native phase station has malformed explicit source data");
 }
 
-/**
+/*
  * A broken present source is an error, never a request for legacy coefficient
  * geometry.
  */

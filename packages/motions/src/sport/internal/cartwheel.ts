@@ -28,7 +28,7 @@ import { GymnasticsWheel } from "./GymnasticsWheel";
 import { GymnasticsWheelPlants } from "./GymnasticsWheelPlants";
 import { edgeGymnasticsWheelFeet } from "./edgeGymnasticsWheelFeet";
 
-/**
+/*
  * A cartwheel: the body turns once about its front-to-back axis, sideways,
  * passing from one foot to one hand, the other hand, and the other foot, and
  * stands again a wheel's roll to the side.
@@ -55,23 +55,31 @@ import { edgeGymnasticsWheelFeet } from "./edgeGymnasticsWheelFeet";
  * this law: they bend the body between their supports or fly between them.
  */
 export namespace cartwheel {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "cartwheel";
 
-  /** Cancel table: from the end, into standing or walking. */
+  /*
+   * Cancel table: from the end, into standing or walking.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
       walk: ["fromRelax", "smooth"],
     });
 
-  /** The cartwheel's seconds when the author names none (provisional). */
+  /*
+   * The cartwheel's seconds when the author names none (provisional).
+   */
   export const SECONDS: number = 1.6;
 
-  /** The angle between two rows of the wheel's table, degrees. */
+  /*
+   * The angle between two rows of the wheel's table, degrees.
+   */
   export const STEP: number = 5;
 
-  /**
+  /*
    * The angle over which the body takes the wheel's shape and leaves it,
    * degrees: the quarter turn to the first hand's contact, so the arms reach
    * overhead as the hand comes down and the straddle opens as the trailing leg
@@ -80,12 +88,11 @@ export namespace cartwheel {
    */
   export const SHAPE: number = 90;
 
-  /**
+  /*
    * The wheel's shape on a body: the arms raised wide overhead, the legs
    * straddled (provisional angles).
-   *
-   * @param body The body.
-   * @returns The key.
+   * Parameter body: The body.
+   * Returns: The key.
    */
   export function wheel(
     body: IAutoMovieMotionHumanBody,
@@ -93,7 +100,9 @@ export namespace cartwheel {
     return ExerciseKey.from(body, {}, { spread: 35, raise: 150, elbow: 3 });
   }
 
-  /** The joints a wheel to the left bears on, the leading side first. */
+  /*
+   * The joints a wheel to the left bears on, the leading side first.
+   */
   const SPOKES: readonly Spoke[] = [
     "leftFoot",
     "rightFoot",
@@ -101,7 +110,9 @@ export namespace cartwheel {
     "rightHand",
   ];
 
-  /** The joints a wheel to the right bears on, the leading side first. */
+  /*
+   * The joints a wheel to the right bears on, the leading side first.
+   */
   const SPOKES_RIGHT: readonly Spoke[] = [
     "rightFoot",
     "leftFoot",
@@ -109,12 +120,11 @@ export namespace cartwheel {
     "leftHand",
   ];
 
-  /**
+  /*
    * How far the body has taken the wheel's shape at an angle of the turn: a
    * minimum-jerk share over the first `SHAPE` degrees, and back over the last.
-   *
-   * @param angle The wheel's turn, degrees, 0 to 360.
-   * @returns The shape's share, 0 to 1.
+   * Parameter angle: The wheel's turn, degrees, 0 to 360.
+   * Returns: The shape's share, 0 to 1.
    */
   export function shapeShare(angle: number): number {
     return AutoMovieEngineMotionSampling.minimumJerkShare(
@@ -122,12 +132,11 @@ export namespace cartwheel {
     );
   }
 
-  /**
+  /*
    * Plan a cartwheel.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the seconds are not positive.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the seconds are not positive.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCartwheel.IParams>,
@@ -249,7 +258,9 @@ export namespace cartwheel {
       },
       { name: "relax", share: 1 },
     ];
-    /** Read the current wheel angle and its interpolated support root. */
+    /*
+     * Read the current wheel angle and its interpolated support root.
+     */
     const carried: (seconds: number) => IAutoMovieMotionHumanPosture = (
       seconds: number,
     ): IAutoMovieMotionHumanPosture => {
@@ -283,7 +294,9 @@ export namespace cartwheel {
     const turning: (seconds: number) => IAutoMovieMotionHumanPosture = (
       seconds: number,
     ): IAutoMovieMotionHumanPosture => lay(carried(seconds), seconds);
-    /** The landing shape restarts at zero angle on the final support row. */
+    /*
+     * The landing shape restarts at zero angle on the final support row.
+     */
     const landed: () => IAutoMovieMotionHumanPosture =
       (): IAutoMovieMotionHumanPosture =>
         lay(
@@ -322,6 +335,8 @@ export namespace cartwheel {
     });
     return result;
   }
-  /** A joint a wheel may bear on. */
+  /*
+   * A joint a wheel may bear on.
+   */
   type Spoke = "leftFoot" | "rightFoot" | "leftHand" | "rightHand";
 }

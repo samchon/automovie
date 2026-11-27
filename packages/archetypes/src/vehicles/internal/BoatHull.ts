@@ -8,27 +8,30 @@ import {
 } from "../../core";
 import { AutoMovieArchetypeBoat } from "../AutoMovieArchetypeBoat";
 
-/**
+/*
  * An open boat's hull boards: its flat side panels and its thwarts with their
  * seats, and the paint and bare wood they are drawn in.
  */
 export namespace BoatHull {
-  /** The hull's paint. */
+  /*
+   * The hull's paint.
+   */
   export const PAINT: string = "#2f5d50";
 
-  /** Bare wood. */
+  /*
+   * Bare wood.
+   */
   export const WOOD: string = "#a07a4a";
 
-  /**
+  /*
    * Add one flat side panel from one end's foot to another's, the gunwale's
    * height above the bottom.
-   *
-   * @param builder The boat under construction.
-   * @param id The panel's part id.
-   * @param from One end of its foot, `Y` ignored.
-   * @param to The other end.
-   * @param bottom The bottom's height.
-   * @param gunwale The gunwale's height.
+   * Parameter builder: The boat under construction.
+   * Parameter id: The panel's part id.
+   * Parameter from: One end of its foot, `Y` ignored.
+   * Parameter to: The other end.
+   * Parameter bottom: The bottom's height.
+   * Parameter gunwale: The gunwale's height.
    */
   export function panel(
     builder: AutoMovieArchetypeBuilder<
@@ -63,18 +66,17 @@ export namespace BoatHull {
     );
   }
 
-  /**
+  /*
    * Add one thwart and its seat: a board across the boat, its `seat` on its
    * front edge, the edge the sitter faces from.
-   *
-   * @param builder The boat under construction.
-   * @param id The seat's affordance id.
-   * @param height The board's top.
-   * @param edge The station of its front edge, the sitter's knees' side.
-   * @param width Its width across.
-   * @param facing 1 for a sitter facing the bow, -1 for one facing the stern.
-   * @param workingSeat Whether the sitter works on the oars from this fixed
-   *   bearing.
+   * Parameter builder: The boat under construction.
+   * Parameter id: The seat's affordance id.
+   * Parameter height: The board's top.
+   * Parameter edge: The station of its front edge, the sitter's knees' side.
+   * Parameter width: Its width across.
+   * Parameter facing: 1 for a sitter facing the bow, -1 for one facing the stern.
+   * Parameter workingSeat: Whether the sitter works on the oars from this fixed
+   * bearing.
    */
   export function thwart(
     builder: AutoMovieArchetypeBuilder<

@@ -14,7 +14,7 @@ import {
 import type { AutoMovieArchetypeQuadrupedFooting } from "../AutoMovieArchetypeQuadrupedFooting";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 
-/**
+/*
  * The least vertical lift that keeps every solid of a displayed model out of
  * every authored footing plane it overlaps, zero when none enters one.
  *
@@ -31,12 +31,11 @@ import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
  * `AutoMovieArchetypeQuadrupedFooting.prepare`'s verification reads them; a
  * separation `d` below a plane of upward normal `n` needs a vertical lift of `d
  * / n_y`.
- *
- * @param scene The authored footing.
- * @param model The displayed model, in its placement's model space.
- * @param placement The model's world placement.
- * @returns The vertical lift, metres, at least zero.
- * @throws {RangeError} For a part without a transformed solid.
+ * Parameter scene: The authored footing.
+ * Parameter model: The displayed model, in its placement's model space.
+ * Parameter placement: The model's world placement.
+ * Returns: The vertical lift, metres, at least zero.
+ * For a part without a transformed solid.
  */
 export function QuadrupedFootingClearance(
   scene: AutoMovieArchetypeQuadrupedFooting.IScene,
@@ -115,10 +114,12 @@ export function QuadrupedFootingClearance(
   return lift;
 }
 
-/** World up. */
+/*
+ * World up.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
+/*
  * Turns that bring world -X, +X, -Z and +Z to world down, so a part's lowest
  * surface in each gives its horizontal extent.
  */
@@ -129,7 +130,9 @@ const SIDES: readonly IAutoMovieQuaternion[] = [
   Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
 ];
 
-/** The rotation taking one unit direction to another. */
+/*
+ * The rotation taking one unit direction to another.
+ */
 function turn(
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,

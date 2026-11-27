@@ -9,8 +9,8 @@ import { Vector3 } from "../../math/Vector3";
 import { projectileAt } from "./projectileAt";
 import { segmentSphere } from "./segmentSphere";
 
-/**
- * March a {@link IAutoMovieProjectile} over `[0, tMax]` in `steps` straight
+/*
+ * March a IAutoMovieProjectile over `[0, tMax]` in `steps` straight
  * segments and return the first time/point its path enters `sphere`, or `null`
  * if it never does within the window. Sampling the arc as segments keeps the
  * test exact per segment (the projectile is smooth, so a modest `steps`

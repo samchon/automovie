@@ -1,7 +1,7 @@
 import { AutoMovieArchetypeUnits } from "../../core";
 import type { AutoMovieArchetypeStorage } from "../AutoMovieArchetypeStorage";
 
-/**
+/*
  * The read models a storage kind is built as, each whole: a wardrobe's Blum
  * CLIP top hinge by its "95 and 110 degree opening angles"
  * (https://publications.blum.com/2022/catalogue/en/128/); a chest drawer's

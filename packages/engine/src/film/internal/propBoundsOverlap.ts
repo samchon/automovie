@@ -1,6 +1,6 @@
 import { IAutoMoviePropBox } from "@automovie/interface";
 
-/**
+/*
  * Whether two axis-aligned world volumes share interior space.
  *
  * Contact is not occupancy: two boxes that meet exactly on a face, an edge or a
@@ -10,11 +10,10 @@ import { IAutoMoviePropBox } from "@automovie/interface";
  * that only reaches it, and a `NaN` coordinate makes the answer false. The prop
  * placement gate, the building placement-overlap queries and the
  * service-network gates all judge intrusion by this one test.
- *
- * @param left One world box, in metres.
- * @param right The other world box, in metres.
- * @returns True when, on every axis, each box's minimum lies strictly below the
- *   other's maximum.
+ * Parameter left: One world box, in metres.
+ * Parameter right: The other world box, in metres.
+ * Returns: True when, on every axis, each box's minimum lies strictly below the
+ * other's maximum.
  */
 export function propBoundsOverlap(
   left: IAutoMoviePropBox,

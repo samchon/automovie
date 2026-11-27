@@ -1,6 +1,6 @@
 import type { IAutoMovieProductionFrameRate } from "@automovie/interface";
 
-/**
+/*
  * Reduce one positive production frame rate, in frames per second, to its exact
  * integer identity: a numerator and denominator with no common factor.
  *
@@ -34,7 +34,9 @@ export function canonicalProductionFrameRate(
   };
 }
 
-/** Euclid's greatest common divisor of two positive integers. */
+/*
+ * Euclid's greatest common divisor of two positive integers.
+ */
 function greatestCommonDivisor(left: number, right: number): number {
   let a: number = left;
   let b: number = right;

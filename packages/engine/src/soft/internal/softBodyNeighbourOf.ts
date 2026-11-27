@@ -1,6 +1,6 @@
 import { SOFT_BODY_NEIGHBOURS } from "../SOFT_BODY_NEIGHBOURS";
 
-/**
+/*
  * Find one row-major particle's ordered lattice neighbour, or -1 beyond the
  * rectangular lattice.
  */

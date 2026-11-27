@@ -14,7 +14,7 @@ import type {
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
 
-/**
+/*
  * How a held vessel is turned about its own upright axis at a region, so the
  * arm that brings it there keeps it upright, and how far it is leaned.
  *
@@ -31,16 +31,18 @@ import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
  * `AutoMovieMotionHumanTouchDrink`'s.
  */
 export namespace AutoMovieMotionHumanTouchUpright {
-  /**
+  /*
    * The turn either way of head on a held vessel's facing is sought within,
    * degrees (provisional: past it the palm faces away from the region).
    */
   export const SPAN: number = 90;
 
-  /** The step between a held vessel's facing candidates, degrees (provisional). */
+  /*
+   * The step between a held vessel's facing candidates, degrees (provisional).
+   */
   export const STEP: number = 15;
 
-  /**
+  /*
    * The facing an upright vessel's arm reaches best, with its tilt: of the
    * candidate facings, the one whose reached hand keeps the vessel's axis
    * nearest the world's up, the nearest to head on on a tie: two tilts within
@@ -48,14 +50,13 @@ export namespace AutoMovieMotionHumanTouchUpright {
    * rotation to) are one, so a rounding-sized difference between a hand's fit
    * and its mirror's never chooses another facing. A vessel at the lips is
    * `AutoMovieMotionHumanTouchDrink.drinking`'s.
-   *
-   * @param body The body.
-   * @param posture The posture the arm is solved on.
-   * @param side The hand.
-   * @param effector The effector, whose along direction is the vessel's axis.
-   * @param place The region.
-   * @param hint The elbow's hint, world.
-   * @returns The facing, a lean of 0 and the tilt.
+   * Parameter body: The body.
+   * Parameter posture: The posture the arm is solved on.
+   * Parameter side: The hand.
+   * Parameter effector: The effector, whose along direction is the vessel's axis.
+   * Parameter place: The region.
+   * Parameter hint: The elbow's hint, world.
+   * Returns: The facing, a lean of 0 and the tilt.
    */
   export function solve(
     body: IAutoMovieMotionHumanBody,
@@ -93,15 +94,14 @@ export namespace AutoMovieMotionHumanTouchUpright {
     return { facing: best, lean: 0, tilt: least };
   }
 
-  /**
+  /*
    * The turn that leans a vessel's axis from the world's up toward a region by
    * `lean` degrees: about the level line across the region's level normal, so
    * the vessel's top tips toward the body the region lies on.
-   *
-   * @param normal The region's outward normal, world.
-   * @param lean The lean, degrees.
-   * @returns The turn, world; none when the lean is 0 or the normal has no
-   *   level part.
+   * Parameter normal: The region's outward normal, world.
+   * Parameter lean: The lean, degrees.
+   * Returns: The turn, world; none when the lean is 0 or the normal has no
+   * level part.
    */
   export function tip(
     normal: IAutoMovieVector3,
@@ -120,17 +120,16 @@ export namespace AutoMovieMotionHumanTouchUpright {
     );
   }
 
-  /**
+  /*
    * How far the arm leaves a vessel off upright at one facing, degrees.
-   *
-   * @param body The body.
-   * @param posture The posture the arm is solved on.
-   * @param side The hand.
-   * @param effector The effector, whose along direction is the vessel's axis.
-   * @param place The region.
-   * @param hint The elbow's hint, world.
-   * @param facing The level world direction the effector faces against.
-   * @returns The tilt of the reached hand's vessel axis from the world's up.
+   * Parameter body: The body.
+   * Parameter posture: The posture the arm is solved on.
+   * Parameter side: The hand.
+   * Parameter effector: The effector, whose along direction is the vessel's axis.
+   * Parameter place: The region.
+   * Parameter hint: The elbow's hint, world.
+   * Parameter facing: The level world direction the effector faces against.
+   * Returns: The tilt of the reached hand's vessel axis from the world's up.
    */
   export function tilt(
     body: IAutoMovieMotionHumanBody,
@@ -159,7 +158,7 @@ export namespace AutoMovieMotionHumanTouchUpright {
       : read(posture, goal, false).tilt;
   }
 
-  /**
+  /*
    * The candidate facings of an upright vessel at a region: its level normal
    * turned by multiples of `STEP` degrees within `SPAN` either way, head on
    * first and then alternately either way, so a search that keeps the first of
@@ -167,14 +166,13 @@ export namespace AutoMovieMotionHumanTouchUpright {
    * hand's side decides which comes first, a left hand's the mirror image of a
    * right hand's, so a scene and its mirror image search mirrored facings in
    * one order.
-   *
-   * @param normal The region's outward normal, world.
-   * @param level The length of the normal's level part.
-   * @param span The turn either way of head on, degrees, a multiple of `STEP`;
-   *   `SPAN` when absent. A search whose vessel's side about its own axis is
-   *   free as well (`handToFaceVessel`) needs only the turn between two sides.
-   * @param side The hand the vessel is in; the right when absent.
-   * @returns The level unit directions, world.
+   * Parameter normal: The region's outward normal, world.
+   * Parameter level: The length of the normal's level part.
+   * Parameter span: The turn either way of head on, degrees, a multiple of `STEP`;
+   * `SPAN` when absent. A search whose vessel's side about its own axis is
+   * free as well (`handToFaceVessel`) needs only the turn between two sides.
+   * Parameter side: The hand the vessel is in; the right when absent.
+   * Returns: The level unit directions, world.
    */
   export function facings(
     normal: IAutoMovieVector3,
@@ -198,11 +196,17 @@ export namespace AutoMovieMotionHumanTouchUpright {
   }
 }
 
-/** The alternatives of `FacingsFirst`'s site. */
+/*
+ * The alternatives of `FacingsFirst`'s site.
+ */
 type FacingsFirst = 1 | -1;
 
-/** The alternatives of `TiltPlace`'s site. */
+/*
+ * The alternatives of `TiltPlace`'s site.
+ */
 type TiltPlace = "point" | "normal";
 
-/** The alternatives of `SolvePlace`'s site. */
+/*
+ * The alternatives of `SolvePlace`'s site.
+ */
 type SolvePlace = "point" | "normal";

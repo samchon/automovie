@@ -5,7 +5,9 @@ import {
 
 import { prepareSurface } from "./prepareSurface";
 
-/** Prepare every authored surface's rings and areas for repeated space queries. */
+/*
+ * Prepare every authored surface's rings and areas for repeated space queries.
+ */
 export const prepareSpace: (
   space: IAutoMovieSpace,
 ) => IAutoMoviePreparedSpace = (

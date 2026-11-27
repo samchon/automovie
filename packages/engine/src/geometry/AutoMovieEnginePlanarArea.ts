@@ -47,7 +47,9 @@ export namespace AutoMovieEnginePlanarArea {
   }
 }
 
-/** Sum consecutive cross products relative to the ring's first corner. */
+/*
+ * Sum consecutive cross products relative to the ring's first corner.
+ */
 function sumDoubledArea<
   X extends string | number,
   Y extends string | number,
@@ -64,7 +66,9 @@ function sumDoubledArea<
   return sumCrossProducts(points, x, y, 0, 0);
 }
 
-/** Sum a closed ring's cross products in the given translated XY frame. */
+/*
+ * Sum a closed ring's cross products in the given translated XY frame.
+ */
 function sumCrossProducts<
   X extends string | number,
   Y extends string | number,

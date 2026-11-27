@@ -19,19 +19,18 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * The ground plant after a dismount. At touchdown a leg acquires its own
  * floor placement, with no swivel carried over from its flight. Fit the
  * stance knots with the native contact re-aim, then keep its reached foot
  * turn and actual knee branch. Playback reconstructs the ankle about the
  * fixed stance contact and uses the prepared branch for closed-form placement.
- *
- * @param body The dismounting body.
- * @param side The leg taking the floor.
- * @param start The touchdown, on the action clock.
- * @param end The end of the stance on that clock.
- * @param posture The lower posture with the authored floor goal.
- * @returns The floor goal and toes at a second of the plant.
+ * Parameter body: The dismounting body.
+ * Parameter side: The leg taking the floor.
+ * Parameter start: The touchdown, on the action clock.
+ * Parameter end: The end of the stance on that clock.
+ * Parameter posture: The lower posture with the authored floor goal.
+ * Returns: The floor goal and toes at a second of the plant.
  */
 export function prepareMountOffFloor(
   body: IAutoMovieMotionHumanBody,
@@ -183,19 +182,27 @@ export function prepareMountOffFloor(
   }
 }
 
-/** The prepared goal and reader of a dismount stance. */
+/*
+ * The prepared goal and reader of a dismount stance.
+ */
 export namespace prepareMountOffFloor {
-  /** A hinged foot goal with its toes, or the native joints if not hinged. */
+  /*
+   * A hinged foot goal with its toes, or the native joints if not hinged.
+   */
   export interface IPlaced {
     goal?: IAutoMovieHumanLimbGoal;
     joints: IAutoMovieMotionHumanPosture["joints"];
   }
 
-  /** A stance's prepared floor placement, in action seconds. */
+  /*
+   * A stance's prepared floor placement, in action seconds.
+   */
   export type Read = (t: number) => IPlaced;
 }
 
-/** The geometry the native contact fit placed at one stance knot. */
+/*
+ * The geometry the native contact fit placed at one stance knot.
+ */
 interface IKnot {
   bend: IAutoMovieVector3;
   rotation: IAutoMovieQuaternion;
@@ -203,8 +210,12 @@ interface IKnot {
   joints: IAutoMovieMotionHumanPosture["joints"];
 }
 
-/** One interval's native joint blend, in clinical degrees. */
+/*
+ * One interval's native joint blend, in clinical degrees.
+ */
 type JointRead = ReturnType<typeof blendHumanJoint.between>;
 
-/** One prepared interval read by its share. */
+/*
+ * One prepared interval read by its share.
+ */
 type IInterval = (share: number) => prepareMountOffFloor.IPlaced;

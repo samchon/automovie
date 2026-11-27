@@ -8,7 +8,7 @@ import type {
 
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 
-/**
+/*
  * Describe one docked landing's room and fixed support polygon. The room starts
  * at the sill centre plane, which lets connector admission observe the docked
  * car origin. The feet's support excludes the gap.

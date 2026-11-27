@@ -6,7 +6,7 @@ import type {
 import { firstAutoMovieContactImpact } from "./firstAutoMovieContactImpact";
 import { sampleAutoMovieContactWeapon } from "./sampleAutoMovieContactWeapon";
 
-/**
+/*
  * The contacts of several moving weapons with several bodies that may each
  * carry one of those weapons, resolved together and in time order: who meets
  * what, and when.
@@ -78,17 +78,16 @@ import { sampleAutoMovieContactWeapon } from "./sampleAutoMovieContactWeapon";
  * This resolves simultaneous strikes consistently: two fists crossing each
  * other's arms, two shins meeting, a block that arrives first. It is a
  * kinematic resolution of contact times, not a force simulation.
- *
- * @param input The weapons, the bodies and the span.
- * @returns The stops, in time order.
- * @throws {Error} When the span or the step is not positive, the span or step
- *   is not finite or the scan grid's step count over the span is not a safe
- *   integer (a RangeError from the scan), a weapon id repeats, a weapon's live
- *   span is not finite or ends before it begins, a tail radius is given without
- *   a tail or is not a finite non-negative length, a sample changes its
- *   declared sphere/capsule kind, a capsule weapon meets a body that measures
- *   no segment, a departure witness is invalid, or a body names a carried
- *   weapon that is not its own.
+ * Parameter input: The weapons, the bodies and the span.
+ * Returns: The stops, in time order.
+ * When the span or the step is not positive, the span or step
+ * is not finite or the scan grid's step count over the span is not a safe
+ * integer (a RangeError from the scan), a weapon id repeats, a weapon's live
+ * span is not finite or ends before it begins, a tail radius is given without
+ * a tail or is not a finite non-negative length, a sample changes its
+ * declared sphere/capsule kind, a capsule weapon meets a body that measures
+ * no segment, a departure witness is invalid, or a body names a carried
+ * weapon that is not its own.
  */
 export function resolveAutoMovieContactEvents(
   input: IAutoMovieResolveContactEvents.IInput,
@@ -223,16 +222,22 @@ export function resolveAutoMovieContactEvents(
   }
 }
 
-/** One moving weapon with its scan of the current search. */
+/*
+ * One moving weapon with its scan of the current search.
+ */
 interface IScanned {
-  /** The weapon. */
+  /*
+   * The weapon.
+   */
   weapon: IAutoMovieResolveContactEvents.IWeapon;
 
-  /** Its scan. */
+  /*
+   * Its scan.
+   */
   scan: firstAutoMovieContactImpact.IScan;
 }
 
-/**
+/*
  * The earlier of the contact found so far and a weapon's own, when it has one:
  * the lesser second, then the lesser weapon id.
  */

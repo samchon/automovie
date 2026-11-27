@@ -4,10 +4,10 @@ import type {
   IAutoMovieInstanceSlot,
 } from "@automovie/interface";
 
-/**
+/*
  * Regenerate one exact instance from compact compiled parameters.
  *
- * The member law is the engine's {@link instanceSlot}, the one a compiled set's
+ * The member law is the engine's instanceSlot, the one a compiled set's
  * bounds are measured with and a shot source's oracle answers through, so the
  * member drawn here is the member the compiled record holds. A viewer copy of
  * that law agreed on every valid record but refused less, and drew a

@@ -23,17 +23,16 @@ import { supportCourse } from "./supportCourse";
 import { supportHeldSocket } from "./supportHeldSocket";
 import { supportWindows } from "./supportWindows";
 
-/**
+/*
  * Build the plan from solved keys.
- *
- * @param context The action's context.
- * @param keys The solved keys in time order, the first the entry's.
- * @param duration The sequence's seconds.
- * @param entry The posture the body enters with.
- * @param course The staged route's requirements, if any.
- * @param routes The waypoint stretches of stepping feet, by the interval they
- *   span; each is carried by the root between that interval's keys.
- * @returns The plan, balanced on request.
+ * Parameter context: The action's context.
+ * Parameter keys: The solved keys in time order, the first the entry's.
+ * Parameter duration: The sequence's seconds.
+ * Parameter entry: The posture the body enters with.
+ * Parameter course: The staged route's requirements, if any.
+ * Parameter routes: The waypoint stretches of stepping feet, by the interval they
+ * span; each is carried by the root between that interval's keys.
+ * Returns: The plan, balanced on request.
  */
 export function supportPlan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupport.IParams>,
@@ -146,7 +145,7 @@ export function supportPlan(
   const armCourse: Array<ReturnType<typeof HumanArmSwing.course> | undefined> =
     [];
 
-  /**
+  /*
    * Carry a support interval, its hanging arms let out of the legs and trunk
    * the keys move under them (`HumanArmSwing`).
    */
@@ -183,7 +182,9 @@ export function supportPlan(
         );
   };
 
-  /** Carry a support interval after the containing transfer has been selected. */
+  /*
+   * Carry a support interval after the containing transfer has been selected.
+   */
   const interval = (
     index: number,
     seconds: number,
@@ -313,31 +314,45 @@ export function supportPlan(
   return planned;
 }
 
-/**
+/*
  * The support sequence's plan from its solved keys: the contact windows, the
  * overlay channels, the carried interval between every two keys, a staged
  * course's foot writers, the balance request and the prepared playback.
  * `support.plan` solves the keys; this module owns everything after them.
  */
 export namespace supportPlan {
-  /** A key posture of the plan. */
+  /*
+   * A key posture of the plan.
+   */
   export interface IKey {
-    /** The posture, by joint angles alone. */
+    /*
+     * The posture, by joint angles alone.
+     */
     posture: IAutoMovieMotionHumanPosture;
 
-    /** When it is reached, seconds since the action's start. */
+    /*
+     * When it is reached, seconds since the action's start.
+     */
     seconds: number;
 
-    /** Its event's name. */
+    /*
+     * Its event's name.
+     */
     name: string;
 
-    /** The contacts it rests on. */
+    /*
+     * The contacts it rests on.
+     */
     contacts: readonly IAutoMovieMotionHumanSupport.IContact[];
 
-    /** The contact positions used to form this key's goals. */
+    /*
+     * The contact positions used to form this key's goals.
+     */
     place: supportCourse.Place;
   }
 }
 
-/** The record of `IOfUnbalancedResult`'s site. */
+/*
+ * The record of `IOfUnbalancedResult`'s site.
+ */
 type IOfUnbalancedResult = { name: string; share: number };

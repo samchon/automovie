@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * The unit parameter of the point of a segment nearest a convex hull, or
  * deepest inside it, in the hull's own frame.
  *
@@ -20,12 +20,11 @@ import type {
  * only grazes the hull within the tolerance takes the iteration's parameter:
  * that of its nearest point, or of the origin's barycentric mix when a
  * tetrahedron of the difference holds the origin.
- *
- * @param hull The hull, built once with its shape, spanning a volume.
- * @param a The segment's start, at parameter 0, in the same frame.
- * @param b Its end, at parameter 1.
- * @returns The parameter in [0, 1].
- * @throws {Error} When the points span no volume.
+ * Parameter hull: The hull, built once with its shape, spanning a volume.
+ * Parameter a: The segment's start, at parameter 0, in the same frame.
+ * Parameter b: Its end, at parameter 1.
+ * Returns: The parameter in [0, 1].
+ * When the points span no volume.
  */
 export function physicalHullFacesSegment(
   hull: IAutoMoviePhysicalHullFaces.IHull,
@@ -83,19 +82,29 @@ export function physicalHullFacesSegment(
   return Math.min(1, Math.max(0, parameter));
 }
 
-/**
+/*
  * A support point of the Minkowski difference: a hull vertex less a segment
  * end.
  */
 interface IVertex {
-  /** The difference, metres. */ w: IAutoMovieVector3;
-  /** The hull vertex's index. */ vertex: number;
-  /** The segment end's parameter, 0 or 1. */ end: number;
+  /*
+   * The difference, metres.
+   */ w: IAutoMovieVector3;
+  /*
+   * The hull vertex's index.
+   */ vertex: number;
+  /*
+   * The segment end's parameter, 0 or 1.
+   */ end: number;
 }
 
-/** A simplex vertex with its barycentric weight in the nearest point. */
+/*
+ * A simplex vertex with its barycentric weight in the nearest point.
+ */
 interface IWeighted extends IVertex {
-  /** The weight, in [0, 1]. */ weight: number;
+  /*
+   * The weight, in [0, 1].
+   */ weight: number;
 }
 
 const dot = (p: IAutoMovieVector3, q: IAutoMovieVector3): number =>
@@ -143,7 +152,7 @@ const alone = (s: IVertex): IWeighted[] => [
   { w: s.w, vertex: s.vertex, end: s.end, weight: 1 },
 ];
 
-/**
+/*
  * The smallest face of a simplex holding its point nearest the origin, with
  * that point's weights; null when the origin lies inside a tetrahedron.
  */
@@ -179,7 +188,7 @@ const nearest = (simplex: readonly IVertex[]): IWeighted[] | null => {
   return best;
 };
 
-/**
+/*
  * The segment parameter of the origin's barycentric mix in a tetrahedron of the
  * difference that holds it, by its signed sub-volumes; null for a flat
  * tetrahedron.
@@ -217,7 +226,9 @@ const enclosing = (simplex: readonly IVertex[]): number | null => {
   );
 };
 
-/** The point of a segment of the difference nearest the origin. */
+/*
+ * The point of a segment of the difference nearest the origin.
+ */
 const edge = (p: IVertex, q: IVertex): IWeighted[] => {
   const e: IAutoMovieVector3 = minus(q.w, p.w);
   const ee: number = dot(e, e);
@@ -230,7 +241,9 @@ const edge = (p: IVertex, q: IVertex): IWeighted[] => {
   ]);
 };
 
-/** The point of a triangle of the difference nearest the origin (Ericson 5.1.5). */
+/*
+ * The point of a triangle of the difference nearest the origin (Ericson 5.1.5).
+ */
 const triangle = (p: IVertex, q: IVertex, r: IVertex): IWeighted[] => {
   const ab: IAutoMovieVector3 = minus(q.w, p.w);
   const ac: IAutoMovieVector3 = minus(r.w, p.w);
@@ -285,7 +298,7 @@ const triangle = (p: IVertex, q: IVertex, r: IVertex): IWeighted[] => {
   ]);
 };
 
-/**
+/*
  * The parameter minimising the greatest face plane distance along the segment,
  * when that least value is not positive; null when the segment stays outside
  * every face plane's reach, so it does not enter the hull.

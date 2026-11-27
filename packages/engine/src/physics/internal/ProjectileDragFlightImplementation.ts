@@ -12,9 +12,11 @@ import { Vector3 } from "../../math/Vector3";
 import { AutoMovieEngineMotionTrajectory } from "../../motion/AutoMovieEngineMotionTrajectory";
 import { AutoMovieAir } from "../AutoMovieAir";
 
-/** Private implementation of the projectile operation and its related readers. */
+/*
+ * Private implementation of the projectile operation and its related readers.
+ */
 export namespace ProjectileDragFlightImplementation {
-  /**
+  /*
    * A projectile's flight under gravity and quadratic drag, read by time: `dx/dt
    * = v`, `dv/dt = gravity - k |v| v` with `k = rho Cd A / (2 m)`, solved by the
    * engine's one fixed-step integrator (`integrateMotionTrajectory`, classical
@@ -40,12 +42,11 @@ export namespace ProjectileDragFlightImplementation {
    * give the same values. Finite times before launch read the launch state;
    * nonfinite requests throw before any chunks are allocated. Projectile data
    * must remain unchanged while its reader is used.
-   *
-   * @param projectile A projectile with drag.
-   * @returns The flight's reader.
-   * @throws {RangeError} When launch vectors, speed/gravity norms, drag
-   *   coefficients or their derived positive-drag bound are invalid or
-   *   unrepresentable; reader methods also reject nonfinite times.
+   * Parameter projectile: A projectile with drag.
+   * Returns: The flight's reader.
+   * When launch vectors, speed/gravity norms, drag
+   * coefficients or their derived positive-drag bound are invalid or
+   * unrepresentable; reader methods also reject nonfinite times.
    */
   export function projectileDragFlight(
     projectile: IAutoMovieProjectile,
@@ -202,21 +203,21 @@ export namespace ProjectileDragFlightImplementation {
     return flight;
   }
 
-  /**
+  /*
    * The error a flight may gather per second, metres: a tenth of the millimetre
    * within which a flight's arrival is accepted (#3470: an arrow's arrival
    * within 1 ms and 1 mm), so a flight of up to ten seconds stays inside it.
    */
   export const DRAG_TOLERANCE: number = 1e-4;
 
-  /**
+  /*
    * Steps per chunk: a memory bound no flight reads, about a thousand knots of
    * six numbers per chunk.
    */
   export const DRAG_CHUNK: number = 1024;
 
 
-  /**
+  /*
    * Reject an unbounded chunk request before allocation; finite prelaunch reads
    * hold the launch.
    */

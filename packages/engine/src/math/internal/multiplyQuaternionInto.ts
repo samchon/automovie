@@ -3,20 +3,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * The three vector-component labels in the Hamilton product's right-handed
  * order.
  */
 const COMPONENTS: readonly ["x", "y", "z"] = ["x", "y", "z"];
 
-/**
+/*
  * Write the original Hamilton product a*b into one caller-owned quaternion.
  * Compute X/Y/Z/W before publishing any field, so target may alias an input. No
  * normalization or unit premise changes the raw product's rounding.
- *
- * @param target Mutable output whose previous components are not read.
- * @param a Outer, later quaternion in the engine's glTF component order.
- * @param b Inner, earlier quaternion; all source reads precede target writes.
+ * Parameter target: Mutable output whose previous components are not read.
+ * Parameter a: Outer, later quaternion in the engine's glTF component order.
+ * Parameter b: Inner, earlier quaternion; all source reads precede target writes.
  */
 export function multiplyQuaternionInto(
   target: IAutoMovieQuaternion,
@@ -33,9 +32,13 @@ export function multiplyQuaternionInto(
   target.w = w;
 }
 
-/** Fixed support metadata for actual OnBasis private inner/outer products. */
+/*
+ * Fixed support metadata for actual OnBasis private inner/outer products.
+ */
 export namespace multiplyQuaternionInto {
-  /** Read all four completed raw Hamilton components without an output record. */
+  /*
+   * Read all four completed raw Hamilton components without an output record.
+   */
   export function read<Result, Context>(
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion,
@@ -55,7 +58,7 @@ export namespace multiplyQuaternionInto {
     return visit(x, y, z, w, context);
   }
 
-  /**
+  /*
    * Read a cardinal-left product on private own-data records. Exactly two
    * products remain per component, in their original relative order/sign. A
    * nonzero finite result is unchanged by omitted signed zeros; zero results
@@ -103,7 +106,7 @@ export namespace multiplyQuaternionInto {
     };
   }
 
-  /**
+  /*
    * Classify two unchanged cardinal axes for private own-data factor records. A
    * dense, degenerate, nonfinite or same-axis pair returns the direct writer.
    * For supported actual factors, nonzero sole products equal the full formula;
@@ -158,7 +161,7 @@ export namespace multiplyQuaternionInto {
   }
 }
 
-/**
+/*
  * Exact finite single-component support; no magnitude normalization or axis
  * tolerance.
  */
@@ -171,7 +174,7 @@ function cardinal(axis: IAutoMovieVector3): number | undefined {
   return x === 0 && y === 0 && z !== 0 ? 2 : undefined;
 }
 
-/**
+/*
  * The original complete vector expression, used whenever its sole product is
  * zero.
  */
@@ -185,7 +188,7 @@ function vectorComponent(
   return a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w;
 }
 
-/**
+/*
  * One Cartesian vector component, distinct from the quaternion scalar
  * component.
  */

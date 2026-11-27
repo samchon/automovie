@@ -21,7 +21,7 @@ import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the reaction laws on the polygon man, each performed alone
  * from quiet standing and drawn every tenth of a second or denser, with the
  * peak of the reaction among the stills.
@@ -44,9 +44,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  *   body's collision shapes never below the floor by more than 10 mm, the seat
  *   and the feet both within 10 mm of the floor as the seat lands, and the
  *   lowest point within 10 mm of the floor once the body lies.
- *
- * @param bodies The sweep bodies to run each case on; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies to run each case on; `m-average` when absent.
+ * Returns: The cases.
  */
 export function reactionCases(
   bodies: readonly string[] = ["m-average"],
@@ -246,7 +245,9 @@ export function reactionCases(
   return out;
 }
 
-/** A planted foot stays on the floor: within 5 mm in its plant windows. */
+/*
+ * A planted foot stays on the floor: within 5 mm in its plant windows.
+ */
 function planted(
   performance: IAutoMovieMotionHumanPerformance,
   body: IAutoMovieMotionHumanBody,
@@ -261,7 +262,9 @@ function planted(
   return { ...verdict, detail: `${verdict.detail}, worst in ${off.where}` };
 }
 
-/** A performance of one polygon man standing at the origin heading +Z. */
+/*
+ * A performance of one polygon man standing at the origin heading +Z.
+ */
 function perform(
   body: IAutoMovieMotionHumanBody,
   chain: IAutoMovieMotionHumanChain,

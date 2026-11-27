@@ -6,7 +6,7 @@ import { restoreAutoMovieRenderModeOnce } from "../../scene/internal/restoreAuto
 import { restoreAutoMovieRenderModeState } from "../../scene/internal/restoreAutoMovieRenderModeState.js";
 import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
 
-/**
+/*
  * Route soft prop surfaces from a producer into the draw subject's scene. The
  * producer is read right after the subject has placed its other objects, by
  * `seek`, `place` or `seekShot`, with the output second, and describes that

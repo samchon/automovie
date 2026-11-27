@@ -8,7 +8,7 @@ import type {
 
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
-/**
+/*
  * Whether every joint centre of a displayed motion travels a continuous,
  * humanly fast path: no jump, no out-and-back spike and no impossible speed.
  *
@@ -19,7 +19,7 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * the displayed bones over the whole motion:
  *
  * - `jump`: the displacement that is still there when the interval around it is
- *   `1 / (rate * 4^LEVELS)` long ({@link resolve}). At 24 Hz that is 41
+ *   `1 / (rate * 4^LEVELS)` long (resolve). At 24 Hz that is 41
  *   microseconds, in which a joint at 100 m/s covers 4 mm. A frame interval is
  *   resolved when some joint's displacement over it departs by more than the
  *   limit from the one the quadratic through the two displacements on each side
@@ -53,28 +53,29 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  *   read.
  */
 export namespace AutoMovieMotionHumanAuditContinuity {
-  /** How many times a departing interval is quartered at most. */
+  /*
+   * How many times a departing interval is quartered at most.
+   */
   export const LEVELS: number = 5;
 
-  /**
+  /*
    * The samples a second a reversal is read at, whatever the grid: a reversal
    * is an out-and-back within two intervals of `1 / REVERSAL` seconds, a frame
    * of film.
    */
   export const REVERSAL: number = 24;
 
-  /**
+  /*
    * Read a person's continuity over the whole motion.
-   *
-   * @param motion The motion.
-   * @param subject The person.
-   * @param rate Grid samples per second.
-   * @param limit The smallest jump resolved, metres.
-   * @param floor The reversal below which a turn on a coarse grid is taken as
-   *   the grid reads it, metres: a caller that bounds the reversal passes its
-   *   bound, since a reading under it decides nothing; 0 when absent, every
-   *   turn read on the reversal's own intervals.
-   * @returns The three readings.
+   * Parameter motion: The motion.
+   * Parameter subject: The person.
+   * Parameter rate: Grid samples per second.
+   * Parameter limit: The smallest jump resolved, metres.
+   * Parameter floor: The reversal below which a turn on a coarse grid is taken as
+   * the grid reads it, metres: a caller that bounds the reversal passes its
+   * bound, since a reading under it decides nothing; 0 when absent, every
+   * turn read on the reversal's own intervals.
+   * Returns: The three readings.
    */
   export function measure(
     motion: IAutoMovieMotionHumanAuditMotion,
@@ -250,7 +251,7 @@ export namespace AutoMovieMotionHumanAuditContinuity {
     return result;
   }
 
-  /**
+  /*
    * The discontinuity inside an interval: the largest displacement of any joint
    * centre that is still there when the interval around it has been quartered
    * `LEVELS` times.
@@ -266,14 +267,13 @@ export namespace AutoMovieMotionHumanAuditContinuity {
    * through its other three displacements by at least `limit`, and by at least
    * half the largest such departure of the four, is quartered again; an
    * interval where no joint is followed holds no jump of that size.
-   *
-   * @param motion The motion.
-   * @param subject The person.
-   * @param from Film seconds.
-   * @param to Film seconds, after `from`.
-   * @param limit The smallest jump resolved, metres.
-   * @returns The displacement, the start of the final interval and the joint;
-   *   zero at `none` when the path is continuous at this limit.
+   * Parameter motion: The motion.
+   * Parameter subject: The person.
+   * Parameter from: Film seconds.
+   * Parameter to: Film seconds, after `from`.
+   * Parameter limit: The smallest jump resolved, metres.
+   * Returns: The displacement, the start of the final interval and the joint;
+   * zero at `none` when the path is continuous at this limit.
    */
   export function resolve(
     motion: IAutoMovieMotionHumanAuditMotion,
@@ -295,16 +295,18 @@ export namespace AutoMovieMotionHumanAuditContinuity {
   }
 }
 
-/** Every bone's joint centre at an instant. */
+/*
+ * Every bone's joint centre at an instant.
+ */
 type IPoints = Map<AutoMovieHumanoidBone, IAutoMovieVector3>;
 
-/**
+/*
  * Each joint's departure from a constant-jerk path over one quartered interval,
  * metres: the joints that may hold a step there.
  */
 type IStepping = Map<AutoMovieHumanoidBone, number>;
 
-/**
+/*
  * The line through three of a joint's four displacements, read at the fourth,
  * for each part: the least-squares line through the other three, as weights on
  * the four displacements (part `k`'s own weight zero). A path of constant
@@ -318,7 +320,7 @@ const LINE: readonly (readonly number[])[] = [
   [-2 / 3, 1 / 3, 4 / 3, 0],
 ];
 
-/**
+/*
  * How far a smooth path's departure from a constant-jerk path falls in one
  * quartering, at most, for a part to be entered: a sixteenth, the geometric
  * mean of the 256-fold fall of a fourth-order residual (a quarter of the
@@ -326,7 +328,9 @@ const LINE: readonly (readonly number[])[] = [
  */
 const RICHARDSON: number = 16;
 
-/** One level of {@link AutoMovieMotionHumanAuditContinuity.resolve}. */
+/*
+ * One level of AutoMovieMotionHumanAuditContinuity.resolve.
+ */
 const quarter = (
   motion: IAutoMovieMotionHumanAuditMotion,
   subject: string,
@@ -433,7 +437,9 @@ const quarter = (
   return worst;
 };
 
-/** Every bone's joint centre of a person at an instant. */
+/*
+ * Every bone's joint centre of a person at an instant.
+ */
 const points = (
   motion: IAutoMovieMotionHumanAuditMotion,
   subject: string,

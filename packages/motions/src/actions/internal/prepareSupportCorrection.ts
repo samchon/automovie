@@ -11,7 +11,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Fit the requested mass displacement while preserving a support key's active
  * anchors. Only an unsupported centre starts a constrained fit. The selected
  * hips or lumbar variables and the joints of limbs pinned to their places are

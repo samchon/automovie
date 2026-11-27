@@ -8,7 +8,7 @@ import {
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 
-/**
+/*
  * Validate authored generation metadata beside a supplied output-digest
  * identity.
  *
@@ -29,10 +29,9 @@ import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
  * nonblank strings without resolving paths. Non-throwing collection assumes the
  * declared acquisition/container and string shapes; malformed runtime
  * containers can throw before findings are returned.
- *
- * @param props.acquisition Generation identity recorded for one set of bytes.
- * @param props.digest Digest the bytes must still have, or null when replaced.
- * @returns Success, possibly with the seed warning, or every violation found.
+ * Parameter props.acquisition: Generation identity recorded for one set of bytes.
+ * Parameter props.digest: Digest the bytes must still have, or null when replaced.
+ * Returns: Success, possibly with the seed warning, or every violation found.
  */
 export function validateGeneratedAcquisition(
   props: IAutoMovieValidateGeneratedAcquisition.IProps,

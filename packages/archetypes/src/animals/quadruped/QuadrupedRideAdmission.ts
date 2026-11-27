@@ -9,35 +9,42 @@ import { QuadrupedChange } from "./QuadrupedChange";
 import { QuadrupedRideClock } from "./QuadrupedRideClock";
 import type { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped";
 
-/**
+/*
  * Admission of a quadruped ride's requested gaits and speeds before any stride
  * is planned.
  */
 export namespace QuadrupedRideAdmission {
-  /** One gait's declared speed domain for the ride's animal. */
+  /*
+   * One gait's declared speed domain for the ride's animal.
+   */
   export interface IDomain {
-    /** The gait. */
+    /*
+     * The gait.
+     */
     gait: AutoMovieArchetypeQuadrupedGait.Gait;
-    /** Least declared speed, metres per second. */
+    /*
+     * Least declared speed, metres per second.
+     */
     minimum: number;
-    /** Greatest declared speed, metres per second. */
+    /*
+     * Greatest declared speed, metres per second.
+     */
     maximum: number;
   }
 
-  /**
+  /*
    * Refuse a requested gait or speed that no declared table row covers.
-   *
-   * @param species The ride's species and selected table.
-   * @param course The authored course.
-   * @param plan Its admitted plan.
-   * @param gait The ride's fixed gait, if any.
-   * @param tempo The animal's timing-spread coordinate.
-   * @param withers The animal's withers height, metres.
-   * @param rig The limb chains, whose hip height sets the change points.
-   * @param dimensions The animal's dimensions, for mass-scaled change points.
-   * @throws {AutoMovieArchetypeRefusal} When a named gait is absent, a
-   *   requested speed lies outside every applicable declared domain, or a
-   *   yielding footing sinks a hoof as deep as its carpus or hock stands.
+   * Parameter species: The ride's species and selected table.
+   * Parameter course: The authored course.
+   * Parameter plan: Its admitted plan.
+   * Parameter gait: The ride's fixed gait, if any.
+   * Parameter tempo: The animal's timing-spread coordinate.
+   * Parameter withers: The animal's withers height, metres.
+   * Parameter rig: The limb chains, whose hip height sets the change points.
+   * Parameter dimensions: The animal's dimensions, for mass-scaled change points.
+   * When a named gait is absent, a
+   * requested speed lies outside every applicable declared domain, or a
+   * yielding footing sinks a hoof as deep as its carpus or hock stands.
    */
   export function admit(
     species: AutoMovieArchetypeQuadruped.ISpecies,
@@ -117,7 +124,7 @@ export namespace QuadrupedRideAdmission {
           fix: "Declare a shallower yield, or plan the passage as a plunge or a stuck interval.",
         });
 
-    /**
+    /*
      * Requested named gaits are strict; automatic requests need declared
      * coverage.
      */
@@ -161,12 +168,11 @@ export namespace QuadrupedRideAdmission {
     }
   }
 
-  /**
+  /*
    * The planned leg that owns a distance along the course.
-   *
-   * @param plan The admitted plan.
-   * @param distance Metres along the path.
-   * @returns The zero-based leg index; the last leg past the end.
+   * Parameter plan: The admitted plan.
+   * Parameter distance: Metres along the path.
+   * Returns: The zero-based leg index; the last leg past the end.
    */
   export function legIndex(
     plan: AutoMovieArchetypeCourse.IPlan,

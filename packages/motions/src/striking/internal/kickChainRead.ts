@@ -21,20 +21,19 @@ import { KickForm } from "./KickForm";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingWeapon } from "./StrikingWeapon";
 
-/**
+/*
  * Fit the leg once and read the fitted bones back (`KickChain.prepareFit`'s
  * round): the posture's own seeded leg fit toward the asked ankle goal, knee
  * hint and foot rotation, then the weapon, the fitted knee's flexion and the
  * support foot's slip read from the fitted bones.
- *
- * @param props The kick's body, side and weapon.
- * @param base The posture the leg is fitted into.
- * @param solved The strike reach's solution the fit follows.
- * @param ask The ankle goal, knee hint and foot rotation asked.
- * @param resolution The prepared pose resolution.
- * @param projection The prepared posture projection.
- * @param frames The prepared bone frames.
- * @returns The fit.
+ * Parameter props: The kick's body, side and weapon.
+ * Parameter base: The posture the leg is fitted into.
+ * Parameter solved: The strike reach's solution the fit follows.
+ * Parameter ask: The ankle goal, knee hint and foot rotation asked.
+ * Parameter resolution: The prepared pose resolution.
+ * Parameter projection: The prepared posture projection.
+ * Parameter frames: The prepared bone frames.
+ * Returns: The fit.
  */
 export function kickChainRead(
   props: KickChain.IProps,
@@ -123,7 +122,7 @@ export function kickChainRead(
   };
 }
 
-/**
+/*
  * How far the fitted support foot's ball is from where its planted goal puts
  * it, metres.
  */
@@ -148,18 +147,19 @@ function slip(
   );
 }
 
-/** Reading a solved kick chain back. */
+/*
+ * Reading a solved kick chain back.
+ */
 export namespace kickChainRead {
-  /**
+  /*
    * Whether a solved kick reached its target: short when its weapon misses by
    * more than `KickForm.RESIDUAL`, jammed when its knee folds past the
    * technique's greatest flexion beyond the joint tolerance, and reached
    * otherwise.
-   *
-   * @param residual How far the weapon misses, metres.
-   * @param flexion The knee's flexion, degrees.
-   * @param technique The kick.
-   * @returns The status.
+   * Parameter residual: How far the weapon misses, metres.
+   * Parameter flexion: The knee's flexion, degrees.
+   * Parameter technique: The kick.
+   * Returns: The status.
    */
   export function status(
     residual: number,

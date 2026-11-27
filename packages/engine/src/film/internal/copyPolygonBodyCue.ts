@@ -1,6 +1,6 @@
 import type { IAutoMoviePolygonBodyCue } from "@automovie/interface";
 
-/**
+/*
  * Copy an admitted cue into a compiled shot. Each vector component belongs to
  * the compiled shot even when the caller later edits its authoring program.
  */

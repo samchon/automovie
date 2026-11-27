@@ -23,20 +23,19 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
 import { stuntFallPose } from "./stuntFallPose";
 
-/**
+/*
  * Fall from a ledge: the hips leave with the take-off's velocity and follow the
  * drag-free projectile while the body turns from standing to lying on its back,
  * reaching the flat by the first contact. A named pad's top takes that contact
  * and yields `YIELD` under it; without a pad the body lands on the ground in a
  * collapse. A descender instead holds the body upright and caps its descent at
  * the authored speed, landing standing.
- *
- * @param context The action's context, standing on the ledge.
- * @param p The high fall.
- * @returns The fall, ending lying on the pad or ground, or standing after a
- *   descender.
- * @throws {HumanRefusal} If the pad has no top, or the flight's first contact
- *   misses the pad's top.
+ * Parameter context: The action's context, standing on the ledge.
+ * Parameter p: The high fall.
+ * Returns: The fall, ending lying on the pad or ground, or standing after a
+ * descender.
+ * If the pad has no top, or the flight's first contact
+ * misses the pad's top.
  */
 export function stuntFallHigh(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStuntFall.IParams>,
@@ -237,37 +236,43 @@ export function stuntFallHigh(
   };
 }
 
-/** Take-off speed along the heading for a step, metres per second (provisional). */
+/*
+ * Take-off speed along the heading for a step, metres per second (provisional).
+ */
 const STEP: number = 0.8;
 
-/**
+/*
  * Take-off speed against the heading for a tip, metres per second
  * (provisional).
  */
 const TIP: number = 0.6;
 
-/**
+/*
  * Take-off speed along the heading for a throw, metres per second
  * (provisional).
  */
 const THROW: number = 2.4;
 
-/**
+/*
  * The hips' height above a surface the body lies flat on, metres (provisional:
  * the trunk's half depth).
  */
 const FLAT: number = 0.12;
 
-/**
+/*
  * How far a pad yields under the landing, metres (provisional: a stunt airbag's
  * give).
  */
 const YIELD: number = 0.15;
 
-/** Seconds the landing takes to settle (provisional). */
+/*
+ * Seconds the landing takes to settle (provisional).
+ */
 const SETTLE: number = 0.4;
 
-/** The high fall's refusal. */
+/*
+ * The high fall's refusal.
+ */
 function refusal(axis: string, value: unknown, reason: string): HumanRefusal {
   return new HumanRefusal({
     kind: "reach",

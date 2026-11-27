@@ -6,7 +6,7 @@ import type {
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 
-/**
+/*
  * A shoulder's clinical triple on the reading nearest another triple.
  *
  * Three clinical angles name a rotation twice over: turning one of them to its
@@ -19,13 +19,12 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
  * degrees, and the elbow jumped 104.78 mm. Of the readings that show the
  * rotation itself (`HumanArmGeometry.rotation`, which clamps as the display
  * does), this takes the one nearest the given triple.
- *
- * @param setup The arm.
- * @param shoulder The shoulder's rotation from its rest.
- * @param read Its clinical triple as decoded alone, degrees.
- * @param near The triple to stay near, degrees: the reading before it.
- * @returns The triple, `read` itself when no other reading shows the rotation
- *   nearer.
+ * Parameter setup: The arm.
+ * Parameter shoulder: The shoulder's rotation from its rest.
+ * Parameter read: Its clinical triple as decoded alone, degrees.
+ * Parameter near: The triple to stay near, degrees: the reading before it.
+ * Returns: The triple, `read` itself when no other reading shows the rotation
+ * nearer.
  */
 export function HumanArmBranch(
   setup: IAutoMovieMotionHumanArmGeometry.ISetup,
@@ -59,13 +58,17 @@ export function HumanArmBranch(
   return best;
 }
 
-/** An angle in (-180, 180], degrees. */
+/*
+ * An angle in (-180, 180], degrees.
+ */
 function wrap(angle: number): number {
   const turned: number = ((((angle + 180) % 360) + 360) % 360) - 180;
   return turned === -180 ? 180 : turned;
 }
 
-/** The sum of the squared wrapped differences of two triples. */
+/*
+ * The sum of the squared wrapped differences of two triples.
+ */
 function apart(
   a: readonly [number, number, number],
   b: readonly [number, number, number],

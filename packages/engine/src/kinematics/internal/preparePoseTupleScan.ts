@@ -6,10 +6,12 @@ import type {
 
 import type { preparePoseJointResolution } from "./preparePoseJointResolution";
 
-/** An actually empty entry snapshot has no admission events or scalar storage. */
+/*
+ * An actually empty entry snapshot has no admission events or scalar storage.
+ */
 const EMPTY_SCAN: preparePoseTupleScan.IScan = (): void => undefined;
 
-/**
+/*
  * Snapshot an authored tuple map before any root work or joint admission.
  * Object.entries captures every enumerable value first. All tuple components
  * then read in F/A/T order before numerical admission can start, preserving a
@@ -58,12 +60,16 @@ export function preparePoseTupleScan(
   };
 }
 
-/** Authored tuple input and a staged, still-unadmitted scalar scan. */
+/*
+ * Authored tuple input and a staged, still-unadmitted scalar scan.
+ */
 export namespace preparePoseTupleScan {
-  /** Clinical tuples per bone (`IAutoMovieSkeletonPoseResolution.IJoints`). */
+  /*
+   * Clinical tuples per bone (`IAutoMovieSkeletonPoseResolution.IJoints`).
+   */
   export type IJoints = IAutoMovieSkeletonPoseResolution.IJoints;
 
-  /**
+  /*
    * Supply every staged value to actual private joint admission, never a public
    * callback or reader key.
    */
@@ -75,14 +81,16 @@ export namespace preparePoseTupleScan {
   ) => void;
 }
 
-/** Clinical F/A/T values in degrees or null rest, in their original tuple order. */
+/*
+ * Clinical F/A/T values in degrees or null rest, in their original tuple order.
+ */
 type ITuple = readonly [
   IAutoMovieJointPose["flexion"],
   IAutoMovieJointPose["abduction"],
   IAutoMovieJointPose["twist"],
 ];
 
-/**
+/*
  * One private staged slot, populated only by the ordered name/F/A/T writer
  * below.
  */

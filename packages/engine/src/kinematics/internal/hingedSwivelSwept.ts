@@ -1,41 +1,50 @@
 import { hingedArmSwivel } from "../hingedArmSwivel";
 
-/** The articulation's swivel step, degrees (`hingedArmSwivel.STEP`). */
+/*
+ * The articulation's swivel step, degrees (`hingedArmSwivel.STEP`).
+ */
 const STEP: number = hingedArmSwivel.STEP;
 
-/**
+/*
  * The full cold swivel sweep of `hingedArmArticulation`: every step a certified
  * refusal does not spare is scored, every local minimum refined, and the first
  * of the best kept; and the sweep's first-candidate certificate, which
  * `hingedSwivelBounded`'s caller tests the same way.
  */
 export namespace hingedSwivelSwept {
-  /** One bend branch of the sweep. */
+  /*
+   * One bend branch of the sweep.
+   */
   export interface IBranch<T> {
-    /** The actual scorer at a swivel, degrees. */
+    /*
+     * The actual scorer at a swivel, degrees.
+     */
     probe: (angle: number) => T;
 
-    /** Completed step candidates, indexed by sweep step. */
+    /*
+     * Completed step candidates, indexed by sweep step.
+     */
     steps: (T | undefined)[];
 
-    /** Completed refinements, keyed by the step whose bracket they refine. */
+    /*
+     * Completed refinements, keyed by the step whose bracket they refine.
+     */
     refined: Map<number, T>;
 
-    /**
+    /*
      * Whether every swivel from `low` to `high` degrees is certain to
      * overshoot; none to refuse nothing.
      */
     refused: ((low: number, high: number) => boolean) | null;
   }
 
-  /**
+  /*
    * The first candidate the sweep scores, in branch and step order: the first
    * step whose swivels within two steps of it are not all refused.
-   *
-   * @param branches The branches, in the sweep's order.
-   * @returns That candidate, scored into its branch's cache, and whether a step
-   *   before it was refused; no candidate when every step of every branch is
-   *   refused.
+   * Parameter branches: The branches, in the sweep's order.
+   * Returns: That candidate, scored into its branch's cache, and whether a step
+   * before it was refused; no candidate when every step of every branch is
+   * refused.
    */
   export function first<T>(branches: readonly IBranch<T>[]): {
     candidate: T | null;
@@ -60,7 +69,7 @@ export namespace hingedSwivelSwept {
     return { candidate: null, skipped };
   }
 
-  /**
+  /*
    * The sweep's choice over the branches, in their order.
    *
    * A step is skipped when the swivels within two steps of it are refused, and
@@ -72,12 +81,11 @@ export namespace hingedSwivelSwept {
    * its bottom. A step level with both neighbours has nothing to refine. The
    * first scored candidate ends the search when the caller's certificate
    * accepts it (`certified`).
-   *
-   * @param props The branches with their scorers, caches and refusals; the
-   *   candidate order; the refinement; the first candidate's certificate when
-   *   the caller has one.
-   * @returns The chosen candidate, none when every step is refused, and whether
-   *   any step was refused before the search ended.
+   * Parameter props: The branches with their scorers, caches and refusals; the
+   * candidate order; the refinement; the first candidate's certificate when
+   * the caller has one.
+   * Returns: The chosen candidate, none when every step is refused, and whether
+   * any step was refused before the search ended.
    */
   export function sweep<T>(props: {
     branches: readonly IBranch<T>[];

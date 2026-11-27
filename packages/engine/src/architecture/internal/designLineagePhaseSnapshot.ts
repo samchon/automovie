@@ -12,7 +12,7 @@ import {
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { requireValidDesignLineage } from "./requireValidDesignLineage";
 
-/**
+/*
  * Report every declared subject's role and presence once a phase completes.
  *
  * This exists so a phased scene, drawing, schedule, and render can read one
@@ -20,8 +20,8 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * computations are four chances to disagree and a demolition drawing that
  * contradicts the demolition render is worse than neither existing.
  *
- * None of those four reads it. The callers are {@link designLineageProject} and
- * {@link designLineageViewDigest} in this package and the test suite; no
+ * None of those four reads it. The callers are designLineageProject and
+ * designLineageViewDigest in this package and the test suite; no
  * compiled scene, derived drawing, derived schedule, or draw list is filtered
  * by it. The four cannot disagree because none of them asks, which is not the
  * same property.
@@ -37,10 +37,9 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * or one of its transitive prerequisites. One state is reported per lifecycle,
  * sorted by subject id in code-unit order. An invalid lineage or an undeclared
  * phase id throws an `Error`.
- *
- * @param lineage Lineage whose lifecycles are read.
- * @param phase Construction phase id, or null for the completed work.
- * @returns The phase and one state per lifecycle.
+ * Parameter lineage: Lineage whose lifecycles are read.
+ * Parameter phase: Construction phase id, or null for the completed work.
+ * Returns: The phase and one state per lifecycle.
  */
 export function designLineagePhaseSnapshot(
   lineage: IAutoMovieDesignLineage,
@@ -94,7 +93,7 @@ export function designLineagePhaseSnapshot(
   return { phase, states };
 }
 
-/**
+/*
  * The named phase and every phase that must complete before it, or a thrown
  * `Error` when the lineage declares no such phase.
  */

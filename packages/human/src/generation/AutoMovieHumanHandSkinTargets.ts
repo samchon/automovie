@@ -38,14 +38,16 @@ const { solve }: typeof AutoMovieHumanHandSolve = AutoMovieHumanHandSolve;
  * inputs.
  */
 export namespace AutoMovieHumanHandSkinTargets {
-  /**
+  /*
    * Rounds in which the solve's knuckle targets follow the meshed skin's
    * section: the skin's ratio to the chains' reading barely moves with the
    * scales, so two rounds leave a small fraction of the first miss.
    */
   const SKIN_ROUNDS: number = 2;
 
-  /** Knuckle targets already solved, by side and hand inputs. */
+  /*
+   * Knuckle targets already solved, by side and hand inputs.
+   */
   const TARGETS: Map<string, { breadth: number; girth: number }> = new Map();
 
   /**

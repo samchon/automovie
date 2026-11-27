@@ -10,16 +10,18 @@ import type {
 import { AutoMovieArchetypeFrame, type AutoMovieArchetypeRide } from "../core";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
-/**
+/*
  * The forelimb's peak forward swing about the shoulder at mid-swing, degrees:
  * authored.
  */
 const RAISE: number = 60;
 
-/** The fore limbs. */
+/*
+ * The fore limbs.
+ */
 const FORES: readonly Fore[] = ["leftFore", "rightFore"];
 
-/**
+/*
  * A sole this far above the floor, metres, is in its swing; below it the hoof
  * bears on the floor.
  */
@@ -171,7 +173,9 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
     };
   }
 
-  /** A part of a sample by id. */
+  /*
+   * A part of a sample by id.
+   */
   function part(
     sample: AutoMovieArchetypeRide.IPose<string, string>,
     id: string,
@@ -181,7 +185,7 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
     )!;
   }
 
-  /**
+  /*
    * The world forward coordinate of a sample's terminal bar end, metres: the
    * footprint a swing is measured between, since the body moves a stride
    * between two landings.
@@ -196,7 +200,9 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
     ).z;
   }
 
-  /** A bar's half length along its local +Y. */
+  /*
+   * A bar's half length along its local +Y.
+   */
   function half(part: IAutoMovieModelPart): IAutoMovieVector3 {
     const height: number =
       part.geometry.type === "primitive" &&
@@ -211,17 +217,21 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
     });
   }
 
-  /** A bar's start, model space. */
+  /*
+   * A bar's start, model space.
+   */
   function start(part: IAutoMovieModelPart): IAutoMovieVector3 {
     return Vector3.subtract(part.transform!.translation, half(part));
   }
 
-  /** A bar's end, model space. */
+  /*
+   * A bar's end, model space.
+   */
   function end(part: IAutoMovieModelPart): IAutoMovieVector3 {
     return Vector3.add(part.transform!.translation, half(part));
   }
 
-  /**
+  /*
    * A terminal cylinder's lowest point above the floor under a placement,
    * metres.
    */
@@ -250,8 +260,12 @@ export namespace AutoMovieArchetypeEquineSpanishWalk {
   }
 }
 
-/** A fore limb. */
+/*
+ * A fore limb.
+ */
 type Fore = Extract<AutoMovieArchetypeQuadrupedBody.Limb, `${string}Fore`>;
 
-/** A named instant of a ride. */
+/*
+ * A named instant of a ride.
+ */
 type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

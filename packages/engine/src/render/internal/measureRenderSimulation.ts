@@ -12,7 +12,7 @@ import type {
   IAutoMovieSoftBodyBudget,
 } from "@automovie/interface";
 
-/**
+/*
  * Add bounded effects, cloth, planting and water to the render inventory.
  * Inputs include the cumulative population counts; local accumulation continues
  * their exact addition order and returns new counts without changing the
@@ -34,7 +34,7 @@ import { AUTOMOVIE_NORMAL_BYTES } from "../AUTOMOVIE_NORMAL_BYTES";
 import { AUTOMOVIE_POSITION_BYTES } from "../AUTOMOVIE_POSITION_BYTES";
 import { AUTOMOVIE_UV_BYTES } from "../AUTOMOVIE_UV_BYTES";
 
-/**
+/*
  * Extend prior counts with simulated drawable costs and explicit missing
  * inputs.
  */
@@ -346,7 +346,7 @@ export function measureRenderSimulation(
     unsolved,
   };
 }
-/**
+/*
  * Quads one grid axis of `count` cells spans.
  *
  * A single cell spans none, which is what makes a one-cell-wide pond a line
@@ -359,7 +359,7 @@ export function measureRenderSimulation(
 const quads: (count: number) => number = (count: number): number =>
   count > 1 ? count - 1 : 0;
 
-/**
+/*
  * Read one stated prototype cost, refusing a value no renderer could hold.
  *
  * A fractional or negative vertex count is an authoring or adapter mistake, and
@@ -385,7 +385,9 @@ const statedPrototype: (
   return cost;
 };
 
-/** Device bytes one instanced prototype's own buffers occupy. */
+/*
+ * Device bytes one instanced prototype's own buffers occupy.
+ */
 const prototypeBytes: (cost: IAutoMovieRenderPrototypeCost) => number = (
   cost: IAutoMovieRenderPrototypeCost,
 ): number =>

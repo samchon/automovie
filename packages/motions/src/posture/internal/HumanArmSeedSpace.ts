@@ -2,31 +2,43 @@ import { HumanArmConnect } from "./HumanArmConnect";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
-/**
+/*
  * The arms' coordinate space of a seed (`HumanArmSeed`): OMPL's bounds of each
  * coordinate the sampling planner draws within, the arms' coordinates split
  * from a concatenation, and a path read at a share of its time coordinate.
  */
 export namespace HumanArmSeedSpace {
-  /** The arms' coordinate space: OMPL's bounds of each coordinate. */
+  /*
+   * The arms' coordinate space: OMPL's bounds of each coordinate.
+   */
   export interface ISpace {
-    /** Each coordinate's least value, the arms' coordinates concatenated. */
+    /*
+     * Each coordinate's least value, the arms' coordinates concatenated.
+     */
     low: number[];
 
-    /** Each coordinate's greatest value. */
+    /*
+     * Each coordinate's greatest value.
+     */
     high: number[];
 
-    /** Each arm's shoulder chart, a disc of its radius. */
+    /*
+     * Each arm's shoulder chart, a disc of its radius.
+     */
     discs: HumanArmConnect.IDisc[];
   }
 
-  /** A coordinate's hard range, as the context holds it. */
+  /*
+   * A coordinate's hard range, as the context holds it.
+   */
   export type Bound = M.IContext["bounds"][number][number];
 
-  /** The chart and coordinate intervals a sampler reads. */
+  /*
+   * The chart and coordinate intervals a sampler reads.
+   */
   export type Chart = Pick<M.IContext, "rest" | "back" | "free" | "bounds">;
 
-  /**
+  /*
    * The arms' coordinates within the space's own bounds, which OMPL's sampler
    * draws uniformly within (`StateSampler::sampleUniform`): the shoulder
    * chart's two within its disc of radius R (`discs`, the box [-R, R] about it
@@ -71,7 +83,9 @@ export namespace HumanArmSeedSpace {
     });
     return { low, high, discs };
   }
-  /** Each arm's coordinates from a concatenation. */
+  /*
+   * Each arm's coordinates from a concatenation.
+   */
   export function split(q: readonly number[]): number[][] {
     const out: number[][] = [];
     for (let i: number = 0; i < q.length; i += G.DIMENSIONS)
@@ -79,7 +93,7 @@ export namespace HumanArmSeedSpace {
     return out;
   }
 
-  /**
+  /*
    * The configuration of a path, without its share coordinate, where its share
    * (its last coordinate, rising along it) reaches a value.
    */

@@ -414,7 +414,7 @@ export namespace AutoMovieHumanHeadLandmarks {
   }
 }
 
-/**
+/*
  * The lid margin's lateral half-span that stands its canthi, the margin's
  * medial and lateral extremes, the fissure length apart in 3D, and the
  * fissure's centre that puts the medial canthus half the intercanthal width off
@@ -458,11 +458,17 @@ function canthi(
   return [span, o.inner - medial];
 }
 
-/** A point of a section. */
+/*
+ * A point of a section.
+ */
 type P2 = [number, number];
 
-/** The public eye. */
+/*
+ * The public eye.
+ */
 type PublicEye = IAutoMovieHumanHeadIdentity["face"]["eyePair"]["left"];
 
-/** A point. */
+/*
+ * A point.
+ */
 type Vec3 = [number, number, number];

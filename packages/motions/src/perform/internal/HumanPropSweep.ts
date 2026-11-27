@@ -24,7 +24,7 @@ import { HumanPropCatchHands } from "./HumanPropCatchHands";
 import { HumanPropSweepColliders } from "./HumanPropSweepColliders";
 import { HumanPropSweepHands } from "./HumanPropSweepHands";
 
-/**
+/*
  * The one sweep of a flying prop (`HumanPropFlight`): its flight from a film
  * second against every person but the launcher, read on their displayed bones
  * at each second and passed over while a bound around their root shows them out
@@ -62,31 +62,30 @@ import { HumanPropSweepHands } from "./HumanPropSweepHands";
  * bounce, which acts on the velocity relative to it.
  */
 export namespace HumanPropSweep {
-  /**
+  /*
    * Sweep a flight from a film second against everyone but the launcher, the
    * props that do not fly and the floor, leaving one collider behind.
-   *
-   * @param self The performance.
-   * @param prop The flying prop.
-   * @param launcher The launcher's subject, who is no collider.
-   * @param seconds The film second of the flight's zero.
-   * @param projectile The flight.
-   * @param horizon Seconds after its zero the film still runs.
-   * @param leave A collider's id to leave out: the body a pass goes through.
-   * @param departing The collider whose existing support or rebound contact the
-   *   projectile is leaving. Only the engine's certificate can defer its
-   *   initial contact and it continues to check later entry.
-   * @param radius An opt-in spherical radius in metres. Its supplied projectile
-   *   travels by its centre. Absent, use the prop's point or tip.
-   * @param captureHands Gripping hands owned by a staged capture during their
-   *   final approach. The remaining body surfaces continue to participate.
-   * @param handback The later launch that ends this flight, when one does. The
-   *   props its performer holds at that launch are left out from the start of
-   *   the launching action, whose own fit owns the meeting, to the end of the
-   *   sweep, and the hands that hold or touch them through that action's
-   *   approach.
-   * @returns The first meeting, or null when it meets nothing before the
-   *   horizon.
+   * Parameter self: The performance.
+   * Parameter prop: The flying prop.
+   * Parameter launcher: The launcher's subject, who is no collider.
+   * Parameter seconds: The film second of the flight's zero.
+   * Parameter projectile: The flight.
+   * Parameter horizon: Seconds after its zero the film still runs.
+   * Parameter leave: A collider's id to leave out: the body a pass goes through.
+   * Parameter departing: The collider whose existing support or rebound contact the
+   * projectile is leaving. Only the engine's certificate can defer its
+   * initial contact and it continues to check later entry.
+   * Parameter radius: An opt-in spherical radius in metres. Its supplied projectile
+   * travels by its centre. Absent, use the prop's point or tip.
+   * Parameter captureHands: Gripping hands owned by a staged capture during their
+   * final approach. The remaining body surfaces continue to participate.
+   * Parameter handback: The later launch that ends this flight, when one does. The
+   * props its performer holds at that launch are left out from the start of
+   * the launching action, whose own fit owns the meeting, to the end of the
+   * sweep, and the hands that hold or touch them through that action's
+   * approach.
+   * Returns: The first meeting, or null when it meets nothing before the
+   * horizon.
    */
   export function sweep(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -154,10 +153,14 @@ export namespace HumanPropSweep {
           : (at: number): ReturnType<typeof allBones> =>
               HumanPropCatchHands.omit(allBones(at), reserved, at);
       if (bones !== allBones) maskedBones?.set(subject, bones);
-      /** The original root-based rejection, with its centre for a full witness. */
+      /*
+       * The original root-based rejection, with its centre for a full witness.
+       */
       const frame = (t: number): IAutoMovieVector3 =>
         HumanPerformanceRead.projectileRoot(self, subject, seconds + t);
-      /** The original signed lower bound before querying the collider union. */
+      /*
+       * The original signed lower bound before querying the collider union.
+       */
       const distanceFromRoot = (
         a: IAutoMovieVector3,
         b: IAutoMovieVector3,
@@ -440,14 +443,18 @@ export namespace HumanPropSweep {
           }),
     };
 
-    /** The flight segment's far end: its tail, or its point. */
+    /*
+     * The flight segment's far end: its tail, or its point.
+     */
     function end(at: IAutoMovieProjectileState): IAutoMovieVector3 {
       return tip === undefined || at.rotation === undefined
         ? at.position
         : Vector3.add(at.position, Quaternion.rotateVector(at.rotation, tip));
     }
 
-    /** Resolve the struck bone with the same receiving-hand filter as the sweep. */
+    /*
+     * Resolve the struck bone with the same receiving-hand filter as the sweep.
+     */
     function personBone(
       subject: string,
       point: IAutoMovieVector3,
@@ -462,24 +469,28 @@ export namespace HumanPropSweep {
     }
   }
 
-  /**
+  /*
    * The later launch that ends a flight, as the sweep leaves out the props its
    * performer holds at that launch.
    */
   export interface IHandback {
-    /** The performer whose later launch ends the flight. */
+    /*
+     * The performer whose later launch ends the flight.
+     */
     subject: string;
 
-    /** The film second of that launch, where its own fit meets the prop. */
+    /*
+     * The film second of that launch, where its own fit meets the prop.
+     */
     at: number;
 
-    /**
+    /*
      * The film second the launching action starts, from which its fit owns the
      * approach.
      */
     from: number;
 
-    /**
+    /*
      * The launcher's hands that meet the prop at that launch
      * (`IAutoMovieMotionPropLaunch.touching`); none for a launch made with a
      * held instrument, whose holding hands the sweep reads from the grips.

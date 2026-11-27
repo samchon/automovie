@@ -9,7 +9,7 @@ import type {
 
 import type { AutoMovieArchetypeConvexCell } from "../AutoMovieArchetypeConvexCell";
 
-/**
+/*
  * Primitive or declared convex-cell colliders in the model's space, using the
  * engine's contact-query vocabulary.
  *
@@ -26,23 +26,24 @@ import type { AutoMovieArchetypeConvexCell } from "../AutoMovieArchetypeConvexCe
  * cavities. An arbitrary mesh or atlas still has no inferred collider.
  */
 export namespace ArchetypeShapes {
-  /**
+  /*
    * The contact material every archetype collider cites, which the consumer's
    * profile supplies.
    */
   export const MATERIAL: string = "archetype";
 
-  /** How many points lie on each rim of a hulled cylinder or cone. */
+  /*
+   * How many points lie on each rim of a hulled cylinder or cone.
+   */
   export const SIDES: number = 12;
 
-  /**
+  /*
    * The colliders of parts.
-   *
-   * @param parts The model's parts at their current transforms, with unit
-   *   scale.
-   * @param cells Explicit convex cells bound to their visible parts; omitted
-   *   for primitives.
-   * @returns One collider per supported solid part, preserving its id.
+   * Parameter parts: The model's parts at their current transforms, with unit
+   * scale.
+   * Parameter cells: Explicit convex cells bound to their visible parts; omitted
+   * for primitives.
+   * Returns: One collider per supported solid part, preserving its id.
    */
   export function of(
     parts: readonly IAutoMovieModelPart[],
@@ -148,12 +149,11 @@ export namespace ArchetypeShapes {
   }
 }
 
-/**
+/*
  * The points of a circle about the local Y axis.
- *
- * @param radius The circle's radius, metres.
- * @param y Its height on the local Y axis, metres.
- * @returns `ArchetypeShapes.SIDES` points, the first on `+X`.
+ * Parameter radius: The circle's radius, metres.
+ * Parameter y: Its height on the local Y axis, metres.
+ * Returns: `ArchetypeShapes.SIDES` points, the first on `+X`.
  */
 function ring(radius: number, y: number): IAutoMovieVector3[] {
   return Array.from(

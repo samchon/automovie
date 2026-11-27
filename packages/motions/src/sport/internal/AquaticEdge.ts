@@ -10,10 +10,9 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import { AquaticPosture } from "./AquaticPosture";
 
-/**
+/*
  * The performance's named pool edge at the action's start.
- *
- * @throws {HumanRefusal} When no support is named, or it declares no edge.
+ * When no support is named, or it declares no edge.
  */
 export function AquaticEdge(
   context: AquaticPosture.Context,
@@ -51,14 +50,16 @@ export function AquaticEdge(
   };
 }
 
-/**
+/*
  * A pool edge as the exits read it: the lip, where the deck meets the wall
  * face, and the edge's own directions, out over the water and along the wall.
  * The named support must declare an `edge` contact; the edge prop's frame puts
  * the water toward its `+Z` (`createPoolEdge`).
  */
 export namespace AquaticEdge {
-  /** Bind the actual receiving deck when the stage declares its perimeter. */
+  /*
+   * Bind the actual receiving deck when the stage declares its perimeter.
+   */
   export function deck(
     context: AquaticPosture.Context,
     edge: IEdge,
@@ -70,7 +71,9 @@ export namespace AquaticEdge {
     );
   }
 
-  /** Refuse an expected receiving footprint outside the named material. */
+  /*
+   * Refuse an expected receiving footprint outside the named material.
+   */
   export function admit(
     edge: IEdge,
     face: HumanMaterialContact.IFace,
@@ -92,22 +95,32 @@ export namespace AquaticEdge {
       });
   }
 
-  /** A pool edge in the world. */
+  /*
+   * A pool edge in the world.
+   */
   export interface IEdge {
-    /** The edge prop's subject id. */
+    /*
+     * The edge prop's subject id.
+     */
     id: string;
 
-    /** Where the deck meets the wall face, world metres. */
+    /*
+     * Where the deck meets the wall face, world metres.
+     */
     lip: IAutoMovieVector3;
 
-    /** The unit horizontal direction out from the wall over the water. */
+    /*
+     * The unit horizontal direction out from the wall over the water.
+     */
     out: IAutoMovieVector3;
 
-    /** The unit horizontal direction along the wall. */
+    /*
+     * The unit horizontal direction along the wall.
+     */
     across: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * A world point `out` metres out from the lip over the water (negative: back
    * on the deck), `side` along it and `up` above it.
    */

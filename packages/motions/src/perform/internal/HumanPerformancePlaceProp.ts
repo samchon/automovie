@@ -17,21 +17,20 @@ import { HumanPerformanceSite } from "./HumanPerformanceSite";
 import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanSegmentShown } from "./HumanSegmentShown";
 
-/**
+/*
  * The reader of a prop a placed action's context gives
  * (`IAutoMovieMotionHumanActionContext.prop`): the prop, its displayed frame at
  * a film second (over a carrier, a prop this performer carries is read on the
  * pose the action is laid on, never through its own posture), its posed
  * material, launch, flight approach, mount, holder and articulation state.
- *
- * @param self The resolving performance.
- * @param own The placed action's performer.
- * @param over Whether the action is laid over a carrier.
- * @param person The performer's placed record.
- * @param laid The overlays the action is laid on.
- * @param named The parameter an id was named through, for a refusal.
- * @returns The reader by prop.
- * @throws {HumanRefusal} When no prop has the subject.
+ * Parameter self: The resolving performance.
+ * Parameter own: The placed action's performer.
+ * Parameter over: Whether the action is laid over a carrier.
+ * Parameter person: The performer's placed record.
+ * Parameter laid: The overlays the action is laid on.
+ * Parameter named: The parameter an id was named through, for a refusal.
+ * Returns: The reader by prop.
+ * When no prop has the subject.
  */
 export function HumanPerformancePlaceProp(
   self: IAutoMovieMotionHumanPerformanceState,
@@ -108,5 +107,7 @@ export function HumanPerformancePlaceProp(
   };
 }
 
-/** The alternatives of `PlaceDraftedResult`'s site. */
+/*
+ * The alternatives of `PlaceDraftedResult`'s site.
+ */
 type PlaceDraftedResult = "prop" | "point";

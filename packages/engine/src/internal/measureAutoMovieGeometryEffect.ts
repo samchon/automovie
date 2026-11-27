@@ -15,7 +15,7 @@ import { resolveCameraAt } from "../film/internal/resolveCameraAt";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 
-/**
+/*
  * Sample one compiled effect cue at shot-local seconds and report analytic
  * density, camera-ray intersection and subject-root inclusion; visibilityRisk
  * is a capped proxy rather than rendered occlusion.

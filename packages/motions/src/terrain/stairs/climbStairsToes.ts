@@ -15,7 +15,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
 import type { climbStairsRocker } from "./climbStairsRocker";
 
-/**
+/*
  * A stair climb's toe extension at each second: as the other foot takes the
  * weight, the heel can rise around its fixed forefoot before toe-off, and the
  * same rocker (`climbStairsRocker`) follows the swing and settles as the newly
@@ -25,9 +25,8 @@ import type { climbStairsRocker } from "./climbStairsRocker";
  * (`ROM_TOLERANCE`); each foot's extension is read between them from a course
  * split at its own toe-offs and tread contacts (`prepareHumanSampledCourse`),
  * so a read searches nothing.
- *
- * @param scope The climb's clock, steps, frames, load and rocker.
- * @returns Each foot's toe extension at a second, degrees.
+ * Parameter scope: The climb's clock, steps, frames, load and rocker.
+ * Returns: Each foot's toe extension at a second, degrees.
  */
 export function climbStairsToes(
   scope: climbStairsToes.IScope,
@@ -76,63 +75,90 @@ export function climbStairsToes(
   return { left: course("left"), right: course("right") };
 }
 
-/** The climb's frame, its scope and the toes' closed-form placement. */
+/*
+ * The climb's frame, its scope and the toes' closed-form placement.
+ */
 export namespace climbStairsToes {
-  /** The climb's pelvis and feet at a second. */
+  /*
+   * The climb's pelvis and feet at a second.
+   */
   export interface IFrame {
-    /** The leaned posture over the root path. */
+    /*
+     * The leaned posture over the root path.
+     */
     placed: IAutoMovieMotionHumanPosture;
 
-    /** Each foot as its stance or swing has it. */
+    /*
+     * Each foot as its stance or swing has it.
+     */
     feet: Record<
       AutoMovieHumanSide,
       { placement: IAutoMovieMotionHumanFoot.IPlacement; planted: boolean }
     >;
 
-    /** The root as high as both legs reach. */
+    /*
+     * The root as high as both legs reach.
+     */
     root: IAutoMovieVector3;
 
-    /** The hip joints under it, world metres. */
+    /*
+     * The hip joints under it, world metres.
+     */
     hips: Record<AutoMovieHumanSide, IAutoMovieVector3>;
   }
 
-  /** What the toes' course reads of the climb. */
+  /*
+   * What the toes' course reads of the climb.
+   */
   export interface IScope {
-    /** The climb's length, seconds. */
+    /*
+     * The climb's length, seconds.
+     */
     duration: number;
 
-    /** Its clock, with each step's toe-off and tread contact. */
+    /*
+     * Its clock, with each step's toe-off and tread contact.
+     */
     clock: IAutoMovieMotionClock;
 
-    /** The steps in order, by the foot that takes each. */
+    /*
+     * The steps in order, by the foot that takes each.
+     */
     steps: readonly { side: AutoMovieHumanSide }[];
 
-    /** The pelvis and feet at a second on a posture. */
+    /*
+     * The pelvis and feet at a second on a posture.
+     */
     frameAt: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
       read: ReturnType<typeof prepareHumanPoseResolution>,
     ) => IFrame;
 
-    /** The right foot's share of the weight at a second. */
+    /*
+     * The right foot's share of the weight at a second.
+     */
     rightLoad: (seconds: number) => number;
 
-    /** The stair rocker. */
+    /*
+     * The stair rocker.
+     */
     rock: ReturnType<typeof climbStairsRocker>;
 
-    /** The standing posture the climb writes over. */
+    /*
+     * The standing posture the climb writes over.
+     */
     standing: IAutoMovieMotionHumanPosture;
   }
 
-  /**
+  /*
    * A scheduled foot with its heel risen about its ball by a toe extension, the
    * toes taking back the pitch the foot gave up (closed form).
-   *
-   * @param body The body's rest joints and sole sockets.
-   * @param side The foot.
-   * @param scheduled The foot as scheduled.
-   * @param flexion The toe extension, degrees.
-   * @returns The placement.
+   * Parameter body: The body's rest joints and sole sockets.
+   * Parameter side: The foot.
+   * Parameter scheduled: The foot as scheduled.
+   * Parameter flexion: The toe extension, degrees.
+   * Returns: The placement.
    */
   export function place(
     body: humanFootOffset.IBody,

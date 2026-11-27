@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A course frame at a second: linear between its samples, heading the way it
  * moves (or as its samples say), kept while it stands.
  *
@@ -72,21 +72,22 @@ export function formationCourseFrame(
   };
 }
 
-/** Companion types of `formationCourseFrame`. */
+/*
+ * Companion types of `formationCourseFrame`.
+ */
 export namespace formationCourseFrame {
-  /**
+  /*
    * A frame's origin and heading at a second.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the world-metre origin and the heading in degrees.
-   * @evidence contracts/development/design.md#principled-representation A world point and a heading about +Y from +Z.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by formationCourseFrame and read by HumanFormation's placement.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Only the two values a placement reads.
    */
   export interface IPlace {
-    /** The frame's origin, world metres. */
+    /*
+     * The frame's origin, world metres.
+     */
     at: IAutoMovieVector3;
 
-    /** The frame's heading, degrees about +Y from +Z. */
+    /*
+     * The frame's heading, degrees about +Y from +Z.
+     */
     heading: number;
   }
 }

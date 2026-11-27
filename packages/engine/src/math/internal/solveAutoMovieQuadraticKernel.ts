@@ -9,7 +9,7 @@ import { createAutoMovieQuadraticMemory } from "./createAutoMovieQuadraticMemory
 import { equilibrateAutoMovieQuadraticProgram } from "./equilibrateAutoMovieQuadraticProgram";
 import { solveAutoMovieQuadraticInterior } from "./solveAutoMovieQuadraticInterior";
 
-/**
+/*
  * Solve one admitted interval CSC problem entirely in engine-owned TypeScript.
  * The public adapter owns semantic admission and original-row residual checks.
  * This boundary owns equivalent conic expansion, reversible equilibration and

@@ -10,7 +10,7 @@ import type {
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core";
 import { QuadrupedRestFloor } from "../quadruped/QuadrupedRestFloor";
 
-/**
+/*
  * An equid's body between two posed models of it at their placements, read in
  * the second's placement and held on the floor by its lowest part.
  *
@@ -20,13 +20,12 @@ import { QuadrupedRestFloor } from "../quadruped/QuadrupedRestFloor";
  * would reach under the floor, so the body rests on the floor rather than
  * passing through it. It is the transition between a stride or a stance and a
  * lying pose, where the two poses share no common rig path.
- *
- * @param from The first posed model.
- * @param fromPlacement Its placement.
- * @param to The second posed model, whose parts and contacts the blend keeps.
- * @param toPlacement Its placement, the blend's own.
- * @param share 0 for the first pose, 1 for the second.
- * @returns The blended model in the second's placement.
+ * Parameter from: The first posed model.
+ * Parameter fromPlacement: Its placement.
+ * Parameter to: The second posed model, whose parts and contacts the blend keeps.
+ * Parameter toPlacement: Its placement, the blend's own.
+ * Parameter share: 0 for the first pose, 1 for the second.
+ * Returns: The blended model in the second's placement.
  */
 export function EquineBlend<Id extends string, D extends string>(
   from: AutoMovieArchetype<Id, D>,

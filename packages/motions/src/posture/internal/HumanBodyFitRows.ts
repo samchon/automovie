@@ -15,7 +15,7 @@ import type { HumanFloorReading } from "./HumanFloorReading";
 import { HumanFoot } from "./HumanFoot";
 import { HumanJacobian } from "./HumanJacobian";
 
-/**
+/*
  * A slope in millimetres per solved unit from a reading's rate per a variable's
  * own unit.
  */
@@ -29,7 +29,7 @@ function scaled(
   );
 }
 
-/**
+/*
  * A support candidate's height's slope: its point's, riding its collider's
  * bone.
  */
@@ -43,11 +43,10 @@ function low(step: HumanBodyFitRows.IStep, c: number): number[] {
   );
 }
 
-/**
+/*
  * A step's rows, but the floor's under the colliders.
- *
- * @param step The step.
- * @returns The rows of the contacts, the targets and the balance.
+ * Parameter step: The step.
+ * Returns: The rows of the contacts, the targets and the balance.
  */
 export function HumanBodyFitRows(
   step: HumanBodyFitRows.IStep,
@@ -159,7 +158,7 @@ export function HumanBodyFitRows(
   return rows;
 }
 
-/**
+/*
  * The rows of one step of a whole-body fit (`HumanBodyFit`), each with the
  * reading it linearises: the floor's contacts, the targets' points and
  * rotations, included angles, the positional mass centre, the balance's edges
@@ -168,56 +167,80 @@ export function HumanBodyFitRows(
  * (`HumanJacobian`).
  */
 export namespace HumanBodyFitRows {
-  /** A posture's reading for a fit, with its balance when the fit keeps one. */
+  /*
+   * A posture's reading for a fit, with its balance when the fit keeps one.
+   */
   export type IReading = HumanFloorReading.IReading &
     HumanFitGoals.IReading &
     IReading2;
 
-  /** A row of a step and the reading it linearises. */
+  /*
+   * A row of a step and the reading it linearises.
+   */
   export interface IRead {
-    /** The row. */
+    /*
+     * The row.
+     */
     row: IAutoMovieMotionHumanQuadraticProgram.IRow;
 
-    /**
+    /*
      * The row's actual scalar reading, metres or radians, evaluated on the same
      * body quantities that its builder linearised.
      */
     f: (r: IReading) => number;
   }
 
-  /** One step's inputs. */
+  /*
+   * One step's inputs.
+   */
   export interface IStep {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The reading the step starts from. */
+    /*
+     * The reading the step starts from.
+     */
     at: IReading;
 
-    /** The variables' motions there. */
+    /*
+     * The variables' motions there.
+     */
     motions: readonly IAutoMovieMotionHumanJacobian.IMotion[];
 
-    /** Each variable's solved unit, in its own. */
+    /*
+     * Each variable's solved unit, in its own.
+     */
     units: readonly number[];
 
-    /**
+    /*
      * The fixed ordered variable domain [0,n), shared read-only by all dense
      * coefficient rows of this fit.
      */
     index: readonly number[];
 
-    /** The goals. */
+    /*
+     * The goals.
+     */
     targets: readonly IAutoMovieMotionHumanBodyFitTypes.ITarget[];
 
-    /** Geometric included angles held by the same fit. */
+    /*
+     * Geometric included angles held by the same fit.
+     */
     angles: readonly IAutoMovieMotionHumanFitGoals.IAngle[];
 
-    /** A positional centre-of-mass goal, if requested. */
+    /*
+     * A positional centre-of-mass goal, if requested.
+     */
     centre?: IAutoMovieMotionHumanFitGoals.ICentre;
 
-    /** The floor's price per millimetre. */
+    /*
+     * The floor's price per millimetre.
+     */
     price: number;
 
-    /**
+    /*
      * Each bearing part's lowest support candidate at the reading, as indices
      * into its heights (`lowest`): the point the part rests on, re-selected at
      * every reading as the merit's is.
@@ -225,29 +248,30 @@ export namespace HumanBodyFitRows {
     touching: readonly number[];
   }
 
-  /**
+  /*
    * How far a row may miss unpriced, metres (radians for a rotation): half the
    * fit's tolerance.
    */
   export const BAND: number = 2.5e-4;
 
-  /** The rows are written in millimetres (milliradians). */
+  /*
+   * The rows are written in millimetres (milliradians).
+   */
   export const MM: number = 1000;
 
-  /**
+  /*
    * How far above a part's lowest point a support candidate of it still touches
    * the floor, metres: the foot's bearing height (`HumanFoot.BEARING`), the one
    * the base of support and the contact audit read a bearing point by.
    */
   export const MARGIN: number = HumanFoot.BEARING;
 
-  /**
+  /*
    * The floor's rows under the support candidates given one: none under the
    * floor.
-   *
-   * @param step The step.
-   * @param rowed The candidates, as indices into the reading's heights.
-   * @returns One row per candidate.
+   * Parameter step: The step.
+   * Parameter rowed: The candidates, as indices into the reading's heights.
+   * Returns: One row per candidate.
    */
   export function floor(step: IStep, rowed: ReadonlySet<number>): IRead[] {
     const all: readonly number[] = step.index;
@@ -267,13 +291,12 @@ export namespace HumanBodyFitRows {
     );
   }
 
-  /**
+  /*
    * Each bearing part's lowest support candidate at a reading: the point the
    * part rests on, every other candidate of it kept out of the floor.
-   *
-   * @param r The reading.
-   * @returns Indices into the reading's heights, one per bearing part that has
-   *   a candidate.
+   * Parameter r: The reading.
+   * Returns: Indices into the reading's heights, one per bearing part that has
+   * a candidate.
    */
   export function lowest(r: IReading): number[] {
     if (r.members.length === 0) return [];
@@ -309,7 +332,7 @@ export namespace HumanBodyFitRows {
     return out.filter((c: number): boolean => c >= 0);
   }
 
-  /**
+  /*
    * Signed goal-frame misses, including the excess outside a physical point
    * radius.
    *
@@ -317,7 +340,7 @@ export namespace HumanBodyFitRows {
    */
   export const misses: typeof HumanFitTargets.misses = HumanFitTargets.misses;
 
-  /**
+  /*
    * Actual target distance and turn, read by the same owner as the rows.
    *
    * Reports actual distance rather than a radius-subtracted value.
@@ -326,17 +349,23 @@ export namespace HumanBodyFitRows {
     HumanFitTargets.residual;
 }
 
-/** The alternatives of `Of`'s site. */
+/*
+ * The alternatives of `Of`'s site.
+ */
 type Of = "at" | "motions";
 
-/** The record of `IReading2`'s site. */
+/*
+ * The record of `IReading2`'s site.
+ */
 type IReading2 = {
-  /**
+  /*
    * Exact source clinical posture used for this reading's resolution/FK; kept
    * unchanged while current Jacobian and final result consume it.
    */
   written: IAutoMovieMotionHumanPosture;
 
-  /** Requested base-of-support reading on these same bones. */
+  /*
+   * Requested base-of-support reading on these same bones.
+   */
   balance?: HumanFitBalance.IReading;
 };

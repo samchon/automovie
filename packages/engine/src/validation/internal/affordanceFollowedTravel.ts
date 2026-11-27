@@ -2,7 +2,7 @@ import type { IAutoMovieAffordanceCoupling } from "@automovie/interface";
 
 import { interpolateAffordanceTravel } from "./interpolateAffordanceTravel";
 
-/**
+/*
  * A follower's travel at its leader's travel, by the rule its `follows`
  * declares: the leader's travel times `ratio`, or the piecewise-linear
  * interpolation of `table`.
@@ -11,10 +11,9 @@ import { interpolateAffordanceTravel } from "./interpolateAffordanceTravel";
  * end's output; engine admission requires a table to cover the leader's whole
  * range, so an admitted model never reaches that case. Interior reads reorder
  * the arithmetic when an intermediate width or product loses range.
- *
- * @param follows The follower's rule.
- * @param leader The leader's travel, in its kind's unit.
- * @returns The follower's travel, in its kind's unit.
+ * Parameter follows: The follower's rule.
+ * Parameter leader: The leader's travel, in its kind's unit.
+ * Returns: The follower's travel, in its kind's unit.
  */
 export function affordanceFollowedTravel(
   follows: IAutoMovieAffordanceCoupling,

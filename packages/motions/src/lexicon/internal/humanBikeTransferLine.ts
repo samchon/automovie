@@ -8,15 +8,14 @@ import type {
 
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * The race line a bicycle transfer meets (World Triathlon Competition Rules
  * §7.1(h, j)): a mount counts a sole wholly on the floor, within `FLOOR`, past
  * the mount line along its heading; a dismount one wholly on the floor short of
  * the dismount line.
- *
- * @param line The line's place and heading on the course.
- * @param mount Whether the transfer mounts.
- * @returns Whether a sole's points qualify.
+ * Parameter line: The line's place and heading on the course.
+ * Parameter mount: Whether the transfer mounts.
+ * Returns: Whether a sole's points qualify.
  */
 export function humanBikeTransferLine(
   line: IAutoMovieMotionHumanBikeTransfer["line"],
@@ -37,32 +36,37 @@ export function humanBikeTransferLine(
     );
 }
 
-/** The race line and the stopped bicycle. */
+/*
+ * The race line and the stopped bicycle.
+ */
 export namespace humanBikeTransferLine {
-  /** Contact tolerance in metres for the stage's floor. */
+  /*
+   * Contact tolerance in metres for the stage's floor.
+   */
   export const FLOOR: number = 0.01;
 
-  /**
+  /*
    * Frame comparison tolerance during the stopped transfer, in metres or
    * unit-vector length.
    */
   export const STILL: number = 1e-6;
 
-  /** Two independent axes exposed by the bicycle's rigid frame. */
+  /*
+   * Two independent axes exposed by the bicycle's rigid frame.
+   */
   export const AXES: readonly IAutoMovieVector3[] = [
     { x: 0, y: 1, z: 0 },
     { x: 0, y: 0, z: 1 },
   ];
 
-  /**
+  /*
    * Whether the bicycle still stands as it stopped: its frame's place and two
    * axes, and both pedals, within `STILL` of the stop.
-   *
-   * @param stopped The frame at the stop.
-   * @param frame The frame now.
-   * @param from The pedals at the stop.
-   * @param now The pedals now; a missing pedal is not still.
-   * @returns Whether nothing has moved.
+   * Parameter stopped: The frame at the stop.
+   * Parameter frame: The frame now.
+   * Parameter from: The pedals at the stop.
+   * Parameter now: The pedals now; a missing pedal is not still.
+   * Returns: Whether nothing has moved.
    */
   export function still(
     stopped: IAutoMovieRigidTransform,

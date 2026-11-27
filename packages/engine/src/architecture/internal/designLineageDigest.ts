@@ -15,7 +15,7 @@ import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { designLineageRecord } from "./designLineageRecord";
 import { requireValidDesignLineage } from "./requireValidDesignLineage";
 
-/**
+/*
  * Digest the whole lineage record.
  *
  * Serialization is length-prefixed and sorted by code unit, never by locale and
@@ -31,10 +31,9 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * digests those subjects declare, so both facts are already in the subject and
  * derived lines. Citation facts are derivable; citation ordering is ignored
  * even though a valid record can reorder that array.
- *
- * @param lineage Lineage to digest.
- * @returns A `sha256:` digest of the canonical serialization; an invalid
- *   lineage throws an `Error` instead.
+ * Parameter lineage: Lineage to digest.
+ * Returns: A `sha256:` digest of the canonical serialization; an invalid
+ * lineage throws an `Error` instead.
  */
 export function designLineageDigest(lineage: IAutoMovieDesignLineage): string {
   requireValidDesignLineage(lineage);
@@ -141,7 +140,9 @@ export function designLineageDigest(lineage: IAutoMovieDesignLineage): string {
   return autoMovieRenderDigest(lines.join("\n"));
 }
 
-/** A code-unit-sorted copy of one collection, keyed by one string field. */
+/*
+ * A code-unit-sorted copy of one collection, keyed by one string field.
+ */
 const sortedBy: <T>(items: readonly T[], key: (item: T) => string) => T[] = <T>(
   items: readonly T[],
   key: (item: T) => string,

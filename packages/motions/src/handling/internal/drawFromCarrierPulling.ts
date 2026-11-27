@@ -15,7 +15,7 @@ import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotion
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/**
+/*
  * The other hand's pull, when the draw asks for one: the hand already holds the
  * worn carrier at its throat, and the carrier hangs from a bone of this
  * performer.
@@ -73,29 +73,47 @@ export function drawFromCarrierPulling(
   };
 }
 
-/** `drawFromCarrierPulling` and its records. */
+/*
+ * `drawFromCarrierPulling` and its records.
+ */
 export namespace drawFromCarrierPulling {
-  /** The other hand's pull on a worn carrier, read from the entry. */
+  /*
+   * The other hand's pull on a worn carrier, read from the entry.
+   */
   export interface IPulled {
-    /** The pulling hand. */
+    /*
+     * The pulling hand.
+     */
     side: AutoMovieHumanSide;
 
-    /** Its contact part. */
+    /*
+     * Its contact part.
+     */
     part: IAutoMovieMotionHumanContactWindow["part"];
 
-    /** Its limb. */
+    /*
+     * Its limb.
+     */
     limb: AutoMovieHumanLimb;
 
-    /** Its wrist at the start, world. */
+    /*
+     * Its wrist at the start, world.
+     */
     wrist: IAutoMovieRigidTransform;
 
-    /** Its elbow's hint. */
+    /*
+     * Its elbow's hint.
+     */
     bend: IAutoMovieVector3;
 
-    /** The bone the carrier hangs from, worn on again at the end. */
+    /*
+     * The bone the carrier hangs from, worn on again at the end.
+     */
     bone: AutoMovieHumanoidBone;
 
-    /** The trunk's twist, degrees toward the performer's left. */
+    /*
+     * The trunk's twist, degrees toward the performer's left.
+     */
     turn: number;
   }
 }

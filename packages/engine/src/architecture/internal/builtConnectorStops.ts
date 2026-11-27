@@ -3,7 +3,7 @@ import {
   IAutoMovieConnectorLanding,
 } from "@automovie/interface";
 
-/**
+/*
  * The spaces one connector serves, in the order its own route reaches them.
  *
  * A run stops at its `from` space, at every landing in declared order, and at

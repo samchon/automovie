@@ -20,7 +20,7 @@ import type {
 import { frameTimes } from "./frameTimes.js";
 import { shotBeat } from "../shotBeat.js";
 
-/**
+/*
  * Plan the pose-keypoint sidecar of one sequence render.
  *
  * The cut is laid on the output clock by `sequenceTimeline`, the output frames
@@ -122,7 +122,9 @@ export const planPoseKeypointSidecar: (
   };
 };
 
-/** The call-wide lookups every frame's actor projection reads. */
+/*
+ * The call-wide lookups every frame's actor projection reads.
+ */
 interface IPoseLookups {
   motionById: ReadonlyMap<string, IAutoMovieMotion>;
   skeletonById: ReadonlyMap<string, IAutoMovieSkeleton>;
@@ -130,14 +132,18 @@ interface IPoseLookups {
   crop: IAutoMovieDeliveryCrop | undefined;
 }
 
-/** A shot's resolved scene, camera and node index, shared by all its frames. */
+/*
+ * A shot's resolved scene, camera and node index, shared by all its frames.
+ */
 interface IShotStaging {
   scene: IAutoMovieScene;
   camera: IAutoMovieCamera;
   nodeById: ReadonlyMap<string, IAutoMovieSceneNode>;
 }
 
-/** Resolve a shot's scene and camera, or null when either is missing. */
+/*
+ * Resolve a shot's scene and camera, or null when either is missing.
+ */
 const stageShot: (
   shot: IAutoMovieShot,
   sceneById: ReadonlyMap<string, IAutoMovieScene>,
@@ -164,7 +170,7 @@ const stageShot: (
   };
 };
 
-/**
+/*
  * Project every resolvable performing actor of one shot at a shot-local
  * instant.
  */
@@ -233,7 +239,7 @@ const actorsAt: (
   return actors;
 };
 
-/**
+/*
  * The distance of `point` along the camera's forward axis at `time`, the length
  * the fog is integrated over and what the fog shader interpolates as
  * `vFogDepth`.

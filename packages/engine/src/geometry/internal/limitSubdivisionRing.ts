@@ -5,7 +5,7 @@ import type {
 
 import { subdivisionRingEigenbasis } from "./subdivisionRingEigenbasis";
 
-/**
+/*
  * The limit position of a ring's vertex and one limit normal per sector of
  * faces between its infinitely sharp edges.
  *
@@ -43,11 +43,10 @@ import { subdivisionRingEigenbasis } from "./subdivisionRingEigenbasis";
  * corner sector whose two crease curves leave in one line has no tangent plane
  * the curves determine, and takes the winding-weighted normal of its ring quads
  * instead.
- *
- * @param ring A one-ring whose sharpness is only 0 or 10.
- * @param vertex Vertex index, for the diagnostic.
- * @returns The limit position, the unit normal of each sector, and each ring
- *   face's sector.
+ * Parameter ring: A one-ring whose sharpness is only 0 or 10.
+ * Parameter vertex: Vertex index, for the diagnostic.
+ * Returns: The limit position, the unit normal of each sector, and each ring
+ * face's sector.
  */
 export const limitSubdivisionRing = (
   ring: IAutoMovieSubdivisionRing,
@@ -136,7 +135,7 @@ export const limitSubdivisionRing = (
   return { position, normals, sectors };
 };
 
-/**
+/*
  * The smooth limit position and an unnormalized normal of a ring, by the masks
  * of Halstead, Kass and DeRose (1993).
  */
@@ -174,7 +173,9 @@ const smoothLimit: (ring: IAutoMovieSubdivisionRing) => {
   };
 };
 
-/** Point `i` of a packed ring array, wrapping around the ring's edge count. */
+/*
+ * Point `i` of a packed ring array, wrapping around the ring's edge count.
+ */
 const point: (packed: readonly number[], i: number) => number[] = (
   packed: readonly number[],
   i: number,
@@ -184,7 +185,7 @@ const point: (packed: readonly number[], i: number) => number[] = (
   return packed.slice(at * 3, at * 3 + 3);
 };
 
-/**
+/*
  * The crease cross tangent over the sector from edge `lead` to edge `trail`,
  * pointing into the sector: OpenSubdiv's average of the two crease edges for
  * one face, and Biermann, Levin and Zorin's mask for more.
@@ -230,7 +231,7 @@ const crossTangent: (
   return tangent;
 };
 
-/**
+/*
  * The sum of `(E_i - C) x (E_{i+1} - C)` over the ring quads from edge `lead`
  * to edge `trail`, a vector on the outward side of that sector.
  */
@@ -255,7 +256,9 @@ const winding: (
   return turn;
 };
 
-/** The unit vector along `normal`, flipped to the side of `turn`. */
+/*
+ * The unit vector along `normal`, flipped to the side of `turn`.
+ */
 const oriented: (
   normal: number[],
   turn: readonly number[],
@@ -270,7 +273,7 @@ const oriented: (
     vertex,
   );
 
-/**
+/*
  * The faces from edge `lead` to edge `trail` of a crease ring as a boundary
  * ring of their own, which refines independently of the other side because the
  * crease rules read only the crease.
@@ -295,7 +298,9 @@ const side: (
   return { centre: ring.centre.slice(), edges, diagonals, sharpness };
 };
 
-/** Add `b` into `a` in place. */
+/*
+ * Add `b` into `a` in place.
+ */
 const add: (a: number[], b: readonly number[]) => void = (
   a: number[],
   b: readonly number[],
@@ -303,13 +308,17 @@ const add: (a: number[], b: readonly number[]) => void = (
   for (let axis: number = 0; axis < 3; ++axis) a[axis]! += b[axis]!;
 };
 
-/** The difference `a - b`. */
+/*
+ * The difference `a - b`.
+ */
 const subtract: (a: readonly number[], b: readonly number[]) => number[] = (
   a: readonly number[],
   b: readonly number[],
 ): number[] => [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
 
-/** The cross product `a x b`. */
+/*
+ * The cross product `a x b`.
+ */
 const cross: (a: readonly number[], b: readonly number[]) => number[] = (
   a: readonly number[],
   b: readonly number[],
@@ -319,18 +328,24 @@ const cross: (a: readonly number[], b: readonly number[]) => number[] = (
   a[0]! * b[1]! - a[1]! * b[0]!,
 ];
 
-/** The dot product. */
+/*
+ * The dot product.
+ */
 const dot: (a: readonly number[], b: readonly number[]) => number = (
   a: readonly number[],
   b: readonly number[],
 ): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
 
-/** The Euclidean length. */
+/*
+ * The Euclidean length.
+ */
 const length: (a: readonly number[]) => number = (
   a: readonly number[],
 ): number => Math.hypot(a[0]!, a[1]!, a[2]!);
 
-/** The unit vector along `a`, refusing a vanishing or non-finite one. */
+/*
+ * The unit vector along `a`, refusing a vanishing or non-finite one.
+ */
 const unit: (a: readonly number[], vertex: number) => number[] = (
   a: readonly number[],
   vertex: number,

@@ -124,7 +124,7 @@ export namespace AutoMoviePhysicalSupportTracking {
       else rigid.addForceAtPoint(force, actual);
     }
 
-    /**
+    /*
      * A stationary task may yield to stance only while its declared surface
      * geometry remains floor-compatible. Explicit witnesses all share the plane;
      * otherwise the declared patch's lowest convex point owns contact.
@@ -180,7 +180,7 @@ export namespace AutoMoviePhysicalSupportTracking {
       );
     }
 
-    /**
+    /*
      * A shape's material's maximum compression, metres; zero for a rigid
      * material.
      */
@@ -243,19 +243,25 @@ export namespace AutoMoviePhysicalSupportTracking {
   }
 }
 
-/** A support limb of a body's support-tracking pattern. */
+/*
+ * A support limb of a body's support-tracking pattern.
+ */
 type ILimb = NonNullable<
   IAutoMoviePhysicalSimulationInput.IBody["supportTracking"]
 >["pattern"]["limbs"][number];
 
-/**
+/*
  * The lowest point of a patch's goal geometry and how deep its material may
  * compress.
  */
 interface ILowest {
-  /** World height of the lowest convex point, metres. */
+  /*
+   * World height of the lowest convex point, metres.
+   */
   height: number;
 
-  /** The material's maximum compression, metres; zero for a rigid one. */
+  /*
+   * The material's maximum compression, metres; zero for a rigid one.
+   */
   compression: number;
 }

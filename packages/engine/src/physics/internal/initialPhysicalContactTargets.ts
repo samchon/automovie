@@ -9,7 +9,7 @@ import type {
 import { projectPhysicalTargets } from "./projectPhysicalTargets";
 import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
 
-/**
+/*
  * Project a body's authored joint limits and place the coherent tree at its
  * actual root.
  */

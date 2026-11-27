@@ -14,22 +14,21 @@ import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
-/**
+/*
  * Find an interior hand-material violation on a free transport beside the
  * body's authored support. Both endpoints must admit the same material pair. A
  * chord in the moving obstacle frame selects a possible encounter second. The
  * reconstructed clinical curve and the body's actual posed digit at that second
  * must also violate the material allowance before the pair gets a row.
- *
- * @param c The original course's setup, samples and authored body reader.
- * @param a The moving arm in the canonical problem.
- * @param k The first waypoint of the free interval.
- * @param n Its last waypoint, the next one read.
- * @param from The arm placed at that waypoint.
- * @param to The arm placed at its last waypoint.
- * @param contacts The existing corner-pair readings for this arm.
- * @param coordinates The clinical waypoints used by playback's quintic.
- * @returns Confirmed encounters with their relative-chord correction rows.
+ * Parameter c: The original course's setup, samples and authored body reader.
+ * Parameter a: The moving arm in the canonical problem.
+ * Parameter k: The first waypoint of the free interval.
+ * Parameter n: Its last waypoint, the next one read.
+ * Parameter from: The arm placed at that waypoint.
+ * Parameter to: The arm placed at its last waypoint.
+ * Parameter contacts: The existing corner-pair readings for this arm.
+ * Parameter coordinates: The clinical waypoints used by playback's quintic.
+ * Returns: Confirmed encounters with their relative-chord correction rows.
  */
 export function HumanArmTrajectoryMaterialSweep(
   c: M.IContext,
@@ -179,14 +178,24 @@ export function HumanArmTrajectoryMaterialSweep(
   return result;
 }
 
-/** A relative chord that needs its actual material pose inspected. */
+/*
+ * A relative chord that needs its actual material pose inspected.
+ */
 interface IEncounter {
-  /** The chord's clearance witness and nearest point. */
+  /*
+   * The chord's clearance witness and nearest point.
+   */
   sweep: HumanArmTrajectorySweep.ISwept;
-  /** The instant selected by the chord, seconds. */
+  /*
+   * The instant selected by the chord, seconds.
+   */
   seconds: number;
-  /** The probe's radius, metres. */
+  /*
+   * The probe's radius, metres.
+   */
   radius: number;
-  /** The material collider's identity at the first frame. */
+  /*
+   * The material collider's identity at the first frame.
+   */
   shape: IAutoMovieMotionHumanArmGeometry.IShape;
 }

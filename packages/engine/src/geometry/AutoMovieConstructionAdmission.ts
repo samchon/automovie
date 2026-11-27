@@ -21,7 +21,7 @@ export namespace AutoMovieConstructionAdmission {
    */
   export function admit(root: IAutoMovieConstructionNode): void {
     const seen: Set<string> = new Set();
-    /**
+    /*
      * Check this node before returning the faces structurally produced below
      * it.
      */
@@ -32,7 +32,9 @@ export namespace AutoMovieConstructionAdmission {
           `realizeAutoMovieConstruction: the name ${name} is used twice`,
         );
       seen.add(name);
-      /** Require a reference to a face of the operation's declared subtree. */
+      /*
+       * Require a reference to a face of the operation's declared subtree.
+       */
       function need(set: Set<string>, face: string, what: string): void {
         if (!set.has(face))
           throw new Error(
@@ -127,7 +129,9 @@ export namespace AutoMovieConstructionAdmission {
           };
         }
         case "split": {
-          /** Refuse a split field outside its declared range, naming it. */
+          /*
+           * Refuse a split field outside its declared range, naming it.
+           */
           const refuse: (what: string) => never = (what: string): never => {
             throw new Error(`realizeAutoMovieConstruction: ${name}'s ${what}`);
           };
@@ -137,7 +141,7 @@ export namespace AutoMovieConstructionAdmission {
           // A composed end derives every seam's phases from its children (`IAutoMovieConstructionSplit.ICompose`), so the authored
           // ones are not read and not admitted; its plane and rounding are.
           const composed: boolean = node.compose !== undefined;
-          /**
+          /*
            * Refuse a declared plane that is not finite or has no normal, naming
            * its holder.
            */
@@ -403,16 +407,24 @@ export namespace AutoMovieConstructionAdmission {
     check(root);
   }
 
-  /** Structurally produced part leaves and all faces in one admitted subtree. */
+  /*
+   * Structurally produced part leaves and all faces in one admitted subtree.
+   */
   interface Names {
-    /** Declared or source-supplied part names. */
+    /*
+     * Declared or source-supplied part names.
+     */
     views: Set<string>;
 
-    /** Part and blend face names. */
+    /*
+     * Part and blend face names.
+     */
     faces: Set<string>;
   }
 
-  /** The union of two name sets. */
+  /*
+   * The union of two name sets.
+   */
   function union(a: ReadonlySet<string>, b: ReadonlySet<string>): Set<string> {
     return new Set([...a, ...b]);
   }

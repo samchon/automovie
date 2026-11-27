@@ -6,13 +6,17 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeCart } from "../AutoMovieArchetypeCart";
 
-/** Inches. */
+/*
+ * Inches.
+ */
 const IN: number = AutoMovieArchetypeUnits.INCH;
 
-/** Centimetres. */
+/*
+ * Centimetres.
+ */
 const CM: number = AutoMovieArchetypeUnits.CENTIMETRE;
 
-/**
+/*
  * The read carriers by kind, each whole, with the options picked on their own
  * axes and the range of horses a cart is made for.
  *
@@ -182,5 +186,7 @@ export const CART_MODELS: Readonly<{
   },
 };
 
-/** One read model's or option's figures by dimension. */
+/*
+ * One read model's or option's figures by dimension.
+ */
 type Figures = Readonly<Partial<Record<AutoMovieArchetypeCart.Dimension, number>>>;

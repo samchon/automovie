@@ -7,7 +7,7 @@ import type {
 
 import { AutoMovieMp4Boxes } from "./AutoMovieMp4Boxes";
 
-/**
+/*
  * Read the picture and sound facts a delivery profile is checked against from
  * an MP4 file's own boxes, as ISO/IEC 14496-12 and 14496-14 lay them out.
  *
@@ -27,18 +27,18 @@ import { AutoMovieMp4Boxes } from "./AutoMovieMp4Boxes";
  * AudioSpecificConfig's object type, rate and channel configuration, the clocks
  * and the edit list, with the priming samples taken as a single edit's media
  * time.
- *
- * @see https://www.iso.org/standard/85596.html
- * @see https://www.iso.org/standard/79110.html
+ * ://www.iso.org/standard/85596.html
+ * ://www.iso.org/standard/79110.html
  *
  * It throws naming the box when the file has no movie box, no video track, a
  * second track of one kind, a video track that is not `avc1` or a malformed or
  * truncated box.
- *
- * @param path The encoded delivery file; only its headers are read.
- * @param srgb The H.273 code points that spell sRGB
- *   (`AUTOMOVIE_MP4_SRGB_COLOUR`).
- * @returns The video facts and the audio facts or `null`.
+ * Parameter path: The encoded delivery file; only its headers are read.
+ * Parameter srgb: The H.273 code points that spell sRGB
+ * (`AUTOMOVIE_MP4_SRGB_COLOUR`).
+ * Returns: The video facts and the audio facts or `null`.
+ * @see https://www.iso.org/standard/85596.html
+ * @see https://www.iso.org/standard/79110.html
  */
 export async function readAutoMovieDeliveryProbe(
   path: string,
@@ -86,7 +86,9 @@ export async function readAutoMovieDeliveryProbe(
   };
 }
 
-/** The box readers the probe walks the movie box with. */
+/*
+ * The box readers the probe walks the movie box with.
+ */
 const {
   children,
   clock,
@@ -96,9 +98,10 @@ const {
   only,
 }: typeof AutoMovieMp4Boxes = AutoMovieMp4Boxes;
 
-/**
+/*
  * MPEG-4 audio sampling-frequency table, by `samplingFrequencyIndex` (ISO/IEC
  * 14496-3 Table 1.18).
+ * ://www.iso.org/standard/76383.html
  * @see https://www.iso.org/standard/76383.html
  */
 const AAC_SAMPLE_RATES: readonly number[] = [
@@ -106,28 +109,44 @@ const AAC_SAMPLE_RATES: readonly number[] = [
   12_000, 11_025, 8_000, 7_350,
 ];
 
-/** The clocks and edit list every track shares. */
+/*
+ * The clocks and edit list every track shares.
+ */
 interface ITrackClock {
-  /** Track presentation duration in movie ticks (`tkhd`). */
+  /*
+   * Track presentation duration in movie ticks (`tkhd`).
+   */
   movieDuration: number;
 
-  /** Media ticks per second (`mdhd`). */
+  /*
+   * Media ticks per second (`mdhd`).
+   */
   mediaTimescale: number;
 
-  /** Encoded duration in media ticks (`mdhd`). */
+  /*
+   * Encoded duration in media ticks (`mdhd`).
+   */
   mediaDuration: number;
 
-  /** The track's edits. */
+  /*
+   * The track's edits.
+   */
   edits: IAutoMovieProductionVideoProbe["presentation"]["edits"];
 
-  /** The `stbl` box. */
+  /*
+   * The `stbl` box.
+   */
   table: AutoMovieMp4Boxes.IBox;
 
-  /** The first sample entry in `stsd`. */
+  /*
+   * The first sample entry in `stsd`.
+   */
   entry: AutoMovieMp4Boxes.IBox;
 }
 
-/** Read a track's header, media header, edit list and sample description. */
+/*
+ * Read a track's header, media header, edit list and sample description.
+ */
 function trackClock(movie: Buffer, track: AutoMovieMp4Boxes.IBox): ITrackClock {
   const media: AutoMovieMp4Boxes.IBox = only(movie, track, "mdia");
   const mediaHeader: { timescale: number; duration: bigint } = clock(
@@ -167,7 +186,9 @@ function trackClock(movie: Buffer, track: AutoMovieMp4Boxes.IBox): ITrackClock {
   };
 }
 
-/** Read the video probe from the one video track. */
+/*
+ * Read the video probe from the one video track.
+ */
 function readVideo(
   movie: Buffer,
   track: AutoMovieMp4Boxes.IBox,
@@ -284,13 +305,17 @@ function readVideo(
   };
 }
 
-/** A video track's sample count, constant duration and timestamp bounds. */
+/*
+ * A video track's sample count, constant duration and timestamp bounds.
+ */
 type ISampleTiming = Omit<
   IAutoMovieProductionVideoProbe["samples"],
   "timescale"
 >;
 
-/** Read the decode times from `stts` and the composition offsets from `ctts`. */
+/*
+ * Read the decode times from `stts` and the composition offsets from `ctts`.
+ */
 function sampleTiming(
   movie: Buffer,
   table: AutoMovieMp4Boxes.IBox,
@@ -358,7 +383,9 @@ function sampleTiming(
   };
 }
 
-/** Every sample's decode time, from the `stts` runs. */
+/*
+ * Every sample's decode time, from the `stts` runs.
+ */
 function decodeTimes(
   movie: Buffer,
   decode: AutoMovieMp4Boxes.IBox,
@@ -375,7 +402,9 @@ function decodeTimes(
   return times;
 }
 
-/** Read the audio probe from the one audio track. */
+/*
+ * Read the audio probe from the one audio track.
+ */
 function readAudio(
   movie: Buffer,
   track: AutoMovieMp4Boxes.IBox,
@@ -432,11 +461,13 @@ function readAudio(
   };
 }
 
-/**
+/*
  * Read the AudioSpecificConfig inside an `esds` box: the ES descriptor (tag 3),
  * decoder configuration (tag 4), and decoder-specific information (tag 5).
  * The first bits of the decoder-specific information give the audio object
  * type, sampling-frequency index, and channel configuration.
+ * ://www.iso.org/standard/85595.html
+ * ://www.iso.org/standard/76383.html
  * @see https://www.iso.org/standard/85595.html
  * @see https://www.iso.org/standard/76383.html
  */
@@ -488,12 +519,16 @@ function aacDescription(
   const channelCount: number = read(4);
   return { codec: "mp4a", audioObjectType, sampleRate, channelCount };
 }
-/** Euclid's greatest common divisor of two non-negative integers. */
+/*
+ * Euclid's greatest common divisor of two non-negative integers.
+ */
 function gcd(a: number, b: number): number {
   return b === 0 ? Math.max(a, 1) : gcd(b, a % b);
 }
 
-/** A 64-bit box value as a number, refusing one beyond the safe integers. */
+/*
+ * A 64-bit box value as a number, refusing one beyond the safe integers.
+ */
 function safe(value: bigint): number {
   if (
     value > BigInt(Number.MAX_SAFE_INTEGER) ||

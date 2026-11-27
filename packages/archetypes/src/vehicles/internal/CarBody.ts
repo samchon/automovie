@@ -8,7 +8,7 @@ import {
 } from "../../core";
 import { AutoMovieArchetypeCar } from "../AutoMovieArchetypeCar";
 
-/**
+/*
  * A car's body: the layout every part is placed from, and the shell, bonnet and
  * road wheels built on it; `CarRear` builds the boot, the van body and the
  * pickup bed on the same layout.
@@ -18,7 +18,7 @@ import { AutoMovieArchetypeCar } from "../AutoMovieArchetypeCar";
  * the belt line, the bulkhead, the pillars and the roof.
  */
 export namespace CarBody {
-  /**
+  /*
    * A sedan's bonnet leading edge above the ground, metres: below the 76.9 cm
    * the new-car fleet averaged before bonnets rose to 83.8 cm by 2024
    * (Transport & Environment, as the IET reports,
@@ -28,98 +28,129 @@ export namespace CarBody {
    */
   export const LEADING: number = 0.75;
 
-  /** The front bumper's top above the ground, metres: provisional. */
+  /*
+   * The front bumper's top above the ground, metres: provisional.
+   */
   export const BUMPER: number = 0.5;
 
-  /** The planes a car is built on, metres in the car's space. */
+  /*
+   * The planes a car is built on, metres in the car's space.
+   */
   export interface ILayout {
-    /** The class. */
+    /*
+     * The class.
+     */
     kind: AutoMovieArchetypeCar.Kind;
 
-    /** The driver's side: 1 for `+X`, -1 for `-X`. */
+    /*
+     * The driver's side: 1 for `+X`, -1 for `-X`.
+     */
     side: number;
 
-    /** The drawn dimensions. */
+    /*
+     * The drawn dimensions.
+     */
     d: Readonly<Partial<Record<AutoMovieArchetypeCar.Dimension, number>>>;
 
-    /** Half the width. */
+    /*
+     * Half the width.
+     */
     half: number;
 
-    /** The front bumper's station. */
+    /*
+     * The front bumper's station.
+     */
     front: number;
 
-    /** The rear bumper's station. */
+    /*
+     * The rear bumper's station.
+     */
     rear: number;
 
-    /** The cabin floor's height, the heel's rest. */
+    /*
+     * The cabin floor's height, the heel's rest.
+     */
     floor: number;
 
-    /** The belt line's height, the doors' top edge and the windows' bottom. */
+    /*
+     * The belt line's height, the doors' top edge and the windows' bottom.
+     */
     belt: number;
 
-    /** The side windows' top edge. */
+    /*
+     * The side windows' top edge.
+     */
     window: number;
 
-    /** The roof's height. */
+    /*
+     * The roof's height.
+     */
     top: number;
 
-    /** The bulkhead's station, `DOOR_LEAD` ahead of the front doors. */
+    /*
+     * The bulkhead's station, `DOOR_LEAD` ahead of the front doors.
+     */
     firewall: number;
 
-    /**
+    /*
      * The middle pillar's station, the front doors' rear edge, `DOOR_SPAN`
      * behind their front edge.
      */
     pillar: number;
 
-    /**
+    /*
      * The rear of the passenger cabin: the rear pillar at the rear doors'
      * trailing edge, a pickup's cab back, a van's rear doors' inner face.
      */
     back: number;
 
-    /** The driver's seating reference point. */
+    /*
+     * The driver's seating reference point.
+     */
     reference: IAutoMovieVector3;
 
-    /**
+    /*
      * The driver's accelerator heel point, on the floor below the ball of
      * foot's pedal plane.
      */
     heel: IAutoMovieVector3;
 
-    /**
+    /*
      * The driver's ball of foot, `AutoMovieArchetypeCar.BALL` up the pedal
      * plane from the heel point.
      */
     ball: IAutoMovieVector3;
 
-    /**
+    /*
      * The pedal plane's angle from the floor, degrees
      * (`AutoMovieArchetypeCar.pedalPlane`).
      */
     pedal: number;
 
-    /**
+    /*
      * The steering wheel's centre: `AutoMovieArchetypeCar.WHEEL_AFT` behind the
      * ball of foot and `AutoMovieArchetypeCar.WHEEL_HEIGHT` above the heel
      * point.
      */
     wheel: IAutoMovieVector3;
 
-    /** The front doors' front edge, their hinges' station. */
+    /*
+     * The front doors' front edge, their hinges' station.
+     */
     door: number;
 
-    /** The seat cushion's top under the reference point. */
+    /*
+     * The seat cushion's top under the reference point.
+     */
     surface: number;
   }
 
-  /**
+  /*
    * The layout of a car from its class, its driving side and its dimensions.
-   *
-   * @param kind The class.
-   * @param side The driver's side, 1 or -1.
-   * @param d The drawn dimensions.
-   * @returns The layout.
+   * Parameter kind: The class.
+   * Parameter side: The driver's side, 1 or -1.
+   * Parameter d: The drawn dimensions.
+   * Returns: The layout.
    */
   export function layout(
     kind: AutoMovieArchetypeCar.Kind,
@@ -205,13 +236,12 @@ export namespace CarBody {
     };
   }
 
-  /**
+  /*
    * The shell: the floor, the front bumper, the bonnet rising from its leading
    * edge to the windscreen's foot with its lid on a hinge, and the roof on its
    * pillars; `CarRear` builds what the class carries behind the cabin.
-   *
-   * @param builder The car under construction.
-   * @param l The layout.
+   * Parameter builder: The car under construction.
+   * Parameter l: The layout.
    */
   export function shell(
     builder: AutoMovieArchetypeBuilder<
@@ -314,13 +344,12 @@ export namespace CarBody {
       });
   }
 
-  /**
+  /*
    * The road wheels: each on a `knob` that spins it about its axle, the front
    * pair's knobs riding their steering, which follows the steering wheel by its
    * Ackermann angle (`AutoMovieArchetypeCar.ackermann`).
-   *
-   * @param builder The car under construction.
-   * @param l The layout.
+   * Parameter builder: The car under construction.
+   * Parameter l: The layout.
    */
   export function wheels(
     builder: AutoMovieArchetypeBuilder<
@@ -412,29 +441,36 @@ export namespace CarBody {
     }
   }
 
-  /**
+  /*
    * A van's bulkhead station, its face toward the cargo: its middle pillar,
    * behind the front seats' backrests, so the cargo space and the sliding
    * door's opening begin there.
-   *
-   * @param l The layout.
-   * @returns The station, metres along `+Z`.
+   * Parameter l: The layout.
+   * Returns: The station, metres along `+Z`.
    */
   export function bulkhead(l: ILayout): number {
     return l.pillar;
   }
 }
 
-/** The body's colour. */
+/*
+ * The body's colour.
+ */
 const BODY: string = "#3f6c8f";
 
-/** A tyre's colour. */
+/*
+ * A tyre's colour.
+ */
 const TYRE: string = "#22262b";
 
-/** Bright metal's colour. */
+/*
+ * Bright metal's colour.
+ */
 const METAL: string = "#c9ccd1";
 
-/** Each road wheel's spin knob. */
+/*
+ * Each road wheel's spin knob.
+ */
 const SPIN: Readonly<
   Record<
     "front-left" | "front-right" | "rear-left" | "rear-right",

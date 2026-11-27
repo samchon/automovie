@@ -20,7 +20,7 @@ import { StanceVerdicts } from "./StanceVerdicts";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the standing stretches and yoga poses, each held 3 s on the
  * right side at moderate intensity from quiet standing.
  *
@@ -40,9 +40,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  * - `stretch-tree`: the raised ankle at least half a shank above the standing
  *   ankle, the palms' skins within 10 mm of each other, and the extrapolated
  *   centre of mass (Hof 2005) over the standing foot.
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function stretchCases(
   bodies: readonly string[] = ["m-average"],

@@ -24,7 +24,7 @@ import { physicalContactSupportRows } from "./physicalContactSupportRows";
 import { physicalPointProjection } from "./physicalPointProjection";
 import { preparePhysicalContactBindingRows } from "./preparePhysicalContactBindingRows";
 
-/**
+/*
  * Prepare one body's geometry constraints against either its local pose map or
  * a common scene candidate.
  */
@@ -263,7 +263,9 @@ export function preparePhysicalContactTargetRows(
           ),
   };
 
-  /** Borrow an admitted shape at the selected candidate bone pose. */
+  /*
+   * Borrow an admitted shape at the selected candidate bone pose.
+   */
   function collider(
     entry: (typeof shapes)[number],
     poses: IAutoMoviePoses,

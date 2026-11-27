@@ -21,14 +21,14 @@ import { writtenHumanSeeds } from "../../posture/internal/writtenHumanSeeds";
 import { seatedFlatHand } from "./seatedFlatHand";
 import { seatedHandsThighs } from "./seatedHandsThighs";
 
-/**
+/*
  * Seated hand placements on the thighs and armrests. A placement invocation
  * owns its resolved bones so its target and hanging origin share one solve.
  * Optional FK/ROM sources are borrowed only for the synchronous placement;
  * every current joint and relevant goal is still admitted and fitted.
  */
 export namespace seatedHands {
-  /**
+  /*
    * Lay both palms on their own front thighs, fingers toward the knees. The
    * input's leg goals are solved before the surface is measured.
    */
@@ -57,7 +57,7 @@ export namespace seatedHands {
     );
   }
 
-  /**
+  /*
    * Move the hands from their posed hanging origins to their thighs by a
    * caller-eased share, clamped by the endpoint branches at zero and one.
    */
@@ -81,7 +81,7 @@ export namespace seatedHands {
     );
   }
 
-  /**
+  /*
    * Rest each hand on its armrest when supplied, otherwise on its thigh. Inputs
    * contain placed legs and directly authored hanging arms; share is zero
    * hanging to one bearing, and armrest coordinates are world metres.
@@ -139,7 +139,7 @@ export namespace seatedHands {
     );
   }
 
-  /**
+  /*
    * The bearing wrist that puts the body's flat palm on an armrest, palm down
    * and fingers along the seat's yaw, in world metres and degrees.
    */
@@ -173,7 +173,7 @@ export namespace seatedHands {
     };
   }
 
-  /**
+  /*
    * Move supplied hands from their directly posed frames onto world-metre
    * armrest points, palms down, fingers along yaw in degrees. Other hand goals
    * remain; a hand bears when share reaches one. The hanging origins are read
@@ -201,7 +201,7 @@ export namespace seatedHands {
     return restGoals(body, posture, rests, yaw, share, bones);
   }
 
-  /**
+  /*
    * Preserve the public spread-then-leg-read order and its original
    * present-goal observations.
    */
@@ -218,7 +218,9 @@ export namespace seatedHands {
     };
   }
 
-  /** Write armrest goals from the exact hanging-origin map owned by this call. */
+  /*
+   * Write armrest goals from the exact hanging-origin map owned by this call.
+   */
   function restGoals(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -259,7 +261,9 @@ export namespace seatedHands {
     );
   }
 
-  /** Share the input's resolved wrist frames and thigh surfaces in this call. */
+  /*
+   * Share the input's resolved wrist frames and thigh surfaces in this call.
+   */
   function towardThighs(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -325,7 +329,7 @@ export namespace seatedHands {
     return { ...shaped, limbs };
   }
 
-  /**
+  /*
    * Actuate the fingers of each placed hand along with its wrist: the flat hand
    * with its thumb's metacarpal twisted until the thumb clears the palmar plane
    * (`bendFloorHand`), so a palm laid on a thigh or an armrest does not drive
@@ -344,7 +348,7 @@ export namespace seatedHands {
     return out;
   }
 
-  /**
+  /*
    * Resolve this call's observed frames under the canonical demand guards, each
    * goal limb placed at the swivel its written joints give it
    * (`writtenHumanSeeds`), never swept cold at every read.
@@ -374,7 +378,7 @@ export namespace seatedHands {
     );
   }
 
-  /**
+  /*
    * Surface bones and knees determine targets; hanging origins also need
    * wrists.
    */
@@ -396,9 +400,13 @@ export namespace seatedHands {
     return requested;
   }
 
-  /** The body's fixed bilateral ordering, shared by every placement. */
+  /*
+   * The body's fixed bilateral ordering, shared by every placement.
+   */
   const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 }
 
-/** Profile-local thigh intersections and hand extents for this seated phase. */
+/*
+ * Profile-local thigh intersections and hand extents for this seated phase.
+ */
 type PalmRests = seatedHandsThighs.PalmRests;

@@ -3,19 +3,18 @@ import { Vector3 } from "@automovie/engine";
 
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
-/**
+/*
  * A squat rack: two uprights, each with a hook a barbell rests on.
  *
  * It stands on the floor with the middle of its footprint at the origin, the
  * uprights on either side of `X`, the hooks reaching toward `-Z`, where the
  * lifter stands. `rest` is the place between the two hooks where the bar's
  * middle lies, on the bar's axis, with `+Y` up.
- *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The rack.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * Parameter params: The kind and any dimension the author fixes.
+ * Parameter seed: The seed that draws every dimension left free inside its band;
+ * absent, each takes the middle of its band.
+ * Returns: The rack.
+ * For a fixed dimension outside its band.
  */
 export function createRack(
   params: AutoMovieArchetypeRack.IParams,

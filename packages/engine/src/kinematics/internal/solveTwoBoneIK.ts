@@ -1,6 +1,6 @@
 import type { IAutoMovieTwoBoneIK } from "@automovie/interface";
 
-/**
+/*
  * The closed-form angles of a two-segment chain whose tip reaches a goal at
  * straight-line `distance` from its root, by the law of cosines.
  *
@@ -17,10 +17,9 @@ import type { IAutoMovieTwoBoneIK } from "@automovie/interface";
  * products cannot be represented after common rescaling. Extreme common units
  * are rescaled before squaring; ordinary lengths retain their arithmetic
  * order.
- *
- * @param upper Root-to-mid segment length, positive.
- * @param lower Mid-to-tip segment length, positive.
- * @param distance Root-to-goal distance, non-negative.
+ * Parameter upper: Root-to-mid segment length, positive.
+ * Parameter lower: Mid-to-tip segment length, positive.
+ * Parameter distance: Root-to-goal distance, non-negative.
  */
 export function solveTwoBoneIK(
   upper: number,

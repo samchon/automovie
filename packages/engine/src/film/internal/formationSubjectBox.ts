@@ -6,12 +6,12 @@ import {
 } from "@automovie/interface";
 import { transformFormationBounds } from "../../populationRuntime/formation/internal/transformFormationBounds";
 
-/**
+/*
  * The world-space box, in metres, that one formation's members occupy at a
  * shot-local instant.
  *
- * The unit's designed bounds go through {@link transformFormationBounds} under
- * the cue {@link AutoMovieEnginePopulationFormation.sampleFormationMotion} reports at that instant, so a mass that
+ * The unit's designed bounds go through transformFormationBounds under
+ * the cue AutoMovieEnginePopulationFormation.sampleFormationMotion reports at that instant, so a mass that
  * has marched, wheeled, or closed its ranks is framed where it is. Both reads
  * are the builder's own: the ground gate that refuses a member standing off its
  * staged surface asks the same two functions the same way, so a gate and a

@@ -11,7 +11,7 @@ import { HumanSegmentSelection } from "./HumanSegmentSelection";
 import { HumanSegmentStill } from "./HumanSegmentStill";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
-/**
+/*
  * A person's displayed pose at a film second, evaluated from their placed
  * actions with nothing kept between reads.
  *
@@ -24,13 +24,12 @@ import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
  * writers, which may read a partner who reads this person back, the
  * demand-driven evaluation of required bones. While the performance is
  * prepared, the action read is solved first (`IPerson.ready`).
- *
- * @param person The person.
- * @param seconds Film seconds.
- * @param requested Optional observational bones; only their frames are
- *   guaranteed.
- * @param prepared Same-body preparation borrowed for the evaluation.
- * @returns The pose.
+ * Parameter person: The person.
+ * Parameter seconds: Film seconds.
+ * Parameter requested: Optional observational bones; only their frames are
+ * guaranteed.
+ * Parameter prepared: Same-body preparation borrowed for the evaluation.
+ * Returns: The pose.
  */
 export function HumanSegmentShown(
   person: IAutoMovieMotionHumanSegment.IPerson,
@@ -60,21 +59,22 @@ export function HumanSegmentShown(
     : HumanSegmentPose(person, active, from, prepared, requested);
 }
 
-/** Readers over a person's displayed pose. */
+/*
+ * Readers over a person's displayed pose.
+ */
 export namespace HumanSegmentShown {
-  /**
+  /*
    * Read a person as an overlay placed `count`-th is laid on: the carrier, the
    * overlays placed before it and the holds' carries, without it and the
    * overlays after it. An overlay that reads its own performer's displayed pose
    * (a held prop it works, a bow's string drawn over its presentation) reads it
    * so, never re-entering its own posture; the person's state at the overlay's
    * planning is exactly this one.
-   *
-   * @param person The person.
-   * @param count How many of the person's overlays the read keeps, in placement
-   *   order.
-   * @param read The read.
-   * @returns What the read returns.
+   * Parameter person: The person.
+   * Parameter count: How many of the person's overlays the read keeps, in placement
+   * order.
+   * Parameter read: The read.
+   * Returns: What the read returns.
    */
   export function laid<T>(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -91,17 +91,16 @@ export namespace HumanSegmentShown {
     }
   }
 
-  /**
+  /*
    * A person's displayed bones at a film second: the bones of the pose
-   * {@link HumanSegmentShown} gives.
-   *
-   * @param person The person.
-   * @param seconds Film seconds.
-   * @param requested The bones to return; every bone when absent.
-   * @param prepared Same-body preparation of this synchronous query.
-   * @param bound One scan's fixed-demand reader of a pose for the same names
-   *   as `requested`; absent, the names are read live.
-   * @returns The bones, fresh.
+   * HumanSegmentShown gives.
+   * Parameter person: The person.
+   * Parameter seconds: Film seconds.
+   * Parameter requested: The bones to return; every bone when absent.
+   * Parameter prepared: Same-body preparation of this synchronous query.
+   * Parameter bound: One scan's fixed-demand reader of a pose for the same names
+   * as `requested`; absent, the names are read live.
+   * Returns: The bones, fresh.
    */
   export function bones(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -124,7 +123,9 @@ export namespace HumanSegmentShown {
   }
 }
 
-/** The record of `IBonesBound`'s site. */
+/*
+ * The record of `IBonesBound`'s site.
+ */
 type IBonesBound = {
   pose: ReturnType<typeof poseBones.prepare>;
 };

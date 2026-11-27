@@ -11,9 +11,11 @@ import { AirborneTakeoffAngles } from "./airborne/AirborneTakeoffAngles";
 import { AirborneTakeoffLinear } from "./airborne/AirborneTakeoffLinear";
 import { AirborneTakeoffTrial } from "./airborne/AirborneTakeoffTrial";
 
-/** Private implementation bindings for the airborne take-off owner. */
+/*
+ * Private implementation bindings for the airborne take-off owner.
+ */
 export namespace SolveAirborneTakeoffImplementation {
-  /**
+  /*
    * The take-off angular momentum that turns a body in flight through the
    * requested somersault and twist and lands it with no tilt (#3426), for a given
    * shape history and flight.
@@ -53,13 +55,12 @@ export namespace SolveAirborneTakeoffImplementation {
    * is the one returned, played back and whose residual decides the miss, so the
    * momentum control is paid once, by the flight that is shown; without one the
    * search's own solution is that flight.
-   *
-   * @param props The shape's history, the flight, the take-off frame, the request
-   *   and its bounds.
-   * @returns The momentum, its residual and whether the request is met.
-   * @throws {Error} When the flight is not positive and finite, the tolerance is
-   *   not positive and finite, the somersault or twist request is not finite, or
-   *   a supplied failure scope is not a symbol.
+   * Parameter props: The shape's history, the flight, the take-off frame, the request
+   * and its bounds.
+   * Returns: The momentum, its residual and whether the request is met.
+   * When the flight is not positive and finite, the tolerance is
+   * not positive and finite, the somersault or twist request is not finite, or
+   * a supplied failure scope is not a symbol.
    */
   export function solveAirborneTakeoff(
     props: IAutoMovieSolveAirborneTakeoff.IProps,
@@ -84,7 +85,9 @@ export namespace SolveAirborneTakeoffImplementation {
       Quaternion.multiply(props.q0, axes),
     );
 
-    /** The actual physical point, optionally promoted to integrated sensitivities. */
+    /*
+     * The actual physical point, optionally promoted to integrated sensitivities.
+     */
     type IPoint = AirborneTakeoffTrial.IPoint;
     const operation: AirborneTakeoffTrial.IOperation = AirborneTakeoffTrial(
       props,
@@ -95,7 +98,7 @@ export namespace SolveAirborneTakeoffImplementation {
       r: readonly number[],
     ): number => Math.hypot(...r);
 
-    /**
+    /*
      * Euclidean projection onto the admitted momentum ball, used only for search
      * points.
      */
@@ -267,18 +270,26 @@ export namespace SolveAirborneTakeoffImplementation {
     }
   }
 
-  /**
+  /*
    * Companion types, constants and attitude readings of
-   * {@link SolveAirborneTakeoffImplementation.solveAirborneTakeoff}.
+   * SolveAirborneTakeoffImplementation.solveAirborneTakeoff.
    */
-  /** Newton iterations at most, a search work budget. */
+  /*
+   * Newton iterations at most, a search work budget.
+   */
   export const ITERATIONS: number = 12;
-  /** Backtracking halvings at most per Newton iteration. */
+  /*
+   * Backtracking halvings at most per Newton iteration.
+   */
   export const HALVINGS: number = 10;
-  /** Default angular residual tolerance, radians. */
+  /*
+   * Default angular residual tolerance, radians.
+   */
   export const TOLERANCE: number = 2 * Math.PI * 0.01;
 
-  /** Read Yeadon's somersault, tilt and twist angles in radians. */
+  /*
+   * Read Yeadon's somersault, tilt and twist angles in radians.
+   */
   export function angles(
     frame: IAutoMovieQuaternion,
     q: IAutoMovieQuaternion,
@@ -286,7 +297,7 @@ export namespace SolveAirborneTakeoffImplementation {
     return AirborneTakeoffAngles(Quaternion.inverse(frame), q);
   }
 
-  /**
+  /*
    * Read touchdown attitude with somersault and twist unwrapped across flight
    * knots.
    */

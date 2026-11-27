@@ -21,7 +21,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { StrikingHeld } from "./StrikingHeld";
 import { StrikingStrain } from "./StrikingStrain";
 
-/**
+/*
  * Whether the arm can hold a held tool in a pose, and the turn of the tool
  * about its own line where the action leaves it free.
  *
@@ -39,34 +39,33 @@ import { StrikingStrain } from "./StrikingStrain";
  * cone, by the same fit.
  */
 export namespace StrikingRoll {
-  /**
+  /*
    * How far the fitted hand may leave a tool's point of its decisive pose
    * before the pose is refused, metres: under the campaign's 15 mm contact
    * bound, so a planned pose that passes also passes on screen.
    */
   export const MISS: number = 0.01;
 
-  /**
+  /*
    * How many of the candidate frames, the nearest by the arm's two-segment
    * reach, are fitted before one is chosen.
    */
   export const TRIED: number = 16;
 
-  /**
+  /*
    * How far the arm, fitted to a tool's pose, leaves the tool from where the
    * pose asks it.
-   *
-   * @param context The action's context.
-   * @param tool The tool.
-   * @param frame The hand frame asked.
-   * @param back The point of the tool the pose keeps, metres behind its working
-   *   point.
-   * @param posture The body as it stands at the decisive instant.
-   * @param resolution Optional exact FK workspace borrowed from this
-   *   synchronous tool-pose search.
-   * @returns The greater of the kept point's and the working point's
-   *   displacement, metres; a pose that keeps the working point itself reads
-   *   the line at the tool's own length in place of the kept point.
+   * Parameter context: The action's context.
+   * Parameter tool: The tool.
+   * Parameter frame: The hand frame asked.
+   * Parameter back: The point of the tool the pose keeps, metres behind its working
+   * point.
+   * Parameter posture: The body as it stands at the decisive instant.
+   * Parameter resolution: Optional exact FK workspace borrowed from this
+   * synchronous tool-pose search.
+   * Returns: The greater of the kept point's and the working point's
+   * displacement, metres; a pose that keeps the working point itself reads
+   * the line at the tool's own length in place of the kept point.
    */
   export function miss(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
@@ -115,20 +114,19 @@ export namespace StrikingRoll {
     return StrikingHeld.strayed(tool, fitted, frame, back);
   }
 
-  /**
+  /*
    * The hand frame that puts a point of the tool on a world point with the tool
    * about along an axis, turned about its line and leaned inside a cone the way
    * the arm holds it best.
-   *
-   * @param context The action's context.
-   * @param tool The tool.
-   * @param back How far behind the working point the placed point lies, metres.
-   * @param at Where that point goes, world metres.
-   * @param axis The world direction the tool is asked to run.
-   * @param cone How far the tool's line may leave that axis, degrees; 0 keeps
-   *   it.
-   * @param posture The body as it stands at the decisive instant.
-   * @returns The hand's grip frame.
+   * Parameter context: The action's context.
+   * Parameter tool: The tool.
+   * Parameter back: How far behind the working point the placed point lies, metres.
+   * Parameter at: Where that point goes, world metres.
+   * Parameter axis: The world direction the tool is asked to run.
+   * Parameter cone: How far the tool's line may leave that axis, degrees; 0 keeps
+   * it.
+   * Parameter posture: The body as it stands at the decisive instant.
+   * Returns: The hand's grip frame.
    */
   export function hand(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
@@ -219,18 +217,17 @@ export namespace StrikingRoll {
     });
   }
 
-  /**
+  /*
    * How far a tool pose is from one the arm holds with a straight wrist,
    * metres: a straight wrist puts the elbow one forearm back from the wrist
    * along the hand, and the arm holds the pose when that elbow lies one upper
    * arm from the shoulder, so the residual of that distance ranks poses before
    * any is fitted.
-   *
-   * @param context The action's context.
-   * @param tool The tool.
-   * @param frame The hand frame asked.
-   * @param posture The body as it stands at the decisive instant.
-   * @returns Metres, not negative.
+   * Parameter context: The action's context.
+   * Parameter tool: The tool.
+   * Parameter frame: The hand frame asked.
+   * Parameter posture: The body as it stands at the decisive instant.
+   * Returns: Metres, not negative.
    */
   export function strain(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
@@ -242,7 +239,7 @@ export namespace StrikingRoll {
     return StrikingStrain(context.body, tool.side)(frame, from);
   }
 
-  /**
+  /*
    * The tool pose the arm holds, chosen from the freedoms a law leaves it.
    *
    * A law states a pose by values (a roll about the tool's line, a lean of the
@@ -251,14 +248,13 @@ export namespace StrikingRoll {
    * tries them in the law's order and refines the least missed, each judged at
    * the decisive instant by `miss`. `reachable` then judges the result, so a
    * pose no freedom lets the arm hold is still refused.
-   *
-   * @param context The action's context.
-   * @param tool The tool.
-   * @param props The pose's frame by its values, the tried values in order of
-   *   preference, each freedom, the point of the tool the pose keeps and the
-   *   body at the decisive instant.
-   * @returns The chosen hand frame.
-   * @throws {Error} When no values are tried.
+   * Parameter context: The action's context.
+   * Parameter tool: The tool.
+   * Parameter props: The pose's frame by its values, the tried values in order of
+   * preference, each freedom, the point of the tool the pose keeps and the
+   * body at the decisive instant.
+   * Returns: The chosen hand frame.
+   * When no values are tried.
    */
   export function chosen(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
@@ -293,20 +289,19 @@ export namespace StrikingRoll {
       }).values,
     );
   }
-  /**
+  /*
    * Of a law's candidate tool poses, in its order of preference, the first the
    * arm holds exactly, else the one the fitted hand misses least: what a law
    * that leaves a pose's freedom to the arm chooses by.
-   *
-   * @param context The action's context.
-   * @param tool The tool.
-   * @param candidates The poses, each built only when it is tried, preferred
-   *   first.
-   * @param back The point of the tool the pose keeps, metres behind its working
-   *   point.
-   * @param posture The body as it stands at the decisive instant.
-   * @returns The chosen hand frame.
-   * @throws {Error} When there is no candidate.
+   * Parameter context: The action's context.
+   * Parameter tool: The tool.
+   * Parameter candidates: The poses, each built only when it is tried, preferred
+   * first.
+   * Parameter back: The point of the tool the pose keeps, metres behind its working
+   * point.
+   * Parameter posture: The body as it stands at the decisive instant.
+   * Returns: The chosen hand frame.
+   * When there is no candidate.
    */
   export function best(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
@@ -339,21 +334,20 @@ export namespace StrikingRoll {
     return chosen;
   }
 
-  /**
+  /*
    * Refuse a tool pose the arm cannot hold: its wrist beyond the straight arm,
    * or a pose the fitted hand leaves the tool off.
-   *
-   * @param context The action's context.
-   * @param tool The tool.
-   * @param frame The hand frame asked.
-   * @param back The point of the tool the pose keeps, metres behind its working
-   *   point.
-   * @param posture The body as it stands at the decisive instant.
-   * @param fix What the author can change about the reach.
-   * @throws {HumanRefusal} On `target` when the wrist is farther from the
-   *   shoulder than the upper arm and the forearm together; on `grasp` when the
-   *   arm fitted to the pose leaves the tool more than `MISS` from where the
-   *   pose asks it.
+   * Parameter context: The action's context.
+   * Parameter tool: The tool.
+   * Parameter frame: The hand frame asked.
+   * Parameter back: The point of the tool the pose keeps, metres behind its working
+   * point.
+   * Parameter posture: The body as it stands at the decisive instant.
+   * Parameter fix: What the author can change about the reach.
+   * On `target` when the wrist is farther from the
+   * shoulder than the upper arm and the forearm together; on `grasp` when the
+   * arm fitted to the pose leaves the tool more than `MISS` from where the
+   * pose asks it.
    */
   export function reachable(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
@@ -406,7 +400,9 @@ export namespace StrikingRoll {
       });
   }
 
-  /** The holding arm's shoulder joint on a posture, world metres. */
+  /*
+   * The holding arm's shoulder joint on a posture, world metres.
+   */
   const shoulder: (
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
     side: AutoMovieHumanSide,
@@ -427,25 +423,35 @@ export namespace StrikingRoll {
     ).get(`${side}UpperArm`)!.worldPosition;
 }
 
-/** The record of `IHandCandidate`'s site. */
+/*
+ * The record of `IHandCandidate`'s site.
+ */
 type IHandCandidate = { values: number[] };
 
-/** The record of `IHandB`'s site. */
+/*
+ * The record of `IHandB`'s site.
+ */
 type IHandB = { rank: number };
 
-/** The record of `IHandA`'s site. */
+/*
+ * The record of `IHandA`'s site.
+ */
 type IHandA = { rank: number };
 
-/** The record of `IHandCandidatesItem`'s site. */
+/*
+ * The record of `IHandCandidatesItem`'s site.
+ */
 type IHandCandidatesItem = { values: number[]; rank: number };
 
-/**
+/*
  * The body at the decisive instant, or its reader per candidate frame: the
  * union the interface declares (`IAutoMovieMotionHumanStrikingRoll.IChoice`).
  */
 type HandPosture = IAutoMovieMotionHumanStrikingRoll.IChoice["posture"];
 
-/** The two actual output branches consumed by tool-pose judging. */
+/*
+ * The two actual output branches consumed by tool-pose judging.
+ */
 const HANDS: Readonly<
   Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>
 > = {
@@ -453,7 +459,9 @@ const HANDS: Readonly<
   right: new Set<AutoMovieHumanoidBone>(["rightHand"]),
 };
 
-/** Ranking needs only the holding shoulder and its FK ancestry. */
+/*
+ * Ranking needs only the holding shoulder and its FK ancestry.
+ */
 const SHOULDERS: Readonly<
   Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>
 > = {

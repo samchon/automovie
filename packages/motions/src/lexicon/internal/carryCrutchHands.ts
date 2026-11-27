@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Carry each hand that grips a moving crutch from the support course onto the
  * crutch's own track.
  *
@@ -20,12 +20,11 @@ import type {
  * chord at the current second, and the hand's goal and elbow pole are
  * translated by it: the hand stays on the grip it holds, and at each key, where
  * the offset is zero, the posture is the support's own.
- *
- * @param posture The support sequence's posture at a second.
- * @param offset Per side, the crutch grip's world offset from the support chord
- *   at that second in metres, zero where the crutch stands still.
- * @returns The posture with each carried hand's goal on its crutch's grip; the
- *   same posture when no hand moves.
+ * Parameter posture: The support sequence's posture at a second.
+ * Parameter offset: Per side, the crutch grip's world offset from the support chord
+ * at that second in metres, zero where the crutch stands still.
+ * Returns: The posture with each carried hand's goal on its crutch's grip; the
+ * same posture when no hand moves.
  */
 export function carryCrutchHands(
   posture: IAutoMovieMotionHumanPosture,

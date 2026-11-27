@@ -12,7 +12,7 @@ import type { IAutoMovieInspectionOverlay } from "../../IAutoMovieInspectionOver
 import type { IRenderAutoMovieInspectionDiagnosticsProps } from "../../IRenderAutoMovieInspectionDiagnosticsProps.js";
 import { buildAutoMovieInspectionMarks } from "./buildAutoMovieInspectionMarks.js";
 
-/**
+/*
  * Create a witness-cube overlay that review pictures share.
  *
  * Each picture draws a translucent red wire cube at every confirmed error's
@@ -23,8 +23,7 @@ import { buildAutoMovieInspectionMarks } from "./buildAutoMovieInspectionMarks.j
  * are moved by rewriting their vertices in place; otherwise they are built
  * again and the previous ones released. The overlay is attached to the scene
  * only for the caller's render, including when it throws.
- *
- * @returns The overlay; dispose it when the pictures end.
+ * Returns: The overlay; dispose it when the pictures end.
  */
 export function createAutoMovieInspectionDiagnosticOverlay(): IAutoMovieInspectionDiagnosticOverlay {
   let kept: IKept | undefined;
@@ -94,16 +93,24 @@ export function createAutoMovieInspectionDiagnosticOverlay(): IAutoMovieInspecti
   };
 }
 
-/** The review overlay uses red, in sRGB. */
+/*
+ * The review overlay uses red, in sRGB.
+ */
 const COLOR: number = 0xff0000;
 
-/** Possible errors that have a located point appear in amber. */
+/*
+ * Possible errors that have a located point appear in amber.
+ */
 const POSSIBLE_COLOR: number = 0xe6a300;
 
-/** Half the side of a witness cube, in world metres. */
+/*
+ * Half the side of a witness cube, in world metres.
+ */
 const HALF_SIDE_METRES: number = 0.025;
 
-/** Endpoints of each edge, relative to the cube centre. */
+/*
+ * Endpoints of each edge, relative to the cube centre.
+ */
 const EDGES: readonly (readonly [
   number,
   number,
@@ -126,7 +133,9 @@ const EDGES: readonly (readonly [
   [1, 1, -1, 1, 1, 1],
 ];
 
-/** The cubes built for one sequence of colours and stroke. */
+/*
+ * The cubes built for one sequence of colours and stroke.
+ */
 interface IKept {
   overlay: IAutoMovieInspectionOverlay;
   marks: { mark: IAutoMovieMark; color: number }[];
@@ -135,7 +144,7 @@ interface IKept {
   height: number;
 }
 
-/**
+/*
  * The located error witnesses of the sample's own time, in finding order, with
  * their colours.
  */
@@ -160,7 +169,9 @@ function select(
   return out;
 }
 
-/** Legend entries for the confirmed and possible cubes drawn. */
+/*
+ * Legend entries for the confirmed and possible cubes drawn.
+ */
 function legendOf(
   witnesses: readonly { color: number }[],
 ): IAutoMovieInspectionLegendEntry[] {
@@ -179,7 +190,9 @@ function legendOf(
   return legend;
 }
 
-/** The twelve edges of one cube, centred on a measured world point. */
+/*
+ * The twelve edges of one cube, centred on a measured world point.
+ */
 function cube(
   centre: IAutoMovieVector3,
   index: number,
@@ -199,7 +212,9 @@ function cube(
   return mark;
 }
 
-/** Rewrite a cube's segment coordinates in place around a new centre. */
+/*
+ * Rewrite a cube's segment coordinates in place around a new centre.
+ */
 function place(mark: IAutoMovieMark, centre: IAutoMovieVector3): void {
   if (mark.shape.type !== "segments") return;
   const points: number[] = mark.shape.points;

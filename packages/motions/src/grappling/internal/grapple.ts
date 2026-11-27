@@ -23,7 +23,7 @@ import { grappleMatRoll } from "./grappleMatRoll";
 import { grappleStances } from "./grappleStances";
 import { grappleSumo } from "./grappleSumo";
 
-/**
+/*
  * One role of a scripted judo, wrestling or mat grappling scene. The actors
  * share an authored clock and outcome. The floor solver moves each actor
  * through changing supports and the initiator's hand goals follow the displayed
@@ -32,10 +32,14 @@ import { grappleSumo } from "./grappleSumo";
  * identify staging beats for cuts, camera and referee cues.
  */
 export namespace grapple {
-  /** Action key used by both performed roles. */
+  /*
+   * Action key used by both performed roles.
+   */
   export const name: AutoMovieMotionHumanActionKey = "grapple";
 
-  /** Standing recoveries can stand, while settled mat roles can rise. */
+  /*
+   * Standing recoveries can stand, while settled mat roles can rise.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
@@ -61,7 +65,7 @@ export namespace grapple {
     ],
   };
 
-  /**
+  /*
    * The least distance between two partners' marks at which their heads and
    * chests cannot meet when both lean into the scene's entry stance: each
    * body's head and chest fronts stand forward of its hips by the stance's
@@ -70,11 +74,10 @@ export namespace grapple {
    * at their sum. A staged scene's marks derived from it suit both bodies,
    * where a fixed spacing let the leaning heads overlap (the MMA reset's 4.3
    * cm).
-   *
-   * @param kind The scene.
-   * @param initiator The initiating body.
-   * @param receiver The receiving body.
-   * @returns Metres between the two marks along the initiator's facing.
+   * Parameter kind: The scene.
+   * Parameter initiator: The initiating body.
+   * Parameter receiver: The receiving body.
+   * Returns: Metres between the two marks along the initiator's facing.
    */
   export function spacing(
     kind: IAutoMovieMotionHumanGrapple.Kind,
@@ -105,15 +108,14 @@ export namespace grapple {
     return front("initiator", initiator) + front("receiver", receiver);
   }
 
-  /**
+  /*
    * Build the pose plan for one role.
-   *
-   * @param context Staged role, other actor and initial support.
-   * @returns The support and partner-contact plan with approach, entry,
-   *   transfer and recovery events.
-   * @throws {HumanRefusal} For a nonpositive duration, self as partner or a
-   *   held palm outside the actor's measured reach. The support action can
-   *   refuse a stance outside its own fit bounds.
+   * Parameter context: Staged role, other actor and initial support.
+   * Returns: The support and partner-contact plan with approach, entry,
+   * transfer and recovery events.
+   * For a nonpositive duration, self as partner or a
+   * held palm outside the actor's measured reach. The support action can
+   * refuse a stance outside its own fit bounds.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGrapple.IParams>,
@@ -241,18 +243,28 @@ export namespace grapple {
     };
   }
 
-  /** Action shares marking the reach, closed contact and withdrawal. */
+  /*
+   * Action shares marking the reach, closed contact and withdrawal.
+   */
   interface IWindow {
-    /** When the hand begins to travel. */
+    /*
+     * When the hand begins to travel.
+     */
     reach: number;
-    /** When the palm first bears on the partner. */
+    /*
+     * When the palm first bears on the partner.
+     */
     take: number;
-    /** When the palm lets go. */
+    /*
+     * When the palm lets go.
+     */
     release: number;
-    /** When the hand returns to the support pose. */
+    /*
+     * When the hand returns to the support pose.
+     */
     rest: number;
   }
-  /**
+  /*
    * Timing of the visible partner contact relative to the shared floor
    * transfer.
    */

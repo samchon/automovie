@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanStageFight } from "@automovie/interface";
 
-/**
+/*
  * The dive for cover preset: a prone lie down held for 3 s. The `diveForCover`
  * row of `HumanStageFight` reads it, so the row and the preset share one
  * value.

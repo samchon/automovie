@@ -3,7 +3,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Sum consecutive 3D centre-line lengths in metres; fewer than two points yield
  * zero. Finite represented differences and total are the caller's premise.
  */

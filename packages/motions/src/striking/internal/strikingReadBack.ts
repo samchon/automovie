@@ -1,6 +1,6 @@
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * The refusal of a strike, a defence or a stopped limb's ride that is read back
  * while it is being planned: planning it reads another performer, and placing
  * that performer reads this action again at the same instant, most often
@@ -8,12 +8,11 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * chain. The strikers' chains are placed before the struck performer's, so a
  * reaction synced to a hit is composed in a chain of its own after the
  * strikers' chains.
- *
- * @param action The action read back: `punch`, `kick`, `defend` or the stopped
- *   limb's ride.
- * @param subject The performer who acts; absent, the performance locates the
- *   refusal.
- * @returns The refusal, with the sync as its axis.
+ * Parameter action: The action read back: `punch`, `kick`, `defend` or the stopped
+ * limb's ride.
+ * Parameter subject: The performer who acts; absent, the performance locates the
+ * refusal.
+ * Returns: The refusal, with the sync as its axis.
  */
 export function strikingReadBack(
   action: string,

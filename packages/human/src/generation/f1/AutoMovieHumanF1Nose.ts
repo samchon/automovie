@@ -5,7 +5,7 @@ import { AutoMovieHumanConicSection } from "../AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "../AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "../AutoMovieHumanF1Placement";
 
-/**
+/*
  * f1's nose tape wall.
  *
  * Frame: the figure's absolute reference pose, millimetres, forward +X, up +Y, +Z the reference's left. The course runs

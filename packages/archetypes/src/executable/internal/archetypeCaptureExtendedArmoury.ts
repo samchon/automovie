@@ -14,14 +14,13 @@ import { AutoMovieArchetypeArmour, AutoMovieArchetypeCannon, AutoMovieArchetypeP
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
-/**
+/*
  * Museum armour pieces, both siege engines/arm throws and a field-gun launch.
  * Armour remains an unworn static model; there is no Human or Motion consumer.
  * The siege's arm/release is shown without substituting a hand-thrown stone for
  * its differently sized projectile. Cannon flight is explicitly drag-free.
- *
- * @returns Named static armour/siege subjects, each kind's arm throw and a
- *   cannon/shot launch.
+ * Returns: Named static armour/siege subjects, each kind's arm throw and a
+ * cannon/shot launch.
  */
 export function archetypeCaptureExtendedArmoury(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>

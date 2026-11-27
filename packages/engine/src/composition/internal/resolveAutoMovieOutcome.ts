@@ -3,16 +3,15 @@ import type {
   IAutoMovieResolveOutcome,
 } from "@automovie/interface";
 
-/**
+/*
  * The outcome of interacting intents from a production's own table: the first
  * rule whose predicate accepts the intents, else the table's default. The
  * engine only orders and applies the rules; their vocabulary and the outcome
  * classes are the production's.
- *
- * @param table The production's outcome table.
- * @param intents The interacting intents, such as an action and its answer.
- * @returns The outcome and the id of the rule that decided it (absent for the
- *   default).
+ * Parameter table: The production's outcome table.
+ * Parameter intents: The interacting intents, such as an action and its answer.
+ * Returns: The outcome and the id of the rule that decided it (absent for the
+ * default).
  */
 export function resolveAutoMovieOutcome<Outcome extends string>(
   table: IAutoMovieResolveOutcome.ITable<Outcome>,

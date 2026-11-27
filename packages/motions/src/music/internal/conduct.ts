@@ -29,14 +29,14 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { conductFigure } from "./conductFigure";
 import { conductTip } from "./conductTip";
 
-/**
+/*
  * The rebound's height between ictuses, as a share of `conductFigure.HALF`:
  * provisional, above the largest rise between ictuses times 1/π so each ictus
  * is a lowest point.
  */
 const REBOUND: number = 0.6;
 
-/**
+/*
  * The share of the lead before the first beat the arm takes to reach the
  * figure: the rest of the lead is the preparatory arc into the first ictus,
  * which the figure holds, as a conductor's preparation is part of the beat
@@ -44,10 +44,12 @@ const REBOUND: number = 0.6;
  */
 const PREP: number = 0.25;
 
-/** The tempo when none is given, beats per minute. */
+/*
+ * The tempo when none is given, beats per minute.
+ */
 const BPM: number = 120;
 
-/**
+/*
  * Beat time with a held baton. Register as `conduct`.
  *
  * The baton rides the hand rigidly, so its `tip` lies at a fixed lever from the
@@ -73,7 +75,9 @@ export const conduct: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanConduc
     plan,
   };
 
-/** Read the beats and the lever, then aim the baton hand along the figure. */
+/*
+ * Read the beats and the lever, then aim the baton hand along the figure.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanConduct.IParams>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -197,7 +201,9 @@ function plan(
   };
 }
 
-/** The posture reader's arguments after the second. */
+/*
+ * The posture reader's arguments after the second.
+ */
 type PostureRest =
   Parameters<IAutoMovieMotionHumanActionPlan["posture"]> extends [
     number,

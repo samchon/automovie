@@ -38,7 +38,7 @@ import type { ILineWalkFall } from "./ILineWalkFall";
 import { lineWalkFootprints } from "./lineWalkFootprints";
 import { lineWalkPole } from "./lineWalkPole";
 
-/**
+/*
  * A walk along a line too narrow for a normal gait (balance beam, tightrope).
  * Each step puts a foot one foot's length ahead of the other on the line, heel
  * to toe, turned out `TURN` degrees from it; a stepping foot swings over
@@ -65,10 +65,12 @@ import { lineWalkPole } from "./lineWalkPole";
  * Events: `step1` to `stepN` at each footfall, `relax`.
  */
 export namespace lineWalk {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "balanceWalk";
 
-  /**
+  /*
    * Cancel table: once the last foot is down, into standing or another line
    * walk.
    */
@@ -78,47 +80,52 @@ export namespace lineWalk {
       balanceWalk: ["fromRelax", "smooth"],
     });
 
-  /** Seconds per step, a careful balance walk's (provisional). */
+  /*
+   * Seconds per step, a careful balance walk's (provisional).
+   */
   export const PERIOD: number = 0.9;
 
-  /** The share of a step the stepping foot is in the air (provisional). */
+  /*
+   * The share of a step the stepping foot is in the air (provisional).
+   */
   export const SWING: number = 0.5;
 
-  /** Each foot's turn out from the line, degrees (provisional). */
+  /*
+   * Each foot's turn out from the line, degrees (provisional).
+   */
   export const TURN: number = 15;
 
-  /**
+  /*
    * The hips' sway across the line, a share of the stature (provisional, within
    * a few centimetres).
    */
   export const SWAY: number = 0.01;
 
-  /**
+  /*
    * How far the hips walk below their standing height, a share of the stature:
    * the soft knees of a balance walk (provisional).
    */
   export const CROUCH: number = 0.03;
 
-  /**
+  /*
    * A tightrope's working load, newtons (provisional: a walking wire's rated
    * tension).
    */
   export const LOAD: number = lineWalkFootprints.LOAD;
 
-  /**
+  /*
    * How far an entry foot may stand off the line's top, metres: half a foot's
    * width.
    */
   export const ON: number = 0.05;
 
-  /**
+  /*
    * Plan a line walk.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the prop lacks the affordance, an entry foot is
-   *   off the line's top, the step count is not a positive whole number, or the
-   *   stopping point lies beyond the line.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the prop lacks the affordance, an entry foot is
+   * off the line's top, the step count is not a positive whole number, or the
+   * stopping point lies beyond the line.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLineWalk.IParams>,

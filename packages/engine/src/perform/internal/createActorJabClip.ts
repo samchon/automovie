@@ -4,7 +4,7 @@ import {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-/**
+/*
  * Build a non-looping rest-to-strike-to-rest clip with a 40% peak over a
  * positive second duration. The supplied clinical strike pose is borrowed and
  * the empty rest pose is shared only within this clip.

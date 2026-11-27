@@ -3,7 +3,7 @@ import type { IAutoMovieUpdateComparisonCameraProps } from "../../IAutoMovieUpda
 
 import { AUTOMOVIE_MATRIX_ELEMENT_LIMIT } from "../../internal/AUTOMOVIE_MATRIX_ELEMENT_LIMIT.js";
 
-/**
+/*
  * Update a matched parallel comparison from a standalone centred camera. The
  * target-plane height follows its effective perspective field of view, while
  * one native orthographic camera removes depth-dependent magnification. Equal

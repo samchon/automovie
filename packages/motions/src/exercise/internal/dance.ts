@@ -32,7 +32,7 @@ import { prepareDanceBeats } from "./prepareDanceBeats";
 import { prepareDanceSteps } from "./prepareDanceSteps";
 import { prepareWaltzBox } from "./prepareWaltzBox";
 
-/**
+/*
  * A solo dance step locked to a declared beat: the bounce, the side-to-side
  * sway, the step-touch and the box step.
  *
@@ -68,10 +68,14 @@ import { prepareWaltzBox } from "./prepareWaltzBox";
  * track and start back on beat one. Held partner contacts are separate.
  */
 export namespace dance {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "dance";
 
-  /** Cancel table: any beat ends a step. */
+  /*
+   * Cancel table: any beat ends a step.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["anytime", "smooth"],
@@ -79,19 +83,22 @@ export namespace dance {
       walk: ["anytime", "smooth"],
     });
 
-  /** The default tempo, beats per minute. */
+  /*
+   * The default tempo, beats per minute.
+   */
   export const BPM: number = 120;
 
-  /** The bounce's depth, a share of the stature (provisional). */
+  /*
+   * The bounce's depth, a share of the stature (provisional).
+   */
   export const BOUNCE: number = 0.01;
 
-  /**
+  /*
    * Plan a dance step.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the tempo is not positive or the beat count is
-   *   not a positive whole number.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the tempo is not positive or the beat count is
+   * not a positive whole number.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDance.IParams>,

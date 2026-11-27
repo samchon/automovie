@@ -1,11 +1,10 @@
 import type { IAutoMovieIntent } from "@automovie/interface";
 
-/**
+/*
  * Normalize an authored cut or one of the exact legacy cut shapes.
- *
- * @param value A canonical tagged cut or a supported legacy cut object.
- * @returns Its canonical tagged form.
- * @throws {TypeError} When the value is malformed, mixed, or ambiguous.
+ * Parameter value: A canonical tagged cut or a supported legacy cut object.
+ * Returns: Its canonical tagged form.
+ * When the value is malformed, mixed, or ambiguous.
  */
 export function normalizeAutoMovieScheduleCut(value: unknown): IAutoMovieIntent.IUntil {
   if (typeof value !== "object" || value === null || Array.isArray(value))

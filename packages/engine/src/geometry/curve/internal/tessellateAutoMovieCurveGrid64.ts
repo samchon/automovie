@@ -17,7 +17,7 @@ import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
 import { compileAutoMovieNormalizedPhases64 } from "./compileAutoMovieNormalizedPhases64";
 import { isDenseFinite } from "./isDenseFinite";
 
-/**
+/*
  * Generate a metre mesh from complete corresponding cubic courses. Exact
  * common-span restrictions feed componentwise PCHIP control fields and
  * longitudinal Bernstein Hermite grids. Periodic fields use three copies and

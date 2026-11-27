@@ -38,14 +38,24 @@ export class AutoMoviePhysicalPlayback {
     admitPhysicalPlaybackMetadataImplementation(header);
   }
 
-  /** Bytes per position/quaternion/linear/angular-velocity record. */
+  /*
+   * Bytes per position/quaternion/linear/angular-velocity record.
+   */
   private static readonly stride: number = 13 * 8;
 
-  /** Only an admitted owned archive can construct a playback reader. */
+  /*
+   * Only an admitted owned archive can construct a playback reader.
+   */
   private constructor(
-    /** Owned bytes, retained for this reader's lifetime. */ private readonly bytes: Uint8Array<ArrayBuffer>,
-    /** Admitted immutable metadata. */ private readonly header: IAutoMoviePhysicalPlayback.IHeader,
-    /** Aligned first Float64 record byte. */ private readonly offset: number,
+    /*
+     * Owned bytes, retained for this reader's lifetime.
+     */ private readonly bytes: Uint8Array<ArrayBuffer>,
+    /*
+     * Admitted immutable metadata.
+     */ private readonly header: IAutoMoviePhysicalPlayback.IHeader,
+    /*
+     * Aligned first Float64 record byte.
+     */ private readonly offset: number,
   ) {}
 
   /** Exact sampled-input identity retained by the producer. */

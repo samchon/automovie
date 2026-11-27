@@ -11,23 +11,25 @@ import { markMotionCaptureCase } from "../capture/internal/markMotionCaptureCase
 import type { IMotionCaptureProps } from "./internal/IMotionCaptureProps";
 import { MotionCaptureFigure } from "./internal/MotionCaptureFigure";
 
-/**
+/*
  * Steps per second of the key that matches an asked second to a sampled
  * instant: microseconds, far finer than any two instants of a case and far
  * coarser than float error.
  */
 const MICRO: number = 1_000_000;
 
-/**
+/*
  * Margin in metres around everything a case draws, which the ground grid
  * covers.
  */
 const MARGIN: number = 0.18;
 
-/** Side in metres of one cell of the ground grid. */
+/*
+ * Side in metres of one cell of the ground grid.
+ */
 const GRID_CELL: number = 0.25;
 
-/**
+/*
  * The draw page's subjects for the motion capture harness: one subject, named
  * by the case, built from the case's props.
  *
@@ -46,10 +48,9 @@ const GRID_CELL: number = 0.25;
  * instants, so each still's caption and record row name its beat. The delivery
  * camera stands on the three-quarter side looking at the middle of what is
  * drawn; the case is read through the fitted views `motionCapture` asks for.
- *
- * @param props The case's page data, from `planMotionCaptureProps`.
- * @returns The case's subject under its name.
- * @throws {Error} When the page was given no case data.
+ * Parameter props: The case's page data, from `planMotionCaptureProps`.
+ * Returns: The case's subject under its name.
+ * When the page was given no case data.
  */
 export const subjects: AutoMovieDrawSubjects<IMotionCaptureProps | null> = (
   props: IMotionCaptureProps | null,
@@ -62,7 +63,9 @@ export const subjects: AutoMovieDrawSubjects<IMotionCaptureProps | null> = (
     },
   };
 };
-/** Build the case's scene. */
+/*
+ * Build the case's scene.
+ */
 function build(data: IMotionCaptureProps): IAutoMovieDrawScene {
   const scene: THREE.Scene = new THREE.Scene();
   scene.background = new THREE.Color(0xe9e6df);
@@ -230,7 +233,9 @@ function build(data: IMotionCaptureProps): IAutoMovieDrawScene {
   };
 }
 
-/** The record of `IBuildFiguresItem`'s site. */
+/*
+ * The record of `IBuildFiguresItem`'s site.
+ */
 type IBuildFiguresItem = {
   figure: MotionCaptureFigure;
   poses: IAutoMoviePose[];

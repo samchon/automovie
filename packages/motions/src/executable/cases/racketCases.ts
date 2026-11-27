@@ -19,7 +19,7 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the racket and golf positions from quiet standing.
  *
  * Every case reports foot slip at most 5 mm (the issue's planted-foot bound,
@@ -36,9 +36,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  *   the vertical (provisional band around the law's 35), the hands within 10 cm
  *   horizontally of the shoulders' midpoint (hanging arms), and two waggles
  *   counted as forward extremes of the hands.
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function racketCases(
   bodies: readonly string[] = ["m-average"],

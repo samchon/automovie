@@ -1,7 +1,7 @@
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
-/**
+/*
  * How far one arm's coordinates at a frame pass their hard ranges: each bounded
  * free coordinate's excess over its box and the shoulder chart's swing past its
  * disc, the largest, weighted by `HumanArmTrajectoryTerms.RANGE` into the
@@ -10,12 +10,11 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
  * and the projection holds at the knots (`HumanArmTrajectoryModel.ranged`),
  * read here on the course between knots, where the interpolant can pass a bound
  * the knots keep.
- *
- * @param c The context.
- * @param a The arm.
- * @param v Its coordinates at the frame.
- * @param swing The chart's disc radius (`HumanArmTrajectoryModel.swing`).
- * @returns The largest excess, in tolerance units.
+ * Parameter c: The context.
+ * Parameter a: The arm.
+ * Parameter v: Its coordinates at the frame.
+ * Parameter swing: The chart's disc radius (`HumanArmTrajectoryModel.swing`).
+ * Returns: The largest excess, in tolerance units.
  */
 export function HumanArmTrajectoryRangeExcess(
   c: Pick<M.IContext, "free" | "bounds">,

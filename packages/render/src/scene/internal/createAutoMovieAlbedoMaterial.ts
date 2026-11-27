@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-/**
+/*
  * The unlit base-colour material the `albedo` guide pass draws in place of one
  * beauty material.
  *
@@ -53,20 +53,24 @@ export function createAutoMovieAlbedoMaterial(
   });
 }
 
-/**
+/*
  * The base-colour fields a three.js surface material may carry; each is checked
  * at runtime before use.
  */
 interface IBaseColorSource extends THREE.Material {
-  /**
+  /*
    * The linear base-colour factor of a standard, physical, basic, Lambert or
    * Phong material.
    */
   color?: THREE.Color;
 
-  /** The sRGB base-colour texture multiplied by the factor. */
+  /*
+   * The sRGB base-colour texture multiplied by the factor.
+   */
   map?: THREE.Texture | null;
 
-  /** The texture whose green channel scales opacity. */
+  /*
+   * The texture whose green channel scales opacity.
+   */
   alphaMap?: THREE.Texture | null;
 }

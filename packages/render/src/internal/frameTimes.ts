@@ -1,6 +1,6 @@
 import { countEncodedFrames } from "../timing/internal/countEncodedFrames.js";
 
-/**
+/*
  * The capture instants, in seconds, of a clip of `durationSeconds` sampled at
  * `fps` frames per second.
  *

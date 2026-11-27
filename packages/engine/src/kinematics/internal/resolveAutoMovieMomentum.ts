@@ -17,12 +17,14 @@ import { physicalPrincipalAxes } from "../../physics/internal/physicalPrincipalA
 import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 
 
-/**
- * Companion types and readings of {@link resolveAutoMovieMomentum}: the
+/*
+ * Companion types and readings of resolveAutoMovieMomentum: the
  * composite tensor, its principal frame and the posed parts.
  */
 export namespace resolveAutoMovieMomentum {
-  /** Execute the operation without merging a callable with this namespace. */
+  /*
+   * Execute the operation without merging a callable with this namespace.
+   */
   export const run = resolveAutoMovieMomentumRun;
   /**
    * Linear/angular momentum at a measurement instant; the two-pose entry
@@ -75,7 +77,7 @@ export namespace resolveAutoMovieMomentum {
     centre: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * Pose each segment and reduce its transformed centre in one ordered pass
    * through the mass model. The returned parts and centre serve interval
    * momentum and composite inertia without a second centre transform. Missing
@@ -101,7 +103,7 @@ export namespace resolveAutoMovieMomentum {
     return { parts: posed, centre };
   }
 
-  /**
+  /*
    * Reduce the interval's momentum from two poses of the same model.
    *
    * Endpoint centres, per-part chords, shortest-arc angular differences,
@@ -136,7 +138,7 @@ export namespace resolveAutoMovieMomentum {
     return reduceBetween(model, before, after, seconds);
   }
 
-  /**
+  /*
    * Prepare exact per-segment quaternion differences for one physical plan.
    *
    * Unchanged endpoint principal frames share only their unscaled rotation
@@ -268,16 +270,15 @@ export namespace resolveAutoMovieMomentum {
     };
   }
 
-  /**
+  /*
    * The composite inertia tensor of a posed body about its whole-body centre of
    * mass, in the bones' frame: each segment's principal tensor turned by its
    * bone's rotation times its rest axes and shifted by the parallel-axis
    * theorem (`AutoMoviePhysicalInertiaTensor`).
-   *
-   * @param model The body's mass model.
-   * @param bones The posed bones.
-   * @returns The symmetric tensor, kg m짼.
-   * @throws {Error} When a segment's bone is not posed.
+   * Parameter model: The body's mass model.
+   * Parameter bones: The posed bones.
+   * Returns: The symmetric tensor, kg m짼.
+   * When a segment's bone is not posed.
    */
   export function inertia(
     model: IAutoMovieResolveCenterOfMass.IModel,
@@ -287,13 +288,12 @@ export namespace resolveAutoMovieMomentum {
     return AutoMoviePhysicalInertiaTensor.compute(posed.parts, posed.centre);
   }
 
-  /**
+  /*
    * A tensor's principal moments and axes, by the engine's Jacobi
    * diagonalization; the tensor is copied, not consumed.
-   *
-   * @param tensor A symmetric 3x3 tensor.
-   * @returns Its principal frame.
-   * @throws {Error} When every entry is zero.
+   * Parameter tensor: A symmetric 3x3 tensor.
+   * Returns: Its principal frame.
+   * When every entry is zero.
    */
   export function principal(
     tensor: readonly (readonly number[])[],
@@ -303,12 +303,11 @@ export namespace resolveAutoMovieMomentum {
     );
   }
 
-  /**
+  /*
    * A tensor applied to a vector, `T v`.
-   *
-   * @param tensor A 3x3 tensor.
-   * @param v The vector.
-   * @returns The product.
+   * Parameter tensor: A 3x3 tensor.
+   * Parameter v: The vector.
+   * Returns: The product.
    */
   export function apply(
     tensor: readonly (readonly number[])[],
@@ -320,15 +319,14 @@ export namespace resolveAutoMovieMomentum {
     return { x: row(tensor[0]!), y: row(tensor[1]!), z: row(tensor[2]!) };
   }
 
-  /**
+  /*
    * Every segment of a model as a rigid part posed by its bone: its centre
    * carried from the bone's frame and its principal axes turned by the bone's
    * rotation.
-   *
-   * @param model The body's mass model.
-   * @param bones The posed bones.
-   * @returns The parts, in the bones' frame, in the model's segment order.
-   * @throws {Error} When a segment's bone is not posed.
+   * Parameter model: The body's mass model.
+   * Parameter bones: The posed bones.
+   * Returns: The parts, in the bones' frame, in the model's segment order.
+   * When a segment's bone is not posed.
    */
   export function parts(
     model: IAutoMovieResolveCenterOfMass.IModel,
@@ -342,7 +340,7 @@ export namespace resolveAutoMovieMomentum {
   }
 }
 
-/**
+/*
  * Linear and angular momentum of a posed body from two of its poses `seconds`
  * apart, at the interval's middle, read from the mass model
  * `resolveAutoMovieCenterOfMass` builds once per body: every profile segment a
@@ -368,14 +366,13 @@ export namespace resolveAutoMovieMomentum {
  * and the complete relative momentum error depends on the mass distribution and
  * motion; this stencil does not certify a relative error budget for a chosen
  * interval.
- *
- * @param model The body's mass model.
- * @param before The posed bones at the interval's start.
- * @param after The posed bones at its end.
- * @param seconds The interval, seconds; positive.
- * @returns The momenta.
- * @throws {Error} When the interval is not positive or a segment's bone is not
- *   posed in both.
+ * Parameter model: The body's mass model.
+ * Parameter before: The posed bones at the interval's start.
+ * Parameter after: The posed bones at its end.
+ * Parameter seconds: The interval, seconds; positive.
+ * Returns: The momenta.
+ * When the interval is not positive or a segment's bone is not
+ * posed in both.
  */
 function resolveAutoMovieMomentumRun(
   model: IAutoMovieResolveCenterOfMass.IModel,
@@ -393,7 +390,7 @@ function resolveAutoMovieMomentumRun(
   );
 }
 
-/**
+/*
  * Pose one admitted model segment for both the parts-only and combined
  * reductions. Each centre is fresh; the unchanged model's inertia is shared as
  * before, and no bone map survives in the returned part.
@@ -413,7 +410,7 @@ function posePart(
   };
 }
 
-/**
+/*
  * One ordered momentum reduction serves raw and prepared interval readers. A
  * prepared rotation interval contains only immutable numeric quaternion
  * prerequisites; all current chords, rates, tensor products and sums remain.
@@ -504,24 +501,36 @@ function reduceBetween(
   };
 }
 
-/** Numeric prerequisites of one exact endpoint principal-frame pair. */
+/*
+ * Numeric prerequisites of one exact endpoint principal-frame pair.
+ */
 interface IRotationInterval {
-  /** False until both numeric prerequisites finish from this captured key. */
+  /*
+   * False until both numeric prerequisites finish from this captured key.
+   */
   ready: boolean;
 
-  /** Copied start principal-to-common quaternion. */
+  /*
+   * Copied start principal-to-common quaternion.
+   */
   from: IAutoMovieQuaternion;
 
-  /** Copied end principal-to-common quaternion. */
+  /*
+   * Copied end principal-to-common quaternion.
+   */
   to: IAutoMovieQuaternion;
 
-  /** Unscaled shortest-arc difference, radians, before interval division. */
+  /*
+   * Unscaled shortest-arc difference, radians, before interval division.
+   */
   turn: IAutoMovieVector3;
 
-  /** Half-way principal frame used for the intrinsic momentum tensor. */
+  /*
+   * Half-way principal frame used for the intrinsic momentum tensor.
+   */
   middle: IAutoMovieQuaternion;
 
-  /**
+  /*
    * Current interval-rate scratch, overwritten before use and never returned or
    * used as a cache key.
    */

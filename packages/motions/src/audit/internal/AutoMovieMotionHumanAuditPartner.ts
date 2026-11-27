@@ -10,7 +10,7 @@ import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 import { AutoMovieMotionHumanAuditTangleMargin as Margin } from "./AutoMovieMotionHumanAuditTangleMargin";
 
-/**
+/*
  * How deep two people's bodies pass into one another: the hand that sinks into
  * a partner's shoulder, the fist that ends inside a head, the two trunks of an
  * embrace run through each other.
@@ -24,7 +24,7 @@ import { AutoMovieMotionHumanAuditTangleMargin as Margin } from "./AutoMovieMoti
  * caller's limit to state.
  */
 export namespace AutoMovieMotionHumanAuditPartner {
-  /**
+  /*
    * Read how deep two people pass into each other over the whole motion.
    *
    * The result is the one reading both directions at every grid instant gives
@@ -33,13 +33,12 @@ export namespace AutoMovieMotionHumanAuditPartner {
    * readings: a directed pair read at an instant is read again only at the
    * first instant its margin does not certify
    * (`AutoMovieMotionHumanAuditTangleMargin`, `advanceAutoMovieGrid`).
-   *
-   * @param motion The motion.
-   * @param one One person.
-   * @param other The other person.
-   * @param rate Grid samples per second.
-   * @returns The deepest pair and every pair.
-   * @throws {Error} When the rate is not positive.
+   * Parameter motion: The motion.
+   * Parameter one: One person.
+   * Parameter other: The other person.
+   * Parameter rate: Grid samples per second.
+   * Returns: The deepest pair and every pair.
+   * When the rate is not positive.
    */
   export function measure(
     motion: IAutoMovieMotionHumanAuditMotion,
@@ -157,7 +156,7 @@ export namespace AutoMovieMotionHumanAuditPartner {
   }
 }
 
-/**
+/*
  * One person as the walk reads them: their model, their placed segments at
  * every grid instant and each segment's travel to it.
  */
@@ -168,7 +167,7 @@ interface IPerson {
   travelled: Float64Array[];
 }
 
-/**
+/*
  * One direction of the reading, the first person's probes in the second's
  * segments, with each directed pair's next due instant and its record (the
  * greatest depth it read, or the nanometre a first record must pass) by its

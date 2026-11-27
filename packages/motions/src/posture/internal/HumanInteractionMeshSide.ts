@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * The sides an interaction mesh records (`HumanInteractionMesh`): each
  * tetrahedron not flat on the key pose keeps its orientation, so no point
  * passes through the face across from it, which is how one body would pass into
@@ -14,27 +14,34 @@ import type {
  * before the first possible element collapse.
  */
 export namespace HumanInteractionMeshSide {
-  /** A tetrahedron that records a side. */
+  /*
+   * A tetrahedron that records a side.
+   */
   export interface ISide {
-    /** The corners, in the mesh's positive orientation. */
+    /*
+     * The corners, in the mesh's positive orientation.
+     */
     corners: readonly [number, number, number, number];
 
-    /** The largest double face area of the reference element, in square metres. */
+    /*
+     * The largest double face area of the reference element, in square metres.
+     */
     area: number;
 
-    /** The altitude below which the side's barrier acts, metres. */
+    /*
+     * The altitude below which the side's barrier acts, metres.
+     */
     activation: number;
   }
 
-  /**
+  /*
    * The sides of a mesh over its reference points: every tetrahedron whose
    * reference volume exceeds what the joggle alone could give it.
-   *
-   * @param mesh The mesh.
-   * @param reference The key pose's points, world metres.
-   * @param extent The points' extent, metres.
-   * @param accuracy The adaptation's geometric accuracy, metres.
-   * @returns The sides.
+   * Parameter mesh: The mesh.
+   * Parameter reference: The key pose's points, world metres.
+   * Parameter extent: The points' extent, metres.
+   * Parameter accuracy: The adaptation's geometric accuracy, metres.
+   * Returns: The sides.
    */
   export function record(
     mesh: IAutoMovieTetrahedralizedMesh,
@@ -80,12 +87,11 @@ export namespace HumanInteractionMeshSide {
       });
   }
 
-  /**
+  /*
    * A side's oriented determinant divided by the reference face area.
-   *
-   * @param x The points, x then y then z by point.
-   * @param side The side.
-   * @returns Metres; positive where the side is kept.
+   * Parameter x: The points, x then y then z by point.
+   * Parameter side: The side.
+   * Returns: Metres; positive where the side is kept.
    */
   export function value(x: Float64Array, side: ISide): number {
     const [a, b, c, d] = side.corners;
@@ -99,12 +105,11 @@ export namespace HumanInteractionMeshSide {
     );
   }
 
-  /**
+  /*
    * The gradient of a side's signed altitude for the barrier model.
-   *
-   * @param x The points, x then y then z by point.
-   * @param side The side.
-   * @returns Its twelve sparse Cartesian derivatives.
+   * Parameter x: The points, x then y then z by point.
+   * Parameter side: The side.
+   * Returns: Its twelve sparse Cartesian derivatives.
    */
   export function gradient(x: Float64Array, side: ISide): IGradient {
     const [a, b, c, d] = side.corners;
@@ -132,13 +137,12 @@ export namespace HumanInteractionMeshSide {
     };
   }
 
-  /**
+  /*
    * Largest admissible fraction of a Cartesian step.
-   *
-   * @param x The orientation-preserving iterate.
-   * @param step The proposed Cartesian displacement.
-   * @param sides The recorded elements.
-   * @returns One, or the first conservative compression event on the step.
+   * Parameter x: The orientation-preserving iterate.
+   * Parameter step: The proposed Cartesian displacement.
+   * Parameter sides: The recorded elements.
+   * Returns: One, or the first conservative compression event on the step.
    */
   export function limit(
     x: Float64Array,
@@ -186,22 +190,30 @@ export namespace HumanInteractionMeshSide {
     return fraction;
   }
 
-  /** The indexed gradient of one signed altitude. */
+  /*
+   * The indexed gradient of one signed altitude.
+   */
   interface IGradient {
-    /** The affine coordinate index of each entry. */
+    /*
+     * The affine coordinate index of each entry.
+     */
     index: number[];
 
-    /** The derivative of the altitude at each coordinate. */
+    /*
+     * The derivative of the altitude at each coordinate.
+     */
     coef: number[];
   }
 
-  /**
+  /*
    * Fraction of an element's current volume it may lose in one feasible step
    * (Li et al. 2020 technical supplement §4).
    */
   const COMPRESSION: number = 0.8;
 
-  /** The oriented determinant of three tetrahedron edge vectors. */
+  /*
+   * The oriented determinant of three tetrahedron edge vectors.
+   */
   function triple(
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
@@ -210,7 +222,9 @@ export namespace HumanInteractionMeshSide {
     return Vector3.dot(a, Vector3.cross(b, c));
   }
 
-  /** A point of the array. */
+  /*
+   * A point of the array.
+   */
   function at(x: Float64Array, i: number): IAutoMovieVector3 {
     return { x: x[3 * i]!, y: x[3 * i + 1]!, z: x[3 * i + 2]! };
   }

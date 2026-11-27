@@ -1,7 +1,7 @@
 import type { IDogBodyMeasures } from "../structures/IDogBodyMeasures";
 import type { DogCohort } from "../typings/DogCohort";
 
-/**
+/*
  * Table 1 cohort means, without the standard deviations being treated as
  * independent trait bands.
  */

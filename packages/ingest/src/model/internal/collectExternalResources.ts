@@ -3,7 +3,9 @@ import type { IAutoMovieExternalModelResource } from "@automovie/interface";
 import { compareCodeUnits } from "./compareCodeUnits";
 import { object } from "./object";
 
-/** Collect exact sidecar URI identities without decoding their payloads. */
+/*
+ * Collect exact sidecar URI identities without decoding their payloads.
+ */
 export function collectExternalResources(
   buffers: unknown[],
   images: unknown[],

@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 import type * as THREE from "three";
 
-/**
+/*
  * Ids that claim a drawable and resolved to no object, in the mask's own
  * ascending order. Ownership-only entries do not claim pixels; instance sets do
  * even when their node list is empty. The caller retains the roots and

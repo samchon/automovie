@@ -2,9 +2,11 @@ import type { solveXpbdArticulationContacts as Contacts } from "./solveXpbdArtic
 import type { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
 import { solveXpbdSupportLevels as Levels } from "./solveXpbdSupportLevels";
 
-/** The input and the warm store of solveXpbdSupportCascade. */
+/*
+ * The input and the warm store of solveXpbdSupportCascade.
+ */
 export namespace solveXpbdSupportCascade {
-  /**
+  /*
    * The strict cascade of hierarchical inverse dynamics (Herzog, Rotella, Mason,
    * Grimminger, Schaal and Righetti 2016, eq. 5) over one tree's support rows and
    * actuated axes, each level one quadratic program over the same feasible set:
@@ -44,11 +46,10 @@ export namespace solveXpbdSupportCascade {
    * same level ended with on the previous substep, as whole-body controllers
    * solve their per-cycle programs; the engine's interior-point solver is the
    * cold fallback when the active-set solve reports no solution.
-   *
-   * @param input The rows, the task, the actuators, the motion rows, the bounds
-   *   and the warm start.
-   * @returns The rows' and joint impulses, or null when even the relaxed holds
-   *   leave no feasible point.
+   * Parameter input: The rows, the task, the actuators, the motion rows, the bounds
+   * and the warm start.
+   * Returns: The rows' and joint impulses, or null when even the relaxed holds
+   * leave no feasible point.
    */
   export function run(
     input: Parameters<typeof solveXpbdSupportCascadeImplementation>[0],
@@ -166,7 +167,9 @@ function solveXpbdSupportCascadeImplementation(
   return cascade(input, false) ?? cascade(input, true);
 }
 
-/** The cascade with the holds strict, or relaxed behind a level of their own. */
+/*
+ * The cascade with the holds strict, or relaxed behind a level of their own.
+ */
 function cascade(
   input: solveXpbdSupportCascade.IInput,
   relaxed: boolean,

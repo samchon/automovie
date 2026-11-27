@@ -9,7 +9,7 @@ import { readAutoMovieReviewOptions } from "./readAutoMovieReviewOptions";
 import { recordAutoMoviePlayback } from "./recordAutoMoviePlayback";
 import { reviewAutoMovieFile } from "./reviewAutoMovieFile";
 
-/**
+/*
  * Run `automovie review` in a production, recording Inspector playback or
  * marking and reopening a file-bound observation.
  *

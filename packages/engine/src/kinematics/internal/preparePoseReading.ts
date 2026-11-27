@@ -8,7 +8,7 @@ import type {
 import { composePoseFrames } from "./composePoseFrames";
 import { preparePoseBoneDemand } from "./preparePoseBoneDemand";
 
-/**
+/*
  * One admitted pose as a value its producer can hand to every reader: each
  * rooted bone's articulation and the root it stands under, as they were when
  * the pose was admitted, with the frames composed from them on the first read.
@@ -18,15 +18,14 @@ import { preparePoseBoneDemand } from "./preparePoseBoneDemand";
  * composes the rig once, however many readers ask; a later edit of the pose's
  * records does not reach it, since it holds the admitted values and not the
  * records.
- *
- * @param tables The rig's rows.
- * @param indices The rig's name lookup.
- * @param admitted The admission's values: each rooted bone's selected
- *   articulation (the identity for a bone no record names) as the reading's own
- *   copy, and the root, private immutable values kept by reference.
- * @returns The reading: the demanded bones in parent-first order as a fresh
- *   map, all reachable bones when no names are given; bound indices replace the
- *   names.
+ * Parameter tables: The rig's rows.
+ * Parameter indices: The rig's name lookup.
+ * Parameter admitted: The admission's values: each rooted bone's selected
+ * articulation (the identity for a bone no record names) as the reading's own
+ * copy, and the root, private immutable values kept by reference.
+ * Returns: The reading: the demanded bones in parent-first order as a fresh
+ * map, all reachable bones when no names are given; bound indices replace the
+ * names.
  */
 export function preparePoseReading(
   tables: composePoseFrames.ITables,
@@ -74,24 +73,32 @@ export function preparePoseReading(
   return Object.assign(read, { frames, names: tables.names, indices });
 }
 
-/** The reading's type. */
+/*
+ * The reading's type.
+ */
 export namespace preparePoseReading {
-  /** What a reading takes of an operation's state after a complete admission. */
+  /*
+   * What a reading takes of an operation's state after a complete admission.
+   */
   export interface IAdmitted {
-    /**
+    /*
      * The selected articulation of each rooted bone, four numbers a row: the
      * reading's own copy.
      */
     readonly articulations: Float64Array;
 
-    /** The root's rotation, owned by the state and never mutated. */
+    /*
+     * The root's rotation, owned by the state and never mutated.
+     */
     readonly rootRotation: IAutoMovieQuaternion;
 
-    /** The root's translation, model metres, likewise. */
+    /*
+     * The root's translation, model metres, likewise.
+     */
     readonly rootTranslation: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * The bones of one admitted pose: the demanded ones as a fresh map in
    * parent-first order, all reachable bones when neither argument is given;
    * `demand`, the rig's own bound indices, replaces `requested`.
@@ -102,13 +109,19 @@ export namespace preparePoseReading {
       demand?: readonly number[],
     ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-    /** The reading's own frames, composed at the first read and never again. */
+    /*
+     * The reading's own frames, composed at the first read and never again.
+     */
     frames(): composePoseFrames.IFrames;
 
-    /** The rig's rooted bone names by row. */
+    /*
+     * The rig's rooted bone names by row.
+     */
     names: readonly AutoMovieHumanoidBone[];
 
-    /** The rig's rows by name. */
+    /*
+     * The rig's rows by name.
+     */
     indices: ReadonlyMap<AutoMovieHumanoidBone, number>;
   }
 }

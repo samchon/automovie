@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A probe's travel between two waypoints of an arm's trajectory, read against
  * the arm's own base: the shoulder's parent, which a carried body (a rider, a
  * passenger, a walker's trunk) moves with its carrier. A path's speed bound and
@@ -17,16 +17,15 @@ import type {
  * (`HumanArmTrajectoryPairs.relative`).
  */
 export namespace HumanArmTrajectoryTravel {
-  /**
+  /*
    * A probe's step from one waypoint to the next, against the arm's base: its
    * place in the later base frame less its place in the earlier one, turned
    * into the later waypoint's world orientation.
-   *
-   * @param from The earlier waypoint's frame.
-   * @param to The later waypoint's frame.
-   * @param p The probe's world point at the earlier waypoint.
-   * @param q The probe's world point at the later waypoint.
-   * @returns The step, world metres in the later base's orientation.
+   * Parameter from: The earlier waypoint's frame.
+   * Parameter to: The later waypoint's frame.
+   * Parameter p: The probe's world point at the earlier waypoint.
+   * Parameter q: The probe's world point at the later waypoint.
+   * Returns: The step, world metres in the later base's orientation.
    */
   export function step(
     from: IAutoMovieMotionHumanArmGeometry.IFrame,
@@ -48,15 +47,14 @@ export namespace HumanArmTrajectoryTravel {
     );
   }
 
-  /**
+  /*
    * The turn that carries a direction read in the later waypoint's base
    * orientation onto the earlier waypoint's, for the earlier point's share of a
    * step's gradient: the earlier base's rotation after the later one's
    * inverse.
-   *
-   * @param from The earlier waypoint's frame.
-   * @param to The later waypoint's frame.
-   * @returns The turn.
+   * Parameter from: The earlier waypoint's frame.
+   * Parameter to: The later waypoint's frame.
+   * Returns: The turn.
    */
   export function back(
     from: IAutoMovieMotionHumanArmGeometry.IFrame,

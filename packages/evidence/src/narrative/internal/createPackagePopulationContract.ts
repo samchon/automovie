@@ -11,7 +11,7 @@ import { BODY_ROOT } from "./utilities/BODY_ROOT";
 import { createEvidenceFiles } from "./utilities/createEvidenceFiles";
 import { createUnitFiles } from "./utilities/createUnitFiles";
 
-/**
+/*
  * Creates one population obligation claim per selected layer.
  *
  * The layer's own documents answer each duty once, at file level, through

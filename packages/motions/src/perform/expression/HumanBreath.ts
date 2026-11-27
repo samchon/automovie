@@ -9,7 +9,7 @@ import type {
 
 import { HumanBound } from "../../law/internal/HumanBound";
 
-/**
+/*
  * Breathing as an additive layer: the chest, the upper chest and the lumbar
  * spine extend and the shoulder girdles rise a little with each inhalation, on
  * every action, at a seeded resting rate that exertion raises and that recovers
@@ -62,19 +62,27 @@ import { HumanBound } from "../../law/internal/HumanBound";
  * its own film second, independent of the preceding action.
  */
 export namespace HumanBreath {
-  /** Resting band, breaths a minute (Cretikos et al. 2008). */
+  /*
+   * Resting band, breaths a minute (Cretikos et al. 2008).
+   */
   export const BAND: readonly [number, number] = [12, 20];
 
-  /** Share of a cycle spent inhaling (Tobin et al. 1983). */
+  /*
+   * Share of a cycle spent inhaling (Tobin et al. 1983).
+   */
   export const INSPIRATION: number = 0.42;
 
-  /** Mean interval between sighs, seconds (Ramirez 2014). */
+  /*
+   * Mean interval between sighs, seconds (Ramirez 2014).
+   */
   export const SIGH_INTERVAL: number = 300;
 
-  /** A sigh's amplitude in tidal breaths (provisional). */
+  /*
+   * A sigh's amplitude in tidal breaths (provisional).
+   */
   export const SIGH: number = 2.5;
 
-  /**
+  /*
    * Rate at full exertion, breaths a minute: the peak breathing frequency of
    * graded treadmill exercise to exhaustion, 44 +- 8 in men and 42 +- 8 in
    * women, their mean (Loe, Steinshamn and Wisloff 2014, PLoS ONE 9:e113884,
@@ -82,7 +90,7 @@ export namespace HumanBreath {
    */
   export const EXERTION_RATE: number = 43;
 
-  /**
+  /*
    * Amplitude at full exertion, tidal breaths: the same study's peak tidal
    * volume, 2.84 L in men and 1.94 L in women (Loe et al. 2014, Table 2), over
    * a resting tidal volume of about 0.5 L (West, Respiratory Physiology: The
@@ -90,7 +98,7 @@ export namespace HumanBreath {
    */
   export const EXERTION_AMPLITUDE: number = 5;
 
-  /**
+  /*
    * Seconds over which a bout with a start comes to its full drive: ventilation
    * follows exercise onset after a 15 to 20 s delay with a time constant of
    * about 40 to 60 s (Whipp and Ward 1990, Med Sci Sports Exerc 22:62), so the
@@ -98,14 +106,16 @@ export namespace HumanBreath {
    */
   export const ONSET: number = 60;
 
-  /**
+  /*
    * A bout's recovery seconds when it names none: the same span as the onset,
    * ventilation's off-kinetics mirroring its on-kinetics (Whipp and Ward
    * 1990).
    */
   export const RECOVERY: number = 60;
 
-  /** Clinical degrees at one tidal breath (provisional). */
+  /*
+   * Clinical degrees at one tidal breath (provisional).
+   */
   export const TIDAL: Readonly<
     Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
   > = {
@@ -116,12 +126,11 @@ export namespace HumanBreath {
     rightShoulder: [0, 1, 0],
   };
 
-  /**
+  /*
    * A performer's resting rate from a stream: N(15, 2) truncated to the adult
    * band by redrawing, up to 16 tries, then the band's middle.
-   *
-   * @param random The stream.
-   * @returns Breaths a minute.
+   * Parameter random: The stream.
+   * Returns: Breaths a minute.
    */
   export function restingRate(random: IAutoMovieRandom): number {
     for (let k: number = 0; k < 16; k++) {
@@ -134,18 +143,17 @@ export namespace HumanBreath {
     return (BAND[0] + BAND[1]) / 2;
   }
 
-  /**
+  /*
    * The breathing state at a film second.
-   *
-   * @param seconds Film seconds.
-   * @param rate Resting breaths a minute.
-   * @param exertion Bouts of exertion.
-   * @param phase0 Phase at film second 0, cycles.
-   * @param sigh The stream deciding which cycles are sighs.
-   * @returns The rate, the cycle phase and the lung volume in tidal breaths.
-   * @throws {HumanRefusal} When the rate is not positive, or a bout's level
-   *   lies outside [0, 1], its recovery is not positive or it ends before it
-   *   starts.
+   * Parameter seconds: Film seconds.
+   * Parameter rate: Resting breaths a minute.
+   * Parameter exertion: Bouts of exertion.
+   * Parameter phase0: Phase at film second 0, cycles.
+   * Parameter sigh: The stream deciding which cycles are sighs.
+   * Returns: The rate, the cycle phase and the lung volume in tidal breaths.
+   * When the rate is not positive, or a bout's level
+   * lies outside [0, 1], its recovery is not positive or it ends before it
+   * starts.
    */
   export function state(
     seconds: number,
@@ -196,11 +204,10 @@ export namespace HumanBreath {
     };
   }
 
-  /**
+  /*
    * The breathing layer.
-   *
-   * @param options The rate and exertion; both optional.
-   * @returns The layer, named `breath`.
+   * Parameter options: The rate and exertion; both optional.
+   * Returns: The layer, named `breath`.
    */
   export function layer(
     options: IAutoMovieMotionHumanBreath.IOptions = {},
@@ -234,24 +241,22 @@ export namespace HumanBreath {
     return layer;
   }
 
-  /**
+  /*
    * Whether the layer still uses the native respiratory contribution: it
    * declares the film clock (`IAutoMovieMotionHumanLayer.clock`) and adds no
    * weighted blend of its own.
-   *
-   * @param layer A layer from the performance.
-   * @returns Whether this is a native breath layer.
+   * Parameter layer: A layer from the performance.
+   * Returns: Whether this is a native breath layer.
    */
   export function isNative(layer: IAutoMovieMotionHumanLayer): boolean {
     return layer.clock === "film" && layer.blend === undefined;
   }
 
-  /**
+  /*
    * A posture with a lung volume's trunk angles added.
-   *
-   * @param posture The posture.
-   * @param volume Volume in tidal breaths above the end of exhalation.
-   * @returns The posture with breathing added; its limb goals unchanged.
+   * Parameter posture: The posture.
+   * Parameter volume: Volume in tidal breaths above the end of exhalation.
+   * Returns: The posture with breathing added; its limb goals unchanged.
    */
   export function add(
     posture: IAutoMovieMotionHumanPosture,
@@ -272,25 +277,33 @@ export namespace HumanBreath {
   }
 }
 
-/**
+/*
  * One admitted bout: the cube root of its level, its start (`-Infinity` when
  * under way since before the film), its end and its recovery, seconds.
  */
 interface IBout {
-  /** The cube root of the bout's level, so `weight × share` cubed is its drive. */
+  /*
+   * The cube root of the bout's level, so `weight × share` cubed is its drive.
+   */
   weight: number;
 
-  /** Film second the bout starts. */
+  /*
+   * Film second the bout starts.
+   */
   from: number;
 
-  /** Film second the bout ends. */
+  /*
+   * Film second the bout ends.
+   */
   at: number;
 
-  /** Seconds the drive takes to recover. */
+  /*
+   * Seconds the drive takes to recover.
+   */
   recovery: number;
 }
 
-/**
+/*
  * A bout's share of its full drive at a second, the cube root of its drive over
  * its level: rising over `ONSET` from its start, 1 until it ends, falling over
  * its recovery. Linear between its knots.
@@ -306,7 +319,7 @@ function share(bout: IBout, t: number): number {
   );
 }
 
-/**
+/*
  * The largest bout's `weight × share` at a second, the cube root of the hardest
  * bout's drive; 0 without bouts.
  */
@@ -316,7 +329,7 @@ function envelope(bouts: readonly IBout[], t: number): number {
   return most;
 }
 
-/**
+/*
  * The integral of the hardest bout's drive from `lo` to `hi`, seconds: the
  * envelope's cube integrated exactly. Between the bouts' knots (start, full
  * drive, end, recovered, and where a short bout's rise meets its fall) each
@@ -371,7 +384,9 @@ function integral(bouts: readonly IBout[], lo: number, hi: number): number {
   return total;
 }
 
-/** The tidal angle table's entries, listed once. */
+/*
+ * The tidal angle table's entries, listed once.
+ */
 const TIDAL_ENTRIES: readonly [
   AutoMovieHumanoidBone,
   readonly [number, number, number],

@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IApplyAutoMovieSectionPlanesProps } from "../IApplyAutoMovieSectionPlanesProps.js";
 
-/**
+/*
  * Put an inspection-owned section on an already-built scene and return the same
  * world-space planes assigned to its materials.
  *
@@ -13,7 +13,7 @@ import type { IApplyAutoMovieSectionPlanesProps } from "../IApplyAutoMovieSectio
  * slot receives the same plane array; prior arbitrary clipping policy is not
  * saved for restoration.
  *
- * {@link IAutoMovieSectionPlane.normal} points toward the removed half-space.
+ * IAutoMovieSectionPlane.normal points toward the removed half-space.
  * Negating and normalizing it through the same coplanar point expresses Three's
  * retained positive-side convention. Ideal zero signed distance remains on the
  * boundary; actual fragments depend on shader arithmetic and the material's

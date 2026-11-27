@@ -3,16 +3,15 @@ import { type AutoMovieArchetype } from "../../core/index";
 import { LongImplementDraw } from "./LongImplementDraw";
 import { Throwers } from "./Throwers";
 
-/**
+/*
  * Inert atlatl prop with its original display grip and end locator.
- *
- * @param params The optional scene ID and any fixed free dimension in metres or
- *   kilograms.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses
- *   the original defaults.
- * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
- *   outside its admitted recipe.
+ * Parameter params: The optional scene ID and any fixed free dimension in metres or
+ * kilograms.
+ * Parameter seed: The seed for the recorded recipe. Without a seed, the draw uses
+ * the original defaults.
+ * Returns: The model with its named contact frames in model space.
+ * When the model or a fixed parameter lies
+ * outside its admitted recipe.
  */
 export function createStageAtlatl(
   params: Pick<

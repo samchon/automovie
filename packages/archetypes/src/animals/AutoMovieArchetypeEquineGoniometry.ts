@@ -111,7 +111,7 @@ export namespace AutoMovieArchetypeEquineGoniometry {
       limits: null,
     };
 
-    /**
+    /*
      * A unit double-cross projection retains orientation without subtractive
      * axial cancellation.
      */

@@ -12,16 +12,15 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { crawlFrame } from "./crawlFrame";
 
-/**
+/*
  * Solve the crawl's trunk pitch with the hip joints at a fixed world point and
  * the shoulders at the body's required arm height above its palms.
- *
- * @param body The unchanged body of this plan.
- * @param hips The fixed hip midpoint, world metres.
- * @param shoulderY Required shoulder height, world metres.
- * @param template The law's actual fixed joint-only clinical shape, with no
- *   limb/digit/rotation goals; only its rigid pitch/root vary in this search.
- * @returns The original bisection's pitch and its measured shoulder/hip bones.
+ * Parameter body: The unchanged body of this plan.
+ * Parameter hips: The fixed hip midpoint, world metres.
+ * Parameter shoulderY: Required shoulder height, world metres.
+ * Parameter template: The law's actual fixed joint-only clinical shape, with no
+ * limb/digit/rotation goals; only its rigid pitch/root vary in this search.
+ * Returns: The original bisection's pitch and its measured shoulder/hip bones.
  */
 export function crawlPitch(
   body: IAutoMovieMotionHumanBody,
@@ -81,10 +80,14 @@ export function crawlPitch(
   return { pitch, bones: at(pitch) };
 }
 
-/** The record of `ICrawlPitchResult`'s site. */
+/*
+ * The record of `ICrawlPitchResult`'s site.
+ */
 type ICrawlPitchResult = { pitch: number; bones: ReturnType<typeof poseBones> };
 
-/** The residual's shoulders and the downstream nominal hip places. */
+/*
+ * The residual's shoulders and the downstream nominal hip places.
+ */
 const MEASURED: ReadonlySet<AutoMovieHumanoidBone> = new Set([
   "leftUpperArm",
   "rightUpperArm",

@@ -3,7 +3,7 @@ import type { IAutoMovieViewOutline } from "@automovie/interface";
 import { AutoMovieViewParameter } from "../../AutoMovieViewParameter";
 import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
 
-/**
+/*
  * Numerical squared-distance candidates on an original scalar graph in a fixed
  * orthonormal chart.
  *
@@ -15,9 +15,8 @@ import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
  * and open extensions fail. Source endpoints, included named knots and
  * derivative-root candidates are returned, not an exact maximum, certified
  * enclosure or guarantee of separating ill-conditioned roots.
- *
- * @returns Sorted unique endpoint/knot/numerical critical stations, or a
- *   premise/arithmetic failure string.
+ * Returns: Sorted unique endpoint/knot/numerical critical stations, or a
+ * premise/arithmetic failure string.
  */
 export function distanceAutoMovieViewOutline(
   outline: IAutoMovieViewOutline.IOutline,

@@ -9,7 +9,7 @@ import type {
 import { readInspectionNumber } from "./readInspectionNumber.js";
 import { readInspectionVector } from "./readInspectionVector.js";
 
-/**
+/*
  * Read an inspection request from named text values, the form both a page
  * address and a command line supply.
  *
@@ -73,31 +73,35 @@ export function parseAutoMovieInspectionRequest(
   };
 }
 
-/**
+/*
  * Stroke width in output pixels when none is asked: three, which stays visible
  * when a still is reduced into a contact-sheet cell.
  */
 const STROKE: number = 3;
 
-/**
+/*
  * Seconds a trail reaches before and after the drawn second when none is asked:
  * one, which shows where a movement comes from and goes within a typical
  * action.
  */
 const REACH: number = 1;
 
-/**
+/*
  * Trail samples per second when none is asked: five, the lower end of the five
  * to ten stills per second the capture skill reads a movement at.
  */
 const TICKS: number = 5;
 
-/** Whether a text names a shade, narrowing it to the shade it names. */
+/*
+ * Whether a text names a shade, narrowing it to the shade it names.
+ */
 const isShade: (text: string) => text is AutoMovieInspectionShade = (
   text: string,
 ): text is AutoMovieInspectionShade => SHADE_NAMES.has(text);
 
-/** Every shade, keyed so the compiler refuses a list that misses one. */
+/*
+ * Every shade, keyed so the compiler refuses a list that misses one.
+ */
 const SHADES: Record<AutoMovieInspectionShade, true> = {
   beauty: true,
   depth: true,
@@ -111,10 +115,14 @@ const SHADES: Record<AutoMovieInspectionShade, true> = {
   faces: true,
 };
 
-/** The shade names, for membership checks. */
+/*
+ * The shade names, for membership checks.
+ */
 const SHADE_NAMES: ReadonlySet<string> = new Set(Object.keys(SHADES));
 
-/** The non-empty items of a comma-separated text. */
+/*
+ * The non-empty items of a comma-separated text.
+ */
 function list(text: string | null | undefined): string[] {
   return (text ?? "")
     .split(",")
@@ -122,7 +130,9 @@ function list(text: string | null | undefined): string[] {
     .filter((item: string): boolean => item !== "");
 }
 
-/** The `pattern=rrggbb` pairs of a comma-separated text. */
+/*
+ * The `pattern=rrggbb` pairs of a comma-separated text.
+ */
 function colors(
   text: string | null | undefined,
 ): IAutoMovieInspectionColorAssignment[] {
@@ -134,7 +144,9 @@ function colors(
   });
 }
 
-/** A switch: on for the empty string, `1` or `true`, off for `0` or `false`. */
+/*
+ * A switch: on for the empty string, `1` or `true`, off for `0` or `false`.
+ */
 function flag(
   key: string,
   text: string | null | undefined,
@@ -146,7 +158,9 @@ function flag(
   throw new Error(`Inspection ${key} "${text}" is not 1, true, 0 or false`);
 }
 
-/** A positive finite number, or null when the key is absent. */
+/*
+ * A positive finite number, or null when the key is absent.
+ */
 function positive(key: string, text: string | null | undefined): number | null {
   if (text === null || text === undefined) return null;
   const value: number | null = readInspectionNumber(text);
@@ -155,7 +169,9 @@ function positive(key: string, text: string | null | undefined): number | null {
   return value;
 }
 
-/** The cut a text spells, in either of its two forms. */
+/*
+ * The cut a text spells, in either of its two forms.
+ */
 function section(
   text: string | null | undefined,
 ): IAutoMovieSectionPlane | null {

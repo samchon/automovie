@@ -6,7 +6,7 @@ import {
 import { seededValue } from "../../math/internal/seededValue";
 import { instancePrototypeChoices } from "./instancePrototypeChoices";
 
-/**
+/*
  * The prototype one instance slot draws, or the explicit one it names.
  *
  * A set with a prototype table draws from it, and a compiled table already

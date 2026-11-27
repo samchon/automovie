@@ -13,7 +13,7 @@ import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import type { HumanRideHands } from "./HumanRideHands";
 
-/**
+/*
  * A mounted rider's aids (`IAutoMovieMotionHumanMounted.IAid`): each aid rises
  * over `RISE` seconds from its onset, `latency` before the transition it cues,
  * holds until the transition, and is released over `RELEASE` seconds after it,
@@ -24,73 +24,92 @@ import type { HumanRideHands } from "./HumanRideHands";
  * provisional.
  */
 export namespace HumanMountedAids {
-  /** Seconds an aid takes to rise from its onset (provisional). */
+  /*
+   * Seconds an aid takes to rise from its onset (provisional).
+   */
   export const RISE: number = 0.2;
 
-  /** Seconds an aid takes to be released after the transition (provisional). */
+  /*
+   * Seconds an aid takes to be released after the transition (provisional).
+   */
   export const RELEASE: number = 0.3;
 
-  /** How far a taken-up rein is drawn back, forearm lengths (provisional). */
+  /*
+   * How far a taken-up rein is drawn back, forearm lengths (provisional).
+   */
   export const TAKE_UP: number = 0.3;
 
-  /**
+  /*
    * How far an opening or neck rein carries the hand across, forearm lengths
    * (provisional).
    */
   export const ACROSS: number = 0.25;
 
-  /** How far a shaken line is lifted and dropped, forearm lengths (provisional). */
+  /*
+   * How far a shaken line is lifted and dropped, forearm lengths (provisional).
+   */
   export const SHAKE: number = 0.15;
 
-  /**
+  /*
    * How many waves a shake sends down the lines over its rise and hold
    * (provisional).
    */
   export const WAVES: number = 2;
 
-  /**
+  /*
    * How far a whip touch flicks the whip hand forward and up, forearm lengths
    * (provisional).
    */
   export const FLICK: number = 0.4;
 
-  /**
+  /*
    * How far the heel turns about the ball in a leg aid, degrees (provisional,
    * inside the ankle's range).
    */
   export const HEEL: number = 20;
 
-  /** How far the pelvis tips back in a seat aid, degrees (provisional). */
+  /*
+   * How far the pelvis tips back in a seat aid, degrees (provisional).
+   */
   export const SEAT: number = 5;
 
-  /** One aid given at one transition. */
+  /*
+   * One aid given at one transition.
+   */
   export interface IGiven {
-    /** The aid. */
+    /*
+     * The aid.
+     */
     kind: IAutoMovieMotionHumanMounted.Aid;
 
-    /** The hand or leg; both when absent. */
+    /*
+     * The hand or leg; both when absent.
+     */
     side?: AutoMovieHumanSide;
 
-    /** When it begins, local seconds. */
+    /*
+     * When it begins, local seconds.
+     */
     onset: number;
 
-    /** The transition it cues, local seconds. */
+    /*
+     * The transition it cues, local seconds.
+     */
     at: number;
   }
 
-  /**
+  /*
    * Every aid given over the performance, and the refusal of a required
    * transition no aid cues.
-   *
-   * @param cue The performance's cue reader.
-   * @param start The performance's start, film seconds.
-   * @param duration The performance's duration, seconds.
-   * @param aids The authored aids.
-   * @param aided The cue track of transitions that each need an aid; none when
-   *   absent.
-   * @returns The aids given, in time order.
-   * @throws {HumanRefusal} For a latency of no time, an aid whose onset falls
-   *   before the performance, or a required transition with no aid.
+   * Parameter cue: The performance's cue reader.
+   * Parameter start: The performance's start, film seconds.
+   * Parameter duration: The performance's duration, seconds.
+   * Parameter aids: The authored aids.
+   * Parameter aided: The cue track of transitions that each need an aid; none when
+   * absent.
+   * Returns: The aids given, in time order.
+   * For a latency of no time, an aid whose onset falls
+   * before the performance, or a required transition with no aid.
    */
   export function given(
     cue: IAutoMovieMotionHumanActionContext["cue"],
@@ -139,13 +158,12 @@ export namespace HumanMountedAids {
     return out.sort((a: IGiven, b: IGiven): number => a.onset - b.onset);
   }
 
-  /**
+  /*
    * How far an aid is given at a second: rising over `RISE` from its onset,
    * full until its transition, released over `RELEASE`.
-   *
-   * @param aid The aid.
-   * @param at Local seconds.
-   * @returns The weight, 0 to 1.
+   * Parameter aid: The aid.
+   * Parameter at: Local seconds.
+   * Returns: The weight, 0 to 1.
    */
   export function weight(aid: IGiven, at: number): number {
     if (at <= aid.onset || at >= aid.at + RELEASE) return 0;
@@ -154,16 +172,15 @@ export namespace HumanMountedAids {
     return AutoMovieEngineMotionSampling.minimumJerkShare(1 - (at - aid.at) / RELEASE);
   }
 
-  /**
+  /*
    * A held rein moved by the hand aids of its side at a second: drawn back
    * along the rein, carried out from the neck or across it.
-   *
-   * @param aids The aids given.
-   * @param side The hand.
-   * @param at Local seconds.
-   * @param grip The rein where the carrier has it.
-   * @param forearm The forearm's length, metres.
-   * @returns The moved grip.
+   * Parameter aids: The aids given.
+   * Parameter side: The hand.
+   * Parameter at: Local seconds.
+   * Parameter grip: The rein where the carrier has it.
+   * Parameter forearm: The forearm's length, metres.
+   * Returns: The moved grip.
    */
   export function rein(
     aids: readonly IGiven[],
@@ -221,15 +238,14 @@ export namespace HumanMountedAids {
     return point === grip.point ? grip : { ...grip, point };
   }
 
-  /**
+  /*
    * A posture moved by the leg and seat aids at a second: each leg aid turns
    * its foot about the ball on the stirrup, the heel drawn in (squeeze) or up
    * and back (kick); a seat aid tips the pelvis back.
-   *
-   * @param aids The aids given.
-   * @param at Local seconds.
-   * @param posture The posture, in the carrier frame.
-   * @returns The posture with its legs and pelvis moved.
+   * Parameter aids: The aids given.
+   * Parameter at: Local seconds.
+   * Parameter posture: The posture, in the carrier frame.
+   * Returns: The posture with its legs and pelvis moved.
    */
   export function body(
     aids: readonly IGiven[],

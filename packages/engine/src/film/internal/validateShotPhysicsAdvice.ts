@@ -5,7 +5,7 @@ import type {
 
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 
-/**
+/*
  * Check a shot runtime's D010 physics advice before `compileDefinedShot` stages
  * anything, returning every `contract-mismatch` diagnostic at once.
  *
@@ -68,7 +68,9 @@ export function validateShotPhysicsAdvice(
   return diagnostics;
 }
 
-/** Deep-copy response data with object keys in code-unit order. */
+/*
+ * Deep-copy response data with object keys in code-unit order.
+ */
 function canonicalAdviceValue(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(canonicalAdviceValue);
   if (typeof value !== "object" || value === null) return value;

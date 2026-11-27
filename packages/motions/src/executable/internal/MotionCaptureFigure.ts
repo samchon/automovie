@@ -6,7 +6,7 @@ import type {
 import { AutoMovieHumanPolygon } from "@automovie/render";
 import * as THREE from "three";
 
-/**
+/*
  * The polygon man of one canonical Human body, drawn by the renderer's polygon
  * builder and posed from canonical poses.
  *
@@ -18,18 +18,19 @@ import * as THREE from "three";
  * their orientation. The drawing is the bare polygon body.
  */
 export class MotionCaptureFigure {
-  /** The figure root, in the canonical world. */
+  /*
+   * The figure root, in the canonical world.
+   */
   public readonly object: THREE.Group;
 
   private readonly drawing: AutoMovieHumanPolygon.IDrawing;
 
   private readonly body: IAutoMovieHumanCanonicalBody.IBody;
 
-  /**
+  /*
    * Build the drawing of a body.
-   *
-   * @param body The canonical body.
-   * @param color Optional colour of every part.
+   * Parameter body: The canonical body.
+   * Parameter color: Optional colour of every part.
    */
   public constructor(body: IAutoMovieHumanCanonicalBody.IBody, color?: number) {
     this.body = body;
@@ -54,11 +55,10 @@ export class MotionCaptureFigure {
     this.object.add(this.drawing.object);
   }
 
-  /**
+  /*
    * Pose the drawing.
-   *
-   * @param pose A canonical pose of the body.
-   * @returns Every Human joint's canonical placement.
+   * Parameter pose: A canonical pose of the body.
+   * Returns: Every Human joint's canonical placement.
    */
   public place(
     pose: IAutoMoviePose,
@@ -70,11 +70,15 @@ export class MotionCaptureFigure {
     return AutoMovieHumanCanonicalBody.place(this.body, pose);
   }
 
-  /** Release the drawing. */
+  /*
+   * Release the drawing.
+   */
   public dispose(): void {
     this.drawing.dispose();
   }
 }
 
-/** The record of `IMotionCaptureFigureB`'s site. */
+/*
+ * The record of `IMotionCaptureFigureB`'s site.
+ */
 type IMotionCaptureFigureB = { bone: string };

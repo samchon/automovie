@@ -17,20 +17,19 @@ import { applyHumanLimbFit } from "./applyHumanLimbFit";
 import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
-/**
+/*
  * Prepare only a fixed leg source pose and exact FK workspace while each
  * target/bend/rotation/near request still invokes the limb fit, solved
  * directly. The body, pelvis rotation and hip point remain unchanged for this
  * synchronous piece; no fitted result or target is stored here.
- *
- * @param body The unchanged canonical body.
- * @param side The fixed leg.
- * @param pelvis Fixed model-frame pelvis rotation.
- * @param hip Fixed model-metre hip point.
- * @param readSwivel The existing leg reader applied to each actual fitted
- *   four-frame map.
- * @returns A reader of actual model-metre target/bend, model rotation and
- *   optional unchanged-law near seed.
+ * Parameter body: The unchanged canonical body.
+ * Parameter side: The fixed leg.
+ * Parameter pelvis: Fixed model-frame pelvis rotation.
+ * Parameter hip: Fixed model-metre hip point.
+ * Parameter readSwivel: The existing leg reader applied to each actual fitted
+ * four-frame map.
+ * Returns: A reader of actual model-metre target/bend, model rotation and
+ * optional unchanged-law near seed.
  */
 export function prepareHumanLegSeededFit(
   body: IAutoMovieMotionHumanBody,

@@ -13,7 +13,7 @@ import {
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 
-/**
+/*
  * Validate the wet and waterproofed regions a network declares.
  *
  * This is the half of building services a frame is worst at showing. A tiled
@@ -249,7 +249,7 @@ export function validateWetZones(
   return out.toValidation();
 }
 
-/**
+/*
  * How much water each grade expects, as the order a handover is measured in.
  *
  * The numbers are ordinal only: they say a shower is wetter than a lobby, which
@@ -262,13 +262,19 @@ const GRADE_ORDER: Map<string, number> = new Map<string, number>([
   ["immersed", 3],
 ]);
 
-/** Grades whose full waterproofing obligations apply. */
+/*
+ * Grades whose full waterproofing obligations apply.
+ */
 const TANKED: readonly AutoMovieWetGrade[] = ["wet", "immersed"];
 
-/** Media a floor drain is allowed to discharge into. */
+/*
+ * Media a floor drain is allowed to discharge into.
+ */
 const WASTE_MEDIUM: string = "waste-water";
 
-/** The outgoing waste-water ports a node carries, in declaration order. */
+/*
+ * The outgoing waste-water ports a node carries, in declaration order.
+ */
 const wastePortsOf: (
   node: IAutoMovieServiceNode,
   systems: ReadonlyMap<string, IAutoMovieServiceSystem>,
@@ -288,7 +294,9 @@ const wastePortsOf: (
     );
   });
 
-/** Resolve cited boundary ids, reporting unknown, duplicated and foreign ones. */
+/*
+ * Resolve cited boundary ids, reporting unknown, duplicated and foreign ones.
+ */
 const citedBoundaries: (props: {
   cited: readonly string[];
   zoneSpace: string;

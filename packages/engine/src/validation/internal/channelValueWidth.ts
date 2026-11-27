@@ -3,7 +3,9 @@ import type {
   IAutoMovieNodeChannel,
 } from "@automovie/interface";
 
-/** Read a channel's fixed component width, leaving weights undefined. */
+/*
+ * Read a channel's fixed component width, leaving weights undefined.
+ */
 export function channelValueWidth(
   channel: IAutoMovieChannel,
 ): number | undefined {
@@ -14,7 +16,7 @@ export function channelValueWidth(
 
 type IAutoMoviePointerChannel = Extract<IAutoMovieChannel, { kind: "pointer" }>;
 
-/**
+/*
  * Per-keyframe value width of the channels that fix one. `weights` is absent
  * from both tables on purpose: a morph-target vector is as wide as the model
  * has targets, so no width can be asserted for it.

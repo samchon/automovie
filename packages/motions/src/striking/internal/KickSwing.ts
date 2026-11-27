@@ -25,12 +25,12 @@ import { KickSwingTurned } from "./KickSwingTurned";
 import { KickThrust } from "./KickThrust";
 import { StrikingStroke } from "./StrikingStroke";
 
-/**
+/*
  * The kicking leg's path: from its plant up to the chamber, out to the contact,
  * back to the chamber and down to the replant.
  *
  * The chamber is the fitted contact leg with only the knee folded
- * ({@link KickChamber}), so between the two the hip joint does not move and the
+ * (KickChamber), so between the two the hip joint does not move and the
  * ankle travels on the knee's own hinge arc about the fitted knee. The arc, the
  * knee and the foot's rotation are held in the pelvis's frame at the contact
  * and carried by whatever body the leg hangs from, so every goal on the way is
@@ -39,7 +39,7 @@ import { StrikingStroke } from "./StrikingStroke";
  * world-straight path between the same two ankles is not: it leaves the leg's
  * reach as soon as the hip moves.
  *
- * A push kick goes on a thrust instead ({@link KickThrust}): its chamber lifts
+ * A push kick goes on a thrust instead (KickThrust): its chamber lifts
  * the knee to the target's height with the foot folded under it, and the ankle
  * travels straight from there to the fitted contact on the same unit, in the
  * same pelvis frame, while the carriage drives the pelvis along the line behind
@@ -50,7 +50,7 @@ import { StrikingStroke } from "./StrikingStroke";
  * The knee opens on one minimum-jerk unit that begins before the chamber key is
  * reached, so the ankle rounds the chamber instead of resting on it (Flash and
  * Hogan 1985), and that is aimed past the contact, so the shin arrives with its
- * share of the unit's peak speed ({@link StrikingStroke.impactShare}) and would
+ * share of the unit's peak speed (StrikingStroke.impactShare) and would
  * travel on through the target. The knee never opens past the technique's least
  * flexion: when the aim past the contact would, the unit ends nearer the
  * contact and the shin arrives slower. From the contact the knee folds back
@@ -68,7 +68,7 @@ import { StrikingStroke } from "./StrikingStroke";
  * through whatever stands in front of the shin: measured on the staged push
  * kick, the foot's capsule met the partner's lead leg at 0.970 s, during the
  * lift. On the floor the plant's foot rocks onto its forefoot as the weight
- * leaves it ({@link KickRocker}), and in from the air to the replant. Off the
+ * leaves it (KickRocker), and in from the air to the replant. Off the
  * floor the plant's foot rides the shank (turned by what turns the planted
  * shank onto the lifted one) while it blends to the chambered foot, so the
  * ankle keeps the plant's bend instead of dorsiflexing past what a foot bearing
@@ -76,31 +76,43 @@ import { StrikingStroke } from "./StrikingStroke";
  * world.
  */
 export namespace KickSwing {
-  /**
+  /*
    * The last share of the lowering in which the foot comes straight down onto
    * its replant from a walking foot's clearance (provisional: the terminal
    * swing's descent, Winter 1992).
    */
   export const SET_DOWN: number = 1 / 3;
 
-  /** What a kicking leg's path is built from. */
+  /*
+   * What a kicking leg's path is built from.
+   */
   export interface IProps {
-    /** The kicking body. */
+    /*
+     * The kicking body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The kicking side. */
+    /*
+     * The kicking side.
+     */
     side: AutoMovieHumanSide;
 
-    /** The kick's timing. */
+    /*
+     * The kick's timing.
+     */
     timing: IAutoMovieMotionHumanKickGeometry.ITiming;
 
-    /** The body's posture at the contact, under which the leg was fitted. */
+    /*
+     * The body's posture at the contact, under which the leg was fitted.
+     */
     base: IAutoMovieMotionHumanPosture;
 
-    /** The chambered leg under that posture. */
+    /*
+     * The chambered leg under that posture.
+     */
     key: KickChamber.IKey;
 
-    /**
+    /*
      * How the leg goes from its chamber to its contact: on the knee's `hinge`
      * under a still thigh (the round kick's snap), or on a `thrust`, the ankle
      * straight from a chamber with the knee lifted to the target's height (the
@@ -108,37 +120,40 @@ export namespace KickSwing {
      */
     path: PropsPath;
 
-    /**
+    /*
      * The fitted contact leg under that posture; the chamber itself for a
      * hinge's feint.
      */
     contact: KickChamber.IKey;
 
-    /**
+    /*
      * The knee's flexion at the chamber and at the contact, and the least it
      * may open to, degrees.
      */
     flexion: IPropsFlexion;
 
-    /** The share of the opening's peak speed left at the contact, in (0, 1]. */
+    /*
+     * The share of the opening's peak speed left at the contact, in (0, 1].
+     */
     speed: number;
 
-    /**
+    /*
      * The kicking leg on the floor at the launch: its knee, its ankle and its
      * foot's rotation.
      */
     plant: KickChamber.IKey;
 
-    /** The replant's displacement from the launch plant, world metres. */
+    /*
+     * The replant's displacement from the launch plant, world metres.
+     */
     step: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * Build a kicking leg's path.
-   *
-   * @param props The fitted contact, its chamber, the plant and the timing.
-   * @returns The leg's goal as a pure function of its clock, the body it hangs
-   *   from and the launch plant's shift.
+   * Parameter props: The fitted contact, its chamber, the plant and the timing.
+   * Returns: The leg's goal as a pure function of its clock, the body it hangs
+   * from and the launch plant's shift.
    */
   export function create(
     props: IProps,
@@ -367,26 +382,24 @@ export namespace KickSwing {
     };
   }
 
-  /**
+  /*
    * The share of a span elapsed, within 0 to 1, over at least a millisecond.
-   *
-   * @param elapsed The seconds elapsed.
-   * @param span The span's seconds.
-   * @returns 0 to 1.
+   * Parameter elapsed: The seconds elapsed.
+   * Parameter span: The span's seconds.
+   * Returns: 0 to 1.
    */
   export function shared(elapsed: number, span: number): number {
     return Math.min(1, Math.max(0, elapsed / Math.max(1e-3, span)));
   }
 
-  /**
+  /*
    * A leg between two keys: the thigh swung on the hip's minimum-jerk share,
    * the shank folded ahead of it by `KickForm.KNEE_LEAD` in the thigh's own
    * frame.
-   *
-   * @param from The leg it leaves.
-   * @param to The leg it reaches.
-   * @param share The swing's share, 0 to 1.
-   * @returns The leg.
+   * Parameter from: The leg it leaves.
+   * Parameter to: The leg it reaches.
+   * Parameter share: The swing's share, 0 to 1.
+   * Returns: The leg.
    */
   export function between(
     from: KickThrust.ILeg,
@@ -416,22 +429,27 @@ export namespace KickSwing {
     };
   }
 
-  /** A rotation as an axis and an angle. */
+  /*
+   * A rotation as an axis and an angle.
+   */
   export interface IHinge {
-    /** The unit axis, in the contact pelvis's frame. */
+    /*
+     * The unit axis, in the contact pelvis's frame.
+     */
     axis: IAutoMovieVector3;
 
-    /** The turn about it, degrees, in [0, 180]. */
+    /*
+     * The turn about it, degrees, in [0, 180].
+     */
     degrees: number;
   }
 
-  /**
+  /*
    * A rotation's hinge: its unit axis, read in a local frame, and its angle in
    * [0, 180], the short way round; none for no rotation.
-   *
-   * @param rotation The rotation.
-   * @param local Reads a world direction in the local frame.
-   * @returns The hinge.
+   * Parameter rotation: The rotation.
+   * Parameter local: Reads a world direction in the local frame.
+   * Returns: The hinge.
    */
   export function turn(
     rotation: IAutoMovieQuaternion,
@@ -447,20 +465,23 @@ export namespace KickSwing {
     };
   }
 
-  /**
+  /*
    * The share of a minimum-jerk unit's time at which it has covered a share of
    * its travel.
-   *
-   * @param travel The travel's share.
-   * @returns The time's share.
+   * Parameter travel: The travel's share.
+   * Returns: The time's share.
    */
   export function unit(travel: number): number {
     return AutoMovieEngineMotionSampling.minimumJerkTime(travel);
   }
 }
 
-/** The record of `IPropsFlexion`'s site. */
+/*
+ * The record of `IPropsFlexion`'s site.
+ */
 type IPropsFlexion = { chamber: number; contact: number; least: number };
 
-/** The alternatives of `PropsPath`'s site. */
+/*
+ * The alternatives of `PropsPath`'s site.
+ */
 type PropsPath = "hinge" | "thrust";

@@ -1,4 +1,4 @@
-/**
+/*
  * Seidel's linear programs in one and two variables as TOPP-RA's default solver
  * solves them, ported from github.com/hungpham2511/toppra
  * cpp/src/toppra/solver/seidel-internal.hpp (`solve_lp1d`) and
@@ -13,45 +13,66 @@
  * rows `[a, b]` are `a x + b <= 0`.
  */
 export namespace HumanSeidelProgram {
-  /** A two-variable constraint row, `a x0 + b x1 + c <= 0`. */
+  /*
+   * A two-variable constraint row, `a x0 + b x1 + c <= 0`.
+   */
   export type Row = [number, number, number];
 
-  /** A one-variable constraint row, `a x + b <= 0`. */
+  /*
+   * A one-variable constraint row, `a x + b <= 0`.
+   */
   export type Line = [number, number];
 
-  /** A pair of values, one per variable. */
+  /*
+   * A pair of values, one per variable.
+   */
   export type Pair = [number, number];
 
-  /** A one-variable solution (`LpSol1d`). */
+  /*
+   * A one-variable solution (`LpSol1d`).
+   */
   export interface ISolution1 {
-    /** Whether the program is feasible. */
+    /*
+     * Whether the program is feasible.
+     */
     feasible: boolean;
 
-    /** The optimal variable, meaningful when feasible. */
+    /*
+     * The optimal variable, meaningful when feasible.
+     */
     optvar: number;
   }
 
-  /** A two-variable solution (`LpSol`). */
+  /*
+   * A two-variable solution (`LpSol`).
+   */
   export interface ISolution2 {
-    /** Whether the program is feasible. */
+    /*
+     * Whether the program is feasible.
+     */
     feasible: boolean;
 
-    /** The optimal variables, meaningful when feasible. */
+    /*
+     * The optimal variables, meaningful when feasible.
+     */
     optvar: Pair;
   }
 
-  /** The relative violation the solver tolerates (`REL_TOLERANCE`). */
+  /*
+   * The relative violation the solver tolerates (`REL_TOLERANCE`).
+   */
   export const REL_TOLERANCE: number = 1e-10;
 
-  /** The absolute violation the solver tolerates (`ABS_TOLERANCE`). */
+  /*
+   * The absolute violation the solver tolerates (`ABS_TOLERANCE`).
+   */
   export const ABS_TOLERANCE: number = 1e-13;
 
-  /**
+  /*
    * `max v[0] x + v[1]` subject to `A [x 1] <= 0` (`solve_lp1d`).
-   *
-   * @param v The objective.
-   * @param A The rows.
-   * @returns The solution.
+   * Parameter v: The objective.
+   * Parameter A: The rows.
+   * Returns: The solution.
    */
   export function solve1(v: Readonly<Line>, A: readonly Line[]): ISolution1 {
     let curMin: number = -Infinity;
@@ -91,15 +112,14 @@ export namespace HumanSeidelProgram {
     return { feasible: true, optvar: maximize ? curMax : curMin };
   }
 
-  /**
+  /*
    * `max v' x` subject to `A [x' 1]' <= 0` and `low <= x <= high`
    * (`solve_lp2d`).
-   *
-   * @param v The objective.
-   * @param A The rows.
-   * @param low The variables' lower bounds.
-   * @param high The variables' upper bounds.
-   * @returns The solution.
+   * Parameter v: The objective.
+   * Parameter A: The rows.
+   * Parameter low: The variables' lower bounds.
+   * Parameter high: The variables' upper bounds.
+   * Returns: The solution.
    */
   export function solve2(
     v: Readonly<Pair>,
@@ -169,17 +189,16 @@ export namespace HumanSeidelProgram {
     return { feasible: true, optvar: current };
   }
 
-  /**
+  /*
    * Presolve rows from `first` on, in place (`presolve`): each row is
    * normalised; a row on one variable is folded into that variable's bound; of
    * rows with the same direction only the tightest is kept. A removed row
    * becomes `[0, 0, -1]`.
-   *
-   * @param A The rows, changed in place.
-   * @param low The lower bounds, changed in place.
-   * @param high The upper bounds, changed in place.
-   * @param first The first row presolved.
-   * @returns False where a row on no variable cannot be met.
+   * Parameter A: The rows, changed in place.
+   * Parameter low: The lower bounds, changed in place.
+   * Parameter high: The upper bounds, changed in place.
+   * Parameter first: The first row presolved.
+   * Returns: False where a row on no variable cannot be met.
    */
   export function presolve(
     A: Row[],
@@ -225,13 +244,12 @@ export namespace HumanSeidelProgram {
     return feasible;
   }
 
-  /**
+  /*
    * A row's value at a point, `c + a x0 + b x1`, a zero coefficient of an
    * infinite variable counted as zero (`value`).
-   *
-   * @param row The row.
-   * @param x The point.
-   * @returns The value.
+   * Parameter row: The row.
+   * Parameter x: The point.
+   * Returns: The value.
    */
   export function value(row: Readonly<Row>, x: Readonly<Pair>): number {
     let result: number = row[2];
@@ -241,19 +259,23 @@ export namespace HumanSeidelProgram {
   }
 }
 
-/** The infeasible one-variable solution. */
+/*
+ * The infeasible one-variable solution.
+ */
 const INFEASIBLE_1D: HumanSeidelProgram.ISolution1 = {
   feasible: false,
   optvar: NaN,
 };
 
-/** The infeasible two-variable solution. */
+/*
+ * The infeasible two-variable solution.
+ */
 const INFEASIBLE_2D: HumanSeidelProgram.ISolution2 = {
   feasible: false,
   optvar: [NaN, NaN],
 };
 
-/**
+/*
  * A row projected onto the line `zero + t tangent`
  * (`internal::project_linear_constraint`).
  */

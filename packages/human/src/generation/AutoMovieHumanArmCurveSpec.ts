@@ -223,7 +223,9 @@ export namespace AutoMovieHumanArmCurveSpec {
     ) as AutoMovieVector3Tuple;
   }
 
-  /** Binomial coefficients C(5, j). */
+  /*
+   * Binomial coefficients C(5, j).
+   */
   const BINOMIAL5: number[] = [1, 5, 10, 10, 5, 1];
 
   /** Unit vector; throws on a zero vector instead of substituting one. */

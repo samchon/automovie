@@ -21,7 +21,7 @@ import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 import { walkLegRise } from "./walkLegRise";
 
-/**
+/*
  * A planted foot of a stepping gait as its leg can hold it under a hip
  * (`walkReach.ground` places each stance by it): a stance whose shank leans
  * toward the ankle's dorsal limit raises its heel about its ball
@@ -34,13 +34,13 @@ import { walkLegRise } from "./walkLegRise";
  * `SIDE` rolls onto the border nearer its hip.
  */
 export namespace walkReachStance {
-  /**
+  /*
    * The furthest a planted leg's thigh trails behind vertical, degrees: the 20°
    * of terminal stance (Perry and Burnfield), inside the hip's 30° extension.
    */
   export const TRAIL: number = 20;
 
-  /**
+  /*
    * The trail short of `TRAIL`, degrees, from which a planted foot's heel
    * begins to rise for it (provisional): a thigh extending at a walk's few
    * hundred degrees per second is brought to rest over the rounding, twice this
@@ -49,7 +49,7 @@ export namespace walkReachStance {
    */
   const EASE: number = 8;
 
-  /**
+  /*
    * The furthest a planted leg's line leans to the side of its foot before the
    * foot rolls onto its edge, degrees: the ankle's inversion and eversion in
    * the range table (`DEFAULT_HUMANOID_ROM`, 25° each way on either foot, the
@@ -69,24 +69,23 @@ export namespace walkReachStance {
     ),
   );
 
-  /**
+  /*
    * Prepare a scheduled stance while its hip varies in the root's height solve:
    * the heel raised about the ball, or the toes lowered about the heel, the
    * foot pivoted on its toe pad, and rolled onto its edge under a leg leaning
    * past the ankle's side range.
-   *
-   * @param body The fixed body.
-   * @param side The foot.
-   * @param foot The scheduled foot's fixed placement and toe flexion.
-   * @param yaw The fixed pelvis heading, degrees.
-   * @param pivoted The fixed toe-pad turn, degrees.
-   * @param rocker The fixed rocker onset room, degrees.
-   * @param dorsal The ankle's dorsal limit, degrees, by the weight the foot
-   *   bears (`walkLeg.dorsal`); an unloaded foot's when absent.
-   * @returns The stance rule evaluated at a hip in world metres: the stance as
-   *   reached, its contact point in the foot's frame and its pitch. Given the
-   *   pitch the rule reached there, solved in preparation, a read places the
-   *   foot at it with no search.
+   * Parameter body: The fixed body.
+   * Parameter side: The foot.
+   * Parameter foot: The scheduled foot's fixed placement and toe flexion.
+   * Parameter yaw: The fixed pelvis heading, degrees.
+   * Parameter pivoted: The fixed toe-pad turn, degrees.
+   * Parameter rocker: The fixed rocker onset room, degrees.
+   * Parameter dorsal: The ankle's dorsal limit, degrees, by the weight the foot
+   * bears (`walkLeg.dorsal`); an unloaded foot's when absent.
+   * Returns: The stance rule evaluated at a hip in world metres: the stance as
+   * reached, its contact point in the foot's frame and its pitch. Given the
+   * pitch the rule reached there, solved in preparation, a read places the
+   * foot at it with no search.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -345,7 +344,7 @@ export namespace walkReachStance {
     };
   }
 
-  /**
+  /*
    * The heel rocker's passes toward its fixed point, where lowering the toes
    * about the heel leaves the shank at the dorsal limit: a pass of Δ degrees
    * moves the ankle by the heel's lever times Δ, which leans the shank by that
@@ -355,24 +354,26 @@ export namespace walkReachStance {
    */
   const TOES_DOWN: number = 4;
 
-  /**
+  /*
    * The pitch, degrees, within which a heel rocker's pass has reached its fixed
    * point: a millionth of a degree turns a point of a 0.3 m foot by 5 nm.
    */
   const SETTLED: number = 1e-6;
 
-  /**
+  /*
    * The least toe-pad pivot, degrees, that turns the foot: a nanodegree turns
    * its toe pad's 0.2 m lever by 3e-12 m, so a smaller pivot is none.
    */
   const STILL: number = 1e-9;
 
-  /** The normalized horizontal direction of a rotated foot axis. */
+  /*
+   * The normalized horizontal direction of a rotated foot axis.
+   */
   function flat(v: IAutoMovieVector3): IAutoMovieVector3 {
     return Vector3.normalize({ x: v.x, y: 0, z: v.z });
   }
 
-  /**
+  /*
    * The forefoot rocker of a heel-strike stance: the ball of the flat foot as
    * its fixed pivot, the heel-rise rule a flat stance keeps
    * (`walkLeg.prepareHeelRise`) and the ball as the contact.
@@ -401,43 +402,61 @@ export namespace walkReachStance {
   }
 }
 
-/** The record of `IPrepareResult2`'s site. */
+/*
+ * The record of `IPrepareResult2`'s site.
+ */
 type IPrepareResult2 = {
   end: walkFoot.IEnd;
   contact: IAutoMovieVector3;
   pitch: number;
 };
 
-/** The alternatives of `PrepareAbout`'s site. */
+/*
+ * The alternatives of `PrepareAbout`'s site.
+ */
 type PrepareAbout = "heel" | "mtp";
 
-/** The record of `IPrepareResult`'s site. */
+/*
+ * The record of `IPrepareResult`'s site.
+ */
 type IPrepareResult = {
   end: walkFoot.IEnd;
   contact: IAutoMovieVector3;
   pitch: number;
 };
 
-/** The alternatives of `SIDEBone`'s site. */
+/*
+ * The alternatives of `SIDEBone`'s site.
+ */
 type SIDEBone = "leftFoot" | "rightFoot";
 
-/** A heel-strike stance's forefoot rocker, prepared on its first hip. */
+/*
+ * A heel-strike stance's forefoot rocker, prepared on its first hip.
+ */
 interface IHandover {
-  /** The flat foot's ankle, world metres. */
+  /*
+   * The flat foot's ankle, world metres.
+   */
   flat: IAutoMovieVector3;
 
-  /**
+  /*
    * The leg's length, hip to ankle, metres: the reach the flat foot must lie
    * within.
    */
   span: number;
 
-  /** The foot pitched about its ball, degrees negative heel up. */
+  /*
+   * The foot pitched about its ball, degrees negative heel up.
+   */
   at: (degrees: number) => IAutoMovieMotionHumanFoot.IPlacement;
 
-  /** The pitch the heel rises to under a hip from a flat foot. */
+  /*
+   * The pitch the heel rises to under a hip from a flat foot.
+   */
   rise: (hip: IAutoMovieVector3, pitch: number, dorsalAt?: number) => number;
 
-  /** The ball in the foot's frame, the contact while the heel is up. */
+  /*
+   * The ball in the foot's frame, the contact while the heel is up.
+   */
   contact: IAutoMovieVector3;
 }

@@ -5,7 +5,7 @@ import type {
   IAutoMovieRecoveryNamedDomainsDescriptionOperation,
 } from "@automovie/interface";
 
-/**
+/*
  * Bind planned named domains only to unique actual reports with the same
  * identity. Repeated or missing names keep admission and generation unknown,
  * even if an operator report exists at the same array ordinal. All original
@@ -150,14 +150,18 @@ export function describeRecoveryNamedDomains(
   return { members, owners, diagnostics };
 }
 
-/** One planned named domain, read from either declaration kind. */
+/*
+ * One planned named domain, read from either declaration kind.
+ */
 interface IDeclared {
   id: string;
   curves: readonly string[];
   closedGroups: readonly IAutoMovieRecoveryDomainAddress[] | null;
 }
 
-/** One actual report, read from either report kind. */
+/*
+ * One actual report, read from either report kind.
+ */
 interface IReported {
   id: string;
   admitted: boolean;

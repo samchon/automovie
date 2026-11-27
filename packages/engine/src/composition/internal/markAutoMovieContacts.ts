@@ -5,7 +5,7 @@ import type {
   IAutoMoviePhysicalOwnershipEvent,
 } from "@automovie/interface";
 
-/**
+/*
  * Turn the solved contacts acting at one second into inspection marks: for each
  * contact, one arrow per collider at the contact point, along the force that
  * collider receives, as long as the mean force times a stated scale.
@@ -45,15 +45,14 @@ import type {
  *
  * It throws for a scale or a maximum length that is not positive and
  * for an acting step without a positive duration.
- *
- * @param props.receipts Contact episodes, as the composition's contact
- *   measurement and the solver record them.
- * @param props.seconds The drawn film second.
- * @param props.metresPerNewton Arrow length per newton of mean force.
- * @param props.maximumLength Optional longest drawn arrow in metres.
- * @param props.ownership Optional ownership history of the same performance,
- *   which decides which sides are dynamic.
- * @returns Two marks per acting contact, in the receipts' order.
+ * Parameter props.receipts: Contact episodes, as the composition's contact
+ * measurement and the solver record them.
+ * Parameter props.seconds: The drawn film second.
+ * Parameter props.metresPerNewton: Arrow length per newton of mean force.
+ * Parameter props.maximumLength: Optional longest drawn arrow in metres.
+ * Parameter props.ownership: Optional ownership history of the same performance,
+ * which decides which sides are dynamic.
+ * Returns: Two marks per acting contact, in the receipts' order.
  */
 export function markAutoMovieContacts(
   props: IAutoMovieMarkContacts.IProps,
@@ -124,7 +123,7 @@ export function markAutoMovieContacts(
   }
   return marks;
 
-  /**
+  /*
    * Whether the segment's latest ownership event at or before `seconds` is
    * dynamic; no history means static.
    */
@@ -140,7 +139,9 @@ export function markAutoMovieContacts(
   }
 }
 
-/** Ownership events grouped by segment, each group in producer order. */
+/*
+ * Ownership events grouped by segment, each group in producer order.
+ */
 function group(
   events: readonly IAutoMoviePhysicalOwnershipEvent[],
 ): Map<string, IAutoMoviePhysicalOwnershipEvent[]> {

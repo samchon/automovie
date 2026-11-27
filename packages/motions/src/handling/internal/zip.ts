@@ -35,7 +35,7 @@ import { manipulateShape } from "./manipulateShape";
 import { prepareZipperPinch } from "./prepareZipperPinch";
 import { zipSites } from "./zipSites";
 
-/**
+/*
  * Brace a supported pouch and pinch its slider tab through a straight stroke.
  *
  * YKK's usage guidance calls for a straight pull along the zipper chain and
@@ -52,16 +52,20 @@ export const zip: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanZip> = {
   plan,
 };
 
-/** The alternatives of `DigitGoalDigit`'s site. */
+/*
+ * The alternatives of `DigitGoalDigit`'s site.
+ */
 type DigitGoalDigit = "thumb" | "index";
 
-/** A sampled fingertip contact within one planned hand shape. */
+/*
+ * A sampled fingertip contact within one planned hand shape.
+ */
 interface IDigitGoal {
   digit: DigitGoalDigit;
   at: (seconds: number) => IAutoMovieMotionHumanOperateDrive.IPlace;
 }
 
-/**
+/*
  * Admit a single independent slider carrying the two opposing tab faces.
  */
 function plan(
@@ -216,7 +220,7 @@ function plan(
   };
 }
 
-/**
+/*
  * Align the fitted opposition axis with the tab, aiming along the current
  * shoulder reach.
  */
@@ -241,7 +245,9 @@ function pinchRotation(
   return HumanHand.align({ normal, forward: along }, { normal: gap, forward });
 }
 
-/** Give one hand a wrist trajectory and the sampled fingertip goals it serves. */
+/*
+ * Give one hand a wrist trajectory and the sampled fingertip goals it serves.
+ */
 function fingers(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanZip>,
   clock: IAutoMovieMotionClock,
@@ -369,7 +375,9 @@ function fingers(
   ];
 }
 
-/** Convert a stationary affordance into a fingertip point and outward normal. */
+/*
+ * Convert a stationary affordance into a fingertip point and outward normal.
+ */
 function place(
   frame: IAutoMovieRigidTransform,
   affordance: IAutoMovieAffordance,

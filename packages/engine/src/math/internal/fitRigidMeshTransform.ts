@@ -3,7 +3,7 @@ import type { IAutoMovieFitRigidMeshTransform } from "@automovie/interface";
 import { Quaternion } from "../Quaternion";
 import { overflowsBinary64 } from "./overflowsBinary64";
 
-/**
+/*
  * Fit a proper rotation and translation between corresponding mesh vertices.
  * The facial basis builder uses this to perform a shape-edited rigid component
  * without allowing expression targets to scale, shear or reflect its geometry.
@@ -152,7 +152,9 @@ export function fitRigidMeshTransform(
   };
 }
 
-/** One centroid sum or centred difference, refused where it overflows. */
+/*
+ * One centroid sum or centred difference, refused where it overflows.
+ */
 function representable(result: number): number {
   if (overflowsBinary64(result))
     throw new Error("Rigid fitting exceeded finite coordinate arithmetic.");

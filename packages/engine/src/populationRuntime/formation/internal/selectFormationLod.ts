@@ -4,7 +4,7 @@ import {
   type IAutoMovieFormationLodSelection,
 } from "@automovie/interface";
 
-/**
+/*
  * Select automatic formation LOD from distance and projected contribution.
  *
  * Twenty-four projected pixels are neutral. A prior tier retains a 10% boundary

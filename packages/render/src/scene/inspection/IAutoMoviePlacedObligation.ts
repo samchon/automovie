@@ -3,7 +3,7 @@ import type {
   IAutoMovieInspectionDiagnostics,
 } from "@automovie/interface";
 
-/**
+/*
  * The outcome of one placed obligation: measured with its violations and
  * witness, or unavailable with the coverage reason.
  */

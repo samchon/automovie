@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Apply a five-coordinate local step while retaining a rotation and unit t. The
  * first three coordinates are a left rotation vector in radians; the final two
  * are coordinates in the supplied current translation tangent basis.

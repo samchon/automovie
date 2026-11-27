@@ -19,11 +19,10 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { ExerciseKey } from "../internal/ExerciseKey";
 
-/**
+/*
  * Build the placed arms that lay the palms.
- *
- * @param props What the laid hands are built from.
- * @returns The placed arm primitives, both arms.
+ * Parameter props: What the laid hands are built from.
+ * Returns: The placed arm primitives, both arms.
  */
 export function workoutLaidHands(
   props: workoutLaidHands.IProps,
@@ -110,42 +109,64 @@ export function workoutLaidHands(
   return primitives;
 }
 
-/**
+/*
  * A workout's hands laid on the floor: each palm flat under where the first
  * pinned posture (or, for a held floor stance, the entry) has the hand, held
  * there by the placed arm while the exercise is present (`workout`).
  */
 export namespace workoutLaidHands {
-  /** What the laid hands are built from. */
+  /*
+   * What the laid hands are built from.
+   */
   export interface IProps {
-    /** The action's context. */
+    /*
+     * The action's context.
+     */
     context: IAutoMovieMotionHumanActionContext;
 
-    /** The exercise. */
+    /*
+     * The exercise.
+     */
     kind: IAutoMovieMotionHumanWorkoutKind;
 
-    /** The first key. */
+    /*
+     * The first key.
+     */
     first: IAutoMovieMotionHumanExerciseKey.IKey;
 
-    /** The heading, degrees about +Y. */
+    /*
+     * The heading, degrees about +Y.
+     */
     yaw: number;
 
-    /** Where the bearing bones stay, world metres. */
+    /*
+     * Where the bearing bones stay, world metres.
+     */
     at: IAutoMovieVector3;
 
-    /** The bones the pin holds. */
+    /*
+     * The bones the pin holds.
+     */
     pins: ReadonlySet<AutoMovieHumanoidBone>;
 
-    /** Whether the hands are already laid by a held floor stance at the entry. */
+    /*
+     * Whether the hands are already laid by a held floor stance at the entry.
+     */
     held: boolean;
 
-    /** The pose the body rises to, when it rises back to a recovered stance. */
+    /*
+     * The pose the body rises to, when it rises back to a recovered stance.
+     */
     restored: IAutoMoviePose | undefined;
 
-    /** How present the exercise is at a second, in [0, 1]. */
+    /*
+     * How present the exercise is at a second, in [0, 1].
+     */
     present: (seconds: number) => number;
 
-    /** The action's clock. */
+    /*
+     * The action's clock.
+     */
     clock: IAutoMovieMotionClock;
   }
 }

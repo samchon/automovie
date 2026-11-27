@@ -11,7 +11,7 @@ import type {
 
 import { poseBones } from "../../posture/internal/poseBones";
 
-/**
+/*
  * A kick's chamber: the contact's own leg with the knee folded. The thigh
  * already points where the contact needs it, inside the hip's range of motion
  * because the contact pose was fitted, so folding only the knee gives a chamber
@@ -19,27 +19,34 @@ import { poseBones } from "../../posture/internal/poseBones";
  * the kick is coached (kickboxing research).
  */
 export namespace KickChamber {
-  /** The chambered leg's actual knee, ankle and foot orientation. */
+  /*
+   * The chambered leg's actual knee, ankle and foot orientation.
+   */
   export interface IKey {
-    /** The knee joint, world metres. */
+    /*
+     * The knee joint, world metres.
+     */
     knee: IAutoMovieVector3;
 
-    /** The ankle joint, world metres. */
+    /*
+     * The ankle joint, world metres.
+     */
     ankle: IAutoMovieVector3;
 
-    /** The foot's world rotation from its rest. */
+    /*
+     * The foot's world rotation from its rest.
+     */
     rotation: IAutoMovieQuaternion;
   }
 
-  /**
+  /*
    * Fold the knee of a fitted contact pose.
-   *
-   * @param body The body.
-   * @param side The kicking side.
-   * @param pose The fitted pose at contact.
-   * @param flexion The chamber's knee flexion, degrees.
-   * @returns The chambered knee, ankle and foot rotation, by forward
-   *   kinematics.
+   * Parameter body: The body.
+   * Parameter side: The kicking side.
+   * Parameter pose: The fitted pose at contact.
+   * Parameter flexion: The chamber's knee flexion, degrees.
+   * Returns: The chambered knee, ankle and foot rotation, by forward
+   * kinematics.
    */
   export function fold(
     body: IAutoMovieMotionHumanBody,
@@ -71,7 +78,9 @@ export namespace KickChamber {
   }
 }
 
-/** The only two FK records consumed by a folded chamber key. */
+/*
+ * The only two FK records consumed by a folded chamber key.
+ */
 const OUTPUTS: Readonly<
   Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>
 > = {

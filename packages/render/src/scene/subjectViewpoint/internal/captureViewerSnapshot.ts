@@ -4,7 +4,7 @@ import type { IAutoMovieViewerSnapshot } from "../../IAutoMovieViewerSnapshot.js
 import type { IAutoMovieViewerSnapshotOptions } from "../../IAutoMovieViewerSnapshotOptions.js";
 import type { IAutoMovieViewerSnapshotRenderer } from "../../IAutoMovieViewerSnapshotRenderer.js";
 
-/**
+/*
  * Render synchronously through the supplied original host and immediately
  * encode its canvas as an inline image. PNG is the default request; actual
  * canvas fallback, taint and empty-canvas behavior remain native. This

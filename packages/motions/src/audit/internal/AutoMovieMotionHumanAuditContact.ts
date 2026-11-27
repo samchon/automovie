@@ -14,7 +14,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { AutoMovieMotionHumanAuditGround } from "./AutoMovieMotionHumanAuditGround";
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
-/**
+/*
  * Whether the feet's contact with the floor, inferred from the displayed motion
  * itself, agrees with the contact the actions declare.
  *
@@ -22,10 +22,10 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * plant windows, so a foot that skates along the floor while no window is
  * declared on it goes unread. This reading infers contact the way gait analysis
  * does from kinematics alone: a sole socket (heel, ball or toe) is on the floor
- * while it is no higher than {@link HEIGHT} above the floor under that foot
+ * while it is no higher than HEIGHT above the floor under that foot
  * (`AutoMovieMotionHumanAuditMotion.feet`; where none is, in water or on a
  * saddle, no step is read for a skate), and a socket on the floor is at rest
- * while its horizontal speed is no more than {@link SPEED}. Each step between
+ * while its horizontal speed is no more than SPEED. Each step between
  * two grid instants is then read twice, `skate` and `loose` in metres per
  * second and `afloat` in metres:
  *
@@ -46,7 +46,7 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * declared and is not read.
  */
 export namespace AutoMovieMotionHumanAuditContact {
-  /**
+  /*
    * The height under which a sole socket is on the floor, metres: the foot's
    * own bearing height (`HumanFoot.BEARING`), under half the 12.9 mm mean
    * minimum toe clearance of the swinging foot in normal walking (Winter 1992,
@@ -55,7 +55,7 @@ export namespace AutoMovieMotionHumanAuditContact {
    */
   export const HEIGHT: number = HumanFoot.BEARING;
 
-  /**
+  /*
    * The horizontal speed under which a socket on the floor is at rest, metres
    * per second: the 50 mm/s marker speed threshold that detects foot contact in
    * barefoot walking (Ghoussayni, Stevens, Durham and Ewins 2004, Assessment
@@ -64,15 +64,14 @@ export namespace AutoMovieMotionHumanAuditContact {
    */
   export const SPEED: number = 0.05;
 
-  /**
+  /*
    * Read one person's feet over a motion.
-   *
-   * @param motion The motion.
-   * @param subject The person.
-   * @param body Their body.
-   * @param rate Grid samples per second.
-   * @returns The readings.
-   * @throws {Error} When the rate is not positive.
+   * Parameter motion: The motion.
+   * Parameter subject: The person.
+   * Parameter body: Their body.
+   * Parameter rate: Grid samples per second.
+   * Returns: The readings.
+   * When the rate is not positive.
    */
   export function measure(
     motion: IAutoMovieMotionHumanAuditMotion,
@@ -259,8 +258,12 @@ export namespace AutoMovieMotionHumanAuditContact {
   }
 }
 
-/** The alternatives of `MeasurePart`'s site. */
+/*
+ * The alternatives of `MeasurePart`'s site.
+ */
 type MeasurePart = "leftFoot" | "rightFoot";
 
-/** The world floor, the support of a foot that no window has declared one for. */
+/*
+ * The world floor, the support of a foot that no window has declared one for.
+ */
 const GROUND: IAutoMovieMotionHumanContactWindow.Support = { kind: "ground" };

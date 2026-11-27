@@ -10,7 +10,7 @@ import type { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
 import { staggerCaptureDistance } from "./staggerCaptureDistance";
 
-/**
+/*
  * The N-step capture distance of a pushed body in closed form (Koolen et al.
  * 2012, Int J Robot Res 31:1094, eqs. 13, 25, 26): with `q = e^(-omega0 T_s)`
  * per step of time `T_s`, a body whose extrapolated centre of mass starts
@@ -29,9 +29,8 @@ import { staggerCaptureDistance } from "./staggerCaptureDistance";
  * push outside `d_N` is caught by no recovery of N steps here either: the
  * distance is a necessary screen, never the decision, which stays with the
  * steps (`staggerStep`) and the admission (`staggerAdmission`).
- *
- * @param pendulum The push's pendulum at its start.
- * @returns The capture distances by step count and the push's own reading.
+ * Parameter pendulum: The push's pendulum at its start.
+ * Returns: The capture distances by step count and the push's own reading.
  */
 export function staggerCapture(
   pendulum: StaggerPendulum,
@@ -108,7 +107,9 @@ export function staggerCapture(
   return { distance, offset, fewest };
 }
 
-/** The record of `IStaggerCaptureResult`'s site. */
+/*
+ * The record of `IStaggerCaptureResult`'s site.
+ */
 type IStaggerCaptureResult = {
   distance: (steps: number) => number;
   offset: number;

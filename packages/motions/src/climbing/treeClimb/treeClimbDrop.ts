@@ -23,17 +23,16 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
 import { GymnasticsFlight } from "../../sport/internal/GymnasticsFlight";
 
-/**
+/*
  * Append a hang's release and drop to a plan that ends hanging: the body keeps
  * the hanging shape and falls freely until its lowest toe meets the ground (`t
  * = sqrt(2 h / g)`), then absorbs into the stand over `ABSORB` with the hips
  * dipping `DIP` and the stand's root on the toes' midpoint, so the feet land
  * under the stand they end in.
- *
- * @param context The action's context.
- * @param plan The plan ending in the hang.
- * @param ground The ground's height, world metres.
- * @returns The plan with the drop and landing appended.
+ * Parameter context: The action's context.
+ * Parameter plan: The plan ending in the hang.
+ * Parameter ground: The ground's height, world metres.
+ * Returns: The plan with the drop and landing appended.
  */
 export function treeClimbDrop(
   context: Pick<IAutoMovieMotionHumanActionContext, "body">,
@@ -246,53 +245,91 @@ export function treeClimbDrop(
   return HumanPreparedPlayback.rebindPosture(result, plan, body);
 }
 
-/** Seconds the landing takes to absorb into the stand (provisional). */
+/*
+ * Seconds the landing takes to absorb into the stand (provisional).
+ */
 const ABSORB: number = 0.4;
 
-/**
+/*
  * How deep the hips dip in the absorb, a share of the hip height (provisional:
  * a soft landing's knee bend).
  */
 const DIP: number = 0.18;
 
-/** Time available for a higher foot to acquire the floor after touchdown. */
+/*
+ * Time available for a higher foot to acquire the floor after touchdown.
+ */
 const SECOND_FOOT: number = ABSORB / 2;
 
-/** The two independently observed floor sockets. */
+/*
+ * The two independently observed floor sockets.
+ */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
-/** The drop's displayed hang, floor landing, and stand. */
+/*
+ * The drop's displayed hang, floor landing, and stand.
+ */
 interface IDrop {
-  /** Resolved hanging angles with the old support goals released. */
+  /*
+   * Resolved hanging angles with the old support goals released.
+   */
   hang: IAutoMovieMotionHumanPosture;
-  /** The vertical gap to the lower toe in metres. */
+  /*
+   * The vertical gap to the lower toe in metres.
+   */
   height: number;
-  /** The toe-bone height used to publish the action's existing fall clock. */
+  /*
+   * The toe-bone height used to publish the action's existing fall clock.
+   */
   scheduled: number;
-  /** The hanging shape where the foot meets the floor. */
+  /*
+   * The hanging shape where the foot meets the floor.
+   */
   landed: IAutoMovieMotionHumanPosture;
-  /** The stance at the end of absorption. */
+  /*
+   * The stance at the end of absorption.
+   */
   end: IAutoMovieMotionHumanPosture;
-  /** All displayed joints read by the absorption blend. */
+  /*
+   * All displayed joints read by the absorption blend.
+   */
   joints: ReadonlySet<keyof IAutoMovieMotionHumanPosture["joints"]>;
-  /** Contact sockets and landing acquisitions by foot. */
+  /*
+   * Contact sockets and landing acquisitions by foot.
+   */
   feet: Record<AutoMovieHumanSide, IFoot>;
 }
 
-/** A foot's first physical floor point and its prepared landing. */
+/*
+ * A foot's first physical floor point and its prepared landing.
+ */
 interface IFoot {
-  /** The lowest socket of the displayed foot at touchdown. */
+  /*
+   * The lowest socket of the displayed foot at touchdown.
+   */
   socket: IAutoMovieMotionHumanFoot.Socket;
-  /** The fixed world contact point in metres. */
+  /*
+   * The fixed world contact point in metres.
+   */
   anchor: IAutoMovieVector3;
-  /** The hanging foot's rotation. */
+  /*
+   * The hanging foot's rotation.
+   */
   rotation: IAutoMovieQuaternion;
-  /** The flat foot by the end of absorption. */
+  /*
+   * The flat foot by the end of absorption.
+   */
   flat: IAutoMovieQuaternion;
-  /** The displayed knee as the leg arrives. */
+  /*
+   * The displayed knee as the leg arrives.
+   */
   bend: IAutoMovieVector3;
-  /** The second foot's remaining translation down to its floor socket. */
+  /*
+   * The second foot's remaining translation down to its floor socket.
+   */
   remaining: number;
-  /** Seconds after the first touchdown until this foot bears load. */
+  /*
+   * Seconds after the first touchdown until this foot bears load.
+   */
   after: number;
 }

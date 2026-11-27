@@ -19,7 +19,7 @@ import { placeAutoMovieModelPartMesh } from "./placeAutoMovieModelPartMesh";
 import { realizeAutoMovieGeometry } from "./realizeAutoMovieGeometry";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
-/**
+/*
  * Check a form against the expectation written before measuring it, and run the
  * same shape expectation against the form's box and hull, which it must
  * reject.
@@ -47,10 +47,9 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * a pair names a part the model lacks or one part twice, when a shape field
  * needs the hull of placed vertices that span no volume, and passes on the
  * refusals of the realization, placement, winding query and contact report.
- *
- * @param model A built model, whatever composed it.
- * @param expectation What the form must be.
- * @returns The findings and the loose mutants.
+ * Parameter model: A built model, whatever composed it.
+ * Parameter expectation: What the form must be.
+ * Returns: The findings and the loose mutants.
  */
 export const checkAutoMovieFormExpectation: (
   model: IAutoMovieModel,
@@ -102,10 +101,14 @@ export const checkAutoMovieFormExpectation: (
   return { findings, loose };
 };
 
-/** The mutants every shape expectation runs on, in report order. */
+/*
+ * The mutants every shape expectation runs on, in report order.
+ */
 const MUTANTS: readonly IAutoMovieFormExpectation.Mutant[] = ["box", "hull"];
 
-/** The fields that describe shape and so also run on the mutants. */
+/*
+ * The fields that describe shape and so also run on the mutants.
+ */
 const SHAPE_FIELDS: readonly (keyof IAutoMovieFormExpectation)[] = [
   "size",
   "pieces",
@@ -114,7 +117,7 @@ const SHAPE_FIELDS: readonly (keyof IAutoMovieFormExpectation)[] = [
   "empty",
 ];
 
-/**
+/*
  * Every part realized, placed in the model frame and concatenated into one
  * mesh.
  */
@@ -140,7 +143,9 @@ const merged: (model: IAutoMovieModel) => IAutoMovieMesh = (
   return { positions, indices, normals: null, uvs: null, skin: null };
 };
 
-/** Every vertex of a mesh as a point, the mutants' input. */
+/*
+ * Every vertex of a mesh as a point, the mutants' input.
+ */
 const pointsOf: (mesh: IAutoMovieMesh) => IAutoMovieVector3[] = (
   mesh: IAutoMovieMesh,
 ): IAutoMovieVector3[] => {
@@ -154,7 +159,9 @@ const pointsOf: (mesh: IAutoMovieMesh) => IAutoMovieVector3[] = (
   return points;
 };
 
-/** The closed outward axis-aligned box of a point set, 12 triangles. */
+/*
+ * The closed outward axis-aligned box of a point set, 12 triangles.
+ */
 const boxOf: (points: readonly IAutoMovieVector3[]) => IAutoMovieMesh = (
   points: readonly IAutoMovieVector3[],
 ): IAutoMovieMesh => {
@@ -180,10 +187,12 @@ const boxOf: (points: readonly IAutoMovieVector3[]) => IAutoMovieMesh = (
   return { positions, indices, normals: null, uvs: null, skin: null };
 };
 
-/** The three axes in order. */
+/*
+ * The three axes in order.
+ */
 const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
 
-/**
+/*
  * A box's faces by corner, counter-clockwise from outside, in -X, +X, -Y, +Y,
  * -Z, +Z order.
  */
@@ -196,7 +205,7 @@ const BOX_FACES: readonly (readonly [number, number, number, number])[] = [
   [4, 5, 7, 6],
 ];
 
-/**
+/*
  * The findings of every given shape field on one subject's mesh, in field
  * order.
  */
@@ -293,13 +302,17 @@ const shape: (
   return findings;
 };
 
-/** Ascending order with nulls last. */
+/*
+ * Ascending order with nulls last.
+ */
 const ascending: (a: number | null, b: number | null) => number = (
   a: number | null,
   b: number | null,
 ): number => (a === null ? (b === null ? 0 : 1) : b === null ? -1 : a - b);
 
-/** The findings of the expected pairs against the form's contact report. */
+/*
+ * The findings of the expected pairs against the form's contact report.
+ */
 const pairs: (
   model: IAutoMovieModel,
   expected: readonly IAutoMovieFormExpectation.IPair[],

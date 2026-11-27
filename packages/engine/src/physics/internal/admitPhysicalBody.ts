@@ -3,7 +3,7 @@ import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 import { admitPhysicalSupportPattern } from "./admitPhysicalSupportPattern";
 import { resolvePhysicalPerformanceMode } from "./resolvePhysicalPerformanceMode";
 
-/**
+/*
  * Admit one body's declared controller policy independently of its sampled
  * target population.
  */

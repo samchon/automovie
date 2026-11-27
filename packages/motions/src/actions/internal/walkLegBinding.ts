@@ -11,18 +11,17 @@ import type {
 
 import { walkLegCapsules } from "./walkLegCapsules";
 
-/**
+/*
  * The relations a probe of two legs' clearance is read through
  * (`walkLegClearance.prepare`): a point's place relative to a posed bone and
  * its depth inside a shape.
  */
 export namespace walkLegBinding {
-  /**
+  /*
    * Carry probes from one placed segment's frame into another's.
-   *
-   * @param a The source segment's current placement.
-   * @param b The target segment's current placement.
-   * @returns A source-local to target-local probe reader for this pair reading.
+   * Parameter a: The source segment's current placement.
+   * Parameter b: The target segment's current placement.
+   * Returns: A source-local to target-local probe reader for this pair reading.
    */
   export function prepareRelative(
     a: Pick<IAutoMovieMotionHumanColliders.IPlaced, "pose">,
@@ -41,15 +40,14 @@ export namespace walkLegBinding {
       Vector3.add(offset, Quaternion.rotateVector(rotation, probe));
   }
 
-  /**
+  /*
    * Prepare one shape for the depths of segment-local points inside it, as the
    * audit reads them: a hull's least distance inside its face planes, read no
    * further once it is no deeper than `floor`; any other shape by the engine's
    * shape distance; zero outside.
-   *
-   * @param shape The placed segment's profile shape.
-   * @returns The depth in metres of a segment-local point, given the depth
-   *   below which the caller has no use for it.
+   * Parameter shape: The placed segment's profile shape.
+   * Returns: The depth in metres of a segment-local point, given the depth
+   * below which the caller has no use for it.
    */
   export function prepareInside(
     shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],

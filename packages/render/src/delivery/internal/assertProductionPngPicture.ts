@@ -4,7 +4,7 @@ import type {
   IAutoMovieProductionPngProfile,
 } from "@automovie/interface";
 
-/**
+/*
  * Refuse every difference between a role's PNG profile and the facts a PNG
  * parser observed.
  *

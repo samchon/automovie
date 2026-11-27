@@ -23,7 +23,7 @@ import { HumanSequentialConvexFunctions } from "../../posture/internal/HumanSequ
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { AutoMovieMotionHumanArmReachJoints } from "./AutoMovieMotionHumanArmReachJoints";
 
-/**
+/*
  * A hand attitude a law asks up to a freedom it declares, read as the
  * equivalent the arm can take at its place, or refused.
  *
@@ -67,59 +67,76 @@ import { AutoMovieMotionHumanArmReachJoints } from "./AutoMovieMotionHumanArmRea
  * the law plans, never per read.
  */
 export namespace AutoMovieMotionHumanArmReach {
-  /**
+  /*
    * What a law asks of the hand: its attitude, the axis it leaves the turn
    * about free, and where the wrist goes for a candidate attitude.
    */
   export interface IRequest {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The posture the arm is fitted on; its own goal for the arm is replaced. */
+    /*
+     * The posture the arm is fitted on; its own goal for the arm is replaced.
+     */
     posture: IAutoMovieMotionHumanPosture;
 
-    /** The arm. */
+    /*
+     * The arm.
+     */
     side: AutoMovieHumanSide;
 
-    /** The elbow's hint, world metres. */
+    /*
+     * The elbow's hint, world metres.
+     */
     bend: IAutoMovieVector3;
 
-    /** The attitude the law asks, world. */
+    /*
+     * The attitude the law asks, world.
+     */
     requested: IAutoMovieQuaternion;
 
-    /** The world axis the law leaves the turn about free, unit or not. */
+    /*
+     * The world axis the law leaves the turn about free, unit or not.
+     */
     axis: IAutoMovieVector3;
 
-    /**
+    /*
      * The wrist's place for a candidate attitude, world metres (a held prop's
      * offset turns with the hand).
      */
     wrist: (rotation: IAutoMovieQuaternion) => IAutoMovieVector3;
 
-    /** What the refusal names as the action's axis. */
+    /*
+     * What the refusal names as the action's axis.
+     */
     name: string;
   }
 
-  /**
+  /*
    * The attitude taken: the requested one turned about the free axis, and the
    * turn in degrees.
    */
   export interface IResult {
-    /** The attitude, world. */
+    /*
+     * The attitude, world.
+     */
     rotation: IAutoMovieQuaternion;
 
-    /** The turn about the free axis from the requested attitude, degrees. */
+    /*
+     * The turn about the free axis from the requested attitude, degrees.
+     */
     turn: number;
   }
 
-  /**
+  /*
    * The reachable equivalent of a requested attitude, or a refusal.
-   *
-   * @param request What the law asks.
-   * @returns The attitude whose arm keeps every joint nearest the middle of its
-   *   range.
-   * @throws {HumanRefusal} When a joint at that arm lies past its range by more
-   *   than the range tolerance (`ROM_TOLERANCE`).
+   * Parameter request: What the law asks.
+   * Returns: The attitude whose arm keeps every joint nearest the middle of its
+   * range.
+   * When a joint at that arm lies past its range by more
+   * than the range tolerance (`ROM_TOLERANCE`).
    */
   export function attitude(request: IRequest): IResult {
     const found: IResolved = resolve(request);
@@ -139,20 +156,21 @@ export namespace AutoMovieMotionHumanArmReach {
     });
   }
 
-  /**
+  /*
    * The reachable equivalent of a requested attitude, or none: the same choice
    * as `attitude`, for a law that chooses the hand's place by whether its
    * attitude is met there.
-   *
-   * @param request What the law asks.
-   * @returns The attitude, or null where a joint lies past its range.
+   * Parameter request: What the law asks.
+   * Returns: The attitude, or null where a joint lies past its range.
    */
   export function met(request: IRequest): IResult | null {
     const found: IResolved = resolve(request);
     return found.past === null ? found.result : null;
   }
 
-  /** Tolani's section 3.3 choice and its limit check. */
+  /*
+   * Tolani's section 3.3 choice and its limit check.
+   */
   function resolve(request: IRequest): IResolved {
     const limb: AutoMovieHumanLimb = `${request.side}Arm`;
     const axis: IAutoMovieVector3 = Vector3.normalize(request.axis);
@@ -307,16 +325,24 @@ export namespace AutoMovieMotionHumanArmReach {
   }
 }
 
-/** One combination of the root's and the wrist's families of solutions. */
+/*
+ * One combination of the root's and the wrist's families of solutions.
+ */
 interface IFamily {
-  /** The root's chart: 0 the principal, 1 the alternate. */
+  /*
+   * The root's chart: 0 the principal, 1 the alternate.
+   */
   upper: 0 | 1;
 
-  /** The wrist's chart: 0 the principal, 1 the alternate. */
+  /*
+   * The wrist's chart: 0 the principal, 1 the alternate.
+   */
   effector: 0 | 1;
 }
 
-/** The four combinations of the two joints' two families (section 3.3). */
+/*
+ * The four combinations of the two joints' two families (section 3.3).
+ */
 const FAMILIES: readonly IFamily[] = [
   { upper: 0, effector: 0 },
   { upper: 0, effector: 1 },
@@ -324,13 +350,19 @@ const FAMILIES: readonly IFamily[] = [
   { upper: 1, effector: 1 },
 ];
 
-/** One family's solution: the choice, its limit check and its F. */
+/*
+ * One family's solution: the choice, its limit check and its F.
+ */
 interface ICandidate extends IResolved {
-  /** F at the solution, radians squared. */
+  /*
+   * F at the solution, radians squared.
+   */
   f: number;
 }
 
-/** The candidate of least F that meets the limits; null when none does. */
+/*
+ * The candidate of least F that meets the limits; null when none does.
+ */
 function least(candidates: readonly ICandidate[]): ICandidate | null {
   let found: ICandidate | null = null;
   for (const c of candidates)
@@ -338,26 +370,40 @@ function least(candidates: readonly ICandidate[]): ICandidate | null {
   return found;
 }
 
-/** Tolani's choice: the attitude and, where one lies past its range, the joint. */
+/*
+ * Tolani's choice: the attitude and, where one lies past its range, the joint.
+ */
 interface IResolved {
-  /** The attitude at the minimum. */
+  /*
+   * The attitude at the minimum.
+   */
   result: AutoMovieMotionHumanArmReach.IResult;
 
-  /** The joint farthest past its range there; null when every one is within. */
+  /*
+   * The joint farthest past its range there; null when every one is within.
+   */
   past: AutoMovieMotionHumanArmReachJoints.IPast | null;
 }
 
-/** A limb's seed as a seeded resolve reports it: absent or null for none. */
+/*
+ * A limb's seed as a seeded resolve reports it: absent or null for none.
+ */
 type Seed =
   IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"][AutoMovieHumanLimb];
 
-/** Radians a degree: the problem is solved in radians (sco's units). */
+/*
+ * Radians a degree: the problem is solved in radians (sco's units).
+ */
 const RADIAN: number = Math.PI / 180;
 
-/** The problem's variables: the swivel and the turn. */
+/*
+ * The problem's variables: the swivel and the turn.
+ */
 type Vector = HumanSequentialConvexFunctions.Vector;
 
-/** The SQP's answer on the problem's variables. */
+/*
+ * The SQP's answer on the problem's variables.
+ */
 type Solved = IAutoMovieMotionHumanSequentialConvex.IResult<
   Vector,
   IAutoMovieMotionHumanSequentialConvex.IEvaluation

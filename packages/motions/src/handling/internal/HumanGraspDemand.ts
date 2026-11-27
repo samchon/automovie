@@ -21,7 +21,7 @@ import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotion
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 
-/**
+/*
  * A grip judged by what the performer's next action on the prop will do with it
  * (`IHumanActionContext.demands`): the grip a candidate grasp would take, as
  * that action reads it, and each pose the action demands as a key the grasp
@@ -34,21 +34,20 @@ import { StrikingHeld } from "../../striking/internal/StrikingHeld";
  * contact must be feasible in both (Hauser and Ng-Thow-Hing 2011).
  */
 export namespace HumanGraspDemand {
-  /**
+  /*
    * The grip a candidate grasp would take on a prop, as an action asked for its
    * demands reads it: the prop rigid in the hand the arm shows for the
    * candidate, read as a held tool (`StrikingHeld.read`), with the posture the
    * grasping action leaves the body in.
-   *
-   * @param context The grasping action's context.
-   * @param prop The prop.
-   * @param side The hand.
-   * @param shown The hand the arm shows for the candidate grasp.
-   * @param posture The posture the grasping action leaves the body in with that
-   *   grasp.
-   * @param closure The prop's world frame at closure, or the entry frame when
-   *   omitted.
-   * @returns The grip.
+   * Parameter context: The grasping action's context.
+   * Parameter prop: The prop.
+   * Parameter side: The hand.
+   * Parameter shown: The hand the arm shows for the candidate grasp.
+   * Parameter posture: The posture the grasping action leaves the body in with that
+   * grasp.
+   * Parameter closure: The prop's world frame at closure, or the entry frame when
+   * omitted.
+   * Returns: The grip.
    */
   export function grip(
     context: Pick<IAutoMovieMotionHumanActionContext, GripContext>,
@@ -79,7 +78,7 @@ export namespace HumanGraspDemand {
     };
   }
 
-  /**
+  /*
    * A demanded pose as a key of the grasp's choice, fitted and judged as the
    * demanding action fits and judges its pose (`StrikingRoll.miss`): its own
    * goal for the held tool (`StrikingHeld.goal`), the elbow at the place of
@@ -89,10 +88,9 @@ export namespace HumanGraspDemand {
    * how far the tool strays from the frame (`StrikingHeld.strayed`), never
    * below a stray the demand proved before any search, within the action's own
    * bound.
-   *
-   * @param body The body.
-   * @param demand The demanded pose.
-   * @returns The key.
+   * Parameter body: The body.
+   * Parameter demand: The demanded pose.
+   * Returns: The key.
    */
   export function key(
     body: IAutoMovieMotionHumanBody,
@@ -154,5 +152,7 @@ export namespace HumanGraspDemand {
   }
 }
 
-/** The alternatives of `GripContext`'s site. */
+/*
+ * The alternatives of `GripContext`'s site.
+ */
 type GripContext = "body" | "prop" | "start";

@@ -1,11 +1,10 @@
-/**
+/*
  * The set on the chain.
- *
- * @param props The chain's ends, lengths and angles.
- * @returns The set whose shoulders lie the arms' reach from the wrists, the hip
- *   above the knee's line and the shoulders ahead of the hip; of several, the
- *   one whose shoulders stand nearest over the wrists. None when no elevation
- *   of the shank reaches.
+ * Parameter props: The chain's ends, lengths and angles.
+ * Returns: The set whose shoulders lie the arms' reach from the wrists, the hip
+ * above the knee's line and the shoulders ahead of the hip; of several, the
+ * one whose shoulders stand nearest over the wrists. None when no elevation
+ * of the shank reaches.
  */
 export function sprintStartSetChain(
   props: sprintStartSetChain.IProps,
@@ -87,7 +86,7 @@ export function sprintStartSetChain(
   return best;
 }
 
-/**
+/*
  * The set position's sagittal chain in closed form: the front shank, thigh,
  * trunk and straight arms in the run's vertical plane, from the front ankle on
  * its block to the wrists on the line, at the measured front knee and front hip
@@ -102,66 +101,93 @@ export function sprintStartSetChain(
  * searching the trunk's tilt and the arms' lean.
  */
 export namespace sprintStartSetChain {
-  /** A point of the run's vertical plane. */
+  /*
+   * A point of the run's vertical plane.
+   */
   export interface IPoint {
-    /** Along the run, metres. */
+    /*
+     * Along the run, metres.
+     */
     u: number;
 
-    /** Up, metres. */
+    /*
+     * Up, metres.
+     */
     v: number;
   }
 
-  /** The chain's measures. */
+  /*
+   * The chain's measures.
+   */
   export interface IProps {
-    /** The front ankle on its block. */
+    /*
+     * The front ankle on its block.
+     */
     ankle: IPoint;
 
-    /** The wrists' midpoint over the laid hands. */
+    /*
+     * The wrists' midpoint over the laid hands.
+     */
     wrist: IPoint;
 
-    /** The thigh, hip joint to knee, metres. */
+    /*
+     * The thigh, hip joint to knee, metres.
+     */
     thigh: number;
 
-    /** The shank, knee to ankle, metres. */
+    /*
+     * The shank, knee to ankle, metres.
+     */
     shank: number;
 
-    /** The trunk, the hip joints' midpoint to the shoulders', metres. */
+    /*
+     * The trunk, the hip joints' midpoint to the shoulders', metres.
+     */
     trunk: number;
 
-    /** The arms' reach, shoulder to wrist, metres. */
+    /*
+     * The arms' reach, shoulder to wrist, metres.
+     */
     arm: number;
 
-    /** The front knee's included angle, degrees. */
+    /*
+     * The front knee's included angle, degrees.
+     */
     knee: number;
 
-    /**
+    /*
      * The front hip's included angle between the knee and the shoulders,
      * degrees.
      */
     hip: number;
   }
 
-  /** The chain's set: its hip joints' and shoulders' midpoints. */
+  /*
+   * The chain's set: its hip joints' and shoulders' midpoints.
+   */
   export interface ISet {
-    /** The hip joints' midpoint. */
+    /*
+     * The hip joints' midpoint.
+     */
     hip: IPoint;
 
-    /** The shoulders' midpoint. */
+    /*
+     * The shoulders' midpoint.
+     */
     shoulders: IPoint;
   }
 
-  /**
+  /*
    * Where the rear ankle lies along the run: the law of cosines' distance from
    * the hip of a leg at `angle` degrees of included knee angle, at the height
    * of the ankle on its block, behind the hip.
-   *
-   * @param hip The hip joints' midpoint.
-   * @param ankle The rear ankle on its block, whose height it keeps.
-   * @param thigh The thigh, metres.
-   * @param shank The shank, metres.
-   * @param angle The rear knee's included angle, degrees.
-   * @returns The ankle's place along the run, metres; none when the hip stands
-   *   beyond that leg's reach of the ankle's height.
+   * Parameter hip: The hip joints' midpoint.
+   * Parameter ankle: The rear ankle on its block, whose height it keeps.
+   * Parameter thigh: The thigh, metres.
+   * Parameter shank: The shank, metres.
+   * Parameter angle: The rear knee's included angle, degrees.
+   * Returns: The ankle's place along the run, metres; none when the hip stands
+   * beyond that leg's reach of the ankle's height.
    */
   export function rear(
     hip: IPoint,
@@ -182,7 +208,7 @@ export namespace sprintStartSetChain {
   }
 }
 
-/**
+/*
  * A unit direction turned counterclockwise in the plane (toward up from along)
  * by `angle` radians.
  */
@@ -195,7 +221,9 @@ function turned(
   return { u: d.u * c - d.v * s, v: d.u * s + d.v * c };
 }
 
-/** The point `length` along a unit direction from `from`. */
+/*
+ * The point `length` along a unit direction from `from`.
+ */
 function at(
   from: sprintStartSetChain.IPoint,
   d: sprintStartSetChain.IPoint,
@@ -203,7 +231,9 @@ function at(
 ): sprintStartSetChain.IPoint {
   return { u: from.u + d.u * length, v: from.v + d.v * length };
 }
-/** The higher of two points. */
+/*
+ * The higher of two points.
+ */
 function higher(
   a: sprintStartSetChain.IPoint,
   b: sprintStartSetChain.IPoint,
@@ -211,14 +241,22 @@ function higher(
   return a.v >= b.v ? a : b;
 }
 
-/** The record of `IOfNext`'s site. */
+/*
+ * The record of `IOfNext`'s site.
+ */
 type IOfNext = { miss: number };
 
-/** The record of `IOfLast`'s site. */
+/*
+ * The record of `IOfLast`'s site.
+ */
 type IOfLast = { miss: number };
 
-/** The record of `IOfPlacedResult`'s site. */
+/*
+ * The record of `IOfPlacedResult`'s site.
+ */
 type IOfPlacedResult = { miss: number };
 
-/** The record of `IOfPlaced`'s site. */
+/*
+ * The record of `IOfPlaced`'s site.
+ */
 type IOfPlaced = { miss: number };

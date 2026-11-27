@@ -216,7 +216,9 @@ export namespace AutoMovieEnginePhysicalIcpPlannerSegments {
   }
 }
 
-/** The sole copies carried to the floor where the sole now is. */
+/*
+ * The sole copies carried to the floor where the sole now is.
+ */
 function carry(
   copies: AutoMovieEnginePhysicalIcpPlannerSegments.ICopies<Polygon.IPoint, Tools.IAttached>,
   sole: Polygon.IFrame,

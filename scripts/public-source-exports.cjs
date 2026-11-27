@@ -152,14 +152,14 @@ function sourceCandidates(packageInfo, target) {
   return [...new Set(candidates)];
 }
 
-function packageTarget(packageInfo, target) {
+function packageTarget(packageInfo, target, publishable = true) {
   for (const candidate of sourceCandidates(packageInfo, target)) {
     if (!within(packageInfo.directory, candidate) || !fs.existsSync(candidate)) continue;
     let real;
     try { real = fs.realpathSync(candidate); } catch { continue; }
     if (!within(packageInfo.directory, real) || !fs.statSync(real).isFile()) continue;
     if (/\.d\.[cm]?ts$/u.test(real) || !SOURCE_EXTENSIONS.includes(path.extname(real))) continue;
-    if (isPublishableSource(packageInfo, real)) return real;
+    if (!publishable || isPublishableSource(packageInfo, real)) return real;
   }
   return undefined;
 }
@@ -243,11 +243,22 @@ function createPublicSourceExportIndex(options = {}) {
     const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
     if (typeof manifest.name !== "string") continue;
     const effectiveExports = manifest.publishConfig?.exports ?? manifest.exports;
+    const exportTables = [effectiveExports];
+    if (options.includeWorkspaceExports && manifest.exports && manifest.exports !== effectiveExports)
+      exportTables.push(manifest.exports);
     const routes = new Map();
-    for (const [route, value] of subpathRoutes(effectiveExports)) {
-      for (const target of orderedTargets(value)) {
-        const source = packageTarget({ directory, manifest }, target);
-        if (source) { routes.set(route, source); break; }
+    const workspaceRoutes = new Set();
+    for (const exportTable of exportTables) {
+      for (const [route, value] of subpathRoutes(exportTable)) {
+        if (routes.has(route)) continue;
+        for (const target of orderedTargets(value)) {
+          const source = packageTarget({ directory, manifest }, target, exportTable === effectiveExports);
+          if (source) {
+            routes.set(route, source);
+            if (exportTable !== effectiveExports) workspaceRoutes.add(route);
+            break;
+          }
+        }
       }
     }
     if (!routes.has(".")) {
@@ -257,7 +268,7 @@ function createPublicSourceExportIndex(options = {}) {
         if (source) { routes.set(".", source); break; }
       }
     }
-    const info = { name: manifest.name, directory, manifest, routes, publicRoutes: new Map() };
+    const info = { name: manifest.name, directory, manifest, routes, workspaceRoutes, publicRoutes: new Map() };
     for (const [route, source] of routes) {
       if (route === "./package.json" || isInternalRoute(route)) continue;
       info.publicRoutes.set(route, source);
@@ -436,7 +447,7 @@ function createPublicSourceExportIndex(options = {}) {
       for (const [name, definitions] of readModule(entry)) {
         for (const [file, declarations] of definitions) {
           const ownerPackage = packageForFile(file);
-          if (ownerPackage && !isPublishableSource(ownerPackage, file)) continue;
+          if (ownerPackage && !isPublishableSource(ownerPackage, file) && !(info.workspaceRoutes.has(route) && ownerPackage === info)) continue;
           publicFiles.add(file);
           let names = exportsByFile.get(file);
           if (!names) exportsByFile.set(file, names = new Set());

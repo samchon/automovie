@@ -8,17 +8,16 @@ import type {
 
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
-/**
+/*
  * Aim the hip-to-mouth vector at the horizontal projection of the skin. A roll
  * about local forward sets the sideways component. Pitch about local left then
  * sets the forward component without changing the first. The upright roots of
  * both sine equations keep the body above the hips.
- *
- * @param entry The initial trunk angles.
- * @param hip The pivot, world metres.
- * @param mouth The mouth with the current head angles, world metres.
- * @param target The actual skin point, world metres.
- * @returns Added pitch and roll in degrees, or null outside the rigid reach.
+ * Parameter entry: The initial trunk angles.
+ * Parameter hip: The pivot, world metres.
+ * Parameter mouth: The mouth with the current head angles, world metres.
+ * Parameter target: The actual skin point, world metres.
+ * Returns: Added pitch and roll in degrees, or null outside the rigid reach.
  */
 export function kissProjection(
   entry: IAutoMovieMotionHumanPosture,

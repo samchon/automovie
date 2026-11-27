@@ -15,7 +15,7 @@ import { prepareHumanTrunkBalance } from "../../everyday/internal/prepareHumanTr
 import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * An operated mechanism's balance correction, written with the reach's lean: a
  * hip correction moves the root along the facing onto the feet's support
  * (`HumanPhysics.supportOffset`), a trunk correction tilts the lumbar spine
@@ -23,14 +23,13 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
  * clock's instants within the window among them, on the posture it corrects
  * (the base under the lean) and read from their course
  * (`prepareHumanPostureCorrection`), so a read resolves no posture.
- *
- * @param body The body.
- * @param window The balance window.
- * @param base The plan's base.
- * @param clock The operation's clock.
- * @param duration The plan's seconds.
- * @param reachLean The reach's lean, when the body stands on the floor.
- * @returns The correction's primitive.
+ * Parameter body: The body.
+ * Parameter window: The balance window.
+ * Parameter base: The plan's base.
+ * Parameter clock: The operation's clock.
+ * Parameter duration: The plan's seconds.
+ * Parameter reachLean: The reach's lean, when the body stands on the floor.
+ * Returns: The correction's primitive.
  */
 export function operateCorrection(
   body: IAutoMovieMotionHumanBody,

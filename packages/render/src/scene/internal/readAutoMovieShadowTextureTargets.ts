@@ -13,7 +13,7 @@ import { planAutoMovieShadowTextureTarget } from "./planAutoMovieShadowTextureTa
 import { readAutoMovieRenderTextureTarget } from "./readAutoMovieRenderTextureTarget.js";
 import { readAutoMovieShadowLightSource } from "./readAutoMovieShadowLightSource.js";
 
-/**
+/*
  * Describe retained light targets and required native shadow factory bounds.
  * Hidden and noncasting lights keep their actual retained map/blur rows. An
  * enabled caster whose next factory differs also supplies a distinct planned

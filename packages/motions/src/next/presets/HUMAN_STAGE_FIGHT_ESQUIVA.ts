@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanStageFight } from "@automovie/interface";
 
-/**
+/*
  * The esquiva preset: a full crouch held for 0.6 s. The `esquiva` row of
  * `HumanStageFight` reads it, so the row and the preset share one value.
  */

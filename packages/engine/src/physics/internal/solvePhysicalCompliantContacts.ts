@@ -10,7 +10,7 @@ import type { AutoMovieXpbdCollider } from "../AutoMovieXpbdCollider";
 import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
 import { physicalShapePairContact } from "./physicalShapePairContact";
 
-/**
+/*
  * Apply implicit Kelvin-Voigt surface impulses to the sensor overlaps of the
  * world's last step. A compliant surface is a sensor collider; its rigid core,
  * a separate collider at the declared compression limit, takes part in the
@@ -32,15 +32,14 @@ import { physicalShapePairContact } from "./physicalShapePairContact";
  * receives none. A transferred impulse whose Float64 product overflows throws,
  * as does a non-finite effective mass or impulse. The next step integrates the
  * response.
- *
- * @param world The world, after a step; its sensor overlaps and bodies.
- * @param surfaces Each bound collider's compliance (m/N), damping (s), friction
- *   and gain, by handle.
- * @param seconds Seconds that stamp the measurements.
- * @param dt The substep, seconds.
- * @returns One measurement per responding pair: the handles, point, normal from
- *   the first toward the second, impulse (N s), the normal impulse each side
- *   received, and the separation (m).
+ * Parameter world: The world, after a step; its sensor overlaps and bodies.
+ * Parameter surfaces: Each bound collider's compliance (m/N), damping (s), friction
+ * and gain, by handle.
+ * Parameter seconds: Seconds that stamp the measurements.
+ * Parameter dt: The substep, seconds.
+ * Returns: One measurement per responding pair: the handles, point, normal from
+ * the first toward the second, impulse (N s), the normal impulse each side
+ * received, and the separation (m).
  */
 export function solvePhysicalCompliantContacts(
   world: AutoMovieXpbdWorld,
@@ -64,7 +63,7 @@ export function solvePhysicalCompliantContacts(
     }
   return results;
 
-  /**
+  /*
    * The response of one ordered pair whose first surface is compliant; null
    * when it has none.
    */
@@ -177,7 +176,7 @@ export function solvePhysicalCompliantContacts(
   }
 }
 
-/**
+/*
  * The impulse a body receives, the combined impulse times its signed gain; null
  * for a kinematic body.
  */
@@ -190,7 +189,7 @@ function transfer(
   return Vector3.scale(combined, gain);
 }
 
-/**
+/*
  * The normal share of the impulse a body actually received, along its side's
  * sign; zero when it received none.
  */
@@ -202,7 +201,7 @@ function received(
   return impulse ? Math.max(0, sign * Vector3.dot(normal, impulse)) : 0;
 }
 
-/**
+/*
  * Directional point inverse mass `1/m + (r x n) . I^-1 (r x n)` with the
  * rotated full inertia; zero for a kinematic body.
  */

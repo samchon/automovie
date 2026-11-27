@@ -17,16 +17,20 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Pool and boat sequences use the same clinical keys and prepared joint blends
  * as existing exercise motion, with a trajectory or support chosen by the law.
  */
 export namespace AquaticPosture {
-  /** Bound inputs of an aquatic law. */
+  /*
+   * Bound inputs of an aquatic law.
+   */
   export type Context =
     IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanAquatic.IParams>;
 
-  /** Nominal shape of a pose at an explicit world root. */
+  /*
+   * Nominal shape of a pose at an explicit world root.
+   */
   export function key(
     entry: IAutoMovieMotionHumanPosture,
     target: IAutoMovieMotionHumanExerciseKey.IKey,
@@ -44,7 +48,7 @@ export namespace AquaticPosture {
     };
   }
 
-  /**
+  /*
    * Prepare a posed transition; the caller may replace its root with a support
    * trajectory.
    */
@@ -82,7 +86,7 @@ export namespace AquaticPosture {
     };
   }
 
-  /**
+  /*
    * Prepare one observation of a fixed set of canonical bones for changing
    * poses. The result contains the requested displayed centres in world
    * metres.
@@ -113,7 +117,7 @@ export namespace AquaticPosture {
       );
   }
 
-  /**
+  /*
    * The arm a posture shows from its own joints, without the arm goals it
    * writes: where a coursed arm (`courseArmGoal`) starts when the law's own key
    * holds it at the course's start.
@@ -131,7 +135,7 @@ export namespace AquaticPosture {
       side,
     );
   }
-  /**
+  /*
    * Place the root at a world point and carry any world-space rotation pivot
    * with it.
    */
@@ -155,7 +159,7 @@ export namespace AquaticPosture {
     };
   }
 
-  /**
+  /*
    * Heading-relative offset from the entry, with an independently chosen world
    * height.
    */

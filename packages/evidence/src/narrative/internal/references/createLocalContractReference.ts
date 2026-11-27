@@ -5,7 +5,7 @@ import path from "node:path";
 import { createContractDirectory } from "../utilities/createContractDirectory";
 import { createContractRoot } from "../utilities/createContractRoot";
 
-/**
+/*
  * Creates a reference only when the production's own contract file exists.
  *
  * Language and work contracts are adopted by the production, so they always

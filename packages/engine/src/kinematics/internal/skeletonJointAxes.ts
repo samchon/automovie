@@ -4,9 +4,9 @@ import {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-/**
+/*
  * The per-bone clinical axes a skeleton articulates with: each bone's own
- * declared {@link IAutoMovieBone.axes}, then the host's `jointAxes` table.
+ * declared IAutoMovieBone.axes, then the host's `jointAxes` table.
  *
  * A bone that declares axes describes its own rest frame, so its declaration
  * wins over a table the host chose for a whole family of rigs, such as
@@ -21,9 +21,8 @@ import {
  * otherwise a new table that the caller owns. The declared axes are not
  * validated here: `validateModel` admits them, and `normalizeJointAxes` throws
  * on a malformed basis where it is used.
- *
- * @param skeleton Rig whose bones may declare axes.
- * @param jointAxes Host table for the bones that declare none.
+ * Parameter skeleton: Rig whose bones may declare axes.
+ * Parameter jointAxes: Host table for the bones that declare none.
  */
 export function skeletonJointAxes(
   skeleton: IAutoMovieSkeleton,
@@ -40,7 +39,9 @@ export function skeletonJointAxes(
   return merged ?? jointAxes ?? NO_JOINT_AXES;
 }
 
-/** The empty table returned when neither the bones nor the host declare axes. */
+/*
+ * The empty table returned when neither the bones nor the host declare axes.
+ */
 const NO_JOINT_AXES: Partial<
   Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
 > = {};

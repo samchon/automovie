@@ -5,7 +5,7 @@ import {
 
 import { polygonDoubleArea } from "./polygonDoubleArea";
 
-/**
+/*
  * A conservative straight polygon enclosing a possibly arced outline.
  *
  * An outward arc of at most a half turn is bounded by its chord-and-sagitta
@@ -21,9 +21,8 @@ import { polygonDoubleArea } from "./polygonDoubleArea";
  * corners and inserts two far corners only for expanded arcs. It may remain
  * non-convex, and simple-hull admission does not separately prove circular-arc
  * simplicity.
- *
- * @param profile Opening outline and optional per-edge bulges.
- * @returns The bounding straight ring, in outline order.
+ * Parameter profile: Opening outline and optional per-edge bulges.
+ * Returns: The bounding straight ring, in outline order.
  */
 export function outlineHull(
   profile: IAutoMovieOpeningProfile,

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-/**
+/*
  * Apply the existing image-lighting decoder convention: UnsignedByteType
  * selects sRGB and every other component type selects linear-environment. This
  * assumes the producer supplied sRGB byte images or supported linear nonbyte

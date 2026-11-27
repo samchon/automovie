@@ -1,4 +1,4 @@
-/**
+/*
  * Largest admitted deviation of a unit quaternion's length from 1, and of a
  * displayed matrix basis from a rigid one, when placed inspection reads native
  * frames. The scale is unitless.

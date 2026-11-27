@@ -17,18 +17,17 @@ import { HumanSwordFollow } from "./HumanSwordFollow";
 import { HumanSwordLanding } from "./HumanSwordLanding";
 import { HumanSwordTiming } from "./HumanSwordTiming";
 
-/**
+/*
  * Cut along one of the eight lines at a given speed of the striking part: the
  * landing part passes through the target at the decisive instant (`stroke`),
  * edge leading, at that speed. A target beyond the arm with the chosen advance
  * is refused on `target`.
- *
- * @param speed The striking part's peak speed at contact, metres a second, at
- *   novice and at elite skill, read on the performer's `speed` skill:
- *   `SPEED.cut` for a blade, or a row's own measured band for an implement
- *   (`HumanSportSwing.BAT_SPEED` and its siblings).
- * @returns The cut's law, named `swordCut` at every speed, so a row of it is of
- *   the cut's family.
+ * Parameter speed: The striking part's peak speed at contact, metres a second, at
+ * novice and at elite skill, read on the performer's `speed` skill:
+ * `SPEED.cut` for a blade, or a row's own measured band for an implement
+ * (`HumanSportSwing.BAT_SPEED` and its siblings).
+ * Returns: The cut's law, named `swordCut` at every speed, so a row of it is of
+ * the cut's family.
  */
 export function HumanSwordCutAt(
   speed: readonly [number, number],

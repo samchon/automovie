@@ -9,7 +9,7 @@ import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { MotionBodies } from "../internal/MotionBodies";
 import { FootSlip } from "./FootSlip";
 
-/**
+/*
  * Experiment E1 on the polygon man (`jump-e1-<body>` for the smallest, the
  * average and the tallest sweep bodies): the body walks at a normal pace and is
  * cut into a jump that lands 0.9 m ahead of where it is, at 21 shares across
@@ -21,7 +21,7 @@ import { FootSlip } from "./FootSlip";
  *
  * - Every cut is legal, a stance foot being planted;
  * - The planted point of a foot, its lowest sole socket while within 1 cm of the
- *   floor, slides under 5 mm in both actions' plant windows ({@link FootSlip},
+ *   floor, slides under 5 mm in both actions' plant windows (FootSlip,
  *   the rule the walk captures measure by);
  * - The velocity jump at the cut, the largest change of any bone's velocity
  *   across the cut, is at most 5 % of the largest bone speed within 0.5 s of
@@ -35,8 +35,7 @@ import { FootSlip } from "./FootSlip";
  * - After touchdown no heel, ball or toe sinks more than 10 mm under the floor;
  * - At take-off the reaching ankle is under the body, within 0.25 hip heights of
  *   the hips horizontally and at least 0.2 hip heights up.
- *
- * @returns The case.
+ * Returns: The case.
  */
 export function jumpCases(who: string): IMotionCaptureCase[] {
   const man = MotionBodies.population(who);
@@ -395,26 +394,42 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
   ];
 }
 
-/** The record of `IFitValueS`'s site. */
+/*
+ * The record of `IFitValueS`'s site.
+ */
 type IFitValueS = { t: number; p: IAutoMovieVector3 };
 
-/** The record of `IJumpCasesSamplesItem`'s site. */
+/*
+ * The record of `IJumpCasesSamplesItem`'s site.
+ */
 type IJumpCasesSamplesItem = { t: number; p: IAutoMovieVector3 };
 
-/** The record of `IJumpCasesChannelBest`'s site. */
+/*
+ * The record of `IJumpCasesChannelBest`'s site.
+ */
 type IJumpCasesChannelBest = { key: string; score: number };
 
-/** The record of `IJumpCasesSink`'s site. */
+/*
+ * The record of `IJumpCasesSink`'s site.
+ */
 type IJumpCasesSink = { value: number; where: string };
 
-/** The record of `IJumpCasesFlight`'s site. */
+/*
+ * The record of `IJumpCasesFlight`'s site.
+ */
 type IJumpCasesFlight = { value: number; where: string };
 
-/** The record of `IJumpCasesPop`'s site. */
+/*
+ * The record of `IJumpCasesPop`'s site.
+ */
 type IJumpCasesPop = { value: number; where: string };
 
-/** The record of `IJumpCasesJumpRatio`'s site. */
+/*
+ * The record of `IJumpCasesJumpRatio`'s site.
+ */
 type IJumpCasesJumpRatio = { value: number; where: string };
 
-/** The record of `IJumpCasesSlip`'s site. */
+/*
+ * The record of `IJumpCasesSlip`'s site.
+ */
 type IJumpCasesSlip = { value: number; where: string };

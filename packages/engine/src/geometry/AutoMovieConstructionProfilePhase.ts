@@ -71,7 +71,9 @@ export namespace AutoMovieConstructionProfilePhase {
         if (value.length !== 3)
           fail("Original phase query has incomplete plane data.");
 
-      /** At fixed station only the actual local curve differentiates in phase. */
+      /*
+       * At fixed station only the actual local curve differentiates in phase.
+       */
       const world: (
         value: readonly [number, number],
         scale: number,
@@ -96,23 +98,33 @@ export namespace AutoMovieConstructionProfilePhase {
   }
 }
 
-/** One already admitted original chart and its actual station ownership. */
+/*
+ * One already admitted original chart and its actual station ownership.
+ */
 type Chart = {
-  /** Actual physical station interval, kernel millimetres. */
+  /*
+   * Actual physical station interval, kernel millimetres.
+   */
   domain: [number, number];
-  /** Exact original clock interval and direction. */
+  /*
+   * Exact original clock interval and direction.
+   */
   piece: IAutoMovieConstructionProfilePiece;
-  /** Borrowed immutable generating function owner. */
+  /*
+   * Borrowed immutable generating function owner.
+   */
   curve: IAutoMovieConstructionProfileSource.ICurve;
 };
 
-/** Every provided local derivative owns both components. */
+/*
+ * Every provided local derivative owns both components.
+ */
 function pair(value: readonly number[]): void {
   if (value.length !== 2)
     fail("Original phase reading requires two local components.");
 }
 
-/**
+/*
  * Numeric/unavailable admission remains separate from original callback
  * exceptions.
  */

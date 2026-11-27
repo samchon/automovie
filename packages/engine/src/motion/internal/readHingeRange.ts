@@ -9,20 +9,19 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { prepareChainPlant } from "./prepareChainPlant";
 
-/**
+/*
  * The mid joint's flexion range as rotation about its own hinge, radians: what
  * `hingedArmArticulation` takes as `range`. The clinical flexion of a pure
  * hinge rotation is linear in the hinge angle, with a sign and an offset that
  * differ between an elbow and a knee and between rigs, so both are read
  * numerically from the principal decomposition at zero and at one degree rather
  * than assumed.
- *
- * @param props The fit request.
- * @param prepared The chain's preparation; its lower domain carries the range.
- * @param axes The mid bone's axes; its flexion is the hinge.
- * @param basis The mid bone's normalized basis.
- * @returns The range, or null when the joint has no flexion range to keep or
- *   the reading is degenerate.
+ * Parameter props: The fit request.
+ * Parameter prepared: The chain's preparation; its lower domain carries the range.
+ * Parameter axes: The mid bone's axes; its flexion is the hinge.
+ * Parameter basis: The mid bone's normalized basis.
+ * Returns: The range, or null when the joint has no flexion range to keep or
+ * the reading is degenerate.
  */
 export function readHingeRange(
   props: IAutoMovieFitChainToTargetProps,

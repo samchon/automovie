@@ -1,4 +1,4 @@
-/**
+/*
  * Windows reserved device names, matched case-insensitively against a stem's
  * first dot-separated segment, because Windows reserves them with any
  * extension.
@@ -28,7 +28,7 @@ const WINDOWS_RESERVED_NAMES: ReadonlySet<string> = new Set<string>([
   "lpt9",
 ]);
 
-/**
+/*
  * A file-system-safe stem for a render target's default frame directory and
  * output video name, always exactly one path component.
  *

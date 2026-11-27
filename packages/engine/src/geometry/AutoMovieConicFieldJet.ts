@@ -118,7 +118,7 @@ export namespace AutoMovieConicFieldJet {
   }
 }
 
-/**
+/*
  * Full two-variable product rule, with actual Hessian rather than Taylor
  * entries.
  */
@@ -136,7 +136,9 @@ function multiply(
   ];
 }
 
-/** Differentiate a=q*b, avoiding separately materialized reciprocal powers. */
+/*
+ * Differentiate a=q*b, avoiding separately materialized reciprocal powers.
+ */
 function divide(
   a: IAutoMovieConicFieldJet.IJet,
   b: IAutoMovieConicFieldJet.IJet,
@@ -154,7 +156,9 @@ function divide(
   ];
 }
 
-/** Implicit square-root recurrence avoids inverse powers of a tiny input value. */
+/*
+ * Implicit square-root recurrence avoids inverse powers of a tiny input value.
+ */
 function sqrt(a: IAutoMovieConicFieldJet.IJet): IAutoMovieConicFieldJet.IJet {
   const value: number = Math.sqrt(a[0]);
   const s: number = a[1] / (2 * value);
@@ -169,7 +173,7 @@ function sqrt(a: IAutoMovieConicFieldJet.IJet): IAutoMovieConicFieldJet.IJet {
   ];
 }
 
-/**
+/*
  * Differentiate y cubed equals a using representable root powers and first
  * jets.
  */
@@ -188,7 +192,9 @@ function cbrt(a: IAutoMovieConicFieldJet.IJet): IAutoMovieConicFieldJet.IJet {
   ];
 }
 
-/** Log Hessian is the normalized input Hessian minus its gradient outer product. */
+/*
+ * Log Hessian is the normalized input Hessian minus its gradient outer product.
+ */
 function log(a: IAutoMovieConicFieldJet.IJet): IAutoMovieConicFieldJet.IJet {
   const s: number = a[1] / a[0];
   const p: number = a[2] / a[0];
@@ -202,7 +208,9 @@ function log(a: IAutoMovieConicFieldJet.IJet): IAutoMovieConicFieldJet.IJet {
   ];
 }
 
-/** Reuse exp(a)*a_i before multiplying again in the Hessian's outer product. */
+/*
+ * Reuse exp(a)*a_i before multiplying again in the Hessian's outer product.
+ */
 function exp(a: IAutoMovieConicFieldJet.IJet): IAutoMovieConicFieldJet.IJet {
   const value: number = Math.exp(a[0]);
   const s: number = value * a[1];

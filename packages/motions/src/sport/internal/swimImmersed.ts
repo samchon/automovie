@@ -22,7 +22,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { SwimStroke } from "./SwimStroke";
 import { swimImmersedCoast } from "./swimImmersedCoast";
 
-/**
+/*
  * Register this immersed action with `HumanChain.extend` and
  * `HumanPerformance`'s `laws`. The passive case holds the existing supine key.
  * The opt-in breaststroke uses the existing prone keys and starts at rest. Both
@@ -36,7 +36,7 @@ import { swimImmersedCoast } from "./swimImmersedCoast";
  * component of drag at every moving segment. Its trim and heading are
  * prescribed. The sphere approximation gives quasi-steady isotropic drag and
  * omits added mass, free heave, rotation and water entry.
- *
+ * ://doi.org/10.1299/jfst.2.56
  * @see https://doi.org/10.1299/jfst.2.56
  */
 export const swimImmersed: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSwimImmersed> =
@@ -46,7 +46,7 @@ export const swimImmersed: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanS
     plan: planSwimImmersed,
   };
 
-/**
+/*
  * Register this immersed action with `HumanChain.extend` and
  * `HumanPerformance`'s `laws`. The passive case holds the existing supine key.
  * The opt-in breaststroke uses the existing prone keys and starts at rest. Both
@@ -60,7 +60,7 @@ export const swimImmersed: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanS
  * component of drag at every moving segment. Its trim and heading are
  * prescribed. The sphere approximation gives quasi-steady isotropic drag and
  * omits added mass, free heave, rotation and water entry.
- *
+ * ://doi.org/10.1299/jfst.2.56
  * @see https://doi.org/10.1299/jfst.2.56
  */
 function planSwimImmersed(

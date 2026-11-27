@@ -9,7 +9,7 @@ import {
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { assertGrammarPositive } from "./assertGrammarPositive";
 
-/**
+/*
  * Validates one shot observation and returns it in the canonical form the
  * film-grammar read inspects.
  *
@@ -21,11 +21,10 @@ import { assertGrammarPositive } from "./assertGrammarPositive";
  * that is not finite and positive, a radius that is negative or not finite, or
  * a non-finite eyeline point; a primary subject that is not observed; an action
  * axis that repeats or misses an observed subject; and repeated style intents.
- *
- * @param input One observed shot as the production grammar pass built it.
- * @returns A new record whose subjects are sorted and indexed by id and whose
- *   axis endpoints are sorted; the camera and subject objects are shared with
- *   `input`, not copied.
+ * Parameter input: One observed shot as the production grammar pass built it.
+ * Returns: A new record whose subjects are sorted and indexed by id and whose
+ * axis endpoints are sorted; the camera and subject objects are shared with
+ * `input`, not copied.
  */
 export function normalizeGrammarShot(
   input: IAutoMovieGrammarShotObservation,

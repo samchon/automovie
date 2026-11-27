@@ -4,7 +4,7 @@ import { measureAutoMovieMeshClearance } from "./measureAutoMovieMeshClearance";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Separate an ordered mesh sequence along one positive local axis, retaining
  * every shape, normal and transverse coordinate. Each earlier/later pair passes
  * an axial bound or complete projected overlap. A signed minimum g imposes
@@ -18,10 +18,9 @@ import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
  * requested order, not an inferred spatial sort. The same ray-parallel limit as
  * measureAutoMovieMeshClearance applies; this does not pack arbitrary volumes
  * around corners or preserve an external path after separation.
- *
- * @throws Error for malformed triangles, non-finite coordinates or clearance,
- *   an invalid axis, or arithmetic that exceeds finite translations or
- *   positions.
+ * Error for malformed triangles, non-finite coordinates or clearance,
+ * an invalid axis, or arithmetic that exceeds finite translations or
+ * positions.
  */
 export function separateAutoMovieMeshSequence(
   meshes: readonly IAutoMovieMesh[],

@@ -14,25 +14,35 @@ import { AquaticProp } from "./AquaticProp";
 const SIDES = ["left", "right"] as const;
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
+/*
  * The native canoe and kayak stance and its independently moving handheld
  * paddle.
  */
 export namespace AquaticPaddleCraft {
-  /** One native boat stance and paddle's two grip windows. */
+  /*
+   * One native boat stance and paddle's two grip windows.
+   */
   export interface IStroke {
-    /** Both hands grip the same independently posed paddle prop. */
+    /*
+     * Both hands grip the same independently posed paddle prop.
+     */
     hands: IAutoMovieMotionHumanContactWindow[];
-    /** Action seconds to establish the grips before the first catch. */
+    /*
+     * Action seconds to establish the grips before the first catch.
+     */
     lead: number;
-    /** Current hull-bearing pose and both fitted anatomical grip goals. */
+    /*
+     * Current hull-bearing pose and both fitted anatomical grip goals.
+     */
     posture(
       shape: IAutoMovieMotionHumanPosture,
       seconds: number,
     ): IAutoMovieMotionHumanPosture;
   }
 
-  /** Fit the appropriate craft stance and both hands to the displayed prop. */
+  /*
+   * Fit the appropriate craft stance and both hands to the displayed prop.
+   */
   export function bind(
     context: AquaticPosture.Context,
     hull: string,
@@ -84,7 +94,7 @@ export namespace AquaticPaddleCraft {
   }
 }
 
-/**
+/*
  * Carry the actual entered half-kneel and change only the stroke's upper-body
  * joints.
  */
@@ -161,7 +171,9 @@ function kneel(
   };
 }
 
-/** Fit the seat surface and both forefeet at the actual kayak brace angles. */
+/*
+ * Fit the seat surface and both forefeet at the actual kayak brace angles.
+ */
 function sit(
   { body, start }: AquaticPosture.Context,
   hull: IAutoMovieMotionHumanPropReader,

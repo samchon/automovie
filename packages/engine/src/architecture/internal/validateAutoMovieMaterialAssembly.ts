@@ -9,7 +9,7 @@ import {
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 
-/**
+/*
  * Judge one layered build-up: its layers, its finishes, and its total.
  *
  * The checks fall into three groups the requirement names separately. Layer
@@ -31,11 +31,10 @@ import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEng
  * at once with a `$input` path, and none throws. With `host`, the summed
  * thickness must equal the host's within 1e-9 m; with `substances`, every
  * non-cavity layer's material must name one of them by id.
- *
- * @param props.assembly Layered build-up to judge.
- * @param props.substances Substances the layers may cite, or omitted.
- * @param props.host Host dimension the layers must sum to, or omitted.
- * @returns Success, or every violation found.
+ * Parameter props.assembly: Layered build-up to judge.
+ * Parameter props.substances: Substances the layers may cite, or omitted.
+ * Parameter props.host: Host dimension the layers must sum to, or omitted.
+ * Returns: Success, or every violation found.
  */
 export function validateAutoMovieMaterialAssembly(
   props: IAutoMovieValidateMaterialAssembly.IProps,
@@ -204,10 +203,12 @@ const EXPOSURES: readonly IAutoMovieMaterialAssembly["faces"]["first"][] = [
   "concealed",
 ];
 
-/** Largest metre slack a summed build-up may differ from its host by. */
+/*
+ * Largest metre slack a summed build-up may differ from its host by.
+ */
 const THICKNESS_EPSILON: number = 1e-9;
 
-/**
+/*
  * Report every finish contradiction between a stack and the faces it presents.
  *
  * A finish is only a finish where it can be seen. Index zero presents the first
@@ -268,7 +269,7 @@ const appendFinishDefects: (
   }
 };
 
-/**
+/*
  * Refuse a wrapping layer that sits behind a layer stopping at the jamb.
  *
  * Lining an opening is a run that starts at a face: a layer cannot turn the

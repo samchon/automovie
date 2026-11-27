@@ -19,53 +19,56 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { prepareSupportContactForm } from "./prepareSupportContactForm";
 import { supportContactOnFloor } from "./supportContactOnFloor";
 
-/**
+/*
  * A support planner's contact (`support`) as the whole-body fit takes it and as
  * the course between keys pivots about it: the bone and point that bear, the
  * place held, the normal laid flat and the bones that bear on the floor.
  */
 export namespace supportContact {
-  /**
+  /*
    * A contact as the fit takes it: its target and the part that bears on the
    * floor.
    */
   export interface IForm {
-    /** The fit's target. */
+    /*
+     * The fit's target.
+     */
     target: IAutoMovieMotionHumanBodyFitTypes.ITarget;
 
-    /** The bones that bear on the floor, for a contact on it. */
+    /*
+     * The bones that bear on the floor, for a contact on it.
+     */
     bearing?: RegExp;
   }
 
-  /**
+  /*
    * Body-fixed contact geometry shared within one operation;
    * prepareSupportContactForm owns its lifetime and mapping.
    */
   export const prepareForm: typeof prepareSupportContactForm =
     prepareSupportContactForm;
 
-  /**
+  /*
    * The form's existing floor-height predicate, without constructing unused
    * target geometry.
    */
   export const onFloorTarget: typeof supportContactOnFloor =
     supportContactOnFloor;
 
-  /**
+  /*
    * The target of a part stepping from one contact to another, at the top of
    * its swing: over the middle of the step, lifted by a stepping limb's rise
    * (`crawl.LIFT`) above the higher end, its surface facing as it will bear.
    * Where only one end has a place the swing rises over it; where neither has,
    * the part swings free.
-   *
-   * @param form The plan's contact forms (`prepareForm`) for its body.
-   * @param to The contact it steps to.
-   * @param from Where it leaves, world metres; no place when null.
-   * @param onto Where it sets down, world metres; no place when null.
-   * @param via A caller-owned world waypoint that clears the obstacle, when
-   *   given.
-   * @param rise How high the swing clears the higher end, metres.
-   * @returns The fit's target, or null for a step with no place.
+   * Parameter form: The plan's contact forms (`prepareForm`) for its body.
+   * Parameter to: The contact it steps to.
+   * Parameter from: Where it leaves, world metres; no place when null.
+   * Parameter onto: Where it sets down, world metres; no place when null.
+   * Parameter via: A caller-owned world waypoint that clears the obstacle, when
+   * given.
+   * Parameter rise: How high the swing clears the higher end, metres.
+   * Returns: The fit's target, or null for a step with no place.
    */
   export function swing(
     form: ReturnType<typeof prepareSupportContactForm>,
@@ -87,14 +90,13 @@ export namespace supportContact {
     return form({ ...to, kind: "bear" }, top).target;
   }
 
-  /**
+  /*
    * The contact window's part a support part bears through: a knee through its
    * shin, the lower leg's window; the trunk's window named by the back for
    * every lying position, the front's too, as the lying law names it
    * (`lieDown`); any other part its own.
-   *
-   * @param part The support part.
-   * @returns The contact window's part name.
+   * Parameter part: The support part.
+   * Returns: The contact window's part name.
    */
   export function window(part: IAutoMovieMotionHumanSupport.Part): string {
     return part.endsWith("Knee")
@@ -104,13 +106,12 @@ export namespace supportContact {
         : part;
   }
 
-  /**
+  /*
    * The limb a part belongs to, which steps as one: a foot and its knee are one
    * leg, a hand its arm; a part of the trunk is its own, since the trunk rolls
    * from one to another and never steps.
-   *
-   * @param part The support part.
-   * @returns The limb's name.
+   * Parameter part: The support part.
+   * Returns: The limb's name.
    */
   export function limb(part: IAutoMovieMotionHumanSupport.Part): string {
     return part.endsWith("Foot") || part.endsWith("Knee")
@@ -120,12 +121,11 @@ export namespace supportContact {
         : part;
   }
 
-  /**
+  /*
    * Whether two contacts are one: the same part on the same target.
-   *
-   * @param a A contact.
-   * @param b Another.
-   * @returns Whether their identities match.
+   * Parameter a: A contact.
+   * Parameter b: Another.
+   * Returns: Whether their identities match.
    */
   export function same(
     a: IAutoMovieMotionHumanSupport.IContact,
@@ -133,33 +133,35 @@ export namespace supportContact {
   ): boolean {
     return id(a) === id(b);
   }
-  /**
+  /*
    * A contact's identity: its part, how it touches, its target, its inset and
    * the stance it was set down in (`placements`), empty for a contact not yet
    * placed.
-   *
-   * @param c The contact.
-   * @returns The identity string.
+   * Parameter c: The contact.
+   * Returns: The identity string.
    */
   export function id(c: IdC): string {
     const placed: IdPlaced = c.placed ?? "";
     return `${c.part}|${c.kind}|${JSON.stringify(c.target)}|${c.inset ?? 0}|${placed}`;
   }
 
-  /** A contact with the index of the stance it was last set down in. */
+  /*
+   * A contact with the index of the stance it was last set down in.
+   */
   export interface IPlaced extends IAutoMovieMotionHumanSupport.IContact {
-    /** The stance it was set down in. */
+    /*
+     * The stance it was set down in.
+     */
     placed: number;
   }
 
-  /**
+  /*
    * The stances with each contact marked by the stance it was set down in: a
    * part bearing in the stance before on the same target and in the same way
    * bears on from it, and one that bore in none, or that the stance sets down
    * anew (`step`), is set down in that stance.
-   *
-   * @param stances The authored stances.
-   * @returns The stances with placed contacts.
+   * Parameter stances: The authored stances.
+   * Returns: The stances with placed contacts.
    */
   export function placements(
     stances: readonly IAutoMovieMotionHumanSupport.IStance[],
@@ -195,18 +197,17 @@ export namespace supportContact {
     return out;
   }
 
-  /**
+  /*
    * Where a contact on the action's surface (`on`) lies: on its own side of the
    * surface's point (a hand out by the shoulder's half width, a foot or a knee
    * by the hip's, the trunk at its middle) and in from the edge along the
    * heading by its inset (`HumanSupport.IContact.inset`), a share of the
    * forearm and hand's length.
-   *
-   * @param body The body.
-   * @param c The contact.
-   * @param edge The surface's point, world metres.
-   * @param yaw The heading the body enters with, degrees.
-   * @returns The place, world metres.
+   * Parameter body: The body.
+   * Parameter c: The contact.
+   * Parameter edge: The surface's point, world metres.
+   * Parameter yaw: The heading the body enters with, degrees.
+   * Returns: The place, world metres.
    */
   export function onSurface(
     body: IAutoMovieMotionHumanBody,
@@ -231,7 +232,7 @@ export namespace supportContact {
     });
   }
 
-  /**
+  /*
    * Where support parts bear in one posture, dropped to the floor: the places
    * contacts without one keep, in the parts' order.
    */
@@ -249,7 +250,7 @@ export namespace supportContact {
     );
   }
 
-  /**
+  /*
    * Read contact points on one unchanged candidate posture in their given
    * order. Its actual canonical observation and FK are shared within this
    * synchronous call; each local contact offset keeps the form's owner.
@@ -264,16 +265,15 @@ export namespace supportContact {
     return preparePoints(body, contacts)(posture, resolution, projection);
   }
 
-  /**
+  /*
    * Prepare the exact local contact datums and demanded frames for fixed
    * contacts/targets on one unchanged body. Each returned read observes its
    * actual current posture; no achieved point or pose is prepared here.
-   *
-   * @param body The unchanged body/surfaces/rig.
-   * @param contacts Fixed ordered contact/target pairs, including null floor
-   *   places.
-   * @returns A fresh-point reader borrowing optional exact FK and genuine ROM
-   *   metadata only for its current synchronous call.
+   * Parameter body: The unchanged body/surfaces/rig.
+   * Parameter contacts: Fixed ordered contact/target pairs, including null floor
+   * places.
+   * Returns: A fresh-point reader borrowing optional exact FK and genuine ROM
+   * metadata only for its current synchronous call.
    */
   export function preparePoints(
     body: IAutoMovieMotionHumanBody,
@@ -337,20 +337,28 @@ export namespace supportContact {
     };
   }
 
-  /** A contact, with the stance it was set down in once it is placed. */
+  /*
+   * A contact, with the stance it was set down in once it is placed.
+   */
   type IdC = IAutoMovieMotionHumanSupport.IContact &
     Partial<Pick<IPlaced, "placed">>;
 
-  /** One current contact observation, including an unnamed floor target. */
+  /*
+   * One current contact observation, including an unnamed floor target.
+   */
   interface IPoint {
-    /** The contact whose actual form supplies its local offset. */
+    /*
+     * The contact whose actual form supplies its local offset.
+     */
     contact: IAutoMovieMotionHumanSupport.IContact;
 
-    /** The world-metre target, or null for an unnamed floor place. */
+    /*
+     * The world-metre target, or null for an unnamed floor place.
+     */
     at: IAutoMovieVector3 | null;
   }
 
-  /**
+  /*
    * Observe one candidate's part-origin frames without a goal or offset
    * substitution.
    */
@@ -397,5 +405,7 @@ export namespace supportContact {
   }
 }
 
-/** The alternatives of `IdPlaced`'s site. */
+/*
+ * The alternatives of `IdPlaced`'s site.
+ */
 type IdPlaced = number | string;

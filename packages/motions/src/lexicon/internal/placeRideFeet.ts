@@ -25,99 +25,150 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Fit explicitly staged feet to the moving support and verify the displayed
  * soles.
  */
 export namespace placeRideFeet {
-  /** A named foot bearing uses the same target for pose writing and admission. */
+  /*
+   * A named foot bearing uses the same target for pose writing and admission.
+   */
   export interface IRideFoot {
-    /** The rider's foot that bears. */
+    /*
+     * The rider's foot that bears.
+     */
     side: AutoMovieHumanSide;
 
-    /** The supporting affordance on the carried model. */
+    /*
+     * The supporting affordance on the carried model.
+     */
     id: string;
 
-    /** The ball of the foot in its bone frame, metres. */
+    /*
+     * The ball of the foot in its bone frame, metres.
+     */
     contact: IAutoMovieVector3;
 
-    /** Read the support point and its outward normal in world coordinates. */
+    /*
+     * Read the support point and its outward normal in world coordinates.
+     */
     at(film: number): IAutoMovieMotionHumanProp.IPlacedPoint;
   }
 
-  /** A foot already resting on a part preserves its entry offset during a ride. */
+  /*
+   * A foot already resting on a part preserves its entry offset during a ride.
+   */
   export interface IRidePedal {
-    /** The rider's foot on the part. */
+    /*
+     * The rider's foot on the part.
+     */
     side: AutoMovieHumanSide;
 
-    /** The part's point on the carried model. */
+    /*
+     * The part's point on the carried model.
+     */
     id: string;
 
-    /** The point in the world when the ride begins, metres. */
+    /*
+     * The point in the world when the ride begins, metres.
+     */
     began: IAutoMovieVector3;
   }
 
-  /** A planted mount foot kept in the named stirrup's full material frame. */
+  /*
+   * A planted mount foot kept in the named stirrup's full material frame.
+   */
   export interface IRetained {
-    /** The rider's foot that bears. */
+    /*
+     * The rider's foot that bears.
+     */
     side: AutoMovieHumanSide;
 
-    /** The named stirrup on the carrier. */
+    /*
+     * The named stirrup on the carrier.
+     */
     id: string;
 
-    /** The held foot point, named or relative to its ankle in metres. */
+    /*
+     * The held foot point, named or relative to its ankle in metres.
+     */
     socket: "ball" | IAutoMovieVector3;
 
-    /** Carry the entering goal in the stirrup at the film second. */
+    /*
+     * Carry the entering goal in the stirrup at the film second.
+     */
     at(film: number, sample?: RigidCarrierSample.IRead): IAutoMovieHumanLimbGoal;
   }
 
-  /** The entering fit of one foot and the named support it should continue. */
+  /*
+   * The entering fit of one foot and the named support it should continue.
+   */
   export interface IRetain {
-    /** The entry's declared base and active supports. */
+    /*
+     * The entry's declared base and active supports.
+     */
     entry: Pick<IAutoMovieMotionHumanEntryState, "base" | "supports">;
 
-    /** The foot actually displayed at the cut. */
+    /*
+     * The foot actually displayed at the cut.
+     */
     foot: Pick<
       IAutoMovieMotionHumanEntryState.IFoot,
       "ankle" | "rotation" | "planted"
     >;
 
-    /** The entering leg goal, in world metres. */
+    /*
+     * The entering leg goal, in world metres.
+     */
     goal: IAutoMovieHumanLimbGoal;
 
-    /** The carrier's named material reader. */
+    /*
+     * The carrier's named material reader.
+     */
     support: IAutoMovieMotionHumanPropReader;
 
-    /** The rider's foot that bears. */
+    /*
+     * The rider's foot that bears.
+     */
     side: AutoMovieHumanSide;
 
-    /** The explicitly named support on the carrier. */
+    /*
+     * The explicitly named support on the carrier.
+     */
     id: string;
 
-    /** The film second of the cut. */
+    /*
+     * The film second of the cut.
+     */
     start: number;
   }
 
-  /** A ride's acquired, retained stirrup, and part-relative pedal supports. */
+  /*
+   * A ride's acquired, retained stirrup, and part-relative pedal supports.
+   */
   export interface ISupports {
-    /** Feet already resting on a moving part. */
+    /*
+     * Feet already resting on a moving part.
+     */
     pedals: IRidePedal[];
 
-    /** Feet acquired onto their named support. */
+    /*
+     * Feet acquired onto their named support.
+     */
     placed: IRideFoot[];
 
-    /** Feet continuing their entering stirrup fit. */
+    /*
+     * Feet continuing their entering stirrup fit.
+     */
     retained: IRetained[];
   }
 
-  /**
+  /*
    * Change frames only when an astride entry actually carries the named
    * stirrup's plant. The displayed ankle and its bend keep their relative pose
    * in the stirrup, and the declared contact stays in the ankle's rest frame.
-   *
-   * @param input The entering foot, goal and support.
-   * @returns A material-relative foot reader when the mount owns the plant.
+   * Parameter input: The entering foot, goal and support.
+   * Returns: A material-relative foot reader when the mount owns the plant.
    */
   export function retain(input: IRetain): IRetained | undefined {
     const { entry, foot, goal, support, side, id, start } = input;
@@ -202,7 +253,9 @@ export namespace placeRideFeet {
     };
   }
 
-  /** Distinguish acquired supports from an existing plant or pedal. */
+  /*
+   * Distinguish acquired supports from an existing plant or pedal.
+   */
   export function supports(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>,
     support: IAutoMovieMotionHumanPropReader,
@@ -258,7 +311,7 @@ export namespace placeRideFeet {
     return { pedals, placed, retained };
   }
 
-  /**
+  /*
    * Move the displayed ball from its carried pose to the surface, level with
    * its forward slope.
    */
@@ -308,7 +361,7 @@ export namespace placeRideFeet {
     };
   }
 
-  /**
+  /*
    * Refuse an exact-support request when the displayed sole cannot meet its
    * named surface.
    */
@@ -378,7 +431,9 @@ export namespace placeRideFeet {
     }
   }
 
-  /** Resolve an explicitly acquired support to its live pedal or tread surface. */
+  /*
+   * Resolve an explicitly acquired support to its live pedal or tread surface.
+   */
   function placedRideFoot(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>,
     support: IAutoMovieMotionHumanPropReader,

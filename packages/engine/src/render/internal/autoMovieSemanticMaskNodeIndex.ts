@@ -3,7 +3,7 @@ import {
   IAutoMovieSemanticMaskEntry,
 } from "@automovie/interface";
 
-/**
+/*
  * Index a mask by the scene node ids that draw each entry.
  *
  * The viewer holds objects, not semantics; this is the join it uses. Built as

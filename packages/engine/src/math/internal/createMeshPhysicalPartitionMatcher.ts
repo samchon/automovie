@@ -7,7 +7,7 @@ import { triangleIndicesOf } from "../../geometry/internal/triangleIndicesOf";
 import { weldedDegenerateTriangles } from "../../geometry/internal/weldedDegenerateTriangles";
 import { resolveAutoMovieMeshPhysicalVertices } from "./resolveAutoMovieMeshPhysicalVertices";
 
-/**
+/*
  * Capture mesh connectivity, physical source meaning and the legacy partition
  * before reusing an earlier topology admission. Source aliases still need
  * current-grid agreement; legacy vertices are rewelded on every candidate.

@@ -11,7 +11,7 @@ import {
 
 import { builtEnvironmentContainsPoint } from "../../architecture/internal/builtEnvironmentContainsPoint";
 
-/**
+/*
  * Report a run that leaves the logical space it was in without a sleeve.
  *
  * The crossing is read off the logical space cells rather than off a wall face.

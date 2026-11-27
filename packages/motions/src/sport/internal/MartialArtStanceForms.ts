@@ -1,78 +1,114 @@
 import type { IAutoMovieMotionHumanMartialArt } from "@automovie/interface";
 
-/**
+/*
  * The martial-art stance phrases' blocking: each form's provisional entry,
  * transfer and reset values and the held guards' hand sites
  * (MartialArtStancePhrase).
  */
 export namespace MartialArtStanceForms {
-  /** The linked phrases offered by the martial-art law. */
+  /*
+   * The linked phrases offered by the martial-art law.
+   */
   export type Kind = Exclude<IAutoMovieMotionHumanMartialArt.Kind, Kind2>;
 
-  /** Provisional blocking values for the shared entry, transfer and reset. */
+  /*
+   * Provisional blocking values for the shared entry, transfer and reset.
+   */
   export interface IForm {
-    /** Lead mark ahead of the rear foot in statures. */
+    /*
+     * Lead mark ahead of the rear foot in statures.
+     */
     stride: number;
 
-    /** Minimum knee bend under the fully opened pose, in degrees. */
+    /*
+     * Minimum knee bend under the fully opened pose, in degrees.
+     */
     knee: number;
 
-    /** Entry and reset duration in seconds, before manner scaling. */
+    /*
+     * Entry and reset duration in seconds, before manner scaling.
+     */
     step: number;
 
-    /** Forward and return transfer durations in seconds. */
+    /*
+     * Forward and return transfer durations in seconds.
+     */
     shift: readonly [forward: number, back: number];
 
-    /** Initial share of the stance span, then forward and backward changes. */
+    /*
+     * Initial share of the stance span, then forward and backward changes.
+     */
     weight: readonly [ready: number, forward: number, back: number];
 
-    /**
+    /*
      * Opening pelvis heading offset and further turn toward the second mark, in
      * degrees.
      */
     turn: readonly [ready: number, back: number];
 
-    /** The style's upper body path or held guard. */
+    /*
+     * The style's upper body path or held guard.
+     */
     arms: Carriage;
 
-    /** The moving foot's arc height in statures; 0.025 when absent. */
+    /*
+     * The moving foot's arc height in statures; 0.025 when absent.
+     */
     lift?: number;
 
-    /** Whether the moving foot steps out to the side instead of along the line. */
+    /*
+     * Whether the moving foot steps out to the side instead of along the line.
+     */
     lateral?: boolean;
   }
 
-  /**
+  /*
    * The arm carriage of a form: karate's switching chamber and strike line, tai
    * chi's open palms, or a held high or low fighting guard.
    */
   export type Carriage = "karate" | "taiChi" | GuardCarriage;
 
-  /** A carriage that holds a fighting guard through the phrase. */
+  /*
+   * A carriage that holds a fighting guard through the phrase.
+   */
   export type GuardCarriage = "highGuard" | "lowGuard" | "centreline";
 
-  /** One hand's held guard site in its shoulder's frame. */
+  /*
+   * One hand's held guard site in its shoulder's frame.
+   */
   export interface IGuardSite {
-    /** Toward the midline from the shoulder joint, in shoulder half widths. */
+    /*
+     * Toward the midline from the shoulder joint, in shoulder half widths.
+     */
     inward: number;
 
-    /** Above the shoulder joint, in upper-arm lengths. */
+    /*
+     * Above the shoulder joint, in upper-arm lengths.
+     */
     up: number;
 
-    /** Ahead of the shoulder joint, in whole-arm lengths. */
+    /*
+     * Ahead of the shoulder joint, in whole-arm lengths.
+     */
     forward: number;
   }
 
-  /** The lead and rear hands' sites of one held guard. */
+  /*
+   * The lead and rear hands' sites of one held guard.
+   */
   export interface IGuard {
-    /** The leading side's hand. */
+    /*
+     * The leading side's hand.
+     */
     lead: IGuardSite;
 
-    /** The rear side's hand. */
+    /*
+     * The rear side's hand.
+     */
     rear: IGuardSite;
   }
 
-  /**
+  /*
    * Held guard sites, provisional readings of the coached guards that
    * `StrikingStance` cites. The Muay Thai guard holds both fists at ear height
    * just outside the jaw with the arms "projected out further" and nearly
@@ -95,7 +131,7 @@ export namespace MartialArtStanceForms {
     },
   };
 
-  /**
+  /*
    * The four screen forms share a clock and sole fit, with independent
    * blocking.
    */
@@ -168,5 +204,7 @@ export namespace MartialArtStanceForms {
   };
 }
 
-/** The alternatives of `Kind2`'s site. */
+/*
+ * The alternatives of `Kind2`'s site.
+ */
 type Kind2 = "horseStance" | "chokuZuki" | "taiChiPush";

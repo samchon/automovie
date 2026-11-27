@@ -8,7 +8,7 @@ import type {
 import { Vector3 } from "../../math/Vector3";
 import { physicalPrincipalAxes } from "./physicalPrincipalAxes";
 
-/**
+/*
  * The volume, centroid and principal inertia of the uniform solid convex hull
  * of a point set.
  *
@@ -18,12 +18,11 @@ import { physicalPrincipalAxes } from "./physicalPrincipalAxes";
  * quadrature that weighs each vertex by a twentieth of the volume and the
  * centroid by four fifths. The summed second moments move to the centroid by
  * the parallel-axis theorem and are diagonalized by `physicalPrincipalAxes`.
- *
- * @param hull The hull, built once with its shape, spanning a volume.
- * @returns The volume in cubic metres, the centroid in the points' frame, and
- *   the principal moments per unit mass (square metres, ascending) with the
- *   rotation from the principal frame to the points' frame.
- * @throws {Error} When the points span no volume.
+ * Parameter hull: The hull, built once with its shape, spanning a volume.
+ * Returns: The volume in cubic metres, the centroid in the points' frame, and
+ * the principal moments per unit mass (square metres, ascending) with the
+ * rotation from the principal frame to the points' frame.
+ * When the points span no volume.
  */
 export function physicalHullFacesMass(
   hull: IAutoMoviePhysicalHullFaces.IHull,

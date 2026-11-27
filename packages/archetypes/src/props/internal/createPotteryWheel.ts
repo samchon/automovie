@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 
-/**
+/*
  * A potter's wheel: a wheel head turning on a stand, with a form of clay thrown
  * on it whose wall rises as the hands draw it up.
  *
@@ -20,9 +20,8 @@ import {
  * every point of its wall at one height is the same contact in the turning
  * head's frame: `outside` is the wall's outer face at its top, facing `+Z`,
  * `inside` its inner face, facing `-Z`, both riding the rise.
- *
- * @param params The optional scene id.
- * @returns The wheel and its contacts, metres.
+ * Parameter params: The optional scene id.
+ * Returns: The wheel and its contacts, metres.
  */
 export function createPotteryWheel(
   params: AutoMovieArchetypePotteryWheel.IParams = {},
@@ -114,7 +113,7 @@ export function createPotteryWheel(
   return builder.build(SIZE.mass);
 }
 
-/**
+/*
  * A potter's wheel with a centred clay form. No source is read: the head's
  * height and diameter, the clay's size, how far its wall rises and the mass are
  * provisional construction estimates of a seated studio wheel.

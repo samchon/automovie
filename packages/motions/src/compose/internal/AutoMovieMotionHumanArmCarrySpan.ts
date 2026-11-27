@@ -3,16 +3,15 @@ import type {
   IAutoMovieMotionHumanArmPlanned,
 } from "@automovie/interface";
 
-/**
+/*
  * The span one problem of a group is solved over: the first member's, or, where
  * the members' own spans differ (a hold handed from one hand to the other),
  * from the earliest start and reach to the latest release and end, each arm
  * keeping its own hold (`AutoMovieMotionHumanArmPlanned.planned`); its knots
  * are every member's.
- *
- * @param carries The group's members.
- * @param span The span of the member prepared first.
- * @returns The group's span.
+ * Parameter carries: The group's members.
+ * Parameter span: The span of the member prepared first.
+ * Returns: The group's span.
  */
 export function AutoMovieMotionHumanArmCarrySpan(
   carries: readonly IAutoMovieMotionHumanArmCarry.ICarry[],

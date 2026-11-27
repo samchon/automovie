@@ -1,6 +1,6 @@
 import type { IAutoMoviePlanVideoFramesProps } from "@automovie/interface";
 
-/**
+/*
  * Plan the FFmpeg arguments that extract exactly the given frames of a video
  * file, the file's own pixels, as numbered PNG stills.
  *

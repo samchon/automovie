@@ -6,28 +6,40 @@ import type { IAutoMovieInspectorAction } from "../../IAutoMovieInspectorAction.
 import type { IAutoMovieInspectorScene } from "../../IAutoMovieInspectorScene.js";
 import { AutoMovieViewerInspector } from "../../AutoMovieViewerInspector.js";
 
-/**
+/*
  * Diagnostics: the confirmed errors this mount has reported, newest first, each with buttons that show its evidence.
  *
  * A first visit offers its witness; a span offers its first and its worst witness and says whether consecutive frames or uninterrupted playback joined it. A button stops the playhead at the witness and locates the request there through `AutoMovieViewerInspector.showFinding`, so the picture, the address and the capture command name that second with the finding's drawn entities labelled. The checkbox shows or hides the witness cubes and the status line; checks and reports continue either way.
  */
 export function AutoMovieInspectorDiagnosticsPanel(props: {
-  /** Reported incidents, newest first. */
+  /*
+   * Reported incidents, newest first.
+   */
   incidents: readonly IAutoMovieInspectorScene.IIncident[];
 
-  /** The identity paths the scene draws. */
+  /*
+   * The identity paths the scene draws.
+   */
   paths: readonly string[];
 
-  /** Whether the witness cubes and the status line are shown. */
+  /*
+   * Whether the witness cubes and the status line are shown.
+   */
   witnesses: boolean;
 
-  /** Show or hide the witnesses. */
+  /*
+   * Show or hide the witnesses.
+   */
   onWitnesses: (show: boolean) => void;
 
-  /** The playhead a located finding stops at. */
+  /*
+   * The playhead a located finding stops at.
+   */
   playhead: AutoMovieInspectorPlayhead;
 
-  /** Where edits go. */
+  /*
+   * Where edits go.
+   */
   dispatch: (action: IAutoMovieInspectorAction) => void;
 }): JSX.Element {
   const show: (
@@ -109,7 +121,9 @@ export function AutoMovieInspectorDiagnosticsPanel(props: {
   );
 }
 
-/** A clock as seconds to the millisecond and, when it has one, its exact output frame; navigation still uses the exact seconds. */
+/*
+ * A clock as seconds to the millisecond and, when it has one, its exact output frame; navigation still uses the exact seconds.
+ */
 function clock(time: IAutoMovieInspectionDiagnostics.ITime): string {
   const seconds: string = `${Number(time.filmSeconds.toFixed(3))} s`;
   return time.outputFrame === undefined

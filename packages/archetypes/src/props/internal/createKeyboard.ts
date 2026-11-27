@@ -4,14 +4,13 @@ import "./KeyboardHardware";
 import { AutoMovieArchetypeDesktopKeyboard } from "../AutoMovieArchetypeDesktopKeyboard";
 import { AutoMovieArchetypeLaptop } from "../AutoMovieArchetypeLaptop";
 
-/**
+/*
  * Reads a saved desktop keyboard or laptop recipe.
- *
- * @param params The saved kind, model and optional identifier.
- * @param seed The seed used by the selected producer.
- * @returns An input device with its original contact frames.
- * @throws {AutoMovieArchetypeRefusal} For an unsupported kind or model, or any
- *   dimension override.
+ * Parameter params: The saved kind, model and optional identifier.
+ * Parameter seed: The seed used by the selected producer.
+ * Returns: An input device with its original contact frames.
+ * For an unsupported kind or model, or any
+ * dimension override.
  */
 export function createKeyboard(
   params: AutoMovieArchetypeKeyboard.IParams,

@@ -123,7 +123,7 @@ export namespace AutoMovieHumanF1Centres {
     "vault.1": "humerus",
   };
 
-  /**
+  /*
    * The bone line of a course: the joint centres its segments run between, by their names in the placing table. The arm's and the hand's
    * shared course starts at two thorax datums, so its bone line starts at the glenohumeral centre instead.
    */
@@ -265,7 +265,9 @@ export namespace AutoMovieHumanF1Centres {
     return names.map((name: string): AutoMovieVector3Tuple => F.toWorld(Placement.frame(placed(name).frame, frames), local(name, fields, chain)));
   }
 
-  /** The mean reach of a section's four guides and their mean point in the chart, from the family's fields at one station. */
+  /*
+   * The mean reach of a section's four guides and their mean point in the chart, from the family's fields at one station.
+   */
   function section(family: IAutoMovieHumanConicLoft.IFamily, read: (s: number) => number[], station: number): { radius: number; centroid: [number, number] } {
     const chain: IAutoMovieHumanConicSection.IChain = S.resolve(read(station), family.layout);
     const guides: [number, number][] = chain.guides.map((k: number): [number, number] => [chain.input.points[k]![0], chain.input.points[k]![1]]);

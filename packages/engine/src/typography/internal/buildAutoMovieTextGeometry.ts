@@ -11,12 +11,12 @@ import { AutoMovieEnginePlanarRegion } from "../../geometry/AutoMovieEnginePlana
 import { layoutAutoMovieText } from "./layoutAutoMovieText";
 import { regionsOfAutoMovieGlyph } from "./regionsOfAutoMovieGlyph";
 
-/**
+/*
  * Set a text run as flat glyph triangles in its box, for lettering drawn on a
  * face.
  *
- * The run is laid out by {@link layoutAutoMovieText}; each distinct code point's
- * contours are flattened and grouped by {@link regionsOfAutoMovieGlyph} and
+ * The run is laid out by layoutAutoMovieText; each distinct code point's
+ * contours are flattened and grouped by regionsOfAutoMovieGlyph and
  * triangulated once by `AutoMovieEnginePlanarRegion.triangulate`, then
  * translated to every place the code point is set. The result lies in the
  * layout's box frame in metres, origin at the box's bottom-left corner, `+x`
@@ -25,9 +25,8 @@ import { regionsOfAutoMovieGlyph } from "./regionsOfAutoMovieGlyph";
  * their holes.
  *
  * The same inputs always give identical buffers.
- *
- * @throws {Error} The layout's refusals; a glyph whose contours touch or cross,
- *   or which the triangulator refuses, with the code point named.
+ * The layout's refusals; a glyph whose contours touch or cross,
+ * or which the triangulator refuses, with the code point named.
  */
 export function buildAutoMovieTextGeometry(
   props: IAutoMovieBuildTextGeometry.IProps,
@@ -81,7 +80,7 @@ export function buildAutoMovieTextGeometry(
   return out;
 }
 
-/**
+/*
  * Default chord tolerance, metres: 0.05 mm, below a pixel of any sign a frame
  * shows.
  */

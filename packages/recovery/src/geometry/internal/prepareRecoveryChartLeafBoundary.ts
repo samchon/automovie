@@ -4,7 +4,9 @@ import type {
   IAutoMovieRecoveryChartLeafBoundaryPreparationOperation,
 } from "@automovie/interface";
 
-/** Prepare fixed outer collar coefficients from the original boundary cubics. */
+/*
+ * Prepare fixed outer collar coefficients from the original boundary cubics.
+ */
 export function prepareRecoveryChartLeafBoundary(
   input: Parameters<IAutoMovieRecoveryChartLeafBoundaryPreparationOperation.Operation>[0],
   registry: Parameters<IAutoMovieRecoveryChartLeafBoundaryPreparationOperation.Operation>[1],

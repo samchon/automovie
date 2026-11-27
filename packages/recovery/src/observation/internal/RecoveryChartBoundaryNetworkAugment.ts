@@ -4,7 +4,7 @@ import type {
   IAutoMovieRecoveryChartBoundaryNetworkRegistry,
 } from "@automovie/interface";
 
-/**
+/*
  * Augment copied chart banks with their registered physical cuts in original
  * triangle order.
  */

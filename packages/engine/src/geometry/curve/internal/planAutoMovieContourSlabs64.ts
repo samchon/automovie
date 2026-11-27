@@ -11,7 +11,7 @@ import type {
 import { AutoMovieContourLoftCurves64 as curves } from "../../AutoMovieContourLoftCurves64";
 import { admitAutoMovieContourIntervals64 } from "./admitAutoMovieContourIntervals64";
 
-/**
+/*
  * Plan contour slabs from explicit incidence or the existing nearest legacy
  * policy. Explicit mode uses exact event brackets and local loop ordinals.
  * Missing or conflicting local partitions remain diagnosed gaps; independent
@@ -228,19 +228,27 @@ export function planAutoMovieContourSlabs64(
   return plans;
 }
 
-/** Shared physical millimetre vector layout. */
+/*
+ * Shared physical millimetre vector layout.
+ */
 type V3 = AutoMovieVector3Tuple;
-/** Retained saved-section coordinate. */
+/*
+ * Retained saved-section coordinate.
+ */
 interface Slice {
   y: number;
 }
-/** Local declared incident curve. */
+/*
+ * Local declared incident curve.
+ */
 interface Incident {
   loop: number;
   winding: number;
 }
 
-/** Map events by exact local incidence; unsupported groups are never repaired. */
+/*
+ * Map events by exact local incidence; unsupported groups are never repaired.
+ */
 function explicitGroups(
   interval: IAutoMovieContourLoft64.IInterval,
   a: IAutoMoviePlanContourSlabs64Ring[],

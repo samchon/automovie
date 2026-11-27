@@ -15,7 +15,7 @@ import { AutoMovieMotionMeeting } from "../../compose/internal/AutoMovieMotionMe
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
-/**
+/*
  * The action context's meeting reader (`IHumanActionContext.meeting`): one
  * record per meeting, computed by the role planned first from where every role
  * stands at its start, and read by every other role while it lies ahead of its
@@ -24,15 +24,14 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * a partner from the seat window its placed action holds open at that second.
  */
 export namespace HumanPerformanceMeeting {
-  /**
+  /*
    * The meeting reader of one placed action.
-   *
-   * @param self The performance's state.
-   * @param subject The action's performer.
-   * @param body The performer's body.
-   * @param entry The state the action is entered from.
-   * @param start The film second of the action's time zero.
-   * @returns The reader.
+   * Parameter self: The performance's state.
+   * Parameter subject: The action's performer.
+   * Parameter body: The performer's body.
+   * Parameter entry: The state the action is entered from.
+   * Parameter start: The film second of the action's time zero.
+   * Returns: The reader.
    */
   export function reader(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -121,13 +120,12 @@ export namespace HumanPerformanceMeeting {
     };
   }
 
-  /**
+  /*
    * Whether a seat bears a performer at a film second: the action active then
    * holds a seat window open at its share of that second.
-   *
-   * @param segments The performer's placed actions.
-   * @param seconds Film seconds.
-   * @returns Whether a seat bears the performer.
+   * Parameter segments: The performer's placed actions.
+   * Parameter seconds: Film seconds.
+   * Returns: Whether a seat bears the performer.
    */
   export function seated(
     segments: readonly IAutoMovieMotionHumanSegment[],
@@ -155,10 +153,14 @@ export namespace HumanPerformanceMeeting {
   }
 }
 
-/** The record of `IReaderContext`'s site. */
+/*
+ * The record of `IReaderContext`'s site.
+ */
 type IReaderContext = { start: number };
 
-/** The alternatives of `ReaderPartner`'s site. */
+/*
+ * The alternatives of `ReaderPartner`'s site.
+ */
 type ReaderPartner =
   | IAutoMovieMotionHumanActionContext.IPartner
   | readonly IAutoMovieMotionHumanActionContext.IPartner[];

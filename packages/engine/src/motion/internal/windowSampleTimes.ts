@@ -1,4 +1,4 @@
-/**
+/*
  * Sample a finite ordered seconds window at a finite positive Hz rate,
  * retaining both endpoints and coalescing instants that round together. A
  * zero-width window returns one instant; the caller owns the new array.

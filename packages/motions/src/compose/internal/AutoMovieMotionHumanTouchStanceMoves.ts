@@ -20,16 +20,15 @@ import { AutoMovieMotionHumanRange } from "./AutoMovieMotionHumanRange";
 import type { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
 import { AutoMovieMotionHumanRise } from "./AutoMovieMotionHumanRise";
 
-/**
+/*
  * The posture moves of a touch stance
  * (`AutoMovieMotionHumanTouchStance.solve`): the working girdle lifted and the
  * heels raised, the trunk turned about its long axis, the turn toward a wrist
  * or a point off to the side, the middle of the shoulders and the raised feet
  * fitted, read from the stance's props, body, feet, working shoulder and reach
  * check.
- *
- * @param scope What the stance builds the moves from.
- * @returns The moves.
+ * Parameter scope: What the stance builds the moves from.
+ * Returns: The moves.
  */
 export function AutoMovieMotionHumanTouchStanceMoves(
   scope: AutoMovieMotionHumanTouchStanceMoves.IScope,
@@ -161,7 +160,9 @@ export function AutoMovieMotionHumanTouchStanceMoves(
     );
   };
 
-  /** Fits the same raised feet for the planned key and for display. */
+  /*
+   * Fits the same raised feet for the planned key and for display.
+   */
   function planted(
     posture: IAutoMovieMotionHumanPosture,
     ankles: IAutoMovieMotionHumanRise.Stance,
@@ -199,40 +200,57 @@ export function AutoMovieMotionHumanTouchStanceMoves(
   return { moved, twisted, toward, angleTo, shoulders, planted };
 }
 
-/** What the posture moves of a touch stance read and what they are. */
+/*
+ * What the posture moves of a touch stance read and what they are.
+ */
 export namespace AutoMovieMotionHumanTouchStanceMoves {
-  /** What a touch stance builds its posture moves from. */
+  /*
+   * What a touch stance builds its posture moves from.
+   */
   export interface IScope {
-    /** The stance's props. */
+    /*
+     * The stance's props.
+     */
     props: IAutoMovieMotionHumanTouchStance.IProps;
 
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanTouchStance.IProps["body"];
 
-    /** The feet the heels rise on; none when absent. */
+    /*
+     * The feet the heels rise on; none when absent.
+     */
     feet: IAutoMovieMotionHumanRise.Stance | undefined;
 
-    /** The working arm's shoulder girdle. */
+    /*
+     * The working arm's shoulder girdle.
+     */
     shoulder: Shoulder;
 
-    /** The working arm's reach check. */
+    /*
+     * The working arm's reach check.
+     */
     checkReach: ReturnType<typeof AutoMovieMotionHumanReach.prepareCheck>;
   }
 
-  /** A shoulder girdle bone a stance lifts. */
+  /*
+   * A shoulder girdle bone a stance lifts.
+   */
   export type Shoulder = "leftShoulder" | "rightShoulder";
 
-  /** The posture moves. */
+  /*
+   * The posture moves.
+   */
   export interface IMoves {
-    /**
+    /*
      * A posture with the working girdle lifted and the heels raised.
-     *
-     * @param posture The posture.
-     * @param girdle The girdle's lift, degrees.
-     * @param degrees The heels' rise, degrees.
-     * @param ankles The feet the heels rise on; the stance's when absent.
-     * @param share The share of the reach made, 1 when absent.
-     * @returns The moved posture.
+     * Parameter posture: The posture.
+     * Parameter girdle: The girdle's lift, degrees.
+     * Parameter degrees: The heels' rise, degrees.
+     * Parameter ankles: The feet the heels rise on; the stance's when absent.
+     * Parameter share: The share of the reach made, 1 when absent.
+     * Returns: The moved posture.
      */
     moved: (
       posture: IAutoMovieMotionHumanPosture,
@@ -242,34 +260,31 @@ export namespace AutoMovieMotionHumanTouchStanceMoves {
       share?: number,
     ) => IAutoMovieMotionHumanPosture;
 
-    /**
+    /*
      * The trunk turned about its long axis.
-     *
-     * @param posture The posture.
-     * @param degrees The turn, degrees, positive toward the left.
-     * @returns The turned posture.
+     * Parameter posture: The posture.
+     * Parameter degrees: The turn, degrees, positive toward the left.
+     * Returns: The turned posture.
      */
     twisted: (
       posture: IAutoMovieMotionHumanPosture,
       degrees: number,
     ) => IAutoMovieMotionHumanPosture;
 
-    /**
+    /*
      * The turn toward a wrist off to the side.
-     *
-     * @param posture The posture.
-     * @returns The turn, degrees.
+     * Parameter posture: The posture.
+     * Returns: The turn, degrees.
      */
     toward: (posture: IAutoMovieMotionHumanPosture) => number;
 
-    /**
+    /*
      * The heading's angle to the line from a point to another across the floor,
      * within the turned bones' whole range.
-     *
-     * @param posture The posture.
-     * @param from The line's start, world metres.
-     * @param point The line's end, world metres.
-     * @returns The angle, degrees.
+     * Parameter posture: The posture.
+     * Parameter from: The line's start, world metres.
+     * Parameter point: The line's end, world metres.
+     * Returns: The angle, degrees.
      */
     angleTo: (
       posture: IAutoMovieMotionHumanPosture,
@@ -277,22 +292,20 @@ export namespace AutoMovieMotionHumanTouchStanceMoves {
       point: IAutoMovieVector3,
     ) => number;
 
-    /**
+    /*
      * The middle of the shoulder joints on a posture.
-     *
-     * @param posture The posture.
-     * @returns The middle, world metres.
+     * Parameter posture: The posture.
+     * Returns: The middle, world metres.
      */
     shoulders: (posture: IAutoMovieMotionHumanPosture) => IAutoMovieVector3;
 
-    /**
+    /*
      * The same raised feet fitted for the planned key and for display.
-     *
-     * @param posture The posture.
-     * @param ankles The feet.
-     * @param degrees The heels' rise, degrees.
-     * @param resolution The borrowed forward-kinematics reader, if any.
-     * @returns The posture on the raised feet.
+     * Parameter posture: The posture.
+     * Parameter ankles: The feet.
+     * Parameter degrees: The heels' rise, degrees.
+     * Parameter resolution: The borrowed forward-kinematics reader, if any.
+     * Returns: The posture on the raised feet.
      */
     planted: (
       posture: IAutoMovieMotionHumanPosture,
@@ -302,11 +315,13 @@ export namespace AutoMovieMotionHumanTouchStanceMoves {
     ) => IAutoMovieMotionHumanPosture;
   }
 }
-/**
+/*
  * The spine's bones a turn of the trunk toward a wrist off to the side twists:
  * the lumbar and the thoracic spine.
  */
 const TWISTED: readonly TwistedBone[] = ["spine", "chest"];
 
-/** A spine bone the trunk's turn twists. */
+/*
+ * A spine bone the trunk's turn twists.
+ */
 type TwistedBone = "spine" | "chest";

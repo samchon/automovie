@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * The elbow one upper arm from the shoulder and one forearm from the wrist
  * nearest a direction, or undefined when the wrist lies past the arm's reach.
  */

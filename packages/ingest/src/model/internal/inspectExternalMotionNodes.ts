@@ -3,7 +3,7 @@ import type { IAutoMovieExternalMotionNodeInspection } from "@automovie/interfac
 import { finiteTuple } from "./finiteTuple";
 import { object } from "./object";
 
-/**
+/*
  * Read glTF motion nodes as finite canonical local TRS records.
  *
  * The caller supplies a validated acyclic parent table. Omitted translation,

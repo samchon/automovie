@@ -9,12 +9,11 @@ import type {
 
 import { HumanFoot } from "./HumanFoot";
 
-/**
+/*
  * Prepare a flat-toed foot's ankle-local sole points for changing placements.
- *
- * @param body The unchanged canonical body owning rest joints and sole frames.
- * @param side The foot.
- * @returns Fresh world sole points in the original socket-then-outline order.
+ * Parameter body: The unchanged canonical body owning rest joints and sole frames.
+ * Parameter side: The foot.
+ * Returns: Fresh world sole points in the original socket-then-outline order.
  */
 export function prepareHumanFootSole(
   body: IAutoMovieMotionHumanBody,

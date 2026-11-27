@@ -12,7 +12,7 @@ import { AutoMovieArchetypeRefusal } from "../../core/AutoMovieArchetypeRefusal"
 import type { AutoMovieArchetypeRide } from "../../core/AutoMovieArchetypeRide";
 import { AutoMovieArchetypeCart } from "../AutoMovieArchetypeCart";
 
-/**
+/*
  * Bind a towed cart's driver to its placement, footboard, seat and driving
  * lines. The nominal hand stations project to the live final segments between
  * the horse's terrets and the cart's material ends. Each palm uses the current

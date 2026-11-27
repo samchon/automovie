@@ -5,7 +5,7 @@ import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovie
 import "../constants/SIEGE_BANDS";
 import { SiegeArm } from "./SiegeArm";
 
-/**
+/*
  * A siege engine that throws a stone: a counterweight trebuchet, its arm swung
  * up by a box hanging from its short end, or a mangonel, a traction trebuchet
  * whose short end the crew hauls down, its pull taken as the weight that would
@@ -26,15 +26,14 @@ import { SiegeArm } from "./SiegeArm";
  * uses the same source launch law and the current pouch origin. Solid composite
  * mass distribution under the drawn total is separate from that law's
  * provisional armMass/counterweight controls.
- *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, the middle of each band.
- * @returns The engine.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or
- *   one the kind lacks.
- * @throws {RangeError} If no positive representable moving section or fitting
- *   clears its complete declared angular floor domain.
+ * Parameter params: The kind and any dimension the author fixes.
+ * Parameter seed: The seed that draws every dimension left free inside its band;
+ * absent, the middle of each band.
+ * Returns: The engine.
+ * For a fixed dimension outside its band or
+ * one the kind lacks.
+ * If no positive representable moving section or fitting
+ * clears its complete declared angular floor domain.
  */
 export function createSiegeEngine(
   params: AutoMovieArchetypeSiegeEngine.IParams,

@@ -33,7 +33,9 @@ export namespace AutoMoviePeriodicCubic {
           (right[j]! - M[(j - 1 + m) % m]! - M[(j + 1) % m]!) / 4,
       );
 
-    /** The original value expression, including its rounded phase cell. */
+    /*
+     * The original value expression, including its rounded phase cell.
+     */
     const at: (psi: number) => number = (psi: number): number => {
       const x: number = ((psi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
       const j: number = Math.min(m - 1, Math.floor(x / h));
@@ -43,7 +45,9 @@ export namespace AutoMoviePeriodicCubic {
       return y(j) + t * (slope + t * (a / 2 + (t * (b - a)) / (6 * h)));
     };
 
-    /** Range failure leaves the original value capability unchanged. */
+    /*
+     * Range failure leaves the original value capability unchanged.
+     */
     const range: () => readonly [number, number] = (): readonly [
       number,
       number,
@@ -82,22 +86,28 @@ export namespace AutoMoviePeriodicCubic {
   }
 }
 
-/** One finite closed enclosure in the scalar source's units. */
+/*
+ * One finite closed enclosure in the scalar source's units.
+ */
 type Interval = readonly [number, number];
 
-/** Refuse an unrepresentable enclosure instead of returning an infinity. */
+/*
+ * Refuse an unrepresentable enclosure instead of returning an infinity.
+ */
 function finite(low: number, high: number): Interval {
   if (!(low <= high))
     throw new Error("finite ordered enclosure is not representable");
   return [low, high];
 }
 
-/** A literal floating value is exact input data for the enclosure proof. */
+/*
+ * A literal floating value is exact input data for the enclosure proof.
+ */
 function point(value: number): Interval {
   return finite(value, value);
 }
 
-/**
+/*
  * One adjacent value encloses an exact finite sum, including subnormal
  * rounding.
  */
@@ -105,12 +115,16 @@ function add(a: Interval, b: Interval): Interval {
   return finite(adjacent(a[0] + b[0], false), adjacent(a[1] + b[1], true));
 }
 
-/** Ordered endpoint subtraction preserves both signs. */
+/*
+ * Ordered endpoint subtraction preserves both signs.
+ */
 function subtract(a: Interval, b: Interval): Interval {
   return finite(adjacent(a[0] - b[1], false), adjacent(a[1] - b[0], true));
 }
 
-/** Four endpoint products cover a bilinear scalar product on its rectangle. */
+/*
+ * Four endpoint products cover a bilinear scalar product on its rectangle.
+ */
 function multiply(a: Interval, b: Interval): Interval {
   const products: number[] = [
     a[0] * b[0],
@@ -124,7 +138,9 @@ function multiply(a: Interval, b: Interval): Interval {
   );
 }
 
-/** Positive denominator intervals admit endpoint division without a pole. */
+/*
+ * Positive denominator intervals admit endpoint division without a pole.
+ */
 function divide(a: Interval, b: Interval): Interval {
   if (!(b[0] > 0)) throw new Error("enclosure denominator is not positive");
   const quotients: number[] = [
@@ -139,7 +155,7 @@ function divide(a: Interval, b: Interval): Interval {
   );
 }
 
-/**
+/*
  * Enclose every rounded t that the existing modulo/divide/floor cell can use.
  * With q=RN(x/h), |q-x/h| <= u|x/h|+eta and 0<=x<2pi. For j<m-1, j<=q<j+1; the
  * clamped last cell only needs q>=j. These inequalities are inverted outward
@@ -164,7 +180,7 @@ function cell(j: number, m: number, h: number): Interval {
   return subtract(x, point(j * h));
 }
 
-/**
+/*
  * Convert the same real cubic backbone on its complete rounded cell. In t=l+w_u
  * its power coefficients are p0, w_p'(l), w^2*(A+3_l_D/H), w^3_D/H. Their
  * Bernstein coefficients are p0, p0+p1/3, p0+2_p1/3+p2/3, and p0+p1+p2+p3. Each
@@ -234,7 +250,7 @@ function enclose(
   );
 }
 
-/**
+/*
  * Bound the seven remaining rounded operations of the literal value reader.
  * gamma7_Q bounds their relative errors, Q=|y|+T(|s|+T(|A|+T|D|/H)). Every
  * operation also contributes at most eta absolute underflow error. Its

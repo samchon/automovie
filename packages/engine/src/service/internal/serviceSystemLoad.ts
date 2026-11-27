@@ -4,7 +4,7 @@ import {
   type IAutoMovieServiceSystemLoad,
 } from "@automovie/interface";
 
-/**
+/*
  * Total demand one system is declared to carry, in the system's own unit.
  *
  * The load is read at the ports facing **opposite to the root**, because that

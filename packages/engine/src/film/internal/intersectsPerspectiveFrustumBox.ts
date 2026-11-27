@@ -11,7 +11,7 @@ import { Vector3 } from "../../math/Vector3";
 import { deliveryCropNdc } from "./deliveryCropNdc";
 import { localSegmentMeetsPerspectiveFrustum } from "./localSegmentMeetsPerspectiveFrustum";
 
-/**
+/*
  * Whether a world-space axis-aligned box intersects a perspective-camera
  * frustum under finite, ordered geometry and a valid lens.
  *
@@ -25,23 +25,22 @@ import { localSegmentMeetsPerspectiveFrustum } from "./localSegmentMeetsPerspect
  * first, and a frustum that pierces a mass far wider than itself, a camera
  * standing inside a crowd or above one, only by the second. Touching counts as
  * meeting, and a malformed crop throws the `RangeError` of
- * {@link deliveryCropNdc}.
+ * deliveryCropNdc.
  *
  * This is what a required subject with a real extent is judged against in
  * `realizeShotContract`. A segment through one point cannot answer for a mass:
  * it reports a crowd absent whenever the frame holds its flank instead of its
  * middle, and present whenever that one point is on screen no matter where the
  * rest of the unit stands.
- *
- * @param props.camera Camera placement, looking down its local −Z.
- * @param props.min Minimum world corner of the box, in metres.
- * @param props.max Maximum world corner of the box, in metres.
- * @param props.near Near clip depth in metres.
- * @param props.far Far clip depth in metres.
- * @param props.halfY Vertical half-field tangent, `tan(fovY / 2)`.
- * @param props.aspect Frame width over height.
- * @param props.crop Delivery crop, or the whole gate when omitted.
- * @returns True when the box and the frustum share at least one point.
+ * Parameter props.camera: Camera placement, looking down its local −Z.
+ * Parameter props.min: Minimum world corner of the box, in metres.
+ * Parameter props.max: Maximum world corner of the box, in metres.
+ * Parameter props.near: Near clip depth in metres.
+ * Parameter props.far: Far clip depth in metres.
+ * Parameter props.halfY: Vertical half-field tangent, `tan(fovY / 2)`.
+ * Parameter props.aspect: Frame width over height.
+ * Parameter props.crop: Delivery crop, or the whole gate when omitted.
+ * Returns: True when the box and the frustum share at least one point.
  */
 export function intersectsPerspectiveFrustumBox(
   props: IAutoMovieIntersectsPerspectiveFrustumBox.IProps,
@@ -78,7 +77,7 @@ export function intersectsPerspectiveFrustumBox(
   return false;
 }
 
-/**
+/*
  * The twelve edges of any eight-corner box, as index pairs.
  *
  * Both corner lists below are built by nesting three two-valued choices, so a
@@ -101,7 +100,9 @@ const BOX_EDGES: ReadonlyArray<readonly [number, number]> = [
   [6, 7],
 ];
 
-/** The eight corners of a box, indexed by the x, y, z choice bits. */
+/*
+ * The eight corners of a box, indexed by the x, y, z choice bits.
+ */
 function boxCorners(
   min: IAutoMovieVector3,
   max: IAutoMovieVector3,
@@ -113,7 +114,9 @@ function boxCorners(
   );
 }
 
-/** The eight world corners of a perspective frustum, near plane first. */
+/*
+ * The eight world corners of a perspective frustum, near plane first.
+ */
 function frustumCorners(
   props: {
     camera: IAutoMovieResolvedCamera;
@@ -141,7 +144,9 @@ function frustumCorners(
   );
 }
 
-/** Whether a world-space segment meets an axis-aligned box (slab clipping). */
+/*
+ * Whether a world-space segment meets an axis-aligned box (slab clipping).
+ */
 function segmentMeetsBox(
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,

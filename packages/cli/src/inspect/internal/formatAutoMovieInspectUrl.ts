@@ -1,6 +1,6 @@
 import type { AutoMovieCliInspectTypes } from "../AutoMovieCliInspectTypes";
 
-/**
+/*
  * The address of a served inspector page that opens on a request: the page's
  * base address with the request's named text values as its query.
  *

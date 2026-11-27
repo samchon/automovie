@@ -1,4 +1,4 @@
-/**
+/*
  * Exact structural metadata bytes one scoped operation may change.
  *
  * `comments` owns complete grammar-valid evidence comments between their HTML

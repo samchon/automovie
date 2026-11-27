@@ -3,7 +3,7 @@ import {
   IAutoMovieExplicitInstanceTransform,
 } from "@automovie/interface";
 
-/**
+/*
  * The slot one compact-member address names in a set, or null when it names no
  * member of that set.
  *
@@ -11,10 +11,9 @@ import {
  * explicit layout matches its transforms' ids, any other layout parses exactly
  * six digits after `instance:<set>:slot:`. A slot at or past `set.count` is
  * null, so an address left over from a larger revision does not resolve.
- *
- * @param set Compiled set to search.
- * @param address Address to resolve.
- * @returns The zero-based slot, or null.
+ * Parameter set: Compiled set to search.
+ * Parameter address: Address to resolve.
+ * Returns: The zero-based slot, or null.
  */
 export const autoMovieInstanceAddressSlot = (
   set: IAutoMovieCompiledInstanceSet,

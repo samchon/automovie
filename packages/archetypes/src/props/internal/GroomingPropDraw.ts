@@ -10,10 +10,14 @@ import {
 } from "../../core";
 import { CARE_ITEM_BANDS } from "../constants/CARE_ITEM_BANDS";
 
-/** Alltub's laminate tubes data sheet. */
+/*
+ * Alltub's laminate tubes data sheet.
+ */
 const ALLTUB: string =
   "Alltub laminate tubes data sheet (https://www.alltub.com/wp-content/uploads/2024/04/ft-tubes-lamines-en.pdf)";
-/** The readable name of each kind. */
+/*
+ * The readable name of each kind.
+ */
 const NAMES: Readonly<Record<GroomingPropDraw.Kind, string>> = {
   tissue: "tissue",
   comb: "comb",
@@ -23,7 +27,9 @@ const NAMES: Readonly<Record<GroomingPropDraw.Kind, string>> = {
   lipstick: "lipstick",
 };
 
-/** The seeded recipes originally published as `createCareItem`. */
+/*
+ * The seeded recipes originally published as `createCareItem`.
+ */
 export namespace GroomingPropDraw {
   /** The kinds. */
   export type Kind =
@@ -34,7 +40,9 @@ export namespace GroomingPropDraw {
     | "razor"
     | "lipstick";
 
-  /** Every kind, for a caller that reads one at run time. */
+  /*
+   * Every kind, for a caller that reads one at run time.
+   */
   export const KINDS: readonly Kind[] = [
     "tissue",
     "comb",
@@ -44,16 +52,22 @@ export namespace GroomingPropDraw {
     "lipstick",
   ];
 
-  /** The shape of {@link CARTRIDGE}. */
+  /*
+   * The shape of CARTRIDGE.
+   */
   export interface ICartridge {
-    /** The `width` entry. */
+    /*
+     * The `width` entry.
+     */
     width: number;
 
-    /** The `depth` entry. */
+    /*
+     * The `depth` entry.
+     */
     depth: number;
   }
 
-  /**
+  /*
    * A razor's cartridge across and from front to back, metres: an estimate; the
    * razors' pages read do not give it.
    */
@@ -62,7 +76,7 @@ export namespace GroomingPropDraw {
     depth: 0.015,
   };
 
-  /**
+  /*
    * A lipstick's bullet out of its case, metres: an estimate; the cases read
    * give its 12.1 mm across but not how far it stands out.
    */
@@ -93,7 +107,9 @@ export namespace GroomingPropDraw {
    */
   export type Dimension = "length" | "width" | "thickness" | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /*
+   * Each dimension's unit, which its band and any model's figure for it share.
+   */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -139,7 +155,7 @@ export namespace GroomingPropDraw {
     | "edwinJagger"
     | "gilletteMach3";
 
-  /**
+  /*
    * Each kind's models whole, the default first. A tube's diameter (`width`) is
    * one of Alltub's ten
    * (https://www.alltub.com/wp-content/uploads/2024/04/ft-tubes-lamines-en.pdf),
@@ -173,7 +189,7 @@ export namespace GroomingPropDraw {
     },
   };
 
-  /**
+  /*
    * Each Alltub tube diameter's own range of lengths, metres, from the data
    * sheet.
    */
@@ -232,31 +248,38 @@ export namespace GroomingPropDraw {
     ),
   };
 
-  /** The band of each free dimension, by kind. */
+  /*
+   * The band of each free dimension, by kind.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = CARE_ITEM_BANDS;
 
-  /** What {@link prepare} prepares for its caller. */
+  /*
+   * What prepare prepares for its caller.
+   */
   export interface IPrepareResult<Id extends Affordance> {
-    /** The prepared `builder` this call returns. */
+    /*
+     * The prepared `builder` this call returns.
+     */
     builder: AutoMovieArchetypeBuilder<Id, Dimension>;
 
-    /** The prepared `d` this call returns. */
+    /*
+     * The prepared `d` this call returns.
+     */
     d: Partial<Record<Dimension, number>>;
   }
 
-  /**
+  /*
    * Prepare an empty builder and the previously recorded careItem dimensions.
-   *
-   * @param params Fixed dimensions in metres or kilograms, an optional scene
-   *   ID, and a model where the saved recipe has one.
-   * @param seed The seed that draws the saved dimensions and model, or
-   *   undefined for the original defaults.
-   * @param kind The saved kind whose recipe is used.
-   * @returns The builder and dimensions the named producer reads.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter
-   *   lies outside its admitted recipe.
+   * Parameter params: Fixed dimensions in metres or kilograms, an optional scene
+   * ID, and a model where the saved recipe has one.
+   * Parameter seed: The seed that draws the saved dimensions and model, or
+   * undefined for the original defaults.
+   * Parameter kind: The saved kind whose recipe is used.
+   * Returns: The builder and dimensions the named producer reads.
+   * When the model or a fixed parameter
+   * lies outside its admitted recipe.
    */
   export function prepare<Id extends Affordance>(
     kind: Kind,
@@ -295,40 +318,57 @@ export namespace GroomingPropDraw {
     return { builder, d };
   }
 
-  /** The contact ids {@link addHead} builds or reads. */
+  /*
+   * The contact ids addHead builds or reads.
+   */
   export type AddHeadContact = "grip" | "face";
 
-  /** A grooming prop's handle and head size. */
+  /*
+   * A grooming prop's handle and head size.
+   */
   export interface IHead {
-    /** The whole prop length, metres. */
+    /*
+     * The whole prop length, metres.
+     */
     length: number;
 
-    /** The handle diameter, metres. */
+    /*
+     * The handle diameter, metres.
+     */
     width: number;
 
-    /** The head length, metres. */
+    /*
+     * The head length, metres.
+     */
     head: number;
 
-    /** The head width, metres. */
+    /*
+     * The head width, metres.
+     */
     across: number;
   }
 
-  /** A grooming prop's two finishes. */
+  /*
+   * A grooming prop's two finishes.
+   */
   export interface IHeadColors {
-    /** The handle colour. */
+    /*
+     * The handle colour.
+     */
     handle: string;
 
-    /** The head colour. */
+    /*
+     * The head colour.
+     */
     head: string;
   }
 
-  /**
+  /*
    * Add the handle and flat head of a grooming tool.
-   *
-   * @param builder The grooming prop under construction.
-   * @param dimensions The overall length, handle diameter, and head dimensions,
-   *   in metres.
-   * @param colors The body and head colors.
+   * Parameter builder: The grooming prop under construction.
+   * Parameter dimensions: The overall length, handle diameter, and head dimensions,
+   * in metres.
+   * Parameter colors: The body and head colors.
    */
   export function addHead(
     builder: AutoMovieArchetypeBuilder<AddHeadContact, Dimension>,

@@ -12,7 +12,7 @@ import { overrideAutoMovieRenderModeMaterials } from "./overrideAutoMovieRenderM
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
-/**
+/*
  * Inverted-hull shell material: extrude by edgeWidth along the normalized
  * model-space normal after native morph targets and then skinning, the beauty
  * pass's order, then apply instance/object and camera transforms. White back
@@ -60,7 +60,7 @@ const makeEdgeShellMaterial: (edgeWidth: number) => THREE.ShaderMaterial = (
       }`,
   });
 
-/**
+/*
  * Bring a shell to its mesh as the mesh stands now, by rewriting every value
  * the shallow clone took by value: the local transform, the visibility flag,
  * the morph target influences, an instanced mesh's count and instance matrices,
@@ -116,7 +116,9 @@ const followEdgeShell: (
     followEdgeVolumes(mesh, shell);
 };
 
-/** Copy the culling volumes of one posed mesh onto its shell. */
+/*
+ * Copy the culling volumes of one posed mesh onto its shell.
+ */
 const followEdgeVolumes: (from: IPosedVolumes, to: IPosedVolumes) => void = (
   from: IPosedVolumes,
   to: IPosedVolumes,
@@ -125,7 +127,7 @@ const followEdgeVolumes: (from: IPosedVolumes, to: IPosedVolumes) => void = (
   to.boundingBox = from.boundingBox?.clone() ?? null;
 };
 
-/**
+/*
  * Inverted-hull outline pass: each mesh gets a white back-face shell extruded
  * along its model-space normals and a black fill, over black background. The
  * exposed shell forms a contour without host post-processing; it is a
@@ -237,14 +239,18 @@ export const applyEdgeMode: (
   };
 };
 
-/**
+/*
  * The culling volumes a skinned or instanced mesh carries on itself, which a
  * plain mesh does not have.
  */
 interface IPosedVolumes {
-  /** Sphere the renderer culls the mesh by, or null until it is computed. */
+  /*
+   * Sphere the renderer culls the mesh by, or null until it is computed.
+   */
   boundingSphere: THREE.Sphere | null;
 
-  /** Box of the posed mesh, or null until it is computed. */
+  /*
+   * Box of the posed mesh, or null until it is computed.
+   */
   boundingBox: THREE.Box3 | null;
 }

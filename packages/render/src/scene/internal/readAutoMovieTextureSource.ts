@@ -8,7 +8,7 @@ import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { readAutoMovieEnvironmentColorSpace } from "./readAutoMovieEnvironmentColorSpace.js";
 import { readAutoMovieTextureUploadFormat } from "./readAutoMovieTextureUploadFormat.js";
 
-/**
+/*
  * Observe positive two-dimensional decoded texture extents and current
  * supported upload declarations without changing image, sampling or GPU state.
  * Compressed, array/volume, depth, framebuffer and render-target products
@@ -207,7 +207,7 @@ export function readAutoMovieTextureSource(
   };
 }
 
-/**
+/*
  * A source's positive two-dimensional extent, read through the size three
  * declares on it: a texture's or cube level's `width`/`height`, a compressed
  * level's or canvas's own fields. Manual history remains uncertified.

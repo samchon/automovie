@@ -15,7 +15,7 @@ import { nearestAngleAlias } from "../../math/internal/nearestAngleAlias";
 import { AutoMoviePhysicalJointChart } from "../AutoMoviePhysicalJointChart";
 import { PhysicalRotationVector } from "../PhysicalRotationVector";
 
-/**
+/*
  * Measure every native angular constraint from displayed bone frames. A ball
  * joint gated by swing and twist (`range`) is measured on that gate, the set
  * its projection admits (`projectPhysicalJointRotation`): the swing (`x`) past

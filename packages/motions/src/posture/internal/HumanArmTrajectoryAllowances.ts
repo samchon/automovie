@@ -13,17 +13,21 @@ import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import type { HumanArmTrajectoryWaypoint as W } from "./HumanArmTrajectoryWaypoint";
 
-/** The arm's three segments, in the order the tables index them. */
+/*
+ * The arm's three segments, in the order the tables index them.
+ */
 const SEGMENTS: readonly M.Segment[] = ["upperArm", "lowerArm", "hand"];
 
-/** Each segment's index in `SEGMENTS`. */
+/*
+ * Each segment's index in `SEGMENTS`.
+ */
 const SEGMENT: Readonly<Record<M.Segment, number>> = {
   upperArm: 0,
   lowerArm: 1,
   hand: 2,
 };
 
-/**
+/*
  * The pair readers of an arms' trajectory context
  * (`HumanArmTrajectoryModel.IContext`): each probe's and corner's allowance
  * against each shape, the declared rests and the grasp both hands share, read
@@ -36,9 +40,8 @@ const SEGMENT: Readonly<Record<M.Segment, number>> = {
  * each of the arm's own colliders, and each grasping segment's depth where a
  * shared grasp closes or parts), and held in flat arrays indexed by the pair; a
  * reader only indexes them.
- *
- * @param scope What the context built the readers from.
- * @returns The readers.
+ * Parameter scope: What the context built the readers from.
+ * Returns: The readers.
  */
 export function HumanArmTrajectoryAllowances(
   scope: HumanArmTrajectoryAllowances.IScope,
@@ -393,30 +396,48 @@ export function HumanArmTrajectoryAllowances(
   return { rested, allowed, between, lying, inside, grasped };
 }
 
-/** What the pair readers read and what they are. */
+/*
+ * What the pair readers read and what they are.
+ */
 export namespace HumanArmTrajectoryAllowances {
-  /** What an arms' trajectory context builds its pair readers from. */
+  /*
+   * What an arms' trajectory context builds its pair readers from.
+   */
   export interface IScope {
-    /** The problem. */
+    /*
+     * The problem.
+     */
     problem: HumanArmTrajectoryContext.IProblem;
 
-    /** Each arm's setup. */
+    /*
+     * Each arm's setup.
+     */
     setups: IAutoMovieMotionHumanArmGeometry.ISetup[];
 
-    /** The body's tangle audit model. */
+    /*
+     * The body's tangle audit model.
+     */
     model: IAutoMovieMotionHumanAuditTangleModel.IModel;
 
-    /** Each waypoint's record. */
+    /*
+     * Each waypoint's record.
+     */
     points: W.IWaypoint[];
 
-    /** Each arm's frame at each waypoint. */
+    /*
+     * Each arm's frame at each waypoint.
+     */
     frames: IAutoMovieMotionHumanArmGeometry.IFrame[][];
 
-    /** Each arm's site at each waypoint. */
+    /*
+     * Each arm's site at each waypoint.
+     */
     sites: (M.ISite | undefined)[][];
   }
 
-  /** The context members the pair readers are. */
+  /*
+   * The context members the pair readers are.
+   */
   export type Reader =
     | "rested"
     | "allowed"
@@ -425,12 +446,18 @@ export namespace HumanArmTrajectoryAllowances {
     | "inside"
     | "grasped";
 
-  /** The pair readers. */
+  /*
+   * The pair readers.
+   */
   export type IReaders = Pick<M.IContext, Reader>;
 }
 
-/** One arm of the problem. */
+/*
+ * One arm of the problem.
+ */
 type Arm = HumanArmTrajectoryContext.IProblem["arms"][number];
 
-/** One collider of an arm's frame. */
+/*
+ * One collider of an arm's frame.
+ */
 type Collider = IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number];

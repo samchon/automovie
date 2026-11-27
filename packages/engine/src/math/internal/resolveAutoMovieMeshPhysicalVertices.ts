@@ -6,7 +6,7 @@ import {
 
 import { weldMeshVertices } from "./weldMeshVertices";
 
-/**
+/*
  * Resolve actual source-point aliases and current-position legacy vertices.
  * Source pairs are interned in first render occurrence order, independently of
  * ID magnitude or table order. Legacy labels use the existing nanometre grid

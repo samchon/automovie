@@ -22,13 +22,12 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Fit the set and refuse it when a row is not met.
- *
- * @param props The fit's rows and seed.
- * @returns The feasible fit.
- * @throws {HumanRefusal} When any contact, angle or centre row is not met, with
- *   every residual.
+ * Parameter props: The fit's rows and seed.
+ * Returns: The feasible fit.
+ * When any contact, angle or centre row is not met, with
+ * every residual.
  */
 export function sprintStartSetFit(
   props: sprintStartSetFit.IProps,
@@ -141,93 +140,134 @@ export function sprintStartSetFit(
   return solved;
 }
 
-/**
+/*
  * The sprint set's one whole-body fit: both feet on their blocks, each hand's
  * thumb and index bridge at the line, the measured knee and hip angles and, on
  * the anthropometric setting, the measured centre of mass behind the line
  * (`sprintStartSet`, which prepares every input).
  */
 export namespace sprintStartSetFit {
-  /** What the fit is asked. */
+  /*
+   * What the fit is asked.
+   */
   export interface IProps {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The seed posture, its limbs cleared. */
+    /*
+     * The seed posture, its limbs cleared.
+     */
     posture: IAutoMovieMotionHumanPosture;
 
-    /** The seed's resolved pose, whose joints start the fit. */
+    /*
+     * The seed's resolved pose, whose joints start the fit.
+     */
     seed: IAutoMoviePose;
 
-    /** Each foot's placement on its block, world metres. */
+    /*
+     * Each foot's placement on its block, world metres.
+     */
     feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
-    /**
+    /*
      * Whether the feet stand on placed plates, held in all three axes, rather
      * than on body-scaled blocks held along the floor.
      */
     placed: boolean;
 
-    /** Each hand's bridge targets at the line. */
+    /*
+     * Each hand's bridge targets at the line.
+     */
     bridges: Record<
       AutoMovieHumanSide,
       IAutoMovieMotionHumanBodyFitTypes.ITarget[]
     >;
 
-    /** The front foot. */
+    /*
+     * The front foot.
+     */
     front: AutoMovieHumanSide;
 
-    /** The front knee's included angle, degrees: a value or a range. */
+    /*
+     * The front knee's included angle, degrees: a value or a range.
+     */
     knee: IAutoMovieMotionHumanFitGoals.IAngle["degrees"];
 
-    /** The rear knee's included angle range, degrees. */
+    /*
+     * The rear knee's included angle range, degrees.
+     */
     rear: IAutoMovieMotionHumanFitGoals.IAngle["degrees"];
 
-    /** The front hip's included angle range, degrees. */
+    /*
+     * The front hip's included angle range, degrees.
+     */
     hip: IAutoMovieMotionHumanFitGoals.IAngle["degrees"];
 
-    /** The centre of mass row, absent on placed plates. */
+    /*
+     * The centre of mass row, absent on placed plates.
+     */
     centre: IAutoMovieMotionHumanFitGoals.ICentre | undefined;
   }
 
-  /** One palm's frame where the bridge leaves it, raised off the track. */
+  /*
+   * One palm's frame where the bridge leaves it, raised off the track.
+   */
   export interface IPalm {
-    /** The palm's centre, world metres. */
+    /*
+     * The palm's centre, world metres.
+     */
     point: IAutoMovieVector3;
 
-    /** The palm's outward normal, a unit world vector. */
+    /*
+     * The palm's outward normal, a unit world vector.
+     */
     facing: IAutoMovieVector3;
 
-    /** The fingers' direction, a unit world vector. */
+    /*
+     * The fingers' direction, a unit world vector.
+     */
     forward: IAutoMovieVector3;
   }
 
-  /** The fitted set as the athletics law reads it. */
+  /*
+   * The fitted set as the athletics law reads it.
+   */
   export interface ISet {
-    /** The hips joint, world metres. */
+    /*
+     * The hips joint, world metres.
+     */
     hips: IAutoMovieVector3;
 
-    /** The trunk's pitch, degrees. */
+    /*
+     * The trunk's pitch, degrees.
+     */
     pitch: number;
 
-    /** The fitted joints. */
+    /*
+     * The fitted joints.
+     */
     joints: IAutoMovieMotionHumanPosture["joints"];
 
-    /** Each palm where its bridge leaves it. */
+    /*
+     * Each palm where its bridge leaves it.
+     */
     palms: Record<AutoMovieHumanSide, IPalm>;
 
-    /** Each foot's achieved placement on its block. */
+    /*
+     * Each foot's achieved placement on its block.
+     */
     feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
   }
 
-  /**
+  /*
    * Read the set off its fitted posture.
-   *
-   * @param body The body.
-   * @param posture The fitted posture.
-   * @param resolution The set solve's resolution workspace.
-   * @param projector The set solve's posture projection, when it has one.
-   * @returns The set.
+   * Parameter body: The body.
+   * Parameter posture: The fitted posture.
+   * Parameter resolution: The set solve's resolution workspace.
+   * Parameter projector: The set solve's posture projection, when it has one.
+   * Returns: The set.
    */
   export function read(
     body: IAutoMovieMotionHumanBody,

@@ -9,17 +9,16 @@ import type {
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * Write the standing law's planted leg goals, either directly for one query or
  * with its fixed-yaw foot metadata supplied by prepareStandingLegs.
- *
- * @param body The unchanged body.
- * @param root Current rig origin, world metres.
- * @param yaw Current standing heading, degrees about +Y.
- * @param feet Current ankle targets, world metres.
- * @param toeOut The standing law's outward progression angle, degrees.
- * @param fixed Optional metadata from the same body/yaw/toeOut preparation.
- * @returns Fresh knee goals, foot rotations and contact vectors.
+ * Parameter body: The unchanged body.
+ * Parameter root: Current rig origin, world metres.
+ * Parameter yaw: Current standing heading, degrees about +Y.
+ * Parameter feet: Current ankle targets, world metres.
+ * Parameter toeOut: The standing law's outward progression angle, degrees.
+ * Parameter fixed: Optional metadata from the same body/yaw/toeOut preparation.
+ * Returns: Fresh knee goals, foot rotations and contact vectors.
  */
 export function standingLegs(
   body: IAutoMovieMotionHumanBody,
@@ -64,17 +63,27 @@ export function standingLegs(
   return limbs;
 }
 
-/** The record of `IFixedEntryItem`'s site. */
+/*
+ * The record of `IFixedEntryItem`'s site.
+ */
 type IFixedEntryItem = {
-  /** The fixed toe-out heading in degrees. */
+  /*
+   * The fixed toe-out heading in degrees.
+   */
   yaw: number;
 
-  /** The heading quaternion prepared from the same yaw and toe-out. */
+  /*
+   * The heading quaternion prepared from the same yaw and toe-out.
+   */
   rotation: IAutoMovieQuaternion;
 
-  /** The unchanged body's local metatarsophalangeal offset, metres. */
+  /*
+   * The unchanged body's local metatarsophalangeal offset, metres.
+   */
   contact: IAutoMovieVector3;
 
-  /** Original nested knee-frame transforms with only the root varying. */
+  /*
+   * Original nested knee-frame transforms with only the root varying.
+   */
   knee: (root: IAutoMovieVector3) => IAutoMovieVector3;
 };

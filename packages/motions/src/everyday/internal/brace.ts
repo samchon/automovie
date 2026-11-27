@@ -25,7 +25,7 @@ import { braceBody } from "./braceBody";
 import { gestureHands } from "./gestureHands";
 import { prepareGroundedBalance } from "./prepareGroundedBalance";
 
-/**
+/*
  * Bracing for an expected impact, push or a falling body: the stance widens and
  * staggers along the line of the coming force, the body lowers and leans into
  * it, and the hands come up in front, all set before the force arrives.
@@ -58,10 +58,14 @@ import { prepareGroundedBalance } from "./prepareGroundedBalance";
  * or from straight ahead when absent.
  */
 export namespace brace {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "brace";
 
-  /** Cancel table: a brace is standing and may become standing again. */
+  /*
+   * Cancel table: a brace is standing and may become standing again.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
@@ -73,19 +77,19 @@ export namespace brace {
     ],
   };
 
-  /**
+  /*
    * Knee flexion of the set posture, degrees (provisional: a slightly bent
    * ready stance, read from no measured source).
    */
   export const KNEE: number = 25;
 
-  /**
+  /*
    * How far the rear foot steps back along the force's line, leg lengths
    * (provisional).
    */
   export const STAGGER: number = 0.3;
 
-  /**
+  /*
    * Lead time to the set posture, seconds: the early postural adjustments to a
    * predictable impact begin 400 to 500 ms before it (Krishnan, Latash and
    * Aruin 2012, Clin Neurophysiol 123:1016), so the set is reached at the end
@@ -93,7 +97,7 @@ export namespace brace {
    */
   export const SET: number = 0.5;
 
-  /**
+  /*
    * How long the stepping foot swings, seconds: 40 % of a stride, the swing's
    * share of the gait cycle (Perry and Burnfield 2010, Gait Analysis, ch. 1),
    * at the 1.8 to 2.0 steps a second of pedestrians (Pachi and Ji 2005, Struct
@@ -101,64 +105,65 @@ export namespace brace {
    */
   export const SWING: number = 0.4;
 
-  /**
+  /*
    * The least the set posture is held after it is reached, seconds
    * (provisional: long enough to read as held, read from no measured source).
    */
   export const HELD: number = 0.2;
 
-  /** The brace's length when the caller names none, seconds (provisional). */
+  /*
+   * The brace's length when the caller names none, seconds (provisional).
+   */
   export const SECONDS: number = 1.5;
 
-  /**
+  /*
    * When the stepping foot leaves and lands, seconds from the start: a `SWING`
    * long step that lands as the set is reached.
    */
   export const STEP: readonly [number, number] = [SET - SWING, SET];
 
-  /**
+  /*
    * The stepping foot's lift at mid-swing, metres (provisional: a shuffle's
    * clearance, read from no measured source).
    */
   export const LIFT: number = 0.03;
 
-  /**
+  /*
    * The trunk's inclination into a force from straight ahead, degrees
    * (provisional).
    */
   export const LEAN: number = 10;
 
-  /**
+  /*
    * How far ahead of the sternum the palms come up, a share of the arm (upper
    * arm and forearm) (provisional: the elbows bent, not reaching).
    */
   export const AHEAD: number = 0.55;
 
-  /**
+  /*
    * How far out from the sternum each palm stands, a share of the half shoulder
    * width (provisional: just inside the shoulders).
    */
   export const SPREAD: number = 0.9;
 
-  /**
+  /*
    * How far below the sternum the palms come to receive a falling body, a share
    * of stature (provisional).
    */
   export const RECEIVE: number = 0.1;
 
-  /**
+  /*
    * The elbows' outward hint, a share of the upper arm (provisional: read from
    * no measured source).
    */
   export const ELBOW_OUT: number = 0.2;
 
-  /**
+  /*
    * Plan a brace: the rear foot's step, the lowered and centred set root, and
    * postures that reach the set at `SET` seconds with the palms up toward the
    * force, then hold it.
-   *
-   * @param context The action's context.
-   * @returns The plan; a duration shorter than `SET + HELD` is raised to it.
+   * Parameter context: The action's context.
+   * Returns: The plan; a duration shorter than `SET + HELD` is raised to it.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBrace.IParams>,
@@ -389,8 +394,12 @@ export namespace brace {
   }
 }
 
-/** The record of `IPlanFootAtResult`'s site. */
+/*
+ * The record of `IPlanFootAtResult`'s site.
+ */
 type IPlanFootAtResult = { ankle: IAutoMovieVector3; planted: boolean };
 
-/** The record of `IPlanFootAt`'s site. */
+/*
+ * The record of `IPlanFootAt`'s site.
+ */
 type IPlanFootAt = { ankle: IAutoMovieVector3; planted: boolean };

@@ -106,7 +106,9 @@ export namespace AutoMovieHumanFingerBones {
     };
   }
 
-  /** A direction turned toward the palm, square to itself, by degrees. */
+  /*
+   * A direction turned toward the palm, square to itself, by degrees.
+   */
   function bend(
     dir: AutoMovieVector3Tuple,
     palmar: AutoMovieVector3Tuple,

@@ -5,25 +5,24 @@ import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieJointPose, IA
 import { AutoMovieMotionHumanAuditBalance } from "../../audit/internal/AutoMovieMotionHumanAuditBalance";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 
-/**
+/*
  * Measures of a held stance on displayed poses, shared by the step 4 capture
  * cases (stretching, dance, sport): how far the body's extrapolated centre of
  * mass stands outside one standing foot, a joint's clinical angle, and the
  * angle between two bones.
  */
 export namespace StanceVerdicts {
-  /**
+  /*
    * How far the extrapolated centre of mass lies outside one standing foot's
    * bearing outline, metres: the margin of stability negated, negative inside.
    * The velocity is the central difference over the balance audit's step
    * (`AutoMovieMotionHumanAuditBalance.STEP`), clamped into the film.
-   *
-   * @param performance The performance.
-   * @param subject The performer.
-   * @param body Their body.
-   * @param side The standing foot.
-   * @param seconds Film seconds.
-   * @returns Metres.
+   * Parameter performance: The performance.
+   * Parameter subject: The performer.
+   * Parameter body: Their body.
+   * Parameter side: The standing foot.
+   * Parameter seconds: Film seconds.
+   * Returns: Metres.
    */
   export function outside(
     performance: IAutoMovieMotionHumanPerformance,
@@ -67,16 +66,15 @@ export namespace StanceVerdicts {
       HumanFoot.base(body, performance.bones(subject, seconds), [side]),
     );
   }
-  /**
+  /*
    * The worst of `outside` over a window on the 24 Hz grid.
-   *
-   * @param performance The performance.
-   * @param subject The performer.
-   * @param body Their body.
-   * @param side The standing foot.
-   * @param from Film seconds.
-   * @param to Film seconds.
-   * @returns Metres and the second.
+   * Parameter performance: The performance.
+   * Parameter subject: The performer.
+   * Parameter body: Their body.
+   * Parameter side: The standing foot.
+   * Parameter from: Film seconds.
+   * Parameter to: Film seconds.
+   * Returns: Metres and the second.
    */
   export function worstOutside(
     performance: IAutoMovieMotionHumanPerformance,
@@ -94,14 +92,13 @@ export namespace StanceVerdicts {
     return worst;
   }
 
-  /**
+  /*
    * A joint's displayed clinical angles, degrees.
-   *
-   * @param performance The performance.
-   * @param subject The performer.
-   * @param bone The joint.
-   * @param seconds Film seconds.
-   * @returns Flexion, abduction and twist; zeros when the pose omits the joint.
+   * Parameter performance: The performance.
+   * Parameter subject: The performer.
+   * Parameter bone: The joint.
+   * Parameter seconds: Film seconds.
+   * Returns: Flexion, abduction and twist; zeros when the pose omits the joint.
    */
   export function joint(
     performance: Pick<IAutoMovieMotionHumanPerformance, "pose">,
@@ -116,17 +113,16 @@ export namespace StanceVerdicts {
     return [0, 0, 0];
   }
 
-  /**
+  /*
    * The angle at a middle bone between the segments to its parent and child
    * joints, degrees: 180 for a straight limb.
-   *
-   * @param performance The performance.
-   * @param subject The performer.
-   * @param a The proximal joint's bone.
-   * @param b The middle joint's bone.
-   * @param c The distal joint's bone.
-   * @param seconds Film seconds.
-   * @returns Degrees.
+   * Parameter performance: The performance.
+   * Parameter subject: The performer.
+   * Parameter a: The proximal joint's bone.
+   * Parameter b: The middle joint's bone.
+   * Parameter c: The distal joint's bone.
+   * Parameter seconds: Film seconds.
+   * Returns: Degrees.
    */
   export function included(
     performance: Pick<IAutoMovieMotionHumanPerformance, "bones">,
@@ -149,8 +145,12 @@ export namespace StanceVerdicts {
   }
 }
 
-/** The record of `IWorstOutsideWorst`'s site. */
+/*
+ * The record of `IWorstOutsideWorst`'s site.
+ */
 type IWorstOutsideWorst = { value: number; at: number };
 
-/** The record of `IWorstOutsideResult`'s site. */
+/*
+ * The record of `IWorstOutsideResult`'s site.
+ */
 type IWorstOutsideResult = { value: number; at: number };

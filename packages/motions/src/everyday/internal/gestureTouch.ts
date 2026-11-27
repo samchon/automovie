@@ -16,7 +16,7 @@ import { HumanTrunk } from "./HumanTrunk";
 import { gestureSignal } from "./gestureSignal";
 import type { gestureStroke } from "./gestureStroke";
 
-/**
+/*
  * The hand goals of a gesture that need the posed trunk: pointing along the
  * eye's line and touching the body's own face.
  *
@@ -32,16 +32,15 @@ import type { gestureStroke } from "./gestureStroke";
  *   rubs it 15 mm on the head's side four times a second (provisional).
  */
 export namespace gestureTouch {
-  /**
+  /*
    * Prepare one plan's fixed self-touch padding or pointing arm/digit reach.
-   *
-   * @param body The body supplying rig, measure and contact geometry.
-   * @param side The moving hand.
-   * @param kind The gesture kind.
-   * @param touched The face region a `touchFace` touches.
-   * @returns The plan's touch geometry for pointing or self-touch, or undefined
-   *   for other kinds: a pointing hand's reach and bone reader, or a touching
-   *   hand's padding and region reader, all built here.
+   * Parameter body: The body supplying rig, measure and contact geometry.
+   * Parameter side: The moving hand.
+   * Parameter kind: The gesture kind.
+   * Parameter touched: The face region a `touchFace` touches.
+   * Returns: The plan's touch geometry for pointing or self-touch, or undefined
+   * for other kinds: a pointing hand's reach and bone reader, or a touching
+   * hand's padding and region reader, all built here.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -73,41 +72,54 @@ export namespace gestureTouch {
     };
   }
 
-  /**
+  /*
    * A plan's touch geometry for one hand: the body, side and kind it was built
    * for, and what was computed for them.
    */
   export interface IPrepared {
-    /** The body the geometry is computed for. */
+    /*
+     * The body the geometry is computed for.
+     */
     readonly body: IAutoMovieMotionHumanBody;
 
-    /** The hand. */
+    /*
+     * The hand.
+     */
     readonly side: AutoMovieHumanSide;
 
-    /** The gesture kind. */
+    /*
+     * The gesture kind.
+     */
     readonly kind: IAutoMovieMotionHumanGestureStroke.Kind;
 
-    /** The fingertip's landmark-to-skin padding for self-touch, metres. */
+    /*
+     * The fingertip's landmark-to-skin padding for self-touch, metres.
+     */
     readonly padding?: number;
 
-    /** The pointing reach from the shoulder to the fingertip, metres. */
+    /*
+     * The pointing reach from the shoulder to the fingertip, metres.
+     */
     readonly reach?: number;
 
-    /** The eye and shoulder reader of a pointing hand. */
+    /*
+     * The eye and shoulder reader of a pointing hand.
+     */
     readonly point?: ReturnType<typeof HumanTrunk.prepareResolve>;
 
-    /** The self-touch region's reader. */
+    /*
+     * The self-touch region's reader.
+     */
     readonly region?: IPreparedRegion;
   }
 
-  /**
+  /*
    * The pointing goal: the fingertip on the eye-to-target line at the arm's
    * reach.
-   *
-   * @param input The instant's inputs.
-   * @param side The hand.
-   * @returns The goal.
-   * @throws {Error} Without a target.
+   * Parameter input: The instant's inputs.
+   * Parameter side: The hand.
+   * Returns: The goal.
+   * Without a target.
    */
   export function point(
     input: gestureStroke.IInput,
@@ -169,16 +181,15 @@ export namespace gestureTouch {
     };
   }
 
-  /**
+  /*
    * A self-touch goal: the fingertip on a face region, palm toward the face,
    * fingers up.
-   *
-   * @param kind The self-touch gesture.
-   * @param input The instant's inputs.
-   * @param side The hand.
-   * @param u Stroke share in [0, 1].
-   * @param cycles Stroke cycles.
-   * @returns The goal.
+   * Parameter kind: The self-touch gesture.
+   * Parameter input: The instant's inputs.
+   * Parameter side: The hand.
+   * Parameter u: Stroke share in [0, 1].
+   * Parameter cycles: Stroke cycles.
+   * Returns: The goal.
    */
   export function touch(
     kind: TouchKind,
@@ -228,12 +239,11 @@ export namespace gestureTouch {
     };
   }
 
-  /**
+  /*
    * Distance from the material fingertip landmark to its own collision surface.
-   *
-   * @param body The body whose profile defines the fingertip.
-   * @param side The touching hand.
-   * @returns The landmark-to-skin padding, metres.
+   * Parameter body: The body whose profile defines the fingertip.
+   * Parameter side: The touching hand.
+   * Returns: The landmark-to-skin padding, metres.
    */
   export function padding(
     body: IAutoMovieMotionHumanBody,
@@ -246,16 +256,22 @@ export namespace gestureTouch {
   }
 }
 
-/** The alternatives of `TouchKind`'s site. */
+/*
+ * The alternatives of `TouchKind`'s site.
+ */
 type TouchKind = "touchFace" | "pushGlasses" | "scratchHead";
 
-/** The record of `IPreparedRegion`'s site. */
+/*
+ * The record of `IPreparedRegion`'s site.
+ */
 type IPreparedRegion = {
   name: AutoMovieHumanoidRegion;
   read: ReturnType<typeof HumanTrunk.prepareRegion>;
 };
 
-/** A pointing hand reads its eye and shoulder, without evaluating other limbs. */
+/*
+ * A pointing hand reads its eye and shoulder, without evaluating other limbs.
+ */
 const POINT_FRAMES: Readonly<
   Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>
 > = {
@@ -263,7 +279,7 @@ const POINT_FRAMES: Readonly<
   right: new Set<AutoMovieHumanoidBone>(["rightEye", "rightUpperArm"]),
 };
 
-/**
+/*
  * The pointing reach from the shoulder to the fingertip: `POINT_REACH` of the
  * arm plus the point shape's index-tip offset from the wrist.
  */
@@ -277,7 +293,7 @@ function pointingReach(
   return POINT_REACH * (body.measure.upperArm + body.measure.forearm) + tip;
 }
 
-/**
+/*
  * The share of the arm (upper arm and forearm) a pointing arm extends to:
  * nearly straight, as people point at a distant target with an almost fully
  * extended arm (Herbort and Kunde 2016, J Exp Psychol Hum Percept Perform
@@ -286,20 +302,20 @@ function pointingReach(
  */
 const POINT_REACH: number = 0.95;
 
-/**
+/*
  * The vertical component of a pointing line past which palm down has no meaning
  * and the palm turns back or forward instead (provisional: about 64 degrees
  * from the horizontal).
  */
 const STEEP: number = 0.9;
 
-/**
+/*
  * The outward elbow hint of a hand touching the face, a share of the upper arm
  * (provisional: read from no measured source).
  */
 const TOUCH_OUT: number = 0.15;
 
-/**
+/*
  * The face region a self-touch kind touches: the nose bridge for `pushGlasses`,
  * the hand's temple for `scratchHead`, the asked one otherwise.
  */
@@ -317,7 +333,9 @@ function regionOf(
       : asked;
 }
 
-/** A prepared record, when it was built for this body, side and kind. */
+/*
+ * A prepared record, when it was built for this body, side and kind.
+ */
 function preparation(
   prepared: gestureTouch.IPrepared | undefined,
   body: IAutoMovieMotionHumanBody,

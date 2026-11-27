@@ -7,12 +7,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Own-data copies and exact numerical comparisons used by prepared FK. These
  * copies do not certify valid axes or clinical maps.
  */
 export namespace PoseResolutionSnapshot {
-  /** The defined entries of a per-bone table, in its own key order. */
+  /*
+   * The defined entries of a per-bone table, in its own key order.
+   */
   export function entries<T>(
     table: Partial<Record<AutoMovieHumanoidBone, T>> | undefined,
   ): [string, T][] {
@@ -22,7 +24,7 @@ export namespace PoseResolutionSnapshot {
     return result;
   }
 
-  /**
+  /*
    * Compare actual quaternion components, including signed zero, without
    * arithmetic.
    */
@@ -39,7 +41,9 @@ export namespace PoseResolutionSnapshot {
     );
   }
 
-  /** Compare actual vector components, retaining signed-zero distinctions. */
+  /*
+   * Compare actual vector components, retaining signed-zero distinctions.
+   */
   export function sameVector(
     left: IAutoMovieVector3,
     right: IAutoMovieVector3,
@@ -52,7 +56,9 @@ export namespace PoseResolutionSnapshot {
     );
   }
 
-  /** Copy a clinical basis and its exact optional twist placement. */
+  /*
+   * Copy a clinical basis and its exact optional twist placement.
+   */
   export function axes(input: IAutoMovieJointAxes): IAutoMovieJointAxes {
     return {
       flexion: vector(input.flexion),
@@ -67,19 +73,25 @@ export namespace PoseResolutionSnapshot {
     };
   }
 
-  /** Copy three numerical properties in their existing frame and units. */
+  /*
+   * Copy three numerical properties in their existing frame and units.
+   */
   export function vector(input: IAutoMovieVector3): IAutoMovieVector3 {
     return { x: input.x, y: input.y, z: input.z };
   }
 
-  /** Copy exact quaternion components without normalization. */
+  /*
+   * Copy exact quaternion components without normalization.
+   */
   export function quaternion(
     input: IAutoMovieQuaternion,
   ): IAutoMovieQuaternion {
     return { x: input.x, y: input.y, z: input.z, w: input.w };
   }
 
-  /** Copy optional affine clinical maps. */
+  /*
+   * Copy optional affine clinical maps.
+   */
   export function frame(input: IAutoMovieRestFrame): IAutoMovieRestFrame {
     const snapshot: IAutoMovieRestFrame = {};
     if (input.flexion !== undefined)
@@ -91,7 +103,9 @@ export namespace PoseResolutionSnapshot {
   }
 }
 
-/** Copy one affine clinical map. */
+/*
+ * Copy one affine clinical map.
+ */
 function axisFrame(input: IAutoMovieAxisFrame): IAutoMovieAxisFrame {
   return { sign: input.sign, neutral: input.neutral };
 }

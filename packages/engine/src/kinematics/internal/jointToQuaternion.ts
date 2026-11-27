@@ -10,7 +10,7 @@ import { DEFAULT_JOINT_AXES } from "../DEFAULT_JOINT_AXES";
 import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 
-/**
+/*
  * Convert a joint's clinical flexion, abduction and twist, in degrees, into one
  * bone-local rotation quaternion.
  *
@@ -39,16 +39,15 @@ import { normalizeJointAxes } from "./normalizeJointAxes";
  * `null` angle contributes no rotation. With a `frame`, each angle is read as
  * clinical and mapped to the rig's rest-relative angle, `r = (clinical −
  * neutral) / sign`, so one clinical convention serves both sides of a mirrored
- * rig. {@link decomposeJointRotation} is the inverse for the same `axes` and
+ * rig. decomposeJointRotation is the inverse for the same `axes` and
  * `frame`.
  *
  * Throws on a non-finite angle, an invalid axis basis (see
- * {@link normalizeJointAxes}), or an invalid frame sign or neutral.
- *
- * @param joint Clinical angles in degrees; `null` axes are at rest.
- * @param axes Clinical axis basis; defaults to `DEFAULT_JOINT_AXES`.
- * @param frame Rest frame mapping clinical angles to rest-relative ones;
- *   omitted, the angles are already rest-relative.
+ * normalizeJointAxes), or an invalid frame sign or neutral.
+ * Parameter joint: Clinical angles in degrees; `null` axes are at rest.
+ * Parameter axes: Clinical axis basis; defaults to `DEFAULT_JOINT_AXES`.
+ * Parameter frame: Rest frame mapping clinical angles to rest-relative ones;
+ * omitted, the angles are already rest-relative.
  */
 export const jointToQuaternion: (
   joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,

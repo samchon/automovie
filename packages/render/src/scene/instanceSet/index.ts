@@ -1,4 +1,4 @@
-/**
+/*
  * Instance-set construction, accounting and slot identities with independent
  * source owners.
  */

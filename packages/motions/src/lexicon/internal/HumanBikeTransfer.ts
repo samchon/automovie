@@ -21,13 +21,17 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { HumanMountOff } from "./HumanMountOff";
 import { humanBikeTransferLine } from "./humanBikeTransferLine";
 
-/** Number of intervals over which the authored stationary segment is probed. */
+/*
+ * Number of intervals over which the authored stationary segment is probed.
+ */
 const INTERVALS: number = 8;
 
-/** The selected bicycle's pedal sides. */
+/*
+ * The selected bicycle's pedal sides.
+ */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
-/**
+/*
  * Enter or leave the same stopped bicycle at a race boundary, using the
  * high-seat transfer and its displayed floor contacts. World Triathlon
  * Competition Rules §7.1(h,j) require a complete ground foot contact past the
@@ -47,7 +51,7 @@ export const HumanBikeTransfer: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionH
     plan: planHumanBikeTransfer,
   };
 
-/**
+/*
  * Enter or leave the same stopped bicycle at a race boundary, using the
  * high-seat transfer and its displayed floor contacts. World Triathlon
  * Competition Rules §7.1(h,j) require a complete ground foot contact past the
@@ -58,8 +62,6 @@ export const HumanBikeTransfer: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionH
  *
  * The scenic bicycle is authored independently while stopped or wheeled. Rack
  * and helmet choreography are separate equipment actions.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the legal line, floor contact and stopped bicycle assumptions.
  */
 function planHumanBikeTransfer(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBikeTransfer>,
@@ -163,7 +165,7 @@ function planHumanBikeTransfer(
 
   const beyond: (sole: readonly IAutoMovieVector3[]) => boolean =
     humanBikeTransferLine(line, mount);
-  /**
+  /*
    * Whether an entire displayed sole is on the floor on the required side of
    * the line.
    */

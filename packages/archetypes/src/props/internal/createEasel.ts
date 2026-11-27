@@ -8,16 +8,15 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 
-/**
+/*
  * An easel standing on the floor with a canvas upright on it.
  *
  * The easel stands at the origin, the canvas' painted face toward `-Z`, where
  * the painter stands. `canvas` is that face, its outward normal (`+Y` of the
  * frame) toward `-Z` and its `X` along world `+X`, `width` across and `depth`
  * up, centred at `centre` above the floor.
- *
- * @param params The optional scene id.
- * @returns The easel and its canvas surface, metres.
+ * Parameter params: The optional scene id.
+ * Returns: The easel and its canvas surface, metres.
  */
 export function createEasel(
   params: AutoMovieArchetypeEasel.IParams = {},
@@ -81,7 +80,7 @@ export function createEasel(
   return builder.build(SIZE.mass);
 }
 
-/**
+/*
  * A studio easel holding a canvas. No source is read: the canvas' size, its
  * centre's height for a standing painter and the mass are provisional
  * construction estimates.

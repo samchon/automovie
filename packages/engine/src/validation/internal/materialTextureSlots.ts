@@ -5,7 +5,7 @@ import {
   type IAutoMovieMaterialTextureSlotsMaterialTextureSlot,
 } from "@automovie/interface";
 
-/**
+/*
  * Enumerate present baseColor, metalRough, normal, detailNormal, occlusion,
  * emissive and thickness bindings, the anisotropy direction binding, then
  * overlay color/normal bindings, carrying exact suffixes and decoding intent.
@@ -43,7 +43,7 @@ export function materialTextureSlots(
   return slots;
 }
 
-/**
+/*
  * Own-slot order: base color, metallic-roughness, normal, detail normal,
  * occlusion, emissive, then thickness.
  */

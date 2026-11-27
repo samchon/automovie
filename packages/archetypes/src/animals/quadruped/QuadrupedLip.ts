@@ -4,7 +4,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { AutoMovieArchetypeBuilder } from "../../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 
-/**
+/*
  * A coarse upper lip laid inside the head capsule at the muzzle and hinged at
  * its root, so it can curl up.
  *
@@ -31,26 +31,33 @@ export namespace QuadrupedLip {
     root: number;
   }
 
-  /** The lip's neutral geometry in the model's space. */
+  /*
+   * The lip's neutral geometry in the model's space.
+   */
   export interface IGeometry {
-    /** The root the lip curls about, the capsule's first cap centre. */
+    /*
+     * The root the lip curls about, the capsule's first cap centre.
+     */
     root: IAutoMovieVector3;
 
-    /** The free end at the muzzle, the capsule's second cap centre. */
+    /*
+     * The free end at the muzzle, the capsule's second cap centre.
+     */
     tip: IAutoMovieVector3;
 
-    /** The capsule's radius, metres. */
+    /*
+     * The capsule's radius, metres.
+     */
     radius: number;
   }
 
-  /**
+  /*
    * The lip inside a head capsule.
-   *
-   * @param head The neutral head capsule: poll, nose and radius.
-   * @param profile The authored lip construction.
-   * @returns The lip's neutral geometry.
-   * @throws {RangeError} For fractions outside their ranges or a degenerate
-   *   head.
+   * Parameter head: The neutral head capsule: poll, nose and radius.
+   * Parameter profile: The authored lip construction.
+   * Returns: The lip's neutral geometry.
+   * For fractions outside their ranges or a degenerate
+   * head.
    */
   export function geometry(
     head: Pick<
@@ -91,14 +98,13 @@ export namespace QuadrupedLip {
     };
   }
 
-  /**
+  /*
    * Lay the lip capsule as the part `lip`.
-   *
-   * @param builder The body under construction.
-   * @param head The neutral head capsule.
-   * @param profile The authored lip construction.
-   * @param color The coat's colour.
-   * @throws {RangeError} As `geometry` refuses.
+   * Parameter builder: The body under construction.
+   * Parameter head: The neutral head capsule.
+   * Parameter profile: The authored lip construction.
+   * Parameter color: The coat's colour.
+   * As `geometry` refuses.
    */
   export function lay<Id extends string, Dimension extends string>(
     builder: AutoMovieArchetypeBuilder<Id, Dimension>,

@@ -2,7 +2,7 @@ import type { IAutoMovieMotionHumanGuitarChord } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * The instants a strummed chord is built on: the hand prepares halfway to the
  * fretting stop, and the sweep crosses the strings at its first and second
  * thirds.
@@ -73,17 +73,27 @@ export function guitarChordTimes(
   return { prep, firstAt, secondAt };
 }
 
-/** Timing shared by the guitar law's fretting and strumming hands. */
+/*
+ * Timing shared by the guitar law's fretting and strumming hands.
+ */
 export namespace guitarChordTimes {
-  /** The chord's derived instants, seconds from its start. */
+  /*
+   * The chord's derived instants, seconds from its start.
+   */
   export interface ITimes {
-    /** When the hand has prepared, halfway to the fretting stop. */
+    /*
+     * When the hand has prepared, halfway to the fretting stop.
+     */
     prep: number;
 
-    /** When the sweep crosses the strings first, a third of the way. */
+    /*
+     * When the sweep crosses the strings first, a third of the way.
+     */
     firstAt: number;
 
-    /** When the sweep crosses the strings again, two thirds of the way. */
+    /*
+     * When the sweep crosses the strings again, two thirds of the way.
+     */
     secondAt: number;
   }
 }

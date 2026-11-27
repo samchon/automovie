@@ -9,7 +9,7 @@ import { planarSegmentsMeet } from "../../internal/planarSegmentsMeet";
 import { pointInPlanarRing } from "../../internal/pointInPlanarRing";
 import { signedArea } from "../../internal/signedArea";
 
-/**
+/*
  * Return the first deterministic hygiene failure in one planar region, or
  * `null` when every ring describes one unambiguous bounded region.
  *
@@ -26,12 +26,11 @@ import { signedArea } from "../../internal/signedArea";
  * hole. Zero means within the absolute `PLANAR_EPSILON` (1e-12) of square
  * metres or metres. Messages name rings as `<label> outer ring` and `<label>
  * hole[i]`, with `label` defaulting to `polygon`.
- *
- * @param props.outer Outer ring in any winding, the last point joined back to
- *   the first.
- * @param props.holes Rings removed from the region; omitted means none.
- * @param label Name the messages give the region.
- * @returns The first failure message, or `null` for an admissible region.
+ * Parameter props.outer: Outer ring in any winding, the last point joined back to
+ * the first.
+ * Parameter props.holes: Rings removed from the region; omitted means none.
+ * Parameter label: Name the messages give the region.
+ * Returns: The first failure message, or `null` for an admissible region.
  */
 export function regionFailure(
   props: IAutoMoviePlanarRegion,
@@ -81,7 +80,9 @@ export function regionFailure(
   return null;
 }
 
-/** The first defect inside one ring, before relations to other rings matter. */
+/*
+ * The first defect inside one ring, before relations to other rings matter.
+ */
 function ringFailure(
   ring: readonly IAutoMoviePlanarPoint[],
   label: string,
@@ -115,7 +116,9 @@ function ringFailure(
   return ringCrossingFailure(ring, label);
 }
 
-/** First meeting of two non-neighbouring edges in one ring. */
+/*
+ * First meeting of two non-neighbouring edges in one ring.
+ */
 function ringCrossingFailure(
   ring: readonly IAutoMoviePlanarPoint[],
   label: string,
@@ -135,7 +138,9 @@ function ringCrossingFailure(
   return null;
 }
 
-/** Are two edges of the same ring the pair that share a corner? */
+/*
+ * Are two edges of the same ring the pair that share a corner?
+ */
 function neighbouringEdges(size: number, left: number, right: number): boolean {
   return (left + 1) % size === right || (right + 1) % size === left;
 }

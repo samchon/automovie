@@ -8,16 +8,22 @@ import type {
 import { Quaternion } from "../../../math/Quaternion";
 import { AutoMovieEngineMotionTrajectory } from "../../AutoMovieEngineMotionTrajectory";
 
-/** The lateral unit axis, read without mutation by quaternion operations. */
+/*
+ * The lateral unit axis, read without mutation by quaternion operations.
+ */
 const LATERAL: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
-/** The longitudinal unit axis in the shooting attitude convention. */
+/*
+ * The longitudinal unit axis in the shooting attitude convention.
+ */
 const LONGITUDINAL: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** The forward unit axis in the shooting attitude convention. */
+/*
+ * The forward unit axis in the shooting attitude convention.
+ */
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
-/**
+/*
  * The shooting attitude angles from an already inverted reference frame.
  *
  * For M = into q = Rx(phi) Rz(theta) Ry(psi), the long axis gives tilt and
@@ -25,10 +31,9 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * twist. Somersault and twist are principal angles; tilt lies in [-pi/2, pi/2].
  * This is the existing takeoff chart, with its original clamped asin and its
  * Euler-chart singularity.
- *
- * @param into The inverse of the unit reference orientation.
- * @param q The unit body orientation in the reference's parent coordinates.
- * @returns Principal somersault, tilt and twist angles, radians.
+ * Parameter into: The inverse of the unit reference orientation.
+ * Parameter q: The unit body orientation in the reference's parent coordinates.
+ * Returns: Principal somersault, tilt and twist angles, radians.
  */
 export function AirborneTakeoffAngles(
   into: IAutoMovieQuaternion,
@@ -52,23 +57,24 @@ export function AirborneTakeoffAngles(
   return { somersault, tilt, twist: Math.atan2(-lateral.z, lateral.x) };
 }
 
-/** The shared angle chart's continuous branch reader. */
+/*
+ * The shared angle chart's continuous branch reader.
+ */
 export namespace AirborneTakeoffAngles {
-  /**
+  /*
    * Accumulate whole turns on the same nearest-angle branches as the public
    * takeoff reader. A turn between observations must remain below pi radians.
+   * Parameter flight: The actual solved numeric flight.
+   * Parameter frame: Unit reference orientation, inverted once for this pass.
+   * Returns: Unwrapped endpoint angles, radians.
    *
-   * @param flight The actual solved numeric flight.
-   * @param frame Unit reference orientation, inverted once for this pass.
-   * @returns Unwrapped endpoint angles, radians.
-   *
-   *   States observations, units, reference ownership and winding premise. The
-   *   nearest principal branch follows continuity under the stated pi bound.
-   *   Invert once, read the existing chart, accumulate the two cyclic angles.
-   *   Retains the original default-step observer without a new angle tolerance.
-   *   Linear reads in flight duration over the original observation step. Both
-   *   public and shooting paths share this unchanged branch calculation. Only
-   *   current numeric angles survive each read; no history is retained.
+   * States observations, units, reference ownership and winding premise. The
+   * nearest principal branch follows continuity under the stated pi bound.
+   * Invert once, read the existing chart, accumulate the two cyclic angles.
+   * Retains the original default-step observer without a new angle tolerance.
+   * Linear reads in flight duration over the original observation step. Both
+   * public and shooting paths share this unchanged branch calculation. Only
+   * current numeric angles survive each read; no history is retained.
    */
   export function unwrapped(
     flight: IAutoMovieIntegrateAirborneRotation.IFlight,

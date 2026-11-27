@@ -129,7 +129,9 @@ export namespace AutoMovieHumanJointTransition {
   }
 }
 
-/** Two harmonics at an angle. */
+/*
+ * Two harmonics at an angle.
+ */
 function evaluate(
   t: readonly [number, number, number, number, number],
   phi: number,
@@ -158,8 +160,12 @@ function cross(
   ];
 }
 
-/** Forward in the registered frame. */
+/*
+ * Forward in the registered frame.
+ */
 const FORWARD: AutoMovieVector3Tuple = [1, 0, 0];
 
-/** The figure's left in the registered frame. */
+/*
+ * The figure's left in the registered frame.
+ */
 const LEFT: AutoMovieVector3Tuple = [0, 0, 1];

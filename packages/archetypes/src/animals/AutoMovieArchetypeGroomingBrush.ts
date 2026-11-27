@@ -9,7 +9,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/**
+/*
  * The two body brushes read: Kerbl's Covalliero, 17 x 8 cm with 3 cm bristles
  * (kerbl.com product 13839), and Shires' EZI-Groom Premium, 200 x 85 mm with 25
  * mm bristles (equusnow.com listing).
@@ -17,10 +17,14 @@ import {
 const SOURCE: string =
   "Kerbl Covalliero horse brush 17 x 8 cm, 3 cm bristles; Shires EZI-Groom Premium body brush 200 x 85 mm, 25 mm bristles";
 
-/** The brush's back thickness, metres: authored, neither listing gives it. */
+/*
+ * The brush's back thickness, metres: authored, neither listing gives it.
+ */
 const BACK: number = 0.02;
 
-/** The brush's mass, kilograms: authored, neither listing gives it. */
+/*
+ * The brush's mass, kilograms: authored, neither listing gives it.
+ */
 const MASS: number = 0.2;
 
 /**

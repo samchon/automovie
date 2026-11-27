@@ -14,22 +14,21 @@ import type {
 import { typeText } from "../../everyday/internal/typeText";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/**
+/*
  * The hand's shape while one digit presses in a keyed contact sequence
  * (`manipulate`): that digit straight, as the flat hand holds it, for its
  * inverse kinematics to take down to its key. Other digits retain their relaxed
  * shape when it clears the key plane by the hover height. Each remaining digit
  * takes a clearing shape or lifts its own tip from the achieved wrist frame.
- *
- * @param body The rig supplying each shaped tip.
- * @param wrist The achieved wrist point, in world metres.
- * @param rotation The achieved wrist rotation.
- * @param site The key top in world metres.
- * @param normal The surface's unit outward normal.
- * @param side The hand.
- * @param digit The pressing digit, as `manipulate.Finger` names it.
- * @returns The digit angles and only the additional goals required for
- *   clearance.
+ * Parameter body: The rig supplying each shaped tip.
+ * Parameter wrist: The achieved wrist point, in world metres.
+ * Parameter rotation: The achieved wrist rotation.
+ * Parameter site: The key top in world metres.
+ * Parameter normal: The surface's unit outward normal.
+ * Parameter side: The hand.
+ * Parameter digit: The pressing digit, as `manipulate.Finger` names it.
+ * Returns: The digit angles and only the additional goals required for
+ * clearance.
  */
 export function manipulateShape(
   body: IAutoMovieMotionHumanBody,
@@ -89,7 +88,7 @@ export function manipulateShape(
   return { joints, avoid };
 }
 
-/**
+/*
  * Resting digit angles and the individual tips requiring clearance from the
  * surface.
  */
@@ -98,7 +97,9 @@ interface IShape {
   avoid: NonNullable<IAutoMovieMotionHumanPosture["digits"]>;
 }
 
-/** Anatomical digits on a manipulating hand. */
+/*
+ * Anatomical digits on a manipulating hand.
+ */
 const DIGITS: readonly IAutoMovieMotionHumanManipulate.Finger[] = [
   "thumb",
   "index",
@@ -107,7 +108,7 @@ const DIGITS: readonly IAutoMovieMotionHumanManipulate.Finger[] = [
   "little",
 ];
 
-/**
+/*
  * Prefer the relaxed shape when it clears, then compare the extended and flexed
  * forms.
  */

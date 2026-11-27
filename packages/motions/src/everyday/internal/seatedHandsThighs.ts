@@ -20,12 +20,12 @@ import type { prepareSeatedPalms } from "./prepareSeatedPalms";
 import { prepareThighSkin } from "./prepareThighSkin";
 import { seatedFlatHand } from "./seatedFlatHand";
 
-/**
+/*
  * A hand's breadth across the palm as a share of its length (provisional
  * anthropometric ratio).
  */
 const PALM_BREADTH: number = 0.45;
-/**
+/*
  * Seated palms on the thighs (`seatedHands`): each palm's goal laid on its own
  * front thigh, fingers along the thigh within the wrist's deviation of the
  * arm's line, met on the thigh's own collider and kept clear of it by the flat
@@ -33,9 +33,11 @@ const PALM_BREADTH: number = 0.45;
  * thigh along the wrist's radial direction.
  */
 export namespace seatedHandsThighs {
-  /** Profile-local thigh intersections and hand extents for a seated phase. */
+  /*
+   * Profile-local thigh intersections and hand extents for a seated phase.
+   */
   export type PalmRests = ReturnType<typeof prepareSeatedPalms>;
-  /**
+  /*
    * Separate the moving hand from the current thigh along the wrist's radial
    * direction. The two convex support extents give the least outward
    * translation on that ray, in metres.
@@ -88,7 +90,9 @@ export namespace seatedHandsThighs {
     );
   }
 
-  /** Measure only target surfaces this invocation will return. */
+  /*
+   * Measure only target surfaces this invocation will return.
+   */
   export function thighs(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -162,7 +166,7 @@ export namespace seatedHandsThighs {
     return limbs;
   }
 
-  /**
+  /*
    * The palm's place on a thigh: the thigh's own collider met along the
    * surface's normal, by a ray from outside the thigh's bounding ball, then the
    * flat hand's colliders kept clear of it by how far they reach past the palm
@@ -208,7 +212,7 @@ export namespace seatedHandsThighs {
   }
 }
 
-/**
+/*
  * The fingers' direction for a palm laid on a surface: the surface's own
  * direction (along the thigh) where it lies within the wrist's deviation of the
  * arm's line laid into the surface, else that line turned by the deviation

@@ -9,7 +9,7 @@ import { WorkoutKind } from "./WorkoutKind";
 import { WorkoutStance } from "./WorkoutStance";
 import { balletStep } from "../internal/balletStep";
 
-/**
+/*
  * The dance steps of the workout law: ballet's plié, relevé and arabesque on
  * feet turned out `TURNOUT` degrees, breaking's baby freeze balanced on both
  * hands, and the street rock's alternating chest and head isolations over a
@@ -22,20 +22,22 @@ import { balletStep } from "../internal/balletStep";
  * baby freeze and the rock as breaking and hip-hop teaching describes them).
  */
 export namespace WorkoutDance {
-  /**
+  /*
    * The ballet turnout, degrees of hip external rotation each side: the ballet
    * law's.
    */
   export const TURNOUT: number = balletStep.TURNOUT;
 
-  /** The steps. */
+  /*
+   * The steps.
+   */
   export const KINDS: Readonly<
     Record<
       IAutoMovieMotionHumanWorkoutDance.Name,
       IAutoMovieMotionHumanWorkoutKind
     >
   > = {
-    /**
+    /*
      * An arabesque: on the left foot, the right leg raised straight behind, the
      * arms out, held 3 s.
      */
@@ -61,7 +63,7 @@ export namespace WorkoutDance {
       ],
     ),
 
-    /**
+    /*
      * A baby freeze: down onto both hands, the hips and knees folded over the
      * elbows, the feet off the floor, held 2 s.
      */
@@ -98,7 +100,7 @@ export namespace WorkoutDance {
       ],
     },
 
-    /**
+    /*
      * A street rock: the knees bounce and the chest and head isolate left and
      * right on alternate counts, four times.
      */

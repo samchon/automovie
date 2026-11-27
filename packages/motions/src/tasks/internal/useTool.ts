@@ -44,7 +44,7 @@ import { useToolCycle } from "./useToolCycle";
 import { useToolPose } from "./useToolPose";
 import { useToolTarget } from "./useToolTarget";
 
-/**
+/*
  * Working with a one-handed tool held in the hand, in cycles over a work point
  * while standing: hammering, sawing, stirring or turning a screwdriver.
  *
@@ -59,7 +59,7 @@ import { useToolTarget } from "./useToolTarget";
  * a hammer's face and a saw's teeth turned down onto the work, a screwdriver
  * and a spoon with the palm inward, as a saw and a screwdriver run on with the
  * forearm. The saw's slope is the one of `SLOPES` the arm holds with the least
- * strain ({@link AutoMovieMotionHumanBend.strain}). A hammer turns about the
+ * strain (AutoMovieMotionHumanBend.strain). A hammer turns about the
  * wrist up to `RAISE` degrees and strikes back down onto the work point once a
  * cycle; a saw pushes and pulls its teeth along its line over the work point by
  * a stroke of half the forearm; a spoon circles inside the vessel it stirs
@@ -81,25 +81,35 @@ import { useToolTarget } from "./useToolTarget";
  * fatigue (Cote et al. 2002, 2005).
  */
 export namespace useTool {
-  /**
+  /*
    * A working pose: the tool's unit line toward its working point, the grip's
    * place and the hand's rotation.
    */
   export interface IWork {
-    /** The tool's unit line toward its working point, world frame. */
+    /*
+     * The tool's unit line toward its working point, world frame.
+     */
     axis: IAutoMovieVector3;
 
-    /** The grip's place, world metres. */
+    /*
+     * The grip's place, world metres.
+     */
     grip: IAutoMovieVector3;
 
-    /** The hand's rotation, world frame. */
+    /*
+     * The hand's rotation, world frame.
+     */
     rotation: IAutoMovieQuaternion;
   }
 
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "useTool";
 
-  /** Cancel table: work stops between cycles. */
+  /*
+   * Cancel table: work stops between cycles.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
@@ -119,13 +129,13 @@ export namespace useTool {
     ],
   };
 
-  /**
+  /*
    * May be performed over a carrier, such as seated or while another action
    * carries the body: it claims only the parts it moves.
    */
   export const overlay: boolean = true;
 
-  /**
+  /*
    * The cycle of a work that keeps its own rhythm, seconds: a saw's push and
    * pull at the 2.0 Hz mean spontaneous sawing frequency of Starke and Baber
    * 2017 (PLOS ONE 12:e0173281); a hammer's strike at the 2 Hz its strikers
@@ -142,7 +152,7 @@ export namespace useTool {
     screwdriver: 0.7,
   };
 
-  /**
+  /*
    * A tool stroke's mean hand speed, metres per second: two excursions of 14.0
    * cm per cycle at 2.10 Hz, real sawing in Starke and Baber 2017 (experiment
    * 5). A circling stroke (a stir, a wipe) goes round its circle at this
@@ -150,7 +160,7 @@ export namespace useTool {
    */
   export const STROKE_SPEED: number = 2 * 0.14 * 2.1;
 
-  /**
+  /*
    * The slopes below the horizontal a saw's blade is tried at, degrees; the
    * arm's least strain picks one. The band holds Disston's crosscutting 45 and
    * ripping 60 (Tool Manual for School Shops, 1927); its shallower end has no
@@ -160,7 +170,7 @@ export namespace useTool {
    */
   export const SLOPES: readonly number[] = [20, 30, 40, 50, 60];
 
-  /**
+  /*
    * The hammer's raise about the wrist from the strike to the full windup,
    * degrees: the 70 ± 10 degrees of wrist motion from windup to impact in a
    * simulated hammering task (Leventhal et al. 2010, J Hand Surg Am 35:1097,
@@ -168,7 +178,7 @@ export namespace useTool {
    */
   export const RAISE: number = 70;
 
-  /**
+  /*
    * The screwdriver's turn each way of the forearm's neutral, degrees: a stroke
    * of 60, the most comfortable rotation of Bano, Mallick and Khan 2013 (Int J
    * Ergonomics 4:1), inside the functional 50 of pronation and of supination of
@@ -176,21 +186,20 @@ export namespace useTool {
    */
   export const TURN: number = 30;
 
-  /**
+  /*
    * The hand's palm in its own rest axes, the direction `HumanHand.rotation`
    * turns onto the asked palm.
    */
   const PALM: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
 
-  /**
+  /*
    * Plan a tool's use.
-   *
-   * @param context The action's context.
-   * @returns The plan with its tool.
-   * @throws {HumanRefusal} When the cycle count is not a positive integer, the
-   *   hand does not hold the tool, the tool has no `grip` or `face` or its face
-   *   lies within the hand that holds it, or a stir's work point is no vessel
-   *   the spoon reaches into.
+   * Parameter context: The action's context.
+   * Returns: The plan with its tool.
+   * When the cycle count is not a positive integer, the
+   * hand does not hold the tool, the tool has no `grip` or `face` or its face
+   * lies within the hand that holds it, or a stir's work point is no vessel
+   * the spoon reaches into.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanUseTool.IParams>,
@@ -388,7 +397,9 @@ export namespace useTool {
     const cycle: (phase: number) => Pick<IWork, useToolCycle.PlanCycle> =
       useToolCycle({ kind, turn, pose, m, work, forward, left });
     const edge: ReturnType<typeof cycle> = cycle(0.5);
-    /** The complete grip goal on the target-side frame. */
+    /*
+     * The complete grip goal on the target-side frame.
+     */
     const target: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
@@ -408,7 +419,7 @@ export namespace useTool {
 
     const base: IAutoMovieMotionHumanActionPlan =
       AutoMovieMotionHumanBase.under(context, duration);
-    /**
+    /*
      * Compose the unchanged transport around a current or prepared target
      * reader.
      */
@@ -441,7 +452,9 @@ export namespace useTool {
       side,
     );
     const limb: AutoMovieHumanLimb = `${side}Arm`;
-    /** Keep the acquired fingers and the rigid contact on the transported hand. */
+    /*
+     * Keep the acquired fingers and the rigid contact on the transported hand.
+     */
     const finish = (
       posture: IAutoMovieMotionHumanPosture,
     ): IAutoMovieMotionHumanPosture => ({
@@ -518,5 +531,7 @@ export namespace useTool {
   }
 }
 
-/** The record of `IPlanFace`'s site. */
+/*
+ * The record of `IPlanFace`'s site.
+ */
 type IPlanFace = { point: IAutoMovieVector3; direction: IAutoMovieVector3 };

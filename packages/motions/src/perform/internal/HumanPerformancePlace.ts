@@ -40,13 +40,13 @@ import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
 
-/**
+/*
  * One intent placed in the performance: its law found, its entry state read,
  * its context built, its plan made, its cut checked against the interrupt
  * tables, and its action added to its performer.
  */
 export namespace HumanPerformancePlace {
-  /**
+  /*
    * The schedule's timing law: plan the intent from the state its person is in.
    * A trial plans and returns the timing without placing anything, and its
    * planning is kept for the placement of the same intent at the same start

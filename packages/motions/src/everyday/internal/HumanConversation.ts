@@ -9,7 +9,7 @@ import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanGaze } from "./HumanGaze";
 import { HumanProxemics } from "./HumanProxemics";
 
-/**
+/*
  * Where a person in a conversation looks: at the partner's face for seeded
  * glances, away between them, more while listening than while speaking.
  *
@@ -35,7 +35,7 @@ import { HumanProxemics } from "./HumanProxemics";
  * the bodies' actions.
  */
 export namespace HumanConversation {
-  /**
+  /*
    * Mean glance and away durations, seconds, by role: the speaking
    * interviewee's and the listening interviewer's (Acarturk et al. 2021, Table
    * 3).
@@ -46,7 +46,7 @@ export namespace HumanConversation {
       listening: { on: 3.89, away: 0.29 },
     };
 
-  /**
+  /*
    * Where a speaker's look away goes after a look at the face, as shares of the
    * speaker's aversions (Acarturk et al. 2021, Table 5); a listener's go
    * diagonally.
@@ -59,13 +59,12 @@ export namespace HumanConversation {
     up: 0.03,
   };
 
-  /**
+  /*
    * The shared glance planner the Conversation readers apply to each span's
    * selected face: the speaker's and the listener's cadence (`GLANCES`) and the
    * speaker's aversions (`AVERSIONS`), drawn from the participant's stream.
-   *
-   * @throws {HumanRefusal} On `turns.to` for a span that does not end at a
-   *   finite second after its start.
+   * On `turns.to` for a span that does not end at a
+   * finite second after its start.
    */
   export function glances<Turn extends IAutoMovieMotionHumanConversation.ITurn>(
     subject: string,
@@ -79,19 +78,27 @@ export namespace HumanConversation {
   }
 }
 
-/** The alternatives of `AVERSIONSEntryItem`'s site. */
+/*
+ * The alternatives of `AVERSIONSEntryItem`'s site.
+ */
 type AVERSIONSEntryItem = "right" | "left" | "down" | "diagonal" | "up";
 
-/** The record of `IGLANCESEntryItem`'s site. */
+/*
+ * The record of `IGLANCESEntryItem`'s site.
+ */
 type IGLANCESEntryItem = { on: number; away: number };
 
-/** The alternatives of `GLANCESEntryItem`'s site. */
+/*
+ * The alternatives of `GLANCESEntryItem`'s site.
+ */
 type GLANCESEntryItem = "speaking" | "listening";
 
-/** A direction of look away, as `AVERSIONS` names them. */
+/*
+ * A direction of look away, as `AVERSIONS` names them.
+ */
 type Aversion = keyof typeof HumanConversation.AVERSIONS;
 
-/**
+/*
  * The aversion a uniform draw in [0, 1) picks from the speaker's mix
  * (`AVERSIONS`), by its cumulative shares.
  */
@@ -107,7 +114,7 @@ function aversion(u: number): Aversion {
   return "right";
 }
 
-/**
+/*
  * A look-away point in the looker's own frame (`x` left, `y` up, `z` forward):
  * the gaze turned by the eyes' share `HumanGaze.EYES` toward the aversion's
  * direction, split evenly between aside and down on a diagonal, at the
@@ -140,13 +147,19 @@ function away(
     frame: "performer",
   };
 }
-/** The record of `IPlanGlancesMean`'s site. */
+/*
+ * The record of `IPlanGlancesMean`'s site.
+ */
 type IPlanGlancesMean = { on: number; away: number };
 
-/** The alternatives of `PlanGlancesRole`'s site. */
+/*
+ * The alternatives of `PlanGlancesRole`'s site.
+ */
 type PlanGlancesRole = "speaking" | "listening";
 
-/** Apply the shared speaker/listener cadence to each span's selected face. */
+/*
+ * Apply the shared speaker/listener cadence to each span's selected face.
+ */
 function planGlances<Turn extends IAutoMovieMotionHumanConversation.ITurn>(
   subject: string,
   turns: readonly Turn[],
@@ -199,7 +212,7 @@ function planGlances<Turn extends IAutoMovieMotionHumanConversation.ITurn>(
   return out;
 }
 
-/**
+/*
  * How far ahead a look-away point lies, metres: the personal gap people
  * converse at (`HumanProxemics.GAPS.personal`, Hall 1966), the partner's
  * distance, so the eyes keep the vergence they had on the partner's face.

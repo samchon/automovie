@@ -6,7 +6,7 @@ import {
 import { compareDesignVariants } from "./compareDesignVariants";
 import { requireValidDesignLineage } from "./requireValidDesignLineage";
 
-/**
+/*
  * Compare two alternatives on the revision they share.
  *
  * Every difference names one subject id both schemes carry, which is the proof
@@ -21,12 +21,11 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * every lineage subject neither alternative changes. The lineage is validated
  * first, and an invalid lineage, an unknown variant id, or two variants on
  * different base revisions throws an `Error`.
- *
- * @param lineage Lineage holding both alternatives.
- * @param left Id of the variant reported on the `left` side.
- * @param right Id of the variant reported on the `right` side.
- * @returns The shared revision, both ids, the untouched subjects, and every
- *   differing (subject, aspect) pair.
+ * Parameter lineage: Lineage holding both alternatives.
+ * Parameter left: Id of the variant reported on the `left` side.
+ * Parameter right: Id of the variant reported on the `right` side.
+ * Returns: The shared revision, both ids, the untouched subjects, and every
+ * differing (subject, aspect) pair.
  */
 export function designLineageCompare(
   lineage: IAutoMovieDesignLineage,

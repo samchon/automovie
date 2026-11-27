@@ -7,19 +7,18 @@ import {
 } from "../../core/index";
 import type { AutoMovieArchetypeCannon } from "../AutoMovieArchetypeCannon";
 
-/**
+/*
  * The launch of a shot from a gun at an articulation state: from the muzzle's
  * frame along the bore at the gun's muzzle velocity, carrying a round shot of
  * its calibre (#3484, #3479).
- *
- * @param gun A cannon whose kind publishes a muzzle velocity.
- * @param state A nonempty absolute articulation state, such as elevation;
- *   absent or empty uses the gun's current pose, including prior recoil or
- *   elevation.
- * @returns The launch with its own origin vector; changing it does not move the
- *   gun's muzzle contact.
- * @throws {AutoMovieArchetypeRefusal} For unknown velocity or shot diameter,
- *   invalid numeric launch data, or a shot that does not fit a declared bore.
+ * Parameter gun: A cannon whose kind publishes a muzzle velocity.
+ * Parameter state: A nonempty absolute articulation state, such as elevation;
+ * absent or empty uses the gun's current pose, including prior recoil or
+ * elevation.
+ * Returns: The launch with its own origin vector; changing it does not move the
+ * gun's muzzle contact.
+ * For unknown velocity or shot diameter,
+ * invalid numeric launch data, or a shot that does not fit a declared bore.
  */
 export function cannonLaunch(
   gun: AutoMovieArchetype<AutoMovieArchetypeCannon.Affordance, AutoMovieArchetypeCannon.Dimension>,

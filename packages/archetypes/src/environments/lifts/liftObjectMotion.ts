@@ -12,7 +12,7 @@ import { AutoMovieArchetypeElevator } from "../../architecture/AutoMovieArchetyp
 import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 import type { liftStopHeights } from "./internal/liftStopHeights";
 
-/**
+/*
  * Bake the staged cab and sliding door panels into one ordinary object clip.
  * The first cab pose comes from the checked building connector. Every other
  * pose is its rigid displacement along the same resolved shaft. Keys are

@@ -28,7 +28,7 @@ import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { selectHumanDigitGoals } from "./selectHumanDigitGoals";
 
-/**
+/*
  * A posture's digit goals fitted on a pose whose arms are already placed: each
  * digit with a goal, in `HumanPosture.DIGITS` order, brings its tip or pad to
  * its point by the engine's digit inverse kinematics (`fitDigitToTarget`), the
@@ -49,18 +49,17 @@ import { selectHumanDigitGoals } from "./selectHumanDigitGoals";
  * hand's digits lie in the rest of the body is `depth`.
  */
 export namespace HumanDigitFit {
-  /**
+  /*
    * The pose with every digit goal fitted.
-   *
-   * @param body The performer's body.
-   * @param pose The pose with its limbs fitted.
-   * @param digits The posture's digit goals.
-   * @param source Optional FK workspace or lazy supplier borrowed only for this
-   *   synchronous fit.
-   * @param requested Optional observational bone demand; independent unobserved
-   *   world digits may be omitted after ordered authored admission, while
-   *   unsupported/attached goals keep the full request.
-   * @returns The pose with the goals fitted; the same pose when there are none.
+   * Parameter body: The performer's body.
+   * Parameter pose: The pose with its limbs fitted.
+   * Parameter digits: The posture's digit goals.
+   * Parameter source: Optional FK workspace or lazy supplier borrowed only for this
+   * synchronous fit.
+   * Parameter requested: Optional observational bone demand; independent unobserved
+   * world digits may be omitted after ordered authored admission, while
+   * unsupported/attached goals keep the full request.
+   * Returns: The pose with the goals fitted; the same pose when there are none.
    */
   export function fitted(
     body: IAutoMovieMotionHumanBody,
@@ -145,22 +144,21 @@ export namespace HumanDigitFit {
     return out;
   }
 
-  /**
+  /*
    * How deep a hand's digits lie in the rest of the body: the most any phalanx
    * (a capsule of the profile's radius, `HumanGrip.chain`) of that hand passes
    * into a collider of the body other than its own hand and forearm, metres;
    * zero or less when every digit is clear. The measure `stand.relaxed` hangs
    * the arm by.
-   *
-   * @param body The body.
-   * @param bones Its posed bones, world frame.
-   * @param side The hand; the deeper of both hands when absent.
-   * @param placed The body's colliders as these bones place them, when the
-   *   caller already holds them (a search that moves the arms alone places the
-   *   rest of the body once); absent, they are placed from `bones`, which must
-   *   then list every collider's bone. The depth is a greatest value, so their
-   *   order plays no part.
-   * @returns The depth, metres.
+   * Parameter body: The body.
+   * Parameter bones: Its posed bones, world frame.
+   * Parameter side: The hand; the deeper of both hands when absent.
+   * Parameter placed: The body's colliders as these bones place them, when the
+   * caller already holds them (a search that moves the arms alone places the
+   * rest of the body once); absent, they are placed from `bones`, which must
+   * then list every collider's bone. The depth is a greatest value, so their
+   * order plays no part.
+   * Returns: The depth, metres.
    */
   export function depth(
     body: IAutoMovieMotionHumanBody,
@@ -179,17 +177,16 @@ export namespace HumanDigitFit {
       : depthAt(body, bones, placed, side);
   }
 
-  /**
+  /*
    * Whether either hand's finite posed phalanges penetrate a body collider.
    * Uses the same signed depth as depth(), with a strict zero boundary. A
    * positive witness decides the caller's predicate immediately.
-   *
-   * @param body The rig that owns both digit chains and their radii.
-   * @param bones Finite posed joint frames of that same body.
-   * @param placed Its collision shapes in the same frame, placed once when
-   *   omitted.
-   * @returns True if any phalanx penetrates a nearby collider from outside its
-   *   own hand and forearm. Tangency has zero depth.
+   * Parameter body: The rig that owns both digit chains and their radii.
+   * Parameter bones: Finite posed joint frames of that same body.
+   * Parameter placed: Its collision shapes in the same frame, placed once when
+   * omitted.
+   * Returns: True if any phalanx penetrates a nearby collider from outside its
+   * own hand and forearm. Tangency has zero depth.
    */
   export function penetrates(
     body: IAutoMovieMotionHumanBody,
@@ -205,7 +202,7 @@ export namespace HumanDigitFit {
     );
   }
 
-  /**
+  /*
    * Prepare the digit/body penetration predicate for a stance whose two
    * complete arms rotate rigidly about their shoulders. Digit capsule endpoints
    * and each hull stay in their original frames. Only the relative transform
@@ -369,12 +366,11 @@ export namespace HumanDigitFit {
       return false;
     };
   }
-  /**
+  /*
    * The joints of a digit, proximal to distal.
-   *
-   * @param side The hand.
-   * @param name The digit, capitalised as the rig spells it.
-   * @returns The bones.
+   * Parameter side: The hand.
+   * Parameter name: The digit, capitalised as the rig spells it.
+   * Returns: The bones.
    */
   export function bones(
     side: AutoMovieHumanSide,
@@ -391,13 +387,17 @@ export namespace HumanDigitFit {
   }
 }
 
-/** The record of `IFittedWorld`'s site. */
+/*
+ * The record of `IFittedWorld`'s site.
+ */
 type IFittedWorld = { point: IAutoMovieVector3; normal?: IAutoMovieVector3 };
 
-/** The alternatives of `FittedSide`'s site. */
+/*
+ * The alternatives of `FittedSide`'s site.
+ */
 type FittedSide = "Left" | "Right";
 
-/**
+/*
  * The distal interphalangeal joint's flexion as a share of the proximal one's:
  * the coupling of hand animation, DIP = 2/3 PIP (Rijpkema and Girard 1991,
  * SIGGRAPH 25(4):339-348, as relayed by the hand-animation literature).
@@ -405,7 +405,7 @@ type FittedSide = "Left" | "Right";
  */
 const COUPLING: number = 2 / 3;
 
-/**
+/*
  * The radial extension rate soft IK is derived for, degrees per metre: 5
  * degrees per millimetre, third acceptance line (`fitDigitToTarget`'s `rate`).
  * The target is eased only near full extension, with the distance traded away
@@ -413,7 +413,7 @@ const COUPLING: number = 2 / 3;
  */
 const RATE: number = 5000;
 
-/**
+/*
  * Ordered clinical admission with no unobserved output frames or numerical
  * digit solve.
  */
@@ -426,7 +426,9 @@ const depthAt: typeof HumanDigitReach.depthAt = HumanDigitReach.depthAt;
 const phalanges: typeof HumanDigitReach.phalanges = HumanDigitReach.phalanges;
 const carried: typeof HumanDigitReach.carried = HumanDigitReach.carried;
 
-/** A hand and its original posed digit capsules under the standing shoulder. */
+/*
+ * A hand and its original posed digit capsules under the standing shoulder.
+ */
 interface IHangingHand {
   shoulder: IAutoMovieResolvedBone;
   hand: IAutoMovieVector3;
@@ -434,13 +436,15 @@ interface IHangingHand {
   shapes: IHangingShape[];
 }
 
-/** World-metre centres of successive phalanges and their capsule radius. */
+/*
+ * World-metre centres of successive phalanges and their capsule radius.
+ */
 interface IHangingDigit {
   points: readonly IAutoMovieVector3[];
   radius: number;
 }
 
-/**
+/*
  * A body's placed shape and its carrying shoulder index, or -1 for the fixed
  * trunk.
  */
@@ -451,7 +455,9 @@ interface IHangingShape {
   carrier: number;
 }
 
-/** Rotate a world point about an unchanged world origin. */
+/*
+ * Rotate a world point about an unchanged world origin.
+ */
 function about(
   point: IAutoMovieVector3,
   origin: IAutoMovieVector3,

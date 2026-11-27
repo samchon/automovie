@@ -1,6 +1,6 @@
 import type { IAutoMovieSwivelArcs } from "@automovie/interface";
 
-/**
+/*
  * Closed-form enclosures of angles read from sinusoids of a swivel, the pieces
  * the elbow search's certified bounds are built from
  * (`AutoMovieMotionHumanBendBound`, `AutoMovieMotionHumanBendUnmadeBound`).
@@ -21,42 +21,42 @@ import type { IAutoMovieSwivelArcs } from "@automovie/interface";
  * fits and the decompositions it encloses.
  */
 export namespace AutoMovieMotionHumanBendEnclosure {
-  /**
+  /*
    * The least length of an angle's vector, or the projected cosine of a middle
    * angle, over which an enclosure is certified.
    */
   export const FLOOR: number = 1e-3;
 
-  /**
+  /*
    * Degrees every enclosure is widened by: far above the fit's and the
    * decomposition's rounding (about 1e-12 degrees at `FLOOR`), far below any
    * strain a sweep compares.
    */
   export const SLACK: number = 1e-6;
 
-  /** An enclosure of an angle, degrees, the lesser end first. */
+  /*
+   * An enclosure of an angle, degrees, the lesser end first.
+   */
   export type IInterval = [number, number];
 
-  /**
+  /*
    * A sinusoid's value at a parameter, degrees.
-   *
-   * @param f The sinusoid.
-   * @param angle The parameter, degrees.
-   * @returns Its value.
+   * Parameter f: The sinusoid.
+   * Parameter angle: The parameter, degrees.
+   * Returns: Its value.
    */
   export function at(f: IAutoMovieSwivelArcs.ISinusoid, angle: number): number {
     const turn: number = angle / DEGREES;
     return f.a + f.b * Math.cos(turn) + f.c * Math.sin(turn);
   }
 
-  /**
+  /*
    * The middle angle `asin(s)` over `[low, high]` of its parameter.
-   *
-   * @param sine The sinusoid of the angle's sine.
-   * @param low The interval's start, degrees.
-   * @param high The interval's end, degrees, not before `low`.
-   * @returns The enclosure in degrees, or null where the angle may come within
-   *   `FLOOR` of its right angle.
+   * Parameter sine: The sinusoid of the angle's sine.
+   * Parameter low: The interval's start, degrees.
+   * Parameter high: The interval's end, degrees, not before `low`.
+   * Returns: The enclosure in degrees, or null where the angle may come within
+   * `FLOOR` of its right angle.
    */
   export function middle(
     sine: IAutoMovieSwivelArcs.ISinusoid,
@@ -72,16 +72,15 @@ export namespace AutoMovieMotionHumanBendEnclosure {
     ];
   }
 
-  /**
+  /*
    * An outer angle `turn · atan2(y, x)` over `[low, high]` of its parameter.
-   *
-   * @param y The sinusoid of the angle's sine side.
-   * @param x The sinusoid of the angle's cosine side.
-   * @param turn The sign the reading takes.
-   * @param low The interval's start, degrees.
-   * @param high The interval's end, degrees, not before `low`.
-   * @returns The enclosure in degrees, not wrapped, or null where the vector
-   *   may come within `FLOOR` of the origin.
+   * Parameter y: The sinusoid of the angle's sine side.
+   * Parameter x: The sinusoid of the angle's cosine side.
+   * Parameter turn: The sign the reading takes.
+   * Parameter low: The interval's start, degrees.
+   * Parameter high: The interval's end, degrees, not before `low`.
+   * Returns: The enclosure in degrees, not wrapped, or null where the vector
+   * may come within `FLOOR` of the origin.
    */
   export function outer(
     y: IAutoMovieSwivelArcs.ISinusoid,
@@ -106,13 +105,12 @@ export namespace AutoMovieMotionHumanBendEnclosure {
     return [Math.min(ends[0], ends[1]), Math.max(ends[0], ends[1])];
   }
 
-  /**
+  /*
    * The least distance, degrees, from an angle to an interval and its full-turn
    * shifts.
-   *
-   * @param angle The angle, degrees.
-   * @param interval The interval, degrees.
-   * @returns The distance; 0 for an interval of a full turn or more.
+   * Parameter angle: The angle, degrees.
+   * Parameter interval: The interval, degrees.
+   * Returns: The distance; 0 for an interval of a full turn or more.
    */
   export function circular(angle: number, interval: IInterval): number {
     const width: number = interval[1] - interval[0];
@@ -121,14 +119,13 @@ export namespace AutoMovieMotionHumanBendEnclosure {
     return offset <= width ? 0 : Math.min(offset - width, 360 - offset);
   }
 
-  /**
+  /*
    * The least excess `max(0, lo − v, v − hi)` past a reserved interval over
    * every `v` of an interval and its full-turn shifts.
-   *
-   * @param interval The angles, degrees.
-   * @param lo The reserved interval's start, degrees.
-   * @param hi The reserved interval's end, degrees.
-   * @returns The least excess, degrees.
+   * Parameter interval: The angles, degrees.
+   * Parameter lo: The reserved interval's start, degrees.
+   * Parameter hi: The reserved interval's end, degrees.
+   * Returns: The least excess, degrees.
    */
   export function excess(interval: IInterval, lo: number, hi: number): number {
     if (!(interval[1] - interval[0] < 360)) return 0;
@@ -147,13 +144,12 @@ export namespace AutoMovieMotionHumanBendEnclosure {
     return out;
   }
 
-  /**
+  /*
    * The full-turn sinusoid range on `[low, high]` of its parameter.
-   *
-   * @param f The sinusoid.
-   * @param low The interval's start, degrees.
-   * @param high The interval's end, degrees, not before `low`.
-   * @returns Its least and greatest values.
+   * Parameter f: The sinusoid.
+   * Parameter low: The interval's start, degrees.
+   * Parameter high: The interval's end, degrees, not before `low`.
+   * Returns: Its least and greatest values.
    */
   export function range(
     f: IAutoMovieSwivelArcs.ISinusoid,
@@ -173,10 +169,14 @@ export namespace AutoMovieMotionHumanBendEnclosure {
   }
 }
 
-/** Degrees per radian. */
+/*
+ * Degrees per radian.
+ */
 const DEGREES: number = 180 / Math.PI;
 
-/** Whether some full-turn shift of an angle, degrees, lies in `[low, high]`. */
+/*
+ * Whether some full-turn shift of an angle, degrees, lies in `[low, high]`.
+ */
 function within(angle: number, low: number, high: number): boolean {
   return angle + 360 * Math.ceil((low - angle) / 360) <= high;
 }

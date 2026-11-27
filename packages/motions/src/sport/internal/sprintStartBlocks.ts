@@ -16,24 +16,23 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * The largest share of a plate normal's forward component allowed across the
  * lane: about 11 degrees of yaw, the lateral play an athlete accepts before the
  * sole slides on the face (provisional).
  */
 const ACROSS: number = 0.2;
 
-/**
+/*
  * Fit the set's two foot placements to a starting block's plates.
- *
- * @param context The runner's body and entry, the action's film second and the
- *   prop reader.
- * @param subject The starting block's scene id.
- * @param preferred The authored front foot, when named.
- * @returns The runner's front side and both feet seated on their plates.
- * @throws {HumanRefusal} For a missing plate, a plate that does not face
- *   forward and up the lane, plates not staggered across and along the lane, or
- *   an authored front foot on the other side.
+ * Parameter context: The runner's body and entry, the action's film second and the
+ * prop reader.
+ * Parameter subject: The starting block's scene id.
+ * Parameter preferred: The authored front foot, when named.
+ * Returns: The runner's front side and both feet seated on their plates.
+ * For a missing plate, a plate that does not face
+ * forward and up the lane, plates not staggered across and along the lane, or
+ * an authored front foot on the other side.
  */
 export function sprintStartBlocks(
   context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
@@ -148,40 +147,41 @@ export function sprintStartBlocks(
   return { front, feet: { left: foot("left"), right: foot("right") } };
 }
 
-/**
+/*
  * The sprint start's foot placements on its blocks: a placed starting block's
  * two plates, which the athletics law reads in place of the body-scaled setting
  * when the take names a block, and the body-scaled setting's own foot in its
  * block (`scaled`).
  */
 export namespace sprintStartBlocks {
-  /** The runner's sides on a placed block. */
+  /*
+   * The runner's sides on a placed block.
+   */
   export interface IPlaced {
-    /**
+    /*
      * The foot on the front plate, decided by which side of the lane the front
      * plate sits.
      */
     front: AutoMovieHumanSide;
 
-    /**
+    /*
      * Each foot's world placement: the ball at the middle of its plate's lower
      * edge and the sole on the face.
      */
     feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
   }
 
-  /**
+  /*
    * A foot in a body-scaled block: the ball on the floor `behind` metres behind
    * the start line (the entry's foot length ahead of its stand, where the hands
    * lie), the sole turned up onto a face `face` degrees from the floor.
-   *
-   * @param body The body.
-   * @param entry The standing posture, whose heading the foot takes.
-   * @param frame The set's frame (`sprintStartSetHands.frame`).
-   * @param side The foot.
-   * @param behind Metres behind the start line.
-   * @param face The block face's angle from the floor, degrees.
-   * @returns The foot's placement.
+   * Parameter body: The body.
+   * Parameter entry: The standing posture, whose heading the foot takes.
+   * Parameter frame: The set's frame (`sprintStartSetHands.frame`).
+   * Parameter side: The foot.
+   * Parameter behind: Metres behind the start line.
+   * Parameter face: The block face's angle from the floor, degrees.
+   * Returns: The foot's placement.
    */
   export function scaled(
     body: IAutoMovieMotionHumanBody,
@@ -206,27 +206,37 @@ export namespace sprintStartBlocks {
   }
 }
 
-/** The alternatives of `OfPlatesEntry`'s site. */
+/*
+ * The alternatives of `OfPlatesEntry`'s site.
+ */
 type OfPlatesEntry = "front" | "rear";
 
-/** The alternatives of `OfPlateId`'s site. */
+/*
+ * The alternatives of `OfPlateId`'s site.
+ */
 type OfPlateId = "front" | "rear";
 
-/** The alternatives of `OfContext`'s site. */
+/*
+ * The alternatives of `OfContext`'s site.
+ */
 type OfContext = "body" | "entry" | "prop" | "start";
 
-/** One plate face in world space. */
+/*
+ * One plate face in world space.
+ */
 interface IPlate {
-  /**
+  /*
    * The middle of the face's lower edge, where the ball of the foot rests with
    * the toes on the track, world metres.
    */
   point: IAutoMovieVector3;
 
-  /** The heading of the face normal's horizontal part, degrees about +Y. */
+  /*
+   * The heading of the face normal's horizontal part, degrees about +Y.
+   */
   yaw: number;
 
-  /**
+  /*
    * The sole's pitch that lays it on the face, degrees, positive toes up: a
    * face leaning back gives a negative pitch, the heel higher than the toes.
    */

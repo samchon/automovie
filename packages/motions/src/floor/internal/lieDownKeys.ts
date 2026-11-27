@@ -6,14 +6,13 @@ import type {
 import { floorEntry } from "./floorEntry";
 import { lieDown } from "./lieDown";
 
-/**
+/*
  * The route's keys: the entry's own tilt and joints (the frozen stand, or the
  * posture the entry displays), then each route key's authored pose.
  *
  * Part of `lieDown.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `keys`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `keys`.
  */
 export function lieDownKeys(
   prepared: lieDownKeys.IPrepared,
@@ -31,17 +30,27 @@ export function lieDownKeys(
   ];
 }
 
-/** The `keys` of `lieDown.plan`, built from what that plan prepared. */
+/*
+ * The `keys` of `lieDown.plan`, built from what that plan prepared.
+ */
 export namespace lieDownKeys {
-  /** What `lieDown.plan` prepared for its `keys`. */
+  /*
+   * What `lieDown.plan` prepared for its `keys`.
+   */
   export interface IPrepared {
-    /** The `entered` `lieDown.plan` prepared. */
+    /*
+     * The `entered` `lieDown.plan` prepared.
+     */
     entered: floorEntry.IStart["entered"];
 
-    /** The `stoodPose` `lieDown.plan` prepared. */
+    /*
+     * The `stoodPose` `lieDown.plan` prepared.
+     */
     stoodPose: IAutoMovieMotionHumanPosture;
 
-    /** The `route` `lieDown.plan` prepared. */
+    /*
+     * The `route` `lieDown.plan` prepared.
+     */
     route: readonly [string, string][];
   }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Settings of the envelope jaw, `autoMovieDialogueEnvelopeJaw`, which opens a
  * speaker's jaw from a line's frame level when the line has no phoneme chunks.
  *
@@ -13,13 +13,19 @@
  * jaw's chosen defaults, not values fitted to recorded speech.
  */
 export const AUTOMOVIE_DIALOGUE_ENVELOPE_JAW: Readonly<{
-  /** Frame level at or below which the jaw stays closed, in dBFS. */
+  /*
+   * Frame level at or below which the jaw stays closed, in dBFS.
+   */
   floorDbfs: number;
 
-  /** Frame level at or above which the jaw opens fully, in dBFS. */
+  /*
+   * Frame level at or above which the jaw opens fully, in dBFS.
+   */
   fullDbfs: number;
 
-  /** The full speech opening, in millimetres at the incisors. */
+  /*
+   * The full speech opening, in millimetres at the incisors.
+   */
   maximumOpeningMm: number;
 }> = {
   floorDbfs: -50,

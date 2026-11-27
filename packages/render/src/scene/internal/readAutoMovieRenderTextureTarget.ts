@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { readAutoMovieTextureUploadFormat } from "./readAutoMovieTextureUploadFormat.js";
 
-/**
+/*
  * Read a host-owned 2D target's complete attachment profile before drawing.
  * Cube targets retain six color/depth faces; array and volume targets stay
  * unknown. Depth without a custom texture uses the r186 D24/D24S8 four-byte

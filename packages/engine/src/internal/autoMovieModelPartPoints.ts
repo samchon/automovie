@@ -10,7 +10,7 @@ import { transformAutoMovieDrawingPoint } from "../drawing/internal/transformAut
 import { realizeAutoMovieGeometry } from "../geometry/internal/realizeAutoMovieGeometry";
 import { Matrix4 } from "../math/Matrix4";
 
-/**
+/*
  * Every vertex of every part of one model, placed in the model's own frame.
  *
  * A primitive part is tessellated by the engine's kernel and a mesh part read
@@ -23,9 +23,8 @@ import { Matrix4 } from "../math/Matrix4";
  * The rest pose is resolved at most once per call, on the first attached part.
  * `parts` is keyed by the part objects of `model.parts`, in part order, and
  * `all` holds every part's points concatenated in that order.
- *
- * @param model Model whose parts are placed.
- * @returns Each part's model-frame points, and all of them together.
+ * Parameter model: Model whose parts are placed.
+ * Returns: Each part's model-frame points, and all of them together.
  */
 export function autoMovieModelPartPoints(
   model: IAutoMovieModel,

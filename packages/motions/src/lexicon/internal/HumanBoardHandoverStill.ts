@@ -19,18 +19,17 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import type { HumanBoardHandover } from "./HumanBoardHandover";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 
-/**
+/*
  * Whether a boarding holds a set of hands on a partner at a second: the holds
  * as the plan's posture writes a hand on the partner (the hand reached to its
  * point on the boarding, the partner's body as the audit's one model segments
  * it the rests the arm keeps clear of), admitted by the arm course's own still
  * problem there (`AutoMovieMotionHumanArmPlanned.stands`) once the boarding's
  * own arm fit lays every hand on its point.
- *
- * @param context The boarding's context.
- * @param hand The holding hand, on a partner.
- * @param boarding The boarding body without its holding hand, by local second.
- * @returns The test the hand-over planner asks of its holds.
+ * Parameter context: The boarding's context.
+ * Parameter hand: The holding hand, on a partner.
+ * Parameter boarding: The boarding body without its holding hand, by local second.
+ * Returns: The test the hand-over planner asks of its holds.
  */
 export function HumanBoardHandoverStill(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBoard>,

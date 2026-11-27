@@ -1,6 +1,8 @@
 import type { Plane, Vector3 } from "three";
 
-/** Bound the roundoff of an inspection plane's signed distance evaluation. */
+/*
+ * Bound the roundoff of an inspection plane's signed distance evaluation.
+ */
 export function inspectionPlaneRoundingSlack(
   plane: Plane,
   point: Vector3,

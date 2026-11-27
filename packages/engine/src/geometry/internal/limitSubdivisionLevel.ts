@@ -10,7 +10,7 @@ import { limitSubdivisionRing } from "./limitSubdivisionRing";
 import { refineSubdivisionPoints } from "./refineSubdivisionPoints";
 import { stepSubdivisionRing } from "./stepSubdivisionRing";
 
-/**
+/*
  * Evaluate the limit position and face-varying limit normals of every vertex of
  * a level.
  *
@@ -26,10 +26,9 @@ import { stepSubdivisionRing } from "./stepSubdivisionRing";
  *
  * Normals are numbered vertex by vertex, sector by sector in fan order, and
  * each corner names the normal of the sector its face belongs to.
- *
- * @param level The final level.
- * @returns Packed limit positions, packed unit normals, and each corner's
- *   normal index.
+ * Parameter level: The final level.
+ * Returns: Packed limit positions, packed unit normals, and each corner's
+ * normal index.
  */
 export const limitSubdivisionLevel = (
   level: IAutoMovieSubdivisionLevel,

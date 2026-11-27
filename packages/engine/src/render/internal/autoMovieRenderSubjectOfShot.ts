@@ -3,7 +3,7 @@ import type {
   IAutoMovieRenderSubjectOfShot,
 } from "@automovie/interface";
 
-/**
+/*
  * Read a compiled shot as a render subject.
  *
  * The canonical compiled-shot adapter uses this field projection and derives

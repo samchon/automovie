@@ -9,10 +9,10 @@ import { propBoundsOverlap } from "../../film/internal/propBoundsOverlap";
 import { builtEnvironmentElementPartBounds } from "./builtEnvironmentElementPartBounds";
 import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 
-/**
+/*
  * Test two named building bodies with the placement kernel's AABB overlap rule.
  *
- * The comparison delegates to {@link propBoundsOverlap}. For positive extents,
+ * The comparison delegates to propBoundsOverlap. For positive extents,
  * exact face contact is excluded; a zero-width plane or point strictly inside
  * another box can still pass its strict endpoint comparisons. Population
  * operands stay compact and each operand's basis identifies measured bounds

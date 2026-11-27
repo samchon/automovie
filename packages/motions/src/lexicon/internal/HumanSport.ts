@@ -20,7 +20,7 @@ import { AutoMovieMotionHumanRacket as racket } from "../../sport/internal/AutoM
 import { swim } from "../../sport/internal/swim";
 import { step } from "../../striking/internal/step";
 
-/**
+/*
  * Sport, exercise, stretching and dance under the names a screenplay uses, each
  * a row of the shipped law that plans it with its kind fixed. A row leaves open
  * what its law leaves open (a side, a count, a hold, a manner). Register the
@@ -30,9 +30,9 @@ import { step } from "../../striking/internal/step";
  * repeated here.
  */
 export namespace HumanSport {
-  /**
+  /*
    * Walking-free lunges in place. Default 3 repetitions of 3.3 s at the default
-   * tempo ({@link IAutoMovieMotionHumanExercise.IParams.tempo}).
+   * tempo (IAutoMovieMotionHumanExercise.IParams.tempo).
    */
   export const lunges: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["lunges"]
@@ -40,10 +40,10 @@ export namespace HumanSport {
     kind: "lunge",
   });
 
-  /**
+  /*
    * High knees, running in place. Default 3 repetitions, one knee each,
    * alternating, of 3.3 s at the default tempo; the repetition clock reads
-   * `tempo` ({@link IAutoMovieMotionHumanExercise.IParams.tempo}) as every
+   * `tempo` (IAutoMovieMotionHumanExercise.IParams.tempo) as every
    * exercise does, so running knees need a short `tempo` (the 0.3 s at the top
    * stays).
    */
@@ -53,9 +53,9 @@ export namespace HumanSport {
     kind: "highKnees",
   });
 
-  /**
+  /*
    * A neck stretch to the side. A moderate-intensity stretch: 1.5 s to enter,
-   * 30 s held, 1.5 s to release ({@link stretch.HOLD}); `seconds` sets the
+   * 30 s held, 1.5 s to release (stretch.HOLD); `seconds` sets the
    * hold.
    */
   export const neckStretch: IAutoMovieMotionHumanActionLaw<
@@ -64,9 +64,9 @@ export namespace HumanSport {
     kind: "neckSide",
   });
 
-  /**
+  /*
    * A shoulder stretch, the arm drawn across the chest. A moderate-intensity
-   * stretch: 1.5 s to enter, 30 s held, 1.5 s to release ({@link stretch.HOLD});
+   * stretch: 1.5 s to enter, 30 s held, 1.5 s to release (stretch.HOLD);
    * `seconds` sets the hold.
    */
   export const shoulderStretch: IAutoMovieMotionHumanActionLaw<
@@ -75,9 +75,9 @@ export namespace HumanSport {
     kind: "crossBody",
   });
 
-  /**
+  /*
    * A side stretch, the arm overhead. A moderate-intensity stretch: 1.5 s to
-   * enter, 30 s held, 1.5 s to release ({@link stretch.HOLD}); `seconds` sets
+   * enter, 30 s held, 1.5 s to release (stretch.HOLD); `seconds` sets
    * the hold.
    */
   export const sideStretch: IAutoMovieMotionHumanActionLaw<
@@ -86,10 +86,10 @@ export namespace HumanSport {
     kind: "overheadSide",
   });
 
-  /**
+  /*
    * A standing quadriceps stretch, the heel drawn to the seat. A
    * moderate-intensity stretch: 1.5 s to enter, 30 s held, 1.5 s to release
-   * ({@link stretch.HOLD}); `seconds` sets the hold.
+   * (stretch.HOLD); `seconds` sets the hold.
    */
   export const quadStretch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["quadStretch"]
@@ -97,9 +97,9 @@ export namespace HumanSport {
     kind: "quadriceps",
   });
 
-  /**
+  /*
    * The tree pose of yoga. A moderate-intensity stretch: 1.5 s to enter, 30 s
-   * held, 1.5 s to release ({@link stretch.HOLD}); `seconds` sets the hold.
+   * held, 1.5 s to release (stretch.HOLD); `seconds` sets the hold.
    */
   export const treePose: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["treePose"]
@@ -107,17 +107,17 @@ export namespace HumanSport {
     kind: "tree",
   });
 
-  /**
+  /*
    * A bounce to the beat. Default 8 beats at 120 beats a minute, 0.5 s a beat:
-   * 4 s plus one beat ({@link IAutoMovieMotionHumanDance.IParams.beats}).
+   * 4 s plus one beat (IAutoMovieMotionHumanDance.IParams.beats).
    */
   export const bounce: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["bounce"]
   > = AutoMovieMotionHumanActionRow.of("bounce", dance, { kind: "bounce" });
 
-  /**
+  /*
    * A step-touch to the beat. Default 8 beats at 120 beats a minute, 0.5 s a
-   * beat: 4 s plus one beat ({@link IAutoMovieMotionHumanDance.IParams.beats}).
+   * beat: 4 s plus one beat (IAutoMovieMotionHumanDance.IParams.beats).
    */
   export const stepTouch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["stepTouch"]
@@ -125,10 +125,10 @@ export namespace HumanSport {
     kind: "stepTouch",
   });
 
-  /**
+  /*
    * A box step to the beat: forward, side, close, back, side, close. Default 8
    * beats at 120 beats a minute, 0.5 s a beat: 4 s plus one beat
-   * ({@link IAutoMovieMotionHumanDance.IParams.beats}).
+   * (IAutoMovieMotionHumanDance.IParams.beats).
    */
   export const boxStep: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["boxStep"]
@@ -136,34 +136,36 @@ export namespace HumanSport {
     kind: "boxStep",
   });
 
-  /**
+  /*
    * The set position of a sprint start. Crouches over 1.5 s
-   * ({@link athletics.CROUCH}), then holds the set 1.5 s by default (`seconds`);
+   * (athletics.CROUCH), then holds the set 1.5 s by default (`seconds`);
    * provisional.
    */
   export const sprintStart: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["sprintStart"]
   > = AutoMovieMotionHumanActionRow.of("sprintStart", athletics, {});
 
-  /**
-   * A handstand. Enters over 1.5 s ({@link gymnastics.ENTER}) and holds 2 s by
+  /*
+   * A handstand. Enters over 1.5 s (gymnastics.ENTER) and holds 2 s by
    * default (`seconds`).
    */
   export const handstand: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["handstand"]
   > = AutoMovieMotionHumanActionRow.of("handstand", gymnastics, {});
 
-  /** The horse stance of karate and kung fu. */
+  /*
+   * The horse stance of karate and kung fu.
+   */
   export const horseStance: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["horseStance"]
   > = AutoMovieMotionHumanActionRow.of("horseStance", martialArt, {
     kind: "horseStance",
   });
 
-  /**
+  /*
    * Straight punches from the horse stance (choku-zuki). Four punches by
    * default, each extending in 0.2 s and staying 0.2 s, the 400 ms of a
-   * choku-zuki (VencesBrito et al. 2011, {@link martialArt.PUNCH}).
+   * choku-zuki (VencesBrito et al. 2011, martialArt.PUNCH).
    */
   export const karatePunches: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["karatePunches"]
@@ -171,9 +173,9 @@ export namespace HumanSport {
     kind: "chokuZuki",
   });
 
-  /**
+  /*
    * The push of tai chi. Four phases of 3 s each (step in, push, weight back,
-   * foot back): 12 s, the slow form ({@link martialArt.PUSH}, provisional; Wu
+   * foot back): 12 s, the slow form (martialArt.PUSH, provisional; Wu
    * and Hitt 2005).
    */
   export const taiChiPush: IAutoMovieMotionHumanActionLaw<
@@ -182,9 +184,9 @@ export namespace HumanSport {
     kind: "taiChiPush",
   });
 
-  /**
+  /*
    * Dribbling a basketball. Four bounces by default at 2 a second, a 2 s
-   * dribble ({@link ballSport.BOUNCES}, provisional).
+   * dribble (ballSport.BOUNCES, provisional).
    */
   export const dribble: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["dribble"]
@@ -192,31 +194,37 @@ export namespace HumanSport {
     kind: "dribble",
   });
 
-  /** A volleyball dig on the forearms. */
+  /*
+   * A volleyball dig on the forearms.
+   */
   export const volleyDig: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["volleyDig"]
   > = AutoMovieMotionHumanActionRow.of("volleyDig", ballSport, {
     kind: "dig",
   });
 
-  /** A volleyball set overhead. */
+  /*
+   * A volleyball set overhead.
+   */
   export const volleySet: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["volleySet"]
   > = AutoMovieMotionHumanActionRow.of("volleySet", ballSport, {
     kind: "set",
   });
 
-  /** A football throw-in. */
+  /*
+   * A football throw-in.
+   */
   export const throwIn: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["throwIn"]
   > = AutoMovieMotionHumanActionRow.of("throwIn", ballSport, {
     kind: "throwIn",
   });
 
-  /**
+  /*
    * A catcher's crouch behind the plate. Into the position in 0.8 s, held 1 s
    * by default (`seconds`) and back in 0.8 s; provisional
-   * ({@link IAutoMovieMotionHumanBaseball}).
+   * (IAutoMovieMotionHumanBaseball).
    */
   export const catcherCrouch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["catcherCrouch"]
@@ -224,10 +232,10 @@ export namespace HumanSport {
     kind: "catcherCrouch",
   });
 
-  /**
+  /*
    * Fielding a ground ball. Into the position in 0.8 s, held 1 s by default
    * (`seconds`) and back in 0.8 s; provisional
-   * ({@link IAutoMovieMotionHumanBaseball}).
+   * (IAutoMovieMotionHumanBaseball).
    */
   export const fieldGrounder: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["fieldGrounder"]
@@ -235,10 +243,10 @@ export namespace HumanSport {
     kind: "groundBall",
   });
 
-  /**
+  /*
    * A batter's stance. Into the position in 0.8 s, held 1 s by default
    * (`seconds`) and back in 0.8 s; provisional
-   * ({@link IAutoMovieMotionHumanBaseball}).
+   * (IAutoMovieMotionHumanBaseball).
    */
   export const battingStance: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["battingStance"]
@@ -246,10 +254,10 @@ export namespace HumanSport {
     kind: "battingStance",
   });
 
-  /**
+  /*
    * The ready position of tennis and badminton. Into the position in 0.6 s, the
    * hop or waggle, held 0.6 s by default (`seconds`) and back in 0.6 s
-   * ({@link IAutoMovieMotionHumanRacket}).
+   * (IAutoMovieMotionHumanRacket).
    */
   export const readyPosition: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["readyPosition"]
@@ -257,10 +265,10 @@ export namespace HumanSport {
     kind: "readyPosition",
   });
 
-  /**
+  /*
    * The split step before a return. Into the position in 0.6 s, the hop or
    * waggle, held 0.6 s by default (`seconds`) and back in 0.6 s
-   * ({@link IAutoMovieMotionHumanRacket}).
+   * (IAutoMovieMotionHumanRacket).
    */
   export const splitStep: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["splitStep"]
@@ -268,10 +276,10 @@ export namespace HumanSport {
     kind: "splitStep",
   });
 
-  /**
+  /*
    * Addressing the ball in golf. Into the position in 0.6 s, the hop or waggle,
    * held 0.6 s by default (`seconds`) and back in 0.6 s
-   * ({@link IAutoMovieMotionHumanRacket}).
+   * (IAutoMovieMotionHumanRacket).
    */
   export const golfAddress: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["golfAddress"]
@@ -279,12 +287,12 @@ export namespace HumanSport {
     kind: "golfAddress",
   });
 
-  /**
+  /*
    * A two-step shuffle to the left in the fighting stance: the `step` law
    * carrying a boxing or kickboxing guard, a boxer's footwork and not a low
    * basketball stance. It is a row of the lexicon (`HUMAN_LEXICON.sport`) and
    * belongs to no family namespace. Two steps of 0.35 s each, about three a
-   * second, each half a stance long ({@link IAutoMovieMotionHumanStep}).
+   * second, each half a stance long (IAutoMovieMotionHumanStep).
    */
   export const defensiveSlide: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["defensiveSlide"]
@@ -293,7 +301,9 @@ export namespace HumanSport {
     steps: 2,
   });
 
-  /** The chair pose of yoga: a partial squat held five seconds (provisional). */
+  /*
+   * The chair pose of yoga: a partial squat held five seconds (provisional).
+   */
   export const chairPose: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["chairPose"]
   > = AutoMovieMotionHumanActionRow.of("chairPose", crouch, {
@@ -301,7 +311,7 @@ export namespace HumanSport {
     hold: 5,
   });
 
-  /**
+  /*
    * The child's pose of yoga: kneeling, sat back on the heels, ten seconds
    * (provisional).
    */
@@ -312,7 +322,9 @@ export namespace HumanSport {
     hold: 10,
   });
 
-  /** A hip flexor stretch in the half kneel, twenty seconds (provisional). */
+  /*
+   * A hip flexor stretch in the half kneel, twenty seconds (provisional).
+   */
   export const hipFlexorStretch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["hipFlexorStretch"]
   > = AutoMovieMotionHumanActionRow.of("hipFlexorStretch", kneel, {
@@ -320,7 +332,9 @@ export namespace HumanSport {
     hold: 20,
   });
 
-  /** The corpse pose of yoga: lying on the back, ten seconds (provisional). */
+  /*
+   * The corpse pose of yoga: lying on the back, ten seconds (provisional).
+   */
   export const corpsePose: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["corpsePose"]
   > = AutoMovieMotionHumanActionRow.of("corpsePose", lieDown, {
@@ -328,7 +342,7 @@ export namespace HumanSport {
     hold: 10,
   });
 
-  /**
+  /*
    * A standing hamstring stretch: a bend down to the right foot, held twenty
    * seconds (provisional).
    */
@@ -339,9 +353,9 @@ export namespace HumanSport {
     hold: 20,
   });
 
-  /**
+  /*
    * Treading water. Cycles of 1 s, 3 by default: 3 s, in place
-   * ({@link swim.CYCLE}).
+   * (swim.CYCLE).
    */
   export const treadWater: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["treadWater"]
@@ -349,9 +363,9 @@ export namespace HumanSport {
     kind: "treadWater",
   });
 
-  /**
+  /*
    * Swimming the front crawl. Cycles of 1.4 s, 3 by default: 4.2 s, gliding at
-   * 1 m/s ({@link swim.CYCLE}).
+   * 1 m/s (swim.CYCLE).
    */
   export const frontCrawl: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["frontCrawl"]
@@ -359,9 +373,9 @@ export namespace HumanSport {
     kind: "frontCrawl",
   });
 
-  /**
+  /*
    * Swimming the breaststroke. Glides at 0.9 m/s, 3 cycles by default
-   * ({@link SwimStroke.strokes}, provisional).
+   * (SwimStroke.strokes, provisional).
    */
   export const breaststroke: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["breaststroke"]
@@ -369,10 +383,10 @@ export namespace HumanSport {
     kind: "breaststroke",
   });
 
-  /**
+  /*
    * Swimming the backstroke, head first the way the back faced. Cycles of 1.4
    * s, 3 by default: 4.2 s, travelling at 1 m/s head first
-   * ({@link SwimStroke.strokes}, provisional).
+   * (SwimStroke.strokes, provisional).
    */
   export const backstroke: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["backstroke"]
@@ -380,9 +394,9 @@ export namespace HumanSport {
     kind: "backstroke",
   });
 
-  /**
+  /*
    * Floating on the back. Held on the back at rest with no travel
-   * ({@link SwimStroke.strokes}).
+   * (SwimStroke.strokes).
    */
   export const floating: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["floating"]

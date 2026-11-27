@@ -30,7 +30,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { blendHumanJoint } from "../../posture/internal/blendHumanJoint";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 
-/**
+/*
  * Plan keyed presses by the free thumb of the hand that holds a prop.
  *
  * The carrier keeps the existing rigid hold and finger joints. Each press is
@@ -42,11 +42,10 @@ import { HumanSkill } from "../../skill/internal/HumanSkill";
  * the average thumb-tap interval of Trudeau et al. (2012), varied by the
  * action's seeded proficiency. Authored times are seconds from the overlay's
  * start. The first press must follow the overlay's entrance fade.
- *
- * @param context The overlay's entry, held prop and ordered contact sites.
- * @returns A thumb-only plan with one press event per site.
- * @throws {HumanRefusal} When the hand is empty, a site or thumb is absent, the
- *   sequence is invalid, or a site is outside the thumb's usable reach.
+ * Parameter context: The overlay's entry, held prop and ordered contact sites.
+ * Returns: A thumb-only plan with one press event per site.
+ * When the hand is empty, a site or thumb is absent, the
+ * sequence is invalid, or a site is outside the thumb's usable reach.
  */
 export function manipulateHeld(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
@@ -280,27 +279,37 @@ export function manipulateHeld(
   };
 }
 
-/**
+/*
  * Midpoint of the outward and inward tap means, seconds. Trudeau et al. (2012),
  * doi:10.1177/0018720811423660, measured 0.28 s and 0.30 s.
  */
 const TAP_INTERVAL: number = (0.28 + 0.3) / 2;
 
-/** Maximum fingertip error, metres, from the keyed-contact specification. */
+/*
+ * Maximum fingertip error, metres, from the keyed-contact specification.
+ */
 const CONTACT_BOUND: number = 0.002;
-/** One sampled configuration of the three thumb joints. */
+/*
+ * One sampled configuration of the three thumb joints.
+ */
 interface IKnot {
-  /** Time from the overlay's start, seconds. */
+  /*
+   * Time from the overlay's start, seconds.
+   */
   time: number;
 
-  /** Clinical angles in the same joint order as the isolated thumb rig. */
+  /*
+   * Clinical angles in the same joint order as the isolated thumb rig.
+   */
   angles: readonly (readonly [number, number, number])[];
 }
 
-/** The record of `IManipulateHeldResult`'s site. */
+/*
+ * The record of `IManipulateHeldResult`'s site.
+ */
 type IManipulateHeldResult = { name: string; share: number };
 
-/**
+/*
  * Read the samples in rig order, with absent joints using their rest
  * articulation.
  */
@@ -318,7 +327,9 @@ function anglesOf(
   );
 }
 
-/** The adjacent knots surrounding a second, using the end pair beyond the path. */
+/*
+ * The adjacent knots surrounding a second, using the end pair beyond the path.
+ */
 function bracket(
   knots: readonly IKnot[],
   time: number,

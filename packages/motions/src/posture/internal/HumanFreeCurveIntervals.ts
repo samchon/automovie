@@ -13,7 +13,7 @@ import { prepareHumanAdaptiveKnots } from "./prepareHumanAdaptiveKnots";
 import type { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import type { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 
-/**
+/*
  * The knots of a free-leg curve (`prepareHumanFreeCurve`) from its origin
  * toward one end, solved when the curve is prepared: placed by AutoKnots
  * (Vitenti et al. 2024, arXiv:2412.13423; `prepareHumanAdaptiveKnots.seeded`)
@@ -27,10 +27,9 @@ import type { prepareHumanPostureProjection } from "./prepareHumanPostureProject
  * the start's basin (a movement that returns). Where a knot's fit fails its
  * gates the chain stops at the knot before it, so the phases past its last knot
  * have no continuation and are fitted cold.
- *
- * @param scope The curve's authoring and correction, the directed interval and
- *   the knot at its start.
- * @returns The knots after the start toward the end, in that order.
+ * Parameter scope: The curve's authoring and correction, the directed interval and
+ * the knot at its start.
+ * Returns: The knots after the start toward the end, in that order.
  */
 export function HumanFreeCurveIntervals(
   scope: HumanFreeCurveIntervals.IScope,
@@ -112,54 +111,79 @@ export function HumanFreeCurveIntervals(
   }
   return out;
 }
-/** What the knots of a free-leg curve are solved from, and what they are. */
+/*
+ * What the knots of a free-leg curve are solved from, and what they are.
+ */
 export namespace HumanFreeCurveIntervals {
-  /** What a free-leg curve's knots toward one end are solved from. */
+  /*
+   * What a free-leg curve's knots toward one end are solved from.
+   */
   export interface IScope {
-    /**
+    /*
      * The curve's authoring at a phase in [0,1].
-     *
-     * @param share The phase.
-     * @returns The authored posture.
+     * Parameter share: The phase.
+     * Returns: The authored posture.
      */
     at: (share: number) => IAutoMovieMotionHumanPosture;
 
-    /** The curve's correction (`HumanFreeCurveFit.IFits.correct`). */
+    /*
+     * The curve's correction (`HumanFreeCurveFit.IFits.correct`).
+     */
     correct: HumanFreeCurveFit.IFits["correct"];
 
-    /** The phase of the knot the chain starts from. */
+    /*
+     * The phase of the knot the chain starts from.
+     */
     from: number;
 
-    /** The phase the chain heads to, 0 or 1. */
+    /*
+     * The phase the chain heads to, 0 or 1.
+     */
     to: number;
 
-    /** The anchor at `from`. */
+    /*
+     * The anchor at `from`.
+     */
     origin: IAnchor;
 
-    /** The native forward-kinematics source the knots are solved with. */
+    /*
+     * The native forward-kinematics source the knots are solved with.
+     */
     resolution: Parameters<typeof prepareHumanPoseResolution>[0];
 
-    /** The range-of-motion projector, if any. */
+    /*
+     * The range-of-motion projector, if any.
+     */
     projection: ReturnType<typeof prepareHumanPostureProjection> | undefined;
   }
 
-  /** One knot: a phase and the anchor its correction reached there. */
+  /*
+   * One knot: a phase and the anchor its correction reached there.
+   */
   export interface IKnot {
-    /** The phase, in [0,1]. */
+    /*
+     * The phase, in [0,1].
+     */
     share: number;
 
-    /** The anchor at it. */
+    /*
+     * The anchor at it.
+     */
     anchor: IAnchor;
   }
 }
 
-/** A curve's numeric anchor (`HumanFreeCurveFit.IAnchor`). */
+/*
+ * A curve's numeric anchor (`HumanFreeCurveFit.IAnchor`).
+ */
 type IAnchor = HumanFreeCurveFit.IAnchor;
 
-/** A curve's correction (`HumanFreeCurveFit.ICorrection`). */
+/*
+ * A curve's correction (`HumanFreeCurveFit.ICorrection`).
+ */
 type ICorrection = HumanFreeCurveFit.ICorrection;
 
-/**
+/*
  * A validated previous foot and a current orientation goal bound an interval
  * before IK. An accepted foot lies within ROM_TOLERANCE of its goal and within
  * STEP of the previous achieved orientation. A second ROM tolerance is reserved

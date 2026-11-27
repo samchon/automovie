@@ -196,7 +196,9 @@ export namespace AutoMovieHumanHeadDome {
       ),
     ];
 
-    /** Signed profile ordinates on the one shared station list. */
+    /*
+     * Signed profile ordinates on the one shared station list.
+     */
     function outline(e0: number, sign: number): IAutoMovieViewPart.IOutline {
       return {
         knots: stations.map(

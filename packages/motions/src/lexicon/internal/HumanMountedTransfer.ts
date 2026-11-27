@@ -11,24 +11,23 @@ import type {
 
 import { HumanMountedPaths } from "./HumanMountedPaths";
 
-/**
+/*
  * Shape a transfer between two keys at a share of it, in place on the blended
  * posture: each limb end turns the same share as it moves (a foot kept on its
  * rest turning about its ball), each handed-off limb blends joints to joints,
  * the hips swing between the keys about the feet kept on their stirrups
  * (`HumanMountedPaths.swing`), and a leg rises over the carrier on its arc.
  * Outside a transfer (share 0 or 1) the posture is left as blended.
- *
- * @param local The keys' blend at the share, the contact's frame; reshaped.
- * @param from The transfer's first key.
- * @param to The transfer's second key.
- * @param share The transfer's share.
- * @param pivot The ball each foot kept on its rest pivots about, by side.
- * @param handoff Each handed-off limb's fitted joints by bone.
- * @param arc Each leg's arc over the carrier, by side.
- * @param before The hips at the first key.
- * @param after The hips at the second key.
- * @param hipsOf The hips of a posture.
+ * Parameter local: The keys' blend at the share, the contact's frame; reshaped.
+ * Parameter from: The transfer's first key.
+ * Parameter to: The transfer's second key.
+ * Parameter share: The transfer's share.
+ * Parameter pivot: The ball each foot kept on its rest pivots about, by side.
+ * Parameter handoff: Each handed-off limb's fitted joints by bone.
+ * Parameter arc: Each leg's arc over the carrier, by side.
+ * Parameter before: The hips at the first key.
+ * Parameter after: The hips at the second key.
+ * Parameter hipsOf: The hips of a posture.
  */
 export function HumanMountedTransfer(
   local: IAutoMovieMotionHumanPosture,
@@ -157,5 +156,7 @@ export function HumanMountedTransfer(
     }
 }
 
-/** A limb's joints by bone, clinical degrees `[flexion, abduction, twist]`. */
+/*
+ * A limb's joints by bone, clinical degrees `[flexion, abduction, twist]`.
+ */
 type Joints = IAutoMovieMotionHumanPosture["joints"];

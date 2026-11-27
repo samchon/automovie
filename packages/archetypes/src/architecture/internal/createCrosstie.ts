@@ -5,19 +5,18 @@ import { type AutoMovieArchetype } from "../../core/index";
 import { ObstacleDraw } from "./ObstacleDraw";
 
 
-/**
+/*
  * A timber railway crosstie with its upper face and forward edge available to a
  * stepping act.
  *
  * The chosen section fixes the rise and depth and the chosen tie length fixes
  * the X span. The object stands on Y = 0 and is approached from +Z.
- *
- * @param params The scene identifier, optional section and length choices, and
- *   free mass.
- * @param seed The seed for the draws the author leaves open.
- * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
- *   selected profile.
+ * Parameter params: The scene identifier, optional section and length choices, and
+ * free mass.
+ * Parameter seed: The seed for the draws the author leaves open.
+ * Returns: The fixed model with its typed contacts.
+ * If a supplied override lies outside the
+ * selected profile.
  */
 export function createCrosstie(
   params: AutoMovieArchetypeCrosstie.IParams = {},

@@ -1,6 +1,6 @@
 import type { IAutoMovieColor } from "@automovie/interface";
 
-/**
+/*
  * Linear sRGB colour of a blackbody at `kelvin`, scaled so its largest channel
  * is 1, for a flame light's colour.
  *
@@ -13,8 +13,7 @@ import type { IAutoMovieColor } from "@automovie/interface";
  * nanometre from 360 to 830 nm. The tristimulus values are converted with the
  * IEC 61966-2-1 XYZ to linear sRGB matrix. A channel below zero, a chromaticity
  * outside the sRGB gamut, is clamped to zero before scaling.
- *
- * @throws {RangeError} When `kelvin` is not finite and positive.
+ * When `kelvin` is not finite and positive.
  */
 export function blackbodyAutoMovieColor(kelvin: number): IAutoMovieColor {
   if (kelvin <= 0)
@@ -59,10 +58,12 @@ export function blackbodyAutoMovieColor(kelvin: number): IAutoMovieColor {
   };
 }
 
-/** Planck's constant times the speed of light over Boltzmann's constant, m·K. */
+/*
+ * Planck's constant times the speed of light over Boltzmann's constant, m·K.
+ */
 const SECOND_RADIATION: number = 1.438776877e-2;
 
-/**
+/*
  * One piecewise Gaussian lobe of the fit: width `below` left of `mean`, `above`
  * right of it.
  */

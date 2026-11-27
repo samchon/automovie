@@ -1,6 +1,6 @@
 import type { IAutoMoviePhysicalJointAxis } from "@automovie/interface";
 
-/**
+/*
  * Whether a coordinate stands on or past one of its axis's bounds, by Bullet's
  * joint-limit rows (bulletphysics/bullet3,
  * `src/BulletDynamics/Featherstone/btMultiBodyJointLimitConstraint.cpp`, lines
@@ -9,10 +9,9 @@ import type { IAutoMoviePhysicalJointAxis } from "@automovie/interface";
  * coordinate less its lower bound, the upper row's the upper bound less the
  * coordinate, and a row is active when its penetration is at most zero. It is
  * read at the coordinate a solve would carry the axis to.
- *
- * @param declared The free axis and its bounds.
- * @param q The coordinate, radians.
- * @returns Whether either limit row is active.
+ * Parameter declared: The free axis and its bounds.
+ * Parameter q: The coordinate, radians.
+ * Returns: Whether either limit row is active.
  */
 export function reachesXpbdJointBound(
   declared: IAutoMoviePhysicalJointAxis,

@@ -5,7 +5,7 @@ import type {
 
 import { appendEditorialMarkersArtifact } from "./appendEditorialMarkersArtifact";
 
-/**
+/*
  * Admit the performance's optional editorial marker list and copy its data
  * before the other shot compilers read the staged performance.
  */

@@ -10,7 +10,7 @@ import type {
 import { AutoMovieViewOutline } from "../../AutoMovieViewOutline";
 import { AutoMovieViewParameter } from "../../AutoMovieViewParameter";
 
-/**
+/*
  * Apply one explicitly requested C2 material rotation to an admitted base axis.
  *
  * Input stations are millimetres. At `to`, the target's normal-plane components
@@ -32,12 +32,11 @@ import { AutoMovieViewParameter } from "../../AutoMovieViewParameter";
  * Its analytic-jet support, when present, is carried through the same rotation
  * in station or a requested pole coordinate; this wrapper does not repair the
  * base centreline. Queries use finite stations.
- *
- * @param base Admitted C2 orthonormal frame function.
- * @param from Finite transition start station, mm.
- * @param to Finite transition end station, mm, strictly greater than from.
- * @param up Signed endpoint target in the construction frame; direction only.
- * @returns Rotated axis or the named station/target/source admission failure.
+ * Parameter base: Admitted C2 orthonormal frame function.
+ * Parameter from: Finite transition start station, mm.
+ * Parameter to: Finite transition end station, mm, strictly greater than from.
+ * Parameter up: Signed endpoint target in the construction frame; direction only.
+ * Returns: Rotated axis or the named station/target/source admission failure.
  */
 export function rollAutoMovieViewAxis(
   base: IAutoMovieViewAxis.IAxis,
@@ -93,7 +92,7 @@ export function rollAutoMovieViewAxis(
   if ("contract" in source)
     return `material roll ${source.contract}: ${source.detail}`;
 
-  /**
+  /*
    * Preserve the base origin/normal plane while reading the prepared rotation
    * at a finite station.
    */
@@ -205,7 +204,7 @@ export function rollAutoMovieViewAxis(
   };
 }
 
-/**
+/*
  * Existing jointed initial-up conditioning policy: projected direction length
  * must exceed this share of the target length. This is a numerical admission
  * limit, not geometric parallelism or an anatomical constant.

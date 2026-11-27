@@ -3,7 +3,7 @@ import { AutoMovieTemplateScaffold } from "@automovie/template";
 import type { AutoMovieCommand } from "../../command/AutoMovieCommand";
 import { readAutoMovieNameOption } from "./readAutoMovieNameOption";
 
-/**
+/*
  * Admit one `add` request: exactly one `shorts/<directory>` or
  * `series/<directory>` target with optional single `--force` and `--name
  * <name>`, in any order.
@@ -13,11 +13,10 @@ import { readAutoMovieNameOption } from "./readAutoMovieNameOption";
  * admits unchanged, so `movies/<family>/<directory>` cannot leave the
  * workspace. Every refusal throws an `Error` whose message names the
  * correction.
- *
- * @param args The tokens after `add`.
- * @returns The admitted request.
- * @throws On an unknown or repeated option, a missing name value, a target
- *   count other than one, an unknown family, or a refused directory segment.
+ * Parameter args: The tokens after `add`.
+ * Returns: The admitted request.
+ * On an unknown or repeated option, a missing name value, a target
+ * count other than one, an unknown family, or a refused directory segment.
  */
 export function readAutoMovieAddArguments(
   args: readonly string[],

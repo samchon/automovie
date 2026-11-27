@@ -1,7 +1,7 @@
 import { AutoMovieEnginePlanarHull } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * The unit inward normal of a convex polygon's edge from corner `k` to the
  * next; the monotone chain leaves no edge of zero length.
  */
@@ -24,7 +24,7 @@ function inward(
     : { x: -n.x, z: -n.z };
 }
 
-/**
+/*
  * The same ordered arithmetic mean of corners previously read independently for
  * every edge.
  */
@@ -38,7 +38,7 @@ function mean(outline: readonly IMeanOutlineItem[]): IMeanResult {
   return { x, z };
 }
 
-/**
+/*
  * The half-planes whose intersection is a convex hull of floor points: a
  * polygon's edges, each with its inward normal; a segment's two sides, whose
  * intersection is its line, and an inward cap at each end; a point's four axis
@@ -103,12 +103,11 @@ function halfPlanes(
   };
 }
 
-/**
+/*
  * The hull of floor points and its half-planes.
- *
- * @param points The bearing points, world metres; their heights are not read.
- * @returns The hull's corners, each with the index of the point it is, in hull
- *   order, and the half-planes over them.
+ * Parameter points: The bearing points, world metres; their heights are not read.
+ * Returns: The hull's corners, each with the index of the point it is, in hull
+ * order, and the half-planes over them.
  */
 export function HumanFitBalanceBase(
   points: readonly IAutoMovieVector3[],
@@ -128,120 +127,178 @@ export function HumanFitBalanceBase(
   return { ...halfPlanes(corners), corners };
 }
 
-/**
+/*
  * The base of support of a balance (`HumanFitBalance`) as half-planes: the
  * convex hull of the bearing points on the floor (Andrew's monotone chain), and
  * the half-planes whose intersection it is, each with the corners it passes
  * through, so a row can move the base with the corners' bones.
  */
 export namespace HumanFitBalanceBase {
-  /**
+  /*
    * Which corners a half-plane passes through: a side of the base (a polygon's
    * edge or a segment's side) the line through `p` and `q`, a cap the line
    * across the segment at its end `p` with `q` its other end, a point's axis
    * half-plane its one corner `p`.
    */
   export interface IThrough {
-    /** The half-plane's kind. */
+    /*
+     * The half-plane's kind.
+     */
     kind: ThroughKind;
 
-    /** Its first corner; a cap's own end. */
+    /*
+     * Its first corner; a cap's own end.
+     */
     p: number;
 
-    /** Its second corner; a cap's other end; `p` for a point. */
+    /*
+     * Its second corner; a cap's other end; `p` for a point.
+     */
     q: number;
   }
 
-  /**
+  /*
    * A corner of the hull: a floor point and the index of the bearing point it
    * projects.
    */
   export interface ICorner {
-    /** The floor point's x, world metres. */
+    /*
+     * The floor point's x, world metres.
+     */
     x: number;
 
-    /** The floor point's z, world metres. */
+    /*
+     * The floor point's z, world metres.
+     */
     z: number;
 
-    /** The index of the bearing point it projects. */
+    /*
+     * The index of the bearing point it projects.
+     */
     i: number;
   }
 
-  /**
+  /*
    * A base's half-planes, in one order: each its anchor, its inward normal and
    * the corners it passes through.
    */
   export interface IPlanes {
-    /** A floor point each half-plane passes through, world metres. */
+    /*
+     * A floor point each half-plane passes through, world metres.
+     */
     anchors: IPlanesAnchorsItem[];
 
-    /** Each half-plane's unit inward direction. */
+    /*
+     * Each half-plane's unit inward direction.
+     */
     normals: IPlanesNormalsItem[];
 
-    /** Each half-plane's corners among the hull's. */
+    /*
+     * Each half-plane's corners among the hull's.
+     */
     through: IThrough[];
   }
 }
 
-/** The record of `IHalfPlanes2`'s site. */
+/*
+ * The record of `IHalfPlanes2`'s site.
+ */
 type IHalfPlanes2 = { x: number; z: number };
 
-/** The record of `IHalfPlanesResult`'s site. */
+/*
+ * The record of `IHalfPlanesResult`'s site.
+ */
 type IHalfPlanesResult = { x: number; z: number };
 
-/** The record of `IHalfPlanes`'s site. */
+/*
+ * The record of `IHalfPlanes`'s site.
+ */
 type IHalfPlanes = { x: number; z: number };
 
-/** The record of `IHalfPlanesMiddle`'s site. */
+/*
+ * The record of `IHalfPlanesMiddle`'s site.
+ */
 type IHalfPlanesMiddle = { x: number; z: number };
 
-/** The record of `IHalfPlanesD`'s site. */
+/*
+ * The record of `IHalfPlanesD`'s site.
+ */
 type IHalfPlanesD = { x: number; z: number };
 
-/** The record of `IHalfPlanesB`'s site. */
+/*
+ * The record of `IHalfPlanesB`'s site.
+ */
 type IHalfPlanesB = { x: number; z: number };
 
-/** The record of `IHalfPlanesA`'s site. */
+/*
+ * The record of `IHalfPlanesA`'s site.
+ */
 type IHalfPlanesA = { x: number; z: number };
 
-/** The record of `IHalfPlanesCornersItem`'s site. */
+/*
+ * The record of `IHalfPlanesCornersItem`'s site.
+ */
 type IHalfPlanesCornersItem = { x: number; z: number };
 
-/** The record of `IPlanesNormalsItem`'s site. */
+/*
+ * The record of `IPlanesNormalsItem`'s site.
+ */
 type IPlanesNormalsItem = { x: number; z: number };
 
-/** The record of `IPlanesAnchorsItem`'s site. */
+/*
+ * The record of `IPlanesAnchorsItem`'s site.
+ */
 type IPlanesAnchorsItem = { x: number; z: number };
 
-/** The record of `IMeanResult`'s site. */
+/*
+ * The record of `IMeanResult`'s site.
+ */
 type IMeanResult = {
   x: number;
   z: number;
 };
 
-/** The record of `IMeanOutlineItem`'s site. */
+/*
+ * The record of `IMeanOutlineItem`'s site.
+ */
 type IMeanOutlineItem = { x: number; z: number };
 
-/** The record of `IInwardN`'s site. */
+/*
+ * The record of `IInwardN`'s site.
+ */
 type IInwardN = { x: number; z: number };
 
-/** The record of `IInwardB`'s site. */
+/*
+ * The record of `IInwardB`'s site.
+ */
 type IInwardB = { x: number; z: number };
 
-/** The record of `IInwardA`'s site. */
+/*
+ * The record of `IInwardA`'s site.
+ */
 type IInwardA = { x: number; z: number };
 
-/** The record of `IInwardResult`'s site. */
+/*
+ * The record of `IInwardResult`'s site.
+ */
 type IInwardResult = { x: number; z: number };
 
-/** The record of `IInwardMiddle`'s site. */
+/*
+ * The record of `IInwardMiddle`'s site.
+ */
 type IInwardMiddle = { x: number; z: number };
 
-/** The record of `IInwardOutlineItem`'s site. */
+/*
+ * The record of `IInwardOutlineItem`'s site.
+ */
 type IInwardOutlineItem = { x: number; z: number };
 
-/** The alternatives of `ThroughKind`'s site. */
+/*
+ * The alternatives of `ThroughKind`'s site.
+ */
 type ThroughKind = "side" | "cap" | "point";
 
-/** The record of `IOfResult`'s site. */
+/*
+ * The record of `IOfResult`'s site.
+ */
 type IOfResult = { corners: HumanFitBalanceBase.ICorner[] };

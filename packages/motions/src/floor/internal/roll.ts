@@ -23,7 +23,7 @@ import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShape
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { floorEntry } from "./floorEntry";
 
-/**
+/*
  * A forward or backward roll on the floor: the body crouches into a tuck over
  * its feet, rolls once round over its back as a ball rolls, without flight, and
  * rises from the tuck on its feet where the roll has carried it.
@@ -47,15 +47,21 @@ import { floorEntry } from "./floorEntry";
  * roll, and the floor's contact is read on joint centres, not the skin.
  */
 export namespace roll {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "roll";
 
-  /** Cancel table: a roll is left once it stands. */
+  /*
+   * Cancel table: a roll is left once it stands.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: ["risen", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** The tuck's joint angles, clinical degrees (provisional). */
+  /*
+   * The tuck's joint angles, clinical degrees (provisional).
+   */
   export const TUCK: Readonly<
     Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>>
   > = {
@@ -73,21 +79,26 @@ export namespace roll {
     rightLowerArm: [60, 0, 0],
   };
 
-  /** Seconds to crouch into the tuck, and to rise from it (provisional). */
+  /*
+   * Seconds to crouch into the tuck, and to rise from it (provisional).
+   */
   export const CROUCH: number = 0.7;
 
-  /** Seconds the turn takes (provisional). */
+  /*
+   * Seconds the turn takes (provisional).
+   */
   export const TURN: number = 1.1;
 
-  /** Samples of the turn the root's travel is integrated over. */
+  /*
+   * Samples of the turn the root's travel is integrated over.
+   */
   export const SAMPLES: number = 72;
 
-  /**
+  /*
    * Plan a roll.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws When the entry is not standing on both feet.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the entry is not standing on both feet.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRoll.IParams>,
@@ -313,7 +324,9 @@ export namespace roll {
     });
     return planned;
 
-    /** Measure the raw reader's canonical ankle demand. */
+    /*
+     * Measure the raw reader's canonical ankle demand.
+     */
     function rawAnkles(
       pose: ReturnType<typeof resolveHumanPosture>,
     ): ReturnType<typeof poseBones> {
@@ -322,40 +335,41 @@ export namespace roll {
   }
 }
 
-/** The alternatives of `PlanContactsPart`'s site. */
+/*
+ * The alternatives of `PlanContactsPart`'s site.
+ */
 type PlanContactsPart = "leftFoot" | "rightFoot";
 
-/**
+/*
  * Read every original roll-table sample from its current authored posture. The
  * entry graph remains borrowed, so each sample keeps its original live
  * observation and complete canonical resolution.
+ * Parameter body: The unchanged body of this construction.
+ * Parameter posed: The original per-sample posture builder, including current entry
+ * context.
+ * Parameter samples: The positive original number of equal angular intervals.
+ * Returns: One negated minimum per interval boundary, samples+1 total, over
+ * every actual bone-origin height in metres.
  *
- * @param body The unchanged body of this construction.
- * @param posed The original per-sample posture builder, including current entry
- *   context.
- * @param samples The positive original number of equal angular intervals.
- * @returns One negated minimum per interval boundary, samples+1 total, over
- *   every actual bone-origin height in metres.
- *
- *   States borrowed current raw input, original callback/interval count and full
- *   bone-origin rather than collider-height output. Keeps every k=0..samples
- *   turn, actual current authored posture, complete canonical observation and
- *   full FK/minimum over all bone world-Y values; clinical source data are
- *   never replaced by an earlier sample. One bounded native metadata scope
- *   serves the same ordered callback, complete-resolution, full-FK and minimum
- *   loop. No borrowed entry value is frozen or certified from callback
- *   purity/JSON equality. No digit/rotation goal is dropped and no collider
- *   minimum replaces the all-bone-origin datum; every original sample/read
- *   remains. Each sample retains its full current nonlinear projection, native
- *   fits and full FK. One exact FK/genuine ROM scope shares only immutable
- *   metadata and checked numerical prerequisites, with no ineffective
- *   template/JSON source machinery or measured speedup claim. Only the body's
- *   immutable rig/ROM metadata and exact dependency checks share; the original
- *   current entry joint map, root orientation and optional context are observed
- *   anew through posed at each sample. One synchronous construction owns
- *   bounded FK/ROM metadata until return or throw. Only the original numeric
- *   height table returns; no raw/solved pose, current map, getter or history of
- *   queried poses enters the roll plan.
+ * States borrowed current raw input, original callback/interval count and full
+ * bone-origin rather than collider-height output. Keeps every k=0..samples
+ * turn, actual current authored posture, complete canonical observation and
+ * full FK/minimum over all bone world-Y values; clinical source data are
+ * never replaced by an earlier sample. One bounded native metadata scope
+ * serves the same ordered callback, complete-resolution, full-FK and minimum
+ * loop. No borrowed entry value is frozen or certified from callback
+ * purity/JSON equality. No digit/rotation goal is dropped and no collider
+ * minimum replaces the all-bone-origin datum; every original sample/read
+ * remains. Each sample retains its full current nonlinear projection, native
+ * fits and full FK. One exact FK/genuine ROM scope shares only immutable
+ * metadata and checked numerical prerequisites, with no ineffective
+ * template/JSON source machinery or measured speedup claim. Only the body's
+ * immutable rig/ROM metadata and exact dependency checks share; the original
+ * current entry joint map, root orientation and optional context are observed
+ * anew through posed at each sample. One synchronous construction owns
+ * bounded FK/ROM metadata until return or throw. Only the original numeric
+ * height table returns; no raw/solved pose, current map, getter or history of
+ * queried poses enters the roll plan.
  */
 function heightsOf(
   body: IAutoMovieMotionHumanBody,

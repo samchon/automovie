@@ -1,6 +1,6 @@
 import { SUBSURFACE_TEXTURE_SIZE } from "../SUBSURFACE_TEXTURE_SIZE.js";
 
-/**
+/*
  * Compute a 32-by-64 diffuse lookup: the zero-blur row is a clamped cosine, and
  * other rows use 720 midpoint samples with five Gaussian wrap images. This
  * conventional approximation is not a measured tissue diffusion profile or an

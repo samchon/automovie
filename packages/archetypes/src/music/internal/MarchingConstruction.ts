@@ -6,18 +6,22 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeInstrument } from "../AutoMovieArchetypeInstrument";
 
-/** The shorthand every construction uses. */
+/*
+ * The shorthand every construction uses.
+ */
 const v: typeof Vector3.create = Vector3.create;
 
-/** Brass. */
+/*
+ * Brass.
+ */
 const BRASS: string = "#c9a227";
 
-/**
- * How {@link createInstrument} builds the instruments a marching column carries:
+/*
+ * How createInstrument builds the instruments a marching column carries:
  * a side drum and a bugle.
  */
 export namespace MarchingConstruction {
-  /**
+  /*
    * The construction sizes no source read gives, metres, each an estimate no
    * act reads and no band declares: `tube`, a bugle's tube diameter; `flare`,
    * its bell's depth.
@@ -30,16 +34,15 @@ export namespace MarchingConstruction {
     flare: 0.06,
   };
 
-  /**
+  /*
    * A side drum standing on its bottom head: the shell as one cylinder of the
    * drawn diameter and depth.
    *
    * `head` is the batter head on top, the surface the sticks strike; `sling`
    * the hook on the shell's side at its top edge, where a sling or a carrier
    * holds it.
-   *
-   * @param builder The builder to fill.
-   * @param d The drawn dimensions.
+   * Parameter builder: The builder to fill.
+   * Parameter d: The drawn dimensions.
    */
   export function sideDrum(builder: Builder, d: Drawn): void {
     const radius: number = d.diameter! / 2;
@@ -63,7 +66,7 @@ export namespace MarchingConstruction {
     });
   }
 
-  /**
+  /*
    * A bugle lying on its side: two straight runs of tube along `X` joined at
    * both ends, the bell on the lower run's `+X` end and the mouthpiece on the
    * upper run's `-X` end.
@@ -71,9 +74,8 @@ export namespace MarchingConstruction {
    * `grip` is the upper run's middle, where a hand holds it; `mouthpiece` the
    * mouthpiece's rim, a socket whose `+Y` points back out along `-X` toward the
    * lips.
-   *
-   * @param builder The builder to fill.
-   * @param d The drawn dimensions.
+   * Parameter builder: The builder to fill.
+   * Parameter d: The drawn dimensions.
    */
   export function bugle(builder: Builder, d: Drawn): void {
     const E: typeof ESTIMATES = ESTIMATES;
@@ -124,11 +126,15 @@ export namespace MarchingConstruction {
   }
 }
 
-/** The builder every construction fills. */
+/*
+ * The builder every construction fills.
+ */
 type Builder = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeInstrument.Affordance,
   AutoMovieArchetypeInstrument.Dimension
 >;
 
-/** The drawn dimensions. */
+/*
+ * The drawn dimensions.
+ */
 type Drawn = Partial<Record<AutoMovieArchetypeInstrument.Dimension, number>>;

@@ -40,7 +40,7 @@ import { stepRecoveryMapPose } from "./stepRecoveryMapPose";
 import { stepRecoveryMapSeedPose } from "./stepRecoveryMapSeedPose";
 import { updateRecoveryRegularization } from "./updateRecoveryRegularization";
 
-/**
+/*
  * Refine a fixed camera map while retaining every hard pixel observation. This
  * internal opt-in method uses the same robust objective, seven-freedom gauge,
  * independent original ranks and actual point qualification. Pixel KKT is

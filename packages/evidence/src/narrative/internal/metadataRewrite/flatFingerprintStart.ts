@@ -1,6 +1,6 @@
 import { REVIEW } from "./REVIEW";
 
-/**
+/*
  * Locates the review hash by grammar, never by an identical token in its
  * target.
  */

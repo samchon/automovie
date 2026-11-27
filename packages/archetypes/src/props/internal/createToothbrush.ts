@@ -2,16 +2,15 @@ import type { AutoMovieArchetypeToothbrush } from "../AutoMovieArchetypeToothbru
 import { type AutoMovieArchetype } from "../../core/index";
 import { GroomingPropDraw } from "./GroomingPropDraw";
 
-/**
+/*
  * Toothbrush with a handle and a +Y bristle face near its far end.
- *
- * @param params The optional scene ID and any fixed free dimension in metres or
- *   kilograms.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses
- *   the original defaults.
- * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
- *   outside its admitted recipe.
+ * Parameter params: The optional scene ID and any fixed free dimension in metres or
+ * kilograms.
+ * Parameter seed: The seed for the recorded recipe. Without a seed, the draw uses
+ * the original defaults.
+ * Returns: The model with its named contact frames in model space.
+ * When the model or a fixed parameter lies
+ * outside its admitted recipe.
  */
 export function createToothbrush(
   params: Pick<

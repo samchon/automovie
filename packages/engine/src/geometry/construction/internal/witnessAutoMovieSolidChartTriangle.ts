@@ -5,7 +5,7 @@ import type {
 
 import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
 
-/**
+/*
  * Check the empty native triangle between a represented edge and a probe.
  *
  * A floating distance is useful for proposing a small probe, but its error is
@@ -112,7 +112,7 @@ export function witnessAutoMovieSolidChartTriangle(
   return true;
 }
 
-/**
+/*
  * A nearest local sheet plus two neighbours each way; extra images reserve
  * image-count arithmetic only.
  */
@@ -126,7 +126,9 @@ function images(
   return [nearest - 2, nearest - 1, nearest, nearest + 1, nearest + 2];
 }
 
-/** A proper crossing is determined by four exact represented-point signs. */
+/*
+ * A proper crossing is determined by four exact represented-point signs.
+ */
 function crosses(
   a: Readonly<AutoMovieVector2Tuple>,
   b: Readonly<AutoMovieVector2Tuple>,
@@ -140,7 +142,9 @@ function crosses(
   );
 }
 
-/** A closed segment contact at the probe is not a valid interior witness. */
+/*
+ * A closed segment contact at the probe is not a valid interior witness.
+ */
 function on(
   a: Readonly<AutoMovieVector2Tuple>,
   b: Readonly<AutoMovieVector2Tuple>,

@@ -82,28 +82,40 @@ export namespace AutoMovieEngineCaptureRecord {
   }
 }
 
-/** The plain name a capture can own below its output directory. */
+/*
+ * The plain name a capture can own below its output directory.
+ */
 const CAPTURE_FILE_NAME: RegExp = /^(?!\.{1,2}$)[^/\\:\0]+$/u;
 
 /** A JSON object's fields before admission. */
 type IFields = Readonly<Record<string, unknown>>;
 
-/** The record state and fields shared by cleanup and evidence readers. */
+/*
+ * The record state and fields shared by cleanup and evidence readers.
+ */
 interface IRecord {
-  /** Normalized persisted state. */
+  /*
+   * Normalized persisted state.
+   */
   readonly type: "running" | "complete";
-  /** The original JSON object. */
+  /*
+   * The original JSON object.
+   */
   readonly fields: IFields;
 }
 
-/** Read an object without treating an array or primitive as an envelope. */
+/*
+ * Read an object without treating an array or primitive as an envelope.
+ */
 function fieldsOf(value: unknown): IFields | null {
   return value !== null && typeof value === "object" && !Array.isArray(value)
     ? (value as IFields)
     : null;
 }
 
-/** Read the tagged envelope and reject contradictory old and new spellings. */
+/*
+ * Read the tagged envelope and reject contradictory old and new spellings.
+ */
 function readRecord(fields: IFields | null): IRecord | null {
   if (fields === null) return null;
   const type: unknown = fields.type === undefined ? fields.state : fields.type;
@@ -113,7 +125,9 @@ function readRecord(fields: IFields | null): IRecord | null {
     : null;
 }
 
-/** Check time on a finite subject clock, with an optional known grid index. */
+/*
+ * Check time on a finite subject clock, with an optional known grid index.
+ */
 function isCellTime(value: unknown): value is IAutoMovieCaptureTime {
   const fields: IFields | null = fieldsOf(value);
   return (
@@ -123,7 +137,9 @@ function isCellTime(value: unknown): value is IAutoMovieCaptureTime {
   );
 }
 
-/** Check the address shared by recorded stills and failed cells. */
+/*
+ * Check the address shared by recorded stills and failed cells.
+ */
 function hasCellAddress(
   row: IFields,
 ): row is IFields & IAutoMovieCaptureRecord.IObservedCellAddress {
@@ -134,19 +150,31 @@ function hasCellAddress(
   );
 }
 
-/** A persisted still reference before it has been read or hashed. */
+/*
+ * A persisted still reference before it has been read or hashed.
+ */
 interface IStoredStill {
-  /** The record's successful draw state. */
+  /*
+   * The record's successful draw state.
+   */
   readonly state: "drawn";
-  /** A plain stored still name. */
+  /*
+   * A plain stored still name.
+   */
   readonly file: string;
-  /** The existing legacy pixel digest, when recorded. */
+  /*
+   * The existing legacy pixel digest, when recorded.
+   */
   readonly hash?: string;
-  /** The existing encoded-file digest, when recorded. */
+  /*
+   * The existing encoded-file digest, when recorded.
+   */
   readonly fileSha256?: string;
 }
 
-/** Check the persisted still fields that both readers trust. */
+/*
+ * Check the persisted still fields that both readers trust.
+ */
 function isStill(row: IFields): row is IFields & IStoredStill {
   return (
     row.state === "drawn" &&
@@ -156,7 +184,9 @@ function isStill(row: IFields): row is IFields & IStoredStill {
   );
 }
 
-/** Admit the minimum draw outcome and address common to both readers. */
+/*
+ * Admit the minimum draw outcome and address common to both readers.
+ */
 function readCell(
   value: unknown,
 ): IAutoMovieCaptureRecord.IObservationCell | null {
@@ -177,7 +207,9 @@ function readCell(
   };
 }
 
-/** Check the full cell metadata retained for round comparison. */
+/*
+ * Check the full cell metadata retained for round comparison.
+ */
 function isComparisonCell(
   value: unknown,
 ): value is IAutoMovieCaptureCellRecord {
@@ -212,7 +244,9 @@ function isComparisonCell(
   );
 }
 
-/** Read the fields retained for one resolved inspection pattern. */
+/*
+ * Read the fields retained for one resolved inspection pattern.
+ */
 function isResolution(value: unknown): boolean {
   const fields: IFields | null = fieldsOf(value);
   return (
@@ -228,12 +262,16 @@ function isResolution(value: unknown): boolean {
   );
 }
 
-/** Check a nonnegative discrete index or count. */
+/*
+ * Check a nonnegative discrete index or count.
+ */
 function isCount(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
 }
 
-/** Check a string list without depending on an inferred JSON array type. */
+/*
+ * Check a string list without depending on an inferred JSON array type.
+ */
 function isStrings(value: unknown): value is string[] {
   return (
     Array.isArray(value) &&
@@ -241,12 +279,16 @@ function isStrings(value: unknown): value is string[] {
   );
 }
 
-/** Admit one explicitly stated or unavailable optional identifier. */
+/*
+ * Admit one explicitly stated or unavailable optional identifier.
+ */
 function isNullableString(value: unknown): value is string | null {
   return value === null || typeof value === "string";
 }
 
-/** Read ordered episodes and coverage before either consumer accesses them. */
+/*
+ * Read ordered episodes and coverage before either consumer accesses them.
+ */
 function hasObservations(
   value: unknown,
 ): value is IAutoMovieInspectionDiagnostics.IObservations {
@@ -260,7 +302,9 @@ function hasObservations(
   );
 }
 
-/** Check those audit summary fields a complete comparison retains. */
+/*
+ * Check those audit summary fields a complete comparison retains.
+ */
 function isAudit(
   value: unknown,
 ): value is IAutoMovieInspectionDiagnostics.IAudit {
@@ -276,7 +320,9 @@ function isAudit(
   );
 }
 
-/** Check a recorded film clock and any source-local address. */
+/*
+ * Check a recorded film clock and any source-local address.
+ */
 function isTime(value: unknown): boolean {
   const fields: IFields | null = fieldsOf(value);
   if (
@@ -294,7 +340,9 @@ function isTime(value: unknown): boolean {
   );
 }
 
-/** Check one finite, ordered witness or uncovered interval. */
+/*
+ * Check one finite, ordered witness or uncovered interval.
+ */
 function isInterval(
   value: unknown,
 ): value is IAutoMovieInspectionDiagnostics.IInterval {
@@ -309,7 +357,9 @@ function isInterval(
   );
 }
 
-/** Check the finding payload read and carried by a round comparison. */
+/*
+ * Check the finding payload read and carried by a round comparison.
+ */
 function isObservation(value: unknown): boolean {
   const fields: IFields | null = fieldsOf(value);
   const finding: IFields | null = fieldsOf(fields?.finding);
@@ -336,7 +386,9 @@ function isObservation(value: unknown): boolean {
   );
 }
 
-/** Check a witness point in world metres. */
+/*
+ * Check a witness point in world metres.
+ */
 function isPoint(value: unknown): boolean {
   const fields: IFields | null = fieldsOf(value);
   return (
@@ -347,7 +399,9 @@ function isPoint(value: unknown): boolean {
   );
 }
 
-/** Check the native numeric or exact textual value of a witness measure. */
+/*
+ * Check the native numeric or exact textual value of a witness measure.
+ */
 function isMeasurement(value: unknown): boolean {
   const fields: IFields | null = fieldsOf(value);
   return (
@@ -361,7 +415,9 @@ function isMeasurement(value: unknown): boolean {
   );
 }
 
-/** Check a finding episode's identity, sample count and observed witnesses. */
+/*
+ * Check a finding episode's identity, sample count and observed witnesses.
+ */
 function isEpisode(value: unknown): boolean {
   const fields: IFields | null = fieldsOf(value);
   return (
@@ -377,7 +433,9 @@ function isEpisode(value: unknown): boolean {
   );
 }
 
-/** Check a coverage interval and the diagnostic outcome spanning it. */
+/*
+ * Check a coverage interval and the diagnostic outcome spanning it.
+ */
 function isCoverage(value: unknown): boolean {
   const fields: IFields | null = fieldsOf(value);
   const coverage: IFields | null = fieldsOf(fields?.coverage);
@@ -402,7 +460,7 @@ function isCoverage(value: unknown): boolean {
   );
 }
 
-/**
+/*
  * Read unresolved compared errors, keeping unbounded historical entries
  * conservative.
  */

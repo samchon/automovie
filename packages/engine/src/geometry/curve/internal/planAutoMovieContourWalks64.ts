@@ -6,7 +6,7 @@ import type {
 
 import { AutoMovieContourLoftCurves64 } from "../../AutoMovieContourLoftCurves64";
 
-/**
+/*
  * Freezes branch slit choices before emission and expands them through shared
  * contour refinements. All prepare calls must finish before the first resolve;
  * ring order and point identities remain fixed. Polygon-chord slit parameters

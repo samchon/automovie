@@ -7,7 +7,7 @@ import type {
 
 import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
 
-/**
+/*
  * Where the lifted ankle is held in the standing quadriceps stretch: the least
  * fold of the leg that brings the ankle within the same-side arm's length of
  * its shoulder.
@@ -18,11 +18,10 @@ import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotio
  * short for its leg folds further, as a person does who cannot reach the foot.
  * When no fold within the ranges reaches, the deepest one is returned and the
  * hand closes as near as the arm allows.
- *
- * @param props The body, the lifted leg's side and hip joint, the same-side
- *   shoulder joint, the unit heading and the least knee flexion in degrees;
- *   points in world metres.
- * @returns The ankle, world metres.
+ * Parameter props: The body, the lifted leg's side and hip joint, the same-side
+ * shoulder joint, the unit heading and the least knee flexion in degrees;
+ * points in world metres.
+ * Returns: The ankle, world metres.
  */
 export function stretchQuadriceps(
   props: IStretchQuadricepsProps,
@@ -75,7 +74,9 @@ export function stretchQuadriceps(
   return ankle(knee, hip);
 }
 
-/** The record of `IStretchQuadricepsProps`'s site. */
+/*
+ * The record of `IStretchQuadricepsProps`'s site.
+ */
 type IStretchQuadricepsProps = {
   body: IAutoMovieMotionHumanBody;
   side: AutoMovieHumanSide;

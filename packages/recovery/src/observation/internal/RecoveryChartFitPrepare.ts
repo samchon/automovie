@@ -7,7 +7,9 @@ import type {
 
 import { RecoveryChartControlRelations as R } from "./RecoveryChartControlRelations";
 
-/** Admit and normalize one chart before sparse observation assembly. */
+/*
+ * Admit and normalize one chart before sparse observation assembly.
+ */
 export function RecoveryChartFitPrepare(
   input: Parameters<IAutoMovieRecoveryChartFitPrepare.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryChartFitPrepare.Operation> {

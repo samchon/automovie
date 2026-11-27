@@ -1,17 +1,16 @@
 import type { IAutoMovieMotionHumanPerformanceState } from "@automovie/interface";
 
-/**
+/*
  * Select a prop's displayed grip, second hand, rest and flight cutoff at a film
  * second once from its sorted grip spans (`HumanPerformanceHold`): the latest
  * grip still holding carries it, a performer's other hand on a prop that
  * performer already holds steadies it, and with none holding, the one released
  * last left it.
- *
- * @param grips The prop's grip spans, sorted.
- * @param seconds Film seconds.
- * @param takeSocket Whether a socket grip closing exactly at the second takes
- *   the prop, as a supplied pose used for aiming may.
- * @returns The carriers and the last closure before the second.
+ * Parameter grips: The prop's grip spans, sorted.
+ * Parameter seconds: Film seconds.
+ * Parameter takeSocket: Whether a socket grip closing exactly at the second takes
+ * the prop, as a supplied pose used for aiming may.
+ * Returns: The carriers and the last closure before the second.
  */
 export function HumanPerformanceCustody(
   grips: readonly IAutoMovieMotionHumanPerformanceState.IGrip[],
@@ -56,17 +55,27 @@ export function HumanPerformanceCustody(
   return { active, steady, released, since };
 }
 
-/** Companion types of {@link HumanPerformanceCustody}. */
+/*
+ * Companion types of HumanPerformanceCustody.
+ */
 export namespace HumanPerformanceCustody {
-  /** The carriers picked by the frame's usual grip and flight precedence. */
+  /*
+   * The carriers picked by the frame's usual grip and flight precedence.
+   */
   export interface ICustody {
-    /** The latest carrier that still holds the prop. */
+    /*
+     * The latest carrier that still holds the prop.
+     */
     active: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
-    /** The other hand when it steadies the active carrier's grip. */
+    /*
+     * The other hand when it steadies the active carrier's grip.
+     */
     steady: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
-    /** The last carrier to let go, whose final frame supplies unlaunched rest. */
+    /*
+     * The last carrier to let go, whose final frame supplies unlaunched rest.
+     */
     released: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
-    /**
+    /*
      * Film second of the last closure before the query, which overrides older
      * flights.
      */

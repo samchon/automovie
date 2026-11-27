@@ -7,7 +7,7 @@ import { constructionStage } from "../constructionStage";
 import { createSettingReferences } from "../references/createSettingReferences";
 import { BODY_ROOT } from "../utilities/BODY_ROOT";
 
-/**
+/*
  * Connects treatment H2s to settings, or short screenplay H2s to the brief.
  *
  * Edges stay on the concrete consumers: a narrative H2 cites the canon H2 it

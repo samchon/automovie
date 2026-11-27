@@ -1,4 +1,6 @@
-/** Admit the physical raster area against the caller's pixel budget. */
+/*
+ * Admit the physical raster area against the caller's pixel budget.
+ */
 export function assertAutoMovieMetricRasterBudget(
   width: number,
   height: number,

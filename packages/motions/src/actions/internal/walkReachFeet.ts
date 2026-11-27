@@ -6,17 +6,16 @@ import type {
 import type { walkFoot } from "./walkFoot";
 import type { walkReach } from "./walkReach";
 
-/**
+/*
  * Read final stance endpoints only when a grounded result consumes them.
  * Bearing stances are already fitted by the root solve; non-bearing stances are
  * needed at swing boundaries but are replaced by swing goals otherwise.
- *
- * @param held The root solver's final bearing endpoints and contact offsets.
- * @param bearing Which stances participated in that root solve.
- * @param complete Fit the requested remaining stance at the same final root
- *   once.
- * @returns Both exact endpoint and contact records, with deferred inactive
- *   reads.
+ * Parameter held: The root solver's final bearing endpoints and contact offsets.
+ * Parameter bearing: Which stances participated in that root solve.
+ * Parameter complete: Fit the requested remaining stance at the same final root
+ * once.
+ * Returns: Both exact endpoint and contact records, with deferred inactive
+ * reads.
  */
 export function walkReachFeet(
   held: Pick<walkReach.IGround, WalkReachFeetHeld>,
@@ -58,8 +57,12 @@ export function walkReachFeet(
   };
 }
 
-/** The alternatives of `WalkReachFeetResult`'s site. */
+/*
+ * The alternatives of `WalkReachFeetResult`'s site.
+ */
 type WalkReachFeetResult = "feet" | "contacts";
 
-/** The alternatives of `WalkReachFeetHeld`'s site. */
+/*
+ * The alternatives of `WalkReachFeetHeld`'s site.
+ */
 type WalkReachFeetHeld = "feet" | "contacts";

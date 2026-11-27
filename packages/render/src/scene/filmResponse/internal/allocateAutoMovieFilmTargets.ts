@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { planAutoMovieFilmGlareImplementation } from "./planAutoMovieFilmGlareImplementation.js";
 import type { IAutoMovieFilmGlareKernel } from "../../IAutoMovieFilmGlareKernel.js";
 
-/**
+/*
  * Make the film response stage's targets of a raster: the linear half-float
  * frame with its depth texture, the glare pyramid as deep as the deepest kernel
  * `AutoMovieFilmResponseStage.planGlare` plans, and a pair of blur targets per kernel at its
@@ -67,7 +67,9 @@ export function allocateAutoMovieFilmTargets(
   };
 }
 
-/** The target records `allocateAutoMovieFilmTargets` makes. */
+/*
+ * The target records `allocateAutoMovieFilmTargets` makes.
+ */
 export namespace allocateAutoMovieFilmTargets {
   /** The targets of one raster. */
   export interface ITargets {

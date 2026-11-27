@@ -32,7 +32,7 @@ import { diveFootRoll } from "./diveFootRoll";
 import { diveLift } from "./diveLift";
 import { floorEntry } from "./floorEntry";
 
-/**
+/*
  * A fall onto the floor on purpose from a stance: a goalkeeper's dive to the
  * side, or a sliding tackle forward on the hip.
  *
@@ -71,20 +71,24 @@ import { floorEntry } from "./floorEntry";
  * run's posture at rest, not its speed.
  */
 export namespace dive {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "dive";
 
-  /**
+  /*
    * A dive's content is a fall to the floor caught on the hands, so its balance
    * is judged (`IAutoMovieMotionHumanActionLaw.physical`).
    */
   export const physical: boolean = true;
 
-  /** Cancel table: a dive or slide is left once it has come to rest. */
+  /*
+   * Cancel table: a dive or slide is left once it has come to rest.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: ["landed", 1], kind: "inertialize", entry: 0 }],
   };
-  /**
+  /*
    * Each kind's joint angles at full extent, clinical degrees, for a dive to
    * the performer's left; a dive to the right mirrors the arms (provisional).
    */
@@ -120,7 +124,7 @@ export namespace dive {
     },
   };
 
-  /**
+  /*
    * How far the hips joint travels, statures: to the side in a dive, ahead in a
    * slide (provisional).
    */
@@ -130,17 +134,19 @@ export namespace dive {
       slide: 0.7,
     };
 
-  /** How high the dive's flight rises above its chord, statures (provisional). */
+  /*
+   * How high the dive's flight rises above its chord, statures (provisional).
+   */
   export const APEX: number = 0.12;
 
-  /**
+  /*
    * The turn about the kind's axis when landed, degrees (provisional): a
    * quarter onto the side in a dive, leaning back in a slide.
    */
   export const TURN: Readonly<Record<IAutoMovieMotionHumanDive.Kind, number>> =
     { dive: 90, slide: -55 };
 
-  /**
+  /*
    * Seconds of each phase (provisional): the crouch, the flight or the slide,
    * and the rest on the floor.
    */
@@ -148,26 +154,25 @@ export namespace dive {
     Record<IAutoMovieMotionHumanDive.Kind, readonly [number, number, number]>
   > = { dive: [0.3, 0.45, 0.6], slide: [0.2, 0.8, 0.5] };
 
-  /**
+  /*
    * Seconds the feet take to roll onto their balls before they leave the floor:
    * about a sprint's ground contact, the push-off's plantarflexion
    * (provisional).
    */
   export const TOE_OFF: number = 0.1;
 
-  /**
+  /*
    * The most secant steps the toe-off roll takes toward the unloaded limit: the
    * ankle's response to the roll is nearly linear, so each step leaves a small
    * fraction of the last one's residual.
    */
   export const SECANT: number = 4;
 
-  /**
+  /*
    * Plan a dive or a slide.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws When the entry is not on both feet.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the entry is not on both feet.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDive.IParams>,
@@ -442,23 +447,29 @@ export namespace dive {
     };
   }
 
-  /** One changing share/turn of a fixed entered or solved-launch articulation. */
+  /*
+   * One changing share/turn of a fixed entered or solved-launch articulation.
+   */
   export type ShapeReader = (
     share: number,
     turn: number,
   ) => IAutoMovieMotionHumanPosture;
 
-  /** Each foot's placement, world frame. */
+  /*
+   * Each foot's placement, world frame.
+   */
   export type Feet = Readonly<
     Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>
   >;
 
-  /** A foot's placement rolled about its ball by an angle, degrees, toes down. */
+  /*
+   * A foot's placement rolled about its ball by an angle, degrees, toes down.
+   */
   export type FootRoll = (
     degrees: number,
   ) => IAutoMovieMotionHumanFoot.IPlacement;
 
-  /**
+  /*
    * Each foot's toe-off roll, degrees, or each take-off ankle's dorsiflexion
    * past the unloaded limit.
    */

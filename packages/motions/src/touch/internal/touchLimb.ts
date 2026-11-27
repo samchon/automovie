@@ -13,13 +13,13 @@ import type {
 
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 
-/**
+/*
  * What a touch reads of the body it lays its hand on: the long axis of a
  * partner's touched limb, along which a flat hand lies (`limb`), and the other
  * parts of that body the hand must not sink into.
  */
 export namespace touchLimb {
-  /**
+  /*
    * The long axis of a partner's touched segment where the touch starts: its
    * capsule collider's, which runs along the segment's local `+Y`. A segment
    * with no capsule (a box of the trunk) has none.
@@ -52,7 +52,7 @@ export namespace touchLimb {
     );
   }
 
-  /**
+  /*
    * The parts of the touched body a laid hand must not sink into: on the
    * performer's own body every part but the touched one and the touching arm;
    * on a partner every part but the touched one, where the touch starts.
@@ -94,19 +94,31 @@ export namespace touchLimb {
   }
 }
 
-/** The record of `IPersonTarget`'s site. */
+/*
+ * The record of `IPersonTarget`'s site.
+ */
 type IPersonTarget = { kind: "person" };
-/** A target on a person: another performer's region. */
+/*
+ * A target on a person: another performer's region.
+ */
 type PersonTarget = Extract<IAutoMovieMotionTarget, IPersonTarget>;
 
-/** The record of `ISelfTarget`'s site. */
+/*
+ * The record of `ISelfTarget`'s site.
+ */
 type ISelfTarget = { kind: "self" };
 
-/** A target on the performer's own body. */
+/*
+ * A target on the performer's own body.
+ */
 type SelfTarget = Extract<IAutoMovieMotionTarget, ISelfTarget>;
 
-/** A target a touch lays its hand on: the performer's own region or another's. */
+/*
+ * A target a touch lays its hand on: the performer's own region or another's.
+ */
 type BodyTarget = SelfTarget | PersonTarget;
 
-/** One collider shape of a placed segment. */
+/*
+ * One collider shape of a placed segment.
+ */
 type Shape = IAutoMovieMotionHumanColliders.IPlaced["shapes"][number];

@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A striking limb's free course read on the contact scan's own knots: the
  * capsule ends at `from + k * STEP`, each knot fitted as the figure is fitted
  * at that second.
@@ -22,14 +22,14 @@ import type {
  * fitted itself.
  */
 export namespace StrikingWeaponTable {
-  /**
+  /*
    * The knots' spacing, seconds: the contact scan's own step
    * (`HumanPerformanceContacts.STEP`), so the scan's samples from the weapon's
    * first second are the knots themselves.
    */
   export const STEP: number = 1 / 120;
 
-  /**
+  /*
    * A course's capsule ends at a second, its limb fits continued where `near`
    * names them, with the seeds they were chosen at.
    */
@@ -38,13 +38,12 @@ export namespace StrikingWeaponTable {
     near?: IAutoMovieMotionHumanResolveHumanPosture.INear,
   ) => IRead2;
 
-  /**
+  /*
    * A reader from a limb's own solve, which hands its seeds to a callback
    * (`StrikingWeapon.arm`, `StrikingWeapon.leg`).
-   *
-   * @param solve The limb's ends at a second, continued from `near` where
-   *   given, reporting its fits' seeds through `kept`.
-   * @returns The reader.
+   * Parameter solve: The limb's ends at a second, continued from `near` where
+   * given, reporting its fits' seeds through `kept`.
+   * Returns: The reader.
    */
   export function reader(
     solve: (
@@ -74,7 +73,9 @@ export namespace StrikingWeaponTable {
   }
 }
 
-/** The record of `IRead2`'s site. */
+/*
+ * The record of `IRead2`'s site.
+ */
 type IRead2 = {
   ends: readonly IAutoMovieVector3[];
   seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"];

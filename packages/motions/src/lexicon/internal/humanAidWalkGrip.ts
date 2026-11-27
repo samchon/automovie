@@ -7,45 +7,67 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { HumanMountRider } from "./HumanMountRider";
 import type { HumanRideHands } from "./HumanRideHands";
 
-/** Palm-to-rod stage admission in world metres. */
+/*
+ * Palm-to-rod stage admission in world metres.
+ */
 const GRIP_GAP: number = 0.01;
 
-/** Fit one grip per hand for a complete staged floor-aid course. */
+/*
+ * Fit one grip per hand for a complete staged floor-aid course.
+ */
 export namespace humanAidWalkGrip {
-  /**
+  /*
    * One sampled instant of the aided walk: the aid's displayed floor frame and
    * the body's planned posture.
    */
   export interface IStation {
-    /** The aid's world frame, metres. */
+    /*
+     * The aid's world frame, metres.
+     */
     frame: IAutoMovieRigidTransform;
 
-    /** The walker's posture at that instant. */
+    /*
+     * The walker's posture at that instant.
+     */
     body: IAutoMovieMotionHumanPosture;
   }
 
-  /** Named hand contact and its prepared digit closure. */
+  /*
+   * Named hand contact and its prepared digit closure.
+   */
   export interface IHand {
-    /** Holding side. */
+    /*
+     * Holding side.
+     */
     side: AutoMovieHumanSide;
 
-    /** Model-space grip. */
+    /*
+     * Model-space grip.
+     */
     affordance: IAutoMovieAffordance;
 
-    /** Distance along the actual grip rod from its centre. */
+    /*
+     * Distance along the actual grip rod from its centre.
+     */
     offset: number;
 
-    /** Hand approach about the grip axis, in degrees. */
+    /*
+     * Hand approach about the grip axis, in degrees.
+     */
     angle: number;
 
-    /** The crutch user's wrist-relative palm used to seat it on the rod. */
+    /*
+     * The crutch user's wrist-relative palm used to seat it on the rod.
+     */
     palm?: IAutoMovieMotionHumanHand.IFrame;
 
-    /** Fitted closure over the actual grip collider. */
+    /*
+     * Fitted closure over the actual grip collider.
+     */
     digits: IAutoMovieMotionHumanPosture["joints"];
   }
 
-  /**
+  /*
    * Convert a model grip into the world grip role the native holding solver
    * expects.
    */
@@ -83,7 +105,9 @@ export namespace humanAidWalkGrip {
     };
   }
 
-  /** Select a sustainable approach and close the fingers over the model solid. */
+  /*
+   * Select a sustainable approach and close the fingers over the model solid.
+   */
   export function fit(
     body: IAutoMovieMotionHumanBody,
     entry: IAutoMovieMotionHumanPosture,

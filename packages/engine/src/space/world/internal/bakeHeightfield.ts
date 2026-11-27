@@ -3,7 +3,7 @@ import type {
   IAutoMovieWorldSurface,
 } from "@automovie/interface";
 
-/**
+/*
  * Bake a supplied height callback into a row-major terrain lattice.
  *
  * Each axis is prepared once at origin + index × spacing, with distinct
@@ -74,7 +74,9 @@ export function bakeHeightfield(
   };
 }
 
-/** Write the world coordinates one axis can actually sample in order. */
+/*
+ * Write the world coordinates one axis can actually sample in order.
+ */
 function prepareAxis(
   coordinates: number[],
   origin: number,

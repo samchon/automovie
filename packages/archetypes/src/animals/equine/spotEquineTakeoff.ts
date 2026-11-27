@@ -5,7 +5,7 @@ import type { EquineObstacle } from "./EquineObstacle";
 import type { QuadrupedStridePlan } from "../quadruped/QuadrupedStridePlan";
 import { leastEquineFlight } from "./leastEquineFlight";
 
-/**
+/*
  * One candidate takeoff stride's best spot: the approach's strides lengthen or
  * shorten, each within the gait's declared timing spread at its speed, spread
  * from the leg's start to the push-off, to bring the takeoff to the spot whose
@@ -15,15 +15,14 @@ import { leastEquineFlight } from "./leastEquineFlight";
  * here the adjustment is bounded by the measured between-horse spread of stride
  * time at the speed (`AutoMovieArchetypeQuadrupedGait.ITiming.deviation`), so
  * every adjusted stride keeps a measured clock.
- *
- * @param request The admitted jump.
- * @param plan The course plan.
- * @param trial Assemble the ride with moved landings, without a hold or with a
- *   flight's.
- * @param candidate The candidate's event phases.
- * @param gait The candidate stride's gait.
- * @returns The spot's flight and its seconds, or undefined when no spot takes
- *   off before the first obstacle and clears it within the leg.
+ * Parameter request: The admitted jump.
+ * Parameter plan: The course plan.
+ * Parameter trial: Assemble the ride with moved landings, without a hold or with a
+ * flight's.
+ * Parameter candidate: The candidate's event phases.
+ * Parameter gait: The candidate stride's gait.
+ * Returns: The spot's flight and its seconds, or undefined when no spot takes
+ * off before the first obstacle and clears it within the leg.
  */
 export function spotEquineTakeoff(
   request: EquineJump.IRequest,
@@ -95,7 +94,7 @@ export function spotEquineTakeoff(
   return best;
 }
 
-/**
+/*
  * A candidate's flight of a given length, held on its unheld trial's clock, its
  * approach adjusted by a shift spread over a window before the push-off.
  */

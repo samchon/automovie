@@ -19,7 +19,7 @@ import { validateSoftInteger as integer } from "./validateSoftInteger";
 import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
 import { validateSoftVector as vector } from "./validateSoftVector";
 
-/**
+/*
  * Validate a typed planting recipe's scalar law, child identities, pruning and
  * emission budgets.
  */
@@ -310,7 +310,9 @@ export function validatePlantingDomain(
   return out.toValidation();
 }
 
-/** A non-zero finite direction vector. */
+/*
+ * A non-zero finite direction vector.
+ */
 const direction: (
   out: IAutoMovieViolationCollector,
   path: string,

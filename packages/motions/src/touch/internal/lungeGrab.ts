@@ -21,7 +21,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { step } from "../../striking/internal/step";
 import { touch } from "./touch";
 
-/**
+/*
  * A lunge that closes both hands on a victim
  * (`IAutoMovieMotionHumanLungeGrab`), as a shambler breaks from its walk. The
  * grab is the stage-fight grab, both palms squeezing the victim's regions
@@ -34,41 +34,46 @@ import { touch } from "./touch";
  * with the distance named.
  */
 export namespace lungeGrab {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "lungeGrab";
 
-  /** Cancel table: the grab's own. */
+  /*
+   * Cancel table: the grab's own.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     touch.interrupts;
 
-  /**
+  /*
    * The longest lunge, the hips' travel in hip heights: authored, with the
    * leading foot stepping `STRIDE` times as far.
    */
   export const LONGEST: number = 0.45;
 
-  /**
+  /*
    * How far the leading foot steps for the hips' travel: the hips end between
    * the planted rear foot and the landed front foot (authored).
    */
   export const STRIDE: number = 1.5;
 
-  /**
+  /*
    * How long the weight takes to shift onto the rear foot before the leading
    * foot lifts, seconds: authored, a gait initiation's anticipatory shift.
    */
   export const SHIFT: number = 0.15;
 
-  /** How high the leading foot lifts as it steps, metres: authored. */
+  /*
+   * How high the leading foot lifts as it steps, metres: authored.
+   */
   export const LIFT: number = 0.05;
 
-  /**
+  /*
    * Plan a lunge and grab.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} On `partner` when the victim lies beyond the longest
-   *   lunge, and whatever the grab refuses.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * On `partner` when the victim lies beyond the longest
+   * lunge, and whatever the grab refuses.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLungeGrab.IParams>,

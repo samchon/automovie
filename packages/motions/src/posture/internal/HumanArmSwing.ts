@@ -23,7 +23,9 @@ import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { prepareHumanSampledCourse } from "./prepareHumanSampledCourse";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
-/** Quiet-arm tolerances are invariant for the same prepared body geometry. */
+/*
+ * Quiet-arm tolerances are invariant for the same prepared body geometry.
+ */
 const STANDING_ROOM: WeakMap<
   IAutoMovieMotionHumanBody,
   Partial<
@@ -31,7 +33,7 @@ const STANDING_ROOM: WeakMap<
   >
 > = new WeakMap();
 
-/**
+/*
  * The exact pose search, or a final-arm certificate in a stride-maximum
  * reduction.
  */
@@ -175,7 +177,9 @@ function cleared(
   return { ...posture, joints };
 }
 
-/** Verify the nearest prepared bracket in the live displayed pose. */
+/*
+ * Verify the nearest prepared bracket in the live displayed pose.
+ */
 function hintedAngle(
   short: (degrees: number) => boolean,
   hint: number | undefined,
@@ -194,7 +198,7 @@ function hintedAngle(
   return AutoMovieEngineMath.bracketedBisection(short, 0, HumanArmSwing.SPAN, precision);
 }
 
-/**
+/*
  * Follow the original finite-angle bisection until its certified clear upper
  * endpoint cannot increase the stride maximum. Every remaining candidate lies
  * below that endpoint, including for a nonmonotone room.
@@ -217,7 +221,9 @@ function winningAngle(
   return hi;
 }
 
-/** Each arm's room in the body's quiet stance, degrees. */
+/*
+ * Each arm's room in the body's quiet stance, degrees.
+ */
 function stance(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
@@ -243,29 +249,28 @@ function stance(
   };
 }
 
-/**
+/*
  * A posture whose arms, written by joint angles with no hand goal (a gait's
  * swing), are kept clear of the body: a swinging arm passing the thigh is let
  * out at the shoulder, so each named arm takes the least added abduction, up to
  * `SPAN`, at which each reading of its room is within that reading in the quiet
  * stance, found by bisection to the body's precision (`precision`); an arm that
  * swings no deeper than it hangs is left as written.
- *
- * @param body The body.
- * @param posture The posture, the arms' joints set and their goals absent.
- * @param sides The arms to keep clear.
- * @param source Optional exact FK source borrowed only from this synchronous
- *   same-body operation.
- * @param projection Optional genuine same-body ROM projector for the complete
- *   current pose and initial stance fit.
- * @param resolved The cold resolve of this very posture, when its caller
- *   already holds it (`resolveHumanPosture.seeded` or `fit` of its assembly);
- *   absent, the posture is resolved here.
- * @param entered Each arm's room as it entered the action, where it entered
- *   lying deeper than in the quiet stance (a hand left on a thigh by the action
- *   before); the stance's alone when absent.
- * @param hinted A prepared abduction bracket evaluated at the current second.
- * @returns The posture with the arms' upper arm joints let out.
+ * Parameter body: The body.
+ * Parameter posture: The posture, the arms' joints set and their goals absent.
+ * Parameter sides: The arms to keep clear.
+ * Parameter source: Optional exact FK source borrowed only from this synchronous
+ * same-body operation.
+ * Parameter projection: Optional genuine same-body ROM projector for the complete
+ * current pose and initial stance fit.
+ * Parameter resolved: The cold resolve of this very posture, when its caller
+ * already holds it (`resolveHumanPosture.seeded` or `fit` of its assembly);
+ * absent, the posture is resolved here.
+ * Parameter entered: Each arm's room as it entered the action, where it entered
+ * lying deeper than in the quiet stance (a hand left on a thigh by the action
+ * before); the stance's alone when absent.
+ * Parameter hinted: A prepared abduction bracket evaluated at the current second.
+ * Returns: The posture with the arms' upper arm joints let out.
  */
 export function HumanArmSwing(
   body: IAutoMovieMotionHumanBody,
@@ -290,7 +295,7 @@ export function HumanArmSwing(
   );
 }
 
-/**
+/*
  * A swinging arm kept clear of the body: an arm written by joint angles with no
  * hand goal, as a gait swings it, is let out at the shoulder where it would
  * pass through the thigh.
@@ -300,10 +305,12 @@ export function HumanArmSwing(
  * room the arm has in the quiet stance.
  */
 export namespace HumanArmSwing {
-  /** Extra abduction in degrees, indexed by swinging side. */
+  /*
+   * Extra abduction in degrees, indexed by swinging side.
+   */
   export type Angles = Readonly<Record<AutoMovieHumanSide, number>>;
 
-  /**
+  /*
    * Sample the expensive search over a fixed ground phase. Playback uses the
    * sampled curve as a bracket hint and verifies the current shape's actual
    * clearance before relying on it.
@@ -349,26 +356,26 @@ export namespace HumanArmSwing {
     };
   }
 
-  /**
+  /*
    * The most abduction a swing is let out by, degrees (provisional: beyond it
    * the arm is no longer the gait's).
    */
   export const SPAN: number = 40;
 
-  /**
+  /*
    * The room over its baseline a clearing leaves, degrees (provisional: a
    * twentieth of a degree, a quarter of a millimetre at the elbow).
    */
   export const TOLERANCE: number = 0.05;
 
-  /**
+  /*
    * The phases of a stride at which a take's carriage is read, a stride being
    * periodic in them (provisional: a twelfth of a stride, a few hundredths of a
    * second).
    */
   export const PHASES: number = 12;
 
-  /**
+  /*
    * The precision of a swing's added abduction for a body, degrees, derived
    * from the motion audit's continuity limit.
    *
@@ -387,9 +394,8 @@ export namespace HumanArmSwing {
    * the audit's jump, and two carriages that differ by it cannot read as one:
    * about 0.38 degrees on the average man, where the search from `SPAN` takes
    * seven halvings.
-   *
-   * @param body The body.
-   * @returns Degrees.
+   * Parameter body: The body.
+   * Returns: Degrees.
    */
   export function precision(body: IAutoMovieMotionHumanBody): number {
     const lever: number =
@@ -397,14 +403,16 @@ export namespace HumanArmSwing {
     return (AutoMovieMotionHumanAudit.LIMITS.jump / lever) * (180 / Math.PI);
   }
 
-  /** Each arm's room as it entered an action, by side (`of`'s `entered`). */
+  /*
+   * Each arm's room as it entered an action, by side (`of`'s `entered`).
+   */
   export type Entered = Readonly<
     Partial<
       Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmClearance.IBaseline>
     >
   >;
 
-  /**
+  /*
    * The carriage of a gait's swinging arms: for each named arm, the one
    * abduction a take adds to what the gait writes, the least that keeps the arm
    * clear (as `of` clears one posture) in every posture of the take, read once
@@ -417,17 +425,16 @@ export namespace HumanArmSwing {
    * searched afresh in every frame would follow every hundredth of a degree of
    * a fingertip grazing a thigh along the swing, where abduction barely moves
    * it off.
-   *
-   * @param body The body.
-   * @param times The instants read: the phases of one of the take's full
-   *   strides.
-   * @param posture The take's complete posture before carriage, optionally
-   *   borrowing the current FK3/ROM4 operation metadata.
-   * @param sides The arms carried.
-   * @param source Optional same-body synchronous FK source.
-   * @param projection Optional genuine ROM projector borrowed only for this
-   *   operation.
-   * @returns Degrees of abduction per arm.
+   * Parameter body: The body.
+   * Parameter times: The instants read: the phases of one of the take's full
+   * strides.
+   * Parameter posture: The take's complete posture before carriage, optionally
+   * borrowing the current FK3/ROM4 operation metadata.
+   * Parameter sides: The arms carried.
+   * Parameter source: Optional same-body synchronous FK source.
+   * Parameter projection: Optional genuine ROM projector borrowed only for this
+   * operation.
+   * Returns: Degrees of abduction per arm.
    */
   export function carriage(
     body: IAutoMovieMotionHumanBody,
@@ -468,13 +475,12 @@ export namespace HumanArmSwing {
     return out;
   }
 
-  /**
+  /*
    * A posture with its arms carried: each named arm without a hand goal has its
    * upper arm's abduction raised by its carriage.
-   *
-   * @param posture The posture.
-   * @param carried Degrees of abduction per arm (`carriage`).
-   * @returns The posture with the arms carried.
+   * Parameter posture: The posture.
+   * Parameter carried: Degrees of abduction per arm (`carriage`).
+   * Returns: The posture with the arms carried.
    */
   export function carry(
     posture: IAutoMovieMotionHumanPosture,
@@ -499,7 +505,9 @@ export namespace HumanArmSwing {
   }
 }
 
-/** Read the same first matching arm records, without three searches/callbacks. */
+/*
+ * Read the same first matching arm records, without three searches/callbacks.
+ */
 function readArm(
   pose: IAutoMoviePose,
   side: AutoMovieHumanSide,

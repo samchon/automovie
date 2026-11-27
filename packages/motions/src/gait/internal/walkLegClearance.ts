@@ -12,7 +12,7 @@ import { AutoMovieMotionHumanAuditTangleModel } from "../../audit/internal/AutoM
 import { walkLegBinding } from "../../actions/internal/walkLegBinding";
 import { walkLegCapsules } from "../../actions/internal/walkLegCapsules";
 
-/**
+/*
  * How far two legs of one body pass into each other, read as the tangle audit
  * reads them: each leg posed as the posture shows it (its hip, knee and ankle
  * and its thigh's and shank's rotations, `HumanLegChain`, and its foot's
@@ -24,20 +24,19 @@ import { walkLegCapsules } from "../../actions/internal/walkLegCapsules";
  * the audit would find them run through each other.
  */
 export namespace walkLegClearance {
-  /**
+  /*
    * How far two legs may pass into each other beyond their reference depths,
    * metres: the skin's give, the tangle audit's own limit
    * (`AutoMovieMotionHumanAuditTangleModel.BUILT`).
    */
   export const BOUND: number = AutoMovieMotionHumanAuditTangleModel.BUILT;
 
-  /**
+  /*
    * Prepare one body's leg-collider geometry for a search that reads its legs'
    * clearance many times (`walkLegCapsules.prepare`).
-   *
-   * @param body The body, whose rest joints and profile stay fixed while the
-   *   preparation is used.
-   * @returns The preparation `excess` reads.
+   * Parameter body: The body, whose rest joints and profile stay fixed while the
+   * preparation is used.
+   * Returns: The preparation `excess` reads.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -45,16 +44,15 @@ export namespace walkLegClearance {
     return walkLegCapsules.prepare(body);
   }
 
-  /**
+  /*
    * How far two legs pass into each other beyond what the body's reference
    * postures already share: the deepest probe of a segment of either in a
    * segment of the other less its reference depth there, as the tangle audit
    * reads every pair.
-   *
-   * @param prepared The body's leg-collider preparation (`prepare`).
-   * @param one One leg.
-   * @param other The other leg.
-   * @returns Metres; zero where no probe lies deeper than its reference.
+   * Parameter prepared: The body's leg-collider preparation (`prepare`).
+   * Parameter one: One leg.
+   * Parameter other: The other leg.
+   * Returns: Metres; zero where no probe lies deeper than its reference.
    */
   export function excess(
     prepared: walkLegCapsules.IPrepared,

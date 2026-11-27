@@ -12,7 +12,7 @@ import type {
 import { HumanLoad } from "../../perform/internal/HumanLoad";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
-/**
+/*
  * The carrier's lean against the load of a carried person: a load on the back
  * brings the trunk forward, a load before the chest or pulled from ahead brings
  * it back, so the carrier's and the load's common centre of mass stays over the
@@ -48,7 +48,7 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
  * window's fade; it does not follow the carrier's stride.
  */
 export namespace HumanCarriedLean {
-  /**
+  /*
    * The carrier's whole-body pitch against each carry's load when no mass is
    * known, degrees; positive leans forward.
    */
@@ -70,16 +70,15 @@ export namespace HumanCarriedLean {
     ankleDrag: -10,
   };
 
-  /**
+  /*
    * The lean of a carry as a layer.
-   *
-   * @param carry The carry.
-   * @param load The carrier's and the load's masses and the load's distance
-   *   ahead, when known: the lean is then the moment balance's
-   *   (`HumanLoad.lean`), and the table's angle otherwise or when no lean
-   *   balances it.
-   * @returns The layer, named `carryLean`; schedule it over the carry, with the
-   *   take-up as its fade.
+   * Parameter carry: The carry.
+   * Parameter load: The carrier's and the load's masses and the load's distance
+   * ahead, when known: the lean is then the moment balance's
+   * (`HumanLoad.lean`), and the table's angle otherwise or when no lean
+   * balances it.
+   * Returns: The layer, named `carryLean`; schedule it over the carry, with the
+   * take-up as its fade.
    */
   export function layer(
     carry: IAutoMovieMotionHumanCarried.Carry,
@@ -99,15 +98,14 @@ export namespace HumanCarriedLean {
     };
   }
 
-  /**
+  /*
    * The tip of a coupled carry as a layer, for a `bearing` performed over an
    * action that keeps the trunk for itself (a walk), where the bearing's own
    * tip is not taken.
-   *
-   * @param tip The pair's balance (`HumanCarriedCouplingLoad.lean`), degrees
-   *   forward and toward the right.
-   * @returns The layer, named `carryLean`; schedule it over the carry, with the
-   *   take-up as its fade.
+   * Parameter tip: The pair's balance (`HumanCarriedCouplingLoad.lean`), degrees
+   * forward and toward the right.
+   * Returns: The layer, named `carryLean`; schedule it over the carry, with the
+   * take-up as its fade.
    */
   export function coupled(
     tip: IAutoMovieMotionHumanCarriedLean.ICoupledTip,
@@ -121,16 +119,15 @@ export namespace HumanCarriedLean {
     };
   }
 
-  /**
+  /*
    * The whole body tipped about the midpoint of its planted feet: the inverted
    * pendulum a carrier's balance turns. The planted leg goals stay in the
    * world, so the ankles take the tip and the joints the posture holds are
    * kept.
-   *
-   * @param posture The posture.
-   * @param pitch Degrees added forward.
-   * @param roll Degrees added toward the body's right.
-   * @returns The tipped posture; about the root when no leg is planted.
+   * Parameter posture: The posture.
+   * Parameter pitch: Degrees added forward.
+   * Parameter roll: Degrees added toward the body's right.
+   * Returns: The tipped posture; about the root when no leg is planted.
    */
   export function tipped(
     posture: IAutoMovieMotionHumanPosture,

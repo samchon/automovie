@@ -6,14 +6,13 @@ import { AutoMovieCliReview } from "../../review/AutoMovieCliReview";
 import type { IAutoMovieCliReviewObservation } from "../../review/IAutoMovieCliReviewObservation";
 import { sameAutoMovieReviewFile } from "../../review/internal/sameAutoMovieReviewFile";
 
-/**
+/*
  * Check the existing review owner's explicit observation of the exact file. Its
  * author, activity, actual frame scope and decision are all required. A machine
  * locator or a still satisfies no playback or listening check.
- *
- * @param check The production's required file observation and frame interval.
- * @param root The production directory that resolves both source files.
- * @returns The current review outcome and its owning observation.
+ * Parameter check: The production's required file observation and frame interval.
+ * Parameter root: The production directory that resolves both source files.
+ * Returns: The current review outcome and its owning observation.
  */
 export async function inspectAutoMovieProductionCheckReview(
   check: IAutoMovieProductionCheck.IReview,

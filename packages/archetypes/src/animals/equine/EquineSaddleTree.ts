@@ -5,16 +5,22 @@ import { type AutoMovieArchetypeBuilder, AutoMovieArchetypeFrame } from "../../c
 import type { AutoMovieArchetypeEquine } from "../AutoMovieArchetypeEquine";
 import type { QuadrupedAttachments } from "../quadruped/QuadrupedAttachments";
 
-/** Broad and waist widths shared by the French maker's jumping/dressage trees. */
+/*
+ * Broad and waist widths shared by the French maker's jumping/dressage trees.
+ */
 const TREE: Readonly<{ broad: number; twist: number }> = {
   broad: 0.26,
   twist: 0.125,
 };
 
-/** Factory jumping saddle's panel gap (Stübben), in metres. */
+/*
+ * Factory jumping saddle's panel gap (Stübben), in metres.
+ */
 const CHANNEL: number = 0.05;
 
-/** The original saddle shell and its two grip bounds, in metres. */
+/*
+ * The original saddle shell and its two grip bounds, in metres.
+ */
 const STOCK: Readonly<{ deck: number; gripRadius: number; gripHalf: number; gripRise: number }> = {
   deck: 0.04,
   gripRadius: 0.015,
@@ -22,7 +28,7 @@ const STOCK: Readonly<{ deck: number; gripRadius: number; gripHalf: number; grip
   gripRise: 0.03,
 };
 
-/**
+/*
  * Lay one coarse connected riding saddle on the actual trunk capsule. The
  * bearing deck spans a flat sit-bone region and meets a narrowing forward
  * twist and raised end sections (EP2275382A2, description of the saddle tree).
@@ -31,10 +37,9 @@ const STOCK: Readonly<{ deck: number; gripRadius: number; gripHalf: number; grip
  * The end ramps use the existing crest envelope as their longitudinal run.
  * Half of the original shell thickness forms the deck and the other half
  * clears the spine between the separately attached underside panels.
- *
- * @param builder The physical horse builder, before its tack is closed.
- * @param props Seat envelope, tree station and installed barrel.
- * @returns The actual tree edge at the stirrup bar's station.
+ * Parameter builder: The physical horse builder, before its tack is closed.
+ * Parameter props: Seat envelope, tree station and installed barrel.
+ * Returns: The actual tree edge at the stirrup bar's station.
  */
 export function EquineSaddleTree(
   builder: AutoMovieArchetypeBuilder<
@@ -155,42 +160,74 @@ export function EquineSaddleTree(
   return { x: twist.half, y: (twist.bottom + twist.top) / 2 };
 }
 
-/** The neutral tree's authored dimensions, in model-local metres. */
+/*
+ * The neutral tree's authored dimensions, in model-local metres.
+ */
 export namespace EquineSaddleTree {
-  /** Installing the tree from the horse's measured back and saddle envelope. */
+  /*
+   * Installing the tree from the horse's measured back and saddle envelope.
+   */
   export interface IProps {
-    /** Seat size midpoint along the back. */
+    /*
+     * Seat size midpoint along the back.
+     */
     centre: number;
-    /** The existing seat datum, above the model floor. */
+    /*
+     * The existing seat datum, above the model floor.
+     */
     top: number;
-    /** Nominal nail-to-cantle seat size. */
+    /*
+     * Nominal nail-to-cantle seat size.
+     */
     length: number;
-    /** Longitudinal position of the stirrup bar, below the narrow twist. */
+    /*
+     * Longitudinal position of the stirrup bar, below the narrow twist.
+     */
     bar: number;
-    /** Existing outer grip position of a trick saddle, when fitted. */
+    /*
+     * Existing outer grip position of a trick saddle, when fitted.
+     */
     trickGripHalf: number | undefined;
-    /** Actual rendered barrel. */
+    /*
+     * Actual rendered barrel.
+     */
     barrel: QuadrupedAttachments.ICapsule;
-    /** Saddle mass as a percent of the horse's nominal mass. */
+    /*
+     * Saddle mass as a percent of the horse's nominal mass.
+     */
     share: number;
   }
 
-  /** The width edge and mid-thickness elevation at the bar's own station. */
+  /*
+   * The width edge and mid-thickness elevation at the bar's own station.
+   */
   export interface IBar {
-    /** Absolute lateral coordinate of the tree edge. */
+    /*
+     * Absolute lateral coordinate of the tree edge.
+     */
     x: number;
-    /** Vertical coordinate of the mounting bar. */
+    /*
+     * Vertical coordinate of the mounting bar.
+     */
     y: number;
   }
 }
 
-/** A transverse tree section, at its own longitudinal plane. */
+/*
+ * A transverse tree section, at its own longitudinal plane.
+ */
 interface ISection {
-  /** Longitudinal station in model metres. */
+  /*
+   * Longitudinal station in model metres.
+   */
   z: number;
-  /** Half the section's transverse width, metres. */
+  /*
+   * Half the section's transverse width, metres.
+   */
   half: number;
-  /** Section bounds from the model floor, metres. */
+  /*
+   * Section bounds from the model floor, metres.
+   */
   bottom: number;
   top: number;
 }

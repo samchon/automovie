@@ -11,7 +11,7 @@ import { Quaternion } from "../Quaternion";
 import { Vector3 } from "../Vector3";
 import { overflowsBinary64 } from "./overflowsBinary64";
 
-/**
+/*
  * Finite WORLD rigid-frame velocities over a positive interval: translation
  * secant in metres/second and shortest-arc rotation secant in radians/second.
  * Both frames must describe the same rigid identity in WORLD coordinates. The

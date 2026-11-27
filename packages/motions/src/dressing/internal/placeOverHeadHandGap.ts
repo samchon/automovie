@@ -28,7 +28,9 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { HumanWornItem } from "./HumanWornItem";
 import type { placeOverHeadPath } from "./placeOverHeadPath";
 
-/** Clearance of both grip shapes against the recipient's upper body. */
+/*
+ * Clearance of both grip shapes against the recipient's upper body.
+ */
 export function placeOverHeadHandGap(
   props: placeOverHeadHandGap.IProps,
 ): placeOverHeadPath.IHandGap {
@@ -142,10 +144,14 @@ export function placeOverHeadHandGap(
   }
 }
 
-/** Roundoff in locating the wear socket on an adjoining collider surface. */
+/*
+ * Roundoff in locating the wear socket on an adjoining collider surface.
+ */
 const SHAPE_ROUNDING: number = 1e-9;
 
-/** Prepared witnesses are read in the frame of the loop or the wrist. */
+/*
+ * Prepared witnesses are read in the frame of the loop or the wrist.
+ */
 function nearest(
   points: readonly IAutoMovieVector3[],
   frame: IAutoMovieRigidTransform,
@@ -159,13 +165,17 @@ function nearest(
   return result;
 }
 
-/** The local frame on which the two rigid grasps are laid. */
+/*
+ * The local frame on which the two rigid grasps are laid.
+ */
 const ORIGIN: IAutoMovieRigidTransform = {
   position: { x: 0, y: 0, z: 0 },
   rotation: Quaternion.identity(),
 };
 
-/** The partner-facing colliders bordering the loop's descent past the neck. */
+/*
+ * The partner-facing colliders bordering the loop's descent past the neck.
+ */
 const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> = new Set([
   "chest",
   "upperChest",
@@ -175,14 +185,18 @@ const SHOULDERS: ReadonlySet<AutoMovieHumanoidBone> = new Set([
   "rightUpperArm",
 ]);
 
-/** The head, neck and shoulders that bracket the whole descent. */
+/*
+ * The head, neck and shoulders that bracket the whole descent.
+ */
 const UPPER: ReadonlySet<AutoMovieHumanoidBone> = new Set([
   ...SHOULDERS,
   "neck",
   "head",
 ]);
 
-/** The tangle model's own hand and digit probes in the wrist's frame. */
+/*
+ * The tangle model's own hand and digit probes in the wrist's frame.
+ */
 function probes(
   body: IAutoMovieMotionHumanBody,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -211,14 +225,20 @@ function probes(
   );
 }
 
-/** The two grip poses and the partner at the start of the action. */
+/*
+ * The two grip poses and the partner at the start of the action.
+ */
 export namespace placeOverHeadHandGap {
-  /** A grip target on a candidate loop frame. */
+  /*
+   * A grip target on a candidate loop frame.
+   */
   export type Target = (
     frame: IAutoMovieRigidTransform,
   ) => IAutoMovieMotionHumanArmTarget.ITarget;
 
-  /** The grip witnesses on the dresser and the recipient's authored frame. */
+  /*
+   * The grip witnesses on the dresser and the recipient's authored frame.
+   */
   export interface IProps {
     body: IAutoMovieMotionHumanBody;
     shapes: readonly IAutoMoviePhysicalShape[];
@@ -236,5 +256,7 @@ export namespace placeOverHeadHandGap {
   }
 }
 
-/** The prepared signed distance to a fixed partner shape. */
+/*
+ * The prepared signed distance to a fixed partner shape.
+ */
 type Query = ReturnType<typeof AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance>;

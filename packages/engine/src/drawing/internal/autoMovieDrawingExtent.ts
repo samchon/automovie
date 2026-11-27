@@ -4,7 +4,7 @@ import {
   IAutoMovieDrawingPoint,
 } from "@automovie/interface";
 
-/**
+/*
  * The page box that holds everything a sheet puts on paper, or `null` when
  * nothing is placed.
  *
@@ -16,9 +16,8 @@ import {
  * contributes its anchor, not its glyphs, which the derivation cannot measure
  * without font metrics and declares as a gap; a stale target has no place on
  * the page and contributes nothing.
- *
- * @param drawing The drawing's placed content.
- * @returns The page box in metres, or `null`.
+ * Parameter drawing: The drawing's placed content.
+ * Returns: The page box in metres, or `null`.
  */
 export const autoMovieDrawingExtent = (
   drawing: Pick<
@@ -40,7 +39,9 @@ export const autoMovieDrawingExtent = (
   return { min: { x: minX, y: minY }, max: { x: maxX, y: maxY } };
 };
 
-/** Every page point the drawing places, without building an array. */
+/*
+ * Every page point the drawing places, without building an array.
+ */
 function* placedPoints(
   drawing: Pick<
     IAutoMovieDrawing,

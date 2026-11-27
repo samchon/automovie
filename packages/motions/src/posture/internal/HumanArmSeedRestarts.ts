@@ -1,7 +1,7 @@
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmSeedSpace as Space } from "./HumanArmSeedSpace";
 
-/**
+/*
  * The restarts of a hold instant's inverse kinematics, tried after the caller's
  * own starts (`HumanArmSeedStarts`): TRAC-IK's remedy for a local solver caught
  * in a local minimum, restarting it from configurations spread over the joints'
@@ -24,9 +24,8 @@ import { HumanArmSeedSpace as Space } from "./HumanArmSeedSpace";
  * asks some 10^10 points for that radius, a bound too loose to use.) A solution
  * whose basin is narrower than any restart's reach is the continuation's
  * (`HumanArmSeedContinuation`).
- *
- * @param context The instant's context.
- * @returns Each restart, each arm's coordinates.
+ * Parameter context: The instant's context.
+ * Returns: Each restart, each arm's coordinates.
  */
 export function* HumanArmSeedRestarts(
   context: Space.Chart,
@@ -60,15 +59,21 @@ export function* HumanArmSeedRestarts(
       yield Space.split(q);
   }
 }
-/** Coverage parameters for the deterministic inverse-kinematics starts. */
+/*
+ * Coverage parameters for the deterministic inverse-kinematics starts.
+ */
 export namespace HumanArmSeedRestarts {
-  /** The measured basin radius, a share of each coordinate's range. */
+  /*
+   * The measured basin radius, a share of each coordinate's range.
+   */
   export const BASIN: number = 0.5;
 
-  /** The probability the restarts reach a basin. */
+  /*
+   * The probability the restarts reach a basin.
+   */
   export const SUCCESS: number = 0.95;
 
-  /**
+  /*
    * The restarts' count: `⌈ln(1 − SUCCESS) / ln(1 − v)⌉`, `v` the volume of the
    * 7-dimensional ball of radius `BASIN`, `π^3.5 / Γ(4.5) · BASIN^7`.
    */
@@ -80,7 +85,7 @@ export namespace HumanArmSeedRestarts {
   );
 }
 
-/**
+/*
  * The first primes: each arm its own, one base per coordinate and two for its
  * disc.
  */
@@ -89,7 +94,7 @@ const PRIMES: readonly number[] = [
   73, 79,
 ];
 
-/**
+/*
  * The radical inverse of an index in a base: its digits mirrored about the
  * point.
  */

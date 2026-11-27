@@ -1,4 +1,4 @@
-/**
+/*
  * One scalar component of glTF cubic Hermite interpolation.
  *
  * `outTangent` belongs to the left key and `inTangent` to the right; both are

@@ -5,7 +5,7 @@ import type { IAutoMovieXpbdContactRow } from "./IAutoMovieXpbdContactRow";
 import type { IAutoMovieXpbdResponder } from "./IAutoMovieXpbdResponder";
 import { pairXpbdContactRow } from "./pairXpbdContactRow";
 
-/**
+/*
  * A contact's positional correction (Mueller et al. 2020, section 3.3.1)
  * through the pair's row (`pairXpbdContactRow`): `dlambda = (c - alphaTilde
  * lambda) / (w + alphaTilde)`, the spring's compliance `w / omega^2` so the
@@ -13,18 +13,17 @@ import { pairXpbdContactRow } from "./pairXpbdContactRow";
  * correction that would carry a joint axis onto or past a bound holds that axis
  * and is solved again (`IAutoMovieXpbdContactRow.limit`), at most once more per
  * newly held axis.
- *
- * @param trees The pass's articulated response; each body alone when absent.
- * @param first The first body.
- * @param second The second body.
- * @param away The unit world direction pushing the first body out.
- * @param c The depth beyond the allowed error, metres.
- * @param armA The first body's world arm to the contact point, metres.
- * @param armB The second body's world arm to the contact point, metres.
- * @param omega The contact spring's natural angular frequency, per second.
- * @param h The substep, seconds.
- * @param lambda The contact's accumulated normal multiplier.
- * @returns The multiplier's change.
+ * Parameter trees: The pass's articulated response; each body alone when absent.
+ * Parameter first: The first body.
+ * Parameter second: The second body.
+ * Parameter away: The unit world direction pushing the first body out.
+ * Parameter c: The depth beyond the allowed error, metres.
+ * Parameter armA: The first body's world arm to the contact point, metres.
+ * Parameter armB: The second body's world arm to the contact point, metres.
+ * Parameter omega: The contact spring's natural angular frequency, per second.
+ * Parameter h: The substep, seconds.
+ * Parameter lambda: The contact's accumulated normal multiplier.
+ * Returns: The multiplier's change.
  */
 export function correctXpbdContactRow(
   trees: IAutoMovieXpbdResponder | undefined,

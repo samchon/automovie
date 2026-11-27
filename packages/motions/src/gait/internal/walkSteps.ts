@@ -26,7 +26,7 @@ import { walkStepsPelvis } from "../../actions/internal/walkStepsPelvis";
 import { walkStepsTempo } from "../../actions/internal/walkStepsTempo";
 import { walkStride } from "../../actions/internal/walkStride";
 
-/**
+/*
  * The footstep plan of a walk: footprints, their heel-strike and toe-off times,
  * each foot's scheduled stance, and the pelvis path, all as closed functions of
  * seconds.
@@ -62,37 +62,48 @@ import { walkStride } from "../../actions/internal/walkStride";
  * every foot goal reachable on the actual pelvis.
  */
 export namespace walkSteps {
-  /** One footfall (walkStepFoot.IStep). */
+  /*
+   * One footfall (walkStepFoot.IStep).
+   */
 
-  /** The chosen opening foot and any setup turn before forward travel. */
+  /*
+   * The chosen opening foot and any setup turn before forward travel.
+   */
   export interface IOpening {
-    /** The foot that takes the first step. */
+    /*
+     * The foot that takes the first step.
+     */
     lead: AutoMovieHumanSide;
 
-    /** Number of opening steps taken before forward travel. */
+    /*
+     * Number of opening steps taken before forward travel.
+     */
     turning: number;
 
-    /** Time spent in the opening turn, on the stepping clock. */
+    /*
+     * Time spent in the opening turn, on the stepping clock.
+     */
     seconds: number;
   }
 
-  /** The stream a take's tempo is drawn from (walkStepsTempo). */
+  /*
+   * The stream a take's tempo is drawn from (walkStepsTempo).
+   */
   export const tempo: typeof walkStepsTempo = walkStepsTempo;
 
-  /**
+  /*
    * The step width of a gait that names none, hip heights: 0.1, about 9 cm,
    * inside the 7 to 12 cm of normal adult gait (Perry and Burnfield).
    */
   export const WIDTH: number = 0.1;
 
-  /**
+  /*
    * Plan the footsteps of a walk.
-   *
-   * @param input The body, its entry state, the destination, the speed, the
-   *   longest step and the period law.
-   * @param opening The fixed opening of a timed course when refitting its
-   *   arrival.
-   * @returns The plan.
+   * Parameter input: The body, its entry state, the destination, the speed, the
+   * longest step and the period law.
+   * Parameter opening: The fixed opening of a timed course when refitting its
+   * arrival.
+   * Returns: The plan.
    */
   export function plan(
     input: IAutoMovieMotionHumanWalkSteps.IInput,
@@ -476,6 +487,8 @@ export namespace walkSteps {
       },
     };
   }
-  /** The record of `IPlanResult`'s site. */
+  /*
+   * The record of `IPlanResult`'s site.
+   */
   type IPlanResult = { opening: IOpening };
 }

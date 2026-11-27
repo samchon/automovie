@@ -242,14 +242,16 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
     );
     return { swingLift: swingLift + deepest, poles, landing, verify };
 
-    /** Give each terrain component one stable public diagnostic identity. */
+    /*
+     * Give each terrain component one stable public diagnostic identity.
+     */
     function name(id: string): void {
       if (id.length === 0 || names.has(id))
         throw refusal("Terrain names must be nonempty and unique.", id);
       names.add(id);
     }
 
-    /**
+    /*
      * Choose the topmost real patch below the footprint and orient the carried
      * axes.
      */
@@ -289,7 +291,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
       return result;
     }
 
-    /**
+    /*
      * Check oriented shapes against each overlapping finite patch and physical
      * pole.
      */
@@ -378,7 +380,9 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
       }
     }
 
-    /** Carry the route's author-facing typed refusal contract. */
+    /*
+     * Carry the route's author-facing typed refusal contract.
+     */
     function refusal(
       reason: string,
       value: unknown,
@@ -396,17 +400,23 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
   }
 }
 
-/** Require finite world position coordinates. */
+/*
+ * Require finite world position coordinates.
+ */
 function finitePoint(point: IAutoMovieVector3): boolean {
   return point !== null && point !== undefined;
 }
 
-/** Admit an explicit half-open world patch interval. */
+/*
+ * Admit an explicit half-open world patch interval.
+ */
 function interval(span: Interval): boolean {
   return span.length === 2 && span[0] < span[1];
 }
 
-/** Turn the admitted unit surface normal to another unit up vector. */
+/*
+ * Turn the admitted unit surface normal to another unit up vector.
+ */
 function turn(
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
@@ -419,7 +429,9 @@ function turn(
   );
 }
 
-/** Exact lowest coordinate of a transformed complete solid. */
+/*
+ * Exact lowest coordinate of a transformed complete solid.
+ */
 function lowest(
   part: IAutoMovieModelPart,
   frame: IAutoMovieTransform,

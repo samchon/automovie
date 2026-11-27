@@ -11,7 +11,7 @@ import { jointToQuaternionOnBasis } from "../../kinematics/internal/jointToQuate
 import { Quaternion } from "../../math/Quaternion";
 import { prepareHingedChainAt } from "./prepareHingedChainAt";
 
-/**
+/*
  * The swivel and bend branch of a posed hinged chain, in the frame the fit's
  * seeds, `IAutoMovieSwivelNear` and `fitHingedChainAt` use.
  *
@@ -20,12 +20,11 @@ import { prepareHingedChainAt } from "./prepareHingedChainAt";
  * aim of that branch (`hingedArmSwivel.read`); the twist is the mid joint's
  * own, where it has one. The request's target is the effector's place in the
  * posed chain.
- *
- * @param props The fit request, its target where the posed effector lies.
- * @param upper The posed root joint, clinical degrees.
- * @param lower The posed mid joint, clinical degrees.
- * @returns The seed; null when the chain is not a hinged two-bone chain or is
- *   degenerate.
+ * Parameter props: The fit request, its target where the posed effector lies.
+ * Parameter upper: The posed root joint, clinical degrees.
+ * Parameter lower: The posed mid joint, clinical degrees.
+ * Returns: The seed; null when the chain is not a hinged two-bone chain or is
+ * degenerate.
  */
 export function readHingedChainSeed(
   props: IAutoMovieFitChainToTargetProps,

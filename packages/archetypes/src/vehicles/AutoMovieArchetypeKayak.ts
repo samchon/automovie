@@ -134,7 +134,9 @@ export namespace AutoMovieArchetypeKayak {
   };
 }
 
-/** One longitudinal family with an unobstructed cockpit inside its deck strips. */
+/*
+ * One longitudinal family with an unobstructed cockpit inside its deck strips.
+ */
 function hull(
   builder: Build,
   d: Readonly<Record<AutoMovieArchetypeKayak.Dimension, number>>,
@@ -240,7 +242,9 @@ function hull(
   }
 }
 
-/** Put an angled brace face and foot contact inside the coaming. */
+/*
+ * Put an angled brace face and foot contact inside the coaming.
+ */
 function brace(
   builder: Build,
   id: AutoMovieArchetypeKayak.Brace,

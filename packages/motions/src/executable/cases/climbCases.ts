@@ -11,7 +11,7 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { climbCaseLadder } from "./internal/climbCaseLadder";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the climbing family: `climb-ladder`, three rungs of a fixed
  * ladder with 0.3 m spacing (OSHA 1910.23) in the four-beat pattern, from quiet
  * standing before it; the ladder is a fixture prop whose rungs stand 0.35 m
@@ -24,9 +24,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  * Holland 2020's three points of control), a hand counting within 15 mm of a
  * rung's axis and a foot with a sole socket within 15 mm of a rung's top or the
  * floor.
- *
- * @param bodies The sweep bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function climbCases(
   bodies: readonly string[] = ["m-average"],
@@ -142,8 +141,12 @@ export function climbCases(
   return out;
 }
 
-/** The record of `IClimbCasesFewest`'s site. */
+/*
+ * The record of `IClimbCasesFewest`'s site.
+ */
 type IClimbCasesFewest = { value: number; at: number };
 
-/** The record of `IClimbCasesHeld`'s site. */
+/*
+ * The record of `IClimbCasesHeld`'s site.
+ */
 type IClimbCasesHeld = { value: number; where: string };

@@ -1,4 +1,4 @@
-/**
+/*
  * Return value mod period in [0, period), preserving ordinary
  * already-normalized values; negative zero becomes positive zero.
  *

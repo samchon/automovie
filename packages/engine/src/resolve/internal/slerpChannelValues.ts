@@ -2,7 +2,9 @@ import type { IAutoMovieQuaternion } from "@automovie/interface";
 
 import { Quaternion } from "../../math/Quaternion";
 
-/** Spherically interpolate admitted XYZW rotation channels on the shortest arc. */
+/*
+ * Spherically interpolate admitted XYZW rotation channels on the shortest arc.
+ */
 export function slerpChannelValues(
   a: number[],
   b: number[],

@@ -8,7 +8,7 @@ import { AutoMovieArchetypeConvexCell } from "../../core";
 import { ArmourCell } from "./ArmourCell";
 import type { ArmourProfile } from "./ArmourProfile";
 
-/**
+/*
  * A real faceted bowl, its declared face/neck openings and a brim.
  *
  * Latitude/face domains and the unfitted cabasset crown's three-quarter brim
@@ -153,7 +153,9 @@ export function ArmourHelmet(
         rotation,
       );
 
-      /** The source brim's independent width/depth own its extrema. */
+      /*
+       * The source brim's independent width/depth own its extrema.
+       */
       function brim(angle: number, y: number): IAutoMovieVector3 {
         return { x: outerX * Math.sin(angle), y, z: outerZ * Math.cos(angle) };
       }
@@ -161,7 +163,9 @@ export function ArmourHelmet(
   }
   return cells;
 
-  /** One named analytic bowl point; no emitted mesh is sampled to place it. */
+  /*
+   * One named analytic bowl point; no emitted mesh is sampled to place it.
+   */
   function point(row: number, angle: number): IAutoMovieVector3 {
     const latitude: number = lower + row * step;
     return {
@@ -171,7 +175,9 @@ export function ArmourHelmet(
     };
   }
 
-  /** Each planar face has one admitted inward wall boundary. */
+  /*
+   * Each planar face has one admitted inward wall boundary.
+   */
   function face(id: string, key: string, rotation: IAutoMovieQuaternion): void {
     if (!prepared.has(key))
       place(
@@ -191,7 +197,7 @@ export function ArmourHelmet(
     else cells.push({ ...prepared.get(key)!, id, rotation });
   }
 
-  /**
+  /*
    * Only an exact rigid-equivalent local wall shares its admitted hull and
    * mass.
    */

@@ -16,12 +16,12 @@ import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmPlayed } from "./AutoMovieMotionHumanArmPlayed";
 
-/**
+/*
  * A law's arm goals fitted along the action's course, each instant's fit
  * continuing the swivel and the branch the course chose before it.
  */
 export namespace AutoMovieMotionHumanArmChain {
-  /**
+  /*
    * The posture at a second with its arm goals solved along the course and
    * written as joints.
    *
@@ -39,16 +39,15 @@ export namespace AutoMovieMotionHumanArmChain {
    * a second reads its arms off the two instants about it, blended joint by
    * joint (`blendHumanJoint`), with no fit of its own; so a second's arms do
    * not depend on the order the seconds are read in.
-   *
-   * @param body The body.
-   * @param duration The action's duration, seconds.
-   * @param posture The law's posture at a second, its arms as goals.
-   * @param sides The arms to fit along the course.
-   * @param playback Write the prepared arms and digits on a goal-free base
-   *   over the whole span when `angles`; otherwise write only active goals.
-   * @returns The posture at a second, those arms written as joints with their
-   *   goals removed; given the law's posture at that second already read, that
-   *   posture is the one written.
+   * Parameter body: The body.
+   * Parameter duration: The action's duration, seconds.
+   * Parameter posture: The law's posture at a second, its arms as goals.
+   * Parameter sides: The arms to fit along the course.
+   * Parameter playback: Write the prepared arms and digits on a goal-free base
+   * over the whole span when `angles`; otherwise write only active goals.
+   * Returns: The posture at a second, those arms written as joints with their
+   * goals removed; given the law's posture at that second already read, that
+   * posture is the one written.
    */
   export function continued(
     body: IAutoMovieMotionHumanBody,
@@ -198,7 +197,9 @@ export namespace AutoMovieMotionHumanArmChain {
     };
   }
 
-  /** Prepare the three canonical joint blends of one arm interval. */
+  /*
+   * Prepare the three canonical joint blends of one arm interval.
+   */
   function blend(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
@@ -225,7 +226,7 @@ export namespace AutoMovieMotionHumanArmChain {
     });
   }
 
-  /**
+  /*
    * A grid instant of the course: each goaled arm's fitted angles and the seeds
    * that continue them.
    */
@@ -237,8 +238,12 @@ export namespace AutoMovieMotionHumanArmChain {
   }
 }
 
-/** The alternatives of `ContinuedLimb`'s site. */
+/*
+ * The alternatives of `ContinuedLimb`'s site.
+ */
 type ContinuedLimb = "leftArm" | "rightArm";
 
-/** The alternatives of `ContinuedFitLimb`'s site. */
+/*
+ * The alternatives of `ContinuedFitLimb`'s site.
+ */
 type ContinuedFitLimb = "leftArm" | "rightArm";

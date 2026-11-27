@@ -7,7 +7,7 @@ import {
 import { Vector3 } from "../../math/Vector3";
 import { AUTOMOVIE_DRAWING_EPSILON } from "../AUTOMOVIE_DRAWING_EPSILON";
 
-/**
+/*
  * Validate one view's placement and resolve its orthonormal page basis.
  *
  * One rule serves every projection: the plane normal points back at the viewer
@@ -24,9 +24,8 @@ import { AUTOMOVIE_DRAWING_EPSILON } from "../AUTOMOVIE_DRAWING_EPSILON";
  * an up parallel to the direction, a non-finite origin, a scale that is not a
  * finite positive number, and a `depth` or `overhead` that is neither `null`
  * nor a finite non-negative number.
- *
- * @param view The authored view.
- * @returns The page basis with unit `right`, `up` and `normal` axes.
+ * Parameter view: The authored view.
+ * Returns: The page basis with unit `right`, `up` and `normal` axes.
  */
 export const autoMovieDrawingFrame = (
   view: IAutoMovieDrawingView,
@@ -63,7 +62,9 @@ export const autoMovieDrawingFrame = (
   };
 };
 
-/** Throw unless `value` is `null` or a finite number at or above zero. */
+/*
+ * Throw unless `value` is `null` or a finite number at or above zero.
+ */
 const requireOptionalDepth = (value: number | null, label: string): void => {
   if (value !== null && value < 0)
     throw new Error(

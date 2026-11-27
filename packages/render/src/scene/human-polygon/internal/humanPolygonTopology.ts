@@ -1,19 +1,27 @@
-/**
+/*
  * The original polygon display's ring zipper and crown fan connectivity. Copied
  * without arithmetic changes from Human's numerical loft emitter; this optional
  * renderer does not import that generator implementation.
  */
 export namespace humanPolygonTopology {
-  /** Caller-owned numerical buffers; positions retain the caller's units. */
+  /*
+   * Caller-owned numerical buffers; positions retain the caller's units.
+   */
   export interface IContext {
-    /** Flat Cartesian positions in the assembler's metre frame. */
+    /*
+     * Flat Cartesian positions in the assembler's metre frame.
+     */
     positions: number[];
 
-    /** Flat triangle vertex indices. */
+    /*
+     * Flat triangle vertex indices.
+     */
     indices: number[];
   }
 
-  /** Read one existing indexed vertex in the caller's unchanged units. */
+  /*
+   * Read one existing indexed vertex in the caller's unchanged units.
+   */
   export function position(
     context: IContext,
     index: number,
@@ -25,7 +33,9 @@ export namespace humanPolygonTopology {
     ];
   }
 
-  /** Join monotone cyclic phase rings using the original advancing-edge zipper. */
+  /*
+   * Join monotone cyclic phase rings using the original advancing-edge zipper.
+   */
   export function zipper(
     context: IContext,
     lower: readonly number[],
@@ -54,7 +64,9 @@ export namespace humanPolygonTopology {
     }
   }
 
-  /** Close an existing ring with the original oriented crown fan. */
+  /*
+   * Close an existing ring with the original oriented crown fan.
+   */
   export function cap(
     context: IContext,
     ring: readonly number[],
@@ -70,7 +82,7 @@ export namespace humanPolygonTopology {
     }
   }
 
-  /**
+  /*
    * Preserve original phase reduction and cyclic-start selection.
    *
    * Principled implementation: Reduces every phase into [0,2pi), rotates

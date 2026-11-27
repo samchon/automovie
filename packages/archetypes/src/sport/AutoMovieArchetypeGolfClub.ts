@@ -94,7 +94,9 @@ export namespace AutoMovieArchetypeGolfClub {
     mass: "kg",
   };
 
-  /** A band in metres. */
+  /*
+   * A band in metres.
+   */
   const m = (
     minimum: number,
     maximum: number,
@@ -103,7 +105,9 @@ export namespace AutoMovieArchetypeGolfClub {
   ): IAutoMovieArchetypeBand =>
     AutoMovieArchetypeBand.metres(minimum, maximum, source, provisional);
 
-  /** A mass band. */
+  /*
+   * A mass band.
+   */
   const kg = (
     minimum: number,
     maximum: number,
@@ -112,15 +116,21 @@ export namespace AutoMovieArchetypeGolfClub {
   ): IAutoMovieArchetypeBand =>
     AutoMovieArchetypeBand.of("kg", minimum, maximum, source, provisional);
 
-  /** The R&A Rules of Equipment, Part 2. */
+  /*
+   * The R&A Rules of Equipment, Part 2.
+   */
   const RANDA: string =
     "R&A Rules of Equipment, Part 2 (https://www.randa.org/roe/the-rules-of-equipment/part-2-conformance-of-clubs)";
 
-  /** What no source read gives. */
+  /*
+   * What no source read gives.
+   */
   const UNREAD: string =
     "no source read gives it; the makers' pages read do not state it";
 
-  /** The grip's band, every club alike: under the rule's limit, its size unread. */
+  /*
+   * The grip's band, every club alike: under the rule's limit, its size unread.
+   */
   const GRIP: IAutoMovieArchetypeBand = m(
     0.02,
     0.024,

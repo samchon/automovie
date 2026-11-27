@@ -33,13 +33,19 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { StrikingRoll } from "../../striking/internal/StrikingRoll";
 import { pourClock } from "./pourClock";
 
-/** Upright admission allows five degrees of staged placement error. */
+/*
+ * Upright admission allows five degrees of staged placement error.
+ */
 const UPRIGHT: number = Math.cos((5 * Math.PI) / 180);
-/** Minimum axis alignment at the sampled tilted poses, within 10 degrees. */
+/*
+ * Minimum axis alignment at the sampled tilted poses, within 10 degrees.
+ */
 const TIP_ALIGNMENT: number = Math.cos((10 * Math.PI) / 180);
-/** World vertical for the stationary vessel and the gravity cue. */
+/*
+ * World vertical for the stationary vessel and the gravity cue.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-/**
+/*
  * A registered, stationary-base pour. Bring the held source above a fixed
  * recipient, tip about its rim lip, transfer, right it and retreat. Register
  * `pour` in `HumanPerformance` and call `registered(pour.name, params)`.
@@ -49,18 +55,21 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * inputs. The liquid query gives the volume cue for one action instance.
  */
 export namespace pour {
-  /** Registered action name. */
+  /*
+   * Registered action name.
+   */
   export const name: string = "pour";
-  /** The whole transfer plays together, without an offered cut. */
+  /*
+   * The whole transfer plays together, without an offered cut.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-  /**
+  /*
    * Plan the held source's transport, pivot, transfer hold and return.
-   *
-   * @param context Entry with both feet planted and the named source in hand.
-   * @returns The action plan with its original grip retained.
-   * @throws {HumanRefusal} For invalid timing, geometry, volumes, support or
-   *   grip, and for a pose that misses the sampled mouth or tilt bound.
+   * Parameter context: Entry with both feet planted and the named source in hand.
+   * Returns: The action plan with its original grip retained.
+   * For invalid timing, geometry, volumes, support or
+   * grip, and for a pose that misses the sampled mouth or tilt bound.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPour.IParams>,
@@ -289,16 +298,15 @@ export namespace pour {
     };
   }
 
-  /**
+  /*
    * Sample the authored liquid balance. Use the pour instance's plan so the
    * interval follows its clock after any performance tempo scaling.
-   *
-   * @param params The authored amounts used to plan the pour.
-   * @param plan The pour instance's duration and events.
-   * @param seconds Finite seconds from the plan's start, clamped outside flow.
-   * @returns Volumes remaining in both vessels and cumulative overflow, in
-   *   millilitres.
-   * @throws {HumanRefusal} For invalid volumes, time or flow events.
+   * Parameter params: The authored amounts used to plan the pour.
+   * Parameter plan: The pour instance's duration and events.
+   * Parameter seconds: Finite seconds from the plan's start, clamped outside flow.
+   * Returns: Volumes remaining in both vessels and cumulative overflow, in
+   * millilitres.
+   * For invalid volumes, time or flow events.
    */
   export function liquid(
     params: IAutoMovieMotionHumanPour.IParams,
@@ -346,7 +354,9 @@ export namespace pour {
   }
 }
 
-/** Admit finite quantities before arithmetic or planning. */
+/*
+ * Admit finite quantities before arithmetic or planning.
+ */
 function validateVolumes(params: IAutoMovieMotionHumanPour.IParams): void {
   if (
     !(
@@ -367,7 +377,7 @@ function validateVolumes(params: IAutoMovieMotionHumanPour.IParams): void {
     });
 }
 
-/**
+/*
  * Read the stationary recipient's upright circular opening from its centre and
  * rim.
  */
@@ -429,7 +439,9 @@ function openingOf(
     radius,
   };
 }
-/** Find the rigid rim affordance shared by source and recipient vessels. */
+/*
+ * Find the rigid rim affordance shared by source and recipient vessels.
+ */
 function rimOf(
   prop: IAutoMovieMotionHumanProp,
 ): IAutoMovieAffordance | undefined {
@@ -438,7 +450,9 @@ function rimOf(
       site.id === "lip" && site.kind === "ledge" && site.rides === undefined,
   );
 }
-/** Report the vessel feature that must change. */
+/*
+ * Report the vessel feature that must change.
+ */
 function vesselRefusal(
   axis: VesselRefusalAxis,
   value: string,
@@ -456,12 +470,20 @@ function vesselRefusal(
   });
 }
 
-/** The alternatives of `LiquidPlan`'s site. */
+/*
+ * The alternatives of `LiquidPlan`'s site.
+ */
 type LiquidPlan = "duration" | "events";
-/** The record of `IPlanOpening`'s site. */
+/*
+ * The record of `IPlanOpening`'s site.
+ */
 type IPlanOpening = { center: IAutoMovieVector3; radius: number };
-/** The record of `IOpeningOfResult`'s site. */
+/*
+ * The record of `IOpeningOfResult`'s site.
+ */
 type IOpeningOfResult = { center: IAutoMovieVector3; radius: number };
 
-/** The alternatives of `VesselRefusalAxis`'s site. */
+/*
+ * The alternatives of `VesselRefusalAxis`'s site.
+ */
 type VesselRefusalAxis = "source" | "target";

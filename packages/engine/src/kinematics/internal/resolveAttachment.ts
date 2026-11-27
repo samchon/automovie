@@ -15,12 +15,12 @@ import { AutoMovieEngineKinematics } from "../AutoMovieEngineKinematics";
 import type { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
 import { resolvePose } from "./resolvePose";
 
-/**
+/*
  * The transform of a child model's root rigidly coupled to one bone of a posed
  * parent skeleton, in the parent skeleton's model space: a rider on a horse, a
  * sword in a hand, a passenger in a cart.
  *
- * The parent pose is resolved by forward kinematics ({@link resolvePose}) and
+ * The parent pose is resolved by forward kinematics (resolvePose) and
  * the attachment offset is composed into the bone's frame:
  *
  * - `translation = boneWorldPos + boneWorldRot · offset.translation`
@@ -35,16 +35,15 @@ import { resolvePose } from "./resolvePose";
  * declared or not reachable from a root: a mis-wired attachment is a defect,
  * not a frame to skip. `jointAxes` and `restFrames` must match the renderer's
  * pose path, or the child rides a different pose than the visible parent.
- *
- * @param parentPose Pose of the parent skeleton.
- * @param parentSkeleton Rig the pose articulates.
- * @param attachment Bone to ride and the child's offset in that bone's frame.
- * @param jointAxes Per-bone clinical axes for forward kinematics.
- * @param restFrames Per-bone rest frames for reading the pose as clinical.
- * @param prepared Optional genuine fixed demand for this exact parent
- *   rig/mappings and attachment bone; omission retains raw full FK.
- * @param resolution Optional exact reader borrowed from the synchronous bake,
- *   never retained here.
+ * Parameter parentPose: Pose of the parent skeleton.
+ * Parameter parentSkeleton: Rig the pose articulates.
+ * Parameter attachment: Bone to ride and the child's offset in that bone's frame.
+ * Parameter jointAxes: Per-bone clinical axes for forward kinematics.
+ * Parameter restFrames: Per-bone rest frames for reading the pose as clinical.
+ * Parameter prepared: Optional genuine fixed demand for this exact parent
+ * rig/mappings and attachment bone; omission retains raw full FK.
+ * Parameter resolution: Optional exact reader borrowed from the synchronous bake,
+ * never retained here.
  */
 const resolveAttachmentRun: (
   parentPose: IAutoMoviePose,
@@ -108,6 +107,8 @@ const resolveAttachmentRun: (
 };
 
 export namespace resolveAttachment {
-  /** Resolve a child transform from the parent skeleton pose. */
+  /*
+   * Resolve a child transform from the parent skeleton pose.
+   */
   export const run: typeof resolveAttachmentRun = resolveAttachmentRun;
 }

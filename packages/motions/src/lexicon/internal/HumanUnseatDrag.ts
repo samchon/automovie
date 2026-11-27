@@ -16,47 +16,73 @@ import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatFlight } from "./HumanUnseatFlight";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 
-/**
+/*
  * A rider dragged behind a stirrup (`HumanUnseat`'s `drag`): the body on its
  * back behind the foot held in the stirrup, until a breakaway stirrup lets go.
  */
 export namespace HumanUnseatDrag {
-  /** The drag's inputs. */
+  /*
+   * The drag's inputs.
+   */
   export interface IDrag {
-    /** The law's context. */
+    /*
+     * The law's context.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanUnseat>;
 
-    /** The carrier. */
+    /*
+     * The carrier.
+     */
     support: IAutoMovieMotionHumanPropReader;
 
-    /** The carrier contact's frame reader. */
+    /*
+     * The carrier contact's frame reader.
+     */
     carrier: HumanMountedFrame.Reader;
 
-    /** The seated posture at a local second. */
+    /*
+     * The seated posture at a local second.
+     */
     seatedAt: (t: number) => IAutoMovieMotionHumanPosture;
 
-    /** The release, local seconds. */
+    /*
+     * The release, local seconds.
+     */
     release: number;
 
-    /** The stirrup contact. */
+    /*
+     * The stirrup contact.
+     */
     stirrup: string;
 
-    /** The dragged foot's side. */
+    /*
+     * The dragged foot's side.
+     */
     side: AutoMovieHumanSide;
 
-    /** Seconds after the release the stirrup lets go; never when absent. */
+    /*
+     * Seconds after the release the stirrup lets go; never when absent.
+     */
     free: number | undefined;
 
-    /** Seconds lying after the stop. */
+    /*
+     * Seconds lying after the stop.
+     */
     lie: number;
 
-    /** The fitted lie. */
+    /*
+     * The fitted lie.
+     */
     lying: KnockdownFloor.IFold;
 
-    /** The lying root's height. */
+    /*
+     * The lying root's height.
+     */
     floor: number;
 
-    /** The contact window builder. */
+    /*
+     * The contact window builder.
+     */
     window: (
       part: string,
       kind: IAutoMovieMotionHumanContactWindow["kind"],
@@ -66,14 +92,13 @@ export namespace HumanUnseatDrag {
     ) => IAutoMovieMotionHumanContactWindow;
   }
 
-  /**
+  /*
    * A drag: from the release the body is drawn over `HumanUnseatPose.DRAW` onto
    * its back behind the stirrup, the foot held in it and the head away from the
    * carrier, sliding as the carrier goes; a breakaway stirrup lets the foot go
    * at `free` and the body slides to a stop.
-   *
-   * @param props The inputs.
-   * @returns The plan.
+   * Parameter props: The inputs.
+   * Returns: The plan.
    */
   export function drag(props: IDrag): IAutoMovieMotionHumanActionPlan {
     const {

@@ -35,7 +35,7 @@ import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 
-/**
+/*
  * The close strikes (`IAutoMovieMotionHumanCloseStrike`): an elbow, a spinning
  * elbow or backfist, or a headbutt, out to the target on the punch's measured
  * delivery and back to the guard over its hand recovery.
@@ -52,18 +52,17 @@ import { StrikingTarget } from "./StrikingTarget";
  * partner's neck before the impact and hold it to the end, as a clinch holds.
  */
 export namespace closeStrike {
-  /**
+  /*
    * How far a close strike drives at a second: out to its reach (a feint's
    * share of it) over the time to the shown instant and back over the recoil,
    * on minimum-jerk shares; a headbutt waits `TAKE` of the way out before it
    * drives.
-   *
-   * @param seconds The strike's seconds.
-   * @param shown When it is shown, seconds.
-   * @param recoil The recoil's seconds.
-   * @param reached The share of the reach driven, 1 unless a feint.
-   * @param headbutt Whether the strike is a headbutt.
-   * @returns 0 to the reached share.
+   * Parameter seconds: The strike's seconds.
+   * Parameter shown: When it is shown, seconds.
+   * Parameter recoil: The recoil's seconds.
+   * Parameter reached: The share of the reach driven, 1 unless a feint.
+   * Parameter headbutt: Whether the strike is a headbutt.
+   * Returns: 0 to the reached share.
    */
   export function drive(
     seconds: number,
@@ -84,16 +83,15 @@ export namespace closeStrike {
       : reached * (1 - AutoMovieEngineMotionSampling.minimumJerkShare((seconds - shown) / recoil));
   }
 
-  /**
+  /*
    * A close strike's trunk turn: a headbutt turns to face the target the short
    * way round; the others turn the technique's `TURN`, the rear side's fully
    * toward the lead, the lead side's 0.8 of it back.
-   *
-   * @param technique The strike.
-   * @param side The striking side.
-   * @param rear The stance's rear side.
-   * @param facing The target's heading less the body's, degrees.
-   * @returns Degrees.
+   * Parameter technique: The strike.
+   * Parameter side: The striking side.
+   * Parameter rear: The stance's rear side.
+   * Parameter facing: The target's heading less the body's, degrees.
+   * Returns: Degrees.
    */
   export function turn(
     technique: IAutoMovieMotionHumanCloseStrike.Technique,
@@ -108,10 +106,12 @@ export namespace closeStrike {
           (rear === "left" ? -1 : 1);
   }
 
-  /** Action key. */
+  /*
+   * Action key.
+   */
   export const name: AutoMovieMotionHumanActionKey = "closeStrike";
 
-  /**
+  /*
    * Cancel table: a close strike chains into another or a punch from its
    * impact.
    */
@@ -124,7 +124,7 @@ export namespace closeStrike {
     ],
   };
 
-  /**
+  /*
    * The pelvis and trunk turn at contact, degrees toward bringing the striking
    * shoulder forward, for the rear arm; the lead arm's turn is the opposite
    * share (provisional readings of the coached hook and uppercut turns,
@@ -143,44 +143,43 @@ export namespace closeStrike {
     headbutt: 0,
   };
 
-  /**
+  /*
    * How far behind the landing the effector's approach starts along its travel,
    * metres (provisional).
    */
   export const APPROACH: number = 0.15;
 
-  /**
+  /*
    * The share of a headbutt's delivery by which both hands hold the neck,
    * before the head drives (provisional).
    */
   export const TAKE: number = 0.5;
 
-  /**
+  /*
    * The least horizontal distance from the root to a struck point over the
    * partner's trunk, two pelvises' depth, a share of stature (provisional).
    */
   export const HIPS: number = 0.17;
 
-  /**
+  /*
    * The share of a headbutt's recoil its hands hold the neck before they let go
    * (provisional).
    */
   export const RELEASE: number = 0.4;
 
-  /**
+  /*
    * The share of a spin's delivery the arm waits at the guard before it extends
    * (provisional).
    */
   export const SPIN_HOLD: number = 2 / 3;
 
-  /**
+  /*
    * Plan a close strike.
-   *
-   * @param context The action's context.
-   * @returns The plan, whose decisive instant is `impact`.
-   * @throws {Error} When a feint's share lies outside (0, 1).
-   * @throws {HumanRefusal} When the landing is out of the strike's band
-   *   (`CloseStrikeReach`).
+   * Parameter context: The action's context.
+   * Returns: The plan, whose decisive instant is `impact`.
+   * When a feint's share lies outside (0, 1).
+   * When the landing is out of the strike's band
+   * (`CloseStrikeReach`).
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCloseStrike.IParams>,
@@ -537,8 +536,12 @@ export namespace closeStrike {
   }
 }
 
-/** The alternatives of `PlanBuildFrom`'s site. */
+/*
+ * The alternatives of `PlanBuildFrom`'s site.
+ */
 type PlanBuildFrom = "point" | "rotation";
 
-/** The alternatives of `PlanBuildLimb`'s site. */
+/*
+ * The alternatives of `PlanBuildLimb`'s site.
+ */
 type PlanBuildLimb = "leftArm" | "rightArm";

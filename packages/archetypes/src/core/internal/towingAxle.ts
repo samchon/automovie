@@ -5,15 +5,14 @@ import type {
 
 import { AutoMovieArchetypeFrame } from "../AutoMovieArchetypeFrame";
 
-/**
+/*
  * Read a wheel pair's shared transverse axis without guessing part names.
- *
- * @param left Producer-declared left wheel spin contact.
- * @param right Producer-declared right wheel spin contact.
- * @returns A fresh model-space midpoint, metres, at the neutral wheel
- *   clearance.
- * @throws {RangeError} For nonfinite/noncollinear centres, unsupported spin
- *   axes or nonpositive clearance.
+ * Parameter left: Producer-declared left wheel spin contact.
+ * Parameter right: Producer-declared right wheel spin contact.
+ * Returns: A fresh model-space midpoint, metres, at the neutral wheel
+ * clearance.
+ * For nonfinite/noncollinear centres, unsupported spin
+ * axes or nonpositive clearance.
  */
 export function towingAxle(
   left: IAutoMovieAffordance,

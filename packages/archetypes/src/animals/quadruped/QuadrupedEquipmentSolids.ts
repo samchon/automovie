@@ -86,7 +86,7 @@ export class QuadrupedEquipmentSolids {
     }
     return height;
 
-    /**
+    /*
      * Round a finite sum outward, without replacing the physical clearance by a
      * tolerance.
      */
@@ -196,17 +196,16 @@ export class QuadrupedEquipmentSolids {
     }
   }
 
-  /**
+  /*
    * Preserve a physically impossible equipment-solid request as an ordinary
    * refusal.
-   *
-   * @param axis Equipment part or derived support identity.
-   * @param value Original geometry and obstacle facts, without an invented
-   *   feasible interval.
-   * @param obstacle Interfering body-sphere identity or nonfinite
-   *   support-envelope description.
-   * @throws {AutoMovieArchetypeRefusal} Always, retaining only ordinary request
-   *   facts and an actionable authored-fit correction.
+   * Parameter axis: Equipment part or derived support identity.
+   * Parameter value: Original geometry and obstacle facts, without an invented
+   * feasible interval.
+   * Parameter obstacle: Interfering body-sphere identity or nonfinite
+   * support-envelope description.
+   * Always, retaining only ordinary request
+   * facts and an actionable authored-fit correction.
    */
   private refuse(axis: string, value: unknown, obstacle: string): never {
     throw new AutoMovieArchetypeRefusal({

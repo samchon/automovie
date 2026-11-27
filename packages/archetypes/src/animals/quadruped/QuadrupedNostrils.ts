@@ -4,7 +4,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { AutoMovieArchetypeBuilder } from "../../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 
-/**
+/*
  * Two coarse nostrils laid inside the head capsule's nose cap, one to each
  * side, so breathing can flare them.
  *
@@ -29,26 +29,33 @@ export namespace QuadrupedNostrils {
     back: number;
   }
 
-  /** The nostrils' neutral centres and radius in the model's space. */
+  /*
+   * The nostrils' neutral centres and radius in the model's space.
+   */
   export interface IGeometry {
-    /** The left nostril's centre. */
+    /*
+     * The left nostril's centre.
+     */
     left: IAutoMovieVector3;
 
-    /** The right nostril's centre. */
+    /*
+     * The right nostril's centre.
+     */
     right: IAutoMovieVector3;
 
-    /** Each one's radius, metres. */
+    /*
+     * Each one's radius, metres.
+     */
     radius: number;
   }
 
-  /**
+  /*
    * The nostrils inside a head capsule.
-   *
-   * @param head The neutral head capsule: poll, nose and radius.
-   * @param profile The authored construction.
-   * @returns Their neutral geometry.
-   * @throws {RangeError} For fractions outside their ranges or a degenerate
-   *   head.
+   * Parameter head: The neutral head capsule: poll, nose and radius.
+   * Parameter profile: The authored construction.
+   * Returns: Their neutral geometry.
+   * For fractions outside their ranges or a degenerate
+   * head.
    */
   export function geometry(
     head: Pick<
@@ -88,14 +95,13 @@ export namespace QuadrupedNostrils {
     return { left: side(1), right: side(-1), radius };
   }
 
-  /**
+  /*
    * Lay the nostrils as the parts `leftNostril` and `rightNostril`.
-   *
-   * @param builder The body under construction.
-   * @param head The neutral head capsule.
-   * @param profile The authored construction.
-   * @param color The coat's colour.
-   * @throws {RangeError} As `geometry` refuses.
+   * Parameter builder: The body under construction.
+   * Parameter head: The neutral head capsule.
+   * Parameter profile: The authored construction.
+   * Parameter color: The coat's colour.
+   * As `geometry` refuses.
    */
   export function lay<Id extends string, Dimension extends string>(
     builder: AutoMovieArchetypeBuilder<Id, Dimension>,

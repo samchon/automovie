@@ -9,7 +9,9 @@ import { AutoMovieEnginePlanarRegion } from "../../geometry/AutoMovieEnginePlana
 import { planarCross } from "../../geometry/internal/planarCross";
 import { convexHull2D } from "../../math/internal/convexHull2D";
 
-/** Produce convex pieces for the footprint's exact-region contract. */
+/*
+ * Produce convex pieces for the footprint's exact-region contract.
+ */
 export const footprintConvexPieces: (
   footprint: IAutoMovieFootprint,
 ) => IAutoMovieVector3[][] = (
@@ -34,7 +36,7 @@ export const footprintConvexPieces: (
   return slabPieces(footprint);
 };
 
-/**
+/*
  * An admitted simple ring is convex when every nonzero turn follows its
  * winding.
  */
@@ -52,19 +54,27 @@ const isConvexRing: (ring: IAutoMovieFootprintRing) => boolean = (
   return true;
 };
 
-/** One ring edge crossing a slab, kept with the edge that produced it. */
+/*
+ * One ring edge crossing a slab, kept with the edge that produced it.
+ */
 interface ISlabCrossing {
-  /** Plan `z` where the edge crosses the slab's own mid-abscissa. */
+  /*
+   * Plan `z` where the edge crosses the slab's own mid-abscissa.
+   */
   z: number;
 
-  /** The crossing edge's start, in world XZ. */
+  /*
+   * The crossing edge's start, in world XZ.
+   */
   from: IAutoMovieVector3;
 
-  /** The crossing edge's end, in world XZ. */
+  /*
+   * The crossing edge's end, in world XZ.
+   */
   to: IAutoMovieVector3;
 }
 
-/**
+/*
  * Decompose a region into trapezoids by sweeping vertical slabs.
  *
  * No vertex falls strictly inside a slab, so every edge that crosses the slab's
@@ -118,7 +128,7 @@ const slabPieces: (footprint: IAutoMovieFootprint) => IAutoMovieVector3[][] = (
   return pieces;
 };
 
-/**
+/*
  * Plan z of the edge from its first point to its second at abscissa x, which it
  * spans.
  */
@@ -137,7 +147,7 @@ const edgeZAt: (
       ? to.z
       : from.z + ((x - from.x) / (to.x - from.x)) * (to.z - from.z);
 
-/**
+/*
  * The trapezoid between two crossings over one slab, wound positively.
  *
  * Either vertical side collapses when the two edges meet at that abscissa (the

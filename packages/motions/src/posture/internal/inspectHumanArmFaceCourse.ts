@@ -7,7 +7,7 @@ import type { HumanArmTrajectoryKnots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryPairs } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
 
-/**
+/*
  * Inspect a fixed-parent arm's placed tool face against its active contact.
  * The Bernstein rate bounds of the played quintics bound the face's speed by
  * the links' lever arms (Zhang et al. 2007, SIGGRAPH, section 6). Adding the
@@ -178,7 +178,9 @@ interface IFaceCourse {
   targetSpeed: number;
 }
 
-/** An unchanged course is certified when both records are empty. */
+/*
+ * An unchanged course is certified when both records are empty.
+ */
 interface IInspection {
   misses: number[];
   uncertain?: { time: number; metres?: number };

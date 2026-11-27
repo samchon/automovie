@@ -6,9 +6,9 @@ import { createAutoMovieGradientNoise3 } from "./createAutoMovieGradientNoise3";
 import { createAutoMovieRandom } from "./createAutoMovieRandom";
 import { AutoMovieEngineRandomBounds } from "./AutoMovieEngineRandomBounds";
 
-/**
+/*
  * Seeded three-dimensional fractal noise in [-1, 1]: a sum of octaves of
- * {@link createAutoMovieGradientNoise3}, built as `createAutoMovieFractalNoise2`
+ * createAutoMovieGradientNoise3, built as `createAutoMovieFractalNoise2`
  * builds its sum (Perlin 1985, "An Image Synthesizer", SIGGRAPH Computer
  * Graphics 19(3)).
  *
@@ -17,16 +17,15 @@ import { AutoMovieEngineRandomBounds } from "./AutoMovieEngineRandomBounds";
  * so it stays in [-1, 1] and keeps every octave's continuity. Octave 0 uses
  * `seed`; octave `o >= 1` uses the stream derived from `seed` by the ids
  * `"octave"` and `o`. A coordinate is admitted when its magnitude times
- * `2^(octaves-1)` is at most {@link AutoMovieEngineRandom.GRADIENT_NOISE_3_BOUND}.
- *
- * @param seed Sixteen hexadecimal digits, as `deriveAutoMovieSeed` returns.
- * @param octaves Number of octaves, a positive integer.
- * @param roughness Amplitude ratio between successive octaves, in (0, 1).
- * @returns The noise, taking coordinates in first-octave lattice cells; it
- *   throws naming `x`, `y` or `z` when a coordinate is not finite or its finest
- *   octave coordinate exceeds the bound.
- * @throws {Error} Naming `octaves` or `roughness` when either is outside its
- *   range, or when `seed` is not sixteen hexadecimal digits.
+ * `2^(octaves-1)` is at most AutoMovieEngineRandom.GRADIENT_NOISE_3_BOUND.
+ * Parameter seed: Sixteen hexadecimal digits, as `deriveAutoMovieSeed` returns.
+ * Parameter octaves: Number of octaves, a positive integer.
+ * Parameter roughness: Amplitude ratio between successive octaves, in (0, 1).
+ * Returns: The noise, taking coordinates in first-octave lattice cells; it
+ * throws naming `x`, `y` or `z` when a coordinate is not finite or its finest
+ * octave coordinate exceeds the bound.
+ * Naming `octaves` or `roughness` when either is outside its
+ * range, or when `seed` is not sixteen hexadecimal digits.
  */
 export function createAutoMovieFractalNoise3(
   seed: string,

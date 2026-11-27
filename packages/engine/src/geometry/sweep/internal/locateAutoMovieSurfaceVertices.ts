@@ -7,7 +7,7 @@ import type {
   IAutoMovieSurfaceNetwork,
 } from "@automovie/interface";
 
-/**
+/*
  * Locate every vertex of a subdivided surface network in the network's own
  * terms, so a field declared over the network, such as a displacement, can be
  * evaluated at each vertex.
@@ -22,15 +22,14 @@ import type {
  * from `t` and `s` by the patch's ranges. The locations depend only on the
  * network's layout and the tier, never on a pose, so they are computed once per
  * tier and level and serve every pose.
- *
- * @param props.network The network the cage was sampled from, only read.
- * @param props.cage The sampled cage, only read.
- * @param props.parameters Each subdivided vertex's cage face and quad-local
- *   coordinates, `IAutoMovieSubdivisionSurface.parameters` of the cage's
- *   subdivision.
- * @returns One location per vertex, in vertex order.
- * @throws Error when the network's patches are not the cage's, a parameter's
- *   face is out of range or not a quad, or its coordinates leave 0 to 1.
+ * Parameter props.network: The network the cage was sampled from, only read.
+ * Parameter props.cage: The sampled cage, only read.
+ * Parameter props.parameters: Each subdivided vertex's cage face and quad-local
+ * coordinates, `IAutoMovieSubdivisionSurface.parameters` of the cage's
+ * subdivision.
+ * Returns: One location per vertex, in vertex order.
+ * Error when the network's patches are not the cage's, a parameter's
+ * face is out of range or not a quad, or its coordinates leave 0 to 1.
  */
 export const locateAutoMovieSurfaceVertices: (
   props: IAutoMovieLocateSurfaceVertices.IProps,

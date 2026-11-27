@@ -6,7 +6,7 @@ import type {
 
 import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
 
-/**
+/*
  * Ear-remove one admitted positive, zero-winding native boundary walk.
  *
  * The incidence owner supplies a weakly simple face boundary after its hole
@@ -161,15 +161,25 @@ export function triangulateAutoMovieSolidBoundary(
   return triangles;
 }
 
-/** One boundary occurrence; the same original ID can occur on another sheet. */
+/*
+ * One boundary occurrence; the same original ID can occur on another sheet.
+ */
 interface Corner {
-  /** Original shared vertex ID. */ id: number;
-  /** Explicit phase-cover image. */ lift: number;
-  /** Coordinate of that occurrence. */ point: Readonly<AutoMovieVector2Tuple>;
-  /** Original declared chart before its cover lift. */ original: Readonly<AutoMovieVector2Tuple>;
+  /*
+   * Original shared vertex ID.
+   */ id: number;
+  /*
+   * Explicit phase-cover image.
+   */ lift: number;
+  /*
+   * Coordinate of that occurrence.
+   */ point: Readonly<AutoMovieVector2Tuple>;
+  /*
+   * Original declared chart before its cover lift.
+   */ original: Readonly<AutoMovieVector2Tuple>;
 }
 
-/**
+/*
  * A positive ear retains every other original boundary occurrence on or inside
  * its triangle.
  */
@@ -227,7 +237,7 @@ function ear(
   });
 }
 
-/**
+/*
  * Two adjacent supplied primitives define sampling locality without moving
  * points or inventing a length tolerance.
  */
@@ -242,7 +252,7 @@ function locality(corners: readonly Corner[]): number {
   return limit;
 }
 
-/**
+/*
  * Equal keys keep the first supplied occurrence, preserving the weak-walk tie
  * premise.
  */
@@ -254,7 +264,7 @@ function precedes(a: readonly number[], b: readonly number[]): boolean {
   return false;
 }
 
-/**
+/*
  * Do not cut a boxed original point off behind a diagonal with no represented
  * strict triangle.
  */
@@ -280,7 +290,7 @@ function separable(
     : represented(b, a, point, period, indexed, phaseLimit);
 }
 
-/**
+/*
  * A straight global mesh edge cannot represent two different periodic
  * homotopies.
  */
@@ -292,7 +302,7 @@ function identity(a: Corner, b: Corner): [string, number] {
       : [`${b.id}/${a.id}`, a.lift - b.lift];
 }
 
-/**
+/*
  * Test the actual output cover, preserving every vertex rather than clipping an
  * unrepresentable sliver.
  */

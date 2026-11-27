@@ -1,4 +1,4 @@
-/**
+/*
  * The options `automovie capture` takes for itself, written `--<name>`; every
  * other option is a key of the capture request grammar.
  *

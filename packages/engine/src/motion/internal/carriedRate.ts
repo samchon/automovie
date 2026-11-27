@@ -1,4 +1,4 @@
-/**
+/*
  * What a rate at a cut adds to a path that starts at rest, so the sum leaves
  * the cut at that rate.
  *
@@ -14,16 +14,15 @@
  * zero, so a rate `v` displaces the path by at most `PEAK * duration * |v|`: a
  * caller with only so much room shortens the duration to fit it.
  *
- * {@link inertializeOffset} with a zero offset is the same idea with zero jerk
+ * inertializeOffset with a zero offset is the same idea with zero jerk
  * at the end instead of zero acceleration at the start; its lobe starts with
  * the acceleration `-8 v / duration`, which shows on a fast limb, so a law that
  * carries a rate into a path of its own uses this term.
- *
- * @param duration Seconds over which the rate is carried; positive.
- * @param elapsed Seconds since the cut; clamped into the duration.
- * @returns Seconds: the displacement per unit rate.
- * @throws {Error} When the duration is not positive and finite, or the elapsed
- *   time is not finite.
+ * Parameter duration: Seconds over which the rate is carried; positive.
+ * Parameter elapsed: Seconds since the cut; clamped into the duration.
+ * Returns: Seconds: the displacement per unit rate.
+ * When the duration is not positive and finite, or the elapsed
+ * time is not finite.
  */
 export function carriedRate(duration: number, elapsed: number): number {
   if (!(duration > 0))

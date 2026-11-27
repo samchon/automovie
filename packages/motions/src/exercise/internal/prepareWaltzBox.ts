@@ -7,7 +7,7 @@ import type {
 
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * Prepare the optional waltz box's common clock, turning placements and
  * vertical excursion. Yoshida et al. (2022, DOI 10.3389/fspor.2022.941042)
  * observed role-dependent rotation in a closed-hold spin. This figure rotates
@@ -17,16 +17,15 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
  * and travel moves down the floor together and successive figures with
  * different travels change direction; each foot reads the pivot at its own
  * footfall, so a planted foot stays put.
- *
- * @param options The pivot and signed turn for this dancer's figure.
- * @param origin The dancer's starting root in world metres.
- * @param metre The dancer's stature in metres.
- * @param beatPeriod The nominal seconds between beats.
- * @param firstBeat The first beat's second, local to the action.
- * @param lastBeat The last beat's second, local to the action.
- * @param duration The duration including the exit beat, in seconds.
- * @returns The timed placement, heading change and lowering from standing
- *   height.
+ * Parameter options: The pivot and signed turn for this dancer's figure.
+ * Parameter origin: The dancer's starting root in world metres.
+ * Parameter metre: The dancer's stature in metres.
+ * Parameter beatPeriod: The nominal seconds between beats.
+ * Parameter firstBeat: The first beat's second, local to the action.
+ * Parameter lastBeat: The last beat's second, local to the action.
+ * Parameter duration: The duration including the exit beat, in seconds.
+ * Returns: The timed placement, heading change and lowering from standing
+ * height.
  */
 export function prepareWaltzBox(
   options: NonNullable<IAutoMovieMotionHumanDance.IParams["waltz"]>,
@@ -78,7 +77,9 @@ export function prepareWaltzBox(
   };
 }
 
-/** The record of `IPrepareWaltzBoxResult`'s site. */
+/*
+ * The record of `IPrepareWaltzBoxResult`'s site.
+ */
 type IPrepareWaltzBoxResult = {
   yaw: (seconds: number) => number;
   depth: (seconds: number) => number;

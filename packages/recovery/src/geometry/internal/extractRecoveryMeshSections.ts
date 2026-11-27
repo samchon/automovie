@@ -26,7 +26,7 @@ import { observeRecoverySection } from "./observeRecoverySection";
 import { prepareRecoveryCriticalBrackets } from "./prepareRecoveryCriticalBrackets";
 import { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence";
 
-/**
+/*
  * Extract every section component with automatic stations, feature corners and
  * PL critical brackets. Physical ties remain explicit; cutting and PL topology
  * share one immutable scalar chart. The optional progress observer reports

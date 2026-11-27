@@ -8,16 +8,20 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { humanAssistedTransferSeat } from "./humanAssistedTransferSeat";
 
-/** The bearing parts of the transfer are not constrained to the chair's base. */
+/*
+ * The bearing parts of the transfer are not constrained to the chair's base.
+ */
 const FEET: readonly IAutoMovieMotionHumanSupport.IContact[] = [
   { part: "leftFoot", kind: "bear" },
   { part: "rightFoot", kind: "bear" },
 ];
 
-/** Acquire, rise, step, align, settle, and release. */
+/*
+ * Acquire, rise, step, align, settle, and release.
+ */
 const PHASE: number = 0.55;
 
-/**
+/*
  * Stage one actor's role in a paired chair-to-care-seat transfer.
  *
  * The phases share the same explicit hand target and seconds. The occupant
@@ -191,7 +195,9 @@ export const HumanAssistedTransfer: IAutoMovieMotionHumanAssistedTransfer.ILaw =
     },
   };
 
-/** Attach the actual displayed palm to the shared clasp over its nominated span. */
+/*
+ * Attach the actual displayed palm to the shared clasp over its nominated span.
+ */
 function gripReader(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanAssistedTransfer.IRoleParams>,
   plan: IAutoMovieMotionHumanActionPlan,
@@ -217,7 +223,9 @@ function gripReader(
   const released: number = 6 * seconds;
   const bare: number = 7 * seconds;
 
-  /** Fixed shared point, with one visible arrival and release. */
+  /*
+   * Fixed shared point, with one visible arrival and release.
+   */
   const weight: (at: number) => number = (at: number): number =>
     AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.max(
@@ -315,5 +323,7 @@ function gripReader(
   };
 }
 
-/** Roles performing the same support phase. */
+/*
+ * Roles performing the same support phase.
+ */
 type Role = IAutoMovieMotionHumanAssistedTransfer.Role;

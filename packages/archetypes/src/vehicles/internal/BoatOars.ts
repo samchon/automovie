@@ -9,25 +9,25 @@ import {
 import { AutoMovieArchetypeBoat } from "../AutoMovieArchetypeBoat";
 import { BOAT_MODELS } from "../constants/BOAT_MODELS";
 
-/**
+/*
  * A rowboat's oars: their sizes from the oarlocks' span, their places in the
  * oarlocks, and the angles of a stroke.
  */
 export namespace BoatOars {
-  /**
+  /*
    * The oarlock's pivot above the rowing thwart, as a share of the span between
    * the oarlocks: 0.17, WoodenBoat's oar geometry table (column C = A x 0.17;
    * https://www.woodenboat.com/sites/default/files/bonus-content/oar-geometry-calculation-table.pdf).
    */
   export const HEIGHT: number = 0.17;
 
-  /**
+  /*
    * The rowing thwart's aft edge ahead of the oarlocks, as a share of the span:
    * 0.22, the same table (column D = A x 0.22).
    */
   export const AFT: number = 0.22;
 
-  /**
+  /*
    * An oar's inboard length beyond half the span, metres: 2 in, Shaw and
    * Tenney's rule, the inboard half the span plus 2 in, the whole oar 25/7 of
    * the inboard (WoodenBoat,
@@ -35,16 +35,17 @@ export namespace BoatOars {
    */
   export const INBOARD: number = 2 * AutoMovieArchetypeUnits.INCH;
 
-  /** An oar's whole length over its inboard length: 25/7, the same rule. */
+  /*
+   * An oar's whole length over its inboard length: 25/7, the same rule.
+   */
   export const RATIO: number = 25 / 7;
 
-  /**
+  /*
    * A rowboat's blades: those of the read oar (`BOAT_MODELS.oars`) whose length
    * is nearest the oar Shaw and Tenney's rule gives the span, `RATIO` times the
    * inboard, half the span plus `INBOARD`.
-   *
-   * @param span The span between the oarlocks, metres, the boat's beam.
-   * @returns The blade's length and width, metres.
+   * Parameter span: The span between the oarlocks, metres, the boat's beam.
+   * Returns: The blade's length and width, metres.
    */
   export function blade(span: number): {
     bladeLength: number;
@@ -61,32 +62,32 @@ export namespace BoatOars {
     return { bladeLength: oar.bladeLength, bladeWidth: oar.bladeWidth };
   }
 
-  /**
+  /*
    * The oar's loom, metres: 44 mm, Fyne Boat Kits' standard oars
    * (https://fyneboatkits.co.uk/accessories/oars/oars-standard).
    */
   export const LOOM: number = 0.044;
 
-  /**
+  /*
    * The handle's diameter, metres: 1.25 in finished, Angus Rowboats' oar plan
    * (https://cdn.shopify.com/s/files/1/1566/1423/files/oarplansfinalsmall.pdf).
    */
   export const HANDLE: number = 1.25 * AutoMovieArchetypeUnits.INCH;
 
-  /**
+  /*
    * The handle's held run, metres: a construction estimate, one hand's breadth
    * and a little.
    */
   export const GRIP: number = 0.12;
 
-  /**
+  /*
    * The blade's thickness, metres: a construction estimate the picture shows;
    * the blade's edges, which the stroke's heights read, lie in the oar's
    * upright plane, so no contact reads it.
    */
   export const THICKNESS: number = 0.012;
 
-  /**
+  /*
    * The stroke's arc, degrees from square to the boat: the blade 62 degrees
    * toward the bow at the catch and 43.5 toward the stern at the finish, the
    * men's single sculls' gate angles (Holt et al. 2020, Frontiers in Sports and
@@ -104,7 +105,7 @@ export namespace BoatOars {
     finish: 43.5,
   };
 
-  /**
+  /*
    * The blade's lower edge above the water on the recovery, metres, a
    * provisional value: not read; the source to read is a fixed-seat rowing
    * biomechanics study. Searched for #3497 without a figure: the fixed-seat
@@ -113,47 +114,54 @@ export namespace BoatOars {
    */
   export const CLEAR: number = 0.1;
 
-  /** An oar's measures and its lift's angles, worked from the boat's dimensions. */
+  /*
+   * An oar's measures and its lift's angles, worked from the boat's dimensions.
+   */
   export interface IGeometry {
-    /**
+    /*
      * Between the oarlocks' pivots, metres: the beam, the oarlocks standing on
      * the gunwale at the widest beam.
      */
     span: number;
 
-    /** The pivot above the water, metres. */
+    /*
+     * The pivot above the water, metres.
+     */
     pivot: number;
 
-    /** The oar from its handle's end to the pivot, metres. */
+    /*
+     * The oar from its handle's end to the pivot, metres.
+     */
     inboard: number;
 
-    /** The oar from the pivot to its blade's tip, metres. */
+    /*
+     * The oar from the pivot to its blade's tip, metres.
+     */
     outboard: number;
 
-    /**
+    /*
      * The oar's angle below level at rest, the blade at its working depth with
      * its top edge at the water, degrees.
      */
     rest: number;
 
-    /**
+    /*
      * The lift that brings the blade's lower edge to the water, degrees: the
      * catch's and the finish's.
      */
     touch: number;
 
-    /**
+    /*
      * The lift that clears the blade `CLEAR` above the water, degrees: the
      * recovery's and the lift's travel.
      */
     clear: number;
   }
 
-  /**
+  /*
    * An oar's measures and its lift's angles for a rowboat's dimensions.
-   *
-   * @param d The rowboat's drawn dimensions.
-   * @returns The geometry.
+   * Parameter d: The rowboat's drawn dimensions.
+   * Returns: The geometry.
    */
   export function geometry(
     d: Readonly<Partial<Record<AutoMovieArchetypeBoat.Dimension, number>>>,
@@ -188,12 +196,11 @@ export namespace BoatOars {
     };
   }
 
-  /**
+  /*
    * Add both oars in their oarlocks, at rest: square to the boat, the blades at
    * their working depth.
-   *
-   * @param builder The rowboat under construction.
-   * @param d The drawn dimensions.
+   * Parameter builder: The rowboat under construction.
+   * Parameter d: The drawn dimensions.
    */
   export function build(
     builder: AutoMovieArchetypeBuilder<
@@ -286,8 +293,12 @@ export namespace BoatOars {
   }
 }
 
-/** Oiled wood. */
+/*
+ * Oiled wood.
+ */
 const WOOD: string = "#b08a55";
 
-/** A painted blade. */
+/*
+ * A painted blade.
+ */
 const BLADE: string = "#c0392b";

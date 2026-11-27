@@ -4,7 +4,7 @@ import type {
   IAutoMovieRegionTriangulation,
 } from "@automovie/interface";
 
-/**
+/*
  * Keep walking support inside the inner faces of the plan's walls.
  *
  * The slab geometry remains unchanged. Its already planned flight apertures
@@ -64,7 +64,7 @@ export function buildingWalkable(
   };
 }
 
-/**
+/*
  * Intersect inward parallel edge lines at each miter, refusing a reversed
  * offset edge.
  */

@@ -5,7 +5,7 @@ import type {
 
 import { AutoMovieSweepRotation } from "../../AutoMovieSweepRotation";
 
-/**
+/*
  * Create the station-rotation buffers of a sweep and the in-place computation
  * of its section planes.
  *
@@ -20,11 +20,10 @@ import { AutoMovieSweepRotation } from "../../AutoMovieSweepRotation";
  * interpolates key-ellipse orientations (Hyun et al. 2005, The Visual Computer
  * 21(8-10):542-550). Without any giving station the plane is the carried
  * frame.
- *
- * @param props.transport The spine's transport, with frames; only read.
- * @param props.knots The stations' `at`, strictly increasing; only read.
- * @param props.fixed Whether the carried frame keeps the first frame's axes.
- * @returns The orientation, every station without a rotation until written.
+ * Parameter props.transport: The spine's transport, with frames; only read.
+ * Parameter props.knots: The stations' `at`, strictly increasing; only read.
+ * Parameter props.fixed: Whether the carried frame keeps the first frame's axes.
+ * Returns: The orientation, every station without a rotation until written.
  */
 export const orientAutoMovieSweep: (
   props: IAutoMovieOrientSweep.IProps,

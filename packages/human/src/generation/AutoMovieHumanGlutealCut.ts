@@ -8,10 +8,12 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-/** Numerical world-height meeting budget, calibration millimetres. */
+/*
+ * Numerical world-height meeting budget, calibration millimetres.
+ */
 const TOLERANCE: number = 1e-9;
 
-/**
+/*
  * Discovery subdivisions of each actual source partition, not a crossing
  * certificate.
  */
@@ -174,7 +176,7 @@ export namespace AutoMovieHumanGlutealCut {
   }
 }
 
-/**
+/*
  * Reuse actual source partitions for discovery; no new shape or frame is
  * fitted.
  */
@@ -226,18 +228,30 @@ function stations(
   ].sort((a: number, b: number): number => a - b);
 }
 
-/** A station's immutable original section and its actual world plane. */
+/*
+ * A station's immutable original section and its actual world plane.
+ */
 interface Station {
-  /** Actual axis frame in calibration millimetres. */
+  /*
+   * Actual axis frame in calibration millimetres.
+   */
   frame: ReturnType<IAutoMovieViewPart["axis"]["at"]>;
-  /** Null is the actual collapsed axis point, not a regular section. */
+  /*
+   * Null is the actual collapsed axis point, not a regular section.
+   */
   point: ReturnType<typeof AutoMovieLoftSectionNative.point> | null;
 }
 
-/** One original point, before any loft or tessellation. */
+/*
+ * One original point, before any loft or tessellation.
+ */
 interface Reading {
-  /** World point in calibration millimetres. */
+  /*
+   * World point in calibration millimetres.
+   */
   point: AutoMovieVector3Tuple;
-  /** Whether the original section is exactly its zero-radius axis point. */
+  /*
+   * Whether the original section is exactly its zero-radius axis point.
+   */
   collapsed: boolean;
 }

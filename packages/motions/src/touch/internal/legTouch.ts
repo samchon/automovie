@@ -37,7 +37,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * A touch with the leg while standing (effectors below the hip): the toes, the
  * heel or the knee of one leg is brought onto a place and held there, the other
  * leg bearing the body.
@@ -65,45 +65,50 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * one, not checked through the lift.
  */
 export namespace legTouch {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "legTouch";
 
-  /** Cancel table: the leg is left once it starts back. */
+  /*
+   * Cancel table: the leg is left once it starts back.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /**
+  /*
    * How far the knee's joint centre lies under its front skin, metres
    * (provisional).
    */
   export const KNEE: number = 0.05;
 
-  /** How far behind the ankle's joint the heel's pad lies, metres (provisional). */
+  /*
+   * How far behind the ankle's joint the heel's pad lies, metres (provisional).
+   */
   export const HEEL: number = 0.04;
 
-  /**
+  /*
    * The farthest the root is shifted along the level line to put the knee a
    * thigh from the hip, metres (provisional).
    */
   export const SHIFT: number = 0.25;
 
-  /**
+  /*
    * The place tolerance the balance shift and the knee's placement settle to,
    * metres: the limb solver's own (`HumanArmTrajectoryTerms.TOLERANCE`, a
    * millimetre).
    */
   export const TOLERANCE: number = HumanArmTrajectoryTerms.TOLERANCE / 1000;
 
-  /**
+  /*
    * Plan a touch with the leg.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative, the centre of mass does
-   *   not settle over the standing ankle, or the knee cannot be put on the
-   *   place by shifting the root within `SHIFT` to the solver's place
-   *   tolerance.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the hold is negative, the centre of mass does
+   * not settle over the standing ankle, or the knee cannot be put on the
+   * place by shifting the root within `SHIFT` to the solver's place
+   * tolerance.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLegTouch.IParams>,
@@ -379,5 +384,7 @@ export namespace legTouch {
   }
 }
 
-/** The alternatives of `PlanRestBone`'s site. */
+/*
+ * The alternatives of `PlanRestBone`'s site.
+ */
 type PlanRestBone = "UpperLeg" | "LowerLeg" | "Foot" | "Toes";

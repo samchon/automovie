@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeUnits } from "../../core";
 import type { AutoMovieArchetypeObstacle } from "../AutoMovieArchetypeObstacle";
-/**
+/*
  * A crosstie's read sizes, metres: its section as laid, depth by face, and its
  * length, each from the University of Kentucky's FOR-108 lists, Producing and
  * Inspecting Railroad Crossties

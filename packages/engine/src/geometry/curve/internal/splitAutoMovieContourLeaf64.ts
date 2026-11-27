@@ -8,7 +8,7 @@ import { AutoMovieBernsteinSubdivision64 as S } from "../../AutoMovieBernsteinSu
 import { AutoMovieContourLoftCurves64 as C } from "../../AutoMovieContourLoftCurves64";
 import { AutoMovieCurveMath64 as M } from "../../AutoMovieCurveMath64";
 
-/**
+/*
  * Split a retained source restriction at its declared interior phase and
  * repartition both children under the same finite-segment chord bound. A
  * parent's bound need not hold against a child's different chord, even for a

@@ -9,7 +9,7 @@ import { AutoMovieArchetypeBench, AutoMovieArchetypeDumbbell } from "../../gym";
 import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { furnishRoom } from "./furnishRoom";
 
-/**
+/*
  * Furnish a room with bench and free-weight stations.
  *
  * Each station has one bench and one dumbbell on each side, resting on the
@@ -17,10 +17,9 @@ import { furnishRoom } from "./furnishRoom";
  * sitting contact and `bench-1/dumbbell-left/grip` to aim at a weight. Left
  * means +X for a person facing local +Z. The room layout is measured from the
  * floor centre and follows the kit's placement frame.
- *
- * @param params The useful room layout and positive number of stations.
- * @returns The placed-room module, with stage nodes and operative prop records.
- * @throws When the requested stations or their clearances do not fit.
+ * Parameter params: The useful room layout and positive number of stations.
+ * Returns: The placed-room module, with stage nodes and operative prop records.
+ * When the requested stations or their clearances do not fit.
  */
 export function createGymKit(
   params: AutoMovieEnvironmentFurnishing.IGymKitParams,

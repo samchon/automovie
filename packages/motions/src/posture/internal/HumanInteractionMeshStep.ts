@@ -1,19 +1,20 @@
-/** Cartesian inner product of the iteration's equal-length work vectors. */
+/*
+ * Cartesian inner product of the iteration's equal-length work vectors.
+ */
 function dot(a: Float64Array, b: Float64Array): number {
   let out: number = 0;
   for (let i: number = 0; i < a.length; i++) out += a[i]! * b[i]!;
   return out;
 }
 
-/**
+/*
  * Solve the linear Newton equation with diagonal preconditioning, keeping only
  * the row-local nonzero entries of the projected Hessian.
- *
- * @param size The Cartesian dimension.
- * @param rows The current iterate's local scalar terms.
- * @param background The diagonal scale of the undamped deformation, before
- *   contact stiffness.
- * @returns The Newton step, in metres.
+ * Parameter size: The Cartesian dimension.
+ * Parameter rows: The current iterate's local scalar terms.
+ * Parameter background: The diagonal scale of the undamped deformation, before
+ * contact stiffness.
+ * Returns: The Newton step, in metres.
  */
 export function HumanInteractionMeshStep(
   size: number,
@@ -90,7 +91,7 @@ export function HumanInteractionMeshStep(
   return result;
 }
 
-/**
+/*
  * Matrix-free projected Gauss–Newton step for interaction-mesh deformation.
  *
  * Li et al. 2020 §4.3's positive curvature term is a sum of local outer
@@ -99,28 +100,37 @@ export function HumanInteractionMeshStep(
  * all-point quadratic program.
  */
 export namespace HumanInteractionMeshStep {
-  /** A scalar objective's contribution along one sparse derivative. */
+  /*
+   * A scalar objective's contribution along one sparse derivative.
+   */
   export interface IRow {
-    /** The indices of the included Cartesian components. */
+    /*
+     * The indices of the included Cartesian components.
+     */
     index: readonly number[];
 
-    /** The scalar quantity's first derivative in each component. */
+    /*
+     * The scalar quantity's first derivative in each component.
+     */
     coef: readonly number[];
 
-    /** The energy derivative in the scalar quantity. */
+    /*
+     * The energy derivative in the scalar quantity.
+     */
     slope: number;
 
-    /** The nonnegative energy curvature in the scalar quantity. */
+    /*
+     * The nonnegative energy curvature in the scalar quantity.
+     */
     curvature: number;
   }
 
-  /**
+  /*
    * Weight a unit barrier to balance the starting deformation gradient.
-   *
-   * @param size The coordinate dimension.
-   * @param rows Sparse energy terms before multiplying their barrier rows.
-   * @param first The first barrier term in those rows.
-   * @returns The scalar minimising the combined gradient norm.
+   * Parameter size: The coordinate dimension.
+   * Parameter rows: Sparse energy terms before multiplying their barrier rows.
+   * Parameter first: The first barrier term in those rows.
+   * Returns: The scalar minimising the combined gradient norm.
    */
   export function balance(
     size: number,

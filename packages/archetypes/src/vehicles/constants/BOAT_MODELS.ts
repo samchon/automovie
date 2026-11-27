@@ -1,13 +1,17 @@
 import { AutoMovieArchetypeUnits } from "../../core";
 import type { AutoMovieArchetypeBoat } from "../AutoMovieArchetypeBoat";
 
-/** Inches. */
+/*
+ * Inches.
+ */
 const IN: number = AutoMovieArchetypeUnits.INCH;
 
-/** Pounds. */
+/*
+ * Pounds.
+ */
 const LB: number = AutoMovieArchetypeUnits.POUND;
 
-/**
+/*
  * The read boats by kind, each whole, and the options a canoe is built in and
  * the oars a rowboat is rowed with.
  *
@@ -178,7 +182,9 @@ export const BOAT_MODELS: Readonly<{
   ],
 };
 
-/** One boat's or option's figures by dimension. */
+/*
+ * One boat's or option's figures by dimension.
+ */
 type Figures = Readonly<
   Partial<Record<AutoMovieArchetypeBoat.Dimension, number>>
 >;

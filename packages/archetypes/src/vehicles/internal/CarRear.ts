@@ -7,17 +7,16 @@ import {
 import { AutoMovieArchetypeCar } from "../AutoMovieArchetypeCar";
 import { CarBody } from "./CarBody";
 
-/**
+/*
  * What a car carries behind its cabin, built on `CarBody`'s layout: a sedan's
  * or a hatchback's boot, a van's cargo body, a pickup's bed.
  */
 export namespace CarRear {
-  /**
+  /*
    * The class's rear: the boot of a sedan or a hatchback, the van's cargo body,
    * the pickup's bed.
-   *
-   * @param builder The car under construction.
-   * @param l The layout.
+   * Parameter builder: The car under construction.
+   * Parameter l: The layout.
    */
   export function build(
     builder: AutoMovieArchetypeBuilder<
@@ -30,7 +29,7 @@ export namespace CarRear {
     else if (l.kind === "van") van(builder, l);
     else bed(builder, l);
   }
-  /**
+  /*
    * A sedan's or a hatchback's boot: its floor, walls and lid on a hinge, and
    * the `load` surface on its floor.
    */
@@ -114,7 +113,7 @@ export namespace CarRear {
     });
   }
 
-  /**
+  /*
    * A van's body behind its front doors: a bulkhead behind the seats, the cargo
    * floor, the side walls with the sliding door's opening on the kerb side, and
    * the rear doors.
@@ -176,7 +175,7 @@ export namespace CarRear {
     });
   }
 
-  /**
+  /*
    * A pickup's bed behind its cab: the floor at the lift-in height, the sides
    * and front, the tailgate on a hinge at its foot, and the `bed` surface.
    */
@@ -248,5 +247,7 @@ export namespace CarRear {
   }
 }
 
-/** The body's colour. */
+/*
+ * The body's colour.
+ */
 const BODY: string = "#3f6c8f";

@@ -6,7 +6,9 @@ import type {
 
 import { AutoMovieMotionHumanVerdicts } from "./AutoMovieMotionHumanVerdicts";
 
-/** The bounds one performer is read on, in report order. */
+/*
+ * The bounds one performer is read on, in report order.
+ */
 const BOUNDS: readonly string[] = [
   "tangle",
   "floor",
@@ -26,7 +28,9 @@ const BOUNDS: readonly string[] = [
   "timing",
 ];
 
-/** The bounds a performer the floor does not carry is not read on. */
+/*
+ * The bounds a performer the floor does not carry is not read on.
+ */
 const UNREAD: readonly string[] = [
   "floor",
   "slip",
@@ -39,7 +43,9 @@ const UNREAD: readonly string[] = [
   "statics",
 ];
 
-/** Each bound's unit, as its audit owner reads it. */
+/*
+ * Each bound's unit, as its audit owner reads it.
+ */
 const UNITS: Readonly<Record<string, string>> = {
   tangle: "m",
   floor: "m",
@@ -59,17 +65,16 @@ const UNITS: Readonly<Record<string, string>> = {
   partner: "m",
   timing: "faults",
 };
-/**
+/*
  * Map a verdict report to shared findings and coverage.
  *
  * Each performer is covered on its sixteen bounds, a pair on `partner`; the
  * nine bounds the floor does not carry are `excluded` for a performer who swims
  * or climbs a ladder.
- *
- * @param report The report.
- * @param performers The report's performers in its order.
- * @returns The findings and the coverage rows of one inspection packet.
- * @throws {Error} When a finding names a performer or a pair not given.
+ * Parameter report: The report.
+ * Parameter performers: The report's performers in its order.
+ * Returns: The findings and the coverage rows of one inspection packet.
+ * When a finding names a performer or a pair not given.
  */
 function inspectHumanVerdictReport(
   report: IAutoMovieMotionHumanVerdicts.IReport,
@@ -206,7 +211,9 @@ export namespace AutoMovieMotionHumanVerdictInspection {
   }
 }
 
-/** One collapsed bound as a finding of the shared type. */
+/*
+ * One collapsed bound as a finding of the shared type.
+ */
 const toFinding = (group: IGroup): IAutoMovieInspectionDiagnostics.IFinding => {
   const { worst } = group;
   const timing: boolean = worst.check === "timing";
@@ -240,17 +247,23 @@ const toFinding = (group: IGroup): IAutoMovieInspectionDiagnostics.IFinding => {
   };
 };
 
-/** The action a finding lies in, as its message names it. */
+/*
+ * The action a finding lies in, as its message names it.
+ */
 const place = (finding: IAutoMovieMotionHumanVerdicts.IFinding): string =>
   finding.act === "" ? "" : `.${finding.act}#${finding.instance}`;
 
-/** A reading with its unit, metres in millimetres. */
+/*
+ * A reading with its unit, metres in millimetres.
+ */
 const reading = (value: number, unit: string): string =>
   unit === "m"
     ? `${(value * 1000).toFixed(1)} mm`
     : `${value === Infinity ? "infinite" : value.toFixed(3)} ${unit}`;
 
-/** The entity path of one performer. */
+/*
+ * The entity path of one performer.
+ */
 const pathOf = (
   paths: Readonly<Record<string, string>>,
   subject: string,
@@ -267,14 +280,22 @@ type Packet2 = "findings" | "coverage";
 /** What a finding of the shared type holds before and after the collapse. */
 type Packet = Pick<IAutoMovieInspectionDiagnostics, Packet2>;
 
-/** The readings of one bound of one performer or pair, collapsed to one. */
+/*
+ * The readings of one bound of one performer or pair, collapsed to one.
+ */
 interface IGroup {
-  /** The paths the finding names. */
+  /*
+   * The paths the finding names.
+   */
   paths: readonly string[];
 
-  /** The worst reading, or the first of the faults' reading for `timing`. */
+  /*
+   * The worst reading, or the first of the faults' reading for `timing`.
+   */
   worst: IAutoMovieMotionHumanVerdicts.IFinding;
 
-  /** The faults of a `timing` bound; empty for every other. */
+  /*
+   * The faults of a `timing` bound; empty for every other.
+   */
   faults: string[];
 }

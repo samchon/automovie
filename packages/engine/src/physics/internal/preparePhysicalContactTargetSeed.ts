@@ -8,7 +8,7 @@ import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBi
 import type { IPhysicalContactTargetSeed } from "./IPhysicalContactTargetSeed";
 import { projectPhysicalTargets } from "./projectPhysicalTargets";
 
-/**
+/*
  * Select one body's fit seed at a cached interval from its current plans. A
  * support or balance plan applies only at the same step and revision.
  */

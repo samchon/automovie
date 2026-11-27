@@ -15,7 +15,7 @@ import { placeAutoMovieModelPartMesh } from "./placeAutoMovieModelPartMesh";
 import { realizeAutoMovieGeometry } from "./realizeAutoMovieGeometry";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
-/**
+/*
  * Report how every pair of a model's parts meets: crossing, contained, touching
  * or apart, with the least gap between their surfaces and how much of each lies
  * inside the other.
@@ -45,10 +45,9 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * index buffer is malformed, whose positions are not finite or that has no
  * triangle, naming the part, and passes on the realization's and the crossing
  * measure's own refusals.
- *
- * @param model A built model, whatever composed it.
- * @param options The contact distance in metres.
- * @returns One record per unordered part pair, in model part order.
+ * Parameter model: A built model, whatever composed it.
+ * Parameter options: The contact distance in metres.
+ * Returns: One record per unordered part pair, in model part order.
  */
 export const measureAutoMovieModelContacts: (
   model: IAutoMovieModel,
@@ -117,42 +116,62 @@ export const measureAutoMovieModelContacts: (
   return contacts;
 };
 
-/**
+/*
  * One part in the model frame with what every pair reads of it: its box, its
  * triangle centroids and areas, its whole area, its surface prepared for the
  * gap, and its winding query, built on first use and kept for the part's other
  * pairs.
  */
 interface IPlacedPart {
-  /** The part's id. */
+  /*
+   * The part's id.
+   */
   id: string;
 
-  /** The part's mesh in the model frame. */
+  /*
+   * The part's mesh in the model frame.
+   */
   mesh: IAutoMovieMesh;
 
-  /** The least corner of the part's box, metres in the model frame. */
+  /*
+   * The least corner of the part's box, metres in the model frame.
+   */
   low: number[];
 
-  /** The greatest corner of the part's box, metres in the model frame. */
+  /*
+   * The greatest corner of the part's box, metres in the model frame.
+   */
   high: number[];
 
-  /** Each triangle's centroid, in triangle order. */
+  /*
+   * Each triangle's centroid, in triangle order.
+   */
   centroids: number[][];
 
-  /** Each triangle's area, square metres, in triangle order. */
+  /*
+   * Each triangle's area, square metres, in triangle order.
+   */
   areas: number[];
 
-  /** The sum of `areas`, summed in triangle order. */
+  /*
+   * The sum of `areas`, summed in triangle order.
+   */
   area: number;
 
-  /** The surface prepared for `measureAutoMovieMeshGap`. */
+  /*
+   * The surface prepared for `measureAutoMovieMeshGap`.
+   */
   surface: measureAutoMovieMeshGap.ISurface;
 
-  /** The part's winding query, built on its first call and then reused. */
+  /*
+   * The part's winding query, built on its first call and then reused.
+   */
   winding: (point: readonly number[]) => IAutoMovieMeshWinding;
 }
 
-/** Survey one placed part, refusing it, by name, when it has no finite triangle. */
+/*
+ * Survey one placed part, refusing it, by name, when it has no finite triangle.
+ */
 const surveyed: (
   id: string,
   label: string,
@@ -215,7 +234,7 @@ const surveyed: (
   };
 };
 
-/**
+/*
  * The share of `part`'s area whose triangle centroids `other` holds inside, in
  * [0, 1]. Inside and whole areas are summed in the same triangle order, so a
  * part every centroid of which is inside gives exactly 1. A part without area
@@ -246,7 +265,7 @@ const share: (part: IPlacedPart, other: IPlacedPart) => number = (
   return inside / part.area;
 };
 
-/**
+/*
  * The squared distance between two boxes given by their least and greatest
  * corners.
  */

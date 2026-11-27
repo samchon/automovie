@@ -10,16 +10,22 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 
-/** World up for the heading and reference slope. */
+/*
+ * World up for the heading and reference slope.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** Small tolerance for the entering boots' material gap, metres. */
+/*
+ * Small tolerance for the entering boots' material gap, metres.
+ */
 const CONTACT: number = 0.005;
 
-/** Angular agreement required between the material and authored plane. */
+/*
+ * Angular agreement required between the material and authored plane.
+ */
 const NORMAL: number = Math.cos(0.25 * Quaternion.DEG2RAD);
 
-/**
+/*
  * Resolve a fixed finite ski deck and its actual tangent at the entry. The
  * authored heading and grade must describe that same plane.
  */
@@ -161,25 +167,43 @@ export function prepareGlideSlope(
   };
 }
 
-/** The admitted plane and its use by the continuous path. */
+/*
+ * The admitted plane and its use by the continuous path.
+ */
 export namespace prepareGlideSlope {
-  /** One convex edge with its inward tangent normal. */
+  /*
+   * One convex edge with its inward tangent normal.
+   */
   export interface IEdge {
-    /** A fixed point on the edge in world metres. */
+    /*
+     * A fixed point on the edge in world metres.
+     */
     point: IAutoMovieVector3;
-    /** The edge's inward tangent direction. */
+    /*
+     * The edge's inward tangent direction.
+     */
     normal: IAutoMovieVector3;
   }
 
-  /** The actual material the feet bear on and its preparation checks. */
+  /*
+   * The actual material the feet bear on and its preparation checks.
+   */
   export interface ISlope {
-    /** The slope normal and entry heading as the glide's tangent frame. */
+    /*
+     * The slope normal and entry heading as the glide's tangent frame.
+     */
     rotation: IAutoMovieQuaternion;
-    /** The name of the staged bearing feature. */
+    /*
+     * The name of the staged bearing feature.
+     */
     point: string;
-    /** Validate and project an entering world contact onto the plane. */
+    /*
+     * Validate and project an entering world contact onto the plane.
+     */
     enter(position: IAutoMovieVector3): IAutoMovieVector3;
-    /** Check a contact's entire straight or circular path against the deck. */
+    /*
+     * Check a contact's entire straight or circular path against the deck.
+     */
     travel(
       origin: IAutoMovieVector3,
       local: IAutoMovieVector3,

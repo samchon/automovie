@@ -73,5 +73,7 @@ export namespace AutoMovieHumanFootMalleolusWindow {
 
 type Vec3 = AutoMovieVector3Tuple;
 
-/** Bisections that close the station where a border reaches a height. */
+/*
+ * Bisections that close the station where a border reaches a height.
+ */
 const BISECTIONS: number = 48;

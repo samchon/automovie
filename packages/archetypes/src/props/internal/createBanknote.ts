@@ -8,16 +8,15 @@ import {
 } from "../../core/index";
 import { TabletopStack } from "./TabletopStack";
 
-/**
+/*
  * One banknote lying flat.
  *
  * The note lies in the `XZ` plane, its long side along `X`, its origin the
  * centre of its underside. Notes bundle by the shared tabletop contacts
  * (`TabletopStack`): one note's `base` mounted on the next one's `top`, so a
  * counted note is taken from the top of the bundle.
- *
- * @param params The optional scene id.
- * @returns The inert note and its contact frames, metres.
+ * Parameter params: The optional scene id.
+ * Returns: The inert note and its contact frames, metres.
  */
 export function createBanknote(
   params: AutoMovieArchetypeBanknote.IParams = {},
@@ -51,7 +50,7 @@ export function createBanknote(
   return builder.build(NOTE.mass);
 }
 
-/**
+/*
  * A United States banknote: "6.14 length × 2.61 width × 0.0043 in thickness =
  * 156 × 66.3 × 0.11 mm" and "Approx. 1 g" (English Wikipedia, United States
  * one-dollar bill, read 2026-11-21).

@@ -9,7 +9,7 @@ import {
 
 import { createAutoMovieMeshWindingQuery } from "../../geometry/internal/createAutoMovieMeshWindingQuery";
 
-/**
+/*
  * Does one logical space's own stated volume contain a point?
  *
  * A celled space is the union of its half-space cells, a shelled space uses its
@@ -24,10 +24,9 @@ import { createAutoMovieMeshWindingQuery } from "../../geometry/internal/createA
  * the outer region from inward-wound voids. Raw binary64 products and sums can
  * overflow or lose accuracy for extreme or nearly degenerate inputs; the
  * returned Boolean is not an exact containment certificate.
- *
- * @param space Logical space whose stated volume is tested.
- * @param point World point, in metres.
- * @returns True when the point lies inside or on the stated volume.
+ * Parameter space: Logical space whose stated volume is tested.
+ * Parameter point: World point, in metres.
+ * Returns: True when the point lies inside or on the stated volume.
  */
 export function builtSpaceContainsPoint(
   space: IAutoMovieBuiltSpace,
@@ -46,10 +45,12 @@ export function builtSpaceContainsPoint(
   );
 }
 
-/** Slack, in the plane's own scale, within which a point counts as on it. */
+/*
+ * Slack, in the plane's own scale, within which a point counts as on it.
+ */
 const CONTAINMENT_EPSILON: number = 1e-9;
 
-/**
+/*
  * Is a point inside or on a closed shell?
  *
  * The shell is not validated here, so its triples are admitted as the

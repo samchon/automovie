@@ -8,7 +8,7 @@ import { createRecoveryMapMetric } from "./createRecoveryMapMetric";
 import { prepareRecoveryMapJointBlocks } from "./prepareRecoveryMapJointBlocks";
 import { solveRecoveryMapDesign } from "./solveRecoveryMapDesign";
 
-/**
+/*
  * Eliminate independent landmark coordinates from an original bundle design.
  * Point-local Givens QR retains the caller's gauge-fixed camera columns. This
  * is orthogonal variable elimination, avoiding the squared conditioning of a

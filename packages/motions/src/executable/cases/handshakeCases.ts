@@ -11,7 +11,7 @@ import { MotionBodies } from "../internal/MotionBodies";
 import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { HandOverlap } from "./HandOverlap";
 
-/**
+/*
  * Capture cases of the handshake on the polygon man, for what the numeric tests
  * cannot show: whether the reach reads as reaching for a hand, whether the
  * fingers wrap the partner's hand, and whether the pump reads.
@@ -35,8 +35,7 @@ import { HandOverlap } from "./HandOverlap";
  * of an arm offered forward with the elbow low; the law's own offering arm
  * stands 30 degrees forward (`handshakeOffer.SHOULDER`), and an elbow raised to
  * the side to turn the hand reads 57 to 70 degrees.
- *
- * @returns The cases.
+ * Returns: The cases.
  */
 export function handshakeCases(): IMotionCaptureCase[] {
   return PAIRS.map(([first, second]): IMotionCaptureCase => {
@@ -270,7 +269,9 @@ export function handshakeCases(): IMotionCaptureCase[] {
   });
 }
 
-/** The partner pairs, first and second, by `MotionBodies.SWEEP` name. */
+/*
+ * The partner pairs, first and second, by `MotionBodies.SWEEP` name.
+ */
 const PAIRS: readonly (readonly [string, string])[] = [
   ["m-tall", "f-small"],
   ["m-average", "m-average"],

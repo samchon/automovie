@@ -14,7 +14,9 @@ import { AutoMovieSolidTraceObservation as Observation } from "./construction/Au
 import { AutoMovieSolidTraceSolve } from "./AutoMovieSolidTraceSolve";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-/** World-vector operations for the original tangent and predictor equations. */
+/*
+ * World-vector operations for the original tangent and predictor equations.
+ */
 const { add, cross, dot, norm, scale, sub }: typeof AutoMovieSolidVector =
   AutoMovieSolidVector;
 /**
@@ -54,7 +56,7 @@ export namespace AutoMovieSolidIntersectionWalk {
     walkPoints: number,
     closingSteps: number,
   ): IAutoMovieSolidIntersectionWalk.IWalk | string {
-    /**
+    /*
      * Read the two original surface jets and consistently orient their
      * cross-normal tangent.
      */
@@ -67,10 +69,14 @@ export namespace AutoMovieSolidIntersectionWalk {
       along: Vec3 | null,
       observation?: Observation.IState,
     ): Vec3 | null => {
-      /** Part partials at this accepted preimage. */
+      /*
+       * Part partials at this accepted preimage.
+       */
       const a: IJet | null = AutoMovieSolidDomain.jet(part, p.s, p.phi);
 
-      /** Current host-face partials at the same meeting. */
+      /*
+       * Current host-face partials at the same meeting.
+       */
       const b: IJet | null = AutoMovieSolidDomain.jet(
         host.faces[p.face]!,
         p.y,
@@ -85,7 +91,9 @@ export namespace AutoMovieSolidIntersectionWalk {
           { part: a, host: b },
         );
 
-      /** Original normalized intersection tangent, absent at degeneracy. */
+      /*
+       * Original normalized intersection tangent, absent at degeneracy.
+       */
       const t: Vec3 | null = AutoMovieSolidVector.unit(
         cross(cross(a.u, a.v), cross(b.u, b.v)),
       );
@@ -100,7 +108,9 @@ export namespace AutoMovieSolidIntersectionWalk {
       return along !== null && dot(t, along) < 0 ? scale(t, -1) : t;
     };
 
-    /** The original affine plane equation for a pseudo-arclength correction. */
+    /*
+     * The original affine plane equation for a pseudo-arclength correction.
+     */
     const across: (c: Vec3, m: Vec3) => IAutoMovieSolidTraceLaw.ILaw = (
       c: Vec3,
       m: Vec3,
@@ -114,10 +124,14 @@ export namespace AutoMovieSolidIntersectionWalk {
 
     // The seed refined on the plane through it square to the curve.
 
-    /** The caller's starting host-face identity. */
+    /*
+     * The caller's starting host-face identity.
+     */
     const face0: number = input.seed.face ?? 0;
 
-    /** Original seed preimages, in their established coordinate order. */
+    /*
+     * Original seed preimages, in their established coordinate order.
+     */
     const x0: AutoMovieSolidChartVector4 = [
       input.seed.s,
       input.seed.phi,
@@ -125,10 +139,14 @@ export namespace AutoMovieSolidIntersectionWalk {
       input.seed.theta,
     ];
 
-    /** Part jet used by the original seed plane and initial chord. */
+    /*
+     * Part jet used by the original seed plane and initial chord.
+     */
     const a0: IJet | null = AutoMovieSolidDomain.jet(part, x0[0], x0[1]);
 
-    /** Host jet used by the seed-plane tangent. */
+    /*
+     * Host jet used by the seed-plane tangent.
+     */
     const b0: IJet | null = AutoMovieSolidDomain.jet(
       host.faces[face0]!,
       x0[2],
@@ -137,13 +155,17 @@ export namespace AutoMovieSolidIntersectionWalk {
     if (a0 === null || b0 === null)
       return "the seed has no owned regular surface chart";
 
-    /** Original seed tangent before the existing correction solve. */
+    /*
+     * Original seed tangent before the existing correction solve.
+     */
     const t0: Vec3 | null = AutoMovieSolidVector.unit(
       cross(cross(a0.u, a0.v), cross(b0.u, b0.v)),
     );
     if (t0 === null) return "the surfaces touch at the seed";
 
-    /** Seed corrected on the original tangent-normal plane. */
+    /*
+     * Seed corrected on the original tangent-normal plane.
+     */
     const start: IPoint | null = AutoMovieSolidTraceSolve.solve(
       part,
       host,
@@ -155,12 +177,14 @@ export namespace AutoMovieSolidIntersectionWalk {
     );
     if (start === null) return "no meeting near the seed";
 
-    /** The same corrected tangent with its existing seed-tangent fallback. */
+    /*
+     * The same corrected tangent with its existing seed-tangent fallback.
+     */
     const T0: Vec3 = tangent(start, t0) ?? t0;
 
     // One step of length h from a point along its tangent.
 
-    /**
+    /*
      * Original tangent prediction and correction, including its branch-distance
      * acceptance.
      */
@@ -179,13 +203,19 @@ export namespace AutoMovieSolidIntersectionWalk {
       observation?: Observation.IState,
       halving: number = 0,
     ): IPoint | null => {
-      /** World tangent prediction at the requested mm chord. */
+      /*
+       * World tangent prediction at the requested mm chord.
+       */
       const predicted: Vec3 = add(p.point, scale(T, h));
 
-      /** Accepted preimages before the original secant guess. */
+      /*
+       * Accepted preimages before the original secant guess.
+       */
       const x: AutoMovieSolidChartVector4 = [p.s, p.phi, p.y, p.theta];
 
-      /** Original same-face extrapolation or unchanged-face starting guess. */
+      /*
+       * Original same-face extrapolation or unchanged-face starting guess.
+       */
       const guess: AutoMovieSolidChartVector4 =
         previous === null || previous.face !== p.face
           ? x
@@ -207,7 +237,9 @@ export namespace AutoMovieSolidIntersectionWalk {
           allowance: null,
         };
 
-      /** Meeting corrected using the original predicted plane. */
+      /*
+       * Meeting corrected using the original predicted plane.
+       */
       const next: IPoint | null = AutoMovieSolidTraceSolve.solve(
         part,
         host,
@@ -237,13 +269,13 @@ export namespace AutoMovieSolidIntersectionWalk {
 
     // The first walk: the loop's length.
 
-    /**
+    /*
      * Original phase-sized initial chord, reduced only by existing failed
      * halvings.
      */
     const stride: number = (norm(a0.v) * 2 * Math.PI) / count;
 
-    /**
+    /*
      * The first walk round the loop from the seed, along `T0` times `sense`:
      * the loop's length, or why it failed. A closed loop is the same curve
      * walked either way, and a point where the two surfaces nearly touch can be
@@ -257,20 +289,28 @@ export namespace AutoMovieSolidIntersectionWalk {
     ): number | string => {
       let h: number = stride;
 
-      /** Current accepted point of the first length walk. */
+      /*
+       * Current accepted point of the first length walk.
+       */
       let p: IPoint = start;
 
-      /** Current consistently directed tangent. */
+      /*
+       * Current consistently directed tangent.
+       */
       let T: Vec3 = scale(T0, sense);
 
-      /** Previous first-walk iterate used by the existing predictor. */
+      /*
+       * Previous first-walk iterate used by the existing predictor.
+       */
       let previous: IPoint | null = null;
 
-      /** Accumulated world chords of the first walk, mm. */
+      /*
+       * Accumulated world chords of the first walk, mm.
+       */
       let length: number = 0;
       let attempt: Observation.IState | null = null;
 
-      /**
+      /*
        * Detach only a terminal accepted/attempted pair before the other
        * direction runs.
        */
@@ -300,12 +340,16 @@ export namespace AutoMovieSolidIntersectionWalk {
         });
       };
       for (let k: number = 0; k < walkSteps * count; k++) {
-        /** Displacement from the current point back toward its start. */
+        /*
+         * Displacement from the current point back toward its start.
+         */
         const ahead: Vec3 = sub(start.point, p.point);
         if (k > 2 && norm(ahead) <= h && dot(ahead, T) > 0)
           return length + norm(ahead);
 
-        /** Candidate retained through the original failed-halving loop. */
+        /*
+         * Candidate retained through the original failed-halving loop.
+         */
         let next: IPoint | null = null;
         for (
           let halving: number = 0;
@@ -328,7 +372,9 @@ export namespace AutoMovieSolidIntersectionWalk {
         // past: kept halved, the walk ran out of steps before it came round.
         h = Math.min(stride, 2 * h);
 
-        /** Continue the first walk with the same tangent orientation. */
+        /*
+         * Continue the first walk with the same tangent orientation.
+         */
         const t: Vec3 | null = tangent(p, T, attempt ?? undefined);
         if (t === null) {
           retain(attempt?.failure?.reason ?? "singular-tangent");
@@ -340,7 +386,7 @@ export namespace AutoMovieSolidIntersectionWalk {
       return `the walk does not return to its start in ${walkSteps * count} steps`;
     };
 
-    /**
+    /*
      * The way round the loop the walks go: along `T0`, or against it where the
      * walk along it was lost and the other way round closes.
      */
@@ -360,29 +406,41 @@ export namespace AutoMovieSolidIntersectionWalk {
     // leaves the closing chord off by their difference; the chord is set by
     // the secant method on that closing mismatch, a few walks at most.
 
-    /** Original reference point population from the public walkPoints control. */
+    /*
+     * Original reference point population from the public walkPoints control.
+     */
     const n: number = walkPoints * count;
 
-    /** Repeat the original fixed-chord walk for one secant candidate. */
+    /*
+     * Repeat the original fixed-chord walk for one secant candidate.
+     */
     const equal: (chord: number) => Vec3[] | string = (
       chord: number,
     ): Vec3[] | string => {
-      /** Accepted world points for this one reference candidate. */
+      /*
+       * Accepted world points for this one reference candidate.
+       */
       const points: Vec3[] = [start.point];
 
-      /** Current point of the equal-chord walk. */
+      /*
+       * Current point of the equal-chord walk.
+       */
       let q: IPoint = start;
 
-      /**
+      /*
        * Original consistently oriented equal-walk tangent, the way round the
        * first walk went.
        */
       let along: Vec3 = scale(T0, sense);
 
-      /** Previous equal-walk iterate used by the same predictor. */
+      /*
+       * Previous equal-walk iterate used by the same predictor.
+       */
       let before: IPoint | null = null;
       for (let k: number = 1; k < n; k++) {
-        /** Next accepted point of this fixed-chord reference walk. */
+        /*
+         * Next accepted point of this fixed-chord reference walk.
+         */
         let next: IPoint | null = step(q, along, chord, before);
 
         // Where the curve turns within less than a chord, the tangent
@@ -425,7 +483,9 @@ export namespace AutoMovieSolidIntersectionWalk {
         before = q;
         q = next;
 
-        /** Continue this candidate using the same directed tangent. */
+        /*
+         * Continue this candidate using the same directed tangent.
+         */
         const t: Vec3 | null = tangent(q, along);
         if (t === null)
           return `the surfaces touch at step ${k} of the equal-chord walk`;
@@ -434,33 +494,49 @@ export namespace AutoMovieSolidIntersectionWalk {
       return points;
     };
 
-    /** Closing chord minus the chosen chord, with the original sign. */
+    /*
+     * Closing chord minus the chosen chord, with the original sign.
+     */
     const mismatch: (points: Vec3[], chord: number) => number = (
       points: Vec3[],
       chord: number,
     ): number => norm(sub(points[0]!, points[points.length - 1]!)) - chord;
 
-    /** Current secant chord candidate from the first measured length. */
+    /*
+     * Current secant chord candidate from the first measured length.
+     */
     let c0: number = length / n;
 
-    /** Last accepted reference-point candidate. */
+    /*
+     * Last accepted reference-point candidate.
+     */
     let p0: Vec3[] | string = equal(c0);
     if (typeof p0 === "string") return p0;
 
-    /** Closing mismatch at that accepted candidate. */
+    /*
+     * Closing mismatch at that accepted candidate.
+     */
     let g0: number = mismatch(p0, c0);
 
-    /** Original next secant trial chord. */
+    /*
+     * Original next secant trial chord.
+     */
     let c1: number = c0 + g0 / n;
     for (let i: number = 0; i < closingSteps && Math.abs(g0) > 1e-9 * c0; i++) {
-      /** Reference points for the next trial, or its original failure. */
+      /*
+       * Reference points for the next trial, or its original failure.
+       */
       const p1: Vec3[] | string = equal(c1);
       if (typeof p1 === "string") break;
 
-      /** Closing mismatch for the successful trial. */
+      /*
+       * Closing mismatch for the successful trial.
+       */
       const g1: number = mismatch(p1, c1);
 
-      /** Original secant update, including its equal-residual fallback. */
+      /*
+       * Original secant update, including its equal-residual fallback.
+       */
       const c2: number = g1 === g0 ? c1 : c1 - (g1 * (c1 - c0)) / (g1 - g0);
       [c0, p0, g0, c1] = [c1, p1, g1, c2];
     }
@@ -474,10 +550,16 @@ export namespace AutoMovieSolidIntersectionWalk {
     };
   }
 }
-/** World point or direction used by the original predictor. */
+/*
+ * World point or direction used by the original predictor.
+ */
 type Vec3 = AutoMovieVector3Tuple;
-/** Surface partials used to construct the intersection tangent. */
+/*
+ * Surface partials used to construct the intersection tangent.
+ */
 type IJet = IAutoMovieSolidSurface.IJet;
 
-/** The unchanged public meeting-point result. */
+/*
+ * The unchanged public meeting-point result.
+ */
 type IPoint = IAutoMovieSolidIntersection.IPoint;

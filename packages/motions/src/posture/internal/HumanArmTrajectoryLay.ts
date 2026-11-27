@@ -9,7 +9,7 @@ import { HumanArmTrajectoryEffector } from "./HumanArmTrajectoryEffector";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
-/**
+/*
  * One transport of a laid course between two waypoints already laid
  * (`HumanArmTrajectoryLaid.admitted`), on the blend of its ends and the detours
  * laid on it (`HumanArmTrajectoryClear`): the arcs are read on the base of its
@@ -17,14 +17,13 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
  * transport: `UNIT` times its straight arc (no detour) over its seconds, read
  * where it is first laid. The transport's waypoints are written into the
  * course.
- *
- * @param scope The course and what it is read on.
- * @param from The transport's first waypoint.
- * @param to Its last waypoint.
- * @param detours The detours laid on it.
- * @param known The pace read where it was first laid; read here when absent.
- * @returns The share of the path each of its waypoints stands at, its pace and
- *   whether it follows a straight wrist path.
+ * Parameter scope: The course and what it is read on.
+ * Parameter from: The transport's first waypoint.
+ * Parameter to: Its last waypoint.
+ * Parameter detours: The detours laid on it.
+ * Parameter known: The pace read where it was first laid; read here when absent.
+ * Returns: The share of the path each of its waypoints stands at, its pace and
+ * whether it follows a straight wrist path.
  */
 export function HumanArmTrajectoryLay(
   scope: HumanArmTrajectoryLay.IScope,
@@ -158,40 +157,62 @@ export function HumanArmTrajectoryLay(
   return { shares, pace, effector: false };
 }
 
-/** A laid transport's course and result. */
+/*
+ * A laid transport's course and result.
+ */
 export namespace HumanArmTrajectoryLay {
-  /** The course a transport is laid into and what it is read on. */
+  /*
+   * The course a transport is laid into and what it is read on.
+   */
   export interface IScope {
-    /** The context of the course's waypoints. */
+    /*
+     * The context of the course's waypoints.
+     */
     context: M.IContext;
 
-    /** The problem as read (in the mirror image where the first arm is left). */
+    /*
+     * The problem as read (in the mirror image where the first arm is left).
+     */
     read: HumanArmTrajectory.IProblem;
 
-    /** The course's coordinates, each arm's at each waypoint, written into. */
+    /*
+     * The course's coordinates, each arm's at each waypoint, written into.
+     */
     x: number[][][];
 
-    /** The waypoints' seconds. */
+    /*
+     * The waypoints' seconds.
+     */
     times: readonly number[];
   }
 
-  /** A laid transport. */
+  /*
+   * A laid transport.
+   */
   export interface ILaid {
-    /** Each waypoint's progress along this transport. */
+    /*
+     * Each waypoint's progress along this transport.
+     */
     shares: number[];
-    /** The original joint arc's speed bound, metres per second. */
+    /*
+     * The original joint arc's speed bound, metres per second.
+     */
     pace: number;
-    /** The transport follows a straight wrist path in the carrier frame. */
+    /*
+     * The transport follows a straight wrist path in the carrier frame.
+     */
     effector: boolean;
   }
 }
 
-/** A blend of two coordinate lists by a share. */
+/*
+ * A blend of two coordinate lists by a share.
+ */
 function mix(p: readonly number[], q: readonly number[], w: number): number[] {
   return p.map((v: number, d: number): number => v + (q[d]! - v) * w);
 }
 
-/**
+/*
  * The samples a laid transport's arc is read on (provisional: under a degree of
  * any joint's travel apiece on a daily reach).
  */

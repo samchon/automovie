@@ -11,7 +11,7 @@ import { classifyGrammarShotSize } from "./classifyGrammarShotSize";
 import { GRAMMAR_EPSILON } from "../GRAMMAR_EPSILON";
 import { projectToNdc } from "./projectToNdc";
 
-/**
+/*
  * The framing a shot's primary subject measures as at one edited boundary, or
  * null when the shot has no primary subject, the subject's base or top is not
  * in front of the camera, or its derived occupancy is non-finite or
@@ -21,10 +21,9 @@ import { projectToNdc } from "./projectToNdc";
  * height over the frame height, and its horizontal radius over the half-width
  * the frame spans at the subject's depth. `classifyGrammarShotSize` turns that
  * fraction into the nearest framing.
- *
- * @param shot Normalized shot whose primary subject is measured.
- * @param boundary Which edited boundary's camera and subject point to read.
- * @returns The measured framing, or null when it cannot be measured.
+ * Parameter shot: Normalized shot whose primary subject is measured.
+ * Parameter boundary: Which edited boundary's camera and subject point to read.
+ * Returns: The measured framing, or null when it cannot be measured.
  */
 export function measureGrammarShotSize(
   shot: IAutoMovieNormalizedGrammarShot,

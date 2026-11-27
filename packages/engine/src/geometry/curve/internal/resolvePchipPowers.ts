@@ -1,6 +1,8 @@
 import { isDenseFinite } from "./isDenseFinite";
 
-/** Resolve one segment's local [cubic, quadratic, derivative, value] powers. */
+/*
+ * Resolve one segment's local [cubic, quadratic, derivative, value] powers.
+ */
 export function resolvePchipPowers(
   width: number,
   secant: number,

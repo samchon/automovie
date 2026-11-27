@@ -13,9 +13,9 @@ import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEng
 import { checkCutPropContinuity } from "./checkCutPropContinuity";
 import { sequenceEventTimeline } from "./sequenceEventTimeline";
 
-/**
+/*
  * The ASSEMBLE consumer: fold the editor's cut-list into an
- * {@link IAutoMovieSequence} over the shots the pipeline actually built, or
+ * IAutoMovieSequence over the shots the pipeline actually built, or
  * return every violation at once.
  *
  * The layout gates are editorial arithmetic. Built shot ids are unique; the
@@ -84,10 +84,12 @@ export function cutSequence(
         undefined,
       );
 
-  /** Index each symbolically trimmed shot only on its first use. */
+  /*
+   * Index each symbolically trimmed shot only on its first use.
+   */
   const eventTimesByShot: Map<string, Map<string, number | null>> = new Map();
 
-  /**
+  /*
    * Resolve one exact id, reporting absent, repeated and invalid bounds
    * individually.
    */
@@ -119,7 +121,7 @@ export function cutSequence(
     return time;
   }
 
-  /**
+  /*
    * Lower ordered, admitted event times without reconstructing an end beyond
    * the source event.
    */
@@ -136,7 +138,9 @@ export function cutSequence(
     return { start, duration };
   }
 
-  /** Store lowered source spans for the ordinary playback entries. */
+  /*
+   * Store lowered source spans for the ordinary playback entries.
+   */
   const trims: (IAutoMovieTrim | null)[] = [];
   const exactSourceEnds: Map<number, number> = new Map();
   let runtime: number = 0;
@@ -407,14 +411,22 @@ export function cutSequence(
   return { success: true, sequence, runtime };
 }
 
-/** A built shot with the index it was first supplied at. */
+/*
+ * A built shot with the index it was first supplied at.
+ */
 interface IBuiltShot {
-  /** The first shot supplied under the id. */
+  /*
+   * The first shot supplied under the id.
+   */
   shot: IAutoMovieShot;
 
-  /** Its index in `shots`, for duplicate and duration reports. */
+  /*
+   * Its index in `shots`, for duplicate and duration reports.
+   */
   index: number;
 }
 
-/** A requirement for one exact event on one play of a shot in the cut. */
+/*
+ * A requirement for one exact event on one play of a shot in the cut.
+ */
 type RequiredEvent = NonNullable<IAutoMovieEditPlan["requiredEvents"]>[number];

@@ -21,10 +21,14 @@ import type {
 
 import { AutoMovieHumanGlutealCut } from "./AutoMovieHumanGlutealCut";
 
-/** Existing scalar meeting accuracy, in calibration millimetres. */
+/*
+ * Existing scalar meeting accuracy, in calibration millimetres.
+ */
 const TOLERANCE: number = 1e-9;
 
-/** Bounded discovery subdivisions; absence of a bracket is not an absence proof. */
+/*
+ * Bounded discovery subdivisions; absence of a bracket is not an absence proof.
+ */
 const BRACKETS: number = 16;
 
 /** Source-native parent chords for a gluteal footprint; no emitted skin is read. */
@@ -118,7 +122,7 @@ export namespace AutoMovieHumanGlutealParent {
   }
 }
 
-/**
+/*
  * Retain the full original source, refusing unavailable direct fullness
  * explicitly.
  */
@@ -132,7 +136,7 @@ function prepare(part: IAutoMovieViewPart): Field | string {
   return { part, source: result.source };
 }
 
-/**
+/*
  * Read the actual level trunk's value-only native point, retaining its local
  * values in an explicit rejection.
  */
@@ -205,7 +209,7 @@ function trunkChord(
   }
 }
 
-/**
+/*
  * Prepare the actual proximal course; an AP query changes station as well as
  * phase.
  */
@@ -309,7 +313,9 @@ function legReader(
   };
 }
 
-/** Intersect a world point's normal plane with the original proximal course. */
+/*
+ * Intersect a world point's normal plane with the original proximal course.
+ */
 function radial(
   field: Field,
   point: Vec3,
@@ -361,7 +367,7 @@ function radial(
   }
 }
 
-/**
+/*
  * Conservative original-source box used only to bracket the local implicit
  * residual.
  */
@@ -394,7 +400,9 @@ function apBounds(
   ];
 }
 
-/** A source-owned endpoint; no scalar jet is invented by the contact solve. */
+/*
+ * A source-owned endpoint; no scalar jet is invented by the contact solve.
+ */
 function boundary(
   field: Field,
   x: number,
@@ -404,7 +412,9 @@ function boundary(
   return { x, owner: field.part.name, station, phase };
 }
 
-/** Union only local occupied AP intervals, retaining each actual outer owner. */
+/*
+ * Union only local occupied AP intervals, retaining each actual outer owner.
+ */
 function unite(
   chords: IAutoMovieHumanGlutealParent.IChord[],
 ): IAutoMovieHumanGlutealParent.IChord[] {
@@ -424,26 +434,40 @@ function unite(
   return out;
 }
 
-/** A calibration-mm point or dimensionless direction. */
+/*
+ * A calibration-mm point or dimensionless direction.
+ */
 type Vec3 = AutoMovieVector3Tuple;
 
-/** One admitted original source, before lofting or Boolean assembly. */
+/*
+ * One admitted original source, before lofting or Boolean assembly.
+ */
 interface Field {
-  /** Identical original production part, including its actual frame owner. */
+  /*
+   * Identical original production part, including its actual frame owner.
+   */
   part: IAutoMovieViewPart;
-  /** Prepared original scalar/fullness/cap owner. */
+  /*
+   * Prepared original scalar/fullness/cap owner.
+   */
   source: IAutoMovieLoftViewSource.ISource;
 }
 
-/**
+/*
  * Value-only radial residual in the actual source plane, without a closest
  * surface foot.
  */
 interface Reading {
-  /** Query distance minus the actual whole-section radius, mm. */
+  /*
+   * Query distance minus the actual whole-section radius, mm.
+   */
   residual: number;
-  /** Actual source-plane station, mm. */
+  /*
+   * Actual source-plane station, mm.
+   */
   station: number;
-  /** Original local polar phase, radians. */
+  /*
+   * Original local polar phase, radians.
+   */
   phase: number;
 }

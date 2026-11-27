@@ -22,15 +22,14 @@ import type { touchHold } from "./touchHold";
 import { touchReach } from "./touchReach";
 import type { touchRegion } from "./touchRegion";
 
-/**
+/*
  * A touch's clock (`touch`): the reach takes the free-space transport time of
  * the farther hand's distance to its region at the entry, and at least as long
  * as the arms need to keep within the audit's travel bound (`touchReach`); the
  * stroke repeats `count` times at the form's period (or a given repetition's),
  * holds, and returns in the reach's time, the manner scaling the whole.
- *
- * @param prepared The touch's prepared values.
- * @returns The clock.
+ * Parameter prepared: The touch's prepared values.
+ * Returns: The clock.
  */
 export function touchClock(
   prepared: touchClock.IPrepared,
@@ -102,49 +101,79 @@ export function touchClock(
   );
 }
 
-/** Companion types of {@link touchClock}. */
+/*
+ * Companion types of touchClock.
+ */
 export namespace touchClock {
-  /** What the touch's plan prepared before its clock. */
+  /*
+   * What the touch's plan prepared before its clock.
+   */
   export interface IPrepared {
-    /** The touch's context. */
+    /*
+     * The touch's context.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>;
 
-    /** The entry's bones, a presented arm's as presented. */
+    /*
+     * The entry's bones, a presented arm's as presented.
+     */
     bones: ReturnType<typeof poseBones>;
 
-    /** Each touching hand and its region. */
+    /*
+     * Each touching hand and its region.
+     */
     hands: [AutoMovieHumanSide, IAutoMovieMotionTarget][];
 
-    /** A region at a second, on the posture as the stance leans it. */
+    /*
+     * A region at a second, on the posture as the stance leans it.
+     */
     region: (
       target: IAutoMovieMotionTarget,
     ) => ReturnType<ReturnType<typeof touchRegion.reader>>;
 
-    /** The touching part of the hand. */
+    /*
+     * The touching part of the hand.
+     */
     effector: IAutoMovieMotionHumanTouchEffector.IEffector;
 
-    /** The crossed-support attempt this plan is, if any. */
+    /*
+     * The crossed-support attempt this plan is, if any.
+     */
     attempt: touchCrossedSupport.IAttempt | undefined;
 
-    /** The posture the arms are solved on at plan time. */
+    /*
+     * The posture the arms are solved on at plan time.
+     */
     reached: IAutoMovieMotionHumanPosture;
 
-    /** Each hand's layout on its region. */
+    /*
+     * Each hand's layout on its region.
+     */
     laid: touchHold.Lay;
 
-    /** The touch's kind. */
+    /*
+     * The touch's kind.
+     */
     kind: IAutoMovieMotionHumanTouchForm.Kind;
 
-    /** The stroke's repetitions. */
+    /*
+     * The stroke's repetitions.
+     */
     count: number;
 
-    /** The hold after the strokes, seconds. */
+    /*
+     * The hold after the strokes, seconds.
+     */
     hold: number;
 
-    /** A given repetition's length, seconds, replacing the form's. */
+    /*
+     * A given repetition's length, seconds, replacing the form's.
+     */
     repeated: number | undefined;
 
-    /** The manner's modifiers. */
+    /*
+     * The manner's modifiers.
+     */
     modifiers: IAutoMovieMotionManner.IModifiers;
   }
 }

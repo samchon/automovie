@@ -5,7 +5,7 @@ import {
 
 import { convexHull2D } from "../../math/internal/convexHull2D";
 
-/**
+/*
  * Canonicalize an authored face-local polygon to a counter-clockwise convex
  * outline, or throw.
  *
@@ -16,10 +16,9 @@ import { convexHull2D } from "../../math/internal/convexHull2D";
  *
  * Throws an `Error` prefixed with `label` for a non-finite corner, for fewer
  * than three non-collinear corners, and for any corner the hull drops.
- *
- * @param polygon Authored corners, in face-local metres and any winding.
- * @param label Field name the refusals start with.
- * @returns The same corners as a counter-clockwise convex outline.
+ * Parameter polygon: Authored corners, in face-local metres and any winding.
+ * Parameter label: Field name the refusals start with.
+ * Returns: The same corners as a counter-clockwise convex outline.
  */
 export function canonicalAutoMoviePatternPolygon(
   polygon: readonly IAutoMoviePatternPoint[],

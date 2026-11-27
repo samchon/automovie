@@ -1,16 +1,15 @@
 import type { IAutoMovieAuditOutcome } from "@automovie/interface";
 
-/**
+/*
  * Audit a declared outcome against measured contacts, failing and never
  * rewriting: every expected contact must be measured between its subjects (and
  * regions, when named) within its window with at least its impulse, and every
  * forbidden contact must be absent. The findings name each mismatch; an empty
  * list means the measurement supports the outcome.
- *
- * @param outcome The outcome's contact expectations.
- * @param contacts The measured contacts, such as physics receipts mapped to
- *   subjects.
- * @returns One finding per mismatch.
+ * Parameter outcome: The outcome's contact expectations.
+ * Parameter contacts: The measured contacts, such as physics receipts mapped to
+ * subjects.
+ * Returns: One finding per mismatch.
  */
 export function auditAutoMovieOutcome(
   outcome: IAutoMovieAuditOutcome.IOutcome,

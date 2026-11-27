@@ -20,7 +20,7 @@ import { lowerSkeletonNodes } from "../../resolve/internal/lowerSkeletonNodes";
 import { AutoMovieEngineMotionSampling } from "../AutoMovieEngineMotionSampling";
 import { sampleTimes } from "./sampleTimes";
 
-/**
+/*
  * Bake admitted clinical motion into general node tracks at a positive sample
  * rate, default24Hz, with matching rig clinical tables. Full local bone
  * rotations and rigid root translation/rotation reproduce FK at bake times;
@@ -143,7 +143,9 @@ export function motionToClip(
 
 const DEFAULT_SAMPLE_RATE: number = 24;
 
-/** The root node's translation or rotation track from the sampled root. */
+/*
+ * The root node's translation or rotation track from the sampled root.
+ */
 const rootTrack: (
   times: number[],
   samples: IAutoMoviePose[],

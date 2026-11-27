@@ -8,7 +8,7 @@ import { boxRefusedArcs } from "./boxRefusedArcs";
 import { swingTwistRefusedArcs } from "./swingTwistRefusedArcs";
 import { swivelArcs } from "../swivelArcs";
 
-/**
+/*
  * The feasible swivels of a chain's root joint: the intervals of the swivel its
  * limits leave, for a root whose bone-local rotation is a fixed rotation turned
  * about a fixed axis by the swivel (Tolani, Goswami and Badler 2000, section
@@ -24,10 +24,9 @@ import { swivelArcs } from "../swivelArcs";
  * range (a swing region's radius below its greatest, a box axis without an
  * interval). The intervals are closed form but for a swing cone, read per
  * one-degree piece (`boxRefusedArcs`).
- *
- * @param props The root joint and its rotation by swivel.
- * @returns The disjoint feasible arcs, degrees, each starting in [0, 360);
- *   every swivel when nothing is refused; none when every swivel is.
+ * Parameter props: The root joint and its rotation by swivel.
+ * Returns: The disjoint feasible arcs, degrees, each starting in [0, 360);
+ * every swivel when nothing is refused; none when every swivel is.
  */
 export function hingedSwivelFeasible(
   props: IAutoMovieBoxExcludedSwivels.IProps,

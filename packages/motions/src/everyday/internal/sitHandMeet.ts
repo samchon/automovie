@@ -18,7 +18,7 @@ import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * The first instant of a sit's lowering at which a hanging hand meets its
  * rising thigh: the body lowered as the sit lowers it, the arm held as the
  * action was entered (the arm a hand hangs by until its reach), and the tangle
@@ -33,22 +33,20 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * the plan's frame grid (`AutoMovieMotionHumanArmCourse.STEP`), the resolution
  * every course of the plan is read at, from the plan's start, and at the last
  * second asked.
- *
- * @param props The body, the lowering, the entry, the side and the last second.
- * @returns The first such second at which the hand meets the thigh; none where
- *   it does not by the last second.
+ * Parameter props: The body, the lowering, the entry, the side and the last second.
+ * Returns: The first such second at which the hand meets the thigh; none where
+ * it does not by the last second.
  */
 export function sitHandMeet(props: sitHandMeet.IProps): number | undefined;
 
-/**
+/*
  * Read the unbraced hands' first meetings during a sit's lower-body course.
  * The world foot goals place the thighs below the hips. Each entry arm is a
  * separate branch below the chest, so both hands observe the same thighs and
  * each sees its own entry angles when resolved in one pose. Neither an arm
  * nor a digit goal belongs to this lowering.
- *
- * @param props The sit's body, lowering, entry, unbraced sides and last second.
- * @returns The first meeting second for each hand that meets its thigh.
+ * Parameter props: The sit's body, lowering, entry, unbraced sides and last second.
+ * Returns: The first meeting second for each hand that meets its thigh.
  */
 export function sitHandMeet(
   props: ILowering,
@@ -95,7 +93,9 @@ export function sitHandMeet(
   );
 }
 
-/** Read the original grid once, checking each hand until its first meeting. */
+/*
+ * Read the original grid once, checking each hand until its first meeting.
+ */
 function firstMeets(
   props: Omit<sitHandMeet.IProps, "side">,
   sides: Iterable<AutoMovieHumanSide>,
@@ -167,52 +167,80 @@ function firstMeets(
   return meets;
 }
 
-/** A joint record's clinical angles, an unset angle as zero. */
+/*
+ * A joint record's clinical angles, an unset angle as zero.
+ */
 function angles(joint: IAutoMovieJointPose): readonly [number, number, number] {
   return [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0];
 }
 
-/** The companion types of a hand's meeting with its thigh. */
+/*
+ * The companion types of a hand's meeting with its thigh.
+ */
 export namespace sitHandMeet {
-  /** What a hand's meeting with its thigh is read from. */
+  /*
+   * What a hand's meeting with its thigh is read from.
+   */
   export interface IProps {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /**
+    /*
      * The sit's posture at a second since its start, its legs, root and trunk
      * as it lowers them; its arm goal on the side read is not read.
      */
     posture(seconds: number): IAutoMovieMotionHumanPosture;
 
-    /** The displayed pose the sit is entered with, whose arm hangs. */
+    /*
+     * The displayed pose the sit is entered with, whose arm hangs.
+     */
     entry: IAutoMoviePose;
 
-    /** The hand's side. */
+    /*
+     * The hand's side.
+     */
     side: AutoMovieHumanSide;
 
-    /** The last second read, from the sit's start. */
+    /*
+     * The last second read, from the sit's start.
+     */
     until: number;
   }
 }
 
-/** The lower-body course admits a set of independent unbraced hands. */
+/*
+ * The lower-body course admits a set of independent unbraced hands.
+ */
 interface ILowering extends Omit<sitHandMeet.IProps, "side"> {
-  /** No single side is being read over an unrestricted posture. */
+  /*
+   * No single side is being read over an unrestricted posture.
+   */
   side?: never;
 
-  /** The hands with no armrest, each read once. */
+  /*
+   * The hands with no armrest, each read once.
+   */
   sides: ReadonlySet<AutoMovieHumanSide>;
 }
 
-/** The original ordered collider indices for one hand and its own thigh. */
+/*
+ * The original ordered collider indices for one hand and its own thigh.
+ */
 interface IHand {
-  /** The side the pair belongs to. */
+  /*
+   * The side the pair belongs to.
+   */
   side: AutoMovieHumanSide;
 
-  /** The hand and digit collider part indices, in body order. */
+  /*
+   * The hand and digit collider part indices, in body order.
+   */
   hands: readonly number[];
 
-  /** The upper leg collider part index. */
+  /*
+   * The upper leg collider part index.
+   */
   thigh: number;
 }

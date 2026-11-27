@@ -4,15 +4,17 @@ import type { AuthoredLayer } from "./AuthoredLayer";
 import type { AutoMovieEvidenceNarrativeScope } from "./AutoMovieEvidenceNarrativeScope";
 import type { AutoMovieEvidenceProductionStage } from "./AutoMovieEvidenceProductionStage";
 
-/** Describes one contract this work adopted, and the layers that answer it. */
+/*
+ * Describes one contract this work adopted, and the layers that answer it.
+ */
 export interface IPackageContractProps {
-  /**
+  /*
    * Names the contract as its hosts cite it, such as
    * `work/principles/common.md`.
    */
   document: string | string[];
 
-  /**
+  /*
    * Lists the layers whose units answer it, with each layer's current stage.
    *
    * A contract is answered by whichever layers own it, so the layers are given
@@ -22,13 +24,17 @@ export interface IPackageContractProps {
    */
   layers: Partial<Record<AuthoredLayer, AutoMovieEvidenceProductionStage>>;
 
-  /** Selects the complete work or one pilot slice, for the narrative globs. */
+  /*
+   * Selects the complete work or one pilot slice, for the narrative globs.
+   */
   narrativeScope: AutoMovieEvidenceNarrativeScope;
 
-  /** States what the hosts must reach. Each layer's claim names itself after it. */
+  /*
+   * States what the hosts must reach. Each layer's claim names itself after it.
+   */
   reason: string;
 
-  /**
+  /*
    * Selects which Markdown units are hosts.
    *
    * State it. This is the per-unit-or-per-population choice, and a default
@@ -39,22 +45,18 @@ export interface IPackageContractProps {
    */
   symbol: EvidenceMarkdownSymbol | EvidenceMarkdownSymbol[];
 
-  /**
+  /*
    * Chooses whether every selected host answers every target independently.
    *
    * Keep `false` for an ordinary distributed relationship whose actual hosts
    * cover the targets between them. A whole-population comparison instead uses
    * `createPackagePopulationContract`, which the layer's documents answer once
    * at file level.
-   *
-   * @default true
    */
   checklist?: boolean;
 
-  /**
+  /*
    * Turns every layer's claim off for a reason beyond its stage.
-   *
-   * @default false
    */
   inapplicable?: boolean;
 }

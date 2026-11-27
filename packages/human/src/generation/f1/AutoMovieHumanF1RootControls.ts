@@ -1,13 +1,11 @@
 import type { IAutoMovieHumanF1 } from "@automovie/interface";
 
-/**
+/*
  * Direct normalized F1 parent-chart original controls. These accepted controls
  * were recorded from the unchanged constructor in ownership-20261116/before.payload.json
  * (SHA256 05010d2f295644cd93a025e16704fb0992ed2a0f73dea85c8ea9683e4188d412).
  * They are provisional authored priors: generation never rediscovers a parent
  * footprint from a completed child loft. Each side retains its original clock.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States original provenance, qualified prior scope, metre/radian chart contract and both-side clocks.
  */
 export const AutoMovieHumanF1RootControls: IAutoMovieHumanF1.IRootControls = {
   arm: [

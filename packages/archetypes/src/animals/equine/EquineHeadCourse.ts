@@ -6,25 +6,29 @@ import type {
 
 import { EquineHeadReach } from "./EquineHeadReach";
 
-/**
+/*
  * The neck and head dips a course may pass through, degrees of neck pitch, the
  * head pitching half as far: authored candidates, the direct path first.
  */
 const DIPS: readonly number[] = [15, 30, 45, 60, 75];
 
-/** The shares at which a course is checked for clearance, end shares included. */
+/*
+ * The shares at which a course is checked for clearance, end shares included.
+ */
 const CHECKS: number = 12;
 
-/**
+/*
  * The clearance a course may close to at its end, metres: a touching reach
  * meets its target there.
  */
 const TOUCH: number = 1e-3;
 
-/** The unit quaternion. */
+/*
+ * The unit quaternion.
+ */
 const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
-/**
+/*
  * The head channel's course from one carriage of the neck and head to another,
  * planned around another body.
  *
@@ -40,55 +44,72 @@ const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
  * chosen from a short authored list by an exact segment-distance test.
  */
 export namespace EquineHeadCourse {
-  /**
+  /*
    * A bar of the other body: a capsule's segment and radius in this animal's
    * model space.
    */
   export interface IObstacle {
-    /** The bar's part id. */
+    /*
+     * The bar's part id.
+     */
     id: string;
 
-    /** One end. */
+    /*
+     * One end.
+     */
     from: IAutoMovieVector3;
 
-    /** The other end. */
+    /*
+     * The other end.
+     */
     to: IAutoMovieVector3;
 
-    /** The radius. */
+    /*
+     * The radius.
+     */
     radius: number;
   }
 
-  /** The neck's and head's drawn radii. */
+  /*
+   * The neck's and head's drawn radii.
+   */
   export interface IRadii {
-    /** The neck bar's radius. */
+    /*
+     * The neck bar's radius.
+     */
     neck: number;
 
-    /** The head bar's radius. */
+    /*
+     * The head bar's radius.
+     */
     head: number;
   }
 
-  /**
+  /*
    * A chosen course: the turns it passes through, the start itself for a direct
    * course.
    */
   export interface IPath {
-    /** Whether the course runs straight from start to goal. */
+    /*
+     * Whether the course runs straight from start to goal.
+     */
     direct: boolean;
 
-    /** The dip it passes through when not direct. */
+    /*
+     * The dip it passes through when not direct.
+     */
     via: EquineHeadReach.ITurn;
   }
 
-  /**
+  /*
    * Plan a course from start turns to goal turns around another body.
-   *
-   * @param bars The current bars.
-   * @param radii The neck's and head's radii.
-   * @param start The turns the course starts from.
-   * @param goal The turns it ends at.
-   * @param obstacles The other body's bars.
-   * @returns The course.
-   * @throws {RangeError} When no candidate course clears the other body.
+   * Parameter bars: The current bars.
+   * Parameter radii: The neck's and head's radii.
+   * Parameter start: The turns the course starts from.
+   * Parameter goal: The turns it ends at.
+   * Parameter obstacles: The other body's bars.
+   * Returns: The course.
+   * When no candidate course clears the other body.
    */
   export function plan(
     bars: EquineHeadReach.IBars,
@@ -129,14 +150,13 @@ export namespace EquineHeadCourse {
     );
   }
 
-  /**
+  /*
    * The turns a course shows at a share.
-   *
-   * @param path The course.
-   * @param start Its start turns.
-   * @param goal Its goal turns.
-   * @param share The share, 0 to 1.
-   * @returns The turns to show in full.
+   * Parameter path: The course.
+   * Parameter start: Its start turns.
+   * Parameter goal: Its goal turns.
+   * Parameter share: The share, 0 to 1.
+   * Returns: The turns to show in full.
    */
   export function shown(
     path: IPath,
@@ -150,16 +170,17 @@ export namespace EquineHeadCourse {
       : between(path.via, goal, 2 * share - 1);
   }
 
-  /**
+  /*
    * The rest carriage: no turn.
-   *
-   * @returns The identity turns.
+   * Returns: The identity turns.
    */
   export function rest(): EquineHeadReach.ITurn {
     return { neck: IDENTITY, head: IDENTITY };
   }
 
-  /** Each bar slerped between two turns. */
+  /*
+   * Each bar slerped between two turns.
+   */
   function between(
     from: EquineHeadReach.ITurn,
     to: EquineHeadReach.ITurn,
@@ -171,7 +192,7 @@ export namespace EquineHeadCourse {
     };
   }
 
-  /**
+  /*
    * A course's least clearance from every obstacle over its checked shares, its
    * end allowed to touch: negative where it passes into one.
    */
@@ -228,7 +249,9 @@ export namespace EquineHeadCourse {
     return least;
   }
 
-  /** The clearance between a capsule and an obstacle. */
+  /*
+   * The clearance between a capsule and an obstacle.
+   */
   function gap(
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
@@ -244,11 +267,17 @@ export namespace EquineHeadCourse {
   }
 }
 
-/** A course's least clearance and where it is least. */
+/*
+ * A course's least clearance and where it is least.
+ */
 interface IClearance {
-  /** Metres; negative where the course passes into a bar. */
+  /*
+   * Metres; negative where the course passes into a bar.
+   */
   gap: number;
 
-  /** The bar, the moving bar and the share. */
+  /*
+   * The bar, the moving bar and the share.
+   */
   where: string;
 }

@@ -15,19 +15,18 @@ import type {
 import { kick } from "../../striking/internal/kick";
 import { coverWall } from "./coverWall";
 
-/**
+/*
  * Breach a closed hinged door: a push kick with the ball of the foot at the
  * leaf's push-side handle, the latch side, and the leaf's hinge driven open
  * from the kick's impact on a minimum-jerk swing. A door archetype opens toward
  * `+Z`, the pull side, so the performer must stand on its `-Z` side; a door
  * that would open toward the performer is refused, and the kick refuses a
  * handle out of its reach.
- *
- * @param context The action's context.
- * @param p The breach.
- * @returns The kick with the hinge drive and a `doorOpen` event.
- * @throws {HumanRefusal} If the prop has no hinge or push handle, or the
- *   performer stands on the side the leaf opens toward.
+ * Parameter context: The action's context.
+ * Parameter p: The breach.
+ * Returns: The kick with the hinge drive and a `doorOpen` event.
+ * If the prop has no hinge or push handle, or the
+ * performer stands on the side the leaf opens toward.
  */
 export function coverBreach(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCover.IParams>,
@@ -94,11 +93,13 @@ export function coverBreach(
   };
 }
 
-/**
+/*
  * Seconds the leaf takes to swing open from the impact (provisional: a door
  * kicked off its latch).
  */
 const SWING: number = 0.45;
 
-/** How far the leaf swings open, degrees (provisional: a door kicked wide). */
+/*
+ * How far the leaf swings open, degrees (provisional: a door kicked wide).
+ */
 const OPEN: number = 90;

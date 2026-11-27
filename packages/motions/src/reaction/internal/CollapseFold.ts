@@ -4,7 +4,9 @@ import type {
   IAutoMovieMotionHumanJoints,
 } from "@automovie/interface";
 
-/** Each direction's angles, degrees (provisional stage readings). */
+/*
+ * Each direction's angles, degrees (provisional stage readings).
+ */
 const SHAPES: Readonly<
   Record<Exclude<IAutoMovieMotionHumanCollapse.Direction, "backward">, IShape>
 > = {
@@ -37,10 +39,12 @@ const SHAPES: Readonly<
   },
 };
 
-/** The sag's knee softening and trunk sway, degrees (provisional). */
+/*
+ * The sag's knee softening and trunk sway, degrees (provisional).
+ */
 const SAG: Readonly<ISAGItem> = { knee: 15, pitch: 4 };
 
-/**
+/*
  * The arms of each tone, degrees (provisional): a protective reach toward the
  * floor and its brace, a limp arm hanging.
  */
@@ -57,17 +61,16 @@ const ARMS: Readonly<IARMSItem> = {
   neck: 30,
 };
 
-/**
+/*
  * Evaluate a collapse's fold.
- *
- * @param direction Where the body goes down; not `backward`, which the
- *   knockdown owns.
- * @param tone How the body meets the floor.
- * @param side A sideways fall's side.
- * @param sag The sag's share.
- * @param drop The drop onto the knees' share.
- * @param lay The lay onto the floor's share.
- * @returns The fold.
+ * Parameter direction: Where the body goes down; not `backward`, which the
+ * knockdown owns.
+ * Parameter tone: How the body meets the floor.
+ * Parameter side: A sideways fall's side.
+ * Parameter sag: The sag's share.
+ * Parameter drop: The drop onto the knees' share.
+ * Parameter lay: The lay onto the floor's share.
+ * Returns: The fold.
  */
 export function CollapseFold(
   direction: Exclude<IAutoMovieMotionHumanCollapse.Direction, "backward">,
@@ -130,7 +133,7 @@ export function CollapseFold(
   };
 }
 
-/**
+/*
  * The trunk lean and clinical joint angles of a collapse at its sag, drop and
  * lay shares, degrees. The angles are provisional stage readings in the
  * knockdown's convention (`KnockdownFloor`): a positive pitch leans the trunk
@@ -142,26 +145,36 @@ export function CollapseFold(
  * one keeps them at its sides with the head following the trunk.
  */
 export namespace CollapseFold {
-  /** One evaluated fold. */
+  /*
+   * One evaluated fold.
+   */
   export interface IFold {
-    /** Trunk pitch, degrees; positive forward. */
+    /*
+     * Trunk pitch, degrees; positive forward.
+     */
     pitch: number;
 
-    /** Trunk roll, degrees; positive toward the body's right. */
+    /*
+     * Trunk roll, degrees; positive toward the body's right.
+     */
     roll: number;
 
-    /** Clinical angle triples, degrees by bone. */
+    /*
+     * Clinical angle triples, degrees by bone.
+     */
     joints: IAutoMovieMotionHumanJoints.Angles;
   }
 
-  /**
+  /*
    * The share of the lay at which a protective body's hands reach the floor,
    * before its trunk: provisional.
    */
   export const HANDS: number = 0.6;
 }
 
-/** The record of `IARMSItem`'s site. */
+/*
+ * The record of `IARMSItem`'s site.
+ */
 type IARMSItem = {
   reach: number;
   ahead: number;
@@ -175,23 +188,41 @@ type IARMSItem = {
   neck: number;
 };
 
-/** The record of `ISAGItem`'s site. */
+/*
+ * The record of `ISAGItem`'s site.
+ */
 type ISAGItem = { knee: number; pitch: number };
 
-/** One direction's kneeling and lying angles, degrees. */
+/*
+ * One direction's kneeling and lying angles, degrees.
+ */
 interface IShape {
-  /** Hip flexion on the knees. */
+  /*
+   * Hip flexion on the knees.
+   */
   hip: number;
-  /** Knee flexion on the knees. */
+  /*
+   * Knee flexion on the knees.
+   */
   knee: number;
-  /** Trunk pitch reached by the drop. */
+  /*
+   * Trunk pitch reached by the drop.
+   */
   pitch: number;
-  /** Hip flexion lying. */
+  /*
+   * Hip flexion lying.
+   */
   lyingHip: number;
-  /** Knee flexion lying. */
+  /*
+   * Knee flexion lying.
+   */
   lyingKnee: number;
-  /** Trunk pitch added by the lay. */
+  /*
+   * Trunk pitch added by the lay.
+   */
   lyingPitch: number;
-  /** Trunk roll reached by the lay toward the fall's side. */
+  /*
+   * Trunk roll reached by the lay toward the fall's side.
+   */
   roll: number;
 }

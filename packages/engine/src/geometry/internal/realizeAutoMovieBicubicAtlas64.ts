@@ -9,7 +9,7 @@ import type {
 import { admitAutoMovieBicubicAtlas } from "./admitAutoMovieBicubicAtlas";
 import { AutoMovieEngineCurve } from "../AutoMovieEngineCurve";
 
-/**
+/*
  * Realize the public metre-valued bicubic recipe through its owning engine. The
  * polynomial kernel receives millimetres once and returns model metres.
  * Complete prior chunks survive a declared output budget; no source mesh is

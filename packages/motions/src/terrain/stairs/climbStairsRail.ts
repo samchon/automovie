@@ -28,17 +28,16 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { climbStairsRailLine } from "./climbStairsRailLine";
 
-/**
+/*
  * Carry a stance hand along a fixed rail on the stair's existing clock. The
  * hand closes on the named finite bar, slides along its axis while bearing and
  * releases before the final landing stance.
- *
- * @param context The actor, its actual stair prop and chosen rail.
- * @param stairs The unchanged tread and pelvis plan.
- * @param rail The rail affordance and hand that takes it.
- * @returns The stair plan with a posed, verified rail support window.
- * @throws {HumanRefusal} If the rail is absent, moves or cannot be reached
- *   during the braced part of the flight.
+ * Parameter context: The actor, its actual stair prop and chosen rail.
+ * Parameter stairs: The unchanged tread and pelvis plan.
+ * Parameter rail: The rail affordance and hand that takes it.
+ * Returns: The stair plan with a posed, verified rail support window.
+ * If the rail is absent, moves or cannot be reached
+ * during the braced part of the flight.
  */
 export function climbStairsRail(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClimbStairs.IParams>,
@@ -241,16 +240,22 @@ export function climbStairsRail(
   };
 }
 
-/** Allowed displayed grip residual, in metres. */
+/*
+ * Allowed displayed grip residual, in metres.
+ */
 const MISS: number = 0.015;
 
-/** Provisional bracing share of the body weight during a rail-assisted flight. */
+/*
+ * Provisional bracing share of the body weight during a rail-assisted flight.
+ */
 const LOAD: number = 0.12;
 
-/** The longest reach onto and off the rail, seconds (provisional). */
+/*
+ * The longest reach onto and off the rail, seconds (provisional).
+ */
 const TRANSIT: number = 0.4;
 
-/**
+/*
  * The reach's largest share of the climb's duration, so the grip bears over at
  * least three fifths of it (provisional).
  */

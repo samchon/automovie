@@ -1,6 +1,6 @@
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
-/**
+/*
  * One owned retirement with one completion, shared by repeated and reentrant
  * requests. Every operation starts independently, so a synchronous failure or a
  * pending asynchronous owner cannot prevent another owner from being asked to
@@ -17,11 +17,15 @@ export function createAutoMovieResourceRetirement(
   operations: readonly ((() => void) | (() => Promise<void>))[],
   primary: { error: unknown },
 ): () => Promise<never>;
-/** Create an idempotent retirement operation without a primary failure. */
+/*
+ * Create an idempotent retirement operation without a primary failure.
+ */
 export function createAutoMovieResourceRetirement(
   operations: readonly ((() => void) | (() => Promise<void>))[],
 ): () => Promise<void>;
-/** Shared implementation for the retirement overloads. */
+/*
+ * Shared implementation for the retirement overloads.
+ */
 export function createAutoMovieResourceRetirement(
   operations: readonly ((() => void) | (() => Promise<void>))[],
   primary?: { error: unknown },

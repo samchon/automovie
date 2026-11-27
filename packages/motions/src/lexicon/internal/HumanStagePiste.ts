@@ -20,7 +20,7 @@ import { HumanBlade } from "./HumanBlade";
 import { HumanPisteTarget } from "./HumanPisteTarget";
 import { stageBladeFootwork } from "./stageBladeFootwork";
 
-/**
+/*
  * A two-performer bout on a piste or a kendo court. The opening distance is
  * authored by the marks; each advance of the approach covers at most 0.3 m
  * (`HumanStagePiste.ADVANCE`, about a foot, provisional) in the `duration` the
@@ -47,112 +47,146 @@ import { stageBladeFootwork } from "./stageBladeFootwork";
  * actions refuse a target out of reach.
  */
 export namespace HumanStagePiste {
-  /** The weapon of the bout. */
+  /*
+   * The weapon of the bout.
+   */
   export type Kind = "foil" | "epee" | "sabre" | "kendo";
 
-  /** The result the screenplay gives the two performers. */
+  /*
+   * The result the screenplay gives the two performers.
+   */
   export type Result = "first" | "second" | "both" | "none";
 
-  /** One performer's preparation, marks, blade and target. */
+  /*
+   * One performer's preparation, marks, blade and target.
+   */
   export interface IActor {
-    /**
+    /*
      * Chain that prepares the performer on its opening mark, the blade taken in
      * hand.
      */
     chain: IAutoMovieMotionHumanChainCore;
 
-    /**
+    /*
      * Direction of the mark shift from the performer's heading on its opening
      * mark.
      */
     direction: IAutoMovieMotionHumanStageBladeFootwork.Direction;
 
-    /** Forward lead, or the lead read by the footwork law when omitted. */
+    /*
+     * Forward lead, or the lead read by the footwork law when omitted.
+     */
     lead?: AutoMovieHumanSide;
 
-    /**
+    /*
      * Positive horizontal distance the performer's approach covers to its
      * lunging mark, in metres, in advances of at most `ADVANCE`.
      */
     distance: number;
 
-    /** The held blade's prop subject. */
+    /*
+     * The held blade's prop subject.
+     */
     blade: string;
 
-    /**
+    /*
      * Where this performer's attack or reply lands on the other: a body region
      * for fencing, a struck point of the worn armour for kendo.
      */
     target: IAutoMovieMotionTarget;
   }
 
-  /** Two performers, the footwork's clock and the screenplay's result. */
+  /*
+   * Two performers, the footwork's clock and the screenplay's result.
+   */
   export interface ITake {
-    /** Unique prefix of the bout's schedule anchors. */
+    /*
+     * Unique prefix of the bout's schedule anchors.
+     */
     anchor: string;
 
-    /** The weapon. */
+    /*
+     * The weapon.
+     */
     kind: Kind;
 
-    /** The performer who attacks first. */
+    /*
+     * The performer who attacks first.
+     */
     first: IActor;
 
-    /** The performer who answers. */
+    /*
+     * The performer who answers.
+     */
     second: IActor;
 
-    /** Positive common duration of each advance of the approach, in seconds. */
+    /*
+     * Positive common duration of each advance of the approach, in seconds.
+     */
     duration: number;
 
-    /**
+    /*
      * Share in [0, 1] of the shift's duration for its `propCue` editing event;
      * none when absent.
      */
     cue?: number;
 
-    /** Scripted result of the exchange. */
+    /*
+     * Scripted result of the exchange.
+     */
     result: Result;
 
-    /**
+    /*
      * Optional opening separation and minimum reserve between the floor marks,
      * both in metres.
      */
     reserve?: readonly [opening: number, minimum: number];
   }
 
-  /** The screenplay's result at its actual film time. */
+  /*
+   * The screenplay's result at its actual film time.
+   */
   export interface IAnnouncement {
-    /**
+    /*
      * Absolute film seconds of the decisive instant that scores or closes the
      * exchange.
      */
     seconds: number;
 
-    /** Result from the screenplay. */
+    /*
+     * Result from the screenplay.
+     */
     result: Result;
   }
 
-  /** The composition to place and its result reader. */
+  /*
+   * The composition to place and its result reader.
+   */
   export interface IPlaced {
-    /** The shift and then the exchange, both preparatory chains included. */
+    /*
+     * The shift and then the exchange, both preparatory chains included.
+     */
     composition: IAutoMovieComposition.ISequence;
 
-    /**
+    /*
      * Reads the result only when its deciding action was placed whole within
      * its span.
      */
     announced: (schedule: IAutoMovieSchedule) => IAnnouncement | undefined;
   }
 
-  /** Explicit weapon names admitted at the SDK boundary. */
+  /*
+   * Explicit weapon names admitted at the SDK boundary.
+   */
   const KINDS: readonly Kind[] = ["foil", "epee", "sabre", "kendo"];
 
-  /**
+  /*
    * The longest gap between two touches the epee scores as a double touch,
    * seconds: the lower end of the 40 to 50 ms the FIE sets for its apparatus.
    */
   export const DOUBLE: number = 0.04;
 
-  /**
+  /*
    * The weapon's attack: a thrust lunged for the point weapons, a cut
    * otherwise.
    */
@@ -163,7 +197,7 @@ export namespace HumanStagePiste {
     kendo: HumanBlade.cut.name,
   };
 
-  /**
+  /*
    * The weapon's answer out of a parry: a riposte for the point weapons, a cut
    * otherwise.
    */
@@ -174,7 +208,7 @@ export namespace HumanStagePiste {
     kendo: HumanBlade.cut.name,
   };
 
-  /**
+  /*
    * The advance a cut is carried by: the sabre's lunge, kendo's stepping
    * strike.
    */
@@ -182,14 +216,14 @@ export namespace HumanStagePiste {
     Partial<Record<Kind, IAutoMovieMotionHumanSword.IAttack["advance"]>>
   > = { sabre: "lunge", kendo: "step" };
 
-  /**
+  /*
    * The longest single advance of the approach, metres: about one foot's
    * length, the fencing advance's step (provisional), inside the footwork law's
    * longest mark shift for every canonical body.
    */
   export const ADVANCE: number = 0.3;
 
-  /**
+  /*
    * Each advance shifts both performers on one clock, each its share of its
    * approach.
    */
@@ -211,18 +245,17 @@ export namespace HumanStagePiste {
     },
   };
 
-  /**
+  /*
    * Check the take against the weapon's rules, then close each performer's
    * approach in equal advances of at most `ADVANCE`, both stepping on each
    * advance's one clock, and append the exchange the result calls for. The
    * optional reserve requires enough opening space for both full translations
    * and the remaining space stated in the screenplay.
-   *
-   * @param take The cast, blocking, time, reserved space, targets and result.
-   * @returns The composition and its result reader.
-   * @throws {HumanRefusal} When the weapon, a number, the reserved space, a
-   *   target or the result breaks the take's rules.
-   * @throws {Error} When the anchor is blank or one performer takes both roles.
+   * Parameter take: The cast, blocking, time, reserved space, targets and result.
+   * Returns: The composition and its result reader.
+   * When the weapon, a number, the reserved space, a
+   * target or the result breaks the take's rules.
+   * When the anchor is blank or one performer takes both roles.
    */
   export function compose(take: ITake): IPlaced {
     if (take.anchor.trim().length === 0)
@@ -299,7 +332,9 @@ export namespace HumanStagePiste {
     };
   }
 
-  /** The anchors of the deciding actions of a take. */
+  /*
+   * The anchors of the deciding actions of a take.
+   */
   function deciding(take: ITake): IAnchors {
     switch (take.result) {
       case "first":
@@ -316,7 +351,9 @@ export namespace HumanStagePiste {
     }
   }
 
-  /** The exchange after the shift, as the result calls for it. */
+  /*
+   * The exchange after the shift, as the result calls for it.
+   */
   function bout(take: ITake): IAutoMovieChain {
     const { anchor, kind, first, second } = take;
     const carry: IAutoMovieMotionHumanSword.IAttack["advance"] = CARRY[kind];
@@ -371,7 +408,9 @@ export namespace HumanStagePiste {
     );
   }
 
-  /** Read a placed action's decisive instant while it lies within its span. */
+  /*
+   * Read a placed action's decisive instant while it lies within its span.
+   */
   function decisive(
     schedule: IAutoMovieSchedule,
     anchor: string,
@@ -390,27 +429,43 @@ export namespace HumanStagePiste {
       : undefined;
   }
 
-  /** A performer's part in the bout. */
+  /*
+   * A performer's part in the bout.
+   */
   type Role = "first" | "second";
 
-  /** One advance of the approach: the take, its index and the advances' count. */
+  /*
+   * One advance of the approach: the take, its index and the advances' count.
+   */
   interface IAdvance {
-    /** The bout. */
+    /*
+     * The bout.
+     */
     take: ITake;
 
-    /** This advance's index from 0. */
+    /*
+     * This advance's index from 0.
+     */
     index: number;
 
-    /** How many advances cover each performer's approach. */
+    /*
+     * How many advances cover each performer's approach.
+     */
     count: number;
   }
 
-  /** The anchors whose decisive instants decide the result. */
+  /*
+   * The anchors whose decisive instants decide the result.
+   */
   interface IAnchors {
-    /** The action that scores or closes the exchange. */
+    /*
+     * The action that scores or closes the exchange.
+     */
     decides: string;
 
-    /** The second touch of a double touch. */
+    /*
+     * The second touch of a double touch.
+     */
     with?: string;
   }
 }

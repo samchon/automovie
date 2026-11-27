@@ -35,20 +35,19 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanAdaptiveKnots } from "../../posture/internal/prepareHumanAdaptiveKnots";
 import type { prepareHumanKnotCourse } from "../../posture/internal/prepareHumanKnotCourse";
 
-/**
+/*
  * The backup member of a hose team (`hoseLine`'s `backup` role): both hands on
  * the line's grip without carrying it, each a power grip rolled about the line
  * toward its shoulder (`HumanGraspRoll`), sharing the grip's length, the hand
  * reaching across the body ahead, following the grip where the operator's hold
  * puts the line.
- *
- * @param context The action's context.
- * @param p The hose-line parameters.
- * @param clock The action's clock.
- * @param base The leaning base plan.
- * @returns The backup's plan.
- * @throws {HumanRefusal} When the line declares no such grip, or a hand cannot
- *   reach it.
+ * Parameter context: The action's context.
+ * Parameter p: The hose-line parameters.
+ * Parameter clock: The action's clock.
+ * Parameter base: The leaning base plan.
+ * Returns: The backup's plan.
+ * When the line declares no such grip, or a hand cannot
+ * reach it.
  */
 export function hoseBackup(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IHoseLine>,
@@ -262,5 +261,7 @@ export function hoseBackup(
   };
 }
 
-/** Both hands. */
+/*
+ * Both hands.
+ */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];

@@ -4,64 +4,77 @@ import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import type { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
 import type { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace";
 
-/**
+/*
  * What the interior-point solve (`HumanQuadraticInterior`) carries between the
  * solves of one caller's session (one optimisation's subproblems), and the warm
  * start it makes from the last one.
  */
 export namespace HumanQuadraticInteriorSession {
-  /** One caller's session of solves. */
+  /*
+   * One caller's session of solves.
+   */
   export interface ISession extends Preparation.IOwner {
-    /**
+    /*
      * The variables' and cost's scales of the session's first solve, which
      * every later solve of the session is scaled by
      * (`HumanQuadraticPreparation.IScaling`).
      */
     scaling?: Preparation.IScaling;
 
-    /** The solver's scratch, kept for programs of the same sizes. */
+    /*
+     * The solver's scratch, kept for programs of the same sizes.
+     */
     work?: ISessionWork;
 
-    /**
+    /*
      * The last converged solve's primal-dual point, for a next program of the
      * same rows; the caller clears it for programs of other rows.
      */
     point?: IPoint;
   }
 
-  /**
+  /*
    * A converged primal-dual point in the program's own units: the variables `x
    * = D x-bar`, and per row end (2r the upper, 2r + 1 the lower) its slack `t =
    * t-bar / E`, its excess `e = e-bar / E`, and its two multipliers `E
    * lambda-bar / c` and `E nu-bar / c`.
    */
   export interface IPoint {
-    /** The variables. */
+    /*
+     * The variables.
+     */
     x: Float64Array;
 
-    /** Each end's slack. */
+    /*
+     * Each end's slack.
+     */
     t: Float64Array;
 
-    /** Each end's multiplier. */
+    /*
+     * Each end's multiplier.
+     */
     lambda: Float64Array;
 
-    /** Each soft end's excess. */
+    /*
+     * Each soft end's excess.
+     */
     e: Float64Array;
 
-    /** Each soft end's excess multiplier. */
+    /*
+     * Each soft end's excess multiplier.
+     */
     nu: Float64Array;
   }
 
-  /**
+  /*
    * Save a converged point in the program's own units.
-   *
-   * @param s The scaled program it was solved on.
-   * @param x The scaled variables.
-   * @param t The scaled slacks.
-   * @param lambda The scaled multipliers.
-   * @param e The scaled excesses.
-   * @param nu The scaled excess multipliers.
-   * @returns The point.
+   * Parameter s: The scaled program it was solved on.
+   * Parameter x: The scaled variables.
+   * Parameter t: The scaled slacks.
+   * Parameter lambda: The scaled multipliers.
+   * Parameter e: The scaled excesses.
+   * Parameter nu: The scaled excess multipliers.
+   * Returns: The point.
    */
   export function save(
     s: B.IScaled,
@@ -89,7 +102,7 @@ export namespace HumanQuadraticInteriorSession {
     return out;
   }
 
-  /**
+  /*
    * A warm start from a saved point on a program of the same rows: the point
    * read on this program's scaling, each slack taken where the new bounds put
    * it at the point's variables (`t = b - c.x + e`, so the rows' equations
@@ -100,22 +113,21 @@ export namespace HumanQuadraticInteriorSession {
    * end's `e`) and their multipliers `z`, `s += max(-1.5 min s, 0)`, `z +=
    * max(-1.5 min z, 0)`, then `s += s.z / (2 sum z)` and `z += s.z / (2 sum
    * s)`.
-   *
-   * @param s The scaled program.
-   * @param point The saved point.
-   * @param live Whether each end is read.
-   * @param soft Whether each end is soft.
-   * @param free Whether each end is an equation's.
-   * @param bound Each end's bound, scaled.
-   * @param x The solve's variables, written here.
-   * @param t Its slacks, written here.
-   * @param lambda Its multipliers, written here.
-   * @param e Its excesses, written here.
-   * @param nu Its excess multipliers, written here.
-   * @param value An m-sized scratch for the rows' values.
-   * @returns Whether a start was made; false where the point's sizes are not
-   *   the program's or the shift leaves a slack or a multiplier not positive,
-   *   the solve then starting cold.
+   * Parameter s: The scaled program.
+   * Parameter point: The saved point.
+   * Parameter live: Whether each end is read.
+   * Parameter soft: Whether each end is soft.
+   * Parameter free: Whether each end is an equation's.
+   * Parameter bound: Each end's bound, scaled.
+   * Parameter x: The solve's variables, written here.
+   * Parameter t: Its slacks, written here.
+   * Parameter lambda: Its multipliers, written here.
+   * Parameter e: Its excesses, written here.
+   * Parameter nu: Its excess multipliers, written here.
+   * Parameter value: An m-sized scratch for the rows' values.
+   * Returns: Whether a start was made; false where the point's sizes are not
+   * the program's or the shift leaves a slack or a multiplier not positive,
+   * the solve then starting cold.
    */
   export function warm(
     s: B.IScaled,
@@ -201,17 +213,16 @@ export namespace HumanQuadraticInteriorSession {
     return interior;
   }
 
-  /**
+  /*
    * The converged iterate in the problem's own units: `x = D x`, each row's
    * value `E^-1 (a.x)`, a hard row's held within its interval, and its
    * multiplier `E (lambda_upper - lambda_lower) / c`, the sign the OSQP solve's
    * multipliers have.
-   *
-   * @param s The scaled program.
-   * @param x The scaled variables.
-   * @param value The rows' scaled values.
-   * @param lambda The scaled multipliers.
-   * @returns The state.
+   * Parameter s: The scaled program.
+   * Parameter x: The scaled variables.
+   * Parameter value: The rows' scaled values.
+   * Parameter lambda: The scaled multipliers.
+   * Returns: The state.
    */
   export function unscaled(
     s: B.IScaled,
@@ -238,5 +249,7 @@ export namespace HumanQuadraticInteriorSession {
   }
 }
 
-/** The record of `ISessionWork`'s site. */
+/*
+ * The record of `ISessionWork`'s site.
+ */
 type ISessionWork = { n: number; m: number; work: Workspace.IWork };

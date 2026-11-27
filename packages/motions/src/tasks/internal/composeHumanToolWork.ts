@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionTarget,
 } from "@automovie/interface";
 
-/**
+/*
  * One-handed tool work from a working base composed from shipped actions :
  * kneeling or crouching at floor level, seated at a bench, or standing. The
  * base is taken first, then `useTool` cycles from it, so the base, the pickup
@@ -20,54 +20,69 @@ import type {
  * the standing work heights `useTool` already reaches and the floor).
  */
 export namespace composeHumanToolWork {
-  /** A working base. */
+  /*
+   * A working base.
+   */
   export type Base = "kneel" | "crouch" | "seated" | "standing";
 
-  /** Work below this share of the stature is done kneeling (provisional). */
+  /*
+   * Work below this share of the stature is done kneeling (provisional).
+   */
   export const FLOOR_REACH: number = 0.15;
 
-  /**
+  /*
    * Work below this share of the stature, and above `FLOOR_REACH`, is done
    * crouching (provisional).
    */
   export const CROUCH_REACH: number = 0.35;
 
-  /**
+  /*
    * What the work names: the tool, the prop and its grip, the work point and
    * the hand.
    */
   export interface IWork {
-    /** The tool's stroke. */
+    /*
+     * The tool's stroke.
+     */
     tool: IAutoMovieMotionHumanToolWork.Kind;
 
-    /** The tool's subject, which lies within reach of the base. */
+    /*
+     * The tool's subject, which lies within reach of the base.
+     */
     prop: string;
 
-    /** The tool's grip affordance. */
+    /*
+     * The tool's grip affordance.
+     */
     handle: string;
 
-    /** The work point. */
+    /*
+     * The work point.
+     */
     on: IAutoMovieMotionTarget;
 
-    /** The working hand; the right when absent. */
+    /*
+     * The working hand; the right when absent.
+     */
     hand?: AutoMovieHumanSide;
 
-    /** Stroke cycles; `useTool`'s own count when absent. */
+    /*
+     * Stroke cycles; `useTool`'s own count when absent.
+     */
     cycles?: number;
 
-    /**
+    /*
      * Where a kneeling base's knee comes down, beside the work; the reverse
      * lunge's place when absent.
      */
     knee?: IAutoMovieMotionTarget;
   }
 
-  /**
+  /*
    * The base a work point's height asks for.
-   *
-   * @param height The work point's height above the floor, metres.
-   * @param stature The performer's stature, metres.
-   * @returns The base.
+   * Parameter height: The work point's height above the floor, metres.
+   * Parameter stature: The performer's stature, metres.
+   * Returns: The base.
    */
   export function baseFor(height: number, stature: number): Base {
     const share: number = height / stature;
@@ -78,15 +93,14 @@ export namespace composeHumanToolWork {
         : "standing";
   }
 
-  /**
+  /*
    * Take the base, then work the tool from it.
-   *
-   * @param chain The performer's chain; the tool lies within reach of the base.
-   * @param base The working base.
-   * @param work The tool work.
-   * @param seat The seat for a seated base.
-   * @returns The chain with the base and the work appended.
-   * @throws {Error} When a seated base names no seat.
+   * Parameter chain: The performer's chain; the tool lies within reach of the base.
+   * Parameter base: The working base.
+   * Parameter work: The tool work.
+   * Parameter seat: The seat for a seated base.
+   * Returns: The chain with the base and the work appended.
+   * When a seated base names no seat.
    */
   export function at<Chain extends IAutoMovieMotionHumanChainCore>(
     chain: Chain,
@@ -124,7 +138,9 @@ export namespace composeHumanToolWork {
       });
   }
 
-  /** The seat a seated base needs. */
+  /*
+   * The seat a seated base needs.
+   */
   function required(
     seat: IAutoMovieMotionHumanSeated.ISeat | undefined,
   ): IAutoMovieMotionHumanSeated.ISeat {

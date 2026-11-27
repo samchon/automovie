@@ -1,62 +1,86 @@
 import { hingedArmSwivel } from "../hingedArmSwivel";
 import { hingedSwivelAhead } from "./hingedSwivelAhead";
 
-/** The articulation's swivel step, degrees (`hingedArmSwivel.STEP`). */
+/*
+ * The articulation's swivel step, degrees (`hingedArmSwivel.STEP`).
+ */
 const STEP: number = hingedArmSwivel.STEP;
 
-/**
+/*
  * The cold swivel sweep of `hingedArmArticulation` decided by branch and bound
  * (Land and Doig 1960): the same candidates, local minima, refinements and
  * choice as the full sweep, with a step scored only when its value can still
  * matter.
  */
 export namespace hingedSwivelBounded {
-  /** A candidate's comparator keys. */
+  /*
+   * A candidate's comparator keys.
+   */
   export interface IScore {
-    /** ROM overshoot plus obstruction, degrees; zero is legal. */
+    /*
+     * ROM overshoot plus obstruction, degrees; zero is legal.
+     */
     overshoot: number;
 
-    /** The deviation, or its lower bound when `exact` is given. */
+    /*
+     * The deviation, or its lower bound when `exact` is given.
+     */
     deviation: number;
 
-    /** The exact deviation. */
+    /*
+     * The exact deviation.
+     */
     exact?: () => number;
 
-    /** The exact deviation once read. */
+    /*
+     * The exact deviation once read.
+     */
     known?: number;
 
-    /** A second key, unused by this search's policy. */
+    /*
+     * A second key, unused by this search's policy.
+     */
     tiebreak?: () => number;
 
-    /** The second key once read. */
+    /*
+     * The second key once read.
+     */
     second?: number;
   }
 
-  /** One bend branch of the sweep. */
+  /*
+   * One bend branch of the sweep.
+   */
   export interface IBranch<T> {
-    /** The actual scorer at a swivel, degrees. */
+    /*
+     * The actual scorer at a swivel, degrees.
+     */
     probe: (angle: number) => T;
 
-    /** Completed step candidates, indexed by sweep step. */
+    /*
+     * Completed step candidates, indexed by sweep step.
+     */
     steps: (T | undefined)[];
 
-    /** Completed refinements, keyed by the step whose bracket they refine. */
+    /*
+     * Completed refinements, keyed by the step whose bracket they refine.
+     */
     refined: Map<number, T>;
 
-    /**
+    /*
      * Whether every swivel from `low` to `high` degrees is certain to
      * overshoot; none to refuse nothing.
      */
     refused: ((low: number, high: number) => boolean) | null;
 
-    /**
+    /*
      * A certified lower bound of the exact deviation of every candidate at a
      * swivel from `low` to `high` degrees.
      */
     bound: (low: number, high: number) => number;
   }
 
-  /**
+  /*
    * The sweep's choice over the branches, in their order.
    *
    * The steps of a branch are visited in the order of their bracket's bound
@@ -83,16 +107,15 @@ export namespace hingedSwivelBounded {
    * read. The proof needs the comparator to be a total preorder, which the
    * buckets make it, and no first-candidate certificate: the articulation tests
    * that certificate itself before calling this.
-   *
-   * @param props The branches with their scorers, caches, refusals and bounds;
-   *   the candidate order; the refinement; the comparator's tie width when it
-   *   has one; and the exact deviation of a legal candidate the caller read
-   *   (`incumbent`), which starts the visit's stop: kept where the choice is
-   *   legal and no worse than it, every unvisited bracket then holding only
-   *   candidates strictly behind the choice, and dropped otherwise for the
-   *   visit without it.
-   * @returns The chosen candidate, none when every step is refused, and whether
-   *   any step was refused.
+   * Parameter props: The branches with their scorers, caches, refusals and bounds;
+   * the candidate order; the refinement; the comparator's tie width when it
+   * has one; and the exact deviation of a legal candidate the caller read
+   * (`incumbent`), which starts the visit's stop: kept where the choice is
+   * legal and no worse than it, every unvisited bracket then holding only
+   * candidates strictly behind the choice, and dropped otherwise for the
+   * visit without it.
+   * Returns: The chosen candidate, none when every step is refused, and whether
+   * any step was refused.
    */
   export function sweep<T extends IScore>(props: {
     branches: readonly IBranch<T>[];

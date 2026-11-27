@@ -6,9 +6,9 @@ import { createAutoMovieGradientNoise2 } from "./createAutoMovieGradientNoise2";
 import { createAutoMovieRandom } from "./createAutoMovieRandom";
 import { AutoMovieEngineRandomBounds } from "./AutoMovieEngineRandomBounds";
 
-/**
+/*
  * Seeded two-dimensional fractal noise in [-1, 1]: a sum of octaves of
- * {@link createAutoMovieGradientNoise2}, the sum of scaled octaves Perlin
+ * createAutoMovieGradientNoise2, the sum of scaled octaves Perlin
  * describes (Perlin 1985, "An Image Synthesizer", SIGGRAPH Computer Graphics
  * 19(3)).
  *
@@ -22,16 +22,15 @@ import { AutoMovieEngineRandomBounds } from "./AutoMovieEngineRandomBounds";
  *
  * The domain bound applies at the finest octave: a coordinate is admitted when
  * `|coordinate| * 2^(octaves - 1)` is at most
- * {@link AutoMovieEngineRandom.GRADIENT_NOISE_2_BOUND}.
- *
- * @param seed Sixteen hexadecimal digits, as `deriveAutoMovieSeed` returns.
- * @param octaves Number of octaves, a positive integer.
- * @param roughness Amplitude ratio between successive octaves, in (0, 1).
- * @returns The noise, taking plan coordinates in first-octave lattice cells; it
- *   throws naming `x` or `y` when a coordinate is not finite or its finest
- *   octave coordinate exceeds the bound.
- * @throws {Error} Naming `octaves` or `roughness` when either is outside its
- *   range, or when `seed` is not sixteen hexadecimal digits.
+ * AutoMovieEngineRandom.GRADIENT_NOISE_2_BOUND.
+ * Parameter seed: Sixteen hexadecimal digits, as `deriveAutoMovieSeed` returns.
+ * Parameter octaves: Number of octaves, a positive integer.
+ * Parameter roughness: Amplitude ratio between successive octaves, in (0, 1).
+ * Returns: The noise, taking plan coordinates in first-octave lattice cells; it
+ * throws naming `x` or `y` when a coordinate is not finite or its finest
+ * octave coordinate exceeds the bound.
+ * Naming `octaves` or `roughness` when either is outside its
+ * range, or when `seed` is not sixteen hexadecimal digits.
  */
 export function createAutoMovieFractalNoise2(
   seed: string,

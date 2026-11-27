@@ -1,6 +1,6 @@
 import type { IAutoMovieProceduralSurface } from "@automovie/interface";
 
-/**
+/*
  * The GLSL function `float autoMovieProceduralPattern( vec3 p )` of one
  * procedural kind, reading the uniforms `applyProceduralSurface` binds: the
  * seed `uProceduralSeed`, the feature size `uProceduralScale` and the axis
@@ -27,7 +27,9 @@ export function proceduralPatternGlsl(
   ].join("\n");
 }
 
-/** The function body of each kind. */
+/*
+ * The function body of each kind.
+ */
 const BODIES: Record<IAutoMovieProceduralSurface["kind"], string> = {
   plaster:
     "\treturn clamp( 0.5 + 0.5 * autoMovieProceduralFractal( uProceduralSeed, p / s ), 0.0, 1.0 );",

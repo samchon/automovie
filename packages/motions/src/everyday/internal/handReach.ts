@@ -14,7 +14,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * How far a hand laid at a world rotation reaches past one of its own surfaces
  * along a world direction: the highest point of the hand's and the fingers'
  * colliders along it, the hand in a shape, less the surface's own. A hand laid
@@ -23,15 +23,14 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * on the posture's own hand once, and each direction is read in that hand's
  * frame, which the laid hand turns to the rotation, so the reach depends on the
  * shape alone, not on where the arm holds the hand.
- *
- * @param body The body.
- * @param posture The posture whose hand is read; only its joints matter.
- * @param side The hand.
- * @param rotation The world rotation the hand is laid at.
- * @param surface The hand surface laid on the place.
- * @param shape The imposed hand shape. Omit it to observe the current finger
- *   articulation.
- * @returns The reach along a world direction, metres.
+ * Parameter body: The body.
+ * Parameter posture: The posture whose hand is read; only its joints matter.
+ * Parameter side: The hand.
+ * Parameter rotation: The world rotation the hand is laid at.
+ * Parameter surface: The hand surface laid on the place.
+ * Parameter shape: The imposed hand shape. Omit it to observe the current finger
+ * articulation.
+ * Returns: The reach along a world direction, metres.
  */
 export function handReach(
   body: IAutoMovieMotionHumanBody,

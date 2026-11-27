@@ -23,7 +23,7 @@ import { bendLower } from "./bendLower";
 import { braceOnThighPoint } from "./braceOnThighPoint";
 import { seatedPairDepth } from "./seatedPairDepth";
 
-/**
+/*
  * Recover a supported, unilateral squat when the nominal sagittal course folds
  * the lumbar skin into a thigh. Two links locate the hips above the actual
  * ankle centres while both hindfoot goals keep their material pivots. The event
@@ -133,7 +133,7 @@ export function prepareBendSquat(
   const upper = HumanFrame.local({ ...legFrame, origin: startKnee }, startHip);
   const startShank: number = Math.atan2(lower.z, lower.y);
   const startThigh: number = Math.atan2(-upper.z, upper.y);
-  /**
+  /*
    * The root and both planted knee planes depend only on the first four
    * coordinates.
    */
@@ -164,7 +164,9 @@ export function prepareBendSquat(
       root: Vector3.subtract(centre, Vector3.lerp(hips.left, hips.right, 0.5)),
     });
   };
-  /** Lay the current trunk angles over the same material lower posture. */
+  /*
+   * Lay the current trunk angles over the same material lower posture.
+   */
   const trunk = (
     legs: IAutoMovieMotionHumanPosture,
     q: readonly number[],
@@ -178,7 +180,9 @@ export function prepareBendSquat(
   });
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
-  /** Inspect one proposed posture: its legs, trunk and fit, solved afresh. */
+  /*
+   * Inspect one proposed posture: its legs, trunk and fit, solved afresh.
+   */
   const residual = (q: readonly number[]): ITrial => {
     const legs: IAutoMovieMotionHumanPosture = lowerBody(q);
     const p: IAutoMovieMotionHumanPosture = trunk(legs, q);
@@ -359,7 +363,7 @@ export function prepareBendSquat(
   };
 }
 type Strategy = Exclude<keyof typeof bendLower.KNEE, "stoop">;
-/**
+/*
  * The wrist's place in a posture: fixed, or on a carried surface. A trial
  * offers its same-pose displayed bones.
  */
@@ -384,19 +388,27 @@ type Angles = [
   twist: number,
 ];
 
-/** A trial's residuals and the lower posture they were read on. */
+/*
+ * A trial's residuals and the lower posture they were read on.
+ */
 interface ITrial {
-  /** The residual rows. */
+  /*
+   * The residual rows.
+   */
   rows: number[];
 
-  /** The lower posture. */
+  /*
+   * The lower posture.
+   */
   legs: IAutoMovieMotionHumanPosture;
 }
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
 const RAD: number = Math.PI / 180;
 
-/** Intersect each two-link knee circle with its foot's sagittal plane. */
+/*
+ * Intersect each two-link knee circle with its foot's sagittal plane.
+ */
 function kneePlanes(
   body: IAutoMovieMotionHumanBody,
   original: IAutoMovieMotionHumanPosture,

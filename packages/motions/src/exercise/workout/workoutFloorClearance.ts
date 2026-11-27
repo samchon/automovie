@@ -10,17 +10,16 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Prepare the workout's floor penetration over its observed colliders: how far
  * the lowest of them sinks under the floor, zero when none does. The body stays
  * unchanged for the plan; each read resolves and measures its current complete
  * posture.
- *
- * @param body The unchanged body and its neutral collider owner.
- * @param requested The collider bone names this floor observation reads.
- * @returns A current-posture reader of penetration in metres, optionally
- *   borrowing exact FK and genuine ROM metadata only during that synchronous
- *   read.
+ * Parameter body: The unchanged body and its neutral collider owner.
+ * Parameter requested: The collider bone names this floor observation reads.
+ * Returns: A current-posture reader of penetration in metres, optionally
+ * borrowing exact FK and genuine ROM metadata only during that synchronous
+ * read.
  */
 export function workoutFloorClearance(
   body: IAutoMovieMotionHumanBody,

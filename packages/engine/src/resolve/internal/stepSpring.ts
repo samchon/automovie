@@ -13,7 +13,7 @@ import { Vector3 } from "../../math/Vector3";
 import { readLocal } from "./readLocal";
 import { readWorld } from "./readWorld";
 
-/**
+/*
  * Advance non-root spring joints with Verlet inertia, gravity, stiffness and
  * length projection, then sphere collision projection. Caller state and world
  * positions mutate in place; joint rotation/scale remain unchanged. Each

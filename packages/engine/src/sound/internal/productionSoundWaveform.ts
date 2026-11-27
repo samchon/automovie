@@ -3,7 +3,9 @@ import type { IAutoMovieProductionSoundRaster } from "@automovie/interface";
 import { AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS } from "../AUTOMOVIE_PRODUCTION_SOUND_EVIDENCE_RASTERS";
 import { assertProductionSoundRasterInput } from "./assertProductionSoundRasterInput";
 
-/** Draw stereo peak bars on a bounded opaque RGBA viewport. */
+/*
+ * Draw stereo peak bars on a bounded opaque RGBA viewport.
+ */
 export const productionSoundWaveform: (
   pcm: Float32Array<ArrayBufferLike>,
   width?: number,
@@ -41,7 +43,7 @@ export const productionSoundWaveform: (
   return { width, height, rgba };
 };
 
-/**
+/*
  * Allocate a fresh opaque dark RGBA canvas; allocation failure propagates
  * before any raster is published.
  */
@@ -62,7 +64,7 @@ const rasterBackground: (
   return rgba;
 };
 
-/**
+/*
  * Write one admitted in-viewport row-major pixel with the drawer's bounded byte
  * palette; this private writer performs no independent coordinate admission.
  */

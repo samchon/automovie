@@ -8,7 +8,9 @@ import type {
 
 import { HumanPrehension } from "./HumanPrehension";
 
-/** Time the loaded placement and the reverse of the empty-hand exit. */
+/*
+ * Time the loaded placement and the reverse of the empty-hand exit.
+ */
 export function putDownTravel(
   context: IAutoMovieMotionHumanActionContext,
   entry: IAutoMovieRigidTransform,
@@ -134,7 +136,9 @@ export function putDownTravel(
   };
 }
 
-/** Read the active minimum-jerk span on the local clock of the whole path. */
+/*
+ * Read the active minimum-jerk span on the local clock of the whole path.
+ */
 function joinRoute(
   spans: readonly IAutoMovieMotionHumanPrehension.ITransport[],
 ): IAutoMovieMotionHumanPrehension.ITransport {
@@ -166,39 +170,54 @@ function joinRoute(
   };
 }
 
-/** The loaded and unloaded transports and the aperture's clock. */
+/*
+ * The loaded and unloaded transports and the aperture's clock.
+ */
 export namespace putDownTravel {
-  /** Seat-relative waypoint offsets in world metres, in travel order. */
+  /*
+   * Seat-relative waypoint offsets in world metres, in travel order.
+   */
   export interface IRoute {
-    /** Optional stops before the compulsory aperture. */
+    /*
+     * Optional stops before the compulsory aperture.
+     */
     approach: readonly IAutoMovieVector3[];
-    /** Optional stops between the aperture and seat. */
+    /*
+     * Optional stops between the aperture and seat.
+     */
     insertion: readonly IAutoMovieVector3[];
   }
 
-  /**
+  /*
    * The two paths and optional aperture crossing.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Names each direction and the crossing time unit.
-   * @evidence contracts/development/design.md#principled-representation Local-time wrist samplers with an optional event in seconds.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The placement planner reads these three fields.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Ordinary placement has no aperture event.
    */
   export interface ITravel {
-    /** From the displayed entry wrist to the resting wrist. */
+    /*
+     * From the displayed entry wrist to the resting wrist.
+     */
     carry: IAutoMovieMotionHumanPrehension.ITransport;
-    /** From the hanging wrist to the resting wrist, sampled backward on exit. */
+    /*
+     * From the hanging wrist to the resting wrist, sampled backward on exit.
+     */
     retreat: IAutoMovieMotionHumanPrehension.ITransport;
-    /** Seconds from entry to the aperture when specified. */
+    /*
+     * Seconds from entry to the aperture when specified.
+     */
     aperture?: number;
   }
 }
 
-/** The route segment active at a path second and the second on its own clock. */
+/*
+ * The route segment active at a path second and the second on its own clock.
+ */
 interface IActiveSpan {
-  /** The active segment. */
+  /*
+   * The active segment.
+   */
   span: IAutoMovieMotionHumanPrehension.ITransport;
 
-  /** Seconds since that segment began. */
+  /*
+   * Seconds since that segment began.
+   */
   local: number;
 }

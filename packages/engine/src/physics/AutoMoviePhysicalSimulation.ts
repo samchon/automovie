@@ -285,17 +285,27 @@ export class AutoMoviePhysicalSimulation {
     return yieldPhysicalSimulation(step, total, yieldEvery, signal, progress);
   }
 
-  /** Own the immutable input snapshot needed to verify checkpoint equivalence. */
+  /*
+   * Own the immutable input snapshot needed to verify checkpoint equivalence.
+   */
   private constructor(
-    /** Owned sampled inputs establishing checkpoint equivalence. */
+    /*
+     * Owned sampled inputs establishing checkpoint equivalence.
+     */
     public readonly input: IAutoMoviePhysicalSimulationInput.IInput,
-    /** Complete replay state. */
+    /*
+     * Complete replay state.
+     */
     public readonly cache: IAutoMoviePhysicsCache,
-    /** Fixed steps performed by this run. */
+    /*
+     * Fixed steps performed by this run.
+     */
     public readonly recomputedSteps: number,
-    /** Pre-solve PD demands exceeding the enforced motor torque cap. */
+    /*
+     * Pre-solve PD demands exceeding the enforced motor torque cap.
+     */
     public readonly tracking: IAutoMoviePhysicalSimulationInput.IDiagnostic[],
-    /**
+    /*
      * Converged coupled-group target fits by output step and group id; omitted
      * when no target declares a group.
      */
@@ -347,7 +357,7 @@ export class AutoMoviePhysicalSimulation {
     return auditPhysicalOutcomes(input);
   }
 
-  /**
+  /*
    * All identity callers and actual runs use exactly the same owned defaults
    * and admission, including the coupled-group schedule.
    */

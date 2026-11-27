@@ -12,7 +12,9 @@ import { RecoveryFeasibleCapacityError } from "../RecoveryFeasibleCapacityError"
 import { prepareRecoveryFeasibleMapWork } from "./prepareRecoveryFeasibleMapWork";
 import { prepareRecoveryFeasibleReportCapacity } from "./prepareRecoveryFeasibleReportCapacity";
 
-/** Admit original map work, then prepay its complete fixed diagnostic transfer. */
+/*
+ * Admit original map work, then prepay its complete fixed diagnostic transfer.
+ */
 export function prepareRecoveryFeasibleMapReporting(
   poses: readonly IAutoMovieRecoveryMapPose[],
   landmarks: readonly IAutoMovieRecoveryMapLandmark[],

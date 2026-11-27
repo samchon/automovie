@@ -10,16 +10,15 @@ import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { HumanSupportPatch } from "../../posture/internal/HumanSupportPatch";
 import { prepareHumanTrunkBalance } from "./prepareHumanTrunkBalance";
 
-/**
+/*
  * Turn the lumbar subtree against the currently bearing contact patches without
  * moving the pelvis. The bearing contacts inside the balance window and the
  * trunk balance over them are prepared here, so a write only reads them.
- *
- * @param body The body.
- * @param window The balance window; none leaves every posture as it is.
- * @param duration The action's seconds.
- * @param contacts The action's contact windows, shares of the action.
- * @returns The primitive's write.
+ * Parameter body: The body.
+ * Parameter window: The balance window; none leaves every posture as it is.
+ * Parameter duration: The action's seconds.
+ * Parameter contacts: The action's contact windows, shares of the action.
+ * Returns: The primitive's write.
  */
 export function prepareBearingTrunkBalance(
   body: IAutoMovieMotionHumanBody,

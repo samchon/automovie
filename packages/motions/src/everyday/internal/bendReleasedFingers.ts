@@ -10,7 +10,9 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** Extend the knuckles while a wrist near the floor turns the fingers down. */
+/*
+ * Extend the knuckles while a wrist near the floor turns the fingers down.
+ */
 export function bendReleasedFingers(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,

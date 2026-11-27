@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 
-/**
+/*
  * A halter fitted to one equid's head: a crown loop behind the poll, a noseband
  * loop round the nose and a cheek strap down each side between them.
  *
@@ -22,11 +22,10 @@ import {
  * smaller), and the fit here is that sizing made exact. `grip` is the crown's
  * top, where a hand carries the halter. Strap width and thickness, the
  * noseband's place and the mass are authored.
- *
- * @param head The head it is fitted to: the head capsule's length from poll to
- *   nose and its radius, metres.
- * @param params The model's id.
- * @returns The halter.
+ * Parameter head: The head it is fitted to: the head capsule's length from poll to
+ * nose and its radius, metres.
+ * Parameter params: The model's id.
+ * Returns: The halter.
  */
 export function createHalter(
   head: AutoMovieArchetypeHalter.IHead,
@@ -94,7 +93,7 @@ export function createHalter(
   return builder.build(MASS);
 }
 
-/**
+/*
  * A halter strap's width and thickness, metres: authored, the halter listings
  * read give strap lengths only.
  */
@@ -103,11 +102,13 @@ const STRAP: Readonly<{ width: number; thickness: number }> = {
   thickness: 0.006,
 };
 
-/**
+/*
  * The noseband's place along the head from the poll, a fraction of the head's
  * length: authored.
  */
 const NOSEBAND: number = 0.7;
 
-/** A halter's mass, kilograms: authored, no listing read gives it. */
+/*
+ * A halter's mass, kilograms: authored, no listing read gives it.
+ */
 const MASS: number = 0.4;

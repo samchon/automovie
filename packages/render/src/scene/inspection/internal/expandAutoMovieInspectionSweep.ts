@@ -6,7 +6,7 @@ import type {
 
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 
-/**
+/*
  * Expand a sweep pattern into its units, each with the selection that draws it
  * alone and the selection that draws it with the neighbours it touches, so the
  * whole, each unit alone and each unit with its neighbours are planned in one
@@ -95,10 +95,14 @@ export function expandAutoMovieInspectionSweep(
   );
 }
 
-/** The three axes of a box. */
+/*
+ * The three axes of a box.
+ */
 const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
 
-/** The lowest `min` or the highest `max` corner of a set of boxes. */
+/*
+ * The lowest `min` or the highest `max` corner of a set of boxes.
+ */
 function corner(
   boxes: readonly { min: IAutoMovieVector3; max: IAutoMovieVector3 }[],
   side: "min" | "max",

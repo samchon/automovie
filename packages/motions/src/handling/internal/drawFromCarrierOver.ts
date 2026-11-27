@@ -21,7 +21,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { HumanGrip } from "./HumanGrip";
 import { drawFromCarrierPulling } from "./drawFromCarrierPulling";
 
-/**
+/*
  * The draw over a carrier: a seated rider drawing from a carrier worn on its
  * body. The carrier action keeps the body; the draw claims only its hands and
  * arms, and their goals ride the bone the carrier is worn on, so the hands
@@ -175,31 +175,57 @@ export function drawFromCarrierOver(
   };
 }
 
-/** `drawFromCarrierOver` and its records. */
+/*
+ * `drawFromCarrierOver` and its records.
+ */
 export namespace drawFromCarrierOver {
-  /** What a draw over a carrier is planned from, as the grounded draw read it. */
+  /*
+   * What a draw over a carrier is planned from, as the grounded draw read it.
+   */
   export interface IOver {
-    /** The action's context, its carrier present. */
+    /*
+     * The action's context, its carrier present.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDrawFromCarrier>;
-    /** The drawing hand. */
+    /*
+     * The drawing hand.
+     */
     side: AutoMovieHumanSide;
-    /** The drawn object. */
+    /*
+     * The drawn object.
+     */
     prop: string;
-    /** The carrier and its affordances. */
+    /*
+     * The carrier and its affordances.
+     */
     from: IAutoMovieMotionHumanDrawFromCarrier.IFrom;
-    /** The draw line, world metres at the entry. */
+    /*
+     * The draw line, world metres at the entry.
+     */
     line: IAutoMovieVector3;
-    /** The draw's length, seconds. */
+    /*
+     * The draw's length, seconds.
+     */
     duration: number;
-    /** The drawing wrist's transport, world at the entry. */
+    /*
+     * The drawing wrist's transport, world at the entry.
+     */
     transport: IAutoMovieMotionHumanPrehension.ITransport;
-    /** The drawing elbow's hint, world at the entry. */
+    /*
+     * The drawing elbow's hint, world at the entry.
+     */
     bend: IAutoMovieVector3;
-    /** The hand's use of the object. */
+    /*
+     * The hand's use of the object.
+     */
     use: IAutoMovieMotionPropHold["use"];
-    /** The other hand's pull, when it pulls. */
+    /*
+     * The other hand's pull, when it pulls.
+     */
     pulled: drawFromCarrierPulling.IPulled | null;
-    /** The pulling wrist's transport, world at the entry. */
+    /*
+     * The pulling wrist's transport, world at the entry.
+     */
     retreat: IAutoMovieMotionHumanPrehension.ITransport | null;
   }
 }

@@ -30,19 +30,18 @@ import { CourtStrokeProfiles } from "./CourtStrokeProfiles";
 import { courtRacketWrist } from "./courtRacketWrist";
 import { courtStrokeFeet } from "./courtStrokeFeet";
 
-/**
+/*
  * Plan the court athlete from entry stance through support, load, strike and
  * recovery. The planted foot targets stay fixed. A jump carries the feet on a
  * ballistic arc while the pelvis bends into landing over the new support. A
  * named held racket uses its actual face and longitudinal axis in the fitted
  * hand frame; one ball trajectory can use the exposed `stroke` event.
- *
- * @param context The body, actual entry stance, handedness and manner.
- * @param kind The sport-specific support and stroke profile.
- * @param options The optional explicit contact and held implement.
- * @returns The motion, support windows and retained racket grip.
- * @throws {HumanRefusal} When a named implement is unavailable to the hand or a
- *   constrained arm path cannot be fitted.
+ * Parameter context: The body, actual entry stance, handedness and manner.
+ * Parameter kind: The sport-specific support and stroke profile.
+ * Parameter options: The optional explicit contact and held implement.
+ * Returns: The motion, support windows and retained racket grip.
+ * When a named implement is unavailable to the hand or a
+ * constrained arm path cannot be fitted.
  */
 export function courtStroke(
   context: Context,
@@ -440,27 +439,43 @@ export function courtStroke(
       };
 }
 
-/** The record of `IContext`'s site. */
+/*
+ * The record of `IContext`'s site.
+ */
 type IContext = {
   side?: AutoMovieHumanSide;
   manner?: IAutoMovieMotionManner;
 };
 
-/** Which registered action inputs the court stroke reads. */
+/*
+ * Which registered action inputs the court stroke reads.
+ */
 type Context = IAutoMovieMotionHumanActionContext<IContext>;
 
-/** Optional elected working point and held racket for a stroke. */
+/*
+ * Optional elected working point and held racket for a stroke.
+ */
 interface IOptions {
-  /** Centre of the intended hand contact or racket face, world metres. */
+  /*
+   * Centre of the intended hand contact or racket face, world metres.
+   */
   readonly contact?: IAutoMovieVector3;
-  /** Subject held in the hitting hand from a previous pickup. */
+  /*
+   * Subject held in the hitting hand from a previous pickup.
+   */
   readonly implement?: string;
 }
 
-/** Reference stature for the profile's film-time values, metres. */
+/*
+ * Reference stature for the profile's film-time values, metres.
+ */
 const REFERENCE_STATURE: number = 1.75;
-/** Half of the provisional racket contact window, in film seconds. */
+/*
+ * Half of the provisional racket contact window, in film seconds.
+ */
 const RACKET_CONTACT_HALF: number = 0.018;
 
-/** The alternatives of `NominalPosturePhaseAngleAxis`'s site. */
+/*
+ * The alternatives of `NominalPosturePhaseAngleAxis`'s site.
+ */
 type NominalPosturePhaseAngleAxis = 0 | 1 | 2;

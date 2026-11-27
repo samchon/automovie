@@ -16,12 +16,12 @@ import { touch as touchLaw } from "../../touch/internal/touch";
 import { touchEffectors as touchEffectorsLaw } from "../../touch/internal/touchEffectors";
 import { touchSite as touchSiteLaw } from "../../touch/internal/touchSite";
 
-/**
+/*
  * The touch family's laws and helpers, each the shipped value under its family
  * name (`AutoMovieMotionHumanTouch`), with its own comment.
  */
 export namespace AutoMovieMotionHumanTouchLaws {
-  /**
+  /*
    * One or both hands touch a partner's or the performer's own region with a
    * tap, pat, stroke, rub, press, squeeze, hold or scratch (Jung et al. 2017).
    * Social touches and self-directed touches are rows of this one law, each
@@ -45,7 +45,7 @@ export namespace AutoMovieMotionHumanTouchLaws {
    */
   export import touch = touchLaw;
 
-  /**
+  /*
    * A high five, a low five or a fist bump between two standing partners: both
    * bring one hand to one shared point between them and meet there at one
    * shared instant, the mutual goal the handshake uses
@@ -79,7 +79,7 @@ export namespace AutoMovieMotionHumanTouchLaws {
    */
   export import highFive = highFiveLaw;
 
-  /**
+  /*
    * A kiss while standing: the lips brought to a partner's region (a cheek, the
    * forehead, the crown, the lips, the back of a hand) by leaning the body from
    * the hips and flexing the neck, the head turned to one side for a cheek or
@@ -107,7 +107,7 @@ export namespace AutoMovieMotionHumanTouchLaws {
    */
   export import kiss = kissLaw;
 
-  /**
+  /*
    * A touch with the leg while standing (effectors below the hip): the toes,
    * the heel or the knee of one leg is brought onto a place and held there, the
    * other leg bearing the body.
@@ -136,23 +136,22 @@ export namespace AutoMovieMotionHumanTouchLaws {
    */
   export import legTouch = legTouchLaw;
 
-  /**
+  /*
    * A region of a target as a frame: a person's region or a prop's point
    * through the context's aim, a trunk or head region of the performer on the
    * posture, and a limb region of the performer on the entry pose, which a
    * touch that does not move that limb leaves where it was.
-   *
-   * @param context The action's context.
-   * @param target The target.
-   * @param seconds Film seconds.
-   * @param posture The posture so far.
-   * @param entry The entry pose's resolved bones, or a supplier of the bones to
-   *   read a region off the trunk on, called only for such a region.
-   * @returns The point and the outward normal.
+   * Parameter context: The action's context.
+   * Parameter target: The target.
+   * Parameter seconds: Film seconds.
+   * Parameter posture: The posture so far.
+   * Parameter entry: The entry pose's resolved bones, or a supplier of the bones to
+   * read a region off the trunk on, called only for such a region.
+   * Returns: The point and the outward normal.
    */
   export const region: typeof touchRegionFrameLaw = touchRegionFrameLaw;
 
-  /**
+  /*
    * A touch: the arm and the fingers on one clock. The arm's whole touch is
    * planned as one trajectory (`AutoMovieMotionHumanArmPlanned`): its reach
    * from its entry angles, its hold on the goal laid on the region from `ready`
@@ -163,29 +162,27 @@ export namespace AutoMovieMotionHumanTouchLaws {
    * end, and moved along its tangent by the clock's windowed wave of `n`
    * cycles. A held vessel keeps its attitude on the way
    * (`AutoMovieMotionHumanDrinkingArm.carried`).
-   *
-   * @param props The touch.
-   * @returns The arm's and the hand's primitives, the arm's alone when the
-   *   fingers are kept; the arm carries the contact window from `ready` to
-   *   `relax` when a support is given and the hand, not a held tool, is what
-   *   touches it, and one `lie` window over the same span for each of its
-   *   segments declared resting (`ITouch.rests`).
-   * @throws {Error} When the count is not a positive whole number.
+   * Parameter props: The touch.
+   * Returns: The arm's and the hand's primitives, the arm's alone when the
+   * fingers are kept; the arm carries the contact window from `ready` to
+   * `relax` when a support is given and the hand, not a held tool, is what
+   * touches it, and one `lie` window over the same span for each of its
+   * segments declared resting (`ITouch.rests`).
+   * When the count is not a positive whole number.
    */
   export const touchPrimitive: typeof touchPrimitiveLaw = touchPrimitiveLaw;
 
-  /**
+  /*
    * How far a touch's arm is from its entry angles to its goal at a second: the
    * clock's envelope, rising from `start` to `ready` and falling from `relax`
    * to `end`.
-   *
-   * @param clock The touch's clock.
-   * @param seconds Seconds since the action's start.
-   * @returns A share in [0, 1].
+   * Parameter clock: The touch's clock.
+   * Parameter seconds: Seconds since the action's start.
+   * Returns: A share in [0, 1].
    */
   export const share: typeof touchEnvelopeLaw = touchEnvelopeLaw;
 
-  /**
+  /*
    * The last share of a carry's progress (`touchEnvelope`) over which a vessel
    * leaned at the face (`ITouch.lean`) tips toward it, and the first share of
    * the way back over which it is righted, by the hand's attitude (provisional:
@@ -193,21 +190,20 @@ export namespace AutoMovieMotionHumanTouchLaws {
    */
   export const TIP: typeof TOUCH_TIP = TOUCH_TIP;
 
-  /**
+  /*
    * The goal a touch's arm is carried toward at each second: the effector laid
    * on the region, lifted along its normal by `lift sin^2(pi n u)` and moved
    * along its tangent by the clock's windowed wave of `n` cycles between
    * `strokeStart` and `strokeEnd`, and stood off along the normal by the share
    * of the carry still to go. Another arm that works with the same hand (a
    * second hand on a held tool) reads the same goal.
-   *
-   * @param props The touch.
-   * @returns The goal at a posture and a second since the action's start.
-   * @throws {Error} When the count is not a positive whole number.
+   * Parameter props: The touch.
+   * Returns: The goal at a posture and a second since the action's start.
+   * When the count is not a positive whole number.
    */
   export const goal: typeof touchGoalLaw = touchGoalLaw;
 
-  /**
+  /*
    * Rest the head on a partner. The resting head's own region, the temple on
    * the side the partner's region lies unless named, is brought to the
    * partner's region. The body leans from the hips as a kiss does (`kissBody`,
@@ -226,7 +222,7 @@ export namespace AutoMovieMotionHumanTouchLaws {
    */
   export const headRest: typeof headRestLaw = headRestLaw;
 
-  /**
+  /*
    * Lean back against a seated partner's back. Each of the two reads its own
    * and the other's upper back on the displayed bodies at the start and leans
    * its trunk back from the hips over the seat (the kiss's lean, `kissBody`,
@@ -246,7 +242,7 @@ export namespace AutoMovieMotionHumanTouchLaws {
    */
   export const backToBack: typeof backToBackLaw = backToBackLaw;
 
-  /**
+  /*
    * Sit on a seated partner's lap. The lap is the seated partner's thighs where
    * they are at the start: its height is the top of the two thighs' middles
    * (`thighFrontLeft` and `thighFrontRight`), its heading the partner's hips to
@@ -259,7 +255,7 @@ export namespace AutoMovieMotionHumanTouchLaws {
    */
   export const sitOnLap: typeof sitOnLapLaw = sitOnLapLaw;
 
-  /**
+  /*
    * Embrace a partner from behind. The lean from the hips is solved first, the
    * least forward pitch that lays the chest's sternum region on the partner's
    * upper back (the kiss's lean model, `kissBody`, on planted feet); then the
@@ -286,7 +282,7 @@ export namespace AutoMovieMotionHumanTouchLaws {
   export const embraceFromBehind: typeof embraceFromBehindLaw =
     embraceFromBehindLaw;
 
-  /**
+  /*
    * A criss-cross hug between closely staged, facing partners with their heads
    * offset. Each right arm reaches around the partner's shoulder to the upper
    * back and each left arm around the waist to the lower back. Each performer's
@@ -302,7 +298,7 @@ export namespace AutoMovieMotionHumanTouchLaws {
    */
   export const hug: typeof hugLaw = hugLaw;
 
-  /**
+  /*
    * Two facing partners within arm's reach each rest their right palm on the
    * other's left shoulder, then return their hands. Pass to `HumanChain.mutual`
    * with the `one` and `other` chains. The reaches start together and each palm
@@ -316,13 +312,13 @@ export namespace AutoMovieMotionHumanTouchLaws {
    */
   export const shoulderClasp: typeof shoulderClaspLaw = shoulderClaspLaw;
 
-  /**
+  /*
    * The parts of the hand a touch lays on its region (`touch.With`) and each
    * one's effector (`touch.EFFECTORS`).
    */
   export import touchEffectors = touchEffectorsLaw;
 
-  /**
+  /*
    * Where on a region a touch lands: a region is a patch of skin, not one
    * point, so a touch names a place on it. The place is stated by the author,
    * drawn by the seed, or chosen by a rule; on a prop's contact that has a

@@ -20,7 +20,7 @@ import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatFlight } from "./HumanUnseatFlight";
 import { heelMountedFoot } from "./heelMountedFoot";
 
-/**
+/*
  * The shapes of a rider leaving a saddle (`HumanUnseat`): the slump over the
  * neck, the flight's blend from the carried seat into the lie or the stand, a
  * hand reaching the floor or the mane, the flank clearance a sideways fall must
@@ -28,37 +28,42 @@ import { heelMountedFoot } from "./heelMountedFoot";
  * stage reading.
  */
 export namespace HumanUnseatPose {
-  /** Seconds a rider takes to slump over the neck (provisional). */
+  /*
+   * Seconds a rider takes to slump over the neck (provisional).
+   */
   export const SLUMP: number = 0.8;
 
-  /**
+  /*
    * Seconds before the landing the falling side's hand meets the floor
    * (provisional).
    */
   export const TOUCH: number = 0.08;
 
-  /**
+  /*
    * Seconds the dragged body takes from the saddle to its lie behind the
    * stirrup (provisional).
    */
   export const DRAW: number = 0.4;
 
-  /** A standing shape: upright with the joints at rest. */
+  /*
+   * A standing shape: upright with the joints at rest.
+   */
   export const STAND: KnockdownFloor.IFold = { pitch: 0, joints: {} };
 
-  /** The slump's trunk and neck flexion, degrees (provisional). */
+  /*
+   * The slump's trunk and neck flexion, degrees (provisional).
+   */
   const FLEX: Readonly<Record<FLEXEntryItem, number>> = {
     spine: 35,
     chest: 25,
     neck: 30,
   };
 
-  /**
+  /*
    * The seated posture slumped over the neck by a share.
-   *
-   * @param posture The carried seat.
-   * @param share 0 upright to 1 slumped.
-   * @returns The posture.
+   * Parameter posture: The carried seat.
+   * Parameter share: 0 upright to 1 slumped.
+   * Returns: The posture.
    */
   export function slumped(
     posture: IAutoMovieMotionHumanPosture,
@@ -78,18 +83,17 @@ export namespace HumanUnseatPose {
     return { ...posture, joints };
   }
 
-  /**
+  /*
    * The flying posture: the carried seat blended into a lie or a stand by a
    * share, turned to its facing and placed at the root.
-   *
-   * @param body The body.
-   * @param from The posture at the release.
-   * @param to The lie or stand.
-   * @param facing The final heading, degrees.
-   * @param root The root now.
-   * @param share 0 at the release to 1 at the landing.
-   * @returns The posture, its limb goals carried with the root's motion since
-   *   the release and unplanted: the saddle's holds are let go without a jump.
+   * Parameter body: The body.
+   * Parameter from: The posture at the release.
+   * Parameter to: The lie or stand.
+   * Parameter facing: The final heading, degrees.
+   * Parameter root: The root now.
+   * Parameter share: 0 at the release to 1 at the landing.
+   * Returns: The posture, its limb goals carried with the root's motion since
+   * the release and unplanted: the saddle's holds are let go without a jump.
    */
   export function flying(
     body: IAutoMovieMotionHumanBody,
@@ -182,13 +186,12 @@ export namespace HumanUnseatPose {
     return { ...shown, limbs };
   }
 
-  /**
+  /*
    * Where a hand holding nothing hangs: beside the hip, a quarter metre out and
    * a tenth below the root, turned by the posture's heading.
-   *
-   * @param posture The posture.
-   * @param side The hand.
-   * @returns The hand's place, world metres.
+   * Parameter posture: The posture.
+   * Parameter side: The hand.
+   * Returns: The hand's place, world metres.
    */
   export function hang(
     posture: IAutoMovieMotionHumanPosture,
@@ -204,15 +207,14 @@ export namespace HumanUnseatPose {
     );
   }
 
-  /**
+  /*
    * A hand reaching for a point by a share: its arm goal moves from where the
    * hand hangs to the point.
-   *
-   * @param posture The posture.
-   * @param side The hand.
-   * @param point The point, world metres.
-   * @param share 0 hanging to 1 at the point.
-   * @returns The posture with the arm's goal.
+   * Parameter posture: The posture.
+   * Parameter side: The hand.
+   * Parameter point: The point, world metres.
+   * Parameter share: 0 hanging to 1 at the point.
+   * Returns: The posture with the arm's goal.
    */
   export function reach(
     posture: IAutoMovieMotionHumanPosture,
@@ -244,14 +246,13 @@ export namespace HumanUnseatPose {
       },
     };
   }
-  /**
+  /*
    * Where the falling side's hand meets the floor: out from the falling side's
    * shoulder by half the upper arm, below it on the floor.
-   *
-   * @param posture The posture.
-   * @param side The falling side.
-   * @param body The body.
-   * @returns World metres, on the floor.
+   * Parameter posture: The posture.
+   * Parameter side: The falling side.
+   * Parameter body: The body.
+   * Returns: World metres, on the floor.
    */
   export function beside(
     posture: IAutoMovieMotionHumanPosture,
@@ -270,28 +271,26 @@ export namespace HumanUnseatPose {
     };
   }
 
-  /**
+  /*
    * The root's height standing.
-   *
-   * @param body The body.
-   * @returns Metres above the floor.
+   * Parameter body: The body.
+   * Returns: Metres above the floor.
    */
   export function standingHeight(body: IAutoMovieMotionHumanBody): number {
     return body.measure.hipHeight;
   }
 
-  /**
+  /*
    * Refuse a sideways fall whose root would cross the carrier's flank below the
    * seat: inside the half width the rider's feet straddle, lower than the
    * seat.
-   *
-   * @param body The body.
-   * @param entry The seated entry posture.
-   * @param origin The carrier contact's frame at the act's start.
-   * @param carrier The carrier contact's frame reader.
-   * @param release The release, film seconds.
-   * @param flight The flight.
-   * @throws {HumanRefusal} When the flight passes through the flank.
+   * Parameter body: The body.
+   * Parameter entry: The seated entry posture.
+   * Parameter origin: The carrier contact's frame at the act's start.
+   * Parameter carrier: The carrier contact's frame reader.
+   * Parameter release: The release, film seconds.
+   * Parameter flight: The flight.
+   * When the flight passes through the flank.
    */
   export function clearsFlank(
     body: IAutoMovieMotionHumanBody,
@@ -335,13 +334,12 @@ export namespace HumanUnseatPose {
     }
   }
 
-  /**
+  /*
    * A posture's shoulder joint on a side, where its trunk places it.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @param side The side.
-   * @returns World metres.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Parameter side: The side.
+   * Returns: World metres.
    */
   export function shoulder(
     body: IAutoMovieMotionHumanBody,
@@ -367,17 +365,16 @@ export namespace HumanUnseatPose {
     ).get(bone)!.worldPosition;
   }
 
-  /**
+  /*
    * The first of a span's samples at which a hand's target comes within the
    * arm's reach of its shoulder.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @param from The span's start, local seconds.
-   * @param to The span's end, local seconds.
-   * @param posture The posture at a local second.
-   * @param target The hand's target at a local second, world metres.
-   * @returns The first reachable second, or undefined when none is.
+   * Parameter body: The body.
+   * Parameter side: The hand.
+   * Parameter from: The span's start, local seconds.
+   * Parameter to: The span's end, local seconds.
+   * Parameter posture: The posture at a local second.
+   * Parameter target: The hand's target at a local second, world metres.
+   * Returns: The first reachable second, or undefined when none is.
    */
   export function reachable(
     body: IAutoMovieMotionHumanBody,
@@ -398,5 +395,7 @@ export namespace HumanUnseatPose {
   }
 }
 
-/** The alternatives of `FLEXEntryItem`'s site. */
+/*
+ * The alternatives of `FLEXEntryItem`'s site.
+ */
 type FLEXEntryItem = "spine" | "chest" | "neck";

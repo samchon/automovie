@@ -8,7 +8,7 @@ import { outlineHull } from "../../architecture/internal/outlineHull";
 import { polygonBounds } from "../../architecture/internal/polygonBounds";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
-/**
+/*
  * The width and height of an opening's void, in its host face's metres, on the
  * drawing grid.
  *
@@ -19,9 +19,8 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * is tight for an arc on a chord parallel to a face axis, such as an arched
  * head or a round oculus written as two half turns, and larger than the arc for
  * a tilted chord.
- *
- * @param profile Opening profile with its outline and optional bulges.
- * @returns Extent along the face's local X (`width`) and Y (`height`).
+ * Parameter profile: Opening profile with its outline and optional bulges.
+ * Returns: Extent along the face's local X (`width`) and Y (`height`).
  */
 export const autoMovieOpeningExtent = (
   profile: IAutoMovieOpeningProfile,

@@ -2,7 +2,7 @@ import type { AutoMovieViewerInspector } from "../AutoMovieViewerInspector.js";
 import type { IAutoMovieInspectorAction } from "../IAutoMovieInspectorAction.js";
 import { locateAutoMovieInspectorFinding } from "./locateAutoMovieInspectorFinding.js";
 
-/**
+/*
  * Stop the inspector at one finding's witness: move the playhead there, stop
  * it, and locate the request there.
  *
@@ -10,8 +10,7 @@ import { locateAutoMovieInspectorFinding } from "./locateAutoMovieInspectorFindi
  * request, so the playhead is moved to the witness before it stops: the stopped
  * second and the located second are then the same, whichever edit the reducer
  * receives last.
- *
- * @param props Witness, drawn paths, playhead and request dispatch.
+ * Parameter props: Witness, drawn paths, playhead and request dispatch.
  */
 export function showAutoMovieInspectorFinding(
   props: AutoMovieViewerInspector.IShowFindingRequest,

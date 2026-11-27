@@ -12,7 +12,7 @@ import { AirborneShapeInertia } from "./AirborneShapeInertia";
 import { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 import type { AutoMovieEngineMotionAirborneRotation } from "../../AutoMovieEngineMotionAirborneRotation";
 
-/**
+/*
  * Construct a genuinely fixed root-frame shape from copied rig/bone values.
  *
  * Unlike a sampled shape callback, all coefficients are actual immutable
@@ -88,7 +88,7 @@ export function AirborneConstantShapeHistory(
   return numericHistory(matrix, span, statistics);
 }
 
-/**
+/*
  * Numeric-only construction prevents the returned reader retaining any FK or
  * mass input scope.
  */
@@ -128,32 +128,48 @@ function numericHistory(
   });
 }
 
-/** Private construction proof for fixed numeric physical histories. */
+/*
+ * Private construction proof for fixed numeric physical histories.
+ */
 export namespace AirborneConstantShapeHistory {
-  /** The native reader owns only copied numeric physical input. */
+  /*
+   * The native reader owns only copied numeric physical input.
+   */
   export interface IConstant {
-    /** One fixed root-frame tensor, never exposed or consumed by Jacobi. */
+    /*
+     * One fixed root-frame tensor, never exposed or consumed by Jacobi.
+     */
     matrix: number[][];
-    /** Covered physical seconds, absent for a constant defined for all time. */
+    /*
+     * Covered physical seconds, absent for a constant defined for all time.
+     */
     span?: { from: number; to: number };
-    /** Clear permanently ends the closed-form capability of this epoch. */
+    /*
+     * Clear permanently ends the closed-form capability of this epoch.
+     */
     active: boolean;
-    /** Fixed-size native event counters only, without a caller callback. */
+    /*
+     * Fixed-size native event counters only, without a caller callback.
+     */
     statistics?: AirborneShapeStatistics.IStatistics;
-    /**
+    /*
      * Positive-definite operator made with the history; null preserves ordinary
      * invalid-inertia admission.
      */
     factor: physicalInertiaFactor.IPrepared | null | undefined;
   }
 
-  /** A constant history carries its fixed tensor state. */
+  /*
+   * A constant history carries its fixed tensor state.
+   */
   export interface IConstantHistory {
-    /** Set by the factory; absent on any other reader. */
+    /*
+     * Set by the factory; absent on any other reader.
+     */
     readonly constantState?: IConstant;
   }
 
-  /**
+  /*
    * Native construction alone proves purity, without granting an invariant
    * after clear.
    */
@@ -163,7 +179,7 @@ export namespace AirborneConstantShapeHistory {
     return history.constantState !== undefined;
   }
 
-  /**
+  /*
    * Borrow the fixed physical operator only during its live, completely covered
    * epoch.
    */

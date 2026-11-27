@@ -14,7 +14,7 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { HumanMountedStirrups } from "./HumanMountedStirrups";
 import { respondHumanMounted } from "./respondHumanMounted";
 
-/**
+/*
  * The bank seats of a mounted performance: down a bank the rider sits with the
  * heels down and gives the reins forward while the trunk stays upright in
  * space, and up a bank rides a light seat with the trunk forward over the
@@ -25,7 +25,7 @@ import { respondHumanMounted } from "./respondHumanMounted";
  * attitude.
  */
 export namespace HumanMountedBank {
-  /**
+  /*
    * How far the descent's hands let the reins slip through the fingers, away
    * from the bit, forearm lengths: the rein given as the horse stretches its
    * neck down the bank, so the hands keep it without reaching (provisional; no
@@ -33,38 +33,36 @@ export namespace HumanMountedBank {
    */
   export const GIVE: number = 0.5;
 
-  /**
+  /*
    * A mounted clock's phase: the current figure and how far its transfer has
    * gone.
    */
   export type Phase = Pick<IAutoMovieMotionHumanMounted.IPhase, Phase2>;
 
-  /**
+  /*
    * Whether a seat kind is a bank seat.
-   *
-   * @param seat The seat kind.
-   * @returns True for the descent and the ascent.
+   * Parameter seat: The seat kind.
+   * Returns: True for the descent and the ascent.
    */
   export function bank(seat: IAutoMovieMotionHumanMounted.Seat): boolean {
     return seat === "descent" || seat === "ascent";
   }
 
-  /**
+  /*
    * The trunk joints the descent sets upright: their flexion and lateral bend
    * zeroed, their twist kept.
    */
   export const TRUNK: readonly AutoMovieHumanoidBone[] = ["spine", "chest"];
 
-  /**
+  /*
    * A bank seat's key: the descent's sits with the pelvis and the trunk upright
    * in the carrier frame, whatever the entry leant, the seat socket where the
    * entry had it, so the response then keeps the trunk upright in space; the
    * ascent's is its out-of-saddle seat as solved.
-   *
-   * @param body The body.
-   * @param seat The bank seat.
-   * @param key The seat's posture as solved from the entry or the stirrups.
-   * @returns The key.
+   * Parameter body: The body.
+   * Parameter seat: The bank seat.
+   * Parameter key: The seat's posture as solved from the entry or the stirrups.
+   * Returns: The key.
    */
   export function key(
     body: IAutoMovieMotionHumanBody,
@@ -88,24 +86,23 @@ export namespace HumanMountedBank {
     };
   }
 
-  /**
+  /*
    * The seat response with the bank seats' own: the author's share of the
    * carrier's turn since the start, raised to the whole of its pitch and roll
    * against the start's level heading over a transfer into a bank seat and
    * lowered back over a transfer out of one; the forward lean that brings the
    * holding hands in reach fades by the same share, since a bank seat keeps the
    * trunk's inclination in space and the hands take the reins where they are.
-   *
-   * @param body The body.
-   * @param posture The posture in the carrier contact's frame.
-   * @param figures The figures.
-   * @param phase The clock's phase.
-   * @param start The carrier contact's rotation at the start.
-   * @param now Its rotation now.
-   * @param respond The author's share, 0 to 1.
-   * @param grips Each holding hand's contact point, in the carrier frame now.
-   * @param surge The carrier's surge, metres per second squared.
-   * @returns The posture leant.
+   * Parameter body: The body.
+   * Parameter posture: The posture in the carrier contact's frame.
+   * Parameter figures: The figures.
+   * Parameter phase: The clock's phase.
+   * Parameter start: The carrier contact's rotation at the start.
+   * Parameter now: Its rotation now.
+   * Parameter respond: The author's share, 0 to 1.
+   * Parameter grips: Each holding hand's contact point, in the carrier frame now.
+   * Parameter surge: The carrier's surge, metres per second squared.
+   * Returns: The posture leant.
    */
   export function respond(
     body: IAutoMovieMotionHumanBody,
@@ -140,14 +137,13 @@ export namespace HumanMountedBank {
     );
   }
 
-  /**
+  /*
    * How far up the reins toward the bit the hands take them, forearm lengths:
    * an out-of-saddle seat's shortened reins (`HumanMountedStirrups.profile`)
    * less the descent's slipped ones, each blended over the transfers.
-   *
-   * @param figures The figures.
-   * @param phase The clock's phase.
-   * @returns Forearm lengths.
+   * Parameter figures: The figures.
+   * Parameter phase: The clock's phase.
+   * Returns: Forearm lengths.
    */
   export function reins(
     figures: readonly IAutoMovieMotionHumanMounted.IFigure[],
@@ -169,7 +165,7 @@ export namespace HumanMountedBank {
     );
   }
 
-  /**
+  /*
    * A per-seat quantity blended from the previous figure's to the current one's
    * by the transfer's share, 0 before the first.
    */
@@ -186,8 +182,12 @@ export namespace HumanMountedBank {
   }
 }
 
-/** The alternatives of `KeyAttitude`'s site. */
+/*
+ * The alternatives of `KeyAttitude`'s site.
+ */
 type KeyAttitude = "yaw" | "pitch" | "roll";
 
-/** The alternatives of `Phase2`'s site. */
+/*
+ * The alternatives of `Phase2`'s site.
+ */
 type Phase2 = "index" | "share";

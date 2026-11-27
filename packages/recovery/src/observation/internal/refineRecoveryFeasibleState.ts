@@ -18,7 +18,7 @@ import { createRecoveryFeasibleSqpArc } from "./createRecoveryFeasibleSqpArc";
 import { selectRecoveryFeasibleTrial } from "./selectRecoveryFeasibleTrial";
 import { solveRecoveryFeasibleDirection } from "./solveRecoveryFeasibleDirection";
 
-/**
+/*
  * Refine a feasible fixed-population recovery state with strictly inward
  * models. A pure tilted QP supplies descent and active-constraint inwardness.
  * Actual retraction, all nonlinear gates and Armijo decrease must also pass.

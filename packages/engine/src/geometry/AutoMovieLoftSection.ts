@@ -150,16 +150,20 @@ export namespace AutoMovieLoftSection {
   }
 }
 
-/**
+/*
  * Both primal weights survive rounding independently; the last two are
  * native-weight derivatives.
  */
 type Weight = readonly [number, number, number, number];
 
-/** An actual complete endpoint family, already expressed in the receiver. */
+/*
+ * An actual complete endpoint family, already expressed in the receiver.
+ */
 type Family = IAutoMovieLoftSectionSource.IEndpoint["field"];
 
-/** One admitted explicit station owner or genuine legacy absence. */
+/*
+ * One admitted explicit station owner or genuine legacy absence.
+ */
 type Owner =
   | { kind: "family"; field: Family }
   | { kind: "source"; data: IAutoMovieLoftSectionSource.ISource["data"] }
@@ -168,7 +172,7 @@ type Owner =
       span: Exclude<IAutoMovieLoftSectionConnect.ISpan, { kind: "basis" }>;
     };
 
-/**
+/*
  * Validate explicit original ownership before choosing its actual changed-span
  * law.
  */
@@ -199,13 +203,15 @@ function owner(chain: IAutoMovieLoftChain, station: number): Owner | null {
   return null;
 }
 
-/** A premise failure is never interpreted as source absence. */
+/*
+ * A premise failure is never interpreted as source absence.
+ */
 function need<T>(value: T | string): T {
   if (typeof value === "string") throw new Error(value);
   return value;
 }
 
-/**
+/*
  * Value-only complete endpoint functions need no physical derivative
  * evaluation.
  */
@@ -259,7 +265,9 @@ function familyPhase(
     AutoMovieLoftSectionLegacy.phase(basis, phi);
 }
 
-/** Exact retained source2 owns an endpoint's complete local jet. */
+/*
+ * Exact retained source2 owns an endpoint's complete local jet.
+ */
 function familyJet(field: Family): (phi: number) => IAutoMovieLoftSectionJet {
   if (field.kind === "native")
     return AutoMovieLoftSectionNative.jet(field.inputs);
@@ -272,7 +280,9 @@ function familyJet(field: Family): (phi: number) => IAutoMovieLoftSectionJet {
     AutoMovieLoftSectionLegacy.jet(basis, phi);
 }
 
-/** Define the complete legacy field on the receiving span, not beyond its host. */
+/*
+ * Define the complete legacy field on the receiving span, not beyond its host.
+ */
 function extension(
   span: Extract<IAutoMovieLoftSectionConnect.ISpan, { kind: "mixed" }>,
   station: number,
@@ -289,7 +299,9 @@ function extension(
   );
 }
 
-/** Quintic flat weight has zero first/second derivatives at both exact ends. */
+/*
+ * Quintic flat weight has zero first/second derivatives at both exact ends.
+ */
 function weight(
   span: Extract<IAutoMovieLoftSectionConnect.ISpan, { kind: "mixed" }>,
   station: number,
@@ -311,7 +323,9 @@ function weight(
   ];
 }
 
-/** Shared value/phase product rule uses a station-only scalar weight. */
+/*
+ * Shared value/phase product rule uses a station-only scalar weight.
+ */
 function phaseProduct(
   a: IAutoMovieLoftSectionPhase,
   b: IAutoMovieLoftSectionPhase,
@@ -324,7 +338,9 @@ function phaseProduct(
   return admit(out);
 }
 
-/** The whole-field product closes with total2, without source3/4. */
+/*
+ * The whole-field product closes with total2, without source3/4.
+ */
 function product(
   a: IAutoMovieLoftSectionJet,
   b: IAutoMovieLoftSectionJet,
@@ -348,7 +364,7 @@ function product(
   return admit(out);
 }
 
-/**
+/*
  * Only requested result vectors are required finite; no absent derivative is
  * requested.
  */

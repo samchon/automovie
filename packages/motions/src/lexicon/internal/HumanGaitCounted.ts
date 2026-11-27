@@ -1,4 +1,4 @@
-/**
+/*
  * The longest step that has the stepping plan cover a way in a given count of
  * steps, metres. The plan takes the fewest steps whose cruising step, the way
  * over the count less the steps its ramps cost, is no longer than the longest

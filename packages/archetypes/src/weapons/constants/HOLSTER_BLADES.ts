@@ -2,11 +2,13 @@ import { AutoMovieArchetypeBand, type IAutoMovieArchetypeBand } from "../../core
 import type { AutoMovieArchetypeHolster } from "../AutoMovieArchetypeHolster";
 import { AutoMovieArchetypeSword } from "../AutoMovieArchetypeSword";
 
-/** A scabbard maker's rule of fit, read. */
+/*
+ * A scabbard maker's rule of fit, read.
+ */
 const WULFLUND: string =
   "Wulflund's wood-core scabbard, made to the sword at about 1.5 cm longer and 2 cm wider than the blade (https://www.wulflund.com/weapons/swords/sword-accessories/scabbard-with-a-wooden-core.html)";
 
-/**
+/*
  * How much longer and wider than its blade a scabbard or a sheath is made,
  * metres: Wulflund's 1.5 and 2 cm.
  */
@@ -15,7 +17,7 @@ const FIT: Readonly<{ length: number; width: number }> = {
   width: 0.02,
 };
 
-/**
+/*
  * A scabbard's or a sheath's length and width made to one of `createSword`'s
  * read swords, whole.
  */
@@ -35,7 +37,7 @@ const madeTo = (
   ),
 });
 
-/**
+/*
  * A scabbard's or a sheath's length and width made to a blade of one of
  * `createSword`'s kinds, its bands moved out by the fit, provisional where the
  * blade's are.
@@ -62,7 +64,7 @@ const madeFor = (kind: AutoMovieArchetypeSword.Kind): AutoMovieArchetypeHolster.
   };
 };
 
-/**
+/*
  * The blades of `createHolster` by kind, the default first, each made with
  * Wulflund's fit: a read sword's figures whole, or a kind's blade bands moved
  * out, provisional where the blade's are.

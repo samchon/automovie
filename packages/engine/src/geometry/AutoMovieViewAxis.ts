@@ -15,11 +15,13 @@ import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieViewAxisJet } from "./AutoMovieViewAxisJet";
 import { AutoMovieViewJointedCourse } from "./AutoMovieViewJointedCourse";
 
-/** Shared scale-safe vector operations used by every axis builder. */
+/*
+ * Shared scale-safe vector operations used by every axis builder.
+ */
 const { add, cross, dot, scale, sub }: typeof AutoMovieSolidVector =
   AutoMovieSolidVector;
 
-/**
+/*
  * A vector scaled to length 1; a zero vector stays zero, which no regular axis
  * meets.
  */
@@ -27,7 +29,7 @@ function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
   return AutoMovieAxisDirection.unit(a);
 }
 
-/**
+/*
  * Unit projection in an admitted tangent's normal plane, with shared scale-safe
  * numeric ownership.
  */

@@ -14,7 +14,7 @@ import { seededValue } from "../../math/internal/seededValue";
 import { surfaceHeightAt } from "../../space/internal/surfaceHeightAt";
 import { selectInstancePrototype } from "./selectInstancePrototype";
 
-/**
+/*
  * Regenerate one member from the compact instance set's deterministic laws.
  *
  * A grid, lattice, scatter or explicit member is laid out in the set's local
@@ -191,7 +191,9 @@ export function instanceSlot(
   };
 }
 
-/** Seeded XYZ Euler offset applied after the set heading, or identity. */
+/*
+ * Seeded XYZ Euler offset applied after the set heading, or identity.
+ */
 const seededInstanceRotation: (
   instanceSet: IAutoMovieInstanceSetPlacement,
   slot: number,
@@ -228,7 +230,7 @@ const seededInstanceRotation: (
       });
 };
 
-/**
+/*
  * One member's point before the set heading is applied.
  *
  * Local layouts answer in the set frame. A route answers in the world ground
@@ -357,7 +359,9 @@ const localInstancePoint: (
   };
 };
 
-/** Interpolate one seeded sample between an authored range's ends. */
+/*
+ * Interpolate one seeded sample between an authored range's ends.
+ */
 const stableInterpolate: (from: number, to: number, ratio: number) => number = (
   from: number,
   to: number,

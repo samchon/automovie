@@ -7,19 +7,18 @@ import { sitPlace } from "../../everyday/internal/sitPlace";
 import type { HumanMountedFrame } from "./HumanMountedFrame";
 import { hangMountedLeg } from "./hangMountedLeg";
 
-/**
+/*
  * A boarding's seated key in the seat's frame: upright and astride with the
  * legs hanging (`hangMountedLeg`), seated on the seat's declared depth, and,
  * for a passenger boarding behind a partner, set back along the seat's forward
  * axis until the front of the pelvis meets the partner's seat region as the
  * partner is displayed at the landing.
- *
- * @param context The boarding's context.
- * @param support The carrier's reader.
- * @param carrier The seat contact's moving frame.
- * @param from The entry posture in the seat's frame.
- * @param flight The flight's length, seconds.
- * @returns The seat, the pillion's set-back and the key.
+ * Parameter context: The boarding's context.
+ * Parameter support: The carrier's reader.
+ * Parameter carrier: The seat contact's moving frame.
+ * Parameter from: The entry posture in the seat's frame.
+ * Parameter flight: The flight's length, seconds.
+ * Returns: The seat, the pillion's set-back and the key.
  */
 export function HumanBoardKey(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBoard>,
@@ -105,17 +104,27 @@ export function HumanBoardKey(
   return { seat, behind, key };
 }
 
-/** The records of HumanBoardKey. */
+/*
+ * The records of HumanBoardKey.
+ */
 export namespace HumanBoardKey {
-  /** A boarding's seated key. */
+  /*
+   * A boarding's seated key.
+   */
   export interface IKey {
-    /** The seat, at the seat frame's origin, astride. */
+    /*
+     * The seat, at the seat frame's origin, astride.
+     */
     seat: IAutoMovieMotionHumanSeated.ISeat;
 
-    /** The pillion's set-back along the seat, seat-frame metres; zero alone. */
+    /*
+     * The pillion's set-back along the seat, seat-frame metres; zero alone.
+     */
     behind: IAutoMovieVector3;
 
-    /** The seated key, in the seat's frame. */
+    /*
+     * The seated key, in the seat's frame.
+     */
     key: IAutoMovieMotionHumanPosture;
   }
 }

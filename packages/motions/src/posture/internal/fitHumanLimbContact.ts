@@ -14,7 +14,7 @@ import type {
 import { HumanFoot } from "./HumanFoot";
 import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
 
-/**
+/*
  * Fit the ankle/wrist and preserve its actual authored offset contact through
  * the existing Anderson-mixed re-aim and actual best-contact selection.
  */
@@ -141,7 +141,7 @@ export function fitHumanLimbContact(
   };
 }
 
-/**
+/*
  * The next target of the re-aim's fixed point `p = g(p)`, `g` the aim a fit at
  * `p` gives, by Anderson acceleration over the iterations kept, most recent
  * first (Walker and Ni 2011, "Anderson acceleration for fixed-point
@@ -225,45 +225,51 @@ function mixed(
   return next;
 }
 
-/**
+/*
  * The iterations Anderson mixing keeps: three, the map's dimension, so its kept
  * differences can span the space (provisional).
  */
 const REAIM_DEPTH: number = 3;
 
-/**
+/*
  * The largest magnitude of a mixing coefficient, the bound the one-step mixing
  * kept (provisional).
  */
 const MIXING: number = 20;
 
-/**
+/*
  * Original provisional 20-micrometre re-aim resolution, finer than every
  * contact verdict.
  */
 const REAIM_TOLERANCE: number = 2e-5;
 
-/**
+/*
  * Maximum fits per correction phase. Prior measured near-limit heel-off needs
  * up to eleven orientation fits.
  */
 const REAIM_PASSES: number = 16;
 
-/** The reading offered by a native ordinary fit during this operation. */
+/*
+ * The reading offered by a native ordinary fit during this operation.
+ */
 export namespace fitHumanLimbContact {
-  /** The solver may supply the final prefix for the exact requested fit. */
+  /*
+   * The solver may supply the final prefix for the exact requested fit.
+   */
   export type ICapture = NonNullable<
     Parameters<ReturnType<typeof prepareHumanLimbFit>["fit"]>[3]
   >;
 }
 
-/** A preceding target image and its fixed-point residual for Anderson mixing. */
+/*
+ * A preceding target image and its fixed-point residual for Anderson mixing.
+ */
 interface IReaimIteration {
   image: IAutoMovieVector3;
   miss: IAutoMovieVector3;
 }
 
-/**
+/*
  * One kept iteration's differences from the current one: of the residuals and
  * of the images.
  */
@@ -272,7 +278,9 @@ interface IReaimDifference {
   image: IAutoMovieVector3;
 }
 
-/** Geometry supplied by the fit that made this candidate. */
+/*
+ * Geometry supplied by the fit that made this candidate.
+ */
 interface IContactPrefix {
   position: () => IAutoMovieVector3;
   rotation: IAutoMovieQuaternion;

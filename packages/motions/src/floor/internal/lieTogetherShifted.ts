@@ -5,7 +5,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** A posture slid across the support: its root and every world limb goal moved. */
+/*
+ * A posture slid across the support: its root and every world limb goal moved.
+ */
 export function lieTogetherShifted(
   posture: IAutoMovieMotionHumanPosture,
   by: IAutoMovieVector3,
@@ -26,8 +28,12 @@ export function lieTogetherShifted(
   return { ...posture, root: Vector3.add(posture.root, by), limbs };
 }
 
-/** A posture's limb. */
+/*
+ * A posture's limb.
+ */
 type Limb = keyof IAutoMovieMotionHumanPosture["limbs"];
 
-/** The limb-goal sites a translated posture can contain. */
+/*
+ * The limb-goal sites a translated posture can contain.
+ */
 const LIMBS: readonly Limb[] = ["leftArm", "rightArm", "leftLeg", "rightLeg"];

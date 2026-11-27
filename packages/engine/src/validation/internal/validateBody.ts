@@ -3,7 +3,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/**
+/*
  * Require finite positive mass, declared restitution in inclusive [0,1],
  * optional static and kinetic friction, finite optional center-of-mass
  * coordinates and the declared drag and contact ranges, a round body's gyration

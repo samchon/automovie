@@ -3,7 +3,7 @@ import type { IAutoMovieJointPose } from "@automovie/interface";
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import type { AutoMovieEngineMotionJointProjection } from "../AutoMovieEngineMotionJointProjection";
 
-/**
+/*
  * Read one query's actual reference clamp and own its later analytic inputs.
  * The current callback is looked up exactly once at each original call site.
  * Foreign callbacks keep the original props receiver. Genuine factories are
@@ -14,22 +14,23 @@ import type { AutoMovieEngineMotionJointProjection } from "../AutoMovieEngineMot
  * replaced callbacks receive fresh candidate values, and their returned
  * bone/F/A/T values are snapshotted before another callback can overwrite a
  * shared output. The numerical snapshot reads only these four fields.
- *
- * @param props The original projector props object, including its live clamp
- *   lookup and method receiver.
- * @param raw The query's original inverse reading, passed to its first actual
- *   clamp.
- * @returns A stable reference, retained generic projection and analytic
- *   candidate reader; each unknown output owns its four numerical joint
- *   fields.
+ * Parameter props: The original projector props object, including its live clamp
+ * lookup and method receiver.
+ * Parameter raw: The query's original inverse reading, passed to its first actual
+ * clamp.
+ * Returns: A stable reference, retained generic projection and analytic
+ * candidate reader; each unknown output owns its four numerical joint
+ * fields.
  */
 export function prepareJointProjectionClamp(
   props: Pick<Parameters<typeof AutoMovieEngineMotionJointProjection.prepare>[0], "clamp">,
   raw: IAutoMovieJointPose,
 ): {
-  /** First numerical result; unknown callback outputs are copied by four fields. */
+  /*
+   * First numerical result; unknown callback outputs are copied by four fields.
+   */
   reference: IAutoMovieJointPose;
-  /**
+  /*
    * Retain one generic result; caller captures callback before its original
    * input spread.
    */
@@ -37,7 +38,7 @@ export function prepareJointProjectionClamp(
     clamp: typeof props.clamp,
     joint: IAutoMovieJointPose,
   ) => IAutoMovieJointPose;
-  /**
+  /*
    * Admit a completed rig-degree X/Y pair in original clinical order, returning
    * stable ownership.
    */
@@ -101,10 +102,14 @@ export function prepareJointProjectionClamp(
   };
 }
 
-/** Original F/A/T coordinate names, with no alternate angular convention. */
+/*
+ * Original F/A/T coordinate names, with no alternate angular convention.
+ */
 type Axis = "flexion" | "abduction" | "twist";
 
-/** Preserve the actual returned clinical values without reading unused metadata. */
+/*
+ * Preserve the actual returned clinical values without reading unused metadata.
+ */
 function snapshot(joint: IAutoMovieJointPose): IAutoMovieJointPose {
   return {
     bone: joint.bone,

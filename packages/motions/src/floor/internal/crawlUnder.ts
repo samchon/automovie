@@ -4,14 +4,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A palm's floor place under its shoulder: the shoulder's point less its
  * wrist's offset, so the wrist stands under the shoulder.
  *
  * Part of `crawl.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `under`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `under`.
  */
 export function crawlUnder(
   prepared: crawlUnder.IPrepared,
@@ -27,14 +26,22 @@ export function crawlUnder(
   };
 }
 
-/** The `under` of `crawl.plan`, built from what that plan prepared. */
+/*
+ * The `under` of `crawl.plan`, built from what that plan prepared.
+ */
 export namespace crawlUnder {
-  /** What `crawl.plan` prepared for its `under`. */
+  /*
+   * What `crawl.plan` prepared for its `under`.
+   */
   export interface IPrepared {
-    /** The `local` `crawl.plan` prepared. */
+    /*
+     * The `local` `crawl.plan` prepared.
+     */
     local: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3;
 
-    /** The `wrists` `crawl.plan` prepared. */
+    /*
+     * The `wrists` `crawl.plan` prepared.
+     */
     wrists: Record<AutoMovieHumanSide, IAutoMovieVector3>;
   }
 }

@@ -10,10 +10,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** World up, the axis of an upright pin. */
+/*
+ * World up, the axis of an upright pin.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
+/*
  * Credit the pinfall of a baked bowling delivery: the pins down at the end of
  * its cache, in rack order.
  *
@@ -24,12 +26,11 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * centre-of-mass height above it. Taking the vertex circumradius rather than
  * the footprint's inradius makes the angle slightly larger, so a borderline
  * lean is credited as standing.
- *
- * @param params The placed `pins`, each upright on its base with +Y along its
- *   axis, and the baked `result` deck whose cache holds them.
- * @returns The ids of the pins down at the cache end.
- * @throws {RangeError} When a pin has no hull base below its centre of mass, or
- *   is missing from the cache.
+ * Parameter params: The placed `pins`, each upright on its base with +Y along its
+ * axis, and the baked `result` deck whose cache holds them.
+ * Returns: The ids of the pins down at the cache end.
+ * When a pin has no hull base below its centre of mass, or
+ * is missing from the cache.
  */
 export function bowlingPinfall(
   params: bowlingPinfall.IRead,
@@ -50,19 +51,31 @@ export function bowlingPinfall(
     .map((pin: bowlingPinfall.IPin): string => pin.id);
 }
 
-/** What a pinfall reads of a baked delivery. */
+/*
+ * What a pinfall reads of a baked delivery.
+ */
 export namespace bowlingPinfall {
-  /** A placed pin: its id and its profile's first segment. */
+  /*
+   * A placed pin: its id and its profile's first segment.
+   */
   export interface IPin {
-    /** The pin's body id in the deck cache. */
+    /*
+     * The pin's body id in the deck cache.
+     */
     id: IAutoMovieMotionHumanPrecisionDeck.IRigid["id"];
 
-    /** Its placed pose; the pinfall reads the cache, not this. */
+    /*
+     * Its placed pose; the pinfall reads the cache, not this.
+     */
     pose?: IAutoMovieMotionHumanPrecisionDeck.IRigid["pose"];
 
-    /** Its profile, the first segment its hull and centre of mass. */
+    /*
+     * Its profile, the first segment its hull and centre of mass.
+     */
     profile: {
-      /** The profile's segments. */
+      /*
+       * The profile's segments.
+       */
       segments: readonly Pick<
         IAutoMoviePhysicalSegment,
         "shapes" | "centerOfMass"
@@ -70,20 +83,28 @@ export namespace bowlingPinfall {
     };
   }
 
-  /** The pins and the baked deck's cache end. */
+  /*
+   * The pins and the baked deck's cache end.
+   */
   export interface IRead {
-    /** The placed pins, each upright on its base with +Y along its axis. */
+    /*
+     * The placed pins, each upright on its base with +Y along its axis.
+     */
     pins: readonly IPin[];
 
-    /** The baked deck, its cache's duration and frame reader. */
+    /*
+     * The baked deck, its cache's duration and frame reader.
+     */
     result: {
-      /** The deck's physics cache. */
+      /*
+       * The deck's physics cache.
+       */
       cache: Pick<IAutoMoviePhysicsCache, "at" | "duration">;
     };
   }
 }
 
-/**
+/*
  * The tilt, radians, at which a standing pin's centre of mass passes over the
  * rim of its base.
  */

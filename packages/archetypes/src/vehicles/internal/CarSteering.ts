@@ -1,16 +1,15 @@
 import { AutoMovieArchetypeUnits } from "../../core";
 
-/**
+/*
  * Read the steering-wheel angle on a signed root curvature.
  *
  * Dividing the right triangle by the root radius keeps its legs representable
  * for gentle curves. From the rear axle, the adjacent leg is the square root of
  * one minus the squared normalized half-wheelbase.
- *
- * @param wheelbase Distance between the axle centres in metres.
- * @param ratio Steering-wheel travel over road-wheel travel.
- * @param curvature Signed inverse metres, positive to the left.
- * @returns Steering-wheel travel in degrees, before reversing direction.
+ * Parameter wheelbase: Distance between the axle centres in metres.
+ * Parameter ratio: Steering-wheel travel over road-wheel travel.
+ * Parameter curvature: Signed inverse metres, positive to the left.
+ * Returns: Steering-wheel travel in degrees, before reversing direction.
  */
 export function CarSteering(
   wheelbase: number,

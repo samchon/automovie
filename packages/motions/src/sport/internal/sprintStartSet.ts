@@ -26,23 +26,22 @@ import { sprintStartSetChain } from "./sprintStartSetChain";
 import { sprintStartSetFit } from "./sprintStartSetFit";
 import { sprintStartSetHands } from "./sprintStartSetHands";
 
-/**
+/*
  * The set position's hips, pitch and feet for a body in front of a line.
- *
- * @param context The body and the entry, whose feet place the set's frame
- *   (`sprintStartSetHands.frame`).
- * @param entry The standing posture; the line is a foot's length ahead of its
- *   stand's floor point.
- * @param front The front foot.
- * @param sex The measured centre-of-mass stratum.
- * @param placedFeet Both feet on a placed block's plates (`sprintStartBlocks`),
- *   held in all three axes; the fit then keeps the front knee within its
- *   measured spread (FRONT_SD) and the rear knee and hip within theirs, and the
- *   centre follows from the plates instead of its measured setting, or refuses.
- *   Absent places the body-scaled blocks, the rear one from the rear knee's
- *   measured mean.
- * @returns The hips' world point, the trunk's pitch, each palm's frame raised
- *   over its bridge and each foot's placement on its block, all as fitted.
+ * Parameter context: The body and the entry, whose feet place the set's frame
+ * (`sprintStartSetHands.frame`).
+ * Parameter entry: The standing posture; the line is a foot's length ahead of its
+ * stand's floor point.
+ * Parameter front: The front foot.
+ * Parameter sex: The measured centre-of-mass stratum.
+ * Parameter placedFeet: Both feet on a placed block's plates (`sprintStartBlocks`),
+ * held in all three axes; the fit then keeps the front knee within its
+ * measured spread (FRONT_SD) and the rear knee and hip within theirs, and the
+ * centre follows from the plates instead of its measured setting, or refuses.
+ * Absent places the body-scaled blocks, the rear one from the rear knee's
+ * measured mean.
+ * Returns: The hips' world point, the trunk's pitch, each palm's frame raised
+ * over its bridge and each foot's placement on its block, all as fitted.
  */
 export function sprintStartSet(
   context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
@@ -378,33 +377,33 @@ export function sprintStartSet(
   return sprintStartSetFit.read(body, solved.posture, resolution, projector);
 }
 
-/**
+/*
  * The sprint start's set geometry: block placement, the front knee's opening
  * and the body's centre of mass, solved on the performer's measured rig. The
  * athletics law owns timing and movements and delegates its set here.
  */
 export namespace sprintStartSet {
-  /**
+  /*
    * The front knee's included angle in the set, degrees: 90 (SD 8) measured
    * with the anthropometry-driven block setting (Cavedon et al. 2019, PLoS One
    * 14:e0213979, table 2), Harland and Steele's (1997) "about 90".
    */
   export const FRONT: number = 90;
 
-  /**
+  /*
    * The front knee's measured standard deviation in the set, degrees: 8
    * (Cavedon et al. 2019, table 2), the spread a set on placed plates may use.
    */
   export const FRONT_SD: number = 8;
 
-  /**
+  /*
    * The front block's distance behind the start line, a share of the leg's
    * length (greater trochanter to lateral malleolus): the anthropometry-driven
    * setting (Cavedon et al. 2019, table 2).
    */
   export const FRONT_DISTANCE: number = 0.6;
 
-  /**
+  /*
    * The rear knee's included angle in the set, degrees: 117 (SD 11) with the
    * anthropometry-driven block setting (Cavedon et al. 2019, table 2). The rear
    * block is placed where the rear leg from the set's hip has the mean, so the
@@ -413,14 +412,14 @@ export namespace sprintStartSet {
    */
   export const REAR: [number, number] = [106, 128];
 
-  /**
+  /*
    * The front hip's included angle in the set between the knee and the
    * shoulders, degrees: 43 (SD 6), the same setting (Cavedon et al. 2019, table
    * 2).
    */
   export const HIP: [number, number] = [37, 49];
 
-  /**
+  /*
    * The whole body's centre of mass behind the start line in the set, metres
    * along the ground, by the sprinter's sex as the sources stratify it: 22.9 cm
    * for elite men (Slawinski et al. 2010, J Strength Cond Res 24:896, n = 6)
@@ -434,41 +433,49 @@ export namespace sprintStartSet {
     male: 0.229,
   };
 
-  /**
+  /*
    * The front block's face from the floor, degrees (provisional, within a
    * competition block's adjustment).
    */
   export const FRONT_BLOCK: number = 50;
 
-  /**
+  /*
    * The rear block's face from the floor, degrees (provisional, within a
    * competition block's adjustment).
    */
   export const REAR_BLOCK: number = 65;
 
-  /**
+  /*
    * The arm extension of the initial geometric guess (provisional); the
    * whole-body fit may change it to meet the measured constraints.
    */
   export const REACH: number = 0.98;
 }
 
-/** The record of `IPosedAtTilt`'s site. */
+/*
+ * The record of `IPosedAtTilt`'s site.
+ */
 type IPosedAtTilt = {
   pitch: number;
   joints: IAutoMovieMotionHumanPosture["joints"];
 };
 
-/** The alternatives of `OfSex`'s site. */
+/*
+ * The alternatives of `OfSex`'s site.
+ */
 type OfSex = "female" | "male";
 
-/** The alternatives of `OfContext`'s site. */
+/*
+ * The alternatives of `OfContext`'s site.
+ */
 type OfContext = "body" | "entry";
 
-/** The alternatives of `CENTREEntryItem`'s site. */
+/*
+ * The alternatives of `CENTREEntryItem`'s site.
+ */
 type CENTREEntryItem = "female" | "male";
 
-/**
+/*
  * A set stance at one total tilt: pelvis pitch, spine flexion, and hips and
  * root placed so the shoulders stand over the hands, world metres.
  */
@@ -476,12 +483,16 @@ interface IStance {
   pitch: number;
   joints: IAutoMovieMotionHumanPosture["joints"];
   hips: IAutoMovieVector3;
-  /** The hip joints' midpoint. */
+  /*
+   * The hip joints' midpoint.
+   */
   pelvis: IAutoMovieVector3;
   root: IAutoMovieVector3;
 }
 
-/** The set's chain and both feet in their blocks. */
+/*
+ * The set's chain and both feet in their blocks.
+ */
 interface ISolved {
   chain: sprintStartSetChain.ISet;
   feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;

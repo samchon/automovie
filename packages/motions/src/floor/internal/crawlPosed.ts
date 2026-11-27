@@ -5,14 +5,13 @@ import type {
 
 import { crawlFrame } from "./crawlFrame";
 
-/**
+/*
  * The crawl's frame posture (`crawlFrame.posed`) at a share of its pitch and a
  * turn of `degrees`, its hips hiked by `hike`, under the body's own heading.
  *
  * Part of `crawl.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `posed`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `posed`.
  */
 export function crawlPosed(
   prepared: crawlPosed.IPrepared,
@@ -30,14 +29,22 @@ export function crawlPosed(
     crawlFrame.posed(body, yaw, share, degrees, hike, -40);
 }
 
-/** The `posed` of `crawl.plan`, built from what that plan prepared. */
+/*
+ * The `posed` of `crawl.plan`, built from what that plan prepared.
+ */
 export namespace crawlPosed {
-  /** What `crawl.plan` prepared for its `posed`. */
+  /*
+   * What `crawl.plan` prepared for its `posed`.
+   */
   export interface IPrepared {
-    /** The `body` `crawl.plan` prepared. */
+    /*
+     * The `body` `crawl.plan` prepared.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The `yaw` `crawl.plan` prepared. */
+    /*
+     * The `yaw` `crawl.plan` prepared.
+     */
     yaw: number;
   }
 }

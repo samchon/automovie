@@ -4,7 +4,7 @@ import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
 import { detailNormalFragment } from "./detailNormalFragment.js";
 import { detailNormalVertex } from "./detailNormalVertex.js";
 
-/**
+/*
  * Capture one detail-normal operation and its texture-transform value. The
  * texture stays caller-owned; its updated matrix is copied so later texture
  * transform edits do not change the already registered shader uniform.
@@ -27,10 +27,14 @@ export const createDetailNormalShaderPatch: (
   texture: THREE.Texture,
   scale: number,
 ): {
-  /** Stable program-cache contribution for this operation. */
+  /*
+   * Stable program-cache contribution for this operation.
+   */
   key: string;
 
-  /** Edits the shader source and attaches the captured detail uniforms. */
+  /*
+   * Edits the shader source and attaches the captured detail uniforms.
+   */
   apply: (
     shader: Pick<
       IMaterialShaderSource,

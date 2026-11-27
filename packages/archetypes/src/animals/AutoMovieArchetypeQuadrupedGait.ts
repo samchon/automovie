@@ -360,7 +360,9 @@ export namespace AutoMovieArchetypeQuadrupedGait {
     tempo: number = 0,
     withers: number = species.table.reference,
   ): ITiming {
-    /** Report a malformed timing coordinate with its dimensional range. */
+    /*
+     * Report a malformed timing coordinate with its dimensional range.
+     */
     function refuse(
       axis: string,
       value: number,
@@ -419,7 +421,9 @@ export namespace AutoMovieArchetypeQuadrupedGait {
     const high: IRow = rows.length === 1 ? low : rows[k + 1]!;
     const share: number =
       rows.length === 1 ? 0 : (similar - low.speed) / (high.speed - low.speed);
-    /** Interpolate one pair at the already admitted speed bracket. */
+    /*
+     * Interpolate one pair at the already admitted speed bracket.
+     */
     function mix(a: number, b: number): number {
       return a + (b - a) * share;
     }

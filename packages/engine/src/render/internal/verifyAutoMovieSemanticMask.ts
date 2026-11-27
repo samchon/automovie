@@ -4,7 +4,7 @@ import { AutoMovieSemanticMaskVerificationError } from "../AutoMovieSemanticMask
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { digestAutoMovieSemanticMask } from "./digestAutoMovieSemanticMask";
 
-/**
+/*
  * Refuse a historical, foreign, or self-inconsistent semantic mask.
  *
  * This verifies current format identity and the complete canonical payload
@@ -38,13 +38,19 @@ export function verifyAutoMovieSemanticMask(
     );
 }
 
-/** Current full-payload semantic-mask format. */
+/*
+ * Current full-payload semantic-mask format.
+ */
 const SEMANTIC_MASK_VERSION: number = 2;
 
-/** Domain separator for the current full-payload semantic-mask format. */
+/*
+ * Domain separator for the current full-payload semantic-mask format.
+ */
 const SEMANTIC_MASK_PROTOCOL: string = "automovie.semantic-mask.v2";
 
-/** Refuse unknown or missing fields before canonical projection can erase them. */
+/*
+ * Refuse unknown or missing fields before canonical projection can erase them.
+ */
 const verifySemanticMaskSchema: (mask: IAutoMovieSemanticMask) => void = (
   mask: IAutoMovieSemanticMask,
 ): void => {
@@ -74,7 +80,9 @@ const verifySemanticMaskSchema: (mask: IAutoMovieSemanticMask) => void = (
     );
 };
 
-/** Compare one semantic record's complete key set without normalizing it. */
+/*
+ * Compare one semantic record's complete key set without normalizing it.
+ */
 const exactSemanticMaskKeys: (
   value: object,
   expected: readonly string[],
@@ -97,7 +105,9 @@ const exactSemanticMaskKeys: (
     );
 };
 
-/** Raise one typed current-schema refusal. */
+/*
+ * Raise one typed current-schema refusal.
+ */
 const invalidSemanticMask: (message: string) => never = (
   message: string,
 ): never => {

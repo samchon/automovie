@@ -23,39 +23,45 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { shankTilt } from "./shankTilt";
 import { unloadedFoot } from "./unloadedFoot";
 
-/** World vertical. */
+/*
+ * World vertical.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-/**
+/*
  * The wading measurement: walking speed in water 1.2 m deep, as a share of the
  * land speed (Fantozzi et al. 2015,
  * https://pmc.ncbi.nlm.nih.gov/articles/PMC4569370/: 40 % slower).
  */
 const WADE_SHARE: number = 0.6;
-/** The water depth of that measurement, metres. */
+/*
+ * The water depth of that measurement, metres.
+ */
 const WADE_DEPTH: number = 1.2;
 
-/**
+/*
  * How far a swinging foot clears the medium's surface, metres (provisional
  * staging).
  */
 const CLEARANCE: number = 0.05;
 
-/**
+/*
  * Hands held above the water's surface at hip depth or deeper, metres
  * (provisional staging).
  */
 const ARMS_ABOVE: number = 0.15;
 
-/**
+/*
  * Seconds over which a lifted foot's toe-down turn eases in from and out to its
  * plants (provisional staging).
  */
 const EASE: number = 0.1;
 
-/** The trunk's forward lean while wading, degrees (provisional staging). */
+/*
+ * The trunk's forward lean while wading, degrees (provisional staging).
+ */
 const WADE_LEAN: number = 10;
 
-/**
+/*
  * Terrain factors of the walking-energy equation (Pandolf, Givoni and Goldman
  * 1977, after Soule and Goldman 1972): loose sand 2.1 and a swampy bog, taken
  * for mud, 1.8. Soft snow's factor rises with depth; 1.3 a decimetre of sinking
@@ -66,10 +72,12 @@ const TERRAIN: Readonly<Record<TERRAINEntryItem, number>> = {
   mud: 1.8,
 };
 
-/** Soft snow's terrain factor per metre of sinking (provisional). */
+/*
+ * Soft snow's terrain factor per metre of sinking (provisional).
+ */
 const SNOW_PER_METRE: number = 13;
 
-/**
+/*
  * Walk through a medium or into a wind: the walk (`walk`) at the speed the
  * medium allows, with the feet, arms and trunk adapted to it.
  *
@@ -87,11 +95,10 @@ const SNOW_PER_METRE: number = 13;
  * what the feet's half length can bear is refused, for a gust the existing
  * perturbation's capture step answers. With neither medium nor wind this is the
  * walk unchanged.
- *
- * @param context The standing entry, the path, the medium and the wind.
- * @returns The adapted walk.
- * @throws {HumanRefusal} For water above the chest, a sinking deeper than the
- *   shank, or a wind beyond static balance.
+ * Parameter context: The standing entry, the path, the medium and the wind.
+ * Returns: The adapted walk.
+ * For water above the chest, a sinking deeper than the
+ * shank, or a wind beyond static balance.
  */
 export function HumanMediumWalk(
   context: IAutoMovieMotionHumanActionContext<Params>,
@@ -363,15 +370,21 @@ export function HumanMediumWalk(
     },
   };
 }
-/** Depth admission for a medium that the walk can still cross on foot. */
+/*
+ * Depth admission for a medium that the walk can still cross on foot.
+ */
 export namespace HumanMediumWalk {
-  /** The two anatomical depths that limit the admitted media. */
+  /*
+   * The two anatomical depths that limit the admitted media.
+   */
   export type IMeasure = Pick<
     IAutoMovieMotionHumanBody["measure"],
     "chestHeight" | "shank"
   >;
 
-  /** Water is positive up to the chest. A solid layer extends up to the shank. */
+  /*
+   * Water is positive up to the chest. A solid layer extends up to the shank.
+   */
   export function admitDepth(
     medium: NonNullable<Params["medium"]>,
     measure: IMeasure,
@@ -398,7 +411,7 @@ export namespace HumanMediumWalk {
   }
 }
 
-/**
+/*
  * The walking speed share in water of a depth: quadratic drag calibrated on the
  * 1.2 m measurement.
  */
@@ -422,7 +435,7 @@ function wading(
   return Math.min(1, WADE_SHARE * Math.sqrt(drag(WADE_DEPTH) / here));
 }
 
-/**
+/*
  * How far through its swing a foot is at a share of the walk: 0 while it is
  * planted, rising to 1 at the next plant.
  */
@@ -444,5 +457,7 @@ type Plan = IAutoMovieMotionHumanActionPlan;
 
 type Posture = IAutoMovieMotionHumanPosture;
 
-/** The alternatives of `TERRAINEntryItem`'s site. */
+/*
+ * The alternatives of `TERRAINEntryItem`'s site.
+ */
 type TERRAINEntryItem = "sand" | "mud";

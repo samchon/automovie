@@ -3,7 +3,7 @@ import type { IAutoMovieSolveSoftBodyCompliantSweep } from "@automovie/interface
 import { SOFT_BODY_NEIGHBOURS } from "../SOFT_BODY_NEIGHBOURS";
 import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
 
-/**
+/*
  * Run one sweep of compliant distance constraints over a lattice, in place:
  * every edge of the lattice, its row and column neighbours, its diagonals and
  * its second neighbours, projected one after another with its Lagrange
@@ -32,8 +32,7 @@ import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
  * neighbours that follow it in `SOFT_BODY_NEIGHBOURS`), so a solve is
  * deterministic. `lambda` holds one multiplier per particle and neighbour slot
  * and is reset by the caller at the start of each step.
- *
- * @param props The lattice, the working buffers and the step.
+ * Parameter props: The lattice, the working buffers and the step.
  */
 export function solveSoftBodyCompliantSweep(
   props: IAutoMovieSolveSoftBodyCompliantSweep.IProps,

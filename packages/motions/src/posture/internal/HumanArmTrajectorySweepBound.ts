@@ -6,7 +6,7 @@ import { HumanArmTrajectoryHalfStep } from "./HumanArmTrajectoryHalfStep";
 import type { HumanArmTrajectoryLinks } from "./HumanArmTrajectoryLinks";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
-/**
+/*
  * The motion bounds the arm's sweeps (`HumanArmTrajectorySweep`) certify frame
  * steps by, prepared once per course: conservative advancement (Mirtich 1996,
  * "Impulse-based Dynamic Simulation of Rigid Body Systems", PhD thesis, UC
@@ -15,19 +15,18 @@ import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  * bounds give that movement in closed form (`AutoMovieMotionBound`).
  */
 export namespace HumanArmTrajectorySweepBound {
-  /**
+  /*
    * The bound on a probe's course over an interval, prepared once
    * (`AutoMovieMotionBound.prepare`): its chord lengths per frame step over the
    * steps' seconds from the interval's first waypoint, the chords being the
    * course `HumanArmTrajectorySweep.of` reads. None where the course has no
    * step.
-   *
-   * @param c The context, whose waypoint seconds time the steps.
-   * @param k The interval's first waypoint.
-   * @param frames The course's waypoints, from `k`, in course order.
-   * @param course The probe's places at those waypoints, carried into the
-   *   shape's frame at `k`, world metres.
-   * @returns The bound in metres over seconds from `k`, or none.
+   * Parameter c: The context, whose waypoint seconds time the steps.
+   * Parameter k: The interval's first waypoint.
+   * Parameter frames: The course's waypoints, from `k`, in course order.
+   * Parameter course: The probe's places at those waypoints, carried into the
+   * shape's frame at `k`, world metres.
+   * Returns: The bound in metres over seconds from `k`, or none.
    */
   export function chords(
     c: ChordClock,
@@ -49,22 +48,21 @@ export namespace HumanArmTrajectorySweepBound {
       : AutoMovieMotionBound.prepare(along, speeds);
   }
 
-  /**
+  /*
    * The bound on a part's casts over an interval, prepared once
    * (`AutoMovieMotionBound.prepare`): per frame step, the farthest any point of
    * its solids moves between the step's two frames, carried into the shape's
    * frame at the interval's first waypoint as the casts carry them
    * (`HumanArmTrajectoryLinks.cast`), over the steps' seconds from that
    * waypoint. None where the interval has no step.
-   *
-   * @param c The context, whose waypoint seconds time the steps.
-   * @param a The arm.
-   * @param k The interval's first waypoint.
-   * @param part The part, by its index in the body's tangle model.
-   * @param steps The arm's solids at each frame of the interval, from `k`, in
-   *   course order (`HumanArmTrajectoryLinks.IStep`).
-   * @param shape The shape, by its index in the frame at `k`.
-   * @returns The bound in metres over seconds from `k`, or none.
+   * Parameter c: The context, whose waypoint seconds time the steps.
+   * Parameter a: The arm.
+   * Parameter k: The interval's first waypoint.
+   * Parameter part: The part, by its index in the body's tangle model.
+   * Parameter steps: The arm's solids at each frame of the interval, from `k`, in
+   * course order (`HumanArmTrajectoryLinks.IStep`).
+   * Parameter shape: The shape, by its index in the frame at `k`.
+   * Returns: The bound in metres over seconds from `k`, or none.
    */
   export function solids(
     c: M.IContext,
@@ -108,5 +106,7 @@ export namespace HumanArmTrajectorySweepBound {
   }
 }
 
-/** The frame times needed to bound a probe's chord travel. */
+/*
+ * The frame times needed to bound a probe's chord travel.
+ */
 type ChordClock = Pick<M.IContext, "times">;

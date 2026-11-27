@@ -1,4 +1,4 @@
-/**
+/*
  * Binary64 root candidates of a source polynomial of degree at most nine inside
  * the unit interval.
  *
@@ -8,10 +8,9 @@
  * isolated roots. Ill-conditioned or nearby multiple roots need not be
  * separated; near-zero cuts may add observations. This is not an interval
  * certificate or a root-completeness guarantee.
- *
- * @param coefficients Finite coefficients in increasing power order, at most
- *   ten; empty or constant rows return no isolated roots. Invalid rows throw
- *   RangeError.
+ * Parameter coefficients: Finite coefficients in increasing power order, at most
+ * ten; empty or constant rows return no isolated roots. Invalid rows throw
+ * RangeError.
  */
 export function rootsAutoMovieViewPolynomial(
   coefficients: readonly number[],

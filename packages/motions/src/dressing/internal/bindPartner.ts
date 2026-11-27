@@ -15,7 +15,7 @@ import type {
 import { armPhrase } from "../../everyday/internal/armPhrase";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Bind another performer with a held restraint. The binder's hand carries the
  * restraint to the partner's region by the arm phrase that visits a target, the
  * fingers down and the palm turned in (the thumb ahead, clear of the binder's
@@ -32,7 +32,7 @@ export const bindPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBi
     plan: planBindPartner,
   };
 
-/**
+/*
  * Bind another performer with a held restraint. The binder's hand carries the
  * restraint to the partner's region by the arm phrase that visits a target, the
  * fingers down and the palm turned in (the thumb ahead, clear of the binder's

@@ -1,12 +1,11 @@
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Admit a partner's thighs as a lap at no more than 30 degrees from level.
- *
- * @param partner The performer providing the support.
- * @param drop Knee height below the hips in metres.
- * @param thigh The supporting performer's thigh length in metres.
- * @throws {HumanRefusal} When the knee drop exceeds half the thigh length.
+ * Parameter partner: The performer providing the support.
+ * Parameter drop: Knee height below the hips in metres.
+ * Parameter thigh: The supporting performer's thigh length in metres.
+ * When the knee drop exceeds half the thigh length.
  */
 export function admitLapSupport(
   partner: string,

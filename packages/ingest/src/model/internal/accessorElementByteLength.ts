@@ -1,7 +1,9 @@
 import { COMPONENT_BYTES } from "./COMPONENT_BYTES";
 import { SHAPE_COMPONENTS } from "./SHAPE_COMPONENTS";
 
-/** Compute glTF accessor element storage including matrix-column padding. */
+/*
+ * Compute glTF accessor element storage including matrix-column padding.
+ */
 export function accessorElementByteLength(
   componentType: number,
   shape: string,

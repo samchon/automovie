@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `strokeDown` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. A stroke: the palm draws down along the target.
  */

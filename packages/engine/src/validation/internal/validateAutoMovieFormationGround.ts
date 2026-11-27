@@ -17,7 +17,7 @@ import { AutoMovieEnginePopulationFormation } from "../../populationRuntime/Auto
 import { heightAt } from "../../space/internal/heightAt";
 import { engineDiagnostic } from "./engineDiagnostic";
 
-/**
+/*
  * Sample actual placed members against authored space coverage and height,
  * reporting the first void or sink per formation.
  */
@@ -211,19 +211,19 @@ export function validateAutoMovieFormationGround(
   return diagnostics;
 }
 
-/**
+/*
  * Target travel resolution in metres, subject to the capped step count and cue
  * reach/easing estimation limits.
  */
 const FORMATION_GROUND_SAMPLE_METRES: number = 0.5;
 
-/**
+/*
  * Sixteen fixed XZ directions choose actual support members; unsampled
  * members/extrema can still leave the ground.
  */
 const FORMATION_GROUND_SUPPORT_DIRECTIONS: number = 16;
 
-/**
+/*
  * Pair a zero-based slot with its designed world-space point.
  *
  * Slot identity lets sparse exceptions/removal carry the same member through
@@ -242,14 +242,18 @@ const FORMATION_GROUND_SUPPORT_DIRECTIONS: number = 16;
  * Rows belong to the one validation that measured them.
  */
 interface IFormationGroundMember {
-  /** Zero-based slot this point belongs to. */
+  /*
+   * Zero-based slot this point belongs to.
+   */
   slot: number;
 
-  /** Designed world-space position of that slot at rest. */
+  /*
+   * Designed world-space position of that slot at rest.
+   */
   point: IAutoMovieVector3;
 }
 
-/**
+/*
  * Scan slots and keep the actual maximizing member in each of16 XZ support
  * directions, deduplicating shared maxima.
  *
@@ -311,13 +315,13 @@ function formationGroundMembers(
   return members;
 }
 
-/**
+/*
  * Maximum subdivided steps per cue; endpoint-inclusive output has at most 361
  * times and the cap coarsens resolution.
  */
 const FORMATION_GROUND_SAMPLE_LIMIT: number = 360;
 
-/**
+/*
  * Round a diagnostic quantity to three decimals with
  * Math.round(value*1000)/1000.
  *
@@ -341,7 +345,7 @@ function round(value: number): number {
   return Math.round(value * 1_000) / 1_000;
 }
 
-/**
+/*
  * Estimate translation, turn, spacing and reform reach, then choose
  * endpoint-inclusive even-time samples with0.5m target and360-step cap.
  *
@@ -414,7 +418,7 @@ function formationGroundSampleTimes(
   ];
 }
 
-/**
+/*
  * Estimate a member's XZ offset displacement and sample its interval at the
  * same capped physical resolution.
  *
@@ -455,13 +459,13 @@ function formationSlotGroundSampleTimes(
   ];
 }
 
-/**
+/*
  * Absolute one-millimetre sinking policy; smaller discrepancies are not
  * reported by this gate.
  */
 const FORMATION_GROUND_SINK_TOLERANCE_METRES: number = 1e-3;
 
-/**
+/*
  * Query heightAt and return a void or a sink beyond1mm, otherwise null.
  *
  * The height owner decides authored support and this helper owns the sinking

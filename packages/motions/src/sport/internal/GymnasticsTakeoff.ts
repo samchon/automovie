@@ -15,19 +15,20 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
 
-/** How many times the landing place is corrected. */
+/*
+ * How many times the landing place is corrected.
+ */
 const PASSES: number = 3;
 
-/**
+/*
  * Plan a take-off at the velocity a law asks for.
- *
- * @param context The action's context.
- * @param aim The launch velocity asked, m/s, given the take-off centre, world
- *   metres; its vertical part positive.
- * @param foot The optional authored support foot for the push-off.
- * @returns The take-off.
- * @throws {HumanRefusal} When the velocity asked does not rise, or the jump
- *   refuses its push-off.
+ * Parameter context: The action's context.
+ * Parameter aim: The launch velocity asked, m/s, given the take-off centre, world
+ * metres; its vertical part positive.
+ * Parameter foot: The optional authored support foot for the push-off.
+ * Returns: The take-off.
+ * When the velocity asked does not rise, or the jump
+ * refuses its push-off.
  */
 export function GymnasticsTakeoff(
   context: IAutoMovieMotionHumanActionContext<object>,
@@ -104,7 +105,7 @@ export function GymnasticsTakeoff(
   return taken!;
 }
 
-/**
+/*
  * A take-off at a chosen launch velocity: the jump's own push-off (`jump`),
  * from the planted foot of the entry, aimed so the centre of mass leaves the
  * floor at the velocity the law asks for.
@@ -119,14 +120,13 @@ export function GymnasticsTakeoff(
  * air is the caller's.
  */
 export namespace GymnasticsTakeoff {
-  /**
+  /*
    * The push-off's contacts up to the take-off, rescaled to the action that
    * goes on from it: every window the jump declared before its take-off, cut
    * there, so the feet bear exactly where the push-off bears them.
-   *
-   * @param takeoff The take-off.
-   * @param duration The whole action's seconds.
-   * @returns The windows, shares of `duration`.
+   * Parameter takeoff: The take-off.
+   * Parameter duration: The whole action's seconds.
+   * Returns: The windows, shares of `duration`.
    */
   export function contacts(
     takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff,
@@ -150,5 +150,7 @@ export namespace GymnasticsTakeoff {
   }
 }
 
-/** The record of `IOfRead`'s site. */
+/*
+ * The record of `IOfRead`'s site.
+ */
 type IOfRead = { centre: IAutoMovieVector3; velocity: IAutoMovieVector3 };

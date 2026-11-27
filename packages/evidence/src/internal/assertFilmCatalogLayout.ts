@@ -4,16 +4,15 @@ import path from "node:path";
 
 import { hasMatchingFile } from "./hasMatchingFile";
 
-/**
+/*
  * Check the inputs for a separate catalog. An explicit selection always
  * requires its inputs. With composition alone, existing catalog artifacts
  * retain the catalog check. The director verifies registration, playback and
  * the tested conditions at the handoff.
- *
- * @param location Absolute production directory.
- * @param required Whether the production selected the catalog explicitly.
- * @returns Whether the production selected the catalog.
- * @throws Error listing the missing film, record or case sources.
+ * Parameter location: Absolute production directory.
+ * Parameter required: Whether the production selected the catalog explicitly.
+ * Returns: Whether the production selected the catalog.
+ * Error listing the missing film, record or case sources.
  */
 export function assertFilmCatalogLayout(
   location: string,
@@ -44,10 +43,14 @@ export function assertFilmCatalogLayout(
   return true;
 }
 
-/** Top-level declarations and publication statements in a catalog module. */
+/*
+ * Top-level declarations and publication statements in a catalog module.
+ */
 type CatalogStatement = ReturnType<typeof parse>["program"]["body"][number];
 
-/** An expression assigned to a variable or class field. */
+/*
+ * An expression assigned to a variable or class field.
+ */
 type CatalogExpression = NonNullable<
   Extract<
     CatalogStatement,
@@ -55,7 +58,9 @@ type CatalogExpression = NonNullable<
   >["declarations"][number]["init"]
 >;
 
-/** Checks the source-owned function surface without executing the production. */
+/*
+ * Checks the source-owned function surface without executing the production.
+ */
 function hasCatalogFunction(file: string): boolean {
   const source: string = fs.readFileSync(file, "utf8");
   let module: ReturnType<typeof parse>;
@@ -70,7 +75,9 @@ function hasCatalogFunction(file: string): boolean {
   return hasExportedCatalogFunction(module.program.body);
 }
 
-/** Finds a callable declaration directly exported or published by local name. */
+/*
+ * Finds a callable declaration directly exported or published by local name.
+ */
 function hasExportedCatalogFunction(statements: CatalogStatement[]): boolean {
   const local: Set<string> = new Set();
   const exported: Set<string> = new Set();
@@ -107,7 +114,9 @@ function hasExportedCatalogFunction(statements: CatalogStatement[]): boolean {
   return [...exported].some((name: string): boolean => local.has(name));
 }
 
-/** Returns names with function implementations in a local declaration. */
+/*
+ * Returns names with function implementations in a local declaration.
+ */
 function callableNames(statement: CatalogStatement): string[] {
   if (statement.type === "FunctionDeclaration")
     return statement.id ? [statement.id.name] : [];
@@ -131,7 +140,9 @@ function callableNames(statement: CatalogStatement): string[] {
   );
 }
 
-/** Recognizes publicly callable methods and function-valued fields. */
+/*
+ * Recognizes publicly callable methods and function-valued fields.
+ */
 function hasPublicCaseMethod(
   declaration: Extract<CatalogStatement, { type: "ClassDeclaration" }>,
 ): boolean {
@@ -153,7 +164,9 @@ function hasPublicCaseMethod(
   });
 }
 
-/** Looks through type annotations to the attached function expression. */
+/*
+ * Looks through type annotations to the attached function expression.
+ */
 function isCallableExpression(
   expression: CatalogExpression | null | undefined,
   allowFactory: boolean = false,

@@ -10,7 +10,7 @@ import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { resolvePhysicalSupportRedundancy } from "./resolvePhysicalSupportRedundancy";
 import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation";
 
-/**
+/*
  * Carry the previous local support correction through an authored change
  * instead of selecting a fresh straight-chain bend branch, then return its
  * support-task null space to the authored posture so unconstrained swivel or

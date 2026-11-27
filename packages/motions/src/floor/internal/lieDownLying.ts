@@ -3,14 +3,13 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 
-/**
+/*
  * The lie's one primitive over every channel: each second's posture is the
  * plan's own prepared course (`at`), whatever is written beneath it.
  *
  * Part of `lieDown.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `lying`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `lying`.
  */
 export function lieDownLying(
   prepared: lieDownLying.IPrepared,
@@ -36,18 +35,23 @@ export function lieDownLying(
   };
 }
 
-/** The `lying` of `lieDown.plan`, built from what that plan prepared. */
+/*
+ * The `lying` of `lieDown.plan`, built from what that plan prepared.
+ */
 export namespace lieDownLying {
-  /** What `lieDown.plan` prepared for its `lying`. */
+  /*
+   * What `lieDown.plan` prepared for its `lying`.
+   */
   export interface IPrepared {
-    /** The `duration` `lieDown.plan` prepared. */
+    /*
+     * The `duration` `lieDown.plan` prepared.
+     */
     duration: number;
 
-    /**
+    /*
      * The lie's posture at a second.
-     *
-     * @param seconds Action seconds.
-     * @returns The posture.
+     * Parameter seconds: Action seconds.
+     * Returns: The posture.
      */
     at: (seconds: number) => IAutoMovieMotionHumanPosture;
   }

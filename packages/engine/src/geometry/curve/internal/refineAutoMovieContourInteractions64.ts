@@ -10,7 +10,7 @@ import { AutoMovieBernsteinSubdivision64 as S } from "../../AutoMovieBernsteinSu
 import { AutoMovieContourLoftCurves64 as C } from "../../AutoMovieContourLoftCurves64";
 import { AutoMovieCurveMath64 as M } from "../../AutoMovieCurveMath64";
 
-/**
+/*
  * Refine interacting display chords from their retained Bernstein restrictions
  * before slit ownership freezes. A dominant-plane projection is used for the
  * common planar section; exact dyadic orientation tests detect intersections of

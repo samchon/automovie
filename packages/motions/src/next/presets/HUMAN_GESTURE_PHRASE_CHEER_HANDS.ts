@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `cheerHands` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. A cheer: both open hands visit places above and
  * beside the head, palms forward, for a beat.

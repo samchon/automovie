@@ -1,6 +1,10 @@
-/** Remove authored `@reference` notes without changing fenced Markdown samples. */
+/*
+ * Remove authored `@reference` notes without changing fenced Markdown samples.
+ */
 export const removeMarkdownReferences = {
-  /** Remove one-line `@reference` comments outside Markdown fences. */
+  /*
+   * Remove one-line `@reference` comments outside Markdown fences.
+   */
   strip(markdown: string): string {
     const protectedLines: Map<string, string> = new Map();
     let index: number = 0;

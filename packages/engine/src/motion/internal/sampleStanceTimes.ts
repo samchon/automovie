@@ -1,6 +1,8 @@
 import { sampleTimes } from "./sampleTimes";
 
-/** Sample a stance or its root path on the same endpoint-inclusive clock. */
+/*
+ * Sample a stance or its root path on the same endpoint-inclusive clock.
+ */
 export function sampleStanceTimes(
   duration: number,
   sampleRate: number = 24,

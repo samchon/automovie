@@ -19,23 +19,22 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { pickUpPosture } from "./pickUpPosture";
 import { pickUpPostureShoulder } from "./pickUpPostureShoulder";
 
-/**
+/*
  * A seated body leaned forward until the arm reaches a grip: the trunk inclines
  * about the seat, the pelvis and the spine sharing the lean
  * (`HumanTrunk.incline`), the seat socket kept on the seat and the feet where
  * they rest, as a seated person reaches past the arm by leaning
  * (`SEATED_LEAN`), up to the seated reach (`SEATED_REACH`). The least lean that
  * brings the shoulder within the reach is taken.
- *
- * @param context The action's context; its entry is seated.
- * @param side The reaching arm.
- * @param grip The grip point, world metres.
- * @param reach How near the shoulder must come to the grip, metres; the upper
- *   arm and the forearm together when absent.
- * @returns The leaned stance.
- * @throws {HumanRefusal} When the grip lies beyond the seated reach, or no lean
- *   up to `SEATED_LEAN` brings the shoulder within reach: the person stands and
- *   steps closer first.
+ * Parameter context: The action's context; its entry is seated.
+ * Parameter side: The reaching arm.
+ * Parameter grip: The grip point, world metres.
+ * Parameter reach: How near the shoulder must come to the grip, metres; the upper
+ * arm and the forearm together when absent.
+ * Returns: The leaned stance.
+ * When the grip lies beyond the seated reach, or no lean
+ * up to `SEATED_LEAN` brings the shoulder within reach: the person stands and
+ * steps closer first.
  */
 export function pickUpPostureLeaned(
   context: IAutoMovieMotionHumanActionContext<object>,
@@ -250,32 +249,42 @@ export function pickUpPostureLeaned(
   };
 }
 
-/** The alternatives of `LeanedLeanBodyHeading`'s site. */
+/*
+ * The alternatives of `LeanedLeanBodyHeading`'s site.
+ */
 type LeanedLeanBodyHeading = "yaw" | "pitch" | "roll";
 
-/** The record of `ILeanedLeanBodyTilt`'s site. */
+/*
+ * The record of `ILeanedLeanBodyTilt`'s site.
+ */
 type ILeanedLeanBodyTilt = {
   pitch: number;
   joints: IAutoMovieMotionHumanPosture["joints"];
 };
 
-/**
+/*
  * Optional parent-owned exact FK source for this same current person
  * evaluation.
  */
 type IFK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
 
-/**
+/*
  * Genuine current-person ROM projection borrowed only by actual solved
  * observations.
  */
 type IROM = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3];
 
-/** An arm owned by its side of the body. */
+/*
+ * An arm owned by its side of the body.
+ */
 type Arm = `${AutoMovieHumanSide}Arm`;
 
-/** A free arm may have no reachable thigh contact. */
+/*
+ * A free arm may have no reachable thigh contact.
+ */
 type FreeGoal = IAutoMovieHumanLimbGoal | undefined;
 
-/** Unset clinical angles hold their neutral coordinates. */
+/*
+ * Unset clinical angles hold their neutral coordinates.
+ */
 const ZERO: readonly [number, number, number] = [0, 0, 0];

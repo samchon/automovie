@@ -2,7 +2,7 @@ import type { AutoMovieGuidePass } from "@automovie/interface";
 
 import { isGuidePass } from "./isGuidePass.js";
 
-/**
+/*
  * Validate a requested pass list and fold repeats, keeping each pass at its
  * first position.
  *

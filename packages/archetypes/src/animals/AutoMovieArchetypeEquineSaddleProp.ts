@@ -14,7 +14,7 @@ import {
   type AutoMovieArchetypeSpan,
 } from "../core";
 
-/**
+/*
  * The riding saddle's mass when it travels alone, kilograms: authored, as the
  * horse producer carries none for its tack parts either.
  */

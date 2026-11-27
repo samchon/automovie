@@ -1,6 +1,6 @@
 import { IAutoMovieVector3, IAutoMovieYawPitch } from "@automovie/interface";
 
-/**
+/*
  * The yaw and pitch, in degrees, that aim from `from` at `to` for an actor
  * facing `facingDeg` about +Y: the angles a head, an eye or a camera turns
  * through to look at a target.
@@ -17,11 +17,10 @@ import { IAutoMovieVector3, IAutoMovieYawPitch } from "@automovie/interface";
  *
  * A non-finite coordinate or facing throws an error naming the field, such as
  * `aimYawPitch to.z must be finite, but was Infinity`.
- *
- * @param from Eye or lens position in world metres.
- * @param to Target position in world metres.
- * @param facingDeg Actor heading about +Y in degrees; 0 faces +Z and 90 faces
- *   +X.
+ * Parameter from: Eye or lens position in world metres.
+ * Parameter to: Target position in world metres.
+ * Parameter facingDeg: Actor heading about +Y in degrees; 0 faces +Z and 90 faces
+ * +X.
  */
 export function aimYawPitch(
   from: IAutoMovieVector3,

@@ -4,7 +4,7 @@ import type {
   IAutoMovieCubicBezierCurve64,
 } from "@automovie/interface";
 
-/**
+/*
  * Normalize the saved open-course phase and optionally reverse its declared
  * direction. Physical coefficients remain unchanged; reversing a span reverses
  * its control order and widths together. The last normalized width closes the

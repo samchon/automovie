@@ -5,7 +5,7 @@ import type {
 
 import { createRecoveryCameraChart } from "./createRecoveryCameraChart";
 
-/**
+/*
  * Prepare the resident pair before any image-sized allocation: the caller's
  * pixel budget bounds its two views, and their supplied pixel charts are
  * constructed once for the later numerical phases. Calibration, provenance,
@@ -27,6 +27,8 @@ export function admitRecoveryCameraPair(
   return { charts: [charts[0]!, charts[1]!], pixels };
 }
 
-/** One view's supplied pixel chart, constructed for the numerical phases. */
+/*
+ * One view's supplied pixel chart, constructed for the numerical phases.
+ */
 type Chart =
   ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation>;

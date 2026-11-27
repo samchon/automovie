@@ -2,7 +2,7 @@ import { AutoMovieArchetypeEquineGait } from "../AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "../AutoMovieArchetypeQuadrupedGait";
 import { CamelCohorts } from "./CamelCohorts";
 
-/**
+/*
  * A provisional dromedary walk from an observed Bactrian walking point.
  *
  * Catavitello, Ivanenko and Lacquaniti (2018), eLife 7:e38190, Table 1 and
@@ -31,31 +31,35 @@ import { CamelCohorts } from "./CamelCohorts";
  * pace/trot interval.
  */
 export namespace CamelGait {
-  /**
+  /*
    * Figure 2 supplement 2D, Camelusbactrianus row: observed mean period,
    * seconds.
    */
   const STRIDE: number = 1.7333333333333336;
 
-  /** Figure 2 supplement 2C, fore stance percentage divided by 100. */
+  /*
+   * Figure 2 supplement 2C, fore stance percentage divided by 100.
+   */
   const FORE_DUTY: number = 0.7194109095774127;
 
-  /** Figure 2 supplement 2C, hind stance percentage divided by 100. */
+  /*
+   * Figure 2 supplement 2C, hind stance percentage divided by 100.
+   */
   const HIND_DUTY: number = 0.66768111169193;
 
-  /**
+  /*
    * Figure 2 supplement 2B, camera-facing fore onset as a fraction after its
    * ipsilateral hind.
    */
   const FORE_PHASE: number = 14.293928555816956 / 100;
 
-  /**
+  /*
    * Figure 2 supplement 2B, opposite fore onset on the same hind-referenced
    * clock.
    */
   const OPPOSITE_FORE_PHASE: number = 0.6425789503922897;
 
-  /**
+  /*
    * One measured walking point; the remaining camel gait clocks are not
    * measured here.
    */

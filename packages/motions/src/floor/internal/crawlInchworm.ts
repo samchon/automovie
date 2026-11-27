@@ -26,7 +26,7 @@ import { crawlInchwormPose } from "./crawlInchwormPose";
 import { floorEntry } from "./floorEntry";
 import { getUp } from "./getUp";
 
-/**
+/*
  * The inchworm, the crawl's `inchworm` kind: from standing the body folds until
  * its palms are flat on the floor before its feet, walks the hands out one at a
  * time to a plank, then walks the feet in one at a time to the hands, a number
@@ -53,34 +53,38 @@ import { getUp } from "./getUp";
  * Not yet: a push-up at the plank.
  */
 export namespace crawlInchworm {
-  /**
+  /*
    * A hand's longest step as a share of the upper arm and the forearm
    * (provisional).
    */
   export const HAND: number = 0.4;
 
-  /** A foot's longest step as a share of the thigh and the shank (provisional). */
+  /*
+   * A foot's longest step as a share of the thigh and the shank (provisional).
+   */
   export const FOOT: number = 0.25;
 
-  /**
+  /*
    * One limb's step, in the body's own time unit, the square root of its hip
    * height over gravity (provisional).
    */
   export const STEP: number = 1.6;
 
-  /**
+  /*
    * The fold from standing to the palms on the floor, in the body's own time
    * unit (provisional).
    */
   export const DOWN: number = 4.9;
 
-  /**
+  /*
    * The rise from the last fold to standing, in the body's own time unit
    * (provisional).
    */
   export const RISE: number = 4.9;
 
-  /** The limbs that bear, in the order their contacts are listed. */
+  /*
+   * The limbs that bear, in the order their contacts are listed.
+   */
   export const LIMBS = [
     "leftHand",
     "rightHand",
@@ -88,15 +92,16 @@ export namespace crawlInchworm {
     "rightFoot",
   ] as const;
 
-  /** A limb that bears in the inchworm. */
+  /*
+   * A limb that bears in the inchworm.
+   */
   export type Limb = (typeof LIMBS)[number];
-  /**
+  /*
    * Plan an inchworm.
-   *
-   * @param context The crawl's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the cycle count is not a positive integer, or a
-   *   placement the body cannot bear on (`support`).
+   * Parameter context: The crawl's context.
+   * Returns: The plan.
+   * When the cycle count is not a positive integer, or a
+   * placement the body cannot bear on (`support`).
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrawl.IParams>,
@@ -292,42 +297,60 @@ export namespace crawlInchworm {
     };
   }
 
-  /** The record of `IPlanS`'s site. */
+  /*
+   * The record of `IPlanS`'s site.
+   */
   type IPlanS = {
     limb: Limb;
     n: number;
     at: number;
   };
 
-  /** The record of `IPlanStepsItem2`'s site. */
+  /*
+   * The record of `IPlanStepsItem2`'s site.
+   */
   type IPlanStepsItem2 = { limb: Limb; n: number; at: number };
 
-  /** The record of `IPlanResult`'s site. */
+  /*
+   * The record of `IPlanResult`'s site.
+   */
   type IPlanResult = {
     stances: IAutoMovieMotionHumanSupport.IStance[];
     steps: IStepsItemResult[];
   };
 
-  /** The record of `IStepsItemResult`'s site. */
+  /*
+   * The record of `IStepsItemResult`'s site.
+   */
   type IStepsItemResult = { limb: Limb; n: number; at: number };
 
-  /** The record of `IPlan`'s site. */
+  /*
+   * The record of `IPlan`'s site.
+   */
   type IPlan = {
     stances: IAutoMovieMotionHumanSupport.IStance[];
     steps: IPlanStepsItem[];
   };
 
-  /** The record of `IPlanStepsItem`'s site. */
+  /*
+   * The record of `IPlanStepsItem`'s site.
+   */
   type IPlanStepsItem = { limb: Limb; n: number; at: number };
 }
 
-/** The record of `IPlanB`'s site. */
+/*
+ * The record of `IPlanB`'s site.
+ */
 type IPlanB = { share: number };
 
-/** The record of `IPlanA`'s site. */
+/*
+ * The record of `IPlanA`'s site.
+ */
 type IPlanA = { share: number };
 
-/** The record of `IPlanItemResult`'s site. */
+/*
+ * The record of `IPlanItemResult`'s site.
+ */
 type IPlanItemResult = {
   name: string;
   share: number;

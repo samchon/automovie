@@ -6,17 +6,16 @@ import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/ind
 import { StageShaftConstruction } from "./StageShaftConstruction";
 
 
-/**
+/*
  * Padded linked stage ornament.
  *
  * A shaft and visibly jointed distal ornament with a grip, hinge, and following
  * end mark.
- *
- * @param params The scene identity and optional total display height in metres.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter params: The scene identity and optional total display height in metres.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function createStageLinkedProp(
   params: AutoMovieArchetypeStageLinkedProp.IParams = {},

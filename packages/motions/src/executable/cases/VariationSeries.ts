@@ -8,19 +8,23 @@ import type {
 
 import { HumanPerformance } from "../../perform/HumanPerformance";
 
-/**
+/*
  * What the variation capture's series of repeats share: the repeat count, the
  * spread ratio every series is held to, the stage a series is performed on and
  * the two spread measures.
  */
 export namespace VariationSeries {
-  /** Repeats per series. */
+  /*
+   * Repeats per series.
+   */
   export const REPEATS: number = 32;
 
-  /** The least ratio of a spread at proficiency 0 to that at proficiency 1. */
+  /*
+   * The least ratio of a spread at proficiency 0 to that at proficiency 1.
+   */
   export const RATIO: number = 2;
 
-  /**
+  /*
    * One performer, trained, at the origin facing +Z, and an optional partner a
    * gap ahead facing back.
    */
@@ -55,7 +59,9 @@ export namespace VariationSeries {
     });
   }
 
-  /** The root mean square distance of points from their mean, metres. */
+  /*
+   * The root mean square distance of points from their mean, metres.
+   */
   export function dispersion(points: IAutoMovieVector3[]): number {
     const mean: IAutoMovieVector3 = Vector3.scale(
       points.reduce(
@@ -74,7 +80,9 @@ export namespace VariationSeries {
     );
   }
 
-  /** The standard deviation of values. */
+  /*
+   * The standard deviation of values.
+   */
   export function deviation(values: number[]): number {
     const mean: number =
       values.reduce((sum: number, v: number): number => sum + v, 0) /
@@ -88,5 +96,7 @@ export namespace VariationSeries {
   }
 }
 
-/** The record of `IPerformPartner`'s site. */
+/*
+ * The record of `IPerformPartner`'s site.
+ */
 type IPerformPartner = { body: IAutoMovieMotionHumanBody; gap: number };

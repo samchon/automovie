@@ -8,10 +8,10 @@ import {
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { builtPlacedPartBoxes } from "./builtPlacedPartBoxes";
 
-/**
+/*
  * The world boxes one element's drawn parts fill, one per part.
  *
- * Answers the question {@link builtEnvironmentElementBounds} cannot: how much of
+ * Answers the question builtEnvironmentElementBounds cannot: how much of
  * a body's box is body. A shelf is a back panel and two boards, so its union
  * box spans floor to head height and is mostly air, and anything standing on a
  * board is inside it. A caller testing whether two placed things intersect, or
@@ -27,7 +27,7 @@ import { builtPlacedPartBoxes } from "./builtPlacedPartBoxes";
  * world origin.
  *
  * Each call stages the whole element hierarchy, so a caller measuring many
- * elements of one environment reads {@link builtEnvironmentPartBoxes} once
+ * elements of one environment reads builtEnvironmentPartBoxes once
  * instead.
  *
  * These are CPU boxes of finite stated or tessellated vertices under

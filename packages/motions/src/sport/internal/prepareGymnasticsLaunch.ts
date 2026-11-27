@@ -7,15 +7,14 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Prepare the fixed mass-bone demand for launch readings of one unchanged
  * body/model, while every plan and both actual millisecond samples still
  * receive their original complete resolution and mass reduction.
- *
- * @param body The unchanged canonical body.
- * @param model Its unchanged physical segment model.
- * @returns A reader of an actual ballistic plan and its launch second,
- *   returning world-metre COM and velocity in metres per second.
+ * Parameter body: The unchanged canonical body.
+ * Parameter model: Its unchanged physical segment model.
+ * Returns: A reader of an actual ballistic plan and its launch second,
+ * returning world-metre COM and velocity in metres per second.
  */
 export function prepareGymnasticsLaunch(
   body: IAutoMovieMotionHumanBody,
@@ -85,14 +84,18 @@ export function prepareGymnasticsLaunch(
   };
 }
 
-/**
+/*
  * The two numeric observations of one actual ballistic launch, with no retained
  * pose or workspace.
  */
 interface ILaunch {
-  /** Centre at the requested launch second, world metres. */
+  /*
+   * Centre at the requested launch second, world metres.
+   */
   centre: IAutoMovieVector3;
 
-  /** Measured launch velocity, metres per second. */
+  /*
+   * Measured launch velocity, metres per second.
+   */
   velocity: IAutoMovieVector3;
 }

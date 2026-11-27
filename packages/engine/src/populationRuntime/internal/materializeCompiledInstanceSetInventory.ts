@@ -7,7 +7,7 @@ import type {
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { materializeCompiledInstanceSet } from "./materializeCompiledInstanceSet";
 
-/**
+/*
  * Compile every instance set a world declares into its compact runtime record.
  *
  * Records are keyed by set id and inserted in code-unit order of that id, so

@@ -6,7 +6,7 @@ import {
 
 import { AutoMovieSweepRotation } from "../../AutoMovieSweepRotation";
 
-/**
+/*
  * Create the motion buffers of a rest skeleton.
  *
  * `update` computes each bone's rotation `Q_b R_b^-1`, normalized, and keeps
@@ -14,9 +14,8 @@ import { AutoMovieSweepRotation } from "../../AutoMovieSweepRotation";
  * - O_b)` as the sweep pose transform. Until the first `update` and
  * after `reset` it copies points and directions unchanged, so a rig at rest
  * reproduces its unposed cage bit for bit.
- *
- * @param rest Bones at rest, from `resolvePose` of an empty pose; only read.
- * @returns The buffer, every motion the identity until updated.
+ * Parameter rest: Bones at rest, from `resolvePose` of an empty pose; only read.
+ * Returns: The buffer, every motion the identity until updated.
  */
 export const bufferAutoMovieBones: (
   rest: readonly IAutoMovieResolvedBone[],

@@ -1,13 +1,12 @@
 import type { IAutoMovieSweep } from "@automovie/interface";
 
-/**
+/*
  * Refuse a feature whose band or points cannot define a finite sweep
  * displacement.
- *
- * @param f The feature, only read
- * @param index Its index for diagnostics
- * @throws Error for a non-positive width, fewer than two points, out-of-domain
- *   points, mixed value modes or non-finite values
+ * Parameter f: The feature, only read
+ * Parameter index: Its index for diagnostics
+ * Error for a non-positive width, fewer than two points, out-of-domain
+ * points, mixed value modes or non-finite values
  */
 export function checkAutoMovieSweepFeature(
   f: IAutoMovieSweep.IFeature,

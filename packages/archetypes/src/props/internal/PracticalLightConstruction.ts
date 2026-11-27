@@ -8,7 +8,9 @@ import {
 } from "../../core";
 import { AutoMovieArchetypeLight } from "../AutoMovieArchetypeLight";
 
-/** The readable name of each kind. */
+/*
+ * The readable name of each kind.
+ */
 const NAMES: Readonly<Record<AutoMovieArchetypeLight.Kind, string>> = {
   candle: "candle",
   fireTorch: "fire torch",
@@ -18,10 +20,14 @@ const NAMES: Readonly<Record<AutoMovieArchetypeLight.Kind, string>> = {
   lantern: "lantern",
 };
 
-/** Practical-light geometry in metres and model-space coordinates. */
+/*
+ * Practical-light geometry in metres and model-space coordinates.
+ */
 const v: typeof Vector3.create = Vector3.create;
 
-/** Open the saved draw stream for the light's particular body and mounting form. */
+/*
+ * Open the saved draw stream for the light's particular body and mounting form.
+ */
 function draw<Id extends AutoMovieArchetypeLight.Affordance>(
   kind: AutoMovieArchetypeLight.Kind,
   params: Omit<AutoMovieArchetypeLight.IParams, "kind">,
@@ -47,15 +53,19 @@ function draw<Id extends AutoMovieArchetypeLight.Affordance>(
   return { builder, d };
 }
 
-/**
+/*
  * Static practical-light bodies with authored grip, hanging and render-light
  * bindings.
  */
 export namespace PracticalLightConstruction {
-  /** The contact ids {@link pendant} builds or reads. */
+  /*
+   * The contact ids pendant builds or reads.
+   */
   export type PendantContact = "grip" | "light" | "hook";
 
-  /** Build a suspended lamp with a downward light frame. */
+  /*
+   * Build a suspended lamp with a downward light frame.
+   */
   export function pendant(
     params: Omit<AutoMovieArchetypeLight.IParams, "kind">,
     seed?: number,
@@ -105,13 +115,19 @@ export namespace PracticalLightConstruction {
     return builder.build(d.mass!);
   }
 
-  /** The values {@link standing} accepts at this place in its signature. */
+  /*
+   * The values standing accepts at this place in its signature.
+   */
   export type StandingKind = "tableLamp" | "floorLamp";
 
-  /** The contact ids {@link standing} builds or reads. */
+  /*
+   * The contact ids standing builds or reads.
+   */
   export type StandingContact = "grip" | "light";
 
-  /** Build a standing lamp with its source inside the shade. */
+  /*
+   * Build a standing lamp with its source inside the shade.
+   */
   export function standing(
     kind: StandingKind,
     params: Omit<AutoMovieArchetypeLight.IParams, "kind">,
@@ -164,10 +180,14 @@ export namespace PracticalLightConstruction {
     return builder.build(d.mass!);
   }
 
-  /** The contact ids {@link lantern} builds or reads. */
+  /*
+   * The contact ids lantern builds or reads.
+   */
   export type LanternContact = "grip" | "light" | "hook";
 
-  /** Build a raised-bail lantern with a standing base, grip and hanging hook. */
+  /*
+   * Build a raised-bail lantern with a standing base, grip and hanging hook.
+   */
   export function lantern(
     params: Omit<AutoMovieArchetypeLight.IParams, "kind">,
     seed?: number,
@@ -241,13 +261,17 @@ export namespace PracticalLightConstruction {
     return builder.build(d.mass!);
   }
 
-  /** The values {@link wick} accepts at this place in its signature. */
+  /*
+   * The values wick accepts at this place in its signature.
+   */
   export type WickKind = "candle" | "fireTorch";
 
-  /** The contact ids {@link wick} builds or reads. */
+  /*
+   * The contact ids wick builds or reads.
+   */
   export type WickContact = "grip" | "light";
 
-  /**
+  /*
    * Build a candle or a fictional torch body with a light frame at the wick or
    * animated tip.
    */
@@ -294,20 +318,30 @@ export namespace PracticalLightConstruction {
   }
 }
 
-/** The model-space construction for the selected contact IDs. */
+/*
+ * The model-space construction for the selected contact IDs.
+ */
 type Builder<Id extends AutoMovieArchetypeLight.Affordance> = AutoMovieArchetypeBuilder<
   Id,
   AutoMovieArchetypeLight.Dimension
 >;
 
-/** Model dimensions in the legacy family's recorded units. */
+/*
+ * Model dimensions in the legacy family's recorded units.
+ */
 type Dimensions = Partial<Record<AutoMovieArchetypeLight.Dimension, number>>;
 
-/** A started construction: its builder and its drawn dimensions. */
+/*
+ * A started construction: its builder and its drawn dimensions.
+ */
 interface IDrawn<Id extends AutoMovieArchetypeLight.Affordance> {
-  /** The model-space builder for the selected contact ids. */
+  /*
+   * The model-space builder for the selected contact ids.
+   */
   builder: Builder<Id>;
 
-  /** The drawn and fixed dimensions in the family's recorded units. */
+  /*
+   * The drawn and fixed dimensions in the family's recorded units.
+   */
   d: Dimensions;
 }

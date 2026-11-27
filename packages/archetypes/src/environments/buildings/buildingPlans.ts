@@ -10,15 +10,14 @@ import type { IAutoMovieEnvironmentBuildingFootprint } from "../IAutoMovieEnviro
 import type { IAutoMovieEnvironmentBuildingPoint } from "../IAutoMovieEnvironmentBuildingPoint";
 import { buildingWalkable } from "./buildingWalkable";
 
-/**
+/*
  * Admit room footprints and storey elevations into a reusable local plan.
  *
  * Positive-area overlap excludes rooms at the same level. Edge and vertex
  * contact remain available to the shared wall construction.
- *
- * @param props Building-local authoring input, in metres.
- * @returns The normalized local plan.
- * @throws Error naming an invalid level, room or opening.
+ * Parameter props: Building-local authoring input, in metres.
+ * Returns: The normalized local plan.
+ * Error naming an invalid level, room or opening.
  */
 export function buildingPlans(
   props: AutoMovieEnvironment.IBuildingProps,
@@ -105,84 +104,134 @@ export function buildingPlans(
   return { kind: "plan", levels, stairs, wall, slab, color };
 }
 
-/** Normalized local geometry shared by the wall, slab and support assemblers. */
+/*
+ * Normalized local geometry shared by the wall, slab and support assemblers.
+ */
 export namespace buildingPlans {
-  /** An admitted planar region in XZ metres. */
+  /*
+   * An admitted planar region in XZ metres.
+   */
   export interface IRegion {
-    /**
+    /*
      * Canonically wound triangulation, with the planar Y component standing for
      * Z.
      */
     readonly region: IAutoMovieRegionTriangulation;
 
-    /** Outer ring followed by any holes, each in canonical winding. */
+    /*
+     * Outer ring followed by any holes, each in canonical winding.
+     */
     readonly rings: IAutoMovieProfilePoint[][];
 
-    /** Rectangle center or an interior point of the largest triangle. */
+    /*
+     * Rectangle center or an interior point of the largest triangle.
+     */
     readonly anchor: IAutoMovieProfilePoint;
 
-    /** Min X and Z followed by Max X and Z, in metres. */
+    /*
+     * Min X and Z followed by Max X and Z, in metres.
+     */
     readonly bounds: readonly [number, number, number, number];
   }
 
-  /** A named room in one normalized level. */
+  /*
+   * A named room in one normalized level.
+   */
   export interface IRoom {
-    /** Path segment unique to this level. */
+    /*
+     * Path segment unique to this level.
+     */
     readonly id: string;
 
-    /** Room's local floor plan. */
+    /*
+     * Room's local floor plan.
+     */
     readonly region: IRegion;
 
-    /** Walkable portion of the floor beyond the physical wall thickness. */
+    /*
+     * Walkable portion of the floor beyond the physical wall thickness.
+     */
     support: Pick<IRegion, "rings" | "anchor">;
 
-    /** Floor region after adding any generated stair voids. */
+    /*
+     * Floor region after adding any generated stair voids.
+     */
     floor?: IRegion;
 
-    /** Ceiling region after adding any generated stair voids. */
+    /*
+     * Ceiling region after adding any generated stair voids.
+     */
     ceiling?: IRegion;
   }
 
-  /** One normalized storey in local metres. */
+  /*
+   * One normalized storey in local metres.
+   */
   export interface ILevel {
-    /** Path segment unique to this building. */
+    /*
+     * Path segment unique to this building.
+     */
     readonly id: string;
 
-    /** Finished floor above the local origin, metres. */
+    /*
+     * Finished floor above the local origin, metres.
+     */
     readonly elevation: number;
 
-    /** Clear storey height, metres. */
+    /*
+     * Clear storey height, metres.
+     */
     readonly height: number;
 
-    /** Admitted rooms in author order. */
+    /*
+     * Admitted rooms in author order.
+     */
     readonly rooms: readonly IRoom[];
 
-    /** Owned copy of the aperture declarations. */
+    /*
+     * Owned copy of the aperture declarations.
+     */
     readonly openings: readonly AutoMovieEnvironment.IBuildingOpening[];
   }
 
-  /** A stair with its resolved endpoints and exact adjoining slab cut. */
+  /*
+   * A stair with its resolved endpoints and exact adjoining slab cut.
+   */
   export interface IStair {
-    /** Stair id scoped by the building. */
+    /*
+     * Stair id scoped by the building.
+     */
     readonly id: string;
 
-    /** Admitted logical room ids in ascent order. */
+    /*
+     * Admitted logical room ids in ascent order.
+     */
     readonly rooms: readonly [string, string];
 
-    /** Building-local landing endpoints in metres. */
+    /*
+     * Building-local landing endpoints in metres.
+     */
     readonly endpoints: readonly [IAutoMovieVector3, IAutoMovieVector3];
 
-    /** Clear width across the flight in metres. */
+    /*
+     * Clear width across the flight in metres.
+     */
     readonly width: number;
 
-    /** Number of equal steps, including the upper tread. */
+    /*
+     * Number of equal steps, including the upper tread.
+     */
     readonly steps: number;
 
-    /** Smaller clear height of the two attached rooms in metres. */
+    /*
+     * Smaller clear height of the two attached rooms in metres.
+     */
     readonly clearHeight: number;
   }
 
-  /** Closed internal choice of interior building or facade mass. */
+  /*
+   * Closed internal choice of interior building or facade mass.
+   */
   export type IPlan =
     | {
         readonly kind: "facade";
@@ -200,7 +249,9 @@ export namespace buildingPlans {
       };
 }
 
-/** Resolve the levels and apply one stair corridor as both required slab holes. */
+/*
+ * Resolve the levels and apply one stair corridor as both required slab holes.
+ */
 function prepareStair(
   stair: AutoMovieEnvironment.IBuildingStair,
   levels: readonly buildingPlans.ILevel[],
@@ -256,7 +307,7 @@ function prepareStair(
   };
 }
 
-/**
+/*
  * Re-admit a slab with a new, strictly contained void along with its prior
  * holes.
  */
@@ -265,7 +316,9 @@ function addCut(
   cut: readonly IAutoMovieEnvironmentBuildingPoint[],
   path: string,
 ): buildingPlans.IRegion {
-  /** Convert one stored canonical ring back to the compact plan input. */
+  /*
+   * Convert one stored canonical ring back to the compact plan input.
+   */
   const ring = (
     points: readonly IAutoMovieProfilePoint[],
   ): IAutoMovieEnvironmentBuildingPoint[] =>
@@ -287,13 +340,17 @@ function addCut(
   );
 }
 
-/** Admit a strictly positive finite metre dimension and retain its value. */
+/*
+ * Admit a strictly positive finite metre dimension and retain its value.
+ */
 function positive(value: number, path: string): number {
   if (value <= 0) throw new Error(`${path} must be positive and finite`);
   return value;
 }
 
-/** Admit a local anchor path segment against all earlier names at its level. */
+/*
+ * Admit a local anchor path segment against all earlier names at its level.
+ */
 function admitId(id: string, names: Set<string>, path: string): void {
   if (id.trim().length === 0 || id.includes("/") || id === "." || id === "..")
     throw new Error(`${path} has invalid path segment "${id}"`);
@@ -301,7 +358,7 @@ function admitId(id: string, names: Set<string>, path: string): void {
   names.add(id);
 }
 
-/**
+/*
  * Turn either footprint syntax into canonical rings, shared triangles and a
  * guaranteed interior frame origin.
  */
@@ -363,12 +420,14 @@ function draftRegion(
   };
 }
 
-/** Map local XZ metres to planar XY metres for triangulation. */
+/*
+ * Map local XZ metres to planar XY metres for triangulation.
+ */
 function planPoint(point: IAutoMovieEnvironmentBuildingPoint): IAutoMovieProfilePoint {
   return { x: point.x, y: point.z };
 }
 
-/**
+/*
  * Return the centroid of the largest admitted triangle, strictly in the plan
  * region.
  */
@@ -391,7 +450,9 @@ function largestTriangleCenter(
   return center;
 }
 
-/** Which two plan interiors share area rather than only an edge or vertex. */
+/*
+ * Which two plan interiors share area rather than only an edge or vertex.
+ */
 function interiorsMeet(
   a: buildingPlans.IRegion,
   b: buildingPlans.IRegion,
@@ -413,7 +474,9 @@ function interiorsMeet(
   return false;
 }
 
-/** Three corners from the admitted triangulation, starting at one index offset. */
+/*
+ * Three corners from the admitted triangulation, starting at one index offset.
+ */
 function triangle(
   region: IAutoMovieRegionTriangulation,
   offset: number,
@@ -429,7 +492,9 @@ function triangle(
   ];
 }
 
-/** Test projections onto the three normalized edge normals in local metres. */
+/*
+ * Test projections onto the three normalized edge normals in local metres.
+ */
 function separated(
   first: readonly IAutoMovieProfilePoint[],
   second: readonly IAutoMovieProfilePoint[],
@@ -439,7 +504,9 @@ function separated(
     const length: number = Math.hypot(b.x - a.x, b.y - a.y);
     const x: number = (a.y - b.y) / length;
     const y: number = (b.x - a.x) / length;
-    /** Project relative to the edge origin to preserve local precision. */
+    /*
+     * Project relative to the edge origin to preserve local precision.
+     */
     const project = (p: IAutoMovieProfilePoint): number =>
       (p.x - a.x) * x + (p.y - a.y) * y;
     const u: number[] = first.map(project);

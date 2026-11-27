@@ -3,7 +3,7 @@ import type {
   IAutoMoviePhysicalProfile,
 } from "@automovie/interface";
 
-/**
+/*
  * Read a proximal-to-distal actuator path from an admitted tree. The fixed root
  * has no incoming actuator and is omitted.
  */

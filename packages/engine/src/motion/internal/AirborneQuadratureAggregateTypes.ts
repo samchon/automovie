@@ -1,6 +1,8 @@
-/** Type contracts shared by the private adaptive quadrature implementation. */
+/*
+ * Type contracts shared by the private adaptive quadrature implementation.
+ */
 export namespace AirborneQuadratureAggregateTypes {
-  /**
+  /*
    * Actual numeric panel data used by the aggregation algorithm.
    *
    * Start seconds order ties; value and absolute error use the integrand's
@@ -11,15 +13,21 @@ export namespace AirborneQuadratureAggregateTypes {
    * the panel contract.
    */
   export interface IPanel {
-    /** First second, ordering exact-score ties. */
+    /*
+     * First second, ordering exact-score ties.
+     */
     a: number;
-    /** Finite corrected integral coordinates. */
+    /*
+     * Finite corrected integral coordinates.
+     */
     value: readonly number[];
-    /** Absolute componentwise truncation estimates. */
+    /*
+     * Absolute componentwise truncation estimates.
+     */
     error: readonly number[];
   }
 
-  /**
+  /*
    * A fresh integral snapshot and borrowed roundoff for one current tree state.
    *
    * Values and additional aggregation roundoff retain the original output
@@ -31,16 +39,18 @@ export namespace AirborneQuadratureAggregateTypes {
    * error.
    */
   export interface IRead {
-    /**
+    /*
      * Fresh snapshot of the current pairwise integral sum, read-only for
      * callbacks.
      */
     value: readonly number[];
-    /** Outward bound on new aggregate-addition roundoff, in the same units. */
+    /*
+     * Outward bound on new aggregate-addition roundoff, in the same units.
+     */
     roundoff: readonly number[];
   }
 
-  /**
+  /*
    * Current-value reads, current-weight priorities and local panel replacement.
    *
    * Each operation states its borrowed result, nonnegative weights or actual
@@ -51,20 +61,24 @@ export namespace AirborneQuadratureAggregateTypes {
    * weights; there is no stale-score cache or test-only counter.
    */
   export interface ITree<Panel extends IPanel> {
-    /**
+    /*
      * Copy the current integral and borrow its roundoff until the next
      * replacement.
      */
     read(): IRead;
-    /**
+    /*
      * Enclose the sum of current weighted panel measures and the
      * caller-measured additional aggregation roundoff, all in the same output
      * unit.
      */
     estimate(weights: readonly number[], roundoff: number): number;
-    /** Select the true maximum for current weights, with earlier-time ties. */
+    /*
+     * Select the true maximum for current weights, with earlier-time ties.
+     */
     worst(weights: readonly number[]): Panel;
-    /** Replace exactly one live panel by its actual two children. */
+    /*
+     * Replace exactly one live panel by its actual two children.
+     */
     replace(previous: Panel, left: Panel, right: Panel): void;
   }
 }

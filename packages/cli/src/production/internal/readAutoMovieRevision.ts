@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 
-/**
+/*
  * The source revision a capture records: the production's git commit, with
  * `+changes` when its working tree differs from that commit, or `unrecorded`
  * when the folder is not in a git checkout or git is not installed.

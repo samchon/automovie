@@ -21,7 +21,7 @@ import { crossingClearance } from "./crossingClearance";
 import { crossingSurface } from "./crossingSurface";
 import { planNamedVault } from "./planNamedVault";
 
-/**
+/*
  * Cross a named obstacle or a gap between two named decks with the existing
  * laws, against the scene's actual shapes: a step uses `stepOver`, a vault
  * `planNamedVault`, and an obstacle or gap jump the ballistic `jump` landing
@@ -29,11 +29,10 @@ import { planNamedVault } from "./planNamedVault";
  * the departure deck. The whole displayed body is checked clear of the named
  * shapes over the crossing (`crossingClearance`), for a jump once its airborne
  * rotation is set.
- *
- * @param context The entry and the selected crossing.
- * @returns A crossing that hands a settled exit to the following gait.
- * @throws {HumanRefusal} For geometry that does not span the path or a body
- *   that enters a named shape.
+ * Parameter context: The entry and the selected crossing.
+ * Returns: A crossing that hands a settled exit to the following gait.
+ * For geometry that does not span the path or a body
+ * that enters a named shape.
  */
 export function planNamedCrossing(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrossing.IParams>,
@@ -114,52 +113,60 @@ export function planNamedCrossing(
   };
 }
 
-/**
+/*
  * How far an entering sole may sit off the departure top, metres (provisional:
  * a sole visibly on the deck).
  */
 const SOLE: number = 0.025;
 
-/**
+/*
  * The least clear gap between two decks, metres, below which they are one
  * surface (provisional).
  */
 const GAP: number = 0.02;
 
-/**
+/*
  * Landing room the far deck needs beyond its near edge, foot lengths
  * (provisional: a foot and its heel margin).
  */
 const LANDING_ROOM: number = 1.15;
 
-/**
+/*
  * Where the toe joints land beyond the far deck's near edge, foot lengths
  * (provisional: the heel on the deck).
  */
 const LANDING_DEPTH: number = 0.8;
 
-/**
+/*
  * The landing's margin inside a deck's side edges, foot lengths (provisional:
  * half a stance width).
  */
 const LANE_MARGIN: number = 0.65;
 
-/**
+/*
  * Where the feet land beyond an obstacle's far extent, foot lengths
  * (provisional: room for the absorbing stance's heels).
  */
 const BEYOND: number = 1.45;
 
-/** A jump's landing and the fixtures its clearance is checked against. */
+/*
+ * A jump's landing and the fixtures its clearance is checked against.
+ */
 interface ILanding {
-  /** The jump's landing point and support. */
+  /*
+   * The jump's landing point and support.
+   */
   params: IAutoMovieMotionHumanJump.IParams;
 
-  /** The fixtures the body must clear. */
+  /*
+   * The fixtures the body must clear.
+   */
   subjects: readonly string[];
 }
 
-/** Land on the far deck of a gap after checking the departure stance. */
+/*
+ * Land on the far deck of a gap after checking the departure stance.
+ */
 function gapLanding(
   context: IAutoMovieMotionHumanActionContext,
   frame: HumanFrame.IPrepared,
@@ -226,7 +233,9 @@ function gapLanding(
   };
 }
 
-/** Land on the floor beyond an obstacle that spans the path ahead. */
+/*
+ * Land on the floor beyond an obstacle that spans the path ahead.
+ */
 function obstacleLanding(
   context: IAutoMovieMotionHumanActionContext,
   frame: HumanFrame.IPrepared,

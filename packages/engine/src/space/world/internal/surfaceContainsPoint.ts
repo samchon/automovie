@@ -5,7 +5,7 @@ import type {
 
 import { closestPointOnSegmentXZ } from "../../../math/internal/closestPointOnSegmentXZ";
 
-/**
+/*
  * Whether an XZ point lies on a world surface's footprint, its edge included.
  *
  * The footprint is an implicitly closed ring in plan. A point within 1e-9 m of
@@ -13,10 +13,9 @@ import { closestPointOnSegmentXZ } from "../../../math/internal/closestPointOnSe
  * otherwise the even-odd ray-crossing rule decides. The answer is exact for a
  * simple ring and arbitrary for a self-crossing one, and an empty ring contains
  * nothing. Height is not consulted.
- *
- * @param polygon World surface footprint in XZ.
- * @param point Plan position in world metres.
- * @returns True when the point is inside or on the footprint.
+ * Parameter polygon: World surface footprint in XZ.
+ * Parameter point: Plan position in world metres.
+ * Returns: True when the point is inside or on the footprint.
  */
 export function surfaceContainsPoint(
   polygon: readonly IAutoMovieGroundQueryPoint[],
@@ -51,5 +50,7 @@ export function surfaceContainsPoint(
   return inside;
 }
 
-/** Plan distance, in metres, within which a point lies on a footprint edge. */
+/*
+ * Plan distance, in metres, within which a point lies on a footprint edge.
+ */
 const EDGE_TOLERANCE: number = 1e-9;

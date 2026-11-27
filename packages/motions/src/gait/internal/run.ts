@@ -12,43 +12,45 @@ import type {
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { walk } from "./walk";
 
-/**
+/*
  * Offset decay time of a cut out of a run into another locomotion or a stand,
  * seconds (a deliberate change of the whole body's action,
  * `AutoMovieMotionHumanInterrupt.BLENDS.deliberate`).
  */
 const BLEND: number = AutoMovieMotionHumanInterrupt.BLENDS.deliberate;
 
-/** Offset decay time of a cut from a run into a jump, seconds (provisional). */
+/*
+ * Offset decay time of a cut from a run into a jump, seconds (provisional).
+ */
 const TAKEOFF_BLEND: number = 0.15;
 
-/**
+/*
  * The elbows' mean flexion while running, degrees: 1.61 ± 0.10 rad in natural
  * running (Yegian et al. 2019, J Exp Biol 222:jeb197228).
  */
 const ELBOW: number = (1.61 * 180) / Math.PI;
 
-/**
+/*
  * The elbows' flexion swing amplitude about that mean, degrees: half the 38.8 ±
  * 12.6 degree range distance runners show (Tartaruga et al. 2012, Res Q Exerc
  * Sport 83:367).
  */
 const ELBOW_SWING: number = 38.8 / 2;
 
-/**
+/*
  * The step frequency in pendulum units at a Froude number of zero (provisional
  * fit: 170 steps a minute at 2.9 m/s on the reference hip,
  * `walkRoot.REFERENCE_HIP`, Heiderscheit et al. 2011).
  */
 const CADENCE_BASE: number = 0.8;
 
-/**
+/*
  * The step frequency's rise in pendulum units per unit Froude number
  * (provisional fit, rising toward a sprint, Cavagna et al. 1988).
  */
 const CADENCE_PER_FROUDE: number = 0.08;
 
-/**
+/*
  * Running to a floor point, at a jog, a run or a sprint: the walk's footprint
  * plan in a running gait, with a flight phase between stances.
  *
@@ -81,10 +83,12 @@ const CADENCE_PER_FROUDE: number = 0.08;
  * and a sprint (provisional).
  */
 export namespace run {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "run";
 
-  /**
+  /*
    * Cancel table: as a walk's, any step may be cut into another locomotion, and
    * a stand once both feet are down.
    */
@@ -104,7 +108,7 @@ export namespace run {
     ],
   };
 
-  /**
+  /*
    * What a run lets an overlay take: the arms it would swing, the hands, the
    * head, and the trunk a throw, a pass or a shot on the run turns (Wagner et
    * al. 2011: the trunk's rotation carries an overarm throw's speed), while the
@@ -120,13 +124,13 @@ export namespace run {
     "rightArm",
   ];
 
-  /**
+  /*
    * The heel's height over the ball at contact and through stance, degrees
    * about the toes' joint (provisional).
    */
   export const FOREFOOT: number = 20;
 
-  /**
+  /*
    * Each pace's running gait: Froude number and duty factor from the sources
    * above; swing lift (hip heights), shoulder swing (degrees) and trunk lean
    * (degrees) provisional.
@@ -142,11 +146,10 @@ export namespace run {
     sprint: gait(5, 0.25, 0.35, 50, 12),
   };
 
-  /**
+  /*
    * Plan a run.
-   *
-   * @param context The action's context.
-   * @returns The plan.
+   * Parameter context: The action's context.
+   * Returns: The plan.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRun.IParams>,
@@ -154,15 +157,14 @@ export namespace run {
     return walk.locomote(context, GAITS[context.params.pace ?? "run"]);
   }
 
-  /**
+  /*
    * The speed a pace runs at on a body, m/s: the Froude number's own relation,
    * v = √(Fr · g · l) with l the body's hip height, the speed walk.locomote
    * plans the pace's strides at before any manner, fatigue or facing scales
    * it.
-   *
-   * @param body The body's hip height.
-   * @param pace The pace; `run` when absent, as the plan defaults.
-   * @returns The speed, m/s.
+   * Parameter body: The body's hip height.
+   * Parameter pace: The pace; `run` when absent, as the plan defaults.
+   * Returns: The speed, m/s.
    */
   export function speed(
     body: IBody,
@@ -175,13 +177,17 @@ export namespace run {
     );
   }
 
-  /** What a pace's speed reads of a body. */
+  /*
+   * What a pace's speed reads of a body.
+   */
   export interface IBody {
-    /** The hip height, metres. */
+    /*
+     * The hip height, metres.
+     */
     measure: Pick<IAutoMovieBodyMeasure, "hipHeight">;
   }
 
-  /**
+  /*
    * A running gait from its Froude number, duty factor, swing lift, shoulder
    * swing and trunk lean.
    */

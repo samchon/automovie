@@ -16,16 +16,18 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/** World up. */
+/*
+ * World up.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
+/*
  * How high a carried crutch's tip lifts as it is moved, metres (provisional, as
  * the crutch walk's).
  */
 const LIFT: number = 0.04;
 
-/**
+/*
  * The geometry of sitting and rising with two crutches held in one hand : the
  * crutches' grip and tip, a crutch's frame tilted with its tip on the floor, a
  * carried crutch's lifted path, a hand's grip socket, and a crutch's offset in
@@ -35,25 +37,32 @@ const LIFT: number = 0.04;
  * `length` above the tip.
  */
 export namespace crutchSitPath {
-  /** A crutch's grip and tip in its own frame. */
+  /*
+   * A crutch's grip and tip in its own frame.
+   */
   export interface ICrutch {
-    /** The grip, in the crutch's frame, metres. */
+    /*
+     * The grip, in the crutch's frame, metres.
+     */
     grip: IAutoMovieVector3;
 
-    /** The tip, in the crutch's frame, metres. */
+    /*
+     * The tip, in the crutch's frame, metres.
+     */
     tip: IAutoMovieVector3;
 
-    /** The grip's distance from the tip, metres. */
+    /*
+     * The grip's distance from the tip, metres.
+     */
     length: number;
   }
 
-  /**
+  /*
    * Read a crutch's grip and tip.
-   *
-   * @param subject The crutch's subject, for the refusal.
-   * @param affordances Its contacts.
-   * @returns The crutch.
-   * @throws {HumanRefusal} When it declares no grip or no tip.
+   * Parameter subject: The crutch's subject, for the refusal.
+   * Parameter affordances: Its contacts.
+   * Returns: The crutch.
+   * When it declares no grip or no tip.
    */
   export function crutch(
     subject: string,
@@ -78,16 +87,15 @@ export namespace crutchSitPath {
     };
   }
 
-  /**
+  /*
    * A crutch's frame with its tip on a point and its shaft toward another, its
    * handgrip turned toward a heading: the frame of a crutch tilting as its tip
    * slides along the floor.
-   *
-   * @param c The crutch.
-   * @param tip The tip, world metres.
-   * @param toward A point the shaft points to from the tip, world metres.
-   * @param forward The level heading the handgrip's axis turns to, world.
-   * @returns The crutch's world frame.
+   * Parameter c: The crutch.
+   * Parameter tip: The tip, world metres.
+   * Parameter toward: A point the shaft points to from the tip, world metres.
+   * Parameter forward: The level heading the handgrip's axis turns to, world.
+   * Returns: The crutch's world frame.
    */
   export function slid(
     c: ICrutch,
@@ -105,22 +113,21 @@ export namespace crutchSitPath {
     };
   }
 
-  /**
+  /*
    * Slide the whole crutch away from a wrist's folded reach limit. The floor
    * plane gives the shortest horizontal displacement with the grip's height
    * unchanged. Keep one contact-disc radius of clearance outside the shell. The
    * integral of the minimum-jerk share eases into that displacement so its
    * first and second derivatives join both ends of the correction band.
-   *
-   * @param frame The crutch frame on its planted tip.
-   * @param shoulder The arm's root in world metres.
-   * @param wrist The point that holds the crutch in this frame, world metres.
-   * @param outward The level unit direction when the wrist is below the
-   *   shoulder.
-   * @param minimum The smallest shoulder-to-wrist distance within elbow ROM,
-   *   metres.
-   * @param disc The unchanged radius of the authored contact disc, metres.
-   * @returns The rigid frame with its tip still on the floor.
+   * Parameter frame: The crutch frame on its planted tip.
+   * Parameter shoulder: The arm's root in world metres.
+   * Parameter wrist: The point that holds the crutch in this frame, world metres.
+   * Parameter outward: The level unit direction when the wrist is below the
+   * shoulder.
+   * Parameter minimum: The smallest shoulder-to-wrist distance within elbow ROM,
+   * metres.
+   * Parameter disc: The unchanged radius of the authored contact disc, metres.
+   * Returns: The rigid frame with its tip still on the floor.
    */
   export function outsideFold(
     frame: IAutoMovieRigidTransform,
@@ -152,14 +159,13 @@ export namespace crutchSitPath {
     };
   }
 
-  /**
+  /*
    * A carried crutch's frame between two frames: on a minimum-jerk share, its
    * tip lifted `LIFT` at the middle of the move.
-   *
-   * @param from The frame it leaves.
-   * @param to The frame it reaches.
-   * @param share The share of the move, 0 to 1.
-   * @returns The world frame.
+   * Parameter from: The frame it leaves.
+   * Parameter to: The frame it reaches.
+   * Parameter share: The share of the move, 0 to 1.
+   * Returns: The world frame.
    */
   export function carried(
     from: IAutoMovieRigidTransform,
@@ -177,13 +183,12 @@ export namespace crutchSitPath {
     };
   }
 
-  /**
+  /*
    * A hand's grip socket on a pose, world metres.
-   *
-   * @param body The body.
-   * @param pose The pose.
-   * @param side The hand.
-   * @returns The grip socket's world point.
+   * Parameter body: The body.
+   * Parameter pose: The pose.
+   * Parameter side: The hand.
+   * Returns: The grip socket's world point.
    */
   export function socket(
     body: IAutoMovieMotionHumanBody,
@@ -203,19 +208,18 @@ export namespace crutchSitPath {
     ).point;
   }
 
-  /**
+  /*
    * A crutch in the grip frame of the hand that closes on its handgrip: the
    * grip socket on the handgrip, the hand turned as it holds a front-to-back
    * bar at its side, the fingers down and the palm in (the suitcase grasp the
    * crutch walk's hands take), with the crutch on its world frame.
-   *
-   * @param side The hand.
-   * @param c The crutch.
-   * @param frame The crutch's world frame as the hand closes on it.
-   * @param yaw The heading the hand faces, degrees.
-   * @param prop The crutch's subject.
-   * @param affordances Its contacts.
-   * @returns The crutch in the hand's grip frame.
+   * Parameter side: The hand.
+   * Parameter c: The crutch.
+   * Parameter frame: The crutch's world frame as the hand closes on it.
+   * Parameter yaw: The heading the hand faces, degrees.
+   * Parameter prop: The crutch's subject.
+   * Parameter affordances: Its contacts.
+   * Returns: The crutch in the hand's grip frame.
    */
   export function grasped(
     side: AutoMovieHumanSide,
@@ -244,17 +248,16 @@ export namespace crutchSitPath {
     };
   }
 
-  /**
+  /*
    * A prop's offset in the grip frame of a hand, from a pose and the prop's
    * world frame: the offset it keeps once the hand takes it there.
-   *
-   * @param body The body.
-   * @param pose The pose.
-   * @param side The hand.
-   * @param prop The prop's subject.
-   * @param frame The prop's world frame.
-   * @param affordances The prop's contacts.
-   * @returns The prop in the hand's grip frame.
+   * Parameter body: The body.
+   * Parameter pose: The pose.
+   * Parameter side: The hand.
+   * Parameter prop: The prop's subject.
+   * Parameter frame: The prop's world frame.
+   * Parameter affordances: The prop's contacts.
+   * Returns: The prop in the hand's grip frame.
    */
   export function held(
     body: IAutoMovieMotionHumanBody,

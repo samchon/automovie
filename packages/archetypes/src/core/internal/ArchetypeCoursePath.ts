@@ -2,7 +2,7 @@ import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
 import type { AutoMovieArchetypeCourse } from "../AutoMovieArchetypeCourse";
 import { AutoMovieArchetypeUnits } from "../AutoMovieArchetypeUnits";
 
-/**
+/*
  * A course's path: its legs measured and laid end to end from its start, and
  * the place and heading a distance along a leg reaches.
  *
@@ -10,73 +10,102 @@ import { AutoMovieArchetypeUnits } from "../AutoMovieArchetypeUnits";
  * speed so each file stays within its size.
  */
 export namespace ArchetypeCoursePath {
-  /** One leg with where it starts. */
+  /*
+   * One leg with where it starts.
+   */
   export interface IRow {
-    /** The leg. */
+    /*
+     * The leg.
+     */
     leg: AutoMovieArchetypeCourse.Leg;
 
-    /** Distance along the path at which the leg starts, metres. */
+    /*
+     * Distance along the path at which the leg starts, metres.
+     */
     from: number;
 
-    /**
+    /*
      * The leg's length along the path, metres: its run on the ground,
      * lengthened by its grade.
      */
     span: number;
 
-    /** The leg's run on the ground, metres. */
+    /*
+     * The leg's run on the ground, metres.
+     */
     run: number;
 
-    /** Metres the leg gains, 0 when level. */
+    /*
+     * Metres the leg gains, 0 when level.
+     */
     rise: number;
 
-    /** Whether the support goes backward along it. */
+    /*
+     * Whether the support goes backward along it.
+     */
     reverse: boolean;
 
-    /**
+    /*
      * The signed distance rolled where the leg starts, metres: forward legs add
      * their span, reversed legs take it away.
      */
     progress: number;
 
-    /** The root's X where the leg starts, metres. */
+    /*
+     * The root's X where the leg starts, metres.
+     */
     x: number;
 
-    /** The root's height where the leg starts, metres. */
+    /*
+     * The root's height where the leg starts, metres.
+     */
     y: number;
 
-    /** The root's Z where the leg starts, metres. */
+    /*
+     * The root's Z where the leg starts, metres.
+     */
     z: number;
 
-    /** The heading the support faces where the leg starts, degrees. */
+    /*
+     * The heading the support faces where the leg starts, degrees.
+     */
     heading: number;
   }
 
-  /** A place on the path and the heading faced there. */
+  /*
+   * A place on the path and the heading faced there.
+   */
   export interface IPose {
-    /** X, metres. */
+    /*
+     * X, metres.
+     */
     x: number;
 
-    /** Height, metres. */
+    /*
+     * Height, metres.
+     */
     y: number;
 
-    /** Z, metres. */
+    /*
+     * Z, metres.
+     */
     z: number;
 
-    /** Heading faced, degrees. */
+    /*
+     * Heading faced, degrees.
+     */
     heading: number;
   }
 
-  /**
+  /*
    * A course's legs measured and laid end to end from its start.
-   *
-   * @param course The course.
-   * @param refuse The plan's refusal, which names the course's field.
-   * @returns One row per leg, and the path's whole length along its grades,
-   *   metres.
-   * @throws {AutoMovieArchetypeRefusal} Through `refuse`, for a leg whose
-   *   length or radius is not positive, a turn of no angle, or a path length
-   *   that is unrepresentable.
+   * Parameter course: The course.
+   * Parameter refuse: The plan's refusal, which names the course's field.
+   * Returns: One row per leg, and the path's whole length along its grades,
+   * metres.
+   * Through `refuse`, for a leg whose
+   * length or radius is not positive, a turn of no angle, or a path length
+   * that is unrepresentable.
    */
   export function lay(
     course: AutoMovieArchetypeCourse.ICourse,
@@ -145,12 +174,11 @@ export namespace ArchetypeCoursePath {
     return { rows, length };
   }
 
-  /**
+  /*
    * Where a leg has taken the root after a distance along it.
-   *
-   * @param row The leg and its start.
-   * @param along Distance along the leg's path, metres, from 0 to its span.
-   * @returns The root's place and the heading it faces.
+   * Parameter row: The leg and its start.
+   * Parameter along: Distance along the leg's path, metres, from 0 to its span.
+   * Returns: The root's place and the heading it faces.
    */
   export function advance(row: IRow, along: number): IPose {
     // The ground covered and the height gained, in the grade's proportion; a level leg covers what it travels.
@@ -183,7 +211,9 @@ export namespace ArchetypeCoursePath {
     };
   }
 
-  /** Project one component without prematurely rounding the product to zero or infinity. */
+  /*
+   * Project one component without prematurely rounding the product to zero or infinity.
+   */
   function gradedComponent(component: number, along: number, span: number): number {
     if (component === 0 || along === 0) return 0;
     const product: number = component * along;

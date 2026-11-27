@@ -479,43 +479,57 @@ export namespace AutoMovieHumanCanonicalProfile {
   }
 }
 
-/**
+/*
  * One collider of a segment with the uniform solid's properties about its own
  * centre.
  */
 interface IPart {
-  /** The collider, its transform in the segment's frame. */
+  /*
+   * The collider, its transform in the segment's frame.
+   */
   shape: IAutoMoviePhysicalShape;
 
-  /** Volume, cubic metres. */
+  /*
+   * Volume, cubic metres.
+   */
   volume: number;
 
-  /** Principal moments per unit mass, square metres. */
+  /*
+   * Principal moments per unit mass, square metres.
+   */
   inertia: IAutoMovieVector3;
 
-  /** Rotation from the principal frame to the segment's frame. */
+  /*
+   * Rotation from the principal frame to the segment's frame.
+   */
   inertiaRotation: IAutoMovieQuaternion;
 }
 
-/**
+/*
  * One foot hull vertex in the foot's frame, with the region its hull belongs
  * to.
  */
 interface ISoleVertex {
-  /** The vertex, metres, in the foot's frame. */
+  /*
+   * The vertex, metres, in the foot's frame.
+   */
   point: IAutoMovieVector3;
 
-  /** Whether it is the heel hull's; the forefoot hull's otherwise. */
+  /*
+   * Whether it is the heel hull's; the forefoot hull's otherwise.
+   */
   heel: boolean;
 }
 
-/** The heel and forefoot vertices a sole's bottom face passes through. */
+/*
+ * The heel and forefoot vertices a sole's bottom face passes through.
+ */
 interface ISoleTangent {
   heel: IAutoMovieVector3;
   fore: IAutoMovieVector3;
 }
 
-/**
+/*
  * A foot's simulation-only sole: a thin box whose bottom face is the plane
  * along the ankle's flexion axis that touches the heel hull and the forefoot
  * hull from below, their lower common tangent. It is the plane the standing
@@ -525,11 +539,10 @@ interface ISoleTangent {
  * inside the drawn foot. Its bottom gives a planted foot a face on the floor
  * where the drawn hulls touch only at a vertex each, so it cannot roll about
  * the line between them.
- *
- * @param side The foot's side.
- * @param parts The foot bone's colliders.
- * @param axis The ankle's flexion axis letter, in the foot's rest frame.
- * @returns The sole box, or undefined without both a heel and a forefoot hull.
+ * Parameter side: The foot's side.
+ * Parameter parts: The foot bone's colliders.
+ * Parameter axis: The ankle's flexion axis letter, in the foot's rest frame.
+ * Returns: The sole box, or undefined without both a heel and a forefoot hull.
  */
 function soleOf(
   side: "left" | "right",
@@ -666,10 +679,14 @@ function soleOf(
   };
 }
 
-/** The four fingers, by rig name. */
+/*
+ * The four fingers, by rig name.
+ */
 const FINGERS: readonly string[] = ["Index", "Middle", "Ring", "Little"];
 
-/** Every digit's phalanx chain from the hand outward, by rig name. */
+/*
+ * Every digit's phalanx chain from the hand outward, by rig name.
+ */
 const DIGITS: readonly (readonly string[])[] = [
   ["ThumbMetacarpal", "ThumbProximal", "ThumbDistal"],
   ...FINGERS.map((d: string): string[] => [
@@ -679,7 +696,7 @@ const DIGITS: readonly (readonly string[])[] = [
   ]),
 ];
 
-/**
+/*
  * The joint frame's axis a clinical axis turns about: its dominant rig letter,
  * as `axesOf` reads it.
  */
@@ -691,7 +708,7 @@ function letterOf(d: IAutoMovieVector3): IAutoMoviePhysicalJointAxis["axis"] {
       : "z";
 }
 
-/**
+/*
  * The joint's sequential chart: its three clinical axes' letters in the order
  * the rig composes them (`jointToQuaternion`): flexion, abduction, twist for
  * the declared ISB order, abduction, flexion, twist for a distal twist, and
@@ -717,7 +734,7 @@ function orderOf(
   return new Set(order).size === 3 ? { order } : {};
 }
 
-/**
+/*
  * The physical axes of one joint from its clinical ranges, read onto the T-pose
  * rig, each drive critically damped on the subtree it turns.
  */

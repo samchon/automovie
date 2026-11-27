@@ -5,7 +5,7 @@ import type {
   IAutoMovieCaptureWindow,
 } from "@automovie/interface";
 
-/**
+/*
  * Plan the instants a capture draws, for a drawn scene and for a video file
  * alike: an even sampling or explicit seconds, merged with every frame within
  * `window` frames of each event and each cut.
@@ -117,7 +117,7 @@ export function planAutoMovieCaptureFrames(
   };
 }
 
-/**
+/*
  * Distance in frames within which a written second counts as lying on a frame,
  * for float error in `seconds × fps`.
  */

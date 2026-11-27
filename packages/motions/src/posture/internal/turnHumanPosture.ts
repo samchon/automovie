@@ -11,7 +11,7 @@ import type {
 
 import { humanPostureHeading } from "./humanPostureHeading";
 
-/**
+/*
  * A posture's root and world limb goals after its whole-body `rotation` : the
  * root's position goes round the rotation's point and its rotation becomes the
  * turn times the heading, and each world limb goal's point and bend go round
@@ -26,11 +26,10 @@ import { humanPostureHeading } from "./humanPostureHeading";
  * Euler angles, so a turn through the vertical keeps every digit, which the
  * heading's angles lose near a pitch of 90 degrees
  * (`humanPostureHeading.angles`).
- *
- * @param posture The posture.
- * @returns Its root's world position and rotation and its limb goals, turned.
- * @throws {Error} When the posture has a rotation and a planted world goal,
- *   naming the limb: a rigid turn of the body cannot keep a plant.
+ * Parameter posture: The posture.
+ * Returns: Its root's world position and rotation and its limb goals, turned.
+ * When the posture has a rotation and a planted world goal,
+ * naming the limb: a rigid turn of the body cannot keep a plant.
  */
 export function turnHumanPosture(
   posture: IAutoMovieMotionHumanPosture,

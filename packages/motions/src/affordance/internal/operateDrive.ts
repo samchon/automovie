@@ -17,7 +17,7 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanObject } from "../../perform/HumanObject";
 
-/**
+/*
  * The part an operation moves on a prop that articulates, and the drive the
  * operation publishes for it: the hand and the part follow one function of the
  * stroke's progress, the prop posed at the articulation's travel there.
@@ -35,19 +35,23 @@ import { HumanObject } from "../../perform/HumanObject";
  * same travel at the same progress.
  */
 export namespace operateDrive {
-  /** The placement and starting state of the operated prop. */
+  /*
+   * The placement and starting state of the operated prop.
+   */
   export type IContext = Pick<
     IAutoMovieMotionHumanActionContext,
     "prop" | "start"
   >;
 
-  /** The stroke instants and progress that the published drive reads. */
+  /*
+   * The stroke instants and progress that the published drive reads.
+   */
   export type IClock = Pick<
     IAutoMovieMotionClock,
     "at" | "duration" | "progress"
   >;
 
-  /**
+  /*
    * The articulation kinds each mechanism moves: a hinge's leaf, a knob's turn
    * (a crank and a wheel turn alike), a slider's travel, a button's press (a
    * trigger's pull and a pedal's press alike).
@@ -64,13 +68,12 @@ export namespace operateDrive {
     button: new Set<AutoMovieAffordanceKind>(["button", "trigger", "pedal"]),
   };
 
-  /**
+  /*
    * A mechanism's signed amount in its articulation's unit: a button's press
    * and a slider's travel in metres (a button's 0.005 when absent, as `operate`
    * presses it), a knob's turn and a hinge's swing in degrees.
-   *
-   * @param mechanism The mechanism, not an insertion.
-   * @returns The amount.
+   * Parameter mechanism: The mechanism, not an insertion.
+   * Returns: The amount.
    */
   export function amount(
     mechanism: IAutoMovieMotionHumanOperateDrive.IAmountMechanism,
@@ -87,17 +90,16 @@ export namespace operateDrive {
     }
   }
 
-  /**
+  /*
    * The operated part, when the target is a contact of a prop that articulates
    * and rides or is an articulation.
-   *
-   * @param context The operation's context.
-   * @param at The operated contact.
-   * @param amount The mechanism's signed amount in the articulation's unit.
-   * @param kind The mechanism's kind, whose articulation kinds (`KINDS`) are
-   *   looked for up the chain the contact rides.
-   * @returns The part, or undefined for a rigid prop or a target that is not,
-   *   and rides no, articulation of the mechanism's kinds.
+   * Parameter context: The operation's context.
+   * Parameter at: The operated contact.
+   * Parameter amount: The mechanism's signed amount in the articulation's unit.
+   * Parameter kind: The mechanism's kind, whose articulation kinds (`KINDS`) are
+   * looked for up the chain the contact rides.
+   * Returns: The part, or undefined for a rigid prop or a target that is not,
+   * and rides no, articulation of the mechanism's kinds.
    */
   export function part(
     context: IContext,
@@ -253,17 +255,16 @@ export namespace operateDrive {
     };
   }
 
-  /**
+  /*
    * A hinged leaf's line: the vertical through the point the mechanism names (a
    * door's), or else the operated prop's own hinge articulation (`IPart.line`),
    * however it lies: a gun cock's cross pin.
-   *
-   * @param context The operation's context.
-   * @param mechanism The hinge mechanism.
-   * @param part The operated part, when the prop articulates.
-   * @returns The line.
-   * @throws {HumanRefusal} When the mechanism names no point and the handle
-   *   rides no hinge articulation.
+   * Parameter context: The operation's context.
+   * Parameter mechanism: The hinge mechanism.
+   * Parameter part: The operated part, when the prop articulates.
+   * Returns: The line.
+   * When the mechanism names no point and the handle
+   * rides no hinge articulation.
    */
   export function hinge(
     context: IAutoMovieMotionHumanActionContext,
@@ -283,13 +284,12 @@ export namespace operateDrive {
     });
   }
 
-  /**
+  /*
    * A point's distance from a hinge line, metres: the handle's radius about it,
    * the horizontal distance for a vertical line given by a point.
-   *
-   * @param line The line.
-   * @param point The point.
-   * @returns The radius.
+   * Parameter line: The line.
+   * Parameter point: The point.
+   * Returns: The radius.
    */
   export function radius(
     line: IAutoMovieMotionHumanOperateDrive.IHinge,
@@ -302,14 +302,13 @@ export namespace operateDrive {
       : Vector3.length(Vector3.subtract(point, foot(line, point)));
   }
 
-  /**
+  /*
    * The foot of a point on a hinge line: the line's point level with it for the
    * vertical line of a line given without an axis (a door's, the point's own
    * height kept exactly), its projection on the line otherwise.
-   *
-   * @param line The line.
-   * @param point The point.
-   * @returns The foot, world metres.
+   * Parameter line: The line.
+   * Parameter point: The point.
+   * Returns: The foot, world metres.
    */
   export function foot(
     line: IAutoMovieMotionHumanOperateDrive.IHinge,
@@ -325,14 +324,13 @@ export namespace operateDrive {
     );
   }
 
-  /**
+  /*
    * The drive an operation publishes for its part: the travel at the stroke's
    * minimum-jerk progress from `strokeStart` to `strokeEnd`, the progress the
    * hand's path is read at.
-   *
-   * @param part The part.
-   * @param clock The operation's clock.
-   * @returns The drive.
+   * Parameter part: The part.
+   * Parameter clock: The operation's clock.
+   * Returns: The drive.
    */
   export function drive(
     part: IAutoMovieMotionHumanOperateDrive.IPart,

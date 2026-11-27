@@ -360,7 +360,9 @@ export namespace AutoMovieArchetypeArticulation {
   }
 }
 
-/** The kinds whose travel is an angle in degrees. */
+/*
+ * The kinds whose travel is an angle in degrees.
+ */
 const TURNING: ReadonlySet<IAutoMovieAffordance["kind"]> = new Set<
   IAutoMovieAffordance["kind"]
 >(["hinge", "knob", "crank", "wheel"]);

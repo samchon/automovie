@@ -1,7 +1,9 @@
 import type { NarrativeLayer } from "../../NarrativeLayer";
 import type { AutoMovieEvidenceNarrativeScope } from "../../AutoMovieEvidenceNarrativeScope";
 
-/** Captures indexes and misplaced files without widening an exact pilot slice. */
+/*
+ * Captures indexes and misplaced files without widening an exact pilot slice.
+ */
 export function createTopologyFiles(
   layer: NarrativeLayer,
   scope: AutoMovieEvidenceNarrativeScope,

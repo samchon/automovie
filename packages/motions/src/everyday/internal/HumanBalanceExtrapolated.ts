@@ -9,15 +9,14 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { prepareHumanBalanceCentre } from "./prepareHumanBalanceCentre";
 
-/**
+/*
  * The dynamic margin at one instant of a movement given by a one-argument
  * posture function.
- *
- * @param body The body whose goals and mass are solved.
- * @param at The movement's posture at a film second, called with that second
- *   only.
- * @param seconds The instant to observe.
- * @returns Signed stability margin in metres, positive inside the foot hull.
+ * Parameter body: The body whose goals and mass are solved.
+ * Parameter at: The movement's posture at a film second, called with that second
+ * only.
+ * Parameter seconds: The instant to observe.
+ * Returns: Signed stability margin in metres, positive inside the foot hull.
  */
 export function HumanBalanceExtrapolated(
   body: IAutoMovieMotionHumanBody,
@@ -30,17 +29,18 @@ export function HumanBalanceExtrapolated(
   );
 }
 
-/** Dynamic balance observations over a movement's actual three solved postures. */
+/*
+ * Dynamic balance observations over a movement's actual three solved postures.
+ */
 export namespace HumanBalanceExtrapolated {
-  /**
+  /*
    * Bind fixed body/name metadata for repeated actual dynamic margin queries.
-   *
-   * @param body The unchanged canonical body and its classic profile mass
-   *   model.
-   * @returns A margin reader taking a current movement and film second, plus
-   *   optional synchronous FK/ROM loans. Each movement invocation receives its
-   *   actual time and those same loans; no movement or result enters the
-   *   preparation.
+   * Parameter body: The unchanged canonical body and its classic profile mass
+   * model.
+   * Returns: A margin reader taking a current movement and film second, plus
+   * optional synchronous FK/ROM loans. Each movement invocation receives its
+   * actual time and those same loans; no movement or result enters the
+   * preparation.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -84,14 +84,16 @@ export namespace HumanBalanceExtrapolated {
   }
 }
 
-/** Current raw movement construction may borrow metadata only during this call. */
+/*
+ * Current raw movement construction may borrow metadata only during this call.
+ */
 type At = (
   seconds: number,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   projection?: ReturnType<typeof prepareHumanPostureProjection>,
 ) => IAutoMovieMotionHumanPosture;
 
-/**
+/*
  * The central difference of the centre, the full solve at the instant and the
  * support margin of the extrapolated centre.
  */

@@ -314,7 +314,7 @@ export namespace AutoMovieHumanBodyLaw {
   }
 }
 
-/**
+/*
  * Height of the crotch by the inseam's definition (ISO 8559-1 5.7.6),
  * calibration mm.
  */
@@ -338,16 +338,18 @@ function crotch(
   });
 }
 
-/** The person's stature, mm. */
+/*
+ * The person's stature, mm.
+ */
 function statureOf(params: IAutoMovieHumanParameters): number {
   return AutoMovieHumanBodyAnatomy.resolve(params).stature;
 }
 
-/**
+/*
  * The person's leg tapes in calibration millimetres: the world tape over the
  * stature scale the generator applies afterwards. An unknown tape or height
  * takes its default from `AutoMovieHumanBodyAnatomy.resolve`, an unknown slider
- * its neutral ({@link AutoMovieHumanBodyLaw.slider}).
+ * its neutral (AutoMovieHumanBodyLaw.slider).
  */
 function tapes(
   params: IAutoMovieHumanParameters,
@@ -372,7 +374,9 @@ function tapes(
   };
 }
 
-/** One foot's given measures, or none. */
+/*
+ * One foot's given measures, or none.
+ */
 type FootGiven =
   | Pick<
       IAutoMovieHumanLegIdentity,
@@ -380,14 +384,16 @@ type FootGiven =
     >
   | undefined;
 
-/** One hand's given measures, or none. */
+/*
+ * One hand's given measures, or none.
+ */
 type HandGiven = IAutoMovieHumanExtremityDimensions["hands"] extends infer P
   ? P extends { left: infer H }
     ? H | undefined
     : never
   : never;
 
-/**
+/*
  * The person's foot dimensions in calibration millimetres. A side without
  * measures takes what the body's own inputs expect.
  */
@@ -419,7 +425,7 @@ function feet(
   };
 }
 
-/**
+/*
  * The person's arm lengths, tapes and hand measures in calibration millimetres.
  * A side without measures takes what the body expects.
  */

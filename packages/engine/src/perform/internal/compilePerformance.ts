@@ -24,7 +24,7 @@ import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinem
 import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotionSampling";
 import { bodyRegionBones } from "./bodyRegionBones";
 
-/**
+/*
  * Compile admitted actions through an injected synthesizer into exact
  * actor-keyed timelines and deterministic region-loss reports. Null synthesis
  * is skipped; repeat expands one returned cycle, same-region nonoverlapping
@@ -164,22 +164,26 @@ const ROOT_REGIONS: Set<AutoMovieBodyRegion> = new Set<AutoMovieBodyRegion>([
   "fullBody",
 ]);
 
-/**
+/*
  * Boundary-pin width in seconds, greater than the 1e-9 envelope comparison
  * tolerance. Composite interpolation can still ramp over this one-microsecond
  * interval; the constant proves no visual threshold.
  */
 const BOUNDARY_EPSILON: number = 1e-6 as const;
 
-/** One placed clip, carrying the index of the action that produced it. */
+/*
+ * One placed clip, carrying the index of the action that produced it.
+ */
 interface IAutoMovieRegionPlacement extends IAutoMoviePlacement {
-  /** Index into the action list `compilePerformance` was given. */
+  /*
+   * Index into the action list `compilePerformance` was given.
+   */
   action: number;
 }
 
-/**
+/*
  * What one mask trimmed, before the action and actor that own it are known.
- * Stated once, off {@link IAutoMovieMaskedContent}, so the three channels cannot
+ * Stated once, off IAutoMovieMaskedContent, so the three channels cannot
  * be listed differently in the two places that read them.
  */
 type IAutoMovieMaskedChannels = Pick<
@@ -187,7 +191,9 @@ type IAutoMovieMaskedChannels = Pick<
   "bones" | "root" | "expression"
 >;
 
-/** Whether a mask record carries anything worth reporting. */
+/*
+ * Whether a mask record carries anything worth reporting.
+ */
 function maskedAnything(masked: IAutoMovieMaskedChannels): boolean {
   return masked.bones.length > 0 || masked.root || masked.expression;
 }
@@ -264,7 +270,7 @@ function maskMotionToRegion(
   };
 }
 
-/**
+/*
  * Sample each region clip at the union of its keyframe and boundary times, then
  * blend set axes with equal weights. Disjoint axes form a union; overlapping
  * axes take an arithmetic mean. A face clip supplies expression.
@@ -375,7 +381,7 @@ function layerClips(id: string, clips: IAutoMovieMotion[]): IAutoMovieMotion {
   };
 }
 
-/**
+/*
  * Hold rest before a late-starting composite, preventing clamp sampling from
  * extending its first pose across the lead-in. Step easing holds rest up to the
  * optional short linear boundary segment.

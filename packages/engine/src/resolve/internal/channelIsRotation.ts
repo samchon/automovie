@@ -2,7 +2,7 @@ import type { IAutoMovieChannel } from "@automovie/interface";
 
 import { admitChannel } from "./admitChannel";
 
-/**
+/*
  * Whether a channel carries a rotation (a quaternion), which the sample pass
  * must interpolate with slerp rather than component-wise lerp, the glTF rule
  * for LINEAR rotation tracks.

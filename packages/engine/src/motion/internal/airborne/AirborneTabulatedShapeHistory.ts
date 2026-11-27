@@ -13,16 +13,18 @@ import type { AutoMovieEngineMotionAirborneRotation } from "../../AutoMovieEngin
 import { AutoMovieEngineMotionSampling } from "../../AutoMovieEngineMotionSampling";
 import { tabulateAirborneShapeKnots } from "../tabulateAirborneShapeKnots";
 
-/**
+/*
  * Scalars tabulated a knot: six of the symmetric tensor, three of the relative
  * momentum.
  */
 const WIDTH: number = 9;
 
-/** Maximum knot count within the portable 32-bit packed array length. */
+/*
+ * Maximum knot count within the portable 32-bit packed array length.
+ */
 const MAX_KNOTS: number = Math.floor(0xffff_ffff / WIDTH);
 
-/**
+/*
  * A shape history tabulated once on uniform knots and interpolated: the
  * composite inertia and the relative angular momentum of a flight's shape,
  * which depend on time alone and not on the flight's unknown momentum or
@@ -55,27 +57,26 @@ const MAX_KNOTS: number = Math.floor(0xffff_ffff / WIDTH);
  * memo, `uniqueNumericNodes` the shapes actually read and reduced (here the
  * knots, once per table), and the factor and Jacobi counts the issued instants'
  * own work.
- *
- * @param model The body's unchanged mass model for this history's lifetime, or
- *   a prepared token released by its caller after this history is cleared.
- * @param shape The posed bones at a second, in the root's own frame (the root
- *   at the origin, unturned). Pure; read at the knots only, all inside the
- *   span.
- * @param span The flight's take-off and touchdown, seconds, the greatest
- *   uniform knot spacing, seconds, and optionally the sampled shortest-arc turn
- *   limit in radians for grids with at least four uniform intervals (omitted,
- *   no refinement).
- * @param uniformCentre Optional consumer of each uniform knot index and a fresh
- *   copy of its reduced root-frame centre in metres. Refined knots do not
- *   supply playback centres.
- * @param observation Optional native work counter
- *   (`AutoMovieEngineMotionAirborneRotation.observe`); omitted, nothing is counted.
- * @returns The history, with `clear` releasing the table and the issued
- *   instants; a later query builds the table again.
- * @throws {Error} For a span that is not finite and increasing, a step that is
- *   not positive and finite, a turn bound that is not positive, a released
- *   prepared model, or a knot whose tensor has no positive scale, or a grid
- *   that exceeds timestamp precision or table capacity.
+ * Parameter model: The body's unchanged mass model for this history's lifetime, or
+ * a prepared token released by its caller after this history is cleared.
+ * Parameter shape: The posed bones at a second, in the root's own frame (the root
+ * at the origin, unturned). Pure; read at the knots only, all inside the
+ * span.
+ * Parameter span: The flight's take-off and touchdown, seconds, the greatest
+ * uniform knot spacing, seconds, and optionally the sampled shortest-arc turn
+ * limit in radians for grids with at least four uniform intervals (omitted,
+ * no refinement).
+ * Parameter uniformCentre: Optional consumer of each uniform knot index and a fresh
+ * copy of its reduced root-frame centre in metres. Refined knots do not
+ * supply playback centres.
+ * Parameter observation: Optional native work counter
+ * (`AutoMovieEngineMotionAirborneRotation.observe`); omitted, nothing is counted.
+ * Returns: The history, with `clear` releasing the table and the issued
+ * instants; a later query builds the table again.
+ * For a span that is not finite and increasing, a step that is
+ * not positive and finite, a turn bound that is not positive, a released
+ * prepared model, or a knot whose tensor has no positive scale, or a grid
+ * that exceeds timestamp precision or table capacity.
  */
 export function AirborneTabulatedShapeHistory(
   model:
@@ -335,7 +336,9 @@ export function AirborneTabulatedShapeHistory(
   });
 }
 
-/** Reconstruct a symmetric tensor from its packed diagonal and upper triangle. */
+/*
+ * Reconstruct a symmetric tensor from its packed diagonal and upper triangle.
+ */
 function symmetricTensor(y: (i: number) => number): number[][] {
   const xy: number = y(3);
   const xz: number = y(4);
@@ -347,7 +350,7 @@ function symmetricTensor(y: (i: number) => number): number[][] {
   ];
 }
 
-/**
+/*
  * The fourth-order first-derivative weights at knot `k` over the five knots
  * nearest it (two either side inside, one-sided at the two knots nearest each
  * end), as pairs of a knot index and its weight per second, for knots at any
@@ -395,7 +398,7 @@ function derivative(
   ]);
 }
 
-/**
+/*
  * The relative angular momentum about the centre at knot `k`, as a point value
  * of the fourth order in the step: each part's orbital momentum `m (c - C) x
  * c'` with its centre's velocity from the knots' derivative stencil
@@ -459,7 +462,7 @@ function pointMomentum(
   return { x, y, z };
 }
 
-/**
+/*
  * A knot's relative momentum from the interval readings (`mids[c]` runs from
  * knot `c` to knot `c + 1`), second order, for fewer than four intervals: the
  * mean of the two either side inside, the linear extrapolation of the two
@@ -485,9 +488,11 @@ function meanMomentum(
   };
 }
 
-/** Provenance of the tabulated reader. */
+/*
+ * Provenance of the tabulated reader.
+ */
 export namespace AirborneTabulatedShapeHistory {
-  /**
+  /*
    * Whether a reader was issued by this producer: a pure function of time whose
    * instants may be shared between an operation's stages. It proves
    * construction, not a constant shape.
@@ -496,28 +501,38 @@ export namespace AirborneTabulatedShapeHistory {
     return history.native === true;
   }
 
-  /** An issued history, carrying its numeric reader. */
+  /*
+   * An issued history, carrying its numeric reader.
+   */
   export interface IReadable {
-    /** Set by the factory. */
+    /*
+     * Set by the factory.
+     */
     readonly native?: true;
 
-    /** The history's numeric reader; absent on any other reader. */
+    /*
+     * The history's numeric reader; absent on any other reader.
+     */
     readonly numericReading?: (seconds: number) => IReading | IInstant;
   }
 
-  /**
+  /*
    * A second's relative momentum and positive-definite tensor factorisation,
    * read without issuing an instant.
    */
   export interface IReading {
-    /** The relative angular momentum in the root frame, kg m²/s. */
+    /*
+     * The relative angular momentum in the root frame, kg m²/s.
+     */
     relative: IAutoMovieVector3;
 
-    /** The tensor's factorisation. */
+    /*
+     * The tensor's factorisation.
+     */
     factor: physicalInertiaFactor.IPrepared;
   }
 
-  /**
+  /*
    * The issued reader's numeric reading of a second, for a defect that needs
    * only the tensor's factorisation and the relative momentum: the issued
    * instant where the second already has one, otherwise the same numbers and
@@ -532,35 +547,49 @@ export namespace AirborneTabulatedShapeHistory {
   }
 }
 
-/** The numeric sufficient statistics a query returns. */
+/*
+ * The numeric sufficient statistics a query returns.
+ */
 type IInstant = IAutoMovieIntegrateAirborneRotation.IInstant;
 
-/** The nonuniform first-derivative weights at one knot. */
+/*
+ * The nonuniform first-derivative weights at one knot.
+ */
 type IStencil = readonly (readonly [number, number])[];
 
-/** The public query signature. */
+/*
+ * The public query signature.
+ */
 type IHistory = IAutoMovieIntegrateAirborneRotation.IHistory;
 
-/**
+/*
  * A defect's numeric reading at a second, with the tensor an instant made from
  * it would own.
  */
 interface INumeric extends AirborneTabulatedShapeHistory.IReading {
-  /** The interpolated root-frame tensor rows. */
+  /*
+   * The interpolated root-frame tensor rows.
+   */
   matrix: number[][];
 }
 
-/**
+/*
  * A built table: nine scalars and their slopes a knot, the knots' seconds in
  * increasing order.
  */
 interface ITable {
-  /** Six tensor and three momentum scalars a knot, in knot order. */
+  /*
+   * Six tensor and three momentum scalars a knot, in knot order.
+   */
   values: Float64Array;
 
-  /** Their slopes per second. */
+  /*
+   * Their slopes per second.
+   */
   slopes: Float64Array;
 
-  /** Each knot's second, increasing. */
+  /*
+   * Each knot's second, increasing.
+   */
   times: readonly number[];
 }

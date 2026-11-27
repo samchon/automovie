@@ -6,16 +6,15 @@ import type {
 
 import type { courseArmGoal } from "../../compose/internal/courseArmGoal";
 
-/**
+/*
  * The delivery peak of a stroke's arm: the greatest speed its hand goal travels
  * at over the stroke, read along the whole path the stroke writes for it (the
  * swing, the body's turn and the address together), so the arm's course is
  * admitted against the stroke's own speed (`courseArmGoal`'s `pace`).
- *
- * @param posture The stroke's posture, which writes the arm's goal.
- * @param limb The striking arm.
- * @param duration The stroke's seconds.
- * @returns Metres per second; zero when the stroke writes no goal for the arm.
+ * Parameter posture: The stroke's posture, which writes the arm's goal.
+ * Parameter limb: The striking arm.
+ * Parameter duration: The stroke's seconds.
+ * Returns: Metres per second; zero when the stroke writes no goal for the arm.
  */
 export function precisionStrokePeak(
   posture: IAutoMovieMotionHumanActionPlan["posture"],
@@ -41,7 +40,7 @@ export function precisionStrokePeak(
   return fastest;
 }
 
-/**
+/*
  * The step a stroke's hand path is read at, seconds: 240 Hz, ten samples per
  * film frame.
  */

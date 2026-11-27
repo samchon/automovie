@@ -8,16 +8,15 @@ import type {
 
 import { toolCaseContact } from "./toolCaseContact";
 
-/**
+/*
  * A one-hand tool shaped as `createTool` shapes it, lying level on a bench with
  * its working end ahead: a 0.3 m handle along its `+Y`, its `grip` taken from
  * `-Z` near the butt and its `face` at the working end (a hammer's on the
  * head's `+Z` side, a saw's teeth along `+Z`, a screwdriver's tip and a spoon's
  * bowl).
- *
- * @param kind The work the tool serves.
- * @param at Where its butt lies, world metres.
- * @returns The tool.
+ * Parameter kind: The work the tool serves.
+ * Parameter at: Where its butt lies, world metres.
+ * Returns: The tool.
  */
 export function toolCaseHeld(
   kind: IAutoMovieMotionHumanToolWork.Kind,

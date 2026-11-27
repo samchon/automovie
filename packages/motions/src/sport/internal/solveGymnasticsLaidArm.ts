@@ -15,21 +15,20 @@ import { handReach } from "../../everyday/internal/handReach";
 import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * A wheel's laid arm (`GymnasticsWheelPlants`) solved on its laid goal at the
  * carried arm's own swivel and branch (`HumanLimbFit.seed` of the shown pose,
  * prescribed), so the solve keeps the elbow's side and the forearm's turn the
  * carried arm has and follows it continuously as the body turns; returned as
  * the joints the solve changes from the shown arm, which the plants write as
  * joints so no later fit of a goal chooses another turn of the arm.
- *
- * @param body The body.
- * @param posture The carried posture, its limb goals unread.
- * @param shown The carried posture's resolved pose.
- * @param limb The arm.
- * @param goal The laid palm's arm goal.
- * @param digits The laid hand's finger joints.
- * @returns The changed joints, clinical degrees by bone.
+ * Parameter body: The body.
+ * Parameter posture: The carried posture, its limb goals unread.
+ * Parameter shown: The carried posture's resolved pose.
+ * Parameter limb: The arm.
+ * Parameter goal: The laid palm's arm goal.
+ * Parameter digits: The laid hand's finger joints.
+ * Returns: The changed joints, clinical degrees by bone.
  */
 export function solveGymnasticsLaidArm(
   body: IAutoMovieMotionHumanBody,
@@ -116,5 +115,7 @@ export function solveGymnasticsLaidArm(
   return changed;
 }
 
-/** The floor's inward normal, world: straight down. */
+/*
+ * The floor's inward normal, world: straight down.
+ */
 const DOWN: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };

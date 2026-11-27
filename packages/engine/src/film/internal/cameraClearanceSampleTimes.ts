@@ -8,7 +8,7 @@ import {
 
 import { sampleTimes } from "../../motion/internal/sampleTimes";
 
-/**
+/*
  * Build the clearance sample clock of one shot: a function from a take's camera
  * motion to the strictly increasing shot-local seconds at which that take must
  * be inspected.
@@ -82,19 +82,29 @@ export function cameraClearanceSampleTimes(
   };
 }
 
-/** One motion sequence whose key boundaries refine the fixed clock. */
+/*
+ * One motion sequence whose key boundaries refine the fixed clock.
+ */
 interface ISequence {
-  /** Sequence length in seconds; one loop cycle when it loops. */
+  /*
+   * Sequence length in seconds; one loop cycle when it loops.
+   */
   duration: number;
 
-  /** Whether the sequence repeats from its start after `duration`. */
+  /*
+   * Whether the sequence repeats from its start after `duration`.
+   */
   loop: boolean;
 
-  /** Key times in sequence-local seconds, in any order. */
+  /*
+   * Key times in sequence-local seconds, in any order.
+   */
   times: readonly number[];
 }
 
-/** Every key time of every track of one clip. */
+/*
+ * Every key time of every track of one clip.
+ */
 function clipSequence(clip: IAutoMovieClip): ISequence {
   return {
     duration: clip.duration,
@@ -105,7 +115,9 @@ function clipSequence(clip: IAutoMovieClip): ISequence {
   };
 }
 
-/** Refuse a clip whose interpolation or loop seam escapes its endpoint bound. */
+/*
+ * Refuse a clip whose interpolation or loop seam escapes its endpoint bound.
+ */
 function assertClipBoundable(
   clip: IAutoMovieClip,
   rotationMatters: boolean,
@@ -126,7 +138,9 @@ function assertClipBoundable(
     );
 }
 
-/** Add every key boundary inside the shot, repeating a looping sequence. */
+/*
+ * Add every key boundary inside the shot, repeating a looping sequence.
+ */
 function addSequenceBoundaries(
   result: Set<number>,
   shotDuration: number,
@@ -150,7 +164,9 @@ function addSequenceBoundaries(
     }
 }
 
-/** Whether two component vectors are exactly identical. */
+/*
+ * Whether two component vectors are exactly identical.
+ */
 function sameComponents(
   left: readonly number[],
   right: readonly number[],
@@ -163,12 +179,16 @@ function sameComponents(
   );
 }
 
-/** Largest absolute component of a scale, the factor a sphere grows by. */
+/*
+ * Largest absolute component of a scale, the factor a sphere grows by.
+ */
 function maximumScale(scale: { x: number; y: number; z: number }): number {
   return Math.max(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z));
 }
 
-/** Whether a looping actor returns its root translation and radius to the seam. */
+/*
+ * Whether a looping actor returns its root translation and radius to the seam.
+ */
 function actorLoopIsClosed(motion: IAutoMovieMotion): boolean {
   if (!motion.loop) return true;
   const first:
@@ -187,7 +207,9 @@ function actorLoopIsClosed(motion: IAutoMovieMotion): boolean {
   );
 }
 
-/** Whether every node channel the bound reads returns to its loop seam. */
+/*
+ * Whether every node channel the bound reads returns to its loop seam.
+ */
 function clipLoopIsClosed(
   clip: IAutoMovieClip,
   rotationMatters: boolean,

@@ -16,16 +16,26 @@ export class AutoMovieStepPlanner {
   public get steps(): readonly IAutoMovieStepPlanner.IStep[] {
     return this.schedule;
   }
-  /** Owned schedule, frozen after construction. */
+  /*
+   * Owned schedule, frozen after construction.
+   */
   private readonly schedule: IAutoMovieStepPlanner.IStep[] = [];
-  /** Owned swing clearance, independent of later caller input edits. */
+  /*
+   * Owned swing clearance, independent of later caller input edits.
+   */
   private readonly height: number;
-  /** Caller-declared peak swing pitch, radians. */
+  /*
+   * Caller-declared peak swing pitch, radians.
+   */
   private readonly peakPitch: number;
-  /** Per-limb lists avoid scanning the complete film on seek. */
+  /*
+   * Per-limb lists avoid scanning the complete film on seek.
+   */
   private readonly segments: Map<string, IAutoMovieStepPlanner.IStep[]> =
     new Map();
-  /** Owned initial support placements. */
+  /*
+   * Owned initial support placements.
+   */
   private readonly initial: Record<string, IAutoMovieStepPlanner.IPlacement>;
 
   /**
@@ -317,7 +327,9 @@ export class AutoMovieStepPlanner {
     };
   }
 
-  /** One schedule owns both the global and indexed view of each segment. */
+  /*
+   * One schedule owns both the global and indexed view of each segment.
+   */
   private add(step: IAutoMovieStepPlanner.IStep): void {
     this.schedule.push(step);
     this.segments.get(step.bone)!.push(step);

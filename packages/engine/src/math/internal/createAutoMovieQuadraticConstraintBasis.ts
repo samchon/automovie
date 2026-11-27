@@ -3,7 +3,7 @@ import type {
   IAutoMovieQuadraticRow,
 } from "@automovie/interface";
 
-/**
+/*
  * Factor a working transpose by column-pivoted Householder QR, without A_A'.
  * Only structural identities reduce rows: a nonzero free a_x_j=0 fixes x_j=0,
  * irrespective of a's magnitude/sign, and an all-zero zero endpoint is

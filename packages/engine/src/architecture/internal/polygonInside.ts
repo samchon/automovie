@@ -4,23 +4,22 @@ import { pointInPolygon } from "./pointInPolygon";
 import { pointOnSegment } from "./pointOnSegment";
 import { segmentsCross } from "./segmentsCross";
 
-/**
+/*
  * Whether an inner polygon stays within an outer one, flush edges allowed.
  *
  * Boundary contact is allowed, so a void whose sill lies exactly on the wall's
  * own bottom edge is contained, while a void whose corner pokes through the
  * wall's side is not. Every inner corner must be inside or on the outer ring by
- * {@link pointInPolygon}, and no inner edge may properly cross an outer edge by
- * {@link segmentsCross} or leave through its vertices.
+ * pointInPolygon, and no inner edge may properly cross an outer edge by
+ * segmentsCross or leave through its vertices.
  *
  * Both polygons are closed rings in one planar frame and are assumed simple.
  * Outer vertices on an inner edge split it into intervals. Testing each
  * interval's midpoint also detects exits through vertices of a concave outer
  * ring, where neither boundary properly crosses the other.
- *
- * @param inner Ring that must stay inside, such as an opening's void hull.
- * @param outer Ring that must contain it, such as the host face outline.
- * @returns True when `inner` stays within `outer` by the rule above.
+ * Parameter inner: Ring that must stay inside, such as an opening's void hull.
+ * Parameter outer: Ring that must contain it, such as the host face outline.
+ * Returns: True when `inner` stays within `outer` by the rule above.
  */
 export function polygonInside(
   inner: readonly IAutoMoviePlanarPoint[],

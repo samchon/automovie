@@ -9,7 +9,7 @@ import type {
 
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * The kinds of a touch and how each moves in the region's surface frame: the
  * social touch gestures of Jung et al. 2017 (the corpus of social touch)
  * reduced to a lift off the surface along its normal (a tap, a pat), a travel
@@ -21,7 +21,9 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
  * provisional shares of the hand's length.
  */
 export namespace AutoMovieMotionHumanTouchForm {
-  /** The touch kinds of {@link IAutoMovieMotionHumanTouchForm.Kind}, as data. */
+  /*
+   * The touch kinds of IAutoMovieMotionHumanTouchForm.Kind, as data.
+   */
   export const KINDS = [
     "tap",
     "pat",
@@ -33,7 +35,7 @@ export namespace AutoMovieMotionHumanTouchForm {
     "scratch",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanTouchForm.Kind>[];
 
-  /**
+  /*
    * The forms (provisional apart from the stroke's speed): a tap lifts a
    * quarter hand in 0.3 s, a pat half a hand in 0.4 s, a rub travels a quarter
    * hand each way in 0.5 s, a scratch 8 % of a hand in 0.2 s with curled
@@ -71,21 +73,22 @@ export namespace AutoMovieMotionHumanTouchForm {
     },
   };
 
-  /** The tangents of {@link IAutoMovieMotionHumanTouchForm.Tangent}, as data. */
+  /*
+   * The tangents of IAutoMovieMotionHumanTouchForm.Tangent, as data.
+   */
   export const TANGENTS = [
     "up",
     "across",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanTouchForm.Tangent>[];
 
-  /**
+  /*
    * An effector read in the hand as a kind displays it: its fingers curled by
    * the kind's curl over its shape (`FORMS`), so a fingertip that a scratch
    * curls is laid on its region where the curled finger puts it, not where the
    * shape alone would. The effector itself when the kind curls nothing.
-   *
-   * @param effector The effector.
-   * @param kind The kind.
-   * @returns The effector with the kind's curl.
+   * Parameter effector: The effector.
+   * Parameter kind: The kind.
+   * Returns: The effector with the kind's curl.
    */
   export function curled<E extends ICurled>(
     effector: E,
@@ -94,16 +97,15 @@ export namespace AutoMovieMotionHumanTouchForm {
     const curl: number = FORMS[kind].curl;
     return curl === 0 ? effector : { ...effector, curl };
   }
-  /**
+  /*
    * The seconds of one repetition of a kind on a body: the span's seconds, or
    * for a kind with a peak speed the period of a sine of the kind's travel at
    * that peak, `2 pi A / v`.
-   *
-   * @param body The body.
-   * @param kind The kind.
-   * @param seconds The span's seconds, from
-   *   `AutoMovieMotionHumanTiming.seconds`.
-   * @returns Seconds.
+   * Parameter body: The body.
+   * Parameter kind: The kind.
+   * Parameter seconds: The span's seconds, from
+   * `AutoMovieMotionHumanTiming.seconds`.
+   * Returns: Seconds.
    */
   export function period(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,
@@ -116,18 +118,17 @@ export namespace AutoMovieMotionHumanTouchForm {
       : (2 * Math.PI * form.travel * body.measure.hand) / form.speed;
   }
 
-  /**
+  /*
    * The unit tangent of a region: its upward direction across the normal, or,
    * for `across` or a region facing up or down, the direction from the acting
    * hand's side toward the body's other side (the performer's left for the
    * right hand, their right for the left hand) or the heading, turned across
    * it. A left-hand stroke is so the right-hand one's mirror.
-   *
-   * @param normal The region's normal.
-   * @param yaw The performer's heading, degrees.
-   * @param tangent Which tangent.
-   * @param side The acting hand.
-   * @returns The unit vector.
+   * Parameter normal: The region's normal.
+   * Parameter yaw: The performer's heading, degrees.
+   * Parameter tangent: Which tangent.
+   * Parameter side: The acting hand.
+   * Returns: The unit vector.
    */
   export function tangent(
     normal: IAutoMovieVector3,
@@ -162,5 +163,7 @@ export namespace AutoMovieMotionHumanTouchForm {
   }
 }
 
-/** The record of `ICurled`'s site. */
+/*
+ * The record of `ICurled`'s site.
+ */
 type ICurled = { curl?: number };

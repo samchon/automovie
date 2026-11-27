@@ -16,7 +16,7 @@ import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { AUTOMOVIE_RENDER_METRICS } from "../AUTOMOVIE_RENDER_METRICS";
 import { AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS } from "../AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS";
 
-/**
+/*
  * Check one inventory against one declared budget and produce the bounded
  * report.
  *
@@ -257,7 +257,7 @@ const evaluate: (props: {
   };
 };
 
-/**
+/*
  * The dominant owners of one metric, what the report leaves unnamed, and what
  * the frame passes add.
  *

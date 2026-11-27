@@ -6,12 +6,11 @@ import type {
 
 import { walkReach } from "./walkReach";
 
-/**
+/*
  * The events and contact windows of a gait's footstep plan.
- *
- * @param steps The gait's footstep plan.
- * @returns The plan's named instants and its stances' windows, in the stances'
- *   order, as shares of the plan's duration.
+ * Parameter steps: The gait's footstep plan.
+ * Returns: The plan's named instants and its stances' windows, in the stances'
+ * order, as shares of the plan's duration.
  */
 export function walkWindows(
   steps: IAutoMovieMotionHumanWalkSteps.IPlan,
@@ -56,7 +55,7 @@ export function walkWindows(
   return { events, contacts };
 }
 
-/**
+/*
  * What a stepping gait declares of its footstep plan, as shares of its length:
  * each named instant, and the floor contacts, each foot's stance a `plant` but
  * for the spans in which the foot spins on its ball, which are a `pivot` on its
@@ -69,23 +68,31 @@ export function walkWindows(
  * there, never as fixed.
  */
 export namespace walkWindows {
-  /**
+  /*
    * The spacing, seconds, at which a stance is read for its spin: half a frame
    * at 60 frames a second.
    */
   export const STEP: number = 1 / 120;
 }
 
-/** The alternatives of `OfPushKind2`'s site. */
+/*
+ * The alternatives of `OfPushKind2`'s site.
+ */
 type OfPushKind2 = "plant" | "pivot";
 
-/** The alternatives of `OfPushKind`'s site. */
+/*
+ * The alternatives of `OfPushKind`'s site.
+ */
 type OfPushKind = "plant" | "pivot";
 
-/** The alternatives of `OfPart`'s site. */
+/*
+ * The alternatives of `OfPart`'s site.
+ */
 type OfPart = "leftFoot" | "rightFoot";
 
-/** The distinct events and contact windows on a gait's clock. */
+/*
+ * The distinct events and contact windows on a gait's clock.
+ */
 interface IWindows {
   events: IAutoMovieMotionEvent[];
   contacts: IAutoMovieMotionHumanContactWindow[];

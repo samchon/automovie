@@ -2,7 +2,7 @@ import type { AutoMovieGuidePass } from "@automovie/interface";
 
 import { isGuidePass } from "../../internal/isGuidePass.js";
 
-/**
+/*
  * Admit the control channels a render draws beside its film: guide passes other
  * than `beauty`, each named once, in the order given.
  *

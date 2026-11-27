@@ -7,16 +7,15 @@ import {
 
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 
-/**
+/*
  * List the index ranges Three draws for a mesh, each with its visible material.
  *
  * A single-material mesh draws its draw range when the material is visible. A
  * multi-material mesh draws only its geometry groups, each clipped to the draw
  * range and skipped when its material is missing or hidden.
- *
- * @param mesh A mesh with a `position` attribute.
- * @returns Ranges of indices, or of vertices for a non-indexed geometry, in
- *   group order; empty when nothing is drawn.
+ * Parameter mesh: A mesh with a `position` attribute.
+ * Returns: Ranges of indices, or of vertices for a non-indexed geometry, in
+ * group order; empty when nothing is drawn.
  */
 export function readAutoMovieDrawnRanges(
   mesh: Mesh,
@@ -42,17 +41,27 @@ export function readAutoMovieDrawnRanges(
   return ranges;
 }
 
-/** Types of the drawn ranges. */
+/*
+ * Types of the drawn ranges.
+ */
 export namespace readAutoMovieDrawnRanges {
-  /** One drawn index range of a mesh and the material it is drawn with. */
+  /*
+   * One drawn index range of a mesh and the material it is drawn with.
+   */
   export interface IRange {
-    /** First index or vertex, inclusive. */
+    /*
+     * First index or vertex, inclusive.
+     */
     start: number;
 
-    /** Last index or vertex, exclusive. */
+    /*
+     * Last index or vertex, exclusive.
+     */
     end: number;
 
-    /** Material Three binds for the range. */
+    /*
+     * Material Three binds for the range.
+     */
     material: Material;
   }
 }

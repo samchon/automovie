@@ -10,7 +10,7 @@ import { AutoMovieCurveLengthQuadrature64 } from "../../AutoMovieCurveLengthQuad
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
 import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Integrate a cubic curve's physical speed with composite eight-point
  * Gauss-Legendre quadrature. Controls use millimetres, so the returned length
  * uses millimetres independently of the curve's phase unit or piece widths.
@@ -33,12 +33,14 @@ export function measureAutoMovieCubicCurveLength64(
           p: AutoMovieCubicBezierControls3,
         ): [
           readonly {
-            /**
+            /*
              * Original finite closed parameter interval, admitted by the
              * caller.
              */
             domain: readonly [number, number];
-            /** Original world derivative in mm per interval-parameter unit. */
+            /*
+             * Original world derivative in mm per interval-parameter unit.
+             */
             derivative: (
               parameter: number,
             ) => readonly [number, number, number];
@@ -50,7 +52,9 @@ export function measureAutoMovieCubicCurveLength64(
           derivative: (t: number): Readonly<AutoMovieVector3Tuple> => {
             const s: number = 1 - t;
 
-            /** The unchanged original Bernstein derivative component in local t. */
+            /*
+             * The unchanged original Bernstein derivative component in local t.
+             */
             const component: (axis: number) => number = (
               axis: number,
             ): number =>

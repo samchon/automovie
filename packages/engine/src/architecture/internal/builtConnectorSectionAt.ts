@@ -7,7 +7,7 @@ import {
 import { builtConnectorSection } from "./builtConnectorSection";
 import { requireBuiltConnector } from "./requireBuiltConnector";
 
-/**
+/*
  * The usable section of a connector at one arc-length fraction of its route.
  *
  * A constant section answers the same pair everywhere; a varying one is read as

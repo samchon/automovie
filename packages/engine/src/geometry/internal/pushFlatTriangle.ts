@@ -5,7 +5,7 @@ import {
 
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Append one triangle that owns its three corners and its own plane normal.
  *
  * A lofted quad is only planar when its two sections match, so the two halves
@@ -16,11 +16,10 @@ import { Vector3 } from "../../math/Vector3";
  * The normal is `(b - a) x (c - a)` normalized, so corners in counter-clockwise
  * order seen from outside give an outward normal. A zero-area triangle has no
  * plane and receives the zero vector as its normal.
- *
- * @param target Buffers to append to; three vertices and one triangle are
- *   added.
- * @param corners Each corner's position in metres with its metric `u` and `v`,
- *   in winding order.
+ * Parameter target: Buffers to append to; three vertices and one triangle are
+ * added.
+ * Parameter corners: Each corner's position in metres with its metric `u` and `v`,
+ * in winding order.
  */
 export const pushFlatTriangle: (
   target: IAutoMovieMeshTarget,

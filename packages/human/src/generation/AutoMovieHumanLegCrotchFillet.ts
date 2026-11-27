@@ -230,33 +230,53 @@ export namespace AutoMovieHumanLegCrotchFillet {
     }
     return out;
   }
-  /** A point of the trunk's arc read at a length along it. */
+  /*
+   * A point of the trunk's arc read at a length along it.
+   */
   interface IPlace {
-    /** The point. */
+    /*
+     * The point.
+     */
     p: AutoMovieVector3Tuple;
 
-    /** The trunk's station derivative there, per mm up. */
+    /*
+     * The trunk's station derivative there, per mm up.
+     */
     d: AutoMovieVector3Tuple;
 
-    /** The trunk's second station derivative there. */
+    /*
+     * The trunk's second station derivative there.
+     */
     e: AutoMovieVector3Tuple;
 
-    /** Unit tangent of the arc there, in its own order. */
+    /*
+     * Unit tangent of the arc there, in its own order.
+     */
     t: AutoMovieVector3Tuple;
   }
 
-  /** One run of the loop's samples with what they carry. */
+  /*
+   * One run of the loop's samples with what they carry.
+   */
   interface IRun {
-    /** Points. */
+    /*
+     * Points.
+     */
     points: AutoMovieVector3Tuple[];
 
-    /** The trunk's station derivative carried along, per mm up. */
+    /*
+     * The trunk's station derivative carried along, per mm up.
+     */
     rates: AutoMovieVector3Tuple[];
 
-    /** The trunk's second station derivative carried along. */
+    /*
+     * The trunk's second station derivative carried along.
+     */
     seconds: AutoMovieVector3Tuple[];
 
-    /** Distance along the arc to the nearer pinch, carried along. */
+    /*
+     * Distance along the arc to the nearer pinch, carried along.
+     */
     edges: number[];
   }
 }

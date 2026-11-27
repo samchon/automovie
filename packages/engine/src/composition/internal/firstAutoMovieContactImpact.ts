@@ -3,7 +3,7 @@ import type { IAutoMovieResolveContactEvents } from "@automovie/interface";
 import { bracketedRoot } from "../../math/internal/bracketedRoot";
 import { sampleAutoMovieContactWeapon } from "./sampleAutoMovieContactWeapon";
 
-/**
+/*
  * Find one weapon's first new contact on the resolver's scan grid, horizon and
  * live window: the first grid step whose signed gap is not positive brackets
  * the crossing with the clear sample before it, and the crossing is found in
@@ -54,55 +54,54 @@ export function firstAutoMovieContactImpact(
   return undefined;
 }
 
-/**
- * The scan behind {@link firstAutoMovieContactImpact}, for a reader of several
+/*
+ * The scan behind firstAutoMovieContactImpact, for a reader of several
  * weapons a grid step at a time.
  */
 export namespace firstAutoMovieContactImpact {
-  /**
+  /*
    * One weapon's scan of one search: its initial contact, then one grid step a
    * call. The grid is the search's, `from + k * step` clipped to the span's
    * end, so the scans of one search read the same seconds at the same step.
    */
   export interface IScan {
-    /**
+    /*
      * The weapon's initial contact at the search's start, when the scan begins
      * there; read once, before any step.
      */
     start(): { against: string; seconds: number } | undefined;
 
-    /**
+    /*
      * The grid step the next `advance` reads, 1 or more; Infinity once the scan
      * has ended (a contact found, the live window passed, or no window at
      * all).
      */
     step(): number;
 
-    /**
+    /*
      * The second of the step before the next one: the latest second the scan
      * has found clear or left unread.
      */
     previous(): number;
 
-    /**
+    /*
      * Read the next grid step: the contact whose crossing lies in the bracket
      * it closes, or undefined when the step is clear.
      */
     advance(): { against: string; seconds: number } | undefined;
   }
 
-  /**
+  /*
    * Begin one weapon's scan of one search.
-   *
-   * @param weapon The weapon.
-   * @param input The resolver's input, for the bodies, the span's end and the
-   *   grid's step.
-   * @param stops The stops so far, unchanged during the scan.
-   * @param from The search's start, seconds.
-   * @returns The scan.
-   * @throws {RangeError} When the search's start or span end is not finite, the
-   *   step is not positive and finite, or the grid's step count from the start
-   *   to the end is not a safe integer.
+   * Parameter weapon: The weapon.
+   * Parameter input: The resolver's input, for the bodies, the span's end and the
+   * grid's step.
+   * Parameter stops: The stops so far, unchanged during the scan.
+   * Parameter from: The search's start, seconds.
+   * Returns: The scan.
+   * When the search's start or span end is not finite, the
+   * step is not positive and finite, or the grid's step count from the start
+   * to the end is not a safe integer.
    */
   export function scan(
     weapon: IAutoMovieResolveContactEvents.IWeapon,
@@ -209,7 +208,9 @@ export namespace firstAutoMovieContactImpact {
       }
     };
 
-    /** The same actual pair measurement, before any departure eligibility gate. */
+    /*
+     * The same actual pair measurement, before any departure eligibility gate.
+     */
     const distance: (
       body: IAutoMovieResolveContactEvents.IBody,
       t: number,
@@ -437,7 +438,7 @@ export namespace firstAutoMovieContactImpact {
   }
 }
 
-/**
+/*
  * The bracket width at which a contact's second is taken, seconds: a thousandth
  * of the microsecond the contact specifications and a hit's id resolve (`1e-6`
  * s), so the second read at that precision does not depend on where in the

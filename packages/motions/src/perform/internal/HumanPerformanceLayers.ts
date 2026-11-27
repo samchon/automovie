@@ -12,21 +12,20 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanSegment } from "./HumanSegment";
 
-/**
+/*
  * The instants of a performance and the windows of its layers: an instant named
  * by film seconds, by an action's event, by a cue or by another layer, and a
  * scheduled layer placed between two of them.
  */
 export namespace HumanPerformanceLayers {
-  /**
+  /*
    * The film second of an instant: a second as given, or a named instant of an
    * anchored action or of a cue track.
-   *
-   * @param at The instant.
-   * @param entries Earlier schedule entries available while placing an action.
-   * @returns The film second.
-   * @throws {HumanRefusal} When nothing is anchored or tracked under the name,
-   *   or it has no such event.
+   * Parameter at: The instant.
+   * Parameter entries: Earlier schedule entries available while placing an action.
+   * Returns: The film second.
+   * When nothing is anchored or tracked under the name,
+   * or it has no such event.
    */
   export function instant(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -123,7 +122,7 @@ export namespace HumanPerformanceLayers {
     return found.seconds + (at.offset ?? 0);
   }
 
-  /**
+  /*
    * A layer window's own named instants: it starts coming in at `onset`, is
    * fully in at `full`, starts going out at `offset` and is gone at `end`. The
    * fade is the one the window is displayed with: the one asked, an overlay's
@@ -146,7 +145,7 @@ export namespace HumanPerformanceLayers {
     ];
   }
 
-  /**
+  /*
    * A scheduled layer's window in film seconds, refused where one of the
    * person's actions holds a channel it writes.
    */

@@ -15,23 +15,22 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Read a jump phase's achieved canonical endpoint, including its ordinary final
  * clamp and planted refit, before a free phase inherits that shape. This reads
  * the law's own posture, not arbitrary composed overlays or cuts.
- *
- * @param body The actual unchanged body.
- * @param posture The law's already lowered raw endpoint.
- * @param legs The knee/ankle FK reader `prepareLegs` built for this body by the
- *   caller.
- * @param resolution Optional exact FK source borrowed from this same
- *   synchronous endpoint preparation.
- * @param projection Optional genuine same-body ROM projector borrowed only
- *   through this endpoint's canonical solve and final clamp.
- * @returns Owned canonical joint values and root-local achieved foot/knee
- *   geometry.
- * @throws {Error} When preparation is attempted after a whole-body flight
- *   rotation or without a physical canonical root.
+ * Parameter body: The actual unchanged body.
+ * Parameter posture: The law's already lowered raw endpoint.
+ * Parameter legs: The knee/ankle FK reader `prepareLegs` built for this body by the
+ * caller.
+ * Parameter resolution: Optional exact FK source borrowed from this same
+ * synchronous endpoint preparation.
+ * Parameter projection: Optional genuine same-body ROM projector borrowed only
+ * through this endpoint's canonical solve and final clamp.
+ * Returns: Owned canonical joint values and root-local achieved foot/knee
+ * geometry.
+ * When preparation is attempted after a whole-body flight
+ * rotation or without a physical canonical root.
  */
 export function jumpState(
   body: IAutoMovieMotionHumanBody,
@@ -100,14 +99,15 @@ export function jumpState(
   };
 }
 
-/** Canonical endpoint data shared by the jump's free-flight shape and COM. */
+/*
+ * Canonical endpoint data shared by the jump's free-flight shape and COM.
+ */
 export namespace jumpState {
-  /**
+  /*
    * Prepare the knee and ankle FK reader `of` reads endpoint legs with, once
    * per jump plan for its unchanged body.
-   *
-   * @param body The plan's unchanged body.
-   * @returns A reader of the four leg bones' frames for a pose.
+   * Parameter body: The plan's unchanged body.
+   * Returns: A reader of the four leg bones' frames for a pose.
    */
   export function prepareLegs(
     body: IAutoMovieMotionHumanBody,
@@ -115,29 +115,47 @@ export namespace jumpState {
     return poseBones.prepare(body, LEG_BONES);
   }
 
-  /** One achieved leg in the canonical root frame. */
+  /*
+   * One achieved leg in the canonical root frame.
+   */
   export interface ILeg {
-    /** Achieved ankle, root-frame metres. */
+    /*
+     * Achieved ankle, root-frame metres.
+     */
     point: IAutoMovieVector3;
-    /** Achieved knee used as its free bend pole, root-frame metres. */
+    /*
+     * Achieved knee used as its free bend pole, root-frame metres.
+     */
     bend: IAutoMovieVector3;
-    /** Achieved foot rotation in the root frame. */
+    /*
+     * Achieved foot rotation in the root frame.
+     */
     rotation: IAutoMovieQuaternion;
   }
 
-  /** One finalized source state. */
+  /*
+   * One finalized source state.
+   */
   export interface IState {
-    /** Actual finalized canonical pose. */
+    /*
+     * Actual finalized canonical pose.
+     */
     pose: IAutoMoviePose;
-    /** World root translation, metres. */
+    /*
+     * World root translation, metres.
+     */
     root: IAutoMovieVector3;
-    /** Achieved clinical angles, degrees; neutral nulls read as zero. */
+    /*
+     * Achieved clinical angles, degrees; neutral nulls read as zero.
+     */
     joints: IAutoMovieMotionHumanPosture["joints"];
-    /** Achieved geometry of both legs in the canonical root frame. */
+    /*
+     * Achieved geometry of both legs in the canonical root frame.
+     */
     legs: Record<AutoMovieHumanSide, ILeg>;
   }
 
-  /**
+  /*
    * Only achieved ankles and knees are consumed after full canonical endpoint
    * resolution.
    */

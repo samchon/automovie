@@ -5,7 +5,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import type { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 
-/**
+/*
  * A borne body pitched forward over its supports. The key's rigid registration
  * turns the borne body until its held regions point at the bearer's hands, and
  * a straddling ride on the shoulders came out leaning back about 20 degrees,
@@ -17,12 +17,11 @@ import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
  * closed form: the centre's lever about that point in the bearer's sagittal
  * plane, turned until its forward reach is nil. A body already over its
  * supports is left as the fit put it.
- *
- * @param borne The borne body.
- * @param row The carry's row.
- * @param held The borne regions the bearer's hands hold.
- * @param read The fitted key: the placement and both bodies' key bones.
- * @returns The key, pitched forward when the centre lies behind every support.
+ * Parameter borne: The borne body.
+ * Parameter row: The carry's row.
+ * Parameter held: The borne regions the bearer's hands hold.
+ * Parameter read: The fitted key: the placement and both bodies' key bones.
+ * Returns: The key, pitched forward when the centre lies behind every support.
  */
 export function HumanCarriedPitch(
   borne: IAutoMovieMotionHumanBody,

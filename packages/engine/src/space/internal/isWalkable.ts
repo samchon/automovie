@@ -6,7 +6,9 @@ import {
 import { heightAt } from "./heightAt";
 import { prepareSpace } from "./prepareSpace";
 
-/** Answer whether the canonical walking-height query returns a height. */
+/*
+ * Answer whether the canonical walking-height query returns a height.
+ */
 export const isWalkable: (
   space: IAutoMovieSpace,
   x: number,

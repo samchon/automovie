@@ -2,7 +2,7 @@ import type { IAutoMovieGhoshConicApproximationBalance } from "@automovie/interf
 
 import { GhoshConicApproximationDisplacement as displacement } from "./GhoshConicApproximationDisplacement";
 
-/**
+/*
  * Balance a bitangent conic's signed normal extrema with numerical exchange.
  * Initial source nodes bracket witnessed displacement peaks. Golden-section
  * refinement locates each such peak between nodes, then its source coordinate
@@ -22,10 +22,12 @@ export function GhoshConicApproximationBalance(
   maximumExchanges: Parameters<IAutoMovieGhoshConicApproximationBalance.Operation>[3],
   roundoffMm: Parameters<IAutoMovieGhoshConicApproximationBalance.Operation>[4],
 ): ReturnType<IAutoMovieGhoshConicApproximationBalance.Operation> {
-  /** A cached source point/normal already expressed in the tangent triangle. */
+  /*
+   * A cached source point/normal already expressed in the tangent triangle.
+   */
   type Coordinate = { value: readonly number[]; normal: readonly number[] };
 
-  /**
+  /*
    * A fitting witness has a source parameter so its neighboring peaks can be
    * bracketed.
    */
@@ -34,7 +36,9 @@ export function GhoshConicApproximationBalance(
     coordinate: Coordinate;
   }
 
-  /** One observed normal displacement, signed in the source's orientation. */
+  /*
+   * One observed normal displacement, signed in the source's orientation.
+   */
   interface Observation {
     t: number;
     d: number;
@@ -48,7 +52,7 @@ export function GhoshConicApproximationBalance(
     Number.EPSILON *
     Math.max(Math.abs(domain[0]), Math.abs(domain[1]), domain[1] - domain[0]);
 
-  /**
+  /*
    * Reuse deterministic borrowed callbacks, retaining only call-local
    * snapshots.
    */
@@ -60,13 +64,17 @@ export function GhoshConicApproximationBalance(
     return value;
   }
 
-  /** Every candidate uses the same normal graph and triangle-branch admission. */
+  /*
+   * Every candidate uses the same normal graph and triangle-branch admission.
+   */
   function observe(t: number, rho: number): number | undefined {
     const value: Coordinate | undefined = coordinate(t);
     return value === undefined ? undefined : displacement(value, rho);
   }
 
-  /** A signed-lobe sum vanishes precisely at the witnessed equioscillation. */
+  /*
+   * A signed-lobe sum vanishes precisely at the witnessed equioscillation.
+   */
   function imbalance(rho: number): readonly [number, number] | undefined {
     let positive: number = 0;
     let negative: number = 0;
@@ -79,7 +87,9 @@ export function GhoshConicApproximationBalance(
     return [positive + negative, Math.max(positive, -negative)];
   }
 
-  /** Refine an observed local absolute maximum without increasing a fixed grid. */
+  /*
+   * Refine an observed local absolute maximum without increasing a fixed grid.
+   */
   function peak(
     a: Observation,
     center: Observation,

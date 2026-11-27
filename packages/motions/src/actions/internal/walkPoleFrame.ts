@@ -19,14 +19,13 @@ import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/**
+/*
  * The prop the entry holds in one hand or both, with an end.
- *
- * @param context The action's context.
- * @param prop The prop's subject id.
- * @param end The end's affordance id.
- * @returns The pole; undefined when no hand holds it or it declares no such
- *   end.
+ * Parameter context: The action's context.
+ * Parameter prop: The prop's subject id.
+ * Parameter end: The end's affordance id.
+ * Returns: The pole; undefined when no hand holds it or it declares no such
+ * end.
  */
 export function walkPoleFrame(
   context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
@@ -123,7 +122,7 @@ export function walkPoleFrame(
   };
 }
 
-/**
+/*
  * A long prop held in one hand or two, placed by its line: the carrying hand's
  * grip, the prop's axis from that grip to its end, and its roll about that
  * axis. Each hand holds the prop rigidly as it took it
@@ -140,80 +139,107 @@ export function walkPoleFrame(
  * (v_k · t_k − (a · v_k)(a · t_k)), B = Σ (a × v_k) · t_k.
  */
 export namespace walkPoleFrame {
-  /** A hand holding the prop. */
+  /*
+   * A hand holding the prop.
+   */
   export interface IHand {
-    /** The hand. */
+    /*
+     * The hand.
+     */
     side: AutoMovieHumanSide;
 
-    /**
+    /*
      * The prop's frame in the hand's grip frame: inverse(hand) times prop, the
      * grip socket its origin.
      */
     held: IAutoMovieRigidTransform;
 
-    /** The grip from the wrist, metres, in the hand bone's axes. */
+    /*
+     * The grip from the wrist, metres, in the hand bone's axes.
+     */
     socket: IAutoMovieVector3;
 
-    /**
+    /*
      * The unit way from the wrist toward the elbow with the wrist at its
      * neutral, in the hand bone's axes.
      */
     proximal: IAutoMovieVector3;
 
-    /** The hand's grip in the prop's frame, metres. */
+    /*
+     * The hand's grip in the prop's frame, metres.
+     */
     grip: IAutoMovieVector3;
   }
 
-  /** A long prop and the hands that hold it. */
+  /*
+   * A long prop and the hands that hold it.
+   */
   export interface IPole {
-    /** The prop's subject id. */
+    /*
+     * The prop's subject id.
+     */
     prop: string;
 
-    /** The holding hands, the carrying one (the farther from the end) first. */
+    /*
+     * The holding hands, the carrying one (the farther from the end) first.
+     */
     hands: IHand[];
 
-    /** The end, metres, in the prop's frame. */
+    /*
+     * The end, metres, in the prop's frame.
+     */
     end: IAutoMovieVector3;
 
-    /**
+    /*
      * The unit axis from the carrying hand's grip to the end, in the prop's
      * frame.
      */
     axis: IAutoMovieVector3;
 
-    /** The carrying hand's grip to the end, metres. */
+    /*
+     * The carrying hand's grip to the end, metres.
+     */
     length: number;
 
-    /**
+    /*
      * How far along the axis the other hand holds from the carrying hand,
      * metres: the fulcrum; 0 with one hand.
      */
     fulcrum: number;
   }
 
-  /** A holding hand's goal. */
+  /*
+   * A holding hand's goal.
+   */
   export interface IGoal {
-    /** The hand. */
+    /*
+     * The hand.
+     */
     side: AutoMovieHumanSide;
 
-    /** The wrist, world metres. */
+    /*
+     * The wrist, world metres.
+     */
     wrist: IAutoMovieVector3;
 
-    /** The hand's world rotation. */
+    /*
+     * The hand's world rotation.
+     */
     rotation: IAutoMovieQuaternion;
 
-    /** The grip, world metres. */
+    /*
+     * The grip, world metres.
+     */
     grip: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * Each holding hand's goal for the prop placed by its line.
-   *
-   * @param pole The prop and its hands.
-   * @param grip The carrying hand's grip, world metres.
-   * @param axis The unit way from that grip to the end, world.
-   * @param shoulder Each holding arm's shoulder joint, world metres.
-   * @returns One goal per holding hand, the carrying one first.
+   * Parameter pole: The prop and its hands.
+   * Parameter grip: The carrying hand's grip, world metres.
+   * Parameter axis: The unit way from that grip to the end, world.
+   * Parameter shoulder: Each holding arm's shoulder joint, world metres.
+   * Returns: One goal per holding hand, the carrying one first.
    */
   export function place(
     pole: IPole,
@@ -278,15 +304,14 @@ export namespace walkPoleFrame {
     });
   }
 
-  /**
+  /*
    * The posture with each holding hand's goal: its wrist and rotation, the
    * elbow left to the body where the rotation is met best (`strain`), the
    * hanging hint serving where no place is legal.
-   *
-   * @param posture The posture.
-   * @param goals The holding hands' goals.
-   * @param bend Each arm's elbow hint, world metres.
-   * @returns The posture with those goals.
+   * Parameter posture: The posture.
+   * Parameter goals: The holding hands' goals.
+   * Parameter bend: Each arm's elbow hint, world metres.
+   * Returns: The posture with those goals.
    */
   export function write(
     posture: IAutoMovieMotionHumanPosture,
@@ -304,13 +329,12 @@ export namespace walkPoleFrame {
     return { ...posture, limbs };
   }
 
-  /**
+  /*
    * The angle between the carrying forearm and the pole's way to its end with
    * the wrist at its neutral, degrees: the power grip's own angle, the pole
    * crossing the palm, read from the carrying hand's hold.
-   *
-   * @param pole The prop and its hands.
-   * @returns The angle, degrees in [0, 180].
+   * Parameter pole: The prop and its hands.
+   * Returns: The angle, degrees in [0, 180].
    */
   export function neutral(pole: IPole): number {
     const hand: IHand = pole.hands[0]!;
@@ -330,17 +354,16 @@ export namespace walkPoleFrame {
     );
   }
 
-  /**
+  /*
    * A body's power-grip angle before it holds anything: the angle between the
    * forearm, the wrist at its neutral, and the bar a grasp wraps
    * (`HumanGraspHand` lays the grip frame's forward along the bar's wrapped
    * axis), on the bar's side that makes it acute, as a grasp from a bar's
    * declared frame leaves the planted end (`neutral` reads the same angle off a
    * hold).
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @returns The angle, degrees in [0, 90].
+   * Parameter body: The body.
+   * Parameter side: The hand.
+   * Returns: The angle, degrees in [0, 90].
    */
   export function power(
     body: IAutoMovieMotionHumanBody,
@@ -395,7 +418,7 @@ export namespace walkPoleFrame {
     return Math.min(angle, 180 - angle);
   }
 
-  /**
+  /*
    * The straight carrying arm's elevation at a plant, and the grip's height and
    * the pole's elevation it gives: the arm raised so the forearm meets the pole
    * at the grip's neutral angle (`neutral`), the pole running from the grip to
@@ -404,14 +427,13 @@ export namespace walkPoleFrame {
    * asin(h(e) / ℓ), rises with e, so it meets the neutral angle at one
    * elevation, found by bisection on that monotone function, no higher than
    * lets the pole lean `lean` from upright.
-   *
-   * @param shoulder The carrying shoulder's height above the floor, metres.
-   * @param reach The carrying arm's shoulder-to-wrist length, metres.
-   * @param length The carrying grip's distance from the pole's end, metres.
-   * @param neutral The grip's neutral angle, degrees (`neutral`).
-   * @param lean The pole's least lean from upright, degrees.
-   * @returns The plant; undefined when the pole is too short to reach the floor
-   *   from the lowest grip.
+   * Parameter shoulder: The carrying shoulder's height above the floor, metres.
+   * Parameter reach: The carrying arm's shoulder-to-wrist length, metres.
+   * Parameter length: The carrying grip's distance from the pole's end, metres.
+   * Parameter neutral: The grip's neutral angle, degrees (`neutral`).
+   * Parameter lean: The pole's least lean from upright, degrees.
+   * Returns: The plant; undefined when the pole is too short to reach the floor
+   * from the lowest grip.
    */
   export function plant(
     shoulder: number,
@@ -443,28 +465,36 @@ export namespace walkPoleFrame {
     };
   }
 
-  /** A plant's straight carrying arm. */
+  /*
+   * A plant's straight carrying arm.
+   */
   export interface IPlant {
-    /** The arm's elevation above the horizontal ahead, degrees. */
+    /*
+     * The arm's elevation above the horizontal ahead, degrees.
+     */
     arm: number;
 
-    /** The grip's height above the floor, metres. */
+    /*
+     * The grip's height above the floor, metres.
+     */
     high: number;
 
-    /**
+    /*
      * The pole's elevation from the grip to its end, degrees, below the
      * horizontal.
      */
     pole: number;
   }
 
-  /**
+  /*
    * The halvings the plant's bisection takes: a half turn to a millionth of a
    * degree.
    */
   const SPLITS: number = 28;
 
-  /** The shortest turn carrying one unit direction onto another. */
+  /*
+   * The shortest turn carrying one unit direction onto another.
+   */
   function shortest(
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
@@ -480,5 +510,7 @@ export namespace walkPoleFrame {
   }
 }
 
-/** The alternatives of `OfContext`'s site. */
+/*
+ * The alternatives of `OfContext`'s site.
+ */
 type OfContext = "body" | "entry" | "prop";

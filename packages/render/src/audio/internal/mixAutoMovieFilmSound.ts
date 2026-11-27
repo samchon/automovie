@@ -11,7 +11,7 @@ import type {
 import { admitAutoMovieFilmDialogue } from "./admitAutoMovieFilmDialogue.js";
 import { encodeAutoMovieWavPcm16 } from "./encodeAutoMovieWavPcm16.js";
 
-/**
+/*
  * Mix a film's sound list into the soundtrack its delivery encodes.
  *
  * Every line's WAVE file and receipt and every cue's asset are read through
@@ -30,10 +30,9 @@ import { encodeAutoMovieWavPcm16 } from "./encodeAutoMovieWavPcm16.js";
  * refuses a file `read` cannot supply, naming the path, so a wrong path never
  * plays a stand-in; and it passes on every refusal of admission, decoding,
  * planning and mixing, including a speech span past the film's last frame.
- *
- * @param props The sound list, the film clock and the file reader.
- * @returns The WAVE bytes and digest, the plan, the master's analysis and each
- *   admitted line.
+ * Parameter props: The sound list, the film clock and the file reader.
+ * Returns: The WAVE bytes and digest, the plan, the master's analysis and each
+ * admitted line.
  */
 export async function mixAutoMovieFilmSound(
   props: IAutoMovieMixFilmSound.IProps,
@@ -173,10 +172,14 @@ export async function mixAutoMovieFilmSound(
   };
 }
 
-/** The mixer's fixed rate; every adopted file is decoded to it. */
+/*
+ * The mixer's fixed rate; every adopted file is decoded to it.
+ */
 const SAMPLE_RATE: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;
 
-/** Refuse an id that repeats, because the report and ducking key on it. */
+/*
+ * Refuse an id that repeats, because the report and ducking key on it.
+ */
 const assertUnique: (kind: string, ids: readonly string[]) => void = (
   kind: string,
   ids: readonly string[],

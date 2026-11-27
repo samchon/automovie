@@ -21,7 +21,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { StrikingStance } from "./StrikingStance";
 
-/**
+/*
  * The kicking leg of a foot strike: planted until its release, lifted and
  * folded into the chamber, extended through the contact and recoiled to its
  * plant, the knee hint and the foot's attitude carried between keys.
@@ -29,9 +29,8 @@ import { StrikingStance } from "./StrikingStance";
  * The leg is solved once at the chamber and at the contact; every goal between
  * carries the solution of its two keys as its reference, so the fit never takes
  * the other knee between two seconds.
- *
- * @param props The leg's geometry and timing.
- * @returns The primitive writing the kicking leg.
+ * Parameter props: The leg's geometry and timing.
+ * Returns: The primitive writing the kicking leg.
  */
 export function FootStrikeLeg(
   props: FootStrikeLeg.IProps,
@@ -244,17 +243,18 @@ export function FootStrikeLeg(
   };
   return leg;
 }
-/** Companion types of {@link FootStrikeLeg}. */
+/*
+ * Companion types of FootStrikeLeg.
+ */
 export namespace FootStrikeLeg {
-  /**
+  /*
    * A foot raised between two points: along the floor by one share, up by
    * another, so the foot can lift before it travels.
-   *
-   * @param from Where it starts, world metres.
-   * @param to Where it goes, world metres.
-   * @param level The share of the level travel.
-   * @param height The share of the rise.
-   * @returns The point, world metres.
+   * Parameter from: Where it starts, world metres.
+   * Parameter to: Where it goes, world metres.
+   * Parameter level: The share of the level travel.
+   * Parameter height: The share of the rise.
+   * Returns: The point, world metres.
    */
   export function raised(
     from: IAutoMovieVector3,
@@ -269,63 +269,101 @@ export namespace FootStrikeLeg {
     };
   }
 
-  /** The kicking leg's geometry and timing. */
+  /*
+   * The kicking leg's geometry and timing.
+   */
   export interface IProps {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The entry's resolved pose. */
+    /*
+     * The entry's resolved pose.
+     */
     pose: IAutoMoviePose;
 
-    /** The entry posture. */
+    /*
+     * The entry posture.
+     */
     entry: IAutoMovieMotionHumanPosture;
 
-    /** The lower body's primitive, which the keys are solved on. */
+    /*
+     * The lower body's primitive, which the keys are solved on.
+     */
     lower: IAutoMovieMotionHumanPrimitive;
 
-    /** The kicking side. */
+    /*
+     * The kicking side.
+     */
     side: AutoMovieHumanSide;
 
-    /** The entry's feet. */
+    /*
+     * The entry's feet.
+     */
     feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
-    /** When the foot leaves the floor, seconds. */
+    /*
+     * When the foot leaves the floor, seconds.
+     */
     release: number;
 
-    /** When the chamber is reached, seconds. */
+    /*
+     * When the chamber is reached, seconds.
+     */
     chamber: number;
 
-    /** The contact, seconds. */
+    /*
+     * The contact, seconds.
+     */
     shown: number;
 
-    /** The recoil's length, seconds. */
+    /*
+     * The recoil's length, seconds.
+     */
     recoil: number;
 
-    /** The action's length, seconds. */
+    /*
+     * The action's length, seconds.
+     */
     duration: number;
 
-    /** The ankle's place at the chamber. */
+    /*
+     * The ankle's place at the chamber.
+     */
     folded: IAutoMovieVector3;
 
-    /** The point the extension aims through, past the contact. */
+    /*
+     * The point the extension aims through, past the contact.
+     */
     through: IAutoMovieVector3;
 
-    /** The knee's hint at the chamber and the contact. */
+    /*
+     * The knee's hint at the chamber and the contact.
+     */
     knee: IAutoMovieVector3;
 
-    /** The ankle's place at the contact. */
+    /*
+     * The ankle's place at the contact.
+     */
     ankle: IAutoMovieVector3;
 
-    /** The foot's attitude at the contact. */
+    /*
+     * The foot's attitude at the contact.
+     */
     rotation: IAutoMovieQuaternion;
 
-    /** The share of the foot's rise it leads its travel by. */
+    /*
+     * The share of the foot's rise it leads its travel by.
+     */
     lead: number;
 
-    /** The share of the extension unit at which the foot meets the target. */
+    /*
+     * The share of the extension unit at which the foot meets the target.
+     */
     meet: number;
 
-    /**
+    /*
      * An airborne ankle goal at a second brought inside the hip's reach
      * (`FootStrikeTilt.chambered`); the goal unchanged when absent.
      */
@@ -336,17 +374,27 @@ export namespace FootStrikeLeg {
   }
 }
 
-/** The kicking leg's solution at a key of the strike. */
+/*
+ * The kicking leg's solution at a key of the strike.
+ */
 interface IKey {
-  /** The leg's reference solution there. */
+  /*
+   * The leg's reference solution there.
+   */
   reference: IAutoMovieHumanLimbReference;
 
-  /** The foot's world attitude there. */
+  /*
+   * The foot's world attitude there.
+   */
   attitude: IAutoMovieQuaternion;
 
-  /** The ankle's clinical angles there, degrees. */
+  /*
+   * The ankle's clinical angles there, degrees.
+   */
   ankle: readonly [number, number, number];
 }
 
-/** The alternatives of `FootStrikeLegSolveGoal`'s site. */
+/*
+ * The alternatives of `FootStrikeLegSolveGoal`'s site.
+ */
 type FootStrikeLegSolveGoal = "point" | "bend" | "rotation";

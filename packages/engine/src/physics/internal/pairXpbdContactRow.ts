@@ -8,20 +8,19 @@ import type { IAutoMovieXpbdPointImpulse } from "./IAutoMovieXpbdPointImpulse";
 import type { IAutoMovieXpbdPointResponse } from "./IAutoMovieXpbdPointResponse";
 import type { IAutoMovieXpbdResponder } from "./IAutoMovieXpbdResponder";
 
-/**
+/*
  * A contact pair's row along a direction: its generalised inverse mass and the
  * move of both bodies by a multiplier, through their trees where they have one
  * (`respondXpbdArticulation`, Kokkevis 2004; Featherstone 2008, section 7.5,
  * both impulses acting together so a contact within one tree reads its own
  * coupling) and as rigid bodies otherwise.
- *
- * @param trees The pass's articulated response; each body alone when absent.
- * @param first The first body.
- * @param second The second body.
- * @param direction The row's unit world direction, pushing the first body.
- * @param armA The first body's world arm to the contact point, metres.
- * @param armB The second body's world arm to the contact point, metres.
- * @returns The row.
+ * Parameter trees: The pass's articulated response; each body alone when absent.
+ * Parameter first: The first body.
+ * Parameter second: The second body.
+ * Parameter direction: The row's unit world direction, pushing the first body.
+ * Parameter armA: The first body's world arm to the contact point, metres.
+ * Parameter armB: The second body's world arm to the contact point, metres.
+ * Returns: The row.
  */
 export function pairXpbdContactRow(
   trees: IAutoMovieXpbdResponder | undefined,

@@ -1,14 +1,13 @@
 import type { IAutoMovieMotionHumanSegment } from "@automovie/interface";
 
-/**
+/*
  * Whether a displayed second of an action can be evaluated for some bones
  * alone: no held prop, no stopped weapon and no entering offset still decaying,
  * each of which reads the whole pose.
- *
- * @param person The person.
- * @param segment The action shown.
- * @param seconds Film seconds.
- * @returns Whether a bone observation is honoured there.
+ * Parameter person: The person.
+ * Parameter segment: The action shown.
+ * Parameter seconds: Film seconds.
+ * Returns: Whether a bone observation is honoured there.
  */
 export function observableHumanSegment(
   person: IAutoMovieMotionHumanSegment.IPerson,

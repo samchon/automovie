@@ -5,15 +5,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Each limb's nominal place relative to the hips' travel, floor frame: each
  * palm under its shoulder and each knee under its hip joint at the knee's
  * height.
  *
  * Part of `crawl.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `nominal`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `nominal`.
  */
 export function crawlNominal(
   prepared: crawlNominal.IPrepared,
@@ -27,17 +26,27 @@ export function crawlNominal(
   };
 }
 
-/** The `nominal` of `crawl.plan`, built from what that plan prepared. */
+/*
+ * The `nominal` of `crawl.plan`, built from what that plan prepared.
+ */
 export namespace crawlNominal {
-  /** What `crawl.plan` prepared for its `nominal`. */
+  /*
+   * What `crawl.plan` prepared for its `nominal`.
+   */
   export interface IPrepared {
-    /** The `under` `crawl.plan` prepared. */
+    /*
+     * The `under` `crawl.plan` prepared.
+     */
     under: (side: AutoMovieHumanSide) => IAutoMovieVector3;
 
-    /** The `local` `crawl.plan` prepared. */
+    /*
+     * The `local` `crawl.plan` prepared.
+     */
     local: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3;
 
-    /** The `knee` `crawl.plan` prepared. */
+    /*
+     * The `knee` `crawl.plan` prepared.
+     */
     knee: number;
   }
 }

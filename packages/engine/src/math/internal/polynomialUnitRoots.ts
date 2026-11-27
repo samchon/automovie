@@ -1,4 +1,4 @@
-/**
+/*
  * Real polynomial roots on the closed unit interval, from ascending
  * coefficients.
  */
@@ -51,7 +51,7 @@ export function polynomialUnitRoots(input: readonly number[]): number[] {
   return roots.sort((a: number, b: number): number => a - b);
 }
 
-/**
+/*
  * The normalised polynomial at `x` by Horner's rule, from the leading
  * coefficient down.
  */
@@ -66,7 +66,7 @@ function horner(
   return value;
 }
 
-/**
+/*
  * Append a root unless one equal by SameValueZero is already kept (a set's
  * membership).
  */

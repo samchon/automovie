@@ -23,7 +23,7 @@ import { everydayPostureCases } from "./everydayPostureCases";
 import { everydayTypeCases } from "./everydayTypeCases";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the everyday laws on the polygon man, each with the numeric
  * verdicts its family's acceptance names, so a sheet is read together with the
  * measured contacts it shows.
@@ -65,10 +65,9 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  *   each key's pressed centre within 10 mm and the key dip 2 to 4 mm.
  * - `everyday-step`: stepping over a 0.3 m box, at tenths of the crossing; every
  *   sole point at least 5 cm above the box while over it.
- *
- * @param family One family or every family when absent.
- * @param bodies The sweep bodies to run each case on; `m-average` when absent.
- * @returns The cases.
+ * Parameter family: One family or every family when absent.
+ * Parameter bodies: The sweep bodies to run each case on; `m-average` when absent.
+ * Returns: The cases.
  */
 export function everydayCases(
   family?: EverydayCasesFamily,
@@ -335,10 +334,14 @@ export function everydayCases(
 }
 const { perform, figure, event, angle, frame } = everydayCaseKit;
 
-/** The record of `IEverydayCasesMarginsResult`'s site. */
+/*
+ * The record of `IEverydayCasesMarginsResult`'s site.
+ */
 type IEverydayCasesMarginsResult = { push: number; side: number };
 
-/** The alternatives of `EverydayCasesFamily`'s site. */
+/*
+ * The alternatives of `EverydayCasesFamily`'s site.
+ */
 type EverydayCasesFamily =
   | "approach"
   | "look"

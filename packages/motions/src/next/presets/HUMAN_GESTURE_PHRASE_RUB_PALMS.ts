@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `rubPalms` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. Rubbing the hands: both palms together ahead of
  * the chest, sliding up and down.

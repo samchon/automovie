@@ -25,7 +25,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { DanceFootwork } from "./DanceFootwork";
 import { ExerciseKey } from "./ExerciseKey";
 
-/**
+/*
  * A walk on stilts. Each foot stands strapped on its stilt's platform and
  * carries the stilt with it, so the stilts' tips are the only floor contacts;
  * the feet bear on the platforms' height as on a raised floor. The steps are
@@ -39,56 +39,77 @@ import { ExerciseKey } from "./ExerciseKey";
  * its stilt's platform.
  */
 export namespace stiltWalk {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "stiltWalk";
 
-  /** Cancel table: from the last step, into another stilt walk. */
+  /*
+   * Cancel table: from the last step, into another stilt walk.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stiltWalk: ["fromRelax", "smooth"],
     });
 
-  /**
+  /*
    * A step, hip heights (provisional: shorter than a walk's on the stilts'
    * longer lever).
    */
   export const STEP: number = 0.35;
 
-  /** Seconds a step (provisional). */
+  /*
+   * Seconds a step (provisional).
+   */
   export const PERIOD: number = 0.8;
 
-  /** The share of a step the stepping foot is up (provisional). */
+  /*
+   * The share of a step the stepping foot is up (provisional).
+   */
   export const SWING: number = 0.5;
 
-  /** How high a stepping stilt's tip lifts, metres (provisional). */
+  /*
+   * How high a stepping stilt's tip lifts, metres (provisional).
+   */
   export const LIFT: number = 0.08;
 
-  /** How far an entry foot may stand off its platform, metres. */
+  /*
+   * How far an entry foot may stand off its platform, metres.
+   */
   export const ON: number = 0.06;
 
-  /** A stilt walk's steps. */
+  /*
+   * A stilt walk's steps.
+   */
   export interface IPacing {
-    /** The natural step, `STEP` hip heights, metres. */
+    /*
+     * The natural step, `STEP` hip heights, metres.
+     */
     step: number;
 
-    /** The steps, at least two, enough to cover the way by default. */
+    /*
+     * The steps, at least two, enough to cover the way by default.
+     */
     steps: number;
 
-    /** Each stride, metres. */
+    /*
+     * Each stride, metres.
+     */
     stride: number;
 
-    /** The walk's seconds: a `PERIOD` a step and half of one to settle. */
+    /*
+     * The walk's seconds: a `PERIOD` a step and half of one to settle.
+     */
     duration: number;
   }
 
-  /**
+  /*
    * Pace a stilt walk over a way.
-   *
-   * @param length The way's level length, metres.
-   * @param hip The walker's hip height, metres.
-   * @param asked The steps asked, if any.
-   * @returns The pacing.
-   * @throws {HumanRefusal} When the steps are no whole number.
+   * Parameter length: The way's level length, metres.
+   * Parameter hip: The walker's hip height, metres.
+   * Parameter asked: The steps asked, if any.
+   * Returns: The pacing.
+   * When the steps are no whole number.
    */
   export function pacing(
     length: number,
@@ -107,13 +128,12 @@ export namespace stiltWalk {
       duration: steps * PERIOD + PERIOD / 2,
     };
   }
-  /**
+  /*
    * Plan a stilt walk.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When a stilt lacks its foot or tip, an entry foot is
-   *   off its platform, or the step count is not a positive whole number.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When a stilt lacks its foot or tip, an entry foot is
+   * off its platform, or the step count is not a positive whole number.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStiltWalk.IParams>,
@@ -223,7 +243,9 @@ export namespace stiltWalk {
     return { ...plan, wears };
   }
 
-  /** The entry stance's key. */
+  /*
+   * The entry stance's key.
+   */
   function stood(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStiltWalk.IParams>,
     side: AutoMovieHumanSide,
@@ -240,7 +262,9 @@ export namespace stiltWalk {
     };
   }
 
-  /** A stilt's platform height, checked under its foot. */
+  /*
+   * A stilt's platform height, checked under its foot.
+   */
   function platform(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStiltWalk.IParams>,
     subject: string,

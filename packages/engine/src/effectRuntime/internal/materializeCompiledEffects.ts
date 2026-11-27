@@ -11,7 +11,7 @@ import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonica
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { admitEffectTransport } from "./admitEffectTransport";
 
-/**
+/*
  * Materialize effect cues into builder-owned deterministic streams.
  *
  * A shot contract owns shot-local cues and a production and film pair owns

@@ -8,7 +8,7 @@ import { AutoMovieArchetypeConvexCell } from "../../core";
 import { ArmourCell } from "./ArmourCell";
 import type { ArmourProfile } from "./ArmourProfile";
 
-/**
+/*
  * Hollow forearm/shank guards and a cuff with a coarse mitten/thumb defense.
  *
  * A hand's sole radius input is its cuff's forearm radius, not an invented palm
@@ -99,12 +99,16 @@ export function ArmourLimb(
   }
   return cells;
 
-  /** Exact named outer ellipse; quadrants retain the original measured extrema. */
+  /*
+   * Exact named outer ellipse; quadrants retain the original measured extrema.
+   */
   function point(angleValue: number, y: number): IAutoMovieVector3 {
     return { x: rx * Math.cos(angleValue), y, z: rz * Math.sin(angleValue) };
   }
 
-  /** Five disjoint rectangular walls leave a real cuff-side opening. */
+  /*
+   * Five disjoint rectangular walls leave a real cuff-side opening.
+   */
   function hand(
     id: string,
     x0: number,

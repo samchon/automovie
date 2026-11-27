@@ -18,7 +18,7 @@ import { AutoMovieEngineSpace } from "../../space/index";
 
 import { setPieceMatrix } from "../staging/internal/setPieceMatrix";
 
-/**
+/*
  * The face one `on-support` relation resolves to, or `null` when the record
  * states none.
  *
@@ -26,7 +26,7 @@ import { setPieceMatrix } from "../staging/internal/setPieceMatrix";
  * its own footprint, holes included, and its own height rule. A
  * `prop-affordance` target resolves to the host prop's `stack-top` extent
  * carried through the affordance frame and the host's full staged transform
- * ({@link setPieceMatrix}), hulled into one convex ring, with a plane height
+ * (setPieceMatrix), hulled into one convex ring, with a plane height
  * rule through the transformed top.
  *
  * Nothing is guessed. A citation that does not resolve, a host that is not
@@ -39,13 +39,12 @@ import { setPieceMatrix } from "../staging/internal/setPieceMatrix";
  * author never wrote.
  *
  * Lookups take the first record of a given id, exactly as
- * {@link propAnchorFrame} does and for the same reason: contradicting ids are
- * {@link validatePropPlacements}'s own refusal, by name.
- *
- * @param props The relation target and the records it may cite.
- * @returns The face in world metres, or null for the stated
- *   unresolved/degenerate cases. Finite authored transforms alone do not ensure
- *   finite derived plane coefficients.
+ * propAnchorFrame does and for the same reason: contradicting ids are
+ * validatePropPlacements's own refusal, by name.
+ * Parameter props: The relation target and the records it may cite.
+ * Returns: The face in world metres, or null for the stated
+ * unresolved/degenerate cases. Finite authored transforms alone do not ensure
+ * finite derived plane coefficients.
  */
 export function propSupportFace(
   props: IAutoMoviePropSupportFace.IProps,
@@ -114,12 +113,14 @@ export function propSupportFace(
   };
 }
 
-/** Relative tolerance below which a face normal counts as horizontal. */
+/*
+ * Relative tolerance below which a face normal counts as horizontal.
+ */
 const EDGE_ON_TOLERANCE: number = 1e-9;
 
-/**
+/*
  * The plane a transform carries its local XZ plane onto, spelled as the height
- * rule {@link surfaceHeightAt} reads, or `null` when that image stands edge-on
+ * rule surfaceHeightAt reads, or `null` when that image stands edge-on
  * to the ground.
  *
  * The face is spanned by the images of local `+X` and `+Z`, so its normal is

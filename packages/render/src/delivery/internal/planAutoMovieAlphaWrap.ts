@@ -1,7 +1,7 @@
 import type { IAutoMoviePlanAlphaWrapProps } from "@automovie/interface";
 import { guidePassFramePattern } from "../../internal/guidePassFramePattern.js";
 
-/**
+/*
  * The FFmpeg arguments that wrap a transparent render's RGBA PNG frames,
  * without re-encoding, into a QuickTime `.mov` whose every sample is one frame
  * file's bytes.

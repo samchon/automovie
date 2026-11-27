@@ -1,4 +1,4 @@
-/**
+/*
  * The knots of a movement curve and the holds at them. A knot is a point the
  * curve passes, with its own dwell: a knot with a dwell is reached at rest,
  * held for that many seconds as an explicit interval of the curve, and left
@@ -7,34 +7,43 @@
  * its interior knots passed without stopping.
  */
 export namespace HumanKnot {
-  /** One knot. */
+  /*
+   * One knot.
+   */
   export interface IKnot {
-    /** The point, each coordinate in the curve's own units. */
+    /*
+     * The point, each coordinate in the curve's own units.
+     */
     position: readonly number[];
 
-    /** The hold at the knot, seconds, zero for a knot passed without stopping. */
+    /*
+     * The hold at the knot, seconds, zero for a knot passed without stopping.
+     */
     dwell: number;
   }
 
-  /**
+  /*
    * A movement between two holds: the knots from `first` to `last`, at rest at
    * both, with no hold inside.
    */
   export interface IPiece {
-    /** The index of the piece's first knot. */
+    /*
+     * The index of the piece's first knot.
+     */
     first: number;
 
-    /** The index of its last knot, greater than `first`. */
+    /*
+     * The index of its last knot, greater than `first`.
+     */
     last: number;
   }
 
-  /**
+  /*
    * The pieces a curve's holds split it into: every interior knot with a dwell
    * ends one piece and starts the next. The first and the last knot's dwells
    * are holds before and after the movement and split nothing.
-   *
-   * @param knots The curve's knots, in order.
-   * @returns Its pieces in order; none for fewer than two knots.
+   * Parameter knots: The curve's knots, in order.
+   * Returns: Its pieces in order; none for fewer than two knots.
    */
   export function pieces(knots: readonly IKnot[]): IPiece[] {
     const out: IPiece[] = [];

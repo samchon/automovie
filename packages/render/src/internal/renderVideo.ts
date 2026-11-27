@@ -8,7 +8,7 @@ import { ffmpegArgs } from "./ffmpegArgs.js";
 import { framePattern } from "../framePattern.js";
 import { frameTimes } from "./frameTimes.js";
 
-/**
+/*
  * Render a clip of `durationSeconds` into a video, deterministically: compute
  * the frame schedule, capture each frame through the host adapter at its exact
  * `t = i / fps`, then encode the sequence with the pinned ffmpeg args.

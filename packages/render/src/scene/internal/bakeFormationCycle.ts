@@ -16,7 +16,7 @@ import { applyPose } from "./applyPose.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { formationCycleStride } from "./formationCycleStride.js";
 
-/**
+/*
  * Bake one runtime model's whole repertoire into rigid part-matrix tables.
  *
  * `built` must already be at rest with its world matrices current, because the
@@ -26,10 +26,10 @@ import { formationCycleStride } from "./formationCycleStride.js";
  * sampled pose; callers extract geometry before baking, never after.
  *
  * The poses are the given pose takes (`IBakeFormationCycleProps.takes`, a
- * performed member's cycle) or, without them, come from {@link gaitMotion},
+ * performed member's cycle) or, without them, come from gaitMotion,
  * whose keyframe `i` of `samples` sits exactly at cycle position `i / samples`.
  * The loop-closing duplicate is omitted because texture playback wraps the last
- * column to the first. Each sample passes through the same {@link applyPose}
+ * column to the first. Each sample passes through the same applyPose
  * used by named performers. This bake passes default joint axes and no clinical
  * rest frames; a caller using different explicit axes/rest frames may therefore
  * obtain a different attitude at the same phase.

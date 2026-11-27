@@ -20,7 +20,7 @@ import { normalizeRenderTier } from "./normalizeRenderTier.js";
 import { resolveProductionRenderTierFrameFormat } from "./resolveProductionRenderTierFrameFormat.js";
 import { validDigest } from "./validDigest.js";
 
-/**
+/*
  * Plan the content-addressed render chunks and publication tracks of one
  * production edit at one tier.
  *
@@ -228,12 +228,16 @@ export const planProductionRenderJob: (
   };
 };
 
-/** A deliverable that renders moving images, the only kind with chunks. */
+/*
+ * A deliverable that renders moving images, the only kind with chunks.
+ */
 type IMovingDeliverable = IAutoMovieProductionDeliverable & {
   kind: "feature" | "guide-pass";
 };
 
-/** One output-frame range shared by every moving deliverable's chunk. */
+/*
+ * One output-frame range shared by every moving deliverable's chunk.
+ */
 interface IRange {
   frameStart: number;
   frameEndExclusive: number;
@@ -241,7 +245,7 @@ interface IRange {
   sources: Array<{ shot: string; digest: string }>;
 }
 
-/**
+/*
  * Split the output frames into consecutive ranges of at most `chunkFrames` and
  * attach the code-unit-sorted source digest of every shot each range shows,
  * throwing for a shot without a valid digest.

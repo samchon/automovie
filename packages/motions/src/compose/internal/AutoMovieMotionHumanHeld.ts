@@ -22,16 +22,15 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/**
+/*
  * Read the prop a hand holds at an action's entry.
- *
- * @param context The action's context.
- * @param side The holding hand.
- * @param prop The prop's subject id.
- * @returns The prop in the hand's grip frame.
- * @throws {HumanRefusal} An `affordance` refusal when that hand does not hold
- *   that prop at the entry, naming what it holds; a `participant` refusal on
- *   `side` when the body has no bone for that hand, naming the hands it has.
+ * Parameter context: The action's context.
+ * Parameter side: The holding hand.
+ * Parameter prop: The prop's subject id.
+ * Returns: The prop in the hand's grip frame.
+ * An `affordance` refusal when that hand does not hold
+ * that prop at the entry, naming what it holds; a `participant` refusal on
+ * `side` when the body has no bone for that hand, naming the hands it has.
  */
 export function AutoMovieMotionHumanHeld(
   context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
@@ -101,7 +100,7 @@ export function AutoMovieMotionHumanHeld(
   };
 }
 
-/**
+/*
  * The prop a hand holds as an action enters, in that hand's own frame: the one
  * reading every action that works with a held thing starts from, whether it
  * brings a glass's lip to the mouth or a blade's point to a target.
@@ -118,18 +117,17 @@ export function AutoMovieMotionHumanHeld(
  * (`IHumanEntryState.holds`), never a judgment from how near it lies.
  */
 export namespace AutoMovieMotionHumanHeld {
-  /**
+  /*
    * A prop in the grip frame of a hand that has not taken it yet: a grasp's
    * candidate wrist, the prop where it lies, the offset the grip would keep
    * once it closed there.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @param prop The prop's subject id.
-   * @param lying The prop's world frame.
-   * @param affordances The prop's contacts, in its own frame.
-   * @param wrist The candidate hand's wrist, world.
-   * @returns The prop in that hand's grip frame.
+   * Parameter body: The body.
+   * Parameter side: The hand.
+   * Parameter prop: The prop's subject id.
+   * Parameter lying: The prop's world frame.
+   * Parameter affordances: The prop's contacts, in its own frame.
+   * Parameter wrist: The candidate hand's wrist, world.
+   * Returns: The prop in that hand's grip frame.
    */
   export function grasped(
     body: IAutoMovieMotionHumanBody,
@@ -163,15 +161,14 @@ export namespace AutoMovieMotionHumanHeld {
     };
   }
 
-  /**
+  /*
    * One of the prop's contacts in the hand's grip frame.
-   *
-   * @param held The held prop.
-   * @param id The affordance's id.
-   * @returns Its point from the grip socket, metres, and the unit direction its
-   *   `+Y` runs, both in the hand bone's axes.
-   * @throws {HumanRefusal} An `affordance` refusal when the prop declares no
-   *   such contact, listing the ones it has.
+   * Parameter held: The held prop.
+   * Parameter id: The affordance's id.
+   * Returns: Its point from the grip socket, metres, and the unit direction its
+   * `+Y` runs, both in the hand bone's axes.
+   * An `affordance` refusal when the prop declares no
+   * such contact, listing the ones it has.
    */
   export function point(
     held: IAutoMovieMotionHumanHeld.IHeld,
@@ -208,11 +205,10 @@ export namespace AutoMovieMotionHumanHeld {
     };
   }
 
-  /**
+  /*
    * The grip window that keeps the prop in its hand through a whole action.
-   *
-   * @param held The held prop.
-   * @returns The contact window.
+   * Parameter held: The held prop.
+   * Returns: The contact window.
    */
   export function grip(
     held: IAutoMovieMotionHumanHeld.IHeld,
@@ -226,14 +222,13 @@ export namespace AutoMovieMotionHumanHeld {
     };
   }
 
-  /**
+  /*
    * The hold the prop is left in when the action ends, with the fingers the
    * hand had closed on it at the entry and the use that grip was chosen for,
    * since the grip is the same one.
-   *
-   * @param context The action's context.
-   * @param held The held prop.
-   * @returns The hold for the plan.
+   * Parameter context: The action's context.
+   * Parameter held: The held prop.
+   * Returns: The hold for the plan.
    */
   export function hold(
     context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
@@ -250,5 +245,7 @@ export namespace AutoMovieMotionHumanHeld {
   }
 }
 
-/** The alternatives of `OfContext`'s site. */
+/*
+ * The alternatives of `OfContext`'s site.
+ */
 type OfContext = "body" | "entry" | "prop";

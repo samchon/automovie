@@ -4,15 +4,14 @@ import type { IAutoMovieMotionHumanRefusal } from "@automovie/interface";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHitTrack } from "./HumanHitTrack";
 
-/**
+/*
  * The refusal of a schedule error.
- *
- * @param error The resolver's error.
- * @param instance Which occurrence of an action in its performer's chain is
- *   being placed, from 1.
- * @returns The located refusal, or the error itself when it reports laws that
- *   gave an invalid timing or lack a function, which no change to the
- *   composition repairs.
+ * Parameter error: The resolver's error.
+ * Parameter instance: Which occurrence of an action in its performer's chain is
+ * being placed, from 1.
+ * Returns: The located refusal, or the error itself when it reports laws that
+ * gave an invalid timing or lack a function, which no change to the
+ * composition repairs.
  */
 export function HumanScheduleRefusal(
   error: AutoMovieScheduleError,

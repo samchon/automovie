@@ -11,18 +11,24 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** The federal handrail rule read. */
+/*
+ * The federal handrail rule read.
+ */
 const CFR: string =
   "49 CFR 38.29(b): handrails between 1 1/4 and 1 1/2 inches in cross-sectional diameter, with at least 1 1/2 inches of knuckle clearance (https://www.govinfo.gov/content/pkg/CFR-2023-title49-vol1/xml/CFR-2023-title49-vol1-sec38-29.xml)";
 
-/** The bus specification read. */
+/*
+ * The bus specification read.
+ */
 const DULUTH: string =
   "Duluth Transit Authority heavy-duty bus technical specifications (28 August 2020), 1.21 Passenger Assists: assists 1 1/4 inch in diameter, the overhead assist no less than 70 inches above the floor (https://www.duluthtransit.com/wp-content/uploads/2020/08/Heavy-Duty-Buses-Technical-Specifications.pdf)";
 
-/** A strap's loop, metres: HAPPICH's 200 mm drawing label, the grip at its foot. */
+/*
+ * A strap's loop, metres: HAPPICH's 200 mm drawing label, the grip at its foot.
+ */
 const LOOP: number = 200 * AutoMovieArchetypeUnits.MILLIMETRE;
 
-/**
+/*
  * The construction sizes no source read gives, metres, each an estimate no act
  * reads and no band declares: `run`, the overhead rail's length a strap hangs
  * from; `tape`, a strap's tape width and thickness.
@@ -256,7 +262,9 @@ export function create(
     },
   };
 
-  /** The bands every handhold shares. */
+  /*
+   * The bands every handhold shares.
+   */
   const SHARED: Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>> =
     {
       height: AutoMovieArchetypeBand.metres(

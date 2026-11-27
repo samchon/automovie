@@ -12,7 +12,7 @@ import { AutoMovieBernsteinSubdivision64 as S } from "../../AutoMovieBernsteinSu
 import { AutoMovieCanonicalBoundary64 as Q } from "../../AutoMovieCanonicalBoundary64";
 import { AutoMovieCurveMath64 as V } from "../../AutoMovieCurveMath64";
 
-/**
+/*
  * Prepare declared canonical curves, coefficient identities and complete edge
  * uses. Matching four-ID tuples transport one explicit oriented interval to
  * unbound incident sides. Their legacy render-normal owner remains separate

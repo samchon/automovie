@@ -22,7 +22,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { crutchSitKit } from "./crutchSitKit";
 import { crutchSitPath } from "./crutchSitPath";
 
-/**
+/*
  * Rise from a chair with two crutches held in the injured side's hand, in the
  * prescribed order (Cornell Health and HealthLinkBC, Using crutches), entered
  * as the crutch sit leaves the body.
@@ -35,10 +35,9 @@ import { crutchSitPath } from "./crutchSitPath";
  * crutch back from beside the other (`taken`, `crutchSitPath.grasped`), and
  * both crutches are carried to stand `TRIPOD` beside and ahead of the feet
  * (`planted`).
- *
- * @param context The crutch sit's context.
- * @param kit Its shared reads.
- * @returns The order's plan before the arms are coursed.
+ * Parameter context: The crutch sit's context.
+ * Parameter kit: Its shared reads.
+ * Returns: The order's plan before the arms are coursed.
  */
 export function crutchSitUp(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrutchSit>,
@@ -274,7 +273,7 @@ export function crutchSitUp(
   };
 }
 
-/**
+/*
  * The injured leg held off the floor standing, degrees: the crutch walk's
  * three-point gait's hip and knee flexion.
  */
@@ -283,7 +282,7 @@ const STANDING: IAutoMovieHumanLimbReference = {
   lower: [80, 0, 0],
 };
 
-/**
+/*
  * How far a crutch tip stands beside and ahead of its foot after a rise,
  * metres: the tripod position (Physiopedia, Crutches).
  */

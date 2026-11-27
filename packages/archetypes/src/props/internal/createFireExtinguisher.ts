@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 
-/**
+/*
  * A stored-pressure fire extinguisher standing on its base.
  *
  * The cylinder stands along `+Y` from the base's centre at the origin. Its
@@ -19,9 +19,8 @@ import {
  * `pin` metres before the lever can move; `ring` is the pin's ring, riding it,
  * where the free hand pulls. `nozzle` is the horn's outlet ahead of the valve,
  * its `+Y` the discharge direction, along `+Z`.
- *
- * @param params The optional scene id.
- * @returns The extinguisher and its contacts, metres.
+ * Parameter params: The optional scene id.
+ * Returns: The extinguisher and its contacts, metres.
  */
 export function createFireExtinguisher(
   params: AutoMovieArchetypeFireExtinguisher.IParams = {},
@@ -157,7 +156,7 @@ export function createFireExtinguisher(
   return builder.build(SIZE.mass);
 }
 
-/**
+/*
  * A 5 lb ABC dry-chemical extinguisher, Buckeye's spec sheet as a search
  * summary quotes it
  * (https://www.webstaurantstore.com/documents/specsheets/4725abc.pdf, read

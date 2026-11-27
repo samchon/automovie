@@ -7,23 +7,31 @@ import { AutoMovieArchetypeFirearm } from "../internal/AutoMovieArchetypeFirearm
 import { LONG_GUN_MODELS } from "./LONG_GUN_MODELS";
 import type { AutoMovieArchetypeLongGun } from "../AutoMovieArchetypeLongGun";
 
-/** A carbine's published data, from its maker. */
+/*
+ * A carbine's published data, from its maker.
+ */
 const CARBINE: string =
   "Colt M4 Carbine specification sheet 2020, R0977HB, R0979 and CR6921 (https://media.shootingsportsmedia.com/downloads/colt-2020-m4-specsheet-rnd7-web.pdf)";
 
-/** A pump shotgun's published data. */
+/*
+ * A pump shotgun's published data.
+ */
 const SHOTGUN: string =
   "Mossberg 590A1 7-shot, product page (https://www.mossberg.com/590a1-m-lok-50765.html)";
 
-/** A lever action's published data, from its maker. */
+/*
+ * A lever action's published data, from its maker.
+ */
 const LEVER: string =
   "Marlin 336 Classic 70504, product page: .30-30 Win, 20.25 in barrel, 38.625 in overall, 13.38 in length of pull, 7.5 lb, 6-round tube magazine (https://www.marlinfirearms.com/s/model_70504)";
 
-/** The Graz firing tests of historic flintlocks. */
+/*
+ * The Graz firing tests of historic flintlocks.
+ */
 const GRAZ: string =
   "Krenn, Kalaus and Hall, Material History Review 42 (1995), pp. 102-107, Table 1: five flintlock muskets fired at their muzzles 451 to 494 m/s, electrically ignited (https://journals.lib.unb.ca/index.php/MCR/article/download/17669/18944)";
 
-/**
+/*
  * The two pulls read on the gun pages here, which a gun whose pull no record
  * gives borrows.
  */
@@ -32,7 +40,7 @@ const PULLS: Readonly<{ shotgun: number; lever: number }> = {
   lever: 13.38 * AutoMovieArchetypeUnits.INCH,
 };
 
-/**
+/*
  * A bead's or a front sight's height above the barrel's line, which no maker or
  * record publishes: an estimate.
  */
@@ -43,10 +51,12 @@ const BEAD: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
   true,
 );
 
-/** Positions along the gun no maker publishes. */
+/*
+ * Positions along the gun no maker publishes.
+ */
 const UNPUBLISHED: string = "not published by the maker; an estimate";
 
-/**
+/*
  * The band of each free dimension of `createLongGun` a model leaves, by kind,
  * with the sources they are read at: kept apart from the producer, with its
  * models, so each file stays within its size.

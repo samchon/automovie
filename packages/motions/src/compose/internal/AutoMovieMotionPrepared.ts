@@ -1,4 +1,4 @@
-/**
+/*
  * A value a plan solves when it is prepared
  * (`IAutoMovieMotionHumanActionPlan.prepare`): the prepare-time geometry of a
  * law whose shape reads what the performance resolves around it (a partner as
@@ -9,11 +9,10 @@
  * prepared, every read returns the value `prepare` solved, so the display reads
  * no build. A change to what the value was solved on (a stop the performance
  * commits) clears it until the next preparation solves it again.
- *
- * @param build Builds the value from what the performance holds now.
- * @param reentry Makes the error a read inside its own build throws (the value
- *   read back while it is being built), if the build can recurse.
- * @returns The value's reader.
+ * Parameter build: Builds the value from what the performance holds now.
+ * Parameter reentry: Makes the error a read inside its own build throws (the value
+ * read back while it is being built), if the build can recurse.
+ * Returns: The value's reader.
  */
 export function AutoMovieMotionPrepared<T>(
   build: () => T,
@@ -44,26 +43,30 @@ export function AutoMovieMotionPrepared<T>(
   };
 }
 
-/** Companion types of {@link AutoMovieMotionPrepared}. */
+/*
+ * Companion types of AutoMovieMotionPrepared.
+ */
 export namespace AutoMovieMotionPrepared {
-  /** A prepared value's reader. */
+  /*
+   * A prepared value's reader.
+   */
   export interface IValue<T> {
-    /**
+    /*
      * The value: the prepared one, or one built from the performance as placed
      * so far before the plan is prepared.
-     *
-     * @returns The value.
+     * Returns: The value.
      */
     read(): T;
 
-    /**
+    /*
      * Solve the value, from what the performance holds now.
-     *
-     * @returns The value solved.
+     * Returns: The value solved.
      */
     prepare(): T;
 
-    /** Clear the prepared value: what it was solved on has changed. */
+    /*
+     * Clear the prepared value: what it was solved on has changed.
+     */
     clear(): void;
   }
 }

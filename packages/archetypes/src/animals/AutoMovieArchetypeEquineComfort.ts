@@ -12,7 +12,9 @@ import { AutoMovieArchetypeEquineStance } from "./AutoMovieArchetypeEquineStance
 import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
-/** Each idle act's length bounds, seconds: authored. */
+/*
+ * Each idle act's length bounds, seconds: authored.
+ */
 const IDLE: Readonly<Record<IdleKind, Bounds>> = {
   rest: [8, 14],
   doze: [6, 10],
@@ -26,7 +28,9 @@ const IDLE: Readonly<Record<IdleKind, Bounds>> = {
   flehmen: [3, 5],
 };
 
-/** The idle kinds in a fixed order, so a seed picks the same one every time. */
+/*
+ * The idle kinds in a fixed order, so a seed picks the same one every time.
+ */
 const KINDS: readonly IdleKind[] = [
   "rest",
   "doze",
@@ -40,10 +44,14 @@ const KINDS: readonly IdleKind[] = [
   "flehmen",
 ];
 
-/** The neutral gap between idle acts, seconds: authored. */
+/*
+ * The neutral gap between idle acts, seconds: authored.
+ */
 const GAP: Bounds = [1, 3];
 
-/** The twitch regions in a fixed order. */
+/*
+ * The twitch regions in a fixed order.
+ */
 const REGIONS: readonly AutoMovieArchetypeEquineExpressionCue.Region[] = [
   "neck",
   "shoulder",
@@ -52,7 +60,9 @@ const REGIONS: readonly AutoMovieArchetypeEquineExpressionCue.Region[] = [
   "croup",
 ];
 
-/** The limbs in a fixed order. */
+/*
+ * The limbs in a fixed order.
+ */
 const LIMBS: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
   "leftFore",
   "rightFore",
@@ -203,7 +213,9 @@ export namespace AutoMovieArchetypeEquineComfort {
     }
   }
 
-  /** Expand one act into stance rows and expression cues. */
+  /*
+   * Expand one act into stance rows and expression cues.
+   */
   function expand(
     act: AutoMovieArchetypeEquineComfortCue.Act,
     rows: AutoMovieArchetypeEquineStanceCue.Cue[],
@@ -277,11 +289,15 @@ export namespace AutoMovieArchetypeEquineComfort {
   }
 }
 
-/** An idle act's kind. */
+/*
+ * An idle act's kind.
+ */
 type IdleKind = Exclude<
   AutoMovieArchetypeEquineComfortCue.Act["kind"],
   AutoMovieArchetypeEquineComfortCue.Elimination
 >;
 
-/** Seconds bounds of an idle act or gap. */
+/*
+ * Seconds bounds of an idle act or gap.
+ */
 type Bounds = readonly [number, number];

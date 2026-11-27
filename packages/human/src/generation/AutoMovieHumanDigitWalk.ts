@@ -213,7 +213,7 @@ export namespace AutoMovieHumanDigitWalk {
     return AutoMovieHumanSiteViewPart.define(definition);
   }
 
-  /**
+  /*
    * The farthest corner of the named joint's signed section box bounds every
    * native conic point there. Both measured breadth and asymmetric
    * dorsal/palmar depths contribute, avoiding the half-depth focal-radius
@@ -227,7 +227,7 @@ export namespace AutoMovieHumanDigitWalk {
     );
   }
 
-  /**
+  /*
    * The attachment's supported skin root lies on the original first bone's
    * proximal extension. Its displacement does not move the measured midpoint
    * between the unchanged joint and first distal joint. Map that datum into the

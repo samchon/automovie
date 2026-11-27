@@ -4,10 +4,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** The world up. */
+/*
+ * The world up.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
+/*
  * Seconds of one stroke of each kind: provisional until a measured swing, dig
  * or rake is read.
  */
@@ -20,25 +22,25 @@ const PERIODS: Readonly<Record<IAutoMovieMotionHumanLongTool.Stroke, number>> =
     rake: 1.6,
   };
 
-/**
+/*
  * The share of a swung stroke spent bringing the face down, from the top to the
  * contact: provisional, a fast downswing after a slower raise.
  */
 const DOWN: number = 0.35;
 
-/**
+/*
  * A dug blade's depth below the ground, metres: provisional, a spade's blade
  * driven to about half its height.
  */
 const DEPTH: number = 0.15;
 
-/**
+/*
  * A rake's pull either side of its work point, and how high its tines lift on
  * the return, metres: provisional.
  */
 const PULL: number = 0.25;
 const LIFT: number = 0.1;
-/**
+/*
  * A swung stroke: the line turned in one plane from the top to the contact and
  * back.
  */
@@ -116,7 +118,9 @@ function swing(
   };
 }
 
-/** A dig's keys: poised, in, driven, levered, lifted, thrown, poised again. */
+/*
+ * A dig's keys: poised, in, driven, levered, lifted, thrown, poised again.
+ */
 function dig(props: LongToolStroke.IProps): IKey[] {
   const { at, forward: f, leadward: lw, hips } = props;
   const steep: IAutoMovieVector3 = Vector3.normalize(
@@ -187,7 +191,7 @@ function dig(props: LongToolStroke.IProps): IKey[] {
   ];
 }
 
-/**
+/*
  * A rake's keys: the tines lowered ahead, pulled along the ground, lifted,
  * carried back.
  */
@@ -210,12 +214,14 @@ function rake(props: LongToolStroke.IProps): IKey[] {
   ];
 }
 
-/** The trailing grip of a key. */
+/*
+ * The trailing grip of a key.
+ */
 function grip(key: IKey, length: number): IAutoMovieVector3 {
   return Vector3.subtract(key.face, Vector3.scale(key.line, length));
 }
 
-/**
+/*
  * A keyed stroke's pose: eased between its keys, the face facing `ref` square
  * to the line.
  */
@@ -253,7 +259,9 @@ function keyed(
   };
 }
 
-/** Build a stroke. */
+/*
+ * Build a stroke.
+ */
 export function LongToolStroke(
   props: LongToolStroke.IProps,
 ): LongToolStroke.IStroke {
@@ -302,7 +310,7 @@ export function LongToolStroke(
   throw new Error(`no long-tool stroke ${String(unknown)}`);
 }
 
-/**
+/*
  * The path of a long tool through one stroke, as a function of the stroke's
  * share: the trailing grip, the tool's line from that grip toward its face, the
  * face's facing, the lead hand's slide along the line from the trailing grip,
@@ -317,84 +325,136 @@ export function LongToolStroke(
  * Keys between are eased with minimum jerk.
  */
 export namespace LongToolStroke {
-  /** What a stroke is built from. */
+  /*
+   * What a stroke is built from.
+   */
   export interface IProps {
-    /** The stroke. */
+    /*
+     * The stroke.
+     */
     stroke: IAutoMovieMotionHumanLongTool.Stroke;
 
-    /** The work point, world metres. */
+    /*
+     * The work point, world metres.
+     */
     at: IAutoMovieVector3;
 
-    /** Where a dug load goes, world metres. */
+    /*
+     * Where a dug load goes, world metres.
+     */
     to?: IAutoMovieVector3;
 
-    /** The tool's length from the trailing grip to its face, metres. */
+    /*
+     * The tool's length from the trailing grip to its face, metres.
+     */
     length: number;
 
-    /** The performer's horizontal facing. */
+    /*
+     * The performer's horizontal facing.
+     */
     forward: IAutoMovieVector3;
 
-    /** The horizontal direction toward the lead hand's side. */
+    /*
+     * The horizontal direction toward the lead hand's side.
+     */
     leadward: IAutoMovieVector3;
 
-    /** The upper chest, world metres. */
+    /*
+     * The upper chest, world metres.
+     */
     chest: IAutoMovieVector3;
 
-    /** The pelvis, world metres. */
+    /*
+     * The pelvis, world metres.
+     */
     hips: IAutoMovieVector3;
 
-    /** The trailing shoulder, world metres. */
+    /*
+     * The trailing shoulder, world metres.
+     */
     trail: IAutoMovieVector3;
 
-    /** The lead shoulder, world metres. */
+    /*
+     * The lead shoulder, world metres.
+     */
     lead: IAutoMovieVector3;
   }
 
-  /** The tool at one share of a stroke. */
+  /*
+   * The tool at one share of a stroke.
+   */
   export interface IPose {
-    /** The trailing grip, world metres. */
+    /*
+     * The trailing grip, world metres.
+     */
     grip: IAutoMovieVector3;
 
-    /** The unit line from the trailing grip toward the face. */
+    /*
+     * The unit line from the trailing grip toward the face.
+     */
     line: IAutoMovieVector3;
 
-    /** The unit way the face faces, square to the line. */
+    /*
+     * The unit way the face faces, square to the line.
+     */
     facing: IAutoMovieVector3;
 
-    /** The lead hand along the line from the trailing grip, metres. */
+    /*
+     * The lead hand along the line from the trailing grip, metres.
+     */
     slide: number;
 
-    /** How far toward the work the stroke has come, 0 to 1. */
+    /*
+     * How far toward the work the stroke has come, 0 to 1.
+     */
     reach: number;
   }
 
-  /** A named instant of a stroke. */
+  /*
+   * A named instant of a stroke.
+   */
   export interface IMark {
-    /** The event's name, numbered by the stroke. */
+    /*
+     * The event's name, numbered by the stroke.
+     */
     name: string;
 
-    /** Its share of the stroke. */
+    /*
+     * Its share of the stroke.
+     */
     share: number;
   }
 
-  /** A stroke built from its props. */
+  /*
+   * A stroke built from its props.
+   */
   export interface IStroke {
-    /** Seconds of one stroke. */
+    /*
+     * Seconds of one stroke.
+     */
     period: number;
 
-    /** The stroke's named instants. */
+    /*
+     * The stroke's named instants.
+     */
     marks: readonly IMark[];
 
-    /** The trailing grip where the face meets the work. */
+    /*
+     * The trailing grip where the face meets the work.
+     */
     contact: IAutoMovieVector3;
 
-    /** The horizontal direction toward the lead hand's side. */
+    /*
+     * The horizontal direction toward the lead hand's side.
+     */
     leadward: IAutoMovieVector3;
 
-    /** The upper chest, world metres. */
+    /*
+     * The upper chest, world metres.
+     */
     chest: IAutoMovieVector3;
 
-    /**
+    /*
      * The tool at a share of the stroke, from 0 to 1; 0 and 1 are the same
      * pose.
      */
@@ -402,32 +462,48 @@ export namespace LongToolStroke {
   }
 }
 
-/** The alternatives of `SwingResult`'s site. */
+/*
+ * The alternatives of `SwingResult`'s site.
+ */
 type SwingResult = "period" | "leadward" | "chest";
 
-/** The alternatives of `OfSwung`'s site. */
+/*
+ * The alternatives of `OfSwung`'s site.
+ */
 type OfSwung = "period" | "leadward" | "chest";
 
-/** The alternatives of `OfBase`'s site. */
+/*
+ * The alternatives of `OfBase`'s site.
+ */
 type OfBase = "period" | "leadward" | "chest";
 
-/**
+/*
  * One key of a keyed stroke: the face, the line, the slide and the reach at a
  * share.
  */
 interface IKey {
-  /** Its share. */
+  /*
+   * Its share.
+   */
   share: number;
 
-  /** The face, world metres. */
+  /*
+   * The face, world metres.
+   */
   face: IAutoMovieVector3;
 
-  /** The line from the grip toward the face. */
+  /*
+   * The line from the grip toward the face.
+   */
   line: IAutoMovieVector3;
 
-  /** The lead hand's slide, metres. */
+  /*
+   * The lead hand's slide, metres.
+   */
   slide: number;
 
-  /** The reach toward the work. */
+  /*
+   * The reach toward the work.
+   */
   reach: number;
 }

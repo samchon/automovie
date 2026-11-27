@@ -1,6 +1,8 @@
 import { IAutoMovieDiagnostic } from "@automovie/interface";
 
-/** Create one compile error for a named shot field and expectation. */
+/*
+ * Create one compile error for a named shot field and expectation.
+ */
 export function engineDiagnostic(
   id: string,
   field: string,

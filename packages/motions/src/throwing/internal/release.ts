@@ -36,7 +36,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { placeHumanHandSurface } from "../../posture/internal/placeHumanHandSurface";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/**
+/*
  * Letting go: a hand opens on what it holds, and the held prop leaves it.
  *
  * The hand stays where the hold kept it on the trunk (its grip frame at the
@@ -58,22 +58,27 @@ import { poseBones } from "../../posture/internal/poseBones";
  * holds nothing is refused.
  */
 export namespace release {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "release";
 
-  /** Cancel table: anything may follow once the hand has opened. */
+  /*
+   * Cancel table: anything may follow once the hand has opened.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: ["open", 1], kind: "inertialize", entry: 0, blend: 0.15 }],
   };
 
-  /** Performed over a carrier: it claims only the opening hand's arm. */
+  /*
+   * Performed over a carrier: it claims only the opening hand's arm.
+   */
   export const overlay: boolean = true;
 
-  /**
+  /*
    * A release's timetable: the grip held a brief pause, then opened over
    * another.
-   *
-   * @returns The clock with `hold` and `open`.
+   * Returns: The clock with `hold` and `open`.
    */
   export function timetable(): IAutoMovieMotionClock {
     return AutoMovieMotionClock.sequence([
@@ -81,12 +86,11 @@ export namespace release {
       { name: "open", seconds: AutoMovieMotionHumanTiming.PAUSES.brief },
     ]);
   }
-  /**
+  /*
    * Plan a release.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the hand holds nothing and no prop is launched.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the hand holds nothing and no prop is launched.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRelease.IParams>,
@@ -289,20 +293,28 @@ export namespace release {
   }
 }
 
-/** The alternatives of `PlanPlacedShape`'s site. */
+/*
+ * The alternatives of `PlanPlacedShape`'s site.
+ */
 type PlanPlacedShape = "fist" | "flat";
 
-/** The record of `IPlanPlacedResult`'s site. */
+/*
+ * The record of `IPlanPlacedResult`'s site.
+ */
 type IPlanPlacedResult = {
   wrist: IAutoMovieMotionHumanHand.IWrist;
   contact: IAutoMovieVector3;
 };
 
-/** The record of `IPlanPlaced`'s site. */
+/*
+ * The record of `IPlanPlaced`'s site.
+ */
 type IPlanPlaced = {
   wrist: IAutoMovieMotionHumanHand.IWrist;
   contact: IAutoMovieVector3;
 };
 
-/** The alternatives of `OffsetsEntryItem`'s site. */
+/*
+ * The alternatives of `OffsetsEntryItem`'s site.
+ */
 type OffsetsEntryItem = "fist" | "flat";

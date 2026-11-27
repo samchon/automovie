@@ -17,19 +17,18 @@ import { HumanCarrierCustody } from "../../lexicon/internal/HumanCarrierCustody"
 import { drawFromCarrier } from "./drawFromCarrier";
 import { putDownAperture } from "./putDownAperture";
 
-/**
+/*
  * Seat a blade in a carrier and derive the draw line.
- *
- * @param carrier The carrier prop, worn or placed, declaring the mouth.
- * @param blade The blade prop, declaring the tip and the handle; neither worn
- *   nor mounted.
- * @param params The affordance ids and the drawn clearance.
- * @returns The carrier with the seat, entry, slider and slide, the blade
- *   mounted on the seat and the staged record.
- * @throws {HumanRefusal} On `mouth`, `tip` or `handle` when the model lacks it,
- *   on `tip` when it is off the blade's `+Y`, on `clearance` when it is not
- *   positive and finite, and on `blade` when the blade already rides
- *   something.
+ * Parameter carrier: The carrier prop, worn or placed, declaring the mouth.
+ * Parameter blade: The blade prop, declaring the tip and the handle; neither worn
+ * nor mounted.
+ * Parameter params: The affordance ids and the drawn clearance.
+ * Returns: The carrier with the seat, entry, slider and slide, the blade
+ * mounted on the seat and the staged record.
+ * On `mouth`, `tip` or `handle` when the model lacks it,
+ * on `tip` when it is off the blade's `+Y`, on `clearance` when it is not
+ * positive and finite, and on `blade` when the blade already rides
+ * something.
  */
 export function HumanSheath(
   carrier: IAutoMovieMotionHumanProp,
@@ -163,7 +162,7 @@ export function HumanSheath(
   };
 }
 
-/**
+/*
  * Stage a blade seated in its carrier, draw it out on screen and return it.
  *
  * `of` derives, on the carrier's mouth axis, the seat where the blade's frame
@@ -182,47 +181,50 @@ export function HumanSheath(
  * never binds or cuts the throat.
  */
 export namespace HumanSheath {
-  /** The derived seat socket's id on the carrier. */
+  /*
+   * The derived seat socket's id on the carrier.
+   */
   export const SEAT: string = "sheathSeat";
 
-  /** The derived entry socket's id on the carrier. */
+  /*
+   * The derived entry socket's id on the carrier.
+   */
   export const ENTRY: string = "sheathEntry";
 
-  /**
+  /*
    * The derived slider articulation's id on the carrier: its travel, metres,
    * runs from the seat toward the entry.
    */
   export const SLIDER: string = "sheathSlider";
 
-  /**
+  /*
    * The derived socket's id on the carrier that rides the slider and guides the
    * blade out.
    */
   export const SLIDE: string = "sheathSlide";
 
-  /**
+  /*
    * The largest angle between the blade's tip direction and its `+Y`, radians:
    * a blade whose tip leaves its own axis by more cannot slide along the
    * mouth's axis.
    */
   export const AXIS: number = 1e-6;
 
-  /**
+  /*
    * Grip the seated blade's handle, then draw it out of the carrier.
-   *
-   * @param chain The performer's chain, the blade seated and the hand free.
-   * @param sheath The staged pair.
-   * @param hand The drawing hand; `right` when absent.
-   * @param anchor The action's anchor for cues; none when absent.
-   * @param pull The other hand's pull on a worn carrier for a blade longer than
-   *   the arm draws alone; the carrier holds still when absent.
-   * @param sync The instant the manoeuvre starts at
-   *   (`IAutoMovieMotionHumanChainCore.sync`), its first grip timed to it and
-   *   the draw following at grip closure; where the chain puts it when absent.
-   * @returns The chain with the grip and the draw appended, after the other
-   *   hand's grip on the carrier's throat when it pulls; the grip's
-   *   `gripClosed` marks closure and the draw's `unseated` and `drawn` the
-   *   start and end of the withdrawal.
+   * Parameter chain: The performer's chain, the blade seated and the hand free.
+   * Parameter sheath: The staged pair.
+   * Parameter hand: The drawing hand; `right` when absent.
+   * Parameter anchor: The action's anchor for cues; none when absent.
+   * Parameter pull: The other hand's pull on a worn carrier for a blade longer than
+   * the arm draws alone; the carrier holds still when absent.
+   * Parameter sync: The instant the manoeuvre starts at
+   * (`IAutoMovieMotionHumanChainCore.sync`), its first grip timed to it and
+   * the draw following at grip closure; where the chain puts it when absent.
+   * Returns: The chain with the grip and the draw appended, after the other
+   * hand's grip on the carrier's throat when it pulls; the grip's
+   * `gripClosed` marks closure and the draw's `unseated` and `drawn` the
+   * start and end of the withdrawal.
    */
   export function draw<Chain extends IAutoMovieMotionHumanChainCore>(
     chain: Chain,
@@ -279,15 +281,14 @@ export namespace HumanSheath {
     );
   }
 
-  /**
+  /*
    * Return the held blade through the carrier's entry to its seat.
-   *
-   * @param chain The performer's chain, the blade in the hand.
-   * @param sheath The staged pair.
-   * @param hand The holding hand; `right` when absent.
-   * @param anchor The action's anchor for cues; none when absent.
-   * @returns The chain with the return appended; its `aperture`, `placed` and
-   *   `release` events mark the entry, the seat and the opened hand.
+   * Parameter chain: The performer's chain, the blade in the hand.
+   * Parameter sheath: The staged pair.
+   * Parameter hand: The holding hand; `right` when absent.
+   * Parameter anchor: The action's anchor for cues; none when absent.
+   * Returns: The chain with the return appended; its `aperture`, `placed` and
+   * `release` events mark the entry, the seat and the opened hand.
    */
   export function sheathe<Chain extends IAutoMovieMotionHumanChainCore>(
     chain: Chain,
@@ -309,10 +310,12 @@ export namespace HumanSheath {
   }
 }
 
-/** One named point of a prop in its own frame, with its outward normal. */
+/*
+ * One named point of a prop in its own frame, with its outward normal.
+ */
 type Point = IAutoMovieMotionHumanProp["points"][string];
 
-/**
+/*
  * The seat on the mouth, turned half about its `X` so a blade's `+Y` runs into
  * the carrier; the entry the withdrawal out along the mouth's `+Y`; the slider
  * from the seat toward the entry, its `+X` along that line; and the slide
@@ -388,7 +391,9 @@ function sockets(
   ];
 }
 
-/** The named affordance of a prop, or a refusal naming the ones it has. */
+/*
+ * The named affordance of a prop, or a refusal naming the ones it has.
+ */
 function find(
   prop: IAutoMovieMotionHumanProp,
   id: string,

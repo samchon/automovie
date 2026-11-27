@@ -8,7 +8,7 @@ import type {
 import { solveAutoMovieBoundedDisplacement } from "../../math/internal/solveAutoMovieBoundedDisplacement";
 import { measureAutoMovieMeshClearance } from "./measureAutoMovieMeshClearance";
 
-/**
+/*
  * Find the smallest joint forward travel of the front mesh's vertices along one
  * positive axis that restores a requested clearance over a back mesh.
  *
@@ -32,12 +32,11 @@ import { measureAutoMovieMeshClearance } from "./measureAutoMovieMeshClearance";
  * refusals and an incomplete or infeasible solve, rather than returning the
  * conservative or a relaxed result. Callers must re-check after propagating the
  * travel through a shared skin and after Float32 export.
- *
- * @param front Mesh whose vertices move.
- * @param back Mesh it must clear.
- * @param axis Depth axis; travel is along its positive direction.
- * @param clearance Required nonnegative depth gap in metres.
- * @returns Travel per moved front vertex.
+ * Parameter front: Mesh whose vertices move.
+ * Parameter back: Mesh it must clear.
+ * Parameter axis: Depth axis; travel is along its positive direction.
+ * Parameter clearance: Required nonnegative depth gap in metres.
+ * Returns: Travel per moved front vertex.
  */
 export function minimizeAutoMovieMeshClearance(
   front: IAutoMovieMesh,

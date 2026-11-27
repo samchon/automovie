@@ -4,26 +4,33 @@ import { loadAutoMovieProductionCheckModule } from "./loadAutoMovieProductionChe
 import { readAutoMovieCheckOptions } from "./readAutoMovieCheckOptions";
 import { runAutoMovieProductionCheck } from "./runAutoMovieProductionCheck";
 
-/**
+/*
  * Load the production's authored check definitions with its installed Node
  * runtime and print the selected observations. The module is editable trusted
  * production code, loaded without building unrelated sources. Status does not
  * execute checks. Only a requested and unsatisfied stage returns 1.
- *
- * @param props Raw command tokens, production root and capture environment.
- * @returns The requested stage's exit status, or zero for an ordinary read.
+ * Parameter props: Raw command tokens, production root and capture environment.
+ * Returns: The requested stage's exit status, or zero for an ordinary read.
  */
 export async function checkAutoMovie(props: {
-  /** Tokens after the `check` command. */
+  /*
+   * Tokens after the `check` command.
+   */
   readonly args: readonly string[];
 
-  /** The production's working directory. */
+  /*
+   * The production's working directory.
+   */
   readonly root: string;
 
-  /** Environment passed to any expressly refreshed capture. */
+  /*
+   * Environment passed to any expressly refreshed capture.
+   */
   readonly env: Readonly<Record<string, string | undefined>>;
 
-  /** Output sink, default standard output. */
+  /*
+   * Output sink, default standard output.
+   */
   readonly write?: (text: string) => void;
 }): Promise<number> {
   const options: ReturnType<typeof readAutoMovieCheckOptions> =

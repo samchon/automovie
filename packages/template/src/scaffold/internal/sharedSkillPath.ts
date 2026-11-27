@@ -1,6 +1,6 @@
 import * as path from "node:path";
 
-/**
+/*
  * The repository skill path a scaffold placeholder stands for, or `null` when
  * the file is not a placeholder.
  *
@@ -11,11 +11,10 @@ import * as path from "node:path";
  * `development/repair.md` file. The placeholder holds no text; the build copies
  * the item it names and the scaffold reader ships that item in its place, so
  * each shared text has one source.
- *
- * @param relative Scaffold-relative file path with the host's separator, as
- *   {@link listFiles} returns it.
- * @returns The named item's path relative to `.agents/skills`, with `/`
- *   separators and the `$` removed, or `null`.
+ * Parameter relative: Scaffold-relative file path with the host's separator, as
+ * listFiles returns it.
+ * Returns: The named item's path relative to `.agents/skills`, with `/`
+ * separators and the `$` removed, or `null`.
  */
 export const sharedSkillPath: (relative: string) => string | null = (
   relative: string,
@@ -28,5 +27,7 @@ export const sharedSkillPath: (relative: string) => string | null = (
   return [...parts.slice(2, -1), match[1]!].join("/");
 };
 
-/** A placeholder's file name: `$` followed by one portable path segment. */
+/*
+ * A placeholder's file name: `$` followed by one portable path segment.
+ */
 const PLACEHOLDER: RegExp = /^\$([a-zA-Z0-9_-][a-zA-Z0-9_.-]*)$/u;

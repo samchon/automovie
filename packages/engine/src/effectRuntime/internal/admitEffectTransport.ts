@@ -1,6 +1,6 @@
 import type { IAutoMovieEffectRecipe } from "@automovie/interface";
 
-/**
+/*
  * Refuse malformed optional transport, opacity-envelope and final-size controls
  * before compiled bytes are published.
  */

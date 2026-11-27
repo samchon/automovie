@@ -3,7 +3,7 @@ import {
   IAutoMovieFluidState,
 } from "@automovie/interface";
 
-/**
+/*
  * Replay a caller-admitted fluid domain to one absolute step of its fixed
  * clock.
  *
@@ -277,14 +277,16 @@ export function simulateFluidDomain(
   };
 }
 
-/** Identify the first tick whose derived velocity or depth cannot be stored. */
+/*
+ * Identify the first tick whose derived velocity or depth cannot be stored.
+ */
 function nonFiniteState(domain: string, step: number): Error {
   return new Error(
     `fluid domain "${domain}" produced a non-finite state at step ${step}`,
   );
 }
 
-/**
+/*
  * One face's velocity after this step's momentum update.
  *
  * `before`/`after` separate the face in increasing index order, with absent
@@ -334,7 +336,7 @@ const faceSpeed: (props: {
   );
 };
 
-/**
+/*
  * Scalar half-open activity test at the step start; null end is unbounded.
  * Admission belongs to the caller, and the predicate neither retains nor clamps
  * its inputs.

@@ -9,7 +9,7 @@ import type { AutoMovieEngineRenderMeasureTypes } from "../AutoMovieEngineRender
 
 import { measureAutoMovieFilmResponseTargets } from "./measureAutoMovieFilmResponseTargets";
 
-/**
+/*
  * Measure what a directly rendered film's stage adds to one frame: the GPU
  * targets render's film response, sample sum, indirect and medium stages
  * allocate at the beauty pass's drawing buffer, `width 횞 pixelRatio` by `height
@@ -43,10 +43,9 @@ import { measureAutoMovieFilmResponseTargets } from "./measureAutoMovieFilmRespo
  * unknown: both texture totals are null with a `not-run` gap each, and so are
  * the draw and triangle totals when glare is asked for, since its pass count
  * follows from the raster's height.
- *
- * @param props The subject, the settings, the frame's opaque counts and shadow
- *   casters, and the row and gap sinks.
- * @returns What the stage adds to each total, null where it is unknown.
+ * Parameter props: The subject, the settings, the frame's opaque counts and shadow
+ * casters, and the row and gap sinks.
+ * Returns: What the stage adds to each total, null where it is unknown.
  */
 export function measureAutoMovieRenderFilmStage(
   props: AutoMovieEngineRenderMeasureTypes.IFilmStageProps,
@@ -224,22 +223,28 @@ export function measureAutoMovieRenderFilmStage(
   };
 }
 
-/** Bytes of one RGBA half-float texel. */
+/*
+ * Bytes of one RGBA half-float texel.
+ */
 const HALF: number = 8;
 
-/** Bytes of one RGBA 32-bit float texel. */
+/*
+ * Bytes of one RGBA 32-bit float texel.
+ */
 const FLOAT: number = 16;
 
-/**
+/*
  * Bytes of one depth texel: three.js's default depth texture and depth
  * renderbuffer hold 24 bits in a 32-bit word.
  */
 const DEPTH: number = 4;
 
-/** Side of one probe cube face in texels, as the probe bake draws it. */
+/*
+ * Side of one probe cube face in texels, as the probe bake draws it.
+ */
 const PROBE_FACE: number = 32;
 
-/**
+/*
  * Scene renders one probe bake makes per probe: six faces of radiance and the
  * same six again with the back-face material.
  */

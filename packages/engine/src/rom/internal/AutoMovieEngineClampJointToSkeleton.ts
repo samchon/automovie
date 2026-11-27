@@ -16,9 +16,11 @@ import { clampJointRom } from "./clampJointRom";
 import { clampJointRomValues } from "./clampJointRomValues";
 import { getConstraint } from "./getConstraint";
 
-/** Own one-joint skeleton ROM projection and its prepared clamps. */
+/*
+ * Own one-joint skeleton ROM projection and its prepared clamps.
+ */
 export namespace AutoMovieEngineClampJointToSkeleton {
-  /**
+  /*
    * Clamp one joint using its skeleton override, otherwise the humanoid default
    * table. Unconstrained joints return by identity. This targeted seam lets
    * derived contact/retarget corrections leave authored neighboring joints
@@ -31,12 +33,12 @@ export namespace AutoMovieEngineClampJointToSkeleton {
     return clampJointToSkeletonOf(joint.bone, skeleton)(joint);
   }
 
-  /**
-   * Operation-scoped preparation for {@link clampJointToSkeleton}: either resolve
+  /*
+   * Operation-scoped preparation for clampJointToSkeleton: either resolve
    * a bone from its skeleton or reuse an operation's existing lookup.
    */
 
-    /**
+    /*
      * Prepare actual joint clamps for one unchanged rig operation. The first
      * requested joint builds a first-bone index; each distinct name then reads
      * its constraint and frame once, and every incoming joint is projected.
@@ -52,12 +54,11 @@ export namespace AutoMovieEngineClampJointToSkeleton {
      * bases and one axes table; release it when the operation ends, including
      * failure. A later solve creates a new preparation, so no mutable skeleton
      * identity is cached.
-     *
-     * @param skeleton The rig, unchanged until the returned clamp is released.
-     * @param resolvedAxes Its already resolved canonical axes table, when
-     *   available.
-     * @returns A clamp that preserves each unconstrained input joint by identity,
-     *   carrying its angle-taking form (IPrepared.values).
+     * Parameter skeleton: The rig, unchanged until the returned clamp is released.
+     * Parameter resolvedAxes: Its already resolved canonical axes table, when
+     * available.
+     * Returns: A clamp that preserves each unconstrained input joint by identity,
+     * carrying its angle-taking form (IPrepared.values).
      */
     export function prepareClampJointToSkeleton(
       skeleton: IAutoMovieSkeleton,
@@ -121,33 +122,32 @@ export namespace AutoMovieEngineClampJointToSkeleton {
       );
     }
 
-    /**
+    /*
      * One bone's clamp under a skeleton, its override or the humanoid table and
      * its swing-twist frame resolved once, for a caller that clamps the same bone
      * many times within one solve (a sweep's candidates): each call clamps
      * exactly as `clampJointToSkeleton` does with the skeleton as it stood when
      * the clamp was made. Nothing is kept beyond the closure, since a skeleton's
      * contents may change between solves.
+     * Parameter bone: The bone.
+     * Parameter skeleton: The skeleton.
+     * Returns: The clamp of a joint of that bone.
      *
-     * @param bone The bone.
-     * @param skeleton The skeleton.
-     * @returns The clamp of a joint of that bone.
-     *
-     *   States the one-bone closure, fixed-input operation scope, skeleton mutation
-     *   boundary and caller-owned lifetime. Uses the first matching bone for
-     *   override precedence and the shared private constraint gate, resolving a
-     *   current skeleton frame only for an actual swing-twist clamp. One
-     *   first-bone lookup and one shared clamp preparation; numerical projection
-     *   stays in clampJointRom. Missing bones preserve default ROM, and an
-     *   unconstrained bone never resolves a swing-twist frame. O(B) lookup and,
-     *   only for a swing-twist constraint, an O(B) axis merge are paid once per
-     *   closure; box/cone clamps skip unused axes metadata and later invocations
-     *   perform the existing projection only. The closure borrows this
-     *   operation's resolved constraint and frame; a new preparation reads
-     *   current skeleton contents, including axes replaced on the same bones
-     *   list. The caller owns one closure borrowing one constraint and frame
-     *   until its solve ends; no global skeleton cache, task or handle is
-     *   retained.
+     * States the one-bone closure, fixed-input operation scope, skeleton mutation
+     * boundary and caller-owned lifetime. Uses the first matching bone for
+     * override precedence and the shared private constraint gate, resolving a
+     * current skeleton frame only for an actual swing-twist clamp. One
+     * first-bone lookup and one shared clamp preparation; numerical projection
+     * stays in clampJointRom. Missing bones preserve default ROM, and an
+     * unconstrained bone never resolves a swing-twist frame. O(B) lookup and,
+     * only for a swing-twist constraint, an O(B) axis merge are paid once per
+     * closure; box/cone clamps skip unused axes metadata and later invocations
+     * perform the existing projection only. The closure borrows this
+     * operation's resolved constraint and frame; a new preparation reads
+     * current skeleton contents, including axes replaced on the same bones
+     * list. The caller owns one closure borrowing one constraint and frame
+     * until its solve ends; no global skeleton cache, task or handle is
+     * retained.
      */
     export function clampJointToSkeletonOf(
       bone: IAutoMovieJointPose["bone"],
@@ -172,36 +172,35 @@ export namespace AutoMovieEngineClampJointToSkeleton {
       );
     }
 
-    /**
+    /*
      * Prepare the same one-bone clamp from a caller's first matching bone and
      * frame reader, allowing one pose operation to share its index and axes. The
      * supplied record must belong to bone; undefined preserves named default ROM.
      * The frame reader runs only after the joint is constrained.
+     * Parameter bone: The joint's bone name.
+     * Parameter found: The first matching skeleton bone, or undefined when absent.
+     * Parameter readRig: The frame resolved from that same unchanged skeleton.
+     * Returns: A clamp for joints of bone, borrowing the resolved constraint and
+     * frame.
      *
-     * @param bone The joint's bone name.
-     * @param found The first matching skeleton bone, or undefined when absent.
-     * @param readRig The frame resolved from that same unchanged skeleton.
-     * @returns A clamp for joints of bone, borrowing the resolved constraint and
-     *   frame.
-     *
-     *   States lookup provenance, absent-bone default behavior, frame-reader
-     *   ordering and the closure's fixed bone and lifetime. getConstraint owns
-     *   override/default precedence; an unconstrained joint returns by identity,
-     *   otherwise the frame is read once and clampJointRom performs each actual
-     *   projection. This shared preparation separates bone lookup from the
-     *   unchanged constraint gate and projection used by standalone and full-pose
-     *   clamps. Does not validate skeleton membership, repair axes or cache a
-     *   clamped answer; the caller supplies the actual first matching bone and
-     *   same-skeleton rig reader. Constant preparation apart from the caller's
-     *   frame reader, then the existing projection for every joint; no bone scan
-     *   is performed here. Reuses this operation's constraint/frame and a
-     *   swing-twist frame's lazy basis while preserving every actual projection;
-     *   no state is shared across solves. One returned clamp owns its optional
-     *   prepared frame, private readers and at most one admitted-axis reference
-     *   and one swing basis plus borrowed constraint/axis/frame records, released
-     *   with the operation; ordinary box clamps keep no prepared swing basis and
-     *   a one-shot swing clamp pays the fixed-size wrapper and its three
-     *   closures.
+     * States lookup provenance, absent-bone default behavior, frame-reader
+     * ordering and the closure's fixed bone and lifetime. getConstraint owns
+     * override/default precedence; an unconstrained joint returns by identity,
+     * otherwise the frame is read once and clampJointRom performs each actual
+     * projection. This shared preparation separates bone lookup from the
+     * unchanged constraint gate and projection used by standalone and full-pose
+     * clamps. Does not validate skeleton membership, repair axes or cache a
+     * clamped answer; the caller supplies the actual first matching bone and
+     * same-skeleton rig reader. Constant preparation apart from the caller's
+     * frame reader, then the existing projection for every joint; no bone scan
+     * is performed here. Reuses this operation's constraint/frame and a
+     * swing-twist frame's lazy basis while preserving every actual projection;
+     * no state is shared across solves. One returned clamp owns its optional
+     * prepared frame, private readers and at most one admitted-axis reference
+     * and one swing basis plus borrowed constraint/axis/frame records, released
+     * with the operation; ordinary box clamps keep no prepared swing basis and
+     * a one-shot swing clamp pays the fixed-size wrapper and its three
+     * closures.
      */
     export function clampJointToSkeletonResolved(
       bone: IAutoMovieJointPose["bone"],
@@ -215,7 +214,7 @@ export namespace AutoMovieEngineClampJointToSkeleton {
       return prepareConstraintClamp(bone, constraint, readRig);
     }
 
-    /**
+    /*
      * Borrow this owner's exact factory callable for synchronous scratch inputs.
      * The returned function is the original callable, with no replacement or
      * extra invocation. Its closure stores only fixed source metadata and never
@@ -233,7 +232,7 @@ export namespace AutoMovieEngineClampJointToSkeleton {
       return clamp.owned !== undefined ? clamp : undefined;
     }
 
-    /**
+    /*
      * Test whether a genuine one-joint clamp owns the exact borrowed constraint.
      * All-bone clamps and opaque callbacks have no one-joint constraint
      * identity.
@@ -249,7 +248,7 @@ export namespace AutoMovieEngineClampJointToSkeleton {
       return clamp.owned?.constraint === constraint;
     }
 
-    /**
+    /*
      * The interface contract (`IAutoMovieClampPose.IJoints`): the record clamp
      * with its angle-taking form as its own member, carried by the pose
      * projection `AutoMovieEngineKinematics.prepareClampPose` builds.
@@ -259,11 +258,13 @@ export namespace AutoMovieEngineClampJointToSkeleton {
 
 type IClamp = {
   (joint: IAutoMovieJointPose): IAutoMovieJointPose;
-  /** Set only by this owner's factories; carries the source constraint. */
+  /*
+   * Set only by this owner's factories; carries the source constraint.
+   */
   owned?: { constraint: IAutoMovieJointConstraint | null | undefined };
 };
 
-/**
+/*
  * Shared constraint gate and closure delegating every projection to
  * clampJointRom. The supplied reader still runs exactly once for a constrained
  * joint; only internal standalone/indexed readers omit their own unused
@@ -280,7 +281,7 @@ function prepareConstraintClamp(
   );
 }
 
-/**
+/*
  * One bone's record clamp and its angle-taking form, sharing one constraint and
  * one prepared frame read once.
  */
@@ -319,7 +320,9 @@ function prepareConstraintPair(
   };
 }
 
-/** A joint clamp read from a bone and its three clinical angles. */
+/*
+ * A joint clamp read from a bone and its three clinical angles.
+ */
 type IValues = (
   bone: AutoMovieHumanoidBone,
   flexion: number | null,
@@ -327,16 +330,24 @@ type IValues = (
   twist: number | null,
 ) => IAutoMovieJointPose;
 
-/** One bone's two clamp forms. */
+/*
+ * One bone's two clamp forms.
+ */
 interface IPair {
-  /** The record clamp. */
+  /*
+   * The record clamp.
+   */
   joint: IClamp;
 
-  /** The angle-taking form. */
+  /*
+   * The angle-taking form.
+   */
   values: IValues;
 }
 
-/** Mark only actual source-only factory closures, without wrapping their calls. */
+/*
+ * Mark only actual source-only factory closures, without wrapping their calls.
+ */
 function ownClamp(
   clamp: IClamp,
   constraint?: IAutoMovieJointConstraint | null,

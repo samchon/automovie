@@ -1,6 +1,6 @@
 import type { IAutoMovieRenderTextureCost } from "@automovie/interface";
 
-/**
+/*
  * Sum certified allocation populations without replacing unknown by one.
  * Omitted counts retain the legacy one-allocation row meaning. Invalid counts
  * and unsafe aggregate integers remain unbounded rather than rounded totals.

@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Bake a released ball on its playing surface and its effect on loose targets:
  * a bowling ball on the lane and its pins, a cue ball on the table and its
  * object balls, a putt on the green.
@@ -19,13 +19,12 @@ import type {
  * Read the ball and target frames from the shared native cache with its film
  * clock offset. A delivery that touches no target has no target impact. Contact
  * order and target motion follow the supplied profiles and materials.
- *
- * @param input The world release state, fixed surface, placed targets and
- *   simulation extent.
- * @returns A fixed-step replay of the actual ball and target transforms and the
- *   first target contact, if any.
- * @throws {RangeError} For invalid duration, release time or a non-rigid input.
- *   Engine admission owns profiles, coordinates and solver bounds.
+ * Parameter input: The world release state, fixed surface, placed targets and
+ * simulation extent.
+ * Returns: A fixed-step replay of the actual ball and target transforms and the
+ * first target contact, if any.
+ * For invalid duration, release time or a non-rigid input.
+ * Engine admission owns profiles, coordinates and solver bounds.
  */
 export async function bakePrecisionDeck(
   input: IAutoMovieMotionHumanPrecisionDeck,
@@ -100,20 +99,23 @@ export async function bakePrecisionDeck(
   };
 }
 
-/** Cache rate for the finite deck result. */
+/*
+ * Cache rate for the finite deck result.
+ */
 const RATE: number = 120;
 
-/** One completed solver sample of a contact receipt. */
+/*
+ * One completed solver sample of a contact receipt.
+ */
 type ContactSample = NonNullable<IAutoMovieContactReceipt["samples"]>[number];
 
-/**
+/*
  * Use the actual rigid model and its authored first velocity as native inputs.
- *
- * @param rigid The placed one-segment model.
- * @param steps Number of cached physics intervals.
- * @param dynamic Whether solver motion owns the object.
- * @param velocity World metres per second at the release, at rest when absent.
- * @returns A sampled body specification.
+ * Parameter rigid: The placed one-segment model.
+ * Parameter steps: Number of cached physics intervals.
+ * Parameter dynamic: Whether solver motion owns the object.
+ * Parameter velocity: World metres per second at the release, at rest when absent.
+ * Returns: A sampled body specification.
  */
 function placed(
   rigid: IAutoMovieMotionHumanPrecisionDeck.IRigid,

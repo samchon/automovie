@@ -10,21 +10,20 @@ import { appendGraphCycles } from "../../validation/internal/appendGraphCycles";
 import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds";
 import { validateBuiltSpaceShell } from "./validateBuiltSpaceShell";
 
-/**
+/*
  * Validate the logical spaces of a building and their hierarchy.
  *
  * Each space needs a unique id, a non-blank kind and a parent that resolves. It
  * states its volume at most once, as convex cells or as a closed shell judged
- * by {@link validateBuiltSpaceShell}, and a `fidelity` is either `exact` or
+ * by validateBuiltSpaceShell, and a `fidelity` is either `exact` or
  * `faceted` and only allowed on a space that states a volume. Each cell needs a
  * unique id within its space and at least 4 planes, each with a finite non-zero
  * normal and a finite offset. The parent hierarchy must be acyclic. Findings
  * are pushed under `<root>.spaces`.
- *
- * @param environment Building whose spaces are checked.
- * @param root Violation path of the building, `$input`.
- * @param collector Sink that receives the violations.
- * @returns The declared space ids, for resolving references to spaces.
+ * Parameter environment: Building whose spaces are checked.
+ * Parameter root: Violation path of the building, `$input`.
+ * Parameter collector: Sink that receives the violations.
+ * Returns: The declared space ids, for resolving references to spaces.
  */
 export function validateBuiltSpaces(
   environment: IAutoMovieBuiltEnvironment,
@@ -130,5 +129,7 @@ export function validateBuiltSpaces(
   return spaceIds;
 }
 
-/** A plane normal this short or shorter has no direction. */
+/*
+ * A plane normal this short or shorter has no direction.
+ */
 const PLANE_NORMAL_EPSILON: number = 1e-12;

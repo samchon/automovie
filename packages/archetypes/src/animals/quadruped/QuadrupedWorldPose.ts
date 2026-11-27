@@ -15,10 +15,12 @@ import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedSkeleton } from "../AutoMovieArchetypeQuadrupedSkeleton";
 
-/** World components in their decay order. */
+/*
+ * World components in their decay order.
+ */
 const AXES: readonly QuadrupedWorldPose.Axis[] = ["x", "y", "z"];
 
-/**
+/*
  * A quadruped's displayed pose as a world root frame and parent-local bone
  * rotations, the form an inertialized cut between two of its performances is
  * blended in.
@@ -39,13 +41,12 @@ const AXES: readonly QuadrupedWorldPose.Axis[] = ["x", "y", "z"];
  * heading to zero (`inertializeOffset`'s `through`): Bollo's overshoot clamp
  * would stop such a channel within milliseconds, a velocity step in all but
  * name, so the bounded follow-through is taken instead.
- *
- * @param animal The source animal in its neutral pose, never changed.
- * @param carriers The bone carrying each non-bone part and each contact, as
- *   `QuadrupedCarriage.of` gives them.
- * @returns The prepared reader, emitter and blender.
- * @throws {RangeError} When the animal lacks a bar of the shared quadruped
- *   body.
+ * Parameter animal: The source animal in its neutral pose, never changed.
+ * Parameter carriers: The bone carrying each non-bone part and each contact, as
+ * `QuadrupedCarriage.of` gives them.
+ * Returns: The prepared reader, emitter and blender.
+ * When the animal lacks a bar of the shared quadruped
+ * body.
  */
 export function QuadrupedWorldPose<Id extends string, D extends string>(
   animal: AutoMovieArchetype<Id, D>,
@@ -68,7 +69,9 @@ export function QuadrupedWorldPose<Id extends string, D extends string>(
   );
   return { neutral, read, emit, capture, blend };
 
-  /** The trunk's world frame and every bone's rotation relative to its parent. */
+  /*
+   * The trunk's world frame and every bone's rotation relative to its parent.
+   */
   function read(
     model: AutoMovieArchetype<Id, D>,
     placement: IAutoMovieTransform,
@@ -85,7 +88,9 @@ export function QuadrupedWorldPose<Id extends string, D extends string>(
     return { root: root!, local };
   }
 
-  /** Lay a world pose on the source animal under a placement. */
+  /*
+   * Lay a world pose on the source animal under a placement.
+   */
   function emit(
     pose: QuadrupedWorldPose.IPose,
     placement: IAutoMovieTransform,
@@ -99,7 +104,9 @@ export function QuadrupedWorldPose<Id extends string, D extends string>(
     );
   }
 
-  /** The offsets of a source from a target at a cut, with their rates. */
+  /*
+   * The offsets of a source from a target at a cut, with their rates.
+   */
   function capture(
     source: QuadrupedWorldPose.IPose,
     sourceBefore: QuadrupedWorldPose.IPose,
@@ -163,7 +170,9 @@ export function QuadrupedWorldPose<Id extends string, D extends string>(
     };
   }
 
-  /** The target with the captured offsets decayed by the elapsed seconds. */
+  /*
+   * The target with the captured offsets decayed by the elapsed seconds.
+   */
   function blend(
     offset: QuadrupedWorldPose.IOffset,
     duration: number,
@@ -206,89 +215,127 @@ export function QuadrupedWorldPose<Id extends string, D extends string>(
   }
 }
 
-/** Types and the forward kinematics of {@link QuadrupedWorldPose}. */
+/*
+ * Types and the forward kinematics of QuadrupedWorldPose.
+ */
 export namespace QuadrupedWorldPose {
-  /** One world axis. */
+  /*
+   * One world axis.
+   */
   export type Axis = "x" | "y" | "z";
 
-  /** The bone carrying each non-bone part and each contact. */
+  /*
+   * The bone carrying each non-bone part and each contact.
+   */
   export interface ICarriers {
-    /** Carrier bone by non-bone part id. */
+    /*
+     * Carrier bone by non-bone part id.
+     */
     parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>;
 
-    /** Carrier bone by contact id. */
+    /*
+     * Carrier bone by contact id.
+     */
     contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>;
   }
 
-  /** A bone, its parent and its fixed attachment in the parent's frame, metres. */
+  /*
+   * A bone, its parent and its fixed attachment in the parent's frame, metres.
+   */
   export interface ILink {
-    /** The bone. */
+    /*
+     * The bone.
+     */
     bone: AutoMovieArchetypeQuadrupedBody.Bone;
 
-    /** Its parent, null for the trunk. */
+    /*
+     * Its parent, null for the trunk.
+     */
     parent: AutoMovieArchetypeQuadrupedBody.Bone | null;
 
-    /** Its joint origin in the parent's frame, metres. */
+    /*
+     * Its joint origin in the parent's frame, metres.
+     */
     attachment: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * A displayed pose: the trunk's world frame and each other bone's rotation
    * relative to its parent.
    */
   export interface IPose {
-    /** The trunk's joint frame in the world, metres, unit scale. */
+    /*
+     * The trunk's joint frame in the world, metres, unit scale.
+     */
     root: IAutoMovieTransform;
 
-    /** Each non-trunk bone's rotation in its parent's frame. */
+    /*
+     * Each non-trunk bone's rotation in its parent's frame.
+     */
     local: ReadonlyMap<
       AutoMovieArchetypeQuadrupedBody.Bone,
       IAutoMovieQuaternion
     >;
   }
 
-  /**
+  /*
    * One channel's offset at a cut and the offset's rate, per world or parent
    * axis.
    */
   export interface IChannel {
-    /**
+    /*
      * Offset: metres for a translation, radians as a rotation vector for a
      * rotation.
      */
     x: IAutoMovieVector3;
 
-    /** Its rate per second. */
+    /*
+     * Its rate per second.
+     */
     v: IAutoMovieVector3;
   }
 
-  /** Every channel's offset at one cut. */
+  /*
+   * Every channel's offset at one cut.
+   */
   export interface IOffset {
-    /** The root translation's offset. */
+    /*
+     * The root translation's offset.
+     */
     shift: IChannel;
 
-    /** The root rotation's offset. */
+    /*
+     * The root rotation's offset.
+     */
     turn: IChannel;
 
-    /** Each bone's local rotation offset. */
+    /*
+     * Each bone's local rotation offset.
+     */
     local: ReadonlyMap<AutoMovieArchetypeQuadrupedBody.Bone, IChannel>;
   }
 
-  /** The prepared operations over one source animal. */
+  /*
+   * The prepared operations over one source animal.
+   */
   export interface IPrepared<Id extends string, D extends string> {
-    /** The source's neutral model-space bone frames. */
+    /*
+     * The source's neutral model-space bone frames.
+     */
     neutral: ReadonlyMap<
       AutoMovieArchetypeQuadrupedBody.Bone,
       IAutoMovieTransform
     >;
 
-    /** The world pose of an emitted model of this animal under its placement. */
+    /*
+     * The world pose of an emitted model of this animal under its placement.
+     */
     read: (
       model: AutoMovieArchetype<Id, D>,
       placement: IAutoMovieTransform,
     ) => IPose;
 
-    /**
+    /*
      * The source animal laid in a world pose, in the model space of a
      * placement.
      */
@@ -297,7 +344,7 @@ export namespace QuadrupedWorldPose {
       placement: IAutoMovieTransform,
     ) => AutoMovieArchetype<Id, D>;
 
-    /**
+    /*
      * The offsets of a source pose from a target pose at a cut, rates from
      * one-sided differences of `step` seconds: the source before the cut, the
      * target after it.
@@ -310,7 +357,7 @@ export namespace QuadrupedWorldPose {
       step: number,
     ) => IOffset;
 
-    /**
+    /*
      * The target pose with the offsets decayed over `duration` seconds after
      * `elapsed` seconds.
      */
@@ -322,16 +369,15 @@ export namespace QuadrupedWorldPose {
     ) => IPose;
   }
 
-  /**
+  /*
    * A placement carried across a cut from one root convention to another:
    * `from` at the cut's start to `to` at its end by minimum jerk, so the root
    * and its velocity stay continuous; a pose emitted in world space displays
    * the same under either.
-   *
-   * @param from The placement the cut leaves, at this second.
-   * @param to The placement the cut reaches, at this second.
-   * @param share The cut's elapsed share, clamped to [0, 1].
-   * @returns The carried placement.
+   * Parameter from: The placement the cut leaves, at this second.
+   * Parameter to: The placement the cut reaches, at this second.
+   * Parameter share: The cut's elapsed share, clamped to [0, 1].
+   * Returns: The carried placement.
    */
   export function bridge(
     from: IAutoMovieTransform,
@@ -345,13 +391,12 @@ export namespace QuadrupedWorldPose {
       scale: { ...to.scale },
     };
   }
-  /**
+  /*
    * Model-space bone frames of a world pose under a placement, parents first.
-   *
-   * @param links The bones in parent-first order with their attachments.
-   * @param pose The world pose.
-   * @param placement The placement whose model space the frames are in.
-   * @returns Every bone's model-space joint frame.
+   * Parameter links: The bones in parent-first order with their attachments.
+   * Parameter pose: The world pose.
+   * Parameter placement: The placement whose model space the frames are in.
+   * Returns: Every bone's model-space joint frame.
    */
   export function frames(
     links: readonly ILink[],
@@ -394,7 +439,7 @@ export namespace QuadrupedWorldPose {
   }
 }
 
-/**
+/*
  * The angular displacement from one rotation to a later one, as a rotation
  * vector.
  */
@@ -407,7 +452,9 @@ function spin(
   );
 }
 
-/** A channel's decayed offset, per axis. */
+/*
+ * A channel's decayed offset, per axis.
+ */
 function decay(
   channel: QuadrupedWorldPose.IChannel,
   duration: number,
@@ -425,7 +472,9 @@ function decay(
   return result;
 }
 
-/** The rotation a rotation vector names. */
+/*
+ * The rotation a rotation vector names.
+ */
 function exponent(turn: IAutoMovieVector3): IAutoMovieQuaternion {
   const angle: number = Vector3.length(turn);
   return angle < 1e-12

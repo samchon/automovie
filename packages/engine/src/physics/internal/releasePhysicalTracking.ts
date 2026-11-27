@@ -4,7 +4,7 @@ import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
 import { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
 
-/**
+/*
  * Withdraw all default actuator effort once: clear the body's forces and
  * torques and set every joint's motors to zero strength, keeping passive
  * damping and the joint constraints. The caller verifies that no explicit

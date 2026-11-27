@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `thumbsUp` row of `HumanEmblem` fixes on `gesture`, spread
  * into its parameters. A thumbs up: the fist held out before the shoulder,
  * turned a quarter in its palm's plane and then aimed so the straight thumb

@@ -11,7 +11,7 @@ import { AutoMovieFilmEffectRuntimeError } from "../AutoMovieFilmEffectRuntimeEr
 import { estimateProductionFilmFrame } from "./estimateProductionFilmFrame";
 import { productionFilmEffectTimelineFrameRate } from "./productionFilmEffectTimelineFrameRate";
 
-/**
+/*
  * Project every shot-owned effect occurrence onto the film's half-open frame
  * clock.
  *
@@ -78,14 +78,18 @@ export const projectProductionShotEffectFilmIntervals = (
   );
 };
 
-/** One shot effect with the half-open source-frame interval it owns. */
+/*
+ * One shot effect with the half-open source-frame interval it owns.
+ */
 interface ISourceInterval {
   effect: IAutoMovieShotEffect;
   startFrame: number;
   endFrame: number;
 }
 
-/** Convert one effect's second interval to the source frames it owns. */
+/*
+ * Convert one effect's second interval to the source frames it owns.
+ */
 const sourceInterval = (
   effect: IAutoMovieShotEffect,
   shot: string,
@@ -105,7 +109,7 @@ const sourceInterval = (
   return { effect, startFrame, endFrame };
 };
 
-/**
+/*
  * The smallest frame whose exact boundary time is at or after `seconds`, or
  * `null` when no safe-integer frame can represent that boundary.
  *

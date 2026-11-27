@@ -1,6 +1,6 @@
 import { IAutoMovieShotStoryTime } from "@automovie/interface";
 
-/**
+/*
  * Map one shot-local time in seconds onto the production story clock,
  * `originSeconds + localSeconds * rate`, with an omitted rate meaning `1`.
  *

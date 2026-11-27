@@ -1,6 +1,6 @@
 import type { IAutoMovieAffineBoxBound } from "@automovie/interface";
 
-/**
+/*
  * Bound one declared affine row over a common independent-coefficient box.
  * Duplicate original IDs first combine in input order using binary64 addition.
  * The resulting floating-point coefficients, constants, bounds and target are

@@ -6,7 +6,7 @@ import type {
   IAutoMovieRecoveryObservedMeshTopology,
 } from "@automovie/interface";
 
-/**
+/*
  * Subdivide colliding feature edges using the unchanged exact midpoint
  * arithmetic.
  */

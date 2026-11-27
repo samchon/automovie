@@ -9,7 +9,7 @@ import type {
 import { PhysicalTargetInterval as Interval } from "../PhysicalTargetInterval";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
-/**
+/*
  * The completed fitted balance reference at a replan boundary and the authored
  * placements at that same boundary. A replan in the next interval starts from
  * the previous plan's endpoint; a revision inside the interval starts at the

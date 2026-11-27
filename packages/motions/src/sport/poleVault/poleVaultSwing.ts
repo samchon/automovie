@@ -1,6 +1,6 @@
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * A vaulter's swing on a flexible pole: Linthorne's flexible-pole model
  * (Linthorne 2000, "Energy loss in the pole vault take-off and the advantage of
  * the flexible pole", Sports Engineering 3:205-218), integrated once.
@@ -22,11 +22,10 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  *
  * The motion is in the vault's plane: `forward` along the run from the tip,
  * `up` vertical.
- *
- * @param props The plant's state, the vaulter's mass and the pole.
- * @returns The swing.
- * @throws {HumanRefusal} When the swing does not reach the release
- *   (`poleVaultSwing.integrate`): the run is too slow.
+ * Parameter props: The plant's state, the vaulter's mass and the pole.
+ * Returns: The swing.
+ * When the swing does not reach the release
+ * (`poleVaultSwing.integrate`): the run is too slow.
  */
 export function poleVaultSwing(
   props: poleVaultSwing.IProps,
@@ -74,117 +73,164 @@ export function poleVaultSwing(
   };
 }
 
-/** Companion types and constants of {@link poleVaultSwing}. */
+/*
+ * Companion types and constants of poleVaultSwing.
+ */
 export namespace poleVaultSwing {
-  /**
+  /*
    * The integration's step, seconds: Linthorne 2000's constant 0.01 s, "found
    * to be adequate".
    */
   export const STEP: number = 0.01;
 
-  /**
+  /*
    * The vaulter's body stiffness in the pole plant, newtons per metre (`k` of
    * Eq. 3: about 250 for a world-class vaulter, Gros and Kunkel 1988, 1990;
    * Angulo-Kinzler et al. 1994, as Linthorne 2000 reads them).
    */
   export const BODY: number = 250;
 
-  /**
+  /*
    * The newtons of Euler buckling load per kilogram of a pole's stiffness
    * rating: a pole rated at 80 kg buckles at about 800 N (Fuchimoto, Ito and
    * Kaneko 1991, as Linthorne 2000 reads it).
    */
   export const RATING: number = 800 / 80;
 
-  /** A vector in the vault's plane, metres or metres per second. */
+  /*
+   * A vector in the vault's plane, metres or metres per second.
+   */
   export interface IPlane {
-    /** Along the run from the planted tip. */
+    /*
+     * Along the run from the planted tip.
+     */
     forward: number;
 
-    /** Vertical. */
+    /*
+     * Vertical.
+     */
     up: number;
   }
 
-  /** What a swing starts from. */
+  /*
+   * What a swing starts from.
+   */
   export interface IProps {
-    /** The top hand's grip from the planted tip at the plant, metres. */
+    /*
+     * The top hand's grip from the planted tip at the plant, metres.
+     */
     radius: IPlane;
 
-    /** The grip's velocity at the plant, metres per second. */
+    /*
+     * The grip's velocity at the plant, metres per second.
+     */
     velocity: IPlane;
 
-    /** The vaulter's mass, kilograms. */
+    /*
+     * The vaulter's mass, kilograms.
+     */
     mass: number;
 
-    /** The pole's Euler buckling load, newtons. */
+    /*
+     * The pole's Euler buckling load, newtons.
+     */
     buckling: number;
 
-    /** Gravity's magnitude, metres per second squared. */
+    /*
+     * Gravity's magnitude, metres per second squared.
+     */
     gravity: number;
 
-    /**
+    /*
      * The chord's angle from upright, radians, past which a swing that stops
      * turning has carried the pole upright.
      */
     upright: number;
 
-    /** The run's speed, for the refusal, metres per second. */
+    /*
+     * The run's speed, for the refusal, metres per second.
+     */
     run: number;
   }
 
-  /** One integrated instant of the swing. */
+  /*
+   * One integrated instant of the swing.
+   */
   export interface ISample {
-    /** Seconds after the plant. */
+    /*
+     * Seconds after the plant.
+     */
     seconds: number;
 
-    /** The grip from the tip, metres. */
+    /*
+     * The grip from the tip, metres.
+     */
     position: IPlane;
 
-    /** The grip's velocity, metres per second. */
+    /*
+     * The grip's velocity, metres per second.
+     */
     velocity: IPlane;
 
-    /** The acceleration over the interval from this instant. */
+    /*
+     * The acceleration over the interval from this instant.
+     */
     acceleration: IPlane;
   }
 
-  /** How an integration ended. */
+  /*
+   * How an integration ended.
+   */
   export interface IOutcome {
-    /** The instants at the step, from the plant to the last reached. */
+    /*
+     * The instants at the step, from the plant to the last reached.
+     */
     samples: readonly ISample[];
 
-    /** The pole's chord at rest, the grip's distance from the tip, metres. */
+    /*
+     * The pole's chord at rest, the grip's distance from the tip, metres.
+     */
     length: number;
 
-    /** Why the swing stops short of the release; null when it reaches it. */
+    /*
+     * Why the swing stops short of the release; null when it reaches it.
+     */
     failure: string | null;
   }
 
-  /** The integrated swing and its reader. */
+  /*
+   * The integrated swing and its reader.
+   */
   export interface ISwing {
-    /** The instants at the step, from the plant to the release. */
+    /*
+     * The instants at the step, from the plant to the release.
+     */
     samples: readonly ISample[];
 
-    /** Seconds from the plant to the release. */
+    /*
+     * Seconds from the plant to the release.
+     */
     duration: number;
 
-    /** The pole's chord at rest, the grip's distance from the tip, metres. */
+    /*
+     * The pole's chord at rest, the grip's distance from the tip, metres.
+     */
     length: number;
 
-    /**
+    /*
      * The grip at a second of the swing: the interval's uniformly accelerated
      * motion from its start, the model's own.
      */
     at: (seconds: number) => ISample;
   }
 
-  /**
+  /*
    * Integrate a swing from the plant until the pole recoils to its length, or
    * until it fails: the plant carries the vaulter away from the tip at once,
    * the vaulter swings back before the pole stands upright, or comes down to
    * the floor.
-   *
-   * @param props The plant's state, the vaulter's mass and the pole.
-   * @returns The instants and how the integration ended.
+   * Parameter props: The plant's state, the vaulter's mass and the pole.
+   * Returns: The instants and how the integration ended.
    */
   export function integrate(props: IProps): IOutcome {
     const length: number = Math.hypot(props.radius.forward, props.radius.up);

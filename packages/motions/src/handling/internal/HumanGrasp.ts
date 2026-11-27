@@ -20,7 +20,7 @@ import { HumanGraspReach } from "./HumanGraspReach";
 import { HumanGraspSearch } from "./HumanGraspSearch";
 import { HumanGraspTarget } from "./HumanGraspTarget";
 
-/**
+/*
  * A prop's grip affordance as a grasp target, and the hand that grasps it:
  * where the grip socket goes, how the hand turns, how wide it opens on the way
  * and how its digits close.
@@ -44,19 +44,20 @@ import { HumanGraspTarget } from "./HumanGraspTarget";
  * `HumanPreshape` opens the hand for it on the way.
  */
 export namespace HumanGrasp {
-  /** The existing target fields a hand placement actually consumes. */
+  /*
+   * The existing target fields a hand placement actually consumes.
+   */
   export type IFrame = Pick<IAutoMovieMotionHumanGrasp.ITarget, Frame>;
 
-  /**
+  /*
    * A prop affordance as a target at a film second, from its displayed frame.
-   *
-   * @param context The action's context.
-   * @param subject The prop.
-   * @param id The affordance id.
-   * @param seconds Film seconds.
-   * @returns The target.
-   * @throws {HumanRefusal} When the prop declares no such affordance or no
-   *   colliders.
+   * Parameter context: The action's context.
+   * Parameter subject: The prop.
+   * Parameter id: The affordance id.
+   * Parameter seconds: Film seconds.
+   * Returns: The target.
+   * When the prop declares no such affordance or no
+   * colliders.
    */
   export function target(
     context: Pick<IAutoMovieMotionHumanActionContext, "prop">,
@@ -68,16 +69,15 @@ export namespace HumanGrasp {
     return HumanGrasp.at(prop.prop, id, prop.frame(seconds));
   }
 
-  /**
+  /*
    * A prop affordance as a target with the prop at a given world frame, such as
    * where another person's hand will hold it.
-   *
-   * @param prop The prop.
-   * @param id The affordance id.
-   * @param frame The prop's world frame.
-   * @returns The target.
-   * @throws {HumanRefusal} When the prop declares no such affordance or no
-   *   colliders.
+   * Parameter prop: The prop.
+   * Parameter id: The affordance id.
+   * Parameter frame: The prop's world frame.
+   * Returns: The target.
+   * When the prop declares no such affordance or no
+   * colliders.
    */
   export function at(
     prop: IAutoMovieMotionHumanProp,
@@ -87,15 +87,14 @@ export namespace HumanGrasp {
     return HumanGraspTarget(prop, id).at(frame);
   }
 
-  /**
+  /*
    * The wrist goal that lays the grip socket on a target.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @param target The target.
-   * @param tilt Degrees the hand turns about the approach, for an oblique grip;
-   *   0 when absent.
-   * @returns The wrist point and the hand's rotation.
+   * Parameter body: The body.
+   * Parameter side: The hand.
+   * Parameter target: The target.
+   * Parameter tilt: Degrees the hand turns about the approach, for an oblique grip;
+   * 0 when absent.
+   * Returns: The wrist point and the hand's rotation.
    */
   export function hand(
     body: IAutoMovieMotionHumanBody,
@@ -106,7 +105,7 @@ export namespace HumanGrasp {
     return HumanGraspHand.prepare(body, side)(target, tilt);
   }
 
-  /**
+  /*
    * The reachable variant of a symmetric hand goal: among the goals a family of
    * turns produces (about a grasped part's own axis, where any azimuth wraps it
    * alike, or about the palm's normal, where the palm's contact is unchanged),
@@ -132,33 +131,32 @@ export namespace HumanGrasp {
    * `reference: false`, the way the law will show it; the returned `reference`
    * is that solution, for the law to pass on every goal of the stroke
    * (`HumanPosture.IGoal.reference`).
-   *
-   * @param body The body.
-   * @param posture The posture the arm is fitted in (its other limbs and
-   *   trunk).
-   * @param side The arm.
-   * @param bend The elbow hint.
-   * @param goal The wrist goal of a turn and a tilt, degrees.
-   * @param tilts The tilts tried at each turn; only the authored one when
-   *   absent.
-   * @param stroke The further key poses the same grip must reach, from its
-   *   grasp goal and from the hand the arm shows for that goal: what is held is
-   *   rigid in the shown hand, so a key that places the held thing is built
-   *   from the shown one. None when absent.
-   * @param turns The turns tried, degrees; -90 to 90 in steps of 15 when
-   *   absent.
-   * @param required What a grip must hold before its cost counts: a measure of
-   *   its per-key errors, judgements and the bounds the keys hold their
-   *   judgements to (the grasp's, then each stroke key's; a zero judgement and
-   *   an infinite bound where none) and
-   *   the most it may be. A grip within the bound is chosen before any beyond
-   *   it; with none within, the one nearest the bound is returned for the
-   *   caller to refuse. Absent, the least cost alone decides.
-   * @param admits Whether the caller can take a candidate's grasp goal at all:
-   *   a candidate it refuses is tried only when it refuses every one. Every
-   *   candidate when absent.
-   * @returns The best turn and tilt, their goal, the hand the arm achieves for
-   *   it, and the arm's solution there.
+   * Parameter body: The body.
+   * Parameter posture: The posture the arm is fitted in (its other limbs and
+   * trunk).
+   * Parameter side: The arm.
+   * Parameter bend: The elbow hint.
+   * Parameter goal: The wrist goal of a turn and a tilt, degrees.
+   * Parameter tilts: The tilts tried at each turn; only the authored one when
+   * absent.
+   * Parameter stroke: The further key poses the same grip must reach, from its
+   * grasp goal and from the hand the arm shows for that goal: what is held is
+   * rigid in the shown hand, so a key that places the held thing is built
+   * from the shown one. None when absent.
+   * Parameter turns: The turns tried, degrees; -90 to 90 in steps of 15 when
+   * absent.
+   * Parameter required: What a grip must hold before its cost counts: a measure of
+   * its per-key errors, judgements and the bounds the keys hold their
+   * judgements to (the grasp's, then each stroke key's; a zero judgement and
+   * an infinite bound where none) and
+   * the most it may be. A grip within the bound is chosen before any beyond
+   * it; with none within, the one nearest the bound is returned for the
+   * caller to refuse. Absent, the least cost alone decides.
+   * Parameter admits: Whether the caller can take a candidate's grasp goal at all:
+   * a candidate it refuses is tried only when it refuses every one. Every
+   * candidate when absent.
+   * Returns: The best turn and tilt, their goal, the hand the arm achieves for
+   * it, and the arm's solution there.
    */
   export function reachable(
     body: IAutoMovieMotionHumanBody,
@@ -185,8 +183,8 @@ export namespace HumanGrasp {
     );
   }
 
-  /**
-   * The turns {@link reachable} tries by default, degrees: a quarter turn either
+  /*
+   * The turns reachable tries by default, degrees: a quarter turn either
    * way in steps of 15.
    */
   export const TURNS: readonly number[] = Array.from(
@@ -194,16 +192,15 @@ export namespace HumanGrasp {
     (_: unknown, i: number): number => -90 + 15 * i,
   );
 
-  /**
+  /*
    * The standing posture a person settles into from where they stand: the stand
    * law's posture centred over the person's displayed feet, facing the way the
    * pelvis faces. A law predicting another person's arm (a handshake's partner,
    * a handover's receiver) reads it, so the prediction starts from the same
    * root the partner's own stand law will hold.
-   *
-   * @param body The person's body.
-   * @param bones The person's displayed world bones.
-   * @returns The posture.
+   * Parameter body: The person's body.
+   * Parameter bones: The person's displayed world bones.
+   * Returns: The posture.
    */
   export function standing(
     body: IAutoMovieMotionHumanBody,
@@ -215,32 +212,34 @@ export namespace HumanGrasp {
     return HumanGraspReach.standing(body, bones);
   }
 
-  /**
+  /*
    * A target turned about its wrapped axis through the axis point, as a
    * cylinder's grip may be taken from any side.
-   *
-   * @param target The target.
-   * @param turn Degrees about the wrapped axis.
-   * @returns The turned target.
+   * Parameter target: The target.
+   * Parameter turn: Degrees about the wrapped axis.
+   * Returns: The turned target.
    */
   export function around(
     target: IAutoMovieMotionHumanGrasp.ITarget,
     turn: number,
   ): IAutoMovieMotionHumanGrasp.ITarget;
-  /** The same rigid handle turn when only its hand-placement frame is needed. */
+  /*
+   * The same rigid handle turn when only its hand-placement frame is needed.
+   */
   export function around(target: IFrame, turn: number): IFrame;
-  /** Delegate both target views to the same wrapped-axis rotation owner. */
+  /*
+   * Delegate both target views to the same wrapped-axis rotation owner.
+   */
   export function around(target: IFrame, turn: number): IFrame {
     return HumanGraspReach.around(target, turn);
   }
 
-  /**
+  /*
    * The width of colliders along an axis: the extent of their union's
    * projection.
-   *
-   * @param colliders Placed colliders.
-   * @param axis A unit direction.
-   * @returns Metres.
+   * Parameter colliders: Placed colliders.
+   * Parameter axis: A unit direction.
+   * Returns: Metres.
    */
   export function extent(
     colliders: readonly IAutoMovieCurlChainUntilContact.ICollider[],
@@ -250,15 +249,14 @@ export namespace HumanGrasp {
     return hi - lo;
   }
 
-  /**
+  /*
    * The interval colliders cover along an axis: the lowest and highest
    * projections of their union onto it, so an object's middle along the
    * vertical is the mean of the two.
-   *
-   * @param colliders Placed colliders.
-   * @param axis A unit direction.
-   * @returns The low and high projections, metres along the axis from the world
-   *   origin.
+   * Parameter colliders: Placed colliders.
+   * Parameter axis: A unit direction.
+   * Returns: The low and high projections, metres along the axis from the world
+   * origin.
    */
   export function span(
     colliders: readonly IAutoMovieCurlChainUntilContact.ICollider[],
@@ -279,8 +277,12 @@ export namespace HumanGrasp {
   }
 }
 
-/** The alternatives of `StandingBonesEntry`'s site. */
+/*
+ * The alternatives of `StandingBonesEntry`'s site.
+ */
 type StandingBonesEntry = "worldPosition" | "worldRotation";
 
-/** The alternatives of `Frame`'s site. */
+/*
+ * The alternatives of `Frame`'s site.
+ */
 type Frame = "point" | "approach" | "axis" | "width";

@@ -9,15 +9,14 @@ import type {
 import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/**
+/*
  * Choose the planted foot leading in the body's own frame for a jump, keeping
  * the left foot on an exact tie in double support.
- *
- * @param body The body whose entered joint pose is read.
- * @param entry The displayed joint pose and planted feet; the caller has
- *   admitted at least one planted foot.
- * @returns The only planted foot, or the ankle further along root-local +Z in
- *   double support.
+ * Parameter body: The body whose entered joint pose is read.
+ * Parameter entry: The displayed joint pose and planted feet; the caller has
+ * admitted at least one planted foot.
+ * Returns: The only planted foot, or the ankle further along root-local +Z in
+ * double support.
  */
 export function jumpTakeoff(
   body: IAutoMovieMotionHumanBody,

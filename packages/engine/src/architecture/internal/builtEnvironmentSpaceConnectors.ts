@@ -6,7 +6,7 @@ import {
 import { builtConnectorStops } from "./builtConnectorStops";
 import { requireBuiltSpace } from "./requireBuiltSpace";
 
-/**
+/*
  * Return every connector stopping at a logical space, endpoints and route
  * intact.
  *
@@ -19,7 +19,7 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * spaces it actually lands in, its two ends and any landing between them, so
  * asking a building root returns the connectors declared on the root itself
  * rather than every connector inside it. That is the rule
- * {@link builtEnvironmentAdjacentSpaces} follows, and both read stops from one
+ * builtEnvironmentAdjacentSpaces follows, and both read stops from one
  * list.
  *
  * The returned connectors are the record's own objects in record order. Throws

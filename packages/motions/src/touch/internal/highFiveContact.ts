@@ -25,14 +25,16 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanSeatedReach } from "./HumanSeatedReach";
 
-/**
+/*
  * The two opposed hand frames of a high five. Both hands approach one contact
  * plane defined by their approach. For a fixed hand attitude the wrist is a
  * translation of the meeting point, so its reach sphere can be written in
  * meeting-point coordinates before the two spheres intersect.
  */
 export namespace highFiveContact {
-  /** Place a shared hand contact inside both performers' reachable spheres. */
+  /*
+   * Place a shared hand contact inside both performers' reachable spheres.
+   */
   export function place(
     roles: readonly IAutoMovieMotionMeetingRole[],
     kind: IAutoMovieMotionHumanHighFive.Kind,
@@ -128,7 +130,9 @@ export namespace highFiveContact {
     }
   }
 
-  /** The surface of the bare hand that meets the partner. */
+  /*
+   * The surface of the bare hand that meets the partner.
+   */
   export function hand(
     kind: IAutoMovieMotionHumanHighFive.Kind,
   ): IAutoMovieMotionHumanTouchEffector.IEffector {
@@ -137,7 +141,7 @@ export namespace highFiveContact {
       : { surface: "palm", shape: "flat" };
   }
 
-  /**
+  /*
    * Place the common material plane on the line between the shoulders carrying
    * the two hands.
    */
@@ -157,7 +161,7 @@ export namespace highFiveContact {
     };
   }
 
-  /**
+  /*
    * Flat low fives meet palm down to palm up; higher palms oppose along the
    * line joining their acting shoulders.
    */
@@ -172,14 +176,18 @@ export namespace highFiveContact {
       : Vector3.scale(forward, direction);
   }
 
-  /** At the waist the formed fingers lie along the horizontal plane. */
+  /*
+   * At the waist the formed fingers lie along the horizontal plane.
+   */
   export function tangent(
     kind: IAutoMovieMotionHumanHighFive.Kind,
   ): IAutoMovieMotionHumanTouchForm.Tangent {
     return kind === "low" ? "across" : "up";
   }
 
-  /** A role's real wrist reach expressed as a sphere for the skin contact. */
+  /*
+   * A role's real wrist reach expressed as a sphere for the skin contact.
+   */
   export function arm(
     role: IAutoMovieMotionMeetingRole,
     side: AutoMovieHumanSide,
@@ -206,7 +214,7 @@ export namespace highFiveContact {
     };
   }
 
-  /**
+  /*
    * The partner's displayed approach obstacles, omitting the arm that moves to
    * the shared hand contact.
    */
@@ -232,10 +240,12 @@ export namespace highFiveContact {
   }
 }
 
-/** The alternatives of `BlockingContext`'s site. */
+/*
+ * The alternatives of `BlockingContext`'s site.
+ */
 type BlockingContext = "performer" | "start";
 
-/**
+/*
  * Move an arm's reach sphere from wrist coordinates to shared contact
  * coordinates.
  */
@@ -248,7 +258,7 @@ function translated(
     : { ...arm, shoulder: Vector3.add(arm.shoulder, shift) };
 }
 
-/**
+/*
  * Approach direction between the two acting shoulders, with their body headings
  * resolving coincident shoulders.
  */

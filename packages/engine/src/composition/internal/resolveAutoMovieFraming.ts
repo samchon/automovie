@@ -4,16 +4,15 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A camera pose meeting a framing goal from the subjects' actual bounding
  * spheres: the target is the centre of the smallest sphere about their centroid
  * that contains every subject sphere, and the camera stands on the goal's
  * bearing and elevation at the distance where that sphere's diameter fills the
  * declared share of the vertical field of view, `d = r / (fill tan(fov / 2))`.
- *
- * @param goal The framing goal.
- * @param state Each subject's bounding sphere at the instant.
- * @returns The camera position, its look-at target and field of view.
+ * Parameter goal: The framing goal.
+ * Parameter state: Each subject's bounding sphere at the instant.
+ * Returns: The camera position, its look-at target and field of view.
  */
 export function resolveAutoMovieFraming(
   goal: IAutoMovieFramingGoal,

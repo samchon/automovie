@@ -13,7 +13,7 @@ import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { seedPhysicalChainTarget } from "./seedPhysicalChainTarget";
 import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation";
 
-/**
+/*
  * Bounded damped least squares on the admitted profile's actual joint frames,
  * its damping adapted to the chain's smallest singular value (Nakamura and
  * Hanafusa 1986; Buss 2004). This changes motor targets, never solved bodies.
@@ -166,7 +166,9 @@ export function solvePhysicalChainTarget(
   }
   return { targets, residual };
 
-  /** Apply one admitted angular update to exactly the joint's descendants. */
+  /*
+   * Apply one admitted angular update to exactly the joint's descendants.
+   */
   function rotate(
     joint: IAutoMoviePhysicalJoint,
     axis: IAutoMoviePhysicalJointAxis,
@@ -209,27 +211,31 @@ export function solvePhysicalChainTarget(
   }
 }
 
-/**
+/*
  * The singular value below which the step is damped, over the chain's longest
  * lever (Nakamura and Hanafusa 1986's epsilon, set relative to the chain).
  */
 const DAMPING_THRESHOLD: number = 0.05;
 
-/** The damping at a singular chain, over its longest lever (their lambda_0). */
+/*
+ * The damping at a singular chain, over its longest lever (their lambda_0).
+ */
 const DAMPING_MAXIMUM: number = 0.05;
 
-/**
+/*
  * The largest joint step per iteration, radians: Buss 2004's clamp on a damped
  * step far from the goal, Section 5.
  */
 const MAXIMUM_STEP: number = 0.5;
 
-/** A vector's component by index. */
+/*
+ * A vector's component by index.
+ */
 function component(v: IAutoMovieVector3, i: number): number {
   return i === 0 ? v.x : i === 1 ? v.y : v.z;
 }
 
-/**
+/*
  * The smallest eigenvalue of a symmetric 3 x 3 matrix in closed form (Smith
  * 1961, "Eigenvalues of a symmetric 3 x 3 matrix", Communications of the ACM
  * 4(4) p.168).
@@ -251,7 +257,9 @@ function smallestEigenvalue(m: readonly (readonly number[])[]): number {
   return q + 2 * p * Math.cos(phi + (2 * Math.PI) / 3);
 }
 
-/** The solution of a 3 x 3 system by Cramer's rule; none when singular. */
+/*
+ * The solution of a 3 x 3 system by Cramer's rule; none when singular.
+ */
 function solve3(
   m: readonly (readonly number[])[],
   r: IAutoMovieVector3,

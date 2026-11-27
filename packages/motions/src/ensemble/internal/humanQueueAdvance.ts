@@ -8,7 +8,7 @@ import type {
 import { HumanEnsemble } from "./HumanEnsemble";
 import { humanQueueMarks } from "./humanQueueMarks";
 
-/**
+/*
  * Advance a stationary single-file service queue by one position. Order the
  * ensemble head first and place it on one level, straight line. The head walks
  * toward the exit on the named release. Every follower walks to the mark
@@ -27,13 +27,12 @@ import { humanQueueMarks } from "./humanQueueMarks";
  * standing marks and delay are authored for the scene. Requiring the
  * predecessor's walk to end is a conservative staging rule for this release,
  * rather than an estimate of pedestrian reaction or flow.
- *
- * @param ensemble Fully performed queue members in head-to-tail order.
- * @param request The release cue, head's exit and optional follower wait.
- * @returns A parallel composition whose walk dependencies run head first.
- * @throws {HumanRefusal} If the exit or wait is invalid, a rank lacks a fully
- *   performed body, or the marks fail line, order or shoulder-disc clearance
- *   checks.
+ * Parameter ensemble: Fully performed queue members in head-to-tail order.
+ * Parameter request: The release cue, head's exit and optional follower wait.
+ * Returns: A parallel composition whose walk dependencies run head first.
+ * If the exit or wait is invalid, a rank lacks a fully
+ * performed body, or the marks fail line, order or shoulder-disc clearance
+ * checks.
  */
 export function humanQueueAdvance(
   ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,

@@ -24,14 +24,12 @@ import { resolveBoneMap } from "./resolveBoneMap";
 import { AutoMovieEngineMotionSampling } from "../AutoMovieEngineMotionSampling";
 import { sampleStanceTimes } from "./sampleStanceTimes";
 
-/**
+/*
  * Sample admitted motion on a fixed clock plus any authored support boundaries.
  * Detect finite model-frame stance contacts, pin each run and fit targeted leg
  * chains under the same clinical mappings and rig ROM. Unreachable or
  * constrained pins retain the best allowed pose and may leave residual contact
  * error. Opening plants resume authoritative targets during opening stance.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States model frame, dense clock, shared clinical semantics, opening pin precedence, input failure and residual limitations instead of promising exact contact for arbitrary rig constraints.
  */
 export function plantStanceFeet(
   props: IPlantStanceFeetProps,
@@ -136,7 +134,7 @@ const DEFAULT_GROUND_Y: number = 0;
 
 const DEFAULT_TOLERANCE: number = 0.02;
 
-/**
+/*
  * The humanoid legs, named from the shared chain table so the ground-IK pass
  * and the retarget contact pass cannot disagree about which bones a leg is.
  */

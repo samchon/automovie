@@ -17,7 +17,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { ExerciseKey } from "./ExerciseKey";
 
-/**
+/*
  * Ballet's five positions of the feet and what the legs do in them. Each foot
  * turns out by the turnout from the dancer's heading; the heels stand, in foot
  * lengths (provisional readings of Vaganova's Basic Principles of Classical
@@ -37,41 +37,46 @@ import { ExerciseKey } from "./ExerciseKey";
  * even beats and back on odd ones.
  */
 export namespace balletPositions {
-  /**
+  /*
    * First position's heel spacing, foot lengths: heels together, their centres
    * a heel's width apart.
    */
   export const HEEL: number = 0.3;
 
-  /** Second position's heel spacing, foot lengths. */
+  /*
+   * Second position's heel spacing, foot lengths.
+   */
   export const SECOND: number = 1.5;
 
-  /**
+  /*
    * A foot's width, foot lengths: how far ahead the front heel of third and
    * fifth stands.
    */
   export const WIDTH: number = 0.35;
 
-  /** Fourth position's forward spacing, foot lengths. */
+  /*
+   * Fourth position's forward spacing, foot lengths.
+   */
   export const FOURTH: number = 1;
 
-  /** A demi-plié's knee flexion, degrees (provisional). */
+  /*
+   * A demi-plié's knee flexion, degrees (provisional).
+   */
   export const PLIE: number = 70;
 
-  /**
+  /*
    * A relevé's heel lift, degrees of the foot's pitch about the balls
    * (provisional demi-pointe).
    */
   export const RELEVE: number = 40;
 
-  /**
+  /*
    * The feet in a position.
-   *
-   * @param context The action's context, read for the entry stance.
-   * @param position One to five.
-   * @param turnout Each foot's turn out, degrees.
-   * @param front The working foot, in front in third, fourth and fifth.
-   * @returns Each foot's flat placement.
+   * Parameter context: The action's context, read for the entry stance.
+   * Parameter position: One to five.
+   * Parameter turnout: Each foot's turn out, degrees.
+   * Parameter front: The working foot, in front in third, fourth and fifth.
+   * Returns: Each foot's flat placement.
    */
   export function feet(
     context: Pick<IAutoMovieMotionHumanActionContext, FeetContext>,
@@ -115,15 +120,14 @@ export namespace balletPositions {
     return { left: placed("left"), right: placed("right") };
   }
 
-  /**
+  /*
    * A foot risen onto its ball.
-   *
-   * @param body The dancer's body.
-   * @param side Which foot.
-   * @param flat Its flat placement.
-   * @param share How far risen, 0 flat to 1 on demi-pointe.
-   * @param turn Degrees turned about the ball since it rose.
-   * @returns The placement, the ball where it stood.
+   * Parameter body: The dancer's body.
+   * Parameter side: Which foot.
+   * Parameter flat: Its flat placement.
+   * Parameter share: How far risen, 0 flat to 1 on demi-pointe.
+   * Parameter turn: Degrees turned about the ball since it rose.
+   * Returns: The placement, the ball where it stood.
    */
   export function risen(
     body: IAutoMovieMotionHumanBody,
@@ -144,12 +148,11 @@ export namespace balletPositions {
     );
   }
 
-  /**
+  /*
    * How far a plié lowers the hips, metres: the legs' length less the
    * hip-to-ankle span at the plié's knee.
-   *
-   * @param body The dancer's body.
-   * @returns Metres.
+   * Parameter body: The dancer's body.
+   * Returns: Metres.
    */
   export function drop(body: IAutoMovieMotionHumanBody): number {
     const a: number = body.measure.thigh;
@@ -158,12 +161,11 @@ export namespace balletPositions {
     return a + b - Math.sqrt(a * a + b * b + 2 * a * b * Math.cos(k));
   }
 
-  /**
+  /*
    * The entry's hips' world point.
-   *
-   * @param body The dancer's body.
-   * @param entry The entry posture.
-   * @returns World metres.
+   * Parameter body: The dancer's body.
+   * Parameter entry: The entry posture.
+   * Returns: World metres.
    */
   export function hips(
     body: IAutoMovieMotionHumanBody,
@@ -178,14 +180,13 @@ export namespace balletPositions {
     );
   }
 
-  /**
+  /*
    * The course of a position: into it before the first beat, then the movement
    * on alternate beats.
-   *
-   * @param context The action's context.
-   * @param beats The beat clock, one beat more than the movement's.
-   * @param turnout Each foot's turn out, degrees.
-   * @returns The course.
+   * Parameter context: The action's context.
+   * Parameter beats: The beat clock, one beat more than the movement's.
+   * Parameter turnout: Each foot's turn out, degrees.
+   * Returns: The course.
    */
   export function course(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallet.IParams>,
@@ -302,7 +303,7 @@ export namespace balletPositions {
     return course;
   }
 
-  /**
+  /*
    * A foot's turn from the heading, degrees: outward, so positive for the left
    * foot.
    */
@@ -310,7 +311,7 @@ export namespace balletPositions {
     return side === "left" ? turnout : -turnout;
   }
 
-  /**
+  /*
    * The heels' points in the dancer's floor frame (x to the left, z ahead),
    * foot lengths scaled to metres.
    */
@@ -344,5 +345,7 @@ export namespace balletPositions {
   }
 }
 
-/** The alternatives of `FeetContext`'s site. */
+/*
+ * The alternatives of `FeetContext`'s site.
+ */
 type FeetContext = "body" | "entry";

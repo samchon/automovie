@@ -16,7 +16,7 @@ import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { refitHumanPosture } from "./refitHumanPosture";
 import { resolveHumanPostureSource } from "./resolveHumanPostureSource";
 
-/**
+/*
  * Resolve a posture into a canonical pose: the root from the posture's position
  * and heading, every directly set joint clamped to the rig's range of motion,
  * then each limb goal by the engine's two-bone fit with its bend hint, legs
@@ -40,12 +40,11 @@ import { resolveHumanPostureSource } from "./resolveHumanPostureSource";
  * placed from a preparation carries its own solve
  * (`HumanPosturePreparation.IPlaced`) for its reader to take instead of
  * resolving it here.
- *
- * @param body The performer's body.
- * @param posture The posture.
- * @param base A pose whose joints replace clinical zero for unset bones, such
- *   as a transition's displayed pose; its root is ignored.
- * @returns The canonical pose.
+ * Parameter body: The performer's body.
+ * Parameter posture: The posture.
+ * Parameter base: A pose whose joints replace clinical zero for unset bones, such
+ * as a transition's displayed pose; its root is ignored.
+ * Returns: The canonical pose.
  */
 export function resolveHumanPosture(
   body: IAutoMovieMotionHumanBody,
@@ -56,29 +55,30 @@ export function resolveHumanPosture(
   return resolveHumanPosture.seeded(body, posture, base, near).pose;
 }
 
-/** Companion helpers of {@link resolveHumanPosture}. */
+/*
+ * Companion helpers of resolveHumanPosture.
+ */
 export namespace resolveHumanPosture {
-  /**
-   * {@link resolveHumanPosture} with each limb's fit continued from a nearby one
+  /*
+   * resolveHumanPosture with each limb's fit continued from a nearby one
    * where `near` names it (`IAutoMovieSwivelNear`), reporting the seed each
    * limb's fit was chosen at: the same pose, solved the same way, with what a
    * fit of the same limb a moment away continues from.
-   *
-   * @param body The performer's body.
-   * @param posture The posture.
-   * @param base A pose whose joints replace clinical zero for unset bones.
-   * @param near Each limb's nearby fit to continue; a limb not named is solved
-   *   cold.
-   * @param resolution Optional exact reader or lazy supplier borrowed from this
-   *   same synchronous person evaluation; never retained by the result.
-   * @param requested Optional observational bone demand: only these frames
-   *   equal full resolution; unneeded world limb goals may remain at clamped
-   *   authored joints. Foot contacts retain re-aim/toe correction; continued,
-   *   unsupported or arm-dependent context keeps full resolution.
-   * @param projection Unread: assembly projects through the body's own
-   *   projector (`IHumanBody.projection`), which every caller's projection is.
-   * @returns The canonical pose and each actually fitted limb's seed; omission
-   *   of requested preserves complete resolution.
+   * Parameter body: The performer's body.
+   * Parameter posture: The posture.
+   * Parameter base: A pose whose joints replace clinical zero for unset bones.
+   * Parameter near: Each limb's nearby fit to continue; a limb not named is solved
+   * cold.
+   * Parameter resolution: Optional exact reader or lazy supplier borrowed from this
+   * same synchronous person evaluation; never retained by the result.
+   * Parameter requested: Optional observational bone demand: only these frames
+   * equal full resolution; unneeded world limb goals may remain at clamped
+   * authored joints. Foot contacts retain re-aim/toe correction; continued,
+   * unsupported or arm-dependent context keeps full resolution.
+   * Parameter projection: Unread: assembly projects through the body's own
+   * projector (`IHumanBody.projection`), which every caller's projection is.
+   * Returns: The canonical pose and each actually fitted limb's seed; omission
+   * of requested preserves complete resolution.
    */
   export function seeded(
     body: IAutoMovieMotionHumanBody,
@@ -112,20 +112,19 @@ export namespace resolveHumanPosture {
         );
   }
 
-  /**
+  /*
    * Re-fit limb goals on an already displayed pose, after its parents, blending
    * or transition have been placed. World goals have already received the
    * posture's root turn; attached goals keep their `on` frame and are carried
    * into the world once, by the limb fit.
-   *
-   * @param body The performer's body.
-   * @param pose The pose before these limb fits.
-   * @param limbs The goals, world or attached to a posed bone.
-   * @param near Each limb's nearby fit to continue, if any.
-   * @param resolution Optional parent-owned exact reader or lazy supplier,
-   *   borrowed for the call.
-   * @returns The pose, seeds and values of the same limb solver `seeded` uses,
-   *   a fresh copy; the input pose itself when no limb had a goal.
+   * Parameter body: The performer's body.
+   * Parameter pose: The pose before these limb fits.
+   * Parameter limbs: The goals, world or attached to a posed bone.
+   * Parameter near: Each limb's nearby fit to continue, if any.
+   * Parameter resolution: Optional parent-owned exact reader or lazy supplier,
+   * borrowed for the call.
+   * Returns: The pose, seeds and values of the same limb solver `seeded` uses,
+   * a fresh copy; the input pose itself when no limb had a goal.
    */
   export function refit(
     body: IAutoMovieMotionHumanBody,
@@ -146,17 +145,16 @@ export namespace resolveHumanPosture {
     return structuredClone(fitted);
   }
 
-  /**
+  /*
    * Re-solve one limb of a pose onto a goal, keeping everything else; an arm
    * keeps clear of the other arm where the pose already places it.
-   *
-   * @param body The performer's body.
-   * @param pose The pose.
-   * @param limb The limb.
-   * @param goal Its goal.
-   * @param near A nearby fit of the limb to continue; omitted, it is solved
-   *   cold.
-   * @returns The pose with the limb fitted.
+   * Parameter body: The performer's body.
+   * Parameter pose: The pose.
+   * Parameter limb: The limb.
+   * Parameter goal: Its goal.
+   * Parameter near: A nearby fit of the limb to continue; omitted, it is solved
+   * cold.
+   * Returns: The pose with the limb fitted.
    */
   export function limb(
     body: IAutoMovieMotionHumanBody,
@@ -168,19 +166,18 @@ export namespace resolveHumanPosture {
     return limbSeeded(body, pose, limb, goal, near).pose;
   }
 
-  /**
-   * {@link limb} with the seed its fit was chosen at.
-   *
-   * @param body The performer's body.
-   * @param pose The pose.
-   * @param limb The limb.
-   * @param goal Its goal.
-   * @param near A nearby fit of the limb to continue; omitted, it is solved
-   *   cold.
-   * @param resolution Optional exact reader or lazy supplier borrowed only from
-   *   the same synchronous person evaluation.
-   * @returns An independent complete copy of the fitted pose, seed and value,
-   *   including unrelated nested metadata.
+  /*
+   * limb with the seed its fit was chosen at.
+   * Parameter body: The performer's body.
+   * Parameter pose: The pose.
+   * Parameter limb: The limb.
+   * Parameter goal: Its goal.
+   * Parameter near: A nearby fit of the limb to continue; omitted, it is solved
+   * cold.
+   * Parameter resolution: Optional exact reader or lazy supplier borrowed only from
+   * the same synchronous person evaluation.
+   * Returns: An independent complete copy of the fitted pose, seed and value,
+   * including unrelated nested metadata.
    */
   export function limbSeeded(
     body: IAutoMovieMotionHumanBody,

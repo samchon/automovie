@@ -1,6 +1,6 @@
 import { HumanPopulationSurvey } from "./HumanPopulationSurvey";
 
-/**
+/*
  * Conditioning under a sex's multivariate normal: the regression form of a
  * boundary manikin (Young et al. 2008, NASA 20080013454), which sets a few
  * measures and lets every other take its expected value, so a person stays
@@ -8,33 +8,37 @@ import { HumanPopulationSurvey } from "./HumanPopulationSurvey";
  * body's do.
  */
 export namespace HumanPopulationConditional {
-  /** A conditional mean and standard deviation. */
+  /*
+   * A conditional mean and standard deviation.
+   */
   export interface IMoments {
-    /** Conditional mean. */
+    /*
+     * Conditional mean.
+     */
     mean: number;
 
-    /** Conditional standard deviation. */
+    /*
+     * Conditional standard deviation.
+     */
     sd: number;
   }
 
-  /**
+  /*
    * Index of a measure in the survey vectors.
-   *
-   * @param v The measure.
-   * @returns Its index.
+   * Parameter v: The measure.
+   * Returns: Its index.
    */
   export function index(v: HumanPopulationSurvey.Variable): number {
     return HumanPopulationSurvey.VARIABLES.indexOf(v);
   }
 
-  /**
+  /*
    * Conditional mean and standard deviation of one measure given known values
    * of others, `mu_t + S_tk S_kk^-1 (v_k - mu_k)` and its residual variance.
-   *
-   * @param sex The surveyed sex.
-   * @param known Known values by measure index.
-   * @param target Index of the measure sought.
-   * @returns Its moments given the known values.
+   * Parameter sex: The surveyed sex.
+   * Parameter known: Known values by measure index.
+   * Parameter target: Index of the measure sought.
+   * Returns: Its moments given the known values.
    */
   export function moments(
     sex: HumanPopulationSurvey.Sex,
@@ -64,13 +68,12 @@ export namespace HumanPopulationConditional {
     return { mean, sd: Math.sqrt(Math.max(variance, 0)) };
   }
 
-  /**
+  /*
    * Covariance of two measures from the survey's SDs and correlations.
-   *
-   * @param sex The surveyed sex.
-   * @param i Index of one measure.
-   * @param j Index of the other.
-   * @returns Their covariance.
+   * Parameter sex: The surveyed sex.
+   * Parameter i: Index of one measure.
+   * Parameter j: Index of the other.
+   * Returns: Their covariance.
    */
   function covariance(
     sex: HumanPopulationSurvey.Sex,
@@ -83,12 +86,11 @@ export namespace HumanPopulationConditional {
     return r * t.sd[i]! * t.sd[j]!;
   }
 
-  /**
+  /*
    * Solve `A x = b` by Gaussian elimination with partial pivoting.
-   *
-   * @param A Square matrix; may be empty.
-   * @param b Right-hand side.
-   * @returns The solution.
+   * Parameter A: Square matrix; may be empty.
+   * Parameter b: Right-hand side.
+   * Returns: The solution.
    */
   function solve(A: number[][], b: number[]): number[] {
     const n: number = b.length;

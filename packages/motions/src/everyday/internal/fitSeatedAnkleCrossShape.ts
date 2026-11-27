@@ -12,33 +12,42 @@ import type {
 
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 
-/**
+/*
  * The seated ankle cross's placed shapes: the legs' colliders as placed, their
  * pair distance and the gap of their bounds.
  */
 export namespace fitSeatedAnkleCrossShape {
-  /** A leg's collider as placed: its bone, world pose, shape and world bounds. */
+  /*
+   * A leg's collider as placed: its bone, world pose, shape and world bounds.
+   */
   export interface IShape {
-    /** The bone the collider rides. */
+    /*
+     * The bone the collider rides.
+     */
     bone: AutoMovieHumanoidBone;
 
-    /** The collider's world pose. */
+    /*
+     * The collider's world pose.
+     */
     pose: IAutoMovieRigidTransform;
 
-    /** The collider. */
+    /*
+     * The collider.
+     */
     shape: IAutoMoviePhysicalShape;
 
-    /** Its world axis-aligned bounds, metres. */
+    /*
+     * Its world axis-aligned bounds, metres.
+     */
     bounds: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds>;
   }
 
-  /**
+  /*
    * Prepare the reader of a set of bones' placed colliders, each with its world
    * bounds.
-   *
-   * @param body The performer's body.
-   * @param bones The bones whose colliders are read.
-   * @returns The reader from posed bone frames.
+   * Parameter body: The performer's body.
+   * Parameter bones: The bones whose colliders are read.
+   * Returns: The reader from posed bone frames.
    */
   export function readShapes(
     body: IAutoMovieMotionHumanBody,
@@ -58,13 +67,12 @@ export namespace fitSeatedAnkleCrossShape {
       );
   }
 
-  /**
+  /*
    * The least distance between two placed colliders, metres (the engine's pair
    * query).
-   *
-   * @param fixed The carrying leg's collider.
-   * @param moving The moving leg's collider.
-   * @returns Metres; negative when they overlap.
+   * Parameter fixed: The carrying leg's collider.
+   * Parameter moving: The moving leg's collider.
+   * Returns: Metres; negative when they overlap.
    */
   export function distance(fixed: IShape, moving: IShape): number {
     return AutoMovieEnginePhysics.physicalShapePairDistance(
@@ -75,12 +83,11 @@ export namespace fitSeatedAnkleCrossShape {
     );
   }
 
-  /**
+  /*
    * The gap between two axis-aligned bounds, metres: zero where they overlap.
-   *
-   * @param a The first bounds.
-   * @param b The second bounds.
-   * @returns Metres.
+   * Parameter a: The first bounds.
+   * Parameter b: The second bounds.
+   * Returns: Metres.
    */
   export function boundsGap(
     a: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds>,

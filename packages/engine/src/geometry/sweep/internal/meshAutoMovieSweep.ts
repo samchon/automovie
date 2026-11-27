@@ -21,10 +21,12 @@ import { pushFlatTriangle } from "../../internal/pushFlatTriangle";
 import { signedArea } from "../../internal/signedArea";
 import { compileAutoMovieSweep } from "./compileAutoMovieSweep";
 
-/** Points per loop of a curved section when the caller gives no count. */
+/*
+ * Points per loop of a curved section when the caller gives no count.
+ */
 const COLUMNS: number = 32;
 
-/**
+/*
  * Triangulate a sweep directly into a closed mesh, for hard-edged members such
  * as profiles, rails, pipes and tapering piers that need no subdivision cage.
  *
@@ -51,18 +53,17 @@ const COLUMNS: number = 32;
  *
  * Whether the solid intersects itself is the author's: a spine turning tighter
  * than the section is wide folds the walls through each other.
- *
- * @param props.sweep The sweep, only read.
- * @param props.rows Spine parameters of the rings, at least two, strictly
- *   increasing from 0 to 1; omitted, the spine points' chord-length shares.
- * @param props.columns Points per loop for a section that is not a polygon
- *   under parameter correspondence, at least 3; omitted, 32.
- * @param props.caps Whether to close both ends; omitted, true.
- * @param props.shading `flat` or `smooth`; omitted, `flat`.
- * @returns A new mesh with normals and metric UVs and no skin.
- * @throws Error when `compileAutoMovieSweep` refuses the sweep, the rows or
- *   columns are invalid, a ring is not a valid planar region, or a ring winds
- *   the other way from the first.
+ * Parameter props.sweep: The sweep, only read.
+ * Parameter props.rows: Spine parameters of the rings, at least two, strictly
+ * increasing from 0 to 1; omitted, the spine points' chord-length shares.
+ * Parameter props.columns: Points per loop for a section that is not a polygon
+ * under parameter correspondence, at least 3; omitted, 32.
+ * Parameter props.caps: Whether to close both ends; omitted, true.
+ * Parameter props.shading: `flat` or `smooth`; omitted, `flat`.
+ * Returns: A new mesh with normals and metric UVs and no skin.
+ * Error when `compileAutoMovieSweep` refuses the sweep, the rows or
+ * columns are invalid, a ring is not a valid planar region, or a ring winds
+ * the other way from the first.
  */
 export const meshAutoMovieSweep: (
   props: IAutoMovieMeshSweep.IProps,
@@ -179,7 +180,9 @@ export const meshAutoMovieSweep: (
   return { ...target, skin: null };
 };
 
-/** Chord-length share of spine point `k`. */
+/*
+ * Chord-length share of spine point `k`.
+ */
 const chordShare = (points: IAutoMovieVector3[], k: number): number => {
   let before: number = 0;
   let total: number = 0;
@@ -193,7 +196,9 @@ const chordShare = (points: IAutoMovieVector3[], k: number): number => {
   return before / total;
 };
 
-/** Walls whose triangles own their corners and plane normals. */
+/*
+ * Walls whose triangles own their corners and plane normals.
+ */
 const flatWalls = (rings: IRing[]): IAutoMovieMesh => {
   const target: IAutoMovieMeshTarget = emptyMeshTarget();
   for (const span of rings[0]!.plan.rings)
@@ -224,7 +229,9 @@ const flatWalls = (rings: IRing[]): IAutoMovieMesh => {
   return { ...target, skin: null };
 };
 
-/** Walls sharing each ring point, with a repeated seam point per ring and loop. */
+/*
+ * Walls sharing each ring point, with a repeated seam point per ring and loop.
+ */
 const smoothWalls = (rings: IRing[]): IAutoMovieMesh => {
   const positions: number[] = [];
   const uvs: number[] = [];
@@ -263,14 +270,16 @@ const smoothWalls = (rings: IRing[]): IAutoMovieMesh => {
   return meshOf(positions, indices, uvs, groups);
 };
 
-/** Distance between two points of a ring in its section plane. */
+/*
+ * Distance between two points of a ring in its section plane.
+ */
 const gap = (ring: IRing, a: number, b: number): number =>
   Math.hypot(
     ring.plan.points[b]!.x - ring.plan.points[a]!.x,
     ring.plan.points[b]!.y - ring.plan.points[a]!.y,
   );
 
-/**
+/*
  * One ring of the mesh: its plane, its distance along the spine, and its
  * canonical layout in the plane and in space.
  */

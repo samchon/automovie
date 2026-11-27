@@ -23,7 +23,7 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanPropOutcome } from "./HumanPropOutcome";
 
-/**
+/*
  * The hit record of a performance: every contact that strikes a person or a
  * thing, as the one shared record (`IAutoMovieInteractionEvent`) a reaction, a
  * force, a breakage or a review reads. Three producers write it:
@@ -46,12 +46,11 @@ import { HumanPropOutcome } from "./HumanPropOutcome";
  * with ties sorted by event id.
  */
 export namespace HumanPerformanceHits {
-  /**
+  /*
    * Every hit of the performance in time order, or those on one subject.
-   *
-   * @param self The placed performance.
-   * @param subject The struck person or prop; every hit when absent.
-   * @returns The hits.
+   * Parameter self: The placed performance.
+   * Parameter subject: The struck person or prop; every hit when absent.
+   * Returns: The hits.
    */
   export function hits(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -67,13 +66,12 @@ export namespace HumanPerformanceHits {
         );
   }
 
-  /**
+  /*
    * Every hit of the performance as it is placed now, in time order with ties
    * by event id: what the performance prepares once every action, stop and
    * flight is resolved (`IAutoMovieMotionHumanPerformanceState.hits`).
-   *
-   * @param self The placed performance.
-   * @returns The hits.
+   * Parameter self: The placed performance.
+   * Returns: The hits.
    */
   export function solve(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -89,7 +87,9 @@ export namespace HumanPerformanceHits {
     );
   }
 
-  /** The melee stops. */
+  /*
+   * The melee stops.
+   */
   function melee(
     self: IAutoMovieMotionHumanPerformanceState,
     read: IReadBones,
@@ -146,7 +146,9 @@ export namespace HumanPerformanceHits {
     );
   }
 
-  /** The blasts' hits. */
+  /*
+   * The blasts' hits.
+   */
   function blasts(
     self: IAutoMovieMotionHumanPerformanceState,
     read: IReadBones,
@@ -186,7 +188,7 @@ export namespace HumanPerformanceHits {
     return out;
   }
 
-  /**
+  /*
    * Each recorded impact, with the departure from the following leg if one
    * exists.
    */
@@ -258,7 +260,7 @@ export namespace HumanPerformanceHits {
     return out;
   }
 
-  /**
+  /*
    * Where a segment meets a person at a second: the bone, the surface point,
    * its normal and the nearest region.
    */
@@ -286,7 +288,7 @@ export namespace HumanPerformanceHits {
     return { ...near, ...(region === undefined ? {} : { region }) };
   }
 
-  /**
+  /*
    * Actual per-person observation, with outputs dictated by the current hit
    * consumer.
    */
@@ -296,7 +298,7 @@ export namespace HumanPerformanceHits {
     kind: ReadBonesKind,
   ) => Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-  /**
+  /*
    * Static demand producers live only for this synchronous hit-record build,
    * never their query results.
    */
@@ -342,7 +344,7 @@ export namespace HumanPerformanceHits {
     };
   }
 
-  /**
+  /*
    * The bones a reading of one kind resolves: the regions' owners, and for
    * contact the colliders' too.
    */
@@ -357,7 +359,9 @@ export namespace HumanPerformanceHits {
     return selected;
   }
 
-  /** The body's named region whose point lies nearest a world point. */
+  /*
+   * The body's named region whose point lies nearest a world point.
+   */
   function nearestRegion(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -382,14 +386,16 @@ export namespace HumanPerformanceHits {
     return best;
   }
 
-  /** The four original distal source segments emitted by the melee limb mapping. */
+  /*
+   * The four original distal source segments emitted by the melee limb mapping.
+   */
   type IDistal =
     | "leftLowerArm"
     | "rightLowerArm"
     | "leftLowerLeg"
     | "rightLowerLeg";
 
-  /**
+  /*
    * The profile's mass of a distal segment, its first record of the bone; none
    * when the profile has none.
    */
@@ -404,7 +410,7 @@ export namespace HumanPerformanceHits {
     )?.mass;
   }
 
-  /**
+  /*
    * The body's regions with their bone-local frames, in the body's entry order,
    * which strict first-minimum selection keeps.
    */
@@ -412,7 +418,7 @@ export namespace HumanPerformanceHits {
     return Object.entries(body.surfaces.regions) as IRegions;
   }
 
-  /**
+  /*
    * The body's original entry order, used unchanged by strict first-minimum
    * selection.
    */
@@ -422,22 +428,34 @@ export namespace HumanPerformanceHits {
   ])[];
 }
 
-/** The alternatives of `DemandKind`'s site. */
+/*
+ * The alternatives of `DemandKind`'s site.
+ */
 type DemandKind = "regions" | "contact";
 
-/** The alternatives of `SourcesEntryItem`'s site. */
+/*
+ * The alternatives of `SourcesEntryItem`'s site.
+ */
 type SourcesEntryItem = "regions" | "contact";
 
-/** The alternatives of `ReadingKind`'s site. */
+/*
+ * The alternatives of `ReadingKind`'s site.
+ */
 type ReadingKind = "regions" | "contact";
 
-/** The alternatives of `EntryItemEntry`'s site. */
+/*
+ * The alternatives of `EntryItemEntry`'s site.
+ */
 type EntryItemEntry = "regions" | "contact";
 
-/** The alternatives of `ReadBonesKind`'s site. */
+/*
+ * The alternatives of `ReadBonesKind`'s site.
+ */
 type ReadBonesKind = "regions" | "contact";
 
-/** The record of `IPersonResult`'s site. */
+/*
+ * The record of `IPersonResult`'s site.
+ */
 type IPersonResult = {
   distance: number;
   bone: AutoMovieHumanoidBone;

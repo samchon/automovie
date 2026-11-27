@@ -9,28 +9,27 @@ import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanMountedSeats } from "./HumanMountedSeats";
 
-/**
+/*
  * Admit one figure of a mounted performance (`HumanMounted`): its transfer and
  * hold seconds, its supports against what its seat kind reads and the carrier
  * declares, each hand keeping one contact through the whole performance, and
  * the transfer into it keeping a support held through it, the seat or a part on
  * the same contact, so weight passes to the next support before the last is
  * released.
- *
- * @param on The carrier's subject id.
- * @param support The carrier.
- * @param figures Every figure, in order.
- * @param index The figure admitted.
- * @param parts Every supporting part, in the order the law lists them.
- * @param hands The contact each hand holds so far, filled as figures are
- *   admitted.
- * @param planted Whether each entry foot stands on something.
- * @param stride The performance's stride, seconds, when given.
- * @throws {HumanRefusal} For a transfer of no time, a negative hold, a support
- *   the seat kind lacks or does not read, a contact the carrier lacks, a hand
- *   that changes contact, a transfer that holds no support through it, an
- *   entered figure naming a stirrup the entry's foot is not in, or a hand ride
- *   without a stride and both reins.
+ * Parameter on: The carrier's subject id.
+ * Parameter support: The carrier.
+ * Parameter figures: Every figure, in order.
+ * Parameter index: The figure admitted.
+ * Parameter parts: Every supporting part, in the order the law lists them.
+ * Parameter hands: The contact each hand holds so far, filled as figures are
+ * admitted.
+ * Parameter planted: Whether each entry foot stands on something.
+ * Parameter stride: The performance's stride, seconds, when given.
+ * For a transfer of no time, a negative hold, a support
+ * the seat kind lacks or does not read, a contact the carrier lacks, a hand
+ * that changes contact, a transfer that holds no support through it, an
+ * entered figure naming a stirrup the entry's foot is not in, or a hand ride
+ * without a stride and both reins.
  */
 export function admitHumanMountedFigure(
   on: string,

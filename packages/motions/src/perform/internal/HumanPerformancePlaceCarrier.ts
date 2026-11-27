@@ -9,15 +9,14 @@ import type {
 
 import type { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
-/**
+/*
  * The carrier an overlay rides (`HumanPerformancePlace.place`): the action that
  * carries the body at the overlay's start, its posture read at the carrier's
  * own second for an overlay second, and the prop it plants on, the support the
  * overlay rides.
- *
- * @param previous The carrying action.
- * @param start The overlay's film start, seconds.
- * @returns The overlay's carrier.
+ * Parameter previous: The carrying action.
+ * Parameter start: The overlay's film start, seconds.
+ * Returns: The overlay's carrier.
  */
 export function HumanPerformancePlaceCarrier(
   previous: HumanPerformancePlaceCarrier.IPrevious,
@@ -52,9 +51,11 @@ export function HumanPerformancePlaceCarrier(
   };
 }
 
-/** Companion types of {@link HumanPerformancePlaceCarrier}. */
+/*
+ * Companion types of HumanPerformancePlaceCarrier.
+ */
 export namespace HumanPerformancePlaceCarrier {
-  /**
+  /*
    * What the carrier reads of the carrying action: its name, its start, and its
    * plan's duration, posture and contacts.
    */
@@ -62,7 +63,9 @@ export namespace HumanPerformancePlaceCarrier {
     IAutoMovieMotionHumanSegment,
     "name" | "start"
   > & {
-    /** The plan's duration, posture and contacts. */
+    /*
+     * The plan's duration, posture and contacts.
+     */
     plan: Pick<
       IAutoMovieMotionHumanActionPlan,
       "duration" | "posture" | "contacts"
@@ -70,7 +73,9 @@ export namespace HumanPerformancePlaceCarrier {
   };
 }
 
-/** The record of `IPlaceDraftedResult`'s site. */
+/*
+ * The record of `IPlaceDraftedResult`'s site.
+ */
 type IPlaceDraftedResult = {
   support?: IAutoMovieMotionHumanContactWindow.Support;
 };

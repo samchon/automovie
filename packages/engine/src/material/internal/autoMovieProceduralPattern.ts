@@ -5,7 +5,7 @@ import { autoMovieProceduralFractal } from "./autoMovieProceduralFractal";
 import { autoMovieProceduralFrame } from "./autoMovieProceduralFrame";
 import { autoMovieProceduralHash } from "./autoMovieProceduralHash";
 
-/**
+/*
  * A procedural surface's pattern value within [0, 1] at a point of its sampling
  * space, in metres.
  *
@@ -35,10 +35,9 @@ import { autoMovieProceduralHash } from "./autoMovieProceduralHash";
  * The 0.75 and 0.25 stone weights, the four-spacing wood wander and the 0.8 to
  * 1 thread jitter are this contract's fixed definitions of the kinds, not
  * fitted values. The renderer evaluates the same expressions.
- *
- * @param surface The admitted surface.
- * @param point The sample point in its sampling space, metres.
- * @returns The pattern value.
+ * Parameter surface: The admitted surface.
+ * Parameter point: The sample point in its sampling space, metres.
+ * Returns: The pattern value.
  */
 export function autoMovieProceduralPattern(
   surface: IAutoMovieProceduralSurface,
@@ -117,7 +116,9 @@ export function autoMovieProceduralPattern(
     }
   }
 }
-/** The value clamped to [0, 1]. */
+/*
+ * The value clamped to [0, 1].
+ */
 function clamp01(value: number): number {
   return Math.max(0, Math.min(1, value));
 }

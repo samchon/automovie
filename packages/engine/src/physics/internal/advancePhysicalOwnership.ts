@@ -18,7 +18,7 @@ import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { stabilizePhysicalJointReturn } from "./stabilizePhysicalJointReturn";
 
-/**
+/*
  * Switch native ownership at declared subtree boundaries. Activation retains
  * the actual transform and explicitly carries the native kinematic COM and
  * angular velocities. Return uses cubic Hermite corrections in parent-local
@@ -30,18 +30,28 @@ import { stabilizePhysicalJointReturn } from "./stabilizePhysicalJointReturn";
  * rendered skeleton over a different physical body.
  */
 export function advancePhysicalOwnership(input: {
-  /** Admitted provider and ownership duration. */ body: IAutoMoviePhysicalSimulationInput.IBody;
-  /** Current causal ownership selection. */ target: IAutoMoviePhysicalSimulationInput.ITarget;
-  /** Native handles and serialized transition state. */ bound: Bound;
-  /** Authored or contact-fitted world goals, updated for returning subtrees. */ goals: Record<
+  /*
+   * Admitted provider and ownership duration.
+   */ body: IAutoMoviePhysicalSimulationInput.IBody;
+  /*
+   * Current causal ownership selection.
+   */ target: IAutoMoviePhysicalSimulationInput.ITarget;
+  /*
+   * Native handles and serialized transition state.
+   */ bound: Bound;
+  /*
+   * Authored or contact-fitted world goals, updated for returning subtrees.
+   */ goals: Record<
     string,
     IAutoMovieSamplePhysicalTarget.IResult
   >;
-  /**
+  /*
    * Exact next solver tick; floating-point timesteps never establish event
    * time.
    */ tick: number;
-  /** Declared integer native ticks per second. */ nativeRate: number;
+  /*
+   * Declared integer native ticks per second.
+   */ nativeRate: number;
 }): Set<string> {
   const seconds: number = input.tick / input.nativeRate;
   const previousSeconds: number = (input.tick - 1) / input.nativeRate;
@@ -363,7 +373,7 @@ export function advancePhysicalOwnership(input: {
   }
   return selected;
 
-  /**
+  /*
    * Bone origins follow the same fixed pivots as colliders, including angular
    * transport velocity.
    */
@@ -399,7 +409,9 @@ export function advancePhysicalOwnership(input: {
     write(segment);
   }
 
-  /** Detach only coordinates this ownership pass actually changes. */
+  /*
+   * Detach only coordinates this ownership pass actually changes.
+   */
   function writable(bone: string): IAutoMovieSamplePhysicalTarget.IResult {
     if (!owned?.has(bone)) {
       input.goals[bone] = copyPhysicalTarget(input.goals[bone]!);
@@ -408,7 +420,9 @@ export function advancePhysicalOwnership(input: {
     return input.goals[bone]!;
   }
 
-  /** Hand the same actual collider/display trajectory to the solver. */
+  /*
+   * Hand the same actual collider/display trajectory to the solver.
+   */
   function write(segment: IAutoMoviePhysicalSegment): void {
     const bone: string = segment.bone;
     const goal: IAutoMovieSamplePhysicalTarget.IResult = input.goals[bone]!;
@@ -418,7 +432,7 @@ export function advancePhysicalOwnership(input: {
   }
 }
 
-/**
+/*
  * Parent-relative spatial derivatives include transport by the parent's actual
  * angular velocity.
  */

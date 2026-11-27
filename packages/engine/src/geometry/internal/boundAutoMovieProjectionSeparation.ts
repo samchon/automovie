@@ -6,7 +6,7 @@ import type {
 import { adjacentAutoMovieFloat64 as outward } from "../../math/internal/adjacentAutoMovieFloat64";
 import { measureAutoMovieProjectionIntervals } from "./measureAutoMovieProjectionIntervals";
 
-/**
+/*
  * A lower bound on the Euclidean separation of two convex hulls, proved along
  * one stored direction.
  *
@@ -24,11 +24,10 @@ import { measureAutoMovieProjectionIntervals } from "./measureAutoMovieProjectio
  * `boundAutoMovieConvexSeparation` and the resident separation query's box
  * pruning are the consumers; their approximate witnesses only choose the
  * direction.
- *
- * @param a First vertex run.
- * @param b Second vertex run.
- * @param raw Stored direction; any nonzero scale.
- * @returns A nonnegative separation lower bound in metres.
+ * Parameter a: First vertex run.
+ * Parameter b: Second vertex run.
+ * Parameter raw: Stored direction; any nonzero scale.
+ * Returns: A nonnegative separation lower bound in metres.
  */
 export function boundAutoMovieProjectionSeparation(
   a: readonly IAutoMovieVector3[],

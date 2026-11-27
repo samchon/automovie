@@ -174,7 +174,9 @@ export namespace AutoMovieLoftFrame {
     return [w[0] / span, w[1] / span, w[2] / span];
   }
 
-  /** Rotation matrix of a frame: columns u, w = v x u, v (images of +X, +Y, +Z). */
+  /*
+   * Rotation matrix of a frame: columns u, w = v x u, v (images of +X, +Y, +Z).
+   */
   function matrix(frame: IAutoMovieLoftSectionFrame): number[][] {
     const u: [number, number, number] = frame.u;
     const v: [number, number, number] = frame.v;
@@ -190,14 +192,18 @@ export namespace AutoMovieLoftFrame {
     ];
   }
 
-  /** Transpose of a 3x3 matrix. */
+  /*
+   * Transpose of a 3x3 matrix.
+   */
   function transpose(m: number[][]): number[][] {
     return [0, 1, 2].map((i: number): number[] =>
       [0, 1, 2].map((j: number): number => m[j]![i]!),
     );
   }
 
-  /** Product of two 3x3 matrices. */
+  /*
+   * Product of two 3x3 matrices.
+   */
   function multiply(a: number[][], b: number[][]): number[][] {
     return [0, 1, 2].map((i: number): number[] =>
       [0, 1, 2].map(
@@ -207,7 +213,9 @@ export namespace AutoMovieLoftFrame {
     );
   }
 
-  /** A 3x3 matrix applied to a vector. */
+  /*
+   * A 3x3 matrix applied to a vector.
+   */
   function apply(
     m: number[][],
     x: readonly [number, number, number],
@@ -218,7 +226,9 @@ export namespace AutoMovieLoftFrame {
     ) as [number, number, number];
   }
 
-  /** Cross product. */
+  /*
+   * Cross product.
+   */
   function cross(
     a: readonly [number, number, number],
     b: readonly [number, number, number],
@@ -230,7 +240,9 @@ export namespace AutoMovieLoftFrame {
     ];
   }
 
-  /** Rotation vector (axis times angle, angle in [0, pi]) of a rotation matrix. */
+  /*
+   * Rotation vector (axis times angle, angle in [0, pi]) of a rotation matrix.
+   */
   function logarithm(m: number[][]): [number, number, number] {
     // Through the unit quaternion, which stays accurate for small angles.
     const q: [number, number, number, number] = readBasisQuaternion(
@@ -256,7 +268,9 @@ export namespace AutoMovieLoftFrame {
     return [(x / s) * angle, (y / s) * angle, (z / s) * angle];
   }
 
-  /** Rotation matrix of a rotation vector (Rodrigues' formula). */
+  /*
+   * Rotation matrix of a rotation vector (Rodrigues' formula).
+   */
   function exponential(p: readonly [number, number, number]): number[][] {
     const angle: number = Math.hypot(p[0], p[1], p[2]);
     // sin(a)/a and (1 - cos(a))/a^2, by series near zero.
@@ -279,7 +293,7 @@ export namespace AutoMovieLoftFrame {
     );
   }
 
-  /**
+  /*
    * Inverse right Jacobian of the rotation exponential at `p`, applied to x.
    * The expression is `x + (p x x) / 2 + c p x (p x x)` with `c = 1/a^2 - (1 +
    * cos a) / (2 a sin a)`.
@@ -301,7 +315,9 @@ export namespace AutoMovieLoftFrame {
     ) as [number, number, number];
   }
 
-  /** Dot product. */
+  /*
+   * Dot product.
+   */
   function dot(
     a: readonly [number, number, number],
     b: readonly [number, number, number],
@@ -309,7 +325,9 @@ export namespace AutoMovieLoftFrame {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
-  /** Whether two unit vectors are equal to rounding. */
+  /*
+   * Whether two unit vectors are equal to rounding.
+   */
   function same(
     a: readonly [number, number, number],
     b: readonly [number, number, number],
@@ -320,7 +338,9 @@ export namespace AutoMovieLoftFrame {
     );
   }
 
-  /** Store the logarithm's raw quaternion in scalar-first order. */
+  /*
+   * Store the logarithm's raw quaternion in scalar-first order.
+   */
   function scalarFirstQuaternion(
     x: number,
     y: number,

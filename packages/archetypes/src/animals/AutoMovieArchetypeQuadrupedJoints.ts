@@ -99,7 +99,9 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
       }),
     };
 
-    /** Require an already admitted named bar instead of asserting a map cast. */
+    /*
+     * Require an already admitted named bar instead of asserting a map cast.
+     */
     function bar(bone: AutoMovieArchetypeQuadrupedBody.Bone): Bar {
       const found: Bar | undefined = bars.get(bone);
       if (found === undefined)
@@ -107,7 +109,9 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
       return found;
     }
 
-    /** The coarse body contract uses capsules for both torso parents. */
+    /*
+     * The coarse body contract uses capsules for both torso parents.
+     */
     function parent(
       id: QuadrupedAttachments.Parent,
     ): QuadrupedAttachments.IParent {
@@ -124,7 +128,7 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
       };
     }
 
-    /**
+    /*
      * Every joint is simultaneously the preceding lower and following upper
      * endpoint.
      */
@@ -159,7 +163,9 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
       return points;
     }
 
-    /** One arithmetic-noise closure contract for axial and limb junctions. */
+    /*
+     * One arithmetic-noise closure contract for axial and limb junctions.
+     */
     function closure(
       left: IAutoMovieVector3,
       right: IAutoMovieVector3,
@@ -178,7 +184,7 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
     }
   }
 
-  /**
+  /*
    * Admit the positive primitive and root-local unit rigid frame before
    * decoding either endpoint.
    */
@@ -253,7 +259,7 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
     };
   }
 
-  /**
+  /*
    * Bounded endpoint/rigid-transform arithmetic noise, independent of
    * visible-contact tolerances.
    */

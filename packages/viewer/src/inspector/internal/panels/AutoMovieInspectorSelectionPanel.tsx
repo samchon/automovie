@@ -18,13 +18,17 @@ import type { IAutoMovieInspectorPathNode } from "../../IAutoMovieInspectorPathN
 import { AutoMovieViewerInspector } from "../../AutoMovieViewerInspector.js";
 
 
-/** The width of each of the three checkbox columns and the colour column, pixels. */
+/*
+ * The width of each of the three checkbox columns and the colour column, pixels.
+ */
 const COLUMN: number = 22;
 
-/** The width of the disclosure button before a name, pixels. */
+/*
+ * The width of the disclosure button before a name, pixels.
+ */
 const DISCLOSURE: number = 16;
 
-/**
+/*
  * Selection: the subject's identity paths as a tree, with select, hide, label and colour per path.
  *
  * A header names the four columns. Each node edits the request by its pattern, the one that selects the node and its subtree: a checkbox puts the pattern in or takes it out of `parts`, `hide` or `label`, and the colour input gives it a `color` pair, which the clear button takes back. A node is checked when its own pattern is in the list, so a pattern typed in the address that matches several nodes checks none of them, and stays in the request. The empty path has no pattern and only a name.
@@ -103,18 +107,26 @@ export function AutoMovieInspectorSelectionPanel(
 
 export namespace AutoMovieInspectorSelectionPanel {
   export interface IProps {
-    /** The request shown. */
+    /*
+     * The request shown.
+     */
     request: IAutoMovieCapturePlanRequest;
 
-    /** The subject's identity paths in scene order. */
+    /*
+     * The subject's identity paths in scene order.
+     */
     paths: readonly string[];
 
-    /** Where edits go. */
+    /*
+     * Where edits go.
+     */
     dispatch: (action: IAutoMovieInspectorAction) => void;
   }
 }
 
-/** Whether a node or any node under it matches the filter. */
+/*
+ * Whether a node or any node under it matches the filter.
+ */
 function shown(node: IAutoMovieInspectorPathNode, needle: string): boolean {
   return (
     needle === "" ||
@@ -125,7 +137,9 @@ function shown(node: IAutoMovieInspectorPathNode, needle: string): boolean {
   );
 }
 
-/** The number of paths under a node. */
+/*
+ * The number of paths under a node.
+ */
 function count(node: IAutoMovieInspectorPathNode): number {
   return node.children.reduce(
     (sum: number, child: IAutoMovieInspectorPathNode): number =>
@@ -134,7 +148,9 @@ function count(node: IAutoMovieInspectorPathNode): number {
   );
 }
 
-/** One node with its controls and, folded until opened, its children. */
+/*
+ * One node with its controls and, folded until opened, its children.
+ */
 function Row(props: {
   node: IAutoMovieInspectorPathNode;
   needle: string;

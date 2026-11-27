@@ -12,9 +12,11 @@ import { steerAutoMovieCrowdContacts } from "./steerAutoMovieCrowdContacts";
 import { steerAutoMovieCrowdGeometry } from "./steerAutoMovieCrowdGeometry";
 import { steerAutoMovieCrowdNeighbours } from "./steerAutoMovieCrowdNeighbours";
 
-/** Private implementation bindings for the crowd steering owner. */
+/*
+ * Private implementation bindings for the crowd steering owner.
+ */
 export namespace SteerAutoMovieCrowdImplementation {
-  /**
+  /*
    * A crowd's ways planned once: every agent heads for its goals at its own
    * desired speed and avoids the others and the obstacles by anticipation, the
    * whole crowd integrated together on a fixed step and each agent's course read
@@ -95,13 +97,12 @@ export namespace SteerAutoMovieCrowdImplementation {
    * constants, its force cap and its sensing range were searched for (the paper's
    * supplement and the authors' page could not be read) and are provisional here,
    * as is every other named constant marked so.
-   *
-   * @param props The agents, the obstacles, the interval, the step and the law's
-   *   two times.
-   * @returns Each agent's course in the order given, and the contacts.
-   * @throws {Error} When an agent's radius, speed or start is not finite and
-   *   positive where it must be, a goal list is empty, or the interval is not
-   *   forward: a caller's defect.
+   * Parameter props: The agents, the obstacles, the interval, the step and the law's
+   * two times.
+   * Returns: Each agent's course in the order given, and the contacts.
+   * When an agent's radius, speed or start is not finite and
+   * positive where it must be, a goal list is empty, or the interval is not
+   * forward: a caller's defect.
    */
   export function steerAutoMovieCrowd(
     props: IAutoMovieSteerCrowd.IProps,
@@ -569,20 +570,36 @@ export namespace SteerAutoMovieCrowdImplementation {
     };
   }
 
-  /** The relaxation time of the driving term, seconds. */
+  /*
+   * The relaxation time of the driving term, seconds.
+   */
   export const RELAXATION: number = 0.5;
-  /** The interaction horizon, seconds. */
+  /*
+   * The interaction horizon, seconds.
+   */
   export const HORIZON: number = 3;
-  /** The energy scale, square metres per second squared. */
+  /*
+   * The energy scale, square metres per second squared.
+   */
   export const K: number = 1.5;
-  /** The largest steering push, metres per second squared. */
+  /*
+   * The largest steering push, metres per second squared.
+   */
   export const CAP: number = 20;
-  /** Neighbourhood distance used for heading alignment, metres. */
+  /*
+   * Neighbourhood distance used for heading alignment, metres.
+   */
   export const NEIGHBOURHOOD: number = 2;
-  /** Desired travel time ahead of the nearest goal, seconds. */
+  /*
+   * Desired travel time ahead of the nearest goal, seconds.
+   */
   export const LOOKAHEAD: number = 1;
-  /** Desired arrival relaxation time, seconds. */
+  /*
+   * Desired arrival relaxation time, seconds.
+   */
   export const ARRIVAL: number = 2;
-  /** Maximum speed multiplier when an agent gives none. */
+  /*
+   * Maximum speed multiplier when an agent gives none.
+   */
   export const MAXIMUM: number = 1.3;
 }

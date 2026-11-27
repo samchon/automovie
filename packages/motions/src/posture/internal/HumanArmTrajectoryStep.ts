@@ -1,17 +1,16 @@
 import type { HumanArmSeed } from "./HumanArmSeed";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
-/**
+/*
  * The iterate after a step of the convex subproblem: each inner waypoint's free
  * coordinates moved by the step, the others kept, then projected onto the hard
  * ranges (`ranged`), which the subproblem meets only to its linearisation and
  * its solver's tolerance.
- *
- * @param c The context.
- * @param x Each arm's coordinates at each waypoint.
- * @param step The subproblem's solution, by waypoint and then arm.
- * @param pinned Exact positions of the solved hold poses.
- * @returns The new iterate.
+ * Parameter c: The context.
+ * Parameter x: Each arm's coordinates at each waypoint.
+ * Parameter step: The subproblem's solution, by waypoint and then arm.
+ * Parameter pinned: Exact positions of the solved hold poses.
+ * Returns: The new iterate.
  */
 export function HumanArmTrajectoryStep(
   c: StepContext,
@@ -33,7 +32,9 @@ export function HumanArmTrajectoryStep(
   );
 }
 
-/** The knot and chart data needed to apply a step. */
+/*
+ * The knot and chart data needed to apply a step.
+ */
 type StepContext = Pick<
   M.IContext,
   | "n"

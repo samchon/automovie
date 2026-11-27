@@ -40,7 +40,7 @@ import { HumanHandoverUpright } from "./HumanHandoverUpright";
 import { HumanPrehension } from "./HumanPrehension";
 import { handshake } from "./handshake";
 
-/**
+/*
  * Handing a held prop to a receiver: the giver's half of a handover.
  *
  * The goal is the prop's place, not the arm: the giver carries the held prop so
@@ -71,10 +71,14 @@ import { handshake } from "./handshake";
  * the put down's provisional value.
  */
 export namespace handOver {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "handOver";
 
-  /** Cancel table: after the release the hand is free. */
+  /*
+   * Cancel table: after the release the hand is free.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
@@ -93,14 +97,15 @@ export namespace handOver {
       },
     ],
   };
-  /** Time the fingers take to open at the release, seconds; provisional. */
+  /*
+   * Time the fingers take to open at the release, seconds; provisional.
+   */
   export const OPEN: number = 0.2;
 
-  /**
+  /*
    * Plan the giver's half.
-   *
-   * @param context The action's context.
-   * @returns The plan.
+   * Parameter context: The action's context.
+   * Returns: The plan.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandoverAction.IParams>,
@@ -408,7 +413,9 @@ export namespace handOver {
   }
 }
 
-/** The record of `IPlanLean`'s site. */
+/*
+ * The record of `IPlanLean`'s site.
+ */
 type IPlanLean = {
   share: number;
   joints: IAutoMovieMotionHumanSeatedReach.IJoint[];

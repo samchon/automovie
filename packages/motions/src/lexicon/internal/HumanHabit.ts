@@ -9,12 +9,12 @@ import { gesture } from "../../everyday/internal/gesture";
 import { AutoMovieMotionHumanActionRow } from "../../law/AutoMovieMotionHumanActionRow";
 import { touch } from "../../touch/internal/touch";
 
-/**
+/*
  * Habits: the small things people do with their hands, each a row of a shipped
  * action. Register the ones a film uses.
  */
 export namespace HumanHabit {
-  /**
+  /*
    * A draw on a cigarette: held at the lips for a puff's length, drawn by the
    * seed between 1.6 and 2.1 s (mean puff durations of the Pennsylvania Adult
    * Smoking Study and NCT04844762; a cigarette's dozen puffs, their intervals
@@ -47,7 +47,7 @@ export namespace HumanHabit {
     hold: { between: { minimumSeconds: 1.6, maximumSeconds: 2.1 } },
   });
 
-  /**
+  /*
    * The walk under a screen read while walking (`handToFace({ kind: "read" })`
    * over it): the normal walk slowed by a third (a manner pace of 2/3), the
    * reduction Lamberg and Muratori 2012 report for texting walkers, inside the
@@ -61,7 +61,7 @@ export namespace HumanHabit {
     manner: { pace: 2 / 3 },
   });
 
-  /**
+  /*
    * A photograph through a camera's viewfinder, with the camera in hand: the
    * right hand took it up by its `grip` for this use (`pickUp` with `use: {
    * tip: "screen", line: "across", at: { region: "noseBridge" } }`), brings its
@@ -97,7 +97,7 @@ export namespace HumanHabit {
     },
   });
 
-  /**
+  /*
    * A look at a held screen, as a phone read at the reading distance. It holds
    * the screen at the reading distance for the `read` task's 3 s
    * (`handToFaceRows.ROWS`, provisional); glancing at a message.
@@ -108,7 +108,7 @@ export namespace HumanHabit {
     kind: "read",
   });
 
-  /**
+  /*
    * A look at a wristwatch: the left wrist raised before the eyes at the
    * reading distance (`handToFaceSheet.READING`), its back turned to them and
    * the forearm across the body, the head bowed 20 degrees to it (provisional),
@@ -135,7 +135,7 @@ export namespace HumanHabit {
     hand: "left",
   });
 
-  /**
+  /*
    * Lipstick or balm drawn across the lips. Two strokes of 0.5 s and 0.2 s on
    * the lips, about 1.2 s after the reach
    * (`AutoMovieMotionHumanTouchForm.FORMS`, provisional); grooming.
@@ -161,7 +161,7 @@ export namespace HumanHabit {
     },
   });
 
-  /**
+  /*
    * A shave: the head of a held razor rubbed up the right jaw three times
    * (`touch` with the held prop's working point). The composition names the
    * razor (`prop`) taken up for its use, and its working point (`point`), the
@@ -178,7 +178,7 @@ export namespace HumanHabit {
     tangent: "up",
   });
 
-  /**
+  /*
    * A rub of tired eyes with the fingertips. Two rubs of 0.5 s and 0.2 s, about
    * 1.2 s after the reach (provisional); tiredness.
    */
@@ -197,7 +197,7 @@ export namespace HumanHabit {
     },
   });
 
-  /**
+  /*
    * A scratch of the nape. Three scratches of 0.2 s, then 0.4 s (`touch`'s
    * defaults), 1.0 s after the reach (provisional); idle, itch, unease.
    */
@@ -209,7 +209,7 @@ export namespace HumanHabit {
     kind: "scratch",
   });
 
-  /**
+  /*
    * Blowing the nose: the hand, as with a tissue, held over the nose with the
    * head bowed a little (first pass; hold and bow provisional). Held 1 s
    * (provisional).
@@ -229,7 +229,7 @@ export namespace HumanHabit {
     },
   });
 
-  /**
+  /*
    * Cream rubbed on the face with both palms, twice up the cheeks. Two rubs of
    * 0.5 s then 0.4 s, 1.4 s after the reach (provisional); grooming.
    */
@@ -240,7 +240,7 @@ export namespace HumanHabit {
     count: 2,
   });
 
-  /**
+  /*
    * Fanning oneself with a hand: six beats beside the face (first pass on the
    * wave's stroke, provisional). Six beats of 0.4 s, 2.4 s
    * (`AutoMovieMotionHumanTiming.PAUSES`); heat, impatience.
@@ -252,7 +252,7 @@ export namespace HumanHabit {
     count: 6,
   });
 
-  /**
+  /*
    * Smelling a held thing: brought under the nose and held, the head bowed to
    * it (first pass; values provisional). Held 0.6 s (provisional); checking
    * food, a flower, a smell.
@@ -278,7 +278,7 @@ export namespace HumanHabit {
     },
   });
 
-  /**
+  /*
    * Flicking the hair back: the back of the hand stroked up the temple. One
    * stroke lasting a flick's 0.151 s, a proxy from a flick gesture's duration
    * (`touch.FLICK`, Moyle and Cockburn 2003).
@@ -296,7 +296,7 @@ export namespace HumanHabit {
     },
   );
 
-  /**
+  /*
    * A selfie: a phone held out before the eyes at the reading distance, the
    * elbow-bent convention of about 30 cm, the head level, held a second and a
    * half (provisional).
@@ -322,7 +322,7 @@ export namespace HumanHabit {
     },
   });
 
-  /**
+  /*
    * Lighting a cigarette: a flame brought to the cigarette's end before the
    * lips, the head bowed to it (first pass with one hand; the second, cupping
    * hand is not placed). The flame held 0.8 s (provisional).
@@ -348,7 +348,7 @@ export namespace HumanHabit {
     },
   });
 
-  /**
+  /*
    * Tapping the ash off a held cigarette: its lit end tapped twice on the place
    * the composition gives, such as an ashtray's surface (`target`); the
    * composition names the cigarette (`prop`). Two taps of 0.3 s, then 0.4 s,
@@ -362,7 +362,7 @@ export namespace HumanHabit {
     point: "flame",
   });
 
-  /**
+  /*
    * Stubbing a held cigarette out: its lit end pressed on the place the
    * composition gives and held there (the twist of the stub is not moved yet);
    * the composition names the cigarette (`prop`). Pressed and held 1.2 s

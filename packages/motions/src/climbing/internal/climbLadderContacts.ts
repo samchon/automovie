@@ -5,18 +5,17 @@ import type {
 
 import type { climbLadderBeats } from "./climbLadderBeats";
 
-/**
+/*
  * A ladder climb's contact windows: each limb holds between its moves, a foot
  * planted on the floor before its first move and on a rung after, a hand
  * gripping a rung from the beat both hands are on. The first hand to move
  * leaves its rung the instant both are on, so it declares no window between.
- *
- * @param moves Each limb's moves in order, seconds.
- * @param order The limbs.
- * @param beat The beat both hands are on by, seconds.
- * @param duration The climb's seconds.
- * @param ladder The ladder's subject.
- * @returns The windows, as shares of the climb.
+ * Parameter moves: Each limb's moves in order, seconds.
+ * Parameter order: The limbs.
+ * Parameter beat: The beat both hands are on by, seconds.
+ * Parameter duration: The climb's seconds.
+ * Parameter ladder: The ladder's subject.
+ * Returns: The windows, as shares of the climb.
  */
 export function climbLadderContacts(
   moves: climbLadderBeats.IBeats["moves"],

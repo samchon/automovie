@@ -39,7 +39,7 @@ import { planEquineFlight } from "../equine/planEquineFlight";
 import { refuseQuadrupedReach } from "../quadruped/refuseQuadrupedReach";
 import { trialEquineFlight } from "../equine/trialEquineFlight";
 
-/**
+/*
  * A quadruped going along a course: its root on the path, its trunk rising and
  * falling and its head nodding with the stride, its four limbs stepping in the
  * gait's order, and its gait and lead changing with the speed or as the
@@ -98,26 +98,25 @@ import { trialEquineFlight } from "../equine/trialEquineFlight";
  * goals and cylinder/capsule soles constrain one body-root height; the gait's
  * bob is its soft preference, while the horizontal course is kept. The shared
  * generic FK must reproduce every solved origin and endpoint.
- *
- * @param animal The animal, as `createQuadruped` or its kind's producer builds
- *   it.
- * @param route The course its root follows, or a planned course such as a timed
- *   one (`AutoMovieArchetypeCourse.timed`), ridden as one leg whose strides
- *   take the gait its speed calls for, or a planned course with named-gait cues
- *   (`AutoMovieArchetypeQuadruped.IRideCued`) whose cued intervals take the named gait; a leg may
- *   name the `gait`, the `lead` and an equine technique.
- * @param gait The gait of every stride whose leg names none; absent, the speed
- *   chooses it.
- * @param table Optional admitted authoring table, replacing only this ride's
- *   gait data.
- * @returns The ride.
- * @throws {AutoMovieArchetypeRefusal} When the animal is no quadruped's, a
- *   supplied table fails AutoMovieArchetypeQuadrupedLocomotion.admit, a gait is
- *   not in the selected table, a requested speed is outside its domain, the
- *   course is malformed, a technique is inadmissible, or its phase advance
- *   exceeds representability/capacity before stride enumeration.
- * @throws {RangeError} For unsupported geometry/carriage or foot goals whose
- *   four fixed chains and body-floor constraint have no common root height.
+ * Parameter animal: The animal, as `createQuadruped` or its kind's producer builds
+ * it.
+ * Parameter route: The course its root follows, or a planned course such as a timed
+ * one (`AutoMovieArchetypeCourse.timed`), ridden as one leg whose strides
+ * take the gait its speed calls for, or a planned course with named-gait cues
+ * (`AutoMovieArchetypeQuadruped.IRideCued`) whose cued intervals take the named gait; a leg may
+ * name the `gait`, the `lead` and an equine technique.
+ * Parameter gait: The gait of every stride whose leg names none; absent, the speed
+ * chooses it.
+ * Parameter table: Optional admitted authoring table, replacing only this ride's
+ * gait data.
+ * Returns: The ride.
+ * When the animal is no quadruped's, a
+ * supplied table fails AutoMovieArchetypeQuadrupedLocomotion.admit, a gait is
+ * not in the selected table, a requested speed is outside its domain, the
+ * course is malformed, a technique is inadmissible, or its phase advance
+ * exceeds representability/capacity before stride enumeration.
+ * For unsupported geometry/carriage or foot goals whose
+ * four fixed chains and body-floor constraint have no common root height.
  */
 export function rideQuadruped<Affordance extends string, D extends string>(
   animal: AutoMovieArchetype<
@@ -134,22 +133,36 @@ export function rideQuadruped<Affordance extends string, D extends string>(
   Affordance,
   D | AutoMovieArchetypeQuadrupedBody.Dimension
 > {
-  /** Keep the source dimensions and the solver's quadruped size. */
+  /*
+   * Keep the source dimensions and the solver's quadruped size.
+   */
   type Dimension = D | AutoMovieArchetypeQuadrupedBody.Dimension;
-  /** The pose function the ride reads. */
+  /*
+   * The pose function the ride reads.
+   */
   type Posed = (
     state: AutoMovieArchetypeCourse.IState,
     seconds: number,
   ) => AutoMovieArchetypeRide.IPose<Affordance, Dimension>;
-  /** One assembled stride plan, its clock, instants and pose function. */
+  /*
+   * One assembled stride plan, its clock, instants and pose function.
+   */
   interface IAssembly {
-    /** The clock, with any hold. */
+    /*
+     * The clock, with any hold.
+     */
     clock: QuadrupedRideClock.IClock;
-    /** The stride plan. */
+    /*
+     * The stride plan.
+     */
     strides: QuadrupedStridePlan.IPlan;
-    /** The pose function. */
+    /*
+     * The pose function.
+     */
     posed: Posed;
-    /** The instants the ride adds. */
+    /*
+     * The instants the ride adds.
+     */
     instants: readonly EquineFootwork.IInstant[];
   }
 
@@ -192,7 +205,9 @@ export function rideQuadruped<Affordance extends string, D extends string>(
   const ground: AutoMovieArchetypeQuadrupedFooting.IPlan | undefined =
     terrain.ground;
 
-  /** Choose the next stride from the current route state or explicit footwork. */
+  /*
+   * Choose the next stride from the current route state or explicit footwork.
+   */
   function decide(
     state: AutoMovieArchetypeCourse.IState,
     from: QuadrupedStridePlan.IStride,
@@ -243,7 +258,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     QuadrupedRidePose.prepare(animal, species, rig);
   const tucks: EquineTuck.IFores = EquineTuck.fores(rig.limbs, withers);
 
-  /**
+  /*
    * Assemble the stride plan, instants and pose function, with a jump's flight
    * when it is known. A jump's trial assembly, flown without its arc, skips the
    * footing check its displayed ride must pass.
@@ -286,7 +301,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
     const { takeoff, landing, pitch }: EquineFlightClock.IClock = flown;
     instants.push(...flown.instants);
 
-    /**
+    /*
      * The body's world placement: the course's, turned by a lateral figure and
      * pitched and lifted through a jump.
      */
@@ -299,7 +314,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         EquineLateral.heading(footwork.lateral, seconds),
         pitch === undefined ? undefined : EquinePitch.at(pitch, seconds),
       );
-    /**
+    /*
      * Where a stance plants: the course placement turned by a lateral figure
      * and moved by the jump's fore-aft shift of the limb's shoulder or hip, so
      * a hoof lands within that joint's reach.
@@ -336,7 +351,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
         EquineLateral.crossing(footwork.lateral, rig.limbs, animal.parts),
       );
 
-    /**
+    /*
      * The displayed placement: the body's, tilted by a lameness, pitched by a
      * lean and banked into a bend when asked. As a horse on a circle leans by
      * the gravitational and centripetal prediction (Pfau et al. 2012), the
@@ -362,7 +377,9 @@ export function rideQuadruped<Affordance extends string, D extends string>(
             inward,
           );
     };
-    /** The course state at a second with the displayed placement. */
+    /*
+     * The course state at a second with the displayed placement.
+     */
     const shown = (seconds: number): AutoMovieArchetypeCourse.IState => {
       const state: AutoMovieArchetypeCourse.IState = plan.at(seconds);
       return { ...state, placement: place(state, seconds) };
@@ -373,7 +390,7 @@ export function rideQuadruped<Affordance extends string, D extends string>(
       ? undefined
       : QuadrupedPoleSwing.crossings(ground, animal.parts, shown);
 
-    /**
+    /*
      * Read the course and derive the four current footprint demands before any
      * geometry sharing.
      */

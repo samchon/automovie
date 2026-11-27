@@ -62,7 +62,7 @@ export class AutoMovieTextureCache {
     string,
     THREE.Texture
   >();
-  /**
+  /*
    * Where each primed asset id's pixels come from: carried base64 data, or null
    * for the host loader.
    */
@@ -71,14 +71,16 @@ export class AutoMovieTextureCache {
     string | null
   >();
   private readonly issued: THREE.Texture[] = [];
-  /**
+  /*
    * Actual failed or indeterminate wrappers retained after public bookkeeping
    * closes.
    */
   private readonly uncertainRetirements: Set<THREE.Texture> =
     new Set<THREE.Texture>();
   private disposed: boolean = false;
-  /** One completion outcome, including a failure, shared by every close caller. */
+  /*
+   * One completion outcome, including a failure, shared by every close caller.
+   */
   private disposal: Promise<void> | undefined;
 
   /** Build a cache over one host-owned loader. */
@@ -199,7 +201,9 @@ export class AutoMovieTextureCache {
     return issued;
   };
 
-  /** Wrappers issued by {@link resolveShared}, by canonical binding. */
+  /*
+   * Wrappers issued by resolveShared, by canonical binding.
+   */
   private readonly shared: Map<string, THREE.Texture> = new Map<
     string,
     THREE.Texture
@@ -253,7 +257,9 @@ export class AutoMovieTextureCache {
     return this.disposal;
   }
 
-  /** Drain settled ownership without allowing one native event to skip another. */
+  /*
+   * Drain settled ownership without allowing one native event to skip another.
+   */
   private async release(): Promise<void> {
     const settled: PromiseSettledResult<THREE.Texture>[] =
       await Promise.allSettled(this.pending.values());
@@ -309,12 +315,11 @@ export class AutoMovieTextureCache {
   }
 }
 
-/**
+/*
  * One text per binding: every field of the reference in a fixed order, so equal
  * bindings spelled in different key orders share one text.
- *
- * @param binding The binding record.
- * @returns Its canonical text.
+ * Parameter binding: The binding record.
+ * Returns: Its canonical text.
  */
 function canonical(binding: IAutoMovieTextureReference): string {
   const { transform, sampler } = binding;

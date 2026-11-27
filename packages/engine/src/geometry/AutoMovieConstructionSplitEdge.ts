@@ -75,13 +75,15 @@ export namespace AutoMovieConstructionSplitEdge {
     )
       return "the child's phase between the band's columns does not advance with its clock";
 
-    /** The child's phase at a band clock with two derivatives. */
+    /*
+     * The child's phase at a band clock with two derivatives.
+     */
     const phase = (c: number): [number, number, number] => {
       const [x, x1, x2]: [number, number, number] = delta.at(c);
       return [sense * c + x, sense + x1, x2];
     };
 
-    /**
+    /*
      * The child's point on its rail at a band clock with its first and second
      * clock derivatives.
      */

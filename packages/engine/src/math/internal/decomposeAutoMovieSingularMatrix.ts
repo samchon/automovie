@@ -5,7 +5,7 @@ import type {
 
 import { overflowsBinary64 } from "./overflowsBinary64";
 
-/**
+/*
  * Decompose original rows by cyclic one-sided Jacobi column rotations. The
  * method rotates A and accumulates V; it never forms A transpose A. A common
  * maximum-entry scale protects the ordinary pair dot products. Numerical null

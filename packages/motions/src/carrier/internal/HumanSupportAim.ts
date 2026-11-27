@@ -13,7 +13,7 @@ import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotio
 import { instance } from "../../ensemble/internal/instance";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * An aim kept on a world target from a moving support, every second.
  *
  * A carried plan (`HumanSupportCarry`) keeps its goals on the support, so a
@@ -32,24 +32,27 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * performer, or the support, turns first.
  */
 export namespace HumanSupportAim {
-  /** The correction at a second: the wanted line against the carried one. */
+  /*
+   * The correction at a second: the wanted line against the carried one.
+   */
   export interface ICorrection {
-    /**
+    /*
      * The turn about the vertical, degrees, positive toward the performer's
      * left.
      */
     yaw: number;
 
-    /** The rise, degrees, positive up. */
+    /*
+     * The rise, degrees, positive up.
+     */
     pitch: number;
   }
 
-  /**
+  /*
    * The correction a carry asks of an aim.
-   *
-   * @param carry The support's carry since the act's start.
-   * @param aim The aim.
-   * @returns The yaw and the rise from the carried line to the wanted one.
+   * Parameter carry: The support's carry since the act's start.
+   * Parameter aim: The aim.
+   * Returns: The yaw and the rise from the carried line to the wanted one.
    */
   export function correction(
     carry: IAutoMovieMotionHumanSupportCarry.ICarry,
@@ -74,17 +77,16 @@ export namespace HumanSupportAim {
     };
   }
 
-  /**
+  /*
    * A carried posture re-aimed: the arms' goals turned by the correction's yaw
    * about the vertical through the root and raised by its rise about the pivot,
    * the trunk twisted by as much of the yaw as its axial range holds (`taken`).
    * Contact and task-limit offsets stay in the end joint's frame while only the
    * asked world frame turns.
-   *
-   * @param carry The support's carry since the act's start.
-   * @param posture The posture already carried (`HumanSupportCarry.posture`).
-   * @param aim The aim.
-   * @returns The re-aimed posture.
+   * Parameter carry: The support's carry since the act's start.
+   * Parameter posture: The posture already carried (`HumanSupportCarry.posture`).
+   * Parameter aim: The aim.
+   * Returns: The re-aimed posture.
    */
   export function posture(
     carry: IAutoMovieMotionHumanSupportCarry.ICarry,
@@ -141,21 +143,20 @@ export namespace HumanSupportAim {
     };
   }
 
-  /**
+  /*
    * Refuse an aim whose arms would present the line further off the trunk's
    * facing than `aim.arms` at some frame of the act. The presentation gave the
    * arms the line's bearing at the start less the trunk's turn it planned; each
    * frame adds what the trunk cannot take of that frame's correction.
-   *
-   * @param made The carried posture at a second of the act, before the aim
-   *   re-takes it.
-   * @param carry The support's carry since the act's start, at a second of it.
-   * @param aim The aim.
-   * @param duration The act's seconds.
-   * @throws {HumanRefusal} On `target`, with the arms' angle and their bound,
-   *   when a frame's arms present past it.
-   * @throws {Error} When the range-of-motion table gives the chest or the spine
-   *   no twist.
+   * Parameter made: The carried posture at a second of the act, before the aim
+   * re-takes it.
+   * Parameter carry: The support's carry since the act's start, at a second of it.
+   * Parameter aim: The aim.
+   * Parameter duration: The act's seconds.
+   * On `target`, with the arms' angle and their bound,
+   * when a frame's arms present past it.
+   * When the range-of-motion table gives the chest or the spine
+   * no twist.
    */
   export function check(
     made: (seconds: number) => IAutoMovieMotionHumanPosture,
@@ -188,7 +189,7 @@ export namespace HumanSupportAim {
     }
   }
 
-  /**
+  /*
    * How much of a yaw the trunk takes on top of its twist: as far as the
    * chest's and the spine's axial ranges hold, each taking its share.
    */
@@ -212,7 +213,7 @@ export namespace HumanSupportAim {
     return Math.min(most, Math.max(least, yaw));
   }
 
-  /**
+  /*
    * The trunk's turn on the pelvis a posture holds, degrees, positive toward
    * the performer's left: the pelvis's, the spine's and the chest's twists.
    */
@@ -224,7 +225,7 @@ export namespace HumanSupportAim {
     );
   }
 
-  /**
+  /*
    * A target's bearing off a heading on the floor, from a point, degrees,
    * positive toward the performer's left.
    */
@@ -245,7 +246,9 @@ export namespace HumanSupportAim {
       Math.PI
     );
   }
-  /** The trunk's joints twisted by a yaw, shared as the trunk's turn shares it. */
+  /*
+   * The trunk's joints twisted by a yaw, shared as the trunk's turn shares it.
+   */
   function twisted(
     joints: IAutoMovieMotionHumanPosture["joints"],
     yaw: number,
@@ -265,7 +268,9 @@ export namespace HumanSupportAim {
     };
   }
 
-  /** A trunk joint's axial range from the range-of-motion table. */
+  /*
+   * A trunk joint's axial range from the range-of-motion table.
+   */
   function twist(bone: TwistBone): IAutoMovieAngleRange {
     const range: IAutoMovieAngleRange | null | undefined =
       DEFAULT_HUMANOID_ROM[bone]?.twist;
@@ -275,8 +280,12 @@ export namespace HumanSupportAim {
   }
 }
 
-/** The alternatives of `TwistBone`'s site. */
+/*
+ * The alternatives of `TwistBone`'s site.
+ */
 type TwistBone = "chest" | "spine";
 
-/** The alternatives of `TwistedAddBone`'s site. */
+/*
+ * The alternatives of `TwistedAddBone`'s site.
+ */
 type TwistedAddBone = "chest" | "spine";

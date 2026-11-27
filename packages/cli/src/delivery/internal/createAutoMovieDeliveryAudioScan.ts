@@ -3,7 +3,7 @@ import type {
   IAutoMovieLoudnessMeter,
 } from "@automovie/interface";
 
-/**
+/*
  * Measures silence at exact sample frame boundaries in f32le PCM. Every channel
  * must be within the amplitude limit. Separate pipe chunks can split a float or
  * an interleaved sample frame. Sample frames from the presented count on are
@@ -13,15 +13,14 @@ import type {
  * When a loudness meter is supplied, the presented samples also feed it, so the
  * decoded delivery's loudness and true peak exclude codec padding. The meter
  * measures 48 kHz mono or stereo; other formats are not measured.
- *
- * @param format Decoded sample rate and interleaved channel count.
- * @param settings Maximum normalized amplitude and minimum qualifying duration.
- * @param presented Sample frames the container presents, after which decoded
- *   samples are padding.
- * @param meter Creates the render's BS.1770-5 meter for the channel count, when
- *   loudness is measured.
- * @returns A byte stream consumer and its complete sample, interval and
- *   loudness evidence.
+ * Parameter format: Decoded sample rate and interleaved channel count.
+ * Parameter settings: Maximum normalized amplitude and minimum qualifying duration.
+ * Parameter presented: Sample frames the container presents, after which decoded
+ * samples are padding.
+ * Parameter meter: Creates the render's BS.1770-5 meter for the channel count, when
+ * loudness is measured.
+ * Returns: A byte stream consumer and its complete sample, interval and
+ * loudness evidence.
  */
 export function createAutoMovieDeliveryAudioScan(
   format: { sampleRate: number; channels: number },
@@ -143,7 +142,9 @@ export function createAutoMovieDeliveryAudioScan(
   };
 }
 
-/** A qualifying quiet run in sample frames; a null end runs to the stream end. */
+/*
+ * A qualifying quiet run in sample frames; a null end runs to the stream end.
+ */
 interface ISampleRange {
   start: number;
   end: number | null;

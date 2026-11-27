@@ -15,11 +15,11 @@ import type {
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 
-/**
+/*
  * Leg primitives: a foot kept on the floor, and a foot lifted and set down
  * somewhere else.
  *
- * A foot is a placement of its ankle and its rotation ({@link HumanFoot}), and
+ * A foot is a placement of its ankle and its rotation (HumanFoot), and
  * the leg is an effector goal solved by inverse kinematics. A planted foot
  * declares its toes' joint as the goal's contact, so where the ankle cannot
  * hold the foot flat the heel rises about the ball and the foot does not slide
@@ -28,17 +28,16 @@ import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
  * Analysis, 2nd ed.).
  */
 export namespace AutoMovieMotionHumanLeg {
-  /**
+  /*
    * A foot on its way from one placement to another: the ankle on the straight
    * line between them raised by `4 c s (1 - s)`, a parabola that leaves and
    * lands at the floor and peaks at the clearance `c` half way, and the
    * rotation turned by spherical interpolation.
-   *
-   * @param from The placement at progress 0.
-   * @param to The placement at progress 1.
-   * @param clearance The ankle's greatest rise, metres.
-   * @param progress How far along, in [0, 1].
-   * @returns The placement.
+   * Parameter from: The placement at progress 0.
+   * Parameter to: The placement at progress 1.
+   * Parameter clearance: The ankle's greatest rise, metres.
+   * Parameter progress: How far along, in [0, 1].
+   * Returns: The placement.
    */
   export function arc(
     from: IAutoMovieMotionHumanFoot.IPlacement,
@@ -53,14 +52,13 @@ export namespace AutoMovieMotionHumanLeg {
     };
   }
 
-  /**
+  /*
    * Prepare repeated actual progress reads of one fixed foot swing.
-   *
-   * @param from The unchanged departure placement, borrowed for this reader.
-   * @param to The unchanged landing placement, borrowed for this reader.
-   * @param clearance The unchanged greatest ankle rise, metres.
-   * @returns Fresh ankle and rotation at every actual share, clamped exactly as
-   *   arc.
+   * Parameter from: The unchanged departure placement, borrowed for this reader.
+   * Parameter to: The unchanged landing placement, borrowed for this reader.
+   * Parameter clearance: The unchanged greatest ankle rise, metres.
+   * Returns: Fresh ankle and rotation at every actual share, clamped exactly as
+   * arc.
    */
   export function prepareArc(
     from: IAutoMovieMotionHumanFoot.IPlacement,
@@ -79,15 +77,14 @@ export namespace AutoMovieMotionHumanLeg {
     };
   }
 
-  /**
+  /*
    * The limb goal that puts a foot on a placement.
-   *
-   * @param body The body.
-   * @param posture The posture whose root carries the knee's rest place.
-   * @param side The leg.
-   * @param placement The foot's placement.
-   * @param planted Whether the foot bears on the floor.
-   * @returns The goal.
+   * Parameter body: The body.
+   * Parameter posture: The posture whose root carries the knee's rest place.
+   * Parameter side: The leg.
+   * Parameter placement: The foot's placement.
+   * Parameter planted: Whether the foot bears on the floor.
+   * Returns: The goal.
    */
   export function goal(
     body: IAutoMovieMotionHumanBody,
@@ -109,17 +106,16 @@ export namespace AutoMovieMotionHumanLeg {
     );
   }
 
-  /**
+  /*
    * Prepare an unchanged foot placement for current root-dependent leg goals.
-   *
-   * @param body The unchanged body supplying the knee and toe rest geometry.
-   * @param side The leg.
-   * @param placement The unchanged ankle point and foot rotation, borrowed
-   *   without mutation.
-   * @param planted Whether every emitted goal bears on the floor.
-   * @returns A fresh goal with an actual current knee hint; point/rotation
-   *   retain goal's borrowed placement convention and contacts are fresh
-   *   vectors.
+   * Parameter body: The unchanged body supplying the knee and toe rest geometry.
+   * Parameter side: The leg.
+   * Parameter placement: The unchanged ankle point and foot rotation, borrowed
+   * without mutation.
+   * Parameter planted: Whether every emitted goal bears on the floor.
+   * Returns: A fresh goal with an actual current knee hint; point/rotation
+   * retain goal's borrowed placement convention and contacts are fresh
+   * vectors.
    */
   export function prepareGoal(
     body: IAutoMovieMotionHumanBody,
@@ -142,17 +138,16 @@ export namespace AutoMovieMotionHumanLeg {
     ): IAutoMovieHumanLimbGoal => read(posture, point, rotation, planted);
   }
 
-  /**
+  /*
    * Prepare fixed foot-rotation geometry for varying ankle and bearing goals.
-   *
-   * @param body The unchanged body supplying rest knee/toe geometry.
-   * @param side The leg.
-   * @param rotation The copied fixed quaternion values used only when every
-   *   current component matches by Object.is.
-   * @returns A reader of actual posture/root/yaw, ankle/rotation placement and
-   *   bearing. Goals/contacts are fresh while ankle/rotation retain goal's
-   *   borrowed-reference convention; a changed rotation uses ordinary cold goal
-   *   geometry.
+   * Parameter body: The unchanged body supplying rest knee/toe geometry.
+   * Parameter side: The leg.
+   * Parameter rotation: The copied fixed quaternion values used only when every
+   * current component matches by Object.is.
+   * Returns: A reader of actual posture/root/yaw, ankle/rotation placement and
+   * bearing. Goals/contacts are fresh while ankle/rotation retain goal's
+   * borrowed-reference convention; a changed rotation uses ordinary cold goal
+   * geometry.
    */
   export function preparePlacement(
     body: IAutoMovieMotionHumanBody,
@@ -176,11 +171,10 @@ export namespace AutoMovieMotionHumanLeg {
       read(posture, placement.ankle, placement.rotation, planted);
   }
 
-  /**
+  /*
    * A leg whose foot follows a placement.
-   *
-   * @param props The movement.
-   * @returns The primitive, on the leg's channel.
+   * Parameter props: The movement.
+   * Returns: The primitive, on the leg's channel.
    */
   export function place(
     props: IAutoMovieMotionHumanLeg.IPlace,
@@ -209,15 +203,14 @@ export namespace AutoMovieMotionHumanLeg {
     };
   }
 
-  /**
+  /*
    * A foot kept planted on one placement between two instants.
-   *
-   * @param body The body.
-   * @param clock The action's clock.
-   * @param side The leg.
-   * @param window The instants the plant starts and ends at.
-   * @param at Where the foot stands.
-   * @returns The primitive.
+   * Parameter body: The body.
+   * Parameter clock: The action's clock.
+   * Parameter side: The leg.
+   * Parameter window: The instants the plant starts and ends at.
+   * Parameter at: Where the foot stands.
+   * Returns: The primitive.
    */
   export function plant(
     body: IAutoMovieMotionHumanBody,
@@ -237,19 +230,18 @@ export namespace AutoMovieMotionHumanLeg {
     return { ...primitive, reads: ["root", `${side}Leg`] };
   }
 
-  /**
+  /*
    * A foot lifted from one placement and set down on another between two
-   * instants, on the clock's minimum-jerk progress along {@link arc}. The foot
+   * instants, on the clock's minimum-jerk progress along arc. The foot
    * is free inside the window and planted at its last instant.
-   *
-   * @param body The body.
-   * @param clock The action's clock.
-   * @param side The leg.
-   * @param window The instants the foot leaves and lands at.
-   * @param from Where the foot leaves.
-   * @param to Where the foot lands.
-   * @param clearance The ankle's greatest rise, metres.
-   * @returns The primitive.
+   * Parameter body: The body.
+   * Parameter clock: The action's clock.
+   * Parameter side: The leg.
+   * Parameter window: The instants the foot leaves and lands at.
+   * Parameter from: Where the foot leaves.
+   * Parameter to: Where the foot lands.
+   * Parameter clearance: The ankle's greatest rise, metres.
+   * Returns: The primitive.
    */
   export function step(
     body: IAutoMovieMotionHumanBody,
@@ -277,25 +269,39 @@ export namespace AutoMovieMotionHumanLeg {
   }
 }
 
-/** The alternatives of `PlaceLimb`'s site. */
+/*
+ * The alternatives of `PlaceLimb`'s site.
+ */
 type PlaceLimb = "leftLeg" | "rightLeg";
 
-/** The alternatives of `PreparePlacementPosture`'s site. */
+/*
+ * The alternatives of `PreparePlacementPosture`'s site.
+ */
 type PreparePlacementPosture = "root" | "yaw";
 
-/** The alternatives of `PreparePlacementPostureResult`'s site. */
+/*
+ * The alternatives of `PreparePlacementPostureResult`'s site.
+ */
 type PreparePlacementPostureResult = "root" | "yaw";
 
-/** The alternatives of `PrepareGoalPosture`'s site. */
+/*
+ * The alternatives of `PrepareGoalPosture`'s site.
+ */
 type PrepareGoalPosture = "root" | "yaw";
 
-/** The alternatives of `PrepareGoalPostureResult`'s site. */
+/*
+ * The alternatives of `PrepareGoalPostureResult`'s site.
+ */
 type PrepareGoalPostureResult = "root" | "yaw";
 
-/** The alternatives of `GoalPosture`'s site. */
+/*
+ * The alternatives of `GoalPosture`'s site.
+ */
 type GoalPosture = "root" | "yaw";
 
-/** The original ankle interpolation and parabolic lift, with unchanged grouping. */
+/*
+ * The original ankle interpolation and parabolic lift, with unchanged grouping.
+ */
 function swingAnkle(
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
@@ -305,7 +311,9 @@ function swingAnkle(
   return raised(Vector3.lerp(from, to, share), clearance, share);
 }
 
-/** Raise only a genuine fresh interpolation result with the original parabola. */
+/*
+ * Raise only a genuine fresh interpolation result with the original parabola.
+ */
 function raised(
   ankle: IAutoMovieVector3,
   clearance: number,
@@ -315,7 +323,7 @@ function raised(
   return ankle;
 }
 
-/**
+/*
  * The same borrowed placement, current knee and optional fresh contact goal
  * fields.
  */
@@ -332,10 +340,12 @@ function formed(
     ...(contact === undefined ? {} : { planted: true, contact }),
   };
 }
-/** The alternatives of `GoalAtPosture`'s site. */
+/*
+ * The alternatives of `GoalAtPosture`'s site.
+ */
 type GoalAtPosture = "root" | "yaw";
 
-/**
+/*
  * Original cold heading, current knee and actual bearing-contact admission
  * order.
  */
@@ -361,13 +371,17 @@ function goalAt(
     planted ? HumanFoot.offset(body, side, "mtp") : undefined,
   );
 }
-/** The alternatives of `PlacementReaderPosture`'s site. */
+/*
+ * The alternatives of `PlacementReaderPosture`'s site.
+ */
 type PlacementReaderPosture = "root" | "yaw";
 
-/** The alternatives of `PlacementReaderPostureResult`'s site. */
+/*
+ * The alternatives of `PlacementReaderPostureResult`'s site.
+ */
 type PlacementReaderPostureResult = "root" | "yaw";
 
-/**
+/*
  * Genuine fixed-rotation producer shared by both actual prepared-placement
  * APIs.
  */

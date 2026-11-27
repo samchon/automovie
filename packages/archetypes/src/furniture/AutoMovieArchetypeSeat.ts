@@ -10,7 +10,9 @@ import {
 } from "../core";
 import { SEAT_BANDS } from "./constants/SEAT_BANDS";
 
-/** The readable name of each kind. */
+/*
+ * The readable name of each kind.
+ */
 const NAMES: Readonly<Record<AutoMovieArchetypeSeat.Kind, string>> = {
   dining: "dining chair",
   office: "office chair",
@@ -21,31 +23,45 @@ const NAMES: Readonly<Record<AutoMovieArchetypeSeat.Kind, string>> = {
   sofa: "sofa",
 };
 
-/** Thickness of the seat slab, metres: picture only. */
+/*
+ * Thickness of the seat slab, metres: picture only.
+ */
 const SLAB: number = 0.04;
 
-/** Thickness of a back panel, metres: also the width a hand grips along its top. */
+/*
+ * Thickness of a back panel, metres: also the width a hand grips along its top.
+ */
 const PANEL: number = 0.03;
 
-/** Radius of a leg, metres: picture only. */
+/*
+ * Radius of a leg, metres: picture only.
+ */
 const LEG: number = 0.02;
 
-/** Width of an armrest pad, metres: the 50 mm minimum of EN 1335-1:2020 Table 2. */
+/*
+ * Width of an armrest pad, metres: the 50 mm minimum of EN 1335-1:2020 Table 2.
+ */
 const ARM: number = 0.05;
 
-/**
+/*
  * Reach of an office chair's five-star base from its column, metres: inside the
  * 415 mm underframe limit of EN 1335-1:2020 Table 2.
  */
 const BASE_RADIUS: number = 0.3;
 
-/** Flat colours, sRGB. */
+/*
+ * Flat colours, sRGB.
+ */
 const WOOD: string = "#a9825a";
 
-/** The colour of upholstery. */
+/*
+ * The colour of upholstery.
+ */
 const CLOTH: string = "#6f7f93";
 
-/** The colour of metal parts. */
+/*
+ * The colour of metal parts.
+ */
 const METAL: string = "#5b5f66";
 
 /** A seat selected from the supported furniture forms. */

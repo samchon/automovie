@@ -37,7 +37,7 @@ const ballConstraint = (
       }),
 });
 
-/**
+/*
  * A finger's metacarpophalangeal joint (the knuckle): flexion 90 and
  * hyperextension 45, abduction 30 to either side, no axial turn. The upper
  * values of the active norms in McGraw-Hill's goniometry table (Prentice,
@@ -50,7 +50,7 @@ const ballConstraint = (
  */
 const KNUCKLE = constraint(range(-45, 90), range(-30, 30), null);
 
-/**
+/*
  * A hip's abduction ceiling flexed: 45 degrees with the hip straight (the
  * `abduction` interval's own) rising to 60 with the hip flexed 90, the upper
  * AAOS 1965 norm for abduction with the hip and knee flexed 90 (45-60), as
@@ -63,19 +63,19 @@ const HIP_FLEXED_ABDUCTION: IAutoMovieFlexedAbduction = {
   max: 60,
 };
 
-/**
+/*
  * A finger's proximal interphalangeal joint: a hinge, flexion 0 to 115 (the
  * same table's 100-115).
  */
 const MIDDLE_JOINT = constraint(range(0, 115), null, null);
 
-/**
+/*
  * A finger's distal interphalangeal joint: a hinge, flexion 90 and
  * hyperextension 20 (the same table's 80-90 and 20; AAOS 90 as relayed).
  */
 const END_JOINT = constraint(range(-20, 90), null, null);
 
-/**
+/*
  * The thumb's carpometacarpal joint, a saddle, gated by swing and twist.
  * Cooney, Lucca, Chao and Linscheid 1981 (J Bone Joint Surg Am 63:1371-1381)
  * measured total arcs of 53 degrees of flexion-extension, 42 of
@@ -103,20 +103,20 @@ const THUMB_BASE: IAutoMovieJointConstraint = {
   swingTwist: { twist: range(-8.5, 8.5) },
 };
 
-/**
+/*
  * The thumb's metacarpophalangeal joint: flexion 0 to 55 (the same goniometry
  * table's 50-55); its small abduction has no located norm, so it stays
  * immobile.
  */
 const THUMB_MIDDLE = constraint(range(0, 55), null, null);
 
-/**
+/*
  * The thumb's interphalangeal joint: flexion 90 and hyperextension 5 (the same
  * table's 85-90 and 0-5).
  */
 const THUMB_END = constraint(range(-5, 90), null, null);
 
-/**
+/*
  * The farthest a shoulder's arm points from the T-pose, degrees, which keeps
  * the rest direction's antipode (the arm pointing through the chest, where the
  * twist has no value) outside the range. Provisional, with a known defect: one

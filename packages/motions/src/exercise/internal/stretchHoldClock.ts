@@ -11,38 +11,47 @@ import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieM
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { stretchHoldInputs } from "./stretchHoldInputs";
 
-/**
+/*
  * A standing stretch holds one material pose between the two movement phases.
  * Preserve the original grid cells straddling arrival and release. Only
  * complete grid intervals inside the hold collapse onto a single contact
  * event.
  */
 export namespace stretchHoldClock {
-  /** A stretch clock with its hold collapsed (`compress`). */
+  /*
+   * A stretch clock with its hold collapsed (`compress`).
+   */
   export interface ICompressed {
-    /** The hold's first whole grid second, between arrival and release. */
+    /*
+     * The hold's first whole grid second, between arrival and release.
+     */
     first: number;
 
-    /** Its last whole grid second. */
+    /*
+     * Its last whole grid second.
+     */
     last: number;
 
-    /** The compressed second of an original one. */
+    /*
+     * The compressed second of an original one.
+     */
     local: (seconds: number) => number;
 
-    /** The clock with every instant at its compressed second. */
+    /*
+     * The clock with every instant at its compressed second.
+     */
     clock: IAutoMovieMotionClock;
   }
 
-  /**
+  /*
    * Collapse the whole grid intervals of a stretch's hold onto its first one:
    * the grid cells straddling `reachEnd` and `release` are kept, every second
    * from the first whole grid second inside the hold to the last reads that
    * first one, and every second after reads the collapsed length earlier.
-   *
-   * @param clock The stretch's clock.
-   * @param step The grid's spacing, seconds.
-   * @returns The collapse, or none when no whole grid interval lies inside the
-   *   hold.
+   * Parameter clock: The stretch's clock.
+   * Parameter step: The grid's spacing, seconds.
+   * Returns: The collapse, or none when no whole grid interval lies inside the
+   * hold.
    */
   export function compress(
     clock: IAutoMovieMotionClock,
@@ -74,7 +83,7 @@ export namespace stretchHoldClock {
     };
   }
 
-  /**
+  /*
    * Issue an ordinary plan and its bounded internal phase clock for a bare
    * standing stretch.
    */
@@ -139,7 +148,7 @@ export namespace stretchHoldClock {
     return original;
   }
 }
-/**
+/*
  * The original plan's own reader and the exact location wrapper placement gave
  * it.
  */

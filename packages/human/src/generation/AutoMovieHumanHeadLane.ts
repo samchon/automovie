@@ -198,7 +198,7 @@ export namespace AutoMovieHumanHeadLane {
    */
   export const SEARCH: number = 0.3;
 
-  /**
+  /*
    * The colour border reads the upper source's front-positive knot points from
    * one corner to the other, then the lower's front-negative points back. The
    * appearance Hermite spans use neighbouring chord differences; this

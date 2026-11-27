@@ -25,18 +25,17 @@ import { HumanCarriedCoupling } from "./HumanCarriedCoupling";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 import { HumanCarriedLift } from "./HumanCarriedLift";
 
-/**
+/*
  * The plan of being carried in a named carry (`HumanCarried.borne`): the borne
  * body on the bearer by the carry's coupled meeting, with the lift and the
  * set-down, and the seconds reader both carry laws share.
  */
 export namespace HumanCarriedBorne {
-  /**
+  /*
    * Plan being carried; `HumanCarried.borne` states the law.
-   *
-   * @param context The carried person's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} As `HumanCarried.borne` states.
+   * Parameter context: The carried person's context.
+   * Returns: The plan.
+   * As `HumanCarried.borne` states.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarried.IBorne>,
@@ -303,12 +302,11 @@ export namespace HumanCarriedBorne {
     );
   }
 
-  /**
+  /*
    * A carry's seconds, refused when not positive.
-   *
-   * @param seconds The seconds.
-   * @returns The seconds.
-   * @throws {HumanRefusal} A `parameter` refusal on `seconds`.
+   * Parameter seconds: The seconds.
+   * Returns: The seconds.
+   * A `parameter` refusal on `seconds`.
    */
   export function lasting(seconds: number): number {
     return HumanBound.above("hold", seconds, 0, "s");

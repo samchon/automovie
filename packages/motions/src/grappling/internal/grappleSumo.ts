@@ -11,7 +11,7 @@ import { getUp } from "../../floor/internal/getUp";
 import { lieDown } from "../../floor/internal/lieDown";
 import { grappleFront } from "./grappleFront";
 
-/**
+/*
  * The sumo bouts of the grapple law: both wrestlers crouch at the shikiri lines
  * with their fists down, charge at the tachiai into contact, and the initiator
  * either drives the receiver back out of the ring with the hands pushing up at
@@ -27,69 +27,105 @@ import { grappleFront } from "./grappleFront";
  * charge and drive shares and depths are provisional staging values.
  */
 export namespace grappleSumo {
-  /** The sumo scenes. */
+  /*
+   * The sumo scenes.
+   */
   export type Kind = Extract<IAutoMovieMotionHumanGrapple.Kind, Kind2>;
 
-  /** A role's parameters in a sumo scene. */
+  /*
+   * A role's parameters in a sumo scene.
+   */
   export interface IParams extends IAutoMovieMotionHumanGrapple.IParams {
-    /** The sumo scene. */
+    /*
+     * The sumo scene.
+     */
     kind: Kind;
   }
 
-  /** The grapple law's grip window as shares of the scene. */
+  /*
+   * The grapple law's grip window as shares of the scene.
+   */
   export interface IWindow {
-    /** When the hands leave the clay. */
+    /*
+     * When the hands leave the clay.
+     */
     reach: number;
 
-    /** The tachiai: when the hands meet the partner. */
+    /*
+     * The tachiai: when the hands meet the partner.
+     */
     take: number;
 
-    /** When the hands let go. */
+    /*
+     * When the hands let go.
+     */
     release: number;
 
-    /** When the hands are back at the sides. */
+    /*
+     * When the hands are back at the sides.
+     */
     rest: number;
   }
 
-  /** The shikiri lines' separation, metres. */
+  /*
+   * The shikiri lines' separation, metres.
+   */
   export const LINES: number = 0.7;
 
-  /** The ring's diameter, metres. */
+  /*
+   * The ring's diameter, metres.
+   */
   export const RING: number = 4.55;
 
-  /** How far the drive carries the pair, metres: past the ring's radius. */
+  /*
+   * How far the drive carries the pair, metres: past the ring's radius.
+   */
   export const DRIVE: number = 2.1;
 
-  /** One drive step, metres. */
+  /*
+   * One drive step, metres.
+   */
   export const STEP: number = 0.35;
 
-  /** Each scene's default length, seconds (provisional). */
+  /*
+   * Each scene's default length, seconds (provisional).
+   */
   const SECONDS: Readonly<Record<Kind, number>> = {
     oshiDashi: 4.5,
     yoriKiri: 5,
     uwateNage: 4,
   };
 
-  /** The shares at which the shikiri, tachiai and drive end. */
+  /*
+   * The shares at which the shikiri, tachiai and drive end.
+   */
   const SHIKIRI: number = 0.22;
 
-  /** The tachiai's share. */
+  /*
+   * The tachiai's share.
+   */
   const TACHIAI: number = 0.32;
 
-  /** The share at which the drive or throw ends. */
+  /*
+   * The share at which the drive or throw ends.
+   */
   const FINISH: number = 0.82;
 
-  /** Whether a grapple kind is a sumo bout. */
+  /*
+   * Whether a grapple kind is a sumo bout.
+   */
   export function is(kind: IAutoMovieMotionHumanGrapple.Kind): kind is Kind {
     return kind === "oshiDashi" || kind === "yoriKiri" || kind === "uwateNage";
   }
 
-  /** A scene's default length, seconds. */
+  /*
+   * A scene's default length, seconds.
+   */
   export function seconds(kind: Kind): number {
     return SECONDS[kind];
   }
 
-  /**
+  /*
    * The partner's regions each of the initiator's hands takes: the sides of the
    * chest for a push, the belt at the hips for a belt grip. A push is the hazu
    * grip, the thumb and index spread in a V that pushes up under the armpit
@@ -105,7 +141,7 @@ export namespace grappleSumo {
       : { left: "hipRight", right: "hipLeft" };
   }
 
-  /**
+  /*
    * The grip window: the hands leave the clay after the shikiri, meet the
    * partner at the tachiai and let go as the drive or throw ends.
    */
@@ -118,7 +154,7 @@ export namespace grappleSumo {
     };
   }
 
-  /**
+  /*
    * One role's support keys: the shikiri crouch on both feet and fists, the
    * tachiai's two steps into contact, the drive's alternating steps or the
    * throw's fall, and the finish.
@@ -130,15 +166,14 @@ export namespace grappleSumo {
    * heads do not meet head on (the belt clinch's head beside the other's, as
    * the staged judo pair's marks are staggered): head on, the heads overlapped
    * 59 mm while the belt still lay 16 mm beyond the arm.
-   *
-   * @param p The scene.
-   * @param duration The scene's seconds.
-   * @param body The performer's body.
-   * @param partner The partner's body.
-   * @param pitch The trunk's pitch at the tachiai, degrees: the charge pose's
-   *   own when absent, the pitch the support fit takes at the tachiai on a
-   *   second reading (`grapple.plan`).
-   * @returns The timed support keys.
+   * Parameter p: The scene.
+   * Parameter duration: The scene's seconds.
+   * Parameter body: The performer's body.
+   * Parameter partner: The partner's body.
+   * Parameter pitch: The trunk's pitch at the tachiai, degrees: the charge pose's
+   * own when absent, the pitch the support fit takes at the tachiai on a
+   * second reading (`grapple.plan`).
+   * Returns: The timed support keys.
    */
   export function keys(
     p: grappleSumo.IParams,
@@ -330,7 +365,9 @@ export namespace grappleSumo {
     );
   }
 
-  /** The shikiri crouch: hips low and wide, the trunk forward over the fists. */
+  /*
+   * The shikiri crouch: hips low and wide, the trunk forward over the fists.
+   */
   const CROUCH: IAutoMovieMotionHumanLieDown.IPose = {
     pitch: 50,
     roll: 0,
@@ -346,7 +383,9 @@ export namespace grappleSumo {
     },
   };
 
-  /** The charge and drive: low hips, the trunk driving forward. */
+  /*
+   * The charge and drive: low hips, the trunk driving forward.
+   */
   const CHARGE: IAutoMovieMotionHumanLieDown.IPose = {
     pitch: 35,
     roll: 0,
@@ -359,5 +398,7 @@ export namespace grappleSumo {
   };
 }
 
-/** The alternatives of `Kind2`'s site. */
+/*
+ * The alternatives of `Kind2`'s site.
+ */
 type Kind2 = "oshiDashi" | "yoriKiri" | "uwateNage";

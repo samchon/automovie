@@ -14,16 +14,15 @@ import { jumpJoints } from "./jumpJoints";
 import { jumpPushEnd } from "./jumpPushEnd";
 import { jumpState } from "./jumpState";
 
-/**
+/*
  * Resolve phase values before solving flight time and launch velocity.
- *
- * @param props The shared pure terminal push geometry.
- * @param rootT The unlowered terminal push root, world metres.
- * @param rootL The unlowered touchdown root, world metres.
- * @param landing The original authored flat landing footprints.
- * @param landingHeading The flat landing's world heading in degrees.
- * @param landingKnee The authored pole in the landing frame.
- * @returns The two achieved canonical boundary states.
+ * Parameter props: The shared pure terminal push geometry.
+ * Parameter rootT: The unlowered terminal push root, world metres.
+ * Parameter rootL: The unlowered touchdown root, world metres.
+ * Parameter landing: The original authored flat landing footprints.
+ * Parameter landingHeading: The flat landing's world heading in degrees.
+ * Parameter landingKnee: The authored pole in the landing frame.
+ * Returns: The two achieved canonical boundary states.
  */
 export function jumpEndpoints(
   props: Parameters<typeof jumpPushEnd>[0],
@@ -108,13 +107,21 @@ export function jumpEndpoints(
   return { start, end };
 }
 
-/** One preparation of the achieved endpoints shared by flight goals and COM. */
+/*
+ * One preparation of the achieved endpoints shared by flight goals and COM.
+ */
 export namespace jumpEndpoints {
-  /** Achieved terminal push and touchdown states. */
+  /*
+   * Achieved terminal push and touchdown states.
+   */
   export interface IEnds {
-    /** Achieved push end after lowering and physical fitting. */
+    /*
+     * Achieved push end after lowering and physical fitting.
+     */
     start: jumpState.IState;
-    /** Achieved first planted landing pose. */
+    /*
+     * Achieved first planted landing pose.
+     */
     end: jumpState.IState;
   }
 }

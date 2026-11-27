@@ -2,14 +2,14 @@ import type { IAutoMovieFilmOptics } from "@automovie/interface";
 
 import { autoMovieFilmResponseMatrix } from "./autoMovieFilmResponseMatrix";
 
-/**
+/*
  * The CPU reference of a film's camera response for one pixel whose glare is
  * already summed in: the encoded and graded value the final pass writes before
  * quantization.
  *
  * Steps, in the final pass's order without its spatial glare step:
  *
- * 1. Exposure and white balance by {@link autoMovieFilmResponseMatrix};
+ * 1. Exposure and white balance by autoMovieFilmResponseMatrix;
  * 2. The tone curve: `"none"` passes the value on, and `"acesFilmic"` is the
  *    renderer's fit of the ACES reference rendering and output transforms,
  *    `saturate(Out · RRTAndODT(In · c / 0.6))` with its input and output
@@ -27,10 +27,14 @@ import { autoMovieFilmResponseMatrix } from "./autoMovieFilmResponseMatrix";
  * blue. The caller admits `optics` first.
  */
 export function respondAutoMovieFilmColor(props: {
-  /** Linear scene value, nits per channel. */
+  /*
+   * Linear scene value, nits per channel.
+   */
   color: readonly [number, number, number];
 
-  /** The film's optics at the drawn second. */
+  /*
+   * The film's optics at the drawn second.
+   */
   optics: IAutoMovieFilmOptics;
 }): [number, number, number] {
   const m: number[] = autoMovieFilmResponseMatrix(props.optics);
@@ -57,7 +61,7 @@ export function respondAutoMovieFilmColor(props: {
   ];
 }
 
-/**
+/*
  * The renderer's ACES filmic fit at unit renderer exposure, as its shader
  * computes it.
  */
@@ -82,12 +86,16 @@ function acesFilmic(
   ];
 }
 
-/** Clamp to [0, 1]. */
+/*
+ * Clamp to [0, 1].
+ */
 function clamp(value: number): number {
   return Math.min(1, Math.max(0, value));
 }
 
-/** The sRGB transfer function of IEC 61966-2-1 for a value in [0, 1]. */
+/*
+ * The sRGB transfer function of IEC 61966-2-1 for a value in [0, 1].
+ */
 function encode(value: number): number {
   return value <= 0.0031308
     ? 12.92 * value

@@ -1,6 +1,6 @@
 import { lerp } from "../../math/internal/lerp";
 
-/**
+/*
  * Interpolate between two finite coupling knots with the same arithmetic in
  * either direction. The input knots may descend and the query is interior.
  */
@@ -43,5 +43,7 @@ export function interpolateAffordanceTravel(
   return outputFrom + offset;
 }
 
-/** IEEE 754 binary64's first positive value with all 53 significand bits. */
+/*
+ * IEEE 754 binary64's first positive value with all 53 significand bits.
+ */
 const LEAST_NORMAL: number = 2 ** -1022;

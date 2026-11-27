@@ -1,4 +1,4 @@
-/**
+/*
  * Fixed cosine/blur sampling shared by table construction and shader texel
  * coordinates.
  */

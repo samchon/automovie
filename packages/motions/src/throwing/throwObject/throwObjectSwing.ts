@@ -14,13 +14,12 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * The swing of a ball arm.
- *
- * @param body The body.
- * @param side The ball arm.
- * @param style The throw's style.
- * @returns The windup and elbow writers.
+ * Parameter body: The body.
+ * Parameter side: The ball arm.
+ * Parameter style: The throw's style.
+ * Returns: The windup and elbow writers.
  */
 export function throwObjectSwing(
   body: IAutoMovieMotionHumanBody,
@@ -136,7 +135,7 @@ export function throwObjectSwing(
   };
 }
 
-/**
+/*
  * The ball arm's way around the body.
  *
  * The windup carries the hand from where it held the prop to the chamber. A
@@ -158,16 +157,17 @@ export function throwObjectSwing(
  * the performer's right. Other styles keep the elbow their own track found.
  */
 export namespace throwObjectSwing {
-  /** The swing's writers. */
+  /*
+   * The swing's writers.
+   */
   export interface ISwing {
-    /**
+    /*
      * The windup's grip point.
-     *
-     * @param posture The posture the arm is written into.
-     * @param from Where the grip starts, world metres.
-     * @param to The chamber, world metres.
-     * @param u The windup's progress, 0 to 1.
-     * @returns World metres.
+     * Parameter posture: The posture the arm is written into.
+     * Parameter from: Where the grip starts, world metres.
+     * Parameter to: The chamber, world metres.
+     * Parameter u: The windup's progress, 0 to 1.
+     * Returns: World metres.
      */
     windup(
       posture: IAutoMovieMotionHumanPosture,
@@ -176,12 +176,11 @@ export namespace throwObjectSwing {
       u: number,
     ): IAutoMovieVector3;
 
-    /**
+    /*
      * The ball arm's goal with its elbow placed for a bowl.
-     *
-     * @param posture The posture the goal is written into.
-     * @param goal The arm goal from the throw's track.
-     * @returns The goal.
+     * Parameter posture: The posture the goal is written into.
+     * Parameter goal: The arm goal from the throw's track.
+     * Returns: The goal.
      */
     elbow(
       posture: IAutoMovieMotionHumanPosture,

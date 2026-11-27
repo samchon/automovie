@@ -4,7 +4,7 @@ import type {
   IAutoMovieRecoverySceneSupportCollectionOperation,
 } from "@automovie/interface";
 
-/**
+/*
  * Collect each target's distinct existing-map support once per accepted
  * revision.
  */

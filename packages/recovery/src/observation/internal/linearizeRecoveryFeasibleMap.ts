@@ -11,7 +11,7 @@ import { createRecoveryMapTangent } from "./createRecoveryMapTangent";
 import { differentiateRecoveryMapTangent } from "./differentiateRecoveryMapTangent";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 
-/**
+/*
  * Linearize the unchanged robust objective and every unweighted pixel disk.
  * Physical camera coordinates precede three coordinates for each landmark.
  * Constraint g=norm(residual)^2/maximumError^2-1 is dimensionless and smooth

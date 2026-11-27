@@ -6,7 +6,7 @@ import type {
 
 import { AutoMoviePhysicsCache as Cache } from "../AutoMoviePhysicsCache";
 
-/**
+/*
  * Pack a complete cache once on a build machine; checkpoints remain with the
  * producer.
  */

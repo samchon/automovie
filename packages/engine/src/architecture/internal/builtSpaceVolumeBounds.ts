@@ -8,7 +8,7 @@ import {
 import { builtConvexCellVertices } from "./builtConvexCellVertices";
 import { builtPointBounds } from "./builtPointBounds";
 
-/**
+/*
  * The world box one logical space's own stated volume occupies.
  *
  * Both spellings answer here so no consumer has to know which one a space used:
@@ -19,9 +19,8 @@ import { builtPointBounds } from "./builtPointBounds";
  * The box is world-space in metres. Every listed shell vertex counts, used by a
  * triangle or not, and an unbounded cell contributes only the corners it has,
  * so its extent can be understated.
- *
- * @param space Logical space whose stated volume is boxed.
- * @returns A new world box, or null when the space states no corner.
+ * Parameter space: Logical space whose stated volume is boxed.
+ * Returns: A new world box, or null when the space states no corner.
  */
 export function builtSpaceVolumeBounds(
   space: IAutoMovieBuiltSpace,

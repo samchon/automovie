@@ -16,14 +16,14 @@ import { HumanCarriedBearing } from "./HumanCarriedBearing";
 import { HumanCarriedBorne } from "./HumanCarriedBorne";
 import { HumanCarriedDrag } from "./HumanCarriedDrag";
 
-/**
+/*
  * A shoulder ride's legs: hip flexion, knee flexion and hip abduction, degrees
  * (provisional, the thighs forward over the shoulders, the shins hanging before
  * the chest).
  */
 const SHOULDER_LEGS: readonly [number, number, number] = [70, 90, 30];
 
-/**
+/*
  * Being carried by another person: on the back, in the arms or over a shoulder.
  * The carried person keeps the posture they are in and goes rigidly with one
  * bone of the carrier (the upper chest when none is named), so whatever the
@@ -42,7 +42,7 @@ const SHOULDER_LEGS: readonly [number, number, number] = [70, 90, 30];
  * carrier.
  */
 export namespace HumanCarried {
-  /**
+  /*
    * Be carried by another person. It lasts `seconds`, with no lift or set-down
    * (a rigid ride on one bone); a child on a back, a passenger carried through
    * a scene.
@@ -117,7 +117,7 @@ export namespace HumanCarried {
       },
     };
 
-  /**
+  /*
    * The carries. Every angle and offset is provisional, set from the carries'
    * common descriptions: piggyback, chest on the back, legs about the waist,
    * hands under the thighs; cradle, across the forearms before the chest; over
@@ -259,7 +259,7 @@ export namespace HumanCarried {
     ...HumanCarriedDrag.CARRIES,
   };
 
-  /**
+  /*
    * Be carried in a named carry: the body takes the carry's posture and rests
    * on the carrier by every contact of the carry's coupled meeting
    * (`HumanCarriedCoupling`): its resting region on the carrier's region and
@@ -289,7 +289,7 @@ export namespace HumanCarried {
       ): IAutoMovieMotionHumanActionPlan => HumanCarriedBorne.plan(context),
     };
 
-  /**
+  /*
    * Hold a person in a named carry: the carrier's hands where the carry takes
    * the carried body. Performed over the carrier's own action
    * (`carrier.walk(...).over((o) => o.registered("bearing", ...))`), it claims
@@ -316,11 +316,13 @@ export namespace HumanCarried {
       ): IAutoMovieMotionHumanActionPlan => HumanCarriedBearing.plan(context),
     };
 
-  /** Seconds the carrier's hands take to reach their hold (provisional). */
+  /*
+   * Seconds the carrier's hands take to reach their hold (provisional).
+   */
   export const TAKE: number = 0.4;
 }
 
-/**
+/*
  * Where a straddling rider's shins hang from its seat, an arm's length from the
  * carrier's resting region, toward the hand's side: the leg drawn in its own
  * sagittal plane, the thigh flexed `flexion` forward from hanging and the shin
@@ -328,9 +330,8 @@ export namespace HumanCarried {
  * and shin of one length, then turned out about the forward axis by
  * `abduction`. Only the direction carries: the registration turns the rider to
  * its holds' directions from the resting point.
- *
- * @param legs The carry's hip flexion, knee flexion and hip abduction, degrees.
- * @returns The offset, arm lengths.
+ * Parameter legs: The carry's hip flexion, knee flexion and hip abduction, degrees.
+ * Returns: The offset, arm lengths.
  */
 function straddled(
   legs: readonly [number, number, number],

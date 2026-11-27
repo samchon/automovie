@@ -9,43 +9,48 @@ import type {
   IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
-/**
+/*
  * A leaf resolve inside its action's legs-still window
  * (`IAutoMovieMotionHumanActionPlan.legsStill`): there the root, the trunk and
  * both legs' goals are one and the same, so every record a leg fit reads is,
  * and the legs' fit of one second is the fit of every other. The performance
  * fits the legs once at the window's start when it is prepared
  * (`IAutoMovieMotionHumanSegment.IPrepared.still`,
- * {@link HumanSegmentLegs.still}); every leaf resolve in the window is then the
+ * HumanSegmentLegs.still); every leaf resolve in the window is then the
  * same resolve with those records given as the legs' joints and the legs' goals
  * left out, so only the head, the arms and the hands are fitted.
  */
 export namespace HumanSegmentLegs {
-  /** What a leaf's legs read of its person: what writes over the leaf. */
+  /*
+   * What a leaf's legs read of its person: what writes over the leaf.
+   */
   export type IPerson = Pick<
     IAutoMovieMotionHumanSegment.IPerson,
     "layers" | "overlays"
   >;
 
-  /** What a leaf's legs read of its action: its time zero, window and kept fit. */
+  /*
+   * What a leaf's legs read of its action: its time zero, window and kept fit.
+   */
   export interface ICarrier extends Pick<
     IAutoMovieMotionHumanSegment,
     "start" | "prepared"
   > {
-    /** The plan's duration and legs-still window. */
+    /*
+     * The plan's duration and legs-still window.
+     */
     plan: Pick<IAutoMovieMotionHumanActionPlan, "duration" | "legsStill">;
   }
 
-  /**
+  /*
    * The leaf resolve of a posture at a film second.
-   *
-   * @param person The person.
-   * @param carrier The action the leaf belongs to.
-   * @param seconds Film seconds.
-   * @param under The leaf's posture.
-   * @param plain Whether the resolve is a full, uncontinued one.
-   * @param resolve The leaf's own resolve of a posture.
-   * @returns The resolve's result.
+   * Parameter person: The person.
+   * Parameter carrier: The action the leaf belongs to.
+   * Parameter seconds: Film seconds.
+   * Parameter under: The leaf's posture.
+   * Parameter plain: Whether the resolve is a full, uncontinued one.
+   * Parameter resolve: The leaf's own resolve of a posture.
+   * Returns: The resolve's result.
    */
   export function resolved(
     person: IPerson,
@@ -86,17 +91,16 @@ export namespace HumanSegmentLegs {
     return { ...fitted, seeds: { ...fitted.seeds, ...kept.seeds } };
   }
 
-  /**
+  /*
    * Whether a leaf resolve keeps the legs' window fit: a plain resolve of a
    * person without layers or overlays, both legs goaled, inside the carrier's
    * legs-still window.
-   *
-   * @param person The person.
-   * @param carrier The action the leaf belongs to.
-   * @param seconds Film seconds.
-   * @param under The leaf's posture.
-   * @param plain Whether the resolve is a full, uncontinued one.
-   * @returns Whether the window's fit applies.
+   * Parameter person: The person.
+   * Parameter carrier: The action the leaf belongs to.
+   * Parameter seconds: Film seconds.
+   * Parameter under: The leaf's posture.
+   * Parameter plain: Whether the resolve is a full, uncontinued one.
+   * Returns: Whether the window's fit applies.
    */
   export function within(
     person: IPerson,
@@ -123,13 +127,12 @@ export namespace HumanSegmentLegs {
     return local >= window[0] && local <= window[1];
   }
 
-  /**
+  /*
    * The legs' fit a legs-still window keeps, from the leaf resolved at the
    * window's start: its leg joint records and the legs' seeds.
-   *
-   * @param pose The leaf's pose at the window's start.
-   * @param seeds The leaf's fit seeds by fit name.
-   * @returns The kept fit.
+   * Parameter pose: The leaf's pose at the window's start.
+   * Parameter seeds: The leaf's fit seeds by fit name.
+   * Returns: The kept fit.
    */
   export function still(
     pose: IAutoMoviePose,
@@ -153,5 +156,7 @@ export namespace HumanSegmentLegs {
   }
 }
 
-/** A leg's bones, thigh to toes. */
+/*
+ * A leg's bones, thigh to toes.
+ */
 const LEG: RegExp = /^(left|right)(UpperLeg|LowerLeg|Foot|Toes)$/;

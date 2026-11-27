@@ -2,7 +2,7 @@ import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieDeliveryCrop } from "@automovie/interface";
 import type * as THREE from "three";
 
-/**
+/*
  * Recover the normalized delivery window currently installed on a camera.
  *
  * Population culling and LOD selection run after the camera projection has been

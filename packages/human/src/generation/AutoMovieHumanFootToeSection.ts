@@ -60,5 +60,7 @@ export namespace AutoMovieHumanFootToeSection {
   }
 }
 
-/** Points of each piece before resampling. */
+/*
+ * Points of each piece before resampling.
+ */
 const POINTS: number = 64;

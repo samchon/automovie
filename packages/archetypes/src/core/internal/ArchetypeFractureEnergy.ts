@@ -2,7 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { ArchetypeBinary64 } from "./ArchetypeBinary64";
 
-/**
+/*
  * Admit the energy needed to give departing fragments the supplied momentum.
  * Their common velocity p/M has kinetic energy ||p||²/(2M), the minimum at
  * fixed total momentum. A threshold alone does not supply that energy.
@@ -14,14 +14,13 @@ import { ArchetypeBinary64 } from "./ArchetypeBinary64";
  * Overflow and a tolerance that could admit the next float below a boundary. On
  * refusal, positive finite binary64 bit patterns are monotonically ordered, so
  * bisection finds the least representable energy that is enough.
- *
- * @param energy The incident energy, finite and nonnegative, joules.
- * @param mass The departing fragments' total finite positive mass, kilograms.
- * @param momentum Their finite-component total momentum, kilogram metres per
- *   second.
- * @returns A sufficient result, or the least supported energy on refusal; null
- *   means no finite binary64 energy suffices.
- * @throws {Error} When a caller supplies invalid physical numeric inputs.
+ * Parameter energy: The incident energy, finite and nonnegative, joules.
+ * Parameter mass: The departing fragments' total finite positive mass, kilograms.
+ * Parameter momentum: Their finite-component total momentum, kilogram metres per
+ * second.
+ * Returns: A sufficient result, or the least supported energy on refusal; null
+ * means no finite binary64 energy suffices.
+ * When a caller supplies invalid physical numeric inputs.
  */
 export function ArchetypeFractureEnergy(
   energy: number,
@@ -52,7 +51,9 @@ export function ArchetypeFractureEnergy(
   );
   const massTerm: IDyadic = parts(mass);
 
-  /** Compare exactly at one nonnegative finite candidate energy. */
+  /*
+   * Compare exactly at one nonnegative finite candidate energy.
+   */
   const enough: (candidate: number) => boolean = (
     candidate: number,
   ): boolean => {
@@ -83,5 +84,7 @@ export function ArchetypeFractureEnergy(
   return { sufficient: false, minimum: view.getFloat64(0, false) };
 }
 
-/** One exact signed input or nonnegative square, integer times 2^exponent. */
+/*
+ * One exact signed input or nonnegative square, integer times 2^exponent.
+ */
 type IDyadic = ReturnType<ReturnType<typeof ArchetypeBinary64>>;

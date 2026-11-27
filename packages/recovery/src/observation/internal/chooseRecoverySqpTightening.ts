@@ -3,7 +3,9 @@ import type {
   IAutoMovieSimplexAtom,
 } from "@automovie/interface";
 
-/** Price strict inward margin against the current mixed direction's descent. */
+/*
+ * Price strict inward margin against the current mixed direction's descent.
+ */
 export function chooseRecoverySqpTightening(
   rows: readonly IAutoMovieSimplexAtom[],
   selected: readonly number[],

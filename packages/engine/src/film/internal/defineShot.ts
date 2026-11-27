@@ -3,7 +3,7 @@ import {
   IAutoMovieShotDefinition,
 } from "@automovie/interface";
 
-/**
+/*
  * Register one coding-agent-authored shot under `id`.
  *
  * Returns a new record of exactly id, scene, contract and build; the id

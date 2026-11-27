@@ -151,8 +151,12 @@ export namespace AutoMovieHumanFootGeometry {
   }
 }
 
-/** Intervals of a root's bracketing scan. */
+/*
+ * Intervals of a root's bracketing scan.
+ */
 const ROOT_SCAN: number = 64;
 
-/** Bisections that close a root's bracket. */
+/*
+ * Bisections that close a root's bracket.
+ */
 const ROOT_BISECTIONS: number = 40;

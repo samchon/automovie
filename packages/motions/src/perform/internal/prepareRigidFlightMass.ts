@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Combine masses below fixed relative joints in the frame of their nearest
  * moving ancestor. The caller checks the actual clinical coordinates before
  * every shape observation. A changed coordinate invalidates the entire grouped
@@ -121,27 +121,22 @@ export function prepareRigidFlightMass(
   };
 }
 
-/**
+/*
  * A flight's numerical rigid partition and its source-coordinate admission
  * check.
  */
 export namespace prepareRigidFlightMass {
-  /**
+  /*
    * Composite bone-frame mass properties, admitted only for poses matching
    * every fixed local coordinate.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation The model remains in its carrying bones' local frames. matches must accept each actually consumed pose.
-   * @evidence contracts/development/design.md#principled-representation Its two fields link a physical reduction to the exact articulation used to derive it.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The tabulated physical-flight owner reads both fields.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No estimated mass, prescribed rotation, sample history or substitute pose is carried.
    */
   export interface IPrepared {
-    /**
+    /*
      * Same physical mass, with the rigidly carried contributions combined in
      * the carrier frame.
      */
     model: IAutoMovieResolveCenterOfMass.IModel;
-    /**
+    /*
      * Whether the current canonical pose has the fixed articulation used for
      * the subgroup tensors.
      */

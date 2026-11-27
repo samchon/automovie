@@ -19,7 +19,7 @@ import { punchContact } from "./punchContact";
 import { punchFootwork } from "./punchFootwork";
 import type { punchGeometry } from "./punchGeometry";
 
-/**
+/*
  * Read what a punch fixes of its own entry alone: the trunk's turn, the
  * punching shoulder under that turn and the arms as the entry shows them.
  *
@@ -29,10 +29,9 @@ import type { punchGeometry } from "./punchGeometry";
  * stop enters them. They are the plan's launch, made once; what follows the
  * target as shown (the line, the tracker, the room, the reach and its
  * corrections) and the stop is built on it at every settle.
- *
- * @param context The action's context.
- * @param timing The punch's timing.
- * @returns The launch.
+ * Parameter context: The action's context.
+ * Parameter timing: The punch's timing.
+ * Returns: The launch.
  */
 export function punchLaunch(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPunch.IParams>,
@@ -74,18 +73,19 @@ export function punchLaunch(
   };
 }
 
-/** Companion type of {@link punchLaunch}. */
+/*
+ * Companion type of punchLaunch.
+ */
 export namespace punchLaunch {
-  /**
+  /*
    * The punch's trunk turn at the launch: the technique's turn for the lead or
    * the rear hand (`punchContact.TURN`), scaled by the skill's amplitude, and
    * signed toward the lead side.
-   *
-   * @param lead The lead side.
-   * @param technique The punch.
-   * @param which The lead or the rear hand.
-   * @param skill The puncher's skill.
-   * @returns Degrees.
+   * Parameter lead: The lead side.
+   * Parameter technique: The punch.
+   * Parameter which: The lead or the rear hand.
+   * Parameter skill: The puncher's skill.
+   * Returns: Degrees.
    */
   export function turn(
     lead: AutoMovieHumanSide,
@@ -100,18 +100,22 @@ export namespace punchLaunch {
     );
   }
 
-  /** What a punch reads of its own entry alone. */
+  /*
+   * What a punch reads of its own entry alone.
+   */
   export interface ILaunch {
-    /** The trunk turn at contact, degrees. */
+    /*
+     * The trunk turn at contact, degrees.
+     */
     turn: number;
 
-    /**
+    /*
      * The punching shoulder under that turn, before a body shot lowers it,
      * world metres.
      */
     shoulder: IAutoMovieVector3;
 
-    /**
+    /*
      * The entry's six arm joints as displayed, world frame: the launch wrist
      * and elbow and both arm sweeps read them.
      */

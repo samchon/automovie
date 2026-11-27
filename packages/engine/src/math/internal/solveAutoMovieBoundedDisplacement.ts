@@ -6,7 +6,7 @@ import type {
 import { admitAutoMovieQuadraticProgram } from "./admitAutoMovieQuadraticProgram";
 import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram";
 
-/**
+/*
  * Constraint generation for minimum squared nonnegative displacement. A solve
  * retains all vertex bounds and a growing subset of affine contact conditions.
  * Every original row is checked after every solve. If the restricted minimizer
@@ -16,7 +16,7 @@ import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram
  * inferred.
  */
 
-/**
+/*
  * Minimize 1/2 sum(mass[i] * travel[i]^2) with 0 <= travel <= upper and every
  * supplied row. Masses are strictly positive. Each row has a grouping identity
  * used to add its group's worst unsatisfied condition per round. Row order

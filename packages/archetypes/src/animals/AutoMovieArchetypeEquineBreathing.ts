@@ -21,35 +21,39 @@ import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadru
 import { QuadrupedCarriage } from "./quadruped/QuadrupedCarriage";
 import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
-/**
+/*
  * A resting adult horse's breathing rate, breaths per minute: the middle of the
  * 8 to 16 the MSD Veterinary Manual gives as normal at rest.
  */
 const REST_RATE: number = 12;
 
-/** The barrel's girth swing at rest, metres of radius: authored. */
+/*
+ * The barrel's girth swing at rest, metres of radius: authored.
+ */
 const REST_DEPTH: number = 0.004;
 
-/**
+/*
  * The barrel's girth swing in a stride-locked breath, metres of radius:
  * authored.
  */
 const STRIDE_DEPTH: number = 0.012;
 
-/**
+/*
  * The gaits whose breaths lock 1:1 to the stride (Attenburrow 1982; Lafortuna
  * et al. 1996, J Exp Biol 166:19 on 1:1 coupling at the canter and gallop).
  */
 const LOCKED: ReadonlySet<string> = new Set<string>(["canter", "gallop"]);
 
-/**
+/*
  * The rate at which the nostrils flare fully on each breath, breaths per
  * minute, and how much a full flare widens them, a fraction of their radius:
  * authored.
  */
 const FLARE: Readonly<IFlare> = { rate: 90, widen: 0.6 };
 
-/** The nostrils' part ids. */
+/*
+ * The nostrils' part ids.
+ */
 const NOSTRILS: ReadonlySet<string> = new Set<string>([
   "leftNostril",
   "rightNostril",
@@ -272,7 +276,7 @@ export namespace AutoMovieArchetypeEquineBreathing {
     };
   }
 
-  /**
+  /*
    * The free clock's breath: the rest rate raised by the active recovery, its
    * phase the closed-form integral of the rate.
    */
@@ -296,7 +300,7 @@ export namespace AutoMovieArchetypeEquineBreathing {
     return { phase: cycles - Math.floor(cycles), rate, depth, locked: false };
   }
 
-  /**
+  /*
    * A part with its capsule or cylinder radius grown by a length and by a
    * fraction, or a box's cross-section likewise.
    */
@@ -323,7 +327,9 @@ export namespace AutoMovieArchetypeEquineBreathing {
     return part;
   }
 
-  /** Admit the efforts. */
+  /*
+   * Admit the efforts.
+   */
   function admit(
     archetype: string,
     efforts: readonly IEffort[],
@@ -356,14 +362,22 @@ export namespace AutoMovieArchetypeEquineBreathing {
   }
 }
 
-/** The nostril flare's authored shape. */
+/*
+ * The nostril flare's authored shape.
+ */
 interface IFlare {
-  /** Breaths per minute at which a breath flares the nostrils fully. */
+  /*
+   * Breaths per minute at which a breath flares the nostrils fully.
+   */
   rate: number;
 
-  /** The widening of a full flare, a fraction of the nostril's radius. */
+  /*
+   * The widening of a full flare, a fraction of the nostril's radius.
+   */
   widen: number;
 }
 
-/** A named instant of a ride. */
+/*
+ * A named instant of a ride.
+ */
 type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

@@ -5,7 +5,7 @@ import type { IBuildPlantingObjectProps } from "./IBuildPlantingObjectProps.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
-/**
+/*
  * Project one derived plant and its arrangement into GPU-instanced batches.
  *
  * A nonempty bed with branches and leaves uses two instanced batches: one for

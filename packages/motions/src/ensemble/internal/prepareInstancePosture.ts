@@ -9,7 +9,9 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** Limbs whose world goals follow a rigid instance. */
+/*
+ * Limbs whose world goals follow a rigid instance.
+ */
 const LIMBS: readonly AutoMovieHumanLimb[] = [
   "leftArm",
   "rightArm",
@@ -17,11 +19,10 @@ const LIMBS: readonly AutoMovieHumanLimb[] = [
   "rightLeg",
 ];
 
-/**
+/*
  * Prepare one member as a phase-shifted rigid copy of its template.
- *
- * @param props The template reader, admitted clock and entering frame.
- * @returns A read of the instance at an action second.
+ * Parameter props: The template reader, admitted clock and entering frame.
+ * Returns: A read of the instance at an action second.
  */
 export function prepareInstancePosture<Body extends object>(
   props: prepareInstancePosture.IInput<Body>,
@@ -117,52 +118,84 @@ export function prepareInstancePosture<Body extends object>(
   };
 }
 
-/** Inputs of the rigid copy's preparation. */
+/*
+ * Inputs of the rigid copy's preparation.
+ */
 export namespace prepareInstancePosture {
-  /** Read the template's posture at a film second. */
+  /*
+   * Read the template's posture at a film second.
+   */
   export type Reader = (seconds: number) => IAutoMovieMotionHumanPosture;
 
-  /** The body identity and posture function of the template member. */
+  /*
+   * The body identity and posture function of the template member.
+   */
   export interface ITemplate<Body extends object> {
-    /** Body object shared by both members. */
+    /*
+     * Body object shared by both members.
+     */
     body: Body;
 
-    /** The template's placed posture reader, when available. */
+    /*
+     * The template's placed posture reader, when available.
+     */
     posture?: Reader;
   }
 
-  /** The placed member and the clock on which it reads the template. */
+  /*
+   * The placed member and the clock on which it reads the template.
+   */
   export interface IInput<Body extends object> {
-    /** Template subject id, used in a refusal. */
+    /*
+     * Template subject id, used in a refusal.
+     */
     name: string;
 
-    /** Template member to copy. */
+    /*
+     * Template member to copy.
+     */
     template: ITemplate<Body>;
 
-    /** This member's body identity. */
+    /*
+     * This member's body identity.
+     */
     body: Body;
 
-    /** This member's entering world origin and heading. */
+    /*
+     * This member's entering world origin and heading.
+     */
     entered: Pick<IAutoMovieMotionHumanPosture, "root" | "yaw">;
 
-    /** The instance's zero on the film clock, seconds. */
+    /*
+     * The instance's zero on the film clock, seconds.
+     */
     start: number;
 
-    /** The duration of the instance, seconds. */
+    /*
+     * The duration of the instance, seconds.
+     */
     duration: number;
 
-    /** How far before the instance's clock to read, seconds. */
+    /*
+     * How far before the instance's clock to read, seconds.
+     */
     lag: number;
 
-    /** Maximum heading drift over the template span, degrees. */
+    /*
+     * Maximum heading drift over the template span, degrees.
+     */
     turnLimit: number;
 
-    /** Rate used to check the template's displayed heading, frames per second. */
+    /*
+     * Rate used to check the template's displayed heading, frames per second.
+     */
     rate: number;
   }
 }
 
-/** A floor-plan vector turned by a heading, degrees. */
+/*
+ * A floor-plan vector turned by a heading, degrees.
+ */
 function rotate(vector: IAutoMovieVector3, degrees: number): IAutoMovieVector3 {
   const radians: number = (degrees * Math.PI) / 180;
   const cosine: number = Math.cos(radians);

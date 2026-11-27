@@ -16,10 +16,10 @@ import {
 import { autoMovieRenderSubjectOfShot } from "./autoMovieRenderSubjectOfShot";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
-/**
+/*
  * Read a compiled shot as the complete drawable world one frame commits to.
  *
- * {@link autoMovieRenderSubjectOfShot} leaves the simulated drawables to its
+ * autoMovieRenderSubjectOfShot leaves the simulated drawables to its
  * caller, because it was written while the compiled shot carried none. It
  * carries them now: the artifact holds every fluid, cloth and planting domain
  * beside the bindings that place them, and this is the one conversion that
@@ -153,7 +153,7 @@ export function autoMovieRenderSubjectOfCompiledShot(
   });
 }
 
-/**
+/*
  * Index one binding list by the drawable it places, keeping the smallest id.
  *
  * Two bindings naming one drawable is an authoring contradiction the builder
@@ -176,7 +176,9 @@ const bindingOf: <Entry extends { id: string }>(
   return index;
 };
 
-/** The semantic id of the building space a binding hangs its drawable in. */
+/*
+ * The semantic id of the building space a binding hangs its drawable in.
+ */
 const spaceOwner: (
   environment: string | undefined,
   space: string | undefined,

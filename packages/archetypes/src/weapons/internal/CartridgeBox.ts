@@ -11,13 +11,13 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeHolster } from "../AutoMovieArchetypeHolster";
 
-/**
+/*
  * The soldier's cartridge box among the holsters: the 1841 Ordnance Manual's
  * infantry box, its two tins and its flap, and the builder that lays them, kept
  * apart from `createHolster` so each file stays within its size.
  */
 export namespace CartridgeBox {
-  /**
+  /*
    * A cartridge box's tins' upper parts, read at the 1841 Ordnance Manual: each
    * tin has two, 2.7 in deep, one 2 x 1.35 in for 6 cartridges and one 1.35 in
    * square for 4, and the box holds two tins. `cells` gives each part's
@@ -50,7 +50,7 @@ export namespace CartridgeBox {
     ],
   };
 
-  /**
+  /*
    * A cartridge box's flap's opening, degrees, and its thickness, metres:
    * estimates, the manual giving the flap's width only (searched: the 1841 and
    * 1850 Ordnance Manuals; records-cartridge-pouch.md).
@@ -60,17 +60,16 @@ export namespace CartridgeBox {
     thickness: 0.004,
   };
 
-  /**
+  /*
    * Lay the cartridge box: the box on its bottom, its back to the wearer, the
    * flap on a hinge along its back top edge, a slot per loose cartridge, and
    * the strap and belt loops at its back.
-   *
-   * @param builder The holster under construction.
-   * @param d The drawn dimensions: the box's length, depth, thickness and the
-   *   flap's width.
-   * @param slots How many cartridge slots to declare.
-   * @param hang The frame facing the wearer at a point, which the strap and
-   *   belt loops take.
+   * Parameter builder: The holster under construction.
+   * Parameter d: The drawn dimensions: the box's length, depth, thickness and the
+   * flap's width.
+   * Parameter slots: How many cartridge slots to declare.
+   * Parameter hang: The frame facing the wearer at a point, which the strap and
+   * belt loops take.
    */
   export function lay(
     builder: AutoMovieArchetypeBuilder<

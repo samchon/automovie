@@ -4,7 +4,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBand, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
-/**
+/*
  * A square putting green with its cup at the centre, the putting surface at Y =
  * 0 and the turf below it.
  *
@@ -12,11 +12,10 @@ import { AutoMovieArchetype, AutoMovieArchetypeBand, AutoMovieArchetypeBuilder, 
  * square's edge, so the cup is an open hole a rolling ball can fall into, with
  * a bottom at the rule's depth. `green` is the putting surface and `cup` the
  * hole's centre on it.
- *
- * @param params The model's id.
- * @param seed The seed that draws the green's side within its band; absent, the
- *   middle.
- * @returns The green.
+ * Parameter params: The model's id.
+ * Parameter seed: The seed that draws the green's side within its band; absent, the
+ * middle.
+ * Returns: The green.
  */
 export function createPuttingGreen(
   params: AutoMovieArchetypePuttingGreen.IParams = {},
@@ -90,7 +89,7 @@ export function createPuttingGreen(
   return builder.build(1000);
 }
 
-/**
+/*
  * Turf sectors around the cup; each spans 22.5 degrees, so square corners fall
  * on sector edges.
  */

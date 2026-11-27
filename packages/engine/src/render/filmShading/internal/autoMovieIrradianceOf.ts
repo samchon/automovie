@@ -5,18 +5,17 @@ import type {
 
 import { autoMovieSphericalBasis } from "./autoMovieSphericalBasis";
 
-/**
+/*
  * The irradiance in lux, per RGB channel, that a probe's coefficients give a
  * receiver facing a world direction: `Σ c_lm Y_lm(n)` over the nine bands.
  *
  * The order-2 series can dip slightly below zero for a receiver facing away
  * from a bright half-space; the value is returned as computed, as the
  * renderer's shader computes it.
- *
- * @param probe The baked probe.
- * @param normal The receiver's direction; normalized here, so any finite
- *   nonzero length works.
- * @returns `[r, g, b]` irradiance in lux.
+ * Parameter probe: The baked probe.
+ * Parameter normal: The receiver's direction; normalized here, so any finite
+ * nonzero length works.
+ * Returns: `[r, g, b]` irradiance in lux.
  */
 export function autoMovieIrradianceOf(
   probe: Pick<IAutoMovieIrradianceProbe, "coefficients">,

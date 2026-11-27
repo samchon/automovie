@@ -7,7 +7,7 @@ import {
 } from "../../core";
 import { type AutoMovieArchetypeEquine } from "../AutoMovieArchetypeEquine";
 
-/**
+/*
  * An equid's vaulting tack, laid on its body: a surcingle round the barrel
  * behind the withers with two handles on top, and a back pad behind it, the
  * equipment FEI vaulting is performed on (https://www.fei.org/vaulting). The
@@ -28,13 +28,13 @@ import { type AutoMovieArchetypeEquine } from "../AutoMovieArchetypeEquine";
  * read, so every part is massless.
  */
 export namespace EquineSurcingle {
-  /**
+  /*
    * The handles' centres apart, metres: inside the 240 mm the harmonised rules
    * allow (estimate).
    */
   export const SPREAD: number = 0.22;
 
-  /**
+  /*
    * The handles' grip above the pad's top, metres, and the length of the
    * gripped bar: estimates inside the 280 mm between a handle's fixing points.
    */
@@ -43,7 +43,7 @@ export namespace EquineSurcingle {
     length: 0.12,
   };
 
-  /**
+  /*
    * The back pad's thickness, length behind the surcingle and width, metres:
    * the 3 cm thickness limit, and 0.6 and 0.5 (estimates inside the 80 cm
    * length and 90 cm width limits).
@@ -55,24 +55,23 @@ export namespace EquineSurcingle {
       width: 0.5,
     };
 
-  /**
+  /*
    * The surcingle ahead of the rig's hitch, metres: the girth's place at a
    * riding saddle's front, behind the withers (estimate).
    */
   export const AHEAD: number = 0.2;
 
-  /**
+  /*
    * The basic seat's depth back from its front edge just behind the surcingle,
    * metres (estimate).
    */
   export const SEAT: number = 0.45;
 
-  /**
+  /*
    * Lay the surcingle, its handles and the back pad on an equid under
    * construction.
-   *
-   * @param builder The equid under construction, its body laid.
-   * @param rig The equid's rest rig.
+   * Parameter builder: The equid under construction, its body laid.
+   * Parameter rig: The equid's rest rig.
    */
   export function lay(
     builder: AutoMovieArchetypeBuilder<

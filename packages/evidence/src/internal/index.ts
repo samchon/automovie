@@ -1,4 +1,6 @@
-/** Workspace-only entry for repository tests and tools. */
+/*
+ * Workspace-only entry for repository tests and tools.
+ */
 export * from "./IContractLocation";
 export * from "./PRODUCTION_CONTRACTS";
 export * from "./SKILLS_ROOT";

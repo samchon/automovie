@@ -5,7 +5,7 @@ import type { IHumanoidSlot } from "./IHumanoidSlot";
 import { object } from "./object";
 import { requiredArray } from "./requiredArray";
 
-/**
+/*
  * Resolve first-claim glTF skin joints to recognized humanoid naming slots.
  *
  * The caller has admitted skin joint indices. Nodes are visited in source

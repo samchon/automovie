@@ -6,11 +6,10 @@ import type {
 
 import { ExerciseKey } from "../internal/ExerciseKey";
 
-/**
+/*
  * Build the spans.
- *
- * @param props What the spans are built from.
- * @returns The planned spans.
+ * Parameter props: What the spans are built from.
+ * Returns: The planned spans.
  */
 export function workoutSpans(
   props: workoutSpans.IProps,
@@ -92,78 +91,124 @@ export function workoutSpans(
   return planned;
 }
 
-/**
+/*
  * A workout's spans: down from standing into the first key, each repetition's
  * way between its keys and its hold, and up again, each span a clock phase
  * named by the instant that opens it (`workout`).
  */
 export namespace workoutSpans {
-  /** One span of the plan: from an instant, between two keys. */
+  /*
+   * One span of the plan: from an instant, between two keys.
+   */
   export interface ISpan {
-    /** The instant that opens the span. */
+    /*
+     * The instant that opens the span.
+     */
     from: string;
 
-    /** The key at its start. */
+    /*
+     * The key at its start.
+     */
     a: IAutoMovieMotionHumanExerciseKey.IKey;
 
-    /** The key at its end. */
+    /*
+     * The key at its end.
+     */
     b: IAutoMovieMotionHumanExerciseKey.IKey;
   }
 
-  /** A repetition's span with the route events it goes between and its side. */
+  /*
+   * A repetition's span with the route events it goes between and its side.
+   */
   export interface IBetween {
-    /** The instant that opens the span. */
+    /*
+     * The instant that opens the span.
+     */
     name: string;
 
-    /** The route event the span leaves. */
+    /*
+     * The route event the span leaves.
+     */
     was: string;
 
-    /** The route event the span reaches. */
+    /*
+     * The route event the span reaches.
+     */
     is: string;
 
-    /** Whether the repetition is done on the other side. */
+    /*
+     * Whether the repetition is done on the other side.
+     */
     other: boolean;
   }
 
-  /** What the spans are built from. */
+  /*
+   * What the spans are built from.
+   */
   export interface IProps {
-    /** The exercise: whether it alternates sides and its way up. */
+    /*
+     * The exercise: whether it alternates sides and its way up.
+     */
     kind: Pick<IAutoMovieMotionHumanWorkoutKind, "alternate" | "enter">;
 
-    /** The kind's route for this body and support. */
+    /*
+     * The kind's route for this body and support.
+     */
     route: readonly IAutoMovieMotionHumanWorkoutKind.IStep[];
 
-    /** Repetitions, a positive whole number. */
+    /*
+     * Repetitions, a positive whole number.
+     */
     reps: number;
 
-    /** Whether the body is left on its support. */
+    /*
+     * Whether the body is left on its support.
+     */
     stay: boolean;
 
-    /** The author's hold of a held key, seconds, when given. */
+    /*
+     * The author's hold of a held key, seconds, when given.
+     */
     hold: number | undefined;
 
-    /** The standing key the way down starts from and the way up returns to. */
+    /*
+     * The standing key the way down starts from and the way up returns to.
+     */
     stood: IAutoMovieMotionHumanExerciseKey.IKey;
 
-    /** Seconds of the way down. */
+    /*
+     * Seconds of the way down.
+     */
     setup: number;
 
-    /** Seconds of the closing settle, after the way up. */
+    /*
+     * Seconds of the closing settle, after the way up.
+     */
     relax: number;
   }
 
-  /** The planned spans. */
+  /*
+   * The planned spans.
+   */
   export interface IPlanned {
-    /** The clock's phases. */
+    /*
+     * The clock's phases.
+     */
     phases: IAutoMovieMotionClockPhase[];
 
-    /** The spans, one per phase. */
+    /*
+     * The spans, one per phase.
+     */
     spans: ISpan[];
 
-    /** Each repetition span's events and side. */
+    /*
+     * Each repetition span's events and side.
+     */
     between: IBetween[];
 
-    /** The held instants. */
+    /*
+     * The held instants.
+     */
     held: string[];
   }
 }

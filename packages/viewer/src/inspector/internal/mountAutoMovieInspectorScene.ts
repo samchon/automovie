@@ -28,7 +28,7 @@ import { reportAutoMovieInspectorLabels } from "./reportAutoMovieInspectorLabels
 import { resolveAutoMovieInspectorCamera } from "./resolveAutoMovieInspectorCamera.js";
 import { writeAutoMovieInspectorInspection } from "./writeAutoMovieInspectorInspection.js";
 
-/**
+/*
  * Mount a subject on the inspector's canvas: build an instance, apply the
  * request's inspection, and draw it every animation frame at the playhead's
  * second through the request's first view.
@@ -110,7 +110,7 @@ export function mountAutoMovieInspectorScene(
       if (!disposed) report.error(messageOfAutoMovieInspectorError(error));
     });
 
-  /**
+  /*
    * Take an arrived instance into use once it is ready at its first second,
    * releasing it if anything fails.
    */
@@ -199,7 +199,7 @@ export function mountAutoMovieInspectorScene(
     }
   }
 
-  /**
+  /*
    * One animation frame: advance, follow the size, redraw when something
    * changed, schedule the next.
    */
@@ -221,7 +221,7 @@ export function mountAutoMovieInspectorScene(
     now.frame = host.requestFrame(frame);
   }
 
-  /**
+  /*
    * Place one second and draw it once the subject is ready there; frames skip
    * drawing while a placement is pending.
    */
@@ -266,7 +266,7 @@ export function mountAutoMovieInspectorScene(
       });
   }
 
-  /**
+  /*
    * Draw the second the subject is now at through the applied request's first
    * view.
    */
@@ -337,7 +337,9 @@ export function mountAutoMovieInspectorScene(
     }
   }
 
-  /** The applied view's camera at a placed second. */
+  /*
+   * The applied view's camera at a placed second.
+   */
   function filmCamera(
     now: IAutoMovieInspectorLive,
     seconds: number,
@@ -350,7 +352,7 @@ export function mountAutoMovieInspectorScene(
     });
   }
 
-  /**
+  /*
    * Paint the placed scene's beauty picture through the stages delivery draws
    * one sample with.
    */
@@ -369,7 +371,7 @@ export function mountAutoMovieInspectorScene(
     });
   }
 
-  /**
+  /*
    * Report a drawing error once until a frame draws again, and stop playback on
    * it.
    */
@@ -386,7 +388,7 @@ export function mountAutoMovieInspectorScene(
     }
   }
 
-  /**
+  /*
    * Install a request on the live subject; on refusal keep the applied one in
    * force and report the refusal.
    */

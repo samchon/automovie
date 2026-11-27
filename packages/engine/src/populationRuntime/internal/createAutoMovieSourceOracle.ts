@@ -9,7 +9,7 @@ import { compiledFormationSlot } from "./compiledFormationSlot";
 import { instanceSlot } from "./instanceSlot";
 import { readGroundHeight } from "../../space/world/internal/readGroundHeight";
 
-/**
+/*
  * Build the deterministic helpers a shot source reads through its build
  * context.
  *
@@ -29,11 +29,10 @@ import { readGroundHeight } from "../../space/world/internal/readGroundHeight";
  * The oracle keeps references to the three props, not copies, so it answers
  * from whatever those records hold when each method is called. Slot indices are
  * passed through to the slot regenerators, which own their range checks.
- *
- * @param props.world World whose surfaces answer ground height.
- * @param props.formationRuntime Compiled formations by id.
- * @param props.instanceSetRuntime Compiled instance sets by id.
- * @returns The oracle a shot source's build context exposes.
+ * Parameter props.world: World whose surfaces answer ground height.
+ * Parameter props.formationRuntime: Compiled formations by id.
+ * Parameter props.instanceSetRuntime: Compiled instance sets by id.
+ * Returns: The oracle a shot source's build context exposes.
  */
 export const createAutoMovieSourceOracle: (
   props: IAutoMovieCreateSourceOracle.IProps,

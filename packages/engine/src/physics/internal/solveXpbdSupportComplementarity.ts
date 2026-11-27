@@ -1,9 +1,11 @@
 import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
 import type { solveXpbdArticulationContacts as Contacts } from "./solveXpbdArticulationContacts";
 
-/** The input of solveXpbdSupportComplementarity. */
+/*
+ * The input of solveXpbdSupportComplementarity.
+ */
 export namespace solveXpbdSupportComplementarity {
-  /**
+  /*
    * The support rows of a tree without a root task, solved as a complementarity
    * problem by active set (Mirtich 1996, "Impulse-based Dynamic Simulation of
    * Rigid Body Systems", chapter 6), every condition inside the one linear system
@@ -22,10 +24,9 @@ export namespace solveXpbdSupportComplementarity {
    * A round that changes no row's state is the answer. Every change holds or
    * releases one normal or starts one patch sliding, so the rounds are bounded by
    * twice the rows; the last round's solution stands if the bound is reached.
-   *
-   * @param input The rows' coupling matrix, the motors' velocity change at them
-   *   and the rows.
-   * @returns The rows' impulses, or null when a round's system is singular.
+   * Parameter input: The rows' coupling matrix, the motors' velocity change at them
+   * and the rows.
+   * Returns: The rows' impulses, or null when a round's system is singular.
    */
   export function run(
     input: Parameters<typeof solveXpbdSupportComplementarityImplementation>[0],
@@ -105,7 +106,7 @@ function solveXpbdSupportComplementarityImplementation(
   return lambda;
 }
 
-/**
+/*
  * A row's velocity change along its direction under impulses `lambda`: `(K
  * lambda + u)_r`.
  */
@@ -120,7 +121,7 @@ function velocity(
   return sum;
 }
 
-/**
+/*
  * A patch's cone on its whole friction: mu times the contact passes' normal
  * plus the rows' normal impulses, at least zero.
  */

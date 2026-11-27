@@ -7,14 +7,13 @@ import { HumanQuadraticRow } from "./HumanQuadraticRow";
 import { HumanQuadraticSubstitute } from "./HumanQuadraticSubstitute";
 import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace";
 
-/**
+/*
  * One interior-point solve from the iterate the scope's arrays hold, cold or
  * warm (`HumanQuadraticInterior`): Mehrotra's predictor and corrector on the
  * reduced system until the residuals meet `ACCURACY` and hold through one
  * further Newton step, the arrays written in place.
- *
- * @param scope The program's arrays and the caller's session.
- * @returns The state the solve ends with, and whether it met `ACCURACY`.
+ * Parameter scope: The program's arrays and the caller's session.
+ * Returns: The state the solve ends with, and whether it met `ACCURACY`.
  */
 export function HumanQuadraticInteriorRun(
   scope: HumanQuadraticInteriorRun.IScope,
@@ -56,7 +55,9 @@ export function HumanQuadraticInteriorRun(
     work,
   }: HumanQuadraticInteriorRun.IScope = scope;
 
-  /** Each row's product with a vector of the variables. */
+  /*
+   * Each row's product with a vector of the variables.
+   */
   const products: (of: Float64Array, into: Float64Array) => void = (
     of: Float64Array,
     into: Float64Array,
@@ -70,7 +71,7 @@ export function HumanQuadraticInteriorRun(
     }
   };
 
-  /**
+  /*
    * The step for a centring `target` of the products, `second` adding the
    * predictor's products: `rho` per end, the reduced system's solve, then each
    * end's own steps. The factor is the iteration's.
@@ -127,7 +128,7 @@ export function HumanQuadraticInteriorRun(
     }
   };
 
-  /**
+  /*
    * The longest step that keeps every slack and multiplier nonnegative;
    * unbounded where none falls.
    */
@@ -308,92 +309,172 @@ export function HumanQuadraticInteriorRun(
   return ended();
 }
 
-/** What one interior-point solve reads and returns. */
+/*
+ * What one interior-point solve reads and returns.
+ */
 export namespace HumanQuadraticInteriorRun {
-  /** The program's arrays a solve reads and writes, from the interior solve. */
+  /*
+   * The program's arrays a solve reads and writes, from the interior solve.
+   */
   export interface IScope {
-    /** The equilibrated program. */
+    /*
+     * The equilibrated program.
+     */
     s: B.IScaled;
-    /** The caller's session, absent for a solve alone. */
+    /*
+     * The caller's session, absent for a solve alone.
+     */
     session: Session.ISession | undefined;
-    /** The variables. */
+    /*
+     * The variables.
+     */
     n: number;
-    /** The rows. */
+    /*
+     * The rows.
+     */
     m: number;
-    /** Each row's first coefficient index. */
+    /*
+     * Each row's first coefficient index.
+     */
     start: B.IScaled["start"];
-    /** Each coefficient's variable. */
+    /*
+     * Each coefficient's variable.
+     */
     cols: B.IScaled["cols"];
-    /** Each coefficient. */
+    /*
+     * Each coefficient.
+     */
     vals: B.IScaled["vals"];
-    /** Each row's weight, negative for a hard row. */
+    /*
+     * Each row's weight, negative for a hard row.
+     */
     weight: B.IScaled["weight"];
-    /** The ends, two per row. */
+    /*
+     * The ends, two per row.
+     */
     ends: number;
-    /** Whether an end is live. */
+    /*
+     * Whether an end is live.
+     */
     live: Uint8Array;
-    /** Whether an end is soft. */
+    /*
+     * Whether an end is soft.
+     */
     soft: Uint8Array;
-    /** Whether an end is an equality's. */
+    /*
+     * Whether an end is an equality's.
+     */
     free: Uint8Array;
-    /** Each end's bound. */
+    /*
+     * Each end's bound.
+     */
     bound: Float64Array;
-    /** The complementarity pairs. */
+    /*
+     * The complementarity pairs.
+     */
     pairs: number;
-    /** The variables. */
+    /*
+     * The variables.
+     */
     x: Float64Array;
-    /** Each end's slack. */
+    /*
+     * Each end's slack.
+     */
     t: Float64Array;
-    /** Each end's multiplier. */
+    /*
+     * Each end's multiplier.
+     */
     lambda: Float64Array;
-    /** Each soft end's excess. */
+    /*
+     * Each soft end's excess.
+     */
     e: Float64Array;
-    /** Each soft end's excess multiplier. */
+    /*
+     * Each soft end's excess multiplier.
+     */
     nu: Float64Array;
-    /** Each row's value. */
+    /*
+     * Each row's value.
+     */
     value: Float64Array;
-    /** Each row's product with the step. */
+    /*
+     * Each row's product with the step.
+     */
     along: Float64Array;
-    /** Each end's primal residual. */
+    /*
+     * Each end's primal residual.
+     */
     primal: Float64Array;
-    /** Each soft end's weight residual. */
+    /*
+     * Each soft end's weight residual.
+     */
     excess: Float64Array;
-    /** Each end's reduced stiffness. */
+    /*
+     * Each end's reduced stiffness.
+     */
     stiff: Float64Array;
-    /** Each end's reduced residual. */
+    /*
+     * Each end's reduced residual.
+     */
     rho: Float64Array;
-    /** Each end's multiplier step. */
+    /*
+     * Each end's multiplier step.
+     */
     dLambda: Float64Array;
-    /** Each end's slack step. */
+    /*
+     * Each end's slack step.
+     */
     dT: Float64Array;
-    /** Each soft end's excess step. */
+    /*
+     * Each soft end's excess step.
+     */
     dE: Float64Array;
-    /** Each soft end's excess multiplier step. */
+    /*
+     * Each soft end's excess multiplier step.
+     */
     dNu: Float64Array;
-    /** The predictor's slack products. */
+    /*
+     * The predictor's slack products.
+     */
     secondT: Float64Array;
-    /** The predictor's excess products. */
+    /*
+     * The predictor's excess products.
+     */
     secondE: Float64Array;
-    /** The stationarity residual. */
+    /*
+     * The stationarity residual.
+     */
     dual: Float64Array;
-    /** The reduced system's right side. */
+    /*
+     * The reduced system's right side.
+     */
     rhs: Float64Array;
-    /** The variables' step. */
+    /*
+     * The variables' step.
+     */
     dx: Float64Array;
-    /** The scratch. */
+    /*
+     * The scratch.
+     */
     work: Workspace.IWork;
   }
 
-  /** A solve's end: its state, and whether it met `ACCURACY`. */
+  /*
+   * A solve's end: its state, and whether it met `ACCURACY`.
+   */
   export interface IResult {
-    /** The state; undefined where the solve failed. */
+    /*
+     * The state; undefined where the solve failed.
+     */
     state: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
-    /** Whether it met `ACCURACY`. */
+    /*
+     * Whether it met `ACCURACY`.
+     */
     converged: boolean;
   }
 }
 
-/**
+/*
  * Iterations at most, a guard behind the residual test: ECOS's documented
  * default `max_iters` of 100 (Domahidi, Chu and Boyd 2013, "ECOS: An SOCP
  * solver for embedded systems", ECC; the solver's settings), an interior-point
@@ -403,20 +484,20 @@ export namespace HumanQuadraticInteriorRun {
  */
 const ITERATIONS: number = 100;
 
-/**
+/*
  * The share of the longest positive step taken, so no slack or multiplier
  * reaches zero: this solver's value, provisional and unsourced, the customary
  * fraction to the boundary.
  */
 const BOUNDARY: number = 0.995;
 
-/**
+/*
  * A step length at or below which the iteration has stalled and the solve
  * fails: this solver's value, provisional and unsourced.
  */
 const LEAST: number = 1e-10;
 
-/**
+/*
  * The reduced matrix's added diagonal, in the equilibrated units where the
  * curvature's and the rows' entries are of order one: this solver's value,
  * provisional and unsourced, the square root of a double's rounding short of an
@@ -424,7 +505,7 @@ const LEAST: number = 1e-10;
  */
 const REGULAR: number = 1e-9;
 
-/**
+/*
  * An equality row's dual regularisation, in the equilibrated units: this
  * solver's value, provisional and unsourced, small enough that an iteration
  * leaves a millionth of its multiplier's step in the row's residual and large
@@ -433,7 +514,7 @@ const REGULAR: number = 1e-9;
  */
 const EQUAL: number = 1e-6;
 
-/**
+/*
  * The residuals' relative accuracy the solve aims at, on the equilibrated data:
  * this solver's value, provisional and unsourced, the square root of a double's
  * rounding, which a Newton iteration on a quadratic program reaches once its
@@ -441,7 +522,7 @@ const EQUAL: number = 1e-6;
  */
 const ACCURACY: number = 1e-8;
 
-/**
+/*
  * The residuals' relative accuracy accepted from a solve that ends short of
  * `ACCURACY`: a thousandth of the OSQP solve's relative tolerance
  * (`HumanQuadraticProgram.TOLERANCE`), this solver's value, provisional, so an
@@ -449,13 +530,17 @@ const ACCURACY: number = 1e-8;
  */
 const ACCEPTED: number = 1e-6;
 
-/** The record of `IRunEndedResult`'s site. */
+/*
+ * The record of `IRunEndedResult`'s site.
+ */
 type IRunEndedResult = {
   state: IAutoMovieMotionHumanQuadraticProgram.IState | undefined;
   converged: boolean;
 };
 
-/** The record of `IHumanQuadraticInteriorRunKept`'s site. */
+/*
+ * The record of `IHumanQuadraticInteriorRunKept`'s site.
+ */
 type IHumanQuadraticInteriorRunKept = {
   state: IAutoMovieMotionHumanQuadraticProgram.IState;
   point: Session.IPoint;

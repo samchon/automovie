@@ -1,4 +1,4 @@
-/**
+/*
  * Cycle bake, cadence and shader public identities, each owned by its
  * declaration file.
  */

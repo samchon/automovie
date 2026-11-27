@@ -18,7 +18,7 @@ import { AquaticPosture } from "./AquaticPosture";
 import { AquaticProp } from "./AquaticProp";
 import { AquaticSailBounds } from "./AquaticSailBounds";
 
-/**
+/*
  * The tack's posture by time: the crew crouched below the boom or standing back
  * up, each foot crossing the cockpit in front of the standing shank and bearing
  * on its ball through its swing (the forefoot rocker, Perry and Burnfield), the
@@ -26,9 +26,8 @@ import { AquaticSailBounds } from "./AquaticSailBounds";
  * put it, read from the courses the plan laid.
  *
  * Part of `AquaticSail.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `plan`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `plan`.
  */
 export function AquaticSailPosture(
   prepared: AquaticSailPosture.IPrepared,
@@ -275,98 +274,158 @@ export function AquaticSailPosture(
   };
 }
 
-/** The `plan` of `AquaticSail.plan`, built from what that plan prepared. */
+/*
+ * The `plan` of `AquaticSail.plan`, built from what that plan prepared.
+ */
 export namespace AquaticSailPosture {
-  /** What `AquaticSail.plan` prepared for its `plan`. */
+  /*
+   * What `AquaticSail.plan` prepared for its `plan`.
+   */
   export interface IPrepared {
-    /** The `duration` `AquaticSail.plan` prepared. */
+    /*
+     * The `duration` `AquaticSail.plan` prepared.
+     */
     duration: number;
 
-    /** The `contacts` `AquaticSail.plan` prepared. */
+    /*
+     * The `contacts` `AquaticSail.plan` prepared.
+     */
     contacts: IAutoMovieMotionHumanContactWindow[];
 
-    /** The `drives` `AquaticSail.plan` prepared. */
+    /*
+     * The `drives` `AquaticSail.plan` prepared.
+     */
     drives: IAutoMovieMotionPropDrive[];
 
-    /** The `leadStart` `AquaticSail.plan` prepared. */
+    /*
+     * The `leadStart` `AquaticSail.plan` prepared.
+     */
     leadStart: number;
 
-    /** The `leadEnd` `AquaticSail.plan` prepared. */
+    /*
+     * The `leadEnd` `AquaticSail.plan` prepared.
+     */
     leadEnd: number;
 
-    /** The `aborted` `AquaticSail.plan` prepared. */
+    /*
+     * The `aborted` `AquaticSail.plan` prepared.
+     */
     aborted: boolean;
 
-    /** The `trailStart` `AquaticSail.plan` prepared. */
+    /*
+     * The `trailStart` `AquaticSail.plan` prepared.
+     */
     trailStart: number;
 
-    /** The `trailEnd` `AquaticSail.plan` prepared. */
+    /*
+     * The `trailEnd` `AquaticSail.plan` prepared.
+     */
     trailEnd: number;
 
-    /** The `deck` `AquaticSail.plan` prepared. */
+    /*
+     * The `deck` `AquaticSail.plan` prepared.
+     */
     deck: boolean;
 
-    /** The `upright` `AquaticSail.plan` prepared. */
+    /*
+     * The `upright` `AquaticSail.plan` prepared.
+     */
     upright: IAutoMovieMotionHumanPosture;
 
-    /** The `body` `AquaticSail.plan` prepared. */
+    /*
+     * The `body` `AquaticSail.plan` prepared.
+     */
     body: AquaticPosture.Context["body"];
 
-    /** The `initialSide` `AquaticSail.plan` prepared. */
+    /*
+     * The `initialSide` `AquaticSail.plan` prepared.
+     */
     initialSide: number;
 
-    /** The `helm` `AquaticSail.plan` prepared. */
+    /*
+     * The `helm` `AquaticSail.plan` prepared.
+     */
     helm: boolean;
 
-    /** The `hull` `AquaticSail.plan` prepared. */
+    /*
+     * The `hull` `AquaticSail.plan` prepared.
+     */
     hull: AquaticCrew.IHull;
 
-    /** The `lead` `AquaticSail.plan` prepared. */
+    /*
+     * The `lead` `AquaticSail.plan` prepared.
+     */
     lead: AquaticCrew.Side;
 
-    /** The `trail` `AquaticSail.plan` prepared. */
+    /*
+     * The `trail` `AquaticSail.plan` prepared.
+     */
     trail: AquaticCrew.Side;
 
-    /**
+    /*
      * An ankle's clearance pulse between release and replant, `AquaticSail`'s
      * `swing`: at a second, from the release, to the replant.
      */
     swing: (at: number, from: number, to: number) => number;
 
-    /** The `cross` `AquaticSail.plan` prepared. */
+    /*
+     * The `cross` `AquaticSail.plan` prepared.
+     */
     cross: number;
 
-    /** The `clearance` `AquaticSail.plan` prepared. */
+    /*
+     * The `clearance` `AquaticSail.plan` prepared.
+     */
     clearance: number;
 
-    /** The `ahead` `AquaticSail.plan` prepared. */
+    /*
+     * The `ahead` `AquaticSail.plan` prepared.
+     */
     ahead: IAutoMovieVector3;
 
-    /** The `passing` `AquaticSail.plan` prepared. */
+    /*
+     * The `passing` `AquaticSail.plan` prepared.
+     */
     passing: number;
 
-    /** The `hips` `AquaticSail.plan` prepared. */
+    /*
+     * The `hips` `AquaticSail.plan` prepared.
+     */
     hips: IAutoMovieVector3;
 
-    /** The `hipsAt` `AquaticSail.plan` prepared. */
+    /*
+     * The `hipsAt` `AquaticSail.plan` prepared.
+     */
     hipsAt: ReturnType<typeof AquaticPosture.markers>;
 
-    /** The `context` `AquaticSail.plan` prepared. */
+    /*
+     * The `context` `AquaticSail.plan` prepared.
+     */
     context: AquaticPosture.Context;
 
-    /** The `plants` `AquaticSail.plan` prepared. */
+    /*
+     * The `plants` `AquaticSail.plan` prepared.
+     */
     plants: IAutoMovieMotionHumanContactWindow[];
 
-    /** The `legsAt` `AquaticSail.plan` prepared. */
+    /*
+     * The `legsAt` `AquaticSail.plan` prepared.
+     */
     legsAt: ReturnType<typeof AquaticPosture.markers>;
 
-    /** The `controls` `AquaticSail.plan` prepared. */
+    /*
+     * The `controls` `AquaticSail.plan` prepared.
+     */
     controls: readonly AquaticSailBounds.IControl[];
 
-    /** The `carrier` `AquaticSail.plan` prepared. */
+    /*
+     * The `carrier` `AquaticSail.plan` prepared.
+     */
     carrier: IAutoMovieMotionHumanPropReader;
 
-    /** The `shouldersAt` `AquaticSail.plan` prepared. */
+    /*
+     * The `shouldersAt` `AquaticSail.plan` prepared.
+     */
     shouldersAt: ReturnType<typeof AquaticPosture.markers>;
   }
 }

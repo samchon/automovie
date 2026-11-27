@@ -4,7 +4,7 @@ import type { AutoMovieArchetypeCourse } from "../../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped";
 
-/**
+/*
  * The trunk's pitch across a steep face's edge: a course pitches its root with
  * each leg's grade the moment the root crosses into the leg, which on a steep
  * face would swing the whole body about the root at once and sweep the
@@ -13,29 +13,40 @@ import type { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped
  * the edge to the moment its hinds do.
  */
 export namespace EquineEdge {
-  /** One edge between two legs' grades. */
+  /*
+   * One edge between two legs' grades.
+   */
   export interface IEdge {
-    /** The edge's course distance, metres. */
+    /*
+     * The edge's course distance, metres.
+     */
     at: number;
-    /** The course's pitch before the edge, degrees, positive nose-down. */
+    /*
+     * The course's pitch before the edge, degrees, positive nose-down.
+     */
     before: number;
-    /** The course's pitch after the edge, degrees, positive nose-down. */
+    /*
+     * The course's pitch after the edge, degrees, positive nose-down.
+     */
     after: number;
-    /** How far ahead of the root the fore hooves stand, metres. */
+    /*
+     * How far ahead of the root the fore hooves stand, metres.
+     */
     ahead: number;
-    /** How far behind the root the hind hooves stand, metres. */
+    /*
+     * How far behind the root the hind hooves stand, metres.
+     */
     behind: number;
   }
 
-  /**
+  /*
    * The two edges of a course leg, at its start and at its end.
-   *
-   * @param legs The course's legs.
-   * @param index The leg's index.
-   * @param plan The course plan.
-   * @param hooves The neutral hoof endpoints, model metres: the left fore's
-   *   ahead of the root and the left hind's behind it.
-   * @returns The edges.
+   * Parameter legs: The course's legs.
+   * Parameter index: The leg's index.
+   * Parameter plan: The course plan.
+   * Parameter hooves: The neutral hoof endpoints, model metres: the left fore's
+   * ahead of the root and the left hind's behind it.
+   * Returns: The edges.
    */
   export function of(
     legs: readonly AutoMovieArchetypeQuadruped.IRideLeg[],
@@ -71,13 +82,12 @@ export namespace EquineEdge {
     ];
   }
 
-  /**
+  /*
    * The pitch to add to the course's at a course distance, degrees, positive
    * nose-down.
-   *
-   * @param edges The edges.
-   * @param distance The root's course distance, metres.
-   * @returns The correction, zero away from every edge.
+   * Parameter edges: The edges.
+   * Parameter distance: The root's course distance, metres.
+   * Returns: The correction, zero away from every edge.
    */
   export function pitch(edges: readonly IEdge[], distance: number): number {
     let correction: number = 0;

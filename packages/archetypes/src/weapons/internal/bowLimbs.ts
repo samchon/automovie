@@ -1,21 +1,20 @@
 import { AutoMovieArchetypeRefusal, AutoMovieArchetypeUnits } from "../../core/index";
 import { AutoMovieArchetypeBow } from "../AutoMovieArchetypeBow";
 
-/**
+/*
  * Each limb's turn against the string's travel: the table a bow's `upperLimb`
  * and `lowerLimb` follow, and what `createBow.limbs` gives.
- *
- * @param half The finite positive limb-tip height from the grip, half the
- *   length nock to nock, metres.
- * @param brace The finite positive braced-string distance behind the grip,
- *   metres.
- * @param travel Finite nonnegative full string travel, metres, admitting the
- *   fixed limb/string triangle.
- * @returns Rows of string travel, metres, and limb turn, degrees, from brace to
- *   full draw; a zero stroke has just the neutral row.
- * @throws {AutoMovieArchetypeRefusal} For invalid or impossible geometry,
- *   unrepresentable intermediate geometry or insufficient binary64 travel
- *   resolution.
+ * Parameter half: The finite positive limb-tip height from the grip, half the
+ * length nock to nock, metres.
+ * Parameter brace: The finite positive braced-string distance behind the grip,
+ * metres.
+ * Parameter travel: Finite nonnegative full string travel, metres, admitting the
+ * fixed limb/string triangle.
+ * Returns: Rows of string travel, metres, and limb turn, degrees, from brace to
+ * full draw; a zero stroke has just the neutral row.
+ * For invalid or impossible geometry,
+ * unrepresentable intermediate geometry or insufficient binary64 travel
+ * resolution.
  */
 export function bowLimbs(
   half: number,
@@ -112,7 +111,7 @@ export function bowLimbs(
   fill(0, travel);
   return rows;
 
-  /**
+  /*
    * Refuse unsupported geometry before a NaN table or nonterminating
    * subdivision escapes.
    */

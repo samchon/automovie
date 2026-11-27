@@ -11,7 +11,7 @@ import { readTrueTypeGlyphOutline } from "./readTrueTypeGlyphOutline";
 import { readTrueTypeKerning } from "./readTrueTypeKerning";
 import { readTrueTypeNames } from "./readTrueTypeNames";
 
-/**
+/*
  * Decode one TrueType-outline font's bytes into outlines, metrics, kerning and
  * descriptive names, following the Open Font Format (ISO/IEC 14496-22).
  *
@@ -34,11 +34,10 @@ import { readTrueTypeNames } from "./readTrueTypeNames";
  *
  * The function is pure: the same bytes always give a deep-equal record, and the
  * result shares no storage with the input.
- *
- * @param bytes The font file's bytes; only read.
- * @returns The decoded record in font units.
- * @throws {Error} Any refusal above, naming the format, table, glyph or offset
- *   at fault.
+ * Parameter bytes: The font file's bytes; only read.
+ * Returns: The decoded record in font units.
+ * Any refusal above, naming the format, table, glyph or offset
+ * at fault.
  */
 export function decodeAutoMovieTrueTypeFont(bytes: Uint8Array): IAutoMovieFont {
   const reader: TrueTypeByteReader = new TrueTypeByteReader(bytes);
@@ -203,7 +202,9 @@ export function decodeAutoMovieTrueTypeFont(bytes: Uint8Array): IAutoMovieFont {
   };
 }
 
-/** Tables every admitted font must carry. */
+/*
+ * Tables every admitted font must carry.
+ */
 const REQUIRED: readonly string[] = [
   "head",
   "hhea",

@@ -12,20 +12,19 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { HumanClaspClearance } from "./HumanClaspClearance";
 
-/**
+/*
  * The clasp candidates an arm may take, and the displayed frames their
  * clearance test reads: of the fits that reach the clasp within `reached`,
  * those in the lowest upper-arm band they attain; every fit when none reaches.
- *
- * @param body The body, unchanged through the search.
- * @param side The offered hand and its arm.
- * @param reaches Every turn's grasp-and-stroke fit, in turn order.
- * @param reached The largest miss that counts as reaching
- *   (`HumanClasp.REACHED`), millimetres of the hand.
- * @param bands The upper limits of the upper-arm bands, degrees of the upper
- *   arm from hanging (`HumanClasp.BANDS`).
- * @returns The admitted indices into `reaches`, and the lower arm, hand and
- *   digit frames of each admitted fit, world metres.
+ * Parameter body: The body, unchanged through the search.
+ * Parameter side: The offered hand and its arm.
+ * Parameter reaches: Every turn's grasp-and-stroke fit, in turn order.
+ * Parameter reached: The largest miss that counts as reaching
+ * (`HumanClasp.REACHED`), millimetres of the hand.
+ * Parameter bands: The upper limits of the upper-arm bands, degrees of the upper
+ * arm from hanging (`HumanClasp.BANDS`).
+ * Returns: The admitted indices into `reaches`, and the lower arm, hand and
+ * digit frames of each admitted fit, world metres.
  */
 export function HumanClaspCandidateFrames(
   body: IAutoMovieMotionHumanBody,
@@ -90,13 +89,17 @@ export function HumanClaspCandidateFrames(
   };
 }
 
-/** The record of `IHumanClaspCandidateFramesResult`'s site. */
+/*
+ * The record of `IHumanClaspCandidateFramesResult`'s site.
+ */
 type IHumanClaspCandidateFramesResult = {
-  /**
+  /*
    * Indices into `reaches` admitted by reach and by the lowest attained
    * upper-arm band.
    */
   indices: number[];
-  /** Lower arm, hand and digit frames of each admitted fit, world metres. */
+  /*
+   * Lower arm, hand and digit frames of each admitted fit, world metres.
+   */
   bones: Map<number, Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>>;
 };

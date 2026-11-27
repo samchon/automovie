@@ -21,22 +21,21 @@ import { HumanColliderCorners } from "./HumanColliderCorners";
 import { HumanColliders } from "./HumanColliders";
 import { poseBones } from "./poseBones";
 
-/**
+/*
  * The frame of a base: what an arm is read against at one instant
  * (`HumanArmGeometry.IFrame`), built from a base: the shoulder's parent, the
  * fingertip, the shapes of the body and of another body in the arm's way, and
  * the arm's own colliders and their probes (the tangle audit's corners and bone
  * points) in the frame of the segment each rides on.
- *
- * @param setup The arm.
- * @param base The pose and another body's colliders, the arms of the problem
- *   left out of what they hold.
- * @param alone Whether the arm is solved alone, so the other arm is in its way;
- *   two arms solved together read each other through their own colliders.
- * @param prepared Optional exact FK reader, shared only across arms of this
- *   same base's synchronous frame construction, then released. It is not stored
- *   in the frame.
- * @returns The frame of the base, arm and solve.
+ * Parameter setup: The arm.
+ * Parameter base: The pose and another body's colliders, the arms of the problem
+ * left out of what they hold.
+ * Parameter alone: Whether the arm is solved alone, so the other arm is in its way;
+ * two arms solved together read each other through their own colliders.
+ * Parameter prepared: Optional exact FK reader, shared only across arms of this
+ * same base's synchronous frame construction, then released. It is not stored
+ * in the frame.
+ * Returns: The frame of the base, arm and solve.
  */
 export function HumanArmFrame(
   setup: IAutoMovieMotionHumanArmGeometry.ISetup,
@@ -409,43 +408,61 @@ export function HumanArmFrame(
   };
 }
 
-/** The record of `IBuiltOfResult`'s site. */
+/*
+ * The record of `IBuiltOfResult`'s site.
+ */
 type IBuiltOfResult = { centre: IAutoMovieVector3; radius: number };
 
-/** The alternatives of `BuiltOfOwner2`'s site. */
+/*
+ * The alternatives of `BuiltOfOwner2`'s site.
+ */
 type BuiltOfOwner2 = "upper" | "lower" | "hand";
 
-/** The record of `IBuiltOf`'s site. */
+/*
+ * The record of `IBuiltOf`'s site.
+ */
 type IBuiltOf = {
   centre: IAutoMovieVector3;
   radius: number;
 };
 
-/** The alternatives of `BuiltOfOwner`'s site. */
+/*
+ * The alternatives of `BuiltOfOwner`'s site.
+ */
 type BuiltOfOwner = "upper" | "lower" | "hand";
 
-/** The alternatives of `BuiltOwner`'s site. */
+/*
+ * The alternatives of `BuiltOwner`'s site.
+ */
 type BuiltOwner = "upper" | "lower" | "hand" | null;
 
-/** The alternatives of `InversesEntryItem`'s site. */
+/*
+ * The alternatives of `InversesEntryItem`'s site.
+ */
 type InversesEntryItem = "upper" | "lower" | "hand";
 
-/** The alternatives of `BuiltFramesEntry`'s site. */
+/*
+ * The alternatives of `BuiltFramesEntry`'s site.
+ */
 type BuiltFramesEntry = "upper" | "lower" | "hand";
 
-/** The alternatives of `BuiltOwnersItem`'s site. */
+/*
+ * The alternatives of `BuiltOwnersItem`'s site.
+ */
 type BuiltOwnersItem = "upper" | "lower" | "hand";
 
-/** The alternatives of `BuiltByOwnerEntry`'s site. */
+/*
+ * The alternatives of `BuiltByOwnerEntry`'s site.
+ */
 type BuiltByOwnerEntry = "upper" | "lower" | "hand";
 
-/**
+/*
  * How near a body's corner must come to a segment of the arm to be read against
  * it, metres: the pairs' reach (`HumanArmTrajectoryTerms.REACH`).
  */
 const NEAR: number = HumanArmTrajectoryTerms.REACH;
 
-/**
+/*
  * The slack a segment's sphere test keeps over the corner filter, metres: far
  * below any probe's spacing, far above the rounding of a rotated probe's
  * length, so the test leaves out only segments none of whose corners the filter
@@ -453,7 +470,7 @@ const NEAR: number = HumanArmTrajectoryTerms.REACH;
  */
 const MARGIN: number = 1e-9;
 
-/**
+/*
  * A shape list's values as text: each shape's kind, transform and size, and a
  * hull's point count, which with its transform and its segment's bone tell one
  * profile's shapes from another's.
@@ -482,13 +499,17 @@ function shapesKey(
     .join(";");
 }
 
-/** The record of `ISphereResult`'s site. */
+/*
+ * The record of `ISphereResult`'s site.
+ */
 type ISphereResult = {
   centre: IAutoMovieVector3;
   radius: number;
 };
 
-/** A sphere about points: their mean and the farthest one's distance. */
+/*
+ * A sphere about points: their mean and the farthest one's distance.
+ */
 function sphere(points: readonly IAutoMovieVector3[]): ISphereResult {
   const scale: number = 1 / Math.max(1, points.length);
   let x: number = 0;

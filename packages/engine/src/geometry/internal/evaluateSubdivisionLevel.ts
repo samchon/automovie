@@ -7,7 +7,7 @@ import type {
 
 import { limitSubdivisionLevel } from "./limitSubdivisionLevel";
 
-/**
+/*
  * Evaluate a completed generating level without another topology refinement.
  *
  * This boundary lets a refined fitting domain emit its existing LOD instead of

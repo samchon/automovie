@@ -1,4 +1,4 @@
-/**
+/*
  * Read raw X/Y/Z/W quaternion components from the three columns of an admitted
  * right-handed orthonormal basis. Shepperd's trace and dominant-diagonal
  * branches keep the denominator away from zero. For tied dominant diagonals,

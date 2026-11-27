@@ -238,7 +238,7 @@ export namespace AutoMovieHumanMouth {
     return section.x - section.sweep * share * share;
   }
 
-  /**
+  /*
    * The slit as a Fourier margin facing forward: a stadium about the contact
    * line, as tall as the slit from end to end and closed by half circles at
    * the cheilia, walked by its length. An ellipse thinned toward the cheilia
@@ -316,7 +316,9 @@ export namespace AutoMovieHumanMouth {
     };
   }
 
-  /** Samples of the contact line across the half width. */
+  /*
+   * Samples of the contact line across the half width.
+   */
   const SAMPLES: number = 16;
 
   /**
@@ -325,7 +327,9 @@ export namespace AutoMovieHumanMouth {
    */
   export const PITCH: number = 0.5;
 
-  /** Highest harmonic of the slit's margin. */
+  /*
+   * Highest harmonic of the slit's margin.
+   */
   const ORDER: number = 128;
 
   /**
@@ -335,6 +339,8 @@ export namespace AutoMovieHumanMouth {
    */
   export const CLOSED: number = 0.02;
 
-  /** Depth tolerance of the slit's inside test, mm. */
+  /*
+   * Depth tolerance of the slit's inside test, mm.
+   */
   const DEPTH: number = 3;
 }

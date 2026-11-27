@@ -233,7 +233,7 @@ export namespace AutoMovieConicHermiteField {
     };
   }
 
-  /**
+  /*
    * Preserve the ordered log-sum arithmetic while reusing an already read
    * primal gauge.
    */
@@ -249,7 +249,7 @@ export namespace AutoMovieConicHermiteField {
     return ops.add(gauge, ops.log(sum));
   }
 
-  /**
+  /*
    * Polar slope and second derivative from unit direction and logarithmic
    * geometric curvature.
    */

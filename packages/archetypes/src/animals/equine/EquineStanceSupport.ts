@@ -9,13 +9,13 @@ import { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedB
 import { EquineBodyPose } from "./EquineBodyPose";
 import type { EquineStanceRows } from "./EquineStanceRows";
 
-/**
+/*
  * The proxy centre of mass's least distance inside the remaining supports
  * before a hoof leaves the floor, metres: authored.
  */
 const MARGIN: number = 0.03;
 
-/**
+/*
  * The support rules every stance row shares: hooves on their anchors, a limb
  * folded by a share of its turns, trunk shifts, and the weight transfer that
  * must precede releasing a hoof.
@@ -27,11 +27,10 @@ const MARGIN: number = 0.03;
  * that the centre of mass projects inside the support.
  */
 export namespace EquineStanceSupport {
-  /**
+  /*
    * Four hooves on their anchors at zero fold.
-   *
-   * @param anchors Each hoof's terminal endpoint, base model space.
-   * @returns The four placed limbs.
+   * Parameter anchors: Each hoof's terminal endpoint, base model space.
+   * Returns: The four placed limbs.
    */
   export function placed(
     anchors: Readonly<
@@ -53,13 +52,12 @@ export namespace EquineStanceSupport {
     };
   }
 
-  /**
+  /*
    * A limb folded from its release chain by a share of its turns.
-   *
-   * @param chain The chain at release, the trunk's frame.
-   * @param turns The full turns, degrees.
-   * @param share 0 at release to 1 fully folded.
-   * @returns The folded limb.
+   * Parameter chain: The chain at release, the trunk's frame.
+   * Parameter turns: The full turns, degrees.
+   * Parameter share: 0 at release to 1 fully folded.
+   * Returns: The folded limb.
    */
   export function folded(
     chain: readonly IAutoMovieVector3[],
@@ -78,12 +76,11 @@ export namespace EquineStanceSupport {
     };
   }
 
-  /**
+  /*
    * A trunk motion followed by a translation.
-   *
-   * @param motion The motion.
-   * @param shift The translation, metres.
-   * @returns The shifted motion.
+   * Parameter motion: The motion.
+   * Parameter shift: The translation, metres.
+   * Returns: The shifted motion.
    */
   export function moved(
     motion: AutoMovieArchetypeFrame.IMotion,
@@ -95,12 +92,11 @@ export namespace EquineStanceSupport {
     };
   }
 
-  /**
+  /*
    * The yaw of a trunk motion: the turn about the vertical that carries +Z onto
    * the trunk's forward direction projected on the floor.
-   *
-   * @param motion The trunk's motion.
-   * @returns The heading rotation; the identity for an unturned trunk.
+   * Parameter motion: The trunk's motion.
+   * Returns: The heading rotation; the identity for an unturned trunk.
    */
   export function heading(
     motion: AutoMovieArchetypeFrame.IMotion,
@@ -119,13 +115,12 @@ export namespace EquineStanceSupport {
     );
   }
 
-  /**
+  /*
    * A vector authored in the horse's own frame (X to its left, Y up, Z forward)
    * carried into the base model's space by a trunk's heading.
-   *
-   * @param motion The trunk's motion.
-   * @param vector The vector in the horse's frame.
-   * @returns The vector in the base model's space.
+   * Parameter motion: The trunk's motion.
+   * Parameter vector: The vector in the horse's frame.
+   * Returns: The vector in the base model's space.
    */
   export function along(
     motion: AutoMovieArchetypeFrame.IMotion,
@@ -134,15 +129,14 @@ export namespace EquineStanceSupport {
     return Quaternion.rotateVector(heading(motion), vector);
   }
 
-  /**
+  /*
    * A point on a lifted hoof path between two places: their blend raised by a
    * half-sine of the given height.
-   *
-   * @param from The place at share 0, metres.
-   * @param to The place at share 1, metres.
-   * @param share The share.
-   * @param height The path's rise at its middle, metres.
-   * @returns The point.
+   * Parameter from: The place at share 0, metres.
+   * Parameter to: The place at share 1, metres.
+   * Parameter share: The share.
+   * Parameter height: The path's rise at its middle, metres.
+   * Returns: The point.
    */
   export function arc(
     from: IAutoMovieVector3,
@@ -157,13 +151,12 @@ export namespace EquineStanceSupport {
     });
   }
 
-  /**
+  /*
    * Two trunk motions of one rotation blended by their translations.
-   *
-   * @param from The motion at share 0.
-   * @param to The motion at share 1.
-   * @param share The share.
-   * @returns The blended motion.
+   * Parameter from: The motion at share 0.
+   * Parameter to: The motion at share 1.
+   * Parameter share: The share.
+   * Returns: The blended motion.
    */
   export function blend(
     from: AutoMovieArchetypeFrame.IMotion,
@@ -176,14 +169,13 @@ export namespace EquineStanceSupport {
     };
   }
 
-  /**
+  /*
    * The level shift carrying the proxy centre of mass `MARGIN` inside the
    * triangle of the other three hooves, or none when it is already there.
-   *
-   * @param body The prepared solver, for the rest centre of mass.
-   * @param state The stance before the release.
-   * @param lifted The hoof about to leave the floor.
-   * @returns The horizontal shift, metres.
+   * Parameter body: The prepared solver, for the rest centre of mass.
+   * Parameter state: The stance before the release.
+   * Parameter lifted: The hoof about to leave the floor.
+   * Returns: The horizontal shift, metres.
    */
   export function transfer<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,

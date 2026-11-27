@@ -1,6 +1,6 @@
 import type { IAutoMovieInertializeOffset } from "@automovie/interface";
 
-/**
+/*
  * The decaying offset of one channel after a transition, by inertialization.
  *
  * Bollo (Inertialization: High-Performance Animation Transitions in Gears of
@@ -31,14 +31,13 @@ import type { IAutoMovieInertializeOffset } from "@automovie/interface";
  * the velocity in excess of `5 |x0| / duration` times `256 duration / 3125`,
  * the peak of the signed lobe. That is the follow-through of a body that
  * reaches a pose at speed.
- *
- * @param x0 Offset at the cut, any unit.
- * @param v0 Offset velocity at the cut, that unit per second.
- * @param duration Requested decay time `t1`, seconds; positive.
- * @param elapsed Seconds since the cut.
- * @param through Whether an offset heading to zero faster than the decay
- *   absorbs passes through it, bounded as above, instead of stopping short.
- * @returns The offset, its velocity and the decay time used.
+ * Parameter x0: Offset at the cut, any unit.
+ * Parameter v0: Offset velocity at the cut, that unit per second.
+ * Parameter duration: Requested decay time `t1`, seconds; positive.
+ * Parameter elapsed: Seconds since the cut.
+ * Parameter through: Whether an offset heading to zero faster than the decay
+ * absorbs passes through it, bounded as above, instead of stopping short.
+ * Returns: The offset, its velocity and the decay time used.
  */
 export function inertializeOffset(
   x0: number,

@@ -11,7 +11,7 @@ import { AutoMovieEngineRandom } from "../../random/index";
 
 import { AUTOMOVIE_ROOM_TONE } from "../constants/AUTOMOVIE_ROOM_TONE";
 
-/**
+/*
  * Generate every room-tone bed of a plan and add it, equally to both channels,
  * to an interleaved stereo mix.
  *
@@ -41,9 +41,8 @@ import { AUTOMOVIE_ROOM_TONE } from "../constants/AUTOMOVIE_ROOM_TONE";
  * It refuses, naming the bed, an interval outside the film or not increasing,
  * beds that overlap, a non-finite level or tilt, a seed that is not a safe
  * integer and a repeated id.
- *
- * @param pcm Interleaved stereo mix, changed in place.
- * @param plan The plan whose `roomTone` beds are mixed.
+ * Parameter pcm: Interleaved stereo mix, changed in place.
+ * Parameter plan: The plan whose `roomTone` beds are mixed.
  */
 export function mixProductionRoomTone(
   pcm: Float32Array,
@@ -132,31 +131,39 @@ export function mixProductionRoomTone(
   });
 }
 
-/**
+/*
  * One band: a band-pass section in direct form I run twice in cascade, with its
  * normalized coefficients, its linear gain and both stages' state.
  */
 interface IBand {
-  /** Linear gain of the band. */
+  /*
+   * Linear gain of the band.
+   */
   gain: number;
 
-  /** Numerator b0 (b1 is 0 and b2 is −b0). */
+  /*
+   * Numerator b0 (b1 is 0 and b2 is −b0).
+   */
   b0: number;
 
-  /** Denominator a1. */
+  /*
+   * Denominator a1.
+   */
   a1: number;
 
-  /** Denominator a2. */
+  /*
+   * Denominator a2.
+   */
   a2: number;
 
-  /**
+  /*
    * Each stage's last two inputs and outputs, `[x1, x2, y1, y2]` of the first
    * stage, then of the second.
    */
   state: number[];
 }
 
-/**
+/*
  * Build the octave bank for a tilt: cookbook band-pass sections with constant 0
  * dB peak gain and band gains in dB per octave from 1 kHz, then fitted so the
  * bank's own octave-band energies slope by the tilt.
@@ -167,7 +174,7 @@ interface IBand {
  * below about −3 dB per octave flattened to it. The neighbours still leak, so
  * the nominal gains alone miss a steep tilt. The fit corrects that in closed
  * form from the bank's response, never from a realization: each of
- * {@link FIT_PASSES} passes integrates the response's energy over each band's
+ * FIT_PASSES passes integrates the response's energy over each band's
  * octave, `[f / √2, f √2)`, and moves each gain by its octave's departure from
  * the tilt, the mean departure removed because the level is set afterwards.
  */
@@ -205,16 +212,16 @@ const createBank: (tilt: number, rate: number) => IBand[] = (
   return bank;
 };
 
-/**
+/*
  * Passes of the octave-energy fit: each pass corrects most of the leakage that
  * remains, and eight leave the bank's octave slopes within hundredths of a dB
  * of the tilt over the tilts a room tone takes.
  */
 const FIT_PASSES: number = 8;
 
-/**
+/*
  * The bank's response energy over each band's octave, `[f / √2, f √2)`, on the
- * same midpoint grid {@link bankPower} uses, in the bank's order.
+ * same midpoint grid bankPower uses, in the bank's order.
  */
 const octaveEnergies: (bank: readonly IBand[], rate: number) => number[] = (
   bank: readonly IBand[],
@@ -236,7 +243,9 @@ const octaveEnergies: (bank: readonly IBand[], rate: number) => number[] = (
   return energies;
 };
 
-/** The bank's summed response at one angular frequency, as `[re, im]`. */
+/*
+ * The bank's summed response at one angular frequency, as `[re, im]`.
+ */
 const response: (bank: readonly IBand[], omega: number) => [number, number] = (
   bank: readonly IBand[],
   omega: number,
@@ -263,10 +272,14 @@ const response: (bank: readonly IBand[], omega: number) => [number, number] = (
   return [re, im];
 };
 
-/** One-octave bandwidth of each section as its Q: 1 / (2 sinh(ln 2 / 2)). */
+/*
+ * One-octave bandwidth of each section as its Q: 1 / (2 sinh(ln 2 / 2)).
+ */
 const Q: number = 1 / (2 * Math.sinh(Math.LN2 / 2));
 
-/** Run one sample through a band's two stages. */
+/*
+ * Run one sample through a band's two stages.
+ */
 const filter: (band: IBand, x: number) => number = (
   band: IBand,
   x: number,
@@ -288,7 +301,7 @@ const filter: (band: IBand, x: number) => number = (
   return input;
 };
 
-/**
+/*
  * The bank's power gain for white input: the mean over ω in (0, π) of |Σ g_k
  * H_k(e^jω)|², on a midpoint grid of 8192 frequencies, which equals the output
  * variance over the input variance.

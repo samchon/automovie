@@ -9,14 +9,13 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * The mid-point of a posture's two ankles, read from its seeded fit
  * (`resolveHumanPostureSeeded`) through the prepared feet reader.
  *
  * Part of `dive.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `ankleMid`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `ankleMid`.
  */
 export function diveAnkleMid(
   prepared: diveAnkleMid.IPrepared,
@@ -51,14 +50,22 @@ export function diveAnkleMid(
   };
 }
 
-/** The `ankleMid` of `dive.plan`, built from what that plan prepared. */
+/*
+ * The `ankleMid` of `dive.plan`, built from what that plan prepared.
+ */
 export namespace diveAnkleMid {
-  /** What `dive.plan` prepared for its `ankleMid`. */
+  /*
+   * What `dive.plan` prepared for its `ankleMid`.
+   */
   export interface IPrepared {
-    /** The `readAnkles` `dive.plan` prepared. */
+    /*
+     * The `readAnkles` `dive.plan` prepared.
+     */
     readAnkles: ReturnType<typeof poseBones.prepare>;
 
-    /** The `body` `dive.plan` prepared. */
+    /*
+     * The `body` `dive.plan` prepared.
+     */
     body: IAutoMovieMotionHumanBody;
   }
 }

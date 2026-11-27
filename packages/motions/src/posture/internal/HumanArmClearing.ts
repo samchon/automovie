@@ -1,30 +1,30 @@
 import type { IAutoMovieMotionHumanArmClearance } from "@automovie/interface";
 
-/**
+/*
  * The most a clearing turns either freedom from the given arm, degrees
  * (provisional: beyond it the arm is no longer the carry's).
  */
 const SPAN: number = 40;
 
-/**
+/*
  * The step a direction is scanned in for its first clear turn, degrees
  * (provisional: a few centimetres at the hand).
  */
 const STEP: number = 5;
 
-/**
+/*
  * The room over its allowance a clearing leaves, degrees (provisional: a
  * twentieth of a degree, a quarter of a millimetre at the elbow).
  */
 const TOLERANCE: number = 0.05;
 
-/**
+/*
  * The bisections that find the least clear turn inside one step: eight halve it
  * to 1/256 of the step, a fiftieth of a degree (provisional).
  */
 const HALVINGS: number = 8;
 
-/**
+/*
  * The directions a clearing tries, in order, as shares of abduction and of
  * elbow flexion: out, folded, out and folded, then unfolded, out and unfolded,
  * in, in and folded, in and unfolded; and after those eight the eight that lie
@@ -48,14 +48,13 @@ const ORDER: readonly (readonly [number, number])[] = [
   ),
 ];
 
-/**
+/*
  * An arm turned until its room is within its allowance.
- *
- * @param props The arm, the room it lacks over its allowance (degrees; cleared
- *   at or below `TOLERANCE`) and how far outside their ranges its joints are
- *   (degrees).
- * @returns The arm's joint angles, the hand's unchanged; the arm with the least
- *   lacking room met when no direction clears it.
+ * Parameter props: The arm, the room it lacks over its allowance (degrees; cleared
+ * at or below `TOLERANCE`) and how far outside their ranges its joints are
+ * (degrees).
+ * Returns: The arm's joint angles, the hand's unchanged; the arm with the least
+ * lacking room met when no direction clears it.
  */
 export function HumanArmClearing(
   props: IOfProps,
@@ -110,7 +109,7 @@ export function HumanArmClearing(
   return best;
 }
 
-/**
+/*
  * The turn that clears an arm: of the two freedoms that move a forearm without
  * a goal, the upper arm's abduction and the elbow's flexion, the least turn
  * along the first of a fixed order of directions that brings the arm's room
@@ -131,7 +130,7 @@ export function HumanArmClearing(
  * step.
  */
 export namespace HumanArmClearing {
-  /**
+  /*
    * The shares of the way at which a carry's clearing is solved: the tenths,
    * and the twentieths beside both ends (provisional: each a few centimetres of
    * a hand's way).
@@ -158,13 +157,13 @@ export namespace HumanArmClearing {
     0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 1,
   ];
 
-  /**
+  /*
    * The share of the way past which a key lies beside the arrival: its
    * allowance is no less than the arrival's own room.
    */
   export const BESIDE: number = 0.9;
 
-  /**
+  /*
    * Deprecated with `AutoMovieMotionHumanArmCarry.carry`, its only reader: a
    * carry's clearance belongs to its planned trajectory
    * (`AutoMovieMotionHumanArmCarry.carried` over a span), and this course is
@@ -184,14 +183,13 @@ export namespace HumanArmClearing {
    * and carried between them, the turn is a continuous function of the share
    * while the rest of the body holds still; between two keys the arm is as
    * clear as the proportion of two clear arms is.
-   *
-   * @param props The arm at a share of the way before any clearing (`plain`);
-   *   the arm the keys' turns are solved on (`planned`: the carry toward a
-   *   fixed arrival, so the course is a constant of the carry; `plain` when
-   *   absent); the share asked for; and the clearing of an arm at a share
-   *   (`clear`, which returns it turned in its upper arm's abduction and its
-   *   elbow's flexion only).
-   * @returns The arm's joint angles at the share.
+   * Parameter props: The arm at a share of the way before any clearing (`plain`);
+   * the arm the keys' turns are solved on (`planned`: the carry toward a
+   * fixed arrival, so the course is a constant of the carry; `plain` when
+   * absent); the share asked for; and the clearing of an arm at a share
+   * (`clear`, which returns it turned in its upper arm's abduction and its
+   * elbow's flexion only).
+   * Returns: The arm's joint angles at the share.
    */
   export function course(
     props: ICourseProps,
@@ -206,7 +204,7 @@ export namespace HumanArmClearing {
     );
   }
 
-  /**
+  /*
    * Prepare the clearance coefficients for fixed endpoint blends and fixed
    * clearance geometry. The returned reader evaluates the original arm blend
    * and the original piecewise-linear correction at the requested share.
@@ -223,7 +221,7 @@ export namespace HumanArmClearing {
       sample(plain, (key: number): Turn => turns[key]!, share);
   }
 
-  /**
+  /*
    * Read one original key's clearance correction. The fixed ends retain their
    * angles.
    */
@@ -239,7 +237,7 @@ export namespace HumanArmClearing {
     return [cleared.upper[1] - arm.upper[1], cleared.lower[0] - arm.lower[0]];
   }
 
-  /**
+  /*
    * Sample a blended arm plus the course's original correction on the
    * containing interval.
    */
@@ -271,11 +269,15 @@ export namespace HumanArmClearing {
     };
   }
 
-  /** Shoulder abduction and elbow flexion corrections, in clinical degrees. */
+  /*
+   * Shoulder abduction and elbow flexion corrections, in clinical degrees.
+   */
   type Turn = readonly [number, number];
 }
 
-/** The record of `ICourseProps`'s site. */
+/*
+ * The record of `ICourseProps`'s site.
+ */
 type ICourseProps = {
   plain: (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
   planned?: (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
@@ -286,7 +288,9 @@ type ICourseProps = {
   ) => IAutoMovieMotionHumanArmClearance.IArm;
 };
 
-/** The record of `IOfProps`'s site. */
+/*
+ * The record of `IOfProps`'s site.
+ */
 type IOfProps = {
   arm: IAutoMovieMotionHumanArmClearance.IArm;
   over: (arm: IAutoMovieMotionHumanArmClearance.IArm) => number;

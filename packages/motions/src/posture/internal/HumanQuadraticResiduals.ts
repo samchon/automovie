@@ -1,17 +1,16 @@
 import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 import { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
 
-/**
+/*
  * The original scaled and unscaled OSQP residuals and normalization values.
- *
- * @param s Admitted scaled matrices, current intervals, positive scales and
- *   unchanged borrowed or copied original layouts.
- * @param x Current scaled variables, distinct from workspace buffers.
- * @param z Current scaled row values.
- * @param y Current scaled multipliers.
- * @param work Disposable products and borrowed diagnostics for this solve.
- * @param known Immediate polishing products for these unchanged x/y/A.
- * @returns Borrowed diagnostics, overwritten by the next check.
+ * Parameter s: Admitted scaled matrices, current intervals, positive scales and
+ * unchanged borrowed or copied original layouts.
+ * Parameter x: Current scaled variables, distinct from workspace buffers.
+ * Parameter z: Current scaled row values.
+ * Parameter y: Current scaled multipliers.
+ * Parameter work: Disposable products and borrowed diagnostics for this solve.
+ * Parameter known: Immediate polishing products for these unchanged x/y/A.
+ * Returns: Borrowed diagnostics, overwritten by the next check.
  */
 export function HumanQuadraticResiduals(
   s: B.IScaled,
@@ -82,5 +81,7 @@ export function HumanQuadraticResiduals(
   return out;
 }
 
-/** The alternatives of `HumanQuadraticResidualsKnown`'s site. */
+/*
+ * The alternatives of `HumanQuadraticResidualsKnown`'s site.
+ */
 type HumanQuadraticResidualsKnown = "rows" | "transpose";

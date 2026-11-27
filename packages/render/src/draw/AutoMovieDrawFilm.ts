@@ -65,16 +65,22 @@ export class AutoMovieDrawFilm<
    */
   public readonly byShot: boolean;
 
-  /** The planned shown layer, or null outside every transition. */
+  /*
+   * The planned shown layer, or null outside every transition.
+   */
   private readonly shown_: IAutoMoviePlaybackLayer | null;
 
-  /** The shown layer's entry and shot, or null without a cut. */
+  /*
+   * The shown layer's entry and shot, or null without a cut.
+   */
   private readonly placed_: Pick<
     IAutoMoviePlaybackLayer,
     "entry" | "shot"
   > | null;
 
-  /** The optics the shown layer's samples were accumulated with. */
+  /*
+   * The optics the shown layer's samples were accumulated with.
+   */
   private sampled_: IAutoMovieFilmOptics | undefined = undefined;
 
   /** Plan the picture at the drawn second; a refused plan throws. */
@@ -155,14 +161,16 @@ export class AutoMovieDrawFilm<
     );
   }
 
-  /** The planned layers of positive weight, outgoing first. */
+  /*
+   * The planned layers of positive weight, outgoing first.
+   */
   private drawn(): IAutoMoviePlaybackLayer[] {
     return (this.layers ?? []).filter(
       (layer: IAutoMoviePlaybackLayer): boolean => layer.weight > 0,
     );
   }
 
-  /**
+  /*
    * Whether the shown layer is drawn: always for one placement, and inside a
    * transition when its weight is positive.
    */
@@ -170,7 +178,9 @@ export class AutoMovieDrawFilm<
     return this.layers === null || this.shown_!.weight > 0;
   }
 
-  /** Place, draw and hold one layer drawn before the shown one. */
+  /*
+   * Place, draw and hold one layer drawn before the shown one.
+   */
   private async hold(layer: IAutoMoviePlaybackLayer): Promise<void> {
     const props: AutoMovieDrawFilm.IProps<TRenderer> = this.props;
     props.restore();
@@ -197,7 +207,7 @@ export class AutoMovieDrawFilm<
     props.beauty.hold(slotOf(layer));
   }
 
-  /**
+  /*
    * Place a layer at the drawn second through `AutoMovieDrawBeauty.sample`,
    * which accumulates its samples when its optics there have them.
    */
@@ -216,7 +226,7 @@ export class AutoMovieDrawFilm<
     });
   }
 
-  /**
+  /*
    * A layer's placement at an output second on its own entry clock, followed by
    * the subject's render-target work at that second.
    */
@@ -230,7 +240,9 @@ export class AutoMovieDrawFilm<
     };
   }
 
-  /** Draw the placed layer: the beauty picture or the graphics plate. */
+  /*
+   * Draw the placed layer: the beauty picture or the graphics plate.
+   */
   private render(
     camera: THREE.Camera,
     sampled: IAutoMovieFilmOptics | undefined,
@@ -257,7 +269,9 @@ export class AutoMovieDrawFilm<
   }
 }
 
-/** The slot a transition layer is held in: the outgoing 0, the live 1. */
+/*
+ * The slot a transition layer is held in: the outgoing 0, the live 1.
+ */
 function slotOf(layer: IAutoMoviePlaybackLayer): number {
   return layer.live ? 1 : 0;
 }

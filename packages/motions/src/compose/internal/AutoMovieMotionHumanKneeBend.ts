@@ -7,9 +7,13 @@ import type {
 
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/** The original knee-over-foot bend hint and its fixed-foot-heading geometry. */
+/*
+ * The original knee-over-foot bend hint and its fixed-foot-heading geometry.
+ */
 export namespace AutoMovieMotionHumanKneeBend {
-  /** Read the original hint from this actual body, root/yaw and foot heading. */
+  /*
+   * Read the original hint from this actual body, root/yaw and foot heading.
+   */
   export function at(
     body: IAutoMovieMotionHumanBody,
     posture: IPosture,
@@ -29,7 +33,9 @@ export namespace AutoMovieMotionHumanKneeBend {
     );
   }
 
-  /** Prepare a body's knee hint under a fixed foot heading and splay. */
+  /*
+   * Prepare a body's knee hint under a fixed foot heading and splay.
+   */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
@@ -48,10 +54,12 @@ export namespace AutoMovieMotionHumanKneeBend {
       outer(HumanFrame.point({ origin: posture.root, yaw: posture.yaw }, rest));
   }
 }
-/** The alternatives of `Posture`'s site. */
+/*
+ * The alternatives of `Posture`'s site.
+ */
 type Posture = "root" | "yaw";
 
-/**
+/*
  * Existing current horizontal body frame; no full pose or solved leg is
  * represented.
  */

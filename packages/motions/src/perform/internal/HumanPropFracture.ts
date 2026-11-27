@@ -14,7 +14,7 @@ import {
   type IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Prepare one authored fracture from the performance's observed hit. Detached
  * pieces preserve their displayed orientation and fly under gravity until their
  * lowest collider point reaches the flat floor. The remainder continues on the
@@ -81,7 +81,9 @@ export function HumanPropFracture<
   };
 }
 
-/** Prepare world gravity flight and the inelastic floor stop of one fragment. */
+/*
+ * Prepare world gravity flight and the inelastic floor stop of one fragment.
+ */
 function flight(
   model: IAutoMovieMotionHumanObject.IModel,
   frame: IAutoMovieRigidTransform,

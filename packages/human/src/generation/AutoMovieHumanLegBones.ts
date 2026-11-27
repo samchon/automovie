@@ -118,7 +118,9 @@ export namespace AutoMovieHumanLegBones {
   }
 }
 
-/** Euclidean distance. */
+/*
+ * Euclidean distance.
+ */
 function distance(a: readonly number[], b: readonly number[]): number {
   return Math.hypot(a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!);
 }

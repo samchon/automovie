@@ -21,12 +21,11 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { stand } from "./stand";
 
-/**
+/*
  * The relaxed hanging arms of a body, the body's own quiet-stance property
  * (`IAutoMovieMotionHumanBody.relaxed`), solved once by its record.
- *
- * @param body The body.
- * @returns The two arms' and hands' clinical angles.
+ * Parameter body: The body.
+ * Returns: The two arms' and hands' clinical angles.
  */
 export function standRelaxed(
   body: IAutoMovieMotionHumanBody,
@@ -34,22 +33,21 @@ export function standRelaxed(
   return body.relaxed;
 }
 
-/**
+/*
  * The relaxed arm's least shoulder abduction that leaves its digits clear of
  * the body in a quiet stance, solved for the body's record.
  */
 export namespace standRelaxed {
-  /**
+  /*
    * Solve the relaxed hanging arms. The elbow stays at the standing law's
    * `stand.ELBOW` and the digits in the relaxed shape; wider bodies need wider
    * hanging arms. The depth is measured before any digit clearing changes that
    * shape. Bisection ends at the engine's joint-angle resolution. The body's
    * record reads it once, on its first use
    * (`AutoMovieMotionHumanBody.create`).
-   *
-   * @param body The body.
-   * @returns The two arms' and hands' clinical angles.
-   * @throws {Error} When the shoulder has no abduction range.
+   * Parameter body: The body.
+   * Returns: The two arms' and hands' clinical angles.
+   * When the shoulder has no abduction range.
    */
   export function solve(
     body: IAutoMovieMotionHumanBody,
@@ -238,7 +236,9 @@ export namespace standRelaxed {
   }
 }
 
-/** The given bones and every bone the rig hangs below them. */
+/*
+ * The given bones and every bone the rig hangs below them.
+ */
 function below(
   body: IAutoMovieMotionHumanBody,
   roots: readonly AutoMovieHumanoidBone[],
@@ -260,10 +260,14 @@ function below(
   return out;
 }
 
-/** A digit's bone. */
+/*
+ * A digit's bone.
+ */
 const DIGIT: RegExp = /(Thumb|Index|Middle|Ring|Little)/;
 
-/** The record of `IStandRelaxedFirst`'s site. */
+/*
+ * The record of `IStandRelaxedFirst`'s site.
+ */
 type IStandRelaxedFirst = {
   pose: IAutoMoviePose;
   still: readonly IAutoMovieMotionHumanColliders.IPlaced[];

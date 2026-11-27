@@ -8,7 +8,9 @@ import { resolveProductionFrameRate } from "../../film/internal/resolveProductio
 import { roundProductionGridTick } from "../../film/internal/roundProductionGridTick";
 import { assertProductionScoreDucking } from "./assertProductionScoreDucking";
 
-/** Build a music-only sample gain curve for adopted dialogue on the film clock. */
+/*
+ * Build a music-only sample gain curve for adopted dialogue on the film clock.
+ */
 export function productionScoreDuckingEnvelope(
   plan: IAutoMovieProductionSoundPlan,
   dialogue: IAutoMovieRenderProductionSound.IProps["dialogue"],

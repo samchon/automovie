@@ -2,7 +2,9 @@ import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 
 import { validateUniqueBy } from "./validateUniqueBy";
 
-/** Map record ids to element paths before validateUniqueBy checks duplicates. */
+/*
+ * Map record ids to element paths before validateUniqueBy checks duplicates.
+ */
 export function validateUniqueIds(
   items: readonly { id: string }[],
   path: string,

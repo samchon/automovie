@@ -14,7 +14,7 @@ import { assertAutoMovieDeformedTriangles } from "./assertAutoMovieDeformedTrian
 import { triangleIndicesOf } from "./triangleIndicesOf";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Compile compact deformation fields into an operation that deforms a mesh.
  *
  * Each field moves points inside its axis-aligned ellipsoid by its displacement
@@ -43,9 +43,8 @@ import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
  * an emitted triangle that collapses or disagrees with its source orientation
  * transported by its three vertex Jacobians. That is a tessellation check, not
  * a global self-intersection test or a proof of the field between vertices.
- *
- * @param fields Deformation fields in the mesh's local metre frame.
- * @returns The deformation operation.
+ * Parameter fields: Deformation fields in the mesh's local metre frame.
+ * Returns: The deformation operation.
  */
 export function createAutoMovieMeshDeformer(
   fields: readonly IAutoMovieMeshDeformationField[],
@@ -221,22 +220,34 @@ export function createAutoMovieMeshDeformer(
   };
 }
 
-/** One field's vectors as XYZ arrays, read by index in the vertex loop. */
+/*
+ * One field's vectors as XYZ arrays, read by index in the vertex loop.
+ */
 interface IPackedField {
-  /** Ellipsoid centre in metres. */
+  /*
+   * Ellipsoid centre in metres.
+   */
   center: number[];
 
-  /** Positive ellipsoid semi-axes in metres. */
+  /*
+   * Positive ellipsoid semi-axes in metres.
+   */
   radius: number[];
 
-  /** Translation at full weight, in metres. */
+  /*
+   * Translation at full weight, in metres.
+   */
   displacement: number[];
 
-  /** Dimensionless per-axis stretch of the offset from the centre. */
+  /*
+   * Dimensionless per-axis stretch of the offset from the centre.
+   */
   stretch: number[];
 }
 
-/** A vector's three components in XYZ order. */
+/*
+ * A vector's three components in XYZ order.
+ */
 const components = (value: IAutoMovieVector3): number[] => [
   value.x,
   value.y,

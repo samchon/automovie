@@ -11,17 +11,16 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core/index";
 
-/**
+/*
  * An open-footwear stage prop with a clear upper cavity.
  *
  * The model sits on its sole, with +Z toward the toe. It has an independent
  * rear pull grip, a rectangular foot opening and a heel seat inside the sole.
- *
- * @param params The form, model identity, and any fixed clearance in metres.
- * @param seed Selects dimensions left unbound by the author.
- * @returns The shaped footwear and its three actor-facing contacts.
- * @throws {AutoMovieArchetypeRefusal} For an unavailable form or an out-of-band
- *   size.
+ * Parameter params: The form, model identity, and any fixed clearance in metres.
+ * Parameter seed: Selects dimensions left unbound by the author.
+ * Returns: The shaped footwear and its three actor-facing contacts.
+ * For an unavailable form or an out-of-band
+ * size.
  */
 export function createStageFootwear(
   params: AutoMovieArchetypeStageFootwear.IParams,
@@ -142,7 +141,9 @@ export function createStageFootwear(
   return builder.build(profile.mass);
 }
 
-/** Authored internal coarse footwear sizes in metres. */
+/*
+ * Authored internal coarse footwear sizes in metres.
+ */
 const BANDS: Readonly<
   Record<AutoMovieArchetypeStageFootwear.Dimension, IAutoMovieArchetypeBand>
 > = {
@@ -166,19 +167,27 @@ const BANDS: Readonly<
   ),
 };
 
-/** One kind's wall thickness in metres, colour and mass in kilograms. */
+/*
+ * One kind's wall thickness in metres, colour and mass in kilograms.
+ */
 interface IFootwearProfile {
-  /** The upper's wall thickness, metres. */
+  /*
+   * The upper's wall thickness, metres.
+   */
   thickness: number;
 
-  /** The drawn colour. */
+  /*
+   * The drawn colour.
+   */
   tint: string;
 
-  /** The mass, kilograms. */
+  /*
+   * The mass, kilograms.
+   */
   mass: number;
 }
 
-/**
+/*
  * The coarse shoe and the thinner soft-looking sock are the same geometric
  * family.
  */

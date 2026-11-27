@@ -17,12 +17,11 @@ import { everydayCaseKit } from "./internal/everydayCaseKit";
 import { everydayTypeCaseBoard } from "./internal/everydayTypeCaseBoard";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * The typing cases of `everydayCases` (`everyday-type-seated` and
  * `everyday-type-standing`), with the verdicts `everydayCases` lists.
- *
- * @param c The body's case context.
- * @returns The cases.
+ * Parameter c: The body's case context.
+ * Returns: The cases.
  */
 export function everydayTypeCases(
   c: everydayCaseKit.IContext,
@@ -154,12 +153,16 @@ export function everydayTypeCases(
   return out;
 }
 
-/** The record of `IEverydayTypeCasesBoxesItem`'s site. */
+/*
+ * The record of `IEverydayTypeCasesBoxesItem`'s site.
+ */
 type IEverydayTypeCasesBoxesItem = {
   centre: IAutoMovieVector3;
   half: IAutoMovieVector3;
   color: number;
 };
 
-/** The record of `IEverydayTypeCasesWorst`'s site. */
+/*
+ * The record of `IEverydayTypeCasesWorst`'s site.
+ */
 type IEverydayTypeCasesWorst = { miss: number; letter: string };

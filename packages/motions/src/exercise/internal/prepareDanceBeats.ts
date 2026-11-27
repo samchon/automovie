@@ -8,22 +8,21 @@ import type {
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * The beat clock every dance law shares: beat `k` at `lead + (k - 1) period`.
  * Unlocked, the period is `60 / bpm` and the lead one period; locked to a cue
  * track, the beats are the track's instants at or after the start, at their
  * mean interval, the first at the track's first beat. With `exact`, a locked
  * beat keeps its own instant instead of the mean grid (the waltz box follows a
  * drifting score beat by beat).
- *
- * @param context The action's context, read for its start and cue tracks.
- * @param bpm The tempo when unlocked, beats per minute.
- * @param beats How many beats.
- * @param lock The cue track to lock to, if any.
- * @param exact Whether a locked beat keeps its own instant.
- * @returns The period, the lead and the beat reader.
- * @throws {HumanRefusal} When the tempo is not positive, the count is not a
- *   positive whole number, or the locked track has too few beats.
+ * Parameter context: The action's context, read for its start and cue tracks.
+ * Parameter bpm: The tempo when unlocked, beats per minute.
+ * Parameter beats: How many beats.
+ * Parameter lock: The cue track to lock to, if any.
+ * Parameter exact: Whether a locked beat keeps its own instant.
+ * Returns: The period, the lead and the beat reader.
+ * When the tempo is not positive, the count is not a
+ * positive whole number, or the locked track has too few beats.
  */
 export function prepareDanceBeats(
   context: Pick<IAutoMovieMotionHumanActionContext, PrepareDanceBeatsContext>,
@@ -76,5 +75,7 @@ export function prepareDanceBeats(
   };
 }
 
-/** The alternatives of `PrepareDanceBeatsContext`'s site. */
+/*
+ * The alternatives of `PrepareDanceBeatsContext`'s site.
+ */
 type PrepareDanceBeatsContext = "cue" | "start";

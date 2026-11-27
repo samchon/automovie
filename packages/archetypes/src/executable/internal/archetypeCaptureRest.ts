@@ -14,7 +14,7 @@ import { AutoMovieArchetypeQuadruped } from "../../animals/AutoMovieArchetypeQua
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 
-/**
+/*
  * Draw canonical dog and saddle-horse authored rest cycles.
  *
  * The two-second transitions, one-second hold, horizontal resting tail and
@@ -24,9 +24,8 @@ import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
  * axes for floor support; it is not a measured horse rest angle. Their rest
  * samples supply geometry, contacts and terminal goals; no second sampling or
  * second root placement supplies marks.
- *
- * @returns Dog/horse rest subjects with declared goals, current geometry and
- *   cycle events.
+ * Returns: Dog/horse rest subjects with declared goals, current geometry and
+ * cycle events.
  */
 export function archetypeCaptureRest(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
@@ -100,7 +99,7 @@ export function archetypeCaptureRest(): Readonly<
   };
 }
 
-/**
+/*
  * Capsule-axis low end supplies a geometric torso-support pitch, without a
  * species pose preset.
  */
@@ -125,7 +124,7 @@ function axisEnd(
   });
 }
 
-/**
+/*
  * Preserve one sample for both drawing and its independently observable
  * terminal goals.
  */

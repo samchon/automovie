@@ -14,18 +14,17 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Exclude two wrist goals only when the same grounded pelvis and thorax cannot
  * reach both.
- *
- * @param body The rig supplying bone lengths, clinical ranges and the seat
- *   socket.
- * @param posture The seated entry whose yaw and roll the pelvic swing
- *   preserves.
- * @param seat The working seat's actual support frame and depth.
- * @param origin The prop's rigid placement in the entry world.
- * @returns An exclusion test in metres, or undefined for another skeleton
- *   topology.
+ * Parameter body: The rig supplying bone lengths, clinical ranges and the seat
+ * socket.
+ * Parameter posture: The seated entry whose yaw and roll the pelvic swing
+ * preserves.
+ * Parameter seat: The working seat's actual support frame and depth.
+ * Parameter origin: The prop's rigid placement in the entry world.
+ * Returns: An exclusion test in metres, or undefined for another skeleton
+ * topology.
  */
 export function fixedSeatGripReach(
   body: IAutoMovieMotionHumanBody,
@@ -211,29 +210,39 @@ export function fixedSeatGripReach(
   };
 }
 
-/** The law asks about both actual wrist positions in the seat's entry world. */
+/*
+ * The law asks about both actual wrist positions in the seat's entry world.
+ */
 type CurrentSeat = () => IAutoMovieRigidTransform | undefined;
 
-/** Each check can confirm a moving seat in the same reference frame. */
+/*
+ * Each check can confirm a moving seat in the same reference frame.
+ */
 type Check = (
   left: IAutoMovieVector3,
   right: IAutoMovieVector3,
   placed?: CurrentSeat,
 ) => void;
 
-/** A rig or seat without the necessary articulated frame gives no exclusion. */
+/*
+ * A rig or seat without the necessary articulated frame gives no exclusion.
+ */
 type OptionalCheck = Check | undefined;
 const X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 const Z: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
 const RAD: number = Math.PI / 180;
 
-/** Clamp normalized dot products at the endpoints of the inverse cosine. */
+/*
+ * Clamp normalized dot products at the endpoints of the inverse cosine.
+ */
 function angle(dot: number): number {
   return Math.acos(Math.max(-1, Math.min(1, dot)));
 }
 
-/** Greatest excursion of one clinical coordinate in radians. */
+/*
+ * Greatest excursion of one clinical coordinate in radians.
+ */
 function excursion(range: IAutoMovieAngleRange | null): number {
   return range === null
     ? 0
@@ -243,12 +252,16 @@ function excursion(range: IAutoMovieAngleRange | null): number {
       );
 }
 
-/** Rotation of the bone's lateral axis due to its fixed bind transform. */
+/*
+ * Rotation of the bone's lateral axis due to its fixed bind transform.
+ */
 function restTurn(bone: IAutoMovieBone): number {
   return angle(Quaternion.rotateVector(bone.rest.rotation, X).x);
 }
 
-/** Maximum deviation of a trunk's lateral axis from its parent's lateral axis. */
+/*
+ * Maximum deviation of a trunk's lateral axis from its parent's lateral axis.
+ */
 function trunkTurn(
   body: IAutoMovieMotionHumanBody,
   bone: IAutoMovieBone,
@@ -274,7 +287,9 @@ function trunkTurn(
   );
 }
 
-/** A clavicle's allowed cone about the chest's outward lateral axis. */
+/*
+ * A clavicle's allowed cone about the chest's outward lateral axis.
+ */
 function clavicleCone(
   bone: IAutoMovieBone,
   tip: IAutoMovieVector3,

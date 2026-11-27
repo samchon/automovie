@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * The orthonormal frame a directional procedural surface reads its axis in:
  * `along` is the unit axis, `across` is `normalize(along × Z)`, or
  * `normalize(along × X)` when `along × Z` is shorter than 1e-6, and `normal` is
@@ -12,9 +12,8 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * its object XY plane, and every pattern piece, whose sheet space has its
  * normal along Z, weaving in its own plane. The renderer receives the three
  * vectors as uniforms, so both evaluations read one frame.
- *
- * @param axis Finite nonzero direction, as admitted.
- * @returns Three unit vectors as `[x, y, z]` tuples.
+ * Parameter axis: Finite nonzero direction, as admitted.
+ * Returns: Three unit vectors as `[x, y, z]` tuples.
  */
 export function autoMovieProceduralFrame(axis: IAutoMovieVector3): {
   along: [number, number, number];
@@ -28,13 +27,17 @@ export function autoMovieProceduralFrame(axis: IAutoMovieVector3): {
   return { along, across, normal: cross(along, across) };
 }
 
-/** The vector scaled to unit length. */
+/*
+ * The vector scaled to unit length.
+ */
 function unit(v: [number, number, number]): [number, number, number] {
   const length: number = Math.hypot(v[0], v[1], v[2]);
   return [v[0] / length, v[1] / length, v[2] / length];
 }
 
-/** The cross product `a × b`. */
+/*
+ * The cross product `a × b`.
+ */
 function cross(
   a: [number, number, number],
   b: [number, number, number],

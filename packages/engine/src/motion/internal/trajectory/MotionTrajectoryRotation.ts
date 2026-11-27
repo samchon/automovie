@@ -6,9 +6,13 @@ import type {
 import { Quaternion } from "../../../math/Quaternion";
 import { MotionTrajectoryPolynomial } from "./MotionTrajectoryPolynomial";
 
-/** Rotation-vector operations shared by trajectory construction and playback. */
+/*
+ * Rotation-vector operations shared by trajectory construction and playback.
+ */
 export namespace MotionTrajectoryRotation {
-  /** Read a dense rotation vector from four or five polynomial coefficients. */
+  /*
+   * Read a dense rotation vector from four or five polynomial coefficients.
+   */
   export function curve(
     terms: readonly IAutoMovieVector3[],
     u: number,
@@ -41,7 +45,9 @@ export namespace MotionTrajectoryRotation {
     };
   }
 
-  /** Differentiate the same rotation-vector curve with respect to seconds. */
+  /*
+   * Differentiate the same rotation-vector curve with respect to seconds.
+   */
   export function curveDerivative(
     terms: readonly IAutoMovieVector3[],
     u: number,
@@ -78,7 +84,7 @@ export namespace MotionTrajectoryRotation {
     };
   }
 
-  /**
+  /*
    * Turn `q` by `exp(v/2)` in its body frame; null or absent blocks stay
    * unchanged.
    */
@@ -99,7 +105,9 @@ export namespace MotionTrajectoryRotation {
     });
   }
 
-  /** Scale a vector, preserving an absent orientation block. */
+  /*
+   * Scale a vector, preserving an absent orientation block.
+   */
   export function scaled(
     v: IAutoMovieVector3 | undefined,
     s: number,
@@ -107,7 +115,7 @@ export namespace MotionTrajectoryRotation {
     return v === undefined ? undefined : { x: s * v.x, y: s * v.y, z: s * v.z };
   }
 
-  /**
+  /*
    * The inverse exponential differential `w + r cross w/2 + r cross (r cross
    * w)/12`.
    *

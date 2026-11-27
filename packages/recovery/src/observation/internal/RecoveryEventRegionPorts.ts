@@ -6,7 +6,7 @@ import type {
   IAutoMovieRecoveryEventRegionTopology,
 } from "@automovie/interface";
 
-/**
+/*
  * Attach contact and port ownership evidence after component topology is
  * complete.
  */

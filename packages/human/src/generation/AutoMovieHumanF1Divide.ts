@@ -189,10 +189,14 @@ export namespace AutoMovieHumanF1Divide {
   /** How near the shoulder joint the armscye's surface divides, mm: the reach of the skin its landmarks were read on. */
   export const ARMSCYE_MM: number = 190;
 
-  /** How far from a row's or the hand's joint its planes divide skin, mm: past the widest hand's and foot's half breadth. */
+  /*
+   * How far from a row's or the hand's joint its planes divide skin, mm: past the widest hand's and foot's half breadth.
+   */
   const ROW_MM: number = 60;
 
-  /** How far from the midpoint of two knuckles their web's plane divides skin, mm: half `ROW_MM`. */
+  /*
+   * How far from the midpoint of two knuckles their web's plane divides skin, mm: half `ROW_MM`.
+   */
   const WEB_MM: number = 30;
 
   const sub = (a: V, b: V): V => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];

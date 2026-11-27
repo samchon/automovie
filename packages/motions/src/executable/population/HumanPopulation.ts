@@ -6,7 +6,7 @@ import { HumanPopulationConditional } from "./HumanPopulationConditional";
 import { HumanPopulationEnds } from "./HumanPopulationEnds";
 import { HumanPopulationSurvey } from "./HumanPopulationSurvey";
 
-/**
+/*
  * Whole adults at the ends of the population, each built from published survey
  * statistics and never from a generated figure.
  *
@@ -21,90 +21,124 @@ import { HumanPopulationSurvey } from "./HumanPopulationSurvey";
  * knee girths and the head and ear beside the body. Each sex has its own means,
  * standard deviations and correlations.
  *
- * This barrel joins the pieces: {@link HumanPopulationSurvey} the statistics,
- * {@link HumanPopulationConditional} the conditioning,
- * {@link HumanPopulationEnds} the ends, {@link HumanPopulationBuild} the inputs
- * written from an end and {@link HumanPopulationAudit} the checks.
+ * This barrel joins the pieces: HumanPopulationSurvey the statistics,
+ * HumanPopulationConditional the conditioning,
+ * HumanPopulationEnds the ends, HumanPopulationBuild the inputs
+ * written from an end and HumanPopulationAudit the checks.
  */
 export namespace HumanPopulation {
-  /** A surveyed sex; each has its own statistics table. */
+  /*
+   * A surveyed sex; each has its own statistics table.
+   */
   export type Sex = HumanPopulationSurvey.Sex;
 
-  /** One surveyed measure. */
+  /*
+   * One surveyed measure.
+   */
   export type Variable = HumanPopulationSurvey.Variable;
 
-  /** One sex's summary statistics. */
+  /*
+   * One sex's summary statistics.
+   */
   export type ISurvey = HumanPopulationSurvey.ISurvey;
 
-  /** Measures a population end holds at a standard deviate. */
+  /*
+   * Measures a population end holds at a standard deviate.
+   */
   export type IDrivers = HumanPopulationEnds.IDrivers;
 
-  /** One population end. */
+  /*
+   * One population end.
+   */
   export type IEnd = HumanPopulationEnds.IEnd;
 
-  /** One check of a person's inputs. */
+  /*
+   * One check of a person's inputs.
+   */
   export type IRow = HumanPopulationAudit.IRow;
 
-  /** A relation between a person's inputs that the population bounds. */
+  /*
+   * A relation between a person's inputs that the population bounds.
+   */
   export type IRelation = HumanPopulationAudit.IRelation;
 
-  /** The surveyed measures, in the order of the survey's vectors. */
+  /*
+   * The surveyed measures, in the order of the survey's vectors.
+   */
   export const VARIABLES: typeof HumanPopulationSurvey.VARIABLES =
     HumanPopulationSurvey.VARIABLES;
 
-  /** Normal deviate of the 1st and 99th percentiles. */
+  /*
+   * Normal deviate of the 1st and 99th percentiles.
+   */
   export const Z: number = HumanPopulationSurvey.Z;
 
-  /** Half-width of a population relation's band in standard deviations. */
+  /*
+   * Half-width of a population relation's band in standard deviations.
+   */
   export const BAND: number = HumanPopulationSurvey.BAND;
 
-  /** ANSUR 1988 summary statistics per sex. */
+  /*
+   * ANSUR 1988 summary statistics per sex.
+   */
   export const SURVEY: typeof HumanPopulationSurvey.SURVEY =
     HumanPopulationSurvey.SURVEY;
 
-  /** ANSUR 1988 body-mass index, kg/m2, mean and SD per sex. */
+  /*
+   * ANSUR 1988 body-mass index, kg/m2, mean and SD per sex.
+   */
   export const BMI: typeof HumanPopulationSurvey.BMI =
     HumanPopulationSurvey.BMI;
 
-  /** Adult facial means of the 3D Facial Norms database per sex. */
+  /*
+   * Adult facial means of the 3D Facial Norms database per sex.
+   */
   export const FACE: typeof HumanPopulationSurvey.FACE =
     HumanPopulationSurvey.FACE;
 
-  /** ANSUR II palm length over hand length per sex. */
+  /*
+   * ANSUR II palm length over hand length per sex.
+   */
   export const PALM: typeof HumanPopulationSurvey.PALM =
     HumanPopulationSurvey.PALM;
 
-  /** The declared body domain. */
+  /*
+   * The declared body domain.
+   */
   export const DOMAIN: typeof HumanPopulationSurvey.DOMAIN =
     HumanPopulationSurvey.DOMAIN;
 
-  /** Every population end. */
+  /*
+   * Every population end.
+   */
   export const ENDS: readonly IEnd[] = HumanPopulationEnds.ENDS;
 
-  /** Relations between inputs and their sex's bands. */
+  /*
+   * Relations between inputs and their sex's bands.
+   */
   export const RELATIONS: readonly IRelation[] = HumanPopulationAudit.RELATIONS;
 
-  /** Survey-defined inputs and the surveyed range each must lie in. */
+  /*
+   * Survey-defined inputs and the surveyed range each must lie in.
+   */
   export const RANGES: typeof HumanPopulationAudit.RANGES =
     HumanPopulationAudit.RANGES;
 
-  /**
+  /*
    * Index of a measure in the survey vectors.
-   *
-   * @param v The measure.
-   * @returns Its index.
+   * Parameter v: The measure.
+   * Returns: Its index.
    */
   export function index(v: Variable): number {
     return HumanPopulationConditional.index(v);
   }
 
-  /**
+  /*
    * Conditional mean and standard deviation of one measure given known values.
-   *
-   * @param sex The surveyed sex.
-   * @param known Known values by measure index.
-   * @param target Index of the measure sought.
-   * @returns Its moments given the known values.
+   * Parameter sex: The surveyed sex.
+   * Parameter known: Known values by measure index.
+   * Parameter target: Index of the measure sought.
+   * Returns: Its moments given the known values.
    */
   export function conditional(
     sex: Sex,
@@ -114,43 +148,39 @@ export namespace HumanPopulation {
     return HumanPopulationConditional.moments(sex, known, target);
   }
 
-  /**
+  /*
    * An end's value of every surveyed measure.
-   *
-   * @param end The end.
-   * @returns The measures.
+   * Parameter end: The end.
+   * Returns: The measures.
    */
   export function measures(end: IEnd): Record<Variable, number> {
     return HumanPopulationEnds.measures(end);
   }
 
-  /**
+  /*
    * Each measure's bounds for a sex.
-   *
-   * @param sex The surveyed sex.
-   * @returns `[measure index, least, greatest]` for every measure.
+   * Parameter sex: The surveyed sex.
+   * Returns: `[measure index, least, greatest]` for every measure.
    */
   export function limits(sex: Sex): [number, number, number][] {
     return HumanPopulationEnds.limits(sex);
   }
 
-  /**
+  /*
    * An end's public inputs.
-   *
-   * @param end The end.
-   * @returns The end's inputs.
+   * Parameter end: The end.
+   * Returns: The end's inputs.
    */
   export function params(end: IEnd): IAutoMovieHumanParameters {
     return HumanPopulationBuild.params(end);
   }
 
-  /**
+  /*
    * Every check of one person's inputs.
-   *
-   * @param person Name in findings.
-   * @param sex The sex whose statistics the inputs must satisfy.
-   * @param p The person's inputs.
-   * @returns Every row, passing or not.
+   * Parameter person: Name in findings.
+   * Parameter sex: The sex whose statistics the inputs must satisfy.
+   * Parameter p: The person's inputs.
+   * Returns: Every row, passing or not.
    */
   export function audit(
     person: string,
@@ -160,11 +190,10 @@ export namespace HumanPopulation {
     return HumanPopulationAudit.audit(person, sex, p);
   }
 
-  /**
+  /*
    * Whether a row passes.
-   *
-   * @param row The row.
-   * @returns Whether its value lies in its bounds.
+   * Parameter row: The row.
+   * Returns: Whether its value lies in its bounds.
    */
   export function passes(row: IRow): boolean {
     return HumanPopulationAudit.passes(row);

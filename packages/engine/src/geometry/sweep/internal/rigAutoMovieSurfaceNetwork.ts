@@ -29,19 +29,19 @@ import { rigAutoMovieSweep } from "./rigAutoMovieSweep";
 import { solveAutoMovieSubdivisionLimit } from "./solveAutoMovieSubdivisionLimit";
 import { stencilAutoMovieSubdivisionLimit } from "./stencilAutoMovieSubdivisionLimit";
 
-/**
+/*
  * Decimal places domain parameters are rounded to when they name a shared
  * vertex.
  */
 const KEY_DIGITS: number = 9;
 
-/**
+/*
  * Fit residual above which the rest cage is refused, relative to the cage's
  * extent.
  */
 const FIT_LIMIT: number = 1e-6;
 
-/**
+/*
  * Compile a surface network at one tier into its rest cage and a per-pose
  * update of the cage's control positions.
  *
@@ -94,27 +94,26 @@ const FIT_LIMIT: number = 1e-6;
  * Everything else is computed here once; `pose` refreshes only the bones, the
  * bound sweeps, the curves, the samples, the blends, the pins and the fit, into
  * buffers sized here.
- *
- * @param props.network The network, only read; its sweeps are retained through
- *   their rigs.
- * @param props.tier The tier to sample.
- * @param props.fit Whether to fit controls to the limit surface; omitted, true.
- * @param props.bindings Bones by name for sweeps, free nodes, curves and rings;
- *   omitted, none.
- * @param props.rest Bones at rest, required with bindings.
- * @param props.construction Optional rest construction sample counts;
- *   inspection uses raw sweep observation writers and the actual regenerated
- *   network curves after the girth solve; these are separate evaluation
- *   stages.
- * @param props.preserveVolume Whether bound sweeps keep their rest volume at
- *   joint stations; omitted, false.
- * @returns The rig.
- * @throws Error when a name is unknown or repeated, a binding names nothing in
- *   the network or comes without rest bones, a count is not a positive integer,
- *   a curve meets a sweep along its normal, a patch's opposite sides differ in
- *   count or its sides do not close, a bridge's loops differ in count or name
- *   points no patch made, a ring's positions do not match its loop, patches
- *   overlap, or the rest fit does not converge.
+ * Parameter props.network: The network, only read; its sweeps are retained through
+ * their rigs.
+ * Parameter props.tier: The tier to sample.
+ * Parameter props.fit: Whether to fit controls to the limit surface; omitted, true.
+ * Parameter props.bindings: Bones by name for sweeps, free nodes, curves and rings;
+ * omitted, none.
+ * Parameter props.rest: Bones at rest, required with bindings.
+ * Parameter props.construction: Optional rest construction sample counts;
+ * inspection uses raw sweep observation writers and the actual regenerated
+ * network curves after the girth solve; these are separate evaluation
+ * stages.
+ * Parameter props.preserveVolume: Whether bound sweeps keep their rest volume at
+ * joint stations; omitted, false.
+ * Returns: The rig.
+ * Error when a name is unknown or repeated, a binding names nothing in
+ * the network or comes without rest bones, a count is not a positive integer,
+ * a curve meets a sweep along its normal, a patch's opposite sides differ in
+ * count or its sides do not close, a bridge's loops differ in count or name
+ * points no patch made, a ring's positions do not match its loop, patches
+ * overlap, or the rest fit does not converge.
  */
 export const rigAutoMovieSurfaceNetwork: (
   props: IAutoMovieRigSurfaceNetwork.IProps,

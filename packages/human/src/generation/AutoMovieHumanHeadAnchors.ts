@@ -24,10 +24,12 @@ import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned fixed-size sites survive the call; the sampled curve points are local.
  */
 export namespace AutoMovieHumanHeadAnchors {
-  /** Profile pitch in world mm, converted once per offset to calibration mm. */
+  /*
+   * Profile pitch in world mm, converted once per offset to calibration mm.
+   */
   const PITCH: number = 0.25;
 
-  /**
+  /*
    * Phases per complete planned margin, preserving its existing observation
    * convention.
    */
@@ -97,7 +99,7 @@ export namespace AutoMovieHumanHeadAnchors {
       0,
     ];
 
-    /**
+    /*
      * The lateral extreme of one side's planned margin, not an emitted lid
      * vertex.
      */

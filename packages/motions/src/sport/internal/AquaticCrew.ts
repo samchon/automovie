@@ -14,38 +14,60 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { AquaticPosture } from "./AquaticPosture";
 
-/** Hull frames and shared wrist and ankle support for paddle and sail. */
+/*
+ * Hull frames and shared wrist and ankle support for paddle and sail.
+ */
 export namespace AquaticCrew {
-  /**
+  /*
    * A hull frame reader from the action's film clock, with poised local contact
    * anchors.
    */
   export interface IHull {
-    /** Supporting prop id. */
+    /*
+     * Supporting prop id.
+     */
     id: string;
-    /** Carrier orientation before the action, expressed as world to hull. */
+    /*
+     * Carrier orientation before the action, expressed as world to hull.
+     */
     inverse: IAutoMovieQuaternion;
-    /** Entered carrier transform. */
+    /*
+     * Entered carrier transform.
+     */
     origin: IAutoMovieRigidTransform;
-    /** Local position of the entered root. */
+    /*
+     * Local position of the entered root.
+     */
     root: IAutoMovieVector3;
-    /** Ankle targets relative to the hull at the entered phase. */
+    /*
+     * Ankle targets relative to the hull at the entered phase.
+     */
     feet: Readonly<Record<Side, IAutoMovieVector3>>;
-    /** Carrier state at a local action second. */
+    /*
+     * Carrier state at a local action second.
+     */
     frame(seconds: number): IAutoMovieRigidTransform;
-    /** The named articulated world grip, when authored. */
+    /*
+     * The named articulated world grip, when authored.
+     */
     grip(side: Side, seconds: number): IAutoMovieVector3 | undefined;
-    /** Entered travel of a named hull articulation in its own unit. */
+    /*
+     * Entered travel of a named hull articulation in its own unit.
+     */
     travel(articulation: string): number;
   }
 
-  /** Anatomical side. */
+  /*
+   * Anatomical side.
+   */
   export type Side = AutoMovieHumanSide;
 
-  /** The limb goal key of one leg. */
+  /*
+   * The limb goal key of one leg.
+   */
   export type Leg = `${Side}Leg`;
 
-  /**
+  /*
    * Obtain entered anchors, with native handle validation for laws that pose
    * the whole rig.
    */
@@ -123,7 +145,7 @@ export namespace AquaticCrew {
     };
   }
 
-  /**
+  /*
    * Convert staged hull-local motion to the displayed pose and fit the active
    * wrists and ankles; a foot keeps its entered orientation in the hull.
    */
@@ -194,7 +216,9 @@ export namespace AquaticCrew {
     return posture;
   }
 
-  /** Entered body-relative displacement expressed in the hull frame. */
+  /*
+   * Entered body-relative displacement expressed in the hull frame.
+   */
   export function direction(
     context: AquaticPosture.Context,
     hull: IHull,
@@ -209,14 +233,18 @@ export namespace AquaticCrew {
     );
   }
 
-  /** Continuous, bounded progress along one authored stage. */
+  /*
+   * Continuous, bounded progress along one authored stage.
+   */
   export function span(at: number, from: number, to: number): number {
     return AutoMovieEngineMotionSampling.minimumJerkShare(
       Math.max(0, Math.min(1, (at - from) / (to - from))),
     );
   }
 
-  /** A bearing window anchored in the moving hull. */
+  /*
+   * A bearing window anchored in the moving hull.
+   */
   export function bear(
     subject: string,
     part: IAutoMovieMotionHumanContactWindow["part"],
@@ -228,7 +256,9 @@ export namespace AquaticCrew {
     return { part, kind, from, to, region, support: { kind: "prop", subject } };
   }
 
-  /** Hold articulated sockets without taking ownership of the entire hull. */
+  /*
+   * Hold articulated sockets without taking ownership of the entire hull.
+   */
   export function grips(
     hull: Pick<IHull, "id">,
     params: AquaticPosture.Context["params"],

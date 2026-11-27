@@ -7,27 +7,33 @@ import type {
 
 import { HumanMinimumJerkSpline } from "../../posture/internal/HumanMinimumJerkSpline";
 
-/**
+/*
  * The knots of a swivel course (`courseLimbSwivels.swivels`): the limbs'
  * swivels and branches fitted at its seconds and the seeds a second between two
  * knots takes.
  */
 export namespace courseLimbSwivelKnots {
-  /** The limbs' swivels and branches at one knot. */
+  /*
+   * The limbs' swivels and branches at one knot.
+   */
   export interface ISwivelKnot {
-    /** The second, from the plan's start. */
+    /*
+     * The second, from the plan's start.
+     */
     seconds: number;
 
-    /** Each fitted limb's seed. */
+    /*
+     * Each fitted limb's seed.
+     */
     seeds: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>;
 
-    /**
+    /*
      * The coursed limbs the plan writes a goal for at this second; unknown for
      * the entered knot.
      */
     held?: ReadonlySet<AutoMovieHumanLimb>;
 
-    /**
+    /*
      * Every other limb's seed the knot's resolve reported (a leg on its goal),
      * which the next knot continues and no second between knots reads; none for
      * the entered knot.
@@ -35,26 +41,34 @@ export namespace courseLimbSwivelKnots {
     fits?: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>;
   }
 
-  /**
+  /*
    * One limb's swivel, and forearm twist where every knot of its run gives one,
    * at a knot of the minimum-jerk path through its run of knots: the unwrapped
    * values and their velocities and accelerations.
    */
   export interface IRate {
-    /** The swivel, unwrapped along the run, then the twist where given, degrees. */
+    /*
+     * The swivel, unwrapped along the run, then the twist where given, degrees.
+     */
     values: readonly number[];
 
-    /** Their velocities, degrees per second. */
+    /*
+     * Their velocities, degrees per second.
+     */
     velocities: readonly number[];
 
-    /** Their accelerations, degrees per second squared. */
+    /*
+     * Their accelerations, degrees per second squared.
+     */
     accelerations: readonly number[];
   }
 
-  /** Each limb's rate at one knot; absent where the limb has no run there. */
+  /*
+   * Each limb's rate at one knot; absent where the limb has no run there.
+   */
   export type Rates = ReadonlyMap<AutoMovieHumanLimb, IRate>;
 
-  /**
+  /*
    * Each knot's limb rates on the minimum-jerk path through the knots (Flash
    * and Hogan 1985, J Neurosci 5:1688, `HumanMinimumJerkSpline`): for each
    * limb, every run of consecutive knots that fit it on one branch is one path,
@@ -64,10 +78,9 @@ export namespace courseLimbSwivelKnots {
    * the run, each step its shortest turn; the forearm's twist is a second
    * coordinate of a run whose every knot gives one. Prepared once over all the
    * knots.
-   *
-   * @param knots The knots, in order.
-   * @param limbs The coursed limbs.
-   * @returns Each knot's rates, in the knots' order.
+   * Parameter knots: The knots, in order.
+   * Parameter limbs: The coursed limbs.
+   * Returns: Each knot's rates, in the knots' order.
    */
   export function rates(
     knots: readonly ISwivelKnot[],
@@ -127,7 +140,7 @@ export namespace courseLimbSwivelKnots {
     return out;
   }
 
-  /**
+  /*
    * The seeds a second between two knots takes: each limb both knots fit on one
    * branch on the minimum-jerk path through its run (`rates`), the quintic
    * Hermite of the two knots' values, velocities and accelerations
@@ -137,13 +150,12 @@ export namespace courseLimbSwivelKnots {
    * seed; and a limb whose goal begins inside it (the plan writes it none at
    * the earlier knot) at the later knot's, the arm its goal starts from there.
    * At the later knot the fitted seeds are exact, including a limb's absence.
-   *
-   * @param seconds The second, from the plan's start.
-   * @param a The earlier knot.
-   * @param b The later knot.
-   * @param from The earlier knot's rates.
-   * @param to The later knot's rates.
-   * @returns Each limb's seed at the second.
+   * Parameter seconds: The second, from the plan's start.
+   * Parameter a: The earlier knot.
+   * Parameter b: The later knot.
+   * Parameter from: The earlier knot's rates.
+   * Parameter to: The later knot's rates.
+   * Returns: Each limb's seed at the second.
    */
   export function between(
     seconds: number,

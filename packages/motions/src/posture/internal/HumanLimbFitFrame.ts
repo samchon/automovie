@@ -6,13 +6,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * The frame a fit of a pose and a goal is solved in, or null when it stays in
  * the world.
- *
- * @param pose The pose before the fit.
- * @param goal The limb's goal.
- * @returns The frame, or null.
+ * Parameter pose: The pose before the fit.
+ * Parameter goal: The limb's goal.
+ * Returns: The frame, or null.
  */
 export function HumanLimbFitFrame(
   pose: IAutoMoviePose,
@@ -40,7 +39,7 @@ export function HumanLimbFitFrame(
   };
 }
 
-/**
+/*
  * The frame a limb fit is solved in (`solveHumanLimbFit`): the root's world
  * position and heading, so two people of one body doing the same thing in
  * different places, or one body facing another way, solve the same numbers.
@@ -65,12 +64,11 @@ export function HumanLimbFitFrame(
  * moves vertically, because its relative target Y changes.
  */
 export namespace HumanLimbFitFrame {
-  /**
+  /*
    * A world point in the frame.
-   *
-   * @param frame The frame.
-   * @param point The point, world metres.
-   * @returns The point in the frame.
+   * Parameter frame: The frame.
+   * Parameter point: The point, world metres.
+   * Returns: The point in the frame.
    */
   export function point(
     frame: IAutoMovieMotionHumanLimbFitFrame.IFrame,
@@ -83,12 +81,11 @@ export namespace HumanLimbFitFrame {
     });
   }
 
-  /**
+  /*
    * A pose in the frame: its root moved and turned; its joints as they are.
-   *
-   * @param frame The frame.
-   * @param pose The pose, with a root.
-   * @returns The pose in the frame.
+   * Parameter frame: The frame.
+   * Parameter pose: The pose, with a root.
+   * Returns: The pose in the frame.
    */
   export function pose(
     frame: IAutoMovieMotionHumanLimbFitFrame.IFrame,
@@ -105,14 +102,13 @@ export namespace HumanLimbFitFrame {
     };
   }
 
-  /**
+  /*
    * A goal in the frame: its point and bend moved and its rotation turned;
    * everything else as it is, its contact too, which lies in the end joint's
    * own rest frame (`HumanPosture.IGoal.contact`) and turns with the joint.
-   *
-   * @param frame The frame.
-   * @param goal The goal, attached to no bone and naming no collider.
-   * @returns The goal in the frame.
+   * Parameter frame: The frame.
+   * Parameter goal: The goal, attached to no bone and naming no collider.
+   * Returns: The goal in the frame.
    */
   export function goal(
     frame: IAutoMovieMotionHumanLimbFitFrame.IFrame,

@@ -8,17 +8,16 @@ import type {
 import type { HumanPerformance } from "../HumanPerformance";
 import { HumanPropFracture } from "./HumanPropFracture";
 
-/**
+/*
  * Stage a model's replacement at a recorded hit on a placed prop
  * (`HumanPerformance.fracture`): the hit is the performance's recorded event of
  * that id on the prop, and the prop's frame is read from the performance.
- *
- * @param performance The performance's hit and prop readers.
- * @param placed Whether the performance places the request's prop.
- * @param request The recorded hit, placed prop, its model and the authored
- *   split budget.
- * @returns The replacement plan, or null for an unplaced prop, a missing hit or
- *   an intact model.
+ * Parameter performance: The performance's hit and prop readers.
+ * Parameter placed: Whether the performance places the request's prop.
+ * Parameter request: The recorded hit, placed prop, its model and the authored
+ * split budget.
+ * Returns: The replacement plan, or null for an unplaced prop, a missing hit or
+ * an intact model.
  */
 export function fractureHumanPerformanceProp<
   Piece extends IAutoMovieMotionHumanObject.IModel,

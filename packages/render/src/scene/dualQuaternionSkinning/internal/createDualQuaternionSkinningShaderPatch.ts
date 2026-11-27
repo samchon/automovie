@@ -1,7 +1,7 @@
 import type { IMaterialShaderPatch } from "../../IMaterialShaderPatch.js";
 import { dualQuaternionSkinningVertex } from "./dualQuaternionSkinningVertex.js";
 
-/**
+/*
  * One dual quaternion skinning operation for the material compile hook. It
  * rewrites the vertex source only; uniforms, fragment source and the native
  * program configuration stay with the caller and the other registered patches.

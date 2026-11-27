@@ -283,12 +283,11 @@ export namespace AutoMovieArchetypeWheelchair {
     return handrimContactsImplementation(ride, holds);
   }
 
-  /**
+  /*
    * A kind's models from its rows.
-   *
-   * @param kind The kind.
-   * @param wheel The rear wheel's size, inches.
-   * @returns The models by name.
+   * Parameter kind: The kind.
+   * Parameter wheel: The rear wheel's size, inches.
+   * Returns: The models by name.
    */
   function models(
     kind: Kind,

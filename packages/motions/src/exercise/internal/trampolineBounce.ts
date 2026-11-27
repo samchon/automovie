@@ -33,7 +33,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { ExerciseKey } from "./ExerciseKey";
 
-/**
+/*
  * Bouncing on a trampoline.
  *
  * The bed is a non-linear spring, `F = K1 x + K3 x^3` (Jaques, The mechanics of
@@ -56,35 +56,51 @@ import { ExerciseKey } from "./ExerciseKey";
  * Events: `takeoff{k}`, `apex{k}`, `touchdown{k}`, `relax`.
  */
 export namespace trampolineBounce {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "trampolineBounce";
 
-  /** Cancel table: once killed, into standing. */
+  /*
+   * Cancel table: once killed, into standing.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
       trampolineBounce: ["fromRelax", "smooth"],
     });
 
-  /** The bed's linear stiffness, newtons per metre (provisional). */
+  /*
+   * The bed's linear stiffness, newtons per metre (provisional).
+   */
   export const K1: number = 5000;
 
-  /** The bed's cubic stiffness, newtons per cubic metre (provisional). */
+  /*
+   * The bed's cubic stiffness, newtons per cubic metre (provisional).
+   */
   export const K3: number = 40000;
 
-  /** The share of the energy the bed returns (provisional). */
+  /*
+   * The share of the energy the bed returns (provisional).
+   */
   export const KEEP: number = 0.9;
 
-  /** The apex the legs add at a contact, metres (provisional). */
+  /*
+   * The apex the legs add at a contact, metres (provisional).
+   */
   export const PUSH: number = 0.35;
 
-  /** The standing push's deflection of the bed, metres (provisional). */
+  /*
+   * The standing push's deflection of the bed, metres (provisional).
+   */
   export const SINK: number = 0.12;
 
-  /** The knees' give at the bed's lowest, a share of the stature (provisional). */
+  /*
+   * The knees' give at the bed's lowest, a share of the stature (provisional).
+   */
   export const GIVE: number = 0.03;
 
-  /**
+  /*
    * The shapes held at the apex: hip flexion, knee flexion and leg spread,
    * degrees (provisional).
    */
@@ -100,12 +116,11 @@ export namespace trampolineBounce {
     straddle: { hip: 90, knee: 0, spread: 45 },
   };
 
-  /**
+  /*
    * The bed's deflection that takes a fall: the root of the energy balance.
-   *
-   * @param mass The jumper's mass, kilograms.
-   * @param fall The height fallen from above the bed, metres.
-   * @returns Metres.
+   * Parameter mass: The jumper's mass, kilograms.
+   * Parameter fall: The height fallen from above the bed, metres.
+   * Returns: Metres.
    */
   export function deflection(mass: number, fall: number): number {
     const g: number = AutoMovieGravity.STANDARD;
@@ -121,14 +136,13 @@ export namespace trampolineBounce {
     return x;
   }
 
-  /**
+  /*
    * Plan a bounce routine.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the bed is missing, the jumper is not on it,
-   *   the count is not a positive whole number, or the apex exceeds what the
-   *   push sustains.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the bed is missing, the jumper is not on it,
+   * the count is not a positive whole number, or the apex exceeds what the
+   * push sustains.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTrampoline.IParams>,
@@ -344,7 +358,7 @@ export namespace trampolineBounce {
     });
   }
 
-  /**
+  /*
    * A foot's placement in the air: from the bed's place toward where the
    * shape's joints carry it, by how far the shape has come in.
    */
@@ -368,30 +382,46 @@ export namespace trampolineBounce {
       rotation: Quaternion.slerp(bed.rotation, free.worldRotation, air),
     };
   }
-  /** One phase of the routine. */
+  /*
+   * One phase of the routine.
+   */
   interface IPhase {
-    /** What it is. */
+    /*
+     * What it is.
+     */
     kind: Phase;
 
-    /** Its first and last action seconds. */
+    /*
+     * Its first and last action seconds.
+     */
     from: number;
     to: number;
 
-    /** A contact's deflection, metres, or a flight's apex. */
+    /*
+     * A contact's deflection, metres, or a flight's apex.
+     */
     depth: number;
 
-    /** A contact's seconds going down. */
+    /*
+     * A contact's seconds going down.
+     */
     down: number;
 
-    /** The speed it is entered at and left at, metres per second. */
+    /*
+     * The speed it is entered at and left at, metres per second.
+     */
     inSpeed: number;
     outSpeed: number;
   }
 
-  /** A phase's kind: the standing push, a flight, a contact, the killed landing. */
+  /*
+   * A phase's kind: the standing push, a flight, a contact, the killed landing.
+   */
   type Phase = "push" | "flight" | "contact" | "kill";
 
-  /** The bed's top, checked under the jumper's feet. */
+  /*
+   * The bed's top, checked under the jumper's feet.
+   */
   function bedTop(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTrampoline.IParams>,
     subject: string,

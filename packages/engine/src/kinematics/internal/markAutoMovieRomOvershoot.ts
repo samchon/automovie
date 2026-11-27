@@ -3,7 +3,7 @@ import type {
   IAutoMovieMarkRomOvershoot,
 } from "@automovie/interface";
 
-/**
+/*
  * Turn joints' range-of-motion overshoot at one instant into flagged inspection
  * marks at the joints that exceed their range.
  *
@@ -16,9 +16,8 @@ import type {
  *
  * It throws for a position that is not finite or an overshoot that is negative
  * or NaN.
- *
- * @param entries Joints with their world positions and measured overshoots.
- * @returns One flagged mark per joint past its range, in the entries' order.
+ * Parameter entries: Joints with their world positions and measured overshoots.
+ * Returns: One flagged mark per joint past its range, in the entries' order.
  */
 export function markAutoMovieRomOvershoot(
   entries: IAutoMovieMarkRomOvershoot.IEntries,

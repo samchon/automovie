@@ -1,7 +1,7 @@
 import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * Prepare the small-angle pendulum already used by the staged rope swing. The
  * direction is the unit horizontal stage axis toward the landing. Positions and
  * tangents use the approximation's angle, with a constant distance to the
@@ -42,17 +42,27 @@ export function ropeSwingCourse(
   };
 }
 
-/** The prepared world-space film course. */
+/*
+ * The prepared world-space film course.
+ */
 export namespace ropeSwingCourse {
-  /** An unforced oscillation with an analytic first half. */
+  /*
+   * An unforced oscillation with an analytic first half.
+   */
   export interface ICourse {
-    /** Time from a stationary release to the opposite extreme, seconds. */
+    /*
+     * Time from a stationary release to the opposite extreme, seconds.
+     */
     half: number;
 
-    /** The hanging point, world metres at the requested course instant. */
+    /*
+     * The hanging point, world metres at the requested course instant.
+     */
     at(seconds: number): IAutoMovieVector3;
 
-    /** Its analytic tangent, world metres per second at the same instant. */
+    /*
+     * Its analytic tangent, world metres per second at the same instant.
+     */
     velocity(seconds: number): IAutoMovieVector3;
   }
 }

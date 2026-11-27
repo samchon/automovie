@@ -4,7 +4,7 @@ import type {
   IAutoMovieRecoveryEventCurveSource,
 } from "@automovie/interface";
 
-/**
+/*
  * Admit the single complete Bernstein curve supplying an event occurrence.
  * Hermite storage must first pass through the declared basis converter.
  */

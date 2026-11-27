@@ -3,7 +3,7 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 import { nearestHullEdge } from "./nearestHullEdge";
 import { pointInHull } from "./pointInHull";
 
-/**
+/*
  * Distance from `point` to a convex hull on the XZ plane: `0` when inside,
  * otherwise the distance to the nearest boundary. Degenerate hulls fall back to
  * the distance to their single vertex (size 1) or segment (size 2).

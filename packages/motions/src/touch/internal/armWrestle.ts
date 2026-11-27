@@ -30,7 +30,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Arm wrestling, one role of it: the elbow planted on a table's top, the hand
  * clasped with the partner's above it, the struggle and the pin.
  *
@@ -65,49 +65,52 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * hangs.
  */
 export namespace armWrestle {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "armWrestle";
 
-  /** Cancel table: a contest is left once the hands part. */
+  /*
+   * Cancel table: a contest is left once the hands part.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /**
+  /*
    * How far apart the two clasped wrists stand across the table, metres
    * (provisional: about a hand's breadth).
    */
   export const GAP: number = 0.08;
 
-  /**
+  /*
    * How far the forearms sway through the struggle, degrees either way
    * (provisional).
    */
   export const SWAY: number = 8;
 
-  /**
+  /*
    * How far from upright the forearms end at the pin when none is asked,
    * degrees (provisional: the back of the loser's hand a hand's breadth off the
    * table).
    */
   export const PIN: number = 70;
 
-  /**
+  /*
    * How much further from its place on the table's top than with the forearm
    * upright the displayed elbow may lie for a pin's angle to count as held,
    * metres (the campaign's contact bound).
    */
   export const HELD: number = 0.015;
 
-  /**
+  /*
    * Plan one role of an arm wrestle.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the struggle's length is negative, no lean from
-   *   the hips puts the shoulder an upper arm from the elbow's place on the
-   *   table, or the pin's angle lies outside 0 to 90 degrees or past what this
-   *   arm holds with its elbow in place.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the struggle's length is negative, no lean from
+   * the hips puts the shoulder an upper arm from the elbow's place on the
+   * table, or the pin's angle lies outside 0 to 90 degrees or past what this
+   * arm holds with its elbow in place.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanArmWrestle.IParams>,
@@ -540,13 +543,19 @@ export namespace armWrestle {
   }
 }
 
-/** The alternatives of `PlanSpanTo`'s site. */
+/*
+ * The alternatives of `PlanSpanTo`'s site.
+ */
 type PlanSpanTo = "LowerArm" | "Hand";
 
-/** The alternatives of `PlanSpanFrom`'s site. */
+/*
+ * The alternatives of `PlanSpanFrom`'s site.
+ */
 type PlanSpanFrom = "UpperArm" | "LowerArm";
 
-/** A proposed pad cannot bear the displayed elbow through the contest. */
+/*
+ * A proposed pad cannot bear the displayed elbow through the contest.
+ */
 function padRefusal(point: string | undefined): HumanRefusal {
   return new HumanRefusal({
     kind: "reach",

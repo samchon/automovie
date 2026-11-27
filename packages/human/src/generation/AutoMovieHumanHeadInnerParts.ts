@@ -264,12 +264,11 @@ export namespace AutoMovieHumanHeadInnerParts {
     return out;
   }
 
-  /**
+  /*
    * One inner part.
-   *
-   * @param host The original material parent, or the name of a required one
-   *   whose own source failed; that name records this part as a failed attempt
-   *   instead of authoring it without its contact.
+   * Parameter host: The original material parent, or the name of a required one
+   * whose own source failed; that name records this part as a failed attempt
+   * instead of authoring it without its contact.
    */
   function part(
     name: string,
@@ -341,13 +340,17 @@ export namespace AutoMovieHumanHeadInnerParts {
         ];
   }
 
-  /** A vector scaled to length 1. */
+  /*
+   * A vector scaled to length 1.
+   */
   function unit(a: [number, number, number]): [number, number, number] {
     const l: number = Math.hypot(...a) || 1;
     return [a[0] / l, a[1] / l, a[2] / l];
   }
 
-  /** Difference. */
+  /*
+   * Difference.
+   */
   function sub(
     a: readonly number[],
     b: readonly number[],
@@ -355,7 +358,9 @@ export namespace AutoMovieHumanHeadInnerParts {
     return [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
   }
 
-  /** Scaled vector. */
+  /*
+   * Scaled vector.
+   */
   function scale(a: readonly number[], s: number): [number, number, number] {
     return [a[0]! * s, a[1]! * s, a[2]! * s];
   }

@@ -4,17 +4,16 @@ import type {
   IAutoMovieEvaluateBernstein64,
 } from "@automovie/interface";
 
-/**
+/*
  * Evaluate an admitted Bernstein piece at local t in [0,1], returning position
  * in millimetres and its derivative per local t. De Casteljau evaluation
  * preserves the supplied degree; rational coordinates use the quotient rule and
  * hybrid Y uses its independent polynomial degree.
- *
- * @param piece Complete actual coefficient field; enclosing primitive admission
- *   supplies dense-array guarantees.
- * @param t Normalized local parameter, including both endpoints.
- * @throws Error for inconsistent degree, domain or cache, nonpositive
- *   denominator or unresolved underflow.
+ * Parameter piece: Complete actual coefficient field; enclosing primitive admission
+ * supplies dense-array guarantees.
+ * Parameter t: Normalized local parameter, including both endpoints.
+ * Error for inconsistent degree, domain or cache, nonpositive
+ * denominator or unresolved underflow.
  */
 export function evaluateAutoMovieBernstein64(
   piece: IAutoMovieBernsteinCurvePiece64,

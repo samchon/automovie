@@ -9,7 +9,7 @@ import { appendEditorialMarkersArtifact } from "./appendEditorialMarkersArtifact
 import { appendShotCoverageArtifact } from "./appendShotCoverageArtifact";
 import { appendShotEventsArtifact } from "./appendShotEventsArtifact";
 
-/**
+/*
  * Inspect present shot events, editorial markers, camera intent, coverage and
  * clearance evidence.
  */
@@ -19,7 +19,7 @@ export const appendShotMetadataArtifact: (
   sceneCameras: ReadonlySet<string> | null,
   violations: IAutoMovieConstraintViolation[],
 ) => void = (
-  /**
+  /*
    * Structural, not `IAutoMovieShot`, so both callers pass their own value
    * without a cast: the submitted artifact arrives already narrowed to a
    * record, the stored slice arrives as the typed shot.

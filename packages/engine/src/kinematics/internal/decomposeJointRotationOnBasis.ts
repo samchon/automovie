@@ -14,10 +14,12 @@ import { AutoMovieEngineClinicalAngle } from "../../rom/internal/AutoMovieEngine
 import { alternateRigJointAngles } from "./alternateRigJointAngles";
 import { jointRomOvershoot } from "./jointRomOvershoot";
 
-/** Degrees per radian for the closed-form angle extraction. */
+/*
+ * Degrees per radian for the closed-form angle extraction.
+ */
 const RAD2DEG: number = 180 / Math.PI;
 
-/**
+/*
  * Projected cosine at or below which the gimbal convention pins one outer
  * angle: the square root of the binary64 unit roundoff, about 1.5e-8.
  *
@@ -36,9 +38,9 @@ const RAD2DEG: number = 180 / Math.PI;
  */
 const GIMBAL_COSINE_EPSILON: number = Math.sqrt(Number.EPSILON);
 
-/**
- * {@link decomposeJointRotation} on a basis its caller already admitted and
- * normalized through {@link normalizeJointAxes}: the extraction itself, with no
+/*
+ * decomposeJointRotation on a basis its caller already admitted and
+ * normalized through normalizeJointAxes: the extraction itself, with no
  * validation of the basis.
  *
  * A solver that decomposes hundreds of candidate rotations of one joint
@@ -50,17 +52,18 @@ const GIMBAL_COSINE_EPSILON: number = Math.sqrt(Number.EPSILON);
  *
  * A basis that is not orthonormal gives angles that do not rebuild the
  * rotation; nothing here detects it.
- *
- * @param q Bone-local articulation rotation; unit length expected.
- * @param basis Orthonormal clinical axis basis, as `normalizeJointAxes` returns
- *   it.
- * @param frame Rest frame lifting rest-relative angles to clinical ones;
- *   omitted, the angles stay rest-relative.
- * @param domain Bone and resolved ROM that choose among equivalent charts;
- *   omitted or with a `null` constraint, the principal chart is returned.
+ * Parameter q: Bone-local articulation rotation; unit length expected.
+ * Parameter basis: Orthonormal clinical axis basis, as `normalizeJointAxes` returns
+ * it.
+ * Parameter frame: Rest frame lifting rest-relative angles to clinical ones;
+ * omitted, the angles stay rest-relative.
+ * Parameter domain: Bone and resolved ROM that choose among equivalent charts;
+ * omitted or with a `null` constraint, the principal chart is returned.
  */
 export namespace decomposeJointRotationOnBasis {
-  /** Read clinical joint angles from a quaternion on its admitted basis. */
+  /*
+   * Read clinical joint angles from a quaternion on its admitted basis.
+   */
   export function run(
     q: IAutoMovieQuaternion,
     basis: IAutoMovieJointAxes,
@@ -70,9 +73,11 @@ export namespace decomposeJointRotationOnBasis {
     return extract(q, basis, frame, domain);
   }
 
-  /** Fixed-rig metadata for independent inverse queries. */
+  /*
+   * Fixed-rig metadata for independent inverse queries.
+   */
 
-  /**
+  /*
    * Borrow one unchanged admitted basis/frame/domain and return independent
    * stateless readers. Construction reads no numerical input. Every actual q
    * still receives finite admission, extraction and principal/alternate
@@ -96,7 +101,7 @@ export namespace decomposeJointRotationOnBasis {
         extract(q, basis, frame, domain, readers);
   }
 
-  /**
+  /*
    * The same decomposition with the ROM overshoot its chart choice scored for
    * the reading it returns, written into `into`: the gate's own sum
    * (`jointRomOvershoot`) of the returned angles under the domain's constraint,
@@ -104,14 +109,13 @@ export namespace decomposeJointRotationOnBasis {
    * Undefined where the choice scored no such sum: no domain or a null
    * constraint, or a constraint gated by swing and twist, whose readings are
    * ranked by its box alone.
-   *
-   * @param q Bone-local articulation rotation; unit length expected.
-   * @param basis Orthonormal clinical axis basis, as `normalizeJointAxes`
-   *   returns it.
-   * @param frame Rest frame lifting rest-relative angles to clinical ones.
-   * @param domain Bone and resolved ROM that choose among equivalent charts.
-   * @param into Receives the overshoot, degrees, or undefined.
-   * @returns The angles `decomposeJointRotationOnBasis` returns.
+   * Parameter q: Bone-local articulation rotation; unit length expected.
+   * Parameter basis: Orthonormal clinical axis basis, as `normalizeJointAxes`
+   * returns it.
+   * Parameter frame: Rest frame lifting rest-relative angles to clinical ones.
+   * Parameter domain: Bone and resolved ROM that choose among equivalent charts.
+   * Parameter into: Receives the overshoot, degrees, or undefined.
+   * Returns: The angles `decomposeJointRotationOnBasis` returns.
    */
   export function scored(
     q: IAutoMovieQuaternion,
@@ -124,17 +128,19 @@ export namespace decomposeJointRotationOnBasis {
     return extract(q, basis, frame, domain, undefined, into);
   }
 
-  /**
+  /*
    * Where `scored` collects the reading's overshoot: degrees, undefined where
    * the chart choice scored none.
    */
   export interface IScore {
-    /** The overshoot, degrees, or undefined. */
+    /*
+     * The overshoot, degrees, or undefined.
+     */
     overshoot: number | undefined;
   }
 }
 
-/**
+/*
  * The axis rotated by `q`, `readRotatedVector`'s expressions, into three cells
  * from `offset`.
  */
@@ -152,7 +158,9 @@ function rotateInto(
   columns[offset + 2] = v.z + q.w * tz + (q.x * ty - q.y * tx);
 }
 
-/** Original dot read/multiply/add order against one completed private column. */
+/*
+ * Original dot read/multiply/add order against one completed private column.
+ */
 function columnDot(
   axis: IAutoMovieVector3,
   columns: Float64Array,
@@ -165,7 +173,7 @@ function columnDot(
   );
 }
 
-/**
+/*
  * All actual quaternion admission, extraction, clinical lift and chart
  * selection.
  */
@@ -313,7 +321,9 @@ function extract(
   );
 }
 
-/** Lift the three numerical rig angles through the unchanged clinical frame. */
+/*
+ * Lift the three numerical rig angles through the unchanged clinical frame.
+ */
 function clinical(
   rig: IAutoMovieResolvedJointAngles,
   frame: IAutoMovieRestFrame | undefined,
@@ -342,7 +352,9 @@ function clinical(
   };
 }
 
-/** Read each candidate's full-turn alias against its corresponding box interval. */
+/*
+ * Read each candidate's full-turn alias against its corresponding box interval.
+ */
 function align(
   candidate: IAutoMovieResolvedJointAngles,
   constraint: IAutoMovieJointConstraint,
@@ -354,7 +366,7 @@ function align(
   };
 }
 
-/**
+/*
  * Preserve principal/alternate chart construction, score order and
  * principal-on-tie selection.
  */
@@ -434,7 +446,7 @@ function lift(
   return selected;
 }
 
-/**
+/*
  * A basis's handedness and signed twist axis, one cross product and one dot
  * product read directly from the basis.
  */
@@ -451,7 +463,7 @@ const handednessOf: (basis: IAutoMovieJointAxes) => IHandedness = (
   return { handed, twistAxis: Vector3.scale(basis.twist, handed) };
 };
 
-/**
+/*
  * A constraint as the readings are ranked by: itself, or for one gated by swing
  * and twist a copy with that gate set aside.
  */
@@ -464,7 +476,9 @@ const boxOf: (
     ? constraint
     : { ...constraint, swingTwist: null };
 
-/** Three lazy successful affine readings, independent of every quaternion/chart. */
+/*
+ * Three lazy successful affine readings, independent of every quaternion/chart.
+ */
 type IClinicalReaders = Readonly<
   Record<
     keyof IAutoMovieResolvedJointAngles,
@@ -472,11 +486,17 @@ type IClinicalReaders = Readonly<
   >
 >;
 
-/** A basis's handedness and the twist axis an extraction reads against. */
+/*
+ * A basis's handedness and the twist axis an extraction reads against.
+ */
 interface IHandedness {
-  /** +1 when flexion × abduction = +twist, else -1. */
+  /*
+   * +1 when flexion × abduction = +twist, else -1.
+   */
   handed: 1 | -1;
 
-  /** The twist axis times the handedness. */
+  /*
+   * The twist axis times the handedness.
+   */
   twistAxis: IAutoMovieVector3;
 }

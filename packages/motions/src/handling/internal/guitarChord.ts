@@ -25,7 +25,7 @@ import { guitarChordTimes } from "./guitarChordTimes";
 import { guitarFrettingSpan } from "./guitarFrettingSpan";
 import { resolveGuitarStringContact } from "./resolveGuitarStringContact";
 
-/**
+/*
  * Keep the left index and middle fingertips on two stopped strings while the
  * right index sweeps them on one continuous path over the soundboard. A
  * downstroke goes from the lower pitch to the higher pitch, as taught by
@@ -44,39 +44,54 @@ import { resolveGuitarStringContact } from "./resolveGuitarStringContact";
 export const guitarChord: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGuitarChord> =
   { name: "guitarChord", interrupts: {}, plan };
 
-/** Entry state and clock for one staged sweep. */
+/*
+ * Entry state and clock for one staged sweep.
+ */
 type Context =
   IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuitarChord>;
 
-/** World-space wrist path and the forearm hint retained from planning. */
+/*
+ * World-space wrist path and the forearm hint retained from planning.
+ */
 interface IArm {
-  /** The wrist frame before guitar contact takes over. */
+  /*
+   * The wrist frame before guitar contact takes over.
+   */
   entry: IAutoMovieResolvedBone;
 
-  /** One hand orientation for the engaged phase. */
+  /*
+   * One hand orientation for the engaged phase.
+   */
   rotation: IAutoMovieQuaternion;
 
-  /** Side-specific direction for the elbow. */
+  /*
+   * Side-specific direction for the elbow.
+   */
   bend: IAutoMovieVector3;
 
-  /** Offsets for the selected hand's fingers in the engaged orientation. */
+  /*
+   * Offsets for the selected hand's fingers in the engaged orientation.
+   */
   offset: IAutoMovieVector3;
 
-  /** Clinical angles used to seed the digit fits. */
+  /*
+   * Clinical angles used to seed the digit fits.
+   */
   shape: IAutoMovieMotionHumanPosture["joints"];
 
-  /** Joint names touched by this hand. */
+  /*
+   * Joint names touched by this hand.
+   */
   bones: AutoMovieHumanoidBone[];
 }
 
-/**
+/*
  * Convert the authored phase clock into two static stops and a moving stroke.
- *
- * @param context The performer, displayed entry, action clock and staged
- *   guitar.
- * @returns The carried base, named crossings and three digit goals.
- * @throws {HumanRefusal} For invalid clocks, instruments, occupied hands or
- *   unreachable wrist paths.
+ * Parameter context: The performer, displayed entry, action clock and staged
+ * guitar.
+ * Returns: The carried base, named crossings and three digit goals.
+ * For invalid clocks, instruments, occupied hands or
+ * unreachable wrist paths.
  */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const {
@@ -129,7 +144,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       reader.prop.affordances ?? [],
     );
   const frame: IAutoMovieRigidTransform = reader.frame(context.start);
-  /** Rigidly carry a named affordance point by the staged instrument. */
+  /*
+   * Rigidly carry a named affordance point by the staged instrument.
+   */
   const world = (point: IAutoMovieVector3): IAutoMovieVector3 =>
     Vector3.add(frame.position, Quaternion.rotateVector(frame.rotation, point));
   const indexStop: IAutoMovieVector3 = world(index.stop);
@@ -289,7 +306,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   };
 }
 
-/**
+/*
  * Fit the wrist offsets and arm reach once, using the extrema of each straight
  * path segment.
  */
@@ -412,7 +429,9 @@ function arm(
   };
 }
 
-/** Transport one wrist from the displayed entry to the engaged hand frame. */
+/*
+ * Transport one wrist from the displayed entry to the engaged hand frame.
+ */
 function wrist(
   arm: IArm,
   target: IAutoMovieVector3,
@@ -429,7 +448,9 @@ function wrist(
   };
 }
 
-/** Minimum-jerk progress between ordered instants. */
+/*
+ * Minimum-jerk progress between ordered instants.
+ */
 function ease(seconds: number, start: number, end: number): number {
   return AutoMovieMotionInterval.progress(start, end, seconds);
 }

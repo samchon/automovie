@@ -8,7 +8,7 @@ import { planarCross } from "../../internal/planarCross";
 import { planarSegmentsMeet } from "../../internal/planarSegmentsMeet";
 import { pointInPlanarRing } from "../../internal/pointInPlanarRing";
 
-/**
+/*
  * Triangulate a canonical region without changing its point identities.
  *
  * The caller supplies finite, nonintersecting rings admitted by
@@ -25,7 +25,7 @@ export function trianglesOf(
   return earClip(points, bridgeHoles(points, rings));
 }
 
-/**
+/*
  * Fold every hole into the outer ring along a bridge nothing else crosses.
  *
  * The bridge is a segment travelled in both directions, so the region becomes
@@ -87,19 +87,29 @@ function bridgeHoles(
   return ring;
 }
 
-/** The two ends of a bridge from the current perimeter into a hole. */
+/*
+ * The two ends of a bridge from the current perimeter into a hole.
+ */
 interface IPlanarHoleBridge {
-  /** Ordinal of the hole in the region's canonical rings. */
+  /*
+   * Ordinal of the hole in the region's canonical rings.
+   */
   hole: number;
 
-  /** Corner ordinal in the current perimeter walk. */
+  /*
+   * Corner ordinal in the current perimeter walk.
+   */
   at: number;
 
-  /** Corner ordinal in the hole's ring. */
+  /*
+   * Corner ordinal in the hole's ring.
+   */
   from: number;
 }
 
-/** Does one candidate bridge stay inside the region and meet nothing? */
+/*
+ * Does one candidate bridge stay inside the region and meet nothing?
+ */
 function bridgeIsClear(
   points: readonly IAutoMovieProfilePoint[],
   shapes: ReadonlyArray<readonly IAutoMovieProfilePoint[]>,
@@ -153,7 +163,7 @@ function bridgeIsClear(
   );
 }
 
-/**
+/*
  * Cut ears off one counter-clockwise ring until three corners are left.
  *
  * Each cut retains every remaining boundary vertex, including a straight-edge
@@ -185,7 +195,7 @@ function earClip(
   return triangles;
 }
 
-/**
+/*
  * Is the corner at `at` an ear: convex, with no other vertex in or on it?
  *
  * A vertex on the proposed diagonal blocks the cut too: skipping it can leave
@@ -218,7 +228,9 @@ function isEar(
   });
 }
 
-/** Is the point inside or on the counter-clockwise triangle `a b c`? */
+/*
+ * Is the point inside or on the counter-clockwise triangle `a b c`?
+ */
 function insideOrOnTriangle(
   a: IAutoMovieProfilePoint,
   b: IAutoMovieProfilePoint,

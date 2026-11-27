@@ -129,7 +129,7 @@ export namespace AutoMovieLoftSectionSource {
   }
 }
 
-/**
+/*
  * Snapshot actual compatibility values; no missing physical jet is invented
  * here.
  */
@@ -146,7 +146,7 @@ function remember(
   };
 }
 
-/**
+/*
  * Compare ordinary rows in their original getter order; every row must be dense
  * finite data at the same output width.
  */
@@ -178,7 +178,9 @@ function fits(
         same(curvature, curvatureSnapshot, true);
 }
 
-/** Ordered original bindings permit clipping without changing source evaluation. */
+/*
+ * Ordered original bindings permit clipping without changing source evaluation.
+ */
 function find(
   rows: readonly IAutoMovieLoftSectionSourceBinding[],
   station: number,
@@ -193,7 +195,7 @@ function find(
   return rows[low]?.station === station ? rows[low]! : null;
 }
 
-/**
+/*
  * Whole phase functions require either eight native source2 inputs or complete
  * basis2 rows.
  */
@@ -226,7 +228,7 @@ function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
   );
 }
 
-/**
+/*
  * Native/basis family vectors require own finite numeric entries; sparse arrays
  * never become complete jets.
  */
@@ -237,7 +239,7 @@ function finiteRow(value: readonly number[], width: number): boolean {
   return true;
 }
 
-/**
+/*
  * Numeric rows and nested family tuples compare dense own entries in left/right
  * order. Matching array identity never skips admission. Optional undefined
  * record fields retain their existing absent-field meaning; unavailable

@@ -3,7 +3,7 @@ import type { IAutoMovieFramebufferRenderer } from "../IAutoMovieFramebufferRend
 import { captureAutoMovieFramebufferRestore } from "./captureAutoMovieFramebufferRestore.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
-/**
+/*
  * Release a still-live owned cube depth handle after native target disposal.
  * Three r186 allocates cube depth outside its source-upload cache, so public
  * Texture.dispose can clear SDK bookkeeping while leaving this allocation.

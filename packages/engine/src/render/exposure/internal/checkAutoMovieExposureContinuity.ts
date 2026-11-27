@@ -1,6 +1,6 @@
 import type { IAutoMovieCheckExposureContinuity } from "@automovie/interface";
 
-/**
+/*
  * Report every cut whose exposure jumps from the previous cut of the same
  * screenplay scene.
  *
@@ -14,11 +14,10 @@ import type { IAutoMovieCheckExposureContinuity } from "@automovie/interface";
  *
  * The default tolerance is one third of a stop, the finest step of the exposure
  * scales cameras mark.
- *
- * @param props The cuts in playing order and the tolerance.
- * @returns One finding per reported cut, in playing order.
- * @throws Error when two cuts share an `index`, an index is not a safe integer,
- *   an `ev100` is not finite, or the tolerance is negative or not finite.
+ * Parameter props: The cuts in playing order and the tolerance.
+ * Returns: One finding per reported cut, in playing order.
+ * Error when two cuts share an `index`, an index is not a safe integer,
+ * an `ev100` is not finite, or the tolerance is negative or not finite.
  */
 export function checkAutoMovieExposureContinuity(
   props: IAutoMovieCheckExposureContinuity.IProps,

@@ -1,6 +1,8 @@
 import type { AutoMovieDiagnosticNumber } from "@automovie/interface";
 
-/** Encode an already computed number without changing its numerical owner. */
+/*
+ * Encode an already computed number without changing its numerical owner.
+ */
 export function encodeRecoveryDiagnosticNumber(
   value: number,
 ): AutoMovieDiagnosticNumber {

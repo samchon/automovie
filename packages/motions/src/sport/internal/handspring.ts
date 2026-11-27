@@ -35,7 +35,7 @@ import { handspringLanding } from "./handspringLanding";
 import { prepareGymnasticsPlacement } from "./prepareGymnasticsPlacement";
 import { salto } from "./salto";
 
-/**
+/*
  * A front handspring: from standing, the body reaches forward into a lunge,
  * turns head over heels in pitch over its hands, leaves them and flies to its
  * feet, landing arched and rising to stand.
@@ -74,10 +74,12 @@ import { salto } from "./salto";
  * `relax`.
  */
 export namespace handspring {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "handspring";
 
-  /**
+  /*
    * Cancel table: from the end, into standing, walking, another handspring or a
    * salto.
    */
@@ -89,46 +91,47 @@ export namespace handspring {
       salto: ["fromRelax", "smooth"],
     });
 
-  /**
+  /*
    * The angle by which the lunge is reached, degrees of forward tip
    * (provisional).
    */
   export const REACH: number = 110;
 
-  /**
+  /*
    * The angle at which the hands leave, degrees of forward tip (provisional:
    * before the handstand, where the wheel still lifts the centre).
    */
   export const RELEASE: number = 145;
 
-  /**
+  /*
    * The tip at which the feet come down, degrees: arched, the trunk 30 degrees
    * behind upright (provisional).
    */
   export const LAND: number = 330;
 
-  /**
+  /*
    * The body-dependent lunge with the left leg leading, constructed by
    * `handspringKeys.lunged` with the law's existing provisional angles.
    */
   export const lunged: typeof handspringKeys.lunged = handspringKeys.lunged;
 
-  /**
+  /*
    * The body-dependent arched line of the wheel and flight, constructed by
    * `handspringKeys.arched` with the law's existing provisional angles.
    */
   export const arched: typeof handspringKeys.arched = handspringKeys.arched;
 
-  /** The angle between two rows of the wheel's table, degrees. */
+  /*
+   * The angle between two rows of the wheel's table, degrees.
+   */
   const STEP: number = 5;
 
-  /**
+  /*
    * Plan a front handspring on the floor.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the hands do not come down before the release,
-   *   or no rate up to the bound lands the body.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the hands do not come down before the release,
+   * or no rate up to the bound lands the body.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandspring.IParams>,
@@ -140,16 +143,15 @@ export namespace handspring {
     });
   }
 
-  /**
+  /*
    * Plan a front handspring whose hands land on a surface.
-   *
-   * @param context The action's context.
-   * @param surface What the hands land on.
-   * @param landingSurface Where the feet land. Omitted uses the entry's ground
-   *   height.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the hands do not come down before the release,
-   *   come down off the surface, or no rate up to the bound lands the body.
+   * Parameter context: The action's context.
+   * Parameter surface: What the hands land on.
+   * Parameter landingSurface: Where the feet land. Omitted uses the entry's ground
+   * height.
+   * Returns: The plan.
+   * When the hands do not come down before the release,
+   * come down off the surface, or no rate up to the bound lands the body.
    */
   export function over(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandspring.IParams>,
@@ -481,14 +483,20 @@ export namespace handspring {
   }
 }
 
-/** The alternatives of `OverContactsPart`'s site. */
+/*
+ * The alternatives of `OverContactsPart`'s site.
+ */
 type OverContactsPart = "leftFoot" | "rightFoot";
 
-/** The record of `IOverLaunchResult`'s site. */
+/*
+ * The record of `IOverLaunchResult`'s site.
+ */
 type IOverLaunchResult = {
   centre: IAutoMovieVector3;
   slope: IAutoMovieVector3;
 };
 
-/** The record of `IOverLaunch`'s site. */
+/*
+ * The record of `IOverLaunch`'s site.
+ */
 type IOverLaunch = { centre: IAutoMovieVector3; slope: IAutoMovieVector3 };

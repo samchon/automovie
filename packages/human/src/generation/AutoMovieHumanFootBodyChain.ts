@@ -66,8 +66,12 @@ export namespace AutoMovieHumanFootBodyChain {
   }
 }
 
-/** A section's spline controls and lift. */
+/*
+ * A section's spline controls and lift.
+ */
 type Controls = ReturnType<typeof AutoMovieHumanLimbFrame.controls>;
 
-/** Station step of the body's slopes, mm. */
+/*
+ * Station step of the body's slopes, mm.
+ */
 const STEP: number = 0.02;

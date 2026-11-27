@@ -217,12 +217,11 @@ export namespace AutoMovieSolidTrim {
     };
   }
 
-  /**
+  /*
    * The first sample whose edge crosses a later non-adjacent edge of a closed
    * polygon, or -1 when it is simple.
-   *
-   * @param points The closed polygon.
-   * @returns The sample index or -1.
+   * Parameter points: The closed polygon.
+   * Returns: The sample index or -1.
    */
   function selfCrossing(points: readonly [number, number][]): number {
     const n: number = points.length;

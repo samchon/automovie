@@ -7,19 +7,18 @@ import type {
 
 import { HumanStageProp } from "./HumanStageProp";
 
-/**
+/*
  * Append a visual prop beat and, when authored, a second performer's response.
  *
  * The partner's flinch starts at the prop beat's named `stroke` event, plus any
  * authored delay. Omit the response for a solo display or a passing beat
  * without a reaction. The timing adds no contact between performers.
- *
- * @param performer The performer carrying the digital prop.
- * @param beat The visual pose and prop mark.
- * @param cue An anchor unique within the scene.
- * @param response The optional responding performer and reaction timing.
- * @returns The composed performance chains.
- * @throws {Error} For a blank cue, a self-response or an invalid delay.
+ * Parameter performer: The performer carrying the digital prop.
+ * Parameter beat: The visual pose and prop mark.
+ * Parameter cue: An anchor unique within the scene.
+ * Parameter response: The optional responding performer and reaction timing.
+ * Returns: The composed performance chains.
+ * For a blank cue, a self-response or an invalid delay.
  */
 export function composeHumanStageProp(
   performer: IAutoMovieMotionHumanChainCore,

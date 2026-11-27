@@ -2,11 +2,13 @@ import type { IAutoMovieQuaternion } from "@automovie/interface";
 
 import { quaternionNormalizationDivisor } from "./quaternionNormalizationDivisor";
 
-/** Wide binary64 norm bounds proving the original component gate returns one. */
+/*
+ * Wide binary64 norm bounds proving the original component gate returns one.
+ */
 const ORDINARY_SQUARED_MIN: number = 2 ** -1000;
 const ORDINARY_SQUARED_MAX: number = 2 ** 1000;
 
-/**
+/*
  * Read normalized quaternion components synchronously without a unit record.
  * The visitor receives the original normalization's X/Y/Z/W values, the raw
  * quaternion and caller context. Context transfers existing inputs without
@@ -58,9 +60,11 @@ export function readNormalizedQuaternion<Result, Context>(
   );
 }
 
-/** Normalization of four already completed scalar components. */
+/*
+ * Normalization of four already completed scalar components.
+ */
 export namespace readNormalizedQuaternion {
-  /**
+  /*
    * Read the same normalized X/Y/Z/W from completed scalar inputs. Zero length
    * visits identity; nonfinite propagation stays arithmetic. Every callback
    * runs once synchronously and owns its result. No source record is created.

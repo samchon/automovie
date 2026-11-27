@@ -7,7 +7,7 @@ import {
 import { convexHull2D } from "../../math/internal/convexHull2D";
 import { validateTransformScalars } from "./validateTransformScalars";
 
-/**
+/*
  * Admit a finite frame, require every optional dimension present to be finite
  * and positive, admit a surface's drawable outline, then require stack-top
  * extent plan points to span area or point-like kinds to have null extent.
@@ -87,7 +87,7 @@ export function validateAffordance(
     );
 }
 
-/**
+/*
  * The optional dimensions of an affordance, each a positive length in metres,
  * angle in degrees or load in newtons when present.
  */
@@ -115,13 +115,13 @@ const DIMENSIONS: readonly (
   "reverse",
 ];
 
-/**
+/*
  * How far past its rectangle an outline point may lie, metres: the rounding of
  * a corner computed from a circumradius.
  */
 const OUTLINE_TOLERANCE: number = 1e-9;
 
-/**
+/*
  * Admit a surface's drawable outline: on a sized `surface`, at least three
  * finite XZ points inside its rectangle, positive area, and no two non-adjacent
  * edges meeting.
@@ -206,7 +206,9 @@ function validateOutline(
     }
 }
 
-/** Whether the closed XZ segments `ab` and `cd` share a point. */
+/*
+ * Whether the closed XZ segments `ab` and `cd` share a point.
+ */
 function segmentsMeet(
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,

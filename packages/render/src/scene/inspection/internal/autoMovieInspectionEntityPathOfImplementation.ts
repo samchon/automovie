@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-/**
+/*
  * The unique inspection identity of a displayed node beneath `root`.
  *
  * Named nodes form a `/`-joined name path, as `AutoMovieRenderInspectionPath.pathOf` reads
@@ -15,13 +15,12 @@ import type * as THREE from "three";
  * A caller naming many nodes of one unchanged graph passes one `frontiers` map
  * to all calls, so each ancestor's frontier is scanned once; a graph that
  * changes between calls needs a fresh map.
- *
- * @param root The inspected root, which adds no segment.
- * @param object The node to identify, the root or beneath it.
- * @param frontiers Optional memo of each ancestor's named frontier, valid while
- *   the graph is unchanged.
- * @returns The node's identity, unique among the nodes beneath `root`.
- * @throws {Error} When `object` is not `root` or beneath it.
+ * Parameter root: The inspected root, which adds no segment.
+ * Parameter object: The node to identify, the root or beneath it.
+ * Parameter frontiers: Optional memo of each ancestor's named frontier, valid while
+ * the graph is unchanged.
+ * Returns: The node's identity, unique among the nodes beneath `root`.
+ * When `object` is not `root` or beneath it.
  */
 export function autoMovieInspectionEntityPathOfImplementation(
   root: THREE.Object3D,
@@ -55,7 +54,7 @@ export function autoMovieInspectionEntityPathOfImplementation(
   return [names.length === 0 ? "scene" : names.join("/"), ...indices].join(".");
 }
 
-/**
+/*
  * A named node's segment under its nearest named ancestor: its name, with `#k`
  * when another named node of that ancestor's frontier shares the name.
  */
@@ -76,7 +75,7 @@ function segmentOf(
   return same.length <= 1 ? node.name : `${node.name}#${same.indexOf(node)}`;
 }
 
-/**
+/*
  * The named nodes whose nearest named ancestor is `anchor`, grouped by name in
  * depth-first child order.
  */

@@ -17,7 +17,7 @@ import { AutoMovieMotionHumanTouchUpright } from "../../compose/internal/AutoMov
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHeldEffector } from "./HumanHeldEffector";
 
-/**
+/*
  * An act performed with the prop the hand already holds: the prop's own point
  * (a glass's lip, a phone's screen, a cigarette's mouth end) as the effector,
  * in place of a bare hand surface or an implied tool, and the hold kept through
@@ -41,23 +41,22 @@ import { HumanHeldEffector } from "./HumanHeldEffector";
  *   nearly as that normal allows.
  */
 export namespace HumanHeld {
-  /**
+  /*
    * The effector that lays a held prop's point on the act's region.
-   *
-   * @param context The action's context; the prop is read in the hand at the
-   *   action's entry (`AutoMovieMotionHumanHeld`).
-   * @param row The act's use of the prop.
-   * @param side The holding hand.
-   * @param subject The prop's subject id.
-   * @param point The prop's point; the row's own when absent.
-   * @param turn For an upright vessel, how far round its rim from the side the
-   *   act's facing direction points to the region meets it, degrees about the
-   *   vessel's axis; 0 when absent. A round rim meets a mouth on any side, so a
-   *   caller may try several and keep the one its arm holds upright best.
-   * @returns The effector.
-   * @throws {HumanRefusal} When neither the parameters nor the row name a
-   *   point, the prop has no such contact, or that hand does not hold the prop
-   *   at the entry.
+   * Parameter context: The action's context; the prop is read in the hand at the
+   * action's entry (`AutoMovieMotionHumanHeld`).
+   * Parameter row: The act's use of the prop.
+   * Parameter side: The holding hand.
+   * Parameter subject: The prop's subject id.
+   * Parameter point: The prop's point; the row's own when absent.
+   * Parameter turn: For an upright vessel, how far round its rim from the side the
+   * act's facing direction points to the region meets it, degrees about the
+   * vessel's axis; 0 when absent. A round rim meets a mouth on any side, so a
+   * caller may try several and keep the one its arm holds upright best.
+   * Returns: The effector.
+   * When neither the parameters nor the row name a
+   * point, the prop has no such contact, or that hand does not hold the prop
+   * at the entry.
    */
   export function effector(
     context: Pick<IAutoMovieMotionHumanActionContext, EffectorContext>,
@@ -70,34 +69,33 @@ export namespace HumanHeld {
     return HumanHeldEffector(context, row, side, subject, point)(turn);
   }
 
-  /**
+  /*
    * The most an upright vessel may tilt where it is brought, degrees (a held
    * container stays level within 10 degrees outside a sip, the acceptance of
    * the hand-to-face family).
    */
   export const LEVEL: number = 10;
 
-  /**
+  /*
    * The sides of an upright vessel's rim tried for a region, degrees round its
    * axis from the side the act's facing direction points to (provisional: every
    * eighth of the rim).
    */
   export const SIDES: readonly number[] = [0, 45, -45, 90, -90, 135, -135, 180];
 
-  /**
+  /*
    * The effectors of an upright vessel at every side of its rim the search
    * tries (`SIDES`, the act's own side first), for an act that searches the
    * side with its own admission, as a drink does (`handToFaceVessel`).
-   *
-   * @param context The action's context; the prop is read in the hand at the
-   *   action's entry.
-   * @param row The act's use of the prop.
-   * @param side The holding hand.
-   * @param subject The prop's subject id.
-   * @param point The prop's point; the row's own when absent.
-   * @returns One effector per side, in `SIDES`' order for the right hand and in
-   *   its mirror's for the left.
-   * @throws {HumanRefusal} As `effector`.
+   * Parameter context: The action's context; the prop is read in the hand at the
+   * action's entry.
+   * Parameter row: The act's use of the prop.
+   * Parameter side: The holding hand.
+   * Parameter subject: The prop's subject id.
+   * Parameter point: The prop's point; the row's own when absent.
+   * Returns: One effector per side, in `SIDES`' order for the right hand and in
+   * its mirror's for the left.
+   * As `effector`.
    */
   export function sides(
     context: Pick<IAutoMovieMotionHumanActionContext, SidesContext>,
@@ -119,29 +117,28 @@ export namespace HumanHeld {
     );
   }
 
-  /**
+  /*
    * The effector of a held prop on the side its arm holds best: for an upright
    * vessel, whose round rim meets a region on any side, the side of `SIDES` at
    * which the arm that brings the rim to the region leaves the vessel least
    * tilted, the act's own side on a tie; for any other prop, `effector` as it
    * is.
-   *
-   * @param context The action's context.
-   * @param row The act's use of the prop.
-   * @param side The holding hand.
-   * @param subject The prop's subject id.
-   * @param point The prop's point; the row's own when absent.
-   * @param posture The posture the arm is solved on at the region.
-   * @param place The region there.
-   * @param leans Whether the act leans the vessel toward the region as it
-   *   arrives, as a drink does (`AutoMovieMotionHumanTouchDrink`, which admits
-   *   the lean or refuses it): the side is still the one held most nearly
-   *   upright, but a tilt there is no refusal, since the vessel is not brought
-   *   upright. False when absent.
-   * @returns The effector.
-   * @throws {HumanRefusal} As `effector`; and, unless the act leans the vessel,
-   *   a `reach` refusal on `prop` when the arm leaves the vessel tilted more
-   *   than `LEVEL` on every side.
+   * Parameter context: The action's context.
+   * Parameter row: The act's use of the prop.
+   * Parameter side: The holding hand.
+   * Parameter subject: The prop's subject id.
+   * Parameter point: The prop's point; the row's own when absent.
+   * Parameter posture: The posture the arm is solved on at the region.
+   * Parameter place: The region there.
+   * Parameter leans: Whether the act leans the vessel toward the region as it
+   * arrives, as a drink does (`AutoMovieMotionHumanTouchDrink`, which admits
+   * the lean or refuses it): the side is still the one held most nearly
+   * upright, but a tilt there is no refusal, since the vessel is not brought
+   * upright. False when absent.
+   * Returns: The effector.
+   * As `effector`; and, unless the act leans the vessel,
+   * a `reach` refusal on `prop` when the arm leaves the vessel tilted more
+   * than `LEVEL` on every side.
    */
   export function steadiest(
     context: Pick<IAutoMovieMotionHumanActionContext, SteadiestContext>,
@@ -236,16 +233,15 @@ export namespace HumanHeld {
     return best;
   }
 
-  /**
+  /*
    * A plan whose hand grips its prop through the whole act and keeps it after:
    * the grip window that takes the hand over from the hold the prop came with,
    * and the hold the act leaves.
-   *
-   * @param context The action's context; the fingers are read at the entry.
-   * @param plan The act's plan, whose arm was built with the fingers kept.
-   * @param side The holding hand.
-   * @param subject The prop's subject id.
-   * @returns The plan.
+   * Parameter context: The action's context; the fingers are read at the entry.
+   * Parameter plan: The act's plan, whose arm was built with the fingers kept.
+   * Parameter side: The holding hand.
+   * Parameter subject: The prop's subject id.
+   * Returns: The plan.
    */
   export function kept(
     context: Pick<IAutoMovieMotionHumanActionContext, KeptContext>,
@@ -265,7 +261,7 @@ export namespace HumanHeld {
     };
   }
 
-  /**
+  /*
    * The rim's sides in the order a hand tries them: `SIDES` for the right hand
    * and their mirror for the left. A turn is measured in the hand's own frame
    * from its facing toward `normal x facing`, and a left hand's frame is the
@@ -281,17 +277,27 @@ export namespace HumanHeld {
   }
 }
 
-/** The alternatives of `KeptContext`'s site. */
+/*
+ * The alternatives of `KeptContext`'s site.
+ */
 type KeptContext = "body" | "entry" | "prop";
 
-/** The alternatives of `SteadiestPlace`'s site. */
+/*
+ * The alternatives of `SteadiestPlace`'s site.
+ */
 type SteadiestPlace = "point" | "normal";
 
-/** The alternatives of `SteadiestContext`'s site. */
+/*
+ * The alternatives of `SteadiestContext`'s site.
+ */
 type SteadiestContext = "body" | "entry" | "prop";
 
-/** The alternatives of `SidesContext`'s site. */
+/*
+ * The alternatives of `SidesContext`'s site.
+ */
 type SidesContext = "body" | "entry" | "prop";
 
-/** The alternatives of `EffectorContext`'s site. */
+/*
+ * The alternatives of `EffectorContext`'s site.
+ */
 type EffectorContext = "body" | "entry" | "prop";

@@ -19,7 +19,7 @@ import { validatePropAffordanceTarget } from "./validatePropAffordanceTarget";
 import { validatePropPlacementGeometry } from "./validatePropPlacementGeometry";
 import { validatePropSupportCycles } from "./validatePropSupportCycles";
 
-/**
+/*
  * Validate a source-owned prop registry, its unique staged join, its typed
  * building relations, its support graph, the bearing of every prop on the face
  * it says holds it up, and every transformed volume it claims.
@@ -140,12 +140,18 @@ export function validatePropPlacements(
   return out.toValidation();
 }
 
-/** A borrowed registry record and its original authored diagnostic position. */
+/*
+ * A borrowed registry record and its original authored diagnostic position.
+ */
 interface IIndexed<Value> {
-  /** Borrowed record from the registry bucket. */
+  /*
+   * Borrowed record from the registry bucket.
+   */
   value: Value;
 
-  /** Original declaration position named by duplicate and relation findings. */
+  /*
+   * Original declaration position named by duplicate and relation findings.
+   */
   index: number;
 }
 
@@ -158,34 +164,50 @@ type Props = ReadonlyMap<string, readonly IIndexed<IAutoMoviePropSpec>[]>;
 
 type GeometryEntry = [
   {
-    /**
+    /*
      * Every registry entry in declaration order, with what the registry gate
      * resolved for it.
      */
     entries: readonly {
-      /** The registry's prop. */
+      /*
+       * The registry's prop.
+       */
       prop: IAutoMoviePropSpec;
 
-      /** Its index in the registry, for violation paths. */
+      /*
+       * Its index in the registry, for violation paths.
+       */
       index: number;
 
-      /** The one set piece staging it, or `undefined` when zero or several do. */
+      /*
+       * The one set piece staging it, or `undefined` when zero or several do.
+       */
       piece: IAutoMovieStageSetPiece | undefined;
 
-      /** Whether `forgeProp` accepted it. */
+      /*
+       * Whether `forgeProp` accepted it.
+       */
       forged: boolean;
 
-      /** Whether its node is declared once. */
+      /*
+       * Whether its node is declared once.
+       */
       unique: boolean;
 
-      /** The uniquely declared environment of its `in-space` target, or `null`. */
+      /*
+       * The uniquely declared environment of its `in-space` target, or `null`.
+       */
       located: IAutoMovieBuiltEnvironment | null;
     }[];
 
-    /** Built environments by id, holding only ids declared exactly once. */
+    /*
+     * Built environments by id, holding only ids declared exactly once.
+     */
     environments: ReadonlyMap<string, IAutoMovieBuiltEnvironment>;
 
-    /** Collector the violations are appended to. */
+    /*
+     * Collector the violations are appended to.
+     */
     out: IAutoMovieViolationCollector;
   },
 ][0]["entries"][number];
@@ -195,7 +217,9 @@ type BuildingTarget = Exclude<
   IAutoMoviePropRelationTarget.IPropAffordance
 >;
 
-/** Which target kinds each relation kind accepts. */
+/*
+ * Which target kinds each relation kind accepts.
+ */
 const RELATION_TARGETS: Readonly<
   Record<
     IAutoMoviePropRelation["kind"],
@@ -210,7 +234,9 @@ const RELATION_TARGETS: Readonly<
   suspended: ["element", "prop-affordance"],
 };
 
-/** How a building target kind is named in a refusal. */
+/*
+ * How a building target kind is named in a refusal.
+ */
 const BUILDING_TARGET_LABELS: Readonly<Record<BuildingTarget["kind"], string>> =
   {
     space: "logical space",
@@ -220,7 +246,7 @@ const BUILDING_TARGET_LABELS: Readonly<Record<BuildingTarget["kind"], string>> =
     surface: "support surface",
   };
 
-/**
+/*
  * The environment a prop's `in-space` relation names, when declared exactly
  * once.
  */
@@ -237,7 +263,9 @@ const locatedEnvironment: (
   return null;
 };
 
-/** The relation, box and clearance-id rules of one placement. */
+/*
+ * The relation, box and clearance-id rules of one placement.
+ */
 const validatePlacement: (
   entry: IIndexed<IAutoMoviePropSpec>,
   environments: Environments,
@@ -350,7 +378,9 @@ const validatePlacement: (
   );
 };
 
-/** Gate a relation that cites the architecture graph. */
+/*
+ * Gate a relation that cites the architecture graph.
+ */
 const validateBuildingTarget: (
   target: BuildingTarget,
   rp: string,
@@ -414,7 +444,7 @@ const validateBuildingTarget: (
     );
 };
 
-/**
+/*
  * JSON-encode the relation kind and its closed target fields without delimiter
  * ambiguity in authored string identities.
  */
@@ -446,7 +476,9 @@ const targetId: (target: BuildingTarget) => string = (
   }
 };
 
-/** Report every axis of a declared box that is not a finite positive extent. */
+/*
+ * Report every axis of a declared box that is not a finite positive extent.
+ */
 const validateBox: (
   box: IAutoMoviePropBox,
   path: string,
@@ -466,7 +498,9 @@ const validateBox: (
       );
 };
 
-/** Group values by key, keeping each value's declaration index. */
+/*
+ * Group values by key, keeping each value's declaration index.
+ */
 const indexBy: <Value>(
   values: readonly Value[],
   key: (value: Value) => string,
@@ -484,7 +518,9 @@ const indexBy: <Value>(
   return indexed;
 };
 
-/** Report every declaration of an id after its first. */
+/*
+ * Report every declaration of an id after its first.
+ */
 const reportDuplicates: <Value>(
   indexed: ReadonlyMap<string, readonly IIndexed<Value>[]>,
   path: string,

@@ -9,12 +9,14 @@ import type {
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import { projectileAt } from "./projectileAt";
 
-/** A projectile model faces +Z; its trajectory rotates that onto the flight. */
+/*
+ * A projectile model faces +Z; its trajectory rotates that onto the flight.
+ */
 const PROJECTILE_FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
-/**
- * Bake a projectile's flight into an {@link IAutoMovieClip} for its scene node:
- * position sampled from {@link projectileAt} at `fps`, plus a rotation track
+/*
+ * Bake a projectile's flight into an IAutoMovieClip for its scene node:
+ * position sampled from projectileAt at `fps`, plus a rotation track
  * that keeps the model's forward (+Z) pointing down the arc's velocity, so the
  * arrow noses over as it falls. This is the projectile half of the `launch`
  * verb (paired with the aim `solveBallisticLaunch` computed): the host applies

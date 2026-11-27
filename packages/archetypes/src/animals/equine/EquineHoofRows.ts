@@ -11,13 +11,13 @@ import type { EquineBodyPose } from "./EquineBodyPose";
 import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 
-/**
+/*
  * The share of a lifting row's entry spent moving the weight off the hoof
  * before it leaves the floor: authored, as the stance rows' own.
  */
 const LOAD: number = 0.35;
 
-/**
+/*
  * A pawing stroke's reach ahead of and drag behind the hoof's place and its
  * swing's height, metres; the trunk's settle while pawing: authored.
  */
@@ -28,16 +28,18 @@ const PAW: Readonly<IPawShape> = {
   settle: 0.02,
 };
 
-/** A stamp's lift, metres: authored. */
+/*
+ * A stamp's lift, metres: authored.
+ */
 const STAMP: number = 0.12;
 
-/**
+/*
  * A cow-kick's joint turns, degrees, hip first, negative swinging the hoof
  * forward: an authored pose.
  */
 const COW_KICK: readonly [number, number, number, number] = [-45, 30, -60, 30];
 
-/**
+/*
  * The comfort rows that move one hoof: pawing, stamping and the cow-kick.
  *
  * Each first moves the weight inside the other three hooves
@@ -49,14 +51,13 @@ const COW_KICK: readonly [number, number, number, number] = [-45, 30, -60, 30];
  * 3). The amplitudes are authored.
  */
 export namespace EquineHoofRows {
-  /**
+  /*
    * Pawing with a fore hoof.
-   *
-   * @param body The prepared solver.
-   * @param start The state it starts from.
-   * @param cue The paw.
-   * @returns Its plan, returning to the start.
-   * @throws {RangeError} For strokes that are not a positive whole number.
+   * Parameter body: The prepared solver.
+   * Parameter start: The state it starts from.
+   * Parameter cue: The paw.
+   * Returns: Its plan, returning to the start.
+   * For strokes that are not a positive whole number.
    */
   export function paw<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
@@ -146,13 +147,12 @@ export namespace EquineHoofRows {
     };
   }
 
-  /**
+  /*
    * A stamp of one hoof.
-   *
-   * @param body The prepared solver.
-   * @param start The state it starts from.
-   * @param cue The stamp.
-   * @returns Its plan, returning to the start.
+   * Parameter body: The prepared solver.
+   * Parameter start: The state it starts from.
+   * Parameter cue: The stamp.
+   * Returns: Its plan, returning to the start.
    */
   export function stamp<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
@@ -207,13 +207,12 @@ export namespace EquineHoofRows {
     };
   }
 
-  /**
+  /*
    * A cow-kick of one hind hoof at an insect.
-   *
-   * @param body The prepared solver.
-   * @param start The state it starts from.
-   * @param cue The cow-kick.
-   * @returns Its plan, returning to the start.
+   * Parameter body: The prepared solver.
+   * Parameter start: The state it starts from.
+   * Parameter cue: The cow-kick.
+   * Returns: Its plan, returning to the start.
    */
   export function cowKick<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
@@ -265,17 +264,27 @@ export namespace EquineHoofRows {
   }
 }
 
-/** The pawing stroke's authored shape. */
+/*
+ * The pawing stroke's authored shape.
+ */
 interface IPawShape {
-  /** Metres ahead of the hoof's place a stroke reaches. */
+  /*
+   * Metres ahead of the hoof's place a stroke reaches.
+   */
   reach: number;
 
-  /** Metres behind it a stroke scrapes to. */
+  /*
+   * Metres behind it a stroke scrapes to.
+   */
   drag: number;
 
-  /** Metres a stroke's swing rises. */
+  /*
+   * Metres a stroke's swing rises.
+   */
   lift: number;
 
-  /** Metres the trunk settles while pawing. */
+  /*
+   * Metres the trunk settles while pawing.
+   */
   settle: number;
 }

@@ -3,7 +3,7 @@ import type {
   IAutoMovieSweepSection,
 } from "@automovie/interface";
 
-/**
+/*
  * Parameterize a section curve over one closed parameter interval.
  *
  * The parameter `t` runs over `[0, 1)` and wraps; the curve is split into equal
@@ -16,13 +16,12 @@ import type {
  * cubic Bernstein basis. A polygon has one per side, linear between corners, so
  * `t = k / n` is corner `k` exactly. Radial sections are read by direction
  * instead and are not accepted here.
- *
- * @param section The section, only read and retained by the returned closure.
- * @returns The point at a parameter, and the number of segments.
- * @throws Error when the section's numbers are not finite, a superellipse
- *   half-axis is not positive or an exponent lies outside 1 to 20, or a
- *   B-spline or polygon has fewer than three points, or a Bezier curve's point
- *   count is not a positive multiple of three.
+ * Parameter section: The section, only read and retained by the returned closure.
+ * Returns: The point at a parameter, and the number of segments.
+ * Error when the section's numbers are not finite, a superellipse
+ * half-axis is not positive or an exponent lies outside 1 to 20, or a
+ * B-spline or polygon has fewer than three points, or a Bezier curve's point
+ * count is not a positive multiple of three.
  */
 export const parameterizeAutoMovieSweepSection: (
   section: Exclude<IAutoMovieSweepSection, IAutoMovieSweepSection.IRadial>,

@@ -22,7 +22,7 @@ import { TouchVerdicts } from "./TouchVerdicts";
 import { affectionCasePerformers } from "./internal/affectionCasePerformers";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of affectionate and social touch between two polygon men of the
  * same body: `a` touches, `b` stands.
  *
@@ -39,9 +39,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  * down exactly `count` times, and `a`'s forearm never deeper than 10 mm into
  * `b`. A kiss case checks the lips within 10 mm of the region at `contact`; the
  * high five the two palms' skins within 15 mm at `meet`.
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function affectionCases(
   bodies: readonly string[] = ["m-average"],
@@ -350,7 +349,9 @@ export function affectionCases(
   return out;
 }
 
-/** A performance of `b` standing and `a` acting, side by side in time. */
+/*
+ * A performance of `b` standing and `a` acting, side by side in time.
+ */
 function pair(
   body: IAutoMovieMotionHumanBody,
   facing: boolean,

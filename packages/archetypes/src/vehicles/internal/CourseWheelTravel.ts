@@ -4,15 +4,21 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { AutoMovieArchetypeCourse } from "../../core";
 import { ArchetypeCourseTimed } from "../../core/internal/ArchetypeCourseTimed";
 
-/** Deterministic interval prefixes for signed wheel material travel. */
+/*
+ * Deterministic interval prefixes for signed wheel material travel.
+ */
 export namespace CourseWheelTravel {
-  /** A scalar or vector in a prepared course interval's own units. */
+  /*
+   * A scalar or vector in a prepared course interval's own units.
+   */
   export type Reader = (
     state: AutoMovieArchetypeCourse.IState,
     seconds: number,
   ) => readonly number[];
 
-  /** Read a contiguous leg prefix and the current leg's linear contribution. */
+  /*
+   * Read a contiguous leg prefix and the current leg's linear contribution.
+   */
   export function legs(
     spans: readonly AutoMovieArchetypeCourse.ILegSpan[],
     totals: readonly (readonly number[])[],
@@ -32,7 +38,9 @@ export namespace CourseWheelTravel {
     };
   }
 
-  /** Integrate a continuous rate over the timed course's own piece grid. */
+  /*
+   * Integrate a continuous rate over the timed course's own piece grid.
+   */
   export function timed(
     plan: AutoMovieArchetypeCourse.IPlan & {
       course: AutoMovieArchetypeCourse.ITimed;
@@ -74,7 +82,9 @@ export namespace CourseWheelTravel {
     };
   }
 
-  /** Continuous unwrapped yaw swept over a timed course, in radians. */
+  /*
+   * Continuous unwrapped yaw swept over a timed course, in radians.
+   */
   export function heading(
     plan: AutoMovieArchetypeCourse.IPlan & {
       course: AutoMovieArchetypeCourse.ITimed;
@@ -99,7 +109,9 @@ export namespace CourseWheelTravel {
   }
 }
 
-/** Timed integration splits at the same points as the course's arc length. */
+/*
+ * Timed integration splits at the same points as the course's arc length.
+ */
 function knots(course: AutoMovieArchetypeCourse.ITimed): number[] {
   const times: number[] = [];
   const pieces: number = ArchetypeCourseTimed.PIECES;
@@ -113,7 +125,9 @@ function knots(course: AutoMovieArchetypeCourse.ITimed): number[] {
   return times;
 }
 
-/** The start of the interval containing this clock or path coordinate. */
+/*
+ * The start of the interval containing this clock or path coordinate.
+ */
 function interval(boundaries: readonly number[], value: number): number {
   let low: number = 0;
   let high: number = boundaries.length;
@@ -125,7 +139,9 @@ function interval(boundaries: readonly number[], value: number): number {
   return low;
 }
 
-/** Accumulated component totals at the start of each interval. */
+/*
+ * Accumulated component totals at the start of each interval.
+ */
 function prefixes(totals: readonly (readonly number[])[]): number[][] {
   const result: number[][] = [totals[0]!.map((): number => 0)];
   for (const add of totals)
@@ -137,7 +153,9 @@ function prefixes(totals: readonly (readonly number[])[]): number[][] {
   return result;
 }
 
-/** Model-forward direction, including the course's pitch. */
+/*
+ * Model-forward direction, including the course's pitch.
+ */
 function forward(state: AutoMovieArchetypeCourse.IState): IAutoMovieVector3 {
   return Quaternion.rotateVector(state.placement.rotation, {
     x: 0,
@@ -146,7 +164,9 @@ function forward(state: AutoMovieArchetypeCourse.IState): IAutoMovieVector3 {
   });
 }
 
-/** Signed heading change between two successive horizontally projected axes. */
+/*
+ * Signed heading change between two successive horizontally projected axes.
+ */
 function sweep(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
   return Math.atan2(a.z * b.x - a.x * b.z, a.x * b.x + a.z * b.z);
 }

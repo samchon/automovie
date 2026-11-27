@@ -6,20 +6,19 @@ import type {
 
 import { HumanGaze } from "../../everyday/internal/HumanGaze";
 
-/**
+/*
  * The eyes and the head brought toward a target by a weight: the gaze
  * primitive, on the head channel only.
  *
  * The split between eyes and head and the exact solution of each eye belong to
- * {@link HumanGaze.aim}; this primitive gives it the target as a frame of the
+ * HumanGaze.aim; this primitive gives it the target as a frame of the
  * action and a weight, and claims the head channel only. The trunk's share of a
  * far gaze is the trunk channel's to write, so a gaze here never recruits it,
  * and a target too far to the side stays visibly short. Re-exported as
  * `AutoMovieMotionHumanGaze.lookPrimitive`, apart from the family's own `look`
  * law.
- *
- * @param props The body, the target, the window and the weight.
- * @returns The primitive, on the head.
+ * Parameter props: The body, the target, the window and the weight.
+ * Returns: The primitive, on the head.
  */
 export function lookPrimitive(
   props: IAutoMovieMotionHumanGaze.ILook,

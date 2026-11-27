@@ -14,7 +14,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { AutoMovieMotionHumanLean } from "./AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
 
-/**
+/*
  * The lean of a standing body into a hand's work that lies beyond its standing
  * arm: the trunk tips about the hips by the least pitch that keeps the wrist
  * within a share of the arm's length, and straightens as the work comes nearer.
@@ -30,12 +30,11 @@ import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
  * first.
  */
 export namespace AutoMovieMotionHumanLeanInto {
-  /**
+  /*
    * Solve the lean of a stroke.
-   *
-   * @param props The body, the standing posture, the hand, the share, the
-   *   wrist's goal and the arm's.
-   * @returns The lean.
+   * Parameter props: The body, the standing posture, the hand, the share, the
+   * wrist's goal and the arm's.
+   * Returns: The lean.
    */
   export function solve(
     props: IAutoMovieMotionHumanLeanInto.IProps,
@@ -209,8 +208,12 @@ export namespace AutoMovieMotionHumanLeanInto {
   }
 }
 
-/** The record of `ISolvePitchNearest`'s site. */
+/*
+ * The record of `ISolvePitchNearest`'s site.
+ */
 type ISolvePitchNearest = { pitch: number; beyond: number };
 
-/** The alternatives of `SolveLimb`'s site. */
+/*
+ * The alternatives of `SolveLimb`'s site.
+ */
 type SolveLimb = "leftArm" | "rightArm";

@@ -135,25 +135,37 @@ export namespace AutoMovieSolidMeshIncidence {
   }
 }
 
-/** A directed incidence, including its endpoint's explicit cover image. */
+/*
+ * A directed incidence, including its endpoint's explicit cover image.
+ */
 interface Halfedge {
-  /** Original source vertex ID. */
+  /*
+   * Original source vertex ID.
+   */
   from: number;
 
-  /** Original target vertex ID. */
+  /*
+   * Original target vertex ID.
+   */
   to: number;
 
-  /** Relative period turn from source to target. */
+  /*
+   * Relative period turn from source to target.
+   */
   turn: number;
 
-  /** Oppositely directed incidence of the same subconstraint. */
+  /*
+   * Oppositely directed incidence of the same subconstraint.
+   */
   twin: number;
 
-  /** Lifted target used for angular order at its source. */
+  /*
+   * Lifted target used for angular order at its source.
+   */
   end: Readonly<AutoMovieVector2Tuple>;
 }
 
-/**
+/*
  * Counterclockwise direction order without atan2 ties or coordinate
  * normalization.
  */

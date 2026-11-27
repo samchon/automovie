@@ -6,7 +6,7 @@ import type {
 import { Vector3 } from "../../math/Vector3";
 import { samplePhysicalContactEvents } from "./samplePhysicalContactEvents";
 
-/**
+/*
  * Local accumulating appearance weight at an actual provider surface point.
  * Provider-owned colour/roughness channels consume this scalar. Each contact
  * centre is supplied in the same current provider frame as the sample, so skin

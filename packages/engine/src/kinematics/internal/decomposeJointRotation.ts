@@ -10,9 +10,9 @@ import { DEFAULT_JOINT_AXES } from "../DEFAULT_JOINT_AXES";
 import { decomposeJointRotationOnBasis } from "./decomposeJointRotationOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 
-/**
+/*
  * Recover a joint's flexion, abduction and twist, in degrees, from its
- * bone-local rotation: the inverse of {@link jointToQuaternion} for the same
+ * bone-local rotation: the inverse of jointToQuaternion for the same
  * `axes` and `frame`. IK solvers compute quaternions and lower them through
  * this into the angles a pose carries.
  *
@@ -36,20 +36,19 @@ import { normalizeJointAxes } from "./normalizeJointAxes";
  * rotation's second Euler chart, `(f + 180, 180 − a, t + 180)` for proximal
  * twist and flexion-abduction-twist, and `(180 − f, a + 180, t + 180)` for a
  * distal one, and the full-turn alias of each angle nearest the constraint's
- * range. The candidate with the least {@link jointRomOvershoot} wins, the
+ * range. The candidate with the least jointRomOvershoot wins, the
  * principal chart on a tie. Every candidate is the same rotation, so a pose no
  * chart can hold keeps its overshoot instead of being clamped.
  *
  * Throws on a non-finite quaternion component or an invalid axis basis (see
- * {@link normalizeJointAxes}). A non-unit quaternion is read as its rotation
+ * normalizeJointAxes). A non-unit quaternion is read as its rotation
  * matrix, which is only a rotation for a unit quaternion.
- *
- * @param q Bone-local articulation rotation; unit length expected.
- * @param axes Clinical axis basis; defaults to `DEFAULT_JOINT_AXES`.
- * @param frame Rest frame lifting rest-relative angles to clinical ones;
- *   omitted, the angles stay rest-relative.
- * @param domain Bone and resolved ROM that choose among equivalent charts;
- *   omitted or with a `null` constraint, the principal chart is returned.
+ * Parameter q: Bone-local articulation rotation; unit length expected.
+ * Parameter axes: Clinical axis basis; defaults to `DEFAULT_JOINT_AXES`.
+ * Parameter frame: Rest frame lifting rest-relative angles to clinical ones;
+ * omitted, the angles stay rest-relative.
+ * Parameter domain: Bone and resolved ROM that choose among equivalent charts;
+ * omitted or with a `null` constraint, the principal chart is returned.
  */
 export const decomposeJointRotation: (
   q: IAutoMovieQuaternion,

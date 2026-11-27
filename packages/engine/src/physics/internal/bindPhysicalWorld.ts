@@ -22,7 +22,7 @@ import { physicalHullFacesErode } from "./physicalHullFacesErode";
 import { physicalShapeHull } from "./physicalShapeHull";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
-/**
+/*
  * Create the world's bodies, colliders and joints for every admitted body, or
  * reconnect a restored world's in creation order. A segment is dynamic when its
  * first target selects it, kinematic otherwise; it carries the profile's mass

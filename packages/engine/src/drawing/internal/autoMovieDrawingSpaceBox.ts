@@ -8,17 +8,19 @@ import {
 import { autoMovieDrawingRange } from "./autoMovieDrawingRange";
 import { roundAutoMovieDrawingVector } from "./roundAutoMovieDrawingVector";
 
-/**
+/*
  * How far a plane normal's off-axis components may reach and still face one
  * axis: float noise in a hand-written or transformed unit normal, far below
  * anything a reader would call a chamfer.
  */
 const PLANE_AXIS_EPSILON: number = 1e-9;
 
-/** The three world axes, in the order a box's components are stated. */
+/*
+ * The three world axes, in the order a box's components are stated.
+ */
 const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
 
-/**
+/*
  * The world box a space's own declared volume fills, on the drawing grid, or
  * `null` when it declares none this can state exactly.
  *
@@ -29,9 +31,8 @@ const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
  * a space with neither cells nor shell yield `null` rather than an
  * approximation, because a room schedule that printed a made-up extent would be
  * read as a measurement.
- *
- * @param space The validated space.
- * @returns The declared box in world metres, or `null`.
+ * Parameter space: The validated space.
+ * Returns: The declared box in world metres, or `null`.
  */
 export const autoMovieDrawingSpaceBox = (
   space: IAutoMovieBuiltSpace,
@@ -49,7 +50,9 @@ export const autoMovieDrawingSpaceBox = (
   return boxOf(corners);
 };
 
-/** The box a cell's half-spaces close, when they are axis-aligned and closed. */
+/*
+ * The box a cell's half-spaces close, when they are axis-aligned and closed.
+ */
 const axisAlignedCellBox = (
   planes: readonly IAutoMovieHalfSpacePlane[],
 ): IAutoMovieDrawingScheduleBox | null => {
@@ -69,7 +72,9 @@ const axisAlignedCellBox = (
     : null;
 };
 
-/** The one axis a normal faces, or `null` when it faces between axes. */
+/*
+ * The one axis a normal faces, or `null` when it faces between axes.
+ */
 const alignedAxis = (normal: IAutoMovieVector3): "x" | "y" | "z" | null => {
   const facing: ("x" | "y" | "z")[] = AXES.filter(
     (axis: "x" | "y" | "z"): boolean =>
@@ -78,7 +83,9 @@ const alignedAxis = (normal: IAutoMovieVector3): "x" | "y" | "z" | null => {
   return facing.length === 1 ? facing[0]! : null;
 };
 
-/** The rounded bounds of a non-empty point list, folded per axis. */
+/*
+ * The rounded bounds of a non-empty point list, folded per axis.
+ */
 const boxOf = (
   points: readonly IAutoMovieVector3[],
 ): IAutoMovieDrawingScheduleBox => {
@@ -97,7 +104,9 @@ const boxOf = (
   };
 };
 
-/** One coordinate of every point, without building an array. */
+/*
+ * One coordinate of every point, without building an array.
+ */
 function* coordinates(
   points: readonly IAutoMovieVector3[],
   axis: "x" | "y" | "z",

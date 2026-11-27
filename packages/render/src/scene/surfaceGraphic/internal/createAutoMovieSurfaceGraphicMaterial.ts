@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-/**
+/*
  * The material one surface graphic layer, or its background, draws with.
  *
  * An `emissive` graphic is unlit: a `MeshBasicMaterial` whose colour is the

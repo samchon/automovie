@@ -19,16 +19,15 @@ import { knockdown } from "../../reaction/internal/knockdown";
 import { GymnasticsWheel } from "../../sport/internal/GymnasticsWheel";
 import { ExerciseKey } from "../internal/ExerciseKey";
 
-/**
+/*
  * The place the bearing bones keep.
- *
- * @param props The action's context, the kind, the standing posture the
- *   exercise is entered from, the first key, and the prop's place when one
- *   bears the body.
- * @param keepFloorPins Whether the exercise is carrying forward its bearing
- *   pins from a held floor stance.
- * @returns World metres.
- * @throws {HumanRefusal} When a hanging kind names no bar to hang from.
+ * Parameter props: The action's context, the kind, the standing posture the
+ * exercise is entered from, the first key, and the prop's place when one
+ * bears the body.
+ * Parameter keepFloorPins: Whether the exercise is carrying forward its bearing
+ * pins from a held floor stance.
+ * Returns: World metres.
+ * When a hanging kind names no bar to hang from.
  */
 export function WorkoutPlace(
   props: IAutoMovieMotionHumanWorkoutPlace.IOfProps,
@@ -188,10 +187,14 @@ export function WorkoutPlace(
   return floor === null ? rested : { ...rested, y: floor };
 }
 
-/** The alternatives of `OfContext`'s site. */
+/*
+ * The alternatives of `OfContext`'s site.
+ */
 type OfContext = "body" | "entry";
 
-/** The hip joints, by which a body on a raised support is placed. */
+/*
+ * The hip joints, by which a body on a raised support is placed.
+ */
 const HIPS: readonly AutoMovieHumanoidBone[] = [
   "leftUpperLeg",
   "rightUpperLeg",

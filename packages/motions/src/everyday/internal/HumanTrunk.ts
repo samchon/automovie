@@ -8,7 +8,7 @@ import { turnHumanPosture } from "../../posture/internal/turnHumanPosture";
 import { addHumanTrunkInclination } from "./addHumanTrunkInclination";
 import { authoredHumanTrunkPose } from "./authoredHumanTrunkPose";
 
-/**
+/*
  * The trunk and head of a posture placed in the world without solving its
  * limbs: forward kinematics of the root and the directly set joints only.
  *
@@ -23,20 +23,19 @@ import { authoredHumanTrunkPose } from "./authoredHumanTrunkPose";
  * goal-independent; its own articulation remains raw.
  */
 export namespace HumanTrunk {
-  /**
+  /*
    * World bones of a posture's trunk and head.
-   *
-   * @param body The body with topology indexed from its same, unchanged
-   *   skeleton.
-   * @param posture The posture; its limb goals are ignored.
-   * @param joints Joints to use instead of the posture's; the posture's when
-   *   absent.
-   * @param resolution Optional exact reader or lazy supplier borrowed only by
-   *   this synchronous evaluation.
-   * @param requested Bones whose transforms the caller reads; all bones when
-   *   absent. Every authored joint is still admitted.
-   * @returns Resolved bones, restricted to requested names when supplied;
-   *   trunk/head/eye/girdle frames are valid and limb goals remain ignored.
+   * Parameter body: The body with topology indexed from its same, unchanged
+   * skeleton.
+   * Parameter posture: The posture; its limb goals are ignored.
+   * Parameter joints: Joints to use instead of the posture's; the posture's when
+   * absent.
+   * Parameter resolution: Optional exact reader or lazy supplier borrowed only by
+   * this synchronous evaluation.
+   * Parameter requested: Bones whose transforms the caller reads; all bones when
+   * absent. Every authored joint is still admitted.
+   * Returns: Resolved bones, restricted to requested names when supplied;
+   * trunk/head/eye/girdle frames are valid and limb goals remain ignored.
    */
   export function resolve(
     body: IAutoMovieMotionHumanBody,
@@ -53,16 +52,15 @@ export namespace HumanTrunk {
     );
   }
 
-  /**
+  /*
    * Prepare fixed raw trunk-bone demand for changing authored postures.
-   *
-   * @param body The unchanged canonical body.
-   * @param requested Actual names to snapshot; inspect goal-independent frames
-   *   or origins such as shoulder joint positions, rather than fitted limb
-   *   articulation.
-   * @returns Fresh demanded frames per actual posture, optionally borrowing
-   *   that synchronous query's exact FK workspace and admitting an explicit
-   *   current joint override as resolve does.
+   * Parameter body: The unchanged canonical body.
+   * Parameter requested: Actual names to snapshot; inspect goal-independent frames
+   * or origins such as shoulder joint positions, rather than fitted limb
+   * articulation.
+   * Returns: Fresh demanded frames per actual posture, optionally borrowing
+   * that synchronous query's exact FK workspace and admitting an explicit
+   * current joint override as resolve does.
    */
   export function prepareResolve(
     body: IAutoMovieMotionHumanBody,
@@ -92,7 +90,7 @@ export namespace HumanTrunk {
     };
   }
 
-  /**
+  /*
    * Shares of a forward trunk inclination taken by the pelvis, the lumbar spine
    * and the thorax: at full forward bending about 40 degrees of lumbar flexion
    * against 70 of hip flexion (Esola et al. 1996, Spine 21:71), so the pelvis
@@ -104,17 +102,16 @@ export namespace HumanTrunk {
     thorax: 0.08,
   };
 
-  /**
+  /*
    * A trunk inclined forward by an angle shared by the lumbopelvic rhythm: the
    * pelvis pitch it takes and the spine and chest flexion added to the given
    * joints. A backward inclination is the pelvis alone, since leaning back is a
    * pelvic tilt.
-   *
-   * @param joints The posture's joints.
-   * @param inclination Forward inclination of the trunk, degrees.
-   * @param pelvisLimit The most the pelvis may take, degrees (`pelvisLimit`);
-   *   the spine takes the rest.
-   * @returns The pelvis pitch, degrees, and the joints with the flexion added.
+   * Parameter joints: The posture's joints.
+   * Parameter inclination: Forward inclination of the trunk, degrees.
+   * Parameter pelvisLimit: The most the pelvis may take, degrees (`pelvisLimit`);
+   * the spine takes the rest.
+   * Returns: The pelvis pitch, degrees, and the joints with the flexion added.
    */
   export function incline(
     joints: IAutoMovieMotionHumanPosture["joints"],
@@ -131,7 +128,9 @@ export namespace HumanTrunk {
     return { pitch: pelvis, joints: out };
   }
 
-  /** The pelvis's share of a trunk inclination, in degrees. */
+  /*
+   * The pelvis's share of a trunk inclination, in degrees.
+   */
   export function pelvisPitch(
     inclination: number,
     pelvisLimit: number = Infinity,
@@ -141,33 +140,32 @@ export namespace HumanTrunk {
       : Math.max(0, Math.min(RHYTHM.pelvis * inclination, pelvisLimit));
   }
 
-  /**
+  /*
    * How far short of the hip's flexion range a tilted pelvis stops, degrees
    * (provisional: a margin off the joint's end stop, read from no measured
    * source).
    */
   export const HIP_MARGIN: number = 10;
 
-  /**
+  /*
    * The hip flexion a forward-tilted pelvis leaves room for, degrees:
    * `HIP_MARGIN` short of the hip's flexion range in `DEFAULT_HUMANOID_ROM`.
    */
   export const HIP_FLEXION: number =
     DEFAULT_HUMANOID_ROM.leftUpperLeg!.flexion!.max - HIP_MARGIN;
 
-  /**
+  /*
    * The most the pelvis may tilt forward before a planted leg's hip flexion
    * passes `HIP_FLEXION`: each thigh's angle from vertical, with the knee
    * bending forward, from the law of cosines on the hip-to-ankle distance,
    * subtracted from that limit. Squatting and sitting fold the thighs, so the
    * trunk's inclination then comes more from the spine than from the pelvis, as
    * it does when the hips are already flexed.
-   *
-   * @param body The body.
-   * @param root The rig origin with the pelvis level, world metres.
-   * @param yaw The heading, degrees.
-   * @param ankles The planted ankles, world metres.
-   * @returns Degrees, at least 0.
+   * Parameter body: The body.
+   * Parameter root: The rig origin with the pelvis level, world metres.
+   * Parameter yaw: The heading, degrees.
+   * Parameter ankles: The planted ankles, world metres.
+   * Returns: Degrees, at least 0.
    */
   export function pelvisLimit(
     body: Pick<IAutoMovieMotionHumanBody, "rest"> & {
@@ -210,16 +208,15 @@ export namespace HumanTrunk {
     return Math.max(0, HIP_FLEXION - thighs);
   }
 
-  /**
+  /*
    * A trunk or head region's world point and outward normal on a posture.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @param region A region riding the trunk, the head or the hips (not a limb
-   *   below the hip or shoulder).
-   * @param resolution Optional exact reader or supplier borrowed from this
-   *   synchronous parent evaluation.
-   * @returns The point (metres) and the unit normal.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Parameter region: A region riding the trunk, the head or the hips (not a limb
+   * below the hip or shoulder).
+   * Parameter resolution: Optional exact reader or supplier borrowed from this
+   * synchronous parent evaluation.
+   * Returns: The point (metres) and the unit normal.
    */
   export function region(
     body: IAutoMovieMotionHumanBody,
@@ -237,13 +234,12 @@ export namespace HumanTrunk {
     );
   }
 
-  /**
+  /*
    * Prepare one fixed anatomical region for changing authored postures.
-   *
-   * @param body The unchanged body owning the region and canonical rig.
-   * @param region The fixed trunk/head/hip region; limb goals remain ignored.
-   * @returns Its actual world point and normal reader, optionally borrowing the
-   *   current operation's exact FK workspace.
+   * Parameter body: The unchanged body owning the region and canonical rig.
+   * Parameter region: The fixed trunk/head/hip region; limb goals remain ignored.
+   * Returns: Its actual world point and normal reader, optionally borrowing the
+   * current operation's exact FK workspace.
    */
   export function prepareRegion(
     body: IAutoMovieMotionHumanBody,
@@ -266,13 +262,12 @@ export namespace HumanTrunk {
     };
   }
 
-  /**
+  /*
    * Prepare one fixed region's world point for changing authored postures.
-   *
-   * @param body The unchanged body owning the actual region and canonical rig.
-   * @param region The fixed trunk/head/hip region; limb goals remain ignored.
-   * @returns A fresh world-metre point reader, optionally borrowing its current
-   *   synchronous operation's exact FK workspace.
+   * Parameter body: The unchanged body owning the actual region and canonical rig.
+   * Parameter region: The fixed trunk/head/hip region; limb goals remain ignored.
+   * Returns: A fresh world-metre point reader, optionally borrowing its current
+   * synchronous operation's exact FK workspace.
    */
   export function preparePoint(
     body: IAutoMovieMotionHumanBody,
@@ -299,20 +294,19 @@ export namespace HumanTrunk {
     };
   }
 
-  /**
+  /*
    * Where a ray meets the trunk or the head of a posture: the point on their
    * colliders and the outward normal there (`HumanColliders.cast`). Only the
    * midline segments are tested (the pelvis, spine, chest, neck and head),
    * since the limbs are not placed here, so a hand already lying on the trunk
    * does not hide it. A hand rest takes a place between two named regions from
    * this, on the surface itself.
-   *
-   * @param body The body.
-   * @param posture The posture; its limb goals are ignored.
-   * @param from The ray's start, world metres, outside the trunk.
-   * @param toward Where it runs; any non-zero vector.
-   * @returns The point (metres) and the unit normal.
-   * @throws {Error} When the ray misses the trunk within two statures.
+   * Parameter body: The body.
+   * Parameter posture: The posture; its limb goals are ignored.
+   * Parameter from: The ray's start, world metres, outside the trunk.
+   * Parameter toward: Where it runs; any non-zero vector.
+   * Returns: The point (metres) and the unit normal.
+   * When the ray misses the trunk within two statures.
    */
   export function surface(
     body: IAutoMovieMotionHumanBody,
@@ -330,19 +324,18 @@ export namespace HumanTrunk {
     return cast(body, HumanColliders.reading(body, midline), from, toward);
   }
 
-  /**
+  /*
    * Read several regions or ray hits against one unchanged authored trunk. The
    * reading belongs to one synchronous operation and must be released before
    * its posture, body, skeleton or profile changes.
-   *
-   * @param body The unchanged body.
-   * @param posture The unchanged authored posture; limb goals remain ignored.
-   * @param requested Bones used by the operation; all when absent. Include
-   *   every region bone and, for rays, all midline collider bones the reading
-   *   will use.
-   * @param resolution Optional exact FK source borrowed only during the
-   *   immediate constructor resolve; the returned reader never captures it.
-   * @returns The resolved bones and region/ray readers borrowing them.
+   * Parameter body: The unchanged body.
+   * Parameter posture: The unchanged authored posture; limb goals remain ignored.
+   * Parameter requested: Bones used by the operation; all when absent. Include
+   * every region bone and, for rays, all midline collider bones the reading
+   * will use.
+   * Parameter resolution: Optional exact FK source borrowed only during the
+   * immediate constructor resolve; the returned reader never captures it.
+   * Returns: The resolved bones and region/ray readers borrowing them.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -360,18 +353,22 @@ export namespace HumanTrunk {
     return reading(body, bones);
   }
 
-  /** Operation-owned trunk frames for several region or ray queries. */
+  /*
+   * Operation-owned trunk frames for several region or ray queries.
+   */
   export interface IReading {
-    /**
+    /*
      * Demanded bone frames, with limb goals ignored; caller must not mutate
      * them.
      */
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-    /** A demanded region's world-metre point and unit outward normal. */
+    /*
+     * A demanded region's world-metre point and unit outward normal.
+     */
     region(region: AutoMovieHumanoidRegion): HumanTrunk.ISurface;
 
-    /**
+    /*
      * A world ray's hit on midline colliders, throwing when it misses within
      * two statures.
      */
@@ -381,16 +378,22 @@ export namespace HumanTrunk {
     ): HumanTrunk.ISurface;
   }
 
-  /** A point and normal on an actual trunk surface. */
+  /*
+   * A point and normal on an actual trunk surface.
+   */
   export interface ISurface {
-    /** Point on the surface, world metres. */
+    /*
+     * Point on the surface, world metres.
+     */
     point: IAutoMovieVector3;
 
-    /** Unit outward normal in the world frame. */
+    /*
+     * Unit outward normal in the world frame.
+     */
     normal: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * Bind actual resolved frames in a scope that cannot retain the parent FK
    * loan.
    */
@@ -422,7 +425,9 @@ export namespace HumanTrunk {
     };
   }
 
-  /** Apply the existing ray policy to a fixed midline frame map. */
+  /*
+   * Apply the existing ray policy to a fixed midline frame map.
+   */
   function cast(
     body: IAutoMovieMotionHumanBody,
     colliders: ReturnType<typeof HumanColliders.reading>,
@@ -442,14 +447,18 @@ export namespace HumanTrunk {
   }
 }
 
-/** The record of `IRHYTHMItem`'s site. */
+/*
+ * The record of `IRHYTHMItem`'s site.
+ */
 type IRHYTHMItem = {
   pelvis: number;
   lumbar: number;
   thorax: number;
 };
 
-/** The bones a trunk ray is tested against: the midline ones, none with a side. */
+/*
+ * The bones a trunk ray is tested against: the midline ones, none with a side.
+ */
 const MIDLINE: ReadonlySet<AutoMovieHumanoidBone> =
   new Set<AutoMovieHumanoidBone>([
     "hips",
@@ -461,7 +470,7 @@ const MIDLINE: ReadonlySet<AutoMovieHumanoidBone> =
     "jaw",
   ]);
 
-/**
+/*
  * A region's world point and unit normal, placed on its resolved bone by the
  * engine's surface placement.
  */

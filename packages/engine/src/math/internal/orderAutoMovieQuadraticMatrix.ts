@@ -1,6 +1,6 @@
 import type { IAutoMovieQuadraticConicProgram } from "@automovie/interface";
 
-/**
+/*
  * Deterministic minimum-degree elimination of the sparse symmetric KKT graph.
  * An indexed heap chooses degree then original ordinal; eliminating a vertex
  * joins its remaining neighbors and releases its adjacency. This records fill
@@ -36,14 +36,16 @@ export function orderAutoMovieQuadraticMatrix(
   const positions: Int32Array = Int32Array.from(heap);
   const order: Int32Array = new Int32Array(size);
 
-  /** Compare live graph degrees, with an explicit stable ordinal tie. */
+  /*
+   * Compare live graph degrees, with an explicit stable ordinal tie.
+   */
   const precedes: (a: number, b: number) => boolean = (
     a: number,
     b: number,
   ): boolean =>
     degrees[a]! < degrees[b]! || (degrees[a] === degrees[b] && a < b);
 
-  /**
+  /*
    * Repair one key; construction only descends because parent heaps do not yet
    * exist.
    */

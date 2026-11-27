@@ -3,7 +3,7 @@ import type {
   IAutoMovieRasterImage,
 } from "@automovie/interface";
 
-/**
+/*
  * Compare two pictures of one size pixel by pixel, for reading what a
  * correction changed and what it left alone.
  *

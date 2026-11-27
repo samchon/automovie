@@ -85,7 +85,9 @@ export namespace AutoMovieHumanHandConstruction {
     };
   }
 
-  /** Points of a digit's centre line per point handed to the skeleton. */
+  /*
+   * Points of a digit's centre line per point handed to the skeleton.
+   */
   const LINE_EVERY: number = 8;
 
   /**

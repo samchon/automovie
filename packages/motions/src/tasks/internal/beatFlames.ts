@@ -26,10 +26,12 @@ import { HumanTrunkLean } from "../../handling/internal/HumanTrunkLean";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { beatFlamesBeats } from "./beatFlamesBeats";
 
-/** Seconds of one beat, raised and brought down: provisional. */
+/*
+ * Seconds of one beat, raised and brought down: provisional.
+ */
 const BEAT: number = 0.6;
 
-/**
+/*
  * Beat flames on a lying partner with a held cloth: a wet sack or a flapper
  * brought down flat on the burning region again and again, smothering it.
  * Register as `beatFlames`.
@@ -57,7 +59,9 @@ export const beatFlames: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFir
     plan,
   };
 
-/** Admit the cloth and the region, then beat. */
+/*
+ * Admit the cloth and the region, then beat.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IBeatFlames>,
 ): IAutoMovieMotionHumanActionPlan {

@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanArchery } from "@automovie/interface";
 
-/**
+/*
  * The throw javelin preset: a javelin or a spear thrown overarm at the middle
  * of the elite release angles Campos, Brizuela and Ramon (2004) measured at the
  * 1999 World Championships (27.7 to 40.1 degrees), 33.9 degrees, the shaft

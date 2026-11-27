@@ -5,7 +5,7 @@ import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBi
 import { isPhysicalPairExcluded } from "./isPhysicalPairExcluded";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
 
-/**
+/*
  * Build the world's collider-pair filter for one bound run: two colliders of
  * the same segment, of a joint's two segments, or of a pair the profile
  * declares in `collisionExclusions` never touch; colliders of different scene
@@ -16,10 +16,9 @@ import type { solveXpbdContacts } from "./solveXpbdContacts";
  * collider the binding does not identify is resolved by
  * `isPhysicalPairExcluded` on the live input, which the floor and unknown
  * colliders pass.
- *
- * @param input The admitted simulation input: profiles, joints and exclusions.
- * @param bound The world's binding: collider identities by handle.
- * @returns The filter `AutoMovieXpbdWorld.step` takes; true admits the pair.
+ * Parameter input: The admitted simulation input: profiles, joints and exclusions.
+ * Parameter bound: The world's binding: collider identities by handle.
+ * Returns: The filter `AutoMovieXpbdWorld.step` takes; true admits the pair.
  */
 export function preparePhysicalContactHooks(
   input: IAutoMoviePhysicalSimulationInput.IInput,
@@ -35,7 +34,9 @@ export function preparePhysicalContactHooks(
     for (const pair of profile.collisionExclusions ?? []) add(pair.a, pair.b);
     bodies.set(id, segments);
 
-    /** Store a pair under the earlier segment in admitted profile order. */
+    /*
+     * Store a pair under the earlier segment in admitted profile order.
+     */
     function add(a: string, b: string): void {
       const left: ISegment = segments.get(a)!;
       const right: ISegment = segments.get(b)!;
@@ -58,7 +59,7 @@ export function preparePhysicalContactHooks(
     second: AutoMovieXpbdCollider,
   ): boolean => !excluded(first.handle, second.handle);
 
-  /**
+  /*
    * Resolve the same-owner pairs once, keeping the profile lookup for unmapped
    * handles.
    */
@@ -75,14 +76,22 @@ export function preparePhysicalContactHooks(
   }
 }
 
-/** A bound segment owns its provider order and pairs with higher ordinals. */
+/*
+ * A bound segment owns its provider order and pairs with higher ordinals.
+ */
 interface ISegment {
-  /** Scene identity of the body the segment belongs to. */
+  /*
+   * Scene identity of the body the segment belongs to.
+   */
   body: string;
 
-  /** The segment's index in its profile's admitted segment order. */
+  /*
+   * The segment's index in its profile's admitted segment order.
+   */
   ordinal: number;
 
-  /** Ordinals of later segments of the same body this one never touches. */
+  /*
+   * Ordinals of later segments of the same body this one never touches.
+   */
   excluded?: Set<number>;
 }

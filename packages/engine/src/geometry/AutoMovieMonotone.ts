@@ -129,7 +129,9 @@ export namespace AutoMovieMonotone {
     );
   };
 
-  /** Width of segment `k`, the wrap segment's taken across the period. */
+  /*
+   * Width of segment `k`, the wrap segment's taken across the period.
+   */
   const width = (
     xs: ArrayLike<number>,
     n: number,
@@ -137,7 +139,9 @@ export namespace AutoMovieMonotone {
     k: number,
   ): number => (k < n - 1 ? xs[k + 1]! - xs[k]! : xs[0]! + period - xs[n - 1]!);
 
-  /** Secant of segment `k`. */
+  /*
+   * Secant of segment `k`.
+   */
   const secant = (
     xs: ArrayLike<number>,
     ys: ArrayLike<number>,

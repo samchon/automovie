@@ -8,17 +8,16 @@ import type {
 import { HumanContactWindow } from "../../law/internal/HumanContactWindow";
 import { supportContact } from "./supportContact";
 
-/**
+/*
  * Windows on the target's actual support frame.
- *
- * @param context The sequence's subject and shared on target.
- * @param keys The solved instants.
- * @param duration The sequence's seconds.
- * @param observe Optional reader of a window and the exact authored target that
- *   opens it.
- * @param socket The sole socket each floor foot holds through its window,
- *   declared on it (`IAutoMovieMotionHumanContactWindow.socket`).
- * @returns Contact windows.
+ * Parameter context: The sequence's subject and shared on target.
+ * Parameter keys: The solved instants.
+ * Parameter duration: The sequence's seconds.
+ * Parameter observe: Optional reader of a window and the exact authored target that
+ * opens it.
+ * Parameter socket: The sole socket each floor foot holds through its window,
+ * declared on it (`IAutoMovieMotionHumanContactWindow.socket`).
+ * Returns: Contact windows.
  */
 export function supportWindows(
   context: Pick<
@@ -66,12 +65,14 @@ export function supportWindows(
   }
   return contacts;
 }
-/**
+/*
  * A support sequence's declared windows, including the frame each target
  * belongs to. The contact identity keeps separate placements and targets.
  */
 export namespace supportWindows {
-  /** Describe how and where a stance contact bears. */
+  /*
+   * Describe how and where a stance contact bears.
+   */
   export function bearing(
     context: Pick<
       IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupport.IParams>,
@@ -116,15 +117,21 @@ export namespace supportWindows {
     };
   }
 
-  /** A solved instant of the support sequence. */
+  /*
+   * A solved instant of the support sequence.
+   */
   export interface IKey {
-    /** Seconds since the sequence began. */
+    /*
+     * Seconds since the sequence began.
+     */
     seconds: number;
-    /** Contacts bearing at the solved instant. */
+    /*
+     * Contacts bearing at the solved instant.
+     */
     contacts: readonly IAutoMovieMotionHumanSupport.IContact[];
   }
 
-  /**
+  /*
    * A reader told of each window as it opens, with the authored contact that
    * opened it.
    */
@@ -134,14 +141,22 @@ export namespace supportWindows {
   ) => void;
 }
 
-/** Only the subject and target parameters identify a support frame. */
+/*
+ * Only the subject and target parameters identify a support frame.
+ */
 type ContextField = "subject" | "params";
 
-/** The alternatives of `OfHolds`'s site. */
+/*
+ * The alternatives of `OfHolds`'s site.
+ */
 type OfHolds = "heel" | "ball" | undefined;
 
-/** The alternatives of `OfSocket`'s site. */
+/*
+ * The alternatives of `OfSocket`'s site.
+ */
 type OfSocket = "heel" | "ball" | undefined;
 
-/** The alternatives of `BearingResult`'s site. */
+/*
+ * The alternatives of `BearingResult`'s site.
+ */
 type BearingResult = "part" | "kind" | "support";

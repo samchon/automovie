@@ -5,11 +5,11 @@ import {
 
 import { Vector3 } from "../../math/Vector3";
 
-/**
- * Bridge an {@link IAutoMovieImpact}'s impulse to a recoil
- * {@link IAutoMovieRecoilPush}: the missing consumer between collision response
+/*
+ * Bridge an IAutoMovieImpact's impulse to a recoil
+ * IAutoMovieRecoilPush: the missing consumer between collision response
  * and flinch. The impulse magnitude (N·s) scaled by `gainDegPerImpulse` becomes
- * the `flexion` the struck body yields; {@link impactRecoil} then bounds that
+ * the `flexion` the struck body yields; impactRecoil then bounds that
  * push by joint ROM and spreads it down the chain. Kept deliberately simple
  * (one dominant flexion axis): it is an AI hint, not a solved contact
  * response.

@@ -11,7 +11,7 @@ import type {
 import { RecoveryChartFitRows as O } from "./RecoveryChartFitRows";
 import { RecoveryChartReachableBox as W } from "./RecoveryChartReachableBox";
 
-/**
+/*
  * Measure residuals, the first strict worst witness and optimality from the
  * solved chart.
  */

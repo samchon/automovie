@@ -5,7 +5,7 @@ import type {
 
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * The rigid ring modules of a humanoid body, each a short stack of eight-sided
  * sections around one joint's segment, from the rest skeleton alone: joint
  * positions, tips and girth radii.
@@ -26,12 +26,11 @@ import { Vector3 } from "../../math/Vector3";
  * from its joint to its end, narrowing to the next segment or bevelled at a
  * leaf. Shoulder, scapula, foot, eye, jaw and atlas joints drive others and
  * carry no module.
- *
- * @param bones The rest joints, parent before child, in the Human frame.
- * @returns The modules in drawing order: hips, spine, head, chest, neck, each
- *   side's hand and two foot modules, then every remaining segment in joint
- *   order.
- * @throws {Error} When a joint a module is built from is missing.
+ * Parameter bones: The rest joints, parent before child, in the Human frame.
+ * Returns: The modules in drawing order: hips, spine, head, chest, neck, each
+ * side's hand and two foot modules, then every remaining segment in joint
+ * order.
+ * When a joint a module is built from is missing.
  */
 export function resolveAutoMovieHumanoidRingModules(
   bones: readonly IAutoMovieResolveHumanoidRingModules.IBone[],
@@ -349,10 +348,14 @@ export function resolveAutoMovieHumanoidRingModules(
   return modules;
 }
 
-/** A section before its points: centre and the two half dimensions. */
+/*
+ * A section before its points: centre and the two half dimensions.
+ */
 type ISection = Omit<IAutoMovieResolveHumanoidRingModules.IRing, "points">;
 
-/** A position tuple as a vector. */
+/*
+ * A position tuple as a vector.
+ */
 const vector = (
   tuple: readonly [number, number, number],
 ): IAutoMovieVector3 => ({
@@ -361,7 +364,7 @@ const vector = (
   z: tuple[2],
 });
 
-/**
+/*
  * A section that keeps its girth circle's area pi r² when its lateral half
  * width becomes `breadth`: depth = r²/breadth.
  */
@@ -371,32 +374,36 @@ const section = (
   breadth: number,
 ): ISection => ({ centre, depth: (radius * radius) / breadth, breadth });
 
-/**
+/*
  * Points per ring: the body's one level of detail, independent of its
  * dimensions.
  */
 const SIDES: number = 8;
 
-/**
+/*
  * Waist breadth over shoulder breadth (convention: adult waist breadth about
  * three quarters of biacromial).
  */
 const WAIST_SHARE: number = 0.75;
 
-/**
+/*
  * Chest breadth over shoulder breadth (convention: adult chest breadth about
  * 0.85 of biacromial).
  */
 const CHEST_SHARE: number = 0.85;
 
-/**
+/*
  * A leaf segment's end ring over its girth radius, the display convention for a
  * bevelled tip.
  */
 const TIP_BEVEL: number = 0.5;
 
-/** The upward axis of the Human frame. */
+/*
+ * The upward axis of the Human frame.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** The lateral axis of the Human frame, shared by both sides. */
+/*
+ * The lateral axis of the Human frame, shared by both sides.
+ */
 const LEFT: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };

@@ -10,16 +10,15 @@ import { crawl } from "./crawl";
 import { crawlDown } from "./crawlDown";
 import { floorEntry } from "./floorEntry";
 
-/**
+/*
  * The crawl's one primitive over every channel: the way down (`crawlDown`)
  * until the body is down, its hips weighted from the physics window when the
  * hips own it, then the crawl's cycles; entered from the floor, the floor
  * entry's own way down (`floorEntry.down`) into the cycles.
  *
  * Part of `crawl.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `whole`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `whole`.
  */
 export function crawlWhole(
   prepared: crawlWhole.IPrepared,
@@ -76,38 +75,58 @@ export function crawlWhole(
   };
 }
 
-/** The `whole` of `crawl.plan`, built from what that plan prepared. */
+/*
+ * The `whole` of `crawl.plan`, built from what that plan prepared.
+ */
 export namespace crawlWhole {
-  /** What `crawl.plan` prepared for its `whole`. */
+  /*
+   * What `crawl.plan` prepared for its `whole`.
+   */
   export interface IPrepared {
-    /** The `duration` `crawl.plan` prepared. */
+    /*
+     * The `duration` `crawl.plan` prepared.
+     */
     duration: number;
 
-    /** The `down` `crawl.plan` prepared. */
+    /*
+     * The `down` `crawl.plan` prepared.
+     */
     down: crawlDown.IDown | null;
 
-    /** The `downAt` `crawl.plan` prepared. */
+    /*
+     * The `downAt` `crawl.plan` prepared.
+     */
     downAt: number;
 
-    /** The `window` `crawl.plan` prepared. */
+    /*
+     * The `window` `crawl.plan` prepared.
+     */
     window: HumanPhysics.Window;
 
-    /** The `crawling` `crawl.plan` prepared. */
+    /*
+     * The `crawling` `crawl.plan` prepared.
+     */
     crawling: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
     ) => IAutoMovieMotionHumanPosture;
 
-    /** The `body` `crawl.plan` prepared. */
+    /*
+     * The `body` `crawl.plan` prepared.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The `entered` `crawl.plan` prepared. */
+    /*
+     * The `entered` `crawl.plan` prepared.
+     */
     entered: floorEntry.IStart["entered"];
 
-    /** The `clock` `crawl.plan` prepared. */
+    /*
+     * The `clock` `crawl.plan` prepared.
+     */
     clock: IAutoMovieMotionClock;
 
-    /**
+    /*
      * The standing posture the crawl's base holds, its way down written over
      * it.
      */

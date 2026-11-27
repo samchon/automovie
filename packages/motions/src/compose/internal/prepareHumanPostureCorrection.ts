@@ -6,7 +6,7 @@ import type {
 import type { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
 
-/**
+/*
  * Prepare a balance correction over a window as a course of the changes it
  * makes, solved in preparation on the posture it corrects.
  *
@@ -27,13 +27,12 @@ import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSa
  * is, the correction's weight being none there. The joints coursed are those
  * the correction writes at the window's ends and its forced knots; a joint no
  * knot changes is not written.
- *
- * @param upstream The uncorrected posture at a second.
- * @param window The correction's window.
- * @param events Seconds the correction's support or weight changes at.
- * @param correct The exact correction of a posture at a second.
- * @param requirement The correction's own resolution.
- * @returns The corrected posture at a second.
+ * Parameter upstream: The uncorrected posture at a second.
+ * Parameter window: The correction's window.
+ * Parameter events: Seconds the correction's support or weight changes at.
+ * Parameter correct: The exact correction of a posture at a second.
+ * Parameter requirement: The correction's own resolution.
+ * Returns: The corrected posture at a second.
  */
 export function prepareHumanPostureCorrection(
   upstream: (seconds: number) => IAutoMovieMotionHumanPosture,
@@ -141,26 +140,35 @@ export function prepareHumanPostureCorrection(
   };
 }
 
-/** The forced knots and the requirement of a correction course. */
+/*
+ * The forced knots and the requirement of a correction course.
+ */
 export namespace prepareHumanPostureCorrection {
-  /** The resolution a correction is coursed to: the caller's own. */
+  /*
+   * The resolution a correction is coursed to: the caller's own.
+   */
   export interface IRequirement {
-    /** The root's, metres. */
+    /*
+     * The root's, metres.
+     */
     root: number;
-    /** The heading's and each joint's, degrees. */
+    /*
+     * The heading's and each joint's, degrees.
+     */
     angle: number;
-    /** The finest knot spacing, seconds: the grid the display reads on. */
+    /*
+     * The finest knot spacing, seconds: the grid the display reads on.
+     */
     step: number;
   }
 
-  /**
+  /*
    * The forced knots of a correction over a window: its ramps' ends and its
    * support phase's bounds, where its weight changes, and each event, where its
    * support changes, strictly inside the window, ascending and distinct.
-   *
-   * @param window The correction's window.
-   * @param events Seconds the correction's support or weight changes at.
-   * @returns The forced knot seconds.
+   * Parameter window: The correction's window.
+   * Parameter events: Seconds the correction's support or weight changes at.
+   * Returns: The forced knot seconds.
    */
   export function marks(
     window: NonNullable<HumanPhysics.Window>,
@@ -183,11 +191,15 @@ export namespace prepareHumanPostureCorrection {
   }
 }
 
-/** A knot's uncorrected and corrected postures. */
+/*
+ * A knot's uncorrected and corrected postures.
+ */
 interface IPair {
   before: IAutoMovieMotionHumanPosture;
   after: IAutoMovieMotionHumanPosture;
 }
 
-/** The angles of a joint a posture leaves out. */
+/*
+ * The angles of a joint a posture leaves out.
+ */
 const ZERO: readonly [number, number, number] = [0, 0, 0];

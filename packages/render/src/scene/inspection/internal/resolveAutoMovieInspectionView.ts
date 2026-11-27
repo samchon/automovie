@@ -14,7 +14,7 @@ import type { IAutoMovieViewerViewpoint } from "../../IAutoMovieViewerViewpoint.
 import { autoMovieViewerNamedViewpoints } from "../../subjectViewpoint/internal/autoMovieViewerNamedViewpoints.js";
 import { frameAutoMovieViewerSubject } from "../../subjectViewpoint/internal/frameAutoMovieViewerSubject.js";
 
-/**
+/*
  * Turn an inspection view into the camera that draws it and the record that
  * repeats it, for a picture of `width` by `height` pixels at film second
  * `seconds`.
@@ -231,12 +231,12 @@ export function resolveAutoMovieInspectionView(
   };
 }
 
-/**
+/*
  * Smallest half extent a fitted view frames, metres, the framing owner's floor
  * for a box without size.
  */
 const FLOOR: number = 0.5;
-/**
+/*
  * The picture-up a viewpoint documents: `-Z` from the top, `+Z` from the
  * bottom, `+Y` otherwise.
  */
@@ -247,7 +247,9 @@ function upOf(viewpoint: IAutoMovieViewerViewpoint): IAutoMovieVector3 {
   return { x: -sign * Math.sin(azimuth), y: 0, z: -sign * Math.cos(azimuth) };
 }
 
-/** Place an unparented camera and bring its matrices up to date. */
+/*
+ * Place an unparented camera and bring its matrices up to date.
+ */
 function aim(
   camera: THREE.Camera,
   position: IAutoMovieVector3,
@@ -265,7 +267,7 @@ function aim(
   camera.updateMatrixWorld(true);
 }
 
-/**
+/*
  * The record of a placed camera, its target one metre ahead when the camera was
  * not aimed here.
  */

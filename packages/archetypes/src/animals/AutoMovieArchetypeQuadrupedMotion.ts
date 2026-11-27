@@ -65,7 +65,9 @@ export namespace AutoMovieArchetypeQuadrupedMotion {
   }
 }
 
-/** Sample the existing quintic by its first-half value and exact time symmetry. */
+/*
+ * Sample the existing quintic by its first-half value and exact time symmetry.
+ */
 function progress(u: number): number {
   return u <= 0.5 ? AutoMovieEngineMotionSampling.minimumJerk(u).s : 1 - AutoMovieEngineMotionSampling.minimumJerk(1 - u).s;
 }

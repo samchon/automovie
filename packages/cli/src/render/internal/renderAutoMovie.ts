@@ -11,7 +11,7 @@ import { readAutoMovieRenderOptions } from "./readAutoMovieRenderOptions";
 import { renderAutoMovieVideo } from "./renderAutoMovieVideo";
 import { resolveAutoMovieFfmpeg } from "../../ffmpeg/internal/resolveAutoMovieFfmpeg";
 
-/**
+/*
  * Run `automovie render` in a production: draw one subject of a module's draw
  * page frame by frame in headless Chromium and encode it into one video,
  * resolving to the exit status.

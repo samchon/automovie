@@ -9,7 +9,7 @@ import type {
 
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 
-/**
+/*
  * Qualify one point against its actual retained registered measurements. At
  * least one observed camera pair must supply an acute ray angle above the point
  * threshold. A point need not be visible in either original seed image.

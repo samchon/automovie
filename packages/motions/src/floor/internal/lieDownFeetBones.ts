@@ -4,14 +4,13 @@ import type {
   IAutoMovieMotionHumanFoot,
 } from "@automovie/interface";
 
-/**
+/*
  * The bones the feet's reads demand: both feet and shanks and each sole
  * socket's bone.
  *
  * Part of `lieDown.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `feetBones`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `feetBones`.
  */
 export function lieDownFeetBones(
   prepared: lieDownFeetBones.IPrepared,
@@ -31,11 +30,17 @@ export function lieDownFeetBones(
   ]);
 }
 
-/** The `feetBones` of `lieDown.plan`, built from what that plan prepared. */
+/*
+ * The `feetBones` of `lieDown.plan`, built from what that plan prepared.
+ */
 export namespace lieDownFeetBones {
-  /** What `lieDown.plan` prepared for its `feetBones`. */
+  /*
+   * What `lieDown.plan` prepared for its `feetBones`.
+   */
   export interface IPrepared {
-    /** The `body` `lieDown.plan` prepared. */
+    /*
+     * The `body` `lieDown.plan` prepared.
+     */
     body: IAutoMovieMotionHumanBody;
   }
 }

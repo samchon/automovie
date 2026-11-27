@@ -3,7 +3,7 @@ import {
   type IAutoMovieResolvedJointAngles,
 } from "@automovie/interface";
 
-/**
+/*
  * The second Euler chart of a joint rotation, in rest-relative (rig) degrees:
  * the other triple that composes to the same rotation.
  *
@@ -13,12 +13,11 @@ import {
  * extracted against `−twist`, so its twist takes `−180` where a right-handed
  * one takes `+180`, the same rotation by a full turn. No angle is wrapped: the
  * caller chooses the full-turn alias it needs.
- *
- * @param rig The rest-relative angles of one chart, degrees.
- * @param placement Where the basis places the twist; absent means proximal.
- * @param handed `1` for a right-handed basis (`flexion × abduction = +twist`),
- *   `-1` for a left-handed one.
- * @returns The other chart's rest-relative angles, degrees.
+ * Parameter rig: The rest-relative angles of one chart, degrees.
+ * Parameter placement: Where the basis places the twist; absent means proximal.
+ * Parameter handed: `1` for a right-handed basis (`flexion × abduction = +twist`),
+ * `-1` for a left-handed one.
+ * Returns: The other chart's rest-relative angles, degrees.
  */
 export function alternateRigJointAngles(
   rig: IAutoMovieResolvedJointAngles,

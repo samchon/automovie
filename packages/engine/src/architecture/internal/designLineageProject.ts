@@ -7,7 +7,7 @@ import {
 
 import { designLineagePhaseSnapshot } from "./designLineagePhaseSnapshot";
 
-/**
+/*
  * Keep only the records that stand at one phase.
  *
  * The filter is generic over anything carrying a stable id, which is the whole
@@ -24,18 +24,17 @@ import { designLineagePhaseSnapshot } from "./designLineagePhaseSnapshot";
  *
  * An id this lineage never declared passes through untouched. A partially
  * annotated production must not be silently emptied by adding a phase plan for
- * one wing, and {@link validateDesignLineageBinding} is where a typo is caught
+ * one wing, and validateDesignLineageBinding is where a typo is caught
  * instead.
  *
  * Records keep their input order and identity; only those whose subject is
  * `pending` or `removed` at the phase are dropped. A null phase asks for the
- * completed work, as {@link designLineagePhaseSnapshot} defines it, whose
+ * completed work, as designLineagePhaseSnapshot defines it, whose
  * refusals this call inherits.
- *
- * @param lineage Lineage whose lifecycles decide presence.
- * @param phase Construction phase id, or null for the completed work.
- * @param records Records matched to lineage subjects by `id`.
- * @returns A new array of the same record objects, filtered.
+ * Parameter lineage: Lineage whose lifecycles decide presence.
+ * Parameter phase: Construction phase id, or null for the completed work.
+ * Parameter records: Records matched to lineage subjects by `id`.
+ * Returns: A new array of the same record objects, filtered.
  */
 export function designLineageProject<T extends { id: string }>(
   lineage: IAutoMovieDesignLineage,

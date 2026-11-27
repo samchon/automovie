@@ -2,7 +2,7 @@ import type { AutoMovieCliCaptureTypes } from "../AutoMovieCliCaptureTypes";
 import type { IAutoMovieCliChromium } from "../IAutoMovieCliChromium";
 import { planAutoMovieChromiumLaunch } from "./planAutoMovieChromiumLaunch";
 
-/**
+/*
  * Launch headless Chromium for a capture backend, and describe the launch the
  * way a record names it: the backend, then the Chromium version.
  *
@@ -39,7 +39,7 @@ export async function launchAutoMovieChromium(
   return { browser, backend: `${plan.name}; Chromium ${browser.version()}` };
 }
 
-/**
+/*
  * The command that installs the Chromium build the production's
  * `playwright-core` pins for headless use; `playwright-core`'s own command, so
  * the revision is the one the production launches.

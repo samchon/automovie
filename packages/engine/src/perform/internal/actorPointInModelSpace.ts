@@ -6,7 +6,7 @@ import {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Undo an actor's rigid world frame to express a world metre point in its model
  * frame. The frame has translation and a quaternion rotation, with no scale.
  */

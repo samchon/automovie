@@ -141,13 +141,19 @@ export namespace EllipticFunctions {
   }
 }
 
-/** Cephes's machine epsilon, `MACHEP` (2^-53). */
+/*
+ * Cephes's machine epsilon, `MACHEP` (2^-53).
+ */
 const MACHEP: number = Number.EPSILON / 2;
 
-/** `log(4)`, `ellpk`'s `C1`. */
+/*
+ * `log(4)`, `ellpk`'s `C1`.
+ */
 const C1: number = 1.3862943611198906;
 
-/** `ellpk`'s numerator coefficients. */
+/*
+ * `ellpk`'s numerator coefficients.
+ */
 const K_P: readonly number[] = [
   0.00013798286460627325, 0.002280257240058756, 0.007974040132204152,
   0.00985821379021226, 0.006874896874499499, 0.006189010336376876,
@@ -155,7 +161,9 @@ const K_P: readonly number[] = [
   0.09657359028116902, 1.3862943611198906,
 ];
 
-/** `ellpk`'s logarithm coefficients. */
+/*
+ * `ellpk`'s logarithm coefficients.
+ */
 const K_Q: readonly number[] = [
   0.00002940789550485985, 0.0009141847238659173, 0.005940583037531678,
   0.01548505166497624, 0.023908960271592488, 0.030120471522760404,
@@ -163,7 +171,9 @@ const K_Q: readonly number[] = [
   0.12499999999987083, 0.5,
 ];
 
-/** `ellpe`'s numerator coefficients. */
+/*
+ * `ellpe`'s numerator coefficients.
+ */
 const E_P: readonly number[] = [
   0.0001535525773010133, 0.0025088849216360204, 0.008687868165658896,
   0.010735094905607619, 0.007773954925167871, 0.007583952894135147,
@@ -171,7 +181,9 @@ const E_P: readonly number[] = [
   0.44314718056099084, 1,
 ];
 
-/** `ellpe`'s logarithm coefficients. */
+/*
+ * `ellpe`'s logarithm coefficients.
+ */
 const E_Q: readonly number[] = [
   0.000032795489857648585, 0.0010096279267935672, 0.006506094899769275,
   0.016886216399331133, 0.026176974245449364, 0.03348339048882249,
@@ -179,7 +191,7 @@ const E_Q: readonly number[] = [
   0.2499999999998883,
 ];
 
-/**
+/*
  * A polynomial by Horner's rule from its leading coefficient (`polevl`,
  * `scipy/special/cephes/polevl.h`).
  */

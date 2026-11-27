@@ -20,7 +20,7 @@ import { StanceVerdicts } from "./StanceVerdicts";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the martial-art techniques from quiet standing.
  *
  * Every case reports foot slip at most 5 mm (the issue's stance contacts) and
@@ -34,9 +34,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  * - `martial-taiChiPush`: the palms at least 0.6 of the arm ahead of their
  *   shoulders at the push's end, and no palm faster than 0.5 m/s (provisional
  *   bound for the slow, continuous form).
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function martialArtCases(
   bodies: readonly string[] = ["m-average"],
@@ -234,7 +233,9 @@ export function martialArtCases(
   return out;
 }
 
-/** The record of `IMartialArtCasesPeaksItem`'s site. */
+/*
+ * The record of `IMartialArtCasesPeaksItem`'s site.
+ */
 type IMartialArtCasesPeaksItem = {
   t: number;
   side: AutoMovieHumanSide;

@@ -6,9 +6,13 @@ import {
 import { INSTRUMENT_BANDS } from "../constants/INSTRUMENT_BANDS";
 import type { AutoMovieArchetypeInstrument } from "../AutoMovieArchetypeInstrument";
 
-/** The bands and build session shared by the musical instrument producers. */
+/*
+ * The bands and build session shared by the musical instrument producers.
+ */
 export namespace InstrumentBuild {
-  /** The original units of the instrument dimensions. */
+  /*
+   * The original units of the instrument dimensions.
+   */
   export const UNITS: Readonly<
     Record<AutoMovieArchetypeInstrument.Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -43,10 +47,12 @@ export namespace InstrumentBuild {
     mass: "kg",
   };
 
-  /** The recorded bands for each instrument. */
+  /*
+   * The recorded bands for each instrument.
+   */
   export const BANDS: typeof INSTRUMENT_BANDS = INSTRUMENT_BANDS;
 
-  /**
+  /*
    * Build one instrument in the original seed namespace and return its local
    * parts and contacts.
    */

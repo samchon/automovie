@@ -6,7 +6,7 @@ import { overrideAutoMovieRenderModeMaterials } from "./overrideAutoMovieRenderM
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
-/**
+/*
  * A depth material normalized on a scene-stable metric range instead of the
  * camera's clip planes. The vertex stage includes three's morph and skinning
  * chunks in the order of its own depth shader (a plain rigid mesh compiles them
@@ -53,7 +53,7 @@ const makeNormalizedDepthMaterial: (range: number) => THREE.ShaderMaterial = (
       }`,
   });
 
-/**
+/*
  * Depth pass: every mesh renders its normalized metric depth over a black
  * (infinitely far) background.
  *

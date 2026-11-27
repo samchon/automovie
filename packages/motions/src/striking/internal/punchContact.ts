@@ -16,7 +16,7 @@ import type { punchLaunch } from "./punchLaunch";
 import { punchReach } from "./punchReach";
 import { punchSurface } from "./punchSurface";
 
-/**
+/*
  * A punch at its contact: the line to the target, the trunk's turn, the fist's
  * rotation, the tracked aim, the step-in and the arm's solution.
  *
@@ -27,19 +27,18 @@ import { punchSurface } from "./punchSurface";
  * lowers the shoulder through the knees so the fist meets a low target from
  * about its own level. When the arm's band falls short, the lead foot steps in
  * by up to one stance length, never past the room in front of the arms
- * ({@link StrikingRoom}) and never toward a target that no place on the line
+ * (StrikingRoom) and never toward a target that no place on the line
  * brings within the band.
  */
 export namespace punchContact {
-  /**
+  /*
    * How far a punch at a low target lowers the shoulder: half of how far the
    * shoulder stands above the target beyond a quarter of the arm, at most 0.15
    * of the hip's height, none for a target that high.
-   *
-   * @param m The puncher's hip height and arm.
-   * @param shoulder The shoulder's height, metres.
-   * @param target The target's height, metres.
-   * @returns Metres.
+   * Parameter m: The puncher's hip height and arm.
+   * Parameter shoulder: The shoulder's height, metres.
+   * Parameter target: The target's height, metres.
+   * Returns: Metres.
    */
   export function dip(
     m: Pick<IAutoMovieBodyMeasure, "hipHeight" | "upperArm" | "forearm">,
@@ -52,7 +51,7 @@ export namespace punchContact {
     );
   }
 
-  /**
+  /*
    * Elbow flexion band at contact by technique, degrees (IBA drawings read;
    * hook and uppercut near a right angle; the palm heel as the straight, the
    * backfist nearly extended and the hammerfist bent, provisional).
@@ -72,7 +71,7 @@ export namespace punchContact {
     verticalFist: [5, 25],
   };
 
-  /**
+  /*
    * Trunk turn at contact by technique and hand, degrees toward bringing the
    * rear shoulder forward (negative turns the lead shoulder through, as the
    * lead hook does). Provisional readings of the coached rotations: the rear
@@ -81,7 +80,7 @@ export namespace punchContact {
    * through by more than the stance turn. The palm heel turns as the straight,
    * the backfist turns its shoulder through like a hook and the hammerfist
    * drops through a smaller turn (provisional). Skill scales the turn's share
-   * ({@link StrikingSkill.amplitude}).
+   * (StrikingSkill.amplitude).
    */
   export const TURN: Readonly<
     Record<
@@ -98,81 +97,110 @@ export namespace punchContact {
     verticalFist: { lead: 0, rear: 10 },
   };
 
-  /** A punch solved at its contact. */
+  /*
+   * A punch solved at its contact.
+   */
   export interface IContact {
-    /** The point aimed at when the punch is launched. */
+    /*
+     * The point aimed at when the punch is launched.
+     */
     first: IAutoMovieVector3;
 
-    /** The horizontal unit line to the target. */
+    /*
+     * The horizontal unit line to the target.
+     */
     line: IAutoMovieVector3;
 
-    /** The trunk turn at contact, degrees. */
+    /*
+     * The trunk turn at contact, degrees.
+     */
     turn: number;
 
-    /** How far the root lowers at contact, metres. */
+    /*
+     * How far the root lowers at contact, metres.
+     */
     dip: number;
 
-    /** The fist's unit travel direction at contact. */
+    /*
+     * The fist's unit travel direction at contact.
+     */
     direction: IAutoMovieVector3;
 
-    /** The hand's rotation at contact. */
+    /*
+     * The hand's rotation at contact.
+     */
     rotation: IAutoMovieQuaternion;
 
-    /** The fist socket's offset from the wrist at contact. */
+    /*
+     * The fist socket's offset from the wrist at contact.
+     */
     socket: IAutoMovieVector3;
 
-    /** The seeded miss added to the aim. */
+    /*
+     * The seeded miss added to the aim.
+     */
     offset: IAutoMovieVector3;
 
-    /** The online tracker of the target. */
+    /*
+     * The online tracker of the target.
+     */
     tracker: IAutoMovieMotionHumanStrikingAim.ITracker;
 
-    /**
+    /*
      * The displayed entry bone map: complete by default, or the explicit
      * requested outputs. The punch geometry requests all six arm joints for its
      * launch wrist/elbow and both complete arm sweeps.
      */
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-    /** The lead foot's step along the line, metres. */
+    /*
+     * The lead foot's step along the line, metres.
+     */
     advance: number;
 
-    /** The punching shoulder at contact. */
+    /*
+     * The punching shoulder at contact.
+     */
     shoulder: IAutoMovieVector3;
 
-    /** The direction the elbow bends toward. */
+    /*
+     * The direction the elbow bends toward.
+     */
     bend: IAutoMovieVector3;
 
-    /** The arm's solution at contact, on the launch plan. */
+    /*
+     * The arm's solution at contact, on the launch plan.
+     */
     solved: IAutoMovieMotionHumanStrikingReach.ISolution;
 
-    /** The elbow's hint point at contact, on the launch plan. */
+    /*
+     * The elbow's hint point at contact, on the launch plan.
+     */
     hint: IAutoMovieVector3;
 
-    /**
+    /*
      * The reach on the launch plan, whose step, shoulder, arm and hint the
      * members above repeat.
      */
     launched: punchReach.IReach;
 
-    /**
+    /*
      * The tracker's corrections arrived by a film second, each carried into the
      * step, the wrist at contact and the elbow's hint.
      */
     corrected(seconds: number): readonly punchReach.ICorrection[];
   }
 
-  /**
+  /*
    * Solve a punch at its contact.
-   *
-   * @param context The action's context, whose body keeps its topology and
-   *   skeleton unchanged.
-   * @param timing The punch's timing.
-   * @param tangent The varied point within a person's region, when the punch
-   *   varies.
-   * @param launch What the punch reads of its own entry alone (`punchLaunch`),
-   *   made once for the plan.
-   * @returns The contact's solution.
+   * Parameter context: The action's context, whose body keeps its topology and
+   * skeleton unchanged.
+   * Parameter timing: The punch's timing.
+   * Parameter tangent: The varied point within a person's region, when the punch
+   * varies.
+   * Parameter launch: What the punch reads of its own entry alone (`punchLaunch`),
+   * made once for the plan.
+   * Returns: The contact's solution.
    */
   export function solve(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPunch.IParams>,
@@ -440,5 +468,7 @@ export namespace punchContact {
   }
 }
 
-/** The alternatives of `EntryItemEntry`'s site. */
+/*
+ * The alternatives of `EntryItemEntry`'s site.
+ */
 type EntryItemEntry = "lead" | "rear";

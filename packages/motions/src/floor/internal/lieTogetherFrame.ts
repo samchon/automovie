@@ -5,7 +5,7 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-/**
+/*
  * The partner's carrying bone's frame at a film second: the sternum region's
  * bone, which breathes and turns with the trunk.
  */

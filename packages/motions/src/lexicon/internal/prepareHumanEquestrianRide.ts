@@ -15,7 +15,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { humanEquestrianRhythm } from "./humanEquestrianRhythm";
 
-/**
+/*
  * Prepare opt-in riding articulation from the support's film cues. Collected
  * walk and trot show opposing saddle and pelvic pitch during early stance, with
  * the lumbar spine extending in early trot stance (Byström et al., PMID
@@ -27,15 +27,14 @@ import { humanEquestrianRhythm } from "./humanEquestrianRhythm";
  * 1989, doi:10.1016/S0737-0806(89)80073-5). The scene author supplies those
  * instants from a jumping support. The over-shoulder pose follows a single film
  * cue, with pelvis and horse direction independent of the turn.
- *
- * @param context The ride's context and its performance cue tracks.
- * @param origin The support frame when the ride begins.
- * @param saddle The support's seat, world metres at the ride's entry, resolved
- *   by the ride.
- * @returns The rider-only response for this ride, or undefined for ordinary
- *   riding.
- * @throws {HumanRefusal} For missing support, missing or ambiguous cues, or
- *   incompatible jumping support.
+ * Parameter context: The ride's context and its performance cue tracks.
+ * Parameter origin: The support frame when the ride begins.
+ * Parameter saddle: The support's seat, world metres at the ride's entry, resolved
+ * by the ride.
+ * Returns: The rider-only response for this ride, or undefined for ordinary
+ * riding.
+ * For missing support, missing or ambiguous cues, or
+ * incompatible jumping support.
  */
 export function prepareHumanEquestrianRide(
   context: Context,
@@ -250,36 +249,54 @@ export function prepareHumanEquestrianRide(
   };
 }
 
-/** The ride law's context after the seated entry has been admitted. */
+/*
+ * The ride law's context after the seated entry has been admitted.
+ */
 type Context =
   IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>;
 
-/** A jumping rider's four ordered landmarks on the ride's local clock. */
+/*
+ * A jumping rider's four ordered landmarks on the ride's local clock.
+ */
 type Jump = humanEquestrianRhythm.Jump;
-/** Kept in parent-to-child order to describe the same four joints in each pose. */
+/*
+ * Kept in parent-to-child order to describe the same four joints in each pose.
+ */
 const BONES = ["spine", "chest", "neck", "head"] as const;
 
-/** The alternatives of `LookDirection`'s site. */
+/*
+ * The alternatives of `LookDirection`'s site.
+ */
 type LookDirection = 1 | -1;
 
-/** The centred over-shoulder film beat on the ride's clock. */
+/*
+ * The centred over-shoulder film beat on the ride's clock.
+ */
 interface ILook {
-  /** Local seconds of greatest turn. */
+  /*
+   * Local seconds of greatest turn.
+   */
   peak: number;
-  /** Half the turn's duration, seconds. */
+  /*
+   * Half the turn's duration, seconds.
+   */
   half: number;
-  /** Left is positive about the rider's up axis. */
+  /*
+   * Left is positive about the rider's up axis.
+   */
   direction: LookDirection;
 }
 
-/**
+/*
  * A support-relative response integrated before the ride fits its hands and
  * feet.
  */
 interface IPrepared {
-  /** Local seconds where the stirrups support the raised rider without the seat. */
+  /*
+   * Local seconds where the stirrups support the raised rider without the seat.
+   */
   offSeat?: readonly [number, number];
-  /**
+  /*
    * Pose the pelvis and upper body relative to the saddle and keep the limb
    * demands for the ride to fit.
    */
@@ -291,10 +308,14 @@ interface IPrepared {
     up: IAutoMovieVector3,
   ): void;
 }
-/** The record of `ITimesCue`'s site. */
+/*
+ * The record of `ITimesCue`'s site.
+ */
 type ITimesCue = { seconds: number };
 
-/** Read unique, finite local seconds once from an authored cue track. */
+/*
+ * Read unique, finite local seconds once from an authored cue track.
+ */
 function times(context: Context, id: string): readonly number[] {
   return [
     ...new Set(
@@ -305,7 +326,9 @@ function times(context: Context, id: string): readonly number[] {
   ].sort((a: number, b: number): number => a - b);
 }
 
-/** The single cue event inside this ride. */
+/*
+ * The single cue event inside this ride.
+ */
 function instant(context: Context, id: string, axis: string): number {
   const active: readonly number[] = times(context, id).filter(
     (at: number): boolean => at >= 0 && at <= context.params.duration,
@@ -320,13 +343,19 @@ function instant(context: Context, id: string, axis: string): number {
   return active[0]!;
 }
 
-/** One response and its independently sampled actual hoof clock. */
+/*
+ * One response and its independently sampled actual hoof clock.
+ */
 interface IStrideWindow extends IAutoMovieMotionHumanRide.IEquestrianStride {
-  /** The track's distinct touchdowns, ride-local seconds in increasing order. */
+  /*
+   * The track's distinct touchdowns, ride-local seconds in increasing order.
+   */
   times: readonly number[];
 }
 
-/** Admit ordered stride windows that can share one endpoint without overlap. */
+/*
+ * Admit ordered stride windows that can share one endpoint without overlap.
+ */
 function strideWindows(
   context: Context,
   input: IAutoMovieMotionHumanRide.EquestrianStrides | undefined,
@@ -380,7 +409,7 @@ function strideWindows(
   return result;
 }
 
-/**
+/*
  * Locate the last begun cue track. Its phase reader owns the endpoint and gap
  * semantics.
  */
@@ -398,10 +427,12 @@ function strideAt(
   return strides[low - 1];
 }
 
-/** The record of `IBoundedLimits`'s site. */
+/*
+ * The record of `IBoundedLimits`'s site.
+ */
 type IBoundedLimits = { min: number; max: number };
 
-/**
+/*
  * Add a joint offset within the body's angle range. A missing degree of freedom
  * stays untouched.
  */
@@ -415,7 +446,9 @@ function bounded(
     : Math.max(limits.min, Math.min(limits.max, start + delta));
 }
 
-/** Report a timeline that cannot be sampled as authored. */
+/*
+ * Report a timeline that cannot be sampled as authored.
+ */
 function refuse(
   axis: string,
   value: unknown,

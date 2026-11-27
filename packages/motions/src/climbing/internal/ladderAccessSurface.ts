@@ -3,7 +3,9 @@ import type {
   IAutoMovieMotionHumanProp,
 } from "@automovie/interface";
 
-/** Read the fixed rectangular support that admits a ladder landing. */
+/*
+ * Read the fixed rectangular support that admits a ladder landing.
+ */
 export function ladderAccessSurface(
   prop: ladderAccessSurface.IProp,
   point: string,
@@ -23,20 +25,30 @@ export function ladderAccessSurface(
   return { ...surface, width: surface.width, depth: surface.depth };
 }
 
-/** The declared data a ladder landing needs. */
+/*
+ * The declared data a ladder landing needs.
+ */
 export namespace ladderAccessSurface {
-  /** A prop's mobility and named contact surfaces. */
+  /*
+   * A prop's mobility and named contact surfaces.
+   */
   export type IProp = Pick<
     IAutoMovieMotionHumanProp,
     "affordances" | "fixed" | "motion" | "hasArticulations"
   >;
 
-  /** A surface with both spans available for fitting the landing stance. */
+  /*
+   * A surface with both spans available for fitting the landing stance.
+   */
   export interface ISurface extends IAutoMovieAffordance {
-    /** Horizontal span along the surface's +X axis, metres. */
+    /*
+     * Horizontal span along the surface's +X axis, metres.
+     */
     width: number;
 
-    /** Horizontal span along the surface's +Z axis, metres. */
+    /*
+     * Horizontal span along the surface's +Z axis, metres.
+     */
     depth: number;
   }
 }

@@ -30,19 +30,23 @@ import { carryCrutchHands } from "./carryCrutchHands";
 import { crutchHeldLeg } from "./crutchHeldLeg";
 import { crutchStairsFlight } from "./crutchStairsFlight";
 
-/** World vertical. */
+/*
+ * World vertical.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** No offset: a planted crutch's grip lies on the support course. */
+/*
+ * No offset: a planted crutch's grip lies on the support course.
+ */
 const STILL: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
-/**
+/*
  * The hip's and knee's flexion that hold the injured foot off the steps,
  * degrees: the crutch walk's three-point gait's.
  */
 const HELD: Readonly<Record<LegJoint, number>> = { hip: 30, knee: 80 };
 
-/**
+/*
  * Climbing stairs on two crutches: "up with the good, down with the bad"
  * (HealthLinkBC, Using crutches). The hands take the handgrips on both feet,
  * then the injured leg is held off the steps (`HELD`), its foot first lifted
@@ -62,13 +66,6 @@ const HELD: Readonly<Record<LegJoint, number>> = { hip: 30, knee: 80 };
  * hold their grips where each crutch stands at every support key and ride its
  * move between them (`carryCrutchHands`), and the injured leg is raised by the
  * instant the first step's foot lifts.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States both orders, their source, the events, the bounds and how the props share the clock.
- * @evidence contracts/development/design.md#principled-representation Support stances on the treads with the hands on the crutches, and one track per crutch from the same flight.
- * @evidence contracts/development/design.md#minimal-and-owned-surface One law and its crutch track.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The hands bear at the crutches' own grips; every foot and tip place follows from the flight.
- *
- * Each step takes `seconds`, 2 s when absent (provisional, missing a study), after an opening of a quarter of a step in which the hands take the grips.
  */
 export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
   name: "crutchStairs",
@@ -493,5 +490,7 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
   },
 };
 
-/** The two joints a held leg sets. */
+/*
+ * The two joints a held leg sets.
+ */
 type LegJoint = "hip" | "knee";

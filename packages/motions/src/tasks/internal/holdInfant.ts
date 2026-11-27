@@ -31,22 +31,24 @@ import { holdInfantCrook } from "./holdInfantCrook";
 import { holdInfantEvents } from "./holdInfantEvents";
 import { holdInfantSway } from "./holdInfantSway";
 
-/**
+/*
  * Seconds the arms take to bring the infant into the hold: provisional, an
  * unhurried careful move.
  */
 const SETTLE: number = 1;
 
-/** The world up. */
+/*
+ * The world up.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
+/*
  * How far a back pat lifts the palm off the back between pats, metres:
  * provisional.
  */
 const PAT: number = 0.03;
 
-/**
+/*
  * Hold a taken-up infant (`IAutoMovieMotionHumanHoldInfant`). The infant is
  * rigid in the holding hand from its pick-up (`AutoMovieMotionHumanHeld`), so
  * each hold is a world pose of the infant in the body's frame, read from the
@@ -69,15 +71,21 @@ const PAT: number = 0.03;
  * handover, which `handOver` owns.
  */
 export namespace holdInfant {
-  /** The action's key. */
+  /*
+   * The action's key.
+   */
   export const name: AutoMovieMotionHumanActionKey = "holdInfant";
 
-  /** The hold may be left at its end. */
+  /*
+   * The hold may be left at its end.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** Plan the hold. */
+  /*
+   * Plan the hold.
+   */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHoldInfant.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
@@ -316,19 +324,27 @@ export namespace holdInfant {
     });
   }
 
-  /** An infant's pose in a hold. */
+  /*
+   * An infant's pose in a hold.
+   */
   interface IInfantPose {
-    /** The seat's place, world metres. */
+    /*
+     * The seat's place, world metres.
+     */
     seat: IAutoMovieVector3;
 
-    /** The unit line from the seat to the head. */
+    /*
+     * The unit line from the seat to the head.
+     */
     line: IAutoMovieVector3;
 
-    /** The unit way the face faces. */
+    /*
+     * The unit way the face faces.
+     */
     face: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * A palm laid on a site facing `normal`, its fingers toward `forward`, off it
    * by `lift`.
    */
@@ -365,7 +381,7 @@ export namespace holdInfant {
     };
   }
 
-  /**
+  /*
    * The bottle's teat at the mouth, its base above toward the feet, from the
    * other hand.
    */
@@ -417,7 +433,9 @@ export namespace holdInfant {
     };
   }
 
-  /** A refusal for a missing input or site. */
+  /*
+   * A refusal for a missing input or site.
+   */
   function refuse(axis: string, reason: string): never {
     throw new HumanRefusal({
       kind: "affordance",

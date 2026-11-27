@@ -2,7 +2,7 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { closestPointsBetweenSegments } from "./closestPointsBetweenSegments";
 
-/**
+/*
  * Minimum separation of bounded segments in one metre coordinate frame. The
  * closest-pair owner supplies both this scalar and the contact-normal
  * witnesses. Its collapsed-segment, finite-arithmetic and binary64 precision

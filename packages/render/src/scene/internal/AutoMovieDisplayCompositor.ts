@@ -4,7 +4,7 @@ import { captureAutoMovieFramebufferRestore } from "./captureAutoMovieFramebuffe
 import { AutoMovieSceneFramebuffer } from "../AutoMovieSceneFramebuffer.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
-/**
+/*
  * GPU composition of the same display bytes a direct canvas capture reads.
  *
  * Each source callback draws to the default framebuffer, where Three applies
@@ -42,7 +42,7 @@ export class AutoMovieDisplayCompositor {
     new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
   private disposed: boolean = false;
   private disposalFailure: { error: unknown } | undefined;
-  /**
+  /*
    * Disposal callbacks cannot allocate a replacement while old-copy retirement
    * runs.
    */
@@ -108,7 +108,7 @@ export class AutoMovieDisplayCompositor {
     this.scene.add(new THREE.Mesh(this.geometry, this.material));
   }
 
-  /**
+  /*
    * Resize owned copies only; drawing-buffer pixels remain the source unit. New
    * extents publish only after every old-copy retirement succeeds. A failed
    * retirement closes this owner, retains its old potential extent and cause,
@@ -158,7 +158,7 @@ export class AutoMovieDisplayCompositor {
     }
   }
 
-  /**
+  /*
    * Draw one fade or two complementary sources, independently attempting
    * host-state restoration after source, copy or composite failure. An
    * aggregate retains the original failure first. The previous canvas picture
@@ -293,7 +293,7 @@ export class AutoMovieDisplayCompositor {
     renderer.copyFramebufferToTexture(texture);
   }
 
-  /**
+  /*
    * Release only compositor-owned textures, geometry and material once. Closed
    * instances refuse resize/render; repeated disposal preserves its original
    * success or failure and never retries physical resource release.
@@ -331,7 +331,9 @@ export class AutoMovieDisplayCompositor {
     }
   }
 
-  /** Closed owners cannot recreate allocations under a completed retirement. */
+  /*
+   * Closed owners cannot recreate allocations under a completed retirement.
+   */
   private assertOpen(): void {
     if (this.resizing !== undefined) throw this.resizing;
     if (!this.disposed) return;
@@ -346,7 +348,7 @@ export class AutoMovieDisplayCompositor {
       );
   }
 
-  /**
+  /*
    * The current owned RGBA8/no-mipmap display-copy extent. Both source sampler
    * uniforms and the saved display can upload, even for a one-layer fade, so
    * their conservative resident closure contains three copies.

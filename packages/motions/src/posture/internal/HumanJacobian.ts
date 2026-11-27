@@ -21,14 +21,13 @@ import type {
 
 import { humanPostureHeading } from "./humanPostureHeading";
 
-/**
+/*
  * The motions of variables on a posed body.
- *
- * @param body The body.
- * @param posture The posture posed, written by its joint angles alone.
- * @param bones Its resolved bones.
- * @param variables The variables.
- * @returns One motion per variable, in their order.
+ * Parameter body: The body.
+ * Parameter posture: The posture posed, written by its joint angles alone.
+ * Parameter bones: Its resolved bones.
+ * Parameter variables: The variables.
+ * Returns: One motion per variable, in their order.
  */
 export function HumanJacobian(
   body: IAutoMovieMotionHumanBody,
@@ -39,7 +38,7 @@ export function HumanJacobian(
   return HumanJacobian.read(body, posture, bones, variables).motions;
 }
 
-/**
+/*
  * The analytic Jacobian of a posed body: how each of a posture's variables (the
  * root's place, its yaw, pitch and roll, and any joint angle) moves the bones,
  * read from the one forward kinematics that posed them.
@@ -68,7 +67,7 @@ export function HumanJacobian(
  *   (`poseResolution.jointAxes`, `bones`, `topology`) where the read needs them.
  */
 export namespace HumanJacobian {
-  /**
+  /*
    * Read variable motions and the exact joints clamped while forming them. The
    * posture, body and resolved bones must describe the same current candidate
    * and remain unchanged until this synchronous read returns. Repeated
@@ -76,17 +75,16 @@ export namespace HumanJacobian {
    * finite-difference or optimization candidate needs another read. An
    * operation may lend its actual canonical engine clamp factory for this same
    * unchanged skeleton; this shares metadata, not projected answers.
-   *
-   * @param body The unchanged body described by its established rig snapshot.
-   * @param posture The current clinical angles and root heading.
-   * @param bones The same candidate's actual resolved bone frames.
-   * @param variables Requested variables, including duplicates, in output
-   *   order.
-   * @param projection Only AutoMovieEngineKinematics.prepareClampJointToSkeleton for this same unchanged
-   *   skeleton and canonical axes, borrowed from the current synchronous
-   *   operation; omitted, angle demand prepares it locally.
-   * @returns Fresh motions and a map of the actual clamped joints used for
-   *   angle variables.
+   * Parameter body: The unchanged body described by its established rig snapshot.
+   * Parameter posture: The current clinical angles and root heading.
+   * Parameter bones: The same candidate's actual resolved bone frames.
+   * Parameter variables: Requested variables, including duplicates, in output
+   * order.
+   * Parameter projection: Only AutoMovieEngineKinematics.prepareClampJointToSkeleton for this same unchanged
+   * skeleton and canonical axes, borrowed from the current synchronous
+   * operation; omitted, angle demand prepares it locally.
+   * Returns: Fresh motions and a map of the actual clamped joints used for
+   * angle variables.
    */
   export function read(
     body: IAutoMovieMotionHumanBody,
@@ -227,14 +225,13 @@ export namespace HumanJacobian {
     return { motions, clamped };
   }
 
-  /**
+  /*
    * A segment's twist under a motion.
-   *
-   * @param motion The motion.
-   * @param bone The segment's bone.
-   * @param origin The bone's origin, world metres.
-   * @returns The segment's angular velocity and its origin's linear velocity;
-   *   nought when the motion does not move the bone.
+   * Parameter motion: The motion.
+   * Parameter bone: The segment's bone.
+   * Parameter origin: The bone's origin, world metres.
+   * Returns: The segment's angular velocity and its origin's linear velocity;
+   * nought when the motion does not move the bone.
    */
   export function twist(
     motion: IAutoMovieMotionHumanJacobian.IMotion,
@@ -249,14 +246,13 @@ export namespace HumanJacobian {
     };
   }
 
-  /**
+  /*
    * A point's velocity under a motion: a column of its point Jacobian.
-   *
-   * @param motion The motion.
-   * @param bone The bone the point rides on.
-   * @param point The point, world metres.
-   * @returns Metres per the variable's unit; nought when the motion does not
-   *   move the bone.
+   * Parameter motion: The motion.
+   * Parameter bone: The bone the point rides on.
+   * Parameter point: The point, world metres.
+   * Returns: Metres per the variable's unit; nought when the motion does not
+   * move the bone.
    */
   export function velocity(
     motion: IAutoMovieMotionHumanJacobian.IMotion,
@@ -267,16 +263,15 @@ export namespace HumanJacobian {
     return Vector3.add(motion.linear, Vector3.cross(motion.angular, point));
   }
 
-  /**
+  /*
    * The world-Y component of velocity for a caller that needs height alone. It
    * uses the same affected-bone membership and cross/add grouping as velocity,
    * without forming its unused X/Z components or vector records.
-   *
-   * @param motion The completed coordinate motion.
-   * @param bone The bone carrying the point.
-   * @param point Its world point, metres.
-   * @returns Vertical metres per variable unit, or positive zero when
-   *   unaffected.
+   * Parameter motion: The completed coordinate motion.
+   * Parameter bone: The bone carrying the point.
+   * Parameter point: Its world point, metres.
+   * Returns: Vertical metres per variable unit, or positive zero when
+   * unaffected.
    */
   export function velocityY(
     motion: IAutoMovieMotionHumanJacobian.IMotion,
@@ -290,46 +285,66 @@ export namespace HumanJacobian {
     );
   }
 
-  /** A joint's clinical axis. */
+  /*
+   * A joint's clinical axis.
+   */
   type Name = "flexion" | "abduction" | "twist";
 
-  /**
+  /*
    * One candidate's result, without retaining the temporary prefix/clamp
    * preparation.
    */
   interface IReading {
-    /** Fresh motions in the requested variable order. */
+    /*
+     * Fresh motions in the requested variable order.
+     */
     motions: IAutoMovieMotionHumanJacobian.IMotion[];
 
-    /** Exact actual projections already used while forming joint variables. */
+    /*
+     * Exact actual projections already used while forming joint variables.
+     */
     clamped: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieJointPose>;
   }
 
-  /** Lazy fixed-joint preparation for one read's requested axes. */
+  /*
+   * Lazy fixed-joint preparation for one read's requested axes.
+   */
   interface IJointReading {
-    /** The same candidate's actual clamped articulation. */
+    /*
+     * The same candidate's actual clamped articulation.
+     */
     joint: IAutoMovieJointPose;
 
-    /** The existing rig snapshot's admitted joint basis. */
+    /*
+     * The existing rig snapshot's admitted joint basis.
+     */
     basis: IAutoMovieJointAxes;
 
-    /** Canonical clinical affine map, absent when identity applies. */
+    /*
+     * Canonical clinical affine map, absent when identity applies.
+     */
     frame: IAutoMovieRestFrame | undefined;
 
-    /**
+    /*
      * Intrinsic composition order from the explicit chart or legacy twist
      * placement.
      */
     order: readonly Name[];
 
-    /** Parent/rest base followed by only the earlier factors actually requested. */
+    /*
+     * Parent/rest base followed by only the earlier factors actually requested.
+     */
     prefix: IAutoMovieQuaternion[];
 
-    /** The bones the joint carries, its own included. */
+    /*
+     * The bones the joint carries, its own included.
+     */
     carried: ReadonlySet<AutoMovieHumanoidBone>;
   }
 
-  /** The bones a bone carries, itself included, from the body's topology. */
+  /*
+   * The bones a bone carries, itself included, from the body's topology.
+   */
   function carriedBy(
     body: IAutoMovieMotionHumanBody,
     bone: AutoMovieHumanoidBone,
@@ -345,12 +360,18 @@ export namespace HumanJacobian {
     return out;
   }
 
-  /** Radians per degree. */
+  /*
+   * Radians per degree.
+   */
   const RADIAN: number = Math.PI / 180;
 
-  /** A joint's axes by the angle's index. */
+  /*
+   * A joint's axes by the angle's index.
+   */
   const NAMES: readonly [Name, Name, Name] = ["flexion", "abduction", "twist"];
 
-  /** No motion. */
+  /*
+   * No motion.
+   */
   const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 }

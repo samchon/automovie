@@ -3,7 +3,7 @@ import type { IAutoMovieFilmOptics } from "@automovie/interface";
 import { AUTOMOVIE_REC709_XYZ } from "../../AUTOMOVIE_REC709_XYZ";
 import { autoMoviePlanckianWhite } from "./autoMoviePlanckianWhite";
 
-/**
+/*
  * The linear part of a film's camera response, as one row-major 3 × 3 matrix
  * applied to linear Rec. 709 scene values: the exposure scale times the white
  * balance.
@@ -11,7 +11,7 @@ import { autoMoviePlanckianWhite } from "./autoMoviePlanckianWhite";
  * The exposure scale is `1 / (1.2 × 2^ev100)`, the saturation-based mapping of
  * ISO 12232:2019 with its 78 / (100 × 0.65) factor written as 1.2. With a
  * `whiteBalance`, the matrix also maps the Planckian white of that temperature
- * ({@link autoMoviePlanckianWhite}) to the D65 working white by complete von
+ * (autoMoviePlanckianWhite) to the D65 working white by complete von
  * Kries adaptation in the CAT02 cone space (CIE 159:2004): `RGB ← XYZ · CAT02⁻¹
  * · diag(LMS_D65 / LMS_K) · CAT02 · XYZ ← RGB`. Both whites have unit
  * luminance, so a neutral surface keeps its luminance when it is balanced.
@@ -19,7 +19,7 @@ import { autoMoviePlanckianWhite } from "./autoMoviePlanckianWhite";
  * Exposure and white balance are both linear, and so is the glare that follows
  * them in the final pass, so the final pass applies this one matrix to the
  * scene value and to its glare alike. The caller admits `optics` first; an
- * out-of-range temperature throws from {@link autoMoviePlanckianWhite}.
+ * out-of-range temperature throws from autoMoviePlanckianWhite.
  */
 export function autoMovieFilmResponseMatrix(
   optics: Pick<IAutoMovieFilmOptics, "ev100" | "whiteBalance">,
@@ -61,7 +61,7 @@ export function autoMovieFilmResponseMatrix(
   return adaptation.map((value: number): number => value * scale);
 }
 
-/**
+/*
  * CIE CAT02 cone-response matrix (CIE 159:2004), row-major, from XYZ to the
  * sharpened LMS space the von Kries adaptation scales.
  */
@@ -69,13 +69,15 @@ const CAT02: readonly number[] = [
   0.7328, 0.4296, -0.1624, -0.7036, 1.6975, 0.0061, 0.003, 0.0136, 0.9834,
 ];
 
-/**
+/*
  * The D65 working white's chromaticity, (0.3127, 0.3290), as IEC 61966-2-1
  * defines it for the Rec. 709 space.
  */
 const D65: readonly [number, number] = [0.3127, 0.329];
 
-/** The row-major product `a · b` of two 3 × 3 matrices. */
+/*
+ * The row-major product `a · b` of two 3 × 3 matrices.
+ */
 function multiply(a: readonly number[], b: readonly number[]): number[] {
   const out: number[] = new Array<number>(9).fill(0);
   for (let row: number = 0; row < 3; ++row)
@@ -85,7 +87,9 @@ function multiply(a: readonly number[], b: readonly number[]): number[] {
   return out;
 }
 
-/** The product of a row-major 3 × 3 matrix and a column vector. */
+/*
+ * The product of a row-major 3 × 3 matrix and a column vector.
+ */
 function multiplyVector(m: readonly number[], v: readonly number[]): number[] {
   return [0, 1, 2].map(
     (row: number): number =>
@@ -93,7 +97,7 @@ function multiplyVector(m: readonly number[], v: readonly number[]): number[] {
   );
 }
 
-/**
+/*
  * The inverse of a row-major 3 × 3 matrix by its adjugate, for the invertible
  * CAT02 matrix.
  */

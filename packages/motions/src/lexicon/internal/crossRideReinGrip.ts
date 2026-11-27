@@ -17,7 +17,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { HumanMountRider } from "./HumanMountRider";
 import type { HumanRideHands } from "./HumanRideHands";
 
-/**
+/*
  * The angle a rein crosses the holding palm at (`HumanRideHands`): the turn of
  * the hold about its outward normal from fingers square across the line. A fist
  * closes on a rein at any crossing; the line runs diagonally through it, from
@@ -32,18 +32,17 @@ import type { HumanRideHands } from "./HumanRideHands";
  * the square hold, of the rotation its arm's goal asked in the law before (the
  * displayed hand's where that law gave none), so the goal continues across the
  * cut.
- *
- * @param body The body.
- * @param side The holding hand.
- * @param posture The rider's posture where the hold begins, leant to the grips.
- * @param grip The hold where it begins, its fingers' side chosen.
- * @param palm The hand's palm frame the rein is met with.
- * @param shown The pose and posture where the plan begins, for a hand already
- *   holding; none for a hand that takes the rein.
- * @returns The turn about the hold's outward normal, degrees.
- * @throws {HumanRefusal} When no turn about the normal brings the asked
- *   attitude within the forearm's twist and wrist ranges at the hand's place
- *   (`AutoMovieMotionHumanArmReach.attitude`).
+ * Parameter body: The body.
+ * Parameter side: The holding hand.
+ * Parameter posture: The rider's posture where the hold begins, leant to the grips.
+ * Parameter grip: The hold where it begins, its fingers' side chosen.
+ * Parameter palm: The hand's palm frame the rein is met with.
+ * Parameter shown: The pose and posture where the plan begins, for a hand already
+ * holding; none for a hand that takes the rein.
+ * Returns: The turn about the hold's outward normal, degrees.
+ * When no turn about the normal brings the asked
+ * attitude within the forearm's twist and wrist ranges at the hand's place
+ * (`AutoMovieMotionHumanArmReach.attitude`).
  */
 export function crossRideReinGrip(
   body: IAutoMovieMotionHumanBody,

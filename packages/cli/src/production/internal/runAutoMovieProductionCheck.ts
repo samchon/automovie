@@ -15,17 +15,16 @@ import { writeAutoMovieProductionCheckReceipt } from "./writeAutoMovieProduction
 import { readAutoMovieErrorCode } from "../../file/internal/readAutoMovieErrorCode";
 import { readAutoMovieRevision } from "./readAutoMovieRevision";
 
-/**
+/*
  * Evaluate selected targets in declaration order. A status read uses available
  * records and actual bytes. An explicit run executes only the chosen enabled
  * checks and writes a local receipt for each completed measurement or capture
  * refresh. A required stage includes its omitted and unselected required IDs in
  * the same report, so filtering cannot turn missing work into a pass.
- *
- * @param props Production root, admitted command selection and editable
- *   targets.
- * @returns Current results and whether the requested stage is blocked.
- * @throws When target/check IDs or the requested scope are not usable.
+ * Parameter props: Production root, admitted command selection and editable
+ * targets.
+ * Returns: Current results and whether the requested stage is blocked.
+ * When target/check IDs or the requested scope are not usable.
  */
 export async function runAutoMovieProductionCheck(
   props: AutoMovieCliProduction.IRunCheckInput,
@@ -172,13 +171,17 @@ export async function runAutoMovieProductionCheck(
   };
 }
 
-/** A scoped result before its identity and stage membership are attached. */
+/*
+ * A scoped result before its identity and stage membership are attached.
+ */
 type IOutcome = Pick<
   IAutoMovieProductionCheck.IResult,
   "state" | "message" | "evidence"
 >;
 
-/** A retained local run and its input identity. */
+/*
+ * A retained local run and its input identity.
+ */
 interface IReceipt {
   readonly signature: string;
   readonly outcome: IOutcome;
@@ -186,14 +189,18 @@ interface IReceipt {
   readonly recordSha256?: string;
 }
 
-/** Lazily resolved boundaries for explicitly named production inputs. */
+/*
+ * Lazily resolved boundaries for explicitly named production inputs.
+ */
 type AutoMovieProductionCheckInputScope = ReturnType<
   typeof createAutoMovieProductionCheckInputScope
 >;
 
 const DAMAGED_JSON: unique symbol = Symbol("damaged verification JSON");
 
-/** Read a check's owning evidence or produce an explicit local or capture run. */
+/*
+ * Read a check's owning evidence or produce an explicit local or capture run.
+ */
 async function evaluate(props: {
   readonly root: string;
   readonly env: Readonly<Record<string, string | undefined>>;
@@ -407,7 +414,9 @@ async function evaluate(props: {
   );
 }
 
-/** Admit one exact time mode before reading evidence or executing a capture. */
+/*
+ * Admit one exact time mode before reading evidence or executing a capture.
+ */
 function admitCaptureTime(
   value: unknown,
 ): IAutoMovieProductionCheck.ICaptureTime {
@@ -452,7 +461,9 @@ function admitCaptureTime(
   );
 }
 
-/** Derive the status of an actual finite measurement under inclusive limits. */
+/*
+ * Derive the status of an actual finite measurement under inclusive limits.
+ */
 function measured(
   check: IAutoMovieProductionCheck.IMeasurement,
   value: number,
@@ -479,12 +490,16 @@ function measured(
   };
 }
 
-/** Compact deterministic identity of a serializable definition or receipt key. */
+/*
+ * Compact deterministic identity of a serializable definition or receipt key.
+ */
 function digest(value: unknown): string {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
 }
 
-/** Read a JSON observation, treating only a missing file as unavailable. */
+/*
+ * Read a JSON observation, treating only a missing file as unavailable.
+ */
 async function readJson(file: string): Promise<unknown> {
   try {
     return parseJson(await fs.readFile(file, "utf8"));
@@ -494,7 +509,9 @@ async function readJson(file: string): Promise<unknown> {
   }
 }
 
-/** Publish the latest receipt and retain independent first-failure bytes. */
+/*
+ * Publish the latest receipt and retain independent first-failure bytes.
+ */
 function parseJson(contents: string): unknown {
   try {
     return JSON.parse(contents) as unknown;

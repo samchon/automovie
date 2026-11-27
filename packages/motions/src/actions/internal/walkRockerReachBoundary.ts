@@ -1,15 +1,14 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * Prepare the intersection of a rigid ankle's pitch orbit and the leg's reach
  * sphere.
- *
- * @param ankle The rigid, single-axis ankle orbit, metres, evaluated at signed
- *   degrees.
- * @param reach The measured maximum hip-to-ankle span, metres.
- * @returns The last reachable pitch on the original bisection lattice, or
- *   undefined when the original bracket is required.
+ * Parameter ankle: The rigid, single-axis ankle orbit, metres, evaluated at signed
+ * degrees.
+ * Parameter reach: The measured maximum hip-to-ankle span, metres.
+ * Returns: The last reachable pitch on the original bisection lattice, or
+ * undefined when the original bracket is required.
  */
 export function walkRockerReachBoundary(
   ankle: (pitch: number) => IAutoMovieVector3,
@@ -58,10 +57,14 @@ export function walkRockerReachBoundary(
   };
 }
 
-/** Degrees per radian. */
+/*
+ * Degrees per radian.
+ */
 const DEGREES: number = 180 / Math.PI;
 
-/** Circular-ankle reach entry over a signed pitch bracket. */
+/*
+ * Circular-ankle reach entry over a signed pitch bracket.
+ */
 type ReachBoundary = (
   hip: IAutoMovieVector3,
   low: number,

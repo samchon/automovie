@@ -15,7 +15,7 @@ import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import type { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
 
-/**
+/*
  * A carried body's pelvis set back off the bearer's neck. A seat on the yoke
  * rests the borne seat socket, under the sitting bones, on the top of the back
  * behind the neck, and the pelvis reaches forward of that socket by about its
@@ -28,11 +28,10 @@ import type { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
  * pelvis's front comes onto the neck's surface: the pelvis's half depth and the
  * neck's radius less the yoke's place behind the neck, read on the real shapes.
  * A body clear of the neck is left where the fit put it.
- *
- * @param bearer The bearer's body.
- * @param borne The borne body.
- * @param read The fitted key: the placement and both bodies' key bones.
- * @returns The key, its placement set back when the pelvis meets the neck.
+ * Parameter bearer: The bearer's body.
+ * Parameter borne: The borne body.
+ * Parameter read: The fitted key: the placement and both bodies' key bones.
+ * Returns: The key, its placement set back when the pelvis meets the neck.
  */
 export function HumanCarriedNeckClear(
   bearer: IAutoMovieMotionHumanBody,

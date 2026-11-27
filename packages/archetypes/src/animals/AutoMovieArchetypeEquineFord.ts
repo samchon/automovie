@@ -17,7 +17,7 @@ import { EquineFordBarReads } from "./equine/EquineFordBarReads";
 const { STEP, SWEEP } = EquineFordConstants;
 const { part, top, shape } = EquineFordBarReads;
 
-/**
+/*
  * An equid crossing water on one film clock: it wades down a ford on its own
  * legs, floats free and swims with its measured fore and hind strokes, then
  * lands on the far bank and climbs out on its legs again.
@@ -59,16 +59,15 @@ const { part, top, shape } = EquineFordBarReads;
  * solid entering a bed, and every second of the established stroke against the
  * water for the head; over the entry cut the head rises out of the grounded
  * ride's carriage.
- *
- * @param animal The equid, in its neutral pose.
- * @param params The water, the footing, the three courses and the authored
- *   swim.
- * @returns The crossing, sampled by film second.
- * @throws {AutoMovieArchetypeRefusal} For malformed swim or water values, water
- *   too shallow to float at the end of the wading, a far bank beyond reach or
- *   inside the stroke, a head below the water, a swim shorter than its
- *   transition or a bed met while swimming; and as the grounded ride refuses
- *   its courses and footing.
+ * Parameter animal: The equid, in its neutral pose.
+ * Parameter params: The water, the footing, the three courses and the authored
+ * swim.
+ * Returns: The crossing, sampled by film second.
+ * For malformed swim or water values, water
+ * too shallow to float at the end of the wading, a far bank beyond reach or
+ * inside the stroke, a head below the water, a swim shorter than its
+ * transition or a bed met while swimming; and as the grounded ride refuses
+ * its courses and footing.
  */
 function equineFord<
   Id extends string,
@@ -307,7 +306,9 @@ function equineFord<
     sample,
   };
 
-  /** One stateless displayed second of the crossing. */
+  /*
+   * One stateless displayed second of the crossing.
+   */
   function sample(
     seconds: number,
   ): AutoMovieArchetypeEquineFordPlan.ISample<Id, Dimension> {
@@ -377,7 +378,7 @@ function equineFord<
     };
   }
 
-  /**
+  /*
    * Emit a blended cut pose, lifted by the depth of any solid in a bed, then
    * verified.
    */
@@ -415,7 +416,7 @@ function equineFord<
     return archetype;
   }
 
-  /**
+  /*
    * A grounded segment at the ground's datum under its start
    * (`AutoMovieArchetypeQuadrupedDatumRide`).
    */
@@ -441,7 +442,9 @@ function equineFord<
     );
   }
 
-  /** Each limb's stroke phase: the diagonal pairs half a cycle apart. */
+  /*
+   * Each limb's stroke phase: the diagonal pairs half a cycle apart.
+   */
   function phases(
     cycles: number,
   ): Record<AutoMovieArchetypeQuadrupedBody.Limb, number> {
@@ -453,7 +456,7 @@ function equineFord<
     };
   }
 
-  /**
+  /*
    * The authored bed height under each hoof of a grounded sample, planted or
    * swinging.
    */
@@ -475,7 +478,9 @@ function equineFord<
     );
   }
 
-  /** Refuse a head whose solid meets the water. */
+  /*
+   * Refuse a head whose solid meets the water.
+   */
   function head(
     model: AutoMovieArchetype<Id, Dimension>,
     placement: IAutoMovieTransform,

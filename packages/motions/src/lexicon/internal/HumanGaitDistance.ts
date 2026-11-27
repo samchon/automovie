@@ -6,7 +6,7 @@ import type {
 
 import { HumanGaitMiddle } from "./HumanGaitMiddle";
 
-/**
+/*
  * The length of the way from where the feet stand through the waypoints to the
  * destination, metres.
  */

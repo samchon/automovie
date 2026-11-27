@@ -160,7 +160,9 @@ export namespace AutoMovieArchetypeEquineExpression {
       )
       .sort((p: Heading, q: Heading): number => p.from - q.from);
 
-    /** The layered sample at a film second. */
+    /*
+     * The layered sample at a film second.
+     */
     const at = (seconds: number): AutoMovieArchetypeRide.ISample<Id, D> => {
       const base: AutoMovieArchetypeRide.ISample<Id, D> = ride.at(seconds);
       const channels: EquineExpressionPose.IChannels = {
@@ -251,7 +253,7 @@ export namespace AutoMovieArchetypeEquineExpression {
       return { ...posed, course: base.course };
     };
 
-    /**
+    /*
      * The head channel's turns at a second: the active cue's full turns, eased
      * in along a course from rest, or from an adjacent cue's turns that it
      * takes over, and eased out to rest unless an adjacent cue takes over; a
@@ -297,7 +299,9 @@ export namespace AutoMovieArchetypeEquineExpression {
       return EquineHeadCourse.shown(path, start, goal, share);
     }
 
-    /** The current neck and head bars. */
+    /*
+     * The current neck and head bars.
+     */
     function barsOf(
       current: ReadonlyMap<
         AutoMovieArchetypeQuadrupedBody.Bone,
@@ -319,7 +323,9 @@ export namespace AutoMovieArchetypeEquineExpression {
       };
     }
 
-    /** Another body's bars in this sample's model space. */
+    /*
+     * Another body's bars in this sample's model space.
+     */
     function obstacles(
       base: AutoMovieArchetypeRide.ISample<Id, D>,
       other: AutoMovieArchetypeRide.IPose<string, string>,
@@ -359,7 +365,9 @@ export namespace AutoMovieArchetypeEquineExpression {
       );
     }
 
-    /** The full turns of a head-channel cue at a second. */
+    /*
+     * The full turns of a head-channel cue at a second.
+     */
     function turn(
       base: AutoMovieArchetypeRide.ISample<Id, D>,
       current: ReadonlyMap<

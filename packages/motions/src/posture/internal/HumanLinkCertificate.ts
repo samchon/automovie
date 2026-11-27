@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanColliders,
 } from "@automovie/interface";
 
-/**
+/*
  * The link pair's certificate the planner and the penetration audits read
  * before any probe (`HumanAuditModel` serves it to the planner, and the audits'
  * `AutoMovieMotionHumanAuditTangleMargin` reads it directly).
@@ -21,20 +21,19 @@ import type {
  * shapes' distances less that.
  */
 export namespace HumanLinkCertificate {
-  /**
+  /*
    * A lower bound on the signed distance from every probe of a segment to a
    * convex shape. A cast, the solid the segment's shapes sweep between two read
    * waypoints widened by their stray (`AutoMovieEnginePhysics.physicalShapeGjkCast`), bounds every
    * probe over the interval the same way. Where the solids meet, no bound is
    * given.
-   *
-   * @param solids The segment's shapes as solids, or their casts.
-   * @param offset How far the segment's probes lie outside its own shapes, at
-   *   most, metres (`IAutoMovieMotionHumanAuditTangleModel.IPart.offset`).
-   * @param shape The shape read against, a solid.
-   * @param floor The bound the caller asks whether the pair keeps, metres: the
-   *   reading stops once it is settled.
-   * @returns Metres; negative infinity where the solids meet.
+   * Parameter solids: The segment's shapes as solids, or their casts.
+   * Parameter offset: How far the segment's probes lie outside its own shapes, at
+   * most, metres (`IAutoMovieMotionHumanAuditTangleModel.IPart.offset`).
+   * Parameter shape: The shape read against, a solid.
+   * Parameter floor: The bound the caller asks whether the pair keeps, metres: the
+   * reading stops once it is settled.
+   * Returns: Metres; negative infinity where the solids meet.
    */
   export function certify(
     solids: readonly AutoMovieEnginePhysicsGjkTypes.ISolid[],
@@ -53,18 +52,17 @@ export namespace HumanLinkCertificate {
     return least;
   }
 
-  /**
+  /*
    * How far two placed segments stand clear of each other's probes, both ways:
    * the least distance between their shapes less the larger of their probes'
    * offsets, so no probe of either lies inside the other while it is positive,
    * nor enters it while the two travel less than it. Negative infinity where
    * their shapes meet.
-   *
-   * @param a One segment, placed.
-   * @param aPart Its segment of the tangle model.
-   * @param b The other, placed.
-   * @param bPart Its segment of the tangle model.
-   * @returns Metres.
+   * Parameter a: One segment, placed.
+   * Parameter aPart: Its segment of the tangle model.
+   * Parameter b: The other, placed.
+   * Parameter bPart: Its segment of the tangle model.
+   * Returns: Metres.
    */
   export function clearance(
     a: IAutoMovieMotionHumanColliders.IPlaced,

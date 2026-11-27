@@ -19,7 +19,7 @@ import type { solveXpbdContacts } from "./solveXpbdContacts";
 import { solveXpbdJointTree } from "./solveXpbdJointTree";
 import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 
-/**
+/*
  * The joint phase of one extended position-based dynamics step (Mueller,
  * Macklin, Chentanez, Jeschke and Kim 2020, section 3.3 and 3.4).
  *
@@ -39,14 +39,13 @@ import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
  * own attachment's velocity rows.
  */
 export namespace solveXpbdJoints {
-  /**
+  /*
    * One position pass over the joints: each articulation's joints projected
    * together by the tree's direct Newton solve (`solveXpbdJointTree`), then
    * each joint outside the forest (closing a loop, or with a kinematic child)
    * by its own block correction.
-   *
-   * @param joints The joints, in creation order.
-   * @param h The substep, seconds.
+   * Parameter joints: The joints, in creation order.
+   * Parameter h: The substep, seconds.
    */
   export function positions(
     joints: readonly AutoMovieXpbdJoint[],
@@ -100,7 +99,7 @@ export namespace solveXpbdJoints {
     }
   }
 
-  /**
+  /*
    * The velocity pass of the joints' motors. Every articulation's motors are
    * solved at once over its tree (`solveXpbdArticulation`). A joint outside the
    * forest (closing a loop, or with a kinematic child) has its motor rows
@@ -111,13 +110,12 @@ export namespace solveXpbdJoints {
    * on the axis's relative angular velocity after the impulse, `v_i' + mu_i /
    * (h c_i) = s_i`. A motor whose impulse exceeds its cap `tau_i h` is held at
    * the cap and the rest re-solved.
-   *
-   * @param joints The joints, in creation order.
-   * @param h The substep, seconds.
-   * @param contacts The step's contacts, which hold each tree at its supports.
-   * @param tasks The root tasks the trees' supports should meet, by root body.
-   * @param warm Each tree's warm start for its supports' cascade, by root body,
-   *   kept across steps.
+   * Parameter joints: The joints, in creation order.
+   * Parameter h: The substep, seconds.
+   * Parameter contacts: The step's contacts, which hold each tree at its supports.
+   * Parameter tasks: The root tasks the trees' supports should meet, by root body.
+   * Parameter warm: Each tree's warm start for its supports' cascade, by root body,
+   * kept across steps.
    */
   export function motors(
     joints: readonly AutoMovieXpbdJoint[],
@@ -176,7 +174,7 @@ export namespace solveXpbdJoints {
     }
   }
 
-  /**
+  /*
    * Hold every free motor whose impulse exceeds its cap on that impulse's
    * direction at the cap; true when any was newly held.
    */
@@ -197,19 +195,29 @@ export namespace solveXpbdJoints {
     return clamped;
   }
 
-  /** One motor row of a joint's velocity block. */
+  /*
+   * One motor row of a joint's velocity block.
+   */
   interface IMotorRow {
-    /** The free axis in world space. */
+    /*
+     * The free axis in world space.
+     */
     axis: IAutoMovieVector3;
 
-    /** The axis's motor. */
+    /*
+     * The axis's motor.
+     */
     motor: AutoMovieXpbdJoint.IMotor;
 
-    /** The impulse the row is held at once its cap binds, else null. */
+    /*
+     * The impulse the row is held at once its cap binds, else null.
+     */
     fixed: number | null;
   }
 
-  /** The two bodies of a joint with their anchors' world arms. */
+  /*
+   * The two bodies of a joint with their anchors' world arms.
+   */
   interface IPair {
     parent: AutoMovieXpbdBody;
     child: AutoMovieXpbdBody;
@@ -217,7 +225,7 @@ export namespace solveXpbdJoints {
     armC: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * The anchors' relative velocity (child minus parent) and each axis's
    * relative angular velocity.
    */
@@ -238,7 +246,7 @@ export namespace solveXpbdJoints {
     ];
   }
 
-  /**
+  /*
    * A block solution's impulses on the child: the attachment's at its anchor
    * and the motors' summed angular one.
    */
@@ -247,7 +255,7 @@ export namespace solveXpbdJoints {
     angular: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * Read the attachment impulse and the summed motor angular impulse from
    * unknowns `x`.
    */
@@ -262,7 +270,7 @@ export namespace solveXpbdJoints {
     return { point: { x: x[0]!, y: x[1]!, z: x[2]! }, angular };
   }
 
-  /**
+  /*
    * The change of the measured velocities under unknowns `x`: the attachment
    * impulse on the child at its anchor, opposite on the parent, then one
    * angular impulse per axis.
@@ -285,13 +293,15 @@ export namespace solveXpbdJoints {
     ];
   }
 
-  /** The velocity change of one body's anchor point and its rotation. */
+  /*
+   * The velocity change of one body's anchor point and its rotation.
+   */
   interface IChange {
     linear: IAutoMovieVector3;
     angular: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * One body's anchor velocity and angular velocity change under the impulses,
    * taken with `sign`.
    */
@@ -318,7 +328,7 @@ export namespace solveXpbdJoints {
     };
   }
 
-  /**
+  /*
    * Solve the joint's block: attachment rows `du = -u`, free motor rows `dv_i +
    * mu_i / (h c_i) = s_i - v_i`, held motor rows `mu_i = fixed`.
    */
@@ -363,7 +373,9 @@ export namespace solveXpbdJoints {
     return AutoMovieEngineMath.solveLinearSystem(matrix, right);
   }
 
-  /** A body-frame anchor's world arm from the body's centre. */
+  /*
+   * A body-frame anchor's world arm from the body's centre.
+   */
   function anchorArm(
     body: AutoMovieXpbdBody,
     anchor: IAutoMovieVector3,
@@ -374,7 +386,9 @@ export namespace solveXpbdJoints {
     );
   }
 
-  /** Each joint-frame axis by name. */
+  /*
+   * Each joint-frame axis by name.
+   */
   const UNIT: Readonly<Record<string, IAutoMovieVector3>> = {
     x: { x: 1, y: 0, z: 0 },
     y: { x: 0, y: 1, z: 0 },

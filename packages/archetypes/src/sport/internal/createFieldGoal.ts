@@ -10,19 +10,18 @@ import {
 import { GoalBuild } from "./GoalBuild";
 import type { AutoMovieArchetypeGoal } from "../AutoMovieArchetypeGoal";
 
-/**
+/*
  * A rectangular field, court or ice goal with a scoring opening.
  *
  * Two posts and a crossbar stand in the XY plane. The field faces +Z, and mouth
  * marks the scoring aperture.
- *
- * @param params The optional identifier and dimensions fixed within their
- *   recorded bands.
- * @param seed The seed for free dimensions. The band midpoints apply without a
- *   seed.
- * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
- *   cannot be realized.
+ * Parameter params: The optional identifier and dimensions fixed within their
+ * recorded bands.
+ * Parameter seed: The seed for free dimensions. The band midpoints apply without a
+ * seed.
+ * Returns: The model with its named contacts in its local frame.
+ * When a supplied dimension or choice
+ * cannot be realized.
  */
 export function createFieldGoal(
   params: AutoMovieArchetypeFieldGoal.IParams = {},
@@ -48,26 +47,31 @@ export function createFieldGoal(
   return builder.build(d.mass!);
 }
 
-/** The builder for this field or court apparatus. */
+/*
+ * The builder for this field or court apparatus.
+ */
 type Builder = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeFieldGoal.Affordance,
   AutoMovieArchetypeGoal.Dimension
 >;
 
-/** The saved goal dimensions in their local units. */
+/*
+ * The saved goal dimensions in their local units.
+ */
 type Drawn = Partial<Record<AutoMovieArchetypeGoal.Dimension, number>>;
 
-/** Local points in metres. */
+/*
+ * Local points in metres.
+ */
 const v: typeof Vector3.create = Vector3.create;
 
-/**
+/*
  * Build two posts and a crossbar around the scoring opening. Field goals and
  * handball use square sections, while ice hockey and lacrosse use pipes. The
  * mouth lies in the goal plane.
- *
- * @param builder The builder to fill.
- * @param d The drawn dimensions.
- * @param round Whether the frame uses pipes.
+ * Parameter builder: The builder to fill.
+ * Parameter d: The drawn dimensions.
+ * Parameter round: Whether the frame uses pipes.
  */
 function rectangularGoal(builder: Builder, d: Drawn, round: boolean): void {
   const half: number = d.width! / 2;

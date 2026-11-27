@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `headScratch` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. Scratching the head: the forefinger's tip
  * oscillates on the crown.

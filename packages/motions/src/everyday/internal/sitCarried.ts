@@ -16,16 +16,15 @@ import type {
 
 import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 
-/**
+/*
  * Carry a low sit in the frame of its moving seat. A high mount has already
  * placed its feet in their material supports before preparing its limb
  * courses.
- *
- * @param context The sit's start and props.
- * @param seat The seat, read where its carrier stands at the sit's start.
- * @param plan The sit's prepared plan.
- * @param declared Whether the mount already applied its carrier.
- * @returns The plan in its displayed frames.
+ * Parameter context: The sit's start and props.
+ * Parameter seat: The seat, read where its carrier stands at the sit's start.
+ * Parameter plan: The sit's prepared plan.
+ * Parameter declared: Whether the mount already applied its carrier.
+ * Returns: The plan in its displayed frames.
  */
 export function sitCarried(
   context: SitCarriedContext,
@@ -63,25 +62,28 @@ export function sitCarried(
   };
 }
 
-/** Place the seat and the mount's material supports on a common clock. */
+/*
+ * Place the seat and the mount's material supports on a common clock.
+ */
 export namespace sitCarried {
-  /** Place one authored posture at a local second. */
+  /*
+   * Place one authored posture at a local second.
+   */
   export type Pose = (
     posture: IAutoMovieMotionHumanPosture,
     seconds: number,
   ) => IAutoMovieMotionHumanPosture;
 
-  /**
+  /*
    * Prepare the frame changes from the seat's initial placement. A floor goal
    * stays in the world. A named footrest carries its foot after landing, with
    * the minimum-jerk approach of Flash and Hogan (1985) taking it from its
    * starting frame to the part's own frame over the free interval.
-   *
-   * @param context The sit's start and props.
-   * @param seat The seat, read where its carrier stands at the sit's start.
-   * @param duration The plan's length, seconds.
-   * @param contacts The mount's explicit ground and carrier contact windows.
-   * @returns The frame change shared by preparation and the displayed posture.
+   * Parameter context: The sit's start and props.
+   * Parameter seat: The seat, read where its carrier stands at the sit's start.
+   * Parameter duration: The plan's length, seconds.
+   * Parameter contacts: The mount's explicit ground and carrier contact windows.
+   * Returns: The frame change shared by preparation and the displayed posture.
    */
   export function prepare(
     context: SitCarriedContext,
@@ -246,38 +248,60 @@ export namespace sitCarried {
   }
 }
 
-/** The context of the seat's carrier and film clock. */
+/*
+ * The context of the seat's carrier and film clock.
+ */
 type SitCarriedContext = Pick<
   IAutoMovieMotionHumanActionContext,
   "prop" | "start"
 >;
 
-/** A foot's ground windows and its optional part-relative approach and rest. */
+/*
+ * A foot's ground windows and its optional part-relative approach and rest.
+ */
 interface IFootSupport {
-  /** The leg the support holds. */
+  /*
+   * The leg the support holds.
+   */
   limb: AutoMovieHumanLimb;
 
-  /** Windows in which the leg keeps its original world goal on the floor. */
+  /*
+   * Windows in which the leg keeps its original world goal on the floor.
+   */
   ground: readonly IAutoMovieMotionHumanContactWindow[];
 
-  /** The moving footrest, when the seat names one that supplies a frame. */
+  /*
+   * The moving footrest, when the seat names one that supplies a frame.
+   */
   part?: {
-    /** The prop's affordance id. */
+    /*
+     * The prop's affordance id.
+     */
     id: string;
 
-    /** The foothold where the mount starts, world metres. */
+    /*
+     * The foothold where the mount starts, world metres.
+     */
     position: IAutoMovieVector3;
 
-    /** The inverse rotation of the starting foothold. */
+    /*
+     * The inverse rotation of the starting foothold.
+     */
     inverse: IAutoMovieQuaternion;
 
-    /** Whether the free approach starts in a world floor plant. */
+    /*
+     * Whether the free approach starts in a world floor plant.
+     */
     fromFloor: boolean;
 
-    /** The second the foot leaves its starting support. */
+    /*
+     * The second the foot leaves its starting support.
+     */
     release: number;
 
-    /** The second the foot lands on the foothold. */
+    /*
+     * The second the foot lands on the foothold.
+     */
     bearing: number;
   };
 }

@@ -15,12 +15,12 @@ import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
 import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../AUTOMOVIE_SUPPORT_TOLERANCE";
 import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 
-/**
+/*
  * Find every placed body in a building with clear air under it.
  *
  * The requirement this answers asks for two capabilities in one sentence:
  * express what supports what, and find the floating or disconnected elements.
- * {@link builtEnvironmentSupportStatus} is the first and cannot be the second,
+ * builtEnvironmentSupportStatus is the first and cannot be the second,
  * because it judges a relation the author already named, and an oriel window
  * nobody suspected is a query nobody wrote. This sweeps the record instead and
  * needs no declaration at all.
@@ -49,12 +49,11 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
  * `groundY` is not finite. `measured` counts resolved bodies, `compared` the
  * candidate parts examined, and `unresolved` lists the bodies that occupy no
  * place.
- *
- * @param props.environment Building record to sweep.
- * @param props.groundY World height a body may rest on directly, in metres.
- * @param props.tolerance Contact slack in metres; `AUTOMOVIE_SUPPORT_TOLERANCE`
- *   when omitted.
- * @returns The counts, the floating bodies and the unresolved bodies.
+ * Parameter props.environment: Building record to sweep.
+ * Parameter props.groundY: World height a body may rest on directly, in metres.
+ * Parameter props.tolerance: Contact slack in metres; `AUTOMOVIE_SUPPORT_TOLERANCE`
+ * when omitted.
+ * Returns: The counts, the floating bodies and the unresolved bodies.
  */
 export function builtEnvironmentSupportSweep(
   props: IAutoMovieBuiltEnvironmentSupportSweep.IProps,
@@ -131,25 +130,37 @@ export function builtEnvironmentSupportSweep(
   };
 }
 
-/** One resolved body of the building, with the locator that names it. */
+/*
+ * One resolved body of the building, with the locator that names it.
+ */
 interface IResolvedBody {
-  /** Declared identity retained in the report. */
+  /*
+   * Declared identity retained in the report.
+   */
   locator: IAutoMovieBuiltPlacementBodyLocator;
 
-  /** Resolved CPU bounds and part-box proxies. */
+  /*
+   * Resolved CPU bounds and part-box proxies.
+   */
   body: IAutoMovieBuiltPlacementBody;
 }
 
-/** One solid a body fills, with the body that owns it. */
+/*
+ * One solid a body fills, with the body that owns it.
+ */
 interface ICandidateSolid {
-  /** Axis-aligned part box whose top is considered for support. */
+  /*
+   * Axis-aligned part box whose top is considered for support.
+   */
   solid: IAutoMovieSubjectBox;
 
-  /** Body excluded when the subject would otherwise support itself. */
+  /*
+   * Body excluded when the subject would otherwise support itself.
+   */
   owner: IResolvedBody;
 }
 
-/**
+/*
  * Every element and population of one building, resolved once.
  *
  * The building is staged once for every element's parts, and each body is then
@@ -203,7 +214,7 @@ const resolveBodies: (environment: IAutoMovieBuiltEnvironment) => {
   return { resolved, unresolved };
 };
 
-/**
+/*
  * The first index of a top-height-descending list at or below one height.
  *
  * A binary search rather than a scan, because the bodies above a subject are

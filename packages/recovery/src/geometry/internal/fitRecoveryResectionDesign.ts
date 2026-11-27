@@ -6,7 +6,7 @@ import type {
   IAutoMovieRecoveryResectionDesignTrace,
 } from "@automovie/interface";
 
-/**
+/*
  * Initialize a calibrated nonplanar resection from at least six 3D/pixel pairs.
  * Isotropic centroid/RMS normalization in both charts conditions the original
  * 2N-by-12 DLT. The proper rotation is projected from its calibrated block,

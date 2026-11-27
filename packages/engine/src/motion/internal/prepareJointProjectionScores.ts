@@ -8,7 +8,7 @@ import { readNormalizedQuaternion } from "../../math/internal/readNormalizedQuat
 import { prepareJointProjectionClamp } from "./prepareJointProjectionClamp";
 import type { AutoMovieEngineMotionJointProjection } from "../AutoMovieEngineMotionJointProjection";
 
-/**
+/*
  * Rank the analytic box projector's actual admitted candidates under its
  * original normalized-dot, summation-error and nearest-reference tie policy.
  * The caller supplies the already completed finite candidate pairs, actual
@@ -19,11 +19,10 @@ import type { AutoMovieEngineMotionJointProjection } from "../AutoMovieEngineMot
  * leases it exclusively; reentrant clamp queries use separate temporary
  * containers. finally clears every joint and map reference on success or throw.
  * Selected joints and requested raw quaternion copies remain independent.
- *
- * @param props Fixed mobile axes, exact composer/converter and original
- *   equality under one unchanged rig.
- * @returns A query scorer accepting current target/reference/pairs/clamp and
- *   the original paired-output demand.
+ * Parameter props: Fixed mobile axes, exact composer/converter and original
+ * equality under one unchanged rig.
+ * Returns: A query scorer accepting current target/reference/pairs/clamp and
+ * the original paired-output demand.
  */
 export function prepareJointProjectionScores(
   props: IProps,
@@ -55,7 +54,9 @@ export function prepareJointProjectionScores(
     const storage: IWorkspace = queryStorage.acquire();
     try {
       const { joints, scores, buckets }: IWorkspace = storage;
-      /** One normalized-score visitor per query, never one per candidate. */
+      /*
+       * One normalized-score visitor per query, never one per candidate.
+       */
       const normalizedScore: (
         x: number,
         y: number,
@@ -206,63 +207,111 @@ export function prepareJointProjectionScores(
   };
 }
 
-/** Original degree-valued clinical coordinate names. */
+/*
+ * Original degree-valued clinical coordinate names.
+ */
 type ClinicalAxis = "flexion" | "abduction" | "twist";
 
-/** Fixed rig/scorer dependencies shared by one projector's independent queries. */
+/*
+ * Fixed rig/scorer dependencies shared by one projector's independent queries.
+ */
 interface IProps {
-  /** One or two positive-width coordinates, in the original stable order. */
+  /*
+   * One or two positive-width coordinates, in the original stable order.
+   */
   mobile: readonly ClinicalAxis[];
-  /** Original query-owned composition factory with fixed rig arithmetic. */
+  /*
+   * Original query-owned composition factory with fixed rig arithmetic.
+   */
   composition: ReturnType<typeof jointToQuaternionOnBasis.prepareScalarQueries>;
-  /** Original rig-to-clinical conversion owner, including lazy frame admission. */
+  /*
+   * Original rig-to-clinical conversion owner, including lazy frame admission.
+   */
   clinical: (axis: ClinicalAxis, angle: number) => number;
-  /** Exact original bone/F/A/T equality, including null and signed zero. */
+  /*
+   * Exact original bone/F/A/T equality, including null and signed zero.
+   */
   sameJoint: (a: IAutoMovieJointPose, b: IAutoMovieJointPose) => boolean;
 }
 
-/** Original joint-only or explicitly requested paired projection output. */
+/*
+ * Original joint-only or explicitly requested paired projection output.
+ */
 type IEvaluation =
   | IAutoMovieJointPose
   | AutoMovieEngineMotionJointProjection.IProjection;
 
-/** Scores and raw components of each ordered candidate; links use -1 as absent. */
+/*
+ * Scores and raw components of each ordered candidate; links use -1 as absent.
+ */
 const enum ScoreField {
-  /** Absolute normalized actual-target dot. */
+  /*
+   * Absolute normalized actual-target dot.
+   */
   VALUE = 0,
-  /** Existing four-product roundoff radius. */
+  /*
+   * Existing four-product roundoff radius.
+   */
   ERROR = 1,
-  /** Squared clinical distance from the unchanged query reference. */
+  /*
+   * Squared clinical distance from the unchanged query reference.
+   */
   DISTANCE = 2,
-  /** Previous candidate index in this first-coordinate row, or -1. */
+  /*
+   * Previous candidate index in this first-coordinate row, or -1.
+   */
   PREVIOUS = 3,
-  /** Original unnormalized composition, retained without a quaternion record. */
+  /*
+   * Original unnormalized composition, retained without a quaternion record.
+   */
   RAW_X = 4,
-  /** Original raw vector Y component. */
+  /*
+   * Original raw vector Y component.
+   */
   RAW_Y = 5,
-  /** Original raw vector Z component. */
+  /*
+   * Original raw vector Z component.
+   */
   RAW_Z = 6,
-  /** Original raw scalar component. */
+  /*
+   * Original raw scalar component.
+   */
   RAW_W = 7,
-  /** Fixed cells per candidate, independent of the query's numerical inputs. */
+  /*
+   * Fixed cells per candidate, independent of the query's numerical inputs.
+   */
   STRIDE = 8,
 }
 
-/** Empty-on-release containers for one active analytic projection. */
+/*
+ * Empty-on-release containers for one active analytic projection.
+ */
 interface IWorkspace {
-  /** Current admitted joint records, never shared with a nested query. */
+  /*
+   * Current admitted joint records, never shared with a nested query.
+   */
   joints: IAutoMovieJointPose[];
-  /** Original indexed score/tie/raw quaternion cells. */
+  /*
+   * Original indexed score/tie/raw quaternion cells.
+   */
   scores: number[];
-  /** Original first-coordinate duplicate-chain heads. */
+  /*
+   * Original first-coordinate duplicate-chain heads.
+   */
   buckets: Map<number | null, number>;
 }
 
-/** Lease primary capacity exclusively and discard temporary nested storage. */
+/*
+ * Lease primary capacity exclusively and discard temporary nested storage.
+ */
 function createStorage(): {
-  /** Acquire empty exclusive arrays/map for one synchronous query. */
+  /*
+   * Acquire empty exclusive arrays/map for one synchronous query.
+   */
   acquire(): IWorkspace;
-  /** Clear all query references and release any primary lease. */
+  /*
+   * Clear all query references and release any primary lease.
+   */
   release(workspace: IWorkspace): void;
 } {
   const primary: IWorkspace = createWorkspace();
@@ -282,7 +331,9 @@ function createStorage(): {
   };
 }
 
-/** Allocate one unshared set of empty analytic-search containers. */
+/*
+ * Allocate one unshared set of empty analytic-search containers.
+ */
 function createWorkspace(): IWorkspace {
   return { joints: [], scores: [], buckets: new Map<number | null, number>() };
 }

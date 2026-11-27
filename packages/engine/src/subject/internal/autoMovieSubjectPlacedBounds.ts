@@ -7,7 +7,7 @@ import {
 import { transformAutoMovieDrawingPoint } from "../../drawing/internal/transformAutoMovieDrawingPoint";
 import { Matrix4 } from "../../math/Matrix4";
 
-/**
+/*
  * The world box of model-frame points placed by one node transform, or null
  * when there are no points.
  *
@@ -15,10 +15,9 @@ import { Matrix4 } from "../../math/Matrix4";
  * moved through it, and the componentwise minimum and maximum are folded as the
  * points are placed, so no placed copy of the point list is built. Units follow
  * the points and the translation, metres for every subject.
- *
- * @param points Model-frame points, typically a model's or a part's vertices.
- * @param transform Placement of the model in world space.
- * @returns The axis-aligned box of the placed points, new and caller-owned.
+ * Parameter points: Model-frame points, typically a model's or a part's vertices.
+ * Parameter transform: Placement of the model in world space.
+ * Returns: The axis-aligned box of the placed points, new and caller-owned.
  */
 export const autoMovieSubjectPlacedBounds = (
   points: readonly IAutoMovieVector3[],

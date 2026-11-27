@@ -7,20 +7,19 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Resolve grade authority before sampling any terrain cells.
  *
  * Pads first reserve a level apron over half their declared shoulder. Paths
  * take heights from that plan, or from a named frame that pins the exact
  * waypoint. A pinned waypoint gets a short level landing on each incident
  * segment. Adjacent shoulders use smoothstep falloff.
- *
- * @param context The terrain's world placement and environment-relative anchor
- *   lookup.
- * @param recipe Widths, ordered local plan coordinates, and named heights for
- *   the parcel.
- * @param base The finite, ungraded world-height sampler.
- * @returns Resolved paths and an evaluator for the shared ground lattice.
+ * Parameter context: The terrain's world placement and environment-relative anchor
+ * lookup.
+ * Parameter recipe: Widths, ordered local plan coordinates, and named heights for
+ * the parcel.
+ * Parameter base: The finite, ungraded world-height sampler.
+ * Returns: Resolved paths and an evaluator for the shared ground lattice.
  */
 export function prepareTerrainGrades(
   context: IAutoMovieEnvironmentModule.IContext,
@@ -154,75 +153,113 @@ export function prepareTerrainGrades(
   };
 }
 
-/**
+/*
  * A resolved area with a level apron and a smooth transition to its
  * surroundings.
  */
 interface IPad {
-  /** Scoped diagnostic name. */
+  /*
+   * Scoped diagnostic name.
+   */
   id: string;
 
-  /** World XZ stored under the shared planar X/Y names. */
+  /*
+   * World XZ stored under the shared planar X/Y names.
+   */
   outline: IAutoMoviePlanarPoint[];
 
-  /** Level world Y and shoulder width in metres. */
+  /*
+   * Level world Y and shoulder width in metres.
+   */
   height: number;
   shoulder: number;
-  /** A separately built floor owns support inside this plateau. */
+  /*
+   * A separately built floor owns support inside this plateau.
+   */
   cut: boolean;
 }
 
-/** Consecutive grade vertices and the length of their usable rise. */
+/*
+ * Consecutive grade vertices and the length of their usable rise.
+ */
 interface ISegment {
-  /** Endpoints in world metres. */
+  /*
+   * Endpoints in world metres.
+   */
   from: IAutoMovieVector3;
   to: IAutoMovieVector3;
 
-  /** Length and landing lengths in plan metres. */
+  /*
+   * Length and landing lengths in plan metres.
+   */
   length: number;
   fromLanding: number;
   toLanding: number;
 }
 
-/** One resolved grade corridor sharing path coordinates with the runtime route. */
+/*
+ * One resolved grade corridor sharing path coordinates with the runtime route.
+ */
 interface IPath {
-  /** Stable local key and scoped diagnostic identity. */
+  /*
+   * Stable local key and scoped diagnostic identity.
+   */
   name: string;
   id: string;
 
-  /** Corridor and shoulder metres. */
+  /*
+   * Corridor and shoulder metres.
+   */
   radius: number;
   shoulder: number;
 
-  /** Maximum absolute slope, in metres per metre, if constrained. */
+  /*
+   * Maximum absolute slope, in metres per metre, if constrained.
+   */
   maxSlope: number | undefined;
 
-  /** Ordered world waypoints and the hard anchors among them. */
+  /*
+   * Ordered world waypoints and the hard anchors among them.
+   */
   points: IAutoMovieVector3[];
   fixed: boolean[];
 
-  /** Graded segments in order. */
+  /*
+   * Graded segments in order.
+   */
   segments: ISegment[];
 }
 
-/** Prepared scene placement constraints and their base-height reader. */
+/*
+ * Prepared scene placement constraints and their base-height reader.
+ */
 interface ITerrainGrades {
-  /** Narrowest apron or path feature whose bake requires more than one cell. */
+  /*
+   * Narrowest apron or path feature whose bake requires more than one cell.
+   */
   featureSize: number;
 
-  /** Common level of all grade constraints, when every grade is at one height. */
+  /*
+   * Common level of all grade constraints, when every grade is at one height.
+   */
   commonLevel: number | undefined;
 
-  /** Resolved paths, in authored order. */
+  /*
+   * Resolved paths, in authored order.
+   */
   paths: IPath[];
 
-  /** Grade pads whose structures own support inside their footprint. */
+  /*
+   * Grade pads whose structures own support inside their footprint.
+   */
   cuts: IAutoMovieVector3[][];
 
-  /** One continuous blend away from the declared hard grade regions. */
+  /*
+   * One continuous blend away from the declared hard grade regions.
+   */
   height: (point: { x: number; z: number }) => number;
 
-  /**
+  /*
    * Closest paved, raised or deliberately cleared source within a trunk's
    * protection radius.
    */
@@ -232,7 +269,7 @@ interface ITerrainGrades {
   ) => string | null;
 }
 
-/**
+/*
  * Resolve a local pad ring through its optional named pose and establish its
  * plateau height.
  */
@@ -293,7 +330,7 @@ function preparePad(
   return { id, outline, height, shoulder, cut: pad.cut ?? false };
 }
 
-/**
+/*
  * Resolve waypoint heights, plateau entrances and the grade along each
  * successive segment.
  */
@@ -363,7 +400,9 @@ function preparePath(
   return { id, name, points, fixed, segments, radius, shoulder, maxSlope };
 }
 
-/** Unsigned distance to a closed polygon, including zero over its interior. */
+/*
+ * Unsigned distance to a closed polygon, including zero over its interior.
+ */
 function ringDistance(
   point: IAutoMoviePlanarPoint,
   outline: readonly IAutoMoviePlanarPoint[],
@@ -394,7 +433,9 @@ function ringDistance(
   return distance;
 }
 
-/** Distance and plateau-aware height at the closest point of a centerline. */
+/*
+ * Distance and plateau-aware height at the closest point of a centerline.
+ */
 function pathGrade(
   point: IAutoMoviePlanarPoint,
   path: IPath,
@@ -427,7 +468,9 @@ function pathGrade(
   return [distance, height];
 }
 
-/** Arc position of the closest point on a finite segment. */
+/*
+ * Arc position of the closest point on a finite segment.
+ */
 function projection(
   x: number,
   z: number,
@@ -438,7 +481,9 @@ function projection(
   return Math.max(0, Math.min(length, x * (dx / length) + z * (dz / length)));
 }
 
-/** Cubic smoothstep complement on a normalized shoulder coordinate. */
+/*
+ * Cubic smoothstep complement on a normalized shoulder coordinate.
+ */
 function taper(progress: number): number {
   const t: number = Math.max(0, Math.min(1, progress));
   return 1 - t * t * (3 - 2 * t);

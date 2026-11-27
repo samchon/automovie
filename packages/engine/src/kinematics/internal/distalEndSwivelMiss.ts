@@ -5,7 +5,7 @@ import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
 import { distalEndSwivelReadings } from "../distalEndSwivelReadings";
 import { sphericalBoxMiss } from "./sphericalBoxMiss";
 
-/**
+/*
  * A certified lower bound, over an interval of swivels, of how far the end
  * joint of a chain whose mid segment twists distally (a wrist beyond a forearm)
  * must miss a requested rotation, degrees.
@@ -34,10 +34,9 @@ import { sphericalBoxMiss } from "./sphericalBoxMiss";
  * The bound is lowered by the joints' tolerance (`ROM_TOLERANCE`), within which
  * a projection onto the box may stand past its ends, so it stays below every
  * miss it bounds.
- *
- * @param props The end joint and the mid segment's direction by swivel.
- * @returns The bound over `low` to `high` degrees, never negative; null when
- *   the analysis does not apply (`distalEndSwivelReadings.of`).
+ * Parameter props: The end joint and the mid segment's direction by swivel.
+ * Returns: The bound over `low` to `high` degrees, never negative; null when
+ * the analysis does not apply (`distalEndSwivelReadings.of`).
  */
 export function distalEndSwivelMiss(
   props: distalEndSwivelReadings.IProps,

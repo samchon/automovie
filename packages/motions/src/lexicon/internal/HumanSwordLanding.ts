@@ -9,7 +9,7 @@ import type {
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { StrikingRoll } from "../../striking/internal/StrikingRoll";
 
-/**
+/*
  * Where a cut lands (`HumanSword.cut`): the hand frame that puts the blade's
  * landing part on the target with the edge leading along the travel.
  *
@@ -29,78 +29,91 @@ import { StrikingRoll } from "../../striking/internal/StrikingRoll";
  * m/s by skill (`IAutoMovieMotionHumanSword`).
  */
 export namespace HumanSwordLanding {
-  /**
+  /*
    * The leans of a cut's blade at contact that are tried, back toward where the
    * cut came from as a share of the line to the target (provisional).
    */
   export const LEANS: readonly number[] = [0.35, 0.7, 0.1, 1];
 
-  /**
+  /*
    * The turns of a cut's blade about its travel at contact that are tried after
    * none, degrees: a wrist that cannot hold the blade on the line to the target
    * holds it turned (search resolution, provisional).
    */
   export const TURNS: readonly number[] = [15, -15, 30, -30, 45, -45];
 
-  /**
+  /*
    * The refinement step of a blade's lean, a share of the line to the target:
    * the least gap between `LEANS`.
    */
   export const LEAN_STEP: number = 0.25;
 
-  /**
+  /*
    * The refinement step of a blade's turn about its travel, degrees: the gap
    * between `TURNS`.
    */
   export const TURN_STEP: number = 15;
 
-  /**
+  /*
    * The refinement step of an edgeless tool's roll about its own line, degrees
    * (search resolution, provisional): the turn grid of `StrikingRoll.hand`.
    */
   export const ROLL_STEP: number = 30;
 
-  /**
+  /*
    * The refinement step of the line's further lean inside the cone, degrees
    * (search resolution, provisional): the cone grid of `StrikingRoll.hand`.
    */
   export const TILT_STEP: number = 10;
 
-  /** What a cut's contact is placed by. */
+  /*
+   * What a cut's contact is placed by.
+   */
   export interface IProps {
-    /** The held blade. */
+    /*
+     * The held blade.
+     */
     tool: IAutoMovieMotionHumanStrikingHeld.ITool;
 
-    /** How far behind the working point the landing part lies, metres. */
+    /*
+     * How far behind the working point the landing part lies, metres.
+     */
     back: number;
 
-    /** Where the landing part goes, world metres. */
+    /*
+     * Where the landing part goes, world metres.
+     */
     target: IAutoMovieVector3;
 
-    /** Where the blade's line comes from toward the target, world metres. */
+    /*
+     * Where the blade's line comes from toward the target, world metres.
+     */
     reach: IAutoMovieVector3;
 
-    /** The unit direction the edge travels. */
+    /*
+     * The unit direction the edge travels.
+     */
     travel: IAutoMovieVector3;
 
-    /**
+    /*
      * How far the blade's line may lean further from the line to the target,
      * degrees: a held thing leaves the hand at its own angle, so at its reach
      * the hand may stand off that line.
      */
     cone: number;
 
-    /** The body as it stands at the decisive instant. */
+    /*
+     * The body as it stands at the decisive instant.
+     */
     posture: IAutoMovieMotionHumanPosture;
   }
 
-  /**
+  /*
    * The hand frame of a cut's contact.
-   *
-   * @param context The action's context.
-   * @param props The blade, the landing part, the target, the line, the travel
-   *   and the body.
-   * @returns The chosen hand frame.
+   * Parameter context: The action's context.
+   * Parameter props: The blade, the landing part, the target, the line, the travel
+   * and the body.
+   * Returns: The chosen hand frame.
    */
   export function frame(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,

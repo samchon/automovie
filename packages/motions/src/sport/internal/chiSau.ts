@@ -25,10 +25,12 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
 
-/** The world's up. */
+/*
+ * The world's up.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
+/*
  * Wing chun's rolling chi sau (`IAutoMovieMotionHumanChiSau`): both wrists held
  * on the two contacts between the partners, each partner's left wrist over the
  * partner's right, the contacts rolling a small vertical circle in the line
@@ -43,37 +45,48 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * stay planted.
  */
 export namespace chiSau {
-  /** Action key. */
+  /*
+   * Action key.
+   */
   export const name: AutoMovieMotionHumanActionKey = "chiSau";
 
-  /** Cancel table: none; the drill runs to its end. */
+  /*
+   * Cancel table: none; the drill runs to its end.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-  /** One roll cycle, seconds (provisional). */
+  /*
+   * One roll cycle, seconds (provisional).
+   */
   export const CYCLE: number = 1.2;
 
-  /** The roll circle's radius as a share of stature (provisional). */
+  /*
+   * The roll circle's radius as a share of stature (provisional).
+   */
   export const RADIUS: number = 0.035;
 
-  /**
+  /*
    * The contacts' half spacing across the line as a share of stature
    * (provisional).
    */
   export const HALF: number = 0.07;
 
-  /** A wrist's radius as a share of stature, from the joint to its surface. */
+  /*
+   * A wrist's radius as a share of stature, from the joint to its surface.
+   */
   export const WRIST: number = 0.015;
 
-  /** The arms' blend in and out, seconds. */
+  /*
+   * The arms' blend in and out, seconds.
+   */
   export const BLEND: number = 0.5;
 
-  /**
+  /*
    * Chi sau's timetable: `count` cycles of `CYCLE` (four by default) unless a
    * duration is given, joined and parted over a blend of `BLEND` or a quarter
    * of the whole, whichever is shorter.
-   *
-   * @param p The cycles and the duration.
-   * @returns The clock with `joined` and `parted`.
+   * Parameter p: The cycles and the duration.
+   * Returns: The clock with `joined` and `parted`.
    */
   export function timetable(
     p: Pick<IAutoMovieMotionHumanChiSau.IParams, "count" | "duration">,
@@ -85,12 +98,11 @@ export namespace chiSau {
       { name: "parted", seconds: duration - blend },
     ]);
   }
-  /**
+  /*
    * Plan chi sau.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the partner is the performer.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the partner is the performer.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanChiSau.IParams>,
@@ -311,24 +323,32 @@ export namespace chiSau {
   }
 }
 
-/** The shared geometry of the two rolling contacts. */
+/*
+ * The shared geometry of the two rolling contacts.
+ */
 interface IRoll {
-  /** Each of this performer's sides' contact centre, world metres. */
+  /*
+   * Each of this performer's sides' contact centre, world metres.
+   */
   centre: Readonly<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
 
-  /**
+  /*
    * The roll's in-line axis, shared by both partners: from the first subject
    * toward the second.
    */
   line: IAutoMovieVector3;
 
-  /** This performer's forward, toward the partner. */
+  /*
+   * This performer's forward, toward the partner.
+   */
   forward: IAutoMovieVector3;
 
-  /** This performer's left. */
+  /*
+   * This performer's left.
+   */
   left: IAutoMovieVector3;
 
-  /**
+  /*
    * The roll phase offset of each of this performer's sides, radians, shared by
    * the side's two forearms.
    */

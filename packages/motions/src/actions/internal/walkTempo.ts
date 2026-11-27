@@ -8,7 +8,7 @@ import type {
 
 import type { walkStation } from "../../gait/internal/walkStation";
 
-/**
+/*
  * A stepping plan with its steps taken a little unevenly in time, as a person's
  * are: each step, from one heel strike to the next, lasts its planned time
  * stretched or shrunk by its own small share.
@@ -23,18 +23,17 @@ import type { walkStation } from "../../gait/internal/walkStation";
  * That rate is 1 at every heel strike, so the body's velocity is continuous
  * across them. Before the first strike and after the last the two clocks run
  * alike.
- *
- * @param plan The stepping plan; its heel strikes are the events named
- *   `leftHeelStrike<n>` and `rightHeelStrike<n>`.
- * @param stretch The share by which step `index`, from 0, lasts longer than
- *   planned; negative for shorter. With the limp's share added, it is held
- *   within `walkTempo.HOLD` either way.
- * @param limp A limp, when the gait has one: each step standing on the spared
- *   leg (the one whose heel strike begins it) is cut short by the share and
- *   each step standing on the other drawn out by it.
- * @returns The plan on the uneven clock, with its duration, events, contact
- *   windows and decisive instant moved to their film seconds; the plan itself
- *   when it names fewer than two heel strikes.
+ * Parameter plan: The stepping plan; its heel strikes are the events named
+ * `leftHeelStrike<n>` and `rightHeelStrike<n>`.
+ * Parameter stretch: The share by which step `index`, from 0, lasts longer than
+ * planned; negative for shorter. With the limp's share added, it is held
+ * within `walkTempo.HOLD` either way.
+ * Parameter limp: A limp, when the gait has one: each step standing on the spared
+ * leg (the one whose heel strike begins it) is cut short by the share and
+ * each step standing on the other drawn out by it.
+ * Returns: The plan on the uneven clock, with its duration, events, contact
+ * windows and decisive instant moved to their film seconds; the plan itself
+ * when it names fewer than two heel strikes.
  */
 export function walkTempo(
   plan: walkStation.IPlan,
@@ -61,12 +60,12 @@ export function walkTempo(
   );
 }
 
-/**
+/*
  * The heel strikes a stepping plan names and the time warp that sends them to
- * given seconds, companions of {@link walkTempo}.
+ * given seconds, companions of walkTempo.
  */
 export namespace walkTempo {
-  /**
+  /*
    * The most a drawn variability stretches or shrinks a step's planned time,
    * and the most a beat's period may differ from the gait's own step, as a
    * share of it: beyond it the gait the footprints were planned at no longer
@@ -80,20 +79,25 @@ export namespace walkTempo {
    */
   export const HOLD: number = 0.2;
 
-  /** A heel strike of a plan. */
+  /*
+   * A heel strike of a plan.
+   */
   export interface IStrike {
-    /** Seconds of the plan. */
+    /*
+     * Seconds of the plan.
+     */
     seconds: number;
 
-    /** The striking foot. */
+    /*
+     * The striking foot.
+     */
     side: AutoMovieHumanSide;
   }
-  /**
+  /*
    * The heel strikes a plan names (`leftHeelStrike<n>`, `rightHeelStrike<n>`),
    * in time order.
-   *
-   * @param plan The stepping plan.
-   * @returns Its strikes.
+   * Parameter plan: The stepping plan.
+   * Returns: Its strikes.
    */
   export function strikes(
     plan: Pick<IAutoMovieMotionHumanActionPlan, WalkTempoStrikesPlan>,
@@ -111,27 +115,32 @@ export namespace walkTempo {
       .sort((a: IStrike, b: IStrike): number => a.seconds - b.seconds);
   }
 
-  /** The two directions of the same continuous gait clock. */
+  /*
+   * The two directions of the same continuous gait clock.
+   */
   export interface IClock {
-    /** Convert film-local seconds to stepping-plan seconds. */
+    /*
+     * Convert film-local seconds to stepping-plan seconds.
+     */
     toPlan: (seconds: number) => number;
 
-    /** Convert stepping-plan seconds to film-local seconds. */
+    /*
+     * Convert stepping-plan seconds to film-local seconds.
+     */
     toFilm: (seconds: number) => number;
   }
 
-  /**
+  /*
    * Prepare the entrained clock before playback or footprint placement. The
    * first strike retains its original time. Each subsequent step takes the
    * interval between its supplied strikes, with a rate of one at either
    * boundary so velocities agree across steps.
-   *
-   * @param planned The nominal sequence of heel strikes.
-   * @param seconds Their entrained film-local seconds. If an endpoint has no
-   *   given time, keep the planned step.
-   * @returns Both maps of the clock, or nothing for fewer than two strikes.
-   * @throws {Error} When an entrained interval is at most zero or at least
-   *   twice the planned interval; the warp would stop or reverse.
+   * Parameter planned: The nominal sequence of heel strikes.
+   * Parameter seconds: Their entrained film-local seconds. If an endpoint has no
+   * given time, keep the planned step.
+   * Returns: Both maps of the clock, or nothing for fewer than two strikes.
+   * When an entrained interval is at most zero or at least
+   * twice the planned interval; the warp would stop or reverse.
    */
   export function entrainment(
     planned: readonly IStrike[],
@@ -150,12 +159,11 @@ export namespace walkTempo {
     });
   }
 
-  /**
+  /*
    * Play an action and its contact windows through a previously prepared clock.
-   *
-   * @param plan The action on the stepping clock.
-   * @param clock The same clock used to place its footprints.
-   * @returns The action on the film clock.
+   * Parameter plan: The action on the stepping clock.
+   * Parameter clock: The same clock used to place its footprints.
+   * Returns: The action on the film clock.
    */
   export function playback(
     plan: walkStation.IPlan,
@@ -164,19 +172,20 @@ export namespace walkTempo {
     return retime(plan, clock);
   }
 
-  /** The alternatives of `WalkTempoStrikesPlan`'s site. */
+  /*
+   * The alternatives of `WalkTempoStrikesPlan`'s site.
+   */
   type WalkTempoStrikesPlan = "duration" | "events";
 }
 
-/**
+/*
  * The warp shared by the drawn and the entrained clocks.
- *
- * @param plan The stepping plan.
- * @param length Each step's film seconds from its index, its planned seconds
- *   and the foot whose strike begins it; above zero and under twice the planned
- *   seconds.
- * @returns The plan on the warped clock, or the plan itself when it names fewer
- *   than two heel strikes.
+ * Parameter plan: The stepping plan.
+ * Parameter length: Each step's film seconds from its index, its planned seconds
+ * and the foot whose strike begins it; above zero and under twice the planned
+ * seconds.
+ * Returns: The plan on the warped clock, or the plan itself when it names fewer
+ * than two heel strikes.
  */
 function warped(
   plan: walkStation.IPlan,
@@ -189,7 +198,9 @@ function warped(
   return clock === undefined ? plan : retime(plan, clock);
 }
 
-/** Prepare the monotone two-way clock over a sequence of heel strikes. */
+/*
+ * Prepare the monotone two-way clock over a sequence of heel strikes.
+ */
 function makeClock(
   struck: readonly walkTempo.IStrike[],
   length: (index: number, planned: number, side: AutoMovieHumanSide) => number,
@@ -263,7 +274,9 @@ function makeClock(
   };
   return { toPlan, toFilm };
 }
-/** Send the pose, events and contacts through the same clock. */
+/*
+ * Send the pose, events and contacts through the same clock.
+ */
 function retime(
   plan: walkStation.IPlan,
   clock: walkTempo.IClock,
@@ -310,25 +323,39 @@ function retime(
   };
 }
 
-/** The record of `IWalkTempoLimp`'s site. */
+/*
+ * The record of `IWalkTempoLimp`'s site.
+ */
 type IWalkTempoLimp = { side: AutoMovieHumanSide; share: number };
 
-/** The alternatives of `MakeClockWithinClock2`'s site. */
+/*
+ * The alternatives of `MakeClockWithinClock2`'s site.
+ */
 type MakeClockWithinClock2 = "plan" | "film";
 
-/** The alternatives of `MakeClockWithinClock`'s site. */
+/*
+ * The alternatives of `MakeClockWithinClock`'s site.
+ */
 type MakeClockWithinClock = "plan" | "film";
 
-/** The record of `IMakeClockGoneStep2`'s site. */
+/*
+ * The record of `IMakeClockGoneStep2`'s site.
+ */
 type IMakeClockGoneStep2 = { amplitude: number; lasts: number };
 
-/** The record of `IMakeClockGoneStep`'s site. */
+/*
+ * The record of `IMakeClockGoneStep`'s site.
+ */
 type IMakeClockGoneStep = { amplitude: number; lasts: number };
 
-/** The record of `IMakeClockEnd`'s site. */
+/*
+ * The record of `IMakeClockEnd`'s site.
+ */
 type IMakeClockEnd = { plan: number; film: number };
 
-/** The record of `IMakeClockStepsItem`'s site. */
+/*
+ * The record of `IMakeClockStepsItem`'s site.
+ */
 type IMakeClockStepsItem = {
   plan: number;
   film: number;
@@ -336,5 +363,7 @@ type IMakeClockStepsItem = {
   lasts: number;
 };
 
-/** The record of `IMakeClockStrikesS`'s site. */
+/*
+ * The record of `IMakeClockStrikesS`'s site.
+ */
 type IMakeClockStrikesS = { seconds: number };

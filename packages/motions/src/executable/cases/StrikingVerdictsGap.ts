@@ -1,7 +1,7 @@
 import { StrikingLimb } from "./StrikingLimb";
 import type { StrikingVerdicts } from "./StrikingVerdicts";
 
-/**
+/*
  * The limb's gap to the other body at a film second; infinite when there is no
  * other body.
  */

@@ -6,31 +6,45 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 
-/** A wristwatch, read. */
+/*
+ * A wristwatch, read.
+ */
 const CASIO: string =
   "Casio F-91W, a 38.2 x 35.2 x 8.5 mm case, 21 g (https://halifaxwatch.com/products/casio-vintage-f91)";
 
-/** Fedoras, read. */
+/*
+ * Fedoras, read.
+ */
 const STETSON: string =
   "Stetson fedoras: brims of 2 in (Selby) to 4 1/8 in (Sol), crowns of 3 3/4 to 4 1/2 in, sizes for heads 20 1/4 to 22 1/4 in round (https://www.villagehatshop.com/products/selby-fur-felt-fedora-hat, https://www.villagehatshop.com/products/sol-wide-brim-wool-felt-fedora-hat, https://www.dapperfam.com/collections/hats/products/stetson-midtown-wool-pinch-front-wide-brim-fedora)";
 
-/** Spectacles, read. */
+/*
+ * Spectacles, read.
+ */
 const RAYBAN: string =
   "Ray-Ban RB2140 Original Wayfarer 50-22-150: 50 mm lenses 41 mm high, a 22 mm bridge, 150 mm temples (https://www.lenscrafters.com/lc-us/ray-ban/805289126577)";
 
-/** What no source read gives. */
+/*
+ * What no source read gives.
+ */
 const UNREAD: string = "the makers' pages read do not give it";
 
-/** A road cycling helmet: no maker's page was read. */
+/*
+ * A road cycling helmet: no maker's page was read.
+ */
 const HELMET: string =
   "a medium road cycling helmet for heads about 55 to 59 cm round: the shell's across, length, height and weight are provisional estimates, no maker's page was read";
 
-/** The seeded recipes originally published as `createWearable`. */
+/*
+ * The seeded recipes originally published as `createWearable`.
+ */
 export namespace WornPropDraw {
   /** The kinds. */
   export type Kind = "watch" | "hat" | "spectacles" | "helmet";
 
-  /** Every kind, for a caller that reads one at run time. */
+  /*
+   * Every kind, for a caller that reads one at run time.
+   */
   export const KINDS: readonly Kind[] = [
     "watch",
     "hat",
@@ -38,13 +52,19 @@ export namespace WornPropDraw {
     "helmet",
   ];
 
-  /** A helmet's foam over the head's crown, metres: an estimate. */
+  /*
+   * A helmet's foam over the head's crown, metres: an estimate.
+   */
   export const SHELL: number = 0.02;
 
-  /** A strap's, a brim's and a spectacle frame's thickness, metres: an estimate. */
+  /*
+   * A strap's, a brim's and a spectacle frame's thickness, metres: an estimate.
+   */
   export const THIN: number = 0.004;
 
-  /** A watch strap's width, metres: an estimate. */
+  /*
+   * A watch strap's width, metres: an estimate.
+   */
   export const STRAP: number = 0.02;
 
   /**
@@ -68,7 +88,9 @@ export namespace WornPropDraw {
    */
   export type Dimension = "width" | "depth" | "height" | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /*
+   * Each dimension's unit, which its band and any model's figure for it share.
+   */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -90,7 +112,9 @@ export namespace WornPropDraw {
     id?: string;
   }
 
-  /** The band of each free dimension, by kind. */
+  /*
+   * The band of each free dimension, by kind.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Record<Dimension, IAutoMovieArchetypeBand>>>
   > = {
@@ -155,26 +179,31 @@ export namespace WornPropDraw {
     },
   };
 
-  /** What {@link prepare} prepares for its caller. */
+  /*
+   * What prepare prepares for its caller.
+   */
   export interface IPrepareResult<Id extends Affordance> {
-    /** The prepared `builder` this call returns. */
+    /*
+     * The prepared `builder` this call returns.
+     */
     builder: AutoMovieArchetypeBuilder<Id, Dimension>;
 
-    /** The prepared `d` this call returns. */
+    /*
+     * The prepared `d` this call returns.
+     */
     d: Record<Dimension, number>;
   }
 
-  /**
+  /*
    * Prepare an empty builder and the previously recorded wearable dimensions.
-   *
-   * @param params Fixed dimensions in metres or kilograms, an optional scene
-   *   ID, and a model where the saved recipe has one.
-   * @param seed The seed that draws the saved dimensions and model, or
-   *   undefined for the original defaults.
-   * @param kind The saved kind whose recipe is used.
-   * @returns The builder and dimensions the named producer reads.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter
-   *   lies outside its admitted recipe.
+   * Parameter params: Fixed dimensions in metres or kilograms, an optional scene
+   * ID, and a model where the saved recipe has one.
+   * Parameter seed: The seed that draws the saved dimensions and model, or
+   * undefined for the original defaults.
+   * Parameter kind: The saved kind whose recipe is used.
+   * Returns: The builder and dimensions the named producer reads.
+   * When the model or a fixed parameter
+   * lies outside its admitted recipe.
    */
   export function prepare<Id extends Affordance>(
     kind: Kind,

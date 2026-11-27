@@ -11,18 +11,17 @@ import {
 } from "../../core/index";
 import "../AutoMovieArchetypeStageTwoHandedSwordProp";
 
-/**
+/*
  * Fit a hollow digital carrier to a separate padded two-handed display model.
  *
  * The carrier stands on its closed base, with its channel open along +Y. The
  * display faces down at both root frames. At "seated" its cap is above the base
  * and its guard sits above the physical mouth. At "opening" the whole display
  * clears the mouth. The "belt" hook faces the wearer along −X.
- *
- * @param params A generated padded display model and optional carrier id.
- * @returns The carrier and its model-space contact frames, in metres.
- * @throws {AutoMovieArchetypeRefusal} If the display model or the proposed
- *   identity cannot be fitted.
+ * Parameter params: A generated padded display model and optional carrier id.
+ * Returns: The carrier and its model-space contact frames, in metres.
+ * If the display model or the proposed
+ * identity cannot be fitted.
  */
 export function createStageFittedCarrier(
   params: AutoMovieArchetypeStageFittedCarrier.IParams,
@@ -128,28 +127,44 @@ export function createStageFittedCarrier(
   return builder.build(MASS);
 }
 
-/** Authored clearance around the rounded foam display profile, in metres. */
+/*
+ * Authored clearance around the rounded foam display profile, in metres.
+ */
 const GAP: number = 0.006;
 
-/** Thickness of the visible digital channel walls, in metres. */
+/*
+ * Thickness of the visible digital channel walls, in metres.
+ */
 const WALL: number = 0.012;
 
-/** Authored mass of the lightweight stand-in, in kilograms. */
+/*
+ * Authored mass of the lightweight stand-in, in kilograms.
+ */
 const MASS: number = 0.25;
 
 
 
-/** The axis-aligned envelope read from the generated padded foam parts. */
+/*
+ * The axis-aligned envelope read from the generated padded foam parts.
+ */
 interface IEnvelope {
-  /** Leading cap's furthest extent along the display's +Y. */
+  /*
+   * Leading cap's furthest extent along the display's +Y.
+   */
   tip: number;
-  /** Crossguard's furthest extent along the display's +Y. */
+  /*
+   * Crossguard's furthest extent along the display's +Y.
+   */
   guardTop: number;
-  /** Greatest perpendicular radius of the cap and shaft. */
+  /*
+   * Greatest perpendicular radius of the cap and shaft.
+   */
   radius: number;
 }
 
-/** Read the admitted padded silhouette's centred cap, shaft and crossguard. */
+/*
+ * Read the admitted padded silhouette's centred cap, shaft and crossguard.
+ */
 function envelope(
   display: AutoMovieArchetypeStageFittedCarrier.IParams["display"],
 ): IEnvelope {
@@ -187,7 +202,9 @@ function envelope(
   return { tip, guardTop, radius };
 }
 
-/** Describe a duplicate or incompatible padded display. */
+/*
+ * Describe a duplicate or incompatible padded display.
+ */
 function invalidEnvelope(
   displayId: string | undefined,
 ): AutoMovieArchetypeRefusal {

@@ -11,7 +11,7 @@ import { RecoveryEventRegion } from "../../observation/internal/RecoveryEventReg
 import { critical } from "./critical";
 import { prepareRecoveryCriticalBrackets } from "./prepareRecoveryCriticalBrackets";
 
-/**
+/*
  * Bind actual cut-emitting faces and published contour identities to clipped
  * source slabs. The same physical scalar chart drives source cells and PL
  * critical classification. All components and issues survive; only actual

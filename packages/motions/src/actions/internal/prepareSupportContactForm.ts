@@ -16,16 +16,15 @@ import { stand } from "./stand";
 import type { supportContact } from "./supportContact";
 import { supportContactOnFloor } from "./supportContactOnFloor";
 
-/**
+/*
  * Prepare contact forms for one unchanged body operation. Foot normals come
  * from the original quiet stance at the first requested foot normal; only the
  * two resulting local vectors survive that measurement.
- *
- * @param body The unchanged body, canonical rig and anatomical surfaces.
- * @param normals Whether the consumer needs target normals; false only for
- *   point observations.
- * @returns Contact forms with the original normal fields by default, or their
- *   point-only geometry when normals is false.
+ * Parameter body: The unchanged body, canonical rig and anatomical surfaces.
+ * Parameter normals: Whether the consumer needs target normals; false only for
+ * point observations.
+ * Returns: Contact forms with the original normal fields by default, or their
+ * point-only geometry when normals is false.
  */
 export function prepareSupportContactForm(
   body: IAutoMovieMotionHumanBody,
@@ -53,7 +52,9 @@ export function prepareSupportContactForm(
         );
   }
 
-  /** A toe's prepared local down. */
+  /*
+   * A toe's prepared local down.
+   */
   const toeNormal: (side: AutoMovieHumanSide) => IAutoMovieVector3 = (
     side: AutoMovieHumanSide,
   ): IAutoMovieVector3 => ({ ...feet[side]! });
@@ -154,5 +155,7 @@ export function prepareSupportContactForm(
   };
 }
 
-/** The alternatives of `PrepareSupportContactFormAxesItem`'s site. */
+/*
+ * The alternatives of `PrepareSupportContactFormAxesItem`'s site.
+ */
 type PrepareSupportContactFormAxesItem = "x" | "y" | "z";

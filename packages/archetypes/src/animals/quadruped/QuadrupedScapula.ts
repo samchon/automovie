@@ -3,7 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedLimb } from "../AutoMovieArchetypeQuadrupedLimb";
 
-/**
+/*
  * A fore limb's shoulder blade, turning in the sagittal plane about its upper
  * third so the shoulder joint follows a planted hoof's reach.
  *
@@ -23,7 +23,7 @@ export namespace QuadrupedScapula {
   /** A shoulder blade's bone, between the trunk and the humerus. */
   export type Bone = `${Fore}Scapula`;
 
-  /**
+  /*
    * Each fore limb's shoulder blade, which is also the id of the part that
    * draws it.
    */
@@ -32,26 +32,26 @@ export namespace QuadrupedScapula {
     rightFore: "rightForeScapula",
   };
 
-  /**
+  /*
    * The scapula's length as a fraction of the height at the withers: the
    * horse's (Matsuura 2008), provisional for other species.
    */
   export const LENGTH: number = 0.311;
 
-  /**
+  /*
    * The rotation centre's share of the blade's length below its dorsal border
    * (Back et al. 1995: the scapula rotates about its upper part, synchronous
    * with the distal limb).
    */
   export const CENTRE: number = 1 / 3;
 
-  /**
+  /*
    * The blade's spine's slope above the horizontal at rest, degrees: the
    * traditional reference shoulder slope, provisional.
    */
   export const SLOPE: number = 45;
 
-  /**
+  /*
    * The scapula's range of motion at the trot, degrees, by biplanar fluoroscopy
    * (Wagner et al. 2026, J Equine Vet Sci 106094: 23.3 at trot, 27.6 at walk);
    * the smaller bounds every gait.
@@ -69,18 +69,17 @@ export namespace QuadrupedScapula {
     glenoid: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * The drawn bar of a blade: from its rotation centre halfway to the shoulder
    * joint, on the body's midline, so it stays within the trunk in any posture,
    * standing or lying on a side; the humerus hangs from the blade at the
    * shoulder joint. A turn about the model X axis is the same turn at any
    * lateral offset, so the midline bar turns the shoulder joint exactly as the
    * blade would.
-   *
-   * @param glenoid The shoulder joint at rest, model space.
-   * @param withers The height at the withers, metres.
-   * @returns The bar's ends; `from` is the rotation centre, the blade's joint
-   *   origin.
+   * Parameter glenoid: The shoulder joint at rest, model space.
+   * Parameter withers: The height at the withers, metres.
+   * Returns: The bar's ends; `from` is the rotation centre, the blade's joint
+   * origin.
    */
   export function bar(glenoid: IAutoMovieVector3, withers: number): IBar {
     const reach: number = (1 - CENTRE) * LENGTH * withers;
@@ -100,20 +99,25 @@ export namespace QuadrupedScapula {
     };
   }
 
-  /** A drawn bar's two ends, model space. */
+  /*
+   * A drawn bar's two ends, model space.
+   */
   export interface IBar {
-    /** The upper end, the joint origin. */
+    /*
+     * The upper end, the joint origin.
+     */
     from: IAutoMovieVector3;
-    /** The lower end. */
+    /*
+     * The lower end.
+     */
     to: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * The shoulder joint after turning the blade by an angle about model X.
-   *
-   * @param joint The blade at rest.
-   * @param angle The turn, radians, right-handed about +X.
-   * @returns The moved shoulder joint.
+   * Parameter joint: The blade at rest.
+   * Parameter angle: The turn, radians, right-handed about +X.
+   * Returns: The moved shoulder joint.
    */
   export function glenoid(joint: IJoint, angle: number): IAutoMovieVector3 {
     const y: number = joint.glenoid.y - joint.pivot.y;
@@ -127,16 +131,15 @@ export namespace QuadrupedScapula {
     };
   }
 
-  /**
+  /*
    * The highest root translation at which the shoulder joint, on its arc within
    * range, still reaches the ankle goal.
-   *
-   * @param joint The blade at rest.
-   * @param goal The limb's ankle goal, model space.
-   * @param reach The limb's radial reach.
-   * @param range The joint's range of motion, degrees, half of it either way;
-   *   the scapula's when absent, a pelvis's for a hip (`QuadrupedPelvis`).
-   * @returns The bound, metres; negative infinity when no turn reaches.
+   * Parameter joint: The blade at rest.
+   * Parameter goal: The limb's ankle goal, model space.
+   * Parameter reach: The limb's radial reach.
+   * Parameter range: The joint's range of motion, degrees, half of it either way;
+   * the scapula's when absent, a pelvis's for a hip (`QuadrupedPelvis`).
+   * Returns: The bound, metres; negative infinity when no turn reaches.
    */
   export function high(
     joint: IJoint,
@@ -164,19 +167,18 @@ export namespace QuadrupedScapula {
     return goal.y - moved.y + leg(planar, dz);
   }
 
-  /**
+  /*
    * The least turn within range bringing the shoulder joint within reach of the
    * ankle goal at a root translation.
-   *
-   * @param joint The blade at rest.
-   * @param goal The limb's ankle goal, model space.
-   * @param reach The limb's radial reach.
-   * @param height The chosen root translation, metres.
-   * @param margin The coordinate roundoff budget, metres: a turned joint is
-   *   aimed this far inside the reach so the exact limb solve admits it.
-   * @param range The joint's range of motion, degrees, half of it either way;
-   *   the scapula's when absent.
-   * @returns The turn, radians; zero when the rest joint already reaches.
+   * Parameter joint: The blade at rest.
+   * Parameter goal: The limb's ankle goal, model space.
+   * Parameter reach: The limb's radial reach.
+   * Parameter height: The chosen root translation, metres.
+   * Parameter margin: The coordinate roundoff budget, metres: a turned joint is
+   * aimed this far inside the reach so the exact limb solve admits it.
+   * Parameter range: The joint's range of motion, degrees, half of it either way;
+   * the scapula's when absent.
+   * Returns: The turn, radians; zero when the rest joint already reaches.
    */
   export function least(
     joint: IJoint,
@@ -210,28 +212,40 @@ export namespace QuadrupedScapula {
     );
   }
 
-  /** A sagittal vector: model Y and Z. */
+  /*
+   * A sagittal vector: model Y and Z.
+   */
   interface IPlanar {
-    /** Model Y, metres. */
+    /*
+     * Model Y, metres.
+     */
     y: number;
-    /** Model Z, metres. */
+    /*
+     * Model Z, metres.
+     */
     z: number;
   }
 
-  /** The turn about +X taking the rest offset's direction to a planar direction. */
+  /*
+   * The turn about +X taking the rest offset's direction to a planar direction.
+   */
   function turn(joint: IJoint, toward: IPlanar): number {
     const y: number = joint.glenoid.y - joint.pivot.y;
     const z: number = joint.glenoid.z - joint.pivot.z;
     return Math.atan2(y * toward.z - z * toward.y, y * toward.y + z * toward.z);
   }
 
-  /** Clamp a turn to half a range either way. */
+  /*
+   * Clamp a turn to half a range either way.
+   */
   function clamp(angle: number, range: number): number {
     const half: number = (range * Math.PI) / 360;
     return Math.max(-half, Math.min(half, angle));
   }
 
-  /** The leg of a right triangle, NaN when the side exceeds the hypotenuse. */
+  /*
+   * The leg of a right triangle, NaN when the side exceeds the hypotenuse.
+   */
   function leg(hypotenuse: number, side: number): number {
     return Math.sqrt(hypotenuse * hypotenuse - side * side);
   }

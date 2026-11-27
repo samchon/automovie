@@ -74,7 +74,9 @@ function separation(a: readonly ICapsuleCore[], b: readonly ICapsuleCore[]): num
       least = Math.min(least, AutoMovieEngineMath.closestPointsBetweenSegments(p, q, x, y).distance - first - second);
   return least;
 }
-/** Prepare changes to an embedded stationary power pickup. The arm keeps its admitted course. */
+/*
+ * Prepare changes to an embedded stationary power pickup. The arm keeps its admitted course.
+ */
 export function preparePickUpDigitCourse(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
@@ -289,16 +291,22 @@ export function preparePickUpDigitCourse(
   };
   return { close, course, verifies: (display) => accepted(assess(display)) };
 }
-/** Inputs and readers for the prepared digit course and its displayed check. */
+/*
+ * Inputs and readers for the prepared digit course and its displayed check.
+ */
 export namespace preparePickUpDigitCourse {
-  /** Prepared thumb and index readers for one admitted pickup. */
+  /*
+   * Prepared thumb and index readers for one admitted pickup.
+   */
   export interface IModel {
     close(wrist: Wrist, closed: IShape, apex: number): IShape | undefined;
     course(input: ICourse): FingerReader | undefined;
     verifies(display: (share: number) => Layer): boolean;
   }
 
-  /** A course sample's wrist, display, reference shape and authored timings. */
+  /*
+   * A course sample's wrist, display, reference shape and authored timings.
+   */
   export interface ICourse {
     wrist(share: number): Wrist;
     display(share: number, digits: FingerReader): Layer;

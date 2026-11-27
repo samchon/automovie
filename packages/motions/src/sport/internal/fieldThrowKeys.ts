@@ -9,13 +9,12 @@ import type {
 
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
 
-/**
+/*
  * Build an event's keys on a body.
- *
- * @param body The body.
- * @param event The throw.
- * @param side The throwing hand.
- * @returns The keys.
+ * Parameter body: The body.
+ * Parameter event: The throw.
+ * Parameter side: The throwing hand.
+ * Returns: The keys.
  */
 export function fieldThrowKeys(
   body: IAutoMovieMotionHumanBody,
@@ -77,33 +76,40 @@ export function fieldThrowKeys(
   return { wind, release, stand: ExerciseKey.standing(body) };
 }
 
-/**
+/*
  * The keyed postures of a field throw (`fieldThrow`): the wind the body turns
  * in, the release and standing. Angles are provisional, read from the events'
  * descriptions (the shot held at the neck, the discus and the hammer swung at
  * the arms' length, the javelin drawn back).
  */
 export namespace fieldThrowKeys {
-  /** A throw's three keys. */
+  /*
+   * A throw's three keys.
+   */
   export interface IKeys {
-    /** The posture the body turns in, the implement wound back. */
+    /*
+     * The posture the body turns in, the implement wound back.
+     */
     wind: IAutoMovieMotionHumanExerciseKey.IKey;
 
-    /** The posture at the release, the throwing arm reaching out and up. */
+    /*
+     * The posture at the release, the throwing arm reaching out and up.
+     */
     release: IAutoMovieMotionHumanExerciseKey.IKey;
 
-    /** Relaxed standing. */
+    /*
+     * Relaxed standing.
+     */
     stand: IAutoMovieMotionHumanExerciseKey.IKey;
   }
 
-  /**
+  /*
    * Blend two keys.
-   *
-   * @param a The key at progress 0.
-   * @param b The key at progress 1.
-   * @param u The progress, in [0, 1].
-   * @returns The blended key: each angle and the tilt and lift linearly, a
-   *   joint one key leaves out taken as zero.
+   * Parameter a: The key at progress 0.
+   * Parameter b: The key at progress 1.
+   * Parameter u: The progress, in [0, 1].
+   * Returns: The blended key: each angle and the tilt and lift linearly, a
+   * joint one key leaves out taken as zero.
    */
   export function blend(
     a: IAutoMovieMotionHumanExerciseKey.IKey,

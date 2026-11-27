@@ -1,4 +1,4 @@
-/**
+/*
  * Clamp or wrap seconds into the clip duration. A nonpositive duration reads at
  * zero.
  */

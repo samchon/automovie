@@ -15,7 +15,7 @@ import { HumanBall } from "../../ballStrike/internal/HumanBall";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { catchObject } from "./catchObject";
 
-/**
+/*
  * The physical-prop variant of the catch law, an action of the vocabulary.
  * Compose the anchored launch first through the proposed catch time, then
  * `stageCatch({ partner, ball })` on the catcher's chain. A portable drag-free

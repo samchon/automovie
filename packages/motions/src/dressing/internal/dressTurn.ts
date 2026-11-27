@@ -22,17 +22,16 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { HumanWorn } from "./HumanWorn";
 
-/**
+/*
  * Choose the turn about the crown at which a held hat is set on the head
  * (`dress`): the turn whose wear socket the fitted arm brings nearest the
  * receiving region.
- *
- * @param props The body, the entry posture, the carrying hand, the wearable and
- *   the region it goes onto, the inverse of the wearable's rotation in the hand
- *   and its grip-local offset, the hand's grip socket and the wearable's wear
- *   point in the hand's frame, and the spacing of the turns tried first,
- *   degrees (`dress.TURN`).
- * @returns The chosen turn, degrees.
+ * Parameter props: The body, the entry posture, the carrying hand, the wearable and
+ * the region it goes onto, the inverse of the wearable's rotation in the hand
+ * and its grip-local offset, the hand's grip socket and the wearable's wear
+ * point in the hand's frame, and the spacing of the turns tried first,
+ * degrees (`dress.TURN`).
+ * Returns: The chosen turn, degrees.
  */
 export function dressTurn(props: IDressTurnProps): number {
   // The body, the posture, the wearable and the region are fixed, so the
@@ -125,22 +124,21 @@ export function dressTurn(props: IDressTurnProps): number {
   }).values[0]!;
 }
 
-/**
+/*
  * The rigid hold of a wearable undone: where the carrying hand's grip socket
  * must be, and how the hand is turned, for the wearable to take a given world
  * frame. Shared by the turn search and `dress`'s carrying stroke, so both place
  * the hand by one rule.
  */
 export namespace dressTurn {
-  /**
+  /*
    * The hand's frame for a wearable's world frame: the rotation is the worn
    * rotation times the inverse held rotation, and the grip lies the held
    * offset, turned by that rotation, behind the worn origin.
-   *
-   * @param worn The wearable's world frame.
-   * @param inverse The inverse of the wearable's rotation in the hand.
-   * @param offset The wearable's origin in the hand's grip frame, metres.
-   * @returns The grip socket's world point and the hand's world rotation.
+   * Parameter worn: The wearable's world frame.
+   * Parameter inverse: The inverse of the wearable's rotation in the hand.
+   * Parameter offset: The wearable's origin in the hand's grip frame, metres.
+   * Returns: The grip socket's world point and the hand's world rotation.
    */
   export function carried(
     worn: IAutoMovieRigidTransform,
@@ -159,7 +157,9 @@ export namespace dressTurn {
     };
   }
 }
-/** The record of `IDressTurnProps`'s site. */
+/*
+ * The record of `IDressTurnProps`'s site.
+ */
 type IDressTurnProps = {
   body: IAutoMovieMotionHumanBody;
   posture: IAutoMovieMotionHumanPosture;
@@ -170,14 +170,16 @@ type IDressTurnProps = {
   offset: IAutoMovieVector3;
   socket: IAutoMovieVector3;
   wear: IAutoMovieVector3;
-  /**
+  /*
    * The spacing of the turns tried first and the refinement's first step,
    * degrees; positive.
    */
   step: number;
 };
 
-/** The record of `IDressTurnCarriedResult`'s site. */
+/*
+ * The record of `IDressTurnCarriedResult`'s site.
+ */
 type IDressTurnCarriedResult = {
   grip: IAutoMovieVector3;
   rotation: IAutoMovieQuaternion;

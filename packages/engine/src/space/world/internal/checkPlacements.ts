@@ -13,7 +13,7 @@ import { closestPointOnSegmentXZ } from "../../../math/internal/closestPointOnSe
 import { readSurfaceHeight } from "./readSurfaceHeight";
 import { surfaceContainsPoint } from "./surfaceContainsPoint";
 
-/**
+/*
  * Reject material world-layout contradictions before shot construction.
  *
  * Blocks may touch but not overlap; every base must sit on a declared surface;
@@ -22,7 +22,7 @@ import { surfaceContainsPoint } from "./surfaceContainsPoint";
  *
  * Positions are world metres with Y up, and blocks are unrotated boxes. A base
  * sits on a surface when all four footprint corners lie in or on its XZ
- * polygon, by {@link surfaceContainsPoint}, at the surface height within 1e-6 m,
+ * polygon, by surfaceContainsPoint, at the surface height within 1e-6 m,
  * and no notch of the polygon cuts the footprint. Route clearance is judged in
  * plan: each segment must miss every block footprint widened by half the
  * route's formation width, whatever the block's height. A landmark is on
@@ -31,11 +31,10 @@ import { surfaceContainsPoint } from "./surfaceContainsPoint";
  * its radius plus half that route's formation width. The checks run in that
  * order and the first contradiction throws an `Error` naming it; later ones are
  * not reported.
- *
- * @param input.blocks Static world masses, as axis-aligned world boxes.
- * @param input.surfaces Terrain and floor surfaces that may support or hold.
- * @param input.routes Routes whose widened segments must clear every block.
- * @param input.landmarks Points of interest that must be reachable.
+ * Parameter input.blocks: Static world masses, as axis-aligned world boxes.
+ * Parameter input.surfaces: Terrain and floor surfaces that may support or hold.
+ * Parameter input.routes: Routes whose widened segments must clear every block.
+ * Parameter input.landmarks: Points of interest that must be reachable.
  */
 export function checkPlacements(
   input: IAutoMovieAssertWorldPlacements.IInput,
@@ -106,7 +105,9 @@ export function checkPlacements(
   }
 }
 
-/** Whether two boxes share interior volume; touching faces do not count. */
+/*
+ * Whether two boxes share interior volume; touching faces do not count.
+ */
 function overlaps(
   left: IAutoMovieWorldBlock,
   right: IAutoMovieWorldBlock,
@@ -121,7 +122,9 @@ function overlaps(
   );
 }
 
-/** Whether a surface carries a block's whole footprint at the block's base. */
+/*
+ * Whether a surface carries a block's whole footprint at the block's base.
+ */
 function surfaceSupportsBlock(
   surface: IAutoMovieWorldSurface,
   block: IAutoMovieWorldBlock,
@@ -176,7 +179,7 @@ function surfaceSupportsBlock(
   return true;
 }
 
-/**
+/*
  * Whether a plan segment enters a block footprint widened by `padding`, by
  * clipping the segment's parameter range against the X and Z slabs.
  */
@@ -205,12 +208,16 @@ function segmentIntersectsBounds(
   return true;
 }
 
-/** Read world XZ in the planar ring predicate's XY coordinates. */
+/*
+ * Read world XZ in the planar ring predicate's XY coordinates.
+ */
 function toPlanarPoint(
   point: IAutoMovieGroundQueryPoint,
 ): IAutoMoviePlanarPoint {
   return { x: point.x, y: point.z };
 }
 
-/** Largest vertical gap, in metres, between a block base and its support. */
+/*
+ * Largest vertical gap, in metres, between a block base and its support.
+ */
 const SUPPORT_TOLERANCE: number = 1e-6;

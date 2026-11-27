@@ -9,7 +9,7 @@ import type {
 
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
-/**
+/*
  * Bases of composed actions: the plan whose posture every unclaimed channel
  * keeps.
  *
@@ -21,14 +21,13 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
  * separate from this public borrowing contract.
  */
 export namespace AutoMovieMotionHumanBase {
-  /**
+  /*
    * A base that holds one posture.
-   *
-   * @param duration Seconds; the composed action's clock lasts as long.
-   * @param posture The borrowed posture; every read returns this exact object
-   *   and observes later edits.
-   * @param contacts The supports it stands on, shares of the duration.
-   * @returns The plan.
+   * Parameter duration: Seconds; the composed action's clock lasts as long.
+   * Parameter posture: The borrowed posture; every read returns this exact object
+   * and observes later edits.
+   * Parameter contacts: The supports it stands on, shares of the duration.
+   * Returns: The plan.
    */
   export function still(
     duration: number,
@@ -46,17 +45,16 @@ export namespace AutoMovieMotionHumanBase {
     };
   }
 
-  /**
+  /*
    * The base of an action that may be performed over another: the carrier's
    * posture, instant by instant, when the action is an overlay, and otherwise
    * the posture it was entered in, held on the supports given.
-   *
-   * @param context The action's context.
-   * @param duration Seconds; the composed action's clock lasts as long.
-   * @param contacts The supports a held base stands on, shares of the duration;
-   *   when absent, the supports the body rests on at the entry, held
-   *   throughout. A carrier declares its own.
-   * @returns The plan.
+   * Parameter context: The action's context.
+   * Parameter duration: Seconds; the composed action's clock lasts as long.
+   * Parameter contacts: The supports a held base stands on, shares of the duration;
+   * when absent, the supports the body rests on at the entry, held
+   * throughout. A carrier declares its own.
+   * Returns: The plan.
    */
   export function under(
     context: Pick<IAutoMovieMotionHumanActionContext, "carrier"> & {
@@ -94,12 +92,11 @@ export namespace AutoMovieMotionHumanBase {
     };
   }
 
-  /**
+  /*
    * Both feet planted on the ground for a share of an action.
-   *
-   * @param from Share of the duration the plants start at.
-   * @param to Share of the duration the plants end at.
-   * @returns The left foot's window, then the right foot's.
+   * Parameter from: Share of the duration the plants start at.
+   * Parameter to: Share of the duration the plants end at.
+   * Returns: The left foot's window, then the right foot's.
    */
   export function plants(
     from: number = 0,
@@ -117,5 +114,7 @@ export namespace AutoMovieMotionHumanBase {
   }
 }
 
-/** The alternatives of `PlantsPart`'s site. */
+/*
+ * The alternatives of `PlantsPart`'s site.
+ */
 type PlantsPart = "leftFoot" | "rightFoot";

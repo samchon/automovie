@@ -6,19 +6,18 @@ import {
 } from "../../core";
 import { AutoMovieArchetypeBow } from "../AutoMovieArchetypeBow";
 
-/**
+/*
  * Prepare the stored digital bow silhouette.
  *
  * Resolve a display model and dimensions on the original draw axes before
  * invoking the selected shape.
- *
- * @param kind The saved profile label.
- * @param build The selected digital shape and contact builder.
- * @param params See the input options of the selected form.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter kind: The saved profile label.
+ * Parameter build: The selected digital shape and contact builder.
+ * Parameter params: See the input options of the selected form.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function StageBowConstruction(
   kind: AutoMovieArchetypeBow.Kind,

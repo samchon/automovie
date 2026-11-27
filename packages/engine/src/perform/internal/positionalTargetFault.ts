@@ -1,6 +1,6 @@
 import type { IAutoMovieActionTarget } from "@automovie/interface";
 
-/**
+/*
  * Why a positional target did not resolve to a world point, phrased as the
  * clause after "but".
  *

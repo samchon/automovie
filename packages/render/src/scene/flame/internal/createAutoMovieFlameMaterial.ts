@@ -3,7 +3,7 @@ import * as THREE from "three";
 import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 
-/**
+/*
  * The beauty material of a flame: unlit, emissive, additive and soft at its
  * silhouette.
  *

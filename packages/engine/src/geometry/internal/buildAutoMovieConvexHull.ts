@@ -7,7 +7,7 @@ import type {
 import { AutoMoviePhysicalHullFaces } from "../../physics/AutoMoviePhysicalHullFaces";
 import { buildAutoMoviePolyhedron } from "./buildAutoMoviePolyhedron";
 
-/**
+/*
  * Build the convex hull of a point set as one closed outward mesh.
  *
  * The hull's faces are the supporting planes `AutoMoviePhysicalHullFaces` finds, each
@@ -18,12 +18,11 @@ import { buildAutoMoviePolyhedron } from "./buildAutoMoviePolyhedron";
  * tolerance of a face lie on it, so a flat ring of many points makes one face.
  * The points are read, and `AutoMoviePhysicalHullFaces` remembers the hull of this very
  * array, so the array must not change after this call.
- *
- * @param points Points in metres, spanning positive volume.
- * @returns The hull as a closed mesh, in the points' frame.
- * @throws {Error} When the points span no volume: fewer than four points, all
- *   of them in one plane, or a coordinate that is not finite, which leaves the
- *   hull search no finite tolerance.
+ * Parameter points: Points in metres, spanning positive volume.
+ * Returns: The hull as a closed mesh, in the points' frame.
+ * When the points span no volume: fewer than four points, all
+ * of them in one plane, or a coordinate that is not finite, which leaves the
+ * hull search no finite tolerance.
  */
 export const buildAutoMovieConvexHull: (
   points: readonly IAutoMovieVector3[],

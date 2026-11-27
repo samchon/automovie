@@ -3,7 +3,7 @@ import type {
   IAutoMovieBicubicAtlasGeometry,
 } from "@automovie/interface";
 
-/**
+/*
  * Admit the global recipe and identify its structurally usable patch
  * occurrences. Invalid coefficient or canonical-boundary declarations omit only
  * incident patches and retain exact diagnostics; valid independent patches

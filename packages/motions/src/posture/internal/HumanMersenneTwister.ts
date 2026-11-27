@@ -1,4 +1,4 @@
-/**
+/*
  * The Mersenne Twister MT19937 (Matsumoto and Nishimura 1998, "Mersenne
  * twister: a 623-dimensionally equidistributed uniform pseudo-random number
  * generator", ACM TOMACS 8(1):3-30), ported from the authors' reference code
@@ -16,20 +16,25 @@
  * it, so one seed gives one sequence.
  */
 export namespace HumanMersenneTwister {
-  /** The state of one generator: the 624 words and the next one's index. */
+  /*
+   * The state of one generator: the 624 words and the next one's index.
+   */
   export interface IState {
-    /** The state vector (`mt`), 32-bit words. */
+    /*
+     * The state vector (`mt`), 32-bit words.
+     */
     words: Uint32Array;
 
-    /** The next word's index (`mti`); 624 asks for the next 624 words. */
+    /*
+     * The next word's index (`mti`); 624 asks for the next 624 words.
+     */
     index: number;
   }
 
-  /**
+  /*
    * A generator seeded with a word (`init_genrand`).
-   *
-   * @param seed The seed, a 32-bit unsigned integer.
-   * @returns The generator's state.
+   * Parameter seed: The seed, a 32-bit unsigned integer.
+   * Returns: The generator's state.
    */
   export function create(seed: number): IState {
     const words: Uint32Array = new Uint32Array(N);
@@ -41,11 +46,10 @@ export namespace HumanMersenneTwister {
     return { words, index: N };
   }
 
-  /**
+  /*
    * The next 32-bit output (`genrand_int32`).
-   *
-   * @param state The generator, advanced by one output.
-   * @returns An integer on [0, 0xffffffff].
+   * Parameter state: The generator, advanced by one output.
+   * Returns: An integer on [0, 0xffffffff].
    */
   export function next(state: IState): number {
     const mt: Uint32Array = state.words;
@@ -73,14 +77,13 @@ export namespace HumanMersenneTwister {
     return y >>> 0;
   }
 
-  /**
+  /*
    * A double on [0, 1) (`RNG::uniform01`): the C++ standard's
    * `generate_canonical` of 53 bits from two 32-bit outputs, the first the low
    * word, `(g0 + g1 · 2^32) / 2^64`, the largest double under 1 where the sum
    * rounds to 1.
-   *
-   * @param state The generator, advanced by two outputs.
-   * @returns The draw.
+   * Parameter state: The generator, advanced by two outputs.
+   * Returns: The draw.
    */
   export function uniform01(state: IState): number {
     const low: number = next(state);
@@ -89,13 +92,12 @@ export namespace HumanMersenneTwister {
     return value < 1 ? value : 1 - Number.EPSILON / 2;
   }
 
-  /**
+  /*
    * A double on [lower, upper) (`RNG::uniformReal`).
-   *
-   * @param state The generator.
-   * @param lower The least value.
-   * @param upper The bound above every value.
-   * @returns The draw.
+   * Parameter state: The generator.
+   * Parameter lower: The least value.
+   * Parameter upper: The bound above every value.
+   * Returns: The draw.
    */
   export function uniformReal(
     state: IState,
@@ -105,14 +107,13 @@ export namespace HumanMersenneTwister {
     return (upper - lower) * uniform01(state) + lower;
   }
 
-  /**
+  /*
    * An integer on [lower, upper] (`RNG::uniformInt`): the floor of a real draw
    * on [lower, upper + 1), the upper bound where it rounds above it.
-   *
-   * @param state The generator.
-   * @param lower The least value.
-   * @param upper The greatest value.
-   * @returns The draw.
+   * Parameter state: The generator.
+   * Parameter lower: The least value.
+   * Parameter upper: The greatest value.
+   * Returns: The draw.
    */
   export function uniformInt(
     state: IState,
@@ -124,20 +125,32 @@ export namespace HumanMersenneTwister {
   }
 }
 
-/** The state's length (`N`). */
+/*
+ * The state's length (`N`).
+ */
 const N: number = 624;
 
-/** The middle word's offset (`M`). */
+/*
+ * The middle word's offset (`M`).
+ */
 const M: number = 397;
 
-/** The constant vector a (`MATRIX_A`). */
+/*
+ * The constant vector a (`MATRIX_A`).
+ */
 const MATRIX_A: number = 0x9908b0df;
 
-/** The most significant w - r bits (`UPPER_MASK`). */
+/*
+ * The most significant w - r bits (`UPPER_MASK`).
+ */
 const UPPER_MASK: number = 0x80000000;
 
-/** The least significant r bits (`LOWER_MASK`). */
+/*
+ * The least significant r bits (`LOWER_MASK`).
+ */
 const LOWER_MASK: number = 0x7fffffff;
 
-/** 2^32, the range of one output. */
+/*
+ * 2^32, the range of one output.
+ */
 const TWO32: number = 4294967296;

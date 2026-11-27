@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-/**
+/*
  * A stepping plan begun after a wait in its own first posture, as a follower
  * stands until it is time to set off.
  *
@@ -13,10 +13,9 @@ import type {
  * open from the plan's start stays open from the wait's start, so the feet that
  * stand at the start stand through the wait; and a `depart` event marks the
  * wait's end.
- *
- * @param plan The plan.
- * @param wait Seconds waited before it begins; positive.
- * @returns The plan with the wait before it.
+ * Parameter plan: The plan.
+ * Parameter wait: Seconds waited before it begins; positive.
+ * Returns: The plan with the wait before it.
  */
 export function walkDelayed(
   plan: IAutoMovieMotionHumanActionPlan,

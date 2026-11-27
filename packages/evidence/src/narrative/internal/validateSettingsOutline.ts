@@ -4,7 +4,7 @@ import path from "node:path";
 import { readSettingsFiles } from "./readSettingsFiles";
 import { settingsEntryAnchor } from "./settingsEntryAnchor";
 
-/**
+/*
  * Checks that the outline describes the classified canon, in domain or numbered
  * folders, in its actual order.
  *
@@ -86,7 +86,7 @@ export function validateSettingsOutline(location: string): void {
     );
 }
 
-/**
+/*
  * Reads structural ATX headings while keeping comments and fenced examples
  * inert.
  *

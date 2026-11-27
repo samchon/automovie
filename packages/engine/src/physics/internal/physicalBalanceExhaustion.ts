@@ -1,6 +1,6 @@
 import type { IAutoMoviePhysicalBalanceExhaustion } from "@automovie/interface";
 
-/**
+/*
  * Whether bounded support recovery is exhausted at one tick.
  *
  * Continuously unrecoverable support starts a clock at its first tick and keeps

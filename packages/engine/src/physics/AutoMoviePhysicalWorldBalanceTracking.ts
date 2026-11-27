@@ -199,7 +199,7 @@ export namespace AutoMoviePhysicalWorldBalanceTracking {
   }
 }
 
-/**
+/*
  * On the substep after one of a body's stated pushes, the pushes after it, each
  * its instant and the centre of mass's velocity jump, the impulse over the mass
  * (`preparePhysicalDisturbanceSpan`); a push is applied on its cache interval's

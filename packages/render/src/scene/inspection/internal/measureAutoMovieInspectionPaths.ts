@@ -9,7 +9,7 @@ import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import type { IAutoMovieInspectionPath } from "../../IAutoMovieInspectionPath.js";
 import { measureAutoMovieInspectionBounds } from "./measureAutoMovieInspectionBounds.js";
 
-/**
+/*
  * Measure the world-space box of every chosen path of an inspected scene: of
  * the drawn objects at that path and of the marks at that path, together.
  *
@@ -22,13 +22,19 @@ import { measureAutoMovieInspectionBounds } from "./measureAutoMovieInspectionBo
  * them; a chosen path with nothing drawn is left out.
  */
 export function measureAutoMovieInspectionPaths(props: {
-  /** Drawn objects with their paths. */
+  /*
+   * Drawn objects with their paths.
+   */
   objects: readonly IAutoMovieInspectionPath[];
 
-  /** Drawn marks with the object their frame belongs to, `null` for world space. */
+  /*
+   * Drawn marks with the object their frame belongs to, `null` for world space.
+   */
   marks: readonly { mark: IAutoMovieMark; anchor: THREE.Object3D | null }[];
 
-  /** Whether a path is measured. */
+  /*
+   * Whether a path is measured.
+   */
   choose: (path: string) => boolean;
 }): IAutoMovieInspectionDrawable[] {
   const boxes: Map<string, THREE.Box3> = new Map<string, THREE.Box3>();
@@ -100,7 +106,9 @@ export function measureAutoMovieInspectionPaths(props: {
     );
 }
 
-/** A three.js vector from a plain one. */
+/*
+ * A three.js vector from a plain one.
+ */
 function vector(value: IAutoMovieVector3): THREE.Vector3 {
   return new THREE.Vector3(value.x, value.y, value.z);
 }

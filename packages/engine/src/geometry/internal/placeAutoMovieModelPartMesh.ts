@@ -3,7 +3,7 @@ import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 import { transformAutoMovieDrawingPoint } from "../../drawing/internal/transformAutoMovieDrawingPoint";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
-/**
+/*
  * Carry one part's realized mesh into its model's frame.
  *
  * The matrix is the part's entry from `autoMovieModelPartMatrices`: its own
@@ -12,12 +12,11 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * for bit. Only positions move; every other buffer is shared with the input,
  * which is only read. Model crossings, model contacts and the form expectation
  * check place their parts through this one function.
- *
- * @param mesh The part's realized mesh, in part-local metres.
- * @param matrix The part's column-major placement, or null.
- * @param label Name the index refusal gives the part.
- * @returns The mesh with positions in model metres.
- * @throws The `triangleIndicesOf` refusal for a malformed index buffer.
+ * Parameter mesh: The part's realized mesh, in part-local metres.
+ * Parameter matrix: The part's column-major placement, or null.
+ * Parameter label: Name the index refusal gives the part.
+ * Returns: The mesh with positions in model metres.
+ * The `triangleIndicesOf` refusal for a malformed index buffer.
  */
 export const placeAutoMovieModelPartMesh: (
   mesh: IAutoMovieMesh,

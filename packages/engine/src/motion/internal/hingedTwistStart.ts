@@ -8,7 +8,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { prepareChainPlant } from "./prepareChainPlant";
 
-/**
+/*
  * The swivel at which a hinged chain whose mid segment twists distally (a
  * forearm) needs the least end-joint articulation (the wrist's bend) to take a
  * requested world rotation, in closed form.
@@ -31,15 +31,14 @@ import { prepareChainPlant } from "./prepareChainPlant";
  * joint's range projections, so this swivel is a start for a local search, not
  * a certified minimum: the caller accepts the search's result only when the
  * rotation is then met.
- *
- * @param prepared The chain's preparation: the root's world rotation, the mid
- *   joint's rest rotation, the end joint's offset from the mid joint and its
- *   base rotation.
- * @param posed The branch's poser, bone-local root and mid rotations at a
- *   swivel in degrees.
- * @param wanted The requested world rotation of the end joint.
- * @returns The swivel, degrees in [0, 360); null when the mid segment has no
- *   length or the form is isotropic, so no swivel is preferred.
+ * Parameter prepared: The chain's preparation: the root's world rotation, the mid
+ * joint's rest rotation, the end joint's offset from the mid joint and its
+ * base rotation.
+ * Parameter posed: The branch's poser, bone-local root and mid rotations at a
+ * swivel in degrees.
+ * Parameter wanted: The requested world rotation of the end joint.
+ * Returns: The swivel, degrees in [0, 360); null when the mid segment has no
+ * length or the form is isotropic, so no swivel is preferred.
  */
 export function hingedTwistStart(
   prepared: Pick<

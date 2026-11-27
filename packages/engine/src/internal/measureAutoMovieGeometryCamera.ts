@@ -13,7 +13,7 @@ import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryAct
 import { projectToNdc } from "../film/internal/projectToNdc";
 import { resolveCameraAt } from "../film/internal/resolveCameraAt";
 
-/**
+/*
  * Project unique requested actor root points through the sampled camera and
  * delivery crop at shot-local seconds; report depth/frame counts and margins,
  * with occlusionMeasured=false.

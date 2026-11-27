@@ -1,6 +1,6 @@
 import { overflowsBinary64 } from "./overflowsBinary64";
 
-/**
+/*
  * Evaluate a finite row-major 3 by 3 determinant with an exact-sign fallback. A
  * conservative forward-error filter accepts a separated binary64 value.
  * Uncertain cancellation instead sums the six products of the input doubles as

@@ -10,7 +10,7 @@ import type {
 
 import { HumanCarriedCouplingCouple } from "./HumanCarriedCouplingCouple";
 
-/**
+/*
  * The coupling of a named carry: the meeting kind whose borne role rests on the
  * bearer by several contacts with load shares, whose borne mass and centre
  * enter the bearer's balance, and the per-instant solve that puts the borne
@@ -64,22 +64,28 @@ import { HumanCarriedCouplingCouple } from "./HumanCarriedCouplingCouple";
  * facing alone (`HumanLoad.lean`).
  */
 export namespace HumanCarriedCoupling {
-  /** The bearing role's name. */
+  /*
+   * The bearing role's name.
+   */
   export const BEARER: string = "bearer";
 
-  /** The borne role's name. */
+  /*
+   * The borne role's name.
+   */
   export const BORNE: string = "borne";
 
-  /**
+  /*
    * The floor as the role of a borne body's contact on it: a drag's trailing
    * region.
    */
   export const GROUND: string = "ground";
 
-  /** The second bearer's role name, when a borne body walks between two helpers. */
+  /*
+   * The second bearer's role name, when a borne body walks between two helpers.
+   */
   export const SECOND: string = "second";
 
-  /**
+  /*
    * The carry the second helper takes beside each carry that has one: a
    * supported walk's other side.
    */
@@ -94,7 +100,7 @@ export namespace HumanCarriedCoupling {
     supported: "supportedLeft",
   };
 
-  /**
+  /*
    * The borne region each bearer hand holds, left hand then right, from the
    * carries' common descriptions: piggyback, under the thighs; cradle, under
    * the back and the knees; over the shoulder, the back of the thighs;
@@ -120,7 +126,7 @@ export namespace HumanCarriedCoupling {
     ankleDrag: ["calfRight", "calfLeft"],
   };
 
-  /**
+  /*
    * The nearer grips a bearer takes, in order, where every described hold of
    * `HOLDS` lies beyond its arm: a supporting helper too short to reach the far
    * hip puts the arm round the back of the waist instead, the two-person
@@ -133,19 +139,18 @@ export namespace HumanCarriedCoupling {
     supportedLeft: [["lowerBack", null]],
   };
 
-  /**
+  /*
    * The meeting kind of a carry: roles `bearer` and `borne`, no shared default
    * place, the contact made at the start and held for as long as the carry's
    * window says, and the coupling.
-   *
-   * @param carry The carry.
-   * @param rows The carries' rows (`HumanCarried.CARRIES`), passed by the
-   *   caller so this file does not import its consumer.
-   * @param extra Kilograms the borne person carries besides their body; none
-   *   when absent.
-   * @param paired Whether a second helper takes the carry's other side
-   *   (`PAIRED`), as the role `second`.
-   * @returns The kind.
+   * Parameter carry: The carry.
+   * Parameter rows: The carries' rows (`HumanCarried.CARRIES`), passed by the
+   * caller so this file does not import its consumer.
+   * Parameter extra: Kilograms the borne person carries besides their body; none
+   * when absent.
+   * Parameter paired: Whether a second helper takes the carry's other side
+   * (`PAIRED`), as the role `second`.
+   * Returns: The kind.
    */
   export function kind(
     carry: IAutoMovieMotionHumanCarried.Carry,
@@ -196,20 +201,19 @@ export namespace HumanCarriedCoupling {
     };
   }
 
-  /**
+  /*
    * The coupling of a carry between two bodies, refused when the bearer cannot
    * balance the borne mass: the solve of `HumanCarriedCouplingCouple`.
-   *
-   * @param bearer The bearer's body.
-   * @param borne The borne body.
-   * @param row The carry's row.
-   * @param carry The carry, for its holds.
-   * @param extra Kilograms the borne person carries besides their body.
-   * @param second A second helper on the carry's other side: its body, its
-   *   side's row and carry; none when absent.
-   * @returns The coupling, its key, holds and centre in the frame of the
-   *   bearer's bone the resting region rides on.
-   * @throws {HumanRefusal} As `HumanCarriedCouplingCouple.couple` refuses.
+   * Parameter bearer: The bearer's body.
+   * Parameter borne: The borne body.
+   * Parameter row: The carry's row.
+   * Parameter carry: The carry, for its holds.
+   * Parameter extra: Kilograms the borne person carries besides their body.
+   * Parameter second: A second helper on the carry's other side: its body, its
+   * side's row and carry; none when absent.
+   * Returns: The coupling, its key, holds and centre in the frame of the
+   * bearer's bone the resting region rides on.
+   * As `HumanCarriedCouplingCouple.couple` refuses.
    */
   export function couple(
     bearer: IAutoMovieMotionHumanBody,

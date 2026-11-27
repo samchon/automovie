@@ -8,18 +8,17 @@ import type {
 
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 
-/**
+/*
  * A stepping foot pointed in the air: its toes turned down by `POINT` degrees
  * at the step's middle, so the ankle eases out of a stance's dorsiflexion while
  * the foot bears nothing, and the ankle raised by what pointing lowers the
  * toes, so the toes' clearance is the step's own.
- *
- * @param body The body.
- * @param side The foot.
- * @param placement The foot's placement on its step.
- * @param bump How far into its pointing the step is, 0 at its ends and 1 at its
- *   middle.
- * @returns The pointed placement.
+ * Parameter body: The body.
+ * Parameter side: The foot.
+ * Parameter placement: The foot's placement on its step.
+ * Parameter bump: How far into its pointing the step is, 0 at its ends and 1 at its
+ * middle.
+ * Returns: The pointed placement.
  */
 export function StrikingFootPoint(
   body: IAutoMovieMotionHumanBody,
@@ -41,17 +40,20 @@ export function StrikingFootPoint(
   return StrikingFootPoint.lift(placement, pointed, toe);
 }
 
-/** Constants of {@link StrikingFootPoint}. */
+/*
+ * Constants of StrikingFootPoint.
+ */
 export namespace StrikingFootPoint {
-  /** A stepping foot's toes-down pitch at mid-step, degrees (provisional). */
+  /*
+   * A stepping foot's toes-down pitch at mid-step, degrees (provisional).
+   */
   export const POINT: number = 25;
-  /**
+  /*
    * The foot's attitude pointed by a bump: pitched `POINT` degrees a whole bump
    * about its own lateral axis.
-   *
-   * @param rotation The placed foot's attitude.
-   * @param bump The bump, a share.
-   * @returns The pointed attitude.
+   * Parameter rotation: The placed foot's attitude.
+   * Parameter bump: The bump, a share.
+   * Returns: The pointed attitude.
    */
   export function pointed(
     rotation: IAutoMovieQuaternion,
@@ -63,14 +65,13 @@ export namespace StrikingFootPoint {
     );
   }
 
-  /**
+  /*
    * A pointed placement: its ankle raised by as much as pointing lowers the
    * toe, so the toe never sinks below where it stood.
-   *
-   * @param placement The placed foot.
-   * @param pointed The pointed attitude.
-   * @param toe The toe's height under an attitude, ankle at the origin, metres.
-   * @returns The pointed placement.
+   * Parameter placement: The placed foot.
+   * Parameter pointed: The pointed attitude.
+   * Parameter toe: The toe's height under an attitude, ankle at the origin, metres.
+   * Returns: The pointed placement.
    */
   export function lift(
     placement: IAutoMovieMotionHumanFoot.IPlacement,

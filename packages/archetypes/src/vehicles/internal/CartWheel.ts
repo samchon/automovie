@@ -8,46 +8,63 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeCart } from "../AutoMovieArchetypeCart";
 
-/**
+/*
  * A drawn carrier's road wheels: a pair on one axle, each spinning on a `knob`,
  * as every drawn kind of `createCart` has them.
  */
 export namespace CartWheel {
-  /** Where a pair of wheels stands and what it is called. */
+  /*
+   * Where a pair of wheels stands and what it is called.
+   */
   export interface IPair {
-    /** Between the wheels, centre to centre, metres. */
+    /*
+     * Between the wheels, centre to centre, metres.
+     */
     track: number;
 
-    /** The wheels' radius, metres. */
+    /*
+     * The wheels' radius, metres.
+     */
     radius: number;
 
-    /** How many spokes each wheel shows. */
+    /*
+     * How many spokes each wheel shows.
+     */
     spokes: number;
 
-    /** The axle's station along `+Z`, metres. */
+    /*
+     * The axle's station along `+Z`, metres.
+     */
     z: number;
 
-    /** The prefix of the pair's part ids, empty for a two-wheeler's one pair. */
+    /*
+     * The prefix of the pair's part ids, empty for a two-wheeler's one pair.
+     */
     prefix: string;
 
-    /** The left and right wheels' spin knobs. */
+    /*
+     * The left and right wheels' spin knobs.
+     */
     spins: readonly [AutoMovieArchetypeCart.Affordance, AutoMovieArchetypeCart.Affordance];
 
-    /** The articulation the pair rides, such as a turning front axle. */
+    /*
+     * The articulation the pair rides, such as a turning front axle.
+     */
     rides?: AutoMovieArchetypeCart.Affordance;
 
-    /** What the wheels' tyres are made of, where a source says. */
+    /*
+     * What the wheels' tyres are made of, where a source says.
+     */
     surface?: AutoMovieArchetypeFriction.Material;
   }
 
-  /**
+  /*
    * Add a pair of road wheels on an axle: each a disc with spokes, spinning on
    * a `knob` about the axle, a positive travel rolling it forward.
-   *
-   * @param builder The carrier under construction.
-   * @param pair Where the pair stands and what it is called.
-   * @returns The ids of the parts that turn with the axle and no knob binds:
-   *   the axle itself; the wheels follow on their knobs, which ride `rides`.
+   * Parameter builder: The carrier under construction.
+   * Parameter pair: Where the pair stands and what it is called.
+   * Returns: The ids of the parts that turn with the axle and no knob binds:
+   * the axle itself; the wheels follow on their knobs, which ride `rides`.
    */
   export function pair(
     builder: AutoMovieArchetypeBuilder<
@@ -112,11 +129,17 @@ export namespace CartWheel {
   }
 }
 
-/** Iron. */
+/*
+ * Iron.
+ */
 const METAL: string = "#55595f";
 
-/** Bare wood. */
+/*
+ * Bare wood.
+ */
 const WOOD: string = "#8b6a43";
 
-/** The body's paint. */
+/*
+ * The body's paint.
+ */
 const PAINT: string = "#2f4f3f";

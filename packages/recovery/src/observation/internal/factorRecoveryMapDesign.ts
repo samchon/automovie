@@ -4,7 +4,9 @@ import type {
   IAutoMovieRecoveryMapDesignFactor,
 } from "@automovie/interface";
 
-/** Qualify the original column-normalized design without synthesizing an answer. */
+/*
+ * Qualify the original column-normalized design without synthesizing an answer.
+ */
 export function factorRecoveryMapDesign(
   design: readonly (readonly number[])[],
   right: readonly number[],

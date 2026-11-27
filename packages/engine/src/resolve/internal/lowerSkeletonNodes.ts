@@ -6,7 +6,7 @@ import {
 import { Transform } from "../../math/Transform";
 import { MOTION_ROOT_NODE_ID } from "../MOTION_ROOT_NODE_ID";
 
-/**
+/*
  * Lower an admitted skeleton into a fresh identity group root and bone rest
  * nodes. Prefixes concatenate onto node/parent ids and rootParent seats the
  * synthetic root under a placement. Root records are independent; bone rest

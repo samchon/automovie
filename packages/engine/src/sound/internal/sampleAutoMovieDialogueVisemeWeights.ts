@@ -7,7 +7,7 @@ import type {
 
 import { AUTOMOVIE_COARTICULATION } from "../constants/AUTOMOVIE_COARTICULATION";
 
-/**
+/*
  * Blend a line's visemes at one film frame by coarticulation, in closed form.
  *
  * Each range is a target whose dominance is `magnitude × exp(−|t − centre| /
@@ -20,9 +20,8 @@ import { AUTOMOVIE_COARTICULATION } from "../constants/AUTOMOVIE_COARTICULATION"
  * dominance, so the weights lie in [0, 1] and sum to 1, and every boundary
  * blends instead of jumping. Frame `f` stands for film time `f / fps`, the
  * instant its picture shows.
- *
- * @param props The joined timeline, the frame and the film rate.
- * @returns The weight of every viseme the line uses, `sil` included.
+ * Parameter props: The joined timeline, the frame and the film rate.
+ * Returns: The weight of every viseme the line uses, `sil` included.
  */
 export function sampleAutoMovieDialogueVisemeWeights(
   props: Pick<

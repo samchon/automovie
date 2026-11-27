@@ -22,7 +22,7 @@ import { createAutoMovieQuadraticFactor } from "./createAutoMovieQuadraticFactor
 import { measureAutoMovieQuadraticState } from "./measureAutoMovieQuadraticState";
 import { solveAutoMovieQuadraticStep } from "./solveAutoMovieQuadraticStep";
 
-/**
+/*
  * Engine-owned homogeneous predictor-corrector for diagonal convex QPs with
  * equality/nonnegative cones, following Goulart and Chen (2024), sections 2-3.
  * Every solve is cold. It has no clock, random source, runtime module, process
@@ -35,10 +35,10 @@ import { solveAutoMovieQuadraticStep } from "./solveAutoMovieQuadraticStep";
  * 4, never status 1. Finite arithmetic can refuse ill-conditioned inputs.
  * Caller-specific physical acceptance and subsequent transformations remain
  * independent obligations.
- * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/core/solver.rs}
- * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/variables.rs}
- * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/info.rs}
- * @see {@link https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/settings.rs}
+ * https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/core/solver.rs
+ * https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/variables.rs
+ * https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/info.rs
+ * https://github.com/oxfordcontrol/Clarabel.rs/blob/25540f559592068d0c8a80e46ded1b21760212a1/src/solver/implementations/default/settings.rs
  */
 export function solveAutoMovieQuadraticInterior(
   data: IAutoMovieQuadraticConicProgram,
@@ -223,7 +223,7 @@ export function solveAutoMovieQuadraticInterior(
   };
 }
 
-/**
+/*
  * Preserve product error through the iterate addition before storing binary64
  * state.
  */
@@ -241,7 +241,9 @@ function advance(
   }
 }
 
-/** Shift each orthant block in two stages, preserving large-value positivity. */
+/*
+ * Shift each orthant block in two stages, preserving large-value positivity.
+ */
 function shiftInterior(values: Float64Array, start: number): void {
   if (start === values.length) return;
   let minimum: number = Infinity;
@@ -263,7 +265,9 @@ function shiftInterior(values: Float64Array, start: number): void {
       values[at] += target - minimum;
 }
 
-/** Largest unit-bounded step keeping both scalar and orthant pairs nonnegative. */
+/*
+ * Largest unit-bounded step keeping both scalar and orthant pairs nonnegative.
+ */
 function stepLength(
   state: IAutoMovieQuadraticState,
   step: IAutoMovieQuadraticState,
@@ -281,7 +285,9 @@ function stepLength(
   return length;
 }
 
-/** Full and reduced thresholds keep feasible optima separate from certificates. */
+/*
+ * Full and reduced thresholds keep feasible optima separate from certificates.
+ */
 function convergence(
   reading: IAutoMovieMeasureQuadraticState.IResult,
   reduced: boolean,

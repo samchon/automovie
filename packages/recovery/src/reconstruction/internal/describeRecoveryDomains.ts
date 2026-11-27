@@ -6,7 +6,7 @@ import type {
 
 import { describeRecoveryNamedDomains } from "./describeRecoveryNamedDomains";
 
-/**
+/*
  * Bind declared saved-domain identities to actual returned ownership records.
  * The legacy explicit planner retains original group order and appends
  * diagnostics. Exact unique scalar brackets map its ranges to original declared

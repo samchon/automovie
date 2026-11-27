@@ -10,7 +10,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
 
-/**
+/*
  * Counter actual downstream gravitational moments through the same bounded
  * joint motors. Joints arrive in postorder, so one mass/first-moment
  * accumulation includes every attachment in linear work. This is feed-forward

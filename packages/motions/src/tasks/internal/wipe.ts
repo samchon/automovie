@@ -39,7 +39,7 @@ import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
 import { poseBones } from "../../posture/internal/poseBones";
 import { useTool } from "./useTool";
 
-/**
+/*
  * Wiping a table, counter or other level surface with the flat palm in circles,
  * standing before it: a household task that the composed laws lacked, the
  * palm's circling stroke on a work surface.
@@ -63,10 +63,14 @@ import { useTool } from "./useTool";
  * making) that chain this with the grasp, affordance and bend laws.
  */
 export namespace wipe {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "wipe";
 
-  /** Cancel table: the hand lifts off and the body stands, walks or operates. */
+  /*
+   * Cancel table: the hand lifts off and the body stands, walks or operates.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
@@ -94,27 +98,26 @@ export namespace wipe {
     ],
   };
 
-  /**
+  /*
    * May be performed over a carrier, such as seated or while another action
    * carries the body: it claims only the parts it moves.
    */
   export const overlay: boolean = true;
 
-  /**
+  /*
    * The least flexion the elbow keeps on the surface, degrees: the lower end of
    * the functional elbow arc of Morrey, Askew and Chao 1981 (J Bone Joint Surg
    * Am 63:872, 30 to 130 degrees), so the elbow never locks straight.
    */
   export const ELBOW: number = 30;
 
-  /**
+  /*
    * The circle about the centre in the heading's floor frame: starting at its
    * point nearest the performer, `cycles` turns over the progress.
-   *
-   * @param radius The circle's radius, metres.
-   * @param cycles The turns.
-   * @param progress The stroke's progress, 0 to 1.
-   * @returns The point, heading-frame metres about the centre.
+   * Parameter radius: The circle's radius, metres.
+   * Parameter cycles: The turns.
+   * Parameter progress: The stroke's progress, 0 to 1.
+   * Returns: The point, heading-frame metres about the centre.
    */
   export function local(
     radius: number,
@@ -124,13 +127,12 @@ export namespace wipe {
     const a: number = 2 * Math.PI * cycles * progress;
     return { x: radius * Math.sin(a), y: 0, z: -radius * Math.cos(a) };
   }
-  /**
+  /*
    * The share of the arm's length the wrist reaches with the elbow kept at
    * `ELBOW`: the law of cosines over the body's own upper arm and forearm,
    * `sqrt(u^2 + f^2 + 2 u f cos ELBOW) / (u + f)`.
-   *
-   * @param body The body.
-   * @returns The share, in (0, 1].
+   * Parameter body: The body.
+   * Returns: The share, in (0, 1].
    */
   export function reach(body: {
     measure: Pick<IAutoMovieMotionHumanBody["measure"], "upperArm" | "forearm">;
@@ -141,15 +143,14 @@ export namespace wipe {
     return Math.sqrt(u * u + f * f + 2 * u * f * Math.cos(bent)) / (u + f);
   }
 
-  /**
+  /*
    * The palm's place on the circle at a progress of the stroke.
-   *
-   * @param centre The patch's middle, world.
-   * @param radius The circle's radius, metres.
-   * @param yaw The heading, degrees.
-   * @param cycles The circle count.
-   * @param progress The stroke's progress in [0, 1].
-   * @returns World metres.
+   * Parameter centre: The patch's middle, world.
+   * Parameter radius: The circle's radius, metres.
+   * Parameter yaw: The heading, degrees.
+   * Parameter cycles: The circle count.
+   * Parameter progress: The stroke's progress in [0, 1].
+   * Returns: World metres.
    */
   export function circle(
     centre: IAutoMovieVector3,
@@ -164,13 +165,12 @@ export namespace wipe {
     );
   }
 
-  /**
+  /*
    * Plan a wipe.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the cycle count is not a positive integer, or
-   *   the patch lies beyond reach.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the cycle count is not a positive integer, or
+   * the patch lies beyond reach.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWipe.IParams>,
@@ -360,7 +360,9 @@ export namespace wipe {
   }
 }
 
-/** The record of `IPlanStroke`'s site. */
+/*
+ * The record of `IPlanStroke`'s site.
+ */
 type IPlanStroke = {
   contact: NonNullable<IAutoMovieMotionHumanArmPhrase.IStrokeProps["contact"]>;
 };

@@ -1,6 +1,6 @@
 import type { IAutoMovieInspectionRequest } from "@automovie/interface";
 
-/**
+/*
  * Whether an inspection request asks for the film picture alone: the `beauty`
  * shade with no part selection, hiding, marks, trail, colouring, labels,
  * section or x-ray.

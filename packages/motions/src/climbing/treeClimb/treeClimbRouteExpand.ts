@@ -9,16 +9,15 @@ import { treeClimbRoute } from "./treeClimbRoute";
 import { treeClimbRouteForms } from "./treeClimbRouteForms";
 import { treeLimbs } from "./treeLimbs";
 
-/**
+/*
  * Expand stances so the holds change a group at a time (taken, feet, hands, let
  * go), and check every one against the branches' loads.
- *
- * @param body The body, for its mass.
- * @param tree The tree.
- * @param stances The stances in order.
- * @returns The support stances, with every staged point by name.
- * @throws {HumanRefusal} If a stance loads a branch past its limit, naming the
- *   branch and the load.
+ * Parameter body: The body, for its mass.
+ * Parameter tree: The tree.
+ * Parameter stances: The stances in order.
+ * Returns: The support stances, with every staged point by name.
+ * If a stance loads a branch past its limit, naming the
+ * branch and the load.
  */
 export function treeClimbRouteExpand(
   body: { massModel: Pick<IAutoMovieMotionHumanBody["massModel"], "mass"> },

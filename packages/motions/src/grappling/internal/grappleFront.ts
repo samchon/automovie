@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
 
-/**
+/*
  * How far a grappler's front stands ahead of the hips with the trunk pitched
  * about the hip joint: a point at height h above the hip is carried forward by
  * h sin(pitch), and the front is the surface ahead of it, the chest's half
@@ -9,12 +9,11 @@ import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
  * (`grappleSumo.keys`) read their bodies' fronts here.
  */
 export namespace grappleFront {
-  /**
+  /*
    * The chest's front ahead of the hips.
-   *
-   * @param body The body.
-   * @param pitch The trunk's pitch, degrees.
-   * @returns Metres.
+   * Parameter body: The body.
+   * Parameter pitch: The trunk's pitch, degrees.
+   * Returns: Metres.
    */
   export function chest(
     body: {
@@ -32,12 +31,11 @@ export namespace grappleFront {
     );
   }
 
-  /**
+  /*
    * The head's front ahead of the hips.
-   *
-   * @param body The body.
-   * @param pitch The trunk's pitch, degrees.
-   * @returns Metres.
+   * Parameter body: The body.
+   * Parameter pitch: The trunk's pitch, degrees.
+   * Returns: Metres.
    */
   export function head(
     body: {

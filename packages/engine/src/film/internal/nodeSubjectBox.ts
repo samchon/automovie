@@ -7,7 +7,7 @@ import {
 import { placeTransformedPoint } from "./placeTransformedPoint";
 import { pointSubjectBox } from "./pointSubjectBox";
 
-/**
+/*
  * The world-axis-aligned bound of a supplied model-space subject box.
  *
  * The eight corners of extent go through placeTransformedPoint and their
@@ -27,10 +27,9 @@ import { pointSubjectBox } from "./pointSubjectBox";
  * stand-in boxing policy. This shape test also catches measured vertical
  * segments, so their rotation and scale are ignored here; it does not
  * distinguish them from unmeasured subjects.
- *
- * @param placement The node's world transform.
- * @param extent The model-space box of what the node draws, in metres.
- * @returns A new world box in metres.
+ * Parameter placement: The node's world transform.
+ * Parameter extent: The model-space box of what the node draws, in metres.
+ * Returns: A new world box in metres.
  */
 export function nodeSubjectBox(
   placement: IAutoMovieTransform,

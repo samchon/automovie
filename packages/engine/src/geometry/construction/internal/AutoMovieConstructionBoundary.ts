@@ -10,7 +10,7 @@ import { AutoMovieLoftSectionConnect } from "../../AutoMovieLoftSectionConnect";
 import { AutoMovieLoftSectionNative } from "../../AutoMovieLoftSectionNative";
 import { AutoMovieLoftSectionSource } from "../../AutoMovieLoftSectionSource";
 
-/**
+/*
  * Admit already matching native ends without rewriting either chain.
  *
  * Complete native scalar2 and signed frame2 determine every phase and mixed
@@ -98,17 +98,21 @@ export function AutoMovieConstructionBoundary(
   return null;
 }
 
-/** Physical value, first and second derivatives of one actual section frame. */
+/*
+ * Physical value, first and second derivatives of one actual section frame.
+ */
 type Frames = readonly [
   IAutoMovieLoftSectionFrame,
   IAutoMovieLoftSectionFrame,
   IAutoMovieLoftSectionFrame,
 ];
 
-/** Three world coordinates, in the order retained by the original frame. */
+/*
+ * Three world coordinates, in the order retained by the original frame.
+ */
 type Vector = readonly [number, number, number];
 
-/**
+/*
  * A captured whole native generating family, independent of compatibility
  * density.
  */
@@ -117,7 +121,9 @@ type Native = Extract<
   { kind: "native" }
 >;
 
-/** Validate each chain's own density and binding without copying or changing it. */
+/*
+ * Validate each chain's own density and binding without copying or changing it.
+ */
 function rows(chain: IAutoMovieLoftChain): string | null {
   if (chain.order <= 0 || chain.layers.length < 2)
     return `The native end of ${chain.name} has no valid section density/domain.`;
@@ -138,7 +144,9 @@ function rows(chain: IAutoMovieLoftChain): string | null {
   return null;
 }
 
-/** The declared end is a real principal endpoint, never an interior cut or pole. */
+/*
+ * The declared end is a real principal endpoint, never an interior cut or pole.
+ */
 function end(
   chain: IAutoMovieLoftChain,
   side: "bottom" | "top",
@@ -146,7 +154,7 @@ function end(
   return chain.layers[side === "bottom" ? 0 : chain.layers.length - 1]!;
 }
 
-/**
+/*
  * Read complete numeric frame2 and verify any retained callable against its
  * snapshot.
  */
@@ -185,7 +193,7 @@ function frames(layer: IAutoMovieLoftChain.ILayer): Frames | string {
   return result;
 }
 
-/**
+/*
  * Absence means the declared zero displacement; present lift needs all actual
  * orders.
  */
@@ -212,7 +220,7 @@ function lift(
   return result;
 }
 
-/**
+/*
  * Native admission plus nonzero transverse speed certifies every phase of this
  * planar ring.
  */
@@ -241,7 +249,7 @@ function regular(
   return null;
 }
 
-/**
+/*
  * Permit only binary64 evaluation noise, independently of tessellation or a fit
  * budget.
  */
@@ -252,7 +260,9 @@ function close(a: number, b: number): boolean {
   );
 }
 
-/** Oriented plane normal and its derivative use the original unnormalized frame. */
+/*
+ * Oriented plane normal and its derivative use the original unnormalized frame.
+ */
 function cross(a: Vector, b: Vector): Vector {
   return [
     a[1] * b[2] - a[2] * b[1],
@@ -261,12 +271,16 @@ function cross(a: Vector, b: Vector): Vector {
   ];
 }
 
-/** Sum the two product-rule terms of the frame normal derivative. */
+/*
+ * Sum the two product-rule terms of the frame normal derivative.
+ */
 function add(a: Vector, b: Vector): Vector {
   return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 }
 
-/** Normal components distinguish transverse motion from an in-plane tangent. */
+/*
+ * Normal components distinguish transverse motion from an in-plane tangent.
+ */
 function dot(a: Vector, b: Vector): number {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }

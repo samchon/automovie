@@ -28,7 +28,7 @@ import { AutoMovieSolidMesh } from "../../AutoMovieSolidMesh";
 import { AutoMovieSolidRibbon } from "../../AutoMovieSolidRibbon";
 import { AutoMovieSolidVector } from "../../AutoMovieSolidVector";
 
-/**
+/*
  * Realize a port (`IAutoMovieConstructionPort`): the host's port curve cut out
  * of its face as a hole, a band from that curve to the part's rail
  * (`AutoMovieConstructionSplitBand.strip`, the split's own strip with the
@@ -86,7 +86,9 @@ export function AutoMovieConstructionPortRealize(
   const snapshot: IAutoMovieConstructionState.ISnapshot =
     AutoMovieConstructionState.snap(body, state);
 
-  /** Keep the diagnostic while discarding every post-checkpoint effect. */
+  /*
+   * Keep the diagnostic while discarding every post-checkpoint effect.
+   */
   const fail: (detail: string) => void = (detail: string): void => {
     report(node.name, "port", detail);
     AutoMovieConstructionState.restore(body, state, snapshot);
@@ -425,5 +427,7 @@ export function AutoMovieConstructionPortRealize(
   }
 }
 
-/** World vector, mm. */
+/*
+ * World vector, mm.
+ */
 type Vec3 = AutoMovieVector3Tuple;

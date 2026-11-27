@@ -38,7 +38,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import type { IArmPhraseArm } from "./IArmPhraseArm";
 import { armPhraseFacing } from "./armPhraseFacing";
 
-/**
+/*
  * One arm phrase on a target: the hand visits a place, strokes along a path or
  * oscillates about a pose, on the standard instants of a phrase (Kendon 1980's
  * preparation, stroke, hold and retraction as BML's `ready`, `strokeStart`,
@@ -80,7 +80,9 @@ import { armPhraseFacing } from "./armPhraseFacing";
  * (`AutoMovieMotionManner`). Events: the phrase's instants.
  */
 export namespace armPhrase {
-  /** Select the acting hands and admit each requested held prop and site. */
+  /*
+   * Select the acting hands and admit each requested held prop and site.
+   */
   export function selectHands(
     p: Pick<IAutoMovieMotionHumanArmPhrase.IParams, "hand" | "held" | "point">,
     holds: IAutoMovieMotionHumanEntryState["holds"],
@@ -107,25 +109,30 @@ export namespace armPhrase {
       });
     return sides;
   }
-  /** The law's name, as productions register it. */
+  /*
+   * The law's name, as productions register it.
+   */
   export const name: string = "armPhrase";
 
-  /** Cancel table: a phrase may be left for anything once it retracts. */
+  /*
+   * Cancel table: a phrase may be left for anything once it retracts.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** A phrase is performed over a carrier that yields its arm and hand. */
+  /*
+   * A phrase is performed over a carrier that yields its arm and hand.
+   */
   export const overlay: boolean = true;
 
-  /**
+  /*
    * Plan the phrase.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When a held prop is named that the hand does not
-   *   hold at entry or with both hands, when a working point is named without a
-   *   held prop, or when the held prop has no such point.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When a held prop is named that the hand does not
+   * hold at entry or with both hands, when a working point is named without a
+   * held prop, or when the held prop has no such point.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanArmPhrase.IParams>,
@@ -446,30 +453,38 @@ export namespace armPhrase {
   }
 }
 
-/** The record of `IPlanArmsNamed`'s site. */
+/*
+ * The record of `IPlanArmsNamed`'s site.
+ */
 type IPlanArmsNamed = {
   point: IAutoMovieVector3;
   direction: IAutoMovieVector3;
 };
 
-/** The record of `IPlanArmsAimed`'s site. */
+/*
+ * The record of `IPlanArmsAimed`'s site.
+ */
 type IPlanArmsAimed = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 
-/** The record of `IPlanAimResult`'s site. */
+/*
+ * The record of `IPlanAimResult`'s site.
+ */
 type IPlanAimResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 
-/**
+/*
  * An oscillation's swing when none is given, a share of the arm's length to
  * each side (provisional: a wave's sweep, read from no measured source).
  */
 const SWING: number = 0.1;
 
-/**
+/*
  * The outward share of the upper arm the elbow's hanging hint is widened by
  * (provisional: a tenth, enough to keep the elbow off the flank, read from no
  * measured source).
  */
 const HANG_OUT: number = 0.1;
 
-/** No offset. */
+/*
+ * No offset.
+ */
 const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

@@ -10,7 +10,7 @@ import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
 import { recordPhysicalContact } from "./recordPhysicalContact";
 
-/**
+/*
  * Record the rigid contacts the world's last step solved, one receipt sample
  * per touching collider pair, in the world's canonical pair order
  * (`AutoMovieXpbdWorld.manifolds`: creation order of the first collider, then
@@ -28,14 +28,13 @@ import { recordPhysicalContact } from "./recordPhysicalContact";
  * its side took, at the same point, so its response is the declared multiple of
  * the solved one; a share whose Float64 product overflows throws instead of
  * giving the body an infinite velocity.
- *
- * @param world The world, after a step.
- * @param input The admitted simulation input; its bodies' modes and rate.
- * @param bound The world's binding: collider identities and segment bodies.
- * @param seconds Cache-frame seconds that stamp the samples.
- * @param contacts The run's receipts, appended to.
- * @param active Open receipts by pair key, updated.
- * @param found Pair keys touched in this cache frame, added to.
+ * Parameter world: The world, after a step.
+ * Parameter input: The admitted simulation input; its bodies' modes and rate.
+ * Parameter bound: The world's binding: collider identities and segment bodies.
+ * Parameter seconds: Cache-frame seconds that stamp the samples.
+ * Parameter contacts: The run's receipts, appended to.
+ * Parameter active: Open receipts by pair key, updated.
+ * Parameter found: Pair keys touched in this cache frame, added to.
  */
 export function collectPhysicalContacts(
   world: AutoMovieXpbdWorld,

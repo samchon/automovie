@@ -1,4 +1,4 @@
-/**
+/*
  * Names replacement and mojibake signals checked against the immutable
  * ancestor.
  *

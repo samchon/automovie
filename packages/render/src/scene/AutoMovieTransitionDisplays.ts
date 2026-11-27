@@ -41,10 +41,14 @@ export class AutoMovieTransitionDisplays {
    */
   public readonly overlay: THREE.Scene = new THREE.Scene();
 
-  /** The held copies, by slot. */
+  /*
+   * The held copies, by slot.
+   */
   private readonly copies_: (THREE.FramebufferTexture | undefined)[] = [];
 
-  /** The raw copy program a replay draws. */
+  /*
+   * The raw copy program a replay draws.
+   */
   private readonly material_: THREE.RawShaderMaterial =
     new THREE.RawShaderMaterial({
       glslVersion: THREE.GLSL3,
@@ -56,24 +60,34 @@ export class AutoMovieTransitionDisplays {
       blending: THREE.NoBlending,
     });
 
-  /** The full-frame quad the replay draws. */
+  /*
+   * The full-frame quad the replay draws.
+   */
   private readonly quad_: THREE.Mesh<
     THREE.PlaneGeometry,
     THREE.RawShaderMaterial
   > = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.material_);
 
-  /** The scene holding only the quad. */
+  /*
+   * The scene holding only the quad.
+   */
   private readonly frame_: THREE.Scene = new THREE.Scene();
 
-  /** A camera the quad's clip-space vertices ignore; `render` needs one. */
+  /*
+   * A camera the quad's clip-space vertices ignore; `render` needs one.
+   */
   private readonly camera_: THREE.OrthographicCamera =
     new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-  /** The fade compositor; its copies are sized at the first composite. */
+  /*
+   * The fade compositor; its copies are sized at the first composite.
+   */
   private readonly fade_: AutoMovieDisplayCompositor =
     new AutoMovieDisplayCompositor(1, 1);
 
-  /** The dissolve compositor; its copies are sized at the first composite. */
+  /*
+   * The dissolve compositor; its copies are sized at the first composite.
+   */
   private readonly dissolve_: AutoMovieDisplayCompositor =
     new AutoMovieDisplayCompositor(1, 1);
 
@@ -194,7 +208,9 @@ export class AutoMovieTransitionDisplays {
     ];
   }
 
-  /** Draw slot `slot`'s held bytes onto the canvas unchanged. */
+  /*
+   * Draw slot `slot`'s held bytes onto the canvas unchanged.
+   */
   private replay(renderer: THREE.WebGLRenderer, slot: number): void {
     const copy: THREE.FramebufferTexture | undefined = this.copies_[slot];
     if (copy === undefined)

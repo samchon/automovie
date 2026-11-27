@@ -8,7 +8,9 @@ import {
 } from "../../core";
 import { TOOL_BANDS } from "../constants/TOOL_BANDS";
 
-/** The seeded recipes originally published as `createTool`. */
+/*
+ * The seeded recipes originally published as `createTool`.
+ */
 export namespace HandToolDraw {
   /** The kinds of tool. */
   export type Kind =
@@ -21,7 +23,9 @@ export namespace HandToolDraw {
     | "knife"
     | "primingWire";
 
-  /** Every kind, for a caller that reads one at run time. */
+  /*
+   * Every kind, for a caller that reads one at run time.
+   */
   export const KINDS: readonly Kind[] = [
     "hammer",
     "saw",
@@ -33,22 +37,28 @@ export namespace HandToolDraw {
     "primingWire",
   ];
 
-  /**
+  /*
    * A table knife blade's thickness as a share of its read width from spine to
    * edge: a construction estimate that no act reads and no band declares.
    */
   export const KNIFE_THICKNESS: number = 0.1;
 
-  /** The shape of {@link TINES}. */
+  /*
+   * The shape of TINES.
+   */
   export interface ITines {
-    /** The `width` entry. */
+    /*
+     * The `width` entry.
+     */
     width: number;
 
-    /** The `length` entry. */
+    /*
+     * The `length` entry.
+     */
     length: number;
   }
 
-  /**
+  /*
    * A fork's tines as one plate, across and along, metres: an estimate, not
    * read at a source.
    */
@@ -57,20 +67,20 @@ export namespace HandToolDraw {
     length: 0.045,
   };
 
-  /**
+  /*
    * A saw blade's depth from its spine to its teeth, metres: an estimate, not
    * read at a source.
    */
   export const BLADE_DEPTH: number = 0.1;
 
-  /**
+  /*
    * The length of handle a hand holds, metres: the 120 mm CCOHS recommends for
    * a tool handle
    * (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html).
    */
   export const GRIP: number = 0.12;
 
-  /**
+  /*
    * The radius of a spoon's bowl, metres: the bowl is a disc of this radius
    * whose far rim ends the spoon, and the handle is the rest of the length. An
    * estimate, not read at a source.
@@ -110,7 +120,9 @@ export namespace HandToolDraw {
     | "bowl"
     | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /*
+   * Each dimension's unit, which its band and any model's figure for it share.
+   */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -143,7 +155,7 @@ export namespace HandToolDraw {
   /** The table knives read: Eichenlaub's Altdeutsch and Robert Welch's Malvern. */
   export type Model = "eichenlaub" | "robertWelch";
 
-  /**
+  /*
    * Each kind's models whole, the default first, length, blade, blade width and
    * mass: Eichenlaub's Altdeutsch 22.5 cm, 12.5 cm, 1.7 cm and 60 g
    * (https://www.scharferladen.de/en/eichenlaub-series-altdeutsch-table-knife-houndwood),
@@ -170,31 +182,38 @@ export namespace HandToolDraw {
     },
   };
 
-  /** The band of each free dimension, by kind. */
+  /*
+   * The band of each free dimension, by kind.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = TOOL_BANDS;
 
-  /** What {@link prepare} prepares for its caller. */
+  /*
+   * What prepare prepares for its caller.
+   */
   export interface IPrepareResult<Id extends Affordance> {
-    /** The prepared `builder` this call returns. */
+    /*
+     * The prepared `builder` this call returns.
+     */
     builder: AutoMovieArchetypeBuilder<Id, Dimension>;
 
-    /** The prepared `d` this call returns. */
+    /*
+     * The prepared `d` this call returns.
+     */
     d: Partial<Record<Dimension, number>>;
   }
 
-  /**
+  /*
    * Prepare an empty builder and the previously recorded tool dimensions.
-   *
-   * @param params Fixed dimensions in metres or kilograms, an optional scene
-   *   ID, and a model where the saved recipe has one.
-   * @param seed The seed that draws the saved dimensions and model, or
-   *   undefined for the original defaults.
-   * @param kind The saved kind whose recipe is used.
-   * @returns The builder and dimensions the named producer reads.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter
-   *   lies outside its admitted recipe.
+   * Parameter params: Fixed dimensions in metres or kilograms, an optional scene
+   * ID, and a model where the saved recipe has one.
+   * Parameter seed: The seed that draws the saved dimensions and model, or
+   * undefined for the original defaults.
+   * Parameter kind: The saved kind whose recipe is used.
+   * Returns: The builder and dimensions the named producer reads.
+   * When the model or a fixed parameter
+   * lies outside its admitted recipe.
    */
   export function prepare<Id extends Affordance>(
     kind: Kind,
@@ -226,16 +245,17 @@ export namespace HandToolDraw {
     return { builder, d };
   }
 
-  /** The contact ids {@link handle} builds or reads. */
+  /*
+   * The contact ids handle builds or reads.
+   */
   export type HandleContact = "grip" | "face";
 
-  /**
+  /*
    * Add a straight grip to a one-hand tool standing along +Y.
-   *
-   * @param builder The tool under construction.
-   * @param length The handle length in metres.
-   * @param radius Its radius in metres.
-   * @param options The material, grip style and position on the handle.
+   * Parameter builder: The tool under construction.
+   * Parameter length: The handle length in metres.
+   * Parameter radius: Its radius in metres.
+   * Parameter options: The material, grip style and position on the handle.
    */
   export function handle(
     builder: AutoMovieArchetypeBuilder<HandleContact, Dimension>,

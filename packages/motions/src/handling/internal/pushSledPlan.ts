@@ -47,15 +47,14 @@ import { pushSledCarry } from "./pushSledCarry";
 import { pushSledHandles } from "./pushSledHandles";
 import { pushSledStance } from "./pushSledStance";
 
-/**
+/*
  * Plan a push.
- *
- * @param context The action's context.
- * @returns The plan.
- * @throws {HumanRefusal} When the lean or the asked incline is out of range,
- *   the walk or the stand is shorter than the settle, the prop lacks a named
- *   handle, or a fist does not reach its handle as the grip closes; and
- *   whatever the walk refuses.
+ * Parameter context: The action's context.
+ * Returns: The plan.
+ * When the lean or the asked incline is out of range,
+ * the walk or the stand is shorter than the settle, the prop lacks a named
+ * handle, or a fist does not reach its handle as the grip closes; and
+ * whatever the walk refuses.
  */
 export function pushSledPlan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPushSled.IParams>,

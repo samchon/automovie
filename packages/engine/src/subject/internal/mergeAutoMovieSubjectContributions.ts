@@ -1,6 +1,6 @@
 import type { IAutoMovieSubjectContribution } from "@automovie/interface";
 
-/**
+/*
  * Merge what several subjects contribute into one contribution.
  *
  * Order is the order given, so a group that lists its members in a stable order
@@ -12,9 +12,8 @@ import type { IAutoMovieSubjectContribution } from "@automovie/interface";
  * Arrays are freshly allocated; their entries retain the input objects by
  * reference. Absent or empty fields remain absent, including an empty input
  * list. The caller must validate duplicate identities after this merge.
- *
- * @param contributions Ordered contributions from authored subjects.
- * @returns One concatenated contribution with fresh nonempty field arrays.
+ * Parameter contributions: Ordered contributions from authored subjects.
+ * Returns: One concatenated contribution with fresh nonempty field arrays.
  */
 export function mergeAutoMovieSubjectContributions(
   contributions: readonly IAutoMovieSubjectContribution[],
@@ -30,9 +29,9 @@ export function mergeAutoMovieSubjectContributions(
   return merged;
 }
 
-/**
+/*
  * Every contribution field, typed as a complete record so the compiler refuses
- * a field of {@link IAutoMovieSubjectContribution} that the merge would leave
+ * a field of IAutoMovieSubjectContribution that the merge would leave
  * out, and one it does not declare.
  */
 const CONTRIBUTION_FIELDS: Record<keyof IAutoMovieSubjectContribution, true> = {
@@ -65,18 +64,22 @@ const CONTRIBUTION_FIELDS: Record<keyof IAutoMovieSubjectContribution, true> = {
   instanceSets: true,
 };
 
-/** The fields of {@link CONTRIBUTION_FIELDS}, in the order they are merged. */
+/*
+ * The fields of CONTRIBUTION_FIELDS, in the order they are merged.
+ */
 const CONTRIBUTION_KEYS: readonly (keyof IAutoMovieSubjectContribution)[] =
   Object.keys(CONTRIBUTION_FIELDS) as (keyof IAutoMovieSubjectContribution)[];
 
-/** The merged contribution under construction, each field a fresh array. */
+/*
+ * The merged contribution under construction, each field a fresh array.
+ */
 type IMerged = {
   [K in keyof IAutoMovieSubjectContribution]?: NonNullable<
     IAutoMovieSubjectContribution[K]
   >[number][];
 };
 
-/**
+/*
  * Append one contribution field's entries to the merged field of the same key,
  * creating that field's array on its first entries.
  */

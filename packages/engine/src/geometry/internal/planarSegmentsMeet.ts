@@ -3,7 +3,7 @@ import { IAutoMoviePlanarPoint } from "@automovie/interface";
 import { PLANAR_EPSILON } from "../PLANAR_EPSILON";
 import { planarCross } from "./planarCross";
 
-/**
+/*
  * Whether two closed segments share any point, touching included.
  *
  * Touching counts because a region whose rings meet at one point is not two
@@ -15,12 +15,11 @@ import { planarCross } from "./planarCross";
  * that absolute tolerance and its projection parameter lies in [0, 1] widened
  * by the same constant. A zero-length segment never reports a touch through its
  * own projection.
- *
- * @param fromA First endpoint of the first segment.
- * @param toA Second endpoint of the first segment.
- * @param fromB First endpoint of the second segment.
- * @param toB Second endpoint of the second segment.
- * @returns True when the closed segments share a point within tolerance.
+ * Parameter fromA: First endpoint of the first segment.
+ * Parameter toA: Second endpoint of the first segment.
+ * Parameter fromB: First endpoint of the second segment.
+ * Parameter toB: Second endpoint of the second segment.
+ * Returns: True when the closed segments share a point within tolerance.
  */
 export const planarSegmentsMeet = (
   fromA: IAutoMoviePlanarPoint,
@@ -62,7 +61,9 @@ export const planarSegmentsMeet = (
   );
 };
 
-/** Are two orientation values strictly on opposite sides of zero? */
+/*
+ * Are two orientation values strictly on opposite sides of zero?
+ */
 const straddles = (left: number, right: number): boolean =>
   Math.abs(left) > PLANAR_EPSILON &&
   Math.abs(right) > PLANAR_EPSILON &&

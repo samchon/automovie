@@ -10,7 +10,7 @@ import { parseAutoMovieInspectionRequest } from "../../scene/inspection/internal
 import { parseAutoMovieInspectionView } from "../../scene/inspection/internal/parseAutoMovieInspectionView.js";
 import { AUTO_MOVIE_CAPTURE_PLAN_KEYS } from "../AUTO_MOVIE_CAPTURE_PLAN_KEYS.js";
 
-/**
+/*
  * Read a capture plan request from named text values, the one reader every host
  * maps its source onto: the page passes its address's `URLSearchParams`, the
  * command passes the map of `readAutoMovieCaptureArguments`, and a component
@@ -169,62 +169,70 @@ export function parseAutoMovieCapturePlanRequest(
   };
 }
 
-/** Every key the reader admits, for constant-time lookup. */
+/*
+ * Every key the reader admits, for constant-time lookup.
+ */
 const KNOWN: ReadonlySet<string> = new Set(AUTO_MOVIE_CAPTURE_PLAN_KEYS);
 
-/**
+/*
  * Stills per second of an even sampling when none is asked: five, the sparser
  * end of the five to ten stills per second
  * `.agents/skills/visual-debugging/capture.md` asks for a moving picture.
  */
 const RATE: number = 5;
 
-/**
+/*
  * Frames drawn on each side of an event when none is asked: three, so an event
  * shows seven consecutive frames of the output, the approach, the instant and
  * the release, as `capture.md` asks around every contact, cut and join.
  */
 const WINDOW: number = 3;
 
-/**
+/*
  * The scene-cut score when none is asked: 10, the default of FFmpeg's `scdet`
  * filter.
  */
 const THRESHOLD: number = 10;
 
-/**
+/*
  * The reader's longest edge when none is asked, in pixels: the size the Claude
  * vision guide downsizes above on older models.
  */
 const LONGEST: number = 1568;
 
-/**
+/*
  * The smallest legible cell edge when none is asked, in pixels: the size under
  * which the Claude vision guide reads an image unreliably.
  */
 const SMALLEST: number = 200;
 
-/**
+/*
  * The view drawn when none is asked: the subject's own camera, which shows the
  * delivered framing.
  */
 const VIEW: string = "film";
 
-/** Separator of view texts, which may themselves hold commas and colons. */
+/*
+ * Separator of view texts, which may themselves hold commas and colons.
+ */
 const VIEW_SEPARATOR: string = ";";
 
-/**
+/*
  * A round name: letters, digits, dots, underscores and hyphens, starting with a
  * letter or digit, so it is one folder name.
  */
 const ROUND: RegExp = /^[a-z0-9][a-z0-9._-]*$/iu;
 
-/** Throw the refusal of a value: the key, the text and what is accepted. */
+/*
+ * Throw the refusal of a value: the key, the text and what is accepted.
+ */
 function refuse(key: string, text: string, accepted: string): never {
   throw new Error(`Capture ${key} "${text}" is not ${accepted}`);
 }
 
-/** The trimmed non-empty items of a comma-separated text. */
+/*
+ * The trimmed non-empty items of a comma-separated text.
+ */
 function items(text: string): string[] {
   return text
     .split(",")
@@ -232,7 +240,9 @@ function items(text: string): string[] {
     .filter((item: string): boolean => item !== "");
 }
 
-/** The items of a key's text, refusing one given twice. */
+/*
+ * The items of a key's text, refusing one given twice.
+ */
 function distinct(key: string, text: string, values: string[]): string[] {
   const seen: Set<string> = new Set();
   for (const value of values) {
@@ -243,7 +253,9 @@ function distinct(key: string, text: string, values: string[]): string[] {
   return values;
 }
 
-/** A shade, read by the inspection core so the shade list has one owner. */
+/*
+ * A shade, read by the inspection core so the shade list has one owner.
+ */
 function shadeOf(text: string): AutoMovieInspectionShade {
   try {
     return parseAutoMovieInspectionRequest((key: string): string | undefined =>
@@ -257,13 +269,17 @@ function shadeOf(text: string): AutoMovieInspectionShade {
   }
 }
 
-/** The number a text spells, NaN for blank or malformed text. */
+/*
+ * The number a text spells, NaN for blank or malformed text.
+ */
 function finite(text: string): number {
   const value: number = text.trim() === "" ? Number.NaN : Number(text);
   return value;
 }
 
-/** A finite number in `[minimum, maximum]`, or null when the key is absent. */
+/*
+ * A finite number in `[minimum, maximum]`, or null when the key is absent.
+ */
 function bounded(
   key: string,
   text: string | null,
@@ -283,7 +299,9 @@ function bounded(
   return value;
 }
 
-/** A whole number of at least `minimum`, or null when the key is absent. */
+/*
+ * A whole number of at least `minimum`, or null when the key is absent.
+ */
 function whole(
   key: string,
   text: string | null,
@@ -296,7 +314,9 @@ function whole(
   return value;
 }
 
-/** Seconds separated by commas, each zero or more; at least one when `required`. */
+/*
+ * Seconds separated by commas, each zero or more; at least one when `required`.
+ */
 function seconds(key: string, text: string, required: boolean): number[] {
   const values: number[] = items(text).map((item: string): number => {
     const value: number = finite(item);
@@ -309,7 +329,9 @@ function seconds(key: string, text: string, required: boolean): number[] {
   return values;
 }
 
-/** An even sampling from `from`, `to` and `rate`. */
+/*
+ * An even sampling from `from`, `to` and `rate`.
+ */
 function even(read: (key: string) => string | null): IAutoMovieCaptureSampling {
   const from: number = bounded("from", read("from"), 0, Infinity) ?? 0;
   const to: number | null = bounded("to", read("to"), 0, Infinity);
@@ -321,7 +343,9 @@ function even(read: (key: string) => string | null): IAutoMovieCaptureSampling {
   return { kind: "even", from, to, rate: rate ?? RATE };
 }
 
-/** A round name, or null when the key is absent. */
+/*
+ * A round name, or null when the key is absent.
+ */
 function roundName(key: string, text: string | null): string | null {
   if (text === null) return null;
   if (!ROUND.test(text))
@@ -333,7 +357,9 @@ function roundName(key: string, text: string | null): string | null {
   return text;
 }
 
-/** A subject name, or null when the key is absent. */
+/*
+ * A subject name, or null when the key is absent.
+ */
 function subject(text: string | null): string | null {
   if (text === null) return null;
   if (text.trim() === "") refuse("subject", text, "a subject name");

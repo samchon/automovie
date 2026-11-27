@@ -3,17 +3,16 @@ import {
   IAutoMovieDesignVariant,
 } from "@automovie/interface";
 
-/**
+/*
  * The design variant one id names, or a thrown `Error` naming both the lineage
  * and the missing id.
  *
  * The first variant declared under the id is returned; duplicate ids are a
  * contradiction `validateDesignLineage` refuses, not one this lookup
  * re-decides.
- *
- * @param lineage Lineage holding the variant.
- * @param variant Id of the variant to resolve.
- * @returns The lineage's own variant record, not a copy.
+ * Parameter lineage: Lineage holding the variant.
+ * Parameter variant: Id of the variant to resolve.
+ * Returns: The lineage's own variant record, not a copy.
  */
 export function requireDesignVariant(
   lineage: IAutoMovieDesignLineage,

@@ -3,23 +3,24 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * The most strokes, regrips and steps one insertion plans before it refuses as
  * a staff that makes no headway.
  */
 const MOST: number = 64;
 
-/** Metres below which a stroke, a slide or a step is no movement. */
+/*
+ * Metres below which a stroke, a slide or a step is no movement.
+ */
 const EPSILON: number = 1e-4;
 
-/**
+/*
  * A place moved from where it is toward a goal, as far as a range allows, never
  * back past where it started.
- *
- * @param from Where it is.
- * @param goal Where it goes.
- * @param range The places it may take.
- * @returns The place it reaches.
+ * Parameter from: Where it is.
+ * Parameter goal: Where it goes.
+ * Parameter range: The places it may take.
+ * Returns: The place it reaches.
  */
 function clampToward(
   from: number,
@@ -30,7 +31,7 @@ function clampToward(
   return goal >= from ? Math.max(from, reach) : Math.min(from, reach);
 }
 
-/**
+/*
  * The course of a long insertion (`operateLongInsert`): a staff driven down a
  * bore farther than one grip reaches, hand over hand, with steps where the
  * stance runs out, then drawn out the same way when asked. Every place is read
@@ -56,12 +57,11 @@ function clampToward(
  * `slide` is how far A has moved along the staff from its entry grip, away from
  * the working point; the depth follows as `d = l + slide - uA`, `l` the entry
  * grip's distance behind the working point.
- *
- * @param props The bore, the shoulders, the staff and the depth.
- * @returns The stance before the first stroke, the presentation and the
- *   segments in order.
- * @throws {HumanRefusal} When the staff is too short for the depth, or no
- *   stance holds the presentation or the next grip.
+ * Parameter props: The bore, the shoulders, the staff and the depth.
+ * Returns: The stance before the first stroke, the presentation and the
+ * segments in order.
+ * When the staff is too short for the depth, or no
+ * stance holds the presentation or the next grip.
  */
 export function operateLongInsertCourse(
   props: operateLongInsertCourse.IProps,
@@ -329,98 +329,154 @@ export function operateLongInsertCourse(
   return { presented, segments };
 }
 
-/** The inputs and records of {@link operateLongInsertCourse}. */
+/*
+ * The inputs and records of operateLongInsertCourse.
+ */
 export namespace operateLongInsertCourse {
-  /** The carrying hand (`A`) or the steadying one (`B`). */
+  /*
+   * The carrying hand (`A`) or the steadying one (`B`).
+   */
   export type Hand = "A" | "B";
 
-  /** A segment's kind. */
+  /*
+   * A segment's kind.
+   */
   export type Kind = "push" | "pull" | "slideA" | "slideB" | "step";
 
-  /** A closed range, metres. */
+  /*
+   * A closed range, metres.
+   */
   export interface IRange {
-    /** Its low end. */
+    /*
+     * Its low end.
+     */
     lo: number;
 
-    /** Its high end. */
+    /*
+     * Its high end.
+     */
     hi: number;
   }
 
-  /** The bore, the body and the staff. */
+  /*
+   * The bore, the body and the staff.
+   */
   export interface IProps {
-    /** The bore's mouth, world metres. */
+    /*
+     * The bore's mouth, world metres.
+     */
     mouth: IAutoMovieVector3;
 
-    /** The bore's outward normal, world. */
+    /*
+     * The bore's outward normal, world.
+     */
     normal: IAutoMovieVector3;
 
-    /** Each hand's shoulder at the entry stance, world metres. */
+    /*
+     * Each hand's shoulder at the entry stance, world metres.
+     */
     shoulders: Readonly<Record<Hand, IAutoMovieVector3>>;
 
-    /** The unit horizontal line a step moves the body along, toward the mouth. */
+    /*
+     * The unit horizontal line a step moves the body along, toward the mouth.
+     */
     step: IAutoMovieVector3;
 
-    /** How far from its shoulder a hand holds, metres. */
+    /*
+     * How far from its shoulder a hand holds, metres.
+     */
     reach: number;
 
-    /**
+    /*
      * How far behind the working point the carrying hand held the staff at
      * entry, metres.
      */
     grip: number;
 
-    /** The staff's grippable run, metres behind the working point. */
+    /*
+     * The staff's grippable run, metres behind the working point.
+     */
     shaft: IRange;
 
-    /** How near the mouth a hand comes, metres. */
+    /*
+     * How near the mouth a hand comes, metres.
+     */
     clear: number;
 
-    /** How far apart the two hands hold along the staff, metres. */
+    /*
+     * How far apart the two hands hold along the staff, metres.
+     */
     gap: number;
 
-    /** How deep the working point goes, metres. */
+    /*
+     * How deep the working point goes, metres.
+     */
     depth: number;
 
-    /** Whether the staff is drawn back out. */
+    /*
+     * Whether the staff is drawn back out.
+     */
     withdraw: boolean;
   }
 
-  /** Where the body and the hands are. */
+  /*
+   * Where the body and the hands are.
+   */
   export interface IState {
-    /** The stance, metres along the step line from the entry's. */
+    /*
+     * The stance, metres along the step line from the entry's.
+     */
     x: number;
 
-    /** The carrying hand's place on the axis, metres out of the mouth. */
+    /*
+     * The carrying hand's place on the axis, metres out of the mouth.
+     */
     uA: number;
 
-    /** The steadying hand's place on the axis, metres out of the mouth. */
+    /*
+     * The steadying hand's place on the axis, metres out of the mouth.
+     */
     uB: number;
 
-    /**
+    /*
      * How far the carrying hand has slid along the staff from its entry grip,
      * away from the working point, metres.
      */
     slide: number;
   }
 
-  /** One segment of the course. */
+  /*
+   * One segment of the course.
+   */
   export interface ISegment {
-    /** What moves. */
+    /*
+     * What moves.
+     */
     kind: Kind;
 
-    /** The state it starts in. */
+    /*
+     * The state it starts in.
+     */
     from: IState;
 
-    /** The state it ends in. */
+    /*
+     * The state it ends in.
+     */
     to: IState;
   }
 
-  /** The course. */
+  /*
+   * The course.
+   */
   export interface IResult {
-    /** The presentation: the working point at the mouth, at the first stance. */
+    /*
+     * The presentation: the working point at the mouth, at the first stance.
+     */
     presented: IState;
 
-    /** The segments after the presentation, in order. */
+    /*
+     * The segments after the presentation, in order.
+     */
     segments: ISegment[];
   }
 }

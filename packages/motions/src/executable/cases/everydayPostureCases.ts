@@ -10,14 +10,13 @@ import { everydayCaseKit } from "./internal/everydayCaseKit";
 import { everydayPostureCaseObstacle } from "./internal/everydayPostureCaseObstacle";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * The seat, bend and step cases of `everydayCases` (`everyday-seat`,
  * `everyday-bend` and `everyday-step`), with the verdicts `everydayCases`
  * lists.
- *
- * @param c The body's case context.
- * @param wants Whether a family is wanted.
- * @returns The cases.
+ * Parameter c: The body's case context.
+ * Parameter wants: Whether a family is wanted.
+ * Returns: The cases.
  */
 export function everydayPostureCases(
   c: everydayCaseKit.IContext,

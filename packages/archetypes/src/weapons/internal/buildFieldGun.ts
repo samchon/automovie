@@ -8,7 +8,7 @@ import {
 import { FIELD_GUN } from "../constants/FIELD_GUN";
 import type { AutoMovieArchetypeCannon } from "../AutoMovieArchetypeCannon";
 
-/**
+/*
  * Builds `FIELD_GUN`, the 6-pdr field gun, on the producer's builder: the tube
  * on its trunnions, the cheeks and the stock to the trail's end, the axle and
  * the two wheels, with every part's share of the read weights; then its
@@ -22,10 +22,9 @@ import type { AutoMovieArchetypeCannon } from "../AutoMovieArchetypeCannon";
  * wood and irons share its 540 lb less the axle-tree's read 116 lb by volume,
  * and each wheel carries its read 180 lb by the volumes of its disc, spokes and
  * nave.
- *
- * @param builder The producer's builder.
- * @param recoil The run back on firing, metres: the travel of the `recoil`
- *   slider every part rides.
+ * Parameter builder: The producer's builder.
+ * Parameter recoil: The run back on firing, metres: the travel of the `recoil`
+ * slider every part rides.
  */
 export function buildFieldGun(
   builder: AutoMovieArchetypeBuilder<

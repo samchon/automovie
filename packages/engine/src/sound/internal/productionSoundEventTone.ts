@@ -1,6 +1,8 @@
 import { IAutoMovieProductionSoundEvent } from "@automovie/interface";
 
-/** Evaluate only the selected semantic event's fixed procedural tone. */
+/*
+ * Evaluate only the selected semantic event's fixed procedural tone.
+ */
 export function productionSoundEventTone(
   kind: IAutoMovieProductionSoundEvent["kind"],
   t: number,

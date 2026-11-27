@@ -6,7 +6,7 @@ import type {
 import { Vector3 } from "../../math/Vector3";
 import { bracketedCrossing } from "../../math/internal/bracketedCrossing";
 
-/**
+/*
  * The point where two people's hands meet when both reach for it: a handshake's
  * clasp, a handover's exchange, a high five.
  *
@@ -46,11 +46,10 @@ import { bracketedCrossing } from "../../math/internal/bracketedCrossing";
  * error gives both limits and the widest horizontal shoulder gap the pair can
  * close, so the author moves the people instead of receiving an arm torn off
  * its shoulder.
- *
- * @param input Both sides' acting shoulders and reaches.
- * @returns The meeting point and each side's shoulder distance to it.
- * @throws {Error} When a reach is not positive or exceeds its limit, the
- *   shoulders coincide, or the point lies beyond a limit.
+ * Parameter input: Both sides' acting shoulders and reaches.
+ * Returns: The meeting point and each side's shoulder distance to it.
+ * When a reach is not positive or exceeds its limit, the
+ * shoulders coincide, or the point lies beyond a limit.
  */
 export function resolveAutoMovieMutualGoal(
   input: IAutoMovieResolveMutualGoal.IInput,
@@ -188,7 +187,7 @@ export function resolveAutoMovieMutualGoal(
   });
 }
 
-/**
+/*
  * The bisections whose final bracket width both crossing searches close to: a
  * bracket of metres to the last digits of a double.
  */

@@ -35,11 +35,11 @@ import { prepareKneelBalance } from "./prepareKneelBalance";
 import { prepareKneelClock } from "./prepareKneelClock";
 import { prepareKneelPhases } from "./prepareKneelPhases";
 
-/**
+/*
  * Kneeling from standing: on one knee (half kneel), on both knees upright, or
  * sitting back on the heels, held, then rising the way it went down.
  *
- * The goals are floor points, solved by {@link kneelKeys}. The kneeling leg
+ * The goals are floor points, solved by kneelKeys. The kneeling leg
  * steps back onto its tucked toes while the hips travel along the heading from
  * where they stand to where the step key puts them as the foot travels, so they
  * trail the foot and arrive after it lands; with the balance option
@@ -69,13 +69,17 @@ import { prepareKneelPhases } from "./prepareKneelPhases";
  * `stood`.
  */
 export namespace kneel {
-  /** The pelvis travels over the supporting legs during the requested interval. */
+  /*
+   * The pelvis travels over the supporting legs during the requested interval.
+   */
   export const balance: IAutoMovieMotionHumanBalance = { by: "hips" };
 
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "kneel";
 
-  /**
+  /*
    * Cancel table: the body stands, crouches or handles a low thing once it has
    * settled.
    */
@@ -114,19 +118,19 @@ export namespace kneel {
     ],
   };
 
-  /**
+  /*
    * How far of its full length the stepping leg extends to reach its foot
    * behind (provisional).
    */
   export const REACH: number = 0.98;
 
-  /**
+  /*
    * Seconds over which a lifted foot's toe-down turn eases in from and out to
    * its plants (provisional, as the medium walk's).
    */
   const EASE: number = 0.1;
 
-  /**
+  /*
    * Seconds of each phase for the reference hip height
    * (`walkRoot.REFERENCE_HIP`), scaled to a body by the square root of its own
    * hip height (dynamic similarity); the phases themselves have no located
@@ -139,18 +143,17 @@ export namespace kneel {
     sit: 0.8,
   };
 
-  /**
+  /*
    * The swinging ankle's greatest rise over its straight path, as a share of
    * the shank (provisional).
    */
   export const CLEARANCE: number = 0.15;
 
-  /**
+  /*
    * Plan a kneel.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the hold is negative.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKneel.IParams>,
@@ -453,12 +456,18 @@ export namespace kneel {
     });
   }
 
-  /** A phase between two key states. */
+  /*
+   * A phase between two key states.
+   */
   type IPhase = kneelPhaseTable.IPhase;
 }
 
-/** The record of `IPlanDisplayResult`'s site. */
+/*
+ * The record of `IPlanDisplayResult`'s site.
+ */
 type IPlanDisplayResult = { name: string; seconds: number };
 
-/** The alternatives of `PHASESEntryItem`'s site. */
+/*
+ * The alternatives of `PHASESEntryItem`'s site.
+ */
 type PHASESEntryItem = "step" | "lower" | "second" | "sit";

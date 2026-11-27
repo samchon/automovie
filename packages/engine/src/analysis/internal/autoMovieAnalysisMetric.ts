@@ -7,7 +7,7 @@ import {
 
 import { autoMovieAnalysisTargetMet } from "./autoMovieAnalysisTargetMet";
 
-/**
+/*
  * Build one metric, resolving whatever target the production declared for it.
  *
  * A target stated in the wrong unit does not silently pass and does not

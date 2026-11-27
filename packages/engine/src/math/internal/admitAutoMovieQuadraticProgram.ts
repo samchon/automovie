@@ -5,7 +5,7 @@ import type {
 
 import { AUTOMOVIE_QUADRATIC_INFINITY } from "../../constants/AUTOMOVIE_QUADRATIC_INFINITY";
 
-/**
+/*
  * Check explicit diagonal-program admission rules without building its sparse
  * matrix.
  *
@@ -28,8 +28,7 @@ import { AUTOMOVIE_QUADRATIC_INFINITY } from "../../constants/AUTOMOVIE_QUADRATI
  * CSC-entry, factor-fill or TypeScript workspace capacity: the duplicate marker
  * or later numerical storage can still fail to allocate, and host allocation or
  * malformed-container errors need not have a named rule message.
- *
- * @param input Program to check; it is only read.
+ * Parameter input: Program to check; it is only read.
  */
 export function admitAutoMovieQuadraticProgram(
   input: [IAutoMovieSolveQuadraticProgram.IInput][0],
@@ -71,14 +70,16 @@ export function admitAutoMovieQuadraticProgram(
   }
 }
 
-/** Reads every slot by index, so a hole is refused rather than skipped. */
+/*
+ * Reads every slot by index, so a hole is refused rather than skipped.
+ */
 function admitVector(values: readonly number[], length: number): void {
   if (values.length !== length)
     throw new Error("Quadratic vector dimensions must agree.");
   for (let at: number = 0; at < values.length; at++) admitScalar(values[at]!);
 }
 
-/**
+/*
  * Return the original finite scalar only when its magnitude is strictly below
  * the numerical infinity sentinel.
  */

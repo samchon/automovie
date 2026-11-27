@@ -7,24 +7,23 @@ import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
 
-/**
+/*
  * How far the arms' configuration at a waypoint passes the tangle audit's
  * clearance (with the skin `evaluate` refuses past) or a joint's range: the
  * configuration is valid where this is within `TOLERANCE`. One reading serves
  * the path planner's validity and the trajectory's refusal.
- *
- * @param c The context.
- * @param k The waypoint whose base and allowances it is read against.
- * @param q Each arm's coordinates.
- * @param forwardCertified Whether a conservative interval bound already proves
- *   the arm's forward surface probes clear; only that reading is then spared.
- *   Reverse corners, crossings and joint ranges are always read at this
- *   waypoint.
- * @param tasks Whether the hold's task points (its site's limits and skin
- *   distance) are read: true for the hold itself; false for a path planner's
- *   approach state read at the hold's waypoint, which keeps its contact
- *   allowances but not the task points that bind only the hold.
- * @returns The largest excess, millimetres or coordinate units, and what it is.
+ * Parameter c: The context.
+ * Parameter k: The waypoint whose base and allowances it is read against.
+ * Parameter q: Each arm's coordinates.
+ * Parameter forwardCertified: Whether a conservative interval bound already proves
+ * the arm's forward surface probes clear; only that reading is then spared.
+ * Reverse corners, crossings and joint ranges are always read at this
+ * waypoint.
+ * Parameter tasks: Whether the hold's task points (its site's limits and skin
+ * distance) are read: true for the hold itself; false for a path planner's
+ * approach state read at the hold's waypoint, which keeps its contact
+ * allowances but not the task points that bind only the hold.
+ * Returns: The largest excess, millimetres or coordinate units, and what it is.
  */
 export function HumanArmTrajectoryInvalid(
   c: M.IContext,
@@ -108,7 +107,7 @@ export function HumanArmTrajectoryInvalid(
   return worst;
 }
 
-/**
+/*
  * Configuration validity for the arm path and its refinement: the forward
  * surface probes, reverse body corners, two arms' crossings, hard task points
  * and joint ranges. A forward interval certificate spares only its own directed
@@ -116,13 +115,12 @@ export function HumanArmTrajectoryInvalid(
  * waypoint.
  */
 export namespace HumanArmTrajectoryInvalid {
-  /**
+  /*
    * The radius of an arm's chart disc in coordinate units: the chart's unit
    * disc, widened to the rest and the back arm's own swing.
-   *
-   * @param c The context.
-   * @param a The arm.
-   * @returns The radius.
+   * Parameter c: The context.
+   * Parameter a: The arm.
+   * Returns: The radius.
    */
   export function swing(
     c: Pick<M.IContext, "rest" | "back">,
@@ -136,8 +134,12 @@ export namespace HumanArmTrajectoryInvalid {
   }
 }
 
-/** The record of `IOfWorst`'s site. */
+/*
+ * The record of `IOfWorst`'s site.
+ */
 type IOfWorst = { value: number; what: string };
 
-/** The record of `IOfResult`'s site. */
+/*
+ * The record of `IOfResult`'s site.
+ */
 type IOfResult = { value: number; what: string };

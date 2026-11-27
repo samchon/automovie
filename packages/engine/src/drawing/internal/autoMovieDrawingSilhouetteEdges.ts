@@ -9,7 +9,7 @@ import { Vector3 } from "../../math/Vector3";
 import { AUTOMOVIE_DRAWING_EPSILON } from "../AUTOMOVIE_DRAWING_EPSILON";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
-/**
+/*
  * Silhouette of a triangle soup under the view's orthographic direction.
  *
  * An edge is drawn when the faces meeting along it disagree about facing the
@@ -23,10 +23,9 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * triangles meeting at one corner are recognised as meeting there even when the
  * arithmetic that produced it differed in a last bit. Two corners closer than
  * the grid but on opposite sides of a rounding boundary are not welded.
- *
- * @param frame Page basis whose normal points back at the viewer.
- * @param triangles World triangles of one drawable, in their source winding.
- * @returns One world edge per silhouette or border edge, in first-seen order.
+ * Parameter frame: Page basis whose normal points back at the viewer.
+ * Parameter triangles: World triangles of one drawable, in their source winding.
+ * Returns: One world edge per silhouette or border edge, in first-seen order.
  */
 export const autoMovieDrawingSilhouetteEdges = (
   frame: IAutoMovieDrawingFrame,
@@ -69,7 +68,9 @@ export const autoMovieDrawingSilhouetteEdges = (
   return edges;
 };
 
-/** How many triangles facing toward and away from the viewer share one edge. */
+/*
+ * How many triangles facing toward and away from the viewer share one edge.
+ */
 interface IEdgeOwners {
   edge: IAutoMovieDrawingEdge;
   front: number;

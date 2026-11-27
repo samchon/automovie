@@ -16,19 +16,18 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { coverWall } from "./coverWall";
 
-/**
+/*
  * Peek past a wall's end: from the standing entry the whole body leans, its
  * feet planted, until the head crosses the plane through the face's end by the
  * exposure, the head turning to look along the hidden side; it holds and leans
  * back. The lean is a tilt of the standing posture about its root whose
  * direction is found by moving the displayed head; its size is the closed form
  * `asin(shift / height)`.
- *
- * @param context The action's context, standing beside the wall.
- * @param p The peek.
- * @returns The peek, ending in the entry stance.
- * @throws {HumanRefusal} If a foot is past the end already, the head is already
- *   past it, or the lean would exceed `MAX_LEAN`.
+ * Parameter context: The action's context, standing beside the wall.
+ * Parameter p: The peek.
+ * Returns: The peek, ending in the entry stance.
+ * If a foot is past the end already, the head is already
+ * past it, or the lean would exceed `MAX_LEAN`.
  */
 export function coverPeek(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCover.IParams>,
@@ -158,23 +157,29 @@ export function coverPeek(
   };
 }
 
-/**
+/*
  * How far the head crosses the end's plane by default, metres (provisional: one
  * eye past the corner).
  */
 const EXPOSURE: number = 0.12;
 
-/** Seconds the head holds out by default (provisional). */
+/*
+ * Seconds the head holds out by default (provisional).
+ */
 const HOLD: number = 0.8;
 
-/** Seconds to lean out and to lean back (provisional). */
+/*
+ * Seconds to lean out and to lean back (provisional).
+ */
 const LEAN: number = 0.5;
 
-/**
+/*
  * The steepest lean of the standing body, degrees (provisional: a lean that
  * keeps the planted feet loaded).
  */
 const MAX_LEAN: number = 20;
 
-/** The head's turn toward the hidden side at full lean, degrees (provisional). */
+/*
+ * The head's turn toward the hidden side at full lean, degrees (provisional).
+ */
 const TURN: number = 35;

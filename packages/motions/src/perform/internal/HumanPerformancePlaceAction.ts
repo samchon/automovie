@@ -5,17 +5,16 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * An action's reader of the anchored actions placed before it
  * (`HumanPerformancePlace.place`). An anchored action a later part of an open
  * group holds is placed first (`IAutoMovieScheduleContext.demandAnchor`), as a
  * read of a person is.
- *
- * @param self The performance's state.
- * @param named The parameter through which the reading action named an id.
- * @returns The reader of an anchored action.
- * @throws {HumanRefusal} When a read anchor is not placed earlier in the
- *   composition.
+ * Parameter self: The performance's state.
+ * Parameter named: The parameter through which the reading action named an id.
+ * Returns: The reader of an anchored action.
+ * When a read anchor is not placed earlier in the
+ * composition.
  */
 export function HumanPerformancePlaceAction(
   self: IAutoMovieMotionHumanPerformanceState,

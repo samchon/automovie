@@ -9,21 +9,20 @@ import { Vector3 } from "../../math/Vector3";
 import { autoMovieDrawingPlaneDistance } from "./autoMovieDrawingPlaneDistance";
 import { AUTOMOVIE_DRAWING_EPSILON } from "../AUTOMOVIE_DRAWING_EPSILON";
 
-/**
+/*
  * Where the cut plane passes through a triangle soup, as world segments.
  *
  * One segment per triangle with a corner strictly on each side of the plane,
- * beyond {@link AUTOMOVIE_DRAWING_EPSILON}. A triangle lying in the plane, or
+ * beyond AUTOMOVIE_DRAWING_EPSILON. A triangle lying in the plane, or
  * only touching it, contributes nothing: a face tangent to the cut is not a
  * section, and emitting its edges would draw every interior diagonal of a slab
  * whose top sits at the cut height.
  *
  * Segments are neither joined into loops nor deduplicated; the drafter rounds
  * and deduplicates them with the rest of the linework.
- *
- * @param frame Page basis whose origin and normal define the cut plane.
- * @param triangles World triangles of one drawable.
- * @returns One world segment per straddling triangle, in input order.
+ * Parameter frame: Page basis whose origin and normal define the cut plane.
+ * Parameter triangles: World triangles of one drawable.
+ * Returns: One world segment per straddling triangle, in input order.
  */
 export const autoMovieDrawingCutEdges = (
   frame: IAutoMovieDrawingFrame,

@@ -13,9 +13,13 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeQuadrupedFooting } from "../AutoMovieArchetypeQuadrupedFooting";
 
-/** The actual lowest part surface over the named finite world XZ patch. */
+/*
+ * The actual lowest part surface over the named finite world XZ patch.
+ */
 export namespace QuadrupedFootingClip {
-  /** Prepare one material surface and cache each owner's local shape geometry. */
+  /*
+   * Prepare one material surface and cache each owner's local shape geometry.
+   */
   export function prepare(
     plane: AutoMovieArchetypeQuadrupedFooting.IPlane,
     frame: IAutoMovieTransform,
@@ -78,7 +82,9 @@ export namespace QuadrupedFootingClip {
   }
 }
 
-/** Each local collider matches the visible solid's bounds, including flat ends. */
+/*
+ * Each local collider matches the visible solid's bounds, including flat ends.
+ */
 function shape(
   part: IAutoMovieModelPart,
   cells: AutoMovieArchetypeConvexCell.Table | undefined,

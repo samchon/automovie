@@ -30,7 +30,7 @@ import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { solveHumanLimbFit } from "./solveHumanLimbFit";
 
-/**
+/*
  * The fit of one limb onto its goal, which `resolveHumanPosture` runs for each
  * limb after the trunk: the goal carried into the world by the bone it is
  * attached to, the engine's two-bone fit clear of the trunk and the other arm,
@@ -38,17 +38,16 @@ import { solveHumanLimbFit } from "./solveHumanLimbFit";
  * its own inputs; nothing is remembered between fits.
  */
 export namespace HumanLimbFit {
-  /**
+  /*
    * The engine's three required mutable bone identities: upper, lower and
    * effector. `chain` chooses their Human names from the limb's side and kind.
    */
   export type IChain = IAutoMoviePlantChain;
 
-  /**
+  /*
    * The chain of a limb.
-   *
-   * @param limb The limb.
-   * @returns Its three bones.
+   * Parameter limb: The limb.
+   * Returns: Its three bones.
    */
   export function chain(limb: AutoMovieHumanLimb): IChain {
     const side: AutoMovieHumanSide = limb.startsWith("left") ? "left" : "right";
@@ -65,16 +64,18 @@ export namespace HumanLimbFit {
         };
   }
 
-  /**
+  /*
    * The joints a limb was solved to, as a reference for the strokes about it
    * (`humanLimbReference`).
    */
   export const reference: typeof humanLimbReference = humanLimbReference;
 
-  /** A limb goal in world terms (`humanLimbGoalWorld`). */
+  /*
+   * A limb goal in world terms (`humanLimbGoalWorld`).
+   */
   export const world: typeof humanLimbGoalWorld = humanLimbGoalWorld;
 
-  /**
+  /*
    * The fit of one limb by the engine's two-bone solver; with a contact, the
    * end joint is re-aimed until the contact stays put, within
    * `REAIM_TOLERANCE`, under the rotation the limb actually reached
@@ -101,22 +102,21 @@ export namespace HumanLimbFit {
    * pass refines that seed instead of sweeping the swivel. The seed returned is
    * the kept pass's, in the frame the limb is solved in (a left limb's in its
    * mirror image), which is the frame a `near` for the same limb is read in.
-   *
-   * @param body The performer's body.
-   * @param pose The pose before the fit.
-   * @param limb The limb.
-   * @param attached Its goal, attached or not.
-   * @param placed The arms already placed, whose room the arm keeps.
-   * @param rival Where the other arm's wrist will be, while it is still to be
-   *   fitted.
-   * @param near A nearby fit of the same limb to continue; omitted, the fit is
-   *   solved cold.
-   * @param resolution Optional exact reader or lazy supplier borrowed from this
-   *   synchronous person evaluation; otherwise the first FK demand creates
-   *   one.
-   * @returns The pose with the limb fitted, and the seed that continues it.
-   * @throws {HumanRefusal} When a continued arm's arc of swivels admitting the
-   *   hand's asked turn vanished (`IAutoMovieSwivelSeed.vanished`).
+   * Parameter body: The performer's body.
+   * Parameter pose: The pose before the fit.
+   * Parameter limb: The limb.
+   * Parameter attached: Its goal, attached or not.
+   * Parameter placed: The arms already placed, whose room the arm keeps.
+   * Parameter rival: Where the other arm's wrist will be, while it is still to be
+   * fitted.
+   * Parameter near: A nearby fit of the same limb to continue; omitted, the fit is
+   * solved cold.
+   * Parameter resolution: Optional exact reader or lazy supplier borrowed from this
+   * synchronous person evaluation; otherwise the first FK demand creates
+   * one.
+   * Returns: The pose with the limb fitted, and the seed that continues it.
+   * When a continued arm's arc of swivels admitting the
+   * hand's asked turn vanished (`IAutoMovieSwivelSeed.vanished`).
    */
   export function fit(
     body: IAutoMovieMotionHumanBody,
@@ -141,7 +141,9 @@ export namespace HumanLimbFit {
     );
   }
 
-  /** Fit a constructor-owned continuous curve through current hinged correction. */
+  /*
+   * Fit a constructor-owned continuous curve through current hinged correction.
+   */
   export function continued(
     ...args: Parameters<typeof fit>
   ): IAutoMovieSeededChainFit {
@@ -158,30 +160,29 @@ export namespace HumanLimbFit {
     );
   }
 
-  /**
+  /*
    * The fit of a limb's own chain in the pose and frame given, with no mirror
    * image and no reduction of the pose: what `solveHumanLimbFit` runs on the
    * reduced pose of a right limb, or of a left limb's mirror image, after
    * moving it into the frame it solves in.
-   *
-   * @param body The performer's body.
-   * @param pose The pose the chain is solved in, holding at least the records
-   *   the fit reads (`HumanLimbView.of`).
-   * @param limb The limb whose own chain is solved.
-   * @param attached Its goal, attached or not.
-   * @param placed The arms already placed.
-   * @param rival Where the other arm's wrist will be, while it is still to be
-   *   fitted.
-   * @param near A nearby fit of the same limb to continue; omitted, the fit is
-   *   solved cold.
-   * @param resolution Optional exact reader or lazy supplier borrowed from this
-   *   synchronous evaluation.
-   * @param policy The ordinary fit, or the owned continuous curve's current
-   *   hinged correction.
-   * @param admit Run before the fit's first forward-kinematics read, where the
-   *   whole pose was admitted when the fit read every joint.
-   * @returns The given pose with the limb fitted, and the seed that continues
-   *   it.
+   * Parameter body: The performer's body.
+   * Parameter pose: The pose the chain is solved in, holding at least the records
+   * the fit reads (`HumanLimbView.of`).
+   * Parameter limb: The limb whose own chain is solved.
+   * Parameter attached: Its goal, attached or not.
+   * Parameter placed: The arms already placed.
+   * Parameter rival: Where the other arm's wrist will be, while it is still to be
+   * fitted.
+   * Parameter near: A nearby fit of the same limb to continue; omitted, the fit is
+   * solved cold.
+   * Parameter resolution: Optional exact reader or lazy supplier borrowed from this
+   * synchronous evaluation.
+   * Parameter policy: The ordinary fit, or the owned continuous curve's current
+   * hinged correction.
+   * Parameter admit: Run before the fit's first forward-kinematics read, where the
+   * whole pose was admitted when the fit read every joint.
+   * Returns: The given pose with the limb fitted, and the seed that continues
+   * it.
    */
   export function direct(
     body: IAutoMovieMotionHumanBody,
@@ -211,17 +212,16 @@ export namespace HumanLimbFit {
     );
   }
 
-  /**
+  /*
    * A plan-time query of the arc continuation: the fit `fit` gives, or null
    * where the continued arm's admitted arc vanished
    * (`IAutoMovieSwivelSeed.vanished`), so a law choosing among targets (a
    * grasp's turn, a site) keeps only those its arm reaches on one elbow path
    * from the seed it continues. One continued fit, no search beyond the fit's
    * own; every other refusal is thrown as `fit` throws it.
-   *
-   * @param args The arguments of `fit`; `near` is the seed continued, its
-   *   `admitted` arc the one to keep.
-   * @returns The fit, or null where its admitted arc vanished.
+   * Parameter args: The arguments of `fit`; `near` is the seed continued, its
+   * `admitted` arc the one to keep.
+   * Returns: The fit, or null where its admitted arc vanished.
    */
   export function continues(
     ...args: Parameters<typeof fit>
@@ -234,7 +234,7 @@ export namespace HumanLimbFit {
     }
   }
 
-  /**
+  /*
    * The limb posed at a prescribed swivel and bend branch, with no search or
    * score (`HumanLimbAt.at`): mirrored and attached as `fit` is.
    */
@@ -244,7 +244,7 @@ export namespace HumanLimbFit {
     return HumanLimbAt.at(...args);
   }
 
-  /**
+  /*
    * The swivel and bend branch of a posed limb in its fits' seed frame
    * (`HumanLimbAt.seed`).
    */
@@ -254,11 +254,10 @@ export namespace HumanLimbFit {
     return HumanLimbAt.seed(...args);
   }
 
-  /**
+  /*
    * A limb goal's mirror image (`HumanLimbMirror.goal`).
-   *
-   * @param goal The goal.
-   * @returns Its mirror image.
+   * Parameter goal: The goal.
+   * Returns: Its mirror image.
    */
   export function reflected(
     goal: IAutoMovieHumanLimbGoal,
@@ -266,7 +265,7 @@ export namespace HumanLimbFit {
     return HumanLimbMirror.goal(goal);
   }
 
-  /**
+  /*
    * The chain's own solve in the pose given: the world goal, the obstruction,
    * the prepared fit and the contact re-aim.
    */
@@ -426,7 +425,7 @@ export namespace HumanLimbFit {
     return fitted;
   }
 
-  /**
+  /*
    * The refusal of a goal whose continued arm lost every swivel connected to
    * its seed that takes the hand's asked turn.
    */
@@ -440,7 +439,7 @@ export namespace HumanLimbFit {
     });
   }
 
-  /**
+  /*
    * Public near/cold fitting retains its original workspace entry and order; a
    * re-aim pass continues its first pass, prescribed where the fit's own seed
    * is.
@@ -470,7 +469,7 @@ export namespace HumanLimbFit {
     );
   }
 
-  /**
+  /*
    * Only the actual continuous-curve constructor selects current hinged
    * correction.
    */
@@ -485,7 +484,7 @@ export namespace HumanLimbFit {
     return workspace.continued(point, near);
   }
 
-  /**
+  /*
    * What a limb's fit must keep clear of: the degrees a mid joint and an end
    * joint, world metres, count as out of range.
    */
@@ -495,8 +494,12 @@ export namespace HumanLimbFit {
   ) => number;
 }
 
-/** The alternatives of `SolvedFitterParent`'s site. */
+/*
+ * The alternatives of `SolvedFitterParent`'s site.
+ */
 type SolvedFitterParent = "worldPosition" | "worldRotation";
 
-/** The alternatives of `DirectPolicy`'s site. */
+/*
+ * The alternatives of `DirectPolicy`'s site.
+ */
 type DirectPolicy = "ordinary" | "continuous";

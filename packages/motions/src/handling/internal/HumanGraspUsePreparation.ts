@@ -6,15 +6,14 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanGraspUse } from "./HumanGraspUse";
 
-/**
+/*
  * Read the use's contacts, lines, region and laid hand.
- *
- * @param props The request.
- * @param closure The prop frame at closure, or the entry frame when absent.
- * @returns The setup.
- * @throws {HumanRefusal} An `affordance` refusal on `use` when the prop lacks
- *   the handle or the working point; a `parameter` refusal on `use` for an
- *   `along` or `worn` line with no region of the performer's own.
+ * Parameter props: The request.
+ * Parameter closure: The prop frame at closure, or the entry frame when absent.
+ * Returns: The setup.
+ * An `affordance` refusal on `use` when the prop lacks
+ * the handle or the working point; a `parameter` refusal on `use` for an
+ * `along` or `worn` line with no region of the performer's own.
  */
 export function HumanGraspUsePreparation(
   props: HumanGraspUsePreparation.IInput,
@@ -188,58 +187,72 @@ export function HumanGraspUsePreparation(
   };
 }
 
-/**
+/*
  * The geometry a presented use key is built from (`HumanGraspUse.presented`):
  * the tool's contacts, the line it lies on and the line asked, the region or
  * the place ahead it goes to, and the candidate hand turned onto the asked
  * line.
  */
 export namespace HumanGraspUsePreparation {
-  /** The request: `HumanGraspUse.presented`'s props. */
+  /*
+   * The request: `HumanGraspUse.presented`'s props.
+   */
   export type IInput = IAutoMovieMotionHumanGraspUse.IPresentedProps;
 
-  /** The setup a presented key is built from. */
+  /*
+   * The setup a presented key is built from.
+   */
   export interface IPrepared {
-    /** The request's context. */
+    /*
+     * The request's context.
+     */
     context: IInput["context"];
 
-    /** The held prop's reader. */
+    /*
+     * The held prop's reader.
+     */
     held: IAutoMovieMotionHumanPropReader;
 
-    /** The prop frame at grasp closure, in world metres and unit rotation. */
+    /*
+     * The prop frame at grasp closure, in world metres and unit rotation.
+     */
     world: IAutoMovieRigidTransform;
 
-    /** The working-point affordance. */
+    /*
+     * The working-point affordance.
+     */
     tip: IAutoMovieAffordance;
 
-    /**
+    /*
      * The region of the performer's own body the use is at; ahead of the body
      * when absent.
      */
     at: AutoMovieHumanoidRegion | undefined;
 
-    /**
+    /*
      * The region's point on the entry body, world metres; absent ahead of the
      * body.
      */
     site: IAutoMovieVector3 | undefined;
 
-    /**
+    /*
      * The candidate wrist's rotation turned by the shortest turn onto the asked
      * line.
      */
     laid: IAutoMovieQuaternion;
 
-    /**
+    /*
      * The grip socket's place ahead of the body (`HumanGraspUse.place`), world
      * metres.
      */
     ahead: IAutoMovieVector3;
 
-    /** The grip socket's offset from the wrist in hand axes, metres. */
+    /*
+     * The grip socket's offset from the wrist in hand axes, metres.
+     */
     socket: IAutoMovieVector3;
 
-    /**
+    /*
      * Rotations by degrees about the asked line, or the surface's normal for an
      * `along` use.
      */
@@ -247,5 +260,7 @@ export namespace HumanGraspUsePreparation {
   }
 }
 
-/** The record of `IOfPlaced`'s site. */
+/*
+ * The record of `IOfPlaced`'s site.
+ */
 type IOfPlaced = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };

@@ -1,4 +1,4 @@
-/**
+/*
  * Read the case-insensitive suffix of the final project-relative path
  * component.
  */

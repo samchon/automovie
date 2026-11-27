@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { AutoMovieEnvironmentTextureOwnership } from "./AutoMovieEnvironmentTextureOwnership.js";
 import { readAutoMovieEnvironmentColorSpace } from "./readAutoMovieEnvironmentColorSpace.js";
 
-/**
+/*
  * Apply image lighting and background without adding scene-graph children.
  *
  * A declared image reaches the scene only when the host resolved it; an image
@@ -61,7 +61,7 @@ export const applySceneEnvironment: (
   scene.backgroundRotation.copy(scene.environmentRotation);
 };
 
-/**
+/*
  * Choose the environment color-space convention from decoded texture storage.
  *
  * Unsigned-byte textures are treated as sRGB; all other component types are

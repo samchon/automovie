@@ -14,14 +14,16 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
-/** Keep the source's placement independent of every returned chain's mutation. */
+/*
+ * Keep the source's placement independent of every returned chain's mutation.
+ */
 function copyShapes(
   shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[],
 ): IAutoMovieMotionHumanColliders.IPlaced[] {
   return shapes.map(copyShape);
 }
 
-/**
+/*
  * One fresh outward collider frame; only the original immutable shape geometry
  * is shared.
  */
@@ -38,15 +40,14 @@ function copyShape(
   };
 }
 
-/**
+/*
  * An arm chain on a posture's trunk, or null when the rig has no such chain.
- *
- * @param body The body.
- * @param posture The root and the heading; an absent pitch or roll is 0.
- * @param side The arm.
- * @param source The bilateral source prepare made for this body and posture,
- *   when both arms are prepared together.
- * @returns The chain with the trunk's shapes posed.
+ * Parameter body: The body.
+ * Parameter posture: The root and the heading; an absent pitch or roll is 0.
+ * Parameter side: The arm.
+ * Parameter source: The bilateral source prepare made for this body and posture,
+ * when both arms are prepared together.
+ * Returns: The chain with the trunk's shapes posed.
  */
 export function AutoMovieMotionHumanBendChain(
   body: IAutoMovieMotionHumanBody,
@@ -114,54 +115,72 @@ export function AutoMovieMotionHumanBendChain(
   }
 }
 
-/**
+/*
  * An arm chain prepared on a posture's trunk for the elbow search of
  * `AutoMovieMotionHumanBend`: the engine's two-bone preparation, the shoulder,
  * the arm's span, the rig's clinical axes and the trunk's posed colliders the
  * forearm must clear.
  */
 export namespace AutoMovieMotionHumanBendChain {
-  /**
+  /*
    * One trunk both arm chains are prepared on in one synchronous bilateral
    * preparation: the trunk pose, the workspace its forward kinematics runs in
    * and the trunk's colliders placed by the first side.
    */
   export interface IPrepared {
-    /** The trunk pose, the posture's root and heading with no joint. */
+    /*
+     * The trunk pose, the posture's root and heading with no joint.
+     */
     readonly pose: IAutoMoviePose;
 
-    /** The forward-kinematics workspace, dropped once both sides are prepared. */
+    /*
+     * The forward-kinematics workspace, dropped once both sides are prepared.
+     */
     resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined;
 
-    /** The sides prepared so far. */
+    /*
+     * The sides prepared so far.
+     */
     readonly sides: Set<AutoMovieHumanSide>;
 
-    /**
+    /*
      * The trunk's placed colliders, world metres, from the first side; each
      * chain receives a copy.
      */
     shapes?: IAutoMovieMotionHumanColliders.IPlaced[];
   }
 
-  /** An arm chain prepared on a posture's trunk. */
+  /*
+   * An arm chain prepared on a posture's trunk.
+   */
   export interface IChain {
-    /** The engine's preparation of the chain. */
+    /*
+     * The engine's preparation of the chain.
+     */
     prepared: NonNullable<ReturnType<typeof AutoMovieEngineMotionPlanting.prepareChainPlant>>;
 
-    /** The shoulder joint, world metres. */
+    /*
+     * The shoulder joint, world metres.
+     */
     shoulder: IAutoMovieVector3;
 
-    /** The arm's length from the shoulder to the wrist, metres. */
+    /*
+     * The arm's length from the shoulder to the wrist, metres.
+     */
     span: number;
 
-    /** The rig's clinical axes by bone. */
+    /*
+     * The rig's clinical axes by bone.
+     */
     axes: ReturnType<typeof AutoMovieEngineKinematics.skeletonJointAxes>;
 
-    /** The trunk's placed colliders, world metres. */
+    /*
+     * The trunk's placed colliders, world metres.
+     */
     shapes: IAutoMovieMotionHumanColliders.IPlaced[];
   }
 
-  /**
+  /*
    * The source both arms of one trunk are prepared on: the posture's root and
    * heading as a pose with no joint, and a workspace for its forward
    * kinematics. The caller passes it to `of` for each side, on the same body

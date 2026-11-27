@@ -19,7 +19,7 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
 
-/**
+/*
  * The room a striker has to close on another person: how far its body may
  * travel along a line before its arms, held as they are, meet the other body. A
  * strike steps in until its arm reaches, and where the other body stands nearer
@@ -30,7 +30,7 @@ import { StrikingWeapon } from "./StrikingWeapon";
  *
  * Each arm is swept as the points of its three capsules (the upper arm, the
  * forearm and the fist, the capsules the performance resolves contacts on,
- * {@link StrikingWeapon.posed}): the ends and the middle of each, with that
+ * StrikingWeapon.posed): the ends and the middle of each, with that
  * capsule's radius. A point swept a distance `d` along the line covers the
  * segment from it to `d` further on, whose signed distance to the other body's
  * colliders only falls as `d` grows, so the first `d` at which the swept point
@@ -38,85 +38,120 @@ import { StrikingWeapon } from "./StrikingWeapon";
  * body first; the trunk and the legs behind them are not swept.
  *
  * A step back, before a target nearer than the arm's band, has room too
- * ({@link behind}): the scene's solids behind the feet bound it as the other
+ * (behind): the scene's solids behind the feet bound it as the other
  * person bounds a step in.
  *
  * A feint has room of its own: it stops short of the other person's guard
- * ({@link feint}), so the defender bites on a fist that never touches.
+ * (feint), so the defender bites on a fist that never touches.
  */
 export namespace StrikingRoom {
-  /** What the room is measured between. */
+  /*
+   * What the room is measured between.
+   */
   export interface IProps {
-    /** The striker's body. */
+    /*
+     * The striker's body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The striker's posed bones, world frame. */
+    /*
+     * The striker's posed bones, world frame.
+     */
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-    /** The other person's body. */
+    /*
+     * The other person's body.
+     */
     other: IAutoMovieMotionHumanBody;
 
-    /** The other person's posed bones, world frame. */
+    /*
+     * The other person's posed bones, world frame.
+     */
     others: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-    /** The horizontal unit line the striker travels along. */
+    /*
+     * The horizontal unit line the striker travels along.
+     */
     line: IAutoMovieVector3;
 
-    /** The farthest travel asked, metres; positive. */
+    /*
+     * The farthest travel asked, metres; positive.
+     */
     limit: number;
   }
 
-  /** A sampled point of a striking limb and its girth there. */
+  /*
+   * A sampled point of a striking limb and its girth there.
+   */
   export interface ISample {
-    /** The point, world metres. */
+    /*
+     * The point, world metres.
+     */
     point: IAutoMovieVector3;
 
-    /** The limb's radius there, metres. */
+    /*
+     * The limb's radius there, metres.
+     */
     radius: number;
   }
 
-  /**
+  /*
    * A feint's wrist path toward its target, as the share of the committed
    * punch's way it may show.
    */
   export interface IFeint {
-    /** The share of the way the feint declares, in (0, 1). */
+    /*
+     * The share of the way the feint declares, in (0, 1).
+     */
     declared: number;
 
-    /** The point aimed at, world metres. */
+    /*
+     * The point aimed at, world metres.
+     */
     aimed: IAutoMovieVector3;
 
-    /** The wrist at the launch, world metres. */
+    /*
+     * The wrist at the launch, world metres.
+     */
     origin: IAutoMovieVector3;
 
-    /** The committed punch's wrist at its contact, world metres. */
+    /*
+     * The committed punch's wrist at its contact, world metres.
+     */
     end: IAutoMovieVector3;
 
-    /** The fist's reach past the wrist, metres. */
+    /*
+     * The fist's reach past the wrist, metres.
+     */
     reach: number;
 
-    /** The horizontal unit line toward the target. */
+    /*
+     * The horizontal unit line toward the target.
+     */
     line: IAutoMovieVector3;
 
-    /** Film second of the launch. */
+    /*
+     * Film second of the launch.
+     */
     launch: number;
   }
 
-  /**
+  /*
    * The original proximal/midpoint/distal sample order, shared as immutable
    * geometry.
    */
   const SHARES: readonly number[] = [0, 0.5, 1];
 
-  /** The bisection's halvings: a 0.4 m stance step over 2^14 is under 0.03 mm. */
+  /*
+   * The bisection's halvings: a 0.4 m stance step over 2^14 is under 0.03 mm.
+   */
   const HALVINGS: number = 14;
 
-  /**
+  /*
    * How far the striker may travel along the line before an arm meets the other
    * body, at most the limit.
-   *
-   * @param props The two bodies, the line and the limit.
-   * @returns Metres in `[0, limit]`; zero when an arm already touches.
+   * Parameter props: The two bodies, the line and the limit.
+   * Returns: Metres in `[0, limit]`; zero when an arm already touches.
    */
   export function along(props: IProps): number {
     const geometry: ReturnType<typeof HumanColliders.reading> =
@@ -152,15 +187,14 @@ export namespace StrikingRoom {
     return room(samples, gap, props.limit);
   }
 
-  /**
+  /*
    * The room a limb has to travel along a line: the least distance, within a
    * limit, at which any sample's swept gap closes, bisected inside the room
    * left; none when a sample already touches.
-   *
-   * @param samples The limb's sampled points and girths.
-   * @param gap The clearance of a sample swept a distance along the line.
-   * @param limit The room sought, metres.
-   * @returns The room, metres.
+   * Parameter samples: The limb's sampled points and girths.
+   * Parameter gap: The clearance of a sample swept a distance along the line.
+   * Parameter limit: The room sought, metres.
+   * Returns: The room, metres.
    */
   export function room(
     samples: readonly ISample[],
@@ -181,18 +215,17 @@ export namespace StrikingRoom {
     return room;
   }
 
-  /**
+  /*
    * A strike's room toward its target, as the strike reads it one look-back
-   * before its launch ({@link StrikingTarget.LOOK}): the room toward the person
+   * before its launch (StrikingTarget.LOOK): the room toward the person
    * it aims at, up to one stance length (the longest step a strike takes), or
    * no bound for a target that is not a person.
-   *
-   * @param context The striker's action context.
-   * @param target What the strike aims at.
-   * @param bones The striker's bones at the launch, world frame.
-   * @param line The horizontal unit line of the step.
-   * @param launch Film second of the launch.
-   * @returns Metres, or infinity for a target that is not a person.
+   * Parameter context: The striker's action context.
+   * Parameter target: What the strike aims at.
+   * Parameter bones: The striker's bones at the launch, world frame.
+   * Parameter line: The horizontal unit line of the step.
+   * Parameter launch: Film second of the launch.
+   * Returns: Metres, or infinity for a target that is not a person.
    */
   export function ahead(
     context: Pick<IAutoMovieMotionHumanActionContext, AheadContext>,
@@ -218,16 +251,15 @@ export namespace StrikingRoom {
     });
   }
 
-  /**
+  /*
    * How far a striker may step back along the line before a heel meets one of
    * the scene's solids, at most one stance length (the longest step a strike
    * takes).
-   *
-   * @param context The striker's action context.
-   * @param feet Where the feet stand at the launch.
-   * @param line The horizontal unit line toward the target; the step back runs
-   *   along its opposite.
-   * @returns Metres in `[0, stance length]`.
+   * Parameter context: The striker's action context.
+   * Parameter feet: Where the feet stand at the launch.
+   * Parameter line: The horizontal unit line toward the target; the step back runs
+   * along its opposite.
+   * Returns: Metres in `[0, stance length]`.
    */
   export function behind(
     context: Pick<IAutoMovieMotionHumanActionContext, BehindContext>,
@@ -260,7 +292,7 @@ export namespace StrikingRoom {
     return room;
   }
 
-  /**
+  /*
    * How deep a feint is shown, as a share of the way from the launch to the
    * committed punch's wrist: the declared share, but never into a person's
    * guard. The guard's depth is the farthest that person's hands and forearms
@@ -268,12 +300,11 @@ export namespace StrikingRoom {
    * launch, and the fist keeps clear of it by its own reach past the wrist and
    * the two forearms' radii (derived: the surfaces that would otherwise
    * touch).
-   *
-   * @param context The striker's action context.
-   * @param target What the feint aims at.
-   * @param feint The feint's path.
-   * @returns The share, in `[0, declared]`; the declared share for a target
-   *   that is not a person or a path with no travel along the line.
+   * Parameter context: The striker's action context.
+   * Parameter target: What the feint aims at.
+   * Parameter feint: The feint's path.
+   * Returns: The share, in `[0, declared]`; the declared share for a target
+   * that is not a person or a path with no travel along the line.
    */
   export function feint(
     context: Pick<IAutoMovieMotionHumanActionContext, FeintContext>,
@@ -303,16 +334,15 @@ export namespace StrikingRoom {
       context.body.measure.forearmRadius + other.body.measure.forearmRadius,
     );
   }
-  /**
+  /*
    * How far a feint may run before it meets the guard: the share of its whole
    * way out that stays clear of the farthest guarding hand or forearm by the
    * reach and both forearms' girth, no more than declared.
-   *
-   * @param feint The feint's declared share, aim, ends, reach and line.
-   * @param guard How far the guard stands out along the line from the aim,
-   *   metres.
-   * @param girth Both forearms' radii, metres.
-   * @returns The share, 0 to the declared.
+   * Parameter feint: The feint's declared share, aim, ends, reach and line.
+   * Parameter guard: How far the guard stands out along the line from the aim,
+   * metres.
+   * Parameter girth: Both forearms' radii, metres.
+   * Returns: The share, 0 to the declared.
    */
   export function share(feint: IFeint, guard: number, girth: number): number {
     const whole: number = Vector3.dot(
@@ -329,16 +359,24 @@ export namespace StrikingRoom {
   }
 }
 
-/** The alternatives of `FeintContext`'s site. */
+/*
+ * The alternatives of `FeintContext`'s site.
+ */
 type FeintContext = "body" | "performer";
 
-/** The alternatives of `BehindContext`'s site. */
+/*
+ * The alternatives of `BehindContext`'s site.
+ */
 type BehindContext = "body" | "obstacles";
 
-/** The alternatives of `AheadContext`'s site. */
+/*
+ * The alternatives of `AheadContext`'s site.
+ */
 type AheadContext = "body" | "performer";
 
-/** A feint reads only the four actual guard joints and their required ancestry. */
+/*
+ * A feint reads only the four actual guard joints and their required ancestry.
+ */
 const GUARD: ReadonlySet<AutoMovieHumanoidBone> =
   new Set<AutoMovieHumanoidBone>([
     "leftHand",

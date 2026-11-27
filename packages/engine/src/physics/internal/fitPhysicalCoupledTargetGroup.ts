@@ -6,7 +6,7 @@ import type {
 import { AutoMoviePhysicalCoupledTargetError } from "../AutoMoviePhysicalCoupledTargetError";
 import { planPhysicalCoupledTargets } from "./planPhysicalCoupledTargets";
 
-/**
+/*
  * Fit the declared members against one scene snapshot. Failure carries the
  * interval's named report and publishes no motor goals.
  */

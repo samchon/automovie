@@ -15,36 +15,40 @@ import { HumanRide } from "../../lexicon/internal/HumanRide";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** World vertical. */
+/*
+ * World vertical.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-/**
+/*
  * Seconds each change of posture takes, centred on the seat's turning point
  * (provisional staging).
  */
 const TURN: number = 0.3;
-/**
+/*
  * Sampling step that locates the seat's turning points, seconds: finer than any
  * swing's half period.
  */
 const STEP: number = 1 / 120;
 
-/**
+/*
  * How far past the straightened arm's reach a shoulder may lie from the wrist
  * its chain grip takes at full lean, metres: the 10 mm skin a held site allows
  * its hand.
  */
 const SLIP: number = 0.01;
 
-/**
+/*
  * Knee flexion of the tucked and of the extended seated posture, degrees
  * (provisional staging).
  */
 const TUCKED: number = 90;
 
-/** Knee flexion with the legs extended forward, degrees (provisional staging). */
+/*
+ * Knee flexion with the legs extended forward, degrees (provisional staging).
+ */
 const EXTENDED: number = 15;
 
-/**
+/*
  * Pump a swing from the seat: the seated ride with the hands on the chains
  * (`HumanRide`), leaning back with the legs extended while the seat swings
  * forward along the rider's facing and sitting up with the knees bent while it
@@ -53,12 +57,11 @@ const EXTENDED: number = 15;
  * Swanson, Am J Phys 58:463, 1990; Wirkus, Rand and Ruina, College Math J
  * 29:266, 1998, https://www.maa.org/pubs/CMJ_September98.html); `increment`
  * gives the swing angle one such turn adds for this body.
- *
- * @param context The seated entry, the hanging seat and the lean.
- * @returns The seated ride with the pumping posture.
- * @throws {HumanRefusal} For a lean out of range or beyond the arms' reach on
- *   the chains, a rider wider across the seated thighs than the seat, or a ride
- *   the seat refuses.
+ * Parameter context: The seated entry, the hanging seat and the lean.
+ * Returns: The seated ride with the pumping posture.
+ * For a lean out of range or beyond the arms' reach on
+ * the chains, a rider wider across the seated thighs than the seat, or a ride
+ * the seat refuses.
  */
 export function HumanSwingPump(
   context: IAutoMovieMotionHumanActionContext<Params>,
@@ -191,9 +194,13 @@ export function HumanSwingPump(
   return { ...ride, posture: pumping };
 }
 
-/** The swing angle a seated rider's change of posture adds at a turning point. */
+/*
+ * The swing angle a seated rider's change of posture adds at a turning point.
+ */
 export namespace HumanSwingPump {
-  /** Only the lengths and body mass used by the swing's moment balance. */
+  /*
+   * Only the lengths and body mass used by the swing's moment balance.
+   */
   export interface IIncrementBody {
     profile: Pick<IAutoMovieMotionHumanBody["profile"], "mass">;
     measure: Pick<
@@ -202,7 +209,7 @@ export namespace HumanSwingPump {
     >;
   }
 
-  /**
+  /*
    * The swing angle one change between the tucked and the leaning posture adds,
    * by conservation of angular momentum about the pivot while the body turns at
    * a turning point, where the swing is still (Wirkus, Rand and Ruina 1998).
@@ -213,11 +220,10 @@ export namespace HumanSwingPump {
    * 0.0465 at 0.433 and feet 0.0145 at the ankle. The hip sits at the seat and
    * the thighs stay level; the trunk turns back by `lean` and the shanks swing
    * from hanging to level.
-   *
-   * @param body The rider.
-   * @param hang Pivot to seat, metres.
-   * @param lean The trunk's lean back, degrees.
-   * @returns The added swing angle, degrees.
+   * Parameter body: The rider.
+   * Parameter hang: Pivot to seat, metres.
+   * Parameter lean: The trunk's lean back, degrees.
+   * Returns: The added swing angle, degrees.
    */
   export function increment(
     body: IIncrementBody,
@@ -288,23 +294,37 @@ type Plan = IAutoMovieMotionHumanActionPlan;
 
 type Posture = IAutoMovieMotionHumanPosture;
 
-/** A point in the swing's plane: forward `z` then up `y`, metres from the pivot. */
+/*
+ * A point in the swing's plane: forward `z` then up `y`, metres from the pivot.
+ */
 type PlanePoint = readonly [number, number];
 
-/** One body part turning on a circle in the swing's plane. */
+/*
+ * One body part turning on a circle in the swing's plane.
+ */
 interface ITurningPart {
-  /** Mass, kilograms. */
+  /*
+   * Mass, kilograms.
+   */
   mass: number;
 
-  /** The centre it turns about. */
+  /*
+   * The centre it turns about.
+   */
   centre: PlanePoint;
 
-  /** Its centre of mass's distance from that centre, metres. */
+  /*
+   * Its centre of mass's distance from that centre, metres.
+   */
   radius: number;
 
-  /** Start and end angles from forward toward up, radians. */
+  /*
+   * Start and end angles from forward toward up, radians.
+   */
   from: number;
 
-  /** End angle, radians. */
+  /*
+   * End angle, radians.
+   */
   to: number;
 }

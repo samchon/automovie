@@ -5,7 +5,7 @@ import type {
 
 import { quaternionFromAutoMovieBasis } from "../../math/internal/quaternionFromAutoMovieBasis";
 
-/**
+/*
  * The principal moments and axes of a symmetric 3x3 inertia tensor, by a Jacobi
  * diagonalization of the tensor divided by its largest entry, so the stopping
  * criterion compares dimensionless numbers at any SI scale.
@@ -13,12 +13,11 @@ import { quaternionFromAutoMovieBasis } from "../../math/internal/quaternionFrom
  * The moments come back in ascending order with their axes as a right-handed
  * rotation from the principal frame to the tensor's frame. The input rows are
  * modified in place.
- *
- * @param tensor Three rows of three finite numbers, symmetric, kg m² or any one
- *   unit; modified in place.
- * @returns The ascending principal moments in the tensor's unit and the
- *   rotation whose columns are their axes.
- * @throws {Error} When every entry is zero.
+ * Parameter tensor: Three rows of three finite numbers, symmetric, kg m² or any one
+ * unit; modified in place.
+ * Returns: The ascending principal moments in the tensor's unit and the
+ * rotation whose columns are their axes.
+ * When every entry is zero.
  */
 export function physicalPrincipalAxes(
   tensor: number[][],
@@ -134,7 +133,9 @@ export function physicalPrincipalAxes(
   };
 }
 
-/** The immutable cyclic plane order, independent of every input tensor. */
+/*
+ * The immutable cyclic plane order, independent of every input tensor.
+ */
 const PAIRS: readonly (readonly [number, number])[] = [
   [0, 1],
   [0, 2],

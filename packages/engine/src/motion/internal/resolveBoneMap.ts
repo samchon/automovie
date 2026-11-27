@@ -12,7 +12,7 @@ import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinem
 import { indexSkeletonTopology } from "../../kinematics/internal/indexSkeletonTopology";
 import { resolvePose } from "../../kinematics/internal/resolvePose";
 
-/**
+/*
  * Index root-reachable FK results by humanoid bone name using the same clinical
  * axes/rest frames as playback. Caller topology must describe the unchanged
  * skeleton; omission builds it for this call. Rest and pose-root scale are

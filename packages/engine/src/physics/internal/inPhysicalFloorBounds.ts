@@ -7,7 +7,7 @@ import type {
 
 import { physicalShapeBoundsImplementation } from "./physicalShapeBoundsImplementation";
 
-/**
+/*
  * Refuse a nonfinite or out-of-domain shape before it can leave the declared
  * finite floor.
  */

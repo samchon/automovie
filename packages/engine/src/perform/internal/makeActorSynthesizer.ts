@@ -39,7 +39,7 @@ import { resolveTargetPoint } from "./resolveTargetPoint";
 import { resumeActorSynthesisRuntime } from "./resumeActorSynthesisRuntime";
 import { synthesizeActorReach } from "./synthesizeActorReach";
 
-/**
+/*
  * Create the reference actor action callback from borrowed contexts and
  * placements. It supports gait locomotion, hold, gaze, expression, reference
  * gestures, analytic arm targets and ROM-bounded reactions; unknown actors or

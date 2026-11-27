@@ -1,12 +1,11 @@
 import * as THREE from "three";
 
-/**
+/*
  * The distance from a point to the nearest of some triangles, metres: the least
  * distance to each triangle's closest point.
- *
- * @param p The point.
- * @param triangles The triangles.
- * @returns Metres; infinite when there is no triangle.
+ * Parameter p: The point.
+ * Parameter triangles: The triangles.
+ * Returns: Metres; infinite when there is no triangle.
  */
 export function colliderCaseNearest(
   p: THREE.Vector3,

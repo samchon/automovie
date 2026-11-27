@@ -47,7 +47,7 @@ export namespace AutoMovieHumanApertureConstruction {
     if (order.length !== edges.length)
       throw new Error(`Aperture has disconnected boundaries: ${name}`);
 
-    /**
+    /*
      * Resolve the existing vertex; no projection or endpoint adjustment is
      * applied.
      */

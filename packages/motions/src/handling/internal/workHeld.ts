@@ -42,19 +42,19 @@ import { pickUp } from "./pickUp";
 import { workHeldPush } from "./workHeldPush";
 import { writeWith } from "./writeWith";
 
-/**
+/*
  * A level prop's rim points, metres out from its origin along its own level
  * axes.
  */
 const RIM: number = 0.15;
 
-/**
+/*
  * How far a level prop may tilt from level, degrees: provisional, a held tray's
  * small tilt.
  */
 const LEVEL: number = 10;
 
-/**
+/*
  * Work a prop the hand already holds without letting go: the fingers drive its
  * articulations (scissor blades closed by their rings, a folding knife's blade
  * swung open on its pivot, a chopstick pinched), the hand may first carry it to
@@ -95,11 +95,9 @@ export const workHeld: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeldW
     plan,
   };
 
-/**
+/*
  * Admit the work, then place the hand, drive the articulations and take the
  * prop.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the three parts, the kept grip, the timing, the events and every refusal.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHeldWork.IParams>,
@@ -208,7 +206,9 @@ function plan(
   };
 }
 
-/** The wrist that holds the prop's origin at the place, refused beyond the arm. */
+/*
+ * The wrist that holds the prop's origin at the place, refused beyond the arm.
+ */
 function place(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHeldWork.IParams>,
   subject: string,
@@ -317,7 +317,7 @@ function place(
   };
 }
 
-/**
+/*
  * The wrist that brings the held prop's take socket onto the prop it takes, the
  * hand keeping its attitude: the transport component of a reach to grasp, which
  * carries the grasping point to the object before the grip closes on it
@@ -383,7 +383,9 @@ function taking(
   };
 }
 
-/** The holding arm carried to the place and kept there. */ function arm(
+/*
+ * The holding arm carried to the place and kept there.
+ */ function arm(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHeldWork.IParams>,
   side: AutoMovieHumanSide,
   clock: IAutoMovieMotionClock,
@@ -426,20 +428,32 @@ function taking(
   });
 }
 
-/** The wrist that holds the prop at its place. */
+/*
+ * The wrist that holds the prop at its place.
+ */
 interface IGoal {
-  /** The wrist, world metres. */
+  /*
+   * The wrist, world metres.
+   */
   wrist: IAutoMovieVector3;
 
-  /** The hand's attitude, world. */
+  /*
+   * The hand's attitude, world.
+   */
   rotation: IAutoMovieQuaternion;
 
-  /** The prop's origin from the wrist in the hand's frame, metres. */
+  /*
+   * The prop's origin from the wrist in the hand's frame, metres.
+   */
   contact: IAutoMovieVector3;
 
-  /** The hard limits that keep a level prop level; none otherwise. */
+  /*
+   * The hard limits that keep a level prop level; none otherwise.
+   */
   limits: IAutoMovieHumanEffectorPointLimit[];
 
-  /** The wrist's travel from entry, metres. */
+  /*
+   * The wrist's travel from entry, metres.
+   */
   travel: number;
 }

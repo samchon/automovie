@@ -9,13 +9,12 @@ import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { walkReach } from "./walkReach";
 import type { walkStation } from "../../gait/internal/walkStation";
 
-/**
+/*
  * Prepare the displayed root's horizontal path for speed matching.
- *
- * @param body The fixed walking body.
- * @param gait The gait's trunk inclination.
- * @param steps The walking plan's fixed foot and root schedule.
- * @returns The world X and Z coordinates at an action second.
+ * Parameter body: The fixed walking body.
+ * Parameter gait: The gait's trunk inclination.
+ * Parameter steps: The walking plan's fixed foot and root schedule.
+ * Returns: The world X and Z coordinates at an action second.
  */
 export function walkHorizontalRoot(
   body: IAutoMovieMotionHumanBody,

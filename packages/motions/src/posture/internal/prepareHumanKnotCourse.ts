@@ -5,7 +5,7 @@ import { HumanKnotTiming } from "./HumanKnotTiming";
 import { HumanMinimumJerkSpline } from "./HumanMinimumJerkSpline";
 import { HumanQuinticSegment } from "./HumanQuinticSegment";
 
-/**
+/*
  * Prepare a movement curve through knots and return its pure reader.
  *
  * The knots' holds (`HumanKnot.pieces`) split the curve into rest-to-rest
@@ -17,12 +17,11 @@ import { HumanQuinticSegment } from "./HumanQuinticSegment";
  * explicit interval at its knot. Everything is solved here; a read only indexes
  * the prepared arrays by binary search and evaluates one closed-form
  * polynomial, so the reader answers any instant in any order.
- *
- * @param knots The knots, one or more, each with its dwell.
- * @param timing How the pieces are timed.
- * @returns The curve's reader.
- * @throws {Error} When an optimal piece cannot be timed
- *   (`HumanKnotTiming.parametrize`).
+ * Parameter knots: The knots, one or more, each with its dwell.
+ * Parameter timing: How the pieces are timed.
+ * Returns: The curve's reader.
+ * When an optimal piece cannot be timed
+ * (`HumanKnotTiming.parametrize`).
  */
 export function prepareHumanKnotCourse(
   knots: readonly HumanKnot.IKnot[],
@@ -109,7 +108,9 @@ export function prepareHumanKnotCourse(
     jerk: [...zero],
   });
 
-  /** The span holding an instant inside the curve, by binary search. */
+  /*
+   * The span holding an instant inside the curve, by binary search.
+   */
   const find: (seconds: number) => ISpan = (seconds: number): ISpan => {
     let low: number = 0;
     let high: number = spans.length - 1;
@@ -172,116 +173,162 @@ export function prepareHumanKnotCourse(
   };
 }
 
-/** A knot curve's timing and its reader. */
+/*
+ * A knot curve's timing and its reader.
+ */
 export namespace prepareHumanKnotCourse {
-  /**
+  /*
    * Each knot's arrival second given: a knot's hold runs from its arrival, so
    * each arrival is later than the hold before it ends.
    */
   export interface IFixed {
-    /** The kind. */
+    /*
+     * The kind.
+     */
     kind: "fixed";
 
-    /** Each knot's arrival, seconds on the caller's clock, ascending. */
+    /*
+     * Each knot's arrival, seconds on the caller's clock, ascending.
+     */
     times: readonly number[];
   }
 
-  /** Each piece timed by TOPP-RA from rest to rest (`HumanKnotTiming`). */
+  /*
+   * Each piece timed by TOPP-RA from rest to rest (`HumanKnotTiming`).
+   */
   export interface IOptimal {
-    /** The kind. */
+    /*
+     * The kind.
+     */
     kind: "optimal";
 
-    /** Each knot interval's limits, one fewer than the knots. */
+    /*
+     * Each knot interval's limits, one fewer than the knots.
+     */
     segments: readonly HumanKnotTiming.ILimit[];
 
-    /** Each knot's own limits, or null; none when absent. */
+    /*
+     * Each knot's own limits, or null; none when absent.
+     */
     knots?: readonly (HumanKnotTiming.ILimit | null)[];
 
-    /**
+    /*
      * The greatest chord error of a grid interval, in the coordinates' units
      * (`HumanKnotTiming.IProblem.precision`).
      */
     precision: number;
 
-    /**
+    /*
      * The greatest share of a limit the rate or acceleration may pass it by
      * between TOPP-RA's gridpoints (`HumanKnotTiming.IProblem.overshoot`).
      */
     overshoot: number;
   }
 
-  /** How a curve's pieces are timed. */
+  /*
+   * How a curve's pieces are timed.
+   */
   export type ITiming = IFixed | IOptimal;
 
-  /** A prepared curve's pure reader. */
+  /*
+   * A prepared curve's pure reader.
+   */
   export interface ICourse {
-    /**
+    /*
      * The curve's first second: the first arrival for a fixed timing, zero for
      * an optimal one.
      */
     start: number;
 
-    /** The second its last hold ends. */
+    /*
+     * The second its last hold ends.
+     */
     end: number;
 
-    /**
+    /*
      * The position at a second, the first knot's before the start and the
      * last's after the end.
-     *
-     * @param seconds The instant.
-     * @returns Each coordinate's position.
+     * Parameter seconds: The instant.
+     * Returns: Each coordinate's position.
      */
     position(seconds: number): number[];
 
-    /**
+    /*
      * The position, velocity, acceleration and jerk at a second, at rest before
      * the start, after the end and in a hold.
-     *
-     * @param seconds The instant.
-     * @returns The state there.
+     * Parameter seconds: The instant.
+     * Returns: The state there.
      */
     state(seconds: number): HumanQuinticSegment.IState;
   }
 }
 
-/** One interval of a prepared curve's timeline. */
+/*
+ * One interval of a prepared curve's timeline.
+ */
 type ISpan = IHoldSpan | IFixedSpan | IOptimalSpan;
 
-/** A hold at a knot. */
+/*
+ * A hold at a knot.
+ */
 interface IHoldSpan {
-  /** The kind. */
+  /*
+   * The kind.
+   */
   kind: "hold";
 
-  /** Its first second. */
+  /*
+   * Its first second.
+   */
   from: number;
 
-  /** The knot held. */
+  /*
+   * The knot held.
+   */
   position: readonly number[];
 }
 
-/** A piece through knots at given seconds. */
+/*
+ * A piece through knots at given seconds.
+ */
 interface IFixedSpan {
-  /** The kind. */
+  /*
+   * The kind.
+   */
   kind: "fixed";
 
-  /** Its first second. */
+  /*
+   * Its first second.
+   */
   from: number;
 
-  /** Each of its knots' seconds. */
+  /*
+   * Each of its knots' seconds.
+   */
   times: readonly number[];
 
-  /** The quintic between each two of its knots, in seconds. */
+  /*
+   * The quintic between each two of its knots, in seconds.
+   */
   segments: readonly HumanQuinticSegment.ISegment[];
 }
 
-/** A piece timed by TOPP-RA. */
+/*
+ * A piece timed by TOPP-RA.
+ */
 interface IOptimalSpan {
-  /** The kind. */
+  /*
+   * The kind.
+   */
   kind: "optimal";
 
-  /** Its first second. */
+  /*
+   * Its first second.
+   */
   from: number;
 
-  /** Its path and time map, from zero at `from`. */
+  /*
+   * Its path and time map, from zero at `from`.
+   */
   timed: HumanKnotTiming.ITimed;
 }

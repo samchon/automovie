@@ -13,13 +13,13 @@ import { composeAutoMovieMotionHumanAction } from "../../compose/internal/compos
 import { HumanBound } from "../../law/internal/HumanBound";
 import { headTiltClock } from "./headTiltClock";
 
-/**
+/*
  * Tilt toward one shoulder, hold, then return over the entry posture or a
  * carrier that yields its head. Hadar, Steiner and Clifford Rose observed
  * single-direction movements during conversational listening. The 20 degree cap
  * and the default 0.9 second phrase divided into thirds are provisional. The
  * 0.6 second minimum leaves 0.2 seconds for the carrier's fade at each end.
- *
+ * ://doi.org/10.1007/BF00986881
  * @see https://doi.org/10.1007/BF00986881
  */
 export const headTilt: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadTilt> =
@@ -36,14 +36,13 @@ export const headTilt: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadT
     plan: planHeadTilt,
   };
 
-/**
+/*
  * Plan one lateral roll with its peak at `stroke` and return from `relax`.
- *
- * @param context The authored roll, duration and posture underneath.
- * @returns The head-only plan and its timing events, with the base's support
- *   windows.
- * @throws {HumanRefusal} If `degrees` is outside [-20, 20] or the duration is
- *   below 0.6 seconds.
+ * Parameter context: The authored roll, duration and posture underneath.
+ * Returns: The head-only plan and its timing events, with the base's support
+ * windows.
+ * If `degrees` is outside [-20, 20] or the duration is
+ * below 0.6 seconds.
  */
 function planHeadTilt(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHeadTilt>,

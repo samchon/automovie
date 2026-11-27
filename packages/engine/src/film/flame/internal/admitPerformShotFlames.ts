@@ -7,11 +7,11 @@ import type {
 
 import { appendFlamesArtifact } from "../../../validation/internal/appendFlamesArtifact";
 
-/**
+/*
  * Admit a shot's flame cues against the staged nodes, the registered models and
  * the shot's practical light bindings, and return detached copies.
  *
- * {@link appendFlamesArtifact} checks each cue with the models and bindings the
+ * appendFlamesArtifact checks each cue with the models and bindings the
  * props hold: an id unique in the shot, a staged node whose model is
  * registered, an emitter that is a fixed affordance of that model, a
  * nonnegative safe-integer seed and a positive finite size. An open fire also

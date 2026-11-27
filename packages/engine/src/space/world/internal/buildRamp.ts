@@ -3,7 +3,9 @@ import type {
   IAutoMovieWorldSurface,
 } from "@automovie/interface";
 
-/** Construct a rectangular planar ramp from a centerline, width and rise. */
+/*
+ * Construct a rectangular planar ramp from a centerline, width and rise.
+ */
 export function buildRamp(
   input: IAutoMovieWorldRamp.IInput,
 ): IAutoMovieWorldSurface {

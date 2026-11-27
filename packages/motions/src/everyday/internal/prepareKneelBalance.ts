@@ -12,7 +12,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanBalance } from "./HumanBalance";
 import type { kneelKeys } from "./kneelKeys";
 
-/**
+/*
  * Resolve the fixed heading's initial centre and the middle of the planted
  * soles. Each moving phase follows its original target from its original start
  * through the last observable cubic interval.
@@ -89,7 +89,9 @@ export function prepareKneelBalance(props: IInputs): Solver {
     );
   return course;
 }
-/** A root offset in metres along the kneeling step. */
+/*
+ * A root offset in metres along the kneeling step.
+ */
 type Course = (seconds: number) => number;
 
 type Solver = (
@@ -98,7 +100,9 @@ type Solver = (
   start: number,
   through: number,
 ) => Course;
-/** The two neighbouring key numbers and the progress between them. */
+/*
+ * The two neighbouring key numbers and the progress between them.
+ */
 interface IKeyPair {
   from: number;
   to: number;

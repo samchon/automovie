@@ -4,16 +4,15 @@ import { ArchetypeTrackTime } from "./ArchetypeTrackTime";
 import type { AutoMovieArchetype } from "../AutoMovieArchetype";
 import type { AutoMovieArchetypeTrack } from "../AutoMovieArchetypeTrack";
 
-/**
+/*
  * Prepare the public mechanism ease on the same minimum-jerk profile.
- *
- * @param archetype The articulation's model and refusal name.
- * @param articulation The articulation to carry between two travels.
- * @param props Finite start, positive duration, supported endpoint travels and
- *   optional crossing.
- * @returns A pure scalar track with held endpoints and an optional launch.
- * @throws {AutoMovieArchetypeRefusal} For unsupported clock, range, endpoint
- *   difference, crossing or rate.
+ * Parameter archetype: The articulation's model and refusal name.
+ * Parameter articulation: The articulation to carry between two travels.
+ * Parameter props: Finite start, positive duration, supported endpoint travels and
+ * optional crossing.
+ * Returns: A pure scalar track with held endpoints and an optional launch.
+ * For unsupported clock, range, endpoint
+ * difference, crossing or rate.
  */
 export function ArchetypeTrackEase<Id extends string>(
   archetype: AutoMovieArchetype<Id, string>,

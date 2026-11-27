@@ -1,7 +1,7 @@
 import { AutoMovieArchetypeUnits } from "../../core";
 import type { AutoMovieArchetypeHandgun } from "../AutoMovieArchetypeHandgun";
 
-/**
+/*
  * Each frame's pistols whole, the default first, each from its own maker's
  * table:
  *

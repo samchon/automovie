@@ -16,12 +16,12 @@ import { WorkoutSupport as WorkoutSupportSource } from "../../exercise/workout/W
 import { HumanSportGym as HumanSportGymSource } from "../../lexicon/internal/HumanSportGym";
 import { HumanSportWorkout as HumanSportWorkoutSource } from "../../lexicon/internal/HumanSportWorkout";
 
-/**
+/*
  * The workout family's rows, tables and readers, each the shipped value under
  * its family name (`AutoMovieMotionHumanWorkout`), with its own comment.
  */
 export namespace AutoMovieMotionHumanWorkoutRows {
-  /**
+  /*
    * A keyed whole-body posture of an exercise: the body's tilt, its turn and
    * its joints, with no place of its own. Where the body is follows from what
    * bears it: the key is pinned by naming bones whose mean stays at a point
@@ -33,10 +33,12 @@ export namespace AutoMovieMotionHumanWorkoutRows {
    */
   export import ExerciseKey = ExerciseKeySource;
 
-  /** Companion types of {@link WorkoutKind}. */
+  /*
+   * Companion types of WorkoutKind.
+   */
   export import WorkoutKind = WorkoutKindSource;
 
-  /**
+  /*
    * The exercises of the workout law done on the hands and the toes or feet :
    * the push-up, the plank, the mountain climber, the burpee, the downward dog
    * and the cobra.
@@ -52,7 +54,7 @@ export namespace AutoMovieMotionHumanWorkoutRows {
    */
   export import WorkoutFloor = WorkoutFloorSource;
 
-  /**
+  /*
    * The standing lifts and warm-up drills of the workout law: lifts shown
    * without their load (deadlift, back squat, kettlebell swing, overhead press)
    * and drills (arm circles, leg swings, butt kicks, the B-skip, the skipping
@@ -71,7 +73,7 @@ export namespace AutoMovieMotionHumanWorkoutRows {
    */
   export import WorkoutStanding = WorkoutStandingSource;
 
-  /**
+  /*
    * The exercises of the workout law done hanging from a bar by both hands
    * (bars, pull-ups): the dead hang, the pull-up, the chin-up, the hanging knee
    * raise and the swing.
@@ -89,7 +91,7 @@ export namespace AutoMovieMotionHumanWorkoutRows {
    */
   export import WorkoutHanging = WorkoutHangingSource;
 
-  /**
+  /*
    * Exercises, stretches, yoga poses, dance holds and turns, and a few sport
    * acts under the names a screenplay uses, each a row of the workout law with
    * its kind fixed, or of a shipped law. A row leaves open the count (`reps`),
@@ -108,7 +110,7 @@ export namespace AutoMovieMotionHumanWorkoutRows {
    */
   export import HumanSportWorkout = HumanSportWorkoutSource;
 
-  /**
+  /*
    * What the standing kinds of the workout law share: the supports of a
    * standing body, the record of a kind whose pinned bones stay where they
    * stand, and the stances whose angles are solved on the body so both feet
@@ -116,7 +118,7 @@ export namespace AutoMovieMotionHumanWorkoutRows {
    */
   export import WorkoutStance = WorkoutStanceSource;
 
-  /**
+  /*
    * The exercises of the workout law done lying, sitting on the floor or on
    * furniture: on the back (sit-up, crunch, glute bridge, a partner's hamstring
    * stretch), on a side (side plank), sitting on the floor (the forward fold
@@ -135,7 +137,7 @@ export namespace AutoMovieMotionHumanWorkoutRows {
    */
   export import WorkoutLying = WorkoutLyingSource;
 
-  /**
+  /*
    * The standing poses and single acts of the workout law: stretches and yoga
    * poses (calf, chest, triceps, the lunge with a twist, warrior I and II, the
    * triangle, the standing half of a sun salutation), karate's front stance and
@@ -154,7 +156,7 @@ export namespace AutoMovieMotionHumanWorkoutRows {
    */
   export import WorkoutPoses = WorkoutPosesSource;
 
-  /**
+  /*
    * The gym's standing movements of the workout law: free-weight exercises a
    * programme names beside the ones the other tables hold, shown here without
    * their load unless the author names one (`load`): the bent-over row, the
@@ -178,7 +180,7 @@ export namespace AutoMovieMotionHumanWorkoutRows {
    */
   export import WorkoutGym = WorkoutGymSource;
 
-  /**
+  /*
    * The bodyweight movements of the workout law a gym programme names beside
    * the ones the other tables hold. On the floor: the pike push-up, the
    * superman, the bird dog, the lying leg raise, the bicycle crunch, the
@@ -197,7 +199,7 @@ export namespace AutoMovieMotionHumanWorkoutRows {
    */
   export import WorkoutBodyweight = WorkoutBodyweightSource;
 
-  /**
+  /*
    * The gym's remaining movements under the names a programme uses, each a row
    * of the workout law with its kind fixed (`WorkoutGym`, `WorkoutBodyweight`,
    * `WorkoutEquipment`). A row leaves open the count (`reps`), a held pose's
@@ -211,7 +213,7 @@ export namespace AutoMovieMotionHumanWorkoutRows {
    */
   export import HumanSportGym = HumanSportGymSource;
 
-  /**
+  /*
    * The feet of a workout that stands: a foot the kind never moves is held by
    * the leg's solve on the place it stands on at the entry, and a foot the body
    * turns on stays on its ball, turned by the key's own turn.
@@ -224,7 +226,7 @@ export namespace AutoMovieMotionHumanWorkoutRows {
    */
   export import WorkoutFeet = WorkoutFeetSource;
 
-  /**
+  /*
    * The load a workout is done with: a prop the performer already holds (a
    * barbell, a dumbbell, a kettlebell taken by `pickUp`), carried through the
    * exercise's keys instead of being refused.
@@ -264,7 +266,7 @@ export namespace AutoMovieMotionHumanWorkoutRows {
    */
   export const WorkoutLoad: typeof WorkoutLoadSource = WorkoutLoadSource;
 
-  /**
+  /*
    * The support a prop gives a workout: a bench's top under a body that lies or
    * sits raised, a bar between the hands of a body that hangs, a box's top
    * under a foot. The prop names the place by one of its affordances, so the
@@ -278,7 +280,7 @@ export namespace AutoMovieMotionHumanWorkoutRows {
    */
   export import WorkoutSupport = WorkoutSupportSource;
 
-  /**
+  /*
    * The exercises of the workout law that are done on a box or a bench the
    * author names (`on`): the step-up, the incline push-up (the hands on the
    * bench), the decline push-up (the feet on it) and the hip thrust (the upper
@@ -311,7 +313,7 @@ export namespace AutoMovieMotionHumanWorkoutRows {
    */
   export import WorkoutEquipment = WorkoutEquipmentSource;
 
-  /**
+  /*
    * Where a workout's bearing bones stay: the one place the kind's pin keeps
    * while the body works, decided once per plan from how the kind is anchored.
    *

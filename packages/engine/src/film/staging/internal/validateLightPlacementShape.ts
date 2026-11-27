@@ -11,7 +11,7 @@ import { describeInvalidValue } from "../../../validation/internal/describeInval
 import { validateColor } from "../../../validation/internal/validateColor";
 import { lightTypeOf } from "./lightTypeOf";
 
-/**
+/*
  * The staging light contract, per kind: each placement takes exactly the
  * parameters its `type` can act on, so `stageScene` can lower it to the scene
  * light that kind names without guessing.
@@ -136,7 +136,7 @@ export function validateLightPlacementShape(
   validateLightShadow(light, type, path, out);
 }
 
-/**
+/*
  * The panel's extent: required exactly on an `area` light, refused elsewhere.
  *
  * Both axes are checked, not just the first missing one, so an author who typed
@@ -182,7 +182,7 @@ const validateLightExtent: (
   }
 };
 
-/**
+/*
  * `castShadow` and `shadow`: a flag refused on an area light, and settings
  * present exactly when the flag is `true`, with a positive `near` and `far`
  * beyond it.

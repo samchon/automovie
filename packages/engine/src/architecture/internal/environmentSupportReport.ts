@@ -26,7 +26,7 @@ import { builtEnvironmentSupportSweep } from "./builtEnvironmentSupportSweep";
 import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
 import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../AUTOMOVIE_SUPPORT_TOLERANCE";
 
-/**
+/*
  * Report the support of every staged set piece of a composed environment,
  * without refusing any.
  *
@@ -46,11 +46,10 @@ import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../AUTOMOVIE_SUPPORT_TOLERANCE";
  * `builtEnvironmentSupportSweep` gives that building alone at its placement
  * height: grounded and borne bodies rest, floating ones float with the sweep's
  * clearance and support, and unresolved ones stay unresolved.
- *
- * @param props The staged set, runtime models, props, stage space, wall mounts,
- *   composed buildings and tolerance.
- * @returns One finding per staged piece, in set order.
- * @throws {RangeError} When the tolerance is negative or not finite.
+ * Parameter props: The staged set, runtime models, props, stage space, wall mounts,
+ * composed buildings and tolerance.
+ * Returns: One finding per staged piece, in set order.
+ * When the tolerance is negative or not finite.
  */
 export function environmentSupportReport(
   props: IAutoMovieEnvironmentSupportReport.IProps,
@@ -188,28 +187,42 @@ export function environmentSupportReport(
   );
 }
 
-/** One measured piece: its node, world box and model-local corners in world. */
+/*
+ * One measured piece: its node, world box and model-local corners in world.
+ */
 interface IMeasured {
-  /** The staged node. */
+  /*
+   * The staged node.
+   */
   node: string;
 
-  /** The world-axis-aligned box of its rest extent under its staged transform. */
+  /*
+   * The world-axis-aligned box of its rest extent under its staged transform.
+   */
   box: IAutoMovieSubjectBox;
 
-  /** The eight corners of its rest extent in world metres. */
+  /*
+   * The eight corners of its rest extent in world metres.
+   */
   corners: IAutoMovieVector3[];
 }
 
-/** One candidate support: its id and the height of its top under a piece. */
+/*
+ * One candidate support: its id and the height of its top under a piece.
+ */
 interface ICandidate {
-  /** Surface id or staged node. */
+  /*
+   * Surface id or staged node.
+   */
   id: string;
 
-  /** Signed gap of the piece's underside above the candidate's top, metres. */
+  /*
+   * Signed gap of the piece's underside above the candidate's top, metres.
+   */
   gap: number;
 }
 
-/**
+/*
  * Each composed building's bodies with the verdict its own sweep gives, keyed
  * by the staged node `lowerBuiltEnvironment` names them by.
  */
@@ -250,7 +263,9 @@ function buildingFindings(
   return findings;
 }
 
-/** One building body's finding from its sweep's floating and unresolved lists. */
+/*
+ * One building body's finding from its sweep's floating and unresolved lists.
+ */
 function buildingFinding(
   node: string,
   element: IAutoMovieBuiltElement,

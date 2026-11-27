@@ -38,22 +38,24 @@ import { lieOnSurfaceFits } from "./lieOnSurfaceFits";
 import { lieOnSurfaceSeat } from "./lieOnSurfaceSeat";
 import { lieOnSurfaceSite } from "./lieOnSurfaceSite";
 
-/** Seconds of each phase (provisional: `lieDown`'s phase). */
+/*
+ * Seconds of each phase (provisional: `lieDown`'s phase).
+ */
 const PHASE: number = 1.2;
 
-/**
+/*
  * The free room beyond the head and beside each shoulder on the surface, metres
  * (provisional).
  */
 const MARGIN: number = 0.05;
 
-/**
+/*
  * How far behind the edge the seated hips sit, metres (provisional: the thighs
  * resting over the edge).
  */
 const BEHIND: number = 0.15;
 
-/**
+/*
  * Lie on a raised support. Entered seated on a bed's or a sofa's long edge, the
  * trunk lowers onto the side that turns toward the head end (the body's left on
  * the edge whose left points there) while the legs swing up onto the surface,
@@ -76,7 +78,7 @@ export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanL
     plan: planLieOnSurface,
   };
 
-/**
+/*
  * Lie on a raised support. Entered seated on a bed's or a sofa's long edge, the
  * trunk lowers onto the side that turns toward the head end (the body's left on
  * the edge whose left points there) while the legs swing up onto the surface,
@@ -516,31 +518,45 @@ function planLieOnSurface(
     base: rise ? { kind: "seated" } : { kind: "lying" },
   };
 }
-/** An affordance's local frame. */
+/*
+ * An affordance's local frame.
+ */
 function frame(a: IAutoMovieAffordance): IAutoMovieRigidTransform {
   return { position: a.frame.translation, rotation: a.frame.rotation };
 }
 
-/**
+/*
  * One key of the route: the body's tilt and joints, the hips' world point and
  * the event that names its arrival.
  */
 interface IKey {
-  /** The tilt and the joints. */
+  /*
+   * The tilt and the joints.
+   */
   pose: IAutoMovieMotionHumanLieDown.IPose;
 
-  /** The heading the tilt is written under, degrees. */
+  /*
+   * The heading the tilt is written under, degrees.
+   */
   yaw: number;
 
-  /** The hips joint's world point. */
+  /*
+   * The hips joint's world point.
+   */
   hips: IAutoMovieVector3;
 
-  /** Whether the body lies on the surface at this key. */
+  /*
+   * Whether the body lies on the surface at this key.
+   */
   lying: boolean;
 
-  /** The arrival's event name. */
+  /*
+   * The arrival's event name.
+   */
   event: string;
 }
 
-/** The alternatives of `PlanLieOnSurfaceContactsPart`'s site. */
+/*
+ * The alternatives of `PlanLieOnSurfaceContactsPart`'s site.
+ */
 type PlanLieOnSurfaceContactsPart = "leftFoot" | "rightFoot";

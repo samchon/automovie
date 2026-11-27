@@ -8,12 +8,11 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Admit initial rigid prop mounts before the performance needs any prop frames.
- *
- * @param props Performance props by subject.
- * @throws {HumanRefusal} An authority conflict, missing carrier or socket,
- *   invalid offset or mount cycle.
+ * Parameter props: Performance props by subject.
+ * An authority conflict, missing carrier or socket,
+ * invalid offset or mount cycle.
  */
 export function validateInitialPropMounts(
   props: ReadonlyMap<string, IAutoMovieMotionHumanProp>,

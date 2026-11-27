@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
 } from "../core/index";
 
-/**
+/*
  * Each kind's models read, each whole, by name, the default first. The wheeled
  * bins: SULO 240 and 360 litre containers, total height about 1060 and 1100 mm,
  * bin height 990 and 1028, bin depth 660 and 770, total depth 730 and 848,
@@ -82,7 +82,7 @@ const BIN_MODELS: Readonly<
   },
 };
 
-/**
+/*
  * The construction sizes no source read gives, metres, each an estimate no act
  * reads and no band declares: `lid`, a dumpster lid's thickness; `bar`, a
  * handle's and a wheel's width.

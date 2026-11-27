@@ -5,15 +5,14 @@ import type {
 
 import { ArchetypeMassArithmetic } from "./ArchetypeMassArithmetic";
 
-/**
+/*
  * A primitive's volume, centre and central moments per unit mass in its own
  * axes. Local volume must be finite and positive, and local principal moments
  * finite and positive; geometries outside that local representable domain are
  * refused.
- *
- * @param shape The primitive.
- * @returns Its volume, centroid and central inertia per unit mass.
- * @throws {Error} For invalid dimensions or unrepresentable local properties.
+ * Parameter shape: The primitive.
+ * Returns: Its volume, centroid and central inertia per unit mass.
+ * For invalid dimensions or unrepresentable local properties.
  */
 export function ArchetypeMassPrimitive(
   shape: IAutoMoviePrimitiveShape,
@@ -39,22 +38,30 @@ export function ArchetypeMassPrimitive(
   return result;
 }
 
-/**
+/*
  * A primitive in its own axes: volume, centroid and central principal inertia
  * per unit mass.
  */
 interface ILocal {
-  /** Volume, cubic metres. */
+  /*
+   * Volume, cubic metres.
+   */
   volume: number;
 
-  /** Centroid in the primitive's coordinates, metres. */
+  /*
+   * Centroid in the primitive's coordinates, metres.
+   */
   centroid: IAutoMovieVector3;
 
-  /** Central moments about the primitive's axes per unit mass, square metres. */
+  /*
+   * Central moments about the primitive's axes per unit mass, square metres.
+   */
   unit: IAutoMovieVector3;
 }
 
-/** Uniform-solid formulas in the primitive's axes. */
+/*
+ * Uniform-solid formulas in the primitive's axes.
+ */
 function evaluate(shape: IAutoMoviePrimitiveShape): ILocal | null {
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   switch (shape.type) {
@@ -169,7 +176,9 @@ function evaluate(shape: IAutoMoviePrimitiveShape): ILocal | null {
   }
 }
 
-/** Preserve the ordinary box rule; rescue only its overflowing square sum. */
+/*
+ * Preserve the ordinary box rule; rescue only its overflowing square sum.
+ */
 function transverse(a: number, b: number): number {
   const ordinary: number = (a * a + b * b) / 12;
   return ordinary !== Infinity

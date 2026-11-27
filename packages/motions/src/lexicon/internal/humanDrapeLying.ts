@@ -7,19 +7,18 @@ import type {
 
 import { HumanBound } from "../../law/internal/HumanBound";
 
-/**
+/*
  * A drape's own staging in the carrier contact's frame: the body lies face down
  * across the seat, its trunk level and pointing to the head's side (yaw +90 for
  * a head to the left, -90 to the right, pitch 90), the hips resting a trunk's
  * half depth above the seat and folded so the legs hang, the arms and head
  * hanging (`HANGING`); it is laid over `lay` (0.6 s by default), then draped
  * for the authored seconds, the seat borne on the carrier from `laid`.
- *
- * @param params The drape's times, carrier and head side.
- * @param chestDepth The body's chest depth, metres.
- * @param from The entry posture in the carrier's frame.
- * @returns The drape's length, cue, seat window and lying posture.
- * @throws {HumanRefusal} When the drape has no length or the lay is negative.
+ * Parameter params: The drape's times, carrier and head side.
+ * Parameter chestDepth: The body's chest depth, metres.
+ * Parameter from: The entry posture in the carrier's frame.
+ * Returns: The drape's length, cue, seat window and lying posture.
+ * When the drape has no length or the lay is negative.
  */
 export function humanDrapeLying(
   params: Pick<IAutoMovieMotionHumanDrape, "duration" | "lay" | "on" | "head">,
@@ -56,9 +55,11 @@ export function humanDrapeLying(
   };
 }
 
-/** The drape's staging. */
+/*
+ * The drape's staging.
+ */
 export namespace humanDrapeLying {
-  /**
+  /*
    * The hanging joints, degrees: hips folded so the legs hang, shoulders flexed
    * so the arms hang, the neck bent (provisional).
    */
@@ -74,21 +75,33 @@ export namespace humanDrapeLying {
     neck: [30, 0, 0],
   };
 
-  /** The drape. */
+  /*
+   * The drape.
+   */
   export interface IDrape {
-    /** The laying movement's seconds. */
+    /*
+     * The laying movement's seconds.
+     */
     lay: number;
 
-    /** The whole drape's seconds. */
+    /*
+     * The whole drape's seconds.
+     */
     duration: number;
 
-    /** The `laid` cue. */
+    /*
+     * The `laid` cue.
+     */
     events: IAutoMovieMotionEvent[];
 
-    /** The seat borne on the carrier. */
+    /*
+     * The seat borne on the carrier.
+     */
     contacts: IAutoMovieMotionHumanContactWindow[];
 
-    /** The lying posture in the carrier's frame. */
+    /*
+     * The lying posture in the carrier's frame.
+     */
     lying: IAutoMovieMotionHumanPosture;
   }
 }

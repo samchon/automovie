@@ -15,24 +15,34 @@ import { physicalContactSupportGoals } from "./physicalContactSupportGoals";
 import { preparePhysicalContactTargetSeed } from "./preparePhysicalContactTargetSeed";
 import { samplePhysicalTrackingTarget } from "./samplePhysicalTrackingTarget";
 
-/**
+/*
  * Fit every member of the caller's admitted group against the same native scene
  * snapshot, then replace each member's interval plan together. The caller
  * samples its own plan afterwards; later members reuse theirs.
  */
 export function trackPhysicalCoupledTargets(props: {
   readonly input: IAutoMoviePhysicalSimulationInput.IInput;
-  /** Member whose tracking requested the fit. */
+  /*
+   * Member whose tracking requested the fit.
+   */
   readonly body: Body;
-  /** That member's sampled target for this substep. */
+  /*
+   * That member's sampled target for this substep.
+   */
   readonly target: Target;
   readonly bound: Bound;
   readonly step: number;
-  /** Native substep time, film seconds. */
+  /*
+   * Native substep time, film seconds.
+   */
   readonly seconds: number;
-  /** That member's balance revision. */
+  /*
+   * That member's balance revision.
+   */
   readonly revision: number;
-  /** Simultaneous world poses of every scene body. */
+  /*
+   * Simultaneous world poses of every scene body.
+   */
   readonly scene: Readonly<Record<string, IAutoMoviePoses>>;
   readonly contacts: readonly IAutoMovieContactReceipt[];
   readonly recovery: Readonly<Record<string, IAutoMoviePhysicalRecoveryState>>;

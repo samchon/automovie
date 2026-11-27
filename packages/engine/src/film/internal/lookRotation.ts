@@ -3,7 +3,7 @@ import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * The rotation that points a camera's −Z down `direction` while keeping its
  * horizon level.
  *
@@ -16,9 +16,8 @@ import { Vector3 } from "../../math/Vector3";
  * down −Z with a level horizon. Finite direction length does not matter; finite
  * inputs yield a unit quaternion up to rounding, while a non-finite component
  * yields a non-finite result.
- *
- * @param direction World-space direction to look along, any non-zero length.
- * @returns The camera's world rotation.
+ * Parameter direction: World-space direction to look along, any non-zero length.
+ * Returns: The camera's world rotation.
  */
 export function lookRotation(
   direction: IAutoMovieVector3,
@@ -57,8 +56,12 @@ export function lookRotation(
   });
 }
 
-/** World up: the horizon a camera keeps level. */
+/*
+ * World up: the horizon a camera keeps level.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** The reference that replaces {@link UP} when the aim is parallel to it. */
+/*
+ * The reference that replaces UP when the aim is parallel to it.
+ */
 const BACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };

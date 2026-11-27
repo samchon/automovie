@@ -102,7 +102,7 @@ export namespace AutoMovieHumanChordArc {
     };
   }
 
-  /**
+  /*
    * The quintic Hermite basis on `[0, 1]` as polynomial coefficients from the
    * constant term: value, first and second derivative at 0, then at 1.
    */
@@ -115,10 +115,14 @@ export namespace AutoMovieHumanChordArc {
     [0, 0, 0, 0.5, -1, 0.5],
   ];
 
-  /** `64 xi^3 (1 - xi)^3`: zero with two derivatives at both ends, 1 at the middle. */
+  /*
+   * `64 xi^3 (1 - xi)^3`: zero with two derivatives at both ends, 1 at the middle.
+   */
   const BUMP: readonly number[] = [0, 0, 0, 64, -192, 192, -64];
 
-  /** A polynomial's k-th derivative's coefficients, from the constant term. */
+  /*
+   * A polynomial's k-th derivative's coefficients, from the constant term.
+   */
   function derive(c: readonly number[], k: number): number[] {
     const out: number[] = [];
     for (let i: number = k; i < c.length; i++) {
@@ -129,21 +133,27 @@ export namespace AutoMovieHumanChordArc {
     return out;
   }
 
-  /** A polynomial at x by Horner's rule, coefficients from the constant term. */
+  /*
+   * A polynomial at x by Horner's rule, coefficients from the constant term.
+   */
   function horner(c: readonly number[], x: number): number {
     let sum: number = 0;
     for (let i: number = c.length - 1; i >= 0; i--) sum = sum * x + c[i]!;
     return sum;
   }
 
-  /** The basis' value, first and second derivative polynomials. */
+  /*
+   * The basis' value, first and second derivative polynomials.
+   */
   const DERIVED_BASIS: readonly (readonly (readonly number[])[])[] = [
     0, 1, 2,
   ].map((k: number): number[][] =>
     BASIS.map((c: readonly number[]): number[] => derive(c, k)),
   );
 
-  /** The bump's value, first and second derivative polynomials. */
+  /*
+   * The bump's value, first and second derivative polynomials.
+   */
   const DERIVED_BUMP: readonly (readonly number[])[] = [0, 1, 2].map(
     (k: number): number[] => derive(BUMP, k),
   );

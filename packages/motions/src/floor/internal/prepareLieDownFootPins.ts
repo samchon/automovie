@@ -10,16 +10,15 @@ import type {
 
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 
-/**
+/*
  * Keep both soles fixed while a standing body lowers before it lies down. Each
  * foot pivots on its own bearing socket from the route's first key. The root's
  * existing averaged course and the displayed foot orientations supply the knee
  * poles and foot rotations for the two-bone solver.
- *
- * @param body The body's sole sockets.
- * @param standing The posed standing feet, in world metres.
- * @param landing The relative bones of the first lowered posture.
- * @returns The writer for the initial descent.
+ * Parameter body: The body's sole sockets.
+ * Parameter standing: The posed standing feet, in world metres.
+ * Parameter landing: The relative bones of the first lowered posture.
+ * Returns: The writer for the initial descent.
  */
 export function prepareLieDownFootPins(
   body: IAutoMovieMotionHumanBody,
@@ -111,29 +110,45 @@ export function prepareLieDownFootPins(
   };
 }
 
-/** Posed bones of the ankles, knees and actual sole sockets. */
+/*
+ * Posed bones of the ankles, knees and actual sole sockets.
+ */
 type Bones = Parameters<typeof HumanFoot.sockets>[1];
 
-/** One retained point of a sole, selected by the posture it bears on. */
+/*
+ * One retained point of a sole, selected by the posture it bears on.
+ */
 interface IPin {
-  /** The leg keeping this plant. */
+  /*
+   * The leg keeping this plant.
+   */
   side: AutoMovieHumanSide;
 
-  /** The point of the sole about which the foot rolls. */
+  /*
+   * The point of the sole about which the foot rolls.
+   */
   socket: IAutoMovieMotionHumanFoot.Socket;
 
-  /** The foot's point of contact at the standing key, world metres. */
+  /*
+   * The foot's point of contact at the standing key, world metres.
+   */
   point: IAutoMovieVector3;
 
-  /** The toe hinge's available extension, degrees, when its skin bears. */
+  /*
+   * The toe hinge's available extension, degrees, when its skin bears.
+   */
   extension: number;
 }
 
-/** Place the actual landed root and its two foot goals. */
+/*
+ * Place the actual landed root and its two foot goals.
+ */
 type Write = (
   posture: IAutoMovieMotionHumanPosture,
   bones: Bones,
 ) => IAutoMovieMotionHumanPosture;
 
-/** Fixed order for the feet of a standing posture. */
+/*
+ * Fixed order for the feet of a standing posture.
+ */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];

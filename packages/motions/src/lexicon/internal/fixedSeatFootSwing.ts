@@ -13,7 +13,7 @@ import { HumanBoneGroups } from "../../posture/internal/HumanBoneGroups";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * A tilt between neutral and the request with both original floor contacts. The
  * caller fixes the bearing before asking for the range. Angular resolution is
  * the rig's own; each trial solves only the two legs, and checks the actual

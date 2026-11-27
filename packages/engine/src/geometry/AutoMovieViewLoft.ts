@@ -70,7 +70,7 @@ export namespace AutoMovieViewLoft {
   export function create(part: IAutoMovieViewPart): IAutoMovieViewLoft.IResult {
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
     const producer: string = `view.${part.name}`;
-    /**
+    /*
      * Keep every failed input premise with the view producer that encountered
      * it.
      */
@@ -80,7 +80,7 @@ export namespace AutoMovieViewLoft {
     ): void => {
       diagnostics.push({ producer, level: 2, contract, detail });
     };
-    /**
+    /*
      * A failed admission retains diagnostics without publishing partial final
      * geometry.
      */
@@ -102,7 +102,7 @@ export namespace AutoMovieViewLoft {
       );
       return empty();
     }
-    /**
+    /*
      * Source stations must be ordered with the existing numerical spline-gap
      * premise.
      */
@@ -279,13 +279,13 @@ export namespace AutoMovieViewLoft {
       });
     }
     stations.sort((a: number, b: number): number => a - b);
-    /**
+    /*
      * Existing cap-shoulder blend, independent of the coefficient source
      * coordinate.
      */
     const cap: (s: number) => number = (s: number): number =>
       Math.max(0, ...caps.map((c: (s: number) => number): number => c(s)));
-    /**
+    /*
      * Preserve the established shoulder policy while the coefficient
      * interpolant is repaired separately.
      */
@@ -554,10 +554,12 @@ export namespace AutoMovieViewLoft {
   }
 }
 
-/** Existing ordered quarter layout shared with the view input owner. */
+/*
+ * Existing ordered quarter layout shared with the view input owner.
+ */
 type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
 
-/**
+/*
  * One emitted station's plane, radius reader and four-quarter metadata, in
  * station order.
  */
@@ -568,7 +570,9 @@ interface Row {
   view: IAutoMovieLoftChain.IView | undefined;
 }
 
-/** The continuity every four-quarter chain carries. */
+/*
+ * The continuity every four-quarter chain carries.
+ */
 const CONTINUITY: IAutoMovieViewLoft.IResult["continuity"] = {
   phase: "C2",
   station: "C2",

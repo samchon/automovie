@@ -9,20 +9,26 @@ import {
 } from "../../core";
 import { AutoMovieArchetypeMobilityAid } from "../AutoMovieArchetypeMobilityAid";
 
-/** The readable name of each kind. */
+/*
+ * The readable name of each kind.
+ */
 const NAMES: Readonly<Record<AutoMovieArchetypeMobilityAid.Kind, string>> = {
   cane: "walking cane",
   walker: "walking frame",
   infusionStand: "infusion stand",
 };
 
-/** Model coordinates in metres. */
+/*
+ * Model coordinates in metres.
+ */
 const v: typeof Vector3.create = Vector3.create;
 
-/** The shared painted metal part color. */
+/*
+ * The shared painted metal part color.
+ */
 const metal: string = "#9aa1a6";
 
-/**
+/*
  * Draw the selected stand or aid's admitted dimensions in the historical
  * stream.
  */
@@ -70,7 +76,9 @@ function draw<Id extends AutoMovieArchetypeMobilityAid.Affordance>(
   return { builder, d };
 }
 
-/** Put the downward floor reference under the model origin. */
+/*
+ * Put the downward floor reference under the model origin.
+ */
 function tip(builder: {
   affordance(contact: Parameters<Builder<"tip">["affordance"]>[0]): void;
 }): void {
@@ -82,15 +90,19 @@ function tip(builder: {
   });
 }
 
-/**
+/*
  * Shared sizing and individual constructions for floor-supported props held
  * beside a person.
  */
 export namespace MobilityAidConstruction {
-  /** The contact ids {@link cane} builds or reads. */
+  /*
+   * The contact ids cane builds or reads.
+   */
   export type CaneContact = "grip" | "tip";
 
-  /** Build an offset cane with a floor tip and a handle across its shaft. */
+  /*
+   * Build an offset cane with a floor tip and a handle across its shaft.
+   */
   export function cane(
     params: Omit<AutoMovieArchetypeMobilityAid.IParams, "kind">,
     seed?: number,
@@ -123,10 +135,14 @@ export namespace MobilityAidConstruction {
     return builder.build(d.mass!);
   }
 
-  /** The contact ids {@link walker} builds or reads. */
+  /*
+   * The contact ids walker builds or reads.
+   */
   export type WalkerContact = "leftGrip" | "rightGrip" | "tip";
 
-  /** Build a walking frame with paired side rail grips and a central floor tip. */
+  /*
+   * Build a walking frame with paired side rail grips and a central floor tip.
+   */
   export function walker(
     params: Omit<AutoMovieArchetypeMobilityAid.IParams, "kind">,
     seed?: number,
@@ -176,10 +192,14 @@ export namespace MobilityAidConstruction {
     return builder.build(d.mass!);
   }
 
-  /** The contact ids {@link infusionStand} builds or reads. */
+  /*
+   * The contact ids infusionStand builds or reads.
+   */
   export type InfusionStandContact = "grip" | "tip" | "hook";
 
-  /** Build a wheeled stand with a shaft grip, floor tip and bag hook. */
+  /*
+   * Build a wheeled stand with a shaft grip, floor tip and bag hook.
+   */
   export function infusionStand(
     params: Omit<AutoMovieArchetypeMobilityAid.IParams, "kind">,
     seed?: number,
@@ -253,18 +273,28 @@ export namespace MobilityAidConstruction {
   }
 }
 
-/** The model-space construction for the selected contact IDs. */
+/*
+ * The model-space construction for the selected contact IDs.
+ */
 type Builder<Id extends AutoMovieArchetypeMobilityAid.Affordance> =
   AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeMobilityAid.Dimension>;
 
-/** Model dimensions in the legacy family's recorded units. */
+/*
+ * Model dimensions in the legacy family's recorded units.
+ */
 type Dimensions = Partial<Record<AutoMovieArchetypeMobilityAid.Dimension, number>>;
 
-/** A started construction: its builder and its drawn dimensions. */
+/*
+ * A started construction: its builder and its drawn dimensions.
+ */
 interface IDrawn<Id extends AutoMovieArchetypeMobilityAid.Affordance> {
-  /** The model-space builder for the selected contact ids. */
+  /*
+   * The model-space builder for the selected contact ids.
+   */
   builder: Builder<Id>;
 
-  /** The drawn and fixed dimensions in the family's recorded units. */
+  /*
+   * The drawn and fixed dimensions in the family's recorded units.
+   */
   d: Dimensions;
 }

@@ -1,13 +1,12 @@
 import type { IAutoMovieInspectorLive } from "./IAutoMovieInspectorLive.js";
 import type { IAutoMovieInspectorSceneHost } from "../IAutoMovieInspectorSceneHost.js";
 
-/**
+/*
  * Follow the host's drawing size: when every side and the pixel ratio are
  * positive and finite and differ from the size the renderer has, resize the
  * renderer's drawing buffer, leaving the canvas's layout to the page, and mark
  * the mount for a redraw.
- *
- * @returns Whether the size can be drawn at.
+ * Returns: Whether the size can be drawn at.
  */
 export function followAutoMovieInspectorSize(
   now: IAutoMovieInspectorLive,

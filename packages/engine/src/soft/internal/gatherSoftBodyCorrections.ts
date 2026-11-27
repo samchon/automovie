@@ -3,7 +3,7 @@ import type { IAutoMovieGatherSoftBodyCorrections } from "@automovie/interface";
 import { SOFT_BODY_NEIGHBOURS } from "../SOFT_BODY_NEIGHBOURS";
 import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
 
-/**
+/*
  * Write one simultaneous Jacobi distance-constraint correction for every
  * particle.
  */
@@ -66,7 +66,9 @@ export function gatherSoftBodyCorrections(
     }
 }
 
-/** Choose the fixed mirror-pair accumulator slot for one canonical offset. */
+/*
+ * Choose the fixed mirror-pair accumulator slot for one canonical offset.
+ */
 const foldSlot: (
   neighbour: readonly [column: number, row: number, family: 0 | 2 | 1],
 ) => number = (

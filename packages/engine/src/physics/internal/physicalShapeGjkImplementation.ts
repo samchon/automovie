@@ -9,7 +9,7 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Closest distance and a witness on the second support-mapped solid. Uses the
  * same simplex reduction as the point/radius query. Original second-solid
  * vertices are retained alongside the simplex for its witness.
@@ -49,14 +49,13 @@ function physicalShapeGjkWitness(
   return { distance, point: witnessPoint(simplex, at, source) };
 }
 
-/**
+/*
  * A placed shape as a solid: a sphere's centre, a capsule's axis ends, a
  * box's corners or a hull's vertices in the world, widened by the sphere's or
  * the capsule's radius.
- *
- * @param pose The shape's parent pose, world metres.
- * @param shape The shape.
- * @returns The solid.
+ * Parameter pose: The shape's parent pose, world metres.
+ * Parameter shape: The shape.
+ * Returns: The solid.
  */
 function physicalShapeGjkSolid(
   pose: IAutoMovieRigidTransform,
@@ -96,16 +95,15 @@ function physicalShapeGjkSolid(
   throw new Error("Unknown physical shape kind");
 }
 
-/**
+/*
  * The solid a shape sweeps between two placements, as a convex hull: both
  * placements' core points, widened by the larger radius and by a further
  * margin, the most any point of the shape strays from the straight chord
  * between its two places over the motion.
- *
- * @param from The shape at one end.
- * @param to The same shape at the other end, in the same frame.
- * @param stray The margin, metres, not negative.
- * @returns The cast.
+ * Parameter from: The shape at one end.
+ * Parameter to: The same shape at the other end, in the same frame.
+ * Parameter stray: The margin, metres, not negative.
+ * Returns: The cast.
  */
 function physicalShapeGjkCast(
   from: AutoMovieEnginePhysicsGjkTypes.ISolid,
@@ -118,7 +116,7 @@ function physicalShapeGjkCast(
   };
 }
 
-/**
+/*
  * Bounds on the signed distance between two convex solids, each the convex hull
  * of a few world points (its core) widened by a radius: a sphere is its centre
  * widened, a capsule its axis, a box its corners and a hull its vertices, and a
@@ -146,13 +144,12 @@ function physicalShapeGjkCast(
  * origin, which in exact arithmetic it always does: the simplices are subsets
  * of the cores' finitely many vertex differences and `|v|` strictly falls, so
  * the iteration ends, each step costing a scan of both cores' points.
- *
- * @param a One solid.
- * @param b The other.
- * @param floor The distance the caller asks whether the solids keep, metres;
- *   the iteration stops once that is settled. Absent, it runs to `GAP`.
- * @returns The bounds, metres: `lower` is negative infinity where the cores
- *   meet.
+ * Parameter a: One solid.
+ * Parameter b: The other.
+ * Parameter floor: The distance the caller asks whether the solids keep, metres;
+ * the iteration stops once that is settled. Absent, it runs to `GAP`.
+ * Returns: The bounds, metres: `lower` is negative infinity where the cores
+ * meet.
  */
 function physicalShapeGjk(
   a: AutoMovieEnginePhysicsGjkTypes.ISolid,
@@ -190,12 +187,14 @@ function physicalShapeGjk(
   }
 }
 
-/**
+/*
  * The solids `physicalShapeGjk` reads, the bounds it gives, and the placed
  * shapes and casts it reads them from.
  */
 
-/** Map a point of the reduced difference simplex back to the second solid. */
+/*
+ * Map a point of the reduced difference simplex back to the second solid.
+ */
 function witnessPoint(
   simplex: readonly IAutoMovieVector3[],
   at: IAutoMovieVector3,
@@ -237,20 +236,22 @@ function witnessPoint(
   );
 }
 
-/**
+/*
  * The bounds' gap under which the iteration has converged, metres: a nanometre,
  * the depth below which the penetration audits record nothing
  * (`AutoMovieMotionHumanAuditTangleMargin.NANOMETRE`).
  */
 const GAP: number = 1e-9;
 
-/**
+/*
  * A distance under which the cores' difference is taken to hold the origin,
  * metres: far below the gap, far above a metre's rounding (about 1e-16 m).
  */
 const ZERO: number = 1e-12;
 
-/** The bounds of a finished iteration. */
+/*
+ * The bounds of a finished iteration.
+ */
 function finish(
   lower: number,
   upper: number,
@@ -262,7 +263,9 @@ function finish(
   };
 }
 
-/** The point of a set farthest along a direction. */
+/*
+ * The point of a set farthest along a direction.
+ */
 function support(
   points: readonly IAutoMovieVector3[],
   x: number,
@@ -282,7 +285,7 @@ function support(
   return best;
 }
 
-/**
+/*
  * The point of a simplex's hull nearest the origin, the simplex cut in place to
  * the fewest of its points whose hull holds it (Ericson 2005, 5.1.5 for a
  * triangle, 5.1.6 for a tetrahedron); none where a tetrahedron holds the
@@ -335,7 +338,9 @@ function nearest(simplex: IAutoMovieVector3[]): IAutoMovieVector3 | undefined {
   return best.point;
 }
 
-/** A segment's point nearest the origin, the simplex cut to its holder. */
+/*
+ * A segment's point nearest the origin, the simplex cut to its holder.
+ */
 function segment(
   simplex: IAutoMovieVector3[],
   p: IAutoMovieVector3,
@@ -352,7 +357,7 @@ function segment(
   return Vector3.add(p, Vector3.scale(pq, t));
 }
 
-/**
+/*
  * A triangle's point nearest the origin by its Voronoi regions (Ericson 2005,
  * `ClosestPtPointTriangle`, with the point at the origin).
  */
@@ -427,7 +432,7 @@ function triangle(
   };
 }
 
-/**
+/*
  * Whether the origin lies outside a tetrahedron's face `abc`, on the side away
  * from its fourth vertex `d`; a face of a flat tetrahedron counts as outside,
  * so its nearest point is still read (Ericson 2005, `PointOutsideOfPlane`).
@@ -447,8 +452,12 @@ function outside(
   return fourth === 0 || origin * fourth < 0;
 }
 
-/** Internal implementations shared by the one-function entry modules. */
-/** Internal typed runtime implementations shared by the query entry modules. */
+/*
+ * Internal implementations shared by the one-function entry modules.
+ */
+/*
+ * Internal typed runtime implementations shared by the query entry modules.
+ */
 export const physicalShapeGjkImplementation: {
   physicalShapeGjk: typeof physicalShapeGjk;
   physicalShapeGjkWitness: typeof physicalShapeGjkWitness;
@@ -460,11 +469,17 @@ export const physicalShapeGjkImplementation: {
   physicalShapeGjkSolid,
   physicalShapeGjkCast,
 };
-/** A triangle's point nearest the origin and the points whose hull holds it. */
+/*
+ * A triangle's point nearest the origin and the points whose hull holds it.
+ */
 interface ITriangle {
-  /** The nearest point. */
+  /*
+   * The nearest point.
+   */
   point: IAutoMovieVector3;
 
-  /** The vertices of the feature it lies on. */
+  /*
+   * The vertices of the feature it lies on.
+   */
   keep: IAutoMovieVector3[];
 }

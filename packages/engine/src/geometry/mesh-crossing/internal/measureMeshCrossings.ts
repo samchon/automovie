@@ -9,7 +9,9 @@ import { collectAutoMovieSpatialQueryCandidates } from "../../internal/collectAu
 import { AutoMovieMeshCrossingGeometry } from "./AutoMovieMeshCrossingGeometry";
 import type { IAutoMovieMeshCrossingTriangle } from "./IAutoMovieMeshCrossingTriangle";
 
-/** Walk the same candidates and predicates for a full census or one witness. */
+/*
+ * Walk the same candidates and predicates for a full census or one witness.
+ */
 export function measureMeshCrossings(
   hierarchy:
     | IAutoMovieMeshQueryHierarchy<IAutoMovieMeshCrossingTriangle>
@@ -106,7 +108,7 @@ export function measureMeshCrossings(
   return crossings;
 }
 
-/**
+/*
  * Bounded Moller-Trumbore: whether the open segment from `origin` to `target`
  * passes strictly through the triangle's interior. Every bound is strict,
  * widened inward by the caller's tolerance, so a segment ending on the surface
@@ -162,12 +164,14 @@ function segmentPierces(
   );
 }
 
-/** Whether two points have exactly the same coordinates. */
+/*
+ * Whether two points have exactly the same coordinates.
+ */
 function coincide(a: number[], b: number[]): boolean {
   return a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
 }
 
-/**
+/*
  * Whether a point is exactly one of the triangle's corners. The barycentric
  * coordinates of a shared corner come out as a rounding residue rather than an
  * exact zero, so two triangles of one surface sharing a vertex could report
@@ -181,14 +185,18 @@ function touchesCorner(point: number[], triangle: number[][]): boolean {
   );
 }
 
-/** The three edges of a triangle as corner index pairs. */
+/*
+ * The three edges of a triangle as corner index pairs.
+ */
 const EDGES: readonly (readonly [number, number])[] = [
   [0, 1],
   [1, 2],
   [2, 0],
 ];
 
-/** Whether any edge of either triangle strictly pierces the other. */
+/*
+ * Whether any edge of either triangle strictly pierces the other.
+ */
 function pierces(
   first: number[][],
   second: number[][],
@@ -212,26 +220,34 @@ function pierces(
   return false;
 }
 
-/** The axis to drop when flattening a plane with this normal, keeping area. */
+/*
+ * The axis to drop when flattening a plane with this normal, keeping area.
+ */
 function dominant(normal: number[]): number {
   return [0, 1, 2].reduce((best: number, axis: number): number =>
     Math.abs(normal[axis]!) > Math.abs(normal[best]!) ? axis : best,
   );
 }
 
-/** A point with one axis dropped. */
+/*
+ * A point with one axis dropped.
+ */
 function flatten(point: number[], drop: number): number[] {
   return [0, 1, 2]
     .filter((axis: number): boolean => axis !== drop)
     .map((axis: number): number => point[axis]!);
 }
 
-/** Twice the signed area of `(a, b, p)` in a flattened plane. */
+/*
+ * Twice the signed area of `(a, b, p)` in a flattened plane.
+ */
 function side(a: number[], b: number[], p: number[]): number {
   return (b[0]! - a[0]!) * (p[1]! - a[1]!) - (b[1]! - a[1]!) * (p[0]! - a[0]!);
 }
 
-/** Whether a flattened point lies strictly inside a flattened triangle. */
+/*
+ * Whether a flattened point lies strictly inside a flattened triangle.
+ */
 function within(triangle: number[][], point: number[]): boolean {
   const signs: number[] = [0, 1, 2].map((corner: number): number =>
     side(triangle[corner]!, triangle[(corner + 1) % 3]!, point),
@@ -242,7 +258,9 @@ function within(triangle: number[][], point: number[]): boolean {
   );
 }
 
-/** Whether two flattened segments cross at a point interior to both. */
+/*
+ * Whether two flattened segments cross at a point interior to both.
+ */
 function segmentsMeet(
   a: number[],
   b: number[],
@@ -252,7 +270,7 @@ function segmentsMeet(
   return side(a, b, c) * side(a, b, d) < 0 && side(c, d, a) * side(c, d, b) < 0;
 }
 
-/**
+/*
  * True when two triangles lie in one plane and their areas overlap.
  *
  * Coplanarity alone is not a crossing: two triangles can share a plane and sit

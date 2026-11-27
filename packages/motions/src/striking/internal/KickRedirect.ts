@@ -11,7 +11,7 @@ import type {
 import { KickGeometry } from "./KickGeometry";
 import { KickLaunch } from "./KickLaunch";
 
-/**
+/*
  * A round kick redirected before its chamber key into another round kick (a
  * middle kick switched to a high kick).
  *
@@ -29,27 +29,25 @@ import { KickLaunch } from "./KickLaunch";
  * their whole carriage, which no single displacement of the ankle expresses.
  */
 export namespace KickRedirect {
-  /**
+  /*
    * How far a redirected kick has turned from its old geometry to the fresh one
    * at a second: a minimum-jerk share from the cut to the impact, over at least
    * a millisecond.
-   *
-   * @param seconds The kick's seconds.
-   * @param cut The redirect's seconds.
-   * @param impact The impact's seconds.
-   * @returns 0 to 1.
+   * Parameter seconds: The kick's seconds.
+   * Parameter cut: The redirect's seconds.
+   * Parameter impact: The impact's seconds.
+   * Returns: 0 to 1.
    */
   export function weight(seconds: number, cut: number, impact: number): number {
     return AutoMovieEngineMotionSampling.minimumJerkShare((seconds - cut) / Math.max(1e-3, impact - cut));
   }
 
-  /**
+  /*
    * A redirecting kick's launch: the new target read on the source's clock,
    * keeping the source's line and step (`KickLaunch`).
-   *
-   * @param context The redirecting kick's context, starting at the cut.
-   * @param source The kick it continues.
-   * @returns The launch.
+   * Parameter context: The redirecting kick's context, starting at the cut.
+   * Parameter source: The kick it continues.
+   * Returns: The launch.
    */
   export function launch(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
@@ -64,15 +62,14 @@ export namespace KickRedirect {
     );
   }
 
-  /**
+  /*
    * Build a redirect's geometry.
-   *
-   * @param context The redirecting kick's context, starting at the cut.
-   * @param source The kick it continues.
-   * @param fixed The contact second the performance committed: null when the
-   *   leg met nothing, undefined when the kick offers no weapon.
-   * @param launch The redirecting kick's launch (`launch`).
-   * @returns The geometry, on the source's clock.
+   * Parameter context: The redirecting kick's context, starting at the cut.
+   * Parameter source: The kick it continues.
+   * Parameter fixed: The contact second the performance committed: null when the
+   * leg met nothing, undefined when the kick offers no weapon.
+   * Parameter launch: The redirecting kick's launch (`launch`).
+   * Returns: The geometry, on the source's clock.
    */
   export function build(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
@@ -153,7 +150,7 @@ export namespace KickRedirect {
     );
   }
 
-  /**
+  /*
    * The redirecting kick's parameters and draws on its source's context and
    * clock.
    */

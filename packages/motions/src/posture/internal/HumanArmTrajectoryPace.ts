@@ -10,7 +10,7 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 
-/**
+/*
  * The timing readings of an arm trajectory's solve (`HumanArmTrajectory`): the
  * frame grid a span is read on where no course gives its own, a laid course's
  * arms as coordinates on a context's waypoints, and the factor a trajectory's
@@ -18,31 +18,31 @@ import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
  * (`M.IContext.speed`).
  */
 export namespace HumanArmTrajectoryPace {
-  /** The frame grid's step, seconds, where no course gives its own grid. */
+  /*
+   * The frame grid's step, seconds, where no course gives its own grid.
+   */
   export const STEP: number = 1 / 30;
 
-  /**
+  /*
    * Close a retimed span on the next admission-frame duration. The new phase
    * grid can land nearer the path's true peak than the old grid did. Give it
    * one frame of time to resample without changing the speed limit.
-   *
-   * @param required The span demanded by the falling step ratio, seconds.
-   * @returns The next strictly greater frame duration, seconds.
+   * Parameter required: The span demanded by the falling step ratio, seconds.
+   * Returns: The next strictly greater frame duration, seconds.
    */
   export function duration(required: number): number {
     return (Math.floor(required / STEP) + 1) * STEP;
   }
 
-  /**
+  /*
    * The factor a trajectory's span must grow by for every speed-bounded probe
    * to move within the law's own pace: the largest ratio, over each interval
    * and probe, of the probe's speed to the pace there.
-   *
-   * @param c The context the coordinates are read on.
-   * @param x Each arm's coordinates at each waypoint.
-   * @param placed The matching previous frame-grid evaluation, when already
-   *   available.
-   * @returns The factor, at least 1.
+   * Parameter c: The context the coordinates are read on.
+   * Parameter x: Each arm's coordinates at each waypoint.
+   * Parameter placed: The matching previous frame-grid evaluation, when already
+   * available.
+   * Returns: The factor, at least 1.
    */
   export function slower(
     c: M.IContext,
@@ -79,13 +79,12 @@ export namespace HumanArmTrajectoryPace {
     return most;
   }
 
-  /**
+  /*
    * A course's arms at a context's waypoints as coordinates, its first and
    * returned last waypoint the context's rest and back.
-   *
-   * @param c The context.
-   * @param course Each arm's laid course.
-   * @returns Each arm's coordinates at each waypoint.
+   * Parameter c: The context.
+   * Parameter course: Each arm's laid course.
+   * Returns: Each arm's coordinates at each waypoint.
    */
   export function coursed(
     c: M.IContext,
@@ -106,13 +105,12 @@ export namespace HumanArmTrajectoryPace {
     );
   }
 
-  /**
+  /*
    * A span's instants a frame apart, its two ends among them: the frame grid
    * where no course gives its own.
-   *
-   * @param start The span's first instant, seconds.
-   * @param end Its last, seconds.
-   * @returns The instants, rising.
+   * Parameter start: The span's first instant, seconds.
+   * Parameter end: Its last, seconds.
+   * Returns: The instants, rising.
    */
   export function uniform(start: number, end: number): number[] {
     const grid: number[] = [start];

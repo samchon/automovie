@@ -20,7 +20,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import type { pickUpPosture } from "./pickUpPosture";
 
-/**
+/*
  * The body that carries a pick up's lift, and the judgement of the lift.
  *
  * A lift is a whole-body task: where the arm alone cannot bring the wrist to
@@ -38,32 +38,36 @@ import type { pickUpPosture } from "./pickUpPosture";
  * short of is refused.
  */
 export namespace pickUpLift {
-  /** How the body carries a lift past the arm. */
+  /*
+   * How the body carries a lift past the arm.
+   */
   export interface IRaise {
-    /**
+    /*
      * The trunk's inclination at `lifted`, as the bend law solves it on the
      * stance's bottom posture; null when the trunk is not used.
      */
     trunk: IAutoMovieMotionHumanBendLower.ISolved | null;
 
-    /**
+    /*
      * The share of the way down the stance holds at `lifted`, 0 to 1: 1 where
      * it does not straighten.
      */
     share: number;
   }
 
-  /** The arm alone: no trunk, no straightening. */
+  /*
+   * The arm alone: no trunk, no straightening.
+   */
   export const ARM: IRaise = { trunk: null, share: 1 };
 
-  /**
+  /*
    * The share of the way down a straightening is scanned by before its
    * bisection (provisional: fine enough that the reach, which turns at most
    * once over the way, cannot close and open again between two steps).
    */
   export const SCAN: number = 0.05;
 
-  /**
+  /*
    * The body that brings the wrist to its lifted place.
    *
    * A standing body lowered for the grip lifts with its legs: the stance
@@ -73,15 +77,14 @@ export namespace pickUpLift {
    * planned course refuses. Otherwise, and where the legs do not rise far
    * enough, the arm alone, the trunk's inclination and the stance's least
    * straightening that reaches are tried in that order.
-   *
-   * @param context The pick up's context.
-   * @param side The lifting arm.
-   * @param lifted The wrist's lifted place, world metres.
-   * @param lift The asked lift, metres.
-   * @param stance The stance the grip was taken from, if the body moved for it.
-   * @param held The stance's bottom posture, the entry's when it did not.
-   * @returns The raise, `ARM` where the arm alone reaches; null where nothing
-   *   does, for the stance to step for the lift (`pickUpStance`).
+   * Parameter context: The pick up's context.
+   * Parameter side: The lifting arm.
+   * Parameter lifted: The wrist's lifted place, world metres.
+   * Parameter lift: The asked lift, metres.
+   * Parameter stance: The stance the grip was taken from, if the body moved for it.
+   * Parameter held: The stance's bottom posture, the entry's when it did not.
+   * Returns: The raise, `ARM` where the arm alone reaches; null where nothing
+   * does, for the stance to step for the lift (`pickUpStance`).
    */
   export function raise(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -175,14 +178,13 @@ export namespace pickUpLift {
     return null;
   }
 
-  /**
+  /*
    * The body at a share of the way down and a share of the trunk's inclination.
-   *
-   * @param body The body.
-   * @param raise The raise.
-   * @param at The stance's body at a share of the way down.
-   * @returns The posture reader at a share of the way down and a share of the
-   *   trunk's inclination, each from 0 to 1.
+   * Parameter body: The body.
+   * Parameter raise: The raise.
+   * Parameter at: The stance's body at a share of the way down.
+   * Returns: The posture reader at a share of the way down and a share of the
+   * trunk's inclination, each from 0 to 1.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -225,7 +227,7 @@ export namespace pickUpLift {
     };
   }
 
-  /**
+  /*
    * Refuse a lift the plan's hand falls short of.
    *
    * The plan is solved at the grip's close and at `lifted`, and the hand's rise
@@ -235,15 +237,14 @@ export namespace pickUpLift {
    * with every other limb and digit goal preserved. The hand counts as risen
    * where the arm's solver counts a wrist constraint as met
    * (`HumanArmTrajectoryTerms.TOLERANCE`, millimetres of place).
-   *
-   * @param context The pick up's context.
-   * @param side The lifting arm.
-   * @param lift The asked lift, metres.
-   * @param plan The pick up's plan.
-   * @param closed When the grip closes, seconds into the plan.
-   * @param lifted When the lift ends, seconds into the plan.
-   * @throws {HumanRefusal} When the hand rises short of the lift by more than
-   *   the solver's tolerance.
+   * Parameter context: The pick up's context.
+   * Parameter side: The lifting arm.
+   * Parameter lift: The asked lift, metres.
+   * Parameter plan: The pick up's plan.
+   * Parameter closed: When the grip closes, seconds into the plan.
+   * Parameter lifted: When the lift ends, seconds into the plan.
+   * When the hand rises short of the lift by more than
+   * the solver's tolerance.
    */
   export function judged(
     context: IAutoMovieMotionHumanActionContext<IJudgedContext>,
@@ -292,7 +293,9 @@ export namespace pickUpLift {
   }
 }
 
-/** The record of `IJudgedContext`'s site. */
+/*
+ * The record of `IJudgedContext`'s site.
+ */
 type IJudgedContext = {
   prop: string;
   handle: string;

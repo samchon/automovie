@@ -19,20 +19,22 @@ import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { HumanTrunk } from "./HumanTrunk";
 
-/**
+/*
  * A standing body lowered toward a low target by a strategy, and the trunk
  * pitch that brings the shoulder within reach: the posture transforms the bend
  * law solves its reach and balance on, split from the law so each file holds
  * one responsibility.
  */
 export namespace bendLower {
-  /** Wrist placement on the actual lowered bones from this trial. */
+  /*
+   * Wrist placement on the actual lowered bones from this trial.
+   */
   export type WristAt = (
     posture: IAutoMovieMotionHumanPosture,
     read: ReturnType<typeof prepareHumanPoseResolution>,
   ) => IAutoMovieVector3;
 
-  /**
+  /*
    * The knee flexion each strategy lifts at, degrees: a semi-squat's 90 and a
    * squat's 135, the knee angles that tell the lifting postures apart
    * (Washmuth, McAfee and Bickel 2022, Int J Sports Phys Ther 17:104), and a
@@ -46,7 +48,7 @@ export namespace bendLower {
     squat: 135,
   };
 
-  /**
+  /*
    * The ankle's dorsiflexion in a crouch, degrees: the most measured while
    * crouching, 28 +- 10 at a knee flexion of 149 +- 6 (Hyodo, Masuda, Aizawa,
    * Jinno and Morita 2017, Braz J Phys Ther 21:159, electromagnetic tracking of
@@ -55,7 +57,7 @@ export namespace bendLower {
    */
   export const ANKLE: number = 28;
 
-  /**
+  /*
    * Stoop's posterior hip key as a share of stature. Kim and Yoo (2018,
    * doi:10.1589/jpts.30.534) measured 7.6 cm at the greater trochanter in
    * adults of 1.57 m mean stature and 17.4° mean thoracolumbar flexion. The
@@ -70,7 +72,7 @@ export namespace bendLower {
         (180 * (HumanTrunk.RHYTHM.lumbar + HumanTrunk.RHYTHM.thorax)),
     );
 
-  /**
+  /*
    * The share of the standing hip height a strategy keeps, from the body's own
    * leg: the knee flexed by the strategy's `KNEE`, split between the shank's
    * forward tilt and the thigh's, half each so the hip stays over the ankle on
@@ -78,10 +80,9 @@ export namespace bendLower {
    * Control of Human Movement, fig. 4.1: 0.245 and 0.246 of stature), the
    * shank's tilt no more than the crouching ankle's `ANKLE` and the heel lift
    * `HEEL` allow.
-   *
-   * @param body The body, for its ankle height, shank and thigh.
-   * @param strategy The strategy.
-   * @returns The share, in (0, 1].
+   * Parameter body: The body, for its ankle height, shank and thigh.
+   * Parameter strategy: The strategy.
+   * Returns: The share, in (0, 1].
    */
   export function hipShare(
     body: {
@@ -102,21 +103,20 @@ export namespace bendLower {
     );
   }
 
-  /**
+  /*
    * A standing posture lowered by a strategy: the hips dropped by a share of
    * the strategy's drop and moved back along its key, the trunk pitched, the
    * planted legs re-solved by their unchanged goals.
-   *
-   * @param body The body.
-   * @param posture The standing posture.
-   * @param strategy The strategy.
-   * @param pitch Trunk inclination, degrees, shared by the lumbopelvic rhythm.
-   * @param share How far down, 0 to 1.
-   * @param back How far the hips move back, metres.
-   * @param resolution Optional exact FK source borrowed only by this call's
-   *   actual raw-pelvis hip observation; this lowering operation performs no
-   *   ROM projection.
-   * @returns The lowered posture.
+   * Parameter body: The body.
+   * Parameter posture: The standing posture.
+   * Parameter strategy: The strategy.
+   * Parameter pitch: Trunk inclination, degrees, shared by the lumbopelvic rhythm.
+   * Parameter share: How far down, 0 to 1.
+   * Parameter back: How far the hips move back, metres.
+   * Parameter resolution: Optional exact FK source borrowed only by this call's
+   * actual raw-pelvis hip observation; this lowering operation performs no
+   * ROM projection.
+   * Returns: The lowered posture.
    */
   export function lower(
     body: IAutoMovieMotionHumanBody,
@@ -140,14 +140,13 @@ export namespace bendLower {
     );
   }
 
-  /**
+  /*
    * Bind a fixed body's strategy at selection. Each descent or return sample
    * still reads its standing pose, actual heel contact and hip FK.
-   *
-   * @param body The unchanged body supporting the lowering.
-   * @param strategy The selected lowering strategy.
-   * @returns A reader taking current standing posture, trunk degrees, movement
-   *   share, posterior metres and optional FK and lateral degrees.
+   * Parameter body: The unchanged body supporting the lowering.
+   * Parameter strategy: The selected lowering strategy.
+   * Returns: A reader taking current standing posture, trunk degrees, movement
+   * share, posterior metres and optional FK and lateral degrees.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -181,7 +180,7 @@ export namespace bendLower {
       );
   }
 
-  /**
+  /*
    * Heel lift by strategy at full depth, degrees (provisional: only the squat
    * outruns the ankle's dorsiflexion).
    */
@@ -191,16 +190,15 @@ export namespace bendLower {
     squat: 30,
   };
 
-  /**
+  /*
    * The frontal inclination that directs the upper trunk toward a target beside
    * the body: the target's lateral displacement from the hips over the
    * pelvis-to-shoulder lever, as the lowering's `lateral` takes it.
-   *
-   * @param body The body.
-   * @param upright The standing posture the target is read from.
-   * @param target The target, world metres.
-   * @param side The reaching hand.
-   * @returns Degrees, toward the target's side.
+   * Parameter body: The body.
+   * Parameter upright: The standing posture the target is read from.
+   * Parameter target: The target, world metres.
+   * Parameter side: The reaching hand.
+   * Returns: Degrees, toward the target's side.
    */
   export function lateralTilt(
     body: IAutoMovieMotionHumanBody,
@@ -217,7 +215,7 @@ export namespace bendLower {
     return (Math.atan2(hips.x - local.x, shoulder.y - hips.y) * 180) / Math.PI;
   }
 
-  /**
+  /*
    * The share of the arm (upper arm and forearm) a lowered or leaned body
    * brings the shoulder within of its target, so the arm reaches near, not at,
    * full extension: where people reaching as they like stop reaching with the
@@ -232,10 +230,14 @@ export namespace bendLower {
    */
   export const REACH: number = 0.89;
 
-  /** A named bend strategy after resolving the automatic choice. */
+  /*
+   * A named bend strategy after resolving the automatic choice.
+   */
   type Strategy = IAutoMovieMotionHumanBendLower.ISolved["strategy"];
 
-  /** Vertical movement at full depth, metres. */
+  /*
+   * Vertical movement at full depth, metres.
+   */
   function hipDrop(
     body: IAutoMovieMotionHumanBody,
     strategy: Strategy,
@@ -243,7 +245,9 @@ export namespace bendLower {
     return (1 - hipShare(body, strategy)) * body.measure.hipHeight;
   }
 
-  /** Sagittal movement at full depth with the strategy's shank tilt, metres. */
+  /*
+   * Sagittal movement at full depth with the strategy's shank tilt, metres.
+   */
   function retreat(
     body: IAutoMovieMotionHumanBody,
     strategy: Strategy,
@@ -257,7 +261,9 @@ export namespace bendLower {
           body.measure.shank * Math.sin(shank);
   }
 
-  /** The squared hip-to-ankle distance of the deepest stoop, square metres. */
+  /*
+   * The squared hip-to-ankle distance of the deepest stoop, square metres.
+   */
   function stoopReach(body: IAutoMovieMotionHumanBody): number {
     const { thigh, shank }: IAutoMovieMotionHumanBody["measure"] = body.measure;
     return (
@@ -267,7 +273,9 @@ export namespace bendLower {
     );
   }
 
-  /** Evaluate the current pivots and trunk against that second's actual stance. */
+  /*
+   * Evaluate the current pivots and trunk against that second's actual stance.
+   */
   function current(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -432,12 +440,16 @@ export namespace bendLower {
   }
 }
 
-/** The body proportions fixed by the selected lowering strategy. */
+/*
+ * The body proportions fixed by the selected lowering strategy.
+ */
 interface IStrategyGeometry {
   readonly drop: number;
   readonly retreat: number;
   readonly deepest: number;
 }
 
-/** A current-pose root adjustment with the caller's synchronous FK source. */
+/*
+ * A current-pose root adjustment with the caller's synchronous FK source.
+ */
 type Lower = ReturnType<typeof lowerHumanPosture.prepare>;

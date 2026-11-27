@@ -1,4 +1,6 @@
-/** The labels and geometry records used by the sword prop catalogue. */
+/*
+ * The labels and geometry records used by the sword prop catalogue.
+ */
 export namespace createSwordShapes {
   /** The kinds of blade. */
   export type Kind =
@@ -10,7 +12,9 @@ export namespace createSwordShapes {
     | "dagger"
     | "knife";
 
-  /** Every kind, for a caller that reads one at run time. */
+  /*
+   * Every kind, for a caller that reads one at run time.
+   */
   export const KINDS: readonly Kind[] = [
     "longsword",
     "armingSword",
@@ -21,7 +25,9 @@ export namespace createSwordShapes {
     "knife",
   ];
 
-  /** The readable name of each kind. */
+  /*
+   * The readable name of each kind.
+   */
   export const NAMES: Readonly<Record<Kind, string>> = {
     longsword: "longsword",
     armingSword: "arming sword",
@@ -65,7 +71,7 @@ export namespace createSwordShapes {
     hilt: readonly [number, number, number];
   }
 
-  /**
+  /*
    * Each kind's shape. Every number here is an estimate not read at a source,
    * except the hands and edges, which define the kinds: guard spans and pommel
    * sizes are picture and guard collider, the hilt's mass split only moves the

@@ -17,7 +17,7 @@ import type { walkLocomoteSwings } from "./walkLocomoteSwings";
 import { walkReach } from "./walkReach";
 import { walkReachGround } from "./walkReachGround";
 
-/**
+/*
  * A stepping gait's root lowering solved in preparation: the lowering that asks
  * for itself (`walkReachGround`) is the one quantity a read would search for,
  * so it is solved exactly at knots AutoKnots places (Vitenti et al. 2024,
@@ -29,30 +29,28 @@ import { walkReachGround } from "./walkReachGround";
  * then places the stances under the lowered hips with no root search.
  */
 export namespace walkLocomoteLowering {
-  /**
+  /*
    * The lowering's tolerance, metres: the limb solver's place tolerance
    * (`HumanArmTrajectoryTerms.TOLERANCE`, a millimetre) the legs reach their
    * plants to.
    */
   export const TOLERANCE: number = HumanArmTrajectoryTerms.TOLERANCE / 1000;
 
-  /**
+  /*
    * The stance pitch's tolerance on a foot of a length, degrees: the turn that
    * moves the foot's far end by the lowering's millimetre (`TOLERANCE`), the
    * resolution the contact verdicts read.
-   *
-   * @param foot The foot's length, metres.
-   * @returns The tolerance, degrees.
+   * Parameter foot: The foot's length, metres.
+   * Returns: The tolerance, degrees.
    */
   export function pitchTolerance(foot: number): number {
     return (TOLERANCE / foot) * (180 / Math.PI);
   }
 
-  /**
+  /*
    * The contact events of a walk's swings: every toe-off and heel strike.
-   *
-   * @param swings The swings.
-   * @returns Their toe-offs and heel strikes.
+   * Parameter swings: The swings.
+   * Returns: Their toe-offs and heel strikes.
    */
   export function marks(
     swings: readonly walkLocomoteSwings.ISwing[],
@@ -63,14 +61,13 @@ export namespace walkLocomoteLowering {
     ]);
   }
 
-  /**
+  /*
    * Prepare a lowering's knot course, every toe-off and heel strike a knot it
    * passes.
-   *
-   * @param duration The take's duration, seconds.
-   * @param swings Every swing of the plan.
-   * @param exact The exact lowering at a second, metres.
-   * @returns The lowering's course.
+   * Parameter duration: The take's duration, seconds.
+   * Parameter swings: Every swing of the plan.
+   * Parameter exact: The exact lowering at a second, metres.
+   * Returns: The lowering's course.
    */
   export function prepare(
     duration: number,
@@ -87,19 +84,18 @@ export namespace walkLocomoteLowering {
     });
   }
 
-  /**
+  /*
    * Prepare each foot's stance pitch as courses: the pitch its stance rule
    * reaches (`walkReachStance`, a heel-rise search under the settled hip) is
    * solved exactly at knots AutoKnots places, every contact event a knot, each
    * foot's course split at its own toe-offs and heel strikes, so a stance's
    * course never reaches across the swing where its pivot changes. A read then
    * places each foot at its course's pitch with no search.
-   *
-   * @param duration The take's duration, seconds.
-   * @param swings Every swing of the plan.
-   * @param foot The foot's length, metres (`pitchTolerance`).
-   * @param exact Each foot's exact pitch at a second, degrees.
-   * @returns Each foot's pitch at a second, degrees.
+   * Parameter duration: The take's duration, seconds.
+   * Parameter swings: Every swing of the plan.
+   * Parameter foot: The foot's length, metres (`pitchTolerance`).
+   * Parameter exact: Each foot's exact pitch at a second, degrees.
+   * Returns: Each foot's pitch at a second, degrees.
    */
   export function prepareStances(
     duration: number,
@@ -132,20 +128,19 @@ export namespace walkLocomoteLowering {
       right: right(seconds)[0]!,
     });
   }
-  /**
+  /*
    * A walk's pelvis at a second under its prepared lowering: the stances placed
    * under the lowered hips, a swinging foot's claim kept only as the mark that
    * it bears no stance.
-   *
-   * @param context What the settling reads of the walk's plan.
-   * @param t Action seconds.
-   * @param feet The scheduled feet there.
-   * @param amount How much the body is walking there.
-   * @param hips The pelvis's joint angles there.
-   * @param resolution The read's optional FK source.
-   * @param drop The prepared lowering, metres.
-   * @param pitches Each foot's prepared stance pitch, degrees.
-   * @returns The settled pelvis and feet.
+   * Parameter context: What the settling reads of the walk's plan.
+   * Parameter t: Action seconds.
+   * Parameter feet: The scheduled feet there.
+   * Parameter amount: How much the body is walking there.
+   * Parameter hips: The pelvis's joint angles there.
+   * Parameter resolution: The read's optional FK source.
+   * Parameter drop: The prepared lowering, metres.
+   * Parameter pitches: Each foot's prepared stance pitch, degrees.
+   * Returns: The settled pelvis and feet.
    */
   export function placed(
     context: walkLocomoteGround.IContext,
@@ -197,14 +192,20 @@ export namespace walkLocomoteLowering {
   }
 }
 
-/** The two scheduled feet at an action second. */
+/*
+ * The two scheduled feet at an action second.
+ */
 type Feet = Record<
   AutoMovieHumanSide,
   IAutoMovieMotionHumanWalkFoot.IScheduled
 >;
 
-/** The pelvis's three joint angles at an action second, degrees. */
+/*
+ * The pelvis's three joint angles at an action second, degrees.
+ */
 type Hips = readonly [number, number, number];
 
-/** A posture read's optional FK source. */
+/*
+ * A posture read's optional FK source.
+ */
 type Resolution = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];

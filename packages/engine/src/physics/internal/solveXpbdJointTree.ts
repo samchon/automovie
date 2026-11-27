@@ -18,7 +18,7 @@ import { readXpbdJointCoordinate } from "./readXpbdJointCoordinate";
 import { readXpbdJointDirections } from "./readXpbdJointDirections";
 import type { AutoMovieXpbdArticulation } from "../AutoMovieXpbdArticulation";
 
-/**
+/*
  * The joints' position pass over one articulation at once: every joint's anchor
  * rows and its coordinate rows (each locked coordinate, each free one past a
  * bound) are solved together as one constrained projection, the least
@@ -56,11 +56,10 @@ import type { AutoMovieXpbdArticulation } from "../AutoMovieXpbdArticulation";
  * motion-subspace basis (`rowsOf`), `d_i . (dtheta_c - dtheta_p) = d_i . e`.
  */
 export namespace solveXpbdJointTree {
-  /**
+  /*
    * Project one tree's joints onto their anchors and admitted rotations.
-   *
-   * @param top The tree's root node (`AutoMovieXpbdArticulation.forest`).
-   * @param h The substep, seconds.
+   * Parameter top: The tree's root node (`AutoMovieXpbdArticulation.forest`).
+   * Parameter h: The substep, seconds.
    */
   export function project(top: AutoMovieXpbdArticulation.INode, h: number): void {
     const order: IVisit[] = visit(top);
@@ -72,44 +71,66 @@ export namespace solveXpbdJointTree {
       step.apply();
     }
   }
-  /** A joint of the tree with its parent and child nodes. */
+  /*
+   * A joint of the tree with its parent and child nodes.
+   */
   export interface IVisit {
-    /** The joint. */
+    /*
+     * The joint.
+     */
     joint: AutoMovieXpbdJoint;
 
-    /** Its parent body. */
+    /*
+     * Its parent body.
+     */
     parent: AutoMovieXpbdBody;
 
-    /** Its child body. */
+    /*
+     * Its child body.
+     */
     child: AutoMovieXpbdBody;
   }
 
-  /** One joint's linearised rows at the present poses. */
+  /*
+   * One joint's linearised rows at the present poses.
+   */
   export interface IJointRows {
-    /** The rows' Jacobian on the parent's `(dx, dtheta)`, row-major. */
+    /*
+     * The rows' Jacobian on the parent's `(dx, dtheta)`, row-major.
+     */
     parent: number[][];
 
-    /** The rows' Jacobian on the child's `(dx, dtheta)`, row-major. */
+    /*
+     * The rows' Jacobian on the child's `(dx, dtheta)`, row-major.
+     */
     child: number[][];
 
-    /** The rows' right-hand side, `-C`. */
+    /*
+     * The rows' right-hand side, `-C`.
+     */
     right: number[];
   }
 
-  /** One Newton step, solved and not yet taken. */
+  /*
+   * One Newton step, solved and not yet taken.
+   */
   export interface IStep {
-    /**
+    /*
      * Its Newton decrement in position units, `1/2 dx^T M dx` over the trace of
      * `M`; over `h^4` it is MuJoCo's acceleration decrement.
      */
     decrement: number;
 
-    /** Take the step: displace every dynamic body of the tree. */
+    /*
+     * Take the step: displace every dynamic body of the tree.
+     */
     apply(): void;
   }
 }
 
-/** The tree's joints, parents before children. */
+/*
+ * The tree's joints, parents before children.
+ */
 function visit(top: AutoMovieXpbdArticulation.INode): solveXpbdJointTree.IVisit[] {
   const out: solveXpbdJointTree.IVisit[] = [];
   const stack: AutoMovieXpbdArticulation.INode[] = [top];
@@ -123,7 +144,7 @@ function visit(top: AutoMovieXpbdArticulation.INode): solveXpbdJointTree.IVisit[
   return out;
 }
 
-/**
+/*
  * A joint's rows at the present poses: the three anchor rows; one row per
  * locked coordinate, always; one per free coordinate while it lies past one of
  * its bounds, MuJoCo's per-degree-of-freedom joint limit
@@ -222,7 +243,7 @@ function rowsOf(v: solveXpbdJointTree.IVisit): solveXpbdJointTree.IJointRows {
   return { parent: parentRows, child: childRows, right };
 }
 
-/**
+/*
  * The dual basis of three directions: the rows of the inverse of the matrix
  * whose columns they are; none when they are dependent.
  */
@@ -246,7 +267,7 @@ function inverse(
     return { x: column[0]!, y: column[1]!, z: column[2]! };
   });
 }
-/**
+/*
  * One Newton step: the KKT system over the tree eliminated leaves first and
  * back-substituted, with its decrement; none when a block is singular.
  */
@@ -365,28 +386,42 @@ function solve(
   };
 }
 
-/** One node of the elimination: a body or a joint. */
+/*
+ * One node of the elimination: a body or a joint.
+ */
 interface INode {
-  /** Its diagonal block, reduced by its eliminated children. */
+  /*
+   * Its diagonal block, reduced by its eliminated children.
+   */
   matrix: number[][];
 
-  /** Its right-hand side, reduced likewise. */
+  /*
+   * Its right-hand side, reduced likewise.
+   */
   right: number[];
 
-  /** Its parent node's index; -1 at a root. */
+  /*
+   * Its parent node's index; -1 at a root.
+   */
   parent: number;
 
-  /** Its block to the parent node, its rows by the parent's columns. */
+  /*
+   * Its block to the parent node, its rows by the parent's columns.
+   */
   coupling: number[][];
 
-  /** The body a body node moves; absent for a joint. */
+  /*
+   * The body a body node moves; absent for a joint.
+   */
   body?: AutoMovieXpbdBody;
 
-  /** A body node's own mass block, before elimination; absent for a joint. */
+  /*
+   * A body node's own mass block, before elimination; absent for a joint.
+   */
   mass?: number[][];
 }
 
-/**
+/*
  * A body's mass block on `(dx, dtheta)`: `m E` and its world inertia, the
  * inverse of the substep's frozen inverse inertia.
  */
@@ -421,14 +456,18 @@ function mass(body: AutoMovieXpbdBody): number[][] {
   ];
 }
 
-/** A matrix's transpose. */
+/*
+ * A matrix's transpose.
+ */
 function transpose(rows: readonly (readonly number[])[]): number[][] {
   return rows[0]!.map((_: number, c: number): number[] =>
     rows.map((row: readonly number[]): number => row[c]!),
   );
 }
 
-/** A world anchor arm: the frame's point from the body's centre of mass. */
+/*
+ * A world anchor arm: the frame's point from the body's centre of mass.
+ */
 function arm(
   body: AutoMovieXpbdBody,
   position: IAutoMovieVector3,
@@ -439,14 +478,14 @@ function arm(
   );
 }
 
-/**
+/*
  * MuJoCo's default solver tolerance (`opt.tolerance`, google-deepmind/mujoco,
  * `src/engine/engine_init.c` line 60 at
  * c6ac13326758a41e3c04c07ef7e7afb38d50b1ea, Apache-2.0).
  */
 const TOLERANCE: number = 1e-8;
 
-/**
+/*
  * MuJoCo's default solver iteration cap (`opt.iterations`, the same file, line
  * 95): a bound on the cost, not a convergence rule.
  */

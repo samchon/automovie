@@ -1,7 +1,7 @@
 import { AutoMovieArchetypeUnits } from "../../core";
 import type { AutoMovieArchetypeDoor } from "../AutoMovieArchetypeDoor";
 
-/**
+/*
  * A cylindrical lock's backsets, the Schlage ND's, which a lever and a knob
  * share and a sliding door's pull is set at.
  */
@@ -10,7 +10,7 @@ const BACKSETS: Readonly<Record<AutoMovieArchetypeDoor.Backset, Figures>> = {
   "2-3/4in": { backset: (2 + 3 / 4) * AutoMovieArchetypeUnits.INCH },
 };
 
-/**
+/*
  * The door sizes read, metres, each a standard's or a maker's closed list: the
  * leaf's width and height from ANSI/SDI A250.8-2017
  * (https://steeldoor.org/wp-content/uploads/2020/02/A250_8-1.pdf) Table 1's
@@ -105,5 +105,7 @@ export const DOOR_SIZES: Readonly<{
   },
 };
 
-/** One read size's figures, metres. */
+/*
+ * One read size's figures, metres.
+ */
 type Figures = Readonly<Partial<Record<AutoMovieArchetypeDoor.Dimension, number>>>;

@@ -1,15 +1,14 @@
 import type { IAutoMovieInspectorAction } from "../IAutoMovieInspectorAction.js";
 import type { AutoMovieViewerInspector } from "../AutoMovieViewerInspector.js";
 
-/**
+/*
  * Turn a finding into the location edit that names its closest drawn owners.
  *
  * A path can name a drawn object or one of its parts, such as a formation slot
  * (`/slot/<n>`), a cord segment (`/segment/<n>`), a batch instance (`#<n>`) or
  * a transform field (`.children[<n>].matrixWorld`). Unowned paths are omitted.
- *
- * @param request Witness and paths drawn by the mounted subject.
- * @returns A locate action for the inspector reducer.
+ * Parameter request: Witness and paths drawn by the mounted subject.
+ * Returns: A locate action for the inspector reducer.
  */
 export function locateAutoMovieInspectorFinding(
   request: AutoMovieViewerInspector.IFindingLocationRequest,

@@ -1,6 +1,6 @@
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * How far a pull raises the clay wall, metres of the wheel's `raise` slider:
  * the authored rise, or by default what remains of the slider's travel from
  * where it stands.

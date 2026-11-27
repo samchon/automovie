@@ -15,14 +15,14 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { AutoMovieMotionHumanDrinkingArm } from "./AutoMovieMotionHumanDrinkingArm";
 import { AutoMovieMotionHumanSwivelBound } from "./AutoMovieMotionHumanSwivelBound";
 
-/**
+/*
  * The drinking range as a bound on an elbow's swivel: the places on the circle
  * a wrist's place leaves the elbow whose shoulder lies in the range healthy
  * drinkers use (`AutoMovieMotionHumanDrinkingArm`), in closed form, which the
  * drinking search hints each candidate arm within.
  */
 export namespace AutoMovieMotionHumanDrinkingSwivel {
-  /**
+  /*
    * An elbow hint moved into the drinking range: on the circle a wrist's place
    * leaves the elbow (the swivel of Tolani, Goswami and Badler 2000), the place
    * nearest the hint's swivel whose shoulder
@@ -36,12 +36,11 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
    * sinusoid of the swivel kept non-negative, whose refused arc is between its
    * roots (`swivelArcs`). The hint keeps its swivel when no place on the circle
    * lies in the range, or the wrist leaves no circle.
-   *
-   * @param body The body.
-   * @param posture The posture the arm is solved on.
-   * @param side The arm.
-   * @returns From the wrist's place and a hint, world metres, the hint in the
-   *   range, world metres.
+   * Parameter body: The body.
+   * Parameter posture: The posture the arm is solved on.
+   * Parameter side: The arm.
+   * Returns: From the wrist's place and a hint, world metres, the hint in the
+   * range, world metres.
    */
   export function bounded(
     body: IAutoMovieMotionHumanBody,
@@ -51,14 +50,14 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
     return ranged(body, posture, side).hint;
   }
 
-  /**
+  /*
    * The drinking range on one posture's arm, read once: the hint `bounded`
    * gives, and whether a wrist's place leaves any reaching elbow inside the
    * range at all (`AutoMovieMotionHumanSwivelBound.admits`), which a drink's
    * search reads before fitting a candidate.
    */
   export interface IRanged {
-    /**
+    /*
      * From the wrist's place and a hint, world metres, the hint in the range
      * (`bounded`).
      */
@@ -67,21 +66,20 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
       hint: IAutoMovieVector3,
     ) => IAutoMovieVector3;
 
-    /**
+    /*
      * Whether the wrist's place, world metres, leaves a reaching elbow in the
      * range.
      */
     admits: (point: IAutoMovieVector3) => boolean;
   }
 
-  /**
+  /*
    * The drinking range's two readers on one posture's arm (`IRanged`), the
    * trunk solved and the four bounds built once for both.
-   *
-   * @param body The body.
-   * @param posture The posture the arm is solved on.
-   * @param side The arm.
-   * @returns The hint and the admission.
+   * Parameter body: The body.
+   * Parameter posture: The posture the arm is solved on.
+   * Parameter side: The arm.
+   * Returns: The hint and the admission.
    */
   export function ranged(
     body: IAutoMovieMotionHumanBody,
@@ -183,7 +181,9 @@ export namespace AutoMovieMotionHumanDrinkingSwivel {
   }
 }
 
-/** Keep the numerical bound reader outside the canonical/FK preparation scope. */
+/*
+ * Keep the numerical bound reader outside the canonical/FK preparation scope.
+ */
 function hints(
   arm: IAutoMovieMotionHumanSwivelBound.IArm,
   bounds: readonly IAutoMovieMotionHumanSwivelBound.IHalfPlane[],

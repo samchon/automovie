@@ -10,17 +10,16 @@ import { walkReach } from "./walkReach";
 import { walkReachGround } from "./walkReachGround";
 import { walkRoot } from "./walkRoot";
 
-/**
+/*
  * Limit the walking pelvis's rise above the two adjacent double-support
  * heights.
- *
- * @param plan The original alternating footfalls, amounts and unlowered root.
- * @param body The performer's segment masses and measured leg length.
- * @param lift Swing ankle height expressed in hip heights.
- * @param pelvis The three pelvic joint angles at an action second, in degrees.
- * @param claim The existing two-link knee-floor bound for this body.
- * @returns The original horizontal root with its walking height bounded by both
- *   planted legs and a reader of each landing's residual claim.
+ * Parameter plan: The original alternating footfalls, amounts and unlowered root.
+ * Parameter body: The performer's segment masses and measured leg length.
+ * Parameter lift: Swing ankle height expressed in hip heights.
+ * Parameter pelvis: The three pelvic joint angles at an action second, in degrees.
+ * Parameter claim: The existing two-link knee-floor bound for this body.
+ * Returns: The original horizontal root with its walking height bounded by both
+ * planted legs and a reader of each landing's residual claim.
  */
 export function walkSupportHeight(
   plan: IAutoMovieMotionHumanWalkSteps.IPlan,
@@ -131,11 +130,17 @@ export function walkSupportHeight(
   return { root: rootAt, landing };
 }
 
-/** Walking pelvis height and the approaching ankle's claim at touchdown. */
+/*
+ * Walking pelvis height and the approaching ankle's claim at touchdown.
+ */
 interface ISupport {
-  /** The scheduled horizontal path at its contact-constrained height. */
+  /*
+   * The scheduled horizontal path at its contact-constrained height.
+   */
   root: IAutoMovieMotionHumanWalkSteps.IPlan["root"];
 
-  /** A footfall's residual lowering under that root at its heel strike, metres. */
+  /*
+   * A footfall's residual lowering under that root at its heel strike, metres.
+   */
   landing: (side: AutoMovieHumanSide, seconds: number) => number;
 }

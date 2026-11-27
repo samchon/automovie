@@ -21,19 +21,27 @@ import { StrikingTarget } from "./StrikingTarget";
 import { StrikingTwist } from "./StrikingTwist";
 import type { strikingStepSupport } from "./strikingStepSupport";
 
-/** Each moving foot gets its own support interval, with both down between lifts. */
+/*
+ * Each moving foot gets its own support interval, with both down between lifts.
+ */
 const FIRST: Window = [0, 0.45];
 
-/** The following foot has planted before the action cut. */
+/*
+ * The following foot has planted before the action cut.
+ */
 const SECOND: Window = [0.5, 0.95];
 
-/** The lead ball stays in place while the other foot takes one swing. */
+/*
+ * The lead ball stays in place while the other foot takes one swing.
+ */
 const PIVOT: Window = [0, 0.95];
 
-/** Axis of a positive turn in the world frame. */
+/*
+ * Axis of a positive turn in the world frame.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
+/*
  * The angled and lead-changing footwork planned by `step`. A stationary turn
  * pivots the lead shoe around its ball and moves the root and rear shoe around
  * that anchor. A traveling turn takes two steps on a new line. A lead exchange
@@ -43,17 +51,16 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * the airborne shoe within the incoming beat. The beat windows, vertical load,
  * heel rise and trunk lag are provisional choreography, expressed as beat
  * shares or relative to the body.
- *
+ * ://www.iba.sport/wp-content/uploads/2018/07/AIBA-Coach-Regulations-Manual_WEB.pdf
  * @see https://www.iba.sport/wp-content/uploads/2018/07/AIBA-Coach-Regulations-Manual_WEB.pdf
  */
 export namespace StrikingStepTransition {
-  /**
+  /*
    * Plan the prescribed support transfers and the carried full-body posture.
-   *
-   * @param context The step's action context and actual entry placements.
-   * @param props The resolved beat count, duration, travel, turn and entry
-   *   lead.
-   * @returns The deterministic full-body plan and its support windows.
+   * Parameter context: The step's action context and actual entry placements.
+   * Parameter props: The resolved beat count, duration, travel, turn and entry
+   * lead.
+   * Returns: The deterministic full-body plan and its support windows.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStep.IParams>,
@@ -245,21 +252,31 @@ export namespace StrikingStepTransition {
     };
   }
 
-  /** A step beat's foot windows, as its bearing and its contacts read them. */
+  /*
+   * A step beat's foot windows, as its bearing and its contacts read them.
+   */
   export interface IFootwork {
-    /** Each foot's swing window, shares of the beat; none for a foot that stays. */
+    /*
+     * Each foot's swing window, shares of the beat; none for a foot that stays.
+     */
     windows: Record<
       AutoMovieHumanSide,
       readonly [from: number, to: number] | undefined
     >;
 
-    /** The foot that pivots, if any. */
+    /*
+     * The foot that pivots, if any.
+     */
     pivot: { side: AutoMovieHumanSide } | undefined;
 
-    /** The feet still landing from a cut step, if any. */
+    /*
+     * The feet still landing from a cut step, if any.
+     */
     airborne: strikingStepSupport.ISupport["landings"] | undefined;
   }
-  /** Apply a world turn around an anchor without changing the point's height. */
+  /*
+   * Apply a world turn around an anchor without changing the point's height.
+   */
   export function rotateAround(
     point: IAutoMovieVector3,
     anchor: IAutoMovieVector3,
@@ -271,7 +288,9 @@ export namespace StrikingStepTransition {
     );
   }
 
-  /** Travel one chord in the direction of the stance at the middle of the beat. */
+  /*
+   * Travel one chord in the direction of the stance at the middle of the beat.
+   */
   export function travel(
     root: IAutoMovieVector3,
     direction: IAutoMovieMotionHumanStep.IParams["direction"],
@@ -285,7 +304,9 @@ export namespace StrikingStepTransition {
     return HumanFrame.point({ origin: root, yaw }, { x, y: 0, z });
   }
 
-  /** Rotate the placement from one stance frame into the next. */
+  /*
+   * Rotate the placement from one stance frame into the next.
+   */
   export function moved(
     foot: IAutoMovieMotionHumanFoot.IPlacement,
     from: IAutoMovieVector3,
@@ -304,7 +325,9 @@ export namespace StrikingStepTransition {
     };
   }
 
-  /** Pick the near foot first for travel without changing lead. */
+  /*
+   * Pick the near foot first for travel without changing lead.
+   */
   export function firstSide(
     direction: IAutoMovieMotionHumanStep.IParams["direction"],
     lead: AutoMovieHumanSide,
@@ -314,7 +337,9 @@ export namespace StrikingStepTransition {
     return direction;
   }
 
-  /** Ease into and out of a foot's own motion window. */
+  /*
+   * Ease into and out of a foot's own motion window.
+   */
   export function progress(
     window: readonly [from: number, to: number],
     local: number,
@@ -322,7 +347,9 @@ export namespace StrikingStepTransition {
     return AutoMovieEngineMotionSampling.minimumJerkShare((local - window[0]) / (window[1] - window[0]));
   }
 
-  /** The bearing selection includes the anchored ball throughout its pivot. */
+  /*
+   * The bearing selection includes the anchored ball throughout its pivot.
+   */
   export function bearingAt(
     beat: IFootwork,
     side: AutoMovieHumanSide,
@@ -338,7 +365,9 @@ export namespace StrikingStepTransition {
     );
   }
 
-  /** Declare only the ground windows occupied by each motion. */
+  /*
+   * Declare only the ground windows occupied by each motion.
+   */
   export function book(
     contacts: IAutoMovieMotionHumanContactWindow[],
     beat: IFootwork,
@@ -367,7 +396,9 @@ export namespace StrikingStepTransition {
   }
 }
 
-/** Evaluate the pivot or swing of one foot on its own clock. */
+/*
+ * Evaluate the pivot or swing of one foot on its own clock.
+ */
 function placement(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStep.IParams>,
   beat: IBeat,
@@ -397,23 +428,35 @@ function placement(
   );
 }
 
-/** A single stance side. */
+/*
+ * A single stance side.
+ */
 type Side = AutoMovieHumanSide;
 
-/** Both feet in world metres with their actual rotations. */
+/*
+ * Both feet in world metres with their actual rotations.
+ */
 type Feet = Record<Side, IAutoMovieMotionHumanFoot.IPlacement>;
-/** A foot's normalized motion interval within one beat. */
+/*
+ * A foot's normalized motion interval within one beat.
+ */
 type Window = readonly [from: number, to: number];
-/** The inherited support only present at a cut with at least one airborne foot. */
+/*
+ * The inherited support only present at a cut with at least one airborne foot.
+ */
 type IStrikingStepSupport = strikingStepSupport.ISupport;
-/** The original planted sole point and pitch of the lead foot. */
+/*
+ * The original planted sole point and pitch of the lead foot.
+ */
 interface IPivot {
   side: Side;
   ball: IAutoMovieVector3;
   pitch: number;
 }
 
-/** Fixed geometry and support schedule of one beat. */
+/*
+ * Fixed geometry and support schedule of one beat.
+ */
 interface IBeat {
   from: Feet;
   to: Feet;
@@ -428,7 +471,9 @@ interface IBeat {
   airborne: IStrikingStepSupport["landings"] | undefined;
 }
 
-/** Resolved controls from the step law, in seconds, degrees and metres. */
+/*
+ * Resolved controls from the step law, in seconds, degrees and metres.
+ */
 interface IProps {
   count: number;
   stride: number;

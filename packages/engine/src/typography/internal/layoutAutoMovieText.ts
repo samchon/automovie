@@ -4,7 +4,7 @@ import type {
   IAutoMovieLayoutText,
 } from "@automovie/interface";
 
-/**
+/*
  * Lay a text run out from a decoded font into positioned glyphs in the box's
  * frame: origin at the box's bottom-left corner, `+x` right, `+y` up, metres.
  *
@@ -24,8 +24,7 @@ import type {
  *
  * Cost is linear in the text's code points, after one map of the font's glyphs
  * and kerning pairs, plus a re-measure of the carried word after each break.
- *
- * @throws {Error} Any refusal above.
+ * Any refusal above.
  */
 export function layoutAutoMovieText(
   props: IAutoMovieLayoutText.IProps,
@@ -159,17 +158,21 @@ export function layoutAutoMovieText(
   return { glyphs: placed, lines: set, scale };
 }
 
-/** Code point of the space, the only wrap opportunity. */
+/*
+ * Code point of the space, the only wrap opportunity.
+ */
 const SPACE: number = 0x20;
 
-/**
+/*
  * Rounding allowance, metres, when a measured line is compared with the box:
  * far below any drawn feature, so a run that fits exactly is not refused for
  * the last bit of a product of decimal scales.
  */
 const FIT: number = 1e-9;
 
-/** A code point as `U+XXXX` with the character beside it. */
+/*
+ * A code point as `U+XXXX` with the character beside it.
+ */
 function name(codePoint: number): string {
   return `U+${codePoint.toString(16).toUpperCase().padStart(4, "0")} "${String.fromCodePoint(codePoint)}"`;
 }

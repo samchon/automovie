@@ -6,18 +6,17 @@ import {
 
 import { tessellate } from "./tessellate";
 
-/**
- * Tessellate a primitive and wrap it as a complete {@link IAutoMovieMesh}.
+/*
+ * Tessellate a primitive and wrap it as a complete IAutoMovieMesh.
  *
  * The mesh is indexed, carries the primitive's own normals, and has no UVs and
  * no skin, because a primitive states no atlas and rides its part's bone as a
  * rigid whole. Callers use it where a mesh is required, such as placing a
- * primitive with {@link transformAutoMovieMesh} or merging it with authored
+ * primitive with transformAutoMovieMesh or merging it with authored
  * parts.
- *
- * @param shape Primitive to tessellate.
- * @returns A new mesh whose arrays are owned by the caller.
- * @throws Error when `shape.type` is not a known primitive.
+ * Parameter shape: Primitive to tessellate.
+ * Returns: A new mesh whose arrays are owned by the caller.
+ * Error when `shape.type` is not a known primitive.
  */
 export const tessellateToMesh: (
   shape: IAutoMoviePrimitiveShape,

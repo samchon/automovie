@@ -17,17 +17,16 @@ import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
-/**
+/*
  * A performer's person as a performance starts resolving it
  * (`HumanPerformanceState`): standing where the performer is placed, its skill
  * resolved from the chain seed, no action placed, its always-on layers in place
  * (a windowed layer waits until the schedule gives its instants), and the
  * reader its layers are written by.
- *
- * @param self The performance's state the person's layer reader reads.
- * @param performer The performer.
- * @param input The performance's input, whose seed and layers the person takes.
- * @returns The person.
+ * Parameter self: The performance's state the person's layer reader reads.
+ * Parameter performer: The performer.
+ * Parameter input: The performance's input, whose seed and layers the person takes.
+ * Returns: The person.
  */
 export function createHumanPerformancePerson(
   self: IAutoMovieMotionHumanPerformanceState,
@@ -118,7 +117,9 @@ export function createHumanPerformancePerson(
   };
 }
 
-/** The alternatives of `HumanPerformanceStateLayer`'s site. */
+/*
+ * The alternatives of `HumanPerformanceStateLayer`'s site.
+ */
 type HumanPerformanceStateLayer =
   | IAutoMovieMotionHumanLayer
   | IAutoMovieMotionHumanLayer.IScheduled;

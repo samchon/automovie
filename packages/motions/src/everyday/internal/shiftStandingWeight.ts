@@ -24,7 +24,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { HumanBalance } from "./HumanBalance";
 import { shiftStandingWeightSteps } from "./shiftStandingWeightSteps";
 
-/**
+/*
  * An intentional lateral pelvis shift with both feet planted on the ground.
  * Time to shift, time to hold, and optional time to return are authored
  * independently. The respective transition events are shifted, release and
@@ -56,14 +56,13 @@ export const shiftStandingWeight: IAutoMovieMotionHumanActionLaw<IAutoMovieMotio
     plan,
   };
 
-/**
+/*
  * Plan the authored shift from a standing entry, checking both plants and
  * static balance at its endpoints and one interior witness.
- *
- * @param context Body, action parameters and entry state.
- * @returns The fixed-foot plan.
- * @throws {HumanRefusal} For invalid parameters, an unsupported entry or
- *   failure to fit the path witnesses.
+ * Parameter context: Body, action parameters and entry state.
+ * Returns: The fixed-foot plan.
+ * For invalid parameters, an unsupported entry or
+ * failure to fit the path witnesses.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanShiftStandingWeight>,

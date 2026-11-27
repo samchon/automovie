@@ -18,17 +18,16 @@ import { AutoMovieMotionHumanTouchForm } from "./AutoMovieMotionHumanTouchForm";
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpright";
 
-/**
+/*
  * The goal a touch's arm is carried toward at each second: the effector laid on
  * the region, lifted along its normal by `lift sin^2(pi n u)` and moved along
  * its tangent by the clock's windowed wave of `n` cycles between `strokeStart`
  * and `strokeEnd`, and stood off along the normal by the share of the carry
  * still to go. Another arm that works with the same hand (a second hand on a
  * held tool) reads the same goal.
- *
- * @param props The touch.
- * @returns The goal at a posture and a second since the action's start.
- * @throws {Error} When the count is not a positive whole number.
+ * Parameter props: The touch.
+ * Returns: The goal at a posture and a second since the action's start.
+ * When the count is not a positive whole number.
  */
 export function touchGoal(
   props: IAutoMovieMotionHumanTouch.ITouch,

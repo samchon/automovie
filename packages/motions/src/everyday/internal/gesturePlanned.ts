@@ -30,16 +30,15 @@ import { gestureJoints } from "./gestureJoints";
 import { gestureStroke } from "./gestureStroke";
 import { handGoals } from "./handGoals";
 
-/**
+/*
  * A gesture's planned posture (`gesture.plan`): the envelope that rises in the
  * preparation and falls in the retraction, a bow's pitch about the hips, the
  * posture before the arms with the head, shoulder and trunk angles and each
  * moving hand's request, the arms planned over the whole gesture as one
  * trajectory, and the plan with its prepared playback. Read from the plan's
  * context, Effort, phases, base and moving hands.
- *
- * @param scope What the gesture's plan is built from.
- * @returns The plan.
+ * Parameter scope: What the gesture's plan is built from.
+ * Returns: The plan.
  */
 export function gesturePlanned(
   scope: gesturePlanned.IScope,
@@ -233,7 +232,7 @@ export function gesturePlanned(
           );
     },
   };
-  /**
+  /*
    * Read fingers and the base at the actual second, then write the prepared
    * moving arms.
    */
@@ -278,62 +277,89 @@ export function gesturePlanned(
   return planned;
 }
 
-/** What a gesture's planned posture reads. */
+/*
+ * What a gesture's planned posture reads.
+ */
 export namespace gesturePlanned {
-  /** What a gesture plan is built from. */
+  /*
+   * What a gesture plan is built from.
+   */
   export interface IScope {
-    /** The action's context. */
+    /*
+     * The action's context.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGesture.IParams>;
 
-    /** The action's parameters. */
+    /*
+     * The action's parameters.
+     */
     p: IAutoMovieMotionHumanGesture.IParams;
 
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The Effort's modifiers. */
+    /*
+     * The Effort's modifiers.
+     */
     mods: IAutoMovieMotionHumanEffort.IModifiers;
 
-    /** The stroke's cycles (`gestureAdmit`). */
+    /*
+     * The stroke's cycles (`gestureAdmit`).
+     */
     cycles: gestureAdmit.IAdmitted["cycles"];
 
-    /** A bow's depth, degrees (`gestureAdmit`). */
+    /*
+     * A bow's depth, degrees (`gestureAdmit`).
+     */
     depth: gestureAdmit.IAdmitted["depth"];
 
-    /** The moving hands (`gestureAdmit`). */
+    /*
+     * The moving hands (`gestureAdmit`).
+     */
     sides: gestureAdmit.IAdmitted["sides"];
 
-    /** The body under the gesture at its start. */
+    /*
+     * The body under the gesture at its start.
+     */
     at0: IAutoMovieMotionHumanPosture;
 
-    /** Each moving arm's angles at entry. */
+    /*
+     * Each moving arm's angles at entry.
+     */
     begin: Partial<
       Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
     >;
 
-    /** Each moving arm's angles at rest. */
+    /*
+     * Each moving arm's angles at rest.
+     */
     rest: Partial<
       Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
     >;
 
-    /** Each moving hand's prepared writer (`gestureHands.prepare`). */
+    /*
+     * Each moving hand's prepared writer (`gestureHands.prepare`).
+     */
     hands: Partial<
       Record<AutoMovieHumanSide, ReturnType<typeof gestureHands.prepare>>
     >;
 
-    /** Each moving hand's shape. */
+    /*
+     * Each moving hand's shape.
+     */
     shapes: Partial<
       Record<AutoMovieHumanSide, IAutoMovieMotionHumanHand.Shape>
     >;
 
-    /**
+    /*
      * A moving hand's stroke input at a second.
-     *
-     * @param base The posture under the hand.
-     * @param seconds Seconds.
-     * @param side The hand.
-     * @param resolution The borrowed forward-kinematics source, if any.
-     * @returns The stroke input.
+     * Parameter base: The posture under the hand.
+     * Parameter seconds: Seconds.
+     * Parameter side: The hand.
+     * Parameter resolution: The borrowed forward-kinematics source, if any.
+     * Returns: The stroke input.
      */
     input: (
       base: IAutoMovieMotionHumanPosture,
@@ -342,41 +368,65 @@ export namespace gesturePlanned {
       resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
     ) => gestureStroke.IInput;
 
-    /** The preparation's seconds. */
+    /*
+     * The preparation's seconds.
+     */
     prepare: number;
 
-    /** The stroke's seconds. */
+    /*
+     * The stroke's seconds.
+     */
     stroke: number;
 
-    /** The stroke's end, seconds. */
+    /*
+     * The stroke's end, seconds.
+     */
     strokeEnd: number;
 
-    /** The retraction's start, seconds. */
+    /*
+     * The retraction's start, seconds.
+     */
     retractAt: number;
 
-    /** The retraction's seconds. */
+    /*
+     * The retraction's seconds.
+     */
     retract: number;
 
-    /** The gesture's seconds. */
+    /*
+     * The gesture's seconds.
+     */
     duration: number;
 
-    /** The plan's events. */
+    /*
+     * The plan's events.
+     */
     events: IAutoMovieMotionHumanActionPlan["events"];
 
-    /** The physical window. */
+    /*
+     * The physical window.
+     */
     window: HumanPhysics.Window;
 
-    /** The body under the gesture. */
+    /*
+     * The body under the gesture.
+     */
     base: IAutoMovieMotionHumanActionPlan;
 
-    /** The direct bones the gesture's kind claims. */
+    /*
+     * The direct bones the gesture's kind claims.
+     */
     direct: readonly AutoMovieHumanoidBone[];
 
-    /** The channels the gesture claims from its carrier. */
+    /*
+     * The channels the gesture claims from its carrier.
+     */
     claimed: Set<AutoMovieMotionHumanChannel>;
   }
 }
-/** The record of `IPlanPriorHand`'s site. */
+/*
+ * The record of `IPlanPriorHand`'s site.
+ */
 type IPlanPriorHand = {
   request: IAutoMovieMotionHumanArmTarget.ISided;
   fingers: IAutoMovieMotionHumanPosture["joints"];

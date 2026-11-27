@@ -7,16 +7,15 @@ import type {
 import { AutoMovieArchetypeRefusal } from "../AutoMovieArchetypeRefusal";
 import type { AutoMovieArchetypeSpan } from "../AutoMovieArchetypeSpan";
 
-/**
+/*
  * Resolve flexible line parts in attachment order, including lines on lines.
- *
- * @param archetype Producer identity used in physical dependency refusals.
- * @param spans Complete declarations with unique cylinder ids.
- * @param parts Current model parts before flexible lines are rebuilt.
- * @param read Shared endpoint-state owner, reading the current dependency pose.
- * @returns Current line geometry and states in declaration order.
- * @throws {AutoMovieArchetypeRefusal} For missing/non-cylinder line parts,
- *   duplicate declarations or cyclic line attachments.
+ * Parameter archetype: Producer identity used in physical dependency refusals.
+ * Parameter spans: Complete declarations with unique cylinder ids.
+ * Parameter parts: Current model parts before flexible lines are rebuilt.
+ * Parameter read: Shared endpoint-state owner, reading the current dependency pose.
+ * Returns: Current line geometry and states in declaration order.
+ * For missing/non-cylinder line parts,
+ * duplicate declarations or cyclic line attachments.
  */
 export function resolveArchetypeSpanParts(
   archetype: string,
@@ -127,7 +126,7 @@ export function resolveArchetypeSpanParts(
     ),
   };
 
-  /**
+  /*
    * Preserve ordinary arithmetic order while avoiding an overflowing same-sign
    * sum.
    */
@@ -137,7 +136,7 @@ export function resolveArchetypeSpanParts(
     return sum !== Infinity && sum !== -Infinity ? sum / 2 : a / 2 + b / 2;
   }
 
-  /**
+  /*
    * A malformed physical dependency is a producer/request error, never a
    * fallback pose.
    */

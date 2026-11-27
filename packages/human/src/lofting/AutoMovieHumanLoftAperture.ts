@@ -287,13 +287,12 @@ export namespace AutoMovieHumanLoftAperture {
     ) as AutoMovieVector3Tuple;
   }
 
-  /**
+  /*
    * The grid of an outline: about `sqrt(n)` cells along its longer side for
    * `n` segments, so a dense margin puts a few segments in each cell it
    * crosses.
-   *
-   * @param points The projected margin.
-   * @param box Its bounding box `[lateral, up]` minimum then maximum.
+   * Parameter points: The projected margin.
+   * Parameter box: Its bounding box `[lateral, up]` minimum then maximum.
    */
   function gridOf(
     points: readonly [number, number][],
@@ -329,7 +328,9 @@ export namespace AutoMovieHumanLoftAperture {
     return { origin: [box[0], box[1]], size, columns, rows, cells, bands };
   }
 
-  /** Squared distance from `(u, v)` to the segment from `a` to `c`. */
+  /*
+   * Squared distance from `(u, v)` to the segment from `a` to `c`.
+   */
   function squared(
     a: readonly [number, number],
     c: readonly [number, number],
@@ -346,7 +347,9 @@ export namespace AutoMovieHumanLoftAperture {
     return (a[0] + w * du - u) ** 2 + (a[1] + w * dv - v) ** 2;
   }
 
-  /** In-plane coordinates `[lateral, up]` of a point. */
+  /*
+   * In-plane coordinates `[lateral, up]` of a point.
+   */
   function project(
     lateral: Readonly<AutoMovieVector3Tuple>,
     up: Readonly<AutoMovieVector3Tuple>,
@@ -358,6 +361,8 @@ export namespace AutoMovieHumanLoftAperture {
     ];
   }
 
-  /** Margin samples used by the polyline. */
+  /*
+   * Margin samples used by the polyline.
+   */
   const SAMPLES: number = 720;
 }

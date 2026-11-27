@@ -9,14 +9,16 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/**
+/*
  * The parade contract establishes the shared carry. Dimensions are authored for
  * staging.
  */
 const SCENIC: string =
   "Authored set dimensions for one banner shared by two carriers, as described in the Arlington Patriots Day Parade contract (https://www.arlingtonma.gov/home/showpublisheddocument/33593/636227460660770000).";
 
-/** Units paired with the banner's authorable dimensions for draw provenance. */
+/*
+ * Units paired with the banner's authorable dimensions for draw provenance.
+ */
 const UNITS: Readonly<Record<Dimension, AutoMovieArchetypeDrawSession.Unit>> = {
   width: "m",
   panelHeight: "m",
@@ -26,7 +28,9 @@ const UNITS: Readonly<Record<Dimension, AutoMovieArchetypeDrawSession.Unit>> = {
   mass: "kg",
 };
 
-/** Independent set dimensions keep the panel above an exposed grip on each pole. */
+/*
+ * Independent set dimensions keep the panel above an exposed grip on each pole.
+ */
 const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
   width: AutoMovieArchetypeBand.metres(1.2, 2.2, SCENIC, true),
   panelHeight: AutoMovieArchetypeBand.metres(0.35, 0.7, SCENIC, true),

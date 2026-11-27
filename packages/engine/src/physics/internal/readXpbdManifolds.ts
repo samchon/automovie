@@ -3,17 +3,16 @@ import { Vector3 } from "../../math/Vector3";
 import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
 
-/**
+/*
  * A step's touching pairs that responded, one manifold each: non-sensor pairs
  * with their normal from the first collider toward the second and every patch
  * point's world witness midpoint, its separation where the step found it and
  * the normal impulse the step transferred there: the position passes'
  * multiplier over the substep, `lambda / h`, plus the velocity passes' impulse,
  * which together are the momentum the contact gave each body.
- *
- * @param contacts The step's contacts, the points of one pair adjacent.
- * @param h The substep, seconds.
- * @returns Fresh manifolds, in pair order; their colliders are the contacts'.
+ * Parameter contacts: The step's contacts, the points of one pair adjacent.
+ * Parameter h: The substep, seconds.
+ * Returns: Fresh manifolds, in pair order; their colliders are the contacts'.
  */
 export function readXpbdManifolds(
   contacts: readonly solveXpbdContacts.IContact[],

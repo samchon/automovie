@@ -6,13 +6,15 @@ import { triangleIndicesOf } from "../../internal/triangleIndicesOf";
 import type { IAutoMovieMeshCrossingSnapshot } from "./IAutoMovieMeshCrossingSnapshot";
 import type { IAutoMovieMeshCrossingTriangle } from "./IAutoMovieMeshCrossingTriangle";
 
-/**
+/*
  * Internal geometry ownership for immutable crossing snapshots and refits. The
  * public crossing class owns queries; this namespace admits complete buffers
  * and retains a copied index layout across independent world snapshots.
  */
 export namespace AutoMovieMeshCrossingGeometry {
-  /** Admit and index one current subject without retaining its buffers. */
+  /*
+   * Admit and index one current subject without retaining its buffers.
+   */
   export function index(
     mesh: IAutoMovieMesh,
   ): IAutoMovieMeshCrossingTriangle[] {
@@ -22,7 +24,9 @@ export namespace AutoMovieMeshCrossingGeometry {
     );
   }
 
-  /** Snapshot a complete resident layout and build its initial median hierarchy. */
+  /*
+   * Snapshot a complete resident layout and build its initial median hierarchy.
+   */
   export function prepare(
     mesh: IAutoMovieMesh,
   ): IAutoMovieMeshCrossingSnapshot {
@@ -45,7 +49,7 @@ export namespace AutoMovieMeshCrossingGeometry {
     };
   }
 
-  /**
+  /*
    * Snapshot new common-frame coordinates against the fixed source index
    * layout. A wrong scalar count or nonfinite coordinate refuses. Source and
    * earlier snapshots remain usable.
@@ -79,7 +83,9 @@ export namespace AutoMovieMeshCrossingGeometry {
   }
 }
 
-/** Admit every coordinate, then copy each addressed triple and its exact box. */
+/*
+ * Admit every coordinate, then copy each addressed triple and its exact box.
+ */
 function read(
   positions: readonly number[],
   indices: readonly number[],

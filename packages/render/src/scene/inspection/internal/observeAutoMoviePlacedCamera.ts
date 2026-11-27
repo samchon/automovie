@@ -10,7 +10,7 @@ import { measureAutoMovieCameraNearClip } from "./measureAutoMovieCameraNearClip
 import { measureAutoMovieCameraOcclusionPixels } from "./measureAutoMovieCameraOcclusionPixels.js";
 import { observeAutoMovieCameraInspection } from "./observeAutoMovieCameraInspection.js";
 
-/**
+/*
  * Observe active, source-owned requirements on the host's original delivery
  * camera.
  *
@@ -23,9 +23,8 @@ import { observeAutoMovieCameraInspection } from "./observeAutoMovieCameraInspec
  * A subject whose bounds cross a side of the frame gets an optional
  * `camera-frame-edge` check: a cut by the frame edge is often the intended
  * composition, so it is a `frame-edge-cut` warning that never blocks delivery.
- *
- * @param props The placed sample and the requirements active at its time.
- * @returns Findings and one coverage row per check and requirement.
+ * Parameter props: The placed sample and the requirements active at its time.
+ * Returns: Findings and one coverage row per check and requirement.
  */
 export function observeAutoMoviePlacedCamera(
   props: AutoMovieRenderInspectionCamera.IObservePlacedProps,
@@ -276,13 +275,13 @@ export function observeAutoMoviePlacedCamera(
   return { findings, coverage };
 }
 
-/**
+/*
  * Viewer-only cap, per painted frame and shared by its subjects, on candidate
  * triangles before each subject's at-most-nine-ray occlusion check.
  */
 const PREVIEW_RAY_TRIANGLE_BUDGET: number = 3_000;
 
-/**
+/*
  * Viewer-only cap, per painted frame and shared by its subjects, on drawn
  * triangles the near-plane clip and then the frame-edge cut examine. Only
  * meshes whose box reaches in front of the near plane in view pay for the
@@ -291,14 +290,20 @@ const PREVIEW_RAY_TRIANGLE_BUDGET: number = 3_000;
  */
 const PREVIEW_NEAR_CLIP_TRIANGLE_BUDGET: number = 200_000;
 
-/** Independent diagnostic rows emitted by the placed camera observation. */
-/** A coverage row's identity before its outcome. */
+/*
+ * Independent diagnostic rows emitted by the placed camera observation.
+ */
+/*
+ * A coverage row's identity before its outcome.
+ */
 type IRow = Pick<
   IAutoMovieInspectionDiagnostics.ICoverage,
   "check" | "key" | "required"
 >;
 
-/** A stable diagnostic text for each confirmed framing exclusion. */
+/*
+ * A stable diagnostic text for each confirmed framing exclusion.
+ */
 const FRAMING_FAILURES: Readonly<
   Record<
     "outside" | "before-near" | "past-far",
@@ -319,7 +324,7 @@ const FRAMING_FAILURES: Readonly<
   },
 };
 
-/**
+/*
  * Report an exact pixel count that breaks the authored limit or finds no
  * subject.
  */
@@ -381,7 +386,7 @@ function reportPixels(
   });
 }
 
-/**
+/*
  * Report a cut by the frame's sides as a warning and return its coverage row.
  *
  * A cut confirmed on an opaque drawn surface is `confirmed`; one seen only on a

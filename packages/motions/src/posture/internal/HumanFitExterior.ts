@@ -15,66 +15,91 @@ import { HumanBodyFitMerit } from "./HumanBodyFitMerit";
 import type { HumanBodyFitRows } from "./HumanBodyFitRows";
 import { HumanJacobian } from "./HumanJacobian";
 
-/** The midpoint of the accepted nonpenetrating contact interval, metres. */
+/*
+ * The midpoint of the accepted nonpenetrating contact interval, metres.
+ */
 const HELD_GOAL: number = HumanBodyFitMerit.REQUIRED_TOLERANCE / 2;
 
-/**
+/*
  * Signed separation between actual posed body and fixed exterior colliders.
  * Drake's `MinimumDistanceLowerBoundConstraint` restricts signed gaps to
  * influencing collision candidates. This fit uses the same influence rule
  * with its existing elastic L1 rows and shares one narrow-phase witness
  * between the merit, linearization and final feasibility. A named held
  * contact also reads far pairs and constrains the smallest actual gap.
- *
+ * ://drake.mit.edu/doxygen_cxx/classdrake_1_1multibody_1_1_minimum_distance_lower_bound_constraint.html
  * @see https://drake.mit.edu/doxygen_cxx/classdrake_1_1multibody_1_1_minimum_distance_lower_bound_constraint.html
  */
 export namespace HumanFitExterior {
-  /** A measured pair at the fit's current pose. */
+  /*
+   * A measured pair at the fit's current pose.
+   */
   export interface IPair {
-    /** The name of this shape-pair row, stable across the fit's iterations. */
+    /*
+     * The name of this shape-pair row, stable across the fit's iterations.
+     */
     key: string;
 
-    /** The moving bone that carries the body's collider. */
+    /*
+     * The moving bone that carries the body's collider.
+     */
     bone: AutoMovieHumanoidBone;
 
-    /** The obstacle's owning scene subject. */
+    /*
+     * The obstacle's owning scene subject.
+     */
     subject: string;
 
-    /** The obstacle's material part. */
+    /*
+     * The obstacle's material part.
+     */
     part: string;
 
-    /** Actual signed gap and the two world surface witnesses, in metres. */
+    /*
+     * Actual signed gap and the two world surface witnesses, in metres.
+     */
     contact: IAutoMoviePhysicalShapePairContact;
 
-    /** This pair is the minimum of one named held contact group. */
+    /*
+     * This pair is the minimum of one named held contact group.
+     */
     held?: true;
 
-    /** The target interior clearance of this ordinary pair, in metres. */
+    /*
+     * The target interior clearance of this ordinary pair, in metres.
+     */
     clearance?: number;
   }
 
-  /** An interior search target for selected nonbearing bones. */
+  /*
+   * An interior search target for selected nonbearing bones.
+   */
   export interface IClearance {
-    /** The bones whose ordinary exterior pairs aim inside nonpenetration. */
+    /*
+     * The bones whose ordinary exterior pairs aim inside nonpenetration.
+     */
     bones: ReadonlySet<AutoMovieHumanoidBone>;
 
-    /** The solver precision, metres. */
+    /*
+     * The solver precision, metres.
+     */
     distance: number;
   }
 
-  /** Reads influencing signed gaps from the current body frames. */
+  /*
+   * Reads influencing signed gaps from the current body frames.
+   */
   export type Reader = (
     placed: readonly IAutoMovieMotionHumanColliders.IPlaced[],
   ) => IPair[];
 
-  /**
+  /*
    * Bind the scene geometry once and query candidate pairs at each pose.
-   *
-   * @param obstacles The fixed world scene shapes, unchanged during the fit.
-   * @param influence Positive distance above which a pair has no row, metres.
-   * @param contacts Named groups whose closest pair must remain at contact.
-   * @param clearance An interior search target for selected ordinary pairs.
-   * @returns A reader of current influencing pairs from the selected bones.
+   * Parameter obstacles: The fixed world scene shapes, unchanged during the fit.
+   * Parameter influence: Positive distance above which a pair has no row, metres.
+   * Parameter contacts: Named groups whose closest pair must remain at contact.
+   * Parameter clearance: An interior search target for selected ordinary pairs.
+   * Returns: A reader of current influencing pairs from the selected bones.
    */
   export function prepare(
     obstacles: readonly IAutoMovieMotionHumanColliders.IExternal[],
@@ -187,21 +212,22 @@ export namespace HumanFitExterior {
     };
   }
 
-  /** The physical miss of the same target used by the pair's model row. */
+  /*
+   * The physical miss of the same target used by the pair's model row.
+   */
   export function miss(pair: IPair): number {
     const delta: number = goal(pair) - pair.contact.distance;
     return pair.held === true ? Math.abs(delta) : Math.max(0, delta);
   }
 
-  /**
+  /*
    * Keep an ordinary pair clear or aim at the midpoint of a selected contact's
    * numerical interval. The moving witness contributes minus its velocity
    * along the measured normal from body to the fixed obstacle.
-   *
-   * @param step The current geometric Jacobian and the step's units.
-   * @param pair The actual gap and witnesses already read at this iterate.
-   * @param mm Millimetres per metre, the quadratic program's row unit.
-   * @returns The linearized signed gap row in millimetres.
+   * Parameter step: The current geometric Jacobian and the step's units.
+   * Parameter pair: The actual gap and witnesses already read at this iterate.
+   * Parameter mm: Millimetres per metre, the quadratic program's row unit.
+   * Returns: The linearized signed gap row in millimetres.
    */
   export function row(
     step: Pick<HumanBodyFitRows.IStep, ExteriorStep>,
@@ -229,12 +255,16 @@ export namespace HumanFitExterior {
   }
 }
 
-/** The local model and merit share this same signed separation target. */
+/*
+ * The local model and merit share this same signed separation target.
+ */
 function goal(pair: HumanFitExterior.IPair): number {
   return pair.held === true ? HELD_GOAL : (pair.clearance ?? 0);
 }
 
-/** Resolve each named part to its actual shapes independently of AABB order. */
+/*
+ * Resolve each named part to its actual shapes independently of AABB order.
+ */
 function bindContacts(
   scene: readonly IObstacle[],
   contacts: readonly IAutoMovieMotionHumanBodyFitTypes.IExteriorContact[],
@@ -282,7 +312,9 @@ function bindContacts(
   return { groups, bones };
 }
 
-/** Read one exact signed witness for both ordinary and designated pairs. */
+/*
+ * Read one exact signed witness for both ordinary and designated pairs.
+ */
 function measurePair(
   segment: IAutoMovieMotionHumanColliders.IPlaced,
   shape: IAutoMoviePhysicalShape,
@@ -306,49 +338,75 @@ function measurePair(
   };
 }
 
-/** A fixed scene shape and the geometry shared by the fit's trial poses. */
+/*
+ * A fixed scene shape and the geometry shared by the fit's trial poses.
+ */
 interface IObstacle {
-  /** Stable ordinal of the shape in the supplied scene. */
+  /*
+   * Stable ordinal of the shape in the supplied scene.
+   */
   index: number;
 
-  /** The owning subject in the scene. */
+  /*
+   * The owning subject in the scene.
+   */
   subject: string;
 
-  /** The material part of that subject. */
+  /*
+   * The material part of that subject.
+   */
   part: string;
 
-  /** The world frame and its shape. */
+  /*
+   * The world frame and its shape.
+   */
   pose: IAutoMovieRigidTransform;
 
-  /** The actual physical shape in that frame. */
+  /*
+   * The actual physical shape in that frame.
+   */
   shape: IAutoMoviePhysicalShape;
 
-  /** World axis bounds for conservative influence filtering. */
+  /*
+   * World axis bounds for conservative influence filtering.
+   */
   bounds: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds>;
 
-  /** The fixed world core and radius used for GJK. */
+  /*
+   * The fixed world core and radius used for GJK.
+   */
   solid: AutoMovieEnginePhysicsGjkTypes.ISolid;
 }
 
-/** The parts of a fit step that write a row from a measured gap. */
+/*
+ * The parts of a fit step that write a row from a measured gap.
+ */
 type ExteriorStep = "motions" | "units" | "index" | "price";
 
-/** A designated collider and the groups whose minima it can supply. */
+/*
+ * A designated collider and the groups whose minima it can supply.
+ */
 interface IHeldMember {
   groups: number[];
   obstacle: IObstacle;
 }
 
-/** One prepared group, irrespective of the order the caller named its bones. */
+/*
+ * One prepared group, irrespective of the order the caller named its bones.
+ */
 type IHeldGroup = Pick<
   IAutoMovieMotionHumanBodyFitTypes.IExteriorContact,
   "subject" | "part"
 > & {
-  /** Each of the distinct bones allowed to carry the contact. */
+  /*
+   * Each of the distinct bones allowed to carry the contact.
+   */
   bones: ReadonlySet<AutoMovieHumanoidBone>;
 };
 
-/** Contact declarations indexed by the moving bone and material shape. */
+/*
+ * Contact declarations indexed by the moving bone and material shape.
+ */
 interface IHeld {
   groups: IHeldGroup[];
   bones: Map<AutoMovieHumanoidBone, Map<number, IHeldMember>>;

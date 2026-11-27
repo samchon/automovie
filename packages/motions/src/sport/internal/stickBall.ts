@@ -39,7 +39,7 @@ import { stickBallClock } from "./stickBallClock";
 import { stickBallModel } from "./stickBallModel";
 import { stickBallPoint } from "./stickBallPoint";
 
-/**
+/*
  * A hockey blade push or a lacrosse pocket exchange. The carrier owns the foot
  * plants or skating path. The two arm goals follow one rigid stick frame, from
  * its displayed starting pose through the working cue to a follow-through. A
@@ -57,27 +57,32 @@ import { stickBallPoint } from "./stickBallPoint";
  * film-staging values.
  */
 export namespace stickBall {
-  /** This law's action name. */
+  /*
+   * This law's action name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "stickBall";
 
-  /** The stroke owns both arms and hands while its carrier retains support. */
+  /*
+   * The stroke owns both arms and hands while its carrier retains support.
+   */
   export const overlay: boolean = true;
 
-  /** After contact the performer may reset or begin another stick action. */
+  /*
+   * After contact the performer may reset or begin another stick action.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stickBall: ["fromStrokeEnd", "quick"],
       stand: ["fromStrokeEnd", "smooth"],
     });
 
-  /**
+  /*
    * Plan the named tool's working contact and the ball's next state.
-   *
-   * @param context The body, authored props and optional support carrier.
-   * @returns A sampled two-hand plan with a prop launch or pocket mount.
-   * @throws {HumanRefusal} If a required affordance is absent, a duration or
-   *   speed is invalid, a grip is out of reach, or the fitted ice blade misses
-   *   the puck rim.
+   * Parameter context: The body, authored props and optional support carrier.
+   * Returns: A sampled two-hand plan with a prop launch or pocket mount.
+   * If a required affordance is absent, a duration or
+   * speed is invalid, a grip is out of reach, or the fitted ice blade misses
+   * the puck rim.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStickBall.IParams>,
@@ -107,7 +112,9 @@ export namespace stickBall {
     const gap: number =
       shaft.length === undefined ? 0 : Math.min(shaft.length / 3, 0.55 * arm);
     HumanBound.above("grip", gap, 0, "m");
-    /** Each hand's grip on the shaft, in the stick's frame. */
+    /*
+     * Each hand's grip on the shaft, in the stick's frame.
+     */
     const gripOf: (hand: AutoMovieHumanSide) => IAutoMovieVector3 = (
       hand: AutoMovieHumanSide,
     ): IAutoMovieVector3 =>
@@ -297,7 +304,9 @@ export namespace stickBall {
     const hinge: IAutoMovieVector3 = Vector3.cross(outward, along);
     const lever: number = Vector3.length(outward);
     const levered: boolean = Vector3.length(hinge) > 1e-6 * lever && lever > 0;
-    /** The shared rigid frame sampled by both hands. */
+    /*
+     * The shared rigid frame sampled by both hands.
+     */
     const tool = (
       posture: IAutoMovieMotionHumanPosture,
       at: number,

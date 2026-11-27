@@ -4,7 +4,7 @@ import { Vector3 } from "@automovie/engine";
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 import "../constants/TABLE_BANDS";
 
-/**
+/*
  * A table: a dining table, a desk, a counter, a coffee table, a raised bar
  * counter, a service counter, a workbench, a pupil desk or an altar.
  *
@@ -12,15 +12,14 @@ import "../constants/TABLE_BANDS";
  * and a service counter, or on two pedestals for an altar. The top is centred
  * over the origin with its length along `+X`; the `+Z` edge is the front, where
  * a person sits or stands at it.
- *
- * @param params The kind, a service counter's or a pupil desk's listed size,
- *   and any dimension the author fixes.
- * @param seed The seed that picks a listed size when none is given and draws
- *   every dimension left free inside its band; absent, the first size and the
- *   middle of each band.
- * @returns The table.
- * @throws {AutoMovieArchetypeRefusal} For a size the kind does not list, or a
- *   fixed dimension outside its band.
+ * Parameter params: The kind, a service counter's or a pupil desk's listed size,
+ * and any dimension the author fixes.
+ * Parameter seed: The seed that picks a listed size when none is given and draws
+ * every dimension left free inside its band; absent, the first size and the
+ * middle of each band.
+ * Returns: The table.
+ * For a size the kind does not list, or a
+ * fixed dimension outside its band.
  */
 export function createTable(
   params: AutoMovieArchetypeTable.IParams,
@@ -165,7 +164,9 @@ export function createTable(
   return builder.build(d.mass!);
 }
 
-/** The readable name of each kind. */
+/*
+ * The readable name of each kind.
+ */
 const NAMES: Readonly<Record<AutoMovieArchetypeTable.Kind, string>> = {
   dining: "dining table",
   desk: "desk",
@@ -178,7 +179,7 @@ const NAMES: Readonly<Record<AutoMovieArchetypeTable.Kind, string>> = {
   altar: "altar",
 };
 
-/**
+/*
  * A bar counter's knee space under its top's front, metres: NKBA Guideline 9's
  * 12 in (305 mm) for a 42 in counter.
  */

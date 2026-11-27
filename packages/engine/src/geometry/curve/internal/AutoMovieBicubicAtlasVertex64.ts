@@ -12,7 +12,7 @@ import type {
 import { AutoMovieBernsteinAlgebra64 as B } from "../../AutoMovieBernsteinAlgebra64";
 import { AutoMovieCurveMath64 as V } from "../../AutoMovieCurveMath64";
 import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
-/**
+/*
  * Create the current patch vertex owner while reading the live generator chunk
  * for each allocation.
  */

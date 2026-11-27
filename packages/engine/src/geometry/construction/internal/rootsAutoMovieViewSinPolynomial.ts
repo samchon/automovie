@@ -1,6 +1,6 @@
 import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
 
-/**
+/*
  * Binary64 zero candidates of P(t)+amplitude_sin(offset+span_t) on a closed
  * subinterval of [0,1].
  *
@@ -12,15 +12,14 @@ import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
  * polynomial. This is a numerical critical-point observation, not an interval
  * certificate: roots closer than floating-point resolution and near-multiple
  * residuals need not be separately resolved.
- *
- * @param coefficients Finite polynomial coefficients in increasing power order,
- *   one through five.
- * @param offset Angular parameter at t=0, radians.
- * @param span Positive angular parameter interval, radians, wholly inside
- *   [0,pi].
- * @param amplitude Finite sine coefficient in the same units as P.
- * @param interval Requested closed local parameter subinterval.
- * @returns Interior root candidates or the numerical premise that failed.
+ * Parameter coefficients: Finite polynomial coefficients in increasing power order,
+ * one through five.
+ * Parameter offset: Angular parameter at t=0, radians.
+ * Parameter span: Positive angular parameter interval, radians, wholly inside
+ * [0,pi].
+ * Parameter amplitude: Finite sine coefficient in the same units as P.
+ * Parameter interval: Requested closed local parameter subinterval.
+ * Returns: Interior root candidates or the numerical premise that failed.
  */
 export function rootsAutoMovieViewSinPolynomial(
   coefficients: readonly number[],

@@ -7,20 +7,19 @@ import type { readAutoMovieCollisionMesh } from "./readAutoMovieCollisionMesh.js
 import { readAutoMovieCollisionTopology } from "./readAutoMovieCollisionTopology.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 
-/**
+/*
  * Read a drawn cord as enclosing capsules around consecutive solver particles,
  * one deformable body, with the tube drawn through them as their surface.
  *
  * The tube's ring vertices lie on the radius around each particle, and every
  * quad between two rings lies in the convex capsule of their segment, so the
  * capsules enclose the drawn tube: their separation proves clearance.
- *
- * @param mesh The drawn tube.
- * @param identity The cord's path; segments append `/segment/<i>`.
- * @param cord The particles and radius recorded with the tube.
- * @param budget Posed vertices the frame may still spend; charged when the tube
- *   is read.
- * @param add Receives each segment part and its share of the tube surface.
+ * Parameter mesh: The drawn tube.
+ * Parameter identity: The cord's path; segments append `/segment/<i>`.
+ * Parameter cord: The particles and radius recorded with the tube.
+ * Parameter budget: Posed vertices the frame may still spend; charged when the tube
+ * is read.
+ * Parameter add: Receives each segment part and its share of the tube surface.
  */
 export function readAutoMovieCollisionCord(
   mesh: THREE.Mesh,
@@ -100,7 +99,9 @@ export function readAutoMovieCollisionCord(
   }
 }
 
-/** Identity pose of a shape placed directly by its collider pose. */
+/*
+ * Identity pose of a shape placed directly by its collider pose.
+ */
 const IDENTITY: {
   position: { x: number; y: number; z: number };
   rotation: { x: number; y: number; z: number; w: number };
@@ -109,10 +110,12 @@ const IDENTITY: {
   rotation: { x: 0, y: 0, z: 0, w: 1 },
 };
 
-/** The capsule's local axis. */
+/*
+ * The capsule's local axis.
+ */
 const UP: THREE.Vector3 = new THREE.Vector3(0, 1, 0);
 
-/**
+/*
  * One enclosing capsule along a world segment, or null for a degenerate
  * segment.
  */

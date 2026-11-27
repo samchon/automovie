@@ -13,7 +13,7 @@ import type { HumanLimbView } from "./HumanLimbView";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { solveHumanLimbFit } from "./solveHumanLimbFit";
 
-/**
+/*
  * The limb fit an ordered refit applies (`refitHumanPosture`), the paired arms'
  * own fits (`HumanLimbPair`) and a leg probe (`HumanLegChain`), solved directly
  * by `solveHumanLimbFit` with no memory of earlier fits. The result shares the
@@ -46,9 +46,11 @@ export function applyHumanLimbFit(
   );
 }
 
-/** The owned continuous curve's limb fit. */
+/*
+ * The owned continuous curve's limb fit.
+ */
 export namespace applyHumanLimbFit {
-  /**
+  /*
    * The owned continuous curve's fit: the direct solve under the current hinged
    * correction.
    */

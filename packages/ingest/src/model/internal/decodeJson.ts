@@ -1,4 +1,6 @@
-/** Decode strict UTF-8 JSON and refuse duplicate decoded member names. */
+/*
+ * Decode strict UTF-8 JSON and refuse duplicate decoded member names.
+ */
 export function decodeJson(bytes: Uint8Array): unknown {
   try {
     const text: string = new TextDecoder("utf-8", { fatal: true }).decode(
@@ -14,7 +16,7 @@ export function decodeJson(bytes: Uint8Array): unknown {
   }
 }
 
-/**
+/*
  * Refuse decoded-equivalent member names before last-wins JSON can hide one.
  *
  * The scan runs only over text `JSON.parse` has already accepted, so it needs

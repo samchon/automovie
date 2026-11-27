@@ -9,7 +9,7 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * The support a prop gives a workout: a bench's top under a body that lies or
  * sits raised, a bar between the hands of a body that hangs, a box's top under
  * a foot. The prop names the place by one of its affordances, so the exercise
@@ -22,14 +22,13 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * support by the workout's own entry blend, not by walking to it.
  */
 export namespace WorkoutSupport {
-  /**
+  /*
    * Where a prop's affordance is as the action starts.
-   *
-   * @param context The action's context.
-   * @param on The prop's subject id, the affordance's id and, for a support of
-   *   two places such as a dip station's two bars, the other affordance's id.
-   * @returns World metres; with two affordances, the middle between them.
-   * @throws {HumanRefusal} When the prop has no such affordance.
+   * Parameter context: The action's context.
+   * Parameter on: The prop's subject id, the affordance's id and, for a support of
+   * two places such as a dip station's two bars, the other affordance's id.
+   * Returns: World metres; with two affordances, the middle between them.
+   * When the prop has no such affordance.
    */
   export function at(
     context: Pick<IAutoMovieMotionHumanActionContext, AtContext>,
@@ -38,17 +37,16 @@ export namespace WorkoutSupport {
     return placed(context, on).point;
   }
 
-  /**
+  /*
    * Read one entry-time support observation with the prop frame and primary
    * affordance that define it. A two-affordance support still uses the same
    * ordered pair of world points and their original midpoint.
-   *
-   * @param context The prop reader and action start time, in seconds.
-   * @param on The primary prop/affordance and optional second affordance.
-   * @returns The fresh world-metre point and borrowed actual entry
-   *   frame/primary affordance; no observation is retained by this owner.
-   * @throws {HumanRefusal} At the first missing named affordance, primary
-   *   before optional other.
+   * Parameter context: The prop reader and action start time, in seconds.
+   * Parameter on: The primary prop/affordance and optional second affordance.
+   * Returns: The fresh world-metre point and borrowed actual entry
+   * frame/primary affordance; no observation is retained by this owner.
+   * At the first missing named affordance, primary
+   * before optional other.
    */
   export function placed(
     context: Pick<IAutoMovieMotionHumanActionContext, PlacedContext>,
@@ -95,15 +93,21 @@ export namespace WorkoutSupport {
   }
 }
 
-/** The record of `IPlacedResult`'s site. */
+/*
+ * The record of `IPlacedResult`'s site.
+ */
 type IPlacedResult = {
   point: IAutoMovieVector3;
   frame: ReturnType<IAutoMovieMotionHumanPropReader["frame"]>;
   affordance: IAutoMovieAffordance;
 };
 
-/** The alternatives of `PlacedContext`'s site. */
+/*
+ * The alternatives of `PlacedContext`'s site.
+ */
 type PlacedContext = "prop" | "start";
 
-/** The alternatives of `AtContext`'s site. */
+/*
+ * The alternatives of `AtContext`'s site.
+ */
 type AtContext = "prop" | "start";

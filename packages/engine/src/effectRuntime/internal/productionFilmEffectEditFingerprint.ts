@@ -3,7 +3,7 @@ import { IAutoMovieFilmTimeline } from "@automovie/interface";
 import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 
-/**
+/*
  * Identify the normalized edit state shared by planning and film effects.
  *
  * The digest is SHA-256 over the UTF-8 bytes of the canonical JSON v2 of a

@@ -12,16 +12,15 @@ import { hipJoints } from "../../posture/internal/hipJoints";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { HumanMount } from "./HumanMount";
 
-/**
+/*
  * A leg that has lost its stirrup on a seat sat astride: the thigh dropped and
  * spread in `HumanMount.HANG.astride`'s direction from its hip joint, the shank
  * hanging plumb under the knee, the foot level and bearing on nothing, as a
  * sitting leg with no rest hangs (`HumanMountOn`).
- *
- * @param body The body.
- * @param posture The seated posture, in the carrier frame whose `+Y` is up.
- * @param side The leg.
- * @returns The hanging leg's goal.
+ * Parameter body: The body.
+ * Parameter posture: The seated posture, in the carrier frame whose `+Y` is up.
+ * Parameter side: The leg.
+ * Returns: The hanging leg's goal.
  */
 export function hangMountedLeg(
   body: IAutoMovieMotionHumanBody,

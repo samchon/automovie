@@ -5,14 +5,13 @@ import type {
 
 import { RUMMAGE } from "./RUMMAGE";
 
-/**
+/*
  * Rummage in the bag, then take the item out by its grip.
- *
- * @param chain The searcher's chain, standing within reach of the bag's
- *   opening.
- * @param params The `bag`, `item`, `handle`, `depth` and `hand` (the right when
- *   absent).
- * @returns The chain with the search appended.
+ * Parameter chain: The searcher's chain, standing within reach of the bag's
+ * opening.
+ * Parameter params: The `bag`, `item`, `handle`, `depth` and `hand` (the right when
+ * absent).
+ * Returns: The chain with the search appended.
  */
 export function searchBag<Chain extends IAutoMovieMotionHumanChainCore>(
   chain: Chain,

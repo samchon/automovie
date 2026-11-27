@@ -7,7 +7,7 @@ import type {
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Interpersonal distance: the gaps people keep, by relationship and purpose, as
  * the chest-to-target gap an approach stops at.
  *
@@ -40,7 +40,9 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * or a free point.
  */
 export namespace HumanProxemics {
-  /** Hall's zones, metres. */
+  /*
+   * Hall's zones, metres.
+   */
   export const ZONES: Readonly<
     Record<ZONESEntryItem, readonly [number, number]>
   > = {
@@ -49,7 +51,9 @@ export namespace HumanProxemics {
     social: [1.2, 3.6],
   };
 
-  /** Fixed named gaps, metres. */
+  /*
+   * Fixed named gaps, metres.
+   */
   export const GAPS: Readonly<
     Record<Exclude<IAutoMovieMotionHumanProxemics.Band, "handing">, number>
   > = {
@@ -60,10 +64,12 @@ export namespace HumanProxemics {
     social: 1.6,
   };
 
-  /** Elbow flexion at a handover, degrees (provisional). */
+  /*
+   * Elbow flexion at a handover, degrees (provisional).
+   */
   export const HANDING_ELBOW: number = 35;
 
-  /**
+  /*
    * The horizontal reach from the front of the chest to the palm when the elbow
    * is flexed by `HANDING_ELBOW` and the palm is at a height.
    *
@@ -72,11 +78,10 @@ export namespace HumanProxemics {
    * elbow angle `180 - flexion`; its horizontal share at the height difference
    * is reduced by half the chest depth, the shoulder joint's distance behind
    * the chest's front.
-   *
-   * @param measure The person.
-   * @param height The palm's height, metres.
-   * @returns Metres, possibly negative when the palm cannot reach that height
-   *   ahead.
+   * Parameter measure: The person.
+   * Parameter height: The palm's height, metres.
+   * Returns: Metres, possibly negative when the palm cannot reach that height
+   * ahead.
    */
   export function reach(
     measure: Pick<IAutoMovieBodyMeasure, ReachMeasure>,
@@ -90,16 +95,15 @@ export namespace HumanProxemics {
     return Math.sqrt(Math.max(0, d * d - dy * dy)) - measure.chestDepth / 2;
   }
 
-  /**
+  /*
    * The gap of a request between two people.
-   *
-   * @param request A named gap or metres.
-   * @param self The approaching person.
-   * @param other The other person; the approaching person when absent (a prop
-   *   or point target).
-   * @returns Metres; positive.
-   * @throws {HumanRefusal} When a metre request is not positive, or two
-   *   people's hands cannot meet ahead of their chests at the handover height.
+   * Parameter request: A named gap or metres.
+   * Parameter self: The approaching person.
+   * Parameter other: The other person; the approaching person when absent (a prop
+   * or point target).
+   * Returns: Metres; positive.
+   * When a metre request is not positive, or two
+   * people's hands cannot meet ahead of their chests at the handover height.
    */
   export function gap(
     request: GapRequest,
@@ -129,16 +133,15 @@ export namespace HumanProxemics {
     return meeting;
   }
 
-  /**
+  /*
    * Where to stop: the floor point for the feet's midpoint so the front of the
    * chest is `gap` short of the target along the line from the start.
-   *
-   * @param from The feet's midpoint now, world metres.
-   * @param target The target point, world metres.
-   * @param gap The gap, metres.
-   * @param chest How far the front of the chest stands ahead of the feet's
-   *   midpoint, metres.
-   * @returns The stop point on the floor and the heading to face, degrees.
+   * Parameter from: The feet's midpoint now, world metres.
+   * Parameter target: The target point, world metres.
+   * Parameter gap: The gap, metres.
+   * Parameter chest: How far the front of the chest stands ahead of the feet's
+   * midpoint, metres.
+   * Returns: The stop point on the floor and the heading to face, degrees.
    */
   export function stop(
     from: IAutoMovieVector3,
@@ -170,10 +173,14 @@ export namespace HumanProxemics {
   }
 }
 
-/** The alternatives of `GapRequest`'s site. */
+/*
+ * The alternatives of `GapRequest`'s site.
+ */
 type GapRequest = IAutoMovieMotionHumanProxemics.Band | number;
 
-/** The measures a handing reach reads. */
+/*
+ * The measures a handing reach reads.
+ */
 type ReachMeasure =
   | "upperArm"
   | "forearm"
@@ -181,8 +188,12 @@ type ReachMeasure =
   | "shoulderHeight"
   | "chestDepth";
 
-/** The measures a handing gap reads: a reach's and the handover heights. */
+/*
+ * The measures a handing gap reads: a reach's and the handover heights.
+ */
 type GapMeasure = ReachMeasure | "waistHeight" | "chestHeight";
 
-/** The alternatives of `ZONESEntryItem`'s site. */
+/*
+ * The alternatives of `ZONESEntryItem`'s site.
+ */
 type ZONESEntryItem = "intimate" | "personal" | "social";

@@ -12,16 +12,15 @@ import { StrikingWeapon } from "../../striking/internal/StrikingWeapon";
 import type { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanSegmentStill } from "./HumanSegmentStill";
 
-/**
+/*
  * The people a performance's contact resolution sweeps its weapons against
  * (`HumanPerformanceContacts.contacts`): each person's colliders on the bones
  * shown under the search's installed stops, 0 speed where the shown pose
  * provably holds still (`HumanSegmentStill`), and the weapon a met limb carries
  * when that limb is striking too, so its capsule nearest the striker stops with
  * it.
- *
- * @param prepared The contact resolution's prepared values.
- * @returns One body per person, in the cast's order.
+ * Parameter prepared: The contact resolution's prepared values.
+ * Returns: One body per person, in the cast's order.
  */
 export function HumanPerformanceContactBodies(
   prepared: HumanPerformanceContactBodies.IPrepared,
@@ -126,50 +125,80 @@ export function HumanPerformanceContactBodies(
   }));
 }
 
-/** Companion types of {@link HumanPerformanceContactBodies}. */
+/*
+ * Companion types of HumanPerformanceContactBodies.
+ */
 export namespace HumanPerformanceContactBodies {
-  /** A weapon's owner: the person, the action and the weapon's live window. */
+  /*
+   * A weapon's owner: the person, the action and the weapon's live window.
+   */
   export interface IOwner {
-    /** The striking person. */
+    /*
+     * The striking person.
+     */
     person: IAutoMovieMotionHumanSegment.IPerson;
 
-    /** The action that carries the weapon. */
+    /*
+     * The action that carries the weapon.
+     */
     segment: IAutoMovieMotionHumanSegment;
 
-    /** The weapon's id within its action. */
+    /*
+     * The weapon's id within its action.
+     */
     id: string;
 
-    /** The limb that carries it. */
+    /*
+     * The limb that carries it.
+     */
     limb: IAutoMovieMotionWeaponPath["limb"];
 
-    /** Its first live film second. */
+    /*
+     * Its first live film second.
+     */
     from: number;
 
-    /** Its last live film second. */
+    /*
+     * Its last live film second.
+     */
     to: number;
 
-    /** The weapon. */
+    /*
+     * The weapon.
+     */
     weapon: IAutoMovieMotionWeaponPath;
   }
 
-  /** What `HumanPerformanceContacts.contacts` prepared before its bodies. */
+  /*
+   * What `HumanPerformanceContacts.contacts` prepared before its bodies.
+   */
   export interface IPrepared {
-    /** The performance's cast, in order. */
+    /*
+     * The performance's cast, in order.
+     */
     people: readonly IAutoMovieMotionHumanSegment.IPerson[];
 
-    /** Every weapon's owner, by the weapon's key. */
+    /*
+     * Every weapon's owner, by the weapon's key.
+     */
     owners: ReadonlyMap<string, IOwner>;
 
-    /** A person's shown bones at a second, under the installed stops. */
+    /*
+     * A person's shown bones at a second, under the installed stops.
+     */
     readBones: (
       person: IAutoMovieMotionHumanSegment.IPerson,
       seconds: number,
     ) => ReturnType<typeof HumanPerformanceRead.bones>;
 
-    /** Install a search's stops before a read. */
+    /*
+     * Install a search's stops before a read.
+     */
     apply: (stops: IAutoMovieResolveContactEvents.IStops) => void;
   }
 }
 
-/** The record of `IContactsEventsBest`'s site. */
+/*
+ * The record of `IContactsEventsBest`'s site.
+ */
 type IContactsEventsBest = { key: string; distance: number };

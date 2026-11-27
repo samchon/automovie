@@ -5,17 +5,16 @@ import type {
 
 import { conductArc } from "./conductArc";
 
-/**
+/*
  * Prepare the baton tip's path over a conducted phrase: from the figure's top
  * into the first ictus over the lead before the first beat, then from ictus to
  * ictus on the beat clock, each beat's line lifted by its rebound arc
  * (`conductArc`), and held on the last ictus after the last beat.
- *
- * @param ictus Each beat's ictus, world metres, one per beat.
- * @param top The figure's top, where the preparation starts, world metres.
- * @param beats The beat clock: the count, the period and each beat's second.
- * @param lift The rebound's height at mid-beat, metres.
- * @returns The tip at seconds since the action's start, world metres.
+ * Parameter ictus: Each beat's ictus, world metres, one per beat.
+ * Parameter top: The figure's top, where the preparation starts, world metres.
+ * Parameter beats: The beat clock: the count, the period and each beat's second.
+ * Parameter lift: The rebound's height at mid-beat, metres.
+ * Returns: The tip at seconds since the action's start, world metres.
  */
 export function conductTip(
   ictus: readonly IAutoMovieVector3[],
@@ -42,5 +41,7 @@ export function conductTip(
   };
 }
 
-/** The alternatives of `ConductBeats`'s site. */
+/*
+ * The alternatives of `ConductBeats`'s site.
+ */
 type ConductBeats = "count" | "period" | "at";

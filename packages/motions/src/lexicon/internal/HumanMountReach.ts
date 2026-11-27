@@ -13,7 +13,7 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 
-/**
+/*
  * How far a seated rider leans the trunk forward to reach what the hands hold
  * (`HumanMountRider.lean`), in closed form: flexing the spine turns everything
  * above it about the spine joint's flexion axis, so each shoulder runs on a
@@ -22,7 +22,7 @@ import { HumanMountRider } from "./HumanMountRider";
  * reachable arcs.
  */
 export namespace HumanMountReach {
-  /**
+  /*
    * How far a seated rider leans the trunk forward to reach what the hands
    * hold: the least flexion of the spine, up to `LEAN`, that brings each
    * shoulder within `ARM` of its arm's length of its point, as a cyclist leans
@@ -37,16 +37,15 @@ export namespace HumanMountReach {
    * shoulder is then `K + B cos θ + C sin θ`, and the least flexion bringing it
    * within the arm's reach is a closed-form arccos root, so a reach that
    * follows a moving grip costs no forward kinematics per instant.
-   *
-   * @param body The body.
-   * @param seated The seated posture.
-   * @param sides The holding hands.
-   * @param bow The optional rotation about the seat or the hips in place of
-   *   spine flexion.
-   * @param span The bounds of that rotation, degrees from the entered posture.
-   * @returns For the hand goals in the seated frame, the rotation nearest the
-   *   entered posture that reaches both, or the least worst excess reach when
-   *   the arcs do not overlap.
+   * Parameter body: The body.
+   * Parameter seated: The seated posture.
+   * Parameter sides: The holding hands.
+   * Parameter bow: The optional rotation about the seat or the hips in place of
+   * spine flexion.
+   * Parameter span: The bounds of that rotation, degrees from the entered posture.
+   * Returns: For the hand goals in the seated frame, the rotation nearest the
+   * entered posture that reaches both, or the least worst excess reach when
+   * the arcs do not overlap.
    */
   export function reach(
     body: IAutoMovieMotionHumanBody,
@@ -182,14 +181,16 @@ export namespace HumanMountReach {
     };
   }
 
-  /** Squared distance in excess of the hand's reach along the shoulder arc. */
+  /*
+   * Squared distance in excess of the hand's reach along the shoulder arc.
+   */
   interface IArc {
     k: number;
     cos: number;
     sin: number;
   }
 
-  /**
+  /*
    * The bones of the seated posture leant by each angle: the first resolution
    * reads the shoulders, elbows and wrists, the others the shoulders alone, all
    * through one forward-kinematics reader and one range-of-motion projector.
@@ -235,32 +236,39 @@ export namespace HumanMountReach {
     );
   }
 
-  /**
+  /*
    * A shoulder's circle under the spine's flexion, `a + b cos θ + c sin θ`,
    * world metres, and the arm's reach, metres.
    */
   interface ICircle {
-    /** The circle's centre. */
+    /*
+     * The circle's centre.
+     */
     a: IAutoMovieVector3;
 
-    /** Its cosine radius. */
+    /*
+     * Its cosine radius.
+     */
     b: IAutoMovieVector3;
 
-    /** Its sine radius. */
+    /*
+     * Its sine radius.
+     */
     c: IAutoMovieVector3;
 
-    /** The share `ARM` of the arm's length, shoulder to wrist. */
+    /*
+     * The share `ARM` of the arm's length, shoulder to wrist.
+     */
     reach: number;
   }
 
-  /**
+  /*
    * The circle `a + b cos θ + c sin θ` through three points at three angles:
    * per coordinate, the 3 by 3 linear system of the samples, solved by Cramer's
    * rule.
-   *
-   * @param angles The three angles, radians, distinct.
-   * @returns A reader of the three world-metre points, returning their circle
-   *   vectors with the fixed matrix rows and denominator shared.
+   * Parameter angles: The three angles, radians, distinct.
+   * Returns: A reader of the three world-metre points, returning their circle
+   * vectors with the fixed matrix rows and denominator shared.
    */
   function circle(
     angles: readonly [number, number, number],

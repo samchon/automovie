@@ -10,12 +10,12 @@ import { impactRecoil } from "./impactRecoil";
 import { impulseToRecoilPush } from "./impulseToRecoilPush";
 import { resolveImpact } from "./resolveImpact";
 
-/**
- * Suggest how a collision resolves: run {@link resolveImpact} for the impulse,
+/*
+ * Suggest how a collision resolves: run resolveImpact for the impulse,
  * bridge it to a recoil push, and (when a struck `chain` + `skeleton` are
  * given) bound that push by joint ROM into a flinch pose via
- * {@link impactRecoil}. This is the reusable core the pipeline (and
- * {@link detectBodyCollision}) attaches to a contact warning; it wires together
+ * impactRecoil. This is the reusable core the pipeline (and
+ * detectBodyCollision) attaches to a contact warning; it wires together
  * resolveImpact and impactRecoil, whose consumer was previously missing.
  */
 export function suggestCollisionResponse(

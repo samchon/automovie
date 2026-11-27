@@ -12,7 +12,7 @@ import { staggerBounds } from "./staggerBounds";
 import { staggerNearest } from "./staggerNearest";
 import type { staggerRecover } from "./staggerRecover";
 
-/**
+/*
  * Close and settle a caught order.
  *
  * The closing foot is itself a capture step (Hof 2008: a foot placed at the
@@ -31,15 +31,14 @@ import type { staggerRecover } from "./staggerRecover";
  * feet's base and comes to rest inside the settling's span. The closing foot is
  * loaded as every landed foot is, over the measured weight shift, so the centre
  * of pressure runs on from the swing's into the settling's without a jump.
- *
- * @param pendulum The pendulum the catching steps left, advanced through the
- *   close.
- * @param stepped The foot that stepped last.
- * @param righting How long the centre of pressure takes to carry the
- *   extrapolated centre of mass to rest, seconds.
- * @returns The recovery, or null when the closing landing leaves the
- *   extrapolated centre of mass outside the base or the settling does not bring
- *   it to rest.
+ * Parameter pendulum: The pendulum the catching steps left, advanced through the
+ * close.
+ * Parameter stepped: The foot that stepped last.
+ * Parameter righting: How long the centre of pressure takes to carry the
+ * extrapolated centre of mass to rest, seconds.
+ * Returns: The recovery, or null when the closing landing leaves the
+ * extrapolated centre of mass outside the base or the settling does not bring
+ * it to rest.
  */
 export function staggerClose(
   pendulum: StaggerPendulum,

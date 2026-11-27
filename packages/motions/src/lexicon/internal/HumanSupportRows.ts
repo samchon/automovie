@@ -8,7 +8,7 @@ import { AutoMovieMotionHumanActionRow } from "../../law/AutoMovieMotionHumanAct
 import { HUMAN_SUPPORT_SCRAMBLE } from "../../next/presets/HUMAN_SUPPORT_SCRAMBLE";
 import { HUMAN_SUPPORT_SLIDE_OFF } from "../../next/presets/HUMAN_SUPPORT_SLIDE_OFF";
 
-/**
+/*
  * Movements over a surface as rows of the support planner (`support`): each a
  * list of stances, the composition giving the surface (`on`), so a movement
  * across several supports is data over the one planner that fits the body,
@@ -29,7 +29,7 @@ import { HUMAN_SUPPORT_SLIDE_OFF } from "../../next/presets/HUMAN_SUPPORT_SLIDE_
  *   (`getUp.POSES`), the seated one the seated reference posture.
  */
 export namespace HumanSupportRows {
-  /**
+  /*
    * Scramble up onto a ledge: the palms on its top, a knee up onto its edge,
    * the other foot up, standing on it. Each of its 4 stances takes
    * `support.SECONDS`, 1 s, so about 4 s (provisional: no timing study);
@@ -43,7 +43,7 @@ export namespace HumanSupportRows {
     HUMAN_SUPPORT_SCRAMBLE,
   );
 
-  /**
+  /*
    * Slide off a table's edge: seated upright on it with the hands beside the
    * seat, the feet down to the floor, standing. Each of its 3 stances takes
    * `support.SECONDS`, 1 s, so about 3 s (provisional: no timing study);

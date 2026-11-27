@@ -5,29 +5,36 @@ import type * as THREE from "three";
 import type { IAutoMovieInspectorScene } from "../IAutoMovieInspectorScene.js";
 import type { IAutoMovieInspectorSceneHost } from "../IAutoMovieInspectorSceneHost.js";
 
-/**
+/*
  * Place a paused picture's labels and convert them to CSS pixels of the canvas.
  *
  * The inspection places labels on the subject's raster. Positions and the line
  * height scale by the ratio of the canvas's size to that raster, and the
  * stamp's font pixel stays at least one CSS pixel, as a capture keeps it at
  * least one sheet pixel.
- *
- * @param props The applied inspection, the camera drawn through, the subject's
- *   raster and the canvas size shown.
- * @returns The kept labels, their line height and the number dropped.
+ * Parameter props: The applied inspection, the camera drawn through, the subject's
+ * raster and the canvas size shown.
+ * Returns: The kept labels, their line height and the number dropped.
  */
 export function placeAutoMovieInspectorLabels(props: {
-  /** The inspection applied to the picture. */
+  /*
+   * The inspection applied to the picture.
+   */
   inspection: IAutoMovieInspectionHandle;
 
-  /** The camera the picture was drawn through. */
+  /*
+   * The camera the picture was drawn through.
+   */
   camera: THREE.Camera;
 
-  /** The subject's raster in pixels. */
+  /*
+   * The subject's raster in pixels.
+   */
   raster: { width: number; height: number };
 
-  /** The canvas as laid out. */
+  /*
+   * The canvas as laid out.
+   */
   shown: IAutoMovieInspectorSceneHost.ISize;
 }): IAutoMovieInspectorScene.ILabels {
   const { width, height } = props.raster;

@@ -12,7 +12,7 @@ import { MotionBodies } from "../internal/MotionBodies";
 import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { locomotionCase } from "./locomotionCase";
 
-/**
+/*
  * Capture cases of the walk law on the polygon man (E0): every body of
  * `MotionBodies.SWEEP` walks 4 m ahead alone, one case per body and pace
  * (`walk-<pace>-<body>`), the same bodies running 10 m at a jog, a run and a
@@ -30,7 +30,7 @@ import { locomotionCase } from "./locomotionCase";
  * the planted point, the lowest of heel, ball and toe pad (the heel in the heel
  * rocker, the toe pad in the forefoot rocker), while it touches the floor
  * (within 1 cm) in stance, slides under 5 mm across it from where it first was
- * the planted point of that stance ({@link FootSlip}), the foot-skate measure of
+ * the planted point of that stance (FootSlip), the foot-skate measure of
  * Kovar, Schreiner and Gleicher (2002), since the ankle itself moves as the
  * foot rolls over its rockers; no heel, ball or toe sinks more than 5 mm under
  * the floor; every displayed ankle meets its IK goal within 2 mm and every
@@ -45,11 +45,10 @@ import { locomotionCase } from "./locomotionCase";
  * every heel strike and toe-off, within 0.5 degree and the root within 0.5 mm
  * from 1 microsecond before the event to 1 after. Each failing verdict names
  * the walker, foot, point and second of its worst sample.
- *
- * @param kind Walking or running cases.
- * @param only Keeps the cases whose name it accepts, the others not being
- *   built; every case when absent.
- * @returns The cases, each built as it is read.
+ * Parameter kind: Walking or running cases.
+ * Parameter only: Keeps the cases whose name it accepts, the others not being
+ * built; every case when absent.
+ * Returns: The cases, each built as it is read.
  */
 export function* locomotionCases(
   kind: LocomotionCasesKind,
@@ -131,7 +130,9 @@ export function* locomotionCases(
   }
 }
 
-/** The record of `ILocomotionCasesAllItem`'s site. */
+/*
+ * The record of `ILocomotionCasesAllItem`'s site.
+ */
 type ILocomotionCasesAllItem = {
   gait: locomotionCase.IGait;
   froude: number;
@@ -140,14 +141,20 @@ type ILocomotionCasesAllItem = {
   extra: Omit<IAutoMovieMotionHumanWalkParams, AllExtraItem>;
 };
 
-/** The alternatives of `AllExtraItem`'s site. */
+/*
+ * The alternatives of `AllExtraItem`'s site.
+ */
 type AllExtraItem = "to" | "pace";
 
-/** The record of `ILocomotionCasesPrepared`'s site. */
+/*
+ * The record of `ILocomotionCasesPrepared`'s site.
+ */
 type ILocomotionCasesPrepared = {
   men: humanPolygonMan.IPolygonMan[];
   bodies: IAutoMovieMotionHumanBody[];
 };
 
-/** The alternatives of `LocomotionCasesKind`'s site. */
+/*
+ * The alternatives of `LocomotionCasesKind`'s site.
+ */
 type LocomotionCasesKind = "walk" | "run";

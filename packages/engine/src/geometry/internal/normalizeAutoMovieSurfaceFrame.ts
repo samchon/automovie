@@ -6,7 +6,7 @@ import type {
 
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Admit a surface request and construct its right-handed orthonormal basis in
  * the caller's coordinate frame. The origin is copied unchanged in metres; x is
  * the normalized projection of forward into the normal's plane, y is normal
@@ -23,11 +23,10 @@ import { Vector3 } from "../../math/Vector3";
  * without admitting a surface mesh or certifying contact/support. Preparation,
  * placement and callers aligning measured geometry share this public
  * computation owner rather than assembling another basis convention.
- *
- * @param frame Origin and two independent directions, only read.
- * @returns Fresh origin and unit x, y and normal axes with x cross y = normal.
- * @throws Error on nonfinite coordinates or zero/represented-parallel
- *   directions.
+ * Parameter frame: Origin and two independent directions, only read.
+ * Returns: Fresh origin and unit x, y and normal axes with x cross y = normal.
+ * Error on nonfinite coordinates or zero/represented-parallel
+ * directions.
  */
 export function normalizeAutoMovieSurfaceFrame(
   frame: IAutoMovieSurfaceFrame,

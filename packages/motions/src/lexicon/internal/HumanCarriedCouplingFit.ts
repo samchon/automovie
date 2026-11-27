@@ -22,10 +22,12 @@ import { HumanCarriedCouplingRigid } from "./HumanCarriedCouplingRigid";
 import { HumanCarriedGripGaps } from "./HumanCarriedGripGaps";
 import { HumanCarriedStraddle } from "./HumanCarriedStraddle";
 
-/** Grip indices follow the carry row's left-to-right order. */
+/*
+ * Grip indices follow the carry row's left-to-right order.
+ */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
-/**
+/*
  * The key pose of a coupled carry placed on its bearer: the bearer's stance and
  * the borne legs changed least from the upright bearer and the carry's own legs
  * so every hold's wrist goal lies within its arm, the borne resting region
@@ -33,36 +35,41 @@ const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
  * places. `HumanCarriedCoupling` builds the coupling on it.
  */
 export namespace HumanCarriedCouplingFit {
-  /**
+  /*
    * The successful registration and the same two bone maps it used to judge
    * reach.
    */
   export interface IRead {
-    /** The placement from the borne key pose to the bearer's stance. */
+    /*
+     * The placement from the borne key pose to the bearer's stance.
+     */
     fit: IAutoMovieMotionHumanCarriedCouplingFit.IFit;
 
-    /** The borne bones at the origin in the key pose, before placement. */
+    /*
+     * The borne bones at the origin in the key pose, before placement.
+     */
     mine: Bones;
 
-    /** The bearer bones at the origin in the fitted stance. */
+    /*
+     * The bearer bones at the origin in the fitted stance.
+     */
     theirs: Bones;
   }
 
-  /**
+  /*
    * Place the borne body's key pose on the bearer while keeping the grips
    * reachable.
-   *
-   * @param bearer The bearer's body.
-   * @param borne The borne body.
-   * @param row The carry's key and hold geometry.
-   * @param held The borne region each bearer hand holds, left then right.
-   * @param planted The additional height fixed by a second bearer standing on
-   *   the common floor.
-   * @param bends Whether the bearer may leave upright to reach the grips.
-   * @param grips An optional pair of actual grips, left then right, when the
-   *   row's nominal regions cannot be reached.
-   * @returns The placement within the bearer's origin frame.
-   * @throws {HumanRefusal} When no stance within the ranges reaches the grips.
+   * Parameter bearer: The bearer's body.
+   * Parameter borne: The borne body.
+   * Parameter row: The carry's key and hold geometry.
+   * Parameter held: The borne region each bearer hand holds, left then right.
+   * Parameter planted: The additional height fixed by a second bearer standing on
+   * the common floor.
+   * Parameter bends: Whether the bearer may leave upright to reach the grips.
+   * Parameter grips: An optional pair of actual grips, left then right, when the
+   * row's nominal regions cannot be reached.
+   * Returns: The placement within the bearer's origin frame.
+   * When no stance within the ranges reaches the grips.
    */
   export function fit(
     bearer: IAutoMovieMotionHumanBody,
@@ -75,7 +82,7 @@ export namespace HumanCarriedCouplingFit {
     return read(bearer, borne, row, held, bends, grips).fit;
   }
 
-  /**
+  /*
    * Register the carried region on the bearer at the authored key. If any wrist
    * cannot reach its grip, find the least change to the bearer's stance and
    * borne legs that preserves the resting contact and reaches every grip:
@@ -86,23 +93,22 @@ export namespace HumanCarriedCouplingFit {
    * by the operator splitting (`HumanQuadraticProgram.prepare`); a model the
    * splitting leaves unsolved ends the fit failed, as sco's ends where its
    * convex solver fails.
-   *
-   * @param bearer The bearer's body.
-   * @param borne The borne body.
-   * @param row The carry's row.
-   * @param held The borne region each bearer hand holds, left then right.
-   * @param planted The additional height fixed by a second bearer standing on
-   *   the common floor.
-   * @param bends Whether the bearer may leave upright: not when a second helper
-   *   shares the body, whose contacts a bend of the first would carry away.
-   * @param grips The borne region each hand grips where the bearer takes a
-   *   nearer grip than the row describes (`HumanCarriedCoupling.NEARER`), left
-   *   then right: the arms must reach these, while the turn stays fitted to the
-   *   described holds, so a grip never turns the borne body; the described
-   *   holds when absent.
-   * @returns The placement with the bones used to judge its reach.
-   * @throws {HumanRefusal} A `reach` refusal on `carry` when no stance and legs
-   *   within their ranges bring every held region within its arm.
+   * Parameter bearer: The bearer's body.
+   * Parameter borne: The borne body.
+   * Parameter row: The carry's row.
+   * Parameter held: The borne region each bearer hand holds, left then right.
+   * Parameter planted: The additional height fixed by a second bearer standing on
+   * the common floor.
+   * Parameter bends: Whether the bearer may leave upright: not when a second helper
+   * shares the body, whose contacts a bend of the first would carry away.
+   * Parameter grips: The borne region each hand grips where the bearer takes a
+   * nearer grip than the row describes (`HumanCarriedCoupling.NEARER`), left
+   * then right: the arms must reach these, while the turn stays fitted to the
+   * described holds, so a grip never turns the borne body; the described
+   * holds when absent.
+   * Returns: The placement with the bones used to judge its reach.
+   * A `reach` refusal on `carry` when no stance and legs
+   * within their ranges bring every held region within its arm.
    */
   export function read(
     bearer: IAutoMovieMotionHumanBody,
@@ -395,46 +401,66 @@ export namespace HumanCarriedCouplingFit {
     };
   }
 
-  /** The signed reachable distance of one bearing wrist, in metres. */
+  /*
+   * The signed reachable distance of one bearing wrist, in metres.
+   */
   export const gap: typeof HumanCarriedGripGaps.gap = HumanCarriedGripGaps.gap;
 
-  /**
+  /*
    * The trunk's forward inclination at full forward bending, degrees: about 70
    * of hip flexion and 40 of lumbar flexion (Esola et al. 1996, Spine 21:71,
    * the measure `HumanTrunk.RHYTHM` shares).
    */
   const BENT: number = 110;
 
-  /**
+  /*
    * A stance and legs' reading: the change, the summed and the greatest gap
    * past the arms, and each gap, metres.
    */
   interface IReading extends IAutoMovieMotionHumanSequentialConvex.IEvaluation {
-    /** The registration read at the iterate. */
+    /*
+     * The registration read at the iterate.
+     */
     read: IRead;
 
-    /** Each grip's gap past its arm, metres. */
+    /*
+     * Each grip's gap past its arm, metres.
+     */
     gaps: number[];
   }
 
-  /** The last solve of a model's rows, from which its next solve starts. */
+  /*
+   * The last solve of a model's rows, from which its next solve starts.
+   */
   interface IWarm {
-    /** The last state; absent before the first solve. */
+    /*
+     * The last state; absent before the first solve.
+     */
     state?: IAutoMovieMotionHumanQuadraticProgram.IState;
   }
 }
 
-/** A borne region a hand holds, or no grip for that hand. */
+/*
+ * A borne region a hand holds, or no grip for that hand.
+ */
 type HeldRegion = AutoMovieHumanoidRegion | null;
 
-/** The borne regions held by the bearer's left and right hands. */
+/*
+ * The borne regions held by the bearer's left and right hands.
+ */
 type Grip = readonly [HeldRegion, HeldRegion];
 
-/** The upper-leg coordinates used to vary the borne key pose. */
+/*
+ * The upper-leg coordinates used to vary the borne key pose.
+ */
 type LegAxis = "flexion" | "abduction";
 
-/** A clinical coordinate whose limits bound the key-pose fit. */
+/*
+ * A clinical coordinate whose limits bound the key-pose fit.
+ */
 type LegCoordinate = readonly [AutoMovieHumanoidBone, LegAxis];
 
-/** A complete kinematic reading before carrying either body. */
+/*
+ * A complete kinematic reading before carrying either body.
+ */
 type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;

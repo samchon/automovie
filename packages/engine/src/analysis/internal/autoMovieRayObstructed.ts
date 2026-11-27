@@ -5,7 +5,7 @@ import type {
 
 import { autoMovieSolidBlocks } from "./autoMovieSolidBlocks";
 
-/**
+/*
  * Whether any of the given convex solids stops a ray before `maxDistance`.
  *
  * Solids are tried in list order and the first one that blocks ends the test;

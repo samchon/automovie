@@ -1,6 +1,8 @@
 import type { IAutoMovieRecoveryCurvatureAdmission } from "@automovie/interface";
 
-/** Admit requested curvature bookkeeping and conservative simultaneous buffers. */
+/*
+ * Admit requested curvature bookkeeping and conservative simultaneous buffers.
+ */
 export function admitRecoveryMapCurvature(
   cameraWidth: number,
   points: number,

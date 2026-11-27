@@ -8,22 +8,21 @@ import type {
 import { AutoMovieSolidBlend } from "../../AutoMovieSolidBlend";
 import { AutoMovieSolidVector } from "../../AutoMovieSolidVector";
 
-/**
+/*
  * Observe the join's original consecutive-normal dot predicate at its sampled
  * columns, preserving the rail/blend reads and their evaluation order.
- *
- * @param columns Already admitted columns, in their original traversal order.
- * @param column The same join's reader; each column reads its two neighbours
- *   once.
- * @param period Original curve-parameter turn, radians.
- * @param curve Original borrowed curve; its names identify curve provenance and
- *   its point count sets the neighbour step. Join's diagnostic producer already
- *   owns the requested source names.
- * @param shares Original fold-share count, a positive finite integer.
- * @param keep Original part kept side, included only in a failed observation.
- * @param mode Original rail mode, included only in a failed observation.
- * @returns Null when every original comparison is positive; otherwise its first
- *   failure with already evaluated vectors and actual source/rail addresses.
+ * Parameter columns: Already admitted columns, in their original traversal order.
+ * Parameter column: The same join's reader; each column reads its two neighbours
+ * once.
+ * Parameter period: Original curve-parameter turn, radians.
+ * Parameter curve: Original borrowed curve; its names identify curve provenance and
+ * its point count sets the neighbour step. Join's diagnostic producer already
+ * owns the requested source names.
+ * Parameter shares: Original fold-share count, a positive finite integer.
+ * Parameter keep: Original part kept side, included only in a failed observation.
+ * Parameter mode: Original rail mode, included only in a failed observation.
+ * Returns: Null when every original comparison is positive; otherwise its first
+ * failure with already evaluated vectors and actual source/rail addresses.
  */
 export function AutoMovieSolidJoinNormalCheck(
   columns: readonly IAutoMovieSolidJoin.IColumn[],
@@ -68,7 +67,7 @@ export function AutoMovieSolidJoinNormalCheck(
       if (previous !== null) {
         const alignment: number = dot(previous, n);
         if (!(alignment > 0)) {
-          /**
+          /*
            * Encode only this failed observation's three already evaluated
            * components.
            */
@@ -76,7 +75,7 @@ export function AutoMovieSolidJoinNormalCheck(
             value: Readonly<Vec3>,
           ): number[] => [...value];
 
-          /**
+          /*
            * Identify actual kept-rail addresses without reevaluating either
            * surface.
            */
@@ -104,7 +103,9 @@ export function AutoMovieSolidJoinNormalCheck(
             },
           });
 
-          /** A normal with its exact operands and norm. */
+          /*
+           * A normal with its exact operands and norm.
+           */
           const observation: (
             share: number,
             alongVector: Vec3,
@@ -171,10 +172,14 @@ export function AutoMovieSolidJoinNormalCheck(
   return null;
 }
 
-/** World vectors retain the source reader's millimetre units. */
+/*
+ * World vectors retain the source reader's millimetre units.
+ */
 type Vec3 = AutoMovieVector3Tuple;
 
-/** Only the original neighbouring-rail or sampled-normal premise can fail here. */
+/*
+ * Only the original neighbouring-rail or sampled-normal premise can fail here.
+ */
 type IFailure = {
   contract: "rails" | "unfolded blend";
   detail: string;

@@ -8,18 +8,17 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * A chain's articulation-free frames under a pose, from the rig's constants
  * (`prepareChainConstants`) and the world frame of the chain root's parent in
  * that pose: what `prepareChainPlant` reads by forward kinematics of the whole
  * pose with the chain's two joints left out, composed here from the one frame
  * that depends on the pose. The placed chain carries the constants' rig-only
  * fit readers (`IPreparedChainPlant.rig`).
- *
- * @param constants The chain's rig constants.
- * @param parent The world frame of the chain root's parent in the pose (the
- *   pose's root transform for a chain hung from the root), model metres.
- * @returns The prepared chain, as `prepareChainPlant` returns it.
+ * Parameter constants: The chain's rig constants.
+ * Parameter parent: The world frame of the chain root's parent in the pose (the
+ * pose's root transform for a chain hung from the root), model metres.
+ * Returns: The prepared chain, as `prepareChainPlant` returns it.
  */
 export function placeChainPlant(
   constants: IAutoMoviePrepareChainConstants.IConstants,

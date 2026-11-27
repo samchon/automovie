@@ -8,7 +8,7 @@ import type {
 import { normalizeAutoMovieSurfaceFrame } from "./normalizeAutoMovieSurfaceFrame";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Place a prepared rigid triangle at a requested centroid, heading and normal.
  * Output points retain their source order and pairwise distances up to binary64
  * rounding. The target normal fixes the plane; forward is projected into it and
@@ -51,7 +51,7 @@ export function placeAutoMovieSurfaceFrame(
   return [points[0], points[1], points[2]];
 }
 
-/**
+/*
  * Sum one placed coordinate term by term, refusing the first product or
  * partial sum of finite operands that overflows binary64.
  */

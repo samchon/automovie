@@ -30,7 +30,7 @@ import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import type { IStageGround } from "../staging/IStageGround";
 import { prepareStageSupport } from "../staging/internal/prepareStageSupport";
 
-/**
+/*
  * Pin the stance feet of every gait-bearing or resumed actor clip, replacing
  * the clip in `motions` and returning the world-space plants a later beat can
  * resume.
@@ -53,18 +53,17 @@ import { prepareStageSupport } from "../staging/internal/prepareStageSupport";
  * model-ground origin must meet that support. Window changes appear at exact
  * seconds on the sample clock. Empty windows hand grounding to the authored
  * carrier or airborne action and do not plant against the scene-wide surface.
- *
- * @param props.staged The validated stage result.
- * @param props.motions The compiled clips by node id; planted clips replace
- *   theirs.
- * @param props.previous The prior beat's end state, or null.
- * @param props.skeleton Rig lookup; null for a node with no skeleton.
- * @param props.jointAxes Per-node joint axes the renderer uses, when supplied.
- * @param props.restFrames Per-node rest frames the renderer uses, when
- *   supplied.
- * @param admission Shot duration in seconds and collector for explicit support.
- *   Omission retains ordinary unscoped planting.
- * @returns One entry per planted actor, plants in world metres.
+ * Parameter props.staged: The validated stage result.
+ * Parameter props.motions: The compiled clips by node id; planted clips replace
+ * theirs.
+ * Parameter props.previous: The prior beat's end state, or null.
+ * Parameter props.skeleton: Rig lookup; null for a node with no skeleton.
+ * Parameter props.jointAxes: Per-node joint axes the renderer uses, when supplied.
+ * Parameter props.restFrames: Per-node rest frames the renderer uses, when
+ * supplied.
+ * Parameter admission: Shot duration in seconds and collector for explicit support.
+ * Omission retains ordinary unscoped planting.
+ * Returns: One entry per planted actor, plants in world metres.
  */
 export function plantPerformShotStanceFeet(
   props: IAutoMoviePlantPerformShotStanceFeet.IProps,
@@ -298,21 +297,25 @@ export function plantPerformShotStanceFeet(
   return plants;
 }
 
-/** One measured foot above the ground available to its window. */
+/*
+ * One measured foot above the ground available to its window.
+ */
 interface IScopedFoot {
   time: number;
   position: IAutoMovieVector3;
   height: number;
 }
 
-/** Model-ground origin offsets and an eligible foot probe within one window. */
+/*
+ * Model-ground origin offsets and an eligible foot probe within one window.
+ */
 interface IScopedGaitGround {
   low: number;
   high: number;
   foot?: IScopedFoot;
 }
 
-/**
+/*
  * Check full-cycle windows for contact or a ground-aligned locomotion path. The
  * rig supplies ankle pivots, so an unpinned ankle alone cannot diagnose an
  * unsupported sole. In the reference gait the root moves the model's ground

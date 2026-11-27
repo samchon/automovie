@@ -16,7 +16,7 @@ import { WALK_TICK } from "./WALK_TICK";
 import type { walkLocomoteSwings } from "./walkLocomoteSwings";
 import { walkReach } from "./walkReach";
 
-/**
+/*
  * The plant fitter can re-aim an ankle and tip its toes to hold the ground.
  * Carry its actual pose into the adjacent swing before fading the correction
  * over the existing reach band (Kovar, Schreiner and Gleicher, 2002, §4.5).
@@ -141,7 +141,9 @@ interface ISeams {
 
 type Flight = NonNullable<IAutoMovieMotionHumanWalkFoot.IScheduled["swing"]>;
 
-/** One tick along the owning phase's existing backward endpoint estimate. */
+/*
+ * One tick along the owning phase's existing backward endpoint estimate.
+ */
 function extrapolate(last: IFoot, previous: IFoot): IFoot {
   return {
     ankle: Vector3.add(
@@ -162,7 +164,9 @@ function extrapolate(last: IFoot, previous: IFoot): IFoot {
   };
 }
 
-/** The unconstrained goal's correction at the change of solver. */
+/*
+ * The unconstrained goal's correction at the change of solver.
+ */
 function difference(held: IFoot, free: IFoot): IAdjustment {
   return {
     ankle: Vector3.subtract(held.ankle, free.ankle),

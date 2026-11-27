@@ -4,10 +4,10 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * The single world volume a whole run is contained by.
  *
- * This is the broad-phase companion to {@link serviceSegmentSpanBounds}: one box
+ * This is the broad-phase companion to serviceSegmentSpanBounds: one box
  * a caller can index, cull or draw a bounding volume from without walking every
  * leg. Interference is decided on the spans, never on this. Coordinates and
  * radius use metres and must already be admitted; empty routes throw, while a

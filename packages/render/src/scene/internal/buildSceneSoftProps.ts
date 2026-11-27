@@ -13,7 +13,7 @@ import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 import { softPropCordSurface } from "./softPropCordSurface.js";
 
-/**
+/*
  * Own a scene's soft props without retaining film samples. Each update supplies
  * the already evaluated world-space surfaces for one instant.
  */
@@ -88,7 +88,9 @@ export function buildSceneSoftProps(
   };
 }
 
-/** Consecutive distinct particles, matching the rings softPropCordSurface draws. */
+/*
+ * Consecutive distinct particles, matching the rings softPropCordSurface draws.
+ */
 function cordParticles(
   positions: readonly number[],
   radius: number,

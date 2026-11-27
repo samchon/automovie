@@ -10,9 +10,13 @@ import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
 
-/** Rigid carrier deltas applied to a quadruped's parts and contacts. */
+/*
+ * Rigid carrier deltas applied to a quadruped's parts and contacts.
+ */
 export namespace ApplyQuadrupedCarrierPose {
-  /** Copy mutable part data while retaining the admitted cell shared with it. */
+  /*
+   * Copy mutable part data while retaining the admitted cell shared with it.
+   */
   export function copy(
     part: IAutoMovieModelPart,
     cells: AutoMovieArchetypeConvexCell.Table,
@@ -23,16 +27,15 @@ export namespace ApplyQuadrupedCarrierPose {
     return { ...structuredClone(metadata), geometry };
   }
 
-  /**
+  /*
    * Move parts and contact frames through their carriers' rigid deltas from the
    * rest frames to the posed frames.
-   *
-   * @param animal The model whose parts and contacts move; never changed.
-   * @param rest Each bone's rest frame.
-   * @param posed Each bone's posed frame.
-   * @param parts The carrier bone of each non-bone part.
-   * @param contacts The carrier bone of each contact.
-   * @returns A fresh model with the moved parts and contact frames.
+   * Parameter animal: The model whose parts and contacts move; never changed.
+   * Parameter rest: Each bone's rest frame.
+   * Parameter posed: Each bone's posed frame.
+   * Parameter parts: The carrier bone of each non-bone part.
+   * Parameter contacts: The carrier bone of each contact.
+   * Returns: A fresh model with the moved parts and contact frames.
    */
   export function emit<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,

@@ -16,7 +16,7 @@ import { appendLightMotionsArtifact } from "../../validation/internal/appendLigh
 import { compilePracticalLightMotion } from "./compilePracticalLightMotion";
 import { compileAutoMovieFlameFlicker } from "../flame/internal/compileAutoMovieFlameFlicker";
 
-/**
+/*
  * Resolve practical bindings against the staged scene and models and bake them
  * after the shot's object clips are assembled. Generated clips are appended
  * after authored light clips in binding order. The ordinary light gate checks

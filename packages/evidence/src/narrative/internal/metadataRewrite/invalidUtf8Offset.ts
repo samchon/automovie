@@ -1,7 +1,9 @@
 import { between } from "./between";
 import { continuation } from "./continuation";
 
-/** Returns the first invalid UTF-8 sequence start, or -1 for strict UTF-8. */
+/*
+ * Returns the first invalid UTF-8 sequence start, or -1 for strict UTF-8.
+ */
 export function invalidUtf8Offset(bytes: Buffer): number {
   for (let index: number = 0; index < bytes.length; ) {
     const first: number = bytes[index];

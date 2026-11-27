@@ -15,7 +15,7 @@ import type {
 import { AutoMovieArchetypeFrame } from "../../../core/AutoMovieArchetypeFrame";
 import { createTrackedRails } from "../createTrackedRails";
 
-/**
+/*
  * Place a course, its moving car and its usable waiting platforms as one
  * module.
  *
@@ -28,13 +28,12 @@ import { createTrackedRails } from "../createTrackedRails";
  * views; its centre lies on the sampled course and its border rails interpolate
  * corresponding cross sections. Named stops are static anchors. The exported
  * carrier-affordance anchors describe the initial pose.
- *
- * @param input Course, rigid car with a named threshold and rider contact, time
- *   marks, and named held stops.
- * @returns An environment module with models, set pieces, prop, support and
- *   object clip.
- * @throws On malformed timing, gauge, carrier, threshold or stop positions, or
- *   if a threshold is not level and side-aligned in its placed stop frame.
+ * Parameter input: Course, rigid car with a named threshold and rider contact, time
+ * marks, and named held stops.
+ * Returns: An environment module with models, set pieces, prop, support and
+ * object clip.
+ * On malformed timing, gauge, carrier, threshold or stop positions, or
+ * if a threshold is not level and side-aligned in its placed stop frame.
  */
 export function createTrackedRide(
   input: IAutoMovieTrackedRide,
@@ -126,7 +125,9 @@ export function createTrackedRide(
       articulation: null,
     };
 
-    /** Compose the same local course with the occurrence's assigned world frame. */
+    /*
+     * Compose the same local course with the occurrence's assigned world frame.
+     */
     const at = (distance: number): IAutoMovieTransform =>
       AutoMovieArchetypeFrame.compose(context.frame, course.frame(distance));
 
@@ -231,21 +232,25 @@ export function createTrackedRide(
     };
   };
 }
-/** Lateral and forward axes of the authored threshold. */
+/*
+ * Lateral and forward axes of the authored threshold.
+ */
 const LOCAL_X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
 const LOCAL_Z: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
-/**
+/*
  * Match the engine's unit-rotation admission scale when checking boarding
  * frames.
  */
 const LEVEL_TOLERANCE: number = 1e-6;
 
-/** Usable waiting width beside the car, in metres. */
+/*
+ * Usable waiting width beside the car, in metres.
+ */
 const PLATFORM_WIDTH: number = 1.5;
 
-/**
+/*
  * The endpoint of a closed course owns the same platform and anchor as its
  * start.
  */
@@ -256,7 +261,9 @@ function placeDistance(
   return course.closed && distance === course.length ? 0 : distance;
 }
 
-/** Find the first sample not less than a distance, excluding the upper bound. */
+/*
+ * Find the first sample not less than a distance, excluding the upper bound.
+ */
 function lowerBound(samples: readonly number[], distance: number): number {
   let lo: number = 0;
   let hi: number = samples.length;
@@ -268,7 +275,9 @@ function lowerBound(samples: readonly number[], distance: number): number {
   return lo;
 }
 
-/** Put one time key at each explicitly authored mark and crossed rail station. */
+/*
+ * Put one time key at each explicitly authored mark and crossed rail station.
+ */
 function trackKeys(
   stations: readonly number[],
   schedule: readonly IAutoMovieTrackedRide.IMark[],
@@ -301,7 +310,9 @@ function trackKeys(
   return keys;
 }
 
-/** Place a visible walkable platform directly alongside its level threshold. */
+/*
+ * Place a visible walkable platform directly alongside its level threshold.
+ */
 function createPlatform(
   id: string,
   root: IAutoMovieTransform,

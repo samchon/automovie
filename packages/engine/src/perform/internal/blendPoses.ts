@@ -6,7 +6,7 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-/**
+/*
  * Blend a nonempty list of admitted same-skeleton clinical poses by positive
  * finite weights per non-null axis. Bone order follows first appearance; root
  * is the last owning layer's value, else the last non-null root. The result
@@ -81,8 +81,12 @@ const AXES: readonly ["flexion", "abduction", "twist"] = [
 ] as const;
 
 interface IAxisAccumulator {
-  /** Summed weight of the layers that set each axis (non-null). */
+  /*
+   * Summed weight of the layers that set each axis (non-null).
+   */
   weight: [number, number, number];
-  /** Summed weight×value of those layers. */
+  /*
+   * Summed weight×value of those layers.
+   */
   weighted: [number, number, number];
 }

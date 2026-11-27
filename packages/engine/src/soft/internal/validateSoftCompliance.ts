@@ -7,7 +7,7 @@ import {
 
 import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
 
-/**
+/*
  * Admit a domain's compliance and contact: every compliance finite and not
  * negative, the thickness finite and positive, the friction finite and not
  * negative; and, when a cord asks for self-collision, a step that cannot carry
@@ -20,10 +20,9 @@ import { validateSoftNumeric as numeric } from "./validateSoftNumeric";
  * declared-speed premise the structural travel number rests on. Self collision
  * is evaluated only on a cord, a one-wide lattice; a sheet that asks for it is
  * refused, since the solver does not evaluate cloth on cloth.
- *
- * @param out The collector the domain's validation writes to.
- * @param root The domain's path.
- * @param domain The domain.
+ * Parameter out: The collector the domain's validation writes to.
+ * Parameter root: The domain's path.
+ * Parameter domain: The domain.
  */
 export function validateSoftCompliance(
   out: IAutoMovieViolationCollector,

@@ -14,12 +14,11 @@ import { HumanMountOnFrame } from "./HumanMountOnFrame";
 import { HumanMountPlace } from "./HumanMountPlace";
 import { HumanMountPush } from "./HumanMountPush";
 
-/**
+/*
  * The flight's reader.
- *
- * @param props What the flight reads from the climb.
- * @returns A leg's goal at a second of the climb; each ankle's distance from
- *   its hip as it leaves is read once.
+ * Parameter props: What the flight reads from the climb.
+ * Returns: A leg's goal at a second of the climb; each ankle's distance from
+ * its hip as it leaves is read once.
  */
 export function HumanMountFlight(
   props: HumanMountFlight.IProps,
@@ -116,7 +115,7 @@ export function HumanMountFlight(
   };
 }
 
-/**
+/*
  * A swinging leg's course in getting onto a high seat (`HumanMountOn`): the
  * ankle travels from where it leaves to its place (`HumanMount.between`), kept
  * a little short of the leg's straight reach, the knee bending toward a pole
@@ -125,63 +124,103 @@ export function HumanMountFlight(
  * rest's own turn. Its toes are not yet turned down (`HumanMountPush.tip`).
  */
 export namespace HumanMountFlight {
-  /** What a leg's flight reads from the climb. */
+  /*
+   * What a leg's flight reads from the climb.
+   */
   export interface IProps {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** Each leg's flight, the seconds it leaves and arrives. */
+    /*
+     * Each leg's flight, the seconds it leaves and arrives.
+     */
     flight: Record<AutoMovieHumanSide, readonly [number, number]>;
 
-    /** The pelvis at an instant. */
+    /*
+     * The pelvis at an instant.
+     */
     frameAt: (t: number) => HumanMountOnFrame.Frame;
 
-    /** The hip joints at an instant, world metres. */
+    /*
+     * The hip joints at an instant, world metres.
+     */
     hipsAt: (t: number) => Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
-    /** The standing legs over a pelvis root. */
+    /*
+     * The standing legs over a pelvis root.
+     */
     legged: ReturnType<typeof stand.prepareLegs>;
 
-    /** Each foot's floor place, world metres. */
+    /*
+     * Each foot's floor place, world metres.
+     */
     floor: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
-    /** Whether each foot starts on the floor. */
+    /*
+     * Whether each foot starts on the floor.
+     */
     onFloor: Record<AutoMovieHumanSide, boolean>;
 
-    /** Each foot where it starts off the floor. */
+    /*
+     * Each foot where it starts off the floor.
+     */
     starts: Record<AutoMovieHumanSide, HumanMount.IFoot>;
 
-    /** Each foot's place on the seated body. */
+    /*
+     * Each foot's place on the seated body.
+     */
     places: Record<AutoMovieHumanSide, HumanMountPlace.IPlace>;
 
-    /** The second each foot starts to bear on its rest. */
+    /*
+     * The second each foot starts to bear on its rest.
+     */
     bearing: Record<AutoMovieHumanSide, number>;
 
-    /** The pushing leg. */
+    /*
+     * The pushing leg.
+     */
     push: AutoMovieHumanSide;
 
-    /** The pushing foot as it leaves the floor. */
+    /*
+     * The pushing foot as it leaves the floor.
+     */
     left: () => HumanMountPush.IRoll;
 
-    /** The heading the climb starts from, degrees. */
+    /*
+     * The heading the climb starts from, degrees.
+     */
     yaw: number;
 
-    /** Whether the seat is sat astride. */
+    /*
+     * Whether the seat is sat astride.
+     */
     astride: boolean;
 
-    /** The point the far foot crosses the seat over, world metres. */
+    /*
+     * The point the far foot crosses the seat over, world metres.
+     */
     over: IAutoMovieVector3;
   }
 
-  /** A swinging leg's goal at an instant, before its toes turn down. */
+  /*
+   * A swinging leg's goal at an instant, before its toes turn down.
+   */
   export interface IFlown {
-    /** How far through its flight the leg is, 0 to 1. */
+    /*
+     * How far through its flight the leg is, 0 to 1.
+     */
     share: number;
 
-    /** The leg's hip joint, world metres. */
+    /*
+     * The leg's hip joint, world metres.
+     */
     hip: IAutoMovieVector3;
 
-    /** The leg's goal. */
+    /*
+     * The leg's goal.
+     */
     goal: IAutoMovieHumanLimbGoal;
   }
 }

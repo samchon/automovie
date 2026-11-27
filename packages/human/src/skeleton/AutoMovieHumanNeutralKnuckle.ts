@@ -144,7 +144,9 @@ export namespace AutoMovieHumanNeutralKnuckle {
     return Turn.straighten(body, `${side}${finger}Proximal`, hand, line);
   }
 
-  /** A finger's radius at a depth: its shaft ring nearest that depth. */
+  /*
+   * A finger's radius at a depth: its shaft ring nearest that depth.
+   */
   function radiusAt(
     finger: IAutoMovieHumanNeutralKnuckle.IFinger,
     depth: number,
@@ -157,7 +159,7 @@ export namespace AutoMovieHumanNeutralKnuckle {
     return finger.radii[best] ?? 0;
   }
 
-  /**
+  /*
    * One finger's skin: its knuckle and its shaft rings' depths and radii, or
    * null without its chain.
    */

@@ -9,7 +9,7 @@ import { Vector3 } from "../../math/Vector3";
 import { projectileAt } from "./projectileAt";
 import { projectileDragDeparture } from "./projectileDragDeparture";
 
-/**
+/*
  * Establish departure from one already resolved fixed-plane contact, or from a
  * fixed convex shape's contact through its supporting plane there: the shape
  * lies behind that plane, so its actual gap is never below the plane's, and

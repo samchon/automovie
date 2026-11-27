@@ -15,7 +15,7 @@ import { WorkoutSupport } from "../../exercise/workout/WorkoutSupport";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { handspring } from "./handspring";
 
-/**
+/*
  * A handspring vault: a front handspring whose hands land on a prop's top, a
  * vaulting table, a box or a plyometric box, and fly from it to the floor or
  * named landing mat beyond. The post-table flight is timed from its release to
@@ -35,20 +35,23 @@ import { handspring } from "./handspring";
  * clear the prop's edge is not checked.
  */
 export namespace vault {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "vault";
 
-  /** Cancel table: the handspring's. */
+  /*
+   * Cancel table: the handspring's.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     handspring.interrupts;
 
-  /**
+  /*
    * Plan a vault.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the prop has no `surface`, the hands come down
-   *   off it, or the handspring refuses.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the prop has no `surface`, the hands come down
+   * off it, or the handspring refuses.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanVault.IParams>,
@@ -62,7 +65,9 @@ export namespace vault {
     );
   }
 
-  /** Resolve a named prop top and check contact points in its local footprint. */
+  /*
+   * Resolve a named prop top and check contact points in its local footprint.
+   */
   function surfaceOf(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanVault.IParams>,
     prop: string,
@@ -99,5 +104,7 @@ export namespace vault {
   }
 }
 
-/** The alternatives of `SurfaceOfAxis`'s site. */
+/*
+ * The alternatives of `SurfaceOfAxis`'s site.
+ */
 type SurfaceOfAxis = "on" | "landOn";

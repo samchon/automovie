@@ -5,13 +5,13 @@ import { AutoMovieViewerDisplay } from "../../display/AutoMovieViewerDisplay.js"
 import type { AutoMovieViewer } from "../AutoMovieViewer.js";
 import { releaseMountedViewer } from "./releaseMountedViewer.js";
 
-/**
+/*
  * Mount a render loop onto a canvas: create a `WebGLRenderer`, drive
  * `onFrame(elapsedSeconds)` each animation frame, then render `scene` from
  * `camera`.
  *
  * This is the one browser-only entry point. `onFrame` is where a
- * {@link AutoMovieRenderPlayer} advances: the viewer stays a thin shell around
+ * AutoMovieRenderPlayer advances: the viewer stays a thin shell around
  * the deterministic engine. `elapsedSeconds` is measured from the first frame. If
  * `onFrame` returns `true` it has **already drawn** the frame itself (e.g. a
  * multi-pass cross-dissolve composite), so the loop skips its own default

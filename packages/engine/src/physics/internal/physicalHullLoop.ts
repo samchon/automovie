@@ -3,7 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { Vector3 } from "../../math/Vector3";
 import { walkSortedPlanarHull } from "../../math/internal/walkSortedPlanarHull";
 
-/**
+/*
  * The indices of the member points on a hull face's boundary, counter clockwise
  * about the face normal.
  *
@@ -11,12 +11,11 @@ import { walkSortedPlanarHull } from "../../math/internal/walkSortedPlanarHull";
  * normal crossed with the coordinate axis it leans on least, and Andrew's
  * monotone chain walks their planar hull. A member collinear with its
  * neighbours on the boundary is left out.
- *
- * @param points Shape-local points, metres.
- * @param member Whether each point lies on the face's plane.
- * @param normal The face's outward unit normal.
- * @returns The boundary's point indices, starting at the member lowest on the
- *   first in-plane axis.
+ * Parameter points: Shape-local points, metres.
+ * Parameter member: Whether each point lies on the face's plane.
+ * Parameter normal: The face's outward unit normal.
+ * Returns: The boundary's point indices, starting at the member lowest on the
+ * first in-plane axis.
  */
 export function physicalHullLoop(
   points: readonly IAutoMovieVector3[],
@@ -43,19 +42,27 @@ export function physicalHullLoop(
   );
 }
 
-/** One projected vertex retains its original index and face-plane coordinates. */
+/*
+ * One projected vertex retains its original index and face-plane coordinates.
+ */
 interface IPlanarPoint {
-  /** Index into the actual source points, unchanged by projection or sorting. */
+  /*
+   * Index into the actual source points, unchanged by projection or sorting.
+   */
   index: number;
 
-  /** Dot product on the first in-plane unit axis. */
+  /*
+   * Dot product on the first in-plane unit axis.
+   */
   x: number;
 
-  /** Dot product on the second in-plane unit axis. */
+  /*
+   * Dot product on the second in-plane unit axis.
+   */
   y: number;
 }
 
-/**
+/*
  * The original X-then-Y ordering is independent of the face and point
  * population.
  */

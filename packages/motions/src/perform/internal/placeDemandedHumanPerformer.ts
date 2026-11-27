@@ -6,7 +6,7 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Place a person a waiting part of an open parallel group holds before a read
  * of them at a second their placed actions do not cover.
  *
@@ -32,19 +32,18 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * freeze only on a detected cycle). Across groups two parts that read each
  * other are a cycle and are refused; a person no waiting part holds is left to
  * the caller's own refusal.
- *
- * @param self The performance state, its schedule readers set while an action
- *   is timed.
- * @param person The person read.
- * @param subject The person's subject.
- * @param seconds The film second read.
- * @param axis The reader of the refusal's axis.
- * @param meeting Whether the person belongs to the reader's own parallel group
- *   with their part still waiting; such a person's cycle is held, not refused.
- * @returns Whether the read holds the person's last placed pose at the second;
- *   false for a partner whose cycle the caller holds.
- * @throws {HumanRefusal} When parts of different groups holding the two people
- *   read each other.
+ * Parameter self: The performance state, its schedule readers set while an action
+ * is timed.
+ * Parameter person: The person read.
+ * Parameter subject: The person's subject.
+ * Parameter seconds: The film second read.
+ * Parameter axis: The reader of the refusal's axis.
+ * Parameter meeting: Whether the person belongs to the reader's own parallel group
+ * with their part still waiting; such a person's cycle is held, not refused.
+ * Returns: Whether the read holds the person's last placed pose at the second;
+ * false for a partner whose cycle the caller holds.
+ * When parts of different groups holding the two people
+ * read each other.
  */
 export function placeDemandedHumanPerformer(
   self: IAutoMovieMotionHumanPerformanceState,
@@ -81,5 +80,7 @@ export function placeDemandedHumanPerformer(
   return false;
 }
 
-/** The reader of a refusal's axis, read only when the read is refused. */
+/*
+ * The reader of a refusal's axis, read only when the read is refused.
+ */
 type DemandAxis = () => string;

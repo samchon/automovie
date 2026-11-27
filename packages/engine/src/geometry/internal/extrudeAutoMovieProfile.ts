@@ -9,7 +9,7 @@ import { convexHull2D } from "../../math/internal/convexHull2D";
 import { meshOf } from "./meshOf";
 import { positive } from "./positive";
 
-/**
+/*
  * Extrude a convex XY profile along local Z into a closed triangle mesh
  * spanning `-depth / 2` to `+depth / 2`.
  *
@@ -25,10 +25,9 @@ import { positive } from "./positive";
  * U could be both zero and the perimeter. `AutoMovieEnginePlanarRegion.extrude`
  * takes the same kind of profile, keeps concave outlines and holes, and lays a
  * metric atlas over the result; use it whenever the prism carries a finish.
- *
- * @param props.profile Convex outline in local XY metres.
- * @param props.depth Positive extrusion depth along local Z, in metres.
- * @returns A closed mesh with normals and no UVs.
+ * Parameter props.profile: Convex outline in local XY metres.
+ * Parameter props.depth: Positive extrusion depth along local Z, in metres.
+ * Returns: A closed mesh with normals and no UVs.
  */
 export const extrudeAutoMovieProfile = (
   props: IAutoMovieExtrudeProfile.IProps,
@@ -53,7 +52,9 @@ export const extrudeAutoMovieProfile = (
   return meshOf(positions, indices);
 };
 
-/** The profile's corners counter-clockwise, refused unless it is its own hull. */
+/*
+ * The profile's corners counter-clockwise, refused unless it is its own hull.
+ */
 const profileHull = (
   profile: readonly IAutoMovieProfilePoint[],
 ): IAutoMovieProfilePoint[] => {

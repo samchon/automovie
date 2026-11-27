@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `holdOn` row of `HumanUpperRows` fixes on `armPhrase`, spread
  * into its parameters. A hold: the relaxed palm rests on the target and stays.
  */

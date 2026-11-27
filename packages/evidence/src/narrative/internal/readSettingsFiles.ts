@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { SETTINGS_DOMAINS } from "./SETTINGS_DOMAINS";
 
-/**
+/*
  * Lists canon paths in reading order: the scaffold's domain folders, numbered
  * subject folders, or legacy flat settings retained without rewriting them.
  *
@@ -74,21 +74,29 @@ export function readSettingsFiles(root: string): string[] {
   return numbered.length ? classified : files.sort(compare);
 }
 
-/** A numbered subject folder name. */
+/*
+ * A numbered subject folder name.
+ */
 const NUMBERED: RegExp = /^[0-9]{3}-[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 
-/** A numbered canon file name. */
+/*
+ * A numbered canon file name.
+ */
 const NUMBERED_FILE: RegExp = /^[0-9]{3}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/u;
 
-/** Base domain filename grammar; list additionally excludes NUMBERED_FILE. */
+/*
+ * Base domain filename grammar; list additionally excludes NUMBERED_FILE.
+ */
 const KEBAB_FILE: RegExp = /^[a-z0-9]+(?:-[a-z0-9]+)*\.md$/u;
 
-/** Code-unit order, independent of locale. */
+/*
+ * Code-unit order, independent of locale.
+ */
 function compare(left: string, right: string): 1 | -1 | 0 {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
-/**
+/*
  * The sorted Markdown files of one settings folder, keeping domain and numbered
  * names disjoint and refusing nesting, bad names and emptiness.
  */

@@ -5,7 +5,9 @@ import type {
 
 import type { IHumanBikeGuidePrint } from "./IHumanBikeGuidePrint";
 
-/** A footprint landing at a second, not yet lifted. */
+/*
+ * A footprint landing at a second, not yet lifted.
+ */
 export function HumanBikeGuidePrint(
   land: number,
   ankle: IAutoMovieVector3,

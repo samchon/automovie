@@ -15,7 +15,9 @@ import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionCloc
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/** The closed set of authored horizontal stage directions. */
+/*
+ * The closed set of authored horizontal stage directions.
+ */
 const DIRECTIONS: Readonly<
   Record<IAutoMovieMotionHumanStageBladeFootwork.Direction, IAutoMovieVector3>
 > = {
@@ -25,7 +27,7 @@ const DIRECTIONS: Readonly<
   right: { x: -1, y: 0, z: 0 },
 };
 
-/**
+/*
  * The AJKF descriptions of sliding footwork inform ground clearance in the
  * kendo profile. Foil studies distinguish foot travel and whole-body carry by
  * measure. The foil profile is the general fencing step; the epee step is
@@ -33,7 +35,8 @@ const DIRECTIONS: Readonly<
  * distance, and the sabre step longer and quicker, as the fastest of the three
  * weapons. All numbers here are provisional film timings and scales, including
  * the deliberate cast timing for the armoured profile.
- *
+ * ://www.kendo.or.jp/knowledge/books/kendogijutsu_01/
+ * ://pmc.ncbi.nlm.nih.gov/articles/PMC13050851/
  * @see https://www.kendo.or.jp/knowledge/books/kendogijutsu_01/
  * @see https://pmc.ncbi.nlm.nih.gov/articles/PMC13050851/
  */
@@ -105,13 +108,17 @@ const PROFILES: Readonly<
   },
 };
 
-/** Reference hip height in metres for the profile's body-scaled edit length. */
+/*
+ * Reference hip height in metres for the profile's body-scaled edit length.
+ */
 const REFERENCE_HIP: number = 0.93;
 
-/** The longest authored mark shift in shares of actor stature. */
+/*
+ * The longest authored mark shift in shares of actor stature.
+ */
 const MAX_TRAVEL: number = 0.23;
 
-/**
+/*
  * A blade set's footwork schedule between two floor marks: the style's profile
  * (`PROFILES`), the mark shift (the profile's share of stature unless authored,
  * at most `MAX_TRAVEL` of it) and the duration (the profile's at the reference
@@ -119,14 +126,13 @@ const MAX_TRAVEL: number = 0.23;
  * travel is the lead going forward, the rear going back, or the side stepped
  * toward; each foot travels over its profile window and plants outside it, and
  * a prop cue rides the same clock.
- *
- * @param params The style, direction, lead, distance, duration and prop cue.
- * @param measure The body's stature and hip height.
- * @param yaw The entry heading, degrees.
- * @param feet The entry feet.
- * @returns The schedule.
- * @throws {HumanRefusal} When the shift, the duration or the prop cue lies
- *   outside its bounds.
+ * Parameter params: The style, direction, lead, distance, duration and prop cue.
+ * Parameter measure: The body's stature and hip height.
+ * Parameter yaw: The entry heading, degrees.
+ * Parameter feet: The entry feet.
+ * Returns: The schedule.
+ * When the shift, the duration or the prop cue lies
+ * outside its bounds.
  */
 export function stageBladeFootworkSchedule(
   params: IAutoMovieMotionHumanStageBladeFootwork.IParams,
@@ -200,49 +206,79 @@ export function stageBladeFootworkSchedule(
   };
 }
 
-/** The footwork's schedule. */
+/*
+ * The footwork's schedule.
+ */
 export namespace stageBladeFootworkSchedule {
-  /** Cadence, travel and swing clearance tuned for visible stage blocking. */
+  /*
+   * Cadence, travel and swing clearance tuned for visible stage blocking.
+   */
   export interface IProfile {
-    /** Two ordered travel windows. */
+    /*
+     * Two ordered travel windows.
+     */
     windows: readonly [Window, Window];
 
-    /** The default length in shares of actor stature. */
+    /*
+     * The default length in shares of actor stature.
+     */
     travel: number;
 
-    /** The peak clearance of the swing in shares of actor stature. */
+    /*
+     * The peak clearance of the swing in shares of actor stature.
+     */
     lift: number;
 
-    /** Peak spinal flexion in clinical degrees as the foot travels. */
+    /*
+     * Peak spinal flexion in clinical degrees as the foot travels.
+     */
     follow: number;
 
-    /** A stage duration in seconds at the reference hip height. */
+    /*
+     * A stage duration in seconds at the reference hip height.
+     */
     seconds: number;
   }
 
-  /** A footwork's profile, feet, travel, clock and plants. */
+  /*
+   * A footwork's profile, feet, travel, clock and plants.
+   */
   export interface ISchedule {
-    /** The style's profile. */
+    /*
+     * The style's profile.
+     */
     profile: IProfile;
 
-    /** The footwork's seconds. */
+    /*
+     * The footwork's seconds.
+     */
     duration: number;
 
-    /** The first foot to travel. */
+    /*
+     * The first foot to travel.
+     */
     first: Side;
 
-    /** The mark shift, world metres. */
+    /*
+     * The mark shift, world metres.
+     */
     travel: IAutoMovieVector3;
 
-    /** The feet's lifts and settles and the prop cue. */
+    /*
+     * The feet's lifts and settles and the prop cue.
+     */
     clock: IAutoMovieMotionClock;
 
-    /** Each foot's plants outside its travel. */
+    /*
+     * Each foot's plants outside its travel.
+     */
     contacts: IAutoMovieMotionHumanContactWindow[];
   }
 }
 
-/** Both fixed intervals of a foot's ground contact outside its travel window. */
+/*
+ * Both fixed intervals of a foot's ground contact outside its travel window.
+ */
 function plants(
   side: Side,
   window: Window,
@@ -265,13 +301,19 @@ function plants(
   ];
 }
 
-/** The other side of the supplied side. */
+/*
+ * The other side of the supplied side.
+ */
 function opposite(side: Side): Side {
   return side === "left" ? "right" : "left";
 }
 
-/** A stage foot selected in the leading or following path. */
+/*
+ * A stage foot selected in the leading or following path.
+ */
 type Side = AutoMovieHumanSide;
 
-/** A normalized starting and settling window for one moving foot. */
+/*
+ * A normalized starting and settling window for one moving foot.
+ */
 type Window = readonly [start: number, settle: number];

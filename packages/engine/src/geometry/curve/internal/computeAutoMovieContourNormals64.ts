@@ -1,7 +1,7 @@
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
 import { AutoMovieCurveMath64 as M } from "../../AutoMovieCurveMath64";
-/**
+/*
  * Accumulate emitted contour-face area vectors and normalize each vertex once.
  * Positions remain in the original common millimetre chart. Opposing areas can
  * cancel; a zero accumulated vector stays zero without a substitute normal.

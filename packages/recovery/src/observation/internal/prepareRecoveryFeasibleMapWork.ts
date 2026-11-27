@@ -9,7 +9,9 @@ import type {
 import { RecoveryFeasibleCapacityError } from "../RecoveryFeasibleCapacityError";
 import { isRecoveryMapIdentityGauge } from "./isRecoveryMapIdentityGauge";
 
-/** Admit fixed-population map work and its separately bounded chart scratch. */
+/*
+ * Admit fixed-population map work and its separately bounded chart scratch.
+ */
 export function prepareRecoveryFeasibleMapWork(
   initialPoses: readonly IAutoMovieRecoveryMapPose[],
   initialLandmarks: readonly IAutoMovieRecoveryMapLandmark[],

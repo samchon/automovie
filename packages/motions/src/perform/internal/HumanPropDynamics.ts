@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Props with mass and friction moved by the hands' force: a prop on the floor
  * slides under Newton's second law and Coulomb friction, a hinged prop turns
  * under its torque, and the pushing body leans so its weight balances the
@@ -39,16 +39,15 @@ import type {
  * authors each drive independently of the poses that follow the prop.
  */
 export namespace HumanPropDynamics {
-  /**
+  /*
    * Give a prop a hinge track under an authored torque. The drive starts at
    * zero angle and speed. The performance holds its final angle.
-   *
-   * @param prop A prop with a named hinge and an articulation pose reader.
-   * @param drive The hinge id, scheduled start, duration, inertia and local
-   *   torque.
-   * @returns A shallow copy of the prop with the appended articulation track.
-   * @throws {Error} An inadmissible hinge, drive value, integration knot or
-   *   requested sample.
+   * Parameter prop: A prop with a named hinge and an articulation pose reader.
+   * Parameter drive: The hinge id, scheduled start, duration, inertia and local
+   * torque.
+   * Returns: A shallow copy of the prop with the appended articulation track.
+   * An inadmissible hinge, drive value, integration knot or
+   * requested sample.
    */
   export function hingeProp(
     prop: IAutoMovieMotionHumanProp,
@@ -108,18 +107,17 @@ export namespace HumanPropDynamics {
     return { ...prop, tracks: [...(prop.tracks ?? []), track] };
   }
 
-  /**
+  /*
    * Give a rigid prop a straight ground slide in a performance. The supplied
    * force is sampled at plan time. The prop starts at rest, keeps its
    * orientation and holds each boundary placement outside the drive's film
    * interval. Its local affordances travel with its frame.
-   *
-   * @param prop The rigid prop at its starting frame with body contact data.
-   * @param drive The horizontal direction, force in newtons and film interval.
-   * @returns A shallow copy of the prop with an authored `motion` reader.
-   * @throws {Error} When the prop already has an incompatible placement source
-   *   or lacks admissible body contact data, or when the drive has an invalid
-   *   direction, interval or sampled force.
+   * Parameter prop: The rigid prop at its starting frame with body contact data.
+   * Parameter drive: The horizontal direction, force in newtons and film interval.
+   * Returns: A shallow copy of the prop with an authored `motion` reader.
+   * When the prop already has an incompatible placement source
+   * or lacks admissible body contact data, or when the drive has an invalid
+   * direction, interval or sampled force.
    */
   export function slideProp(
     prop: IAutoMovieMotionHumanProp,
@@ -200,7 +198,7 @@ export namespace HumanPropDynamics {
     };
   }
 
-  /**
+  /*
    * A slide's distance and speed along the push.
    *
    * Coulomb's law switches at rest: a sliding prop decelerates at the kinetic
@@ -215,10 +213,9 @@ export namespace HumanPropDynamics {
    * double. A second the push itself jumps at (`ISlide.breaks`) is known
    * beforehand, so the integration ends there and restarts from its state
    * (`pieces`), the push read on each side of it as that side's limit.
-   *
-   * @param props The prop and the force.
-   * @returns The trajectory of `[distance, speed]`, the integrator's step its
-   *   first piece's and its knots those of all its pieces.
+   * Parameter props: The prop and the force.
+   * Returns: The trajectory of `[distance, speed]`, the integrator's step its
+   * first piece's and its knots those of all its pieces.
    */
   export function slide(
     props: IAutoMovieMotionHumanPropDynamics.ISlide,
@@ -297,17 +294,16 @@ export namespace HumanPropDynamics {
     return joined(props.from, props.to, pieces);
   }
 
-  /**
+  /*
    * A hinged prop's turn under a torque, the integration ended and restarted at
    * each second the torque jumps at, the torque read on each side of it as that
    * side's limit.
-   *
-   * @param inertia The moment of inertia about the hinge, kg m².
-   * @param torque The torque about the hinge at a second, N m. Pure.
-   * @param from Start, seconds.
-   * @param to End, seconds.
-   * @param breaks The seconds the torque jumps at, none when absent.
-   * @returns The trajectory of `[angle, angular speed]`, radians.
+   * Parameter inertia: The moment of inertia about the hinge, kg m².
+   * Parameter torque: The torque about the hinge at a second, N m. Pure.
+   * Parameter from: Start, seconds.
+   * Parameter to: End, seconds.
+   * Parameter breaks: The seconds the torque jumps at, none when absent.
+   * Returns: The trajectory of `[angle, angular speed]`, radians.
    */
   export function hinge(
     inertia: number,
@@ -337,15 +333,14 @@ export namespace HumanPropDynamics {
     return joined(from, to, pieces);
   }
 
-  /**
+  /*
    * The lean that balances a horizontal push's reaction, degrees forward, or
    * null when the body's weight cannot balance it.
-   *
-   * @param mass The body's mass, kilograms.
-   * @param height Its centre-of-mass height, metres.
-   * @param force The push, newtons, positive forward.
-   * @param hands The hands' height, metres.
-   * @returns Degrees, or null.
+   * Parameter mass: The body's mass, kilograms.
+   * Parameter height: Its centre-of-mass height, metres.
+   * Parameter force: The push, newtons, positive forward.
+   * Parameter hands: The hands' height, metres.
+   * Returns: Degrees, or null.
    */
   export function lean(
     mass: number,
@@ -359,13 +354,15 @@ export namespace HumanPropDynamics {
     return (Math.asin(ratio) * 180) / Math.PI;
   }
 
-  /** One integrated stretch of a drive, read up to its last second. */
+  /*
+   * One integrated stretch of a drive, read up to its last second.
+   */
   interface IPiece {
     to: number;
     path: IAutoMovieIntegrateMotionTrajectory.ITrajectory;
   }
 
-  /**
+  /*
    * A drive's stretches between the seconds its input jumps at, those strictly
    * inside it, ascending and distinct.
    */
@@ -390,7 +387,7 @@ export namespace HumanPropDynamics {
       .map((end: number, i: number): [number, number] => [cuts[i]!, end]);
   }
 
-  /**
+  /*
    * A second held strictly inside a stretch, one rounding step in from each
    * end, so an input that jumps at an end is read as this stretch's side of
    * it.
@@ -400,7 +397,9 @@ export namespace HumanPropDynamics {
       Math.max(Number.MIN_VALUE, Math.abs(x) * Number.EPSILON);
     return Math.min(end - ulp(end), Math.max(start + ulp(start), t));
   }
-  /** The stretches' trajectories as one, each piece's knots within its span. */
+  /*
+   * The stretches' trajectories as one, each piece's knots within its span.
+   */
   function joined(
     from: number,
     to: number,

@@ -1,6 +1,6 @@
 import type { IAutoMovieTemplateScaffoldProps } from "@automovie/template";
 
-/**
+/*
  * Explain the work between a freshly written installation and a runnable
  * production.
  *
@@ -12,10 +12,9 @@ import type { IAutoMovieTemplateScaffoldProps } from "@automovie/template";
  * the generated `README.md`, `AGENTS.md`, the `lint` and `evidence` scripts and
  * the workspace's `add` command, so they must change with the scaffold's
  * first-run README sections.
- *
- * @param directory The installed directory.
- * @param kind Which installation was written.
- * @returns The closing text.
+ * Parameter directory: The installed directory.
+ * Parameter kind: Which installation was written.
+ * Returns: The closing text.
  */
 export function renderAutoMovieScaffoldNextSteps(
   directory: string,

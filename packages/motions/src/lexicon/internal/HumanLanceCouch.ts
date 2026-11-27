@@ -34,26 +34,26 @@ import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanMountedPresentation } from "./HumanMountedPresentation";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 
-/**
+/*
  * The carried shaft's direction in the seat frame: along the travel, the point
  * a little down and in, so the butt behind the grip rises clear of the horse's
  * croup and passes outside the rider's arm (provisional).
  */
 const LEVEL: Readonly<IAutoMovieVector3> = { x: 0.05, y: -0.2, z: 1 };
 
-/**
+/*
  * The step the strike is first sought at, seconds: a film frame at 60 per
  * second.
  */
 const FRAME: number = 1 / 60;
 
-/**
+/*
  * Seconds the arms take from the entry to the couch and the bridle
  * (provisional).
  */
 const REACH: number = 0.5;
 
-/**
+/*
  * A lance couched and lowered to a skill-at-arms target from the saddle
  * (`IAutoMovieMotionHumanLanceCouch`): carried on the seat contact, the right
  * hand holds the lance by its grip with the upper arm out and down from the
@@ -77,16 +77,8 @@ export const HumanLanceCouch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
     plan: planHumanLanceCouch,
   };
 
-/**
+/*
  * Admit the act, find the strike, lay the stations, then sample.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the refusals: a non-seated entry, a target the lowered point never reaches inside the act, a strike too early to lower to, and a target past the mounted presentation's bearing.
- * @evidence contracts/development/implementation.md#principled-implementation The target closes on the rider in the seat frame as the horse comes up; once it lies within the arm's and the lance's reach of the shoulder, each frame seeks a grip one lance length from the target from which a closed-form elbow lays the forearm at the grasp's angle to the line to it, and the first frame with one is the strike; the shaft lies on that line, so the point meets the target there.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the strike, the stations, then the sampler.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A target no carriage reaches is refused with the nearest it comes, never struck short.
- * @evidence contracts/development/implementation.md#efficient-algorithms One seat read and one target read per frame of the search, and a fixed set of closed-form grips only once the target is within reach; two carriages laid once; a sample reads one seat frame, the horse's shapes and the two reins.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The tool, the stations, the strike and the two carriages are shared by every sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the tool, the carrier reader and the target's prop.
  */
 function planHumanLanceCouch(
   context: Context,
@@ -371,23 +363,24 @@ function planHumanLanceCouch(
   });
 }
 
-/** And above and below the target's level, in degrees. */
+/*
+ * And above and below the target's level, in degrees.
+ */
 const UPDOWN: number = 10;
 
-/**
+/*
  * A carriage that lays the lance's point on a target, if any: the grip one
  * lance length from the target, within the arm's reach, with an elbow that lays
  * the forearm at the grasp's angle to the line to the target; of those found,
  * the one whose hand turns least from the carry's.
- *
- * @param arm The rider's lance arm.
- * @param shoulder The right shoulder, seat-frame metres.
- * @param tool The held lance in the hand's frame.
- * @param target The target's point, seat-frame metres.
- * @param from The carry's hand rotation, seat frame.
- * @param horse The horse's body, which the carriage keeps clear of.
- * @param reaches Whether the arm's own fit holds a carriage.
- * @returns The carriage, or undefined when none lays the point on the target.
+ * Parameter arm: The rider's lance arm.
+ * Parameter shoulder: The right shoulder, seat-frame metres.
+ * Parameter tool: The held lance in the hand's frame.
+ * Parameter target: The target's point, seat-frame metres.
+ * Parameter from: The carry's hand rotation, seat frame.
+ * Parameter horse: The horse's body, which the carriage keeps clear of.
+ * Parameter reaches: Whether the arm's own fit holds a carriage.
+ * Returns: The carriage, or undefined when none lays the point on the target.
  */
 function striking(
   arm: HumanLanceCouchCarriage.IArm,
@@ -438,6 +431,8 @@ function striking(
   return HumanLanceCouchPick(options, reaches).laid;
 }
 
-/** The law's context. */
+/*
+ * The law's context.
+ */
 type Context =
   IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLanceCouch>;

@@ -8,7 +8,7 @@ import { AUTOMOVIE_PLACED_FRAME_TOLERANCE } from "../AUTOMOVIE_PLACED_FRAME_TOLE
 import { AutoMovieRenderInspectionPath } from "../../AutoMovieRenderInspectionPath.js";
 import { isAutoMovieAffineMatrix } from "./isAutoMovieAffineMatrix.js";
 
-/**
+/*
  * Report every visible displayed node and the delivery camera whose active
  * placement cannot be drawn.
  *
@@ -19,11 +19,10 @@ import { isAutoMovieAffineMatrix } from "./isAutoMovieAffineMatrix.js";
  * ancestor can break it. Each finding names the node by
  * `AutoMovieRenderInspectionPath.entityPathOf`, so two same-named nodes never share an
  * identity, and the camera as `camera`.
- *
- * @param scene The settled scene; its visible nodes are inspected.
- * @param camera The delivery camera, inspected once whether or not it is in the
- *   scene.
- * @param findings Receives one finding per failed field.
+ * Parameter scene: The settled scene; its visible nodes are inspected.
+ * Parameter camera: The delivery camera, inspected once whether or not it is in the
+ * scene.
+ * Parameter findings: Receives one finding per failed field.
  */
 export function inspectAutoMovieNativePlacement(
   scene: Object3D,
@@ -38,14 +37,20 @@ export function inspectAutoMovieNativePlacement(
 
 type IFinding = IAutoMovieInspectionDiagnostics.IFinding;
 
-/** Check name of the native placement findings. */
+/*
+ * Check name of the native placement findings.
+ */
 const NATIVE_CHECK: string = "placed-transform";
 
-/** Shared message of a matrix authority that cannot be drawn. */
+/*
+ * Shared message of a matrix authority that cannot be drawn.
+ */
 const MATRIX_ISSUE: string =
   "active matrix must be finite and affine, and invertible for a camera";
 
-/** Message of each native placement field that can fail. */
+/*
+ * Message of each native placement field that can fail.
+ */
 const NATIVE_ISSUES: Readonly<
   Record<"matrix" | "matrixWorld" | "position" | "quaternion" | "scale", string>
 > = {
@@ -56,10 +61,14 @@ const NATIVE_ISSUES: Readonly<
   scale: "scale components must be finite and nonzero for a camera",
 };
 
-/** A native placement field that can fail. */
+/*
+ * A native placement field that can fail.
+ */
 type INativeField = keyof typeof NATIVE_ISSUES;
 
-/** Append the findings of one node's failed placement fields. */
+/*
+ * Append the findings of one node's failed placement fields.
+ */
 function inspectNode(
   scene: Object3D,
   object: Object3D,
@@ -112,7 +121,7 @@ function inspectNode(
     });
 }
 
-/**
+/*
  * Whether a matrix can be drawn: affine and finite, and invertible for a
  * camera.
  */

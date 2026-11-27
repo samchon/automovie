@@ -100,7 +100,7 @@ export namespace AutoMovieHumanHeadFeatures {
     const k: number = plan.scale;
     let contact: IAutoMovieHumanHeadLipContact.IContact | undefined;
 
-    /**
+    /*
      * The paired lips borrow this same actual original contact at explicit
      * demand.
      */
@@ -109,7 +109,9 @@ export namespace AutoMovieHumanHeadFeatures {
       return contact;
     }
 
-    /** Only this requested source reads the original mass's nasal fall. */
+    /*
+     * Only this requested source reads the original mass's nasal fall.
+     */
     function nose(): IAutoMovieHumanHeadFeatures.IFeature[] {
       // The nose's body from its views (`AutoMovieHumanHeadNosePart`), its axis
       // the inset and twice the face's sagitta under its half width behind the
@@ -138,7 +140,7 @@ export namespace AutoMovieHumanHeadFeatures {
       ];
     }
 
-    /**
+    /*
      * Each lip keeps its original source and shares only its contact
      * preparation.
      */
@@ -158,7 +160,7 @@ export namespace AutoMovieHumanHeadFeatures {
       ];
     }
 
-    /**
+    /*
      * Each orbital cutter owns its actual side input and explicit native host
      * reads.
      */
@@ -254,7 +256,7 @@ export namespace AutoMovieHumanHeadFeatures {
     };
   }
 
-  /**
+  /*
    * One factory's actual return or original thrown value, owned by this
    * preparation.
    */
@@ -262,7 +264,9 @@ export namespace AutoMovieHumanHeadFeatures {
     | { kind: "returned"; parts: IAutoMovieHumanHeadFeatures.IFeature[] }
     | { kind: "threw"; error: unknown };
 
-  /** One dome feature. */
+  /*
+   * One dome feature.
+   */
   function dome(
     name: string,
     join: "merge" | "diff",

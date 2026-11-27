@@ -11,16 +11,15 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Where a tool works.
- *
- * @param context The action's context.
- * @param work The kind, the aimed work point, the performer's forward and the
- *   tool's reach from its grip to its face, metres.
- * @returns The work point and a stir's circle.
- * @throws {HumanRefusal} When a stir's work point is no vessel's inside, the
- *   vessel declares no `rim` or no inside width, or the spoon is too short to
- *   reach the stirring depth from above the rim.
+ * Parameter context: The action's context.
+ * Parameter work: The kind, the aimed work point, the performer's forward and the
+ * tool's reach from its grip to its face, metres.
+ * Returns: The work point and a stir's circle.
+ * When a stir's work point is no vessel's inside, the
+ * vessel declares no `rim` or no inside width, or the spoon is too short to
+ * reach the stirring depth from above the rim.
  */
 export function HumanToolWork(
   context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
@@ -72,7 +71,7 @@ export function HumanToolWork(
   });
 }
 
-/**
+/*
  * Where a held tool works: the work point a hammer, a saw or a screwdriver is
  * brought to, and for a stir the vessel stirred.
  *
@@ -86,50 +85,69 @@ export function HumanToolWork(
  * anything but a vessel's inside.
  */
 export namespace HumanToolWork {
-  /** Where a tool works. */
+  /*
+   * Where a tool works.
+   */
   export interface IWork {
-    /**
+    /*
      * The working point at a contact, world metres: for a stir, the circle's
      * point nearest the performer.
      */
     on: IAutoMovieVector3;
 
-    /** A stir's circle radius, metres; 0 for the other kinds. */
+    /*
+     * A stir's circle radius, metres; 0 for the other kinds.
+     */
     radius: number;
   }
-  /** A stir's vessel, spoon and arm. */
+  /*
+   * A stir's vessel, spoon and arm.
+   */
   export interface IStir {
-    /** The vessel's name. */
+    /*
+     * The vessel's name.
+     */
     subject: string;
 
-    /** The vessel's declared inside: its floor and width. */
+    /*
+     * The vessel's declared inside: its floor and width.
+     */
     inside: Pick<IAutoMovieAffordance, "frame" | "width">;
 
-    /** The vessel's declared rim. */
+    /*
+     * The vessel's declared rim.
+     */
     rim: Pick<IAutoMovieAffordance, "frame">;
 
-    /** The vessel's world frame. */
+    /*
+     * The vessel's world frame.
+     */
     frame: IAutoMovieRigidTransform;
 
-    /** The performer's forward. */
+    /*
+     * The performer's forward.
+     */
     forward: IAutoMovieVector3;
 
-    /** The spoon's reach from its grip to its face, metres. */
+    /*
+     * The spoon's reach from its grip to its face, metres.
+     */
     length: number;
 
-    /** The performer's forearm, metres. */
+    /*
+     * The performer's forearm, metres.
+     */
     forearm: number;
   }
 
-  /**
+  /*
    * A stir's work point: halfway between the inside's floor and the rim, on a
    * circle the lesser of a third of the forearm and a quarter of the inside's
    * width across, its point nearest the performer.
-   *
-   * @param stir The vessel, the spoon and the arm.
-   * @returns The work point and the circle's radius.
-   * @throws {HumanRefusal} When the inside has no width or the spoon is shorter
-   *   than the stirring depth below the rim.
+   * Parameter stir: The vessel, the spoon and the arm.
+   * Returns: The work point and the circle's radius.
+   * When the inside has no width or the spoon is shorter
+   * than the stirring depth below the rim.
    */
   export function stir(stir: IStir): IWork {
     const { subject, inside, rim, frame } = stir;
@@ -169,7 +187,9 @@ export namespace HumanToolWork {
   }
 }
 
-/** The record of `IOfWork`'s site. */
+/*
+ * The record of `IOfWork`'s site.
+ */
 type IOfWork = {
   kind: IAutoMovieMotionHumanToolWork.Kind;
   on: IAutoMovieMotionTarget;
@@ -177,5 +197,7 @@ type IOfWork = {
   length: number;
 };
 
-/** The alternatives of `OfContext`'s site. */
+/*
+ * The alternatives of `OfContext`'s site.
+ */
 type OfContext = "aim" | "body" | "prop" | "start";

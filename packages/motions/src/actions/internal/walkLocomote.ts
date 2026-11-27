@@ -35,13 +35,12 @@ import { walkSupportHeight } from "./walkSupportHeight";
 import { walkSwing } from "./walkSwing";
 import { walkWindows } from "./walkWindows";
 
-/**
+/*
  * Plan stepping locomotion in a gait: footprints, their timing, the pelvis and
  * the arms, shared by walking and running.
- *
- * @param given The action's context; `pace` is read by the caller only.
- * @param gait The gait.
- * @returns The plan.
+ * Parameter given: The action's context; `pace` is read by the caller only.
+ * Parameter gait: The gait.
+ * Returns: The plan.
  */
 export function walkLocomote(
   given: IAutoMovieMotionHumanActionContext<
@@ -274,5 +273,7 @@ export function walkLocomote(
   return walkPlayback(walkClock(context, planned, gait, clock), body);
 }
 
-/** The alternatives of `WalkLocomoteAuthoredEntry`'s site. */
+/*
+ * The alternatives of `WalkLocomoteAuthoredEntry`'s site.
+ */
 type WalkLocomoteAuthoredEntry = "stride" | "arms";

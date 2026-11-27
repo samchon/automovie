@@ -33,7 +33,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { StrikingTarget } from "../../striking/internal/StrikingTarget";
 import { ReactionSource } from "./ReactionSource";
 
-/**
+/*
  * Giving way to a contact: the head turned aside by a slap, or the trunk
  * carried by a hand that pushes or pulls, then a return to what the body held.
  * It is the receiver's part of a stage slap, a grab or a light push that does
@@ -56,10 +56,12 @@ import { ReactionSource } from "./ReactionSource";
  * the head with the hand's passage) gives the direction only.
  */
 export namespace give {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "give";
 
-  /**
+  /*
    * Cancel table: anything may follow from the peak on, a stagger or a
    * knockdown at any time.
    */
@@ -70,39 +72,46 @@ export namespace give {
       knockdown: ["anytime", "reflex"],
     });
 
-  /**
+  /*
    * A reaction interrupts whatever the body was doing, at any instant, as a
    * reflex.
    */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
-  /**
+  /*
    * The head's turn at full intensity, degrees (provisional), inside the neck's
    * rotation of about 80 degrees each way.
    */
   export const TURN: number = 45;
 
-  /** The head's tilt with the turn at full intensity, degrees (provisional). */
+  /*
+   * The head's tilt with the turn at full intensity, degrees (provisional).
+   */
   export const TILT: number = 8;
 
-  /** Seconds to the peak (provisional). */
+  /*
+   * Seconds to the peak (provisional).
+   */
   export const RISE: number = 0.12;
 
-  /** Seconds held at the peak and seconds of the return (provisional). */
+  /*
+   * Seconds held at the peak and seconds of the return (provisional).
+   */
   export const RETURN: readonly [number, number] = [0.15, 0.45];
 
-  /** The trunk's shift at full intensity, a share of the stature (provisional). */
+  /*
+   * The trunk's shift at full intensity, a share of the stature (provisional).
+   */
   export const SHIFT: number = 0.03;
 
-  /**
+  /*
    * A give's timetable: the body gives over `RISE` to the `stroke`, holds the
    * first part of `RETURN` and recovers over its second; its intensity lies in
    * (0, 1].
-   *
-   * @param intensity The give's intensity.
-   * @returns The phrase clock.
-   * @throws {HumanRefusal} When the intensity lies outside (0, 1].
+   * Parameter intensity: The give's intensity.
+   * Returns: The phrase clock.
+   * When the intensity lies outside (0, 1].
    */
   export function timetable(intensity: number): IAutoMovieMotionClock {
     HumanBound.within("intensity", intensity, 0, 1, "", "minimum");
@@ -113,12 +122,11 @@ export namespace give {
       retract: RETURN[1],
     });
   }
-  /**
+  /*
    * Plan the reaction.
-   *
-   * @param context The action's context.
-   * @returns The plan, whose decisive instant is its start.
-   * @throws {HumanRefusal} When the intensity lies outside (0, 1].
+   * Parameter context: The action's context.
+   * Returns: The plan, whose decisive instant is its start.
+   * When the intensity lies outside (0, 1].
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGive.IParams>,
@@ -137,7 +145,9 @@ export namespace give {
     // Away from the contact in the performer's floor frame: `x` left, `z`
     // forward; reversed for a pull.
     // The head's actual place and, for a head reaction, the neck's sign.
-    /** The observation transfers only the actual direction and chosen angles. */
+    /*
+     * The observation transfers only the actual direction and chosen angles.
+     */
     type IReaction = IReaction2 | IReaction3;
     const reaction: IReaction = ((): IReaction => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> =
@@ -214,7 +224,7 @@ export namespace give {
     };
   }
 
-  /**
+  /*
    * The neck and head angles that turn and tilt the head to a side: 1 for the
    * performer's left, -1 for the right.
    */
@@ -270,19 +280,29 @@ export namespace give {
   }
 }
 
-/** The alternatives of `TurnedSignAxis2`'s site. */
+/*
+ * The alternatives of `TurnedSignAxis2`'s site.
+ */
 type TurnedSignAxis2 = 1 | 2;
 
-/** The alternatives of `TurnedSignAxis`'s site. */
+/*
+ * The alternatives of `TurnedSignAxis`'s site.
+ */
 type TurnedSignAxis = 1 | 2;
 
-/** The alternatives of `TurnedSide`'s site. */
+/*
+ * The alternatives of `TurnedSide`'s site.
+ */
 type TurnedSide = 1 | -1;
 
-/** The record of `IReaction3`'s site. */
+/*
+ * The record of `IReaction3`'s site.
+ */
 type IReaction3 = { part: "trunk"; away: IAutoMovieVector3 };
 
-/** The record of `IReaction2`'s site. */
+/*
+ * The record of `IReaction2`'s site.
+ */
 type IReaction2 = {
   part: "head";
   away: IAutoMovieVector3;

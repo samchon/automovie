@@ -25,7 +25,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 import { stuntFallPose } from "./stuntFallPose";
 
-/**
+/*
  * Fall down a staircase from the tread the performer stands on: a tumble on the
  * back and the sides, or a controlled slide on the seat. The body rests on each
  * lower tread's nosing in turn, its lowest part on it, sliding along the flight
@@ -34,12 +34,11 @@ import { stuntFallPose } from "./stuntFallPose";
  * the seat on the stair prop, after the body has gone down onto the tread it
  * stood on over `FALL`. The body comes to rest `RUNOUT` past the last nosing,
  * lying on its back (or sitting, for the slide).
- *
- * @param context The action's context, standing on a tread of the flight.
- * @param p The stair fall.
- * @returns The fall, ending lying or sitting at the flight's foot.
- * @throws {HumanRefusal} If the prop has no steps, or a tumble has fewer than
- *   two treads below the performer.
+ * Parameter context: The action's context, standing on a tread of the flight.
+ * Parameter p: The stair fall.
+ * Returns: The fall, ending lying or sitting at the flight's foot.
+ * If the prop has no steps, or a tumble has fewer than
+ * two treads below the performer.
  */
 export function stuntFallStairs(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStuntFall.IParams>,
@@ -267,49 +266,63 @@ export function stuntFallStairs(
   };
 }
 
-/**
+/*
  * Kinetic friction of a body sliding on stair treads, dimensionless
  * (provisional).
  */
 const TUMBLE: number = 0.3;
 
-/**
+/*
  * Kinetic friction of a seat sliding down treads, dimensionless (provisional: a
  * controlled slide).
  */
 const SLIDE: number = 0.55;
 
-/**
+/*
  * The least speed between contacts, metres per second (provisional: the body
  * keeps going over each nosing).
  */
 const CRAWL: number = 0.4;
 
-/** How far past the last nosing the body comes to rest, metres (provisional). */
+/*
+ * How far past the last nosing the body comes to rest, metres (provisional).
+ */
 const RUNOUT: number = 0.5;
 
-/**
+/*
  * Seconds the body takes to go down from standing onto the flight (provisional:
  * a backward fall's half second and more).
  */
 const FALL: number = 0.6;
 
-/** Seconds the body settles after its last contact (provisional). */
+/*
+ * Seconds the body settles after its last contact (provisional).
+ */
 const SETTLE: number = 0.6;
 
-/** A stair tread in world metres. */
+/*
+ * A stair tread in world metres.
+ */
 interface ITread {
-  /** Its affordance id. */
+  /*
+   * Its affordance id.
+   */
   id: string;
 
-  /** Its top's centre. */
+  /*
+   * Its top's centre.
+   */
   centre: IAutoMovieVector3;
 
-  /** Its depth along the flight. */
+  /*
+   * Its depth along the flight.
+   */
   depth: number;
 }
 
-/** The stair fall's refusal. */
+/*
+ * The stair fall's refusal.
+ */
 function refusal(value: string, reason: string): HumanRefusal {
   return new HumanRefusal({
     kind: "affordance",

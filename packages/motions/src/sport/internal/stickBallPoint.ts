@@ -5,7 +5,9 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** Get a working point from the authored model, or report the missing point. */
+/*
+ * Get a working point from the authored model, or report the missing point.
+ */
 export function stickBallPoint(
   reader: IAutoMovieMotionHumanPropReader,
   id: string,

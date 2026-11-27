@@ -2,7 +2,9 @@ import type { IAutoMovieMotionHumanBalance } from "@automovie/interface";
 
 import type { HumanPhysics } from "./HumanPhysics";
 
-/** Fit the requested edge durations to a numeric window, preserving their ratio. */
+/*
+ * Fit the requested edge durations to a numeric window, preserving their ratio.
+ */
 export function HumanPhysicsAdmitWindow(
   active: HumanPhysics.IShift,
   from: number,

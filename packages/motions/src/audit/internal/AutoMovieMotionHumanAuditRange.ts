@@ -12,7 +12,7 @@ import type {
 
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
-/**
+/*
  * Whether every joint of a displayed motion stays inside its anatomical range
  * of motion at every instant.
  *
@@ -27,14 +27,13 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * is unconstrained.
  */
 export namespace AutoMovieMotionHumanAuditRange {
-  /**
+  /*
    * Read one person's joints over a motion.
-   *
-   * @param motion The motion.
-   * @param subject The person.
-   * @param rate Grid samples per second.
-   * @returns The reading.
-   * @throws {Error} When the rate is not positive.
+   * Parameter motion: The motion.
+   * Parameter subject: The person.
+   * Parameter rate: Grid samples per second.
+   * Returns: The reading.
+   * When the rate is not positive.
    */
   export function measure(
     motion: IAutoMovieMotionHumanAuditRange.IPosed,
@@ -78,7 +77,7 @@ export namespace AutoMovieMotionHumanAuditRange {
     return out;
   }
 
-  /**
+  /*
    * Read how far a foot that bears no weight dorsiflexes past the unloaded
    * ankle's limit.
    *
@@ -93,14 +92,13 @@ export namespace AutoMovieMotionHumanAuditRange {
    * source. At each grid instant each foot outside such a window is read: its
    * dorsiflexion past the unloaded limit overshoots. An instant whose plants
    * hold both feet has nothing to read, and its pose is not resolved.
-   *
-   * @param motion The motion's windows.
-   * @param posed The motion's poses.
-   * @param subject The person.
-   * @param rate Grid samples per second.
-   * @returns The reading: the farthest an unloaded ankle dorsiflexes past its
-   *   limit, degrees, and the share of instants it does.
-   * @throws {Error} When the rate is not positive.
+   * Parameter motion: The motion's windows.
+   * Parameter posed: The motion's poses.
+   * Parameter subject: The person.
+   * Parameter rate: Grid samples per second.
+   * Returns: The reading: the farthest an unloaded ankle dorsiflexes past its
+   * limit, degrees, and the share of instants it does.
+   * When the rate is not positive.
    */
   export function unloaded(
     motion: IAutoMovieMotionHumanAuditMotion,
@@ -156,5 +154,7 @@ export namespace AutoMovieMotionHumanAuditRange {
   }
 }
 
-/** The alternatives of `UnloadedBearsPart`'s site. */
+/*
+ * The alternatives of `UnloadedBearsPart`'s site.
+ */
 type UnloadedBearsPart = "leftFoot" | "rightFoot";

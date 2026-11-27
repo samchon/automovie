@@ -13,7 +13,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanBalance } from "./HumanBalance";
 import { prepareHumanTrunkBalance } from "./prepareHumanTrunkBalance";
 
-/**
+/*
  * Correct over the specified bearing soles, or in the sagittal plane over both
  * feet for a two-footed reach.
  */

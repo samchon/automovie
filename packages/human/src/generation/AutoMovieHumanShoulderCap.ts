@@ -7,7 +7,9 @@ import type {
 import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
 import { AutoMovieHumanTrunkSolve } from "./AutoMovieHumanTrunkSolve";
 
-/** The arm prior's bind humerus direction, left frame. */
+/*
+ * The arm prior's bind humerus direction, left frame.
+ */
 const HUMERUS: readonly number[] = AutoMovieHumanArmPrior.PRIOR.arm.upper;
 
 /**

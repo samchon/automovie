@@ -60,14 +60,22 @@ export namespace AutoMovieHumanFootHeelCorner {
   }
 }
 
-/** The contact's rear end along the foot, foot lengths. Reference median. */
+/*
+ * The contact's rear end along the foot, foot lengths. Reference median.
+ */
 const END: number = 0.06;
 
-/** The rearmost point's height over the floor, foot lengths. Reference median. */
+/*
+ * The rearmost point's height over the floor, foot lengths. Reference median.
+ */
 const HEIGHT: number = 0.09;
 
-/** The corner's across place on the midline, foot breadths. Reference median. */
+/*
+ * The corner's across place on the midline, foot breadths. Reference median.
+ */
 const ACROSS: number = 0.455;
 
-/** Knots on the corner's quarter ellipse, intervals. Convention. */
+/*
+ * Knots on the corner's quarter ellipse, intervals. Convention.
+ */
 const CORNER_KNOTS: number = 6;

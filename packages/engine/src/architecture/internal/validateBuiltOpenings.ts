@@ -16,26 +16,25 @@ import { polygonInside } from "./polygonInside";
 import { polygonsOverlap } from "./polygonsOverlap";
 import { validateBuiltOpeningOperation } from "./validateBuiltOpeningOperation";
 
-/**
+/*
  * Validate a building's openings: references, voids, operations and overlap.
  *
  * Each opening needs a unique id, a non-blank kind, a boundary that resolves,
  * and a fill element that resolves when it names one. A stated void must sit on
  * a boundary that declares a face, have at least 2 distinct finite corners and
  * one finite bulge in [-1, 1] per edge when bulges are stated, and its
- * arc-bounding hull from {@link outlineHull} must enclose area without crossing
+ * arc-bounding hull from outlineHull must enclose area without crossing
  * itself and stay inside the host face's outline. The operation is judged by
- * {@link validateBuiltOpeningOperation} right after each opening's void, sharing
+ * validateBuiltOpeningOperation right after each opening's void, sharing
  * `driven` with the connectors. Finally, two usable voids on one boundary may
  * not share any point. Findings are pushed under `<root>.openings`.
- *
- * @param environment Building whose openings are checked.
- * @param root Violation path of the building record, `$input`.
- * @param boundaries Declared boundary ids and the usable faces by boundary id.
- * @param elementIds Declared element ids.
- * @param driven Which member already drives each element, updated.
- * @param collector Sink that receives the violations.
- * @returns Every usable void hull by opening index, for the staged panel fit.
+ * Parameter environment: Building whose openings are checked.
+ * Parameter root: Violation path of the building record, `$input`.
+ * Parameter boundaries: Declared boundary ids and the usable faces by boundary id.
+ * Parameter elementIds: Declared element ids.
+ * Parameter driven: Which member already drives each element, updated.
+ * Parameter collector: Sink that receives the violations.
+ * Returns: Every usable void hull by opening index, for the staged panel fit.
  */
 export function validateBuiltOpenings(
   environment: IAutoMovieBuiltEnvironment,
@@ -116,7 +115,7 @@ export function validateBuiltOpenings(
   return hulls;
 }
 
-/**
+/*
  * One opening's void: its outline and bulges, the region its arc hull encloses,
  * and that hull staying on the host face. Returns the hull when the void itself
  * is usable, or null.

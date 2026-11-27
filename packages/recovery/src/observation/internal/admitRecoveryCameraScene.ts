@@ -8,7 +8,7 @@ import type {
 import { admitRecoveryCameraMap } from "./admitRecoveryCameraMap";
 import { admitRecoveryCameraPair } from "./admitRecoveryCameraPair";
 
-/**
+/*
  * Prepare a bounded calibrated image set's supplied charts before observing any
  * raster: the first three views as the seed map, each later view's chart under
  * the scene's aggregate pixel ceiling, and the caller's view and pixel budgets
@@ -63,6 +63,8 @@ export function admitRecoveryCameraScene(
   return charts;
 }
 
-/** One view's supplied pixel chart, constructed for the numerical phases. */
+/*
+ * One view's supplied pixel chart, constructed for the numerical phases.
+ */
 type Chart =
   ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation>;

@@ -21,7 +21,7 @@ import { HumanFreedomChoice } from "../../posture/internal/HumanFreedomChoice";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * The key pose a grasp taken to wear a thing must also hold
  * (`HumanGraspUse.IUse`, line `worn`): the thing's whole frame where it is worn
  * on the performer's own region (`HumanWorn.frame`, the one `dress` puts it
@@ -29,23 +29,22 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * judged at the very pose it is put on in.
  */
 export namespace HumanGraspWorn {
-  /**
+  /*
    * The refinement step of a round worn thing's turn about its region, and the
    * spacing of the turns tried first round it, degrees (search resolution: an
    * eighth of a turn, halving to under 6).
    */
   export const ROUND: number = 45;
 
-  /**
+  /*
    * The key pose of a grasp taken to wear a thing.
-   *
-   * @param props The action's context, the held thing and its world frame at
-   *   closure and `wear` contact, the region and its point on the entry's body,
-   *   the hand, the candidate grasp's hand, whether the thing is round about
-   *   the region, and how far the closed hand at a wrist keeps out of the
-   *   body's other parts (none when absent).
-   * @returns The key, with its judge: the fitted hand's wear socket off the
-   *   region, metres.
+   * Parameter props: The action's context, the held thing and its world frame at
+   * closure and `wear` contact, the region and its point on the entry's body,
+   * the hand, the candidate grasp's hand, whether the thing is round about
+   * the region, and how far the closed hand at a wrist keeps out of the
+   * body's other parts (none when absent).
+   * Returns: The key, with its judge: the fitted hand's wear socket off the
+   * region, metres.
    */
   export function key(props: IKeyProps): IAutoMovieMotionHumanGrasp.IKey {
     const { context, held, world, tip, at, site }: typeof props = props;
@@ -181,7 +180,9 @@ export namespace HumanGraspWorn {
   }
 }
 
-/** The record of `IKeyProps`'s site. */
+/*
+ * The record of `IKeyProps`'s site.
+ */
 type IKeyProps = {
   context: Pick<IAutoMovieMotionHumanActionContext, KeyPropsContext>;
   held: IAutoMovieMotionHumanPropReader;
@@ -196,5 +197,7 @@ type IKeyProps = {
   clear?: (wrist: IAutoMovieMotionHumanHand.IWrist) => number;
 };
 
-/** The alternatives of `KeyPropsContext`'s site. */
+/*
+ * The alternatives of `KeyPropsContext`'s site.
+ */
 type KeyPropsContext = "body" | "entry" | "start";

@@ -5,7 +5,7 @@ import {
 
 import { LOCOMOTE_GROUND_EPSILON } from "../LOCOMOTE_GROUND_EPSILON";
 
-/**
+/*
  * Classify an admitted finite root displacement in metres into no travel,
  * vertical-only travel or ground-plan travel using the shared locomotion
  * epsilon.

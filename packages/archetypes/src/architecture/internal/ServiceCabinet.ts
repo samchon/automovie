@@ -10,21 +10,29 @@ import {
 import { FixtureDraw } from "./FixtureDraw";
 import type { AutoMovieArchetypeMachine } from "../AutoMovieArchetypeMachine";
 
-/** The vending machines read. */
+/*
+ * The vending machines read.
+ */
 const MERCHANT: string =
   "Crane Merchant brochure: Merchant 4 1830 mm high, 813 mm deep, 895 mm wide; Merchant 6 1830 mm high, 813 mm deep, 1180 mm wide (https://vendtrade.co.uk/wp-content/uploads/2024/08/Crane_Merchant_Brochure.pdf)";
 
-/** The pay station read. */
+/*
+ * The pay station read.
+ */
 const STRADA: string =
   "Parkeon/Flowbird StradaPAL installation manual, p. 11: body 290 mm wide, 328 mm deep, 1488 mm high, on it a 90 mm spacer and a 226 mm top 475 mm wide and 379 mm deep (https://us.support.flowbird.group/hc/en-us/article_attachments/13368519985939)";
 
-/** The ATM read. */
+/*
+ * The ATM read.
+ */
 const NCR: string =
   "NCR SelfServ 32 Site Preparation B006-6585-B000 (https://tranact.com/pdf/NCR-SS32-Site-Prep.pdf): p. 9, fascia 770 mm wide, 1575 mm high, 800 mm deep, shelf 763 mm high protruding 174 mm; pp. 14-15, heights from the base and depths from the shelf's front; pp. 17-18, each item's distance from the No. 5 key, drawn as a straight arrow on the fascia's front elevation, and its clock position, which gives only its side; the keypad on the centre line as drawn, not dimensioned";
 
-/** The shared measured rectangular cabinet and its two exterior contact frames. */
+/*
+ * The shared measured rectangular cabinet and its two exterior contact frames.
+ */
 export namespace ServiceCabinet {
-  /**
+  /*
    * Each kind's models with the width each gives, metres, the default first: a
    * vending machine's Merchant 4 and Merchant 6; the other kinds have one read
    * model.
@@ -50,7 +58,9 @@ export namespace ServiceCabinet {
     },
   };
 
-  /** The band of each free dimension, by kind. */
+  /*
+   * The band of each free dimension, by kind.
+   */
   export const BANDS: Readonly<
     Record<
       AutoMovieArchetypeMachine.Kind,
@@ -100,36 +110,47 @@ export namespace ServiceCabinet {
     },
   };
 
-  /** The built cabinet with its drawn outside dimensions and mass. */
+  /*
+   * The built cabinet with its drawn outside dimensions and mass.
+   */
   export interface ICabinet<Id extends string> {
-    /** Builder carrying the exterior cabinet. */
+    /*
+     * Builder carrying the exterior cabinet.
+     */
     builder: AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeMachine.Dimension>;
 
-    /** Cabinet width along X, metres. */
+    /*
+     * Cabinet width along X, metres.
+     */
     width: number;
 
-    /** Cabinet height above the floor, metres. */
+    /*
+     * Cabinet height above the floor, metres.
+     */
     height: number;
 
-    /** Cabinet depth along Z, metres. */
+    /*
+     * Cabinet depth along Z, metres.
+     */
     depth: number;
 
-    /** Total build mass, kilograms. */
+    /*
+     * Total build mass, kilograms.
+     */
     mass: number;
   }
 
-  /**
+  /*
    * Draw the measurements and place the cabinet on the floor.
-   *
-   * @param kind The fixed profile and model table to draw.
-   * @param name Display name before the optional model name.
-   * @param color The cabinet finish.
-   * @param params The scene identifier, possibly a model choice, and fixed
-   *   dimensions.
-   * @param seed The seed for the unresolved draws.
-   * @returns The cabinet's builder, mass and external dimensions.
-   * @throws {AutoMovieArchetypeRefusal} When a model or dimension does not fit
-   *   the given profile.
+   * Parameter kind: The fixed profile and model table to draw.
+   * Parameter name: Display name before the optional model name.
+   * Parameter color: The cabinet finish.
+   * Parameter params: The scene identifier, possibly a model choice, and fixed
+   * dimensions.
+   * Parameter seed: The seed for the unresolved draws.
+   * Returns: The cabinet's builder, mass and external dimensions.
+   * When a model or dimension does not fit
+   * the given profile.
    */
   export function begin<Id extends string>(
     kind: AutoMovieArchetypeMachine.Kind,
@@ -175,16 +196,19 @@ export namespace ServiceCabinet {
     return { builder, width, height, depth, mass: d.mass! };
   }
 
-  /** The contact ids {@link faces} builds or reads. */
+  /*
+   * The contact ids faces builds or reads.
+   */
   export type FacesContact = "front" | "side";
 
-  /** The values {@link faces} accepts at this place in its signature. */
+  /*
+   * The values faces accepts at this place in its signature.
+   */
   export type FacesChoice = "width" | "height" | "depth";
 
-  /**
+  /*
    * Put the stand and push contacts on the cabinet's front and right side.
-   *
-   * @param cabinet The already built cabinet and its dimensions.
+   * Parameter cabinet: The already built cabinet and its dimensions.
    */
   export function faces(
     cabinet: Pick<ICabinet<FacesContact>, FacesChoice> & {

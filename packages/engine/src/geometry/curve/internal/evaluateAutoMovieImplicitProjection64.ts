@@ -5,7 +5,7 @@ import type {
 
 import { AutoMovieCurveMath64 as M } from "../../AutoMovieCurveMath64";
 
-/**
+/*
  * Continue an implicit level along one declared constant physical direction.
  * Seed and target first derivatives use the caller's same parameter domain.
  * Optional second derivatives are propagated analytically for curve consumers.
@@ -159,7 +159,7 @@ export function evaluateAutoMovieImplicitProjection64(
     directionalDerivative: denominator,
   };
 
-  /**
+  /*
    * Preserve the actual failed continuation before the caller rejects geometry.
    * Ray samples use the unchanged declared domain and never select replacement
    * roots. Sampling cannot certify a continuous polynomial's attainable range.
@@ -210,7 +210,9 @@ export function evaluateAutoMovieImplicitProjection64(
     );
   }
 
-  /** Physical dot products keep field and parameter dimensions explicit. */
+  /*
+   * Physical dot products keep field and parameter dimensions explicit.
+   */
   function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }

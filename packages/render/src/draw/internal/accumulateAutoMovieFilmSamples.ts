@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { AutoMovieThreeKind } from "../../scene/AutoMovieThreeKind.js";
 import type { IAutoMovieAccumulateFilmSamplesProps } from "../IAutoMovieAccumulateFilmSamplesProps.js";
 
-/**
+/*
  * Place and draw every sub-frame sample of one frame into the film response
  * stage's running average, then place the frame's own second again.
  *
@@ -25,10 +25,9 @@ import type { IAutoMovieAccumulateFilmSamplesProps } from "../IAutoMovieAccumula
  * column for an eye offset `e` and focus distance `f`: a point at depth `f`,
  * seen from an eye moved by `e`, lands where the unmoved eye saw it. An
  * orthographic camera has no aperture and is drawn unmoved.
- *
- * @param props The stage, renderer, scene, optics, frame and raster, and the
- *   host's placement and camera callbacks.
- * @returns The samples drawn, in drawing order.
+ * Parameter props: The stage, renderer, scene, optics, frame and raster, and the
+ * host's placement and camera callbacks.
+ * Returns: The samples drawn, in drawing order.
  */
 export async function accumulateAutoMovieFilmSamples(props: IAutoMovieAccumulateFilmSamplesProps): Promise<IAutoMoviePlanFilmSamples.ISample[]> {
   const samples: IAutoMoviePlanFilmSamples.ISample[] = AutoMovieEngineFilmResponse.planAutoMovieFilmSamples(
@@ -69,7 +68,7 @@ export async function accumulateAutoMovieFilmSamples(props: IAutoMovieAccumulate
   return samples;
 }
 
-/**
+/*
  * Copy `base` into `scratch`, move its eye by `eye` metres along `base`'s world
  * right and up axes, and shear its projection so the plane at `focusDistance`
  * projects as it did from `base`.

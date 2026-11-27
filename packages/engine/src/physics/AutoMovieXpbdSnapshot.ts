@@ -315,17 +315,21 @@ export namespace AutoMovieXpbdSnapshot {
   }
 }
 
-/** A vector's components. */
+/*
+ * A vector's components.
+ */
 function vector(v: IAutoMovieVector3): [number, number, number] {
   return [v.x, v.y, v.z];
 }
 
-/** A quaternion's components. */
+/*
+ * A quaternion's components.
+ */
 function quaternion(q: IAutoMovieQuaternion): [number, number, number, number] {
   return [q.x, q.y, q.z, q.w];
 }
 
-/**
+/*
  * The marker a negative zero becomes in snapshot JSON; no shape or joint
  * identity begins with a NUL.
  */

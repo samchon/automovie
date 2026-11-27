@@ -8,14 +8,14 @@ import type {
 
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * The direction a hand lies on a surface region when the arm chooses it
  * (`lay`), and the direction a hand that continues its forearm points at a
  * place (`reach`). Read by the touch stroke (`AutoMovieMotionHumanTouch`),
  * whose transport is a joint-space carry and so needs no path of its own.
  */
 export namespace AutoMovieMotionHumanTouchPath {
-  /**
+  /*
    * The direction an effector's along axis lies on a region when the arm
    * chooses it: from the elbow to the place, across the region's normal. The
    * hand then continues the forearm that reaches the place, so a palm on the
@@ -23,17 +23,16 @@ export namespace AutoMovieMotionHumanTouchPath {
    * elbow is read hanging under the shoulder, or, for an arm held level, out to
    * the side at the shoulder's height, so a saluting hand continues a forearm
    * that rises to the brow from there.
-   *
-   * @param body The body.
-   * @param posture The posture so far.
-   * @param side The hand.
-   * @param point The region's point, world.
-   * @param normal The region's unit normal.
-   * @param fallback The direction when the elbow's direction runs along the
-   *   normal.
-   * @param elbow Where the elbow is read: hanging (`natural`) or `level` with
-   *   the shoulder; hanging when absent.
-   * @returns The unit direction.
+   * Parameter body: The body.
+   * Parameter posture: The posture so far.
+   * Parameter side: The hand.
+   * Parameter point: The region's point, world.
+   * Parameter normal: The region's unit normal.
+   * Parameter fallback: The direction when the elbow's direction runs along the
+   * normal.
+   * Parameter elbow: Where the elbow is read: hanging (`natural`) or `level` with
+   * the shoulder; hanging when absent.
+   * Returns: The unit direction.
    */
   export function lay(
     body: IAutoMovieMotionHumanBody,
@@ -57,21 +56,20 @@ export namespace AutoMovieMotionHumanTouchPath {
       : fallback;
   }
 
-  /**
+  /*
    * The direction a hand that continues its forearm onto a place points: from
    * the elbow to the place, as a saluting hand runs straight from the forearm
    * to the brow. Unlike `lay`, the direction is not laid across the region; the
    * hand meets the place end on.
-   *
-   * @param body The body.
-   * @param posture The posture so far.
-   * @param side The hand.
-   * @param point The place, world.
-   * @param elbow Where the elbow is read: hanging (`natural`) or `level` with
-   *   the shoulder; hanging when absent.
-   * @param from The elbow's place, world, when it has been solved; read from
-   *   the body's measures when absent.
-   * @returns The unit direction; straight up when the place is on the elbow.
+   * Parameter body: The body.
+   * Parameter posture: The posture so far.
+   * Parameter side: The hand.
+   * Parameter point: The place, world.
+   * Parameter elbow: Where the elbow is read: hanging (`natural`) or `level` with
+   * the shoulder; hanging when absent.
+   * Parameter from: The elbow's place, world, when it has been solved; read from
+   * the body's measures when absent.
+   * Returns: The unit direction; straight up when the place is on the elbow.
    */
   export function reach(
     body: IAutoMovieMotionHumanBody,
@@ -91,24 +89,36 @@ export namespace AutoMovieMotionHumanTouchPath {
   }
 }
 
-/** The alternatives of `ReachElbow`'s site. */
+/*
+ * The alternatives of `ReachElbow`'s site.
+ */
 type ReachElbow = "natural" | "level";
 
-/** The alternatives of `ReachPosture`'s site. */
+/*
+ * The alternatives of `ReachPosture`'s site.
+ */
 type ReachPosture = "root" | "yaw";
 
-/** The alternatives of `LayElbow`'s site. */
+/*
+ * The alternatives of `LayElbow`'s site.
+ */
 type LayElbow = "natural" | "level";
 
-/** The alternatives of `LayPosture`'s site. */
+/*
+ * The alternatives of `LayPosture`'s site.
+ */
 type LayPosture = "root" | "yaw";
-/** The alternatives of `ElbowOfElbow`'s site. */
+/*
+ * The alternatives of `ElbowOfElbow`'s site.
+ */
 type ElbowOfElbow = "natural" | "level";
 
-/** The alternatives of `ElbowOfPosture`'s site. */
+/*
+ * The alternatives of `ElbowOfPosture`'s site.
+ */
 type ElbowOfPosture = "root" | "yaw";
 
-/**
+/*
  * Where the elbow is read for a hand's lay: hanging under the shoulder, or out
  * to the side at the shoulder's height for an arm held level.
  */

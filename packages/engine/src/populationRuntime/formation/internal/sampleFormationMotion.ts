@@ -6,7 +6,7 @@ import {
 import { lerp } from "../../../math/internal/lerp";
 import { ease } from "../../../motion/internal/ease";
 
-/**
+/*
  * Sample one formation's authored cue sequence at finite absolute seconds.
  * Matching cues sort by start and code-unit id; the first active cue wins.
  * Identity precedes the first cue, completed targets remain between cues and

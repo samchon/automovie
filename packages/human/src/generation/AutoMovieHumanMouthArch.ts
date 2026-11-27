@@ -144,25 +144,33 @@ export namespace AutoMovieHumanMouthArch {
     return BETA * a.depth * q ** Prior.ARCH_POWER;
   }
 
-  /**
+  /*
    * A place on an arch in plan: lateral, depth forward of the ends' line, unit
    * tangent and outward normal.
    */
   interface IStep {
-    /** Lateral place, mm. */
+    /*
+     * Lateral place, mm.
+     */
     lateral: number;
 
-    /** Depth forward of the ends' line, mm. */
+    /*
+     * Depth forward of the ends' line, mm.
+     */
     depth: number;
 
-    /** Unit tangent `[lateral, depth]`. */
+    /*
+     * Unit tangent `[lateral, depth]`.
+     */
     along: [number, number];
 
-    /** Unit outward normal `[lateral, depth]`. */
+    /*
+     * Unit outward normal `[lateral, depth]`.
+     */
     out: [number, number];
   }
 
-  /**
+  /*
    * The place an arc length from the midline along the curve parallel to an
    * arch, inset toward its inside; the arch's own curve for no inset. Walked in
    * fine chords, since the beta arch has no closed arc length.
@@ -216,7 +224,9 @@ export namespace AutoMovieHumanMouthArch {
     throw new Error("Unreachable arch walk");
   }
 
-  /** Half arc length of an arch, mm, walked in 2000 chords. */
+  /*
+   * Half arc length of an arch, mm, walked in 2000 chords.
+   */
   function halfLength(a: IAutoMovieHumanMouthArch.IArch): number {
     let travelled: number = 0;
     let previous: [number, number] = [0, beta(a, 0)];
@@ -230,13 +240,15 @@ export namespace AutoMovieHumanMouthArch {
     return travelled;
   }
 
-  /** A vector scaled to unit length; the zero vector stays zero. */
+  /*
+   * A vector scaled to unit length; the zero vector stays zero.
+   */
   function unit(v: [number, number, number]): [number, number, number] {
     const l: number = Math.hypot(...v) || 1;
     return [v[0] / l, v[1] / l, v[2] / l];
   }
 
-  /**
+  /*
    * Normalisation of the beta arch, so its front lies at its depth (Braun et
    * al. 1998).
    */

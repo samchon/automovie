@@ -23,7 +23,7 @@ import type { AutoMovieArchetypeQuadrupedLateralRestPlan } from "./AutoMovieArch
 import { EquineBlend } from "./equine/EquineBlend";
 import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
-/**
+/*
  * The fastest a trained fall is staged from, metres per second: an authored
  * bound at a canter or slow gallop.
  */
@@ -74,7 +74,9 @@ export namespace AutoMovieArchetypeEquineFall {
     Id,
     D | AutoMovieArchetypeQuadrupedBody.Dimension
   > {
-    /** The source dimensions with the quadruped size the ride solves. */
+    /*
+     * The source dimensions with the quadruped size the ride solves.
+     */
     type Dimension = D | AutoMovieArchetypeQuadrupedBody.Dimension;
     const refuse = (axis: string, value: unknown, reason: string): never => {
       throw new AutoMovieArchetypeRefusal({
@@ -268,7 +270,7 @@ export namespace AutoMovieArchetypeEquineFall {
     };
   }
 
-  /**
+  /*
    * The turn about the vertical that carries +Z onto a rotation's forward
    * direction on the floor.
    */
@@ -285,5 +287,7 @@ export namespace AutoMovieArchetypeEquineFall {
   }
 }
 
-/** A named instant of a ride. */
+/*
+ * A named instant of a ride.
+ */
 type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

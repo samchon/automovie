@@ -8,7 +8,7 @@ import type {
 
 import { measureRecoveryFeasibleArithmetic } from "./measureRecoveryFeasibleArithmetic";
 
-/**
+/*
  * Solve a pure tilted feasible-direction model in common metric coordinates.
  * The first atom is the actual objective gradient with zero offset. Each later
  * atom is an unweighted inequality gradient with offset minus its feasible g.

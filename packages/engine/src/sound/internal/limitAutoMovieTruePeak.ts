@@ -1,7 +1,7 @@
 import { AUTOMOVIE_TRUE_PEAK_PHASES } from "../constants/AUTOMOVIE_TRUE_PEAK_PHASES";
 import { autoMovieTruePeakBetween } from "./autoMovieTruePeakBetween";
 
-/**
+/*
  * Hold the true peak of an interleaved stereo master at or below a ceiling with
  * a deterministic look-ahead limiter, in place.
  *
@@ -19,25 +19,34 @@ import { autoMovieTruePeakBetween } from "./autoMovieTruePeakBetween";
  * storage rounds each product. The limiter therefore aims 2^−16 (0.00013 dB)
  * under the ceiling, re-measures its output, and limits again where a peak
  * remains over; it throws when four passes leave one.
- *
- * @param props The master, its rate, the ceiling and the limiter lengths.
- * @returns The smallest gain any pass applied to a frame, in dB; 0 when no
- *   frame needed limiting.
+ * Parameter props: The master, its rate, the ceiling and the limiter lengths.
+ * Returns: The smallest gain any pass applied to a frame, in dB; 0 when no
+ * frame needed limiting.
  */
 export function limitAutoMovieTruePeak(props: {
-  /** Interleaved stereo samples, changed in place. */
+  /*
+   * Interleaved stereo samples, changed in place.
+   */
   pcm: Float32Array;
 
-  /** Sample rate in Hz. */
+  /*
+   * Sample rate in Hz.
+   */
   sampleRate: number;
 
-  /** Largest true peak the output may reach, in dBTP. */
+  /*
+   * Largest true peak the output may reach, in dBTP.
+   */
   ceilingDbtp: number;
 
-  /** Look-ahead and attack length, in seconds. */
+  /*
+   * Look-ahead and attack length, in seconds.
+   */
   lookAheadSeconds: number;
 
-  /** Release time constant, in seconds. */
+  /*
+   * Release time constant, in seconds.
+   */
   releaseSeconds: number;
 }): number {
   const { pcm }: typeof props = props;
@@ -79,10 +88,12 @@ export function limitAutoMovieTruePeak(props: {
   return 20 * Math.log10(deepest);
 }
 
-/** Taps per interpolator phase. */
+/*
+ * Taps per interpolator phase.
+ */
 const TAPS: number = AUTOMOVIE_TRUE_PEAK_PHASES[0]!.length;
 
-/**
+/*
  * Write each frame's peak over both channels, the sample and the interpolants
  * toward the next frame, into `peaks`, and return the largest.
  *
@@ -122,7 +133,7 @@ const framePeaks: (pcm: Float32Array, peaks: Float32Array) => number = (
   return largest;
 };
 
-/**
+/*
  * Turn per-frame required gains into the applied gain and multiply the master
  * by it; return the smallest gain applied.
  *

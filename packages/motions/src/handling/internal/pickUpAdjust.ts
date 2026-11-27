@@ -17,14 +17,14 @@ import { pickUpAdjustStepped } from "./pickUpAdjustStepped";
 import { pickUpAdjustTimed } from "./pickUpAdjustTimed";
 import type { pickUpPosture } from "./pickUpPosture";
 
-/**
+/*
  * How a standing reach adapts its body before its arm refuses a grip it still
  * misses (`pickUp`): the trunk turns toward the grip, and then one foot takes
  * one adjustment step toward it. Further than one step is a walk, the
  * composition's own.
  */
 export namespace pickUpAdjust {
-  /**
+  /*
    * The longest adjustment step a reach takes, metres for a body of `STATURE`:
    * the median step of healthy adults reaching with a step to a target at 130
    * percent of the arm's length, 423.96 mm (Tomita et al. 2024, Neurorehabil
@@ -33,13 +33,13 @@ export namespace pickUpAdjust {
    */
   export const STEP: number = 0.42396;
 
-  /**
+  /*
    * The healthy control group's mean stature, metres, from Tomita et al.
    * (2024), Table 1.
    */
   export const STATURE: number = 1.714;
 
-  /**
+  /*
    * The shares of the reach's time at which an adjustment step's foot leaves
    * the floor and lands: 262.51 ms after the hand sets off and 454.62 ms later,
    * of a 993.46 ms reach with a step (Tomita et al. 2024, Tables 2 and 3,
@@ -50,22 +50,21 @@ export namespace pickUpAdjust {
     (262.51 + 454.62) / 993.46,
   ];
 
-  /**
+  /*
    * A stance turned toward a grip its arm still misses: the trunk twists on the
    * pelvis toward the grip, the chest and the lumbar spine sharing the turn
    * (`AutoMovieMotionHumanTrunk.CHEST`), as far as their axial rotation allows
    * (DEFAULT_HUMANOID_ROM): the least turn that brings the shoulder within the
    * arm of the wrist's place on the grip, or else the turn that brings it
    * nearest. A person whose hand cannot reach a grip turns toward it first.
-   *
-   * @param context The action's context.
-   * @param side The reaching arm.
-   * @param grip Where the wrist must go on the grip, world metres.
-   * @param stance The stance to turn: the entry's, or the entry lowered.
-   * @returns The turned stance, its turn growing with the share of the way
-   *   down.
-   * @throws {Error} When the range-of-motion table gives the chest or the spine
-   *   no twist.
+   * Parameter context: The action's context.
+   * Parameter side: The reaching arm.
+   * Parameter grip: Where the wrist must go on the grip, world metres.
+   * Parameter stance: The stance to turn: the entry's, or the entry lowered.
+   * Returns: The turned stance, its turn growing with the share of the way
+   * down.
+   * When the range-of-motion table gives the chest or the spine
+   * no twist.
    */
   export function turned(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -183,28 +182,29 @@ export namespace pickUpAdjust {
     };
   }
 
-  /** {@link pickUpAdjustStepped}, read through this namespace. */
+  /*
+   * pickUpAdjustStepped, read through this namespace.
+   */
   export const stepped: typeof pickUpAdjustStepped = pickUpAdjustStepped;
 
-  /**
+  /*
    * Both feet's plant windows over a pick up: each planted throughout, but a
    * foot that steps, planted from its landing on the way down to its lifting on
    * the way back, the stance's share mapped to the pick up's seconds through
    * its minimum-jerk descent over the reach and return after the lift.
-   *
-   * @param stance The stance the pick up took, if any.
-   * @param reach The reach's length, seconds.
-   * @param end When the lift ends, seconds.
-   * @param up The return's length, seconds.
-   * @param share The share of the way down the stance holds at the lift's end,
-   *   from which the return goes up (`pickUpLift.IRaise.share`): 1 where the
-   *   lift does not straighten it.
-   * @param planted The feet the entry bears on and the frame each bears on,
-   *   when the caller reads its entry: a foot the entry holds off any support
-   *   (a seated body's hanging foot) keeps no plant window unless it steps, and
-   *   a planted foot keeps its own support frame. Both feet on the ground when
-   *   absent.
-   * @returns The windows, shares of the pick up's length.
+   * Parameter stance: The stance the pick up took, if any.
+   * Parameter reach: The reach's length, seconds.
+   * Parameter end: When the lift ends, seconds.
+   * Parameter up: The return's length, seconds.
+   * Parameter share: The share of the way down the stance holds at the lift's end,
+   * from which the return goes up (`pickUpLift.IRaise.share`): 1 where the
+   * lift does not straighten it.
+   * Parameter planted: The feet the entry bears on and the frame each bears on,
+   * when the caller reads its entry: a foot the entry holds off any support
+   * (a seated body's hanging foot) keeps no plant window unless it steps, and
+   * a planted foot keeps its own support frame. Both feet on the ground when
+   * absent.
+   * Returns: The windows, shares of the pick up's length.
    */
   export function plants(
     stance: pickUpPosture.IStance | null,
@@ -280,7 +280,7 @@ export namespace pickUpAdjust {
     );
   }
 
-  /**
+  /*
    * The least angle from the facing at which a target is stepped toward with
    * the foot on its side, degrees: every free step to the first lateral
    * direction of a center-out array, 30 degrees off straight ahead, was taken
@@ -293,37 +293,59 @@ export namespace pickUpAdjust {
   export const LATERAL: number = 30;
 }
 
-/** The alternatives of `PlantsPart`'s site. */
+/*
+ * The alternatives of `PlantsPart`'s site.
+ */
 type PlantsPart = "leftFoot" | "rightFoot";
 
-/** The alternatives of `TwistAddBone2`'s site. */
+/*
+ * The alternatives of `TwistAddBone2`'s site.
+ */
 type TwistAddBone2 = "chest" | "spine";
 
-/** The alternatives of `TwistAddBone`'s site. */
+/*
+ * The alternatives of `TwistAddBone`'s site.
+ */
 type TwistAddBone = "chest" | "spine";
 
-/** The alternatives of `TurnedLeastBone`'s site. */
+/*
+ * The alternatives of `TurnedLeastBone`'s site.
+ */
 type TurnedLeastBone = "chest" | "spine";
 
-/** The alternatives of `TurnedMostBone`'s site. */
+/*
+ * The alternatives of `TurnedMostBone`'s site.
+ */
 type TurnedMostBone = "chest" | "spine";
 
-/** The alternatives of `TurnedHeldBone2`'s site. */
+/*
+ * The alternatives of `TurnedHeldBone2`'s site.
+ */
 type TurnedHeldBone2 = "chest" | "spine";
 
-/** The alternatives of `TurnedHeldBone`'s site. */
+/*
+ * The alternatives of `TurnedHeldBone`'s site.
+ */
 type TurnedHeldBone = "chest" | "spine";
 
-/** The alternatives of `ShareEntryItem`'s site. */
+/*
+ * The alternatives of `ShareEntryItem`'s site.
+ */
 type ShareEntryItem = "chest" | "spine";
 
-/** The alternatives of `TurnedRangeBone2`'s site. */
+/*
+ * The alternatives of `TurnedRangeBone2`'s site.
+ */
 type TurnedRangeBone2 = "chest" | "spine";
 
-/** The alternatives of `TurnedRangeBone`'s site. */
+/*
+ * The alternatives of `TurnedRangeBone`'s site.
+ */
 type TurnedRangeBone = "chest" | "spine";
 
-/** Same-person exact FK loan borrowed by an actual adjusted stance invocation. */
+/*
+ * Same-person exact FK loan borrowed by an actual adjusted stance invocation.
+ */
 type IFK = Parameters<pickUpPosture.IStance["at"]>[1];
 
 type IROM = Parameters<pickUpPosture.IStance["at"]>[2];

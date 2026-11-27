@@ -30,7 +30,7 @@ import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
-/**
+/*
  * A handstand kicked up from standing, held and stepped down.
  *
  * The hands are placed on the floor a shoulder width apart, as far ahead of the
@@ -57,43 +57,48 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
  * support.
  */
 export namespace gymnastics {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "gymnastics";
 
-  /** Cancel table. */
+  /*
+   * Cancel table.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
     });
 
-  /**
+  /*
    * The trunk's pitch when the hands touch down, degrees (provisional): the
    * hips above the shoulders, the legs still standing.
    */
   export const DOWN: number = 120;
 
-  /**
+  /*
    * The share of the straight leg's length from the ankle to the hip when the
    * hands touch down (provisional).
    */
   export const LEG: number = 0.95;
 
-  /**
+  /*
    * The share of the straight arm's length the shoulders stand above the wrists
    * (provisional): the elbows a little soft.
    */
   export const REACH: number = 0.98;
 
-  /** The entry's and the exit's seconds (provisional). */
+  /*
+   * The entry's and the exit's seconds (provisional).
+   */
   export const ENTER: number = 1.5;
 
-  /**
+  /*
    * The gymnastics's timetable: entered over `ENTER`, held `hold`, left over
    * `ENTER`, the manner's tempo and hold factor applied, with its own cues.
-   *
-   * @param hold The held seconds.
-   * @param modifiers The manner's timing.
-   * @returns The clock.
+   * Parameter hold: The held seconds.
+   * Parameter modifiers: The manner's timing.
+   * Returns: The clock.
    */
   export function timetable(
     hold: number,
@@ -122,12 +127,11 @@ export namespace gymnastics {
     ]);
     return clock;
   }
-  /**
+  /*
    * Plan a handstand.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the hold is negative.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGymnastics.IParams>,

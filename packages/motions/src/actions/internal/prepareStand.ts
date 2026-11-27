@@ -24,14 +24,13 @@ import { standClearArms } from "./standClearArms";
 import { standFeet } from "./standFeet";
 import { standUpright } from "./standUpright";
 
-/**
+/*
  * Prepare a quiet standing entry once when its owning action discovers its
  * final duration after a probe. Body, entry, skill, side, sway and support
  * parameters remain unchanged; duration-specific timing and streams do not.
- *
- * @param context The fixed action context; params.seconds is supplied later.
- * @param side The acting side that signs lateral sway.
- * @returns A stand planner at a positive duration in seconds.
+ * Parameter context: The fixed action context; params.seconds is supplied later.
+ * Parameter side: The acting side that signs lateral sway.
+ * Returns: A stand planner at a positive duration in seconds.
  */
 export function prepareStand(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStand.IParams>,
@@ -217,8 +216,12 @@ export function prepareStand(
   };
 }
 
-/** The alternatives of `PrepareStandPart`'s site. */
+/*
+ * The alternatives of `PrepareStandPart`'s site.
+ */
 type PrepareStandPart = "leftFoot" | "rightFoot";
 
-/** Both arms, which a settling stand keeps clear of its moving thighs. */
+/*
+ * Both arms, which a settling stand keeps clear of its moving thighs.
+ */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];

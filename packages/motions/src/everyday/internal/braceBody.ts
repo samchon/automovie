@@ -20,15 +20,14 @@ import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
 import type { prepareGroundedBalance } from "./prepareGroundedBalance";
 
-/**
+/*
  * A brace's posture without its arms at a second (`brace.plan`): the root, lean
  * and legs on the set curve, balanced over the bearing feet, the rear foot
  * unloaded over the preparatory shift and loaded again on landing, and the
  * hands opened flat once the brace begins. Read from the plan's body, set
  * curve, feet and balance.
- *
- * @param scope What the plan's body posture is read from.
- * @returns The posture without its arms at a second.
+ * Parameter scope: What the plan's body posture is read from.
+ * Returns: The posture without its arms at a second.
  */
 export function braceBody(scope: braceBody.IScope): braceBody.BodyAt {
   const {
@@ -186,82 +185,120 @@ export function braceBody(scope: braceBody.IScope): braceBody.BodyAt {
   return bodyAt;
 }
 
-/** What a brace's body posture reads and what it is. */
+/*
+ * What a brace's body posture reads and what it is.
+ */
 export namespace braceBody {
-  /** What a brace plan reads its body posture from. */
+  /*
+   * What a brace plan reads its body posture from.
+   */
   export interface IScope {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The brace's seconds. */
+    /*
+     * The brace's seconds.
+     */
     duration: number;
 
-    /** The entry heading, degrees. */
+    /*
+     * The entry heading, degrees.
+     */
     yaw: number;
 
-    /** The entry root. */
+    /*
+     * The entry root.
+     */
     start: IAutoMovieVector3;
 
-    /** The set root. */
+    /*
+     * The set root.
+     */
     goal: IAutoMovieVector3;
 
-    /** The relaxed upright joints. */
+    /*
+     * The relaxed upright joints.
+     */
     relaxed: IAutoMovieMotionHumanPosture["joints"];
 
-    /** The trunk's lean into the force, degrees. */
+    /*
+     * The trunk's lean into the force, degrees.
+     */
     lean: number;
 
-    /** The share of the lean along the heading. */
+    /*
+     * The share of the lean along the heading.
+     */
     bearing: number;
 
-    /**
+    /*
      * A foot's ankle and plant at a second.
-     *
-     * @param side The foot.
-     * @param t Seconds.
-     * @returns The ankle and whether it is planted.
+     * Parameter side: The foot.
+     * Parameter t: Seconds.
+     * Returns: The ankle and whether it is planted.
      */
     footAt: (side: AutoMovieHumanSide, t: number) => IFoot;
 
-    /** The legs' goals on a root (`stand.prepareLegs`). */
+    /*
+     * The legs' goals on a root (`stand.prepareLegs`).
+     */
     legsAt: ReturnType<typeof stand.prepareLegs>;
 
-    /** The grounded balance's adjustment. */
+    /*
+     * The grounded balance's adjustment.
+     */
     adjust: ReturnType<typeof prepareGroundedBalance>;
 
-    /** The grounded balance's window. */
+    /*
+     * The grounded balance's window.
+     */
     window: HumanPhysics.Window;
 
-    /** When the stepping foot leaves and lands, seconds. */
+    /*
+     * When the stepping foot leaves and lands, seconds.
+     */
     swing: readonly [number, number];
 
-    /** The foot that steps back. */
+    /*
+     * The foot that steps back.
+     */
     back: AutoMovieHumanSide;
 
-    /** The lead time to the set posture, seconds (`brace.SET`). */
+    /*
+     * The lead time to the set posture, seconds (`brace.SET`).
+     */
     SET: number;
   }
 
-  /** A foot's ankle and whether it is planted. */
+  /*
+   * A foot's ankle and whether it is planted.
+   */
   export interface IFoot {
-    /** The ankle, world metres. */
+    /*
+     * The ankle, world metres.
+     */
     ankle: IAutoMovieVector3;
 
-    /** Whether the foot is planted. */
+    /*
+     * Whether the foot is planted.
+     */
     planted: boolean;
   }
 
-  /**
+  /*
    * The posture without its arms at a second.
-   *
-   * @param seconds Seconds.
-   * @param resolution The borrowed forward-kinematics source, if any.
-   * @returns The posture.
+   * Parameter seconds: Seconds.
+   * Parameter resolution: The borrowed forward-kinematics source, if any.
+   * Returns: The posture.
    */
   export type BodyAt = (
     seconds: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ) => IAutoMovieMotionHumanPosture;
 }
-/** The alternatives of `PlanBodyAtLimb`'s site. */
+/*
+ * The alternatives of `PlanBodyAtLimb`'s site.
+ */
 type PlanBodyAtLimb = "leftLeg" | "rightLeg";

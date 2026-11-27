@@ -14,7 +14,7 @@ import { roundToThousandths } from "../../math/internal/roundToThousandths";
 import { GRAMMAR_EPSILON } from "../GRAMMAR_EPSILON";
 import { projectToNdc } from "./projectToNdc";
 
-/**
+/*
  * Appends every film-grammar finding of one cut to `diagnostics`, filed on the
  * incoming shot, in this order: axis crossing, eyeline, jump cut, displacement
  * re-establishing, screen direction, then entrant re-establishing.
@@ -30,13 +30,12 @@ import { projectToNdc } from "./projectToNdc";
  * motion. The entrant finding names the first subject in id order that the
  * outgoing shot did not observe, when the incoming shot is measured and not
  * wide and no displacement finding was filed.
- *
- * @param diagnostics Finding list of the read, appended to in filing order.
- * @param previous Normalized outgoing shot of the cut.
- * @param incoming Normalized incoming shot of the cut.
- * @param sizeOf Measured size of a shot at a boundary; the read memoizes it.
- * @param thresholds Smallest non-jump bearing change in degrees and largest
- *   displacement in metres that needs no wide shot.
+ * Parameter diagnostics: Finding list of the read, appended to in filing order.
+ * Parameter previous: Normalized outgoing shot of the cut.
+ * Parameter incoming: Normalized incoming shot of the cut.
+ * Parameter sizeOf: Measured size of a shot at a boundary; the read memoizes it.
+ * Parameter thresholds: Smallest non-jump bearing change in degrees and largest
+ * displacement in metres that needs no wide shot.
  */
 export function inspectGrammarCut(
   diagnostics: IAutoMovieGrammarDiagnostic[],
@@ -132,10 +131,14 @@ export function inspectGrammarCut(
   });
 }
 
-/** A sign on one screen axis: toward negative, none, or toward positive. */
+/*
+ * A sign on one screen axis: toward negative, none, or toward positive.
+ */
 type Sign = -1 | 0 | 1;
 
-/** Files an axis finding when an unseen cut puts the camera across the axis. */
+/*
+ * Files an axis finding when an unseen cut puts the camera across the axis.
+ */
 function inspectAxis(
   diagnostics: IAutoMovieGrammarDiagnostic[],
   previous: IAutoMovieNormalizedGrammarShot,
@@ -167,7 +170,7 @@ function inspectAxis(
   });
 }
 
-/**
+/*
  * Files an eyeline finding when a reverse or a continuation of the outgoing
  * primary subject's gaze reads the wrong way on screen.
  */
@@ -226,7 +229,9 @@ function inspectEyeline(
   });
 }
 
-/** Files a finding when the shared subject's screen motion reverses at a cut. */
+/*
+ * Files a finding when the shared subject's screen motion reverses at a cut.
+ */
 function inspectScreenDirection(
   diagnostics: IAutoMovieGrammarDiagnostic[],
   previous: IAutoMovieNormalizedGrammarShot,
@@ -254,7 +259,9 @@ function inspectScreenDirection(
   });
 }
 
-/** Which ground-plane side of the action axis the camera stands on. */
+/*
+ * Which ground-plane side of the action axis the camera stands on.
+ */
 function actionAxisSide(
   shot: IAutoMovieNormalizedGrammarShot,
   boundary: "start" | "end",
@@ -276,7 +283,9 @@ function actionAxisSide(
   return sign(axis.x * camera.z - axis.z * camera.x);
 }
 
-/** Whether the camera visibly crosses the shot's own axis between boundaries. */
+/*
+ * Whether the camera visibly crosses the shot's own axis between boundaries.
+ */
 function crossesActionAxisOnScreen(
   shot: IAutoMovieNormalizedGrammarShot,
 ): boolean {
@@ -286,16 +295,22 @@ function crossesActionAxisOnScreen(
   return start !== 0 && end !== 0 && start !== end;
 }
 
-/** Signed screen offset of a target from a subject, per axis. */
+/*
+ * Signed screen offset of a target from a subject, per axis.
+ */
 interface IScreenRelation {
-  /** Positive when the target is screen-right of the subject. */
+  /*
+   * Positive when the target is screen-right of the subject.
+   */
   horizontal: Sign;
 
-  /** Positive when the target is above the subject on screen. */
+  /*
+   * Positive when the target is above the subject on screen.
+   */
   vertical: Sign;
 }
 
-/**
+/*
  * Target offset from the subject; neutral when either depth is at or below
  * GRAMMAR_EPSILON.
  */
@@ -325,7 +340,9 @@ function relativeScreenDirection(
   };
 }
 
-/** Horizontal screen motion of a subject from its first to its last frame. */
+/*
+ * Horizontal screen motion of a subject from its first to its last frame.
+ */
 function screenMotionDirection(
   shot: IAutoMovieNormalizedGrammarShot,
   subject: IAutoMovieGrammarSubjectObservation,
@@ -348,7 +365,7 @@ function screenMotionDirection(
   return sign(end.ndcX - start.ndcX);
 }
 
-/**
+/*
  * Degrees between camera bearings across a cut; 180 when their length product
  * is at or below GRAMMAR_EPSILON.
  */
@@ -375,12 +392,16 @@ function cameraBearingAngleDegrees(
   return (Math.acos(cosine) * 180) / Math.PI;
 }
 
-/** The sign of `value`, zero inside the `GRAMMAR_EPSILON` dead band. */
+/*
+ * The sign of `value`, zero inside the `GRAMMAR_EPSILON` dead band.
+ */
 function sign(value: number): Sign {
   return Math.abs(value) <= GRAMMAR_EPSILON ? 0 : value > 0 ? 1 : -1;
 }
 
-/** A screen relation in finding prose, such as `screen-left/above`. */
+/*
+ * A screen relation in finding prose, such as `screen-left/above`.
+ */
 function screenRelation(direction: IScreenRelation): string {
   return [
     direction.horizontal === 0

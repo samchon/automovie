@@ -6,7 +6,7 @@ import {
 import { SOFT_BODY_NEIGHBOURS } from "../SOFT_BODY_NEIGHBOURS";
 import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
 
-/**
+/*
  * The force each held particle (an anchor, of zero inverse mass) bears from the
  * compliant constraints that tie it to the rest of the lattice, at the end of a
  * step: the pull a hand holding a cord's end feels.
@@ -18,11 +18,10 @@ import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
  * edge has a negative multiplier, so the force points from the held particle
  * into the body that hangs from it. The direction is read at the step's final
  * positions, where the last sweep left the edge.
- *
- * @param props The lattice, the step's positions, the inverse masses, the rest
- *   lengths, the multipliers and the step.
- * @returns The force on every held particle that a constraint pulls, newtons,
- *   world frame, by particle.
+ * Parameter props: The lattice, the step's positions, the inverse masses, the rest
+ * lengths, the multipliers and the step.
+ * Returns: The force on every held particle that a constraint pulls, newtons,
+ * world frame, by particle.
  */
 export function softBodyHeldLoads(
   props: IAutoMovieSoftBodyHeldLoads.IProps,

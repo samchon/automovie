@@ -18,24 +18,23 @@ import { jumpAirborneTurning } from "./jumpAirborneTurning";
 import type { jumpTouchdownRotation } from "./jumpTouchdownRotation";
 import { prepareJumpFlight } from "./prepareJumpFlight";
 
-/**
+/*
  * Construct the actual jump phase dispatcher and its free-flight reader. The
  * middle branch owns the copied ballistic coefficients and the genuine
  * immutable foot-curve construction; supplied before/after writers execute
  * strictly outside that branch.
- *
- * @param body Native unchanged body used by this plan.
- * @param model Its actual physical mass model.
- * @param shape Achieved endpoints and fixed heading of this same jump.
- * @param phase The original local phase times, seconds, and ballistic metre
- *   coefficients.
- * @param rotation Actual requested turns, delegated unchanged to jumpAirborne.
- * @param ground Original push and landing writers and their native bare-display
- *   fit producers.
- * @param touchdownRequirement The optional geometry requirement for a planted
- *   rotating jump.
- * @returns The public posture dispatcher, the turning declarations and the
- *   event-prepared display source.
+ * Parameter body: Native unchanged body used by this plan.
+ * Parameter model: Its actual physical mass model.
+ * Parameter shape: Achieved endpoints and fixed heading of this same jump.
+ * Parameter phase: The original local phase times, seconds, and ballistic metre
+ * coefficients.
+ * Parameter rotation: Actual requested turns, delegated unchanged to jumpAirborne.
+ * Parameter ground: Original push and landing writers and their native bare-display
+ * fit producers.
+ * Parameter touchdownRequirement: The optional geometry requirement for a planted
+ * rotating jump.
+ * Returns: The public posture dispatcher, the turning declarations and the
+ * event-prepared display source.
  */
 export function prepareJumpPosture(
   body: IAutoMovieMotionHumanBody,
@@ -68,7 +67,7 @@ export function prepareJumpPosture(
   };
   const centre: IAutoMovieVector3 = { ...phase.centre };
   const launch: IAutoMovieVector3 = { ...phase.launch };
-  /**
+  /*
    * Preserve the exact touchdown evaluation and arithmetic of the native COM
    * law: the flight's posture at a second and its solve.
    */
@@ -91,7 +90,7 @@ export function prepareJumpPosture(
       t,
     );
   };
-  /**
+  /*
    * The flight's posture at a second as the articulation its placed solve
    * reached, so a reader of the plan evaluates it by forward kinematics alone.
    */
@@ -114,7 +113,7 @@ export function prepareJumpPosture(
       t,
     );
   };
-  /**
+  /*
    * A retained touchdown turn changes the leg-fit root, so it requires a normal
    * display fit.
    */
@@ -153,63 +152,99 @@ export function prepareJumpPosture(
   return { posture, declared: turning.declared, playback };
 }
 
-/** Numeric facts of the actual owned dispatch and its unchanged plan surface. */
+/*
+ * Numeric facts of the actual owned dispatch and its unchanged plan surface.
+ */
 export namespace prepareJumpPosture {
-  /** Original local clock coefficients of the actual native middle branch. */
+  /*
+   * Original local clock coefficients of the actual native middle branch.
+   */
   export interface IPhase {
-    /** Push endpoint, action-local seconds. */
+    /*
+     * Push endpoint, action-local seconds.
+     */
     from: number;
-    /** Touchdown, action-local seconds. */
+    /*
+     * Touchdown, action-local seconds.
+     */
     to: number;
-    /** Complete action duration, seconds. */
+    /*
+     * Complete action duration, seconds.
+     */
     duration: number;
-    /** Physical flight seconds dividing the local elapsed time into share. */
+    /*
+     * Physical flight seconds dividing the local elapsed time into share.
+     */
     flightSeconds: number;
   }
 
-  /**
+  /*
    * The phase with the flight's ballistic start and the landing's end, as the
    * jump hands them over.
    */
   export interface IFlight extends IPhase {
-    /** The centre of mass at take-off, world metres. */
+    /*
+     * The centre of mass at take-off, world metres.
+     */
     centre: IAutoMovieVector3;
 
-    /** The centre's take-off velocity, metres a second. */
+    /*
+     * The centre's take-off velocity, metres a second.
+     */
     launch: IAutoMovieVector3;
 
-    /** Where the landing's absorption ends, action-local seconds. */
+    /*
+     * Where the landing's absorption ends, action-local seconds.
+     */
     settled: number;
   }
-  /** Existing plan members produced by the actual dispatcher constructor. */
+  /*
+   * Existing plan members produced by the actual dispatcher constructor.
+   */
   export interface IConstruction {
-    /** Actual full-phase posture callback, before error location. */
+    /*
+     * Actual full-phase posture callback, before error location.
+     */
     posture: IAutoMovieMotionHumanActionPlan["posture"];
-    /** Original requested flight and handed-back airborne callback. */
+    /*
+     * Original requested flight and handed-back airborne callback.
+     */
     declared: Pick<
       IAutoMovieMotionHumanActionPlan,
       PrepareJumpPostureConstructionDeclared
     >;
-    /**
+    /*
      * The native bare-leaf source, aligned to exactly the same phase
      * boundaries.
      */
     playback: HumanPreparedPlayback.ISource;
   }
 
-  /** The ground writers and exact same-instant fit producers for the same jump. */
+  /*
+   * The ground writers and exact same-instant fit producers for the same jump.
+   */
   export interface IGround {
-    /** Push posture without a bare display fit transfer. */
+    /*
+     * Push posture without a bare display fit transfer.
+     */
     before: IAutoMovieMotionHumanActionPlan["posture"];
-    /** Landing posture without a bare display fit transfer. */
+    /*
+     * Landing posture without a bare display fit transfer.
+     */
     after: IAutoMovieMotionHumanActionPlan["posture"];
-    /** Push clearance and its current same-instant leg fit. */
+    /*
+     * Push clearance and its current same-instant leg fit.
+     */
     sampleBefore: HumanPreparedPlayback.IPhase["sample"];
-    /** Landing clearance and its current same-instant leg fit. */
+    /*
+     * Landing clearance and its current same-instant leg fit.
+     */
     sampleAfter: HumanPreparedPlayback.IPhase["sample"];
   }
 
-  /** Own placement's original exact refusal-location wrapper, without sampling. */
+  /*
+   * Own placement's original exact refusal-location wrapper, without sampling.
+   */
   export function located(
     source: IAutoMovieMotionHumanActionPlan["posture"],
     where: IAutoMovieMotionHumanRefusal.IWhere,
@@ -229,6 +264,8 @@ export namespace prepareJumpPosture {
     return placed;
   }
 
-  /** The alternatives of `PrepareJumpPostureConstructionDeclared`'s site. */
+  /*
+   * The alternatives of `PrepareJumpPostureConstructionDeclared`'s site.
+   */
   type PrepareJumpPostureConstructionDeclared = "flight" | "airborne";
 }

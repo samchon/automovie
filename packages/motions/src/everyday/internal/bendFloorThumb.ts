@@ -13,7 +13,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * The twist a flat hand's thumb metacarpal turns by so the thumb clears the
  * palmar plane: the nominal flat hand's distal thumb projects past the palm, so
  * the metacarpal turns within its own twist range until the thumb's skin lies
@@ -22,13 +22,12 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * hand matters: the thumb is read in its palm plane, with the wrist, its
  * contact and every other finger left in place. The twist is bisected to the
  * engine's joint-angle resolution.
- *
- * @param body The body.
- * @param shape The posture whose root and heading the hand is read in.
- * @param side The hand.
- * @returns The twist added to the flat shape's thumb metacarpal, degrees; zero
- *   when the rig gives that joint no twist range or the flat thumb already
- *   clears the palm.
+ * Parameter body: The body.
+ * Parameter shape: The posture whose root and heading the hand is read in.
+ * Parameter side: The hand.
+ * Returns: The twist added to the flat shape's thumb metacarpal, degrees; zero
+ * when the rig gives that joint no twist range or the flat thumb already
+ * clears the palm.
  */
 export function bendFloorThumb(
   body: IAutoMovieMotionHumanBody,

@@ -21,7 +21,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import type { placeOverHeadPath } from "./placeOverHeadPath";
 
-/**
+/*
  * A neck-loop dresser's stance (`placeOverHead`): the first of standing where
  * it entered and one adjustment step toward the hands' place at the crown from
  * which both hands clear the crown, each shoulder within its arm of the hand's
@@ -37,10 +37,9 @@ import type { placeOverHeadPath } from "./placeOverHeadPath";
  * the step; standing at his knees and hinged at the hip at any angle (a 0.45 m
  * trunk), her shoulder comes no nearer it than 0.56 m, past her reach, so no
  * step limit could admit the layout and the refusal names the reach.
- *
- * @param scope What the plan chooses the stance from.
- * @returns The chosen stance and the context as a stance.
- * @throws {HumanRefusal} When no stance clears the crown.
+ * Parameter scope: What the plan chooses the stance from.
+ * Returns: The chosen stance and the context as a stance.
+ * When no stance clears the crown.
  */
 export function placeOverHeadStance(
   scope: placeOverHeadStance.IScope,
@@ -178,87 +177,122 @@ export function placeOverHeadStance(
   return { on, stance };
 }
 
-/** What a neck-loop dresser's stance reads and what it is. */
+/*
+ * What a neck-loop dresser's stance reads and what it is.
+ */
 export namespace placeOverHeadStance {
-  /** What a neck-loop plan chooses its stance from. */
+  /*
+   * What a neck-loop plan chooses its stance from.
+   */
   export interface IScope {
-    /** The action's context. */
+    /*
+     * The action's context.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPlaceOverHead>;
 
-    /** The action's parameters. */
+    /*
+     * The action's parameters.
+     */
     p: IAutoMovieMotionHumanPlaceOverHead;
 
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The hand that holds the loop at entry. */
+    /*
+     * The hand that holds the loop at entry.
+     */
     side: AutoMovieHumanSide;
 
-    /** The hand that takes the loop's other handle. */
+    /*
+     * The hand that takes the loop's other handle.
+     */
     other: AutoMovieHumanSide;
 
-    /** The entry posture. */
+    /*
+     * The entry posture.
+     */
     entry: IAutoMovieMotionHumanPosture;
 
-    /** The entry pose's bones. */
+    /*
+     * The entry pose's bones.
+     */
     pose: ReturnType<typeof poseBones>;
 
-    /** The shoulder joints a stance is read at. */
+    /*
+     * The shoulder joints a stance is read at.
+     */
     shoulders: ReadonlySet<AutoMovieHumanoidBone>;
 
-    /** The arm's reach, metres. */
+    /*
+     * The arm's reach, metres.
+     */
     reach: number;
 
-    /** The loop's path. */
+    /*
+     * The loop's path.
+     */
     path: placeOverHeadPath.IPath;
 
-    /**
+    /*
      * The holding hand's target for a loop frame.
-     *
-     * @param frame The loop's frame.
-     * @returns The target.
+     * Parameter frame: The loop's frame.
+     * Returns: The target.
      */
     holding: (
       frame: IAutoMovieRigidTransform,
     ) => IAutoMovieMotionHumanArmTarget.ITarget;
 
-    /**
+    /*
      * The other hand's target for a loop frame.
-     *
-     * @param frame The loop's frame.
-     * @returns The target.
+     * Parameter frame: The loop's frame.
+     * Returns: The target.
      */
     grasping: (
       frame: IAutoMovieRigidTransform,
     ) => IAutoMovieMotionHumanArmTarget.ITarget;
   }
 
-  /** The chosen stance and the context as a stance. */
+  /*
+   * The chosen stance and the context as a stance.
+   */
   export interface IChosen {
-    /**
+    /*
      * The context as the stance a candidate stands in.
-     *
-     * @param stance The stance.
-     * @returns The context on it.
+     * Parameter stance: The stance.
+     * Returns: The context on it.
      */
     on: (
       stance: IAutoMovieMotionHumanPosture,
     ) => IAutoMovieMotionHumanActionContext<object>;
 
-    /** The dresser's chosen stance. */
+    /*
+     * The dresser's chosen stance.
+     */
     stance: IStance;
   }
-  /** The dresser's chosen stance. */
+  /*
+   * The dresser's chosen stance.
+   */
   export interface IStance {
-    /** The posture the dresser stands in at the crown. */
+    /*
+     * The posture the dresser stands in at the crown.
+     */
     posture: IAutoMovieMotionHumanPosture;
 
-    /** The adjustment step that brings it there; null standing where it entered. */
+    /*
+     * The adjustment step that brings it there; null standing where it entered.
+     */
     stride: pickUpPosture.IStance | null;
   }
 }
 
-/** The dresser's chosen stance (`placeOverHeadStance.IStance`). */
+/*
+ * The dresser's chosen stance (`placeOverHeadStance.IStance`).
+ */
 type IStance = placeOverHeadStance.IStance;
-/** The stances a dresser is placed in, in the law's order. */
+/*
+ * The stances a dresser is placed in, in the law's order.
+ */
 type Stance = "standing" | "stepped";

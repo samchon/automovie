@@ -11,14 +11,13 @@ import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryHalfStep } from "./HumanArmTrajectoryHalfStep";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
-/**
+/*
  * An arm's parts at a placement with its collider probes.
- *
- * @param c The context.
- * @param a The arm.
- * @param k The waypoint.
- * @param placed The arm placed there, with its collider probes.
- * @returns The parts, in the order their probes first appear.
+ * Parameter c: The context.
+ * Parameter a: The arm.
+ * Parameter k: The waypoint.
+ * Parameter placed: The arm placed there, with its collider probes.
+ * Returns: The parts, in the order their probes first appear.
  */
 export function HumanArmTrajectoryLinks(
   c: M.IContext,
@@ -79,7 +78,7 @@ export function HumanArmTrajectoryLinks(
   return [...links.values()];
 }
 
-/**
+/*
  * An arm's audit parts as link pairs read them (`HumanAuditModel.certify`):
  * each part's probes, the sphere about them, its own collider shapes as convex
  * solids, how far its probes lie outside them, and how far any point of it lies
@@ -90,49 +89,64 @@ export function HumanArmTrajectoryLinks(
  * pair that reading leaves is read probe by probe.
  */
 export namespace HumanArmTrajectoryLinks {
-  /** An arm segment a collider rides on. */
+  /*
+   * An arm segment a collider rides on.
+   */
   export type Owner = IAutoMovieMotionHumanArmGeometry.IFrame["owners"][number];
 
-  /** One audit part of an arm, placed. */
+  /*
+   * One audit part of an arm, placed.
+   */
   export interface ILink {
-    /** The part, by its index in the body's tangle model. */
+    /*
+     * The part, by its index in the body's tangle model.
+     */
     part: number;
 
-    /** The arm segment it rides on. */
+    /*
+     * The arm segment it rides on.
+     */
     owner: Owner;
 
-    /** Its collider probes, by index among the placed arm's probes. */
+    /*
+     * Its collider probes, by index among the placed arm's probes.
+     */
     probes: number[];
 
-    /** The centre of the sphere about its probes, world metres. */
+    /*
+     * The centre of the sphere about its probes, world metres.
+     */
     centre: IAutoMovieVector3;
 
-    /** That sphere's radius, metres. */
+    /*
+     * That sphere's radius, metres.
+     */
     radius: number;
 
-    /**
+    /*
      * How far any of its probes, or any point of its shapes, lies from its arm
      * segment's origin, metres.
      */
     reach: number;
 
-    /**
+    /*
      * How far its probes lie outside its own shapes, at most, metres
      * (`IAutoMovieMotionHumanAuditTangleModel.IPart.offset`).
      */
     offset: number;
 
-    /** Its own collider shapes placed, as convex solids. */
+    /*
+     * Its own collider shapes placed, as convex solids.
+     */
     solids: AutoMovieEnginePhysicsGjkTypes.ISolid[];
   }
 
-  /**
+  /*
    * An arm's own collider shapes placed, as convex solids, by the audit part
    * each belongs to.
-   *
-   * @param frame The frame.
-   * @param placed The arm placed in it.
-   * @returns The solids by part, in the frame's collider order.
+   * Parameter frame: The frame.
+   * Parameter placed: The arm placed in it.
+   * Returns: The solids by part, in the frame's collider order.
    */
   export function shapes(
     frame: IAutoMovieMotionHumanArmGeometry.IFrame,
@@ -147,30 +161,35 @@ export namespace HumanArmTrajectoryLinks {
     return out;
   }
 
-  /** An arm's solids at one frame of an interval. */
+  /*
+   * An arm's solids at one frame of an interval.
+   */
   export interface IStep {
-    /** The frame's waypoint. */
+    /*
+     * The frame's waypoint.
+     */
     at: number;
 
-    /** The arm's solids there, by part (`shapes`). */
+    /*
+     * The arm's solids there, by part (`shapes`).
+     */
     solids: Map<number, AutoMovieEnginePhysicsGjkTypes.ISolid[]>;
   }
 
-  /**
+  /*
    * Each of a part's solids cast over frames of an interval: the convex hull of
    * its places at those frames, each carried into a shape's frame at the
    * interval's first waypoint (`HumanArmTrajectoryHalfStep.carry`): the cast
    * hull of trajopt, the convex hull of consecutive poses (Schulman et al.
    * 2014, section IV-B), over the whole interval or over one frame step of it.
-   *
-   * @param c The context.
-   * @param a The arm.
-   * @param k The interval's first waypoint, whose frame of the shape the places
-   *   are carried into.
-   * @param part The part.
-   * @param steps The arm's solids at the frames cast over, in order.
-   * @param shape The shape, by its index in the frame at `k`.
-   * @returns The casts, one per solid the part has at the first frame.
+   * Parameter c: The context.
+   * Parameter a: The arm.
+   * Parameter k: The interval's first waypoint, whose frame of the shape the places
+   * are carried into.
+   * Parameter part: The part.
+   * Parameter steps: The arm's solids at the frames cast over, in order.
+   * Parameter shape: The shape, by its index in the frame at `k`.
+   * Returns: The casts, one per solid the part has at the first frame.
    */
   export function cast(
     c: M.IContext,
@@ -201,7 +220,7 @@ export namespace HumanArmTrajectoryLinks {
       },
     );
   }
-  /**
+  /*
    * Certify the real solids over one relative rigid frame step. The pivot
    * translates affinely and the part follows its shortest endpoint rotation.
    * A point at radius `r` from that pivot strays from its synchronous chord
@@ -210,15 +229,15 @@ export namespace HumanArmTrajectoryLinks {
    * probe offset. The signed lower bound requires separated GJK cores. A
    * margin already met by the initial zero core bound cannot stop the search
    * before that separation is established (`physicalShapeGjk`).
-   *
-   * @param start The original solids at the first frame.
-   * @param swept The corresponding endpoint hulls in the encounter frame.
-   * @param pivot The first frame's pivot, in the original solids' frame.
-   * @param angle The part's rotation relative to the obstacle, radians.
-   * @param obstacle The stationary obstacle in the encounter frame.
-   * @param offset The audit's maximum probe distance beyond the solids.
-   * @param floor The strongest existing signed allowance of the part.
-   * @returns Whether all of the part's widened solids keep that allowance.
+   * Parameter start: The original solids at the first frame.
+   * Parameter swept: The corresponding endpoint hulls in the encounter frame.
+   * Parameter pivot: The first frame's pivot, in the original solids' frame.
+   * Parameter angle: The part's rotation relative to the obstacle, radians.
+   * Parameter obstacle: The stationary obstacle in the encounter frame.
+   * Parameter offset: The audit's maximum probe distance beyond the solids.
+   * Parameter floor: The strongest existing signed allowance of the part.
+   * Returns: Whether all of the part's widened solids keep that allowance.
+   * ://doi.org/10.1177/0278364914528132
    * @see https://doi.org/10.1177/0278364914528132
    */
   export function certifiesTurn(
@@ -250,11 +269,10 @@ export namespace HumanArmTrajectoryLinks {
     return true;
   }
 
-  /**
+  /*
    * An arm's segments' origins at a placement.
-   *
-   * @param placed The arm placed.
-   * @returns Each segment's origin.
+   * Parameter placed: The arm placed.
+   * Returns: Each segment's origin.
    */
   export function origins(
     placed: IAutoMovieMotionHumanArmGeometry.IPlaced,

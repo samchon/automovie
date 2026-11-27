@@ -10,7 +10,7 @@ import { Vector3 } from "../../math/Vector3";
 import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAngle";
 import type { AutoMovieEngineMotionDistalTwist } from "../AutoMovieEngineMotionDistalTwist";
 
-/**
+/*
  * Own the target-independent effector readings of one distal-twist operation,
  * under unchanged fixed rest rotation, admitted basis and clinical frame.
  */

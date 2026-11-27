@@ -36,7 +36,7 @@ import { admitButtonMotion } from "./admitButtonMotion";
 import { manipulateFacing } from "./manipulateFacing";
 import { manipulateShape } from "./manipulateShape";
 
-/**
+/*
  * Brace a fixed garment's rim with the index finger while the opposite thumb
  * pushes its button through the opening. Register as `button`. The same stroke
  * clock moves the button mesh and places the thumb; the drive leaves the button
@@ -52,7 +52,7 @@ export const button: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanButton>
     plan,
   };
 
-/**
+/*
  * Admit the model and its passage, then plan the two reaching hands together.
  */
 function plan(
@@ -229,7 +229,9 @@ function plan(
   };
 }
 
-/** Resolve the world frame and start travel of one moving button site. */
+/*
+ * Resolve the world frame and start travel of one moving button site.
+ */
 function part(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanButton>,
   point: string,
@@ -250,10 +252,12 @@ function part(
     );
   return result;
 }
-/** The alternatives of `FingersDigit`'s site. */
+/*
+ * The alternatives of `FingersDigit`'s site.
+ */
 type FingersDigit = "thumb" | "index";
 
-/**
+/*
  * The arm seeds a flexed fingertip; the independent digit fit closes the
  * remaining contact error.
  */
@@ -363,7 +367,9 @@ function fingers(
   ];
 }
 
-/** The named authored site, with an explicit refusal if it does not exist. */
+/*
+ * The named authored site, with an explicit refusal if it does not exist.
+ */
 function site(
   affordances: readonly IAutoMovieAffordance[] | undefined,
   id: string,
@@ -380,7 +386,9 @@ function site(
   return found;
 }
 
-/** A static affordance's world position and outward direction. */
+/*
+ * A static affordance's world position and outward direction.
+ */
 function place(
   frame: IAutoMovieRigidTransform,
   affordance: IAutoMovieAffordance,
@@ -397,12 +405,16 @@ function place(
   };
 }
 
-/** A finite aperture dimension stated in metres. */
+/*
+ * A finite aperture dimension stated in metres.
+ */
 function positive(value: number | undefined): value is number {
   return value !== undefined && value > 0;
 }
 
-/** A garment model or closure the law cannot stage. */
+/*
+ * A garment model or closure the law cannot stage.
+ */
 function garmentRefusal(
   value: string,
   reason: string,

@@ -13,7 +13,7 @@ import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
-/**
+/*
  * Append a placed collider's support candidates: the points its lowest point is
  * the least of, each with how far below it the collider reaches. A collider's
  * lowest height is the least of theirs, so each is a smooth function of the
@@ -59,17 +59,16 @@ function candidates(
         });
 }
 
-/**
+/*
  * The reading of a posture.
- *
- * @param body The body.
- * @param posture The posture, written by its joint angles alone.
- * @param bearing Each bearing part, as the bones it bears through.
- * @param targets The points read: each a bone and a point in its frame, its
- *   origin when absent.
- * @param source Optional exact FK reader or lazy supplier borrowed only during
- *   this synchronous reading.
- * @returns The reading.
+ * Parameter body: The body.
+ * Parameter posture: The posture, written by its joint angles alone.
+ * Parameter bearing: Each bearing part, as the bones it bears through.
+ * Parameter targets: The points read: each a bone and a point in its frame, its
+ * origin when absent.
+ * Parameter source: Optional exact FK reader or lazy supplier borrowed only during
+ * this synchronous reading.
+ * Returns: The reading.
  */
 export function HumanFloorReading(
   body: IAutoMovieMotionHumanBody,
@@ -167,86 +166,116 @@ export function HumanFloorReading(
   };
 }
 
-/**
+/*
  * What a posture shows of the floor, read as the floor audit reads it: the
  * lowest point of each collider of the posed body, the lowest of the colliders
  * each bearing part bears through, and the places of the points a whole-body
  * fit (`HumanBodyFit`) brings to goals.
  */
 export namespace HumanFloorReading {
-  /**
+  /*
    * A posture's actual collider and goal readings, with indices linking bearing
    * parts, colliders and their smooth support candidates.
    */
   export interface IReading {
-    /** Each bearing part's lowest height, metres, in the order given. */
+    /*
+     * Each bearing part's lowest height, metres, in the order given.
+     */
     parts: number[];
 
-    /**
+    /*
      * Each bearing part's colliders, as indices into `lows`, in the order
      * given.
      */
     members: number[][];
 
-    /** Each target point's place, world metres, in the order given. */
+    /*
+     * Each target point's place, world metres, in the order given.
+     */
     points: IAutoMovieVector3[];
 
-    /** Each target's bone's world rotation, in the order given. */
+    /*
+     * Each target's bone's world rotation, in the order given.
+     */
     turns: IAutoMovieQuaternion[];
 
-    /** Each collider's lowest height, metres, in the colliders' order. */
+    /*
+     * Each collider's lowest height, metres, in the colliders' order.
+     */
     lows: number[];
 
-    /** Each collider's bone, in the colliders' order. */
+    /*
+     * Each collider's bone, in the colliders' order.
+     */
     owners: AutoMovieHumanoidBone[];
 
-    /**
+    /*
      * Each support candidate's lowest height, metres: the heights a collider's
      * lowest point is the least of, each a smooth function of the posture.
      */
     heights: number[];
 
-    /**
+    /*
      * Each support candidate's point, world metres: a sphere's centre, each end
      * centre of a capsule, each corner of a box, each vertex of a hull, the
      * point the candidate's height moves with.
      */
     spots: IAutoMovieVector3[];
 
-    /** Each support candidate's collider, as an index into `lows`. */
+    /*
+     * Each support candidate's collider, as an index into `lows`.
+     */
     of: number[];
 
-    /** The posed bones read. */
+    /*
+     * The posed bones read.
+     */
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   }
 }
 
-/** The record of `ICandidatesShape`'s site. */
+/*
+ * The record of `ICandidatesShape`'s site.
+ */
 type ICandidatesShape = { kind: "hull" };
 
-/** The record of `IOfTarget2`'s site. */
+/*
+ * The record of `IOfTarget2`'s site.
+ */
 type IOfTarget2 = { bone: AutoMovieHumanoidBone };
 
-/** The record of `IOfTarget`'s site. */
+/*
+ * The record of `IOfTarget`'s site.
+ */
 type IOfTarget = {
   bone: AutoMovieHumanoidBone;
   point?: IAutoMovieVector3;
 };
 
-/** The record of `IOfBox`'s site. */
+/*
+ * The record of `IOfBox`'s site.
+ */
 type IOfBox = { min: IAutoMovieVector3; max: IAutoMovieVector3 };
 
-/** The record of `IOfTargetsItem`'s site. */
+/*
+ * The record of `IOfTargetsItem`'s site.
+ */
 type IOfTargetsItem = {
   bone: AutoMovieHumanoidBone;
   point?: IAutoMovieVector3;
 };
 
-/** A smooth support point and the downward radius extending beneath it. */
+/*
+ * A smooth support point and the downward radius extending beneath it.
+ */
 interface ICandidate {
-  /** Actual world point on the shape's rigid frame. */
+  /*
+   * Actual world point on the shape's rigid frame.
+   */
   point: IAutoMovieVector3;
 
-  /** Metres below that point; zero for a corner or hull vertex. */
+  /*
+   * Metres below that point; zero for a corner or hull vertex.
+   */
   lift: number;
 }

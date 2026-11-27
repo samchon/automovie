@@ -7,7 +7,7 @@ import { autoMovieHemisphereDirections } from "./autoMovieHemisphereDirections";
 import { autoMovieRayObstructed } from "./autoMovieRayObstructed";
 import { autoMovieSkyward } from "./autoMovieSkyward";
 
-/**
+/*
  * Prepare the isotropic sky term `DHI × V` of one plane orientation, and return
  * the function that measures it at a point.
  *
@@ -24,10 +24,9 @@ import { autoMovieSkyward } from "./autoMovieSkyward";
  * plane's estimate depends on `count`. Throws, through
  * `autoMovieHemisphereDirections`, when `count` is not a positive safe integer
  * or `normal` is zero or non-finite.
- *
- * @param props Plane normal, ground, direction count, sky illuminance and
- *   solids.
- * @returns The sky illuminance in lux at a world point on the plane.
+ * Parameter props: Plane normal, ground, direction count, sky illuminance and
+ * solids.
+ * Returns: The sky illuminance in lux at a world point on the plane.
  */
 export const autoMovieSkyIlluminance: (
   props: IAutoMovieSkyIlluminance.IProps,

@@ -25,7 +25,7 @@ import { physicalBalanceStance } from "./physicalBalanceStance";
 import { physicalBalanceSwing } from "./physicalBalanceSwing";
 import { AutoMovieEnginePhysicalSupportSole } from "../AutoMovieEnginePhysicalSupportSole";
 
-/**
+/*
  * Advance one body's generic recovery controller from actual floor manifolds.
  * Root tracking is withdrawn on unrecoverable support loss. Recovery requests
  * use the shared support-swing interpolator and bounded endpoint motors; their
@@ -47,45 +47,77 @@ import { AutoMovieEnginePhysicalSupportSole } from "../AutoMovieEnginePhysicalSu
  * here on the substep after a stated push.
  */
 export function advancePhysicalBalance(input: {
-  /** Active solver, read before this step's integration. */ world: AutoMovieXpbdWorld;
-  /** Scene body identity. */ body: string;
-  /** Its actual provider profile. */ profile: IAutoMoviePhysicalProfile;
-  /** Current world segment wrappers. */ segments: ReadonlyMap<
+  /*
+   * Active solver, read before this step's integration.
+   */ world: AutoMovieXpbdWorld;
+  /*
+   * Scene body identity.
+   */ body: string;
+  /*
+   * Its actual provider profile.
+   */ profile: IAutoMoviePhysicalProfile;
+  /*
+   * Current world segment wrappers.
+   */ segments: ReadonlyMap<
     string,
     AutoMovieXpbdBody
   >;
-  /** Shape identities, including the explicit floor. */ colliders: ReadonlyMap<
+  /*
+   * Shape identities, including the explicit floor.
+   */ colliders: ReadonlyMap<
     number,
     IAutoMovieContactReceipt["a"]
   >;
-  /** Completed-step surface impulses, including compliant support. */ contacts: readonly IAutoMovieContactReceipt[];
-  /** Numerical support/motor policy. */ policy: IAutoMoviePhysicalRecoveryPolicy;
-  /** Previous controller state; the caller retains it in checkpoints. */ state: IAutoMoviePhysicalRecoveryState;
-  /** Current authored world placements. */ targets: Readonly<
+  /*
+   * Completed-step surface impulses, including compliant support.
+   */ contacts: readonly IAutoMovieContactReceipt[];
+  /*
+   * Numerical support/motor policy.
+   */ policy: IAutoMoviePhysicalRecoveryPolicy;
+  /*
+   * Previous controller state; the caller retains it in checkpoints.
+   */ state: IAutoMoviePhysicalRecoveryState;
+  /*
+   * Current authored world placements.
+   */ targets: Readonly<
     Record<string, IAutoMovieRigidTransform>
   >;
-  /** Endpoint world velocities derived from the same sampled authored poses. */ velocities?: Readonly<
+  /*
+   * Endpoint world velocities derived from the same sampled authored poses.
+   */ velocities?: Readonly<
     Record<string, IAutoMovieVector3>
   >;
-  /**
+  /*
    * Authored reservations prohibit a new recovery swing on these endpoints;
    * actual support contacts still count.
    */ unavailable?: readonly string[];
-  /** Current film second. */ seconds: number;
-  /** Fixed seconds per step. */ dt: number;
-  /** Positive downward gravity magnitude. */ gravity: number;
-  /** Floor height, metres. */ floor: number;
-  /**
+  /*
+   * Current film second.
+   */ seconds: number;
+  /*
+   * Fixed seconds per step.
+   */ dt: number;
+  /*
+   * Positive downward gravity magnitude.
+   */ gravity: number;
+  /*
+   * Floor height, metres.
+   */ floor: number;
+  /*
    * Internal Cartesian endpoint demands accumulate into these bounded joint
    * motor demands.
    */ actuation?: Map<string, IAutoMovieVector3>;
-  /** Reuse actual constraints and their independently measured load authority. */ supports?: readonly IAutoMovieCollectPhysicalSupports.ISupport[];
-  /**
+  /*
+   * Reuse actual constraints and their independently measured load authority.
+   */ supports?: readonly IAutoMovieCollectPhysicalSupports.ISupport[];
+  /*
    * The authored pose's centre of mass, its velocity and acceleration, world; a
    * body's disturbance response stands in for it.
    */ command?: AutoMovieEnginePhysicalBalanceTypes.ISenseInput["command"];
-  /** Where the phases record their events and readings, if anywhere. */ trace?: IAutoMoviePhysicalBalanceTrace[];
-  /**
+  /*
+   * Where the phases record their events and readings, if anywhere.
+   */ trace?: IAutoMoviePhysicalBalanceTrace[];
+  /*
    * On the substep after a stated disturbance's first push, its later pushes,
    * whose response the body prepares now.
    */ disturbance?: { pushes: readonly AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanPush[] };
@@ -177,7 +209,7 @@ export function advancePhysicalBalance(input: {
   };
 }
 
-/**
+/*
  * A body's disturbance response's inputs from the state just after its first
  * push: the centre of mass and its velocity, the pendulum's rate the plan holds
  * (`physicalBalancePlan.omega`), the planted limbs as the planner reads them
@@ -228,7 +260,7 @@ function disturbance(
   };
 }
 
-/**
+/*
  * Make the caller's state the phases' result. The caller keeps one state object
  * across substeps and checkpoints, and the result shares it
  * (`IAutoMovieAdvancePhysicalBalance`), while each phase returns a new state

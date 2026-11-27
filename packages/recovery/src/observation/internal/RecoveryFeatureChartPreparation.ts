@@ -10,7 +10,7 @@ import { RecoveryDiskChart as D } from "./RecoveryDiskChart";
 import { RecoveryFeatureChartCuts as F } from "./RecoveryFeatureChartCuts";
 import { RecoveryMultiBoundaryChart as M } from "./RecoveryMultiBoundaryChart";
 
-/**
+/*
  * Prepare privately cut feature banks for a common four-arc boundary network.
  * Unique occurrence keys guide auxiliary cuts; repeated physical keys retain
  * source identity without welding private fans. Every output remains an

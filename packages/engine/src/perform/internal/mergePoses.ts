@@ -5,7 +5,7 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-/**
+/*
  * Union a nonempty list of admitted same-skeleton poses by bone with later
  * joints winning. Bone order follows first appearance, root is the last
  * non-null value, and the first pose supplies skeleton identity. Returned

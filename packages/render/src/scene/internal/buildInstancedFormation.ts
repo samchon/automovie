@@ -37,7 +37,7 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
 import { slotMatrix } from "./slotMatrix.js";
 import { vector } from "./vector.js";
 
-/**
+/*
  * Build one compact formation as chunked instance batches.
  *
  * Heroes are deliberately absent: the builder promoted them to explicit scene

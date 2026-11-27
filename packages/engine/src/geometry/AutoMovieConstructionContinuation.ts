@@ -69,7 +69,9 @@ export namespace AutoMovieConstructionContinuation {
   ): IAutoMovieLoftChain | string {
     if (host.basis !== "spline" || part.basis !== "spline")
       return "both chains must carry spline sections";
-    /** A real pole cannot serve as an open continuation ring. */
+    /*
+     * A real pole cannot serve as an open continuation ring.
+     */
     const closed: (
       chain: IAutoMovieLoftChain,
       end: "bottom" | "top",
@@ -135,7 +137,9 @@ export namespace AutoMovieConstructionContinuation {
     }
   }
 
-  /** The host's layer in the part's station direction. */
+  /*
+   * The host's layer in the part's station direction.
+   */
   function transform(
     l: IAutoMovieLoftChain.ILayer,
     y: number,
@@ -155,7 +159,7 @@ export namespace AutoMovieConstructionContinuation {
       return copy;
     }
     // Control point m of the part is control point -m of the host.
-    /**
+    /*
      * Reindex the periodic control row into the reversed chart without
      * observing geometry.
      */
@@ -172,7 +176,7 @@ export namespace AutoMovieConstructionContinuation {
       }
       return out;
     };
-    /**
+    /*
      * Scalar lift controls follow the same phase reversal and explicit normal
      * sign.
      */
@@ -184,7 +188,7 @@ export namespace AutoMovieConstructionContinuation {
         { length: n },
         (_: unknown, m: number): number => k * c[(n - m) % n]!,
       );
-    /**
+    /*
      * Value and derivative frame records follow their separate station/chart
      * signs.
      */

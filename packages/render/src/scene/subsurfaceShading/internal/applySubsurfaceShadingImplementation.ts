@@ -5,7 +5,7 @@ import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 import { getSubsurfaceTexture } from "./getSubsurfaceTexture.js";
 import { subsurfaceFragment } from "./subsurfaceFragment.js";
 
-/**
+/*
  * Register the existing direct-diffuse subsurface shader approximation on a new
  * physical material, borrowing one shared lookup texture. Radius channels are
  * admitted nonnegative finite distances in metres by Engine validation; this

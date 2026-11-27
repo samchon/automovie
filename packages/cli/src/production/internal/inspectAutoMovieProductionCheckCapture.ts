@@ -10,18 +10,17 @@ import * as path from "node:path";
 import { hashAutoMovieFile } from "../../file/internal/hashAutoMovieFile";
 import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
 
-/**
+/*
  * Read one source-owned diagnostic from a capture's selected camera and pass. A
  * still covers one second. A frame interval needs a drawn cell and checked
  * diagnostic coverage for each consecutive frame in its half-open range. The
  * aggregate capture audit carries no cell address, so a record mixing views or
  * passes at one of the chosen times cannot establish this particular
  * observation.
- *
- * @param check The authored capture criterion.
- * @param record The capture writer's persisted JSON.
- * @param root The production directory resolving the record and its stills.
- * @returns The supported verdict with the exact record to reopen.
+ * Parameter check: The authored capture criterion.
+ * Parameter record: The capture writer's persisted JSON.
+ * Parameter root: The production directory resolving the record and its stills.
+ * Returns: The supported verdict with the exact record to reopen.
  */
 export async function inspectAutoMovieProductionCheckCapture(
   check: IAutoMovieProductionCheck.ICapture,
@@ -191,7 +190,7 @@ export async function inspectAutoMovieProductionCheckCapture(
   };
 }
 
-/**
+/*
  * Relate a finding's observed extent to a requested time. Unknown frame
  * identity stays unresolved.
  */
@@ -223,7 +222,7 @@ function touchesUncovered(
   );
 }
 
-/**
+/*
  * Availability of an existing still. Keep permission and other read failures
  * visible.
  */
@@ -261,7 +260,9 @@ async function retainsStill(
   }
 }
 
-/** Load optional Render support for a legacy PNG pixel digest. */
+/*
+ * Load optional Render support for a legacy PNG pixel digest.
+ */
 function loadRender(root: string): Promise<typeof import("@automovie/render")> {
   return import("@automovie/render").catch(
     (error: unknown): typeof import("@automovie/render") => {

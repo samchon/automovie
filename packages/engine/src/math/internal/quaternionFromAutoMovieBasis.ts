@@ -6,7 +6,7 @@ import type {
 import { Quaternion } from "../Quaternion";
 import { readBasisQuaternion } from "./readBasisQuaternion";
 
-/**
+/*
  * Unit quaternion of the rotation whose columns are the orthonormal vectors
  * `x`, `y`, `z` (local axes expressed in world). Shepperd's method: pick the
  * largest diagonal term so the square root never divides by a small number. The
@@ -33,7 +33,9 @@ export function quaternionFromAutoMovieBasis(
   );
 }
 
-/** Own and normalize the completed basis quaternion in glTF component order. */
+/*
+ * Own and normalize the completed basis quaternion in glTF component order.
+ */
 function normalizedRecord(
   x: number,
   y: number,

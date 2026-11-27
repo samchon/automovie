@@ -8,13 +8,15 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { PreparedHumanIntervals } from "./PreparedHumanIntervals";
 
-/** The prepared interval index belongs to the attached phase records. */
+/*
+ * The prepared interval index belongs to the attached phase records.
+ */
 const PHASE_READERS: WeakMap<
   readonly IAutoMovieMotionHumanPlayback.IPhase[],
   (second: number) => IAutoMovieMotionHumanPlayback.IPhase | undefined
 > = new WeakMap();
 
-/**
+/*
  * Pass a native action's phase evaluators to its display leaf. Public authoring
  * still reads the plan's posture callback. A law supplies its exact event
  * boundaries and owns the mathematics and validity of each evaluator. Display
@@ -24,27 +26,32 @@ const PHASE_READERS: WeakMap<
  * (`IAutoMovieMotionHumanActionPlan.playback`).
  */
 export namespace HumanPreparedPlayback {
-  /** The native source follows the common interface contract. */
+  /*
+   * The native source follows the common interface contract.
+   */
   export type ISource = IAutoMovieMotionHumanPlayback;
 
-  /** The human specialization of a time-local motion evaluator. */
+  /*
+   * The human specialization of a time-local motion evaluator.
+   */
   export type IPhase = IAutoMovieMotionHumanPlayback.IPhase;
 
-  /** Human posture data returned from the same leaf evaluation. */
+  /*
+   * Human posture data returned from the same leaf evaluation.
+   */
   export type ISample = IAutoMovieMotionHumanPlayback.ISample;
 
-  /**
+  /*
    * The type a binding keeps a body as: it reads only the body's identity, so
    * callers pass their whole body and a test a small record.
    */
   export type IBody = Pick<IAutoMovieMotionHumanBody, "skeleton">;
 
-  /**
+  /*
    * Bind a copy of the phase records to their native plan.
-   *
-   * @param plan The plan the phases stand for.
-   * @param body The body they were authored for, kept as passed.
-   * @param source The phases.
+   * Parameter plan: The plan the phases stand for.
+   * Parameter body: The body they were authored for, kept as passed.
+   * Parameter source: The phases.
    */
   export function attach(plan: Plan, body: IBody, source: ISource): void {
     const phases: IPhase[] = source.phases.map(
@@ -62,7 +69,7 @@ export namespace HumanPreparedPlayback {
     };
   }
 
-  /**
+  /*
    * Bind a composed posture after it replaces the underlying plan's authoring.
    * Preserve the predecessor's optional native setup. A composed posture cannot
    * reuse a fit resolved against the predecessor alone.
@@ -90,13 +97,12 @@ export namespace HumanPreparedPlayback {
     return plan;
   }
 
-  /**
+  /*
    * Connect placement's posture wrapper to this exact native authoring.
-   *
-   * @param plan The placed plan.
-   * @param original The reader placement wrapped.
-   * @param installed The wrapper placement installed.
-   * @param where Where placement put the plan.
+   * Parameter plan: The placed plan.
+   * Parameter original: The reader placement wrapped.
+   * Parameter installed: The wrapper placement installed.
+   * Parameter where: Where placement put the plan.
    */
   export function locate(
     plan: Plan,
@@ -111,10 +117,9 @@ export namespace HumanPreparedPlayback {
     binding.where = where;
   }
 
-  /**
+  /*
    * Run an event-dependent setup once the performance is prepared.
-   *
-   * @param plan The placed plan.
+   * Parameter plan: The placed plan.
    */
   export function prepare(plan: Plan): void {
     const binding: IAutoMovieMotionHumanPlayback.IBinding | undefined =
@@ -129,13 +134,12 @@ export namespace HumanPreparedPlayback {
     binding.ready = true;
   }
 
-  /**
+  /*
    * Whether a reader is the plan's bound authoring or its placed wrapper, for a
    * law's unchanged-input interval declaration after placement.
-   *
-   * @param plan The plan.
-   * @param reader The reader.
-   * @returns Whether the plan's playback stands for it.
+   * Parameter plan: The plan.
+   * Parameter reader: The reader.
+   * Returns: Whether the plan's playback stands for it.
    */
   export function owns(plan: Plan, reader: Reader): boolean {
     const binding: IAutoMovieMotionHumanPlayback.IBinding | undefined =
@@ -146,17 +150,16 @@ export namespace HumanPreparedPlayback {
     );
   }
 
-  /**
+  /*
    * Evaluate the active native phase at its actual local second.
-   *
-   * @param plan The plan.
-   * @param body The body read: the phases are read only for the very body they
-   *   were authored for.
-   * @param reader The plan's reader the leaf would call.
-   * @param bare Whether the leaf is bare of layers, overlays, holds and stops.
-   * @param full Whether the leaf reads the whole pose without a continuation.
-   * @param args The posture reader's arguments.
-   * @returns The sample, or none where the phases do not stand for the read.
+   * Parameter plan: The plan.
+   * Parameter body: The body read: the phases are read only for the very body they
+   * were authored for.
+   * Parameter reader: The plan's reader the leaf would call.
+   * Parameter bare: Whether the leaf is bare of layers, overlays, holds and stops.
+   * Parameter full: Whether the leaf reads the whole pose without a continuation.
+   * Parameter args: The posture reader's arguments.
+   * Returns: The sample, or none where the phases do not stand for the read.
    */
   export function read(
     plan: Plan,
@@ -197,11 +200,17 @@ export namespace HumanPreparedPlayback {
   }
 }
 
-/** The plan a playback is bound to. */
+/*
+ * The plan a playback is bound to.
+ */
 type Plan = IAutoMovieMotionHumanActionPlan;
 
-/** The plan's posture reader. */
+/*
+ * The plan's posture reader.
+ */
 type Reader = Plan["posture"];
 
-/** Where placement put a plan. */
+/*
+ * Where placement put a plan.
+ */
 type Where = IAutoMovieMotionHumanRefusal.IWhere;

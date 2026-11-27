@@ -7,7 +7,7 @@ import {
 
 import { positive } from "./positive";
 
-/**
+/*
  * Build a rectangular wall in local XY, depth along Z, with rectangular door
  * and window openings cut through it.
  *
@@ -37,13 +37,12 @@ import { positive } from "./positive";
  * at a corner, which would pinch the wall to a line that needs a general
  * boolean this kernel does not have; and openings that remove the whole wall.
  * Opening records are only read.
- *
- * @param props.width Wall width along X in metres.
- * @param props.height Wall height along Y in metres.
- * @param props.depth Wall thickness along Z in metres.
- * @param props.openings Rectangles to cut, in wall-local metres from the
- *   bottom-left corner.
- * @returns A closed mesh with flat normals and no UVs.
+ * Parameter props.width: Wall width along X in metres.
+ * Parameter props.height: Wall height along Y in metres.
+ * Parameter props.depth: Wall thickness along Z in metres.
+ * Parameter props.openings: Rectangles to cut, in wall-local metres from the
+ * bottom-left corner.
+ * Returns: A closed mesh with flat normals and no UVs.
  */
 export const buildAutoMovieWall: (
   props: IAutoMovieBuildWall.IProps,
@@ -168,7 +167,7 @@ export const buildAutoMovieWall: (
   };
 };
 
-/**
+/*
  * The four in-plane sides of a wall cell, each with the neighbour that hides
  * it. The two depth faces have no neighbour in a one-cell-deep wall and are
  * always emitted, so they are not listed.
@@ -182,7 +181,7 @@ const WALL_CELL_SIDES: ReadonlyArray<
   [1, -1, 0, -1],
 ];
 
-/**
+/*
  * Append one outward face of an axis-aligned cell, wound counter-clockwise seen
  * from outside.
  *
@@ -239,7 +238,7 @@ const pushCellFace: (
   target.indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
 };
 
-/**
+/*
  * Sort the wall ends and authored opening edges numerically after exact Set
  * deduplication. Admitted finite edges are the premise; no tolerance weld or
  * coordinate repair changes them. O(E log E) time/O(E) new list storage returns
@@ -253,7 +252,7 @@ const sortedCuts: (extent: number, edges: readonly number[]) => number[] = (
     (a: number, b: number): number => a - b,
   );
 
-/**
+/*
  * Compare strict overlap on both admitted axis intervals, so edge contact is
  * allowed and corner pinches remain a separate lattice check. Endpoint addition
  * uses ordinary binary64 arithmetic; constant work borrows both records without

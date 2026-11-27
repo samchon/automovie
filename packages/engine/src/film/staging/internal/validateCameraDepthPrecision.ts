@@ -3,7 +3,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/**
+/*
  * Validate a staged camera's depth-precision requirement before it reaches the
  * resolved scene.
  *
@@ -12,10 +12,9 @@ import type {
  * `maximumStepMeters`, the largest accepted gap between adjacent representable
  * depths, must be greater than zero. Violations go to `out` at
  * `<path>.minimumDepthBits` and `<path>.maximumStepMeters`.
- *
- * @param value The authored requirement.
- * @param path Violation path of the requirement.
- * @param out Collector the violations are appended to.
+ * Parameter value: The authored requirement.
+ * Parameter path: Violation path of the requirement.
+ * Parameter out: Collector the violations are appended to.
  */
 export function validateCameraDepthPrecision(
   value: IAutoMovieCameraDepthPrecisionConstraint,

@@ -31,15 +31,14 @@ import { observableHumanSegment } from "./observableHumanSegment";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { readHumanSegmentLeaf } from "./readHumanSegmentLeaf";
 
-/**
+/*
  * One action's displayed pose at a film second, whether or not it is the active
  * one: its posture, entering offset, range-of-motion clamps and final planted
  * contacts.
- *
- * @param person The person.
- * @param segment The action.
- * @param seconds Film seconds.
- * @returns The pose.
+ * Parameter person: The person.
+ * Parameter segment: The action.
+ * Parameter seconds: Film seconds.
+ * Returns: The pose.
  */
 export function HumanSegmentPose(
   person: IAutoMovieMotionHumanSegment.IPerson,
@@ -58,20 +57,19 @@ export function HumanSegmentPose(
   ).pose;
 }
 
-/**
+/*
  * A person's displayed pose: the layered action, carried holds, overlays,
  * stopped weapons and entering transition offset. Range-of-motion clamps
  * precede the final planted refits, so no later operation moves a plant.
  */
 export namespace HumanSegmentPose {
-  /**
+  /*
    * A person's displayed pose at a film second.
-   *
-   * @param person The person.
-   * @param seconds Film seconds.
-   * @param requested Optional observational bones; only their frames are
-   *   guaranteed and a partial result never enters the full-pose cache.
-   * @returns The pose.
+   * Parameter person: The person.
+   * Parameter seconds: Film seconds.
+   * Parameter requested: Optional observational bones; only their frames are
+   * guaranteed and a partial result never enters the full-pose cache.
+   * Returns: The pose.
    */
   export function displayed(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -82,10 +80,12 @@ export namespace HumanSegmentPose {
     return HumanSegmentShown(person, seconds, requested, prepared);
   }
 
-  /** The difference interval of every rate read of a shown pose, seconds. */
+  /*
+   * The difference interval of every rate read of a shown pose, seconds.
+   */
   export const STEP: number = 1e-3;
 
-  /**
+  /*
    * The inertialization offset of the transition that entered an action
    * (`inertializePose`, Bollo 2018): the source action's displayed state just
    * before the cut against the entered action's leaf, carries and overlays
@@ -93,11 +93,10 @@ export namespace HumanSegmentPose {
    * cut fits, so the offset keeps the motion rather than differences in fit
    * resolution. The performance solves it once when it is prepared
    * (`IAutoMovieMotionHumanSegment.IPrepared.offset`).
-   *
-   * @param person The person.
-   * @param segment The entered action.
-   * @param prepared Same-body preparation borrowed for the evaluation.
-   * @returns The offset, or none for an action entered without one.
+   * Parameter person: The person.
+   * Parameter segment: The entered action.
+   * Parameter prepared: Same-body preparation borrowed for the evaluation.
+   * Returns: The offset, or none for an action entered without one.
    */
   export function offset(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -159,23 +158,22 @@ export namespace HumanSegmentPose {
     );
   }
 
-  /**
-   * {@link of} with every limb fit's seed. Names distinguish the chain, overlay
+  /*
+   * of with every limb fit's seed. Names distinguish the chain, overlay
    * set and leaf, carry, stop or planted stage (`IFits`); each fit continues
    * its matching nearby seed. A read that continues no other second places its
    * stops and plants at its own shown leaf fit of the same limb
    * (`HumanSegmentPoseSeeds.shown`), prescribed for an arm.
-   *
-   * @param person The person.
-   * @param segment The action.
-   * @param seconds Film seconds.
-   * @param near The fits of a nearby second to continue, if any.
-   * @param prepared Same-body preparation borrowed only within this synchronous
-   *   evaluation, or acquired here and released on return or throw.
-   * @param requested Optional bone observation; near fits, holds, stops, active
-   *   transitions and contact/plant-dependent overlays retain complete
-   *   evaluation.
-   * @returns The pose and the seeds of its fits.
+   * Parameter person: The person.
+   * Parameter segment: The action.
+   * Parameter seconds: Film seconds.
+   * Parameter near: The fits of a nearby second to continue, if any.
+   * Parameter prepared: Same-body preparation borrowed only within this synchronous
+   * evaluation, or acquired here and released on return or throw.
+   * Parameter requested: Optional bone observation; near fits, holds, stops, active
+   * transitions and contact/plant-dependent overlays retain complete
+   * evaluation.
+   * Returns: The pose and the seeds of its fits.
    */
   export function seeded(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -393,20 +391,19 @@ export namespace HumanSegmentPose {
     };
   }
 
-  /**
+  /*
    * A one-sided shown-pose state: the instant is cold; its rate samples
    * continue that instant's fits to the tolerance an inertialization of
    * `duration` asks (`AutoMovieEngineMotionSampling.samplePoseVelocityTolerance`).
-   *
-   * @param read The shown pose at a second with its fits' seeds, continued from
-   *   `near` where given.
-   * @param seconds The second.
-   * @param side The side the motion is read from.
-   * @param rig The rig the joints are read through.
-   * @param duration The decay the state feeds, seconds.
-   * @param prepared Optional codec or lazy getter from this same unchanged-rig
-   *   transition capture, demanded only after the samples.
-   * @returns The state, and the continued samples its rates were read from.
+   * Parameter read: The shown pose at a second with its fits' seeds, continued from
+   * `near` where given.
+   * Parameter seconds: The second.
+   * Parameter side: The side the motion is read from.
+   * Parameter rig: The rig the joints are read through.
+   * Parameter duration: The decay the state feeds, seconds.
+   * Parameter prepared: Optional codec or lazy getter from this same unchanged-rig
+   * transition capture, demanded only after the samples.
+   * Returns: The state, and the continued samples its rates were read from.
    */
   export function continued(
     read: (seconds: number, near?: INear) => ISeeded,
@@ -445,7 +442,7 @@ export namespace HumanSegmentPose {
     };
   }
 
-  /**
+  /*
    * Exact-name continuation lookup, shared with overlays and final plants.
    *
    * HumanSegmentPoseSeeds.nearby owns the exact name, absent/null behavior and
@@ -455,18 +452,26 @@ export namespace HumanSegmentPose {
   export const nearby: typeof HumanSegmentPoseSeeds.nearby =
     HumanSegmentPoseSeeds.nearby;
 
-  /** The evaluator's named fit seeds, owned by HumanSegmentPoseSeeds. */
+  /*
+   * The evaluator's named fit seeds, owned by HumanSegmentPoseSeeds.
+   */
   export type IFits = HumanSegmentPoseSeeds.IFits;
 
-  /** A nearby evaluation's named seeds and swivel tolerance. */
+  /*
+   * A nearby evaluation's named seeds and swivel tolerance.
+   */
   export type INear = HumanSegmentPoseSeeds.INear;
 
-  /** A displayed pose and the named fits it actually evaluated. */
+  /*
+   * A displayed pose and the named fits it actually evaluated.
+   */
   export type ISeeded = HumanSegmentPoseSeeds.ISeeded;
 
-  /** A cold state and its three one-sided continued samples. */
+  /*
+   * A cold state and its three one-sided continued samples.
+   */
   export type IContinued = HumanSegmentPoseSeeds.IContinued;
-  /**
+  /*
    * The posture a following action carries. Native breathing is evaluated on
    * the film clock when the pose is shown.
    */
@@ -488,7 +493,9 @@ export namespace HumanSegmentPose {
     );
   }
 
-  /** The standing pose before a person's first action. */
+  /*
+   * The standing pose before a person's first action.
+   */
   export function initial(
     person: IAutoMovieMotionHumanSegment.IPerson,
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
@@ -506,5 +513,7 @@ export namespace HumanSegmentPose {
   }
 }
 
-/** The alternatives of `ContinuedSide`'s site. */
+/*
+ * The alternatives of `ContinuedSide`'s site.
+ */
 type ContinuedSide = "before" | "after";

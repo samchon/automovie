@@ -173,7 +173,9 @@ export namespace AutoMovieSweepRotation {
     out[oi + 3] = aw * wa + bw * wb;
   };
 
-  /** Write and normalize the completed X/Y/Z/W components at the output offset. */
+  /*
+   * Write and normalize the completed X/Y/Z/W components at the output offset.
+   */
   function writeBasisRotation(
     x: number,
     y: number,

@@ -20,7 +20,7 @@ import type { prepareSeatedRoot } from "./prepareSeatedRoot";
 import { riseRested } from "./riseRested";
 import { seated } from "./seated";
 
-/**
+/*
  * A rise's body at a second (`rise.plan`): the edging forward and the feet
  * drawn back while seated, then the seat socket's path forward and up over the
  * drawn feet with the trunk flexing and returning upright, the legs planned
@@ -28,9 +28,8 @@ import { seated } from "./seated";
  * leaving them, the palms rolled as they bear and the bearing arm chain
  * continued until they are released. Read from the plan's context, body, seat
  * course, feet and timing.
- *
- * @param scope What the plan's body is read from.
- * @returns The risen posture at a second.
+ * Parameter scope: What the plan's body is read from.
+ * Returns: The risen posture at a second.
  */
 export function riseBody(
   scope: riseBody.IScope,
@@ -167,92 +166,145 @@ export function riseBody(
   return rose;
 }
 
-/** What a rise's body reads. */
+/*
+ * What a rise's body reads.
+ */
 export namespace riseBody {
-  /** What a rise plan reads its body from. */
+  /*
+   * What a rise plan reads its body from.
+   */
   export interface IScope {
-    /** The action's context. */
+    /*
+     * The action's context.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRise.IParams>;
 
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The seated heading, degrees. */
+    /*
+     * The seated heading, degrees.
+     */
     yaw: number;
 
-    /** The entry's trunk pitch, degrees. */
+    /*
+     * The entry's trunk pitch, degrees.
+     */
     pitch0: number;
 
-    /** The relaxed upright joints. */
+    /*
+     * The relaxed upright joints.
+     */
     relaxed: IAutoMovieMotionHumanPosture["joints"];
 
-    /** The legs' goals on a root over set feet (`stand.prepareLegs`). */
+    /*
+     * The legs' goals on a root over set feet (`stand.prepareLegs`).
+     */
     legged: ReturnType<typeof stand.prepareLegs>;
 
-    /** The legs while the feet are drawn back (`prepareRiseFeet`). */
+    /*
+     * The legs while the feet are drawn back (`prepareRiseFeet`).
+     */
     legsAt: ReturnType<typeof prepareRiseFeet>;
 
-    /** The seat's armrests the hands push on, if any. */
+    /*
+     * The seat's armrests the hands push on, if any.
+     */
     rests: IAutoMovieMotionHumanBase.ISeat["armrests"];
 
-    /** The seated root from a socket (`prepareSeatedRoot`). */
+    /*
+     * The seated root from a socket (`prepareSeatedRoot`).
+     */
     entryRoot: ReturnType<typeof prepareSeatedRoot>;
 
-    /** The socket's edging forward on the seat, if it edges. */
+    /*
+     * The socket's edging forward on the seat, if it edges.
+     */
     edged: ReturnType<typeof Vector3.prepareLerp> | undefined;
 
-    /** The edging's seconds. */
+    /*
+     * The edging's seconds.
+     */
     edging: number;
 
-    /** The socket where the rise begins. */
+    /*
+     * The socket where the rise begins.
+     */
     begin: IAutoMovieVector3;
 
-    /** The socket where the rise stands. */
+    /*
+     * The socket where the rise stands.
+     */
     goal: IAutoMovieVector3;
 
-    /** The drawn feet. */
+    /*
+     * The drawn feet.
+     */
     drawn: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
-    /** The seconds before the rise, edging and drawing the feet. */
+    /*
+     * The seconds before the rise, edging and drawing the feet.
+     */
     prepared: number;
 
-    /** The rise's seconds to seat-off. */
+    /*
+     * The rise's seconds to seat-off.
+     */
     away: number;
 
-    /** The rise's seconds. */
+    /*
+     * The rise's seconds.
+     */
     rising: number;
 
-    /** The trunk's flexion seconds. */
+    /*
+     * The trunk's flexion seconds.
+     */
     flex: number;
 
-    /**
+    /*
      * The trunk's pitch while it flexes.
-     *
-     * @param t Seconds of the rise.
-     * @param peak The peak flexion, degrees.
-     * @returns The pitch, degrees.
+     * Parameter t: Seconds of the rise.
+     * Parameter peak: The peak flexion, degrees.
+     * Returns: The pitch, degrees.
      */
     pitchAt: (t: number, peak: number) => number;
 
-    /** The peak trunk flexion, degrees. */
+    /*
+     * The peak trunk flexion, degrees.
+     */
     peak: number;
 
-    /** The plan's seconds. */
+    /*
+     * The plan's seconds.
+     */
     duration: number;
 
-    /** Seat-off, seconds. */
+    /*
+     * Seat-off, seconds.
+     */
     seatOff: number;
 
-    /** The hands' release's seconds. */
+    /*
+     * The hands' release's seconds.
+     */
     releasing: number;
 
-    /** When the hands are released, seconds. */
+    /*
+     * When the hands are released, seconds.
+     */
     released: number;
 
-    /** The share of the rise at which the socket stands (`rise.STOOD`). */
+    /*
+     * The share of the rise at which the socket stands (`rise.STOOD`).
+     */
     STOOD: number;
 
-    /** The socket's rise's delay behind its forward travel (`rise.LAG`). */
+    /*
+     * The socket's rise's delay behind its forward travel (`rise.LAG`).
+     */
     LAG: number;
   }
 }

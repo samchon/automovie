@@ -3,19 +3,22 @@ import { type AutoMovieArchetypeEquine } from "../AutoMovieArchetypeEquine";
 import { AutoMovieArchetypeEquineGait } from "../AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "../AutoMovieArchetypeQuadrupedGait";
 
-/** The measured Icelandic cohort and the extra gaits a film author may select. */
+/*
+ * The measured Icelandic cohort and the extra gaits a film author may select.
+ */
 export namespace EquineIcelandicProfile {
-  /** Measured mature Icelandic horses, Jensen et al. 2019 Table 2. */
+  /*
+   * Measured mature Icelandic horses, Jensen et al. 2019 Table 2.
+   */
   const JENSEN: string =
     "Jensen et al. 2019, Acta Vet Scand 61:63 Table 2, 43 adult Icelandic horses (https://doi.org/10.1186/s13028-019-0498-5)";
 
-  /**
+  /*
    * Give the existing horse geometry the Icelandic height band and cohort
    * figures.
-   *
-   * @param base The ordinary producer's shared rig, material and tack profile.
-   * @returns A horse profile with the same producer id, scaled cohort
-   *   dimensions and distinct visible names.
+   * Parameter base: The ordinary producer's shared rig, material and tack profile.
+   * Returns: A horse profile with the same producer id, scaled cohort
+   * dimensions and distinct visible names.
    */
   export function shape(
     base: AutoMovieArchetypeEquine.IProfile,
@@ -38,7 +41,7 @@ export namespace EquineIcelandicProfile {
     };
   }
 
-  /**
+  /*
    * The authored even four beat sequence, continuing support across successive
    * steps.
    */
@@ -61,7 +64,7 @@ export namespace EquineIcelandicProfile {
     ],
   };
 
-  /**
+  /*
    * The flying end of measured pace. Model the near-synchronous lateral pairs
    * as coincident.
    */
@@ -83,7 +86,7 @@ export namespace EquineIcelandicProfile {
     ],
   };
 
-  /**
+  /*
    * Native Icelandic clock with explicit-only alternate gait rows. Source for
    * both measured gait clocks: Robilliard, Pfau and Wilson 2007, J Exp Biol
    * 210:187, Tables 1 and 2
@@ -110,7 +113,9 @@ export namespace EquineIcelandicProfile {
     },
   };
 
-  /** Convert observed milliseconds into a pure row in seconds. */
+  /*
+   * Convert observed milliseconds into a pure row in seconds.
+   */
   function row(
     speed: number,
     period: number,

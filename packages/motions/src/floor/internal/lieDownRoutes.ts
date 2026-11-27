@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanLieDown } from "@automovie/interface";
 
-/**
+/*
  * The route of postures to each position, after standing, with each arrival's
  * event.
  */

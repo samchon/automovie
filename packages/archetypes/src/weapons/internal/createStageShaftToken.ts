@@ -9,18 +9,17 @@ import {
 import { StageTokenConstruction } from "./StageTokenConstruction";
 import { AutoMovieArchetypeProjectile } from "../AutoMovieArchetypeProjectile";
 
-/**
+/*
  * Slender shaft stage token.
  *
  * The arrow and bolt silhouettes share a model-space handle, seat and tip mark
  * along the shaft.
- *
- * @param params The scene id and this digital form's catalogue or sizing
- *   options.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter params: The scene id and this digital form's catalogue or sizing
+ * options.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function createStageShaftToken(
   params: AutoMovieArchetypeStageShaftToken.IParams,
@@ -110,7 +109,7 @@ export function createStageShaftToken(
   });
 }
 
-/**
+/*
  * How far ahead of the nock the fingers pinch the shaft to nock it, metres: a
  * fingertip pad's width (provisional).
  */

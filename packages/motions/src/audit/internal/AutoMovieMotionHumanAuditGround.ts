@@ -15,7 +15,7 @@ import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
-/**
+/*
  * How a displayed body meets the floor: whether any collider sinks below it,
  * and whether a foot declared planted stays where it stands and on the floor.
  *
@@ -43,15 +43,14 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * the world floor or a stair tread.
  */
 export namespace AutoMovieMotionHumanAuditGround {
-  /**
+  /*
    * The deepest any collider sinks below the floor over the motion.
-   *
-   * @param motion The motion.
-   * @param subject The person.
-   * @param body Their body.
-   * @param rate Grid samples per second.
-   * @returns Metres below the floor (zero when nothing sinks), with the bone
-   *   that sinks.
+   * Parameter motion: The motion.
+   * Parameter subject: The person.
+   * Parameter body: Their body.
+   * Parameter rate: Grid samples per second.
+   * Returns: Metres below the floor (zero when nothing sinks), with the bone
+   * that sinks.
    */
   export function floor(
     motion: IAutoMovieMotionHumanAuditMotion,
@@ -103,14 +102,13 @@ export namespace AutoMovieMotionHumanAuditGround {
     return worst;
   }
 
-  /**
+  /*
    * The largest slip of a planted foot within any of its plant windows.
-   *
-   * @param motion The motion.
-   * @param subject The person.
-   * @param body Their body.
-   * @param rate Grid samples per second.
-   * @returns Metres, with the action and the foot.
+   * Parameter motion: The motion.
+   * Parameter subject: The person.
+   * Parameter body: Their body.
+   * Parameter rate: Grid samples per second.
+   * Returns: Metres, with the action and the foot.
    */
   export function slip(
     motion: IAutoMovieMotionHumanAuditMotion,
@@ -121,15 +119,14 @@ export namespace AutoMovieMotionHumanAuditGround {
     return plants(motion, subject, body, rate, false);
   }
 
-  /**
+  /*
    * The farthest a foot is above or below its declared stationary surface
    * within any of its plant windows.
-   *
-   * @param motion The motion.
-   * @param subject The person.
-   * @param body Their body.
-   * @param rate Grid samples per second.
-   * @returns Metres, with the action and the foot.
+   * Parameter motion: The motion.
+   * Parameter subject: The person.
+   * Parameter body: Their body.
+   * Parameter rate: Grid samples per second.
+   * Returns: Metres, with the action and the foot.
    */
   export function lift(
     motion: IAutoMovieMotionHumanAuditMotion,
@@ -140,17 +137,16 @@ export namespace AutoMovieMotionHumanAuditGround {
     return plants(motion, subject, body, rate, true);
   }
 
-  /**
+  /*
    * A planted foot's contact at an instant: the point its window declares held
    * (`IAutoMovieMotionHumanContactWindow.socket`), a named sole socket or a
    * rest-frame point placed by the displayed foot bone, else its lowest sole
    * socket, the heel winning a tie within a micrometre and then the ball.
-   *
-   * @param body The body.
-   * @param bones The displayed bones at the instant.
-   * @param side The foot.
-   * @param declared The window's held point; none when absent.
-   * @returns The contact, keyed by which point it is.
+   * Parameter body: The body.
+   * Parameter bones: The displayed bones at the instant.
+   * Parameter side: The foot.
+   * Parameter declared: The window's held point; none when absent.
+   * Returns: The contact, keyed by which point it is.
    */
   export function held(
     body: IAutoMovieMotionHumanBody,
@@ -185,23 +181,29 @@ export namespace AutoMovieMotionHumanAuditGround {
     return { key: contact.socket, point: contact.point };
   }
 
-  /** A planted foot's contact point at an instant, keyed by which point it is. */
+  /*
+   * A planted foot's contact point at an instant, keyed by which point it is.
+   */
   export interface IHeld {
-    /** The socket's name, or `contact` for a declared rest-frame point. */
+    /*
+     * The socket's name, or `contact` for a declared rest-frame point.
+     */
     key: string;
 
-    /** Where it is, world metres. */
+    /*
+     * Where it is, world metres.
+     */
     point: IAutoMovieVector3;
   }
 }
 
-/**
+/*
  * The bones of a leg, thigh to toes, which the floor under their own foot
  * bears.
  */
 const LEG: RegExp = /^(left|right)(UpperLeg|LowerLeg|Foot|Toes)$/;
 
-/**
+/*
  * The worst slip, or the worst height off the floor, over every foot plant
  * window.
  */

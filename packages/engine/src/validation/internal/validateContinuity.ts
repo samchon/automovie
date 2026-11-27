@@ -9,7 +9,7 @@ import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCo
 import { compareContinuityBoundary } from "./compareContinuityBoundary";
 import { readContinuityTolerances } from "./readContinuityTolerances";
 
-/**
+/*
  * Compare every prior-end actor to the incoming opening for missing presence,
  * Euclidean drift, facing angle and persistent mount changes.
  */

@@ -6,8 +6,8 @@ import type {
 import { PRIMITIVE_RADIAL_SEGMENTS } from "../PRIMITIVE_RADIAL_SEGMENTS";
 import { PRIMITIVE_SPHERE_RINGS } from "../PRIMITIVE_SPHERE_RINGS";
 
-/**
- * Tessellate a {@link AutoMoviePrimitiveShape} into a triangle mesh.
+/*
+ * Tessellate a AutoMoviePrimitiveShape into a triangle mesh.
  *
  * Lets the LLM-authored "named dimensions" path (a 0.4 m sphere, a capsule)
  * become concrete geometry a renderer can draw, without the model ever emitting
@@ -23,8 +23,7 @@ import { PRIMITIVE_SPHERE_RINGS } from "../PRIMITIVE_SPHERE_RINGS";
  * Each call returns fresh indexed position and normal arrays, without UVs.
  * Finite admitted dimensions can still overflow derived capsule height or
  * normal arithmetic; this producer does not refuse every extreme invalid mesh.
- *
- * @throws Error when the runtime primitive discriminator is unknown.
+ * Error when the runtime primitive discriminator is unknown.
  */
 export const tessellate: (
   shape: IAutoMoviePrimitiveShape,

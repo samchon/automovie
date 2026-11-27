@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanHandToBody } from "@automovie/interface";
 
-/**
+/*
  * The tuck-hair preset: one stroke of the relaxed index fingertip to the right
  * ear (mirrored for the left hand), from 0.065 up and 0.135 forward of the ear
  * to 0.018 up, 0.055 behind and 0.035 out of it, in shares of the arm's length.

@@ -1,15 +1,17 @@
 import type { IAutoMovieSolveSubdivisionLimit } from "@automovie/interface";
 
-/** Most Jacobi sweeps one solve runs. */
+/*
+ * Most Jacobi sweeps one solve runs.
+ */
 const MAX_ITERATIONS: number = 2000;
 
-/**
+/*
  * Convergence threshold on the largest residual, relative to the targets'
  * extent.
  */
 const TOLERANCE: number = 1e-10;
 
-/**
+/*
  * Solve, in place, the control positions whose Catmull-Clark limit points are
  * the targets.
  *
@@ -20,15 +22,14 @@ const TOLERANCE: number = 1e-10;
  * 1/9 and 1. It stops when the largest residual of a free vertex falls below
  * 1e-10 of the targets' extent or after 2,000 sweeps, and returns that
  * residual, so a caller can refuse a fit that did not converge.
- *
- * @param props.stencil Limit stencils of the cage; only read.
- * @param props.targets Packed targets `[x, y, z, ...]`; only read.
- * @param props.free 1 for each vertex to solve, 0 for one held at its target;
- *   only read.
- * @param props.positions Receives the controls, `3 * count` numbers.
- * @param props.scratch A second buffer of the same length, overwritten.
- * @returns The largest remaining residual of a free vertex, in the targets'
- *   unit; 0 when none is free.
+ * Parameter props.stencil: Limit stencils of the cage; only read.
+ * Parameter props.targets: Packed targets `[x, y, z, ...]`; only read.
+ * Parameter props.free: 1 for each vertex to solve, 0 for one held at its target;
+ * only read.
+ * Parameter props.positions: Receives the controls, `3 * count` numbers.
+ * Parameter props.scratch: A second buffer of the same length, overwritten.
+ * Returns: The largest remaining residual of a free vertex, in the targets'
+ * unit; 0 when none is free.
  */
 export const solveAutoMovieSubdivisionLimit: (
   props: IAutoMovieSolveSubdivisionLimit.IProps,

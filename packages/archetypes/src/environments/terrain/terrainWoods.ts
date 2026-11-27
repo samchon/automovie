@@ -17,7 +17,7 @@ import type {
 import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { AutoMovieArchetypeTree } from "../../nature/AutoMovieArchetypeTree";
 
-/**
+/*
  * Plant each named wood of a terrain recipe as one explicit instance set.
  *
  * Sites come from jittered grid sampling (Cook 1986, "Stochastic Sampling in
@@ -37,18 +37,17 @@ import { AutoMovieArchetypeTree } from "../../nature/AutoMovieArchetypeTree";
  * species by weight and the fourth orders it. With `count`, the first `count`
  * accepted sites in that seeded order are planted. Each tree's Y is the terrain
  * rule's height at its site, and its prototype names its species.
- *
- * @param context The placed scope, frame and seed.
- * @param recipe The parcel extent and its named woods in local plan metres.
- * @param ground The accepted world height rule of the finished ground.
- * @param protectedArea The first protected feature within a radius of a world
- *   plan point, or null.
- * @returns One prototype model per planted species and one instance set per
- *   wood.
- * @throws {Error} Naming the wood for a malformed outline, spacing, count,
- *   scale or species weight, a grid beyond `MAX_CELLS`, no accepted site, more
- *   than 100,000 accepted sites without a count, or a count above the accepted
- *   sites, giving how many fit.
+ * Parameter context: The placed scope, frame and seed.
+ * Parameter recipe: The parcel extent and its named woods in local plan metres.
+ * Parameter ground: The accepted world height rule of the finished ground.
+ * Parameter protectedArea: The first protected feature within a radius of a world
+ * plan point, or null.
+ * Returns: One prototype model per planted species and one instance set per
+ * wood.
+ * Naming the wood for a malformed outline, spacing, count,
+ * scale or species weight, a grid beyond `MAX_CELLS`, no accepted site, more
+ * than 100,000 accepted sites without a count, or a count above the accepted
+ * sites, giving how many fit.
  */
 export function terrainWoods(
   context: IAutoMovieEnvironmentModule.IContext,
@@ -274,22 +273,32 @@ export function terrainWoods(
   return { instanceSets, models };
 }
 
-/** One accepted site with its seeded order. */
+/*
+ * One accepted site with its seeded order.
+ */
 interface ISite {
-  /** The cell's fourth stream word, which orders the sites. */
+  /*
+   * The cell's fourth stream word, which orders the sites.
+   */
   key: number;
 
-  /** The cell's index, which breaks ties in that order. */
+  /*
+   * The cell's index, which breaks ties in that order.
+   */
   index: number;
 
-  /** The tree's placement relative to the terrain origin. */
+  /*
+   * The tree's placement relative to the terrain origin.
+   */
   transform: IAutoMovieExplicitInstanceTransform;
 }
 
-/** Most trees one wood plants: the slot bound of an instance set. */
+/*
+ * Most trees one wood plants: the slot bound of an instance set.
+ */
 const MAX_TREES: number = 100_000;
 
-/**
+/*
  * Most grid cells one wood scans. The scan visits every cell of the outline's
  * bounding box, so this bounds its work, as the terrain lattice's
  * million-sample budget bounds the bake.

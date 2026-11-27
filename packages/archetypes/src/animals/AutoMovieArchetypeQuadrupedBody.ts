@@ -282,7 +282,7 @@ export namespace AutoMovieArchetypeQuadrupedBody {
     const trunk: number = body.lengths.trunk * h;
     const back: number = body.back * h;
 
-    /**
+    /*
      * Initial provisional chain; body connection is resolved after the torso
      * landmarks exist.
      */

@@ -357,11 +357,15 @@ export namespace AutoMovieArchetypeArmour {
     return assembleCostumeArmourImplementation(params);
   }
 
-  /** The plate thickness read. */
+  /*
+   * The plate thickness read.
+   */
   const PLATE: string =
     "Alan Williams, What can scientific analysis tell us about the effectiveness of medieval arms and armour?, p. 172: comfortable-weight breastplates between 1.5 and 3 mm, limb armour thinner; the breastplate range remains a provisional limb transfer (https://wratislavia.antiqua.uwr.edu.pl/wp-content/uploads/sites/573/2025/02/10-What-can-scientific-analysis-tell-us-about-the-effectiveness-of-medieval-arms-and-armour.pdf)";
 
-  /** The helmet padding read. */
+  /*
+   * The helmet padding read.
+   */
   const PAD: string =
     'US Army News Service, 20 April 2011, on combat helmet pads: "The current pad is three-quarters of an inch thick" (https://www.army.mil/article/55275/combat-helmet-continues-to-evolve-step-by-step/), a modern helmet\'s padding, provisional for a medieval arming cap, whose thickness no source read gives';
 
@@ -417,7 +421,9 @@ export namespace AutoMovieArchetypeArmour {
     mass: "kg",
   };
 
-  /** A record's height, width, depth and mass, centimetres and grams. */
+  /*
+   * A record's height, width, depth and mass, centimetres and grams.
+   */
   const read = (
     height: number,
     width: number,
@@ -522,14 +528,18 @@ export namespace AutoMovieArchetypeArmour {
    */
   export const GLANCE: number = 60;
 
-  /** The plate's thickness band. */
+  /*
+   * The plate's thickness band.
+   */
   const thickness: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
     0.0015,
     0.003,
     PLATE,
   );
 
-  /** A helmet's padding. */
+  /*
+   * A helmet's padding.
+   */
   const pad: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
     0.75 * AutoMovieArchetypeUnits.INCH,
     0.75 * AutoMovieArchetypeUnits.INCH,

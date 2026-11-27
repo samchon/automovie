@@ -13,25 +13,24 @@ import type {
 import { HumanLimbFit } from "./HumanLimbFit";
 import { poseBones } from "./poseBones";
 
-/**
+/*
  * A limb goal in world terms: unchanged when it has no `on` bone, otherwise
  * its point and bend carried from the bone's posed frame to the world
  * (`p_world = P + R p`) and its rotation composed after the bone's (`R q`),
  * with the bone placed by the given pose. The attachment is refused for a
  * bone of the limb's own chain (its upper bone, its lower bone or its end),
  * because fitting the limb moves that bone and the goal would chase itself.
- *
- * @param body The performer's body.
- * @param pose The pose that places the attachment bone, before the limb is
- *   fitted.
- * @param limb The limb the goal is for.
- * @param goal The goal, attached or not.
- * @param readAuthored Optional exact FK containing the attachment bone for
- *   this body/pose and canonical mappings, shared only within the current fit
- *   operation.
- * @returns The goal with world point, bend and rotation and no `on`.
- * @throws {Error} When the goal is attached to a bone of its own limb's
- *   chain, or to a bone the rig lacks.
+ * Parameter body: The performer's body.
+ * Parameter pose: The pose that places the attachment bone, before the limb is
+ * fitted.
+ * Parameter limb: The limb the goal is for.
+ * Parameter goal: The goal, attached or not.
+ * Parameter readAuthored: Optional exact FK containing the attachment bone for
+ * this body/pose and canonical mappings, shared only within the current fit
+ * operation.
+ * Returns: The goal with world point, bend and rotation and no `on`.
+ * When the goal is attached to a bone of its own limb's
+ * chain, or to a bone the rig lacks.
  */
 export function humanLimbGoalWorld(
   body: IAutoMovieMotionHumanBody,

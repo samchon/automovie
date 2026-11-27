@@ -16,7 +16,9 @@ import type {
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { wardrobeHands } from "./wardrobeHands";
 
-/** Keep the seat and other foot fixed while presenting the working foot. */
+/*
+ * Keep the seat and other foot fixed while presenting the working foot.
+ */
 export function wardrobeFootRaisedLeg(
   context: IAutoMovieMotionHumanActionContext<wardrobeHands.IPropParams>,
   side: AutoMovieHumanSide,
@@ -149,5 +151,7 @@ export function wardrobeFootRaisedLeg(
   };
 }
 
-/** One bone's clinical flexion, abduction and twist, degrees. */
+/*
+ * One bone's clinical flexion, abduction and twist, degrees.
+ */
 type AutoMovieMotionHumanJointAngles = readonly [number, number, number];

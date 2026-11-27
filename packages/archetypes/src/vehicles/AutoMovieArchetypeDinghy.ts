@@ -117,7 +117,7 @@ export namespace AutoMovieArchetypeDinghy {
   };
 }
 
-/**
+/*
  * Thin hull cells on one longitudinal section family beneath the common cockpit
  * floor.
  */
@@ -201,7 +201,9 @@ function hull(builder: Build, length: number, beam: number): void {
   });
 }
 
-/** Main sail, boom and sheet, sharing the mast pivot and a posed hand end. */
+/*
+ * Main sail, boom and sheet, sharing the mast pivot and a posed hand end.
+ */
 function mainRig(builder: Build, length: number): void {
   const tack: IAutoMovieVector3 = v(0, 1.18, length * 0.25);
   const boomLength: number = length * 0.64;
@@ -314,7 +316,7 @@ function mainRig(builder: Build, length: number): void {
   );
 }
 
-/**
+/*
  * The stern pivot carries the below-water blade and the tiller. At the tiller's
  * end a universal joint carries the extension: it swings about the end's
  * vertical (`extensionSwing`) and lifts about its horizontal (`extensionLift`),
@@ -392,26 +394,38 @@ type Build = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeDinghy.Dimension
 >;
 
-/**
+/*
  * One transverse hull section: its station along +Z, half-beam at the rim and
  * keel height, metres.
  */
 interface ISection {
-  /** Station along the hull, metres from midships. */
+  /*
+   * Station along the hull, metres from midships.
+   */
   z: number;
 
-  /** Half-beam at the sheer, metres. */
+  /*
+   * Half-beam at the sheer, metres.
+   */
   half: number;
 
-  /** Keel height relative to the waterline, metres. */
+  /*
+   * Keel height relative to the waterline, metres.
+   */
   keel: number;
 }
 
-/** A section's inner and outer skin outlines, port to starboard. */
+/*
+ * A section's inner and outer skin outlines, port to starboard.
+ */
 interface IRing {
-  /** Inner skin points. */
+  /*
+   * Inner skin points.
+   */
   inner: IAutoMovieVector3[];
 
-  /** Outer skin points. */
+  /*
+   * Outer skin points.
+   */
   outer: IAutoMovieVector3[];
 }

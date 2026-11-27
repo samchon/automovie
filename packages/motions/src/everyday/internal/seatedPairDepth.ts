@@ -7,7 +7,7 @@ import type {
 
 import { AutoMovieMotionHumanAuditTangleModel as Tangle } from "../../audit/internal/AutoMovieMotionHumanAuditTangleModel";
 
-/**
+/*
  * Measure one pair of seated-body segments beyond their built-in overlap. Use
  * the same directed hull and axis probes in both directions as the
  * displayed-body collision reading.

@@ -8,7 +8,7 @@ import type {
   IAutoMovieRecoverySupportRealization,
 } from "@automovie/interface";
 
-/**
+/*
  * Generate new geometry, normal fans and construction from saved support
  * curves. Independent coordinate edits transform the support equations by the
  * inverse diagonal map and renormalize each plane, preserving other axis

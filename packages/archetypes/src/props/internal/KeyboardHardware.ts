@@ -7,31 +7,39 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core";
 
-/** Shared key field and the manufacturer records used by saved keyboard recipes. */
+/*
+ * Shared key field and the manufacturer records used by saved keyboard recipes.
+ */
 export namespace KeyboardHardware {
   /** The kinds: a full-size keyboard and a laptop. */
   export type Kind = "keyboard" | "laptop";
 
-  /** Every kind, for a caller that reads one at run time. */
+  /*
+   * Every kind, for a caller that reads one at run time.
+   */
   export const KINDS: readonly Kind[] = ["keyboard", "laptop"];
 
-  /**
+  /*
    * The key pitch, metres: full-size keys on 0.750 in (19.05 mm) centres, the
    * withdrawn ISO 1091's 19 mm +/- 1 mm, which ISO/IEC 9995 does not state
    * (Deskthority wiki, Key pitch, https://deskthority.net/wiki/Key_pitch).
    */
   export const PITCH: number = 0.01905;
 
-  /** The margin from the base's edge to the key field, metres: an estimate. */
+  /*
+   * The margin from the base's edge to the key field, metres: an estimate.
+   */
   export const MARGIN: number = 0.01;
 
-  /**
+  /*
    * A laptop lid's tilt back from flat, degrees: open at an estimated 110
    * degrees.
    */
   export const LID: number = 110;
 
-  /** A laptop lid's thickness, metres: an estimate. */
+  /*
+   * A laptop lid's thickness, metres: an estimate.
+   */
   export const LID_THICKNESS: number = 0.006;
 
   /**
@@ -52,7 +60,9 @@ export namespace KeyboardHardware {
    */
   export type Dimension = "width" | "depth" | "height" | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /*
+   * Each dimension's unit, which its band and any model's figure for it share.
+   */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -86,7 +96,7 @@ export namespace KeyboardHardware {
    */
   export type Model = "numericKeypad" | "touchId" | "air13" | "air15";
 
-  /**
+  /*
    * Each kind's models whole, the default first. The keyboards: 41.87 cm wide,
    * 11.49 cm deep, 1.09 cm high at the back edge, 0.39 kg
    * (https://support.apple.com/en-us/112037) and 0.369 kg with Touch ID
@@ -124,7 +134,9 @@ export namespace KeyboardHardware {
     },
   };
 
-  /** The band of each free dimension, by kind: none, every figure is a model's. */
+  /*
+   * The band of each free dimension, by kind: none, every figure is a model's.
+   */
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = {
@@ -132,19 +144,27 @@ export namespace KeyboardHardware {
     laptop: {},
   };
 
-  /** The contact ids {@link draw} builds or reads. */
+  /*
+   * The contact ids draw builds or reads.
+   */
   export type DrawContact = "keys" | "homeRow";
 
-  /** What {@link draw} prepares for its caller. */
+  /*
+   * What draw prepares for its caller.
+   */
   export interface IDrawResult<Id extends string> {
-    /** The prepared `builder` this call returns. */
+    /*
+     * The prepared `builder` this call returns.
+     */
     builder: AutoMovieArchetypeBuilder<DrawContact | Id, Dimension>;
 
-    /** The prepared `d` this call returns. */
+    /*
+     * The prepared `d` this call returns.
+     */
     d: Record<Dimension, number>;
   }
 
-  /**
+  /*
    * Draws the original dimensions in metres and builds the base and key
    * contacts.
    */

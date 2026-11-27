@@ -11,7 +11,7 @@ import { AutoMovieConstructionProfile } from "../../AutoMovieConstructionProfile
 import { AutoMovieConstructionProfileBody } from "../../AutoMovieConstructionProfileBody";
 import { AutoMovieConstructionState } from "../../AutoMovieConstructionState";
 
-/**
+/*
  * Resolve one pure profile leaf to its actual invocation-owned original family.
  *
  * A detached declaration is compared structurally without property-order or
@@ -56,7 +56,7 @@ export function AutoMovieConstructionProfileRealize(
   }
 }
 
-/**
+/*
  * Pure AST equality ignores omitted optional undefined properties, preserving
  * array order and every actual scalar value.
  */

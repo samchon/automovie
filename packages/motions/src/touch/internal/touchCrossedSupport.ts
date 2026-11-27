@@ -23,20 +23,26 @@ import { HumanArmTrajectoryPace } from "../../posture/internal/HumanArmTrajector
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Shoulder assistance and transport timing for hands holding distinct body
  * sites across each other.
  */
 export namespace touchCrossedSupport {
-  /** The endpoint branch and the minimum unscaled duration of its transport. */
+  /*
+   * The endpoint branch and the minimum unscaled duration of its transport.
+   */
   export interface IAttempt {
-    /** Whether the primary arm passes below and the second arm above. */
+    /*
+     * Whether the primary arm passes below and the second arm above.
+     */
     assist: boolean;
-    /** The free transport time of the achieved wrist path, in seconds. */
+    /*
+     * The free transport time of the achieved wrist path, in seconds.
+     */
     reach: number;
   }
 
-  /**
+  /*
    * Plan a supported crossing on the entry shoulders first. A refused crossing
    * can use the opposite shoulder-girdle limits.
    */
@@ -128,7 +134,7 @@ export namespace touchCrossedSupport {
       : first;
   }
 
-  /**
+  /*
    * The shoulder boundary configurations for opposite over- and under-arm
    * passages, approached with the existing reach envelope.
    */
@@ -170,34 +176,52 @@ export namespace touchCrossedSupport {
     };
   }
 
-  /** Build and admit a touch on the specified branch. */
+  /*
+   * Build and admit a touch on the specified branch.
+   */
   type Build = (
     context: Context,
     attempt?: IAttempt,
   ) => IAutoMovieMotionHumanActionPlan;
 
-  /** A touch and its initial body and clock. */
+  /*
+   * A touch and its initial body and clock.
+   */
   type Context =
     IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>;
 
-  /** The two wrist positions in world metres. */
+  /*
+   * The two wrist positions in world metres.
+   */
   type Wrists = readonly [IAutoMovieVector3, IAutoMovieVector3];
 
-  /** Joint angles in the rig's flexion, abduction and twist order, in degrees. */
+  /*
+   * Joint angles in the rig's flexion, abduction and twist order, in degrees.
+   */
   type Angles = readonly [number, number, number];
 
-  /** The branch a crossing reaches on and its plan. */
+  /*
+   * The branch a crossing reaches on and its plan.
+   */
   interface IAssisted {
-    /** Whether the primary arm passes below and the second arm above. */
+    /*
+     * Whether the primary arm passes below and the second arm above.
+     */
     assist: boolean;
 
-    /** The plan built on that branch. */
+    /*
+     * The plan built on that branch.
+     */
     plan: IAutoMovieMotionHumanActionPlan;
   }
 }
 
-/** The alternatives of `GirdlesAtBone`'s site. */
+/*
+ * The alternatives of `GirdlesAtBone`'s site.
+ */
 type GirdlesAtBone = "leftShoulder" | "rightShoulder";
 
-/** The alternatives of `GirdlesBoundsEnd`'s site. */
+/*
+ * The alternatives of `GirdlesBoundsEnd`'s site.
+ */
 type GirdlesBoundsEnd = "min" | "max";

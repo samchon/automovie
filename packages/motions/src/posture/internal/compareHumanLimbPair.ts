@@ -5,7 +5,7 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-/**
+/*
  * Compare the original complete paired-arm key and then its complete image:
  * root, name-sorted clinical joint tuples, left goal, right goal. Complete
  * lowering and whole-array JSON observation preserve getter/toJSON keys, suffix
@@ -22,7 +22,7 @@ export function compareHumanLimbPair(
   return a <= b ? (a === b ? 0 : -1) : 1;
 }
 
-/**
+/*
  * Materialize every original array component before the complete left-to-right
  * JSON observation.
  */
@@ -54,7 +54,9 @@ function key(
   ]);
 }
 
-/** Original stable name-order comparator; duplicate names retain input order. */
+/*
+ * Original stable name-order comparator; duplicate names retain input order.
+ */
 function order(a: IAutoMovieJointPose, b: IAutoMovieJointPose): number {
   return a.bone < b.bone ? -1 : a.bone > b.bone ? 1 : 0;
 }

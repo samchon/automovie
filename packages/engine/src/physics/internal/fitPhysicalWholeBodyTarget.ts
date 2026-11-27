@@ -13,22 +13,21 @@ import { Vector3 } from "../../math/Vector3";
 import { rerootPhysicalProfile } from "./rerootPhysicalProfile";
 import { solvePhysicalArticulationTargets } from "./solvePhysicalArticulationTargets";
 
-/**
+/*
  * Fit a whole articulated body to one endpoint goal while a support segment
  * stays held, turning only about its contact.
  *
- * The tree is held from the support ({@link rerootPhysicalProfile}), and a
+ * The tree is held from the support (rerootPhysicalProfile), and a
  * virtual base hinges onto it at the contact point about the contact normal
  * within the declared turn, so the old root (a pelvis) rotates, tilts and
  * translates through the support chain's own joints while the reaching chain
  * reaches. Every coordinate stays inside its own declared ROM, the contact
  * point never moves, and the bounded articulation solver
- * ({@link solvePhysicalArticulationTargets}) accepts only residual decreases.
+ * (solvePhysicalArticulationTargets) accepts only residual decreases.
  * The residual is the goal point's world error in metres and, when an approach
  * is declared, the weighted difference between the endpoint's local direction
  * carried to world and the approach direction.
- *
- * @returns World poses of every original segment, and the residual report.
+ * Returns: World poses of every original segment, and the residual report.
  */
 export function fitPhysicalWholeBodyTarget(
   input: IAutoMovieFitPhysicalWholeBodyTarget.IInput,
@@ -167,7 +166,9 @@ export function fitPhysicalWholeBodyTarget(
   };
 }
 
-/** The rotation taking +x to a unit direction by the shortest arc. */
+/*
+ * The rotation taking +x to a unit direction by the shortest arc.
+ */
 function along(
   direction: IAutoMovieVector3,
 ): IAutoMovieRigidTransform["rotation"] {

@@ -34,7 +34,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { extinguishSweep } from "./extinguishSweep";
 
-/**
+/*
  * Aim, squeeze and sweep an extinguisher whose pin is already pulled: the A, S
  * and S of OSHA's PASS (pull, aim, squeeze, sweep; Portable fire extinguishers,
  * https://osha.gov/etools/evacuation-plans-procedures/emergency-standards/portable-extinguishers/use).
@@ -63,7 +63,9 @@ export const extinguish: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFir
     plan,
   };
 
-/** Admit the extinguisher, then aim, squeeze and sweep it. */
+/*
+ * Admit the extinguisher, then aim, squeeze and sweep it.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IExtinguish>,
 ): IAutoMovieMotionHumanActionPlan {

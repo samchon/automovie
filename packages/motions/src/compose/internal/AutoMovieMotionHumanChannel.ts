@@ -12,11 +12,10 @@ import type {
 
 import { HumanPosture } from "../../posture/internal/HumanPosture";
 
-/**
+/*
  * The channel that owns a bone's joint.
- *
- * @param bone The bone.
- * @returns Its channel.
+ * Parameter bone: The bone.
+ * Returns: Its channel.
  */
 export function AutoMovieMotionHumanChannel(
   bone: AutoMovieHumanoidBone,
@@ -39,14 +38,14 @@ export function AutoMovieMotionHumanChannel(
   return `${side}Leg`;
 }
 
-/**
+/*
  * Channel ordering, bone ownership and posture merging for the canonical
  * channel vocabulary. ORDER is constrained by the interface union. The readers
  * below use this order and ownership partition when composing primitives,
  * including individual-digit claims.
  */
 export namespace AutoMovieMotionHumanChannel {
-  /**
+  /*
    * The order channels are written in: the body is placed first and the arms
    * last, so a primitive reads every part its own part hangs from as the action
    * already placed it. The hands' fingers come before the arms although they
@@ -68,7 +67,7 @@ export namespace AutoMovieMotionHumanChannel {
     "rightArm",
   ] as const satisfies readonly NonNullable<AutoMovieMotionHumanChannelContract>[];
 
-  /**
+  /*
    * The bones `trunkTurn` covers: the spine and the chest above the pelvis, not
    * the shoulder girdles.
    */
@@ -78,11 +77,10 @@ export namespace AutoMovieMotionHumanChannel {
     "upperChest",
   ];
 
-  /**
+  /*
    * The digit that owns a bone's joint, for a finger or thumb bone.
-   *
-   * @param bone The bone.
-   * @returns Its digit; none for a bone of no digit.
+   * Parameter bone: The bone.
+   * Returns: Its digit; none for a bone of no digit.
    */
   export function digit(
     bone: AutoMovieHumanoidBone,
@@ -95,13 +93,12 @@ export namespace AutoMovieMotionHumanChannel {
       : (`${found[1]}${found[2]}` as AutoMovieHumanDigit);
   }
 
-  /**
+  /*
    * Whether claims cover a claim: they name it, or it is a digit of a hand they
    * name.
-   *
-   * @param claims The claims.
-   * @param claim The claim asked about.
-   * @returns Whether it is covered.
+   * Parameter claims: The claims.
+   * Parameter claim: The claim asked about.
+   * Returns: Whether it is covered.
    */
   export function claims(
     claims: readonly AutoMovieMotionHumanChannelClaim[],
@@ -117,12 +114,11 @@ export namespace AutoMovieMotionHumanChannel {
     );
   }
 
-  /**
+  /*
    * Whether claims cover a bone's joint: they name its channel, or its digit.
-   *
-   * @param claims The claims.
-   * @param bone The bone.
-   * @returns Whether its joint is covered.
+   * Parameter claims: The claims.
+   * Parameter bone: The bone.
+   * Returns: Whether its joint is covered.
    */
   export function covers(
     claims: readonly AutoMovieMotionHumanChannelClaim[],
@@ -134,17 +130,16 @@ export namespace AutoMovieMotionHumanChannel {
     return own !== undefined && claims.includes(own);
   }
 
-  /**
+  /*
    * A posture with some channels taken from another: every field the channels
    * own is copied from `written`, everything else stays as `base` has it. A
    * joint or a limb goal `written` no longer sets is cleared. A digit claim
    * takes that digit's joints and its digit goal only; a hand's channel takes
    * all five.
-   *
-   * @param base The posture the other channels keep.
-   * @param written The posture the channels were written on.
-   * @param channels The channels and digits to take.
-   * @returns The merged posture.
+   * Parameter base: The posture the other channels keep.
+   * Parameter written: The posture the channels were written on.
+   * Parameter channels: The channels and digits to take.
+   * Returns: The merged posture.
    */
   export function merge(
     base: IAutoMovieMotionHumanPosture,
@@ -162,14 +157,13 @@ export namespace AutoMovieMotionHumanChannel {
     );
   }
 
-  /**
+  /*
    * Prepare the immutable claim decisions of repeated posture merges. Actual
    * joint triples, goals, roots and optional fields remain inputs of every
    * call, and the returned records keep merge's original ownership.
-   *
-   * @param channels The fixed channel/digit/trunk-turn claims, copied at
-   *   preparation.
-   * @returns The same merge with fixed channel and digit claim membership.
+   * Parameter channels: The fixed channel/digit/trunk-turn claims, copied at
+   * preparation.
+   * Returns: The same merge with fixed channel and digit claim membership.
    */
   export function prepareMerge(
     channels: readonly AutoMovieMotionHumanChannelClaim[],
@@ -201,7 +195,7 @@ export namespace AutoMovieMotionHumanChannel {
       merged(base, written, owns, coversBone, ownsDigit);
   }
 
-  /**
+  /*
    * Keep cold and prepared selection identical, including property insertion
    * order.
    */
@@ -261,7 +255,9 @@ export namespace AutoMovieMotionHumanChannel {
   }
 }
 
-/** The four limbs a merge reads a goal of, in the order it writes them. */
+/*
+ * The four limbs a merge reads a goal of, in the order it writes them.
+ */
 const LIMBS: readonly ["leftArm", "rightArm", "leftLeg", "rightLeg"] = [
   "leftArm",
   "rightArm",

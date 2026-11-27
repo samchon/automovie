@@ -45,7 +45,7 @@ const SIGHT: Readonly<
   ]),
 };
 
-/**
+/*
  * Where a held sheet is read: where the holding hand, its upper arm hanging
  * from the shoulder and its forearm swung up about the elbow, meets the reading
  * distance from the eyes, in front of its own shoulder, facing back at the
@@ -54,12 +54,11 @@ const SIGHT: Readonly<
  * doi:10.1007/s00221-021-06267-6), provided it lies forward and within the
  * arm's reach. The line from the eyes to that place is the whole line of sight;
  * how it splits between the head and the eyes is `head`'s.
- *
- * @param context The body.
- * @param posture The posture so far, whose trunk carries the eyes and the
- *   shoulder.
- * @param side The hand.
- * @returns The place.
+ * Parameter context: The body.
+ * Parameter posture: The posture so far, whose trunk carries the eyes and the
+ * shoulder.
+ * Parameter side: The hand.
+ * Returns: The place.
  */
 export function handToFaceSheet(
   context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
@@ -165,25 +164,25 @@ export function handToFaceSheet(
   };
 }
 
-/**
+/*
  * Where a hand-to-face task holds a sheet to be read: the one task whose place
  * is not a region of the face but a point before the eyes, split from
  * `handToFace` so each file holds one responsibility.
  */
 export namespace handToFaceSheet {
-  /**
+  /*
    * The reading distance from the eyes to a held text, metres (Bababekova et
    * al. 2011, mean for text).
    */
   export const READING: number = 0.362;
 
-  /**
+  /*
    * The head's flexion while reading a handheld text, degrees: 35, inside the
    * 33 to 45 degrees of neck and head flexion Lee et al. 2015 measured.
    */
   export const HEAD: number = 35;
 
-  /**
+  /*
    * The eye's largest depression in its head, degrees: the mean downgaze range
    * of 261 healthy subjects measured photographically, 47.1 (Lee et al. 2019,
    * Eye 33:1145, "Differences in eye movement range based on age and gaze
@@ -191,16 +190,15 @@ export namespace handToFaceSheet {
    */
   export const EYE_DOWN: number = 47.1;
 
-  /**
+  /*
    * The head's flexion for reading a held sheet, degrees: the measured reading
    * flexion (`HEAD`), and more only where the line of sight to the sheet (`of`)
    * falls further below the head than the eye can turn (`EYE_DOWN`), the rest
    * of it then carried by the head.
-   *
-   * @param context The body.
-   * @param posture The entry posture, whose eyes and shoulder place the sheet.
-   * @param side The reading hand.
-   * @returns Degrees of flexion, positive down.
+   * Parameter context: The body.
+   * Parameter posture: The entry posture, whose eyes and shoulder place the sheet.
+   * Parameter side: The reading hand.
+   * Returns: Degrees of flexion, positive down.
    */
   export function head(
     context: Pick<IAutoMovieMotionHumanActionContext, HeadContext>,
@@ -231,11 +229,17 @@ export namespace handToFaceSheet {
   }
 }
 
-/** The alternatives of `HeadContext`'s site. */
+/*
+ * The alternatives of `HeadContext`'s site.
+ */
 type HeadContext = "body" | "carrier";
 
-/** The alternatives of `OfResult`'s site. */
+/*
+ * The alternatives of `OfResult`'s site.
+ */
 type OfResult = "point" | "normal";
 
-/** The alternatives of `OfContext`'s site. */
+/*
+ * The alternatives of `OfContext`'s site.
+ */
 type OfContext = "body" | "carrier";

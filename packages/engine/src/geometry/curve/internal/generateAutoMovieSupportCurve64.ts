@@ -4,7 +4,7 @@ import type {
   IAutoMovieGenerateSupportCurve64,
 } from "@automovie/interface";
 
-/**
+/*
  * Generate a planar convex curve from a finite Fourier support function. For
  * the outward normal n=(cos(theta),sin(theta)) and tangent t=(-sin,cos),
  * X=h*n+h'*t and X'=(h+h'')*t. The support integral is the convex perimeter,

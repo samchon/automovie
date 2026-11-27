@@ -8,19 +8,18 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import type { IPreparedGymnasticsFrame } from "./IPreparedGymnasticsFrame";
 
-/**
+/*
  * Bind one unchanged body's mass/collider demand for changing joint-only flight
  * queries. Each query shares its actual canonical geometry between COM
  * placement and an optional floor reading, then releases that frame.
- *
- * @param body The plan's unchanged body.
- * @param model The plan's unchanged physical mass model.
- * @returns A reader of original joint-only demands and desired world COM in
- *   metres, optionally borrowing its synchronous parent's exact FK source and
- *   genuine ROM projector. Each result owns fresh COM-placed raw demands and a
- *   floor reader of that same articulation.
- * @throws {Error} At query time when limb/digit goals or a separate whole-body
- *   rotation make the shape depend on its translation.
+ * Parameter body: The plan's unchanged body.
+ * Parameter model: The plan's unchanged physical mass model.
+ * Returns: A reader of original joint-only demands and desired world COM in
+ * metres, optionally borrowing its synchronous parent's exact FK source and
+ * genuine ROM projector. Each result owns fresh COM-placed raw demands and a
+ * floor reader of that same articulation.
+ * At query time when limb/digit goals or a separate whole-body
+ * rotation make the shape depend on its translation.
  */
 export function prepareGymnasticsFrame(
   body: IAutoMovieMotionHumanBody,
@@ -39,9 +38,13 @@ export function prepareGymnasticsFrame(
   };
 }
 
-/** Prepared readers for the actual observations a flight and landing need. */
+/*
+ * Prepared readers for the actual observations a flight and landing need.
+ */
 export namespace prepareGymnasticsFrame {
-  /** Bind only the mass-bearing bones for a query that does not test landing. */
+  /*
+   * Bind only the mass-bearing bones for a query that does not test landing.
+   */
   export function mass(
     body: IAutoMovieMotionHumanBody,
     model: IAutoMovieResolveCenterOfMass.IModel,
@@ -56,7 +59,9 @@ export namespace prepareGymnasticsFrame {
   }
 }
 
-/** Read the same projected shape with or without its collision-only bones. */
+/*
+ * Read the same projected shape with or without its collision-only bones.
+ */
 function preparePlacement(
   body: IAutoMovieMotionHumanBody,
   model: IAutoMovieResolveCenterOfMass.IModel,
@@ -127,7 +132,9 @@ function preparePlacement(
   };
 }
 
-/** The time-varying query for this plan's canonical gauge. */
+/*
+ * The time-varying query for this plan's canonical gauge.
+ */
 type Query = [
   raw: IAutoMovieMotionHumanPosture,
   centre: IAutoMovieVector3,
@@ -135,11 +142,17 @@ type Query = [
   projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
 ];
 
-/** The demand in world metres and the optional floor geometry it was read on. */
+/*
+ * The demand in world metres and the optional floor geometry it was read on.
+ */
 interface IPlacement {
-  /** The raw articulation translated to the requested COM. */
+  /*
+   * The raw articulation translated to the requested COM.
+   */
   posture: IAutoMovieMotionHumanPosture;
 
-  /** The bones in the reference posture with root `y` at zero. */
+  /*
+   * The bones in the reference posture with root `y` at zero.
+   */
   bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 }

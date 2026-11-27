@@ -25,7 +25,9 @@ export namespace AutoMovieHumanTipDome {
     held: boolean;
   }
 
-  /** Halvings of the bracket: sixty take a bracket of a hundred millimetres under one unit of a double. */
+  /*
+   * Halvings of the bracket: sixty take a bracket of a hundred millimetres under one unit of a double.
+   */
   const HALVINGS: number = 60;
 
   /**

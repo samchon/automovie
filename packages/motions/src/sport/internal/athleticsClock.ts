@@ -6,18 +6,17 @@ import type {
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 
-/**
+/*
  * The sprint start's timetable: the crouch into the set position over
  * `athleticsClock.CROUCH` seconds (`onYourMarks` to `set`), the hold until the
  * `gun`, and with a drive the block exit over its seconds, the rear foot
  * leaving its block (`rearBlockOff`) at the drive's middle and the front at
  * `blockExit`, the end; without a drive the phrase closes a millisecond after
  * the gun. The manner scales the spans it does not fix.
- *
- * @param hold Seconds the set position is held before the gun.
- * @param drive Seconds of the drive out of the blocks; none when absent.
- * @param modifiers The manner's timing.
- * @returns The clock, with the phrase's instants and the start's own.
+ * Parameter hold: Seconds the set position is held before the gun.
+ * Parameter drive: Seconds of the drive out of the blocks; none when absent.
+ * Parameter modifiers: The manner's timing.
+ * Returns: The clock, with the phrase's instants and the start's own.
  */
 export function athleticsClock(
   hold: number,
@@ -49,8 +48,12 @@ export function athleticsClock(
   ]);
 }
 
-/** The start's crouch. */
+/*
+ * The start's crouch.
+ */
 export namespace athleticsClock {
-  /** The crouch's seconds (provisional). */
+  /*
+   * The crouch's seconds (provisional).
+   */
   export const CROUCH: number = 1.5;
 }

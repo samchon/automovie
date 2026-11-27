@@ -10,29 +10,28 @@ import { HumanLanceCouchCarriage } from "./HumanLanceCouchCarriage";
 import { HumanLanceCouchClear } from "./HumanLanceCouchClear";
 import { HumanLanceCouchPick } from "./HumanLanceCouchPick";
 
-/**
+/*
  * The carry's upper arm from the shoulder in the seat frame, as shares of its
  * length: out to the side and down at about 45 degrees (provisional).
  */
 const UPPER: Readonly<IAutoMovieVector3> = { x: -0.7, y: -0.7, z: 0 };
 
-/**
+/*
  * The carry from the arm's own line: the upper arm out and down from the
  * shoulder (`UPPER`), the forearm at the grasp's angle to the shaft, clear of
  * the horse, turned about the shaft to the place whose hand turns least from
  * the hand the rider enters with, so the forearm twists no further than it
  * must; the grip at the forearm's end.
- *
- * @param arm The rider's lance arm.
- * @param shoulder The right shoulder, seat-frame metres.
- * @param tool The held lance in the hand's frame.
- * @param along The direction the shaft runs, seat frame.
- * @param entered The entry hand's rotation, seat frame.
- * @param horse The horse's body, which the carriage keeps clear of.
- * @param reaches Whether the arm's own fit holds a carriage.
- * @returns The hand's frame and the elbow.
- * @throws {HumanRefusal} On `target` when no forearm about the shaft lays the
- *   carry.
+ * Parameter arm: The rider's lance arm.
+ * Parameter shoulder: The right shoulder, seat-frame metres.
+ * Parameter tool: The held lance in the hand's frame.
+ * Parameter along: The direction the shaft runs, seat frame.
+ * Parameter entered: The entry hand's rotation, seat frame.
+ * Parameter horse: The horse's body, which the carriage keeps clear of.
+ * Parameter reaches: Whether the arm's own fit holds a carriage.
+ * Returns: The hand's frame and the elbow.
+ * On `target` when no forearm about the shaft lays the
+ * carry.
  */
 export function HumanLanceCouchHanging(
   arm: HumanLanceCouchCarriage.IArm,
@@ -114,9 +113,11 @@ export function HumanLanceCouchHanging(
   return picked.laid;
 }
 
-/** The bound `HumanLanceCouchHanging` and the strike's search share. */
+/*
+ * The bound `HumanLanceCouchHanging` and the strike's search share.
+ */
 export namespace HumanLanceCouchHanging {
-  /**
+  /*
    * The directions a strike's grip is sought from the target in: around the
    * target's vertical, in degrees.
    */

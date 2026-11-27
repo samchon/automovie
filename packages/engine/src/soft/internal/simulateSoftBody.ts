@@ -6,7 +6,7 @@ import {
 
 import { simulateSoftBodyCore } from "./simulateSoftBodyCore";
 
-/**
+/*
  * Replay one admitted cloth domain without resolved moving samples to an
  * absolute fixed-clock step. Body capsules are refused; moving anchor binding
  * metadata is currently ignored in favor of static/rest targets. Domain

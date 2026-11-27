@@ -4,7 +4,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/**
+/*
  * Validate the further spaces a run serves along its own route.
  *
  * A landing is a stop, and a stop stated twice, stated at an end the run
@@ -14,11 +14,10 @@ import {
  * because both ends are already served by the run's own endpoints, and strictly
  * increase from the landing before it. Findings are pushed under
  * `<path>.landings`; a run with no landings is skipped.
- *
- * @param connector Run whose landings are checked.
- * @param path Violation path of the connector.
- * @param spaces Declared space ids.
- * @param collector Sink that receives the violations.
+ * Parameter connector: Run whose landings are checked.
+ * Parameter path: Violation path of the connector.
+ * Parameter spaces: Declared space ids.
+ * Parameter collector: Sink that receives the violations.
  */
 export function validateBuiltConnectorLandings(
   connector: IAutoMovieBuiltConnector,

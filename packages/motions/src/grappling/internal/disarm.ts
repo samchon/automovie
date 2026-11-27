@@ -24,7 +24,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { touch } from "../../touch/internal/touch";
 
-/**
+/*
  * A staged disarm (`IAutoMovieMotionHumanDisarm`). The defender's hands close
  * on the armed arm by the stage-fight grab (`touch`, both palms squeezing): for
  * a knife on the armed wrist and the forearm, for a handgun on the armed wrist
@@ -37,38 +37,41 @@ import { touch } from "../../touch/internal/touch";
  * the distance named.
  */
 export namespace disarm {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "disarm";
 
-  /** Cancel table: the grab's own. */
+  /*
+   * Cancel table: the grab's own.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     touch.interrupts;
 
-  /**
+  /*
    * How long the lever turns the armed hand before the grip opens, seconds:
    * authored.
    */
   export const LEVER: number = 0.5;
 
-  /**
+  /*
    * How long the defender holds the weapon in the action after taking it,
    * seconds: authored.
    */
   export const AFTER: number = 0.4;
 
-  /**
+  /*
    * How long the taking hand takes to close into its fist, seconds: the time a
    * hand-over's fingers take to open at the release (`handOver.OPEN`,
    * provisional).
    */
   export const CLOSE: number = handOver.OPEN;
 
-  /**
+  /*
    * A disarm's lever time: `LEVER` by default, and positive.
-   *
-   * @param asked The lever asked, seconds.
-   * @returns The lever's seconds.
-   * @throws {HumanRefusal} When the lever is not positive.
+   * Parameter asked: The lever asked, seconds.
+   * Returns: The lever's seconds.
+   * When the lever is not positive.
    */
   export function leverTime(asked: number | undefined): number {
     const lever: number = asked ?? LEVER;
@@ -82,13 +85,12 @@ export namespace disarm {
       });
     return lever;
   }
-  /**
+  /*
    * Plan a disarm.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} On `prop` when the partner holds no such weapon, on
-   *   `lever` when not positive and finite, and whatever the grab refuses.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * On `prop` when the partner holds no such weapon, on
+   * `lever` when not positive and finite, and whatever the grab refuses.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDisarm.IParams>,
@@ -202,7 +204,7 @@ export namespace disarm {
   }
 }
 
-/**
+/*
  * The hand of the partner that holds the prop as the disarm starts: the
  * performance's own grip custody (`IAutoMovieMotionHumanPropReader.holderAt`),
  * read after the partner is, so a partner placed on demand is placed first. A

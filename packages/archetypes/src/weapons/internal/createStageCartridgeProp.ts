@@ -5,18 +5,17 @@ import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/ind
 import { StageTokenConstruction } from "./StageTokenConstruction";
 
 
-/**
+/*
  * Paper cylinder stage silhouette.
  *
  * A display cylinder with a precision hand contact at mid-height and an end
  * mark along +Y.
- *
- * @param params The scene id and this digital form's catalogue or sizing
- *   options.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter params: The scene id and this digital form's catalogue or sizing
+ * options.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function createStageCartridgeProp(
   params: AutoMovieArchetypeStageCartridgeProp.IParams = {},

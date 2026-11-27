@@ -17,7 +17,7 @@ import { groupDanceConga } from "./groupDanceConga";
 import { groupDanceLine } from "./groupDanceLine";
 import { prepareDanceBeats } from "./prepareDanceBeats";
 
-/**
+/*
  * Social group dances on one shared beat: the line dance (`groupDanceLine`),
  * the circle dance (`groupDanceCircle`) and the conga (`groupDanceConga`).
  * Every member runs this law with the same tempo or cue track, so their beats
@@ -30,10 +30,14 @@ import { prepareDanceBeats } from "./prepareDanceBeats";
  * Events: `beat{k}` on the member's own beats, `relax`.
  */
 export namespace groupDance {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "groupDance";
 
-  /** Cancel table: from the last beat, into standing, walking or another dance. */
+  /*
+   * Cancel table: from the last beat, into standing, walking or another dance.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
@@ -42,28 +46,37 @@ export namespace groupDance {
       walk: ["fromRelax", "smooth"],
     });
 
-  /** How low the hips ride on soft knees, a share of the stature (provisional). */
+  /*
+   * How low the hips ride on soft knees, a share of the stature (provisional).
+   */
   export const CROUCH: number = 0.02;
 
-  /** A group dance's repeats, timing variation and counts. */
+  /*
+   * A group dance's repeats, timing variation and counts.
+   */
   export interface ICount {
-    /** The whole repeats, one by default. */
+    /*
+     * The whole repeats, one by default.
+     */
     repeats: number;
 
-    /** The greatest per-dancer offset, seconds, 0.02 by default. */
+    /*
+     * The greatest per-dancer offset, seconds, 0.02 by default.
+     */
     vary: number;
 
-    /** The beats: four a conga repeat, eight a line or circle repeat. */
+    /*
+     * The beats: four a conga repeat, eight a line or circle repeat.
+     */
     counts: number;
   }
 
-  /**
+  /*
    * Count a group dance.
-   *
-   * @param p The kind, the repeats and the variation.
-   * @returns The count.
-   * @throws {HumanRefusal} When the repeats are no whole number or the
-   *   variation is negative.
+   * Parameter p: The kind, the repeats and the variation.
+   * Returns: The count.
+   * When the repeats are no whole number or the
+   * variation is negative.
    */
   export function count(
     p: Pick<
@@ -76,13 +89,12 @@ export namespace groupDance {
     HumanBound.least("vary", vary, 0, "s");
     return { repeats, vary, counts: (p.kind === "conga" ? 4 : 8) * repeats };
   }
-  /**
+  /*
    * Plan a member's part in a group dance.
-   *
-   * @param context The member's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the tempo, the repeats or the variation is not
-   *   admitted, or the dance's own geometry refuses.
+   * Parameter context: The member's context.
+   * Returns: The plan.
+   * When the tempo, the repeats or the variation is not
+   * admitted, or the dance's own geometry refuses.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGroupDance.IParams>,

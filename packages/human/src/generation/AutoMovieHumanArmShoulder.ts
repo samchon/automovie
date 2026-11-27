@@ -89,22 +89,32 @@ export namespace AutoMovieHumanArmShoulder {
   }
 }
 
-/** Phases sampling a section. */
+/*
+ * Phases sampling a section.
+ */
 const PHASES: number[] = Array.from(
   { length: 192 },
   (_: unknown, i: number): number => (2 * Math.PI * i) / 192,
 );
 
-/** Bisections of a height. */
+/*
+ * Bisections of a height.
+ */
 const STEPS: number = 30;
 
-/** Turns between the centre's height and its place. */
+/*
+ * Turns between the centre's height and its place.
+ */
 const PASSES: number = 6;
 
-/** Samples of the arm's arc of the shoulder ring. */
+/*
+ * Samples of the arm's arc of the shoulder ring.
+ */
 const RING: number = 512;
 
-/** Whether `(x, z)` lies inside a section's outline in the level plane. */
+/*
+ * Whether `(x, z)` lies inside a section's outline in the level plane.
+ */
 function inside(
   ring: readonly AutoMovieVector3Tuple[],
   x: number,
@@ -127,7 +137,9 @@ function inside(
   return odd;
 }
 
-/** Girth radius of the arm's root: its arc of the shoulder ring, closed. */
+/*
+ * Girth radius of the arm's root: its arc of the shoulder ring, closed.
+ */
 function rootRadius(
   upper: IAutoMovieLoftChain,
   calibration: IAutoMovieHumanBodyCalibration,

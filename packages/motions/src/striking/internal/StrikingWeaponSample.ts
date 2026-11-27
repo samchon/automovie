@@ -5,7 +5,7 @@ import type {
 
 import type { StrikingWeapon } from "./StrikingWeapon";
 
-/**
+/*
  * A plan weapon's axis read at a film second: its centre and its capsule's
  * other end. The capsules a chain builds (`StrikingWeapon.capsules`) declare
  * their chain (`IAutoMovieMotionWeaponPath.chain`), so the two ends of one
@@ -13,12 +13,11 @@ import type { StrikingWeapon } from "./StrikingWeapon";
  * from one posing of the course within one sample.
  */
 export namespace StrikingWeaponSample {
-  /**
+  /*
    * Read one weapon's axis at an exact film second.
-   *
-   * @param weapon The plan weapon.
-   * @param seconds The film second.
-   * @returns Its world-metre centre and, for a capsule, its other end.
+   * Parameter weapon: The plan weapon.
+   * Parameter seconds: The film second.
+   * Returns: Its world-metre centre and, for a capsule, its other end.
    */
   export function read(
     weapon: IAutoMovieMotionWeaponPath,
@@ -31,12 +30,11 @@ export namespace StrikingWeaponSample {
     return [ends[chain.index]!, ends[chain.index + 1]];
   }
 
-  /**
+  /*
    * Read several weapons' axes at one exact film second.
-   *
-   * @param weapons The consumer's ordered demand.
-   * @param seconds The film second.
-   * @returns One axis per weapon, keyed by the weapon.
+   * Parameter weapons: The consumer's ordered demand.
+   * Parameter seconds: The film second.
+   * Returns: One axis per weapon, keyed by the weapon.
    */
   export function sample(
     weapons: readonly IAutoMovieMotionWeaponPath[],

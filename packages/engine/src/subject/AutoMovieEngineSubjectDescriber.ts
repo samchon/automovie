@@ -315,7 +315,7 @@ export class AutoMovieEngineSubjectDescriber {
     });
   }
 
-  /**
+  /*
    * A built element the builder stages no node for. It has an identity, a kind,
    * a parent and a space but no geometry, so like
    * `builtEnvironmentPlacementBounds` it states no transform, bounds, materials
@@ -389,7 +389,9 @@ export class AutoMovieEngineSubjectDescriber {
     );
   }
 
-  /** A description with every unstated field at its empty value. */
+  /*
+   * A description with every unstated field at its empty value.
+   */
   private record(
     fields: Pick<
       IAutoMovieSubjectDescription,
@@ -425,7 +427,9 @@ export class AutoMovieEngineSubjectDescriber {
     );
   }
 
-  /** The owner and space addresses a built element states, or nulls. */
+  /*
+   * The owner and space addresses a built element states, or nulls.
+   */
   private builtLinks(node: string): {
     owner: string | null;
     space: string | null;

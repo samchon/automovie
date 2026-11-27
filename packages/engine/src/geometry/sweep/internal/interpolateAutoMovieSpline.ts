@@ -2,7 +2,7 @@ import type { IAutoMovieInterpolateSpline } from "@automovie/interface";
 
 import { AutoMovieSpline } from "../../AutoMovieSpline";
 
-/**
+/*
  * Build a C2 interpolant through knots with a sampled overshoot policy: the
  * spline under tension of `AutoMovieSpline`, at tension 0 a cubic spline and
  * with a searched tension whose sixteen-part segment scan stays within a tenth
@@ -18,15 +18,14 @@ import { AutoMovieSpline } from "../../AutoMovieSpline";
  * Periodic knots wrap: `period` is the length after which the curve repeats and
  * every knot lies in `[0, period)`. One knot gives a constant, two open knots a
  * straight segment.
- *
- * @param props.knots Abscissae, finite and strictly increasing.
- * @param props.values Ordinates, one per knot, finite.
- * @param props.period Repeat length of a periodic curve; omitted, the curve is
- *   open.
- * @returns The interpolant, which evaluates after a binary search over the
- *   knots.
- * @throws Error when the knots are empty, unsorted or not finite, the values do
- *   not match them, or a period does not exceed the knot span.
+ * Parameter props.knots: Abscissae, finite and strictly increasing.
+ * Parameter props.values: Ordinates, one per knot, finite.
+ * Parameter props.period: Repeat length of a periodic curve; omitted, the curve is
+ * open.
+ * Returns: The interpolant, which evaluates after a binary search over the
+ * knots.
+ * Error when the knots are empty, unsorted or not finite, the values do
+ * not match them, or a period does not exceed the knot span.
  */
 export const interpolateAutoMovieSpline: (
   props: IAutoMovieInterpolateSpline.IProps,

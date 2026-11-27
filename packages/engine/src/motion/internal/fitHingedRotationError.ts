@@ -21,24 +21,23 @@ import { AutoMovieEngineClinicalAngle } from "../../rom/internal/AutoMovieEngine
 import { AutoMovieEngineMotionDistalTwist } from "../AutoMovieEngineMotionDistalTwist";
 import { AutoMovieEngineMotionJointProjection } from "../AutoMovieEngineMotionJointProjection";
 
-/**
+/*
  * Prepare the actual displayed rotation error, degrees, of hinged candidates.
  * Each lower candidate takes the same bounded distal-twist choice as the final
  * fit; its effector then uses the same quaternion projection as orientation.
  * The world rotation is recomposed through the preparation's entire fixed
  * lower-to-effector frame, including intermediate bones, before its geodesic
  * error is read. No small miss or unchanged Euler clamp is replaced by zero.
- *
- * @param props The fit request under unchanged pose, rig and clinical mappings.
- * @param prepared The matching chain preparation.
- * @param axes The mid bone's axes, below any skeleton-declared override.
- * @param rotation Requested model-frame effector rotation.
- * @param rig Optional lazy workspace rig under the same source, prepared frames
- *   and clinical mappings; target results remain scorer-local.
- * @returns A per-fit scorer of bone-local upper/lower rotations. Keep each
- *   candidate unchanged through its synchronous call; scalar edits between
- *   calls are reread. Its optional third input is the exact completed (prepared
- *   upper world * this upper) * fixed lower frame for the same candidate.
+ * Parameter props: The fit request under unchanged pose, rig and clinical mappings.
+ * Parameter prepared: The matching chain preparation.
+ * Parameter axes: The mid bone's axes, below any skeleton-declared override.
+ * Parameter rotation: Requested model-frame effector rotation.
+ * Parameter rig: Optional lazy workspace rig under the same source, prepared frames
+ * and clinical mappings; target results remain scorer-local.
+ * Returns: A per-fit scorer of bone-local upper/lower rotations. Keep each
+ * candidate unchanged through its synchronous call; scalar edits between
+ * calls are reread. Its optional third input is the exact completed (prepared
+ * upper world * this upper) * fixed lower frame for the same candidate.
  */
 export function fitHingedRotationError(
   props: IAutoMovieFitChainToTargetProps,
@@ -124,7 +123,9 @@ export function fitHingedRotationError(
     | undefined;
   let preparedEffector: AutoMovieEngineMotionDistalTwist.IPrepared | undefined;
 
-  /** Share pure lower-axis factors only inside this target's scorer. */
+  /*
+   * Share pure lower-axis factors only inside this target's scorer.
+   */
   const lowerRotation: ReturnType<typeof jointToQuaternionOnBasis.prepare> = (
     joint: Parameters<ReturnType<typeof jointToQuaternionOnBasis.prepare>>[0],
   ): IAutoMovieQuaternion => {
@@ -132,7 +133,9 @@ export function fitHingedRotationError(
     return composeLower(joint);
   };
 
-  /** Prepare lazy raw readers once for this immutable lower record. */
+  /*
+   * Prepare lazy raw readers once for this immutable lower record.
+   */
   const prepareLowerReadings: (
     joint: IAutoMovieJointPose,
   ) => Pick<
@@ -166,7 +169,9 @@ export function fitHingedRotationError(
   };
   let lowerReadings: ReturnType<typeof prepareLowerReadings> | undefined;
 
-  /** Read source-only held rotation at the solver's original first-use site. */
+  /*
+   * Read source-only held rotation at the solver's original first-use site.
+   */
   const readHeldRotation: () => IAutoMovieQuaternion =
     (): IAutoMovieQuaternion => {
       if (rig !== undefined) return rig.heldRotation();
@@ -178,7 +183,9 @@ export function fitHingedRotationError(
       return heldRotation;
     };
 
-  /** The actual held raw was read first; share only its unchanged inverse. */
+  /*
+   * The actual held raw was read first; share only its unchanged inverse.
+   */
   const readHeldInverse: (raw: IAutoMovieQuaternion) => IAutoMovieQuaternion = (
     raw: IAutoMovieQuaternion,
   ): IAutoMovieQuaternion => {

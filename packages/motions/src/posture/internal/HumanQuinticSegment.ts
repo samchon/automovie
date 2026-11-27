@@ -1,4 +1,4 @@
-/**
+/*
  * One minimum-jerk segment between two boundary states: the quintic with the
  * given position, velocity and acceleration at both ends, in closed form.
  *
@@ -20,52 +20,73 @@
  * section 2.1.7, there in seconds rather than τ).
  */
 export namespace HumanQuinticSegment {
-  /** One end's state, per coordinate, in the coordinates' own units. */
+  /*
+   * One end's state, per coordinate, in the coordinates' own units.
+   */
   export interface IBoundary {
-    /** The position. */
+    /*
+     * The position.
+     */
     position: readonly number[];
 
-    /** The velocity, units per second. */
+    /*
+     * The velocity, units per second.
+     */
     velocity: readonly number[];
 
-    /** The acceleration, units per second squared. */
+    /*
+     * The acceleration, units per second squared.
+     */
     acceleration: readonly number[];
   }
 
-  /** A prepared segment. */
+  /*
+   * A prepared segment.
+   */
   export interface ISegment {
-    /** The segment's duration T, seconds, positive. */
+    /*
+     * The segment's duration T, seconds, positive.
+     */
     duration: number;
 
-    /**
+    /*
      * Each coordinate's coefficients b0 to b5 on the normalised time τ = t / T,
      * in the coordinate's units.
      */
     coefficients: readonly (readonly number[])[];
   }
 
-  /** The segment's state at an instant, per coordinate. */
+  /*
+   * The segment's state at an instant, per coordinate.
+   */
   export interface IState {
-    /** The position. */
+    /*
+     * The position.
+     */
     position: number[];
 
-    /** The velocity, units per second. */
+    /*
+     * The velocity, units per second.
+     */
     velocity: number[];
 
-    /** The acceleration, units per second squared. */
+    /*
+     * The acceleration, units per second squared.
+     */
     acceleration: number[];
 
-    /** The jerk, units per second cubed. */
+    /*
+     * The jerk, units per second cubed.
+     */
     jerk: number[];
   }
 
-  /**
+  /*
    * The quintic between two boundary states.
-   *
-   * @param start The state at the segment's start.
-   * @param end The state at its end, with the start's coordinates.
-   * @param duration The segment's duration, seconds, positive.
-   * @returns The segment's coefficients.
+   * Parameter start: The state at the segment's start.
+   * Parameter end: The state at its end, with the start's coordinates.
+   * Parameter duration: The segment's duration, seconds, positive.
+   * Returns: The segment's coefficients.
    */
   export function prepare(
     start: IBoundary,
@@ -94,12 +115,11 @@ export namespace HumanQuinticSegment {
     };
   }
 
-  /**
+  /*
    * The position at an instant, by Horner's rule.
-   *
-   * @param segment The segment.
-   * @param seconds The instant from the segment's start, held within [0, T].
-   * @returns Each coordinate's position.
+   * Parameter segment: The segment.
+   * Parameter seconds: The instant from the segment's start, held within [0, T].
+   * Returns: Each coordinate's position.
    */
   export function position(segment: ISegment, seconds: number): number[] {
     const u: number = share(segment, seconds);
@@ -109,13 +129,12 @@ export namespace HumanQuinticSegment {
     );
   }
 
-  /**
+  /*
    * The position and its first three derivatives at an instant: the
    * derivatives of `Σ b_i τ^i` by τ, divided by T once for each order.
-   *
-   * @param segment The segment.
-   * @param seconds The instant from the segment's start, held within [0, T].
-   * @returns The state there.
+   * Parameter segment: The segment.
+   * Parameter seconds: The instant from the segment's start, held within [0, T].
+   * Returns: The state there.
    */
   export function state(segment: ISegment, seconds: number): IState {
     const u: number = share(segment, seconds);
@@ -147,7 +166,9 @@ export namespace HumanQuinticSegment {
   }
 }
 
-/** The normalised time τ of an instant, held within [0, 1]. */
+/*
+ * The normalised time τ of an instant, held within [0, 1].
+ */
 function share(segment: HumanQuinticSegment.ISegment, seconds: number): number {
   return Math.min(1, Math.max(0, seconds / segment.duration));
 }

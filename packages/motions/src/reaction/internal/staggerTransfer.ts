@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * Hof's pendulum over a weight shift in closed form: the centre of pressure
  * runs from `p` to `q` on a minimum-jerk course over `span` seconds (`p(t) = p
  *
@@ -11,14 +11,13 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  *
  * - P'''' / omega^4`solves the equation exactly, and`x = x_p + A cosh(omega t) +
  *   B sinh(omega t)` meets the span's initial travel and velocity.
- *
- * @param from The span's centre of pressure at its start, travel `s0` and
- *   velocity `v0`, entry-relative world metres and metres per second.
- * @param to The centre of pressure at the span's end.
- * @param span The span's seconds.
- * @param w The pendulum's frequency, radians per second.
- * @param u Seconds into the span, clamped to it.
- * @returns The travel, the velocity and the centre of pressure there.
+ * Parameter from: The span's centre of pressure at its start, travel `s0` and
+ * velocity `v0`, entry-relative world metres and metres per second.
+ * Parameter to: The centre of pressure at the span's end.
+ * Parameter span: The span's seconds.
+ * Parameter w: The pendulum's frequency, radians per second.
+ * Parameter u: Seconds into the span, clamped to it.
+ * Returns: The travel, the velocity and the centre of pressure there.
  */
 export function staggerTransfer(
   from: IStaggerTransferFrom,
@@ -80,28 +79,36 @@ export function staggerTransfer(
   };
 }
 
-/** The record of `IStaggerTransferParticularResult`'s site. */
+/*
+ * The record of `IStaggerTransferParticularResult`'s site.
+ */
 type IStaggerTransferParticularResult = {
   x: IAutoMovieVector3;
   dx: IAutoMovieVector3;
   p: IAutoMovieVector3;
 };
 
-/** The record of `IStaggerTransferParticular`'s site. */
+/*
+ * The record of `IStaggerTransferParticular`'s site.
+ */
 type IStaggerTransferParticular = {
   x: IAutoMovieVector3;
   dx: IAutoMovieVector3;
   p: IAutoMovieVector3;
 };
 
-/** The record of `IStaggerTransferResult`'s site. */
+/*
+ * The record of `IStaggerTransferResult`'s site.
+ */
 type IStaggerTransferResult = {
   s: IAutoMovieVector3;
   v: IAutoMovieVector3;
   p: IAutoMovieVector3;
 };
 
-/** The record of `IStaggerTransferFrom`'s site. */
+/*
+ * The record of `IStaggerTransferFrom`'s site.
+ */
 type IStaggerTransferFrom = {
   p: IAutoMovieVector3;
   s: IAutoMovieVector3;

@@ -5,7 +5,7 @@ import type {
 
 import { pointSegmentDistance } from "../../math/internal/pointSegmentDistance";
 
-/**
+/*
  * The distances from a point on one triangle of a measured mesh to the nearest
  * convex and the nearest concave feature edge in that triangle's list, capped
  * at `reach`: the CPU reference of what a worn material's fragment shader
@@ -16,8 +16,7 @@ import { pointSegmentDistance } from "../../math/internal/pointSegmentDistance";
  * hit its limit of 16. The capped result is therefore the exact distance to the
  * nearest feature edge of each sign whenever that distance is below `reach`,
  * and `reach` otherwise, however finely the faces are tessellated.
- *
- * @throws When `triangle` is not an index of the measured triangles.
+ * When `triangle` is not an index of the measured triangles.
  */
 export function autoMovieFeatureEdgeDistance(
   props: IAutoMovieFeatureEdgeDistance.IProps,

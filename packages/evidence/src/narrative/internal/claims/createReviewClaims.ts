@@ -16,7 +16,7 @@ import { PACKAGE_DOCS_ROOT } from "../utilities/PACKAGE_DOCS_ROOT";
 import { createUnitFiles } from "../utilities/createUnitFiles";
 import { hasStoryContract } from "../utilities/hasStoryContract";
 
-/**
+/*
  * Creates the claims that record the evidence-stage reviews in the graph.
  *
  * A reviewer writes one review file per authored file and one review H2 per
@@ -112,7 +112,7 @@ export function createReviewClaims(
   ];
 }
 
-/**
+/*
  * Selects current or legacy review hosts, or no review root.
  *
  * An empty relative root selects current files; a round name selects legacy.
@@ -184,7 +184,7 @@ function selectReviewRoot(
   return latest === null ? null : { root: latest, files };
 }
 
-/**
+/*
  * Tests actual file membership within the selector's remaining path depth.
  *
  * Principled implementation: Relative paths are matched by the native glob;

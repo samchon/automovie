@@ -5,7 +5,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanLoad } from "../../perform/internal/HumanLoad";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 
-/**
+/*
  * The weight a coupled carry puts on its bearers: the bearing contacts' shares
  * of the borne weight, each bearer's load for a layer's lean
  * (`HumanLoad.lean`), the tip that balances a bearer the borne body rides, and
@@ -13,18 +13,17 @@ import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
  * the coupling these read.
  */
 export namespace HumanCarriedCouplingLoad {
-  /**
+  /*
    * The bearer's load for its lean (`HumanCarriedLean.layer`,
    * `HumanLoad.lean`): its own mass and centre height, and the borne mass with
    * its distance ahead of the bearer's centre along the facing.
-   *
-   * @param bearer The bearer's body.
-   * @param coupling The coupling.
-   * @param role The bearer's role; the coupling's first bearer when absent.
-   * @param bones The actual key bones already resolved for this bearer and
-   *   coupling, when available.
-   * @returns The load: the share of the borne mass this bearer's contacts
-   *   carry.
+   * Parameter bearer: The bearer's body.
+   * Parameter coupling: The coupling.
+   * Parameter role: The bearer's role; the coupling's first bearer when absent.
+   * Parameter bones: The actual key bones already resolved for this bearer and
+   * coupling, when available.
+   * Returns: The load: the share of the borne mass this bearer's contacts
+   * carry.
    */
   export function load(
     bearer: IAutoMovieMotionHumanBody,
@@ -41,15 +40,14 @@ export namespace HumanCarriedCouplingLoad {
     };
   }
 
-  /**
+  /*
    * The tip of a bearer standing still in the coupling's stance that brings its
    * own centre and its share of the borne load over the midpoint of its feet.
-   *
-   * @param bearer The bearer's body.
-   * @param coupling The coupling.
-   * @param role The bearer's role; the coupling's first bearer when absent.
-   * @returns Degrees forward (`pitch`) and toward the bearer's right (`roll`),
-   *   as `HumanCarriedLean.tipped` takes them.
+   * Parameter bearer: The bearer's body.
+   * Parameter coupling: The coupling.
+   * Parameter role: The bearer's role; the coupling's first bearer when absent.
+   * Returns: Degrees forward (`pitch`) and toward the bearer's right (`roll`),
+   * as `HumanCarriedLean.tipped` takes them.
    */
   export function lean(
     bearer: IAutoMovieMotionHumanBody,
@@ -90,7 +88,7 @@ export namespace HumanCarriedCouplingLoad {
     };
   }
 
-  /**
+  /*
    * The bearer standing still with its share of the coupled load, read once for
    * the lean and the capacity.
    */
@@ -176,16 +174,15 @@ export namespace HumanCarriedCouplingLoad {
     };
   };
 
-  /**
+  /*
    * Refuse a coupling whose borne mass no lean of the bearer balances.
-   *
-   * @param bearer The bearer's body.
-   * @param coupling The coupling.
-   * @param role The bearer's role; the coupling's first bearer when absent.
-   * @param bones The actual fitted key bones for this bearer and coupling, when
-   *   available.
-   * @throws {HumanRefusal} A `participant` refusal on `mass` with the feasible
-   *   mass.
+   * Parameter bearer: The bearer's body.
+   * Parameter coupling: The coupling.
+   * Parameter role: The bearer's role; the coupling's first bearer when absent.
+   * Parameter bones: The actual fitted key bones for this bearer and coupling, when
+   * available.
+   * A `participant` refusal on `mass` with the feasible
+   * mass.
    */
   export function bearable(
     bearer: IAutoMovieMotionHumanBody,
@@ -215,18 +212,17 @@ export namespace HumanCarriedCouplingLoad {
     });
   }
 
-  /**
+  /*
    * The load shares of point supports under a borne centre: the least-norm
    * shares that sum to one with their weighted centre under the centre, `w =
    * A^T (A A^T)^+ b` for the rows (1, x, z) in plan. Collinear supports share
    * by the lever rule along their line, coincident ones equally. A support the
    * solution would have pull is dropped and the rest solved again, so every
    * share is a push.
-   *
-   * @param points The bearing points, world metres.
-   * @param centre The borne centre of mass, world metres.
-   * @returns One share per point, none negative, summing to one; none for no
-   *   point.
+   * Parameter points: The bearing points, world metres.
+   * Parameter centre: The borne centre of mass, world metres.
+   * Returns: One share per point, none negative, summing to one; none for no
+   * point.
    */
   export function shares(
     points: readonly IAutoMovieVector3[],
@@ -254,7 +250,7 @@ export namespace HumanCarriedCouplingLoad {
     }
   }
 
-  /**
+  /*
    * The least-norm shares of points, summing to one, whose weighted centre lies
    * under a centre in plan (`shares` states the method); one point bears all.
    */
@@ -310,7 +306,7 @@ export namespace HumanCarriedCouplingLoad {
     );
   };
 
-  /**
+  /*
    * A bearer at the origin facing +Z in the coupling's stance, upright for a
    * further bearer: its mass and centre, its share of the borne mass with the
    * point its contacts press it at (the share-weighted contact points, the
@@ -325,5 +321,7 @@ export namespace HumanCarriedCouplingLoad {
   }
 }
 
-/** The attachment and mass-placement frames from the actual bearer key. */
+/*
+ * The attachment and mass-placement frames from the actual bearer key.
+ */
 type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;

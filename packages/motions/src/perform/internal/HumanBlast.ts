@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanBlast } from "@automovie/interface";
 
-/**
+/*
  * A blast: a point and an instant from which an impulse reaches every person
  * whose colliders lie within a radius, falling with distance. A grenade's
  * burst, a shell's, a charge's.
@@ -15,17 +15,18 @@ import type { IAutoMovieMotionHumanBlast } from "@automovie/interface";
  * only its monotone fall is relied on.
  */
 export namespace HumanBlast {
-  /** The reference distance the impulse is stated at, metres. */
+  /*
+   * The reference distance the impulse is stated at, metres.
+   */
   export const REFERENCE: number = 1;
 
-  /**
+  /*
    * The impulse's magnitude at a distance from the centre: the reference
    * impulse within the reference distance, falling as the inverse square of the
    * distance beyond it (provisional).
-   *
-   * @param blast The blast.
-   * @param distance Metres from its centre.
-   * @returns Newton seconds.
+   * Parameter blast: The blast.
+   * Parameter distance: Metres from its centre.
+   * Returns: Newton seconds.
    */
   export function impulse(
     blast: IAutoMovieMotionHumanBlast.IBlast,

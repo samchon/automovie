@@ -20,7 +20,7 @@ import { formatAutoMovieCapturePlanRequest } from "./formatAutoMovieCapturePlanR
 import { markAutoMovieCaptureCell } from "./markAutoMovieCaptureCell.js";
 import { scaleAutoMovieCaptureLabels } from "./scaleAutoMovieCaptureLabels.js";
 
-/**
+/*
  * Draw a planned capture through the host's draw function and write its stills,
  * contact sheets and record into its opened folder, so every rule of a capture
  * runs the same in a Node host, a page and a test.
@@ -243,7 +243,7 @@ export async function runAutoMovieCapture(
   });
 }
 
-/**
+/*
  * Write the sheet when this cell filled it or was the plan's last, and hand
  * back the sheet still being filled.
  */

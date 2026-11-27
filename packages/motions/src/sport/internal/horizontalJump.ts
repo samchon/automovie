@@ -18,7 +18,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { AthleticsRunUp } from "./AthleticsRunUp";
 
-/**
+/*
  * A long jump out of a run: the run is cut at the take-off foot's footfall on
  * the board (`AthleticsRunUp`), and the jump's own push-off, ballistic flight
  * and two-footed landing (`jump`) carry the body into the sand with the heels
@@ -41,17 +41,23 @@ import { AthleticsRunUp } from "./AthleticsRunUp";
  * Events: the jump's, `takeoff` and `touchdown` among them.
  */
 export namespace horizontalJump {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "horizontalJump";
 
-  /** A take-off, a flight and a landing, judged as the jump's is. */
+  /*
+   * A take-off, a flight and a landing, judged as the jump's is.
+   */
   export const physical: boolean = jump.physical;
 
-  /** Cancel table: the jump's, once landed and settled. */
+  /*
+   * Cancel table: the jump's, once landed and settled.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     jump.interrupts;
 
-  /**
+  /*
    * What may be cut into a long jump: a run, at the take-off foot's footfall
    * (`AthleticsRunUp`).
    */
@@ -59,7 +65,7 @@ export namespace horizontalJump {
     run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
   };
 
-  /**
+  /*
    * The take-off angle, degrees above the horizontal: about 21, the angle at
    * which athletes jumped farthest in Linthorne, Guzman and Bridgett (2005,
    * "Optimum take-off angle in the long jump", J Sports Sci 23:703), within the
@@ -67,15 +73,14 @@ export namespace horizontalJump {
    */
   export const ANGLE: number = 21;
 
-  /**
+  /*
    * Plan a long jump.
-   *
-   * @param context The action's context, entered from a run.
-   * @returns The jump's plan into the sand.
-   * @throws {HumanRefusal} When the entry is no run cut at a footfall, the pit
-   *   lacks its `board` or `sand`, the take-off foot passes the take-off line,
-   *   the distance is not positive or asks for more horizontal speed than the
-   *   run brings, or the jump refuses its push-off.
+   * Parameter context: The action's context, entered from a run.
+   * Returns: The jump's plan into the sand.
+   * When the entry is no run cut at a footfall, the pit
+   * lacks its `board` or `sand`, the take-off foot passes the take-off line,
+   * the distance is not positive or asks for more horizontal speed than the
+   * run brings, or the jump refuses its push-off.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHorizontalJump.IParams>,
@@ -202,6 +207,8 @@ export namespace horizontalJump {
     );
   }
 
-  /** The pit's two surfaces the law reads: the take-off board and the sand. */
+  /*
+   * The pit's two surfaces the law reads: the take-off board and the sand.
+   */
   type Surface = "board" | "sand";
 }

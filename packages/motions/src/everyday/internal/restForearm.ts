@@ -1,14 +1,15 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/** A resting arm's forearm by the two-link closed form. */
+/*
+ * A resting arm's forearm by the two-link closed form.
+ */
 export namespace restForearm {
-  /**
+  /*
    * A vector's unit component across a unit normal.
-   *
-   * @param normal The unit normal.
-   * @param vector The vector.
-   * @returns Its component across the normal, normalized.
+   * Parameter normal: The unit normal.
+   * Parameter vector: The vector.
+   * Returns: Its component across the normal, normalized.
    */
   export function across(
     normal: IAutoMovieVector3,
@@ -22,17 +23,16 @@ export namespace restForearm {
     );
   }
 
-  /**
+  /*
    * The unit direction of a forearm, from the elbow to the wrist: the elbow
    * lies on the circle the arm's two segments allow about the line from the
    * shoulder to the wrist (the law of cosines), on the side of the bend hint.
-   *
-   * @param upper The upper arm's length, metres.
-   * @param lower The forearm's length, metres.
-   * @param shoulder The shoulder joint, world metres.
-   * @param wrist The wrist, world metres.
-   * @param hint A point on the side the elbow bends toward, world metres.
-   * @returns The forearm's unit direction.
+   * Parameter upper: The upper arm's length, metres.
+   * Parameter lower: The forearm's length, metres.
+   * Parameter shoulder: The shoulder joint, world metres.
+   * Parameter wrist: The wrist, world metres.
+   * Parameter hint: A point on the side the elbow bends toward, world metres.
+   * Returns: The forearm's unit direction.
    */
   export function direction(
     upper: number,

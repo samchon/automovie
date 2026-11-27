@@ -6,20 +6,19 @@ import type {
 import { walkRoot } from "../../actions/internal/walkRoot";
 import { kneel } from "./kneel";
 
-/**
+/*
  * A kneel's phase table: down through its keys (`stepBack`, `lowering`,
  * `kneeContact`, `secondKnee`, each `kneel.PHASES` long scaled by the square
  * root of the hip height over the walk's reference, Alexander 1984), the kind's
  * contact marks, the hold, and, when it rises, the way back up through the same
  * keys at the same lengths.
- *
- * @param m The body's measures.
- * @param keys The kneel's key count.
- * @param kind The kneel's kind.
- * @param marks The kind's contact marks at the bottom key.
- * @param hold The hold, seconds.
- * @param rise Whether it rises again.
- * @returns The phases in order.
+ * Parameter m: The body's measures.
+ * Parameter keys: The kneel's key count.
+ * Parameter kind: The kneel's kind.
+ * Parameter marks: The kind's contact marks at the bottom key.
+ * Parameter hold: The hold, seconds.
+ * Parameter rise: Whether it rises again.
+ * Returns: The phases in order.
  */
 export function kneelPhaseTable(
   m: Pick<IAutoMovieBodyMeasure, "hipHeight">,
@@ -67,20 +66,32 @@ export function kneelPhaseTable(
   return phases;
 }
 
-/** `kneelPhaseTable`'s records. */
+/*
+ * `kneelPhaseTable`'s records.
+ */
 export namespace kneelPhaseTable {
-  /** A kneel's phase: its name, length and keys. */
+  /*
+   * A kneel's phase: its name, length and keys.
+   */
   export interface IPhase {
-    /** The phase's name, the event it ends on. */
+    /*
+     * The phase's name, the event it ends on.
+     */
     name: string;
 
-    /** The phase's length, seconds. */
+    /*
+     * The phase's length, seconds.
+     */
     seconds: number;
 
-    /** The key state it starts from. */
+    /*
+     * The key state it starts from.
+     */
     from: number;
 
-    /** The key state it ends at. */
+    /*
+     * The key state it ends at.
+     */
     to: number;
   }
 }

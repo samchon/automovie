@@ -6,7 +6,7 @@ import type {
 import { walk } from "../../gait/internal/walk";
 import { HumanGait } from "./HumanGait";
 
-/**
+/*
  * The limp's slow walk on shortened steps, the spared leg stood on briefly
  * (`HumanGait.LIMP`); the right leg spared when the parameters name none.
  */

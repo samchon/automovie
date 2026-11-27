@@ -13,7 +13,7 @@ import { findAutoMovieCollisionWitness } from "./findAutoMovieCollisionWitness.j
 import { observeAutoMovieSweptCollision } from "./observeAutoMovieSweptCollision.js";
 import { resolveAutoMovieCollisionHit } from "./resolveAutoMovieCollisionHit.js";
 
-/**
+/*
  * Observe one already placed scene frame for external contact and certified
  * interval violations. The caller supplies its active world layers.
  *
@@ -24,9 +24,8 @@ import { resolveAutoMovieCollisionHit } from "./resolveAutoMovieCollisionHit.js"
  * point, or cleared when both directions are searched completely; a budget or a
  * missing solid leaves it unresolved with its reason. Every unresolved row
  * inherits the layer's delivery requirement.
- *
- * @param props The clock, layers, contact query, refinement and work limits.
- * @returns Findings and coverage rows for the frame.
+ * Parameter props: The clock, layers, contact query, refinement and work limits.
+ * Returns: Findings and coverage rows for the frame.
  */
 export function observeAutoMovieSceneCollisionImplementation(
   props: IProps,
@@ -58,7 +57,9 @@ type ILimits = AutoMovieRenderInspection.IPlacedSceneCollisionLimits;
 type ILayer = AutoMovieRenderInspection.IPlacedSceneCollisionLayer;
 type IProps = AutoMovieRenderInspection.IPlacedSceneCollisionProps;
 
-/** Every kind of work an observation may spend. */
+/*
+ * Every kind of work an observation may spend.
+ */
 const LIMIT_KINDS: readonly (keyof ILimits)[] = [
   "comparisons",
   "posedVertices",
@@ -67,7 +68,9 @@ const LIMIT_KINDS: readonly (keyof ILimits)[] = [
   "parts",
 ];
 
-/** Collect, search and witness one layer, then check its motion cells. */
+/*
+ * Collect, search and witness one layer, then check its motion cells.
+ */
 function observeLayer(
   props: IProps,
   layer: ILayer,

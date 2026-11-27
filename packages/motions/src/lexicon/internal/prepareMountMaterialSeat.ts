@@ -10,16 +10,20 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import type { HumanMountOnFrame } from "./HumanMountOnFrame";
 import { prepareMountSeat } from "./prepareMountSeat";
 
-/** The model's unplaced frame. */
+/*
+ * The model's unplaced frame.
+ */
 const MODEL: IAutoMovieRigidTransform = {
   position: { x: 0, y: 0, z: 0 },
   rotation: Quaternion.identity(),
 };
 
-/** The seat's outward normal in its declared frame. */
+/*
+ * The seat's outward normal in its declared frame.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
+/*
  * Prepare the seat goal of an astride mount whose two actual stirrup treads
  * and seat are declared on one carrier. Bind the real seat slab by the four
  * corners of its declared top face, so a coincident bounding box, a rail or
@@ -27,14 +31,13 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * the mount's own final attitude before they are placed in the slab's frame.
  * The same film observation supplies the named seat and its material. A
  * reader with only the rigid site port supplies its own declared solids.
- *
- * @param context The body and its prop reader.
- * @param seat The seat authored for the mount.
- * @param final Read the exact terminal frame of the mount, in world
- *   coordinates. Translation is immaterial to the fitted pelvis geometry.
- * @returns The goal for `seated.root`, or undefined when the seat has no
- *   qualified material binding.
- * @throws {HumanRefusal} If the bound deck cannot bear the posed pelvis.
+ * Parameter context: The body and its prop reader.
+ * Parameter seat: The seat authored for the mount.
+ * Parameter final: Read the exact terminal frame of the mount, in world
+ * coordinates. Translation is immaterial to the fitted pelvis geometry.
+ * Returns: The goal for `seated.root`, or undefined when the seat has no
+ * qualified material binding.
+ * If the bound deck cannot bear the posed pelvis.
  */
 export function prepareMountMaterialSeat(
   context: MountContext,
@@ -44,7 +47,9 @@ export function prepareMountMaterialSeat(
   return bind(context, seat, final)?.goal;
 }
 
-/** Bind the posed material once for either preparation entry. */
+/*
+ * Bind the posed material once for either preparation entry.
+ */
 function bind(
   context: MountContext,
   seat: IAutoMovieMotionHumanSeated.ISeat,
@@ -185,57 +190,86 @@ function bind(
   };
 }
 
-/** One preparation's already-observed material and named site poses. */
+/*
+ * One preparation's already-observed material and named site poses.
+ */
 export namespace prepareMountMaterialSeat {
-  /** A named material contact from the same observation as its solid. */
+  /*
+   * A named material contact from the same observation as its solid.
+   */
   export interface ISite {
-    /** The original posed model-local declaration. */
+    /*
+     * The original posed model-local declaration.
+     */
     affordance: IAutoMovieAffordance;
 
-    /** The contact's world placement at the preparation second. */
+    /*
+     * The contact's world placement at the preparation second.
+     */
     frame: IAutoMovieRigidTransform;
   }
 
-  /** The actual seat box and its named upper bearing. */
+  /*
+   * The actual seat box and its named upper bearing.
+   */
   export interface ISeatSite extends ISite {
-    /** The supporting box in the observed model frame. */
+    /*
+     * The supporting box in the observed model frame.
+     */
     deck: SeatBox;
   }
 
-  /** The material frame, named contacts and admitted pelvis of one mount. */
+  /*
+   * The material frame, named contacts and admitted pelvis of one mount.
+   */
   export interface IContext {
-    /** The carrier that owns the observed material and its contacts. */
+    /*
+     * The carrier that owns the observed material and its contacts.
+     */
     readonly subject: string;
 
-    /** The carrier's world pose at the single material observation. */
+    /*
+     * The carrier's world pose at the single material observation.
+     */
     frame: IAutoMovieRigidTransform;
 
-    /** All observed model-local affordances. */
+    /*
+     * All observed model-local affordances.
+     */
     affordances: readonly IAutoMovieAffordance[];
 
-    /** All observed model-local shapes, with independent identities. */
+    /*
+     * All observed model-local shapes, with independent identities.
+     */
     shapes: readonly IAutoMoviePhysicalShape[];
 
-    /** The actual seat and its upper bearing frame. */
+    /*
+     * The actual seat and its upper bearing frame.
+     */
     seat: ISeatSite;
 
-    /** The named iron on each foot's side. */
+    /*
+     * The named iron on each foot's side.
+     */
     treads: Readonly<Record<AutoMovieHumanSide, ISite>>;
 
-    /** The certified local pelvis socket and its sagittal interval. */
+    /*
+     * The certified local pelvis socket and its sagittal interval.
+     */
     domain: prepareMountSeat.ISeat;
 
-    /** World goal in the mount's authored root convention. */
+    /*
+     * World goal in the mount's authored root convention.
+     */
     goal: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * Prepare one shared seated material observation for the coupled leg fit.
-   *
-   * @param source The body and its prop reader.
-   * @param seat The authored seat and its named treads.
-   * @param final The intended terminal pelvis frame.
-   * @returns The bound geometry, or undefined for unqualified seats.
+   * Parameter source: The body and its prop reader.
+   * Parameter seat: The authored seat and its named treads.
+   * Parameter final: The intended terminal pelvis frame.
+   * Returns: The bound geometry, or undefined for unqualified seats.
    */
   export function context(
     source: MountContext,
@@ -266,7 +300,9 @@ export namespace prepareMountMaterialSeat {
   }
 }
 
-/** A named stirrup with an explicit two-dimensional tread. */
+/*
+ * A named stirrup with an explicit two-dimensional tread.
+ */
 function stirrup(
   affordances: readonly IAutoMovieAffordance[],
   id: string,
@@ -280,7 +316,9 @@ function stirrup(
   );
 }
 
-/** Match the actual upper face in the named front-edge frame. */
+/*
+ * Match the actual upper face in the named front-edge frame.
+ */
 function top(
   local: IAutoMovieRigidTransform,
   shape: SeatBox,
@@ -318,44 +356,70 @@ function top(
   return true;
 }
 
-/** The mount's body and named material at its entry on the film clock. */
+/*
+ * The mount's body and named material at its entry on the film clock.
+ */
 type MountContext = Pick<
   IAutoMovieMotionHumanActionContext,
   "body" | "prop" | "start"
 >;
 
-/** The finite bearing box whose top face matches the named seat. */
+/*
+ * The finite bearing box whose top face matches the named seat.
+ */
 type SeatBox = Extract<IAutoMoviePhysicalShape, { kind: "box" }>;
 
-/** The site declarations before their common carrier frame places them. */
+/*
+ * The site declarations before their common carrier frame places them.
+ */
 type Declarations = Readonly<Record<AutoMovieHumanSide, IAutoMovieAffordance>>;
 
-/** The shared material and chosen pelvis, before placing the two tread sites. */
+/*
+ * The shared material and chosen pelvis, before placing the two tread sites.
+ */
 interface IBound {
-  /** The carrier whose posed material this provides. */
+  /*
+   * The carrier whose posed material this provides.
+   */
   readonly subject: string;
 
-  /** The exact carrier pose when the reader has a same-film snapshot. */
+  /*
+   * The exact carrier pose when the reader has a same-film snapshot.
+   */
   frame: IAutoMovieRigidTransform | undefined;
 
-  /** Both named treads from the same model observation. */
+  /*
+   * Both named treads from the same model observation.
+   */
   treads: Declarations;
 
-  /** The admitted site and actual box. */
+  /*
+   * The admitted site and actual box.
+   */
   seat: prepareMountMaterialSeat.ISeatSite;
 
-  /** The declared seat's own model-local frame. */
+  /*
+   * The declared seat's own model-local frame.
+   */
   named: IAutoMovieRigidTransform;
 
-  /** All affordances in the same model observation. */
+  /*
+   * All affordances in the same model observation.
+   */
   affordances: readonly IAutoMovieAffordance[];
 
-  /** All actual physical components in the same model observation. */
+  /*
+   * All actual physical components in the same model observation.
+   */
   shapes: readonly IAutoMoviePhysicalShape[];
 
-  /** The prepared socket and its clear interval in the seat itself. */
+  /*
+   * The prepared socket and its clear interval in the seat itself.
+   */
   domain: prepareMountSeat.ISeat;
 
-  /** World goal in the mount's authored root convention. */
+  /*
+   * World goal in the mount's authored root convention.
+   */
   goal: IAutoMovieVector3;
 }

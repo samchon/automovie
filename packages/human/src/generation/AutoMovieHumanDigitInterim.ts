@@ -26,7 +26,9 @@ import { AutoMovieHumanArmInterim } from "./AutoMovieHumanArmInterim";
  * The toes take theirs from the forefoot (`AutoMovieHumanFootInterim.toes`).
  */
 export namespace AutoMovieHumanDigitInterim {
-  /** The sites of a three-bone digit walk, by the joint law each takes. */
+  /*
+   * The sites of a three-bone digit walk, by the joint law each takes.
+   */
   const SITES: Readonly<Record<string, "near" | "mean" | "far">> = {
     base: "near",
     "shaft 0": "near",

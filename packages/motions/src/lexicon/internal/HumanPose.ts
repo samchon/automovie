@@ -20,12 +20,12 @@ import { HUMAN_STANCE_TAKE_COVER } from "../../next/presets/HUMAN_STANCE_TAKE_CO
 import { flinch } from "../../reaction/internal/flinch";
 import { stagger } from "../../reaction/internal/stagger";
 
-/**
+/*
  * Whole-body postures and reactions under film names, each a row of a shipped
  * action. Register the ones a film uses.
  */
 export namespace HumanPose {
-  /**
+  /*
    * Take a knee and stay down three seconds (provisional), as a proposal or a
    * rest.
    */
@@ -37,7 +37,7 @@ export namespace HumanPose {
     HUMAN_SEAT_TAKE_A_KNEE,
   );
 
-  /**
+  /*
    * Kneel, stay 1 s and get up again; checking something low, tying a shoe, a
    * quick bow of the knee (the descent and rise times are
    * `IAutoMovieMotionHumanKneel`'s, provisional).
@@ -50,7 +50,7 @@ export namespace HumanPose {
     HUMAN_SEAT_KNEEL_BRIEFLY,
   );
 
-  /**
+  /*
    * Sit back on the heels from both knees and stay, the floor seat of a
    * kneel-sit, three seconds (provisional).
    */
@@ -58,7 +58,7 @@ export namespace HumanPose {
     IAutoMovieMotionHumanLexiconParams["pose"]["kneelSit"]
   > = AutoMovieMotionHumanActionRow.of("kneelSit", kneel, HUMAN_SEAT_KNEEL_SIT);
 
-  /**
+  /*
    * Sit down on the floor with the legs ahead and stay three seconds
    * (provisional).
    */
@@ -70,7 +70,9 @@ export namespace HumanPose {
     HUMAN_FLOOR_SIT_ON_FLOOR,
   );
 
-  /** Sit down on the floor cross-legged and stay three seconds (provisional). */
+  /*
+   * Sit down on the floor cross-legged and stay three seconds (provisional).
+   */
   export const sitCrossLegged: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pose"]["sitCrossLegged"]
   > = AutoMovieMotionHumanActionRow.of(
@@ -79,7 +81,7 @@ export namespace HumanPose {
     HUMAN_FLOOR_SIT_CROSS_LEGGED,
   );
 
-  /**
+  /*
    * Sit down on the floor with both legs folded to the right, leaning on the
    * left hand, and stay three seconds (provisional).
    */
@@ -91,7 +93,7 @@ export namespace HumanPose {
     HUMAN_FLOOR_SIT_SIDEWAYS,
   );
 
-  /**
+  /*
    * Squat fully, heels up, and hold three seconds (provisional), as people sit
    * low without a seat: the full squat takes 1.3 s down and as long up at the
    * reference hip (`IAutoMovieMotionHumanCrouch`), 5.6 s in all.
@@ -104,7 +106,7 @@ export namespace HumanPose {
     HUMAN_STANCE_SQUAT_SIT,
   );
 
-  /**
+  /*
    * Duck down and hold 2 s, as behind cover: the partial crouch takes 1.0 s
    * down and as long up at the reference hip (`IAutoMovieMotionHumanCrouch`), 4
    * s in all; hiding, ducking under fire.
@@ -117,7 +119,7 @@ export namespace HumanPose {
     HUMAN_STANCE_TAKE_COVER,
   );
 
-  /**
+  /*
    * Lie down and stay 3 s (provisional), as to sleep or to play dead; the
    * lying-down time is `IAutoMovieMotionHumanLieDown`'s.
    */
@@ -129,7 +131,7 @@ export namespace HumanPose {
     HUMAN_FLOOR_LIE_STILL,
   );
 
-  /**
+  /*
    * Brace for an impact: the brace of kind `impact`, set 0.6 s after the start
    * and lasting 1.5 s when `seconds` is absent (`IAutoMovieMotionHumanBrace`,
    * provisional); a crash, an explosion, a fall.
@@ -140,7 +142,7 @@ export namespace HumanPose {
     kind: "impact",
   });
 
-  /**
+  /*
    * A startle: the full flinch (`intensity` 1): the peak at 0.2 s and back by
    * 0.6 s (`IAutoMovieMotionHumanFlinch`); a sudden noise, a near miss.
    */
@@ -148,7 +150,7 @@ export namespace HumanPose {
     IAutoMovieMotionHumanLexiconParams["pose"]["startle"]
   > = AutoMovieMotionHumanActionRow.of("startle", flinch, { intensity: 1 });
 
-  /**
+  /*
    * A wince: the slight flinch, 0.4 of the startle's size in the same 0.6 s
    * (`IAutoMovieMotionHumanFlinch`, provisional); pain, distaste.
    */
@@ -156,7 +158,7 @@ export namespace HumanPose {
     IAutoMovieMotionHumanLexiconParams["pose"]["wince"]
   > = AutoMovieMotionHumanActionRow.of("wince", flinch, { intensity: 0.4 });
 
-  /**
+  /*
    * A stumble from a shove that the body steps out of: a push of 0.5 m/s from
    * ahead, the speed whose extrapolated centre of mass a 9 degree backward lean
    * gives a small woman's pendulum (`omega l sin 9`, 0.50 m/s; 0.54 m/s on the

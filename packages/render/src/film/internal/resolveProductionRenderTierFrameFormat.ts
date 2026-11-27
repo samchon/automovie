@@ -7,7 +7,7 @@ import type {
 
 import { normalizeRenderTier } from "./normalizeRenderTier.js";
 
-/**
+/*
  * Project a production's frame format through a render tier.
  *
  * The final tier returns a copy of the source unchanged. A proxy scales width

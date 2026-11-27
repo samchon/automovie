@@ -1,7 +1,7 @@
 import { AutoMovieMatrix3 } from "@automovie/engine";
 import type { IAutoMovieRecoveryPoseResidualsLinearizeOperation } from "@automovie/interface";
 
-/**
+/*
  * Signed pixel Sampson residuals and analytic five-coordinate local Jacobian.
  * With e=x2-transpose F x1 and d the joint epipolar-normal norm, each
  * derivative is de/d - (e/d)_sum((line/d)_(derivativeLine/d)). This

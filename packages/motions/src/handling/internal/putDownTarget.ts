@@ -19,7 +19,9 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { StrikingRoll } from "../../striking/internal/StrikingRoll";
 
-/** The raw rigid socket frame at the prop's displayed articulation state. */
+/*
+ * The raw rigid socket frame at the prop's displayed articulation state.
+ */
 function socketFrame(
   reader: IAutoMovieMotionHumanPropReader,
   id: string,
@@ -53,7 +55,7 @@ function socketFrame(
   return frame;
 }
 
-/**
+/*
  * Read the socket in world metres at a film second. A receiver that publishes
  * its contacts' displayed frames (a horse's head, a carrier on a moving body)
  * is read there, so the socket follows what moves within the prop; otherwise
@@ -79,7 +81,9 @@ function worldSocket(
   return HumanPropFrame.compose(world, socketFrame(reader, id, seconds));
 }
 
-/** Refuse malformed frames before rigid composition can normalize them. */
+/*
+ * Refuse malformed frames before rigid composition can normalize them.
+ */
 function requireRigid(
   frame: IAutoMovieRigidTransform,
   name: string,
@@ -95,20 +99,21 @@ function requireRigid(
     });
 }
 
-/** Whether the rotation is already unit length. */
+/*
+ * Whether the rotation is already unit length.
+ */
 function rigid(frame: IAutoMovieRigidTransform): boolean {
   const q: IAutoMovieRigidTransform["rotation"] = frame.rotation;
   return Math.abs(Math.hypot(q.x, q.y, q.z, q.w) - 1) <= 1e-6;
 }
 
-/**
+/*
  * The prop's fixed placing frame, or undefined for a free world placement.
- *
- * @param context The authored destination, body, props and entry second.
- * @param pose The synchronous supplier of the body at that entry, including a
- *   prospective grasp's stance, evaluated only for a bone-mounted destination.
- * @returns The placing frame, world metres and a unit quaternion.
- * @throws {HumanRefusal} On onto when either named socket is absent.
+ * Parameter context: The authored destination, body, props and entry second.
+ * Parameter pose: The synchronous supplier of the body at that entry, including a
+ * prospective grasp's stance, evaluated only for a bone-mounted destination.
+ * Returns: The placing frame, world metres and a unit quaternion.
+ * On onto when either named socket is absent.
  */
 export function putDownTarget(
   context: Pick<
@@ -162,22 +167,21 @@ export function putDownTarget(
   };
 }
 
-/**
+/*
  * The rigid frame a prop is set on: a bone of the performer or another prop's
  * socket. The placement and the grasp chosen for it read this same frame, with
  * both sockets posed by their articulations at the entry.
  */
 export namespace putDownTarget {
-  /**
+  /*
    * Check the source socket's displayed fit at the moving transfer.
-   *
-   * @param context The receiving socket and film clock.
-   * @param posture The placement plan's contact posture.
-   * @param side The hand carrying the source.
-   * @param offset The source prop frame kept in the wrist bone.
-   * @param seconds Seconds from placement entry to transfer.
-   * @throws {HumanRefusal} If the fitted source exceeds the position or
-   *   attitude bound.
+   * Parameter context: The receiving socket and film clock.
+   * Parameter posture: The placement plan's contact posture.
+   * Parameter side: The hand carrying the source.
+   * Parameter offset: The source prop frame kept in the wrist bone.
+   * Parameter seconds: Seconds from placement entry to transfer.
+   * If the fitted source exceeds the position or
+   * attitude bound.
    */
   export function checkContact(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,
@@ -243,19 +247,18 @@ export namespace putDownTarget {
       });
   }
 
-  /**
+  /*
    * Admit horizontal translation of a directly placed rigid receiver. The
    * displayed socket is checked at intervals of at most 1/120 s, including when
    * it rides an authored track through initial prop mounts. Fixed sockets keep
    * their original placement path.
-   *
-   * @param context The placement and its film-clock prop readers.
-   * @param duration Full placement duration, in seconds.
-   * @param aperture The optional registered insertion path.
-   * @returns The displacement from entry as a function of local seconds, or
-   *   undefined for fixed destinations.
-   * @throws {HumanRefusal} When motion leaves the admitted path or the
-   *   displayed socket lacks a rigid authored carrier.
+   * Parameter context: The placement and its film-clock prop readers.
+   * Parameter duration: Full placement duration, in seconds.
+   * Parameter aperture: The optional registered insertion path.
+   * Returns: The displacement from entry as a function of local seconds, or
+   * undefined for fixed destinations.
+   * When motion leaves the admitted path or the
+   * displayed socket lacks a rigid authored carrier.
    */
   export function translation(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,
@@ -345,13 +348,12 @@ export namespace putDownTarget {
       Vector3.scale(velocity, seconds);
   }
 
-  /**
+  /*
    * Find an authored motion track behind the receiver's declared mount chain.
    * The placement still verifies the displayed socket against this track.
-   *
-   * @param context Prop lookup on the performance.
-   * @param subject The receiving prop.
-   * @returns The authored carrier and declared sockets to it, if any.
+   * Parameter context: Prop lookup on the performance.
+   * Parameter subject: The receiving prop.
+   * Returns: The authored carrier and declared sockets to it, if any.
    */
   export function track(
     context: Pick<IAutoMovieMotionHumanActionContext, "prop">,
@@ -371,15 +373,14 @@ export namespace putDownTarget {
     return undefined;
   }
 
-  /**
+  /*
    * The prop's frame in the frame of the socket it is set on (`onto`): the
    * inverse of its own `via` socket, so that socket lands on the receiving one,
    * as `of` places it; the identity without a `via`.
-   *
-   * @param context The authored destination, props and entry second.
-   * @returns The prop's frame in the receiving socket's frame, metres and a
-   *   unit quaternion.
-   * @throws {HumanRefusal} On onto when the prop's `via` socket is absent.
+   * Parameter context: The authored destination, props and entry second.
+   * Returns: The prop's frame in the receiving socket's frame, metres and a
+   * unit quaternion.
+   * On onto when the prop's `via` socket is absent.
    */
   export function seated(
     context: Pick<
@@ -410,31 +411,47 @@ export namespace putDownTarget {
     };
   }
 
-  /** The authored track and raw ancestor sockets used to reach it. */
+  /*
+   * The authored track and raw ancestor sockets used to reach it.
+   */
   interface ITrack {
-    /** The prop that owns the world track. */
+    /*
+     * The prop that owns the world track.
+     */
     reader: IAutoMovieMotionHumanPropReader;
-    /** Links in order from the receiver toward the track. */
+    /*
+     * Links in order from the receiver toward the track.
+     */
     mounts: readonly ITrackMountsItem2[];
   }
 }
 
-/** The supplier of the body's pose at the entry. */
+/*
+ * The supplier of the body's pose at the entry.
+ */
 type OfPose = () => IAutoMoviePose;
 
-/** The alternatives of `OfContext`'s site. */
+/*
+ * The alternatives of `OfContext`'s site.
+ */
 type OfContext = "params" | "body" | "prop" | "start";
 
-/** The alternatives of `SeatedContext`'s site. */
+/*
+ * The alternatives of `SeatedContext`'s site.
+ */
 type SeatedContext = "params" | "prop" | "start";
 
-/** The record of `ITrackMountsItem2`'s site. */
+/*
+ * The record of `ITrackMountsItem2`'s site.
+ */
 type ITrackMountsItem2 = {
   parent: IAutoMovieMotionHumanPropReader;
   point: string;
 };
 
-/** The record of `ITrackMountsItem`'s site. */
+/*
+ * The record of `ITrackMountsItem`'s site.
+ */
 type ITrackMountsItem = {
   parent: IAutoMovieMotionHumanPropReader;
   point: string;

@@ -34,7 +34,7 @@ import { HumanMountedWhip } from "./HumanMountedWhip";
 import { HumanRideHands } from "./HumanRideHands";
 import { admitHumanMountedFigure } from "./admitHumanMountedFigure";
 
-/**
+/*
  * Plan a mounted performance on a moving carrier
  * (`IAutoMovieMotionHumanMounted`): seat figures in a carrier contact's frame,
  * joined by transfers that keep a support held through them, with each named
@@ -50,29 +50,25 @@ export const HumanMounted: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanM
     plan: planHumanMounted,
   };
 
-/** The mounted law's context. */
+/*
+ * The mounted law's context.
+ */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanMounted>;
 
-/** A limb's joints by bone, clinical degrees `[flexion, abduction, twist]`. */
+/*
+ * A limb's joints by bone, clinical degrees `[flexion, abduction, twist]`.
+ */
 type Joints = IAutoMovieMotionHumanPosture["joints"];
 
-/**
+/*
  * Admit the figures, solve each seat once in the carrier contact's frame, then
  * sample the carried key postures and the hands' holds.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the steps and the refusals the plan raises: a non-seated entry, no figure or a final bench, a bad transfer or hold, a support the seat kind lacks or does not read, a hand that changes contact, and a transfer that holds no support through it.
- * @evidence contracts/development/implementation.md#principled-implementation Each figure's key posture is solved once by `HumanMountedSeats` in the carrier contact's frame at the start; a second blends the keys by the minimum-jerk transfer share, each limb end's turn slerped by the same share and a foot kept on its rest turned about its ball, swings a foot over the carrier where its straight way would pass through it, and is carried by the contact's moving frame (`HumanMountedFrame`); hands hold their contacts by `HumanMountRider.hold` with the ride's grip reader and closure.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, keys, arcs, clock and windows, hands, then the sampler.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Supports out of reach are refused by the seats; nothing is clamped onto a contact.
- * @evidence contracts/development/implementation.md#efficient-algorithms Planning solves one key per figure, four clearance queries per leg per transfer and one fit of a transfer's end whose limb a goal moves at that end alone; a sample blends two keys, reads one carrier frame and fits each holding hand once.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Keys, arcs, windows and finger closures are prepared once per plan and shared by every sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains its keys, arcs, clock and the carrier reader for its life; samples keep nothing.
  */
 function planHumanMounted(context: Context): IAutoMovieMotionHumanActionPlan {
   return plan(context);
 }
 
-/**
+/*
  * Admit the figures, solve each seat once, then sample the carried key postures
  * and holds.
  */

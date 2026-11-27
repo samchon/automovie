@@ -9,7 +9,7 @@ import type {
 
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 
-/**
+/*
  * Prepare the seated palm's fixed ray against its own thigh in bone metres. The
  * same rigid bone transports both the collider and the authored ray, so their
  * intersection only needs to be found once. Each query places the hit on the
@@ -54,18 +54,12 @@ export function prepareThighSkin(
     );
 }
 
-/** The shared ray for local and current world thigh frames. */
+/*
+ * The shared ray for local and current world thigh frames.
+ */
 export namespace prepareThighSkin {
-  /**
+  /*
    * Place this thigh's collider and trace the support ray in its current frame.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Takes the posed thigh and its current metre-valued surface point and unit normal.
-   * @evidence contracts/development/implementation.md#principled-implementation Starts the ray twice the collider bound outside the point and follows the inward normal for four bound radii.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Select the largest collider radius, delegate the march and retain the authored point on a miss.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the canonical ray cast with the original radii, direction and fallback.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One placed thigh scan plus the bounded canonical march.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Both local preparation and ordinary world targets use the same ray and miss behavior.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains no placed frame or cast result after returning the hit point.
    */
   export function cast(
     body: IAutoMovieMotionHumanBody,

@@ -7,7 +7,7 @@ import {
 
 import { swingConeAngle } from "../../rom/internal/swingConeAngle";
 
-/**
+/*
  * Check finite ordered degree intervals and whether the admitted
  * flexion/abduction box reaches the declared swing cone.
  */
@@ -97,7 +97,7 @@ const CONSTRAINT_AXES: readonly ["flexion", "abduction", "twist"] = [
   "twist",
 ] as const;
 
-/**
+/*
  * A continuous half-angle cosine reaches its extrema at endpoints or angles
  * congruent to 0/360 modulo 720 degrees; one representative of each interior
  * extremum suffices.
@@ -136,7 +136,7 @@ const constraintSwingCandidates: (
   return candidates;
 };
 
-/**
+/*
  * Append finite-bound faults and a separate inverted-order fault for an axis
  * interval.
  *

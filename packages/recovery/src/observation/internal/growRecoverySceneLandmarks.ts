@@ -12,7 +12,7 @@ import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 import { triangulateRecoverySceneTrack } from "./triangulateRecoverySceneTrack";
 
-/**
+/*
  * Propose point and measurement growth using only currently registered poses.
  * Existing points receive only individually positive-depth pixel-qualified
  * measurements; new points must pass every available registered observation.

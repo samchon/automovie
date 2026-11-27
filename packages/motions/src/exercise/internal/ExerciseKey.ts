@@ -5,7 +5,7 @@ import { stand } from "../../actions/internal/stand";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { prepareExerciseKeyBlend } from "./prepareExerciseKeyBlend";
 
-/**
+/*
  * A keyed whole-body posture of an exercise: the body's tilt, its turn and its
  * joints, with no place of its own. Where the body is follows from what bears
  * it: the key is pinned by naming bones whose mean stays at a point (`pinned`),
@@ -16,13 +16,12 @@ import { prepareExerciseKeyBlend } from "./prepareExerciseKeyBlend";
  * the foot level.
  */
 export namespace ExerciseKey {
-  /**
+  /*
    * The key of a body's relaxed standing: its arms hanging as the stand law
    * hangs them (`stand.relaxed`). A plan that names it in its spans holds the
    * one record it built, so its spans compare it by identity.
-   *
-   * @param body The body.
-   * @returns The key.
+   * Parameter body: The body.
+   * Returns: The key.
    */
   export function standing(
     body: IAutoMovieMotionHumanBody,
@@ -36,14 +35,13 @@ export namespace ExerciseKey {
     };
   }
 
-  /**
+  /*
    * The key of a displayed pose: every joint as the pose shows it, with no
    * tilt, turn or lift of its own, so a law that leaves the pose starts from
    * the body as it was shown, its stance and its feet, rather than from a
    * relaxed stand the cut would jump to.
-   *
-   * @param pose The displayed pose, an action's entry.
-   * @returns The key.
+   * Parameter pose: The displayed pose, an action's entry.
+   * Returns: The key.
    */
   export function shown(
     pose: IAutoMoviePose,
@@ -58,17 +56,16 @@ export namespace ExerciseKey {
     return { pitch: 0, roll: 0, yaw: 0, lift: 0, joints };
   }
 
-  /**
+  /*
    * A key from the whole body's part and the limbs' angles, on a body: an arm's
    * unstated abduction and elbow are the body's relaxed ones
    * (`stand.relaxed`).
-   *
-   * @param body The body.
-   * @param trunk The tilt, the turn, the lift and the spine.
-   * @param both The angles both sides share.
-   * @param left What the left side has instead.
-   * @param right What the right side has instead.
-   * @returns The key.
+   * Parameter body: The body.
+   * Parameter trunk: The tilt, the turn, the lift and the spine.
+   * Parameter both: The angles both sides share.
+   * Parameter left: What the left side has instead.
+   * Parameter right: What the right side has instead.
+   * Returns: The key.
    */
   export function from(
     body: IAutoMovieMotionHumanBody,
@@ -111,15 +108,14 @@ export namespace ExerciseKey {
     };
   }
 
-  /**
+  /*
    * A leg stood on a level foot under a pitched trunk: the shank leans forward
    * by `shank`, the knee bends by `knee`, and the hip takes what is left so the
    * thigh meets the pitched pelvis.
-   *
-   * @param pitch The whole body's forward tilt, degrees.
-   * @param knee Knee flexion, degrees.
-   * @param shank The shank's forward lean from the vertical, degrees.
-   * @returns The hip, knee and ankle angles.
+   * Parameter pitch: The whole body's forward tilt, degrees.
+   * Parameter knee: Knee flexion, degrees.
+   * Parameter shank: The shank's forward lean from the vertical, degrees.
+   * Returns: The hip, knee and ankle angles.
    */
   export function stood(
     pitch: number,
@@ -129,18 +125,17 @@ export namespace ExerciseKey {
     return { hip: pitch + knee - shank, knee, ankle: shank };
   }
 
-  /**
+  /*
    * A random-access blend reader for two fixed keys, sharing their ordered
    * joint union (`prepareExerciseKeyBlend`).
    */
   export const prepareBlend: typeof prepareExerciseKeyBlend =
     prepareExerciseKeyBlend;
 
-  /**
+  /*
    * The same key on the other side.
-   *
-   * @param key The key.
-   * @returns Its mirror image.
+   * Parameter key: The key.
+   * Returns: Its mirror image.
    */
   export function mirror(
     key: IAutoMovieMotionHumanExerciseKey.IKey,
@@ -158,16 +153,15 @@ export namespace ExerciseKey {
     return { ...key, roll: -key.roll, yaw: -key.yaw, joints };
   }
 
-  /**
+  /*
    * The mean place of bones' origins, or of grip sockets, on a posture.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @param bones The bones or grip sockets.
-   * @param resolved An exact map for this same body and posture from the
-   *   caller's synchronous evaluation; when absent the full raw trunk read is
-   *   retained.
-   * @returns World metres.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Parameter bones: The bones or grip sockets.
+   * Parameter resolved: An exact map for this same body and posture from the
+   * caller's synchronous evaluation; when absent the full raw trunk read is
+   * retained.
+   * Returns: World metres.
    */
   export function mean(
     body: IAutoMovieMotionHumanBody,
@@ -182,15 +176,14 @@ export namespace ExerciseKey {
     return Vector3.scale(sum, 1 / bones.length);
   }
 
-  /**
+  /*
    * A pin's place on resolved bones: a bone's origin, or a grip socket's point
    * on its hand.
-   *
-   * @param body The body.
-   * @param resolved The resolved bones.
-   * @param pin The bone or grip socket.
-   * @returns World metres.
-   * @throws {Error} When the rig has no such bone.
+   * Parameter body: The body.
+   * Parameter resolved: The resolved bones.
+   * Parameter pin: The bone or grip socket.
+   * Returns: World metres.
+   * When the rig has no such bone.
    */
   export function at(
     body: IAutoMovieMotionHumanBody,
@@ -213,12 +206,11 @@ export namespace ExerciseKey {
     return found;
   }
 
-  /**
+  /*
    * A key as a posture with its root at the origin.
-   *
-   * @param key The key.
-   * @param yaw The heading the exercise is entered on, degrees.
-   * @returns The posture.
+   * Parameter key: The key.
+   * Parameter yaw: The heading the exercise is entered on, degrees.
+   * Returns: The posture.
    */
   export function posed(
     key: IAutoMovieMotionHumanExerciseKey.IKey,
@@ -234,22 +226,21 @@ export namespace ExerciseKey {
     };
   }
 
-  /**
+  /*
    * A key placed by what bears it: the posture whose named bones' mean is at a
    * point, lifted by the key's lift.
-   *
-   * @param body The body.
-   * @param key The key.
-   * @param yaw The heading the exercise is entered on, degrees.
-   * @param pin The bones, or the grip sockets, that bear.
-   * @param place Where their mean stays, world metres.
-   * @param requested Optional output demand containing every pin bone, or its
-   *   socket's bone; omitted, the full raw trunk read is retained.
-   * @param resolution Optional same-person FK reader/supplier borrowed only by
-   *   this actual pin observation.
-   * @param projection Optional genuine same-body ROM projector; every actual
-   *   direct joint still passes canonical admission.
-   * @returns The posture.
+   * Parameter body: The body.
+   * Parameter key: The key.
+   * Parameter yaw: The heading the exercise is entered on, degrees.
+   * Parameter pin: The bones, or the grip sockets, that bear.
+   * Parameter place: Where their mean stays, world metres.
+   * Parameter requested: Optional output demand containing every pin bone, or its
+   * socket's bone; omitted, the full raw trunk read is retained.
+   * Parameter resolution: Optional same-person FK reader/supplier borrowed only by
+   * this actual pin observation.
+   * Parameter projection: Optional genuine same-body ROM projector; every actual
+   * direct joint still passes canonical admission.
+   * Returns: The posture.
    */
   export function pinned(
     body: IAutoMovieMotionHumanBody,

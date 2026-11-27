@@ -1,6 +1,8 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 
-/** Compare source shot paths and the film time of shot-local zero. */
+/*
+ * Compare source shot paths and the film time of shot-local zero.
+ */
 export function sameAutoMovieInspectionShotClock(
   left: IAutoMovieInspectionDiagnostics.ITime,
   right: IAutoMovieInspectionDiagnostics.ITime,

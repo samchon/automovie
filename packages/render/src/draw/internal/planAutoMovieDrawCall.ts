@@ -10,7 +10,7 @@ import type {
 import { scaleAutoMovieCaptureLabels } from "../../capture/internal/scaleAutoMovieCaptureLabels.js";
 import { parseAutoMovieInspectionView } from "../../scene/inspection/internal/parseAutoMovieInspectionView.js";
 
-/**
+/*
  * Turn one planned capture cell into the call a draw page answers: the cell's
  * second, view and inspection request as given, the subject's raster, the
  * framing span, and the label scale the capture run stamps at.

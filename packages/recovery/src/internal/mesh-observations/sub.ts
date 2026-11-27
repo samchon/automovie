@@ -1,6 +1,8 @@
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
-/** Subtracts vectors expressed in the same frame and units. */
+/*
+ * Subtracts vectors expressed in the same frame and units.
+ */
 export const sub: (
   a: AutoMovieVector3Tuple,
   b: AutoMovieVector3Tuple,

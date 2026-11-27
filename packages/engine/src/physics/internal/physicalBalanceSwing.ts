@@ -12,9 +12,11 @@ import { physicalRecoverySwing } from "./physicalRecoverySwing";
 import { AutoMovieEnginePhysicalStanceSwing } from "../AutoMovieEnginePhysicalStanceSwing";
 import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
 
-/** What {@link physicalBalanceSwing} asks for. */
+/*
+ * What physicalBalanceSwing asks for.
+ */
 export namespace physicalBalanceSwing {
-  /**
+  /*
    * The balance controller's swing phase (`advancePhysicalBalance`): each lifted
    * limb's path sampled and its drive's feed-forward asked for. The landing is
    * placed by the prepared span (`preparePhysicalDisturbanceSpan`).
@@ -33,13 +35,12 @@ export namespace physicalBalanceSwing {
    * an optimized two-waypoint trajectory (`TwoWaypointSwingGenerator`) and a
    * quadruped by a blended two-waypoint one (`QuadrupedSwingState`), each tracked
    * by a whole-body task in space, which this engine does not have.
-   *
-   * @param input The recovery's state after the plan phase, the body's readings
-   *   and the trace to record into, if any.
-   * @returns The state, the input itself; each lifted limb's endpoint goal; the
-   *   drives to apply, in the swings' order; and the path the joints' reference
-   *   fits (`trackPhysicalBalanceTargets`), the first swing's and a second's as
-   *   `pair`. The input is never written.
+   * Parameter input: The recovery's state after the plan phase, the body's readings
+   * and the trace to record into, if any.
+   * Returns: The state, the input itself; each lifted limb's endpoint goal; the
+   * drives to apply, in the swings' order; and the path the joints' reference
+   * fits (`trackPhysicalBalanceTargets`), the first swing's and a second's as
+   * `pair`. The input is never written.
    */
   export function run(
     input: Parameters<typeof physicalBalanceSwingImplementation>[0],
@@ -47,25 +48,43 @@ export namespace physicalBalanceSwing {
     return physicalBalanceSwingImplementation(input);
   }
 
-  /** A drive's feed-forward: a force at a lifted limb's endpoint, world newtons. */
+  /*
+   * A drive's feed-forward: a force at a lifted limb's endpoint, world newtons.
+   */
   export interface IDrive {
-    /** The limb's endpoint bone. */
+    /*
+     * The limb's endpoint bone.
+     */
     bone: string;
-    /** Where the force acts, world metres. */
+    /*
+     * Where the force acts, world metres.
+     */
     point: IAutoMovieVector3;
-    /** The force, world newtons. */
+    /*
+     * The force, world newtons.
+     */
     force: IAutoMovieVector3;
   }
 
-  /** The swing's result. */
+  /*
+   * The swing's result.
+   */
   export interface IResult {
-    /** The state after the swing phase. */
+    /*
+     * The state after the swing phase.
+     */
     state: IAutoMoviePhysicalRecoveryState;
-    /** Each lifted limb's endpoint goal, world metres, by bone. */
+    /*
+     * Each lifted limb's endpoint goal, world metres, by bone.
+     */
     goals: Record<string, IAutoMovieVector3>;
-    /** The drives to apply, in the swing's order. */
+    /*
+     * The drives to apply, in the swing's order.
+     */
     drives: IDrive[];
-    /** The swing's path as its drive takes it; absent while no limb swings. */
+    /*
+     * The swing's path as its drive takes it; absent while no limb swings.
+     */
     path?: NonNullable<IAutoMovieAdvancePhysicalBalance.IResult["swing"]>;
   }
 }

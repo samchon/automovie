@@ -18,7 +18,7 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the team ball skills from quiet standing, with an implied
  * ball.
  *
@@ -34,9 +34,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  * - `team-ball-throwIn`: both wrists behind the head at `ready` and, at the
  *   instant the hands move fastest, their path rising between 20 and 40 degrees
  *   (about 30 degrees, Linthorne and Everett 2006).
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function ballSportCases(
   bodies: readonly string[] = ["m-average"],
@@ -240,5 +239,7 @@ export function ballSportCases(
   return out;
 }
 
-/** The record of `IBallSportCasesFastest`'s site. */
+/*
+ * The record of `IBallSportCasesFastest`'s site.
+ */
 type IBallSportCasesFastest = { speed: number; v: IAutoMovieVector3 };

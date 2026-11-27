@@ -159,7 +159,7 @@ export namespace AutoMovieMotionHumanContinuation {
   }
 }
 
-/**
+/*
  * Read the already prepared owner entry for a performer starting a replacement
  * action at the join.
  */
@@ -177,7 +177,7 @@ function joinEntry(
     )?.context.entry;
 }
 
-/**
+/*
  * Compare entry kinematics, contact supports and custody without comparing plan
  * closures.
  */
@@ -204,7 +204,9 @@ function entryState(
   ];
 }
 
-/** Supplied momentum selects physical airborne rotation even in staged mode. */
+/*
+ * Supplied momentum selects physical airborne rotation even in staged mode.
+ */
 function checkPhysicalFlights(performance: HumanPerformance): void {
   for (const person of performance.performers)
     for (const segment of performance.segments(person.subject))
@@ -217,7 +219,7 @@ function checkPhysicalFlights(performance: HumanPerformance): void {
         );
 }
 
-/**
+/*
  * Count walk-order leaves and admit ordinary sequence and parallel groups in
  * the replacement.
  */
@@ -242,7 +244,9 @@ function count(node: IAutoMovieComposition, replacement: boolean): number {
   return refuse("the composition contains an unknown node kind");
 }
 
-/** The timing and event ledger, excluding opaque schedule state. */
+/*
+ * The timing and event ledger, excluding opaque schedule state.
+ */
 function timing(entry: IAutoMovieScheduleEntry): unknown {
   return [
     entry.index,
@@ -255,7 +259,9 @@ function timing(entry: IAutoMovieScheduleEntry): unknown {
   ];
 }
 
-/** Require both takes' tails to start at the actual group boundary. */
+/*
+ * Require both takes' tails to start at the actual group boundary.
+ */
 function checkTail(
   performance: HumanPerformance,
   retained: number,
@@ -271,7 +277,7 @@ function checkTail(
     );
 }
 
-/**
+/*
  * Require each prefix flight to have transferred custody before this branch
  * route.
  */
@@ -310,7 +316,9 @@ function checkFlights(
     refuse(`the replacement changed a retained flight of ${prop.subject}`);
 }
 
-/** Compare deterministic plain observations without persisting them. */
+/*
+ * Compare deterministic plain observations without persisting them.
+ */
 function same(left: unknown, right: unknown): boolean {
   if (Object.is(left, right)) return true;
   if (
@@ -331,7 +339,9 @@ function same(left: unknown, right: unknown): boolean {
   );
 }
 
-/** Report the exact unsupported branch premise to the host. */
+/*
+ * Report the exact unsupported branch premise to the host.
+ */
 function refuse(reason: string): never {
   throw new Error(`Human performance continuation: ${reason}.`);
 }

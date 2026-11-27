@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryImagePointsNormalizationOperation } from "@automovie/interface";
 
-/**
+/*
  * Centre matched image points and set their mean Euclidean distance to sqrt(2).
  * Hartley's normalized eight-point construction acts on the original design:
  * https://users.cecs.anu.edu.au/~hartley/Papers/fundamental/fundamental.pdf

@@ -1,6 +1,6 @@
 import { HumanRefusal } from "../HumanRefusal";
 
-/**
+/*
  * The refusal of a balance missing a field neither the caller nor the law
  * gives.
  */

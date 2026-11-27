@@ -12,7 +12,7 @@ import { EquineBodyPose } from "./EquineBodyPose";
 import { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 
-/**
+/*
  * The stance responses that travel, repeat or brace (`EquineStanceRows`): a
  * spin on the haunches, a run of crow hops and a set back against a rope. A
  * spin turns the whole horse about the middle of its hind hooves in increments,
@@ -23,29 +23,32 @@ import { EquineStanceSupport } from "./EquineStanceSupport";
  * standing as they began.
  */
 export namespace EquineStanceMoves {
-  /** The most a spin turns per increment, degrees: authored. */
+  /*
+   * The most a spin turns per increment, degrees: authored.
+   */
   export const STEP: number = 15;
 
-  /** A stepping hoof's peak lift, metres: authored, the step aside's. */
+  /*
+   * A stepping hoof's peak lift, metres: authored, the step aside's.
+   */
   export const LIFT: number = 0.08;
 
-  /**
+  /*
    * The share of a hoof's step spent moving the weight before it lifts:
    * authored, the step aside's.
    */
   export const LOAD: number = 0.35;
 
-  /**
+  /*
    * A spin on the haunches or on the centre: the horse turns `degrees` about
    * the middle of its hind hooves, or of all four on the centre, in increments
    * of at most `STEP`, each increment stepping the outside fore, the inside
    * fore, the outside hind and the inside hind in turn around the pivot, the
    * trunk turning with them; the exit settles over the new anchors.
-   *
-   * @param body The prepared solver.
-   * @param start The state it starts from.
-   * @param cue The spin.
-   * @returns Its plan.
+   * Parameter body: The prepared solver.
+   * Parameter start: The state it starts from.
+   * Parameter cue: The spin.
+   * Returns: Its plan.
    */
   export function spin<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
@@ -198,16 +201,15 @@ export namespace EquineStanceMoves {
     };
   }
 
-  /**
+  /*
    * A run of crow hops: `count` small bucks of `pitch` one after another over
    * the entry, each lifting the hindquarters off the floor and setting them
    * down again with the forehand planted; the horse stands as it began from the
    * last hop on.
-   *
-   * @param body The prepared solver.
-   * @param start The state it starts from.
-   * @param cue The crow hops.
-   * @returns Its plan.
+   * Parameter body: The prepared solver.
+   * Parameter start: The state it starts from.
+   * Parameter cue: The crow hops.
+   * Returns: Its plan.
    */
   export function crowHops<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
@@ -251,15 +253,14 @@ export namespace EquineStanceMoves {
     };
   }
 
-  /**
+  /*
    * A set back against a rope: the horse sits back on its hocks, the
    * hindquarters lowered by `pitch` about the shoulder joints while all four
    * hooves stay planted, holds, and stands up again as it began.
-   *
-   * @param body The prepared solver.
-   * @param start The state it starts from.
-   * @param cue The set back.
-   * @returns Its plan.
+   * Parameter body: The prepared solver.
+   * Parameter start: The state it starts from.
+   * Parameter cue: The set back.
+   * Returns: Its plan.
    */
   export function setBack<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,

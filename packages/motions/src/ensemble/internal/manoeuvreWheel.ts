@@ -9,7 +9,7 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFormation } from "./HumanFormation";
 
-/**
+/*
  * A wheel on a fixed pivot: the formation turned rigidly about its pivot flank,
  * so the line stays straight as it wheels. In the drill books one flank stands
  * fast while the rest moves round it; "the outward wheeling man always
@@ -29,18 +29,17 @@ import { HumanFormation } from "./HumanFormation";
  * formation as a station, so at a called cadence its steps shorten with its
  * radius (`walkStation.cadenced`) and the pivot turns on its own ground. Its
  * way on paper is the arc its slot draws, a point every `ARC` degrees.
- *
- * @param ensemble The ensemble, its member `i` standing in slot
- *   `members[i].index` of `from`.
- * @param manoeuvre The wheel.
- * @param starts Where each stands at the word.
- * @param ends Each one's slot in `to`.
- * @param speeds Each one's travel speed, m/s.
- * @param column `from`, prepared (`HumanFormation.prepare`).
- * @param line `to`, prepared.
- * @returns Each member's way and station; no stations when nothing turns.
- * @throws {HumanRefusal} When `to` is not `from` turned about the pivot, naming
- *   the member whose slot lies elsewhere and how far.
+ * Parameter ensemble: The ensemble, its member `i` standing in slot
+ * `members[i].index` of `from`.
+ * Parameter manoeuvre: The wheel.
+ * Parameter starts: Where each stands at the word.
+ * Parameter ends: Each one's slot in `to`.
+ * Parameter speeds: Each one's travel speed, m/s.
+ * Parameter column: `from`, prepared (`HumanFormation.prepare`).
+ * Parameter line: `to`, prepared.
+ * Returns: Each member's way and station; no stations when nothing turns.
+ * When `to` is not `from` turned about the pivot, naming
+ * the member whose slot lies elsewhere and how far.
  */
 export function manoeuvreWheel(
   ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -160,26 +159,32 @@ export function manoeuvreWheel(
   };
 }
 
-/** Constants and types of {@link manoeuvreWheel}. */
+/*
+ * Constants and types of manoeuvreWheel.
+ */
 export namespace manoeuvreWheel {
-  /**
+  /*
    * The outward man's lengthened step over the ordinary one: 33 inches over 30
    * (Rules and Regulations for the Formations and Movements of the Militia of
    * Lower-Canada, c. 1814, after Dundas 1792).
    */
   export const LENGTHENED: number = 33 / 30;
 
-  /**
+  /*
    * Metres a target slot may lie from the turned one: a millimetre, the
    * rounding of a laid slot, so only a formation of another shape is refused.
    */
   export const FIT: number = 1e-3;
 
-  /** Degrees between two points of a wheeling member's arc. */
+  /*
+   * Degrees between two points of a wheeling member's arc.
+   */
   export const ARC: number = 10;
 }
 
-/** Turn a point about a pivot by degrees about +Y, as a heading turns. */
+/*
+ * Turn a point about a pivot by degrees about +Y, as a heading turns.
+ */
 function turn(
   pivot: IAutoMovieVector3,
   p: IAutoMovieVector3,
@@ -194,10 +199,12 @@ function turn(
     z: pivot.z - dx * Math.sin(radians) + dz * Math.cos(radians),
   };
 }
-/** The alternatives of `PivotOfSide`'s site. */
+/*
+ * The alternatives of `PivotOfSide`'s site.
+ */
 type PivotOfSide = "left" | "right" | "centre";
 
-/**
+/*
  * The wheel's pivot: the front rank's left or right file, or its centre, where
  * the members stand at the word.
  */
@@ -243,7 +250,7 @@ function pivotOf(
   return starts[side === "left" ? front[0]! : front[front.length - 1]!]!;
 }
 
-/**
+/*
  * A way about a pivot from one point to another: the radius and the angle each
  * changed evenly, a point every `ARC` degrees.
  */

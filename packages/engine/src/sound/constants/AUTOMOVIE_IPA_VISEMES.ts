@@ -1,6 +1,6 @@
 import type { AutoMovieViseme } from "@automovie/interface";
 
-/**
+/*
  * The fixed table from IPA phoneme symbols to the MPEG-4 viseme set (ISO/IEC
  * 14496-2 Annex C).
  *

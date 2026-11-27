@@ -95,12 +95,16 @@ export namespace AutoMovieViewSectionField {
   }
 }
 
-/** Convert numerical admission into the existing named failure record. */
+/*
+ * Convert numerical admission into the existing named failure record.
+ */
 function failure(detail: string): IAutoMovieConicArcField.IFailure {
   return { kind: "failure", detail };
 }
 
-/** Actual regular station jets contain three finite scalars. */
+/*
+ * Actual regular station jets contain three finite scalars.
+ */
 function stationJet(value: readonly number[]): boolean {
   return value.length === 3;
 }

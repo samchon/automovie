@@ -5,7 +5,7 @@ import type {
   IAutoMovieSimplexAtom,
 } from "@automovie/interface";
 
-/**
+/*
  * Try nominal physical mixing, then one original-row-supported coefficient. The
  * numerical branch is not the ideal cubic-rate mixture. Its operation- scaled
  * margin chooses a new vector, never an allowance on that vector's rows.
@@ -97,7 +97,9 @@ export function mixRecoveryFeasibleSqpStep(
   return result;
 }
 
-/** Whether a mixed step entry or slope overflowed binary64. */
+/*
+ * Whether a mixed step entry or slope overflowed binary64.
+ */
 function overflowed(value: number): boolean {
   return value === Infinity || value === -Infinity;
 }

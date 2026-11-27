@@ -24,7 +24,7 @@ import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanArmPlayed } from "./AutoMovieMotionHumanArmPlayed";
 
-/**
+/*
  * Prepare the steady shared carry in CORE4D (Liu et al. 2024, §3.4 and appendix
  * D.1, https://arxiv.org/abs/2406.19353). Two distinct hands keep their own
  * contacts during one authored rigid-object motion. The prop's path drives both
@@ -32,13 +32,12 @@ import { AutoMovieMotionHumanArmPlayed } from "./AutoMovieMotionHumanArmPlayed";
  * explicitly declare rigid geometry even if its adapter exposes a pose reader.
  * Both grips cover the entire interval. Independent arm planning does not
  * certify clearance between performers or with the environment.
- *
- * @param input The prop, the carriers and their common film interval.
- * @returns The tracked prop and two prepared posture readers, in carrier order.
- * @throws {RangeError} For invalid times, conflicting prop ownership, missing
- *   or coincident sites, or a prop or hand starting outside its grip bounds.
- * @throws {HumanRefusal} If the existing arm planner cannot meet either
- *   carrier's grip.
+ * Parameter input: The prop, the carriers and their common film interval.
+ * Returns: The tracked prop and two prepared posture readers, in carrier order.
+ * For invalid times, conflicting prop ownership, missing
+ * or coincident sites, or a prop or hand starting outside its grip bounds.
+ * If the existing arm planner cannot meet either
+ * carrier's grip.
  */
 export function AutoMovieMotionHumanSharedCarry(
   input: IAutoMovieMotionHumanSharedCarry.IInput,
@@ -110,7 +109,7 @@ export function AutoMovieMotionHumanSharedCarry(
   };
 }
 
-/**
+/*
  * Prepare a single arm on the shared path, then write its solved joints over
  * the supplied base.
  */
@@ -248,7 +247,7 @@ function prepareCarrier(
   };
 }
 
-/**
+/*
  * Draft planning budget, in seconds, limiting each arm to five seconds of
  * trajectory refinement.
  */

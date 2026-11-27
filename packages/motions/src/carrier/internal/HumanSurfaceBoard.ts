@@ -31,24 +31,30 @@ import { HumanSupportCarry } from "./HumanSupportCarry";
 import { prepareSkateboardPhrase } from "./prepareSkateboardPhrase";
 import { prepareSurfboardPhrase } from "./prepareSurfboardPhrase";
 
-/** Vertical in the deck frame. */
+/*
+ * Vertical in the deck frame.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** The axis a handle is wrapped about: its affordance frame's local +X. */
+/*
+ * The axis a handle is wrapped about: its affordance frame's local +X.
+ */
 const HANDLE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
-/**
+/*
  * Seconds over which a riding hand reaches its grip on the support (provisional
  * staging).
  */
 const REACH: number = 0.4;
 
-/** Hand subsequent actions a settled stance after the board transfer. */
+/*
+ * Hand subsequent actions a settled stance after the board transfer.
+ */
 const END: IAutoMovieMotionHumanActionLaw["interrupts"] = {
   any: [{ window: [1, 1], kind: "inertialize", entry: 0 }],
 };
 
-/**
+/*
  * Carry a two-foot stance on the actual board's film-clock trajectory. Either
  * foot can lead because the law reads the placed posture. Surf transit
  * measurements distinguish hand contact, foot acquisition and settled stance.
@@ -57,11 +63,10 @@ const END: IAutoMovieMotionHumanActionLaw["interrupts"] = {
  * of the same support, such as an escalator handrail that moves with the steps:
  * it reaches the point where it is at the start over `REACH` seconds, and the
  * support carries the grip with the feet.
- *
- * @param context The placed feet, the board id and the ride duration.
- * @returns The transferred deck-local plants and carried posture.
- * @throws {HumanRefusal} When either foot is unsupported by the selected board,
- *   a hand names a point the support lacks, or the duration is invalid.
+ * Parameter context: The placed feet, the board id and the ride duration.
+ * Returns: The transferred deck-local plants and carried posture.
+ * When either foot is unsupported by the selected board,
+ * a hand names a point the support lacks, or the duration is invalid.
  */
 export function HumanSurfaceBoard(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.IBoardRideParams>,
@@ -251,13 +256,13 @@ export function HumanSurfaceBoard(
   });
 }
 
-/**
+/*
  * Author a continuous move on a skateboard or surfboard selected from the
  * stage. The board's animator owns its trajectory. Its actual affordances and
  * authored phase boundaries determine the rider's plants.
  */
 export namespace HumanSurfaceBoard {
-  /**
+  /*
    * Establish one ground push, turn feet on the deck, and land from an authored
    * ollie.
    */
@@ -269,7 +274,7 @@ export namespace HumanSurfaceBoard {
       plan: prepareSkateboardPhrase,
     };
 
-  /**
+  /*
    * Advance onto the board from water, paddle, and transfer from palms to a
    * surfing stance.
    */
@@ -281,46 +286,70 @@ export namespace HumanSurfaceBoard {
       plan: prepareSurfboardPhrase,
     };
 
-  /** Phase shares for synchronizing the skateboard's authored transform. */
+  /*
+   * Phase shares for synchronizing the skateboard's authored transform.
+   */
   export const SKATEBOARD: typeof prepareSkateboardPhrase.SHARES =
     prepareSkateboardPhrase.SHARES;
 
-  /** Phase shares for synchronizing the surfboard's authored transform. */
+  /*
+   * Phase shares for synchronizing the surfboard's authored transform.
+   */
   export const SURFBOARD: typeof prepareSurfboardPhrase.SHARES =
     prepareSurfboardPhrase.SHARES;
 
-  /**
+  /*
    * The board frame and rectangular deck envelope admitted for one staged
    * phrase.
    */
   export interface IDeck {
-    /** Sample the board's own world frame on this action's clock. */
+    /*
+     * Sample the board's own world frame on this action's clock.
+     */
     at(seconds: number): IAutoMovieRigidTransform;
-    /** Get a named contact in board-local metres. */
+    /*
+     * Get a named contact in board-local metres.
+     */
     site(id: string, kind: IAutoMovieAffordance["kind"]): IAutoMovieVector3;
-    /** Verify a site lies on the board's material top and inside its extent. */
+    /*
+     * Verify a site lies on the board's material top and inside its extent.
+     */
     plant(point: IAutoMovieVector3, name: string): void;
-    /** The deck's centre in board-local metres. */
+    /*
+     * The deck's centre in board-local metres.
+     */
     centre: IAutoMovieVector3;
-    /** The deck's side-to-side extent in metres. */
+    /*
+     * The deck's side-to-side extent in metres.
+     */
     width: number;
-    /** The deck's nose-to-tail extent in metres. */
+    /*
+     * The deck's nose-to-tail extent in metres.
+     */
     length: number;
   }
 
-  /** What a deck is read from: the action's start and the board's reader. */
+  /*
+   * What a deck is read from: the action's start and the board's reader.
+   */
   export interface IDeckContext {
-    /** The action's start, film seconds. */
+    /*
+     * The action's start, film seconds.
+     */
     start: number;
 
-    /** The board's affordances and its frame at a film second. */
+    /*
+     * The board's affordances and its frame at a film second.
+     */
     prop(subject: string): {
       prop: Pick<IAutoMovieMotionHumanPropReader["prop"], "affordances">;
       frame(seconds: number): IAutoMovieRigidTransform;
     };
   }
 
-  /** Admit the board and use the prop's existing local affordances throughout. */
+  /*
+   * Admit the board and use the prop's existing local affordances throughout.
+   */
   export function deck(context: IDeckContext, on: string): IDeck {
     const prop: ReturnType<IDeckContext["prop"]> = context.prop(on);
     const contact = (
@@ -373,7 +402,9 @@ export namespace HumanSurfaceBoard {
     };
   }
 
-  /** Format one named refusal from the indicated support affordance. */
+  /*
+   * Format one named refusal from the indicated support affordance.
+   */
   export function refuseBoard(value: string, reason: string): never {
     throw new HumanRefusal({
       kind: "affordance",
@@ -385,10 +416,14 @@ export namespace HumanSurfaceBoard {
     });
   }
 
-  /** The established 10 mm support tolerance, in metres. */
+  /*
+   * The established 10 mm support tolerance, in metres.
+   */
   export const GAP: number = 0.01;
 
-  /** Orient a point or pose against the board's world frame. */
+  /*
+   * Orient a point or pose against the board's world frame.
+   */
   export function world(
     frame: IAutoMovieRigidTransform,
     point: IAutoMovieVector3,
@@ -399,7 +434,9 @@ export namespace HumanSurfaceBoard {
     );
   }
 
-  /** Express a world point in the current board frame. */
+  /*
+   * Express a world point in the current board frame.
+   */
   export function local(
     frame: IAutoMovieRigidTransform,
     point: IAutoMovieVector3,
@@ -410,7 +447,9 @@ export namespace HumanSurfaceBoard {
     );
   }
 
-  /** A planted or unplanted sole goal whose target lies in world metres. */
+  /*
+   * A planted or unplanted sole goal whose target lies in world metres.
+   */
   export function ankle(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
@@ -427,7 +466,9 @@ export namespace HumanSurfaceBoard {
     };
   }
 
-  /** A yaw in degrees measured from positive Z. */
+  /*
+   * A yaw in degrees measured from positive Z.
+   */
   export function heading(rotation: IAutoMovieQuaternion): number {
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
       x: 0,
@@ -437,12 +478,16 @@ export namespace HumanSurfaceBoard {
     return Math.atan2(forward.x, forward.z) / Quaternion.DEG2RAD;
   }
 
-  /** The existing minimum-jerk ease between two phase shares. */
+  /*
+   * The existing minimum-jerk ease between two phase shares.
+   */
   export function ease(at: number, from: number, to: number): number {
     return AutoMovieEngineMotionSampling.minimumJerk(Math.max(0, Math.min(1, (at - from) / (to - from)))).s;
   }
 
-  /** A declared support interval on the board or on the world floor. */
+  /*
+   * A declared support interval on the board or on the world floor.
+   */
   export function plant(
     part: IAutoMovieMotionHumanContactWindow["part"],
     from: number,
@@ -454,11 +499,17 @@ export namespace HumanSurfaceBoard {
   }
 }
 
-/** One riding hand and where it holds the support as the ride starts. */
+/*
+ * One riding hand and where it holds the support as the ride starts.
+ */
 interface IRideGrip {
-  /** The holding hand. */
+  /*
+   * The holding hand.
+   */
   side: AutoMovieHumanSide;
 
-  /** The held point, its normal and wrapped axis, world, at the ride's start. */
+  /*
+   * The held point, its normal and wrapped axis, world, at the ride's start.
+   */
   grip: IAutoMovieMotionHumanMountRider.IHoldGrip;
 }

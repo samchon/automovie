@@ -5,7 +5,7 @@ import { AutoMovieInspector } from "../AutoMovieInspector.js";
 import type { AutoMovieViewerInspector } from "../AutoMovieViewerInspector.js";
 import { createAutoMovieInspectorAddressWriter } from "./createAutoMovieInspectorAddressWriter.js";
 
-/**
+/*
  * Mount the inspector as a whole page in one call: render `AutoMovieInspector` into `root` under StrictMode, opening on the request `location`'s query names and keeping that query equal to the request through `history`.
  *
  * `location` and `history` are the host's, passed in rather than read from `window`, so the page's address is the only global state the inspector writes and a host decides which. The returned `unmount` disposes the scene and its renderer through the component's effect cleanup.
@@ -19,7 +19,9 @@ import { createAutoMovieInspectorAddressWriter } from "./createAutoMovieInspecto
 export function mountAutoMovieInspectorPage(
   props: AutoMovieViewerInspector.IPageProps,
 ): {
-  /** Unmount the page and release everything it holds. */
+  /*
+   * Unmount the page and release everything it holds.
+   */
   unmount: () => void;
 } {
   const onRequestChange: (text: string) => void =

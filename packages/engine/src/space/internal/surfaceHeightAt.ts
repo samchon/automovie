@@ -6,10 +6,12 @@ import {
 
 import { lerp } from "../../math/internal/lerp";
 
-/** Squared XZ ramp span below this square-metre threshold reads as flat. */
+/*
+ * Squared XZ ramp span below this square-metre threshold reads as flat.
+ */
 const MIN_RAMP_AXIS: number = 1e-9;
 
-/**
+/*
  * Evaluate the canonical surface height at XZ without checking footprint
  * membership.
  */
@@ -53,7 +55,9 @@ export const surfaceHeightAt: (
   return mix(near, far, row.fraction);
 };
 
-/** The two-anchor spelling of a level or single-plane patch. */
+/*
+ * The two-anchor spelling of a level or single-plane patch.
+ */
 const anchoredHeightAt: (
   surface: IAutoMovieHeightSurface,
   x: number,
@@ -75,7 +79,7 @@ const anchoredHeightAt: (
   return anchor.y + t * (rampTo.y - anchor.y);
 };
 
-/**
+/*
  * Which cell of a lattice a coordinate falls in, and how far across it.
  *
  * Start from the nominal lattice coordinate. Compare the two candidate knots at
@@ -130,7 +134,7 @@ function latticeCell(
   };
 }
 
-/**
+/*
  * One stored sample, with its indices clamped into the declared grid.
  *
  * A record whose `samples` is shorter than `columns * rows` is refused by
@@ -161,7 +165,9 @@ const heightfieldSample: (
       Math.min(Math.max(column, 0), rule.columns - 1)
   ] ?? 0;
 
-/** Read an exact endpoint or interpolate two heights across a clamped fraction. */
+/*
+ * Read an exact endpoint or interpolate two heights across a clamped fraction.
+ */
 const mix: (from: number, to: number, progress: number) => number = (
   from: number,
   to: number,

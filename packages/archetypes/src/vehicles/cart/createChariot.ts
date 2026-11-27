@@ -3,18 +3,17 @@ import { CartConstruction } from "../internal/CartConstruction";
 import { CartDrawn } from "../internal/CartDrawn";
 import type { AutoMovieArchetypeChariot } from "../AutoMovieArchetypeChariot";
 
-/**
+/*
  * Two-wheeled standing chariot.
  *
  * The pole coupling leads along +Z from the axle. The platform and rail support
  * standing performers.
- *
- * @param params The scene identity and the dimensions and catalogue choices
- *   this carrier admits.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter params: The scene identity and the dimensions and catalogue choices
+ * this carrier admits.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function createChariot(
   params: AutoMovieArchetypeChariot.IParams = {},

@@ -17,7 +17,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { ExerciseKey } from "./ExerciseKey";
 import { balletPositions } from "./balletPositions";
 
-/**
+/*
  * A grand jeté: a leap from the supporting foot onto the leading one, the legs
  * split at the flight's apex.
  *
@@ -39,45 +39,54 @@ import { balletPositions } from "./balletPositions";
  * comes from raising the legs at the apex.
  */
 export namespace balletJete {
-  /** The flight's rise, hip heights (provisional). */
+  /*
+   * The flight's rise, hip heights (provisional).
+   */
   export const APEX: number = 0.3;
 
-  /** The flight's travel, hip heights (provisional). */
+  /*
+   * The flight's travel, hip heights (provisional).
+   */
   export const TRAVEL: number = 1.4;
 
-  /** The push from plié to take-off, seconds (provisional). */
+  /*
+   * The push from plié to take-off, seconds (provisional).
+   */
   export const PUSH: number = 0.3;
 
-  /** The landing's give, seconds (provisional). */
+  /*
+   * The landing's give, seconds (provisional).
+   */
   export const ABSORB: number = 0.35;
 
-  /**
+  /*
    * The legs' opening at take-off and at landing, degrees each from the
    * vertical.
    */
   export const OPEN: number = 30;
 
-  /**
+  /*
    * The leading leg's reach ahead of the hips at landing, degrees from the
    * vertical.
    */
   export const LAND: number = 12;
 
-  /** The feet's pointe beyond neutral, degrees. */
+  /*
+   * The feet's pointe beyond neutral, degrees.
+   */
   export const POINT: number = 50;
 
-  /**
+  /*
    * The plié's sink before the push and after the landing, a share of the full
    * plié.
    */
   export const SINK: number = 0.6;
 
-  /**
+  /*
    * The course of a grand jeté.
-   *
-   * @param context The action's context.
-   * @param beats The beat clock.
-   * @returns The course.
+   * Parameter context: The action's context.
+   * Parameter beats: The beat clock.
+   * Returns: The course.
    */
   export function course(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallet.IParams>,
@@ -352,12 +361,14 @@ export namespace balletJete {
     return course;
   }
 
-  /** The zero vector. */
+  /*
+   * The zero vector.
+   */
   function zero(): IAutoMovieVector3 {
     return { x: 0, y: 0, z: 0 };
   }
 
-  /**
+  /*
    * A cubic Hermite between two points with their velocities over a span, read
    * at a second.
    */

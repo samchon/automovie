@@ -9,40 +9,45 @@ import type {
 
 import { HumanHandover } from "./HumanHandover";
 
-/**
+/*
  * The turn about the world's up an upright carry takes along a path
  * (`HumanHandover.upright`): the turn chosen at instants no more than
  * `HumanHandover.STEP` apart by the tip each posture leaves, the request each
  * instant's yaw is fitted on, and the tip measure itself.
  */
 export namespace HumanHandoverUpright {
-  /**
+  /*
    * One instant of a carry: the posture with every goal but the acting hand's
    * rotation, and that rotation at a yaw.
    */
   export interface IFrame {
-    /** The posture at the instant, every goal but the acting hand's. */
+    /*
+     * The posture at the instant, every goal but the acting hand's.
+     */
     posture: IAutoMovieMotionHumanPosture;
 
-    /** The acting hand's goal without its rotation. */
+    /*
+     * The acting hand's goal without its rotation.
+     */
     goal: Omit<IAutoMovieHumanLimbGoal, "rotation">;
 
-    /** The acting hand's world rotation at a turn about the world's up. */
+    /*
+     * The acting hand's world rotation at a turn about the world's up.
+     */
     rotation: (yaw: number) => IAutoMovieQuaternion;
   }
 
-  /**
+  /*
    * The turn of an upright carry along a path, as `HumanHandover.upright`
    * documents it.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @param at The posture at a second with the hand turned by a yaw, degrees.
-   * @param from The path's first second.
-   * @param to The path's last second.
-   * @param ends The turns at the two ends, degrees; a missing last end is
-   *   chosen as the instants between are.
-   * @returns The turn at a second, degrees.
+   * Parameter body: The body.
+   * Parameter side: The hand.
+   * Parameter at: The posture at a second with the hand turned by a yaw, degrees.
+   * Parameter from: The path's first second.
+   * Parameter to: The path's last second.
+   * Parameter ends: The turns at the two ends, degrees; a missing last end is
+   * chosen as the instants between are.
+   * Returns: The turn at a second, degrees.
    */
   export function ordinary(
     body: IAutoMovieMotionHumanBody,
@@ -62,14 +67,13 @@ export namespace HumanHandoverUpright {
     );
   }
 
-  /**
+  /*
    * The posture of an instant at a yaw: the acting arm's goal with its rotation
    * there, every other goal as the frame holds it.
-   *
-   * @param frame The instant.
-   * @param side The acting hand.
-   * @param yaw Degrees about world up.
-   * @returns The posture.
+   * Parameter frame: The instant.
+   * Parameter side: The acting hand.
+   * Parameter yaw: Degrees about world up.
+   * Returns: The posture.
    */
   export function posed(
     frame: IFrame,
@@ -82,14 +86,13 @@ export namespace HumanHandoverUpright {
     };
   }
 
-  /**
+  /*
    * How far a reached hand rotation tips what an asked upright rotation holds:
    * the angle the reached rotation's error from the asked one turns the world's
    * up through.
-   *
-   * @param asked The asked world hand rotation; absent when the goal asks none.
-   * @param reached The reached world hand rotation.
-   * @returns Degrees; infinite when either is absent.
+   * Parameter asked: The asked world hand rotation; absent when the goal asks none.
+   * Parameter reached: The reached world hand rotation.
+   * Returns: Degrees; infinite when either is absent.
    */
   export function angle(
     asked: IAutoMovieQuaternion | undefined,
@@ -113,7 +116,9 @@ export namespace HumanHandoverUpright {
   }
 }
 
-/** The acting arm's goal with its rotation at a yaw. */
+/*
+ * The acting arm's goal with its rotation at a yaw.
+ */
 function goalOf(
   frame: HumanHandoverUpright.IFrame,
   yaw: number,
@@ -122,20 +127,20 @@ function goalOf(
   return { point, rotation: frame.rotation(yaw), ...rest };
 }
 
-/**
+/*
  * Degrees of tip a turn costs per degree it changes from the instant before
  * (provisional: a tenth, so a change of one 15-degree step is worth 1.5 degrees
  * of tip, holding the turn steady where the tips are close).
  */
 const HOLD: number = 0.1;
 
-/**
+/*
  * Cost differences below this are ties, kept by the earlier, nearer turn:
  * degrees, far below a fit's resolution.
  */
 const TIE: number = 1e-9;
 
-/**
+/*
  * The turn at each instant no more than `STEP` apart, least tip plus `HOLD` per
  * degree of change first, interpolated between.
  */
@@ -177,7 +182,7 @@ function chosen(
   return interpolate(from, times, turns);
 }
 
-/**
+/*
  * The turn at a second: the first end's before the path, the last instant's
  * after it, linear between instants.
  */

@@ -38,7 +38,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { baseballGroundBall } from "./baseballGroundBall";
 
-/**
+/*
  * Baseball and softball positions without the bat's swing or the pitch : the
  * catcher's crouch, fielding a ground ball, and the batting stance with its
  * load. The glove hand is the left; no glove or bat is held.
@@ -68,10 +68,14 @@ import { baseballGroundBall } from "./baseballGroundBall";
  * the windmill pitch, the catcher's throw and base running slides.
  */
 export namespace AutoMovieMotionHumanBaseball {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "baseball";
 
-  /** Cancel table. */
+  /*
+   * Cancel table.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
@@ -79,43 +83,42 @@ export namespace AutoMovieMotionHumanBaseball {
       run: ["fromRelax", "quick"],
     });
 
-  /**
+  /*
    * How far ahead of the chest the catcher presents the glove, arm lengths
    * (provisional).
    */
   export const PRESENT: number = 0.6;
 
-  /**
+  /*
    * How far ahead of the shoulders the fielder's glove meets the floor, arm
    * lengths (provisional).
    */
   export const AHEAD: number = 0.3;
 
-  /**
+  /*
    * The share of the straight arm's length from the fielder's shoulder to the
    * glove's wrist (provisional): the elbow a little soft.
    */
   export const REACH: number = 0.95;
 
-  /**
+  /*
    * The most a fielder's trunk inclines, degrees: the top of the search for the
    * ground ball's inclination.
    */
   export const INCLINED: number = 130;
 
-  /**
+  /*
    * How far ahead of the right shoulder the batter's fists hold the handle, arm
    * lengths (provisional): the elbows fold no closer than their flexion range.
    */
   export const HANDS: number = 0.45;
 
-  /**
+  /*
    * A baseball action's timetable: 0.8 s to get ready, a 0.3 s attack, the hold
    * and a 0.8 s return, the manner's timing applied.
-   *
-   * @param hold The held seconds.
-   * @param modifiers The manner's timing.
-   * @returns The clock.
+   * Parameter hold: The held seconds.
+   * Parameter modifiers: The manner's timing.
+   * Returns: The clock.
    */
   export function timetable(
     hold: number,
@@ -132,12 +135,11 @@ export namespace AutoMovieMotionHumanBaseball {
     );
     return clock;
   }
-  /**
+  /*
    * Plan a baseball position.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the hold is negative.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBaseball.IParams>,
@@ -196,7 +198,9 @@ export namespace AutoMovieMotionHumanBaseball {
         pitch,
         ...(legs === undefined ? {} : { legs }),
       });
-    /** Build a placed arm over the prepared baseball clock. */
+    /*
+     * Build a placed arm over the prepared baseball clock.
+     */
     const placed: (
       side: AutoMovieHumanSide,
       place: IAutoMovieMotionHumanPlaced.IArm["place"],

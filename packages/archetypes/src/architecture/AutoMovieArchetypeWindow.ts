@@ -14,17 +14,19 @@ import {
 } from "../core/index";
 import { ADA_RANGES } from "./constants/ADA_RANGES";
 
-/** Window sizes, for which no standard was read. */
+/*
+ * Window sizes, for which no standard was read.
+ */
 const SIZE: string = "window opening size, not read at a source";
 
-/**
+/*
  * The sill band between the residential and the commercial fall-protection
  * triggers.
  */
 const SILL: string =
   "sill below the 36 in (914 mm) at which IBC 2021 1015.8 requires fall protection (https://up.codes/s/window-openings) and above the 24 in of IRC R312.2.1, which was not read";
 
-/**
+/*
  * Authored sash construction, metres; these are geometry conventions, not
  * measured window specifications.
  */
@@ -339,7 +341,9 @@ export function create(
     mass: "kg",
   };
 
-  /** The bands every window shares. */
+  /*
+   * The bands every window shares.
+   */
   const SHARED: Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>> =
     {
       width: AutoMovieArchetypeBand.metres(0.6, 1.2, SIZE, true),
@@ -359,7 +363,9 @@ export function create(
       ),
     };
 
-  /** The band of a handle that stands at a height of its own, on a stile. */
+  /*
+   * The band of a handle that stands at a height of its own, on a stile.
+   */
   const HANDLE: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
     0.95,
     ADA_RANGES.reach.high,

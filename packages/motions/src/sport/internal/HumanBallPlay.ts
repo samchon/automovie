@@ -12,19 +12,19 @@ import type {
 import { HumanPerformanceRead } from "../../perform/internal/HumanPerformanceRead";
 import { HumanPropFlight } from "../../perform/internal/HumanPropFlight";
 
-/**
+/*
  * Sampling interval of a gate scan, seconds: 240 Hz, ten times a 24 fps film
  * frame.
  */
 const STEP: number = 1 / 240;
 
-/**
+/*
  * Bisection rounds closing a bracketed crossing: 2^-40 of one step, below 1e-14
  * s.
  */
 const ROUNDS: number = 40;
 
-/**
+/*
  * Read one ball's play from a placed performance and test it against the gates
  * a sport credits (a hoop, a goal mouth, a cup).
  *
@@ -34,12 +34,11 @@ const ROUNDS: number = 40;
  * for the first passage through a gate toward its credited side.
  */
 export namespace HumanBallPlay {
-  /**
+  /*
    * The ball's holds, launches and contacts in film order.
-   *
-   * @param self The placed performance.
-   * @param ball Scene subject id of the ball.
-   * @returns The play; empty events for a ball never held or launched.
+   * Parameter self: The placed performance.
+   * Parameter ball: Scene subject id of the ball.
+   * Returns: The play; empty events for a ball never held or launched.
    */
   export function read(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -125,7 +124,7 @@ export namespace HumanBallPlay {
     return { ball, events };
   }
 
-  /**
+  /*
    * The first film second in a window at which a point fixed in the ball's
    * frame passes through a gate toward its credited side.
    *
@@ -134,18 +133,17 @@ export namespace HumanBallPlay {
    * crossing counts when it lies inside the gate. A ball that enters and leaves
    * the plane within one interval is not seen, which at 240 Hz needs a reversal
    * within about 4 ms.
-   *
-   * @param performance The placed performance.
-   * @param ball Scene subject id of the ball.
-   * @param gate The gate.
-   * @param from First film second of the window.
-   * @param to Last film second of the window.
-   * @param offset The tested point in the ball's frame, metres: its centre for
-   *   a sphere; the frame origin when absent.
-   * @returns The crossing, or undefined when the ball does not pass the gate in
-   *   the window.
-   * @throws {RangeError} For a malformed window, a non-unit normal, or a
-   *   rectangle whose up is not in its plane.
+   * Parameter performance: The placed performance.
+   * Parameter ball: Scene subject id of the ball.
+   * Parameter gate: The gate.
+   * Parameter from: First film second of the window.
+   * Parameter to: Last film second of the window.
+   * Parameter offset: The tested point in the ball's frame, metres: its centre for
+   * a sphere; the frame origin when absent.
+   * Returns: The crossing, or undefined when the ball does not pass the gate in
+   * the window.
+   * For a malformed window, a non-unit normal, or a
+   * rectangle whose up is not in its plane.
    */
   export function crossing(
     performance: Pick<IAutoMovieMotionHumanPerformance, "prop">,
@@ -201,7 +199,9 @@ export namespace HumanBallPlay {
     return undefined;
   }
 
-  /** Whether a point on the gate plane lies inside the gate's region. */
+  /*
+   * Whether a point on the gate plane lies inside the gate's region.
+   */
   function inside(
     gate: IAutoMovieMotionHumanBallPlay.Gate,
     at: IAutoMovieVector3,
@@ -220,7 +220,9 @@ export namespace HumanBallPlay {
     );
   }
 
-  /** A flight or leg contact as a play event. */
+  /*
+   * A flight or leg contact as a play event.
+   */
   function contact(
     seconds: number,
     met: IAutoMovieMotionHumanPropFlight.IContact,
@@ -234,7 +236,9 @@ export namespace HumanBallPlay {
     };
   }
 
-  /** An event's first film second. */
+  /*
+   * An event's first film second.
+   */
   function start(event: IAutoMovieMotionHumanBallPlay.Event): number {
     return event.kind === "hold" ? event.from : event.seconds;
   }

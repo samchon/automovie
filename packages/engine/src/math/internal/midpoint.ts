@@ -1,4 +1,4 @@
-/**
+/*
  * Binary64 midpoint of two finite coordinates, preserving the ordinary
  * summed-half expression whenever its sum is representable.
  *

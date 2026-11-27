@@ -6,7 +6,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Derive the drawable free surface of one solved fluid state.
  *
  * Numerical mesh derivation belongs to the engine; the viewer copies these
@@ -100,7 +100,7 @@ export function fluidSurfaceGeometry(
       );
     }
 
-  /**
+  /*
    * Constant-work quad-corner predicate on borrowed admitted arrays; solidity
    * must be exactly false and depth exceed the solver's dry threshold. No extra
    * renderer cutoff or retained state is introduced.

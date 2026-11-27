@@ -15,7 +15,7 @@ import { HumanSupportCarry } from "../../carrier/internal/HumanSupportCarry";
 import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 
-/**
+/*
  * Plan a walk that starts bearing on a fixed level prop as the floor gait at
  * that prop's height. The entry's loaded soles give the height
  * (`HumanSupportFrame.floor`), less the height a flat foot's sole sockets stand
@@ -23,11 +23,10 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
  * from there, and every posture it writes is raised back, so the steps bear on
  * the top the walk began on. A walk that boards a prop from the floor, rides a
  * moving or sloped one, or starts on the floor plans unchanged.
- *
- * @param context The walk's context in world metres.
- * @param subject The prop the walk is `on`.
- * @param plan The floor gait's planner.
- * @returns The gait at the entry's level.
+ * Parameter context: The walk's context in world metres.
+ * Parameter subject: The prop the walk is `on`.
+ * Parameter plan: The floor gait's planner.
+ * Returns: The gait at the entry's level.
  */
 export function walkLevelSupport(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWalkParams>,

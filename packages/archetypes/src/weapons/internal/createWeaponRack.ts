@@ -3,7 +3,7 @@ import { Vector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
-/**
+/*
  * A floor weapon rack: a base with a row of slots and a top rail with a notch
  * over each, where swords, clubs and bats stand upright.
  *
@@ -14,13 +14,12 @@ import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSe
  * barrel, a club's tip) rests; `rail1` to `rail6` the notch above it in the top
  * rail's front, facing `+Z`, against which the weapon leans. A weapon set in a
  * slot keeps its own `grip` for a hand to reach.
- *
- * @param params The model and any dimension the author fixes.
- * @param seed The seed that picks the model left free and draws the mass inside
- *   its band; absent, the first model and the middle of the band.
- * @returns The rack.
- * @throws {AutoMovieArchetypeRefusal} For a model not read, a fixed mass
- *   outside its band, or a fixed dimension the model gives.
+ * Parameter params: The model and any dimension the author fixes.
+ * Parameter seed: The seed that picks the model left free and draws the mass inside
+ * its band; absent, the first model and the middle of the band.
+ * Returns: The rack.
+ * For a model not read, a fixed mass
+ * outside its band, or a fixed dimension the model gives.
  */
 export function createWeaponRack(
   params: AutoMovieArchetypeWeaponRack.IParams = {},

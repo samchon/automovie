@@ -57,16 +57,22 @@ export class AutoMovieDrawPlacement {
   ): Promise<IAutoMovieInspectionHandle> {
     return replaceAutoMovieDrawInspectionImplementation(props);
   }
-  /** The current inspection, or null when none is applied. */
+  /*
+   * The current inspection, or null when none is applied.
+   */
   private applied_: IAutoMovieInspectionHandle | null = null;
 
-  /** Framing boxes, one per view text, selection and span of seconds. */
+  /*
+   * Framing boxes, one per view text, selection and span of seconds.
+   */
   private readonly framings_: Map<
     string,
     IAutoMovieViewerSubjectBounds | null
   > = new Map();
 
-  /** The dialogue mouths handed to the subject, which record what it reads. */
+  /*
+   * The dialogue mouths handed to the subject, which record what it reads.
+   */
   private spoken_: AutoMovieDialogueMouthRecorder | null = null;
 
   /**
@@ -153,7 +159,7 @@ export class AutoMovieDrawPlacement {
     return union;
   }
 
-  /**
+  /*
    * The subject placed at a second, with its own marks and the trails the
    * request asks for there.
    */
@@ -196,7 +202,9 @@ export class AutoMovieDrawPlacement {
   }
 }
 
-/** The smallest box holding two boxes, either of which may be absent. */
+/*
+ * The smallest box holding two boxes, either of which may be absent.
+ */
 function unite(
   a: IAutoMovieViewerSubjectBounds | null,
   b: IAutoMovieViewerSubjectBounds | null,

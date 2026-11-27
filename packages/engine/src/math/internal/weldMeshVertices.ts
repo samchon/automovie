@@ -2,7 +2,7 @@ import type { IAutoMovieWeldMeshVertices } from "@automovie/interface";
 
 import { MESH_WELD_GRID } from "../../constants/MESH_WELD_GRID";
 
-/**
+/*
  * Intern finite XYZ tuples in first-occurrence order using nanometre
  * topology-grid identity. Invalid tuple cardinality, holes and nonfinite
  * coordinates throw. Safe rounded grid indexes keep their integer labels and

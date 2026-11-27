@@ -21,7 +21,7 @@ import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
 import { resolvePreparedChainLower } from "./resolvePreparedChainLower";
 import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
 
-/**
+/*
  * The bend-plane fit of `fitSeededChainToTarget`, before its effector is
  * oriented, with the seed of its hinged candidate when that candidate is the
  * answer: the hinged swivel candidate first when the mid joint is a hinge, then
@@ -29,13 +29,12 @@ import { solvePreparedChainPlant } from "./solvePreparedChainPlant";
  * candidates ranked by their clamped residual's bucket
  * (`PLANT_RESIDUAL_EPSILON`), then their turn from the reference pose, then the
  * exact residual.
- *
- * @param props The current model-metre target with this workspace's unchanged
- *   source fields; its point stays unchanged through this synchronous search.
- * @param workspace The matching unchanged source request and its scoped
- *   invariant data.
- * @returns The fitted pose and its hinged seed; failed preparation or analytic
- *   admission keeps the source pose with no seed.
+ * Parameter props: The current model-metre target with this workspace's unchanged
+ * source fields; its point stays unchanged through this synchronous search.
+ * Parameter workspace: The matching unchanged source request and its scoped
+ * invariant data.
+ * Returns: The fitted pose and its hinged seed; failed preparation or analytic
+ * admission keeps the source pose with no seed.
  */
 export function fitChainBend(
   props: IAutoMovieFitChainToTargetProps,
@@ -286,10 +285,12 @@ export function fitChainBend(
   return { pose: plantPose(props, workspace, best), seed: null };
 }
 
-/** Existing squared-radian equality threshold for stopping an exact-pin search. */
+/*
+ * Existing squared-radian equality threshold for stopping an exact-pin search.
+ */
 const PLANT_CONTINUITY_EPSILON: number = 1e-12;
 
-/**
+/*
  * The original exact-pin stopping rule, evaluated from the current best after
  * each candidate.
  */
@@ -304,19 +305,23 @@ function canFinish(
   );
 }
 
-/** Residual and continuity keys under the solver's existing lexicographic order. */
+/*
+ * Residual and continuity keys under the solver's existing lexicographic order.
+ */
 interface IPlantCandidateScore {
-  /** Actual target distance after rig-ROM clamping, model metres. */
+  /*
+   * Actual target distance after rig-ROM clamping, model metres.
+   */
   residual: number;
 
-  /**
+  /*
    * Lazy actual squared-radian turn; only an equal residual bucket can rank by
    * it.
    */
   continuity(): number;
 }
 
-/**
+/*
  * Best actual source or clamped joint pair, without copying unused intermediate
  * pose arrays.
  */
@@ -326,7 +331,7 @@ type IPlantCandidate = IPlantCandidateScore &
     | { kind: "fitted"; upper: IAutoMovieJointPose; lower: IAutoMovieJointPose }
   );
 
-/**
+/*
  * Only the final selected clamped pair needs the source's ordered
  * unrelated-joint prefix.
  */
@@ -340,18 +345,26 @@ function plantPose(
     : workspace.pose(candidate.upper, candidate.lower);
 }
 
-/** Bend-plane parameter beside the contact/continuity scores it produced. */
+/*
+ * Bend-plane parameter beside the contact/continuity scores it produced.
+ */
 interface IPlantBendCandidate extends IPlantCandidateScore {
-  /** Bend-plane angle around the current reach axis, radians. */
+  /*
+   * Bend-plane angle around the current reach axis, radians.
+   */
   angle: number;
 }
 
-/** Place actual model-metre residual in the existing pin-accuracy bucket. */
+/*
+ * Place actual model-metre residual in the existing pin-accuracy bucket.
+ */
 const plantResidualBucket: (residual: number) => number = (
   residual: number,
 ): number => Math.floor(residual / PLANT_RESIDUAL_EPSILON);
 
-/** Residual buckets are ordered first; continuity breaks equivalent pins. */
+/*
+ * Residual buckets are ordered first; continuity breaks equivalent pins.
+ */
 const comparePlantCandidate: (
   left: IPlantCandidateScore,
   right: IPlantCandidateScore,
@@ -368,16 +381,15 @@ const comparePlantCandidate: (
     : continuityOrder;
 };
 
-/**
+/*
  * The bend-plane normal that displaces the mid joint toward a hint: the hint's
  * component across the root-to-target axis, crossed as the analytic default
  * crosses world-down (`axis x pole`). A hint on the axis gives no plane, so the
  * default is used.
- *
- * @param root The chain root, model metres.
- * @param target The effector target, model metres.
- * @param bend The hint, model metres.
- * @returns The unit normal, or undefined when the hint lies on the axis.
+ * Parameter root: The chain root, model metres.
+ * Parameter target: The effector target, model metres.
+ * Parameter bend: The hint, model metres.
+ * Returns: The unit normal, or undefined when the hint lies on the axis.
  */
 function hintNormal(
   root: IAutoMovieVector3,

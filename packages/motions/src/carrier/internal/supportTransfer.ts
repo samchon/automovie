@@ -27,7 +27,7 @@ import { HumanSupportCarry } from "./HumanSupportCarry";
 import { HumanSupportFrame } from "./HumanSupportFrame";
 import { checkSupportTransferDock } from "./checkSupportTransferDock";
 
-/**
+/*
  * Plan one staged, level boarding transfer. LA Metro asks passengers to wait
  * for a complete stop before boarding
  * (https://www.metro.net/riding/how-to-ride-metro-rail/). Stationary docking is
@@ -42,12 +42,11 @@ import { checkSupportTransferDock } from "./checkSupportTransferDock";
  * projected gap, 0.45 hip heights of ankle travel and a 65 mm lift. Articulated
  * surfaces, unsampled track excursions and obstacles between the supports
  * require a broader law.
- *
- * @param context A standing entry and the declared prop readers on the film
- *   clock.
- * @returns One posture plan with four foot contact windows.
- * @throws {HumanRefusal} When the entry, surfaces, docking or short-step bounds
- *   do not admit a transfer.
+ * Parameter context: A standing entry and the declared prop readers on the film
+ * clock.
+ * Returns: One posture plan with four foot contact windows.
+ * When the entry, surfaces, docking or short-step bounds
+ * do not admit a transfer.
  */
 export function supportTransfer(
   context: Pick<
@@ -329,15 +328,21 @@ export function supportTransfer(
   };
 }
 
-/** Authoring admission before reading the two displayed support trajectories. */
+/*
+ * Authoring admission before reading the two displayed support trajectories.
+ */
 export namespace supportTransfer {
-  /** Time and named endpoints of an authored two-step transfer. */
+  /*
+   * Time and named endpoints of an authored two-step transfer.
+   */
   export type IAdmission = Pick<
     IAutoMovieMotionHumanSupportTransfer,
     "seconds" | "docking" | "from" | "to"
   >;
 
-  /** Require a bounded two-step interval between distinct props. */
+  /*
+   * Require a bounded two-step interval between distinct props.
+   */
   export function admit(params: IAdmission): void {
     if (!(params.seconds >= 1.2 && params.seconds <= 3))
       refuse(
@@ -367,32 +372,56 @@ export namespace supportTransfer {
   }
 }
 
-/** The alternatives of `SupportTransferContext`'s site. */
+/*
+ * The alternatives of `SupportTransferContext`'s site.
+ */
 type SupportTransferContext = "body" | "entry" | "params" | "prop" | "start";
-/** The alternatives of `SurfaceAxis`'s site. */
+/*
+ * The alternatives of `SurfaceAxis`'s site.
+ */
 type SurfaceAxis = "from" | "to";
 
-/** A rigid, unarticulated rectangle and its evaluated dock frame. */
+/*
+ * A rigid, unarticulated rectangle and its evaluated dock frame.
+ */
 interface Surface {
-  /** The parameter naming this rectangle. */
+  /*
+   * The parameter naming this rectangle.
+   */
   axis: SurfaceAxis;
-  /** The live prop reader. */
+  /*
+   * The live prop reader.
+   */
   frame(seconds: number): IAutoMovieRigidTransform;
-  /** The prop's baseline frame at the start. */
+  /*
+   * The prop's baseline frame at the start.
+   */
   propFrame: IAutoMovieRigidTransform;
-  /** The surface's start origin in world metres. */
+  /*
+   * The surface's start origin in world metres.
+   */
   origin: IAutoMovieVector3;
-  /** The surface's start orientation. */
+  /*
+   * The surface's start orientation.
+   */
   rotation: IAutoMovieRigidTransform["rotation"];
-  /** Half-width along the surface's X axis, metres. */
+  /*
+   * Half-width along the surface's X axis, metres.
+   */
   x: number;
-  /** Half-depth along the surface's Z axis, metres. */
+  /*
+   * Half-depth along the surface's Z axis, metres.
+   */
   z: number;
 }
-/** The alternatives of `SurfaceAxis2`'s site. */
+/*
+ * The alternatives of `SurfaceAxis2`'s site.
+ */
 type SurfaceAxis2 = "from" | "to";
 
-/** Read a named level rectangle rigidly attached to its prop. */
+/*
+ * Read a named level rectangle rigidly attached to its prop.
+ */
 function surface(
   reader: IAutoMovieMotionHumanPropReader,
   target: IAutoMovieMotionHumanSupportTransfer.ISurface,
@@ -439,12 +468,16 @@ function surface(
   };
 }
 
-/** Place a surface-local metre point in the dock's world frame. */
+/*
+ * Place a surface-local metre point in the dock's world frame.
+ */
 function point(s: Surface, local: IAutoMovieVector3): IAutoMovieVector3 {
   return Vector3.add(s.origin, Quaternion.rotateVector(s.rotation, local));
 }
 
-/** Project the rectangle's four corners onto the direction of crossing. */
+/*
+ * Project the rectangle's four corners onto the direction of crossing.
+ */
 function projection(s: Surface, direction: IAutoMovieVector3): number[] {
   return [-s.x, s.x].flatMap((x: number): number[] =>
     [-s.z, s.z].map((z: number): number =>
@@ -452,7 +485,9 @@ function projection(s: Surface, direction: IAutoMovieVector3): number[] {
     ),
   );
 }
-/** Check a sole point's horizontal membership in the rectangle. */
+/*
+ * Check a sole point's horizontal membership in the rectangle.
+ */
 function contains(s: Surface, position: IAutoMovieVector3): boolean {
   const local: IAutoMovieVector3 = Quaternion.rotateVector(
     Quaternion.inverse(s.rotation),
@@ -461,7 +496,9 @@ function contains(s: Surface, position: IAutoMovieVector3): boolean {
   return Math.abs(local.x) <= s.x + 1e-6 && Math.abs(local.z) <= s.z + 1e-6;
 }
 
-/** Declare a fixed foot contact in its bearing prop's frame. */
+/*
+ * Declare a fixed foot contact in its bearing prop's frame.
+ */
 function plant(
   side: AutoMovieHumanSide,
   from: number,
@@ -477,12 +514,16 @@ function plant(
   };
 }
 
-/** Progress within an individual swing or load transfer. */
+/*
+ * Progress within an individual swing or load transfer.
+ */
 function progress(share: number, from: number, to: number): number {
   return AutoMovieMotionInterval.progress(from, to, share);
 }
 
-/** Report the failed boarding premise in the action's existing refusal form. */
+/*
+ * Report the failed boarding premise in the action's existing refusal form.
+ */
 function refuse(
   axis: string,
   value: unknown,

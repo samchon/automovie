@@ -16,7 +16,7 @@ import { Vector3 } from "../../math/Vector3";
 import { sampleTimes } from "../../motion/internal/sampleTimes";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 
-/**
+/*
  * Sweep one camera take's body and optional parent-rig spheres over every
  * adjacent pair of samples and report each contact with each obstacle.
  *
@@ -38,14 +38,13 @@ import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
  *
  * Findings are ordered by interval, then body before parent rig, then obstacle
  * id in UTF-16 code-unit order, so every host reports the same sequence.
- *
- * @param input - Complete current-revision camera and obstacle sample plan.
- * @returns The take's report: `clear` with no findings, `blocked` with each
- *   contact's part, obstacle and inclusive interval, or `stale`.
- * @throws Error when the sample rate or duration is invalid, when the samples
- *   omit a fixed-clock instant, leave `[0, duration]` or are not strictly
- *   increasing, or when a box is non-finite or inverted, an obstacle id repeats
- *   within a sample, or the obstacle id set changes between samples.
+ * Parameter input: - Complete current-revision camera and obstacle sample plan.
+ * Returns: The take's report: `clear` with no findings, `blocked` with each
+ * contact's part, obstacle and inclusive interval, or `stale`.
+ * Error when the sample rate or duration is invalid, when the samples
+ * omit a fixed-clock instant, leave `[0, duration]` or are not strictly
+ * increasing, or when a box is non-finite or inverted, an obstacle id repeats
+ * within a sample, or the obstacle id set changes between samples.
  */
 export function evaluateCameraClearance(
   input: IAutoMovieCameraClearanceEvaluation,
@@ -167,7 +166,9 @@ export function evaluateCameraClearance(
   };
 }
 
-/** Reject an inverted box. */
+/*
+ * Reject an inverted box.
+ */
 function assertBox(
   box: IAutoMovieEvaluateCameraClearanceBox,
   path: string,
@@ -176,7 +177,9 @@ function assertBox(
     throw new Error(`${path} minimum must not exceed maximum`);
 }
 
-/** The smallest box holding both endpoint boxes of one obstacle. */
+/*
+ * The smallest box holding both endpoint boxes of one obstacle.
+ */
 function unionBoxes(
   first: IAutoMovieEvaluateCameraClearanceBox,
   second: IAutoMovieEvaluateCameraClearanceBox,
@@ -195,7 +198,7 @@ function unionBoxes(
   };
 }
 
-/**
+/*
  * Grow a box by a radius on every side, the box a sphere centre must enter to
  * touch it; this over-covers the rounded corners, which keeps it conservative.
  */
@@ -217,7 +220,7 @@ function inflateBox(
   };
 }
 
-/**
+/*
  * Inclusive segment/box slab test. Equality is collision: a camera body that
  * merely touches a wall or support has no physical clearance.
  */
@@ -244,7 +247,9 @@ function segmentIntersectsBox(
   return true;
 }
 
-/** Camera-local sphere centre carried into one resolved camera state. */
+/*
+ * Camera-local sphere centre carried into one resolved camera state.
+ */
 function sphereCenter(
   transform: IAutoMovieTransform,
   center: IAutoMovieVector3,
@@ -259,7 +264,7 @@ function sphereCenter(
   );
 }
 
-/**
+/*
  * Extra radius covering the arc a rotated local centre sweeps between two
  * camera states: the sagitta `r(1 - cos(θ/2))` of the shortest-path rotation
  * angle `θ`, which is the largest gap between a constant-speed arc point and
@@ -292,7 +297,9 @@ function rotationArcMargin(
   return maximumOffset * (1 - Math.cos(angle / 2));
 }
 
-/** Map a sample's obstacles by id, refusing a repeated id or a bad box. */
+/*
+ * Map a sample's obstacles by id, refusing a repeated id or a bad box.
+ */
 function obstaclesByNode(
   sample: IAutoMovieCameraClearanceSample,
   sampleIndex: number,

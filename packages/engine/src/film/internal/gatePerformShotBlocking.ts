@@ -10,7 +10,7 @@ import {
 import { performShotActionSpan } from "./performShotActionSpan";
 import { performShotActors } from "./performShotActors";
 
-/**
+/*
  * Refuse a performance that does not realize the beat's blocking.
  *
  * When the pipeline blocked the beat, the performance must play that plan and
@@ -20,11 +20,10 @@ import { performShotActors } from "./performShotActors";
  * by the first frame move, its framing and its move. Without a frame move, only
  * a `static` intent is honoured, by the locked-off camera. Each failure is one
  * violation at the field that disagrees.
- *
- * @param context The shot's staged tables and collector.
- * @param blocking The beat's validated blocking.
- * @param stageActions The non-`frame` actions, before any injected recoil.
- * @param frames The frame jobs, already sorted by start.
+ * Parameter context: The shot's staged tables and collector.
+ * Parameter blocking: The beat's validated blocking.
+ * Parameter stageActions: The non-`frame` actions, before any injected recoil.
+ * Parameter frames: The frame jobs, already sorted by start.
  */
 export function gatePerformShotBlocking(
   context: IAutoMovieEnginePerformShotGateContext,

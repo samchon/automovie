@@ -5,18 +5,17 @@ import { ArchetypeDraw, type AutoMovieArchetype } from "../../core/index";
 import { StageShaftConstruction } from "./StageShaftConstruction";
 
 
-/**
+/*
  * Padded shaft stage prop.
  *
  * A digital upright shaft with a solid padded outline and one primary grip for
  * actor posing.
- *
- * @param params The scene identity and optional total display height in metres,
- *   with a choice of profile.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter params: The scene identity and optional total display height in metres,
+ * with a choice of profile.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function createStageShaftProp(
   params: AutoMovieArchetypeStageShaftProp.IParams,

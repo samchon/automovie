@@ -20,7 +20,7 @@ import type { humanPolygonMan } from "../internal/humanPolygonMan";
 import { handoverCases } from "./handoverCases";
 import { handshakeCases } from "./handshakeCases";
 
-/**
+/*
  * Capture cases of the handling laws on the polygon man, for what the numeric
  * tests cannot show: whether a reach reads as reaching for a hand, whether the
  * fingers wrap the partner's hand, and whether the pump reads.
@@ -52,10 +52,9 @@ import { handshakeCases } from "./handshakeCases";
  *   jump of the bottle, the receiver's hold within 1 mm, no hand or forearm
  *   interpenetration beyond 10 mm (`HandOverlap`), ankle slip and the range of
  *   motion.
- *
- * @param family One case family (`handshake`, `grasp`, `handover`) or all when
- *   absent.
- * @returns The cases.
+ * Parameter family: One case family (`handshake`, `grasp`, `handover`) or all when
+ * absent.
+ * Returns: The cases.
  */
 export function handlingCases(
   family?: HandlingCasesFamily,
@@ -427,5 +426,7 @@ export function handlingCases(
   return out;
 }
 
-/** The alternatives of `HandlingCasesFamily`'s site. */
+/*
+ * The alternatives of `HandlingCasesFamily`'s site.
+ */
 type HandlingCasesFamily = "handshake" | "grasp" | "handover";

@@ -284,7 +284,9 @@ export namespace AutoMovieSeamStation {
   }
 }
 
-/** Horizontal plane at a station, the default of an unframed layer. */
+/*
+ * Horizontal plane at a station, the default of an unframed layer.
+ */
 function horizontal(y: number): IAutoMovieLoftSectionFrame {
   return { origin: [0, y, 0], u: [1, 0, 0], v: [0, 0, 1] };
 }

@@ -12,7 +12,7 @@ import { AutoMovieEngineMeshCrossingQuery } from "../AutoMovieEngineMeshCrossing
 import { placeAutoMovieModelPartMesh } from "./placeAutoMovieModelPartMesh";
 import { realizeAutoMovieGeometry } from "./realizeAutoMovieGeometry";
 
-/**
+/*
  * Report every pair of a model's mesh parts whose surfaces cross, measured
  * where the parts actually sit in the model's frame.
  *
@@ -45,10 +45,9 @@ import { realizeAutoMovieGeometry } from "./realizeAutoMovieGeometry";
  * edge or corner without folding are touching. Throws, naming the part, on a
  * mesh part whose index buffer is malformed, and passes on the crossing
  * measure's own refusals.
- *
- * @param model A built model, whatever composed it.
- * @param options `withinParts` also counts each part against itself.
- * @returns One entry per crossing pair, empty when nothing crosses.
+ * Parameter model: A built model, whatever composed it.
+ * Parameter options: `withinParts` also counts each part against itself.
+ * Returns: One entry per crossing pair, empty when nothing crosses.
  */
 export function measureAutoMovieModelCrossings(
   model: IAutoMovieModel,
@@ -117,22 +116,34 @@ export function measureAutoMovieModelCrossings(
   return contacts;
 }
 
-/** One mesh part in the model frame with its box. */
+/*
+ * One mesh part in the model frame with its box.
+ */
 interface IPlacedPart {
-  /** Part id. */
+  /*
+   * Part id.
+   */
   id: string;
 
-  /** The part's mesh with positions in the model frame. */
+  /*
+   * The part's mesh with positions in the model frame.
+   */
   mesh: IAutoMovieMesh;
 
-  /** Componentwise minimum of the placed positions. */
+  /*
+   * Componentwise minimum of the placed positions.
+   */
   low: number[];
 
-  /** Componentwise maximum of the placed positions. */
+  /*
+   * Componentwise maximum of the placed positions.
+   */
   high: number[];
 }
 
-/** The componentwise extrema of a mesh's positions. */
+/*
+ * The componentwise extrema of a mesh's positions.
+ */
 const bounds: (mesh: IAutoMovieMesh) => {
   low: number[];
   high: number[];

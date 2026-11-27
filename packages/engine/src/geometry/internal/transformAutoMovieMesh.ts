@@ -11,10 +11,12 @@ import { Vector3 } from "../../math/Vector3";
 import { resolveAutoMovieMeshPhysicalVertices } from "../../math/internal/resolveAutoMovieMeshPhysicalVertices";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
-/** Largest admitted distance of a placement rotation's norm from one. */
+/*
+ * Largest admitted distance of a placement rotation's norm from one.
+ */
 const UNIT_QUATERNION_EPSILON: number = 1e-6;
 
-/**
+/*
  * Place a rigid mesh by translation, unit quaternion, and per-axis scale.
  *
  * Positions take the full placement, normals take the inverse transpose (so a
@@ -30,7 +32,7 @@ const UNIT_QUATERNION_EPSILON: number = 1e-6;
  *
  * That is what makes a placed member's coordinates local rather than global,
  * and it is the one thing to know before rotating an atlas-bearing member.
- * {@link buildAutoMoviePolyhedron} decides each face's frame from world up in
+ * buildAutoMoviePolyhedron decides each face's frame from world up in
  * the frame the mesh was built in, so a panel built upright and then laid down
  * by a rotation keeps the upright face's frame while presenting a level face.
  * Build the member in the orientation it will be seen in, or accept that its
@@ -51,15 +53,14 @@ const UNIT_QUATERNION_EPSILON: number = 1e-6;
  * Author an atlas-bearing member at the size it will be seen at and place it
  * with translation and rotation, or drop `coordinateSource` on it rather than
  * claiming metres a scale has already falsified.
- *
- * @param mesh Unskinned mesh in its local metre frame; never modified.
- * @param transform Placement, each field defaulting to identity.
- * @returns A new mesh whose arrays share nothing with the input; its index
- *   buffer is always present.
- * @throws Error when the mesh is skinned, its indices are incomplete or out of
- *   range, its physical correspondence is malformed before or after placement,
- *   a placement field is not finite, the rotation is not unit within 1e-6, or a
- *   scale component is zero.
+ * Parameter mesh: Unskinned mesh in its local metre frame; never modified.
+ * Parameter transform: Placement, each field defaulting to identity.
+ * Returns: A new mesh whose arrays share nothing with the input; its index
+ * buffer is always present.
+ * Error when the mesh is skinned, its indices are incomplete or out of
+ * range, its physical correspondence is malformed before or after placement,
+ * a placement field is not finite, the rotation is not unit within 1e-6, or a
+ * scale component is zero.
  */
 export const transformAutoMovieMesh: (
   mesh: IAutoMovieMesh,

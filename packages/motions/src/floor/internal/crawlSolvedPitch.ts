@@ -7,15 +7,14 @@ import type {
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { crawlPitch } from "./crawlPitch";
 
-/**
+/*
  * The trunk's pitch that puts the posed shoulders an arm at `ARM` of its length
  * over the wrists and the hip joints a thigh over the knees (`crawlPitch`),
  * with the bones it read.
  *
  * Part of `crawl.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `solved`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `solved`.
  */
 export function crawlSolvedPitch(
   prepared: crawlSolvedPitch.IPrepared,
@@ -30,23 +29,37 @@ export function crawlSolvedPitch(
   );
 }
 
-/** The `solved` of `crawl.plan`, built from what that plan prepared. */
+/*
+ * The `solved` of `crawl.plan`, built from what that plan prepared.
+ */
 export namespace crawlSolvedPitch {
-  /** What `crawl.plan` prepared for its `solved`. */
+  /*
+   * What `crawl.plan` prepared for its `solved`.
+   */
   export interface IPrepared {
-    /** The `body` `crawl.plan` prepared. */
+    /*
+     * The `body` `crawl.plan` prepared.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The `measured` `crawl.plan` prepared. */
+    /*
+     * The `measured` `crawl.plan` prepared.
+     */
     measured: IAutoMovieMotionHumanFrame;
 
-    /** The `hipY` `crawl.plan` prepared. */
+    /*
+     * The `hipY` `crawl.plan` prepared.
+     */
     hipY: number;
 
-    /** The `shoulderY` `crawl.plan` prepared. */
+    /*
+     * The `shoulderY` `crawl.plan` prepared.
+     */
     shoulderY: number;
 
-    /** The `posed` `crawl.plan` prepared. */
+    /*
+     * The `posed` `crawl.plan` prepared.
+     */
     posed: (
       share: number,
       degrees: number,

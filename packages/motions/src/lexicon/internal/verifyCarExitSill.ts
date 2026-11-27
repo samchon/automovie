@@ -12,7 +12,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContact";
 import { crossingClearance } from "../../terrain/internal/crossingClearance";
 
-/**
+/*
  * Admit the resolved toes, feet and shanks crossing the sill. Evaluate the
  * authored transition at its lift and lower knots and interior seconds.
  */
@@ -120,8 +120,12 @@ export function verifyCarExitSill(
     );
 }
 
-/** Position tolerance below the sill's top, metres. */
+/*
+ * Position tolerance below the sill's top, metres.
+ */
 const ALLOWANCE: number = 0.001;
 
-/** World up for an aperture whose author supplied no separate material. */
+/*
+ * World up for an aperture whose author supplied no separate material.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

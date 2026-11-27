@@ -40,7 +40,7 @@ export namespace AutoMovieHumanFootAchilles {
   }
 }
 
-/**
+/*
  * The tendon's plan law over its knots' heights (`AutoMovieHumanFootColumnLaw`):
  * the guide reads each knot at its own height on it.
  */
@@ -53,7 +53,9 @@ const LAW: Singleton<IAutoMovieHumanFootColumnLaw.IPlan> = new Singleton(
     ),
 );
 
-/** The tendon's knots along the midline, lowest first: `[a, u, eta]`. Reference median. */
+/*
+ * The tendon's knots along the midline, lowest first: `[a, u, eta]`. Reference median.
+ */
 const KNOTS: readonly (readonly [number, number, number])[] = [
   [0.0075, 0.44, 0.5],
   [0.024, 0.42, 0.7],

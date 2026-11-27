@@ -5,7 +5,7 @@ import { HumanBalance } from "../../everyday/internal/HumanBalance";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 
-/**
+/*
  * The course of the hips along a heading that keeps a body's extrapolated
  * centre of mass on a target while its feet move.
  *
@@ -22,26 +22,29 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
  * `solve` integrates that equation on a time grid, exactly for a target held
  * over each step, and at every knot finds the hips' place at which the solved
  * posture's whole-body centre of mass (the engine's segmental model through
- * {@link HumanBalance.prepareCentre}) stands on the filtered centre. The law
+ * HumanBalance.prepareCentre) stands on the filtered centre. The law
  * reads the course back by a cubic through the knots.
  */
 export namespace AutoMovieMotionHumanCourse {
-  /** Seconds between two knots of the course, half a film frame. */
+  /*
+   * Seconds between two knots of the course, half a film frame.
+   */
   export const STEP: number = 1 / 48;
 
-  /** Corrections of the hips' place per knot. */
+  /*
+   * Corrections of the hips' place per knot.
+   */
   export const CORRECTIONS: number = 2;
 
-  /**
+  /*
    * Solve a course.
-   *
-   * @param props The posture builder, the target and the span.
-   * @param through Last observable second on the same clock; defaults to the
-   *   original span end. The solve retains all predecessor knots and both
-   *   neighbours required by the last cubic. Reads after this instant return
-   *   its value.
-   * @returns The hips' place along the heading at a second, clamped to the
-   *   span; a span of no length holds its one solved place.
+   * Parameter props: The posture builder, the target and the span.
+   * Parameter through: Last observable second on the same clock; defaults to the
+   * original span end. The solve retains all predecessor knots and both
+   * neighbours required by the last cubic. Reads after this instant return
+   * its value.
+   * Returns: The hips' place along the heading at a second, clamped to the
+   * span; a span of no length holds its one solved place.
    */
   export function solve(
     props: IAutoMovieMotionHumanCourse.IProps,
@@ -105,18 +108,17 @@ export namespace AutoMovieMotionHumanCourse {
       : (seconds: number): number => at(Math.min(seconds, through));
   }
 
-  /**
+  /*
    * The course's cubic through its solved knots, bound outside the construction
    * scope so no posture, FK or ROM state is reachable from it: the knot
    * interval clamped to the span, Catmull-Rom slopes from the neighbouring
    * knots (the end knots repeated) and the cubic Hermite basis. A span of no
    * length has one place, held at every second.
-   *
-   * @param knots The hips' place at each knot, metres along the heading.
-   * @param count The intervals between the knots.
-   * @param dt The knots' spacing, seconds.
-   * @param from The span's first second.
-   * @returns The place at a second.
+   * Parameter knots: The hips' place at each knot, metres along the heading.
+   * Parameter count: The intervals between the knots.
+   * Parameter dt: The knots' spacing, seconds.
+   * Parameter from: The span's first second.
+   * Returns: The place at a second.
    */
   function interpolate(
     knots: readonly number[],
@@ -145,8 +147,12 @@ export namespace AutoMovieMotionHumanCourse {
   }
 }
 
-/** The record of `ISolveResult`'s site. */
+/*
+ * The record of `ISolveResult`'s site.
+ */
 type ISolveResult = { knots: number[]; count: number; dt: number };
 
-/** The record of `ISolve`'s site. */
+/*
+ * The record of `ISolve`'s site.
+ */
 type ISolve = { knots: number[]; count: number; dt: number };

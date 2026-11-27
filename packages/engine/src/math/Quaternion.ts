@@ -33,14 +33,18 @@ export namespace Quaternion {
   /** Radians per degree, `π / 180`. */
   export const DEG2RAD: number = Math.PI / 180;
 
-  /** The canonical axes `fromEuler` turns about, keyed by order letter. */
+  /*
+   * The canonical axes `fromEuler` turns about, keyed by order letter.
+   */
   const EULER_AXES: Readonly<Record<string, IAutoMovieVector3>> = {
     X: { x: 1, y: 0, z: 0 },
     Y: { x: 0, y: 1, z: 0 },
     Z: { x: 0, y: 0, z: 1 },
   };
 
-  /** Private unchanged axes share their prepared direction and length. */
+  /*
+   * Private unchanged axes share their prepared direction and length.
+   */
   const eulerX: (angle: number) => IAutoMovieQuaternion = prepareAxisAngle(
     EULER_AXES.X!,
   );
@@ -89,7 +93,9 @@ export namespace Quaternion {
   ): IAutoMovieQuaternion =>
     readNormalizedQuaternion(q, normalizedRecord, undefined);
 
-  /** Fresh public normalization output from the completed scalar computation. */
+  /*
+   * Fresh public normalization output from the completed scalar computation.
+   */
   function normalizedRecord(
     x: number,
     y: number,
@@ -167,7 +173,9 @@ export namespace Quaternion {
       angleOnAxis(direction, length, angleDeg);
   }
 
-  /** Scale before squaring so finite extreme coordinates retain their direction. */
+  /*
+   * Scale before squaring so finite extreme coordinates retain their direction.
+   */
   function axisAngle(
     axis: IAutoMovieVector3,
     angleDeg: number,
@@ -184,12 +192,16 @@ export namespace Quaternion {
     return angleOnAxis(value, axisLength(value), angleDeg);
   }
 
-  /** Length of an axis already scaled to keep its squares representable. */
+  /*
+   * Length of an axis already scaled to keep its squares representable.
+   */
   function axisLength(axis: IAutoMovieVector3): number {
     return Math.sqrt(axis.x * axis.x + axis.y * axis.y + axis.z * axis.z);
   }
 
-  /** Original half-angle formula after fixed direction/length preparation. */
+  /*
+   * Original half-angle formula after fixed direction/length preparation.
+   */
   function angleOnAxis(
     value: IAutoMovieVector3,
     len: number,
@@ -252,7 +264,9 @@ export namespace Quaternion {
     v: IAutoMovieVector3,
   ): IAutoMovieVector3 => readRotatedVector(q, v, rotatedRecord, undefined);
 
-  /** Fresh public vector after the original completed rotation expressions. */
+  /*
+   * Fresh public vector after the original completed rotation expressions.
+   */
   function rotatedRecord(x: number, y: number, z: number): IAutoMovieVector3 {
     return { x, y, z };
   }
@@ -274,7 +288,9 @@ export namespace Quaternion {
       : readRotatedVector(q, v, rotatedY, undefined);
   }
 
-  /** Read only Y after recovering an overflowing rotation. */
+  /*
+   * Read only Y after recovering an overflowing rotation.
+   */
   function rotatedY(_x: number, y: number): number {
     return y;
   }
@@ -336,7 +352,9 @@ export namespace Quaternion {
       slerpAngular(first, x, y, z, w, t, theta, sine);
   }
 
-  /** Choose the direct arc without retaining endpoint data between calls. */
+  /*
+   * Choose the direct arc without retaining endpoint data between calls.
+   */
   function interpolateSlerp(
     a: IAutoMovieQuaternion,
     b: IAutoMovieQuaternion,
@@ -361,7 +379,9 @@ export namespace Quaternion {
     return slerpAngular(a, bx, by, bz, bw, t, theta, Math.sin(theta));
   }
 
-  /** Normalize the chord when the shorter arc is nearly parallel. */
+  /*
+   * Normalize the chord when the shorter arc is nearly parallel.
+   */
   function slerpLinear(
     a: IAutoMovieQuaternion,
     bx: number,
@@ -380,7 +400,9 @@ export namespace Quaternion {
     );
   }
 
-  /** Read spherical weights from the fixed angular span and denominator. */
+  /*
+   * Read spherical weights from the fixed angular span and denominator.
+   */
   function slerpAngular(
     a: IAutoMovieQuaternion,
     bx: number,

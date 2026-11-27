@@ -91,7 +91,9 @@ export namespace AutoMovieArchetypeLariat {
     mass: "kg",
   };
 
-  /** What no source read gives. */
+  /*
+   * What no source read gives.
+   */
   const UNREAD: string = "no source read gives it; provisional";
 
   /** The band of each free dimension. */

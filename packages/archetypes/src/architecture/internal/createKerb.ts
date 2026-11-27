@@ -3,7 +3,7 @@ import { Vector3 } from "@automovie/engine";
 
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
-/**
+/*
  * A single raised step a foot goes up or over: a road kerb or a free-standing
  * step.
  *
@@ -13,12 +13,11 @@ import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovie
  * `edge` the top's front edge, along `+X` with `+Y` up and `+Z` out of the face
  * below, which a foot clears going up or a stepping-over act clears going
  * across.
- *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The kerb or step.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * Parameter params: The kind and any dimension the author fixes.
+ * Parameter seed: The seed that draws every dimension left free inside its band;
+ * absent, each takes the middle of its band.
+ * Returns: The kerb or step.
+ * For a fixed dimension outside its band.
  */
 export function createKerb(
   params: AutoMovieArchetypeKerb.IParams,

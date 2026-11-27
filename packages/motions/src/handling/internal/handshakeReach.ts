@@ -8,7 +8,7 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import type { handshakeOffer } from "./handshakeOffer";
 
-/**
+/*
  * Why two offering arms do not meet, and where the same pair would: the
  * handshake's refusal (`handshakeOffer.point`).
  *
@@ -20,21 +20,20 @@ import type { handshakeOffer } from "./handshakeOffer";
  * which the pair does meet, found by trying the pair along the same line.
  */
 export namespace handshakeReach {
-  /**
+  /*
    * The refusal of a missed meeting: the bound that failed with its measured
    * value, and the band of shoulder gaps at which this pair does shake hands,
    * found by trying the pair at every centimetre of gap along the same line, at
    * the same heights, from `BAND[0]` to `BAND[1]`, taking the run of meeting
    * gaps nearest the gap the partners stand at, and bisecting each end of that
    * run.
-   *
-   * @param a One partner's body and acting shoulder joint in world metres.
-   * @param b The other's.
-   * @param side The shaking hand of both.
-   * @param pump How far the hands travel below the point after meeting, metres.
-   * @param miss The bound the meeting missed.
-   * @param attempt The meeting, tried again along the partners' line.
-   * @returns The refusal.
+   * Parameter a: One partner's body and acting shoulder joint in world metres.
+   * Parameter b: The other's.
+   * Parameter side: The shaking hand of both.
+   * Parameter pump: How far the hands travel below the point after meeting, metres.
+   * Parameter miss: The bound the meeting missed.
+   * Parameter attempt: The meeting, tried again along the partners' line.
+   * Returns: The refusal.
    */
   export function refusal(
     a: handshakeOffer.ISide,
@@ -136,20 +135,26 @@ export namespace handshakeReach {
     });
   }
 
-  /** A meeting missed, and by which bound. */
+  /*
+   * A meeting missed, and by which bound.
+   */
   export type IMiss = IMiss2 | IMiss3 | IMiss4 | IMiss5 | IMiss6;
 
-  /** A meeting tried: met, or missed on a bound. */
+  /*
+   * A meeting tried: met, or missed on a bound.
+   */
   export type IAttempt = IMet | IMissed;
 
-  /**
+  /*
    * The shoulder gaps a refusal tries for the band a pair meets in, metres:
    * from shoulders almost touching to two long arms in line.
    */
   const BAND: readonly [number, number] = [0.05, 2.5];
 }
 
-/** The record of `IMiss6`'s site. */
+/*
+ * The record of `IMiss6`'s site.
+ */
 type IMiss6 = {
   bound: "pump";
   gap: number;
@@ -159,26 +164,42 @@ type IMiss6 = {
   flexed: number;
 };
 
-/** The alternatives of `MissPartner`'s site. */
+/*
+ * The alternatives of `MissPartner`'s site.
+ */
 type MissPartner = 0 | 1;
 
-/** The record of `IMiss5`'s site. */
+/*
+ * The record of `IMiss5`'s site.
+ */
 type IMiss5 = { bound: "far"; gap: number; elbows: number; forearms: number };
 
-/** The record of `IMiss4`'s site. */
+/*
+ * The record of `IMiss4`'s site.
+ */
 type IMiss4 = { bound: "chests"; gap: number; chests: number };
 
-/** The record of `IMiss3`'s site. */
+/*
+ * The record of `IMiss3`'s site.
+ */
 type IMiss3 = { bound: "cross"; gap: number };
 
-/** The record of `IMiss2`'s site. */
+/*
+ * The record of `IMiss2`'s site.
+ */
 type IMiss2 = { bound: "apart"; gap: number };
 
-/** A meeting tried and met. */
+/*
+ * A meeting tried and met.
+ */
 type IMet = { kind: "met"; meeting: handshakeOffer.IMeeting };
 
-/** A meeting tried and missed on a bound. */
+/*
+ * A meeting tried and missed on a bound.
+ */
 type IMissed = { kind: "missed"; miss: handshakeReach.IMiss };
 
-/** The record of `IRefusalBand`'s site. */
+/*
+ * The record of `IRefusalBand`'s site.
+ */
 type IRefusalBand = { minimum: number; maximum: number };

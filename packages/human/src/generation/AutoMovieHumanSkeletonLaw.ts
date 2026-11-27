@@ -180,7 +180,7 @@ export namespace AutoMovieHumanSkeletonLaw {
     };
   }
 
-  /**
+  /*
    * The shared body arithmetic; head and eye records are an explicit later
    * completion.
    */
@@ -337,17 +337,19 @@ export namespace AutoMovieHumanSkeletonLaw {
     return { bones, hands };
   }
 }
-/** Fixed-size interpolation of the generating joint references. */
+/*
+ * Fixed-size interpolation of the generating joint references.
+ */
 const { lerp }: typeof AutoMovieHumanSkeletonChain =
   AutoMovieHumanSkeletonChain;
-/**
+/*
  * ANSUR II joint-centre stature fractions, sexes averaged
  * (`docs/anatomy/skeleton.md`): the hip, for the trunk column. The leg's own
  * joints come from `AutoMovieHumanLegBones`, which holds the knee's fraction.
  */
 const HIP: number = 0.518;
 
-/**
+/*
  * Mid-hip to cervicale as a fraction of stature, and de Leva's omphalion and
  * xiphion fractions of it.
  */

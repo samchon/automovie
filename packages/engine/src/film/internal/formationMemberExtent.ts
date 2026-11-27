@@ -9,7 +9,7 @@ import { computeModelRestExtentY } from "./computeModelRestExtentY";
 import { DEFAULT_SUBJECT_HEIGHT } from "../DEFAULT_SUBJECT_HEIGHT";
 import { MIN_MEASURED_SUBJECT_HEIGHT } from "../MIN_MEASURED_SUBJECT_HEIGHT";
 
-/**
+/*
  * One member's model-space vertical extent inside a compiled formation, in
  * metres above the slot it stands on.
  *
@@ -17,14 +17,14 @@ import { MIN_MEASURED_SUBJECT_HEIGHT } from "../MIN_MEASURED_SUBJECT_HEIGHT";
  * compiled bounds are the box of slot positions, so their vertical span is the
  * ground's, and a camera solved from it frames a crowd as a flat carpet. The
  * member's own model supplies the missing dimension, found by the runtime id
- * {@link productionRuntimeModelId} gives the formation's model group and
- * measured through {@link computeModelRestExtentY}, the read a node subject is
+ * productionRuntimeModelId gives the formation's model group and
+ * measured through computeModelRestExtentY, the read a node subject is
  * measured with, so a hero promoted out of the unit and its anonymous
  * neighbours are the same height by construction.
  *
- * Falls back to {@link DEFAULT_SUBJECT_HEIGHT} standing on the slot when the
+ * Falls back to DEFAULT_SUBJECT_HEIGHT standing on the slot when the
  * group's runtime model is not among `models`, draws nothing, or measures
- * shorter than {@link MIN_MEASURED_SUBJECT_HEIGHT}, the same stand-in and
+ * shorter than MIN_MEASURED_SUBJECT_HEIGHT, the same stand-in and
  * threshold a node subject takes.
  */
 export function formationMemberExtent(

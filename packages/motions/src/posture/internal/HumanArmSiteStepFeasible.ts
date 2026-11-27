@@ -1,15 +1,14 @@
 import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
 
-/**
+/*
  * Whether a linearized site constraint can meet one trust box. A linear form
  * takes its extrema on a box by choosing each coordinate's endpoint from the
  * sign of its coefficient. This is a necessary condition for this subproblem
  * alone, so it leaves the other seeds available.
- *
- * @param row The site equality with coefficients in millimetres per degree.
- * @param box The trust box, indexed by the subproblem's variables.
- * @param tolerance The admitted Cartesian residual, millimetres.
- * @returns Whether the row's possible interval reaches its bound.
+ * Parameter row: The site equality with coefficients in millimetres per degree.
+ * Parameter box: The trust box, indexed by the subproblem's variables.
+ * Parameter tolerance: The admitted Cartesian residual, millimetres.
+ * Returns: Whether the row's possible interval reaches its bound.
  */
 export function HumanArmSiteStepFeasible(
   row: IAutoMovieMotionHumanQuadraticProgram.IRow,
@@ -27,5 +26,7 @@ export function HumanArmSiteStepFeasible(
   return row.l <= high + tolerance && row.u >= low - tolerance;
 }
 
-/** A row's bounds before equilibration. */
+/*
+ * A row's bounds before equilibration.
+ */
 type Interval = Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "l" | "u">;

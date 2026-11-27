@@ -7,7 +7,9 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The least rotation taking one unit direction onto another. */
+/*
+ * The least rotation taking one unit direction onto another.
+ */
 function between(
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,
@@ -31,21 +33,20 @@ function between(
   );
 }
 
-/**
+/*
  * The carriage that holds the lance along a direction with its grip at a
  * station, from the arm's own line: the hand's line continues the forearm, so
  * the shaft keeps the angle to the forearm that the hand's grasp of it holds,
  * and the elbow lies one upper arm from the shoulder, the lower of the two such
  * places.
- *
- * @param arm The rider's lance arm.
- * @param shoulder The right shoulder, seat-frame metres.
- * @param tool The held lance in the hand's frame.
- * @param grip The grip's station, seat-frame metres.
- * @param along The direction the shaft runs, seat frame.
- * @returns The hand's frame and the elbow.
- * @throws {HumanRefusal} On `target` when no elbow one upper arm from the
- *   shoulder lays the forearm at the grasp's angle to the shaft.
+ * Parameter arm: The rider's lance arm.
+ * Parameter shoulder: The right shoulder, seat-frame metres.
+ * Parameter tool: The held lance in the hand's frame.
+ * Parameter grip: The grip's station, seat-frame metres.
+ * Parameter along: The direction the shaft runs, seat frame.
+ * Returns: The hand's frame and the elbow.
+ * On `target` when no elbow one upper arm from the
+ * shoulder lays the forearm at the grasp's angle to the shaft.
  */
 export function HumanLanceCouchCarriage(
   arm: HumanLanceCouchCarriage.IArm,
@@ -147,32 +148,42 @@ export function HumanLanceCouchCarriage(
   };
 }
 
-/** `HumanLanceCouchCarriage` and its records. */
+/*
+ * `HumanLanceCouchCarriage` and its records.
+ */
 export namespace HumanLanceCouchCarriage {
-  /**
+  /*
    * A mounted arm's carriage of a held lance: the hand's frame and the elbow
    * that lays it with the wrist neutral.
    */
   export interface ICarriage {
-    /** The hand's grip frame, seat-frame metres and rotation. */
+    /*
+     * The hand's grip frame, seat-frame metres and rotation.
+     */
     hand: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
 
-    /** The elbow, seat-frame metres. */
+    /*
+     * The elbow, seat-frame metres.
+     */
     elbow: IAutoMovieVector3;
   }
 
-  /** The rider's lance arm, read from the body. */
+  /*
+   * The rider's lance arm, read from the body.
+   */
   export interface IArm {
-    /** The upper arm's length, metres. */
+    /*
+     * The upper arm's length, metres.
+     */
     upperArm: number;
 
-    /**
+    /*
      * From the elbow to the grip socket, metres: the forearm and the wrist's
      * distance to the grip.
      */
     fore: number;
 
-    /**
+    /*
      * The hand's own line from the wrist to the grip socket, in the hand's
      * frame, which the tool's axis is read in.
      */

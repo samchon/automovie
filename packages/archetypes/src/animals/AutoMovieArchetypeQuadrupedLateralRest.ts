@@ -122,7 +122,7 @@ export namespace AutoMovieArchetypeQuadrupedLateralRest {
       sample,
     };
 
-    /**
+    /*
      * Turn each proximal bar inward and keep the attached distal fold carried by
      * its endpoint.
      */
@@ -167,7 +167,9 @@ export namespace AutoMovieArchetypeQuadrupedLateralRest {
       );
     }
 
-    /** Map the explicit rotation fraction to a reflected, reversible path. */
+    /*
+     * Map the explicit rotation fraction to a reflected, reversible path.
+     */
     function rotation(amount: number): IAutoMovieTransform {
       return {
         translation: { x: sign * offset * amount, y: 0, z: 0 },
@@ -179,7 +181,9 @@ export namespace AutoMovieArchetypeQuadrupedLateralRest {
       };
     }
 
-    /** Return one stateless composable rest frame on the expanded time line. */
+    /*
+     * Return one stateless composable rest frame on the expanded time line.
+     */
     function sample(
       seconds: number,
     ): AutoMovieArchetypeQuadrupedLateralRestPlan.ISample<Id, D> {
@@ -231,17 +235,27 @@ export namespace AutoMovieArchetypeQuadrupedLateralRest {
   }
 }
 
-/** The low surface heights and all coincident lowest part ids. */
+/*
+ * The low surface heights and all coincident lowest part ids.
+ */
 interface Bound {
-  /** Lowest supported surface before vertical placement, metres. */
+  /*
+   * Lowest supported surface before vertical placement, metres.
+   */
   lowest: number;
-  /** Lowest of the trunk and hindquarters surfaces, metres. */
+  /*
+   * Lowest of the trunk and hindquarters surfaces, metres.
+   */
   body: number;
-  /** Parts supplying the lowest support. */
+  /*
+   * Parts supplying the lowest support.
+   */
   sites: readonly string[];
 }
 
-/** Find the exact set support over the transformed rigid solids. */
+/*
+ * Find the exact set support over the transformed rigid solids.
+ */
 function support(
   animal: Pick<AutoMovieArchetype, "parts" | "convexCells">,
   placement: IAutoMovieTransform,

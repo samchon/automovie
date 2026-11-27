@@ -3,13 +3,12 @@ import type {
   AutoMovieHumanoidBone,
 } from "@automovie/interface";
 
-/**
+/*
  * Every finger segment of one hand flexed into a fist for the gallery: each
  * finger's proximal joint 85 degrees and its middle and distal joints 95, the
  * thumb's proximal 40 and distal 50 (provisional gallery angles).
- *
- * @param side The hand.
- * @returns The clinical angles by bone.
+ * Parameter side: The hand.
+ * Returns: The clinical angles by bone.
  */
 export function galleryCaseFist(
   side: AutoMovieHumanSide,
@@ -23,18 +22,26 @@ export function galleryCaseFist(
   return out;
 }
 
-/** The record of `GalleryCaseFistAngles`'s site. */
+/*
+ * The record of `GalleryCaseFistAngles`'s site.
+ */
 type GalleryCaseFistAngles = Partial<
   Record<AutoMovieHumanoidBone, [number, number, number]>
 >;
 
-/** The alternatives of `GalleryCaseFistDigit`'s site. */
+/*
+ * The alternatives of `GalleryCaseFistDigit`'s site.
+ */
 type GalleryCaseFistDigit = "Index" | "Middle" | "Ring" | "Little";
 
-/** The alternatives of `GalleryCaseFistSegment`'s site. */
+/*
+ * The alternatives of `GalleryCaseFistSegment`'s site.
+ */
 type GalleryCaseFistSegment = "Proximal" | "Intermediate" | "Distal";
 
-/** The four fingers. */
+/*
+ * The four fingers.
+ */
 const DIGITS: readonly GalleryCaseFistDigit[] = [
   "Index",
   "Middle",
@@ -42,7 +49,9 @@ const DIGITS: readonly GalleryCaseFistDigit[] = [
   "Little",
 ];
 
-/** Each finger's three segments. */
+/*
+ * Each finger's three segments.
+ */
 const SEGMENTS: readonly GalleryCaseFistSegment[] = [
   "Proximal",
   "Intermediate",

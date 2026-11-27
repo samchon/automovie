@@ -416,34 +416,48 @@ export namespace AutoMovieArchetypeMass {
   }
 }
 
-/** The shared local owner supplies primitive or cell principal data. */
+/*
+ * The shared local owner supplies primitive or cell principal data.
+ */
 type ILocal = NonNullable<ReturnType<typeof ArchetypeMassLocal>>;
 
-/**
+/*
  * A part as a solid in the model: its weight share, centre, axes and central
  * inertia per unit mass.
  */
 interface ISolid {
-  /** Volume times relative density. */
+  /*
+   * Volume times relative density.
+   */
   share: number;
 
-  /** Centroid in the model's space, metres. */
+  /*
+   * Centroid in the model's space, metres.
+   */
   centre: IAutoMovieVector3;
 
-  /** The primitive's X, Y and Z axes in the model's space. */
+  /*
+   * The primitive's X, Y and Z axes in the model's space.
+   */
   axes: readonly [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3];
 
-  /** Central moments about those axes per unit mass, square metres. */
+  /*
+   * Central moments about those axes per unit mass, square metres.
+   */
   unit: IAutoMovieVector3;
 }
 
-/** One of the model's orthogonal axes. */
+/*
+ * One of the model's orthogonal axes.
+ */
 type Axis = "x" | "y" | "z";
 
-/** Tensor and parallel-axis terms visit axes in the same fixed order. */
+/*
+ * Tensor and parallel-axis terms visit axes in the same fixed order.
+ */
 const AXES: readonly Axis[] = ["x", "y", "z"];
 
-/**
+/*
  * An explicit share replaces density; otherwise a positive density scales the
  * representable solid volume.
  */
@@ -466,7 +480,7 @@ function weightOf(
   return result;
 }
 
-/**
+/*
  * Keep each tensor contribution until its one complete reduction can decide
  * representability.
  */

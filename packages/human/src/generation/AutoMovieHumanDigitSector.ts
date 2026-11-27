@@ -22,7 +22,9 @@ import { AutoMovieHumanSeam } from "../lofting/AutoMovieHumanSeam";
  * velocity here is millimetres per radian.
  */
 export namespace AutoMovieHumanDigitSector {
-  /** Central difference step in the unit parameter. */
+  /*
+   * Central difference step in the unit parameter.
+   */
   const H: number = 1e-3;
 
   /**

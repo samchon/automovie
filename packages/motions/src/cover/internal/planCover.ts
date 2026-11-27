@@ -8,13 +8,12 @@ import { coverBreach } from "./coverBreach";
 import { coverPeek } from "./coverPeek";
 import { coverTravel } from "./coverTravel";
 
-/**
+/*
  * Plan a cover move by its kind: a peek past a wall's end, a sidle along its
  * face, a crouched pass under a window, or a breach of a door.
- *
- * @param context The action's context.
- * @returns The move's plan.
- * @throws {HumanRefusal} From the selected move when its geometry does not fit.
+ * Parameter context: The action's context.
+ * Returns: The move's plan.
+ * From the selected move when its geometry does not fit.
  */
 export function planCover(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCover.IParams>,

@@ -18,7 +18,7 @@ import type { AutoMovieMotionHumanArmPlannedReads } from "./AutoMovieMotionHuman
 import { AutoMovieMotionHumanArmPlayed } from "./AutoMovieMotionHumanArmPlayed";
 import { AutoMovieMotionHumanArmRetimed } from "./AutoMovieMotionHumanArmRetimed";
 
-/**
+/*
  * The solve of an arms' plan (`AutoMovieMotionHumanArmPlanned.planned`): the
  * laid course kept when admitted; otherwise independent paths for a pair with
  * separate sites whose course fails on collision, certified together; otherwise
@@ -26,11 +26,10 @@ import { AutoMovieMotionHumanArmRetimed } from "./AutoMovieMotionHumanArmRetimed
  * solution or the path a refusal for time was reached at handed on. Each hand
  * then plays the finger state its bases carried. Read from the plan's body,
  * span, arms, handover, course, readings and problem.
- *
- * @param scope What the plan solves with.
- * @returns Each arm's trajectory.
- * @throws {HumanRefusal} When no trajectory meets the constraints
- *   (`HumanArmTrajectory.solve`).
+ * Parameter scope: What the plan solves with.
+ * Returns: Each arm's trajectory.
+ * When no trajectory meets the constraints
+ * (`HumanArmTrajectory.solve`).
  */
 export function AutoMovieMotionHumanArmPlannedSolve(
   scope: AutoMovieMotionHumanArmPlannedSolve.IScope,
@@ -160,7 +159,7 @@ export function AutoMovieMotionHumanArmPlannedSolve(
     ),
   );
 
-  /**
+  /*
    * Try separate paths while keeping the coupled clock and borrowing
    * completed inputs only.
    */
@@ -208,67 +207,98 @@ export function AutoMovieMotionHumanArmPlannedSolve(
   }
 }
 
-/** What the solve of an arms' plan reads. */
+/*
+ * What the solve of an arms' plan reads.
+ */
 export namespace AutoMovieMotionHumanArmPlannedSolve {
-  /** What an arms' plan solves with. */
+  /*
+   * What an arms' plan solves with.
+   */
   export interface IScope {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The span's instants. */
+    /*
+     * The span's instants.
+     */
     span: IAutoMovieMotionHumanArmPlanned.ISpan;
 
-    /** The arms. */
+    /*
+     * The arms.
+     */
     carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[];
 
-    /** The group's handover; nothing is read or kept when absent. */
+    /*
+     * The group's handover; nothing is read or kept when absent.
+     */
     plan: Parameters<typeof AutoMovieMotionHumanArmPlanned.planned>[4];
 
-    /** The laid course (`AutoMovieMotionHumanArmCourse.course`). */
+    /*
+     * The laid course (`AutoMovieMotionHumanArmCourse.course`).
+     */
     laid: ReturnType<typeof AutoMovieMotionHumanArmCourse.course>;
 
-    /** An arm's own fit (`AutoMovieMotionHumanArmPlannedReads`). */
+    /*
+     * An arm's own fit (`AutoMovieMotionHumanArmPlannedReads`).
+     */
     fitted: AutoMovieMotionHumanArmPlannedReads.IReads["fitted"];
 
-    /** An arm's goal (`AutoMovieMotionHumanArmPlannedReads`). */
+    /*
+     * An arm's goal (`AutoMovieMotionHumanArmPlannedReads`).
+     */
     aimed: AutoMovieMotionHumanArmPlannedReads.IReads["aimed"];
 
-    /**
+    /*
      * The posture without the planned arms
      * (`AutoMovieMotionHumanArmPlannedReads`).
      */
     without: AutoMovieMotionHumanArmPlannedReads.IReads["without"];
 
-    /** Each instant's posture read (`AutoMovieMotionHumanArmPlannedReads`). */
+    /*
+     * Each instant's posture read (`AutoMovieMotionHumanArmPlannedReads`).
+     */
     read: AutoMovieMotionHumanArmPlannedReads.IReads["read"];
 
-    /** Each instant's base (`AutoMovieMotionHumanArmPlannedReads`). */
+    /*
+     * Each instant's base (`AutoMovieMotionHumanArmPlannedReads`).
+     */
     bases: AutoMovieMotionHumanArmPlannedReads.IReads["bases"];
 
-    /** Each instant's finger states (`AutoMovieMotionHumanArmPlannedReads`). */
+    /*
+     * Each instant's finger states (`AutoMovieMotionHumanArmPlannedReads`).
+     */
     fingers: AutoMovieMotionHumanArmPlannedReads.IReads["fingers"];
 
-    /** The optimiser's waypoints (`AutoMovieMotionHumanArmPlannedProblem`). */
+    /*
+     * The optimiser's waypoints (`AutoMovieMotionHumanArmPlannedProblem`).
+     */
     times: AutoMovieMotionHumanArmPlannedProblem.IReaders["times"];
 
-    /** The waypoints' cut (`AutoMovieMotionHumanArmPlannedProblem`). */
+    /*
+     * The waypoints' cut (`AutoMovieMotionHumanArmPlannedProblem`).
+     */
     waypoints: AutoMovieMotionHumanArmPlannedProblem.IReaders["waypoints"];
 
-    /** The problem (`AutoMovieMotionHumanArmPlannedProblem`). */
+    /*
+     * The problem (`AutoMovieMotionHumanArmPlannedProblem`).
+     */
     problem: AutoMovieMotionHumanArmPlannedProblem.IReaders["problem"];
 
-    /** The guesses' setter (`AutoMovieMotionHumanArmPlannedProblem`). */
+    /*
+     * The guesses' setter (`AutoMovieMotionHumanArmPlannedProblem`).
+     */
     guess: AutoMovieMotionHumanArmPlannedProblem.IReaders["guess"];
 
-    /**
+    /*
      * Where the plan in scope names a refusing group
      * (`AutoMovieMotionHumanArmPlanned.within`).
-     *
-     * @returns The refusal record; none outside a plan or when none is asked.
+     * Returns: The refusal record; none outside a plan or when none is asked.
      */
     refusal: () => IRefusal | undefined;
 
-    /**
+    /*
      * The planner, for each arm's own plan
      * (`AutoMovieMotionHumanArmPlanned.planned`).
      */
@@ -276,8 +306,12 @@ export namespace AutoMovieMotionHumanArmPlannedSolve {
   }
 }
 
-/** An earlier plan's solution (`AutoMovieMotionHumanArmPlanned.IWarm`). */
+/*
+ * An earlier plan's solution (`AutoMovieMotionHumanArmPlanned.IWarm`).
+ */
 type IWarm = AutoMovieMotionHumanArmPlanned.IWarm;
 
-/** A refusing group's record (`AutoMovieMotionHumanArmPlanned.IRefusal`). */
+/*
+ * A refusing group's record (`AutoMovieMotionHumanArmPlanned.IRefusal`).
+ */
 type IRefusal = AutoMovieMotionHumanArmPlanned.IRefusal;

@@ -8,16 +8,22 @@ import type { EquineBodyPose } from "./EquineBodyPose";
 import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 
-/** Standard gravity, m/s². */
+/*
+ * Standard gravity, m/s².
+ */
 const GRAVITY: number = 9.80665;
 
-/** Each courbette leap's forward travel, metres: authored. */
+/*
+ * Each courbette leap's forward travel, metres: authored.
+ */
 const LEAP: number = 0.35;
 
-/** The capriole's gathering drop before take-off, metres: authored. */
+/*
+ * The capriole's gathering drop before take-off, metres: authored.
+ */
 const GATHER: number = 0.06;
 
-/**
+/*
  * Folded limbs' joint turns in the air, degrees, shoulder or hip first,
  * positive swinging the distal end back: authored poses.
  */
@@ -27,7 +33,7 @@ const TUCK: Readonly<Record<Tuck, Turns>> = {
   kick: [45, -10, 20, 10],
 };
 
-/**
+/*
  * The school airs above the ground, as stance rows: the held pesade and levade,
  * the courbette's hind-leg leaps and the capriole's leap with its hind kick.
  *
@@ -45,27 +51,25 @@ const TUCK: Readonly<Record<Tuck, Turns>> = {
  * gathering drop and the tucked joint turns are authored.
  */
 export namespace EquineAirs {
-  /**
+  /*
    * The trunk pitch a held air takes, degrees: the pesade's 45 and the middle
    * of the levade's 30 to 35 (Airs above the ground, Wikipedia).
-   *
-   * @param air The air.
-   * @returns Its pitch, degrees.
+   * Parameter air: The air.
+   * Returns: Its pitch, degrees.
    */
   export function pitch(air: AutoMovieArchetypeEquineStanceCue.Air): number {
     return air === "pesade" ? 45 : 32.5;
   }
 
-  /**
+  /*
    * A held air or a courbette, from the rear the stance rows plan at the air's
    * pitch.
-   *
-   * @param body The prepared solver.
-   * @param cue The air or the courbette.
-   * @param rear The stance rows' rear planner from the same start.
-   * @returns The air's plan: the rear at its pitch for a held air, the leaps
-   *   from a levade for a courbette.
-   * @throws {RangeError} As `courbette` refuses.
+   * Parameter body: The prepared solver.
+   * Parameter cue: The air or the courbette.
+   * Parameter rear: The stance rows' rear planner from the same start.
+   * Returns: The air's plan: the rear at its pitch for a held air, the leaps
+   * from a levade for a courbette.
+   * As `courbette` refuses.
    */
   export function held<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
@@ -89,15 +93,14 @@ export namespace EquineAirs {
       : courbette(body, cue, levade);
   }
 
-  /**
+  /*
    * The courbette, from the levade it starts and ends with.
-   *
-   * @param body The prepared solver.
-   * @param cue The courbette.
-   * @param levade The levade planned from the same start over the courbette's
-   *   phases.
-   * @returns The courbette's plan, ending displaced forward by its leaps.
-   * @throws {RangeError} For a leap count that is not a positive whole number.
+   * Parameter body: The prepared solver.
+   * Parameter cue: The courbette.
+   * Parameter levade: The levade planned from the same start over the courbette's
+   * phases.
+   * Returns: The courbette's plan, ending displaced forward by its leaps.
+   * For a leap count that is not a positive whole number.
    */
   export function courbette<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
@@ -162,13 +165,12 @@ export namespace EquineAirs {
     };
   }
 
-  /**
+  /*
    * The capriole from a halt.
-   *
-   * @param body The prepared solver.
-   * @param start The stance it starts from.
-   * @param cue The capriole.
-   * @returns Its plan, returning to the start.
+   * Parameter body: The prepared solver.
+   * Parameter start: The stance it starts from.
+   * Parameter cue: The capriole.
+   * Returns: Its plan, returning to the start.
    */
   export function capriole<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
@@ -242,7 +244,7 @@ export namespace EquineAirs {
     };
   }
 
-  /**
+  /*
    * A pose moved by a level translation: the trunk shifted and each placed
    * anchor with it.
    */
@@ -264,7 +266,9 @@ export namespace EquineAirs {
     return { trunk: EquineStanceSupport.moved(goal.trunk, by), limbs };
   }
 
-  /** A stance moved by a level translation. */
+  /*
+   * A stance moved by a level translation.
+   */
   function shiftState(
     state: EquineStanceRows.IState,
     by: IAutoMovieVector3,
@@ -281,8 +285,12 @@ export namespace EquineAirs {
   }
 }
 
-/** A tucked limb in the air. */
+/*
+ * A tucked limb in the air.
+ */
 type Tuck = "fore" | "hind" | "kick";
 
-/** Four joint turns, degrees, shoulder or hip first. */
+/*
+ * Four joint turns, degrees, shoulder or hip first.
+ */
 type Turns = readonly [number, number, number, number];

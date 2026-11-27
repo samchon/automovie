@@ -6,7 +6,7 @@ import type {
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { pickUp } from "../../handling/internal/pickUp";
 
-/**
+/*
  * Take a mounted display object from its carrier with the ordinary pickup grip
  * and lift. Register this law in the composition that stages the carrier. A cut
  * to stand from grip closure through lift retains the hand's grip and the last

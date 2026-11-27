@@ -7,7 +7,7 @@ import type {
 import { AUTOMOVIE_DIALOGUE_ENVELOPE_JAW } from "../constants/AUTOMOVIE_DIALOGUE_ENVELOPE_JAW";
 import { sampleAutoMovieDialogueVisemeWeights } from "./sampleAutoMovieDialogueVisemeWeights";
 
-/**
+/*
  * Sample one actor's dialogue mouth at a film second from the film's mouth
  * track, in closed form.
  *
@@ -22,9 +22,8 @@ import { sampleAutoMovieDialogueVisemeWeights } from "./sampleAutoMovieDialogueV
  * `aa` at the jaw's fraction of `AUTOMOVIE_DIALOGUE_ENVELOPE_JAW
  * .maximumOpeningMm` and `sil` for the rest. Outside every line of the actor
  * the jaw is 0 and the weights are `{ sil: 1 }`.
- *
- * @param props The track, the actor and the second.
- * @returns The actor's jaw opening in millimetres and viseme weights.
+ * Parameter props: The track, the actor and the second.
+ * Returns: The actor's jaw opening in millimetres and viseme weights.
  */
 export function sampleAutoMovieDialogueMouth(
   props: IAutoMovieSampleDialogueMouth.IProps,
@@ -70,7 +69,7 @@ export function sampleAutoMovieDialogueMouth(
   };
 }
 
-/**
+/*
  * Frames within this distance below a whole frame count as that frame: far
  * above the rounding of `f / fps × fps` in double precision and far below any
  * shutter sample's offset.

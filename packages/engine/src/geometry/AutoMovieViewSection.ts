@@ -238,7 +238,7 @@ export namespace AutoMovieViewSection {
     }
   }
 
-  /**
+  /*
    * Public records retain every original observation, including failed-source
    * numbers.
    */
@@ -255,7 +255,7 @@ export namespace AutoMovieViewSection {
     };
   }
 
-  /**
+  /*
    * Decorate only a selected public section, retaining its already measured
    * girth.
    */
@@ -282,11 +282,13 @@ type Measured = Pick<
   "box" | "shoulders" | "guides" | "conics" | "girth"
 >;
 
-/**
+/*
  * Accepted measured girth residual, in source length units (kernel
  * millimetres).
  */
 const GIRTH_TOLERANCE: number = AutoMovieViewSectionRange.TOLERANCE;
 
-/** Bounded Illinois residual evaluations. */
+/*
+ * Bounded Illinois residual evaluations.
+ */
 const ITERATIONS: number = 100;

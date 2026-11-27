@@ -21,7 +21,9 @@ import { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGa
 import { EquineHarness } from "./equine/EquineHarness";
 import { EquineTeamCourse } from "./equine/EquineTeamCourse";
 
-/** Points a slack trace is laid through, ends included. */
+/*
+ * Points a slack trace is laid through, ends included.
+ */
 const SAG_POINTS: number = 9;
 
 /** Operations for harnessing a team of equines to one pole vehicle. */
@@ -280,7 +282,9 @@ export namespace AutoMovieArchetypeEquineTeam {
       at,
     };
 
-    /** One displayed second. */
+    /*
+     * One displayed second.
+     */
     function at(
       seconds: number,
     ): AutoMovieArchetypeEquineTeamPlan.ISample<
@@ -384,7 +388,7 @@ export namespace AutoMovieArchetypeEquineTeam {
       };
     }
 
-    /**
+    /*
      * The hitch's places before their chest offsets: role, lateral offset and
      * rank distance.
      */
@@ -422,7 +426,7 @@ export namespace AutoMovieArchetypeEquineTeam {
       }
     }
 
-    /**
+    /*
      * Refuse a turn whose inside or outside horse would leave its gait's declared
      * speeds, naming the least radius.
      */
@@ -465,7 +469,9 @@ export namespace AutoMovieArchetypeEquineTeam {
     }
   }
 
-  /** A posed part's world origin. */
+  /*
+   * A posed part's world origin.
+   */
   function part(
     sample: AutoMovieArchetypeRide.ISample<
       AutoMovieArchetypeEquine.Affordance,

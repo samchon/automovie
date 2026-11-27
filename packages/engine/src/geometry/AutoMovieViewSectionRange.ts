@@ -29,7 +29,9 @@ export namespace AutoMovieViewSectionRange {
   ): IAutoMovieViewSectionRange.IFamily {
     const trials: Map<number, IAutoMovieViewSectionRange.ITrial> = new Map();
 
-    /** Public generic algebra callbacks never enter this numeric preparation. */
+    /*
+     * Public generic algebra callbacks never enter this numeric preparation.
+     */
     const at: IAutoMovieViewSectionRange.IFamily["at"] = (
       shoulder: number,
     ): IAutoMovieViewSectionRange.ITrial => {

@@ -1,13 +1,12 @@
-/**
+/*
  * Admit the value following `--name`: present, non-blank and not itself an
  * option.
  *
  * The value is returned as typed; the template's name rule trims and admits it
  * at render time.
- *
- * @param value The token after `--name`, absent at the end of the arguments.
- * @returns The value.
- * @throws When the value is missing, blank or begins with `-`.
+ * Parameter value: The token after `--name`, absent at the end of the arguments.
+ * Returns: The value.
+ * When the value is missing, blank or begins with `-`.
  */
 export function readAutoMovieNameOption(value: string | undefined): string {
   if (value === undefined || value.startsWith("-") || value.trim() === "")

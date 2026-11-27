@@ -4,7 +4,7 @@ import { builtSpaceStatesVolume } from "./builtSpaceStatesVolume";
 import { builtSpaceSubtree } from "./builtSpaceSubtree";
 import { requireBuiltSpace } from "./requireBuiltSpace";
 
-/**
+/*
  * What a logical space's own volume claims to be, folded over its descendants.
  *
  * `"unstated"` is a subtree in which no space states a volume, `"faceted"` is a
@@ -21,7 +21,7 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * Authors must declare that approximation as `"faceted"`.
  *
  * Contents do not enter the fold. The subtree matches
- * {@link builtEnvironmentContainsPoint}, so callers can read the contributing
+ * builtEnvironmentContainsPoint, so callers can read the contributing
  * volumes' authored fidelity beside containment without treating it as a
  * numerical error bound. Throws for an undeclared space id.
  */

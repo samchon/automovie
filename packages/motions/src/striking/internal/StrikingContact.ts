@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * When and where a moving weapon first touches a surface of another body.
  *
  * The weapon is a point on its striking surface (the fist's knuckles, the
@@ -26,13 +26,12 @@ import type {
  * verdicts.
  */
 export namespace StrikingContact {
-  /**
+  /*
    * The closest point of a segment to a point.
-   *
-   * @param p The point.
-   * @param a The segment's start.
-   * @param b The segment's end.
-   * @returns The closest point of the segment.
+   * Parameter p: The point.
+   * Parameter a: The segment's start.
+   * Parameter b: The segment's end.
+   * Returns: The closest point of the segment.
    */
   export function closest(
     p: IAutoMovieVector3,
@@ -49,13 +48,12 @@ export namespace StrikingContact {
     return Vector3.add(a, Vector3.scale(ab, t));
   }
 
-  /**
+  /*
    * The signed distance from a point to a shape's surface: positive outside,
    * zero on it, negative inside by the depth to the nearest face.
-   *
-   * @param p The point, world metres.
-   * @param shape The shape.
-   * @returns Metres.
+   * Parameter p: The point, world metres.
+   * Parameter shape: The shape.
+   * Returns: Metres.
    */
   export function distance(
     p: IAutoMovieVector3,
@@ -64,13 +62,12 @@ export namespace StrikingContact {
     return AutoMovieEnginePhysics.physicalShapeNearest(shape.pose, shape.shape, p, p).distance;
   }
 
-  /**
+  /*
    * The nearest shape to a point and its signed distance.
-   *
-   * @param p The point.
-   * @param shapes The shapes.
-   * @returns The nearest shape's name and distance, or undefined without
-   *   shapes.
+   * Parameter p: The point.
+   * Parameter shapes: The shapes.
+   * Returns: The nearest shape's name and distance, or undefined without
+   * shapes.
    */
   export function nearest(
     p: IAutoMovieVector3,
@@ -85,17 +82,16 @@ export namespace StrikingContact {
     return best;
   }
 
-  /**
+  /*
    * The first instant in a span at which a gap function reaches zero: scanned
    * at `step`, the first bracketed crossing bisected 24 times.
-   *
-   * @param gap Signed gap at a second; non-positive in contact.
-   * @param from Span start, seconds.
-   * @param to Span end, seconds.
-   * @param step Scan step, seconds; positive.
-   * @returns The first contact second, or undefined when the gap stays
-   *   positive.
-   * @throws {Error} When the step is not positive.
+   * Parameter gap: Signed gap at a second; non-positive in contact.
+   * Parameter from: Span start, seconds.
+   * Parameter to: Span end, seconds.
+   * Parameter step: Scan step, seconds; positive.
+   * Returns: The first contact second, or undefined when the gap stays
+   * positive.
+   * When the step is not positive.
    */
   export function first(
     gap: (seconds: number) => number,
@@ -121,5 +117,7 @@ export namespace StrikingContact {
   }
 }
 
-/** The record of `INearestBest`'s site. */
+/*
+ * The record of `INearestBest`'s site.
+ */
 type INearestBest = { name: string; distance: number };

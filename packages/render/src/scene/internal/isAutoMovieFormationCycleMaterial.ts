@@ -4,7 +4,7 @@ import { AUTOMOVIE_FORMATION_CYCLE_PATCH_KEY } from "../AUTOMOVIE_FORMATION_CYCL
 import type { IMaterialShaderPatch } from "../IMaterialShaderPatch.js";
 import { readMaterialShaderPatches } from "./readMaterialShaderPatches.js";
 
-/**
+/*
  * Whether a material carries the formation cycle's shader patch, whatever other
  * patches it carries beside it.
  */

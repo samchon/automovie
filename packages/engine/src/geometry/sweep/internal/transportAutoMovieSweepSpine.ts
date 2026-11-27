@@ -1,12 +1,12 @@
 import type { IAutoMovieSweepTransport } from "@automovie/interface";
 
-/**
+/*
  * Transport samples per spine segment; the frame between samples takes one more
  * reflection step.
  */
 const DENSITY: number = 64;
 
-/**
+/*
  * Create the buffers of a spine of `count` points and the in-place compiler of
  * its curve, tangent and rotation-minimizing frames.
  *
@@ -26,15 +26,14 @@ const DENSITY: number = 64;
  * across the bisector plane of the step's chord and then across the plane
  * mapping the reflected tangent onto the next; a frame between two table
  * entries reflects once more from the entry below.
- *
- * @param count Number of spine points, at least two.
- * @param frames Whether to build the frame table; a curve sampled for points
- *   only omits it.
- * @returns The transport, its arrays zero until written.
- * @throws Error when `count` is below two; and from `update` when a point, the
- *   normal or an end tangent is not finite, two consecutive points coincide,
- *   the path reverses at a point, the normal is parallel to the first tangent,
- *   or the tangent vanishes somewhere on the path.
+ * Parameter count: Number of spine points, at least two.
+ * Parameter frames: Whether to build the frame table; a curve sampled for points
+ * only omits it.
+ * Returns: The transport, its arrays zero until written.
+ * Error when `count` is below two; and from `update` when a point, the
+ * normal or an end tangent is not finite, two consecutive points coincide,
+ * the path reverses at a point, the normal is parallel to the first tangent,
+ * or the tangent vanishes somewhere on the path.
  */
 export const transportAutoMovieSweepSpine: (
   count: number,

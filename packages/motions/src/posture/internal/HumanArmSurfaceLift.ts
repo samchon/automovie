@@ -7,7 +7,7 @@ import type {
 import type { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
-/**
+/*
  * Read a contact's height above the outward side of its authored surface.
  * On the usual side, the nearest supporting normal certifies that the
  * outward ray's distance is nondecreasing. A point on the far side can have
@@ -15,10 +15,10 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
  * There, the ray's least signed distance and the enclosing sphere bracket
  * the first admitted point on the authored side. The returned deficit is
  * how far to move in the site's normal to reach it.
- *
- * @param at The located site and its touched convex shape.
- * @param contact The hand's current contact point in world metres.
- * @returns The clearance and linearisation direction, when there is a surface.
+ * Parameter at: The located site and its touched convex shape.
+ * Parameter contact: The hand's current contact point in world metres.
+ * Returns: The clearance and linearisation direction, when there is a surface.
+ * , Luo, Tai and Yang (2021), Theorem 3.1, signed-distance convexity. https://arxiv.org/abs/2003.09600
  * @see Li, Luo, Tai and Yang (2021), Theorem 3.1, signed-distance convexity. https://arxiv.org/abs/2003.09600
  */
 export function HumanArmSurfaceLift(
@@ -70,14 +70,22 @@ export function HumanArmSurfaceLift(
   return { metres: -high, normal };
 }
 
-/** A surface height shared by admission and its convex subproblem. */
+/*
+ * A surface height shared by admission and its convex subproblem.
+ */
 export namespace HumanArmSurfaceLift {
-  /** The height and the direction in which it increases. */
+  /*
+   * The height and the direction in which it increases.
+   */
   export interface IReading {
-    /** Signed clearance, metres. */
+    /*
+     * Signed clearance, metres.
+     */
     metres: number;
 
-    /** The direction of positive change in world coordinates. */
+    /*
+     * The direction of positive change in world coordinates.
+     */
     normal: IAutoMovieVector3;
   }
 }

@@ -24,35 +24,37 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { planWallRunFlight } from "./planWallRunFlight";
 
-/**
+/*
  * How far from the wall's face the take-off foot plants, hip heights
  * (provisional: a step in, under half a leg).
  */
 const STEP_IN: number = 0.45;
 
-/**
+/*
  * The first wall step's toe height, hip heights (provisional: a running step
  * planted about knee high).
  */
 const FIRST: number = 0.55;
 
-/** The second wall step's toe height, hip heights (provisional). */
+/*
+ * The second wall step's toe height, hip heights (provisional).
+ */
 const SECOND: number = 1.05;
 
-/**
+/*
  * The toe joint's distance off the face, metres (provisional: the sole's
  * thickness ahead of the joint).
  */
 const SOLE: number = 0.03;
 
-/**
+/*
  * The toes' depth below the hands that grip the top in a hang on the face,
  * statures (provisional: the body near straight along the wall, its arms
  * bent).
  */
 const HANG: number = 0.95;
 
-/**
+/*
  * Stepping in and onto the wall: the arms carried forward and out from the
  * hips, clear of the thigh the stepping leg raises and of each other
  * (provisional angles, degrees).
@@ -68,7 +70,7 @@ const STEPPING: IAutoMovieMotionHumanLieDown.IPose = {
   },
 };
 
-/**
+/*
  * Hanging from the top: the arms up and out over the head, the elbows a little
  * bent and clear of it, the fists closed on the edge and the legs hanging
  * (provisional angles, degrees).
@@ -90,7 +92,7 @@ const HANGING: IAutoMovieMotionHumanLieDown.IPose = {
   },
 };
 
-/**
+/*
  * The cat hang: hanging from the top with both feet drawn up onto the face
  * (provisional angles, degrees).
  */
@@ -105,22 +107,24 @@ const CAT: IAutoMovieMotionHumanLieDown.IPose = {
   },
 };
 
-/**
+/*
  * Static friction of a shoe sole on a wall, dimensionless (provisional: rubber
  * on concrete).
  */
 const FRICTION: number = 0.8;
 
-/** Seconds per support change (provisional: a running wall step). */
+/*
+ * Seconds per support change (provisional: a running wall step).
+ */
 const BEAT: number = 0.35;
 
-/**
+/*
  * Seconds the opening stance holds both feet where they stand (provisional: the
  * edge rescue's own opening stance).
  */
 const SET: number = 0.3;
 
-/**
+/*
  * Use a wall's face as a brief foot support: a wall step plants one foot on the
  * face beside the other on the floor; a wall run plants it, pushes off it to
  * catch the wall's top edge with both hands, hangs, and walks both feet onto
@@ -131,11 +135,10 @@ const SET: number = 0.3;
  * the planted toe to the hips must lean off the face's normal by no more than
  * `atan(FRICTION)` (a static stand-in for the contact force's direction). A top
  * beyond the hands' reach from the first step is refused with the shortfall.
- *
- * @param context The action's context, standing before the wall and facing it.
- * @returns The wall step or run.
- * @throws {HumanRefusal} For a missing top, an unreachable top or a wall
- *   contact outside its friction cone.
+ * Parameter context: The action's context, standing before the wall and facing it.
+ * Returns: The wall step or run.
+ * For a missing top, an unreachable top or a wall
+ * contact outside its friction cone.
  */
 export function planWallRun(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWallRun.IParams>,
@@ -364,15 +367,21 @@ export function planWallRun(
   return { ...shown, base: { kind: "standing" } };
 }
 
-/** Admission of the top from the entering floor of the wall-run stage. */
+/*
+ * Admission of the top from the entering floor of the wall-run stage.
+ */
 export namespace planWallRun {
-  /** Measurements setting the furthest vertical hand contact. */
+  /*
+   * Measurements setting the furthest vertical hand contact.
+   */
   export type IReachMeasure = Pick<
     IAutoMovieMotionHumanBody["measure"],
     "hipHeight" | "shoulderHeight" | "upperArm" | "forearm"
   >;
 
-  /** Require the top to be in reach from the first wall step. */
+  /*
+   * Require the top to be in reach from the first wall step.
+   */
   export function admitTop(
     worldHeight: number,
     floor: number,
@@ -396,7 +405,9 @@ export namespace planWallRun {
   }
 }
 
-/** The middle of a wall's top front edge, world metres. */
+/*
+ * The middle of a wall's top front edge, world metres.
+ */
 function topEdge(
   context: IAutoMovieMotionHumanActionContext,
   subject: string,

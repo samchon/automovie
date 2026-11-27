@@ -16,7 +16,7 @@ import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { builtSpaceStatesVolume } from "./builtSpaceStatesVolume";
 import { builtSpaceSubtree } from "./builtSpaceSubtree";
 
-/**
+/*
  * Refuse a carriage that does not stand in the space its state says it serves.
  *
  * A named stop is a claim about geometry, so it is settled against geometry:
@@ -31,10 +31,9 @@ import { builtSpaceSubtree } from "./builtSpaceSubtree";
  * the swept envelope follows, so a state is measured as the one change it makes
  * rather than against a configuration nothing declared. Findings are pushed at
  * the claiming value's `serves` path.
- *
- * @param environment Building already free of validation errors.
- * @param root Violation path of the building record, `$input`.
- * @param collector Sink that receives the violations.
+ * Parameter environment: Building already free of validation errors.
+ * Parameter root: Violation path of the building record, `$input`.
+ * Parameter collector: Sink that receives the violations.
  */
 export function validateBuiltCarriageService(
   environment: IAutoMovieBuiltEnvironment,

@@ -1,11 +1,11 @@
 import { AutoMovieEasing } from "@automovie/interface";
 
-/**
+/*
  * Evaluate a normalized easing curve: maps a linear progress `t` in `[0, 1]`
  * between two keyframes to an eased progress in `[0, 1]`.
  *
- * Covers the named {@link AutoMovieEasing} curves. `cubicBezier` is handled
- * separately by {@link cubicBezierEasing} since it needs the keyframe's control
+ * Covers the named AutoMovieEasing curves. `cubicBezier` is handled
+ * separately by cubicBezierEasing since it needs the keyframe's control
  * points; passing `"cubicBezier"` here falls back to linear.
  */
 export function ease(curve: AutoMovieEasing, t: number): number {

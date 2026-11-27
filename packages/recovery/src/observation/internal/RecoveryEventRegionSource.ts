@@ -3,7 +3,9 @@ import type {
   IAutoMovieRecoveryEventRegionSource,
 } from "@automovie/interface";
 
-/** Prepare immutable source rank and incidence once for all scalar queries. */
+/*
+ * Prepare immutable source rank and incidence once for all scalar queries.
+ */
 export function RecoveryEventRegionSource(
   source: Parameters<IAutoMovieRecoveryEventRegionSource.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryEventRegionSource.Operation> {

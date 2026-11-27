@@ -28,31 +28,41 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { humanSittingVolleyPhases } from "./humanSittingVolleyPhases";
 
-/** Arm sides used in the forearm platform. */
+/*
+ * Arm sides used in the forearm platform.
+ */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
-/** The shares at the authored palm plant, release and receive. */
+/*
+ * The shares at the authored palm plant, release and receive.
+ */
 const PLANT: number = humanSittingVolleyPhases.PLANT;
 const RELEASE: number = humanSittingVolleyPhases.RELEASE;
 const RECEIVE: number = humanSittingVolleyPhases.RECEIVE;
 
-/**
+/*
  * Maximum free scoot, in thigh lengths, and maximum trunk inclination, in
  * degrees.
  */
 const SHIFT: number = 0.5;
 const LEAN: number = 50;
 
-/** Forward wrist clearance from the pressing shoulder's shadow, in hand lengths. */
+/*
+ * Forward wrist clearance from the pressing shoulder's shadow, in hand lengths.
+ */
 const PRESS_AHEAD: number = 0.5;
 
-/** Same-side clearance from the pressing shoulder's shadow, in hand lengths. */
+/*
+ * Same-side clearance from the pressing shoulder's shadow, in hand lengths.
+ */
 const PRESS_OUT: number = 0.1;
 
-/** World-space wrist fit tolerance in metres. */
+/*
+ * World-space wrist fit tolerance in metres.
+ */
 const FIT: number = 0.01;
 
-/**
+/*
  * Ground and seated rest frame used to carry the low-body and recovered arm
  * goals.
  */
@@ -61,7 +71,7 @@ const ORIGIN: IAutoMovieRigidTransform = {
   rotation: { x: 0, y: 0, z: 0, w: 1 },
 };
 
-/**
+/*
  * Shift a court-supported seat by pressing on one stationary palm, then release
  * the palm and bring both forearms to a receive platform. The torso support
  * remains on the court during play, as in World ParaVolley Rule 9.4.1, without
@@ -81,7 +91,7 @@ export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
     yields: ["head"],
     plan: planHumanSittingVolley,
   };
-/**
+/*
  * Shift a court-supported seat by pressing on one stationary palm, then release
  * the palm and bring both forearms to a receive platform. The torso support
  * remains on the court during play, as in World ParaVolley Rule 9.4.1, without
@@ -91,8 +101,6 @@ export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
  * https://pmc.ncbi.nlm.nih.gov/articles/PMC5747199/ . Phase shares, incline and
  * single-shift bounds are provisional staging choices. The receiving location
  * is independent of any ball outcome.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, supporting palm, maintained pelvis support and receiving platform.
  */
 function planHumanSittingVolley(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSittingVolley.ISittingVolley>,
@@ -174,7 +182,9 @@ function planHumanSittingVolley(
     ),
   );
 
-  /** Place the inclined torso and carry the floor-seated leg pose. */
+  /*
+   * Place the inclined torso and carry the floor-seated leg pose.
+   */
   const torso = (
     moved: IAutoMovieVector3,
     reaching: number,
@@ -236,7 +246,9 @@ function planHumanSittingVolley(
     y: 0,
   };
 
-  /** Keep the seat socket on its original floor height while the trunk inclines. */
+  /*
+   * Keep the seat socket on its original floor height while the trunk inclines.
+   */
   const posture = (at: number): IAutoMovieMotionHumanPosture => {
     const share: number = Math.min(1, Math.max(0, at / seconds));
     if (share === 0) return low;
@@ -435,7 +447,9 @@ function planHumanSittingVolley(
   };
 }
 
-/** The record of `IPlanHumanSittingVolleyMissesItem`'s site. */
+/*
+ * The record of `IPlanHumanSittingVolleyMissesItem`'s site.
+ */
 type IPlanHumanSittingVolleyMissesItem = {
   phase: string;
   side: AutoMovieHumanSide;

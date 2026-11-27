@@ -8,7 +8,7 @@ import { addAutoMovieQuadraticProduct } from "./addAutoMovieQuadraticProduct";
 import { assembleAutoMovieQuadraticProgram } from "./assembleAutoMovieQuadraticProgram";
 import { solveAutoMovieQuadraticKernel } from "./solveAutoMovieQuadraticKernel";
 
-/**
+/*
  * Solve a nonempty positive-semidefinite diagonal quadratic program. Finite
  * coefficients and endpoints must have magnitude below 1e30, the numerical
  * infinity sentinel; larger finite values cannot be represented as such by this

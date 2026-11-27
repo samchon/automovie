@@ -9,17 +9,16 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { gesture } from "./gesture";
 import { gestureStrokeTables } from "./gestureStrokeTables";
 
-/**
+/*
  * A gesture's admitted counts and the hands it moves: its stroke count (the
  * parameter or the kind's rhythm), its hold, its bow depth within
  * `gesture.DEEPEST_BOW`, a point's target and an aimed digit's shape, then the
  * sides its kind moves (`gestureStrokeTables.HANDS`).
- *
- * @param p The gesture's parameters.
- * @param rhythm The kind's rhythm.
- * @returns The admitted counts and the moving sides.
- * @throws {HumanRefusal} For a bad count, hold or depth, a point without a
- *   target, or an aim without a shape.
+ * Parameter p: The gesture's parameters.
+ * Parameter rhythm: The kind's rhythm.
+ * Returns: The admitted counts and the moving sides.
+ * For a bad count, hold or depth, a point without a
+ * target, or an aim without a shape.
  */
 export function gestureAdmit(
   p: IAutoMovieMotionHumanGesture.IParams,
@@ -66,23 +65,37 @@ export function gestureAdmit(
   return { cycles, hold, depth, sides };
 }
 
-/** The records of `gestureAdmit`. */
+/*
+ * The records of `gestureAdmit`.
+ */
 export namespace gestureAdmit {
-  /** A gesture's admitted counts and the hands it moves. */
+  /*
+   * A gesture's admitted counts and the hands it moves.
+   */
   export interface IAdmitted {
-    /** The strokes, a whole count. */
+    /*
+     * The strokes, a whole count.
+     */
     cycles: number;
 
-    /** The hold at the stroke's end, seconds. */
+    /*
+     * The hold at the stroke's end, seconds.
+     */
     hold: number;
 
-    /** A bow's depth, degrees. */
+    /*
+     * A bow's depth, degrees.
+     */
     depth: number;
 
-    /** The sides the kind moves. */
+    /*
+     * The sides the kind moves.
+     */
     sides: AutoMovieHumanSide[];
   }
 }
 
-/** The alternatives of `PlanSidesWhich`'s site. */
+/*
+ * The alternatives of `PlanSidesWhich`'s site.
+ */
 type PlanSidesWhich = "one" | "both" | "none";

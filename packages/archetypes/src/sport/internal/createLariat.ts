@@ -4,7 +4,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
-/**
+/*
  * A lariat, a roper's catch rope: a loop running through the hondo, the eye
  * tied at the rope's working end, the spoke from the hondo back to the swinging
  * hand, and the coiled tail the other hand holds with the reins.
@@ -16,12 +16,11 @@ import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSe
  * swinging hand's hold, at the spoke's far end where the hand takes loop and
  * spoke together; `coils` is the tail the rein hand holds; `hondo` is the eye;
  * `loop` the loop's centre, its `+Y` the loop's normal.
- *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The lariat.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * Parameter params: Any dimension the author fixes.
+ * Parameter seed: The seed that draws every dimension left free inside its band;
+ * absent, each takes the middle of its band.
+ * Returns: The lariat.
+ * For a fixed dimension outside its band.
  */
 export function createLariat(
   params: AutoMovieArchetypeLariat.IParams = {},

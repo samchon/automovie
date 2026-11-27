@@ -5,7 +5,7 @@ import {
 
 import { midpoint } from "../../math/internal/midpoint";
 
-/**
+/*
  * Restate a world box as the base, height and radius the framing grammar solves
  * from.
  *
@@ -24,9 +24,8 @@ import { midpoint } from "../../math/internal/midpoint";
  * coordinates recover a representable radius; ordinary finite results keep
  * their arithmetic order. Height and a genuinely unrepresentable radius can
  * still overflow, and callers own admission of those derived values.
- *
- * @param box World box of the subject, in metres.
- * @returns A new framed box sharing no object with `box`.
+ * Parameter box: World box of the subject, in metres.
+ * Returns: A new framed box sharing no object with `box`.
  */
 export function framedBoxOf(box: IAutoMovieSubjectBox): IAutoMovieFramedBox {
   // A coordinate difference can overflow only past half the largest double;

@@ -14,11 +14,10 @@ import { AutoMovieArchetypeQuadruped } from "../../animals/AutoMovieArchetypeQua
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
-/**
+/*
  * Reference species, equipment and authored faster-gait consumers.
- *
- * @returns Bare and combined-equipment subjects, their walks and explicitly
- *   authored faster rides.
+ * Returns: Bare and combined-equipment subjects, their walks and explicitly
+ * authored faster rides.
  */
 export function archetypeCaptureReferenceAnimals(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
@@ -180,7 +179,7 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
   return entries;
 }
 
-/**
+/*
  * Authored inspection collar/lead ratios fit the neck; they are not maker
  * dimensions.
  */
@@ -195,7 +194,7 @@ function lead(
   };
 }
 
-/**
+/*
  * Explicit gallery pack dimensions use the free trunk span, barrel and neck
  * footprint.
  */

@@ -1,4 +1,4 @@
-/**
+/*
  * Attempt one synchronous restoration once. Later calls preserve its original
  * failure instead of reporting success or retrying a partially released
  * resource; reentrant calls do not start a second attempt.

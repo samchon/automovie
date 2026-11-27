@@ -19,42 +19,55 @@ import { walkPosture } from "./walkPosture";
 import { walkReach } from "./walkReach";
 import { walkSwing } from "./walkSwing";
 
-/**
+/*
  * A stepping gait's legs at a second: the pelvis settled against the stances
  * and each swinging foot reached inside its leg's ranges under it, the running
  * swings holding the reach of the stance they leave, settled once per swing as
  * the walk is planned.
  */
 export namespace walkLocomoteSolve {
-  /** What the legs read of the walk's plan. */
+  /*
+   * What the legs read of the walk's plan.
+   */
   export interface IContext {
-    /** The plan's fixed body. */
+    /*
+     * The plan's fixed body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The gait. */
+    /*
+     * The gait.
+     */
     gait: IAutoMovieMotionHumanWalkGait;
 
-    /** The walk's step schedule. */
+    /*
+     * The walk's step schedule.
+     */
     steps: IAutoMovieMotionHumanWalkSteps.IPlan;
 
-    /** The pelvis's joint angles at a second, its stride phase and amount. */
+    /*
+     * The pelvis's joint angles at a second, its stride phase and amount.
+     */
     pelvis: walkLocomoteGround.IContext["pelvis"];
 
-    /** The pelvis settled against the stances. */
+    /*
+     * The pelvis settled against the stances.
+     */
     ground: walkLocomoteGround.IGround;
 
-    /** The swings joining their settled stance ends. */
+    /*
+     * The swings joining their settled stance ends.
+     */
     reached: ReturnType<typeof walkSwing>;
   }
 
-  /**
+  /*
    * Prepare the legs' solve: both legs' range readers, the footfalls taken in
    * place at the arrival, and each running swing's departure excess, how far
    * its leg's reach moves the stance it leaves, settled at its toe-off.
-   *
-   * @param context What the legs read of the walk's plan.
-   * @param swings Every swing of the plan.
-   * @returns The solve of the legs at a second.
+   * Parameter context: What the legs read of the walk's plan.
+   * Parameter swings: Every swing of the plan.
+   * Returns: The solve of the legs at a second.
    */
   export function prepare(
     context: IContext,
@@ -192,16 +205,17 @@ export namespace walkLocomoteSolve {
   }
 }
 
-/** A leg's swing kept inside its ranges under a settled pelvis. */
+/*
+ * A leg's swing kept inside its ranges under a settled pelvis.
+ */
 type Ranged = ReturnType<typeof walkReach.prepareSwing>;
 
-/**
+/*
  * A running swing's prepared departure excess.
- *
- * @param leavings The excesses by foot and toe-off.
- * @param side The swinging foot.
- * @param off Its toe-off, action seconds.
- * @returns The excess, world metres.
+ * Parameter leavings: The excesses by foot and toe-off.
+ * Parameter side: The swinging foot.
+ * Parameter off: Its toe-off, action seconds.
+ * Returns: The excess, world metres.
  */
 function leaving(
   leavings: ReadonlyMap<string, IAutoMovieVector3>,

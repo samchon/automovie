@@ -14,7 +14,9 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeEquineExpressionCue } from "../AutoMovieArchetypeEquineExpressionCue";
 
-/** Acts whose muzzle touches its target. */
+/*
+ * Acts whose muzzle touches its target.
+ */
 const TOUCHING: ReadonlySet<AutoMovieArchetypeEquineExpressionCue.Act> =
   new Set<AutoMovieArchetypeEquineExpressionCue.Act>([
     "greet",
@@ -27,32 +29,37 @@ const TOUCHING: ReadonlySet<AutoMovieArchetypeEquineExpressionCue.Act> =
     "suckle",
   ]);
 
-/**
+/*
  * The expression layer's cue admission and the readers its channels share: each
  * cue's eased share, a target's world point and a world point in a sample's
  * model space.
  */
 export namespace EquineExpressionAdmission {
-  /** A held cue with its channel. */
+  /*
+   * A held cue with its channel.
+   */
   export type Held = Exclude<AutoMovieArchetypeEquineExpressionCue.Cue, Marked>;
 
-  /** A cue on the head channel that faces a target. */
+  /*
+   * A cue on the head channel that faces a target.
+   */
   export type Facing =
     | AutoMovieArchetypeEquineExpressionCue.IAttend
     | AutoMovieArchetypeEquineExpressionCue.IReach;
 
-  /** Any cue on the head channel. */
+  /*
+   * Any cue on the head channel.
+   */
   export type Heading =
     | Facing
     | AutoMovieArchetypeEquineExpressionCue.ICarriage;
 
-  /**
+  /*
    * A cue's minimum-jerk share at a second: zero outside its window, one when
    * fully held.
-   *
-   * @param cue The cue.
-   * @param seconds The film second.
-   * @returns The share, 0 to 1.
+   * Parameter cue: The cue.
+   * Parameter seconds: The film second.
+   * Returns: The share, 0 to 1.
    */
   export function envelope(cue: Held, seconds: number): number {
     if (!(seconds > cue.from && seconds < cue.to)) return 0;
@@ -65,12 +72,11 @@ export namespace EquineExpressionAdmission {
     );
   }
 
-  /**
+  /*
    * A target's world point at a second.
-   *
-   * @param cue The facing cue.
-   * @param seconds The film second.
-   * @returns The world point.
+   * Parameter cue: The facing cue.
+   * Parameter seconds: The film second.
+   * Returns: The world point.
    */
   export function target(cue: Facing, seconds: number): IAutoMovieVector3 {
     return cue.target.kind === "point"
@@ -78,12 +84,11 @@ export namespace EquineExpressionAdmission {
       : cue.target.at(seconds);
   }
 
-  /**
+  /*
    * A world point in a sample's model space.
-   *
-   * @param sample The sample.
-   * @param point The world point.
-   * @returns The point in its model space.
+   * Parameter sample: The sample.
+   * Parameter point: The world point.
+   * Returns: The point in its model space.
    */
   export function local(
     sample: AutoMovieArchetypeRide.IPose<string, string>,
@@ -98,15 +103,14 @@ export namespace EquineExpressionAdmission {
     );
   }
 
-  /**
+  /*
    * Admit the cues: finite windows, one cue at a time per channel, and
    * clearances that agree with their acts.
-   *
-   * @param archetype The animal's producer name, for a refusal.
-   * @param cues The cues.
-   * @returns The held cues.
-   * @throws {AutoMovieArchetypeRefusal} For a malformed window, overlapping
-   *   cues on a channel or a clearance its act contradicts.
+   * Parameter archetype: The animal's producer name, for a refusal.
+   * Parameter cues: The cues.
+   * Returns: The held cues.
+   * For a malformed window, overlapping
+   * cues on a channel or a clearance its act contradicts.
    */
   export function admit(
     archetype: string,
@@ -167,7 +171,9 @@ export namespace EquineExpressionAdmission {
   }
 }
 
-/** A cue that poses nothing and only marks an instant. */
+/*
+ * A cue that poses nothing and only marks an instant.
+ */
 type Marked =
   | AutoMovieArchetypeEquineExpressionCue.IVocalize
   | AutoMovieArchetypeEquineExpressionCue.ITwitch;

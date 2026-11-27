@@ -233,10 +233,14 @@ export namespace AutoMovieHumanArmTube {
   }
 }
 
-/** Spacing of the scale's grid along the walk, mm. */
+/*
+ * Spacing of the scale's grid along the walk, mm.
+ */
 const GRID: number = 2;
 
-/** Angles of a section's hull. */
+/*
+ * Angles of a section's hull.
+ */
 const GIRTH_PHASES: number = 256;
 
 function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {

@@ -30,19 +30,29 @@ export class AutoMovieViewerTransport {
   /** The source's available range; review bounds cannot widen it. */
   public readonly available: readonly [number, number];
 
-  /** Current review speed. */
+  /*
+   * Current review speed.
+   */
   private rate: number = 1;
 
-  /** Wall anchor, milliseconds. */
+  /*
+   * Wall anchor, milliseconds.
+   */
   private wall: number = 0;
 
-  /** Film second at the anchor. */
+  /*
+   * Film second at the anchor.
+   */
   private origin: number = 0;
 
-  /** Pending start generation. */
+  /*
+   * Pending start generation.
+   */
   private generation: number = 0;
 
-  /** Borrowed collaborators and settings. */
+  /*
+   * Borrowed collaborators and settings.
+   */
   private readonly options: AutoMovieViewerTransport.IOptions;
 
   /**
@@ -190,7 +200,9 @@ export class AutoMovieViewerTransport {
     };
   }
 
-  /** The injected or performance clock, milliseconds. */
+  /*
+   * The injected or performance clock, milliseconds.
+   */
   private now(): number {
     return this.options.now?.() ?? performance.now();
   }
@@ -277,6 +289,8 @@ export namespace AutoMovieViewerTransport {
     now?(): number;
   }
 
-  /** A decimal number, optionally signed, with an optional exponent. */
+  /*
+   * A decimal number, optionally signed, with an optional exponent.
+   */
   const DECIMAL: RegExp = /^\s*[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?\s*$/iu;
 }

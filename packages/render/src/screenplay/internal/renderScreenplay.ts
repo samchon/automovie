@@ -6,7 +6,7 @@ import {
 
 import { screenplaySceneSlug } from "./screenplaySceneSlug.js";
 
-/**
+/*
  * Serialize a validated script into plain screenplay text with one terminal
  * newline. A script with no beats throws before serialization.
  *

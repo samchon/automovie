@@ -37,7 +37,7 @@ import { operateLongInsertCourse } from "./operateLongInsertCourse";
 import { operateLongInsertStaff } from "./operateLongInsertStaff";
 import { operateLongInsertStep } from "./operateLongInsertStep";
 
-/**
+/*
  * A staff driven down a bore deeper than one grip reaches, `operate`'s
  * long-insert mode: a sponge or a rammer down a gun's bore, as a gun crew's No.
  * 1 slides his hands along the staff and steps in toward the muzzle.
@@ -62,11 +62,10 @@ import { operateLongInsertStep } from "./operateLongInsertStep";
  * (McIntosh et al. 2018), a step for its walk. Refused: a staff with no
  * grippable run along its line, a long insertion left in the bore (it would
  * leave the carrying hand off its grip), and whatever the course refuses.
- *
- * @param context The operation's context, its mechanism's depth resolved.
- * @param props The hand, the held staff, the socket and the timing.
- * @returns The plan.
- * @throws {HumanRefusal} As stated.
+ * Parameter context: The operation's context, its mechanism's depth resolved.
+ * Parameter props: The hand, the held staff, the socket and the timing.
+ * Returns: The plan.
+ * As stated.
  */
 export function operateLongInsert(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams>,
@@ -443,9 +442,11 @@ export function operateLongInsert(
   };
 }
 
-/** The inputs of {@link operateLongInsert} and the staff's run it reads. */
+/*
+ * The inputs of operateLongInsert and the staff's run it reads.
+ */
 export namespace operateLongInsert {
-  /**
+  /*
    * A hand's breadth as a share of its length: a 2016 adult hand survey gives
    * P50 breadths of 86 and 80 mm against lengths of 188 and 177 mm for men and
    * women (https://pmc.ncbi.nlm.nih.gov/articles/PMC9225906/, read through a
@@ -454,30 +455,48 @@ export namespace operateLongInsert {
    */
   export const BREADTH: number = 0.45;
 
-  /** What `operate` passes. */
+  /*
+   * What `operate` passes.
+   */
   export interface IProps extends operateInsertRoute.IConstants {
-    /** The insertion, its depth resolved. */
+    /*
+     * The insertion, its depth resolved.
+     */
     mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism;
 
-    /** The hand that holds the staff. */
+    /*
+     * The hand that holds the staff.
+     */
     side: AutoMovieHumanSide;
 
-    /** The staff as that hand holds it. */
+    /*
+     * The staff as that hand holds it.
+     */
     tool: IAutoMovieMotionHumanStrikingHeld.ITool;
 
-    /** The socket's mouth and outward normal, world. */
+    /*
+     * The socket's mouth and outward normal, world.
+     */
     socket: IAutoMovieMotionHumanOperateInsert.ITargetSocket;
   }
 
-  /** A step window of the base. */
+  /*
+   * A step window of the base.
+   */
   export interface IWindow {
-    /** Its first second. */
+    /*
+     * Its first second.
+     */
     from: number;
 
-    /** Its walk. */
+    /*
+     * Its walk.
+     */
     plan: IAutoMovieMotionHumanActionPlan;
 
-    /** The stance it reaches. */
+    /*
+     * The stance it reaches.
+     */
     to: number;
   }
 }

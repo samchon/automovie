@@ -15,14 +15,14 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 
-/**
+/*
  * An action composed of part primitives over a base.
  *
  * The base is the posture every unclaimed channel keeps (standing, a fighting
  * stance, seated, walking). The clock gives the duration and the events. At a
  * second, the base's posture is taken and every primitive whose window holds
  * that second writes its channels onto it, in
- * {@link AutoMovieMotionHumanChannel.ORDER}, so an arm reads the trunk the
+ * AutoMovieMotionHumanChannel.ORDER, so an arm reads the trunk the
  * action already placed. The plan's contact windows and weapons are the base's
  * followed by the primitives', and its `channels` are the channels some
  * primitive claims, in that order; where none claims the root, the trunk or a
@@ -43,13 +43,12 @@ import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionH
  * named channels. The composer follows active writers' declared input
  * dependencies backward and leaves unrelated writers unevaluated; omitted
  * dependencies require all channels.
- *
- * @param props The base, the clock and the primitives.
- * @returns The plan.
- * @throws {Error} When the base and the clock differ in duration, a primitive
- *   claims no channel, a primitive's window is reversed or leaves the clock, or
- *   two primitives claim one channel over overlapping windows; and whatever a
- *   primitive's plan refuses with (a planned arm's `HumanRefusal`).
+ * Parameter props: The base, the clock and the primitives.
+ * Returns: The plan.
+ * When the base and the clock differ in duration, a primitive
+ * claims no channel, a primitive's window is reversed or leaves the clock, or
+ * two primitives claim one channel over overlapping windows; and whatever a
+ * primitive's plan refuses with (a planned arm's `HumanRefusal`).
  */
 export function composeAutoMovieMotionHumanAction(
   props: IAutoMovieMotionHumanComposeAutoMovieMotionHumanAction.IProps,
@@ -128,31 +127,41 @@ export function composeAutoMovieMotionHumanAction(
   ];
   const base: IAutoMovieMotionHumanActionPlan = props.base;
 
-  /**
+  /*
    * The completed demanded prefixes of one evaluation's second, shared by its
    * writers within that one call.
    */
   interface Evaluation {
-    /**
+    /*
      * The explicit context the plan's posture was called with, which every
      * primitive's write of this evaluation receives.
      */
     evaluation?: IAutoMovieMotionHumanEvaluation;
 
-    /** The first clamped second this evaluation read; absent until one is. */
+    /*
+     * The first clamped second this evaluation read; absent until one is.
+     */
     seconds: number | undefined;
 
-    /** That second's completed prefixes by prefix and demand. */
+    /*
+     * That second's completed prefixes by prefix and demand.
+     */
     first: Map<number, IAutoMovieMotionHumanPosture> | undefined;
   }
 
-  /** Fixed-claim posture merge retained by each primitive's plan. */
+  /*
+   * Fixed-claim posture merge retained by each primitive's plan.
+   */
   type Merger = ReturnType<typeof HumanChannels.prepareMerge>;
 
-  /** Exact FK metadata borrowed only by the currently active synchronous query. */
+  /*
+   * Exact FK metadata borrowed only by the currently active synchronous query.
+   */
   type Resolution = Parameters<typeof prepareHumanPoseResolution>[0];
 
-  /** Genuine direct ROM metadata borrowed with the same synchronous query. */
+  /*
+   * Genuine direct ROM metadata borrowed with the same synchronous query.
+   */
   type Projection = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3];
 
   // Nine owned channels fit in one integer. A write may replace a channel
@@ -319,7 +328,7 @@ export function composeAutoMovieMotionHumanAction(
     );
   }
 
-  /**
+  /*
    * Run with a fresh scope, restoring an enclosing evaluation even if this one
    * throws.
    */
@@ -349,7 +358,9 @@ export function composeAutoMovieMotionHumanAction(
     }
   }
 
-  /** Encode the owned partition once for each fixed primitive dependency. */
+  /*
+   * Encode the owned partition once for each fixed primitive dependency.
+   */
   function mask(channels: readonly AutoMovieMotionHumanChannel[]): number {
     let result: number = 0;
     for (const channel of channels)
@@ -357,7 +368,9 @@ export function composeAutoMovieMotionHumanAction(
     return result;
   }
 
-  /** Resolve only contributors to a demand; a failed write publishes no result. */
+  /*
+   * Resolve only contributors to a demand; a failed write publishes no result.
+   */
   function so(
     index: number,
     seconds: number,
@@ -430,15 +443,21 @@ export function composeAutoMovieMotionHumanAction(
   }
 }
 
-/** The channel mask a primitive reads at a second of its window. */
+/*
+ * The channel mask a primitive reads at a second of its window.
+ */
 type SoDependency = (seconds: number) => number;
 
-/** Whether a primitive solves what it reads of other performers once placed. */
+/*
+ * Whether a primitive solves what it reads of other performers once placed.
+ */
 function readies(p: IAutoMovieMotionHumanPrimitive): boolean {
   return p.ready !== undefined;
 }
 
-/** The channels that move the root, the trunk or a leg, which a leg fit reads. */
+/*
+ * The channels that move the root, the trunk or a leg, which a leg fit reads.
+ */
 const LEGGED: readonly AutoMovieMotionHumanChannel[] = [
   "root",
   "trunk",

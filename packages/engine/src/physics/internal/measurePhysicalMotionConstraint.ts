@@ -7,7 +7,7 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Measure authored endpoint, separation and bend promises from displayed bone
  * frames. No clinical catalogue, species, actor or screenplay window is
  * selected here. A missing frame, coincident ray or zero-length angle refuses

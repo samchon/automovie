@@ -7,7 +7,7 @@ import type {
 import { Vector3 } from "../../math/Vector3";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
-/**
+/*
  * Authored state remains first-class and uses finite differences only for
  * reported velocities.
  */

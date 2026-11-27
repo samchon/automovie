@@ -24,15 +24,21 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** Zero displacement before a rounded grip starts to roll. */
+/*
+ * Zero displacement before a rounded grip starts to roll.
+ */
 const STILL: IAutoMovieRigidTransform = {
   position: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
 };
 
-/** World hand placements shared by wearable prop actions. */
+/*
+ * World hand placements shared by wearable prop actions.
+ */
 export namespace wardrobeHands {
-  /** Admit a hand that is free to work the closure. */
+  /*
+   * Admit a hand that is free to work the closure.
+   */
   export function closureHand(
     side: AutoMovieHumanSide,
     held: string | undefined,
@@ -41,7 +47,9 @@ export namespace wardrobeHands {
       throw refusal("side", side, "free the hand that works the zip");
   }
 
-  /** Admit a supported jacket close enough to the wearer's own collar. */
+  /*
+   * Admit a supported jacket close enough to the wearer's own collar.
+   */
   export function sleeveMount(subject: string, distance: number): void {
     if (distance > 0.12)
       throw refusal(
@@ -50,16 +58,24 @@ export namespace wardrobeHands {
         "the jacket must be seated on the performer before threading this sleeve",
       );
   }
-  /** What every wardrobe mode names: the staged wearable prop. */
+  /*
+   * What every wardrobe mode names: the staged wearable prop.
+   */
   export interface IPropParams {
-    /** The wearable prop's scene id. */
+    /*
+     * The wearable prop's scene id.
+     */
     prop: string;
   }
 
-  /** The posed grip may miss its authored contact by at most one centimetre. */
+  /*
+   * The posed grip may miss its authored contact by at most one centimetre.
+   */
   export const MISS: number = 0.01;
 
-  /** Rigid grip and stationary facing of a bone at an admitted posture. */
+  /*
+   * Rigid grip and stationary facing of a bone at an admitted posture.
+   */
   export function bone(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -80,7 +96,9 @@ export namespace wardrobeHands {
     );
   }
 
-  /** The grip frame sampled in the display's actual hand rotation. */
+  /*
+   * The grip frame sampled in the display's actual hand rotation.
+   */
   export function grip(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -111,7 +129,7 @@ export namespace wardrobeHands {
     };
   }
 
-  /**
+  /*
    * Local affordance lookup with one actionable refusal for absent or
    * incompatible sockets.
    */
@@ -133,7 +151,9 @@ export namespace wardrobeHands {
     return found;
   }
 
-  /** World or local rigid transform of a declared native model contact. */
+  /*
+   * World or local rigid transform of a declared native model contact.
+   */
   export function frame(
     contact: IAutoMovieAffordance,
   ): IAutoMovieRigidTransform {
@@ -143,7 +163,9 @@ export namespace wardrobeHands {
     };
   }
 
-  /** A true aperture's middle rather than its lower-edge origin. */
+  /*
+   * A true aperture's middle rather than its lower-edge origin.
+   */
   export function middle(
     aperture: IAutoMovieAffordance,
   ): IAutoMovieRigidTransform {
@@ -167,7 +189,9 @@ export namespace wardrobeHands {
     });
   }
 
-  /** Move one grip over a clamped minimum-jerk path between admitted keys. */
+  /*
+   * Move one grip over a clamped minimum-jerk path between admitted keys.
+   */
   export function path(
     from: IAutoMovieRigidTransform,
     to: IAutoMovieRigidTransform,
@@ -180,7 +204,7 @@ export namespace wardrobeHands {
     };
   }
 
-  /**
+  /*
    * Assign a grip target to one arm while preserving every other part of the
    * posture. A channel demand that leaves the arm out (`courseArmGoal`'s, while
    * the arm is on its planned course) takes the posture as it is, with no elbow
@@ -211,7 +235,9 @@ export namespace wardrobeHands {
     return gripGoal(posture, side, point, target.rotation, bend, site);
   }
 
-  /** Prepare elbow hints over a bound path, keeping the exact grip geometry. */
+  /*
+   * Prepare elbow hints over a bound path, keeping the exact grip geometry.
+   */
   export function prepareArm(
     body: IAutoMovieMotionHumanBody,
     base: (seconds: number) => IAutoMovieMotionHumanPosture,
@@ -262,7 +288,9 @@ export namespace wardrobeHands {
     };
   }
 
-  /** A local translation without a change to the unit quaternion. */
+  /*
+   * A local translation without a change to the unit quaternion.
+   */
   export function displaced(
     from: IAutoMovieRigidTransform,
     delta: IAutoMovieVector3,
@@ -270,7 +298,9 @@ export namespace wardrobeHands {
     return { ...from, position: Vector3.add(from.position, delta) };
   }
 
-  /** Roll a rounded grip around the actual hand contact while the model aligns. */
+  /*
+   * Roll a rounded grip around the actual hand contact while the model aligns.
+   */
   export function roll(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -294,7 +324,7 @@ export namespace wardrobeHands {
     };
   }
 
-  /**
+  /*
    * Construct a declared grip that takes custody at closure, or steadies the
    * receiver.
    */
@@ -314,7 +344,7 @@ export namespace wardrobeHands {
     };
   }
 
-  /**
+  /*
    * Reject incomplete authorship or a geometric fit that the wearer cannot
    * take.
    */
@@ -340,7 +370,9 @@ export namespace wardrobeHands {
     });
   }
 
-  /** Prove the posed hand reached its geometric goal before publishing custody. */
+  /*
+   * Prove the posed hand reached its geometric goal before publishing custody.
+   */
   export function verify(
     context: Pick<IAutoMovieMotionHumanActionContext, "body">,
     posture: IAutoMovieMotionHumanPosture,
@@ -358,7 +390,9 @@ export namespace wardrobeHands {
       );
   }
 
-  /** A free-space transfer time, preserving a readable short phase on screen. */
+  /*
+   * A free-space transfer time, preserving a readable short phase on screen.
+   */
   export function duration(
     a: IAutoMovieRigidTransform,
     b: IAutoMovieRigidTransform,
@@ -371,7 +405,7 @@ export namespace wardrobeHands {
     );
   }
 
-  /**
+  /*
    * Drive the slider with a hand after the jacket has transferred onto the
    * chest.
    */
@@ -504,7 +538,9 @@ export namespace wardrobeHands {
     };
   }
 
-  /** Choose a hand roll that reaches both endpoints of a fully defined path. */
+  /*
+   * Choose a hand roll that reaches both endpoints of a fully defined path.
+   */
   export function fittedGrip(
     context: IAutoMovieMotionHumanActionContext<IPropParams>,
     side: AutoMovieHumanSide,
@@ -539,7 +575,9 @@ export namespace wardrobeHands {
   }
 }
 
-/** Merge a grip's exact wrist and prepared bend into a posture. */
+/*
+ * Merge a grip's exact wrist and prepared bend into a posture.
+ */
 function gripGoal(
   posture: IAutoMovieMotionHumanPosture,
   side: AutoMovieHumanSide,

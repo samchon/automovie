@@ -7,7 +7,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-/**
+/*
  * A displayed pose's segment frames as the solver can hold them: every joint's
  * relative rotation projected into the profile's own joint limits, and every
  * segment placed from its parent through the joint's anchors.
@@ -21,10 +21,9 @@ import type {
  * them: the root's frame as displayed, each child at its displayed relative
  * rotation projected by the engine's own projection
  * (`projectPhysicalJointRotation`), parent first.
- *
- * @param profile The performer's physical profile.
- * @param displayed The displayed world segment frames, every segment.
- * @returns Fresh admissible world segment frames.
+ * Parameter profile: The performer's physical profile.
+ * Parameter displayed: The displayed world segment frames, every segment.
+ * Returns: Fresh admissible world segment frames.
  */
 export function admitHumanSimulationTargets(
   profile: IAutoMoviePhysicalProfile,

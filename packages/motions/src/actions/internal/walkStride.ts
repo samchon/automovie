@@ -12,7 +12,7 @@ import type {
 import { WalkPace } from "./WalkPace";
 import type { walkStepFoot } from "./walkStepFoot";
 
-/**
+/*
  * A gait entered in stride: one entry foot standing and the other in the air (a
  * hurdler's trail leg over the bar, the lead foot landed). The foot in the air
  * bears nothing, so it steps first, its swing leaving from where it is with the
@@ -26,21 +26,29 @@ import type { walkStepFoot } from "./walkStepFoot";
  * have landed.
  */
 export namespace walkStride {
-  /** The outgoing flight's next ground plant on the new local clock. */
+  /*
+   * The outgoing flight's next ground plant on the new local clock.
+   */
   export interface IFlight {
-    /** The first side to land. */
+    /*
+     * The first side to land.
+     */
     side: AutoMovieHumanSide;
 
-    /** Seconds from the cut to that landing. */
+    /*
+     * Seconds from the cut to that landing.
+     */
     remaining: number;
 
-    /** The predecessor's next footfall frame and its contact offset. */
+    /*
+     * The predecessor's next footfall frame and its contact offset.
+     */
     landing?: IAutoMovieMotionHumanWalkFoot.IFoot & {
       contact?: IAutoMovieVector3;
     };
   }
 
-  /**
+  /*
    * Find the incoming gait's first ground plant in the displayed outgoing
    * contact schedule. A double-unplanted non-gait pose has no gait landmark.
    */
@@ -90,20 +98,23 @@ export namespace walkStride {
     };
   }
 
-  /** What `airborne` reads of an entry: whether each foot is planted. */
+  /*
+   * What `airborne` reads of an entry: whether each foot is planted.
+   */
   export interface IFeet {
-    /** The entry's feet. */
+    /*
+     * The entry's feet.
+     */
     feet: Record<
       AutoMovieHumanSide,
       Pick<IAutoMovieMotionHumanEntryState.IFoot, "planted">
     >;
   }
 
-  /**
+  /*
    * The foot in the air of an entry in stride.
-   *
-   * @param entry Whether each entry foot is planted.
-   * @returns The side, or undefined when both feet stand or neither does.
+   * Parameter entry: Whether each entry foot is planted.
+   * Returns: The side, or undefined when both feet stand or neither does.
    */
   export function airborne(entry: IFeet): AutoMovieHumanSide | undefined {
     return entry.feet.left.planted === entry.feet.right.planted
@@ -113,15 +124,14 @@ export namespace walkStride {
         : "left";
   }
 
-  /**
+  /*
    * The gait's timing, in stride where a foot is in the air.
-   *
-   * @param props The pace's inputs, without the stood time.
-   * @param longest The longest step, metres.
-   * @param entry The entry state.
-   * @param way The way's opening direction, a horizontal unit vector, or
-   *   undefined for no way.
-   * @returns The timing.
+   * Parameter props: The pace's inputs, without the stood time.
+   * Parameter longest: The longest step, metres.
+   * Parameter entry: The entry state.
+   * Parameter way: The way's opening direction, a horizontal unit vector, or
+   * undefined for no way.
+   * Returns: The timing.
    */
   export function pace(
     props: IAutoMovieMotionHumanWalkPace.IProps,
@@ -151,13 +161,12 @@ export namespace walkStride {
     return WalkPace.fit({ ...props, stride: stood }, longest);
   }
 
-  /**
+  /*
    * The foot in the air as it entered, for its first swing.
-   *
-   * @param entry The entry state.
-   * @param side The foot.
-   * @returns Its placement, toes and velocity, or undefined for a standing
-   *   foot.
+   * Parameter entry: The entry state.
+   * Parameter side: The foot.
+   * Returns: Its placement, toes and velocity, or undefined for a standing
+   * foot.
    */
   export function flying(
     entry: IAutoMovieMotionHumanEntryState,

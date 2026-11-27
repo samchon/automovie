@@ -2,7 +2,7 @@ import { AutoMovieArchetypeEquineGait } from "../AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "../AutoMovieArchetypeQuadrupedGait";
 import { DeerCohorts } from "./DeerCohorts";
 
-/**
+/*
  * An observed sika walking clock, with explicit construction-only pose data.
  *
  * Catavitello, Ivanenko and Lacquaniti (2018), eLife 7:e38190, Table 1 and
@@ -31,28 +31,34 @@ import { DeerCohorts } from "./DeerCohorts";
  * substitute the horse's transverse gallop.
  */
 export namespace DeerGait {
-  /** Figure 2 supplement 2D, Cervusnippon row: mean stride period, seconds. */
+  /*
+   * Figure 2 supplement 2D, Cervusnippon row: mean stride period, seconds.
+   */
   const STRIDE: number = 1.136111111111111;
 
-  /** Figure 2 supplement 2C, fore stance percentage divided by 100. */
+  /*
+   * Figure 2 supplement 2C, fore stance percentage divided by 100.
+   */
   const FORE_DUTY: number = 0.7704956892177161;
 
-  /** Figure 2 supplement 2C, hind stance percentage divided by 100. */
+  /*
+   * Figure 2 supplement 2C, hind stance percentage divided by 100.
+   */
   const HIND_DUTY: number = 0.7239413565500523;
 
-  /**
+  /*
    * Figure 2 supplement 2B, camera-facing fore onset relative to ipsilateral
    * hind touchdown.
    */
   const FORE_PHASE: number = 0.2589911698607351;
 
-  /**
+  /*
    * Figure 2 supplement 2B, opposite fore onset on the same hind-referenced
    * clock.
    */
   const OPPOSITE_FORE_PHASE: number = 0.7700624657146398;
 
-  /**
+  /*
    * One measured walking point with no invented faster-gait clock or stride
    * spread.
    */

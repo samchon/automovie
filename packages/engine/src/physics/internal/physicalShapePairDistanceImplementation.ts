@@ -15,7 +15,7 @@ import { physicalShapeBoundsImplementation } from "./physicalShapeBoundsImplemen
 import { physicalShapeHull } from "./physicalShapeHull";
 import { physicalShapeNearest } from "../internal/physicalShapeNearest";
 
-/**
+/*
  * The signed distance between two admitted shapes, each placed by its parent
  * pose: positive when they are apart, negative when one enters the other.
  *
@@ -30,12 +30,11 @@ import { physicalShapeNearest } from "../internal/physicalShapeNearest";
  * the axis of a round one. Overlapping, it is how deep a wire of one lies
  * inside the other, the same depth a capsule's axis reads against a body, so
  * two capsules read their axis distance less both radii.
- *
- * @param poseA The first shape's parent pose, world metres.
- * @param shapeA The first shape.
- * @param poseB The second shape's parent pose, world metres.
- * @param shapeB The second shape.
- * @returns Metres, negative when the shapes overlap.
+ * Parameter poseA: The first shape's parent pose, world metres.
+ * Parameter shapeA: The first shape.
+ * Parameter poseB: The second shape's parent pose, world metres.
+ * Parameter shapeB: The second shape.
+ * Returns: Metres, negative when the shapes overlap.
  */
 function physicalShapePairDistance(
   poseA: IAutoMovieRigidTransform,
@@ -93,13 +92,12 @@ function physicalShapePairDistance(
   return least;
 }
 
-/**
+/*
  * The wire frame of one shape: a sphere's centre and a capsule's axis widened
  * by their radius, a box's and a hull's edges widened by nothing. A hull's
  * edges are kept per point list.
- *
- * @param shape The shape.
- * @returns Its wire frame, shape-local metres.
+ * Parameter shape: The shape.
+ * Returns: Its wire frame, shape-local metres.
  */
 function physicalShapePairDistanceWires(
   shape: IAutoMoviePhysicalShape,
@@ -108,7 +106,9 @@ function physicalShapePairDistanceWires(
 }
 
 
-/** The wire frame of one shape. */
+/*
+ * The wire frame of one shape.
+ */
 const frameOf = (
   shape: IAutoMoviePhysicalShape,
 ): AutoMovieEnginePhysicsPairDistanceTypes.IWires => {
@@ -160,8 +160,12 @@ const frameOf = (
   shape satisfies never;
   throw new Error("Unknown physical shape kind");
 };
-/** Internal implementations shared by the one-function entry modules. */
-/** Internal typed runtime implementations shared by the query entry modules. */
+/*
+ * Internal implementations shared by the one-function entry modules.
+ */
+/*
+ * Internal typed runtime implementations shared by the query entry modules.
+ */
 export const physicalShapePairDistanceImplementation: {
   physicalShapePairDistance: typeof physicalShapePairDistance;
   physicalShapePairDistanceWires: typeof physicalShapePairDistanceWires;

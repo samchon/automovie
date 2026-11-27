@@ -7,7 +7,7 @@ import {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Place one boundary-local point in world space.
  *
  * The face's frame is a full rigid placement, so a wall out of plumb or a
@@ -21,11 +21,10 @@ import { Vector3 } from "../../math/Vector3";
  * lies in the face's local XY plane and a negative `depth` moves along local
  * -Z. `face.rotation` is used as given and must be a unit quaternion, which
  * `validateBuiltEnvironment` requires; a non-unit one would scale the offset.
- *
- * @param face Boundary face whose rigid frame places the point.
- * @param point Point in the face's planar outline frame, in metres.
- * @param depth Offset along the face's local +Z axis in metres, default 0.
- * @returns World position in metres.
+ * Parameter face: Boundary face whose rigid frame places the point.
+ * Parameter point: Point in the face's planar outline frame, in metres.
+ * Parameter depth: Offset along the face's local +Z axis in metres, default 0.
+ * Returns: World position in metres.
  */
 export const autoMovieBoundaryFacePoint: (
   face: IAutoMovieBoundaryFace,

@@ -10,7 +10,7 @@ import { RecoveryEventRegionPorts } from "./RecoveryEventRegionPorts";
 import { RecoveryEventRegionSource } from "./RecoveryEventRegionSource";
 import { RecoveryEventRegionTopology } from "./RecoveryEventRegionTopology";
 
-/**
+/*
  * Prepare private scalar-clipped source-cell ownership and boundary incidence
  * observations. Every query supplies all faces with max(height)>=before and
  * min(height)<=after, in original face order. The implicit cell is that face's

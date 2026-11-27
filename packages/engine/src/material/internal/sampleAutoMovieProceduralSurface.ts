@@ -7,7 +7,7 @@ import type {
 import { autoMovieProceduralPattern } from "./autoMovieProceduralPattern";
 import { autoMovieProceduralPieceOffset } from "./autoMovieProceduralPieceOffset";
 
-/**
+/*
  * The CPU reference of a procedural surface: its base colour, roughness and
  * height at one sample, as the renderer's fragment shader computes them.
  *
@@ -49,7 +49,9 @@ export function sampleAutoMovieProceduralSurface(
   };
 }
 
-/** The sample point in the surface's sampling space, metres. */
+/*
+ * The sample point in the surface's sampling space, metres.
+ */
 function samplePoint(
   props: IAutoMovieSampleProceduralSurface.IProps,
 ): [number, number, number] {

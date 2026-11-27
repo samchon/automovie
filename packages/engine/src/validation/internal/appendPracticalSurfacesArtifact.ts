@@ -9,7 +9,7 @@ import type {
 
 import { pushViolation } from "./pushViolation";
 
-/**
+/*
  * Check shot-local practical surface tracks, appending faults under
  * `$input.practicalSurfaces`. When the model registry is supplied, also resolve
  * every target to a generated rigid model part and every key to a material on
@@ -151,14 +151,20 @@ export function appendPracticalSurfacesArtifact(
   );
 }
 
-/** Model facts needed to resolve a practical track's target and materials. */
+/*
+ * Model facts needed to resolve a practical track's target and materials.
+ */
 type PracticalSurfaceModel = Pick<
   IAutoMovieModel,
   "id" | "origin" | "skeleton"
 > & {
-  /** The model part ids the scene can target. */
+  /*
+   * The model part ids the scene can target.
+   */
   parts: readonly Pick<IAutoMovieModelPart, "id">[];
 
-  /** The material ids each key can select. */
+  /*
+   * The material ids each key can select.
+   */
   materials: readonly Pick<IAutoMovieMaterial, "id">[];
 };

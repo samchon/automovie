@@ -9,7 +9,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 
-/**
+/*
  * Convert authored placements into the declared fixed-pivot physical tree.
  * Preserve root placement and requested parent-relative rotations, project
  * every native angular coordinate, then reconstruct coincident anchors in

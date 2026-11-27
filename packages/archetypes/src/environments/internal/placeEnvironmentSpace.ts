@@ -11,15 +11,14 @@ import type {
 
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 
-/**
+/*
  * Place authored support patches in a scoped upright rigid world frame.
- *
- * @param id Scoped occurrence id prefixed to the space and surface ids.
- * @param local A support space in metres in the model frame.
- * @param frame The already admitted rigid world frame.
- * @returns A world space with the same support and walkability.
- * @throws If the authored space is invalid, the frame is tilted, or a turned
- *   lattice would need resampling.
+ * Parameter id: Scoped occurrence id prefixed to the space and surface ids.
+ * Parameter local: A support space in metres in the model frame.
+ * Parameter frame: The already admitted rigid world frame.
+ * Returns: A world space with the same support and walkability.
+ * If the authored space is invalid, the frame is tilted, or a turned
+ * lattice would need resampling.
  */
 export function placeEnvironmentSpace(
   id: string,
@@ -38,7 +37,9 @@ export function placeEnvironmentSpace(
   if (frame.rotation.x !== 0 || frame.rotation.z !== 0)
     throw new Error(`${id}.space: local support requires an upright frame`);
 
-  /** Project a footprint vertex into world XZ, whose ring Y carries no height. */
+  /*
+   * Project a footprint vertex into world XZ, whose ring Y carries no height.
+   */
   function point(vertex: IAutoMovieVector3): IAutoMovieVector3 {
     const placed: IAutoMovieVector3 = AutoMovieArchetypeFrame.point(frame, {
       x: vertex.x,
@@ -48,7 +49,9 @@ export function placeEnvironmentSpace(
     return { x: placed.x, y: 0, z: placed.z };
   }
 
-  /** Namespace every reference to a surface in the placed space. */
+  /*
+   * Namespace every reference to a surface in the placed space.
+   */
   function surfaceId(key: string): string {
     return `${id}/${local.id}/${key}`;
   }
@@ -84,7 +87,9 @@ export function placeEnvironmentSpace(
   };
 }
 
-/** Re-express a model-local height rule in a world pose that preserves its kind. */
+/*
+ * Re-express a model-local height rule in a world pose that preserves its kind.
+ */
 function placeHeight(
   rule: IAutoMovieHeightRule,
   frame: IAutoMovieTransform,

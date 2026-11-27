@@ -21,13 +21,12 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { touchHold } from "./touchHold";
 import { touchRegion } from "./touchRegion";
 
-/**
+/*
  * The touching hand.
- *
- * @param context The action's context.
- * @param effector The part of the hand that touches.
- * @returns The hand that takes `target`; `params.side` when the author names
- *   it.
+ * Parameter context: The action's context.
+ * Parameter effector: The part of the hand that touches.
+ * Returns: The hand that takes `target`; `params.side` when the author names
+ * it.
  */
 export function touchSide(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTouch.IParams>,
@@ -126,7 +125,7 @@ export function touchSide(
     : "right";
 }
 
-/**
+/*
  * How far a strain can move while every angle it reads moves within
  * `ROM_TOLERANCE`, the resolution to which the elbow search and the fits
  * resolve a joint's angle, so two strains closer than the sum of theirs are one
@@ -138,11 +137,10 @@ export function touchSide(
  * n (e / h)^2`. The terms are the shoulder's three axes, the forearm's twist
  * and the wrist's flexion, their ranges read from the rig (`getConstraint`) as
  * the elbow search reads them.
- *
- * @param body The body.
- * @param side The arm.
- * @param strain The strain, unitless.
- * @returns The bound, unitless; `Infinity` for an infinite strain.
+ * Parameter body: The body.
+ * Parameter side: The arm.
+ * Parameter strain: The strain, unitless.
+ * Returns: The bound, unitless; `Infinity` for an infinite strain.
  */
 function resolution(
   body: IAutoMovieMotionHumanBody,

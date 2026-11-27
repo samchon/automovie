@@ -48,29 +48,35 @@ export namespace AutoMovieHumanJoinLoop {
     stations: number[];
   }
 
-  /** Part phases the cut is read at: one a degree. */
+  /*
+   * Part phases the cut is read at: one a degree.
+   */
   const PHASES: number = 360;
 
-  /** The step a station line is walked in before a passing is bisected, mm. */
+  /*
+   * The step a station line is walked in before a passing is bisected, mm.
+   */
   const STEP_MM: number = 0.5;
 
-  /**
+  /*
    * How near a section plane a point is taken to lie in it, mm: a picometre. The station's own error is this over `1 - d / R` for a
    * point `d` from the course on a turn of radius `R`, so under a nanometre wherever the search converges at all: stopped at a
    * nanometre from the plane, stations inside a turn of 48.3 mm came back 1.9e-9 to 2.6e-9 mm short at 20 mm from the course.
    */
   const ADDRESS_MM: number = 1e-12;
 
-  /**
+  /*
    * The distance from the plane under which a search that has stopped shrinking is taken as landed, mm: a course's frames are
    * computed in doubles, and far along a long course their rounding can hold the distance above a picometre.
    */
   const ADDRESS_FLOOR_MM: number = 1e-9;
 
-  /** Steps a point's station is sought in: the secant lands in under ten from 40 mm away on a made turn; a search that needs more is refused. */
+  /*
+   * Steps a point's station is sought in: the secant lands in under ten from 40 mm away on a made turn; a search that needs more is refused.
+   */
   const ADDRESS_STEPS: number = 64;
 
-  /**
+  /*
    * How far past the loop's half extents on the host's chart a ray is walked for its crossing, as a share: a loop inside its own box
    * lies within `sqrt(2)` of its centre, and the host's skin is read where the part's stands off it by the gap, so twice the box is
    * walked and a ray that has not crossed by then is refused.

@@ -22,27 +22,31 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanSurfaceGlide } from "./HumanSurfaceGlide";
 import { pivotSurfaceFoot } from "./pivotSurfaceFoot";
 
-/** Left and right legs fitted against the moving ice plane. */
+/*
+ * Left and right legs fitted against the moving ice plane.
+ */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
-/** Canonical axes before the foot or carrier rotation. */
+/*
+ * Canonical axes before the foot or carrier rotation.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 const CROSS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
-/**
+/*
  * Share of a curling delivery spent lowering into the slide (provisional
  * staging; the cited study gives the stance, not its timing).
  */
 const CURL_SET: number = 0.3;
 
-/**
+/*
  * Share of a curling delivery at which its `delivery` event is named, mid-slide
  * (provisional staging).
  */
 const CURL_DELIVERY: number = 0.5;
 
-/**
+/*
  * One ice glide with fitted runner edges, an optional step, or a low curling
  * delivery. The bilateral glide owns path, speed, entry and stopping. Ice
  * footwork owns each foot's support window and the point which a shoe or blade
@@ -53,16 +57,15 @@ const CURL_DELIVERY: number = 0.5;
  * https://doi.org/10.3389/fnhum.2025.1587118).
  */
 export namespace HumanIceGlide {
-  /**
+  /*
    * Admit a skate's own requests before its glide is planned: an edge within a
    * right angle either way, and a step whose window opens at or after the start
    * and closes within the glide (its `duration`, the glide's length), whose
    * offset lies within a leg's length and whose clearance is above 0 and within
    * it.
-   *
-   * @param params The skate's requests.
-   * @param measure The body's leg lengths.
-   * @throws {HumanRefusal} When a request lies outside its range.
+   * Parameter params: The skate's requests.
+   * Parameter measure: The body's leg lengths.
+   * When a request lies outside its range.
    */
   export function admit(
     params: Pick<Skate, "edge" | "step" | "duration">,
@@ -93,11 +96,10 @@ export namespace HumanIceGlide {
       "minimum",
     );
   }
-  /**
+  /*
    * Add the registered skate's blade work to the shared glide path.
-   *
-   * @param context The skating route, selected blade edges and optional step.
-   * @returns A glide with the actual edge goals and new step events.
+   * Parameter context: The skating route, selected blade edges and optional step.
+   * Returns: A glide with the actual edge goals and new step events.
    */
   export function skate(
     context: IAutoMovieMotionHumanActionContext<Skate>,
@@ -222,11 +224,10 @@ export namespace HumanIceGlide {
     };
   }
 
-  /**
+  /*
    * Bring a flat-foot curler into a low delivery on a straight glide.
-   *
-   * @param context The lead side, trailing shoe and pelvis drop.
-   * @returns The straight glide with a distinct forefoot and loaded sole.
+   * Parameter context: The lead side, trailing shoe and pelvis drop.
+   * Returns: The straight glide with a distinct forefoot and loaded sole.
    */
   export function curl(
     context: IAutoMovieMotionHumanActionContext<Curl>,
@@ -306,7 +307,7 @@ export namespace HumanIceGlide {
     };
   }
 }
-/**
+/*
  * A stepping blade within the dorsal range of the weight it bears
  * (`AutoMovieMotionHumanFootRelax`): as it sheds the body before it leaves, its
  * heel rises about the toes' joint, which stays on the ice, so it leaves within
@@ -334,7 +335,9 @@ function sheds(
     rotation: placed.rotation,
   };
 }
-/** Translate both the ankle target and its knee bend hint with a released foot. */
+/*
+ * Translate both the ankle target and its knee bend hint with a released foot.
+ */
 function shifted(
   goal: IAutoMovieHumanLimbGoal,
   by: IAutoMovieVector3,

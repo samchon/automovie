@@ -137,7 +137,7 @@ export namespace AutoMovieHumanCrotchBinding {
   }
 }
 
-/**
+/*
  * Phases sampling the trunk's sections for its midline, finely enough to land
  * on it (convention: 96, under 4 degrees apart, so a symmetric ring lands on
  * the median plane at its front and back).
@@ -147,5 +147,7 @@ const PHASES: number[] = Array.from(
   (_: unknown, i: number): number => (2 * Math.PI * i) / 96,
 );
 
-/** Distance from the median plane within which a section's point is on the midline, calibration mm (convention). */
+/*
+ * Distance from the median plane within which a section's point is on the midline, calibration mm (convention).
+ */
 const BAND: number = 1;

@@ -17,7 +17,7 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
 
-/**
+/*
  * The objective and the constraints' violations of an arms' trajectory at an
  * iterate (`HumanArmTrajectoryModel.evaluate`, which states the terms).
  *
@@ -42,18 +42,17 @@ import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
  * depends on the full minimum-jerk curve and shares its sweep array with the
  * interval's chord readings. Rebuild both there to report every term in the
  * same order as a whole reading.
- *
- * @param c The context.
- * @param x Each arm's coordinates at each waypoint.
- * @param kept An earlier reading of the same context and the waypoints whose
- *   coordinates changed since it (`laid[k]` true), every other waypoint's
- *   coordinates being those that reading read; absent, every waypoint is read.
- * @param contact The waypoints the clearance is read at, `contact[k]` true: an
- *   optimiser's knots; absent, every waypoint.
- * @param fixed The already placed immutable endpoints of a still solve.
- * @returns The arms placed, the objective, the summed violation and the worst
- *   one past its slack, with the pairs, sweeps and crossings the reading found
- *   and the waypoints that take part in a violation past the tolerance.
+ * Parameter c: The context.
+ * Parameter x: Each arm's coordinates at each waypoint.
+ * Parameter kept: An earlier reading of the same context and the waypoints whose
+ * coordinates changed since it (`laid[k]` true), every other waypoint's
+ * coordinates being those that reading read; absent, every waypoint is read.
+ * Parameter contact: The waypoints the clearance is read at, `contact[k]` true: an
+ * optimiser's knots; absent, every waypoint.
+ * Parameter fixed: The already placed immutable endpoints of a still solve.
+ * Returns: The arms placed, the objective, the summed violation and the worst
+ * one past its slack, with the pairs, sweeps and crossings the reading found
+ * and the waypoints that take part in a violation past the tolerance.
  */
 export function HumanArmTrajectoryEvaluate(
   c: M.IContext,
@@ -466,7 +465,9 @@ export function HumanArmTrajectoryEvaluate(
   };
 }
 
-/** The alternatives of `HumanArmTrajectoryEvaluateNoteTerm`'s site. */
+/*
+ * The alternatives of `HumanArmTrajectoryEvaluateNoteTerm`'s site.
+ */
 type HumanArmTrajectoryEvaluateNoteTerm =
   | "speed"
   | "range"
@@ -478,26 +479,34 @@ type HumanArmTrajectoryEvaluateNoteTerm =
   | "embedded"
   | "crossing";
 
-/** The record of `IHumanArmTrajectoryEvaluateKept`'s site. */
+/*
+ * The record of `IHumanArmTrajectoryEvaluateKept`'s site.
+ */
 type IHumanArmTrajectoryEvaluateKept = {
   reading: M.IEvaluation;
   laid: readonly boolean[];
 };
 
-/** Placements of immutable waypoints, indexed by arm and waypoint. */
+/*
+ * Placements of immutable waypoints, indexed by arm and waypoint.
+ */
 type FixedPlacements = readonly (readonly (
   | IAutoMovieMotionHumanArmGeometry.IPlaced
   | undefined
 )[])[];
 
-/**
+/*
  * The strongest reading other than a site's at one waypoint: its excess,
  * millimetres or coordinate units, and its words.
  */
 interface IBearing {
-  /** The excess past its slack. */
+  /*
+   * The excess past its slack.
+   */
   value: number;
 
-  /** Its words, read only for a refusal. */
+  /*
+   * Its words, read only for a refusal.
+   */
   what: () => string;
 }

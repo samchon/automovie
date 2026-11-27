@@ -142,7 +142,9 @@ export namespace AutoMovieHumanNativeFamily {
       prior.knots.every((s: number): boolean => spec.station(s) === s) &&
       original.stations.every((s: number): boolean => spec.station(s) === s);
     let prepared: IPreparedSource | undefined;
-    /** The caller cap/scalar scope is prepared once, independently of tessellation. */
+    /*
+     * The caller cap/scalar scope is prepared once, independently of tessellation.
+     */
     const prepareSource = (family: IAutoMovieHumanConicLoft.IFamily): IPreparedSource => {
       const caps: string = JSON.stringify(family.tips ?? null);
       const selected: IAutoMovieViewPart | undefined = spec.authority === undefined ? undefined :
@@ -494,7 +496,7 @@ export namespace AutoMovieHumanNativeFamily {
     return made;
   }
 
-  /**
+  /*
    * Encode every affine original point/tangent back into its unchanged native layout. With a centre off the chart origin each point
    * becomes centre + scale·(point - centre); a section that stands on its median line has no v to move.
    */
@@ -577,16 +579,22 @@ export namespace AutoMovieHumanNativeFamily {
     }
     return result;
   }
-  /** Invocation-local canonical controls, cap binding and independent density estimate. */
+  /*
+   * Invocation-local canonical controls, cap binding and independent density estimate.
+   */
   interface IPreparedSource {
     values: number[][];
     knots: number[];
     layout: IAutoMovieHumanConicSection.ILayout;
     caps: string;
     source: IAutoMovieViewPart;
-    /** Selected name/source identity participates in this local cache. */
+    /*
+     * Selected name/source identity participates in this local cache.
+     */
     selected: IAutoMovieViewPart | undefined;
-    /** Named source identity in the same invocation cache. */
+    /*
+     * Named source identity in the same invocation cache.
+     */
     name: string;
     girth: number;
   }

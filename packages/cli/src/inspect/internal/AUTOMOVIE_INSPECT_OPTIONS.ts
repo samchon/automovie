@@ -1,4 +1,4 @@
-/**
+/*
  * The options `automovie inspect` takes for itself, written `--<name>`; every
  * other option is a key of the capture request grammar and becomes the page's
  * address.

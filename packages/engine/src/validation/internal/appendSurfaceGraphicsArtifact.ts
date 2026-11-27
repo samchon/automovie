@@ -8,7 +8,7 @@ import type {
 
 import { appendSurfaceGraphicArtifact } from "./appendSurfaceGraphicArtifact";
 
-/**
+/*
  * Check shot-local surface graphic tracks, appending findings under
  * `$input.surfaceGraphics`.
  *
@@ -31,10 +31,14 @@ export function appendSurfaceGraphicsArtifact(
   models?: readonly SurfaceGraphicModel[],
   fonts?: ReadonlySet<string>,
   cameras?: {
-    /** Ids of the scene's cameras. */
+    /*
+     * Ids of the scene's cameras.
+     */
     ids: ReadonlySet<string>;
 
-    /** The shot's own camera, when known. */
+    /*
+     * The shot's own camera, when known.
+     */
     shot?: string;
   },
 ): void {
@@ -142,9 +146,11 @@ export function appendSurfaceGraphicsArtifact(
   );
 }
 
-/** Model fields that resolve a placed graphic to a surface. */
+/*
+ * Model fields that resolve a placed graphic to a surface.
+ */
 type SurfaceGraphicModel = Pick<IAutoMovieModel, "id" | "affordances">;
-/**
+/*
  * Resolve a track's surface on its node's registered model: an unregistered
  * model, an id that is not a `surface` affordance, a surface without positive
  * finite `width` and `depth`, and a surface that rides an articulation each

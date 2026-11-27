@@ -1,7 +1,7 @@
 import { bracketedCrossing } from "../../math/internal/bracketedCrossing";
 import { swingConeAngle } from "./swingConeAngle";
 
-/**
+/*
  * From a feasible anchor toward an outside endpoint, the greatest parameter
  * read whose swing stays inside the cone, to the width forty bisections leave
  * (`HALVINGS`). The swing along the segment is continuous, so the bracket is
@@ -38,7 +38,7 @@ export function swingConeBlend(
   }).low;
 }
 
-/**
+/*
  * The bisections whose final bracket width the search closes to: about 1e-12 of
  * the segment.
  */

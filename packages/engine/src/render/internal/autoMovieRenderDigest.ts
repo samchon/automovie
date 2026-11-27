@@ -1,7 +1,7 @@
 import { digestAutoMovieBytes } from "./digestAutoMovieBytes";
 import { utf8Bytes } from "./utf8Bytes";
 
-/**
+/*
  * SHA-256 over a UTF-8 string, in pure TypeScript.
  *
  * The engine cannot reach `node:crypto`: the viewer bundles the engine into a

@@ -5,13 +5,12 @@ import type {
   IAutoMovieMotionHumanStretch,
 } from "@automovie/interface";
 
-/**
+/*
  * Whether the law's own standing entry admits the compact hold: standing on the
  * ground alone, nothing held or used, and a posture without digits, a rotation
  * or a limb goal that touches, clears or rests on anything.
- *
- * @param context The stretch's context.
- * @returns Whether the hold may play from the compact plan.
+ * Parameter context: The stretch's context.
+ * Returns: Whether the hold may play from the compact plan.
  */
 export function stretchHoldInputs(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStretch.IParams>,
@@ -37,5 +36,7 @@ export function stretchHoldInputs(
   );
 }
 
-/** One support the entry stands on. */
+/*
+ * One support the entry stands on.
+ */
 type Support = IAutoMovieMotionHumanEntryState["supports"][number];

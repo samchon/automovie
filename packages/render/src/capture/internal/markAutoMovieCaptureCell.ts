@@ -1,6 +1,6 @@
 import type { IAutoMovieRasterImage } from "@automovie/interface";
 
-/**
+/*
  * The picture a sheet shows in place of a still that does not exist: a cell
  * whose draw failed, or the missing side or difference of a comparison row.
  *
@@ -9,10 +9,14 @@ import type { IAutoMovieRasterImage } from "@automovie/interface";
  * place; the caption beside it says why.
  */
 export function markAutoMovieCaptureCell(cell: {
-  /** Cell width in pixels. */
+  /*
+   * Cell width in pixels.
+   */
   width: number;
 
-  /** Cell height in pixels. */
+  /*
+   * Cell height in pixels.
+   */
   height: number;
 }): IAutoMovieRasterImage {
   const pixels: Uint8ClampedArray = new Uint8ClampedArray(
@@ -23,7 +27,7 @@ export function markAutoMovieCaptureCell(cell: {
   return { width: cell.width, height: cell.height, pixels };
 }
 
-/**
+/*
  * Dark red, which no inspection shade fills a whole cell with, so the cell
  * reads as a gap and not as a dark still.
  */

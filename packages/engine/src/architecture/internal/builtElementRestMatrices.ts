@@ -5,7 +5,7 @@ import {
 
 import { Matrix4 } from "../../math/Matrix4";
 
-/**
+/*
  * A lookup from element id to its rest-pose world matrix, tolerant of a record
  * validation has not accepted.
  *
@@ -17,14 +17,13 @@ import { Matrix4 } from "../../math/Matrix4";
  * ancestor, and for an element whose parent chain closes on itself. Prop
  * placement reads it because it runs beside `validateBuiltEnvironment` and must
  * report its own defects on a record that validation is refusing in the same
- * pass, where {@link builtEnvironmentWorldMatrices} would throw. An id declared
+ * pass, where builtEnvironmentWorldMatrices would throw. An id declared
  * twice resolves to its first declaration, as a `find` would; the duplicate is
  * validation's to refuse. Matrices are computed on first request and memoized
  * for the life of the lookup, so a lookup must not outlive a change to the
  * record it was made from.
- *
- * @param environment The building record, validated or not.
- * @returns A lookup from element id to world matrix or `null`.
+ * Parameter environment: The building record, validated or not.
+ * Returns: A lookup from element id to world matrix or `null`.
  */
 export const builtElementRestMatrices: (
   environment: IAutoMovieBuiltEnvironment,

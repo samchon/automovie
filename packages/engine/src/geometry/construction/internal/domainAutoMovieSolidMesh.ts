@@ -5,7 +5,7 @@ import type {
 
 import { AutoMovieSolidMeshConstraints } from "../../AutoMovieSolidMeshConstraints";
 
-/**
+/*
  * Assemble finite domain sides without subdividing an authoritative trim edge.
  *
  * Existing points on each side are retained in order. A new sampling point
@@ -59,19 +59,31 @@ export function domainAutoMovieSolidMesh(
   return result;
 }
 
-/** Original identity and its temporary ordered domain-cover occurrence. */
+/*
+ * Original identity and its temporary ordered domain-cover occurrence.
+ */
 interface Node {
-  /** Existing source or newly reserved grid ID. */ id: number;
-  /** Lifted coordinate used only to order one domain side. */ point: Readonly<AutoMovieVector2Tuple>;
+  /*
+   * Existing source or newly reserved grid ID.
+   */ id: number;
+  /*
+   * Lifted coordinate used only to order one domain side.
+   */ point: Readonly<AutoMovieVector2Tuple>;
 }
 
-/** One fixed coordinate of a finite rectangular domain side. */
+/*
+ * One fixed coordinate of a finite rectangular domain side.
+ */
 interface Side {
-  /** Coordinate held fixed on this side. */ axis: 0 | 1;
-  /** Index of that coordinate in its source grid. */ index: number;
+  /*
+   * Coordinate held fixed on this side.
+   */ axis: 0 | 1;
+  /*
+   * Index of that coordinate in its source grid.
+   */ index: number;
 }
 
-/**
+/*
  * Order one finite side; its stored point values are never normalized or
  * overwritten.
  */

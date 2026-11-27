@@ -2,7 +2,7 @@ import type * as THREE from "three";
 
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
-/**
+/*
  * Refuse another pass on a scene whose owned material restoration is active or
  * failed. The callback closes over the original swaps and created materials,
  * retaining uncertain owners even when setup returns no handle or a scene-pass
@@ -54,20 +54,28 @@ export function guardAutoMovieRenderModeRetirement(
   if (attempt.primary !== undefined) throw attempt.primary.error;
 }
 
-/**
+/*
  * The scene userData key of its active or failed restoration record, which
  * retains the original restoration population.
  */
 const RETIRING: string = "automovieRenderModeRetirement";
 
-/** One active or failed installation's restoration record. */
+/*
+ * One active or failed installation's restoration record.
+ */
 interface IRetirement {
-  /** The restoration of the installation's swaps and created materials. */
+  /*
+   * The restoration of the installation's swaps and created materials.
+   */
   run: () => void;
 
-  /** Whether the restoration is still running. */
+  /*
+   * Whether the restoration is still running.
+   */
   active: boolean;
 
-  /** The refusal a later pass receives. */
+  /*
+   * The refusal a later pass receives.
+   */
   error: unknown;
 }

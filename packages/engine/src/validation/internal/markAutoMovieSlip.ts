@@ -1,6 +1,6 @@
 import type { IAutoMovieMark, IAutoMovieMarkSlip } from "@automovie/interface";
 
-/**
+/*
  * Turn the slip of planted or held contacts at one instant into inspection
  * marks: a segment from where each contact was planted to where it is now,
  * flagged when it has moved farther than its limit.
@@ -16,10 +16,9 @@ import type { IAutoMovieMark, IAutoMovieMarkSlip } from "@automovie/interface";
  *
  * It throws for a point that is not finite or a limit that is negative or not
  * finite.
- *
- * @param entries Contacts with their planted and current points and their
- *   limits.
- * @returns One mark per moved contact, in the entries' order.
+ * Parameter entries: Contacts with their planted and current points and their
+ * limits.
+ * Returns: One mark per moved contact, in the entries' order.
  */
 export function markAutoMovieSlip(
   entries: IAutoMovieMarkSlip.IEntries,

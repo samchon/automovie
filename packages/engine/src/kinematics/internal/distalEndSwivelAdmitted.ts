@@ -3,7 +3,7 @@ import type { IAutoMovieSwivelArcs } from "@automovie/interface";
 import { distalEndSwivelNearest } from "./distalEndSwivelNearest";
 import type { distalTwistSwivelRange } from "../distalTwistSwivelRange";
 
-/**
+/*
  * The arc of swivels around a given one over which a chain whose mid segment
  * twists distally (an arm) takes a requested end rotation: outside the arcs its
  * end joint's box refuses (`distalEndSwivelArcs`) and where the twist the
@@ -25,16 +25,15 @@ import type { distalTwistSwivelRange } from "../distalTwistSwivelRange";
  * resolution, the interval then widened to hold it: the fit cannot tell the two
  * apart, so an answer on an interval's end, a rounding or a refinement step
  * outside it, keeps the interval it was found in.
- *
- * @param arcs The swivels the end joint's box refuses, merged
- *   (`swivelArcs.union`), or every swivel.
- * @param range The twist range's breakpoints and admission; null when that
- *   analysis does not apply, the box alone then deciding.
- * @param swivel The swivel, degrees.
- * @param resolution How far the swivel is known to, degrees; 0 when absent.
- * @returns The interval, degrees in the swivel's own turn, a full turn centred
- *   on it when nothing bounds it; null when no swivel within the resolution is
- *   admitted.
+ * Parameter arcs: The swivels the end joint's box refuses, merged
+ * (`swivelArcs.union`), or every swivel.
+ * Parameter range: The twist range's breakpoints and admission; null when that
+ * analysis does not apply, the box alone then deciding.
+ * Parameter swivel: The swivel, degrees.
+ * Parameter resolution: How far the swivel is known to, degrees; 0 when absent.
+ * Returns: The interval, degrees in the swivel's own turn, a full turn centred
+ * on it when nothing bounds it; null when no swivel within the resolution is
+ * admitted.
  */
 export function distalEndSwivelAdmitted(
   arcs: readonly IAutoMovieSwivelArcs.IArc[] | "all",
@@ -85,7 +84,7 @@ export function distalEndSwivelAdmitted(
   };
 }
 
-/**
+/*
  * How far past an end a swivel is tested, degrees: `distalEndSwivelNearest`'s
  * step, far above the closed form's rounding and far below the swivel's
  * resolution.

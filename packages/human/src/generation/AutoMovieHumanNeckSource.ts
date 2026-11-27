@@ -160,7 +160,9 @@ export namespace AutoMovieHumanNeckSource {
     ];
   }
 
-  /** Exact full-period mean of the authored harmonics, calibration mm. */
+  /*
+   * Exact full-period mean of the authored harmonics, calibration mm.
+   */
   function mean(row: IAutoMovieHumanNeckSource.IRow): [number, number, number] {
     return [
       row.origin[0] + row.depth * row.ring.x[0]!,
@@ -169,7 +171,9 @@ export namespace AutoMovieHumanNeckSource {
     ];
   }
 
-  /** Retained XZ polygon normalization; it is not the nonplanar row's 3D length. */
+  /*
+   * Retained XZ polygon normalization; it is not the nonplanar row's 3D length.
+   */
   function perimeter(
     ring: IAutoMovieHumanNeckPrior.IRing,
     aspect: number,
@@ -189,7 +193,9 @@ export namespace AutoMovieHumanNeckSource {
     return sum;
   }
 
-  /** Original cosine series including its mean term. */
+  /*
+   * Original cosine series including its mean term.
+   */
   function even(values: readonly number[], phase: number): number {
     return values.reduce(
       (sum: number, value: number, k: number): number =>
@@ -198,7 +204,9 @@ export namespace AutoMovieHumanNeckSource {
     );
   }
 
-  /** Original sine series, whose full-period mean is zero. */
+  /*
+   * Original sine series, whose full-period mean is zero.
+   */
   function odd(values: readonly number[], phase: number): number {
     return values.reduce(
       (sum: number, value: number, k: number): number =>

@@ -4,20 +4,19 @@ import { Vector3 } from "@automovie/engine";
 import { type AutoMovieArchetype, AutoMovieArchetypeUnits } from "../../core/index";
 import { ObstacleDraw } from "./ObstacleDraw";
 
-/**
+/*
  * A concrete road barrier with its base, upper face and front edge retained for
  * crossing checks.
  *
  * The documented section fixes the high top and projected footprint. The
  * barrier keeps the three-box approximation of the original sloped section. The
  * object stands on Y = 0 and is approached from +Z.
- *
- * @param params The scene identifier and any dimensions to fix inside their
- *   bands.
- * @param seed The seed for the draws the author leaves open.
- * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
- *   selected profile.
+ * Parameter params: The scene identifier and any dimensions to fix inside their
+ * bands.
+ * Parameter seed: The seed for the draws the author leaves open.
+ * Returns: The fixed model with its typed contacts.
+ * If a supplied override lies outside the
+ * selected profile.
  */
 export function createJerseyBarrier(
   params: AutoMovieArchetypeJerseyBarrier.IParams = {},

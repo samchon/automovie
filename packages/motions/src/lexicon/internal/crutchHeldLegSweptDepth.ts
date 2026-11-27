@@ -1,6 +1,6 @@
 import type { crutchHeldLeg } from "./crutchHeldLeg";
 
-/**
+/*
  * A swept point's least signed distance from a flight's solid, in its climb's
  * vertical plane: over each level, the region below its height from where it
  * begins to where the next begins, the least over the chord from one place to
@@ -9,11 +9,10 @@ import type { crutchHeldLeg } from "./crutchHeldLeg";
  * finds it (Kiefer 1953, "Sequential minimax search for a maximum", Proc. AMS
  * 4(3):502); the least over the levels. A chord of no length is the point's own
  * distance.
- *
- * @param steps The levels.
- * @param a The chord's first place, (ahead of the origin, height), metres.
- * @param b Its last place.
- * @returns The distance, metres; negative inside.
+ * Parameter steps: The levels.
+ * Parameter a: The chord's first place, (ahead of the origin, height), metres.
+ * Parameter b: Its last place.
+ * Returns: The distance, metres; negative inside.
  */
 export function crutchHeldLegSweptDepth(
   steps: readonly crutchHeldLeg.IStep[],
@@ -47,10 +46,12 @@ export function crutchHeldLegSweptDepth(
   return best;
 }
 
-/** The golden ratio's reciprocal, the section's share. */
+/*
+ * The golden ratio's reciprocal, the section's share.
+ */
 const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
 
-/**
+/*
  * The search's steps: each keeps 0.618 of the interval, so 80 bring the unit
  * chord's interval under double precision's resolution of it.
  */

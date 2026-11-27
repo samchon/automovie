@@ -10,7 +10,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanObject } from "../../perform/HumanObject";
 import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 
-/**
+/*
  * Bind the material link beneath every actual shaft grip, including when a grip
  * lies between named bands. A link is carried by the hinge at its upper end,
  * whose articulated frame includes its own turn and all ancestors.
@@ -89,17 +89,27 @@ export function preparePoleVaultLinks(
   };
 }
 
-/** Static grip location and its nearest upper material hinge. */
+/*
+ * Static grip location and its nearest upper material hinge.
+ */
 interface IGrip {
-  /** Shaft point in the unbent model's axes. */
+  /*
+   * Shaft point in the unbent model's axes.
+   */
   rest: IAutoMovieRigidTransform;
-  /** The owning link's moving upper hinge when the link turns. */
+  /*
+   * The owning link's moving upper hinge when the link turns.
+   */
   owner?: string;
-  /** The grip frame within the hinge, in metres and quaternion axes. */
+  /*
+   * The grip frame within the hinge, in metres and quaternion axes.
+   */
   at?: IAutoMovieRigidTransform;
 }
 
-/** Read the rigid portion of an authored or posed hinge. */
+/*
+ * Read the rigid portion of an authored or posed hinge.
+ */
 function frame(site: IAutoMovieAffordance): IAutoMovieRigidTransform {
   return { position: site.frame.translation, rotation: site.frame.rotation };
 }

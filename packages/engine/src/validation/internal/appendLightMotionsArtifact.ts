@@ -19,7 +19,9 @@ import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";
 import { validateUniqueIds } from "./validateUniqueIds";
 
-/** Append light-clip target, uniqueness and range findings for a shot. */
+/*
+ * Append light-clip target, uniqueness and range findings for a shot.
+ */
 export const appendLightMotionsArtifact: (
   lightMotions: readonly IAutoMovieClip[] | undefined,
   path: string,
@@ -28,7 +30,7 @@ export const appendLightMotionsArtifact: (
 ) => void = (
   lightMotions: readonly IAutoMovieClip[] | undefined,
   path: string,
-  /**
+  /*
    * The scene's light id → kind index, or `null` with no scene to check
    * against.
    */
@@ -58,7 +60,7 @@ export const appendLightMotionsArtifact: (
   });
   validateUniqueBy(addressed, "light motion channel", violations);
 };
-/**
+/*
  * Every keyframe value of one light track, held to the property's own bounds:
  * the same `validateRange` call, with the same numbers, the scene gate makes on
  * the staged light. A film must not be able to state through time what
@@ -67,7 +69,7 @@ export const appendLightMotionsArtifact: (
  * A `cubicspline` interleaves in-tangent, value, and out-tangent per keyframe.
  * Tangents are derivatives and remain unbounded; the key values and the curve
  * they produce do not. Its interior extrema are the roots of the Hermite
- * polynomial's derivative, evaluated through the SAME {@link cubicHermiteValue}
+ * polynomial's derivative, evaluated through the SAME cubicHermiteValue
  * playback uses (#1371).
  */
 const appendLightValueBounds: (
@@ -104,9 +106,9 @@ const appendLightValueBounds: (
   appendLightKeyValueFaults(track, property, path, false, violations);
 };
 
-/**
+/*
  * The whole-value rule of one light property
- * ({@link IAutoMovieLightChannelProperty.valueFault}), applied to every keyframe
+ * (IAutoMovieLightChannelProperty.valueFault), applied to every keyframe
  * of one track.
  *
  * Separate from the per-component pass because it reads a keyframe as a unit: a
@@ -157,7 +159,9 @@ const appendLightKeyValueFaults: (
   }
 };
 
-/** A finite scalar lies inside one light property's documented range. */
+/*
+ * A finite scalar lies inside one light property's documented range.
+ */
 function lightValueInBounds(
   value: number,
   property: AutoMovieLightProperty,
@@ -171,7 +175,7 @@ function lightValueInBounds(
   return (inclusiveMin ? value >= min : value > min) && value <= max;
 }
 
-/**
+/*
  * Normalize finite derivative coefficients before solving, retaining tiny
  * nonzero curves; select roots strictly inside (0,1), with stable paired roots
  * avoiding subtraction cancellation.
@@ -198,7 +202,9 @@ function interiorQuadraticRoots(a: number, b: number, c: number): number[] {
   return roots.filter((root: number): boolean => root > 0 && root < 1);
 }
 
-/** Validate cubic key values and every interior Hermite extremum. */
+/*
+ * Validate cubic key values and every interior Hermite extremum.
+ */
 const appendCubicLightValueBounds: (
   track: IAutoMovieTrack,
   property: AutoMovieLightProperty,

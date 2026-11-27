@@ -1,6 +1,6 @@
 import { autoMoviePcg3d } from "./autoMoviePcg3d";
 
-/**
+/*
  * The sheet-space offset, in metres, that a `module` pattern piece adds to its
  * sample point, so separately made tiles differ while one occurrence always
  * samples the same values.
@@ -12,11 +12,10 @@ import { autoMoviePcg3d } from "./autoMoviePcg3d";
  * an unrelated part of its pattern while keeping lattice coordinates small
  * enough for 32-bit float shading. A `face` piece adds nothing; the renderer
  * receives this offset as a uniform.
- *
- * @param seed Unsigned 32-bit seed of the surface.
- * @param id The occurrence id, `"<zone>/<module>"`.
- * @param scale The surface's feature size in metres.
- * @returns The offset `[u, v, normal]` in metres.
+ * Parameter seed: Unsigned 32-bit seed of the surface.
+ * Parameter id: The occurrence id, `"<zone>/<module>"`.
+ * Parameter scale: The surface's feature size in metres.
+ * Returns: The offset `[u, v, normal]` in metres.
  */
 export function autoMovieProceduralPieceOffset(
   seed: number,

@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotion,
 } from "@automovie/interface";
 
-/**
+/*
  * Wrap a shot's synthesizer so it runs once per action object and actor, with
  * the prior beat state bound, and every stage that needs a clip shares one.
  *
@@ -13,10 +13,9 @@ import type {
  * wrapper, and then by actor id; a `null` result is cached like a clip. The
  * wrapper and its cache live only as long as the `performShot` call that made
  * it.
- *
- * @param synthesize The production's synthesizer.
- * @param previous The prior beat's end state, passed to every call.
- * @returns The memoized synthesizer.
+ * Parameter synthesize: The production's synthesizer.
+ * Parameter previous: The prior beat's end state, passed to every call.
+ * Returns: The memoized synthesizer.
  */
 export function memoizePerformShotSynthesis(
   synthesize: IAutoMovieActionSynthesizer,

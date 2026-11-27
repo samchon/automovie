@@ -68,7 +68,9 @@ export namespace AutoMovieHumanF1TrunkCentre {
    */
   export const SCALE_SHARE: number = 0.5;
 
-  /** Phases a section's area is integrated over. */
+  /*
+   * Phases a section's area is integrated over.
+   */
   const ROUND: number = 1440;
 
   /**

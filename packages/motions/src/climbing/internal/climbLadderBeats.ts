@@ -7,84 +7,119 @@ import type {
 
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 
-/**
+/*
  * The beat schedule of a rung-ladder climb: both hands reach their first rungs
  * in one beat, then each rung takes four beats, one limb moving up one rung at
  * a time in the climb's limb order. `climbLadder` owns the poses.
  */
 export namespace climbLadderBeats {
-  /** One limb's move up one rung. */
+  /*
+   * One limb's move up one rung.
+   */
   export interface IMove {
-    /** The rung the move reaches, 1 the first above the start. */
+    /*
+     * The rung the move reaches, 1 the first above the start.
+     */
     n: number;
 
-    /** When the limb leaves, seconds. */
+    /*
+     * When the limb leaves, seconds.
+     */
     from: number;
 
-    /** When it arrives, seconds. */
+    /*
+     * When it arrives, seconds.
+     */
     to: number;
   }
 
-  /** Where a limb is at an instant. */
+  /*
+   * Where a limb is at an instant.
+   */
   export interface IReading {
-    /** The rung index the limb holds or moves to. */
+    /*
+     * The rung index the limb holds or moves to.
+     */
     index: number;
 
-    /** The move's minimum-jerk progress, 1 when holding. */
+    /*
+     * The move's minimum-jerk progress, 1 when holding.
+     */
     u: number;
 
-    /** Whether the limb is between rungs. */
+    /*
+     * Whether the limb is between rungs.
+     */
     moving: boolean;
   }
 
-  /** The prepared schedule. */
+  /*
+   * The prepared schedule.
+   */
   export interface IBeats {
-    /** Seconds per beat. */
+    /*
+     * Seconds per beat.
+     */
     beat: number;
 
-    /** Each limb's moves in order. */
+    /*
+     * Each limb's moves in order.
+     */
     moves: Record<IAutoMovieMotionHumanClimbLadder.Limb, IMove[]>;
 
-    /** The climb's events, in schedule order. */
+    /*
+     * The climb's events, in schedule order.
+     */
     instants: readonly IAutoMovieMotionClockInstant[];
 
-    /** The climb's seconds. */
+    /*
+     * The climb's seconds.
+     */
     duration: number;
 
-    /** The clock with its events. */
+    /*
+     * The clock with its events.
+     */
     clock: IAutoMovieMotionClock;
 
-    /** The hands' reach progress to their first rungs, 0 to 1. */
+    /*
+     * The hands' reach progress to their first rungs, 0 to 1.
+     */
     reaching: (seconds: number) => number;
 
-    /** The index of a limb's first move that has not landed by an instant. */
+    /*
+     * The index of a limb's first move that has not landed by an instant.
+     */
     nextMove(
       limb: IAutoMovieMotionHumanClimbLadder.Limb,
       seconds: number,
     ): number;
 
-    /** A limb's reading at an instant given its next move. */
+    /*
+     * A limb's reading at an instant given its next move.
+     */
     rung(
       limb: IAutoMovieMotionHumanClimbLadder.Limb,
       seconds: number,
       next: number,
     ): IReading;
 
-    /** A limb's reading at an instant. */
+    /*
+     * A limb's reading at an instant.
+     */
     level(
       limb: IAutoMovieMotionHumanClimbLadder.Limb,
       seconds: number,
     ): IReading;
   }
 
-  /**
+  /*
    * Prepare the schedule.
-   *
-   * @param beat Seconds per beat.
-   * @param count How many rungs the feet climb.
-   * @param reach The hands' first rung index.
-   * @param order The limb order of each rung's four beats.
-   * @returns The schedule.
+   * Parameter beat: Seconds per beat.
+   * Parameter count: How many rungs the feet climb.
+   * Parameter reach: The hands' first rung index.
+   * Parameter order: The limb order of each rung's four beats.
+   * Returns: The schedule.
    */
   export function prepare(
     beat: number,
@@ -123,7 +158,9 @@ export namespace climbLadderBeats {
       "handsOn",
     ).progress;
 
-    /** Find the first interval whose landing has yet to happen. */
+    /*
+     * Find the first interval whose landing has yet to happen.
+     */
     const nextMove = (
       limb: IAutoMovieMotionHumanClimbLadder.Limb,
       seconds: number,
@@ -139,7 +176,9 @@ export namespace climbLadderBeats {
       return low;
     };
 
-    /** Evaluate the known interval without retaining the sampled limb state. */
+    /*
+     * Evaluate the known interval without retaining the sampled limb state.
+     */
     const rung = (
       limb: IAutoMovieMotionHumanClimbLadder.Limb,
       seconds: number,

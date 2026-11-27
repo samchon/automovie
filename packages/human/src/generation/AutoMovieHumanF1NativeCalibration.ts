@@ -41,7 +41,9 @@ export namespace AutoMovieHumanF1NativeCalibration {
     projectionOwner: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner;
   }
 
-  /** F1's sites by their definitions, from their one owner. */
+  /*
+   * F1's sites by their definitions, from their one owner.
+   */
   const SITES: Sites.ISites = Sites.REFERENCE;
 
   /**
@@ -153,7 +155,7 @@ export namespace AutoMovieHumanF1NativeCalibration {
   ): IAutoMovieViewAxis.IAxis {
     if (delta.every((value: number): boolean => value === 0)) return axis;
 
-    /**
+    /*
      * Translate only frame origins; the original differential vectors remain
      * untouched.
      */
@@ -199,7 +201,7 @@ export namespace AutoMovieHumanF1NativeCalibration {
     originals: ReadonlyMap<string, IAutoMovieViewPart>,
     onRead?: () => void,
   ): IReference {
-    /**
+    /*
      * Count attempts immediately before the same actual complete-source caliper
      * reader.
      */
@@ -211,7 +213,7 @@ export namespace AutoMovieHumanF1NativeCalibration {
       return Calipers.read(part, station);
     }
 
-    /**
+    /*
      * Nominal material site is fixed on the original family, independent of
      * current rail phase.
      */

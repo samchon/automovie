@@ -26,13 +26,13 @@ import { supportKey } from "./supportKey";
 import { supportPlan } from "./supportPlan";
 import { supportStep } from "./supportStep";
 
-/**
+/*
  * Offset decay time of a cut from a support sequence into standing, seconds
  * (provisional: no study of the transition was located).
  */
 const BLEND: number = 0.3;
 
-/**
+/*
  * Moving the body's weight across a sequence of supports: each stance's
  * contacts (`HumanSupport.IStance`) solved into one static key posture, and the
  * body carried from key to key with every new contact placed and bearing before
@@ -84,10 +84,12 @@ const BLEND: number = 0.3;
  * sequence.
  */
 export namespace support {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "support";
 
-  /**
+  /*
    * Cancel table: a support sequence stands up from any stance it holds on its
    * feet.
    */
@@ -95,26 +97,27 @@ export namespace support {
     stand: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: BLEND }],
   };
 
-  /** Seconds a move into a stance takes (provisional). */
+  /*
+   * Seconds a move into a stance takes (provisional).
+   */
   export const SECONDS: number = 1;
 
-  /**
+  /*
    * How far a contact may miss its target, millimetres: the give of a pressed
    * skin the audits read a contact with
    * (`AutoMovieMotionHumanAuditSkin.BUILT`).
    */
   export const MISS: number = AutoMovieMotionHumanAuditSkin.BUILT * 1000;
 
-  /**
+  /*
    * Plan a support sequence.
-   *
-   * @param context The action's context.
-   * @param course A staged route's waypoints, level feet and window reader; the
-   *   ordinary sequence when absent.
-   * @returns The plan.
-   * @throws {HumanRefusal} When there is no stance, a stance's seconds are not
-   *   positive, or a key posture leaves a contact more than `MISS` off its
-   *   target.
+   * Parameter context: The action's context.
+   * Parameter course: A staged route's waypoints, level feet and window reader; the
+   * ordinary sequence when absent.
+   * Returns: The plan.
+   * When there is no stance, a stance's seconds are not
+   * positive, or a key posture leaves a contact more than `MISS` off its
+   * target.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupport.IParams>,
@@ -425,8 +428,12 @@ export namespace support {
   }
 }
 
-/** A support point in world metres, or an unnamed floor place. */
+/*
+ * A support point in world metres, or an unnamed floor place.
+ */
 type Point = IAutoMovieVector3 | null;
 
-/** A key's fixed contact lookup. */
+/*
+ * A key's fixed contact lookup.
+ */
 type Place = (contact: IAutoMovieMotionHumanSupport.IContact) => Point;

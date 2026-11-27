@@ -1,6 +1,6 @@
 import type { IAutoMovieMeshQueryHierarchy } from "@automovie/interface";
 
-/**
+/*
  * Partition resident entry boxes into a median box hierarchy.
  *
  * The signed, separation and crossing queries supply triangle boxes, lash
@@ -19,9 +19,8 @@ import type { IAutoMovieMeshQueryHierarchy } from "@automovie/interface";
  * positive and negative infinity extrema, the empty union's sentinels rather
  * than a finite box; the signed query refuses empty surfaces before this
  * stage.
- *
- * @param entries Caller-owned entries, reordered in place.
- * @returns The hierarchy's root node.
+ * Parameter entries: Caller-owned entries, reordered in place.
+ * Returns: The hierarchy's root node.
  */
 export function buildAutoMovieMeshQueryHierarchy<
   T extends IAutoMovieMeshQueryHierarchy.IEntry,

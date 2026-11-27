@@ -110,7 +110,7 @@ export namespace AutoMovieHumanNeutral {
     );
   }
 
-  /**
+  /*
    * Each calibration's neutral, derived once. The skeleton's pose evaluator and
    * the rig's binding both stand on the same body's neutral, and each derived
    * it again: the separating pieces scan the skin's rings, so the second

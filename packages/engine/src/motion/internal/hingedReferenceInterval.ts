@@ -3,19 +3,18 @@ import type { IAutoMovieQuaternion } from "@automovie/interface";
 import { Quaternion } from "../../math/Quaternion";
 import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
 
-/**
+/*
  * Add the reference pose's geodesic distance bound to an existing hinge branch
  * bound.
- *
- * @param geometric The branch's nonnegative lower bound from its other score
- *   terms.
- * @param upper The upper joint rotation on the branch.
- * @param reference The reference upper rotation, or null for a lower-only
- *   reference.
- * @param lower The lower joint's constant distance to its reference, in
- *   degrees.
- * @param weight The nonnegative reference weight used by the candidate score.
- * @returns A bound in the same units and arithmetic order as the branch score.
+ * Parameter geometric: The branch's nonnegative lower bound from its other score
+ * terms.
+ * Parameter upper: The upper joint rotation on the branch.
+ * Parameter reference: The reference upper rotation, or null for a lower-only
+ * reference.
+ * Parameter lower: The lower joint's constant distance to its reference, in
+ * degrees.
+ * Parameter weight: The nonnegative reference weight used by the candidate score.
+ * Returns: A bound in the same units and arithmetic order as the branch score.
  */
 export function hingedReferenceInterval(
   geometric: IntervalBound,
@@ -45,11 +44,17 @@ export function hingedReferenceInterval(
   };
 }
 
-/** Lower bound over a closed swivel interval in degrees. */
+/*
+ * Lower bound over a closed swivel interval in degrees.
+ */
 type IntervalBound = (low: number, high: number) => number;
 
-/** The branch's upper orientation at a swivel angle in degrees. */
+/*
+ * The branch's upper orientation at a swivel angle in degrees.
+ */
 type UpperRotation = (swivel: number) => IAutoMovieQuaternion;
 
-/** A missing upper reference gives zero upper reference cost. */
+/*
+ * A missing upper reference gives zero upper reference cost.
+ */
 type Reference = IAutoMovieQuaternion | null;

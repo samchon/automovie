@@ -11,7 +11,9 @@ import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidTraceTrial } from "./construction/internal/AutoMovieSolidTraceTrial";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-/** Existing vector arithmetic shared by both rail equations. */
+/*
+ * Existing vector arithmetic shared by both rail equations.
+ */
 const { combine, dot, norm, sub }: typeof AutoMovieSolidVector =
   AutoMovieSolidVector;
 
@@ -83,13 +85,15 @@ export namespace AutoMovieSolidRailSolve {
     let came: number | null = current.crossed ? face : null;
     const scale: number = width + norm(from);
 
-    /** The plane-and-chord residual of an admitted trial, mm. */
+    /*
+     * The plane-and-chord residual of an admitted trial, mm.
+     */
     const residual = (trial: { jet: IAutoMovieSolidSurface.IJet }): number => {
       const q: AutoMovieVector3Tuple = sub(trial.jet.p, from);
       return Math.hypot(dot(q, m), (dot(q, q) - width * width) / (2 * width));
     };
 
-    /**
+    /*
      * The foot itself, or one Newton step on its face from it, halved within
      * that face's region (kept when the foot is kept), whose residual is below
      * bound; null when none is.
@@ -417,7 +421,9 @@ export namespace AutoMovieSolidRailSolve {
     return null;
   }
 
-  /** Unit-world-speed projection of the original kept-side direction. */
+  /*
+   * Unit-world-speed projection of the original kept-side direction.
+   */
   function project(
     j: IAutoMovieSolidSurface.IJet,
     world: Readonly<AutoMovieVector3Tuple>,

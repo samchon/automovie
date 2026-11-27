@@ -7,25 +7,25 @@ import {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * The world-space support contacts of a `"stack-top"` affordance: its extent
  * corners carried through the affordance frame and the parent's world
- * transform, in exactly the shape {@link detectSupportToppling} and
- * {@link supportContactsFor} consume.
+ * transform, in exactly the shape detectSupportToppling and
+ * supportContactsFor consume.
  *
  * A placed crate is stable when its center of mass projects inside these
  * contacts' hull and topples when it overhangs. The object supplies its own
  * authored support face for the same judgment as a floor or table surface.
  *
  * Each extent corner is a point in the affordance frame's XZ plane (`y`
- * ignored, per {@link IAutoMovieAffordance.extent}): it is lifted into the model
+ * ignored, per IAutoMovieAffordance.extent): it is lifted into the model
  * frame through the affordance `frame`, then into world through `parentWorld`
  * Scale in either transform is ignored by this helper. Non-unit scales
  * therefore do not describe the same contacts as full affine placement.
  *
  * Throws on a non-`stack-top` kind or a missing extent: feeding a handle to the
  * support judgment is a mis-wired pipeline, not a skippable frame
- * ({@link validateModel} rejects such data before it gets here).
+ * (validateModel rejects such data before it gets here).
  */
 export const affordanceSupportContacts: (
   props: IAutoMovieAffordanceSupportContacts.IProps,

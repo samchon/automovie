@@ -10,7 +10,7 @@ import type {
 import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMotionHumanTarget";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
 
-/**
+/*
  * Where the blow a reaction answers comes from: a person's region read where
  * that person is at the second, not where the performer saw them a reaction
  * time earlier (`HumanPerception.REACTION`).
@@ -24,17 +24,16 @@ import { StrikingBody } from "../../striking/internal/StrikingBody";
  * sideways and 61 mm back instead of 0.20 m straight back.
  */
 export namespace ReactionSource {
-  /**
+  /*
    * The place a reaction's source is at a second.
-   *
-   * @param context The action's context.
-   * @param from The source; absent for a reaction without one.
-   * @param seconds Film seconds the source is read at.
-   * @param posture The performer's posture then.
-   * @param place The default place when there is no source.
-   * @returns The place: a person's region as that person's bones show it at the
-   *   second; any other target as `AutoMovieMotionHumanTarget.resolve` reads
-   *   it.
+   * Parameter context: The action's context.
+   * Parameter from: The source; absent for a reaction without one.
+   * Parameter seconds: Film seconds the source is read at.
+   * Parameter posture: The performer's posture then.
+   * Parameter place: The default place when there is no source.
+   * Returns: The place: a person's region as that person's bones show it at the
+   * second; any other target as `AutoMovieMotionHumanTarget.resolve` reads
+   * it.
    */
   export function at(
     context: Pick<IAutoMovieMotionHumanActionContext, AtContext>,
@@ -69,5 +68,7 @@ export namespace ReactionSource {
   }
 }
 
-/** The alternatives of `AtContext`'s site. */
+/*
+ * The alternatives of `AtContext`'s site.
+ */
 type AtContext = "aim" | "body" | "performer";

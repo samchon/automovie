@@ -9,7 +9,7 @@ import {
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 
-/**
+/*
  * Check a lineage against the identities its host graphs actually publish.
  *
  * Self-consistency is not enough: a lineage annotates ids it does not own, so a
@@ -25,11 +25,10 @@ import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEng
  *
  * Ids are compared exactly. Findings are returned with `$input.subjects[i].id`
  * or `$input.derived[i].id` paths and nothing throws; the lineage's own
- * consistency is {@link validateDesignLineage}'s to check.
- *
- * @param props.lineage Lineage whose subjects and derived ids are checked.
- * @param props.known Every stable id the host graphs publish.
- * @returns Success, or every violation found.
+ * consistency is validateDesignLineage's to check.
+ * Parameter props.lineage: Lineage whose subjects and derived ids are checked.
+ * Parameter props.known: Every stable id the host graphs publish.
+ * Returns: Success, or every violation found.
  */
 export function validateDesignLineageBinding(
   props: IAutoMovieValidateDesignLineageBinding.IProps,

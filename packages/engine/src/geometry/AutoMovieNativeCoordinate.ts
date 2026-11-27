@@ -97,7 +97,9 @@ export namespace AutoMovieNativeCoordinate {
   }
 }
 
-/** Numerical failure stays in the existing native admission family. */
+/*
+ * Numerical failure stays in the existing native admission family.
+ */
 function fail(message: string): never {
   throw new AutoMovieLoftAdmissionError(message);
 }

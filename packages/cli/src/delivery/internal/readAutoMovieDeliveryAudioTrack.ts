@@ -1,7 +1,7 @@
 import { AutoMovieMp4Boxes } from "./AutoMovieMp4Boxes";
 import type { IAutoMovieDeliveryAudioTrack } from "./IAutoMovieDeliveryAudioTrack";
 
-/**
+/*
  * Reads how much of an audio track an MP4 file presents, from the container's
  * own sample table and edit list.
  *
@@ -13,12 +13,11 @@ import type { IAutoMovieDeliveryAudioTrack } from "./IAutoMovieDeliveryAudioTrac
  * movie tick of the media end is that end rounded (2133.33 ms is written as
  * 2133 ms). Only an edit ending a whole movie tick or more earlier trims the
  * track. The presented duration is that end less the skipped priming.
- *
- * @param path The delivery file whose bytes are audited.
- * @param streamIndex FFmpeg's input stream index, which counts the file's
- *   tracks in order.
- * @returns The presented duration in the track's media clock, or why it is
- *   unknown.
+ * Parameter path: The delivery file whose bytes are audited.
+ * Parameter streamIndex: FFmpeg's input stream index, which counts the file's
+ * tracks in order.
+ * Returns: The presented duration in the track's media clock, or why it is
+ * unknown.
  */
 export async function readAutoMovieDeliveryAudioTrack(
   path: string,
@@ -39,7 +38,9 @@ export async function readAutoMovieDeliveryAudioTrack(
   }
 }
 
-/** The box readers the reader walks the movie box with. */
+/*
+ * The box readers the reader walks the movie box with.
+ */
 const {
   children,
   clock,
@@ -49,7 +50,9 @@ const {
   only,
 }: typeof AutoMovieMp4Boxes = AutoMovieMp4Boxes;
 
-/** Combines the selected track's edit list and sample table. */
+/*
+ * Combines the selected track's edit list and sample table.
+ */
 function presentation(
   movie: Buffer,
   streamIndex: number,

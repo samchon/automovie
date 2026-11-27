@@ -18,7 +18,7 @@ import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMoti
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 
-/**
+/*
  * Reach to grasp as two coupled components, the model of prehension since
  * Jeannerod (1981, 1984): the transport carries the hand to the object and the
  * grasp shapes the hand, opening it to a peak aperture during the transport and
@@ -55,19 +55,27 @@ import { HumanSkill } from "../../skill/internal/HumanSkill";
  * unit's start, so it is oriented before the final approach.
  */
 export namespace HumanPrehension {
-  /** McIntosh et al. 2018 two-factor intercept, seconds. */
+  /*
+   * McIntosh et al. 2018 two-factor intercept, seconds.
+   */
   export const INTERCEPT: number = AutoMovieMotionHumanTiming.INTERCEPT;
 
-  /** McIntosh et al. 2018 amplitude slope, seconds per decade of millimetres. */
+  /*
+   * McIntosh et al. 2018 amplitude slope, seconds per decade of millimetres.
+   */
   export const AMPLITUDE: number = AutoMovieMotionHumanTiming.AMPLITUDE;
 
-  /** McIntosh et al. 2018 width slope, seconds per metre (0.65 ms per mm). */
+  /*
+   * McIntosh et al. 2018 width slope, seconds per metre (0.65 ms per mm).
+   */
   export const WIDTH: number = AutoMovieMotionHumanTiming.WIDTH;
 
-  /** The shortest amplitude the fit was measured at, metres. */
+  /*
+   * The shortest amplitude the fit was measured at, metres.
+   */
   export const SHORTEST: number = AutoMovieMotionHumanTiming.SHORTEST;
 
-  /**
+  /*
    * Peak wrist speed while an object is carried in the hand, metres per second;
    * provisional. McIntosh's fit times a fast unloaded reach, and no absolute
    * transport time of a giver's loaded arm was located (Kopnarski 2023 reviews
@@ -75,13 +83,17 @@ export namespace HumanPrehension {
    */
   export const CARRY_PEAK: number = 1.0;
 
-  /** Peak-aperture slope on the object's width (Smeets and Brenner 1999). */
+  /*
+   * Peak-aperture slope on the object's width (Smeets and Brenner 1999).
+   */
   export const APERTURE_SLOPE: number = 0.8;
 
-  /** Peak-aperture intercept, metres; provisional. */
+  /*
+   * Peak-aperture intercept, metres; provisional.
+   */
   export const APERTURE_INTERCEPT: number = 0.025;
 
-  /**
+  /*
    * The shares of the transport at which the first unit ends and the approach
    * unit starts (provisional: no located study gives the split of a two-unit
    * reach to grasp; the overlap of 0.3 of the transport keeps the approach unit
@@ -93,15 +105,14 @@ export namespace HumanPrehension {
     start: 0.45,
   };
 
-  /**
+  /*
    * A reach-to-grasp transport time, seconds, with the performer's timing
    * variability.
-   *
-   * @param skill The performer's skill.
-   * @param random The action's draw stream for the duration.
-   * @param distance Wrist travel, metres.
-   * @param width Grasped width, metres; 0 for a touch.
-   * @returns Seconds; positive.
+   * Parameter skill: The performer's skill.
+   * Parameter random: The action's draw stream for the duration.
+   * Parameter distance: Wrist travel, metres.
+   * Parameter width: Grasped width, metres; 0 for a touch.
+   * Returns: Seconds; positive.
    */
   export function duration(
     skill: IAutoMovieMotionHumanSkill,
@@ -112,63 +123,58 @@ export namespace HumanPrehension {
     return HumanSkill.jitter(skill, random, nominal(distance, width));
   }
 
-  /**
+  /*
    * The two-factor movement time without variability.
-   *
-   * @param distance Wrist travel, metres.
-   * @param width Grasped width, metres.
-   * @returns Seconds.
+   * Parameter distance: Wrist travel, metres.
+   * Parameter width: Grasped width, metres.
+   * Returns: Seconds.
    */
   export function nominal(distance: number, width: number): number {
     return AutoMovieMotionHumanTiming.aimed(distance, width);
   }
 
-  /**
+  /*
    * The time of a direct transport with an object in the hand, seconds: the
    * reach time, lengthened until the minimum-jerk peak speed (1.875 times the
-   * mean) stays at or under {@link CARRY_PEAK}.
-   *
-   * @param distance Wrist travel, metres.
-   * @returns Seconds.
+   * mean) stays at or under CARRY_PEAK.
+   * Parameter distance: Wrist travel, metres.
+   * Returns: Seconds.
    */
   export function carry(distance: number): number {
     return Math.max(nominal(distance, 0), (1.875 * distance) / CARRY_PEAK);
   }
 
-  /**
+  /*
    * The peak grip aperture for an object width, metres.
-   *
-   * @param width The object's width across the grip, metres.
-   * @returns The aperture.
+   * Parameter width: The object's width across the grip, metres.
+   * Returns: The aperture.
    */
   export function aperture(width: number): number {
     return APERTURE_SLOPE * width + APERTURE_INTERCEPT;
   }
 
-  /**
+  /*
    * Where in the transport the aperture peaks: a seeded share in Jeannerod's 60
    * to 70 % band.
-   *
-   * @param random The draw stream.
-   * @returns The share.
+   * Parameter random: The draw stream.
+   * Returns: The share.
    */
   export function peak(random: IAutoMovieRandom): number {
     return 0.6 + 0.1 * random.float(0);
   }
 
-  /**
+  /*
    * Plan a transport.
-   *
-   * @param from The wrist's start, metres.
-   * @param to The wrist's grasp point, metres.
-   * @param approach The unit direction the hand arrives along (into the
-   *   object).
-   * @param setback How far back along the approach the first unit ends, metres;
-   *   0 for a direct reach.
-   * @param rotation The hand's world rotation at the start and at the grasp.
-   * @param seconds The transport's duration.
-   * @returns The transport.
-   * @throws {Error} When duration is not positive.
+   * Parameter from: The wrist's start, metres.
+   * Parameter to: The wrist's grasp point, metres.
+   * Parameter approach: The unit direction the hand arrives along (into the
+   * object).
+   * Parameter setback: How far back along the approach the first unit ends, metres;
+   * 0 for a direct reach.
+   * Parameter rotation: The hand's world rotation at the start and at the grasp.
+   * Parameter seconds: The transport's duration.
+   * Returns: The transport.
+   * When duration is not positive.
    */
   export function transport(
     from: IAutoMovieVector3,
@@ -228,17 +234,16 @@ export namespace HumanPrehension {
     };
   }
 
-  /**
+  /*
    * The finger angles of a grasp at a share of its transport: from the entry
    * shape to the open pre-shape by the peak share, then closing onto the grasp
    * by the end, each phase on a minimum-jerk profile so the digits start and
    * stop smoothly.
-   *
-   * @param shapes The entry, pre-shape and grasp angles of the hand's digits,
-   *   clinical degrees.
-   * @param peak The share of the peak aperture.
-   * @param u The share of the transport, clamped to [0, 1].
-   * @returns The angles.
+   * Parameter shapes: The entry, pre-shape and grasp angles of the hand's digits,
+   * clinical degrees.
+   * Parameter peak: The share of the peak aperture.
+   * Parameter u: The share of the transport, clamped to [0, 1].
+   * Returns: The angles.
    */
   export function shape(
     shapes: Readonly<
@@ -268,15 +273,14 @@ export namespace HumanPrehension {
     return prepareHumanShapeBlend(a, b)(w);
   }
 
-  /**
-   * The schedule of {@link shape} prepared for a plan that samples it at many
+  /*
+   * The schedule of shape prepared for a plan that samples it at many
    * shares: each phase's blend is prepared on its first use.
-   *
-   * @param shapes The entry, pre-shape and grasp angles, clinical degrees;
-   *   unchanged through the plan.
-   * @param peak The share of the peak aperture.
-   * @returns The angles at a share of the transport, clamped to [0, 1], fresh
-   *   tuples.
+   * Parameter shapes: The entry, pre-shape and grasp angles, clinical degrees;
+   * unchanged through the plan.
+   * Parameter peak: The share of the peak aperture.
+   * Returns: The angles at a share of the transport, clamped to [0, 1], fresh
+   * tuples.
    */
   export function prepareShape(
     shapes: Parameters<typeof shape>[0],
@@ -300,8 +304,12 @@ export namespace HumanPrehension {
   }
 }
 
-/** The alternatives of `ShapesEntryItem`'s site. */
+/*
+ * The alternatives of `ShapesEntryItem`'s site.
+ */
 type ShapesEntryItem = "entry" | "open" | "closed";
 
-/** The record of `IAPPROACHItem`'s site. */
+/*
+ * The record of `IAPPROACHItem`'s site.
+ */
 type IAPPROACHItem = { end: number; start: number };

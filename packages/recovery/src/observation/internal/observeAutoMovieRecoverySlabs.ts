@@ -19,7 +19,7 @@ import { planeFrame } from "../../geometry/internal/planeFrame";
 import { observeRecoverySourceSlabs } from "../../geometry/internal/observeRecoverySourceSlabs";
 import { prepareRecoveryMeshIncidence } from "../../geometry/internal/prepareRecoveryMeshIncidence";
 
-/**
+/*
  * Observe exact source slabs without reading, converting or fitting
  * coefficients. One prepared source/scalar chart recuts every saved endpoint
  * plane and binds its complete raw-contour population to caller-attested saved
@@ -224,7 +224,9 @@ export function observeAutoMovieRecoverySlabs(
   }
 }
 
-/** Whether a saved section's frame equals the observed plane frame exactly. */
+/*
+ * Whether a saved section's frame equals the observed plane frame exactly.
+ */
 function sameFrame(
   saved: IAutoMovieRecoverySavedSection["frame"],
   actual: IAutoMovieRecoverySlabs["frame"],
@@ -236,8 +238,12 @@ function sameFrame(
   );
 }
 
-/** A plane frame's member: its origin or one of its three axes. */
+/*
+ * A plane frame's member: its origin or one of its three axes.
+ */
 type FrameKey = keyof IAutoMovieRecoverySlabs["frame"];
 
-/** The plane frame's members, compared one by one. */
+/*
+ * The plane frame's members, compared one by one.
+ */
 const FRAME_KEYS: readonly FrameKey[] = ["originMm", "n", "u", "v"];

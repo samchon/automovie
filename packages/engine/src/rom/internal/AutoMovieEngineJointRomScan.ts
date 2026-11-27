@@ -16,49 +16,52 @@ import { nearestAngleAlias } from "../../math/internal/nearestAngleAlias";
 import { abductionRange } from "./abductionRange";
 import { swingConeAngle } from "./swingConeAngle";
 
-/** Clinical axes in the scanner's existing report and finite-check order. */
+/*
+ * Clinical axes in the scanner's existing report and finite-check order.
+ */
 const AXES: readonly ["flexion", "abduction", "twist"] = [
   "flexion",
   "abduction",
   "twist",
 ] as const;
 
-/** Own joint ROM scanning, overshoot scoring and prepared scan readers. */
+/*
+ * Own joint ROM scanning, overshoot scoring and prepared scan readers.
+ */
 export namespace AutoMovieEngineJointRomScan {
-    /**
-   * Measure one joint against its range of motion and report each fault to the
-   * caller, building no message: the single owner of what counts as a ROM fault
-   * and how far past the limit it lies, read by the pose gate
-   * ({@link validateJointRom}), which words each fault, and by the solvers'
-   * candidate ranking (`jointRomOvershoot`), which only sums them.
-   *
-   * Faults are reported in axis order (flexion, abduction, twist), then the
-   * combined swing. A `null` angle is rest and reports nothing on its own axis;
-   * `0` reports nothing on an immobile (`null`) axis, whose rest it is, but is
-   * measured against a range that excludes it. A non-finite angle is reported
-   * with an `undefined` overshoot, since it has no distance to a limit. An angle
-   * on an immobile axis overshoots by its whole magnitude, and one outside its
-   * interval by its distance to the nearer bound. The swing is the coupling of
-   * flexion and abduction, a `null` axis contributing its actual rotation, `0`,
-   * and overshoots by what it exceeds `swingDeg`.
-   *
-   * A ball joint whose constraint declares `swingTwist` is measured by its
-   * rotation instead (`swingTwistRange`), in the frame of its bone the caller's
-   * rig resolves (`rig`), or the humanoid tables' (`swingTwistRange.of`): a
-   * `swing` fault by the degrees its direction lies past the reach of its flexion
-   * and abduction ranges, then a `twist` fault by the degrees its turn about its
-   * own axis lies past `swingTwist.twist`. A non-finite angle is reported as
-   * above and nothing else is measured. A bone with no axes in that frame keeps
-   * the three-angle scan.
-   *
-   * @param joint Joint angles in the constraint's degree frame; `null` is rest.
-   * @param constraint Finite ordered axis intervals and an optional swing cone.
-   * @param report Called once per fault with the faulted part, the measured value
-   *   in degrees and its overshoot in degrees, `undefined` for a non-finite
-   *   value.
-   * @param rig The bone's frame as the caller's rig resolves it
-   *   (`swingTwistRange.of(bone, skeleton)`); the humanoid tables' when absent.
-   */
+    /*
+     * Measure one joint against its range of motion and report each fault to the
+     * caller, building no message: the single owner of what counts as a ROM fault
+     * and how far past the limit it lies, read by the pose gate
+     * (validateJointRom), which words each fault, and by the solvers'
+     * candidate ranking (`jointRomOvershoot`), which only sums them.
+     *
+     * Faults are reported in axis order (flexion, abduction, twist), then the
+     * combined swing. A `null` angle is rest and reports nothing on its own axis;
+     * `0` reports nothing on an immobile (`null`) axis, whose rest it is, but is
+     * measured against a range that excludes it. A non-finite angle is reported
+     * with an `undefined` overshoot, since it has no distance to a limit. An angle
+     * on an immobile axis overshoots by its whole magnitude, and one outside its
+     * interval by its distance to the nearer bound. The swing is the coupling of
+     * flexion and abduction, a `null` axis contributing its actual rotation, `0`,
+     * and overshoots by what it exceeds `swingDeg`.
+     *
+     * A ball joint whose constraint declares `swingTwist` is measured by its
+     * rotation instead (`swingTwistRange`), in the frame of its bone the caller's
+     * rig resolves (`rig`), or the humanoid tables' (`swingTwistRange.of`): a
+     * `swing` fault by the degrees its direction lies past the reach of its flexion
+     * and abduction ranges, then a `twist` fault by the degrees its turn about its
+     * own axis lies past `swingTwist.twist`. A non-finite angle is reported as
+     * above and nothing else is measured. A bone with no axes in that frame keeps
+     * the three-angle scan.
+     * Parameter joint: Joint angles in the constraint's degree frame; `null` is rest.
+     * Parameter constraint: Finite ordered axis intervals and an optional swing cone.
+     * Parameter report: Called once per fault with the faulted part, the measured value
+     * in degrees and its overshoot in degrees, `undefined` for a non-finite
+     * value.
+     * Parameter rig: The bone's frame as the caller's rig resolves it
+     * (`swingTwistRange.of(bone, skeleton)`); the humanoid tables' when absent.
+     */
   export function scanJointRom(
     joint: IAutoMovieJointPose,
     constraint: IAutoMovieJointConstraint,
@@ -78,19 +81,20 @@ export namespace AutoMovieEngineJointRomScan {
     );
   }
 
-  /** Companion declarations of {@link scanJointRom}. */
+  /*
+   * Companion declarations of scanJointRom.
+   */
 
-    /**
+    /*
      * Sum the same faults in their report order, without a collector closure.
      * Missing distances are nonfinite faults and add Infinity, never zero. This
      * entry runs the same full scan with its existing rig admission and owns only
      * a local number; it retains no joint, constraint or result.
-     *
-     * @param joint The actual clinical angles, degrees.
-     * @param constraint Their effective admitted ROM.
-     * @param rig The caller's existing clinical frame, when supplied.
-     * @returns The ordered overshoot sum in degrees, or Infinity for an
-     *   unmeasurable fault.
+     * Parameter joint: The actual clinical angles, degrees.
+     * Parameter constraint: Their effective admitted ROM.
+     * Parameter rig: The caller's existing clinical frame, when supplied.
+     * Returns: The ordered overshoot sum in degrees, or Infinity for an
+     * unmeasurable fault.
      */
     export function scanJointRomOvershoot(
       joint: IAutoMovieJointPose,
@@ -106,32 +110,32 @@ export namespace AutoMovieEngineJointRomScan {
       );
     }
 
-  /**
-     * Prepare numerical scans for one bone's unchanged constraint and clinical
-     * frame. Every input joint must name that bone. The canonical humanoid frame
-     * remains the fallback when no rig is supplied, as in a direct scan. Creating
-     * the scorer admits no axis or angle; the first finite gated candidate admits
-     * its basis at the original composition site. Later candidates share only
-     * that basis and their pure axis factors, while all finite checks,
-     * swing/twist readings and ordered additions still run.
-     *
-     * Preparation is constant work. One closure owns one optional prepared frame
-     * and lazy joint composer for this synchronous operation, released with the
-     * scorer. No joint, quaternion result or target history is cached.
-     *
-     * The same private fault scan evaluates every candidate, with finite checks
-     * before any composition. Only the gated frame and composition factors are
-     * prepared, without duplicating interval, cone or swing-twist fault rules.
-     * Canonical fallback, ordered additions and tolerances remain unchanged.
-     * Exact unchanged bone/constraint/axes/frame inputs justify that preparation;
-     * each candidate still owns its fresh outer product and actual reading.
-     *
-     * A caller that read the joint's angles off a rotation, on a basis and rest
-     * frame that are the range's own (`readsSwingTwistFrame`), passes that
-     * rotation: a gated joint's range then reads it instead of the rotation its
-     * angles compose back to, the same rotation up to the rounding of the round
-     * trip, and composes nothing.
-     */
+  /*
+   * Prepare numerical scans for one bone's unchanged constraint and clinical
+   * frame. Every input joint must name that bone. The canonical humanoid frame
+   * remains the fallback when no rig is supplied, as in a direct scan. Creating
+   * the scorer admits no axis or angle; the first finite gated candidate admits
+   * its basis at the original composition site. Later candidates share only
+   * that basis and their pure axis factors, while all finite checks,
+   * swing/twist readings and ordered additions still run.
+   *
+   * Preparation is constant work. One closure owns one optional prepared frame
+   * and lazy joint composer for this synchronous operation, released with the
+   * scorer. No joint, quaternion result or target history is cached.
+   *
+   * The same private fault scan evaluates every candidate, with finite checks
+   * before any composition. Only the gated frame and composition factors are
+   * prepared, without duplicating interval, cone or swing-twist fault rules.
+   * Canonical fallback, ordered additions and tolerances remain unchanged.
+   * Exact unchanged bone/constraint/axes/frame inputs justify that preparation;
+   * each candidate still owns its fresh outer product and actual reading.
+   *
+   * A caller that read the joint's angles off a rotation, on a basis and rest
+   * frame that are the range's own (`readsSwingTwistFrame`), passes that
+   * rotation: a gated joint's range then reads it instead of the rotation its
+   * angles compose back to, the same rotation up to the rounding of the round
+   * trip, and composes nothing.
+   */
     export function prepareJointRomScan(
       bone: AutoMovieHumanoidBone,
       constraint: IAutoMovieJointConstraint,
@@ -158,22 +162,21 @@ export namespace AutoMovieEngineJointRomScan {
         scan(joint, constraint, undefined, range, true, compose, rotation);
     }
 
-  /**
-     * The same overshoot sum for one bone gated by swing and twist, read from the
-     * joint's rotation alone: what `prepare`'s scorer returns for a joint whose
-     * angles were read off that rotation on the range's own basis and rest frame
-     * (`readsSwingTwistFrame`), the gate's swing then twist faults in their
-     * order, with no angles to read. Such angles, read off a finite rotation, are
-     * finite, so the scorer's finite checks on them have nothing to report; a
-     * rotation with a non-finite component is the caller's to refuse. Null for an
-     * unconstrained or ungated bone, whose scan reads the angles themselves.
-     *
-     * @param bone The bone.
-     * @param constraint Its effective ROM.
-     * @param rig Its frame as the caller's rig resolves it; the humanoid tables'
-     *   when absent.
-     * @returns The scorer of a rotation, degrees, or null.
-     */
+  /*
+   * The same overshoot sum for one bone gated by swing and twist, read from the
+   * joint's rotation alone: what `prepare`'s scorer returns for a joint whose
+   * angles were read off that rotation on the range's own basis and rest frame
+   * (`readsSwingTwistFrame`), the gate's swing then twist faults in their
+   * order, with no angles to read. Such angles, read off a finite rotation, are
+   * finite, so the scorer's finite checks on them have nothing to report; a
+   * rotation with a non-finite component is the caller's to refuse. Null for an
+   * unconstrained or ungated bone, whose scan reads the angles themselves.
+   * Parameter bone: The bone.
+   * Parameter constraint: Its effective ROM.
+   * Parameter rig: Its frame as the caller's rig resolves it; the humanoid tables'
+   * when absent.
+   * Returns: The scorer of a rotation, degrees, or null.
+   */
     export function prepareRotatedJointRomScan(
       bone: AutoMovieHumanoidBone,
       constraint: IAutoMovieJointConstraint | null,
@@ -193,7 +196,7 @@ export namespace AutoMovieEngineJointRomScan {
         gate(0, rotation, swingTwist, range, undefined, true);
     }
 
-  /**
+  /*
    * The frame a swing-twist gate reads a joint in: the caller's prepared one, or
    * the humanoid tables' for an entry that has none; nothing for an ungated
    * constraint.
@@ -208,7 +211,7 @@ export namespace AutoMovieEngineJointRomScan {
       : (rig ?? swingTwistRange.humanoid(bone, constraint));
   }
 
-  /**
+  /*
    * One unchanged fault scan, reporting faults or folding their ordered
    * distances. The explicit mode keeps an invalid required public callback
    * failing at its original first fault rather than treating its absence as
@@ -294,10 +297,10 @@ export namespace AutoMovieEngineJointRomScan {
     return total;
   }
 
-    /**
-   * A swing-twist gate's faults of one rotation on the range's own frame: the
-   * swing past its reach, then the twist past its interval.
-   */
+    /*
+     * A swing-twist gate's faults of one rotation on the range's own frame: the
+     * swing past its reach, then the twist past its interval.
+     */
   function gate(
     total: number,
     rotation: IAutoMovieQuaternion,
@@ -329,10 +332,10 @@ export namespace AutoMovieEngineJointRomScan {
     return total;
   }
 
-    /**
-   * Preserve actual callback effects, or add one score in the original report
-   * order.
-   */
+    /*
+     * Preserve actual callback effects, or add one score in the original report
+     * order.
+     */
   function fault(
     total: number,
     report: Parameters<typeof scanJointRom>[2] | undefined,

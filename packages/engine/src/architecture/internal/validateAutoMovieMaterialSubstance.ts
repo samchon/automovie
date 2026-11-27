@@ -7,7 +7,7 @@ import {
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 
-/**
+/*
  * Range-check one substance record.
  *
  * The engine ships no substances, so every value here is the production's own
@@ -22,9 +22,8 @@ import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEng
  * the factor of still air. The classification must be non-blank, and a present
  * name too. Every finding is returned with a `$input` path; nothing throws, and
  * the surface id is not resolved against any material.
- *
- * @param props.substance Substance record to range-check.
- * @returns Success, or every violation found.
+ * Parameter props.substance: Substance record to range-check.
+ * Returns: Success, or every violation found.
  */
 export function validateAutoMovieMaterialSubstance(
   props: IAutoMovieValidateMaterialSubstance.IProps,
@@ -85,7 +84,9 @@ export function validateAutoMovieMaterialSubstance(
   return collector.toValidation();
 }
 
-/** A present value must be finite and strictly above `limit`. */
+/*
+ * A present value must be finite and strictly above `limit`.
+ */
 const above: (
   value: number | null,
   limit: number,
@@ -108,7 +109,9 @@ const above: (
     );
 };
 
-/** A present value must be finite and at least `limit`. */
+/*
+ * A present value must be finite and at least `limit`.
+ */
 const atLeast: (
   value: number | null,
   limit: number,

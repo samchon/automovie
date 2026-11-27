@@ -1,6 +1,6 @@
 import type { Accessor } from "@gltf-transform/core";
 
-/**
+/*
  * Read a parsed glTF accessor as plain numbers in the values it means.
  *
  * A normalized integer accessor stores `round(value * max)`, which glTF allows
@@ -11,10 +11,9 @@ import type { Accessor } from "@gltf-transform/core";
  * glTF's decoding (`max(c / max, -1)` for signed and `c / max` for unsigned
  * components). Every other accessor, including non-normalized quantized
  * integers whose scale lives in the node transform, is copied verbatim.
- *
- * @param accessor Accessor whose data is resident in the parsed document.
- * @returns A new flat array in element order, or `null` when the accessor holds
- *   no array data; the caller supplies a valid accessor layout.
+ * Parameter accessor: Accessor whose data is resident in the parsed document.
+ * Returns: A new flat array in element order, or `null` when the accessor holds
+ * no array data; the caller supplies a valid accessor layout.
  */
 export function accessorValues(accessor: Accessor): number[] | null {
   const array: ReturnType<Accessor["getArray"]> = accessor.getArray();

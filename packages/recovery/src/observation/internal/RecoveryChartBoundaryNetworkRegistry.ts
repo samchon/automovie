@@ -5,7 +5,7 @@ import type {
   IAutoMovieRecoveryChartBoundaryNetworkRegistry,
 } from "@automovie/interface";
 
-/**
+/*
  * Register immutable boundary ancestry and copied chart observations before
  * augmentation.
  */

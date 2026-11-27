@@ -16,7 +16,7 @@ import type {
 import { AutoMovieRecoveryEventCurve as E } from "../../observation/AutoMovieRecoveryEventCurve";
 import { compileAutoMovieRecoveryEventDomain as compile } from "./compileAutoMovieRecoveryEventDomain";
 
-/**
+/*
  * Retain complete native cubic owners and oriented partial intervals on chart
  * edges. Tensor cuts stay local to the supplied chart; internal complete edges
  * retain their shared coefficient IDs without propagating opposite cuts to

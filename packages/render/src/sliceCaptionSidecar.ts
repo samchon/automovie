@@ -3,7 +3,7 @@ import type {
   IAutoMovieCaptionSidecar,
 } from "@automovie/interface";
 
-/**
+/*
  * Slice a caption sidecar to one chunk's window `[frameStart, frameEnd)`, with
  * spans clipped to the window and re-based to chunk-local frame indices.
  *
@@ -61,13 +61,17 @@ export const sliceCaptionSidecar: (
   };
 };
 
-/** The window's exclusive end, clamped to the sidecar's frame count. */
+/*
+ * The window's exclusive end, clamped to the sidecar's frame count.
+ */
 const clampWindowEnd: (frameEnd: number, frameCount: number) => number = (
   frameEnd: number,
   frameCount: number,
 ): number => (frameEnd < frameCount ? frameEnd : frameCount);
 
-/** Index of the first span whose exclusive end exceeds `frame`, by bisection. */
+/*
+ * Index of the first span whose exclusive end exceeds `frame`, by bisection.
+ */
 const firstSpanEndingAfter: (
   entries: readonly IAutoMovieCaptionEntry[],
   frame: number,

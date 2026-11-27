@@ -7,7 +7,7 @@ import {
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 
-/**
+/*
  * Refuse duplicate typed furnishing bindings to the same world-space cloth
  * domain, independently of building grouping. Domain and furnishing ids use
  * code-unit order; source indices still identify the original conflicting

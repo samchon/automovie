@@ -24,7 +24,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { presentHandPlace } from "./presentHandPlace";
 
-/**
+/*
  * Present a hand to a partner. The palm goes, palm down and fingers forward, to
  * the place the arm reaches with the upper arm hanging and the forearm level
  * ahead (`presentHandPlace`): inward of the shoulder's half width, the upper
@@ -40,7 +40,7 @@ export const presentHand: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPr
     plan: planPresentHand,
   };
 
-/**
+/*
  * Present a hand to a partner. The palm goes, palm down and fingers forward, to
  * the place the arm reaches with the upper arm hanging and the forearm level
  * ahead (`presentHandPlace`): inward of the shoulder's half width, the upper

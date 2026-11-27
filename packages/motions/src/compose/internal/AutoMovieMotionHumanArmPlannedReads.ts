@@ -25,7 +25,7 @@ import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmObservation } from "./AutoMovieMotionHumanArmObservation";
 import { AutoMovieMotionHumanArmPlayed } from "./AutoMovieMotionHumanArmPlayed";
 
-/**
+/*
  * The readings of an arms' plan (`AutoMovieMotionHumanArmPlanned.planned`),
  * each made once per exact instant however often the plan and its refinement
  * ask: the posture so far with the planned arms left out and its pose, each
@@ -33,9 +33,8 @@ import { AutoMovieMotionHumanArmPlayed } from "./AutoMovieMotionHumanArmPlayed";
  * and the return's longest probe arc, and the base each arm is read against
  * with the finger state of each planned hand, read from the plan's body, span,
  * arms, prefix posture and borrowed readers.
- *
- * @param scope What the plan builds its readings from.
- * @returns The readings.
+ * Parameter scope: What the plan builds its readings from.
+ * Returns: The readings.
  */
 export function AutoMovieMotionHumanArmPlannedReads(
   scope: AutoMovieMotionHumanArmPlannedReads.IScope,
@@ -113,7 +112,7 @@ export function AutoMovieMotionHumanArmPlannedReads(
       (): Map<number, IAutoMovieMotionHumanArmAngles.IAngles> => new Map(),
     );
 
-  /**
+  /*
    * Travel and the initial guess share only completed fits of the same cached
    * endpoint inputs.
    */
@@ -304,97 +303,114 @@ export function AutoMovieMotionHumanArmPlannedReads(
   };
 }
 
-/** What the readings of an arms' plan read and what they are. */
+/*
+ * What the readings of an arms' plan read and what they are.
+ */
 export namespace AutoMovieMotionHumanArmPlannedReads {
-  /** What an arms' plan builds its readings from. */
+  /*
+   * What an arms' plan builds its readings from.
+   */
   export interface IScope {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The span's instants. */
+    /*
+     * The span's instants.
+     */
     span: IAutoMovieMotionHumanArmPlanned.ISpan;
 
-    /** The arms. */
+    /*
+     * The arms.
+     */
     carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[];
 
-    /** The prefix posture at any second. */
+    /*
+     * The prefix posture at any second.
+     */
     before: IAutoMovieMotionHumanActionPlan["posture"];
 
-    /** The plan's exact forward-kinematics preparation. */
+    /*
+     * The plan's exact forward-kinematics preparation.
+     */
     resolution: ReturnType<typeof prepareHumanPoseResolution>;
 
-    /** The plan's range-of-motion projector. */
+    /*
+     * The plan's range-of-motion projector.
+     */
     projection: ReturnType<typeof prepareHumanPostureProjection>;
   }
 
-  /** The readings. */
+  /*
+   * The readings.
+   */
   export interface IReads {
-    /**
+    /*
      * A posture with the planned arms left out.
-     *
-     * @param p The posture.
-     * @returns The posture without the planned arms.
+     * Parameter p: The posture.
+     * Returns: The posture without the planned arms.
      */
     without: (p: IAutoMovieMotionHumanPosture) => IAutoMovieMotionHumanPosture;
 
-    /** Each instant's posture so far and its pose, by second. */
+    /*
+     * Each instant's posture so far and its pose, by second.
+     */
     read: Map<number, IPlannedReadEntry>;
 
-    /**
+    /*
      * An instant's posture so far and its pose with the planned arms left out.
-     *
-     * @param t The second.
-     * @returns The posture and the pose.
+     * Parameter t: The second.
+     * Returns: The posture and the pose.
      */
     at: (t: number) => IPlannedAtResult;
 
-    /**
+    /*
      * An arm's goal at a second, as the plan perceives it.
-     *
-     * @param a The arm's index.
-     * @param t The second.
-     * @returns The goal.
+     * Parameter a: The arm's index.
+     * Parameter t: The second.
+     * Returns: The goal.
      */
     aimed: (a: number, t: number) => IAutoMovieHumanLimbGoal;
 
-    /**
+    /*
      * An arm's own fit of its goal at a second.
-     *
-     * @param a The arm's index.
-     * @param t The second.
-     * @returns The arm's angles.
+     * Parameter a: The arm's index.
+     * Parameter t: The second.
+     * Returns: The arm's angles.
      */
     fitted: (a: number, t: number) => IAutoMovieMotionHumanArmAngles.IAngles;
 
-    /**
+    /*
      * The longest probe arc of the reach (1) or the return (-1) to a second.
-     *
-     * @param t The second.
-     * @param sign The reach or the return.
-     * @returns The arc, metres.
+     * Parameter t: The second.
+     * Parameter sign: The reach or the return.
+     * Returns: The arc, metres.
      */
     travel: (t: number, sign: PlannedTravelSign) => number;
 
-    /** Each instant's base, by second. */
+    /*
+     * Each instant's base, by second.
+     */
     bases: Map<number, HumanArmTrajectory.IProblem["bases"][number]>;
 
-    /** Each instant's finger state of each planned hand, by second. */
+    /*
+     * Each instant's finger state of each planned hand, by second.
+     */
     fingers: Map<number, IAutoMovieMotionHumanPosture["joints"][]>;
 
-    /**
+    /*
      * An instant's base, each arm read against it.
-     *
-     * @param t The second.
-     * @returns The base.
+     * Parameter t: The second.
+     * Returns: The base.
      */
     base: (t: number) => HumanArmTrajectory.IProblem["bases"][number];
 
-    /**
+    /*
      * Whether an arm holds at a second, over its own span or the group's.
-     *
-     * @param c The arm.
-     * @param t The second.
-     * @returns Whether it holds.
+     * Parameter c: The arm.
+     * Parameter t: The second.
+     * Returns: Whether it holds.
      */
     holding: (
       c: IAutoMovieMotionHumanArmPlanned.IPlanned,
@@ -402,52 +418,64 @@ export namespace AutoMovieMotionHumanArmPlannedReads {
     ) => boolean;
   }
 }
-/** The alternatives of `PlannedTravelSign`'s site. */
+/*
+ * The alternatives of `PlannedTravelSign`'s site.
+ */
 type PlannedTravelSign = -1 | 1;
 
-/** The record of `IPlannedAtFound`'s site. */
+/*
+ * The record of `IPlannedAtFound`'s site.
+ */
 type IPlannedAtFound = {
   posture: IAutoMovieMotionHumanPosture;
   pose: IAutoMoviePose;
 };
 
-/** The record of `IPlannedAtResult`'s site. */
+/*
+ * The record of `IPlannedAtResult`'s site.
+ */
 type IPlannedAtResult = {
   posture: IAutoMovieMotionHumanPosture;
   pose: IAutoMoviePose;
 };
 
-/** The record of `IPlannedReadEntry`'s site. */
+/*
+ * The record of `IPlannedReadEntry`'s site.
+ */
 type IPlannedReadEntry = {
   posture: IAutoMovieMotionHumanPosture;
   pose: IAutoMoviePose;
 };
 
-/**
+/*
  * The spacing of the trajectory's waypoints, seconds at most: the frame grid
  * (`AutoMovieMotionHumanArmCourse.STEP`).
  */
 const STEP: number = AutoMovieMotionHumanArmCourse.STEP;
-/**
+/*
  * How far from the instant resolved last an instant's base continues its fits,
  * seconds: a frame of the grid and a half, so the next frame does and a
  * refinement's far instant does not.
  */
 const CONTINUED: number = 1.5 * STEP;
 
-/**
+/*
  * The instant whose base was resolved last and the seed each of its limbs' fits
  * chose.
  */
 interface ILatest {
-  /** Its second. */
+  /*
+   * Its second.
+   */
   seconds: number;
 
-  /** Each fitted limb's seed there. */
+  /*
+   * Each fitted limb's seed there.
+   */
   seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"];
 }
 
-/**
+/*
  * Each limb's fit a frame away continued from its seed, refined to the cold
  * sweep's own resolution; a limb with no seed is solved cold.
  */

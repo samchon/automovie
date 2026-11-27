@@ -41,7 +41,7 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 import { roundAutoMovieDrawingVector } from "./roundAutoMovieDrawingVector";
 import { sectionAutoMovieDrawingSpaces } from "./sectionAutoMovieDrawingSpaces";
 
-/**
+/*
  * Derive one drawing from one design and one view.
  *
  * Throws an `Error` when the design fails `validateBuiltEnvironment`, naming
@@ -56,7 +56,7 @@ import { sectionAutoMovieDrawingSpaces } from "./sectionAutoMovieDrawingSpaces";
  * cells a cutting view passes through, opening marks from each opening's void
  * or fill, and dimensions and notes from the features their targets pin.
  * Nothing produced here may be read back into the design. What cannot be
- * computed is reported in {@link IAutoMovieDrawing.gaps} rather than omitted,
+ * computed is reported in IAutoMovieDrawing.gaps rather than omitted,
  * because a sheet that silently leaves something out reads as a building
  * without it. Openings are marked whatever the kind filter says, because the
  * schedule counts them all, and only the space filter selects them.
@@ -64,12 +64,11 @@ import { sectionAutoMovieDrawingSpaces } from "./sectionAutoMovieDrawingSpaces";
  * The digest is SHA-256 over the canonical JSON of every other field. Identical
  * canonical payloads give identical digests; a shared digest does not prove
  * field equality because SHA-256 collisions are possible.
- *
- * @param props.environment Design the drawing is taken from.
- * @param props.view View that decides the cut, the direction, the filters and
- *   the targets.
- * @returns The drawing, with sorted lines, regions, openings and gaps and the
- *   view's own dimension and note order.
+ * Parameter props.environment: Design the drawing is taken from.
+ * Parameter props.view: View that decides the cut, the direction, the filters and
+ * the targets.
+ * Returns: The drawing, with sorted lines, regions, openings and gaps and the
+ * view's own dimension and note order.
  */
 export function deriveAutoMovieDrawing(
   props: IAutoMovieDeriveDrawing.IProps,
@@ -233,7 +232,9 @@ export function deriveAutoMovieDrawing(
   };
 }
 
-/** Statements every drawing carries about derivations it never performs. */
+/*
+ * Statements every drawing carries about derivations it never performs.
+ */
 const FIXED_GAPS: readonly IAutoMovieDrawingGap[] = [
   {
     subject: "hidden-line-removal",
@@ -261,7 +262,7 @@ const FIXED_GAPS: readonly IAutoMovieDrawingGap[] = [
   },
 ];
 
-/**
+/*
  * Check one view list's exact ids with a set, throwing at its first repeat
  * without renaming entries. O(N) expected work/O(N) temporary ids preserve
  * authored order; the set releases on return or throw and neither ids nor a
@@ -286,7 +287,7 @@ const requireUniqueIds: (
   }
 };
 
-/**
+/*
  * Delegate cell sectioning and translate its faceted ids, omitted shells and
  * unbounded-cell counts into caller-owned gaps, returning the actual regions
  * unchanged. The validated design/frame and optional inclusion set are shared
@@ -344,7 +345,7 @@ const sectionRegions: (
   return section.regions;
 };
 
-/**
+/*
  * Select openings through any host-boundary space, derive profile/fill/absent
  * marks, and state missing geometry, substituted fill size, chorded arcs and
  * unperformed host subtraction as gaps. The element-kind filter deliberately
@@ -438,7 +439,7 @@ const markOpenings: (
   );
 };
 
-/**
+/*
  * Resolve both pinned features against the shared current design, propagating
  * the first stale reason with null endpoints/value. Otherwise round page
  * endpoints and measure either raw world distance or distance between those

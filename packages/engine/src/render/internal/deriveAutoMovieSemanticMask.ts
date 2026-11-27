@@ -26,7 +26,7 @@ import { AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES } from "../AUTOMOVIE_SEMANTIC_MASK_
 import { AUTOMOVIE_SEMANTIC_MASK_SPACE_NODE } from "../AUTOMOVIE_SEMANTIC_MASK_SPACE_NODE";
 import { digestAutoMovieSemanticMask } from "./digestAutoMovieSemanticMask";
 
-/**
+/*
  * Derive the stable semantic palette for one render subject.
  *
  * Each semantic id supplies a hashed starting colour; allocation visits ids in
@@ -94,13 +94,19 @@ export function deriveAutoMovieSemanticMask(
   return { ...payload, digest: digestAutoMovieSemanticMask(payload) };
 }
 
-/** Current full-payload semantic-mask format. */
+/*
+ * Current full-payload semantic-mask format.
+ */
 const SEMANTIC_MASK_VERSION: number = 2;
 
-/** Domain separator for the current full-payload semantic-mask format. */
+/*
+ * Domain separator for the current full-payload semantic-mask format.
+ */
 const SEMANTIC_MASK_PROTOCOL: string = "automovie.semantic-mask.v2";
 
-/** One entity awaiting a colour. */
+/*
+ * One entity awaiting a colour.
+ */
 interface IClaim {
   id: string;
   kind: IAutoMovieSemanticMaskEntry["kind"];
@@ -110,7 +116,7 @@ interface IClaim {
   slot: IAutoMovieSemanticMaskEntry["slot"];
 }
 
-/**
+/*
  * Assign every claim its colour.
  *
  * Claims are visited in ascending id order, so the "smaller id keeps the
@@ -160,7 +166,9 @@ const allocate: (claims: readonly IClaim[]) => IAutoMovieSemanticMaskEntry[] = (
     );
 };
 
-/** Every entity-level claim in the subject, excluding instanced slots. */
+/*
+ * Every entity-level claim in the subject, excluding instanced slots.
+ */
 const collectClaims: (subject: IAutoMovieRenderSubject) => IClaim[] = (
   subject: IAutoMovieRenderSubject,
 ): IClaim[] => {
@@ -273,7 +281,9 @@ const collectClaims: (subject: IAutoMovieRenderSubject) => IClaim[] = (
   return claims;
 };
 
-/** Claims for one built environment's buildings, spaces, and drawables. */
+/*
+ * Claims for one built environment's buildings, spaces, and drawables.
+ */
 const environmentClaims: (
   environment: IAutoMovieBuiltEnvironment,
   owned: Set<string>,
@@ -403,7 +413,7 @@ const buildingOwner: (
 ): string | null =>
   building === undefined ? null : `building:${scope}/${building}`;
 
-/**
+/*
  * Per-slot claims for instanced sets, and the sets that did not fit.
  *
  * Sets are considered in ascending id order and a set is addressed only while

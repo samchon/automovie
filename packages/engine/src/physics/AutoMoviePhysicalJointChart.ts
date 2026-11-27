@@ -192,7 +192,7 @@ export namespace AutoMoviePhysicalJointChart {
     "axis" | "minimum" | "maximum"
   >;
 
-  /**
+  /*
    * The angles of a rotation on the family its free trailing axes span, the
    * `locked` leading ones zero (`nearest`).
    */
@@ -218,12 +218,16 @@ export namespace AutoMoviePhysicalJointChart {
     return out;
   }
 
-  /** The dot product of two vectors. */
+  /*
+   * The dot product of two vectors.
+   */
   function dot(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
     return a.x * b.x + a.y * b.y + a.z * b.z;
   }
 
-  /** The cross product of two vectors. */
+  /*
+   * The cross product of two vectors.
+   */
   function cross(
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
@@ -235,14 +239,18 @@ export namespace AutoMoviePhysicalJointChart {
     };
   }
 
-  /** An angle wrapped into (-pi, pi]. */
+  /*
+   * An angle wrapped into (-pi, pi].
+   */
   function wrap(angle: number): number {
     const turn: number = 2 * Math.PI;
     const value: number = angle - turn * Math.round(angle / turn);
     return value <= -Math.PI ? value + turn : value;
   }
 
-  /** The rotation by an angle about a joint-frame axis. */
+  /*
+   * The rotation by an angle about a joint-frame axis.
+   */
   function turn(
     axis: IAutoMoviePhysicalJointAxis["axis"],
     angle: number,
@@ -257,7 +265,9 @@ export namespace AutoMoviePhysicalJointChart {
     };
   }
 
-  /** The order's axis indices; a repeated or missing axis throws. */
+  /*
+   * The order's axis indices; a repeated or missing axis throws.
+   */
   function indices(
     order: readonly IAutoMoviePhysicalJointAxis["axis"][],
   ): number[] {
@@ -270,7 +280,9 @@ export namespace AutoMoviePhysicalJointChart {
     return result;
   }
 
-  /** A unit quaternion's rotation matrix, row-major, rotating column vectors. */
+  /*
+   * A unit quaternion's rotation matrix, row-major, rotating column vectors.
+   */
   function matrix(q: IAutoMovieQuaternion): number[][] {
     const { x, y, z, w }: IAutoMovieQuaternion = q;
     return [
@@ -280,7 +292,9 @@ export namespace AutoMoviePhysicalJointChart {
     ];
   }
 
-  /** The joint-frame unit axes. */
+  /*
+   * The joint-frame unit axes.
+   */
   const UNIT: Readonly<
     Record<IAutoMoviePhysicalJointAxis["axis"], IAutoMovieVector3>
   > = {

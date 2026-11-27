@@ -11,16 +11,15 @@ import type {
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * The goal with its elbow placed toward a pole.
- *
- * @param body The body.
- * @param posture The posture the goal is written into, read for the shoulder.
- * @param side The arm.
- * @param goal The arm goal; its `point` is the wrist.
- * @param pole The direction the elbow bends toward given the unit
- *   shoulder-to-wrist direction, any vector off that line.
- * @returns The goal with `bend` at the elbow's place and `elbow: "placed"`.
+ * Parameter body: The body.
+ * Parameter posture: The posture the goal is written into, read for the shoulder.
+ * Parameter side: The arm.
+ * Parameter goal: The arm goal; its `point` is the wrist.
+ * Parameter pole: The direction the elbow bends toward given the unit
+ * shoulder-to-wrist direction, any vector off that line.
+ * Returns: The goal with `bend` at the elbow's place and `elbow: "placed"`.
  */
 export function AutoMovieMotionHumanElbowPlace(
   body: IAutoMovieMotionHumanBody,

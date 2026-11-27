@@ -15,7 +15,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { kiss } from "./kiss";
 import { kissPose } from "./kissPose";
 
-/**
+/*
  * How a resting head is aimed at a point: the kiss's lean from the hips and
  * neck flexion (`kissPose`) with a side bend shared over the neck and the head,
  * scored by the distance of the head's own region to the point. `solve` finds
@@ -29,14 +29,14 @@ import { kissPose } from "./kissPose";
  * breathes or turns.
  */
 export namespace headRestAim {
-  /**
+  /*
    * The most the neck and the head bend to a side together, degrees
    * (provisional: about the cervical lateral flexion of a healthy adult, 40 to
    * 45 degrees).
    */
   export const TILT: number = 40;
 
-  /**
+  /*
    * The most a seated trunk leans to a side, degrees: the normal thoracolumbar
    * lateral flexion range, 25 degrees (Physiopedia, Range of Motion Normative
    * Values, https://www.physio-pedia.com/Range_of_Motion_Normative_Values),
@@ -45,42 +45,51 @@ export namespace headRestAim {
    */
   export const SEATED: number = 25;
 
-  /**
+  /*
    * The damping of the least-squares step, metres per degree (provisional: a
    * tenth of the head's typical 10 mm per degree).
    */
   export const DAMPING: number = 0.001;
 
-  /** One aim: the kiss's lean and neck flexion, and the head's side bend. */
+  /*
+   * One aim: the kiss's lean and neck flexion, and the head's side bend.
+   */
   export interface ISolved extends IAutoMovieMotionHumanKiss.ISolved {
-    /** The side bend shared over the neck and the head, degrees. */
+    /*
+     * The side bend shared over the neck and the head, degrees.
+     */
     tilt: number;
   }
 
-  /** A prepared aim for one body, entry and region. */
+  /*
+   * A prepared aim for one body, entry and region.
+   */
   export interface IAim {
-    /** The posture an aim writes at its full share. */
+    /*
+     * The posture an aim writes at its full share.
+     */
     posed(s: ISolved): IAutoMovieMotionHumanPosture;
 
-    /** The angles that bring the region nearest a point, with the miss. */
+    /*
+     * The angles that bring the region nearest a point, with the miss.
+     */
     solve(at: IAutoMovieVector3): ISolved;
 
-    /**
+    /*
      * The angles that move a solved aim's region onto a moving point, with the
      * miss.
      */
     follow(solved: ISolved): (to: IAutoMovieVector3) => ISolved;
   }
 
-  /**
+  /*
    * Prepare the aim of one head region.
-   *
-   * @param body The body.
-   * @param entry The entry posture.
-   * @param stance Both feet as they stand.
-   * @param seated Whether a seat bears the body.
-   * @param own The head's region aimed.
-   * @returns The posture model, the solve and the follower.
+   * Parameter body: The body.
+   * Parameter entry: The entry posture.
+   * Parameter stance: Both feet as they stand.
+   * Parameter seated: Whether a seat bears the body.
+   * Parameter own: The head's region aimed.
+   * Returns: The posture model, the solve and the follower.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -143,7 +152,7 @@ export namespace headRestAim {
     };
   }
 
-  /**
+  /*
    * The coordinate search: the sagittal grid, the side lean, the side bend,
    * then the grid and the bend again.
    */
@@ -227,7 +236,9 @@ export namespace headRestAim {
     return lateral(leaning(sagittal(best)));
   }
 
-  /** One angle moved by a number of degrees. */
+  /*
+   * One angle moved by a number of degrees.
+   */
   function nudged(s: ISolved, k: number, degrees: number): ISolved {
     const a: Angles = angles(s);
     const v: number[] = a.map(
@@ -236,7 +247,7 @@ export namespace headRestAim {
     return withAngles(s, [v[0]!, v[1]!, v[2]!, v[3]!]);
   }
 
-  /**
+  /*
    * The damped least-squares step `J^T (J J^T + λ² I)^-1 e` on the degree
    * columns.
    */
@@ -265,7 +276,9 @@ export namespace headRestAim {
     return withAngles(s, [v[0]!, v[1]!, v[2]!, v[3]!]);
   }
 
-  /** Cramer's rule for a symmetric positive definite 3 by 3 system. */
+  /*
+   * Cramer's rule for a symmetric positive definite 3 by 3 system.
+   */
   function solve3(m: number[][], b: Triple): Triple {
     const det: (a: number[][]) => number = (a: number[][]): number =>
       a[0]![0]! * (a[1]![1]! * a[2]![2]! - a[1]![2]! * a[2]![1]!) -
@@ -279,17 +292,23 @@ export namespace headRestAim {
     return [det(column(0)) / d, det(column(1)) / d, det(column(2)) / d];
   }
 
-  /** The aim's four angles. */
+  /*
+   * The aim's four angles.
+   */
   function angles(s: ISolved): Angles {
     return [s.pitch, s.roll, s.flexion, s.tilt];
   }
 
-  /** An aim with four angles replaced. */
+  /*
+   * An aim with four angles replaced.
+   */
   function withAngles(s: ISolved, a: Angles): ISolved {
     return { ...s, pitch: a[0], roll: a[1], flexion: a[2], tilt: a[3] };
   }
 
-  /** The angles held within the lean's, the neck's and the side bend's ranges. */
+  /*
+   * The angles held within the lean's, the neck's and the side bend's ranges.
+   */
   function clamp(s: ISolved, side: number): ISolved {
     const within: (v: number, lo: number, hi: number) => number = (
       v: number,
@@ -306,16 +325,22 @@ export namespace headRestAim {
   }
 }
 
-/**
+/*
  * The four angles a resting head is aimed by, in order: forward lean, side
  * lean, neck flexion, side bend.
  */
 type Angles = readonly [number, number, number, number];
-/** A three-vector as components, or a row of the 3 by 3 system. */
+/*
+ * A three-vector as components, or a row of the 3 by 3 system.
+ */
 type Triple = readonly [number, number, number];
 
-/** The alternatives of `PosedAddBone2`'s site. */
+/*
+ * The alternatives of `PosedAddBone2`'s site.
+ */
 type PosedAddBone2 = "neck" | "head";
 
-/** The alternatives of `PosedAddBone`'s site. */
+/*
+ * The alternatives of `PosedAddBone`'s site.
+ */
 type PosedAddBone = "neck" | "head";

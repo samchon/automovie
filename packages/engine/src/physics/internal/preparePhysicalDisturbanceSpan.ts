@@ -12,7 +12,7 @@ import { AutoMovieEnginePhysicalDisturbanceForm } from "../AutoMovieEnginePhysic
 import { AutoMovieEnginePhysicalDisturbanceResponse as Response } from "../AutoMovieEnginePhysicalDisturbanceResponse";
 import type { AutoMovieEnginePhysicalIcpPlannerTools as Tools } from "../AutoMovieEnginePhysicalIcpPlannerTools";
 
-/**
+/*
  * A biped's response to a stated disturbance, prepared once for the span: IHMC
  * 201903's push recovery and capture-point plans laid from the state just after
  * the first push, every moving span a closed-form curve between the few branch
@@ -75,9 +75,10 @@ import type { AutoMovieEnginePhysicalIcpPlannerTools as Tools } from "../AutoMov
  * step's clearance is zero.
  *
  * Points are world floor points (x, z), metres; times local seconds.
- *
- * @param input The state just after the first push and the pushes after it.
- * @returns The prepared span.
+ * Parameter input: The state just after the first push and the pushes after it.
+ * Returns: The prepared span.
+ * ://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/201903_Stable/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/capturePoint/CapturePointTools.java
+ * ://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/201903_Stable/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/capturePoint/CoMIntegrationTools.java
  * @see https://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/201903_Stable/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/capturePoint/CapturePointTools.java
  * @see https://github.com/ihmcrobotics/ihmc-open-robotics-software/blob/201903_Stable/ihmc-common-walking-control-modules/src/main/java/us/ihmc/commonWalkingControlModules/capturePoint/CoMIntegrationTools.java
  */
@@ -206,18 +207,28 @@ export function preparePhysicalDisturbanceSpan(
   });
 }
 
-/** A planted foot. */
+/*
+ * A planted foot.
+ */
 type Foot = AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanFoot;
 
-/** One closed-form piece of the response. */
+/*
+ * One closed-form piece of the response.
+ */
 type IPiece = AutoMovieEnginePhysicalDisturbanceForm.IPiece;
 
-/** One swing foot's cubic. */
+/*
+ * One swing foot's cubic.
+ */
 type ISwing = AutoMovieEnginePhysicalDisturbanceFollow.ISwing;
 
-/** The response's following and sampling. */
+/*
+ * The response's following and sampling.
+ */
 const { follow, span, swingAt }: typeof AutoMovieEnginePhysicalDisturbanceFollow =
   AutoMovieEnginePhysicalDisturbanceFollow;
 
-/** A planted limb's outline. */
+/*
+ * A planted limb's outline.
+ */
 const { outline }: typeof AutoMovieEnginePhysicalDisturbanceForm = AutoMovieEnginePhysicalDisturbanceForm;

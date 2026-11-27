@@ -16,7 +16,7 @@ import type { AutoMovieRenderInspectionCamera } from "../../scene/AutoMovieRende
 import { AutoMovieRenderSemanticMask } from "../../scene/semanticMask/index.js";
 import { encodeAutoMovieDrawPixels } from "./encodeAutoMovieDrawPixels.js";
 
-/**
+/*
  * Read the drawn picture back and assemble the draw page's result: the pixels
  * read from the renderer's canvas in the same task, flipped to rows from the
  * top and averaged down from the supersampled raster by
@@ -28,40 +28,64 @@ import { encodeAutoMovieDrawPixels } from "./encodeAutoMovieDrawPixels.js";
  * selected mark paths, so the record names what each matched.
  */
 export function readAutoMovieDrawResult(props: {
-  /** The page's renderer, whose canvas holds the picture. */
+  /*
+   * The page's renderer, whose canvas holds the picture.
+   */
   renderer: THREE.WebGLRenderer;
 
-  /** The draw call. */
+  /*
+   * The draw call.
+   */
   call: IAutoMovieDrawCall;
 
-  /** Drawn raster width, the call's times `factor`. */
+  /*
+   * Drawn raster width, the call's times `factor`.
+   */
   width: number;
 
-  /** Drawn raster height, the call's times `factor`. */
+  /*
+   * Drawn raster height, the call's times `factor`.
+   */
   height: number;
 
-  /** Supersampling side the picture is averaged down by. */
+  /*
+   * Supersampling side the picture is averaged down by.
+   */
   factor: number;
 
-  /** The inspection the picture was drawn under. */
+  /*
+   * The inspection the picture was drawn under.
+   */
   handle: IAutoMovieInspectionHandle;
 
-  /** The witness legend of the picture. */
+  /*
+   * The witness legend of the picture.
+   */
   diagnosticLegend: readonly IAutoMovieInspectionLegendEntry[];
 
-  /** The drawn scene. */
+  /*
+   * The drawn scene.
+   */
   scene: THREE.Scene;
 
-  /** The view resolved at the drawn second. */
+  /*
+   * The view resolved at the drawn second.
+   */
   resolved: AutoMovieRenderInspectionCamera.IResolveViewResult;
 
-  /** The call's shade. */
+  /*
+   * The call's shade.
+   */
   shade: IAutoMovieDrawCall["request"]["shade"];
 
-  /** The diagnostics observed at the placement, if any. */
+  /*
+   * The diagnostics observed at the placement, if any.
+   */
   diagnostics: IAutoMovieInspectionDiagnostics | undefined;
 
-  /** The mouths read for the drawn second, if the subject speaks. */
+  /*
+   * The mouths read for the drawn second, if the subject speaks.
+   */
   mouths: IAutoMovieDrawnMouth[] | undefined;
 }): IAutoMovieDrawResult {
   const { call, width, height, handle }: typeof props = props;

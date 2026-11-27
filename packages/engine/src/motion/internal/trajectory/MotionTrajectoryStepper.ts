@@ -11,7 +11,7 @@ import { MotionTrajectoryFailure } from "../../MotionTrajectoryFailure";
 import { MotionTrajectoryRead } from "./MotionTrajectoryRead";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
 
-/**
+/*
  * The adaptive Dormand-Prince 5(4) builder of integrateMotionTrajectory. Shared
  * rotation algebra and completed numeric readers have separate owners.
  */
@@ -19,7 +19,7 @@ export namespace MotionTrajectoryStepper {
   const { turn, dexpinv }: typeof MotionTrajectoryRotation =
     MotionTrajectoryRotation;
 
-  /**
+  /*
    * The Dormand-Prince 5(4) pair's nodes, its stages' coefficients (the last
    * row its fifth-order weights, so the last stage is the next step's first)
    * and the difference of its fifth- and fourth-order weights, the step's error
@@ -32,7 +32,9 @@ export namespace MotionTrajectoryStepper {
    */
   const C: readonly number[] = [0, 1 / 5, 3 / 10, 4 / 5, 8 / 9, 1, 1];
 
-  /** The stages' coefficients, row `i` for stage `i + 1`. */
+  /*
+   * The stages' coefficients, row `i` for stage `i + 1`.
+   */
   const A: readonly (readonly number[])[] = [
     [],
     [1 / 5],
@@ -43,7 +45,9 @@ export namespace MotionTrajectoryStepper {
     [35 / 384, 0, 500 / 1113, 125 / 192, -2187 / 6784, 11 / 84],
   ];
 
-  /** The fifth-order weights less the fourth-order ones. */
+  /*
+   * The fifth-order weights less the fourth-order ones.
+   */
   const E: readonly number[] = [
     71 / 57600,
     0,
@@ -54,7 +58,7 @@ export namespace MotionTrajectoryStepper {
     -1 / 40,
   ];
 
-  /**
+  /*
    * The step controller, as the same code's DOPCOR defaults and applies it,
    * read there line by line: the safety factor `safe`, the bounds `fac1` and
    * `fac2` on a step's change, the stabilizing exponent `beta` on the last
@@ -78,7 +82,7 @@ export namespace MotionTrajectoryStepper {
     stretch: 1.01,
   };
 
-  /**
+  /*
    * The most step attempts, accepted and rejected together, one integration may
    * take: the same code's default `nmax` (100000, used when its caller passes
    * no maximum), tested as it tests `nstep > nmax` before each attempt. The
@@ -89,7 +93,7 @@ export namespace MotionTrajectoryStepper {
    */
   const ATTEMPTS: number = 100000;
 
-  /**
+  /*
    * A trajectory by the Dormand-Prince 5(4) pair under error control: each
    * step's error estimate, the difference of its two orders, is weighed
    * component by component against `absolute + relative × |value|` (the vector
@@ -106,19 +110,18 @@ export namespace MotionTrajectoryStepper {
    * absolute floor. An explicit physical rotation defect additionally uses the
    * paired quintic continuous extension and its actual angular derivative. Its
    * normalized error is combined by max with the unchanged RMS criterion.
-   *
-   * @param props The integrator's props, with a tolerance.
-   * @param rate The callback with the wrapper's vector-length and
-   *   required-angular-rate presence checks; finite numeric components remain a
-   *   caller premise.
-   * @param step The first step tried, seconds, positive.
-   * @returns The trajectory, its knots the accepted steps' ends.
-   * @throws {MotionTrajectoryFailure} When the existing time-resolution guard
-   *   catches the attempted step, including its roundoff margin, with the last
-   *   rejected estimates and optional physical probe. Foreign model errors
-   *   propagate unchanged.
-   * @throws {Error} When more than `ATTEMPTS` (DOPRI5's default `nmax`) step
-   *   attempts are needed.
+   * Parameter props: The integrator's props, with a tolerance.
+   * Parameter rate: The callback with the wrapper's vector-length and
+   * required-angular-rate presence checks; finite numeric components remain a
+   * caller premise.
+   * Parameter step: The first step tried, seconds, positive.
+   * Returns: The trajectory, its knots the accepted steps' ends.
+   * When the existing time-resolution guard
+   * catches the attempted step, including its roundoff margin, with the last
+   * rejected estimates and optional physical probe. Foreign model errors
+   * propagate unchanged.
+   * When more than `ATTEMPTS` (DOPRI5's default `nmax`) step
+   * attempts are needed.
    */
   export function dormandPrince(
     props: IAutoMovieIntegrateMotionTrajectory.IProps,
@@ -370,17 +373,16 @@ export namespace MotionTrajectoryStepper {
     return MotionTrajectoryRead.dense(t0, t1, first, steps, { x, q });
   }
 
-  /**
+  /*
    * A weighted sum of rotation-vector rates times a step: `h Σ wⱼ uⱼ`.
-   *
-   * @param weights The weights, as many as the rates or fewer.
-   * @param us The rates.
-   * @param h The step.
-   * @param total The exact mathematical weight sum from the tableau, C_i or
-   *   zero.
-   * @param out An exclusively owned workspace, absent from rates, callback
-   *   inputs and dense records; omitted where the result must be retained.
-   * @returns The workspace or a fresh vector, or undefined without orientation.
+   * Parameter weights: The weights, as many as the rates or fewer.
+   * Parameter us: The rates.
+   * Parameter h: The step.
+   * Parameter total: The exact mathematical weight sum from the tableau, C_i or
+   * zero.
+   * Parameter out: An exclusively owned workspace, absent from rates, callback
+   * inputs and dense records; omitted where the result must be retained.
+   * Returns: The workspace or a fresh vector, or undefined without orientation.
    */
   function sum(
     weights: readonly number[],
@@ -407,12 +409,11 @@ export namespace MotionTrajectoryStepper {
     return out;
   }
 
-  /**
+  /*
    * One component's squared share of the error norm, zero for no error.
-   *
-   * @param e The component's error estimate.
-   * @param scale Its tolerance.
-   * @returns `(e / scale)²`, zero when `e` is zero.
+   * Parameter e: The component's error estimate.
+   * Parameter scale: Its tolerance.
+   * Returns: `(e / scale)²`, zero when `e` is zero.
    */
   function ratio(e: number, scale: number): number {
     return e === 0 ? 0 : (e / scale) ** 2;

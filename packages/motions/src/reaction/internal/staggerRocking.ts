@@ -18,19 +18,18 @@ import type { StaggerFeet } from "./StaggerFeet";
 import { staggerKnots } from "./staggerKnots";
 import type { staggerRecover } from "./staggerRecover";
 
-/**
+/*
  * Write the recovery's feet, knee poles and trunk on the pose that follows the
  * pendulum. During the reaction the feet turn off the exact entry rocker
  * without lifting its bearing point. An incoming ankle uses the same contact
  * offset at the end of swing as at the first stance instant, and the
  * touchdown's knee solution guides both sides of that join.
- *
- * @param body The body whose knee and rocker geometry the recovery reads.
- * @param entered The displayed entry and its actual feet.
- * @param recovery The admitted landing events and feet.
- * @param landing One scoped reference per actual touchdown, after plan
- *   construction.
- * @returns The current posture writer.
+ * Parameter body: The body whose knee and rocker geometry the recovery reads.
+ * Parameter entered: The displayed entry and its actual feet.
+ * Parameter recovery: The admitted landing events and feet.
+ * Parameter landing: One scoped reference per actual touchdown, after plan
+ * construction.
+ * Returns: The current posture writer.
  */
 export function staggerRocking(
   body: IAutoMovieMotionHumanActionContext["body"],
@@ -157,7 +156,7 @@ export function staggerRocking(
   };
 }
 
-/**
+/*
  * The settled recovery and the exact root and phase its legs use for this
  * query.
  */

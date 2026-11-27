@@ -9,7 +9,9 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { HumanSurfaceBoard } from "./HumanSurfaceBoard";
 import { prepareSurfboardPosture } from "./prepareSurfboardPosture";
 
-/** The two sides are fitted independently. */
+/*
+ * The two sides are fitted independently.
+ */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
 // The staging coefficients below are provisional. The cited study orders
@@ -17,34 +19,37 @@ const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 // each value is an authored staging choice that the board-sport test
 // bounds through its support and clearance checks, not a measurement.
 
-/**
+/*
  * Least entry pitch, degrees, that reads as lying prone in the water
  * (provisional).
  */
 const PRONE_ENTRY_PITCH: number = 50;
 
-/** Greatest entry hip distance from the waterline, in leg lengths (provisional). */
+/*
+ * Greatest entry hip distance from the waterline, in leg lengths (provisional).
+ */
 const PRONE_ENTRY_DEPTH: number = 0.4;
 
-/**
+/*
  * Highest deck above the water at the mount, in leg lengths, that a prone
  * paddler climbs onto (provisional).
  */
 const MOUNT_REACH: number = 1 / 3;
 
-/** Pitch of the prone paddling posture, degrees from upright (provisional). */
+/*
+ * Pitch of the prone paddling posture, degrees from upright (provisional).
+ */
 const PRONE_PITCH: number = 86;
 
-/**
+/*
  * Mount a staged surfboard, paddle and transfer from the palms to the feet.
  * Borgonovo-Santos et al. identify overlapping and unsupported hand-to-foot
  * transfers as distinct patterns, and measure push and reaching phases
  * separately. https://pmc.ncbi.nlm.nih.gov/articles/PMC7961430/
- *
- * @param context The floating entry and the animated surfboard.
- * @returns A carried pose with the selected palm, free and foot phases.
- * @throws {HumanRefusal} For missing board geometry or an inadmissible water
- *   entry.
+ * Parameter context: The floating entry and the animated surfboard.
+ * Returns: A carried pose with the selected palm, free and foot phases.
+ * For missing board geometry or an inadmissible water
+ * entry.
  */
 export function prepareSurfboardPhrase(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISurfboardPhraseParams>,
@@ -232,9 +237,11 @@ export function prepareSurfboardPhrase(
   };
 }
 
-/** The staged water mount, paddle and hand-to-foot cue intervals. */
+/*
+ * The staged water mount, paddle and hand-to-foot cue intervals.
+ */
 export namespace prepareSurfboardPhrase {
-  /**
+  /*
    * The lab describes the order. These shares leave room for a paddle and a
    * bank.
    */

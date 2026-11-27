@@ -5,15 +5,14 @@ import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPrepar
 import { HumanQuadraticSolve } from "./HumanQuadraticSolve";
 import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace";
 
-/**
+/*
  * Admit and snapshot a fixed convexification without retaining its source.
  * Numeric preparation already owns scaled P/q/A copies.
- *
- * @param problem Finite convex banded data with admitted ordered row storage.
- * @param tolerance The public quadratic solver's unchanged relative residual
- *   tolerance.
- * @returns One caller-owned fixed model; releasing it releases its scratch.
- * @throws {RangeError} For malformed original data or noninvertible scaling.
+ * Parameter problem: Finite convex banded data with admitted ordered row storage.
+ * Parameter tolerance: The public quadratic solver's unchanged relative residual
+ * tolerance.
+ * Returns: One caller-owned fixed model; releasing it releases its scratch.
+ * For malformed original data or noninvertible scaling.
  */
 export function HumanQuadraticModel(
   problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
@@ -108,28 +107,27 @@ export function HumanQuadraticModel(
   };
 }
 
-/**
+/*
  * One convexification's owned numeric model. Fixed matrices are copied and
  * equilibrated once; later solves supply only intervals, penalties and keys.
  * Each solve runs OSQP anew, borrowing bounded scratch from this owner.
  */
 export namespace HumanQuadraticModel {
-  /**
+  /*
    * A fixed P/q/A snapshot with a synchronous changing-bounds solve. Rebuild it
    * to change matrix values, dimensions, row order or coefficient order.
    */
   export interface IModel {
-    /**
+    /*
      * Solve this numeric snapshot with current ordered row intervals.
-     *
-     * @param bounds One current interval, optional weight and key per original
-     *   row; coefficient members on structural subtypes are not read.
-     * @param warm Optional compatible caller-owned unscaled iterates, left
-     *   unchanged.
-     * @param duals Optional keyed multipliers when warm is absent.
-     * @returns Fresh caller-owned unscaled iterates and current diagnostics.
-     * @throws {RangeError} For malformed intervals, incompatible warm data or
-     *   nonfinite computation.
+     * Parameter bounds: One current interval, optional weight and key per original
+     * row; coefficient members on structural subtypes are not read.
+     * Parameter warm: Optional compatible caller-owned unscaled iterates, left
+     * unchanged.
+     * Parameter duals: Optional keyed multipliers when warm is absent.
+     * Returns: Fresh caller-owned unscaled iterates and current diagnostics.
+     * For malformed intervals, incompatible warm data or
+     * nonfinite computation.
      */
     solve(
       bounds: readonly Pick<
@@ -142,20 +140,32 @@ export namespace HumanQuadraticModel {
   }
 }
 
-/** The alternatives of `OfRow`'s site. */
+/*
+ * The alternatives of `OfRow`'s site.
+ */
 type OfRow = "l" | "u" | "weight" | "key";
 
-/** The alternatives of `OfNext`'s site. */
+/*
+ * The alternatives of `OfNext`'s site.
+ */
 type OfNext = "l" | "u" | "weight" | "key";
 
-/** The alternatives of `OfBoundsItem`'s site. */
+/*
+ * The alternatives of `OfBoundsItem`'s site.
+ */
 type OfBoundsItem = "l" | "u" | "weight" | "key";
 
-/** The alternatives of `OfRowsResult`'s site. */
+/*
+ * The alternatives of `OfRowsResult`'s site.
+ */
 type OfRowsResult = "l" | "u" | "weight" | "key";
 
-/** The alternatives of `OfRowsItem`'s site. */
+/*
+ * The alternatives of `OfRowsItem`'s site.
+ */
 type OfRowsItem = "l" | "u" | "weight" | "key";
 
-/** The alternatives of `SolveBoundsItem`'s site. */
+/*
+ * The alternatives of `SolveBoundsItem`'s site.
+ */
 type SolveBoundsItem = "l" | "u" | "weight" | "key";

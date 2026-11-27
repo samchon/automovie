@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * One capture-point assessment's shared state
  * (`AutoMoviePhysicalBalance.assess`): the readings it was asked about, the
  * capture point and its rate, the support's centroid and the capture point's
@@ -44,10 +44,14 @@ export namespace physicalBalanceAssessment {
     spent: number;
   }
 
-  /** The most passes the step's place and time take to agree. */
+  /*
+   * The most passes the step's place and time take to agree.
+   */
   export const PASSES: number = 20;
 
-  /** The step target's change, metres, below which its place and time agree. */
+  /*
+   * The step target's change, metres, below which its place and time agree.
+   */
   export const SETTLED: number = 1e-4;
 
 }

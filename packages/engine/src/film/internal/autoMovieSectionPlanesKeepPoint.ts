@@ -5,7 +5,7 @@ import {
 
 import { autoMovieSectionPlaneDistance } from "./autoMovieSectionPlaneDistance";
 
-/**
+/*
  * Whether every declared section plane keeps this world point.
  *
  * The planes intersect rather than union: a point survives only when no plane
@@ -17,7 +17,7 @@ import { autoMovieSectionPlaneDistance } from "./autoMovieSectionPlaneDistance";
  *
  * An empty plane list keeps everything, which makes "no section" the absence of
  * a declaration rather than a separate mode. A degenerate plane throws the
- * `RangeError` of {@link autoMovieSectionPlaneDistance} when it is reached;
+ * `RangeError` of autoMovieSectionPlaneDistance when it is reached;
  * evaluation stops at the first plane that removes the point.
  */
 export const autoMovieSectionPlanesKeepPoint = (

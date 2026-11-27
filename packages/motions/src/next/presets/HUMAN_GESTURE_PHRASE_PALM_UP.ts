@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `palmUp` row of `HumanUpperRows` fixes on `armPhrase`, spread
  * into its parameters. Palms up: the open hand held out ahead at waist height,
  * palm up.

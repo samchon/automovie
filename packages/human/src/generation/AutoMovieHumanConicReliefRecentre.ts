@@ -110,13 +110,19 @@ export namespace AutoMovieHumanConicReliefRecentre {
   /** The rows object of {@link INet}. */
   export type INetRows = { observed: number; unobserved: number; first: number; last: number };
 
-  /** Decimals a window's edge is stored at, radians. */
+  /*
+   * Decimals a window's edge is stored at, radians.
+   */
   const WINDOW_DECIMALS: number = 4;
 
-  /** Largest share of a direction along the course for it to count as lying in the section plane. */
+  /*
+   * Largest share of a direction along the course for it to count as lying in the section plane.
+   */
   const PLANAR: number = 1e-9;
 
-  /** Weight of the second-difference fairness beside the data, relative to the data's own scale: it decides only what no sample sees. */
+  /*
+   * Weight of the second-difference fairness beside the data, relative to the data's own scale: it decides only what no sample sees.
+   */
   const FAIR: number = 1e-9;
 
   const dot = (a: readonly number[], b: readonly number[]): number => a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
@@ -128,7 +134,9 @@ export namespace AutoMovieHumanConicReliefRecentre {
     return [a[0]! / n, a[1]! / n, a[2]! / n];
   };
 
-  /** A wall's point with the first `count` nets composed on it, as `AutoMovieLoftReliefCompose.point` composes them. */
+  /*
+   * A wall's point with the first `count` nets composed on it, as `AutoMovieLoftReliefCompose.point` composes them.
+   */
   function composed(skin: ISkin, nets: readonly IAutoMovieLoftRelief[], count: number, station: number, phase: number): V3 {
     const p: V3 = skin.point(station, phase);
     for (let k: number = 0; k < count; ++k) {
@@ -140,14 +148,18 @@ export namespace AutoMovieHumanConicReliefRecentre {
     return p;
   }
 
-  /** The chart angle of a world point about a course's origin at a station, radians. */
+  /*
+   * The chart angle of a world point about a course's origin at a station, radians.
+   */
   function angle(axis: IAutoMovieViewAxis.IAxis, station: number, p: readonly number[]): number {
     const frame = axis.at(station);
     const d: V3 = sub(p, frame.origin);
     return Math.atan2(dot(d, frame.v), dot(d, frame.u));
   }
 
-  /** Whether every net of the first `count` whose window holds the station moves its points within the section plane. */
+  /*
+   * Whether every net of the first `count` whose window holds the station moves its points within the section plane.
+   */
   function planar(nets: readonly IAutoMovieLoftRelief[], count: number, station: number, normal: readonly number[]): boolean {
     for (let k: number = 0; k < count; ++k) {
       const net: IAutoMovieLoftRelief = nets[k]!;
@@ -157,7 +169,7 @@ export namespace AutoMovieHumanConicReliefRecentre {
     return true;
   }
 
-  /**
+  /*
    * A root of `f` by Newton's method on a central difference, from `start`; null when it does not settle.
    *
    * The functions solved here are a smooth skin's offset from a line, read in millimetres over a phase in radians, so a step of 1e-6 rad
@@ -177,7 +189,7 @@ export namespace AutoMovieHumanConicReliefRecentre {
     return null;
   }
 
-  /**
+  /*
    * The four weights of a clamped-free uniform cubic B-spline at a parameter of `[0, count - 3]` and the first control they apply to:
    * `AutoMovieLoftRelief`'s own basis, which this module needs as a design matrix and the engine keeps private.
    */
@@ -187,11 +199,10 @@ export namespace AutoMovieHumanConicReliefRecentre {
     return [i, [(1 - f) ** 3 / 6, (3 * f ** 3 - 6 * f ** 2 + 4) / 6, (-3 * f ** 3 + 3 * f ** 2 + 3 * f + 1) / 6, f ** 3 / 6]];
   }
 
-  /**
+  /*
    * The inverse of a net's normal matrix along one direction: `B^T B` over its free controls (all but the three outer rings) for samples
    * at the given parameters, with the second-difference fairness added, as a dense solve of a symmetric positive definite system.
-   *
-   * @returns The design matrix, samples by free controls, and a solver of `(B^T B + fairness) x = b`.
+   * Returns: The design matrix, samples by free controls, and a solver of `(B^T B + fairness) x = b`.
    */
   function design(parameters: readonly number[], count: number): { matrix: number[][]; solve: (b: number[]) => number[] } {
     const free: number = count - 6;
@@ -300,7 +311,9 @@ export namespace AutoMovieHumanConicReliefRecentre {
     };
   }
 
-  /** The stations a net's targets are sampled at: `samples` per span, at the spans' interior, kept where both walls stand. */
+  /*
+   * The stations a net's targets are sampled at: `samples` per span, at the spans' interior, kept where both walls stand.
+   */
   function rows(props: IProps, net: IAutoMovieLoftRelief): { stations: number[]; parameters: number[]; skipped: number } {
     const count: number = (props.samples ?? 4) * (net.rows - 3);
     const [from, to]: [number, number] = [Math.max(props.stored.stations[0], props.made.stations[0]), Math.min(props.stored.stations[1], props.made.stations[1])];
@@ -417,7 +430,7 @@ export namespace AutoMovieHumanConicReliefRecentre {
     return out;
   }
 
-  /**
+  /*
    * The height along `e` from `q` to the stored skin with net `index`, where the stored point's station is unknown too: Newton's method on
    * the stored address `(station, phase)` for the two components of the offset square to `e`, from the address of `q`'s own station and
    * stored chart angle; null when it does not settle or leaves the wall.

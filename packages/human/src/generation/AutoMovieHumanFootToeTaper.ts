@@ -86,5 +86,7 @@ export namespace AutoMovieHumanFootToeTaper {
   }
 }
 
-/** Least spacing of two taper stations along the line, mm. */
+/*
+ * Least spacing of two taper stations along the line, mm.
+ */
 const MIN_GAP: number = 0.5;

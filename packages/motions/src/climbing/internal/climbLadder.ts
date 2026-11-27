@@ -43,7 +43,7 @@ import { climbLadderHands } from "./climbLadderHands";
 import { climbLadderHolds } from "./climbLadderHolds";
 import { planLadderAccess } from "./planLadderAccess";
 
-/**
+/*
  * Climbing a vertical fixed ladder from the floor before it, in the four-beat
  * ipsilateral pattern: right hand, right foot, left hand, left foot, one limb
  * moving at a time, so three limbs always hold the ladder (Jensen and Holland
@@ -78,37 +78,47 @@ import { planLadderAccess } from "./planLadderAccess";
  * vaulting (not yet staged).
  */
 export namespace climbLadder {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "climbLadder";
 
-  /** Cancel table: none yet; the climber holds the ladder at the end. */
+  /*
+   * Cancel table: none yet; the climber holds the ladder at the end.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-  /** One beat's seconds (provisional). */
+  /*
+   * One beat's seconds (provisional).
+   */
   export const BEAT: number = 0.8;
 
-  /**
+  /*
    * How far a swinging foot clears its path's straight line, metres
    * (provisional).
    */
   export const CLEARANCE: number = 0.06;
 
-  /** How far the hip joints stay behind the rungs, in leg lengths (provisional). */
+  /*
+   * How far the hip joints stay behind the rungs, in leg lengths (provisional).
+   */
   export const BACK: number = 0.35;
 
-  /**
+  /*
    * The most the climber's heading may differ from facing the ladder, degrees
    * (provisional).
    */
   export const FACING: number = 30;
 
-  /**
+  /*
    * The farthest the toes may stand from the rungs, metres (provisional): a
    * step from the ladder.
    */
   export const NEAR: number = 0.5;
 
-  /** The beat order of the four-beat ipsilateral pattern. */
+  /*
+   * The beat order of the four-beat ipsilateral pattern.
+   */
   export const ORDER: readonly IAutoMovieMotionHumanClimbLadder.Limb[] = [
     "rightHand",
     "rightFoot",
@@ -116,21 +126,24 @@ export namespace climbLadder {
     "leftFoot",
   ];
 
-  /** A rung's centre at a lateral place (`HumanLadder.rung`). */
+  /*
+   * A rung's centre at a lateral place (`HumanLadder.rung`).
+   */
   export const rung: typeof HumanLadder.rung = HumanLadder.rung;
 
-  /** A rung's radius when the ladder declares none (`HumanLadder.RUNG`). */
+  /*
+   * A rung's radius when the ladder declares none (`HumanLadder.RUNG`).
+   */
   export const RUNG: number = HumanLadder.RUNG;
 
-  /**
+  /*
    * Plan a ladder climb.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the ladder is no fixture, leans, spaces its
-   *   rungs outside the OSHA band or has too few above the hands, the climber
-   *   does not stand before it facing it, or the rung count is not a positive
-   *   integer.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the ladder is no fixture, leans, spaces its
+   * rungs outside the OSHA band or has too few above the hands, the climber
+   * does not stand before it facing it, or the rung count is not a positive
+   * integer.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClimbLadder.IParams>,
@@ -322,7 +335,9 @@ export namespace climbLadder {
       write: (posture, seconds, _before, resolution) =>
         legsAt(posture, seconds, resolution, level),
     };
-    /** Write both ankle goals, then solve the live stance reach. */
+    /*
+     * Write both ankle goals, then solve the live stance reach.
+     */
     function legsAt(
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
@@ -378,7 +393,7 @@ export namespace climbLadder {
       write: (lowered, seconds, _before, resolution, projection) =>
         armsAt(lowered, seconds, resolution, projection, level),
     };
-    /**
+    /*
      * Write the current grip goals and carry the entering arm angles through
      * the first reach.
      */

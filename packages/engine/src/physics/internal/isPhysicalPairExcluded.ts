@@ -6,7 +6,7 @@ import type {
 import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
 import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
 
-/**
+/*
  * Resolve only provider-declared overlapping pivot neighbours, never all self
  * contact.
  */

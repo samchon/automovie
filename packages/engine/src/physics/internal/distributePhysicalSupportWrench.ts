@@ -8,7 +8,7 @@ import type {
 import { Vector3 } from "../../math/Vector3";
 import { solveAutoMovieQuadraticProgram } from "../../math/internal/solveAutoMovieQuadraticProgram";
 
-/**
+/*
  * Allocate a requested floating-base wrench at actual floor points. Unilateral
  * normal forces and the inscribed |fx|+|fz|<=mu*fy pyramid imply Coulomb
  * friction even for diagonal demand. Moments use each actual lever, including

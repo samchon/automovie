@@ -19,7 +19,9 @@ import type {
  * (`AutoMovieHumanHandWindow.PULP`, `AutoMovieHumanNailPlate`).
  */
 export namespace AutoMovieHumanDigitTipCap {
-  /** Station step of the search, mm. */
+  /*
+   * Station step of the search, mm.
+   */
   const STEP: number = 0.05;
 
   /**

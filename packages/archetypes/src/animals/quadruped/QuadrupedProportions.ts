@@ -3,7 +3,7 @@ import type { QuadrupedJaw } from "./QuadrupedJaw";
 import type { QuadrupedLip } from "./QuadrupedLip";
 import type { QuadrupedNostrils } from "./QuadrupedNostrils";
 
-/**
+/*
  * The proportions a quadruped body (`AutoMovieArchetypeQuadrupedBody.IBody`)
  * states per limb and per segment: bone lengths as fractions of withers height,
  * standing directions in degrees, mass shares in percent of body mass, and the

@@ -32,19 +32,21 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { HumanTrunkLean } from "./HumanTrunkLean";
 import { throwPotteryRise } from "./throwPotteryRise";
 
-/** The outer palm on the outside face, the inner on the inside. */
+/*
+ * The outer palm on the outside face, the inner on the inside.
+ */
 const PAIRS: readonly IPair[] = [
   { side: "right", face: "outside" },
   { side: "left", face: "inside" },
 ];
 
-/**
+/*
  * The head's speed when none is given, revolutions per minute: a provisional
  * throwing speed.
  */
 const RPM: number = 120;
 
-/**
+/*
  * Draw up a clay wall on a turning wheel with both hands. Register as
  * `throwPottery`.
  *
@@ -73,7 +75,9 @@ export const throwPottery: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanT
     plan,
   };
 
-/** Admit the wheel, then place both palms on the rising wall and drive it. */
+/*
+ * Admit the wheel, then place both palms on the rising wall and drive it.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrowPottery.IParams>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -292,11 +296,17 @@ function plan(
   };
 }
 
-/** A palm and the wall face it lies on. */
+/*
+ * A palm and the wall face it lies on.
+ */
 interface IPair {
-  /** The hand. */
+  /*
+   * The hand.
+   */
   side: AutoMovieHumanSide;
 
-  /** The wheel's face. */
+  /*
+   * The wheel's face.
+   */
   face: string;
 }

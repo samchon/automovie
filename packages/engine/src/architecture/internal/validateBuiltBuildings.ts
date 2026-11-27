@@ -6,7 +6,7 @@ import {
 
 import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds";
 
-/**
+/*
  * Validate a work's building units and that they own every element and space
  * exactly once.
  *
@@ -18,10 +18,9 @@ import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds
  * cyclic parent stops silently, because that defect is reported on its own
  * path. Findings are pushed under `<root>.buildings`, `<root>.elements` and
  * `<root>.spaces`.
- *
- * @param environment Building record whose units are checked.
- * @param root Violation path of the building record, `$input`.
- * @param collector Sink that receives the violations.
+ * Parameter environment: Building record whose units are checked.
+ * Parameter root: Violation path of the building record, `$input`.
+ * Parameter collector: Sink that receives the violations.
  */
 export function validateBuiltBuildings(
   environment: IAutoMovieBuiltEnvironment,
@@ -106,7 +105,9 @@ export function validateBuiltBuildings(
   );
 }
 
-/** Each record's parent by id; a repeated id keeps its first record. */
+/*
+ * Each record's parent by id; a repeated id keeps its first record.
+ */
 const parentsOf: (
   records: readonly { id: string; parent: string | null }[],
 ) => Map<string, string | null> = (
@@ -118,7 +119,9 @@ const parentsOf: (
   return parents;
 };
 
-/** A unit root must be declared and must have no parent. */
+/*
+ * A unit root must be declared and must have no parent.
+ */
 const checkRoot: (
   parents: ReadonlyMap<string, string | null>,
   id: string,
@@ -138,7 +141,9 @@ const checkRoot: (
     collector.push("type", path, `${label} "${id}" must have no parent`, id);
 };
 
-/** Report every record whose topmost ancestor is no unit's root. */
+/*
+ * Report every record whose topmost ancestor is no unit's root.
+ */
 const appendOwnership: (
   records: readonly { id: string; parent: string | null }[],
   parents: ReadonlyMap<string, string | null>,

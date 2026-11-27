@@ -19,7 +19,7 @@ import { getConstraint } from "../../rom/internal/getConstraint";
 import { resolveBoneMap } from "./resolveBoneMap";
 import { resolveChainEffectorBaseRotation } from "./resolveChainEffectorBaseRotation";
 
-/**
+/*
  * Prepare articulation-free frames and effective domains for one reachable
  * descendant two-bone chain in the current pose's resolved model-metre frame.
  * Missing bones or invalid ancestry return null; supplied topology and clinical

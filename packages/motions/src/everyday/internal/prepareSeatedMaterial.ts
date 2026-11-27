@@ -16,14 +16,18 @@ import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContac
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** Pelvis and both proximal legs are the regions on the sitting face. */
+/*
+ * Pelvis and both proximal legs are the regions on the sitting face.
+ */
 const SEATED: ReadonlySet<AutoMovieHumanoidBone> = new Set([
   "hips",
   "leftUpperLeg",
   "rightUpperLeg",
 ]);
 
-/** Bind an ordinary seat's actual receiving face and proximal body geometry. */
+/*
+ * Bind an ordinary seat's actual receiving face and proximal body geometry.
+ */
 export function prepareSeatedMaterial(
   context: Pick<IAutoMovieMotionHumanActionContext, "body" | "prop" | "start">,
   seat: IAutoMovieMotionHumanSeated.ISeat,
@@ -115,31 +119,49 @@ export function prepareSeatedMaterial(
   };
 }
 
-/** Finite seat fit shared by sit, shift and the release from sitting. */
+/*
+ * Finite seat fit shared by sit, shift and the release from sitting.
+ */
 export namespace prepareSeatedMaterial {
-  /** Fitted seat and optional named backrest. */
+  /*
+   * Fitted seat and optional named backrest.
+   */
   export interface ISeat {
-    /** Named receiving seat face. */
+    /*
+     * Named receiving seat face.
+     */
     support: IAutoMovieMotionHumanContactWindow.Support;
-    /** World vertical component of the entry bearing face's normal. */
+    /*
+     * World vertical component of the entry bearing face's normal.
+     */
     vertical: number;
-    /** Measure both sides where they project onto the receiving seat. */
+    /*
+     * Measure both sides where they project onto the receiving seat.
+     */
     bearing(
       posture: IAutoMovieMotionHumanPosture,
       seconds?: number,
     ): IAutoMovieMotionHumanContactWindow.IMaterial | undefined;
-    /** The separate finite backrest when the seat declares one. */
+    /*
+     * The separate finite backrest when the seat declares one.
+     */
     back?: {
-      /** Named receiving backrest. */
+      /*
+       * Named receiving backrest.
+       */
       support: IAutoMovieMotionHumanContactWindow.Support;
-      /** Signed upper-back clearance at the entry's backrest. */
+      /*
+       * Signed upper-back clearance at the entry's backrest.
+       */
       bearing(
         posture: IAutoMovieMotionHumanPosture,
       ): IAutoMovieMotionHumanContactWindow.IMaterial | undefined;
     };
   }
 
-  /** Geometric refusal shared by the ordinary seated actions. */
+  /*
+   * Geometric refusal shared by the ordinary seated actions.
+   */
   export function refusal(
     axis: "seat" | "back",
     value: string | undefined,

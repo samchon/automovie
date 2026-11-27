@@ -1,6 +1,6 @@
 import type { IAutoMoviePlanVideoEncodingResult } from "@automovie/interface";
 
-/**
+/*
  * Select the rational presentation rate FFmpeg uses for a numeric frame rate:
  * the exact clock a drawn video is encoded on and its sound is placed on.
  *
@@ -8,11 +8,10 @@ import type { IAutoMoviePlanVideoEncodingResult } from "@automovie/interface";
  * binary64 value. FFmpeg first scales it to a power-of-two denominator, then
  * uses bounded continued fractions. Preserve its finite positive fallback when
  * an exceptionally low or high rate would otherwise give zero or infinity.
- *
- * @param fps The commissioned frame rate, frames per second.
- * @returns The rate's numerator and denominator.
- * @throws {Error} When the rate exceeds FFmpeg's range or has no positive
- *   representation.
+ * Parameter fps: The commissioned frame rate, frames per second.
+ * Returns: The rate's numerator and denominator.
+ * When the rate exceeds FFmpeg's range or has no positive
+ * representation.
  */
 export function autoMovieVideoFrameRate(
   fps: number,
@@ -37,19 +36,19 @@ export function autoMovieVideoFrameRate(
   return rate;
 }
 
-/**
+/*
  * The term bound FFmpeg's `av_parse_video_rate` passes to its rational
  * approximation: the largest numerator or denominator a parsed rate keeps.
  */
 const MAXIMUM_VIDEO_RATE_TERM: bigint = 1_001_000n;
 
-/**
+/*
  * The largest AVRational term, `INT_MAX`, with which FFmpeg's `av_d2q` retries
  * when the first bound reduces a rate's numerator or denominator to zero.
  */
 const MAXIMUM_AVRATIONAL_TERM: bigint = 2_147_483_647n;
 
-/**
+/*
  * Finds the nearest rational under simultaneous numerator and denominator
  * bounds.
  */

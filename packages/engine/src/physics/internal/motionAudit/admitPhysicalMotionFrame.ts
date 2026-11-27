@@ -7,7 +7,7 @@ import type {
 
 import { motionAuditGeometry } from "../motionAuditGeometry";
 
-/**
+/*
  * Refuse consumer frames off the sampled clock, missing a carrier, or with a
  * rotation off unit length before geometry, speed and angular comparisons.
  */

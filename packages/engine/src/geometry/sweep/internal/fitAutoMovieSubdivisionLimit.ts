@@ -6,7 +6,7 @@ import type {
 import { solveAutoMovieSubdivisionLimit } from "./solveAutoMovieSubdivisionLimit";
 import { stencilAutoMovieSubdivisionLimit } from "./stencilAutoMovieSubdivisionLimit";
 
-/**
+/*
  * Solve control positions of a quad cage whose Catmull-Clark limit surface
  * passes through given targets, one per vertex.
  *
@@ -31,17 +31,16 @@ import { stencilAutoMovieSubdivisionLimit } from "./stencilAutoMovieSubdivisionL
  * Pinned vertices keep their target as their control position and are not
  * solved, which is how a cage meets a fixed junction ring exactly: their limit
  * points then depend on the cage around them.
- *
- * @param props.faces Quads as four vertex indices, a manifold with consistent
- *   winding; only read.
- * @param props.targets Packed target points `[x, y, z, ...]`, one per vertex;
- *   only read.
- * @param props.pinned Whether each vertex keeps its target as its control
- *   position; omitted, none.
- * @returns The packed control positions and the largest remaining residual of
- *   an unpinned vertex, in the targets' unit.
- * @throws Error when a face is not a quad, an index is out of range, a vertex
- *   belongs to no face, or a vertex has other than zero or two boundary edges.
+ * Parameter props.faces: Quads as four vertex indices, a manifold with consistent
+ * winding; only read.
+ * Parameter props.targets: Packed target points `[x, y, z, ...]`, one per vertex;
+ * only read.
+ * Parameter props.pinned: Whether each vertex keeps its target as its control
+ * position; omitted, none.
+ * Returns: The packed control positions and the largest remaining residual of
+ * an unpinned vertex, in the targets' unit.
+ * Error when a face is not a quad, an index is out of range, a vertex
+ * belongs to no face, or a vertex has other than zero or two boundary edges.
  */
 export const fitAutoMovieSubdivisionLimit: (
   props: IAutoMovieFitSubdivisionLimit.IProps,

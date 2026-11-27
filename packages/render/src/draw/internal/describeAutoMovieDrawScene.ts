@@ -13,7 +13,7 @@ import type { IAutoMovieViewerViewpoint } from "../../scene/IAutoMovieViewerView
 import { autoMovieViewerNamedViewpoints } from "../../scene/subjectViewpoint/internal/autoMovieViewerNamedViewpoints.js";
 import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
 
-/**
+/*
  * Describe a created subject as a capture plans against it, from the scene as
  * `create` left it: no second is sought, because a subject need not hold every
  * second, such as a case that samples only its own instants.

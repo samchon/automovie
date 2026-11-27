@@ -13,7 +13,7 @@ import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEng
 import { directionLength } from "../../validation/internal/directionLength";
 import { validateSolidPlanes } from "./validateSolidPlanes";
 
-/**
+/*
  * Validate the read-only world a building is analysed against.
  *
  * Two rules carry the weight. The first is physical: an instant whose sun is at

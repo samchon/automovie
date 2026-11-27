@@ -90,7 +90,9 @@ export namespace AutoMovieHumanBodySources {
     let limbs: IAutoMovieHumanLimbSources.IOutput | undefined;
     let neck: IAutoMovieHumanNeckConstruction.IOutput | undefined;
 
-    /** Required shared constraints are measured here on explicit first demand, including original failures. */
+    /*
+     * Required shared constraints are measured here on explicit first demand, including original failures.
+     */
     const common: IAutoMovieHumanBodySources.IOriginal["common"] =
       (): IAutoMovieHumanBodySources.ICommon => {
         if (shared !== undefined) return shared;
@@ -171,7 +173,9 @@ export namespace AutoMovieHumanBodySources {
         }
       };
 
-    /** Prepare only the actual legacy receiver cut when that consumer explicitly needs it. */
+    /*
+     * Prepare only the actual legacy receiver cut when that consumer explicitly needs it.
+     */
     const neckBoundary: IAutoMovieHumanBodySources.IOriginal["neckBoundary"] =
       (): IAutoMovieHumanNeckBoundary.IOutput => {
         if (boundary !== undefined) return boundary;
@@ -199,7 +203,9 @@ export namespace AutoMovieHumanBodySources {
         }
       };
 
-    /** This is the actual head producer, called only by a requested head or explicit raw consumer. */
+    /*
+     * This is the actual head producer, called only by a requested head or explicit raw consumer.
+     */
     const headSource: IAutoMovieHumanBodySources.IOriginal["headSource"] =
       (): IAutoMovieHumanHeadLane.IPrepared => {
         if (head !== undefined) return head;
@@ -218,7 +224,9 @@ export namespace AutoMovieHumanBodySources {
         }
       };
 
-    /** Only the explicit legacy loft consumer calls this supplier. */
+    /*
+     * Only the explicit legacy loft consumer calls this supplier.
+     */
     const neckRaw: IAutoMovieHumanBodySources.IOriginal["neckRaw"] =
       (): IAutoMovieLoftChain => {
         if (neck === undefined) {
@@ -238,7 +246,9 @@ export namespace AutoMovieHumanBodySources {
         return neck.loft.chain;
       };
 
-    /** The shared numerical placement consumes the original cut, never a manufactured chain. */
+    /*
+     * The shared numerical placement consumes the original cut, never a manufactured chain.
+     */
     const trunkSolution: IAutoMovieHumanBodySources.IOriginal["trunkSolution"] =
       (): IAutoMovieHumanTrunkSolution => {
         if (solution !== undefined) return solution;
@@ -258,7 +268,9 @@ export namespace AutoMovieHumanBodySources {
         }
       };
 
-    /** Keep independent local limb placement before either source or whole bind consumes it. */
+    /*
+     * Keep independent local limb placement before either source or whole bind consumes it.
+     */
     const limbRest: IAutoMovieHumanBodySources.IOriginal["limbRest"] =
       (): IAutoMovieHumanLimbRest.IOutput => {
         rests ??= AutoMovieHumanLimbRest.create({
@@ -279,7 +291,9 @@ export namespace AutoMovieHumanBodySources {
         return rests;
       };
 
-    /** A factory request prepares no whole rest, head, trunk, part or raw geometry. */
+    /*
+     * A factory request prepares no whole rest, head, trunk, part or raw geometry.
+     */
     const limbSources: IAutoMovieHumanBodySources.IOriginal["limbSources"] =
       (): IAutoMovieHumanLimbSources.IOutput => {
         limbs ??= AutoMovieHumanLimbSources.create({
@@ -295,7 +309,9 @@ export namespace AutoMovieHumanBodySources {
         return limbs;
       };
 
-    /** Body-only rest data uses the common neck local/world datum, not eye or head geometry. */
+    /*
+     * Body-only rest data uses the common neck local/world datum, not eye or head geometry.
+     */
     const bodyAnatomy: IAutoMovieHumanBodySources.IOriginal["bodyAnatomy"] =
       (): IAutoMovieHumanSkeletonLaw.IOutput => {
         if (anatomy !== undefined) return anatomy;

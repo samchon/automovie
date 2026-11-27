@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryMapJointBlock } from "@automovie/interface";
 
-/**
+/*
  * Apply the current undamped weighted original design to an actual increment.
  * Camera coordinates precede three coordinates for each landmark. The gradient
  * and blocks use the same current vector soft-L1 weights and physical chart.

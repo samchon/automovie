@@ -9,14 +9,13 @@ import type { pickUpPosture } from "../../handling/internal/pickUpPosture";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { HumanTravelLeaf } from "./HumanTravelLeaf";
 
-/**
+/*
  * The opening's posture at a second: the standing or lowered base, or the walk
  * round with the leaf, lowered further over a low handle.
  *
  * Part of `HumanTravelLeaf.openDoor`'s plan, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `shown`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `shown`.
  */
 export function HumanTravelLeafShown(
   prepared: HumanTravelLeafShown.IPrepared,
@@ -70,20 +69,32 @@ export function HumanTravelLeafShown(
   return shown;
 }
 
-/** The `shown` of `HumanTravelLeaf.openDoor`'s plan and what it reads. */
+/*
+ * The `shown` of `HumanTravelLeaf.openDoor`'s plan and what it reads.
+ */
 export namespace HumanTravelLeafShown {
-  /** What `HumanTravelLeaf.openDoor`'s plan prepared for its `shown`. */
+  /*
+   * What `HumanTravelLeaf.openDoor`'s plan prepared for its `shown`.
+   */
   export interface IPrepared {
-    /** The plan's body. */
+    /*
+     * The plan's body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The walk round with the leaf, or none when standing holds. */
+    /*
+     * The walk round with the leaf, or none when standing holds.
+     */
     walked: IAutoMovieMotionHumanActionPlan | null;
 
-    /** The lowered stance over a low handle, or none. */
+    /*
+     * The lowered stance over a low handle, or none.
+     */
     lowered: pickUpPosture.IStance | null;
 
-    /** The standing or lowered base posture. */
+    /*
+     * The standing or lowered base posture.
+     */
     base: IAutoMovieMotionHumanActionPlan["posture"];
   }
 }

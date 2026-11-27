@@ -10,7 +10,7 @@ import type {
 
 import { HumanPosture } from "./HumanPosture";
 
-/**
+/*
  * A posture part of the way from one to another: the weight of an additive
  * layer, as an animator's layer weight scales what the layer adds.
  *
@@ -26,11 +26,10 @@ import { HumanPosture } from "./HumanPosture";
  * rotation, the shorter-arc slerp of the two turns at constant angular speed
  * with a line between their points; a posture without one counts as the
  * identity turn about the other's point.
- *
- * @param from The posture at weight 0.
- * @param to The posture at weight 1.
- * @param weight The weight in [0, 1].
- * @returns The mixed posture; `from` itself at 0 and `to` itself at 1.
+ * Parameter from: The posture at weight 0.
+ * Parameter to: The posture at weight 1.
+ * Parameter weight: The weight in [0, 1].
+ * Returns: The mixed posture; `from` itself at 0 and `to` itself at 1.
  */
 export function mixHumanPosture(
   from: IAutoMovieMotionHumanPosture,

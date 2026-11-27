@@ -7,11 +7,11 @@ import {
 
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Measure one cross-shot simultaneity claim on the production story clock.
  *
  * Each addressed event is taken at its realized shot-local time, mapped through
- * its own shot's pin by {@link autoMovieStoryTime}, and the widest gap between
+ * its own shot's pin by autoMovieStoryTime, and the widest gap between
  * any two resulting story times is compared against the tolerance, inclusive.
  * Nothing here consults the edit: two shots cut minutes apart pass when their
  * pins put the events together, and two adjacent shots fail when their pins do
@@ -100,16 +100,22 @@ export function evaluateAutoMovieStorySync(
   };
 }
 
-/** One addressed event's measurement, with why it has no story time. */
+/*
+ * One addressed event's measurement, with why it has no story time.
+ */
 interface IStorySyncEntry {
-  /** The event as reported in the outcome. */
+  /*
+   * The event as reported in the outcome.
+   */
   point: IAutoMovieStorySyncPoint;
 
-  /** Why the event has no story time, or null when it has one. */
+  /*
+   * Why the event has no story time, or null when it has one.
+   */
   reason: string | null;
 }
 
-/**
+/*
  * The story second of a local second under a pin, or null where its product or
  * sum overflows binary64.
  */

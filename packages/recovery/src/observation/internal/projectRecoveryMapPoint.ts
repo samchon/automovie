@@ -1,7 +1,7 @@
 import { AutoMovieMatrix3 } from "@automovie/engine";
 import type { IAutoMovieRecoveryMapPointProjectionOperation } from "@automovie/interface";
 
-/**
+/*
  * Project a finite world point and differentiate the calibrated pixel chart.
  * Rotation increments act on R alone on the left, while t has an independent
  * additive camera-frame increment. Point derivatives are in world coordinates.
@@ -65,7 +65,9 @@ export function projectRecoveryMapPoint(
   return { pixel, depth: q[2]!, cameraJacobian, pointJacobian };
 }
 
-/** Whether a projected value overflowed binary64. */
+/*
+ * Whether a projected value overflowed binary64.
+ */
 function overflowed(value: number): boolean {
   return value === Infinity || value === -Infinity;
 }

@@ -14,12 +14,11 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { walkRoot } from "./walkRoot";
 
-/**
+/*
  * The alignment of a body, the body's own quiet-stance property
  * (`IAutoMovieMotionHumanBody.upright`), solved once by its record.
- *
- * @param body The body.
- * @returns Its alignment.
+ * Parameter body: The body.
+ * Returns: Its alignment.
  */
 export function standUpright(
   body: IAutoMovieMotionHumanBody,
@@ -27,7 +26,7 @@ export function standUpright(
   return body.upright;
 }
 
-/**
+/*
  * The upright alignment of a body's quiet stance, solved from the body's own
  * joints by forward kinematics, once per body.
  *
@@ -49,13 +48,12 @@ export function standUpright(
  * preserve the posture's proportions across rigs.
  */
 export namespace standUpright {
-  /**
+  /*
    * Solve a body's alignment: the plumb-line trunk and neck, the level head,
    * then the lean. The body's record reads it once, on its first use
    * (`IAutoMovieMotionHumanBody.upright`).
-   *
-   * @param body The body.
-   * @returns Its alignment.
+   * Parameter body: The body.
+   * Returns: Its alignment.
    */
   export function align(
     body: IAutoMovieMotionHumanBody,
@@ -162,7 +160,7 @@ export namespace standUpright {
     return { joints, lean: ahead - (hips - ankles) };
   }
 
-  /**
+  /*
    * The head joint, at the atlanto-occipital joint near the ear's height,
    * standing for the ear.
    */
@@ -172,7 +170,7 @@ export namespace standUpright {
     return map.get("head")!.worldPosition.z;
   }
 
-  /**
+  /*
    * Hip midpoint ahead of the ankle midpoint, metres, at the planted entry. Di
    * Giulio and Baltzopoulos (2019) measured the centre of gravity 47 mm ahead
    * of the ankles and 2 mm ahead of the hips at 0.50–0.55 s after stopping.
@@ -181,25 +179,27 @@ export namespace standUpright {
    */
   const EARLY_HIP_AHEAD: number = (47 - 2) / 1000;
 
-  /**
+  /*
    * The comfortable cervical flexion range, degrees, either way (provisional,
    * inside DEFAULT_HUMANOID_ROM).
    */
   const NECK: number = 20;
 
-  /**
+  /*
    * The trunk flexion bracket of the plumb-line search, degrees either way
    * (provisional: wide enough to hold any rest column's alignment).
    */
   const TRUNK: number = 15;
 
-  /**
+  /*
    * The head flexion bracket of the level-gaze search, degrees either way
    * (provisional).
    */
   const HEAD_RANGE: number = 40;
 
-  /** Joint centres of the neutral hip and ankle midpoints. */
+  /*
+   * Joint centres of the neutral hip and ankle midpoints.
+   */
   const BASE: ReadonlySet<AutoMovieHumanoidBone> = new Set([
     "leftUpperLeg",
     "rightUpperLeg",
@@ -207,14 +207,16 @@ export namespace standUpright {
     "rightFoot",
   ]);
 
-  /** The plumb-line cost needs the shoulders and the head together. */
+  /*
+   * The plumb-line cost needs the shoulders and the head together.
+   */
   const COLUMN: ReadonlySet<AutoMovieHumanoidBone> = new Set([
     "leftUpperArm",
     "rightUpperArm",
     "head",
   ]);
 
-  /**
+  /*
    * The angle of the pure fixed-body cost's low on [lo, hi] degrees, by Brent's
    * method (`bracketedMinimum`), to within `LOW` of it: Brent's stopping rule
    * places its point within about three tolerances of the low, so the tolerance
@@ -228,13 +230,13 @@ export namespace standUpright {
     return AutoMovieEngineMath.bracketedMinimum(cost, lo, hi, LOW / 3).at;
   }
 
-  /**
+  /*
    * How near its low the trunk's angle is found, degrees: half of a 0.01-degree
    * bracket.
    */
   const LOW: number = 0.005;
 
-  /**
+  /*
    * The zero of a monotonic residual on [-range, range] degrees, or the end
    * nearer to it when it has none there: the bracket closed to the width 40
    * bisections leave, by false position on the residual and bisection for
@@ -256,5 +258,7 @@ export namespace standUpright {
   }
 }
 
-/** The record of `IBisectClosed`'s site. */
+/*
+ * The record of `IBisectClosed`'s site.
+ */
 type IBisectClosed = { low: number; high: number };

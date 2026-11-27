@@ -1,6 +1,6 @@
 import { IAutoMovieAnalysisTarget } from "@automovie/interface";
 
-/**
+/*
  * Check the targets a production declares before any solver reads them.
  *
  * Targets are the one input that can turn a correct measurement into a wrong
@@ -12,8 +12,7 @@ import { IAutoMovieAnalysisTarget } from "@automovie/interface";
  * Throws an `Error` naming the first offending target in list order. Whether a
  * key names a metric the study reports is not checked here;
  * `warnAutoMovieAnalysisTargetKeys` reports that after the metrics exist.
- *
- * @param targets Targets one study declares, in authored order.
+ * Parameter targets: Targets one study declares, in authored order.
  */
 export function assertAutoMovieAnalysisTargets(
   targets: readonly IAutoMovieAnalysisTarget[],

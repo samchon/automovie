@@ -7,7 +7,7 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * A path frame laid out on the film clock: where its origin is and which way it
  * faces at any second, read in closed form.
  *
@@ -21,37 +21,39 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * stretch), so it is continuous; a fixed heading is kept as given.
  */
 export namespace HumanFormationPath {
-  /** A laid path frame. */
+  /*
+   * A laid path frame.
+   */
   export interface ILaid {
-    /** The path's length, metres. */
+    /*
+     * The path's length, metres.
+     */
     length: number;
 
-    /**
+    /*
      * The film second the frame stops at the end, or its last mark's second
      * when it ends at rest before it.
      */
     end: number;
 
-    /**
+    /*
      * The frame at a film second.
-     *
-     * @param seconds Film seconds.
-     * @returns Its origin and heading.
+     * Parameter seconds: Film seconds.
+     * Returns: Its origin and heading.
      */
     at(seconds: number): IAtResult;
   }
 
-  /**
+  /*
    * Lay a path frame out.
-   *
-   * @param frame The path frame.
-   * @param acceleration Its acceleration and braking, metres per second
-   *   squared.
-   * @param turn Metres of path over which its heading turns at a corner.
-   * @returns The laid frame.
-   * @throws {HumanRefusal} When the path has fewer than two distinct corners, a
-   *   speed or mark is not finite and nonnegative, marks overlap a change still
-   *   under way, or the path is too short to stop on after the last mark.
+   * Parameter frame: The path frame.
+   * Parameter acceleration: Its acceleration and braking, metres per second
+   * squared.
+   * Parameter turn: Metres of path over which its heading turns at a corner.
+   * Returns: The laid frame.
+   * When the path has fewer than two distinct corners, a
+   * speed or mark is not finite and nonnegative, marks overlap a change still
+   * under way, or the path is too short to stop on after the last mark.
    */
   export function lay(
     frame: IAutoMovieMotionHumanFormation.IPath,
@@ -236,29 +238,47 @@ export namespace HumanFormationPath {
   }
 }
 
-/** The record of `ILayResult`'s site. */
+/*
+ * The record of `ILayResult`'s site.
+ */
 type ILayResult = { at: IAutoMovieVector3; heading: number };
 
-/** The record of `IAtResult`'s site. */
+/*
+ * The record of `IAtResult`'s site.
+ */
 type IAtResult = { at: IAutoMovieVector3; heading: number };
 
-/** One straight stretch of a path frame. */
+/*
+ * One straight stretch of a path frame.
+ */
 interface IStretch {
-  /** Its first corner, world metres. */
+  /*
+   * Its first corner, world metres.
+   */
   from: IAutoMovieVector3;
 
-  /** Its unit direction's x. */
+  /*
+   * Its unit direction's x.
+   */
   dx: number;
 
-  /** Its unit direction's z. */
+  /*
+   * Its unit direction's z.
+   */
   dz: number;
 
-  /** The arc distance at its start, metres. */
+  /*
+   * The arc distance at its start, metres.
+   */
   start: number;
 
-  /** Its length, metres. */
+  /*
+   * Its length, metres.
+   */
   length: number;
 
-  /** Its heading, degrees. */
+  /*
+   * Its heading, degrees.
+   */
   heading: number;
 }

@@ -41,7 +41,9 @@ const { domed } = AutoMovieHumanBodySurfacePoles;
  * Triangle groups are named `<chain>/<k>` by their principal interval.
  */
 export namespace AutoMovieHumanBodySurface {
-  /** Chord tolerance of the station bisection in mm. */
+  /*
+   * Chord tolerance of the station bisection in mm.
+   */
   const TOLERANCE: number = 0.5;
 
   /**

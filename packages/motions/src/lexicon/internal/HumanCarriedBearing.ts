@@ -44,17 +44,16 @@ import { HumanCarriedLean } from "./HumanCarriedLean";
 import { HumanCarriedLift } from "./HumanCarriedLift";
 import { HumanCarriedWristCircle } from "./HumanCarriedWristCircle";
 
-/**
+/*
  * The plan of holding a person in a named carry (`HumanCarried.bearing`): the
  * bearer's hands where the coupled carry lays the held regions, for a first or
  * a second helper.
  */
 export namespace HumanCarriedBearing {
-  /**
+  /*
    * Plan the carrier's hold; `HumanCarried.bearing` states the law.
-   *
-   * @param context The carrier's context.
-   * @returns The plan.
+   * Parameter context: The carrier's context.
+   * Returns: The plan.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarried.IBearing>,
@@ -515,7 +514,9 @@ export namespace HumanCarriedBearing {
   }
 }
 
-/** Keep the held arm's actual surface goal for the display's swivel course. */
+/*
+ * Keep the held arm's actual surface goal for the display's swivel course.
+ */
 function carryPalm(
   props: IAutoMovieMotionHumanArmCarry.ICarry,
   holdSurface: boolean,

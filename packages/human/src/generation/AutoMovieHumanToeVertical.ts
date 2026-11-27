@@ -206,10 +206,14 @@ export namespace AutoMovieHumanToeVertical {
   }
 }
 
-/** Source value with first/second physical-station derivatives. */
+/*
+ * Source value with first/second physical-station derivatives.
+ */
 type Scalar = [number, number, number];
 
-/** Convert actual physical jets through the selected angle clock into normalized source jets. */
+/*
+ * Convert actual physical jets through the selected angle clock into normalized source jets.
+ */
 function convert(
   jet: Scalar,
   parameter: NonNullable<IAutoMovieViewPart.IOutline["parameter"]>,
@@ -231,7 +235,9 @@ function convert(
   };
 }
 
-/** Admit one declared source, preserving its actual failure. */
+/*
+ * Admit one declared source, preserving its actual failure.
+ */
 function prepare(
   outline: IAutoMovieViewPart.IOutline,
   radial: boolean,
@@ -253,7 +259,9 @@ function prepare(
   return source;
 }
 
-/** Read original parameter jets; physical pole derivatives remain absent. */
+/*
+ * Read original parameter jets; physical pole derivatives remain absent.
+ */
 function read(
   source: IAutoMovieViewOutline.IOutline,
   station: number,

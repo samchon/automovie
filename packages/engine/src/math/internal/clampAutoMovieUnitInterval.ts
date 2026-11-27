@@ -1,4 +1,4 @@
-/**
+/*
  * Clamp a scalar into the closed unit interval [0, 1].
  *
  * Values below zero become zero and values above one become one; NaN stays NaN,

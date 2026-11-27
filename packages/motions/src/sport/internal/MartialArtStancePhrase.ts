@@ -33,7 +33,7 @@ import { martialArtGuardSite } from "./martialArtGuardSite";
 import { martialArtStanceClock } from "./martialArtStanceClock";
 import { martialArtStanceTurn } from "./martialArtStanceTurn";
 
-/**
+/*
  * A lead step into two linked planted weight shifts and a return to entry. The
  * karate form links a front and back stance with a chambered fist and a
  * switching arm path. Tai chi links a forward shift and a rollback with open
@@ -47,12 +47,13 @@ import { martialArtStanceTurn } from "./martialArtStanceTurn";
  * under the centreline guard. A guard rises with the lead step, holds through
  * both transfers and lowers on the return. All blocking values are provisional
  * choices for the take.
- *
- * @param context The martial-art law's actual entering pose and body.
- * @param kind Which form phrase to author.
- * @param hold Seconds to hold the second stance before the return.
- * @param manner Timing and extent modifiers from the action's shared manner.
- * @returns The support and arm phrase on a single timeline.
+ * Parameter context: The martial-art law's actual entering pose and body.
+ * Parameter kind: Which form phrase to author.
+ * Parameter hold: Seconds to hold the second stance before the return.
+ * Parameter manner: Timing and extent modifiers from the action's shared manner.
+ * Returns: The support and arm phrase on a single timeline.
+ * ://pubmed.ncbi.nlm.nih.gov/34269821/
+ * ://pmc.ncbi.nlm.nih.gov/articles/PMC1724683/
  * @see https://pubmed.ncbi.nlm.nih.gov/34269821/
  * @see https://pmc.ncbi.nlm.nih.gov/articles/PMC1724683/
  */
@@ -334,5 +335,7 @@ export function MartialArtStancePhrase(
   });
 }
 
-/** One side of the body, as the stance names its lead and rear. */
+/*
+ * One side of the body, as the stance names its lead and rear.
+ */
 type Side = AutoMovieHumanSide;

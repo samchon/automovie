@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor.js";
 import { isAutoMovieDisplayBlendWeight } from "./isAutoMovieDisplayBlendWeight.js";
 
-/**
+/*
  * Fade one directly resolved display frame over opaque black, or with
  * `transparent` toward a fully transparent pixel, so the frame's straight
  * colour stays its own and only its alpha falls. The weight acts on captured

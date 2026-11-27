@@ -8,24 +8,28 @@ import type {
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedLimb } from "../AutoMovieArchetypeQuadrupedLimb";
 
-/**
+/*
  * One limb's terminal support for the ride pose (`QuadrupedRidePose`): its
  * exact oriented chain solver and the height of its endpoint above the terminal
  * primitive's lowest surface, for any terminal orientation and support plane.
  */
 export namespace QuadrupedRideTerminal {
-  /**
+  /*
    * One admitted terminal primitive and its exact fixed-orientation sole
    * offset.
    */
   export interface IEnd {
-    /** Chain with its terminal direction constrained by a pose goal. */
+    /*
+     * Chain with its terminal direction constrained by a pose goal.
+     */
     solver: AutoMovieArchetypeQuadrupedLimb.IOriented;
-    /** Endpoint height above the terminal primitive's lowest surface, metres. */
+    /*
+     * Endpoint height above the terminal primitive's lowest surface, metres.
+     */
     clearance: number;
   }
 
-  /**
+  /*
    * A limb's binding: its support for a terminal orientation, a lateral solve
    * and a support plane.
    */
@@ -35,15 +39,14 @@ export namespace QuadrupedRideTerminal {
     normal?: IAutoMovieVector3,
   ) => IEnd;
 
-  /**
+  /*
    * Read one foot primitive and prepare its binding.
-   *
-   * @param limb The limb.
-   * @param chain Its five joints, model space.
-   * @param terminal Its terminal part.
-   * @returns The binding.
-   * @throws {RangeError} For a terminal that is not a capsule or cylinder bar,
-   *   or an unrepresentable clearance.
+   * Parameter limb: The limb.
+   * Parameter chain: Its five joints, model space.
+   * Parameter terminal: Its terminal part.
+   * Returns: The binding.
+   * For a terminal that is not a capsule or cylinder bar,
+   * or an unrepresentable clearance.
    */
   export function of(
     limb: AutoMovieArchetypeQuadrupedBody.Limb,
@@ -84,7 +87,9 @@ export namespace QuadrupedRideTerminal {
             normal,
           );
 
-    /** Bind the exact support of the current terminal bar in model space. */
+    /*
+     * Bind the exact support of the current terminal bar in model space.
+     */
     function support(
       direction: IAutoMovieVector3,
       lateral: boolean,

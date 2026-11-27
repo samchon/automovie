@@ -6,12 +6,12 @@ import type { QuadrupedRideClock } from "./QuadrupedRideClock";
 import { admitQuadrupedPhase } from "./admitQuadrupedPhase";
 import type { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped";
 
-/**
+/*
  * The bounded stride-phase plan of a quadruped ride: the hoof phase against
  * film time, each stride's gait and lead, and each hoof's landing phases.
  */
 export namespace QuadrupedStridePlan {
-  /**
+  /*
    * Phase cells over the course; each admits one stride decision, so capacity
    * depends on duration rather than an asserted biological period floor.
    */
@@ -26,7 +26,7 @@ export namespace QuadrupedStridePlan {
     reinBack?: true;
   }
 
-  /**
+  /*
    * Choose the next stride from the route state at its decision and the stride
    * before it.
    */
@@ -35,16 +35,22 @@ export namespace QuadrupedStridePlan {
     from: IStride,
   ) => IStride;
 
-  /**
+  /*
    * A moved landing: the phase one hoof's landing of one index takes instead of
    * its gait's.
    */
   export interface IMoved {
-    /** The hoof. */
+    /*
+     * The hoof.
+     */
     limb: AutoMovieArchetypeQuadrupedBody.Limb;
-    /** The landing's index, the stride it belongs to under the gait. */
+    /*
+     * The landing's index, the stride it belongs to under the gait.
+     */
     index: number;
-    /** Its new absolute phase. */
+    /*
+     * Its new absolute phase.
+     */
     phase: number;
   }
 
@@ -75,18 +81,17 @@ export namespace QuadrupedStridePlan {
     ) => number;
   }
 
-  /**
+  /*
    * Build the phase table and stride decisions on a prepared clock.
-   *
-   * @param species The ride's species and table.
-   * @param clock The prepared clock, including any holds.
-   * @param decide The stride decision.
-   * @param initial The stride assumed before the course.
-   * @param moved Landings moved by technique planners.
-   * @returns The plan.
-   * @throws {AutoMovieArchetypeRefusal} Through `admitQuadrupedPhase` for an
-   *   unrepresentable advance.
-   * @throws {RangeError} When moved landings stop a hoof's landings increasing.
+   * Parameter species: The ride's species and table.
+   * Parameter clock: The prepared clock, including any holds.
+   * Parameter decide: The stride decision.
+   * Parameter initial: The stride assumed before the course.
+   * Parameter moved: Landings moved by technique planners.
+   * Returns: The plan.
+   * Through `admitQuadrupedPhase` for an
+   * unrepresentable advance.
+   * When moved landings stop a hoof's landings increasing.
    */
   export function build(
     species: AutoMovieArchetypeQuadruped.ISpecies,
@@ -209,18 +214,17 @@ export namespace QuadrupedStridePlan {
       },
     };
   }
-  /**
+  /*
    * The ride's stride events: every hoof landing, `<limb>On`, and each change
    * of gait or lead, `gait:<from>-<to>` and `lead:<from>-<to>`, at the left
    * fore's landing that starts the stride where it takes effect, which a shift
    * at a change (`gaitChangeShift`) may move off the stride's integer phase.
-   *
-   * @param plan The built stride plan.
-   * @param standing Whether the ride departs from standing, so the hooves'
-   *   phase-zero landings are the neutral stance and not events.
-   * @param slide Film second hind landings stop being events because an arena
-   *   slide holds the hinds down; Infinity without one.
-   * @returns The events in limb then stride order.
+   * Parameter plan: The built stride plan.
+   * Parameter standing: Whether the ride departs from standing, so the hooves'
+   * phase-zero landings are the neutral stance and not events.
+   * Parameter slide: Film second hind landings stop being events because an arena
+   * slide holds the hinds down; Infinity without one.
+   * Returns: The events in limb then stride order.
    */
   export function events(
     plan: IPlan,
@@ -256,15 +260,21 @@ export namespace QuadrupedStridePlan {
     return result;
   }
 
-  /** One named film-second event of the stride plan. */
+  /*
+   * One named film-second event of the stride plan.
+   */
   export interface IEvent {
-    /** Film second. */
+    /*
+     * Film second.
+     */
     seconds: number;
-    /** The event's name. */
+    /*
+     * The event's name.
+     */
     label: string;
   }
 
-  /**
+  /*
    * The turn of the landing pattern at a change of gait or lead: the shift, in
    * strides, added to every landing from the new stride on.
    *
@@ -285,14 +295,13 @@ export namespace QuadrupedStridePlan {
    * Journal of Mammalogy 58(2):131-156, 1977). A change of gait is a change of
    * those phases and duties, and a foot's swing is the stride less its duty, so
    * the swing across a change is bounded by the two gaits' own values.
-   *
-   * @param species The ride's species and table.
-   * @param was The stride before the change.
-   * @param will The stride after it.
-   * @param before The old gait's timing at the change.
-   * @param after The new gait's timing at the change.
-   * @returns The shift in strides; zero when nothing changes or a rein-back is
-   *   involved.
+   * Parameter species: The ride's species and table.
+   * Parameter was: The stride before the change.
+   * Parameter will: The stride after it.
+   * Parameter before: The old gait's timing at the change.
+   * Parameter after: The new gait's timing at the change.
+   * Returns: The shift in strides; zero when nothing changes or a rein-back is
+   * involved.
    */
   function gaitChangeShift(
     species: AutoMovieArchetypeQuadruped.ISpecies,
@@ -330,7 +339,9 @@ export namespace QuadrupedStridePlan {
     return low <= high ? (low > 0 ? low : high) : (low + high) / 2;
   }
 
-  /** The four hooves in the body's order. */
+  /*
+   * The four hooves in the body's order.
+   */
   const LIMBS: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
     "leftFore",
     "rightFore",

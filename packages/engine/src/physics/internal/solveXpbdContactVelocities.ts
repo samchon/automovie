@@ -5,15 +5,14 @@ import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
 import { AutoMovieXpbdMath } from "../AutoMovieXpbdMath";
 import { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
 
-/**
+/*
  * The velocity pass over the contacts that pressed this step (Mueller, Macklin,
  * Chentanez, Jeschke and Kim 2020, section 3.6): dynamic friction on each
  * patch, at most what the cone leaves after the positional friction, and each
  * pressed point's normal velocity set to the restitution of its approach.
- *
- * @param contacts The step's contacts.
- * @param h The substep, seconds.
- * @param gravity The world gravity's magnitude, metres per second squared.
+ * Parameter contacts: The step's contacts.
+ * Parameter h: The substep, seconds.
+ * Parameter gravity: The world gravity's magnitude, metres per second squared.
  */
 export function solveXpbdContactVelocities(
   contacts: readonly AutoMovieXpbdWorld.IContact[],

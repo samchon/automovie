@@ -23,7 +23,7 @@ import { createShotContractSubjectReader } from "./createShotContractSubjectRead
 import { evaluateShotPredicate } from "./evaluateShotPredicate";
 import { realizeShotCameraOutcome } from "./realizeShotCameraOutcome";
 
-/**
+/*
  * Grade a shot contract against the compiled artifacts that claim to realize
  * it, measuring every outcome from the compiled scene, motions, camera and
  * event samples rather than from the contract's own prose.
@@ -47,12 +47,11 @@ import { realizeShotCameraOutcome } from "./realizeShotCameraOutcome";
  * named it fail; nothing is substituted for it. Contract clocks must already be
  * admitted. Camera resolution runs outside the per-subject catch, so an invalid
  * review time or malformed moving-camera sample can throw here.
- *
- * @param props The contract, the compiled artifacts, and the design context.
- * @returns The realization record, and one `contract-realization-failed`
- *   diagnostic per slot collision, failing state, mismatched sample list,
- *   failing event, camera sample, formation and actor, in that order; an empty
- *   list means the contract is realized.
+ * Parameter props: The contract, the compiled artifacts, and the design context.
+ * Returns: The realization record, and one `contract-realization-failed`
+ * diagnostic per slot collision, failing state, mismatched sample list,
+ * failing event, camera sample, formation and actor, in that order; an empty
+ * list means the contract is realized.
  */
 export function realizeShotContract(
   props: IAutoMovieRealizeShotContractProps,
@@ -256,19 +255,23 @@ export function realizeShotContract(
   };
 }
 
-/** One graded camera sample of the realization record. */
+/*
+ * One graded camera sample of the realization record.
+ */
 type ICameraOutcome = IAutoMovieCompiledContractRealization["camera"][number];
 
-/** One graded opening or closing state of the realization record. */
+/*
+ * One graded opening or closing state of the realization record.
+ */
 type IStateOutcome = IAutoMovieCompiledContractRealization["opening"][number];
 
-/**
+/*
  * Vector-component and absolute quaternion-dot comparison tolerance; the
  * metrics differ.
  */
 const TRANSFORM_TOLERANCE: number = 1e-9;
 
-/**
+/*
  * Whether a compiled formation is the one compact runtime its design asks for:
  * the designed count, split between anonymous slots and heroes, and chunks
  * indexed in order that tile `[0, count)` without gaps.
@@ -292,7 +295,7 @@ function compactFormationPasses(
   return start === design.count;
 }
 
-/**
+/*
  * Whether every promoted hero has a scene node within the declared transform
  * comparison tolerance, built from the design's model group.
  */
@@ -315,7 +318,9 @@ function heroesMaterialized(
   );
 }
 
-/** Whether two vectors agree on every component within the tolerance. */
+/*
+ * Whether two vectors agree on every component within the tolerance.
+ */
 function vectorClose(
   left: IAutoMovieVector3,
   right: IAutoMovieVector3,
@@ -327,7 +332,7 @@ function vectorClose(
   );
 }
 
-/**
+/*
  * Whether two unit quaternions name the same rotation within the tolerance; `q`
  * and `-q` are the same rotation, so the absolute dot product is compared with
  * one.

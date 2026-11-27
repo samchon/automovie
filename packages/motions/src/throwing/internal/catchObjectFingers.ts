@@ -12,13 +12,12 @@ import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotion
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHandTarget } from "../../posture/internal/HumanHandTarget";
 
-/**
+/*
  * Rank the palm rolls for one catching hand by the displayed arm's strain.
- *
- * @param input The catcher and contact with the ball, and any worn-glove
- *   correction.
- * @returns The selected world-space finger direction, upward first when
- *   equivalent.
+ * Parameter input: The catcher and contact with the ball, and any worn-glove
+ * correction.
+ * Returns: The selected world-space finger direction, upward first when
+ * equivalent.
  */
 export function catchObjectFingers(
   input: ICatchObjectFingers,
@@ -93,44 +92,62 @@ export function catchObjectFingers(
   }
   return best.fingers;
 }
-/**
+/*
  * The body and ball geometry shared by the candidate rolls of one catching
  * hand.
  */
 interface ICatchObjectFingers {
-  /** The catcher. */
+  /*
+   * The catcher.
+   */
   body: IAutoMovieMotionHumanBody;
 
-  /** The standing pose on which the candidate wrist and elbow are ranked. */
+  /*
+   * The standing pose on which the candidate wrist and elbow are ranked.
+   */
   standing: IAutoMovieMotionHumanPosture;
 
-  /**
+  /*
    * The catcher's heading in degrees, used when upward lies along the palm
    * normal.
    */
   yaw: number;
 
-  /** The catching hand. */
+  /*
+   * The catching hand.
+   */
   side: AutoMovieHumanSide;
 
-  /** The hand's outward world-space palm normal. */
+  /*
+   * The hand's outward world-space palm normal.
+   */
   outward: IAutoMovieVector3;
 
-  /** The ball's centre at contact, in world metres. */
+  /*
+   * The ball's centre at contact, in world metres.
+   */
   meet: IAutoMovieVector3;
 
-  /** The ball's radius in metres. */
+  /*
+   * The ball's radius in metres.
+   */
   radius: number;
 
-  /** Candidate roll angles in degrees, in the law's preference order. */
+  /*
+   * Candidate roll angles in degrees, in the law's preference order.
+   */
   rolls: readonly number[];
 
-  /** Correct a world palm contact and rotation for a worn glove. */
+  /*
+   * Correct a world palm contact and rotation for a worn glove.
+   */
   pocketPoint: (
     point: IAutoMovieVector3,
     rotation: IAutoMovieQuaternion,
   ) => IAutoMovieVector3;
 }
 
-/** The record of `ICatchObjectFingersBest`'s site. */
+/*
+ * The record of `ICatchObjectFingersBest`'s site.
+ */
 type ICatchObjectFingersBest = { fingers: IAutoMovieVector3; strain: number };

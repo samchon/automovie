@@ -4,18 +4,17 @@ import { ArmourLimb } from "./ArmourLimb";
 import { CostumeConstruction } from "./CostumeConstruction";
 
 
-/**
+/*
  * Worn gauntlet costume.
  *
  * A segmented costume piece registered to the chosen hand through its wear
  * frame.
- *
- * @param params The scene id and optional measurements and model choice of this
- *   costume.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter params: The scene id and optional measurements and model choice of this
+ * costume.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function createCostumeGauntlet(
   params: AutoMovieArchetypeCostumeGauntlet.IParams = {},

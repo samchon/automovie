@@ -234,7 +234,9 @@ export namespace AutoMovieHumanFeatureTemplate {
     return template.height * (1 - (10 * t ** 3 - 15 * t ** 4 + 6 * t ** 5));
   }
 
-  /** Refuse a template whose numbers the laws cannot read. */
+  /*
+   * Refuse a template whose numbers the laws cannot read.
+   */
   function admit(template: ITemplate): void {
     const { along, across }: ITemplate = template;
     if (Math.abs(F.dot(along, along) - 1) > 1e-9 || Math.abs(F.dot(across, across) - 1) > 1e-9 || Math.abs(F.dot(along, across)) > 1e-9)

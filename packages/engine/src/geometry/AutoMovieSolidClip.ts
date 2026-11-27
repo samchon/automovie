@@ -315,7 +315,7 @@ export namespace AutoMovieSolidClip {
     return null;
   }
 
-  /**
+  /*
    * How far a rail's two ends round a crossing stand off the boundary two faces
    * share, and how far that boundary itself stands off its chord, mm: `[ends,
    * seam]`. The boundary is the segment the two faces share nearest the first
@@ -405,7 +405,9 @@ export namespace AutoMovieSolidClip {
     ];
   }
 
-  /** The point of the segment from `a` to `b` nearest `x`, in any dimension. */
+  /*
+   * The point of the segment from `a` to `b` nearest `x`, in any dimension.
+   */
   function nearest(
     a: readonly number[],
     b: readonly number[],
@@ -433,7 +435,7 @@ export namespace AutoMovieSolidClip {
     return a.map((y: number, i: number): number => y + t * d[i]!);
   }
 
-  /**
+  /*
    * A rebuilt cycle's per-segment exact boundaries, or nothing where every
    * segment is a chord.
    */
@@ -447,10 +449,12 @@ export namespace AutoMovieSolidClip {
       : {};
   }
 
-  /** What `clip` returns for a run that joins two of the face's trims. */
+  /*
+   * What `clip` returns for a run that joins two of the face's trims.
+   */
   const ACROSS: string = "across";
 
-  /**
+  /*
    * Place a rail crossing into the face's trim it lies on: the trim that
    * already holds its vertex, or the one nearest it in the face's chart, split
    * at the crossing's foot.
@@ -530,7 +534,7 @@ export namespace AutoMovieSolidClip {
     return [cycle, k];
   }
 
-  /**
+  /*
    * Clip one face by two runs of the rail that each join its two trims, as a
    * cut does that crosses a band from rim to rim and back. Neither run cuts
    * anything off alone; together they replace the two trims by one island: one
@@ -741,7 +745,9 @@ export namespace AutoMovieSolidClip {
     return null;
   }
 
-  /** Clip one face by one run of the rail. */
+  /*
+   * Clip one face by one run of the rail.
+   */
   function clip(
     body: IAutoMovieSolidBody.IBody,
     face: number,
@@ -909,7 +915,7 @@ export namespace AutoMovieSolidClip {
     return null;
   }
 
-  /**
+  /*
    * How many points the trim `old` removes the candidate would keep: one point
    * beside the middle of each of the trim's segments, on the side the trim
    * removes, a quarter of the segment's chart length off it. A candidate that

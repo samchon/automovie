@@ -3,7 +3,7 @@ import type { IAutoMovieCreateSupportSectionQuery } from "@automovie/interface";
 import { determinantAutoMovieMatrix3 } from "../../math/internal/determinantAutoMovieMatrix3";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Prepare fixed half-plane directions for independent changing-offset queries.
  * Copy the admitted finite unit normals and compute every exact nonparallel
  * pair once. A successful polygon supplies only a cyclic active-edge seed. Its

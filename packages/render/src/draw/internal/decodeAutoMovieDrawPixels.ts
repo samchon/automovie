@@ -3,7 +3,7 @@ import type {
   IAutoMovieRasterImage,
 } from "@automovie/interface";
 
-/**
+/*
  * Turn a draw page's picture back into the raster the capture core reads: the
  * base64 RGBA bytes of an `IAutoMovieDrawResult`, rows from the top, at the
  * size it states.

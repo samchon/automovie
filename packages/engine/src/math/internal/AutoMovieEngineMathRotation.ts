@@ -6,9 +6,11 @@ import type {
 import { Quaternion } from "../Quaternion";
 import { Vector3 } from "../Vector3";
 
-/** Shortest-arc rotation operations for finite directions. */
+/*
+ * Shortest-arc rotation operations for finite directions.
+ */
 export namespace AutoMovieEngineMathRotation {
-/**
+/*
  * Shortest-arc rotation from finite vector `a` to finite vector `b`, using
  * atan2 without a near-parallel identity deadzone. Iterative world-driver IK
  * and analytic two-bone aiming share this direction and collinearity
@@ -37,8 +39,10 @@ export function rotationBetween(
   return turn(from, to);
 }
 
-/** Fixed-source shortest-arc preparation for repeated target directions. */
-/**
+/*
+ * Fixed-source shortest-arc preparation for repeated target directions.
+ */
+/*
  * Normalize and own one source direction, then compute every requested
  * target's shortest arc through the direct function's same core. The caller
  * supplies finite vectors as in the direct entry; named finite refusal
@@ -60,7 +64,9 @@ export function prepareRotationBetween(
     turn(from, Vector3.normalize(target));
 }
 
-/** Exact normalized-direction core, shared by ordinary and fixed-source turns. */
+/*
+ * Exact normalized-direction core, shared by ordinary and fixed-source turns.
+ */
 function turn(
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,

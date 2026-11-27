@@ -2,20 +2,19 @@ import type { IAutoMovieMesh } from "@automovie/interface";
 
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
-/**
+/*
  * Count components of used triangle vertices under their exact index identity.
  * Coincident positions with different indices stay separate. Unused vertices
  * contribute no component, and an empty triangle population returns zero.
  * Coordinates, winding, area and physical-source aliases do not change this
  * index graph. The result certifies no surface manifoldness or anatomy.
- *
- * @param mesh Borrowed indexed or consecutive-triangle mesh; positions supply
- *   only the vertex count.
- * @returns Components containing at least one triangle, including degenerate
- *   triangles.
- * @throws The canonical triangleIndicesOf refusal for malformed xyz/index
- *   cardinality or out-of-range indices; coordinate finiteness is not needed
- *   for this graph.
+ * Parameter mesh: Borrowed indexed or consecutive-triangle mesh; positions supply
+ * only the vertex count.
+ * Returns: Components containing at least one triangle, including degenerate
+ * triangles.
+ * The canonical triangleIndicesOf refusal for malformed xyz/index
+ * cardinality or out-of-range indices; coordinate finiteness is not needed
+ * for this graph.
  */
 export function countAutoMovieMeshComponents(mesh: IAutoMovieMesh): number {
   const indices: number[] = triangleIndicesOf(mesh, "mesh components");
@@ -25,7 +24,9 @@ export function countAutoMovieMeshComponents(mesh: IAutoMovieMesh): number {
     (_: unknown, i: number): number => i,
   );
 
-  /** Compress the same exact-index parent paths as the original Human test. */
+  /*
+   * Compress the same exact-index parent paths as the original Human test.
+   */
   function find(i: number): number {
     let root: number = i;
     while (parent[root] !== root) root = parent[root]!;

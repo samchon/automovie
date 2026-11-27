@@ -3,7 +3,7 @@ import type { IAutoMovieAffordance, IAutoMovieTransform } from "@automovie/inter
 import { AutoMovieArchetypeRefusal } from "../../core";
 import type { AutoMovieArchetypeWheelchair } from "../AutoMovieArchetypeWheelchair";
 import { wheelchairHandrimFrame } from "./wheelchairHandrimFrame";
-/**
+/*
  * Repeated chair-relative hand contacts on one authored ride. Build the prop's
  * point reader once and register one HumanHandrimStroke for each engagement.
  * Use a bilateral catch for a straight push and a selected inside rim for a
@@ -85,20 +85,32 @@ export function handrimContacts(
 }
 
 
-/** Which of a wheelchair's rim frames a sitter engages. */
+/*
+ * Which of a wheelchair's rim frames a sitter engages.
+ */
 type Rim = "leftRim" | "rightRim";
 
-/** A selected material point on a closed interval of the ride clock. */
+/*
+ * A selected material point on a closed interval of the ride clock.
+ */
 interface IPreparedHold {
-  /** The selected catch second, included. */
+  /*
+   * The selected catch second, included.
+   */
   from: number;
-  /** The selected release second, included. */
+  /*
+   * The selected release second, included.
+   */
   to: number;
-  /** Read the selected wheel material point in the world frame. */
+  /*
+   * Read the selected wheel material point in the world frame.
+   */
   read: ReturnType<typeof wheelchairHandrimFrame>;
 }
 
-/** Explain which of the staged holds must change. */
+/*
+ * Explain which of the staged holds must change.
+ */
 function refuse(hold: AutoMovieArchetypeWheelchair.IHandrimHold, reason: string): never {
   throw new AutoMovieArchetypeRefusal({
     kind: "parameter",

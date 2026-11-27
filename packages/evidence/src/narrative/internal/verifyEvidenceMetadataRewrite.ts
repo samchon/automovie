@@ -22,7 +22,7 @@ import { sameMetadata } from "./metadataRewrite/sameMetadata";
 import { selectFiles } from "./metadataRewrite/selectFiles";
 import { validateRenderedSample } from "./metadataRewrite/validateRenderedSample";
 
-/**
+/*
  * Proves that a metadata-only rewrite changed only structural evidence rows.
  *
  * The canonical projection removes only the metadata region explicitly owned by

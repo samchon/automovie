@@ -18,16 +18,15 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import type { resolvePianoScoreVoicing } from "./resolvePianoScoreVoicing";
 
-/**
+/*
  * Fit a voicing's digits from the arms already placed at a scored boundary. An
  * undepressed fit supplies the resting shape for transport. At each checked
  * chord boundary every digit must reach from the same fitted wrist.
- *
- * @param body The seated performer's rig.
- * @param arms The pose with both arm goals fitted at the boundary.
- * @param voicing The scored targets and their common hand shape.
- * @param down Whether the keys are at the bottom of their travel.
- * @returns The fitted angles of this hand.
+ * Parameter body: The seated performer's rig.
+ * Parameter arms: The pose with both arm goals fitted at the boundary.
+ * Parameter voicing: The scored targets and their common hand shape.
+ * Parameter down: Whether the keys are at the bottom of their travel.
+ * Returns: The fitted angles of this hand.
  */
 export function fitPianoScoreContact(
   body: IAutoMovieMotionHumanBody,
@@ -105,5 +104,7 @@ export function fitPianoScoreContact(
   return out;
 }
 
-/** Provisional 5 mm polygon-rig margin used by the piano score contact spec. */
+/*
+ * Provisional 5 mm polygon-rig margin used by the piano score contact spec.
+ */
 const PIANO_CONTACT_TOLERANCE: number = 0.005;

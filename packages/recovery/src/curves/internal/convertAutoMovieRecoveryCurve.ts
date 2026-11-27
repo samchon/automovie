@@ -8,19 +8,18 @@ import type {
   IAutoMovieRecoveryHermiteSpan,
 } from "@automovie/interface";
 
-/**
+/*
  * Express one saved cubic in the selected coefficient basis. Endpoint
  * derivatives are 3(B1-B0)/h and 3(B3-B2)/h; the inverse handles multiply by
  * h/3, with h the span's original phase width. This is an algebraic basis
  * change in real arithmetic with binary64 rounding, not a fit or a bitwise
  * round trip. Names, closure, units and phase widths are kept, and the spans of
  * the requested basis are fresh records.
- *
- * @param curve The saved cubic, in either basis.
- * @param format The basis to express it in.
- * @returns The curve in that basis.
- * @throws {Error} When the cubic has no span or not one positive phase width
- *   per span.
+ * Parameter curve: The saved cubic, in either basis.
+ * Parameter format: The basis to express it in.
+ * Returns: The curve in that basis.
+ * When the cubic has no span or not one positive phase width
+ * per span.
  */
 export function convertAutoMovieRecoveryCurve(
   curve: IAutoMovieRecoveryCurveBundle.Curve,
@@ -51,7 +50,9 @@ export function convertAutoMovieRecoveryCurve(
     : { ...curve, type: "cubicBezier", spans: bezierSpans(curve) };
 }
 
-/** A cubic's spans as endpoint jets over each original phase width. */
+/*
+ * A cubic's spans as endpoint jets over each original phase width.
+ */
 function hermiteSpans(
   curve: IAutoMovieRecoveryCurveBundle.Curve,
 ): IAutoMovieRecoveryHermiteSpan[] {
@@ -75,7 +76,9 @@ function hermiteSpans(
       );
 }
 
-/** A cubic's spans as Bernstein controls over each original phase width. */
+/*
+ * A cubic's spans as Bernstein controls over each original phase width.
+ */
 function bezierSpans(
   curve: IAutoMovieRecoveryCurveBundle.Curve,
 ): AutoMovieCubicBezierControls3[] {

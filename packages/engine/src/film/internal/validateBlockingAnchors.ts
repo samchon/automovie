@@ -3,7 +3,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/**
+/*
  * Locate timing anchors outside the inclusive beat or ahead of their listed
  * predecessor.
  */

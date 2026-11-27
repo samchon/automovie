@@ -25,7 +25,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { wardrobeFootRaisedLeg } from "./wardrobeFootRaisedLeg";
 import { wardrobeHands } from "./wardrobeHands";
 
-/**
+/*
  * Stage seated shoe or sock transfer with one foot raised and the other
  * grounded.
  *
@@ -35,14 +35,13 @@ import { wardrobeHands } from "./wardrobeHands";
  * and inserting the foot (Jin et al., Table 2,
  * https://pmc.ncbi.nlm.nih.gov/articles/PMC6451954/). The slow hand phase here
  * is an authored stage timing.
- *
- * @param context The live entry and held or worn footwear.
- * @param side The foot that enters or leaves the footwear.
- * @param hand The hand that holds the prop.
- * @param remove Whether to take it off instead of putting it on.
- * @returns A seated performance with an actual aperture crossing and custody
- *   transfer.
- * @throws {HumanRefusal} For a failed seat, reach, identity or fit.
+ * Parameter context: The live entry and held or worn footwear.
+ * Parameter side: The foot that enters or leaves the footwear.
+ * Parameter hand: The hand that holds the prop.
+ * Parameter remove: Whether to take it off instead of putting it on.
+ * Returns: A seated performance with an actual aperture crossing and custody
+ * transfer.
+ * For a failed seat, reach, identity or fit.
  */
 export function wardrobeFoot(
   context: IAutoMovieMotionHumanActionContext<wardrobeHands.IPropParams>,
@@ -322,19 +321,25 @@ export function wardrobeFoot(
   return shown;
 }
 
-/** Positive axial clearance at either end of a visible hand-foot exchange. */
+/*
+ * Positive axial clearance at either end of a visible hand-foot exchange.
+ */
 const AIR: number = 0.025;
 
-/**
+/*
  * The coursed plan once it is laid, read by the shell's custody through the
  * hand it shows.
  */
 interface ICourse {
-  /** The coursed plan; absent until the course is laid. */
+  /*
+   * The coursed plan; absent until the course is laid.
+   */
   shown?: IAutoMovieMotionHumanActionPlan;
 }
 
-/** Find an actual phase boundary in seconds. */
+/*
+ * Find an actual phase boundary in seconds.
+ */
 function event(plan: IAutoMovieMotionHumanActionPlan, name: string): number {
   return (
     plan.events.find(
@@ -343,7 +348,7 @@ function event(plan: IAutoMovieMotionHumanActionPlan, name: string): number {
   );
 }
 
-/**
+/*
  * Construct the actual heel-based foot frame held during the seated lift: the
  * heel, its forward axis toward the ball and its across axis from the ankle,
  * all rigid on the foot bone.
@@ -382,7 +387,7 @@ function footFrame(
   };
 }
 
-/**
+/*
  * At removal, align the hand across the rear pull while it still rides the
  * foot.
  */

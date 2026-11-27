@@ -5,18 +5,17 @@ import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/ind
 import { StageCarrierConstruction } from "./StageCarrierConstruction";
 
 
-/**
+/*
  * Worn belt holster silhouette.
  *
  * A separate little carrier with a raised or lowered socket and a wearer-facing
  * belt hook.
- *
- * @param params The scene id, optional display dimensions and this carrier's
- *   own fit options.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter params: The scene id, optional display dimensions and this carrier's
+ * own fit options.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function createStageHolster(
   params: AutoMovieArchetypeStageHolster.IParams = {},

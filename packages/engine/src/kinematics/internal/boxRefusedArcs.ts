@@ -9,7 +9,7 @@ import { ROM_TOLERANCE } from "../../rom/ROM_TOLERANCE";
 import { swivelArcs } from "../swivelArcs";
 import { swivelJointReadings } from "../swivelJointReadings";
 
-/**
+/*
  * The arcs of swivels a joint's three-angle box provably refuses in each of the
  * two charts `decomposeJointRotationOnBasis` chooses between, for a joint whose
  * bone-local rotation is a fixed rotation turned about a fixed axis by the
@@ -26,11 +26,10 @@ import { swivelJointReadings } from "../swivelJointReadings";
  * the cone certainly exceeds is refused whole and one it certainly stays within
  * (`swivelJointReadings.coneWithin`) holds none, so only the pieces near the
  * cone's boundary are read one by one.
- *
- * @param props The joint and its rotation by swivel; `joint` is not read.
- * @returns Each chart's merged refused arcs, degrees, the principal chart
- *   first; every swivel where they cover a turn; none for an unconstrained
- *   joint or one gated by swing and twist, whose box no chart reads.
+ * Parameter props: The joint and its rotation by swivel; `joint` is not read.
+ * Returns: Each chart's merged refused arcs, degrees, the principal chart
+ * first; every swivel where they cover a turn; none for an unconstrained
+ * joint or one gated by swing and twist, whose box no chart reads.
  */
 export function boxRefusedArcs(
   props: IAutoMovieBoxExcludedSwivels.IProps,
@@ -102,22 +101,28 @@ export function boxRefusedArcs(
   return [chart(false), chart(true)];
 }
 
-/** One chart's merged refused arcs, or every swivel. */
+/*
+ * One chart's merged refused arcs, or every swivel.
+ */
 type IRefused = IAutoMovieSwivelArcs.IArc[] | "all";
 
-/** A joint's three angles as the swivel reads them (`swivelJointReadings.of`). */
+/*
+ * A joint's three angles as the swivel reads them (`swivelJointReadings.of`).
+ */
 type IReading = ReturnType<typeof swivelJointReadings.of>;
 
-/**
+/*
  * The piece of swivels, degrees, a cone's refusal is read over: the sweep's
  * step (`hingedArmSwivel.STEP`), over which the sinusoids' ranges stay tight.
  */
 const PIECE: number = 1;
 
-/** A full turn of swivels, degrees. */
+/*
+ * A full turn of swivels, degrees.
+ */
 const TURN: number = 360;
 
-/**
+/*
  * How far past a bound, in sine or projected units, a reading must lie to be
  * refused: the joints' tolerance (`ROM_TOLERANCE`) in radians, past the
  * rounding of every step and the decomposition's gimbal band.

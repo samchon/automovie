@@ -12,7 +12,7 @@ import { physicalShapeContactManifold } from "./physicalShapeContactManifold";
 import { physicalShapeSupport } from "./physicalShapeSupport";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
-/**
+/*
  * Freeze the current separating normal and the bone-local witnesses of the
  * contact patch for a Jacobian probe. Each patch point's separation moves by n
  * dot (Jb-Ja), as derived in Drake's CalcDistanceDerivatives (bdcd5ff,
@@ -115,7 +115,7 @@ export function linearizePhysicalSeparation(
       ),
     );
 }
-/**
+/*
  * One side's frozen patch along a normal; the given witnesses when the patch is
  * empty.
  */
@@ -151,7 +151,9 @@ function side(
   };
 }
 
-/** A world point in a pose's frame. */
+/*
+ * A world point in a pose's frame.
+ */
 function local(
   pose: IAutoMovieRigidTransform,
   point: IAutoMovieVector3,

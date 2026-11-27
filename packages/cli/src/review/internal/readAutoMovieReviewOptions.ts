@@ -1,7 +1,7 @@
 import { AUTOMOVIE_REVIEW_OPTIONS } from "./AUTOMOVIE_REVIEW_OPTIONS";
 import type { AutoMovieCliReviewTypes } from "../AutoMovieCliReviewTypes";
 
-/**
+/*
  * Admit one `automovie review` operation.
  *
  * Inspector mode takes the loopback HTTP `--url`, wall-clock `--seconds` and
@@ -29,10 +29,14 @@ export function readAutoMovieReviewOptions(
     : inspectorOptions(values);
 }
 
-/** The longest Inspector recording in wall-clock seconds, one day. */
+/*
+ * The longest Inspector recording in wall-clock seconds, one day.
+ */
 const LONGEST: number = 86_400;
 
-/** Record only a loopback HTTP Inspector for a finite wall-clock duration. */
+/*
+ * Record only a loopback HTTP Inspector for a finite wall-clock duration.
+ */
 function inspectorOptions(
   values: ReadonlyMap<string, string>,
 ): AutoMovieCliReviewTypes.InspectorOptions {
@@ -68,7 +72,9 @@ function inspectorOptions(
   return { url: address.href, seconds, out: values.get("out") ?? null };
 }
 
-/** Admits a new mark, an explicit rebind, or replay of an existing mark. */
+/*
+ * Admits a new mark, an explicit rebind, or replay of an existing mark.
+ */
 function fileOptions(
   values: ReadonlyMap<string, string>,
 ): AutoMovieCliReviewTypes.FileOptions {
@@ -139,7 +145,9 @@ function fileOptions(
   };
 }
 
-/** Reads a finite nonnegative film second, or null when absent. */
+/*
+ * Reads a finite nonnegative film second, or null when absent.
+ */
 function second(
   values: ReadonlyMap<string, string>,
   key: string,

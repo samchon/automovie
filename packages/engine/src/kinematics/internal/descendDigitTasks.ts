@@ -3,18 +3,17 @@ import type { IAutoMovieFitDigitDescent } from "@automovie/interface";
 import { AutoMovieSolidVector } from "../../geometry/AutoMovieSolidVector";
 import { AutoMovieEngineMath } from "../../math/AutoMovieEngineMath";
 
-/**
+/*
  * Execute the digit task-priority descent and retain the actual primary
  * linearization at its final accepted point. Every nonempty-variable stop
  * follows a Jacobian of that same point; empty variables have the exact
  * empty-column Jacobian. Rejected damping trials never replace its variables,
  * residual or Jacobian. The public descent returns only the variables, while
  * digit continuation uses this completed data for its original restart test.
- *
- * @param props The original pure fixed-dimension tasks, projection, resolution
- *   and tolerance.
- * @returns Final projected variables, their actual primary residual and their
- *   current feasible-probe primary Jacobian.
+ * Parameter props: The original pure fixed-dimension tasks, projection, resolution
+ * and tolerance.
+ * Returns: Final projected variables, their actual primary residual and their
+ * current feasible-probe primary Jacobian.
  */
 export function descendDigitTasks(
   props: IAutoMovieFitDigitDescent.IProps,
@@ -296,20 +295,26 @@ export function descendDigitTasks(
   return { values: x, primary: r1, primaryJacobian: J1 };
 }
 
-/** Completed task data of one descent, with no caller admission flag. */
+/*
+ * Completed task data of one descent, with no caller admission flag.
+ */
 export namespace descendDigitTasks {
-  /**
+  /*
    * Actual final accepted point and primary data, retained until its caller
    * releases them.
    */
   export interface IResult {
-    /** Final projected variables, in the original variable units and order. */
+    /*
+     * Final projected variables, in the original variable units and order.
+     */
     values: number[];
 
-    /** Primary residual at values, metres, with its original dimension. */
+    /*
+     * Primary residual at values, metres, with its original dimension.
+     */
     primary: readonly number[];
 
-    /**
+    /*
      * Primary feasible differences at values, metres per variable unit, in
      * task-row/variable-column order.
      */
@@ -317,29 +322,43 @@ export namespace descendDigitTasks {
   }
 }
 
-/**
+/*
  * The damping start of Levenberg-Marquardt relative to the largest diagonal
  * entry of the normal matrix (Madsen, Nielsen and Tingleff 2004, section 3.2,
  * tau = 1e-3 for a start believed close).
  */
 const TAU: number = 1e-3;
-/** Quantities fixed by one accepted iterate, independent of damping retries. */
+/*
+ * Quantities fixed by one accepted iterate, independent of damping retries.
+ */
 interface ILinearization {
-  /** Existing primary reach tolerance, metres, at this exact x/Jacobian. */
+  /*
+   * Existing primary reach tolerance, metres, at this exact x/Jacobian.
+   */
   met: number;
 
-  /** Whether the primary is served under that unchanged tolerance. */
+  /*
+   * Whether the primary is served under that unchanged tolerance.
+   */
   served: boolean;
 
-  /** Active-set complement, in the original variable order. */
+  /*
+   * Active-set complement, in the original variable order.
+   */
   free: number[];
 
-  /** Primary normal matrix before adding the changing damping. */
+  /*
+   * Primary normal matrix before adding the changing damping.
+   */
   gram: number[][];
 
-  /** Negative primary gradient restricted to those free variables. */
+  /*
+   * Negative primary gradient restricted to those free variables.
+   */
   right: number[];
 
-  /** Secondary Jacobian restricted to the same free variables. */
+  /*
+   * Secondary Jacobian restricted to the same free variables.
+   */
   secondary: number[][];
 }

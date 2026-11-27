@@ -13,7 +13,7 @@ import { staggerPendulumEntry } from "./staggerPendulumEntry";
 import type { staggerRecover } from "./staggerRecover";
 import { staggerTransfer } from "./staggerTransfer";
 
-/**
+/*
  * A pushed body's centre of mass over the floor as Hof's inverted pendulum
  * (Hof, Gazendam and Sinke 2005; Hof 2008), with the feet and the steps that
  * bear it: the state a recovery's steps advance (`staggerRecover`).
@@ -33,89 +33,122 @@ import { staggerTransfer } from "./staggerTransfer";
  * snapshots remain owned by the same complete body/entry/push/speed search.
  */
 export class StaggerPendulum {
-  /** The body. */
+  /*
+   * The body.
+   */
   public readonly body: IAutoMovieMotionHumanActionContext["body"];
 
-  /** The posture the push meets. */
+  /*
+   * The posture the push meets.
+   */
   public readonly entry: IAutoMovieMotionHumanActionContext["entry"];
 
-  /** The push's horizontal unit direction, world. */
+  /*
+   * The push's horizontal unit direction, world.
+   */
   public readonly push: IAutoMovieVector3;
 
-  /** The centre of mass's speed after the blow, m/s. */
+  /*
+   * The centre of mass's speed after the blow, m/s.
+   */
   public readonly speed: number;
 
-  /** The pendulum's eigenfrequency, radians per second (`staggerBounds.omega`). */
+  /*
+   * The pendulum's eigenfrequency, radians per second (`staggerBounds.omega`).
+   */
   public readonly w: number;
 
-  /** The entry's centre of mass, world metres. */
+  /*
+   * The entry's centre of mass, world metres.
+   */
   public readonly centre: IAutoMovieVector3;
 
-  /** The entry's root, world metres. */
+  /*
+   * The entry's root, world metres.
+   */
   public readonly root: IAutoMovieVector3;
 
-  /** The entry's heading's forward unit, world. */
+  /*
+   * The entry's heading's forward unit, world.
+   */
   public readonly forward: IAutoMovieVector3;
 
-  /** The entry's heading's unit across, to the body's left. */
+  /*
+   * The entry's heading's unit across, to the body's left.
+   */
   public readonly across: IAutoMovieVector3;
 
-  /** The feet as the entry stands them. */
+  /*
+   * The feet as the entry stands them.
+   */
   public readonly entered: Record<
     AutoMovieHumanSide,
     IAutoMovieMotionHumanFoot.IPlacement
   >;
 
-  /**
+  /*
    * The narrowest the feet stand, ankle to ankle across the heading, side by
    * side with their outlines touching.
    */
   public readonly width: number;
 
-  /** A sole's length along the heading. */
+  /*
+   * A sole's length along the heading.
+   */
   public readonly length: number;
 
-  /**
+  /*
    * The centre of mass's shift per sine of the trunk's pitch and roll on the
    * entry's feet, metres (`staggerKnots.bending`).
    */
   public readonly bend: Record<StaggerPendulumBendEntry, IAutoMovieVector3>;
 
-  /** The feet as the steps so far placed them. */
+  /*
+   * The feet as the steps so far placed them.
+   */
   public feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
-  /**
+  /*
    * The spans so far: each start, its centre of pressure and the state it
    * started from.
    */
   public phases: staggerRecover.IPhase[] = [];
 
-  /** The steps so far. */
+  /*
+   * The steps so far.
+   */
   public steps: staggerRecover.IStep[] = [];
 
-  /** The centre of mass's travel from the entry's, horizontal. */
+  /*
+   * The centre of mass's travel from the entry's, horizontal.
+   */
   public s: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
-  /** The centre of mass's velocity, horizontal. */
+  /*
+   * The centre of mass's velocity, horizontal.
+   */
   public v: IAutoMovieVector3;
 
-  /** Seconds since the push. */
+  /*
+   * Seconds since the push.
+   */
   public t: number = 0;
 
-  /** One exact placement snapshot per foot; the body's sole geometry is fixed. */
+  /*
+   * One exact placement snapshot per foot; the body's sole geometry is fixed.
+   */
   private readonly footprints: Partial<
     Record<AutoMovieHumanSide, IFootprintsEntryItem>
   > = {};
 
-  /**
+  /*
    * Start one push's pendulum on its entry's fixed geometry.
-   *
-   * @param body The body.
-   * @param entry The posture the push meets.
-   * @param push The push's horizontal unit direction, world.
-   * @param speed The centre of mass's speed after the blow, m/s.
-   * @param fixed The entry's geometry (`prepare`) for this same body and entry,
-   *   shared by every speed one search probes; read here when absent.
+   * Parameter body: The body.
+   * Parameter entry: The posture the push meets.
+   * Parameter push: The push's horizontal unit direction, world.
+   * Parameter speed: The centre of mass's speed after the blow, m/s.
+   * Parameter fixed: The entry's geometry (`prepare`) for this same body and entry,
+   * shared by every speed one search probes; read here when absent.
    */
   public constructor(
     body: IAutoMovieMotionHumanActionContext["body"],
@@ -143,12 +176,16 @@ export class StaggerPendulum {
     this.bend = fixed.bend;
   }
 
-  /** A point on the floor. */
+  /*
+   * A point on the floor.
+   */
   public static flat(p: IAutoMovieVector3): IAutoMovieVector3 {
     return { x: p.x, y: 0, z: p.z };
   }
 
-  /** The state back to the push. */
+  /*
+   * The state back to the push.
+   */
   public reset(): void {
     this.feet = { ...this.entered };
     this.phases = [];
@@ -158,7 +195,9 @@ export class StaggerPendulum {
     this.t = 0;
   }
 
-  /** The state, to take up again with restore. */
+  /*
+   * The state, to take up again with restore.
+   */
   public snapshot(): staggerRecover.IState {
     return {
       feet: { ...this.feet },
@@ -170,7 +209,9 @@ export class StaggerPendulum {
     };
   }
 
-  /** Take up a state snapshot kept. */
+  /*
+   * Take up a state snapshot kept.
+   */
   public restore(state: staggerRecover.IState): void {
     this.feet = { ...state.feet };
     this.phases = [...state.phases];
@@ -180,12 +221,16 @@ export class StaggerPendulum {
     this.t = state.t;
   }
 
-  /** The extrapolated centre of mass, from the entry's centre of mass. */
+  /*
+   * The extrapolated centre of mass, from the entry's centre of mass.
+   */
   public xi(): IAutoMovieVector3 {
     return Vector3.add(this.s, Vector3.scale(this.v, 1 / this.w));
   }
 
-  /** The bearing feet's convex outline from the entry's centre of mass. */
+  /*
+   * The bearing feet's convex outline from the entry's centre of mass.
+   */
   public bearing(sides: readonly AutoMovieHumanSide[]): IAutoMovieVector3[] {
     return AutoMovieEngineMath.convexHull2D(
       sides.flatMap(
@@ -195,13 +240,15 @@ export class StaggerPendulum {
     );
   }
 
-  /** Whether xi lies inside both feet's base, Koolen's zero-step capture region. */
+  /*
+   * Whether xi lies inside both feet's base, Koolen's zero-step capture region.
+   */
   public captured(): boolean {
     const base: IAutoMovieVector3[] = this.bearing(["left", "right"]);
     return base.length >= 3 && AutoMovieEngineMath.pointInHull(this.xi(), base);
   }
 
-  /**
+  /*
    * A span of the pendulum: the centre of pressure as near the extrapolated
    * centre of mass as the bearing feet reach (on it, which holds it, or at the
    * nearest point of their outline).
@@ -210,7 +257,7 @@ export class StaggerPendulum {
     this.advance(staggerNearest(this.bearing(sides), this.xi()), seconds);
   }
 
-  /**
+  /*
    * The centre of pressure where the last span left it, from the entry's centre
    * of mass: a weight shift's end, or a held span's point; before any span, the
    * point of both feet's outline nearest the extrapolated centre of mass, where
@@ -223,7 +270,7 @@ export class StaggerPendulum {
       : (last.to ?? last.p);
   }
 
-  /**
+  /*
    * The weight's transfer onto the stance foot before a step: a foot cannot
    * leave the floor bearing weight, nor bear it as it touches down, so the
    * centre of pressure travels from where it stands onto the stance foot's
@@ -298,7 +345,7 @@ export class StaggerPendulum {
     this.t += seconds;
   }
 
-  /**
+  /*
    * Where a landing foot must take the centre of pressure for the body to be
    * held there once it has taken the weight: the point the extrapolated centre
    * of mass reaches at the end of a weight shift onto it, the shift running
@@ -309,9 +356,8 @@ export class StaggerPendulum {
    * 2015, IEEE Trans Robot 31:355). The extrapolated centre of mass at the
    * shift's end is affine in its target, `a + c q` with one scalar `c`
    * (`transfer`), so the point is `a / (1 - c)` in closed form.
-   *
-   * @param seconds The weight shift's span.
-   * @returns The point, from the entry's centre of mass, on the floor.
+   * Parameter seconds: The weight shift's span.
+   * Returns: The point, from the entry's centre of mass, on the floor.
    */
   public loaded(seconds: number): IAutoMovieVector3 {
     const p0: IAutoMovieVector3 = this.pressure();
@@ -334,7 +380,7 @@ export class StaggerPendulum {
     return Vector3.scale(a, 1 / (1 - c));
   }
 
-  /**
+  /*
    * The pendulum over a span with its centre of pressure held where the last
    * span left it (`pressure`): a swing's, on the stance foot where the weight
    * shift put it.
@@ -343,7 +389,9 @@ export class StaggerPendulum {
     this.advance(this.pressure(), seconds);
   }
 
-  /** The pendulum over a span with its centre of pressure held. */
+  /*
+   * The pendulum over a span with its centre of pressure held.
+   */
   public advance(p: IAutoMovieVector3, seconds: number): void {
     const w: number = this.w;
     const ch: number = Math.cosh(w * seconds);
@@ -361,12 +409,14 @@ export class StaggerPendulum {
     this.t += seconds;
   }
 
-  /** The current spans as world-metre, action-local-second course readers. */
+  /*
+   * The current spans as world-metre, action-local-second course readers.
+   */
   public courses(): staggerRecover.ICourses {
     return staggerPendulumCourses(this.phases, this.w, this.centre);
   }
 
-  /**
+  /*
    * A step's measured bound in its direction from the performer's heading:
    * between the forward, sideways and backward values on an ellipse.
    */
@@ -382,7 +432,7 @@ export class StaggerPendulum {
     return 1 / Math.sqrt((ahead / along) ** 2 + (aside / of.side) ** 2);
   }
 
-  /**
+  /*
    * Read the actual centre-relative sole, reusing only exact Object.is
    * agreement on every ankle/quaternion scalar under the fixed body/centre.
    * Each side retains one copied placement snapshot and latest outline;
@@ -423,13 +473,13 @@ export class StaggerPendulum {
     return made;
   }
 
-  /**
+  /*
    * How near, metres, a weight shift's end comes to its fixed point
    * (`transfer`): a nanometre, far under any displayed length.
    */
   private static readonly FIXED: number = 1e-9;
 
-  /**
+  /*
    * The most passes of a weight shift's fixed point (`transfer`): at a
    * contraction under 0.3 a pass, 64 passes leave 3e-34 of the first error, so
    * the bound only guards a degenerate span.
@@ -437,20 +487,28 @@ export class StaggerPendulum {
   private static readonly PASSES: number = 64;
 }
 
-/** The record of `IFootprintResult`'s site. */
+/*
+ * The record of `IFootprintResult`'s site.
+ */
 type IFootprintResult = {
   placement: IAutoMovieMotionHumanFoot.IPlacement;
   relative: IAutoMovieVector3[];
 };
 
-/** The alternatives of `OfEntryItem`'s site. */
+/*
+ * The alternatives of `OfEntryItem`'s site.
+ */
 type OfEntryItem = "forward" | "side" | "backward";
 
-/** The record of `IFootprintsEntryItem`'s site. */
+/*
+ * The record of `IFootprintsEntryItem`'s site.
+ */
 type IFootprintsEntryItem = {
   placement: IAutoMovieMotionHumanFoot.IPlacement;
   relative: IAutoMovieVector3[];
 };
 
-/** The alternatives of `StaggerPendulumBendEntry`'s site. */
+/*
+ * The alternatives of `StaggerPendulumBendEntry`'s site.
+ */
 type StaggerPendulumBendEntry = "pitch" | "roll";

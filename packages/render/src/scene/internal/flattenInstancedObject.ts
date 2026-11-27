@@ -3,7 +3,7 @@ import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
 import { flattenRigidParts } from "./flattenRigidParts.js";
 import { instancedModelParts } from "./instancedModelParts.js";
 
-/**
+/*
  * Flatten one already-loaded rigid generated or imported model prototype.
  *
  * The merged geometry is owned by the returned representation. Its material

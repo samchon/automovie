@@ -8,7 +8,7 @@ import { admitMotionGeometry } from "./admitMotionGeometry";
 import { motionAuditGeometry } from "./motionAuditGeometry";
 import { validatePhysicalProfile } from "./validatePhysicalProfile";
 
-/**
+/*
  * Invalid promises cannot produce a successful sampled audit by making
  * comparisons false: intervals, limits, references and witnesses are admitted
  * before any sample is read.

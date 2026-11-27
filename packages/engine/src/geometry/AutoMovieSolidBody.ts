@@ -130,22 +130,30 @@ export namespace AutoMovieSolidBody {
   export function publish(
     body: IAutoMovieSolidBody.IBody,
   ): IAutoMovieSolidBody.IPublished {
-    /** Renumber each first-seen boundary vertex once. */
+    /*
+     * Renumber each first-seen boundary vertex once.
+     */
     const index: Map<number, number> = new Map();
 
-    /** Detached shared-boundary point records for this publication. */
+    /*
+     * Detached shared-boundary point records for this publication.
+     */
     const points: IAutoMovieSolidBody.IPublished["points"] = [];
 
-    /**
+    /*
      * Read the original owner/chart coordinates when a boundary index first
      * appears.
      */
     const point: (v: number) => number = (v: number): number => {
-      /** Previously published identity for this same mesh vertex. */
+      /*
+       * Previously published identity for this same mesh vertex.
+       */
       const known: number | undefined = index.get(v);
       if (known !== undefined) return known;
 
-      /** Original owner and chart entries for this referenced boundary vertex. */
+      /*
+       * Original owner and chart entries for this referenced boundary vertex.
+       */
       const c: number[] = body.mesh.coordinates.slice(3 * v, 3 * v + 3);
       points.push({
         chain: body.mesh.owners[c[0]!]!.name,
@@ -154,7 +162,7 @@ export namespace AutoMovieSolidBody {
       index.set(v, points.length - 1);
       return points.length - 1;
     };
-    /**
+    /*
      * Copy one boundary record while retaining the one shared point identity
      * across either role.
      */

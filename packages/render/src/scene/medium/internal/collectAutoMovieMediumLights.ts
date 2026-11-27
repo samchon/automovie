@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 
-/**
+/*
  * The scene's lights as the medium's march reads them, in world space, in scene
  * traversal order.
  *
@@ -93,64 +93,100 @@ export function collectAutoMovieMediumLights(
   return lights;
 }
 
-/** The records `collectAutoMovieMediumLights` returns. */
+/*
+ * The records `collectAutoMovieMediumLights` returns.
+ */
 export namespace collectAutoMovieMediumLights {
-  /** One light as the medium's march reads it, in world metres. */
+  /*
+   * One light as the medium's march reads it, in world metres.
+   */
   export interface ILight {
-    /** The light's kind. */
+    /*
+     * The light's kind.
+     */
     kind: "directional" | "point" | "spot" | "area";
 
-    /** Linear colour times intensity, per channel. */
+    /*
+     * Linear colour times intensity, per channel.
+     */
     color: THREE.Vector3;
 
-    /** World position; a panel's centre. */
+    /*
+     * World position; a panel's centre.
+     */
     position: THREE.Vector3;
 
-    /** Unit direction of travel of a directional or spot light, a panel's front. */
+    /*
+     * Unit direction of travel of a directional or spot light, a panel's front.
+     */
     direction: THREE.Vector3;
 
-    /** Point or spot cutoff distance in metres; zero is unbounded. */
+    /*
+     * Point or spot cutoff distance in metres; zero is unbounded.
+     */
     range: number;
 
-    /** Cosine of a spot light's cone half-angle; −1 for other kinds. */
+    /*
+     * Cosine of a spot light's cone half-angle; −1 for other kinds.
+     */
     cone: number;
 
-    /** A panel's half extent along its width, world metres. */
+    /*
+     * A panel's half extent along its width, world metres.
+     */
     across: THREE.Vector3;
 
-    /** A panel's half extent along its height, world metres. */
+    /*
+     * A panel's half extent along its height, world metres.
+     */
     up: THREE.Vector3;
 
-    /** The shadow the march tests, or null. */
+    /*
+     * The shadow the march tests, or null.
+     */
     shadow: IShadow | null;
   }
 
-  /** A drawn shadow map and how to read it. */
+  /*
+   * A drawn shadow map and how to read it.
+   */
   export interface IShadow {
-    /**
+    /*
      * `"pcf"`: a compare-mode depth map; `"vsm"`: a variance moments map;
      * `"basic"`: a plain depth map; `"point"`: a compare-mode depth cube.
      */
     kind: "pcf" | "vsm" | "basic" | "point";
 
-    /** The texture to sample. */
+    /*
+     * The texture to sample.
+     */
     map: THREE.Texture;
 
-    /** World to shadow-map texture coordinates, for the flat kinds. */
+    /*
+     * World to shadow-map texture coordinates, for the flat kinds.
+     */
     matrix: THREE.Matrix4;
 
-    /** The light's depth bias. */
+    /*
+     * The light's depth bias.
+     */
     bias: number;
 
-    /** The shadow camera's near clip, metres. */
+    /*
+     * The shadow camera's near clip, metres.
+     */
     near: number;
 
-    /** The shadow camera's far clip, metres. */
+    /*
+     * The shadow camera's far clip, metres.
+     */
     far: number;
   }
 }
 
-/** The drawn flat shadow of a directional or spot light, or null. */
+/*
+ * The drawn flat shadow of a directional or spot light, or null.
+ */
 function flatShadow(
   light: THREE.DirectionalLight | THREE.SpotLight,
 ): collectAutoMovieMediumLights.IShadow | null {
@@ -177,7 +213,9 @@ function flatShadow(
   };
 }
 
-/** The drawn compare cube of a point light, or null. */
+/*
+ * The drawn compare cube of a point light, or null.
+ */
 function cubeShadow(
   light: THREE.PointLight,
 ): collectAutoMovieMediumLights.IShadow | null {

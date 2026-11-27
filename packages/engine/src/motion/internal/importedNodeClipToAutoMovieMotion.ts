@@ -24,7 +24,7 @@ import { HUMANOID_REST_FRAME } from "../../rom/HUMANOID_REST_FRAME";
 import { getConstraint } from "../../rom/internal/getConstraint";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 
-/**
+/*
  * Lower admitted imported node tracks into clinical keyframes at the sorted
  * union of source key times. Every mapped node needs a rotation track; only
  * hips translation is supported, all tracks share step or linear interpolation,

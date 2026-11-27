@@ -95,16 +95,18 @@ export class HumanPerformance {
   /** The people, as the performance was given them. */
   public readonly performers: readonly IAutoMovieMotionHumanPerformer[];
 
-  /** Everything the performance resolved, which its readers share. */
+  /*
+   * Everything the performance resolved, which its readers share.
+   */
   private readonly resolved: IAutoMovieMotionHumanPerformanceState;
 
-  /**
+  /*
    * The input it was resolved from, which a baked copy resolves again: the
    * resolution is a pure function of it.
    */
   private readonly input: IAutoMovieMotionHumanPerformance.IInput;
 
-  /**
+  /*
    * Windows baked through the solver, in bake order; the latest one covering an
    * instant shows there. Set only on the copy `simulate` returns.
    */
@@ -190,7 +192,7 @@ export class HumanPerformance {
     );
   }
 
-  /**
+  /*
    * The pose shown under the first `depth` windows: the latest covering one
    * over what lies beneath it.
    */

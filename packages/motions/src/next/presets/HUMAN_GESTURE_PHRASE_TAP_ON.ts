@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `tapOn` row of `HumanUpperRows` fixes on `armPhrase`, spread
  * into its parameters. A tap: the fingertips visit the target with no hold.
  */

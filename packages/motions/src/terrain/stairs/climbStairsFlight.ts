@@ -13,26 +13,25 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import type { humanFootOffset } from "../../posture/internal/humanFootOffset";
 
-/**
+/*
  * The flight of stairs a climb is planned on: its shape as the author gives it,
  * the flight resolved in the performer's starting floor frame, and the surface
  * height under a point. Read by the climb's plan (`climbStairs`) and by the
  * capture that checks soles against the treads.
  */
 export namespace climbStairsFlight {
-  /**
+  /*
    * The first nosing's distance ahead of the toes when the author gives none,
    * metres (provisional).
    */
   export const START: number = 0.05;
 
-  /**
+  /*
    * The flight's surface height under a point, in the performer's floor frame
    * at the start (`z` forward from the toes' middle).
-   *
-   * @param flight The flight.
-   * @param z Metres forward in that frame.
-   * @returns The height of the floor, tread or landing there, metres.
+   * Parameter flight: The flight.
+   * Parameter z: Metres forward in that frame.
+   * Returns: The height of the floor, tread or landing there, metres.
    */
   export function surface(
     flight: IAutoMovieMotionHumanClimbStairsFlight.IFlight,
@@ -48,11 +47,10 @@ export namespace climbStairsFlight {
     );
   }
 
-  /**
+  /*
    * Prepare one unchanged flight's surface for clearance-path probes.
-   *
-   * @param flight The fixed resolved stair geometry in its own floor frame.
-   * @returns The same height in metres at each forward local z in metres.
+   * Parameter flight: The fixed resolved stair geometry in its own floor frame.
+   * Returns: The same height in metres at each forward local z in metres.
    */
   export function prepareSurface(
     flight: IAutoMovieMotionHumanClimbStairsFlight.IFlight,
@@ -66,16 +64,15 @@ export namespace climbStairsFlight {
       surfaceAt(sign, first, count, tread, riser, z);
   }
 
-  /**
+  /*
    * The flight a set of parameters describes for a performer standing as its
    * entry has it.
-   *
-   * @param body The body.
-   * @param posture The standing posture.
-   * @param params The parameters.
-   * @returns The flight.
-   * @throws {HumanRefusal} When the rounded count is below one, or when the
-   *   riser or tread is outside what the body can climb.
+   * Parameter body: The body.
+   * Parameter posture: The standing posture.
+   * Parameter params: The parameters.
+   * Returns: The flight.
+   * When the rounded count is below one, or when the
+   * riser or tread is outside what the body can climb.
    */
   export function flight(
     body: FlightBody,
@@ -121,22 +118,34 @@ export namespace climbStairsFlight {
   }
 }
 
-/** The measurements and toe sockets used to resolve a flight. */
+/*
+ * The measurements and toe sockets used to resolve a flight.
+ */
 type FlightBody = humanFootOffset.IBody & {
-  /** The body's reach and support scale, metres. */
+  /*
+   * The body's reach and support scale, metres.
+   */
   measure: Pick<IAutoMovieMotionHumanBody["measure"], "hipHeight" | "footLength">;
 };
 
-/** The record of `IFlightToeF`'s site. */
+/*
+ * The record of `IFlightToeF`'s site.
+ */
 type IFlightToeF = { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 };
 
-/** The record of `IFlightFeetResult`'s site. */
+/*
+ * The record of `IFlightFeetResult`'s site.
+ */
 type IFlightFeetResult = { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 };
 
-/** The record of `IFlightFeetItem`'s site. */
+/*
+ * The record of `IFlightFeetItem`'s site.
+ */
 type IFlightFeetItem = { ankle: IAutoMovieVector3; toe: IAutoMovieVector3 };
 
-/** The original architectural stepped surface, shared by raw and prepared reads. */
+/*
+ * The original architectural stepped surface, shared by raw and prepared reads.
+ */
 function surfaceAt(
   sign: number,
   first: number,

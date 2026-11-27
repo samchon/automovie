@@ -8,18 +8,17 @@ import type {
 
 import { HumanArmClearance } from "../../posture/internal/HumanArmClearance";
 
-/**
+/*
  * An arm's joint angles and their reader: what an arm carried in joint space
  * holds and is written as (AutoMovieMotionHumanArmCarry,
  * AutoMovieMotionHumanArmPlanned), and what AutoMovieMotionHumanArm names.
  */
 export namespace AutoMovieMotionHumanArmAngles {
-  /**
+  /*
    * An arm's joint angles read off a solved pose.
-   *
-   * @param pose The pose.
-   * @param side The arm.
-   * @returns The angles; a joint the pose does not carry reads zero.
+   * Parameter pose: The pose.
+   * Parameter side: The arm.
+   * Returns: The angles; a joint the pose does not carry reads zero.
    */
   export function angles(
     pose: IAutoMoviePose,

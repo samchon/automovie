@@ -10,7 +10,9 @@ import { isRecoveryMapIdentityGauge } from "./isRecoveryMapIdentityGauge";
 import { prepareRecoveryFeasibleReportCapacity } from "./prepareRecoveryFeasibleReportCapacity";
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 
-/** Acquire a direct checkpoint's report scope after its active-index check. */
+/*
+ * Acquire a direct checkpoint's report scope after its active-index check.
+ */
 export function prepareRecoveryCheckpointReportCapacity(
   pose: IAutoMovieRecoveryMapPose,
   budget: IAutoMovieRecoveryCameraSceneBudget,

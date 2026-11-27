@@ -1,6 +1,6 @@
 ﻿import type { IAutoMovieMotionHumanThrowCatch } from "@automovie/interface";
 
-/**
+/*
  * The same kick with the left foot. Spread into `kickBall`'s parameters with
  * the ball.
  */

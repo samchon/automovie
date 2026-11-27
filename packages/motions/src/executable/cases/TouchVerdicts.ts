@@ -6,32 +6,39 @@ import { HumanColliders } from "../../posture/internal/HumanColliders";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import type { humanPolygonMan } from "../internal/humanPolygonMan";
 
-/**
+/*
  * Measures of a touch on displayed poses, shared by the touch families' capture
  * cases: where an effector is against the region it touches, how far the acting
  * forearm enters the rest of the body, and how many times the effector comes
  * down on the region.
  */
 export namespace TouchVerdicts {
-  /** A region read on a displayed pose: whose bones and which region. */
+  /*
+   * A region read on a displayed pose: whose bones and which region.
+   */
   export interface IRegion {
-    /** The performer the region belongs to. */
+    /*
+     * The performer the region belongs to.
+     */
     subject: string;
 
-    /** That performer's body. */
+    /*
+     * That performer's body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The region. */
+    /*
+     * The region.
+     */
     region: AutoMovieHumanoidRegion;
   }
 
-  /**
+  /*
    * A region's world point and normal at a film second.
-   *
-   * @param performance The performance.
-   * @param region The region.
-   * @param seconds Film seconds.
-   * @returns The point and normal.
+   * Parameter performance: The performance.
+   * Parameter region: The region.
+   * Parameter seconds: Film seconds.
+   * Returns: The point and normal.
    */
   export function place(
     performance: IAutoMovieMotionHumanPerformance,
@@ -46,19 +53,18 @@ export namespace TouchVerdicts {
     return { point: placed.point, normal: placed.normal };
   }
 
-  /**
+  /*
    * The distance from an effector to where it should be on a region (the
    * region's point stood off along its normal), metres, at a film second.
-   *
-   * @param performance The performance.
-   * @param subject The acting performer.
-   * @param body Their body.
-   * @param side The acting hand.
-   * @param effector The effector.
-   * @param region The region.
-   * @param standoff The stand-off along the normal, metres.
-   * @param seconds Film seconds.
-   * @returns Metres.
+   * Parameter performance: The performance.
+   * Parameter subject: The acting performer.
+   * Parameter body: Their body.
+   * Parameter side: The acting hand.
+   * Parameter effector: The effector.
+   * Parameter region: The region.
+   * Parameter standoff: The stand-off along the normal, metres.
+   * Parameter seconds: Film seconds.
+   * Returns: Metres.
    */
   export function miss(
     performance: IAutoMovieMotionHumanPerformance,
@@ -88,20 +94,19 @@ export namespace TouchVerdicts {
     );
   }
 
-  /**
+  /*
    * How far an effector is off a region's surface along the region's normal,
    * past its stand-off, metres (positive above, negative inside), at a film
    * second: the measure of an effector that travels along the surface.
-   *
-   * @param performance The performance.
-   * @param subject The acting performer.
-   * @param body Their body.
-   * @param side The acting hand.
-   * @param effector The effector.
-   * @param region The region.
-   * @param standoff The stand-off along the normal, metres.
-   * @param seconds Film seconds.
-   * @returns Metres.
+   * Parameter performance: The performance.
+   * Parameter subject: The acting performer.
+   * Parameter body: Their body.
+   * Parameter side: The acting hand.
+   * Parameter effector: The effector.
+   * Parameter region: The region.
+   * Parameter standoff: The stand-off along the normal, metres.
+   * Parameter seconds: Film seconds.
+   * Returns: Metres.
    */
   export function off(
     performance: IAutoMovieMotionHumanPerformance,
@@ -130,15 +135,14 @@ export namespace TouchVerdicts {
     );
   }
 
-  /**
+  /*
    * The verdict that an effector stays within a limit of its place on a region
    * at every given instant.
-   *
-   * @param name The check's name.
-   * @param measure The miss at a film second, metres.
-   * @param instants Film seconds.
-   * @param limit Metres.
-   * @returns The verdict, with the worst miss and its second.
+   * Parameter name: The check's name.
+   * Parameter measure: The miss at a film second, metres.
+   * Parameter instants: Film seconds.
+   * Parameter limit: Metres.
+   * Returns: The verdict, with the worst miss and its second.
    */
   export function within(
     name: string,
@@ -162,23 +166,22 @@ export namespace TouchVerdicts {
     };
   }
 
-  /**
+  /*
    * The deepest the acting forearm enters the colliders of a body, metres
    * (negative inside), over the 24 Hz grid of a window: the displayed forearm
    * collider's surface points and its axis against every segment but the acting
    * arm's own. The collider is read as drawn, so a wrist that lies on the
    * surface its palm is laid on reads the wrist's own thickness and not a
    * uniform radius.
-   *
-   * @param performance The performance.
-   * @param subject The acting performer.
-   * @param body Their body.
-   * @param side The acting arm.
-   * @param other The body entered and its subject (the performer's own, or a
-   *   partner's).
-   * @param from Film seconds.
-   * @param to Film seconds.
-   * @returns The least gap, metres, and its second.
+   * Parameter performance: The performance.
+   * Parameter subject: The acting performer.
+   * Parameter body: Their body.
+   * Parameter side: The acting arm.
+   * Parameter other: The body entered and its subject (the performer's own, or a
+   * partner's).
+   * Parameter from: Film seconds.
+   * Parameter to: Film seconds.
+   * Returns: The least gap, metres, and its second.
    */
   export function entry(
     performance: IAutoMovieMotionHumanPerformance,
@@ -238,17 +241,16 @@ export namespace TouchVerdicts {
     return best;
   }
 
-  /**
+  /*
    * How many times an effector comes down on its region in a window: the local
    * minima of its miss on a 96 Hz grid that lie within a limit. The window's
    * first sample is where the effector already lies, not a coming down, and is
    * not counted.
-   *
-   * @param measure The miss at a film second, metres.
-   * @param from Film seconds.
-   * @param to Film seconds.
-   * @param limit Metres.
-   * @returns The count.
+   * Parameter measure: The miss at a film second, metres.
+   * Parameter from: Film seconds.
+   * Parameter to: Film seconds.
+   * Parameter limit: Metres.
+   * Returns: The count.
    */
   export function touches(
     measure: (seconds: number) => number,
@@ -270,14 +272,13 @@ export namespace TouchVerdicts {
     return n;
   }
 
-  /**
+  /*
    * The drawn performer.
-   *
-   * @param performance The performance.
-   * @param subject The performer.
-   * @param man The polygon man.
-   * @param color The colour; clay when absent.
-   * @returns The figure.
+   * Parameter performance: The performance.
+   * Parameter subject: The performer.
+   * Parameter man: The polygon man.
+   * Parameter color: The colour; clay when absent.
+   * Returns: The figure.
    */
   export function figure(
     performance: Pick<IAutoMovieMotionHumanPerformance, "pose">,
@@ -294,14 +295,13 @@ export namespace TouchVerdicts {
     };
   }
 
-  /**
+  /*
    * The film second of an event of a performer's first action.
-   *
-   * @param performance The performance.
-   * @param subject The performer.
-   * @param name The event.
-   * @param index Which action of the performer; the first when absent.
-   * @returns Film seconds.
+   * Parameter performance: The performance.
+   * Parameter subject: The performer.
+   * Parameter name: The event.
+   * Parameter index: Which action of the performer; the first when absent.
+   * Returns: Film seconds.
    */
   export function event(
     performance: IEventPerformance,
@@ -316,13 +316,12 @@ export namespace TouchVerdicts {
     return segment.start + found.share * segment.plan.duration;
   }
 
-  /**
+  /*
    * The whole performance at a fixed step, with named instants in their order.
-   *
-   * @param duration Seconds.
-   * @param step Seconds.
-   * @param named Instants with their captions.
-   * @returns The drawn instants.
+   * Parameter duration: Seconds.
+   * Parameter step: Seconds.
+   * Parameter named: Instants with their captions.
+   * Returns: The drawn instants.
    */
   export function times(
     duration: number,
@@ -343,36 +342,56 @@ export namespace TouchVerdicts {
   }
 }
 
-/** The part of a segment its events are read from. */
+/*
+ * The part of a segment its events are read from.
+ */
 interface IEventSegment {
-  /** Its name, for a refusal. */
+  /*
+   * Its name, for a refusal.
+   */
   name: IAutoMovieMotionHumanSegment["name"];
 
-  /** Film seconds it starts. */
+  /*
+   * Film seconds it starts.
+   */
   start: IAutoMovieMotionHumanSegment["start"];
 
-  /** Its plan's events and duration. */
+  /*
+   * Its plan's events and duration.
+   */
   plan: Pick<IAutoMovieMotionHumanSegment["plan"], "events" | "duration">;
 }
-/** A performance's segments, all an event reader reads. */
+/*
+ * A performance's segments, all an event reader reads.
+ */
 interface IEventPerformance {
-  /** A subject's segments in order. */
+  /*
+   * A subject's segments in order.
+   */
   segments(subject: string): readonly IEventSegment[];
 }
 
-/** The record of `IEntryBest`'s site. */
+/*
+ * The record of `IEntryBest`'s site.
+ */
 type IEntryBest = { gap: number; at: number };
 
-/** The record of `IEntryResult`'s site. */
+/*
+ * The record of `IEntryResult`'s site.
+ */
 type IEntryResult = { gap: number; at: number };
 
-/** The record of `IEntryOther`'s site. */
+/*
+ * The record of `IEntryOther`'s site.
+ */
 type IEntryOther = { subject: string; body: IAutoMovieMotionHumanBody };
 
-/** The record of `IPlaceResult`'s site. */
+/*
+ * The record of `IPlaceResult`'s site.
+ */
 type IPlaceResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 
-/**
+/*
  * Surface points of a collider shape in its own frame: a hull's vertices, a
  * box's corners, and the six axis ends of a sphere or of each end and the
  * middle of a capsule.

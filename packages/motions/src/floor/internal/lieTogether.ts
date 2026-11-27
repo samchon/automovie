@@ -39,13 +39,13 @@ import { lieTogetherNeck } from "./lieTogetherNeck";
 import { lieTogetherReach } from "./lieTogetherReach";
 import { lieTogetherShifted } from "./lieTogetherShifted";
 
-/**
+/*
  * How far off the partner's skin the resting region lies, metres (provisional:
  * a skin contact).
  */
 const REST: number = 0.005;
 
-/**
+/*
  * The lower arm's fold as the body settles, clinical degrees: the upper arm
  * forward and the elbow bent, the hand up before the face, so the arm a body
  * lies on stays out of the partner (provisional).
@@ -55,7 +55,7 @@ const FOLD: Readonly<Record<ArmBone, readonly [number, number, number]>> = {
   lower: [140, 0, 0],
 };
 
-/**
+/*
  * The lower arm's fold when spooning, clinical degrees: the upper arm raised
  * along the floor above the head and the elbow bent back, the forearm under the
  * head as its pillow, so the arm a spooning body lies on stays behind its own
@@ -67,10 +67,12 @@ const PILLOW: Readonly<Record<ArmBone, readonly [number, number, number]>> = {
   lower: [100, 0, 0],
 };
 
-/** How far two lying headings may differ, degrees (provisional). */
+/*
+ * How far two lying headings may differ, degrees (provisional).
+ */
 const ALIGNED: number = 25;
 
-/**
+/*
  * Lie together with a partner. Both already lie on the support (`lieDown`,
  * `lieOnSurface`, `turnOver`), the performer within its arm's reach (upper arm,
  * forearm and hand) of where it settles; as it settles, the arm on the side it
@@ -103,7 +105,7 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
     plan: planLieTogether,
   };
 
-/**
+/*
  * Lie together with a partner. Both already lie on the support (`lieDown`,
  * `lieOnSurface`, `turnOver`), the performer within its arm's reach (upper arm,
  * forearm and hand) of where it settles; as it settles, the arm on the side it
@@ -128,8 +130,6 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
  * (`carryHumanPosture`), so the contact holds as the partner breathes or
  * shifts. Windows: the body lies on the support throughout, and from the settle
  * the chest bears on the partner's back or the cheek on the partner's chest.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the entry, the two ways, the slide, the neck solve, the carriage and the windows.
  */
 function planLieTogether(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLieTogether>,
@@ -484,5 +484,7 @@ function planLieTogether(
       });
 }
 
-/** The two bones of a folding arm. */
+/*
+ * The two bones of a folding arm.
+ */
 type ArmBone = "upper" | "lower";

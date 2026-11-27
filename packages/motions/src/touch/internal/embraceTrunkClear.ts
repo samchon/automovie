@@ -13,7 +13,7 @@ import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * How deep an embracing body's trunk, head and legs lie in the partner at the
  * instants an embrace holds them: the partner audit's own reading
  * (`AutoMovieMotionHumanAuditPartner`), the probes of each body in the other's
@@ -30,16 +30,15 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * trajopt's collision term gives each link pair its own row against the safety
  * margin (`trajopt/src/collision_terms.cpp`), so the solve linearises every
  * pair on its own gradient rather than the deepest pair's alone.
- *
- * @param body The embracer's body.
- * @param partner The partner's reader.
- * @param times The film seconds the partner is read at: the instants the
- *   embrace holds.
- * @returns For a posture of the embracer, and whether its head and neck are
- *   read too, each pair's deepest probe of either segment in the other over the
- *   instants, metres, at the embracer's segment's index times the partner's
- *   segment count plus the partner's; zero when apart. A lean is bounded
- *   without the head, which the solve turns to the shoulder afterwards.
+ * Parameter body: The embracer's body.
+ * Parameter partner: The partner's reader.
+ * Parameter times: The film seconds the partner is read at: the instants the
+ * embrace holds.
+ * Returns: For a posture of the embracer, and whether its head and neck are
+ * read too, each pair's deepest probe of either segment in the other over the
+ * instants, metres, at the embracer's segment's index times the partner's
+ * segment count plus the partner's; zero when apart. A lean is bounded
+ * without the head, which the solve turns to the shoulder afterwards.
  */
 export function embraceTrunkClear(
   body: IAutoMovieMotionHumanBody,
@@ -106,11 +105,13 @@ export function embraceTrunkClear(
   };
 }
 
-/**
+/*
  * The embracer's arm segments, by their group: the upper arm, the forearm and
  * the hand with its fingers.
  */
 const ARMS: RegExp = /^(left|right)(UpperArm|LowerArm|Hand)$/;
 
-/** The embracer's head and neck. */
+/*
+ * The embracer's head and neck.
+ */
 const HEAD: RegExp = /^(neck|head)$/;

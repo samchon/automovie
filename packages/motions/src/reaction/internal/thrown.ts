@@ -29,7 +29,7 @@ import { KnockdownFloor } from "./KnockdownFloor";
 import { ReactionFeet } from "./ReactionFeet";
 import { ReactionSource } from "./ReactionSource";
 
-/**
+/*
  * A struck body thrown clear of the floor by a blast or a jerk-back
  * (`IAutoMovieMotionHumanThrown`). The body takes its rig's shape over `WINDUP`
  * with the feet held flat where they stood, the feet leave the floor at
@@ -40,32 +40,37 @@ import { ReactionSource } from "./ReactionSource";
  * back.
  */
 export namespace thrown {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "thrown";
 
-  /** Cancel table: none; a thrown performer lands and lies. */
+  /*
+   * Cancel table: none; a thrown performer lands and lies.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-  /** A throw interrupts whatever the body was doing, at any instant. */
+  /*
+   * A throw interrupts whatever the body was doing, at any instant.
+   */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
 
-  /**
+  /*
    * How long the rig's shape takes before the feet leave, seconds: provisional,
    * about a reaction time of the rig.
    */
   export const WINDUP: number = 0.1;
 
-  /**
+  /*
    * Admit a throw: it rises and travels a positive height and distance, and the
    * thrown body lies a non-negative time.
-   *
-   * @param distance The throw's travel, metres.
-   * @param height The throw's rise, metres.
-   * @param lie The seconds the body lies after.
-   * @throws {HumanRefusal} When the travel or the rise is not positive, or the
-   *   lie is negative.
+   * Parameter distance: The throw's travel, metres.
+   * Parameter height: The throw's rise, metres.
+   * Parameter lie: The seconds the body lies after.
+   * When the travel or the rise is not positive, or the
+   * lie is negative.
    */
   export function admit(distance: number, height: number, lie: number): void {
     const sizes: readonly (readonly [string, number])[] = [
@@ -102,13 +107,12 @@ export namespace thrown {
         fix: "give a non-negative lying time",
       });
   }
-  /**
+  /*
    * Plan a throw.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} On `distance` or `height` when not positive and
-   *   finite, and on `seconds` when negative.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * On `distance` or `height` when not positive and
+   * finite, and on `seconds` when negative.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrown.IParams>,
@@ -377,13 +381,13 @@ export namespace thrown {
     };
   }
 
-  /**
+  /*
    * The head's top above the feet, in statures: the reach of a body laid back
    * along its travel.
    */
   const HEAD: number = 0.95;
 
-  /**
+  /*
    * Each rig's take-off shape, degrees (provisional stage readings): a
    * jerk-back folds the hips and leans the trunk over the pulled pelvis; a
    * blast extends the body away, the arms flung out.
@@ -419,7 +423,7 @@ export namespace thrown {
     },
   };
 
-  /**
+  /*
    * Sitting on the floor against the wall the flight struck: the hips folded
    * square with the legs out along the floor, the trunk upright against the
    * face (provisional stage reading).
@@ -437,7 +441,9 @@ export namespace thrown {
     },
   };
 
-  /** A heading difference wrapped into (-180, 180]. */
+  /*
+   * A heading difference wrapped into (-180, 180].
+   */
   function wrap(degrees: number): number {
     return ((((degrees + 180) % 360) + 360) % 360) - 180;
   }

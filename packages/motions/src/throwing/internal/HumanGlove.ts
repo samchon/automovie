@@ -15,22 +15,21 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/**
+/*
  * A glove a catching hand wears, as a catch reads it: where its `pocket` stands
  * from the palm (`createGlove`'s contacts).
  */
 export namespace HumanGlove {
-  /**
+  /*
    * Where a glove's pocket stands from the palm of the hand that wears it, in
    * the hand's own axes, read at the action's entry: the glove rides the hand
    * rigidly, so the offset holds through the catch.
-   *
-   * @param context The action's context.
-   * @param subject The glove's prop subject.
-   * @param sides The catching hands.
-   * @returns The pocket from the palm's point, metres, in the hand bone's axes.
-   * @throws {HumanRefusal} When the catch is two-handed, the glove is not worn
-   *   on the catching hand of this performer, or it declares no `pocket`.
+   * Parameter context: The action's context.
+   * Parameter subject: The glove's prop subject.
+   * Parameter sides: The catching hands.
+   * Returns: The pocket from the palm's point, metres, in the hand bone's axes.
+   * When the catch is two-handed, the glove is not worn
+   * on the catching hand of this performer, or it declares no `pocket`.
    */
   export function pocket(
     context: Pick<IAutoMovieMotionHumanActionContext, PocketContext>,
@@ -96,5 +95,7 @@ export namespace HumanGlove {
   }
 }
 
-/** The alternatives of `PocketContext`'s site. */
+/*
+ * The alternatives of `PocketContext`'s site.
+ */
 type PocketContext = "body" | "entry" | "prop" | "start" | "subject";

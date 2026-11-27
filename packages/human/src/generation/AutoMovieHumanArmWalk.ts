@@ -153,7 +153,7 @@ export namespace AutoMovieHumanArmWalk {
     const connected: IAutoMovieHumanSectionSource =
       handControls?.connect(source.input) ?? source.input;
 
-    /**
+    /*
      * Original callers lacking a hand chart retain their direct whole-source
      * controls.
      */

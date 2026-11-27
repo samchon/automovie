@@ -8,9 +8,9 @@ import * as THREE from "three";
 
 import { SPACE_GROUP_NAME } from "../SPACE_GROUP_NAME.js";
 
-/**
- * Build the structural ground of an {@link IAutoMovieSpace}: one `Mesh` per
- * standable surface, grouped under {@link SPACE_GROUP_NAME}.
+/*
+ * Build the structural ground of an IAutoMovieSpace: one `Mesh` per
+ * standable surface, grouped under SPACE_GROUP_NAME.
  *
  * This is what closes the gap between the space the feet obey and the world the
  * guide passes draw (#1173). The surfaces were already the engine's semantic
@@ -76,7 +76,7 @@ export const buildSpaceObject: (space: IAutoMovieSpace) => THREE.Group = (
   return group;
 };
 
-/**
+/*
  * One surface footprint as a triangulated planar patch, or `null` when the
  * footprint encloses no area.
  */

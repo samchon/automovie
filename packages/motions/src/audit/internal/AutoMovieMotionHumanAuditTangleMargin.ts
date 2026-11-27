@@ -12,7 +12,7 @@ import { HumanLinkCertificate } from "../../posture/internal/HumanLinkCertificat
 import { AutoMovieMotionHumanAuditTangleModel as M } from "./AutoMovieMotionHumanAuditTangleModel";
 import { prepareAutoMovieMotionHumanAuditDepths } from "./prepareAutoMovieMotionHumanAuditDepths";
 
-/**
+/*
  * What lets the penetration audits (`AutoMovieMotionHumanAuditTangle` of one
  * body, `AutoMovieMotionHumanAuditPartner` of two) leave a pair of segments
  * unread at the grid instants a reading certifies, by conservative advancement
@@ -45,13 +45,13 @@ import { prepareAutoMovieMotionHumanAuditDepths } from "./prepareAutoMovieMotion
  * never estimated.
  */
 export namespace AutoMovieMotionHumanAuditTangleMargin {
-  /**
+  /*
    * A nanometre, metres: below it a depth is the rounding of the two frames,
    * and no pair is recorded.
    */
   export const NANOMETRE: number = 1e-9;
 
-  /**
+  /*
    * Every pair of segments of one placed pose of a body that pass into each
    * other beyond their reference depths, each once with the deeper direction:
    * the reading of `AutoMovieMotionHumanAuditTangle.pose`.
@@ -63,17 +63,16 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
    * with its base (the lesser of its two directions' `own` bases) and the depth
    * it read, less any allowance, whether or not it passed into the other. The
    * pair's record is the greatest such depth above the nanometre.
-   *
-   * @param m The body's model.
-   * @param placed The body's placed segments.
-   * @param skip Unordered pair keys not to read.
-   * @param pressed Unordered pair keys read only beyond a depth, metres.
-   * @param key The unordered pair key
-   *   (`AutoMovieMotionHumanAuditTangle.unordered`).
-   * @param read The certifying caller's gate and listener; every pair within
-   *   reach is read when absent.
-   * @returns The pairs, `a` the segment whose probe lies deeper, with `seconds`
-   *   zero.
+   * Parameter m: The body's model.
+   * Parameter placed: The body's placed segments.
+   * Parameter skip: Unordered pair keys not to read.
+   * Parameter pressed: Unordered pair keys read only beyond a depth, metres.
+   * Parameter key: The unordered pair key
+   * (`AutoMovieMotionHumanAuditTangle.unordered`).
+   * Parameter read: The certifying caller's gate and listener; every pair within
+   * reach is read when absent.
+   * Returns: The pairs, `a` the segment whose probe lies deeper, with `seconds`
+   * zero.
    */
   export function within(
     m: IAutoMovieMotionHumanAuditTangleModel.IModel,
@@ -147,7 +146,7 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
     return out;
   }
 
-  /**
+  /*
    * Every segment of one placed body that passes into a segment of another, at
    * its full depth: the reading of `AutoMovieMotionHumanAuditTangle.across` on
    * segments already placed.
@@ -157,15 +156,14 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
    *
    * - Other's parts + j`) is not `due`is not read, and every pair read
    *   is`heard`as`within`hears it, its base being`across`'s.
-   *
-   * @param m The model of the body whose probes are read.
-   * @param mine Its placed segments.
-   * @param o The model of the body they are read against.
-   * @param theirs That body's placed segments.
-   * @param read The certifying caller's gate and listener; every pair within
-   *   reach is read when absent.
-   * @returns The pairs, `a` of the first body in `b` of the other, with
-   *   `seconds` zero.
+   * Parameter m: The model of the body whose probes are read.
+   * Parameter mine: Its placed segments.
+   * Parameter o: The model of the body they are read against.
+   * Parameter theirs: That body's placed segments.
+   * Parameter read: The certifying caller's gate and listener; every pair within
+   * reach is read when absent.
+   * Returns: The pairs, `a` of the first body in `b` of the other, with
+   * `seconds` zero.
    */
   export function entering(
     m: IAutoMovieMotionHumanAuditTangleModel.IModel,
@@ -238,21 +236,20 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
     return out;
   }
 
-  /**
+  /*
    * How deep segment `i`'s probes lie in segment `j` of the same body beyond
    * their reference depths, and how far that can grow before it exceeds a depth
    * already recorded.
-   *
-   * @param m The body's model.
-   * @param placed The body's placed segments.
-   * @param i The segment whose probes are read.
-   * @param j The segment they are read in.
-   * @param targets The caller's list of prepared segments for this reading of
-   *   `placed` (`AutoMovieMotionHumanAuditTangleModel.beyond`).
-   * @returns `excess`, the model's `excess` of the pair, metres, zero when no
-   *   probe lies deeper than its reference; `base`, metres, such that while the
-   *   two segments travel less than `base + K` the excess stays at or below any
-   *   `K` of zero or more.
+   * Parameter m: The body's model.
+   * Parameter placed: The body's placed segments.
+   * Parameter i: The segment whose probes are read.
+   * Parameter j: The segment they are read in.
+   * Parameter targets: The caller's list of prepared segments for this reading of
+   * `placed` (`AutoMovieMotionHumanAuditTangleModel.beyond`).
+   * Returns: `excess`, the model's `excess` of the pair, metres, zero when no
+   * probe lies deeper than its reference; `base`, metres, such that while the
+   * two segments travel less than `base + K` the excess stays at or below any
+   * `K` of zero or more.
    */
   export function own(
     m: IAutoMovieMotionHumanAuditTangleModel.IModel,
@@ -276,17 +273,16 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
     return { excess, base: -grows };
   }
 
-  /**
+  /*
    * How deep segment `i` of one body's probes lie in a segment of another body,
    * which shares no reference with it, and how far that can grow before it
    * exceeds a depth already recorded.
-   *
-   * @param probes Segment `i`'s probes, in its frame.
-   * @param mine Segment `i` as placed.
-   * @param read The other segment's prepared depth reader for this pose.
-   * @returns `depth`, metres, the deepest probe, zero outside; `base`, metres,
-   *   such that while the two segments travel less than `base + K` the depth
-   *   stays at or below any `K` of zero or more.
+   * Parameter probes: Segment `i`'s probes, in its frame.
+   * Parameter mine: Segment `i` as placed.
+   * Parameter read: The other segment's prepared depth reader for this pose.
+   * Returns: `depth`, metres, the deepest probe, zero outside; `base`, metres,
+   * such that while the two segments travel less than `base + K` the depth
+   * stays at or below any `K` of zero or more.
    */
   export function across(
     probes: readonly IAutoMovieVector3[],
@@ -304,17 +300,16 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
     return { depth, base: -grows };
   }
 
-  /**
+  /*
    * How far any point of each segment of a body moved from a motion's first
    * grid instant to each later one, at most.
-   *
-   * @param m The body's model.
-   * @param frames The body's placed segments at each grid instant, in grid
-   *   order.
-   * @returns Per instant, per segment, metres: the sum over the grid steps
-   *   before it of the segment's travel over that step; zero at the first
-   *   instant. Between instants `a < b` a segment's points moved no more than
-   *   its value at `b` less its value at `a`.
+   * Parameter m: The body's model.
+   * Parameter frames: The body's placed segments at each grid instant, in grid
+   * order.
+   * Returns: Per instant, per segment, metres: the sum over the grid steps
+   * before it of the segment's travel over that step; zero at the first
+   * instant. Between instants `a < b` a segment's points moved no more than
+   * its value at `b` less its value at `a`.
    */
   export function travel(
     m: IAutoMovieMotionHumanAuditTangleModel.IModel,
@@ -344,28 +339,42 @@ export namespace AutoMovieMotionHumanAuditTangleMargin {
   }
 }
 
-/** The record of `IAcrossResult`'s site. */
+/*
+ * The record of `IAcrossResult`'s site.
+ */
 type IAcrossResult = { depth: number; base: number };
 
-/** The record of `IOwnResult`'s site. */
+/*
+ * The record of `IOwnResult`'s site.
+ */
 type IOwnResult = { excess: number; base: number };
 
-/** The record of `IEnteringReading`'s site. */
+/*
+ * The record of `IEnteringReading`'s site.
+ */
 type IEnteringReading = { depth: number; base: number };
 
-/** The record of `IEnteringRead`'s site. */
+/*
+ * The record of `IEnteringRead`'s site.
+ */
 type IEnteringRead = {
   due: (index: number) => boolean;
   heard: (index: number, base: number, apart: boolean, depth: number) => void;
 };
 
-/** The record of `IWithinBackward`'s site. */
+/*
+ * The record of `IWithinBackward`'s site.
+ */
 type IWithinBackward = { excess: number; base: number };
 
-/** The record of `IWithinForward`'s site. */
+/*
+ * The record of `IWithinForward`'s site.
+ */
 type IWithinForward = { excess: number; base: number };
 
-/** The record of `IWithinRead`'s site. */
+/*
+ * The record of `IWithinRead`'s site.
+ */
 type IWithinRead = {
   due: (index: number) => boolean;
   heard: (index: number, base: number, apart: boolean, depth: number) => void;

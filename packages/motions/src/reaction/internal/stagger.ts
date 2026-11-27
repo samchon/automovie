@@ -37,7 +37,7 @@ import { staggerResolved } from "./staggerResolved";
 import { staggerRocking } from "./staggerRocking";
 import { staggerShift } from "./staggerShift";
 
-/**
+/*
  * A stagger: a blow pushes the centre of mass past the base of support and
  * recovery steps catch it.
  *
@@ -133,23 +133,27 @@ import { staggerShift } from "./staggerShift";
  * stagger is refused, naming the speed it can catch.
  */
 export namespace stagger {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "stagger";
 
-  /**
+  /*
    * A stagger's content is a staged loss of balance, so its balance is judged
    * (`IAutoMovieMotionHumanActionLaw.physical`).
    */
   export const physical: boolean = true;
 
-  /** Cancel table: a stagger flows into a guard or a knockdown. */
+  /*
+   * Cancel table: a stagger flows into a guard or a knockdown.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       guard: ["fromStroke", "smooth"],
       knockdown: ["anytime", "quick"],
     });
 
-  /**
+  /*
    * A reaction interrupts whatever the body was doing, at any instant, as a
    * reflex.
    */
@@ -157,23 +161,22 @@ export namespace stagger {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
 
-  /**
+  /*
    * A forward recovery step's landing after the push (`staggerBounds.LANDING`),
    * the step's time `perturb` reads.
    */
   export const LANDING: IAutoMovieMotionHumanTiming.Span =
     staggerBounds.LANDING;
 
-  /**
+  /*
    * Plan a stagger.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {Error} When the speed is not positive or the manner is out of
-   *   range.
-   * @throws {HumanRefusal} `parameter` on `speed` when no `STEPS` recovery
-   *   steps catch the push: a fall, with the fastest push the body catches that
-   *   way.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the speed is not positive or the manner is out of
+   * range.
+   * `parameter` on `speed` when no `STEPS` recovery
+   * steps catch the push: a fall, with the fastest push the body catches that
+   * way.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStagger.IParams>,
@@ -187,14 +190,13 @@ export namespace stagger {
     return recovered(context, admitted.recovery, admitted.fixed);
   }
 
-  /**
+  /*
    * Plan an admitted stagger: the steps, the catch and the settling of a
    * recovery `staggerRecovery` laid.
-   *
-   * @param context The action's context.
-   * @param recovery The recovery that catches the push.
-   * @param fixed The entry geometry the recovery was laid from.
-   * @returns The plan.
+   * Parameter context: The action's context.
+   * Parameter recovery: The recovery that catches the push.
+   * Parameter fixed: The entry geometry the recovery was laid from.
+   * Returns: The plan.
    */
   export function recovered(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStagger.IParams>,

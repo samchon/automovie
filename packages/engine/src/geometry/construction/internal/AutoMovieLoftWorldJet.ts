@@ -6,7 +6,7 @@ import type {
 
 import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Apply the existing frame product rule to a complete local total2.
  *
  * The caller supplies all six local pairs and three complete nine-number frame
@@ -86,7 +86,9 @@ export function AutoMovieLoftWorldJet(
   return out;
 }
 
-/** One product, refused where it overflows binary64. */
+/*
+ * One product, refused where it overflows binary64.
+ */
 function times(left: number, right: number): number {
   const product: number = left * right;
   if (overflowsBinary64(product))
@@ -94,7 +96,9 @@ function times(left: number, right: number): number {
   return product;
 }
 
-/** Left-associated sum of terms, each partial sum refused where it overflows. */
+/*
+ * Left-associated sum of terms, each partial sum refused where it overflows.
+ */
 function total(first: number, ...rest: number[]): number {
   let sum: number = first;
   for (const term of rest) {

@@ -1,4 +1,4 @@
-/**
+/*
  * The cosine-weighted visibility one screen-space slice contributes to a
  * point's ground-truth-based ambient occlusion: the closed-form inner integral
  * of Jimenez, Wu, Pesce and Jarabo 2016 ("Practical real-time strategies for
@@ -16,12 +16,11 @@
  * the projected normal's length. Averaged over slices spread uniformly over the
  * half turn, the contributions estimate the cosine-weighted visible fraction of
  * the hemisphere: 1 for an open surface facing the view.
- *
- * @param normal Projected normal angle `n` in radians, within [-π/2, π/2].
- * @param length Length of the normal projected into the slice, within [0, 1].
- * @param low Horizon angle `h0` on the negative side, radians, at most `n`.
- * @param high Horizon angle `h1` on the positive side, radians, at least `n`.
- * @returns The slice's visibility.
+ * Parameter normal: Projected normal angle `n` in radians, within [-π/2, π/2].
+ * Parameter length: Length of the normal projected into the slice, within [0, 1].
+ * Parameter low: Horizon angle `h0` on the negative side, radians, at most `n`.
+ * Parameter high: Horizon angle `h1` on the positive side, radians, at least `n`.
+ * Returns: The slice's visibility.
  */
 export function autoMovieSliceVisibility(
   normal: number,

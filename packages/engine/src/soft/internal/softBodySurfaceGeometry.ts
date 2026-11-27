@@ -3,7 +3,7 @@ import {
   type IAutoMovieSoftBodySurfaceGeometry,
 } from "@automovie/interface";
 
-/**
+/*
  * Derive fresh panel mesh arrays from a solved row-major particle field. Two
  * fixed triangles cover each lattice quad, UVs follow lattice coordinates and
  * zero accumulated normals use +Y. Bounds include indexed triangle vertices; a

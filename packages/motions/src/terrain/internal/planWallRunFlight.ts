@@ -11,16 +11,15 @@ import type {
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { GymnasticsFlight } from "../../sport/internal/GymnasticsFlight";
 
-/**
+/*
  * A wall run's catch flown: between the wall step's key and the hang's the
  * support plan's posture is replaced by a projectile of the root under standard
  * gravity that leaves the one key and arrives at the other in the stances'
  * time, the joints taken from both keys' solved angles, the arms reaching for
  * the top over the flight's first half.
- *
- * @param body The body.
- * @param plan The support plan with its `wallStep` and `catch` events.
- * @returns The plan with the catch flown.
+ * Parameter body: The body.
+ * Parameter plan: The support plan with its `wallStep` and `catch` events.
+ * Returns: The plan with the catch flown.
  */
 export function planWallRunFlight(
   body: IAutoMovieMotionHumanBody,
@@ -140,16 +139,28 @@ export function planWallRunFlight(
   return HumanPreparedPlayback.rebindPosture(result, plan, body);
 }
 
-/** Prepared endpoints and projectile velocity for the wall-run catch. */
+/*
+ * Prepared endpoints and projectile velocity for the wall-run catch.
+ */
 interface IFlight {
-  /** Released pose at the wall step. */
+  /*
+   * Released pose at the wall step.
+   */
   from: IAutoMovieMotionHumanPosture;
-  /** Catching pose at the next wall hold. */
+  /*
+   * Catching pose at the next wall hold.
+   */
   to: IAutoMovieMotionHumanPosture;
-  /** Joints that have to join the locked support poses. */
+  /*
+   * Joints that have to join the locked support poses.
+   */
   bones: Array<keyof IAutoMovieMotionHumanPosture["joints"]>;
-  /** Whether each joint reaches on the earlier arm clock. */
+  /*
+   * Whether each joint reaches on the earlier arm clock.
+   */
   arms: boolean[];
-  /** World take-off velocity, metres per second. */
+  /*
+   * World take-off velocity, metres per second.
+   */
   v: IAutoMovieVector3;
 }

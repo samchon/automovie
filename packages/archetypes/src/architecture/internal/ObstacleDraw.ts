@@ -4,31 +4,36 @@ import { FixtureDraw } from "./FixtureDraw";
 import { OBSTACLE_BANDS } from "../constants/OBSTACLE_BANDS";
 import { TIE_SIZES } from "../constants/TIE_SIZES";
 import type { AutoMovieArchetypeObstacle } from "../AutoMovieArchetypeObstacle";
-/**
+/*
  * The draw and forward-facing ledge shared by ground obstacles with a
  * rectangular top.
  */
 export namespace ObstacleDraw {
-    /** The obstacle's seeded dimensions and its empty builder. */
+    /*
+     * The obstacle's seeded dimensions and its empty builder.
+     */
     export interface IObstacle<Id extends string> {
-        /** A fresh builder with the drawn identity and physical material. */
+        /*
+         * A fresh builder with the drawn identity and physical material.
+         */
         builder: AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeObstacle.Dimension>;
-        /** Values in metres, kilograms or kilograms per metre. */
+        /*
+         * Values in metres, kilograms or kilograms per metre.
+         */
         d: Partial<Record<AutoMovieArchetypeObstacle.Dimension, number>>;
     }
-    /**
+    /*
      * Admit a saved obstacle's section and length choices and draw its free
      * measurements.
-     *
-     * @param kind The fixed profile.
-     * @param name The readable display name.
-     * @param material The obstacle's physical material.
-     * @param params The scene identifier, dimension overrides and optional
-     *   crosstie sizes.
-     * @param seed The seed for unresolved dimensions and choices.
-     * @returns The dimensions and the builder awaiting the selected geometry.
-     * @throws {AutoMovieArchetypeRefusal} For a model or dimension the given
-     *   profile cannot admit.
+     * Parameter kind: The fixed profile.
+     * Parameter name: The readable display name.
+     * Parameter material: The obstacle's physical material.
+     * Parameter params: The scene identifier, dimension overrides and optional
+     * crosstie sizes.
+     * Parameter seed: The seed for unresolved dimensions and choices.
+     * Returns: The dimensions and the builder awaiting the selected geometry.
+     * For a model or dimension the given
+     * profile cannot admit.
      */
     export function begin<Id extends string>(kind: AutoMovieArchetypeObstacle.Kind, name: string, material: AutoMovieArchetypeMaterial.Kind, params: Omit<AutoMovieArchetypeObstacle.IParams, "kind">, seed?: number): IObstacle<Id> {
         const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeObstacle.Dimension> = new AutoMovieArchetypeDrawSession("obstacle", FixtureDraw.obstacle, seed, params);
@@ -47,16 +52,17 @@ export namespace ObstacleDraw {
         });
         return { builder, d };
     }
-    /** The contact ids {@link ledge} builds or reads. */
+    /*
+     * The contact ids ledge builds or reads.
+     */
     export type LedgeContact = "top" | "edge";
-    /**
+    /*
      * Put a standing surface and a ledge on the top rectangle.
-     *
-     * @param builder The builder holding the obstacle's parts.
-     * @param height The top above the floor, metres.
-     * @param length The top measured along X, metres.
-     * @param depth The top measured along Z, metres.
-     * @param centre The middle of the top along Z, metres.
+     * Parameter builder: The builder holding the obstacle's parts.
+     * Parameter height: The top above the floor, metres.
+     * Parameter length: The top measured along X, metres.
+     * Parameter depth: The top measured along Z, metres.
+     * Parameter centre: The middle of the top along Z, metres.
      */
     export function ledge(builder: FixtureDraw.IContactWriter<LedgeContact>, height: number, length: number, depth: number, centre: number): void {
         const v: typeof Vector3.create = Vector3.create;

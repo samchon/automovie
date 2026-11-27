@@ -14,7 +14,7 @@ import { AutoMovieMotionInterval } from "../../compose/internal/AutoMovieMotionI
 import { HumanBound } from "../../law/internal/HumanBound";
 import { affectHeldHands } from "./affectHeldHands";
 
-/**
+/*
  * Affect displays as an additive layer: laughing, sighing, yawning, coughing,
  * sneezing, shivering, sobbing, weeping and gasping, each a short pattern of
  * trunk, shoulder, head and jaw angles over any action, starting and ending at
@@ -76,7 +76,9 @@ import { affectHeldHands } from "./affectHeldHands";
  * where cited; an intensity scales every amplitude.
  */
 export namespace HumanAffect {
-  /** Each display's own length, seconds. */
+  /*
+   * Each display's own length, seconds.
+   */
   export const LENGTH: Readonly<
     Record<IAutoMovieMotionHumanAffect.Kind, number>
   > = {
@@ -91,21 +93,22 @@ export namespace HumanAffect {
     gasp: 1.5,
   };
 
-  /** Interval between laugh notes, seconds (Provine 1996). */
+  /*
+   * Interval between laugh notes, seconds (Provine 1996).
+   */
   export const NOTE: number = 0.21;
 
-  /**
+  /*
    * The joint angles a display adds at a time into it.
-   *
-   * @param kind The display.
-   * @param t Seconds since its start.
-   * @param seconds Its length, seconds.
-   * @param intensity Amplitude scale.
-   * @param seed The key of a sob's or weep's seeded timing; the kind when
-   *   absent.
-   * @returns Clinical degrees to add; empty outside the display.
-   * @throws {HumanRefusal} When the length is not positive, a sneeze's leaves
-   *   no room for its burst, or a gasp's for its inspiration.
+   * Parameter kind: The display.
+   * Parameter t: Seconds since its start.
+   * Parameter seconds: Its length, seconds.
+   * Parameter intensity: Amplitude scale.
+   * Parameter seed: The key of a sob's or weep's seeded timing; the kind when
+   * absent.
+   * Returns: Clinical degrees to add; empty outside the display.
+   * When the length is not positive, a sneeze's leaves
+   * no room for its burst, or a gasp's for its inspiration.
    */
   export function angles(
     kind: IAutoMovieMotionHumanAffect.Kind,
@@ -119,12 +122,11 @@ export namespace HumanAffect {
     return pattern(kind, t, seconds, intensity, seed);
   }
 
-  /**
+  /*
    * The affect layer.
-   *
-   * @param displays The displays, in any order; overlapping ones add.
-   * @returns The layer, named `affect`.
-   * @throws {HumanRefusal} When a display's length is one `angles` refuses.
+   * Parameter displays: The displays, in any order; overlapping ones add.
+   * Returns: The layer, named `affect`.
+   * When a display's length is one `angles` refuses.
    */
   export function layer(
     displays: readonly IAutoMovieMotionHumanAffect.IDisplay[],
@@ -169,7 +171,7 @@ export namespace HumanAffect {
     };
   }
 
-  /**
+  /*
    * Refuse a length a display cannot fit: any not positive, and a sneeze too
    * short for its burst to rise within its last `1 - SNEEZE_BUILD`.
    */
@@ -189,7 +191,9 @@ export namespace HumanAffect {
     );
   }
 
-  /** Evaluate an admitted display strictly inside its own active interval. */
+  /*
+   * Evaluate an admitted display strictly inside its own active interval.
+   */
   function pattern(
     kind: IAutoMovieMotionHumanAffect.Kind,
     t: number,
@@ -346,7 +350,7 @@ export namespace HumanAffect {
   }
 }
 
-/**
+/*
  * An envelope rising on a minimum-jerk ramp over the first `rise` of a display
  * and falling over its last `fall`, shares of its length.
  */
@@ -357,7 +361,7 @@ function ramp(u: number, rise: number, fall: number): number {
   );
 }
 
-/**
+/*
  * One pulse at `x` seconds after its start: zero before it, a minimum-jerk rise
  * over `up` seconds and a fall over `down`.
  */
@@ -369,7 +373,9 @@ function pulse(x: number, up: number, down: number): number {
       : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((x - up) / down);
 }
 
-/** Write one bone's angles, or add them to the bone's own. */
+/*
+ * Write one bone's angles, or add them to the bone's own.
+ */
 function write(
   joints: IAutoMovieMotionHumanPosture["joints"],
   additive: boolean,
@@ -385,44 +391,56 @@ function write(
   }
 }
 
-/** The share of a sigh or yawn's length taken by inhalation. */
+/*
+ * The share of a sigh or yawn's length taken by inhalation.
+ */
 const INHALATION_END: number = 0.4;
 
-/** One normalized clock for the sigh and yawn, independent of their lengths. */
+/*
+ * One normalized clock for the sigh and yawn, independent of their lengths.
+ */
 const BREATH_DISPLAY_CLOCK: IAutoMovieMotionClock = AutoMovieMotionClock(1, [
   { name: "inhaled", seconds: INHALATION_END },
 ]);
 
-/** Minimum-jerk progress up to the end of inhalation. */
+/*
+ * Minimum-jerk progress up to the end of inhalation.
+ */
 const INHALE: AutoMovieMotionInterval.IPrepared = AutoMovieMotionClock.prepare(
   BREATH_DISPLAY_CLOCK,
   "start",
   "inhaled",
 );
 
-/** Minimum-jerk progress from the end of inhalation to the display's end. */
+/*
+ * Minimum-jerk progress from the end of inhalation to the display's end.
+ */
 const EXHALE: AutoMovieMotionInterval.IPrepared = AutoMovieMotionClock.prepare(
   BREATH_DISPLAY_CLOCK,
   "inhaled",
   "end",
 );
 
-/** The angles of a bone the record holds none for. */
+/*
+ * The angles of a bone the record holds none for.
+ */
 const ZERO: readonly [number, number, number] = [0, 0, 0];
 
-/**
+/*
  * Each of a bout's three coughs relative to the first: the first three coughs
  * of a bout expel 53.2, 28.5 and 18.8 % of the air (Harris and Lawson 1968, as
  * relayed), so each flexes the trunk by its expulsion's share of the first's.
  */
 const COUGHS: readonly number[] = [1, 28.5 / 53.2, 18.8 / 53.2];
 
-/** The seeded draw stream of one display's irregular timing. */
+/*
+ * The seeded draw stream of one display's irregular timing.
+ */
 function stream(seed: string): IAutoMovieRandom {
   return AutoMovieEngineRandom.createRandom(AutoMovieEngineRandom.deriveSeed("affect", seed));
 }
 
-/**
+/*
  * A train of pulses at seeded irregular times: the first at a third of the
  * nominal interval and each next after the nominal interval scaled by a draw in
  * 1 ± jitter. The value is the largest active pulse, so overlapping pulses stay
@@ -445,41 +463,59 @@ function train(
   return value;
 }
 
-/**
+/*
  * A sob's nominal interval between inspirations at intensity 1, seconds
  * (provisional).
  */
 const SOB_INTERVAL: number = 0.5;
 
-/**
+/*
  * The intensity range that scales a sob's density, so its shortest interval,
  * 0.175 s, stays under the 12 Hz Nyquist limit of 24 Hz film.
  */
 const SOB_DENSITY: readonly [number, number] = [0.5, 2];
 
-/** How far each sob interval varies from the nominal, a share (provisional). */
+/*
+ * How far each sob interval varies from the nominal, a share (provisional).
+ */
 const SOB_JITTER: number = 0.3;
 
-/** A sob inspiration's rise and fall, seconds (provisional). */
+/*
+ * A sob inspiration's rise and fall, seconds (provisional).
+ */
 const SOB_RISE: number = 0.1;
 
-/** A sob inspiration's recovery, seconds (provisional). */
+/*
+ * A sob inspiration's recovery, seconds (provisional).
+ */
 const SOB_FALL: number = 0.25;
 
-/** A weep's slow heave period, seconds (provisional). */
+/*
+ * A weep's slow heave period, seconds (provisional).
+ */
 const WEEP_PERIOD: number = 2.5;
 
-/** A weep's nominal interval between sniffs, seconds (provisional). */
+/*
+ * A weep's nominal interval between sniffs, seconds (provisional).
+ */
 const WEEP_SNIFF: number = 3.5;
 
-/** How far each sniff interval varies, a share (provisional). */
+/*
+ * How far each sniff interval varies, a share (provisional).
+ */
 const WEEP_JITTER: number = 0.3;
 
-/** How long a gasp's inspiration takes to peak, seconds (provisional). */
+/*
+ * How long a gasp's inspiration takes to peak, seconds (provisional).
+ */
 const GASP_RISE: number = 0.25;
 
-/** The share of a sneeze its inhalation takes (provisional). */
+/*
+ * The share of a sneeze its inhalation takes (provisional).
+ */
 const SNEEZE_BUILD: number = 0.7;
 
-/** How long a sneeze's burst takes to rise, seconds (provisional). */
+/*
+ * How long a sneeze's burst takes to rise, seconds (provisional).
+ */
 const SNEEZE_BURST: number = 0.1;

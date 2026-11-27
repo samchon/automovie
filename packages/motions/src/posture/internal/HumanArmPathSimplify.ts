@@ -1,6 +1,6 @@
 import { HumanMersenneTwister as MT } from "./HumanMersenneTwister";
 
-/**
+/*
  * A sampling planner's path shortened while it stays valid: the smoothing
  * EXOTica's time-indexed RRT-Connect solver gives its path
  * (`TimeIndexedRRTConnectSolver::GetPath`, `parameters_.Smooth`,
@@ -19,23 +19,31 @@ import { HumanMersenneTwister as MT } from "./HumanMersenneTwister";
  * objective, the path's length in the space's metric.
  */
 export namespace HumanArmPathSimplify {
-  /** The space a path lies in, as the simplifier reads it. */
+  /*
+   * The space a path lies in, as the simplifier reads it.
+   */
   export interface ISpace {
-    /** The metric (`StateSpace::distance`). */
+    /*
+     * The metric (`StateSpace::distance`).
+     */
     distance: (a: readonly number[], b: readonly number[]) => number;
 
-    /** The state a share of the way from one to another (`interpolate`). */
+    /*
+     * The state a share of the way from one to another (`interpolate`).
+     */
     interpolate: (
       a: readonly number[],
       b: readonly number[],
       t: number,
     ) => number[];
 
-    /** Whether the straight motion between two states is valid (`checkMotion`). */
+    /*
+     * Whether the straight motion between two states is valid (`checkMotion`).
+     */
     checkMotion: (a: readonly number[], b: readonly number[]) => boolean;
   }
 
-  /**
+  /*
    * OMPL's iteration termination condition
    * (`ompl::base::IterationTerminationCondition`,
    * src/ompl/base/terminationconditions/src/IterationTerminationCondition.cpp
@@ -43,31 +51,33 @@ export namespace HumanArmPathSimplify {
    * times.
    */
   export interface ITermination {
-    /** How many times it has been asked (`timesCalled_`). */
+    /*
+     * How many times it has been asked (`timesCalled_`).
+     */
     calls: number;
 
-    /** How many asks it answers no to (`maxCalls_`). */
+    /*
+     * How many asks it answers no to (`maxCalls_`).
+     */
     max: number;
   }
 
-  /**
+  /*
    * Ask the termination condition (`IterationTerminationCondition::eval`).
-   *
-   * @param ptc The condition, its count advanced.
-   * @returns Whether the planner must stop.
+   * Parameter ptc: The condition, its count advanced.
+   * Returns: Whether the planner must stop.
    */
   export function fired(ptc: ITermination): boolean {
     ++ptc.calls;
     return ptc.calls > ptc.max;
   }
 
-  /**
+  /*
    * EXOTica's smoothing of a solution path (`GetPath`, `Smooth`).
-   *
-   * @param path The path's states, shortened in place.
-   * @param space The space.
-   * @param rng The planner's generator.
-   * @param ptc The planner's termination condition.
+   * Parameter path: The path's states, shortened in place.
+   * Parameter space: The space.
+   * Parameter rng: The planner's generator.
+   * Parameter ptc: The planner's termination condition.
    */
   export function smooth(
     path: number[][],
@@ -91,7 +101,7 @@ export namespace HumanArmPathSimplify {
     }
   }
 
-  /**
+  /*
    * `PathSimplifier::reduceVertices` at its defaults (`maxSteps` and
    * `maxEmptySteps` the state count, `rangeRatio` 0.33): the whole path joined
    * where its ends see each other, else random vertex pairs within the range
@@ -141,7 +151,7 @@ export namespace HumanArmPathSimplify {
     return result;
   }
 
-  /**
+  /*
    * `PathSimplifier::collapseCloseVertices` at its defaults: the closest pair
    * of non-adjacent vertices joined where their segment is valid, a pair whose
    * segment is not valid set aside.
@@ -196,7 +206,7 @@ export namespace HumanArmPathSimplify {
     return result;
   }
 
-  /**
+  /*
    * `PathSimplifier::partialShortcutPath` at its defaults (`maxSteps` and
    * `maxEmptySteps` the state count, `rangeRatio` 0.33, `snapToVertex` 0.005):
    * two random points along the path, the second within the range of the first,
@@ -311,7 +321,7 @@ export namespace HumanArmPathSimplify {
     return result;
   }
 
-  /**
+  /*
    * A point along the path as `partialShortcutPath` places it: the index of the
    * waypoint at or after it (`std::lower_bound`), moved back to the segment's
    * start, and the waypoint it snaps to, or -1.
@@ -325,6 +335,8 @@ export namespace HumanArmPathSimplify {
     return [pos, lower];
   }
 
-  /** A point's segment start and the waypoint it snapped to, or -1. */
+  /*
+   * A point's segment start and the waypoint it snapped to, or -1.
+   */
   type ISnap = [number, number];
 }

@@ -2,7 +2,7 @@ import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Wrap a procedural builder's positions and indices as a rigid mesh whose
  * vertex normals are computed from its own triangles.
  *
@@ -14,12 +14,11 @@ import { Vector3 } from "../../math/Vector3";
  * uses keeps the zero vector. The arrays passed in become the mesh's own and
  * must not be reused by the caller; indices are trusted, since every caller
  * generates them.
- *
- * @param positions Packed XYZ positions in metres, adopted by the mesh.
- * @param indices Triangle corner indices, adopted by the mesh.
- * @param uvs Packed UVs adopted by the mesh, or `null` for none.
- * @param normalGroups Vertex sets that share one smooth normal.
- * @returns A mesh with computed normals and no skin.
+ * Parameter positions: Packed XYZ positions in metres, adopted by the mesh.
+ * Parameter indices: Triangle corner indices, adopted by the mesh.
+ * Parameter uvs: Packed UVs adopted by the mesh, or `null` for none.
+ * Parameter normalGroups: Vertex sets that share one smooth normal.
+ * Returns: A mesh with computed normals and no skin.
  */
 export const meshOf = (
   positions: number[],
@@ -34,7 +33,9 @@ export const meshOf = (
   skin: null,
 });
 
-/** Area-weighted vertex normals with declared seam groups pooled. */
+/*
+ * Area-weighted vertex normals with declared seam groups pooled.
+ */
 const normalsOf = (
   positions: readonly number[],
   indices: readonly number[],

@@ -1,6 +1,6 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * Is `point` inside (or on the boundary of) a counter-clockwise hull? Always
  * `false` for a degenerate hull of fewer than three vertices (a point or a
  * segment cannot enclose area).

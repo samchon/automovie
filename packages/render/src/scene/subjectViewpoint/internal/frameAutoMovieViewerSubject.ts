@@ -5,7 +5,7 @@ import type { IAutoMovieViewerSubjectLens } from "../../IAutoMovieViewerSubjectL
 import type { IAutoMovieViewerSubjectPose } from "../../IAutoMovieViewerSubjectPose.js";
 import type { IAutoMovieViewerViewpoint } from "../../IAutoMovieViewerViewpoint.js";
 
-/**
+/*
  * Frame a finite ordered world-space box using its half-diagonal sphere,
  * floored at 0.5 metres, and the narrower perspective field. Factor at least
  * one is needed for the angular full-sphere fit; the near-clip floor can still
@@ -65,7 +65,7 @@ export function frameAutoMovieViewerSubject(
   };
 }
 
-/**
+/*
  * Minimum framing radius for every subject box, in metres.
  *
  * A box of zero size is an ordinary answer, not a fault: an element citing a

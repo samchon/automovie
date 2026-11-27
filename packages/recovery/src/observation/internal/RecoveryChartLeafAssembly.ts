@@ -5,7 +5,7 @@ import type {
   IAutoMovieRecoveryChartLeafAssembly,
 } from "@automovie/interface";
 
-/**
+/*
  * Publish source-free canonical intervals for a fitted rectangular leaf atlas.
  * Internal master edges retain their fitted coefficient owners. Outer edges use
  * the original shared fitted boundary span and oriented restriction metadata.

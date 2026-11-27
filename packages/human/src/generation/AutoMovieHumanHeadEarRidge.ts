@@ -317,17 +317,9 @@ export namespace AutoMovieHumanHeadEarRidge {
     };
   }
 
-  /**
+  /*
    * Convert actual physical scalar2 into the child's two-pole normalized angle
    * clock.
-   *
-   * @evidence contracts/common.md#principled-implementation Applies the analytic inverse-angle first/second chain rule and whole-parameter normalization.
-   * @evidence contracts/common.md#clear-and-simple-design One helper serves all four signed support sources.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Receives actual finite physical jets; no missing derivative is synthesized.
-   * @evidence contracts/common.md#meaningful-documentation Input uses physical station mm and output uses normalized angle units.
-   * @evidence contracts/performance.md#efficient-algorithms Constant trigonometric and scalar work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The caller shares the actual port jets.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one owned fixed-size record.
    */
   function radialJet(
     value: readonly number[],
@@ -348,17 +340,9 @@ export namespace AutoMovieHumanHeadEarRidge {
     };
   }
 
-  /**
+  /*
    * Extend the hidden pole along the same original fork's increasing station
    * direction.
-   *
-   * @evidence contracts/common.md#principled-implementation Uses the actual original coordinate tangent and retained ridge radius.
-   * @evidence contracts/common.md#clear-and-simple-design One vector extension serves either hidden end.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A singular original tangent throws instead of acquiring a replacement direction.
-   * @evidence contracts/common.md#meaningful-documentation Distance and coordinates use calibration mm.
-   * @evidence contracts/performance.md#efficient-algorithms Constant three-vector work.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The port owns tangent preparation.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one owned vector.
    */
   function extension(
     port: IAutoMovieHumanHeadEarRidge.IPort,

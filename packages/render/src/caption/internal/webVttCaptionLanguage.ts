@@ -1,6 +1,6 @@
 import { parseAutoMovieCaptionLanguage } from "./parseAutoMovieCaptionLanguage.js";
 
-/**
+/*
  * Return one caption language tag, in its authored spelling, for a WebVTT
  * `<lang>` span annotation, or throw.
  *

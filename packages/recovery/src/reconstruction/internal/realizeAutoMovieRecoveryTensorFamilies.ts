@@ -7,7 +7,7 @@ import type {
   IAutoMovieRecoveryTensorRealization,
 } from "@automovie/interface";
 
-/**
+/*
  * Admit ordinary-family ownership and generate saved analytic tensors through
  * the engine. Each published endpoint curve references the tensor's coefficient
  * IDs and uses the same forward millimetre-to-metre conversion. Equality is

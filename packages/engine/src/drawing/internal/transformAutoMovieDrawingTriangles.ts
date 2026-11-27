@@ -2,7 +2,7 @@ import type { IAutoMovieDrawingTriangle } from "@automovie/interface";
 
 import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint";
 
-/**
+/*
  * Move every triangle of a list by one column-major affine matrix, usually an
  * element's world matrix.
  *
@@ -10,10 +10,9 @@ import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint
  * whenever the matrix preserves orientation. A mirroring matrix, one with a
  * negative determinant from an odd number of negative scale axes, reverses the
  * apparent facing of every triangle, and the drafter does not compensate.
- *
- * @param matrix Column-major affine matrix of sixteen numbers.
- * @param triangles Triangles in the matrix's source frame.
- * @returns New triangles in the matrix's target frame, in input order.
+ * Parameter matrix: Column-major affine matrix of sixteen numbers.
+ * Parameter triangles: Triangles in the matrix's source frame.
+ * Returns: New triangles in the matrix's target frame, in input order.
  */
 export const transformAutoMovieDrawingTriangles = (
   matrix: readonly number[],

@@ -8,7 +8,7 @@ import type {
 import { ExerciseKey } from "../internal/ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 
-/**
+/*
  * The exercises of the workout law done hanging from a bar by both hands (bars,
  * pull-ups): the dead hang, the pull-up, the chin-up, the hanging knee raise
  * and the swing.
@@ -25,13 +25,17 @@ import { WorkoutKind } from "./WorkoutKind";
  * pull-up by the elbows kept ahead, the forearm's turn not written.
  */
 export namespace WorkoutHanging {
-  /** Hanging at the arms' length. */
+  /*
+   * Hanging at the arms' length.
+   */
   const hang = (
     body: IAutoMovieMotionHumanBody,
   ): IAutoMovieMotionHumanExerciseKey.IKey =>
     ExerciseKey.from(body, {}, { shoulder: 178, raise: 10, elbow: 3 });
 
-  /** A hanging kind: both hands grip the bar. */
+  /*
+   * A hanging kind: both hands grip the bar.
+   */
   const kind = (
     reps: number,
     route: IAutoMovieMotionHumanWorkoutKind["route"],
@@ -48,14 +52,18 @@ export namespace WorkoutHanging {
     route,
   });
 
-  /** The exercises. */
+  /*
+   * The exercises.
+   */
   export const KINDS: Readonly<
     Record<
       IAutoMovieMotionHumanWorkoutHanging.Name,
       IAutoMovieMotionHumanWorkoutKind
     >
   > = {
-    /** A dead hang, held 10 s. */
+    /*
+     * A dead hang, held 10 s.
+     */
     deadHang: kind(
       1,
       (
@@ -65,7 +73,9 @@ export namespace WorkoutHanging {
       ],
     ),
 
-    /** A pull-up: 1 s up, 1.5 s down (provisional). */
+    /*
+     * A pull-up: 1 s up, 1.5 s down (provisional).
+     */
     pullUp: kind(
       3,
       (
@@ -81,7 +91,9 @@ export namespace WorkoutHanging {
       ],
     ),
 
-    /** A chin-up: the elbows kept ahead of the trunk. */
+    /*
+     * A chin-up: the elbows kept ahead of the trunk.
+     */
     chinUp: kind(
       3,
       (
@@ -97,7 +109,9 @@ export namespace WorkoutHanging {
       ],
     ),
 
-    /** A hanging knee raise: the thighs brought level. */
+    /*
+     * A hanging knee raise: the thighs brought level.
+     */
     kneeRaise: kind(
       5,
       (
@@ -117,7 +131,7 @@ export namespace WorkoutHanging {
       ],
     ),
 
-    /**
+    /*
      * A swing on the bar: the body pitched 25 degrees behind and ahead of the
      * hands (provisional).
      */

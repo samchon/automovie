@@ -10,7 +10,7 @@ import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
 import type { IBuildPropArticulationProps } from "../IBuildPropArticulationProps.js";
 import { applyTransform } from "./applyTransform.js";
 
-/**
+/*
  * Build the moving parts of a shot's props into the scene a host assembled.
  *
  * A prop's articulation is data everywhere else in the pipeline: `forgeProp`
@@ -27,7 +27,7 @@ import { applyTransform } from "./applyTransform.js";
  * - **The frame.** Each declared joint becomes a `THREE.Object3D` at its own
  *   local transform, parented to its declared parent joint or, for a root
  *   joint, to the placement group the host already built. Its name is
- *   {@link placementChildNode}'s, the engine's own lowering law, so the object a
+ *   placementChildNode's, the engine's own lowering law, so the object a
  *   clip channel names is found by the same string the artifact was gated
  *   against rather than by a second spelling of the prefix.
  * - **The part.** A joint that names a `mesh` takes that part of the prop's model
@@ -39,19 +39,19 @@ import { applyTransform } from "./applyTransform.js";
  *   where the record says it stands, and only what carries it changes.
  *
  * Anything that cannot resolve throws rather than being skipped, the rule
- * {@link buildScene} states for an unresolvable node: a silently unparented leaf
+ * buildScene states for an unresolvable node: a silently unparented leaf
  * renders frozen at its model's origin while every other part of the frame
  * looks right, and nothing downstream would report it.
  *
  * A prop drawing an imported appearance has no addressable parts (see
- * {@link AutoMovieRenderImportedModel.create}), so a joint of one may name no `mesh`; its
+ * AutoMovieRenderImportedModel.create), so a joint of one may name no `mesh`; its
  * frame is still built and still turns whatever it holds.
  *
  * What this does NOT do is run a prop profile's drivers. A profile's limits and
  * drivers are resolved by `resolveFrame`, which is the engine's frame solver
  * rather than the viewer's, so a handle declared to mirror its hinge is honored
  * where the shot is gated and stands still where the shot is drawn. Only the
- * channels a clip carries move here, exactly as {@link applyObjectMotions}
+ * channels a clip carries move here, exactly as applyObjectMotions
  * states for every other object it drives.
  */
 export const buildPropArticulation: (
@@ -155,17 +155,27 @@ export const buildPropArticulation: (
   };
 };
 
-/** One prop joint's rest placement, restored before every frame. */
+/*
+ * One prop joint's rest placement, restored before every frame.
+ */
 interface IJointRest {
-  /** Joint object mutated by playback and restored before the next sample. */
+  /*
+   * Joint object mutated by playback and restored before the next sample.
+   */
   object: THREE.Object3D;
 
-  /** Owned clone of the joint's rest-local metre translation. */
+  /*
+   * Owned clone of the joint's rest-local metre translation.
+   */
   position: THREE.Vector3;
 
-  /** Owned clone of the rest-local orientation. */
+  /*
+   * Owned clone of the rest-local orientation.
+   */
   quaternion: THREE.Quaternion;
 
-  /** Owned clone of its dimensionless rest-local scale. */
+  /*
+   * Owned clone of its dimensionless rest-local scale.
+   */
   scale: THREE.Vector3;
 }

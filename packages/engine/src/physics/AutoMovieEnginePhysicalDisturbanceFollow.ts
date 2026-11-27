@@ -6,7 +6,9 @@ import { AutoMovieEnginePhysicalIcpPlannerTools as Tools } from "./AutoMovieEngi
 import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEnginePhysicalPlanarPolygon";
 import { AutoMovieEnginePhysicalSupportSpanContacts as Contacts } from "./AutoMovieEnginePhysicalSupportSpanContacts";
 
-/** The closed forms the response follows and samples. */
+/*
+ * The closed forms the response follows and samples.
+ */
 const {
   ZULU,
   add,

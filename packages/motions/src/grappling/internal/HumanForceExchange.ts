@@ -3,7 +3,7 @@ import type { AutoMovieHumanForceSite, IAutoMovieIntegrateMotionTrajectory, IAut
 
 import { HumanForceDrawn } from "./HumanForceDrawn";
 
-/**
+/*
  * The mechanics of a force exchanged through grips: a pull that draws a partner
  * off balance (kuzushi), the counter-lean that resists it, and a throw's
  * rotation about the thrower's fulcrum.
@@ -39,16 +39,15 @@ import { HumanForceDrawn } from "./HumanForceDrawn";
  * bodies.
  */
 export namespace HumanForceExchange {
-  /**
+  /*
    * How far the base extends from a centre along a horizontal direction: the
    * distance the centre's floor point travels along it before it leaves the
    * convex hull of the support points.
-   *
-   * @param centre The centre, world metres; its height is ignored.
-   * @param direction The horizontal direction, unit.
-   * @param support The support points, world metres.
-   * @returns Metres; zero when the centre is already outside or the base is
-   *   degenerate.
+   * Parameter centre: The centre, world metres; its height is ignored.
+   * Parameter direction: The horizontal direction, unit.
+   * Parameter support: The support points, world metres.
+   * Returns: Metres; zero when the centre is already outside or the base is
+   * degenerate.
    */
   export function edge(
     centre: IAutoMovieVector3,
@@ -80,14 +79,13 @@ export namespace HumanForceExchange {
     return inside && nearest < Infinity ? nearest : 0;
   }
 
-  /**
+  /*
    * The constant horizontal pull that breaks a base at a declared instant.
-   *
-   * @param props The partner's mass, eigenfrequency, the base's extent along
-   *   the pull and the instant.
-   * @returns Newtons.
-   * @throws {Error} When the instant, the extent, the mass or the frequency is
-   *   not positive: a caller's defect.
+   * Parameter props: The partner's mass, eigenfrequency, the base's extent along
+   * the pull and the instant.
+   * Returns: Newtons.
+   * When the instant, the extent, the mass or the frequency is
+   * not positive: a caller's defect.
    */
   export function breaking(
     props: IAutoMovieMotionHumanForceExchange.IBreakingProps,
@@ -102,12 +100,11 @@ export namespace HumanForceExchange {
     );
   }
 
-  /**
+  /*
    * When a constant pull breaks a base: the inverse of `breaking`.
-   *
-   * @param props The partner's mass, eigenfrequency, the base's extent along
-   *   the pull and the pull.
-   * @returns Seconds; infinite when the pull is not positive.
+   * Parameter props: The partner's mass, eigenfrequency, the base's extent along
+   * the pull and the pull.
+   * Returns: Seconds; infinite when the pull is not positive.
    */
   export function broken(
     props: IAutoMovieMotionHumanForceExchange.IBrokenProps,
@@ -119,13 +116,12 @@ export namespace HumanForceExchange {
     );
   }
 
-  /**
+  /*
    * The centre's travel along a constant pull from rest: its offset, its speed
    * and its extrapolated offset.
-   *
-   * @param props The partner's mass, eigenfrequency, the pull and the seconds
-   *   since it started.
-   * @returns Metres, metres per second and metres along the pull.
+   * Parameter props: The partner's mass, eigenfrequency, the pull and the seconds
+   * since it started.
+   * Returns: Metres, metres per second and metres along the pull.
    */
   export function drawn(
     props: IAutoMovieMotionHumanForceExchange.IDrawnProps,
@@ -133,15 +129,14 @@ export namespace HumanForceExchange {
     return HumanForceDrawn.sample(props);
   }
 
-  /**
+  /*
    * How far a resisting partner's centre of pressure moves toward the pull: the
    * pull's moment at grip height over the weight; null when that passes the
    * base's extent along the pull, where no counter-lean resists.
-   *
-   * @param props The partner's mass, the pull, the grip's height and the base's
-   *   extent along the pull.
-   * @param gravity Gravitational acceleration; standard when absent.
-   * @returns Metres, or null.
+   * Parameter props: The partner's mass, the pull, the grip's height and the base's
+   * extent along the pull.
+   * Parameter gravity: Gravitational acceleration; standard when absent.
+   * Returns: Metres, or null.
    */
   export function resisted(
     props: IAutoMovieMotionHumanForceExchange.IResistedProps,
@@ -150,16 +145,15 @@ export namespace HumanForceExchange {
     const shift: number = (props.force * props.height) / (props.mass * gravity);
     return shift <= props.edge ? shift : null;
   }
-  /**
+  /*
    * A throw's swing about the fulcrum, from the momentum the pull left to the
    * release where the centre comes level with the fulcrum.
-   *
-   * @param props The partner's mass, inertia about its centre on the swing's
-   *   axis, the centre's distance from the fulcrum, its starting angle and
-   *   rate.
-   * @param gravity Gravitational acceleration; standard when absent.
-   * @returns The swing, or null when, the pull's drive ended, the rate falls to
-   *   none before the release.
+   * Parameter props: The partner's mass, inertia about its centre on the swing's
+   * axis, the centre's distance from the fulcrum, its starting angle and
+   * rate.
+   * Parameter gravity: Gravitational acceleration; standard when absent.
+   * Returns: The swing, or null when, the pull's drive ended, the rate falls to
+   * none before the release.
    */
   export function swing(
     props: IAutoMovieMotionHumanForceExchange.ISwingProps,
@@ -225,13 +219,12 @@ export namespace HumanForceExchange {
     };
   }
 
-  /**
+  /*
    * The pull as the force input's sustained records: the force spread equally
    * over the grip sites, constant over the window.
-   *
-   * @param props The pulled person, the grip sites, the horizontal direction,
-   *   the force and the window.
-   * @returns One record per grip site.
+   * Parameter props: The pulled person, the grip sites, the horizontal direction,
+   * the force and the window.
+   * Returns: One record per grip site.
    */
   export function pull(
     props: IAutoMovieMotionHumanForceExchange.IPullProps,
@@ -251,5 +244,7 @@ export namespace HumanForceExchange {
   }
 }
 
-/** The record of `ISwingResult`'s site. */
+/*
+ * The record of `ISwingResult`'s site.
+ */
 type ISwingResult = { angle: number; rate: number };

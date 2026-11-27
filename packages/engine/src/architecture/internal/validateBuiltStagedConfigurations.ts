@@ -17,7 +17,7 @@ import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 import { builtElementSubtree } from "./builtElementSubtree";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 
-/**
+/*
  * Refuse a configuration the scene could not stage, in any state the record
  * names.
  *
@@ -40,10 +40,9 @@ import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
  * 1e-8 times max(1, that basis's largest absolute entry). The unit floor gives
  * tiny bases an absolute tolerance; translation cannot enlarge it. Non-finite
  * compositions are refused by the same gate.
- *
- * @param environment Building already free of validation errors.
- * @param root Violation path of the building record, `$input`.
- * @param collector Sink that receives the violations.
+ * Parameter environment: Building already free of validation errors.
+ * Parameter root: Violation path of the building record, `$input`.
+ * Parameter collector: Sink that receives the violations.
  */
 export function validateBuiltStagedConfigurations(
   environment: IAutoMovieBuiltEnvironment,
@@ -63,7 +62,9 @@ export function validateBuiltStagedConfigurations(
         );
     },
   );
-  /** Report the first element one alternative state shears, if any. */
+  /*
+   * Report the first element one alternative state shears, if any.
+   */
   const alternative: (
     member: IAutoMovieBuiltOpening | IAutoMovieBuiltConnector,
     state: string,
@@ -134,13 +135,17 @@ export function validateBuiltStagedConfigurations(
   appendCombinedStateDefects(environment, root, collector);
 }
 
-/** Linear-basis round-trip tolerance, scaled by max(1, largest basis entry). */
+/*
+ * Linear-basis round-trip tolerance, scaled by max(1, largest basis entry).
+ */
 const MATRIX_ROUND_TRIP_EPSILON: number = 1e-8;
 
 const SHEAR_ADVICE: string =
   "which cannot be lowered to the scene's world TRS; keep rotated descendants below uniformly scaled ancestors";
 
-/** Operations affecting an element share exactly one combination search. */
+/*
+ * Operations affecting an element share exactly one combination search.
+ */
 const appendCombinedStateDefects: (
   environment: IAutoMovieBuiltEnvironment,
   root: string,
@@ -255,7 +260,9 @@ const appendCombinedStateDefects: (
   }
 };
 
-/** Whether a world matrix carries more than a position, rotation, and scale. */
+/*
+ * Whether a world matrix carries more than a position, rotation, and scale.
+ */
 const cannotRepresentWorldTrs: (world: number[]) => boolean = (
   world: number[],
 ): boolean => {

@@ -11,47 +11,68 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
 
-/**
+/*
  * The existing knockdown fold and its body's floor fit. The law owns the clock
  * and heading; this owner evaluates the clinical fold, its collision bounds and
  * the unchanged knee, arm and elbow bisections.
  */
 export namespace KnockdownFloor {
-  /** The trunk pitch and clinical joint angles at one phase sample. */
+  /*
+   * The trunk pitch and clinical joint angles at one phase sample.
+   */
   export interface IFold {
-    /** Trunk pitch, degrees. */
+    /*
+     * Trunk pitch, degrees.
+     */
     pitch: number;
-    /** Clinical angle triples, degrees by bone. */
+    /*
+     * Clinical angle triples, degrees by bone.
+     */
     joints: IAutoMovieMotionHumanJoints.Angles;
   }
 
-  /** The knee, upper arm and elbow angles fitted to this body's floor rest. */
+  /*
+   * The knee, upper arm and elbow angles fitted to this body's floor rest.
+   */
   export interface IFit {
-    /** Seated knee flexion, degrees. */
+    /*
+     * Seated knee flexion, degrees.
+     */
     knee: number;
-    /** Lying upper-arm flexion, degrees. */
+    /*
+     * Lying upper-arm flexion, degrees.
+     */
     arm: number;
-    /** Lying elbow flexion, degrees. */
+    /*
+     * Lying elbow flexion, degrees.
+     */
     elbow: number;
   }
 
-  /** A fold's floor height and ankle/hip offsets at root zero facing +Z. */
+  /*
+   * A fold's floor height and ankle/hip offsets at root zero facing +Z.
+   */
   export interface IMeasure {
-    /** Root height resting the lowest collider on the floor, metres. */
+    /*
+     * Root height resting the lowest collider on the floor, metres.
+     */
     floor: number;
-    /** Mean ankle Z relative to the root, metres. */
+    /*
+     * Mean ankle Z relative to the root, metres.
+     */
     ankle: number;
-    /** Hip Z relative to the root, metres. */
+    /*
+     * Hip Z relative to the root, metres.
+     */
     hips: number;
   }
 
-  /**
+  /*
    * Evaluate the existing fold at shares of sitting and rolling back.
-   *
-   * @param fitted This body's fitted angles, degrees.
-   * @param sit The sitting profile's share.
-   * @param back The rolling-back profile's share.
-   * @returns The trunk pitch and joint angles, degrees.
+   * Parameter fitted: This body's fitted angles, degrees.
+   * Parameter sit: The sitting profile's share.
+   * Parameter back: The rolling-back profile's share.
+   * Returns: The trunk pitch and joint angles, degrees.
    */
   export function fold(fitted: IFit, sit: number, back: number): IFold {
     const seat: number = sit * (1 - back);
@@ -75,14 +96,13 @@ export namespace KnockdownFloor {
     };
   }
 
-  /**
+  /*
    * Prepare one plan's reader of a fold's floor height and ankle/hip offsets,
    * for a body that stays unchanged through the plan.
-   *
-   * @param body The body.
-   * @returns A reader of an evaluated fold, with an optional exact FK source
-   *   and same-body ROM projector borrowed from the synchronous caller and
-   *   never retained; it returns the three measures, metres in the root frame.
+   * Parameter body: The body.
+   * Returns: A reader of an evaluated fold, with an optional exact FK source
+   * and same-body ROM projector borrowed from the synchronous caller and
+   * never retained; it returns the three measures, metres in the root frame.
    */
   export function prepareMeasure(
     body: IAutoMovieMotionHumanBody,
@@ -120,12 +140,11 @@ export namespace KnockdownFloor {
     };
   }
 
-  /**
+  /*
    * Fit the original knee, upper-arm and elbow floor contacts by bisection.
-   *
-   * @param body The body.
-   * @param landed The roll-back share when the seat lands.
-   * @returns The fitted angles, degrees.
+   * Parameter body: The body.
+   * Parameter landed: The roll-back share when the seat lands.
+   * Returns: The fitted angles, degrees.
    */
   export function fit(body: IAutoMovieMotionHumanBody, landed: number): IFit {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
@@ -202,16 +221,15 @@ export namespace KnockdownFloor {
     return fitted;
   }
 
-  /**
+  /*
    * The root height placing an actual posture's lowest collider on zero.
-   *
-   * @param body The body.
-   * @param posture The posture, with its root Y ignored.
-   * @param resolution Optional exact FK reader or supplier borrowed from this
-   *   synchronous body's planning operation.
-   * @param projection Optional genuine same-body direct ROM projector borrowed
-   *   only during this floor reading.
-   * @returns Root height, metres.
+   * Parameter body: The body.
+   * Parameter posture: The posture, with its root Y ignored.
+   * Parameter resolution: Optional exact FK reader or supplier borrowed from this
+   * synchronous body's planning operation.
+   * Parameter projection: Optional genuine same-body direct ROM projector borrowed
+   * only during this floor reading.
+   * Returns: Root height, metres.
    */
   export function rest(
     body: IAutoMovieMotionHumanBody,
@@ -222,14 +240,13 @@ export namespace KnockdownFloor {
     return prepareRest(body)(posture, resolution, projection);
   }
 
-  /**
+  /*
    * Bind one unchanged body's floor readers for repeated current postures.
-   *
-   * @param body The canonical body whose rig, rest and profile stay unchanged
-   *   for the owning plan or interval.
-   * @returns A reader of the actual posture and optional current-call FK/ROM
-   *   metadata; its root Y is ignored and the result is the original floor
-   *   height in metres.
+   * Parameter body: The canonical body whose rig, rest and profile stay unchanged
+   * for the owning plan or interval.
+   * Returns: A reader of the actual posture and optional current-call FK/ROM
+   * metadata; its root Y is ignored and the result is the original floor
+   * height in metres.
    */
   export function prepareRest(
     body: IAutoMovieMotionHumanBody,
@@ -259,7 +276,9 @@ export namespace KnockdownFloor {
     };
   }
 
-  /** The folded clinical request, with its root at zero facing +Z. */
+  /*
+   * The folded clinical request, with its root at zero facing +Z.
+   */
   function foldPosture(folded: IFold): IAutoMovieMotionHumanPosture {
     return {
       root: { x: 0, y: 0, z: 0 },
@@ -271,27 +290,39 @@ export namespace KnockdownFloor {
     };
   }
 
-  /** The seat's pelvis and thigh shapes. */
+  /*
+   * The seat's pelvis and thigh shapes.
+   */
   const SEAT: (bone: string) => boolean = (bone: string): boolean =>
     bone === "hips" || bone.endsWith("UpperLeg");
 
-  /** Shapes below the knee. */
+  /*
+   * Shapes below the knee.
+   */
   const SHANK: (bone: string) => boolean = (bone: string): boolean =>
     /(LowerLeg|Foot|Toes)$/.test(bone);
 
-  /** Upper-arm shapes. */
+  /*
+   * Upper-arm shapes.
+   */
   const UPPER_ARM: (bone: string) => boolean = (bone: string): boolean =>
     bone.endsWith("UpperArm");
 
-  /** Shapes below the elbow. */
+  /*
+   * Shapes below the elbow.
+   */
   const FOREARM: (bone: string) => boolean = (bone: string): boolean =>
     /(LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/.test(bone);
 
-  /** All shapes outside the arms. */
+  /*
+   * All shapes outside the arms.
+   */
   const BODY: (bone: string) => boolean = (bone: string): boolean =>
     !UPPER_ARM(bone) && !FOREARM(bone);
 
-  /** The law's unchanged provisional clinical angle levels, degrees. */
+  /*
+   * The law's unchanged provisional clinical angle levels, degrees.
+   */
   const ANGLES: Record<ANGLESEntry, number> = {
     recline: AutoMovieMotionHumanRange.lean("half"),
     hip: AutoMovieMotionHumanRange.degrees("leftUpperLeg", "flexion", {
@@ -320,7 +351,9 @@ export namespace KnockdownFloor {
   };
 }
 
-/** The alternatives of `ANGLESEntry`'s site. */
+/*
+ * The alternatives of `ANGLESEntry`'s site.
+ */
 type ANGLESEntry =
   | "recline"
   | "hip"

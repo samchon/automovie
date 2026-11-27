@@ -4,7 +4,7 @@ import { Vector3 } from "@automovie/engine";
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal } from "../../core";
 import "../constants/BAG_BANDS";
 
-/**
+/*
  * A carried bag: a tote open at the top with handles and a shoulder strap, its
  * hollow reached through its `opening` and its floor the `inside` surface, a
  * backpack, a cabin suitcase with a telescopic handle, a briefcase, a toolbox,
@@ -19,14 +19,13 @@ import "../constants/BAG_BANDS";
  * the back of a wearer who faces `-Z`. A suitcase's pull handle is a part on
  * the `telescope` slider, so drawing it out raises it to the height it is
  * pulled at.
- *
- * @param params The kind, the load and any dimension the author fixes.
- * @param seed The seed that picks the model when none is given and draws every
- *   dimension left free inside its band; absent, the first model and the middle
- *   of each band.
- * @returns The bag.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band,
- *   or a load the kind does not carry.
+ * Parameter params: The kind, the load and any dimension the author fixes.
+ * Parameter seed: The seed that picks the model when none is given and draws every
+ * dimension left free inside its band; absent, the first model and the middle
+ * of each band.
+ * Returns: The bag.
+ * For a fixed dimension outside its band,
+ * or a load the kind does not carry.
  */
 export function createBag(
   params: AutoMovieArchetypeBag.IParams,
@@ -154,7 +153,7 @@ export function createBag(
   const bar: number = d.handleDiameter! / 2;
   const lift: number = AutoMovieArchetypeBag.HANDLE.clearance + bar;
 
-  /**
+  /*
    * A carrying bar along +X at a height, gripped from above, on a riser at each
    * end down to the body's top.
    */
@@ -280,7 +279,7 @@ export function createBag(
   return builder.build(d.mass! + load);
 }
 
-/**
+/*
  * HSE's guideline load for a load held close to the body below the elbow by a
  * woman, kilograms (INDG143, Figure 1,
  * https://www.hse.gov.uk/pubns/indg143.pdf): the bound of every bag carried by
@@ -288,7 +287,7 @@ export function createBag(
  */
 const HSE_CLOSE_LOAD: number = 16;
 
-/**
+/*
  * The greatest load each kind may carry, kilograms: HSE's 16 kg for a load held
  * close below the elbow by a woman (INDG143, Figure 1,
  * https://www.hse.gov.uk/pubns/indg143.pdf) for a carried bag, case or toolbox,

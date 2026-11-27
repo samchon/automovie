@@ -5,7 +5,7 @@ import type {
 
 import type { TrueTypeByteReader } from "./TrueTypeByteReader";
 
-/**
+/*
  * Read one glyph's outline from `glyf` as closed chains of quadratic segments
  * in font units, resolving a composite glyph into its transformed components.
  *
@@ -28,67 +28,90 @@ import type { TrueTypeByteReader } from "./TrueTypeByteReader";
  *
  * Results are cached per glyph index in `cache`, so a component shared by
  * several glyphs is decoded once; callers must not mutate the returned arrays.
- *
- * @throws {Error} A field lies outside the glyph's `loca` span, a simple
- *   glyph's end points do not increase, a component uses point matching, nests
- *   too deep or contains itself.
+ * A field lies outside the glyph's `loca` span, a simple
+ * glyph's end points do not increase, a component uses point matching, nests
+ * too deep or contains itself.
  */
 export function readTrueTypeGlyphOutline(props: {
-  /** Bounds-checked reader over the font bytes. */
+  /*
+   * Bounds-checked reader over the font bytes.
+   */
   reader: TrueTypeByteReader;
 
-  /** Byte offset of the `glyf` table. */
+  /*
+   * Byte offset of the `glyf` table.
+   */
   glyf: number;
 
-  /**
+  /*
    * `loca` offsets relative to `glyf`, one more than the glyph count, already
    * checked to increase within `glyf`.
    */
   loca: readonly number[];
 
-  /** Glyph index to read. */
+  /*
+   * Glyph index to read.
+   */
   glyph: number;
 
-  /** Outlines already read, by glyph index. */
+  /*
+   * Outlines already read, by glyph index.
+   */
   cache: Map<number, IAutoMovieFontSegment[][]>;
 }): IAutoMovieFontSegment[][] {
   return read(props, props.glyph, []);
 }
 
-/**
+/*
  * Deepest component nesting a composite glyph may use; real fonts nest one or
  * two levels.
  */
 const MAX_COMPONENT_DEPTH: number = 16;
 
-/**
+/*
  * Composite glyph flag (ISO/IEC 14496-22, section 5.3.4, the `glyf` composite
  * glyph description): the component's two arguments are 16-bit, else 8-bit.
  */
 const ARG_1_AND_2_ARE_WORDS: number = 0x0001;
 
-/** Composite flag: the arguments are signed x/y offsets, else point numbers. */
+/*
+ * Composite flag: the arguments are signed x/y offsets, else point numbers.
+ */
 const ARGS_ARE_XY_VALUES: number = 0x0002;
 
-/** Composite flag: one scale applies to both axes of the component. */
+/*
+ * Composite flag: one scale applies to both axes of the component.
+ */
 const WE_HAVE_A_SCALE: number = 0x0008;
 
-/** Composite flag: another component follows this one. */
+/*
+ * Composite flag: another component follows this one.
+ */
 const MORE_COMPONENTS: number = 0x0020;
 
-/** Composite flag: the component has separate x and y scales. */
+/*
+ * Composite flag: the component has separate x and y scales.
+ */
 const WE_HAVE_AN_X_AND_Y_SCALE: number = 0x0040;
 
-/** Composite flag: a 2 × 2 matrix transforms the component. */
+/*
+ * Composite flag: a 2 × 2 matrix transforms the component.
+ */
 const WE_HAVE_A_TWO_BY_TWO: number = 0x0080;
 
-/** Composite flag: the component's offset is scaled by its transform. */
+/*
+ * Composite flag: the component's offset is scaled by its transform.
+ */
 const SCALED_COMPONENT_OFFSET: number = 0x0800;
 
-/** Composite flag: the component's offset is not scaled by its transform. */
+/*
+ * Composite flag: the component's offset is not scaled by its transform.
+ */
 const UNSCALED_COMPONENT_OFFSET: number = 0x1000;
 
-/** Read one glyph with the component stack above it. */
+/*
+ * Read one glyph with the component stack above it.
+ */
 function read(
   props: Parameters<typeof readTrueTypeGlyphOutline>[0],
   glyph: number,
@@ -125,19 +148,29 @@ function read(
   return contours;
 }
 
-/** The byte span one glyph owns, for reads that must stay inside it. */
+/*
+ * The byte span one glyph owns, for reads that must stay inside it.
+ */
 interface ISpan {
-  /** Reader over the font bytes. */
+  /*
+   * Reader over the font bytes.
+   */
   reader: TrueTypeByteReader;
 
-  /** First byte past the glyph's `loca` span. */
+  /*
+   * First byte past the glyph's `loca` span.
+   */
   end: number;
 
-  /** Glyph index, for diagnostics. */
+  /*
+   * Glyph index, for diagnostics.
+   */
   glyph: number;
 }
 
-/** Read one field that must lie inside the glyph's span. */
+/*
+ * Read one field that must lie inside the glyph's span.
+ */
 function at(
   span: ISpan,
   offset: number,
@@ -161,7 +194,9 @@ function at(
   }
 }
 
-/** Decode a simple glyph's contours. */
+/*
+ * Decode a simple glyph's contours.
+ */
 function simple(
   span: ISpan,
   offset: number,
@@ -229,7 +264,9 @@ function simple(
   return contours;
 }
 
-/** Turn one contour's on- and off-curve points into closed quadratic segments. */
+/*
+ * Turn one contour's on- and off-curve points into closed quadratic segments.
+ */
 function quadratics(
   ring: readonly { point: AutoMovieVector2Tuple; on: boolean }[],
 ): IAutoMovieFontSegment[] {
@@ -282,7 +319,9 @@ function quadratics(
   return segments;
 }
 
-/** The point halfway between two points. */
+/*
+ * The point halfway between two points.
+ */
 function midpoint(
   a: AutoMovieVector2Tuple,
   b: AutoMovieVector2Tuple,
@@ -290,7 +329,9 @@ function midpoint(
   return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
 }
 
-/** Resolve a composite glyph's components into transformed contours. */
+/*
+ * Resolve a composite glyph's components into transformed contours.
+ */
 function composite(
   props: Parameters<typeof readTrueTypeGlyphOutline>[0],
   span: ISpan,

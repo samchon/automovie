@@ -18,7 +18,7 @@ import { AutoMovieEngineClinicalAngle } from "../rom/internal/AutoMovieEngineCli
 import { prepareDistalTwistEffector } from "./internal/prepareDistalTwistEffector";
 import { AutoMovieEngineMotionJointProjection } from "./AutoMovieEngineMotionJointProjection";
 
-/**
+/*
  * Solve once, optionally retaining only the selected candidate's actual
  * projection.
  */
@@ -87,7 +87,9 @@ function solveProjection(
     | ReturnType<typeof AutoMovieEngineKinematicsJointRotation.prepareJointToQuaternionOnBasis>
     | undefined = props.composeLower;
 
-  /** Keep exact axis factors only for this solve's changing lower joint. */
+  /*
+   * Keep exact axis factors only for this solve's changing lower joint.
+   */
   const lowerRotation: ReturnType<typeof AutoMovieEngineKinematicsJointRotation.prepareJointToQuaternionOnBasis> = (
     joint: Parameters<ReturnType<typeof AutoMovieEngineKinematicsJointRotation.prepareJointToQuaternionOnBasis>>[0],
   ): IAutoMovieQuaternion => {
@@ -430,18 +432,20 @@ function solveProjection(
   return { joint: at(chosen), projection: chosenProjection };
 }
 
-/**
+/*
  * Existing distal-candidate angular tie policy, radians; this is not a
  * numerical-roundoff bound or a reached-target threshold.
  */
 const TIE: number = 1e-6;
 
-/** `h[0] + h[1] cos r + h[2] sin r`, `r` radians. */
+/*
+ * `h[0] + h[1] cos r + h[2] sin r`, `r` radians.
+ */
 function sinusoidAt(h: readonly number[], r: number): number {
   return h[0]! + h[1]! * Math.cos(r) + h[2]! * Math.sin(r);
 }
 
-/**
+/*
  * The at most two angles, radians, where `h[0] + h[1] cos r + h[2] sin r` is
  * zero: `atan2(h[2], h[1]) ± acos(-h[0] / R)`, `R` the harmonic's amplitude;
  * none where it never reaches zero or has no amplitude.
@@ -690,11 +694,17 @@ export namespace AutoMovieEngineMotionDistalTwist {
   }
 }
 
-/** Internal joint-only and paired modes share one candidate search. */
+/*
+ * Internal joint-only and paired modes share one candidate search.
+ */
 interface ISolution {
-  /** Selected actual clamped mid articulation. */
+  /*
+   * Selected actual clamped mid articulation.
+   */
   joint: IAutoMovieJointPose;
 
-  /** Retained only in paired mode, after at least the start was scored. */
+  /*
+   * Retained only in paired mode, after at least the start was scored.
+   */
   projection: AutoMovieEngineMotionDistalTwist.IProjection | undefined;
 }

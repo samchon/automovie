@@ -2,7 +2,7 @@ import { type AutoMovieEnginePhysicsGjkTypes, AutoMovieEnginePhysics, Vector3, A
 
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * Enclose the obstructed part of one finite translation of a fixed convex
  * solid. Its intersecting placements are the line through the convex
  * configuration-space obstacle (the other solid plus the moving solid
@@ -10,17 +10,16 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * once as they grow. Use the exact hull of the two translated endpoints
  * (`AutoMovieEnginePhysics.physicalShapeGjkCast`) and keep the last certified ends of their brackets.
  * The result still excludes unresolved GJK bounds and admits no overlap.
- *
- * @param moving The oriented solid at zero translation.
- * @param obstacle The other solid in the same axes.
- * @param axis The unit translation direction.
- * @param possible The outer bounds on the obstructed interval.
- * @param precision The greatest remaining bracket width in metres, also the
- *   positive GJK early-exit target. Separation still requires a nonnegative
- *   certified lower bound.
- * @param faces Optional obstacle face normals. An outward-rounded projection
- *   along one can certify separation when GJK cannot resolve the distance.
- * @returns The excluded interval or undefined where the whole cast clears.
+ * Parameter moving: The oriented solid at zero translation.
+ * Parameter obstacle: The other solid in the same axes.
+ * Parameter axis: The unit translation direction.
+ * Parameter possible: The outer bounds on the obstructed interval.
+ * Parameter precision: The greatest remaining bracket width in metres, also the
+ * positive GJK early-exit target. Separation still requires a nonnegative
+ * certified lower bound.
+ * Parameter faces: Optional obstacle face normals. An outward-rounded projection
+ * along one can certify separation when GJK cannot resolve the distance.
+ * Returns: The excluded interval or undefined where the whole cast clears.
  */
 export function mountCastObstruction(
   moving: AutoMovieEnginePhysicsGjkTypes.ISolid,
@@ -93,5 +92,7 @@ export function mountCastObstruction(
   return from < to ? [from, to] : undefined;
 }
 
-/** An interval of material-axis translation, metres. */
+/*
+ * An interval of material-axis translation, metres.
+ */
 type Span = readonly [number, number];

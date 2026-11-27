@@ -1,4 +1,4 @@
-/**
+/*
  * Approximate the isolated roots of four finite scalar cubic Bernstein
  * coefficients on [0,1]. Critical points partition sign-monotone intervals;
  * near-zero values use 64 epsilon times max(1, coefficient magnitude), sign

@@ -17,9 +17,13 @@ import { resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
 
 import { resolveAutoMovieMomentumRates } from "./resolveAutoMovieMomentumRates";
 
-/** Readers of an explicitly owned mass-model snapshot. */
+/*
+ * Readers of an explicitly owned mass-model snapshot.
+ */
 export namespace prepareAutoMovieMassModel {
-  /** Execute the operation without merging a callable with this namespace. */
+  /*
+   * Execute the operation without merging a callable with this namespace.
+   */
   export const run = prepareAutoMovieMassModelRun;
   /**
    * An operation-owned handle, invalid after release; it exposes no numeric
@@ -51,7 +55,7 @@ export namespace prepareAutoMovieMassModel {
     >;
   }
 
-  /**
+  /*
    * The segment-bearing bones of this model, for demand-driven FK. The fresh
    * set is caller-owned and can be changed without changing the preparation.
    * Ancestors remain the FK owner's responsibility.
@@ -75,7 +79,7 @@ export namespace prepareAutoMovieMassModel {
     return names;
   }
 
-  /**
+  /*
    * Read fresh rigid parts and their ordered mass-weighted centre in the
    * supplied bones' common frame. Exact unchanged frames reuse only their
    * private point and principal-frame transforms, never caller-owned records.
@@ -120,7 +124,7 @@ export namespace prepareAutoMovieMassModel {
     return { parts, centre };
   }
 
-  /**
+  /*
    * The centre in the actual bones' common frame, metres. A centre-only demand
    * does not compute principal frames or allocate rigid-part records.
    *
@@ -146,7 +150,7 @@ export namespace prepareAutoMovieMassModel {
     );
   }
 
-  /**
+  /*
    * The actual posed composite tensor about its own centre, kg m squared. Only
    * the intrinsic rotation prerequisites share exact numeric work; every
    * current mass shift and segment-order sum is performed again.
@@ -180,7 +184,7 @@ export namespace prepareAutoMovieMassModel {
     }
   }
 
-  /**
+  /*
    * Apply the existing two-pose momentum reduction to this model's ordered
    * posed snapshots and a positive interval in seconds. No endpoint is held.
    *
@@ -218,7 +222,7 @@ export namespace prepareAutoMovieMassModel {
     }
   }
 
-  /**
+  /*
    * Instantaneous momentum of this exact owned model and its current posed/rate
    * snapshot. No source, rate map or result is retained.
    */
@@ -231,7 +235,7 @@ export namespace prepareAutoMovieMassModel {
     return resolveAutoMovieMomentumRates(prepared.model, posed, bones, rates);
   }
 
-  /**
+  /*
    * Release all model and last-frame numeric state. Repeated release is safe;
    * every subsequent query through this token throws instead of recreating it.
    *
@@ -250,7 +254,7 @@ export namespace prepareAutoMovieMassModel {
   }
 }
 
-/**
+/*
  * Snapshot one mass model for a synchronous physical planning operation.
  *
  * Call release in finally after the last inertia, momentum or centre query.
@@ -312,7 +316,9 @@ function prepareAutoMovieMassModelRun(
   };
 }
 
-/** The posed bone a segment rides on; a missing bone throws. */
+/*
+ * The posed bone a segment rides on; a missing bone throws.
+ */
 function posedBone(
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   segment: IAutoMovieResolveCenterOfMass.ISegment,
@@ -323,7 +329,9 @@ function posedBone(
   return bone;
 }
 
-/** The segment's centre in the bones' common frame, metres. */
+/*
+ * The segment's centre in the bones' common frame, metres.
+ */
 function placePoint(
   bone: IAutoMovieResolvedBone,
   segment: IAutoMovieResolveCenterOfMass.ISegment,
@@ -339,12 +347,16 @@ function placePoint(
   };
 }
 
-/** A fresh three-scalar record crosses the private-state boundary. */
+/*
+ * A fresh three-scalar record crosses the private-state boundary.
+ */
 function copyVector(value: IAutoMovieVector3): IAutoMovieVector3 {
   return { x: value.x, y: value.y, z: value.z };
 }
 
-/** A fresh four-scalar record crosses the private-state boundary. */
+/*
+ * A fresh four-scalar record crosses the private-state boundary.
+ */
 function copyQuaternion(value: IAutoMovieQuaternion): IAutoMovieQuaternion {
   return { x: value.x, y: value.y, z: value.z, w: value.w };
 }

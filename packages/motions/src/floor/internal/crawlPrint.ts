@@ -7,14 +7,13 @@ import type {
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { crawlFeet } from "./crawlFeet";
 
-/**
+/*
  * A limb's print on the floor frame: its nominal place moved along the heading
  * by the stride's share at its placement, the landed share for the first.
  *
  * Part of `crawl.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `print`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `print`.
  */
 export function crawlPrint(
   prepared: crawlPrint.IPrepared,
@@ -35,23 +34,37 @@ export function crawlPrint(
     );
 }
 
-/** The `print` of `crawl.plan`, built from what that plan prepared. */
+/*
+ * The `print` of `crawl.plan`, built from what that plan prepared.
+ */
 export namespace crawlPrint {
-  /** What `crawl.plan` prepared for its `print`. */
+  /*
+   * What `crawl.plan` prepared for its `print`.
+   */
   export interface IPrepared {
-    /** The `frame` `crawl.plan` prepared. */
+    /*
+     * The `frame` `crawl.plan` prepared.
+     */
     frame: ReturnType<typeof crawlFeet.planted>["frame"];
 
-    /** The `nominal` `crawl.plan` prepared. */
+    /*
+     * The `nominal` `crawl.plan` prepared.
+     */
     nominal: Record<IAutoMovieMotionHumanCrawl.Limb, IAutoMovieVector3>;
 
-    /** The `stride` `crawl.plan` prepared. */
+    /*
+     * The `stride` `crawl.plan` prepared.
+     */
     stride: number;
 
-    /** The `landed` `crawl.plan` prepared. */
+    /*
+     * The `landed` `crawl.plan` prepared.
+     */
     landed: number;
 
-    /** The `centred` `crawl.plan` prepared. */
+    /*
+     * The `centred` `crawl.plan` prepared.
+     */
     centred: (limb: IAutoMovieMotionHumanCrawl.Limb, j: number) => number;
   }
 }

@@ -18,25 +18,29 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { ropeLine } from "./ropeLine";
 
-/**
+/*
  * The locked feet below the lower hand, hip heights (provisional: the hands
  * overhead and the knees drawn up to the lock, the hips well below the hands).
  */
 const LOCK: number = 1.5;
 
-/** The fastest descent when none is asked, metres per second (provisional). */
+/*
+ * The fastest descent when none is asked, metres per second (provisional).
+ */
 const SPEED: number = 1;
 
-/**
+/*
  * How far behind the rope a descent's feet land, metres (provisional: a
  * forearm's length).
  */
 const STAND_OFF: number = 0.3;
 
-/** The landing feet's half spacing, metres (provisional). */
+/*
+ * The landing feet's half spacing, metres (provisional).
+ */
 const STANCE: number = 0.12;
 
-/**
+/*
  * The climbing pose: the hands up the rope in front with the elbows bent, the
  * feet drawn up into the lock (provisional angles, degrees).
  */
@@ -57,12 +61,12 @@ const CLIMB: IAutoMovieMotionHumanLieDown.IPose = {
   },
 };
 
-/**
+/*
  * A foot's offset from the rope in a lock, metres (provisional: the rope
  * between the feet).
  */
 const SPLIT: number = 0.04;
-/**
+/*
  * Climbs and descents of an upright rope fitted by the shared support law: a
  * climb moves one hand up a step at a time and re-sets the foot lock below the
  * lower hand one foot after the other; a descent lets the hands and the lock
@@ -72,24 +76,25 @@ const SPLIT: number = 0.04;
  * traverse's too ( opeTraverse).
  */
 export namespace ropeSupport {
-  /**
+  /*
    * One hand's move along the rope, arm lengths (provisional: a hand-over-hand
    * pull).
    */
   export const STEP: number = 0.45;
 
-  /** Seconds per hand or foot move on the rope (provisional). */
+  /*
+   * Seconds per hand or foot move on the rope (provisional).
+   */
   export const BEAT: number = 0.6;
 
-  /**
+  /*
    * Climb or descend an upright rope.
-   *
-   * @param context The action's context, standing at the rope's foot or hanging
-   *   on it.
-   * @param p The climb or the descent.
-   * @returns The crossing.
-   * @throws {HumanRefusal} If the rope is too short for the rise or the
-   *   descent's start.
+   * Parameter context: The action's context, standing at the rope's foot or hanging
+   * on it.
+   * Parameter p: The climb or the descent.
+   * Returns: The crossing.
+   * If the rope is too short for the rise or the
+   * descent's start.
    */
   export function upright(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRope.IParams>,
@@ -364,13 +369,12 @@ export namespace ropeSupport {
     };
   }
 
-  /**
+  /*
    * Insert, wherever both feet change between two stances, a stance in which
    * only the left foot has moved: a climber re-sets one foot of the lock after
    * the other, so two hands and a foot always bear between moves.
-   *
-   * @param stances The stances in order.
-   * @returns The stances with the intermediate ones.
+   * Parameter stances: The stances in order.
+   * Returns: The stances with the intermediate ones.
    */
   function oneFootAtATime(
     stances: readonly IAutoMovieMotionHumanSupport.IStance[],
@@ -419,10 +423,14 @@ export namespace ropeSupport {
   }
 }
 
-/** The alternatives of `OneFootAtATimeFootPart`'s site. */
+/*
+ * The alternatives of `OneFootAtATimeFootPart`'s site.
+ */
 type OneFootAtATimeFootPart = "leftFoot" | "rightFoot";
 
-/** The alternatives of `UprightP`'s site. */
+/*
+ * The alternatives of `UprightP`'s site.
+ */
 type UprightP =
   | IAutoMovieMotionHumanRope.IClimb
   | IAutoMovieMotionHumanRope.IDescend;

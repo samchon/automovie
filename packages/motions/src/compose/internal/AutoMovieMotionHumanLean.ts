@@ -14,7 +14,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 
-/**
+/*
  * Trunk lean primitives: the whole body above the feet tipped about the hips,
  * with the hips moved back so the centre of mass stays over the feet.
  *
@@ -24,13 +24,12 @@ import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
  * solved again when the posture is resolved.
  */
 export namespace AutoMovieMotionHumanLean {
-  /**
+  /*
    * The body tilted about its root without a balance shift: the small leans a
    * standing body makes inside its base of support (a recoil, a sway, a lean
    * toward a listener).
-   *
-   * @param props The window and the tilt.
-   * @returns The primitive, on the trunk.
+   * Parameter props: The window and the tilt.
+   * Returns: The primitive, on the trunk.
    */
   export function tilt(
     props: IAutoMovieMotionHumanLean.ITilt,
@@ -54,17 +53,16 @@ export namespace AutoMovieMotionHumanLean {
     };
   }
 
-  /**
+  /*
    * A posture tilted about its hip joint: the pitch and the roll are added and
    * the root is moved so the hips stay where they were. A standing body leans
    * from the hips up while its legs stay on their feet; a tilt about the root,
    * which lies on the floor, would swing the hips away by their height times
    * the tilt's sine and pull the feet off their plants.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @param more The pitch and the roll added, degrees.
-   * @returns The tilted posture.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Parameter more: The pitch and the roll added, degrees.
+   * Returns: The tilted posture.
    */
   export function pivot(
     body: IAutoMovieMotionHumanBody,
@@ -90,17 +88,16 @@ export namespace AutoMovieMotionHumanLean {
     };
   }
 
-  /**
+  /*
    * A posture turned rigidly about a world point: the pitch and the roll are
    * added and the root is moved so the point keeps its place in the body's own
    * frame. A body tipped about its ankles (a broken base, a lean against a
    * pull) turns so, its planted legs then solved again at the ankles.
-   *
-   * @param posture The posture.
-   * @param point The point turned about, world metres.
-   * @param more The pitch and the roll added, degrees.
-   * @returns The turned posture; the posture's own root and heading when
-   *   nothing is added.
+   * Parameter posture: The posture.
+   * Parameter point: The point turned about, world metres.
+   * Parameter more: The pitch and the roll added, degrees.
+   * Returns: The turned posture; the posture's own root and heading when
+   * nothing is added.
    */
   export function about(
     posture: IAutoMovieMotionHumanPosture,
@@ -125,14 +122,13 @@ export namespace AutoMovieMotionHumanLean {
     };
   }
 
-  /**
+  /*
    * The body swayed over its feet: tilted about the hips, the hips carried over
    * the floor, and the root lowered until both planted legs reach their feet.
    * This is the lean of a body that keeps its feet where they are (a recoil, a
    * push taken, a weight shift).
-   *
-   * @param props The window, the tilt, the travel and the legs.
-   * @returns The primitive, on the root and the trunk.
+   * Parameter props: The window, the tilt, the travel and the legs.
+   * Returns: The primitive, on the root and the trunk.
    */
   export function sway(
     props: IAutoMovieMotionHumanLean.ISway,
@@ -175,14 +171,13 @@ export namespace AutoMovieMotionHumanLean {
     };
   }
 
-  /**
+  /*
    * A posture tipped forward about the hips.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @param pitch Forward pitch added, degrees.
-   * @param back How far the hips move back along the heading, metres.
-   * @returns The tipped posture.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Parameter pitch: Forward pitch added, degrees.
+   * Parameter back: How far the hips move back along the heading, metres.
+   * Returns: The tipped posture.
    */
   export function tip(
     body: IAutoMovieMotionHumanBody,
@@ -211,16 +206,15 @@ export namespace AutoMovieMotionHumanLean {
     return { ...tipped, root: Vector3.subtract(target, offset) };
   }
 
-  /**
+  /*
    * A bow: the trunk pitched by a share of a peak, and with the balance option
    * (`IAutoMovieMotionHumanBalance`, off by default) the hips moved back by the
-   * balance shift solved once at the peak ({@link HumanBalance.shift}) and
+   * balance shift solved once at the peak (HumanBalance.shift) and
    * scaled between by the pitch's sine, the lever of the trunk's weight ahead
    * of the hips.
-   *
-   * @param props The body, the standing posture, the peak and the window.
-   * @returns The primitive, on the root and the trunk.
-   * @throws {Error} When the peak is not positive.
+   * Parameter props: The body, the standing posture, the peak and the window.
+   * Returns: The primitive, on the root and the trunk.
+   * When the peak is not positive.
    */
   export function bow(
     props: IAutoMovieMotionHumanLean.IBow,

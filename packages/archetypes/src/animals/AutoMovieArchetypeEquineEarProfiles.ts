@@ -128,7 +128,7 @@ export namespace AutoMovieArchetypeEquineEarProfiles {
     });
   }
 
-  /**
+  /*
    * Ten-to-one planar proxy and the neutral splay are authored geometry, never
    * ear-tissue measurements or biological pose.
    */

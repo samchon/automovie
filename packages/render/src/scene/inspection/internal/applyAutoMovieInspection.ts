@@ -37,7 +37,7 @@ import { mergeAutoMovieInspectionLegends } from "./mergeAutoMovieInspectionLegen
 import { placeAutoMovieInspectionLabels } from "./placeAutoMovieInspectionLabels.js";
 import { resolveAutoMovieInspectionColors } from "./resolveAutoMovieInspectionColors.js";
 
-/**
+/*
  * Turn a built scene into the picture an inspection request asks for, in place,
  * and return the handle that keeps its shade and marks current and puts the
  * scene back.
@@ -451,7 +451,9 @@ export function applyAutoMovieInspection(
   }
 }
 
-/** Every mesh defect kind the palette colours, in the palette's order. */
+/*
+ * Every mesh defect kind the palette colours, in the palette's order.
+ */
 const DEFECT_KINDS: readonly IAutoMovieMeshDefect.Kind[] = [
   "open",
   "non-manifold",
@@ -460,28 +462,38 @@ const DEFECT_KINDS: readonly IAutoMovieMeshDefect.Kind[] = [
   "sliver",
 ];
 
-/**
+/*
  * Supplied marks a picture draws, and the same marks grouped by the object
  * their frame belongs to, `null` for world space.
  */
 interface IChosen {
-  /** The marks drawn, in the order supplied. */
+  /*
+   * The marks drawn, in the order supplied.
+   */
   marks: IAutoMovieMark[];
 
-  /** The same marks by anchor. */
+  /*
+   * The same marks by anchor.
+   */
   sets: Map<THREE.Object3D | null, IAutoMovieMark[]>;
 }
 
-/** A drawn mark with the object its frame belongs to, `null` for world space. */
+/*
+ * A drawn mark with the object its frame belongs to, `null` for world space.
+ */
 interface IPlaced {
-  /** The mark. */
+  /*
+   * The mark.
+   */
   mark: IAutoMovieMark;
 
-  /** Its anchor. */
+  /*
+   * Its anchor.
+   */
   anchor: THREE.Object3D | null;
 }
 
-/**
+/*
  * The two surface colours of the faces shade with the number of surfaces
  * shaded, or nothing under any other shade or with surfaces off.
  */

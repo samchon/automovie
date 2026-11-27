@@ -1,6 +1,6 @@
 import type { AutoMovieGuidePass } from "@automovie/interface";
 
-/**
+/*
  * Return the one structural pass a guide-pass deliverable declares, or throw.
  *
  * After folding repeats exactly one distinct pass must remain, so one

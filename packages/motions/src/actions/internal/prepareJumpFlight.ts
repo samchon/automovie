@@ -12,21 +12,20 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { jumpAirborne } from "./jumpAirborne";
 
-/**
+/*
  * Prepare the jump's free-flight reader so a single canonical solve supplies
  * both its mass offset and its translated displayed posture for each query.
  * Original clinical joints and free leg demands stay in the posture, and the
  * placed solve travels with it (`HumanPosturePreparation.IPlaced`).
- *
- * @param body The plan's unchanged body.
- * @param model Its physical mass model.
- * @param shape The same achieved endpoints and authored free-goal interpolation
- *   used throughout flight.
- * @param duration Physical flight duration in seconds for the
- *   velocity-continuation angular resolution law.
- * @returns A reader of flight share in [0,1] and demanded world COM in metres,
- *   optionally borrowing its synchronous parent's exact FK source and genuine
- *   same-body ROM projector.
+ * Parameter body: The plan's unchanged body.
+ * Parameter model: Its physical mass model.
+ * Parameter shape: The same achieved endpoints and authored free-goal interpolation
+ * used throughout flight.
+ * Parameter duration: Physical flight duration in seconds for the
+ * velocity-continuation angular resolution law.
+ * Returns: A reader of flight share in [0,1] and demanded world COM in metres,
+ * optionally borrowing its synchronous parent's exact FK source and genuine
+ * same-body ROM projector.
  */
 export function prepareJumpFlight(
   body: IAutoMovieMotionHumanBody,
@@ -68,11 +67,15 @@ export function prepareJumpFlight(
   };
 }
 
-/** Native jump flight shape reader. */
+/*
+ * Native jump flight shape reader.
+ */
 export namespace prepareJumpFlight {
-  /** Read the achieved shape at the requested ballistic centre. */
+  /*
+   * Read the achieved shape at the requested ballistic centre.
+   */
   export interface IReader {
-    /**
+    /*
      * Normalized flight share, world COM, and an optional current native
      * FK/projector loan.
      */

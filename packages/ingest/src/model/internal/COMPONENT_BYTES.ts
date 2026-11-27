@@ -1,4 +1,6 @@
-/** Bytes per component for each glTF component type. */
+/*
+ * Bytes per component for each glTF component type.
+ */
 export const COMPONENT_BYTES: ReadonlyMap<number, number> = new Map<
   number,
   number

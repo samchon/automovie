@@ -5,7 +5,7 @@ import type {
   IAutoMovieRenderTextureSource,
 } from "@automovie/interface";
 
-/**
+/*
  * Measure one caller-supplied compiled shot against an explicitly supplied
  * budget, renderer identity, settings, assets, decoded texture/residency facts
  * and, for a directly rendered film, its most demanding optics and shading,

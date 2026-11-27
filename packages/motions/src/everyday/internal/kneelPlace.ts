@@ -6,18 +6,17 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Where the kneeling hip joint comes to rest over the knee: behind the front
  * ankle by what the thigh's length leaves after the height difference, the
  * reverse lunge, or straight over a named floor point the knee comes down on,
  * the kneeling leg stepping there while the front foot stays planted.
- *
- * @param input The hip, the front foot and the optional knee point.
- * @returns The kneeling hip joint, world metres.
- * @throws {HumanRefusal} When the hip over the named point would stand less
- *   than the reverse lunge's distance behind the front ankle, folding the front
- *   knee ahead of its foot, or the front foot would be out of the front leg's
- *   reach.
+ * Parameter input: The hip, the front foot and the optional knee point.
+ * Returns: The kneeling hip joint, world metres.
+ * When the hip over the named point would stand less
+ * than the reverse lunge's distance behind the front ankle, folding the front
+ * knee ahead of its foot, or the front foot would be out of the front leg's
+ * reach.
  */
 export function kneelPlace(input: kneelPlace.IInput): IAutoMovieVector3 {
   const {
@@ -66,32 +65,50 @@ export function kneelPlace(input: kneelPlace.IInput): IAutoMovieVector3 {
   return placed;
 }
 
-/** Inputs of {@link kneelPlace}. */
+/*
+ * Inputs of kneelPlace.
+ */
 export namespace kneelPlace {
-  /** What the placement reads. */
+  /*
+   * What the placement reads.
+   */
   export interface IInput {
-    /** The performer. */
+    /*
+     * The performer.
+     */
     body: { measure: Pick<IAutoMovieBodyMeasure, "thigh" | "shank"> };
 
-    /** The kneeling leg's standing hip joint, world metres. */
+    /*
+     * The kneeling leg's standing hip joint, world metres.
+     */
     hip: IAutoMovieVector3;
 
-    /** The planted front ankle, world metres. */
+    /*
+     * The planted front ankle, world metres.
+     */
     front: IAutoMovieVector3;
 
-    /** The heading's unit direction. */
+    /*
+     * The heading's unit direction.
+     */
     forward: IAutoMovieVector3;
 
-    /** How far the reverse lunge's hip stands behind the front ankle, metres. */
+    /*
+     * How far the reverse lunge's hip stands behind the front ankle, metres.
+     */
     behind: number;
 
-    /** The kneeling hip joint's height, metres. */
+    /*
+     * The kneeling hip joint's height, metres.
+     */
     height: number;
 
-    /** The front hip joint less the kneeling one, world metres. */
+    /*
+     * The front hip joint less the kneeling one, world metres.
+     */
     across: IAutoMovieVector3;
 
-    /**
+    /*
      * The floor point the knee comes down on, world metres; the reverse lunge's
      * when absent.
      */

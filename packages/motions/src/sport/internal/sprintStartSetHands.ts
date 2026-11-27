@@ -10,14 +10,13 @@ import type {
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/**
+/*
  * A hand's bridge at the line.
- *
- * @param body The body.
- * @param frame The set's frame, its origin the entry's root on the floor; the
- *   line lies a foot's length ahead.
- * @param side The hand.
- * @returns Its two pad targets and the seed's wrist.
+ * Parameter body: The body.
+ * Parameter frame: The set's frame, its origin the entry's root on the floor; the
+ * line lies a foot's length ahead.
+ * Parameter side: The hand.
+ * Returns: Its two pad targets and the seed's wrist.
  */
 export function sprintStartSetHands(
   body: IAutoMovieMotionHumanBody,
@@ -66,7 +65,7 @@ export function sprintStartSetHands(
   };
 }
 
-/**
+/*
  * The set's hands on the bridge of the thumb and index finger: in the set a
  * sprinter supports the hands on the fingertips, the forefinger and thumb
  * against the start line, the palm raised off the track (Davidson 2013,
@@ -84,16 +83,15 @@ export function sprintStartSetHands(
  * stands it over the pads' middle.
  */
 export namespace sprintStartSetHands {
-  /**
+  /*
    * The set's frame: the entry stand's own, the floor point its feet stand
    * around (their ankles less the rest feet's offset from the body's origin, as
    * `stand.stance` places them), turned to its heading. The line lies a foot's
    * length ahead of it.
-   *
-   * @param body The body.
-   * @param feet The entry's feet.
-   * @param yaw The heading, degrees.
-   * @returns The frame.
+   * Parameter body: The body.
+   * Parameter feet: The entry's feet.
+   * Parameter yaw: The heading, degrees.
+   * Returns: The frame.
    */
   export function frame(
     body: IAutoMovieMotionHumanBody,
@@ -120,12 +118,16 @@ export namespace sprintStartSetHands {
     };
   }
 
-  /** A hand's bridge. */
+  /*
+   * A hand's bridge.
+   */
   export interface IBridge {
-    /** The index pad's and the thumb pad's targets on the track. */
+    /*
+     * The index pad's and the thumb pad's targets on the track.
+     */
     targets: IAutoMovieMotionHumanBodyFitTypes.ITarget[];
 
-    /**
+    /*
      * The seed's wrist, over the pads' middle by the pads' reach from the
      * wrist, world metres.
      */
@@ -133,5 +135,7 @@ export namespace sprintStartSetHands {
   }
 }
 
-/** The record of `IFrameFeetEntry`'s site. */
+/*
+ * The record of `IFrameFeetEntry`'s site.
+ */
 type IFrameFeetEntry = { ankle: IAutoMovieVector3 };

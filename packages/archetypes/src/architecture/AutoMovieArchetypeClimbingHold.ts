@@ -9,7 +9,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** The provisional size range of a coarse ledge in an authored film set. */
+/*
+ * The provisional size range of a coarse ledge in an authored film set.
+ */
 const PROFILE: string = "Coarse wall-mounted climbing ledge for a film set";
 /** Creates a deterministic climbing hold fixture and exposes its construction parameters. */
 export namespace AutoMovieArchetypeClimbingHold {

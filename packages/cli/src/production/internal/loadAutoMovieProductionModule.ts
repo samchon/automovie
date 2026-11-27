@@ -1,7 +1,7 @@
 import { createRequire } from "node:module";
 import * as path from "node:path";
 
-/**
+/*
  * Load a package as the production at `root` resolves it, for the capture
  * host's optional peers: `@automovie/render`, `vite`, `playwright-core` and
  * `ffmpeg-static`.
@@ -10,10 +10,9 @@ import * as path from "node:path";
  * installs nothing a capture needs. Resolve dependencies from the production in
  * order to diagnose a missing package or an installed module that fails to
  * initialize. Preserve the original failure as the cause.
- *
- * @param root The production's folder.
- * @param id The package to load.
- * @returns The package's exports, typed by the module's declared type T.
+ * Parameter root: The production's folder.
+ * Parameter id: The package to load.
+ * Returns: The package's exports, typed by the module's declared type T.
  */
 export function loadAutoMovieProductionModule<T = unknown>(
   root: string,

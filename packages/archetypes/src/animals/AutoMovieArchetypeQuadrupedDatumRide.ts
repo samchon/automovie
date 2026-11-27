@@ -39,7 +39,7 @@ export namespace AutoMovieArchetypeQuadrupedDatumRide {
   }
 }
 
-/**
+/*
  * A grounded ride on authored footing whose course datum is the ground under
  * its start, for a ride that begins on a bank or bed far above or below Y=0.
  *
@@ -50,14 +50,13 @@ export namespace AutoMovieArchetypeQuadrupedDatumRide {
  * translation of the whole scene. The returned `plan` stays in the ride's own
  * datum frame, so its placements' horizontal coordinates and headings are the
  * world's and its heights are relative to the datum.
- *
- * @param animal The quadruped, in its neutral pose.
- * @param course Its course and the authored footing, in world metres.
- * @param gait The gait of every stride whose leg names none; the speed chooses
- *   it when absent.
- * @returns The ride, its samples in the world.
- * @throws {AutoMovieArchetypeRefusal} When no authored surface lies under the
- *   course's start, and as `AutoMovieArchetypeQuadruped.ride` refuses.
+ * Parameter animal: The quadruped, in its neutral pose.
+ * Parameter course: Its course and the authored footing, in world metres.
+ * Parameter gait: The gait of every stride whose leg names none; the speed chooses
+ * it when absent.
+ * Returns: The ride, its samples in the world.
+ * When no authored surface lies under the
+ * course's start, and as `AutoMovieArchetypeQuadruped.ride` refuses.
  */
 function quadrupedDatumRide<
   Affordance extends string,

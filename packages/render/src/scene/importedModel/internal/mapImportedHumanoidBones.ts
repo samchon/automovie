@@ -1,7 +1,7 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import type * as THREE from "three";
 
-/**
+/*
  * Map loaded glTF/VRM nodes onto requested humanoid slots.
  *
  * Names are lowercased, Mixamo prefixes and separators are removed, and common

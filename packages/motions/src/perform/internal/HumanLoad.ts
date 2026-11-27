@@ -8,7 +8,7 @@ import type {
 
 import { HumanForce } from "./HumanForce";
 
-/**
+/*
  * Loads, a moving support and slips: the one owner of a carried mass leaning a
  * body, of a support's acceleration acting on its rider, and of a planted
  * foot's required friction.
@@ -35,14 +35,13 @@ import { HumanForce } from "./HumanForce";
  * dynamics, as the definition does.
  */
 export namespace HumanLoad {
-  /**
+  /*
    * The backward lean that balances a carried load, degrees about the base,
    * positive forward; null when the load's moment exceeds the body's own at a
    * right angle, which no lean balances.
-   *
-   * @param props The body's mass and centre height, and the load's mass and its
-   *   distance ahead of the centre.
-   * @returns Degrees, or null.
+   * Parameter props: The body's mass and centre height, and the load's mass and its
+   * distance ahead of the centre.
+   * Returns: Degrees, or null.
    */
   export function lean(
     props: IAutoMovieMotionHumanLoad.ILeanProps,
@@ -53,17 +52,16 @@ export namespace HumanLoad {
     return (-Math.asin(ratio) * 180) / Math.PI;
   }
 
-  /**
+  /*
    * The inertial force a support's acceleration puts on its rider, as a
    * sustained force at the centre of mass.
-   *
-   * @param subject The rider.
-   * @param mass The rider's mass, kilograms.
-   * @param acceleration The support's acceleration at a film second, world
-   *   m/s².
-   * @param from Film seconds, start.
-   * @param to Film seconds, end.
-   * @returns The force, `-M a`.
+   * Parameter subject: The rider.
+   * Parameter mass: The rider's mass, kilograms.
+   * Parameter acceleration: The support's acceleration at a film second, world
+   * m/s².
+   * Parameter from: Film seconds, start.
+   * Parameter to: Film seconds, end.
+   * Returns: The force, `-M a`.
    */
   export function inertial(
     subject: string,
@@ -83,16 +81,15 @@ export namespace HumanLoad {
     };
   }
 
-  /**
+  /*
    * Whether a rider held still on a support accelerating horizontally tips over
    * the base's edge: the centre of pressure's shift `h |a| / g` past the base's
    * half-length along the acceleration.
-   *
-   * @param acceleration The support's horizontal acceleration, m/s².
-   * @param height The rider's centre-of-mass height, metres.
-   * @param half The base's half-length along the acceleration, metres.
-   * @param gravity Gravitational acceleration, m/s²; standard when absent.
-   * @returns Whether the rider must step, grab or fall.
+   * Parameter acceleration: The support's horizontal acceleration, m/s².
+   * Parameter height: The rider's centre-of-mass height, metres.
+   * Parameter half: The base's half-length along the acceleration, metres.
+   * Parameter gravity: Gravitational acceleration, m/s²; standard when absent.
+   * Returns: Whether the rider must step, grab or fall.
    */
   export function tips(
     acceleration: number,
@@ -103,14 +100,13 @@ export namespace HumanLoad {
     return (height * Math.abs(acceleration)) / gravity > half;
   }
 
-  /**
+  /*
    * The friction coefficient the bearing feet need, the horizontal over the
    * vertical ground reaction implied by the centre's acceleration.
-   *
-   * @param acceleration The centre of mass's acceleration, world m/s².
-   * @param gravity Gravitational acceleration, m/s²; standard when absent.
-   * @returns The required coefficient; infinite when the body is not pressed
-   *   onto the floor.
+   * Parameter acceleration: The centre of mass's acceleration, world m/s².
+   * Parameter gravity: Gravitational acceleration, m/s²; standard when absent.
+   * Returns: The required coefficient; infinite when the body is not pressed
+   * onto the floor.
    */
   export function required(
     acceleration: IAutoMovieVector3,
@@ -121,13 +117,12 @@ export namespace HumanLoad {
     return Math.hypot(acceleration.x, acceleration.z) / vertical;
   }
 
-  /**
+  /*
    * The sum of the sustained forces on a person at a second.
-   *
-   * @param forces The forces.
-   * @param subject The person.
-   * @param seconds Film seconds.
-   * @returns World newtons.
+   * Parameter forces: The forces.
+   * Parameter subject: The person.
+   * Parameter seconds: Film seconds.
+   * Returns: World newtons.
    */
   export function sustained(
     forces: readonly IAutoMovieMotionHumanForce[],

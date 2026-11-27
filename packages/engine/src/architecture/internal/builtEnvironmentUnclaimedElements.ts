@@ -3,7 +3,7 @@ import {
   IAutoMovieBuiltEnvironment,
 } from "@automovie/interface";
 
-/**
+/*
  * Hierarchy roots that carry no logical-space assignment.
  *
  * Logical-space assignment is an authored index, so an exterior wall or
@@ -13,7 +13,7 @@ import {
  *
  * The reach path therefore belongs on the element hierarchy rather than on the
  * space tree, and that is the record's own arrangement:
- * {@link IAutoMovieBuiltEnvironment.buildings} states that ownership is total,
+ * IAutoMovieBuiltEnvironment.buildings states that ownership is total,
  * every element descending from exactly one unit's roots. A space is an index
  * over that hierarchy, so an unassigned element is not detached, only
  * unindexed.
@@ -25,10 +25,9 @@ import {
  *
  * A resolvable hierarchy is the precondition, which `validateBuiltEnvironment`
  * enforces by rejecting an unresolved parent and a parent cycle.
- *
- * @param environment Building record to read.
- * @returns `<environment>/<element>` node ids of every root element with no
- *   space, in record order.
+ * Parameter environment: Building record to read.
+ * Returns: `<environment>/<element>` node ids of every root element with no
+ * space, in record order.
  */
 export function builtEnvironmentUnclaimedElements(
   environment: IAutoMovieBuiltEnvironment,

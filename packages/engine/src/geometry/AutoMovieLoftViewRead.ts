@@ -222,22 +222,28 @@ export namespace AutoMovieLoftViewRead {
   }
 }
 
-/**
+/*
  * The cap's actual active domain and small complementary weight survive rounded
  * values.
  */
 interface CapReading {
-  /** Weight value and its actual physical station derivatives. */
+  /*
+   * Weight value and its actual physical station derivatives.
+   */
   jet: IAutoMovieViewSectionField.IStationJet;
 
-  /** Independently evaluated one-minus-weight, including beside the pole. */
+  /*
+   * Independently evaluated one-minus-weight, including beside the pole.
+   */
   complement: number;
 
-  /** A source-support decision, never inferred from a rounded primal weight. */
+  /*
+   * A source-support decision, never inferred from a rounded primal weight.
+   */
   active: boolean;
 }
 
-/**
+/*
  * Whether a source's sections are conic chains (touch offsets, splits or split
  * lists) rather than four plain quarters.
  *
@@ -256,10 +262,12 @@ function chained(source: IAutoMovieLoftViewSource.ISource): boolean {
   );
 }
 
-/** The four scalar roles of one split, in its tuple order. */
+/*
+ * The four scalar roles of one split, in its tuple order.
+ */
 const SPLIT: readonly string[] = ["u", "v", "angle", "shoulder"];
 
-/**
+/*
  * Distinguish explicit source absence at the caller from broken present source
  * data here.
  */
@@ -267,7 +275,9 @@ function validate(source: IAutoMovieLoftViewSource.ISource): void {
   structure(source);
 }
 
-/** Refuse a malformed source or station by the rule it breaks. */
+/*
+ * Refuse a malformed source or station by the rule it breaks.
+ */
 function structure(source: IAutoMovieLoftViewSource.ISource): void {
   if (
     source.extents.length !== 4 ||
@@ -374,7 +384,9 @@ function structure(source: IAutoMovieLoftViewSource.ISource): void {
   }
 }
 
-/** A finite original scalar remains independent of its derivative availability. */
+/*
+ * A finite original scalar remains independent of its derivative availability.
+ */
 function value(
   outline: IAutoMovieViewOutline.IOutline,
   station: number,
@@ -385,7 +397,7 @@ function value(
   return reading;
 }
 
-/**
+/*
  * Required physical source2 is read, never inferred from nearby samples or
  * parameter jets.
  */
@@ -404,7 +416,7 @@ function jet(
   return [reading.value, reading.stationJet[0], reading.stationJet[1]];
 }
 
-/**
+/*
  * Existing maximum of disjoint quintic cap spans, with exact physical station
  * derivatives.
  */
@@ -449,7 +461,7 @@ function cap(
   return { jet: [0, 0, 0], complement: 1, active: false };
 }
 
-/**
+/*
  * Both sides use their directly represented small weight rather than
  * subtracting a rounded one.
  */
@@ -460,7 +472,7 @@ function blend(value: number, reading: CapReading): number {
         reading.complement * (value - AutoMovieViewSection.ELLIPSE);
 }
 
-/**
+/*
  * Include the actual query coordinate while retaining the original diagnostic
  * text.
  */

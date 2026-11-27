@@ -1,18 +1,24 @@
 import type { IAutoMovieSpline } from "@automovie/interface";
 
-/**
+/*
  * Tension below which a segment is evaluated as the plain cubic, where the
  * hyperbolic form loses precision.
  */
 const CUBIC: number = 1e-4;
 
-/** Largest tension tried by the fixed sampled-search policy. */
+/*
+ * Largest tension tried by the fixed sampled-search policy.
+ */
 const MOST: number = 64;
 
-/** Bisection steps that refine an accepted/rejected sampled-tension bracket. */
+/*
+ * Bisection steps that refine an accepted/rejected sampled-tension bracket.
+ */
 const SETTLE: number = 10;
 
-/** Samples per segment when measuring overshoot. */
+/*
+ * Samples per segment when measuring overshoot.
+ */
 const SAMPLES: number = 16;
 
 /**
@@ -142,7 +148,7 @@ export namespace AutoMovieSpline {
     );
   }
 
-  /**
+  /*
    * Whether the spline at a tension meets the overshoot bound, leaving its
    * coefficients in `m`.
    */
@@ -159,7 +165,9 @@ export namespace AutoMovieSpline {
     return within(xs, ys, m, n, period, tension, scratch);
   }
 
-  /** The spline on segment `k` at its own parameter `t`. */
+  /*
+   * The spline on segment `k` at its own parameter `t`.
+   */
   function segment(
     xs: ArrayLike<number>,
     ys: ArrayLike<number>,
@@ -194,7 +202,9 @@ export namespace AutoMovieSpline {
     );
   }
 
-  /** Width of segment `k`, the wrap segment's taken across the period. */
+  /*
+   * Width of segment `k`, the wrap segment's taken across the period.
+   */
   function width(
     xs: ArrayLike<number>,
     n: number,
@@ -204,7 +214,7 @@ export namespace AutoMovieSpline {
     return k < n - 1 ? xs[k + 1]! - xs[k]! : xs[0]! + period - xs[n - 1]!;
   }
 
-  /**
+  /*
    * The two coefficients of a segment of width `h` in the continuity system:
    * its own and its neighbour's.
    */
@@ -221,7 +231,7 @@ export namespace AutoMovieSpline {
       : h * (1 / (tension * tension) - 1 / (tension * Math.sinh(tension)));
   }
 
-  /**
+  /*
    * Solve the knots' second derivatives at one tension: natural ends, or cyclic
    * for a period by the Sherman-Morrison correction (Press et al., Numerical
    * Recipes, section 2.7). `scratch` holds the sub-diagonal, diagonal,
@@ -288,7 +298,7 @@ export namespace AutoMovieSpline {
     for (let r: number = 0; r < n; ++r) m[r] = m[r]! - factor * scratch[z + r]!;
   }
 
-  /**
+  /*
    * Solve the tridiagonal rows held in `scratch` (sub-diagonal from 0, diagonal
    * from `n`, super-diagonal from `2n`, right side from `rhs`) into `out` from
    * `offset`, by elimination using `scratch` from `4n`.
@@ -319,7 +329,7 @@ export namespace AutoMovieSpline {
         scratch[dp + r]! - scratch[cp + r]! * out[offset + r + 1]!;
   }
 
-  /**
+  /*
    * Whether the sampled fractions of every segment stay within the knot range
    * plus the allowed local variation.
    */
@@ -371,7 +381,9 @@ export namespace AutoMovieSpline {
     return true;
   }
 
-  /** The value step of segment `k`, 0 beyond an open profile's ends. */
+  /*
+   * The value step of segment `k`, 0 beyond an open profile's ends.
+   */
   function rise(
     ys: ArrayLike<number>,
     n: number,

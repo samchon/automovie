@@ -1,4 +1,4 @@
-/**
+/*
  * Adult Boso sika body references and separately sampled sex-matched skeletons.
  *
  * Ochiai and Asada 1995, Chiba 3(2):223-232, Table 3 (printed p.225), supplies
@@ -13,40 +13,62 @@ export namespace DeerCohorts {
   /** The two source-supported adult body references. */
   export type Name = "boso-adult-male" | "boso-adult-female";
 
-  /** Whole external body means in metres and kilograms. */
+  /*
+   * Whole external body means in metres and kilograms.
+   */
   export interface IMeasures {
-    /** Ground to shoulder landmark, metres. */
+    /*
+     * Ground to shoulder landmark, metres.
+     */
     withers: number;
-    /** Chest circumference, metres. */
+    /*
+     * Chest circumference, metres.
+     */
     girth: number;
-    /** Shoulder-to-rump straight length, metres. */
+    /*
+     * Shoulder-to-rump straight length, metres.
+     */
     body: number;
-    /** Published bare body mean, kilograms; excludes authored equipment. */
+    /*
+     * Published bare body mean, kilograms; excludes authored equipment.
+     */
     mass: number;
   }
 
-  /** Sex-matched skull and limb means of separately sampled adults age5+. */
+  /*
+   * Sex-matched skull and limb means of separately sampled adults age5+.
+   */
   export interface ISkeleton {
-    /** Humerus, radius and metacarpus maximum lengths, metres. */
+    /*
+     * Humerus, radius and metacarpus maximum lengths, metres.
+     */
     fore: readonly [number, number, number];
-    /** Femur, tibia and metatarsus maximum lengths, metres. */
+    /*
+     * Femur, tibia and metatarsus maximum lengths, metres.
+     */
     hind: readonly [number, number, number];
-    /** Greatest cranium length, metres. */
+    /*
+     * Greatest cranium length, metres.
+     */
     head: number;
-    /** Greatest breadth across parietal processes, metres. */
+    /*
+     * Greatest breadth across parietal processes, metres.
+     */
     headWidth: number;
   }
 
-  /** Previous male reference, preserved for canonical seedless construction. */
+  /*
+   * Previous male reference, preserved for canonical seedless construction.
+   */
   export const DEFAULT: Name = "boso-adult-male";
 
-  /**
+  /*
    * Authored equal-choice adult-reference palette, not population sex
    * frequencies.
    */
   export const NAMES: readonly Name[] = [DEFAULT, "boso-adult-female"];
 
-  /**
+  /*
    * 1995 Table3 body centimetres converted to metres, weights retained in
    * kilograms.
    */
@@ -60,7 +82,9 @@ export namespace DeerCohorts {
     },
   };
 
-  /** 1997 Table3 skull and Table7 limb millimetre means converted to metres. */
+  /*
+   * 1997 Table3 skull and Table7 limb millimetre means converted to metres.
+   */
   export const SKELETONS: Readonly<Record<Name, Readonly<ISkeleton>>> = {
     "boso-adult-male": {
       fore: [0.1995, 0.198, 0.1873],

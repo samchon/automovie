@@ -3,12 +3,14 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 
-/**
+/*
  * Analytic level-ground support over a complete declared rotation about model
  * -X.
  */
 export namespace SiegeClearance {
-  /** Lowest point height over an interval, including interior stationary points. */
+  /*
+   * Lowest point height over an interval, including interior stationary points.
+   */
   export function minimum(
     height: number,
     cosine: number,
@@ -32,7 +34,7 @@ export namespace SiegeClearance {
       low = Math.min(low, down(height - up(Math.hypot(cosine, sine))));
     return low;
 
-    /**
+    /*
      * Outward arithmetic retains the physical zero rather than adding a length
      * margin.
      */
@@ -44,7 +46,9 @@ export namespace SiegeClearance {
     }
   }
 
-  /** Lowest unrotated box surface after its carrier's complete X rotation. */
+  /*
+   * Lowest unrotated box surface after its carrier's complete X rotation.
+   */
   export function box(
     at: IAutoMovieVector3,
     size: IAutoMovieVector3,
@@ -89,7 +93,9 @@ export namespace SiegeClearance {
     return low;
   }
 
-  /** Lowest finite-cylinder surface for the X or sagittal source axis. */
+  /*
+   * Lowest finite-cylinder surface for the X or sagittal source axis.
+   */
   export function cylinder(
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
@@ -152,15 +158,14 @@ export namespace SiegeClearance {
     return low;
   }
 
-  /**
+  /*
    * Select a representable section at the boundary of a monotone support
    * domain.
-   *
-   * @param maximum Authored positive section cap in metres.
-   * @param fits Analytic whole-assembly support predicate, including the
-   *   zero-radius limit.
-   * @returns A positive finite radius; the caller emits that same construction.
-   * @throws {RangeError} If no positive representable section fits.
+   * Parameter maximum: Authored positive section cap in metres.
+   * Parameter fits: Analytic whole-assembly support predicate, including the
+   * zero-radius limit.
+   * Returns: A positive finite radius; the caller emits that same construction.
+   * If no positive representable section fits.
    */
   export function radius(
     maximum: number,
@@ -189,12 +194,14 @@ export namespace SiegeClearance {
   }
 }
 
-/** Move arithmetic toward the lower representable bound, preserving exact zeros. */
+/*
+ * Move arithmetic toward the lower representable bound, preserving exact zeros.
+ */
 function down(value: number): number {
   return value === 0 ? 0 : AutoMovieEngineMath.adjacentFloat64(value, false);
 }
 
-/**
+/*
  * Move an amplitude toward the upper representable bound, preserving exact
  * zero.
  */
@@ -202,7 +209,9 @@ function up(value: number): number {
   return value === 0 ? 0 : AutoMovieEngineMath.adjacentFloat64(value, true);
 }
 
-/** Include the exact periodic stationary angle without enumerating whole turns. */
+/*
+ * Include the exact periodic stationary angle without enumerating whole turns.
+ */
 function critical(
   angles: Set<number>,
   cosine: number,
@@ -215,7 +224,7 @@ function critical(
   if (angle >= first && angle <= last) angles.add(angle);
 }
 
-/**
+/*
  * Check rigid-transform representability at critical clocks and adjacent
  * inputs.
  */

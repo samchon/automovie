@@ -18,7 +18,7 @@ import { parseAutoMovieInspectionView } from "../../scene/inspection/internal/pa
 import { planAutoMovieCaptureFrames } from "./planAutoMovieCaptureFrames.js";
 import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
 
-/**
+/*
  * Plan a capture as data before anything is drawn: check the request against
  * what the subject offers, then list every cell, fixed by selection, time, view
  * and pass, and lay them out for the reader budget.
@@ -172,7 +172,9 @@ export function planAutoMovieCapture(
   };
 }
 
-/** Each unit the sweep pattern matches, alone and with its neighbours. */
+/*
+ * Each unit the sweep pattern matches, alone and with its neighbours.
+ */
 function sweep(
   request: IAutoMovieCapturePlanRequest,
   subject: IAutoMovieCaptureSubject,
@@ -205,7 +207,9 @@ function sweep(
     },
   );
 }
-/** The plan's inspection with a cell's pass and selection. */
+/*
+ * The plan's inspection with a cell's pass and selection.
+ */
 function inspect(
   inspection: IAutoMovieInspectionRequest,
   pass: AutoMovieInspectionShade,
@@ -214,7 +218,7 @@ function inspect(
   return { ...inspection, shade: pass, parts: [...selection.parts] };
 }
 
-/**
+/*
  * A view text as a file-name part: runs of other characters than letters,
  * digits, `_` and `-` become `_`.
  */
@@ -222,7 +226,7 @@ function slug(text: string): string {
   return text.replace(/[^A-Za-z0-9_-]+/gu, "_");
 }
 
-/**
+/*
  * What a sheet cell says: frame and second, the named instant's label, then
  * whatever varies in the plan.
  */

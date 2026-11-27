@@ -21,7 +21,7 @@ import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 import { humanTrickSchedule } from "./humanTrickSchedule";
 
-/**
+/*
  * Trick-riding figures (`IAutoMovieMotionHumanTrick`): each figure is a key
  * posture in the seat contact's moving frame whose feet and hands are bound to
  * the trick saddle's own straps, horn and handholds (or a pickup's prop) read
@@ -36,34 +36,54 @@ export const HumanTrick: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTri
     plan: planHumanTrick,
   };
 
-/** The law's context. */
+/*
+ * The law's context.
+ */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTrick>;
-/** The alternatives of `BindLimb`'s site. */
+/*
+ * The alternatives of `BindLimb`'s site.
+ */
 type BindLimb = "leftLeg" | "rightLeg" | "leftArm" | "rightArm";
 
-/** A limb's binding to a carrier contact in a figure. */
+/*
+ * A limb's binding to a carrier contact in a figure.
+ */
 interface IBind {
-  /** The limb. */
+  /*
+   * The limb.
+   */
   limb: BindLimb;
 
-  /** The carrier contact, or `object` for a pickup's prop. */
+  /*
+   * The carrier contact, or `object` for a pickup's prop.
+   */
   contact: string;
 }
 
-/** A figure's key: its posture in the seat's frame and its limbs' bindings. */
+/*
+ * A figure's key: its posture in the seat's frame and its limbs' bindings.
+ */
 interface IKey {
-  /** The posture, in the seat contact's frame. */
+  /*
+   * The posture, in the seat contact's frame.
+   */
   posture: IAutoMovieMotionHumanPosture;
 
-  /** The limbs bound to contacts. */
+  /*
+   * The limbs bound to contacts.
+   */
   binds: IBind[];
 }
 
-/** Admit the figures, lay each key once, then sample. */
+/*
+ * Admit the figures, lay each key once, then sample.
+ */
 function planHumanTrick(context: Context): IAutoMovieMotionHumanActionPlan {
   return plan(context);
 }
-/** Admit, lay the keys and sample. */
+/*
+ * Admit, lay the keys and sample.
+ */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const { on, frame, figures }: IAutoMovieMotionHumanTrick = context.params;
   const schedule: humanTrickSchedule.ISchedule = humanTrickSchedule(figures);
@@ -264,7 +284,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   );
 }
 
-/**
+/*
  * A posture with its leg goals only: the arms are laid by the act's course,
  * never by goals carried from the entry.
  */
@@ -284,7 +304,9 @@ function legsOnly(
   };
 }
 
-/** A figure's key posture in the seat's frame and its bindings. */
+/*
+ * A figure's key posture in the seat's frame and its bindings.
+ */
 function key(
   body: IAutoMovieMotionHumanBody,
   entry: IAutoMovieMotionHumanPosture,

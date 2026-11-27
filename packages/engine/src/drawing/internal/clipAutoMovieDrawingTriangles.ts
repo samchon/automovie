@@ -8,19 +8,18 @@ import { Vector3 } from "../../math/Vector3";
 import { autoMovieDrawingPlaneDistance } from "./autoMovieDrawingPlaneDistance";
 import { AUTOMOVIE_DRAWING_EPSILON } from "../AUTOMOVIE_DRAWING_EPSILON";
 
-/**
+/*
  * Keep only the part of a triangle soup beyond the cut plane, the side a cut
  * leaves standing.
  *
  * Each triangle is clipped against the plane, with corners within
- * {@link AUTOMOVIE_DRAWING_EPSILON} of it kept, and the surviving convex polygon
+ * AUTOMOVIE_DRAWING_EPSILON of it kept, and the surviving convex polygon
  * is re-fanned into triangles that keep the source winding. New edges lying in
  * the plane are exactly what the cut linework draws, and the drafter drops
  * their silhouette so no segment is drafted twice.
- *
- * @param frame Page basis whose origin and normal define the cut plane.
- * @param triangles World triangles of one drawable.
- * @returns The kept triangles, in input order, in world metres.
+ * Parameter frame: Page basis whose origin and normal define the cut plane.
+ * Parameter triangles: World triangles of one drawable.
+ * Returns: The kept triangles, in input order, in world metres.
  */
 export const clipAutoMovieDrawingTriangles = (
   frame: IAutoMovieDrawingFrame,

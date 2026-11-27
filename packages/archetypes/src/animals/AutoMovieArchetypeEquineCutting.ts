@@ -91,7 +91,9 @@ export namespace AutoMovieArchetypeEquineCutting {
     });
     return marks;
 
-    /** Refuse an unanswerable cut. */
+    /*
+     * Refuse an unanswerable cut.
+     */
     function refuse(axis: string, value: unknown, need: string): never {
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",

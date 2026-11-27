@@ -11,7 +11,7 @@ import { Vector3 } from "../../math/Vector3";
 import { outlineHull } from "./outlineHull";
 import { polygonBounds } from "./polygonBounds";
 
-/**
+/*
  * Turn one boundary's declared face into the wall panel a mesh kernel can cut.
  *
  * This is the join that stops the declared opening and the modelled hole from

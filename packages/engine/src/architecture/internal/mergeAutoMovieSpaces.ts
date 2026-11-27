@@ -1,6 +1,6 @@
 import { IAutoMovieSpace, IAutoMovieSurface } from "@automovie/interface";
 
-/**
+/*
  * Merge several subject-owned support spaces into one stage space.
  *
  * Surfaces and walkable ids are concatenated in input order under the new `id`;
@@ -8,10 +8,9 @@ import { IAutoMovieSpace, IAutoMovieSurface } from "@automovie/interface";
  * a surface id two inputs share appears twice and is refused by `validateSpace`
  * when the merged space is validated. The surface objects are shared with the
  * inputs, not copied.
- *
- * @param id Id of the merged stage space.
- * @param spaces Spaces whose surfaces and walkable ids are combined.
- * @returns A new stage space holding every input's surfaces and walkable ids.
+ * Parameter id: Id of the merged stage space.
+ * Parameter spaces: Spaces whose surfaces and walkable ids are combined.
+ * Returns: A new stage space holding every input's surfaces and walkable ids.
  */
 export function mergeAutoMovieSpaces(
   id: string,

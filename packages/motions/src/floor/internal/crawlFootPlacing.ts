@@ -6,15 +6,14 @@ import type {
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { crawlFeet } from "./crawlFeet";
 
-/**
+/*
  * Each tucked foot's placement reader at its toe joint (`HumanFoot.prepareAt`
  * at the mtp socket), whose contact point alone changes as the foot follows its
  * knee.
  *
  * Part of `crawl.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `placing`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `placing`.
  */
 export function crawlFootPlacing(
   prepared: crawlFootPlacing.IPrepared,
@@ -30,14 +29,22 @@ export function crawlFootPlacing(
     );
 }
 
-/** The `placing` of `crawl.plan`, built from what that plan prepared. */
+/*
+ * The `placing` of `crawl.plan`, built from what that plan prepared.
+ */
 export namespace crawlFootPlacing {
-  /** What `crawl.plan` prepared for its `placing`. */
+  /*
+   * What `crawl.plan` prepared for its `placing`.
+   */
   export interface IPrepared {
-    /** The `body` `crawl.plan` prepared. */
+    /*
+     * The `body` `crawl.plan` prepared.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The `tucks` `crawl.plan` prepared. */
+    /*
+     * The `tucks` `crawl.plan` prepared.
+     */
     tucks: ReturnType<typeof crawlFeet.planted>["tucks"];
   }
 }

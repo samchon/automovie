@@ -24,7 +24,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { swipeTouchscreenScreen } from "./swipeTouchscreenScreen";
 import { swipeTouchscreenStroke } from "./swipeTouchscreenStroke";
 
-/**
+/*
  * One fingertip reaches a named touchscreen, swipes in its local X direction
  * and withdraws. `strokeStart` is touch-in, `strokeEnd` (also `relax`) is
  * touch-out. The hand returns to its entry pose at full duration. The stroke
@@ -45,15 +45,14 @@ export const swipeTouchscreen: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
     plan: planSwipeTouchscreen,
   };
 
-/**
+/*
  * Resolve the screen and compose an index fingertip stroke over the held entry
  * stance.
- *
- * @param context Entry posture, prop reader and normalized screen endpoints.
- * @returns The composed stroke plan and its unloaded hand contact window.
- * @throws {HumanRefusal} On invalid hand, endpoints or duration, a screen
- *   without a width, a movable or articulated screen, or a wrist path outside
- *   geometric reach.
+ * Parameter context: Entry posture, prop reader and normalized screen endpoints.
+ * Returns: The composed stroke plan and its unloaded hand contact window.
+ * On invalid hand, endpoints or duration, a screen
+ * without a width, a movable or articulated screen, or a wrist path outside
+ * geometric reach.
  */
 function planSwipeTouchscreen(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSwipeTouchscreen>,

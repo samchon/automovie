@@ -1,7 +1,7 @@
 import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
 import * as THREE from "three";
 
-/**
+/*
  * Bound the r186 scene/camera transmission target from the current host state.
  * The native factory uses the physical viewport times transmission scale, a
  * half-float color attachment when supported, full mips and at least four

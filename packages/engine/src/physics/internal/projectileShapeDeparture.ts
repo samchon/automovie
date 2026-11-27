@@ -14,7 +14,7 @@ import { adjacentAutoMovieFloat64 } from "../../math/internal/adjacentAutoMovieF
 import { physicalShapeNearest } from "./physicalShapeNearest";
 import { projectileAt } from "./projectileAt";
 
-/**
+/*
  * Certify a separating prefix for one resolved sphere and finite convex shape.
  *
  * Let `u` be the initial centre minus a point carried by the collider, and `v`
@@ -131,17 +131,18 @@ export function projectileShapeDeparture(
     : undefined;
 }
 
-/** Frame admission for bounded finite projectile colliders. */
+/*
+ * Frame admission for bounded finite projectile colliders.
+ */
 export namespace projectileShapeDeparture {
-  /**
+  /*
    * Admit a sampled rigid frame before the actual shape query uses it. The
    * returned borrowed metre translation and normalized rotation describe the
    * sampled pose; a nonfinite or materially non-unit frame throws RangeError,
    * even at a claimed clearance endpoint. Admitting individual poses
    * establishes no bound between them.
-   *
-   * @param frame A sampled parent pose in world metres.
-   * @returns The same translation with the rotation normalized.
+   * Parameter frame: A sampled parent pose in world metres.
+   * Returns: The same translation with the rotation normalized.
    */
   export function admitPose(
     frame: IAutoMovieRigidTransform,
@@ -155,7 +156,9 @@ export namespace projectileShapeDeparture {
   }
 }
 
-/** Enclose the launch-clock relative vectors and their cross projection. */
+/*
+ * Enclose the launch-clock relative vectors and their cross projection.
+ */
 function relativeMotion(
   projectile: IAutoMovieProjectile,
   from: number,
@@ -200,7 +203,9 @@ function relativeMotion(
   };
 }
 
-/** Raise a candidate norm until its lower squared endpoint encloses the sum. */
+/*
+ * Raise a candidate norm until its lower squared endpoint encloses the sum.
+ */
 function sqrtUpper(square: number): number {
   let root: number = Math.sqrt(square);
   while (root > 0 && root !== Infinity) {
@@ -211,7 +216,9 @@ function sqrtUpper(square: number): number {
   return root;
 }
 
-/** Upper Euclidean reach of the whole shape about its parent origin. */
+/*
+ * Upper Euclidean reach of the whole shape about its parent origin.
+ */
 function shapeReach(shape: IAutoMoviePhysicalShape): number {
   const offset: number = oneNorm(shape.transform.position);
   switch (shape.kind) {
@@ -230,24 +237,32 @@ function shapeReach(shape: IAutoMoviePhysicalShape): number {
   }
 }
 
-/** The one-norm encloses the Euclidean norm using only directed additions. */
+/*
+ * The one-norm encloses the Euclidean norm using only directed additions.
+ */
 function oneNorm(vector: IAutoMovieVector3): number {
   return upper(
     upper(Math.abs(vector.x) + Math.abs(vector.y)) + Math.abs(vector.z),
   );
 }
 
-/** Round upward, making an unrepresentable enclosure inconclusive. */
+/*
+ * Round upward, making an unrepresentable enclosure inconclusive.
+ */
 function upper(rounded: number): number {
   return rounded < Number.MAX_VALUE
     ? adjacentAutoMovieFloat64(rounded, true)
     : Infinity;
 }
 
-/** Round downward, making an unrepresentable enclosure inconclusive. */
+/*
+ * Round downward, making an unrepresentable enclosure inconclusive.
+ */
 function lower(rounded: number): number {
   return -upper(-rounded);
 }
 
-/** Fixed coordinate order for the componentwise enclosures. */
+/*
+ * Fixed coordinate order for the componentwise enclosures.
+ */
 const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];

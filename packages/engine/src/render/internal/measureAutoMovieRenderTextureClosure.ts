@@ -14,7 +14,7 @@ import { measureAutoMovieRenderTextureTarget } from "./measureAutoMovieRenderTex
 import { measureAutoMovieTextureStorage } from "./measureAutoMovieTextureStorage";
 import { AutoMovieEngineRenderMaterial } from "../AutoMovieEngineRenderMaterial";
 
-/**
+/*
  * Close current and retained consumers over one renderer's texture allocations.
  * Raw uploads share only an actual Source and equivalent upload state. PMREM
  * output and sharp-background cubes share only the actual environment Texture
@@ -637,7 +637,9 @@ export function measureAutoMovieRenderTextureClosure(
   );
 }
 
-/** R186 equirectangular conversion produces a two-dimensional half-float atlas. */
+/*
+ * R186 equirectangular conversion produces a two-dimensional half-float atlas.
+ */
 const pmremBytes: (
   source: IAutoMovieRenderTextureSource | undefined,
 ) => number | null = (
@@ -657,7 +659,9 @@ const pmremBytes: (
   });
 };
 
-/** Sharp-background conversion retains six color faces and depth attachments. */
+/*
+ * Sharp-background conversion retains six color faces and depth attachments.
+ */
 const backgroundBytes: (
   source: IAutoMovieRenderTextureSource | undefined,
 ) => number | null = (

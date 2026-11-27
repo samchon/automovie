@@ -6,7 +6,7 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { minimumJerk as minimumJerkImplementation } from "./minimumJerk";
 
-/**
+/*
  * Warp a motion's root so it arrives at a different place and heading by a
  * named instant, leaving the motion's own shape intact.
  *
@@ -17,11 +17,10 @@ import { minimumJerk as minimumJerkImplementation } from "./minimumJerk";
  * acceleration discontinuity at either end of the window; before the window the
  * root is the source's, after it the full displacement holds. The yaw turns the
  * root about +Y in the parent frame before the translation is added.
- *
- * @param root The source root at the instant.
- * @param warp The displacement and its window.
- * @param seconds The instant.
- * @returns The warped root.
+ * Parameter root: The source root at the instant.
+ * Parameter warp: The displacement and its window.
+ * Parameter seconds: The instant.
+ * Returns: The warped root.
  */
 export function warpRoot(
   root: IAutoMovieTransform,
@@ -46,6 +45,8 @@ export function warpRoot(
   };
 }
 
-/** Rotations about the fixed world-up axis. */
+/*
+ * Rotations about the fixed world-up axis.
+ */
 const yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> =
   Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });

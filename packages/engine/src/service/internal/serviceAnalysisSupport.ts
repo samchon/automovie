@@ -8,7 +8,7 @@ import {
 
 import { builtSpaceStatesVolume } from "../../architecture/internal/builtSpaceStatesVolume";
 
-/**
+/*
  * State plainly which analyses this network and this building can answer.
  *
  * A record existing is not an analysis, and the honest way to say so is to say

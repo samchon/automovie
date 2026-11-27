@@ -14,12 +14,14 @@ import type { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
 import { staggerKnots } from "./staggerKnots";
 
-/**
+/*
  * The entry geometry a stagger's pendulum starts from (`StaggerPendulum`),
  * prepared once from the body and the entry alone.
  */
 export namespace staggerPendulumEntry {
-  /** The alternatives of `PrepareResult`'s site. */
+  /*
+   * The alternatives of `PrepareResult`'s site.
+   */
   export type PrepareResult =
     | "w"
     | "centre"
@@ -31,18 +33,17 @@ export namespace staggerPendulumEntry {
     | "length"
     | "bend";
 
-  /**
+  /*
    * The entry's geometry a pendulum starts from, which depends on the body and
    * the entry alone: the frequency, the whole-body centre of mass (one full
    * forward-kinematics read), the root, the heading's axes, the feet, the
    * soles' narrowest side-by-side width and length, and the trunk's shift of
    * the centre of mass per sine of its tilt (`staggerKnots.bending`, three more
    * centre-of-mass reads).
-   *
-   * @param body The body.
-   * @param entry The posture the push meets.
-   * @returns The fixed geometry, shared by every pendulum of one search over
-   *   speeds and foot orders.
+   * Parameter body: The body.
+   * Parameter entry: The posture the push meets.
+   * Returns: The fixed geometry, shared by every pendulum of one search over
+   * speeds and foot orders.
    */
   export function prepare(
     body: IAutoMovieMotionHumanActionContext["body"],
@@ -70,7 +71,7 @@ export namespace staggerPendulumEntry {
     };
   }
 
-  /**
+  /*
    * Each entry sole's ankle-relative extent along an axis, the larger of the
    * two.
    */

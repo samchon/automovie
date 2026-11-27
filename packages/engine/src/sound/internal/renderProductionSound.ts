@@ -25,7 +25,7 @@ import { productionScoreDuckingEnvelope } from "./productionScoreDuckingEnvelope
 import { productionSoundEventTone } from "./productionSoundEventTone";
 import { resolveProductionLoudness } from "./resolveProductionLoudness";
 
-/**
+/*
  * Mix semantic events, authored cue trims and supplied dialogue into a fresh
  * stereo mix, with the plan's room-tone beds generated on the ambience bus
  * (`mixProductionRoomTone`). When enabled, score ducking attenuates the music
@@ -158,7 +158,9 @@ export function renderProductionSound(
   };
 }
 
-/** Refuse an adopted PCM generation before interpolation or numeric evidence. */
+/*
+ * Refuse an adopted PCM generation before interpolation or numeric evidence.
+ */
 const assertFiniteProductionPcm: (
   samples: Float32Array<ArrayBufferLike>,
   source: string,
@@ -167,7 +169,7 @@ const assertFiniteProductionPcm: (
     throw new Error(`Production sound ${source} supplied empty PCM.`);
 };
 
-/**
+/*
  * Mix the selected fixed event tone from emission or declared arrival, skipping
  * segment-trimmed events; per-event pan/filter/density gains feed the same
  * Float32 accumulation order.
@@ -243,7 +245,7 @@ const mixEvent: (
   }
 };
 
-/**
+/*
  * Read the admitted source trim at unit sample rate with authored fades, or use
  * the bus stand-in when the asset is absent; no rate reconciliation extends the
  * trim.
@@ -313,16 +315,22 @@ const mixCue: (
   }
 };
 
-/** One cue's presentation span and source trim as exclusive sample ranges. */
+/*
+ * One cue's presentation span and source trim as exclusive sample ranges.
+ */
 interface ICueSampleRanges {
-  /** Exclusive sample-frame interval on the master presentation clock. */
+  /*
+   * Exclusive sample-frame interval on the master presentation clock.
+   */
   presentation: { start: number; end: number };
 
-  /** Exclusive sample-frame trim on the adopted mono asset's clock. */
+  /*
+   * Exclusive sample-frame trim on the adopted mono asset's clock.
+   */
   source: { start: number; end: number };
 }
 
-/**
+/*
  * Place one cue on the sample clock, or refuse it by name.
  *
  * `sourceDurationFrames` is the complete asset on the frame clock: the ceiling
@@ -367,7 +375,7 @@ const cueSampleRanges: (
   };
 };
 
-/**
+/*
  * Delegate a frame boundary to the shared rational film-clock nearest-tick rule
  * at the plan's sample rate, including its numeric admission failures.
  */
@@ -382,7 +390,7 @@ const frameToSample: (
     rounding: "nearest",
   });
 
-/**
+/*
  * Return the lesser of unity and the two edge-distance ratios for the fixed
  * positive edge length; the last included sample need not reach exact zero.
  */
@@ -392,7 +400,7 @@ const edgeEnvelope: (index: number, length: number, edge: number) => number = (
   edge: number,
 ): number => Math.min(1, index / edge, (length - index) / edge);
 
-/**
+/*
  * The cue seed's pinned counter-based Philox stream (`createAutoMovieRandom`),
  * prepared once per mixed cue or event; this seed stream is not content
  * identity.
@@ -402,7 +410,7 @@ const noiseStream: (seed: number) => IAutoMovieRandom = (
 ): IAutoMovieRandom =>
   AutoMovieEngineRandom.createRandom(AutoMovieEngineRandom.deriveSeed(String(seed), "noise"));
 
-/**
+/*
  * One stateless signed noise sample in (-1, 1): the prepared stream read at the
  * sample index.
  */
@@ -411,7 +419,7 @@ const seededNoise: (stream: IAutoMovieRandom, index: number) => number = (
   index: number,
 ): number => (2 * stream.float(index) - 1) * 0.999999;
 
-/**
+/*
  * Add one value to the Float32 mix, refusing the sum where it leaves the
  * Float32 range: the limiter downstream would otherwise read an infinity.
  */

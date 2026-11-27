@@ -5,18 +5,17 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeMotorcycle } from "../AutoMovieArchetypeMotorcycle";
 
-/**
+/*
  * A motorcycle or a scooter ridden along a course: its root on the path, leaned
  * into each turn by the balance of its speed and the turn's radius.
- *
- * @param machine The machine.
- * @param course The course its root follows, or its plan, such as a timed
- *   course's.
- * @param maximumLean Greatest lean in degrees admitted for this ride.
- * @returns The ride, with the course's instants.
- * @throws {AutoMovieArchetypeRefusal} When a bend at the fastest the course
- *   lets it be taken needs more than `maximumLean` degrees of lean, as
- *   `AutoMovieArchetypeCourse.admitLean` refuses, or the course is malformed.
+ * Parameter machine: The machine.
+ * Parameter course: The course its root follows, or its plan, such as a timed
+ * course's.
+ * Parameter maximumLean: Greatest lean in degrees admitted for this ride.
+ * Returns: The ride, with the course's instants.
+ * When a bend at the fastest the course
+ * lets it be taken needs more than `maximumLean` degrees of lean, as
+ * `AutoMovieArchetypeCourse.admitLean` refuses, or the course is malformed.
  */
 export function rideMotorcycle(
   machine: AutoMovieArchetype<

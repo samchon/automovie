@@ -8,7 +8,7 @@ import { EquineIcelandicProfile } from "../equine/EquineIcelandicProfile";
 import "../equine/HORSE_BANDS";
 
 
-/**
+/*
  * A horse with its tack: a coarse body of one bar per bone, under a riding
  * saddle with stirrups, reins and a lead rope, in a driving harness, under a
  * pack saddle with a lead rope, or without tack.
@@ -57,17 +57,16 @@ import "../equine/HORSE_BANDS";
  * law anchored on that cohort's mean (`AutoMovieArchetypeEquine.mass`). An
  * explicit Icelandic horse uses its own sourced profile and enables the two
  * alternate gaits. The seat and reins are selected from their read sizes.
- *
- * @param params The tack, the seat and reins by their read sizes, and any free
- *   dimension the author fixes.
- * @param seed The seed that draws every free dimension inside its band and the
- *   seat and the reins among their read sizes; absent, each dimension takes the
- *   middle of its band and each size the first listed.
- * @returns The horse.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, a
- *   tack that is not one of `AutoMovieArchetypeEquine.TACKS`, or a seat or
- *   reins not among `AutoMovieArchetypeEquine.SEATS` and
- *   `AutoMovieArchetypeEquine.REINS`.
+ * Parameter params: The tack, the seat and reins by their read sizes, and any free
+ * dimension the author fixes.
+ * Parameter seed: The seed that draws every free dimension inside its band and the
+ * seat and the reins among their read sizes; absent, each dimension takes the
+ * middle of its band and each size the first listed.
+ * Returns: The horse.
+ * For a fixed dimension outside its band, a
+ * tack that is not one of `AutoMovieArchetypeEquine.TACKS`, or a seat or
+ * reins not among `AutoMovieArchetypeEquine.SEATS` and
+ * `AutoMovieArchetypeEquine.REINS`.
  */
 export function createHorse(
   params: AutoMovieArchetypeHorse.IParams = {},

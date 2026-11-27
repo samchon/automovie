@@ -39,7 +39,7 @@ import { indexAutoMovieDrawingDesign } from "./indexAutoMovieDrawingDesign";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 import { roundAutoMovieDrawingVector } from "./roundAutoMovieDrawingVector";
 
-/**
+/*
  * Schedule every declared space, opening or connector of one design.
  *
  * Throws an `Error` naming the first violation when the design fails
@@ -52,7 +52,7 @@ import { roundAutoMovieDrawingVector } from "./roundAutoMovieDrawingVector";
  * size and basis; a room is its own row, because two alike rooms are still two
  * rooms to visit. Rows are ordered by kind, model, size, basis and first
  * member, and marked `<kind>-NN` in that order. A row names at most
- * {@link AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS} members and counts the rest.
+ * AUTOMOVIE_DRAWING_SCHEDULE_MAX_MEMBERS members and counts the rest.
  *
  * An opening's size comes from its authored void or its fill's world extent,
  * labelled fill because the leaf is not the hole; with neither source its sizes
@@ -69,10 +69,9 @@ import { roundAutoMovieDrawingVector } from "./roundAutoMovieDrawingVector";
  * whole-design total need not equal the visible members of a filtered drawing.
  * The member-name limit bounds each returned row's named prefix, while
  * occurrences and grouping still process the full selected subject population.
- *
- * @param props.environment Design the schedule is derived from.
- * @param props.subject What to schedule.
- * @returns The schedule record.
+ * Parameter props.environment: Design the schedule is derived from.
+ * Parameter props.subject: What to schedule.
+ * Returns: The schedule record.
  */
 export function deriveAutoMovieDrawingSchedule(
   props: IAutoMovieDeriveDrawingSchedule.IProps,
@@ -167,7 +166,9 @@ export function deriveAutoMovieDrawingSchedule(
   };
 }
 
-/** One scheduled thing, reduced to what decides its row. */
+/*
+ * One scheduled thing, reduced to what decides its row.
+ */
 interface IOccurrence {
   id: string;
   kind: string;
@@ -178,7 +179,7 @@ interface IOccurrence {
   place: IAutoMovieDrawingSchedulePlace;
 }
 
-/**
+/*
  * Count every occurrence represented by unmeasured rows and append that
  * geometry gap beside the subject's fixed undelivered-content gaps, ordered by
  * subject. Row counts preserve grouped populations rather than counting only
@@ -266,7 +267,7 @@ const scheduleGaps: (
   );
 };
 
-/**
+/*
  * Build one occurrence per declared space using its shell/axis-cell box, world
  * Y height and wider X/Z width; unboxable volumes remain null while content
  * bounds and graph relations still resolve. Semantic containers remain schedule
@@ -327,7 +328,7 @@ const spaceOccurrences: (
     };
   });
 
-/**
+/*
  * Prefer the opening's void hull extent, otherwise its placed fill extent,
  * keeping the profile/fill/unmeasured basis and host boundary location.
  * Validated boundary/fill references are premises; this measures nominal world
@@ -369,7 +370,7 @@ const openingOccurrences: (
   );
 };
 
-/**
+/*
  * Use the admitted constant width/clearHeight pair when present, otherwise
  * minimum sampled section values, rounded onto the drawing grid. This
  * declared-section reading is a nominal size, not a traversal or clearance
@@ -417,7 +418,7 @@ const connectorOccurrences: (
     },
   );
 
-/**
+/*
  * Sort the validated host boundary's space ids and report its building only
  * when every side belongs to one unit. Sorting costs O(S log S) plus each
  * building query; the returned space list is a copy and no boundary or location
@@ -441,7 +442,7 @@ const openingPlace: (
   };
 };
 
-/**
+/*
  * Where a connector is: every region its declared stops stand in, ends and
  * landings alike, the rule `builtEnvironmentSpaceConnectors` follows from the
  * other direction.
@@ -474,7 +475,7 @@ const connectorPlace: (
   };
 };
 
-/**
+/*
  * The one building unit a set of validated regions belongs to, or `null` when
  * the set is empty or two regions belong to different units: a passage between
  * two buildings belongs to neither alone.
@@ -499,7 +500,7 @@ const buildingOfAny: (
   return units.size === 1 ? [...units][0]! : null;
 };
 
-/**
+/*
  * Order two occurrences by what a reader sorts a schedule on, identity last.
  *
  * The identity tiebreak decides the member order within a type row and the
@@ -521,7 +522,7 @@ const compareOccurrences: (left: IOccurrence, right: IOccurrence) => number = (
   compareAutoMovieRenderIds(left.basis, right.basis) ||
   compareAutoMovieRenderIds(left.id, right.id);
 
-/**
+/*
  * Order null before finite measurements, otherwise subtract the numeric values;
  * equal values compare as zero. The admitted finite-size premise keeps sorting
  * meaningful, and this constant-work predicate retains no state.

@@ -11,7 +11,7 @@ import { refineRecoveryCameraPose } from "./refineRecoveryCameraPose";
 import { scoreRecoveryCameraResiduals } from "./scoreRecoveryCameraResiduals";
 import { selectRecoveryCameraPose } from "./selectRecoveryCameraPose";
 
-/**
+/*
  * Refine a calibrated consensus candidate with at most three inlier refits.
  * Each fixed-subset optimizer must terminate, and the final inlier population
  * must stabilize within this declared refit budget. A changed subset never

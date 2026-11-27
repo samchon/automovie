@@ -3,10 +3,9 @@ import type { AutoMovieArchetype } from "../../core";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
-/**
+/*
  * The eight canonical coarse quadrupeds and the missing smaller-equid walks.
- *
- * @returns A named eight-kind panel and pony/donkey/mule walk consumers.
+ * Returns: A named eight-kind panel and pony/donkey/mule walk consumers.
  */
 export function archetypeCaptureQuadrupeds(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>

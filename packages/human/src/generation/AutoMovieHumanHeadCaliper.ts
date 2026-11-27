@@ -212,10 +212,14 @@ export namespace AutoMovieHumanHeadCaliper {
     return closed;
   }
 
-  /** One actual source and the identical metre declaration that produced it. */
+  /*
+   * One actual source and the identical metre declaration that produced it.
+   */
   type Source = { part: IAutoMovieViewPart; view: IAutoMovieConstructionView };
 
-  /** Required runtime source site, not a guessed world-height query. */
+  /*
+   * Required runtime source site, not a guessed world-height query.
+   */
   function named(outline: IAutoMovieViewPart.IOutline, site: string): number {
     const knot: IAutoMovieViewPart.IKnot | undefined = outline.knots.find(
       (k: IAutoMovieViewPart.IKnot): boolean => k.site === site,
@@ -225,7 +229,7 @@ export namespace AutoMovieHumanHeadCaliper {
     return knot.station;
   }
 
-  /**
+  /*
    * Verify the actual declaration's fixed graph before interpreting a scalar
    * distance in world space.
    */

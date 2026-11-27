@@ -17,7 +17,7 @@ import { builtPointBounds } from "./builtPointBounds";
 import { AUTOMOVIE_FULL_TURN_EPSILON } from "../AUTOMOVIE_FULL_TURN_EPSILON";
 import { requireBuiltOpening } from "./requireBuiltOpening";
 
-/**
+/*
  * The world volume each panel of an opening sweeps across its whole travel.
  *
  * The envelope is solved rather than sampled. Every corner of a turning leaf
@@ -44,10 +44,9 @@ import { requireBuiltOpening } from "./requireBuiltOpening";
  * unordered, empty, exclude rest at zero, or span more than a full revolute
  * turn plus `AUTOMOVIE_FULL_TURN_EPSILON`; these are the travel rules
  * `validateBuiltEnvironment` applies.
- *
- * @param environment Building record holding the opening.
- * @param openingId Id of the opening whose panels are swept.
- * @returns One swept box per panel, in panel order.
+ * Parameter environment: Building record holding the opening.
+ * Parameter openingId: Id of the opening whose panels are swept.
+ * Returns: One swept box per panel, in panel order.
  */
 export function builtOpeningSweepEnvelope(
   environment: IAutoMovieBuiltEnvironment,
@@ -95,7 +94,7 @@ export function builtOpeningSweepEnvelope(
   );
 }
 
-/**
+/*
  * The world frame a panel's leaf stands in with its own travel at rest.
  *
  * The panel's own displacement is the last factor of its local matrix and moves
@@ -130,7 +129,7 @@ const restingFrame: (
     : Matrix4.multiply(staged.get(element.parent)!, rest);
 };
 
-/**
+/*
  * Refuse a panel whose travel the swept envelope could not enumerate.
  *
  * Travel must be finite, ordered, nonempty and contain rest at zero, as
@@ -159,7 +158,9 @@ const requireEnumerableTravel: (
     );
 };
 
-/** Apply a column-major matrix to a point. */
+/*
+ * Apply a column-major matrix to a point.
+ */
 function applyMatrix(
   matrix: readonly number[],
   point: IAutoMovieVector3,
@@ -172,7 +173,9 @@ function applyMatrix(
   };
 }
 
-/** Apply a column-major matrix's linear part to a direction. */
+/*
+ * Apply a column-major matrix's linear part to a direction.
+ */
 const applyDirection: (
   matrix: readonly number[],
   vector: IAutoMovieVector3,
@@ -185,7 +188,9 @@ const applyDirection: (
   z: matrix[2]! * vector.x + matrix[6]! * vector.y + matrix[10]! * vector.z,
 });
 
-/** The world bounds one leaf corner reaches across a panel's whole travel. */
+/*
+ * The world bounds one leaf corner reaches across a panel's whole travel.
+ */
 const sweptCornerBounds: (
   base: readonly number[],
   motion: IAutoMovieTravelMotion,

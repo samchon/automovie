@@ -8,7 +8,7 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
 import { physicalSupportRootDrop } from "./physicalSupportRootDrop";
 import { solvePhysicalChainTarget } from "./solvePhysicalChainTarget";
 
-/**
+/*
  * Feed a changed support placement back to bounded joint goals. Root lowering
  * follows the actual chain reach sphere and an explicit posture budget; it
  * never teleports a body or moves the requested support to hide a residual.

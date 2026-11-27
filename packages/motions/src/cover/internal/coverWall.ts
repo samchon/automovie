@@ -9,7 +9,7 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * A staged wall's face as cover reads it: the face's plane through the prop's
  * origin with its outward normal along the prop's `+Z`, its length along the
  * prop's `+X` and its two ends, in world metres. A wall archetype stands in its
@@ -17,37 +17,48 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * width the wall's length.
  */
 export namespace coverWall {
-  /** The time and prop reader for the fixed scenic face. */
+  /*
+   * The time and prop reader for the fixed scenic face.
+   */
   export type IContext = Pick<
     IAutoMovieMotionHumanActionContext,
     "prop" | "start"
   >;
 
-  /** A wall face in world metres. */
+  /*
+   * A wall face in world metres.
+   */
   export interface IFace {
-    /** The face's centre on the floor, world metres. */
+    /*
+     * The face's centre on the floor, world metres.
+     */
     center: IAutoMovieVector3;
 
-    /** Its outward horizontal unit normal. */
+    /*
+     * Its outward horizontal unit normal.
+     */
     normal: IAutoMovieVector3;
 
-    /** Its horizontal unit length axis, toward its `right` end. */
+    /*
+     * Its horizontal unit length axis, toward its `right` end.
+     */
     axis: IAutoMovieVector3;
 
-    /** Half its length, metres. */
+    /*
+     * Half its length, metres.
+     */
     half: number;
   }
 
-  /**
+  /*
    * Read a fixed prop's face.
-   *
-   * @param context The action's context.
-   * @param subject The wall or window prop.
-   * @param face The surface or aperture affordance whose width is the face's
-   *   length.
-   * @returns The face.
-   * @throws {HumanRefusal} If the prop moves or has no such affordance with a
-   *   width.
+   * Parameter context: The action's context.
+   * Parameter subject: The wall or window prop.
+   * Parameter face: The surface or aperture affordance whose width is the face's
+   * length.
+   * Returns: The face.
+   * If the prop moves or has no such affordance with a
+   * width.
    */
   export function read(
     context: IContext,
@@ -82,13 +93,12 @@ export namespace coverWall {
     };
   }
 
-  /**
+  /*
    * The cover moves' refusal.
-   *
-   * @param axis The refused parameter's path.
-   * @param value The refused value.
-   * @param reason Why it is refused.
-   * @returns The refusal to throw.
+   * Parameter axis: The refused parameter's path.
+   * Parameter value: The refused value.
+   * Parameter reason: Why it is refused.
+   * Returns: The refusal to throw.
    */
   export function refusal(
     axis: string,

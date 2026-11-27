@@ -1,6 +1,6 @@
 import type { AutoMovieExternalModelIngestProfile } from "@automovie/interface";
 
-/**
+/*
  * Every supported ingest profile literal, frozen in declaration order. The
  * complete Record over the closed union supplies exactly four own keys; the
  * profile guard reuses this bounded module-lifetime inventory without deriving

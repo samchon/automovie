@@ -13,13 +13,13 @@ import { builtConnectorStops } from "./builtConnectorStops";
 import { builtElementSubtree } from "./builtElementSubtree";
 import { validateBuiltTravelMotion } from "./validateBuiltTravelMotion";
 
-/**
+/*
  * Validate the travelling carriages, named states, and stops of one run.
  *
  * An operated connector must name the elements it is built from, and declare at
  * least one carriage and one state. Each carriage needs a unique id, an element
  * that resolves and is one of the run's elements or below one, and a valid
- * travel by {@link validateBuiltTravelMotion}; no element may be driven by two
+ * travel by validateBuiltTravelMotion; no element may be driven by two
  * members of the whole work, which `driven` records across every opening and
  * connector and is updated here. Each state needs a unique id and a known
  * drive, may drive in `reverse` only on a bidirectional run, and gives every
@@ -27,13 +27,12 @@ import { validateBuiltTravelMotion } from "./validateBuiltTravelMotion";
  * one of the run's stops, its endpoints or landings. The current state must
  * resolve. Findings are pushed under `path`; a run with no operation is
  * skipped.
- *
- * @param props.connector Run whose operation is checked.
- * @param props.path Violation path of the connector.
- * @param props.elements Every element of the work.
- * @param props.elementIds Declared element ids.
- * @param props.driven Which member already drives each element, updated.
- * @param props.collector Sink that receives the violations.
+ * Parameter props.connector: Run whose operation is checked.
+ * Parameter props.path: Violation path of the connector.
+ * Parameter props.elements: Every element of the work.
+ * Parameter props.elementIds: Declared element ids.
+ * Parameter props.driven: Which member already drives each element, updated.
+ * Parameter props.collector: Sink that receives the violations.
  */
 export function validateBuiltConnectorOperation(
   props: IAutoMovieValidateBuiltConnectorOperation.IProps,
@@ -218,7 +217,9 @@ export function validateBuiltConnectorOperation(
     );
 }
 
-/** The three ways a powered run may stand: driven either way, or not at all. */
+/*
+ * The three ways a powered run may stand: driven either way, or not at all.
+ */
 const CONNECTOR_DRIVES: readonly IAutoMovieConnectorState["drive"][] = [
   "forward",
   "reverse",

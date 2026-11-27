@@ -5,12 +5,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Raw translation and the original admission policy.
  * These operations establish no solved-pose or mutable-body capability.
  */
 export namespace HumanPostureRaw {
-  /**
+  /*
    * Whether the posture lies in the raw proof domain: no digit goals and only
    * free leg goals.
    */
@@ -25,7 +25,9 @@ export namespace HumanPostureRaw {
         return false;
     return true;
   }
-  /** Copy original demands and apply one world-metre displacement per goal. */
+  /*
+   * Copy original demands and apply one world-metre displacement per goal.
+   */
   export function translated(
     source: IAutoMovieMotionHumanPosture,
     root: IAutoMovieVector3,
@@ -51,7 +53,7 @@ export namespace HumanPostureRaw {
     return out;
   }
 
-  /**
+  /*
    * Whether the goal is free: it sets none of the declared contact, plant,
    * reference or collider contexts, which require ordinary solving.
    */

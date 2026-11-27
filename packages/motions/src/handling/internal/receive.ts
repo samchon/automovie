@@ -36,7 +36,7 @@ import { HumanPrehension } from "./HumanPrehension";
 import { HumanPreshape } from "./HumanPreshape";
 import { handshake } from "./handshake";
 
-/**
+/*
  * Taking a prop a giver holds out: the receiver's half of a handover.
  *
  * The goal is the offered grip, not the arm: the receiver's grip socket is
@@ -62,10 +62,14 @@ import { handshake } from "./handshake";
  * The hand grips the prop from `gripClosed` and holds it afterwards.
  */
 export namespace receive {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "receive";
 
-  /** Cancel table: once taken the prop is held. */
+  /*
+   * Cancel table: once taken the prop is held.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
@@ -85,18 +89,17 @@ export namespace receive {
     ],
   };
 
-  /**
+  /*
    * How far the carrying forearm may be raised above level, degrees, level
    * first (provisional: up to the half right angle, a cup held toward the
    * chest).
    */
   export const PITCHES: readonly number[] = [0, 15, 30, 45];
 
-  /**
+  /*
    * Plan the receiver's half.
-   *
-   * @param context The action's context.
-   * @returns The plan.
+   * Parameter context: The action's context.
+   * Returns: The plan.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanReceive.IParams>,
@@ -464,7 +467,9 @@ export namespace receive {
   }
 }
 
-/** The record of `IPlanLean`'s site. */
+/*
+ * The record of `IPlanLean`'s site.
+ */
 type IPlanLean = {
   share: number;
   joints: IAutoMovieMotionHumanSeatedReach.IJoint[];

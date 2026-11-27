@@ -35,7 +35,7 @@ import { reachHumanSimulation } from "./reachHumanSimulation";
 import { readHumanSimulatedPose } from "./readHumanSimulatedPose";
 import { sampleHumanSimulationTargets } from "./sampleHumanSimulationTargets";
 
-/**
+/*
  * The simulated tier: a window of a performance baked once through the engine's
  * solver at a fixed step and read back by time.
  *
@@ -52,56 +52,69 @@ import { sampleHumanSimulationTargets } from "./sampleHumanSimulationTargets";
  * window agree bit for bit.
  */
 export namespace HumanPerformanceSimulation {
-  /**
+  /*
    * Cached intervals per second: the 120 Hz the window issue fixes, five per 24
    * Hz film frame.
    */
   export const RATE: number = 120;
-  /**
+  /*
    * The canonical frame's floor height, metres: every canonical body stands
    * with its lowest point at y = 0.
    */
   export const FLOOR: number = 0;
 
-  /** A baked window as a performance reads it. */
+  /*
+   * A baked window as a performance reads it.
+   */
   export interface IReading {
-    /** The engine's record of the window. */
+    /*
+     * The engine's record of the window.
+     */
     record: IAutoMovieMotionHumanSimulation;
 
-    /** The window's last film second, on the grid. */
+    /*
+     * The window's last film second, on the grid.
+     */
     end: number;
 
-    /** Each simulated performer's body and rig codec. */
+    /*
+     * Each simulated performer's body and rig codec.
+     */
     performers: ReadonlyMap<string, IPerformer>;
   }
 
-  /** A simulated performer as a reading needs it. */
+  /*
+   * A simulated performer as a reading needs it.
+   */
   export interface IPerformer {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /**
+    /*
      * The profile the window solved: the body's, its hands with their fingers,
      * its toes and its neck with the head welded into the segments above them
      * (`weldHumanSimulationProfile`).
      */
     profile: IAutoMoviePhysicalProfile;
 
-    /** The body's rig codec, with its joint axes and the humanoid rest frames. */
+    /*
+     * The body's rig codec, with its joint axes and the humanoid rest frames.
+     */
     codec: IAutoMoviePoseJointCodec.ICodec;
   }
 
-  /**
+  /*
    * Bake a window.
-   *
-   * @param performance The performance read for its displayed bones and placed
-   *   actions; its own earlier windows included.
-   * @param state The resolved performance, for its forces, props and obstacles.
-   * @param window The window.
-   * @param mode The physical policy of every simulated body.
-   * @returns The reading.
-   * @throws {HumanRefusal} When the window lies outside the film, is shorter
-   *   than one interval, or names a performer the performance does not have.
+   * Parameter performance: The performance read for its displayed bones and placed
+   * actions; its own earlier windows included.
+   * Parameter state: The resolved performance, for its forces, props and obstacles.
+   * Parameter window: The window.
+   * Parameter mode: The physical policy of every simulated body.
+   * Returns: The reading.
+   * When the window lies outside the film, is shorter
+   * than one interval, or names a performer the performance does not have.
    */
   export async function bake(
     performance: IAutoMovieMotionHumanPerformance,
@@ -349,13 +362,12 @@ export namespace HumanPerformanceSimulation {
     };
   }
 
-  /**
+  /*
    * Whether a reading shows a performer at a film second.
-   *
-   * @param reading The baked window.
-   * @param subject The performer.
-   * @param seconds Film seconds.
-   * @returns True inside the window for a simulated performer.
+   * Parameter reading: The baked window.
+   * Parameter subject: The performer.
+   * Parameter seconds: Film seconds.
+   * Returns: True inside the window for a simulated performer.
    */
   export function covers(
     reading: IReading,
@@ -369,15 +381,14 @@ export namespace HumanPerformanceSimulation {
     );
   }
 
-  /**
+  /*
    * A performer's displayed pose inside a baked window.
-   *
-   * @param reading The baked window.
-   * @param subject The performer, simulated by the window.
-   * @param seconds Film seconds inside the window.
-   * @param kinematic The pose the performance shows there without the window.
-   * @returns The pose: the solver's bones where it owns them, the kinematic
-   *   pose's elsewhere.
+   * Parameter reading: The baked window.
+   * Parameter subject: The performer, simulated by the window.
+   * Parameter seconds: Film seconds inside the window.
+   * Parameter kinematic: The pose the performance shows there without the window.
+   * Returns: The pose: the solver's bones where it owns them, the kinematic
+   * pose's elsewhere.
    */
   export function pose(
     reading: IReading,
@@ -411,7 +422,9 @@ export namespace HumanPerformanceSimulation {
     );
   }
 
-  /** A refusal of a window's term. */
+  /*
+   * A refusal of a window's term.
+   */
   function refusal(axis: string, value: unknown, reason: string): HumanRefusal {
     return new HumanRefusal({
       kind: "parameter",
@@ -423,7 +436,7 @@ export namespace HumanPerformanceSimulation {
     });
   }
 
-  /**
+  /*
    * Whether a placed action lays the body down inside the span: a lying contact
    * opens there.
    */

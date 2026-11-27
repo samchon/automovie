@@ -14,15 +14,14 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * The plant's shoulders and root on the take-off's trunk (`poleVault.plan`):
  * the take-off's posture at its instant, with each holding arm's shoulder joint
  * resolved on it.
- *
- * @param body The vaulter's body.
- * @param takeoff The vault's take-off.
- * @param pole The pole in the hands that hold it.
- * @returns The holding shoulders and the take-off's root.
+ * Parameter body: The vaulter's body.
+ * Parameter takeoff: The vault's take-off.
+ * Parameter pole: The pole in the hands that hold it.
+ * Returns: The holding shoulders and the take-off's root.
  */
 export function poleVaultTakeoffFrame(
   body: IAutoMovieMotionHumanBody,
@@ -66,17 +65,23 @@ export function poleVaultTakeoffFrame(
   return { shoulders, root: raw.root };
 }
 
-/** Companion types of {@link poleVaultTakeoffFrame}. */
+/*
+ * Companion types of poleVaultTakeoffFrame.
+ */
 export namespace poleVaultTakeoffFrame {
-  /** The take-off's holding shoulders and root. */
+  /*
+   * The take-off's holding shoulders and root.
+   */
   export interface IFrame {
-    /**
+    /*
      * Each holding arm's shoulder joint as the take-off solves it, world
      * metres.
      */
     shoulders: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>;
 
-    /** The take-off's root, world metres. */
+    /*
+     * The take-off's root, world metres.
+     */
     root: IAutoMovieVector3;
   }
 }

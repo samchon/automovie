@@ -44,7 +44,7 @@ export namespace AutoMovieCurveLengthQuadrature64 {
       collapsedNode,
     };
 
-    /**
+    /*
      * Observe each original norm without applying either public owner's failure
      * policy.
      */
@@ -60,7 +60,7 @@ export namespace AutoMovieCurveLengthQuadrature64 {
       return value;
     }
 
-    /**
+    /*
      * Keep local [0,1] cubic arithmetic and accumulation unchanged, including
      * underflow observations.
      */
@@ -96,14 +96,18 @@ export namespace AutoMovieCurveLengthQuadrature64 {
   }
 }
 
-/** Existing cubic-length eight-point Gauss-Legendre abscissas on [-1,1]. */
+/*
+ * Existing cubic-length eight-point Gauss-Legendre abscissas on [-1,1].
+ */
 const NODES: readonly number[] = [
   -0.9602898564975363, -0.7966664774136267, -0.525532409916329,
   -0.1834346424956498, 0.1834346424956498, 0.525532409916329,
   0.7966664774136267, 0.9602898564975363,
 ];
 
-/** Existing positive cubic-length weights, in the unchanged node order. */
+/*
+ * Existing positive cubic-length weights, in the unchanged node order.
+ */
 const WEIGHTS: readonly number[] = [
   0.1012285362903763, 0.2223810344533745, 0.3137066458778873, 0.362683783378362,
   0.362683783378362, 0.3137066458778873, 0.2223810344533745, 0.1012285362903763,

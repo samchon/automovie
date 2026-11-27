@@ -9,7 +9,7 @@ import type {
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { placeHumanHandSurface } from "../../posture/internal/placeHumanHandSurface";
 
-/**
+/*
  * Seat a wrist-relative palm frame on a line's skin. The hand faces against the
  * line's outward normal, with its fingers across the line as the rider held
  * them when taking the rein, turned about the normal by the hold's crossing

@@ -4,10 +4,10 @@ import {
   type IAutoMovieConnectorSectionAt,
 } from "@automovie/interface";
 
-/**
+/*
  * The usable section of one connector record, or null when it states none.
  *
- * This is the record-addressed form {@link builtConnectorSectionAt} answers
+ * This is the record-addressed form builtConnectorSectionAt answers
  * through. A caller already holding the record reads it here rather than
  * resolving an id a second time, because a work carrying two connectors under
  * one id would otherwise be sectioned against whichever one was declared first,

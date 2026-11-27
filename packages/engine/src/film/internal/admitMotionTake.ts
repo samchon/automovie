@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionTake } from "@automovie/interface";
 
-/**
+/*
  * Admit a parsed motion-take artifact before the host binds any saved
  * references.
  *
@@ -77,12 +77,16 @@ export function admitMotionTake(input: unknown): IAutoMovieMotionTake {
   return input as IAutoMovieMotionTake;
 }
 
-/** Refuse one malformed field at its persisted address. */
+/*
+ * Refuse one malformed field at its persisted address.
+ */
 function invalid(path: string, expectation: string): never {
   throw new Error(`take-schema: ${path} ${expectation}`);
 }
 
-/** Require a JSON record before reading its fields. */
+/*
+ * Require a JSON record before reading its fields.
+ */
 function object(value: unknown, path: string): Record<string, unknown> {
   if (
     value === null ||
@@ -94,7 +98,9 @@ function object(value: unknown, path: string): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
-/** Check an exact set of fields before evaluating their relationships. */
+/*
+ * Check an exact set of fields before evaluating their relationships.
+ */
 function properties(
   record: Record<string, unknown>,
   path: string,
@@ -107,20 +113,26 @@ function properties(
       invalid(`${path}.${key}`, "required property");
 }
 
-/** Check a stable textual address without coercing or trimming it. */
+/*
+ * Check a stable textual address without coercing or trimming it.
+ */
 function identifier(value: unknown, path: string): string {
   if (typeof value !== "string" || value.trim() !== value)
     invalid(path, "expected a string without surrounding whitespace");
   return value;
 }
 
-/** Check both persisted time coordinates in their own clocks. */
+/*
+ * Check both persisted time coordinates in their own clocks.
+ */
 function seconds(value: unknown, path: string): void {
   if (typeof value !== "number" || value < 0)
     invalid(path, "expected finite nonnegative seconds");
 }
 
-/** Check one file identity and return its ledger key. */
+/*
+ * Check one file identity and return its ledger key.
+ */
 function file(value: unknown, path: string): string {
   const row: Record<string, unknown> = object(value, path);
   properties(row, path, ["path", "sha256"]);
@@ -133,7 +145,9 @@ function file(value: unknown, path: string): string {
   return address;
 }
 
-/** Check one named provider and return its binding key. */
+/*
+ * Check one named provider and return its binding key.
+ */
 function provider(value: unknown, path: string): string {
   const row: Record<string, unknown> = object(value, path);
   properties(row, path, ["id", "version"]);
@@ -141,7 +155,9 @@ function provider(value: unknown, path: string): string {
   return identifier(row.id, `${path}.id`);
 }
 
-/** Check one exact seed string and return its owner key. */
+/*
+ * Check one exact seed string and return its owner key.
+ */
 function seed(value: unknown, path: string): string {
   const row: Record<string, unknown> = object(value, path);
   properties(row, path, ["id", "value"]);
@@ -150,7 +166,9 @@ function seed(value: unknown, path: string): string {
   return identifier(row.id, `${path}.id`);
 }
 
-/** Check every ledger row, retaining each key once for duplicate checks. */
+/*
+ * Check every ledger row, retaining each key once for duplicate checks.
+ */
 function uniqueRows(
   value: unknown,
   path: string,

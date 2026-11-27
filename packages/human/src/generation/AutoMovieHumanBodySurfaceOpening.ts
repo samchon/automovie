@@ -206,7 +206,7 @@ export namespace AutoMovieHumanBodySurfaceOpening {
     return construction;
   }
 
-  /**
+  /*
    * The chain beyond an end of a chain through the ring they share: past a
    * parent's contact layer the child whose arc of the ring holds the phase,
    * past a child's inherited end the parent.
@@ -247,14 +247,16 @@ export namespace AutoMovieHumanBodySurfaceOpening {
     return null;
   }
 
-  /** A point's chart on a chain: its own, its copy on the shared ring, or null. */
+  /*
+   * A point's chart on a chain: its own, its copy on the shared ring, or null.
+   */
   function chartOn(p: IPoint, name: string): [number, number] | null {
     if (p.chain === name) return [p.s, p.t];
     if (p.also?.chain === name) return [p.also.s, p.also.t];
     return null;
   }
 
-  /**
+  /*
    * The hole round a rim on more than one chain: the closed edge of the
    * cells left under the hole's key nearest the rim, as vertices and their
    * places in the opening's plane, each read from the surface at the vertex's

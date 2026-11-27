@@ -6,7 +6,7 @@ import type {
 
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 
-/**
+/*
  * Where a strike lands relative to its aim: the author's declared accuracy plus
  * the performer's seeded endpoint scatter.
  *
@@ -24,23 +24,21 @@ import { HumanSkill } from "../../skill/internal/HumanSkill";
  * 2002; provisional share).
  */
 export namespace StrikingQuality {
-  /**
+  /*
    * Half the width of a closed fist, metres: hand breadth is about 0.46 of hand
    * length in adults (Pheasant and Haslegrave, Bodyspace, 3rd ed., hand
    * dimensions: 87 against 189 mm), and the fist is as wide as the hand.
-   *
-   * @param hand The hand's length, wrist to fingertip, metres.
-   * @returns Metres.
+   * Parameter hand: The hand's length, wrist to fingertip, metres.
+   * Returns: Metres.
    */
   export function fist(hand: number): number {
     return 0.23 * hand;
   }
 
-  /**
+  /*
    * Whether a weapon stops on the surface it meets under an accuracy.
-   *
-   * @param accuracy The declared accuracy.
-   * @returns False for a graze or a miss, which pass the surface.
+   * Parameter accuracy: The declared accuracy.
+   * Returns: False for a graze or a miss, which pass the surface.
    */
   export function stops(
     accuracy: IAutoMovieMotionHumanStrikingQuality.Accuracy | undefined,
@@ -48,11 +46,10 @@ export namespace StrikingQuality {
     return accuracy !== "graze" && accuracy !== "miss";
   }
 
-  /**
+  /*
    * The landing offset from the aim point.
-   *
-   * @param input What the offset depends on.
-   * @returns World metres.
+   * Parameter input: What the offset depends on.
+   * Returns: World metres.
    */
   export function offset(
     input: IAutoMovieMotionHumanStrikingQuality.IOffsetInput,

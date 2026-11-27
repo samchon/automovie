@@ -9,18 +9,17 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import type { HumanRideHands } from "./HumanRideHands";
 
-/**
+/*
  * Read the support's points a ride's hands are told to hold (`HumanRideHands`):
  * each point's rest geometry and declaration, and for a rein the body's own
  * palm frame the hand meets it with.
- *
- * @param body The body.
- * @param on The support's subject id, for the refusal.
- * @param support The support.
- * @param hands The point each hand holds, by id; none when absent.
- * @returns Each holding hand's handle record.
- * @throws {HumanRefusal} When a hand names a point the support lacks, listing
- *   its points.
+ * Parameter body: The body.
+ * Parameter on: The support's subject id, for the refusal.
+ * Parameter support: The support.
+ * Parameter hands: The point each hand holds, by id; none when absent.
+ * Returns: Each holding hand's handle record.
+ * When a hand names a point the support lacks, listing
+ * its points.
  */
 export function readRideHandles(
   body: IAutoMovieMotionHumanBody,

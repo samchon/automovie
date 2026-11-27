@@ -1,4 +1,4 @@
-/**
+/*
  * The options `automovie review` takes, written `--<name>`; it takes no other.
  *
  * `AutoMovieCliReview.readOptions` refuses any option outside the list, and a test

@@ -216,7 +216,7 @@ export namespace AutoMovieXpbdMath {
     turn(body, angular, 1);
   }
 
-  /**
+  /*
    * A body's world inverse inertia as a row-major 3x3 matrix; zero for the
    * world or a kinematic body.
    */
@@ -225,7 +225,9 @@ export namespace AutoMovieXpbdMath {
     return [...body.frozen];
   }
 
-  /** A body's point inverse mass matrix at an arm, `(1/m) E - [r]x I^-1 [r]x`. */
+  /*
+   * A body's point inverse mass matrix at an arm, `(1/m) E - [r]x I^-1 [r]x`.
+   */
   function pointMatrix(
     body: AutoMovieXpbdBody | null,
     arm: IAutoMovieVector3,
@@ -257,12 +259,14 @@ export namespace AutoMovieXpbdMath {
     ];
   }
 
-  /** Elementwise sum of two 3x3 matrices. */
+  /*
+   * Elementwise sum of two 3x3 matrices.
+   */
   function add(a: number[], b: number[]): number[] {
     return a.map((value: number, index: number): number => value + b[index]!);
   }
 
-  /**
+  /*
    * Solve `K p = b` for a symmetric positive definite 3x3 `K` by Cramer's rule;
    * null when singular.
    */
@@ -298,7 +302,9 @@ export namespace AutoMovieXpbdMath {
     };
   }
 
-  /** Move a body's centre and rotation by a positional impulse at an arm. */
+  /*
+   * Move a body's centre and rotation by a positional impulse at an arm.
+   */
   function move(
     body: AutoMovieXpbdBody,
     p: IAutoMovieVector3,
@@ -313,7 +319,9 @@ export namespace AutoMovieXpbdMath {
     turn(body, body.frozenInverseInertia(Vector3.cross(arm, p)), sign);
   }
 
-  /** Change a body's velocities by an impulse at an arm. */
+  /*
+   * Change a body's velocities by an impulse at an arm.
+   */
   function push(
     body: AutoMovieXpbdBody,
     p: IAutoMovieVector3,
@@ -331,7 +339,9 @@ export namespace AutoMovieXpbdMath {
     );
   }
 
-  /** Turn a body by a small rotation vector: `q <- normalize(q + 1/2 [w, 0] q)`. */
+  /*
+   * Turn a body by a small rotation vector: `q <- normalize(q + 1/2 [w, 0] q)`.
+   */
   function turn(
     body: AutoMovieXpbdBody,
     omega: IAutoMovieVector3,

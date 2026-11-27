@@ -16,10 +16,12 @@ import { indexAutoMovieDrawingDesign } from "./indexAutoMovieDrawingDesign";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint";
 
-/** The three local axes an axis feature can name. */
+/*
+ * The three local axes an axis feature can name.
+ */
 const AXIS_INDICES: readonly number[] = [0, 1, 2];
 
-/**
+/*
  * Resolve one pinned feature against the design as it stands now.
  *
  * A target stores where a feature is, not what it measured, so moving a wall
@@ -38,11 +40,10 @@ const AXIS_INDICES: readonly number[] = [0, 1, 2];
  * corners, which is a vertex average rather than a volume centroid. Every
  * failure is a `stale` result whose `reason` names the cause and whose `count`
  * is the current feature count where one exists.
- *
- * @param environment The validated design.
- * @param feature The pinned target.
- * @param design Index of `environment` to reuse; built from it when omitted.
- * @returns The resolved world point and direction, or a stale result.
+ * Parameter environment: The validated design.
+ * Parameter feature: The pinned target.
+ * Parameter design: Index of `environment` to reuse; built from it when omitted.
+ * Returns: The resolved world point and direction, or a stale result.
  */
 export const resolveAutoMovieDrawingFeature = (
   environment: IAutoMovieBuiltEnvironment,
@@ -208,7 +209,9 @@ export const resolveAutoMovieDrawingFeature = (
   };
 };
 
-/** A world point with its grid coordinates and welding key. */
+/*
+ * A world point with its grid coordinates and welding key.
+ */
 const weld = (point: IAutoMovieVector3): IWelded => {
   const x: number = roundAutoMovieDrawingScalar(point.x);
   const y: number = roundAutoMovieDrawingScalar(point.y);
@@ -216,7 +219,7 @@ const weld = (point: IAutoMovieVector3): IWelded => {
   return { point, key: `${x},${y},${z}`, x, y, z };
 };
 
-/**
+/*
  * The element's world vertices, welded and in one canonical order.
  *
  * Sorted numerically on the grid rather than left in emission order, so the
@@ -235,7 +238,9 @@ const canonicalVertices = (
   return [...unique.values()].sort(comparePoints);
 };
 
-/** The element's welded undirected edges, in one canonical order. */
+/*
+ * The element's welded undirected edges, in one canonical order.
+ */
 const canonicalEdges = (
   triangles: readonly IAutoMovieDrawingTriangle[],
 ): IWeldedEdge[] => {
@@ -262,11 +267,15 @@ const canonicalEdges = (
   );
 };
 
-/** Order two welded points by grid x, then y, then z. */
+/*
+ * Order two welded points by grid x, then y, then z.
+ */
 const comparePoints = (left: IWelded, right: IWelded): number =>
   left.x - right.x || left.y - right.y || left.z - right.z;
 
-/** A stale result when the count changed or the index is out of range. */
+/*
+ * A stale result when the count changed or the index is out of range.
+ */
 const check = (
   feature: IAutoMovieDrawingFeature,
   features: readonly unknown[],
@@ -288,7 +297,9 @@ const check = (
   return null;
 };
 
-/** A stale resolution carrying its reason and the current feature count. */
+/*
+ * A stale resolution carrying its reason and the current feature count.
+ */
 const stale = (
   reason: string,
   count: number = 0,
@@ -300,7 +311,9 @@ const stale = (
   reason,
 });
 
-/** A world point with its coordinates on the drawing grid, for ordering. */
+/*
+ * A world point with its coordinates on the drawing grid, for ordering.
+ */
 interface IWelded {
   point: IAutoMovieVector3;
   key: string;
@@ -309,7 +322,9 @@ interface IWelded {
   z: number;
 }
 
-/** A welded undirected edge, oriented from its smaller corner. */
+/*
+ * A welded undirected edge, oriented from its smaller corner.
+ */
 interface IWeldedEdge {
   from: IWelded;
   to: IWelded;

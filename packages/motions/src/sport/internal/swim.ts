@@ -33,7 +33,7 @@ import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { SwimStroke } from "./SwimStroke";
 import { prepareSurfaceSwimTransfer } from "./prepareSurfaceSwimTransfer";
 
-/**
+/*
  * Swimming on a declared water plane: treading water and the front crawl. There
  * is no fluid: the root floats at the plane, a height the author declares, and
  * the limbs cycle by joint angles with their goals released, as a swing arm
@@ -74,29 +74,37 @@ import { prepareSurfaceSwimTransfer } from "./prepareSurfaceSwimTransfer";
  * Not drafted: the eggbeater proper, entering and leaving the water.
  */
 export namespace swim {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "swim";
 
-  /** Cancel table: a stroke changes at a cycle's end. */
+  /*
+   * Cancel table: a stroke changes at a cycle's end.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       swim: ["fromRelax", "smooth"],
     });
 
-  /** A crawl cycle's seconds (provisional). */
+  /*
+   * A crawl cycle's seconds (provisional).
+   */
   export const CYCLE: number = 1.4;
 
-  /** The pull's share of the crawl cycle (provisional). */
+  /*
+   * The pull's share of the crawl cycle (provisional).
+   */
   export const PULL: number = 0.6;
 
-  /**
+  /*
    * The crawl's propulsive share of a cycle, the pull and push that end each
    * arm's pull: 0.465, Chollet, Chalies and Chatard 2000's share at 100 m pace,
    * as the research reads it in their abstract.
    */
   export const PROPULSIVE: number = 0.465;
 
-  /**
+  /*
    * The crawl's index of coordination, the lag from one arm's propulsion's end
    * to the other's start as a share of the cycle, negated: a novice's catch-up
    * and an elite's near-opposition (-6.07 % and -1.76 % by level, Chollet et
@@ -107,25 +115,30 @@ export namespace swim {
     elite: -0.0176,
   };
 
-  /** The crawl's body roll toward a recovering arm, degrees (provisional). */
+  /*
+   * The crawl's body roll toward a recovering arm, degrees (provisional).
+   */
   export const ROLL: number = 45;
 
-  /** The head's turn for a breath, degrees (provisional). */
+  /*
+   * The head's turn for a breath, degrees (provisional).
+   */
   export const TURN: number = 70;
 
-  /** Mouth clearance at a surface breath, metres (provisional). */
+  /*
+   * Mouth clearance at a surface breath, metres (provisional).
+   */
   export const CLEAR: number = 0.02;
 
-  /**
+  /*
    * A tread's or a crawl's stroke cues: a tread cycles every `period`; a crawl
    * enters the right arm each `period`, the left arm `lag` of a period later,
    * and breathes midway through the recovery after the `PULL`.
-   *
-   * @param prone Whether the stroke is the prone crawl.
-   * @param cycles The whole cycles.
-   * @param period The cycle's seconds.
-   * @param lag The left arm's lag, a share of the period.
-   * @returns The clock, relaxed at its end.
+   * Parameter prone: Whether the stroke is the prone crawl.
+   * Parameter cycles: The whole cycles.
+   * Parameter period: The cycle's seconds.
+   * Parameter lag: The left arm's lag, a share of the period.
+   * Returns: The clock, relaxed at its end.
    */
   export function strokes(
     prone: boolean,
@@ -151,12 +164,11 @@ export namespace swim {
       { name: "relax", seconds: duration },
     ]);
   }
-  /**
+  /*
    * Plan a swim.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the cycle count is not a positive whole number.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the cycle count is not a positive whole number.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSwim.IParams>,
@@ -448,8 +460,12 @@ export namespace swim {
   }
 }
 
-/** The alternatives of `PlanLimb`'s site. */
+/*
+ * The alternatives of `PlanLimb`'s site.
+ */
 type PlanLimb = "leftLeg" | "rightLeg";
 
-/** The record of `ICOORDINATION`'s site. */
+/*
+ * The record of `ICOORDINATION`'s site.
+ */
 type ICOORDINATION = { novice: number; elite: number };

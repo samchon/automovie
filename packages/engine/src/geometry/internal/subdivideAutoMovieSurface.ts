@@ -8,7 +8,7 @@ import { admitSubdivisionCage } from "./admitSubdivisionCage";
 import { evaluateSubdivisionLevel } from "./evaluateSubdivisionLevel";
 import { refineSubdivisionLevel } from "./refineSubdivisionLevel";
 
-/**
+/*
  * Refine a polygon cage into a Catmull-Clark subdivision surface and evaluate
  * its limit positions and normals.
  *
@@ -39,11 +39,10 @@ import { refineSubdivisionLevel } from "./refineSubdivisionLevel";
  * multiplies the quad count by four, so the output is at most 1,024 quads per
  * cage corner. A vertex whose limit normal vanishes, such as an interior vertex
  * of valence two or a collapsed cage, is refused after refinement.
- *
- * @param props.cage The control cage, only read.
- * @param props.levels Number of refinement steps, an integer from 1 to 6.
- * @returns The refined quads, limit positions and normals, UVs and cage
- *   parameters.
+ * Parameter props.cage: The control cage, only read.
+ * Parameter props.levels: Number of refinement steps, an integer from 1 to 6.
+ * Returns: The refined quads, limit positions and normals, UVs and cage
+ * parameters.
  */
 export function subdivideAutoMovieSurface(
   props: IAutoMovieSubdivideSurface.IProps,
@@ -58,7 +57,7 @@ export function subdivideAutoMovieSurface(
   return evaluateSubdivisionLevel(level);
 }
 
-/**
+/*
  * Most refinement steps one call admits. Each level multiplies the quad count
  * by four, so six levels already turn every cage corner into 1,024 quads, more
  * than a render or measurement cage needs, and a larger level only lets one

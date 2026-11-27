@@ -12,7 +12,7 @@ import { serviceMaintenanceBounds } from "./serviceMaintenanceBounds";
 import { serviceSegmentClashes } from "./serviceSegmentClashes";
 import { serviceSegmentSpanBounds } from "./serviceSegmentSpanBounds";
 
-/**
+/*
  * Append conservative run clashes and unrelated-run access obstructions in
  * their original diagnostic order.
  */

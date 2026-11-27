@@ -9,77 +9,94 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** World vertical. */
+/*
+ * World vertical.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
+/*
  * The crutch walk's clock and each crutch's course over its stations, shared by
  * the law's plan and the track the scene's crutch props read, so both derive
  * every crutch frame from the same stations.
  */
 export namespace crutchWalkCourse {
-  /**
+  /*
    * The crutch's visible lift as it swings forward, metres (provisional, as the
    * aided walk's).
    */
   export const LIFT: number = 0.04;
 
-  /**
+  /*
    * The share of each station the crutches take to advance before the body
    * swings (provisional: the crutches lead, the swing follows).
    */
   export const ADVANCE: number = 1 / 3;
 
-  /**
+  /*
    * One crutch advance: when it lifts, when its tip plants, and its two floor
    * frames.
    */
   export interface IAdvance {
-    /** Lift begins, action seconds. */
+    /*
+     * Lift begins, action seconds.
+     */
     from: number;
 
-    /** The tip plants, action seconds. */
+    /*
+     * The tip plants, action seconds.
+     */
     to: number;
 
-    /** The floor frames before and after. */
+    /*
+     * The floor frames before and after.
+     */
     floor: readonly [IAutoMovieRigidTransform, IAutoMovieRigidTransform];
   }
 
-  /**
+  /*
    * The crutches' common clock: when the grip is settled and each station's
    * advance and swing.
    */
   export interface IClock {
-    /** The opening stance's seconds, a quarter of the first station's. */
+    /*
+     * The opening stance's seconds, a quarter of the first station's.
+     */
     ready: number;
 
-    /**
+    /*
      * Each station's crutch advance window and its body swing's end, action
      * seconds.
      */
     stations: readonly IStationClock[];
   }
 
-  /** One station's instants, action seconds. */
+  /*
+   * One station's instants, action seconds.
+   */
   export interface IStationClock {
-    /** The crutches lift. */
+    /*
+     * The crutches lift.
+     */
     lift: number;
 
-    /** The crutches plant. */
+    /*
+     * The crutches plant.
+     */
     plant: number;
 
-    /** The feet land. */
+    /*
+     * The feet land.
+     */
     land: number;
   }
 
-  /**
+  /*
    * Refuse a crutch or route setting with its reason.
-   *
-   * @param axis The refused setting.
-   * @param value Its value.
-   * @param reason Why it is refused.
-   * @returns Never; it throws.
-   * @throws {HumanRefusal} Always, an affordance refusal with the staging fix.
+   * Parameter axis: The refused setting.
+   * Parameter value: Its value.
+   * Parameter reason: Why it is refused.
+   * Returns: Never; it throws.
+   * Always, an affordance refusal with the staging fix.
    */
   export function refuse(axis: string, value: unknown, reason: string): never {
     throw new HumanRefusal({
@@ -91,15 +108,14 @@ export namespace crutchWalkCourse {
     });
   }
 
-  /**
+  /*
    * The common clock of a crutch walk's stations: an opening stance of a
    * quarter of the first station, then per station the crutches' advance over
    * `ADVANCE` of its time and the body's swing over the rest.
-   *
-   * @param params The walk.
-   * @returns The clock.
-   * @throws {HumanRefusal} When there is no station, or a station is not finite
-   *   or has no positive time.
+   * Parameter params: The walk.
+   * Returns: The clock.
+   * When there is no station, or a station is not finite
+   * or has no positive time.
    */
   export function clock(params: IAutoMovieMotionHumanCrutchWalk): IClock {
     if (params.stations.length === 0)
@@ -131,15 +147,14 @@ export namespace crutchWalkCourse {
     };
   }
 
-  /**
+  /*
    * A frame carried rigidly with the walker from its entry pose to a station:
    * displaced by the station's `x` and `z` and turned by its `turn` about the
    * pivot, p' = p + d + (R - I)(p - pivot).
-   *
-   * @param start The entry frame.
-   * @param pivot The point the turn is about, world metres.
-   * @param station The station, or none for the entry frame itself.
-   * @returns The carried frame.
+   * Parameter start: The entry frame.
+   * Parameter pivot: The point the turn is about, world metres.
+   * Parameter station: The station, or none for the entry frame itself.
+   * Returns: The carried frame.
    */
   export function stationed(
     start: IAutoMovieRigidTransform,
@@ -160,7 +175,7 @@ export namespace crutchWalkCourse {
     };
   }
 
-  /**
+  /*
    * The named tip in a crutch's displayed frame, in world metres. The origin of
    * a tip-rooted crutch already names this point.
    */
@@ -176,14 +191,13 @@ export namespace crutchWalkCourse {
         );
   }
 
-  /**
+  /*
    * The point a crutch turns about at each station: the walk's entry station
    * (`origin`), or the crutch's own tip on the floor when the walk gives none.
-   *
-   * @param start The crutch's staged frame.
-   * @param params The walk.
-   * @param localTip The named tip in the crutch's frame, or its origin.
-   * @returns The pivot, world metres.
+   * Parameter start: The crutch's staged frame.
+   * Parameter params: The walk.
+   * Parameter localTip: The named tip in the crutch's frame, or its origin.
+   * Returns: The pivot, world metres.
    */
   export function pivot(
     start: IAutoMovieRigidTransform,
@@ -193,16 +207,15 @@ export namespace crutchWalkCourse {
     return params.origin ?? tipAt(start, localTip);
   }
 
-  /**
+  /*
    * One crutch's advances over the walk, from its staged frame: each station's
    * advance moves it from the frame the station before left it in to its carry
    * to this station.
-   *
-   * @param start The crutch's staged frame.
-   * @param params The walk.
-   * @param timing The walk's clock.
-   * @param localTip The named tip in the crutch's frame, or its origin.
-   * @returns One advance per station.
+   * Parameter start: The crutch's staged frame.
+   * Parameter params: The walk.
+   * Parameter timing: The walk's clock.
+   * Parameter localTip: The named tip in the crutch's frame, or its origin.
+   * Returns: One advance per station.
    */
   export function advances(
     start: IAutoMovieRigidTransform,
@@ -230,15 +243,14 @@ export namespace crutchWalkCourse {
     );
   }
 
-  /**
+  /*
    * A crutch's frame at an action second: planted, or on one minimum-jerk
    * advance between plants (Flash and Hogan 1985), lifted `LIFT` at its
    * middle.
-   *
-   * @param moves The crutch's advances.
-   * @param start Its staged frame.
-   * @param seconds Seconds since the walk's start.
-   * @returns The frame, world metres.
+   * Parameter moves: The crutch's advances.
+   * Parameter start: Its staged frame.
+   * Parameter seconds: Seconds since the walk's start.
+   * Returns: The frame, world metres.
    */
   export function frameAt(
     moves: readonly IAdvance[],

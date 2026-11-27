@@ -6,7 +6,7 @@ import type {
 
 import { KneeForm } from "./KneeForm";
 
-/**
+/*
  * The knee strike's reach: the thigh carries the knee on a circle about the
  * hip, whose front lies one thigh plus one patella depth from the hip along the
  * thigh. The thigh rises to the elevation whose circle meets the target's
@@ -14,39 +14,50 @@ import { KneeForm } from "./KneeForm";
  * pelvis; the pelvis then travels horizontally along the line toward the target
  * until the knee's front is on it, forward (the hip thrust of the clinch knee)
  * or back (the hips drawn back to make room when the opponent is chest to
- * chest). The shank folds back under the knee by {@link KneeForm.FLEXION}.
+ * chest). The shank folds back under the knee by KneeForm.FLEXION.
  */
 export namespace KneeReach {
-  /** A solved knee: where its joint, ankle and pelvis go at the contact. */
+  /*
+   * A solved knee: where its joint, ankle and pelvis go at the contact.
+   */
   export interface ISolution {
-    /** The knee joint, world metres. */
+    /*
+     * The knee joint, world metres.
+     */
     knee: IAutoMovieVector3;
 
-    /** The ankle folded under it, world metres. */
+    /*
+     * The ankle folded under it, world metres.
+     */
     ankle: IAutoMovieVector3;
 
-    /** The pelvis's horizontal travel, world metres. */
+    /*
+     * The pelvis's horizontal travel, world metres.
+     */
     thrust: IAutoMovieVector3;
 
-    /** The horizontal unit direction the thigh points in. */
+    /*
+     * The horizontal unit direction the thigh points in.
+     */
     heading: IAutoMovieVector3;
 
-    /** Whether the knee's front reaches the target, falls short, or is jammed. */
+    /*
+     * Whether the knee's front reaches the target, falls short, or is jammed.
+     */
     status: IAutoMovieMotionHumanStrikingReach.ISolution["status"];
   }
 
-  /**
+  /*
    * Solve the knee for a hip and a target.
-   *
-   * @param hip The kicking hip before the pelvis travels, world metres.
-   * @param target The target point, world metres.
-   * @param thigh The thigh length, metres.
-   * @param patella The knee's front from its joint, metres.
-   * @param shank The shank length, metres.
-   * @param travel The pelvis's longest travel, metres.
-   * @param fallback A horizontal unit direction for a target straight above or
-   *   below the hip.
-   * @returns The solution.
+   * Parameter hip: The kicking hip before the pelvis travels, world metres.
+   * Parameter target: The target point, world metres.
+   * Parameter thigh: The thigh length, metres.
+   * Parameter patella: The knee's front from its joint, metres.
+   * Parameter shank: The shank length, metres.
+   * Parameter travel: The pelvis's longest travel, metres.
+   * Parameter fallback: A horizontal unit direction for a target straight above or
+   * below the hip.
+   * Returns: The solution.
    */
   export function solve(
     hip: IAutoMovieVector3,
@@ -120,14 +131,13 @@ export namespace KneeReach {
     };
   }
 
-  /**
+  /*
    * A unit direction swung toward another along the great arc between them.
-   *
-   * @param from The direction at share 0, unit.
-   * @param to The direction at share 1, unit.
-   * @param share How far along the arc, 0 to 1.
-   * @returns The unit direction; `to` when the two are parallel or opposed,
-   *   where the arc's plane is not defined.
+   * Parameter from: The direction at share 0, unit.
+   * Parameter to: The direction at share 1, unit.
+   * Parameter share: How far along the arc, 0 to 1.
+   * Returns: The unit direction; `to` when the two are parallel or opposed,
+   * where the arc's plane is not defined.
    */
   export function swing(
     from: IAutoMovieVector3,
@@ -145,15 +155,14 @@ export namespace KneeReach {
     );
   }
 
-  /**
+  /*
    * The driven foot's axes under a shank: the toes pointed down by
-   * {@link KneeForm.PLANTAR} from the foot's neutral, which is square to the
+   * KneeForm.PLANTAR from the foot's neutral, which is square to the
    * shank on the side the knee faces.
-   *
-   * @param shank The unit direction from the knee to the ankle.
-   * @param heading The horizontal unit direction the knee faces.
-   * @returns The toes' direction and the instep's, both unit, for
-   *   `StrikingBody.foot`.
+   * Parameter shank: The unit direction from the knee to the ankle.
+   * Parameter heading: The horizontal unit direction the knee faces.
+   * Returns: The toes' direction and the instep's, both unit, for
+   * `StrikingBody.foot`.
    */
   export function foot(
     shank: IAutoMovieVector3,
@@ -179,5 +188,7 @@ export namespace KneeReach {
   }
 }
 
-/** The record of `IFootResult`'s site. */
+/*
+ * The record of `IFootResult`'s site.
+ */
 type IFootResult = { toes: IAutoMovieVector3; instep: IAutoMovieVector3 };

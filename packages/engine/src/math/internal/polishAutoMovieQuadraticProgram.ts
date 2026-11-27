@@ -10,7 +10,7 @@ import type {
 import { adjacentAutoMovieFloat64 } from "./adjacentAutoMovieFloat64";
 import { solveAutoMovieQuadraticWorkingSetStep } from "./solveAutoMovieQuadraticWorkingSetStep";
 
-/**
+/*
  * Prepare a correction near an unchanged native primal and signed dual. When
  * the independent original-row owner has already admitted feasibility and
  * complementarity, retain that primal and cyclically minimize stationarity's
@@ -60,19 +60,18 @@ import { solveAutoMovieQuadraticWorkingSetStep } from "./solveAutoMovieQuadratic
  * introduce no new stopping epsilon. A failed normal candidate neither replaces
  * the live flat state nor supplies optimum sign departures; finite objective
  * and native status remain with the final refiner.
- *
- * @param groups Refiner-owned exact coefficient groups with original endpoint
- *   owners and complete original ordinals; inputs have passed its intersection
- *   check.
- * @param readMerit Original full-row KKT maximum, owned by the refinement
- *   caller.
- * @param readGradient Original stationarity measurement, owned by that caller.
- * @param readComplementarity Original signed/null/equality predicate, owned by
- *   that caller.
- * @param fixedPrimalEligible Original native feasibility and complementarity
- *   already pass.
- * @throws {Error} When `options.maximumRefinements` is not a nonnegative safe
- *   integer, the budget both correction loops count against.
+ * Parameter groups: Refiner-owned exact coefficient groups with original endpoint
+ * owners and complete original ordinals; inputs have passed its intersection
+ * check.
+ * Parameter readMerit: Original full-row KKT maximum, owned by the refinement
+ * caller.
+ * Parameter readGradient: Original stationarity measurement, owned by that caller.
+ * Parameter readComplementarity: Original signed/null/equality predicate, owned by
+ * that caller.
+ * Parameter fixedPrimalEligible: Original native feasibility and complementarity
+ * already pass.
+ * When `options.maximumRefinements` is not a nonnegative safe
+ * integer, the budget both correction loops count against.
  */
 export function polishAutoMovieQuadraticProgram(
   input: IAutoMovieSolveQuadraticProgram.IInput,

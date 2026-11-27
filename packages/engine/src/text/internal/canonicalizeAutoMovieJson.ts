@@ -1,7 +1,7 @@
 import { AutoMovieEngineCanonicalJsonError } from "../AutoMovieEngineCanonicalJsonError";
 import { AutoMovieEngineText } from "../AutoMovieEngineText";
 
-/**
+/*
  * Encode a supplied value under automovie.canonical-json.v2 for shared identity
  * consumers.
  */
@@ -99,7 +99,9 @@ export function canonicalizeAutoMovieJson(value: unknown): string {
   return encoded;
 }
 
-/** Refuse cycles while permitting repeated, non-recursive references. */
+/*
+ * Refuse cycles while permitting repeated, non-recursive references.
+ */
 const enterCanonicalContainer: (active: Set<object>, value: object) => void = (
   active: Set<object>,
   value: object,
@@ -112,7 +114,9 @@ const enterCanonicalContainer: (active: Set<object>, value: object) => void = (
   active.add(value);
 };
 
-/** JSON escape syntax can encode lone surrogates, but this protocol cannot. */
+/*
+ * JSON escape syntax can encode lone surrogates, but this protocol cannot.
+ */
 const assertScalarString: (value: string, role: string) => void = (
   value: string,
   role: string,

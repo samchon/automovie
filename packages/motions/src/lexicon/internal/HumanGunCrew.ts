@@ -10,7 +10,7 @@ import type {
 import { HumanChain } from "../../chain/HumanChain";
 import { HumanGunDrill } from "./HumanGunDrill";
 
-/**
+/*
  * One field gun's crew serving one load and fire: the duties of the National
  * Park Service's drill for the 12-pounder Napoleon, each role's rows
  * (`HumanGunDrill`) in its own chain, every duty synced to the end of the one
@@ -33,31 +33,40 @@ import { HumanGunDrill } from "./HumanGunDrill";
  * cue. It uses the scene's marks and performers' ordinary walking and gaze.
  */
 export namespace HumanGunCrew {
-  /** One performer and their blocking for a digital crew scene. */
+  /*
+   * One performer and their blocking for a digital crew scene.
+   */
   export interface IStageStation {
-    /** The staged performer subject id. */
+    /*
+     * The staged performer subject id.
+     */
     subject: string;
 
-    /** Destination mark on the staged walking surface, in world metres. */
+    /*
+     * Destination mark on the staged walking surface, in world metres.
+     */
     mark: IAutoMovieVector3;
 
-    /** Arrival in seconds relative to the cue, defaulting to zero. */
+    /*
+     * Arrival in seconds relative to the cue, defaulting to zero.
+     */
     offset?: number;
 
-    /** Gaze after reaching the mark, such as toward a performer or inert prop. */
+    /*
+     * Gaze after reaching the mark, such as toward a performer or inert prop.
+     */
     gaze: IAutoMovieMotionHumanLook.IParams;
   }
 
-  /**
+  /*
    * Compose a cue-timed arrival and gaze for each performer in a digital crew
    * scene. The walk ends on the named event plus the role's offset. Gaze starts
    * at arrival. The scene separately authors any held prop or effect.
-   *
-   * @param cue The performance cue-track id, event and optional zero-based
-   *   occurrence.
-   * @param stations The staged performers and their authored station marks.
-   * @returns Parallel performer chains in station order. An empty cast yields
-   *   an empty parallel composition.
+   * Parameter cue: The performance cue-track id, event and optional zero-based
+   * occurrence.
+   * Parameter stations: The staged performers and their authored station marks.
+   * Returns: Parallel performer chains in station order. An empty cast yields
+   * an empty parallel composition.
    */
   export function stage(
     cue: Required<Pick<IAutoMovieMotionHumanChainCore.ISync, StageCue>> &
@@ -75,12 +84,11 @@ export namespace HumanGunCrew {
     );
   }
 
-  /**
+  /*
    * The crew's composition for one load and fire.
-   *
-   * @param roles The performers by role.
-   * @param scene The gun, the implements and the places.
-   * @returns The composition, every role's chain in one parallel group.
+   * Parameter roles: The performers by role.
+   * Parameter scene: The gun, the implements and the places.
+   * Returns: The composition, every role's chain in one parallel group.
    */
   export function drill(
     roles: IAutoMovieMotionHumanGunCrew.IRoles,
@@ -208,5 +216,7 @@ export namespace HumanGunCrew {
   }
 }
 
-/** The alternatives of `StageCue`'s site. */
+/*
+ * The alternatives of `StageCue`'s site.
+ */
 type StageCue = "of" | "event";

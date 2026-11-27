@@ -15,20 +15,19 @@ import { pickUpLift } from "./pickUpLift";
 import { pickUpPosture } from "./pickUpPosture";
 import { pickUpSearch } from "./pickUpSearch";
 
-/**
+/*
  * The body a pick up acts from.
- *
- * @param context The pick up's context.
- * @param side The reaching arm.
- * @param lift The asked lift, metres.
- * @param authored The grip as the archetype declares it.
- * @param carried World displacement accumulated before lifting a moving prop,
- *   metres.
- * @param closure The prop's world frame at moving grasp closure, or omitted for
- *   ordinary pickup.
- * @returns The grasp, the stance and the raise.
- * @throws {HumanRefusal} When the entry neither stands nor sits and the grip is
- *   beyond the arm, or the lowering refuses a body that does not stand.
+ * Parameter context: The pick up's context.
+ * Parameter side: The reaching arm.
+ * Parameter lift: The asked lift, metres.
+ * Parameter authored: The grip as the archetype declares it.
+ * Parameter carried: World displacement accumulated before lifting a moving prop,
+ * metres.
+ * Parameter closure: The prop's world frame at moving grasp closure, or omitted for
+ * ordinary pickup.
+ * Returns: The grasp, the stance and the raise.
+ * When the entry neither stands nor sits and the grip is
+ * beyond the arm, or the lowering refuses a body that does not stand.
  */
 export function pickUpStance(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
@@ -114,7 +113,9 @@ export function pickUpStance(
     if (taken !== null) ({ found, lowered } = taken);
   }
   if (lift <= 0) return { found, lowered, raise: pickUpLift.ARM };
-  /** The lifted wrist goal after the load phase's travel. */
+  /*
+   * The lifted wrist goal after the load phase's travel.
+   */
   const place = (searched: pickUpSearch.ISearched): IAutoMovieVector3 => {
     const { point } = searched.chosen.wrist;
     const raised: IAutoMovieVector3 = { ...point, y: point.y + lift };
@@ -159,7 +160,7 @@ export function pickUpStance(
   return { ...(last ?? { found, lowered }), raise: pickUpLift.ARM };
 }
 
-/**
+/*
  * The body a pick up takes its grip and makes its lift from (`pickUp`).
  *
  * The grasp is chosen from the entry's body. Where the arm does not reach it,
@@ -172,18 +173,22 @@ export function pickUpStance(
  * be made, not only the grasp.
  */
 export namespace pickUpStance {
-  /** The body a pick up acts from. */
+  /*
+   * The body a pick up acts from.
+   */
   export interface IChosen {
-    /** The grasp chosen from the stance. */
+    /*
+     * The grasp chosen from the stance.
+     */
     found: pickUpSearch.ISearched;
 
-    /**
+    /*
      * The stance the body lowered, turned or stepped into; null where it
      * reached from the entry.
      */
     lowered: pickUpPosture.IStance | null;
 
-    /**
+    /*
      * How the body carries the lift; `pickUpLift.ARM` where the arm alone does,
      * or where nothing does and the plan's hand is left to the lift's
      * judgement.

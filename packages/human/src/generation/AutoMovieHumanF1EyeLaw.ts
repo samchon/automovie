@@ -56,16 +56,20 @@ export namespace AutoMovieHumanF1EyeLaw {
   /** The medial canthus below the pupil's centre, mm: van den Bosch et al. 1999, Br J Ophthalmol 83:347 (read in full), 3.7, SD 1.1. */
   export const MEDIAL_CANTHUS_DROP_MM: number = 3.7;
 
-  /**
+  /*
    * The upper margin's distance from the pupil's centre every 15 degrees from 0 (nasal) to 180 (temporal), mm: Shin et al. 2025, women,
    * right eye (read through a page reader; the digits want one check against the paper's table before a fit relies on them).
    */
   const UPPER_MM: readonly number[] = [9.12, 7.24, 6.0, 5.23, 4.78, 4.59, 4.62, 4.87, 5.4, 6.28, 7.66, 9.73, 12.15];
 
-  /** The lower margin's distance every 15 degrees from 195 (temporal) to 345 (nasal), mm: PMC11179404, women aged 20 to 29 (page reader). */
+  /*
+   * The lower margin's distance every 15 degrees from 195 (temporal) to 345 (nasal), mm: PMC11179404, women aged 20 to 29 (page reader).
+   */
   const LOWER_MM: readonly number[] = [7.51, 5.86, 4.78, 4.12, 3.75, 3.58, 3.57, 3.87, 4.5, 5.86, 8.61];
 
-  /** A published profile read linearly at an angle, as its ratio to its value at the profile's sample `unit`. */
+  /*
+   * A published profile read linearly at an angle, as its ratio to its value at the profile's sample `unit`.
+   */
   function ratio(profile: readonly number[], first: number, unit: number, degrees: number): number {
     const at: number = (degrees - first) / 15;
     const k: number = Math.min(profile.length - 2, Math.max(0, Math.floor(at)));

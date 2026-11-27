@@ -40,7 +40,7 @@ import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
 import { humanFloatBesideAdmit } from "./humanFloatBesideAdmit";
 
-/**
+/*
  * Slide off a swimming horse to its upstream side and float beside it, one hand
  * on its mane.
  *
@@ -66,17 +66,9 @@ export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
     plan: planHumanFloatBeside,
   };
 
-/**
+/*
  * Place the floating body beside the horse's moving held part and verify the
  * displayed hand on it.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the refusals, the trim, the placement, the kick and the grip check.
- * @evidence contracts/development/implementation.md#principled-implementation The float shape is measured once at a fixed root: its trim, its mouth and its near shoulder; each second places that shoulder from the held part's actual frame and fits the near arm to it; the displayed palm's skin, found on the body's own surface under its palm socket, must then lie on the part's skin.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the timing, the side and the part; measure the shape; then each second places, kicks, slides and holds.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A side named blocked, a part higher than the arm reaches from the surface and a displayed hand off the part are refused, never moved.
- * @evidence contracts/development/implementation.md#efficient-algorithms The trim, mouth and shoulder are read once; each sample reads one horse frame, one grip and one selected-bone FK for the check.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work `AquaticPosture`, `ExerciseKey`, `HumanWater.float`, `HumanRideHands` and `HumanMountRider.hold` supply the shape, trim, grip and arm.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the measured offsets, the joint blend and the grip closure for this action; sampled frames and postures stay local.
  */
 function planHumanFloatBeside(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFloatBeside>,
@@ -230,7 +222,7 @@ function planHumanFloatBeside(
   const requested: ReadonlySet<AutoMovieHumanoidBone> =
     new Set<AutoMovieHumanoidBone>([socket.bone]);
 
-  /**
+  /*
    * The float placed beside the held part at a film second, its legs at a share
    * of their flutter.
    */
@@ -432,7 +424,9 @@ function planHumanFloatBeside(
   });
 }
 
-/** A frame's heading about +Y, degrees, 0 facing +Z. */
+/*
+ * A frame's heading about +Y, degrees, 0 facing +Z.
+ */
 function heading(rotation: IAutoMovieQuaternion): number {
   const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
     x: 0,

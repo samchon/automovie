@@ -8,16 +8,15 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * The interval an admitted shape covers along a world direction: the lowest and
  * highest projections of its points onto a unit axis, metres from the world
  * origin. The shape is placed by its parent pose composed with its own
  * transform.
- *
- * @param pose The shape's parent pose, world metres.
- * @param shape The shape.
- * @param axis A unit direction, world frame.
- * @returns The low and high projections, metres along the axis.
+ * Parameter pose: The shape's parent pose, world metres.
+ * Parameter shape: The shape.
+ * Parameter axis: A unit direction, world frame.
+ * Returns: The low and high projections, metres along the axis.
  */
 export function physicalShapeSpan(
   pose: IAutoMovieRigidTransform,

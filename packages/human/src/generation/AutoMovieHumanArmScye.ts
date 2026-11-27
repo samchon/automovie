@@ -25,7 +25,9 @@ const { sided }: typeof AutoMovieHumanHandSide = AutoMovieHumanHandSide;
  * across the ring, which the arm's root strip copies.
  */
 export namespace AutoMovieHumanArmScye {
-  /** Samples of the arc. */
+  /*
+   * Samples of the arc.
+   */
   const SAMPLES: number = 128;
 
   /**

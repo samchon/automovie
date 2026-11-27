@@ -12,7 +12,7 @@ import { validateAutoMovieFontSources } from "../../typography/internal/validate
 import { appendPracticalSurfacesArtifact } from "../../validation/internal/appendPracticalSurfacesArtifact";
 import { appendSurfaceGraphicsArtifact } from "../../validation/internal/appendSurfaceGraphicsArtifact";
 
-/**
+/*
  * Admit a shot's authored prop surfaces against the staged nodes and the
  * registered models, and return detached copies for the shot artifact.
  *
@@ -38,10 +38,14 @@ export function admitPerformShotSurfaces(
   duration: number,
   out: IAutoMovieViolationCollector,
   cameras?: {
-    /** Ids of the staged cameras. */
+    /*
+     * Ids of the staged cameras.
+     */
     ids: ReadonlySet<string>;
 
-    /** The live camera, when the camera gate chose one. */
+    /*
+     * The live camera, when the camera gate chose one.
+     */
     shot?: string;
   },
 ): Pick<IAutoMovieShot, "practicalSurfaces" | "surfaceGraphics" | "fonts"> {

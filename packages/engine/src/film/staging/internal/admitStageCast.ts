@@ -6,7 +6,7 @@ import type {
 
 import { describeInvalidValue } from "../../../validation/internal/describeInvalidValue";
 
-/**
+/*
  * Check the correspondence between the cast and its placements. Duplicate cast
  * ids keep their first member. Every actor claims its staged id even when it
  * has another fault. A mount needs another placed actor as its parent.
@@ -77,5 +77,7 @@ export function admitStageCast(
   return cast;
 }
 
-/** A script member whose model is resolved by its declared node id. */
+/*
+ * A script member whose model is resolved by its declared node id.
+ */
 type CastMember = IAutoMovieScript["cast"][number];

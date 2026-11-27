@@ -4,7 +4,7 @@ import type { AutoMovieHumanSide } from "@automovie/interface";
 import { walkReach } from "../../actions/internal/walkReach";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * A handler's feet turning on the spot to follow a moving bearing: pivot steps,
  * each the foot on the side of the turn swinging round the centre first and the
  * other following, taken whenever the bearing has moved `TRIGGER` from the
@@ -18,61 +18,84 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * beyond it is refused.
  */
 export namespace HumanLungePivot {
-  /**
+  /*
    * The lag of the bearing behind the feet that starts a step, and the lead a
    * step lays them ahead of it, degrees (provisional): a third of the hip's
    * twist, leaving the rest for the turn while a step is under way.
    */
   export const TRIGGER: number = walkReach.TWIST / 3;
 
-  /** One pivot step. */
+  /*
+   * One pivot step.
+   */
   export interface IStep {
-    /** Seconds since the action's start the leading foot lifts. */
+    /*
+     * Seconds since the action's start the leading foot lifts.
+     */
     start: number;
 
-    /** The foot that swings first, on the side of the turn. */
+    /*
+     * The foot that swings first, on the side of the turn.
+     */
     lead: AutoMovieHumanSide;
 
-    /** The feet's heading before the step, degrees. */
+    /*
+     * The feet's heading before the step, degrees.
+     */
     from: number;
 
-    /** The feet's heading after it, degrees. */
+    /*
+     * The feet's heading after it, degrees.
+     */
     to: number;
   }
 
-  /** The steps of one action. */
+  /*
+   * The steps of one action.
+   */
   export interface ISchedule {
-    /** The steps, in time order, never overlapping. */
+    /*
+     * The steps, in time order, never overlapping.
+     */
     steps: readonly IStep[];
 
-    /** Seconds one foot's swing takes; a step is two. */
+    /*
+     * Seconds one foot's swing takes; a step is two.
+     */
     swing: number;
 
-    /** The feet's heading at the start, degrees. */
+    /*
+     * The feet's heading at the start, degrees.
+     */
     heading: number;
   }
 
-  /** A foot's heading and swing at a second. */
+  /*
+   * A foot's heading and swing at a second.
+   */
   export interface IFoot {
-    /** The foot's heading, degrees. */
+    /*
+     * The foot's heading, degrees.
+     */
     heading: number;
 
-    /** The swing's share while the foot is in the air; absent while it stands. */
+    /*
+     * The swing's share while the foot is in the air; absent while it stands.
+     */
     swing?: number;
   }
 
-  /**
+  /*
    * Plan the steps that follow a bearing.
-   *
-   * @param bearing The bearing at seconds since the action's start, degrees,
-   *   continuous (unwrapped).
-   * @param seconds The action's length.
-   * @param heading The feet's heading at the start, degrees.
-   * @param swing Seconds one foot's swing takes.
-   * @param dt The scan's step, seconds, at most half a swing.
-   * @returns The schedule.
-   * @throws {HumanRefusal} When the bearing runs more than the hip's twist from
-   *   the feet.
+   * Parameter bearing: The bearing at seconds since the action's start, degrees,
+   * continuous (unwrapped).
+   * Parameter seconds: The action's length.
+   * Parameter heading: The feet's heading at the start, degrees.
+   * Parameter swing: Seconds one foot's swing takes.
+   * Parameter dt: The scan's step, seconds, at most half a swing.
+   * Returns: The schedule.
+   * When the bearing runs more than the hip's twist from
+   * the feet.
    */
   export function plan(
     bearing: (seconds: number) => number,
@@ -140,13 +163,12 @@ export namespace HumanLungePivot {
     return { steps, swing, heading };
   }
 
-  /**
+  /*
    * A foot's heading at a second.
-   *
-   * @param schedule The steps.
-   * @param side The foot.
-   * @param seconds Seconds since the action's start.
-   * @returns Its heading and, while it swings, the swing's share.
+   * Parameter schedule: The steps.
+   * Parameter side: The foot.
+   * Parameter seconds: Seconds since the action's start.
+   * Returns: Its heading and, while it swings, the swing's share.
    */
   export function foot(
     schedule: ISchedule,

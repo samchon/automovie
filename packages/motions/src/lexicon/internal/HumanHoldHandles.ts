@@ -26,16 +26,20 @@ import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
 import { humanRideGripTiming } from "./humanRideGripTiming";
 
-/** The two hands, left first. */
+/*
+ * The two hands, left first.
+ */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
-/**
+/*
  * The displayed hand's largest admitted miss of its handle's skin, metres: the
  * contact tolerance of the towed driver and the lead.
  */
 const REACH: number = 0.01;
 
-/** Fit and verify both displayed hands against two actual moving handles. */
+/*
+ * Fit and verify both displayed hands against two actual moving handles.
+ */
 function planHumanHoldHandles(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHoldHandles>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -260,7 +264,7 @@ function planHumanHoldHandles(
   });
 }
 
-/**
+/*
  * Keep both of a walker's hands on a moving implement's two handles, as a
  * ploughman holds a walking plough.
  *

@@ -24,10 +24,12 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { pianoPedalStroke } from "./pianoPedalStroke";
 import { readPianoPedal } from "./readPianoPedal";
 
-/** Extra swing clearance in metres for the seated foot's short transfer. */
+/*
+ * Extra swing clearance in metres for the seated foot's short transfer.
+ */
 const SWING_CLEARANCE: number = 0.025;
 
-/**
+/*
  * Stage the right forefoot on an upright piano's damper pedal, depress and
  * release it on its own clock, and return to the original floor plant. Hannah
  * Creviston describes keeping the heel grounded and playing the damper with the
@@ -43,7 +45,9 @@ export const pianoPedal: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPia
     plan,
   };
 
-/** Resolve a seated right-foot path and independent pedal travel. */
+/*
+ * Resolve a seated right-foot path and independent pedal travel.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPianoPedal>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -138,7 +142,9 @@ function plan(
   );
   const heelToPivot: IAutoMovieVector3 = Vector3.subtract(pedal.pivot, heel);
 
-  /** Intersect the ball's arc around the fixed heel with the rotated plate. */
+  /*
+   * Intersect the ball's arc around the fixed heel with the rotated plate.
+   */
   const placed = (degrees: number): IAutoMovieMotionHumanFoot.IPlacement => {
     const angle: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
       pedal.axis,
@@ -180,7 +186,9 @@ function plan(
       ),
   );
 
-  /** Raise the shoe over the floor and plate during approach and recovery. */
+  /*
+   * Raise the shoe over the floor and plate during approach and recovery.
+   */
   const move = (progress: number): IAutoMovieMotionHumanFoot.IPlacement => {
     const blend: number = AutoMovieEngineMotionSampling.minimumJerkShare(progress);
     const ankle: IAutoMovieVector3 = Vector3.lerp(
@@ -197,7 +205,9 @@ function plan(
     };
   };
 
-  /** Replace just the right leg on the existing seated posture. */
+  /*
+   * Replace just the right leg on the existing seated posture.
+   */
   const withFoot = (
     held: IAutoMovieMotionHumanPosture,
     placement: IAutoMovieMotionHumanFoot.IPlacement,
@@ -328,7 +338,9 @@ function plan(
   };
 }
 
-/** Report a placement or clock the author can correct. */
+/*
+ * Report a placement or clock the author can correct.
+ */
 function refuse(axis: string, value: RefuseValue, fix: string): never {
   throw new HumanRefusal({
     kind: axis === "prop" ? "reach" : "parameter",
@@ -339,8 +351,12 @@ function refuse(axis: string, value: RefuseValue, fix: string): never {
   });
 }
 
-/** The foot clock's independently authored stroke. */
+/*
+ * The foot clock's independently authored stroke.
+ */
 type Press = IAutoMovieMotionHumanPianoPedal.IPress;
 
-/** The alternatives of `RefuseValue`'s site. */
+/*
+ * The alternatives of `RefuseValue`'s site.
+ */
 type RefuseValue = string | number;

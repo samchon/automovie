@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Register a fixed-cell Cartesian section average for parameter correspondence.
  *
  * Parameter correspondence pairs the curve parameter, so an off-axis, concave
@@ -20,13 +20,12 @@ import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
  * only a nonzero normalized result lost in multiplication is refused. Scale
  * products, positive weights and world coordinates are admitted before output
  * publication. A rejected write leaves the caller's output buffer unchanged.
- *
- * @param props The compiled unscaled surface, fixed footprint and live rig
- *   views
- * @returns The allocation-free writer in model metres
- * @throws Error for nonfinite source coordinates, invalid or unrepresentable
- *   cell reaches/weights, scale products, signed means or world coordinates;
- *   write failures preserve the output buffer.
+ * Parameter props: The compiled unscaled surface, fixed footprint and live rig
+ * views
+ * Returns: The allocation-free writer in model metres
+ * Error for nonfinite source coordinates, invalid or unrepresentable
+ * cell reaches/weights, scale products, signed means or world coordinates;
+ * write failures preserve the output buffer.
  */
 export function sampleAutoMovieParameterSweep(
   props: IAutoMovieSampleParameterSweep.IProps,
@@ -90,7 +89,9 @@ export function sampleAutoMovieParameterSweep(
   };
 }
 
-/** Nonzero reaches carry positive representable trapezoid weights. */
+/*
+ * Nonzero reaches carry positive representable trapezoid weights.
+ */
 function tent(below: number, above: number): Array<[number, number]> {
   if (below < 0 || above < 0)
     throw new Error("parameter sweep cell must be finite and nonnegative");
@@ -110,7 +111,9 @@ function tent(below: number, above: number): Array<[number, number]> {
   ].filter((entry: number[]): entry is [number, number] => entry[1]! > 0);
 }
 
-/** Stable signed mean; an exact cancelling zero is valid in Cartesian space. */
+/*
+ * Stable signed mean; an exact cancelling zero is valid in Cartesian space.
+ */
 function average(
   xs: Float64Array,
   ys: Float64Array,

@@ -11,15 +11,14 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Time the crawl's support-transfer keys by cumulative limb-joint travel. The
  * first descent fixes the pace at the supplied sitting duration.
- *
- * @param body The unchanged performer.
- * @param keys Ordered support-transfer postures, with a nonzero first
- *   transition.
- * @param sit Seconds assigned to the first transition.
- * @returns Each key's seconds from the first, starting at zero.
+ * Parameter body: The unchanged performer.
+ * Parameter keys: Ordered support-transfer postures, with a nonzero first
+ * transition.
+ * Parameter sit: Seconds assigned to the first transition.
+ * Returns: Each key's seconds from the first, starting at zero.
  */
 export function crawlDownTiming(
   body: IAutoMovieMotionHumanBody,
@@ -70,7 +69,9 @@ export function crawlDownTiming(
   );
 }
 
-/** Preserve the original left-then-right limb reduction order. */
+/*
+ * Preserve the original left-then-right limb reduction order.
+ */
 const TRAVELLING: readonly AutoMovieHumanoidBone[] = (
   ["left", "right"] as const
 ).flatMap((side: AutoMovieHumanSide): AutoMovieHumanoidBone[] => [
@@ -82,5 +83,7 @@ const TRAVELLING: readonly AutoMovieHumanoidBone[] = (
   `${side}Hand`,
 ]);
 
-/** FK returns the same twelve travel joints used by the ordered reduction. */
+/*
+ * FK returns the same twelve travel joints used by the ordered reduction.
+ */
 const DEMAND: ReadonlySet<AutoMovieHumanoidBone> = new Set(TRAVELLING);

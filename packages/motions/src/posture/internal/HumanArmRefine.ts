@@ -1,6 +1,6 @@
 import { HumanMinimumJerkSpline } from "./HumanMinimumJerkSpline";
 
-/**
+/*
  * A trajectory's interpolant between its waypoints and subdivision of the
  * intervals whose played geometry fails admission.
  *
@@ -11,17 +11,16 @@ import { HumanMinimumJerkSpline } from "./HumanMinimumJerkSpline";
  * resolution.
  */
 export namespace HumanArmRefine {
-  /**
+  /*
    * The waypoints, as instants of the frame grid, with each given interval
    * split at the grid instant in its middle. Waypoints that are grid instants
    * stay grid instants however often they are split, so where every grid
    * instant of a stretch is a waypoint, what the waypoints are bounded by is
    * what the grid reads.
-   *
-   * @param knots The waypoints' indices in the frame grid, ascending.
-   * @param split The intervals, by their first waypoint; an interval that holds
-   *   no grid instant is left as it is.
-   * @returns The indices, ascending.
+   * Parameter knots: The waypoints' indices in the frame grid, ascending.
+   * Parameter split: The intervals, by their first waypoint; an interval that holds
+   * no grid instant is left as it is.
+   * Returns: The indices, ascending.
    */
   export function split(
     knots: readonly number[],
@@ -36,17 +35,16 @@ export namespace HumanArmRefine {
     return out;
   }
 
-  /**
+  /*
    * The trajectory's interpolant: Flash and Hogan's minimum-jerk path through
    * the waypoints at their seconds (`HumanMinimumJerkSpline`, Flash and Hogan
    * 1985), a quintic on each interval, continuous through its snap at every
    * interior waypoint and at rest in velocity and acceleration at the first and
    * the last.
-   *
-   * @param times Ordered waypoint seconds paired with the coordinate rows.
-   * @param x Coordinates at every waypoint, with a consistent dimension.
-   * @param seconds The instant to read, seconds.
-   * @returns Fresh interpolated coordinates, clamped to the endpoint rows.
+   * Parameter times: Ordered waypoint seconds paired with the coordinate rows.
+   * Parameter x: Coordinates at every waypoint, with a consistent dimension.
+   * Parameter seconds: The instant to read, seconds.
+   * Returns: Fresh interpolated coordinates, clamped to the endpoint rows.
    */
   export function hermite(
     times: readonly number[],
@@ -56,7 +54,7 @@ export namespace HumanArmRefine {
     return prepareHermite(times, x)(seconds).coordinates;
   }
 
-  /**
+  /*
    * Bind a solved course's waypoint seconds and coordinate rows: the waypoints'
    * velocities and accelerations on the minimum-jerk path are solved once. A
    * sample receives fresh coordinates and the preceding knot index, which also
@@ -94,18 +92,24 @@ export namespace HumanArmRefine {
   }
 }
 
-/** The record of `IPrepareHermiteResult2`'s site. */
+/*
+ * The record of `IPrepareHermiteResult2`'s site.
+ */
 type IPrepareHermiteResult2 = {
   readonly knot: number;
   readonly coordinates: number[];
 };
 
-/** The record of `IPrepareHermiteResult`'s site. */
+/*
+ * The record of `IPrepareHermiteResult`'s site.
+ */
 type IPrepareHermiteResult = {
   readonly knot: number;
   readonly coordinates: number[];
 };
-/** The last knot at or before this second, starting at zero before the span. */
+/*
+ * The last knot at or before this second, starting at zero before the span.
+ */
 function knot(times: readonly number[], seconds: number): number {
   let low: number = 0;
   let high: number = times.length - 1;

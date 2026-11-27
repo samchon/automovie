@@ -10,7 +10,7 @@ import { supportCourse } from "./supportCourse";
 import { supportKey } from "./supportKey";
 import type { supportPlan } from "./supportPlan";
 
-/**
+/*
  * The keys of one step: the stepping limbs let go and swing while the rest
  * bear, then set down (a contact broken, then made: Escande, Kheddar and
  * Miossec 2013). A course routes a foot over its waypoints, one lift key per
@@ -27,9 +27,8 @@ import type { supportPlan } from "./supportPlan";
  * middle of the step carried the sole across the floor at lift-off and set-down
  * (the staged clinch's 1.3 m/s skates). Any other step keeps the single
  * mid-step lift.
- *
- * @param props The step's limbs, places, solver and clock.
- * @returns The seconds after the set-down key.
+ * Parameter props: The step's limbs, places, solver and clock.
+ * Returns: The seconds after the set-down key.
  */
 export function supportStep(props: supportStep.IProps): number {
   const { body, keys, push, form, oldPlace, place, kept, added } = props;
@@ -293,95 +292,141 @@ export function supportStep(props: supportStep.IProps): number {
   return seconds + props.move / 3;
 }
 
-/** Companion types of {@link supportStep}. */
+/*
+ * Companion types of supportStep.
+ */
 export namespace supportStep {
-  /**
+  /*
    * How far short of a weightless ankle's dorsiflexion a lifting foot's heel
    * rise keeps it, degrees: the closed-form shank differs from the fitted one
    * by a few degrees (provisional, as `unloadedFoot`'s margin).
    */
   export const DORSAL_MARGIN: number = 3;
 
-  /**
+  /*
    * A contact to read on a posture, with its target or null for an unnamed
    * floor place (`supportContact.points`).
    */
   export type Anchor = Parameters<typeof supportContact.points>[2][number];
 
-  /** A contact's place lookup. */
+  /*
+   * A contact's place lookup.
+   */
   export type Place = (
     contact: IAutoMovieMotionHumanSupport.IContact,
   ) => IAutoMovieVector3 | null;
 
-  /** One step of the support sequence. */
+  /*
+   * One step of the support sequence.
+   */
   export interface IProps {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The stance's index. */
+    /*
+     * The stance's index.
+     */
     index: number;
 
-    /** The keys so far, the last the step's start. */
+    /*
+     * The keys so far, the last the step's start.
+     */
     keys: readonly supportPlan.IKey[];
 
-    /** Appends a key. */
+    /*
+     * Appends a key.
+     */
     push: (key: supportPlan.IKey) => void;
 
-    /** The staged route, if any. */
+    /*
+     * The staged route, if any.
+     */
     course: supportCourse.ICourse | undefined;
 
-    /** The stepping foot courses by interval, extended in place. */
+    /*
+     * The stepping foot courses by interval, extended in place.
+     */
     routes: Map<number, supportCourse.ILeg[]>;
 
-    /** The contacts that set down anew. */
+    /*
+     * The contacts that set down anew.
+     */
     moved: readonly IAutoMovieMotionHumanSupport.IContact[];
 
-    /** The contact a moved one leaves. */
+    /*
+     * The contact a moved one leaves.
+     */
     from: (
       contact: IAutoMovieMotionHumanSupport.IContact,
     ) => IAutoMovieMotionHumanSupport.IContact | undefined;
 
-    /** The contacts that bear through the step. */
+    /*
+     * The contacts that bear through the step.
+     */
     kept: readonly IAutoMovieMotionHumanSupport.IContact[];
 
-    /** The stance's new contacts. */
+    /*
+     * The stance's new contacts.
+     */
     added: readonly IAutoMovieMotionHumanSupport.IContact[];
 
-    /** The stance the step leaves. */
+    /*
+     * The stance the step leaves.
+     */
     leaving: IAutoMovieMotionHumanSupport.IStance;
 
-    /** The stance it arrives at. */
+    /*
+     * The stance it arrives at.
+     */
     stance: IAutoMovieMotionHumanSupport.IStance;
 
-    /** The places of the key before. */
+    /*
+     * The places of the key before.
+     */
     oldPlace: Place;
 
-    /** The places of the arriving stance. */
+    /*
+     * The places of the arriving stance.
+     */
     place: Place;
 
-    /** The stance's preferred posture over a key, by its places. */
+    /*
+     * The stance's preferred posture over a key, by its places.
+     */
     preference: (
       stance: IAutoMovieMotionHumanSupport.IStance,
       from: IAutoMovieMotionHumanPosture,
       place: Place,
     ) => IAutoMovieMotionHumanPosture;
 
-    /** The course's level-heel goals of the contacts. */
+    /*
+     * The course's level-heel goals of the contacts.
+     */
     heels: (
       contacts: readonly IAutoMovieMotionHumanSupport.IContact[],
       place: Place,
     ) => IAutoMovieMotionHumanBodyFitTypes.ITarget[];
 
-    /** The plan's contact forms. */
+    /*
+     * The plan's contact forms.
+     */
     form: ReturnType<typeof supportContact.prepareForm>;
 
-    /** How far a contact may miss its target, millimetres. */
+    /*
+     * How far a contact may miss its target, millimetres.
+     */
     miss: number;
 
-    /** Seconds since the start at the step's start. */
+    /*
+     * Seconds since the start at the step's start.
+     */
     seconds: number;
 
-    /** The move's seconds. */
+    /*
+     * The move's seconds.
+     */
     move: number;
   }
 }

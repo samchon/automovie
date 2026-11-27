@@ -3,7 +3,7 @@ import type {
   IAutoMovieQuadraticHeap,
 } from "@automovie/interface";
 
-/**
+/*
  * Create an independent synchronous TypeScript workspace owner. Byte requests
  * are positive integers at most 2^32-1, rounded up for aligned float64 storage.
  * Each borrow receives fresh zero-initialized storage at byte address zero; no

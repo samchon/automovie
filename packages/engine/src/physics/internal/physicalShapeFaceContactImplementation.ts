@@ -15,7 +15,7 @@ import type { AutoMovieEnginePhysicsGjkTypes } from "../AutoMovieEnginePhysicsGj
 import { physicalShapeHull } from "./physicalShapeHull";
 import { physicalShapeSupport } from "./physicalShapeSupport";
 
-/**
+/*
  * Prepare a face outline for repeated shape placements. The column direction
  * is expressed in face space and has nonzero Y. Its default follows the face
  * normal. A terrain owning world-horizontal bounds can pass its local world
@@ -133,9 +133,13 @@ function physicalShapeFaceContact(
   return physicalShapeFaceContactPrepare(face, outline, column)(pose, shape);
 }
 
-/** Prepared bounded contact geometry and its exact solid inputs. */
+/*
+ * Prepared bounded contact geometry and its exact solid inputs.
+ */
 
-/** Preserve a concave polygon's real boundary by clipping its convex pieces. */
+/*
+ * Preserve a concave polygon's real boundary by clipping its convex pieces.
+ */
 function partition(
   outline: readonly IAutoMovieVector3[],
 ): readonly (readonly ISide[])[] {
@@ -161,10 +165,14 @@ function partition(
     .filter((piece: ISide[]): boolean => piece.length !== 0);
 }
 
-/** Face-space upward normal and height axis. */
+/*
+ * Face-space upward normal and height axis.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** Read nonzero polygon edges and orient them toward the interior. */
+/*
+ * Read nonzero polygon edges and orient them toward the interior.
+ */
 function polygon(outline: readonly IAutoMovieVector3[]): ISide[] {
   let twice: number = 0;
   for (let i: number = 0; i < outline.length; ++i) {
@@ -196,12 +204,16 @@ function polygon(outline: readonly IAutoMovieVector3[]): ISide[] {
   return result;
 }
 
-/** Signed distance inside the side in metres. */
+/*
+ * Signed distance inside the side in metres.
+ */
 function offset(side: ISide, point: IAutoMovieVector3): number {
   return Vector3.dot(side.inward, Vector3.subtract(point, side.a));
 }
 
-/** Clip a tangent segment to the convex face without extending a point hold. */
+/*
+ * Clip a tangent segment to the convex face without extending a point hold.
+ */
 function clipSegment(
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
@@ -220,7 +232,9 @@ function clipSegment(
   return [Vector3.lerp(a, b, from), Vector3.lerp(a, b, to)];
 }
 
-/** A sphere's lowest visible witness is over the nearest point of the face. */
+/*
+ * A sphere's lowest visible witness is over the nearest point of the face.
+ */
 function sphere(
   centre: IAutoMovieVector3,
   radius: number,
@@ -251,7 +265,9 @@ function sphere(
     : { point, clearance: centre.y - Math.sqrt(radius * radius - squared) };
 }
 
-/** Clip each polygon of the solid to the actual vertical face columns. */
+/*
+ * Clip each polygon of the solid to the actual vertical face columns.
+ */
 function polytope(
   loops: readonly (readonly IAutoMovieVector3[])[],
   place: (point: IAutoMovieVector3) => IAutoMovieVector3,
@@ -312,7 +328,9 @@ function polytope(
   };
 }
 
-/** Six axis-aligned face loops before the box is posed. */
+/*
+ * Six axis-aligned face loops before the box is posed.
+ */
 function box(half: IAutoMovieVector3): IAutoMovieVector3[][] {
   const result: IAutoMovieVector3[][] = [];
   for (const [axis, first, second] of [
@@ -340,7 +358,7 @@ function box(half: IAutoMovieVector3): IAutoMovieVector3[][] {
   return result;
 }
 
-/**
+/*
  * The real circular face and the opposite cap or tip support a flat-ended
  * solid.
  */
@@ -369,7 +387,9 @@ function roundSupport(
   return Vector3.add(centre, Quaternion.rotateVector(rotation, p));
 }
 
-/** Bracket the first height at which the two convex solids intersect. */
+/*
+ * Bracket the first height at which the two convex solids intersect.
+ */
 function roundPrism(
   support: AutoMovieEnginePhysicsGjkTypes.Support,
   sides: readonly ISide[],
@@ -417,8 +437,12 @@ function roundPrism(
   return { point: project(found.point), clearance: hi };
 }
 
-/** Internal implementations shared by the one-function entry modules. */
-/** Internal typed runtime implementations shared by the query entry modules. */
+/*
+ * Internal implementations shared by the one-function entry modules.
+ */
+/*
+ * Internal typed runtime implementations shared by the query entry modules.
+ */
 export const physicalShapeFaceContactImplementation: {
   physicalShapeFaceContact: typeof physicalShapeFaceContact;
   physicalShapeFaceContactPrepare: typeof physicalShapeFaceContactPrepare;
@@ -426,12 +450,20 @@ export const physicalShapeFaceContactImplementation: {
   physicalShapeFaceContact,
   physicalShapeFaceContactPrepare,
 };
-/** One boundary in the face plane and its inward normal. */
+/*
+ * One boundary in the face plane and its inward normal.
+ */
 interface ISide {
-  /** The edge start in the face plane. */
+  /*
+   * The edge start in the face plane.
+   */
   a: IAutoMovieVector3;
-  /** The edge end in the face plane. */
+  /*
+   * The edge end in the face plane.
+   */
   b: IAutoMovieVector3;
-  /** The edge's unit inward direction. */
+  /*
+   * The edge's unit inward direction.
+   */
   inward: IAutoMovieVector3;
 }

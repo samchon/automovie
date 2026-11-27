@@ -9,7 +9,7 @@ import { hasStoryContract } from "../utilities/hasStoryContract";
 import { createSharedReference } from "./createSharedReference";
 import { layerFiles } from "./layerFiles";
 
-/**
+/*
  * Creates the principle checklists every unit of one layer answers for itself.
  *
  * Each unit answers its layer's principles. Only the screenplay selects an

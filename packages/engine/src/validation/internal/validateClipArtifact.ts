@@ -11,7 +11,7 @@ import { validateHonorableChannel } from "./validateHonorableChannel";
 import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";
 
-/**
+/*
  * Admit clip duration, track uniqueness, channel addressing and shared sampler
  * track-shape faults.
  */
@@ -24,7 +24,7 @@ export const validateClipArtifact: (
   clip: IAutoMovieClip,
   path: string,
   violations: IAutoMovieConstraintViolation[],
-  /**
+  /*
    * Which channels this clip's tracks may address. Defaults to the node gate
    * every transform clip (`cameraMotion`, `objectMotions`, a coverage take, a
    * stored slice) is held to; `lightMotions` passes its own.

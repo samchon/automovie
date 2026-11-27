@@ -10,12 +10,16 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeStageWeaponProp } from "../AutoMovieArchetypeStageWeaponProp";
 
-/** The size axis measures from the base plane to the uppermost visible part. */
+/*
+ * The size axis measures from the base plane to the uppermost visible part.
+ */
 const UNITS: Readonly<Record<AutoMovieArchetypeStageWeaponProp.Dimension, "m">> = {
   height: "m",
 };
 
-/** A shared set scale for staging families of different apparent heights. */
+/*
+ * A shared set scale for staging families of different apparent heights.
+ */
 const HEIGHT: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
   0.55,
   2.4,
@@ -23,7 +27,9 @@ const HEIGHT: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
   true,
 );
 
-/** The standard display heights in metres. */
+/*
+ * The standard display heights in metres.
+ */
 const DISPLAY_HEIGHTS: Readonly<Record<AutoMovieArchetypeStageWeaponProp.Kind, number>> = {
   mace: 0.7,
   pike: 1.95,
@@ -37,20 +43,19 @@ const DISPLAY_HEIGHTS: Readonly<Record<AutoMovieArchetypeStageWeaponProp.Kind, n
   linked: 0.95,
 };
 
-/**
+/*
  * Build a padded stage form around its hand-held base.
  *
  * A display height sets the base shape, while the supplied decoration records
  * the visible silhouette and its additional marks.
- *
- * @param kind Catalogue silhouette label.
- * @param shaftRatio Fraction of display height occupied by the shaft.
- * @param decorate Adds the selected silhouette's parts and contacts.
- * @param params An optional scene id and height in metres.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter kind: Catalogue silhouette label.
+ * Parameter shaftRatio: Fraction of display height occupied by the shaft.
+ * Parameter decorate: Adds the selected silhouette's parts and contacts.
+ * Parameter params: An optional scene id and height in metres.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function StageShaftConstruction(
   kind: AutoMovieArchetypeStageWeaponProp.Kind,
@@ -107,15 +112,21 @@ export function StageShaftConstruction(
   return builder.build(0.2);
 }
 
-/** The base dimensions offered to the owning silhouette builder. */
+/*
+ * The base dimensions offered to the owning silhouette builder.
+ */
 export namespace StageShaftConstruction {
-  /** Builder for named digital stage silhouette contacts. */
+  /*
+   * Builder for named digital stage silhouette contacts.
+   */
   export type Builder = AutoMovieArchetypeBuilder<
     AutoMovieArchetypeStageWeaponProp.Affordance,
     AutoMovieArchetypeStageWeaponProp.Dimension
   >;
 
-  /** One form adds its visible top and optional contacts to the drawn shaft. */
+  /*
+   * One form adds its visible top and optional contacts to the drawn shaft.
+   */
   export type Decorate = (
     builder: Builder,
     height: number,

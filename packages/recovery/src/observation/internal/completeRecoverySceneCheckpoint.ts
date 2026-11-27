@@ -21,7 +21,7 @@ import { prepareRecoveryCheckpointReportCapacity } from "./prepareRecoveryCheckp
 import { refineRecoveryCameraMap } from "./refineRecoveryCameraMap";
 import { spendRecoverySceneWork } from "./spendRecoverySceneWork";
 
-/**
+/*
  * Complete a detached scene transaction through growth and full joint geometry.
  * After each fit, newly admissible points/measurements cause another fit. Only
  * strict finite population growth repeats; every fit and linear action is

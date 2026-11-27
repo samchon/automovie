@@ -6,16 +6,20 @@ import {
   AutoMovieArchetypeConvexCell,
 } from "../../core";
 
-/** A rigid collar or cuff made of convex cells around an open finite bore. */
+/*
+ * A rigid collar or cuff made of convex cells around an open finite bore.
+ */
 export namespace AnnularFitting {
-  /** All part ids owned by the same rigid annular fitting. */
+  /*
+   * All part ids owned by the same rigid annular fitting.
+   */
   export function ids(id: string): string[] {
     return Array.from({ length: SEGMENTS }, (_: unknown, i: number): string =>
       i === 0 ? id : `${id}-wall-${i}`,
     );
   }
 
-  /**
+  /*
    * Prepare one fitting's cell geometry in a common frame with the axis along
    * local +Y. Its inner and outer wall faces are tangent at the stated radii.
    */
@@ -43,7 +47,7 @@ export namespace AnnularFitting {
     );
   }
 
-  /**
+  /*
    * Place prepared cells along the fitted body's axis. All parts share the same
    * origin so a carrier can update every cell with one rigid transform.
    */
@@ -64,5 +68,7 @@ export namespace AnnularFitting {
   }
 }
 
-/** Thirty-two sides limit radial excess to less than one percent. */
+/*
+ * Thirty-two sides limit radial excess to less than one percent.
+ */
 const SEGMENTS: number = 32;

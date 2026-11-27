@@ -15,7 +15,7 @@ import { designLineagePhaseSnapshot } from "./designLineagePhaseSnapshot";
 import { designLineageRecord } from "./designLineageRecord";
 import { requireDesignVariant } from "./requireDesignVariant";
 
-/**
+/*
  * Digest one view of the design: a revision, an alternative, and a phase.
  *
  * This recorded view is a replay handle for derived artifacts. Equal serialized
@@ -29,11 +29,10 @@ import { requireDesignVariant } from "./requireDesignVariant";
  * state the phase snapshot reports is included with the subject's own content
  * digest. Returns a `sha256:` digest; an invalid lineage, an undeclared phase,
  * or an unknown variant id throws an `Error`.
- *
- * @param lineage Lineage the view is taken from.
- * @param view Variant id or null for the head, and phase id or null for the
- *   completed work.
- * @returns The view's `sha256:` digest.
+ * Parameter lineage: Lineage the view is taken from.
+ * Parameter view: Variant id or null for the head, and phase id or null for the
+ * completed work.
+ * Returns: The view's `sha256:` digest.
  */
 export function designLineageViewDigest(
   lineage: IAutoMovieDesignLineage,

@@ -163,7 +163,9 @@ export namespace AutoMovieHumanFootGuide {
     return G.plus(f.origin, G.plus(G.scale(f.v, q[0]), G.scale(f.u, q[1])));
   }
 
-  /** A guide beyond its first or last knot: the end's tangent line. */
+  /*
+   * A guide beyond its first or last knot: the end's tangent line.
+   */
   function tangent(
     g: IAutoMovieHumanFootGuide.IGuide,
     i: number,
@@ -176,20 +178,28 @@ export namespace AutoMovieHumanFootGuide {
     ) as [number, number];
   }
 
-  /** A knot as the guide reads it. */
+  /*
+   * A knot as the guide reads it.
+   */
   interface IKnot {
-    /** The station of the fan's plane through the knot. */
+    /*
+     * The station of the fan's plane through the knot.
+     */
     station: number;
 
-    /** The knot along that plane's `v` axis from the fan's shared point, mm. */
+    /*
+     * The knot along that plane's `v` axis from the fan's shared point, mm.
+     */
     across: number;
 
-    /** The knot along that plane's `u` axis from the fan's shared point, mm. */
+    /*
+     * The knot along that plane's `u` axis from the fan's shared point, mm.
+     */
     up: number;
   }
 }
 
-/**
+/*
  * Least station between kept knots, mm. A convention: closer knots would leave
  * the spline's interval too short to carry their places' difference without a
  * spike.

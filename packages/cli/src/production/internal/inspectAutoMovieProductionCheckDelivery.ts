@@ -8,14 +8,13 @@ import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-/**
+/*
  * Verify the promoted movie beside its report using the digest of the staged
  * bytes audited before publication. Required controls carry the same digest. A
  * blocked or failed attempt reports any previous movie separately.
- *
- * @param check The production's delivery criterion.
- * @param root The directory holding the production and its outputs.
- * @returns The file-binding verdict and its owning report.
+ * Parameter check: The production's delivery criterion.
+ * Parameter root: The directory holding the production and its outputs.
+ * Returns: The file-binding verdict and its owning report.
  */
 export async function inspectAutoMovieProductionCheckDelivery(
   check: IAutoMovieProductionCheck.IDelivery,
@@ -155,7 +154,9 @@ type AutoMovieDeliveryOutcome = Pick<
   "state" | "message" | "evidence"
 >;
 
-/** Fields the existing render report publishes for its file and attempt. */
+/*
+ * Fields the existing render report publishes for its file and attempt.
+ */
 interface IRenderReport {
   readonly subject: string;
   readonly status: "published" | "blocked" | "failed";

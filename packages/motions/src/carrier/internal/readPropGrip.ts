@@ -11,22 +11,23 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The axis a handle is wrapped about: its affordance frame's local +X. */
+/*
+ * The axis a handle is wrapped about: its affordance frame's local +X.
+ */
 const HANDLE: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
-/**
+/*
  * A named point of a prop as a hand's grip at a film second: the displayed
  * point and normal, the handle's wrapped axis carried by the prop's frame, and
  * half its stated aperture as the radius, as a rider's hands read a carried
  * handle (`HumanRideHands`).
- *
- * @param context The action's context.
- * @param on The prop's subject id.
- * @param id The point's id.
- * @param seconds Film seconds.
- * @param axis The refusal axis naming the parameter that chose the point.
- * @returns The grip in world metres.
- * @throws {HumanRefusal} When the prop declares no such point.
+ * Parameter context: The action's context.
+ * Parameter on: The prop's subject id.
+ * Parameter id: The point's id.
+ * Parameter seconds: Film seconds.
+ * Parameter axis: The refusal axis naming the parameter that chose the point.
+ * Returns: The grip in world metres.
+ * When the prop declares no such point.
  */
 export function readPropGrip(
   context: readPropGrip.IContext,
@@ -73,23 +74,37 @@ export function readPropGrip(
   };
 }
 
-/** What a prop's grip is read from. */
+/*
+ * What a prop's grip is read from.
+ */
 export namespace readPropGrip {
-  /** The action's prop readers and aim. */
+  /*
+   * The action's prop readers and aim.
+   */
   export interface IContext {
-    /** A prop's reader, by subject id. */
+    /*
+     * A prop's reader, by subject id.
+     */
     prop(subject: string): IReader;
 
-    /** A target's displayed point and normal at a film second. */
+    /*
+     * A target's displayed point and normal at a film second.
+     */
     aim: IAutoMovieMotionHumanActionContext["aim"];
   }
 
-  /** What a grip reads of a prop: its points and affordances, and its frame. */
+  /*
+   * What a grip reads of a prop: its points and affordances, and its frame.
+   */
   export interface IReader {
-    /** The prop's named points and affordances. */
+    /*
+     * The prop's named points and affordances.
+     */
     prop: Pick<IAutoMovieMotionHumanProp, "points" | "affordances">;
 
-    /** The prop's frame at a film second. */
+    /*
+     * The prop's frame at a film second.
+     */
     frame(seconds: number): Pick<IAutoMovieRigidTransform, "rotation">;
   }
 }

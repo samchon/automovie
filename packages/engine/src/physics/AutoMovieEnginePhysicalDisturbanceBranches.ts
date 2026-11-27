@@ -10,7 +10,9 @@ import type { AutoMovieEnginePhysicalIcpPlannerTools as Tools } from "./AutoMovi
 import { AutoMovieEnginePhysicalPlanarPolygon as Polygon } from "./AutoMovieEnginePhysicalPlanarPolygon";
 import { AutoMovieEnginePhysicalPushRecovery as Recovery } from "./AutoMovieEnginePhysicalPushRecovery";
 
-/** The closed forms the branch points lay. */
+/*
+ * The closed forms the branch points lay.
+ */
 const {
   ZULU,
   add,
@@ -347,5 +349,7 @@ export namespace AutoMovieEnginePhysicalDisturbanceBranches {
   }
 }
 
-/** A planted foot. */
+/*
+ * A planted foot.
+ */
 type Foot = AutoMovieEnginePhysicalBalanceTypes.IPrepareDisturbanceSpanFoot;

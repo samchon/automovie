@@ -41,16 +41,15 @@ import { prepareCoupledMount } from "./prepareCoupledMount";
 import { prepareMountMaterialSeat } from "./prepareMountMaterialSeat";
 import { prepareMountTransfer } from "./prepareMountTransfer";
 
-/**
+/*
  * Plan getting onto a seat.
- *
- * @param context The sit's context.
- * @param seat The seat.
- * @param final The seated back: its pitch and trunk angles, degrees.
- * @param turn The turn from the entry heading to the seat's, degrees.
- * @returns The plan, with the sit's events `seatContact` and `seated`.
- * @throws {HumanRefusal} When the pelvis stands more than a leg's length from
- *   its place on the seat, with that length.
+ * Parameter context: The sit's context.
+ * Parameter seat: The seat.
+ * Parameter final: The seated back: its pitch and trunk angles, degrees.
+ * Parameter turn: The turn from the entry heading to the seat's, degrees.
+ * Returns: The plan, with the sit's events `seatContact` and `seated`.
+ * When the pelvis stands more than a leg's length from
+ * its place on the seat, with that length.
  */
 export function HumanMountOnPlan(
   context: IAutoMovieMotionHumanActionContext<IPlanContext>,
@@ -772,14 +771,22 @@ export function HumanMountOnPlan(
   });
 }
 
-/** Where the pelvis is at an instant of getting on (`HumanMountOnFrame`). */
+/*
+ * Where the pelvis is at an instant of getting on (`HumanMountOnFrame`).
+ */
 type Frame = HumanMountOnFrame.Frame;
 
-/** The alternatives of `PlanLowerLimb`'s site. */
+/*
+ * The alternatives of `PlanLowerLimb`'s site.
+ */
 type PlanLowerLimb = "leftLeg" | "rightLeg";
 
-/** The alternatives of `PlanPart`'s site. */
+/*
+ * The alternatives of `PlanPart`'s site.
+ */
 type PlanPart = "leftFoot" | "rightFoot";
 
-/** The sit parameters the climb uses. */
+/*
+ * The sit parameters the climb uses.
+ */
 type IPlanContext = Pick<IAutoMovieMotionHumanSit.IParams, "hold" | "manner">;

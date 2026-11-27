@@ -6,18 +6,17 @@ import type {
 
 import { HumanArmSwing } from "../../posture/internal/HumanArmSwing";
 
-/**
+/*
  * A take's carriage.
- *
- * @param body The body.
- * @param events The take's named instants, seconds.
- * @param duration The take's seconds.
- * @param posture The take's posture before the carriage.
- * @param resolution Optional same-person FK loan for the actual synchronous
- *   phase observations.
- * @param projection Optional genuine same-body ROM loan, never retained in the
- *   numeric carriage.
- * @returns Degrees of abduction per arm.
+ * Parameter body: The body.
+ * Parameter events: The take's named instants, seconds.
+ * Parameter duration: The take's seconds.
+ * Parameter posture: The take's posture before the carriage.
+ * Parameter resolution: Optional same-person FK loan for the actual synchronous
+ * phase observations.
+ * Parameter projection: Optional genuine same-body ROM loan, never retained in the
+ * numeric carriage.
+ * Returns: Degrees of abduction per arm.
  */
 export function walkCarriage(
   body: IAutoMovieMotionHumanBody,
@@ -54,11 +53,17 @@ export function walkCarriage(
   );
 }
 
-/** The record of `IOfBoundsE2`'s site. */
+/*
+ * The record of `IOfBoundsE2`'s site.
+ */
 type IOfBoundsE2 = { seconds: number };
 
-/** The record of `IOfBoundsE`'s site. */
+/*
+ * The record of `IOfBoundsE`'s site.
+ */
 type IOfBoundsE = { name: string };
 
-/** The record of `IOfEventsItem`'s site. */
+/*
+ * The record of `IOfEventsItem`'s site.
+ */
 type IOfEventsItem = { name: string; seconds: number };

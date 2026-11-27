@@ -4,7 +4,7 @@ import type {
   IAutoMovieRenderTargetSettingsOfShotProps,
 } from "@automovie/interface";
 
-/**
+/*
  * Project intended renderer settings from one compiled shot and caller-supplied
  * target dimensions.
  *

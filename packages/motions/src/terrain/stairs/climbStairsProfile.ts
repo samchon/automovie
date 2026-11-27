@@ -2,14 +2,13 @@ import type { IAutoMovieMotionHumanClimbStairsFlight } from "@automovie/interfac
 
 import { climbStairsFlight } from "./climbStairsFlight";
 
-/**
+/*
  * Prepare the stepped clearance profile a swinging sole point must clear.
- *
- * @param stairs The fixed flight in its starting floor frame.
- * @param near The distance either side of a nosing that receives clearance,
- *   metres.
- * @param clearance The sole point's required height above that nosing, metres.
- * @returns The same required surface height at each forward coordinate, metres.
+ * Parameter stairs: The fixed flight in its starting floor frame.
+ * Parameter near: The distance either side of a nosing that receives clearance,
+ * metres.
+ * Parameter clearance: The sole point's required height above that nosing, metres.
+ * Returns: The same required surface height at each forward coordinate, metres.
  */
 export function climbStairsProfile(
   stairs: IAutoMovieMotionHumanClimbStairsFlight.IFlight,
@@ -46,8 +45,12 @@ export function climbStairsProfile(
   };
 }
 
-/** The record of `IClimbStairsProfileEdgesResult`'s site. */
+/*
+ * The record of `IClimbStairsProfileEdgesResult`'s site.
+ */
 type IClimbStairsProfileEdgesResult = { z: number; height: number };
 
-/** The record of `IClimbStairsProfileEdgesItem`'s site. */
+/*
+ * The record of `IClimbStairsProfileEdgesItem`'s site.
+ */
 type IClimbStairsProfileEdgesItem = { z: number; height: number };

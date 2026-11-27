@@ -6,7 +6,7 @@ import type {
 
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 
-/**
+/*
  * Connect the gait's finite evaluation window after its clock and world frame
  * are installed. The foot schedule owns each toe-off and heel-strike decision.
  */

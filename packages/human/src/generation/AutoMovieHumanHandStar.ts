@@ -114,7 +114,9 @@ export namespace AutoMovieHumanHandStar {
     return palmSkin(field, a, theta);
   }
 
-  /** Skin drawn in toward a web through the hand, in a valley that deepens up to it. */
+  /*
+   * Skin drawn in toward a web through the hand, in a valley that deepens up to it.
+   */
   function webbed(
     p: [number, number],
     a: number,

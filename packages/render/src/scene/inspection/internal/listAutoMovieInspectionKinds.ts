@@ -5,7 +5,7 @@ import type {
 
 import { AUTO_MOVIE_INSPECTION_KINDS } from "../../AUTO_MOVIE_INSPECTION_KINDS.js";
 
-/**
+/*
  * List the styled kinds for the supplied marks and the measurements available
  * under the current request. Each entry has a label and default colour.
  *

@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-/**
+/*
  * The palette material a formation's shadow draw stands for: the material of
  * the geometry group three's shadow map is drawing, or the first palette entry
  * for an ungrouped draw or a group the geometry does not hold.

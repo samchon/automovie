@@ -1,6 +1,6 @@
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Admit every emitted triangle of a deformed mesh by area and orientation.
  *
  * For each triangle of `indices`, the source and deformed area vectors over the
@@ -99,12 +99,11 @@ export function assertAutoMovieDeformedTriangles(
   }
 }
 
-/**
+/*
  * Write the area vector `(b - a) x (c - a)` of three flat-XYZ vertices into
  * `out`, in square metres; its length is twice the triangle's area.
- *
- * @returns False when an edge difference or cross product of the finite
- *   vertices overflows binary64.
+ * Returns: False when an edge difference or cross product of the finite
+ * vertices overflows binary64.
  */
 const writeAreaVector = (
   positions: readonly number[],

@@ -2,17 +2,17 @@ import { IAutoMovieNode, IAutoMovieTransform } from "@automovie/interface";
 
 import { Matrix4 } from "../../math/Matrix4";
 
-/**
+/*
  * The COMPOSE pass: turn a flat list of nodes (each with a parent-local TRS)
  * into a world matrix per node, walking parent-before-child.
  *
  * `localOverrides` carries the transforms the sample/constrain passes produced
  * for animated nodes; a node absent from the map keeps its rest-pose
- * {@link IAutoMovieNode} transform. Resolution is memoized and parent-driven, so
+ * IAutoMovieNode transform. Resolution is memoized and parent-driven, so
  * the input list may be in any order. A child seen before its parent pulls the
  * parent in on demand.
  *
- * Composition is a real matrix product (via {@link Matrix4}) rather than TRS
+ * Composition is a real matrix product (via Matrix4) rather than TRS
  * concatenation, so a non-uniformly scaled parent rotating a child shears
  * correctly instead of approximately.
  */

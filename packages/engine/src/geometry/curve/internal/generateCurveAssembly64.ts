@@ -6,16 +6,15 @@ import type {
 import type { AutoMovieEngineCurveAssembly64 } from "../../AutoMovieEngineCurveAssembly64";
 import { AutoMovieEngineCurveParentContext } from "../../AutoMovieEngineCurveParentContext";
 
-/**
+/*
  * Construct caller-defined regions after their incoming boundary operators are
  * published, retaining each concrete factory result. A thrown
  * factory/publication failure aborts without returning a partial assembly;
  * callback side effects remain the caller's responsibility.
- *
- * @param props Parent-first local frames, directed boundary edges and unique
- *   region factories.
- * @returns Completed context, concrete regional results and genuine published
- *   operator tokens.
+ * Parameter props: Parent-first local frames, directed boundary edges and unique
+ * region factories.
+ * Returns: Completed context, concrete regional results and genuine published
+ * operator tokens.
  */
 export function generateCurveAssembly64<
   T extends AutoMovieEngineCurveAssembly64.IRegionResult,

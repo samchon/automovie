@@ -16,12 +16,14 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { AquaticPosture } from "./AquaticPosture";
 
-/**
+/*
  * Pool departure and springboard dive. Springboard flight phases follow PMID
  * 27762669, with provisional timings and take-off velocity.
  */
 export namespace AquaticDive {
-  /** One forward tucked dive and its first underwater recovery. */
+  /*
+   * One forward tucked dive and its first underwater recovery.
+   */
   export function dive(
     context: AquaticPosture.Context,
     water: number,
@@ -124,7 +126,7 @@ export namespace AquaticDive {
     };
   }
 
-  /**
+  /*
    * Solve a ballistic entry at the actual leading hand height; dry legs retain
    * their entered ankle targets.
    */
@@ -321,19 +323,33 @@ export namespace AquaticDive {
     };
   }
 
-  /** A block or board departure with a resolved first surface crossing. */
+  /*
+   * A block or board departure with a resolved first surface crossing.
+   */
   interface IEntryFlight {
-    /** Seconds spent on the board before release. */
+    /*
+     * Seconds spent on the board before release.
+     */
     release: number;
-    /** Local second at which the leading hands reach the water. */
+    /*
+     * Local second at which the leading hands reach the water.
+     */
     entry: number;
-    /** Pose at the entry event. */
+    /*
+     * Pose at the entry event.
+     */
     immersed: IAutoMovieMotionHumanPosture;
-    /** World velocity of the hips at entry, metres per second. */
+    /*
+     * World velocity of the hips at entry, metres per second.
+     */
     velocity: IAutoMovieVector3;
-    /** Foot windows on the entered support. */
+    /*
+     * Foot windows on the entered support.
+     */
     contacts: IAutoMovieMotionHumanContactWindow[];
-    /** Dry and airborne trajectory up to the entry event. */
+    /*
+     * Dry and airborne trajectory up to the entry event.
+     */
     posture(seconds: number): IAutoMovieMotionHumanPosture;
   }
 }

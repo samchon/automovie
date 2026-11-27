@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanWalkPace } from "@automovie/interface";
 
-/**
+/*
  * The timing of a stepping gait over a distance: its step period, its swing,
  * and how far along its path the pelvis is at each instant.
  *
@@ -39,21 +39,21 @@ import type { IAutoMovieMotionHumanWalkPace } from "@automovie/interface";
  * his step.
  */
 export class WalkPace {
-  /**
+  /*
    * The delay of the first toe-off, seconds: a provisional gait initiation
    * (anticipatory postural adjustments take a few tenths of a second, Brenière,
    * Do and Bouisset 1987).
    */
   public static readonly FIRST: number = 0.25;
 
-  /**
+  /*
    * The longest a walk is planned for, seconds: ten minutes, which no shot
    * reaches; a way set from outside is searched no further for its end, and no
    * step count is sought past it.
    */
   public static readonly LONGEST: number = 600;
 
-  /**
+  /*
    * A numeric floor on the step, metres, and on the front and trail shares,
    * steps: it keeps the period and the shares positive and finite for a
    * vanishing step, and lies under any value a gait produces (a walk's front is
@@ -61,44 +61,52 @@ export class WalkPace {
    */
   public static readonly FLOOR: number = 0.05;
 
-  /**
+  /*
    * A numeric floor on the ramp up's formula, seconds, keeping it positive
    * where the gait's first swing would end before its first heel strike's lead;
    * a millisecond, under a film frame.
    */
   public static readonly SHORTEST_RAMP: number = 1e-3;
 
-  /**
+  /*
    * The most passes of the period's fixed point: at a contraction of a quarter
    * or less each, 64 passes leave 2^-128 of the first error.
    */
   public static readonly PASSES: number = 64;
 
-  /**
+  /*
    * The period change, seconds, under which the period's fixed point is
    * settled: a nanosecond, far under a film frame.
    */
   public static readonly SETTLED: number = 1e-9;
 
-  /**
+  /*
    * The most doublings of the ramp's bracket: 2^20 times the formula's ramp,
    * past any ramp a plan of `LONGEST` holds.
    */
   public static readonly DOUBLINGS: number = 20;
 
-  /** The number of steps to the closing pair. */
+  /*
+   * The number of steps to the closing pair.
+   */
   public readonly steps: number;
 
-  /** The step period, seconds. */
+  /*
+   * The step period, seconds.
+   */
   public readonly period: number;
 
-  /** The swing's duration, seconds. */
+  /*
+   * The swing's duration, seconds.
+   */
   public readonly swing: number;
 
-  /** The last heel strike, seconds. */
+  /*
+   * The last heel strike, seconds.
+   */
   public readonly last: number;
 
-  /**
+  /*
    * The first toe-off, seconds: a standing start's initiation (`FIRST`), or,
    * for a gait entered in stride (`IProps.stride`), a period less a swing less
    * the time the standing foot has stood, so the foot in the air lands one
@@ -106,37 +114,51 @@ export class WalkPace {
    */
   public readonly first: number;
 
-  /** How far ahead of the pelvis a landing footprint lies, steps. */
+  /*
+   * How far ahead of the pelvis a landing footprint lies, steps.
+   */
   public readonly front: number;
 
-  /** The cruising step, metres. */
+  /*
+   * The cruising step, metres.
+   */
   public readonly stride: number;
 
-  /** The ramp up, seconds. */
+  /*
+   * The ramp up, seconds.
+   */
   private readonly accel: number;
 
-  /** The ramp down, seconds. */
+  /*
+   * The ramp down, seconds.
+   */
   private readonly decel: number;
 
-  /** The cruising speed, m/s. */
+  /*
+   * The cruising speed, m/s.
+   */
   private readonly speed: number;
 
-  /**
+  /*
    * The pelvis's speed along the way at the start, m/s: the ramp up starts from
    * it.
    */
   private readonly entry: number;
 
-  /** The path's length, metres. */
+  /*
+   * The path's length, metres.
+   */
   private readonly distance: number;
 
-  /** The share of the way gone at a second, when the way is set from outside. */
+  /*
+   * The share of the way gone at a second, when the way is set from outside.
+   */
   private readonly travel: ((seconds: number) => number) | undefined;
 
-  /**
-   * @param props The distance in metres, the number of steps, the longest step
-   *   in metres, the asked speed in m/s, the swing in step periods, and the
-   *   realised period for a planned one.
+  /*
+   * Parameter props: The distance in metres, the number of steps, the longest step
+   * in metres, the asked speed in m/s, the swing in step periods, and the
+   * realised period for a planned one.
    */
   public constructor(
     props: IAutoMovieMotionHumanWalkPace.IProps & IWalkPaceProps,
@@ -257,15 +279,14 @@ export class WalkPace {
     this.travel = props.travel;
   }
 
-  /**
+  /*
    * The timing with the fewest steps whose cruising step is no longer than the
    * longest one: at least two steps whenever there is a way to go, one step the
    * whole way being a lunge, the pelvis crossing the distance over a single
    * stance.
-   *
-   * @param props The distance, the asked speed, the swing and the period law.
-   * @param longest The longest step, metres.
-   * @returns The timing.
+   * Parameter props: The distance, the asked speed, the swing and the period law.
+   * Parameter longest: The longest step, metres.
+   * Returns: The timing.
    */
   public static fit(
     props: IAutoMovieMotionHumanWalkPace.IProps,
@@ -297,12 +318,11 @@ export class WalkPace {
     return pace;
   }
 
-  /**
+  /*
    * How far along its path the pelvis is.
-   *
-   * @param seconds The instant.
-   * @returns Metres from the start, the whole distance from the last heel
-   *   strike on.
+   * Parameter seconds: The instant.
+   * Returns: Metres from the start, the whole distance from the last heel
+   * strike on.
    */
   public progress(seconds: number): number {
     if (this.travel !== undefined)
@@ -329,17 +349,16 @@ export class WalkPace {
     return this.speed * (rise + cruise + fall) + carried;
   }
 
-  /**
+  /*
    * The timing of a way set from outside: the asked period, and the fewest
    * steps, at least two, whose closing heel strike comes once the whole way is
    * gone. The second the way is gone is found by bisection on the share, which
    * never falls: 50 halvings of a bracket of at most `LONGEST` leave under a
    * nanosecond.
-   *
-   * @param props The distance, the asked speed, the swing and the period law.
-   * @param travel The share of the way gone at a second of the plan.
-   * @param longest The longest step, metres.
-   * @returns The timing.
+   * Parameter props: The distance, the asked speed, the swing and the period law.
+   * Parameter travel: The share of the way gone at a second of the plan.
+   * Parameter longest: The longest step, metres.
+   * Returns: The timing.
    */
   private static travelled(
     props: IAutoMovieMotionHumanWalkPace.IProps,
@@ -364,13 +383,17 @@ export class WalkPace {
     return new WalkPace({ ...props, steps, longest });
   }
 
-  /** The integral of the smooth step `10 u^3 - 15 u^4 + 6 u^5` from 0 to `u`. */
+  /*
+   * The integral of the smooth step `10 u^3 - 15 u^4 + 6 u^5` from 0 to `u`.
+   */
   private static integral(u: number): number {
     return 2.5 * u ** 4 - 3 * u ** 5 + u ** 6;
   }
 }
 
-/** The record of `IWalkPaceProps`'s site. */
+/*
+ * The record of `IWalkPaceProps`'s site.
+ */
 type IWalkPaceProps = {
   steps: number;
   longest: number;

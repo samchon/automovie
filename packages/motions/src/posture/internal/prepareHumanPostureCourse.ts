@@ -11,7 +11,7 @@ import type {
 import type { HumanKnot } from "./HumanKnot";
 import { prepareHumanKnotCourse } from "./prepareHumanKnotCourse";
 
-/**
+/*
  * Prepare a posture course through key postures solved in preparation and
  * return its pure reader.
  *
@@ -27,11 +27,10 @@ import { prepareHumanKnotCourse } from "./prepareHumanKnotCourse";
  * goal's other fields and the posture's own rotation and digits are taken from
  * the last knot at or before the instant. A read evaluates the course once, so
  * it answers any instant in any order with no search beyond the course's own.
- *
- * @param knots The key postures at their seconds, one or more, the seconds
- *   strictly ascending.
- * @returns The posture at a second, the first knot's before the first second
- *   and the last knot's after the last.
+ * Parameter knots: The key postures at their seconds, one or more, the seconds
+ * strictly ascending.
+ * Returns: The posture at a second, the first knot's before the first second
+ * and the last knot's after the last.
  */
 export function prepareHumanPostureCourse(
   knots: readonly prepareHumanPostureCourse.IKnot[],
@@ -131,7 +130,9 @@ export function prepareHumanPostureCourse(
     { kind: "fixed", times },
   );
 
-  /** The last knot at or before a second, by binary search. */
+  /*
+   * The last knot at or before a second, by binary search.
+   */
   const discrete = (seconds: number): IAutoMovieMotionHumanPosture => {
     let low: number = 0;
     let high: number = knots.length - 1;
@@ -184,22 +185,34 @@ export function prepareHumanPostureCourse(
   };
 }
 
-/** A posture course's knot. */
+/*
+ * A posture course's knot.
+ */
 export namespace prepareHumanPostureCourse {
-  /** One key posture of the course. */
+  /*
+   * One key posture of the course.
+   */
   export interface IKnot {
-    /** Its second on the course's clock. */
+    /*
+     * Its second on the course's clock.
+     */
     seconds: number;
 
-    /** The posture there, solved in preparation. */
+    /*
+     * The posture there, solved in preparation.
+     */
     posture: IAutoMovieMotionHumanPosture;
   }
 }
 
-/** The angles of a joint a knot leaves out. */
+/*
+ * The angles of a joint a knot leaves out.
+ */
 const ZERO: readonly [number, number, number] = [0, 0, 0];
 
-/** A vector's coordinates in order. */
+/*
+ * A vector's coordinates in order.
+ */
 function vector(v: IAutoMovieVector3): [number, number, number] {
   return [v.x, v.y, v.z];
 }

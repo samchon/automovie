@@ -7,7 +7,7 @@ import type {
 
 import { positiveModulo } from "../../math/internal/positiveModulo";
 
-/**
+/*
  * Measure every laid piece and every neighbouring pair against the declaration.
  *
  * Per-piece findings come first, in placement order, so a defect that belongs
@@ -33,10 +33,9 @@ import { positiveModulo } from "../../math/internal/positiveModulo";
  * not tested. Findings describe this combined bucket/projection policy, not
  * exhaustive Euclidean or projection-gap neighbourhoods. Measurements use
  * clipped outlines rather than uncut module rectangles.
- *
- * @param pattern The validated declaration whose limits are applied.
- * @param placements The run's placements, in run order.
- * @returns Every quality finding, per-piece findings first.
+ * Parameter pattern: The validated declaration whose limits are applied.
+ * Parameter placements: The run's placements, in run order.
+ * Returns: Every quality finding, per-piece findings first.
  */
 export function autoMoviePatternFindings(
   pattern: IAutoMovieSurfacePattern,
@@ -100,22 +99,34 @@ export function autoMoviePatternFindings(
   return findings;
 }
 
-/** Smallest metre length counted as a real gap or overlap. */
+/*
+ * Smallest metre length counted as a real gap or overlap.
+ */
 const LENGTH_EPSILON: number = 1e-9;
 
-/** Smallest surviving-fraction shortfall counted as a real sliver. */
+/*
+ * Smallest surviving-fraction shortfall counted as a real sliver.
+ */
 const COVERAGE_EPSILON: number = 1e-12;
 
-/** The extreme projections of a polygon in metres on a unit axis. */
+/*
+ * The extreme projections of a polygon in metres on a unit axis.
+ */
 interface IProjectionInterval {
-  /** Smallest projected coordinate. */
+  /*
+   * Smallest projected coordinate.
+   */
   readonly min: number;
 
-  /** Largest projected coordinate. */
+  /*
+   * Largest projected coordinate.
+   */
   readonly max: number;
 }
 
-/** Append the pair findings one neighbouring pair raises. */
+/*
+ * Append the pair findings one neighbouring pair raises.
+ */
 function judgePair(
   pattern: IAutoMovieSurfacePattern,
   placement: IAutoMoviePatternPlacement,
@@ -154,7 +165,9 @@ function judgePair(
     });
 }
 
-/** The grid cell key of a placement's centre, offset by whole cells. */
+/*
+ * The grid cell key of a placement's centre, offset by whole cells.
+ */
 function bucketKey(
   placement: IAutoMoviePatternPlacement,
   cellSize: number,
@@ -164,13 +177,15 @@ function bucketKey(
   return `${Math.floor(placement.center.u / cellSize) + du},${Math.floor(placement.center.v / cellSize) + dv}`;
 }
 
-/** Smallest in-plane angle between two 180-periodic grain directions. */
+/*
+ * Smallest in-plane angle between two 180-periodic grain directions.
+ */
 function grainDeviation(left: number, right: number): number {
   const delta: number = positiveModulo(left - right, 180);
   return Math.min(delta, 180 - delta);
 }
 
-/**
+/*
  * The gap between two convex pieces, measured along their own edge normals.
  *
  * A joint is read perpendicular to the edges it separates, which is exactly the
@@ -203,7 +218,9 @@ function separation(
   return best;
 }
 
-/** The interval a polygon's corners cover along one unit axis. */
+/*
+ * The interval a polygon's corners cover along one unit axis.
+ */
 function project(
   polygon: readonly IAutoMoviePatternPoint[],
   axis: IAutoMoviePatternPoint,

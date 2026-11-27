@@ -3,7 +3,7 @@ import type { IAutoMovieMotionHumanFormation } from "@automovie/interface";
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFormation } from "./HumanFormation";
 
-/**
+/*
  * Compose density-sensitive walking slots around the centre of a pedestrian
  * group's course. For the two- to four-person groups measured by Moussaïd et
  * al. (2010, https://doi.org/10.1371/journal.pone.0010047, Table 1 and Fig. 4),
@@ -18,15 +18,14 @@ import { HumanFormation } from "./HumanFormation";
  * clear obstacles along the course, including while turning. A
  * summed-shoulder-breadth disc can miss an outer slot. The result describes
  * relative slots only.
- *
- * @param frame The group centre and facing over film time.
- * @param halfBreadths Positive shoulder half breadths in metres, in
- *   left-to-right member order.
- * @param density Authored pedestrian density in people per square metre, finite
- *   and nonnegative.
- * @returns Formation blocks in member order for station keeping.
- * @throws {HumanRefusal} When the member count, half breadths or density are
- *   invalid.
+ * Parameter frame: The group centre and facing over film time.
+ * Parameter halfBreadths: Positive shoulder half breadths in metres, in
+ * left-to-right member order.
+ * Parameter density: Authored pedestrian density in people per square metre, finite
+ * and nonnegative.
+ * Returns: Formation blocks in member order for station keeping.
+ * When the member count, half breadths or density are
+ * invalid.
  */
 export function humanCrowdGroupFormation(
   frame: IAutoMovieMotionHumanFormation.Frame,
@@ -118,13 +117,17 @@ export function humanCrowdGroupFormation(
   return HumanFormation({ frame, blocks });
 }
 
-/** The observed street density of population A, pedestrians per square metre. */
+/*
+ * The observed street density of population A, pedestrians per square metre.
+ */
 const LOW_DENSITY: number = 0.03;
 
-/** The observed street density of population B, pedestrians per square metre. */
+/*
+ * The observed street density of population B, pedestrians per square metre.
+ */
 const MODERATE_DENSITY: number = 0.25;
 
-/**
+/*
  * The adjacent-member distances in metres and moderate-density bearings in
  * degrees clockwise from travel, from Moussaïd et al. (2010), Table 1. Both
  * populations' pairs are abreast, so their bearing is 90 degrees.
@@ -142,7 +145,9 @@ const OBSERVATIONS: readonly (readonly Observation[])[] = [
   ],
 ];
 
-/** One observed adjacent pair, with distances in metres and bearing in degrees. */
+/*
+ * One observed adjacent pair, with distances in metres and bearing in degrees.
+ */
 type Observation = readonly [
   lowDistance: number,
   moderateDistance: number,

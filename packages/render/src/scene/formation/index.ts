@@ -1,4 +1,4 @@
-/**
+/*
  * Stable formation import surface. Runtime state, geometry, placement and type
  * contracts live with their respective owners; the package exposes grouped
  * owner namespaces and the stable shared formation utilities.

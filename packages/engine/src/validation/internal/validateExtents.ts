@@ -3,7 +3,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/**
+/*
  * Switch on primitive shape and require finite positive supported dimensions,
  * including capsule length policy.
  */

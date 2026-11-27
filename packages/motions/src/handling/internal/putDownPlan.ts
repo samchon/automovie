@@ -36,17 +36,16 @@ import { putDownTarget } from "./putDownTarget";
 import { putDownTravel } from "./putDownTravel";
 import { putDownWrist } from "./putDownWrist";
 
-/**
+/*
  * Plan a put down.
- *
- * @param context The action's context.
- * @param aperture Offset from the seat to the opening, world metres, when the
- *   registered aperture law shares this planner.
- * @param route Optional waypoint offsets in metres from the seating frame.
- * @returns The plan.
- * @throws {HumanRefusal} When no destination is named, the placing wrist lies
- *   beyond the arm's reach, or a socket placement's grasp cannot lay its socket
- *   on the receiver.
+ * Parameter context: The action's context.
+ * Parameter aperture: Offset from the seat to the opening, world metres, when the
+ * registered aperture law shares this planner.
+ * Parameter route: Optional waypoint offsets in metres from the seating frame.
+ * Returns: The plan.
+ * When no destination is named, the placing wrist lies
+ * beyond the arm's reach, or a socket placement's grasp cannot lay its socket
+ * on the receiver.
  */
 export function putDownPlan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,

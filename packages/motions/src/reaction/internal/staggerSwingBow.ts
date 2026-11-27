@@ -12,7 +12,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { minimizeHumanBrent } from "../../posture/internal/minimizeHumanBrent";
 import type { staggerRecover } from "./staggerRecover";
 
-/**
+/*
  * The lateral bow that keeps a stagger's swinging foot clear of its standing
  * foot: the swing's prepared walking-foot curve is read inside the swing at no
  * bow, and wherever the swinging sole's outline runs alongside the standing
@@ -26,14 +26,13 @@ import type { staggerRecover } from "./staggerRecover";
  * body's own (`HumanFoot.sole`), so the clearance scales with the feet, and the
  * bow is fixed for the whole swing, so the foot leaves and joins its stances
  * where they stand.
- *
- * @param body The body.
- * @param step The recovery step.
- * @param standing The standing foot's placement through the swing.
- * @param normal The horizontal unit the bow displaces the swinging ankle along,
- *   the swing's travel turned a quarter turn.
- * @param swing The swinging foot at a second and a bow, metres, as displayed.
- * @returns The signed bow, metres along `normal`.
+ * Parameter body: The body.
+ * Parameter step: The recovery step.
+ * Parameter standing: The standing foot's placement through the swing.
+ * Parameter normal: The horizontal unit the bow displaces the swinging ankle along,
+ * the swing's travel turned a quarter turn.
+ * Parameter swing: The swinging foot at a second and a bow, metres, as displayed.
+ * Returns: The signed bow, metres along `normal`.
  */
 export function staggerSwingBow(
   body: IAutoMovieMotionHumanBody,
@@ -83,9 +82,11 @@ export function staggerSwingBow(
   );
 }
 
-/** The bow's need at a second and its choice of side. */
+/*
+ * The bow's need at a second and its choice of side.
+ */
 export namespace staggerSwingBow {
-  /**
+  /*
    * The least bow on each side that carries the swinging outline past the
    * standing one at a swing share: on the positive side the swinging outline's
    * lowest extent along `normal` at the standing one's highest, and on the
@@ -93,12 +94,11 @@ export namespace staggerSwingBow {
    * u^2 (1 - u)^2`). Where the outlines do not run alongside (their extents
    * along the swing do not overlap) no bow is needed on either side; at a share
    * with no bow, an outline not yet clear needs an infinite one.
-   *
-   * @param fixed The standing sole's outline.
-   * @param outline The swinging sole's outline at no bow.
-   * @param normal The horizontal unit the bow displaces along.
-   * @param u The swing's share.
-   * @returns The positive and the negative side's bow, metres.
+   * Parameter fixed: The standing sole's outline.
+   * Parameter outline: The swinging sole's outline at no bow.
+   * Parameter normal: The horizontal unit the bow displaces along.
+   * Parameter u: The swing's share.
+   * Returns: The positive and the negative side's bow, metres.
    */
   export function need(
     fixed: readonly IAutoMovieVector3[],
@@ -119,14 +119,13 @@ export namespace staggerSwingBow {
     ];
   }
 
-  /**
+  /*
    * The bow taken: the side needing the smaller, no wider than `widest`, and
    * none where either side already clears.
-   *
-   * @param plus The positive side's least bow.
-   * @param minus The negative side's least bow.
-   * @param widest The widest bow, metres.
-   * @returns The signed bow, metres along `normal`.
+   * Parameter plus: The positive side's least bow.
+   * Parameter minus: The negative side's least bow.
+   * Parameter widest: The widest bow, metres.
+   * Returns: The signed bow, metres along `normal`.
    */
   export function choose(plus: number, minus: number, widest: number): number {
     if (plus <= 0 || minus <= 0) return 0;
@@ -134,7 +133,9 @@ export namespace staggerSwingBow {
   }
 }
 
-/** The outline's extent along a horizontal axis. */
+/*
+ * The outline's extent along a horizontal axis.
+ */
 function extent(
   points: readonly IAutoMovieVector3[],
   axis: IAutoMovieVector3,

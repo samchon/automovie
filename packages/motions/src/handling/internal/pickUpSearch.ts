@@ -22,7 +22,9 @@ import { HumanGraspSearch } from "./HumanGraspSearch";
 import { HumanGraspUse } from "./HumanGraspUse";
 import { pickUpPosture } from "./pickUpPosture";
 
-/** The digit tips a grip keeps above the floor. */
+/*
+ * The digit tips a grip keeps above the floor.
+ */
 const TIPS: readonly IAutoMovieMotionHumanHand.DigitSurface[] = [
   "thumbTip",
   "indexTip",
@@ -31,20 +33,19 @@ const TIPS: readonly IAutoMovieMotionHumanHand.DigitSurface[] = [
   "littleTip",
 ];
 
-/**
+/*
  * The grasp the arm reaches best from a stance's posture, the lifted pose and
  * any use's pose its keys (`HumanGrasp.reachable`).
- *
- * @param context The pick up's context.
- * @param side The reaching hand.
- * @param lift How far the prop is lifted, metres.
- * @param authored The grip as the prop declares it.
- * @param stance The body the arm reaches from.
- * @param carried World displacement accumulated before lifting a moving prop,
- *   metres.
- * @param closure The prop's world frame at moving grasp closure, or omitted for
- *   ordinary pickup.
- * @returns The chosen grasp, the elbow hint and the stance.
+ * Parameter context: The pick up's context.
+ * Parameter side: The reaching hand.
+ * Parameter lift: How far the prop is lifted, metres.
+ * Parameter authored: The grip as the prop declares it.
+ * Parameter stance: The body the arm reaches from.
+ * Parameter carried: World displacement accumulated before lifting a moving prop,
+ * metres.
+ * Parameter closure: The prop's world frame at moving grasp closure, or omitted for
+ * ordinary pickup.
+ * Returns: The chosen grasp, the elbow hint and the stance.
  */
 export function pickUpSearch(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
@@ -255,7 +256,7 @@ export function pickUpSearch(
   return { chosen, bend, stance };
 }
 
-/**
+/*
  * The grasp a pick up chooses from a stance (`pickUp`): the grip's turn and
  * tilt the arm reaches best, judged by the fit over the grasp, the lifted pose
  * and any use's pose. Without a use, the grip is taken as the archetype
@@ -263,7 +264,7 @@ export function pickUpSearch(
  * (`TURNS`).
  */
 export namespace pickUpSearch {
-  /**
+  /*
    * The turns about the wrapped axis a grip is taken at without a use, degrees,
    * by its declared symmetry: any side of a round grip, in steps of 15, the two
    * sides of a half-symmetric one, and only the declared side of the rest.
@@ -279,15 +280,23 @@ export namespace pickUpSearch {
     none: [0],
   };
 
-  /** A grasp chosen from its actual stance and hanging elbow hint. */
+  /*
+   * A grasp chosen from its actual stance and hanging elbow hint.
+   */
   export interface ISearched {
-    /** The grasp the arm reaches best. */
+    /*
+     * The grasp the arm reaches best.
+     */
     chosen: IAutoMovieMotionHumanGrasp.IReach;
 
-    /** The elbow hint the arm hangs by, world metres. */
+    /*
+     * The elbow hint the arm hangs by, world metres.
+     */
     bend: IAutoMovieVector3;
 
-    /** The body the arm reaches from. */
+    /*
+     * The body the arm reaches from.
+     */
     stance: pickUpPosture.IStance;
   }
 }

@@ -12,7 +12,9 @@ import type {
  * calibration.
  */
 export namespace AutoMovieHumanSkeletonMath {
-  /** Body directions of the registered frame. */
+  /*
+   * Body directions of the registered frame.
+   */
   const FORWARD: AutoMovieVector3Tuple = [1, 0, 0];
   const UP: AutoMovieVector3Tuple = [0, 1, 0];
   const LEFT: AutoMovieVector3Tuple = [0, 0, 1];
@@ -146,7 +148,9 @@ export namespace AutoMovieHumanSkeletonMath {
     return [r[0], r[1], r[2]];
   }
 
-  /** Component of v orthogonal to unit n. */
+  /*
+   * Component of v orthogonal to unit n.
+   */
   function perp(
     v: AutoMovieVector3Tuple,
     n: AutoMovieVector3Tuple,
@@ -154,12 +158,16 @@ export namespace AutoMovieHumanSkeletonMath {
     return sub(v, times(n, dot(v, n)));
   }
 
-  /** Dot product. */
+  /*
+   * Dot product.
+   */
   function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
-  /** Cross product a x b. */
+  /*
+   * Cross product a x b.
+   */
   function cross(
     a: AutoMovieVector3Tuple,
     b: AutoMovieVector3Tuple,

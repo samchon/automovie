@@ -2,7 +2,7 @@ import { IAutoMovieModel, IAutoMovieModelPart } from "@automovie/interface";
 
 import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 
-/**
+/*
  * Create a request-local lookup of parts by complete subject address. A model's
  * parts are indexed on its first lookup; duplicate addresses preserve the first
  * part, matching the previous Array.find rule. The caller keeps its model table

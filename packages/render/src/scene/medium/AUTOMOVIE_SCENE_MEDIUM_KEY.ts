@@ -1,4 +1,4 @@
-/**
+/*
  * The `userData` key under which `applySceneMedium` attaches a scene's
  * `IAutoMovieMedium` to a built `three.js` scene, and from which
  * `readAutoMovieSceneMedium` reads it back.

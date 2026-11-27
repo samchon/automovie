@@ -3,7 +3,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { ArmourCell } from "./ArmourCell";
 import { ArmourProfile } from "./ArmourProfile";
 
-/**
+/*
  * Open torso walls and, for mail, a coarse shirt's hollow sleeves.
  *
  * Neck/arm openings and the sleeve course use thirds and sixths as explicit
@@ -80,7 +80,9 @@ export function ArmourTorso(
   }
   return cells;
 
-  /** Interval bounds are the shared definition of rendered and physical walls. */
+  /*
+   * Interval bounds are the shared definition of rendered and physical walls.
+   */
   function panel(
     id: string,
     x0: number,

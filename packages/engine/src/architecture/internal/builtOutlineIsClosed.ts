@@ -6,7 +6,7 @@ import {
 import { BUILT_PLANAR_EPSILON } from "../BUILT_PLANAR_EPSILON";
 import { polygonShortestEdge } from "./polygonShortestEdge";
 
-/**
+/*
  * Whether a closed planar outline names enough distinct, finite corners,
  * reporting the first reason it does not.
  *
@@ -18,13 +18,12 @@ import { polygonShortestEdge } from "./polygonShortestEdge";
  * two consecutive corners, the closing pair included, may lie within
  * `BUILT_PLANAR_EPSILON` (1e-9 m) of each other. A failed count or a non-finite
  * corner stops before the later test, which could not be computed.
- *
- * @param outline Closed ring of corners, in metres.
- * @param least Fewest corners the outline may have.
- * @param path Violation path of the outline.
- * @param label Name of the outline in the messages.
- * @param collector Sink that receives the violations.
- * @returns True when the outline passed every check.
+ * Parameter outline: Closed ring of corners, in metres.
+ * Parameter least: Fewest corners the outline may have.
+ * Parameter path: Violation path of the outline.
+ * Parameter label: Name of the outline in the messages.
+ * Parameter collector: Sink that receives the violations.
+ * Returns: True when the outline passed every check.
  */
 export function builtOutlineIsClosed(
   outline: readonly IAutoMoviePlanarPoint[],

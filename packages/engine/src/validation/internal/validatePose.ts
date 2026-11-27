@@ -13,7 +13,7 @@ import { validateJointRom } from "../../rom/internal/validateJointRom";
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 import { validateTransformScalars } from "./validateTransformScalars";
 
-/**
+/*
  * Admit skeleton identity, optional root transform, duplicate/undeclared joint
  * bones and effective rig/default ROM.
  */

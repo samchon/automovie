@@ -4,7 +4,7 @@ import { positiveModulo } from "../../math/internal/positiveModulo";
 import { cubicBezierEasing } from "./cubicBezierEasing";
 import { ease } from "./ease";
 
-/**
+/*
  * Evaluate one gait row's clinical-axis angle in degrees at cycle time t in
  * seconds. Stance sweeps +amplitude to -amplitude, swing returns, phase offsets
  * the wrapped cycle and neutral shifts both halves; optional easing shapes each
@@ -40,7 +40,9 @@ export function gaitLimbFlexion(
   return (limb.neutral ?? 0) + swing;
 }
 
-/** Wrap a cycle position into `[0, 1)`. */
+/*
+ * Wrap a cycle position into `[0, 1)`.
+ */
 function wrap01(x: number): number {
   return positiveModulo(x, 1);
 }

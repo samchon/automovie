@@ -4,7 +4,7 @@ import type { AutoMovieHumanSide, AutoMovieHumanoidBone, AutoMovieHumanoidRegion
 
 import { HumanMountedFrame } from "./HumanMountedFrame";
 
-/**
+/*
  * The hand-over of a boarding's hold on a partner: a passenger swung up behind
  * a rider takes off holding the rider with one hand, and a hand on the rider's
  * far side would reach around behind the rider's back once the passenger is
@@ -13,53 +13,64 @@ import { HumanMountedFrame } from "./HumanMountedFrame";
  * throughout, as a passenger keeps hold while settling behind a rider.
  */
 export namespace HumanBoardHandover {
-  /** A hand-over: the other hand, the waist it takes and the two local seconds. */
+  /*
+   * A hand-over: the other hand, the waist it takes and the two local seconds.
+   */
   export interface IHandover {
-    /** The hand that takes over. */
+    /*
+     * The hand that takes over.
+     */
     side: AutoMovieHumanSide;
 
-    /** The partner's waist it holds: the side of the pelvis on its own side. */
+    /*
+     * The partner's waist it holds: the side of the pelvis on its own side.
+     */
     region: AutoMovieHumanoidRegion;
 
-    /**
+    /*
      * When it takes its hold, local seconds: the first instant the course's
      * still problem holds both hands.
      */
     takes: number;
 
-    /**
+    /*
      * When the first hand lets go, local seconds: the last instant from the
      * taking at which the course's still problem holds both hands.
      */
     lets: number;
   }
 
-  /** A hand held on a point at an instant. */
+  /*
+   * A hand held on a point at an instant.
+   */
   export interface IHold {
-    /** The hand. */
+    /*
+     * The hand.
+     */
     side: AutoMovieHumanSide;
 
-    /** Where it holds, world metres. */
+    /*
+     * Where it holds, world metres.
+     */
     point: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * Whether the plan's arms can hold the given holds at a local second, by the
    * course's own still problem.
    */
   export type Stands = (t: number, holds: readonly IHold[]) => boolean;
 
-  /**
+  /*
    * Plan the hand-over of a hold on a partner, or none when the first hand
    * holds through the whole flight.
-   *
-   * @param hand The first hold.
-   * @param partner The partner held.
-   * @param flight The flight's seconds.
-   * @param start The boarding's film second.
-   * @param stands Whether the plan's arms can hold at a local second
-   *   (`AutoMovieMotionHumanArmPlanned.stands`).
-   * @returns The hand-over, or none.
+   * Parameter hand: The first hold.
+   * Parameter partner: The partner held.
+   * Parameter flight: The flight's seconds.
+   * Parameter start: The boarding's film second.
+   * Parameter stands: Whether the plan's arms can hold at a local second
+   * (`AutoMovieMotionHumanArmPlanned.stands`).
+   * Returns: The hand-over, or none.
    */
   export function plan(
     hand: IAutoMovieMotionHumanBoard.IHand,
@@ -115,13 +126,12 @@ export namespace HumanBoardHandover {
       lets: sample(letting),
     };
   }
-  /**
+  /*
    * The partner's waist a hand holds, on the partner's displayed body.
-   *
-   * @param partner The partner held.
-   * @param region The side of the pelvis held.
-   * @param film The film second.
-   * @returns The region's surface point, world metres.
+   * Parameter partner: The partner held.
+   * Parameter region: The side of the pelvis held.
+   * Parameter film: The film second.
+   * Returns: The region's surface point, world metres.
    */
   export function waist(
     partner: IAutoMovieMotionHumanPerformerReader,

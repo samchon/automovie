@@ -7,7 +7,7 @@ import type {
 import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieMotionHumanInterrupt";
 import { exercisePlan } from "./exercisePlan";
 
-/**
+/*
  * A standing bodyweight exercise counted in repetitions: the squat, the forward
  * lunge, high knees and the jumping jack (ACSM's Guidelines for Exercise
  * Testing and Prescription, 11th ed.).
@@ -43,10 +43,14 @@ import { exercisePlan } from "./exercisePlan";
  * and back supports on the floor.
  */
 export namespace exercise {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "exercise";
 
-  /** Cancel table. */
+  /*
+   * Cancel table.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
@@ -54,7 +58,9 @@ export namespace exercise {
       walk: ["fromRelax", "smooth"],
     });
 
-  /** The thigh's angle from the horizontal at the bottom, degrees, by depth. */
+  /*
+   * The thigh's angle from the horizontal at the bottom, degrees, by depth.
+   */
   export const THIGH: Readonly<
     Record<IAutoMovieMotionHumanExercise.Depth, number>
   > = {
@@ -63,7 +69,9 @@ export namespace exercise {
     parallel: 0,
   };
 
-  /** The trunk's pitch at the bottom, degrees, by depth (provisional). */
+  /*
+   * The trunk's pitch at the bottom, degrees, by depth (provisional).
+   */
   export const PITCH: Readonly<
     Record<IAutoMovieMotionHumanExercise.Depth, number>
   > = {
@@ -72,15 +80,16 @@ export namespace exercise {
     parallel: 40,
   };
 
-  /** The shank's greatest forward lean in a squat, degrees (provisional). */
+  /*
+   * The shank's greatest forward lean in a squat, degrees (provisional).
+   */
   export const SHANK: number = 35;
 
-  /**
+  /*
    * The hips' drop of a squat to a depth.
-   *
-   * @param m The body's measure.
-   * @param depth The depth.
-   * @returns Metres.
+   * Parameter m: The body's measure.
+   * Parameter depth: The depth.
+   * Returns: Metres.
    */
   export function drop(
     m: IDropM,
@@ -89,7 +98,9 @@ export namespace exercise {
     return m.thigh + m.shank - bottom(m, depth).height;
   }
 
-  /** Hip position relative to the ankles at the bottom, in metres. */
+  /*
+   * Hip position relative to the ankles at the bottom, in metres.
+   */
   export function bottom(
     m: IDropM,
     depth: IAutoMovieMotionHumanExercise.Depth,
@@ -107,9 +118,13 @@ export namespace exercise {
     };
   }
 
-  /** {@link exercisePlan}, read through this namespace. */
+  /*
+   * exercisePlan, read through this namespace.
+   */
   export const plan: typeof exercisePlan = exercisePlan;
 }
 
-/** The record of `IDropM`'s site. */
+/*
+ * The record of `IDropM`'s site.
+ */
 type IDropM = { thigh: number; shank: number };

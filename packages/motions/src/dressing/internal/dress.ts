@@ -43,7 +43,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { HumanWorn } from "./HumanWorn";
 import { dressTurn } from "./dressTurn";
 
-/**
+/*
  * Putting on a hat or a pair of glasses held in one hand, with both hands,
  * while standing.
  *
@@ -76,10 +76,14 @@ import { dressTurn } from "./dressTurn";
  * wrist.
  */
 export namespace dress {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "dress";
 
-  /** Cancel table: the hands come down and the body stands or walks. */
+  /*
+   * Cancel table: the hands come down and the body stands or walks.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
@@ -99,13 +103,13 @@ export namespace dress {
     ],
   };
 
-  /**
+  /*
    * May be performed over a carrier, such as seated or while another action
    * carries the body: it claims only the parts it moves.
    */
   export const overlay: boolean = true;
 
-  /**
+  /*
    * The hat's brim held at the head's front quarters: the direction out and
    * ahead from the crown's axis, and how far down from the crown in head radii
    * (provisional). A brim rests on the head's widest girth, just above the ears
@@ -119,19 +123,18 @@ export namespace dress {
     down: 1,
   };
 
-  /**
+  /*
    * A hand's place for an item on a posture, and the surface laid there.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @param item The item.
-   * @param side The hand.
-   * @param resolution The pose workspace of the posture's evaluation, shared
-   *   with its other reads; a fresh one when absent.
-   * @returns The point, the normal the hand's surface is laid against, the
-   *   surface and where its forward points, world: a palm flat on the head with
-   *   the fingers ahead, or an index finger pointing back along the temple with
-   *   the palm toward the head.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Parameter item: The item.
+   * Parameter side: The hand.
+   * Parameter resolution: The pose workspace of the posture's evaluation, shared
+   * with its other reads; a fresh one when absent.
+   * Returns: The point, the normal the hand's surface is laid against, the
+   * surface and where its forward points, world: a palm flat on the head with
+   * the fingers ahead, or an index finger pointing back along the temple with
+   * the palm toward the head.
    */
   export function place(
     body: IAutoMovieMotionHumanBody,
@@ -196,14 +199,16 @@ export namespace dress {
     };
   }
 
-  /**
+  /*
    * The refinement step of a hat's turn about the crown, and the spacing of the
    * turns tried first round it, degrees (search resolution: an eighth of a
    * turn, halving to under 6).
    */
   export const TURN: number = 45;
 
-  /** The head region each item is worn on. */
+  /*
+   * The head region each item is worn on.
+   */
   export const WORN: Readonly<
     Record<IAutoMovieMotionHumanDress.Item, AutoMovieHumanoidRegion>
   > = {
@@ -211,13 +216,12 @@ export namespace dress {
     glasses: "noseBridge",
   };
 
-  /**
+  /*
    * Plan putting an item on.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the hand does not hold the wearable or the
-   *   wearable declares no `wear` socket.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the hand does not hold the wearable or the
+   * wearable declares no `wear` socket.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDress.IParams>,
@@ -561,11 +565,15 @@ export namespace dress {
   }
 }
 
-/** The record of `IPlanCarriedResult`'s site. */
+/*
+ * The record of `IPlanCarriedResult`'s site.
+ */
 type IPlanCarriedResult = {
   grip: IAutoMovieVector3;
   rotation: IAutoMovieQuaternion;
 };
 
-/** The record of `IHATItem`'s site. */
+/*
+ * The record of `IHATItem`'s site.
+ */
 type IHATItem = { out: number; ahead: number; down: number };

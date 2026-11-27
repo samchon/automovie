@@ -229,10 +229,12 @@ export namespace AutoMovieHumanNativeSourceLaw {
   }
 }
 
-/** A value and its first and second derivatives in one outline's own parameter. */
+/*
+ * A value and its first and second derivatives in one outline's own parameter.
+ */
 type IJet3 = [number, number, number];
 
-/**
+/*
  * The scale's value and its first two derivatives in an outline's own
  * parameter, per direction (depth, breadth).
  */
@@ -242,7 +244,7 @@ interface IScaleJet {
   second: AutoMovieVector2Tuple;
 }
 
-/**
+/*
  * The source under a station-varying scale: every coordinate c(s)·f(s), every
  * tangent angle through the scaled tangent, every shoulder unchanged, with the
  * scale law's breaks added as knots.

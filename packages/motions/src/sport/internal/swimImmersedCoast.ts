@@ -1,18 +1,17 @@
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Prepare an immersed coast's distance over time: under a constant quadratic
  * drag coefficient `k`, `dv/dt = -k v²` from the initial speed integrates to
  * `log(1 + k v0 t) / k` (uniform motion `v0 t` without drag), read within the
  * coast's duration.
- *
- * @param k The drag's coefficient per metre, the heading drag over the mass and
- *   the speed squared; 0 for none.
- * @param speed The initial speed, m/s.
- * @param duration The coast's seconds.
- * @returns The distance travelled at a second, metres.
- * @throws {HumanRefusal} When the logarithm's argument `1 + k v0 t` would not
- *   stay positive over the coast: no finite endpoint.
+ * Parameter k: The drag's coefficient per metre, the heading drag over the mass and
+ * the speed squared; 0 for none.
+ * Parameter speed: The initial speed, m/s.
+ * Parameter duration: The coast's seconds.
+ * Returns: The distance travelled at a second, metres.
+ * When the logarithm's argument `1 + k v0 t` would not
+ * stay positive over the coast: no finite endpoint.
  */
 export function swimImmersedCoast(
   k: number,

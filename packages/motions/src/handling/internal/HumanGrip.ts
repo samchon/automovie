@@ -26,7 +26,7 @@ import type {
 import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
-/**
+/*
  * A hand closing on an object: which digits close for a grip kind, each digit's
  * phalanges as the body's own colliders, and the finger angles at contact,
  * solved, never authored.
@@ -54,7 +54,9 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
  * rather than replaced with guessed thickness.
  */
 export namespace HumanGrip {
-  /** The digits that close for each grip kind, in closing order. */
+  /*
+   * The digits that close for each grip kind, in closing order.
+   */
   export const CLOSING: Readonly<
     Record<AutoMovieGripKind, readonly IAutoMovieMotionHumanGrip.Digit[]>
   > = {
@@ -65,12 +67,11 @@ export namespace HumanGrip {
     precision: ["Thumb", "Index", "Middle"],
   };
 
-  /**
+  /*
    * A digit's bones, proximal to distal.
-   *
-   * @param side The hand.
-   * @param digit The digit.
-   * @returns The three bones.
+   * Parameter side: The hand.
+   * Parameter digit: The digit.
+   * Returns: The three bones.
    */
   export function bones(
     side: AutoMovieHumanSide,
@@ -86,16 +87,15 @@ export namespace HumanGrip {
     );
   }
 
-  /**
+  /*
    * A digit's curl chain from its declared capsules: their minimum radius and
    * the distal capsule's far core end in the distal bone's frame.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @param digit The digit.
-   * @returns The chain.
-   * @throws {Error} When the profile declares no capsule on a phalanx of the
-   *   digit.
+   * Parameter body: The body.
+   * Parameter side: The hand.
+   * Parameter digit: The digit.
+   * Returns: The chain.
+   * When the profile declares no capsule on a phalanx of the
+   * digit.
    */
   export function chain(
     body: IAutoMovieMotionHumanBody,
@@ -140,19 +140,18 @@ export namespace HumanGrip {
     };
   }
 
-  /**
+  /*
    * Close a hand's digits on an object.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @param kind The grip kind.
-   * @param hand The hand's planned world frame: its wrist joint and its
-   *   rotation from rest.
-   * @param colliders The object's colliders in the world at the grasp.
-   * @param from The digit angles the closure starts from, clinical degrees; the
-   *   rest hand when absent.
-   * @returns The closed finger angles of that hand and each closing digit's
-   *   final gap, metres.
+   * Parameter body: The body.
+   * Parameter side: The hand.
+   * Parameter kind: The grip kind.
+   * Parameter hand: The hand's planned world frame: its wrist joint and its
+   * rotation from rest.
+   * Parameter colliders: The object's colliders in the world at the grasp.
+   * Parameter from: The digit angles the closure starts from, clinical degrees; the
+   * rest hand when absent.
+   * Returns: The closed finger angles of that hand and each closing digit's
+   * final gap, metres.
    */
   export function close(
     body: IAutoMovieMotionHumanBody,
@@ -240,12 +239,11 @@ export namespace HumanGrip {
     return { joints, gaps };
   }
 
-  /**
+  /*
    * A hand's current digit angles in a pose.
-   *
-   * @param pose The pose.
-   * @param side The hand.
-   * @returns Clinical degrees of every digit bone the pose sets.
+   * Parameter pose: The pose.
+   * Parameter side: The hand.
+   * Returns: Clinical degrees of every digit bone the pose sets.
    */
   export function fingers(
     pose: IAutoMoviePose,
@@ -263,14 +261,13 @@ export namespace HumanGrip {
     return out;
   }
 
-  /**
+  /*
    * The grip aperture of a hand shape: the distance between the thumb's and the
    * index finger's tips, Jeannerod's measure of hand opening.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @param joints The digit angles.
-   * @returns Metres.
+   * Parameter body: The body.
+   * Parameter side: The hand.
+   * Parameter joints: The digit angles.
+   * Returns: Metres.
    */
   export function aperture(
     body: IAutoMovieMotionHumanBody,
@@ -280,13 +277,12 @@ export namespace HumanGrip {
     return prepareAperture(body, side)(joints);
   }
 
-  /**
+  /*
    * Prepare the thumb and index geometry for one synchronous aperture search.
-   *
-   * @param body The body and its digit capsules, unchanged through the search.
-   * @param side The hand whose shapes are searched.
-   * @returns A reader of the thumb-index tip distance, metres, of a clinical
-   *   hand shape.
+   * Parameter body: The body and its digit capsules, unchanged through the search.
+   * Parameter side: The hand whose shapes are searched.
+   * Returns: A reader of the thumb-index tip distance, metres, of a clinical
+   * hand shape.
    */
   export function prepareAperture(
     body: IAutoMovieMotionHumanBody,
@@ -336,17 +332,27 @@ export namespace HumanGrip {
   }
 }
 
-/** The alternatives of `PrepareApertureTipDigit2`'s site. */
+/*
+ * The alternatives of `PrepareApertureTipDigit2`'s site.
+ */
 type PrepareApertureTipDigit2 = "Thumb" | "Index";
 
-/** The alternatives of `PrepareApertureTipDigit`'s site. */
+/*
+ * The alternatives of `PrepareApertureTipDigit`'s site.
+ */
 type PrepareApertureTipDigit = "Thumb" | "Index";
 
-/** The record of `IChainDistal`'s site. */
+/*
+ * The record of `IChainDistal`'s site.
+ */
 type IChainDistal = { kind: "capsule" };
 
-/** The record of `IChainCapsuleResult`'s site. */
+/*
+ * The record of `IChainCapsuleResult`'s site.
+ */
 type IChainCapsuleResult = { kind: "capsule" };
 
-/** The record of `IChainCapsule`'s site. */
+/*
+ * The record of `IChainCapsule`'s site.
+ */
 type IChainCapsule = { kind: "capsule" };

@@ -12,15 +12,21 @@ import { FIELD_IMPLEMENTS } from "../constants/FIELD_IMPLEMENTS";
 import { ForestAxe } from "./ForestAxe";
 import { Throwers } from "./Throwers";
 
-/** Broom and mop handles from a maker's listings seen in search results. */
+/*
+ * Broom and mop handles from a maker's listings seen in search results.
+ */
 const HANDLES: string =
   "Rubbermaid Commercial broom handle, 60 in by 15/16 in, and mop handles, 54 in by 1 in, listings seen only in search results";
 
-/** D-handle shovels from retailer listings seen in search results. */
+/*
+ * D-handle shovels from retailer listings seen in search results.
+ */
 const SHOVEL: string =
   "Bully Tools 82510, 41.5 in and 4.5 lb, and Fiskars D-handle shovels, 44.75 to 46 in and 4.85 to 5.6 lb, retailer listings seen only in search results";
 
-/** The seeded recipes originally published as `createLongTool`. */
+/*
+ * The seeded recipes originally published as `createLongTool`.
+ */
 export namespace LongImplementDraw {
   /** The kinds of tool. */
   export type Kind =
@@ -35,7 +41,9 @@ export namespace LongImplementDraw {
     | "sling"
     | "atlatl";
 
-  /** Every kind, for a caller that reads one at run time. */
+  /*
+   * Every kind, for a caller that reads one at run time.
+   */
   export const KINDS: readonly Kind[] = [
     "broom",
     "mop",
@@ -49,26 +57,26 @@ export namespace LongImplementDraw {
     "atlatl",
   ];
 
-  /**
+  /*
    * A fishing rod's grip length, metres: the 120 mm CCOHS recommends for a tool
    * handle
    * (https://www.ccohs.ca/oshanswers/ergonomics/handtools/tooldesign.html).
    */
   export const ROD_GRIP: number = 0.12;
 
-  /**
+  /*
    * The width of a broom's or a mop's head along `+X`, metres, which its `face`
    * publishes. An estimate, not read at a source.
    */
   export const HEAD_WIDTH: number = 0.3;
 
-  /**
+  /*
    * The width of a shovel's blade along `+X`, metres, which its `face`
    * publishes. An estimate, not read at a source.
    */
   export const BLADE_WIDTH: number = 0.22;
 
-  /**
+  /*
    * The length of the cross bar of a shovel's D grip, metres, the run one hand
    * holds. An estimate, not read at a source.
    */
@@ -140,7 +148,9 @@ export namespace LongImplementDraw {
     | "launchSpeed"
     | "mass";
 
-  /** Each dimension's unit, which its band and any model's figure for it share. */
+  /*
+   * Each dimension's unit, which its band and any model's figure for it share.
+   */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -189,7 +199,7 @@ export namespace LongImplementDraw {
     | "NJX802HFS"
     | "NJX902MLFS";
 
-  /**
+  /*
    * Each kind's models whole, the default first, length and mass: 183 cm and
    * 106 g, 213 cm and 131 g, 213 cm and 133 g, 244 cm and 141, 157 and 165 g,
    * and 274 cm and 178 g (Daiwa Ninja X Spin specifications,
@@ -209,7 +219,7 @@ export namespace LongImplementDraw {
     },
   };
 
-  /**
+  /*
    * The band of each free dimension, by kind; an axe and a handspike have no
    * drawn shaft diameter, a broom, a mop, a shovel, a fishing rod and a field
    * gun's implements no head of their own sizes.
@@ -296,26 +306,31 @@ export namespace LongImplementDraw {
     },
   };
 
-  /** What {@link prepare} prepares for its caller. */
+  /*
+   * What prepare prepares for its caller.
+   */
   export interface IPrepareResult<Id extends Affordance> {
-    /** The prepared `builder` this call returns. */
+    /*
+     * The prepared `builder` this call returns.
+     */
     builder: AutoMovieArchetypeBuilder<Id, Dimension>;
 
-    /** The prepared `d` this call returns. */
+    /*
+     * The prepared `d` this call returns.
+     */
     d: Partial<Record<Dimension, number>>;
   }
 
-  /**
+  /*
    * Prepare an empty builder and the previously recorded longTool dimensions.
-   *
-   * @param params Fixed dimensions in metres or kilograms, an optional scene
-   *   ID, and a model where the saved recipe has one.
-   * @param seed The seed that draws the saved dimensions and model, or
-   *   undefined for the original defaults.
-   * @param kind The saved kind whose recipe is used.
-   * @returns The builder and dimensions the named producer reads.
-   * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter
-   *   lies outside its admitted recipe.
+   * Parameter params: Fixed dimensions in metres or kilograms, an optional scene
+   * ID, and a model where the saved recipe has one.
+   * Parameter seed: The seed that draws the saved dimensions and model, or
+   * undefined for the original defaults.
+   * Parameter kind: The saved kind whose recipe is used.
+   * Returns: The builder and dimensions the named producer reads.
+   * When the model or a fixed parameter
+   * lies outside its admitted recipe.
    */
   export function prepare<Id extends Affordance>(
     kind: Kind,
@@ -352,49 +367,68 @@ export namespace LongImplementDraw {
     return { builder, d };
   }
 
-  /** The contact ids {@link groundTool} builds or reads. */
+  /*
+   * The contact ids groundTool builds or reads.
+   */
   export type GroundToolContact = "face" | "shaft" | "grip";
 
-  /**
+  /*
    * The contacts `groundTool` itself builds, which a tool's own contacts join:
    * one grip, or an upper and a lower grip for a two-handed push.
    */
   export type GroundToolBuilt = "face" | "shaft";
 
-  /** A ground implement's head block. */
+  /*
+   * A ground implement's head block.
+   */
   export interface IGroundHead {
-    /** Across the head, metres. */
+    /*
+     * Across the head, metres.
+     */
     width: number;
 
-    /** Up the head, metres. */
+    /*
+     * Up the head, metres.
+     */
     height: number;
 
-    /** Front to back, metres. */
+    /*
+     * Front to back, metres.
+     */
     depth: number;
 
-    /** The finish colour. */
+    /*
+     * The finish colour.
+     */
     color: string;
 
-    /** The density relative to the shaft. */
+    /*
+     * The density relative to the shaft.
+     */
     density: number;
   }
 
-  /** A ground implement's shaft. */
+  /*
+   * A ground implement's shaft.
+   */
   export interface IGroundShaft {
-    /** The shaft radius, metres. */
+    /*
+     * The shaft radius, metres.
+     */
     radius: number;
 
-    /** The shaft top above the bottom face, metres. */
+    /*
+     * The shaft top above the bottom face, metres.
+     */
     top: number;
   }
 
-  /**
+  /*
    * Build the head and two-hand shaft of a ground-contact implement.
-   *
-   * @param builder The implement under construction.
-   * @param head The head dimensions in metres, its finish and its relative
-   *   density.
-   * @param shaft The shaft radius and end height, in metres.
+   * Parameter builder: The implement under construction.
+   * Parameter head: The head dimensions in metres, its finish and its relative
+   * density.
+   * Parameter shaft: The shaft radius and end height, in metres.
    */
   export function groundTool<Contact extends string>(
     builder: AutoMovieArchetypeBuilder<Contact | GroundToolBuilt, Dimension>,

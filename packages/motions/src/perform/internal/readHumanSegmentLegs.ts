@@ -15,7 +15,7 @@ import { AutoMovieMotionHumanArmCourse } from "../../compose/internal/AutoMovieM
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
 
-/**
+/*
  * Whether a leg goal is free: given, neither planted nor in contact, so the leg
  * continues the chain's seed.
  */
@@ -27,7 +27,7 @@ function free(
   );
 }
 
-/**
+/*
  * The legs' continuation seeds of a displayed second, under every name the
  * read's leaf fits a leg by: the plain leaf's (`leaf::<leg>`) and each leaf
  * under the running overlays, named by their ordinals in placement order
@@ -41,13 +41,12 @@ function free(
  * no legal one). A planted leg keeps its own fit: where its goal asks no turn
  * of the foot, the chain's swivel would turn the foot about the ankle and move
  * its sole.
- *
- * @param person The person.
- * @param segment The action.
- * @param t Film seconds.
- * @param local The action's plan second of `t`.
- * @param limbs The read's limb goals, which tell a free leg from a planted one.
- * @returns The legs' seeds by fit name.
+ * Parameter person: The person.
+ * Parameter segment: The action.
+ * Parameter t: Film seconds.
+ * Parameter local: The action's plan second of `t`.
+ * Parameter limbs: The read's limb goals, which tell a free leg from a planted one.
+ * Returns: The legs' seeds by fit name.
  */
 export function readHumanSegmentLegs(
   person: IAutoMovieMotionHumanSegment.IPerson,
@@ -87,9 +86,11 @@ export function readHumanSegmentLegs(
   return out;
 }
 
-/** The plan-level leg chain the display's legs continue. */
+/*
+ * The plan-level leg chain the display's legs continue.
+ */
 export namespace readHumanSegmentLegs {
-  /**
+  /*
    * A plan's leg chain: the legs' seeds at knots on the plan's frame grid
    * (`AutoMovieMotionHumanArmCourse.STEP`), the first knot fitted cold and each
    * later one continuing the knot before it, so each knot takes the closed-form
@@ -106,17 +107,9 @@ export namespace readHumanSegmentLegs {
    * once, every knot fitted in order from the plan's start, when the
    * performance is prepared (`IAutoMovieMotionHumanSegment.IPrepared.legs`),
    * and a second is a closed-form evaluation of the prepared knots.
-   *
-   * @param plan The segment's plan.
-   * @param body The performer's body.
-   * @returns Each leg's seed at a plan second.
-   * @evidence contracts/development/common.md#meaningful-documentation States the knot grid, the chaining, the branch choice per knot, the curve between knots and when the chain is prepared.
-   * @evidence contracts/development/implementation.md#principled-implementation Warm-starting each knot from the knot before, on the branch it chose, is the temporal coherence of engine two-bone IK; the root nearest the seed is the closed-form feasible swivel nearest the desired one (Tolani §3.2.4); the swivel between knots is a quintic Hermite of position, velocity and acceleration, the minimum-jerk form (Flash and Hogan 1985), C² at the knots.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Preparation fits the knots and their rates; the reader finds a second's knot interval and evaluates its quintic.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each knot is a full fit of the plan's own leg goals; no curve crosses a branch change; a display only continues from a seed, against its own goals.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One legs-only fit per knot at preparation, each a closed-form root where it is legal, on a plan posture demanding only the root, trunk and leg channels; a read is constant time.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The knots are the solver trajectory of the placed action, prepared once and shared by every read of it.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Held by the placed action's reader: one knot per step of the plan's duration, released with the action.
+   * Parameter plan: The segment's plan.
+   * Parameter body: The performer's body.
+   * Returns: Each leg's seed at a plan second.
    */
   export function chain(
     plan: IAutoMovieMotionHumanActionPlan,
@@ -178,7 +171,7 @@ export namespace readHumanSegmentLegs {
     };
   }
 
-  /**
+  /*
    * A knot's swivel rates on its own branch: velocity by the central difference
    * of its neighbours on the same branch (one-sided where one is missing) and
    * acceleration by the second difference where both are on it, none otherwise;
@@ -215,7 +208,7 @@ export namespace readHumanSegmentLegs {
     return out;
   }
 
-  /**
+  /*
    * The quintic Hermite between two knots of position, velocity and
    * acceleration (the minimum-jerk boundary form of Flash and Hogan 1985).
    */
@@ -241,12 +234,14 @@ export namespace readHumanSegmentLegs {
     );
   }
 
-  /** An angle difference taken the short way round, degrees in (-180, 180]. */
+  /*
+   * An angle difference taken the short way round, degrees in (-180, 180].
+   */
   function turn(degrees: number): number {
     const wrapped: number = degrees - 360 * Math.round(degrees / 360);
     return wrapped === -180 ? 180 : wrapped;
   }
-  /**
+  /*
    * One frame's leg seeds: the posture's leg goals alone, fitted cold or
    * continuing the frame before.
    */
@@ -272,10 +267,12 @@ export namespace readHumanSegmentLegs {
     return seeds;
   }
 
-  /** The legs a chain fits. */
+  /*
+   * The legs a chain fits.
+   */
   const LEGS: readonly AutoMovieHumanLimb[] = ["leftLeg", "rightLeg"];
 
-  /**
+  /*
    * The channels a chain frame demands of the plan: a leg fit reads the root,
    * the trunk and the legs' own goals and joints alone (`HumanSegmentLegs`), so
    * a plan that honours the demand evaluates no arm, head or hand writer for a
@@ -289,11 +286,17 @@ export namespace readHumanSegmentLegs {
   ];
 }
 
-/** A knot's swivel rates on its branch. */
+/*
+ * A knot's swivel rates on its branch.
+ */
 interface IRates {
-  /** Degrees per second. */
+  /*
+   * Degrees per second.
+   */
   velocity: number;
 
-  /** Degrees per second squared. */
+  /*
+   * Degrees per second squared.
+   */
   acceleration: number;
 }

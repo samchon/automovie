@@ -16,7 +16,7 @@ import { builtPlacedPartBoxes } from "../../architecture/internal/builtPlacedPar
 import { propBoundsOverlap } from "./propBoundsOverlap";
 import { unionSubjectBoxes } from "./unionSubjectBoxes";
 
-/**
+/*
  * Prepare world passage bounds once and return a read-only intrusion query.
  *
  * Openings use the fill model's rest-pose part boxes; absent models or
@@ -85,7 +85,9 @@ export function createPropPassageBlocker(
   };
 }
 
-/** Axis-aligned volumes a connector's route sweeps at its usable size. */
+/*
+ * Axis-aligned volumes a connector's route sweeps at its usable size.
+ */
 function connectorCorridors(
   connector: IAutoMovieBuiltConnector,
 ): IAutoMoviePropBox[] {

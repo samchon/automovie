@@ -5,7 +5,7 @@ import type {
   IAutoMovieRecoveryResult,
 } from "@automovie/interface";
 
-/**
+/*
  * Prepare already evaluated, registered indexed triangles for the observation
  * API: the declared registration and arrays are borrowed as they are. The
  * caller owns loading and evaluation. For GLB/glTF inputs, first use ingest's

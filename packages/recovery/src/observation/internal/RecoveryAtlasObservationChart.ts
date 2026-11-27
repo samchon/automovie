@@ -18,7 +18,7 @@ import { RecoveryDiskChart } from "./RecoveryDiskChart";
 import { RecoveryMultiBoundaryChart } from "./RecoveryMultiBoundaryChart";
 import { refineRecoveryChartBoundaryChords } from "../../geometry/internal/refineRecoveryChartBoundaryChords";
 
-/**
+/*
  * Prepare an annular, natural-side or general disk chart without changing its
  * declared correspondence.
  */

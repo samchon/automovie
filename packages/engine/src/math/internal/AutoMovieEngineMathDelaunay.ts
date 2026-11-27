@@ -6,9 +6,11 @@ import type {
 import { Vector3 } from "../Vector3";
 import { seededValue } from "./seededValue";
 
-/** Delaunay construction and predicates shared by the public math operations. */
+/*
+ * Delaunay construction and predicates shared by the public math operations.
+ */
 export namespace AutoMovieEngineMathDelaunay {
-/**
+/*
  * The Delaunay tetrahedralization of points by Bowyer-Watson insertion in their
  * given order.
  *
@@ -20,10 +22,9 @@ export namespace AutoMovieEngineMathDelaunay {
  * `geom2.c` `qh_detjoggle`): each coordinate moves by a deterministic amount
  * within `JOGGLE` machine epsilons of the points' largest coordinate, and the
  * mesh is the Delaunay mesh of the joggled points it returns.
- *
- * @param points The points.
- * @returns The mesh, each tetrahedron positively oriented on the joggled
- *   points.
+ * Parameter points: The points.
+ * Returns: The mesh, each tetrahedron positively oriented on the joggled
+ * points.
  */
 export function tetrahedralizeAutoMovieDelaunay(
   points: readonly IAutoMovieVector3[],
@@ -129,20 +130,21 @@ export function tetrahedralizeAutoMovieDelaunay(
 }
 
 
-/**
+/*
  * Qhull's default joggle, in machine epsilons of the largest coordinate
  * (`qh_JOGGLEdefault`).
  */
 export const JOGGLE: number = 30000;
 
-/** The seed domain of the joggle's draws, so no other draw shares them. */
+/*
+ * The seed domain of the joggle's draws, so no other draw shares them.
+ */
 export const DOMAIN: number = 3438;
-/**
+/*
  * Each point's neighbours along the mesh's edges, ascending.
- *
- * @param mesh The mesh.
- * @param n The number of points.
- * @returns The neighbour lists by point.
+ * Parameter mesh: The mesh.
+ * Parameter n: The number of points.
+ * Returns: The neighbour lists by point.
  */
 export function delaunayNeighboursImplementation(
   mesh: IAutoMovieTetrahedralizedMesh,
@@ -161,13 +163,12 @@ export function delaunayNeighboursImplementation(
   );
 }
 
-/**
+/*
  * A tetrahedron's signed volume times six: positive when its fourth point
  * lies on the side the first three's right-hand normal faces.
- *
- * @param points The points.
- * @param t The tetrahedron.
- * @returns Cubic metres times six.
+ * Parameter points: The points.
+ * Parameter t: The tetrahedron.
+ * Returns: Cubic metres times six.
  */
 export function delaunayVolumeImplementation(
   points: readonly IAutoMovieVector3[],
@@ -183,13 +184,12 @@ export function delaunayVolumeImplementation(
   );
 }
 
-/**
+/*
  * A tetrahedron's indices ordered to a positive volume.
- *
- * @param points The points.
- * @param t The tetrahedron.
- * @returns The same corners, the first two swapped when the volume is
- *   negative.
+ * Parameter points: The points.
+ * Parameter t: The tetrahedron.
+ * Returns: The same corners, the first two swapped when the volume is
+ * negative.
  */
 export function orientDelaunayTetrahedronImplementation(
   points: readonly IAutoMovieVector3[],
@@ -198,13 +198,12 @@ export function orientDelaunayTetrahedronImplementation(
   return delaunayVolumeImplementation(points, t) >= 0 ? t : [t[1], t[0], t[2], t[3]];
 }
 
-/**
+/*
  * Whether a point lies strictly inside a tetrahedron's circumsphere.
- *
- * @param points The points.
- * @param t The tetrahedron.
- * @param p The point.
- * @returns Whether it lies inside; false for a flat tetrahedron.
+ * Parameter points: The points.
+ * Parameter t: The tetrahedron.
+ * Parameter p: The point.
+ * Returns: Whether it lies inside; false for a flat tetrahedron.
  */
 export function delaunayCircumscribesImplementation(
   points: readonly IAutoMovieVector3[],

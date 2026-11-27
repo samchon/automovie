@@ -8,19 +8,18 @@ import type {
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { HumanTrunk } from "./HumanTrunk";
 
-/**
+/*
  * Read actual gaze frames through the body's demand of the mode's names.
- *
- * @param body The unchanged canonical body owning its genuine FK producer.
- * @param posture The current raw authored posture, retaining whole-body root
- *   rotation.
- * @param mode The existing direction, cervical-rest or eye-solving name set.
- * @param joints Current ordered authored override, or the posture's ordinary
- *   joints.
- * @param resolution Exact FK workspace borrowed only for this synchronous
- *   observation.
- * @returns Fresh demanded maps/frames after every current joint receives
- *   ordinary ordered admission.
+ * Parameter body: The unchanged canonical body owning its genuine FK producer.
+ * Parameter posture: The current raw authored posture, retaining whole-body root
+ * rotation.
+ * Parameter mode: The existing direction, cervical-rest or eye-solving name set.
+ * Parameter joints: Current ordered authored override, or the posture's ordinary
+ * joints.
+ * Parameter resolution: Exact FK workspace borrowed only for this synchronous
+ * observation.
+ * Returns: Fresh demanded maps/frames after every current joint receives
+ * ordinary ordered admission.
  */
 export function readHumanGazeBones(
   body: IAutoMovieMotionHumanBody,
@@ -36,10 +35,14 @@ export function readHumanGazeBones(
   );
 }
 
-/** Existing gaze observations; each set names only the actual returned frames. */
+/*
+ * Existing gaze observations; each set names only the actual returned frames.
+ */
 type Mode = "direction" | "head" | "eyes";
 
-/** Original eye-midpoint, cervical-rest and final-eye frame demands. */
+/*
+ * Original eye-midpoint, cervical-rest and final-eye frame demands.
+ */
 const NAMES: Readonly<Record<Mode, ReadonlySet<AutoMovieHumanoidBone>>> = {
   direction: new Set<AutoMovieHumanoidBone>(["hips", "leftEye", "rightEye"]),
   head: new Set<AutoMovieHumanoidBone>(["hips", "head"]),

@@ -2,7 +2,7 @@ import { IAutoMovieQuaternion } from "@automovie/interface";
 
 import { QUATERNION_NLERP_DOT_THRESHOLD } from "../QUATERNION_NLERP_DOT_THRESHOLD";
 
-/**
+/*
  * Interior ratios where a component of Quaternion.slerp is stationary.
  *
  * Inputs are admitted finite, nearly unit quaternion keys. A negative endpoint

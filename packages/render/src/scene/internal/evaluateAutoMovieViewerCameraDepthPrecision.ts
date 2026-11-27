@@ -5,7 +5,7 @@ import { AUTOMOVIE_FLOAT32_MAX } from "./AUTOMOVIE_FLOAT32_MAX.js";
 import type { IAutoMovieDepthPrecisionRenderer } from "../IAutoMovieDepthPrecisionRenderer.js";
 import type { IAutoMovieViewerCameraDepthPrecisionReport } from "../IAutoMovieViewerCameraDepthPrecisionReport.js";
 
-/**
+/*
  * Observe the currently bound draw framebuffer and compare it with one resolved
  * camera.
  *
@@ -24,11 +24,17 @@ export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
   source: Pick<IAutoMovieCamera, "id" | "near" | "far" | "depthPrecision">;
   realized: THREE.PerspectiveCamera;
 }) => IAutoMovieViewerCameraDepthPrecisionReport = (props: {
-  /** Viewer renderer whose currently bound draw framebuffer receives the shot. */
+  /*
+   * Viewer renderer whose currently bound draw framebuffer receives the shot.
+   */
   renderer: IAutoMovieDepthPrecisionRenderer;
-  /** Portable resolved camera declaration. */
+  /*
+   * Portable resolved camera declaration.
+   */
   source: Pick<IAutoMovieCamera, "id" | "near" | "far" | "depthPrecision">;
-  /** Three camera built from that declaration. */
+  /*
+   * Three camera built from that declaration.
+   */
   realized: THREE.PerspectiveCamera;
 }): IAutoMovieViewerCameraDepthPrecisionReport => {
   const logarithmic: boolean =
@@ -97,7 +103,7 @@ export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
   return { ...base, status: "satisfied", passed: true };
 };
 
-/**
+/*
  * A depth-report number the depth pipeline can represent, else null: planes and
  * bit counts reach the GPU as float32, so a magnitude beyond the float32
  * maximum, as an unbounded far plane has, is stated as absent.

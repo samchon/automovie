@@ -1,6 +1,8 @@
-/** Dense linear-system preparation and solution kernels. */
+/*
+ * Dense linear-system preparation and solution kernels.
+ */
 export namespace AutoMovieEngineMathLinearSystem {
-/**
+/*
  * Factor an unchanged square matrix for repeated right-hand sides using
  * partial-pivot Gaussian elimination. Inputs must be finite, square and
  * consistently scaled with representable intermediate arithmetic. A pivot no
@@ -13,9 +15,8 @@ export namespace AutoMovieEngineMathLinearSystem {
  * solve's original arithmetic, including strict pivot ties and subtraction
  * order. The source matrix may change after preparation because the factor owns
  * its copied coefficients; prepare again to adopt changes.
- *
- * @param rows Matrix entries by rows, not modified.
- * @returns A solver returning fresh solution arrays, or null at the pivot gate.
+ * Parameter rows: Matrix entries by rows, not modified.
+ * Returns: A solver returning fresh solution arrays, or null at the pivot gate.
  */
 export function prepare(
   rows: readonly (readonly number[])[],
@@ -43,7 +44,7 @@ export function prepare(
   };
 }
 
-/**
+/*
  * Solve one square system without allocating retained factors or a solver
  * closure. The same finite/scaled premises and strict pivot refusal apply.
  *
@@ -68,7 +69,9 @@ export function solve(
     ? backSubstitute(matrix)
     : null;
 }
-/** Preserve the original source-entry scan before any pivot is considered. */
+/*
+ * Preserve the original source-entry scan before any pivot is considered.
+ */
 function largestEntry(rows: readonly (readonly number[])[]): number {
   let largest: number = 0;
   for (const row of rows)
@@ -76,7 +79,7 @@ function largestEntry(rows: readonly (readonly number[])[]): number {
   return largest;
 }
 
-/**
+/*
  * One partial-pivot elimination, optionally recording factors for later
  * columns.
  */
@@ -109,7 +112,9 @@ function eliminate(
   return true;
 }
 
-/** Descending substitution from either an augmented column or a replayed one. */
+/*
+ * Descending substitution from either an augmented column or a replayed one.
+ */
 function backSubstitute(
   matrix: readonly (readonly number[])[],
   right?: readonly number[],

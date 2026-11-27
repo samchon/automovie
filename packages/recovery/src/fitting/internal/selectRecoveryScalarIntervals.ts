@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryScalarIntervalsSelectionOperation } from "@automovie/interface";
 
-/**
+/*
  * Select complete saved scalar slabs intersecting a declared physical window.
  * Scalars are millimetres along the observation's normalized sweep direction.
  * Positive overlap uses before < upper and after > lower; merely touching the

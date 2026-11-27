@@ -24,7 +24,7 @@ import { buildingWalls } from "./buildingWalls";
 import { emitBuildingRoom } from "./emitBuildingRoom";
 import { emitBuildingStair } from "./emitBuildingStair";
 
-/**
+/*
  * Lower an admitted upright building plan to normal stage, runtime and anchor
  * records.
  */
@@ -117,25 +117,37 @@ export function assembleBuilding(
   };
 }
 
-/** Root element and root space share this identity in their independent tables. */
+/*
+ * Root element and root space share this identity in their independent tables.
+ */
 const ROOT: string = "structure";
 
-/** Optional scene records assembled from the checked source geometry. */
+/*
+ * Optional scene records assembled from the checked source geometry.
+ */
 interface IAssembly {
-  /** One building graph and its visible model inventory. */
+  /*
+   * One building graph and its visible model inventory.
+   */
   environment: IAutoMovieBuiltEnvironment;
 
-  /** Module-local names of world-space attachment frames. */
+  /*
+   * Module-local names of world-space attachment frames.
+   */
   anchors: Record<string, IAutoMovieTransform>;
 
-  /** Live leaf placements, whose model and node identities agree. */
+  /*
+   * Live leaf placements, whose model and node identities agree.
+   */
   props: IAutoMoviePropSpec[];
 
-  /** Scene-node rotation clips for the leaf's authored motion. */
+  /*
+   * Scene-node rotation clips for the leaf's authored motion.
+   */
   clips: IAutoMovieClip[];
 }
 
-/**
+/*
  * Record one shared or exterior wall and pass its owned apertures to the mesh
  * kernel.
  */
@@ -203,7 +215,7 @@ function addWall(
   );
 }
 
-/**
+/*
  * Resolve a single wall cut into an aperture, named sill, and optional moving
  * leaf.
  */
@@ -319,7 +331,7 @@ function addOpening(
     );
 }
 
-/**
+/*
  * Let the opening's own clear footprint bridge the wall's depth at sill
  * elevation.
  */
@@ -376,7 +388,9 @@ function addThreshold(
   }
 }
 
-/** Build a beveled wall junction only where noncollinear edge caps meet. */
+/*
+ * Build a beveled wall junction only where noncollinear edge caps meet.
+ */
 function addWallJoints(
   assembly: IAssembly,
   level: buildingPlans.ILevel,
@@ -435,7 +449,9 @@ function addWallJoints(
   }
 }
 
-/** Add a scoped geometry model and place it as one owned building element. */
+/*
+ * Add a scoped geometry model and place it as one owned building element.
+ */
 function addElement(
   assembly: IAssembly,
   id: string,
@@ -455,7 +471,9 @@ function addElement(
   });
 }
 
-/** Store the corners of a rectangular face in its local plane. */
+/*
+ * Store the corners of a rectangular face in its local plane.
+ */
 function rectangle(
   x: number,
   y: number,
@@ -470,7 +488,9 @@ function rectangle(
   ];
 }
 
-/** Orient geometry authored in XY so the planar y becomes the building Z. */
+/*
+ * Orient geometry authored in XY so the planar y becomes the building Z.
+ */
 function horizontalPlate(y: number): IAutoMovieTransform {
   return frame(
     Vector3.create(0, y, 0),
@@ -478,7 +498,9 @@ function horizontalPlate(y: number): IAutoMovieTransform {
   );
 }
 
-/** Rigid unit-scale frame at an explicit origin. */
+/*
+ * Rigid unit-scale frame at an explicit origin.
+ */
 function frame(
   translation: IAutoMovieVector3,
   rotation: IAutoMovieQuaternion = Quaternion.identity(),

@@ -83,7 +83,7 @@ export namespace AutoMovieHumanHeadComposer {
         return canonical.result;
       },
       closed: canonical.closed,
-      /**
+      /*
        * Observe only this preparation's existing raw result, without preparing
        * one.
        */
@@ -244,11 +244,13 @@ export namespace AutoMovieHumanHeadComposer {
       neck: base.neck,
       parts,
       studies,
-      /** Only explicit raw demand invokes the identical definition's supplier. */
+      /*
+       * Only explicit raw demand invokes the identical definition's supplier.
+       */
       get mass(): IAutoMovieViewLoft.IResult {
         return definition.loft(massPart.name);
       },
-      /**
+      /*
        * Reading diagnostics enumerates performed admissions, never unrequested
        * geometry.
        */

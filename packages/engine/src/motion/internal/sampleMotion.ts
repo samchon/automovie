@@ -22,9 +22,11 @@ import { ease } from "./ease";
 
 const IDENTITY_TRANSFORM: IAutoMovieTransform = Transform.identity();
 
-/** Pose and root projections for geometry and world placement. */
+/*
+ * Pose and root projections for geometry and world placement.
+ */
 export namespace sampleMotion {
-  /**
+  /*
    * Sample caller-admitted clinical motion at finite seconds using clamped or
    * looping clip time and the outgoing segment's easing. Ordered finite keyframes
    * and valid pose/easing data are validateMotion's premise. End samples
@@ -38,7 +40,7 @@ export namespace sampleMotion {
     return readAt(motion, seconds, toSample, between);
   }
 
-  /**
+  /*
    * Sample the clinical pose of admitted motion at clip-local seconds. This
    * uses the full sample's skeleton, joint order, easing and neutral values.
    * Endpoint pose wrappers borrow their key's joints and root.
@@ -50,7 +52,9 @@ export namespace sampleMotion {
     return readAt(motion, seconds, poseAtKey, poseBetween);
   }
 
-  /** Sample the root of an admitted motion, borrowing endpoint transforms. */
+  /*
+   * Sample the root of an admitted motion, borrowing endpoint transforms.
+   */
   export function root(
     motion: IAutoMovieMotion,
     seconds: number,
@@ -59,7 +63,7 @@ export namespace sampleMotion {
   }
 }
 
-/**
+/*
  * Select the clamped or wrapped key or eased segment for the requested
  * projection.
  */
@@ -209,7 +213,7 @@ const interpolatePose: (
   };
 };
 
-/**
+/*
  * Interpolate one axis; `null` is treated as 0 but preserved when both sides
  * are null.
  */
@@ -274,7 +278,9 @@ const interpolateExpression: (
   };
 };
 
-/** The rest expression of a preset: present but with zero intensity/channels. */
+/*
+ * The rest expression of a preset: present but with zero intensity/channels.
+ */
 const neutral: (preset: AutoMovieExpressionPreset) => IAutoMovieExpression = (
   preset: AutoMovieExpressionPreset,
 ): IAutoMovieExpression => ({

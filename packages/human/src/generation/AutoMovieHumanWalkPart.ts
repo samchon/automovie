@@ -185,19 +185,18 @@ export namespace AutoMovieHumanWalkPart {
     };
   }
 
-  /**
+  /*
    * Station adapter: the station of the point a share along a bone, on the
    * engine's jointed course (`AutoMovieViewAxis.runs`). On the bone's straight
    * run it is the run's own station; inside a turn, where the course cuts the
    * corner and no station lies on the bone's line, it is read linearly in the
    * distance along the bones between the turn's two run ends, so the stations
    * keep the bones' order and meet the runs at both ends of the turn.
-   *
-   * @param centres The course's centres, mm.
-   * @param runs Each segment's straight run.
-   * @param bone The bone, 0 the first.
-   * @param share The share along it from its proximal centre.
-   * @returns The station, mm.
+   * Parameter centres: The course's centres, mm.
+   * Parameter runs: Each segment's straight run.
+   * Parameter bone: The bone, 0 the first.
+   * Parameter share: The share along it from its proximal centre.
+   * Returns: The station, mm.
    */
   function station(
     centres: readonly AutoMovieVector3Tuple[],
@@ -231,13 +230,12 @@ export namespace AutoMovieHumanWalkPart {
     return run.start + (x - run.from);
   }
 
-  /**
+  /*
    * Side adapter: a box given in the walk's chart (`v = t x u`, the laws'
    * and `AutoMovieHumanSegmentChart`'s) as the engine's (`v = u x t`, so its
    * stations advance along `v x u = t`): the side pair swaps and changes sign.
-   *
-   * @param e The edges `[+u, +v, -u, -v]` in the walk's chart.
-   * @returns The edges in the engine's chart.
+   * Parameter e: The edges `[+u, +v, -u, -v]` in the walk's chart.
+   * Returns: The edges in the engine's chart.
    */
   function engine(
     e: readonly [number, number, number, number],
@@ -245,7 +243,9 @@ export namespace AutoMovieHumanWalkPart {
     return [e[0], -e[3], e[2], -e[1]];
   }
 
-  /** Carry derivatives of the same signed edges through the side-pair reflection; their normalized parameter is unchanged. */
+  /*
+   * Carry derivatives of the same signed edges through the side-pair reflection; their normalized parameter is unchanged.
+   */
   function engineJets(
     jets: NonNullable<IAutoMovieHumanWalkPart.ISite["jets"]>,
   ): NonNullable<IAutoMovieHumanSectionSite["jets"]> {
@@ -259,7 +259,9 @@ export namespace AutoMovieHumanWalkPart {
     return [jets[0], neg(jets[3]), jets[2], neg(jets[1])];
   }
 
-  /** Negating a side edge exchanges its scalar bounds as well as their signs. */
+  /*
+   * Negating a side edge exchanges its scalar bounds as well as their signs.
+   */
   function engineRanges(
     ranges: NonNullable<IAutoMovieHumanWalkPart.IInput["ranges"]>,
   ): NonNullable<IAutoMovieHumanSectionSource["ranges"]> {
@@ -273,13 +275,12 @@ export namespace AutoMovieHumanWalkPart {
     return [ranges[0], neg(ranges[3]), ranges[2], neg(ranges[1])];
   }
 
-  /**
+  /*
    * The walk's closing domes: at the first centre (station 0) for a base
    * inside its host, at the tip past the last centre, or both.
-   *
-   * @param input The walk.
-   * @param top The tip's station, mm: past the last centre by the tip, or the last centre's.
-   * @returns The site part's pole, or nothing for two open ends.
+   * Parameter input: The walk.
+   * Parameter top: The tip's station, mm: past the last centre by the tip, or the last centre's.
+   * Returns: The site part's pole, or nothing for two open ends.
    */
   function pole(
     input: IAutoMovieHumanWalkPart.IInput,

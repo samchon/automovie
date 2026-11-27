@@ -5,15 +5,14 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * A handrim stroke's phases: the hand approaches the rim, pushes it to the
  * release and recovers, each a positive span; `catch` cues the rim's grasp and
  * `release` the end of the push.
- *
- * @param params The approach, push and recovery seconds.
- * @returns The release, the stroke's seconds and its cues.
- * @throws {HumanRefusal} When a phase is not positive, or the phases do not
- *   give distinct finite instants.
+ * Parameter params: The approach, push and recovery seconds.
+ * Returns: The release, the stroke's seconds and its cues.
+ * When a phase is not positive, or the phases do not
+ * give distinct finite instants.
  */
 export function humanHandrimStrokePhases(
   params: Pick<
@@ -59,17 +58,27 @@ export function humanHandrimStrokePhases(
   };
 }
 
-/** The handrim stroke's phases. */
+/*
+ * The handrim stroke's phases.
+ */
 export namespace humanHandrimStrokePhases {
-  /** The stroke's instants and cues. */
+  /*
+   * The stroke's instants and cues.
+   */
   export interface IPhases {
-    /** The push's end, seconds. */
+    /*
+     * The push's end, seconds.
+     */
     release: number;
 
-    /** The stroke's seconds. */
+    /*
+     * The stroke's seconds.
+     */
     duration: number;
 
-    /** The `catch` and `release` cues. */
+    /*
+     * The `catch` and `release` cues.
+     */
     events: IAutoMovieMotionEvent[];
   }
 }

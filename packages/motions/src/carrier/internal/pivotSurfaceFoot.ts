@@ -5,14 +5,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Rotate a shoe or ski around a foot-local support, keeping that point fixed.
- *
- * @param goal The goal with the world orientation of the entered foot.
- * @param contact The support relative to the foot joint, metres.
- * @param axis A rotation axis in that frame.
- * @param degrees The signed rotation angle.
- * @returns The adjusted ankle target, knee bend reference and orientation.
+ * Parameter goal: The goal with the world orientation of the entered foot.
+ * Parameter contact: The support relative to the foot joint, metres.
+ * Parameter axis: A rotation axis in that frame.
+ * Parameter degrees: The signed rotation angle.
+ * Returns: The adjusted ankle target, knee bend reference and orientation.
  */
 export function pivotSurfaceFoot(
   goal: IAutoMovieHumanLimbGoal,

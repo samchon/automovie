@@ -1,4 +1,4 @@
-/**
+/*
  * The argument at which a function of one variable is least on an interval, by
  * Brent's method (Brent 1973, "Algorithms for Minimization without
  * Derivatives", chapter 5, `localmin`).
@@ -11,16 +11,15 @@
  * convex one, for instance) the search closes on it superlinearly where the
  * function is smooth and never slower than golden section where it is not (a
  * kink, a flat stretch).
- *
- * @param f The function; it is evaluated only inside the interval, never at its
- *   ends.
- * @param low One end of the interval.
- * @param high The other end.
- * @param tolerance The absolute width, in the argument's unit, the low is
- *   located to; positive.
- * @param limit The most evaluations.
- * @returns The argument of the least value found and that value.
- * @throws If an end is not finite or the tolerance is not positive and finite.
+ * Parameter f: The function; it is evaluated only inside the interval, never at its
+ * ends.
+ * Parameter low: One end of the interval.
+ * Parameter high: The other end.
+ * Parameter tolerance: The absolute width, in the argument's unit, the low is
+ * located to; positive.
+ * Parameter limit: The most evaluations.
+ * Returns: The argument of the least value found and that value.
+ * If an end is not finite or the tolerance is not positive and finite.
  */
 export function bracketedMinimum(
   f: (x: number) => number,
@@ -98,10 +97,12 @@ export function bracketedMinimum(
   return { at: x, value: fx };
 }
 
-/** The golden section's smaller share, `(3 - sqrt 5) / 2`. */
+/*
+ * The golden section's smaller share, `(3 - sqrt 5) / 2`.
+ */
 const GOLDEN: number = (3 - Math.sqrt(5)) / 2;
 
-/**
+/*
  * The relative tolerance of an argument: the square root of the double
  * precision, below which a function's rounding hides its curvature (Brent
  * 1973).

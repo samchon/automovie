@@ -10,7 +10,9 @@ import type {
 import { AutoMovieCurveMath64 as M } from "../../AutoMovieCurveMath64";
 import { admitAutoMovieContourEvents64 } from "./admitAutoMovieContourEvents64";
 
-/** Admit saved contour events and build the local physical section document. */
+/*
+ * Admit saved contour events and build the local physical section document.
+ */
 export function prepareAutoMovieContourDocument64(
   input: IAutoMovieContourLoft64,
 ): IAutoMoviePrepareContourDocument64Document {

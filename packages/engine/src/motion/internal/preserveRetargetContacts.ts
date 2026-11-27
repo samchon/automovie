@@ -25,7 +25,7 @@ import { HUMANOID_LEG_CHAINS } from "../HUMANOID_LEG_CHAINS";
 import { contactMask } from "./contactMask";
 import { fitSeededChainToTarget } from "./fitSeededChainToTarget";
 
-/**
+/*
  * Correct a root-scaled retarget clip at its existing authored key times using
  * each source frame's foot/declared hand contact mapped by rootScale. Source
  * slides persist; ROM-limited residuals above tolerance*rootScale are collector
@@ -179,28 +179,38 @@ export function preserveRetargetContacts(
   return { ...props.retargeted, keyframes };
 }
 
-/** Only the actual FK position is observed by contact classification/correction. */
+/*
+ * Only the actual FK position is observed by contact classification/correction.
+ */
 type IPoint = Pick<IAutoMovieResolvedBone, "worldPosition">;
 
-/** Contact tolerance above the source ground counted as a planted contact. */
+/*
+ * Contact tolerance above the source ground counted as a planted contact.
+ */
 const DEFAULT_TOLERANCE: number = 0.02;
 
-/**
+/*
  * Target model-unit drift at or below this absolute threshold skips another
  * fit. Binary64 scaling and FK need not commute exactly, so this is a numerical
  * no-op policy rather than a zero-residual or scale-relative error proof.
  */
 const NOOP_EPSILON: number = 1e-9;
 
-/** A chain plus the frames on which its contact must be preserved. */
+/*
+ * A chain plus the frames on which its contact must be preserved.
+ */
 interface IAutoMovieContactWindow {
   chain: IAutoMoviePlantChain;
 
-  /** `null` detects stance against the ground; a span declares it. */
+  /*
+   * `null` detects stance against the ground; a span declares it.
+   */
   window: { start: number; end: number } | null;
 }
 
-/** Every bone of the chain resolves on the rig's FK walk. */
+/*
+ * Every bone of the chain resolves on the rig's FK walk.
+ */
 const resolvable: (
   chain: IAutoMoviePlantChain,
   bones: ReadonlySet<AutoMovieHumanoidBone>,
@@ -212,7 +222,7 @@ const resolvable: (
     (bone: AutoMovieHumanoidBone): boolean => bones.has(bone),
   );
 
-/**
+/*
  * Re-solve one keyframe's pinned limbs and record each effector's worst
  * residual. A limb already on its pin, or one whose chain is geometrically
  * degenerate, is left exactly as authored.
@@ -222,7 +232,9 @@ const correctFrame: (props: {
   index: number;
   pins: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>;
   chains: ReadonlyMap<AutoMovieHumanoidBone, IAutoMoviePlantChain>;
-  /** Rig whose unchanged topology and ROM constrain correction. */ skeleton: IAutoMovieSkeleton;
+  /*
+   * Rig whose unchanged topology and ROM constrain correction.
+   */ skeleton: IAutoMovieSkeleton;
   topology: IAutoMovieSkeletonTopology;
   jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
   restFrames: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>;
@@ -235,7 +247,9 @@ const correctFrame: (props: {
   pins: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>;
   chains: ReadonlyMap<AutoMovieHumanoidBone, IAutoMoviePlantChain>;
 
-  /** Rig whose unchanged topology and ROM constrain correction. */
+  /*
+   * Rig whose unchanged topology and ROM constrain correction.
+   */
   skeleton: IAutoMovieSkeleton;
   topology: IAutoMovieSkeletonTopology;
   jointAxes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
@@ -296,7 +310,7 @@ const correctFrame: (props: {
     : { ...props.keyframe, pose };
 };
 
-/**
+/*
  * Read the same current frame inputs at actual FK sites without a per-frame
  * resolver closure.
  */
@@ -316,7 +330,7 @@ function readFrameEffectors(
   );
 }
 
-/**
+/*
  * Preserve complete raw admission, retaining only the owned positions this
  * contact pass reads.
  */
@@ -343,12 +357,16 @@ function resolveEffectors(
   return map;
 }
 
-/** Distance between a resolved effector and the contact it must hold. */
+/*
+ * Distance between a resolved effector and the contact it must hold.
+ */
 const drift: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
 ): number => Vector3.length(Vector3.subtract(a, b));
 
-/** Six-decimal rounding so a warning message stays readable and stable. */
+/*
+ * Six-decimal rounding so a warning message stays readable and stable.
+ */
 const round: (value: number) => number = (value: number): number =>
   Math.round(value * 1e6) / 1e6;

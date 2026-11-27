@@ -18,7 +18,9 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/** A grip's point in the hips' start frame. */
+/*
+ * A grip's point in the hips' start frame.
+ */
 function local(
   read: IAutoMovieMotionHumanPropReader,
   placed: IAutoMovieRigidTransform,
@@ -44,14 +46,13 @@ function local(
   return { point: HumanFrame.local(start, world) };
 }
 
-/**
+/*
  * Read a pole's grips.
- *
- * @param context The walk's context.
- * @param subject The pole's scene id.
- * @param start The hips' frame as the walk starts.
- * @returns The contacts and the goals.
- * @throws {HumanRefusal} When the pole declares no left or right grip.
+ * Parameter context: The walk's context.
+ * Parameter subject: The pole's scene id.
+ * Parameter start: The hips' frame as the walk starts.
+ * Returns: The contacts and the goals.
+ * When the pole declares no left or right grip.
  */
 export function lineWalkPole(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLineWalk.IParams>,
@@ -107,23 +108,26 @@ export function lineWalkPole(
   };
 }
 
-/**
+/*
  * A balancing pole held across a line walker: each hand grips the pole at its
  * `leftGrip` and `rightGrip` affordance where the pole rests as the walk
  * starts, and keeps that grip in the frame that travels with the hips, so the
  * pole rides with the body and stays in both hands.
  */
 export namespace lineWalkPole {
-  /** The held pole's contacts and the hands' goals in a hips frame. */
+  /*
+   * The held pole's contacts and the hands' goals in a hips frame.
+   */
   export interface IHeld {
-    /** Both hands' grips on the pole, the whole walk. */
+    /*
+     * Both hands' grips on the pole, the whole walk.
+     */
     contacts: IAutoMovieMotionHumanContactWindow[];
 
-    /**
+    /*
      * The arms' goals with the hips in a frame.
-     *
-     * @param frame The hips' floor frame at a second.
-     * @returns Both arms' limb goals.
+     * Parameter frame: The hips' floor frame at a second.
+     * Returns: Both arms' limb goals.
      */
     limbs(
       frame: IAutoMovieMotionHumanFrame,
@@ -131,8 +135,12 @@ export namespace lineWalkPole {
   }
 }
 
-/** A grip held in the hips' frame. */
+/*
+ * A grip held in the hips' frame.
+ */
 interface ILocal {
-  /** The grip's point in the frame. */
+  /*
+   * The grip's point in the frame.
+   */
   point: IAutoMovieVector3;
 }

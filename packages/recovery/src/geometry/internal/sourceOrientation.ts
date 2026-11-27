@@ -15,7 +15,7 @@ import { signedArea } from "../../internal/mesh-observations/signedArea";
 import { sub } from "../../internal/mesh-observations/sub";
 import { to2 } from "../../internal/mesh-observations/to2";
 
-/**
+/*
  * Builds a private supporting-face orientation witness; its result
  * distinguishes outer from cavity contours. An explicit registered sign
  * bypasses global-volume inference and retains the supplied material-side

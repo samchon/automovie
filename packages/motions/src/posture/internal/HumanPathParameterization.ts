@@ -1,6 +1,6 @@
 import { HumanSeidelProgram as LP } from "./HumanSeidelProgram";
 
-/**
+/*
  * Time-optimal path parameterisation by reachability analysis, TOPP-RA (Pham
  * and Pham 2018, "A new approach to time-optimal path parameterization based on
  * reachability analysis", IEEE T-RO 34(3):645), ported from
@@ -25,111 +25,160 @@ import { HumanSeidelProgram as LP } from "./HumanSeidelProgram";
  * the special case of one constant ṡ.
  */
 export namespace HumanPathParameterization {
-  /** A path at its gridpoints. */
+  /*
+   * A path at its gridpoints.
+   */
   export interface IPath {
-    /** The gridpoints s_0 < ... < s_N, the path's interval's ends included. */
+    /*
+     * The gridpoints s_0 < ... < s_N, the path's interval's ends included.
+     */
     gridpoints: readonly number[];
 
-    /** Each coordinate's first derivative q'(s) at each gridpoint. */
+    /*
+     * Each coordinate's first derivative q'(s) at each gridpoint.
+     */
     first: readonly (readonly number[])[];
 
-    /** Each coordinate's second derivative q''(s) at each gridpoint. */
+    /*
+     * Each coordinate's second derivative q''(s) at each gridpoint.
+     */
     second: readonly (readonly number[])[];
   }
 
-  /**
+  /*
    * A first-order constraint (`LinearJointVelocity`, with the limits read at
    * each gridpoint as `computeVelocityLimits` reads them): `lower <= q̇ <=
    * upper` for quantities whose path derivative is `first`.
    */
   export interface IVelocity {
-    /** Each quantity's derivative by s at each gridpoint. */
+    /*
+     * Each quantity's derivative by s at each gridpoint.
+     */
     first: readonly (readonly number[])[];
 
-    /** Each quantity's least rate at each gridpoint. */
+    /*
+     * Each quantity's least rate at each gridpoint.
+     */
     lower: readonly (readonly number[])[];
 
-    /** Each quantity's greatest rate at each gridpoint. */
+    /*
+     * Each quantity's greatest rate at each gridpoint.
+     */
     upper: readonly (readonly number[])[];
   }
 
-  /**
+  /*
    * A second-order constraint (`LinearJointAcceleration`): `lower <= q̈ <=
    * upper` for the path's own coordinates, `q̈ = q'(s) u + q''(s) x`.
    */
   export interface IAcceleration {
-    /** Each coordinate's least acceleration. */
+    /*
+     * Each coordinate's least acceleration.
+     */
     lower: readonly number[];
 
-    /** Each coordinate's greatest acceleration. */
+    /*
+     * Each coordinate's greatest acceleration.
+     */
     upper: readonly number[];
   }
 
-  /** One parameterisation problem. */
+  /*
+   * One parameterisation problem.
+   */
   export interface IProblem {
-    /** The path. */
+    /*
+     * The path.
+     */
     path: IPath;
 
-    /** The first-order constraints. */
+    /*
+     * The first-order constraints.
+     */
     velocities: readonly IVelocity[];
 
-    /** The second-order constraints on the path's coordinates. */
+    /*
+     * The second-order constraints on the path's coordinates.
+     */
     accelerations: readonly IAcceleration[];
 
-    /** The path velocity ṡ at the start (`vel_start`). */
+    /*
+     * The path velocity ṡ at the start (`vel_start`).
+     */
     start: number;
 
-    /** The path velocity ṡ at the end (`vel_end`). */
+    /*
+     * The path velocity ṡ at the end (`vel_end`).
+     */
     end: number;
   }
 
-  /** How the parameterisation ended (`ReturnCode`). */
+  /*
+   * How the parameterisation ended (`ReturnCode`).
+   */
   export type Status = "ok" | "controllable" | "forward";
 
-  /** The parameterisation (`ParametrizationData`). */
+  /*
+   * The parameterisation (`ParametrizationData`).
+   */
   export interface IResult {
-    /** How it ended. */
+    /*
+     * How it ended.
+     */
     status: Status;
 
-    /** The squared path velocity x_i at each gridpoint (`parametrization`). */
+    /*
+     * The squared path velocity x_i at each gridpoint (`parametrization`).
+     */
     parametrization: number[];
 
-    /** Each gridpoint's controllable set of x, its least and greatest. */
+    /*
+     * Each gridpoint's controllable set of x, its least and greatest.
+     */
     controllable: LP.Pair[];
   }
 
-  /** The time map of a parameterisation (`ConstAccel`). */
+  /*
+   * The time map of a parameterisation (`ConstAccel`).
+   */
   export interface ITimed {
-    /** The instant each gridpoint is reached, from zero (`m_ts`). */
+    /*
+     * The instant each gridpoint is reached, from zero (`m_ts`).
+     */
     times: number[];
 
-    /** The path velocity ṡ at each gridpoint (`m_vs`). */
+    /*
+     * The path velocity ṡ at each gridpoint (`m_vs`).
+     */
     velocities: number[];
 
-    /** The constant path acceleration over each interval (`m_us`). */
+    /*
+     * The constant path acceleration over each interval (`m_us`).
+     */
     accelerations: number[];
   }
 
-  /**
+  /*
    * The initial bound on x in the backward pass (`m_initXBound`, algorithm.hpp
    * line 167): TOPP-RA's own, which keeps the stage programs away from the
    * numerical trouble of very large x (toppra issue 156).
    */
   export const INITIAL_X: Readonly<LP.Pair> = [0, 100];
 
-  /** The greatest path velocity a velocity constraint admits (`m_maxsd`). */
+  /*
+   * The greatest path velocity a velocity constraint admits (`m_maxsd`).
+   */
   export const MAX_SD: number = 1e8;
 
-  /**
+  /*
    * Parameterise a path (`computePathParametrization`): the controllable sets
    * backward from the end's velocity, then the greedy forward pass from the
    * start's.
-   *
-   * @param problem The path, its constraints and its end velocities.
-   * @returns The squared path velocity at each gridpoint, the controllable sets
-   *   and how the solve ended.
-   * @throws {Error} When a velocity constraint bounds a quantity that does not
-   *   move away from zero (`BoxConstraint is infeasible`).
+   * Parameter problem: The path, its constraints and its end velocities.
+   * Returns: The squared path velocity at each gridpoint, the controllable sets
+   * and how the solve ended.
+   * When a velocity constraint bounds a quantity that does not
+   * move away from zero (`BoxConstraint is infeasible`).
    */
   export function parametrize(problem: IProblem): IResult {
     const stages: IStages = prepare(problem);
@@ -188,14 +237,13 @@ export namespace HumanPathParameterization {
     return { status: "ok", parametrization, controllable };
   }
 
-  /**
+  /*
    * The time map of a parameterisation at constant path acceleration over each
    * interval (`ConstAccel::process_internals`).
-   *
-   * @param gridpoints The gridpoints.
-   * @param parametrization The squared path velocity at each.
-   * @returns Each gridpoint's instant, its path velocity, and each interval's
-   *   path acceleration.
+   * Parameter gridpoints: The gridpoints.
+   * Parameter parametrization: The squared path velocity at each.
+   * Returns: Each gridpoint's instant, its path velocity, and each interval's
+   * path acceleration.
    */
   export function timed(
     gridpoints: readonly number[],
@@ -220,28 +268,42 @@ export namespace HumanPathParameterization {
   }
 }
 
-/** The upper problem's objective (`g_upper`): maximise x. */
+/*
+ * The upper problem's objective (`g_upper`): maximise x.
+ */
 const UPPER: Readonly<LP.Pair> = [1e-9, -1];
 
-/** The lower problem's objective (`g_lower`): minimise x. */
+/*
+ * The lower problem's objective (`g_lower`): minimise x.
+ */
 const LOWER: Readonly<LP.Pair> = [-1e-9, 1];
 
-/** Every stage's program, prepared once (`Seidel::initialize`). */
+/*
+ * Every stage's program, prepared once (`Seidel::initialize`).
+ */
 interface IStages {
-  /** The intervals' lengths (`m_deltas`). */
+  /*
+   * The intervals' lengths (`m_deltas`).
+   */
   deltas: number[];
 
-  /** Each stage's rows, the first two reserved for the next stage's bounds. */
+  /*
+   * Each stage's rows, the first two reserved for the next stage's bounds.
+   */
   rows: LP.Row[][];
 
-  /** Each stage's lower bounds on (u, x). */
+  /*
+   * Each stage's lower bounds on (u, x).
+   */
   low: LP.Pair[];
 
-  /** Each stage's upper bounds on (u, x). */
+  /*
+   * Each stage's upper bounds on (u, x).
+   */
   high: LP.Pair[];
 }
 
-/**
+/*
  * The stages' rows and bounds: each acceleration constraint's rows under the
  * interpolation discretisation, each velocity constraint's bound on x, then the
  * presolve of every stage from its third row.
@@ -318,7 +380,7 @@ function prepare(problem: HumanPathParameterization.IProblem): IStages {
   return { deltas, rows, low, high };
 }
 
-/**
+/*
  * One stage's program (`Seidel::solveStagewiseOptim`): minimise `g' (u, x)`
  * with x within `x` and the next stage's x within `next`.
  */

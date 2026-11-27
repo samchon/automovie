@@ -11,7 +11,7 @@ import type {
 
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 
-/**
+/*
  * The toes of a foot risen on its ball, bent back so they lie on the support.
  * Without the bend the risen foot's toes turn down with the foot, their tips go
  * under the support, and there they become its lowest point and slide as the
@@ -19,24 +19,23 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
  * share it.
  */
 export namespace AutoMovieMotionHumanToesOnFloor {
-  /**
+  /*
    * How near the floor a risen ball starts to bend its toes back, metres: they
    * lie flat once it is down (provisional).
    */
   export const TOUCH: number = 0.03;
 
-  /**
+  /*
    * How far a foot risen on its ball bends its toes back: by the heel's lift
    * about the toes' joint, in full once the ball is down, fading out over
    * `TOUCH` above the support on a smoothstep, so a foot leaving or reaching
    * the support bends them continuously; and above it, at least as far as keeps
    * the toes' tip from passing under the support.
-   *
-   * @param body The body.
-   * @param side The foot.
-   * @param at The foot's placement, its pitch read for the heel's lift.
-   * @param floor The support's height under the ball, world metres.
-   * @returns The toes' extension, degrees, at least 0.
+   * Parameter body: The body.
+   * Parameter side: The foot.
+   * Parameter at: The foot's placement, its pitch read for the heel's lift.
+   * Parameter floor: The support's height under the ball, world metres.
+   * Returns: The toes' extension, degrees, at least 0.
    */
   export function bend(
     body: IAutoMovieMotionHumanBody,
@@ -62,17 +61,16 @@ export namespace AutoMovieMotionHumanToesOnFloor {
     return Math.max(faded, down(ball.y - toe.y) - down(ball.y - floor));
   }
 
-  /**
+  /*
    * A leg row whose foot bends its toes onto its support: the row's own
    * posture, with the toes extended by `bend` for the foot the row's goal
    * places.
-   *
-   * @param body The body.
-   * @param side The foot.
-   * @param leg The leg row.
-   * @param floor The support's height under a ball, world metres, by the ankle
-   *   the goal places.
-   * @returns The row, its write bending the toes.
+   * Parameter body: The body.
+   * Parameter side: The foot.
+   * Parameter leg: The leg row.
+   * Parameter floor: The support's height under a ball, world metres, by the ankle
+   * the goal places.
+   * Returns: The row, its write bending the toes.
    */
   export function row(
     body: IAutoMovieMotionHumanBody,

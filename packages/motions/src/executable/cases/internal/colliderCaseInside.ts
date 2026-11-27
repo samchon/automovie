@@ -1,13 +1,12 @@
 import * as THREE from "three";
 
-/**
+/*
  * Whether a point lies inside a closed triangle mesh, by ray parity: a ray from
  * the point crosses a closed surface an odd number of times exactly when the
  * point is inside (the Jordan curve theorem's parity rule).
- *
- * @param p The point.
- * @param triangles The closed mesh's triangles, both faces counted.
- * @returns True inside.
+ * Parameter p: The point.
+ * Parameter triangles: The closed mesh's triangles, both faces counted.
+ * Returns: True inside.
  */
 export function colliderCaseInside(
   p: THREE.Vector3,
@@ -25,7 +24,9 @@ export function colliderCaseInside(
   return hits % 2 === 1;
 }
 
-/** A fixed direction no drawn edge or face is parallel to, for the parity test. */
+/*
+ * A fixed direction no drawn edge or face is parallel to, for the parity test.
+ */
 const RAY: THREE.Vector3 = new THREE.Vector3(
   0.5371,
   0.7193,

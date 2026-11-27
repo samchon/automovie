@@ -17,7 +17,7 @@ import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { StrikingStance } from "../../striking/internal/StrikingStance";
 import { stageBladeFootworkSchedule } from "./stageBladeFootworkSchedule";
 
-/**
+/*
  * Shift a performer's stance between two floor marks on a blade set. A fenced
  * stage uses lifted steps, the kendo profile moves the travelling foot along
  * the floor, and an armoured cast can use a deliberate cadence. These are
@@ -33,10 +33,12 @@ export const stageBladeFootwork: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
     plan,
   };
 
-/** A stage foot selected in the leading or following path. */
+/*
+ * A stage foot selected in the leading or following path.
+ */
 type Side = AutoMovieHumanSide;
 
-/**
+/*
  * Resolve the parameters once and transport the carried upper posture over the
  * same floor frame as the two foot paths.
  */
@@ -106,7 +108,9 @@ function plan(
   };
 }
 
-/** The lifted swing or low glide from a displayed entry footprint. */
+/*
+ * The lifted swing or low glide from a displayed entry footprint.
+ */
 function placement(
   foot: IAutoMovieMotionHumanFoot.IPlacement,
   travel: IAutoMovieVector3,
@@ -123,12 +127,16 @@ function placement(
   };
 }
 
-/** A travel envelope that starts and settles at zero. */
+/*
+ * A travel envelope that starts and settles at zero.
+ */
 function pulse(progress: number): number {
   return 4 * progress * (1 - progress);
 }
 
-/** A clamped travel progress is at its plant before or after its moving phase. */
+/*
+ * A clamped travel progress is at its plant before or after its moving phase.
+ */
 function settled(progress: number): boolean {
   return progress === 0 || progress === 1;
 }

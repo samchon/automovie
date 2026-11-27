@@ -8,7 +8,7 @@ import type {
   IAutoMovieRecoveryResult,
 } from "@automovie/interface";
 
-/**
+/*
  * Generate an ordinary AutoMovie bicubic model and its actual construction from
  * saved section coefficients alone. Positive axis scales preserve the other two
  * coordinate extents; height edits anchor at the lowest saved station.
@@ -179,7 +179,9 @@ export function compileAutoMovieRecoveryImageLoft(
   }
 }
 
-/** Scale each coefficient of one four-coefficient span row. */
+/*
+ * Scale each coefficient of one four-coefficient span row.
+ */
 function scale4(
   row: Readonly<[number, number, number, number]>,
   factor: number,

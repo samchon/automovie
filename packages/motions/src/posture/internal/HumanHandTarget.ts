@@ -17,7 +17,7 @@ import { HumanHand } from "./HumanHand";
 import { assembleHumanHandTarget } from "./assembleHumanHandTarget";
 import { placeHumanHandSurface } from "./placeHumanHandSurface";
 
-/**
+/*
  * Build the original surface-on-place hand target with one orientation and one
  * actual bend decision; the prepared companion shares fixed geometry.
  */
@@ -55,9 +55,11 @@ export function HumanHandTarget(
   );
 }
 
-/** Fixed hand-surface geometry for a plan's repeated changing-posture targets. */
+/*
+ * Fixed hand-surface geometry for a plan's repeated changing-posture targets.
+ */
 export namespace HumanHandTarget {
-  /**
+  /*
    * Prepare fixed side/surface/shape/normal/options for one unchanged body.
    * Preparation builds the fixed geometry. Each requested point and posture
    * still receives its actual preset or numerical bend decision.
@@ -123,7 +125,7 @@ export namespace HumanHandTarget {
       );
     };
   }
-  /**
+  /*
    * Prepare only the existing hand orientation and lazy wrist placement. Body
    * geometry, side, normal and options stay unchanged; a frame reads its
    * current heading when forward is absent and returns fresh rotation data plus
@@ -192,7 +194,7 @@ export namespace HumanHandTarget {
     };
   }
 
-  /**
+  /*
    * Prepare one fixed surface for changing world places and headings. The
    * target reader retains the original actual preset/default Bend and lazy
    * wrist admission; the wrist reader computes only actual alignment and rigid
@@ -280,7 +282,7 @@ export namespace HumanHandTarget {
     };
   }
 
-  /**
+  /*
    * Prepare fixed body/hand/surface/shape/options for changing world places.
    * Every query reads its actual point, normal, optional forward and current
    * posture; one original alignment and actual bend/preset are evaluated. The
@@ -358,7 +360,9 @@ export namespace HumanHandTarget {
       });
     };
   }
-  /** The record of `IHumanHandTargetPrepareFrameResult`'s site. */
+  /*
+   * The record of `IHumanHandTargetPrepareFrameResult`'s site.
+   */
   type IHumanHandTargetPrepareFrameResult = {
     surface: IAutoMovieMotionHumanHand.Surface;
     shape: IAutoMovieMotionHumanHand.Shape;
@@ -366,16 +370,24 @@ export namespace HumanHandTarget {
     place: (point: IAutoMovieVector3) => IAutoMovieMotionHumanHand.IWrist;
   };
 
-  /** The alternatives of `HumanHandTargetPrepareFrameOptions`'s site. */
+  /*
+   * The alternatives of `HumanHandTargetPrepareFrameOptions`'s site.
+   */
   type HumanHandTargetPrepareFrameOptions = "surface" | "shape" | "forward";
 
-  /** The alternatives of `HumanHandTargetPrepareMovingPlace2`'s site. */
+  /*
+   * The alternatives of `HumanHandTargetPrepareMovingPlace2`'s site.
+   */
   type HumanHandTargetPrepareMovingPlace2 = "point" | "normal";
 
-  /** The alternatives of `HumanHandTargetPrepareMovingPlace`'s site. */
+  /*
+   * The alternatives of `HumanHandTargetPrepareMovingPlace`'s site.
+   */
   type HumanHandTargetPrepareMovingPlace = "point" | "normal";
 
-  /** The record of `IHumanHandTargetPrepareMovingResult`'s site. */
+  /*
+   * The record of `IHumanHandTargetPrepareMovingResult`'s site.
+   */
   type IHumanHandTargetPrepareMovingResult = {
     frame: (
       posture: IPosture,
@@ -400,25 +412,35 @@ export namespace HumanHandTarget {
     ) => IAutoMovieMotionHumanHand.IWrist;
   };
 
-  /** The alternatives of `HumanHandTargetPrepareMovingWristPlaceResult`'s site. */
+  /*
+   * The alternatives of `HumanHandTargetPrepareMovingWristPlaceResult`'s site.
+   */
   type HumanHandTargetPrepareMovingWristPlaceResult = "point" | "normal";
 
-  /** The alternatives of `HumanHandTargetPrepareMovingTargetPlaceResult`'s site. */
+  /*
+   * The alternatives of `HumanHandTargetPrepareMovingTargetPlaceResult`'s site.
+   */
   type HumanHandTargetPrepareMovingTargetPlaceResult = "point" | "normal";
-  /** The record of `IHumanHandTargetPrepareMovingFrameResult`'s site. */
+  /*
+   * The record of `IHumanHandTargetPrepareMovingFrameResult`'s site.
+   */
   type IHumanHandTargetPrepareMovingFrameResult = {
     rotation: IAutoMovieQuaternion;
     place: (point: IAutoMovieVector3) => IAutoMovieMotionHumanHand.IWrist;
   };
 
-  /** The alternatives of `HumanHandTargetPrepareGoalPlace`'s site. */
+  /*
+   * The alternatives of `HumanHandTargetPrepareGoalPlace`'s site.
+   */
   type HumanHandTargetPrepareGoalPlace = "point" | "normal";
 
-  /** The alternatives of `HumanHandTargetPrepareGoalPlaceResult`'s site. */
+  /*
+   * The alternatives of `HumanHandTargetPrepareGoalPlaceResult`'s site.
+   */
   type HumanHandTargetPrepareGoalPlaceResult = "point" | "normal";
 }
 
-/**
+/*
  * Preserve the original heading/up choice and lazy offset read before
  * alignment.
  */
@@ -445,14 +467,18 @@ function oriented(
     ? HumanHand.align(offset(), { normal, forward })
     : align({ normal, forward });
 }
-/** The fixed rest's alignment, prepared once. */
+/*
+ * The fixed rest's alignment, prepared once.
+ */
 function fixedAlignment(
   offset: () => IAutoMovieMotionHumanHand.IFrame,
 ): ReturnType<typeof HumanHand.prepareAlignment> {
   return HumanHand.prepareAlignment(offset());
 }
 
-/** The fixed surface's target issuance, prepared once. */
+/*
+ * The fixed surface's target issuance, prepared once.
+ */
 function targetEmitter(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
@@ -467,26 +493,34 @@ function targetEmitter(
   );
 }
 
-/**
+/*
  * The original cosine beyond which the current heading counts as along the
  * normal.
  */
 const ALONG: number = 0.9;
 
-/** The alternatives of `HumanHandTargetPlace`'s site. */
+/*
+ * The alternatives of `HumanHandTargetPlace`'s site.
+ */
 type HumanHandTargetPlace = "point" | "normal";
 
-/** The alternatives of `PostureItem`'s site. */
+/*
+ * The alternatives of `PostureItem`'s site.
+ */
 type PostureItem = "pitch" | "roll";
 
-/** The alternatives of `Posture`'s site. */
+/*
+ * The alternatives of `Posture`'s site.
+ */
 type Posture = "root" | "yaw";
 
-/** Root and clinical heading information used by the existing bend owners. */
+/*
+ * Root and clinical heading information used by the existing bend owners.
+ */
 type IPosture = Pick<IAutoMovieMotionHumanPosture, Posture> &
   Partial<Pick<IAutoMovieMotionHumanPosture, PostureItem>>;
 
-/**
+/*
  * Existing raw-row producer, retaining only genuine fixed local-surface
  * geometry.
  */

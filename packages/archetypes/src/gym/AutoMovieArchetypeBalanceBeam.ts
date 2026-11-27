@@ -10,7 +10,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** World Gymnastics Apparatus Norms, WAG 3, balance beam measurements. */
+/*
+ * World Gymnastics Apparatus Norms, WAG 3, balance beam measurements.
+ */
 const NORMS: string =
   "World Gymnastics Apparatus Norms, WAG 3 §2.1 (https://www.gymnastics.sport/publicdir/rules/files/en_Apparatus%20Norms.pdf)";
 

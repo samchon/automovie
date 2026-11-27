@@ -16,7 +16,7 @@ import { BODY_ROOT } from "../utilities/BODY_ROOT";
 import { createUnitFiles } from "../utilities/createUnitFiles";
 import { createSettingCoverageClaim } from "./createSettingCoverageClaim";
 
-/**
+/*
  * Creates the shared claims for one authored layer.
  *
  * Unit H2s answer only questions each can establish from its own body. The

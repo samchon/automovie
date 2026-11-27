@@ -9,7 +9,7 @@ import type {
 import { lerp } from "../../math/internal/lerp";
 import { mixSeed } from "../../math/internal/mixSeed";
 
-/**
+/*
  * Compute the fixed-step particle state for an admitted compiled cue.
  *
  * For a localized plume, a wide outline develops as surrounding air mixes into
@@ -189,7 +189,7 @@ export function sampleCompiledEffect(
   return { time: sampledTime, active: true, intensity, particles };
 }
 
-/**
+/*
  * Preserve the compiled-effect v1 stream while the public multi-part sampler
  * serves new domains. The effect digest does not carry a sampler version, so
  * changing this fold would make identical compiled bytes replay differently.

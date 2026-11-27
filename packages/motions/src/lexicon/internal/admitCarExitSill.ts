@@ -9,17 +9,16 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import type { HumanMount } from "./HumanMount";
 
-/**
+/*
  * Admit a rear car exit's feet through the doorway: each ankle crosses the sill
  * where its straight course from the seated start to its landing meets the
  * opening's plane, both feet must start inside and land outside, and the
  * crossing ankles must keep the clearance from both jambs.
- *
- * @param input The seated feet, the landing posture, the opening, the clearance
- *   and the opening's outward and lateral readers.
- * @returns Each ankle's sill crossing, world metres.
- * @throws {HumanRefusal} When a foot starts outside, a landing foot is not
- *   outside, or a crossing ankle lies nearer a jamb than the clearance allows.
+ * Parameter input: The seated feet, the landing posture, the opening, the clearance
+ * and the opening's outward and lateral readers.
+ * Returns: Each ankle's sill crossing, world metres.
+ * When a foot starts outside, a landing foot is not
+ * outside, or a crossing ankle lies nearer a jamb than the clearance allows.
  */
 export function admitCarExitSill(
   input: admitCarExitSill.IInput,
@@ -74,36 +73,47 @@ export function admitCarExitSill(
   return sill;
 }
 
-/** Companion types of `admitCarExitSill`. */
+/*
+ * Companion types of `admitCarExitSill`.
+ */
 export namespace admitCarExitSill {
-  /**
+  /*
    * The doorway, the feet and the readers a sill admission needs.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States each member's frame and unit.
-   * @evidence contracts/development/design.md#principled-representation The law's own opening and clearance, its seated feet and landing posture, and the opening's signed distance readers in world metres.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Built by HumanTravelCarExit and read only here.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Only what the admission reads.
    */
   export interface IInput {
-    /** Each foot as the seated turn starts. */
+    /*
+     * Each foot as the seated turn starts.
+     */
     starts: Record<AutoMovieHumanSide, HumanMount.IFoot>;
 
-    /** The rise's first posture, whose leg goals are the landings. */
+    /*
+     * The rise's first posture, whose leg goals are the landings.
+     */
     landing: IAutoMovieMotionHumanPosture;
 
-    /** The rear opening. */
+    /*
+     * The rear opening.
+     */
     through: IAutoMovieMotionHumanTravelCarExit.IParams["through"];
 
-    /** The clearance kept from each jamb, metres. */
+    /*
+     * The clearance kept from each jamb, metres.
+     */
     gap: number;
 
-    /** A point's signed distance out of the opening's plane, metres. */
+    /*
+     * A point's signed distance out of the opening's plane, metres.
+     */
     outward(point: IAutoMovieVector3): number;
 
-    /** A point's signed distance along the opening from its centre, metres. */
+    /*
+     * A point's signed distance along the opening from its centre, metres.
+     */
     along(point: IAutoMovieVector3): number;
   }
 
-  /** Each ankle's sill crossing, world metres. */
+  /*
+   * Each ankle's sill crossing, world metres.
+   */
   export type IAnkles = Record<AutoMovieHumanSide, IAutoMovieVector3>;
 }

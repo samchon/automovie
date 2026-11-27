@@ -10,7 +10,7 @@ import { ExerciseKey } from "../internal/ExerciseKey";
 import { WorkoutFloor } from "./WorkoutFloor";
 import { WorkoutKind } from "./WorkoutKind";
 
-/**
+/*
  * The exercises of the workout law done lying, sitting on the floor or on
  * furniture: on the back (sit-up, crunch, glute bridge, a partner's hamstring
  * stretch), on a side (side plank), sitting on the floor (the forward fold and
@@ -27,7 +27,9 @@ import { WorkoutKind } from "./WorkoutKind";
  * the body so its forearm rests on the floor level with its feet.
  */
 export namespace WorkoutLying {
-  /** Hook lying: on the back, the knees bent and the feet flat. */
+  /*
+   * Hook lying: on the back, the knees bent and the feet flat.
+   */
   const hook = (
     body: IAutoMovieMotionHumanBody,
     arms: IAutoMovieMotionHumanExerciseKey.ILimb,
@@ -38,30 +40,38 @@ export namespace WorkoutLying {
       { hip: 45, knee: 90, ankle: -45, ...arms },
     );
 
-  /** Sitting on the floor with the legs straight ahead. */
+  /*
+   * Sitting on the floor with the legs straight ahead.
+   */
   const longSit = (
     body: IAutoMovieMotionHumanBody,
   ): IAutoMovieMotionHumanExerciseKey.IKey =>
     ExerciseKey.from(body, {}, { hip: 90, shoulder: 30, elbow: 20 });
 
-  /** The back bears. */
+  /*
+   * The back bears.
+   */
   const SUPINE: readonly IAutoMovieMotionHumanWorkoutKind.ISupport[] = [
     { part: "back", kind: "lie" },
   ];
 
-  /** The seat bears. */
+  /*
+   * The seat bears.
+   */
   const SEATED: readonly IAutoMovieMotionHumanWorkoutKind.ISupport[] = [
     { part: "seat", kind: "seat" },
   ];
 
-  /** The exercises. */
+  /*
+   * The exercises.
+   */
   export const KINDS: Readonly<
     Record<
       IAutoMovieMotionHumanWorkoutLying.Name,
       IAutoMovieMotionHumanWorkoutKind
     >
   > = {
-    /**
+    /*
      * A sit-up: from hook lying, the trunk raised to the knees, 1 s each way
      * (provisional).
      */
@@ -101,7 +111,9 @@ export namespace WorkoutLying {
       ],
     },
 
-    /** A crunch: from hook lying, the shoulders curled off the floor. */
+    /*
+     * A crunch: from hook lying, the shoulders curled off the floor.
+     */
     crunch: {
       base: "lying",
       anchor: "hips",
@@ -131,7 +143,7 @@ export namespace WorkoutLying {
       ],
     },
 
-    /**
+    /*
      * A glute bridge: from hook lying, the hips raised until the thighs
      * continue the trunk, over the planted feet.
      */
@@ -164,7 +176,7 @@ export namespace WorkoutLying {
       ],
     },
 
-    /**
+    /*
      * A partner's hamstring stretch, the stretched person's part: on the back,
      * the right leg raised straight and held 20 s; the helper's hands are a
      * `touch` on the calf.
@@ -202,7 +214,7 @@ export namespace WorkoutLying {
       ],
     },
 
-    /**
+    /*
      * A side plank on the left forearm and the feet, held 20 s (provisional
      * angles).
      */
@@ -240,7 +252,7 @@ export namespace WorkoutLying {
       ],
     },
 
-    /**
+    /*
      * The seated forward fold: from sitting with the legs straight, the trunk
      * folded over them, held 20 s.
      */
@@ -267,7 +279,7 @@ export namespace WorkoutLying {
       ],
     },
 
-    /**
+    /*
      * The hurdler's hamstring stretch: sitting, the left knee bent out, the
      * trunk folded over the straight right leg, held 20 s.
      */
@@ -295,7 +307,7 @@ export namespace WorkoutLying {
       ],
     },
 
-    /**
+    /*
      * A bench press without its bar: on the back at the height of the knees,
      * the feet on the floor, the arms pressed up and lowered.
      */
@@ -339,7 +351,7 @@ export namespace WorkoutLying {
       ],
     },
 
-    /**
+    /*
      * A rowing stroke on a machine: the feet fixed, the seat a third of the
      * shank high (provisional); the catch and the finish.
      */
@@ -382,7 +394,7 @@ export namespace WorkoutLying {
       ],
     },
 
-    /**
+    /*
      * Pedalling a stationary bicycle: on a saddle the height of the leg less a
      * tenth (provisional), one leg down as the other comes up.
      */

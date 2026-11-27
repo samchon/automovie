@@ -1,4 +1,4 @@
-/**
+/*
  * Identify declared numerical refusals inside a speculative camera proposal.
  * Progress callbacks run outside these catches. Foreign errors and unexpected
  * runtime exceptions propagate so a program failure cannot become an outlier.

@@ -6,7 +6,9 @@ import type {
 
 import { buildingModel } from "./buildingModel";
 
-/** Extrude an admitted XZ plan encoded in XY into a closed, oriented slab model. */
+/*
+ * Extrude an admitted XZ plan encoded in XY into a closed, oriented slab model.
+ */
 export function buildingRegionModel(
   id: string,
   name: string,

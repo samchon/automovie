@@ -2,7 +2,7 @@ import type { IAutoMoviePlanViewerFrameTimesRequest } from "@automovie/interface
 
 import { countEncodedFrames } from "../timing/internal/countEncodedFrames.js";
 
-/**
+/*
  * Plan the film seconds whose frames a still capture writes.
  *
  * Give either explicit `at` seconds, or a `from`–`to` range sampled every

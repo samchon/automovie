@@ -4,20 +4,19 @@ import { Vector3 } from "@automovie/engine";
 import { type AutoMovieArchetype } from "../../core/index";
 import { ServiceCabinet } from "./ServiceCabinet";
 
-/**
+/*
  * A parking pay station with a raised control head, a front contact and a side
  * contact.
  *
  * The measured StradaPAL cabinet, spacer and head preserve the installation's
  * dimensions. The measured contact set covers its exterior faces. The cabinet
  * rests on the floor at the origin and faces +Z.
- *
- * @param params The scene identifier and any dimensions to fix inside their
- *   bands.
- * @param seed The seed for the draws the author leaves open.
- * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
- *   selected profile.
+ * Parameter params: The scene identifier and any dimensions to fix inside their
+ * bands.
+ * Parameter seed: The seed for the draws the author leaves open.
+ * Returns: The fixed model with its typed contacts.
+ * If a supplied override lies outside the
+ * selected profile.
  */
 export function createPayStation(
   params: AutoMovieArchetypePayStation.IParams = {},
@@ -48,7 +47,7 @@ export function createPayStation(
   return cabinet.builder.build(cabinet.mass);
 }
 
-/**
+/*
  * A pay station's head on its body, metres: the StradaPAL's 90 mm spacer and
  * its 475 x 226 x 379 mm top.
  */

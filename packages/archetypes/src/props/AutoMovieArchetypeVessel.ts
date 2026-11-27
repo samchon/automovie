@@ -11,19 +11,27 @@ import { AutoMovieArchetypeBowl } from "./AutoMovieArchetypeBowl";
 import { AutoMovieArchetypeCookingPot } from "./AutoMovieArchetypeCookingPot";
 import { AutoMovieArchetypeVase } from "./AutoMovieArchetypeVase";
 
-/** IKEA's saucepan, read. */
+/*
+ * IKEA's saucepan, read.
+ */
 const SAUCEPAN: string =
   "IKEA 365+ saucepan 2.0 l, 17 cm across, 10 cm high, 35 cm long with its handle (https://www.ikea.com/gb/en/p/ikea-365-saucepan-with-lid-stainless-steel-40484232/)";
 
-/** IKEA's pot, read. */
+/*
+ * IKEA's pot, read.
+ */
 const POT: string =
   "IKEA 365+ pot 5 qt, 9 in across, 6 in high, 12 in long with its handles (https://www.ikea.com/us/en/p/ikea-365-pot-with-lid-stainless-steel-50577914/)";
 
-/** IKEA's vases: one read, two seen only in search results. */
+/*
+ * IKEA's vases: one read, two seen only in search results.
+ */
 const VASE: string =
   "IKEA BERÄKNA vase, 30 cm high and 16 cm across, packed at 1.35 kg (https://www.ikea.com/nl/en/p/beraekna-vase-clear-glass-20406297); TIDVATTEN, 30 cm by 11.5 cm, and OMTÄNKSAM, 30 cm by 15.5 cm, seen only in search results";
 
-/** What no source read gives. */
+/*
+ * What no source read gives.
+ */
 const UNREAD: string = "the IKEA pages read give no weight of the pan alone";
 
 /** Constructs the vessel archetype from its recipe. */

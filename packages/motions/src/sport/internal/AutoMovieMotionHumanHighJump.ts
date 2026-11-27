@@ -17,7 +17,7 @@ import { highJumpBar } from "./highJumpBar";
 import { highJumpFlight } from "./highJumpFlight";
 import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
 
-/**
+/*
  * A high jump in the Fosbury flop: a one-foot take-off, a half turn that puts
  * the back to the bar, a backward lay-out over it with the back arched, the
  * legs lifted after the hips pass, and a landing on the back. The author may
@@ -69,16 +69,20 @@ import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
  * `relax`.
  */
 export namespace AutoMovieMotionHumanHighJump {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "highJump";
 
-  /** Cancel table: once lying, into rising. */
+  /*
+   * Cancel table: once lying, into rising.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       rise: ["fromRelax", "smooth"],
     });
 
-  /**
+  /*
    * What may be cut into a high jump: a run, at the take-off foot's footfall
    * (`AthleticsRunUp`).
    */
@@ -86,7 +90,7 @@ export namespace AutoMovieMotionHumanHighJump {
     run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
   };
 
-  /**
+  /*
    * The greatest vertical take-off speed, m/s: the world-class men's mean plus
    * two standard deviations, 4.65 + 2 × 0.20 (Nicholson, Jongerius, Tucker,
    * Thomas, Merlino and Bissas 2022, "The Association Between Hip-Shoulder
@@ -99,12 +103,11 @@ export namespace AutoMovieMotionHumanHighJump {
    */
   export const RISE: number = 5.05;
 
-  /**
+  /*
    * The arch over the bar on a body: the back and the hips extended, the head
    * back, the knees bent, the arms by the sides (provisional angles).
-   *
-   * @param body The body.
-   * @returns The key.
+   * Parameter body: The body.
+   * Returns: The key.
    */
   export function arched(
     body: IAutoMovieMotionHumanBody,
@@ -116,11 +119,10 @@ export namespace AutoMovieMotionHumanHighJump {
     );
   }
 
-  /**
+  /*
    * The legs lifted clear after the hips pass, on a body (provisional angles).
-   *
-   * @param body The body.
-   * @returns The key.
+   * Parameter body: The body.
+   * Returns: The key.
    */
   export function piked(
     body: IAutoMovieMotionHumanBody,
@@ -132,14 +134,13 @@ export namespace AutoMovieMotionHumanHighJump {
     );
   }
 
-  /**
+  /*
    * The crossbar's height: its `bar` affordance's axis on the high jump's prop,
    * where the prop stands at the action's start.
-   *
-   * @param context The action's context.
-   * @param subject The high jump's prop subject.
-   * @returns World metres.
-   * @throws {HumanRefusal} When the prop declares no `bar`.
+   * Parameter context: The action's context.
+   * Parameter subject: The high jump's prop subject.
+   * Returns: World metres.
+   * When the prop declares no `bar`.
    */
   export function crossbar(
     context: Pick<IAutoMovieMotionHumanActionContext, CrossbarContext>,
@@ -148,17 +149,16 @@ export namespace AutoMovieMotionHumanHighJump {
     return highJumpBar(context, subject).point.y;
   }
 
-  /**
+  /*
    * Plan a high jump.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the high jump declares no bar, the bar is no
-   *   higher than the take-off's centre, needs a take-off speed past `RISE`, or
-   *   leaves the body no higher than the landing surface at the apex, when a
-   *   run-up is cut where no take-off foot is planted or plants the foot nearer
-   *   the bar, when the landing place asks for more horizontal speed than the
-   *   run-up brings, or when the jump refuses its push-off.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the high jump declares no bar, the bar is no
+   * higher than the take-off's centre, needs a take-off speed past `RISE`, or
+   * leaves the body no higher than the landing surface at the apex, when a
+   * run-up is cut where no take-off foot is planted or plants the foot nearer
+   * the bar, when the landing place asks for more horizontal speed than the
+   * run-up brings, or when the jump refuses its push-off.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHighJump.IParams>,
@@ -189,7 +189,9 @@ export namespace AutoMovieMotionHumanHighJump {
       p.takeoffFoot,
     );
     if (approach !== undefined) highJumpBar.admit(cross, approach);
-    /** Bound the requested apex against the observed takeoff centre. */
+    /*
+     * Bound the requested apex against the observed takeoff centre.
+     */
     const riseFrom: (height: number) => number = (height: number): number => {
       HumanBound.above("bar", bar, height - reserve, "m");
       const speed: number = Math.sqrt(
@@ -413,17 +415,23 @@ export namespace AutoMovieMotionHumanHighJump {
   }
 }
 
-/** The record of `IPlanLaunchFrameResult`'s site. */
+/*
+ * The record of `IPlanLaunchFrameResult`'s site.
+ */
 type IPlanLaunchFrameResult = {
   posture: IAutoMovieMotionHumanPosture;
   centre: IAutoMovieVector3;
 };
 
-/** The record of `IPlanLaunchFrame`'s site. */
+/*
+ * The record of `IPlanLaunchFrame`'s site.
+ */
 type IPlanLaunchFrame = {
   posture: IAutoMovieMotionHumanPosture;
   centre: IAutoMovieVector3;
 };
 
-/** The alternatives of `CrossbarContext`'s site. */
+/*
+ * The alternatives of `CrossbarContext`'s site.
+ */
 type CrossbarContext = "prop" | "start";

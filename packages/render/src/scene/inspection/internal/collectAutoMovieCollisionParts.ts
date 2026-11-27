@@ -8,7 +8,7 @@ import { readAutoMovieCollisionCord } from "./readAutoMovieCollisionCord.js";
 import { readAutoMovieCollisionInstances } from "./readAutoMovieCollisionInstances.js";
 import { readAutoMovieCollisionMesh } from "./readAutoMovieCollisionMesh.js";
 
-/**
+/*
  * Read every visible drawn object of one placed layer as collision parts.
  *
  * Plain stock boxes become exact displayed solids. A closed stock mesh, a stock
@@ -18,13 +18,12 @@ import { readAutoMovieCollisionMesh } from "./readAutoMovieCollisionMesh.js";
  * and custom vertex programs remain unsupported with a reason. Each mesh is
  * named by its unique entity path, so identities stay the same from frame to
  * frame.
- *
- * @param layer The placed layer and its source-owned identities.
- * @param budget Posed-vertex allowance charged when a surface is read, and an
- *   optional part allowance charged per collected part; collection stops when
- *   the parts run out.
- * @returns Parts in traversal order, posed surfaces by part and unsupported
- *   reasons by part.
+ * Parameter layer: The placed layer and its source-owned identities.
+ * Parameter budget: Posed-vertex allowance charged when a surface is read, and an
+ * optional part allowance charged per collected part; collection stops when
+ * the parts run out.
+ * Returns: Parts in traversal order, posed surfaces by part and unsupported
+ * reasons by part.
  */
 export function collectAutoMovieCollisionParts(
   layer: collectAutoMovieCollisionParts.ILayer,
@@ -133,7 +132,9 @@ export function collectAutoMovieCollisionParts(
   return { parts, surfaces, reasons, truncated };
 }
 
-/** The layer read by the collector and the surfaces and reasons it returns. */
+/*
+ * The layer read by the collector and the surfaces and reasons it returns.
+ */
 export namespace collectAutoMovieCollisionParts {
   /** One source-owned layer, after its exact placement and world-matrix update. */
   export interface ILayer {

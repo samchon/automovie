@@ -8,22 +8,23 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** The clinical turn that tilts the upper body without moving the planted feet. */
+/*
+ * The clinical turn that tilts the upper body without moving the planted feet.
+ */
 const FLEXION: IAutoMovieMotionHumanJacobian.IVariable = {
   kind: "angle",
   bone: "spine",
   axis: 0,
 };
 
-/**
+/*
  * Tilt a supported trunk only enough to put its centre over its actual foot
  * support (Hof, Gazendam and Sinke 2005), by the spine's flexion axis. The body
  * below the spine is fixed. Rodrigues' formula gives the moved mass centre at
  * the intersection of its arc with a support edge.
- *
- * @param body The body whose segment masses, lumbar axis and sole frames are
- *   read.
- * @returns One instantaneous closed-form shift, scaled by the caller's weight.
+ * Parameter body: The body whose segment masses, lumbar axis and sole frames are
+ * read.
+ * Returns: One instantaneous closed-form shift, scaled by the caller's weight.
  */
 export function prepareHumanTrunkBalance(
   body: IAutoMovieMotionHumanBody,
@@ -158,7 +159,7 @@ export function prepareHumanTrunkBalance(
   };
 }
 
-/**
+/*
  * Angles in radians where the moving mass centre meets a hull edge's supporting
  * line.
  */
@@ -184,9 +185,11 @@ function* crossings(
   }
 }
 
-/** Additional contacts used by a trunk correction during a mixed-support action. */
+/*
+ * Additional contacts used by a trunk correction during a mixed-support action.
+ */
 export namespace prepareHumanTrunkBalance {
-  /**
+  /*
    * The fixed frame demand and the actual support points placed on those frames
    * at an action share.
    */
@@ -199,7 +202,9 @@ export namespace prepareHumanTrunkBalance {
   }
 }
 
-/** A stance can borrow the caller's synchronous FK and ROM metadata. */
+/*
+ * A stance can borrow the caller's synchronous FK and ROM metadata.
+ */
 type Balance = (
   posture: IAutoMovieMotionHumanPosture,
   weight: number,
@@ -209,18 +214,22 @@ type Balance = (
   share?: number,
 ) => IAutoMovieMotionHumanPosture;
 
-/**
+/*
  * A tilted mass centre is a fixed point plus cos and sin terms of the lumbar
  * angle.
  */
 interface IArc {
-  /** The portion of the centre invariant under rotation, world metres. */
+  /*
+   * The portion of the centre invariant under rotation, world metres.
+   */
   fixed: IAutoMovieVector3;
-  /**
+  /*
    * The radial term of the impact of the rotated subtree on the total mass
    * centre.
    */
   radial: IAutoMovieVector3;
-  /** The perpendicular term in the direction of a positive clinical turn. */
+  /*
+   * The perpendicular term in the direction of a positive clinical turn.
+   */
   tangent: IAutoMovieVector3;
 }

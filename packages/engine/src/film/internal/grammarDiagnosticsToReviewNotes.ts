@@ -4,7 +4,7 @@ import {
   IAutoMovieReviewNote,
 } from "@automovie/interface";
 
-/**
+/*
  * File film-grammar findings as visual review notes on one beat.
  *
  * Each diagnostic becomes one `visual`-tier note, in input order, whose `issue`
@@ -14,8 +14,7 @@ import {
  * one shot or its incoming cut, so `beat` locates the note, and an `"error"`
  * finding files at the same tier as a `"warning"`. `reviewVisualRead` puts
  * these notes ahead of its own framing, contact and silhouette notes.
- *
- * @returns One new note per diagnostic, in the same order.
+ * Returns: One new note per diagnostic, in the same order.
  */
 export function grammarDiagnosticsToReviewNotes(
   props: IAutoMovieGrammarDiagnosticsToReviewNotes.IProps,

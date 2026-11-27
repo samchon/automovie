@@ -11,9 +11,13 @@ import type {
 
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 
-/** Authored stance leg goals and fixed-foot preparation, without a pose solve. */
+/*
+ * Authored stance leg goals and fixed-foot preparation, without a pose solve.
+ */
 export namespace StrikingLegGoals {
-  /** The original fresh goals, borrowing each supplied ankle and rotation. */
+  /*
+   * The original fresh goals, borrowing each supplied ankle and rotation.
+   */
   export function read(
     body: IAutoMovieMotionHumanBody,
     feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
@@ -35,7 +39,9 @@ export namespace StrikingLegGoals {
     return out;
   }
 
-  /** Prepare one unchanged body, pair of feet and planted selection. */
+  /*
+   * Prepare one unchanged body, pair of feet and planted selection.
+   */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
     feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
@@ -73,13 +79,12 @@ export namespace StrikingLegGoals {
     };
   }
 
-  /**
+  /*
    * A striking leg's knee hint: a shank above the ankle and half a shank ahead
    * along the foot's toes.
-   *
-   * @param body The body's shank.
-   * @param foot The placed foot.
-   * @returns The hint, world metres.
+   * Parameter body: The body's shank.
+   * Parameter foot: The placed foot.
+   * Returns: The hint, world metres.
    */
   export function bend(
     body: { measure: Pick<IAutoMovieMotionHumanBody["measure"], "shank"> },
@@ -100,16 +105,15 @@ export namespace StrikingLegGoals {
     );
   }
 
-  /**
+  /*
    * A striking leg's goal: the ankle, its knee hint and the foot's attitude,
    * planted at its contact when the foot bears.
-   *
-   * @param point The ankle, world metres.
-   * @param hint The knee hint, world metres.
-   * @param rotation The foot's attitude.
-   * @param planted Whether the foot bears.
-   * @param contact The bearing contact's offset in the foot, metres.
-   * @returns The goal.
+   * Parameter point: The ankle, world metres.
+   * Parameter hint: The knee hint, world metres.
+   * Parameter rotation: The foot's attitude.
+   * Parameter planted: Whether the foot bears.
+   * Parameter contact: The bearing contact's offset in the foot, metres.
+   * Returns: The goal.
    */
   export function goal(
     point: IAutoMovieVector3,
@@ -126,37 +130,59 @@ export namespace StrikingLegGoals {
     };
   }
 
-  /**
+  /*
    * A private fixed-foot geometric snapshot; never a fitted pose or query
    * result.
    */
   interface ISeed {
-    /** Which original output goal this describes. */
+    /*
+     * Which original output goal this describes.
+     */
     side: AutoMovieHumanSide;
-    /** Fixed world ankle, metres. */
+    /*
+     * Fixed world ankle, metres.
+     */
     point: IAutoMovieVector3;
-    /** Fixed world foot rotation. */
+    /*
+     * Fixed world foot rotation.
+     */
     rotation: IAutoMovieQuaternion;
-    /** Original fixed world knee hint, metres. */
+    /*
+     * Original fixed world knee hint, metres.
+     */
     bend: IAutoMovieVector3;
-    /** Original forefoot support selection. */
+    /*
+     * Original forefoot support selection.
+     */
     planted: boolean;
-    /** Original MTP offset, only for a planted foot. */
+    /*
+     * Original MTP offset, only for a planted foot.
+     */
     contact: IAutoMovieVector3 | undefined;
   }
 }
 
-/** The alternatives of `PrepareOut`'s site. */
+/*
+ * The alternatives of `PrepareOut`'s site.
+ */
 type PrepareOut = "leftLeg" | "rightLeg";
 
-/** The alternatives of `PrepareResult2`'s site. */
+/*
+ * The alternatives of `PrepareResult2`'s site.
+ */
 type PrepareResult2 = "leftLeg" | "rightLeg";
 
-/** The alternatives of `PrepareResult`'s site. */
+/*
+ * The alternatives of `PrepareResult`'s site.
+ */
 type PrepareResult = "leftLeg" | "rightLeg";
 
-/** The alternatives of `ReadOut`'s site. */
+/*
+ * The alternatives of `ReadOut`'s site.
+ */
 type ReadOut = "leftLeg" | "rightLeg";
 
-/** The alternatives of `ReadResult`'s site. */
+/*
+ * The alternatives of `ReadResult`'s site.
+ */
 type ReadResult = "leftLeg" | "rightLeg";

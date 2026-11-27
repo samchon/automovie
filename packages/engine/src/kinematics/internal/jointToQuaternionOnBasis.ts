@@ -13,7 +13,9 @@ import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAn
 import { normalizeJointAxes } from "./normalizeJointAxes";
 import { prepareJointRotationFactor } from "./prepareJointRotationFactor";
 
-/** Preserve null rest, angle admission and the caller's clinical frame map. */
+/*
+ * Preserve null rest, angle admission and the caller's clinical frame map.
+ */
 const readAngle: (
   joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
   axis: AutoMovieClinicalAxis,
@@ -28,9 +30,9 @@ const readAngle: (
   return AutoMovieEngineRigAngle.toRigAngle(value, frame) ?? 0;
 };
 
-/**
- * {@link jointToQuaternion} on a basis its caller already admitted and
- * normalized through {@link normalizeJointAxes}: the composition itself, with no
+/*
+ * jointToQuaternion on a basis its caller already admitted and
+ * normalized through normalizeJointAxes: the composition itself, with no
  * validation of the basis.
  *
  * A solver that composes hundreds of candidate joints through one basis
@@ -43,15 +45,16 @@ const readAngle: (
  * Throws on a non-finite angle or an invalid frame sign or neutral. A basis
  * that is not orthonormal composes a quaternion that is not the joint's
  * rotation; nothing here detects it.
- *
- * @param joint Clinical angles in degrees; `null` axes are at rest.
- * @param basis Orthonormal clinical axis basis, as `normalizeJointAxes` returns
- *   it.
- * @param frame Rest frame mapping clinical angles to rest-relative ones;
- *   omitted, the angles are already rest-relative.
+ * Parameter joint: Clinical angles in degrees; `null` axes are at rest.
+ * Parameter basis: Orthonormal clinical axis basis, as `normalizeJointAxes` returns
+ * it.
+ * Parameter frame: Rest frame mapping clinical angles to rest-relative ones;
+ * omitted, the angles are already rest-relative.
  */
 export namespace jointToQuaternionOnBasis {
-  /** Compose clinical joint angles into a basis rotation quaternion. */
+  /*
+   * Compose clinical joint angles into a basis rotation quaternion.
+   */
   export function run(
     joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
     basis: IAutoMovieJointAxes,
@@ -79,12 +82,12 @@ export namespace jointToQuaternionOnBasis {
       : Quaternion.multiply(qTwist, Quaternion.multiply(qAbduction, qFlexion));
   }
 
-  /**
+  /*
    * Query-owned dynamic factors and declared rig constants on unchanged
    * axes/frame.
    */
 
-  /**
+  /*
    * At most two unchanged, predeclared rig angles per axis; never target
    * readings.
    */
@@ -92,7 +95,7 @@ export namespace jointToQuaternionOnBasis {
     Record<AutoMovieClinicalAxis, readonly [number] | readonly [number, number]>
   >;
 
-  /**
+  /*
    * Prepare a composer for one query's changing clinical coordinates on the
    * same admitted basis/frame. Construction admits no joint or unused frame.
    * Each call preserves the direct entry's axis lookup, angle checks and
@@ -113,7 +116,7 @@ export namespace jointToQuaternionOnBasis {
     return preparedComposition(basis, frame);
   }
 
-  /**
+  /*
    * Compose repeated actual records on one unchanged admitted basis while the
    * clinical frame may change, including edits to the same frame object. Every
    * call keeps F/A/T axis, current axis-frame and clinical-value reads, finite
@@ -128,7 +131,7 @@ export namespace jointToQuaternionOnBasis {
     return preparedComposition(basis, undefined, undefined, true);
   }
 
-  /**
+  /*
    * Prepare independent query composers on one unchanged admitted basis/frame.
    * Construction reads no axis or joint. The first successful factor on each
    * axis prepares its original rescaled direction/length. Optional fixedAngles
@@ -157,7 +160,7 @@ export namespace jointToQuaternionOnBasis {
       preparedComposition(basis, frame, operation);
   }
 
-  /**
+  /*
    * Prepare raw-scalar readers for actual candidate scoring on a fixed rig.
    * Every query owns independent factors/inner state and performs the original
    * F/A/T admission and Hamilton association before one synchronous visitor.
@@ -177,7 +180,9 @@ export namespace jointToQuaternionOnBasis {
   }
 }
 
-/** Fresh query state, optionally borrowing operation-owned rig arithmetic. */
+/*
+ * Fresh query state, optionally borrowing operation-owned rig arithmetic.
+ */
 function preparedComposition(
   basis: IAutoMovieJointAxes,
   frame?: IAutoMovieRestFrame,
@@ -197,7 +202,9 @@ function preparedComposition(
     read(joint, quaternionRecord, undefined, currentFrame);
 }
 
-/** Fresh public output after every original raw scalar expression has completed. */
+/*
+ * Fresh public output after every original raw scalar expression has completed.
+ */
 function quaternionRecord(
   x: number,
   y: number,
@@ -207,7 +214,7 @@ function quaternionRecord(
   return { x, y, z, w };
 }
 
-/**
+/*
  * One composition owner for public fresh output and actual scalar-demand
  * readers.
  */
@@ -350,7 +357,9 @@ function scalarComposition(
   };
 }
 
-/** Share the original product only when both actual factors are rig constants. */
+/*
+ * Share the original product only when both actual factors are rig constants.
+ */
 function fixedInnerProduct(
   operation: IOperationState,
   leftAxis: AutoMovieClinicalAxis,
@@ -383,15 +392,19 @@ function fixedInnerProduct(
   return operation.fixedInnerProducts?.[index];
 }
 
-/** The three clinical coordinates, read in their existing admission order. */
+/*
+ * The three clinical coordinates, read in their existing admission order.
+ */
 
-/** Fixed-basis composition with an optional current-call clinical frame. */
+/*
+ * Fixed-basis composition with an optional current-call clinical frame.
+ */
 type IComposition = (
   joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
   currentFrame?: IAutoMovieRestFrame,
 ) => IAutoMovieQuaternion;
 
-/**
+/*
  * Actual completed raw components; no caller/query input is retained by a
  * reader.
  */
@@ -407,7 +420,7 @@ type IRawReader = <Result, Context>(
   context: Context,
 ) => Result;
 
-/**
+/*
  * The same raw owner also accepts a call-local frame for ordinary mutable
  * composition.
  */
@@ -424,8 +437,12 @@ type IRawComposition = <Result, Context>(
   currentFrame?: IAutoMovieRestFrame,
 ) => Result;
 
-/** Fixed-rig metadata shared with the single scalar factor owner. */
+/*
+ * Fixed-rig metadata shared with the single scalar factor owner.
+ */
 type IOperationState = prepareJointRotationFactor.IOperation;
 
-/** At most two lazy private declared factors for one axis. */
+/*
+ * At most two lazy private declared factors for one axis.
+ */
 type IFixedReadings = prepareJointRotationFactor.IFixedReadings;

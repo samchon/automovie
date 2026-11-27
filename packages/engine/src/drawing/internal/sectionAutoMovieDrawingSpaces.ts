@@ -14,7 +14,7 @@ import { autoMovieDrawingPolygonArea } from "./autoMovieDrawingPolygonArea";
 import { roundAutoMovieDrawingPoint } from "./roundAutoMovieDrawingPoint";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
-/**
+/*
  * Section every included logical space's convex cells on a cut view's plane.
  *
  * Each cell the plane passes through becomes one region with its page polygon
@@ -28,12 +28,11 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * cut), a cell its half-spaces leave unbounded (`unbounded`), and the ids of
  * included spaces declaring a faceted volume (`faceted`, sorted), whose regions
  * are drawn but stand for a curved region.
- *
- * @param props.environment The validated design.
- * @param props.frame The cut view's page basis.
- * @param props.design Index of `environment`.
- * @param props.spaces Spaces the view includes, or `null` for every space.
- * @returns The regions and the counts and ids behind the section gaps.
+ * Parameter props.environment: The validated design.
+ * Parameter props.frame: The cut view's page basis.
+ * Parameter props.design: Index of `environment`.
+ * Parameter props.spaces: Spaces the view includes, or `null` for every space.
+ * Returns: The regions and the counts and ids behind the section gaps.
  */
 export const sectionAutoMovieDrawingSpaces = (
   props: IAutoMovieSectionDrawingSpaces.IProps,
@@ -88,7 +87,9 @@ export const sectionAutoMovieDrawingSpaces = (
   };
 };
 
-/** Each space's agreed finish, or `null` where its boundaries disagree. */
+/*
+ * Each space's agreed finish, or `null` where its boundaries disagree.
+ */
 const spaceFinishes = (
   environment: IAutoMovieBuiltEnvironment,
   design: IAutoMovieDrawingDesignIndex,

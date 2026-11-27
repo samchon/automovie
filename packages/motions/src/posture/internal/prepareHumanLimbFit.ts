@@ -16,7 +16,7 @@ import type {
 
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 
-/**
+/*
  * Prepare a limb's unchanged source pose, clinical mappings, reference and
  * clearance for every target of one contact re-aim operation. The caller keeps
  * these inputs fixed and releases the workspace when that fit ends. The
@@ -88,7 +88,9 @@ export function prepareHumanLimbFit(
   );
 }
 
-/** Read the current clinical reference in degrees without a per-goal closure. */
+/*
+ * Read the current clinical reference in degrees without a per-goal closure.
+ */
 function angles(
   bone: AutoMovieHumanoidBone,
   of: readonly [number, number, number],

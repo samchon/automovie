@@ -3,7 +3,7 @@ import type * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
-/**
+/*
  * Write an already-authoritative sample table to borrowed Three scene objects.
  *
  * Transforms use engine vector/quaternion order and write parent-local fields;
@@ -44,7 +44,7 @@ export const applySampledObjectMotion: (
   }
 };
 
-/**
+/*
  * Write a sampled `weights` vector onto every morphable mesh under `object`.
  *
  * The fourth node path was the last one this helper dropped in silence (#1357):
@@ -56,7 +56,7 @@ export const applySampledObjectMotion: (
  * The vector is INDEXED, not named: entry `i` drives morph target `i`, the glTF
  * order the mesh was built or imported with. That is the only convention
  * available here, because a track addresses a node rather than a channel name,
- * and it is deliberately different from {@link applyExpression}, which drives
+ * and it is deliberately different from applyExpression, which drives
  * semantic ARKit/preset channels BY NAME on an expression sink.
  *
  * A mesh with no morph targets is skipped, and a vector longer than a mesh's

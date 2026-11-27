@@ -6,19 +6,18 @@ import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/ind
 import { StickBuild } from "./StickBuild";
 
 
-/**
+/*
  * A lacrosse crosse with a mesh pocket, scoop and shaft grip.
  *
  * The head lies at the bottom, its face toward +Z. The pocket rests behind the
  * head and the scoop marks its front edge.
- *
- * @param params The optional identifier and dimensions fixed within their
- *   recorded bands.
- * @param seed The seed for free dimensions. The band midpoints apply without a
- *   seed.
- * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
- *   cannot be realized.
+ * Parameter params: The optional identifier and dimensions fixed within their
+ * recorded bands.
+ * Parameter seed: The seed for free dimensions. The band midpoints apply without a
+ * seed.
+ * Returns: The model with its named contacts in its local frame.
+ * When a supplied dimension or choice
+ * cannot be realized.
  */
 export function createLacrosseCrosse(
   params: AutoMovieArchetypeLacrosseCrosse.IParams = {},
@@ -87,5 +86,7 @@ export function createLacrosseCrosse(
   return builder.build(d.mass!);
 }
 
-/** Points in the local model frame, in metres. */
+/*
+ * Points in the local model frame, in metres.
+ */
 const v: typeof Vector3.create = Vector3.create;

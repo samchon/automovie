@@ -2,18 +2,17 @@ import type { IAutoMovieMotionClock } from "@automovie/interface";
 
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 
-/**
+/*
  * A hose team member's stand against the stream: the hands and the lean set
  * over `SET`, the stream swept `sweeps` times of `SWEEP` each and shut over
  * another `SET`, a slower tempo lengthening each; the nozzle reaction
  * `REACTION`, shared by the two members, tips each member's trunk forward by
  * `atan(REACTION / 2 / (m g))`, the lean that brings the body's weight to
  * balance its share.
- *
- * @param mass The member's mass, kilograms.
- * @param sweeps The sweeps asked; `SWEEPS` when absent.
- * @param tempo The member's tempo factor.
- * @returns The stand's clock and lean.
+ * Parameter mass: The member's mass, kilograms.
+ * Parameter sweeps: The sweeps asked; `SWEEPS` when absent.
+ * Parameter tempo: The member's tempo factor.
+ * Returns: The stand's clock and lean.
  */
 export function hoseLineReaction(
   mass: number,
@@ -35,36 +34,54 @@ export function hoseLineReaction(
   };
 }
 
-/** The hose team's stand. */
+/*
+ * The hose team's stand.
+ */
 export namespace hoseLineReaction {
-  /**
+  /*
    * The nozzle reaction of a 150 gpm fog stream at 100 psi, newtons: the IFSTA
    * fog-nozzle formula NR = 0.0505 Q sqrt(P) gives 75.75 lbf, 337 N. The flow
    * and pressure are a common hand line's, provisional for a scene.
    */
   export const REACTION: number = 0.0505 * 150 * Math.sqrt(100) * 4.448;
 
-  /** Gravity, metres per second squared. */
+  /*
+   * Gravity, metres per second squared.
+   */
   export const G: number = 9.81;
 
-  /** Seconds of one full sweep of the stream: provisional. */
+  /*
+   * Seconds of one full sweep of the stream: provisional.
+   */
   export const SWEEP: number = 1.2;
 
-  /** Sweeps when none are asked. */
+  /*
+   * Sweeps when none are asked.
+   */
   export const SWEEPS: number = 3;
 
-  /** Seconds to set the hands and the lean: provisional. */
+  /*
+   * Seconds to set the hands and the lean: provisional.
+   */
   export const SET: number = 0.6;
 
-  /** A member's stand. */
+  /*
+   * A member's stand.
+   */
   export interface IStand {
-    /** The sweeps. */
+    /*
+     * The sweeps.
+     */
     sweeps: number;
 
-    /** The set, the sweeps and the shut-off. */
+    /*
+     * The set, the sweeps and the shut-off.
+     */
     clock: IAutoMovieMotionClock;
 
-    /** The trunk's forward lean, degrees. */
+    /*
+     * The trunk's forward lean, degrees.
+     */
     lean: number;
   }
 }

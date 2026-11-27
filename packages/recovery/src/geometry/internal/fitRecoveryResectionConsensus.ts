@@ -14,7 +14,7 @@ import { refineRecoveryResection } from "./refineRecoveryResection";
 import { requiredRecoveryCameraTrials } from "./requiredRecoveryCameraTrials";
 import { sampleRecoveryCameraIndices } from "./sampleRecoveryCameraIndices";
 
-/**
+/*
  * Robustly register one calibrated image against distinct existing landmarks.
  * Six unique-index samples initialize nonplanar DLT poses before pixel scoring;
  * eligible proposals receive bounded local refinement in draw order. Final

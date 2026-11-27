@@ -7,7 +7,7 @@ import { Vector3 } from "../Vector3";
 import { clampAutoMovieUnitInterval } from "./clampAutoMovieUnitInterval";
 import { overflowsBinary64 } from "./overflowsBinary64";
 
-/**
+/*
  * Closest witnesses on bounded segments in one metre coordinate frame. Inputs
  * are unchanged; each result owns its points. segmentSegmentDistance consumes
  * this same calculation, including its precision and failure contract.
@@ -32,7 +32,7 @@ import { overflowsBinary64 } from "./overflowsBinary64";
  * lowest first-segment parameter, then the lowest second parameter. Reversing a
  * segment changes that canonical orientation on a nonunique minimum; it does
  * not change the separation.
- *
+ * ://www.geometrictools.com/Documentation/DistanceLine3Line3.pdf (modified September 21, 2023), sections 2 and 4.
  * @see https://www.geometrictools.com/Documentation/DistanceLine3Line3.pdf (modified September 21, 2023), sections 2 and 4.
  */
 export function closestPointsBetweenSegments(

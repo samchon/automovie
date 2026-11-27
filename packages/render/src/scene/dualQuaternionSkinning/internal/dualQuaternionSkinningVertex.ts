@@ -1,4 +1,4 @@
-/**
+/*
  * Replace a vertex shader's linear blend skinning with dual quaternion
  * skinning, the formula `skinAutoMovieMesh` evaluates in the engine.
  *

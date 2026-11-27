@@ -15,7 +15,7 @@ import { Vector3 } from "../../math/Vector3";
 import { validateServiceNetwork } from "./validateServiceNetwork";
 import { validateWetZones } from "./validateWetZones";
 
-/**
+/*
  * Lower one service network to the models and staged pieces that draw it.
  *
  * A run is authored as a centre line and a radius, which is the description a
@@ -106,10 +106,12 @@ export function lowerServiceNetwork(
   return { models, set };
 }
 
-/** Default number of sides a swept run is drawn with. */
+/*
+ * Default number of sides a swept run is drawn with.
+ */
 const DEFAULT_SIDES: number = 8;
 
-/**
+/*
  * A direction across a route's first leg for the section plane's first axis:
  * the leg crossed with `+Y`, or with `+X` when the leg is nearly vertical.
  */
@@ -125,7 +127,9 @@ const across: (route: readonly IAutoMovieVector3[]) => IAutoMovieVector3 = (
   );
 };
 
-/** A regular section of the given radius, in the sweep's own profile plane. */
+/*
+ * A regular section of the given radius, in the sweep's own profile plane.
+ */
 const section: (radius: number, sides: number) => IAutoMovieProfilePoint[] = (
   radius: number,
   sides: number,

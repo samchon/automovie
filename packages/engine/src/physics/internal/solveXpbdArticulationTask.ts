@@ -9,13 +9,13 @@ import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
 import { solveXpbdArticulationContacts as Contacts } from "./solveXpbdArticulationContacts";
 import { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 
-/**
+/*
  * One articulated tree's support task (`solveXpbdArticulationContacts`): the
  * cascade over its support rows and actuated axes, and the actuated chain
  * between a body and the tree's root.
  */
 export namespace solveXpbdArticulationTask {
-  /**
+  /*
    * The supports and the motors solved with the root's task, the whole-body
    * contact-wrench quadratic program of humanoid control (Herzog, Rotella,
    * Mason, Grimminger, Schaal and Righetti 2016, "Momentum control with
@@ -39,9 +39,8 @@ export namespace solveXpbdArticulationTask {
    * near the task's wrench over the substep as the contacts, cones, caps and
    * bounds allow, then brings the motion as near its targets as it can without
    * giving any of that up (`solveXpbdSupportCascade`).
-   *
-   * @returns The response with the impulses to record, or null when the cascade
-   *   has no feasible point.
+   * Returns: The response with the impulses to record, or null when the cascade
+   * has no feasible point.
    */
   export function solveTask(
     tree: AutoMovieXpbdArticulation.ITree,
@@ -270,7 +269,7 @@ export namespace solveXpbdArticulationTask {
     return Contacts.combine(free, responses, x, set);
   }
 
-  /**
+  /*
    * The actuated axes on the chains from the pressed supports, and from the
    * task's stance bodies whether or not they press, to the root.
    */
@@ -332,17 +331,27 @@ export namespace solveXpbdArticulationTask {
   }
 }
 
-/** A support row. */
+/*
+ * A support row.
+ */
 type IRow = Contacts.IRow;
 
-/** A support patch. */
+/*
+ * A support patch.
+ */
 type IPatch = Contacts.IPatch;
 
-/** A tree's support rows and patches. */
+/*
+ * A tree's support rows and patches.
+ */
 type ISet = Contacts.ISet;
 
-/** An actuated axis. */
+/*
+ * An actuated axis.
+ */
 type IActuator = Contacts.IActuator;
 
-/** A held solution. */
+/*
+ * A held solution.
+ */
 type IHeld = Contacts.IHeld;

@@ -5,7 +5,7 @@ import type {
 
 import { Quaternion } from "../../math/Quaternion";
 
-/**
+/*
  * Parent-frame to child-frame rotation of one joint in a pose record, as the
  * native motor owner reads it.
  */

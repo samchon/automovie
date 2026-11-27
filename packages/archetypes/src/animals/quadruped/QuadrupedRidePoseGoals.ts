@@ -7,7 +7,9 @@ import { type AutoMovieArchetype } from "../../core";
 import { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import type { AutoMovieArchetypeQuadrupedFooting } from "../AutoMovieArchetypeQuadrupedFooting";
 
-/** The foot goals and prepared sampler exchanged by the ride pose solver. */
+/*
+ * The foot goals and prepared sampler exchanged by the ride pose solver.
+ */
 export namespace QuadrupedRidePoseGoals {
   /** A terminal footprint and positive surface clearance above its local floor. */
   export interface IGoal {
@@ -40,16 +42,20 @@ export namespace QuadrupedRidePoseGoals {
     load?: number;
   }
 
-  /** One prepared model, reused by independent time samples. */
+  /*
+   * One prepared model, reused by independent time samples.
+   */
   export interface IPrepared<Id extends string, Dimension extends string> {
-    /** Emit all four exact chains under one physically feasible body root. */
+    /*
+     * Emit all four exact chains under one physically feasible body root.
+     */
     sample: (
       goals: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, IGoal>>,
       nod: number,
       preferredRoot: number,
     ) => AutoMovieArchetype<Id, Dimension>;
 
-    /**
+    /*
      * One contact's model-space frame at the pose `sample` would reach, read from
      * its carrier's chain alone, without solving the limbs or emitting the model;
      * undefined for a contact a limb or a shoulder blade carries, or a grip a

@@ -11,7 +11,7 @@ import {
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { engineDiagnostic } from "./engineDiagnostic";
 
-/**
+/*
  * Validate sparse member cue slots, states, ids, order and participant
  * formation references.
  */
@@ -176,7 +176,7 @@ export function validateAutoMovieFormationSlotMotions(
   return diagnostics;
 }
 
-/**
+/*
  * Members one shot may single out of its crowds, in total.
  *
  * The channel's whole promise is that a crowd of a hundred thousand does not

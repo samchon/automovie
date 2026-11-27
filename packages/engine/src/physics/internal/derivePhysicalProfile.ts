@@ -20,7 +20,7 @@ import { primitiveCentroid } from "./primitiveCentroid";
 import { primitiveVolume } from "./primitiveVolume";
 import { validatePhysicalProfile } from "./validatePhysicalProfile";
 
-/**
+/*
  * Build a physical provider from primitive parts, density and explicit joint
  * declarations. Imported geometry requires a caller-supplied segment override.
  * Non-box primitives use conservative box colliders unless spherical/capsular

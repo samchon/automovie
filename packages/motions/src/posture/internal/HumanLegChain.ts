@@ -18,7 +18,7 @@ import type {
 
 import { prepareHumanLegSeededFit } from "./prepareHumanLegSeededFit";
 
-/**
+/*
  * A leg posed as the posture's own fit poses it, read through the engine's
  * hinged chain (`hingedArmSwivel`): the knee bends about its hinge alone, and
  * the leg is one bend branch and one swivel about its hip-to-ankle line. `fit`
@@ -30,16 +30,15 @@ import { prepareHumanLegSeededFit } from "./prepareHumanLegSeededFit";
  * from shown bones.
  */
 export namespace HumanLegChain {
-  /**
+  /*
    * The leg posed from a held branch and swivel, its ankle at a target.
-   *
-   * @param body The body.
-   * @param side The leg.
-   * @param pelvis The pelvis's world rotation, the hip joints' frame.
-   * @param hip The hip joint, world metres.
-   * @param target The ankle's target, world metres.
-   * @param held The branch and swivel.
-   * @returns The leg, or null for a degenerate chain.
+   * Parameter body: The body.
+   * Parameter side: The leg.
+   * Parameter pelvis: The pelvis's world rotation, the hip joints' frame.
+   * Parameter hip: The hip joint, world metres.
+   * Parameter target: The ankle's target, world metres.
+   * Parameter held: The branch and swivel.
+   * Returns: The leg, or null for a degenerate chain.
    */
   export function pose(
     body: IAutoMovieMotionHumanBody,
@@ -65,18 +64,17 @@ export namespace HumanLegChain {
     return placed(chain, rotations.upper, rotations.lower);
   }
 
-  /**
+  /*
    * Prepare a leg poser for several targets under one unchanged pelvis and hip
    * point. The body, pelvis quaternion and hip coordinates remain fixed until
    * the caller releases the reader. Each target independently chooses the held
    * branch (or the last branch available) and the held swivel; no prior pose,
    * target or continuation seed becomes another request's input.
-   *
-   * @param body The canonical immutable body.
-   * @param side The leg.
-   * @param pelvis Fixed model-frame pelvis rotation.
-   * @param hip Fixed model-metre hip point.
-   * @returns An actual leg poser for each model-metre target and held swivel.
+   * Parameter body: The canonical immutable body.
+   * Parameter side: The leg.
+   * Parameter pelvis: Fixed model-frame pelvis rotation.
+   * Parameter hip: Fixed model-metre hip point.
+   * Returns: An actual leg poser for each model-metre target and held swivel.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -109,13 +107,12 @@ export namespace HumanLegChain {
     };
   }
 
-  /**
+  /*
    * The branch and swivel of a leg as shown.
-   *
-   * @param body The body.
-   * @param side The leg.
-   * @param bones The shown bones, world frame.
-   * @returns The branch and swivel.
+   * Parameter body: The body.
+   * Parameter side: The leg.
+   * Parameter bones: The shown bones, world frame.
+   * Returns: The branch and swivel.
    */
   export function read(
     body: IAutoMovieMotionHumanBody,
@@ -160,18 +157,17 @@ export namespace HumanLegChain {
     return { branch, swivel: hingedArmSwivel.read(chain, upper, theta) };
   }
 
-  /**
+  /*
    * The posture's own leg fit (`applyHumanLimbFit`, the fit a resolve runs) on
    * a pelvis, read as a branch and a swivel.
-   *
-   * @param body The body.
-   * @param side The leg.
-   * @param pelvis The pelvis's world rotation.
-   * @param hip The hip joint, world metres.
-   * @param target The ankle's target, world metres.
-   * @param bend The point the knee bends toward, world metres.
-   * @param rotation The foot's world rotation.
-   * @returns The fit's branch and swivel.
+   * Parameter body: The body.
+   * Parameter side: The leg.
+   * Parameter pelvis: The pelvis's world rotation.
+   * Parameter hip: The hip joint, world metres.
+   * Parameter target: The ankle's target, world metres.
+   * Parameter bend: The point the knee bends toward, world metres.
+   * Parameter rotation: The foot's world rotation.
+   * Returns: The fit's branch and swivel.
    */
   export function fit(
     body: IAutoMovieMotionHumanBody,
@@ -185,23 +181,22 @@ export namespace HumanLegChain {
     return seeded(body, side, pelvis, hip, target, bend, rotation).swivel;
   }
 
-  /**
+  /*
    * The posture's own leg fit, as `fit`, with the seed that continues it and,
    * given `near`, continuing a nearby fit of the same leg
    * (`applyHumanLimbFit`'s `near`): every pass refines that seed instead of
    * sweeping the swivel, so a fit of inputs a small step from a fitted leg's
    * costs a refinement, not a sweep.
-   *
-   * @param body The body.
-   * @param side The leg.
-   * @param pelvis The pelvis's world rotation.
-   * @param hip The hip joint, world metres.
-   * @param target The ankle's target, world metres.
-   * @param bend The point the knee bends toward, world metres.
-   * @param rotation The foot's world rotation.
-   * @param near A nearby fit of the same leg to continue; cold when absent.
-   * @returns The fit's branch and swivel, and its seed (null when the fit's
-   *   answer is not a hinged candidate).
+   * Parameter body: The body.
+   * Parameter side: The leg.
+   * Parameter pelvis: The pelvis's world rotation.
+   * Parameter hip: The hip joint, world metres.
+   * Parameter target: The ankle's target, world metres.
+   * Parameter bend: The point the knee bends toward, world metres.
+   * Parameter rotation: The foot's world rotation.
+   * Parameter near: A nearby fit of the same leg to continue; cold when absent.
+   * Returns: The fit's branch and swivel, and its seed (null when the fit's
+   * answer is not a hinged candidate).
    */
   export function seeded(
     body: IAutoMovieMotionHumanBody,
@@ -216,7 +211,7 @@ export namespace HumanLegChain {
     return prepareSeeded(body, side, pelvis, hip)(target, bend, rotation, near);
   }
 
-  /**
+  /*
    * Prepare a fixed hips-only leg source for changing complete goal requests.
    * Body, pelvis and hip stay unchanged until this synchronous piece ends.
    */
@@ -236,7 +231,9 @@ export namespace HumanLegChain {
       ): IAutoMovieMotionHumanLegChain.ISwivel => read(body, side, bones),
     );
   }
-  /** The leg's hinged chain at a pelvis toward a target. */
+  /*
+   * The leg's hinged chain at a pelvis toward a target.
+   */
   function chainOf(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
@@ -247,7 +244,9 @@ export namespace HumanLegChain {
     return { ...sourceOf(body, side, pelvis, hip), target };
   }
 
-  /** Fixed source fields, independent of ankle targets and held bend choices. */
+  /*
+   * Fixed source fields, independent of ankle targets and held bend choices.
+   */
   function sourceOf(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
@@ -268,7 +267,9 @@ export namespace HumanLegChain {
     };
   }
 
-  /** Actual leg FK shared by ordinary and fixed-source posing. */
+  /*
+   * Actual leg FK shared by ordinary and fixed-source posing.
+   */
   function placed(
     chain: Omit<IAutoMovieHingedChainGeometry, PlacedChain>,
     upper: IAutoMovieQuaternion,
@@ -296,7 +297,7 @@ export namespace HumanLegChain {
     };
   }
 
-  /**
+  /*
    * A leg's chain at rest, from the body's prepared chain constants
    * (`IAutoMovieMotionHumanBody.chains`): the hip bone's rest frame under the
    * hips, the knee and ankle's rest places and turns, and the knee's hinge.
@@ -313,11 +314,17 @@ export namespace HumanLegChain {
   }
 }
 
-/** The alternatives of `PlacedChain`'s site. */
+/*
+ * The alternatives of `PlacedChain`'s site.
+ */
 type PlacedChain = "target" | "range";
 
-/** The alternatives of `SourceOfResult`'s site. */
+/*
+ * The alternatives of `SourceOfResult`'s site.
+ */
 type SourceOfResult = "target" | "range";
 
-/** The alternatives of `PrepareSource`'s site. */
+/*
+ * The alternatives of `PrepareSource`'s site.
+ */
 type PrepareSource = "target" | "range";

@@ -15,7 +15,7 @@ import { EquineStanceSupport } from "./EquineStanceSupport";
 import { EquineLibertyConstants } from "./EquineLibertyConstants";
 
 const { HUMERUS_DROP, STRETCH, KNEEL_FOLD, KINDS, SETTLE, ZERO } = EquineLibertyConstants;
-/**
+/*
  * The liberty cue poses as stance rows: the bow, the kneel and the sit.
  *
  * A knelt foreleg rests its carpus on the floor with the forearm upright and
@@ -33,11 +33,10 @@ const { HUMERUS_DROP, STRETCH, KNEEL_FOLD, KINDS, SETTLE, ZERO } = EquineLiberty
  * hooves in the sit.
  */
 export namespace EquineLibertyRows {
-  /**
+  /*
    * Whether a stance cue is a liberty row.
-   *
-   * @param cue The cue.
-   * @returns Whether `plan` owns it.
+   * Parameter cue: The cue.
+   * Returns: Whether `plan` owns it.
    */
   export function owns(
     cue: AutoMovieArchetypeEquineStanceCue.Cue,
@@ -45,13 +44,12 @@ export namespace EquineLibertyRows {
     return KINDS.has(cue.kind);
   }
 
-  /**
+  /*
    * Plan one liberty row from a state.
-   *
-   * @param body The prepared solver.
-   * @param start The state it starts from.
-   * @param cue The row.
-   * @returns Its plan, returning to the start.
+   * Parameter body: The prepared solver.
+   * Parameter start: The state it starts from.
+   * Parameter cue: The row.
+   * Returns: Its plan, returning to the start.
    */
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
@@ -191,7 +189,7 @@ export namespace EquineLibertyRows {
     };
   }
 
-  /**
+  /*
    * A knelt limb under a trunk: its middle joint (carpus or hock) on the floor
    * under an upright second bar, the cannon and pastern lying along the floor
    * back (`along` -1, a foreleg) or forward (`along` 1, a hind leg under a
@@ -230,7 +228,7 @@ export namespace EquineLibertyRows {
     };
   }
 
-  /**
+  /*
    * The least turn of the tail about its dock, degrees, that rests its tip on
    * the floor once the trunk has moved from one motion to another: the tip
    * circles the dock in the heading's sagittal plane, so its height is a cosine
@@ -271,7 +269,7 @@ export namespace EquineLibertyRows {
     return (least * 180) / Math.PI;
   }
 
-  /**
+  /*
    * A hind leg tucked under a sit, folded from its chain at the start: the hock
    * on the floor under the hip, the stifle where the femur from the hip meets
    * the tibia from the hock ahead of them (two circles, closed form), the
@@ -353,7 +351,7 @@ export namespace EquineLibertyRows {
     };
   }
 
-  /**
+  /*
    * The pose at a share between the start and the target: the trunk turned and
    * moved by the share, each placed hoof on a lifted path with its fold and
    * direction blended, folded limbs tucked by twice the share.
@@ -410,7 +408,7 @@ export namespace EquineLibertyRows {
     return { trunk: trunk(s), limbs, tail: tail * s };
   }
 
-  /**
+  /*
    * The pitch, degrees, that brings a point at an offset from its pivot to a
    * height above the pivot: nose-up when `up`, else nose-down.
    */
@@ -430,7 +428,9 @@ export namespace EquineLibertyRows {
     return ((up ? alpha + spread : alpha - spread) * 180) / Math.PI;
   }
 
-  /** A model's part by id. */
+  /*
+   * A model's part by id.
+   */
   function part<Id extends string, D extends string>(
     model: AutoMovieArchetype<Id, D>,
     id: string,
@@ -440,7 +440,7 @@ export namespace EquineLibertyRows {
     )!;
   }
 
-  /**
+  /*
    * How far a bar part reaches below its end along a direction: a capsule's
    * radius, a cylinder's rim.
    */
@@ -454,7 +454,9 @@ export namespace EquineLibertyRows {
       : radius(part);
   }
 
-  /** A bar part's radius. */
+  /*
+   * A bar part's radius.
+   */
   function radius(part: IAutoMovieModelPart): number {
     return part.geometry.type === "primitive" &&
       (part.geometry.shape.type === "capsule" ||
@@ -463,7 +465,9 @@ export namespace EquineLibertyRows {
       : 0;
   }
 
-  /** A bar part's two ends. */
+  /*
+   * A bar part's two ends.
+   */
   function bar(part: IAutoMovieModelPart): readonly IAutoMovieVector3[] {
     const height: number =
       part.geometry.type === "primitive" &&
@@ -481,7 +485,9 @@ export namespace EquineLibertyRows {
     ];
   }
 
-  /** A chain's four bar lengths. */
+  /*
+   * A chain's four bar lengths.
+   */
   function segments(chain: readonly IAutoMovieVector3[]): readonly number[] {
     return [0, 1, 2, 3].map((k: number): number =>
       Vector3.distance(chain[k]!, chain[k + 1]!),

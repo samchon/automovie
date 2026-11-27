@@ -31,7 +31,7 @@ import { StrikingWeapon } from "./StrikingWeapon";
 import { StrikingWeaponTable } from "./StrikingWeaponTable";
 import { strikingReadBack } from "./strikingReadBack";
 
-/**
+/*
  * A kick: the round kick's lower shin or the push kick's ball of the foot
  * brought onto the target, through a chamber, and recoiled to the replant.
  *
@@ -39,16 +39,16 @@ import { strikingReadBack } from "./strikingReadBack";
  * minimum-jerk units from its plant through the chamber to the contact and back
  * through a re-chamber, the knee's bend hint and the foot's rotation riding
  * along, and the engine's limb fit solves the leg. The contact is decided on
- * the fitted figure ({@link KickGeometry}): the two-segment solve
- * ({@link StrikingReach}) puts the lower shin (seven tenths of the way from the
+ * the fitted figure (KickGeometry): the two-segment solve
+ * (StrikingReach) puts the lower shin (seven tenths of the way from the
  * knee) or the ball of the foot on the target point with the knee between 5 and
  * 40 degrees of flexion (35 for the push kick), and the body's carriage
- * ({@link KickCarriage}) leans the least that lets the fitted leg hold that
+ * (KickCarriage) leans the least that lets the fitted leg hold that
  * solve inside the hip's range of motion. A target nearer than the band is met
  * higher up the shin, as a jammed kick lands; one beyond it, after a step-up of
  * the support foot by up to half a stance, is missed at the fitted leg's own
  * reach. The chamber is the contact's leg with the knee folded
- * ({@link KickChamber}).
+ * (KickChamber).
  *
  * Both gloves keep their guard (the kick-guard decision of the kickboxing
  * research).
@@ -57,40 +57,42 @@ import { strikingReadBack } from "./strikingReadBack";
  * extension 11 % of the 1.02 s execution, recoil 0.65 s; the round kick lands
  * at 0.55 of its peak foot speed. Skill scales chamber and recoil by 1.4 to 1
  * and the strike phase by 1.06 to 1, and the chamber's fold and the pelvis's
- * turn by its range share ({@link StrikingSkill}). Every phase applies to low,
+ * turn by its range share (StrikingSkill). Every phase applies to low,
  * body and high kicks alike, an approximation the source states (it timed head
  * kicks).
  *
  * A round kick may be redirected before its chamber key into another round kick
- * ({@link KickRedirect}).
+ * (KickRedirect).
  */
 export namespace kick {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "kick";
 
-  /** Cancel table: a round kick redirects into another until its chamber key. */
+  /*
+   * Cancel table: a round kick redirects into another until its chamber key.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     kick: [{ window: [0, "chamber"], kind: "redirect", entry: 0 }],
   };
 
-  /**
+  /*
    * The leg a kick's parameters resolve to.
-   *
-   * @param params The parameters.
-   * @returns Lead or rear.
+   * Parameter params: The parameters.
+   * Returns: Lead or rear.
    */
   export function leg(params: IAutoMovieMotionHumanKick.IParams): LegResult {
     return params.leg ?? (params.technique === "round" ? "rear" : "lead");
   }
 
-  /**
+  /*
    * Plan a kick.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {Error} When either kick of a redirect is not a round kick, when
-   *   the plan is read back while it is being built, or when a feint's share
-   *   lies outside (0, 1) or past the chamber's share.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When either kick of a redirect is not a round kick, when
+   * the plan is read back while it is being built, or when a feint's share
+   * lies outside (0, 1) or past the chamber's share.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
@@ -322,7 +324,9 @@ export namespace kick {
     };
   }
 
-  /** The kick a redirect continues, when this instance is one. */
+  /*
+   * The kick a redirect continues, when this instance is one.
+   */
   function redirected(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
   ): IAutoMovieMotionHumanKickGeometry.ISource | undefined {
@@ -353,7 +357,7 @@ export namespace kick {
     return source;
   }
 
-  /**
+  /*
    * A fresh kick's timing (Gavagan and Sayers 2017 phases, scaled and jittered
    * by skill).
    */
@@ -385,8 +389,12 @@ export namespace kick {
   }
 }
 
-/** The alternatives of `PlanLimb`'s site. */
+/*
+ * The alternatives of `PlanLimb`'s site.
+ */
 type PlanLimb = "leftLeg" | "rightLeg";
 
-/** The alternatives of `LegResult`'s site. */
+/*
+ * The alternatives of `LegResult`'s site.
+ */
 type LegResult = "lead" | "rear";

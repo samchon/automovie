@@ -8,15 +8,14 @@ import type {
 
 import { HumanFoot } from "./HumanFoot";
 
-/**
+/*
  * Prepare only the world height of one fixed articulated sole socket.
- *
- * @param body The unchanged canonical body owning its socket and rest joints.
- * @param side The foot.
- * @param point The same sole socket or toes joint accepted by HumanFoot.point.
- * @param toes Fixed toe flexion, degrees; zero when absent.
- * @returns The exact metre Y component of HumanFoot.point for each actual
- *   placement.
+ * Parameter body: The unchanged canonical body owning its socket and rest joints.
+ * Parameter side: The foot.
+ * Parameter point: The same sole socket or toes joint accepted by HumanFoot.point.
+ * Parameter toes: Fixed toe flexion, degrees; zero when absent.
+ * Returns: The exact metre Y component of HumanFoot.point for each actual
+ * placement.
  */
 export function prepareHumanFootHeight(
   body: IAutoMovieMotionHumanBody,
@@ -34,9 +33,11 @@ export function prepareHumanFootHeight(
     height(local, foot);
 }
 
-/** Height readers whose fixed socket has changing toe flexion between reads. */
+/*
+ * Height readers whose fixed socket has changing toe flexion between reads.
+ */
 export namespace prepareHumanFootHeight {
-  /**
+  /*
    * Bind unchanged body/socket geometry once; each actual toe angle creates one
    * exact local offset and a height reader for that angle's placement trials.
    * Release the angle reader with its synchronous query and the fixed reader
@@ -59,7 +60,9 @@ export namespace prepareHumanFootHeight {
     };
   }
 }
-/** The exact original rigid point height, omitting only unread X/Z outputs. */
+/*
+ * The exact original rigid point height, omitting only unread X/Z outputs.
+ */
 function height(
   local: IAutoMovieVector3,
   foot: IAutoMovieMotionHumanFoot.IPlacement,
@@ -67,10 +70,14 @@ function height(
   return foot.ankle.y + Quaternion.rotateVectorY(foot.rotation, local);
 }
 
-/** The alternatives of `PrepareHumanFootHeightPoint`'s site. */
+/*
+ * The alternatives of `PrepareHumanFootHeightPoint`'s site.
+ */
 type PrepareHumanFootHeightPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
 
-/** The alternatives of `PrepareHumanFootHeightArticulatedPoint`'s site. */
+/*
+ * The alternatives of `PrepareHumanFootHeightArticulatedPoint`'s site.
+ */
 type PrepareHumanFootHeightArticulatedPoint =
   | "heel"
   | "ball"

@@ -11,19 +11,18 @@ import {
 import { CartWheel } from "./CartWheel";
 import { AutoMovieArchetypeCart } from "../AutoMovieArchetypeCart";
 
-/**
+/*
  * The drawn carriers on one axle: a horse's cart, a runner's rickshaw and a
  * pair's chariot, each built on its drawn dimensions with its axle along `X`
  * under the origin.
  */
 export namespace CartDrawn {
-  /**
+  /*
    * A horse's two-wheeled cart: a body on the axle, a seat over it, two shafts
    * reaching forward level at the horse's tugs, a single tree the traces pull,
    * and the driving lines' held runs behind the terrets.
-   *
-   * @param builder The carrier under construction.
-   * @param d The drawn dimensions.
+   * Parameter builder: The carrier under construction.
+   * Parameter d: The drawn dimensions.
    */
   export function cart(
     builder: AutoMovieArchetypeBuilder<
@@ -231,12 +230,11 @@ export namespace CartDrawn {
     });
   }
 
-  /**
+  /*
    * A runner's rickshaw: a seat over the axle, a footboard ahead of it, and two
    * shafts reaching forward to the runner's hands.
-   *
-   * @param builder The carrier under construction.
-   * @param d The drawn dimensions.
+   * Parameter builder: The carrier under construction.
+   * Parameter d: The drawn dimensions.
    */
   export function rickshaw(
     builder: AutoMovieArchetypeBuilder<
@@ -347,12 +345,11 @@ export namespace CartDrawn {
     });
   }
 
-  /**
+  /*
    * A pair's chariot: a floor on the axle with a siding round its front, and a
    * pole rising from the axle to the yoke on the horses' withers.
-   *
-   * @param builder The carrier under construction.
-   * @param d The drawn dimensions.
+   * Parameter builder: The carrier under construction.
+   * Parameter d: The drawn dimensions.
    */
   export function chariot(
     builder: AutoMovieArchetypeBuilder<
@@ -443,32 +440,40 @@ export namespace CartDrawn {
   }
 }
 
-/**
+/*
  * A shaft's radius, metres: a construction estimate no act reads beyond the
  * grip's aperture.
  */
 const SHAFT: number = 0.025;
 
-/**
+/*
  * A rickshaw shaft's held run at its tip, metres: a hand's breadth, a
  * construction estimate.
  */
 const GRIP: number = 0.12;
 
-/**
+/*
  * A rickshaw's tyre width, metres: 1 in, the Hong Kong rules of 1882; the track
  * is the overall width less it.
  */
 const TYRE: number = AutoMovieArchetypeUnits.INCH;
 
-/** The body's paint. */
+/*
+ * The body's paint.
+ */
 const BODY: string = "#2f4f3f";
 
-/** Bare wood. */
+/*
+ * Bare wood.
+ */
 const WOOD: string = "#8b6a43";
 
-/** A seat's cloth. */
+/*
+ * A seat's cloth.
+ */
 const CLOTH: string = "#6b2f2f";
 
-/** Iron. */
+/*
+ * Iron.
+ */
 const METAL: string = "#55595f";

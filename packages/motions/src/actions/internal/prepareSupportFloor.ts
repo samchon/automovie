@@ -12,15 +12,14 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { supportContact } from "./supportContact";
 import { supportWindows } from "./supportWindows";
 
-/**
+/*
  * Identify inherited support at entry and record unnamed floor placements.
- *
- * @param body The same body at every key.
- * @param entryState The actual displayed entry and its support report.
- * @param contacts The first stance's contacts.
- * @param at The first stance's initial named target lookup, world metres.
- * @param context The performing subject and shared `on` target.
- * @returns The inherited contacts and the sequence-local floor placements.
+ * Parameter body: The same body at every key.
+ * Parameter entryState: The actual displayed entry and its support report.
+ * Parameter contacts: The first stance's contacts.
+ * Parameter at: The first stance's initial named target lookup, world metres.
+ * Parameter context: The performing subject and shared `on` target.
+ * Returns: The inherited contacts and the sequence-local floor placements.
  */
 export function prepareSupportFloor(
   body: IAutoMovieMotionHumanBody,
@@ -34,7 +33,7 @@ export function prepareSupportFloor(
   // the body already rests on as it enters.
   const entry: IAutoMovieMotionHumanPosture = entryState.posture;
   const laid: Map<string, IAutoMovieVector3> = new Map();
-  /**
+  /*
    * Read each newly held floor datum once on this exact key, preserving first
    * contact identity.
    */
@@ -125,19 +124,25 @@ export function prepareSupportFloor(
   return { inherited, laid, recordFloors };
 }
 
-/** A support point in world metres, or an unnamed floor place. */
+/*
+ * A support point in world metres, or an unnamed floor place.
+ */
 type Point = IAutoMovieVector3 | null;
 
-/** A contact whose floor location is read in a solved key. */
+/*
+ * A contact whose floor location is read in a solved key.
+ */
 interface IFloorDatum {
   id: string;
   part: IAutoMovieMotionHumanSupport.Part;
 }
 
-/** A placed contact compares the entry's achieved point to micrometre precision. */
+/*
+ * A placed contact compares the entry's achieved point to micrometre precision.
+ */
 const SAME_PLACE: number = 1e-6;
 
-/**
+/*
  * Test the structural support frame identity, independent of point offsets and
  * event labels.
  */
@@ -160,7 +165,9 @@ function sameFrame(
       : "bone" in b && a.bone === b.bone)
   );
 }
-/** A support sequence's own instantaneous floor targets. */
+/*
+ * A support sequence's own instantaneous floor targets.
+ */
 interface IFloor {
   inherited: readonly IAutoMovieMotionHumanSupport.IContact[];
   laid: ReadonlyMap<string, IAutoMovieVector3>;
@@ -170,7 +177,9 @@ interface IFloor {
   ): void;
 }
 
-/** The record of `IPrepareSupportFloorNamedItem`'s site. */
+/*
+ * The record of `IPrepareSupportFloorNamedItem`'s site.
+ */
 type IPrepareSupportFloorNamedItem = {
   contact: IAutoMovieMotionHumanSupport.IContact;
   at: IAutoMovieVector3;

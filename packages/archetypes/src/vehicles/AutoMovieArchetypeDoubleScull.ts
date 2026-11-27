@@ -126,7 +126,7 @@ export function create(
   };
 }
 
-/**
+/*
  * Loft thin polygonal walls along one shared section family, with deck caps
  * outside the two footwells.
  */
@@ -187,7 +187,7 @@ function shell(builder: Build, length: number, beam: number): void {
   }
 }
 
-/**
+/*
  * Build one seat on two rails, the angled feet and a pair of articulated
  * sculls.
  */
@@ -276,7 +276,7 @@ function station(
   }
 }
 
-/**
+/*
  * A scull's swivel, dip, shaft, blade and handle are attached to the same
  * oarlock pivot.
  */

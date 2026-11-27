@@ -4,7 +4,9 @@ import { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedB
 import { buildDogBody } from "./buildDogBody";
 import type { DogCohort } from "./typings/DogCohort";
 
-/** Measure the constructed neck in metres from the same rig used to place tack. */
+/*
+ * Measure the constructed neck in metres from the same rig used to place tack.
+ */
 export function measureDogNeckLength(
   cohort: DogCohort,
   dimensions: Readonly<

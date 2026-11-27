@@ -6,19 +6,18 @@ import type {
 import { Vector3 } from "../../math/Vector3";
 import { validateJointAxesBasis } from "./validateJointAxesBasis";
 
-/**
+/*
  * Validate a joint-axis basis and return it with unit-length axes, ready for
  * quaternion composition and decomposition.
  *
- * The axes must pass {@link validateJointAxesBasis}: non-zero and mutually
+ * The axes must pass validateJointAxesBasis: non-zero and mutually
  * orthogonal, with a supported rotation order and compatible twist placement.
  * Otherwise the first issue is thrown as `<path> <expected>`, such as
  * `jointToQuaternion axes.twist must have non-zero length`. The result has unit
  * axes and any declared placement and rotation order; a rig prepares it once
  * and passes the basis to its per-pose readers.
- *
- * @param axes Basis to check; read, never modified.
- * @param path Diagnostic path prefix naming the caller's input.
+ * Parameter axes: Basis to check; read, never modified.
+ * Parameter path: Diagnostic path prefix naming the caller's input.
  */
 export function normalizeJointAxes(
   axes: IAutoMovieJointAxes,

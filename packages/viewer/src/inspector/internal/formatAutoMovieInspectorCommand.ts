@@ -1,7 +1,7 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
 import { AutoMovieRenderCapture } from "@automovie/render";
 
-/**
+/*
  * Write a capture request's option tokens and a shell command to copy.
  *
  * Every pair `formatAutoMovieCapturePlanRequest` writes becomes one
@@ -24,17 +24,25 @@ import { AutoMovieRenderCapture } from "@automovie/render";
 export function formatAutoMovieInspectorCommand(
   request: IAutoMovieCapturePlanRequest,
   props: {
-    /** Executable and fixed arguments supplied by the capture host. */
+    /*
+     * Executable and fixed arguments supplied by the capture host.
+     */
     command?: readonly [string, ...string[]];
 
-    /** The shell syntax used for the copied text. Defaults to POSIX. */
+    /*
+     * The shell syntax used for the copied text. Defaults to POSIX.
+     */
     shell?: "posix" | "powershell";
   } = {},
 ): {
-  /** The request's own options, one argument each. */
+  /*
+   * The request's own options, one argument each.
+   */
   options: string[];
 
-  /** The command with the host and request arguments quoted for the shell. */
+  /*
+   * The command with the host and request arguments quoted for the shell.
+   */
   text: string;
 } {
   const options: string[] = AutoMovieRenderCapture.formatPlanRequest(request).map(
@@ -57,20 +65,28 @@ export function formatAutoMovieInspectorCommand(
   };
 }
 
-/** An argument a POSIX shell passes through unquoted. */
+/*
+ * An argument a POSIX shell passes through unquoted.
+ */
 const PLAIN: RegExp = /^[\w%+,./:=@-]+$/u;
 
-/** A bare word that also stays one argument to a PowerShell script. */
+/*
+ * A bare word that also stays one argument to a PowerShell script.
+ */
 const POWERSHELL_PLAIN: RegExp = /^[\w+./:=-]+$/u;
 
-/** One argument as a POSIX shell word. */
+/*
+ * One argument as a POSIX shell word.
+ */
 function quotePosix(argument: string): string {
   return PLAIN.test(argument)
     ? argument
     : `'${argument.replaceAll("'", "'\\''")}'`;
 }
 
-/** One argument as a PowerShell word, including smart single quotes. */
+/*
+ * One argument as a PowerShell word, including smart single quotes.
+ */
 function quotePowerShell(argument: string): string {
   return POWERSHELL_PLAIN.test(argument)
     ? argument

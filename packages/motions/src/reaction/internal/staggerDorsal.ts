@@ -10,7 +10,7 @@ import { walkLeg } from "../../actions/internal/walkLeg";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { staggerNearest } from "./staggerNearest";
 
-/**
+/*
  * Each planted foot's ankle dorsal limit in a stagger by the share of the
  * body's weight it bears (`walkLeg.dorsal`), the share read from where the
  * recovery's centre of pressure stands.
@@ -24,12 +24,11 @@ import { staggerNearest } from "./staggerNearest";
  * (`StaggerPendulum`) and reaches the stance foot's outline by a step's
  * lift-off, so each share, and the dorsal room it gives, runs continuously from
  * a foot's touch-down to its lift-off.
- *
- * @param body The body.
- * @param pressure The centre of pressure on the floor, world metres.
- * @param feet The feet as scheduled; a foot with a swing bears nothing and gets
- *   no limit.
- * @returns The dorsal limit of each planted foot, degrees.
+ * Parameter body: The body.
+ * Parameter pressure: The centre of pressure on the floor, world metres.
+ * Parameter feet: The feet as scheduled; a foot with a swing bears nothing and gets
+ * no limit.
+ * Returns: The dorsal limit of each planted foot, degrees.
  */
 export function staggerDorsal(
   body: IAutoMovieMotionHumanBody,

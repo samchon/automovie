@@ -10,7 +10,7 @@ import {
 
 import { Quaternion } from "../../math/Quaternion";
 
-/**
+/*
  * Skin a mesh's vertices from its rest pose into a resolved pose, by the method
  * its skin declares, with the formula the viewer's shader draws.
  *
@@ -37,16 +37,15 @@ import { Quaternion } from "../../math/Quaternion";
  *
  * Throws when the mesh has no skin or a skin joint is missing from either bone
  * list.
- *
- * @param mesh Admitted mesh with a skin.
- * @param rest Bones at rest, such as `resolvePose` of a pose with no joints and
- *   a null root.
- * @param posed Bones in the pose to skin into, from `resolvePose`.
- * @param morphWeights Target weights by name, such as
- *   `resolveMorphTargetWeights` output merged with expression weights; omitted,
- *   no target displaces the mesh.
- * @returns Flat skinned positions `[x,y,z,...]` in metres, aligned with
- *   `mesh.positions`.
+ * Parameter mesh: Admitted mesh with a skin.
+ * Parameter rest: Bones at rest, such as `resolvePose` of a pose with no joints and
+ * a null root.
+ * Parameter posed: Bones in the pose to skin into, from `resolvePose`.
+ * Parameter morphWeights: Target weights by name, such as
+ * `resolveMorphTargetWeights` output merged with expression weights; omitted,
+ * no target displaces the mesh.
+ * Returns: Flat skinned positions `[x,y,z,...]` in metres, aligned with
+ * `mesh.positions`.
  */
 export function skinAutoMovieMesh(
   mesh: IAutoMovieMesh,
@@ -78,7 +77,9 @@ export function skinAutoMovieMesh(
   return output;
 }
 
-/** Rest positions displaced by the weighted morph targets the mesh carries. */
+/*
+ * Rest positions displaced by the weighted morph targets the mesh carries.
+ */
 const morphedPositions: (
   mesh: IAutoMovieMesh,
   morphWeights: ReadonlyMap<string, number> | undefined,
@@ -97,19 +98,27 @@ const morphedPositions: (
   return positions;
 };
 
-/** One joint's rigid skinning transform and its unit dual quaternion. */
+/*
+ * One joint's rigid skinning transform and its unit dual quaternion.
+ */
 interface IJointTransform {
-  /** Rotation of `P R^-1`. */
+  /*
+   * Rotation of `P R^-1`.
+   */
   rotation: IAutoMovieQuaternion;
 
-  /** Translation of `P R^-1`, metres. */
+  /*
+   * Translation of `P R^-1`, metres.
+   */
   translation: IAutoMovieVector3;
 
-  /** Dual part `0.5 (t, 0) q` of the transform's dual quaternion. */
+  /*
+   * Dual part `0.5 (t, 0) q` of the transform's dual quaternion.
+   */
   dual: IAutoMovieQuaternion;
 }
 
-/**
+/*
  * Map each skin joint to its rigid transform `P R^-1`, throwing for a joint
  * absent from either bone list.
  */
@@ -175,7 +184,7 @@ const jointTransforms: (
   });
 };
 
-/**
+/*
  * Weighted matrix blend divided by the weight sum, as `THREE.SkinnedMesh` draws
  * after normalizing its weights.
  */
@@ -210,7 +219,7 @@ const blendLinear: (
   return { x: x / total, y: y / total, z: z / total };
 };
 
-/**
+/*
  * Hemisphere-aligned weighted dual quaternion sum, normalized by its rotation
  * part and applied to one point.
  */

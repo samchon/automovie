@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanStrike } from "@automovie/interface";
 
-/**
+/*
  * The meiaLuaDeFrente preset: capoeira's meia-lua de frente, the rear leg's
  * straight sweep inward across the front. Spread into `footStrike`'s parameters
  * beside the rest that the composition gives; each value means what the law's

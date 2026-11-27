@@ -5,16 +5,15 @@ import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/ind
 import { HandToolDraw } from "./HandToolDraw";
 import { PRIMING_WIRE } from "../constants/PRIMING_WIRE";
 
-/**
+/*
  * Inert priming-wire display prop with a ring pinch and a tip locator.
- *
- * @param params The optional scene ID and any fixed free dimension in metres or
- *   kilograms.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses
- *   the original defaults.
- * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
- *   outside its admitted recipe.
+ * Parameter params: The optional scene ID and any fixed free dimension in metres or
+ * kilograms.
+ * Parameter seed: The seed for the recorded recipe. Without a seed, the draw uses
+ * the original defaults.
+ * Returns: The model with its named contact frames in model space.
+ * When the model or a fixed parameter lies
+ * outside its admitted recipe.
  */
 export function createStagePrimingWire(
   params: Pick<HandToolDraw.IParams, "id" | "length" | "mass"> = {},

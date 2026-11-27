@@ -6,7 +6,9 @@ import type {
 
 import { admitForgedCastEntries } from "./admitForgedCastEntries";
 
-/** Admit the generated stand-in rigs against the script's cast declarations. */
+/*
+ * Admit the generated stand-in rigs against the script's cast declarations.
+ */
 export function forgeCast(
   script: IAutoMovieScript,
   forge: IAutoMovieForgePlan,

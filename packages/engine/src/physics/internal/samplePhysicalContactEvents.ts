@@ -2,7 +2,7 @@ import type { IAutoMovieContactReceipt } from "@automovie/interface";
 
 import { contactReceiptFault } from "./contactReceiptFault";
 
-/**
+/*
  * Admit a contact receipt and return completed measurements no later than the
  * nonnegative film second. The default Infinity reads the whole valid episode.
  * Geometric events carry no solved impulse or completed solver samples. A

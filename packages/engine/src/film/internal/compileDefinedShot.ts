@@ -28,8 +28,8 @@ import { stageScene } from "./stageScene";
 import { validateShotPhysicsAdvice } from "./validateShotPhysicsAdvice";
 import { validateShotProgramContract } from "./validateShotProgramContract";
 
-/**
- * Compile one {@link defineShot} registration into shot source, continuity and a
+/*
+ * Compile one defineShot registration into shot source, continuity and a
  * contract realization, or into the diagnostics of the first phase that
  * failed.
  *
@@ -292,10 +292,12 @@ export function compileDefinedShot<Context>(
   }
 }
 
-/** Prior beat state per actor node, read once for every resume step. */
+/*
+ * Prior beat state per actor node, read once for every resume step.
+ */
 type IPriorActors = ReadonlyMap<string, IAutoMovieBeatEndActorState>;
 
-/**
+/*
  * Carry the prior facts at the opening, except static pins released by an
  * explicitly suspended support.
  */
@@ -335,7 +337,9 @@ function resumeOpeningSnapshot(
   };
 }
 
-/** Resume root placement, facing, and persistent mounts before staging. */
+/*
+ * Resume root placement, facing, and persistent mounts before staging.
+ */
 function resumeStage(
   stage: IAutoMovieStage,
   prior: IPriorActors,
@@ -362,7 +366,9 @@ function resumeStage(
   };
 }
 
-/** Carry prior articulation onto the resumed scene's opening frame. */
+/*
+ * Carry prior articulation onto the resumed scene's opening frame.
+ */
 function resumePoses(
   staged: IAutoMovieStagedSet.ISuccess,
   prior: IPriorActors | null,
@@ -386,7 +392,9 @@ function resumePoses(
   };
 }
 
-/** Translate one gate's constraint violations into authoring diagnostics. */
+/*
+ * Translate one gate's constraint violations into authoring diagnostics.
+ */
 function fromViolations(
   phase: "stage" | "blocking" | "performance",
   code: "stage-invalid" | "blocking-invalid" | "performance-invalid",
@@ -407,7 +415,9 @@ function fromViolations(
   );
 }
 
-/** Render a thrown value, falling back when its inspection or coercion throws. */
+/*
+ * Render a thrown value, falling back when its inspection or coercion throws.
+ */
 function errorText(error: unknown): string {
   try {
     return error instanceof Error

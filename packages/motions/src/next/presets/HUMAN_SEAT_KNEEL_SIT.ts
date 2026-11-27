@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanSeat } from "@automovie/interface";
 
-/**
+/*
  * The kneelSit preset of `kneel`: Sitting back on the heels from both knees and
  * staying three seconds (provisional). Spread into `kneel`'s parameters; the
  * `kneelSit` row reads it.

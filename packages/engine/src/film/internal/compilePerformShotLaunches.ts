@@ -18,7 +18,7 @@ import { animatedBaseAt } from "./animatedBaseAt";
 import { compileLaunch } from "./compileLaunch";
 import { performShotActors } from "./performShotActors";
 
-/**
+/*
  * Solve every gated launch, bake each projectile's flight onto the shot clock,
  * and fold each target's engine-timed recoil into the stage list.
  *
@@ -44,12 +44,11 @@ import { performShotActors } from "./performShotActors";
  *   recoil stays exempt from the region-overlap gate: the engine schedules it
  *   at an instant the author cannot know, and the layering envelope bounds its
  *   blend to the flinch window.
- *
- * @param context The shot's staged tables and collector.
- * @param plan The action plan; recoils are appended to its stage list.
- * @param synthesize The shot's memoized synthesizer.
- * @param rotations Each staged node's world rotation, by id.
- * @returns The baked flight clips and their events, in job order.
+ * Parameter context: The shot's staged tables and collector.
+ * Parameter plan: The action plan; recoils are appended to its stage list.
+ * Parameter synthesize: The shot's memoized synthesizer.
+ * Parameter rotations: Each staged node's world rotation, by id.
+ * Returns: The baked flight clips and their events, in job order.
  */
 export function compilePerformShotLaunches(
   context: IAutoMovieEnginePerformShotGateContext,
@@ -120,7 +119,9 @@ export function compilePerformShotLaunches(
   return { clips, events };
 }
 
-/** Where a launch's target is over time, or undefined for a static aim. */
+/*
+ * Where a launch's target is over time, or undefined for a static aim.
+ */
 function leadOf(
   context: IAutoMovieEnginePerformShotGateContext,
   plan: IAutoMovieEnginePerformShotActionPlan,

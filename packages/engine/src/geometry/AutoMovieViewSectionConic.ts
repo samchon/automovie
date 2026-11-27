@@ -203,52 +203,74 @@ export namespace AutoMovieViewSectionConic {
     return null;
   }
 
-  /** One native rational piece's monotone quadrature partition and actual speed. */
+  /*
+   * One native rational piece's monotone quadrature partition and actual speed.
+   */
   interface IDomain {
-    /** Strictly increasing native parameters. */
+    /*
+     * Strictly increasing native parameters.
+     */
     anchors: number[];
 
-    /** Actual derivative norm in source length units. */
+    /*
+     * Actual derivative norm in source length units.
+     */
     speed: (t: number) => number;
   }
 
-  /**
+  /*
    * An invocation-owned pending native panel with its already computed
    * integral.
    */
   interface IPanel {
-    /** Native interval's first parameter. */
+    /*
+     * Native interval's first parameter.
+     */
     a: number;
 
-    /** Native interval's last parameter. */
+    /*
+     * Native interval's last parameter.
+     */
     b: number;
 
-    /** Already evaluated coarse integral, source length units. */
+    /*
+     * Already evaluated coarse integral, source length units.
+     */
     coarse: number;
 
-    /** This panel's share of the estimated error target, same unit. */
+    /*
+     * This panel's share of the estimated error target, same unit.
+     */
     tolerance: number;
 
-    /** Existing subdivision depth. */
+    /*
+     * Existing subdivision depth.
+     */
     depth: number;
   }
 
-  /**
+  /*
    * One convex rational subarc's normalized homogeneous controls and error
    * share.
    */
   interface IEndPanel {
-    /** Deficit/height coordinates times positive weight, then weight. */
+    /*
+     * Deficit/height coordinates times positive weight, then weight.
+     */
     controls: readonly (readonly [number, number, number])[];
 
-    /** Absolute midpoint-enclosure error share, source length units. */
+    /*
+     * Absolute midpoint-enclosure error share, source length units.
+     */
     tolerance: number;
 
-    /** Homogeneous bisection depth. */
+    /*
+     * Homogeneous bisection depth.
+     */
     depth: number;
   }
 
-  /**
+  /*
    * Enclose a convex rational end between chord and control-polygon lengths.
    * Closing the convex arc by its chord gives a convex body inside the closed
    * control polygon; monotonicity of convex perimeter proves the upper bound.
@@ -348,7 +370,9 @@ export namespace AutoMovieViewSectionConic {
     return total;
   }
 
-  /** One eight-point Gauss-Legendre panel of actual native speed. */
+  /*
+   * One eight-point Gauss-Legendre panel of actual native speed.
+   */
   function panel(speed: (t: number) => number, a: number, b: number): number {
     const half: number = (b - a) / 2;
     const middle: number = (a + b) / 2;
@@ -359,14 +383,18 @@ export namespace AutoMovieViewSectionConic {
   }
 }
 
-/** Eight-point Gauss-Legendre abscissas, Abramowitz and Stegun table 25.4. */
+/*
+ * Eight-point Gauss-Legendre abscissas, Abramowitz and Stegun table 25.4.
+ */
 const NODES: readonly number[] = [
   -0.9602898564975363, -0.7966664774136267, -0.525532409916329,
   -0.1834346424956498, 0.1834346424956498, 0.525532409916329,
   0.7966664774136267, 0.9602898564975363,
 ];
 
-/** Positive weights corresponding to NODES. */
+/*
+ * Positive weights corresponding to NODES.
+ */
 const WEIGHTS: readonly number[] = [
   0.1012285362903763, 0.2223810344533745, 0.3137066458778873, 0.362683783378362,
   0.362683783378362, 0.3137066458778873, 0.2223810344533745, 0.1012285362903763,

@@ -18,52 +18,60 @@ import type { QuadrupedRidePose } from "./QuadrupedRidePose";
 import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
 import { QuadrupedSwingChord } from "./QuadrupedSwingChord";
 
-/**
+/*
  * One hoof's anchored position and orientation through a turn or grounded
  * departure.
  */
 export namespace QuadrupedHoofTrack {
-  /** A committed stance, before it is converted into a world footprint. */
+  /*
+   * A committed stance, before it is converted into a world footprint.
+   */
   export interface IStance {
-    /** Fraction of a stride between this hoof's landing and lifting. */
+    /*
+     * Fraction of a stride between this hoof's landing and lifting.
+     */
     duty: number;
-    /** Body state at touchdown, including its rigid world placement. */
+    /*
+     * Body state at touchdown, including its rigid world placement.
+     */
     landed: AutoMovieArchetypeCourse.IState;
-    /** Signed metres the body travels over the entire stance. */
+    /*
+     * Signed metres the body travels over the entire stance.
+     */
     travel: number;
 
-    /**
+    /*
      * Body placement at release, read when the body heading departs from the
      * travel heading; the hoof is then centred between its neutral points at
      * landing and release.
      */
     lifted?: IAutoMovieTransform;
 
-    /**
+    /*
      * The body-frame shift of a crossing leg's stance in a two-track figure;
      * absent elsewhere.
      */
     across?: ICross;
   }
 
-  /**
+  /*
    * The sideways shift a two-track figure gives the stances of the legs away
    * from its movement.
    */
   export interface ICross {
-    /**
+    /*
      * The body-frame side the figure moves toward: +1 for +x (left), -1 for -x
      * (right).
      */
     toward: number;
-    /**
+    /*
      * Metres the crossing hoof's neutral point moves toward that side,
      * nonnegative.
      */
     shift: number;
   }
 
-  /**
+  /*
    * Read a stance's crossover from its landing and release seconds, its signed
    * travel and its end.
    */
@@ -74,7 +82,9 @@ export namespace QuadrupedHoofTrack {
     fore: boolean,
   ) => ICross | undefined;
 
-  /** Read a stance from the admitted course and its gait clock. */
+  /*
+   * Read a stance from the admitted course and its gait clock.
+   */
   export function stances(
     plan: AutoMovieArchetypeCourse.IPlan,
     clock: QuadrupedRideClock.IClock,
@@ -124,15 +134,14 @@ export namespace QuadrupedHoofTrack {
     };
   }
 
-  /**
+  /*
    * The course state at a second, continued past its end at its final velocity:
    * a horse at speed at the last mark runs on, so a footfall after the end
    * lands where the run carries it; a course ending at a halt stays where it
    * stopped.
-   *
-   * @param plan The course plan.
-   * @param seconds The film second.
-   * @returns The state.
+   * Parameter plan: The course plan.
+   * Parameter seconds: The film second.
+   * Returns: The state.
    */
   export function onward(
     plan: AutoMovieArchetypeCourse.IPlan,
@@ -163,15 +172,14 @@ export namespace QuadrupedHoofTrack {
     };
   }
 
-  /**
+  /*
    * The swing height of a landmark gait: the toe raised to its coordinate along
    * the neutral cannon, measured above the neutral hoof endpoint.
-   *
-   * @param chain The limb's neutral joint points, model metres, from the top
-   *   joint to the hoof endpoint.
-   * @param landmark The gait's landmark elevation.
-   * @param fore Whether the limb is a fore.
-   * @returns Metres of swing clearance.
+   * Parameter chain: The limb's neutral joint points, model metres, from the top
+   * joint to the hoof endpoint.
+   * Parameter landmark: The gait's landmark elevation.
+   * Parameter fore: Whether the limb is a fore.
+   * Returns: Metres of swing clearance.
    */
   export function elevation(
     chain: readonly IAutoMovieVector3[],
@@ -181,16 +189,15 @@ export namespace QuadrupedHoofTrack {
     const share: number = fore ? landmark.fore : landmark.hind;
     return chain[3]!.y + share * (chain[2]!.y - chain[3]!.y) - chain[4]!.y;
   }
-  /**
+  /*
    * The world point a stance plants its hoof at.
-   *
-   * @param rest Neutral hoof endpoint in model metres.
-   * @param support The stance.
-   * @param under The model fore-aft position the hoof is centred toward: the
-   *   proximal attachment's less the fetlock's lead on the hoof, so the
-   *   fetlock, which the limb's reach holds, travels centred under the
-   *   attachment; the neutral hoof's when absent.
-   * @returns The world footprint before any authored surface is applied.
+   * Parameter rest: Neutral hoof endpoint in model metres.
+   * Parameter support: The stance.
+   * Parameter under: The model fore-aft position the hoof is centred toward: the
+   * proximal attachment's less the fetlock's lead on the hoof, so the
+   * fetlock, which the limb's reach holds, travels centred under the
+   * attachment; the neutral hoof's when absent.
+   * Returns: The world footprint before any authored surface is applied.
    */
   export function footprint(
     rest: IAutoMovieVector3,
@@ -221,17 +228,16 @@ export namespace QuadrupedHoofTrack {
     return { ...point, y: support.landed.placement.translation.y };
   }
 
-  /**
+  /*
    * Admit an optional stationary departure anchor at the course start.
-   *
-   * @param plan The owned course plan with the initial time and body placement.
-   * @param requested The explicit flag for planting the initially neutral
-   *   hooves.
-   * @param archetype Owner printed in the typed course refusal.
-   * @returns The initial course state for holding the neutral footprints, when
-   *   requested.
-   * @throws {AutoMovieArchetypeRefusal} If the explicit flag or starting speed
-   *   cannot represent standing.
+   * Parameter plan: The owned course plan with the initial time and body placement.
+   * Parameter requested: The explicit flag for planting the initially neutral
+   * hooves.
+   * Parameter archetype: Owner printed in the typed course refusal.
+   * Returns: The initial course state for holding the neutral footprints, when
+   * requested.
+   * If the explicit flag or starting speed
+   * cannot represent standing.
    */
   export function departure(
     plan: AutoMovieArchetypeCourse.IPlan,
@@ -253,16 +259,15 @@ export namespace QuadrupedHoofTrack {
     });
   }
 
-  /**
+  /*
    * Read the current planted anchor or its independently sampled swing.
-   *
-   * @param phase Current stride coordinate, with course start at zero.
-   * @param landed Previous contact phase, which can precede course start.
-   * @param coming Next real contact phase.
-   * @param current Predicted ordinary stance and its admitted duty.
-   * @param standing Starting placement when the rider requests a stand.
-   * @returns Chosen anchor, contact state, and normalized swing
-   *   displacement/height.
+   * Parameter phase: Current stride coordinate, with course start at zero.
+   * Parameter landed: Previous contact phase, which can precede course start.
+   * Parameter coming: Next real contact phase.
+   * Parameter current: Predicted ordinary stance and its admitted duty.
+   * Parameter standing: Starting placement when the rider requests a stand.
+   * Returns: Chosen anchor, contact state, and normalized swing
+   * displacement/height.
    */
   export function step(
     phase: number,
@@ -287,25 +292,24 @@ export namespace QuadrupedHoofTrack {
     };
   }
 
-  /**
+  /*
    * Convert the fixed world footprint or world swing to the current body frame.
-   *
-   * @param state Current course state, including the body's world placement.
-   * @param rest Neutral hoof endpoints in model metres.
-   * @param from Last committed stance.
-   * @param to The next committed stance during swing. Omitted during stance.
-   * @param amount The smooth swing progression from zero to one.
-   * @param worldAnchors Whether turns or a standing start require world
-   *   anchoring.
-   * @param footing Optional independently placed world surfaces and authored
-   *   obstacles.
-   * @param under The model fore-aft position the hoof is centred toward
-   *   (`footprint`'s).
-   * @param clear Moves a world foothold clear of the footing's concave edges
-   *   (`QuadrupedCorner`); footholds stand where the course puts them when
-   *   absent.
-   * @returns Model-space coordinates in metres. The world-anchor path also
-   *   returns the relative terminal axis rotation.
+   * Parameter state: Current course state, including the body's world placement.
+   * Parameter rest: Neutral hoof endpoints in model metres.
+   * Parameter from: Last committed stance.
+   * Parameter to: The next committed stance during swing. Omitted during stance.
+   * Parameter amount: The smooth swing progression from zero to one.
+   * Parameter worldAnchors: Whether turns or a standing start require world
+   * anchoring.
+   * Parameter footing: Optional independently placed world surfaces and authored
+   * obstacles.
+   * Parameter under: The model fore-aft position the hoof is centred toward
+   * (`footprint`'s).
+   * Parameter clear: Moves a world foothold clear of the footing's concave edges
+   * (`QuadrupedCorner`); footholds stand where the course puts them when
+   * absent.
+   * Returns: Model-space coordinates in metres. The world-anchor path also
+   * returns the relative terminal axis rotation.
    */
   export function target(
     state: AutoMovieArchetypeCourse.IState,
@@ -439,7 +443,9 @@ export namespace QuadrupedHoofTrack {
     };
   }
 
-  /** The authored surface under a point, or none where no plane covers it. */
+  /*
+   * The authored surface under a point, or none where no plane covers it.
+   */
   function covered(
     footing: AutoMovieArchetypeQuadrupedFooting.IPlan,
     point: IAutoMovieVector3,

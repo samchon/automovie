@@ -18,7 +18,7 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of swimming on a water plane at 1.2 m, drawn as a thin box,
  * three cycles each.
  *
@@ -30,9 +30,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  *   of the arm along the swim, the mouth above the plane at each `breath`, and
  *   the cycle periodic: the right wrist's place relative to the hips the same
  *   within 10 mm at each cycle's start.
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function swimCases(
   bodies: readonly string[] = ["m-average"],

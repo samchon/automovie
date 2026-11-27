@@ -7,7 +7,7 @@ import { Vector3 } from "../../math/Vector3";
 import { AutoMovieGravity } from "../AutoMovieGravity";
 import { solveBallisticLaunch } from "./solveBallisticLaunch";
 
-/**
+/*
  * Solve the launch that **leads a moving target**: the aim that lands the
  * projectile where the target _will be_, not where it is. `targetAt(t)` gives
  * the target's world position at flight-time `t` (e.g. its animated base plus
@@ -15,7 +15,7 @@ import { solveBallisticLaunch } from "./solveBallisticLaunch";
  * mover ("shoot him off his galloping horse") without the model timing it.
  *
  * A fixed-point iteration on the time of flight: guess `t` from the target's
- * current distance, {@link solveBallisticLaunch aim} at `targetAt(t)`, take that
+ * current distance, solveBallisticLaunchaim at `targetAt(t)`, take that
  * solve's `hitTime` as the next `t`, and repeat until it settles. It converges
  * when the target is slower than the projectile (each aim overshoots the last
  * miss by less); a target that outruns the shot never settles, so the loop is

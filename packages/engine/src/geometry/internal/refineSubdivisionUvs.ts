@@ -6,7 +6,7 @@ import type {
 
 import { subdivisionEdgeSmoothness } from "./subdivisionEdgeSmoothness";
 
-/**
+/*
  * Apply one Catmull-Clark step to face-varying UVs with every UV boundary
  * pinned, OpenSubdiv's `FVAR_LINEAR_BOUNDARIES`.
  *
@@ -22,12 +22,11 @@ import { subdivisionEdgeSmoothness } from "./subdivisionEdgeSmoothness";
  * per continuous edge or one per side of a UV boundary edge in edge order, then
  * one per face. Child corner `4 c + j` belongs to the child quad of parent
  * corner `c`, in the order vertex, out-edge, face, in-edge.
- *
- * @param topology Connectivity of the current level.
- * @param uvs Packed UV values of the current level.
- * @param cornerUvs UV value of every corner.
- * @param masks Vertex masks the positions used, one per vertex.
- * @returns Packed next-level UV values and the UV value of every child corner.
+ * Parameter topology: Connectivity of the current level.
+ * Parameter uvs: Packed UV values of the current level.
+ * Parameter cornerUvs: UV value of every corner.
+ * Parameter masks: Vertex masks the positions used, one per vertex.
+ * Returns: Packed next-level UV values and the UV value of every child corner.
  */
 export const refineSubdivisionUvs = (
   topology: IAutoMovieSubdivisionTopology,

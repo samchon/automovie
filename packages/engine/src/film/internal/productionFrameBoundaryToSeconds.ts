@@ -5,7 +5,7 @@ import type {
 
 import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
 
-/**
+/*
  * Map one non-negative film-frame boundary to seconds on the film clock.
  *
  * The boundary of frame `f` at rate `n/d` lies at `f·d/n` seconds. The rate is
@@ -15,10 +15,9 @@ import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
  * rounds. Callers that compare a time with a frame boundary read it here, so
  * they all compare against the same double. A frame that is not a non-negative
  * safe integer, and an invalid frame rate, throw an `Error`.
- *
- * @param props.frame Film-frame boundary index, a non-negative safe integer.
- * @param props.frameRate The film's frame rate as an exact ratio.
- * @returns The boundary's time in seconds.
+ * Parameter props.frame: Film-frame boundary index, a non-negative safe integer.
+ * Parameter props.frameRate: The film's frame rate as an exact ratio.
+ * Returns: The boundary's time in seconds.
  */
 export function productionFrameBoundaryToSeconds(
   props: IAutoMovieProductionFrameBoundaryToSeconds.IProps,

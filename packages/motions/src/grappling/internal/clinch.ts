@@ -15,7 +15,7 @@ import { HumanPhysics } from "../../law/internal/HumanPhysics";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/**
+/*
  * Taking a clinch grip on a partner standing within reach and holding it: the
  * two-handed neck tie of Muay Thai (`plum`), or judo's collar and sleeve grip
  * (`collarSleeve`, kumikata).
@@ -41,10 +41,14 @@ import { poseBones } from "../../posture/internal/poseBones";
  * (Koshida et al. 2016).
  */
 export namespace clinch {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "clinch";
 
-  /** Cancel table: a clinch goes into a knee or lets go at any time. */
+  /*
+   * Cancel table: a clinch goes into a knee or lets go at any time.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     knee: [
       { window: ["ready", 1], kind: "inertialize", entry: 0, blend: 0.15 },
@@ -59,19 +63,18 @@ export namespace clinch {
     ],
   };
 
-  /**
+  /*
    * How far each plum hand lies from the nape's middle, a share of the
    * partner's half shoulder width (provisional).
    */
   export const SPREAD: number = 0.35;
 
-  /**
+  /*
    * The partner's region each hand grips and the sideways offset across it, a
    * share of the partner's half shoulder width toward the partner's left.
-   *
-   * @param grip The grip.
-   * @param collar The collar hand.
-   * @returns The region and offset by hand.
+   * Parameter grip: The grip.
+   * Parameter collar: The collar hand.
+   * Returns: The region and offset by hand.
    */
   export function regions(
     grip: IAutoMovieMotionHumanClinch.Grip,
@@ -95,15 +98,14 @@ export namespace clinch {
     } as Record<AutoMovieHumanSide, IRegionsEntry>;
   }
 
-  /**
+  /*
    * A partner's region on displayed bones, moved across by a share of the half
    * shoulder width toward the partner's left.
-   *
-   * @param body The partner's body.
-   * @param bones The partner's displayed bones.
-   * @param region The region.
-   * @param across The share across.
-   * @returns The point and outward normal, world.
+   * Parameter body: The partner's body.
+   * Parameter bones: The partner's displayed bones.
+   * Parameter region: The region.
+   * Parameter across: The share across.
+   * Returns: The point and outward normal, world.
    */
   export function place(
     body: IAutoMovieMotionHumanBody,
@@ -135,12 +137,11 @@ export namespace clinch {
     };
   }
 
-  /**
+  /*
    * Plan a clinch.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the hold is negative.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClinch.IParams>,
@@ -166,7 +167,9 @@ export namespace clinch {
       requested.add("leftUpperArm");
       requested.add("rightUpperArm");
     }
-    /** The partner's bones at an action second, read as the partner is shown. */
+    /*
+     * The partner's bones at an action second, read as the partner is shown.
+     */
     const partnerAt = (
       seconds: number,
     ): ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]> =>
@@ -366,5 +369,7 @@ export namespace clinch {
   }
 }
 
-/** The record of `IRegionsEntry`'s site. */
+/*
+ * The record of `IRegionsEntry`'s site.
+ */
 type IRegionsEntry = { region: AutoMovieHumanoidRegion; across: number };

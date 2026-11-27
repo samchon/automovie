@@ -16,13 +16,13 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { requireHatHand } from "./requireHatHand";
 
-/**
+/*
  * A shared fit and seating tolerance, metres, from the motion campaign's 15 mm
  * contact bound.
  */
 const CONTACT: number = 0.015;
 
-/**
+/*
  * Take a stiff hat by its declared brim grip, lift it briefly and set it back
  * on the head (Emily Post, _Etiquette_, 1922, “Lifting the Hat,”
  * https://www.gutenberg.org/ebooks/14314). The lift is provisionally one third
@@ -44,7 +44,7 @@ export const tipHat: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTipHat>
     },
     plan,
   };
-/**
+/*
  * Plan the right or left arm's grasp, lift, reseat and return over the entry
  * stance.
  */
@@ -308,7 +308,9 @@ function plan(
   };
 }
 
-/** Admit the staged attachment only when the displayed socket meets the crown. */
+/*
+ * Admit the staged attachment only when the displayed socket meets the crown.
+ */
 function wornFrame(
   subject: string,
   reader: IAutoMovieMotionHumanPropReader,
@@ -384,15 +386,21 @@ function wornFrame(
     fix: "stage a hat worn on this performer's head with a wear socket and a precision brim handle",
   });
 }
-/** World distance between two points, metres. */
+/*
+ * World distance between two points, metres.
+ */
 function gap(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
   return Vector3.length(Vector3.subtract(a, b));
 }
 
-/** The alternatives of `PlanLimb`'s site. */
+/*
+ * The alternatives of `PlanLimb`'s site.
+ */
 type PlanLimb = "leftArm" | "rightArm";
 
-/** The record of `IWornFrameResult`'s site. */
+/*
+ * The record of `IWornFrameResult`'s site.
+ */
 type IWornFrameResult = {
   frame: IAutoMovieRigidTransform;
   socket: IAutoMovieVector3;

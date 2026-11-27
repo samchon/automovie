@@ -199,5 +199,7 @@ export namespace AutoMovieHumanCanonicalBind {
   }
 }
 
-/** A point in calibration mm. */
+/*
+ * A point in calibration mm.
+ */
 type Vec3 = AutoMovieVector3Tuple;

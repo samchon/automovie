@@ -10,12 +10,12 @@ import { AutoMovieEnginePlanarRegion } from "../../geometry/AutoMovieEnginePlana
 import { layoutAutoMovieText } from "./layoutAutoMovieText";
 import { regionsOfAutoMovieGlyph } from "./regionsOfAutoMovieGlyph";
 
-/**
+/*
  * Extrude a laid-out text run into one closed mesh of raised lettering, such as
  * channel letters over a storefront or a plaque's relief.
  *
- * The run is laid out by {@link layoutAutoMovieText}; each distinct code point's
- * regions from {@link regionsOfAutoMovieGlyph} are extruded once by
+ * The run is laid out by layoutAutoMovieText; each distinct code point's
+ * regions from regionsOfAutoMovieGlyph are extruded once by
  * `AutoMovieEnginePlanarRegion.extrude` and translated to every place the code
  * point is set, lifted so each letter rises from `z = 0` to `z = depth`.
  * Coordinates are the layout's box frame in metres, origin at the box's
@@ -29,10 +29,9 @@ import { regionsOfAutoMovieGlyph } from "./regionsOfAutoMovieGlyph";
  * part, which appears in every mesh pass.
  *
  * The same inputs always give identical buffers.
- *
- * @throws {Error} A nonpositive or non-finite depth; the layout's refusals; a
- *   glyph whose contours touch or cross, or which the extrusion refuses, with
- *   the code point named.
+ * A nonpositive or non-finite depth; the layout's refusals; a
+ * glyph whose contours touch or cross, or which the extrusion refuses, with
+ * the code point named.
  */
 export function buildAutoMovieRaisedLettering(
   props: IAutoMovieBuildTextGeometry.IRaisedProps,
@@ -95,7 +94,7 @@ export function buildAutoMovieRaisedLettering(
   return { positions, normals, uvs, indices, skin: null };
 }
 
-/**
+/*
  * Default chord tolerance, metres: 0.05 mm, below a pixel of any sign a frame
  * shows.
  */

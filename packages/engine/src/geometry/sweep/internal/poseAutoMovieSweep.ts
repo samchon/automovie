@@ -17,7 +17,7 @@ import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { measureAutoMovieSweepVolume } from "./measureAutoMovieSweepVolume";
 import { settleAutoMovieSweepVolume } from "./settleAutoMovieSweepVolume";
 
-/**
+/*
  * Re-sweep a sweep in a pose: move its spine and section planes with the bones
  * they ride and rebuild the surface from them, sweep-based deformation after
  * Hyun, Yoon, Chang, Seong, Kim and Juttler (2005, "Sweep-based human
@@ -45,16 +45,15 @@ import { settleAutoMovieSweepVolume } from "./settleAutoMovieSweepVolume";
  * (Section 4.4), by `settleAutoMovieSweepVolume`. Without joint stations the
  * sweep is returned unscaled. The scale applies after features, so the
  * section's shape is unchanged and only its size at the joints moves.
- *
- * @param props.sweep The rest sweep, only read.
- * @param props.binding Bones of its spine points and stations.
- * @param props.rest Bones at rest.
- * @param props.posed The same bones posed.
- * @param props.preserveVolume Whether to rescale joint sections to the rest
- *   volume; omitted, false.
- * @returns The posed sweep, a new record sharing the rest sweep's sections.
- * @throws Error when the binding does not align with the sweep, a bone is
- *   missing, or the rest sweep is refused by `compileAutoMovieSweep`.
+ * Parameter props.sweep: The rest sweep, only read.
+ * Parameter props.binding: Bones of its spine points and stations.
+ * Parameter props.rest: Bones at rest.
+ * Parameter props.posed: The same bones posed.
+ * Parameter props.preserveVolume: Whether to rescale joint sections to the rest
+ * volume; omitted, false.
+ * Returns: The posed sweep, a new record sharing the rest sweep's sections.
+ * Error when the binding does not align with the sweep, a bone is
+ * missing, or the rest sweep is refused by `compileAutoMovieSweep`.
  */
 export const poseAutoMovieSweep: (
   props: IAutoMoviePoseSweep.IProps,

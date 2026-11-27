@@ -4,7 +4,9 @@ import { DOG_BODY_MEASURES } from "./constants/DOG_BODY_MEASURES";
 import type { IDogBodyMeasures } from "./structures/IDogBodyMeasures";
 import type { DogCohort } from "./typings/DogCohort";
 
-/** Convert the selected cohort's measured height and girth to metres. */
+/*
+ * Convert the selected cohort's measured height and girth to metres.
+ */
 export function dogModelDimensions(
   cohort: DogCohort,
 ): Readonly<

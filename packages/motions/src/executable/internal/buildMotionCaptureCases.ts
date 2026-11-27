@@ -1,7 +1,7 @@
 import type { IMotionCaptureCase } from "./IMotionCaptureCase";
 import { MOTION_CAPTURE_CASES } from "../cases/MOTION_CAPTURE_CASES";
 
-/**
+/*
  * Build the motion cases a harness run names, one at a time: every case of each
  * named factory of `MOTION_CAPTURE_CASES`, in order, kept when its own name
  * matches `only`.
@@ -14,10 +14,9 @@ import { MOTION_CAPTURE_CASES } from "../cases/MOTION_CAPTURE_CASES";
  * filter builds no case it rejects; the filter is applied again, so a factory
  * that ignores it is correct too. The iteration throws after the last name when
  * nothing matched.
- *
- * @param names Factory names, such as `walk` or `handling-handover`.
- * @param only Pattern a case's name must match, or null for every case.
- * @returns The cases, built on demand; iterate once.
+ * Parameter names: Factory names, such as `walk` or `handling-handover`.
+ * Parameter only: Pattern a case's name must match, or null for every case.
+ * Returns: The cases, built on demand; iterate once.
  */
 export function buildMotionCaptureCases(
   names: readonly string[],

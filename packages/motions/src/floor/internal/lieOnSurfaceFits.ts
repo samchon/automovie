@@ -8,15 +8,14 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Refuse a surface shorter than the body or narrower than its shoulders, with
  * the room each lacks.
- *
- * @param body The body's stature, upper arm radius and rest shoulders.
- * @param surface The lying surface, its depth the length and its width.
- * @param margin The room kept at the head, the feet and either side, metres.
- * @throws {HumanRefusal} On `length` for a surface too short, on `width` for
- *   one too narrow.
+ * Parameter body: The body's stature, upper arm radius and rest shoulders.
+ * Parameter surface: The lying surface, its depth the length and its width.
+ * Parameter margin: The room kept at the head, the feet and either side, metres.
+ * On `length` for a surface too short, on `width` for
+ * one too narrow.
  */
 export function lieOnSurfaceFits(
   body: lieOnSurfaceFits.IBody,
@@ -53,14 +52,22 @@ export function lieOnSurfaceFits(
     });
 }
 
-/** What a surface's fit reads of a body. */
+/*
+ * What a surface's fit reads of a body.
+ */
 export namespace lieOnSurfaceFits {
-  /** The body's stature, upper arm radius and rest shoulders. */
+  /*
+   * The body's stature, upper arm radius and rest shoulders.
+   */
   export interface IBody {
-    /** The stature and the upper arm's radius, metres. */
+    /*
+     * The stature and the upper arm's radius, metres.
+     */
     measure: Pick<IAutoMovieBodyMeasure, "stature" | "upperArmRadius">;
 
-    /** The rest joints, the shoulders among them, world metres. */
+    /*
+     * The rest joints, the shoulders among them, world metres.
+     */
     rest: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>;
   }
 }

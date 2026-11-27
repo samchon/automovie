@@ -57,7 +57,7 @@ import { workoutLaidHands } from "../workout/workoutLaidHands";
 import { workoutSpans } from "../workout/workoutSpans";
 import { workoutWallSit } from "../workout/workoutWallSit";
 
-/**
+/*
  * An exercise, a stretch or a pose done on a support that is not only the feet,
  * or with the feet kept under a moving trunk: the body gets from standing into
  * the exercise's first posture, passes through the postures of each repetition,
@@ -86,10 +86,14 @@ import { workoutWallSit } from "../workout/workoutWallSit";
  * which of its supports are kept by angles alone.
  */
 export namespace workout {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "workout";
 
-  /** Cancel table: from the end, into standing, walking or another exercise. */
+  /*
+   * Cancel table: from the end, into standing, walking or another exercise.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
@@ -97,7 +101,9 @@ export namespace workout {
       walk: ["fromRelax", "smooth"],
     });
 
-  /** The exercises. */
+  /*
+   * The exercises.
+   */
   export const KINDS: Readonly<
     Record<IAutoMovieMotionHumanWorkout.Kind, IAutoMovieMotionHumanWorkoutKind>
   > = {
@@ -112,13 +118,12 @@ export namespace workout {
     ...WorkoutDance.KINDS,
   };
 
-  /**
+  /*
    * Plan an exercise.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the count is not a positive whole number, the
-   *   hold is negative, or a hanging kind names no bar.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the count is not a positive whole number, the
+   * hold is negative, or a hanging kind names no bar.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWorkout.IParams>,
@@ -370,7 +375,7 @@ export namespace workout {
             from,
           );
 
-    /**
+    /*
      * The time-only keyed contribution, including any load owned by the
      * exercise.
      */
@@ -515,6 +520,8 @@ export namespace workout {
     });
     return result;
   }
-  /** The colliders of an arm, from the shoulder out. */
+  /*
+   * The colliders of an arm, from the shoulder out.
+   */
   const ARM: RegExp = /(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Little)/;
 }

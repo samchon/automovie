@@ -18,7 +18,7 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { punchFootwork } from "./punchFootwork";
 
-/**
+/*
  * The lower body of a close strike: the pelvis turned about the vertical and
  * shifted along the line with both feet planted, or, for a spin, the whole
  * stance turned about the ball of the lead foot, which pivots in place while
@@ -33,14 +33,13 @@ import { punchFootwork } from "./punchFootwork";
  * onto its ball with the share, and a tilt turns the whole body about a world
  * axis through the pivoting foot's hip, which stays put. A leg another
  * primitive writes (a kick's) is left out.
- *
- * @param body The body.
- * @param entry The entry posture.
- * @param feet The entry's feet.
- * @param lead The pivoting side: the stance's lead, or a kick's support foot.
- * @param motion The turn, lean, shift, spin, hop and drop by second, the rear
- *   pivot and the free leg.
- * @returns The primitive writing the root, the trunk and the legs it owns.
+ * Parameter body: The body.
+ * Parameter entry: The entry posture.
+ * Parameter feet: The entry's feet.
+ * Parameter lead: The pivoting side: the stance's lead, or a kick's support foot.
+ * Parameter motion: The turn, lean, shift, spin, hop and drop by second, the rear
+ * pivot and the free leg.
+ * Returns: The primitive writing the root, the trunk and the legs it owns.
  */
 export function CloseStrikeLegs(
   body: IAutoMovieMotionHumanBody,
@@ -249,7 +248,9 @@ export function CloseStrikeLegs(
     },
   };
 
-  /** The leg goals less the free leg's, which another primitive writes. */
+  /*
+   * The leg goals less the free leg's, which another primitive writes.
+   */
   function legs(
     goals: ReturnType<typeof StrikingStance.legs>,
   ): ReturnType<typeof StrikingStance.legs> {
@@ -260,15 +261,16 @@ export function CloseStrikeLegs(
   }
 }
 
-/** Companion types and constants of {@link CloseStrikeLegs}. */
+/*
+ * Companion types and constants of CloseStrikeLegs.
+ */
 export namespace CloseStrikeLegs {
-  /**
+  /*
    * How far a spinning strike has carried the feet round: a whole turn on a
    * minimum-jerk share over the `ROUND` part of the spin, signed with it, the
    * spin read up to one turn.
-   *
-   * @param angle The spin, degrees.
-   * @returns Degrees.
+   * Parameter angle: The spin, degrees.
+   * Returns: Degrees.
    */
   export function round(angle: number): number {
     const u: number = Math.min(1, Math.abs(angle) / 360);
@@ -279,90 +281,108 @@ export namespace CloseStrikeLegs {
     );
   }
 
-  /**
+  /*
    * The rear foot's arc height on a spin, a share of the stance length
    * (provisional).
    */
   export const LIFT: number = 0.25;
 
-  /**
+  /*
    * The shares of a spin's turn between which the rear foot travels round the
    * pivot, after it rises and before it lands (provisional).
    */
   export const ROUND: readonly [number, number] = [0.2, 0.8];
 
-  /** The lower body's carriage over a close strike. */
+  /*
+   * The lower body's carriage over a close strike.
+   */
   export interface IMotion {
-    /** The action's duration, seconds. */
+    /*
+     * The action's duration, seconds.
+     */
     duration: number;
 
-    /**
+    /*
      * The pelvis turn at full share, degrees, positive toward the performer's
      * left.
      */
     turn: number;
 
-    /** The trunk's forward lean at full share, degrees. */
+    /*
+     * The trunk's forward lean at full share, degrees.
+     */
     lean: number;
 
-    /** The pelvis's horizontal shift at full share, world metres. */
+    /*
+     * The pelvis's horizontal shift at full share, world metres.
+     */
     shift: IAutoMovieVector3;
 
-    /** The share of the strike out and back at an action second, in [0, 1]. */
+    /*
+     * The share of the strike out and back at an action second, in [0, 1].
+     */
     share: (seconds: number) => number;
 
-    /**
+    /*
      * The spin about the lead ball at an action second, degrees; 0 without a
      * spin.
      */
     spin: (seconds: number) => number;
 
-    /**
+    /*
      * The height both feet and the root are lifted at an action second, metres;
      * none when absent.
      */
     hop?: (seconds: number) => number;
 
-    /**
+    /*
      * The hips' drop at full share, metres, the support knee bending for a low
      * target; none when absent.
      */
     drop?: number;
 
-    /**
+    /*
      * Whether a planted turn pivots the rear foot on its ball by half the turn,
      * the heel raised; it stays flat when absent.
      */
     pivot?: boolean;
 
-    /**
+    /*
      * The leg another primitive writes, left out of this one's channels and
      * goals; none when absent.
      */
     free?: AutoMovieHumanSide;
 
-    /**
+    /*
      * The pivoting foot's heel raise onto its ball at full share, degrees, its
      * toes bent as far; flat when absent.
      */
     raise?: number;
 
-    /**
+    /*
      * The whole body's tilt at full share about a world axis through the
      * pivoting foot's hip; none when absent.
      */
     tilt?: ITilt;
   }
 
-  /** A tilt of the whole body about a world axis through a hip. */
+  /*
+   * A tilt of the whole body about a world axis through a hip.
+   */
   export interface ITilt {
-    /** The world axis, unit; a positive angle turns by the right hand about it. */
+    /*
+     * The world axis, unit; a positive angle turns by the right hand about it.
+     */
     axis: IAutoMovieVector3;
 
-    /** The angle at full share, degrees. */
+    /*
+     * The angle at full share, degrees.
+     */
     degrees: number;
   }
 }
 
-/** The alternatives of `CloseStrikeLegsLeg`'s site. */
+/*
+ * The alternatives of `CloseStrikeLegsLeg`'s site.
+ */
 type CloseStrikeLegsLeg = "leftLeg" | "rightLeg";

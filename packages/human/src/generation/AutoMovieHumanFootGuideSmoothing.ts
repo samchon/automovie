@@ -82,12 +82,11 @@ export namespace AutoMovieHumanFootGuideSmoothing {
     return solve(h, y, Math.exp(0.5 * (lo + hi)));
   }
 
-  /**
+  /*
    * The smoothing spline's values for one weight.
-   *
-   * @param h The station steps.
-   * @param y The knots' places.
-   * @param alpha The weight of the bending energy.
+   * Parameter h: The station steps.
+   * Parameter y: The knots' places.
+   * Parameter alpha: The weight of the bending energy.
    */
   function solve(h: readonly number[], y: readonly (readonly number[])[], alpha: number): number[][] {
     const n: number = y.length;
@@ -136,12 +135,11 @@ export namespace AutoMovieHumanFootGuideSmoothing {
     );
   }
 
-  /**
+  /*
    * Gaussian elimination with partial pivoting of a symmetric positive
    * definite system with several right sides.
-   *
-   * @param A The matrix, copied.
-   * @param B The right sides, one row per equation, copied.
+   * Parameter A: The matrix, copied.
+   * Parameter B: The right sides, one row per equation, copied.
    */
   function gauss(A: readonly (readonly number[])[], B: readonly (readonly number[])[]): number[][] {
     const m: number = A.length;
@@ -170,10 +168,12 @@ export namespace AutoMovieHumanFootGuideSmoothing {
   }
 }
 
-/** The median absolute deviation's factor to a normal standard deviation. */
+/*
+ * The median absolute deviation's factor to a normal standard deviation.
+ */
 const MAD: number = 1.4826;
 
-/**
+/*
  * The weight's bracket over the cube of the stations' span: the bending
  * energy's weight has units of length cubed; at a billionth of the span
  * cubed the spline interpolates the knots and at a thousand times it the
@@ -182,8 +182,12 @@ const MAD: number = 1.4826;
  */
 const WEIGHT_LEAST: number = 1e-9;
 
-/** The upper end of the weight's bracket over the stations' span cubed. */
+/*
+ * The upper end of the weight's bracket over the stations' span cubed.
+ */
 const WEIGHT_MOST: number = 1e3;
 
-/** Bisections of the weight's logarithm. */
+/*
+ * Bisections of the weight's logarithm.
+ */
 const BISECTIONS: number = 48;

@@ -14,7 +14,7 @@ import { measureAutoMovieRenderTextureClosure } from "./measureAutoMovieRenderTe
 import { resolveAutoMovieShadowProfile } from "./resolveAutoMovieShadowProfile";
 import { sumAutoMovieRenderTextureAllocations } from "./sumAutoMovieRenderTextureAllocations";
 
-/**
+/*
  * The render inventory's material and texture phase: resolve the shadow
  * profile, complete the material table with every drawn model's part materials,
  * close the textures over it and attribute each texture's bytes and
@@ -28,11 +28,10 @@ import { sumAutoMovieRenderTextureAllocations } from "./sumAutoMovieRenderTextur
  * runtime cost for a renderer-made texture. A texture whose bytes or the
  * combined bytes are unknown, and an uncertified allocation population, each
  * append a `not-run` gap rather than an invented number.
- *
- * @returns The shadow casters the pass phase counts, the texture closure rows
- *   and their summed bytes and allocations, each `null` when not known.
- * @throws {Error} The shadow profile the scene and settings ask for is not
- *   supported.
+ * Returns: The shadow casters the pass phase counts, the texture closure rows
+ * and their summed bytes and allocations, each `null` when not known.
+ * The shadow profile the scene and settings ask for is not
+ * supported.
  */
 export function measureRenderTextures(
   props: measureRenderTextures.IProps,
@@ -178,67 +177,105 @@ export function measureRenderTextures(
   return { casters, textures, textureBytes, textureAllocations };
 }
 
-/** What the material and texture phase reads and returns. */
+/*
+ * What the material and texture phase reads and returns.
+ */
 export namespace measureRenderTextures {
-  /** One light's shadow map: its depth faces and its filtering draws. */
+  /*
+   * One light's shadow map: its depth faces and its filtering draws.
+   */
   export interface ICaster {
-    /** The casting light's id. */
+    /*
+     * The casting light's id.
+     */
     light: string;
 
-    /** Depth faces the light's map renders, each a pass over the scene. */
+    /*
+     * Depth faces the light's map renders, each a pass over the scene.
+     */
     depthFaces: number;
 
-    /** Fullscreen filtering draws, each one triangle; 0 without VSM. */
+    /*
+     * Fullscreen filtering draws, each one triangle; 0 without VSM.
+     */
     filterDraws: number;
   }
 
-  /** The subject, the earlier phases' tables and the shared row sinks. */
+  /*
+   * The subject, the earlier phases' tables and the shared row sinks.
+   */
   export interface IProps {
-    /** The measured subject; only read. */
+    /*
+     * The measured subject; only read.
+     */
     subject: IAutoMovieRenderSubject;
 
-    /** Target settings whose shadows apply when the scene states none. */
+    /*
+     * Target settings whose shadows apply when the scene states none.
+     */
     settings?: IAutoMovieRenderTargetSettings;
 
-    /** The subject's models by id. */
+    /*
+     * The subject's models by id.
+     */
     byId: ReadonlyMap<string, IAutoMovieModel>;
 
-    /** Ids of the models the population phase drew. */
+    /*
+     * Ids of the models the population phase drew.
+     */
     drawnModels: ReadonlySet<string>;
 
-    /**
+    /*
      * Materials cited so far by id; this phase adds the drawn parts' own and
      * reads the completed table.
      */
     materials: Map<string, IAutoMovieMaterial>;
 
-    /** Materials the renderer creates for unnamed simulated drawables. */
+    /*
+     * Materials the renderer creates for unnamed simulated drawables.
+     */
     defaultMaterials: number;
 
-    /** Appends one owner row. */
+    /*
+     * Appends one owner row.
+     */
     add: IAutoMovieMeasureRenderSimulation.IProps["add"];
 
-    /** Receives the phase's analysis gaps. */
+    /*
+     * Receives the phase's analysis gaps.
+     */
     gaps: IAutoMovieRenderAnalysisGap[];
   }
 
-  /** The phase's shadow casters and texture closure. */
+  /*
+   * The phase's shadow casters and texture closure.
+   */
   export interface IResult {
-    /** Lights that render a shadow map, for the pass phase. */
+    /*
+     * Lights that render a shadow map, for the pass phase.
+     */
     casters: ICaster[];
 
-    /** The texture closure rows the report lists. */
+    /*
+     * The texture closure rows the report lists.
+     */
     textures: IAutoMovieRenderTextureCost[];
 
-    /** Summed texture bytes, or `null` when any is unknown or unsafe. */
+    /*
+     * Summed texture bytes, or `null` when any is unknown or unsafe.
+     */
     textureBytes: number | null;
 
-    /** Summed texture allocations, or `null` when uncertified or unsafe. */
+    /*
+     * Summed texture allocations, or `null` when uncertified or unsafe.
+     */
     textureAllocations: number | null;
   }
 }
 
-/** Sum of the rows' bytes; `null` when one is unknown or the sum is unsafe. */
+/*
+ * Sum of the rows' bytes; `null` when one is unknown or the sum is unsafe.
+ */
 const sumBytes: (
   textures: readonly IAutoMovieRenderTextureCost[],
 ) => number | null = (
@@ -253,7 +290,9 @@ const sumBytes: (
   return sum;
 };
 
-/** A source or generating runtime stays named even when its cost is unknown. */
+/*
+ * A source or generating runtime stays named even when its cost is unknown.
+ */
 const textureDiagnosticName: (
   texture: IAutoMovieRenderTextureCost,
 ) => string | undefined = (

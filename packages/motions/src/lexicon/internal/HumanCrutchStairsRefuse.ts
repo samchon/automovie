@@ -1,6 +1,8 @@
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** Refuse a crutch setting with its reason. */
+/*
+ * Refuse a crutch setting with its reason.
+ */
 export function HumanCrutchStairsRefuse(
   axis: string,
   value: unknown,

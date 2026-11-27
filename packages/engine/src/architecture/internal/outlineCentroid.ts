@@ -2,13 +2,13 @@ import { IAutoMoviePlanarPoint } from "@automovie/interface";
 
 import { ObservationGeometry } from "./ObservationGeometry";
 
-/**
+/*
  * The area-weighted centroid of a closed planar outline, or the mean of its
  * points when the outline encloses no area.
  *
  * The outline is read as a simple polygon closing from its last point back to
  * its first, in either winding. When the absolute doubled signed area is at
- * most {@link ObservationGeometry.Epsilon}, including a sufficiently small
+ * most ObservationGeometry.Epsilon, including a sufficiently small
  * nonzero area, the vertex mean is returned instead. An empty outline answers
  * `NaN` coordinates.
  */

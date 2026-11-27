@@ -14,7 +14,9 @@ import { physicalHullFacesSegment } from "./physicalHullFacesSegment";
 import { physicalShapeHull } from "./physicalShapeHull";
 import { readPhysicalHullFacesPoint } from "./readPhysicalHullFacesPoint";
 
-/** Compose the world frame from the parent and shape-local transforms. */
+/*
+ * Compose the world frame from the parent and shape-local transforms.
+ */
 function frameOf(
   pose: IAutoMovieRigidTransform,
   shape: IAutoMoviePhysicalShape,
@@ -28,7 +30,9 @@ function frameOf(
   };
 }
 
-/** Form the untapered round shape's two axis endpoints. */
+/*
+ * Form the untapered round shape's two axis endpoints.
+ */
 function roundEnds(
   centre: IAutoMovieVector3,
   rotation: IAutoMovieQuaternion,
@@ -42,7 +46,7 @@ function roundEnds(
   return [Vector3.subtract(centre, axis), Vector3.add(centre, axis)];
 }
 
-/**
+/*
  * Full world contact reading of the shared shape-proximity computation.
  *
  * The parent pose, admitted shape, world segment ends and optional endpoint
@@ -62,7 +66,7 @@ function physicalShapeQueryDirect(
   details: true,
 ): IAutoMoviePhysicalShapeNearest.IResult;
 
-/**
+/*
  * Signed distance alone from that same query, with false detail mode.
  *
  * PhysicalShapeSegmentDistance supplies the same world geometry and widening,
@@ -81,7 +85,9 @@ function physicalShapeQueryDirect(
   details: false,
 ): number;
 
-/** The single numerical owner behind full and distance-only proximity reads. */
+/*
+ * The single numerical owner behind full and distance-only proximity reads.
+ */
 function physicalShapeQueryDirect(
   pose: IAutoMovieRigidTransform,
   shape: IAutoMoviePhysicalShape,
@@ -93,16 +99,15 @@ function physicalShapeQueryDirect(
   return query(frameOf(pose, shape), shape, a, b, taper, details);
 }
 
-/**
-   * Prepare the fixed world origin, rotation, inverse and any bare-round axis
-   * before reading signed distances to varying world segments. Queries use the
-   * same closest/hull search, taper and tie rules as the direct entry.
-   *
-   * @param pose The parent pose supplying the world transform at preparation.
-   * @param shape The fixed admitted shape geometry used by every query.
-   * @returns A distance reader of changing world segments and optional endpoint
-   *   radii. Interpolation scratch and contact results belong to each query.
-   */
+/*
+ * Prepare the fixed world origin, rotation, inverse and any bare-round axis
+ * before reading signed distances to varying world segments. Queries use the
+ * same closest/hull search, taper and tie rules as the direct entry.
+ * Parameter pose: The parent pose supplying the world transform at preparation.
+ * Parameter shape: The fixed admitted shape geometry used by every query.
+ * Returns: A distance reader of changing world segments and optional endpoint
+ * radii. Interpolation scratch and contact results belong to each query.
+ */
 function physicalShapeQueryPrepare(
   pose: IAutoMovieRigidTransform,
   shape: IAutoMoviePhysicalShape,
@@ -132,7 +137,9 @@ function physicalShapeQueryPrepare(
   ): number => query(prepared, shape, a, b, taper, false);
 }
 
-/** Internal typed entry points for full, scalar and prepared shape proximity. */
+/*
+ * Internal typed entry points for full, scalar and prepared shape proximity.
+ */
 export const physicalShapeQueryImplementation: {
   physicalShapeQueryDirect: typeof physicalShapeQueryDirect;
   prepare: typeof physicalShapeQueryPrepare;
@@ -141,10 +148,10 @@ export const physicalShapeQueryImplementation: {
   prepare: physicalShapeQueryPrepare,
 };
 
-  /**
- * Scalar reads share this one mathematical body with the cold full-contact
- * entry.
- */
+  /*
+   * Scalar reads share this one mathematical body with the cold full-contact
+   * entry.
+   */
 function query(
   frame: IFrame,
   shape: IAutoMoviePhysicalShape,
@@ -154,7 +161,9 @@ function query(
   details: false,
 ): number;
 
-/** The cold full/scalar facade retains its original union result. */
+/*
+ * The cold full/scalar facade retains its original union result.
+ */
 function query(
   frame: IFrame,
   shape: IAutoMoviePhysicalShape,
@@ -164,7 +173,9 @@ function query(
   details: boolean,
 ): IAutoMoviePhysicalShapeNearest.IResult | number;
 
-/** One fixed-frame acquisition and the unchanged ordered proximity calculation. */
+/*
+ * One fixed-frame acquisition and the unchanged ordered proximity calculation.
+ */
 function query(
   frame: IFrame,
   shape: IAutoMoviePhysicalShape,
@@ -312,14 +323,14 @@ function query(
   };
 }
 
-/**
+/*
  * The nearest surface point, outward normal and signed distance of an
  * origin-centred box to a point in the box's frame: outside, the point clamped
  * to the box; inside, the projection onto the nearest face.
  */
 function boxNearest(h: IAutoMovieVector3, p: IAutoMovieVector3): ILocal;
 
-/**
+/*
  * The same box distance without unobserved contact fields at an internal search
  * probe.
  */
@@ -329,7 +340,7 @@ function boxNearest(
   details: false,
 ): number;
 
-/**
+/*
  * One box-distance calculation serves both the scalar search and the final
  * contact.
  */
@@ -369,7 +380,7 @@ function boxNearest(
   };
 }
 
-/**
+/*
  * The nearest surface point, outward normal and signed distance of an
  * origin-centred Y capsule (a sphere when its half length is 0) to a point in
  * its frame: the axis point nearest the point, moved out by the radius; the
@@ -381,7 +392,7 @@ function roundNearest(
   p: IAutoMovieVector3,
 ): ILocal;
 
-/**
+/*
  * The same capsule/sphere distance; optional query-local axis scratch keeps X/Z
  * zero and receives only the current clamped Y.
  */
@@ -393,7 +404,7 @@ function roundNearest(
   axis?: IAutoMovieVector3,
 ): number;
 
-/**
+/*
  * One round-shape distance calculation serves scalar search and full contact
  * readers.
  */
@@ -421,39 +432,55 @@ function roundNearest(
   };
 }
 
-/**
+/*
  * The share of a segment's length its nearest point is located to: under a
  * nanometre on a limb's segment, where the fixed golden-section search
  * stopped.
  */
 const ALONG: number = 1e-9;
 
-/**
+/*
  * A shape-local proximity reading before its point and normal return to world
  * space.
  */
 interface ILocal {
-  /** Signed metres, negative inside the local shape. */
+  /*
+   * Signed metres, negative inside the local shape.
+   */
   distance: number;
 
-  /** Nearest surface point in the composed shape's local frame, metres. */
+  /*
+   * Nearest surface point in the composed shape's local frame, metres.
+   */
   point: IAutoMovieVector3;
 
-  /** Outward unit normal in that same local frame. */
+  /*
+   * Outward unit normal in that same local frame.
+   */
   normal: IAutoMovieVector3;
 }
 
-/** Completed fixed geometry for one caller-owned synchronous query operation. */
+/*
+ * Completed fixed geometry for one caller-owned synchronous query operation.
+ */
 interface IFrame {
-  /** Actual composed shape origin, world metres. */
+  /*
+   * Actual composed shape origin, world metres.
+   */
   centre: IAutoMovieVector3;
 
-  /** Actual parent-times-shape world rotation. */
+  /*
+   * Actual parent-times-shape world rotation.
+   */
   rotation: IAutoMovieQuaternion;
 
-  /** Prepared inverse rotation for shape-local queries. */
+  /*
+   * Prepared inverse rotation for shape-local queries.
+   */
   inverse?: IAutoMovieQuaternion;
 
-  /** Prepared bare sphere/capsule axis, in world metres. */
+  /*
+   * Prepared bare sphere/capsule axis, in world metres.
+   */
   round?: readonly [IAutoMovieVector3, IAutoMovieVector3];
 }

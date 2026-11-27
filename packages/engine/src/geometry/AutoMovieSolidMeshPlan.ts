@@ -205,19 +205,25 @@ export namespace AutoMovieSolidMeshPlan {
   }
 }
 
-/**
+/*
  * One possible straight visibility edge, ordered by original endpoint IDs and
  * turn.
  */
 type Candidate = IAutoMovieSolidMeshConstraints.ISegment;
 
-/** A kept left boundary, classified in its own finite native cover. */
+/*
+ * A kept left boundary, classified in its own finite native cover.
+ */
 interface Component {
-  /** Directed original-ID occurrences and cover lifts. */ walk: IAutoMovieSolidMeshIncidence.IWalk;
-  /** Whether the finite left probe is inside this zero-winding boundary. */ outer: boolean;
+  /*
+   * Directed original-ID occurrences and cover lifts.
+   */ walk: IAutoMovieSolidMeshIncidence.IWalk;
+  /*
+   * Whether the finite left probe is inside this zero-winding boundary.
+   */ outer: boolean;
 }
 
-/**
+/*
  * Kept left boundary components; exact ray parity distinguishes finite outer
  * walks from holes.
  */
@@ -269,7 +275,7 @@ function components(
   return result;
 }
 
-/**
+/*
  * The shortest visible bridge from the selected component to any other, in the
  * face's uniform metric: `du^2 + (scale dv)^2`, the same metric the free
  * diagonals are legalized in (`legalizeAutoMovieSolidMesh`; George and
@@ -302,7 +308,7 @@ function bridge(
   scale: number,
 ): Candidate | string {
   type Ranked = { candidate: Candidate; length: number };
-  /**
+  /*
    * Whether a pair already holds a prior global edge, which no bridge may
    * reuse.
    */
@@ -310,7 +316,7 @@ function bridge(
     a: number,
     b: number,
   ): boolean => occupied?.has(`${Math.min(a, b)}/${Math.max(a, b)}`) === true;
-  /**
+  /*
    * Visit every candidate of a pair that may hold a bridge, with its squared
    * metric length; a string stops the visit. A taken pair is no candidate, but
    * the visitor asks `taken` itself, and only of a candidate it would keep: the
@@ -352,7 +358,7 @@ function bridge(
     }
     return null;
   };
-  /**
+  /*
    * Whether a candidate comes strictly before a ranked one in the exact total
    * order.
    */
@@ -373,7 +379,9 @@ function bridge(
       a - than.candidate.a ||
       b - than.candidate.b ||
       turn - than.candidate.turn) < 0;
-  /** The exact total order: length, then IDs and turn. */
+  /*
+   * The exact total order: length, then IDs and turn.
+   */
   const before: (x: Ranked, y: Ranked) => number = (
     x: Ranked,
     y: Ranked,
@@ -382,7 +390,9 @@ function bridge(
     x.candidate.a - y.candidate.a ||
     x.candidate.b - y.candidate.b ||
     x.candidate.turn - y.candidate.turn;
-  /** The first admitted bridge of a ranked list, or a refusal string, or null. */
+  /*
+   * The first admitted bridge of a ranked list, or a refusal string, or null.
+   */
   const admit: (list: Ranked[]) => Ranked | string | null = (
     list: Ranked[],
   ): Ranked | string | null => {
@@ -460,7 +470,7 @@ function bridge(
     : chosen.candidate;
 }
 
-/**
+/*
  * A strict represented centroid, never a silent empty-face classification at
  * rounded boundaries.
  */
@@ -479,14 +489,18 @@ function centroid(
     : "visibility triangle has no represented strict centroid";
 }
 
-/** Identity of an unoriented edge, including its relative cover turn. */
+/*
+ * Identity of an unoriented edge, including its relative cover turn.
+ */
 function key(edge: IAutoMovieSolidMeshConstraints.ISegment): string {
   return edge.a < edge.b || (edge.a === edge.b && edge.turn > 0)
     ? `${edge.a}/${edge.b}/${edge.turn}`
     : `${edge.b}/${edge.a}/${-edge.turn}`;
 }
 
-/** A finite midpoint without adding two potentially large coordinates. */
+/*
+ * A finite midpoint without adding two potentially large coordinates.
+ */
 function midpoint(
   a: Readonly<AutoMovieVector2Tuple>,
   b: Readonly<AutoMovieVector2Tuple>,
@@ -497,7 +511,7 @@ function midpoint(
   ];
 }
 
-/**
+/*
  * Neighbour images cover comparisons with shortest-image visibility edges and
  * one-period primitives.
  */
@@ -513,7 +527,9 @@ function images(
   return [nearest - 1, nearest, nearest + 1];
 }
 
-/** Exact closed segment membership on the represented native points. */
+/*
+ * Exact closed segment membership on the represented native points.
+ */
 function on(
   a: Readonly<AutoMovieVector2Tuple>,
   b: Readonly<AutoMovieVector2Tuple>,
@@ -528,7 +544,9 @@ function on(
   );
 }
 
-/** Refuse third vertices, edge intersections and coincident existing diagonals. */
+/*
+ * Refuse third vertices, edge intersections and coincident existing diagonals.
+ */
 function clear(
   vertices: ReadonlyMap<number, Readonly<AutoMovieVector2Tuple>>,
   edges: readonly IAutoMovieSolidMeshConstraints.ISegment[],

@@ -11,7 +11,7 @@ import { EquineStirrup } from "./EquineStirrup";
 import type { EquineTack } from "./EquineTack";
 import { QuadrupedAttachments } from "../quadruped/QuadrupedAttachments";
 
-/**
+/*
  * An equid's side saddle, laid on its body: a flat seat, the fixed head (the
  * upper pommel) the right leg goes round, the leaping head (the lower pommel)
  * curved over the left thigh, one stirrup on the near side and the two reins.
@@ -29,7 +29,7 @@ import { QuadrupedAttachments } from "../quadruped/QuadrupedAttachments";
  * gives, named here; the saddle's weight is a press figure.
  */
 export namespace EquineSideSaddle {
-  /**
+  /*
    * The side saddle's mass, kilograms: traditional side saddles of beechwood,
    * iron and leather "typically weighed around 22lb (10kg)" (Horse & Hound,
    * "Riding side-saddle",
@@ -39,13 +39,13 @@ export namespace EquineSideSaddle {
    */
   export const WEIGHT: number = 10;
 
-  /**
+  /*
    * The flat seat's width across the back, metres: an estimate, wider than the
    * riding saddle's `EquineSaddle.SEAT_WIDTH`, no source read gives it.
    */
   export const WIDTH: number = 0.36;
 
-  /**
+  /*
    * The fixed head's rise above the seat and its offset to the near side of the
    * spine, metres: estimates.
    */
@@ -54,19 +54,18 @@ export namespace EquineSideSaddle {
     near: 0.04,
   };
 
-  /**
+  /*
    * How much shorter the near stirrup leather hangs than the riding saddle's
    * drop, metres: an estimate for the bent left leg under the leaping head.
    */
   export const SHORTER: number = 0.1;
 
-  /**
+  /*
    * Lay the side saddle, its heads, its stirrup and its reins on an equid under
    * construction.
-   *
-   * @param builder The equid under construction, its body laid.
-   * @param d The equid's dimensions.
-   * @param rig The equid's rest rig.
+   * Parameter builder: The equid under construction, its body laid.
+   * Parameter d: The equid's dimensions.
+   * Parameter rig: The equid's rest rig.
    */
   export function lay(
     builder: AutoMovieArchetypeBuilder<

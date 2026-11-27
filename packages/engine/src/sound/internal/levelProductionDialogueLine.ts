@@ -2,7 +2,7 @@ import type { IAutoMovieLoudnessMeter } from "@automovie/interface";
 
 import { createAutoMovieLoudnessMeter } from "./createAutoMovieLoudnessMeter";
 
-/**
+/*
  * Measure one dialogue line as the mixer places it and return the gain that
  * moves it to the dialogue target.
  *
@@ -14,22 +14,29 @@ import { createAutoMovieLoudnessMeter } from "./createAutoMovieLoudnessMeter";
  * mix to correct: a line that needs more, or that no block lifts over the −70
  * LUFS absolute gate, was generated at a level the mix should not hide and is
  * refused, naming its measured loudness.
- *
- * @param props The line's id, its placed samples' source, its edge fade and the
- *   target.
- * @returns The line's loudness as placed in LUFS and its gain in dB.
+ * Parameter props: The line's id, its placed samples' source, its edge fade and the
+ * target.
+ * Returns: The line's loudness as placed in LUFS and its gain in dB.
  */
 export function levelProductionDialogueLine(props: {
-  /** Line id, for refusals. */
+  /*
+   * Line id, for refusals.
+   */
   id: string;
 
-  /** Mono samples at 48 kHz. */
+  /*
+   * Mono samples at 48 kHz.
+   */
   samples: ArrayLike<number>;
 
-  /** Edge fade the mixer applies to sample `index` of the line. */
+  /*
+   * Edge fade the mixer applies to sample `index` of the line.
+   */
   fade: (index: number) => number;
 
-  /** Dialogue target in LUFS. */
+  /*
+   * Dialogue target in LUFS.
+   */
   targetLufs: number;
 }): { measuredLufs: number; gainDb: number } {
   const meter: IAutoMovieLoudnessMeter = createAutoMovieLoudnessMeter(2);
@@ -53,5 +60,7 @@ export function levelProductionDialogueLine(props: {
   return { measuredLufs: measured, gainDb };
 }
 
-/** Largest correction in dB the mix applies to a line, either way. */
+/*
+ * Largest correction in dB the mix applies to a line, either way.
+ */
 const RANGE_DB: number = 12;

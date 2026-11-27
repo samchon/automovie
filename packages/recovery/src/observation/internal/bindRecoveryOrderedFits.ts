@@ -19,7 +19,7 @@ import { sourceOrientation } from "../../geometry/internal/sourceOrientation";
 import { observeRecoverySection } from "../../geometry/internal/observeRecoverySection";
 import { prepareRecoveryMeshIncidence } from "../../geometry/internal/prepareRecoveryMeshIncidence";
 
-/**
+/*
  * Recover a new pointwise correspondence for explicitly requested saved cubics.
  * The caller byte-verifies cuts, target publications and their actual policies.
  * The original section fitter replays each target once; conversion to the saved
@@ -142,7 +142,7 @@ export function bindRecoveryOrderedFits(
         if (!orientations.has(sign))
           orientations.set(sign, sourceOrientation(prepared.mesh, sign));
 
-        /**
+        /*
          * Current section callback record, not evidence of historical
          * parameters.
          */
@@ -311,7 +311,7 @@ export function bindRecoveryOrderedFits(
   );
 }
 
-/**
+/*
  * Serialize the numeric cubic geometry compared by saved-fit binding. Names are
  * checked against publication before this helper and are excluded here; type,
  * units, closure, actual physical widths and every span remain. JSON equality

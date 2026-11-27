@@ -6,17 +6,16 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import type { HumanStagePiste } from "./HumanStagePiste";
 
-/**
+/*
  * Refuse a bout's target outside the weapon's valid target: the foil's trunk,
  * every region for the epee and every region above the waist for the sabre (FIE
  * Technical Rules), and for kendo a struck region of the opponent's worn armour
  * (FIK, The Regulations of Kendo Shiai and Shinpan, Articles 12 and 14).
- *
- * @param kind The weapon.
- * @param axis The take's input the target came from, named in the refusal.
- * @param target The target.
- * @throws {HumanRefusal} When the target lies outside the weapon's valid
- *   target.
+ * Parameter kind: The weapon.
+ * Parameter axis: The take's input the target came from, named in the refusal.
+ * Parameter target: The target.
+ * When the target lies outside the weapon's valid
+ * target.
  */
 export function HumanPisteTarget(
   kind: HumanStagePiste.Kind,
@@ -49,7 +48,9 @@ export function HumanPisteTarget(
     });
 }
 
-/** The foil's valid target: the trunk, without the head, the arms or the legs. */
+/*
+ * The foil's valid target: the trunk, without the head, the arms or the legs.
+ */
 const TRUNK: ReadonlySet<AutoMovieHumanoidRegion> = new Set([
   "sternum",
   "chestLeft",
@@ -67,7 +68,9 @@ const TRUNK: ReadonlySet<AutoMovieHumanoidRegion> = new Set([
   "groin",
 ]);
 
-/** The regions below the sabre's valid target, the hips' bend and down. */
+/*
+ * The regions below the sabre's valid target, the hips' bend and down.
+ */
 const BELOW_WAIST: ReadonlySet<AutoMovieHumanoidRegion> = new Set([
   "groin",
   "seat",
@@ -95,7 +98,9 @@ const BELOW_WAIST: ReadonlySet<AutoMovieHumanoidRegion> = new Set([
   "heelRight",
 ]);
 
-/** The struck regions of kendo armour, as the worn armour names its points. */
+/*
+ * The struck regions of kendo armour, as the worn armour names its points.
+ */
 const STRUCK: ReadonlySet<string> = new Set([
   "men",
   "kote",

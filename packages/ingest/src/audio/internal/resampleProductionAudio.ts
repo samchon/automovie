@@ -1,4 +1,4 @@
-/**
+/*
  * Convert mono samples from one rate to another by band-limited interpolation
  * (Smith and Gossett, "A flexible sampling-rate conversion method", ICASSP
  * 1984).
@@ -13,11 +13,10 @@
  * the first and after the last input sample are zero. The output holds
  * `round(source.length × to / from)` samples, which may be zero for a short
  * source and a low target rate.
- *
- * @param source Mono input samples at `from` samples per second; only read.
- * @param from Input rate, a positive safe integer.
- * @param to Output rate, a positive safe integer.
- * @returns New mono samples at `to` samples per second, rounded to Float32.
+ * Parameter source: Mono input samples at `from` samples per second; only read.
+ * Parameter from: Input rate, a positive safe integer.
+ * Parameter to: Output rate, a positive safe integer.
+ * Returns: New mono samples at `to` samples per second, rounded to Float32.
  */
 export function resampleProductionAudio(
   source: Float32Array,
@@ -54,7 +53,7 @@ export function resampleProductionAudio(
   return output;
 }
 
-/**
+/*
  * Zero crossings of the sinc on each side of the centre. With `ROLLOFF` and the
  * Kaiser window below, the filter spans `2 × 32 / 0.9 ≈ 71` input samples when
  * upsampling, which gives a transition band of about 0.44 rad per input sample
@@ -63,23 +62,27 @@ export function resampleProductionAudio(
  */
 const ZERO_CROSSINGS: number = 32;
 
-/**
+/*
  * Cutoff as a fraction of the lower Nyquist frequency. At 0.9 the transition
  * band of a 24 kHz source runs from about 9.95 to 11.65 kHz, so speech up to 10
  * kHz passes and the first image of any passband tone lies in the stopband.
  */
 const ROLLOFF: number = 0.9;
 
-/** Kaiser window stopband attenuation in dB, the design target `A`. */
+/*
+ * Kaiser window stopband attenuation in dB, the design target `A`.
+ */
 const STOPBAND_DB: number = 80;
 
-/**
+/*
  * Kernel table entries per zero crossing; Smith and Gossett interpolate
  * linearly between them.
  */
 const TABLE_DENSITY: number = 512;
 
-/** Modified Bessel function of the first kind, order zero, by its power series. */
+/*
+ * Modified Bessel function of the first kind, order zero, by its power series.
+ */
 function besselI0(x: number): number {
   let sum: number = 1;
   let term: number = 1;
@@ -90,7 +93,7 @@ function besselI0(x: number): number {
   return sum;
 }
 
-/**
+/*
  * The windowed sinc `sinc(u) × I0(β √(1 − (u/Z)²)) / I0(β)` at `u = i /
  * TABLE_DENSITY`, for `u` from 0 to `ZERO_CROSSINGS`, followed by one zero so
  * the last interpolation step ends at the window's edge. `β = 0.1102 (A − 8.7)`

@@ -6,7 +6,7 @@ import type {
 
 import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
 
-/**
+/*
  * Insert admitted residual grid points by splitting the triangles that contain
  * them.
  *
@@ -97,7 +97,7 @@ export function insertAutoMovieSolidMeshPoints(
     const located: Hit[] | string = locate(vertices, result, point, period);
     const hits: Hit[] = typeof located === "string" ? [] : located;
 
-    /**
+    /*
      * A named refusal with the inserted point and the triangles that located
      * it.
      */
@@ -199,43 +199,59 @@ export function insertAutoMovieSolidMeshPoints(
   return result;
 }
 
-/** One directed cavity edge in the inserted point's period cover. */
+/*
+ * One directed cavity edge in the inserted point's period cover.
+ */
 interface Boundary {
-  /** First original vertex ID. */
+  /*
+   * First original vertex ID.
+   */
   a: number;
 
-  /** Last original vertex ID. */
+  /*
+   * Last original vertex ID.
+   */
   b: number;
 
-  /** Period lift of the first endpoint relative to the new point. */
+  /*
+   * Period lift of the first endpoint relative to the new point.
+   */
   first: number;
 
-  /** Period lift of the last endpoint relative to the new point. */
+  /*
+   * Period lift of the last endpoint relative to the new point.
+   */
   last: number;
 }
 
-/** A containing triangle and its occurrence in the inserted point's own cover. */
+/*
+ * A containing triangle and its occurrence in the inserted point's own cover.
+ */
 interface Hit {
-  /** Triangle index before this insertion. */ index: number;
+  /*
+   * Triangle index before this insertion.
+   */ index: number;
 
-  /**
+  /*
    * The point's sheet in the triangle's stored cover: integer periods the
    * stored cover adds to the point.
    */ lift: number;
 
-  /** Three exact edge signs of the point's stored coordinates against `chart`. */ signs: [
+  /*
+   * Three exact edge signs of the point's stored coordinates against `chart`.
+   */ signs: [
     number,
     number,
     number,
   ];
 
-  /**
+  /*
    * The triangle's corners in the point's cover: each stored phase plus its
    * lift less `lift`, in periods.
    */ chart: Readonly<AutoMovieVector2Tuple>[];
 }
 
-/**
+/*
  * Locate every incident triangle by exact edge signs in the point's own cover:
  * the point keeps its stored phase and each corner is read at its lift relative
  * to the point's sheet in that triangle. A corner's represented phase there
@@ -284,7 +300,7 @@ function locate(
   return hits;
 }
 
-/**
+/*
  * The triangle from the point to a containing triangle's side `k`, published in
  * the cover it was located in: the point first at lift zero, the side's two
  * corners at their lifts relative to the point's sheet. Its orientation there
@@ -315,7 +331,7 @@ function side(
   };
 }
 
-/**
+/*
  * A refusal with the inserted point's identity and chart and each located
  * triangle with its signs; nonfinite numbers are spelled out.
  */
@@ -374,7 +390,9 @@ function describe(
   );
 }
 
-/** Unoriented identity of the existing diagonal, including its relative cover. */
+/*
+ * Unoriented identity of the existing diagonal, including its relative cover.
+ */
 function edgeKey(
   triangle: IAutoMovieSolidMeshPlan.ITriangle,
   at: number,
@@ -386,7 +404,9 @@ function edgeKey(
   return key(a, b, turn);
 }
 
-/** Canonical indexed edge identity retains the relative period turn. */
+/*
+ * Canonical indexed edge identity retains the relative period turn.
+ */
 function key(a: number, b: number, turn: number): string {
   return a === b
     ? `${a}/${b}/${Math.abs(turn)}`
@@ -395,7 +415,7 @@ function key(a: number, b: number, turn: number): string {
       : `${b}/${a}/${-turn}`;
 }
 
-/**
+/*
  * Remove only unconstrained neighbours needed for a visible, representable
  * insertion fan.
  */
@@ -516,7 +536,7 @@ function cavity(
   return result;
 }
 
-/**
+/*
  * Every cavity edge must see the point, and its actual output triangle must
  * have a represented strict interior.
  */

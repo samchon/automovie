@@ -13,7 +13,7 @@ import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { performShotActionSpan } from "./performShotActionSpan";
 import { performShotActors } from "./performShotActors";
 
-/**
+/*
  * Refuse two overlapping actions of one actor whose clips, after their region
  * masks, author the same channel.
  *
@@ -30,10 +30,9 @@ import { performShotActors } from "./performShotActors";
  * Synthesis only follows a clean input gate, so the check is skipped for every
  * actor once the collector holds a violation: a malformed request must return
  * its located violations rather than reach a throwing synthesizer.
- *
- * @param context The shot's staged tables and collector.
- * @param actions The performing action list; `frame` actions are ignored.
- * @param synthesize The shot's memoized synthesizer, shared with the compile.
+ * Parameter context: The shot's staged tables and collector.
+ * Parameter actions: The performing action list; `frame` actions are ignored.
+ * Parameter synthesize: The shot's memoized synthesizer, shared with the compile.
  */
 export function gatePerformShotRegionOverlaps(
   context: IAutoMovieEnginePerformShotGateContext,
@@ -121,22 +120,30 @@ export function gatePerformShotRegionOverlaps(
   }
 }
 
-/**
+/*
  * What one action's clip carries after its region mask, cached by action only
  * while that actor's overlap pairs are compared.
  */
 interface ICarriedContent {
-  /** Bones authored by at least one key and retained by the action's region. */
+  /*
+   * Bones authored by at least one key and retained by the action's region.
+   */
   bones: Set<AutoMovieHumanoidBone>;
 
-  /** Whether a face-region key authors an expression. */
+  /*
+   * Whether a face-region key authors an expression.
+   */
   expression: boolean;
 
-  /** Whether the action's key and layering policy retain a pose root. */
+  /*
+   * Whether the action's key and layering policy retain a pose root.
+   */
   root: boolean;
 }
 
-/** The channels one clip carries after its region mask. */
+/*
+ * The channels one clip carries after its region mask.
+ */
 function carriedContent(
   motion: IAutoMovieMotion | null,
   region: AutoMovieBodyRegion,

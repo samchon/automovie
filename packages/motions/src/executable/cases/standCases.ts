@@ -8,7 +8,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { MotionBodies } from "../internal/MotionBodies";
 
-/**
+/*
  * The capture case of quiet standing on the polygon man (`stand`): the named
  * bodies, by default the smallest, the average and the tallest of the sweep,
  * stand for 2 s on a diagonal, 0.8 m apart along each axis, drawn at the start,
@@ -21,10 +21,9 @@ import { MotionBodies } from "../internal/MotionBodies";
  * forward axis level within 2°; the centre of mass 2 to 6 cm in front of the
  * ankles' midpoint (Winter 1995); and each heel and toe on the floor within 5
  * mm.
- *
- * @param names The bodies that stand.
- * @param label The case's name.
- * @returns The case.
+ * Parameter names: The bodies that stand.
+ * Parameter label: The case's name.
+ * Returns: The case.
  */
 export function standCases(
   names: readonly string[] = ["f-small", "m-average", "m-tall"],

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-/**
+/*
  * The highest layer bit neither the camera nor any object in the scene uses,
  * for the film response stage to draw the display overlays alone. Throws when
  * all 32 bits are in use.

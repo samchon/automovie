@@ -6,7 +6,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/**
+/*
  * Gate one relation that cites another prop's declared contact point.
  *
  * The cited prop must differ from the citing one and be declared exactly once,
@@ -15,14 +15,13 @@ import {
  * to attach, `hook` to hang (`suspended`). The first failing rule is reported
  * under `<path>.target.prop` or `<path>.target.affordance` and the rest are not
  * judged, because each depends on the one before.
- *
- * @param props.relation The relation whose target is checked; its kind picks
- *   the affordance kind.
- * @param props.target The relation's prop-affordance target.
- * @param props.path Violation path of the relation.
- * @param props.node Node id of the citing prop.
- * @param props.matches Every registry prop declaring the cited node.
- * @param out Collector the violations are appended to.
+ * Parameter props.relation: The relation whose target is checked; its kind picks
+ * the affordance kind.
+ * Parameter props.target: The relation's prop-affordance target.
+ * Parameter props.path: Violation path of the relation.
+ * Parameter props.node: Node id of the citing prop.
+ * Parameter props.matches: Every registry prop declaring the cited node.
+ * Parameter out: Collector the violations are appended to.
  */
 export function validatePropAffordanceTarget(
   props: IAutoMovieValidatePropAffordanceTarget.IProps,

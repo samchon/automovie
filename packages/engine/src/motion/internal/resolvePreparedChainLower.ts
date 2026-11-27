@@ -13,7 +13,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import type { prepareChainFit } from "./prepareChainFit";
 
-/**
+/*
  * Resolve only a prepared chain's mid frame after its two supplied
  * articulations. Parent and intermediate bones must remain as they were during
  * preparation. An optional matching rig shares the basis admission; both
@@ -28,7 +28,7 @@ export function resolvePreparedChainLower(props: IProps): IAutoMovieChainBone {
   );
 }
 
-/**
+/*
  * Reuse admitted bases at the same clinical-record sites without a new closure
  * per frame read.
  */
@@ -50,9 +50,11 @@ function rotation(
       );
 }
 
-/** The shared two-joint FK prefix for records or already admitted articulations. */
+/*
+ * The shared two-joint FK prefix for records or already admitted articulations.
+ */
 export namespace resolvePreparedChainLower {
-  /**
+  /*
    * Compose a mid frame from two already converted chain articulations. The
    * caller must use the preparation's clinical mapping and keep root, ancestors
    * and intermediate joints unchanged. Missing articulations are identity, as
@@ -94,17 +96,25 @@ export namespace resolvePreparedChainLower {
   }
 }
 
-/** Two supplied articulations under one unchanged prepared parent frame. */
+/*
+ * Two supplied articulations under one unchanged prepared parent frame.
+ */
 interface IProps extends Pick<
   IAutoMovieSolvePreparedChainPlantProps,
   "prepared" | "jointAxes" | "restFrames"
 > {
-  /** Root clinical articulation, with null axes at their declared rest. */
+  /*
+   * Root clinical articulation, with null axes at their declared rest.
+   */
   upper: IAutoMovieJointPose;
 
-  /** Mid clinical articulation in the same axes and rest-frame convention. */
+  /*
+   * Mid clinical articulation in the same axes and rest-frame convention.
+   */
   lower: IAutoMovieJointPose;
 
-  /** Optional lazy basis owner of this exact unchanged rig and mappings. */
+  /*
+   * Optional lazy basis owner of this exact unchanged rig and mappings.
+   */
   rig?: prepareChainFit.IRig;
 }

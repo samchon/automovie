@@ -15,7 +15,7 @@ import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmJointCarry } from "./AutoMovieMotionHumanArmJointCarry";
 
-/**
+/*
  * The knot course of a joint-space carry (`AutoMovieMotionHumanArmJointCarry`):
  * over each stretch the display reads it on, the carry solved once, when the
  * action is prepared, at knots placed adaptively by AutoKnots (Vitenti et al.
@@ -33,13 +33,12 @@ import { AutoMovieMotionHumanArmJointCarry } from "./AutoMovieMotionHumanArmJoin
  * as it is, the goal for the display to fit; any other second writes the
  * course's angles over the posture it is given and drops the carried arms'
  * goals.
- *
- * @param body The body.
- * @param stretches The stretches the carry is read on, each its first and last
- *   second, ascending and apart.
- * @param input The carry's inputs at a second of a stretch.
- * @returns The carried posture at a second, given that second's posture and
- *   share.
+ * Parameter body: The body.
+ * Parameter stretches: The stretches the carry is read on, each its first and last
+ * second, ascending and apart.
+ * Parameter input: The carry's inputs at a second of a stretch.
+ * Returns: The carried posture at a second, given that second's posture and
+ * share.
  */
 export function AutoMovieMotionHumanArmJointCourse(
   body: IAutoMovieMotionHumanBody,
@@ -97,38 +96,49 @@ export function AutoMovieMotionHumanArmJointCourse(
   };
 }
 
-/**
+/*
  * Companion types and the plan-side carrier of
- * {@link AutoMovieMotionHumanArmJointCourse}.
+ * AutoMovieMotionHumanArmJointCourse.
  */
 export namespace AutoMovieMotionHumanArmJointCourse {
-  /** The carry's inputs at one second. */
+  /*
+   * The carry's inputs at one second.
+   */
   export interface IInput {
-    /** The posture, with the goals of the arms to carry. */
+    /*
+     * The posture, with the goals of the arms to carry.
+     */
     posture: IAutoMovieMotionHumanPosture;
 
-    /** The arms to carry. */
+    /*
+     * The arms to carry.
+     */
     sides: readonly AutoMovieHumanSide[];
 
-    /** The held angles of each arm to carry. */
+    /*
+     * The held angles of each arm to carry.
+     */
     held: Partial<
       Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
     >;
 
-    /** How far each arm is from its held angles to its goal. */
+    /*
+     * How far each arm is from its held angles to its goal.
+     */
     share: number;
 
-    /** The arrival's posture the clearing course is planned against, if fixed. */
+    /*
+     * The arrival's posture the clearing course is planned against, if fixed.
+     */
     planned?: IAutoMovieMotionHumanPosture;
   }
 
-  /**
+  /*
    * A prepared course's reader.
-   *
-   * @param seconds The carry's second.
-   * @param posture That second's posture, with the carried arms' goals.
-   * @param share That second's share.
-   * @returns The carried posture.
+   * Parameter seconds: The carry's second.
+   * Parameter posture: That second's posture, with the carried arms' goals.
+   * Parameter share: That second's share.
+   * Returns: The carried posture.
    */
   export type Course = (
     seconds: number,
@@ -136,7 +146,7 @@ export namespace AutoMovieMotionHumanArmJointCourse {
     share: number,
   ) => IAutoMovieMotionHumanPosture;
 
-  /**
+  /*
    * A plan's joint-space carrier: a plan that carries its arms by
    * `AutoMovieMotionHumanArm.carry` inside its posture carries them through
    * this instead, and its `prepare` solves the knot course from the plan's own
@@ -145,9 +155,8 @@ export namespace AutoMovieMotionHumanArmJointCourse {
    * carry is the joint-space carry of its second (`solved` false, and the law
    * gives its held angles); after it, the knot course, which reads no held
    * angles.
-   *
-   * @param body The body.
-   * @returns The carrier.
+   * Parameter body: The body.
+   * Returns: The carrier.
    */
   export function carrier(body: IAutoMovieMotionHumanBody): ICarrier {
     let course: Course | undefined;
@@ -218,23 +227,24 @@ export namespace AutoMovieMotionHumanArmJointCourse {
     return out;
   }
 
-  /** A plan's joint-space carrier (`carrier`). */
+  /*
+   * A plan's joint-space carrier (`carrier`).
+   */
   export interface ICarrier {
-    /**
+    /*
      * Whether the knot course is solved: from then on a carry reads no held
      * angles, so the law need not give them.
      */
     solved: boolean;
 
-    /**
+    /*
      * The carried posture at a second: the knot course once prepared, the
      * joint-space carry of the second before.
-     *
-     * @param seconds The plan's second.
-     * @param input The carry's inputs there.
-     * @param resolution Optional same-body FK source.
-     * @param projection Optional same-body ROM projector.
-     * @returns The posture.
+     * Parameter seconds: The plan's second.
+     * Parameter input: The carry's inputs there.
+     * Parameter resolution: Optional same-body FK source.
+     * Parameter projection: Optional same-body ROM projector.
+     * Returns: The posture.
      */
     carry(
       seconds: number,
@@ -243,13 +253,12 @@ export namespace AutoMovieMotionHumanArmJointCourse {
       projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
     ): IAutoMovieMotionHumanPosture;
 
-    /**
+    /*
      * Solve the knot course from the plan's own posture over the stretches it
      * carries on.
-     *
-     * @param stretches The stretches, each its first and last second, ascending
-     *   and apart.
-     * @param posture The plan's posture, read at each knot.
+     * Parameter stretches: The stretches, each its first and last second, ascending
+     * and apart.
+     * Parameter posture: The plan's posture, read at each knot.
      */
     prepare(
       stretches: readonly (readonly [number, number])[],
@@ -258,29 +267,41 @@ export namespace AutoMovieMotionHumanArmJointCourse {
   }
 }
 
-/** One stretch's knots. */
+/*
+ * One stretch's knots.
+ */
 interface IStretch {
-  /** The stretch's first second. */
+  /*
+   * The stretch's first second.
+   */
   from: number;
 
-  /** Its last second. */
+  /*
+   * Its last second.
+   */
   to: number;
 
-  /** Its adaptive knots and their course. */
+  /*
+   * Its adaptive knots and their course.
+   */
   knots: prepareHumanAdaptiveKnots.IKnots;
 }
 
-/** How far a second lies outside a stretch; zero inside it. */
+/*
+ * How far a second lies outside a stretch; zero inside it.
+ */
 function distance(stretch: IStretch, seconds: number): number {
   return Math.max(0, stretch.from - seconds, seconds - stretch.to);
 }
 
-/** An arm's three bones, shoulder to hand. */
+/*
+ * An arm's three bones, shoulder to hand.
+ */
 function armBones(side: AutoMovieHumanSide): readonly AutoMovieHumanoidBone[] {
   return [`${side}UpperArm`, `${side}LowerArm`, `${side}Hand`];
 }
 
-/**
+/*
  * The carried arms' nine angles each at a second, side after side: held,
  * arrived or carried between; an arm the carry leaves keeps the posture's own.
  */

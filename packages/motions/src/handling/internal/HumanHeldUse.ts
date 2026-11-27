@@ -36,7 +36,7 @@ import { HumanGraspTarget } from "./HumanGraspTarget";
 import { HumanGraspUse } from "./HumanGraspUse";
 import { HumanGrip } from "./HumanGrip";
 
-/**
+/*
  * A held tool used as the grasp it was taken up by presents it: the act that
  * works with it keeps the hand's rotation the grasp was chosen to hold at the
  * place of use (`HumanGraspUse.presented`), so it asks the wrist only what the
@@ -45,7 +45,7 @@ import { HumanGrip } from "./HumanGrip";
  * it.
  */
 export namespace HumanHeldUse {
-  /**
+  /*
    * The digits whose phalanges and tips a held tool's hand keeps out of the
    * body.
    */
@@ -57,19 +57,18 @@ export namespace HumanHeldUse {
     "Little",
   ];
 
-  /**
+  /*
    * The key of an act that keeps the grasp a held tool was taken up by, or null
    * when it keeps none: the act's statement checked, then `key`.
-   *
-   * @param context The action's context.
-   * @param side The holding hand.
-   * @param kept What the act states of the held tool.
-   * @param region The region of the performer's own the act works at; null when
-   *   it works elsewhere (a partner, a sheet).
-   * @returns The key, or null without a grasp.
-   * @throws {HumanRefusal} A `parameter` refusal on `other` when it comes
-   *   without a grasp, and on `grasp` when it comes without a prop, a point or
-   *   a region of the performer's own.
+   * Parameter context: The action's context.
+   * Parameter side: The holding hand.
+   * Parameter kept: What the act states of the held tool.
+   * Parameter region: The region of the performer's own the act works at; null when
+   * it works elsewhere (a partner, a sheet).
+   * Returns: The key, or null without a grasp.
+   * A `parameter` refusal on `other` when it comes
+   * without a grasp, and on `grasp` when it comes without a prop, a point or
+   * a region of the performer's own.
    */
   export function kept(
     context: Pick<IAutoMovieMotionHumanActionContext, KeptContext>,
@@ -103,22 +102,21 @@ export namespace HumanHeldUse {
     return key(context, side, kept.prop, kept.point, kept.grasp, region);
   }
 
-  /**
+  /*
    * The pose a held tool is used in at a region of the performer's own: the
    * use's presented key (`HumanGraspUse.presented`) with the region as the
    * use's place, from the hand as the entry holds it, turned about the line as
    * the grasp was judged (`HumanGraspUse.presented`'s chooser), the closed hand
    * kept out of the body.
-   *
-   * @param context The action's context.
-   * @param side The holding hand.
-   * @param prop The held prop's subject id.
-   * @param point The prop's working point, one of its affordance ids.
-   * @param grasp The grasp it was taken up by.
-   * @param region The region of the performer's own the point is brought to.
-   * @returns The key: the wrist, its rotation and the elbow's hint.
-   * @throws {HumanRefusal} As `HumanGraspUse.presented` does for a point the
-   *   prop lacks.
+   * Parameter context: The action's context.
+   * Parameter side: The holding hand.
+   * Parameter prop: The held prop's subject id.
+   * Parameter point: The prop's working point, one of its affordance ids.
+   * Parameter grasp: The grasp it was taken up by.
+   * Parameter region: The region of the performer's own the point is brought to.
+   * Returns: The key: the wrist, its rotation and the elbow's hint.
+   * As `HumanGraspUse.presented` does for a point the
+   * prop lacks.
    */
   export function key(
     context: Pick<IAutoMovieMotionHumanActionContext, KeyContext>,
@@ -217,7 +215,7 @@ export namespace HumanHeldUse {
     return HumanGraspUse.presented(use);
   }
 
-  /**
+  /*
    * The other hand on a held tool's other handle: its reach, hold and return
    * planned as one trajectory over the span the act's own weight states
    * (`AutoMovieMotionHumanArm.stated`), from its entry angles to the grasp of
@@ -225,13 +223,12 @@ export namespace HumanHeldUse {
    * it meets the tool as the tool arrives and leaves it as it goes. The turn
    * about the handle is chosen once, the one the arm reaches best with the tool
    * at its use (`HumanGrasp.reachable`), and the arm is held to that solution.
-   *
-   * @param props The act's context and clock, the holding hand and its goal,
-   *   the tool, the other handle, the tool's pose at its use and the weight.
-   * @returns The other arm and its fingers, the arm carrying the grip's window
-   *   from `ready` to `relax`.
-   * @throws {HumanRefusal} When the holding hand does not hold the prop, or the
-   *   prop lacks the handle or colliders.
+   * Parameter props: The act's context and clock, the holding hand and its goal,
+   * the tool, the other handle, the tool's pose at its use and the weight.
+   * Returns: The other arm and its fingers, the arm carrying the grip's window
+   * from `ready` to `relax`.
+   * When the holding hand does not hold the prop, or the
+   * prop lacks the handle or colliders.
    */
   export function second(
     props: IAutoMovieMotionHumanHeldUse.ISecondProps,
@@ -365,11 +362,17 @@ export namespace HumanHeldUse {
   }
 }
 
-/** The record of `IKeyDigitsItem`'s site. */
+/*
+ * The record of `IKeyDigitsItem`'s site.
+ */
 type IKeyDigitsItem = { point: IAutoMovieVector3; radius: number };
 
-/** The alternatives of `KeyContext`'s site. */
+/*
+ * The alternatives of `KeyContext`'s site.
+ */
 type KeyContext = "body" | "entry" | "prop" | "start";
 
-/** The alternatives of `KeptContext`'s site. */
+/*
+ * The alternatives of `KeptContext`'s site.
+ */
 type KeptContext = "body" | "entry" | "prop" | "start";

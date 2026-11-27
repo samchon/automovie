@@ -12,7 +12,7 @@ import type { CloseStrikeLegs } from "./CloseStrikeLegs";
 import { FootStrikeForms } from "./FootStrikeForms";
 import { KickForm } from "./KickForm";
 
-/**
+/*
  * The thigh's excess over the comfortable share of the hip's range for a leg
  * from a hip to an ankle: the hip-to-ankle line's elevation from straight down
  * plus the thigh's rise above that line, which the knee's bend over the line's
@@ -104,19 +104,18 @@ function over(
   };
 }
 
-/**
+/*
  * Read the tilt a leg from a hip to an ankle needs.
- *
- * @param side The kicking side.
- * @param yaw The pelvis's heading at the contact, degrees.
- * @param hip The kicking hip at the contact, world metres.
- * @param ankle The ankle's contact place, world metres.
- * @param thigh The thigh's length, metres: with the shank's, the knee's bend at
- *   the contact raises the thigh above the hip-to-ankle line (`over`), which
- *   the hip must lift.
- * @param shank The shank's length, metres.
- * @returns The tilt about a world axis through the support hip, or none when
- *   the hip's range reaches the leg.
+ * Parameter side: The kicking side.
+ * Parameter yaw: The pelvis's heading at the contact, degrees.
+ * Parameter hip: The kicking hip at the contact, world metres.
+ * Parameter ankle: The ankle's contact place, world metres.
+ * Parameter thigh: The thigh's length, metres: with the shank's, the knee's bend at
+ * the contact raises the thigh above the hip-to-ankle line (`over`), which
+ * the hip must lift.
+ * Parameter shank: The shank's length, metres.
+ * Returns: The tilt about a world axis through the support hip, or none when
+ * the hip's range reaches the leg.
  */
 export function FootStrikeTilt(
   side: AutoMovieHumanSide,
@@ -137,7 +136,7 @@ export function FootStrikeTilt(
   };
 }
 
-/**
+/*
  * How far a foot strike tilts the body away from its leg so the hip can lift
  * the leg to the contact.
  *
@@ -155,32 +154,39 @@ export function FootStrikeTilt(
  * Han and Kwon 2010), and the trunk leans past it.
  */
 export namespace FootStrikeTilt {
-  /** How far a leg's line passes the hip's range, and its level direction. */
+  /*
+   * How far a leg's line passes the hip's range, and its level direction.
+   */
   export interface IExcess {
-    /** The elevation beyond the range's share, degrees; negative within it. */
+    /*
+     * The elevation beyond the range's share, degrees; negative within it.
+     */
     degrees: number;
 
-    /** The leg line's elevation from straight down, degrees. */
+    /*
+     * The leg line's elevation from straight down, degrees.
+     */
     elevation: number;
 
-    /** The leg's level unit direction. */
+    /*
+     * The leg's level unit direction.
+     */
     across: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * How far a kicking leg, reaching from the hip to an ankle, rises past the
    * hip's range: the leg line's elevation plus the thigh's rise above it for a
    * bent knee, against the share of the elliptical reach between the hip's
    * flexion and its abduction at that azimuth (`DEFAULT_HUMANOID_ROM`).
-   *
-   * @param side The kicking side.
-   * @param yaw The kicker's heading, degrees.
-   * @param hip The hip, world metres.
-   * @param ankle The ankle, world metres.
-   * @param thigh The thigh, metres.
-   * @param shank The shank, metres.
-   * @param share The share of the range allowed.
-   * @returns The excess, or `undefined` for a leg straight up or down.
+   * Parameter side: The kicking side.
+   * Parameter yaw: The kicker's heading, degrees.
+   * Parameter hip: The hip, world metres.
+   * Parameter ankle: The ankle, world metres.
+   * Parameter thigh: The thigh, metres.
+   * Parameter shank: The shank, metres.
+   * Parameter share: The share of the range allowed.
+   * Returns: The excess, or `undefined` for a leg straight up or down.
    */
   export function excess(
     side: AutoMovieHumanSide,
@@ -194,7 +200,7 @@ export namespace FootStrikeTilt {
     return over(side, yaw, hip, ankle, thigh, shank, share);
   }
 
-  /**
+  /*
    * A chamber's ankle place brought inside the hip's range: the ankle a chamber
    * folds to sits off its hip at an elevation whose thigh, raised above the
    * hip-to-ankle line by the folded knee, may ask the hip past the comfortable
@@ -203,19 +209,18 @@ export namespace FootStrikeTilt {
    * across the leg, by that remaining excess, its distance from the hip and so
    * the knee's fold kept, so the chamber holds the knee where the hip can lift
    * it and the extension opens the knee from there.
-   *
-   * @param side The kicking side.
-   * @param yaw The pelvis's heading, degrees.
-   * @param hip The kicking hip, world metres.
-   * @param folded The chamber's ankle place, world metres.
-   * @param thigh The thigh's length, metres.
-   * @param shank The shank's length, metres.
-   * @param tilted How far the body is tilted away from the leg at the chamber,
-   *   degrees.
-   * @param share The share of the hip's reach the thigh is kept within: the
-   *   kick's comfortable share (`KickForm.RANGE_SHARE`) for a chamber, the
-   *   whole range for a goal on the way.
-   * @returns The ankle place, the one given when the hip reaches it.
+   * Parameter side: The kicking side.
+   * Parameter yaw: The pelvis's heading, degrees.
+   * Parameter hip: The kicking hip, world metres.
+   * Parameter folded: The chamber's ankle place, world metres.
+   * Parameter thigh: The thigh's length, metres.
+   * Parameter shank: The shank's length, metres.
+   * Parameter tilted: How far the body is tilted away from the leg at the chamber,
+   * degrees.
+   * Parameter share: The share of the hip's reach the thigh is kept within: the
+   * kick's comfortable share (`KickForm.RANGE_SHARE`) for a chamber, the
+   * whole range for a goal on the way.
+   * Returns: The ankle place, the one given when the hip reaches it.
    */
   export function chambered(
     side: AutoMovieHumanSide,
@@ -251,19 +256,18 @@ export namespace FootStrikeTilt {
     );
   }
 
-  /**
+  /*
    * The shank's direction of a leg from a hip to an ankle whose knee bends
    * toward a hint: the knee on the circle the thigh's and the shank's lengths
    * leave about the hip-to-ankle line (the law of cosines), in the plane of the
    * line and the hint; the line itself where the leg is straight or the hint
    * lies on the line.
-   *
-   * @param hip The hip, world metres.
-   * @param ankle The ankle, world metres.
-   * @param hint The knee's hint, world metres.
-   * @param thigh The thigh's length, metres.
-   * @param length The shank's length, metres.
-   * @returns The unit direction from the knee to the ankle.
+   * Parameter hip: The hip, world metres.
+   * Parameter ankle: The ankle, world metres.
+   * Parameter hint: The knee's hint, world metres.
+   * Parameter thigh: The thigh's length, metres.
+   * Parameter length: The shank's length, metres.
+   * Returns: The unit direction from the knee to the ankle.
    */
   export function shank(
     hip: IAutoMovieVector3,
@@ -302,7 +306,7 @@ export namespace FootStrikeTilt {
     return Vector3.normalize(Vector3.subtract(ankle, knee));
   }
 
-  /**
+  /*
    * The knee's hint for a leg from a hip to an ankle, its turn about the leg
    * kept inside the hip's twist range.
    *
@@ -311,13 +315,12 @@ export namespace FootStrikeTilt {
    * hint's direction about the leg is its twist from that. A twist past the
    * comfortable share of the hip's twist range (`KickForm.RANGE_SHARE`) is
    * turned back to it, the hint kept at its distance from the leg's middle.
-   *
-   * @param side The kicking side.
-   * @param pelvis The pelvis's world rotation at the contact.
-   * @param hip The kicking hip, world metres.
-   * @param ankle The ankle's contact place, world metres.
-   * @param asked The law's knee hint, world metres.
-   * @returns The hint, the asked one when its twist is within the range.
+   * Parameter side: The kicking side.
+   * Parameter pelvis: The pelvis's world rotation at the contact.
+   * Parameter hip: The kicking hip, world metres.
+   * Parameter ankle: The ankle's contact place, world metres.
+   * Parameter asked: The law's knee hint, world metres.
+   * Returns: The hint, the asked one when its twist is within the range.
    */
   export function knee(
     side: AutoMovieHumanSide,
@@ -386,15 +389,21 @@ export namespace FootStrikeTilt {
   }
 }
 
-/**
+/*
  * How far a leg's thigh lies past the comfortable share of the hip's reach at
  * its azimuth, and the leg's horizontal direction and chord elevation.
  */
 interface IExcess {
-  /** Degrees past the comfortable reach; negative inside it. */
+  /*
+   * Degrees past the comfortable reach; negative inside it.
+   */
   degrees: number;
-  /** The hip-to-ankle line's elevation from straight down, degrees. */
+  /*
+   * The hip-to-ankle line's elevation from straight down, degrees.
+   */
   elevation: number;
-  /** The leg's horizontal direction, a unit vector. */
+  /*
+   * The leg's horizontal direction, a unit vector.
+   */
   across: IAutoMovieVector3;
 }

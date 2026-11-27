@@ -360,7 +360,9 @@ export namespace AutoMovieHumanLoftMesh {
     return out;
   }
 
-  /** Ring vertices rotated to start at the smallest phase in `[0, 2pi)`. */
+  /*
+   * Ring vertices rotated to start at the smallest phase in `[0, 2pi)`.
+   */
   function ascending(
     ring: readonly number[],
     phases: readonly number[],

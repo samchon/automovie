@@ -15,7 +15,7 @@ import { HumanBodyFitMerit } from "../../posture/internal/HumanBodyFitMerit";
 import { HumanFitVariables } from "../../posture/internal/HumanFitVariables";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * Solve one side of a bilaterally specified hands-on-surface, feet-on-floor
  * stance and reflect the clinical joint configuration across its sagittal
  * plane. Both actual sides must pass the original full-body evaluation.

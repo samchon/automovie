@@ -184,7 +184,7 @@ export namespace AutoMovieEnginePhysicalIcpPlannerCmps {
   }
 }
 
-/**
+/*
  * A user offset with its inside part signed for the side
  * (`setSymmetricEntryCMPConstantOffsets` l.262-280: `negateIfLeftSide`).
  */
@@ -195,7 +195,7 @@ function inside(
   return { x: offset.x, y: side === "left" ? -offset.y : offset.y };
 }
 
-/**
+/*
  * The pivot from the foot's centroid, the step-length share toward the
  * considered point and the offset, clamped forward, then projected onto the
  * foot shrunk by the safe distance, in the sole frame

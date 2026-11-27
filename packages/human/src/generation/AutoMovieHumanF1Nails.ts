@@ -55,7 +55,9 @@ export namespace AutoMovieHumanF1Nails {
   // arc, and not a radius midway. Taken as one (0.7 of the width) it left the plate 1.1 mm flatter than its bed midway, its edges
   // that far over the skin (run 15-45-18). It stays as a check of the bed at the free edge.
 
-  /** The fold's depth and the fingernails' mean thickness, mm (Bellinato 2023). */
+  /*
+   * The fold's depth and the fingernails' mean thickness, mm (Bellinato 2023).
+   */
   const PLATE: number = 0.46;
 
   const finger = (digit: string, segment: string, width: number, radius: number, thickness: number): IAutoMovieHumanF1Nails.IRow => ({
@@ -88,7 +90,9 @@ export namespace AutoMovieHumanF1Nails {
   /** The chord of the merge's blend either side of the fold's curve, mm: the fold's rounding, a quarter of the bed's ramp. */
   export const CHORD_MM: number = 0.23;
 
-  /** The net a digit's skin is read on for its nail: its station step, mm, its phases round, and how far before the last joint it starts, mm. */
+  /*
+   * The net a digit's skin is read on for its nail: its station step, mm, its phases round, and how far before the last joint it starts, mm.
+   */
   const SKIN: { station: number; phases: number; before: number } = { station: 0.25, phases: 360, before: 3 };
 
   /** The plate's and the bed's names for a digit. */
@@ -140,7 +144,7 @@ export namespace AutoMovieHumanF1Nails {
     };
     return { row, nail: AutoMovieHumanNail.create(plate, bed, segment, { point, first, tip: end }, row.proportions, 3 * CHORD_MM, TURN) };
   }
-  /**
+  /*
    * How far a digit's nail may turn about its long axis from its distal segment's frame, rad: the spread of the prior the skin's
    * levelling is weighed against (`AutoMovieHumanNail.create`).
    *

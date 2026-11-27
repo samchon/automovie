@@ -36,7 +36,7 @@ import { hipJoints } from "../../posture/internal/hipJoints";
 import type { humanFootOffset } from "../../posture/internal/humanFootOffset";
 import { HumanBall } from "./HumanBall";
 
-/**
+/*
  * Kicking the ball prop lying beside the support foot with the instep, from
  * standing: the kicking leg swings back, then through the ball and on.
  *
@@ -64,10 +64,14 @@ import { HumanBall } from "./HumanBall";
  * the planted support foot.
  */
 export namespace kickBall {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "kickBall";
 
-  /** Cancel table: stand or walk after the follow-through. */
+  /*
+   * Cancel table: stand or walk after the follow-through.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
@@ -87,10 +91,12 @@ export namespace kickBall {
     ],
   };
 
-  /** The foot's plantarflexion at contact, degrees (provisional). */
+  /*
+   * The foot's plantarflexion at contact, degrees (provisional).
+   */
   export const POINT: number = 50;
 
-  /**
+  /*
    * The backswing's ankle place behind and above the contact, in shank lengths
    * (provisional).
    */
@@ -99,15 +105,14 @@ export namespace kickBall {
     up: 0.6,
   };
 
-  /**
+  /*
    * The kicking foot's placement at contact.
-   *
-   * @param body The body.
-   * @param side The kicking foot.
-   * @param centre The ball's centre, world metres.
-   * @param radius The ball's radius, metres.
-   * @param direction The kick's horizontal unit direction.
-   * @returns The placement.
+   * Parameter body: The body.
+   * Parameter side: The kicking foot.
+   * Parameter centre: The ball's centre, world metres.
+   * Parameter radius: The ball's radius, metres.
+   * Parameter direction: The kick's horizontal unit direction.
+   * Returns: The placement.
    */
   export function contact(
     body: humanFootOffset.IBody,
@@ -126,13 +131,12 @@ export namespace kickBall {
     );
   }
 
-  /**
+  /*
    * Plan a kick.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the prop declares no sized grip, or the ball
-   *   lies beyond the kicking leg's reach.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the prop declares no sized grip, or the ball
+   * lies beyond the kicking leg's reach.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKickBall.IParams>,
@@ -372,5 +376,7 @@ export namespace kickBall {
   }
 }
 
-/** The record of `ICHAMBERItem`'s site. */
+/*
+ * The record of `ICHAMBERItem`'s site.
+ */
 type ICHAMBERItem = { back: number; up: number };

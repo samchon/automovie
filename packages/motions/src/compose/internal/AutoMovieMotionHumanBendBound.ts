@@ -13,7 +13,7 @@ import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendS
 import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
 import { AutoMovieMotionHumanBendUnmadeBound } from "./AutoMovieMotionHumanBendUnmadeBound";
 
-/**
+/*
  * A certified lower bound of the elbow search's strain over an interval of
  * swivels, for the engine's branch and bound (`hingedSwivelBounded`, Land and
  * Doig 1960): a step whose bracket's bound already exceeds a legal place's
@@ -72,24 +72,32 @@ import { AutoMovieMotionHumanBendUnmadeBound } from "./AutoMovieMotionHumanBendU
  * own floor, and the search scores it exactly.
  */
 export namespace AutoMovieMotionHumanBendBound {
-  /** The fixed joint and strain terms a bound reads. */
+  /*
+   * The fixed joint and strain terms a bound reads.
+   */
   export interface IProps {
-    /** The upper arm's clinical basis, admitted and normalized. */
+    /*
+     * The upper arm's clinical basis, admitted and normalized.
+     */
     basis: IAutoMovieJointAxes;
 
-    /**
+    /*
      * The upper arm's rest frame, lifting rest-relative degrees to clinical
      * ones.
      */
     frame: IAutoMovieRestFrame | undefined;
 
-    /** The upper arm's range, whose half widths the strain divides by. */
+    /*
+     * The upper arm's range, whose half widths the strain divides by.
+     */
     range: IAutoMovieJointConstraint | null;
 
-    /** The hanging arm's clinical shoulder angles, degrees. */
+    /*
+     * The hanging arm's clinical shoulder angles, degrees.
+     */
     neutral: AutoMovieMotionHumanBendSearch.IAngles;
 
-    /**
+    /*
      * The hand's turn the strain adds, whose unmade excess bounds an unmade
      * place from below (`AutoMovieMotionHumanBendUnmadeBound`); absent where
      * the goal asks no rotation.
@@ -97,13 +105,12 @@ export namespace AutoMovieMotionHumanBendBound {
     hand: AutoMovieMotionHumanBendUnmadeBound.IProps | undefined;
   }
 
-  /**
+  /*
    * Prepare the bound of one sweep's joint and strain.
-   *
-   * @param props The fixed joint and strain terms.
-   * @returns The engine's bound reader: given a branch's upper-arm rotation by
-   *   swivel (degrees) and its poser, the bound of every candidate's strain at
-   *   a swivel from `low` to `high` degrees.
+   * Parameter props: The fixed joint and strain terms.
+   * Returns: The engine's bound reader: given a branch's upper-arm rotation by
+   * swivel (degrees) and its poser, the bound of every candidate's strain at
+   * a swivel from `low` to `high` degrees.
    */
   export function prepare(
     props: IProps,
@@ -144,7 +151,7 @@ export namespace AutoMovieMotionHumanBendBound {
   }
 }
 
-/**
+/*
  * The shoulder's share bounded over a branch's arcs, or 0 where it is not
  * certified.
  */
@@ -188,13 +195,17 @@ function shoulderOf(
   };
 }
 
-/** The reader of a branch no bound is certified on: the strain's own floor. */
+/*
+ * The reader of a branch no bound is certified on: the strain's own floor.
+ */
 const NONE: (low: number, high: number) => number = (): number => 0;
 
-/** Degrees per radian. */
+/*
+ * Degrees per radian.
+ */
 const DEGREES: number = 180 / Math.PI;
 
-/**
+/*
  * The least distance, degrees, from a clinical angle to an axis's readings: the
  * principal interval and the alternate chart's (a half turn for an outer angle,
  * the reflection about the right angle for the middle one), lifted through the
@@ -218,7 +229,7 @@ function distance(
   );
 }
 
-/**
+/*
  * A rest-relative interval as clinical degrees, `sign · rig + neutral`,
  * ordered.
  */
@@ -234,7 +245,7 @@ function lifted(
   return [Math.min(ends[0], ends[1]), Math.max(ends[0], ends[1])];
 }
 
-/**
+/*
  * Whether the branch's rotation is the premised sinusoid: the fitted readings
  * give the decomposition's own principal angles at two more swivels, within a
  * hundredth of the slack, wherever both are away from gimbal lock.

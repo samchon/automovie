@@ -2,7 +2,7 @@ import type { IAutoMovieMotionHumanTouch } from "@automovie/interface";
 
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 
-/**
+/*
  * The values the `firmPress` row of `HumanSocial` fixes on `touch`, spread into
  * its parameters. A firm, slow pat or press of the palm on the partner (Laban's
  * press: strong, sustained, direct); the composition gives the region. The

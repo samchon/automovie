@@ -14,7 +14,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { AquaticPosture } from "./AquaticPosture";
 
-/**
+/*
  * The offered palm's depth below the surface at the apex, and how much deeper
  * it waits before it, over stature: provisional, submerged under the flyer's
  * foot.
@@ -22,7 +22,7 @@ import { AquaticPosture } from "./AquaticPosture";
 const DEPTH: number = 0.235;
 const RISE: number = 0.04;
 
-/**
+/*
  * The offered palm outside the shoulder, over the shoulder's half-width, and
  * the share of the arm's length it extends to: provisional, a pressing arm
  * short of straight.
@@ -30,7 +30,7 @@ const RISE: number = 0.04;
 const OUTSIDE: number = 0.25;
 const EXTENSION: number = 0.95;
 
-/**
+/*
  * A supporting base's elbow out from, below and behind its offered palm, over
  * stature: provisional, a forearm's length behind it and nearly level, so the
  * forearm lies flat and the palm faces up by supination alone.
@@ -39,22 +39,23 @@ const ELBOW_OUT: number = 0.08;
 const ELBOW_DOWN: number = 0.03;
 const ELBOW_BACK: number = 0.13;
 
-/**
+/*
  * An artistic base's support: its palm offered under a flyer's foot, and the
  * turn of a limb onto or off a supporting palm or sole.
  */
 export namespace AquaticTeamBase {
-  /** The shared upward direction of the figure's hand and sole frames. */
+  /*
+   * The shared upward direction of the figure's hand and sole frames.
+   */
   export const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-  /**
+  /*
    * Prepare the base swimmer's independent palm offer.
-   *
-   * @param context The base performer and selected supporting side.
-   * @param water The common world water surface, metres.
-   * @param peak The timed figure apex, in action seconds.
-   * @param apex The base's own figure key at the apex.
-   * @returns A pose writer for the supporting part of the figure.
+   * Parameter context: The base performer and selected supporting side.
+   * Parameter water: The common world water surface, metres.
+   * Parameter peak: The timed figure apex, in action seconds.
+   * Parameter apex: The base's own figure key at the apex.
+   * Returns: A pose writer for the supporting part of the figure.
    */
   export function prepare(
     context: AquaticPosture.Context,
@@ -167,7 +168,7 @@ export namespace AquaticTeamBase {
     };
   }
 
-  /**
+  /*
    * Turn a limb around the actual palm or sole point as it takes or leaves
    * support.
    */
@@ -200,17 +201,27 @@ export namespace AquaticTeamBase {
   }
 }
 
-/** Fixed plan-time placement and pose offer of one supporting hand. */
+/*
+ * Fixed plan-time placement and pose offer of one supporting hand.
+ */
 interface IPalmOffer {
-  /** The supporting hand's anatomical side. */
+  /*
+   * The supporting hand's anatomical side.
+   */
   side: AutoMovieHumanSide;
 
-  /** Its bearing palm offset in hand coordinates, metres. */
+  /*
+   * Its bearing palm offset in hand coordinates, metres.
+   */
   contact: IAutoMovieVector3;
 
-  /** Its horizontal set position on the beat, world metres. */
+  /*
+   * Its horizontal set position on the beat, world metres.
+   */
   at: IAutoMovieVector3;
 
-  /** Its bearing orientation, with the palm facing up. */
+  /*
+   * Its bearing orientation, with the palm facing up.
+   */
   rotation: IAutoMovieQuaternion;
 }

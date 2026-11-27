@@ -6,7 +6,7 @@ import type {
 
 import { HumanShapeFraming } from "./HumanShapeFraming";
 
-/**
+/*
  * Ordered signed-distance reduction over one actual collider placement. The
  * first strict minimum wins; conservative world spheres screen only shapes
  * unable to improve it. Fixed geometry can be supplied by the preparation.
@@ -49,9 +49,11 @@ export function HumanColliderDistance(
   return best;
 }
 
-/** Operation-scoped fixed-geometry preparation for the same distance owner. */
+/*
+ * Operation-scoped fixed-geometry preparation for the same distance owner.
+ */
 export namespace HumanColliderDistance {
-  /**
+  /*
    * Prepare world bounds and shape readers for an unchanged set of posed
    * colliders. Each segment uses the same ordered minimum rule and tests only
    * the exact shapes whose bounds could improve the current best distance.
@@ -86,20 +88,30 @@ export namespace HumanColliderDistance {
   }
 }
 
-/** Operation-owned world sphere; centre never aliases borrowed hull metadata. */
+/*
+ * Operation-owned world sphere; centre never aliases borrowed hull metadata.
+ */
 interface IWorldBall {
   centre: IAutoMovieVector3;
   radius: number;
 }
 
-/** Engine-owned fixed shape geometry with no retained point or result. */
+/*
+ * Engine-owned fixed shape geometry with no retained point or result.
+ */
 type IDistanceReader = ReturnType<typeof AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance>;
 
-/** Fixed world screening and exact local-frame distance for one shape. */
+/*
+ * Fixed world screening and exact local-frame distance for one shape.
+ */
 interface IShapeReading {
-  /** Conservative world sphere for the shape. */
+  /*
+   * Conservative world sphere for the shape.
+   */
   bound: IWorldBall;
 
-  /** Signed distance to each current world segment. */
+  /*
+   * Signed distance to each current world segment.
+   */
   distance: IDistanceReader;
 }

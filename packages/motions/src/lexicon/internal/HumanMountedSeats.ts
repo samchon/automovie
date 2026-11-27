@@ -20,7 +20,7 @@ import { hipJoints } from "../../posture/internal/hipJoints";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { HumanMount } from "./HumanMount";
 
-/**
+/*
  * The key postures of the mounted seat kinds
  * (`IAutoMovieMotionHumanMounted.Seat`), each solved in the carrier contact's
  * model-aligned frame from the body's own measures and the carrier's own
@@ -37,14 +37,14 @@ import { HumanMount } from "./HumanMount";
  * angle not given by a source is marked provisional.
  */
 export namespace HumanMountedSeats {
-  /**
+  /*
    * The shoulder abduction that holds an arm level to the side, degrees; the
    * basic seat raises it by the angle that brings the fingertips to eye level
    * (`basic`).
    */
   export const ABDUCTION: number = 90;
 
-  /**
+  /*
    * The bench's pelvis inclination forward and its added spine flexion, degrees
    * (provisional: the guideline's figure shows a trunk inclined forward over
    * the handles).
@@ -54,23 +54,22 @@ export namespace HumanMountedSeats {
     spine: 20,
   };
 
-  /**
+  /*
    * The most the right shank turns out from hanging plumb to clear the carrier,
    * degrees (provisional).
    */
   export const OUT: number = 75;
 
-  /**
+  /*
    * The clearance the hanging right shank keeps from the carrier's colliders
    * beyond its own radius, metres (the campaign's 10 mm contact budget).
    */
   export const CLEAR: number = 0.01;
 
-  /**
+  /*
    * The supports each seat kind requires, and those it may name besides.
-   *
-   * @param seat The seat kind.
-   * @returns The required and the optional supporting parts.
+   * Parameter seat: The seat kind.
+   * Returns: The required and the optional supporting parts.
    */
   export function parts(
     seat: IAutoMovieMotionHumanMounted.Seat,
@@ -97,11 +96,10 @@ export namespace HumanMountedSeats {
     return [[], ["leftHand", "rightHand", "leftFoot", "rightFoot"]];
   }
 
-  /**
+  /*
    * Whether a seat kind bears on the seat.
-   *
-   * @param seat The seat kind.
-   * @returns True for the seats sat on: entered, aside, basic and descent.
+   * Parameter seat: The seat kind.
+   * Returns: True for the seats sat on: entered, aside, basic and descent.
    */
   export function sits(seat: IAutoMovieMotionHumanMounted.Seat): boolean {
     return (
@@ -112,43 +110,54 @@ export namespace HumanMountedSeats {
     );
   }
 
-  /** A supporting part a figure can name. */
+  /*
+   * A supporting part a figure can name.
+   */
   export type Part = keyof IAutoMovieMotionHumanMounted.ISupports;
 
-  /** What a seat is solved from. */
+  /*
+   * What a seat is solved from.
+   */
   export interface IContext {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The entered seated posture, in the carrier frame. */
+    /*
+     * The entered seated posture, in the carrier frame.
+     */
     entry: IAutoMovieMotionHumanPosture;
 
-    /** A carrier contact's point in the carrier frame, metres. */
+    /*
+     * A carrier contact's point in the carrier frame, metres.
+     */
     point(id: string): IAutoMovieVector3;
 
-    /** A carrier contact's declaration. */
+    /*
+     * A carrier contact's declaration.
+     */
     contact(id: string): IAutoMovieAffordance;
 
-    /**
+    /*
      * How far the carrier contact rises or falls along its own up from its
      * stride-averaged path, metres: what a leg out of the saddle must absorb; 0
      * without a stride.
      */
     slack: number;
 
-    /**
+    /*
      * How far a segment given in the carrier frame lies from the carrier's
      * colliders, metres, negative inside.
      */
     clear(a: IAutoMovieVector3, b: IAutoMovieVector3): number;
   }
 
-  /**
+  /*
    * The vaulter's basic seat: the entered seat astride, its arms stretched to
    * the sides with the fingertips at eye level.
-   *
-   * @param context The seat's context.
-   * @returns The posture.
+   * Parameter context: The seat's context.
+   * Returns: The posture.
    */
   export function basic(context: IContext): IAutoMovieMotionHumanPosture {
     const m: IAutoMovieMotionHumanBody["measure"] = context.body.measure;
@@ -177,18 +186,17 @@ export namespace HumanMountedSeats {
     };
   }
 
-  /**
+  /*
    * The side-saddle seat: the pelvis turned square to the carrier's front on
    * the seat bones it entered on, the right thigh over the fixed head with the
    * shank hanging clear of the carrier on the near side, and the ball of the
    * left foot on its stirrup.
-   *
-   * @param context The seat's context.
-   * @param supports The figure's supports: `rightThigh` and `leftFoot`.
-   * @returns The posture.
-   * @throws {HumanRefusal} When the fixed head is not under the thigh between
-   *   its middle and the knee, when no turn of the shank up to `OUT` clears the
-   *   carrier, or when the stirrup is outside the left leg's band.
+   * Parameter context: The seat's context.
+   * Parameter supports: The figure's supports: `rightThigh` and `leftFoot`.
+   * Returns: The posture.
+   * When the fixed head is not under the thigh between
+   * its middle and the knee, when no turn of the shank up to `OUT` clears the
+   * carrier, or when the stirrup is outside the left leg's band.
    */
   export function aside(
     context: IContext,
@@ -334,18 +342,17 @@ export namespace HumanMountedSeats {
     };
   }
 
-  /**
+  /*
    * The vaulter's bench: both knees a shank's radius over the pad with the
    * thighs upright, the feet tucked on their toes behind, the pelvis inclined
    * `BENCH.pitch` and the spine flexed `BENCH.spine` further toward the
    * handles.
-   *
-   * @param context The seat's context.
-   * @param supports The figure's supports: `leftKnee`, `rightKnee`, `leftHand`
-   *   and `rightHand`.
-   * @returns The posture.
-   * @throws {HumanRefusal} When a knee falls off its surface, or a handle lies
-   *   beyond the arm's reach from the inclined shoulder.
+   * Parameter context: The seat's context.
+   * Parameter supports: The figure's supports: `leftKnee`, `rightKnee`, `leftHand`
+   * and `rightHand`.
+   * Returns: The posture.
+   * When a knee falls off its surface, or a handle lies
+   * beyond the arm's reach from the inclined shoulder.
    */
   export function bench(
     context: IContext,
@@ -480,11 +487,17 @@ export namespace HumanMountedSeats {
   }
 }
 
-/** The alternatives of `BenchAttitude`'s site. */
+/*
+ * The alternatives of `BenchAttitude`'s site.
+ */
 type BenchAttitude = "yaw" | "pitch" | "roll";
 
-/** The alternatives of `AsideAttitude`'s site. */
+/*
+ * The alternatives of `AsideAttitude`'s site.
+ */
 type AsideAttitude = "yaw" | "pitch" | "roll";
 
-/** The record of `IBENCHItem`'s site. */
+/*
+ * The record of `IBENCHItem`'s site.
+ */
 type IBENCHItem = { pitch: number; spine: number };

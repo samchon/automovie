@@ -22,51 +22,70 @@ import { walkReachGround } from "./walkReachGround";
 import { walkSupportHeight } from "./walkSupportHeight";
 import { walkSwing } from "./walkSwing";
 
-/**
+/*
  * A stepping gait's pelvis settled against its stances: every swing's flight
  * claim, scheduled descent and stance ends are constants of the step, settled
  * once in toe-off order as the walk is planned, so a read settles only its own
  * second.
  */
 export namespace walkLocomoteGround {
-  /** What the settling reads of the walk's plan. */
+  /*
+   * What the settling reads of the walk's plan.
+   */
   export interface IContext {
-    /** The plan's fixed body. */
+    /*
+     * The plan's fixed body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The gait. */
+    /*
+     * The gait.
+     */
     gait: IAutoMovieMotionHumanWalkGait;
 
-    /** The walk's step schedule. */
+    /*
+     * The walk's step schedule.
+     */
     steps: IAutoMovieMotionHumanWalkSteps.IPlan;
 
-    /** The pelvis path, at its support height when a walk bounds it. */
+    /*
+     * The pelvis path, at its support height when a walk bounds it.
+     */
     root: IAutoMovieMotionHumanWalkSteps.IPlan["root"];
 
-    /** The pelvis's joint angles at a second, its stride phase and amount. */
+    /*
+     * The pelvis's joint angles at a second, its stride phase and amount.
+     */
     pelvis: (t: number, phase?: number, amount?: number) => Hips;
 
-    /** The body's two-link knee-floor bound. */
+    /*
+     * The body's two-link knee-floor bound.
+     */
     claim: ReturnType<typeof walkReach.prepareShort>;
 
-    /** A walk's bounded support height and landing claims; none otherwise. */
+    /*
+     * A walk's bounded support height and landing claims; none otherwise.
+     */
     support: ReturnType<typeof walkSupportHeight> | undefined;
 
-    /** The swings as the schedule alone has them. */
+    /*
+     * The swings as the schedule alone has them.
+     */
     scheduled: ReturnType<typeof walkSwing>;
   }
 
-  /** The settled pelvis of a walk. */
+  /*
+   * The settled pelvis of a walk.
+   */
   export interface IGround {
-    /**
+    /*
      * Settle the pelvis at a second.
-     *
-     * @param t Action seconds.
-     * @param feet The scheduled feet there.
-     * @param amount How much the body is walking there.
-     * @param hips The pelvis's joint angles there.
-     * @param resolution The read's optional FK source.
-     * @returns The settled pelvis and feet.
+     * Parameter t: Action seconds.
+     * Parameter feet: The scheduled feet there.
+     * Parameter amount: How much the body is walking there.
+     * Parameter hips: The pelvis's joint angles there.
+     * Parameter resolution: The read's optional FK source.
+     * Returns: The settled pelvis and feet.
      */
     settle(
       t: number,
@@ -76,21 +95,19 @@ export namespace walkLocomoteGround {
       resolution?: Resolution,
     ): walkReach.IGround;
 
-    /**
+    /*
      * A foot's settled stance at one of the swings' prepared ends.
-     *
-     * @param side The foot.
-     * @param t The end's action second.
-     * @returns The settled foot there.
+     * Parameter side: The foot.
+     * Parameter t: The end's action second.
+     * Returns: The settled foot there.
      */
     end(side: AutoMovieHumanSide, t: number): walkFoot.IEnd;
   }
 
-  /**
+  /*
    * A foot as its schedule alone has it, before any pelvis is settled.
-   *
-   * @param foot The scheduled foot.
-   * @returns Its ankle, rotation and toes.
+   * Parameter foot: The scheduled foot.
+   * Returns: Its ankle, rotation and toes.
    */
   export function scheduled(
     foot: IAutoMovieMotionHumanWalkFoot.IScheduled,
@@ -102,7 +119,7 @@ export namespace walkLocomoteGround {
     };
   }
 
-  /**
+  /*
    * Prepare the settling of a walk's pelvis. In toe-off order each swing's
    * stance ends a tick and two ticks before it leaves are settled, then its
    * flight claim (a run's) or its scheduled descent (a gait whose support
@@ -110,10 +127,9 @@ export namespace walkLocomoteGround {
    * at its mid-swing are settled after. A stance is settled at an earlier
    * second than the swing it departs into, so each settle reads only swings
    * already prepared.
-   *
-   * @param context What the settling reads of the walk's plan.
-   * @param swings Every swing of the plan in toe-off order.
-   * @returns The settled pelvis at any second and the swings' settled ends.
+   * Parameter context: What the settling reads of the walk's plan.
+   * Parameter swings: Every swing of the plan in toe-off order.
+   * Returns: The settled pelvis at any second and the swings' settled ends.
    */
   export function prepare(
     context: IContext,
@@ -261,39 +277,50 @@ export namespace walkLocomoteGround {
   }
 }
 
-/** The already evaluated pelvis at the current action second. */
+/*
+ * The already evaluated pelvis at the current action second.
+ */
 interface IReachAt {
-  /** The action second it was evaluated at. */
+  /*
+   * The action second it was evaluated at.
+   */
   seconds: number;
 
-  /** The pelvis there. */
+  /*
+   * The pelvis there.
+   */
   pelvis: walkReach.IPelvis;
 }
 
-/** The two scheduled feet at an action second. */
+/*
+ * The two scheduled feet at an action second.
+ */
 type Feet = Record<
   AutoMovieHumanSide,
   IAutoMovieMotionHumanWalkFoot.IScheduled
 >;
 
-/** The pelvis's three joint angles at an action second, degrees. */
+/*
+ * The pelvis's three joint angles at an action second, degrees.
+ */
 type Hips = readonly [number, number, number];
 
-/** A posture read's optional FK source. */
+/*
+ * A posture read's optional FK source.
+ */
 type Resolution = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
 
-/**
+/*
  * Settle the pelvis at a second from the prepared swing claims.
- *
- * @param context What the settling reads of the walk's plan.
- * @param flights Each running swing's claims at its two ends.
- * @param descents Each swing's scheduled descent.
- * @param t Action seconds.
- * @param feet The scheduled feet there.
- * @param amount How much the body is walking there.
- * @param hips The pelvis's joint angles there.
- * @param resolution The read's optional FK source.
- * @returns The settled pelvis and feet.
+ * Parameter context: What the settling reads of the walk's plan.
+ * Parameter flights: Each running swing's claims at its two ends.
+ * Parameter descents: Each swing's scheduled descent.
+ * Parameter t: Action seconds.
+ * Parameter feet: The scheduled feet there.
+ * Parameter amount: How much the body is walking there.
+ * Parameter hips: The pelvis's joint angles there.
+ * Parameter resolution: The read's optional FK source.
+ * Returns: The settled pelvis and feet.
  */
 function ground(
   context: walkLocomoteGround.IContext,
@@ -359,13 +386,12 @@ function ground(
   );
 }
 
-/**
+/*
  * A swing's prepared constant, kept by its foot and toe-off.
- *
- * @param table The prepared constants.
- * @param side The swinging foot.
- * @param swing The swing.
- * @returns Its constant.
+ * Parameter table: The prepared constants.
+ * Parameter side: The swinging foot.
+ * Parameter swing: The swing.
+ * Returns: Its constant.
  */
 function prepared<T>(
   table: ReadonlyMap<string, T>,
@@ -380,20 +406,19 @@ function prepared<T>(
   return value;
 }
 
-/**
+/*
  * The lowering a swinging leg asks of the pelvis at a share of its swing for
  * the ankle the schedule swings there, read from the schedule alone so that it
  * needs no settled pelvis and every instant settles the same.
- *
- * @param context What the settling reads of the walk's plan.
- * @param side The swinging foot.
- * @param swing The swing's toe-off and heel strike.
- * @param u The share of the swing.
- * @param resolution The FK reader.
- * @param current The pelvis already evaluated at the read's second.
- * @param ankle The ankle the claim is read for; the scheduled swing's when
- *   absent.
- * @returns The lowering, metres.
+ * Parameter context: What the settling reads of the walk's plan.
+ * Parameter side: The swinging foot.
+ * Parameter swing: The swing's toe-off and heel strike.
+ * Parameter u: The share of the swing.
+ * Parameter resolution: The FK reader.
+ * Parameter current: The pelvis already evaluated at the read's second.
+ * Parameter ankle: The ankle the claim is read for; the scheduled swing's when
+ * absent.
+ * Returns: The lowering, metres.
  */
 function reaching(
   context: walkLocomoteGround.IContext,

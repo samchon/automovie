@@ -25,12 +25,11 @@ import { HumanPropFrame } from "../../perform/internal/HumanPropFrame";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/**
+/*
  * The support the action is entered on: the first bearing contact on a prop or
  * a person, else the ground.
- *
- * @param context The action's context.
- * @returns The support.
+ * Parameter context: The action's context.
+ * Returns: The support.
  */
 export function HumanSupportFrame(
   context: HumanSupportFrame.IOfContext,
@@ -46,7 +45,7 @@ export function HumanSupportFrame(
   return bearing?.support ?? { kind: "ground" };
 }
 
-/**
+/*
  * The one reader of the frame a body's base rests on: the ground, a prop it
  * sits or stands on (a saddle, a cart's bed, a deck), or a performer's region
  * it is borne on, with that frame's velocity and acceleration at a second.
@@ -64,50 +63,59 @@ export function HumanSupportFrame(
  * over the same step.
  */
 export namespace HumanSupportFrame {
-  /**
+  /*
    * What `HumanSupportFrame` reads of an action's context: its entry's supports
    * and its carrier's support.
    */
   export interface IOfContext {
-    /** The entry's supports. */
+    /*
+     * The entry's supports.
+     */
     entry: Pick<IAutoMovieMotionHumanEntryState, "supports">;
 
-    /** The carrier an overlay rides, with what it stands on. */
+    /*
+     * The carrier an overlay rides, with what it stands on.
+     */
     carrier?: Pick<IAutoMovieMotionHumanActionContext.ICarrier, "support">;
   }
 
-  /**
+  /*
    * What `HumanSupportFrame.at` reads of an action's context: the entry's
    * support, a prop's frame and a performer's posed bones.
    */
   export interface IAtContext extends IOfContext {
-    /** A prop's frame over film seconds. */
+    /*
+     * A prop's frame over film seconds.
+     */
     prop(
       subject: string,
     ): Pick<IAutoMovieMotionHumanPropReader, "frame" | "site">;
 
-    /** A performer's body and posed bones. */
+    /*
+     * A performer's body and posed bones.
+     */
     performer(
       subject: string,
     ): Pick<IAutoMovieMotionHumanPerformerReader, "body" | "bones">;
   }
 
-  /**
+  /*
    * What `HumanSupportFrame.board` reads of an action's context: the support
    * frames and the action's start.
    */
   export interface IBoardContext extends IAtContext {
-    /** Film second of the action's time zero. */
+    /*
+     * Film second of the action's time zero.
+     */
     start: number;
   }
 
-  /**
+  /*
    * The frame an entry part already bears on. Continuing a plant keeps that
    * frame; a part with no declared contact starts on the ground.
-   *
-   * @param context The displayed entry's contacts.
-   * @param part The contact part being continued.
-   * @returns Its support frame.
+   * Parameter context: The displayed entry's contacts.
+   * Parameter part: The contact part being continued.
+   * Returns: Its support frame.
    */
   export function contact(
     context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
@@ -120,14 +128,13 @@ export namespace HumanSupportFrame {
       )?.support ?? { kind: "ground" }
     );
   }
-  /**
+  /*
    * The floor actually touched by the planted entry feet, read from their
    * displayed sole sockets. A foot on a footrest of the seat sat on is not on a
    * floor; with no foot on one the ground is the default.
-   *
-   * @param body The body.
-   * @param entry The displayed entry.
-   * @returns World metres.
+   * Parameter body: The body.
+   * Parameter entry: The displayed entry.
+   * Returns: World metres.
    */
   export function floor(
     body: IAutoMovieMotionHumanBody,
@@ -158,17 +165,16 @@ export namespace HumanSupportFrame {
       ),
     );
   }
-  /**
+  /*
    * Refuse stepping from the ground onto a moving prop faster than the gait can
    * match: getting on is a step at a matched speed, so a support that moves
    * faster at the action's start than the gait's own speed cannot be boarded. A
    * body already on that prop is not boarding.
-   *
-   * @param context The action's context.
-   * @param prop The prop stepped onto.
-   * @param speed The gait's speed, m/s.
-   * @throws {HumanRefusal} A `base` refusal on `on` with the speeds and the
-   *   fix.
+   * Parameter context: The action's context.
+   * Parameter prop: The prop stepped onto.
+   * Parameter speed: The gait's speed, m/s.
+   * A `base` refusal on `on` with the speeds and the
+   * fix.
    */
   export function board(
     context: IBoardContext,
@@ -192,14 +198,13 @@ export namespace HumanSupportFrame {
       });
   }
 
-  /**
+  /*
    * The support's frame, velocity and acceleration at a film second.
-   *
-   * @param context The action's context.
-   * @param seconds Film seconds.
-   * @param named A support named outright, such as the prop a walk is to step
-   *   onto; the one the action is entered on when absent.
-   * @returns The frame.
+   * Parameter context: The action's context.
+   * Parameter seconds: Film seconds.
+   * Parameter named: A support named outright, such as the prop a walk is to step
+   * onto; the one the action is entered on when absent.
+   * Returns: The frame.
    */
   export function at(
     context: IAtContext,

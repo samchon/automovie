@@ -3,7 +3,7 @@ import type { IAutoMovieSwivelArcs } from "@automovie/interface";
 import type { distalTwistSwivelRange } from "../distalTwistSwivelRange";
 import { swivelArcs } from "../swivelArcs";
 
-/**
+/*
  * The swivel nearest a desired one at which a chain whose mid segment twists
  * distally (an arm) can take a requested end rotation: outside the arcs its end
  * joint's box refuses (`distalEndSwivelArcs`) and where the twist the rotation
@@ -19,14 +19,13 @@ import { swivelArcs } from "../swivelArcs";
  * exactly, or the twist analysis is not given) the result is the swivel outside
  * the refused arcs nearest the desired one, the candidate the box alone gives.
  * The caller verifies the returned swivel by its own score.
- *
- * @param arcs The swivels the end joint's box refuses, merged
- *   (`swivelArcs.union`), or every swivel.
- * @param range The twist range's breakpoints and admission; null when that
- *   analysis does not apply.
- * @param desired The desired swivel, degrees.
- * @returns The swivel, degrees in any turn; null when the box refuses every
- *   swivel.
+ * Parameter arcs: The swivels the end joint's box refuses, merged
+ * (`swivelArcs.union`), or every swivel.
+ * Parameter range: The twist range's breakpoints and admission; null when that
+ * analysis does not apply.
+ * Parameter desired: The desired swivel, degrees.
+ * Returns: The swivel, degrees in any turn; null when the box refuses every
+ * swivel.
  */
 export function distalEndSwivelNearest(
   arcs: readonly IAutoMovieSwivelArcs.IArc[] | "all",
@@ -62,7 +61,7 @@ export function distalEndSwivelNearest(
   return nearest ?? plain;
 }
 
-/**
+/*
  * How far either side of a twist breakpoint a candidate stands, degrees: far
  * above the rounding of the closed form at a swivel, far below the swivel's
  * resolution (`hingedArmSwivel.RESOLUTION`), so the side of the breakpoint is

@@ -1,6 +1,6 @@
 import type { IAutoMovieSurfaceGraphicTrack } from "@automovie/interface";
 
-/**
+/*
  * Index of the key in force at shot-local `seconds` on one admitted surface
  * graphic track: the last key whose time is at or before `seconds`, so a key
  * takes effect at its exact time and holds until the next key.

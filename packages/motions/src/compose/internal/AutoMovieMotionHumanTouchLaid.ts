@@ -23,7 +23,7 @@ import { AutoMovieMotionHumanTouchPath } from "./AutoMovieMotionHumanTouchPath";
 import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpright";
 import { HumanTouchArmReference } from "./HumanTouchArmReference";
 
-/**
+/*
  * An effector laid on a region at rest, before any stroke moves it: the arm
  * goal that lays it, what its two directions lie on by the touch's lay, the
  * elbow's hint for that goal, the arm solved there as the reference every
@@ -32,24 +32,23 @@ import { HumanTouchArmReference } from "./HumanTouchArmReference";
  * law that plans one read these once, on the entry posture.
  */
 export namespace AutoMovieMotionHumanTouchLaid {
-  /**
+  /*
    * The elbow hint of a touch, solved once on the entry posture for the
    * effector laid on the region there.
-   *
-   * @param body The body.
-   * @param posture The entry posture.
-   * @param side The hand.
-   * @param effector The effector.
-   * @param place The region at the entry.
-   * @param tangent Which tangent.
-   * @param along What the effector's along axis lies on; the tangent when
-   *   absent.
-   * @param facing What the effector faces, when the lay needs it.
-   * @param elbow Where the elbow lies: the place of least strain, or `level`
-   *   with the shoulder; least strain when absent.
-   * @param lean With `upright`, how far the vessel leans toward the region,
-   *   degrees (`lie`); upright when absent.
-   * @returns The hint, world.
+   * Parameter body: The body.
+   * Parameter posture: The entry posture.
+   * Parameter side: The hand.
+   * Parameter effector: The effector.
+   * Parameter place: The region at the entry.
+   * Parameter tangent: Which tangent.
+   * Parameter along: What the effector's along axis lies on; the tangent when
+   * absent.
+   * Parameter facing: What the effector faces, when the lay needs it.
+   * Parameter elbow: Where the elbow lies: the place of least strain, or `level`
+   * with the shoulder; least strain when absent.
+   * Parameter lean: With `upright`, how far the vessel leans toward the region,
+   * degrees (`lie`); upright when absent.
+   * Returns: The hint, world.
    */
   export function bend(
     body: IAutoMovieMotionHumanBody,
@@ -105,28 +104,27 @@ export namespace AutoMovieMotionHumanTouchLaid {
     });
   }
 
-  /**
+  /*
    * The arm of a touch laid on its region, solved once on the entry posture
    * with the elbow's hint: the reference every second's fit of the touch is
    * held to (`ITouch.reference`), its forearm twist kept `MARGIN` degrees
    * inside the forearm's range.
-   *
-   * @param body The body.
-   * @param posture The entry posture.
-   * @param side The hand.
-   * @param effector The effector.
-   * @param place The region at the entry.
-   * @param tangent Which tangent.
-   * @param hint The elbow's hint (`bend`), world.
-   * @param along What the effector's along axis lies on; the tangent when
-   *   absent.
-   * @param facing What the effector faces, when the lay needs it.
-   * @param elbow Where the elbow lies, which `arm` lays the effector from;
-   *   natural when absent.
-   * @param from With `reach`, the elbow's place, world.
-   * @param lean With `upright`, how far the vessel leans toward the region,
-   *   degrees (`lie`); upright when absent.
-   * @returns The reference.
+   * Parameter body: The body.
+   * Parameter posture: The entry posture.
+   * Parameter side: The hand.
+   * Parameter effector: The effector.
+   * Parameter place: The region at the entry.
+   * Parameter tangent: Which tangent.
+   * Parameter hint: The elbow's hint (`bend`), world.
+   * Parameter along: What the effector's along axis lies on; the tangent when
+   * absent.
+   * Parameter facing: What the effector faces, when the lay needs it.
+   * Parameter elbow: Where the elbow lies, which `arm` lays the effector from;
+   * natural when absent.
+   * Parameter from: With `reach`, the elbow's place, world.
+   * Parameter lean: With `upright`, how far the vessel leans toward the region,
+   * degrees (`lie`); upright when absent.
+   * Returns: The reference.
    */
   export function laid(
     body: IAutoMovieMotionHumanBody,
@@ -163,32 +161,35 @@ export namespace AutoMovieMotionHumanTouchLaid {
     );
   }
 
-  /** The laid arm's reference, from its actual fit and forearm range. */
+  /*
+   * The laid arm's reference, from its actual fit and forearm range.
+   */
   export const reference: typeof HumanTouchArmReference.reference =
     HumanTouchArmReference.reference;
 
-  /** Forearm twist room required by the laid reference, degrees. */
+  /*
+   * Forearm twist room required by the laid reference, degrees.
+   */
   export const MARGIN: number = HumanTouchArmReference.MARGIN;
-  /**
+  /*
    * The arm goal that lays an effector on a region at rest, before any lift or
    * travel: the goal `laid` solves and the wrist a lean is measured to.
-   *
-   * @param body The body.
-   * @param posture The posture the region and the heading are read on.
-   * @param side The hand.
-   * @param effector The effector.
-   * @param place The region.
-   * @param tangent Which tangent.
-   * @param hint The elbow's hint, world.
-   * @param along What the effector's along axis lies on; the tangent when
-   *   absent.
-   * @param facing What the effector faces, when the lay needs it.
-   * @param elbow Where the elbow lies, which `arm` lays the effector from;
-   *   natural when absent.
-   * @param from With `reach`, the elbow's place, world.
-   * @param lean With `upright`, how far the vessel leans toward the region,
-   *   degrees (`lie`); upright when absent.
-   * @returns The goal.
+   * Parameter body: The body.
+   * Parameter posture: The posture the region and the heading are read on.
+   * Parameter side: The hand.
+   * Parameter effector: The effector.
+   * Parameter place: The region.
+   * Parameter tangent: Which tangent.
+   * Parameter hint: The elbow's hint, world.
+   * Parameter along: What the effector's along axis lies on; the tangent when
+   * absent.
+   * Parameter facing: What the effector faces, when the lay needs it.
+   * Parameter elbow: Where the elbow lies, which `arm` lays the effector from;
+   * natural when absent.
+   * Parameter from: With `reach`, the elbow's place, world.
+   * Parameter lean: With `upright`, how far the vessel leans toward the region,
+   * degrees (`lie`); upright when absent.
+   * Returns: The goal.
    */
   export function rest(
     body: IAutoMovieMotionHumanBody,
@@ -243,24 +244,23 @@ export namespace AutoMovieMotionHumanTouchLaid {
     );
   }
 
-  /**
+  /*
    * The elbow's place of an effector that meets its place end on (`reach`),
    * settled with the hand it carries: the hand runs from the elbow to the
    * place, and the elbow is where the arm bends for that hand, so each is
    * solved from the other until they agree.
-   *
-   * @param body The body.
-   * @param posture The entry posture.
-   * @param side The hand.
-   * @param effector The effector.
-   * @param place The region at the entry.
-   * @param tangent Which tangent.
-   * @param elbow Where the elbow lies: the place of least strain, or `level`
-   *   with the shoulder; least strain when absent.
-   * @returns The elbow's place, world: the lay's origin and the bend hint.
-   * @throws {HumanRefusal} A `reach` refusal on `elbow` when the elbow still
-   *   moves by more than the solver resolves after the rounds a halving would
-   *   need.
+   * Parameter body: The body.
+   * Parameter posture: The entry posture.
+   * Parameter side: The hand.
+   * Parameter effector: The effector.
+   * Parameter place: The region at the entry.
+   * Parameter tangent: Which tangent.
+   * Parameter elbow: Where the elbow lies: the place of least strain, or `level`
+   * with the shoulder; least strain when absent.
+   * Returns: The elbow's place, world: the lay's origin and the bend hint.
+   * A `reach` refusal on `elbow` when the elbow still
+   * moves by more than the solver resolves after the rounds a halving would
+   * need.
    */
   export function settled(
     body: IAutoMovieMotionHumanBody,
@@ -348,7 +348,7 @@ export namespace AutoMovieMotionHumanTouchLaid {
     return hint;
   }
 
-  /**
+  /*
    * What an effector's facing and along axes lie on at a region: the region's
    * normal and the travel's tangent (`tangent`); the normal and the arm's own
    * direction across it (`arm`); the line from the elbow straight into the
@@ -359,27 +359,26 @@ export namespace AutoMovieMotionHumanTouchLaid {
    * `upright` region facing straight up or down with no direction given, and a
    * `reach` line that runs straight up or down, fall back to the travel's
    * tangent for the along axis.
-   *
-   * @param body The body.
-   * @param posture The posture the heading and the elbow are read on.
-   * @param side The hand.
-   * @param lay What the along axis lies on; the tangent when absent.
-   * @param point The region's point, world.
-   * @param normal The region's outward unit normal, world.
-   * @param travel The travel's unit tangent on the region, world.
-   * @param facing With `upright`, the level direction the effector faces
-   *   against; the region's level normal when absent. With `limb`, the touched
-   *   limb's long axis; the travel when absent.
-   * @param elbow Where the elbow lies, which `arm` and `reach` lay the effector
-   *   from; the place of least strain when absent.
-   * @param from With `reach`, the elbow's place, world; read from the body's
-   *   measures when absent.
-   * @param lean With `upright`, how far the vessel's axis leans from the
-   *   world's up toward the region, degrees, the facing turned with it; upright
-   *   when absent.
-   * @returns The direction the effector faces against and the direction its
-   *   along axis lies on, world, as `AutoMovieMotionHumanTouchEffector.goal`
-   *   takes them.
+   * Parameter body: The body.
+   * Parameter posture: The posture the heading and the elbow are read on.
+   * Parameter side: The hand.
+   * Parameter lay: What the along axis lies on; the tangent when absent.
+   * Parameter point: The region's point, world.
+   * Parameter normal: The region's outward unit normal, world.
+   * Parameter travel: The travel's unit tangent on the region, world.
+   * Parameter facing: With `upright`, the level direction the effector faces
+   * against; the region's level normal when absent. With `limb`, the touched
+   * limb's long axis; the travel when absent.
+   * Parameter elbow: Where the elbow lies, which `arm` and `reach` lay the effector
+   * from; the place of least strain when absent.
+   * Parameter from: With `reach`, the elbow's place, world; read from the body's
+   * measures when absent.
+   * Parameter lean: With `upright`, how far the vessel's axis leans from the
+   * world's up toward the region, degrees, the facing turned with it; upright
+   * when absent.
+   * Returns: The direction the effector faces against and the direction its
+   * along axis lies on, world, as `AutoMovieMotionHumanTouchEffector.goal`
+   * takes them.
    */
   export function lie(
     body: IAutoMovieMotionHumanBody,
@@ -462,23 +461,37 @@ export namespace AutoMovieMotionHumanTouchLaid {
   }
 }
 
-/** The alternatives of `LiePosture`'s site. */
+/*
+ * The alternatives of `LiePosture`'s site.
+ */
 type LiePosture = "root" | "yaw";
 
-/** The alternatives of `SettledPlace`'s site. */
+/*
+ * The alternatives of `SettledPlace`'s site.
+ */
 type SettledPlace = "point" | "normal";
 
-/** The alternatives of `RestPlace`'s site. */
+/*
+ * The alternatives of `RestPlace`'s site.
+ */
 type RestPlace = "point" | "normal";
 
-/** The alternatives of `RestPosture`'s site. */
+/*
+ * The alternatives of `RestPosture`'s site.
+ */
 type RestPosture = "root" | "yaw";
 
-/** The alternatives of `LaidPlace`'s site. */
+/*
+ * The alternatives of `LaidPlace`'s site.
+ */
 type LaidPlace = "point" | "normal";
 
-/** The alternatives of `BendElbow`'s site. */
+/*
+ * The alternatives of `BendElbow`'s site.
+ */
 type BendElbow = "natural" | "level";
 
-/** The alternatives of `BendPlace`'s site. */
+/*
+ * The alternatives of `BendPlace`'s site.
+ */
 type BendPlace = "point" | "normal";

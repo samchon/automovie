@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Squared distance from a point to a run's centre line, in square metres.
  *
  * Squared because every caller compares it against a squared radius, and taking

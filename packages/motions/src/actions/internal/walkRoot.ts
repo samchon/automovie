@@ -9,11 +9,10 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { WalkPace } from "./WalkPace";
 
-/**
+/*
  * Prepare the fixed body/phase terms of a stepping take's root and gait amount.
- *
- * @param props The take's fixed measured body, entry root, path and clock.
- * @returns The unconstrained root and the start/stop amount at each second.
+ * Parameter props: The take's fixed measured body, entry root, path and clock.
+ * Returns: The unconstrained root and the start/stop amount at each second.
  */
 export function walkRoot(
   props: IProps,
@@ -149,16 +148,17 @@ export function walkRoot(
   };
 }
 
-/** The excursions and spans of a stepping take's unconstrained root. */
+/*
+ * The excursions and spans of a stepping take's unconstrained root.
+ */
 export namespace walkRoot {
-  /**
+  /*
    * Ankle-equivalent mass of one leg as a fraction of total body mass. The
    * segmental first moment about the hip determines how much moving an ankle
    * translates the whole centre in the straight-leg approximation.
-   *
-   * @param body The actor's neutral segment frames, masses and hip-to-ankle
-   *   span.
-   * @returns The mean of the two legs' equivalent mass fractions.
+   * Parameter body: The actor's neutral segment frames, masses and hip-to-ankle
+   * span.
+   * Returns: The mean of the two legs' equivalent mass fractions.
    */
   export function distalShare(body: IAutoMovieMotionHumanBody): number {
     let moment: number = 0;
@@ -178,7 +178,7 @@ export namespace walkRoot {
         (body.measure.hipHeight - body.measure.ankleHeight))
     );
   }
-  /**
+  /*
    * The hip height of an average adult, metres, at which gait measurements of
    * ordinary adults are stated and scaled to a body by dynamic similarity:
    * Winter's greater-trochanter height, 0.530 of stature (Winter, Biomechanics
@@ -190,21 +190,21 @@ export namespace walkRoot {
    */
   export const REFERENCE_HIP: number = 0.53 * 1.753;
 
-  /**
+  /*
    * The pelvis's sway toward the stance foot at the reference hip, metres: 2
    * cm, half the 4 cm side-to-side travel of the centre of mass in normal gait
    * (Perry and Burnfield).
    */
   export const SWAY: number = 0.02;
 
-  /**
+  /*
    * The pelvis's rise and fall about its mean twice a stride at the reference
    * hip, metres: 2.5 cm, half the 4 to 5 cm vertical excursion of the centre of
    * mass (Perry and Burnfield).
    */
   export const BOB: number = 0.025;
 
-  /**
+  /*
    * How far the walking pelvis's mean lies under its standing height at full
    * gait at the reference hip, metres: one `BOB` down, so the pelvis rises to
    * its standing height at mid-stance, where the stance leg stands straight
@@ -214,7 +214,7 @@ export namespace walkRoot {
    */
   export const BOB_MEAN: number = -BOB;
 
-  /**
+  /*
    * The share of a gait cycle, two step periods, a foot's loading response
    * takes after its heel strike: the first 10 % of the cycle, the double
    * support in which the limb accepts the body's weight (Perry and Burnfield,
@@ -222,72 +222,110 @@ export namespace walkRoot {
    */
   export const LOADING: number = 0.1;
 
-  /**
+  /*
    * Seconds over which the entry root's offset from the planned path fades: the
    * gait's initiation (`WalkPace.FIRST`, Brenière, Do and Bouisset 1987), over
    * which the body leaves its standing root.
    */
   export const FADE: number = WalkPace.FIRST;
 }
-/** The record of `IPropsBob`'s site. */
+/*
+ * The record of `IPropsBob`'s site.
+ */
 type IPropsBob = { mean: number; amplitude: number };
 
-/** Fixed body, path and timing inputs of a stepping take's unconstrained root. */
+/*
+ * Fixed body, path and timing inputs of a stepping take's unconstrained root.
+ */
 interface IProps {
-  /**
+  /*
    * The body whose hip height scales the sway and the bob, and whose leg
    * settles the root.
    */
   body: IAutoMovieMotionHumanBody;
 
-  /** The exact entry root, world metres. */
+  /*
+   * The exact entry root, world metres.
+   */
   start: IAutoMovieVector3;
 
-  /** Step period, seconds. */
+  /*
+   * Step period, seconds.
+   */
   period: number;
 
-  /** Mean cruising speed for a self-paced walking path in metres per second. */
+  /*
+   * Mean cruising speed for a self-paced walking path in metres per second.
+   */
   walkingSpeed?: number;
 
-  /** Cruising distance between consecutive footprints, metres. */
+  /*
+   * Cruising distance between consecutive footprints, metres.
+   */
   step: number;
 
-  /** Opening-turn delay, seconds. */
+  /*
+   * Opening-turn delay, seconds.
+   */
   lag: number;
 
-  /** Gait initiation span, seconds. */
+  /*
+   * Gait initiation span, seconds.
+   */
   first: number;
 
-  /** Last footfall, seconds. */
+  /*
+   * Last footfall, seconds.
+   */
   last: number;
 
-  /** Contact lead, in step periods. */
+  /*
+   * Contact lead, in step periods.
+   */
   front: number;
 
-  /** Swing duration, seconds. */
+  /*
+   * Swing duration, seconds.
+   */
   swing: number;
 
-  /** Contact before the closing foot, seconds. */
+  /*
+   * Contact before the closing foot, seconds.
+   */
   stop: number;
 
-  /** First left heel strike, seconds. */
+  /*
+   * First left heel strike, seconds.
+   */
   firstLeft: number;
 
-  /** Running root drop and oscillation, in hip heights; walking's when absent. */
+  /*
+   * Running root drop and oscillation, in hip heights; walking's when absent.
+   */
   bob: IPropsBob | undefined;
 
-  /** Distance along the fixed path at each action second, metres. */
+  /*
+   * Distance along the fixed path at each action second, metres.
+   */
   progress: (seconds: number) => number;
 
-  /** Pelvis heading at each second, degrees. */
+  /*
+   * Pelvis heading at each second, degrees.
+   */
   yaw: (seconds: number) => number;
 
-  /** Path point at an arc length, world metres. */
+  /*
+   * Path point at an arc length, world metres.
+   */
   at: (distance: number) => IAutoMovieVector3;
 
-  /** Travel/facing heading at that distance and point, degrees. */
+  /*
+   * Travel/facing heading at that distance and point, degrees.
+   */
   heading: (distance: number, point: IAutoMovieVector3) => number;
 }
 
-/** The alternatives of `WalkRootResult`'s site. */
+/*
+ * The alternatives of `WalkRootResult`'s site.
+ */
 type WalkRootResult = "root" | "amount";

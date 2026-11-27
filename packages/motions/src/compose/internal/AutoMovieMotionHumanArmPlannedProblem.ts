@@ -15,7 +15,7 @@ import { AutoMovieMotionHumanArmObservation } from "./AutoMovieMotionHumanArmObs
 import type { AutoMovieMotionHumanArmPlannedReads } from "./AutoMovieMotionHumanArmPlannedReads";
 import { AutoMovieMotionHumanArmRide } from "./AutoMovieMotionHumanArmRide";
 
-/**
+/*
  * The trajectory problem of an arms' plan
  * (`AutoMovieMotionHumanArmPlanned.planned`): the optimiser's first waypoints,
  * the reach and the return spaced by the arc their blend covers and the hold at
@@ -23,9 +23,8 @@ import { AutoMovieMotionHumanArmRide } from "./AutoMovieMotionHumanArmRide";
  * and the problem over any waypoints, each arm's site read once per instant, a
  * site on a segment of another arm of the group riding that arm. Read from the
  * plan's body, span, arms, readings, borrowed reader and spacing.
- *
- * @param scope What the plan builds its problem from.
- * @returns The waypoints, their cut, the problem and the guesses' setter.
+ * Parameter scope: What the plan builds its problem from.
+ * Returns: The waypoints, their cut, the problem and the guesses' setter.
  */
 export function AutoMovieMotionHumanArmPlannedProblem(
   scope: AutoMovieMotionHumanArmPlannedProblem.IScope,
@@ -265,76 +264,106 @@ export function AutoMovieMotionHumanArmPlannedProblem(
   };
 }
 
-/** What the trajectory problem of an arms' plan reads and what it is. */
+/*
+ * What the trajectory problem of an arms' plan reads and what it is.
+ */
 export namespace AutoMovieMotionHumanArmPlannedProblem {
-  /** What an arms' plan builds its problem from. */
+  /*
+   * What an arms' plan builds its problem from.
+   */
   export interface IScope {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The span's instants. */
+    /*
+     * The span's instants.
+     */
     span: IAutoMovieMotionHumanArmPlanned.ISpan;
 
-    /** The arms. */
+    /*
+     * The arms.
+     */
     carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[];
 
-    /** An instant's posture and pose (`AutoMovieMotionHumanArmPlannedReads`). */
+    /*
+     * An instant's posture and pose (`AutoMovieMotionHumanArmPlannedReads`).
+     */
     at: AutoMovieMotionHumanArmPlannedReads.IReads["at"];
 
-    /** An arm's goal (`AutoMovieMotionHumanArmPlannedReads`). */
+    /*
+     * An arm's goal (`AutoMovieMotionHumanArmPlannedReads`).
+     */
     aimed: AutoMovieMotionHumanArmPlannedReads.IReads["aimed"];
 
-    /** An instant's base (`AutoMovieMotionHumanArmPlannedReads`). */
+    /*
+     * An instant's base (`AutoMovieMotionHumanArmPlannedReads`).
+     */
     base: AutoMovieMotionHumanArmPlannedReads.IReads["base"];
 
-    /** Whether an arm holds (`AutoMovieMotionHumanArmPlannedReads`). */
+    /*
+     * Whether an arm holds (`AutoMovieMotionHumanArmPlannedReads`).
+     */
     holding: AutoMovieMotionHumanArmPlannedReads.IReads["holding"];
 
-    /** A blend's longest arc (`AutoMovieMotionHumanArmPlannedReads`). */
+    /*
+     * A blend's longest arc (`AutoMovieMotionHumanArmPlannedReads`).
+     */
     travel: AutoMovieMotionHumanArmPlannedReads.IReads["travel"];
 
-    /** The plan's exact forward-kinematics preparation. */
+    /*
+     * The plan's exact forward-kinematics preparation.
+     */
     resolution: ReturnType<typeof prepareHumanPoseResolution>;
 
-    /** The least waypoints a second (`AutoMovieMotionHumanArmPlanned.LEAST`). */
+    /*
+     * The least waypoints a second (`AutoMovieMotionHumanArmPlanned.LEAST`).
+     */
     least: number;
 
-    /** The farthest probe's travel between two waypoints of a first cut, metres. */
+    /*
+     * The farthest probe's travel between two waypoints of a first cut, metres.
+     */
     spacing: number;
   }
 
-  /** The waypoints, their cut and the problem. */
+  /*
+   * The waypoints, their cut and the problem.
+   */
   export interface IReaders {
-    /** The optimiser's waypoints, seconds, cut by `waypoints`. */
+    /*
+     * The optimiser's waypoints, seconds, cut by `waypoints`.
+     */
     times: number[];
 
-    /** Cut the optimiser's first waypoints into `times`. */
+    /*
+     * Cut the optimiser's first waypoints into `times`.
+     */
     waypoints: () => void;
 
-    /**
+    /*
      * The problem over waypoints.
-     *
-     * @param waypoints The waypoints' seconds.
-     * @returns The problem.
+     * Parameter waypoints: The waypoints' seconds.
+     * Returns: The problem.
      */
     problem: (waypoints: readonly number[]) => HumanArmTrajectory.IProblem;
 
-    /**
+    /*
      * Set each arm's own fit at the hold's start, the optimiser's seed's first
      * start, once the laid course is refused.
-     *
-     * @param values Each arm's angles.
+     * Parameter values: Each arm's angles.
      */
     guess: (values: IAutoMovieMotionHumanArmAngles.IAngles[]) => void;
   }
 }
 
-/**
+/*
  * The spacing of the trajectory's waypoints, seconds at most: the frame grid
  * (`AutoMovieMotionHumanArmCourse.STEP`).
  */
 const STEP: number = AutoMovieMotionHumanArmCourse.STEP;
-/**
+/*
  * The intervals a reach or a return is first cut into at most, by its arc:
  * TrajOpt plans an arm's whole path on eleven timesteps, ten intervals
  * (Schulman et al. 2013, section VI); the solve adds knots where the played

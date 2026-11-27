@@ -28,7 +28,7 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
-/**
+/*
  * A hand held at a world attitude on the arm as it stands: what a carried or
  * lifted object's attitude asks of the hand.
  *
@@ -46,22 +46,21 @@ import { resolveHumanPosture } from "./resolveHumanPosture";
  * the forearm from -29 to its +90 end.
  */
 export namespace HumanHandAttitude {
-  /**
+  /*
    * The posture with the arm written as joints, the hand turned to a world
    * rotation where the arm stands: the wrist first, the forearm's twist by what
    * the wrist cannot turn about the forearm's length. The body's rig and
    * canonical mappings remain unchanged during this synchronous solve; a later
    * call prepares their current values anew.
-   *
-   * @param body The body.
-   * @param posture The posture; the arm is placed by its joints or its goal.
-   * @param side The hand.
-   * @param rotation The hand's world rotation asked.
-   * @param source Optional exact FK reader or lazy supplier borrowed only
-   *   during this synchronous solve.
-   * @param projection Genuine unchanged-body operation projection, borrowed
-   *   only by actual canonical reads.
-   * @returns The posture with that arm's joints set and its goal removed.
+   * Parameter body: The body.
+   * Parameter posture: The posture; the arm is placed by its joints or its goal.
+   * Parameter side: The hand.
+   * Parameter rotation: The hand's world rotation asked.
+   * Parameter source: Optional exact FK reader or lazy supplier borrowed only
+   * during this synchronous solve.
+   * Parameter projection: Genuine unchanged-body operation projection, borrowed
+   * only by actual canonical reads.
+   * Returns: The posture with that arm's joints set and its goal removed.
    */
   export function held(
     body: IAutoMovieMotionHumanBody,
@@ -201,7 +200,7 @@ export namespace HumanHandAttitude {
   }
 }
 
-/**
+/*
  * One held call's lazy wrist solve. First use keeps rest/local-quaternion,
  * axes, domain, decomposition and clamp admission in their original order; the
  * second wrist solve reuses only that unchanged rig metadata. The local
@@ -264,7 +263,7 @@ function wrist(
   };
 }
 
-/**
+/*
  * The turn of a rotation about a unit axis, degrees in [-180, 180]: the twist
  * of its swing-twist split, retaining atan2's signed endpoints.
  */

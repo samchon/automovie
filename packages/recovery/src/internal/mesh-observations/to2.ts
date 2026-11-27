@@ -7,7 +7,7 @@ import type {
 import { dot } from "./dot";
 import { sub } from "./sub";
 
-/**
+/*
  * Projects a point into the plane's physical u/v coordinates; the normal
  * residual is discarded.
  */

@@ -17,16 +17,15 @@ import type {
 import { AutoMovieMotionHumanPartnerClear } from "../../compose/internal/AutoMovieMotionHumanPartnerClear";
 import { HumanTrunkLean } from "../../handling/internal/HumanTrunkLean";
 
-/**
+/*
  * A ring dresser's leaned and cleared plan (`slipRing`): a presented hand
  * beyond the standing arms reached by the least hinge at the hips that brings
  * both wrists within their arms at the stroke's end, eased in and out with the
  * steadying hand, and the partner's body made both arms' obstacle but the
  * presented hand, its fingers and its forearm, the steadying arm's rests. Read
  * from the plan's context, body, composition, clock, arms and partner.
- *
- * @param scope What the plan leans and clears.
- * @returns The cleared plan.
+ * Parameter scope: What the plan leans and clears.
+ * Returns: The cleared plan.
  */
 export function slipRingLean(
   scope: slipRingLean.IScope,
@@ -156,35 +155,57 @@ export function slipRingLean(
   return cleared;
 }
 
-/** What a ring dresser's leaned plan reads. */
+/*
+ * What a ring dresser's leaned plan reads.
+ */
 export namespace slipRingLean {
-  /** What a ring plan leans and clears. */
+  /*
+   * What a ring plan leans and clears.
+   */
   export interface IScope {
-    /** The action's context. */
+    /*
+     * The action's context.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSlipRing>;
 
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The composed plan. */
+    /*
+     * The composed plan.
+     */
     plan: IAutoMovieMotionHumanActionPlan;
 
-    /** The ring hand's clock. */
+    /*
+     * The ring hand's clock.
+     */
     clock: IAutoMovieMotionClock;
 
-    /** The ring hand. */
+    /*
+     * The ring hand.
+     */
     side: AutoMovieHumanSide;
 
-    /** The steadying hand. */
+    /*
+     * The steadying hand.
+     */
     steady: AutoMovieHumanSide;
 
-    /** The steadying hand's span. */
+    /*
+     * The steadying hand's span.
+     */
     grasping: IAutoMovieMotionHumanArmPlanned.ISpan;
 
-    /** The partner. */
+    /*
+     * The partner.
+     */
     partner: IAutoMovieMotionHumanPerformerReader;
 
-    /** The partner's presented hand. */
+    /*
+     * The partner's presented hand.
+     */
     hand: AutoMovieHumanSide;
   }
 }

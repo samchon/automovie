@@ -6,17 +6,16 @@ import {
 } from "../../core";
 import { AutoMovieArchetypeCart } from "../AutoMovieArchetypeCart";
 
-/**
+/*
  * The carriers pushed by hand: a shopping trolley and a wheelbarrow, each built
  * on its drawn dimensions.
  */
 export namespace CartPushed {
-  /**
+  /*
    * A shopping trolley: a basket over a chassis on four castors, pushed by the
    * one bar across its back.
-   *
-   * @param builder The carrier under construction.
-   * @param d The drawn dimensions.
+   * Parameter builder: The carrier under construction.
+   * Parameter d: The drawn dimensions.
    */
   export function trolley(
     builder: AutoMovieArchetypeBuilder<
@@ -132,12 +131,11 @@ export namespace CartPushed {
     });
   }
 
-  /**
+  /*
    * A wheelbarrow: a tray over one front wheel, two legs behind, and two
    * handles reaching back.
-   *
-   * @param builder The carrier under construction.
-   * @param d The drawn dimensions.
+   * Parameter builder: The carrier under construction.
+   * Parameter d: The drawn dimensions.
    */
   export function wheelbarrow(
     builder: AutoMovieArchetypeBuilder<

@@ -8,7 +8,7 @@ import type {
 import type { HumanMountPush } from "./HumanMountPush";
 import { HumanMountPushSquare } from "./HumanMountPushSquare";
 
-/**
+/*
  * The turn of a foot about a point of its own (its ball), in the knee's plane,
  * that leaves its ankle bent by exactly `target` once the knee has followed the
  * moved ankle, in closed form. Turning the foot moves the ankle about the ball,
@@ -23,15 +23,14 @@ import { HumanMountPushSquare } from "./HumanMountPushSquare";
  *   the two circles' intersection, on the pole's side of the leg and the nearer
  *   of the two to the foot as placed; circles that do not meet give their
  *   nearest points, the leg at its reach as`bend` reads it.
- *
- * @param body The body, whose thigh and shank lengths are read.
- * @param hip The hip joint, world metres.
- * @param ankle The ankle, world metres.
- * @param pole The knee's pole, world metres.
- * @param rotation The foot's world rotation.
- * @param pivot The point the foot turns about, world metres.
- * @param target The ankle's bend to leave, degrees.
- * @returns The turn; null for a degenerate leg.
+ * Parameter body: The body, whose thigh and shank lengths are read.
+ * Parameter hip: The hip joint, world metres.
+ * Parameter ankle: The ankle, world metres.
+ * Parameter pole: The knee's pole, world metres.
+ * Parameter rotation: The foot's world rotation.
+ * Parameter pivot: The point the foot turns about, world metres.
+ * Parameter target: The ankle's bend to leave, degrees.
+ * Returns: The turn; null for a degenerate leg.
  */
 export function HumanMountPushPitch(
   body: IAutoMovieMotionHumanBody,
@@ -139,23 +138,33 @@ export function HumanMountPushPitch(
   };
 }
 
-/**
+/*
  * A point in the knee's plane, metres from the hip along the leg (`x`) and
  * toward the pole (`y`).
  */
 interface IPoint {
-  /** Along the leg. */
+  /*
+   * Along the leg.
+   */
   x: number;
 
-  /** Toward the pole. */
+  /*
+   * Toward the pole.
+   */
   y: number;
 }
 
-/** One meeting of the knee's two circles (`pitch`). */
+/*
+ * One meeting of the knee's two circles (`pitch`).
+ */
 interface IKneeTurn {
-  /** The turn that brings the knee there, radians about the hinge. */
+  /*
+   * The turn that brings the knee there, radians about the hinge.
+   */
   angle: number;
 
-  /** Whether the knee bends toward the pole off the moved leg. */
+  /*
+   * Whether the knee bends toward the pole off the moved leg.
+   */
   poled: boolean;
 }

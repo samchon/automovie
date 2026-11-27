@@ -22,7 +22,9 @@ import type { QuadrupedPosePlan } from "./QuadrupedPosePlan";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
 
-/** Build the owned rig, source, floor and achieved output operations. */
+/*
+ * Build the owned rig, source, floor and achieved output operations.
+ */
 function prepare<Id extends string, Dimension extends string>(
   animal: AutoMovieArchetype<Id, Dimension>,
   parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
@@ -165,7 +167,7 @@ function prepare<Id extends string, Dimension extends string>(
   if (ride === undefined) return { read, bodyFloor, sample };
   return { read, bodyFloor, sample, position };
 
-  /**
+  /*
    * Preview current parent frames with the same source and axial lowering as
    * sampling.
    */
@@ -176,7 +178,7 @@ function prepare<Id extends string, Dimension extends string>(
     return lower(root, undefined, axial);
   }
 
-  /**
+  /*
    * Exact current body/accessory support reuses TRS and span owners, never
    * another model sample.
    */
@@ -242,7 +244,9 @@ function prepare<Id extends string, Dimension extends string>(
     return lowest;
   }
 
-  /** Emit the admitted limbs and root as a fresh archetype. */
+  /*
+   * Emit the admitted limbs and root as a fresh archetype.
+   */
   function sample(
     limbs: ReadonlyMap<
       AutoMovieArchetypeQuadrupedBody.Limb,
@@ -255,7 +259,9 @@ function prepare<Id extends string, Dimension extends string>(
     return { animal: posed.emit(), joints: posed.joints, frames: posed.frames };
   }
 
-  /** Complete FK must realize every supplied chain before model emission. */
+  /*
+   * Complete FK must realize every supplied chain before model emission.
+   */
   function position(
     limbs: ReadonlyMap<
       AutoMovieArchetypeQuadrupedBody.Limb,
@@ -317,7 +323,9 @@ function prepare<Id extends string, Dimension extends string>(
     };
   }
 }
-/** A bone frame sits at its upper joint and its bar runs along local +Y. */
+/*
+ * A bone frame sits at its upper joint and its bar runs along local +Y.
+ */
 function endpoint(
   frame: IAutoMovieTransform,
   length: number,
@@ -328,7 +336,7 @@ function endpoint(
   );
 }
 
-/**
+/*
  * Hypot preserves a finite representable coordinate norm without squaring huge
  * components first.
  */
@@ -336,20 +344,21 @@ function magnitude(point: IAutoMovieVector3): number {
   return Math.hypot(point.x, point.y, point.z);
 }
 
-/** The private ride owner's achieved-geometry emission surface. */
+/*
+ * The private ride owner's achieved-geometry emission surface.
+ */
 export namespace PrepareQuadrupedPose {
-  /**
+  /*
    * Prepare one animal for shared solved-world-chain pose emission.
-   *
-   * @param animal Source geometry and original contact identities; never
-   *   changed.
-   * @param parts Carrier of every non-bone part.
-   * @param contacts Carrier of every source affordance.
-   * @returns Reusable root/axial preview, exact non-limb floor support and
-   *   complete-limb sampling.
-   * @throws {RangeError} For invalid models, non-rigid frames, incomplete
-   *   carriers, broken neutral chains or a current solved chain the source
-   *   cannot close.
+   * Parameter animal: Source geometry and original contact identities; never
+   * changed.
+   * Parameter parts: Carrier of every non-bone part.
+   * Parameter contacts: Carrier of every source affordance.
+   * Returns: Reusable root/axial preview, exact non-limb floor support and
+   * complete-limb sampling.
+   * For invalid models, non-rigid frames, incomplete
+   * carriers, broken neutral chains or a current solved chain the source
+   * cannot close.
    */
   export function ordinary<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,
@@ -359,7 +368,9 @@ export namespace PrepareQuadrupedPose {
     return prepare(animal, parts, contacts);
   }
 
-  /** Prepare the same pose with the private native ride emission surface. */
+  /*
+   * Prepare the same pose with the private native ride emission surface.
+   */
   export function ride<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,
     parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>,
@@ -368,7 +379,7 @@ export namespace PrepareQuadrupedPose {
     return prepare(animal, parts, contacts, true);
   }
 
-  /**
+  /*
    * The internal ride reader adds achieved geometry to ordinary public
    * preparation.
    */
@@ -376,7 +387,7 @@ export namespace PrepareQuadrupedPose {
     Id extends string,
     Dimension extends string,
   > extends QuadrupedPosePlan.IPrepared<Id, Dimension> {
-    /**
+    /*
      * Admit exact achieved geometry for independent emission by its owning
      * operation.
      */
@@ -390,22 +401,30 @@ export namespace PrepareQuadrupedPose {
     ): IPosition<Id, Dimension>;
   }
 
-  /** Achieved joint geometry that can emit a fresh model on demand. */
+  /*
+   * Achieved joint geometry that can emit a fresh model on demand.
+   */
   export interface IPosition<Id extends string, Dimension extends string>
     extends QuadrupedPosePlan.IState {
-    /** Apply admitted frames to parts and contacts in a fresh model. */
+    /*
+     * Apply admitted frames to parts and contacts in a fresh model.
+     */
     emit(): AutoMovieArchetype<Id, Dimension>;
   }
 }
 
-/** A private part and its already admitted explicit carrier. */
+/*
+ * A private part and its already admitted explicit carrier.
+ */
 interface IBinding {
-  /**
+  /*
    * Private geometry/frame snapshot; never returned or mutated by support
    * queries.
    */
   part: IAutoMovieModelPart;
 
-  /** Bone whose rigid delta carries this part. */
+  /*
+   * Bone whose rigid delta carries this part.
+   */
   bone: AutoMovieArchetypeQuadrupedBody.Bone;
 }

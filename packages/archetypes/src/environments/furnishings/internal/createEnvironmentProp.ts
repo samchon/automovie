@@ -7,7 +7,7 @@ import type {
 
 import { environmentModel } from "../../internal/environmentModel";
 
-/**
+/*
  * Make a placeable environment prop from a model and its declared affordances.
  *
  * The occurrence receives one id for its staged node, model and prop spec. Its
@@ -17,10 +17,9 @@ import { environmentModel } from "../../internal/environmentModel";
  * `placement` to declare any support or containment relation that needs
  * validation. An imported appearance keeps the model's own proxy geometry and
  * contacts.
- *
- * @param props The model and any existing prop claims, articulation or asset
- *   reference.
- * @returns The environment module that emits the staged prop.
+ * Parameter props: The model and any existing prop claims, articulation or asset
+ * reference.
+ * Returns: The environment module that emits the staged prop.
  */
 export function createEnvironmentProp(
   props: Readonly<

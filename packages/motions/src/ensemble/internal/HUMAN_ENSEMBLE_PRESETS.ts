@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanEnsemblePreset } from "@automovie/interface";
 
-/**
+/*
  * Named groups as distributions of their members' attributes and proficiency,
  * so an elite battalion and a militia are one composition under two names.
  *

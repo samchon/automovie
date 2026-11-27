@@ -10,7 +10,7 @@ import type {
 
 import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 
-/**
+/*
  * What each limb's fit reads of a pose, read once off the rig: per limb and per
  * whether the other arm is already placed (an arm's obstacles include it then),
  * the bones whose records a fit's reduced pose keeps (`HumanLimbView.of`: the
@@ -19,13 +19,12 @@ import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
  * root's parent: `HumanLimbFit`'s source read), for a goal attached to no bone.
  * Both are functions of the rig and the limb alone; a fit whose goal is
  * attached adds that bone to its own copies.
- *
- * @param skeleton The rig.
- * @param resolution Its FK producer, which prepares the bound demands.
- * @param chains Its limbs' chain constants (`IHumanBody.chains`), for each
- *   chain's root's parent.
- * @returns The reads, by limb, then by `0` (the other arm not placed) and `1`
- *   (placed); a leg's two are alike.
+ * Parameter skeleton: The rig.
+ * Parameter resolution: Its FK producer, which prepares the bound demands.
+ * Parameter chains: Its limbs' chain constants (`IHumanBody.chains`), for each
+ * chain's root's parent.
+ * Returns: The reads, by limb, then by `0` (the other arm not placed) and `1`
+ * (placed); a leg's two are alike.
  */
 export function humanLimbReads(
   skeleton: IAutoMovieSkeleton,
@@ -93,16 +92,24 @@ export function humanLimbReads(
   return out as humanLimbReads.IReads;
 }
 
-/** The reads' types. */
+/*
+ * The reads' types.
+ */
 export namespace humanLimbReads {
-  /** The interface contract (`IAutoMovieMotionHumanLimbReads.IRead`). */
+  /*
+   * The interface contract (`IAutoMovieMotionHumanLimbReads.IRead`).
+   */
   export type IRead = IAutoMovieMotionHumanLimbReads.IRead;
 
-  /** The interface contract (`IAutoMovieMotionHumanLimbReads.IReads`). */
+  /*
+   * The interface contract (`IAutoMovieMotionHumanLimbReads.IReads`).
+   */
   export type IReads = IAutoMovieMotionHumanLimbReads.IReads;
 }
 
-/** The alternatives of `HumanLimbReadsReadObstacles`'s site. */
+/*
+ * The alternatives of `HumanLimbReadsReadObstacles`'s site.
+ */
 type HumanLimbReadsReadObstacles =
   | ReadonlySet<AutoMovieHumanoidBone>
   | readonly AutoMovieHumanoidBone[];

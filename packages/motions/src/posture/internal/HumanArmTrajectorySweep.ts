@@ -17,7 +17,7 @@ import { HumanArmTrajectorySweepBound } from "./HumanArmTrajectorySweepBound";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanAuditModel } from "./HumanAuditModel";
 
-/**
+/*
  * An arm's sweeps over one interval between read waypoints: every axis sphere
  * against every shape whose bounding sphere lies within the pairs' reach of the
  * sphere at the interval's first waypoint, its course read through its place at
@@ -33,13 +33,12 @@ import { HumanAuditModel } from "./HumanAuditModel";
  * that clear by conservative advancement (Mirtich 1996): the course's chord
  * travel since that reading (`AutoMovieMotionBound`) is less than its
  * distance's excess over the check.
- *
- * @param c The context.
- * @param a The arm.
- * @param k The interval's first waypoint.
- * @param from The arm placed at `k`.
- * @param near The arm on the way to the interval's last waypoint.
- * @returns The sweeps, by sphere, then shape, then step.
+ * Parameter c: The context.
+ * Parameter a: The arm.
+ * Parameter k: The interval's first waypoint.
+ * Parameter from: The arm placed at `k`.
+ * Parameter near: The arm on the way to the interval's last waypoint.
+ * Returns: The sweeps, by sphere, then shape, then step.
  */
 export function HumanArmTrajectorySweep(
   c: M.IContext,
@@ -153,7 +152,7 @@ export function HumanArmTrajectorySweep(
   return out;
 }
 
-/**
+/*
  * The arm's probes swept between two read waypoints of its trajectory
  * (`HumanArmTrajectoryModel`): each probe's course from one to the next is read
  * through its place at every frame between, each frame step its chord, against
@@ -166,58 +165,68 @@ export function HumanArmTrajectorySweep(
  * merit and the convex model of the same iterate.
  */
 export namespace HumanArmTrajectorySweep {
-  /** One probe's sweep against one shape over one frame step. */
+  /*
+   * One probe's sweep against one shape over one frame step.
+   */
   export interface ISwept {
-    /**
+    /*
      * The probe, by index among the placed arm's probes: an axis sphere below
      * `HumanArmGeometry.SURFACE`, an audit collider probe from it.
      */
     probe: number;
 
-    /** The shape, by index in the frame of the interval's first waypoint. */
+    /*
+     * The shape, by index in the frame of the interval's first waypoint.
+     */
     shape: number;
 
-    /** The step's first waypoint. */
+    /*
+     * The step's first waypoint.
+     */
     from: number;
 
-    /**
+    /*
      * The probe's place there, carried into the shape's frame at the interval's
      * first waypoint (`HumanArmTrajectoryHalfStep.carry`), world metres.
      */
     start: IAutoMovieVector3;
 
-    /**
+    /*
      * The turn that carries a direction from that waypoint's frame of the shape
      * to the interval's first.
      */
     first: IAutoMovieQuaternion;
 
-    /** The step's last waypoint. */
+    /*
+     * The step's last waypoint.
+     */
     other: number;
 
-    /** The probe's place there, carried the same way, world metres. */
+    /*
+     * The probe's place there, carried the same way, world metres.
+     */
     to: IAutoMovieVector3;
 
-    /**
+    /*
      * The turn that carries a direction from that waypoint's frame the same
      * way.
      */
     turn: IAutoMovieQuaternion;
 
-    /**
+    /*
      * The step's signed distance to the shape less the probe's radius, metres
      * (negative inside): the chord's, as TrajOpt reads the step between two
      * poses (Schulman et al. 2014, section IV-B).
      */
     clear: number;
 
-    /**
+    /*
      * The least distance the sphere may keep to the shape over the step,
      * metres: the lesser of its allowances at the step's two waypoints.
      */
     lower: number;
 
-    /**
+    /*
      * The shape's reading against the step's chord (`physicalShapeNearest`), in
      * the shape's frame at the interval's first waypoint: the convex model
      * takes the step's gradient from it, reading the shape no more.
@@ -225,7 +234,7 @@ export namespace HumanArmTrajectorySweep {
     near: IAutoMoviePhysicalShapeNearest.IResult;
   }
 
-  /**
+  /*
    * An arm's audit collider probes swept over one interval between read
    * waypoints: the course between the waypoints the pairs read
    * (`HumanArmTrajectoryPairs.deepest`). Each audit part is read against each
@@ -252,14 +261,13 @@ export namespace HumanArmTrajectorySweep {
    * replaced by complete certificates of the actual hand's solids. Their
    * endpoint casts include their shortest relative rotations' chord error;
    * any missing part or unproved allowance keeps the original axis row.
-   *
-   * @param c The context.
-   * @param a The arm.
-   * @param k The interval's first waypoint.
-   * @param placed The arm placed at every waypoint, with its collider probes.
-   * @param near The arm on the way to the interval's last waypoint.
-   * @param axes The axis-sphere readings of this same interval.
-   * @returns The axis rows still needed, then the sweeps of the physical parts.
+   * Parameter c: The context.
+   * Parameter a: The arm.
+   * Parameter k: The interval's first waypoint.
+   * Parameter placed: The arm placed at every waypoint, with its collider probes.
+   * Parameter near: The arm on the way to the interval's last waypoint.
+   * Parameter axes: The axis-sphere readings of this same interval.
+   * Returns: The axis rows still needed, then the sweeps of the physical parts.
    */
   export function links(
     c: M.IContext,
@@ -485,7 +493,9 @@ export namespace HumanArmTrajectorySweep {
   }
 }
 
-/** Certify one actual hand part over the axis row's relative frame step. */
+/*
+ * Certify one actual hand part over the axis row's relative frame step.
+ */
 function certifiesTip(
   c: M.IContext,
   a: number,
@@ -569,16 +579,24 @@ function certifiesTip(
   );
 }
 
-/** The record of `IOfMoved`'s site. */
+/*
+ * The record of `IOfMoved`'s site.
+ */
 type IOfMoved = {
   point: IAutoMovieVector3;
   turn: IAutoMovieQuaternion;
 };
 
-/** An obstructed tip sweep whose native hand parts still need certification. */
+/*
+ * An obstructed tip sweep whose native hand parts still need certification.
+ */
 interface ITipStep {
-  /** The original axis-sphere reading, kept if any real part is unproved. */
+  /*
+   * The original axis-sphere reading, kept if any real part is unproved.
+   */
   sweep: HumanArmTrajectorySweep.ISwept;
-  /** The hand parts not yet certified, absent after the first failed proof. */
+  /*
+   * The hand parts not yet certified, absent after the first failed proof.
+   */
   remaining: number | undefined;
 }

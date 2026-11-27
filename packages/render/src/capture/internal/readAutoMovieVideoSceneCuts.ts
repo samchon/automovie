@@ -1,6 +1,6 @@
 import type { IAutoMovieCaptureVideoSource } from "@automovie/interface";
 
-/**
+/*
  * Read the report of `planAutoMovieVideoSceneCuts` into the file's scene cuts:
  * the second each new scene starts and its `scdet` score, in the report's
  * order.
@@ -52,5 +52,7 @@ export function readAutoMovieVideoSceneCuts(
   return cuts;
 }
 
-/** A decimal number as the `metadata` filter prints one. */
+/*
+ * A decimal number as the `metadata` filter prints one.
+ */
 const DECIMAL: RegExp = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/iu;

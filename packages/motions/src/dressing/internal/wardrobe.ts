@@ -23,7 +23,7 @@ import { wardrobeHands } from "./wardrobeHands";
 import type { wardrobeModes } from "./wardrobeModes";
 import { wardrobeSleeve } from "./wardrobeSleeve";
 
-/**
+/*
  * Put coarse stage wearables onto or take them off a real performer.
  *
  * A previously held open-front jacket is carried into position while the other
@@ -53,10 +53,12 @@ export const wardrobe: IAutoMovieMotionHumanActionLaw<Params> = {
   plan: planWardrobe,
 };
 
-/** The installed wardrobe actions and their requested direction and side. */
+/*
+ * The installed wardrobe actions and their requested direction and side.
+ */
 type Params = wardrobeModes.Params;
 
-/**
+/*
  * Put coarse stage wearables onto or take them off a real performer.
  *
  * A previously held open-front jacket is carried into position while the other
@@ -71,8 +73,6 @@ type Params = wardrobeModes.Params;
  * Animating Human Dressing (2015),
  * https://sites.cc.gatech.edu/gvu/people/faculty/greg.turk/paper_pages/2015_animating_human_dressing/index.html.
  * The jacket here uses explicit short openings and imposes staged rigid poses.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Explains entry ownership, what can be reversed, closure composition and coarse model scope.
  */
 function planWardrobe(
   context: IAutoMovieMotionHumanActionContext<Params>,
@@ -97,7 +97,9 @@ function planWardrobe(
   }
 }
 
-/** Transport the held jacket and thread the free hand before attaching it. */
+/*
+ * Transport the held jacket and thread the free hand before attaching it.
+ */
 function jacket(
   context: IAutoMovieMotionHumanActionContext<Params>,
   hand: AutoMovieHumanSide,
@@ -245,7 +247,9 @@ function jacket(
   };
 }
 
-/** Pass a free hand through a sleeve on the staged jacket in either direction. */
+/*
+ * Pass a free hand through a sleeve on the staged jacket in either direction.
+ */
 function thread(
   context: IAutoMovieMotionHumanActionContext<Params>,
   side: AutoMovieHumanSide,
@@ -369,7 +373,9 @@ function thread(
   });
 }
 
-/** The torso origin set by the wearer's actual left and right shoulders. */
+/*
+ * The torso origin set by the wearer's actual left and right shoulders.
+ */
 function collar(
   context: IAutoMovieMotionHumanActionContext<Params>,
 ): IAutoMovieRigidTransform {
@@ -388,7 +394,9 @@ function collar(
   };
 }
 
-/** Use the unoccupied opposite limb. */
+/*
+ * Use the unoccupied opposite limb.
+ */
 function opposite(side: AutoMovieHumanSide): AutoMovieHumanSide {
   return side === "left" ? "right" : "left";
 }

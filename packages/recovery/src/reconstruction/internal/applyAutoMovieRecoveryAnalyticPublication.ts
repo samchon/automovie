@@ -7,7 +7,7 @@ import type {
   IAutoMovieRecoveryTensorFamiliesInput,
 } from "@automovie/interface";
 
-/**
+/*
  * Bind a source-free coefficient extension to its exact original curve and
  * graph bytes. Named replacements are atomic across closed and open consumers.
  * Original observation reports stay immutable and explicitly describe the prior

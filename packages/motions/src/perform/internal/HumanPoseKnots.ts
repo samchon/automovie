@@ -1,4 +1,4 @@
-/**
+/*
  * The fixed grid of film seconds a person's displayed poses are sampled on by a
  * reader that tabulates them: `RATE` knots a second from second zero.
  *
@@ -7,6 +7,8 @@
  * share their knots.
  */
 export namespace HumanPoseKnots {
-  /** Knots a film second. */
+  /*
+   * Knots a film second.
+   */
   export const RATE: number = 120;
 }

@@ -27,12 +27,12 @@ import { formationSlotPosition } from "../formation/internal/formationSlotPositi
 import { summarizeCompiledSlotChunks } from "./summarizeCompiledSlotChunks";
 import { summarizeCompiledSlotRange } from "./summarizeCompiledSlotRange";
 
-/**
+/*
  * Compile one formation design into its compact, regenerable runtime record.
  *
  * The record stores what regenerates the members rather than the members: the
  * layout, anchor, heading and seed, one bounds and centroid per chunk of
- * {@link AUTOMOVIE_FORMATION_CHUNK_SIZE} slots with that chunk's anonymous count
+ * AUTOMOVIE_FORMATION_CHUNK_SIZE slots with that chunk's anonymous count
  * once heroes are excluded, each hero's promoted base transform, the anonymous
  * representation tiers the design declares, a measured or fallback member
  * radius, a domain-separated motion phase seed, and a digest of every other
@@ -204,7 +204,7 @@ export function materializeCompiledFormation(
   };
 }
 
-/**
+/*
  * Bind one formation to the terrain its members stand on.
  *
  * The snapshot is the surfaces whose extent reaches the formation's own
@@ -224,14 +224,18 @@ const groundFormation: (
 ) => {
   formation: IAutoMovieFormationDesign & IAutoMovieFormationGrounding;
   ground: IAutoMovieWorldSurface[];
-  /** The finished summary, or null when terrain still has to relieve it. */ footprint: IAutoMoviePlacementSummary | null;
+  /*
+   * The finished summary, or null when terrain still has to relieve it.
+   */ footprint: IAutoMoviePlacementSummary | null;
 } = (
   formation: IAutoMovieFormationDesign,
   surfaces: readonly IAutoMovieWorldSurface[],
 ): {
   formation: IAutoMovieFormationDesign & IAutoMovieFormationGrounding;
   ground: IAutoMovieWorldSurface[];
-  /** The finished summary, or null when terrain still has to relieve it. */
+  /*
+   * The finished summary, or null when terrain still has to relieve it.
+   */
   footprint: IAutoMoviePlacementSummary | null;
 } => {
   const flat: {
@@ -263,7 +267,9 @@ const groundFormation: (
     : { formation: { ...formation, ground }, ground, footprint: null };
 };
 
-/** Does a surface footprint's XZ extent reach a formation's XZ extent? */
+/*
+ * Does a surface footprint's XZ extent reach a formation's XZ extent?
+ */
 const reachesFootprint: (
   polygon: IAutoMovieWorldSurface["polygon"],
   bounds: IAutoMovieCompiledFormation["bounds"],

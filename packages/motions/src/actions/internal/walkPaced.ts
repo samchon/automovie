@@ -7,7 +7,7 @@ import type {
 
 import type { walkStation } from "../../gait/internal/walkStation";
 
-/**
+/*
  * A stepping plan played on a tabulated clock: at each film second the body is
  * where the plan has it at the plan second the table gives, so the body can set
  * off late, slow, stand and hurry on its own footprints.
@@ -15,14 +15,13 @@ import type { walkStation } from "../../gait/internal/walkStation";
  * The plan's footprints, path and poses are its own; only the film second at
  * which the body passes each of them is the table's. Between two entries the
  * plan second is linear in the film second.
- *
- * @param plan The stepping plan at its own pace.
- * @param step Film seconds between two entries of the clock.
- * @param clock The plan second at each film second `index * step`: 0 first, the
- *   plan's duration last, never falling.
- * @returns The plan on that clock, as long as the table, with its events,
- *   contact windows and decisive instant moved to the first film second that
- *   reaches them.
+ * Parameter plan: The stepping plan at its own pace.
+ * Parameter step: Film seconds between two entries of the clock.
+ * Parameter clock: The plan second at each film second `index * step`: 0 first, the
+ * plan's duration last, never falling.
+ * Returns: The plan on that clock, as long as the table, with its events,
+ * contact windows and decisive instant moved to the first film second that
+ * reaches them.
  */
 export function walkPaced(
   plan: walkStation.IPlan,

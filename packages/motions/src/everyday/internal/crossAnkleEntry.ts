@@ -7,15 +7,14 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanMount } from "../../lexicon/internal/HumanMount";
 
-/**
+/*
  * Read the grounded supports for crossing an ankle from a chair. A moving or
  * astride seat cannot bear the operation, and the lifted leg has to start
  * planted.
- *
- * @param context The entry and the prop reader that determines whether its seat moves.
- * @param side Which leg will lift.
- * @returns The two grounded foot supports.
- * @throws {HumanRefusal} When the entry does not give the required support.
+ * Parameter context: The entry and the prop reader that determines whether its seat moves.
+ * Parameter side: Which leg will lift.
+ * Returns: The two grounded foot supports.
+ * When the entry does not give the required support.
  */
 export function crossAnkleEntry(
   context: Pick<IAutoMovieMotionHumanActionContext, "body" | "entry" | "carrier" | "prop">,

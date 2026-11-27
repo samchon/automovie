@@ -5,7 +5,7 @@ import { StrikingBody } from "./StrikingBody";
 import { StrikingQuality } from "./StrikingQuality";
 import { StrikingStance } from "./StrikingStance";
 
-/**
+/*
  * Where a defence brings its arms and its checking leg: goals on the defender's
  * own body, read from the posture the body holds at that instant and from the
  * line the defender saw the weapon come in on.
@@ -27,18 +27,17 @@ import { StrikingStance } from "./StrikingStance";
  * descriptions the defence law cites.
  */
 export namespace defendGoals {
-  /**
+  /*
    * A checking leg: the knee a thigh from the hip up, back toward the incoming
    * strike and across away from its side; the ankle a shank below and a little
    * behind; the foot's toes raised along the shin, its instep facing the
    * strike.
-   *
-   * @param hip The checking hip, world metres.
-   * @param incoming The strike's incoming direction.
-   * @param sideways The struck side, outward.
-   * @param thigh The thigh, metres.
-   * @param shank The shank, metres.
-   * @returns The leg's goal.
+   * Parameter hip: The checking hip, world metres.
+   * Parameter incoming: The strike's incoming direction.
+   * Parameter sideways: The struck side, outward.
+   * Parameter thigh: The thigh, metres.
+   * Parameter shank: The shank, metres.
+   * Returns: The leg's goal.
    */
   export function check(
     hip: IAutoMovieVector3,
@@ -86,59 +85,82 @@ export namespace defendGoals {
     };
   }
 
-  /** What the defender saw of the strike at its read second. */
+  /*
+   * What the defender saw of the strike at its read second.
+   */
   export interface ISight {
-    /** The unit world direction from the weapon to the struck region. */
+    /*
+     * The unit world direction from the weapon to the struck region.
+     */
     incoming: IAutoMovieVector3;
 
-    /** The unit horizontal world direction across the incoming line. */
+    /*
+     * The unit horizontal world direction across the incoming line.
+     */
     across: IAutoMovieVector3;
 
-    /** The sign along `across` that leads outside the weapon: +1 or -1. */
+    /*
+     * The sign along `across` that leads outside the weapon: +1 or -1.
+     */
     outside: number;
 
-    /** The defender's side the struck region lies on. */
+    /*
+     * The defender's side the struck region lies on.
+     */
     attackedSide: AutoMovieHumanSide;
   }
 
-  /** The inputs of one instant's goals. */
+  /*
+   * The inputs of one instant's goals.
+   */
   export interface IProps {
-    /** The defender's body. */
+    /*
+     * The defender's body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The defender's posture at the instant, before its limb goals. */
+    /*
+     * The defender's posture at the instant, before its limb goals.
+     */
     posture: IAutoMovieMotionHumanPosture;
 
-    /** The defence. */
+    /*
+     * The defence.
+     */
     kind: IAutoMovieMotionHumanDefend.IParams["kind"];
 
-    /** The struck region. */
+    /*
+     * The struck region.
+     */
     region: AutoMovieHumanoidRegion;
 
-    /** The strike's own point within the region, when it declares one. */
+    /*
+     * The strike's own point within the region, when it declares one.
+     */
     aimed: IAutoMovieMotionHumanActionPlan["aimed"];
 
-    /** What the defender saw. */
+    /*
+     * What the defender saw.
+     */
     sight: ISight;
 
-    /**
+    /*
      * This exact body's posture's trunk bones, borrowed within the current
      * synchronous evaluation when already resolved.
      */
     bones?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-    /**
+    /*
      * This exact body's fixed region/tangent frame, when already prepared by
      * the defence's geometry.
      */
     frame?: ReturnType<typeof StrikingBody.frame>;
   }
 
-  /**
+  /*
    * The limb goals of a defence at full movement.
-   *
-   * @param props The instant's inputs.
-   * @returns The goals of the limbs the defence moves; the others keep theirs.
+   * Parameter props: The instant's inputs.
+   * Returns: The goals of the limbs the defence moves; the others keep theirs.
    */
   export function at(
     props: IProps,
@@ -283,5 +305,7 @@ export namespace defendGoals {
   }
 }
 
-/** The alternatives of `AtArmResult`'s site. */
+/*
+ * The alternatives of `AtArmResult`'s site.
+ */
 type AtArmResult = "leftArm" | "rightArm";

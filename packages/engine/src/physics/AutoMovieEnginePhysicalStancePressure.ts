@@ -91,7 +91,7 @@ export namespace AutoMovieEnginePhysicalStancePressure {
     };
   }
 
-  /**
+  /*
    * IHMC's centre of pressure command for a biped
    * (`CenterOfPressureCommandCalculator.computeCenterOfPressureCommand`,
    * develop l.52-101): with one foot in contact, the command on that foot's
@@ -100,11 +100,10 @@ export namespace AutoMovieEnginePhysicalStancePressure {
    * l.73-88), else on both; with none, no command (weight zero, l.97-101). The
    * weight is `CenterOfPressureObjectiveWeight` (l.39). The sole frames face +z
    * as the authored stance does, so the left one is the foot of the larger x.
-   *
-   * @param outlines The planted stance limbs and their outlines, world metres.
-   * @param planted The planted poses of the stance limbs' carriers.
-   * @param point The ICP controller's desired centre of pressure, world metres.
-   * @returns The command, or none.
+   * Parameter outlines: The planted stance limbs and their outlines, world metres.
+   * Parameter planted: The planted poses of the stance limbs' carriers.
+   * Parameter point: The ICP controller's desired centre of pressure, world metres.
+   * Returns: The command, or none.
    */
   function pressureCommand(
     outlines: readonly { limb: Limb; outline: IAutoMovieVector3[] }[],

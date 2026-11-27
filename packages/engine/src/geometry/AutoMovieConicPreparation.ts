@@ -162,7 +162,7 @@ export namespace AutoMovieConicPreparation {
     };
   }
 
-  /**
+  /*
    * Retain own values only for the fixed-AD assembly; generic calls preserve
    * their original effects.
    */
@@ -194,7 +194,7 @@ export namespace AutoMovieConicPreparation {
     }) as [T, T, T, T];
   }
 
-  /**
+  /*
    * Build one invocation's quarters; null own preserves independent generic end
    * calculations.
    */

@@ -22,7 +22,7 @@ import { manipulateFacing } from "./manipulateFacing";
 import { manipulateFingering } from "./manipulateFingering";
 import { manipulatePlan } from "./manipulatePlan";
 
-/**
+/*
  * A keyed contact sequence: digits of one hand or both pressing sites of a prop
  * one after another, timed by the caller or by skill. Typing, a piano's keys, a
  * guitar's frets, a phone's keypad and a dial are the same structure and are
@@ -55,13 +55,19 @@ import { manipulatePlan } from "./manipulatePlan";
  * in. Events `press1` to `pressN`.
  */
 export namespace manipulate {
-  /** The law's name, as productions register it. */
+  /*
+   * The law's name, as productions register it.
+   */
   export const name: string = "manipulate";
 
-  /** Cancel table: the act may stop between presses. */
+  /*
+   * Cancel table: the act may stop between presses.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-  /** The digits of {@link Finger}, as data, thumb to little finger. */
+  /*
+   * The digits of Finger, as data, thumb to little finger.
+   */
   export const FINGERS = [
     "thumb",
     "index",
@@ -70,13 +76,12 @@ export namespace manipulate {
     "little",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanManipulate.Finger>[];
 
-  /**
+  /*
    * Plan the sequence.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} On no contacts, an unknown site or key, or times
-   *   given for some contacts and not others.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * On no contacts, an unknown site or key, or times
+   * given for some contacts and not others.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
@@ -90,11 +95,10 @@ export namespace manipulate {
     );
   }
 
-  /**
+  /*
    * The presses of a sequence, with their sites, digits and times.
-   *
-   * @param context The action's context.
-   * @returns The presses, in order.
+   * Parameter context: The action's context.
+   * Returns: The presses, in order.
    */
   export function sequence(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
@@ -226,27 +230,31 @@ export namespace manipulate {
   }
 }
 
-/** The record of `ISequenceGivenPlaced`'s site. */
+/*
+ * The record of `ISequenceGivenPlaced`'s site.
+ */
 type ISequenceGivenPlaced = {
   point: IAutoMovieVector3;
   normal: IAutoMovieVector3;
   travel: number | undefined;
 };
 
-/** The record of `ISequenceSitesEntry`'s site. */
+/*
+ * The record of `ISequenceSitesEntry`'s site.
+ */
 type ISequenceSitesEntry = {
   point: IAutoMovieVector3;
   normal: IAutoMovieVector3;
   travel: number | undefined;
 };
 
-/**
+/*
  * The share of a press's interval spent reaching the key, as `typeText` times
  * it.
  */
 const REACH: number = 0.4;
 
-/**
+/*
  * The touch-typing chart: each letter's finger on the standard home row (left
  * hand on ASDF, right on JKL;), the space under the right thumb.
  */
@@ -293,7 +301,7 @@ const CHART: Readonly<
   " ": ["right", "thumb"],
 };
 
-/**
+/*
  * The interval between presses at the performer's skill: typing's, 0.5 s for a
  * novice to 0.15 s for an elite (Salthouse 1986).
  */
@@ -303,7 +311,7 @@ const interval: (
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
 ): number => HumanSkill.quantity(context.skill, "speed", 0.5, 0.15);
 
-/**
+/*
  * The affordance a contact names, refused with the prop's sites when it has
  * none by that id.
  */
@@ -332,10 +340,14 @@ const site: (
     });
   return found;
 };
-/** The record of `ITypedKey`'s site. */
+/*
+ * The record of `ITypedKey`'s site.
+ */
 type ITypedKey = { at: IAutoMovieVector3; side: AutoMovieHumanSide };
 
-/** A text's presses on a keyboard prop: typing's key layout, the chart's digits. */
+/*
+ * A text's presses on a keyboard prop: typing's key layout, the chart's digits.
+ */
 const typed: (
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanManipulate.IParams>,
   text: string,

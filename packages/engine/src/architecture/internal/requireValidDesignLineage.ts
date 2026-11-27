@@ -6,15 +6,14 @@ import {
 
 import { validateDesignLineage } from "./validateDesignLineage";
 
-/**
+/*
  * Refuse a design lineage that `validateDesignLineage` rejects.
  *
  * Every lineage query reads ids, edges and phases on the premise that they
  * resolve, so each one calls this first and then answers only for a valid
  * record. The thrown `Error` names the lineage, the path of the first
  * violation, and what that path expected; a valid lineage returns nothing.
- *
- * @param lineage Lineage record to check.
+ * Parameter lineage: Lineage record to check.
  */
 export function requireValidDesignLineage(
   lineage: IAutoMovieDesignLineage,

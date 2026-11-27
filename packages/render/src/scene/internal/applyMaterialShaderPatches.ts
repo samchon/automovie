@@ -1,4 +1,4 @@
-/**
+/*
  * Apply the captured registration list to one shader in order. The material's
  * native compile hook supplies this shader before compilation; each operation
  * observes its predecessor's source and uniforms. The same complete input

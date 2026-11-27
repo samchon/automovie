@@ -1,4 +1,4 @@
-/**
+/*
  * Read a finite numeric tuple with a glTF default when omitted.
  *
  * Undefined copies the caller's fallback without validating it; motion-node

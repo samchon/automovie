@@ -6,7 +6,7 @@ import type {
 
 import { createAutoMovieQuadraticConstraintBasis } from "./createAutoMovieQuadraticConstraintBasis";
 
-/**
+/*
  * Minimize the unchanged diagonal PSD objective on an independent working
  * space. Householder QR of sqrt(H)_Z avoids a Schur normal-equation factor.
  * Exact flat columns retain their coordinate when their linear term is zero;

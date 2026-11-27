@@ -10,7 +10,7 @@ import type {
 
 import { HumanInteractionMesh } from "../../posture/internal/HumanInteractionMesh";
 
-/**
+/*
  * A two-person hold's key pose adapted to any pair of bodies: the joints of
  * both bodies at the key pose, the target bodies' bone lengths and the hold's
  * contacts go through the interaction mesh (`HumanInteractionMesh`, Ho, Komura
@@ -29,14 +29,13 @@ import { HumanInteractionMesh } from "../../posture/internal/HumanInteractionMes
  * adapted spine, only shifted with the hips.
  */
 export namespace HumanHoldMesh {
-  /**
+  /*
    * Adapt a hold's key pose to a pair of bodies.
-   *
-   * @param key The two key bodies.
-   * @param to The two target bodies, in the same order.
-   * @param contacts The hold's contacts.
-   * @returns Each target body's adapted pose.
-   * @throws {Error} When a contact or a bone names a joint the key pose lacks.
+   * Parameter key: The two key bodies.
+   * Parameter to: The two target bodies, in the same order.
+   * Parameter contacts: The hold's contacts.
+   * Returns: Each target body's adapted pose.
+   * When a contact or a bone names a joint the key pose lacks.
    */
   export function adapt(
     key: readonly [
@@ -127,5 +126,7 @@ export namespace HumanHoldMesh {
   }
 }
 
-/** The alternatives of `AdaptAdaptedSide`'s site. */
+/*
+ * The alternatives of `AdaptAdaptedSide`'s site.
+ */
 type AdaptAdaptedSide = 0 | 1;

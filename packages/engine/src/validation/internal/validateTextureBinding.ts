@@ -3,7 +3,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-/**
+/*
  * Admit a structured texture binding's coordinate set, color space and
  * transform scale against the slot's expected decoding. A legacy asset id
  * string carries none of those and is left alone.

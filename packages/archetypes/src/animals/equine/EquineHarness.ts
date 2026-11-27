@@ -8,7 +8,7 @@ import {
 import { type AutoMovieArchetypeEquine } from "../AutoMovieArchetypeEquine";
 import type { EquineTack } from "./EquineTack";
 
-/**
+/*
  * A single horse's driving harness, laid on the horse's body: a breast collar
  * with its neck strap, a driving saddle with its tugs, terrets and girth, a
  * backstrap and crupper, hip straps and a breeching, and a bridle with blinkers
@@ -29,7 +29,7 @@ import type { EquineTack } from "./EquineTack";
  * blinker on each.
  */
 export namespace EquineHarness {
-  /**
+  /*
    * The construction sizes no source read gives, metres, each an estimate:
    * `strap`, a strap's radius; `pad`, the driving saddle's width, thickness and
    * length; `terret`, a terret's distance either side of the spine and its rise
@@ -55,7 +55,7 @@ export namespace EquineHarness {
     arc: 6,
   };
 
-  /**
+  /*
    * The parts that ride the head, which a ride turns with it: the head and the
    * bridle.
    */
@@ -72,7 +72,7 @@ export namespace EquineHarness {
     "bit-right",
   ];
 
-  /**
+  /*
    * The balls a trace or a driving line leaves the horse from, by side: the
    * points of draft at the breast collar's ends, the bit rings, the neck
    * strap's rings and the saddle's terrets. Each is a ball, so a line end names
@@ -90,16 +90,15 @@ export namespace EquineHarness {
     terret: { left: "terret-left", right: "terret-right" },
   };
 
-  /**
+  /*
    * A point of the breast collar round the front of the chest, in the horse's
    * space: at the point of draft's height, on the circle through the two points
    * of draft's sides about the shoulder joints' plane, `angle` radians from the
    * `+X` side toward the front.
-   *
-   * @param rig The horse's rest rig.
-   * @param angle Radians from the `+X` side, `pi / 2` the chest's front, `pi`
-   *   the `-X` side.
-   * @returns The point.
+   * Parameter rig: The horse's rest rig.
+   * Parameter angle: Radians from the `+X` side, `pi / 2` the chest's front, `pi`
+   * the `-X` side.
+   * Returns: The point.
    */
   export function chest(
     rig: AutoMovieArchetypeEquine.IRig,
@@ -112,16 +111,15 @@ export namespace EquineHarness {
     );
   }
 
-  /**
+  /*
    * Where a driving line passes on the horse's `+X` side, in the horse's space,
    * and the neck strap it passes through: the bit ring at the mouth's side, the
    * neck strap's foot on the collar and its top over the crest, the strap's
    * ring halfway between, and the saddle's terret; the `-X` side's are their
    * mirror. `lay` builds on these places, and a vehicle reads them to give its
    * lines their length.
-   *
-   * @param rig The horse's rest rig.
-   * @returns The places, from the bit back.
+   * Parameter rig: The horse's rest rig.
+   * Returns: The places, from the bit back.
    */
   export function passes(rig: AutoMovieArchetypeEquine.IRig): Readonly<{
     bit: IAutoMovieVector3;
@@ -149,12 +147,11 @@ export namespace EquineHarness {
     };
   }
 
-  /**
+  /*
    * Lay the harness on a horse under construction.
-   *
-   * @param builder The horse under construction, its body laid.
-   * @param d The horse's drawn dimensions.
-   * @param rig The horse's rest rig.
+   * Parameter builder: The horse under construction, its body laid.
+   * Parameter d: The horse's drawn dimensions.
+   * Parameter rig: The horse's rest rig.
    */
   export function lay(
     builder: AutoMovieArchetypeBuilder<
@@ -346,16 +343,15 @@ export namespace EquineHarness {
     });
   }
 
-  /**
+  /*
    * A hooked trace or strap hanging slack between its two world ends: `count`
    * points on a parabola whose middle hangs `sag` metres below the chord, an
    * authored look rather than a cable simulation.
-   *
-   * @param from The end on the horse, world metres.
-   * @param to The end on the vehicle or bar, world metres.
-   * @param sag The middle's drop below the chord, metres.
-   * @param count The points laid, ends included, at least three.
-   * @returns The points in order.
+   * Parameter from: The end on the horse, world metres.
+   * Parameter to: The end on the vehicle or bar, world metres.
+   * Parameter sag: The middle's drop below the chord, metres.
+   * Parameter count: The points laid, ends included, at least three.
+   * Returns: The points in order.
    */
   export function slack(
     from: IAutoMovieVector3,
@@ -376,7 +372,7 @@ export namespace EquineHarness {
     );
   }
 
-  /**
+  /*
    * The two sides, `+X` first, with the sign of `X` on each: the one list a
    * harness and a harnessed vehicle iterate.
    */
@@ -386,8 +382,12 @@ export namespace EquineHarness {
   ];
 }
 
-/** Harness leather. */
+/*
+ * Harness leather.
+ */
 const LEATHER: string = "#1f1a17";
 
-/** Buckles, rings and the bit. */
+/*
+ * Buckles, rings and the bit.
+ */
 const METAL: string = "#b9bcc0";

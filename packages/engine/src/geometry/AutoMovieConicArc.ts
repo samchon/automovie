@@ -250,7 +250,7 @@ export namespace AutoMovieConicArc {
     return value > 0 ? value : NaN;
   }
 
-  /**
+  /*
    * Read the existing polar quotient arithmetic from an already evaluated
    * normalized interior point.
    */
@@ -296,7 +296,7 @@ export namespace AutoMovieConicArc {
     };
   }
 
-  /**
+  /*
    * Stable positive quadratic root in a ratio no greater than one; the result
    * is the first-half native parameter.
    */
@@ -306,7 +306,9 @@ export namespace AutoMovieConicArc {
     return u / (1 + u);
   }
 
-  /** Preserve every inverse and normalization operation used by locate. */
+  /*
+   * Preserve every inverse and normalization operation used by locate.
+   */
   function inverse(
     a: number,
     b: number,

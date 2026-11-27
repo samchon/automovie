@@ -10,7 +10,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** Wall thickness and length, which no act reads. */
+/*
+ * Wall thickness and length, which no act reads.
+ */
 const PICTURE: string = "a piece of wall for the picture, not read at a source";
 
 /** Constructs the wall archetype from its recipe. */

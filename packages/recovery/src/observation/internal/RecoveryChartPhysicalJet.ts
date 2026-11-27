@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryChartPhysicalJet } from "@automovie/interface";
 
-/**
+/*
  * Form two physical tangent observations for one affine source triangle. For
  * physical edges K=Q R and UV edges U, T=U R^-1 maps orthonormal physical
  * tangent coordinates to global UV. A leaf basis contributes

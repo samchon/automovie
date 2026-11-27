@@ -11,20 +11,19 @@ import {
 import { ArmourProfile } from "./ArmourProfile";
 import { AutoMovieArchetypeArmour } from "../AutoMovieArchetypeArmour";
 
-/**
+/*
  * Fit a digital costume piece from its admitted record.
  *
  * Each type builds its hollow form. The pre-fit record determines its saved
  * dimensions and the wear frame stays at the model origin.
- *
- * @param kind The selected costume form.
- * @param cellsOf Builds the hollow costume shell cells.
- * @param params An optional body measure along with the corresponding costume
- *   record and dimensions.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter kind: The selected costume form.
+ * Parameter cellsOf: Builds the hollow costume shell cells.
+ * Parameter params: An optional body measure along with the corresponding costume
+ * record and dimensions.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function CostumeConstruction(
   kind: AutoMovieArchetypeArmour.Kind,
@@ -110,7 +109,7 @@ export function CostumeConstruction(
   });
 }
 
-/**
+/*
  * Admit only the body's dimensions this kind uses, without inventing
  * anthropometric bands.
  */

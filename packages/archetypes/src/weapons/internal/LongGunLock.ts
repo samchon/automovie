@@ -8,7 +8,7 @@ import {
 import { AutoMovieArchetypeFirearm } from "./AutoMovieArchetypeFirearm";
 import type { AutoMovieArchetypeLongGun } from "../AutoMovieArchetypeLongGun";
 
-/**
+/*
  * The mechanisms of the period and repeating long guns, laid on the gun
  * `createLongGun` builds along `+Z`, its barrel's line at `y = 0` and its lock
  * on the right, `-X`: a musket's flintlock and ramrod, a bolt action's bolt and
@@ -19,7 +19,7 @@ import type { AutoMovieArchetypeLongGun } from "../AutoMovieArchetypeLongGun";
  * (records-firearms-flintlock.md, records-firearms-rifles.md).
  */
 export namespace LongGunLock {
-  /**
+  /*
    * How far ahead of the muzzle a socket bayonet starts its slide onto the
    * barrel, metres: longer than the provisional 0.10 m socket of
    * `createStageBayonet`, so the tube clears the muzzle before it moves on. An
@@ -27,7 +27,7 @@ export namespace LongGunLock {
    */
   export const BAYONET_APPROACH: number = 0.12;
 
-  /**
+  /*
    * The places and angles no source read gives, each an estimate the mechanisms
    * are drawn by:
    *
@@ -109,7 +109,7 @@ export namespace LongGunLock {
     },
   };
 
-  /**
+  /*
    * Where a musket's supporting hand holds it, the swell of the stock, along
    * the gun from the butt, metres. The 1764 Manual Exercise puts the left hand
    * "at the swell" at the shoulder, the advance and the present, and at Make
@@ -123,9 +123,8 @@ export namespace LongGunLock {
    * distance from the lock to the swell being found (searched: the 1764 Manual
    * Exercise, Museums Victoria ST 21813, American Rifleman;
    * records-firearms-flintlock.md).
-   *
-   * @param d The gun's dimensions.
-   * @returns The swell's place along `+Z`.
+   * Parameter d: The gun's dimensions.
+   * Returns: The swell's place along `+Z`.
    */
   export function swell(d: Drawn): number {
     const breech: number = d.length! - d.barrel!;
@@ -133,16 +132,15 @@ export namespace LongGunLock {
     return front - ((PIPES - 1) * (front - breech)) / PIPES;
   }
 
-  /**
+  /*
    * A flintlock musket's lock, ramrod and contacts: the lock at the breech
    * (`AutoMovieArchetypeFirearm.layFlintlock`: the `pan`, the `frizzen` and the
    * `cock`); the `ramrod` under the barrel, its head at the muzzle, drawn
    * forward out of its pipes until its tail leaves the front `pipe`; the
    * `muzzle` as a socket for the cartridge and the rod, and the `bayonet`'s
    * socket over the muzzle.
-   *
-   * @param builder The gun under construction, its stock and barrel laid.
-   * @param d The gun's dimensions.
+   * Parameter builder: The gun under construction, its stock and barrel laid.
+   * Parameter d: The gun's dimensions.
    */
   export function musket(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -226,14 +224,13 @@ export namespace LongGunLock {
     });
   }
 
-  /**
+  /*
    * A bolt action's bolt and magazine: the `bolt` hinge lifts the handle about
    * the bore's axis, and the `boltSlide` slider riding it draws the bolt and
    * its handle back by the stroke; the `magazine` is a socket in the receiver's
    * top, loaded from above.
-   *
-   * @param builder The gun under construction.
-   * @param d The gun's dimensions.
+   * Parameter builder: The gun under construction.
+   * Parameter d: The gun's dimensions.
    */
   export function bolt(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -286,13 +283,12 @@ export namespace LongGunLock {
     });
   }
 
-  /**
+  /*
    * A lever action's lever and hammer: the `lever` loop under the grip swings
    * down and forward about the cross axis, and the `hammer` at the breech
    * follows it back to full cock (`follows`).
-   *
-   * @param builder The gun under construction.
-   * @param d The gun's dimensions.
+   * Parameter builder: The gun under construction.
+   * Parameter d: The gun's dimensions.
    */
   export function lever(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -335,28 +331,31 @@ export namespace LongGunLock {
     });
   }
 
-  /**
+  /*
    * The front pipe's middle along the gun, metres: `ESTIMATES.rod.pipe` behind
    * the muzzle.
-   *
-   * @param d The gun's dimensions.
-   * @returns Its place along `+Z`.
+   * Parameter d: The gun's dimensions.
+   * Returns: Its place along `+Z`.
    */
   function pipeFront(d: Drawn): number {
     return d.length! - ESTIMATES.rod.pipe;
   }
 }
 
-/** A long gun under construction. */
+/*
+ * A long gun under construction.
+ */
 type Builder = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeLongGun.Affordance,
   AutoMovieArchetypeLongGun.Dimension
 >;
 
-/** A long gun's drawn and read dimensions. */
+/*
+ * A long gun's drawn and read dimensions.
+ */
 type Drawn = Readonly<Partial<Record<AutoMovieArchetypeLongGun.Dimension, number>>>;
 
-/**
+/*
  * The Short Land musket's ramrod pipes: "four brass ramrod tubes, steel ramrod"
  * (Museums Victoria ST 21813,
  * https://collections.museumsvictoria.com.au/items/373555).

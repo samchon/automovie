@@ -7,7 +7,7 @@ import type {
 
 import { validateColor } from "./validateColor";
 
-/**
+/*
  * Admit the optional anisotropy, sheen and specular-intensity lobes of one
  * material: record shapes, `[0, 1]` strengths and roughness, a finite rotation
  * and a linear sheen colour.

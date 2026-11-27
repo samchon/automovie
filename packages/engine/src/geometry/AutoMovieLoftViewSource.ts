@@ -231,7 +231,7 @@ export namespace AutoMovieLoftViewSource {
   }
 }
 
-/**
+/*
  * Preserve a curve's existing failure category and attach only its source
  * identity.
  */
@@ -255,7 +255,9 @@ function curve(
   return result;
 }
 
-/** Admit every independent quarter even when another quarter already failed. */
+/*
+ * Admit every independent quarter even when another quarter already failed.
+ */
 function group(
   outlines: readonly IAutoMovieViewPart.IOutline[],
   ends: IAutoMovieViewOutline.IEnds,

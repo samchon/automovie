@@ -7,16 +7,22 @@ import {
 import type { AutoMovieArchetypeSanitary } from "../AutoMovieArchetypeSanitary";
 import { AutoMovieArchetypeTap } from "../AutoMovieArchetypeTap";
 
-/** White vitreous china and enamel. */
+/*
+ * White vitreous china and enamel.
+ */
 const CHINA: string = "#eef0ee";
 
-/** Chrome fittings. */
+/*
+ * Chrome fittings.
+ */
 const CHROME: string = "#c9ccd1";
 
-/** The shorthand every construction below uses. */
+/*
+ * The shorthand every construction below uses.
+ */
 const v: typeof Vector3.create = Vector3.create;
 
-/**
+/*
  * The parts and contacts the named plumbing fixture producers build from their
  * drawn dimensions, with the estimated construction sizes.
  *
@@ -26,7 +32,7 @@ const v: typeof Vector3.create = Vector3.create;
  * estimates below size only parts no act reads.
  */
 export namespace SanitaryConstruction {
-  /**
+  /*
    * The construction sizes no source read gives, metres, each an estimate no
    * act reads and no band declares: `ring` and `lid`, a toilet seat ring's and
    * lid's thickness under and over the seat's cited height; `wall`, a shower
@@ -45,13 +51,13 @@ export namespace SanitaryConstruction {
     seatThickness: 0.03,
   };
 
-  /**
+  /*
    * A toilet lid's travel, degrees: the quarter turn about its level hinge that
    * lays the lid, upright at rest, flat on the level ring.
    */
   export const LIFT: number = 90;
 
-  /**
+  /*
    * A basin mixer lever's turn to either side of the middle and its lift from
    * closed to full flow, degrees: GROHE Eurosmart basin mixer technical guide,
    * 50 degrees each side in plan and 39 degrees in elevation
@@ -62,7 +68,7 @@ export namespace SanitaryConstruction {
     lift: 39,
   };
 
-  /**
+  /*
    * A pedestal washbasin: the basin block at its rim height, a pedestal under
    * its middle, and a single-lever mixer on the deck behind the opening, built
    * as `createTap` builds one.
@@ -72,9 +78,8 @@ export namespace SanitaryConstruction {
    * lifts about a level axis across it as a `hinge`, `lift`, by the maker's 39
    * degrees, the lever's part bound to the lift, which rides the turn, so a
    * turned lever turns with it and a lifted one lifts in its turned plane.
-   *
-   * @param builder The builder to fill.
-   * @param d The drawn dimensions.
+   * Parameter builder: The builder to fill.
+   * Parameter d: The drawn dimensions.
    */
   export function washbasin(builder: Builder, d: Drawn): void {
     const rim: number = d.rim!;
@@ -170,7 +175,7 @@ export namespace SanitaryConstruction {
     });
   }
 
-  /**
+  /*
    * A close-coupled toilet: the bowl as one block up to the seat ring, the
    * ring, the lid standing open on its hinge at the seat holes, and the tank 19
    * mm off the wall as the maker's sheet sets it.
@@ -178,9 +183,8 @@ export namespace SanitaryConstruction {
    * The lid's hinge turns about `+X`, so its quarter-turn travel lays the
    * standing lid forward onto the ring. The trip lever is not drawn: the sheet
    * does not place it.
-   *
-   * @param builder The builder to fill.
-   * @param d The drawn dimensions.
+   * Parameter builder: The builder to fill.
+   * Parameter d: The drawn dimensions.
    */
   export function toilet(builder: Builder, d: Drawn): void {
     const E: typeof ESTIMATES = ESTIMATES;
@@ -239,16 +243,15 @@ export namespace SanitaryConstruction {
     });
   }
 
-  /**
+  /*
    * A recessed bath: a floor slab at the well's floor and four walls up to the
    * rim around the well, the well centred in the plan; its length runs along
    * `X`.
    *
    * The well's floor stands the sheet's water depth below the rim: the depth to
    * the overflow, so the true floor lies a little lower.
-   *
-   * @param builder The builder to fill.
-   * @param d The drawn dimensions.
+   * Parameter builder: The builder to fill.
+   * Parameter d: The drawn dimensions.
    */
   export function bathtub(builder: Builder, d: Drawn): void {
     const rim: number = d.rim!;
@@ -354,7 +357,7 @@ export namespace SanitaryConstruction {
     });
   }
 
-  /**
+  /*
    * A one-piece transfer shower: a tray the threshold's height under the inside
    * and the walls, a back wall and two side walls, the folding seat on the `+X`
    * wall from the back wall to the 75 mm (3 in) short of the entry ADA 610.3
@@ -362,9 +365,8 @@ export namespace SanitaryConstruction {
    *
    * The valve is a place to touch, a `knob` without travel, because no source
    * read gives its turn.
-   *
-   * @param builder The builder to fill.
-   * @param d The drawn dimensions.
+   * Parameter builder: The builder to fill.
+   * Parameter d: The drawn dimensions.
    */
   export function shower(builder: Builder, d: Drawn): void {
     const E: typeof ESTIMATES = ESTIMATES;
@@ -469,11 +471,15 @@ export namespace SanitaryConstruction {
   }
 }
 
-/** The builder every kind's construction fills. */
+/*
+ * The builder every kind's construction fills.
+ */
 type Builder = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeSanitary.Affordance,
   AutoMovieArchetypeSanitary.Dimension
 >;
 
-/** The drawn dimensions of one kind. */
+/*
+ * The drawn dimensions of one kind.
+ */
 type Drawn = Partial<Record<AutoMovieArchetypeSanitary.Dimension, number>>;

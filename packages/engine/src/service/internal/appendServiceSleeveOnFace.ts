@@ -14,7 +14,7 @@ import { polygonInside } from "../../architecture/internal/polygonInside";
 import { Quaternion } from "../../math/Quaternion";
 import { SERVICE_EPSILON } from "../SERVICE_EPSILON";
 
-/**
+/*
  * Hold a sleeve inside the face it claims to pierce.
  *
  * Until a boundary carried a face this could not be asked at all, and a sleeve
@@ -93,7 +93,9 @@ export function appendServiceSleeveOnFace(
     );
 }
 
-/** The four corners of the square bounding a sleeve in its face's own frame. */
+/*
+ * The four corners of the square bounding a sleeve in its face's own frame.
+ */
 const sleeveCorners: (
   local: { x: number; y: number },
   radius: number,

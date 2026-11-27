@@ -13,7 +13,7 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-/**
+/*
  * Share of an outline's extent E (its largest knot magnitude) within which a junction's bound value, station slope (per mm) and station
  * second derivative (per mm squared) must equal the changed source's: E·1e-9, E·1e-9 /mm and E·1e-9 /mm².
  *

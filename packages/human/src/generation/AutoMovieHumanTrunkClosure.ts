@@ -250,14 +250,13 @@ export namespace AutoMovieHumanTrunkClosure {
     });
   }
 
-  /**
+  /*
    * An optional feature's windows while the tapes and courses close, or none
    * when it breaks its contract: the closure then reads the base there, as
    * the figure will, and the final feature list records the break once.
-   *
-   * @param producer The feature's name.
-   * @param make The feature's windows.
-   * @returns The windows, or none.
+   * Parameter producer: The feature's name.
+   * Parameter make: The feature's windows.
+   * Returns: The windows, or none.
    */
   function optional(
     producer: string,

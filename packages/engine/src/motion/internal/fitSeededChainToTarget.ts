@@ -24,16 +24,20 @@ import { prepareChainFit } from "./prepareChainFit";
 import { resolveBoneMap } from "./resolveBoneMap";
 import { resolvePreparedChainFrames } from "./resolvePreparedChainFrames";
 
-/** Scoped preparation for repeated targets of one unchanged source request. */
+/*
+ * Scoped preparation for repeated targets of one unchanged source request.
+ */
 export namespace fitSeededChainToTarget {
-  /** Fit one target with the source's original search policy. */
+  /*
+   * Fit one target with the source's original search policy.
+   */
   export function fit(
     input: IAutoMovieFitChainToTargetProps,
   ): IAutoMovieSeededChainFit {
     return fitSeededChainToTargetOperation(input);
   }
 
-  /**
+  /*
    * Read actual single-local-root provenance before an owned result copy. Only
    * the producer's exact result identity can supply these facts, and changed
    * pose/seed scalars decline. The return is an independent scalar copy;
@@ -139,7 +143,7 @@ export namespace fitSeededChainToTarget {
     effector(pose: IAutoMoviePose): IAutoMovieChainBone;
   }
 
-  /**
+  /*
    * Prepare one source request for a synchronous operation that varies only its
    * target, such as contact re-aim. The source owns its cold/near mode; neither
    * the previous target nor its answer becomes a new seed. A supplied authored
@@ -218,7 +222,7 @@ export namespace fitSeededChainToTarget {
     keyof ISource | "target"
   >;
 
-  /**
+  /*
    * Prepare one unchanged source for a synchronous search whose goals may
    * change bend, rotation, reference, obstruction, strain or near mode. Source
    * creation performs no rig/FK admission; the first actual binding prepares it
@@ -288,7 +292,7 @@ export namespace fitSeededChainToTarget {
   }
 }
 
-/**
+/*
  * Fit a reachable two-bone chain to a model-frame target under the rig's
  * effective ROM, retaining authored non-chain joints. A deterministic finite
  * bend-plane search scores clamped FK and keeps the source bend-stage pose
@@ -341,7 +345,7 @@ function fitSeededChainToTargetOperation(
   return fitSeededChainToTarget.prepare(source).fit(target);
 }
 
-/**
+/*
  * A fit's seed with the mid bone's twist it chose
  * (`IAutoMovieSwivelSeed.twist`), which a fit continued from the seed keeps its
  * basin of; the seed as it is where the mid bone has no twist or there is no
@@ -359,7 +363,7 @@ function twisted(
   return typeof twist === "number" ? { ...seed, twist } : seed;
 }
 
-/**
+/*
  * One owner of actual search/orientation and result rotation for both
  * preparation scopes.
  */

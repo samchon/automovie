@@ -8,7 +8,7 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * A touch's contact windows from `ready` to `relax`: the hand's grip on what it
  * bears on, and the touching arm's segments that lie on a person's segment
  * while the hand is on its region, as a self-hug's forearms lie on each other
@@ -16,16 +16,15 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * the windows.
  */
 export namespace AutoMovieMotionHumanTouchContacts {
-  /**
+  /*
    * Each arm's rests of a row's declaration.
-   *
-   * @param declared The row's rests; none when absent.
-   * @param first The leading hand.
-   * @param both Whether the touch moves both hands.
-   * @param subject The performer, whose body the arms rest on.
-   * @returns A hand's rests.
-   * @throws {HumanRefusal} When a rest names the other hand's arm on a touch of
-   *   one hand.
+   * Parameter declared: The row's rests; none when absent.
+   * Parameter first: The leading hand.
+   * Parameter both: Whether the touch moves both hands.
+   * Parameter subject: The performer, whose body the arms rest on.
+   * Returns: A hand's rests.
+   * When a rest names the other hand's arm on a touch of
+   * one hand.
    */
   export function sided(
     declared:
@@ -79,16 +78,15 @@ export namespace AutoMovieMotionHumanTouchContacts {
         );
   }
 
-  /**
+  /*
    * A touch's windows from `ready` to `relax`: the hand's `grip` on what it
    * bears on, and a `lie` of each of the arm's resting segments on the person's
    * segment.
-   *
-   * @param clock The touch's clock.
-   * @param side The arm.
-   * @param hand What the hand bears on; no grip window when absent.
-   * @param rests The arm's rests.
-   * @returns The windows.
+   * Parameter clock: The touch's clock.
+   * Parameter side: The arm.
+   * Parameter hand: What the hand bears on; no grip window when absent.
+   * Parameter rests: The arm's rests.
+   * Returns: The windows.
    */
   export function windows(
     clock: IAutoMovieMotionClock,

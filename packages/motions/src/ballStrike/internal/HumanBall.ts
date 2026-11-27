@@ -9,16 +9,15 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * The ball a prop is, at a second.
- *
- * @param context The action's context.
- * @param subject The ball's prop subject.
- * @param seconds The film second it is read at.
- * @param axis The parameter the ball was named by, for a refusal.
- * @returns Its centre and radius.
- * @throws {HumanRefusal} When the prop declares no `grip` or that grip no
- *   aperture.
+ * Parameter context: The action's context.
+ * Parameter subject: The ball's prop subject.
+ * Parameter seconds: The film second it is read at.
+ * Parameter axis: The parameter the ball was named by, for a refusal.
+ * Returns: Its centre and radius.
+ * When the prop declares no `grip` or that grip no
+ * aperture.
  */
 export function HumanBall(
   context: Pick<IAutoMovieMotionHumanActionContext, "prop">,
@@ -34,22 +33,28 @@ export function HumanBall(
   );
 }
 
-/**
+/*
  * A ball as a law that meets it reads it: its centre and its radius, from the
  * ball's own `grip` contact, which `createBall` declares at the ball's centre
  * with the ball's diameter as its aperture.
  */
 export namespace HumanBall {
-  /** A ball where it is. */
+  /*
+   * A ball where it is.
+   */
   export interface IBall {
-    /** Its centre, world metres. */
+    /*
+     * Its centre, world metres.
+     */
     centre: IAutoMovieVector3;
 
-    /** Its radius, metres. */
+    /*
+     * Its radius, metres.
+     */
     radius: number;
   }
 
-  /**
+  /*
    * Read a ball using its declared grip and a supplied world frame reader. The
    * reader runs after the sized grip is admitted.
    */

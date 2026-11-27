@@ -61,7 +61,9 @@ export namespace AutoMovieEngineFrameClock {
   }
 }
 
-/** Check a number before using it as a positive integer clock term. */
+/*
+ * Check a number before using it as a positive integer clock term.
+ */
 function positiveInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
 }

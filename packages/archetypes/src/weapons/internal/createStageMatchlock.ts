@@ -8,7 +8,7 @@ import {
 } from "../../core/index";
 import { StagePeriodGunConstruction } from "./StagePeriodGunConstruction";
 
-/**
+/*
  * An inert matchlock silhouette for the screen.
  *
  * The gun lies along `+Z` from its butt plate to its muzzle, as
@@ -17,9 +17,8 @@ import { StagePeriodGunConstruction } from "./StagePeriodGunConstruction";
  * and a coil of match cord hangs from it. The `serpentine` is the thumb's place
  * on the arm and the `match` the cord's burning end over the `pan`. No
  * mechanism moves: the prop is exterior geometry for the camera.
- *
- * @param params The optional scene id.
- * @returns The inert model and its contact frames, metres.
+ * Parameter params: The optional scene id.
+ * Returns: The inert model and its contact frames, metres.
  */
 export function createStageMatchlock(
   params: AutoMovieArchetypeStageMatchlock.IParams = {},
@@ -84,7 +83,7 @@ export function createStageMatchlock(
   return StagePeriodGunConstruction.build(builder, PROFILE);
 }
 
-/**
+/*
  * Detroit Institute of Arts 53.220, German matchlock gun, late 16th century and
  * later, steel, wood, staghorn and pigment: "Overall: 5 9/16 × 2 13/16 × 44 7/8
  * inches (14.2 × 7.1 × 114 cm) Overall (barrel): 31 15/16 inches (81.1 cm)",

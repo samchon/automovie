@@ -2,7 +2,7 @@ import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 
 import type { createAutoMovieDeliveryAudioScan } from "./createAutoMovieDeliveryAudioScan";
 
-/**
+/*
  * Accumulates exact decoded coverage from FFmpeg's audio frame log.
  *
  * The decoder returns whole codec frames, so the last one can extend past the
@@ -10,10 +10,9 @@ import type { createAutoMovieDeliveryAudioScan } from "./createAutoMovieDelivery
  * final decoded frame, are codec padding: they leave the stream's coverage and
  * content and are reported as trailing padding. A longer overrun is kept, so
  * the audit still sees the real duration.
- *
- * @returns A line consumer, the first decoded frame format and a completion
- *   operation that reconciles timing with the PCM byte stream and the
- *   container.
+ * Returns: A line consumer, the first decoded frame format and a completion
+ * operation that reconciles timing with the PCM byte stream and the
+ * container.
  */
 export function createAutoMovieDeliveryAudioLog() {
   let format: IAudioFormat | undefined;
@@ -134,7 +133,9 @@ type PcmEvidence = ReturnType<
   ReturnType<typeof createAutoMovieDeliveryAudioScan>["finish"]
 >;
 
-/** The decoded sample rate and interleaved channel count. */
+/*
+ * The decoded sample rate and interleaved channel count.
+ */
 interface IAudioFormat {
   sampleRate: number;
   channels: number;

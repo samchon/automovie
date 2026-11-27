@@ -4,7 +4,9 @@ import * as path from "node:path";
 
 import { readAutoMovieErrorCode } from "../../file/internal/readAutoMovieErrorCode";
 
-/** Publish the latest receipt and preserve the first failure when requested. */
+/*
+ * Publish the latest receipt and preserve the first failure when requested.
+ */
 export async function writeAutoMovieProductionCheckReceipt(
   file: string,
   contents: string,
@@ -20,7 +22,9 @@ export async function writeAutoMovieProductionCheckReceipt(
   await publish(file, contents, false);
 }
 
-/** Stage complete receipt bytes before exclusive creation or replacement. */
+/*
+ * Stage complete receipt bytes before exclusive creation or replacement.
+ */
 async function publish(
   file: string,
   contents: string,

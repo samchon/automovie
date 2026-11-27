@@ -74,7 +74,7 @@ function solvePhysicalFloorChainTargetImplementation(
     },
   });
 
-  /**
+  /*
    * The nonlinear height witness follows the same complete convex patch as
    * contact.
    */

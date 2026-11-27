@@ -1,4 +1,4 @@
-/**
+/*
  * Add a product to one interleaved twofold accumulator: high at 2_index and low
  * at 2_index+1. The caller owns complete storage and initializes both parts.
  * Ogita, Rump and Oishi (2005), algorithms 3.1, 3.3 and 5.3, derive the

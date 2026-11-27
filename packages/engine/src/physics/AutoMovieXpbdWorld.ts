@@ -60,7 +60,9 @@ export class AutoMovieXpbdWorld {
   /** Natural frequency of the contact spring, hertz. */
   public contactFrequency: number = 30;
 
-  /** The last step's contacts, sensors included. */
+  /*
+   * The last step's contacts, sensors included.
+   */
   private found: AutoMovieXpbdWorld.IContact[] = [];
 
   /**
@@ -83,7 +85,9 @@ export class AutoMovieXpbdWorld {
     solveXpbdSupportCascade.IWarm
   > = new Map();
 
-  /** The next handle. */
+  /*
+   * The next handle.
+   */
   private counter: number = 0;
 
   /**
@@ -564,7 +568,9 @@ export namespace AutoMovieXpbdWorld {
   }
 }
 
-/** An unordered body-pair key. */
+/*
+ * An unordered body-pair key.
+ */
 function key(a: AutoMovieXpbdBody, b: AutoMovieXpbdBody): string {
   return a.handle < b.handle
     ? `${a.handle}:${b.handle}`

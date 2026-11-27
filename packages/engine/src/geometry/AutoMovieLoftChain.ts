@@ -245,7 +245,7 @@ export namespace AutoMovieLoftChain {
     return AutoMovieLoftPoint.point(chain, s, t);
   }
 
-  /**
+  /*
    * Accessor of one Hermite-interpolated array of a layer: values and station
    * slopes.
    */
@@ -253,14 +253,18 @@ export namespace AutoMovieLoftChain {
     layer: IAutoMovieLoftChain.ILayer,
   ) => [readonly number[], readonly number[]];
 
-  /** Values and slopes of a layer's section coefficients. */
+  /*
+   * Values and slopes of a layer's section coefficients.
+   */
   function sectionArrays(
     layer: IAutoMovieLoftChain.ILayer,
   ): [readonly number[], readonly number[]] {
     return [layer.coefficients, layer.slopes];
   }
 
-  /** Values and slopes of a layer's lift, zero where the layer has none. */
+  /*
+   * Values and slopes of a layer's lift, zero where the layer has none.
+   */
   function liftArrays(
     layer: IAutoMovieLoftChain.ILayer,
   ): [readonly number[], readonly number[]] {
@@ -271,7 +275,9 @@ export namespace AutoMovieLoftChain {
     return [zero, zero];
   }
 
-  /** Hermite coefficients (or their station derivative) at s. */
+  /*
+   * Hermite coefficients (or their station derivative) at s.
+   */
   function hermite(
     chain: IAutoMovieLoftChain,
     y: number,
@@ -333,7 +339,9 @@ export namespace AutoMovieLoftChain {
     );
   }
 
-  /** Unit normal `v x u` of a section frame: up for a horizontal frame. */
+  /*
+   * Unit normal `v x u` of a section frame: up for a horizontal frame.
+   */
   function normal(f: IAutoMovieLoftSectionFrame): [number, number, number] {
     return [
       f.v[1] * f.u[2] - f.v[2] * f.u[1],

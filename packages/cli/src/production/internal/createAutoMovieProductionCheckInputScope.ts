@@ -6,21 +6,26 @@ import * as path from "node:path";
 
 import { hashAutoMovieFile } from "../../file/internal/hashAutoMovieFile";
 
-/**
+/*
  * Resolve explicitly named verification inputs to files in the production or
  * its Git checkout. Check the named path and the actual destination so a link
  * cannot redirect the verifier beyond those boundaries. Discover the checkout
  * only when a declared file or a legacy capture needs it.
- *
- * @param root The production directory.
- * @returns Lazy production and checkout directories and an input resolver.
+ * Parameter root: The production directory.
+ * Returns: Lazy production and checkout directories and an input resolver.
  */
 export function createAutoMovieProductionCheckInputScope(root: string): {
-  /** Canonical production directory. */
+  /*
+   * Canonical production directory.
+   */
   readonly project: () => Promise<string>;
-  /** Canonical Git worktree containing the project, when there is one. */
+  /*
+   * Canonical Git worktree containing the project, when there is one.
+   */
   readonly checkout: () => Promise<string | null>;
-  /** The normalized input name and its admitted filesystem location. */
+  /*
+   * The normalized input name and its admitted filesystem location.
+   */
   readonly verifySources: (
     sources: ReadonlyMap<string, string>,
   ) => Promise<void>;
@@ -72,7 +77,7 @@ export function createAutoMovieProductionCheckInputScope(root: string): {
         if (current !== loaded) throw changedSource(relative);
       }
     },
-    /**
+    /*
      * Hash a check definition and the exact named inputs without walking the
      * project.
      */
@@ -125,7 +130,9 @@ function changedSource(relative: string): Error {
   );
 }
 
-/** Locate the owning Git worktree without scanning its working files. */
+/*
+ * Locate the owning Git worktree without scanning its working files.
+ */
 async function findCheckout(project: string): Promise<string | null> {
   try {
     const top: string = execFileSync(
@@ -145,7 +152,9 @@ async function findCheckout(project: string): Promise<string | null> {
   }
 }
 
-/** Resolve native case, separator and drive semantics through relative paths. */
+/*
+ * Resolve native case, separator and drive semantics through relative paths.
+ */
 function contains(directory: string, candidate: string): boolean {
   const relative: string = path.relative(directory, candidate);
   return (

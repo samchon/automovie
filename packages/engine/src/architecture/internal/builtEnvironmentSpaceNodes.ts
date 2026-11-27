@@ -7,7 +7,7 @@ import {
 import { builtSpaceSubtree } from "./builtSpaceSubtree";
 import { requireBuiltSpace } from "./requireBuiltSpace";
 
-/**
+/*
  * Name what is staged in a logical space and its descendants.
  *
  * This is the join that keeps the visible model and the semantic partition from
@@ -15,7 +15,7 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * second traversal that could answer differently.
  *
  * Two spellings come back, in this order, because two things are staged. An
- * element contributes exactly the `node` id {@link lowerBuiltEnvironment} emits
+ * element contributes exactly the `node` id lowerBuiltEnvironment emits
  * for it, `<environment>/<element>`. A population contributes
  * `instance-set:<set>`, the one owner id the render inventory and the semantic
  * mask already address a whole population by, because lowering emits it as one
@@ -23,7 +23,7 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * members is the difference between an answer and an unbounded expansion: one
  * authored field of roof slate is 2,392 members, and a query a reviewer calls
  * in a loop may not hand back 2,392 strings to say "there is slate here".
- * {@link builtEnvironmentSpacePopulations} hands back the sets themselves for a
+ * builtEnvironmentSpacePopulations hands back the sets themselves for a
  * caller that wants the placement law. Regeneration names a procedural member
  * `instance:<set>:slot:<six-digit-index>` and an explicit member
  * `instance:<set>:<transform-id>`, exactly as the production materializer
@@ -32,10 +32,9 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * Membership is the authored `space` field folded through the space tree.
  * Transform-only elements are left out because they draw nothing. Each group
  * keeps record order. Throws an `Error` for an undeclared space id.
- *
- * @param environment Building record to read.
- * @param spaceId Logical space whose staged contents are named.
- * @returns Element node ids, then population owner ids.
+ * Parameter environment: Building record to read.
+ * Parameter spaceId: Logical space whose staged contents are named.
+ * Returns: Element node ids, then population owner ids.
  */
 export function builtEnvironmentSpaceNodes(
   environment: IAutoMovieBuiltEnvironment,

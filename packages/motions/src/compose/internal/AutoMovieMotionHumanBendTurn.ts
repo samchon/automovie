@@ -6,17 +6,16 @@ import type {
 
 import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
 
-/**
+/*
  * Turn an actual elbow hint around its shoulder-to-wrist line.
- *
- * @param props Original body/trunk/side and world wrist request, used by the
- *   canonical chain owner.
- * @param elbow Original world-metre elbow hint.
- * @param degrees Counter-clockwise degrees seen from the wrist looking toward
- *   the shoulder.
- * @returns The original borrowed elbow for a missing/degenerate chain or
- *   on-line point; otherwise a fresh world point at the same radius from the
- *   line.
+ * Parameter props: Original body/trunk/side and world wrist request, used by the
+ * canonical chain owner.
+ * Parameter elbow: Original world-metre elbow hint.
+ * Parameter degrees: Counter-clockwise degrees seen from the wrist looking toward
+ * the shoulder.
+ * Returns: The original borrowed elbow for a missing/degenerate chain or
+ * on-line point; otherwise a fresh world point at the same radius from the
+ * line.
  */
 export function AutoMovieMotionHumanBendTurn(
   props: IAutoMovieMotionHumanBend.ISolve,

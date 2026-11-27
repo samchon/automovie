@@ -7,7 +7,7 @@ import { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadow
 import { AutoMovieSceneShadow } from "../AutoMovieSceneShadow.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
-/**
+/*
  * Retire every scene light's retained shadow attachment after a filter change.
  *
  * PCF comparison depth and VSM ordinary depth/distribution attachments are

@@ -10,7 +10,7 @@ import { createRecoveryMapMetric } from "./createRecoveryMapMetric";
 import { factorRecoveryMapDesign } from "./factorRecoveryMapDesign";
 import { prepareRecoveryMapJointBlocks } from "./prepareRecoveryMapJointBlocks";
 
-/**
+/*
  * Build only the original-rank-qualified raw metric a feasible model uses. This
  * operation does not request an unconstrained LS answer or scaled gradient.
  */

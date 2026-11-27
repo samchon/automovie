@@ -12,7 +12,7 @@ import { describeRecoveryDomains } from "./describeRecoveryDomains";
 import { reconstructRecovery } from "./reconstructRecovery";
 import { convertAutoMovieRecoveryCurves } from "../../curves/internal/convertAutoMovieRecoveryCurves";
 
-/**
+/*
  * Reconstruct saved cubic and domain coefficients without access to source
  * geometry. Hermite input is converted to the same Bernstein engine
  * coefficients using its saved phase widths; finite arithmetic may round

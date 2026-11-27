@@ -9,7 +9,7 @@ import { projectRecoveryMapPoint } from "../../observation/internal/projectRecov
 import { solveRecoveryMapDesign } from "../../observation/internal/solveRecoveryMapDesign";
 import { stepRecoveryMapPose } from "../../observation/internal/stepRecoveryMapPose";
 
-/**
+/*
  * Refine one camera against a fixed existing 3D landmark population. Supplied
  * intrinsics and noisy triangulated points remain fixed, so this is a
  * conditional estimate before joint refinement. Soft-L1 weights use a complete

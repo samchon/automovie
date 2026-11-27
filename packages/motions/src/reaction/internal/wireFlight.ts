@@ -26,7 +26,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { ReactionFeet } from "./ReactionFeet";
 import { wireFlightTouches } from "./wireFlightTouches";
 
-/**
+/*
  * A wire flight along an authored path (`IAutoMovieMotionHumanWireFlight`). The
  * root moves along the polyline from the entry root through the waypoints to
  * the end by arc length on one minimum-jerk profile (Flash and Hogan 1985), so
@@ -43,43 +43,56 @@ import { wireFlightTouches } from "./wireFlightTouches";
  * the flight is staged on wires.
  */
 export namespace wireFlight {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "wireFlight";
 
-  /** Cancel table: none; a flight runs to its end. */
+  /*
+   * Cancel table: none; a flight runs to its end.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-  /** A flight's path: its points, their running lengths and its heading. */
+  /*
+   * A flight's path: its points, their running lengths and its heading.
+   */
   export interface IPath {
-    /** The start, the waypoints and the end. */
+    /*
+     * The start, the waypoints and the end.
+     */
     points: IAutoMovieVector3[];
 
-    /** Each point's distance along the path, metres. */
+    /*
+     * Each point's distance along the path, metres.
+     */
     lengths: number[];
 
-    /** The path's whole length, metres. */
+    /*
+     * The path's whole length, metres.
+     */
     total: number;
 
-    /** The start-to-end displacement, metres. */
+    /*
+     * The start-to-end displacement, metres.
+     */
     travel: IAutoMovieVector3;
 
-    /**
+    /*
      * The heading along the level travel, the entry's when it rises straight,
      * degrees.
      */
     heading: number;
   }
 
-  /**
+  /*
    * Admit a wire flight's path from the entry through its waypoints to its end.
-   *
-   * @param seconds The flight's seconds.
-   * @param entry The entry posture: its root and heading.
-   * @param via The waypoints.
-   * @param to The end.
-   * @returns The path.
-   * @throws {HumanRefusal} When the flight takes no time or the path has no
-   *   length.
+   * Parameter seconds: The flight's seconds.
+   * Parameter entry: The entry posture: its root and heading.
+   * Parameter via: The waypoints.
+   * Parameter to: The end.
+   * Returns: The path.
+   * When the flight takes no time or the path has no
+   * length.
    */
   export function path(
     seconds: number,
@@ -132,13 +145,12 @@ export namespace wireFlight {
           : entry.yaw,
     };
   }
-  /**
+  /*
    * Plan a wire flight.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} On `seconds` when not positive and finite, and on
-   *   `to` when the path has no length.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * On `seconds` when not positive and finite, and on
+   * `to` when the path has no length.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWireFlight.IParams>,
@@ -308,45 +320,53 @@ export namespace wireFlight {
     );
   }
 
-  /**
+  /*
    * The share of the flight the feet stay planted for while the wire takes the
    * weight: authored; a foot whose leg straightens before it raises its heel.
    */
   export const LIFT: number = 0.08;
 
-  /**
+  /*
    * How long a touch comes in before its share and goes out after, seconds
    * (`wireFlightTouches.TOUCH`).
    */
   export const TOUCH: number = wireFlightTouches.TOUCH;
 
-  /**
+  /*
    * The shoulder's height on a standing body, in statures
    * (`wireFlightTouches.SHOULDER`).
    */
   export const SHOULDER: number = wireFlightTouches.SHOULDER;
 
-  /** The ankle's height above the sole, in statures (`wireFlightTouches.ANKLE`). */
+  /*
+   * The ankle's height above the sole, in statures (`wireFlightTouches.ANKLE`).
+   */
   export const ANKLE: number = wireFlightTouches.ANKLE;
 
-  /**
+  /*
    * How far the wrist stands off a surface the palm lies on, metres
    * (`wireFlightTouches.PALM`).
    */
   export const PALM: number = wireFlightTouches.PALM;
 
-  /**
+  /*
    * One flight shape: the body's pitch and joint angles, degrees (provisional
    * stage readings).
    */
   interface IShape {
-    /** Whole-body pitch, degrees; positive face down. */
+    /*
+     * Whole-body pitch, degrees; positive face down.
+     */
     pitch: number;
-    /** Clinical angle triples by bone, degrees. */
+    /*
+     * Clinical angle triples by bone, degrees.
+     */
     joints: IAutoMovieMotionHumanJoints.Angles;
   }
 
-  /** The flight shapes (provisional stage readings). */
+  /*
+   * The flight shapes (provisional stage readings).
+   */
   const SHAPES: Readonly<
     Record<IAutoMovieMotionHumanWireFlight.Shape, IShape>
   > = {
@@ -405,7 +425,9 @@ export namespace wireFlight {
     },
   };
 
-  /** A heading difference wrapped into (-180, 180]. */
+  /*
+   * A heading difference wrapped into (-180, 180].
+   */
   function wrap(degrees: number): number {
     return ((((degrees + 180) % 360) + 360) % 360) - 180;
   }

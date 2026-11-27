@@ -1,16 +1,15 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * A segment turned from one direction to another by a share of the angle
  * between them, on their great arc, its length going linearly: a joint's turn,
  * not a chord. Opposite directions have no arc of their own, so they turn about
  * a horizontal axis across the first.
- *
- * @param from The segment's first direction, carrying its first length.
- * @param to The segment's last direction, carrying its last length.
- * @param share The share of the turn, 0 at `from` and 1 at `to`.
- * @returns The turned segment.
+ * Parameter from: The segment's first direction, carrying its first length.
+ * Parameter to: The segment's last direction, carrying its last length.
+ * Parameter share: The share of the turn, 0 at `from` and 1 at `to`.
+ * Returns: The turned segment.
  */
 export function KickSwingTurned(
   from: IAutoMovieVector3,

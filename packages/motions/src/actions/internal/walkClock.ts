@@ -16,7 +16,7 @@ import { walkSteps } from "../../gait/internal/walkSteps";
 import { walkTempo } from "./walkTempo";
 import { walkWindows } from "./walkWindows";
 
-/**
+/*
  * A stepping plan's timing, the last step of `walk.locomote`: the steps taken a
  * little unevenly in time, or entrained to a beat track when the walker locks
  * to one, and kept on a moving station by speed matching when the gait draws
@@ -31,13 +31,12 @@ import { walkWindows } from "./walkWindows";
  * its station kept by the length of its steps when it was planned
  * (`walkStation.cadenced`); any other keeps its station by matching the slot's
  * speed (`walkStation`).
- *
- * @param context The walk's context, its station resolved.
- * @param planned The stepping plan on its own clock.
- * @param gait The gait.
- * @param clock The entrained clock already used to plan a timed station, when
- *   present.
- * @returns The plan on its film clock.
+ * Parameter context: The walk's context, its station resolved.
+ * Parameter planned: The stepping plan on its own clock.
+ * Parameter gait: The gait.
+ * Parameter clock: The entrained clock already used to plan a timed station, when
+ * present.
+ * Returns: The plan on its film clock.
  */
 export function walkClock(
   context: IAutoMovieMotionHumanActionContext<
@@ -72,16 +71,17 @@ export function walkClock(
         walkStation.rests(context, station),
       );
 }
-/** Companions of {@link walkClock}. */
+/*
+ * Companions of walkClock.
+ */
 export namespace walkClock {
-  /**
+  /*
    * Fit a designated station's film-time travel to the same clock used by the
    * step events and playback. At a fixed step frequency, walkers change step
    * length with speed (https://doi.org/10.1038/s41597-022-01817-1).
-   *
-   * @param context The resolved walk's cue, discipline and time origin.
-   * @param input The step planner's inputs, including any film-time travel.
-   * @returns The step plan and any cue clock already prepared for it.
+   * Parameter context: The resolved walk's cue, discipline and time origin.
+   * Parameter input: The step planner's inputs, including any film-time travel.
+   * Returns: The step plan and any cue clock already prepared for it.
    */
   export function steps(
     context: IAutoMovieMotionHumanActionContext<
@@ -119,12 +119,11 @@ export namespace walkClock {
       plan = fitted;
     }
   }
-  /**
+  /*
    * Read the cue and phase correction for this sequence of heel strikes.
-   *
-   * @param context The current walk's cue, discipline and time origin.
-   * @param planned The nominal action's events and duration.
-   * @returns The two-way film clock, or null when the gait is unlocked.
+   * Parameter context: The current walk's cue, discipline and time origin.
+   * Parameter planned: The nominal action's events and duration.
+   * Returns: The two-way film clock, or null when the gait is unlocked.
    */
   export function entrainment(
     context: IAutoMovieMotionHumanActionContext<
@@ -147,15 +146,14 @@ export namespace walkClock {
         ) ?? null);
   }
 
-  /**
+  /*
    * The factor a member's fatigue puts on a walk's speed
    * (`HUMAN_ATTRIBUTE_EFFECTS.fatigue.pace`, fresh when absent): 1 for a
    * cadenced gait, which keeps its count, so only a gait that draws its own
    * tempo slows.
-   *
-   * @param context The walk's context.
-   * @param gait The gait.
-   * @returns The factor.
+   * Parameter context: The walk's context.
+   * Parameter gait: The gait.
+   * Returns: The factor.
    */
   export function weary(
     context: IAutoMovieMotionHumanActionContext,
@@ -169,11 +167,15 @@ export namespace walkClock {
           0,
         );
   }
-  /** The alternatives of `WalkClockEntrainmentPlanned`'s site. */
+  /*
+   * The alternatives of `WalkClockEntrainmentPlanned`'s site.
+   */
   type WalkClockEntrainmentPlanned = "duration" | "events";
 }
 
-/** The record of `IWalkClockStepsResult`'s site. */
+/*
+ * The record of `IWalkClockStepsResult`'s site.
+ */
 type IWalkClockStepsResult = {
   plan: IAutoMovieMotionHumanWalkSteps.IPlan;
   clock?: walkTempo.IClock | null;

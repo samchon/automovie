@@ -14,28 +14,35 @@ import {
 import type { AutoMovieArchetypeQuadrupedFooting } from "../AutoMovieArchetypeQuadrupedFooting";
 import { QuadrupedRestFloor } from "../quadruped/QuadrupedRestFloor";
 
-/**
+/*
  * The obstacles an authored footing places across one straight course leg: its
  * poles as rails and the gaps between its planes as ditches.
  */
 export namespace EquineObstacle {
-  /** One obstacle on the leg's line. */
+  /*
+   * One obstacle on the leg's line.
+   */
   export interface IObstacle {
-    /** Course distance where it begins, metres. */
+    /*
+     * Course distance where it begins, metres.
+     */
     from: number;
-    /** Course distance where it ends, metres. */
+    /*
+     * Course distance where it ends, metres.
+     */
     to: number;
-    /** Its top above the ground, metres; zero for a ditch. */
+    /*
+     * Its top above the ground, metres; zero for a ditch.
+     */
     top: number;
   }
 
-  /**
+  /*
    * Read the obstacles across a straight leg.
-   *
-   * @param plan The admitted course plan.
-   * @param span The leg's span.
-   * @param footing The authored footing, if any.
-   * @returns The obstacles in course order.
+   * Parameter plan: The admitted course plan.
+   * Parameter span: The leg's span.
+   * Parameter footing: The authored footing, if any.
+   * Returns: The obstacles in course order.
    */
   export function read(
     plan: AutoMovieArchetypeCourse.IPlan,
@@ -106,21 +113,20 @@ export namespace EquineObstacle {
     );
   }
 
-  /**
+  /*
    * The extra flight seconds that would lift every displayed part over every
    * obstacle by the clearance, measured on the flown ride.
-   *
-   * @param plan The course plan.
-   * @param start Course distance of the jump leg's start, metres.
-   * @param obstacles The leg's obstacles.
-   * @param clearance The authored clearance, metres.
-   * @param takeoff Film second of final hind liftoff.
-   * @param landing Film second of first fore landing.
-   * @param sample The displayed parts and placement at a film second.
-   * @returns The signed change of flight seconds the tightest part asks for:
-   *   positive where a part falls short of the clearance, negative by the
-   *   surplus the tightest part keeps, zero when no part passes over an
-   *   obstacle.
+   * Parameter plan: The course plan.
+   * Parameter start: Course distance of the jump leg's start, metres.
+   * Parameter obstacles: The leg's obstacles.
+   * Parameter clearance: The authored clearance, metres.
+   * Parameter takeoff: Film second of final hind liftoff.
+   * Parameter landing: Film second of first fore landing.
+   * Parameter sample: The displayed parts and placement at a film second.
+   * Returns: The signed change of flight seconds the tightest part asks for:
+   * positive where a part falls short of the clearance, negative by the
+   * surplus the tightest part keeps, zero when no part passes over an
+   * obstacle.
    */
   export function shortfall(
     plan: AutoMovieArchetypeCourse.IPlan,
@@ -187,27 +193,41 @@ export namespace EquineObstacle {
     return extra !== -Infinity ? extra : 0;
   }
 
-  /** The displayed parts and placement a flown ride shows at one second. */
+  /*
+   * The displayed parts and placement a flown ride shows at one second.
+   */
   export interface ISample {
-    /** Model-space parts. */
+    /*
+     * Model-space parts.
+     */
     parts: readonly IAutoMovieModelPart[];
-    /** Admitted solids with the same geometry identity as the displayed parts. */
+    /*
+     * Admitted solids with the same geometry identity as the displayed parts.
+     */
     cells?: AutoMovieArchetypeConvexCell.Table;
-    /** The root's world placement. */
+    /*
+     * The root's world placement.
+     */
     placement: IAutoMovieTransform;
   }
 
-  /**
+  /*
    * Seconds between flight samples: 5 ms, so a part crossing a 0.1 m rail at a
    * 5 m/s canter is sampled about four times.
    */
   const STEP: number = 0.005;
 
-  /** One plane's cover of the leg, metres from the leg's start. */
+  /*
+   * One plane's cover of the leg, metres from the leg's start.
+   */
   interface ICover {
-    /** Where the cover begins. */
+    /*
+     * Where the cover begins.
+     */
     low: number;
-    /** Where it ends. */
+    /*
+     * Where it ends.
+     */
     high: number;
   }
 }

@@ -12,16 +12,15 @@ import { HumanEffort } from "../../everyday/internal/HumanEffort";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 
-/**
+/*
  * The modifiers of an action's manner, drawn from the action's own seeded
  * channel. The performer's timing and path skills govern the temporal and
  * spatial spreads when the manner leaves consistency unspecified. Moving spans
  * also take the action's own time scale (`IHumanActionContext.tempo`) with or
  * without a manner; its holds keep their seconds.
- *
- * @param context The action's skill, draw streams and time scale.
- * @param manner The manner; neutral when absent.
- * @returns The modifiers.
+ * Parameter context: The action's skill, draw streams and time scale.
+ * Parameter manner: The manner; neutral when absent.
+ * Returns: The modifiers.
  */
 export function AutoMovieMotionManner(
   context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
@@ -44,19 +43,21 @@ export function AutoMovieMotionManner(
   return scale === 1 ? own : { ...own, tempo: own.tempo * scale };
 }
 
-/**
+/*
  * How an action is performed, as distinct from which action it is: how fast,
  * how large, how forceful, how skilled and how varied.
  *
  * A manner is resolved once into modifiers. The tempo and the hold factor
- * change durations through the clock ({@link time}); the extent, the curvature
+ * change durations through the clock (time); the extent, the curvature
  * and the bend change sizes through the phrases. A manner never changes a goal
  * on a solid place: a phrase that states a contact keeps its place, and only a
  * place in the air, an excursion about the base or a free-space amplitude is
  * scaled. The absent manner is neutral and leaves every action as it is.
  */
 export namespace AutoMovieMotionManner {
-  /** The modifiers of the absent manner. */
+  /*
+   * The modifiers of the absent manner.
+   */
   export const NEUTRAL: IAutoMovieMotionManner.IModifiers = {
     tempo: 1,
     hold: 1,
@@ -67,14 +68,14 @@ export namespace AutoMovieMotionManner {
     swing: 1,
   };
 
-  /**
+  /*
    * How much longer a bound movement holds, a share of the hold per unit of
    * Flow; provisional, with EMOTE's direction (bound movement is held, free
    * movement passes through).
    */
   export const HOLD: number = 0.3;
 
-  /**
+  /*
    * The greatest seeded offset of the tempo and of the extent at full
    * variation, as shares, for a novice and for an expert. The tempo's are two
    * standard deviations of the timing variability `HumanSkill.jitter` uses
@@ -87,16 +88,15 @@ export namespace AutoMovieMotionManner {
     extent: [0.2, 0.08],
   };
 
-  /**
+  /*
    * The modifiers of a manner.
-   *
-   * @param manner The manner; neutral when absent.
-   * @param random The stream the variation is drawn from; indices 0 and 1 are
-   *   read.
-   * @param axes The performer's temporal and spatial skills when consistency is
-   *   absent. Omit for elite spread in both dimensions.
-   * @returns The modifiers.
-   * @throws {Error} When a member lies outside its range.
+   * Parameter manner: The manner; neutral when absent.
+   * Parameter random: The stream the variation is drawn from; indices 0 and 1 are
+   * read.
+   * Parameter axes: The performer's temporal and spatial skills when consistency is
+   * absent. Omit for elite spread in both dimensions.
+   * Returns: The modifiers.
+   * When a member lies outside its range.
    */
   export function resolve(
     manner: IAutoMovieMotionManner | undefined,
@@ -143,15 +143,14 @@ export namespace AutoMovieMotionManner {
     };
   }
 
-  /**
+  /*
    * A clock performed in a manner: the holds stretched by the hold factor, the
    * fixed spans left as they are and every other span stretched by the tempo.
-   *
-   * @param clock The action's clock at its natural timing.
-   * @param modifiers The manner's modifiers.
-   * @param spans The holds and the fixed spans, by the instants that open them.
-   * @returns The clock, with the same instant names.
-   * @throws {Error} On a named instant the clock lacks.
+   * Parameter clock: The action's clock at its natural timing.
+   * Parameter modifiers: The manner's modifiers.
+   * Parameter spans: The holds and the fixed spans, by the instants that open them.
+   * Returns: The clock, with the same instant names.
+   * On a named instant the clock lacks.
    */
   export function time(
     clock: IAutoMovieMotionClock,
@@ -176,7 +175,7 @@ export namespace AutoMovieMotionManner {
     );
   }
 
-  /**
+  /*
    * Named manners: the eight basic Effort actions of Laban, four moods and the
    * two Shape qualities of the trunk and limbs, as manner records a composition
    * names instead of spelling out factors.
@@ -237,8 +236,8 @@ export namespace AutoMovieMotionManner {
     spreading: { effort: { flow: -1 } },
   };
 
-  /**
-   * The names of {@link PRESETS}, as data; a name `Preset` lacks fails the type
+  /*
+   * The names of PRESETS, as data; a name `Preset` lacks fails the type
    * check, and a test checks none is missing.
    */
   export const PRESET_NAMES = [
@@ -259,16 +258,22 @@ export namespace AutoMovieMotionManner {
   ] as const satisfies readonly IAutoMovieMotionManner.Preset[];
 }
 
-/** The alternatives of `TimeModifiers`'s site. */
+/*
+ * The alternatives of `TimeModifiers`'s site.
+ */
 type TimeModifiers = "tempo" | "hold";
 
-/** The alternatives of `OfContext`'s site. */
+/*
+ * The alternatives of `OfContext`'s site.
+ */
 type OfContext = "skill" | "random" | "tempo";
 
-/** The alternatives of `BOUNDSEntryItem`'s site. */
+/*
+ * The alternatives of `BOUNDSEntryItem`'s site.
+ */
 type BOUNDSEntryItem = "tempo" | "extent";
 
-/**
+/*
  * The timing and path skills used when a manner leaves consistency to the
  * performer.
  */

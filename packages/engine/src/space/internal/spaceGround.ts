@@ -6,7 +6,9 @@ import {
 import { heightAt } from "./heightAt";
 import { prepareSpace } from "./prepareSpace";
 
-/** Prepare a space once and expose its walking height as a ground callback. */
+/*
+ * Prepare a space once and expose its walking height as a ground callback.
+ */
 export const spaceGround: (
   space: IAutoMovieSpace,
   fallback?: number,

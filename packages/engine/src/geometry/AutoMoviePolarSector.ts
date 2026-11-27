@@ -98,7 +98,7 @@ export namespace AutoMoviePolarSector {
     ];
   }
 
-  /**
+  /*
    * One sector's radius jet at share `xi` of its width: the quintic Hermite
    * basis and the bump with their first two derivatives written out by Horner's
    * rule, so a call allocates only its result.
@@ -169,10 +169,14 @@ export namespace AutoMoviePolarSector {
   }
 }
 
-/** A whole turn. */
+/*
+ * A whole turn.
+ */
 const TWO_PI: number = 2 * Math.PI;
 
-/** Angle reduced to `[0, 2 pi)`. */
+/*
+ * Angle reduced to `[0, 2 pi)`.
+ */
 function wrap(t: number): number {
   const r: number = t % TWO_PI;
   return r < 0 ? r + TWO_PI : r;

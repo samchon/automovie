@@ -9,7 +9,7 @@ import { renderWorkspace } from "./renderWorkspace";
 import { sharedSkillPath } from "./sharedSkillPath";
 import { transcludeMarkdownSection } from "./transcludeMarkdownSection";
 
-/**
+/*
  * Create the files of a new AutoMovie installation as a `{ posixPath: content
  * }` map.
  *
@@ -35,15 +35,11 @@ import { transcludeMarkdownSection } from "./transcludeMarkdownSection";
  *
  * A standalone `## ${Continuing}` in scaffold skill Markdown inserts the same
  * path's root skill section from `generated/sections`. Instruction Markdown
- * omits reserved `<!-- @reference ... -->` lines after expansion. A source
- * paragraph leaves one blank line between its heading and the body.
- *
- * Nothing is written; the caller writes the map.
- *
- * @param props The installation kind and its name.
- * @returns The files, keyed by path relative to the installation directory.
- * @throws When the name is refused, when the build outputs are missing, or when
- *   two sources produce the same path.
+ * omits reserved `<!--
+ * Parameter props: The installation kind and its name.
+ * Returns: The files, keyed by path relative to the installation directory.
+ * When the name is refused, when the build outputs are missing, or when
+ * two sources produce the same path.
  */
 export const create: (
   props: IAutoMovieTemplateScaffoldProps,
@@ -80,10 +76,12 @@ export const create: (
   return files;
 };
 
-/** The package root is three levels above this module in source and output. */
+/*
+ * The package root is three levels above this module in source and output.
+ */
 const PACKAGE: string = path.resolve(__dirname, "../../..");
 
-/**
+/*
  * Pass every file of one scaffold layer to `add`, expanding shared-skill
  * placeholders and renaming the root `_gitignore`.
  */
@@ -93,7 +91,9 @@ const readLayer = (
 ): void => {
   const root: string = path.join(PACKAGE, "scaffold", layer);
 
-  /** Strip the source note while keeping one of its surrounding blank lines. */
+  /*
+   * Strip the source note while keeping one of its surrounding blank lines.
+   */
   const read = (file: string, scaffoldRelative?: string): string => {
     let text: string = fs.readFileSync(file, "utf8");
     if (
@@ -151,7 +151,7 @@ const readLayer = (
   }
 };
 
-/**
+/*
  * The `evidence.config.ts` of a production, reading its own skills or, inside a
  * workspace, the root's.
  */

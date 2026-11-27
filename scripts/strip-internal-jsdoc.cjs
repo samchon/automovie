@@ -27,6 +27,7 @@ const semanticTags = new Set([
   "sealed",
   "virtual",
 ]);
+const compilerPragmaTags = new Set(["jsx", "jsxFrag", "jsxImportSource", "jsxRuntime"]);
 const linkKinds = new Set([
   ts.SyntaxKind.JSDocLink,
   ts.SyntaxKind.JSDocLinkCode,
@@ -59,13 +60,13 @@ function declarationNames(node) {
   return name ? [name] : [];
 }
 
-function publicLocalDeclarationPaths(sourceFile, symbols) {
+function publicLocalDeclarations(sourceFile, symbols) {
   const declarations = new Map();
   function add(namespace, node, name, isNamespace = false) {
-    const path = [...namespace, name].join(".");
-    let candidates = declarations.get(path);
-    if (!candidates) declarations.set(path, candidates = []);
-    candidates.push({ path, namespace: isNamespace });
+    const declarationPath = [...namespace, name].join(".");
+    let candidates = declarations.get(declarationPath);
+    if (!candidates) declarations.set(declarationPath, candidates = []);
+    candidates.push({ path: declarationPath, namespace: isNamespace, node });
   }
   function visitNamespace(node, parent) {
     const name = declarationName(node);
@@ -94,11 +95,9 @@ function publicLocalDeclarationPaths(sourceFile, symbols) {
     const accumulated = [];
     for (const segment of prefix.split(".")) {
       accumulated.push(segment);
-      const route = accumulated.join(".");
-      const mapped = alias.get(route);
-      if (mapped) {
-        resolved.splice(0, resolved.length, ...mapped.split("."));
-      } else resolved.push(segment);
+      const mapped = alias.get(accumulated.join("."));
+      if (mapped) resolved.splice(0, resolved.length, ...mapped.split("."));
+      else resolved.push(segment);
     }
     return resolved.join(".");
   }
@@ -108,10 +107,8 @@ function publicLocalDeclarationPaths(sourceFile, symbols) {
     const actualParent = resolvePrefix(parent);
     const localPath = actualParent ? actualParent.split(".") : [];
     for (const localName of localNames) {
-      const candidates = declarations.get([...localPath, localName].join(".")) ?? [];
-      for (const candidate of candidates) {
+      for (const candidate of declarations.get([...localPath, localName].join(".")) ?? [])
         if (candidate.namespace) alias.set(route, candidate.path);
-      }
     }
   }
 
@@ -123,12 +120,40 @@ function publicLocalDeclarationPaths(sourceFile, symbols) {
     const prefix = actualParent ? actualParent.split(".") : [];
     for (const localName of localNames) {
       for (const candidate of declarations.get([...prefix, localName].join(".")) ?? [])
-        result.add(candidate.path);
+        result.add(candidate.node);
     }
+  }
+
+  function exported(node) {
+    return ts.canHaveModifiers(node) && ts.getModifiers(node)?.some((modifier) =>
+      modifier.kind === ts.SyntaxKind.ExportKeyword || modifier.kind === ts.SyntaxKind.DefaultKeyword,
+    );
+  }
+  const visitedNamespaces = new Set();
+  function addExportedNamespaceMembers(namespace) {
+    if (visitedNamespaces.has(namespace)) return;
+    visitedNamespaces.add(namespace);
+    if (!namespace.body || !ts.isModuleBlock(namespace.body)) return;
+    for (const statement of namespace.body.statements) {
+      if (!exported(statement)) continue;
+      result.add(statement);
+      if (!ts.isModuleDeclaration(statement)) continue;
+      addExportedNamespaceMembers(statement);
+    }
+  }
+  for (const localPath of alias.values()) {
+    for (const candidate of declarations.get(localPath) ?? [])
+      if (candidate.namespace) addExportedNamespaceMembers(candidate.node);
   }
   return result;
 }
 
+function isAmbientAugmentation(node) {
+  if (!ts.isModuleDeclaration(node)) return false;
+  if (node.flags & ts.NodeFlags.GlobalAugmentation) return true;
+  return ts.isStringLiteral(node.name) && ts.canHaveModifiers(node) &&
+    ts.getModifiers(node)?.some((modifier) => modifier.kind === ts.SyntaxKind.DeclareKeyword);
+}
 function declarationNodes(sourceFile) {
   const nodes = [];
   function visit(node) {
@@ -194,6 +219,13 @@ function ordinaryBlock(lines, indent, lineEnding) {
     : "";
 }
 
+function normalizedProvenanceText(value) {
+  return commentValue(value)
+    .replace(/^@see\b\s*/iu, "")
+    .replace(/\{@(?:link|linkplain|linkcode)\s+([^}|]+?)(?:\s*\|[^}]*)?\}/gu, "$1")
+    .replace(/\s+/gu, " ")
+    .trim();
+}
 function preservedComment(doc, sourceFile) {
   const narrative = [];
   const description = cleanNarrative(doc.comment);
@@ -210,7 +242,11 @@ function preservedComment(doc, sourceFile) {
       narrative.push(`Returns: ${body}`);
     else if (semanticTags.has(tagName)) narrative.push(`@${tagName}: ${body}`);
   }
-  const keep = provenanceLines(doc, sourceFile);
+  const preservedNarrative = narrative.map(normalizedProvenanceText).join(" ");
+  const keep = provenanceLines(doc, sourceFile).filter((line) => {
+    const normalized = normalizedProvenanceText(line);
+    return !normalized || !preservedNarrative.includes(normalized);
+  });
   const tags = doc.tags?.filter((tag) => semanticTags.has(tag.tagName.text)).map((tag) => "@" + tag.tagName.text) ?? [];
   const comments = [];
   if (tags.length) comments.push("/** " + [...new Set(tags)].join(" ") + " */");
@@ -296,38 +332,22 @@ function isPublicSignatureContainer(node) {
   );
 }
 
-function localDeclarationPaths(node, sourceFile) {
-  let declaration = node;
-  if (ts.isVariableDeclaration(node)) declaration = node.parent.parent;
-  const parent = declaration.parent;
-  if (!(ts.isSourceFile(parent) || ts.isModuleBlock(parent))) return [];
-  const namespaces = [];
-  let current = parent;
-  while (current && current !== sourceFile) {
-    if (ts.isModuleDeclaration(current)) {
-      const name = declarationName(current);
-      if (name) namespaces.unshift(name);
-    }
-    current = current.parent;
-  }
-  if (ts.isModuleDeclaration(declaration)) {
-    const name = declarationName(declaration);
-    return name ? [[...namespaces, name].join(".")] : [];
-  }
-  return declarationNames(node).map((name) => [...namespaces, name].join("."));
+function hasCompilerPragma(node) {
+  return node.jsDoc?.some((doc) => doc.tags?.some((tag) => compilerPragmaTags.has(tag.tagName.text))) ?? false;
 }
 
 function isPublicNode(node, sourceFile, publicNames, publicRoutes, publicLocals) {
   let current = node;
   while (current && current !== sourceFile) {
     if (hasPrivateBoundary(current) || ts.isBlock(current)) return false;
+    if (isAmbientAugmentation(current)) return true;
     const route = publicLocals
-      ? localDeclarationPaths(current, sourceFile).some((name) => publicLocals.has(name))
+      ? publicLocals.has(current)
       : publicRoutePaths(current, sourceFile).some((name) => publicRoutes.has(name));
     if (current === node && route) return true;
     if (
       isTypeDeclaration(current) &&
-      (publicLocals ? localDeclarationPaths(current, sourceFile).some((name) => publicLocals.has(name)) : declarationNames(current).some((name) => publicNames.has(name)))
+      (publicLocals ? publicLocals.has(current) || (ts.isSourceFile(current.parent) && declarationNames(current).some((name) => publicNames.has(name))) : declarationNames(current).some((name) => publicNames.has(name)))
     ) return true;
     if (isPublicSignatureContainer(current) && route) return true;
     if (ts.isModuleDeclaration(current)) return false;
@@ -348,7 +368,7 @@ function planFile(sourceFile, index) {
   );
   const publicLocals = index.publicLocalPathsByFile?.get(file) ?? (
     index.symbolsByFile?.has(file)
-      ? publicLocalDeclarationPaths(sourceFile, index.symbolsByFile.get(file))
+      ? publicLocalDeclarations(sourceFile, index.symbolsByFile.get(file))
       : undefined
   );
   const edits = [];
@@ -357,7 +377,7 @@ function planFile(sourceFile, index) {
   let preservedProvenance = 0;
   let retainedInternal = 0;
   for (const node of declarationNodes(sourceFile)) {
-    if (isPublicNode(node, sourceFile, names, publicRoutes, publicLocals)) continue;
+    if (ts.isSourceFile(node) || hasCompilerPragma(node) || isPublicNode(node, sourceFile, names, publicRoutes, publicLocals)) continue;
     for (const doc of node.jsDoc ?? []) {
       const replacement = preservedComment(doc, sourceFile);
       let start = doc.getStart(sourceFile);
@@ -384,7 +404,7 @@ function planFile(sourceFile, index) {
 function plan(sourceFile) {
   if (!plan.index) {
     const { createPublicSourceExportIndex } = require("./public-source-exports.cjs");
-    plan.index = createPublicSourceExportIndex({ root });
+    plan.index = createPublicSourceExportIndex({ root, includeWorkspaceExports: true });
   }
   if (plan.index.publicFiles.size === 0) throw new Error("Public export index is empty; refusing to plan destructive edits.");
   if (!plan.contractNames) plan.contractNames = contractDeclarationNames(plan.index);
@@ -573,6 +593,99 @@ const emptyLfText = "namespace PrivateOwner {\n  /** @evidence internal */\n  fu
   );
   if (emptyLfOut !== "namespace PrivateOwner {\n  function helper(): void {}\n}\n") throw new Error("Empty LF evidence-only docs left a whitespace-only line.");
   if (emptyCrLfOut !== emptyLfOut.replace(/\n/gu, "\r\n")) throw new Error("Empty CRLF docs do not produce the LF-equivalent result.");
+  const reachableText = [
+    "/** Public operation. */",
+    "export function consume(options: IOptions): void {}",
+    "/** Reachable public contract. */",
+    "interface IOptions {",
+    "  /** Reachable public field. */",
+    "  width: number;",
+    "}",
+    "/** Same-named private namespace type stays private. */",
+    "namespace PrivateSibling {",
+    "  interface IOptions { secret: string; }",
+    "}",
+  ].join("\n");
+  const reachablePath = path.resolve("reachable.ts");
+  const reachableTree = ts.createSourceFile(reachablePath, reachableText, ts.ScriptTarget.Latest, true);
+  const reachableOutput = require("./export-refactor-worktree.cjs").applyEdits(
+    reachableText,
+    planFile(reachableTree, {
+      contractNamesByFile: new Map([[reachablePath, new Set(["consume", "IOptions"])]]),
+      symbolsByFile: new Map([[reachablePath, new Map([["consume", new Set(["consume"]) ]])]]),
+    }).edits,
+  );
+  if (!reachableOutput.includes("/** Reachable public contract. */") || !reachableOutput.includes("/** Reachable public field. */")) throw new Error("Top-level signature-reachable type docs were stripped.");
+  if (reachableOutput.includes("/** Same-named private namespace type stays private.") || !reachableOutput.includes("Same-named private namespace type stays private.")) throw new Error("A private same-named namespace type was promoted by signature reachability.");
+
+  const duplicateSourceText = [
+    "/**",
+    " * Source credit: Clarabel reference https://example.test/clarabel.",
+    " * @see {@link https://example.test/clarabel}",
+    " * @see {@link https://example.test/second-source}",
+    " */",
+    "function citedInternal(): void {}",
+  ].join("\n");
+  const duplicateSourceTree = ts.createSourceFile("duplicate-source.ts", duplicateSourceText, ts.ScriptTarget.Latest, true);
+  const duplicateSourceOutput = require("./export-refactor-worktree.cjs").applyEdits(
+    duplicateSourceText,
+    planFile(duplicateSourceTree, { symbolsByFile: new Map([[path.resolve("duplicate-source.ts"), new Map()]]) }).edits,
+  );
+  if (duplicateSourceOutput.split("https://example.test/clarabel").length - 1 !== 2 || duplicateSourceOutput.split("https://example.test/second-source").length - 1 !== 1 || !duplicateSourceOutput.includes("Source credit: Clarabel reference")) throw new Error("Duplicate provenance was not deduplicated without losing credits or distinct sources.");
+  const forwardedText = [
+    "/** Public owner comment. */",
+    "namespace LocalOwner {",
+    "  /** Public child contract reached through the root-only alias. */",
+    "  export namespace Types {",
+    "    /** Public IProps contract. */",
+    "    export interface IProps {",
+    "      /** Public field contract. */",
+    "      value: string;",
+    "    }",
+    "    /** Unexported sibling remains private. */",
+    "    interface HiddenProps { secret: string; }",
+    "  }",
+    "  /** Unexported owner helper remains private. */",
+    "  function hiddenHelper(): void {}",
+    "}",
+    "export { LocalOwner as PublicOwner };",
+  ].join("\n");
+  const forwardedPath = path.resolve("forwarded.ts");
+  const forwardedTree = ts.createSourceFile(forwardedPath, forwardedText, ts.ScriptTarget.Latest, true);
+  const forwardedOutput = require("./export-refactor-worktree.cjs").applyEdits(
+    forwardedText,
+    planFile(forwardedTree, {
+      symbolsByFile: new Map([[forwardedPath, new Map([["PublicOwner", new Set(["LocalOwner"]) ]])]]),
+    }).edits,
+  );
+  if (!forwardedOutput.includes("/** Public child contract reached through the root-only alias. */") || !forwardedOutput.includes("/** Public IProps contract. */") || !forwardedOutput.includes("/** Public field contract. */")) throw new Error("Exported namespace descendants were not retained through a root-only alias.");
+  if (forwardedOutput.includes("/** Unexported sibling remains private.") || !forwardedOutput.includes("Unexported sibling remains private.")) throw new Error("An unexported namespace sibling was promoted to public.");
+  if (forwardedOutput.includes("/** Unexported owner helper remains private.") || !forwardedOutput.includes("Unexported owner helper remains private.")) throw new Error("An unexported owner helper was promoted to public.");
+
+  const augmentationText = [
+    "/** @jsxRuntime automatic */",
+    "export {};",
+    "declare global {",
+    "  interface HTMLElementEventMap {",
+    "    /** Public event contract. */",
+    "    \"automovie:completed-frame\": CustomEvent<void>;",
+    "  }",
+    "}",
+    "declare module \"external-module\" {",
+    "  interface ExternalEventMap {",
+    "    /** Public module augmentation member. */",
+    "    ready: boolean;",
+    "  }",
+    "}",
+  ].join("\n");
+  const augmentationPath = path.resolve("augmentation.ts");
+  const augmentationTree = ts.createSourceFile(augmentationPath, augmentationText, ts.ScriptTarget.Latest, true);
+  const augmentationOutput = require("./export-refactor-worktree.cjs").applyEdits(
+    augmentationText,
+    planFile(augmentationTree, { symbolsByFile: new Map([[augmentationPath, new Map()]]) }).edits,
+  );
+  if (!augmentationOutput.includes("/** Public event contract. */") || !augmentationOutput.includes("/** Public module augmentation member. */")) throw new Error("Ambient global/module augmentation docs were stripped.");
+  if (!augmentationOutput.startsWith("/** @jsxRuntime automatic */")) throw new Error("A source-file JSX pragma was altered.");
   const crlfText = "namespace PrivateOwner {\r\n  /** A short CRLF invariant. */\r\n  function helper(): void {}\r\n}\r\n";
   const crlfPath = path.resolve("crlf.ts");
   const crlfTree = ts.createSourceFile(crlfPath, crlfText, ts.ScriptTarget.Latest, true);

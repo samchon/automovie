@@ -13,7 +13,7 @@ import { refineSubdivisionStencils } from "./refineSubdivisionStencils";
 import { subdivisionBendingRows } from "./subdivisionBendingRows";
 import { stencilAutoMovieSubdivisionLimit } from "../sweep/internal/stencilAutoMovieSubdivisionLimit";
 
-/**
+/*
  * Fit an explicitly refined generating domain to authored coarse limit points.
  *
  * Two uniform Catmull-Clark steps introduce fitting freedom, as in the

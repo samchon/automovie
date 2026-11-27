@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Forces on a performer as input to a performance: an impulse at an instant (a
  * blow, a shove, a hit) or a force sustained over a span (a load, a pull, a
  * braking support), each acting on a region or a point of a bone.
@@ -23,7 +23,7 @@ import type {
  * the body the same way.
  */
 export namespace HumanForce {
-  /**
+  /*
    * The impulse a hit delivers to the struck person, the only conversion of a
    * hit record into a force (P1).
    *
@@ -34,11 +34,10 @@ export namespace HumanForce {
    * the struck surface's outward `normal`, the receiver as one body and the
    * striker as the other, with no restitution, the least the contact can
    * deliver, since the record names none.
-   *
-   * @param hit The hit record.
-   * @param receiver The struck person's mass and velocity.
-   * @returns The impulse on the struck person, or null for a record that names
-   *   no person, no velocity or no mass.
+   * Parameter hit: The hit record.
+   * Parameter receiver: The struck person's mass and velocity.
+   * Returns: The impulse on the struck person, or null for a record that names
+   * no person, no velocity or no mass.
    */
   export function ofHit(
     hit: IAutoMovieInteractionEvent,
@@ -79,15 +78,14 @@ export namespace HumanForce {
     return of(Vector3.scale(response.impulse, -1));
   }
 
-  /**
+  /*
    * The forces on a person within a span: impulses at an instant inside it and
    * sustained forces that overlap it.
-   *
-   * @param forces Every force of the performance.
-   * @param subject The person.
-   * @param from Film seconds, start.
-   * @param to Film seconds, end.
-   * @returns The forces, in the order given.
+   * Parameter forces: Every force of the performance.
+   * Parameter subject: The person.
+   * Parameter from: Film seconds, start.
+   * Parameter to: Film seconds, end.
+   * Returns: The forces, in the order given.
    */
   export function within(
     forces: readonly IAutoMovieMotionHumanForce[],
@@ -104,12 +102,11 @@ export namespace HumanForce {
     );
   }
 
-  /**
+  /*
    * A sustained force's value at a second.
-   *
-   * @param force The force.
-   * @param seconds Film seconds.
-   * @returns World newtons; zero outside its span.
+   * Parameter force: The force.
+   * Parameter seconds: Film seconds.
+   * Returns: World newtons; zero outside its span.
    */
   export function at(
     force: IAutoMovieMotionHumanSustainedForce,
@@ -122,5 +119,7 @@ export namespace HumanForce {
   }
 }
 
-/** The alternatives of `OfHitStill`'s site. */
+/*
+ * The alternatives of `OfHitStill`'s site.
+ */
 type OfHitStill = "restitution" | "hardness" | "penetrability";

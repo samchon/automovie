@@ -31,17 +31,21 @@ const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
  * those knuckles, and each finger's proximal phalanx in the bind's posture.
  */
 export namespace AutoMovieHumanHandJoints {
-  /** Turns in which the knuckles and the frame standing on them settle: each moves the frame a tenth as much. */
+  /*
+   * Turns in which the knuckles and the frame standing on them settle: each moves the frame a tenth as much.
+   */
   const FRAME_PASSES: number = 3;
 
-  /**
+  /*
    * The middle finger's web above its MCP joint as a share of its web-to-tip
    * length (Buryanov and Kotiuk 2010 Table III): the knuckle stands that far
    * below the webs the palm length reaches, so it never passes them.
    */
   const WEB_HEIGHT: number = 0.1533;
 
-  /** Third metacarpal over the wrist centre to its head (de Leva's MET3 and Reddy's CT, `docs/anatomy/hand.md`). */
+  /*
+   * Third metacarpal over the wrist centre to its head (de Leva's MET3 and Reddy's CT, `docs/anatomy/hand.md`).
+   */
   const THIRD_METACARPAL: number = 0.774;
 
   /**
@@ -50,7 +54,7 @@ export namespace AutoMovieHumanHandJoints {
    */
   export const STYLION: number = 1.5;
 
-  /**
+  /*
    * Metacarpal lengths over the third, thumb to little (Reddy 2024, sexes
    * pooled; `docs/anatomy/hand.md`).
    */

@@ -11,7 +11,7 @@ import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotion
 import { AutoMovieMotionHumanTouchDrink } from "../../compose/internal/AutoMovieMotionHumanTouchDrink";
 import { AutoMovieMotionHumanTouchLaid } from "../../compose/internal/AutoMovieMotionHumanTouchLaid";
 
-/**
+/*
  * One hand's arm at the face.
  *
  * A held vessel is carried upright and brought to the face as a drinker holds
@@ -22,9 +22,8 @@ import { AutoMovieMotionHumanTouchLaid } from "../../compose/internal/AutoMovieM
  * the grasp it was taken up by presents it (`own`) has its turn in the hand
  * fixed, so only its lean toward the lips is sought, with the grasp's elbow
  * hint: the same drink takes the same arm however the vessel came to the hand.
- *
- * @param props The hand and its place.
- * @returns The arm.
+ * Parameter props: The hand and its place.
+ * Returns: The arm.
  */
 export function handToFaceArm(
   props: IAutoMovieMotionHumanHandToFaceArm.IProps,
@@ -145,5 +144,7 @@ export function handToFaceArm(
   };
 }
 
-/** The alternatives of `OfAt`'s site. */
+/*
+ * The alternatives of `OfAt`'s site.
+ */
 type OfAt = "point" | "normal";

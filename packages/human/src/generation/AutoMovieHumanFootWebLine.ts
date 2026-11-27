@@ -83,7 +83,7 @@ export namespace AutoMovieHumanFootWebLine {
   }
 }
 
-/**
+/*
  * The dorsum's height over the floor at a cleft's own across place, foot
  * lengths. The forefoot's dorsal arc runs from the crest, where its tangent
  * is level, to the lateral border, where it stands upright: a quarter, so its
@@ -91,10 +91,9 @@ export namespace AutoMovieHumanFootWebLine {
  * height and the border's,
  * `y = y_l + (y_c - y_l) sqrt(1 - x^2)`, `x = (u - u_c) / (1 - u_c)`; a cleft
  * on the crest's medial side reads the crest's own height.
- *
- * @param crest The crest's height at the cleft's place along the foot, foot lengths.
- * @param a The cleft's place along the foot, foot lengths.
- * @param u The cleft's across place, foot breadths.
+ * Parameter crest: The crest's height at the cleft's place along the foot, foot lengths.
+ * Parameter a: The cleft's place along the foot, foot lengths.
+ * Parameter u: The cleft's across place, foot breadths.
  */
 function height(crest: number, a: number, u: number): number {
   const uc: number = AutoMovieHumanFootCrestForefoot.across(a);
@@ -104,5 +103,7 @@ function height(crest: number, a: number, u: number): number {
   return yl + (crest - yl) * Math.sqrt(1 - x * x);
 }
 
-/** The yaw axis beyond the lateral border, in foot breadths. Convention: far enough that no plane of the fan meets the foot. */
+/*
+ * The yaw axis beyond the lateral border, in foot breadths. Convention: far enough that no plane of the fan meets the foot.
+ */
 const PIVOT: number = 1;

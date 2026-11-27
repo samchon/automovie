@@ -8,15 +8,19 @@ import {
 import { GOAL_BANDS } from "../constants/GOAL_BANDS";
 import type { AutoMovieArchetypeGoal } from "../AutoMovieArchetypeGoal";
 
-/** Model coordinates in metres. */
+/*
+ * Model coordinates in metres.
+ */
 const v: typeof Vector3.create = Vector3.create;
 
-/**
+/*
  * The recorded profiles, draw and shared post contacts for goal and net
  * producers.
  */
 export namespace GoalBuild {
-  /** The recorded dimension units, metres for lengths and kilograms for mass. */
+  /*
+   * The recorded dimension units, metres for lengths and kilograms for mass.
+   */
   export const UNITS: Readonly<
     Record<AutoMovieArchetypeGoal.Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -31,7 +35,9 @@ export namespace GoalBuild {
     mass: "kg",
   };
 
-  /** The display names retained from the saved goal dispatcher. */
+  /*
+   * The display names retained from the saved goal dispatcher.
+   */
   export const NAMES: Readonly<Record<AutoMovieArchetypeGoal.Kind, string>> = {
     footballGoal: "football goal",
     fieldHockeyGoal: "field hockey goal",
@@ -43,7 +49,9 @@ export namespace GoalBuild {
     tennisNet: "tennis net",
   };
 
-  /** The fixed FIVB top heights for the men's and women's volleyball nets. */
+  /*
+   * The fixed FIVB top heights for the men's and women's volleyball nets.
+   */
   export const NETS: Readonly<
     Partial<
       Record<
@@ -59,19 +67,27 @@ export namespace GoalBuild {
   > = {
     volleyballNet: { men: { height: 2.43 }, women: { height: 2.24 } },
   };
-  /** The bands declared for the original goal and net kinds. */
+  /*
+   * The bands declared for the original goal and net kinds.
+   */
   export const BANDS: typeof GOAL_BANDS = GOAL_BANDS;
 
-  /** What {@link draw} prepares for its caller. */
+  /*
+   * What draw prepares for its caller.
+   */
   export interface IDrawResult<Id extends AutoMovieArchetypeGoal.Affordance> {
-    /** The prepared `builder` this call returns. */
+    /*
+     * The prepared `builder` this call returns.
+     */
     builder: AutoMovieArchetypeBuilder<Id, AutoMovieArchetypeGoal.Dimension>;
 
-    /** The prepared `d` this call returns. */
+    /*
+     * The prepared `d` this call returns.
+     */
     d: Partial<Record<AutoMovieArchetypeGoal.Dimension, number>>;
   }
 
-  /**
+  /*
    * Draw the supplied profile with its original goal seed and prepare a
    * builder.
    */
@@ -101,16 +117,15 @@ export namespace GoalBuild {
     return { builder, d };
   }
 
-  /**
+  /*
    * Declare both post contacts at the drawn height and original lateral
    * positions.
-   *
-   * @param builder The goal or net builder that receives both bar contacts.
-   * @param x The lateral distance to each post centre, in metres.
-   * @param height The graspable height of each post measured from the floor, in
-   *   metres.
-   * @param aperture The post section in metres for a square bar. Omit it for a
-   *   round post.
+   * Parameter builder: The goal or net builder that receives both bar contacts.
+   * Parameter x: The lateral distance to each post centre, in metres.
+   * Parameter height: The graspable height of each post measured from the floor, in
+   * metres.
+   * Parameter aperture: The post section in metres for a square bar. Omit it for a
+   * round post.
    */
   export function posts(
     builder: AutoMovieArchetypeBuilder<

@@ -9,7 +9,7 @@ import type {
 import { resolveProductionFrameRate } from "../../film/internal/resolveProductionFrameRate";
 import { createAutoMovieLoudnessMeter } from "./createAutoMovieLoudnessMeter";
 
-/**
+/*
  * Analyze the exact limited stereo master and measure mixed peaks near expected
  * event times.
  *

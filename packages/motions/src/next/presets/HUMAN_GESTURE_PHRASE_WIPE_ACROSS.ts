@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `wipeAcross` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. Wiping a surface: the flat palm oscillates across
  * the target.

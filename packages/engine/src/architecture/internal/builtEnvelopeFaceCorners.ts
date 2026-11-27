@@ -8,7 +8,7 @@ import { Vector3 } from "../../math/Vector3";
 import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 import { ObservationGeometry } from "./ObservationGeometry";
 
-/**
+/*
  * Proximity-based corner records among already placed envelope facades.
  *
  * Only non-parallel `facade` pairs of one building qualify. Vertex proximity
@@ -20,7 +20,7 @@ import { ObservationGeometry } from "./ObservationGeometry";
  * negligible direction or dot product skips an unreadable pair. Results sort by
  * id.
  *
- * {@link builtEnvironmentEnvelopeCorners} answers for a whole environment, and
+ * builtEnvironmentEnvelopeCorners answers for a whole environment, and
  * the building census passes the faces it already placed so they are not placed
  * twice.
  */

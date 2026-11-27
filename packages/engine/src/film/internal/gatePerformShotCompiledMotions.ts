@@ -8,7 +8,7 @@ import type {
 
 import { validateMotion } from "../../validation/internal/validateMotion";
 
-/**
+/*
  * Report what the compiled performance would lose or break: every channel a
  * region mask drops, and every clip that fails `validateMotion` against its
  * rig.
@@ -18,11 +18,10 @@ import { validateMotion } from "../../validation/internal/validateMotion";
  * or expression the region does not carry. A clip of a node without a rig is
  * skipped; a failing clip's violations are re-rooted from `$input` to
  * `$compiled["<node>"]`.
- *
- * @param out The shot's violation collector.
- * @param compiled The compiled performance: its clips and its masked drops.
- * @param stageActionPaths The author's path of each stage action, by index.
- * @param skeleton The staged rig of a node, or null for a node without one.
+ * Parameter out: The shot's violation collector.
+ * Parameter compiled: The compiled performance: its clips and its masked drops.
+ * Parameter stageActionPaths: The author's path of each stage action, by index.
+ * Parameter skeleton: The staged rig of a node, or null for a node without one.
  */
 export function gatePerformShotCompiledMotions(
   out: IAutoMovieViolationAppendItemsSink,
@@ -53,7 +52,9 @@ export function gatePerformShotCompiledMotions(
   }
 }
 
-/** What a masked clip authored that its region drops, in words. */
+/*
+ * What a masked clip authored that its region drops, in words.
+ */
 function maskedContent(drop: IAutoMovieMaskedContent): string {
   return [
     ...(drop.bones.length > 0 ? [`the bones ${drop.bones.join(", ")}`] : []),

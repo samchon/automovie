@@ -19,7 +19,7 @@ import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 import { validateDeclaredReferences } from "../../validation/internal/validateDeclaredReferences";
 import { validateDesignLineageDerived } from "./validateDesignLineageDerived";
 
-/**
+/*
  * Validate one lineage record as a self-consistent phase, alternative, and
  * derivation graph.
  *
@@ -33,13 +33,13 @@ import { validateDesignLineageDerived } from "./validateDesignLineageDerived";
  * disagreeing with the inputs it was computed from.
  *
  * Staleness is a refusal rather than a warning, which makes the order of a
- * rebake explicit: ask {@link designLineageImpact} what a change reaches while
+ * rebake explicit: ask designLineageImpact what a change reaches while
  * the record still describes the outputs on disk, then move the revision or the
  * imported digest and the outputs together. A record caught mid-rebake is
  * invalid on purpose; the alternative is serving an output nobody can check.
  *
  * Lifecycle coverage is total by the same reasoning
- * {@link IAutoMovieDesignLifecycle} states: a subject with no lifecycle would
+ * IAutoMovieDesignLifecycle states: a subject with no lifecycle would
  * have to be given a default, and every available default asserts something the
  * author did not, either that the thing predates the work or that it survives
  * it.
@@ -48,15 +48,14 @@ import { validateDesignLineageDerived } from "./validateDesignLineageDerived";
  * alternatives of one decision both carry a derived artifact of the same kind,
  * those artifacts must share a lowering configuration and a phase, because a
  * comparison shot under two cameras compares the cameras. The derived artifact
- * rules are listed on {@link validateDesignLineageDerived}.
+ * rules are listed on validateDesignLineageDerived.
  *
  * Every digest must be a lowercase `sha256:` hex digest. Findings are returned
  * with `$input` paths and nothing throws; the lineage query functions throw on
  * the first finding instead. Host identities are not checked here;
- * {@link validateDesignLineageBinding} does that.
- *
- * @param props.lineage Lineage record to validate.
- * @returns Success, or every violation found.
+ * validateDesignLineageBinding does that.
+ * Parameter props.lineage: Lineage record to validate.
+ * Returns: Success, or every violation found.
  */
 export function validateDesignLineage(
   props: IAutoMovieValidateDesignLineage.IProps,
@@ -392,7 +391,7 @@ export function validateDesignLineage(
   return out.toValidation();
 }
 
-/**
+/*
  * Every phase that must complete strictly before the given one, by a
  * breadth-first walk of `requires`. A prerequisite naming no phase is kept but
  * not walked: it is reported on its own path, and walking it further would only

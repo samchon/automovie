@@ -245,12 +245,11 @@ export namespace AutoMovieHumanLimbRootStrip {
     };
   }
 
-  /**
+  /*
    * The scale that gives a derivative a speed equal to a chord.
-   *
-   * @param chord The column's chord, mm.
-   * @param first The owner's first derivative there.
-   * @returns The scale, the chord itself where the derivative vanishes.
+   * Parameter chord: The column's chord, mm.
+   * Parameter first: The owner's first derivative there.
+   * Returns: The scale, the chord itself where the derivative vanishes.
    */
   function speed(chord: number, first: AutoMovieVector3Tuple): number {
     const f: number = Math.hypot(first[0], first[1], first[2]);
@@ -258,12 +257,11 @@ export namespace AutoMovieHumanLimbRootStrip {
     return f > 0 ? chord / f : chord;
   }
 
-  /**
+  /*
    * The distance between two points.
-   *
-   * @param a One point, mm.
-   * @param b The other, mm.
-   * @returns The distance, mm.
+   * Parameter a: One point, mm.
+   * Parameter b: The other, mm.
+   * Returns: The distance, mm.
    */
   function length(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
     return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);

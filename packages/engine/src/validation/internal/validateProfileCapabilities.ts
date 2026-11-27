@@ -6,7 +6,7 @@ import {
 
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 
-/**
+/*
  * Admit profile id/name uniqueness and mountable/destructible trait fields:
  * seats/payload, durability and impact-body coefficients.
  */
@@ -83,7 +83,7 @@ export function validateProfileCapabilities(
   return collector.toValidation();
 }
 
-/**
+/*
  * Reject an empty trimmed profile/trait label.
  *
  * Capability metadata shares one nonblank identity/name predicate.
@@ -113,7 +113,7 @@ const nonBlank: (
     collector.push("type", path, `${label} must be non-blank`, value);
 };
 
-/**
+/*
  * Report an already-seen string, then record it in the supplied set.
  *
  * The caller chooses profile-wide or per-profile trait scope.
@@ -147,7 +147,7 @@ const unique: (
   seen.add(value);
 };
 
-/**
+/*
  * Require finite positive capability mass/durability values.
  *
  * One scalar owner serves payload and destruction metadata.
@@ -182,7 +182,7 @@ const positive: (
     );
 };
 
-/**
+/*
  * Require finite coefficients in(0,1] as resolveImpact admits.
  *
  * The trait gate aligns its hardness/penetrability domain with the response
@@ -218,7 +218,7 @@ const unitPositive: (
     );
 };
 
-/**
+/*
  * Delegate a finite inclusive scalar interval to collector.range.
  *
  * The field owner supplies restitution's interval and this wrapper preserves
@@ -250,7 +250,7 @@ const bounded: (
   collector: IAutoMovieViolationCollector,
 ): void => collector.range(path, value, min, max, label);
 
-/**
+/*
  * Require an integer within inclusive supplied seat-count bounds.
  *
  * Mountable metadata owns1..1024 while the predicate owns integer admission.

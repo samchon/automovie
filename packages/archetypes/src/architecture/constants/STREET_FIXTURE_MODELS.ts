@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeUnits } from "../../core";
 import type { AutoMovieArchetypeStreetFixture } from "../AutoMovieArchetypeStreetFixture";
-/**
+/*
  * The figures each read model fixes, by kind and model, the default first: a
  * cone's height by its MUTCD class, 18 or 28 in (2009 MUTCD Section 6F.64,
  * https://mutcd.fhwa.dot.gov/htm/2009/part6/part6f.htm); a bollard's pipe and

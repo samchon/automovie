@@ -8,7 +8,7 @@ import type {
 import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
 import { preparePhysicalTargetSampler } from "./preparePhysicalTargetSampler";
 
-/**
+/*
  * Reuse admitted interval coefficients while retaining the original authored
  * interpolation clock and rate arithmetic. Mutable direct callers are checked
  * by the scalar-aware bone samplers.

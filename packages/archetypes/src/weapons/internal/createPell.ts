@@ -3,19 +3,18 @@ import { Vector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
-/**
+/*
  * A pell: the upright post a swordsman strikes in solo drill.
  *
  * The post stands on the ground at the origin. `target` is its `+Z` side, the
  * face a drill's cuts and thrusts are aimed at, as wide as the post and as
  * high; a site on it names a height, so a cut to the head and a cut to the leg
  * are two sites of one contact. `top` is the post's upper end.
- *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The pell.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * Parameter params: Any dimension the author fixes.
+ * Parameter seed: The seed that draws every dimension left free inside its band;
+ * absent, each takes the middle of its band.
+ * Returns: The pell.
+ * For a fixed dimension outside its band.
  */
 export function createPell(
   params: AutoMovieArchetypePell.IParams = {},

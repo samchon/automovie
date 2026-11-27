@@ -17,27 +17,27 @@ import { KickForm } from "./KickForm";
 import { StrikingReach } from "./StrikingReach";
 import { StrikingStance } from "./StrikingStance";
 
-/**
+/*
  * A kick's contact, decided on the figure itself: the carriage
- * ({@link KickCarriage}) under which the leg, solved from the hip the carriage
- * leaves it and fitted by the engine's limb fit ({@link KickChain}), lands its
+ * (KickCarriage) under which the leg, solved from the hip the carriage
+ * leaves it and fitted by the engine's limb fit (KickChain), lands its
  * weapon on the planned point with the support foot on its plant.
  *
  * The leans are tried from the least upward and the first that lands exactly
- * (weapon and support ball within {@link KickForm.TOLERANCE}) is the kick's;
+ * (weapon and support ball within KickForm.TOLERANCE) is the kick's;
  * when none does, the nearest of those whose weapon is on the point (within
- * {@link KickForm.RESIDUAL}) is, and only when no weapon is on the point the one
+ * KickForm.RESIDUAL) is, and only when no weapon is on the point the one
  * whose fitted leg comes nearest, which is the declared miss. Under each lean a
  * leg that falls short steps the support foot up along the line by what it
  * lacks, unless the step is given: first by the solve's gap, then by what the
  * fitted weapon still lacks toward the point, because the hip's range of motion
  * can leave the fitted leg shorter than the free solve promised. The step up
  * never brings the kicking hip nearer the point along the line than
- * {@link KickForm.STEP_ROOM_SHARE} of the thigh, where the knee would pass the
+ * KickForm.STEP_ROOM_SHARE of the thigh, where the knee would pass the
  * target. A leg jammed by a point closer than its flexion band's shortest reach
  * steps the support foot back by the difference instead, so the weapon it
  * declared lands, not the knee; a step back is no longer than the longest
- * backward step measured ({@link KickForm.STEP_BACK_SHARE}). A fitted weapon
+ * backward step measured (KickForm.STEP_BACK_SHARE). A fitted weapon
  * that the hip's range of motion leaves beyond the point (a high point too near
  * for the thigh to rise to) steps the support foot back by the excess in the
  * same rounds, and so does a fitted knee folded past the band (a `jammed` fit),
@@ -45,14 +45,13 @@ import { StrikingStance } from "./StrikingStance";
  * exactly, and one inside it ranks before a jammed one.
  */
 export namespace KickContact {
-  /**
+  /*
    * The body leans a kick tries, in order: the preferred lean first, then, for
    * a round kick, every lean from `LEAN_LEAST` to `LEAN_MOST` by `LEAN_STEP`,
    * and for a push kick upright.
-   *
-   * @param technique The kick.
-   * @param prefer The lean the last contact used, if any.
-   * @returns The leans, degrees.
+   * Parameter technique: The kick.
+   * Parameter prefer: The lean the last contact used, if any.
+   * Returns: The leans, degrees.
    */
   export function leans(
     technique: KickChain.IProps["technique"],
@@ -71,40 +70,47 @@ export namespace KickContact {
     return leans;
   }
 
-  /**
+  /*
    * The step's settling tolerance, metres: the limb solver's place tolerance
    * (`HumanArmTrajectoryTerms.TOLERANCE`, a millimetre).
    */
   export const TOLERANCE: number = HumanArmTrajectoryTerms.TOLERANCE / 1000;
 
-  /** A carriage with the leg fitted under it. */
+  /*
+   * A carriage with the leg fitted under it.
+   */
   export interface IContact {
-    /** The carriage. */
+    /*
+     * The carriage.
+     */
     carriage: IAutoMovieMotionHumanKickGeometry.ICarriage;
 
-    /** The body's posture at the contact under the carriage. */
+    /*
+     * The body's posture at the contact under the carriage.
+     */
     base: IAutoMovieMotionHumanPosture;
 
-    /** The fitted leg. */
+    /*
+     * The fitted leg.
+     */
     fit: KickChain.IFit;
   }
 
-  /**
+  /*
    * Choose a kick's carriage and fit its leg.
-   *
-   * @param props The body's carriage inputs.
-   * @param chain The kick's body, side, technique, line, travel and planned
-   *   point.
-   * @param set The carriage's turn and tip, which the contact does not choose,
-   *   and the pelvis drive a decided step goes with (none when absent).
-   * @param step The support foot's step-up when it is already decided, metres;
-   *   undefined lets a short leg step up.
-   * @param prefer A lean tried before the others, degrees: the lean of the plan
-   *   this one corrects, so a small correction keeps its carriage.
-   * @returns The contact.
-   * @throws {HumanRefusal} A `reach` refusal when the support step's search
-   *   travels the whole ground from a backward step to the forward room without
-   *   settling within `TOLERANCE`.
+   * Parameter props: The body's carriage inputs.
+   * Parameter chain: The kick's body, side, technique, line, travel and planned
+   * point.
+   * Parameter set: The carriage's turn and tip, which the contact does not choose,
+   * and the pelvis drive a decided step goes with (none when absent).
+   * Parameter step: The support foot's step-up when it is already decided, metres;
+   * undefined lets a short leg step up.
+   * Parameter prefer: A lean tried before the others, degrees: the lean of the plan
+   * this one corrects, so a small correction keeps its carriage.
+   * Returns: The contact.
+   * A `reach` refusal when the support step's search
+   * travels the whole ground from a backward step to the forward room without
+   * settling within `TOLERANCE`.
    */
   export function choose(
     props: KickCarriage.IProps,
@@ -344,38 +350,52 @@ export namespace KickContact {
     return best!;
   }
 
-  /**
+  /*
    * One candidate and the unchanged hip shared by its solve, refits and step
    * correction.
    */
   interface ITrial {
-    /** The candidate whose fitted weapon is measured. */
+    /*
+     * The candidate whose fitted weapon is measured.
+     */
     contact: IContact;
 
-    /** Its kicking hip on the candidate's exact body/base, world metres. */
+    /*
+     * Its kicking hip on the candidate's exact body/base, world metres.
+     */
     hip: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * The already-computed zero-step source, used only if that first trial keeps
    * exactly positive zero step.
    */
   interface ISource {
-    /** The exact same carriage's posture before the leg is fitted. */
+    /*
+     * The exact same carriage's posture before the leg is fitted.
+     */
     base: IAutoMovieMotionHumanPosture;
 
-    /** Its kicking hip, world metres. */
+    /*
+     * Its kicking hip, world metres.
+     */
     hip: IAutoMovieVector3;
 
-    /** The actual reach solve already made on that base. */
+    /*
+     * The actual reach solve already made on that base.
+     */
     solved: IAutoMovieMotionHumanStrikingReach.ISolution;
   }
 }
 
-/** The record of `IChooseSet`'s site. */
+/*
+ * The record of `IChooseSet`'s site.
+ */
 type IChooseSet = {
   drive?: number;
 };
 
-/** The alternatives of `ChooseSet`'s site. */
+/*
+ * The alternatives of `ChooseSet`'s site.
+ */
 type ChooseSet = "turn" | "pitch";

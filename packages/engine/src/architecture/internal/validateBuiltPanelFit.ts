@@ -15,7 +15,7 @@ import { Vector3 } from "../../math/Vector3";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { polygonInside } from "./polygonInside";
 
-/**
+/*
  * Refuse a closed leaf that does not fit the void it fills.
  *
  * The leaf is measured where it actually rests, every member at zero travel,
@@ -37,12 +37,11 @@ import { polygonInside } from "./polygonInside";
  * usable hull or a usable host face is skipped, because those defects are
  * reported on their own paths. Findings are pushed at each refused panel's
  * path.
- *
- * @param environment Building already free of validation errors.
- * @param root Violation path of the building record, `$input`.
- * @param faces Usable boundary faces by boundary id.
- * @param hulls Usable opening void hulls by opening index.
- * @param collector Sink that receives the violations.
+ * Parameter environment: Building already free of validation errors.
+ * Parameter root: Violation path of the building record, `$input`.
+ * Parameter faces: Usable boundary faces by boundary id.
+ * Parameter hulls: Usable opening void hulls by opening index.
+ * Parameter collector: Sink that receives the violations.
  */
 export function validateBuiltPanelFit(
   environment: IAutoMovieBuiltEnvironment,

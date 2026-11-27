@@ -7,11 +7,10 @@ import type {
 
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
-/**
+/*
  * The heading and turn a lying posture shows.
- *
- * @param posture The lying posture's tilt.
- * @returns Its supine heading and its turn in (-180, 180].
+ * Parameter posture: The lying posture's tilt.
+ * Returns: Its supine heading and its turn in (-180, 180].
  */
 export function lyingTurn(posture: Tilt): lyingTurn.ITurn {
   const rotation: IAutoMovieQuaternion = humanPostureHeading(posture);
@@ -37,7 +36,7 @@ export function lyingTurn(posture: Tilt): lyingTurn.ITurn {
   };
 }
 
-/**
+/*
  * A lying body's turn about its own long axis. A lying body is the supine one,
  * `Ry(yaw) Rx(-90)` (the head toward the heading's back, the chest up), turned
  * by `turn` degrees about its long axis, the root's `+Y`: `Ry(yaw) Rx(-90)
@@ -46,19 +45,25 @@ export function lyingTurn(posture: Tilt): lyingTurn.ITurn {
  * side; a log roll keeps adding turns.
  */
 export namespace lyingTurn {
-  /** A lying heading and turn. */
+  /*
+   * A lying heading and turn.
+   */
   export interface ITurn {
-    /** The supine heading, degrees: the head toward its back. */
+    /*
+     * The supine heading, degrees: the head toward its back.
+     */
     yaw: number;
 
-    /**
+    /*
      * The turn about the long axis, degrees: 0 supine, 90 on the left side, 180
      * prone, -90 on the right side.
      */
     turn: number;
   }
 
-  /** The named lying positions' turns, degrees. */
+  /*
+   * The named lying positions' turns, degrees.
+   */
   export const TURNS: Readonly<Record<TURNSEntryItem, number>> = {
     supine: 0,
     lateralLeft: 90,
@@ -66,11 +71,10 @@ export namespace lyingTurn {
     lateralRight: -90,
   };
 
-  /**
+  /*
    * The tilt of a heading and turn.
-   *
-   * @param turn The heading and the turn.
-   * @returns The posture's yaw, pitch and roll.
+   * Parameter turn: The heading and the turn.
+   * Returns: The posture's yaw, pitch and roll.
    */
   export function tilt(turn: ITurn): Tilt {
     return humanPostureHeading.angles(
@@ -85,10 +89,16 @@ export namespace lyingTurn {
   }
 }
 
-/** The alternatives of `Tilt2`'s site. */
+/*
+ * The alternatives of `Tilt2`'s site.
+ */
 type Tilt2 = "yaw" | "pitch" | "roll";
 
-/** A posture's whole-body tilt angles. */
+/*
+ * A posture's whole-body tilt angles.
+ */
 type Tilt = Pick<IAutoMovieMotionHumanPosture, Tilt2>;
-/** The alternatives of `TURNSEntryItem`'s site. */
+/*
+ * The alternatives of `TURNSEntryItem`'s site.
+ */
 type TURNSEntryItem = "supine" | "lateralLeft" | "prone" | "lateralRight";

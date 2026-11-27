@@ -11,7 +11,7 @@ import {
   type AutoMovieArchetypeRide,
 } from "../../core";
 
-/**
+/*
  * A lead laid from the halter to a held point away from the head: the lunge
  * line paid out to the handler at the circle's centre, or the lead tied to a
  * ring.
@@ -25,7 +25,7 @@ import {
  * is refused, as a line cannot stretch.
  */
 export namespace EquineLine {
-  /**
+  /*
    * The world point the line's held run is at, at a film second, given the
    * equid's sample there before the line is laid.
    */
@@ -34,17 +34,16 @@ export namespace EquineLine {
     sample: AutoMovieArchetypeRide.ISample<Id, D>,
   ) => IAutoMovieVector3;
 
-  /**
+  /*
    * Lay the lead to a held point.
-   *
-   * @param ride The equid's ride, its lead already on the model; lay the line
-   *   after any layer that moves the head's contacts.
-   * @param lead The lead's held-run contact.
-   * @param held Where the held run is at each film second.
-   * @param length The line's whole length, metres.
-   * @returns The ride with the line laid.
-   * @throws {AutoMovieArchetypeRefusal} At a sample whose held point is farther
-   *   from the halter than the line's length.
+   * Parameter ride: The equid's ride, its lead already on the model; lay the line
+   * after any layer that moves the head's contacts.
+   * Parameter lead: The lead's held-run contact.
+   * Parameter held: Where the held run is at each film second.
+   * Parameter length: The line's whole length, metres.
+   * Returns: The ride with the line laid.
+   * At a sample whose held point is farther
+   * from the halter than the line's length.
    */
   export function layer<Id extends string, D extends string>(
     ride: AutoMovieArchetypeRide.IRide<Id, D>,

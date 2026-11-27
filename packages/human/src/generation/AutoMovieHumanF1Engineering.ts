@@ -101,7 +101,7 @@ export namespace AutoMovieHumanF1Engineering {
     },
   });
 
-  /**
+  /*
    * Segment-length falsifiers: each long bone, the hand, the foot and the fingers' bones at 0.9 and 1.1 of F1's own
    * joint-centre length, one at a time and every limb length together. They are engineering ends of the length law
    * (`AutoMovieHumanF1NativeCourse`), not percentiles: ANSUR II women's acromion-radiale length is 311.2 mm with a
@@ -130,7 +130,9 @@ export namespace AutoMovieHumanF1Engineering {
     "footBreadth",
   ];
 
-  /** The length cases' fields by case id, each a copy of the base with the named lengths scaled. */
+  /*
+   * The length cases' fields by case id, each a copy of the base with the named lengths scaled.
+   */
   function lengthCases(base: IAutoMovieHumanF1NativeLaw.IFields): [string, IAutoMovieHumanF1NativeLaw.IFields][] {
     const out: [string, IAutoMovieHumanF1NativeLaw.IFields][] = [];
     for (const k of LENGTH_RATIOS) {
@@ -154,7 +156,9 @@ export namespace AutoMovieHumanF1Engineering {
     return out;
   }
 
-  /** One explicitly selected converter response, before any part or loft. */
+  /*
+   * One explicitly selected converter response, before any part or loft.
+   */
   function fieldsAt(
     base: IAutoMovieHumanF1NativeLaw.IFields,
     r: IAutoMovieHumanF1Engineering.IRatios,

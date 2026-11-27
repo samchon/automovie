@@ -13,11 +13,10 @@ import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { seated } from "../../everyday/internal/seated";
 import { HumanMount } from "./HumanMount";
 
-/**
+/*
  * The course's reader.
- *
- * @param c The climb.
- * @returns The frame at a second of the climb.
+ * Parameter c: The climb.
+ * Returns: The frame at a second of the climb.
  */
 export function HumanMountOnFrame(
   c: HumanMountOnFrame.IClimb,
@@ -99,7 +98,7 @@ export function HumanMountOnFrame(
   };
 }
 
-/**
+/*
  * The pelvis's and the trunk's course in getting onto a high seat
  * (`HumanMountOn`): the seat socket travels up from 10 % of the climb, passes
  * `HumanMount.HOP` above the seat and sets down on it at 80 %, the contact; it
@@ -110,61 +109,86 @@ export function HumanMountOnFrame(
  * legs climb.
  */
 export namespace HumanMountOnFrame {
-  /**
+  /*
    * Where the pelvis is at an instant of getting on: the root, the heading, the
    * pelvis pitch and the set joints.
    */
   export type Frame = Pick<IAutoMovieMotionHumanPosture, Frame2>;
 
-  /** The climb the course is read over. */
+  /*
+   * The climb the course is read over.
+   */
   export interface IClimb {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The seat. */
+    /*
+     * The seat.
+     */
     seat: IAutoMovieMotionHumanSeated.ISeat;
 
-    /** The seat socket where the climb starts, world metres. */
+    /*
+     * The seat socket where the climb starts, world metres.
+     */
     start: IAutoMovieVector3;
 
-    /** The seat socket on the seat, world metres. */
+    /*
+     * The seat socket on the seat, world metres.
+     */
     goal: IAutoMovieVector3;
 
-    /** The climb's seconds. */
+    /*
+     * The climb's seconds.
+     */
     climb: number;
 
-    /** How far above the seat the socket passes, metres. */
+    /*
+     * How far above the seat the socket passes, metres.
+     */
     hop: number;
 
-    /** The heading at the start, degrees. */
+    /*
+     * The heading at the start, degrees.
+     */
     yaw: number;
 
-    /** How far the pelvis turns onto the seat, degrees. */
+    /*
+     * How far the pelvis turns onto the seat, degrees.
+     */
     turn: number;
 
-    /** The seated pitch and joints the climb ends in. */
+    /*
+     * The seated pitch and joints the climb ends in.
+     */
     final: IFinal;
   }
 
-  /** The seated end a climb settles into. */
+  /*
+   * The seated end a climb settles into.
+   */
   export interface IFinal {
-    /** The seated trunk pitch, degrees. */
+    /*
+     * The seated trunk pitch, degrees.
+     */
     pitch: number;
 
-    /** The seated joints, clinical degrees. */
+    /*
+     * The seated joints, clinical degrees.
+     */
     joints: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
     >;
   }
 
-  /**
+  /*
    * The seconds the pelvis crosses to the seat over: late astride, after the
    * far leg has left the floor, to the contact at 80 % of the climb; from the
    * start onto a seat sat with the legs ahead.
-   *
-   * @param climb The climb's seconds.
-   * @param astride Whether the seat is sat astride.
-   * @returns The crossing's first and last seconds.
+   * Parameter climb: The climb's seconds.
+   * Parameter astride: Whether the seat is sat astride.
+   * Returns: The crossing's first and last seconds.
    */
   export function crossing(
     climb: number,
@@ -174,5 +198,7 @@ export namespace HumanMountOnFrame {
   }
 }
 
-/** The alternatives of `Frame2`'s site. */
+/*
+ * The alternatives of `Frame2`'s site.
+ */
 type Frame2 = "root" | "yaw" | "pitch" | "roll" | "joints";

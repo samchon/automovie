@@ -31,7 +31,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { touchHold } from "../../touch/internal/touchHold";
 import { clinch } from "./clinch";
 
-/**
+/*
  * The initiator's hands of a staged grapple laid on the partner as one arm
  * course (`courseArmGoal`): the reach from the entry's arm angles to the grip,
  * the grip held on the partner's named moving surface, and the return, planned
@@ -51,12 +51,11 @@ import { clinch } from "./clinch";
  * its neighbours (`touchHold.others`). The fingers take the grip's shape on the
  * same envelope. A course per sample was what let an arm flip its branch from
  * one instant to the next (the staged takes' 180-degree upper arm turns).
- *
- * @param props The scene's context, its floor plan, the gripped regions and the
- *   grip's clock.
- * @returns The floor plan with the hands laid on the partner.
- * @throws {HumanRefusal} When a gripping wrist would stand beyond the arm's
- *   reach on the hold, or no course meets the trajectory's constraints.
+ * Parameter props: The scene's context, its floor plan, the gripped regions and the
+ * grip's clock.
+ * Returns: The floor plan with the hands laid on the partner.
+ * When a gripping wrist would stand beyond the arm's
+ * reach on the hold, or no course meets the trajectory's constraints.
  */
 export function grappleArms(
   props: grappleArms.IProps,
@@ -319,26 +318,20 @@ export function grappleArms(
   return plan;
 }
 
-/** Companion types and constants of {@link grappleArms}. */
+/*
+ * Companion types and constants of grappleArms.
+ */
 export namespace grappleArms {
-  /**
+  /*
    * The return's end the planner's own answer asks for: when a course refuses
    * its duration with the least seconds the action needs at its pace, the
    * return (from `release` to `rest`) stretched by that ratio, kept within the
    * action; none for any other refusal, or one the stretch cannot meet.
-   *
-   * @param error What the course threw.
-   * @param duration The action's seconds.
-   * @param release The release, seconds since the start.
-   * @param rest The authored rest, seconds since the start.
-   * @returns The stretched rest, seconds since the start, or none.
-   * @evidence contracts/development/common.md#meaningful-documentation States which refusal is read, the stretch and when none is given.
-   * @evidence contracts/development/implementation.md#principled-implementation The planner states the uniform time stretch its path needs; the free phase takes that stretch.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One test of the refusal, one ratio.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Reads the planner's own feasible range; a return that cannot fit the scene is refused as before.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure reading of the refusal.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * Parameter error: What the course threw.
+   * Parameter duration: The action's seconds.
+   * Parameter release: The release, seconds since the start.
+   * Parameter rest: The authored rest, seconds since the start.
+   * Returns: The stretched rest, seconds since the start, or none.
    */
   export function stretched(
     error: unknown,
@@ -360,32 +353,40 @@ export namespace grappleArms {
       release + ((rest - release) * feasible.minimum) / duration;
     return end <= duration ? end : undefined;
   }
-  /**
+  /*
    * How far the shoulder throw's sleeve hand stands off the sleeve at the
    * middle of its release, in hand lengths (provisional).
    */
   export const SEPARATION: number = 0.55;
 
-  /** The scene's arms. */
+  /*
+   * The scene's arms.
+   */
   export interface IProps {
-    /** The initiator's context. */
+    /*
+     * The initiator's context.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGrapple.IParams>;
 
-    /** The floor plan, whose posture the hands are laid on. */
+    /*
+     * The floor plan, whose posture the hands are laid on.
+     */
     floor: IAutoMovieMotionHumanActionPlan;
 
-    /** The partner's region each gripping hand is laid on. */
+    /*
+     * The partner's region each gripping hand is laid on.
+     */
     regions: Readonly<
       Partial<Record<AutoMovieHumanSide, AutoMovieHumanoidRegion>>
     >;
 
-    /**
+    /*
      * The grip's clock: `reach`, `take`, `release` and `rest`, seconds since
      * the start.
      */
     clock: IAutoMovieMotionClock;
 
-    /**
+    /*
      * The hand that separates along the sleeve on the release; none when
      * absent.
      */

@@ -8,19 +8,18 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A thrown object's launch and the drag-free path it flies afterwards. Written
  * by the throw's plan (`throwObject`) and read by a catcher and the capture.
  */
 export namespace throwObjectLaunch {
-  /**
+  /*
    * The grip window that carries a thrown prop in the throwing hand from the
    * throw's start to its release; none for an empty-handed throw.
-   *
-   * @param prop The thrown prop, or undefined.
-   * @param side The throwing hand.
-   * @param release The release's share of the throw.
-   * @returns The window, or none.
+   * Parameter prop: The thrown prop, or undefined.
+   * Parameter side: The throwing hand.
+   * Parameter release: The release's share of the throw.
+   * Returns: The window, or none.
    */
   export function held(
     prop: string | undefined,
@@ -40,16 +39,15 @@ export namespace throwObjectLaunch {
         ];
   }
 
-  /**
+  /*
    * The launch a throw publishes for its prop (`IHumanActionPlan.launches`),
    * the same release point and velocity the catcher reads; none for an
    * empty-handed throw.
-   *
-   * @param prop The thrown prop, or undefined.
-   * @param attitude How it turns in flight; its release rotation kept when
-   *   absent.
-   * @param launch The throw's launch.
-   * @returns The published launches.
+   * Parameter prop: The thrown prop, or undefined.
+   * Parameter attitude: How it turns in flight; its release rotation kept when
+   * absent.
+   * Parameter launch: The throw's launch.
+   * Returns: The published launches.
    */
   export function launches(
     prop: string | undefined,
@@ -69,18 +67,17 @@ export namespace throwObjectLaunch {
         ];
   }
 
-  /**
+  /*
    * The launch velocity whose drag-free path from a release passes through a
    * target, rising at a given angle: the range equation solved for the speed,
    * `v^2 = g d^2 / (2 cos^2(a) (d tan(a) - h))` over the horizontal distance
    * `d` and the target's height `h` above the release.
-   *
-   * @param release The release point, world metres.
-   * @param target The target point, world metres.
-   * @param degrees The release's rise above the horizontal, degrees.
-   * @returns The velocity, world metres per second, or undefined when no path
-   *   at that angle reaches the target (it lies straight above, or above the
-   *   line the angle rises along).
+   * Parameter release: The release point, world metres.
+   * Parameter target: The target point, world metres.
+   * Parameter degrees: The release's rise above the horizontal, degrees.
+   * Returns: The velocity, world metres per second, or undefined when no path
+   * at that angle reaches the target (it lies straight above, or above the
+   * line the angle rises along).
    */
   export function aimed(
     release: IAutoMovieVector3,
@@ -103,12 +100,11 @@ export namespace throwObjectLaunch {
     };
   }
 
-  /**
+  /*
    * A point of a launch's drag-free path.
-   *
-   * @param launch The launch.
-   * @param seconds Seconds after the release.
-   * @returns World metres.
+   * Parameter launch: The launch.
+   * Parameter seconds: Seconds after the release.
+   * Returns: World metres.
    */
   export function path(
     launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch,

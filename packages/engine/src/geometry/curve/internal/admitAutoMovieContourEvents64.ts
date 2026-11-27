@@ -3,7 +3,7 @@ import type {
   IAutoMovieContourLoft64,
 } from "@automovie/interface";
 
-/**
+/*
  * Admit saved event addresses and quarantine defective incident declarations. A
  * missing saved bracket cannot be located and refuses globally. Within a known
  * bracket, invalid terminals, coordinates, incidence or names remain local

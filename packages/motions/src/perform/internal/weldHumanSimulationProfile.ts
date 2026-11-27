@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A performer's physical profile as a simulated window solves it: the segments
  * a reference humanoid gives no joint welded into the segment above them.
  *
@@ -27,9 +27,8 @@ import type {
  * inertia are the parallel-axis sum (`combinePhysicalMassProperties`). The
  * displayed welded bones keep the kinematic pose's articulation over the solved
  * carrier (`readHumanSimulatedPose`).
- *
- * @param profile The performer's profile.
- * @returns A fresh profile with the welds applied; the same total mass.
+ * Parameter profile: The performer's profile.
+ * Returns: A fresh profile with the welds applied; the same total mass.
  */
 export function weldHumanSimulationProfile(
   profile: IAutoMoviePhysicalProfile,
@@ -191,30 +190,32 @@ export function weldHumanSimulationProfile(
   };
 }
 
-/** Companion readers and types of {@link weldHumanSimulationProfile}. */
+/*
+ * Companion readers and types of weldHumanSimulationProfile.
+ */
 export namespace weldHumanSimulationProfile {
-  /** A collision exclusion of the solved profile. */
+  /*
+   * A collision exclusion of the solved profile.
+   */
   export type Exclusion = NonNullable<
     IAutoMoviePhysicalProfile["collisionExclusions"]
   >[number];
 
-  /**
+  /*
    * The id a welded segment's collider takes on its carrier: the welded bone's
    * name, a dot, and the collider's own id.
-   *
-   * @param bone The welded bone.
-   * @param shape The collider's id on that bone's segment.
-   * @returns The collider's id on the carrier.
+   * Parameter bone: The welded bone.
+   * Parameter shape: The collider's id on that bone's segment.
+   * Returns: The collider's id on the carrier.
    */
   export function shapeId(bone: string, shape: string): string {
     return `${bone}.${shape}`;
   }
 
-  /**
+  /*
    * The welded bone a carrier's collider came from, the inverse of `shapeId`.
-   *
-   * @param shape The collider's id on the carrier.
-   * @returns The welded bone's name, or null for the carrier's own collider.
+   * Parameter shape: The collider's id on the carrier.
+   * Returns: The welded bone's name, or null for the carrier's own collider.
    */
   export function rider(shape: string): string | null {
     const dot: number = shape.indexOf(".");
@@ -222,12 +223,10 @@ export namespace weldHumanSimulationProfile {
   }
 }
 
-/**
+/*
  * The roots of the subtrees welded into their parent segment: the MuJoCo
  * humanoid's jointless `hand_right`, `hand_left` and `head`, and the toes its
- * leaf feet do not have (`model/humanoid/humanoid.xml` @395129bb). The rig's
- * neck stands between the chest and the head, where MuJoCo's head rides the
- * torso directly, so the neck is the head's weld root.
+ * leaf feet do not have (`model/humanoid/humanoid.xml`
  */
 const WELDS: readonly string[] = [
   "leftHand",

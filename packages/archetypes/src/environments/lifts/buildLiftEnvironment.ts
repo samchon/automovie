@@ -22,10 +22,12 @@ import type { liftStopHeights } from "./internal/liftStopHeights";
 import { liftLandingSpace } from "./liftLandingSpace";
 import { liftShaftParts } from "./liftShaftParts";
 
-/** The two leaf affordances and their corresponding existing panel parts. */
+/*
+ * The two leaf affordances and their corresponding existing panel parts.
+ */
 const LEAVES: readonly ["leftDoor", "rightDoor"] = ["leftDoor", "rightDoor"];
 
-/**
+/*
  * Assemble the cab, hoistway and declared landings on a single lift axis. The
  * stock cab sets both door layers and the width of the boarding strips. Each
  * landing has a fixed call plate and a full bearing surface. The lift unit's
@@ -353,7 +355,9 @@ export function buildLiftEnvironment(
   };
 }
 
-/** Require an upright box part from the lift archetype, the geometry owner. */
+/*
+ * Require an upright box part from the lift archetype, the geometry owner.
+ */
 function boxPart(
   car: IAutoMovieModel,
   id: string,
@@ -377,7 +381,7 @@ function boxPart(
   };
 }
 
-/**
+/*
  * Assemble a rigid subset with its original materials and only its own
  * contacts.
  */
@@ -400,12 +404,16 @@ function isolated(
   };
 }
 
-/** Register a rigid model carrying a staged prop affordance. */
+/*
+ * Register a rigid model carrying a staged prop affordance.
+ */
 function asProp(model: IAutoMovieModel): IAutoMoviePropSpec {
   return { node: model.id, model, articulation: null };
 }
 
-/** Name one visible or grouping element in its parent's rigid frame. */
+/*
+ * Name one visible or grouping element in its parent's rigid frame.
+ */
 function element(
   id: string,
   kind: string,
@@ -424,7 +432,9 @@ function element(
   };
 }
 
-/** Create an XY outline in one wall's local metres. */
+/*
+ * Create an XY outline in one wall's local metres.
+ */
 function rectangle(
   left: number,
   bottom: number,
@@ -439,50 +449,68 @@ function rectangle(
   ];
 }
 
-/** The lift assembly's geometry input and portable result contracts. */
+/*
+ * The lift assembly's geometry input and portable result contracts.
+ */
 export namespace buildLiftEnvironment {
-  /**
+  /*
    * The placed lift and the resolved dimensions shared by its staged members.
    * The context supplies the rigid world frame. The car supplies its aperture
    * and contacts at the original scale, and the stops give the sill
    * elevations.
    */
   export interface IProps {
-    /** The upright module instance layout and ownership. */
+    /*
+     * The upright module instance layout and ownership.
+     */
     context: IAutoMovieEnvironmentModule.IContext;
 
-    /** The chosen car and its resolved aperture affordances. */
+    /*
+     * The chosen car and its resolved aperture affordances.
+     */
     car: ReturnType<typeof AutoMovieArchetypeElevator.create>;
 
-    /** Clear sill gap, metres. */
+    /*
+     * Clear sill gap, metres.
+     */
     gap: number;
 
-    /** Fixed landing depth beyond the gap, metres. */
+    /*
+     * Fixed landing depth beyond the gap, metres.
+     */
     landingDepth: number;
 
-    /** Local stop names and strictly increasing sill elevations. */
+    /*
+     * Local stop names and strictly increasing sill elevations.
+     */
     stops: readonly liftStopHeights.IStop[];
 
-    /** Door and cab state at film second zero. */
+    /*
+     * Door and cab state at film second zero.
+     */
     first: AutoMovieEnvironment.ILiftKey;
   }
 
-  /**
+  /*
    * Geometry, logical stations and current-state prop facts for one lift. Each
    * prop references its model in the design. Anchors locate fixed attachments
    * in world metres, and the object clip supplies cab motion.
    */
   export interface IResult {
-    /** Built design owning shaft, landings, and connector. */
+    /*
+     * Built design owning shaft, landings, and connector.
+     */
     environment: IAutoMovieBuiltEnvironment;
 
-    /**
+    /*
      * The fixed landing and moving cab support props, plus the fixed call
      * plates.
      */
     props: IAutoMoviePropSpec[];
 
-    /** World-space sill, call and approach points keyed by stop. */
+    /*
+     * World-space sill, call and approach points keyed by stop.
+     */
     anchors: Readonly<Record<string, IAutoMovieTransform>>;
   }
 }

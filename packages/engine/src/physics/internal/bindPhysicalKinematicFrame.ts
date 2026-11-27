@@ -20,7 +20,7 @@ import { physicalContactSupportGoals } from "./physicalContactSupportGoals";
 import { planPhysicalContactTargets } from "./planPhysicalContactTargets";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
-/**
+/*
  * Evaluate one frame's coupled and ordinary relationships against the same
  * pre-binding snapshot. Geometric receipts retain null impulse.
  */

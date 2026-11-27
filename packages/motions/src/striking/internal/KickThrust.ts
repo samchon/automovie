@@ -6,26 +6,30 @@ import type {
 
 import { KickForm } from "./KickForm";
 
-/**
+/*
  * A kicking leg as two segments from its hip, and the push kick's thrust: the
  * chamber with the knee lifted to the target's height and the ankle's straight
  * travel from it to the contact (`KickSwing` carries both by the body the leg
  * hangs from).
  */
 export namespace KickThrust {
-  /**
+  /*
    * A leg from its hip: the thigh to the knee and the shank to the ankle, world
    * metres.
    */
   export interface ILeg {
-    /** From the hip joint to the knee joint. */
+    /*
+     * From the hip joint to the knee joint.
+     */
     thigh: IAutoMovieVector3;
 
-    /** From the knee joint to the ankle joint. */
+    /*
+     * From the knee joint to the ankle joint.
+     */
     shank: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * The leg a hip holds on a planted ankle: the two-segment triangle, its knee
    * on the side of the knee the plant was read with (ahead of the body when
    * that knee lies on the hip-to-ankle line). A hip farther from the ankle than
@@ -67,7 +71,7 @@ export namespace KickThrust {
     return { thigh, shank: Vector3.subtract(reach, thigh) };
   }
 
-  /**
+  /*
    * A thrust's chamber, drawn from its contact leg in the pelvis's frame: the
    * thigh raised in the vertical plane of the contact's reach until the knee
    * stands at the contact ankle's height, at most `KickForm.PUSH_RAISE_MOST`
@@ -110,7 +114,7 @@ export namespace KickThrust {
     };
   }
 
-  /**
+  /*
    * The turn of a thrust's foot from its contact rotation while its shank still
    * points elsewhere than at the contact: the shank's own turn less what the
    * ankle takes up, `KickForm.PUSH_ANKLE_GIVE`. The sole so faces the target
@@ -119,10 +123,9 @@ export namespace KickThrust {
    * arrived toes first: measured on the staged lead push kick, the toe end of
    * the foot's capsule met the partner's trunk 13 ms before the contact, the
    * knee still folded 57.4 degrees.
-   *
-   * @param reached The contact leg's shank, in the pelvis's frame.
-   * @param carried The thrust's shank now, in the same frame.
-   * @returns The rotation to apply before the contact foot's rotation.
+   * Parameter reached: The contact leg's shank, in the pelvis's frame.
+   * Parameter carried: The thrust's shank now, in the same frame.
+   * Returns: The rotation to apply before the contact foot's rotation.
    */
   export function footed(
     reached: IAutoMovieVector3,
@@ -143,7 +146,7 @@ export namespace KickThrust {
         );
   }
 
-  /**
+  /*
    * A thrust's leg at a share of its extension: the ankle on the straight line
    * from the chamber's to the contact's, past the contact as far as the least
    * flexion lets the leg reach, and the knee by the two-segment triangle on the

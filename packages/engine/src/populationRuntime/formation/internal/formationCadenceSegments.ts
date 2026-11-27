@@ -5,7 +5,7 @@ import {
 
 import { ease } from "../../../motion/internal/ease";
 
-/**
+/*
  * Cut one unit's cue sequence over `[0, time]` into the intervals its cadence
  * is made of.
  *

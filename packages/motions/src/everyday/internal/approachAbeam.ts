@@ -1,16 +1,15 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * A waypoint that takes a straight leg round a point it would pass too near
  * (`approach`): abeam the point at the passing distance, on the side of the leg
  * the point already lies away from, or none when the leg passes clear or the
  * point lies beyond either end.
- *
- * @param from The leg's start, floor metres.
- * @param to The leg's end.
- * @param point The point to pass.
- * @param pass The least passing distance, metres.
- * @returns The waypoint on the floor, or undefined.
+ * Parameter from: The leg's start, floor metres.
+ * Parameter to: The leg's end.
+ * Parameter point: The point to pass.
+ * Parameter pass: The least passing distance, metres.
+ * Returns: The waypoint on the floor, or undefined.
  */
 export function approachAbeam(
   from: IAutoMovieVector3,

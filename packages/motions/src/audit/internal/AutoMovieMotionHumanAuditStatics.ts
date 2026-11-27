@@ -5,7 +5,7 @@ import { HumanContactWindow } from "../../law/internal/HumanContactWindow";
 import { HumanSupportPatch } from "../../posture/internal/HumanSupportPatch";
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
-/**
+/*
  * Whether the loads a motion declares on its contacts can hold the body still.
  * A still body's support forces balance its weight along the weight's line of
  * action, so their resultant passes through the point under the centre of mass
@@ -27,23 +27,22 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * ω0`), so a moving centre's own lead cannot pass for a static error.
  */
 export namespace AutoMovieMotionHumanAuditStatics {
-  /**
+  /*
    * The bound on the reading, as a share of stature: 2 % (the
    * motion-dynamics-core campaign's acceptance).
    */
   export const SHARE: number = 0.02;
 
-  /**
+  /*
    * The worst horizontal distance by which the centre of mass lies outside the
    * load-weighted region of the contact patches, over the held instants with
    * declared loads.
-   *
-   * @param motion The motion.
-   * @param subject The person.
-   * @param body Their body.
-   * @param rate Grid samples per second.
-   * @returns Metres (zero when nothing is read or nothing lies outside), with
-   *   the windows and the second.
+   * Parameter motion: The motion.
+   * Parameter subject: The person.
+   * Parameter body: Their body.
+   * Parameter rate: Grid samples per second.
+   * Returns: Metres (zero when nothing is read or nothing lies outside), with
+   * the windows and the second.
    */
   export function measure(
     motion: IAutoMovieMotionHumanAuditMotion,
@@ -132,13 +131,12 @@ export namespace AutoMovieMotionHumanAuditStatics {
     return worst;
   }
 
-  /**
+  /*
    * The bearing windows open at an instant: those of a kind that bears the body
    * (`HumanContactWindow.BEARING`), or of any kind with a declared load.
-   *
-   * @param windows The person's windows, film seconds.
-   * @param seconds Film seconds.
-   * @returns The open bearing windows.
+   * Parameter windows: The person's windows, film seconds.
+   * Parameter seconds: Film seconds.
+   * Returns: The open bearing windows.
    */
   export function bearing(
     windows: readonly IAutoMovieMotionHumanAuditMotion.IWindow[],
@@ -153,37 +151,34 @@ export namespace AutoMovieMotionHumanAuditStatics {
     );
   }
 
-  /**
+  /*
    * A window's contact point on displayed bones: its region's point, or its
    * part's default region's.
-   *
-   * @param body The body.
-   * @param bones The displayed bones.
-   * @param contact The window.
-   * @returns World metres.
+   * Parameter body: The body.
+   * Parameter bones: The displayed bones.
+   * Parameter contact: The window.
+   * Returns: World metres.
    */
   export const point: typeof HumanSupportPatch.point = HumanSupportPatch.point;
 
-  /**
+  /*
    * The corners of a window's contact patch: a foot's bearing sole outline when
    * the window names no other region, otherwise its contact point.
-   *
-   * @param body The body.
-   * @param bones The displayed bones.
-   * @param contact The window.
-   * @returns World metres.
+   * Parameter body: The body.
+   * Parameter bones: The displayed bones.
+   * Parameter contact: The window.
+   * Returns: World metres.
    */
   export const patch: typeof HumanSupportPatch = HumanSupportPatch;
 
-  /**
+  /*
    * The load-weighted Minkowski sum of the open windows' patches, the shares
    * normalized to sum to one: the hull of the weighted sums of their corners,
    * folded one window at a time.
-   *
-   * @param body The body.
-   * @param bones The displayed bones.
-   * @param open The open windows, each with a load, at least one positive.
-   * @returns The region's corners, world metres.
+   * Parameter body: The body.
+   * Parameter bones: The displayed bones.
+   * Parameter open: The open windows, each with a load, at least one positive.
+   * Returns: The region's corners, world metres.
    */
   function region(
     body: IAutoMovieMotionHumanBody,

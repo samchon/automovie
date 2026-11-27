@@ -7,7 +7,7 @@ import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 import { AUTOMOVIE_PROCEDURAL_NOISE_GLSL } from "../../AUTOMOVIE_PROCEDURAL_NOISE_GLSL.js";
 import { proceduralPatternGlsl } from "./proceduralPatternGlsl.js";
 
-/**
+/*
  * Shade a material from an admitted procedural surface, evaluating the engine's
  * `AutoMovieEngineMaterial.sampleProceduralSurface` per fragment through one
  * material shader patch.

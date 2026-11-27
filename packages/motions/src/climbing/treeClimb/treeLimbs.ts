@@ -9,7 +9,7 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * A climbable tree read from its affordances in world metres: the bole as a
  * vertical bar and each lower branch as a level bar with its astride seat. A
  * branch's load limit falls off with the distance from its root as a
@@ -17,61 +17,88 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * out, scaled by that half length over the distance.
  */
 export namespace treeLimbs {
-  /** The bole. */
+  /*
+   * The bole.
+   */
   export interface IBole {
-    /** The axis at the ground, world metres. */
+    /*
+     * The axis at the ground, world metres.
+     */
     foot: IAutoMovieVector3;
 
-    /** The radius, metres. */
+    /*
+     * The radius, metres.
+     */
     radius: number;
   }
 
-  /** One lower branch. */
+  /*
+   * One lower branch.
+   */
   export interface IBranch {
-    /** Its index from the lowest. */
+    /*
+     * Its index from the lowest.
+     */
     index: number;
 
-    /** The axis at the trunk face, world metres. */
+    /*
+     * The axis at the trunk face, world metres.
+     */
     root: IAutoMovieVector3;
 
-    /** Unit direction out along it. */
+    /*
+     * Unit direction out along it.
+     */
     direction: IAutoMovieVector3;
 
-    /** Length from the trunk face, metres. */
+    /*
+     * Length from the trunk face, metres.
+     */
     length: number;
 
-    /** Radius, metres. */
+    /*
+     * Radius, metres.
+     */
     radius: number;
 
-    /**
+    /*
      * The load it bears half its length out, newtons; unbounded when the tree
      * states none.
      */
     load: number;
 
-    /** The astride seat on its top, world metres. */
+    /*
+     * The astride seat on its top, world metres.
+     */
     seat: IAutoMovieVector3;
   }
 
-  /** A tree. */
+  /*
+   * A tree.
+   */
   export interface ITree {
-    /** The prop's subject. */
+    /*
+     * The prop's subject.
+     */
     subject: string;
 
-    /** The bole. */
+    /*
+     * The bole.
+     */
     bole: IBole;
 
-    /** The branches, lowest first. */
+    /*
+     * The branches, lowest first.
+     */
     branches: IBranch[];
   }
 
-  /**
+  /*
    * Read a tree.
-   *
-   * @param context The action's context.
-   * @param subject The tree prop.
-   * @returns The tree.
-   * @throws {HumanRefusal} If the prop moves or has no bole and branches.
+   * Parameter context: The action's context.
+   * Parameter subject: The tree prop.
+   * Returns: The tree.
+   * If the prop moves or has no bole and branches.
    */
   export function read(
     context: IAutoMovieMotionHumanActionContext,
@@ -145,14 +172,13 @@ export namespace treeLimbs {
     };
   }
 
-  /**
+  /*
    * A branch's axis point a distance out from the trunk face, lifted by a share
    * of its radius.
-   *
-   * @param branch The branch.
-   * @param out Metres from the trunk face.
-   * @param lift Radii above the axis: 0 for a grip, 1 for a foot on top.
-   * @returns The point, world metres.
+   * Parameter branch: The branch.
+   * Parameter out: Metres from the trunk face.
+   * Parameter lift: Radii above the axis: 0 for a grip, 1 for a foot on top.
+   * Returns: The point, world metres.
    */
   export function on(
     branch: IBranch,
@@ -168,15 +194,14 @@ export namespace treeLimbs {
     );
   }
 
-  /**
+  /*
    * A point on the bole's surface at a height, toward a horizontal direction,
    * slid sideways.
-   *
-   * @param tree The tree.
-   * @param height Metres above the bole's foot.
-   * @param toward Unit horizontal direction from the axis to the face.
-   * @param aside Metres along the face, to the right of `toward`.
-   * @returns The point, world metres.
+   * Parameter tree: The tree.
+   * Parameter height: Metres above the bole's foot.
+   * Parameter toward: Unit horizontal direction from the axis to the face.
+   * Parameter aside: Metres along the face, to the right of `toward`.
+   * Returns: The point, world metres.
    */
   export function face(
     tree: ITree,
@@ -196,24 +221,22 @@ export namespace treeLimbs {
     );
   }
 
-  /**
+  /*
    * The load a branch bears a distance from its root.
-   *
-   * @param branch The branch.
-   * @param out Metres from the trunk face.
-   * @returns Newtons.
+   * Parameter branch: The branch.
+   * Parameter out: Metres from the trunk face.
+   * Returns: Newtons.
    */
   export function limit(branch: IBranch, out: number): number {
     return (branch.load * (branch.length / 2)) / Math.max(0.05, out);
   }
 
-  /**
+  /*
    * The tree climb's refusal.
-   *
-   * @param axis The refused parameter's path.
-   * @param value The refused value.
-   * @param reason Why it is refused.
-   * @returns The refusal to throw.
+   * Parameter axis: The refused parameter's path.
+   * Parameter value: The refused value.
+   * Parameter reason: Why it is refused.
+   * Returns: The refusal to throw.
    */
   export function refusal(
     axis: string,

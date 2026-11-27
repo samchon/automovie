@@ -21,7 +21,7 @@ import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { seated } from "./seated";
 import { sitPlace } from "./sitPlace";
 
-/**
+/*
  * A fixed work seat may need a short stance adjustment before lowering. Find
  * where the ankles' sagittal reach intervals overlap at the seat, then use two
  * flat-to-flat gait swings to move the feet to the closest admissible stance.
@@ -224,22 +224,16 @@ export function prepareSitWorkingFeet(
   }
 }
 
-/** The fixed work seat's foot preparation and its timing composition. */
+/*
+ * The fixed work seat's foot preparation and its timing composition.
+ */
 export namespace prepareSitWorkingFeet {
-  /**
+  /*
    * Prepend the working feet's steps while preserving the descent's relative
    * times.
-   *
-   * @param prefix The two steps onto the final deck footprints.
-   * @param lowering The original sit descent and its seat-contact windows.
-   * @returns The two phases in one sit plan.
-   * @evidence contracts/development/common.md#meaningful-documentation States the plans on each side of the join and the output.
-   * @evidence contracts/development/implementation.md#principled-implementation Shifts the descent's clock to the end of the steps and applies that same shift to the actual contact windows.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One clock offset and one reader choosing the current phase.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No stance intervals or descent event shares are dropped.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One preparation pass over events and contacts, then one phase read per frame.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Each phase keeps its own composed evaluator and the caller's FK loan passes only to the requested phase.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the two actual plans and their mapped windows remain.
+   * Parameter prefix: The two steps onto the final deck footprints.
+   * Parameter lowering: The original sit descent and its seat-contact windows.
+   * Returns: The two phases in one sit plan.
    */
   export function prepend(
     prefix: IAutoMovieMotionHumanActionPlan,
@@ -281,7 +275,9 @@ export namespace prepareSitWorkingFeet {
 
 type Feet = Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
-/** Inclusive bounds of a sagittal ankle displacement in metres. */
+/*
+ * Inclusive bounds of a sagittal ankle displacement in metres.
+ */
 type AutoMovieFootShift = readonly [number, number];
 
 interface IWorkingFeet {

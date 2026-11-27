@@ -8,16 +8,15 @@ import { AutoMovieArchetypeFrame } from "../AutoMovieArchetypeFrame";
 import { AutoMovieArchetypeRefusal } from "../AutoMovieArchetypeRefusal";
 import type { AutoMovieArchetypeSpan } from "../AutoMovieArchetypeSpan";
 
-/**
+/*
  * Bind a model-space construction point to the part already built.
- *
- * @param archetype Producer identity used by a missing-part refusal.
- * @param parts Current builder parts, with unit-scale rigid transforms.
- * @param id The real part carrying the anchor.
- * @param point Construction point in model metres.
- * @returns A part-local span endpoint derived from that part frame.
- * @throws {AutoMovieArchetypeRefusal} For a missing carrier, nonfinite point or
- *   non-rigid frame.
+ * Parameter archetype: Producer identity used by a missing-part refusal.
+ * Parameter parts: Current builder parts, with unit-scale rigid transforms.
+ * Parameter id: The real part carrying the anchor.
+ * Parameter point: Construction point in model metres.
+ * Returns: A part-local span endpoint derived from that part frame.
+ * For a missing carrier, nonfinite point or
+ * non-rigid frame.
  */
 export function archetypeSpanAnchor(
   archetype: string,

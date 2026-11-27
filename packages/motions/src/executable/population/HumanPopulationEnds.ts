@@ -2,70 +2,96 @@ import { HumanPopulationAnchors } from "./HumanPopulationAnchors";
 import { HumanPopulationConditional } from "./HumanPopulationConditional";
 import { HumanPopulationSurvey } from "./HumanPopulationSurvey";
 
-/**
+/*
  * The population ends and the measures they take: drivers held at their 1st or
  * 99th percentile, every other measure conditioned on them and held inside its
  * bounds.
  */
 export namespace HumanPopulationEnds {
-  /**
+  /*
    * Measures a population end holds at a standard deviate; every other measure
    * takes its conditional mean.
    */
   export interface IDrivers {
-    /** Stature. */
+    /*
+     * Stature.
+     */
     stature?: number;
 
-    /** Body-mass index, at the person's stature. */
+    /*
+     * Body-mass index, at the person's stature.
+     */
     bmi?: number;
 
-    /** Flexed biceps girth given stature and mass: the muscle the mass carries. */
+    /*
+     * Flexed biceps girth given stature and mass: the muscle the mass carries.
+     */
     muscle?: number;
 
-    /** Crotch height given stature: leg length. */
+    /*
+     * Crotch height given stature: leg length.
+     */
     crotchHeight?: number;
 
-    /** Biacromial breadth given stature and mass: the skeleton's breadth. */
+    /*
+     * Biacromial breadth given stature and mass: the skeleton's breadth.
+     */
     biacromial?: number;
 
-    /**
+    /*
      * Upper-arm length (acromion to radiale) given stature and the drivers
      * before it: arm length at a given stature.
      */
     arm?: number;
 
-    /** Hand length given stature and the drivers before it. */
+    /*
+     * Hand length given stature and the drivers before it.
+     */
     hand?: number;
 
-    /** Foot length given stature and the drivers before it. */
+    /*
+     * Foot length given stature and the drivers before it.
+     */
     foot?: number;
 
-    /** Head length. */
+    /*
+     * Head length.
+     */
     headLength?: number;
 
-    /** Head breadth. */
+    /*
+     * Head breadth.
+     */
     headBreadth?: number;
   }
 
-  /** One population end. */
+  /*
+   * One population end.
+   */
   export interface IEnd {
-    /** Name in findings. */
+    /*
+     * Name in findings.
+     */
     name: string;
 
-    /** The sex whose statistics build it. */
+    /*
+     * The sex whose statistics build it.
+     */
     sex: Sex;
 
-    /**
+    /*
      * Whether every default test run reads it; the rest run under the extended
      * set.
      */
     core: boolean;
 
-    /** The measures held at their ends. */
+    /*
+     * The measures held at their ends.
+     */
     drivers: IDrivers;
   }
 
-  /**
+  /*
    * The ends, per sex: stature, mass, muscle, leg length, shoulder breadth,
    * arm, hand and foot length and head length and breadth, each alone at its
    * 1st and 99th percentile (the limb, hand and foot lengths given stature, so
@@ -124,16 +150,15 @@ export namespace HumanPopulationEnds {
     },
   );
 
-  /**
+  /*
    * An end's value of every measure: its drivers fixed in order, every other
    * measure at its conditional mean.
    *
    * A conditional mean past a bound (the declared domain of the input it
    * becomes, or the surveyed extreme) is held at that bound and the rest
    * conditioned on it, so the person stays inside both and stays one body.
-   *
-   * @param end The end.
-   * @returns Every surveyed measure of the end.
+   * Parameter end: The end.
+   * Returns: Every surveyed measure of the end.
    */
   export function measures(end: IEnd): Record<Variable, number> {
     const sex: Sex = end.sex;
@@ -199,13 +224,12 @@ export namespace HumanPopulationEnds {
     }
   }
 
-  /**
+  /*
    * Each measure's bounds for a sex: the surveyed extremes, narrowed by the
    * declared domain of the body control the measure becomes, directly or
    * through its anchor ratio.
-   *
-   * @param sex The surveyed sex.
-   * @returns `[measure index, least, greatest]` for every measure.
+   * Parameter sex: The surveyed sex.
+   * Returns: `[measure index, least, greatest]` for every measure.
    */
   export function limits(sex: Sex): [number, number, number][] {
     const t: HumanPopulationSurvey.ISurvey = HumanPopulationSurvey.SURVEY[sex];

@@ -12,30 +12,29 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import type { StrikingWeapon } from "./StrikingWeapon";
 
-/**
+/*
  * Fit one actual striking course and read its fixed limb endpoint bones. The
  * fixed requested-name reader is the caller's, prepared once with its plan's
  * chain (`StrikingWeapon.frames`), or prepared for this call alone; each pose,
  * course evaluation, genuine unchanged-table ROM loan and exact FK workspace
  * belongs to this call.
- *
- * @param body The unchanged canonical body, reusable across actors only as rig
- *   metadata.
- * @param course The actual current action's free course.
- * @param seconds Its exact film second under the consumer's current context.
- * @param requested One of StrikingWeapon's four private immutable limb output
- *   sets.
- * @param channels Optional proven observational course demand, omitted for
- *   arms.
- * @param near Each limb's fit of a neighbouring second of the same course to
- *   continue (`StrikingWeaponTable`); absent, every limb is solved cold. A
- *   continued resolve fits every limb, as the resolver's own rule for a
- *   continuation asks.
- * @param kept Receives the seeds this second's fits were chosen at, for the
- *   next second's continuation.
- * @param prepared The requested set's endpoint reader the plan prepared for its
- *   chain; prepared here when absent.
- * @returns Fresh actual endpoint bone frames at this invocation's pose.
+ * Parameter body: The unchanged canonical body, reusable across actors only as rig
+ * metadata.
+ * Parameter course: The actual current action's free course.
+ * Parameter seconds: Its exact film second under the consumer's current context.
+ * Parameter requested: One of StrikingWeapon's four private immutable limb output
+ * sets.
+ * Parameter channels: Optional proven observational course demand, omitted for
+ * arms.
+ * Parameter near: Each limb's fit of a neighbouring second of the same course to
+ * continue (`StrikingWeaponTable`); absent, every limb is solved cold. A
+ * continued resolve fits every limb, as the resolver's own rule for a
+ * continuation asks.
+ * Parameter kept: Receives the seeds this second's fits were chosen at, for the
+ * next second's continuation.
+ * Parameter prepared: The requested set's endpoint reader the plan prepared for its
+ * chain; prepared here when absent.
+ * Returns: Fresh actual endpoint bone frames at this invocation's pose.
  */
 export function StrikingWeaponBones(
   body: IAutoMovieMotionHumanBody,

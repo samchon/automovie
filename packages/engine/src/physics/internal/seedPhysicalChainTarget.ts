@@ -13,7 +13,7 @@ import { Vector3 } from "../../math/Vector3";
 import { physicalJointPoint } from "./physicalJointPoint";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
-/**
+/*
  * Seed a straight-chain singularity with the shared triangle solver, through
  * bounded coordinates only.
  */
@@ -147,12 +147,14 @@ export function seedPhysicalChainTarget(
   );
   if (tip && originalTip) fit(tip, originalTip);
 
-  /** Resolve actual anchors, including off-centre primitive origins. */
+  /*
+   * Resolve actual anchors, including off-centre primitive origins.
+   */
   function point(bone: string): IAutoMovieVector3 {
     return physicalJointPoint(input.profile, bone, input.targets);
   }
 
-  /**
+  /*
    * Project the analytic orientation through only the declared bounded motor
    * axes.
    */

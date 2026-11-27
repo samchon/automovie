@@ -17,7 +17,7 @@ import { RecoveryChartLeafControls as K } from "./RecoveryChartLeafControls";
 import { RecoveryChartRefinementClosure as E } from "./RecoveryChartRefinementClosure";
 import { prepareRecoveryChartLeafBoundary } from "../../geometry/internal/prepareRecoveryChartLeafBoundary";
 
-/**
+/*
  * Fit a boundary collar with affine hanging-control constraints against private
  * PL observations. Each leaf is an axis-aligned UV rectangle, so clipping and
  * local coordinates preserve the physical-area polynomial objective. Adaptive

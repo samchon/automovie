@@ -1,4 +1,4 @@
-/**
+/*
  * Refuse a gradient-noise coordinate that is not finite or whose finest lattice
  * coordinate leaves the noise's domain bound.
  *
@@ -7,12 +7,11 @@
  * indices, so the noise is defined on a bounded lattice. The caller names the
  * coordinate, so the refusal says which input left the domain instead of
  * letting the stream refuse an index the author never wrote.
- *
- * @param name The coordinate's parameter name, such as `x`.
- * @param value The coordinate as given, in lattice units of the first octave.
- * @param scale The finest octave's frequency multiple, 1 for one octave.
- * @param bound The largest admitted finest lattice coordinate magnitude, cells.
- * @throws {Error} When `value` is not finite or `|value * scale| > bound`.
+ * Parameter name: The coordinate's parameter name, such as `x`.
+ * Parameter value: The coordinate as given, in lattice units of the first octave.
+ * Parameter scale: The finest octave's frequency multiple, 1 for one octave.
+ * Parameter bound: The largest admitted finest lattice coordinate magnitude, cells.
+ * When `value` is not finite or `|value * scale| > bound`.
  */
 export function admitAutoMovieNoiseCoordinate(
   name: string,

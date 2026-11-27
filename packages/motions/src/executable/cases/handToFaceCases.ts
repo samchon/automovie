@@ -21,7 +21,7 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the hand-to-face tasks on the polygon man, one per task,
  * standing from quiet standing with the right hand.
  *
@@ -40,9 +40,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  * - Reading: the sheet between 17.5 and 58 cm from the eyes (Bababekova et al.
  *   2011's range for text) and the neck's and head's flexion from the upright
  *   entry between 33 and 45 degrees at `atSheet` (Lee et al. 2015).
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function handToFaceCases(
   bodies: readonly string[] = ["m-average"],
@@ -226,7 +225,9 @@ export function handToFaceCases(
   return out;
 }
 
-/** A performance of one polygon man standing at the origin heading +Z. */
+/*
+ * A performance of one polygon man standing at the origin heading +Z.
+ */
 function perform(
   body: IAutoMovieMotionHumanBody,
   chain: IAutoMovieMotionHumanChain,

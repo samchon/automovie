@@ -25,7 +25,7 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the self-directed body actions on one polygon man standing
  * from quiet standing.
  *
@@ -43,9 +43,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  * times, and the forearm never deeper than 10 mm into the rest of the body. The
  * stretch and victory rows check both wrists above the crown at `stroke`; the
  * fist pump checks three drops of the fist.
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function selfCases(
   bodies: readonly string[] = ["m-average"],
@@ -303,7 +302,9 @@ export function selfCases(
   return out;
 }
 
-/** A performance of one polygon man standing at the origin heading +Z. */
+/*
+ * A performance of one polygon man standing at the origin heading +Z.
+ */
 function perform(
   body: IAutoMovieMotionHumanBody,
   chain: IAutoMovieMotionHumanChain,

@@ -18,10 +18,12 @@ import { AutoMovieArchetypeEquineStance } from "./AutoMovieArchetypeEquineStance
 import type { AutoMovieArchetypeEquineStanceCue } from "./AutoMovieArchetypeEquineStanceCue";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
-/** How long a struck horse's response lasts, seconds, and its ease: authored. */
+/*
+ * How long a struck horse's response lasts, seconds, and its ease: authored.
+ */
 const RESPONSE: Readonly<IResponse> = { seconds: 1.2, ease: 0.2 };
 
-/**
+/*
  * Each region's bar and the share along it, from the bar's start, of its aimed
  * point.
  */
@@ -35,7 +37,7 @@ const REGIONS: Readonly<
   hindquarters: { bar: "hindquarters", along: 0.5 },
 };
 
-/**
+/*
  * Closed-form passes refining a bite's target and the poll the reach will put
  * above it: authored.
  */
@@ -212,7 +214,9 @@ export namespace AutoMovieArchetypeEquineEncounter {
     return [stagedOf(0), stagedOf(1)];
   }
 
-  /** A ride followed by its retreat from the retreat's start second. */
+  /*
+   * A ride followed by its retreat from the retreat's start second.
+   */
   function retreated<Id extends string, D extends string>(
     ride: AutoMovieArchetypeRide.IRide<Id, D>,
     retreat: AutoMovieArchetypeEquineEncounterCue.IRetreat<Id, D> | undefined,
@@ -247,7 +251,7 @@ export namespace AutoMovieArchetypeEquineEncounter {
     };
   }
 
-  /**
+  /*
    * Where a hoof's endpoint goes to touch a region of the other horse, and the
    * surface's outward normal, both in the attacker's halted base model space.
    */
@@ -274,7 +278,7 @@ export namespace AutoMovieArchetypeEquineEncounter {
     };
   }
 
-  /**
+  /*
    * Where a bite's muzzle goes on a region so the head meets the surface
    * end-on.
    *
@@ -325,7 +329,7 @@ export namespace AutoMovieArchetypeEquineEncounter {
     return target;
   }
 
-  /**
+  /*
    * A region's surface point facing a world point, on a sample's bar: at the
    * region's share along the bar, or, when `facing`, at the foot of the
    * perpendicular from the point onto the bar (kept within its middle), so an
@@ -371,7 +375,9 @@ export namespace AutoMovieArchetypeEquineEncounter {
     };
   }
 
-  /** A part's world centre in a sample. */
+  /*
+   * A part's world centre in a sample.
+   */
   function center<Id extends string, D extends string>(
     sample: AutoMovieArchetypeRide.ISample<Id, D>,
     id: string,
@@ -383,7 +389,9 @@ export namespace AutoMovieArchetypeEquineEncounter {
     );
   }
 
-  /** A bar part's ends and radius in model space. */
+  /*
+   * A bar part's ends and radius in model space.
+   */
   function bar<Id extends string, D extends string>(
     model: AutoMovieArchetype<Id, D>,
     id: string,
@@ -414,21 +422,33 @@ export namespace AutoMovieArchetypeEquineEncounter {
   }
 }
 
-/** A struck horse's authored response. */
+/*
+ * A struck horse's authored response.
+ */
 interface IResponse {
-  /** Seconds it lasts. */
+  /*
+   * Seconds it lasts.
+   */
   seconds: number;
 
-  /** Seconds of its ease in and out. */
+  /*
+   * Seconds of its ease in and out.
+   */
   ease: number;
 }
 
-/** Where a region is on the body. */
+/*
+ * Where a region is on the body.
+ */
 interface IRegion {
-  /** The bar it lies on. */
+  /*
+   * The bar it lies on.
+   */
   bar: AutoMovieArchetypeQuadrupedBody.Bone;
 
-  /** The share along the bar, from its start. */
+  /*
+   * The share along the bar, from its start.
+   */
   along: number;
 }
 
@@ -456,5 +476,7 @@ interface IBar {
   radius: number;
 }
 
-/** A named instant of a ride. */
+/*
+ * A named instant of a ride.
+ */
 type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

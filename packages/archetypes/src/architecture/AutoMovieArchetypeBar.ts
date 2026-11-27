@@ -10,11 +10,15 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** The gymnastics apparatus norms. */
+/*
+ * The gymnastics apparatus norms.
+ */
 const FIG: string =
   "FIG Apparatus Norms (March 2021), MAG 6 section 2.1 (https://www.gymnasticsontario.ca/download/523/fig-technical-documents-resources/49077/fig-apparatus-norms-en-march-2021.pdf)";
 
-/** The accessibility standard's grab bar and handrail clauses. */
+/*
+ * The accessibility standard's grab bar and handrail clauses.
+ */
 const ADA: string = "2010 ADA Standards (https://www.access-board.gov/ada/)";
 /** Creates a deterministic bar fixture and exposes its construction parameters. */
 export namespace AutoMovieArchetypeBar {

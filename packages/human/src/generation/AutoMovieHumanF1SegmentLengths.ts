@@ -24,10 +24,14 @@ import type {
  */
 export namespace AutoMovieHumanF1SegmentLengths {
 
-  /** The fingers and their segment prefixes; the thumb's bones are its metacarpal's, proximal's and distal's. */
+  /*
+   * The fingers and their segment prefixes; the thumb's bones are its metacarpal's, proximal's and distal's.
+   */
   const FINGERS: readonly string[] = ["index", "middle", "ring", "pinky", "thumb"];
 
-  /** The toes, whose later joints follow the foot's length (no source gives a toe's bones). */
+  /*
+   * The toes, whose later joints follow the foot's length (no source gives a toe's bones).
+   */
   const TOES: readonly string[] = ["bigtoe", "indextoe", "middletoe", "ringtoe", "littletoe"];
 
   const joint = (name: string): IAutoMovieHumanSegmentJoint => {
@@ -37,7 +41,7 @@ export namespace AutoMovieHumanF1SegmentLengths {
   };
   const norm = (v: AutoMovieVector3Tuple): number => Math.hypot(v[0], v[1], v[2]);
 
-  /**
+  /*
    * The hand's and the foot's axes in their own frames: the hand along the wrist centre's line to the middle finger's first joint, across
    * from the fifth metacarpal head to the second, square to it; the foot along its course end square to the sole's normal
    * (`leg.fan.up`), across from the fifth toe's first joint to the first, square to both. The limb law's `extremityAxes`.
@@ -51,7 +55,9 @@ export namespace AutoMovieHumanF1SegmentLengths {
     return { hand: [handAlong, handAcross], foot: [footAlong, footAcross] };
   }
 
-  /** The digits' later joints: a finger's middle and distal, the thumb's proximal and distal, by bone index. */
+  /*
+   * The digits' later joints: a finger's middle and distal, the thumb's proximal and distal, by bone index.
+   */
   const bone = (name: string): [string, number] | null => {
     const [digit, part] = name.split(".");
     if (digit === undefined || part === undefined || !FINGERS.includes(digit)) return null;
@@ -95,7 +101,9 @@ export namespace AutoMovieHumanF1SegmentLengths {
   /** f1's lengths, read once. */
   export const F1: IAutoMovieHumanF1SegmentLengths.IFields = reference();
 
-  /** The ratios of a person's lengths to f1's; exactly one where they are equal. */
+  /*
+   * The ratios of a person's lengths to f1's; exactly one where they are equal.
+   */
   function ratios(fields: IAutoMovieHumanF1SegmentLengths.IFields): Record<Exclude<keyof IAutoMovieHumanF1SegmentLengths.IFields, "phalanges">, number> & { phalanges: Record<string, IAutoMovieHumanF1SegmentLengths.IBones> } {
     const r = (key: Exclude<keyof IAutoMovieHumanF1SegmentLengths.IFields, "phalanges">): number => fields[key] / F1[key];
     return {

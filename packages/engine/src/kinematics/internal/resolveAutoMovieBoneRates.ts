@@ -11,7 +11,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { SKELETON_ROOT_PARENT } from "../SKELETON_ROOT_PARENT";
 
-/**
+/*
  * Propagate declared instantaneous local rotation rates through native FK.
  *
  * Every input bone must come from the same current resolvePose snapshot and

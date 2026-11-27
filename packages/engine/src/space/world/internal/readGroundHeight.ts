@@ -6,7 +6,9 @@ import type {
 import { readSurfaceHeight } from "./readSurfaceHeight";
 import { selectGroundSurface } from "./selectGroundSurface";
 
-/** Read the selected world terrain height, retaining null for absent support. */
+/*
+ * Read the selected world terrain height, retaining null for absent support.
+ */
 export function readGroundHeight(
   surfaces: readonly IAutoMovieWorldSurface[],
   point: IAutoMovieGroundQueryPoint,

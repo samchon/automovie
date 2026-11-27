@@ -12,39 +12,51 @@ import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionH
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import type { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * The footprints of a stair climb: each foot's settled flat sole on its tread
  * at the standing lateral place, its leg placement and its sole points about
  * the ankle. `climbStairs` owns the flight and the timing.
  */
 export namespace climbStairsPrints {
-  /** A footprint: the foot's placement and the tread it is on, 0 for the floor. */
+  /*
+   * A footprint: the foot's placement and the tread it is on, 0 for the floor.
+   */
   export interface IPrint {
-    /** The ankle and foot rotation, world metres. */
+    /*
+     * The ankle and foot rotation, world metres.
+     */
     placement: IAutoMovieMotionHumanFoot.IPlacement;
 
-    /** The tread, 1 the first; 0 for the floor before the flight. */
+    /*
+     * The tread, 1 the first; 0 for the floor before the flight.
+     */
     level: number;
   }
 
-  /** The prepared footprints and the sole geometry they share. */
+  /*
+   * The prepared footprints and the sole geometry they share.
+   */
   export interface IPrints {
-    /** Each foot's prepared leg placement. */
+    /*
+     * Each foot's prepared leg placement.
+     */
     goals: Record<
       AutoMovieHumanSide,
       ReturnType<typeof AutoMovieMotionHumanLeg.preparePlacement>
     >;
 
-    /**
+    /*
      * Each foot's heel, ball and toe about its ankle: along the flight and in
      * height, metres.
      */
     soles: Record<AutoMovieHumanSide, IAutoMovieMotionHumanClearance.IPoint[]>;
 
-    /** The footprint of a foot on a tread. */
+    /*
+     * The footprint of a foot on a tread.
+     */
     print(side: AutoMovieHumanSide, level: number): IPrint;
 
-    /**
+    /*
      * The least ankle height, metres, at a position along the flight that keeps
      * every sole point of the foot on or above the given surface profile.
      */
@@ -54,24 +66,29 @@ export namespace climbStairsPrints {
     ): (z: number) => number;
   }
 
-  /** One step of the schedule: the foot and the tread it goes to. */
+  /*
+   * One step of the schedule: the foot and the tread it goes to.
+   */
   export interface IStep {
-    /** The stepping foot. */
+    /*
+     * The stepping foot.
+     */
     side: AutoMovieHumanSide;
 
-    /** The tread it goes to, 1 the first. */
+    /*
+     * The tread it goes to, 1 the first.
+     */
     level: number;
   }
 
-  /**
+  /*
    * The step schedule: one foot per tread alternating from the lead, then the
    * trailing foot joins it on the last; or both feet on each tread, lead
    * first.
-   *
-   * @param pattern The stepping pattern.
-   * @param count The treads.
-   * @param lead The foot that steps first.
-   * @returns The steps in order.
+   * Parameter pattern: The stepping pattern.
+   * Parameter count: The treads.
+   * Parameter lead: The foot that steps first.
+   * Returns: The steps in order.
    */
   export function schedule(
     pattern: NonNullable<IAutoMovieMotionHumanClimbStairs.IParams["pattern"]>,
@@ -90,13 +107,17 @@ export namespace climbStairsPrints {
     return steps;
   }
 
-  /** Dimensions needed to fit the sole's heel along the flight. */
+  /*
+   * Dimensions needed to fit the sole's heel along the flight.
+   */
   export type IRun = Pick<
     IAutoMovieMotionHumanClimbStairsFlight.IFlight,
     "first" | "tread" | "count"
   >;
 
-  /** Centre a fitting sole or place its overhang on the permitted nosing. */
+  /*
+   * Centre a fitting sole or place its overhang on the permitted nosing.
+   */
   export function heelOnTread(
     stairs: IRun,
     level: number,
@@ -112,17 +133,16 @@ export namespace climbStairsPrints {
     return sign > 0 ? edge - margin : edge + stairs.tread + margin - length;
   }
 
-  /**
+  /*
    * Prepare the footprints.
-   *
-   * @param body The canonical motion body.
-   * @param entered The entry's foot placements, the floor's footprints.
-   * @param flats The settled stance's flat foot placements.
-   * @param stairs The flight.
-   * @param framed The flight's frame.
-   * @param sign 1 up the flight, -1 down it.
-   * @param margin The least distance of a sole from a nosing, metres.
-   * @returns The footprints.
+   * Parameter body: The canonical motion body.
+   * Parameter entered: The entry's foot placements, the floor's footprints.
+   * Parameter flats: The settled stance's flat foot placements.
+   * Parameter stairs: The flight.
+   * Parameter framed: The flight's frame.
+   * Parameter sign: 1 up the flight, -1 down it.
+   * Parameter margin: The least distance of a sole from a nosing, metres.
+   * Returns: The footprints.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -214,5 +234,7 @@ export namespace climbStairsPrints {
   }
 }
 
-/** The alternatives of `SoleOfPoint`'s site. */
+/*
+ * The alternatives of `SoleOfPoint`'s site.
+ */
 type SoleOfPoint = "heel" | "ball" | "toe";

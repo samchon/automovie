@@ -9,7 +9,7 @@ import {
 import { Quaternion } from "../../../math/Quaternion";
 import { Vector3 } from "../../../math/Vector3";
 
-/**
+/*
  * Build each bone's rigid motion from rest to pose, the transform a point or a
  * direction fixed in that bone undergoes.
  *
@@ -17,11 +17,10 @@ import { Vector3 } from "../../../math/Vector3";
  * origin `O_b` and rotation `R_b` and posed origin `P_b` and rotation `Q_b` in
  * model space, the rigid transform `skinAutoMovieMesh` applies per joint.
  * Directions take the rotation `Q_b R_b^-1` alone.
- *
- * @param props.rest Bones at rest, from `resolvePose` of an empty pose.
- * @param props.posed The same bones in the pose.
- * @returns A lookup giving a bone's rotation and point map.
- * @throws Error from the lookup when a bone is missing from either list.
+ * Parameter props.rest: Bones at rest, from `resolvePose` of an empty pose.
+ * Parameter props.posed: The same bones in the pose.
+ * Returns: A lookup giving a bone's rotation and point map.
+ * Error from the lookup when a bone is missing from either list.
  */
 export const createAutoMovieBoneMotion: (
   props: IAutoMovieCreateBoneMotion.IProps,

@@ -16,7 +16,7 @@ import { ROOM_CLEARANCES } from "./ROOM_CLEARANCES";
 import { furnishRoom } from "./furnishRoom";
 import type { resolveFurnishingPieces } from "./resolveFurnishingPieces";
 
-/**
+/*
  * Furnish a kitchen: one run along the `-z` wall of a refrigerator, a counter,
  * a range and a second counter, each abutting the one before.
  *
@@ -24,16 +24,15 @@ import type { resolveFurnishingPieces } from "./resolveFurnishingPieces";
  * producer affordance is `<role>/<affordance id>`. The refrigerator starts at
  * the run's corner. Each counter and the range keeps the NKBA work aisle in
  * front of it, as wide as its own box and named `work aisle`:
- * {@link ROOM_CLEARANCES}.workAisle for one cook and
- * {@link ROOM_CLEARANCES}.sharedWorkAisle for two. A room too shallow for the
+ * ROOM_CLEARANCES.workAisle for one cook and
+ * ROOM_CLEARANCES.sharedWorkAisle for two. A room too shallow for the
  * aisle is refused naming it. No archetype draws a kitchen sink, so the kit has
  * no sink role; a production that needs one adds a coarse form. The figures are
  * a coarse layout rule, not a code compliance claim.
- *
- * @param params The room layout and the number of cooks.
- * @returns The placed-room module.
- * @throws When the run leaves the room or its work aisle does not fit, naming
- *   the role and the work aisle, or when `cooks` is not 1 or 2.
+ * Parameter params: The room layout and the number of cooks.
+ * Returns: The placed-room module.
+ * When the run leaves the room or its work aisle does not fit, naming
+ * the role and the work aisle, or when `cooks` is not 1 or 2.
  */
 export function createKitchenKit(
   params: AutoMovieEnvironmentFurnishing.IKitchenKitParams,

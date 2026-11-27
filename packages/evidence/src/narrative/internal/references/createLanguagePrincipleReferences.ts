@@ -7,7 +7,7 @@ import type { AuthoredLayer } from "../../AuthoredLayer";
 import { createLocalContractReference } from "./createLocalContractReference";
 import { layerFiles } from "./layerFiles";
 
-/**
+/*
  * Selects the installed language's construction principles for one layer.
  *
  * Language-specific screenplay questions follow the same unit scope as the

@@ -16,7 +16,7 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Matched visual and displayed-skeleton comparisons for distinct variation
  * mechanisms.
  */
@@ -279,44 +279,78 @@ export function* motionDiversityCases(
   }
 }
 
-/** One side of a matched pair; the simulated subject remains the same. */
+/*
+ * One side of a matched pair; the simulated subject remains the same.
+ */
 interface IVariant {
-  /** Figure and manifest label. */
+  /*
+   * Figure and manifest label.
+   */
   label: string;
-  /** Performance seed. */
+  /*
+   * Performance seed.
+   */
   seed: string;
-  /** Per-actor proficiency for this take. */
+  /*
+   * Per-actor proficiency for this take.
+   */
   proficiency: IAutoMovieProficiency;
-  /** The authored action. */
+  /*
+   * The authored action.
+   */
   composition: IAutoMovieComposition;
 }
 
-/** Paired takes sharing the body, staging, film seconds and camera. */
+/*
+ * Paired takes sharing the body, staging, film seconds and camera.
+ */
 interface IPair {
-  /** The capture's output name. */
+  /*
+   * The capture's output name.
+   */
   name: string;
-  /** The two independently prepared takes. */
+  /*
+   * The two independently prepared takes.
+   */
   variants: readonly [IVariant, IVariant];
-  /** The bone whose world positions are compared, metres. */
+  /*
+   * The bone whose world positions are compared, metres.
+   */
   feature: AutoMovieHumanoidBone;
-  /** Compare the feature from the character's hips on a traveling action. */
+  /*
+   * Compare the feature from the character's hips on a traveling action.
+   */
   relativeToHips?: boolean;
-  /** Water plane, world metres, when the author stages a swim. */
+  /*
+   * Water plane, world metres, when the author stages a swim.
+   */
   water?: number;
-  /** Common instants used to compare parts of the movement at equal phase. */
+  /*
+   * Common instants used to compare parts of the movement at equal phase.
+   */
   phaseEvents?: readonly string[];
-  /** Draw in the first take's event clock instead of elapsed film seconds. */
+  /*
+   * Draw in the first take's event clock instead of elapsed film seconds.
+   */
   alignPhase?: boolean;
 }
 
-/** The provenance of a row on the capture clock. */
+/*
+ * The provenance of a row on the capture clock.
+ */
 interface IPhaseMark {
-  /** The named action event, plus the boundaries of the performance. */
+  /*
+   * The named action event, plus the boundaries of the performance.
+   */
   name: string;
-  /** The seconds at which this mark occurs in the first and second take. */
+  /*
+   * The seconds at which this mark occurs in the first and second take.
+   */
   seconds: readonly [number, number];
 }
-/** Stills are at 12 Hz, with neighboring frames of the native video clock. */
+/*
+ * Stills are at 12 Hz, with neighboring frames of the native video clock.
+ */
 const STILL_FPS: number = 12;
 const NATIVE_FPS: number = 32;
 const WALK_PHASES: readonly string[] = [
@@ -329,7 +363,9 @@ const WALK_PHASES: readonly string[] = [
 
 const WAVE_PHASES: readonly string[] = ["strokeStart", "strokeEnd"];
 
-/** Prepare each take before sampling it in film seconds. */
+/*
+ * Prepare each take before sampling it in film seconds.
+ */
 function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
   const body: IAutoMovieMotionHumanBody = figure.body;
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -578,7 +614,9 @@ function compare(figure: FamilyCaseKit.IBody, pair: IPair): IMotionCaptureCase {
   };
 }
 
-/** Keep only homologous events that are strictly ordered in both takes. */
+/*
+ * Keep only homologous events that are strictly ordered in both takes.
+ */
 function phaseMarks(
   a: HumanPerformance,
   b: HumanPerformance,
@@ -616,7 +654,9 @@ function phaseMarks(
   return result;
 }
 
-/** Map a film second to the same fraction between two common action events. */
+/*
+ * Map a film second to the same fraction between two common action events.
+ */
 function phaseSecond(
   marks: readonly IPhaseMark[],
   seconds: number,
@@ -633,7 +673,9 @@ function phaseSecond(
   return marks[marks.length - 1]!.seconds[to];
 }
 
-/** Compare the authored invariant associated with the variable in each pair. */
+/*
+ * Compare the authored invariant associated with the variable in each pair.
+ */
 function outcome(
   pair: IPair,
   a: HumanPerformance,

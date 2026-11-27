@@ -6,7 +6,7 @@ import { planAutoMovieModulePageViteConfig } from "../../production/internal/pla
 import { writeAutoMovieModulePage } from "../../production/internal/writeAutoMovieModulePage";
 import type { AutoMovieCliPage } from "../AutoMovieCliPage";
 
-/**
+/*
  * Build a draw-only page for a subject module with the production's Vite, serve
  * it with `vite preview`, and return its address and the call that stops the
  * server and deletes the build.
@@ -84,7 +84,7 @@ export async function serveAutoMovieDrawPage(
   }
 }
 
-/**
+/*
  * The part of the production's `vite` the capture host calls, declared
  * structurally so the command loads the production's own Vite at run time.
  */

@@ -2,7 +2,7 @@ import type { IAutoMovieSolvePhysicalArticulationTargets } from "@automovie/inte
 
 import { solvePhysicalTargetForest } from "./solvePhysicalTargetForest";
 
-/**
+/*
  * Solve a bounded metre residual for one admitted articulation with fixed
  * pivots and projected joint ranges. The caller supplies the pose and row
  * callbacks in its own bone names.

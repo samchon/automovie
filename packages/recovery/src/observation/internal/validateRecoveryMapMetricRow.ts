@@ -1,6 +1,8 @@
 import type { IAutoMovieSimplexAtom } from "@automovie/interface";
 
-/** Validate owned sparse physical-row metadata before optional arithmetic. */
+/*
+ * Validate owned sparse physical-row metadata before optional arithmetic.
+ */
 export function validateRecoveryMapMetricRow(
   row: IAutoMovieSimplexAtom,
   width: number,

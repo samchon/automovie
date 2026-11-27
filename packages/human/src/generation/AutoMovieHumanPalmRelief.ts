@@ -235,5 +235,7 @@ export namespace AutoMovieHumanPalmRelief {
   }
 }
 
-/** Points of the palmar pad's arc read across the hand. */
+/*
+ * Points of the palmar pad's arc read across the hand.
+ */
 const PAD_SAMPLES: number = 65;

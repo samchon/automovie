@@ -16,7 +16,7 @@ import { ExerciseKey } from "../internal/ExerciseKey";
 import { WorkoutFloor } from "./WorkoutFloor";
 import { WorkoutKind } from "./WorkoutKind";
 
-/**
+/*
  * The exercises of the workout law that are done on a box or a bench the author
  * names (`on`): the step-up, the incline push-up (the hands on the bench), the
  * decline push-up (the feet on it) and the hip thrust (the upper back on its
@@ -48,25 +48,27 @@ import { WorkoutKind } from "./WorkoutKind";
  * ed., for the exercises' positions).
  */
 export namespace WorkoutEquipment {
-  /**
+  /*
    * The imagined support's height when the author names none, a share of the
    * stature (provisional).
    */
   export const DEFAULT: number = 0.25;
 
-  /**
+  /*
    * The highest a step-up's thigh is raised, degrees of hip flexion
    * (provisional): a box that needs more is refused.
    */
   export const STEP: number = 120;
 
-  /** The support's height above the floor. */
+  /*
+   * The support's height above the floor.
+   */
   const high = (
     body: IAutoMovieMotionHumanBody,
     support: number | undefined,
   ): number => support ?? DEFAULT * body.measure.stature;
 
-  /**
+  /*
    * A straight body on its hands and toes at a pitch, the arms hanging to the
    * hands.
    */
@@ -79,34 +81,38 @@ export namespace WorkoutEquipment {
         { toes: 70, shoulder: pitch - drop, elbow, wrist: -90 },
       );
 
-  /** The joint a hip thrust's back turns about. */
+  /*
+   * The joint a hip thrust's back turns about.
+   */
   const BACK: readonly AutoMovieHumanoidBone[] = ["chest"];
 
-  /** The hip joints. */
+  /*
+   * The hip joints.
+   */
   const HIPS: readonly AutoMovieHumanoidBone[] = [
     "leftUpperLeg",
     "rightUpperLeg",
   ];
 
-  /**
+  /*
    * The most a hip thrust's lockout raises the hips above the line level with
    * the back's joint, degrees (provisional): a lower edge is refused.
    */
   export const RISEN: number = 10;
 
-  /**
+  /*
    * The most a hip thrust's lockout leaves the hips below that line, degrees
    * (provisional): a higher edge is refused.
    */
   export const SUNK: number = 45;
 
-  /**
+  /*
    * How far a hip thrust's trunk turns down from the lockout to the bottom,
    * degrees (provisional), less where the hips would reach the floor.
    */
   export const DROP: number = 30;
 
-  /**
+  /*
    * The body lying flat on its back, its root at the origin, heading along
    * `+Z`.
    */
@@ -115,19 +121,25 @@ export namespace WorkoutEquipment {
   ): IAutoMovieMotionHumanPosture =>
     ExerciseKey.posed(ExerciseKey.from(body, { pitch: -90 }, {}), 0);
 
-  /** Height of the keyed back above its floor support, used by raised equipment. */
+  /*
+   * Height of the keyed back above its floor support, used by raised equipment.
+   */
   const backed = (body: IAutoMovieMotionHumanBody): number => {
     const lying: IAutoMovieMotionHumanPosture = flat(body);
     return knockdown.rest(body, lying) + ExerciseKey.mean(body, lying, BACK).y;
   };
 
-  /** Degrees to radians. */
+  /*
+   * Degrees to radians.
+   */
   const rad = (degrees: number): number => (degrees * Math.PI) / 180;
 
-  /** Radians to degrees. */
+  /*
+   * Radians to degrees.
+   */
   const deg = (radians: number): number => (radians * 180) / Math.PI;
 
-  /**
+  /*
    * A hip thrust's two postures on a body and an edge: the bottom, then the
    * lockout.
    *
@@ -239,14 +251,16 @@ export namespace WorkoutEquipment {
     ];
   };
 
-  /** The exercises. */
+  /*
+   * The exercises.
+   */
   export const KINDS: Readonly<
     Record<
       IAutoMovieMotionHumanWorkoutEquipment.Name,
       IAutoMovieMotionHumanWorkoutKind
     >
   > = {
-    /**
+    /*
      * A step-up: the right foot on the box, the body raised over it until that
      * leg is straight, and lowered.
      */
@@ -317,7 +331,9 @@ export namespace WorkoutEquipment {
       },
     },
 
-    /** An incline push-up: the hands on the bench, the toes on the floor. */
+    /*
+     * An incline push-up: the hands on the bench, the toes on the floor.
+     */
     inclinePushUp: {
       base: "leaning",
       anchor: "bar",
@@ -360,7 +376,9 @@ export namespace WorkoutEquipment {
       ],
     },
 
-    /** A decline push-up: the toes on the bench, the hands on the floor. */
+    /*
+     * A decline push-up: the toes on the bench, the hands on the floor.
+     */
     declinePushUp: {
       base: "leaning",
       anchor: "bar",
@@ -405,7 +423,7 @@ export namespace WorkoutEquipment {
       ],
     },
 
-    /**
+    /*
      * A hip thrust: the upper back on the bench's edge, the feet on the floor,
      * the hips driven up until the trunk and the thighs are one line, held half
      * a second, and lowered.
@@ -439,11 +457,17 @@ export namespace WorkoutEquipment {
   };
 }
 
-/** The record of `IThrustFrom`'s site. */
+/*
+ * The record of `IThrustFrom`'s site.
+ */
 type IThrustFrom = { forth: number; up: number };
 
-/** The record of `IThrustFeet`'s site. */
+/*
+ * The record of `IThrustFeet`'s site.
+ */
 type IThrustFeet = { forth: number; up: number };
 
-/** The record of `IThrustHipsResult`'s site. */
+/*
+ * The record of `IThrustHipsResult`'s site.
+ */
 type IThrustHipsResult = { forth: number; up: number };

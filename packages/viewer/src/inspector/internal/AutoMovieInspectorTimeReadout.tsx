@@ -12,19 +12,25 @@ import type { AutoMovieInspectorPlayhead } from "../AutoMovieInspectorPlayhead.j
 import type { IAutoMovieInspectorAction } from "../IAutoMovieInspectorAction.js";
 import { AutoMovieViewerInspector } from "../AutoMovieViewerInspector.js";
 
-/**
+/*
  * The playhead's slider and clock, the one component that reads the playhead's second and so the only one a playing frame re-renders; the time panel reads only whether it plays.
  *
  * Moving the slider seeks to a regular frame or the exact end and dispatches the second as a `time` edit. Without a frame rate, the slider seeks directly in seconds. A pause or playback reaching the end also dispatches its second, so the request names the picture left on screen. The slider announces its second and, when available, its frame number.
  */
 export function AutoMovieInspectorTimeReadout(props: {
-  /** The playhead shown and sought. */
+  /*
+   * The playhead shown and sought.
+   */
   playhead: AutoMovieInspectorPlayhead;
 
-  /** The subject's frames per second, so the slider steps from frame to frame of its grid, as a capture's seconds do; null before a subject is ready, when the slider steps freely. */
+  /*
+   * The subject's frames per second, so the slider steps from frame to frame of its grid, as a capture's seconds do; null before a subject is ready, when the slider steps freely.
+   */
   fps: number | null;
 
-  /** Where the sought second goes. */
+  /*
+   * Where the sought second goes.
+   */
   dispatch: (action: IAutoMovieInspectorAction) => void;
 }): JSX.Element {
   const snapshot: AutoMovieInspectorPlayhead.ISnapshot = useSyncExternalStore(

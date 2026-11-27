@@ -1,6 +1,8 @@
 import { validNodeIndex } from "./validNodeIndex";
 
-/** Admit an optional or required index into an already declared inventory. */
+/*
+ * Admit an optional or required index into an already declared inventory.
+ */
 export function integerIndex(
   value: unknown,
   length: number,

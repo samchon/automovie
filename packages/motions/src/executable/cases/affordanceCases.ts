@@ -15,7 +15,7 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 import { motionCaseSocket } from "./internal/motionCaseSocket";
 
-/**
+/*
  * Capture cases of the articulated affordances family, each from quiet standing
  * with the right hand, every part within the 2010 ADA hardware band (865 to
  * 1220 mm, 404.2.7) or at a drawer's height:
@@ -36,9 +36,8 @@ import { motionCaseSocket } from "./internal/motionCaseSocket";
  * knob's axis), and the button's tip travels along the button's axis within 2
  * degrees (the issue's press bound). The knob also reports the hand's roll
  * about its axis against the turn, within 10 degrees (provisional).
- *
- * @param bodies The sweep bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function affordanceCases(
   bodies: readonly string[] = ["m-average"],
@@ -216,8 +215,12 @@ export function affordanceCases(
   return out;
 }
 
-/** The record of `IAffordanceCasesWorst`'s site. */
+/*
+ * The record of `IAffordanceCasesWorst`'s site.
+ */
 type IAffordanceCasesWorst = { value: number; at: number };
 
-/** The record of `IAffordanceCasesMechanismsItem`'s site. */
+/*
+ * The record of `IAffordanceCasesMechanismsItem`'s site.
+ */
 type IAffordanceCasesMechanismsItem = { kind: "insert" };

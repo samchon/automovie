@@ -3,7 +3,7 @@ import { Vector3 } from "@automovie/engine";
 
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
-/**
+/*
  * A carrier worn on the body (`IHumanProp.worn`) for a club: a belt loop a
  * baton hangs through, or a back sleeve a bat stands in.
  *
@@ -13,15 +13,14 @@ import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovie
  * opening's top, facing up: the club stands grip up through it, drawn out
  * upward by its grip. `belt` is where the strap meets the wearer, facing the
  * body on `-X`.
- *
- * @param params The kind, a belt loop's ring and any dimension the author
- *   fixes.
- * @param seed The seed that picks the ring left free and draws every dimension
- *   left free inside its band; absent, the first ring and the middle of each
- *   band.
- * @returns The carrier.
- * @throws {AutoMovieArchetypeRefusal} For a ring not of the kind, a fixed
- *   dimension outside its band, or one the ring gives.
+ * Parameter params: The kind, a belt loop's ring and any dimension the author
+ * fixes.
+ * Parameter seed: The seed that picks the ring left free and draws every dimension
+ * left free inside its band; absent, the first ring and the middle of each
+ * band.
+ * Returns: The carrier.
+ * For a ring not of the kind, a fixed
+ * dimension outside its band, or one the ring gives.
  */
 export function createWeaponLoop(
   params: AutoMovieArchetypeWeaponLoop.IParams,
@@ -99,5 +98,7 @@ export function createWeaponLoop(
   return builder.build(d.mass!);
 }
 
-/** The wall of the loop or the sleeve round its opening, metres: an estimate. */
+/*
+ * The wall of the loop or the sleeve round its opening, metres: an estimate.
+ */
 const WALL: number = 0.008;

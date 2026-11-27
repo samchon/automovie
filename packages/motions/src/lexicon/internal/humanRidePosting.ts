@@ -1,19 +1,18 @@
 import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * A rising trot's posting: the seat lifts off the saddle along the mount's own
  * up by `post · sin²(π s)` over each stride's progress `s` and comes back once
  * a stride, the stride read from a stride time or between the instants of a cue
  * track (the mount's own strides); outside a cue track's strides, and without a
  * rising, the seat stays down.
- *
- * @param rising The stride time, the cue track's sorted strides, or none.
- * @param start The ride's film start, seconds.
- * @param post The posting's height, metres.
- * @returns The seat's lift at a second of the ride.
- * @throws {HumanRefusal} When the stride time has no length, or the cue track
- *   holds fewer than two instants.
+ * Parameter rising: The stride time, the cue track's sorted strides, or none.
+ * Parameter start: The ride's film start, seconds.
+ * Parameter post: The posting's height, metres.
+ * Returns: The seat's lift at a second of the ride.
+ * When the stride time has no length, or the cue track
+ * holds fewer than two instants.
  */
 export function humanRidePosting(
   rising: humanRidePosting.Rising | undefined,
@@ -52,43 +51,57 @@ export function humanRidePosting(
   };
 }
 
-/** The rising trot's posting. */
+/*
+ * The rising trot's posting.
+ */
 export namespace humanRidePosting {
-  /** How the strides are given. */
+  /*
+   * How the strides are given.
+   */
   export type Rising =
     | {
-        /** By a stride time. */
+        /*
+         * By a stride time.
+         */
         kind: "period";
 
-        /** Seconds per stride. */
+        /*
+         * Seconds per stride.
+         */
         seconds: number;
       }
     | {
-        /** Between the instants of a cue track. */
+        /*
+         * Between the instants of a cue track.
+         */
         kind: "strides";
 
-        /** The cue track's name. */
+        /*
+         * The cue track's name.
+         */
         cue: string;
 
-        /** Its instants, film seconds, sorted. */
+        /*
+         * Its instants, film seconds, sorted.
+         */
         strides: readonly number[];
       };
 
-  /** The posting's readers. */
+  /*
+   * The posting's readers.
+   */
   export interface IPosting {
-    /**
+    /*
      * How far through a stride a second of the ride is.
-     *
-     * @param at Ride seconds.
-     * @returns 0 to 1; none without a stride there.
+     * Parameter at: Ride seconds.
+     * Returns: 0 to 1; none without a stride there.
      */
     stride(at: number): number | undefined;
 
-    /**
+    /*
      * The seat's lift off the saddle at a second.
-     *
-     * @param at Ride seconds.
-     * @returns Metres.
+     * Parameter at: Ride seconds.
+     * Returns: Metres.
      */
     lift(at: number): number;
   }

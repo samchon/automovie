@@ -15,15 +15,14 @@ import type { prepareHumanPostureProjection } from "../../posture/internal/prepa
 import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { supportContact } from "./supportContact";
 
-/**
+/*
  * Read the pin and floor of a support interval's direct joint blend together.
- *
- * @param body The unchanged body and collider profile.
- * @param contact The contact pinned by the interval's root.
- * @param at The material contact's captured target or unnamed floor place,
- *   world metres.
- * @returns A reader of the blend's exact pin and floor from the same forward
- *   kinematics.
+ * Parameter body: The unchanged body and collider profile.
+ * Parameter contact: The contact pinned by the interval's root.
+ * Parameter at: The material contact's captured target or unnamed floor place,
+ * world metres.
+ * Returns: A reader of the blend's exact pin and floor from the same forward
+ * kinematics.
  */
 export function prepareSupportPinFloor(
   body: IAutoMovieMotionHumanBody,
@@ -71,12 +70,16 @@ export function prepareSupportPinFloor(
   };
 }
 
-/** The blended posture's achieved pin and its clear floor height. */
+/*
+ * The blended posture's achieved pin and its clear floor height.
+ */
 interface IPinFloor {
-  /** Achieved pin of the unshifted direct posture, world metres. */
+  /*
+   * Achieved pin of the unshifted direct posture, world metres.
+   */
   point: IAutoMovieVector3;
 
-  /**
+  /*
    * The smallest world root height keeping the direct colliders above the
    * floor, metres.
    */

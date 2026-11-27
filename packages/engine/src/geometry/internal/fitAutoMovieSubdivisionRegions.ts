@@ -9,7 +9,7 @@ import { admitSubdivisionCage } from "./admitSubdivisionCage";
 import { fitAutoMovieSubdivisionDomain } from "./fitAutoMovieSubdivisionDomain";
 import { refineSubdivisionLevel } from "./refineSubdivisionLevel";
 
-/**
+/*
  * Fit disjoint geometric regions on their actual joined subdivision domain.
  *
  * Every region receives four edge-adjacent face rings of support: two are the

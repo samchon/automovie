@@ -11,7 +11,7 @@ import { Vector3 } from "../../math/Vector3";
 import { HUMANOID_JOINT_AXES } from "../HUMANOID_JOINT_AXES";
 import { skeletonJointAxes } from "./skeletonJointAxes";
 
-/**
+/*
  * Sine of the angle below which a hinge counts as parallel to the segment it
  * drives. It is the same `1e-6` the engine's other degeneracy guards use for a
  * length, asked of an angle. A hinge merely close to parallel still bends the
@@ -19,7 +19,7 @@ import { skeletonJointAxes } from "./skeletonJointAxes";
  */
 const PARALLEL_SINE: number = 1e-6;
 
-/**
+/*
  * Why the analytic arm IK cannot articulate one arm chain of `skeleton`, or
  * `null` when it can.
  *
@@ -34,19 +34,18 @@ const PARALLEL_SINE: number = 1e-6;
  * The test reads the rig, not a pose name, because a retargeted quadruped's
  * front legs ride the arm chains and may legitimately rest along −Y. Callers
  * therefore ask it only where an arm verb is performed: the perform-shot gate
- * refuses the verb with this reason, and {@link reachPose} returns `null`.
+ * refuses the verb with this reason, and reachPose returns `null`.
  *
  * `null` also answers every case that is not this fault: a missing hand, a hand
  * not parented to the lower arm (its rest offset is then not in the elbow's
  * frame), a zero-length forearm, and an axis table with no or a zero-length
- * elbow flexion axis. {@link reachPose} reports the structural cases itself as a
+ * elbow flexion axis. reachPose reports the structural cases itself as a
  * chain it cannot measure.
- *
- * @param skeleton Rig whose arm chain is read; only rest offsets are used.
- * @param side Which arm to test.
- * @param jointAxes Per-bone clinical axes; defaults to `HUMANOID_JOINT_AXES`,
- *   the table every arm computation applies, under any axes the lower arm
- *   declares itself.
+ * Parameter skeleton: Rig whose arm chain is read; only rest offsets are used.
+ * Parameter side: Which arm to test.
+ * Parameter jointAxes: Per-bone clinical axes; defaults to `HUMANOID_JOINT_AXES`,
+ * the table every arm computation applies, under any axes the lower arm
+ * declares itself.
  */
 export const armChainFault: (
   skeleton: IAutoMovieSkeleton,
@@ -105,6 +104,8 @@ const axisText: (axis: IAutoMovieVector3) => string = (
   axis: IAutoMovieVector3,
 ): string => `${trim(axis.x)}, ${trim(axis.y)}, ${trim(axis.z)}`;
 
-/** Six significant digits, trailing zeros dropped: a readable, stable number. */
+/*
+ * Six significant digits, trailing zeros dropped: a readable, stable number.
+ */
 const trim: (value: number) => string = (value: number): string =>
   String(Number(value.toPrecision(6)));

@@ -31,7 +31,7 @@ import { HumanArmTrajectoryMirror } from "../../posture/internal/HumanArmTraject
 import { HumanArmTrajectoryTerms } from "../../posture/internal/HumanArmTrajectoryTerms";
 import { inspectHumanArmFaceCourse } from "../../posture/internal/inspectHumanArmFaceCourse";
 
-/**
+/*
  * Prepare a placed stirring arm from its actual work poses and a free approach
  * and return, with one continuous course through both joins. A tool outside
  * that scope keeps its authored posture phases.
@@ -101,7 +101,9 @@ export function prepareToolPlayback(props: IPrepareToolPlaybackProps): void {
   });
 }
 
-/** The record of `IPrepareToolPlaybackProps`'s site. */
+/*
+ * The record of `IPrepareToolPlaybackProps`'s site.
+ */
 type IPrepareToolPlaybackProps = {
   plan: IAutoMovieMotionHumanActionPlan;
   body: IAutoMovieMotionHumanBody;
@@ -129,14 +131,18 @@ type IPrepareToolPlaybackProps = {
   };
 };
 
-/** One real displayed pose and the work constraint it carries at its second. */
+/*
+ * One real displayed pose and the work constraint it carries at its second.
+ */
 interface IWaypoint {
   pose: IAutoMoviePose;
   goal: IAutoMovieHumanLimbGoal;
   site: HumanArmTrajectory.ISite | undefined;
 }
 
-/** Lay the native course and refine only intervals with a measured face miss. */
+/*
+ * Lay the native course and refine only intervals with a measured face miss.
+ */
 function course(
   props: IPrepareToolPlaybackProps,
   person: IAutoMovieMotionHumanSegment.IPerson,

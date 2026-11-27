@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionTakeAnchor,
 } from "@automovie/interface";
 
-/**
+/*
  * Verify a saved version 1 take against independently reconstructed production
  * facts.
  *
@@ -62,13 +62,17 @@ export function verifyMotionTake(
   }
 }
 
-/** Compare one independently measured persisted identity. */
+/*
+ * Compare one independently measured persisted identity.
+ */
 function equal(path: string, saved: unknown, current: unknown): void {
   if (saved !== current)
     throw new Error(`take-provenance: ${path} changed since save`);
 }
 
-/** Match an independently measured ledger by stable key and compare values. */
+/*
+ * Match an independently measured ledger by stable key and compare values.
+ */
 function ledger<Key extends string, Value extends string>(
   path: string,
   saved: readonly Record<Key | Value, string>[],

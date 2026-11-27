@@ -17,14 +17,13 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { ropeLine } from "./ropeLine";
 import { ropeSupport } from "./ropeSupport";
 
-/**
+/*
  * Traverse a level rope hand over hand.
- *
- * @param context The action's context, standing under the rope.
- * @param p The traverse.
- * @returns The crossing.
- * @throws {HumanRefusal} If the distance runs past the rope's ends or the rope
- *   is beyond the standing reach.
+ * Parameter context: The action's context, standing under the rope.
+ * Parameter p: The traverse.
+ * Returns: The crossing.
+ * If the distance runs past the rope's ends or the rope
+ * is beyond the standing reach.
  */
 export function ropeTraverse(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRope.IParams>,
@@ -180,13 +179,13 @@ export function ropeTraverse(
   });
 }
 
-/**
+/*
  * How far behind the rear hand a monkey crawl hooks its feet over a level rope,
  * hip heights (provisional: the shoulders to the hooked ankles with the knees
  * bent).
  */
 const HOOKED: number = 1.2;
-/**
+/*
  * The hanging tuck of a traverse: the hips and knees drawn up clear of what the
  * body stood on, the arms up on the line with the elbows bent (provisional
  * angles, degrees).

@@ -9,7 +9,7 @@ import { RecoveryChartBoundaryNetwork as N } from "./RecoveryChartBoundaryNetwor
 import { RecoveryChartSurface as F } from "../../geometry/RecoveryChartSurface";
 import { refineRecoveryChartBoundaryChords as R } from "../../geometry/internal/refineRecoveryChartBoundaryChords";
 
-/**
+/*
  * Fit a selected private chart batch after one common boundary-network pass.
  * All chart families enter the same network before any coefficient solve, so
  * observed quarter cuts and maximal physical arcs can be reconciled across

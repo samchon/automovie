@@ -8,7 +8,7 @@ import * as THREE from "three";
 import type { IAutoMovieFluidSurfaceObject } from "../IAutoMovieFluidSurfaceObject.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
-/**
+/*
  * Project one engine-derived free surface into a `three.js` mesh.
  *
  * Positions, normals, UVs and the per-vertex flow vector come from the Engine
@@ -26,9 +26,11 @@ export const buildFluidSurfaceObject: (props: {
   mode?: AutoMovieWaterFeatureMode;
 }) => IAutoMovieFluidSurfaceObject = (props: {
   surface: IAutoMovieFluidSurface;
-  /** Water material; a translucent default is created when absent. */
+  /*
+   * Water material; a translucent default is created when absent.
+   */
   material?: THREE.Material;
-  /**
+  /*
    * Feature mode recorded as flowing metadata; a supplied shader may consume
    * it.
    */

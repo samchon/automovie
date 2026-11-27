@@ -12,7 +12,7 @@ import { AutoMovieRecoveryCompactApproximation as C } from "../AutoMovieRecovery
 import { AutoMovieRecoveryConicApproximation as Q } from "../AutoMovieRecoveryConicApproximation";
 import { approximateAutoMovieRecoveryConicsAhn } from "./approximateAutoMovieRecoveryConicsAhn";
 
-/**
+/*
  * Refit whole smooth charts with storage-selected degree-three to degree-five
  * Bernstein pieces and optional positive bitangent conics. Old source knots
  * inform observation coverage but do not force output pieces.
@@ -61,7 +61,9 @@ export function approximateAutoMovieRecoveryCompactCurves(
   let queries: number = 0;
   let omitted: number = 0;
 
-  /** Report sampled coverage; source failure can explicitly clear prior pieces. */
+  /*
+   * Report sampled coverage; source failure can explicitly clear prior pieces.
+   */
   function result(
     refused: boolean = false,
   ): IAutoMovieCompactCurveApproximation.IResult {
@@ -100,7 +102,9 @@ export function approximateAutoMovieRecoveryCompactCurves(
     "Source query budget exhausted; unprocessed domains remain omitted.",
   );
 
-  /** Snapshot borrowed coordinates and bound all source callback work. */
+  /*
+   * Snapshot borrowed coordinates and bound all source callback work.
+   */
   function observe(
     t: number,
     order?: 1 | 2 | 3 | 4 | 5,
@@ -128,7 +132,9 @@ export function approximateAutoMovieRecoveryCompactCurves(
     ]),
   ].sort((a: number, b: number): number => a - b);
 
-  /** Find the first source support greater than a, without scanning old knots. */
+  /*
+   * Find the first source support greater than a, without scanning old knots.
+   */
   function upper(a: number): number {
     let lo: number = 0;
     let hi: number = support.length;
@@ -140,7 +146,9 @@ export function approximateAutoMovieRecoveryCompactCurves(
     return lo;
   }
 
-  /** Fitting midpoints and held-out quarters cover every original source piece. */
+  /*
+   * Fitting midpoints and held-out quarters cover every original source piece.
+   */
   function nodes(
     a: number,
     b: number,
@@ -169,7 +177,9 @@ export function approximateAutoMovieRecoveryCompactCurves(
     };
   }
 
-  /** Weighted original-design solve with fixed endpoints and forward tangents. */
+  /*
+   * Weighted original-design solve with fixed endpoints and forward tangents.
+   */
   function polynomial(
     a: number,
     b: number,
@@ -264,7 +274,9 @@ export function approximateAutoMovieRecoveryCompactCurves(
     };
   }
 
-  /** Linear source registration supplies paired witnesses in both directions. */
+  /*
+   * Linear source registration supplies paired witnesses in both directions.
+   */
   function verifyPolynomial(
     piece: IAutoMovieRegisteredPlanarCurvePiece,
     at: readonly number[],
@@ -281,7 +293,9 @@ export function approximateAutoMovieRecoveryCompactCurves(
     return maximum;
   }
 
-  /** Independently check the conic's apex-ray chart, including reverse samples. */
+  /*
+   * Independently check the conic's apex-ray chart, including reverse samples.
+   */
   function verifyConic(
     piece: IAutoMovieRegisteredPlanarCurvePiece & { kind: "conic" },
     at: readonly number[],
@@ -297,7 +311,7 @@ export function approximateAutoMovieRecoveryCompactCurves(
     ];
     const area: number = Q.cross(x, y);
 
-    /**
+    /*
      * Recover rational u from source barycentric coordinates along an apex ray,
      * or null outside the triangle or on a degenerate ray.
      */
@@ -345,7 +359,9 @@ export function approximateAutoMovieRecoveryCompactCurves(
     return maximum;
   }
 
-  /** A leaf carries no old source span ownership. */
+  /*
+   * A leaf carries no old source span ownership.
+   */
   interface Interval {
     a: number;
     b: number;

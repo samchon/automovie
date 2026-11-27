@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanTouch,
 } from "@automovie/interface";
 
-/**
+/*
  * Two facing partners within arm's reach each rest their right palm on the
  * other's left shoulder, then return their hands. Pass to `HumanChain.mutual`
  * with the `one` and `other` chains. The reaches start together and each palm
@@ -21,7 +21,9 @@ export const shoulderClasp: IAutoMovieMotionHumanMutual<
 > = {
   name: "shoulderClasp",
   roles: ["one", "other"],
-  /** Each role performs a palm hold on the opposite role's left shoulder. */
+  /*
+   * Each role performs a palm hold on the opposite role's left shoulder.
+   */
   act: (
     role: ShoulderClaspRole,
     params: IAutoMovieMotionHumanTouch.IHold,
@@ -42,11 +44,17 @@ export const shoulderClasp: IAutoMovieMotionHumanMutual<
   }),
 };
 
-/** The alternatives of `CastEntryItem`'s site. */
+/*
+ * The alternatives of `CastEntryItem`'s site.
+ */
 type CastEntryItem = "one" | "other";
 
-/** The alternatives of `ShoulderClaspRole`'s site. */
+/*
+ * The alternatives of `ShoulderClaspRole`'s site.
+ */
 type ShoulderClaspRole = "one" | "other";
 
-/** The alternatives of `ShoulderClasp`'s site. */
+/*
+ * The alternatives of `ShoulderClasp`'s site.
+ */
 type ShoulderClasp = "one" | "other";

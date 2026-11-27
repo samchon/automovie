@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-/**
+/*
  * The inspection path of an object: the names from the root down to it, joined
  * by `/`.
  *

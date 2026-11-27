@@ -13,19 +13,19 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { StrikingRoll } from "../../striking/internal/StrikingRoll";
 
-/**
+/*
  * Default duration of the visible playing pose, an authoring convention in
  * seconds.
  */
 const PLAY_SECONDS: number = 1;
 
-/**
+/*
  * Small provisional angular freedom, in degrees, for the instrument's playing
  * attitude.
  */
 const PLAY_CONE: number = 10;
 
-/**
+/*
  * A held bugle is lifted, held with the mouthpiece at the lips and lowered. The
  * bell faces away along the reverse of the mouthpiece socket's axis. Yamaha's
  * brass playing guide places the mouthpiece at the center of the lips and shows
@@ -35,7 +35,9 @@ const PLAY_CONE: number = 10;
  * two mark the sustained playing pose.
  */
 export namespace playWindInstrument {
-  /** Read the first mouthpiece socket in the held prop's local frame. */
+  /*
+   * Read the first mouthpiece socket in the held prop's local frame.
+   */
   export function mouthpiece(
     held: Pick<IAutoMovieMotionHumanHeld.IHeld, "affordances"> | undefined,
     subject: string,
@@ -53,19 +55,22 @@ export namespace playWindInstrument {
       });
     return socket;
   }
-  /** Registered name. */
+  /*
+   * Registered name.
+   */
   export const name = "playWindInstrument";
 
-  /** This cue runs through its authored lowering phase. */
+  /*
+   * This cue runs through its authored lowering phase.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {};
 
-  /**
+  /*
    * Plan a lift, sustained playing pose and return for the held instrument.
-   *
-   * @param context The entry state and authored cue.
-   * @returns A plan that keeps carrying the instrument after its return.
-   * @throws {HumanRefusal} For invalid timing, an absent hold or socket, or an
-   *   infeasible arm pose.
+   * Parameter context: The entry state and authored cue.
+   * Returns: A plan that keeps carrying the instrument after its return.
+   * For invalid timing, an absent hold or socket, or an
+   * infeasible arm pose.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPlayWindInstrument.IParams>,

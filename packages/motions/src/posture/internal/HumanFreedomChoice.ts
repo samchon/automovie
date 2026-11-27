@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanFreedomChoice,
 } from "@automovie/interface";
 
-/**
+/*
  * The values of the freedoms a law leaves a held thing's grasp or pose, chosen
  * by what the fitted body makes of them: the one shared chooser of a held
  * tool's pose (`StrikingRoll.chosen`) and of a kept grip on a handle
@@ -22,25 +22,25 @@ import type {
  * 2003), the budget shared by every start.
  */
 export namespace HumanFreedomChoice {
-  /**
+  /*
    * How near a fitted hand's miss must be to none for a pose to count as held
    * exactly, metres, and the margin a later candidate must win by.
    */
   export const EXACT: number = 1e-4;
 
-  /**
+  /*
    * The shares of each freedom's step a refinement takes in turn, halving: the
    * last is an eighth of the first.
    */
   export const REFINE: readonly number[] = [1, 0.5, 0.25, 0.125];
 
-  /**
+  /*
    * The most candidates the refinements of one choice judge together, a search
    * budget: each is one posture resolution per instant it is judged at.
    */
   export const FITS: number = 48;
 
-  /**
+  /*
    * The turns a hand tries about an axis, in its own order: none, then each
    * multiple of a step up to the half turn, the turn toward the hand's own
    * sense before its opposite. A turn about an axis mirrors to the opposite
@@ -48,12 +48,11 @@ export namespace HumanFreedomChoice {
    * negated: listed in one order for both, the left hand tried the mirror of
    * `-step` where the right tries `step`, and of two turns that hold alike the
    * two hands kept turns that are not each other's mirror.
-   *
-   * @param step The spacing of the turns, degrees, positive and finite.
-   * @param side The hand.
-   * @returns The turns, degrees, in `(-180, 180]`.
-   * @throws {RangeError} For a step that is not positive, or so fine that the
-   *   multiples up to the half turn are not a safe integer count.
+   * Parameter step: The spacing of the turns, degrees, positive and finite.
+   * Parameter side: The hand.
+   * Returns: The turns, degrees, in `(-180, 180]`.
+   * For a step that is not positive, or so fine that the
+   * multiples up to the half turn are not a safe integer count.
    */
   export function turns(step: number, side: AutoMovieHumanSide): number[] {
     const count: number = Math.floor(180 / step);
@@ -74,12 +73,11 @@ export namespace HumanFreedomChoice {
     return out;
   }
 
-  /**
+  /*
    * Choose a pose's values.
-   *
-   * @param problem The tried values, the freedoms and the judge.
-   * @returns The chosen values and their worst miss.
-   * @throws {Error} When no values are tried.
+   * Parameter problem: The tried values, the freedoms and the judge.
+   * Returns: The chosen values and their worst miss.
+   * When no values are tried.
    */
   export function chosen(
     problem: IAutoMovieMotionHumanFreedomChoice.IProblem,
@@ -209,23 +207,37 @@ export namespace HumanFreedomChoice {
   }
 }
 
-/** The record of `IChosenFound`'s site. */
+/*
+ * The record of `IChosenFound`'s site.
+ */
 type IChosenFound = { values: number[]; miss: number };
 
-/** The record of `IChosenB`'s site. */
+/*
+ * The record of `IChosenB`'s site.
+ */
 type IChosenB = { miss: number };
 
-/** The record of `IChosenA`'s site. */
+/*
+ * The record of `IChosenA`'s site.
+ */
 type IChosenA = { miss: number };
 
-/** The record of `IChosenS`'s site. */
+/*
+ * The record of `IChosenS`'s site.
+ */
 type IChosenS = { values: number[] };
 
-/** The record of `IChosenFirst`'s site. */
+/*
+ * The record of `IChosenFirst`'s site.
+ */
 type IChosenFirst = { values: number[]; miss: number };
 
-/** The record of `IChosenSearchResult`'s site. */
+/*
+ * The record of `IChosenSearchResult`'s site.
+ */
 type IChosenSearchResult = { values: number[]; miss: number };
 
-/** The record of `IChosenSeedsItem`'s site. */
+/*
+ * The record of `IChosenSeedsItem`'s site.
+ */
 type IChosenSeedsItem = { values: number[]; miss: number };

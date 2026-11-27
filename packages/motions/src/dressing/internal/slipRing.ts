@@ -38,25 +38,31 @@ import { HumanWornItem } from "./HumanWornItem";
 import { slipRingLean } from "./slipRingLean";
 import { slipRingSteady } from "./slipRingSteady";
 
-/**
+/*
  * Where along the proximal phalanx a ring rests, as a share from its base joint
  * (provisional: a ring sits on the phalanx's proximal third).
  */
 const SEAT: number = 0.35;
 
-/**
+/*
  * How far beyond the fingertip the ring lines up before it slides on, metres
  * (provisional: clear of the fingertip by a ring's width).
  */
 const LINE_UP: number = 0.015;
 
-/** The step the band's free roll about the finger is searched by, degrees. */
+/*
+ * The step the band's free roll about the finger is searched by, degrees.
+ */
 const ROLL: number = 15;
 
-/** World up. */
+/*
+ * World up.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** Capitalized digit names used in the canonical rig's phalanx identifiers. */
+/*
+ * Capitalized digit names used in the canonical rig's phalanx identifiers.
+ */
 const PHALANX_NAME: Readonly<
   Record<
     IAutoMovieMotionHumanSlipRing.Finger,
@@ -64,7 +70,7 @@ const PHALANX_NAME: Readonly<
   >
 > = { index: "Index", middle: "Middle", ring: "Ring", little: "Little" };
 
-/**
+/*
  * Slip a ring onto a partner's finger. The partner's presented hand is read
  * where it is at the action's start, so the partner presents it first
  * (`presentHand`). The dresser's other hand takes the partner's forearm with
@@ -93,7 +99,7 @@ export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipR
     plan: planSlipRing,
   };
 
-/**
+/*
  * Slip a ring onto a partner's finger. The partner's presented hand is read
  * where it is at the action's start, so the partner presents it first
  * (`presentHand`). The dresser's other hand takes the partner's forearm with

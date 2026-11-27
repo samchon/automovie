@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `pointAt` row of `HumanUpperRows` fixes on `armPhrase`, spread
  * into its parameters. A point: the forefinger's tip visits a place on the
  * target's line, the hand pointing.

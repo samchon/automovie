@@ -11,7 +11,7 @@ import { HumanBodyFit } from "../../posture/internal/HumanBodyFit";
 import { HumanBodyFitMerit } from "../../posture/internal/HumanBodyFitMerit";
 import { HumanFitVariables } from "../../posture/internal/HumanFitVariables";
 
-/**
+/*
  * Construct a diagonal support tripod before closing the remaining hand. The
  * intermediate poses only initialize the static solver. The original posed
  * body's complete floor, contact and collision rows admit the returned key.
@@ -101,7 +101,7 @@ type Variable = IAutoMovieMotionHumanJacobian.IVariable;
 
 type Candidate = IAutoMovieMotionHumanPosture | undefined;
 
-/**
+/*
  * Every world-height row changes by the same signed rigid translation. A common
  * vertical placement preserves angles, self-distances and the identity of the
  * lowest support on each part. Check the complete translated pose.

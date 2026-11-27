@@ -14,7 +14,7 @@ import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotio
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * The forward lunge of `exercise`: the hips come down until the lead thigh is
  * level over an upright shank and travel forward until the trailing thigh hangs
  * under its hip, that leg's shank level behind it on a foot stood on its toes
@@ -22,39 +22,56 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
  * thigh ahead of the hips there, and steps back.
  */
 export namespace exerciseLunge {
-  /** What the exercise hands the lunge. */
+  /*
+   * What the exercise hands the lunge.
+   */
   export interface IProps {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The posture the exercise starts from. */
+    /*
+     * The posture the exercise starts from.
+     */
     entry: IAutoMovieMotionHumanPosture;
 
-    /** The feet at the entry. */
+    /*
+     * The feet at the entry.
+     */
     stance: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
-    /** The heading's forward, world. */
+    /*
+     * The heading's forward, world.
+     */
     forward: IAutoMovieVector3;
 
-    /** The leg that steps out. */
+    /*
+     * The leg that steps out.
+     */
     lead: AutoMovieHumanSide;
 
-    /** The share of the way into any repetition's low position at a second. */
+    /*
+     * The share of the way into any repetition's low position at a second.
+     */
     any: (seconds: number) => number;
 
-    /** The manner's extent. */
+    /*
+     * The manner's extent.
+     */
     extent: number;
 
-    /** The clock's duration, seconds. */
+    /*
+     * The clock's duration, seconds.
+     */
     duration: number;
   }
 
-  /**
+  /*
    * The lunge's primitives and the trailing foot's plant.
-   *
-   * @param props The body, the entry and its feet, the heading, the lead leg,
-   *   the depth share, the extent and the duration.
-   * @returns The primitives and the contact windows.
+   * Parameter props: The body, the entry and its feet, the heading, the lead leg,
+   * the depth share, the extent and the duration.
+   * Returns: The primitives and the contact windows.
    */
   export function plan(props: IProps): IPlanResult {
     const { body, entry, stance, forward, lead, any, extent, duration } = props;
@@ -178,7 +195,9 @@ export namespace exerciseLunge {
   }
 }
 
-/** The record of `IPlanResult`'s site. */
+/*
+ * The record of `IPlanResult`'s site.
+ */
 type IPlanResult = {
   primitives: IAutoMovieMotionHumanPrimitive[];
   contacts: IAutoMovieMotionHumanContactWindow[];

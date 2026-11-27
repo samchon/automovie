@@ -17,7 +17,7 @@ import { prepareSupportFootCourse } from "./prepareSupportFootCourse";
 import { supportContact } from "./supportContact";
 import { supportWindows } from "./supportWindows";
 
-/**
+/*
  * The fixed-geometry requirements a staged route hands the support law: world
  * waypoints a stepping foot passes over an edge, the contacts whose foot bears
  * flat with a level heel, and a reader of each published window. The support
@@ -25,9 +25,11 @@ import { supportWindows } from "./supportWindows";
  * goals and writers those requirements add.
  */
 export namespace supportCourse {
-  /** The requirements of one staged route; each is optional. */
+  /*
+   * The requirements of one staged route; each is optional.
+   */
   export interface ICourse {
-    /**
+    /*
      * Ordered world points, metres, the toe joint of a foot stepping from
      * `previous` to `next` passes over; the ordinary mid-step swing when
      * undefined or empty.
@@ -37,23 +39,25 @@ export namespace supportCourse {
       next: IAutoMovieMotionHumanSupport.IContact,
     ): readonly IAutoMovieVector3[] | undefined;
 
-    /**
+    /*
      * Whether a foot bearing on this contact keeps its sole flat with the heel
      * level.
      */
     level?(contact: IAutoMovieMotionHumanSupport.IContact): boolean;
 
-    /** Told of each published contact window with the contact that opened it. */
+    /*
+     * Told of each published contact window with the contact that opened it.
+     */
     observe?: supportWindows.Observe;
 
-    /**
+    /*
      * The named material frame a staged route keeps through an interval.
      * Omission keeps the solved world endpoint motion.
      */
     material?: prepareSupportInterval.Material;
   }
 
-  /**
+  /*
    * A contact's place: a world point in metres, or null for an unnamed floor
    * place.
    */
@@ -61,74 +65,103 @@ export namespace supportCourse {
     contact: IAutoMovieMotionHumanSupport.IContact,
   ) => IAutoMovieVector3 | null;
 
-  /** A writer of one foot onto its course at a share in [0, 1] of the interval. */
+  /*
+   * A writer of one foot onto its course at a share in [0, 1] of the interval.
+   */
   export type Write = (
     posture: IAutoMovieMotionHumanPosture,
     share: number,
   ) => IAutoMovieMotionHumanPosture;
 
-  /** One stepping limb's move with the waypoints its course gives. */
+  /*
+   * One stepping limb's move with the waypoints its course gives.
+   */
   export interface ICrossing {
-    /** The contact the limb steps to. */
+    /*
+     * The contact the limb steps to.
+     */
     contact: IAutoMovieMotionHumanSupport.IContact;
 
-    /** The contact it leaves. */
+    /*
+     * The contact it leaves.
+     */
     previous: IAutoMovieMotionHumanSupport.IContact;
 
-    /**
+    /*
      * World points, metres, its toe joint passes over in order; empty for the
      * ordinary swing.
      */
     waypoints: readonly IAutoMovieVector3[];
   }
 
-  /** One stepping foot's straight stretch between two course points. */
+  /*
+   * One stepping foot's straight stretch between two course points.
+   */
   export interface ILeg {
-    /** The stepping foot. */
+    /*
+     * The stepping foot.
+     */
     side: AutoMovieHumanSide;
 
-    /** The heading the foot keeps, degrees. */
+    /*
+     * The heading the foot keeps, degrees.
+     */
     yaw: number;
 
-    /** The toe joint's start, world metres. */
+    /*
+     * The toe joint's start, world metres.
+     */
     from: IAutoMovieVector3;
 
-    /** The toe joint's end, world metres. */
+    /*
+     * The toe joint's end, world metres.
+     */
     to: IAutoMovieVector3;
   }
 
-  /** A solved key as the level bearings read it. */
+  /*
+   * A solved key as the level bearings read it.
+   */
   export interface IKey {
-    /** The key posture, whose yaw orders the flat foot. */
+    /*
+     * The key posture, whose yaw orders the flat foot.
+     */
     posture: IAutoMovieMotionHumanPosture;
 
-    /** The contacts it rests on. */
+    /*
+     * The contacts it rests on.
+     */
     contacts: readonly IAutoMovieMotionHumanSupport.IContact[];
 
-    /** Where those contacts are. */
+    /*
+     * Where those contacts are.
+     */
     place: Place;
   }
 
-  /** The flat-foot writers of each key, and of each interval the bearing spans. */
+  /*
+   * The flat-foot writers of each key, and of each interval the bearing spans.
+   */
   export interface IBearings {
-    /** Writers for the contacts level at each key, by key index. */
+    /*
+     * Writers for the contacts level at each key, by key index.
+     */
     keys: readonly (readonly Write[])[];
 
-    /**
+    /*
      * Writers for the level contacts held through each interval, by its first
      * key's index.
      */
     intervals: readonly (readonly Write[])[];
   }
 
-  /**
+  /*
    * The level-heel goal of a foot: its heel socket's sole normal pointing down
    * at the toe joint's height.
-   *
-   * @param body The canonical motion body.
-   * @param part The foot.
-   * @param at The toe joint's goal, world metres.
-   * @returns A fit target on the heel bone.
+   * Parameter body: The canonical motion body.
+   * Parameter part: The foot.
+   * Parameter at: The toe joint's goal, world metres.
+   * Returns: A fit target on the heel bone.
    */
   export function heel(
     body: IAutoMovieMotionHumanBody,
@@ -145,14 +178,13 @@ export namespace supportCourse {
     };
   }
 
-  /**
+  /*
    * The level-heel goals of the course's level feet among the contacts.
-   *
-   * @param body The canonical motion body.
-   * @param course The route's requirements, if any.
-   * @param contacts The key's contacts.
-   * @param place Where they are.
-   * @returns One heel goal per placed level foot; none without a course.
+   * Parameter body: The canonical motion body.
+   * Parameter course: The route's requirements, if any.
+   * Parameter contacts: The key's contacts.
+   * Parameter place: Where they are.
+   * Returns: One heel goal per placed level foot; none without a course.
    */
   export function levels(
     body: IAutoMovieMotionHumanBody,
@@ -173,18 +205,17 @@ export namespace supportCourse {
     );
   }
 
-  /**
+  /*
    * The free-foot writers of one stretch of a step that passes waypoints:
    * stretch 0 runs from the old place to the first waypoint, stretch k from
    * waypoint k to k + 1, and stretch `steps` to the new place.
-   *
-   * @param yaw The heading each foot keeps, degrees: the one it leaves with.
-   * @param crossings The step's moving limbs.
-   * @param index The stretch.
-   * @param steps The number of waypoints of the longest crossing.
-   * @param from The old place lookup.
-   * @param to The new place lookup.
-   * @returns One stretch per foot that has waypoints and placed ends.
+   * Parameter yaw: The heading each foot keeps, degrees: the one it leaves with.
+   * Parameter crossings: The step's moving limbs.
+   * Parameter index: The stretch.
+   * Parameter steps: The number of waypoints of the longest crossing.
+   * Parameter from: The old place lookup.
+   * Parameter to: The new place lookup.
+   * Returns: One stretch per foot that has waypoints and placed ends.
    */
   export function swings(
     yaw: (foot: AutoMovieHumanSide) => number,
@@ -218,15 +249,14 @@ export namespace supportCourse {
     return legs;
   }
 
-  /**
+  /*
    * The free-foot writer of one stretch, carried by the root between the
    * interval's two keys.
-   *
-   * @param body The canonical motion body.
-   * @param leg The stretch.
-   * @param rootFrom The root at the interval's first key, world metres.
-   * @param rootTo The root at its second key, world metres.
-   * @returns The writer.
+   * Parameter body: The canonical motion body.
+   * Parameter leg: The stretch.
+   * Parameter rootFrom: The root at the interval's first key, world metres.
+   * Parameter rootTo: The root at its second key, world metres.
+   * Returns: The writer.
    */
   export function carried(
     body: IAutoMovieMotionHumanBody,
@@ -258,14 +288,13 @@ export namespace supportCourse {
       rootTo,
     );
   }
-  /**
+  /*
    * The flat-foot writers of the course's level feet at every key and over
    * every interval that holds them at both ends.
-   *
-   * @param body The canonical motion body.
-   * @param course The route's requirements, if any.
-   * @param keys The solved keys in order.
-   * @returns The writers, or undefined without a level predicate.
+   * Parameter body: The canonical motion body.
+   * Parameter course: The route's requirements, if any.
+   * Parameter keys: The solved keys in order.
+   * Returns: The writers, or undefined without a level predicate.
    */
   export function bearings(
     body: IAutoMovieMotionHumanBody,
@@ -336,13 +365,12 @@ export namespace supportCourse {
     };
   }
 
-  /**
+  /*
    * The heading a posture turns a foot to, degrees: its posed foot's.
-   *
-   * @param body The canonical motion body.
-   * @param posture The posture.
-   * @param foot Which foot.
-   * @returns The foot's heading about the vertical, degrees.
+   * Parameter body: The canonical motion body.
+   * Parameter posture: The posture.
+   * Parameter foot: Which foot.
+   * Returns: The foot's heading about the vertical, degrees.
    */
   export function footHeading(
     body: IAutoMovieMotionHumanBody,
@@ -360,13 +388,12 @@ export namespace supportCourse {
     );
   }
 
-  /**
+  /*
    * Apply writers in order.
-   *
-   * @param writes The writers; none when undefined.
-   * @param posture The posture they start from.
-   * @param share The interval's share.
-   * @returns The written posture.
+   * Parameter writes: The writers; none when undefined.
+   * Parameter posture: The posture they start from.
+   * Parameter share: The interval's share.
+   * Returns: The written posture.
    */
   export function apply(
     writes: readonly Write[] | undefined,
@@ -384,25 +411,39 @@ export namespace supportCourse {
   }
 }
 
-/** A level contact and the heading its foot holds there, degrees. */
+/*
+ * A level contact and the heading its foot holds there, degrees.
+ */
 interface IHeldHeading {
-  /** The bearing contact. */
+  /*
+   * The bearing contact.
+   */
   contact: IAutoMovieMotionHumanSupport.IContact;
 
-  /** The foot's heading on it, degrees. */
+  /*
+   * The foot's heading on it, degrees.
+   */
   heading: number;
 }
 
-/** A level contact and its flat-foot writer. */
+/*
+ * A level contact and its flat-foot writer.
+ */
 interface IPlacedBearing {
-  /** The bearing contact. */
+  /*
+   * The bearing contact.
+   */
   contact: IAutoMovieMotionHumanSupport.IContact;
 
-  /** Its writer. */
+  /*
+   * Its writer.
+   */
   write: supportCourse.Write;
 }
 
-/** The side of a foot contact. */
+/*
+ * The side of a foot contact.
+ */
 function side(
   contact: IAutoMovieMotionHumanSupport.IContact,
 ): AutoMovieHumanSide {

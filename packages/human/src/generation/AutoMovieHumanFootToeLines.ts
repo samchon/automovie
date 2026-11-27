@@ -82,8 +82,12 @@ export namespace AutoMovieHumanFootToeLines {
   }
 }
 
-/** Share of a toe's line at which its distal pad rests on the floor. Convention. */
+/*
+ * Share of a toe's line at which its distal pad rests on the floor. Convention.
+ */
 const PAD: number = 0.8;
 
-/** The pad's plantar skin over the floor, mm. Convention. */
+/*
+ * The pad's plantar skin over the floor, mm. Convention.
+ */
 const PAD_CLEARANCE: number = 0.5;

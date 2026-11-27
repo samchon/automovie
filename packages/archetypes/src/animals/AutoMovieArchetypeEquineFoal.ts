@@ -22,13 +22,13 @@ import type { AutoMovieArchetypeQuadrupedRestPlan } from "./AutoMovieArchetypeQu
 import { EquineRecumbency } from "./equine/EquineRecumbency";
 import { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
-/**
+/*
  * How often the mare's path is read for a following foal's course, seconds:
  * authored.
  */
 const STEP: number = 0.25;
 
-/**
+/*
  * Where a suckling foal stands, facing in at the udder: its centre's distance
  * from the udder, metres, the degrees and radius of its turn in; its walking
  * speed and its pause before reaching: authored.
@@ -42,13 +42,13 @@ const NURSE: Readonly<INurseShape> = {
   ease: 1,
 };
 
-/**
+/*
  * The udder's place along the mare's trunk bar from its rear end, a share of
  * the bar: authored.
  */
 const UDDER: number = 0.3;
 
-/**
+/*
  * How far the udder hangs below the barrel's underside, metres: authored, the
  * coarse body draws no udder.
  */
@@ -257,7 +257,9 @@ export namespace AutoMovieArchetypeEquineFoal {
       D | AutoMovieArchetypeQuadrupedBody.Dimension
     >,
   ] {
-    /** The source dimensions with the quadruped size the ride solves. */
+    /*
+     * The source dimensions with the quadruped size the ride solves.
+     */
     type Dimension = D | AutoMovieArchetypeQuadrupedBody.Dimension;
     const lying: AutoMovieArchetypeRide.IRide<Id, Dimension> =
       EquineRecumbency.after(mare, ride, { from: timing.from, ...timing.mare });
@@ -327,7 +329,7 @@ export namespace AutoMovieArchetypeEquineFoal {
     ];
   }
 
-  /**
+  /*
    * The risen foal walks to the risen mare's flank and suckles: an S-curve of
    * two opposite quarter turns steps it across, a straight brings it level with
    * the udder, and a last turn faces it in at the udder from beside the barrel,
@@ -348,7 +350,9 @@ export namespace AutoMovieArchetypeEquineFoal {
     Id,
     D | AutoMovieArchetypeQuadrupedBody.Dimension
   > {
-    /** The source dimensions with the quadruped size the ride solves. */
+    /*
+     * The source dimensions with the quadruped size the ride solves.
+     */
     type Dimension = D | AutoMovieArchetypeQuadrupedBody.Dimension;
     const both: number = Math.max(born.duration, lying.duration);
     const stood: AutoMovieArchetypeRide.ISample<Id, Dimension> = born.at(
@@ -467,29 +471,45 @@ export namespace AutoMovieArchetypeEquineFoal {
   }
 }
 
-/** A suckling foal's authored place. */
+/*
+ * A suckling foal's authored place.
+ */
 interface INurseShape {
-  /** Metres out from the mare's centre line. */
+  /*
+   * Metres out from the mare's centre line.
+   */
   out: number;
 
-  /** Degrees of its last turn in, from the mare's heading. */
+  /*
+   * Degrees of its last turn in, from the mare's heading.
+   */
   turn: number;
 
-  /** Metres of radius of its last turn in. */
+  /*
+   * Metres of radius of its last turn in.
+   */
   radius: number;
 
-  /** Its walking speed, metres per second. */
+  /*
+   * Its walking speed, metres per second.
+   */
   speed: number;
 
-  /** Seconds it settles before reaching. */
+  /*
+   * Seconds it settles before reaching.
+   */
   settle: number;
 
-  /** Seconds its reach eases in and out. */
+  /*
+   * Seconds its reach eases in and out.
+   */
   ease: number;
 }
 
 /** A mare's lying for the foaling: everything but its start. */
 type Lying = Omit<EquineRecumbency.ICue, "from">;
 
-/** A named instant of a ride. */
+/*
+ * A named instant of a ride.
+ */
 type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

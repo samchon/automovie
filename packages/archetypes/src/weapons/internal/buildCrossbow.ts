@@ -7,15 +7,14 @@ import {
 } from "../../core/index";
 import { AutoMovieArchetypeBow } from "../AutoMovieArchetypeBow";
 
-/**
+/*
  * Build a crossbow lying on its stock on the producer's builder: the stock
  * along `+Z` from the butt at the origin, its top the bolt's groove, the bow
  * across its fore-end, the string drawn back toward the butt by the cranequin's
  * crank, and the trigger and stirrup, each placed from `createBow.CROSSBOW`.
- *
- * @param builder The bow under construction.
- * @param d The drawn dimensions.
- * @returns The crossbow.
+ * Parameter builder: The bow under construction.
+ * Parameter d: The drawn dimensions.
+ * Returns: The crossbow.
  */
 export function buildCrossbow(
   builder: AutoMovieArchetypeBuilder<AutoMovieArchetypeBow.Affordance, AutoMovieArchetypeBow.Dimension>,

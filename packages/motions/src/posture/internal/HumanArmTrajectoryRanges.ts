@@ -5,20 +5,19 @@ import { HumanArmTrajectoryInvalid } from "./HumanArmTrajectoryInvalid";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
-/**
+/*
  * Build the elastic domain rows at one arm's inner waypoint.
- *
- * @param c The trajectory context.
- * @param a The arm.
- * @param k The waypoint.
- * @param v The iterate's arm coordinates.
- * @param index The convex model's mapping from arm, waypoint and free
- *   coordinate to a variable.
- * @param weight The exact penalty's weight, the one every other constraint row
- *   of the subproblem carries.
- * @returns The chart-disc row where active and the exact coordinate boxes, each
- *   in the tolerance units of `HumanArmTrajectoryTerms.RANGE`, as the
- *   evaluation reads them (`HumanArmTrajectoryRangeExcess`).
+ * Parameter c: The trajectory context.
+ * Parameter a: The arm.
+ * Parameter k: The waypoint.
+ * Parameter v: The iterate's arm coordinates.
+ * Parameter index: The convex model's mapping from arm, waypoint and free
+ * coordinate to a variable.
+ * Parameter weight: The exact penalty's weight, the one every other constraint row
+ * of the subproblem carries.
+ * Returns: The chart-disc row where active and the exact coordinate boxes, each
+ * in the tolerance units of `HumanArmTrajectoryTerms.RANGE`, as the
+ * evaluation reads them (`HumanArmTrajectoryRangeExcess`).
  */
 export function HumanArmTrajectoryRanges(
   c: M.IContext,

@@ -19,7 +19,7 @@ import { physicalShapeContactManifold } from "./physicalShapeContactManifold";
 import { physicalShapePairContact } from "./physicalShapePairContact";
 import { physicalShapePenetration } from "./physicalShapePenetration";
 
-/**
+/*
  * The contact phase of one extended position-based dynamics step (Mueller,
  * Macklin, Chentanez, Jeschke and Kim 2020, section 3.5 and 3.6).
  *
@@ -122,18 +122,17 @@ export namespace solveXpbdContacts {
     b: AutoMovieXpbdCollider,
   ) => boolean;
 
-  /**
+  /*
    * Find the overlapping pairs at the predicted poses and their manifolds: each
    * responding pair contributes one contact per point of its patch
    * (`physicalShapeContactManifold`, features within `band` of the deepest
    * plane), or its nearest-feature witnesses when the patch is a single
    * crossing; a pair with a sensor contributes one overlap record.
-   *
-   * @param colliders Every collider, in creation order.
-   * @param filter The pair filter.
-   * @param band Depth below a support plane still counted as touching, metres.
-   * @returns The contacts, in pair order; sensors included, flagged by their
-   *   colliders.
+   * Parameter colliders: Every collider, in creation order.
+   * Parameter filter: The pair filter.
+   * Parameter band: Depth below a support plane still counted as touching, metres.
+   * Returns: The contacts, in pair order; sensors included, flagged by their
+   * colliders.
    */
   export function detect(
     colliders: readonly AutoMovieXpbdCollider[],
@@ -212,16 +211,15 @@ export namespace solveXpbdContacts {
       }
     return found;
   }
-  /**
+  /*
    * One position pass over the contacts.
-   *
-   * @param contacts The step's contacts; sensors are skipped.
-   * @param h The substep, seconds.
-   * @param allowed The depth left uncorrected, metres.
-   * @param frequency The contact spring's natural frequency, hertz.
-   * @param trees The pass's articulated response (`respondXpbdArticulation`): a
-   *   jointed body's correction moves its whole tree along its joints' free
-   *   axes; each body alone when absent.
+   * Parameter contacts: The step's contacts; sensors are skipped.
+   * Parameter h: The substep, seconds.
+   * Parameter allowed: The depth left uncorrected, metres.
+   * Parameter frequency: The contact spring's natural frequency, hertz.
+   * Parameter trees: The pass's articulated response (`respondXpbdArticulation`): a
+   * jointed body's correction moves its whole tree along its joints' free
+   * axes; each body alone when absent.
    */
   export function positions(
     contacts: readonly IContact[],
@@ -344,12 +342,11 @@ export namespace solveXpbdContacts {
       }
     }
   }
-  /**
+  /*
    * The responding contacts grouped by collider pair, in pair order; sensors
    * are left out.
-   *
-   * @param contacts The step's contacts, the points of one pair adjacent.
-   * @returns One array per pair; the contacts are the given records.
+   * Parameter contacts: The step's contacts, the points of one pair adjacent.
+   * Returns: One array per pair; the contacts are the given records.
    */
   export function manifolds(contacts: readonly IContact[]): IContact[][] {
     const result: IContact[][] = [];
@@ -363,11 +360,10 @@ export namespace solveXpbdContacts {
     return result;
   }
 
-  /**
+  /*
    * The mean of body-frame offsets.
-   *
-   * @param points The offsets, at least one.
-   * @returns Their mean.
+   * Parameter points: The offsets, at least one.
+   * Returns: Their mean.
    */
   export function centroid(
     points: readonly IAutoMovieVector3[],
@@ -381,12 +377,11 @@ export namespace solveXpbdContacts {
       1 / points.length,
     );
   }
-  /**
+  /*
    * A body-frame offset from the centre as a world arm.
-   *
-   * @param body The body.
-   * @param offset The offset in its frame, metres.
-   * @returns The world arm, metres.
+   * Parameter body: The body.
+   * Parameter offset: The offset in its frame, metres.
+   * Returns: The world arm, metres.
    */
   export function arm(
     body: AutoMovieXpbdBody,
@@ -395,7 +390,7 @@ export namespace solveXpbdContacts {
     return Quaternion.rotateVector(body.orientation, offset);
   }
 
-  /**
+  /*
    * The contact of two colliders, or null when they are apart. Two polytopes
    * (boxes and hulls) are tested by GJK and, when they overlap, measured by EPA
    * (physicalShapePenetration), which is exact for polytopes; a pair with a
@@ -427,7 +422,9 @@ export namespace solveXpbdContacts {
         };
   }
 
-  /** A world witness as a body-frame offset from the centre. */
+  /*
+   * A world witness as a body-frame offset from the centre.
+   */
   function local(
     body: AutoMovieXpbdBody,
     point: IAutoMovieVector3,
@@ -438,7 +435,9 @@ export namespace solveXpbdContacts {
     );
   }
 
-  /** Where a body-frame offset was at the start of the step. */
+  /*
+   * Where a body-frame offset was at the start of the step.
+   */
   function previous(
     body: AutoMovieXpbdBody,
     offset: IAutoMovieVector3,

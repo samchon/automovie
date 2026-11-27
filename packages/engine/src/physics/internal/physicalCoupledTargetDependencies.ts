@@ -5,7 +5,7 @@ import type {
   IAutoMoviePlanPhysicalContactTargets,
 } from "@automovie/interface";
 
-/**
+/*
  * Check that one group forms a reciprocal dependency through receivers that
  * actually have adjustable ancestry.
  */
@@ -66,7 +66,9 @@ type Member = {
   >;
 };
 
-/** Determine whether a probe can change the receiver's displayed placement. */
+/*
+ * Determine whether a probe can change the receiver's displayed placement.
+ */
 function adjustableAncestry(
   profile: IAutoMoviePhysicalProfile,
   bones: readonly string[],

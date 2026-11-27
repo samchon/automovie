@@ -3,7 +3,7 @@ import type {
   IAutoMovieRecoveryMapObservation,
 } from "@automovie/interface";
 
-/**
+/*
  * Link bidirectionally ratio-qualified feature identities across fixed images.
  * A component containing two feature indices from one image is explicitly
  * conflicting and is withheld; even a conflict-free component is tentative

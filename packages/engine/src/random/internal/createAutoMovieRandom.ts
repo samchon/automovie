@@ -3,21 +3,19 @@ import type { IAutoMovieRandom } from "@automovie/interface";
 import { deriveAutoMovieSeed } from "./deriveAutoMovieSeed";
 import { philoxAutoMovie4x32 } from "./philoxAutoMovie4x32";
 
-/**
+/*
  * A pure, counter-based random stream keyed by a 64-bit seed.
  *
- * Every value is the Philox4x32-10 block ({@link philoxAutoMovie4x32}) of its
+ * Every value is the Philox4x32-10 block (philoxAutoMovie4x32) of its
  * own counter under the seed's key, so a value depends on the seed and its
  * index alone: any index can be read first, in any order, from any thread, and
  * seeking costs one block. Index `i` reads the block of counter `[i mod 2^32,
  * floor(i / 2^32), 0, 0]`, so a stream holds 2^53 indices (the integers a
  * double counts exactly), each a fresh block, and never cycles within them.
- * Independent streams come from {@link IAutoMovieRandom.stream}, which keys a
+ * Independent streams come from IAutoMovieRandom.stream, which keys a
  * new stream by stable ids, never by ordinals.
- *
- * @param seed Sixteen hexadecimal digits, as {@link deriveAutoMovieSeed}
- *   returns.
- * @returns The stream.
+ * Parameter seed: Sixteen hexadecimal digits, as deriveAutoMovieSeedreturns.
+ * Returns: The stream.
  */
 export function createAutoMovieRandom(seed: string): IAutoMovieRandom {
   const key: [number, number] = [

@@ -17,7 +17,7 @@ import { validateBlockingAnchors } from "./validateBlockingAnchors";
 import { validateBlockingClock } from "./validateBlockingClock";
 import { validatePerformShotFraming } from "./validatePerformShotFraming";
 
-/**
+/*
  * The blocking gate: check one beat's shot plan before any performance is
  * compiled from it, and report every contradiction at once.
  *

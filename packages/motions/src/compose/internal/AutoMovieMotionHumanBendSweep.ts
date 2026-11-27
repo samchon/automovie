@@ -19,28 +19,27 @@ import type { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendCh
 import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
 
-/**
+/*
  * The best elbow place of a prepared arm chain for a wrist's place under a
  * ranking: the engine's swivel sweep over the elbow's circle, each place read
  * for its joints' overshoot, the forearm's clearance of the body and its strain
  * (`AutoMovieMotionHumanBendSearch`).
- *
- * @param chain The prepared chain.
- * @param body The body, for the hand's range and the colliders.
- * @param side The arm.
- * @param point The wrist, world metres.
- * @param rotation The hand's world rotation, when its turn counts as strain.
- * @param neutral The hanging arm's shoulder angles; null leaves the shoulder's
- *   strain at 0.
- * @param score The ranking of a candidate.
- * @param near The seed of a nearby solve to refine instead of sweeping
- *   (`IAutoMovieSwivelNear`).
- * @param byStrain Whether `score` is `AutoMovieMotionHumanBendSearch.strained`,
- *   whose deviation is the strain: a cold sweep is then decided
- *   by branch and bound on the strain's certified swivel-interval bound
- *   (`AutoMovieMotionHumanBendBound`).
- * @returns The chosen candidate with its true overshoot and its seed, or null
- *   for a degenerate chain.
+ * Parameter chain: The prepared chain.
+ * Parameter body: The body, for the hand's range and the colliders.
+ * Parameter side: The arm.
+ * Parameter point: The wrist, world metres.
+ * Parameter rotation: The hand's world rotation, when its turn counts as strain.
+ * Parameter neutral: The hanging arm's shoulder angles; null leaves the shoulder's
+ * strain at 0.
+ * Parameter score: The ranking of a candidate.
+ * Parameter near: The seed of a nearby solve to refine instead of sweeping
+ * (`IAutoMovieSwivelNear`).
+ * Parameter byStrain: Whether `score` is `AutoMovieMotionHumanBendSearch.strained`,
+ * whose deviation is the strain: a cold sweep is then decided
+ * by branch and bound on the strain's certified swivel-interval bound
+ * (`AutoMovieMotionHumanBendBound`).
+ * Returns: The chosen candidate with its true overshoot and its seed, or null
+ * for a degenerate chain.
  */
 export function AutoMovieMotionHumanBendSweep(
   chain: AutoMovieMotionHumanBendChain.IChain,
@@ -239,20 +238,28 @@ export function AutoMovieMotionHumanBendSweep(
   return complete();
 }
 
-/** The record of `IAutoMovieMotionHumanBendSweepMid`'s site. */
+/*
+ * The record of `IAutoMovieMotionHumanBendSweepMid`'s site.
+ */
 type IAutoMovieMotionHumanBendSweepMid = {
   rotation: IAutoMovieQuaternion;
   overshoot: number;
 };
 
-/** The record of `IAutoMovieMotionHumanBendSweepResult`'s site. */
+/*
+ * The record of `IAutoMovieMotionHumanBendSweepResult`'s site.
+ */
 type IAutoMovieMotionHumanBendSweepResult = {
   candidate: ICandidate;
   seed: IAutoMovieSwivelSeed;
 };
 
-/** A place on the swivel circle, the search's. */
+/*
+ * A place on the swivel circle, the search's.
+ */
 type ICandidate = AutoMovieMotionHumanBendSearch.ICandidate;
 
-/** The sweep's ordering key, the search's. */
+/*
+ * The sweep's ordering key, the search's.
+ */
 type IScore = AutoMovieMotionHumanBendSearch.IScore;

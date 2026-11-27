@@ -120,10 +120,12 @@ export namespace AutoMovieHumanF1Armscye {
     return AutoMovieHumanLandmarkSurface.create(shoulder, LANDMARKS_MM.map(world), elbow);
   }
 
-  /** Arm phases the contact is read at. */
+  /*
+   * Arm phases the contact is read at.
+   */
   const PHASES: number = 360;
 
-  /**
+  /*
    * The width, radians of the arm's phase, of the periodic Gaussian the contact's station is averaged by. Over the cap the two skins
    * cross wherever their half-millimetre weave happens to change sign, so the raw crossing station jitters by up to 7 mm between
    * neighbouring phases while both skins stay within that weave of each other; averaged over 15 degrees the loop runs fair and stays in

@@ -18,16 +18,15 @@ import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import type { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { HumanTrunk } from "./HumanTrunk";
 
-/**
+/*
  * A crouch's legs at a share of the descent (`crouch.plan`): the shank's and
  * the thigh's tilts moving together, the heel risen about the toes' joint by
  * what the ankle's range leaves, the feet pivoted there, the hip joints over
  * each ankle from the leg's two lengths, and the trunk inclined and tipped on
  * the moved root. Read from the plan's body, heading, heels, tilts and standing
  * posture.
- *
- * @param scope What the plan's legs are read from.
- * @returns The posture at a share for each inclination.
+ * Parameter scope: What the plan's legs are read from.
+ * Returns: The posture at a share for each inclination.
  */
 export function crouchLegs(scope: crouchLegs.IScope): crouchLegs.AtShare {
   const {
@@ -173,7 +172,7 @@ export function crouchLegs(scope: crouchLegs.IScope): crouchLegs.AtShare {
       Vector3.scale(start, s),
     );
 
-  /**
+  /*
    * Bind fixed raw geometry for one share; every inclination still tips the
    * trunk and writes actual current-root knee goals.
    */
@@ -237,41 +236,60 @@ export function crouchLegs(scope: crouchLegs.IScope): crouchLegs.AtShare {
   return atShare;
 }
 
-/** What a crouch's legs read and what they are. */
+/*
+ * What a crouch's legs read and what they are.
+ */
 export namespace crouchLegs {
-  /** What a crouch plan reads its legs from. */
+  /*
+   * What a crouch plan reads its legs from.
+   */
   export interface IScope {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The body's measure. */
+    /*
+     * The body's measure.
+     */
     m: IAutoMovieMotionHumanBody["measure"];
 
-    /** The standing heading, degrees. */
+    /*
+     * The standing heading, degrees.
+     */
     yaw: number;
 
-    /** The heel lift about the toes' joint, degrees; zero for flat heels. */
+    /*
+     * The heel lift about the toes' joint, degrees; zero for flat heels.
+     */
     heel: number;
 
-    /** The crouching ankle's dorsiflexion, degrees. */
+    /*
+     * The crouching ankle's dorsiflexion, degrees.
+     */
     dorsiflexion: number;
 
-    /** The shank's tilt at the lowest pose, degrees. */
+    /*
+     * The shank's tilt at the lowest pose, degrees.
+     */
     shankTilt: number;
 
-    /** The thigh's tilt at the lowest pose, degrees. */
+    /*
+     * The thigh's tilt at the lowest pose, degrees.
+     */
     thighTilt: number;
 
-    /** The standing posture. */
+    /*
+     * The standing posture.
+     */
     standing: IAutoMovieMotionHumanPosture;
   }
 
-  /**
+  /*
    * The raw geometry bound for one share, read at an inclination.
-   *
-   * @param posture The posture the share is written on.
-   * @param s The descent's share.
-   * @returns The posture at an inclination.
+   * Parameter posture: The posture the share is written on.
+   * Parameter s: The descent's share.
+   * Returns: The posture at an inclination.
    */
   export type AtShare = (
     posture: IAutoMovieMotionHumanPosture,

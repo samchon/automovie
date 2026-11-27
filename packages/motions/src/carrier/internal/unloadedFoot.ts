@@ -7,7 +7,7 @@ import type {
 
 import { HumanMountPush } from "../../lexicon/internal/HumanMountPush";
 
-/**
+/*
  * A leg goal whose foot bears nothing, turned toes down about its ankle as far
  * as its ankle would otherwise dorsiflex past what a weightless ankle holds
  * (`HumanMountPush.DORSAL`). The bend is the one `HumanMountPush.bend` reads:
@@ -16,13 +16,12 @@ import { HumanMountPush } from "../../lexicon/internal/HumanMountPush";
  * the verdicts take. The ankle stays where the goal puts it, so the knee does
  * not move and the turn by the excess about the knee's hinge leaves the ankle
  * bent by exactly the limit.
- *
- * @param body The body.
- * @param hip The leg's hip joint, world metres.
- * @param goal The leg goal, its foot turned by `rotation`.
- * @param weight The share of the turn applied, 0 to 1: a caller easing the foot
- *   in and out of its plants passes less than 1 near them.
- * @returns The goal, its foot turned down when it must be; unchanged otherwise.
+ * Parameter body: The body.
+ * Parameter hip: The leg's hip joint, world metres.
+ * Parameter goal: The leg goal, its foot turned by `rotation`.
+ * Parameter weight: The share of the turn applied, 0 to 1: a caller easing the foot
+ * in and out of its plants passes less than 1 near them.
+ * Returns: The goal, its foot turned down when it must be; unchanged otherwise.
  */
 export function unloadedFoot(
   body: IAutoMovieMotionHumanBody,

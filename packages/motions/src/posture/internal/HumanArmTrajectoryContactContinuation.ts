@@ -18,15 +18,14 @@ import { HumanArmTrajectoryPairs } from "./HumanArmTrajectoryPairs";
 import { HumanArmTrajectoryTerms } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel } from "./HumanArmTrajectoryTravel";
 
-/**
+/*
  * Trace each feasible endpoint swivel component towards an admitted hold in
  * both time directions. Uses the original course's physical limits, including
  * its time-dependent pace, for the final whole-course admission.
- *
- * @param held The waypoint indices of the original hold.
- * @param course The original course and its prepared canonical problem.
- * @param tempo The explicit replan's duration multiplier.
- * @returns The new admitted course when continuation finds one.
+ * Parameter held: The waypoint indices of the original hold.
+ * Parameter course: The original course and its prepared canonical problem.
+ * Parameter tempo: The explicit replan's duration multiplier.
+ * Returns: The new admitted course when continuation finds one.
  */
 export function HumanArmTrajectoryContactContinuation(
   held: readonly number[],
@@ -302,7 +301,7 @@ export function HumanArmTrajectoryContactContinuation(
   return candidate.admitted ? candidate : course;
 }
 
-/**
+/*
  * Sample one Hermite segment, matching the source's adjacent coordinate rates
  * in seconds.
  */
@@ -351,7 +350,9 @@ function endpointCurve(
   });
 }
 
-/** Peak native probe speed across one tested transition in either direction. */
+/*
+ * Peak native probe speed across one tested transition in either direction.
+ */
 function fastest(
   c: M.IContext,
   from: number,

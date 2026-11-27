@@ -9,7 +9,7 @@ import type {
 import { admitPhysicalContactBindings } from "./admitPhysicalContactBindings";
 import { inPhysicalFloorBounds } from "./inPhysicalFloorBounds";
 
-/**
+/*
  * Admit every sampled ownership, effort and world pose before target fitting or
  * native allocation.
  */

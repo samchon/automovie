@@ -15,7 +15,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { quaternionFromAutoMovieBasis } from "../../math/internal/quaternionFromAutoMovieBasis";
 
-/**
+/*
  * Turn whole occurrences into computed instance slots and name the ones that
  * cannot be.
  *
@@ -36,8 +36,8 @@ import { quaternionFromAutoMovieBasis } from "../../math/internal/quaternionFrom
  * extent, and local `+Z` to the face normal, which is `u × v`.
  *
  * A host that folds at a corner or curves is one developed face standing on
- * several flat panels, so a zone may name its own {@link IAutoMoviePatternFacet}
- * and every zone that does not stays on {@link frame}.
+ * several flat panels, so a zone may name its own IAutoMoviePatternFacet
+ * and every zone that does not stays on frame.
  *
  * Throws when the thickness is not a finite positive number, a frame or facet
  * value is not finite, an axis is not unit length or the two axes are not
@@ -103,25 +103,39 @@ export function autoMoviePatternInstanceTransforms(
   return { transforms, cut };
 }
 
-/** One panel's approximate orthonormal world basis and developed anchor. */
+/*
+ * One panel's approximate orthonormal world basis and developed anchor.
+ */
 interface IResolvedPanel {
-  /** Face-local metre point {@link origin} sits at. */
+  /*
+   * Face-local metre point origin sits at.
+   */
   anchor: IAutoMoviePatternPoint;
 
-  /** World point the panel is measured from. */
+  /*
+   * World point the panel is measured from.
+   */
   origin: IAutoMovieVector3;
 
-  /** Unit world direction of the panel's U axis. */
+  /*
+   * Unit world direction of the panel's U axis.
+   */
   u: IAutoMovieVector3;
 
-  /** Unit world direction of the panel's V axis. */
+  /*
+   * Unit world direction of the panel's V axis.
+   */
   v: IAutoMovieVector3;
 
-  /** Computed world face normal, `u × v`, under the approximate frame checks. */
+  /*
+   * Computed world face normal, `u × v`, under the approximate frame checks.
+   */
   normal: IAutoMovieVector3;
 }
 
-/** Index each declared quantity zone's facet, including zones with no survivors. */
+/*
+ * Index each declared quantity zone's facet, including zones with no survivors.
+ */
 const resolveFacets: (
   result: IAutoMovieSurfacePatternResult,
   facets: readonly IAutoMoviePatternFacet[],
@@ -154,7 +168,7 @@ const resolveFacets: (
   return panels;
 };
 
-/**
+/*
  * Validate one frame and anchor against the approximate orthonormality
  * tolerance.
  */
@@ -174,7 +188,9 @@ const resolvePanel: (
   return { anchor, origin: frame.origin, u, v, normal: Vector3.cross(u, v) };
 };
 
-/** Refuse an axis that is not finite or not unit length within `1e-6`. */
+/*
+ * Refuse an axis that is not finite or not unit length within `1e-6`.
+ */
 const unitAxis: (
   axis: IAutoMovieVector3,
   label: string,
@@ -187,4 +203,6 @@ const unitAxis: (
   return axis;
 };
 
-/** Refuse a vector with a non-finite component. */
+/*
+ * Refuse a vector with a non-finite component.
+ */

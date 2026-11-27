@@ -4,7 +4,7 @@
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * The geometry the crowd steering pass reads (`steerAutoMovieCrowd`): an
  * agent's goal path and the point it heads for, the time to collision of two
  * discs and of a disc with a convex obstacle, the reciprocal half-plane of
@@ -13,37 +13,53 @@
  * obstacle's footprint and velocity.
  */
 export namespace steerAutoMovieCrowdGeometry {
-  /**
+  /*
    * A predicted collision: when, the contact normal toward the agent, and the
    * closing velocity.
    */
   export interface IHit {
-    /** Seconds until it. */
+    /*
+     * Seconds until it.
+     */
     time: number;
 
-    /** The unit contact normal's x, pointing toward the agent. */
+    /*
+     * The unit contact normal's x, pointing toward the agent.
+     */
     nx: number;
 
-    /** Its z. */
+    /*
+     * Its z.
+     */
     nz: number;
 
-    /** The agent's velocity relative to the other, x. */
+    /*
+     * The agent's velocity relative to the other, x.
+     */
     ux: number;
 
-    /** Its z. */
+    /*
+     * Its z.
+     */
     uz: number;
   }
 
-  /** An agent's goal polyline: its corners and their arc distances. */
+  /*
+   * An agent's goal polyline: its corners and their arc distances.
+   */
   export interface IPath {
-    /** The corners, the start first. */
+    /*
+     * The corners, the start first.
+     */
     points: readonly IAutoMovieVector3[];
 
-    /** The arc distance at each corner. */
+    /*
+     * The arc distance at each corner.
+     */
     arcs: readonly number[];
   }
 
-  /**
+  /*
    * Agents ordered by their own data: the canonical order the pass integrates
    * in, so the order given changes nothing.
    */
@@ -65,20 +81,24 @@ export namespace steerAutoMovieCrowdGeometry {
     );
   }
 
-  /** An agent's destination: its last goal. */
+  /*
+   * An agent's destination: its last goal.
+   */
   export function finalGoal(agent: IAutoMovieCrowdAgent): IAutoMovieVector3 {
     const list: readonly IAutoMovieVector3[] = goals(agent);
     return list[list.length - 1]!;
   }
 
-  /** An agent's goals as a list: one point or the points in order. */
+  /*
+   * An agent's goals as a list: one point or the points in order.
+   */
   export function goals(
     agent: IAutoMovieCrowdAgent,
   ): readonly IAutoMovieVector3[] {
     return "x" in agent.goal ? [agent.goal] : agent.goal;
   }
 
-  /**
+  /*
    * The polyline from an agent's start through its goals, with the arc distance
    * at each corner.
    */
@@ -96,7 +116,7 @@ export namespace steerAutoMovieCrowdGeometry {
     return { points, arcs };
   }
 
-  /**
+  /*
    * The desired heading and speed at a position: toward the point `lookahead`
    * seconds of desired travel past the nearest point of the path, the speed
    * falling linearly within `arrival` relaxation times of travel from the
@@ -156,14 +176,14 @@ export namespace steerAutoMovieCrowdGeometry {
     };
   }
 
-  /**
+  /*
    * The share of the product of two lengths under which their cross product
    * counts as zero in `change`: several million times a double's rounding, far
    * under any side a walker would choose.
    */
   export const TIE: number = 1e-9;
 
-  /**
+  /*
    * The smallest change `u` of an agent's velocity relative to another's that
    * leaves the other's velocity obstacle, truncated at a time horizon, and the
    * direction of the half-plane boundary it defines, the admissible side on its
@@ -180,23 +200,22 @@ export namespace steerAutoMovieCrowdGeometry {
    * exactly this one negated; the one exception is two overlapping discs with
    * no separating velocity, whose fallback direction does not turn with the
    * pair.
-   *
-   * @param px The agent's x, metres.
-   * @param pz The agent's z, metres.
-   * @param vx The agent's velocity x, metres per second.
-   * @param vz The agent's velocity z.
-   * @param qx The other's x.
-   * @param qz The other's z.
-   * @param wx The other's velocity x.
-   * @param wz The other's velocity z.
-   * @param R The two radii summed, metres.
-   * @param horizon The time horizon, seconds.
-   * @param step The integration step, seconds, for an overlap.
-   * @param into Receives the boundary's unit direction x and z, then the
-   *   change's x and z, metres per second.
-   * @param at Where in `into` the four values start.
-   * @returns Whether the pair read from the other's side negates this reading:
-   *   false only for the overlap fallback.
+   * Parameter px: The agent's x, metres.
+   * Parameter pz: The agent's z, metres.
+   * Parameter vx: The agent's velocity x, metres per second.
+   * Parameter vz: The agent's velocity z.
+   * Parameter qx: The other's x.
+   * Parameter qz: The other's z.
+   * Parameter wx: The other's velocity x.
+   * Parameter wz: The other's velocity z.
+   * Parameter R: The two radii summed, metres.
+   * Parameter horizon: The time horizon, seconds.
+   * Parameter step: The integration step, seconds, for an overlap.
+   * Parameter into: Receives the boundary's unit direction x and z, then the
+   * change's x and z, metres per second.
+   * Parameter at: Where in `into` the four values start.
+   * Returns: Whether the pair read from the other's side negates this reading:
+   * false only for the overlap fallback.
    */
   export function change(
     px: number,
@@ -275,17 +294,16 @@ export namespace steerAutoMovieCrowdGeometry {
     return turns;
   }
 
-  /**
+  /*
    * The largest share `a` in [0, 1] of a velocity change `u` an agent can take
    * within its speed cap, `|v + a u| <= top`: the larger root of the quadratic
    * when the cap holds at `a = 0`, and nothing when it does not.
-   *
-   * @param vx The velocity's x, metres per second.
-   * @param vz The velocity's z.
-   * @param ux The change's x.
-   * @param uz The change's z.
-   * @param top The speed cap, metres per second.
-   * @returns The share.
+   * Parameter vx: The velocity's x, metres per second.
+   * Parameter vz: The velocity's z.
+   * Parameter ux: The change's x.
+   * Parameter uz: The change's z.
+   * Parameter top: The speed cap, metres per second.
+   * Returns: The share.
    */
   export function capacity(
     vx: number,
@@ -303,7 +321,7 @@ export namespace steerAutoMovieCrowdGeometry {
     return Math.min(1, Math.max(0, root));
   }
 
-  /**
+  /*
    * The first contact of two discs moving at constant velocities, or null: `|p
    * - u t| = R` with `p` from the agent to the other and `u` the agent's
    * velocity relative to the other; the normal at contact points toward the
@@ -342,7 +360,7 @@ export namespace steerAutoMovieCrowdGeometry {
     return { time, nx, nz, ux, uz };
   }
 
-  /**
+  /*
    * The first contact of a disc of radius `r` moving at `u` with a still convex
    * polygon, or null: the earliest of its edges offset by `r` and its corners'
    * rounded caps.
@@ -396,7 +414,9 @@ export namespace steerAutoMovieCrowdGeometry {
     return best;
   }
 
-  /** The signed distance from a point to a convex polygon, negative inside. */
+  /*
+   * The signed distance from a point to a convex polygon, negative inside.
+   */
   export function signedDistance(
     px: number,
     pz: number,
@@ -441,7 +461,7 @@ export namespace steerAutoMovieCrowdGeometry {
     return outside <= 0 ? outside : nearest;
   }
 
-  /**
+  /*
    * An obstacle's footprint in the world at a second: as given when still,
    * placed by its motion when moving (its own x to its left, z ahead).
    */
@@ -466,7 +486,7 @@ export namespace steerAutoMovieCrowdGeometry {
     );
   }
 
-  /**
+  /*
    * An obstacle's velocity at a second, by a central difference of its motion
    * over a millisecond; zero for a still one.
    */
@@ -481,7 +501,7 @@ export namespace steerAutoMovieCrowdGeometry {
     return { x: (b.x - a.x) / (2 * h), y: 0, z: (b.z - a.z) / (2 * h) };
   }
 
-  /**
+  /*
    * The half-plane of velocities that keeps an agent's disc clear of a moving
    * convex obstacle for a time horizon, taken by the agent alone.
    *
@@ -512,21 +532,20 @@ export namespace steerAutoMovieCrowdGeometry {
    *
    * Coordinates are the floor's `x` and `z` as the plane's two; a returned
    * line's `y` is the floor's `z`.
-   *
-   * @param px The agent's x, metres.
-   * @param pz The agent's z.
-   * @param vx The agent's velocity x, metres per second.
-   * @param vz The agent's velocity z.
-   * @param wx The obstacle's velocity x.
-   * @param wz The obstacle's velocity z.
-   * @param corners The obstacle's convex footprint in the world, in either
-   *   winding.
-   * @param r The agent's radius, metres.
-   * @param horizon The time horizon, seconds.
-   * @param step The integration step, seconds, for an agent already inside.
-   * @param top The agent's speed cap, metres per second.
-   * @returns The half-plane, its admissible side on its direction's left, or
-   *   null for a footprint with no area.
+   * Parameter px: The agent's x, metres.
+   * Parameter pz: The agent's z.
+   * Parameter vx: The agent's velocity x, metres per second.
+   * Parameter vz: The agent's velocity z.
+   * Parameter wx: The obstacle's velocity x.
+   * Parameter wz: The obstacle's velocity z.
+   * Parameter corners: The obstacle's convex footprint in the world, in either
+   * winding.
+   * Parameter r: The agent's radius, metres.
+   * Parameter horizon: The time horizon, seconds.
+   * Parameter step: The integration step, seconds, for an agent already inside.
+   * Parameter top: The agent's speed cap, metres per second.
+   * Returns: The half-plane, its admissible side on its direction's left, or
+   * null for a footprint with no area.
    */
   export function obstacle(
     px: number,

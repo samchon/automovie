@@ -258,7 +258,9 @@ export namespace AutoMovieHumanHeadTree {
     };
   }
 
-  /** A join node of a part onto its host. */
+  /*
+   * A join node of a part onto its host.
+   */
   function join(
     placed: IAutoMovieHumanHeadComposer.IPlaced,
     host: IAutoMovieConstructionNode,
@@ -307,7 +309,9 @@ export namespace AutoMovieHumanHeadTree {
     };
   }
 
-  /** The axis as the planes at the part's stations. */
+  /*
+   * The axis as the planes at the part's stations.
+   */
   function axis(part: IAutoMovieViewPart): IAutoMovieConstructionAxis {
     const original: IAutoMovieConstructionAxis | null =
       AutoMovieViewParallelAxis.source(part.axis);
@@ -390,21 +394,27 @@ export namespace AutoMovieHumanHeadTree {
     };
   }
 
-  /** An outline's knots, in metres. */
+  /*
+   * An outline's knots, in metres.
+   */
   function outline(
     o: IAutoMovieViewPart.IOutline,
   ): IAutoMovieConstructionOutline {
     return AutoMovieViewOutline.scale(o, METRES, METRES);
   }
 
-  /** A shoulder law's knots, stations in metres and shares as they are. */
+  /*
+   * A shoulder law's knots, stations in metres and shares as they are.
+   */
   function shares(
     o: IAutoMovieViewPart.IOutline,
   ): IAutoMovieConstructionOutline {
     return AutoMovieViewOutline.scale(o, METRES, 1);
   }
 
-  /** The fullness owner. */
+  /*
+   * The fullness owner.
+   */
   function fullness(
     f: IAutoMovieViewPart.Fullness,
   ): IAutoMovieConstructionFullness {
@@ -447,7 +457,9 @@ export namespace AutoMovieHumanHeadTree {
     };
   }
 
-  /** A point or direction as the interface's vector, scaled. */
+  /*
+   * A point or direction as the interface's vector, scaled.
+   */
   function vector(p: readonly number[], scale: number): IAutoMovieVector3 {
     return { x: p[0]! * scale, y: p[1]! * scale, z: p[2]! * scale };
   }

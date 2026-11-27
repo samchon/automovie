@@ -2,7 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeQuadrupedFooting } from "../AutoMovieArchetypeQuadrupedFooting";
 
-/**
+/*
  * Footholds kept clear of a concave edge between authored footing planes: where
  * a steeper plane meets a gentler one below it, at the foot of a bank or the
  * bottom of a climb, a hoof landing within its pastern's length of the edge
@@ -12,7 +12,7 @@ import type { AutoMovieArchetypeQuadrupedFooting } from "../AutoMovieArchetypeQu
  * convex edge, the top of a bank, keeps its landings.
  */
 export namespace QuadrupedCorner {
-  /**
+  /*
    * Move a world foothold clear of the concave edges within a reach of it,
    * metres.
    */
@@ -21,14 +21,15 @@ export namespace QuadrupedCorner {
     reach: number,
   ) => IAutoMovieVector3;
 
-  /** Both axes, in the order a foothold is cleared along them. */
+  /*
+   * Both axes, in the order a foothold is cleared along them.
+   */
   const AXES: readonly Axis[] = ["x", "z"];
 
-  /**
+  /*
    * The foothold mover for a footing scene.
-   *
-   * @param scene The authored footing, absent for level ground.
-   * @returns The mover; the identity without footing.
+   * Parameter scene: The authored footing, absent for level ground.
+   * Returns: The mover; the identity without footing.
    */
   export function of(
     scene: AutoMovieArchetypeQuadrupedFooting.IScene | undefined,
@@ -103,6 +104,8 @@ export namespace QuadrupedCorner {
     };
   }
 
-  /** The two horizontal axes a plane bounds. */
+  /*
+   * The two horizontal axes a plane bounds.
+   */
   type Axis = "x" | "z";
 }

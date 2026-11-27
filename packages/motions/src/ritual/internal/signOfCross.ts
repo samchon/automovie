@@ -6,14 +6,13 @@ import type {
 import { SITE } from "./SITE";
 import { TOUCH_HOLD } from "./TOUCH_HOLD";
 
-/**
+/*
  * Append the sign of the cross: forehead, sternum, then both shoulders in the
  * rite's order, with one hand's fingertips.
- *
- * @param chain The performer's chain.
- * @param params The signing `hand` (the right when absent) and the `rite` (the
- *   Latin rite when absent).
- * @returns The chain with four touches appended.
+ * Parameter chain: The performer's chain.
+ * Parameter params: The signing `hand` (the right when absent) and the `rite` (the
+ * Latin rite when absent).
+ * Returns: The chain with four touches appended.
  */
 export function signOfCross<Chain extends IAutoMovieMotionHumanChainCore>(
   chain: Chain,

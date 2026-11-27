@@ -5,7 +5,7 @@ import type {
 
 import { prepareCutExact } from "./prepareCutExact";
 
-/**
+/*
  * Intersect a triangle surface with a plane without epsilon displacement or
  * branch loss. Equal signed zero vertices retain exact source positions.
  * Coplanar triangles contribute only qualified patch-boundary edges; binary64

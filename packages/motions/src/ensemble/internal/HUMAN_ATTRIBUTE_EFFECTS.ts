@@ -2,7 +2,7 @@ import type { IAutoMovieMotionHumanAttributeEffects } from "@automovie/interface
 
 import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionManner";
 
-/**
+/*
  * What each group attribute moves, as one table every reader takes its numbers
  * from, so changing a row reaches every law and pass that reads it.
  *

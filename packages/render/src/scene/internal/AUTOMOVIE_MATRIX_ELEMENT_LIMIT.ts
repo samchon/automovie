@@ -1,4 +1,4 @@
-/**
+/*
  * The largest magnitude a 4 by 4 matrix element may have for the operations the
  * cameras run on it, a determinant and an inverse, to stay inside binary64.
  *

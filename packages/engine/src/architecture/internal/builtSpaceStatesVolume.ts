@@ -1,6 +1,6 @@
 import { IAutoMovieBuiltSpace } from "@automovie/interface";
 
-/**
+/*
  * Does a logical space bound a volume at all, in either spelling?
  *
  * A space with neither spelling is a semantic name, such as "the west wing".
@@ -10,9 +10,8 @@ import { IAutoMovieBuiltSpace } from "@automovie/interface";
  *
  * Tests presence, not closure or positive volume: a space whose only cells are
  * unbounded still answers true.
- *
- * @param space Logical space to classify.
- * @returns True when the space states at least one cell or a shell.
+ * Parameter space: Logical space to classify.
+ * Returns: True when the space states at least one cell or a shell.
  */
 export function builtSpaceStatesVolume(space: IAutoMovieBuiltSpace): boolean {
   return space.cells.length !== 0 || space.shell !== undefined;

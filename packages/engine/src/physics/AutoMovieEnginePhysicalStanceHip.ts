@@ -301,7 +301,7 @@ export namespace AutoMovieEnginePhysicalStanceHip {
 /** A support limb of the balance pattern. */
 type Limb = IAutoMovieFootfallPattern["limbs"][number];
 
-/**
+/*
  * A stance limb's hip: its first joint's centre, world metres, and the moment
  * its axes hold about a horizontal axis, N m: sum min(tau+, tau-) |e_i . a|,
  * or, for a foot carrying a force, each axis's cap on the side it already turns

@@ -6,7 +6,7 @@ import type {
 
 import { createRecoveryCameraEstimate } from "./createRecoveryCameraEstimate";
 
-/**
+/*
  * Estimate the explicit seed using only globally admitted direct reciprocal
  * links. This reconstructs pose support under the complete identity policy
  * instead of deleting landmarks after a prior local-map fit has influenced its

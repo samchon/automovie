@@ -14,10 +14,12 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { wardrobeHands } from "./wardrobeHands";
 import type { wardrobeModes } from "./wardrobeModes";
 
-/** How far a hand clears the physical sleeve plane on each side, metres. */
+/*
+ * How far a hand clears the physical sleeve plane on each side, metres.
+ */
 const CLEAR: number = 0.034;
 
-/**
+/*
  * Fit a real path down the named sleeve axis, leaving positive radial
  * clearance.
  */
@@ -130,18 +132,30 @@ export function wardrobeSleeve(
   };
 }
 
-/** The records of `wardrobeSleeve`. */
+/*
+ * The records of `wardrobeSleeve`.
+ */
 export namespace wardrobeSleeve {
-  /** Two display grip targets lie on opposite sides of a real sleeve. */
+  /*
+   * Two display grip targets lie on opposite sides of a real sleeve.
+   */
   export interface ISleeve {
-    /** Clear of the opening on the approach side. */
+    /*
+     * Clear of the opening on the approach side.
+     */
     before: IAutoMovieRigidTransform;
-    /** Clear of the outlet after passage. */
+    /*
+     * Clear of the outlet after passage.
+     */
     after: IAutoMovieRigidTransform;
-    /** Time share at which the wrist crosses the opening plane. */
+    /*
+     * Time share at which the wrist crosses the opening plane.
+     */
     passage: number;
   }
 }
 
-/** The installed wardrobe actions and their requested direction and side. */
+/*
+ * The installed wardrobe actions and their requested direction and side.
+ */
 type Params = wardrobeModes.Params;

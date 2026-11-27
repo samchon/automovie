@@ -25,12 +25,12 @@ import { defendFootwork } from "./defendFootwork";
 import { defendGeometry } from "./defendGeometry";
 import { strikingReadBack } from "./strikingReadBack";
 
-/**
+/*
  * A defence against one placed strike: a glove, forearm or shin brought to
  * where the incoming weapon will be, or the head moved off its line.
  *
  * When the defence starts comes from the defence outcome law
- * ({@link DefenceOutcome}): the defender reacts to the strike's launch after a
+ * (DefenceOutcome): the defender reacts to the strike's launch after a
  * seeded reaction time, earlier by the anticipation lead the strike's
  * preparation allows (its telegraph), and the author may force the outcome (in
  * time, late or fail), which the law realises with plausible timing. Where it
@@ -64,13 +64,15 @@ import { strikingReadBack } from "./strikingReadBack";
  *
  * The defence holds until just after the strike's contact and returns to the
  * guard over one hand recovery. The geometry itself is built by
- * {@link defendGeometry} on the first posture after the read.
+ * defendGeometry on the first posture after the read.
  */
 export namespace defend {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "defend";
 
-  /**
+  /*
    * Cancel table: a defence flows into a counter punch or another defence once
    * the strike has passed.
    */
@@ -83,14 +85,13 @@ export namespace defend {
     ],
   };
 
-  /**
+  /*
    * How much of a strike its preparation shows, in [0, 1]: provisional readings
    * of how visible each technique's preparation is, with no located study
    * measuring it per technique. A round kick's chamber shows most (1.0), a push
    * kick or knee 0.8, a rear-hand punch's turn 0.6 and a jab 0.4.
-   *
-   * @param attack The placed strike.
-   * @returns The telegraph.
+   * Parameter attack: The placed strike.
+   * Returns: The telegraph.
    */
   export function telegraph(
     attack: Pick<IAutoMovieMotionHumanPlacedAction, "family" | "params">,
@@ -110,14 +111,13 @@ export namespace defend {
     return 0.8;
   }
 
-  /**
+  /*
    * Plan a defence.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the answered strike has no contact or shown
-   *   peak, does not strike this performer at a region, or the forced outcome
-   *   is one plausible timing cannot meet (`DefenceOutcome.decide`).
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the answered strike has no contact or shown
+   * peak, does not strike this performer at a region, or the forced outcome
+   * is one plausible timing cannot meet (`DefenceOutcome.decide`).
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDefend.IParams>,
@@ -246,7 +246,7 @@ export namespace defend {
     return out;
   }
 
-  /**
+  /*
    * Fixed entry-foot and guard demands while waiting; each query still resolves
    * its complete current authored posture.
    */
@@ -282,12 +282,16 @@ export namespace defend {
   }
 }
 
-/** The record of `IPlanAt`'s site. */
+/*
+ * The record of `IPlanAt`'s site.
+ */
 type IPlanAt = {
   at?: IPlanAtAt;
 };
 
-/** The record of `IPlanAtAt`'s site. */
+/*
+ * The record of `IPlanAtAt`'s site.
+ */
 type IPlanAtAt = {
   kind: string;
   subject?: string;

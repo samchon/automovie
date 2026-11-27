@@ -26,7 +26,7 @@ import { HumanLungeStance } from "./HumanLungeStance";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
 
-/**
+/*
  * Lunge a horse from the circle's centre (`IAutoMovieMotionHumanLunge`): the
  * handler turns on the spot to face the horse's root as it circles, the line
  * hand on the lunge line where the horse's ride lays it and the whip hand low
@@ -55,19 +55,13 @@ export const HumanLunge: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLun
     plan: planHumanLunge,
   };
 
-/** The law's context. */
+/*
+ * The law's context.
+ */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLunge>;
 
-/**
+/*
  * Admit the lunge, plan the pivot steps on the horse's bearing, and sample.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Defines the base action, its contacts and its refusals.
- * @evidence contracts/development/implementation.md#principled-implementation Read the bearing on a grid of half swings, plan the steps, then at each second face the live bearing, place the feet by the schedule, hold the line and aim the whip, and course both arms.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the bearing grid, the schedule, one posture function, one course.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A line hand that misses the line or a bearing the hips cannot follow refuses.
- * @evidence contracts/development/implementation.md#efficient-algorithms One horse frame per grid point and per sampled second.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The step law's swing, the stance's leg goals, the ride's hand fit and the shared arm course.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains the bearing grid, the schedule and the readers for this action.
  */
 function planHumanLunge(context: Context): IAutoMovieMotionHumanActionPlan {
   const {

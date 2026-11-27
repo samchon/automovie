@@ -15,7 +15,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { courseArmGoal } from "./courseArmGoal";
 
-/**
+/*
  * Whether one posture's arm goals have a clear arm pose, judged by the arm
  * planner itself: the posture's goals for the arm (and for a second arm on the
  * same implement) are laid as a one-instant course (`courseArmGoal`) whose hold
@@ -41,13 +41,12 @@ import { courseArmGoal } from "./courseArmGoal";
  * A caller that places the body searches on this verdict (a stroke's address
  * moves the stance until its contact pose is clear); a law never catches the
  * refusal to carry on.
- *
- * @param props The body, the posture whose limbs write the arms' goals, the
- *   arm, the second arm with its grasp, and the reach that comes to the hold.
- * @returns The verdict: clear with the coursed posture, or refused with the
- *   planner's refusal.
- * @throws {Error} When the posture writes no goal for a coursed arm, or a
- *   failure other than the planner's refusal.
+ * Parameter props: The body, the posture whose limbs write the arms' goals, the
+ * arm, the second arm with its grasp, and the reach that comes to the hold.
+ * Returns: The verdict: clear with the coursed posture, or refused with the
+ * planner's refusal.
+ * When the posture writes no goal for a coursed arm, or a
+ * failure other than the planner's refusal.
  */
 export function fitClearArmPose(
   props: fitClearArmPose.IProps,
@@ -131,80 +130,108 @@ export function fitClearArmPose(
   }
 }
 
-/** Companion types and constants of `fitClearArmPose`. */
+/*
+ * Companion types and constants of `fitClearArmPose`.
+ */
 export namespace fitClearArmPose {
-  /**
+  /*
    * The hold's span, seconds: one frame of the 120 Hz grid the planner admits
    * on.
    */
   export const STEP: number = 1 / 120;
 
-  /** What a clear pose is fitted to. */
+  /*
+   * What a clear pose is fitted to.
+   */
   export interface IProps {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /**
+    /*
      * The posture to judge, whose limbs write each coursed arm's goal: its
      * working point, its face and its limits.
      */
     posture: IAutoMovieMotionHumanPosture;
 
-    /** The arm. */
+    /*
+     * The arm.
+     */
     side: AutoMovieHumanSide;
 
-    /**
+    /*
      * The other arm on the same implement, laid in the same course; none when
      * absent.
      */
     second?: AutoMovieHumanSide;
 
-    /**
+    /*
      * The segments of each hand that close on the shared implement, excused
      * from each other; none when absent.
      */
     grasp?: IAutoMovieMotionHumanArmCarry.ICarry["grasp"];
 
-    /**
+    /*
      * The action's reach to the hold; a hold from the first instant, seeded
      * from the posture's own limb fit, when absent.
      */
     reach?: IReach;
   }
 
-  /** The reach an action comes to the hold by. */
+  /*
+   * The reach an action comes to the hold by.
+   */
   export interface IReach {
-    /** The pose the arms reach from. */
+    /*
+     * The pose the arms reach from.
+     */
     entry: IAutoMoviePose;
 
-    /** The reach's time, seconds; positive. */
+    /*
+     * The reach's time, seconds; positive.
+     */
     seconds: number;
 
-    /**
+    /*
      * The return's time from the hold to the pose reached from, seconds;
      * positive.
      */
     back: number;
   }
 
-  /** A clear pose: the planner admits the goals. */
+  /*
+   * A clear pose: the planner admits the goals.
+   */
   export interface IClear {
-    /** The goals have a clear pose. */
+    /*
+     * The goals have a clear pose.
+     */
     clear: true;
 
-    /** The posture with the coursed arms at the hold. */
+    /*
+     * The posture with the coursed arms at the hold.
+     */
     posture: IAutoMovieMotionHumanPosture;
   }
 
-  /** No clear pose: the planner refuses the goals. */
+  /*
+   * No clear pose: the planner refuses the goals.
+   */
   export interface IRefused {
-    /** The goals have no clear pose. */
+    /*
+     * The goals have no clear pose.
+     */
     clear: false;
 
-    /** The planner's refusal. */
+    /*
+     * The planner's refusal.
+     */
     refusal: HumanRefusal;
   }
 
-  /** The planner's verdict on one posture's arm goals. */
+  /*
+   * The planner's verdict on one posture's arm goals.
+   */
   export type Verdict = IClear | IRefused;
 }

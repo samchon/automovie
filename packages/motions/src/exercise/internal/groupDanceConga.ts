@@ -21,7 +21,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { ExerciseKey } from "./ExerciseKey";
 
-/**
+/*
  * A conga line: each member steps forward on three counts, `STEP` foot lengths
  * a step, and kicks the next foot out to the side on the fourth, `KICK` of the
  * stature out and up; the next bar begins on that foot. A member with someone
@@ -31,27 +31,34 @@ import { ExerciseKey } from "./ExerciseKey";
  * refused with the reach.
  */
 export namespace groupDanceConga {
-  /** A step, foot lengths (provisional). */
+  /*
+   * A step, foot lengths (provisional).
+   */
   export const STEP: number = 1.2;
 
-  /** The kick's reach out and up, a share of the stature (provisional). */
+  /*
+   * The kick's reach out and up, a share of the stature (provisional).
+   */
   export const KICK: number = 0.12;
 
-  /** A foot's travel into a count, a share of a beat. */
+  /*
+   * A foot's travel into a count, a share of a beat.
+   */
   export const TRAVEL: number = 0.45;
 
-  /** How far above the shoulder joint the palm rests, metres. */
+  /*
+   * How far above the shoulder joint the palm rests, metres.
+   */
   export const ON: number = 0.06;
 
-  /**
+  /*
    * The conga's course.
-   *
-   * @param context The member's context.
-   * @param beats The member's beat clock, its offset already in.
-   * @param bars How many four-count bars.
-   * @returns The course.
-   * @throws {HumanRefusal} When the shoulders ahead lie beyond the arms at the
-   *   start.
+   * Parameter context: The member's context.
+   * Parameter beats: The member's beat clock, its offset already in.
+   * Parameter bars: How many four-count bars.
+   * Returns: The course.
+   * When the shoulders ahead lie beyond the arms at the
+   * start.
    */
   export function course(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGroupDance.IParams>,

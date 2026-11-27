@@ -36,7 +36,7 @@ import { kissBody } from "./kissBody";
 import { kissPitch } from "./kissPitch";
 import { touchReach } from "./touchReach";
 
-/**
+/*
  * One meeting for the two roles of a hand kiss. At the required hand attitude
  * the presenting wrist is a fixed offset from its back of hand, so the lips
  * must meet a point in that translated reach sphere. The kisser's forward bow
@@ -44,7 +44,7 @@ import { touchReach } from "./touchReach";
  * shared point the arm can reach.
  */
 export namespace kissHandMeeting {
-  /**
+  /*
    * The back of the hand faces the kisser, with fingers across the mouth's
    * approach.
    */
@@ -53,12 +53,11 @@ export namespace kissHandMeeting {
     shape: "flat",
   };
 
-  /**
+  /*
    * Build the hand kiss's meeting for one hand and hold.
-   *
-   * @param side Which of the presenter's hands is kissed.
-   * @param hold Seconds of lip contact.
-   * @returns The meeting kind whose roles are the kisser and presenter.
+   * Parameter side: Which of the presenter's hands is kissed.
+   * Parameter hold: Seconds of lip contact.
+   * Returns: The meeting kind whose roles are the kisser and presenter.
    */
   export function kind(
     side: AutoMovieHumanSide,
@@ -109,14 +108,13 @@ export namespace kissHandMeeting {
     };
   }
 
-  /**
+  /*
    * Write the presenting hand's transport and hold on the shared clock.
-   *
-   * @param context The presenter's action context.
-   * @param side The hand being presented.
-   * @param meeting The shared kiss's place and film instants.
-   * @param clock The meeting's local phrase clock.
-   * @returns The plan whose wrist lays the back of the hand on the meeting.
+   * Parameter context: The presenter's action context.
+   * Parameter side: The hand being presented.
+   * Parameter meeting: The shared kiss's place and film instants.
+   * Parameter clock: The meeting's local phrase clock.
+   * Returns: The plan whose wrist lays the back of the hand on the meeting.
    */
   export function present(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKiss.IParams>,
@@ -168,7 +166,9 @@ export namespace kissHandMeeting {
     });
   }
 
-  /** The displayed mouth on the role's unbowed entry. */
+  /*
+   * The displayed mouth on the role's unbowed entry.
+   */
   function neutralMouth(role: IAutoMovieMotionMeetingRole): IAutoMovieVector3 {
     const region: IAutoMovieMotionMeetingRole["body"]["surfaces"]["regions"]["mouth"] =
       role.body.surfaces.regions.mouth;
@@ -178,7 +178,9 @@ export namespace kissHandMeeting {
     );
   }
 
-  /** The smallest forward bow on the shared arm reach, in world metres. */
+  /*
+   * The smallest forward bow on the shared arm reach, in world metres.
+   */
   function meetingPoint(
     kisser: IAutoMovieMotionMeetingRole,
     presenter: IAutoMovieMotionMeetingRole,
@@ -272,7 +274,7 @@ export namespace kissHandMeeting {
     return placed(pitch);
   }
 
-  /**
+  /*
    * Horizontal direction between the presentation and the presenter's stance
    * for its transport clock.
    */

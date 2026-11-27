@@ -8,19 +8,18 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Resolve the one spherical ball a court release moves: a portable prop with
  * one sphere collider, held by a releasing hand; the sphere's centre need not
  * coincide with the prop's origin. A ball with restitution and no friction
  * releases with no tangential loss (a provisional isolated court-ball
  * fixture).
- *
- * @param context The prop reader and the entry's holds.
- * @param subject The ball's subject.
- * @param hands The releasing hands.
- * @returns The ball's reader and the sphere its launch carries.
- * @throws {HumanRefusal} When no releasing hand holds the ball, or it is not
- *   one portable spherical prop.
+ * Parameter context: The prop reader and the entry's holds.
+ * Parameter subject: The ball's subject.
+ * Parameter hands: The releasing hands.
+ * Returns: The ball's reader and the sphere its launch carries.
+ * When no releasing hand holds the ball, or it is not
+ * one portable spherical prop.
  */
 export function ballCourtSphere(
   context: Pick<IAutoMovieMotionHumanActionContext, "prop"> & {
@@ -77,14 +76,22 @@ export function ballCourtSphere(
   };
 }
 
-/** The court ball's reader and sphere. */
+/*
+ * The court ball's reader and sphere.
+ */
 export namespace ballCourtSphere {
-  /** The held ball's reader and the sphere its launch carries. */
+  /*
+   * The held ball's reader and the sphere its launch carries.
+   */
   export interface IResult {
-    /** The ball's prop reader. */
+    /*
+     * The ball's prop reader.
+     */
     reader: IAutoMovieMotionHumanPropReader;
 
-    /** Its spherical collider as the launch publishes it. */
+    /*
+     * Its spherical collider as the launch publishes it.
+     */
     sphere: NonNullable<IAutoMovieMotionPropLaunch["sphere"]>;
   }
 }

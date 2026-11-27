@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeUnits } from "../../core";
 
-/**
+/*
  * The read wire, ring and stems, metres, and the garrison wire's weight,
  * kilograms.
  */
@@ -10,13 +10,13 @@ const FIELD: number = 8 * AutoMovieArchetypeUnits.INCH;
 const GARRISON: number = 14 * AutoMovieArchetypeUnits.INCH;
 const GARRISON_MASS: number = 0.08 * AutoMovieArchetypeUnits.POUND;
 
-/**
+/*
  * The length of wire in the ring, metres: its circumference at the wire's
  * centre line.
  */
 const RING_WIRE: number = Math.PI * (RING - WIRE);
 
-/**
+/*
  * A field gun's priming wire as the 1862 Ordnance Manual gives it (p. 134,
  * https://archive.org/details/ordnancemanualfo00unitrich): "iron wire 0.175
  * inch diameter, formed with a ring 2 inches diameter at the head, and pointed;

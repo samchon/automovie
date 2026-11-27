@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
 
-/**
+/*
  * Unit direction; a zero input remains zero so callers can handle degeneracy
  * explicitly.
  */

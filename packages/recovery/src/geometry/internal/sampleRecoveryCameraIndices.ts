@@ -1,6 +1,6 @@
 import { AutoMovieEngineMath } from "@automovie/engine";
 
-/**
+/*
  * Draw a reproducible ordered subset without replacement for one proposal. The
  * declared seed, distinct model domain and trial number identify every sample
  * independently of previous invocations. Sampling models the entire

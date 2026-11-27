@@ -4,7 +4,7 @@ import { AutoMovieViewParameter } from "../../AutoMovieViewParameter";
 import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
 import { rootsAutoMovieViewSinPolynomial } from "./rootsAutoMovieViewSinPolynomial";
 
-/**
+/*
  * Candidate support stations for the fixed-chart scalar function
  * slope_s+valueScale_outline(s).
  *
@@ -15,14 +15,13 @@ import { rootsAutoMovieViewSinPolynomial } from "./rootsAutoMovieViewSinPolynomi
  * two-pole angle gives P(theta)+slope_stationSpan/2_sin(theta), preserving its
  * actual trigonometric term. Critical roots are binary64 observations, not
  * certified interval enclosures or an exact extrema promise.
- *
- * @param outline Admitted original scalar source in kernel station units.
- * @param slope Affine-origin coefficient, output units per station unit.
- * @param valueScale Multiplier converting the original ordinate to output
- *   units.
- * @param domain Finite increasing closed subinterval of the original knot span.
- * @returns Endpoints, included named knots and numerical interior critical
- *   stations, or an explicit failure.
+ * Parameter outline: Admitted original scalar source in kernel station units.
+ * Parameter slope: Affine-origin coefficient, output units per station unit.
+ * Parameter valueScale: Multiplier converting the original ordinate to output
+ * units.
+ * Parameter domain: Finite increasing closed subinterval of the original knot span.
+ * Returns: Endpoints, included named knots and numerical interior critical
+ * stations, or an explicit failure.
  */
 export function supportAutoMovieViewOutline(
   outline: IAutoMovieViewOutline.IOutline,

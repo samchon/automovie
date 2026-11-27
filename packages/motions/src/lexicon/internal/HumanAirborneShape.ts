@@ -17,7 +17,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { resolveHumanPostureSource } from "../../posture/internal/resolveHumanPostureSource";
 
-/**
+/*
  * The body shapes held in flight: tuck, pike, layout, straddle and the twisting
  * arm sets, each a layer laid over a jump's flight window, so the flight pass
  * (`HumanPerformanceFlight`) reads the composed shape and turns the body by it:
@@ -39,7 +39,9 @@ import { resolveHumanPostureSource } from "../../posture/internal/resolveHumanPo
  * `takeoff` to its `touchdown`.
  */
 export namespace HumanAirborneShape {
-  /** The shape names, as data. */
+  /*
+   * The shape names, as data.
+   */
   export const SHAPES = [
     "tuck",
     "pike",
@@ -49,7 +51,7 @@ export namespace HumanAirborneShape {
     "armsUp",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanAirborneShape.Shape>[];
 
-  /**
+  /*
    * Each shape's clinical joint angles, degrees `[flexion, abduction, twist]`
    * (provisional).
    */
@@ -97,12 +99,11 @@ export namespace HumanAirborneShape {
     },
   };
 
-  /**
+  /*
    * A shape as a layer.
-   *
-   * @param shape The shape.
-   * @returns The layer, named after the shape; it claims the legs or the arms
-   *   it shapes and reads the person's body from its context.
+   * Parameter shape: The shape.
+   * Returns: The layer, named after the shape; it claims the legs or the arms
+   * it shapes and reads the person's body from its context.
    */
   export function layer(
     shape: IAutoMovieMotionHumanAirborneShape.Shape,
@@ -122,10 +123,12 @@ export namespace HumanAirborneShape {
     };
   }
 
-  /** Receive the projected joints and root during the same displayed evaluation. */
+  /*
+   * Receive the projected joints and root during the same displayed evaluation.
+   */
   export type Assembly = (direct: resolveHumanPostureSource.IAssembled) => void;
 
-  /**
+  /*
    * Apply a native shape at layer-local seconds and optionally lend the
    * assembly used to place its held goals. The context supplies the performing
    * body and the weight is the layer's blend fraction. The returned posture
@@ -139,13 +142,17 @@ export namespace HumanAirborneShape {
     assembly?: Assembly,
   ) => IAutoMovieMotionHumanPosture;
 
-  /** The definition returned by the native shape constructor. */
+  /*
+   * The definition returned by the native shape constructor.
+   */
   interface IDefinition {
     channels: AutoMovieHumanLimb[];
     blend: ShapeBlend;
   }
 
-  /** Construct the clinical keys, demanded limb chains and their native blend. */
+  /*
+   * Construct the clinical keys, demanded limb chains and their native blend.
+   */
   function build(shape: IAutoMovieMotionHumanAirborneShape.Shape): IDefinition {
     const joints: Partial<
       Record<AutoMovieHumanoidBone, readonly [number, number, number]>
@@ -310,7 +317,9 @@ export namespace HumanAirborneShape {
     return { channels: [...claimed], blend };
   }
 
-  /** Each limb's upper, middle and end joints' bones. */
+  /*
+   * Each limb's upper, middle and end joints' bones.
+   */
   const CHAIN: Readonly<
     Record<
       AutoMovieHumanLimb,

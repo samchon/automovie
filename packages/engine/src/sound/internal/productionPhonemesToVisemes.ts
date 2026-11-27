@@ -6,7 +6,7 @@ import type {
 
 import { AUTOMOVIE_IPA_VISEMES } from "../constants/AUTOMOVIE_IPA_VISEMES";
 
-/**
+/*
  * Time each phoneme of a line's chunks and map it to its MPEG-4 viseme.
  *
  * A chunk's IPA string, NFC-normalized, is read left to right, matching the
@@ -15,9 +15,8 @@ import { AUTOMOVIE_IPA_VISEMES } from "../constants/AUTOMOVIE_IPA_VISEMES";
  * refused, naming it and its chunk. The phonemes left share the chunk's sample
  * interval equally, in order, so a chunk of three phonemes over samples 0 to 24
  * 000 gives each 8 000 samples. A chunk with no phoneme adds nothing.
- *
- * @param props The line's phoneme chunks.
- * @returns Each phoneme with its viseme and its share, in spoken order.
+ * Parameter props: The line's phoneme chunks.
+ * Returns: Each phoneme with its viseme and its share, in spoken order.
  */
 export function productionPhonemesToVisemes(
   props: IAutoMovieProductionPhonemesToVisemes.IProps,
@@ -48,20 +47,22 @@ export function productionPhonemesToVisemes(
   return output;
 }
 
-/**
+/*
  * Symbols that take no share: whitespace is handled apart; these are the
  * primary and secondary stress marks and the length mark.
  */
 const UNTIMED: ReadonlySet<string> = new Set(["ˈ", "ˌ", "ː"]);
 
-/** The longest table entry, in code points, so matching can try it first. */
+/*
+ * The longest table entry, in code points, so matching can try it first.
+ */
 const LONGEST: number = Math.max(
   ...Object.keys(AUTOMOVIE_IPA_VISEMES).map(
     (symbol: string): number => Array.from(symbol).length,
   ),
 );
 
-/**
+/*
  * Split one chunk's IPA string into table symbols, longest match first; refuse
  * a symbol outside the table.
  */

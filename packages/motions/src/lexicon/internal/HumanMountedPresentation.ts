@@ -10,7 +10,7 @@ import { AutoMovieMotionHumanTrunk } from "../../compose/internal/AutoMovieMotio
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
 
-/**
+/*
  * A mounted presentation: a rider seated in the saddle turns the trunk toward a
  * target before the arms present to it, since the seat and the legs keep the
  * pelvis facing the horse's travel.
@@ -25,21 +25,26 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  * dead astern: there the horse must turn.
  */
 export namespace HumanMountedPresentation {
-  /** The trunk turn a body can take to each side. */
+  /*
+   * The trunk turn a body can take to each side.
+   */
   export interface IRange {
-    /** The largest turn to the performer's left, degrees, at least 0. */
+    /*
+     * The largest turn to the performer's left, degrees, at least 0.
+     */
     left: number;
 
-    /** The largest turn to the performer's right, degrees, at most 0. */
+    /*
+     * The largest turn to the performer's right, degrees, at most 0.
+     */
     right: number;
   }
 
-  /**
+  /*
    * The trunk turn the chest's and the spine's axial ranges allow to each side.
-   *
-   * @returns Each side's largest turn.
-   * @throws {Error} When the range-of-motion table gives the chest or the spine
-   *   no twist.
+   * Returns: Each side's largest turn.
+   * When the range-of-motion table gives the chest or the spine
+   * no twist.
    */
   export function range(): IRange {
     const chest: IAutoMovieAngleRange = twist("chest");
@@ -51,14 +56,13 @@ export namespace HumanMountedPresentation {
     };
   }
 
-  /**
+  /*
    * A target's signed bearing off a heading on the floor.
-   *
-   * @param heading The heading, degrees about `+Y` from `+Z`, positive toward
-   *   `+X`.
-   * @param from The point the bearing is read from, world metres.
-   * @param target The target, world metres.
-   * @returns Degrees from -180 to 180, positive toward the performer's left.
+   * Parameter heading: The heading, degrees about `+Y` from `+Z`, positive toward
+   * `+X`.
+   * Parameter from: The point the bearing is read from, world metres.
+   * Parameter target: The target, world metres.
+   * Returns: Degrees from -180 to 180, positive toward the performer's left.
    */
   export function bearing(
     heading: number,
@@ -73,23 +77,22 @@ export namespace HumanMountedPresentation {
     return (Math.atan2(left, ahead) * 180) / Math.PI;
   }
 
-  /**
+  /*
    * The trunk turn a seated presentation takes so a target lies within the
    * arms' presentation.
-   *
-   * @param off The target's signed bearing off the seat's heading, degrees,
-   *   positive to the left.
-   * @param held The trunk turn the presentation already takes, degrees, such as
-   *   a shouldered long gun's blade; the sum stays within `range`.
-   * @param side The presenting arm.
-   * @param axis The refused parameter's name.
-   * @returns The turn, degrees, positive to the left, toward the target: on the
-   *   presenting arm's side, 0 within the arms' `TURN` and the excess past it;
-   *   across the body, the whole bearing as far as the trunk's range allows,
-   *   the arms taking the rest.
-   * @throws {HumanRefusal} A `reach` refusal on `axis` when the bearing lies
-   *   past the trunk's range and the arms' `TURN` on its side, naming the
-   *   bearing and the feasible bearings.
+   * Parameter off: The target's signed bearing off the seat's heading, degrees,
+   * positive to the left.
+   * Parameter held: The trunk turn the presentation already takes, degrees, such as
+   * a shouldered long gun's blade; the sum stays within `range`.
+   * Parameter side: The presenting arm.
+   * Parameter axis: The refused parameter's name.
+   * Returns: The turn, degrees, positive to the left, toward the target: on the
+   * presenting arm's side, 0 within the arms' `TURN` and the excess past it;
+   * across the body, the whole bearing as far as the trunk's range allows,
+   * the arms taking the rest.
+   * A `reach` refusal on `axis` when the bearing lies
+   * past the trunk's range and the arms' `TURN` on its side, naming the
+   * bearing and the feasible bearings.
    */
   export function turn(
     off: number,
@@ -130,42 +133,47 @@ export namespace HumanMountedPresentation {
     return taken;
   }
 
-  /** A mounted arm's station toward a target in the seat frame. */
+  /*
+   * A mounted arm's station toward a target in the seat frame.
+   */
   export interface IStation {
-    /**
+    /*
      * The trunk's turn toward the target, degrees, positive to the left
      * (`turn`).
      */
     turn: number;
 
-    /** The arm's shoulder on the turned trunk, seat-frame metres. */
+    /*
+     * The arm's shoulder on the turned trunk, seat-frame metres.
+     */
     shoulder: IAutoMovieVector3;
 
-    /**
+    /*
      * The hand's place `reach` along the line from the shoulder to the target,
      * seat-frame metres.
      */
     grip: IAutoMovieVector3;
 
-    /** The unit line from the shoulder to the target, in the seat frame. */
+    /*
+     * The unit line from the shoulder to the target, in the seat frame.
+     */
     axis: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * Where a seated arm presents toward a target: the trunk turned by `turn`
    * about the seat's vertical through the root, the arm's shoulder on it, and
    * the hand `reach` along the line from that shoulder to the target.
-   *
-   * @param measure The rider's measures.
-   * @param root The seated root, seat-frame metres (forward `+Z`, left `+X`, up
-   *   `+Y`).
-   * @param side The presenting arm.
-   * @param target The target, seat-frame metres.
-   * @param reach How far along the line the hand lies, metres.
-   * @param axis The refused parameter's name.
-   * @returns The station.
-   * @throws {HumanRefusal} As `turn` does, on the target's bearing from the
-   *   root.
+   * Parameter measure: The rider's measures.
+   * Parameter root: The seated root, seat-frame metres (forward `+Z`, left `+X`, up
+   * `+Y`).
+   * Parameter side: The presenting arm.
+   * Parameter target: The target, seat-frame metres.
+   * Parameter reach: How far along the line the hand lies, metres.
+   * Parameter axis: The refused parameter's name.
+   * Returns: The station.
+   * As `turn` does, on the target's bearing from the
+   * root.
    */
   export function station(
     measure: IAutoMovieBodyMeasure,
@@ -199,7 +207,9 @@ export namespace HumanMountedPresentation {
     };
   }
 
-  /** A trunk joint's axial range from the range-of-motion table. */
+  /*
+   * A trunk joint's axial range from the range-of-motion table.
+   */
   function twist(bone: TwistBone): IAutoMovieAngleRange {
     const range: IAutoMovieAngleRange | null | undefined =
       DEFAULT_HUMANOID_ROM[bone]?.twist;
@@ -209,5 +219,7 @@ export namespace HumanMountedPresentation {
   }
 }
 
-/** The alternatives of `TwistBone`'s site. */
+/*
+ * The alternatives of `TwistBone`'s site.
+ */
 type TwistBone = "chest" | "spine";

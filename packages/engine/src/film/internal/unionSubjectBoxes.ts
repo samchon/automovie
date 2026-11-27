@@ -1,6 +1,6 @@
 import { IAutoMovieSubjectBox } from "@automovie/interface";
 
-/**
+/*
  * The smallest box containing every given box, or null when none were given.
  *
  * The corners are folded one box at a time rather than spread into `Math.min`,

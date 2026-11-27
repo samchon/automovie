@@ -11,7 +11,7 @@ import type {
 import { HumanDigitFit } from "./HumanDigitFit";
 import { HumanPosture } from "./HumanPosture";
 
-/**
+/*
  * Select independent world digit goals that can change requested bone frames.
  * Attached, contact or unsupported goals keep the complete original request;
  * an attached goal can depend on another fitted digit and keeps the order.

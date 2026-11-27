@@ -11,7 +11,7 @@ import {
 import { Vector3 } from "../../math/Vector3";
 import { seededValue } from "../../math/internal/seededValue";
 
-/**
+/*
  * Sample the decorative spray of a fluid domain at one solved state.
  *
  * Decorative particles do not change depths or volume ledgers. The supplied
@@ -53,18 +53,22 @@ export function sampleFluidSpray(
     emit({ domain, state, spray, time, cameraDistance, particles });
   return { step: state.step, time, particles };
 }
-/**
+/*
  * Domain salts separate the three seeded component samples without retaining a
  * random stream.
  */
 const JITTER_X: number = 0x73707278;
-/** Y component salt used with the same emitter seed and spawn index. */
+/*
+ * Y component salt used with the same emitter seed and spawn index.
+ */
 const JITTER_Y: number = 0x73707279;
 
-/** Z component salt used with the same emitter seed and spawn index. */
+/*
+ * Z component salt used with the same emitter seed and spawn index.
+ */
 const JITTER_Z: number = 0x7370727a;
 
-/**
+/*
  * Append one emitter's newest stride-selected survivors, reversing the local
  * list for increasing index order when indices are representable. The nozzle
  * uses the current state's depth; age/window products and ballistic values are
@@ -142,7 +146,7 @@ const emit: (props: {
     props.particles.push(collected[at]!);
 };
 
-/**
+/*
  * Normalize the axis using the per-emitter borrowed norm, add three
  * domain-salted seeded components, then normalize the result. Constant scalar
  * work allocates one direction with no random-stream state. A finite nonzero

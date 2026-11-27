@@ -3,7 +3,7 @@ import type {
   IAutoMovieRgb8Image,
 } from "@automovie/interface";
 
-/**
+/*
  * Decode one raw P6 RGB8 image under an explicitly supplied transfer
  * convention. This codec processes bytes without importing glTF SDK objects.
  * The package's main entry also exposes SDK-backed operations with their own

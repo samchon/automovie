@@ -13,7 +13,7 @@ import { RecoveryBezierFit as F } from "../../fitting/RecoveryBezierFit";
 import { collectRecoveryContourFaceSupport } from "./collectRecoveryContourFaceSupport";
 import { to2 } from "../../internal/mesh-observations/to2";
 
-/**
+/*
  * Observe and fit every contour on one fixed private section. An optional
  * collection name prefixes curve identities; an optional acquisition observer
  * receives copied original face incidence after local fitting, including
@@ -59,7 +59,7 @@ export function observeRecoverySection(
     );
     let publication: IAutoMovieRecoverySourceLineage["publication"] | undefined;
 
-    /**
+    /*
      * Current optional callback record; this alias makes no historical
      * parameter claim.
      */

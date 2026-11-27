@@ -25,7 +25,7 @@ import { HumanHandoverMeeting } from "./HumanHandoverMeeting";
 import { HumanHandoverUpright } from "./HumanHandoverUpright";
 import { HumanPrehension } from "./HumanPrehension";
 
-/**
+/*
  * The shared plan of one object passing from a giver's hand to a receiver's:
  * where it is handed over, when each hand moves, when the receiver's grip
  * closes and when the giver lets go.
@@ -40,7 +40,7 @@ import { HumanPrehension } from "./HumanPrehension";
  *   and the receiver's acting shoulders (`resolveAutoMovieMutualGoal` with the
  *   handshake's comfortable reach): handovers take place midway between the
  *   partners (Hansen et al. 2017, reviewed by Kopnarski et al. 2023), with the
- *   object's middle at {@link EXCHANGE} of the partners' mean sternum height,
+ *   object's middle at EXCHANGE of the partners' mean sternum height,
  *   moved only as far as both arms' reach demands
  *   (`HumanHandoverMeeting.goal`). Both laws read the place from the one
  *   meeting record (`HumanHandoverMeeting`, `meet`), where a seated pair leans
@@ -66,7 +66,7 @@ import { HumanPrehension } from "./HumanPrehension";
  * offered.
  */
 export namespace HumanHandover {
-  /**
+  /*
    * The height of the handed object's middle as a share of the partners' mean
    * sternum height: human pairs exchange an object at about 0.9 of chest height
    * (Khanna, Björkman and Smith 2023, arXiv 2304.02154, fig. 12). Reading their
@@ -74,13 +74,12 @@ export namespace HumanHandover {
    */
   export const EXCHANGE: number = 0.9;
 
-  /**
+  /*
    * Plan a handover.
-   *
-   * @param input Both people, the prop and the outcome.
-   * @returns The plan.
-   * @throws {Error} When the partners stand beyond reach of each other or the
-   *   prop lacks the receiving grip.
+   * Parameter input: Both people, the prop and the outcome.
+   * Returns: The plan.
+   * When the partners stand beyond reach of each other or the
+   * prop lacks the receiving grip.
    */
   export function plan(
     input: IAutoMovieMotionHumanHandover.IInput,
@@ -217,16 +216,15 @@ export namespace HumanHandover {
     };
   }
 
-  /**
+  /*
    * Where a hand carries what it took: the wrist a forearm ahead of the elbow
    * that hangs under the shoulder, the forearm level or raised by a pitch.
-   *
-   * @param body The body.
-   * @param posture The posture the shoulder is read on.
-   * @param side The hand.
-   * @param pitch How far the forearm is raised above level, degrees; 0 when
-   *   absent.
-   * @returns The wrist's place, world metres.
+   * Parameter body: The body.
+   * Parameter posture: The posture the shoulder is read on.
+   * Parameter side: The hand.
+   * Parameter pitch: How far the forearm is raised above level, degrees; 0 when
+   * absent.
+   * Returns: The wrist's place, world metres.
    */
   export function carried(
     body: IAutoMovieMotionHumanBody,
@@ -250,14 +248,14 @@ export namespace HumanHandover {
     );
   }
 
-  /**
+  /*
    * The longest interval between two instants an upright carry's turn is chosen
    * at, seconds (provisional: a carry's arm changes its best turn over about a
    * tenth of a second).
    */
   export const STEP: number = 0.1;
 
-  /**
+  /*
    * The turns about the world's up an upright carry is tried at, degrees,
    * nearest first (provisional: a sixth of a turn either way in steps of 15; a
    * wider set chose turns whose linear way between two instants tipped the prop
@@ -267,7 +265,7 @@ export namespace HumanHandover {
     0, 15, -15, 30, -30, 45, -45, 60, -60,
   ];
 
-  /**
+  /*
    * The turn about the world's up an upright carry takes along a path: a hand
    * that holds a vessel upright keeps one freedom, the turn about the vertical,
    * and the arm meets some turns of it with the vessel upright and others only
@@ -276,17 +274,16 @@ export namespace HumanHandover {
    * the one before (a tenth of a degree of tip per degree of change), and the
    * turn runs linearly between them; the path's two ends keep the turns given
    * for them.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @param at The posture at a second of the path with the hand turned by a
-   *   yaw, degrees, about the world's up from its upright rotation there.
-   * @param from The path's first second.
-   * @param to The path's last second.
-   * @param ends The turns at the two ends, degrees; a missing end is chosen as
-   *   the instants between are.
-   * @returns The turn at a second, degrees; the first end's before the path and
-   *   the last instant's after it.
+   * Parameter body: The body.
+   * Parameter side: The hand.
+   * Parameter at: The posture at a second of the path with the hand turned by a
+   * yaw, degrees, about the world's up from its upright rotation there.
+   * Parameter from: The path's first second.
+   * Parameter to: The path's last second.
+   * Parameter ends: The turns at the two ends, degrees; a missing end is chosen as
+   * the instants between are.
+   * Returns: The turn at a second, degrees; the first end's before the path and
+   * the last instant's after it.
    */
   export function upright(
     body: IAutoMovieMotionHumanBody,
@@ -299,14 +296,13 @@ export namespace HumanHandover {
     return HumanHandoverUpright.ordinary(body, side, at, from, to, ends);
   }
 
-  /**
+  /*
    * How far a posture tips what its hand holds upright: the angle the hand's
    * asked rotation, as the arm reaches it, turns the world's up through.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @param posture The posture, whose arm goal asks the hand's rotation.
-   * @returns Degrees; infinite when the goal asks no rotation.
+   * Parameter body: The body.
+   * Parameter side: The hand.
+   * Parameter posture: The posture, whose arm goal asks the hand's rotation.
+   * Returns: Degrees; infinite when the goal asks no rotation.
    */
   export function tipped(
     body: IAutoMovieMotionHumanBody,
@@ -325,10 +321,12 @@ export namespace HumanHandover {
   }
 }
 
-/** The alternatives of `PlanHandB`'s site. */
+/*
+ * The alternatives of `PlanHandB`'s site.
+ */
 type PlanHandB = "worldPosition" | "worldRotation";
 
-/**
+/*
  * The carried wrist: a forearm, raised by `pitch` degrees, ahead of the elbow
  * hanging an upper arm under the shoulder, along the heading.
  */

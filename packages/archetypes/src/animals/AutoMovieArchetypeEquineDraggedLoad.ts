@@ -24,10 +24,14 @@ import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped"
 import { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import { EquineHarness } from "./equine/EquineHarness";
 
-/** World up. */
+/*
+ * World up.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** Half the central-difference interval of the pull point's velocity, seconds. */
+/*
+ * Half the central-difference interval of the pull point's velocity, seconds.
+ */
 const HALF: number = 5e-4;
 
 /** Operations and parameter types for a load dragged by a harnessed equine. */
@@ -192,7 +196,9 @@ export namespace AutoMovieArchetypeEquineDraggedLoad {
 
     return { duration: ride.duration, at, lines };
 
-    /** The load, its placement, the traces and the share's depth at a film second. */
+    /*
+     * The load, its placement, the traces and the share's depth at a film second.
+     */
     function at(seconds: number): AutoMovieArchetypeEquineDraggedLoad.ISample {
       const t: number = Math.min(Math.max(seconds, 0), ride.duration);
       const x: readonly number[] = path.at(t).x;
@@ -258,7 +264,7 @@ export namespace AutoMovieArchetypeEquineDraggedLoad {
       return { archetype: load, placement, traces, depth: sink };
     }
 
-    /**
+    /*
      * The driving lines from each bit ring to a world point the driver holds them
      * at, such as a ploughman's shoulder.
      */
@@ -290,7 +296,9 @@ export namespace AutoMovieArchetypeEquineDraggedLoad {
       );
     }
 
-    /** The share of the lift at a film second: 1 out of the ground, 0 at work. */
+    /*
+     * The share of the lift at a film second: 1 out of the ground, 0 at work.
+     */
     function lifted(seconds: number): number {
       let most: number = 0;
       for (const interval of params.lifts ?? []) {
@@ -402,7 +410,9 @@ export namespace AutoMovieArchetypeEquineDraggedLoad {
   }
 }
 
-/** The rotation taking one unit direction to another. */
+/*
+ * The rotation taking one unit direction to another.
+ */
 function turn(
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,

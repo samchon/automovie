@@ -1,4 +1,4 @@
-/**
+/*
  * Admit a positive normalized piecewise phase chart without changing its
  * coefficients. Cumulative boundaries must be representably increasing; only
  * the final endpoint absorbs the declared binary64 summation roundoff.

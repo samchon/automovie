@@ -8,16 +8,15 @@ import type {
 import { HumanMountedPaths } from "./HumanMountedPaths";
 import { HumanMountedSeats } from "./HumanMountedSeats";
 
-/**
+/*
  * The supports each figure holds, as contact windows by support: the seat while
  * a figure sits, each part's named support, and for an entered figure that
  * names none the entry's planted feet on the stirrups the first figure names,
  * or on whatever they rest on; with the supports held at the start (the seat,
  * the entering hands' grips and those feet).
- *
- * @param context The mounted performance's context.
- * @param gripped The hands that enter holding.
- * @returns The supports held at the start and each figure's windows.
+ * Parameter context: The mounted performance's context.
+ * Parameter gripped: The hands that enter holding.
+ * Returns: The supports held at the start and each figure's windows.
  */
 export function HumanMountedMembers(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanMounted>,
@@ -65,21 +64,33 @@ export function HumanMountedMembers(
   return { held, members };
 }
 
-/** The records of HumanMountedMembers and the parts the admission shares. */
+/*
+ * The records of HumanMountedMembers and the parts the admission shares.
+ */
 export namespace HumanMountedMembers {
-  /** The supports a mounted performance holds. */
+  /*
+   * The supports a mounted performance holds.
+   */
   export interface IMembers {
-    /** The supports held at the start, by key. */
+    /*
+     * The supports held at the start, by key.
+     */
     held: Set<string>;
 
-    /** Each figure's contact windows, by support key. */
+    /*
+     * Each figure's contact windows, by support key.
+     */
     members: Map<string, IAutoMovieMotionHumanContactWindow>[];
   }
 
-  /** A supporting part a figure can name. */
+  /*
+   * A supporting part a figure can name.
+   */
   export type Part = HumanMountedSeats.Part;
 
-  /** Every supporting part, in the order the contact windows list them. */
+  /*
+   * Every supporting part, in the order the contact windows list them.
+   */
   export const PARTS: readonly Part[] = [
     "leftHand",
     "rightHand",

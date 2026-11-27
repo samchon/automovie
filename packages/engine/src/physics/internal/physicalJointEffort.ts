@@ -1,6 +1,6 @@
 import type { IAutoMoviePhysicalJointEffort } from "@automovie/interface";
 
-/**
+/*
  * Effective tracking fraction of one joint motor at one native tick.
  *
  * An explicit per-joint override replaces the body's effort; a joint inside a

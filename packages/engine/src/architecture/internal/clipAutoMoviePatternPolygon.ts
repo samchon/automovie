@@ -2,7 +2,7 @@ import type { IAutoMoviePatternPoint } from "@automovie/interface";
 
 import { intersectAutoMovieConvexPolygons } from "../../geometry/internal/intersectAutoMovieConvexPolygons";
 
-/**
+/*
  * Clip a convex face-local pattern outline by its canonical counter-clockwise
  * boundary.
  *
@@ -13,10 +13,9 @@ import { intersectAutoMovieConvexPolygons } from "../../geometry/internal/inters
  * line contact can yield a zero-area outline. Finite convex well-scaled
  * coordinates remain caller premises without directed rounding or independent
  * convexity validation here.
- *
- * @param subject Convex outline to clip, in face-local metres.
- * @param clipper Counter-clockwise convex outline in the same frame and unit.
- * @returns Newly allocated intersection records, possibly empty or zero-area.
+ * Parameter subject: Convex outline to clip, in face-local metres.
+ * Parameter clipper: Counter-clockwise convex outline in the same frame and unit.
+ * Returns: Newly allocated intersection records, possibly empty or zero-area.
  */
 export function clipAutoMoviePatternPolygon(
   subject: readonly IAutoMoviePatternPoint[],

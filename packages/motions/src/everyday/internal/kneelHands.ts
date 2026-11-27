@@ -14,14 +14,13 @@ import { bendFloorHand } from "./bendFloorHand";
 import { braceOnThigh } from "./braceOnThigh";
 import type { kneelPhaseTable } from "./kneelPhaseTable";
 
-/**
+/*
  * A kneel's hands (`kneel.plan`): onto the thighs while the hips lower and off
  * them as the body starts to rise, the arms laid in one group, the hands opened
  * flat as the palms come to the thighs (`bendFloorHand`). Read from the plan's
  * context, body, clock, phases and the first phase up.
- *
- * @param scope What the plan's hands are laid from.
- * @returns Each hand's arm and opening primitives.
+ * Parameter scope: What the plan's hands are laid from.
+ * Returns: Each hand's arm and opening primitives.
  */
 export function kneelHands(scope: kneelHands.IScope): kneelHands.IHands {
   const { context, body, clock, phases, next, duration }: kneelHands.IScope =
@@ -73,48 +72,66 @@ export function kneelHands(scope: kneelHands.IScope): kneelHands.IHands {
   return { hand, open };
 }
 
-/** What a kneel's hands read and what they are. */
+/*
+ * What a kneel's hands read and what they are.
+ */
 export namespace kneelHands {
-  /** What a kneel plan lays its hands from. */
+  /*
+   * What a kneel plan lays its hands from.
+   */
   export interface IScope {
-    /** The action's context. */
+    /*
+     * The action's context.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKneel.IParams>;
 
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The travel clock. */
+    /*
+     * The travel clock.
+     */
     clock: IAutoMovieMotionClock;
 
-    /** The phases. */
+    /*
+     * The phases.
+     */
     phases: kneelPhaseTable.IPhase[];
 
-    /** The first phase after the settled hold, if the kneel rises. */
+    /*
+     * The first phase after the settled hold, if the kneel rises.
+     */
     next: kneelPhaseTable.IPhase | undefined;
 
-    /** The travel seconds. */
+    /*
+     * The travel seconds.
+     */
     duration: number;
   }
 
-  /** Each hand's primitives. */
+  /*
+   * Each hand's primitives.
+   */
   export interface IHands {
-    /**
+    /*
      * The hand's arm onto the thigh.
-     *
-     * @param side The hand.
-     * @returns The primitive.
+     * Parameter side: The hand.
+     * Returns: The primitive.
      */
     hand: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanPrimitive;
 
-    /**
+    /*
      * The hand opened onto the thigh.
-     *
-     * @param side The hand.
-     * @returns The primitive.
+     * Parameter side: The hand.
+     * Returns: The primitive.
      */
     open: (side: AutoMovieHumanSide) => IAutoMovieMotionHumanPrimitive;
   }
 }
 
-/** A phase between two key states (`kneelPhaseTable.IPhase`). */
+/*
+ * A phase between two key states (`kneelPhaseTable.IPhase`).
+ */
 type IPhase = kneelPhaseTable.IPhase;

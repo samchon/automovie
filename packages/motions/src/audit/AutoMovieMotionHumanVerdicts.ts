@@ -367,16 +367,20 @@ export namespace AutoMovieMotionHumanVerdicts {
   }
 }
 
-/** The alternatives of `OfPlaceResult`'s site. */
+/*
+ * The alternatives of `OfPlaceResult`'s site.
+ */
 type OfPlaceResult = "act" | "instance";
 
-/** Whether any action of a chain is one the floor does not carry. */
+/*
+ * Whether any action of a chain is one the floor does not carry.
+ */
 const isAirborne = (spans: readonly AutoMovieMotionHumanVerdicts.ISegment[]): boolean =>
   spans.some((s): boolean =>
     AutoMovieMotionHumanVerdicts.AIRBORNE.includes(s.law.family ?? s.name),
   );
 
-/**
+/*
  * Whether an action carries a person in water at a film second: the action that
  * has taken the body over names its water in its params, as the surface's world
  * height (`IAutoMovieMotionHumanAquatic.IParams.water`) or as the water itself
@@ -394,20 +398,28 @@ const inWater = (
   return active !== undefined && surface((active.params as IWatered).water);
 };
 
-/** Whether a params' water names a surface: a height, or a water with one. */
+/*
+ * Whether a params' water names a surface: a height, or a water with one.
+ */
 const surface = (water: IWatered["water"]): boolean =>
   typeof water === "number" ||
   (water !== undefined && water.surface !== undefined);
 
-/** An action's params as the water reading sees them. */
+/*
+ * An action's params as the water reading sees them.
+ */
 interface IWatered {
-  /** The water, by its surface's world height or as the water itself. */
+  /*
+   * The water, by its surface's world height or as the water itself.
+   */
   water?: WaterParam;
 }
 
-/** The two shipped ways an action names its water. */
+/*
+ * The two shipped ways an action names its water.
+ */
 type WaterParam = number | Partial<IAutoMovieMotionHumanWater>;
-/**
+/*
  * The key of one person's instant: the second rounded to a microsecond, so
  * grids that reach the same instant by different float arithmetic (i / rate
  * against i * (1 / rate)) share one resolution.
@@ -415,7 +427,7 @@ type WaterParam = number | Partial<IAutoMovieMotionHumanWater>;
 const instant = (subject: string, seconds: number): string =>
   `${subject}@${Math.round(seconds * 1e6)}`;
 
-/**
+/*
  * The performance as a motion that resolves each person's instant once, for the
  * span of one report.
  */

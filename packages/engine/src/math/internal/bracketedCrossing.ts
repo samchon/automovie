@@ -1,6 +1,6 @@
 import { bracketedRoot } from "./bracketedRoot";
 
-/**
+/*
  * Close a bracket onto the place where a continuous reading crosses from one
  * side of a threshold to the other, keeping which end lies on which side: the
  * lower end is never past the threshold and the upper end always is, as a
@@ -14,13 +14,12 @@ import { bracketedRoot } from "./bracketedRoot";
  * whatever the reading does. A caller that asks the width a number of
  * bisections would leave therefore gets a crossing at least as fine as theirs,
  * in fewer readings where the reading is smooth.
- *
- * @param props The reading less its threshold (`f`, positive on one side);
- *   which sign is past the threshold (`past`); the bracket's two ends, `low`
- *   not past and `high` past; their readings when the caller has them
- *   (`known`), so they are not read again; and the final width, positive.
- * @returns The final bracket: `low`, the greatest argument read that is not
- *   past the threshold, and `high`, the least read that is.
+ * Parameter props: The reading less its threshold (`f`, positive on one side);
+ * which sign is past the threshold (`past`); the bracket's two ends, `low`
+ * not past and `high` past; their readings when the caller has them
+ * (`known`), so they are not read again; and the final width, positive.
+ * Returns: The final bracket: `low`, the greatest argument read that is not
+ * past the threshold, and `high`, the least read that is.
  */
 export function bracketedCrossing(props: {
   f: (x: number) => number;

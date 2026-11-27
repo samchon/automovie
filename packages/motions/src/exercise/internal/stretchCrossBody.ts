@@ -12,7 +12,7 @@ import type {
 import { AutoMovieMotionHumanPlaced } from "../../compose/internal/AutoMovieMotionHumanPlaced";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * The arms of the cross-body shoulder stretch (`stretch`): the stretched arm
  * crosses the chest until its wrist stands 1.2 shoulder half-widths across the
  * midline at shoulder height, a little ahead of the chest (provisional place),
@@ -21,12 +21,11 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
  * little short of half way from that wrist to its shoulder, near its elbow.
  */
 export namespace stretchCrossBody {
-  /**
+  /*
    * The two arms' primitives.
-   *
-   * @param props The body, the stretched side, the stretch's seconds, each
-   *   arm's resting angles, the weight over time and the heading's forward.
-   * @returns The primitives.
+   * Parameter props: The body, the stretched side, the stretch's seconds, each
+   * arm's resting angles, the weight over time and the heading's forward.
+   * Returns: The primitives.
    */
   export function arms(props: IArmsProps): IAutoMovieMotionHumanPrimitive[] {
     const { body, side, rest, weight, forward } = props;
@@ -114,7 +113,9 @@ export namespace stretchCrossBody {
   }
 }
 
-/** The record of `IArmsProps`'s site. */
+/*
+ * The record of `IArmsProps`'s site.
+ */
 type IArmsProps = {
   body: IAutoMovieMotionHumanBody;
   side: AutoMovieHumanSide;

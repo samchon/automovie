@@ -1,4 +1,4 @@
-/**
+/*
  * Differentiate r*normalize(t+Bz) at the unchanged current translation. The
  * radius r=norm(t) is constant within one local chart. Columns of B are raw
  * coefficient directions, which need not be exactly tangent or unit.

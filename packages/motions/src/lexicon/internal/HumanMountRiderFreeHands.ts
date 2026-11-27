@@ -12,7 +12,7 @@ import type { prepareHumanPostureProjection } from "../../posture/internal/prepa
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import type { HumanMountRider } from "./HumanMountRider";
 
-/**
+/*
  * The wrists as the posture shows them, before either grip is assigned: an arm
  * the posture already places, such as a hand resting on a thigh, starts from
  * there. A hand whose arm goal the posture gives in the world, turned, is where
@@ -81,5 +81,7 @@ export function HumanMountRiderFreeHands(
   return out;
 }
 
-/** The alternatives of `FreeHandsArm`'s site. */
+/*
+ * The alternatives of `FreeHandsArm`'s site.
+ */
 type FreeHandsArm = "leftArm" | "rightArm";

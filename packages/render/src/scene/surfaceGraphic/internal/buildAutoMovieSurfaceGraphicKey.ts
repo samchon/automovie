@@ -12,14 +12,14 @@ import { createAutoMovieSurfaceGraphicQuad } from "./createAutoMovieSurfaceGraph
 import { createAutoMovieSurfaceGraphicText } from "./createAutoMovieSurfaceGraphicText.js";
 import { createAutoMovieSystemTextTexture } from "./createAutoMovieSystemTextTexture.js";
 
-/**
+/*
  * Build one key's graphic as a group of flat meshes on the face.
  *
  * The first mesh covers the whole face: the background's colour, or, for a
  * `null` background, a material that writes no colour, so the face still exists
  * as the region the mask paints whatever the layers hold. Each layer follows as
  * its own mesh in order. Render order rises with draw order from
- * {@link GRAPHIC_ORDER}, the face at it and layer `i` at one more than `i` past
+ * GRAPHIC_ORDER, the face at it and layer `i` at one more than `i` past
  * it, and no layer writes depth, so the layers stack by order rather than by
  * depth offsets. That order lies below every other blended mesh, a flame's `-1`
  * and the default `0` included, so a flame or a glass in front of a graphic
@@ -54,34 +54,50 @@ import { createAutoMovieSystemTextTexture } from "./createAutoMovieSystemTextTex
  * is made, so the caller releases them even when a later layer throws.
  */
 export function buildAutoMovieSurfaceGraphicKey(props: {
-  /** The key's graphic. */
+  /*
+   * The key's graphic.
+   */
   graphic: IAutoMovieSurfaceGraphic;
 
-  /** Face width along the frame's `+X`, metres. */
+  /*
+   * Face width along the frame's `+X`, metres.
+   */
   width: number;
 
-  /** Face depth along the frame's `Z`, metres. */
+  /*
+   * Face depth along the frame's `Z`, metres.
+   */
   depth: number;
 
-  /**
+  /*
    * The surface's outline in the frame's XZ plane, metres; absent, the whole
    * face rectangle.
    */
   outline?: readonly { x: number; z: number }[];
 
-  /** The decoded texture for an image layer's asset. */
+  /*
+   * The decoded texture for an image layer's asset.
+   */
   image: (asset: string) => THREE.Texture;
 
-  /** The decoded font for a text layer's explicit font id. */
+  /*
+   * The decoded font for a text layer's explicit font id.
+   */
   font: (id: string) => IAutoMovieFont;
 
-  /** The colour texture of a feed layer's own render target. */
+  /*
+   * The colour texture of a feed layer's own render target.
+   */
   feed: (layer: IAutoMovieSurfaceGraphicLayer.IFeed) => THREE.Texture;
 
-  /** Receives each feed layer's mesh, in layer order. */
+  /*
+   * Receives each feed layer's mesh, in layer order.
+   */
   feeds?: THREE.Mesh<THREE.BufferGeometry, THREE.Material>[];
 
-  /** Receives every geometry, material and system-font texture made. */
+  /*
+   * Receives every geometry, material and system-font texture made.
+   */
   owned: { dispose(): void }[];
 }): THREE.Group {
   const { graphic, width, depth, owned }: typeof props = props;
@@ -186,7 +202,9 @@ export function buildAutoMovieSurfaceGraphicKey(props: {
   return group;
 }
 
-/** Build the text mesh with the explicit font or a system-font coverage map. */
+/*
+ * Build the text mesh with the explicit font or a system-font coverage map.
+ */
 function textMesh(
   layer: IAutoMovieSurfaceGraphicLayer.IText,
   props: Parameters<typeof buildAutoMovieSurfaceGraphicKey>[0],
@@ -218,20 +236,22 @@ function textMesh(
   );
 }
 
-/**
+/*
  * The coverage below which a seal discards a fragment: half an 8-bit step, so a
  * texel or a colour with any stored coverage seals.
  */
 const SEAL_ALPHA: number = 1 / 510;
 
-/**
+/*
  * The render order of a graphic's face; its layers follow it one by one. Far
  * below a flame's `-1` and the default `0`, so every graphic draws before any
  * other blended mesh.
  */
 const GRAPHIC_ORDER: number = -1_000_000;
 
-/** The whole face in face fractions. */
+/*
+ * The whole face in face fractions.
+ */
 const FULL: IAutoMovieSurfaceGraphicLayer.IBox = {
   x: 0,
   y: 0,
@@ -239,7 +259,9 @@ const FULL: IAutoMovieSurfaceGraphicLayer.IBox = {
   height: 1,
 };
 
-/** A graphic mesh that casts no shadow, registered with its owner. */
+/*
+ * A graphic mesh that casts no shadow, registered with its owner.
+ */
 function mesh(
   geometry: THREE.BufferGeometry,
   material: THREE.MeshBasicMaterial | THREE.MeshLambertMaterial,
@@ -252,7 +274,9 @@ function mesh(
   return result;
 }
 
-/** One image layer's quad, fitted into its box by metric aspect. */
+/*
+ * One image layer's quad, fitted into its box by metric aspect.
+ */
 function imageMesh(
   layer: IAutoMovieSurfaceGraphicLayer.IImage,
   props: Parameters<typeof buildAutoMovieSurfaceGraphicKey>[0],
@@ -305,7 +329,9 @@ function imageMesh(
   );
 }
 
-/** A graphic layer's mesh: one basic or Lambert material. */
+/*
+ * A graphic layer's mesh: one basic or Lambert material.
+ */
 type GraphicMesh = THREE.Mesh<
   THREE.BufferGeometry,
   THREE.MeshBasicMaterial | THREE.MeshLambertMaterial

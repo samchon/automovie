@@ -170,7 +170,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
     const slope: number = angles[3]! - angles[2]!;
     const branch: -1 | 1 = fore ? -1 : 1;
 
-    /**
+    /*
      * Preserve neutral relative fold; an oriented terminal is removed from the
      * lower resultant.
      */
@@ -191,7 +191,9 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
       return { bend, lower, offset: Math.atan2(z, -y), minimum, maximum };
     }
 
-    /** Accept binary64 sagittal noise without projecting an input point. */
+    /*
+     * Accept binary64 sagittal noise without projecting an input point.
+     */
     function admit(point: IAutoMovieVector3): void {
       if (!finite(point))
         throw new RangeError(
@@ -209,7 +211,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
         );
     }
 
-    /**
+    /*
      * One strict triangle owner fits either the terminal or the oriented ankle
      * target.
      */
@@ -294,7 +296,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
       return [{ ...root }, elbow, wrist, ankle];
     }
 
-    /**
+    /*
      * Refuse a solved representation that cannot retain the four positive
      * lengths.
      */
@@ -370,7 +372,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
           z: d * axis.z,
         };
 
-        /**
+        /*
          * Move from the exact terminal endpoint to the constrained proximal
          * target.
          */
@@ -413,17 +415,27 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
     };
   }
 
-  /** Fold-dependent lower-carriage vector in the second bar's neutral frame. */
+  /*
+   * Fold-dependent lower-carriage vector in the second bar's neutral frame.
+   */
   interface IPiece extends IRange {
-    /** Third-bar angle relative to the second, radians. */
+    /*
+     * Third-bar angle relative to the second, radians.
+     */
     bend: number;
-    /** Resultant lower-carriage length, metres. */
+    /*
+     * Resultant lower-carriage length, metres.
+     */
     lower: number;
-    /** Resultant angle from the second bar, radians. */
+    /*
+     * Resultant angle from the second bar, radians.
+     */
     offset: number;
   }
 
-  /** Admit finite coordinates without dereferencing a missing/sparse control. */
+  /*
+   * Admit finite coordinates without dereferencing a missing/sparse control.
+   */
   function finite(point: IAutoMovieVector3 | null | undefined): boolean {
     return point !== null && point !== undefined;
   }

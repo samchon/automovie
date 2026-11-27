@@ -93,7 +93,7 @@ export namespace AutoMovieHumanFootColumnLaw {
   }
 }
 
-/**
+/*
  * Relative size of the normal equations' determinant below which the knots'
  * heights hold no curvature (all but two coincide), and the law is their line.
  */

@@ -1,6 +1,6 @@
 import type { IAutoMovieViolationAppendSink } from "@automovie/interface";
 
-/**
+/*
  * Report each reference in a list that resolves to no declared id or repeats an
  * earlier one.
  *
@@ -8,13 +8,12 @@ import type { IAutoMovieViolationAppendSink } from "@automovie/interface";
  * `type` violation `<label> "<id>" does not resolve`, and one equal to an
  * earlier entry gets a `type` violation `<label> "<id>" is duplicated`. A
  * reference that is both gets both.
- *
- * @param references Referenced ids, in authored order.
- * @param targets Ids the references may name, usually from
- *   {@link collectDeclaredIds}.
- * @param path Violation path of the reference list itself.
- * @param label Name of the referenced record in the messages.
- * @param collector Sink that receives the violations.
+ * Parameter references: Referenced ids, in authored order.
+ * Parameter targets: Ids the references may name, usually from
+ * collectDeclaredIds.
+ * Parameter path: Violation path of the reference list itself.
+ * Parameter label: Name of the referenced record in the messages.
+ * Parameter collector: Sink that receives the violations.
  */
 export const validateDeclaredReferences = (
   references: readonly string[],

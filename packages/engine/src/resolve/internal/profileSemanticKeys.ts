@@ -1,6 +1,6 @@
 import { IAutoMovieChannel, IAutoMovieProfile } from "@automovie/interface";
 
-/**
+/*
  * List every supported profile node reference in first-reference order,
  * deduplicated, so forgeProp can report all missing mappings. Pointer channels
  * are global and excluded; unknown driver kinds throw.

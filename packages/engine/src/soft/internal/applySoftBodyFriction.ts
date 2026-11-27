@@ -1,6 +1,6 @@
 import type { IAutoMovieApplySoftBodyFriction } from "@automovie/interface";
 
-/**
+/*
  * Apply Coulomb friction to one particle a collider has just pushed out, in
  * place: the position-based friction of Macklin, Müller, Chentanez and Kim 2014
  * ("Unified particle physics for real-time applications", ACM TOG 33(4):153,
@@ -16,9 +16,8 @@ import type { IAutoMovieApplySoftBodyFriction } from "@automovie/interface";
  * the step: a static collider is, and a moving body capsule's own travel is not
  * subtracted, so friction against a moving limb drags the cloth toward rest
  * rather than along with the limb.
- *
- * @param props The particle, the buffers, its position before projection and
- *   the coefficient.
+ * Parameter props: The particle, the buffers, its position before projection and
+ * the coefficient.
  */
 export function applySoftBodyFriction(
   props: IAutoMovieApplySoftBodyFriction.IProps,

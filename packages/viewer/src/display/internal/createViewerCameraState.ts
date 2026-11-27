@@ -3,7 +3,7 @@ import * as THREE from "three";
 
 import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
 
-/**
+/*
  * Transfer detached, auto-updating Perspective/Orthographic cameras through
  * their public native lens/transform API, including film and view offsets.
  * Parented, manual-matrix and custom-projection cameras are explicitly refused:

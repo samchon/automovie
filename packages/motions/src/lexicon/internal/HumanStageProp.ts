@@ -22,7 +22,7 @@ import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { StrikingHeldFrame } from "../../striking/internal/StrikingHeldFrame";
 import { humanStagePropBeat } from "./humanStagePropBeat";
 
-/**
+/*
  * A held digital prop display law. `stroke` is the authored screen beat,
  * available to another performance chain as a synchronization anchor. The
  * existing body and arm planners own support and grip fitting.
@@ -34,11 +34,10 @@ export const HumanStageProp: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
     plan,
   };
 
-/**
+/*
  * Plan the beat in the entry performer's frame and keep the registered grip.
- *
- * @param context Entry body, held digital prop and authored beat.
- * @returns A fitted kinematic action with the `stroke` editing cue.
+ * Parameter context: Entry body, held digital prop and authored beat.
+ * Returns: A fitted kinematic action with the `stroke` editing cue.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStageProp>,
@@ -156,14 +155,13 @@ function plan(
   return visual;
 }
 
-/**
+/*
  * The support site from the leading grip in the hand's frame, expanded from its
  * offset in the tool's axis-edge basis.
- *
- * @param tool The held tool and its axes.
- * @param support The support handle's offset.
- * @returns The support site from the grip socket, metres, in the hand bone's
- *   axes.
+ * Parameter tool: The held tool and its axes.
+ * Parameter support: The support handle's offset.
+ * Returns: The support site from the grip socket, metres, in the hand bone's
+ * axes.
  */
 function supportPoint(
   tool: IAutoMovieMotionHumanStrikingHeld.ITool,
@@ -178,7 +176,7 @@ function supportPoint(
   );
 }
 
-/**
+/*
  * Keep the registered hold and read articulated model sites at the authored
  * stroke accent.
  */
@@ -212,7 +210,9 @@ function heldAtStroke(
     : { ...held, affordances: posed.affordances };
 }
 
-/** Resolve a named second grip in the same held frame the primary hand uses. */
+/*
+ * Resolve a named second grip in the same held frame the primary hand uses.
+ */
 function supportGrip(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStageProp>,
   held: IAutoMovieMotionHumanHeld.IHeld,

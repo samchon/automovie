@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import { subsurfacePhysicalChunk } from "./subsurfacePhysicalChunk.js";
 
-/**
+/*
  * Expand the supported physical lighting include and add the existing
  * screen-space curvature assignment. Missing outer include markers are not
  * rejected; compatibility therefore requires the actual supported physical

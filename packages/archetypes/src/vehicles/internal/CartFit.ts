@@ -14,21 +14,20 @@ import {
 import { CART_MODELS } from "../constants/CART_MODELS";
 import { AutoMovieArchetypeCart } from "../AutoMovieArchetypeCart";
 
-/**
+/*
  * A horse's cart fitted to its horse: the read models made for the horse an
  * author fixed, the girth and shafts the drawn horse gives the cart, and the
  * traces and driving lines between them. It is kept apart from `createCart` so
  * each file stays within its size.
  */
 export namespace CartFit {
-  /**
+  /*
    * The models made for the horse an author fixed, each model without a stated
    * range of horses made for every one.
-   *
-   * @param models The kind's read models.
-   * @param params The parameters, whose fixed withers height selects.
-   * @returns The models whose range admits the fixed withers height, or every
-   *   model when it is free.
+   * Parameter models: The kind's read models.
+   * Parameter params: The parameters, whose fixed withers height selects.
+   * Returns: The models whose range admits the fixed withers height, or every
+   * model when it is free.
    */
   export function models(
     models:
@@ -68,16 +67,15 @@ export namespace CartFit {
     );
   }
 
-  /**
+  /*
    * A horse's cart fitted to the horse of its withers height: the girth that
    * height gives the horse, and, where the cart's shafts are not read, shafts
    * reaching from the horse's point of shoulder, where their tips stand, past
    * its point of buttock by the drawn clearance to the single tree (IVC
    * Carriage's 8 to 20 in from the horse to the vehicle's nearest part).
-   *
-   * @param draw The cart's draw, its height, clearance and any read shafts
-   *   recorded; the girth and, where unread, the shafts' length are derived
-   *   into it.
+   * Parameter draw: The cart's draw, its height, clearance and any read shafts
+   * recorded; the girth and, where unread, the shafts' length are derived
+   * into it.
    */
   export function harness(
     draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeCart.Dimension>,
@@ -99,7 +97,7 @@ export namespace CartFit {
     );
   }
 
-  /**
+  /*
    * The traces and the driving lines between a cart and the horse in harness
    * that draws it, for `AutoMovieArchetypeRide.towed`'s `lines`: a trace from
    * each point of draft at the breast collar's end to its end of the cart's
@@ -107,15 +105,14 @@ export namespace CartFit {
    * ring and the saddle's terret to the driver's held run (Harness Stuff: the
    * reins pass from the bit through the rings on the breastplate's neck strap,
    * then the saddle's terrets, to the driver).
-   *
-   * @param cart A `cart` kind, built for the horse that draws it.
-   * @param held Optional reader of the driver's displayed palm on each side at
-   *   a film second, world metres: when given, each driving line's held run
-   *   ends at that palm instead of the fixed material end, so the hand can
-   *   shake, take up and give the line while it stays connected.
-   * @returns The four lines, the traces first, left before right.
-   * @throws {AutoMovieArchetypeRefusal} When the cart is not a horse's
-   *   two-wheeled cart.
+   * Parameter cart: A `cart` kind, built for the horse that draws it.
+   * Parameter held: Optional reader of the driver's displayed palm on each side at
+   * a film second, world metres: when given, each driving line's held run
+   * ends at that palm instead of the fixed material end, so the hand can
+   * shake, take up and give the line while it stays connected.
+   * Returns: The four lines, the traces first, left before right.
+   * When the cart is not a horse's
+   * two-wheeled cart.
    */
   export function lines(
     cart: AutoMovieArchetype<AutoMovieArchetypeCart.Affordance, AutoMovieArchetypeCart.Dimension>,

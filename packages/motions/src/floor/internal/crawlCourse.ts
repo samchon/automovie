@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Prepare every footprint and swing boundary once and return the original
  * minimum-jerk course, with a parabolic vertical lift during the swing.
  */
@@ -57,20 +57,26 @@ export function crawlCourse(
   };
 }
 
-/**
+/*
  * Prepared support courses for a crawl. Footprints and exact swing boundaries
  * belong to its finite authored cycle list, and time queries search that list.
  */
 export namespace crawlCourse {
-  /** A finite authored support schedule. */
+  /*
+   * A finite authored support schedule.
+   */
   export interface IProps {
-    /** Limbs in the gait. */
+    /*
+     * Limbs in the gait.
+     */
     limbs: readonly IAutoMovieMotionHumanCrawl.Limb[];
 
-    /** Positive integer count of authored cycles. */
+    /*
+     * Positive integer count of authored cycles.
+     */
     cycles: number;
 
-    /**
+    /*
      * World-metre footprint of a limb after its numbered swing, with cycle zero
      * the entry print. The returned point stays unchanged while this prepared
      * course owns it.
@@ -80,37 +86,57 @@ export namespace crawlCourse {
       cycle: number,
     ): IAutoMovieVector3;
 
-    /**
+    /*
      * Seconds of each numbered liftoff, one through cycles. For each limb these
      * times strictly increase, with the same positive swing duration.
      */
     lift(limb: IAutoMovieMotionHumanCrawl.Limb, cycle: number): number;
 
-    /** Positive seconds from liftoff to touchdown. */
+    /*
+     * Positive seconds from liftoff to touchdown.
+     */
     swing: number;
 
-    /** Palm's swing height, metres. */
+    /*
+     * Palm's swing height, metres.
+     */
     handLift: number;
 
-    /** Knee's swing height, metres. */
+    /*
+     * Knee's swing height, metres.
+     */
     kneeLift: number;
   }
 }
 
-/** A swing's unchanged event seconds. */
+/*
+ * A swing's unchanged event seconds.
+ */
 interface IInterval {
-  /** Liftoff, included in swing. */
+  /*
+   * Liftoff, included in swing.
+   */
   from: number;
-  /** Touchdown, excluded from swing. */
+  /*
+   * Touchdown, excluded from swing.
+   */
   to: number;
 }
 
-/** One limb's prepared immutable gait data. */
+/*
+ * One limb's prepared immutable gait data.
+ */
 interface ICourse {
-  /** World-metre prints, from entry through the final cycle. */
+  /*
+   * World-metre prints, from entry through the final cycle.
+   */
   points: IAutoMovieVector3[];
-  /** Increasing swing windows. */
+  /*
+   * Increasing swing windows.
+   */
   intervals: IInterval[];
-  /** Metres of vertical lift. */
+  /*
+   * Metres of vertical lift.
+   */
   height: number;
 }

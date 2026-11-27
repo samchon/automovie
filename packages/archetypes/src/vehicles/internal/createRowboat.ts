@@ -5,18 +5,17 @@ import { BoatConstruction } from "./BoatConstruction";
 import { BoatHull } from "./BoatHull";
 import { BoatOars } from "./BoatOars";
 
-/**
+/*
  * Fixed-seat rowboat.
  *
  * The hull floats at its waterline with its bow along +Z. The rowing thwart
  * faces aft and its paired oars sit in articulated locks.
- *
- * @param params The scene identity and this hull's accepted dimensions and
- *   catalogue choices.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter params: The scene identity and this hull's accepted dimensions and
+ * catalogue choices.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function createRowboat(
   params: AutoMovieArchetypeRowboat.IParams = {},
@@ -27,7 +26,9 @@ export function createRowboat(
 
 
 
-/** Record this hull's fixed seats and articulated rowing station. */
+/*
+ * Record this hull's fixed seats and articulated rowing station.
+ */
 function outfit(
   builder: Parameters<BoatConstruction.Outfit>[0],
   { d, length, beam, gunwale, stern }: BoatConstruction.IHull,

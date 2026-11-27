@@ -14,7 +14,9 @@ import type { AutoMovieSolidTraceObservation } from "./construction/AutoMovieSol
 import { AutoMovieSolidTraceSolve } from "./AutoMovieSolidTraceSolve";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-/** Original world-vector norm used by closure observations. */
+/*
+ * Original world-vector norm used by closure observations.
+ */
 const { norm }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 /**
  * Existing trace orchestration and public host/domain adapters behind the
@@ -39,7 +41,7 @@ export namespace AutoMovieSolidIntersectionTrace {
     walkPoints: number,
     closingSteps: number,
   ): IAutoMovieSolidIntersection.IResult {
-    /**
+    /*
      * Read original top-level inputs in the same order before any surface
      * callback.
      */
@@ -50,19 +52,29 @@ export namespace AutoMovieSolidIntersectionTrace {
       grazing,
     }: IAutoMovieSolidIntersection.IInput = input;
 
-    /** Normalize the original host without copying an existing atlas. */
+    /*
+     * Normalize the original host without copying an existing atlas.
+     */
     const host: IAutoMovieSolidAtlas = atlas(input.host);
 
-    /** Borrow the requested parameter or use the original phase default. */
+    /*
+     * Borrow the requested parameter or use the original phase default.
+     */
     const parameter: Parameter = input.parameter ?? { kind: "phase" };
 
-    /** Original diagnostic identity for this part/host pair. */
+    /*
+     * Original diagnostic identity for this part/host pair.
+     */
     const producer: string = `solid.intersection.${part.name}.${host.name}`;
 
-    /** Diagnostics in original traversal and grazing-observation order. */
+    /*
+     * Diagnostics in original traversal and grazing-observation order.
+     */
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
 
-    /** Return the unchanged null-curve failure shape. */
+    /*
+     * Return the unchanged null-curve failure shape.
+     */
     const report: (
       contract: string,
       detail: string,
@@ -78,21 +90,29 @@ export namespace AutoMovieSolidIntersectionTrace {
     if (!(count >= 8))
       return report("trace count", `${count} points per turn, under 8`);
 
-    /** One full parameter turn in radians. */
+    /*
+     * One full parameter turn in radians.
+     */
     const turn: number = 2 * Math.PI;
 
     // The parameter's law, the seed's parameter and the seed refined at it.
 
-    /** Law selected by the original phase/angle/arc branch. */
+    /*
+     * Law selected by the original phase/angle/arc branch.
+     */
     let law: IAutoMovieSolidTraceLaw.ILaw;
 
-    /** Original starting parameter for one turn. */
+    /*
+     * Original starting parameter for one turn.
+     */
     let t0: number;
 
-    /** Seed corrected by the existing law-specific solve. */
+    /*
+     * Seed corrected by the existing law-specific solve.
+     */
     let first: IPoint | null;
 
-    /**
+    /*
      * The last meeting attempt's refusal, named in the diagnostic when the seed
      * or the trace is lost.
      */
@@ -103,7 +123,7 @@ export namespace AutoMovieSolidIntersectionTrace {
       step: null,
     };
 
-    /**
+    /*
      * That refusal as text, where the solver recorded one: its guard, face,
      * chart point, residual and crossings left.
      */
@@ -115,7 +135,9 @@ export namespace AutoMovieSolidIntersectionTrace {
         : `: ${last.reason} on host face ${host.faces[last.face]?.name ?? last.face} at [${last.chart.join(", ")}], gap ${last.gap ?? "unread"} mm, crossings left ${last.budget ?? "unread"}`;
     };
     if (parameter.kind === "arc") {
-      /** Arc preparation with the unchanged public step constants. */
+      /*
+       * Arc preparation with the unchanged public step constants.
+       */
       const walked: IAutoMovieSolidIntersectionWalk.IWalk | string =
         AutoMovieSolidIntersectionWalk.create(
           part,
@@ -141,7 +163,9 @@ export namespace AutoMovieSolidIntersectionTrace {
         attempt,
       );
     } else {
-      /** Original phase/angle law admission result. */
+      /*
+       * Original phase/angle law admission result.
+       */
       const made: IAutoMovieSolidTraceLaw.ILaw | null =
         AutoMovieSolidTraceLaw.of(parameter);
       if (made === null)
@@ -180,16 +204,24 @@ export namespace AutoMovieSolidIntersectionTrace {
 
     // Continuation over one turn, each target reached by halving steps.
 
-    /** The same point array later exposed publicly and captured by at. */
+    /*
+     * The same point array later exposed publicly and captured by at.
+     */
     const points: IPoint[] = [first];
 
-    /** Latest accepted point, including the final closure observation. */
+    /*
+     * Latest accepted point, including the final closure observation.
+     */
     let current: IPoint = first;
     for (let i: number = 1; i <= count; i++) {
-      /** Original uniform target over one turn. */
+      /*
+       * Original uniform target over one turn.
+       */
       const target: number = t0 + (turn * i) / count;
 
-      /** Next point returned by the unchanged continuation owner. */
+      /*
+       * Next point returned by the unchanged continuation owner.
+       */
       const next: IPoint | null = AutoMovieSolidTraceSolve.advance(
         part,
         host,
@@ -214,33 +246,49 @@ export namespace AutoMovieSolidIntersectionTrace {
     // Closure: the same part and host points after one turn, each phase
     // changed by whole periods.
 
-    /** Original starting host face for closure measurements. */
+    /*
+     * Original starting host face for closure measurements.
+     */
     const home: IAutoMovieSolidSurface = host.faces[first.face]!;
 
-    /** Whether the last point returned to that original face. */
+    /*
+     * Whether the last point returned to that original face.
+     */
     const same: boolean = current.face === first.face;
 
-    /** Original whole-turn host phase observation. */
+    /*
+     * Original whole-turn host phase observation.
+     */
     const winding: number =
       home.period === undefined || !same
         ? 0
         : Math.round((current.theta - first.theta) / home.period);
 
-    /** Host phase shift applied to the periodic reader. */
+    /*
+     * Host phase shift applied to the periodic reader.
+     */
     const shift: number = home.period === undefined ? 0 : winding * home.period;
 
-    /** Original whole-turn part phase observation. */
+    /*
+     * Original whole-turn part phase observation.
+     */
     const partWinding: number = Math.round(
       (current.phi - first.phi) / part.period,
     );
 
-    /** Part phase shift retained by the same reader. */
+    /*
+     * Part phase shift retained by the same reader.
+     */
     const partShift: number = partWinding * part.period;
 
-    /** Part metric used by the original closure test. */
+    /*
+     * Part metric used by the original closure test.
+     */
     const a0: IJet | null = AutoMovieSolidDomain.jet(part, first.s, first.phi);
 
-    /** Host metric at the original starting chart point. */
+    /*
+     * Host metric at the original starting chart point.
+     */
     const b0: IJet | null = AutoMovieSolidDomain.jet(
       home,
       first.y,
@@ -252,7 +300,7 @@ export namespace AutoMovieSolidIntersectionTrace {
         "the original closure metric has no admitted physical2",
       );
 
-    /**
+    /*
      * Original maximum chart displacement measured through local surface
      * speeds.
      */
@@ -271,7 +319,9 @@ export namespace AutoMovieSolidIntersectionTrace {
     // Every traced point inside both surfaces' own ranges: past a chain's
     // end layer the solver extension is not owned surface skin.
     for (const p of points) {
-      /** Original ordered part-domain then host-domain observation. */
+      /*
+       * Original ordered part-domain then host-domain observation.
+       */
       const outside: string | null =
         beyond(part, p.s) ?? beyond(host.faces[p.face]!, p.y);
       if (outside !== null)
@@ -291,27 +341,39 @@ export namespace AutoMovieSolidIntersectionTrace {
           detail: `tangent planes ${p.angle} rad apart at t ${p.t}, under ${grazing}`,
         });
 
-    /** Reader capturing the original points array, law and surfaces. */
+    /*
+     * Reader capturing the original points array, law and surfaces.
+     */
     const at: ICurve["at"] = (t: number): IPoint | null => {
       // The nearest traced point by parameter, the loop's own copy of the
       // start closing the turn.
 
-      /** Original whole-turn reduction for a finite real query. */
+      /*
+       * Original whole-turn reduction for a finite real query.
+       */
       const turns: number = Math.floor((t - t0) / turn);
 
-      /** Query on the same base parameter turn. */
+      /*
+       * Query on the same base parameter turn.
+       */
       const local: number = t - turns * turn;
 
-      /** Original rounded nearest stored-parameter index. */
+      /*
+       * Original rounded nearest stored-parameter index.
+       */
       const k: number = Math.round(((local - t0) / turn) * count);
 
-      /** Original stored point or shifted copy used for correction. */
+      /*
+       * Original stored point or shifted copy used for correction.
+       */
       const from: IPoint =
         k >= count
           ? AutoMovieSolidTraceSolve.shifted(points[0]!, shift, partShift, turn)
           : points[k]!;
 
-      /** Correction result before restoring whole-turn shifts. */
+      /*
+       * Correction result before restoring whole-turn shifts.
+       */
       const p: IPoint | null = AutoMovieSolidTraceSolve.advance(
         part,
         host,
@@ -355,7 +417,9 @@ export namespace AutoMovieSolidIntersectionTrace {
     surface: IAutoMovieSolidSurface,
     u: number,
   ): string | null {
-    /** Current borrowed surface interval, without a cached copy. */
+    /*
+     * Current borrowed surface interval, without a cached copy.
+     */
     const d: [number, number] | undefined = surface.domain;
     if (d === undefined || (u >= d[0] && u <= d[1])) return null;
     return `${surface.name}'s u ${u} lies outside its layers ${d[0]} to ${d[1]}`;
@@ -380,12 +444,20 @@ export namespace AutoMovieSolidIntersectionTrace {
     };
   }
 }
-/** Original surface jet used by the closure measurement. */
+/*
+ * Original surface jet used by the closure measurement.
+ */
 type IJet = IAutoMovieSolidSurface.IJet;
-/** The existing public point and its implicit parameter rates. */
+/*
+ * The existing public point and its implicit parameter rates.
+ */
 type IPoint = IAutoMovieSolidIntersection.IPoint;
-/** Existing declared parameter kind and angle data. */
+/*
+ * Existing declared parameter kind and angle data.
+ */
 type Parameter = IAutoMovieSolidIntersection.Parameter;
 
-/** Original public curve with its shared point array and reader. */
+/*
+ * Original public curve with its shared point array and reader.
+ */
 type ICurve = IAutoMovieSolidIntersection.ICurve;

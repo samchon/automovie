@@ -18,7 +18,7 @@ import { walkLeg } from "./walkLeg";
 import { walkReachShort } from "./walkReachShort";
 import { walkReachStance } from "./walkReachStance";
 
-/**
+/*
  * Makes every foot goal of a stepping gait reachable on the actual pelvis, the
  * footskate cleanup of Kovar, Schreiner and Gleicher (2002): the contacts are
  * enforced by IK, and the root moves so the IK can meet them.
@@ -55,42 +55,62 @@ import { walkReachStance } from "./walkReachStance";
  * swing leaving and joining its stances where they stand.
  */
 export namespace walkReach {
-  /** A pelvis turned toward its stances, before it is lowered. */
+  /*
+   * A pelvis turned toward its stances, before it is lowered.
+   */
   export interface IPelvis {
-    /** The heading, degrees. */
+    /*
+     * The heading, degrees.
+     */
     yaw: number;
 
-    /** Each foot's pivot turn on its toe pad, degrees. */
+    /*
+     * Each foot's pivot turn on its toe pad, degrees.
+     */
     pivots: Record<AutoMovieHumanSide, number>;
 
-    /** The hip joints, world metres. */
+    /*
+     * The hip joints, world metres.
+     */
     hips: Record<AutoMovieHumanSide, IAutoMovieVector3>;
   }
 
-  /** The pelvis settled against the stances. */
+  /*
+   * The pelvis settled against the stances.
+   */
   export interface IGround {
-    /** The heading, degrees. */
+    /*
+     * The heading, degrees.
+     */
     yaw: number;
 
-    /** The lowered root, world metres. */
+    /*
+     * The lowered root, world metres.
+     */
     root: IAutoMovieVector3;
 
-    /** The hip joints under that root, world metres. */
+    /*
+     * The hip joints under that root, world metres.
+     */
     hips: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
-    /** Each foot's stance as reached. */
+    /*
+     * Each foot's stance as reached.
+     */
     feet: Record<AutoMovieHumanSide, walkFoot.IEnd>;
 
-    /** Each stance's contact point in its foot's frame. */
+    /*
+     * Each stance's contact point in its foot's frame.
+     */
     contacts: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
-    /**
+    /*
      * Each foot's pitch as its stance rule reached it, degrees negative toes
      * down (`walkReachStance`): what a prepared course of the stance keeps.
      */
     pitches: Record<AutoMovieHumanSide, number>;
 
-    /**
+    /*
      * The pelvis's world rotation, where the caller tilts it from upright under
      * its heading (a trunk tipped about the hips,
      * `AutoMovieMotionHumanLean.pivot`), the hip joints then the tilted ones;
@@ -99,24 +119,23 @@ export namespace walkReach {
     pelvis?: IAutoMovieQuaternion;
   }
 
-  /**
+  /*
    * The share of a swing over which its foot's claim on the pelvis fades out
    * after toe-off and in before heel strike (provisional).
    */
   export const FADE: number = 0.25;
 
-  /**
+  /*
    * The difference, metres, under which the claims on the root's height blend
    * (provisional); a foot that asks nothing claims this much less than none, so
    * it leaves the blend alone.
    */
   export const CLAIM: number = 0.01;
 
-  /**
+  /*
    * A scheduled foot's claim on the pelvis.
-   *
-   * @param foot The foot.
-   * @returns 1 in stance, fading to 0 in mid-swing.
+   * Parameter foot: The foot.
+   * Returns: 1 in stance, fading to 0 in mid-swing.
    */
   export function weight(
     foot: IAutoMovieMotionHumanWalkFoot.IScheduled,
@@ -128,30 +147,31 @@ export namespace walkReach {
       : AutoMovieEngineMotionSampling.minimumJerkShare(Math.max(0, (u - (1 - FADE)) / FADE));
   }
 
-  /**
+  /*
    * The lowering a leg asks of the root at the knee floor
    * (`walkReachShort.short`).
    */
   export const short: typeof walkReachShort.short = walkReachShort.short;
 
-  /** Prepare the fixed body's lowering claims (`walkReachShort.prepare`). */
+  /*
+   * Prepare the fixed body's lowering claims (`walkReachShort.prepare`).
+   */
   export const prepareShort: typeof walkReachShort.prepare =
     walkReachShort.prepare;
 
-  /**
+  /*
    * Turn the pelvis toward its stances: no further than `TWIST` from each
    * claiming foot, a foot with its heel up taking the rest as a pivot turn;
    * feet turned further apart than that, in a stepping turn, hold it between
    * them, each by its claim.
-   *
-   * @param body The body.
-   * @param root The unconstrained root, world metres.
-   * @param planned The unconstrained heading, degrees.
-   * @param hips The pelvis joint's clinical angles, degrees.
-   * @param feet Each foot as scheduled.
-   * @param resolution Optional exact FK reader borrowed from this synchronous
-   *   descent construction; the returned points never retain it.
-   * @returns The heading, the pivots and the hip joints under that root.
+   * Parameter body: The body.
+   * Parameter root: The unconstrained root, world metres.
+   * Parameter planned: The unconstrained heading, degrees.
+   * Parameter hips: The pelvis joint's clinical angles, degrees.
+   * Parameter feet: Each foot as scheduled.
+   * Parameter resolution: Optional exact FK reader borrowed from this synchronous
+   * descent construction; the returned points never retain it.
+   * Returns: The heading, the pivots and the hip joints under that root.
    */
   export function pelvis(
     body: IAutoMovieMotionHumanBody,
@@ -177,12 +197,11 @@ export namespace walkReach {
     };
   }
 
-  /**
+  /*
    * Read the pelvis heading and stance pivots before any root or hip placement.
-   *
-   * @param planned The unconstrained heading, degrees.
-   * @param feet Each actual scheduled foot and its swing share.
-   * @returns The same heading and toe-pad pivots used by pelvis, in degrees.
+   * Parameter planned: The unconstrained heading, degrees.
+   * Parameter feet: Each actual scheduled foot and its swing share.
+   * Returns: The same heading and toe-pad pivots used by pelvis, in degrees.
    */
   export function turn(
     planned: number,
@@ -224,7 +243,7 @@ export namespace walkReach {
     return { yaw, pivots };
   }
 
-  /**
+  /*
    * One scheduled foot's toe pivot, in degrees. Contact classification only
    * needs this foot, whereas pelvis heading depends on both stance bands.
    */
@@ -237,7 +256,9 @@ export namespace walkReach {
       : 0;
   }
 
-  /** The requested toe rotation after consuming the available hip twist. */
+  /*
+   * The requested toe rotation after consuming the available hip twist.
+   */
   function pivot(
     planned: number,
     direction: ReturnType<typeof HumanFoot.headingPitch>,
@@ -248,24 +269,23 @@ export namespace walkReach {
     return excess * Math.min(1, Math.max(0, -direction.pitch / HEEL_UP));
   }
 
-  /**
+  /*
    * Hold a swinging foot inside its leg's ranges under a settled pelvis: the
    * ankle within reach and no further behind the hip than a thigh `EXTENSION`
    * degrees back and the knee's bend carry it (an ankle past that turns forward
    * onto that boundary at the same hip-to-ankle distance and knee angle), the
    * heading within `TWIST` of the pelvis, the pitch inside the ankle's range,
    * and neither toe nor heel nearer the floor than the swing carried them.
-   *
-   * @param body The body.
-   * @param side The foot.
-   * @param settled The pelvis.
-   * @param foot The swinging foot.
-   * @param share The share of the swing, when the caller's stances may stand
-   *   outside these ranges (a foot rolled onto its edge, a stance far behind
-   *   the hip): the ranges then come in over the first `FADE` of the swing and
-   *   go over its last, so the swing leaves and joins its stances where they
-   *   stand. Held throughout when absent.
-   * @returns The foot as reached.
+   * Parameter body: The body.
+   * Parameter side: The foot.
+   * Parameter settled: The pelvis.
+   * Parameter foot: The swinging foot.
+   * Parameter share: The share of the swing, when the caller's stances may stand
+   * outside these ranges (a foot rolled onto its edge, a stance far behind
+   * the hip): the ranges then come in over the first `FADE` of the swing and
+   * go over its last, so the swing leaves and joins its stances where they
+   * stand. Held throughout when absent.
+   * Returns: The foot as reached.
    */
   export function swing(
     body: IAutoMovieMotionHumanBody,
@@ -277,12 +297,11 @@ export namespace walkReach {
     return prepareSwing(body, side)(settled, foot, share);
   }
 
-  /**
+  /*
    * Prepare fixed body and foot geometry for repeated swing-range reads.
-   *
-   * @param body The action's unchanged body.
-   * @param side The swinging foot.
-   * @returns This law's same swing constraints with its fixed bounds prepared.
+   * Parameter body: The action's unchanged body.
+   * Parameter side: The swinging foot.
+   * Returns: This law's same swing constraints with its fixed bounds prepared.
    */
   export function prepareSwing(
     body: IAutoMovieMotionHumanBody,
@@ -296,10 +315,12 @@ export namespace walkReach {
       fade: FADE,
     });
   }
-  /** Both feet. */
+  /*
+   * Both feet.
+   */
   export const SIDES: readonly ["left", "right"] = ["left", "right"];
 
-  /**
+  /*
    * The largest extension, degrees, of a leg's thigh, swinging or planted: the
    * hip's extension in the range table (`DEFAULT_HUMANOID_ROM`, 30° on either
    * hip, the lesser taken), kept inside by the margin a foot keeps inside its
@@ -321,14 +342,14 @@ export namespace walkReach {
       ),
     ) - walkLeg.ANKLE;
 
-  /**
+  /*
    * The furthest a swinging leg's line leans to the side of its foot, degrees:
    * the ankle's inversion and eversion (`walkReachStance.SIDE`), the same bound
    * a stance stands inside, so a swing joins its stances where they are.
    */
   const SIDE: number = walkReachStance.SIDE;
 
-  /**
+  /*
    * The largest heading, degrees, a foot may keep from the pelvis: the hip's
    * own internal and external rotation (`DEFAULT_HUMANOID_ROM`, 45° either way,
    * `walkHipTwist`); a turn that asks more is taken by spinning on the ball of
@@ -336,18 +357,24 @@ export namespace walkReach {
    */
   export const TWIST: number = walkHipTwist(DEFAULT_HUMANOID_ROM);
 
-  /**
+  /*
    * Pitch, degrees toes-down, at which a planted foot's heel is far enough up
    * to take the whole pivot turn on its toe pad (provisional).
    */
   const HEEL_UP: number = 30;
 }
 
-/** The alternatives of `EXTENSIONBone`'s site. */
+/*
+ * The alternatives of `EXTENSIONBone`'s site.
+ */
 type EXTENSIONBone = "leftUpperLeg" | "rightUpperLeg";
 
-/** The alternatives of `TurnResult`'s site. */
+/*
+ * The alternatives of `TurnResult`'s site.
+ */
 type TurnResult = "yaw" | "pivots";
 
-/** The alternatives of `Pelvis`'s site. */
+/*
+ * The alternatives of `Pelvis`'s site.
+ */
 type Pelvis = "yaw" | "pivots";

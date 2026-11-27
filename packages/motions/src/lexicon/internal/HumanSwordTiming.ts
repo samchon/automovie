@@ -19,7 +19,7 @@ import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { StrikingSkill } from "../../striking/internal/StrikingSkill";
 
-/**
+/*
  * The clock of a blade's attack, shared by the cut and the thrust: every
  * movement of the hand is one minimum-jerk unit (Flash and Hogan 1985) at the
  * attack's peak speed, whose duration is 1.875 times its path over that speed;
@@ -31,7 +31,7 @@ import { StrikingSkill } from "../../striking/internal/StrikingSkill";
  * held pose is a guard's or the author's.
  */
 export namespace HumanSwordTiming {
-  /**
+  /*
    * The clock of an attack: its attack lasts as a minimum-jerk unit of the
    * path's length at the peak speed. `carried` is the part of that length an
    * advancing body covers: the body arrives at rest (a whole unit) while an
@@ -67,7 +67,7 @@ export namespace HumanSwordTiming {
     );
   };
 
-  /**
+  /*
    * How far a held tool goes between two hand frames, metres: the greater
    * displacement of its working point and of its end by the hand
    * (`StrikingHeld.strayed`), the chord a phase's minimum-jerk unit is timed
@@ -79,7 +79,7 @@ export namespace HumanSwordTiming {
     to: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
   ): number => StrikingHeld.strayed(tool, from, to, 0);
 
-  /**
+  /*
    * How far the arm travels as it sets from the entry hold to the path's start,
    * metres: the greater of the tool's travel (`travel`) and the elbow's, read
    * once on the two fitted arms, the entry's as it stands and the start's on
@@ -135,17 +135,16 @@ export namespace HumanSwordTiming {
     );
   };
 
-  /**
+  /*
    * An attack's peak speed over its peak speed per metre, metres: with no
    * advance the point's own minimum-jerk unit peaks at its middle, `UNIT` times
    * the path; with one, the arrested point's unit (arriving at its peak) and
    * the advancing body's (arriving at rest) peak apart, and the greatest of
    * their sum `(length - carried) 30 u² (1 - u)² + carried 30 v² (1 - v)²`,
    * read at fifty steps of the body's unit, is the peak.
-   *
-   * @param length The path's length, metres.
-   * @param carried The part of it an advancing body covers, metres.
-   * @returns The attack's duration times its peak speed, metres.
+   * Parameter length: The path's length, metres.
+   * Parameter carried: The part of it an advancing body covers, metres.
+   * Returns: The attack's duration times its peak speed, metres.
    */
   export const peak = (length: number, carried: number): number => {
     const rate = (u: number): number => 30 * u * u * (1 - u) * (1 - u);
@@ -158,7 +157,7 @@ export namespace HumanSwordTiming {
     return most;
   };
 
-  /**
+  /*
    * A minimum-jerk unit's peak speed over its mean speed, `30/16`: the profile
    * `30 u^2 (1 - u)^2` at its middle (Flash and Hogan 1985), so a unit of a
    * path at a peak speed lasts this times the path over the speed.
@@ -166,5 +165,7 @@ export namespace HumanSwordTiming {
   export const UNIT: number = 1.875;
 }
 
-/** The alternatives of `SettingContext`'s site. */
+/*
+ * The alternatives of `SettingContext`'s site.
+ */
 type SettingContext = "body" | "entry";

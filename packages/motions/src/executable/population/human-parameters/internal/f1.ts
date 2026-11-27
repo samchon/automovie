@@ -9,7 +9,7 @@ import {
 } from "@automovie/human";
 import type { IAutoMovieHumanParameters } from "@automovie/interface";
 
-/**
+/*
  * Authored f1 example in the Human parameter units; an omitted measure takes
  * its survey default.
  *

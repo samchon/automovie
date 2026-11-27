@@ -7,7 +7,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { StrikingBody } from "./StrikingBody";
 import { StrikingStance } from "./StrikingStance";
 
-/**
+/*
  * Where a close strike's effector lands and what carries it there: the elbow
  * joint on the target with the forearm folded behind it, the back of a spinning
  * fist on the target with the arm nearly extended, or the forehead on the
@@ -25,19 +25,18 @@ import { StrikingStance } from "./StrikingStance";
  * on the target with the elbow bent toward its travel. A headbutt leans the
  * trunk forward until the forehead is at the target's height, at most `LEAN`
  * degrees, then shifts the pelvis along the line onto it.
- *
- * @param body The body.
- * @param technique The technique.
- * @param side The striking arm.
- * @param target The struck point, world metres.
- * @param line The horizontal unit line to the target.
- * @param travel The unit direction the effector travels at contact.
- * @param at The lower-body posture at contact for a pelvis shift and a lean.
- * @param room How far the hips may shift toward the person struck before they
- *   meet theirs, metres; unbounded when absent.
- * @returns The landing.
- * @throws {HumanRefusal} When no shift within its band brings the elbow or the
- *   head onto the target, naming that band.
+ * Parameter body: The body.
+ * Parameter technique: The technique.
+ * Parameter side: The striking arm.
+ * Parameter target: The struck point, world metres.
+ * Parameter line: The horizontal unit line to the target.
+ * Parameter travel: The unit direction the effector travels at contact.
+ * Parameter at: The lower-body posture at contact for a pelvis shift and a lean.
+ * Parameter room: How far the hips may shift toward the person struck before they
+ * meet theirs, metres; unbounded when absent.
+ * Returns: The landing.
+ * When no shift within its band brings the elbow or the
+ * head onto the target, naming that band.
  */
 export function CloseStrikeReach(
   body: IAutoMovieMotionHumanBody,
@@ -263,7 +262,9 @@ export function CloseStrikeReach(
   };
 }
 
-/** Refuse a close strike's target on its axis, naming the band. */
+/*
+ * Refuse a close strike's target on its axis, naming the band.
+ */
 function refuse(
   axis: string,
   value: number,
@@ -285,21 +286,22 @@ function refuse(
   });
 }
 
-/** Companion types and constants of {@link CloseStrikeReach}. */
+/*
+ * Companion types and constants of CloseStrikeReach.
+ */
 export namespace CloseStrikeReach {
-  /**
+  /*
    * How far the body must travel toward an elbow strike's point to bring the
    * shoulder an upper arm from it: along the travel, the reach left once the
    * part of the shoulder-to-point offset across the travel takes its share of
    * the upper arm.
-   *
-   * @param elbow The struck point, world metres.
-   * @param shoulder The shoulder, world metres.
-   * @param toward The level unit travel.
-   * @param upperArm The upper arm, metres.
-   * @returns Metres along the travel; negative to back away.
-   * @throws {HumanRefusal} When the point lies more than an upper arm across
-   *   the travel.
+   * Parameter elbow: The struck point, world metres.
+   * Parameter shoulder: The shoulder, world metres.
+   * Parameter toward: The level unit travel.
+   * Parameter upperArm: The upper arm, metres.
+   * Returns: Metres along the travel; negative to back away.
+   * When the point lies more than an upper arm across
+   * the travel.
    */
   export function closing(
     elbow: IAutoMovieVector3,
@@ -315,14 +317,13 @@ export namespace CloseStrikeReach {
     return along - Math.sqrt(upperArm * upperArm - perpendicular);
   }
 
-  /**
+  /*
    * The forearm of a folded elbow strike: turned `fold` degrees off the upper
    * arm toward the strike's plane, square to the upper arm.
-   *
-   * @param upper The upper arm's unit direction.
-   * @param plane The direction the forearm folds toward.
-   * @param fold The fold, degrees.
-   * @returns The forearm's unit direction.
+   * Parameter upper: The upper arm's unit direction.
+   * Parameter plane: The direction the forearm folds toward.
+   * Parameter fold: The fold, degrees.
+   * Returns: The forearm's unit direction.
    */
   export function forearm(
     upper: IAutoMovieVector3,
@@ -339,93 +340,129 @@ export namespace CloseStrikeReach {
     );
   }
 
-  /**
+  /*
    * The trunk's forward lean that brings an elbow's shoulder toward its target,
    * degrees (provisional).
    */
   export const ELBOW_LEAN: number = 15;
 
-  /**
+  /*
    * The elbow's flexion at contact, degrees: past the 120 the issue's band
    * sets, provisional.
    */
   export const FOLD: number = 135;
 
-  /** The headbutt's greatest trunk lean, degrees (provisional). */
+  /*
+   * The headbutt's greatest trunk lean, degrees (provisional).
+   */
   export const LEAN: number = 40;
 
-  /**
+  /*
    * The headbutt's greatest lean back, degrees, that lifts the forehead to a
    * target above it (provisional).
    */
   export const BACK: number = 10;
 
-  /**
+  /*
    * The pelvis's greatest shift along the line, a share of the stance length
    * (provisional).
    */
   export const SHIFT: number = 0.5;
 
-  /** An elbow's fold and the trunk lean it lands from. */
+  /*
+   * An elbow's fold and the trunk lean it lands from.
+   */
   export interface ILanded {
-    /** The trunk's forward lean, degrees. */
+    /*
+     * The trunk's forward lean, degrees.
+     */
     lean: number;
 
-    /** The fold at that lean. */
+    /*
+     * The fold at that lean.
+     */
     fold: IFold;
   }
 
-  /**
+  /*
    * An elbow's fold: the joint, the pelvis shift that brings it one upper arm
    * from the shoulder and the forearm's unit direction.
    */
   export interface IFold {
-    /** The elbow joint, world metres. */
+    /*
+     * The elbow joint, world metres.
+     */
     elbow: IAutoMovieVector3;
 
-    /** The pelvis's horizontal shift, world metres. */
+    /*
+     * The pelvis's horizontal shift, world metres.
+     */
     shift: IAutoMovieVector3;
 
-    /** The forearm's unit direction from the elbow, world. */
+    /*
+     * The forearm's unit direction from the elbow, world.
+     */
     forearm: IAutoMovieVector3;
   }
 
-  /** A close strike's landing. */
+  /*
+   * A close strike's landing.
+   */
   export interface ILanding {
-    /** The trunk's lean at contact, degrees. */
+    /*
+     * The trunk's lean at contact, degrees.
+     */
     lean: number;
 
-    /** The pelvis's horizontal shift at contact, world metres. */
+    /*
+     * The pelvis's horizontal shift at contact, world metres.
+     */
     shift: IAutoMovieVector3;
 
-    /** The striking arm's goal at contact; none for a headbutt. */
+    /*
+     * The striking arm's goal at contact; none for a headbutt.
+     */
     arm: IArm | null;
   }
 
-  /** The striking arm's goal at contact. */
+  /*
+   * The striking arm's goal at contact.
+   */
   export interface IArm {
-    /** The hand surface the goal places. */
+    /*
+     * The hand surface the goal places.
+     */
     surface: IAutoMovieMotionHumanHand.Surface;
 
-    /** The body region that strikes: the elbow's or the back of the hand's. */
+    /*
+     * The body region that strikes: the elbow's or the back of the hand's.
+     */
     region: AutoMovieHumanoidRegion;
 
-    /** Whether the goal places the elbow itself, `point` being the wrist joint. */
+    /*
+     * Whether the goal places the elbow itself, `point` being the wrist joint.
+     */
     elbow: boolean;
 
-    /** Where that surface goes, world metres. */
+    /*
+     * Where that surface goes, world metres.
+     */
     point: IAutoMovieVector3;
 
-    /** The hand's world rotation. */
+    /*
+     * The hand's world rotation.
+     */
     rotation: IAutoMovieQuaternion;
 
-    /**
+    /*
      * The elbow's bend hint, world metres: the elbow joint itself for an elbow
      * strike.
      */
     bend: IAutoMovieVector3;
 
-    /** The distance from the shoulder the effector is carried at, metres. */
+    /*
+     * The distance from the shoulder the effector is carried at, metres.
+     */
     reach: number;
   }
 }

@@ -6,7 +6,7 @@ import type {
 
 import { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
 
-/**
+/*
  * Restore the complete solver and causal prefix selected by sampled-input
  * equivalence.
  *

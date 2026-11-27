@@ -8,7 +8,9 @@ import { prepareSpace } from "./prepareSpace";
 import { surfaceAt } from "./surfaceAt";
 import { surfaceHeightAt } from "./surfaceHeightAt";
 
-/** Read the topmost walkable surface height, or null over absent or no-go tops. */
+/*
+ * Read the topmost walkable surface height, or null over absent or no-go tops.
+ */
 export const heightAt: (
   space: IAutoMovieSpace,
   x: number,

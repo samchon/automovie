@@ -9,7 +9,7 @@ import { BODY_ROOT } from "../utilities/BODY_ROOT";
 import { PACKAGE_DOCS_ROOT } from "../utilities/PACKAGE_DOCS_ROOT";
 import { createUnitFiles } from "../utilities/createUnitFiles";
 
-/**
+/*
  * Tracks instruction adoption in long work's settings, and realization in
  * treatments or a short's screenplay. Each layer covers the targets
  * independently through its own construction hosts and stage. Settings accounts

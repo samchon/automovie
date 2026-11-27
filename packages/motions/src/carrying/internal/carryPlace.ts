@@ -14,18 +14,17 @@ import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/**
+/*
  * A hand's hold place in the performer's moving floor frame (`carry`).
- *
- * @param body The body.
- * @param posture The posture whose root and heading carry the frame.
- * @param how How the load is held.
- * @param side The hand.
- * @param loaded The loaded side.
- * @param resolution The existing same-body FK reader when the handle rides the
- *   shoulders.
- * @returns The point and the outward normal of the place, world, or undefined
- *   for a free hand.
+ * Parameter body: The body.
+ * Parameter posture: The posture whose root and heading carry the frame.
+ * Parameter how: How the load is held.
+ * Parameter side: The hand.
+ * Parameter loaded: The loaded side.
+ * Parameter resolution: The existing same-body FK reader when the handle rides the
+ * shoulders.
+ * Returns: The point and the outward normal of the place, world, or undefined
+ * for a free hand.
  */
 export function carryPlace(
   body: IAutoMovieMotionHumanBody,
@@ -118,23 +117,31 @@ export function carryPlace(
   }
 }
 
-/** The authored trunk channels a hold place reads when given. */
+/*
+ * The authored trunk channels a hold place reads when given.
+ */
 type CarryPostureItem = "pitch" | "roll" | "joints";
 
-/** The channels that carry a hold place's floor frame. */
+/*
+ * The channels that carry a hold place's floor frame.
+ */
 type CarryPosture2 = "root" | "yaw";
 
-/**
+/*
  * Root and heading with the optional authored trunk channels that move a hand's
  * support frame.
  */
 type CarryPosture = Pick<IAutoMovieMotionHumanPosture, CarryPosture2> &
   Partial<Pick<IAutoMovieMotionHumanPosture, CarryPostureItem>>;
 
-/** A same-body FK loan scoped to the current posture evaluation. */
+/*
+ * A same-body FK loan scoped to the current posture evaluation.
+ */
 type FK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
 
-/** The current abdomen's front in the walking floor frame. */
+/*
+ * The current abdomen's front in the walking floor frame.
+ */
 function forwardAbdomen(
   body: IAutoMovieMotionHumanBody,
   posture: CarryPosture,
@@ -150,7 +157,9 @@ function forwardAbdomen(
   return HumanFrame.local(frame, abdomen.point).z;
 }
 
-/** The pushing arm's current shoulder, carried by the actual girdle. */
+/*
+ * The pushing arm's current shoulder, carried by the actual girdle.
+ */
 function measuredShoulder(
   body: IAutoMovieMotionHumanBody,
   posture: CarryPosture,
@@ -167,7 +176,7 @@ function measuredShoulder(
   ).get(bone)!.worldPosition;
 }
 
-/**
+/*
  * A root-only caller uses the upright rest frame; a shown trunk keeps its
  * articulation.
  */

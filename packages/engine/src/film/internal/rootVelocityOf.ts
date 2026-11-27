@@ -10,12 +10,12 @@ import { AutoMovieEngineMotionSampling } from "../../motion/AutoMovieEngineMotio
 import { VELOCITY_DT } from "../VELOCITY_DT";
 import { foldRoot } from "./foldRoot";
 
-/**
+/*
  * World root velocity of a node playing `clip` at clip-local `localTime`, in
  * metres per second, from a backward difference of the clip's root folded
  * through the node's staged placement.
  *
- * The window ends at `localTime` and spans {@link VELOCITY_DT} where it can. A
+ * The window ends at `localTime` and spans VELOCITY_DT where it can. A
  * looping clip's root jumps back at the seam, so the window never crosses it:
  * within a cycle it is the trailing `VELOCITY_DT`, in the cycle's first
  * instants it shrinks to `[0, phase]`, and exactly on the seam it measures the
@@ -27,11 +27,10 @@ import { foldRoot } from "./foldRoot";
  *
  * `resolveBeatSnapshot` stores the result as an actor's `rootVelocity`, the
  * momentum the next beat continues.
- *
- * @param node Scene node whose staged transform the root is folded through.
- * @param clip Motion the node plays.
- * @param localTime Clip-local seconds the velocity is measured at.
- * @returns World velocity in metres per second.
+ * Parameter node: Scene node whose staged transform the root is folded through.
+ * Parameter clip: Motion the node plays.
+ * Parameter localTime: Clip-local seconds the velocity is measured at.
+ * Returns: World velocity in metres per second.
  */
 export function rootVelocityOf(
   node: IAutoMovieSceneNode,
@@ -56,7 +55,9 @@ export function rootVelocityOf(
   return velocityOver(node, clip, Math.max(0, t1 - VELOCITY_DT), t1);
 }
 
-/** The clip's root at `t`, folded through the node's staged placement. */
+/*
+ * The clip's root at `t`, folded through the node's staged placement.
+ */
 function worldRootAt(
   node: IAutoMovieSceneNode,
   clip: IAutoMovieMotion,
@@ -65,7 +66,9 @@ function worldRootAt(
   return foldRoot(node.transform, AutoMovieEngineMotionSampling.sampleRoot(clip, t)).translation;
 }
 
-/** Difference of the world root over `[t0, t1]`; zero for an empty window. */
+/*
+ * Difference of the world root over `[t0, t1]`; zero for an empty window.
+ */
 function velocityOver(
   node: IAutoMovieSceneNode,
   clip: IAutoMovieMotion,

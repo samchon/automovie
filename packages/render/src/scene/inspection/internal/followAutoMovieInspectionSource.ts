@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-/**
+/*
  * Place an object so that its local space is the world space of a source
  * object, wherever the object itself is attached.
  *

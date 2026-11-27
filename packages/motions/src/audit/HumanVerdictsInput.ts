@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 
-/**
+/*
  * What `AutoMovieMotionHumanVerdicts` reads of its input: the fields of a performance and of
  * its placed actions the verdicts actually read, so a performance, or a typed
  * minimal motion a unit test builds, can be judged alike.

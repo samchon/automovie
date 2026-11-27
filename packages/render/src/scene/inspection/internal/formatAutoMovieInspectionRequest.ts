@@ -6,7 +6,7 @@ import type {
 
 import { parseAutoMovieInspectionRequest } from "./parseAutoMovieInspectionRequest.js";
 
-/**
+/*
  * Write an inspection request as the named text values
  * `parseAutoMovieInspectionRequest` reads, so a request made in one host
  * repeats in another as an address or a command line.

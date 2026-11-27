@@ -27,9 +27,9 @@ import { gaitPhaseOf } from "./gaitPhaseOf";
 import { plantsAtEnd } from "./plantsAtEnd";
 import { rootVelocityOf } from "./rootVelocityOf";
 
-/**
+/*
  * Every scene actor's resumable state at one shot-local instant, the one body
- * behind {@link resolveBeatOpening} (`instant = 0`) and {@link resolveBeatEnd}
+ * behind resolveBeatOpening (`instant = 0`) and resolveBeatEnd
  * (`instant = shot.duration`).
  *
  * Each node of `props.scene` yields one actor state, in scene order. A node
@@ -55,11 +55,10 @@ import { rootVelocityOf } from "./rootVelocityOf";
  * names a motion that `props.motions` does not supply, because a snapshot built
  * from an ambiguous or missing input would hand the next beat a state no shot
  * produced.
- *
- * @param props The compiled shot, its staged scene and motions, and the mount
- *   and plant facts to carry.
- * @param instant Shot-local seconds to sample at.
- * @returns The beat id, the shot id, and one state per scene node.
+ * Parameter props: The compiled shot, its staged scene and motions, and the mount
+ * and plant facts to carry.
+ * Parameter instant: Shot-local seconds to sample at.
+ * Returns: The beat id, the shot id, and one state per scene node.
  */
 export function resolveBeatSnapshot(
   props: IAutoMovieResolveBeatProps,
@@ -151,61 +150,91 @@ export function resolveBeatSnapshot(
   };
 }
 
-/** Model-space forward, `+Z`, rotated into the world to state `facing`. */
+/*
+ * Model-space forward, `+Z`, rotated into the world to state `facing`.
+ */
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
-/** Zero vector, the velocity of an empty difference window. */
+/*
+ * Zero vector, the velocity of an empty difference window.
+ */
 const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
-/**
+/*
  * A borrowed performance and its original shot-list position, held by the
  * snapshot's per-call node index.
  */
 interface IPerformanceEntry {
-  /** Motion reference and startOffset defining this node's pose-local clock. */
+  /*
+   * Motion reference and startOffset defining this node's pose-local clock.
+   */
   performance: IAutoMovieShot["performances"][number];
 
-  /** Original shot.performances position named by duplicate-node errors. */
+  /*
+   * Original shot.performances position named by duplicate-node errors.
+   */
   index: number;
 }
 
-/** The per-call lookups one actor's state derives from. */
+/*
+ * The per-call lookups one actor's state derives from.
+ */
 interface IResolveContext {
-  /** Shot-local seconds the snapshot is taken at. */
+  /*
+   * Shot-local seconds the snapshot is taken at.
+   */
   instant: number;
 
-  /** Per-call lazy object-channel samples, shared at each exact shot instant. */
+  /*
+   * Per-call lazy object-channel samples, shared at each exact shot instant.
+   */
   channelsAt: (time: number) => ReadonlyMap<string, IAutoMovieSampledChannel>;
 
-  /** Nodes some object-motion track translates; only these can be baked. */
+  /*
+   * Nodes some object-motion track translates; only these can be baked.
+   */
   bakedNodes: ReadonlySet<string>;
 
-  /** Accepted motion identities with their original input positions. */
+  /*
+   * Accepted motion identities with their original input positions.
+   */
   motionById: ReadonlyMap<string, { motion: IAutoMovieMotion; index: number }>;
 
-  /** Unique node performances with pose clocks and duplicate-report positions. */
+  /*
+   * Unique node performances with pose clocks and duplicate-report positions.
+   */
   performanceByNode: ReadonlyMap<string, IPerformanceEntry>;
 
-  /** Borrowed persistent binding per uniquely admitted mount node. */
+  /*
+   * Borrowed persistent binding per uniquely admitted mount node.
+   */
   mountByNode: ReadonlyMap<string, IAutoMovieMountBinding>;
 
-  /** Borrowed world-space plant runs per uniquely admitted plant entry. */
+  /*
+   * Borrowed world-space plant runs per uniquely admitted plant entry.
+   */
   plantsByNode: ReadonlyMap<string, readonly IAutoMovieBeatEndFootPlant[]>;
 }
 
-/** A baked world transform and its trailing velocity, overriding the fold. */
+/*
+ * A baked world transform and its trailing velocity, overriding the fold.
+ */
 interface IWorldOverride {
-  /** Effective world TRS composed from the shot-local object-channel authority. */
+  /*
+   * Effective world TRS composed from the shot-local object-channel authority.
+   */
   transform: IAutoMovieTransform;
 
-  /**
+  /*
    * Backward world velocity in metres per second, zero for an unreadable
    * difference window.
    */
   rootVelocity: IAutoMovieVector3;
 }
 
-/** Ids of every node an object-motion track translates. */
+/*
+ * Ids of every node an object-motion track translates.
+ */
 function translatedNodes(clips: readonly IAutoMovieClip[]): Set<string> {
   const nodes: Set<string> = new Set();
   for (const clip of clips)
@@ -215,7 +244,9 @@ function translatedNodes(clips: readonly IAutoMovieClip[]): Set<string> {
   return nodes;
 }
 
-/** One scene actor's state: sampled when it plays a motion, held otherwise. */
+/*
+ * One scene actor's state: sampled when it plays a motion, held otherwise.
+ */
 function actorAt(
   context: IResolveContext,
   node: IAutoMovieSceneNode,
@@ -266,9 +297,9 @@ function actorAt(
   });
 }
 
-/**
+/*
  * Trailing world velocity of the baked object-authority sequence at `t`,
- * differenced over the last {@link VELOCITY_DT} without crossing the actor's
+ * differenced over the last VELOCITY_DT without crossing the actor's
  * performance start. Each end reads shot-clock translation authority. Zero
  * before or at that start, or when the earlier end has no translation sample
  * because authority has only just begun.
@@ -291,7 +322,9 @@ function bakedVelocity(
   );
 }
 
-/** A sampled translation channel's value as a vector. */
+/*
+ * A sampled translation channel's value as a vector.
+ */
 function vectorOf(value: readonly number[]): IAutoMovieVector3 {
   return {
     x: value[0]!,
@@ -300,7 +333,9 @@ function vectorOf(value: readonly number[]): IAutoMovieVector3 {
   };
 }
 
-/** Assemble one actor's state from what {@link actorAt} resolved. */
+/*
+ * Assemble one actor's state from what actorAt resolved.
+ */
 function actorState(props: {
   node: IAutoMovieSceneNode;
   motion: { id: string; clip: IAutoMovieMotion } | null;

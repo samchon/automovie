@@ -14,7 +14,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * A wheel's bearing windows (`GymnasticsWheel`) with each foot's edge declared
  * where the foot rolls past the ankle's range: the wheel's carried foot turns
  * with its leg, so at an end of its window it stands rolled; where that roll
@@ -23,12 +23,11 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * (`AutoMovieMotionHumanFootRelax`), so the window declares that edge as the
  * point held and the plant audits read the point the foot bears on. Read once
  * per plan.
- *
- * @param body The body.
- * @param contacts The wheel's bearing windows, shares of the duration.
- * @param duration The action's seconds.
- * @param carried The wheel's rigid posture at an action second.
- * @returns The windows, a rolled foot's with its edge.
+ * Parameter body: The body.
+ * Parameter contacts: The wheel's bearing windows, shares of the duration.
+ * Parameter duration: The action's seconds.
+ * Parameter carried: The wheel's rigid posture at an action second.
+ * Returns: The windows, a rolled foot's with its edge.
  */
 export function edgeGymnasticsWheelFeet(
   body: IAutoMovieMotionHumanBody,

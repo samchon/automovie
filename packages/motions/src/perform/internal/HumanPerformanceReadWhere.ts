@@ -5,14 +5,13 @@ import type {
   IAutoMovieMotionHumanSegment,
 } from "@automovie/interface";
 
-/**
+/*
  * Locate an intent by performer, action and next occurrence of its id: the
  * instance counts the person's placed actions and overlays of that id, plus
  * one.
- *
- * @param self The performance's state.
- * @param intent The intent.
- * @returns Its performer, action and instance.
+ * Parameter self: The performance's state.
+ * Parameter intent: The intent.
+ * Returns: Its performer, action and instance.
  */
 export function HumanPerformanceReadWhere(
   self: IAutoMovieMotionHumanPerformanceState,

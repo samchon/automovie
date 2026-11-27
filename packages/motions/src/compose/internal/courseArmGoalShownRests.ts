@@ -19,7 +19,7 @@ import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { courseArmGoal } from "./courseArmGoal";
 import { courseLimbSwivels } from "./courseLimbSwivels";
 
-/**
+/*
  * The arms a display shows as courses that start after their action take them
  * over, at one start: each course's rest there. Before its course an arm is the
  * plan's own. Where the plan writes it no goal at the display's last knot
@@ -33,14 +33,13 @@ import { courseLimbSwivels } from "./courseLimbSwivels";
  * and the goal at the start placed at its last knot, so the rest is the arm
  * shown, not a cold fit of the goal, which may turn the upper arm and the
  * forearm another way for the same hand place.
- *
- * @param context The action's context: the body and the arms it is entered
- *   with.
- * @param plan The law's plan, whose events the display knots at.
- * @param shown The posture the display shows before the courses.
- * @param arms The arms whose courses start at `start`.
- * @param start The courses' start, seconds since the plan's start, positive.
- * @returns Each arm's rest.
+ * Parameter context: The action's context: the body and the arms it is entered
+ * with.
+ * Parameter plan: The law's plan, whose events the display knots at.
+ * Parameter shown: The posture the display shows before the courses.
+ * Parameter arms: The arms whose courses start at `start`.
+ * Parameter start: The courses' start, seconds since the plan's start, positive.
+ * Returns: Each arm's rest.
  */
 export function courseArmGoalShownRests(
   context: courseArmGoal.IContext,

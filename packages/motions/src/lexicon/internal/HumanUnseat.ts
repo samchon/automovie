@@ -29,7 +29,7 @@ import { HumanUnseatDrag } from "./HumanUnseatDrag";
 import { HumanUnseatFlight } from "./HumanUnseatFlight";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 
-/**
+/*
  * Each fall's push, in the carrier's frame with `+X` toward the falling side
  * (provisional stage readings).
  */
@@ -43,10 +43,12 @@ const PUSHES: Readonly<Record<IAutoMovieMotionHumanUnseat.Fall, IPush>> = {
   slump: { direction: { x: 1, y: 0, z: 0 }, speed: 0.5 },
 };
 
-/** Seconds either side the release velocity is read over. */
+/*
+ * Seconds either side the release velocity is read over.
+ */
 const STEP: number = 1 / 240;
 
-/**
+/*
  * A rider leaving a moving saddle (`IAutoMovieMotionHumanUnseat`): carried on
  * the saddle until the release, then flying from the saddle's own velocity with
  * the fall's push built over `HumanUnseatFlight.TAKE` (no jump in velocity),
@@ -64,7 +66,7 @@ export const HumanUnseat: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanUn
     plan: planHumanUnseat,
   };
 
-/**
+/*
  * Admit the fall, find the release, solve the flight or the drag once, then
  * sample.
  */
@@ -72,7 +74,9 @@ function planHumanUnseat(context: Context): IAutoMovieMotionHumanActionPlan {
   return plan(context);
 }
 
-/** Admit the fall, find the release and sample its path. */
+/*
+ * Admit the fall, find the release and sample its path.
+ */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanUnseat = context.params;
   const entered: IAutoMovieMotionHumanBase = context.entry.base;
@@ -433,7 +437,9 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   };
 }
 
-/** A contact window over shares of the act, on the carrier or the ground. */
+/*
+ * A contact window over shares of the act, on the carrier or the ground.
+ */
 function window(
   part: string,
   kind: IAutoMovieMotionHumanContactWindow["kind"],
@@ -451,18 +457,28 @@ function window(
   };
 }
 
-/** The other side. */
+/*
+ * The other side.
+ */
 function other(side: AutoMovieHumanSide): AutoMovieHumanSide {
   return side === "left" ? "right" : "left";
 }
-/** The law's context. */
+/*
+ * The law's context.
+ */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanUnseat>;
 
-/** A fall's push away from the saddle. */
+/*
+ * A fall's push away from the saddle.
+ */
 interface IPush {
-  /** Its direction in the carrier's frame, `+X` toward the falling side. */
+  /*
+   * Its direction in the carrier's frame, `+X` toward the falling side.
+   */
   direction: IAutoMovieVector3;
 
-  /** Its speed, metres per second. */
+  /*
+   * Its speed, metres per second.
+   */
   speed: number;
 }

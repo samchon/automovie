@@ -7,7 +7,7 @@ import {
 
 import { playbackEntryTime } from "./playbackEntryTime";
 
-/**
+/*
  * Turn one live timeline entry into the on-screen sample at an output instant.
  *
  * The sample is the live shot at `playbackEntryTime(live, seconds)`, `offset +
@@ -18,12 +18,11 @@ import { playbackEntryTime } from "./playbackEntryTime";
  * `alpha = (seconds - start) / duration`. The caller picks the live entry; a
  * transition on the first entry is refused by `sequenceTimeline`, so the
  * previous entry always exists when a blend is built.
- *
- * @param sequence The sequence the timeline was built from.
- * @param entries The timeline's entries, in sequence order.
- * @param live The entry live at `seconds`.
- * @param seconds Output-clock seconds.
- * @returns A new sample.
+ * Parameter sequence: The sequence the timeline was built from.
+ * Parameter entries: The timeline's entries, in sequence order.
+ * Parameter live: The entry live at `seconds`.
+ * Parameter seconds: Output-clock seconds.
+ * Returns: A new sample.
  */
 export function playbackSampleAt(
   sequence: IAutoMovieSequence,

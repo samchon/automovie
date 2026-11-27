@@ -20,7 +20,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { HumanHandShape } from "../../posture/internal/HumanHandShape";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/**
+/*
  * Pre-fit the thumb and index to opposite faces of a tab of the stated
  * thickness with the canonical digit solver. Move their common midpoint toward
  * their two achieved tips until both fit or the iteration ends. This is a seed
@@ -121,15 +121,21 @@ export function prepareZipperPinch(
   };
 }
 
-/**
+/*
  * A neutral-wrist seed for an opposed thumb and index, with wrist-relative
  * geometry.
  */
 interface IAutoMovieZipperPinch {
-  /** Clinical joint degrees for the complete hand at the fitted pinch. */
+  /*
+   * Clinical joint degrees for the complete hand at the fitted pinch.
+   */
   joints: IAutoMovieMotionHumanPosture["joints"];
-  /** The midpoint of the two tab faces relative to the neutral wrist, metres. */
+  /*
+   * The midpoint of the two tab faces relative to the neutral wrist, metres.
+   */
   contact: IAutoMovieVector3;
-  /** The neutral-wrist direction from the lower face to the upper face. */
+  /*
+   * The neutral-wrist direction from the lower face to the upper face.
+   */
   normal: IAutoMovieVector3;
 }

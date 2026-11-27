@@ -19,7 +19,7 @@ import { isRecoveryPositiveSafeInteger } from "../../internal/isRecoveryPositive
 import { isRecoveryUnitInterval } from "../../internal/isRecoveryUnitInterval";
 import { prepareRecoveryImageSupports } from "../../geometry/internal/prepareRecoveryImageSupports";
 
-/**
+/*
  * Fit compact continuous support profiles from supplied-camera image envelopes.
  * Every view supplies two oriented inequalities, not a corresponding material
  * contour. Increasing common cubic spaces are tried in order. Both offset fits

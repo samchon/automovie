@@ -1,6 +1,8 @@
 import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
 
-/** Set finite positive CSS dimensions on a capture canvas; leave invalid sizes unchanged. */
+/*
+ * Set finite positive CSS dimensions on a capture canvas; leave invalid sizes unchanged.
+ */
 export function applyCaptureCanvasSize(
   request: AutoMovieViewerDisplay.IApplyCaptureCanvasSizeRequest,
 ): void {

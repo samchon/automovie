@@ -38,7 +38,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { AthleticsRunUp } from "./AthleticsRunUp";
 import { fieldThrowKeys } from "./fieldThrowKeys";
 
-/**
+/*
  * A field event's throw. In a circle the feet stand in the power position
  * across it, their balls pivoting while the body turns over them by the event's
  * turn; the javelin is cut from a run at the block foot's footfall
@@ -61,10 +61,14 @@ import { fieldThrowKeys } from "./fieldThrowKeys";
  * Events: `windup`, `release`, `recover`.
  */
 export namespace fieldThrow {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "athleticThrow";
 
-  /** Cancel table: once recovered, into standing or walking. */
+  /*
+   * Cancel table: once recovered, into standing or walking.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       { window: ["recover", 1], kind: "inertialize", entry: 0, blend: 0.25 },
@@ -74,27 +78,39 @@ export namespace fieldThrow {
     ],
   };
 
-  /** What may be cut into a throw: a run, for the javelin's approach. */
+  /*
+   * What may be cut into a throw: a run, for the javelin's approach.
+   */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     run: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
   };
 
-  /** One event's figures. */
+  /*
+   * One event's figures.
+   */
   export interface IEvent {
-    /** The body's turn over the feet before the release, degrees. */
+    /*
+     * The body's turn over the feet before the release, degrees.
+     */
     turn: number;
 
-    /** Seconds of that turn. */
+    /*
+     * Seconds of that turn.
+     */
     seconds: number;
 
-    /** The release angle above the horizontal, degrees. */
+    /*
+     * The release angle above the horizontal, degrees.
+     */
     angle: number;
 
-    /** The greatest release speed the event admits, m/s. */
+    /*
+     * The greatest release speed the event admits, m/s.
+     */
     speed: number;
   }
 
-  /**
+  /*
    * The events: turns of half, one and a half and three and a half turns (the
    * shot's turn to the front, the discus' 1.5 turns, the hammer's three turns
    * and its turn into the release; provisional seconds), the optimum release
@@ -113,23 +129,24 @@ export namespace fieldThrow {
     javelin: { turn: 0, seconds: 0, angle: 33, speed: 31 },
   };
 
-  /**
+  /*
    * Seconds from the end of the turn to the release (provisional, a delivery's
    * tenths of a second).
    */
   export const DELIVER: number = 0.25;
 
-  /** Seconds from the release back to standing (provisional). */
+  /*
+   * Seconds from the release back to standing (provisional).
+   */
   export const RECOVER: number = 0.8;
 
-  /**
+  /*
    * Plan a throw.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When no hand holds the implement, the area lacks its
-   *   contact, a foot falls outside the circle or past the arc, the distance is
-   *   not positive, or the distance needs more than the event's release speed.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When no hand holds the implement, the area lacks its
+   * contact, a foot falls outside the circle or past the arc, the distance is
+   * not positive, or the distance needs more than the event's release speed.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFieldThrow.IParams>,

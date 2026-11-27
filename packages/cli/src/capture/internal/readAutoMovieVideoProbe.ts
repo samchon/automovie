@@ -1,6 +1,6 @@
 import type { AutoMovieCliCaptureTypes } from "../AutoMovieCliCaptureTypes";
 
-/**
+/*
  * Read a video file's clock and raster from the log FFmpeg writes when it opens
  * the file: the `Duration:` of the input and the size and rate of its first
  * video stream.

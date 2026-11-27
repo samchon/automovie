@@ -8,7 +8,7 @@ import { HumanArmBranch } from "./HumanArmBranch";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmTrajectoryKnots } from "./HumanArmTrajectoryKnots";
 
-/**
+/*
  * One arm's reader of a trajectory's knots: the arm at any second, the knots'
  * C² quintic Hermite interpolant (`HumanArmTrajectoryKnots.positions`) as
  * clinical triples. It owns only the playback's inputs, so a returned reader
@@ -20,15 +20,14 @@ import { HumanArmTrajectoryKnots } from "./HumanArmTrajectoryKnots";
  * read nearest the knot it follows. Decoded alone, two neighbouring seconds
  * could name their rotations on different readings, and the display clamped one
  * of them to another rotation (a 104.78 mm jump of the elbow).
- *
- * @param setups Each arm's setup.
- * @param times The knots' seconds, ascending.
- * @param coordinates Each arm's coordinates at each knot.
- * @param arm The arm's index.
- * @param rates The bounded per-knot velocities and accelerations used by
- *   admission. Each quintic meets both knots' position and rates.
- * @returns The arm at a second of the span, held at the first and the last knot
- *   outside it.
+ * Parameter setups: Each arm's setup.
+ * Parameter times: The knots' seconds, ascending.
+ * Parameter coordinates: Each arm's coordinates at each knot.
+ * Parameter arm: The arm's index.
+ * Parameter rates: The bounded per-knot velocities and accelerations used by
+ * admission. Each quintic meets both knots' position and rates.
+ * Returns: The arm at a second of the span, held at the first and the last knot
+ * outside it.
  */
 export function HumanArmTrajectoryPlayback(
   setups: readonly IAutoMovieMotionHumanArmGeometry.ISetup[],

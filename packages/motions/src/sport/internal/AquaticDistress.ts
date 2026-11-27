@@ -8,22 +8,28 @@ import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
 import { HumanBound } from "../../law/internal/HumanBound";
 import { AquaticPosture } from "./AquaticPosture";
 
-/**
+/*
  * Seconds before submersion when the author gives none: inside Pia's 20 to 60
  * s.
  */
 const STRUGGLE: number = 30;
 
-/** Seconds over which the head goes under at the end: provisional. */
+/*
+ * Seconds over which the head goes under at the end: provisional.
+ */
 const SINK: number = 2;
 
-/** Metres the mouth goes under at submersion: enough to take the crown under. */
+/*
+ * Metres the mouth goes under at submersion: enough to take the crown under.
+ */
 const UNDER: number = 0.3;
 
-/** Seconds of one lateral arm press: provisional. */
+/*
+ * Seconds of one lateral arm press: provisional.
+ */
 const PRESS: number = 1.1;
 
-/**
+/*
  * The instinctive drowning response (Pia 1974, as summarised by Vittone and
  * Pia, "It Doesn't Look Like They're Drowning", US Coast Guard On Scene, Fall
  * 2006): upright in the water, head tilted back with the mouth at the surface,
@@ -33,13 +39,15 @@ const PRESS: number = 1.1;
  * `under`). The root stays where the swimmer entered.
  */
 export namespace AquaticDistress {
-  /**
+  /*
    * Mouth excursion about the surface, metres: provisional, the head bobbing at
    * the surface.
    */
   export const BAND: number = 0.05;
 
-  /** Plan the struggle and the submersion. */
+  /*
+   * Plan the struggle and the submersion.
+   */
   export function plan(
     context: AquaticPosture.Context,
     water: number,

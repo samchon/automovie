@@ -3,7 +3,9 @@ import type { IAutoMovieFont } from "@automovie/interface";
 
 import type { IAutoMovieRenderTypographyDecodeFontSourcesProps } from "../IAutoMovieRenderTypographyDecodeFontSourcesProps.js";
 
-/** Decode the font-source records used by surface text layout. */
+/*
+ * Decode the font-source records used by surface text layout.
+ */
 export async function decodeAutoMovieFontSources(
   props: IAutoMovieRenderTypographyDecodeFontSourcesProps,
 ): Promise<Map<string, IAutoMovieFont>> {
@@ -62,7 +64,7 @@ export async function decodeAutoMovieFontSources(
   return fonts;
 }
 
-/**
+/*
  * RFC 4648 section 4 base64: the standard alphabet in padded four-character
  * groups.
  */

@@ -1,14 +1,13 @@
-/**
+/*
  * A squared distance to a fixed target as a joint turns, `A + B cos t + C sin
  * t` of its turn `t` from the centre of its range (a point on a circle about
  * the joint's axis, its distance squared to a fixed point), recovered from the
  * range's two ends and its middle, `t = −half, 0, half`.
- *
- * @param low The value at the range's low end.
- * @param middle The value at its middle.
- * @param high The value at its high end.
- * @param half The range's half width, radians, under a half turn.
- * @returns The harmonic's three coefficients.
+ * Parameter low: The value at the range's low end.
+ * Parameter middle: The value at its middle.
+ * Parameter high: The value at its high end.
+ * Parameter half: The range's half width, radians, under a half turn.
+ * Returns: The harmonic's three coefficients.
  */
 export function fixedSeatHarmonic(
   low: number,
@@ -25,28 +24,37 @@ export function fixedSeatHarmonic(
   };
 }
 
-/** The harmonic's coefficients and the least of two. */
+/*
+ * The harmonic's coefficients and the least of two.
+ */
 export namespace fixedSeatHarmonic {
-  /** `A + B cos t + C sin t`. */
+  /*
+   * `A + B cos t + C sin t`.
+   */
   export interface IHarmonic {
-    /** `A`. */
+    /*
+     * `A`.
+     */
     constant: number;
-    /** `B`. */
+    /*
+     * `B`.
+     */
     cosine: number;
-    /** `C`. */
+    /*
+     * `C`.
+     */
     sine: number;
   }
 
-  /**
+  /*
    * The turn within `[−half, half]` where the greater of two harmonics is
    * least: at an end, at either harmonic's own extremum or where the two cross,
    * whichever reads least, the incoming turn kept on a tie.
-   *
-   * @param left The first harmonic.
-   * @param right The second.
-   * @param half The range's half width, radians.
-   * @param incoming The turn the search arrives with, radians.
-   * @returns The turn, radians.
+   * Parameter left: The first harmonic.
+   * Parameter right: The second.
+   * Parameter half: The range's half width, radians.
+   * Parameter incoming: The turn the search arrives with, radians.
+   * Returns: The turn, radians.
    */
   export function best(
     left: IHarmonic,

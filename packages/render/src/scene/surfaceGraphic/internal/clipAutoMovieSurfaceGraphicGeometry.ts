@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-/**
+/*
  * Clip a surface graphic's flat geometry to its surface's outline, so no
  * triangle paints where the face has no surface.
  *
@@ -14,11 +14,10 @@ import * as THREE from "three";
  * the clipped edges, which is exact for the attributes of a flat triangle, and
  * each piece keeps its triangle's winding. The result is unindexed; the input
  * is disposed.
- *
- * @param geometry A graphic mesh's geometry in the face frame, `y` ignored.
- * @param outline The surface's outline in the face frame's XZ plane, metres.
- * @returns A new geometry with the same attributes, covering exactly the part
- *   of the input inside the outline.
+ * Parameter geometry: A graphic mesh's geometry in the face frame, `y` ignored.
+ * Parameter outline: The surface's outline in the face frame's XZ plane, metres.
+ * Returns: A new geometry with the same attributes, covering exactly the part
+ * of the input inside the outline.
  */
 export function clipAutoMovieSurfaceGraphicGeometry(
   geometry: THREE.BufferGeometry,
@@ -131,7 +130,9 @@ export function clipAutoMovieSurfaceGraphicGeometry(
   return clipped;
 }
 
-/** Twice the signed area of the XZ triangle `abc`, positive counter-clockwise. */
+/*
+ * Twice the signed area of the XZ triangle `abc`, positive counter-clockwise.
+ */
 function cross(a: THREE.Vector2, b: THREE.Vector2, c: THREE.Vector2): number {
   return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 }

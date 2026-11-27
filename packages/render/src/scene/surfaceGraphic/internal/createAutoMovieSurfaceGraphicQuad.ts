@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-/**
+/*
  * A flat quad on a surface face, in the surface's reading frame.
  *
  * The face is the `faceWidth` by `faceDepth` metre rectangle centred on the

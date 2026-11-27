@@ -9,7 +9,7 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import type { HumanRideHands } from "./HumanRideHands";
 
-/**
+/*
  * The lunge's hands over time (`HumanLunge`): which hand holds the line and
  * which the whip, and how they change over at a change of rein.
  *
@@ -25,49 +25,64 @@ import type { HumanRideHands } from "./HumanRideHands";
  * carries it out to that side.
  */
 export namespace HumanLungeChange {
-  /**
+  /*
    * The distance along the line between the two fists while both hold it,
    * metres (provisional): a hand's breadth.
    */
   export const GAP: number = 0.1;
 
-  /** The hands' timeline. */
+  /*
+   * The hands' timeline.
+   */
   export interface ITimeline {
-    /** The hand that holds the line first. */
+    /*
+     * The hand that holds the line first.
+     */
     line: AutoMovieHumanSide;
 
-    /** The other hand, the whip's first. */
+    /*
+     * The other hand, the whip's first.
+     */
     other: AutoMovieHumanSide;
 
-    /** Seconds since the start the change begins; none when absent. */
+    /*
+     * Seconds since the start the change begins; none when absent.
+     */
     change?: number;
 
-    /** Seconds of each transition. */
+    /*
+     * Seconds of each transition.
+     */
     transition: number;
 
-    /** The action's length. */
+    /*
+     * The action's length.
+     */
     seconds: number;
   }
 
-  /** One hand's target at a second. */
+  /*
+   * One hand's target at a second.
+   */
   export interface ITarget {
-    /**
+    /*
      * 1 on the line, 0 on the whip's aim, between while moving from one to the
      * other.
      */
     line: number;
 
-    /** Metres along the line toward the horse. */
+    /*
+     * Metres along the line toward the horse.
+     */
     along: number;
   }
 
-  /**
+  /*
    * A hand's target at a second.
-   *
-   * @param timeline The hands' timeline.
-   * @param side The hand.
-   * @param time Seconds since the action's start.
-   * @returns Its target.
+   * Parameter timeline: The hands' timeline.
+   * Parameter side: The hand.
+   * Parameter time: Seconds since the action's start.
+   * Returns: Its target.
    */
   export function target(
     timeline: ITimeline,
@@ -87,15 +102,14 @@ export namespace HumanLungeChange {
       : { line: phase(change), along: GAP };
   }
 
-  /**
+  /*
    * Refuse a change of hands that cannot happen.
-   *
-   * @param change Seconds since the start the change begins, if any.
-   * @param whip Whether the other hand holds a whip to pass.
-   * @param transition Seconds of each transition.
-   * @param seconds The action's length.
-   * @throws {HumanRefusal} For a change without a whip, or one that does not
-   *   fit its three transitions after the take-up and before the let-go.
+   * Parameter change: Seconds since the start the change begins, if any.
+   * Parameter whip: Whether the other hand holds a whip to pass.
+   * Parameter transition: Seconds of each transition.
+   * Parameter seconds: The action's length.
+   * For a change without a whip, or one that does not
+   * fit its three transitions after the take-up and before the let-go.
    */
   export function admit(
     change: number | undefined,
@@ -123,13 +137,12 @@ export namespace HumanLungeChange {
       });
   }
 
-  /**
+  /*
    * How far a hand's fingers have closed on the line at a second.
-   *
-   * @param timeline The hands' timeline.
-   * @param side The hand.
-   * @param time Seconds since the action's start.
-   * @returns The share, 0 open to 1 closed.
+   * Parameter timeline: The hands' timeline.
+   * Parameter side: The hand.
+   * Parameter time: Seconds since the action's start.
+   * Returns: The share, 0 open to 1 closed.
    */
   export function closing(
     timeline: ITimeline,
@@ -148,13 +161,12 @@ export namespace HumanLungeChange {
     );
   }
 
-  /**
+  /*
    * Whether a hand's line window is open at a second.
-   *
-   * @param timeline The hands' timeline.
-   * @param side The hand.
-   * @param time Seconds since the action's start.
-   * @returns Whether it holds the line then.
+   * Parameter timeline: The hands' timeline.
+   * Parameter side: The hand.
+   * Parameter time: Seconds since the action's start.
+   * Returns: Whether it holds the line then.
    */
   export function holds(
     timeline: ITimeline,
@@ -172,13 +184,12 @@ export namespace HumanLungeChange {
           time <= seconds - transition;
   }
 
-  /**
+  /*
    * The line and whip grip windows and the whip's hold after the action.
-   *
-   * @param timeline The hands' timeline.
-   * @param on The horse prop.
-   * @param whip The whip prop, if any.
-   * @returns The windows, shares of the action, and the hold.
+   * Parameter timeline: The hands' timeline.
+   * Parameter on: The horse prop.
+   * Parameter whip: The whip prop, if any.
+   * Returns: The windows, shares of the action, and the hold.
    */
   export function windows(
     timeline: ITimeline,
@@ -229,14 +240,13 @@ export namespace HumanLungeChange {
     };
   }
 
-  /**
+  /*
    * A hand's grip between the line and the whip's aim.
-   *
-   * @param line The line's grip for this hand.
-   * @param aim The whip's grip for this hand.
-   * @param target The hand's target.
-   * @param out The horizontal direction from the centre toward the horse.
-   * @returns The grip the hand closes on.
+   * Parameter line: The line's grip for this hand.
+   * Parameter aim: The whip's grip for this hand.
+   * Parameter target: The hand's target.
+   * Parameter out: The horizontal direction from the centre toward the horse.
+   * Returns: The grip the hand closes on.
    */
   export function grip(
     line: HumanRideHands.IMaterialGrip,
@@ -269,12 +279,18 @@ export namespace HumanLungeChange {
     };
   }
 
-  /** The grip windows and the hold of one action. */
+  /*
+   * The grip windows and the hold of one action.
+   */
   export interface IWindows {
-    /** The line and whip grips. */
+    /*
+     * The line and whip grips.
+     */
     contacts: IAutoMovieMotionHumanContactWindow[];
 
-    /** The whip's hold after the action. */
+    /*
+     * The whip's hold after the action.
+     */
     holds: IAutoMovieMotionPropHold[];
   }
 }

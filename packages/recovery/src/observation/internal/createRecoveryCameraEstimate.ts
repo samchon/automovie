@@ -18,7 +18,7 @@ import { measureRecoveryEpipolarErrors } from "../../geometry/internal/measureRe
 import { scoreRecoveryCameraResiduals } from "../../geometry/internal/scoreRecoveryCameraResiduals";
 import { selectRecoveryCameraPose } from "../../geometry/internal/selectRecoveryCameraPose";
 
-/**
+/*
  * Qualify completed automatic observations and assemble owned camera evidence.
  * Every independent final gate runs when its required observations exist. A
  * completed observation artifact may refuse its camera; only a candidate

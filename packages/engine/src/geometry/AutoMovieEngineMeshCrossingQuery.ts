@@ -132,7 +132,9 @@ export class AutoMovieEngineMeshCrossingQuery {
   /** Grid step for deterministic candidate ordering in current coordinates. */
   readonly #cell: number;
 
-  /** Retain the prepared state and derive its candidate ordering grid step. */
+  /*
+   * Retain the prepared state and derive its candidate ordering grid step.
+   */
   private constructor(snapshot: IAutoMovieMeshCrossingSnapshot) {
     this.#snapshot = snapshot;
     const triangles: readonly IAutoMovieMeshCrossingTriangle[] =

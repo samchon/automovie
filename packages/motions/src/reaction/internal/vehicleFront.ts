@@ -11,7 +11,7 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * A moving car's front as a struck or diving pedestrian meets it, read in the
  * car's own frame (its front toward `+Z`, `+Y` up): the leading face, the top
  * of its leading edge, the bumper's lower face, the half width and the bonnet's
@@ -24,63 +24,86 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * named affordance, when the scene gives one, places the leading edge instead.
  */
 export namespace vehicleFront {
-  /**
+  /*
    * Colliders whose front lies this far behind the foremost one still form the
    * front face, metres (provisional: a bumper's depth).
    */
   export const BAND: number = 0.15;
 
-  /**
+  /*
    * The step the course is searched at for the contact, seconds: a 120 Hz scan,
    * refined by bisection.
    */
   export const STEP: number = 1 / 120;
 
-  /** The half span of the central difference a velocity is read over, seconds. */
+  /*
+   * The half span of the central difference a velocity is read over, seconds.
+   */
   export const DT: number = 1e-3;
 
-  /** A car's front in its own frame, metres. */
+  /*
+   * A car's front in its own frame, metres.
+   */
   export interface IFront {
-    /** The leading face along `+Z`. */
+    /*
+     * The leading face along `+Z`.
+     */
     front: number;
 
-    /** The top of the leading edge, the bonnet's front, above the car's origin. */
+    /*
+     * The top of the leading edge, the bonnet's front, above the car's origin.
+     */
     top: number;
 
-    /** The bumper's lower face above the car's origin. */
+    /*
+     * The bumper's lower face above the car's origin.
+     */
     bottom: number;
 
-    /** Half the front's width across `X`. */
+    /*
+     * Half the front's width across `X`.
+     */
     half: number;
 
-    /** The bonnet's length back from the leading face. */
+    /*
+     * The bonnet's length back from the leading face.
+     */
     length: number;
 
-    /** The highest top of all the car's colliders, its roof, above its origin. */
+    /*
+     * The highest top of all the car's colliders, its roof, above its origin.
+     */
     roof: number;
   }
 
-  /** Where the pedestrian's legs stand, for the contact search. */
+  /*
+   * Where the pedestrian's legs stand, for the contact search.
+   */
   export interface ILegs {
-    /** The hips joint, world metres. */
+    /*
+     * The hips joint, world metres.
+     */
     hips: IAutoMovieVector3;
 
-    /** The legs' half depth along the car's travel, metres. */
+    /*
+     * The legs' half depth along the car's travel, metres.
+     */
     depth: number;
 
-    /** The legs' half spread across it, metres. */
+    /*
+     * The legs' half spread across it, metres.
+     */
     spread: number;
   }
 
-  /**
+  /*
    * Read a car's front.
-   *
-   * @param context The action's context.
-   * @param vehicle The car's subject id.
-   * @param edge The affordance at the top of its leading edge, when named.
-   * @returns The front.
-   * @throws {HumanRefusal} When the car has no colliders, no course, or no
-   *   affordance of that name.
+   * Parameter context: The action's context.
+   * Parameter vehicle: The car's subject id.
+   * Parameter edge: The affordance at the top of its leading edge, when named.
+   * Returns: The front.
+   * When the car has no colliders, no course, or no
+   * affordance of that name.
    */
   export function read(
     context: IAutoMovieMotionHumanActionContext,
@@ -159,12 +182,11 @@ export namespace vehicleFront {
     };
   }
 
-  /**
+  /*
    * A world point in a car frame.
-   *
-   * @param frame The car's world frame.
-   * @param point World metres.
-   * @returns Car-frame metres.
+   * Parameter frame: The car's world frame.
+   * Parameter point: World metres.
+   * Returns: Car-frame metres.
    */
   export function local(
     frame: IAutoMovieRigidTransform,
@@ -176,12 +198,11 @@ export namespace vehicleFront {
     );
   }
 
-  /**
+  /*
    * A car-frame point in the world.
-   *
-   * @param frame The car's world frame.
-   * @param point Car-frame metres.
-   * @returns World metres.
+   * Parameter frame: The car's world frame.
+   * Parameter point: Car-frame metres.
+   * Returns: World metres.
    */
   export function world(
     frame: IAutoMovieRigidTransform,
@@ -193,12 +214,11 @@ export namespace vehicleFront {
     );
   }
 
-  /**
+  /*
    * The car's velocity at a film second.
-   *
-   * @param reader The car.
-   * @param seconds Film seconds.
-   * @returns World metres per second.
+   * Parameter reader: The car.
+   * Parameter seconds: Film seconds.
+   * Returns: World metres per second.
    */
   export function velocity(
     reader: IAutoMovieMotionHumanPropReader,
@@ -213,17 +233,16 @@ export namespace vehicleFront {
     );
   }
 
-  /**
+  /*
    * The first film second the car's leading face reaches the legs, within its
    * width, on its course.
-   *
-   * @param reader The car.
-   * @param front The car's front.
-   * @param legs Where the legs stand.
-   * @param from The first film second searched.
-   * @param to The last film second searched.
-   * @returns The contact's film second, or undefined when the course never
-   *   meets the legs.
+   * Parameter reader: The car.
+   * Parameter front: The car's front.
+   * Parameter legs: Where the legs stand.
+   * Parameter from: The first film second searched.
+   * Parameter to: The last film second searched.
+   * Returns: The contact's film second, or undefined when the course never
+   * meets the legs.
    */
   export function contact(
     reader: IAutoMovieMotionHumanPropReader,
@@ -259,12 +278,11 @@ export namespace vehicleFront {
     return undefined;
   }
 
-  /**
+  /*
    * The vehicle laws' refusal of a car.
-   *
-   * @param vehicle The car's subject id.
-   * @param reason Why.
-   * @returns The refusal.
+   * Parameter vehicle: The car's subject id.
+   * Parameter reason: Why.
+   * Returns: The refusal.
    */
   export function refusal(vehicle: string, reason: string): HumanRefusal {
     return new HumanRefusal({

@@ -3,7 +3,7 @@ import * as path from "node:path";
 
 import type { AutoMovieCliProductionPageTypes } from "../AutoMovieCliProductionPageTypes";
 
-/**
+/*
  * Write a one-script page over a subject module into a scratch folder of the
  * production, with the Vite configuration and public folder the production's
  * own page uses, for the draw page and the inspector page alike.

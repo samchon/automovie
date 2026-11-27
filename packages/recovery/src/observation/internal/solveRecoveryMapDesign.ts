@@ -6,7 +6,7 @@ import type {
 
 import { factorRecoveryMapDesign } from "./factorRecoveryMapDesign";
 
-/**
+/*
  * Solve a column-scaled original least-squares design with optional damping.
  * Independent undamped rank is checked first; damping controls a step and never
  * supplies evidence of local observability. The right side is minus residual.

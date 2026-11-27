@@ -7,7 +7,7 @@ import type {
 import { AutoMovieSolidBody } from "../../AutoMovieSolidBody";
 import { AutoMovieSolidMesh } from "../../AutoMovieSolidMesh";
 
-/**
+/*
  * Close actual collapsed profile tips through the drawn source boundary.
  *
  * Every ring arc must still occur in its own face's actual open mesh record,
@@ -102,7 +102,9 @@ export function AutoMovieConstructionProfileSkin(
   }
 }
 
-/** Shared IDs, never positional coincidence, define a consumed boundary arc. */
+/*
+ * Shared IDs, never positional coincidence, define a consumed boundary arc.
+ */
 function pair(a: number, b: number): string {
   return Math.min(a, b) + "/" + Math.max(a, b);
 }

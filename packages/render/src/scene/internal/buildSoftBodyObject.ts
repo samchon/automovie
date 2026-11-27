@@ -7,7 +7,7 @@ import type { IBuildSoftBodyObjectProps } from "./IBuildSoftBodyObjectProps.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
-/**
+/*
  * Project one canonical Engine cloth surface into an owned Three mesh.
  * Positions, normals and UVs become Float32 attributes; installed SDK setIndex
  * chooses index representation. Engine drawn-panel bounds define the sphere and
@@ -144,14 +144,18 @@ export const buildSoftBodyObject: (
   }
 };
 
-/** A geometry incarnation shares one original public-disposal attempt. */
+/*
+ * A geometry incarnation shares one original public-disposal attempt.
+ */
 function retirement(geometry: THREE.BufferGeometry): () => void {
   return restoreAutoMovieRenderModeOnce((): void => {
     geometry.dispose();
   });
 }
 
-/** Copy canonical buffers; index representation remains the installed SDK's. */
+/*
+ * Copy canonical buffers; index representation remains the installed SDK's.
+ */
 function fill(
   geometry: THREE.BufferGeometry,
   surface: IAutoMovieSoftBodySurface,
@@ -173,7 +177,9 @@ function fill(
   geometry.boundingSphere = sphere(surface);
 }
 
-/** Bound the drawn panel from the Engine's extent, including a hidden cord. */
+/*
+ * Bound the drawn panel from the Engine's extent, including a hidden cord.
+ */
 function sphere(surface: IAutoMovieSoftBodySurface): THREE.Sphere {
   const bounds: IAutoMovieSoftBodySurface["bounds"] = surface.bounds;
   if (bounds === null) return new THREE.Sphere(new THREE.Vector3(), 0);

@@ -12,17 +12,16 @@ import { AutoMovieMotionHumanHeld } from "../../compose/internal/AutoMovieMotion
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 import { throwObjectLaunch } from "../internal/throwObjectLaunch";
 
-/**
+/*
  * Read the lever of a throw.
- *
- * @param props The context, the throwing hand, the standing shoulder, the
- *   hand's grip at the release, the hand's rotation there, the target, the
- *   release angle, the implement and the thrown prop (absent for an empty
- *   hand).
- * @returns The lever, or undefined when no path at that angle reaches the
- *   target from the release point.
- * @throws {HumanRefusal} When the implement lacks the named point
- *   (`StrikingHeld`).
+ * Parameter props: The context, the throwing hand, the standing shoulder, the
+ * hand's grip at the release, the hand's rotation there, the target, the
+ * release angle, the implement and the thrown prop (absent for an empty
+ * hand).
+ * Returns: The lever, or undefined when no path at that angle reaches the
+ * target from the release point.
+ * When the implement lacks the named point
+ * (`StrikingHeld`).
  */
 export function throwObjectLever(
   props: IOfProps,
@@ -94,7 +93,7 @@ export function throwObjectLever(
   };
 }
 
-/**
+/*
  * The throw's lever: the arm from the shoulder to the hand, lengthened by an
  * implement the hand holds (a sling, an atlatl), turning as one rigid lever at
  * the release.
@@ -120,48 +119,59 @@ export function throwObjectLever(
  * A thrown prop keeps the lever's angular velocity in flight, so a knife's spin
  * (`ITurns`) is the lever's rate, rounded by the act to the nearest whole
  * number of half turns over the flight to the target, at least one, so the
- * stand-off decides how the point arrives ({@link spin}).
+ * stand-off decides how the point arrives (spin).
  */
 export namespace throwObjectLever {
-  /** The lever at the release. */
+  /*
+   * The lever at the release.
+   */
   export interface ILever {
-    /**
+    /*
      * Where the thrown prop leaves: the implement's working point at the
      * release, the held prop's origin without one, or the hand's grip for an
      * empty hand, world metres.
      */
     point: IAutoMovieVector3;
 
-    /** The launch velocity there, world metres per second. */
+    /*
+     * The launch velocity there, world metres per second.
+     */
     velocity: IAutoMovieVector3;
 
-    /** The hand grip's velocity at the release, world metres per second. */
+    /*
+     * The hand grip's velocity at the release, world metres per second.
+     */
     hand: IAutoMovieVector3;
 
-    /** The lever's unit axis of turning, world. */
+    /*
+     * The lever's unit axis of turning, world.
+     */
     axis: IAutoMovieVector3;
 
-    /** The lever's angular speed about `axis`, radians per second. */
+    /*
+     * The lever's angular speed about `axis`, radians per second.
+     */
     omega: number;
 
-    /** The hand's rotation a second count from the release within the carry. */
+    /*
+     * The hand's rotation a second count from the release within the carry.
+     */
     rotation: (carried: number) => IAutoMovieQuaternion;
   }
 
-  /**
+  /*
    * The spin a thrown prop flies with: the lever's angular speed rounded to the
    * nearest whole number of half turns, at least one, over the drag-free
    * flight's time to the target, about the lever's axis read in the prop's own
    * frame at the release.
-   *
-   * @param context The action's context.
-   * @param side The throwing hand, which holds the prop at the entry.
-   * @param prop The thrown prop.
-   * @param lever The throw's lever.
-   * @param target The target point, world metres.
-   * @returns The engine's spin attitude.
-   * @throws {HumanRefusal} When that hand does not hold the prop at the entry
-   *   (`AutoMovieMotionHumanHeld`).
+   * Parameter context: The action's context.
+   * Parameter side: The throwing hand, which holds the prop at the entry.
+   * Parameter prop: The thrown prop.
+   * Parameter lever: The throw's lever.
+   * Parameter target: The target point, world metres.
+   * Returns: The engine's spin attitude.
+   * When that hand does not hold the prop at the entry
+   * (`AutoMovieMotionHumanHeld`).
    */
   export function spin(
     context: Pick<IAutoMovieMotionHumanActionContext, SpinContext>,
@@ -189,10 +199,14 @@ export namespace throwObjectLever {
   }
 }
 
-/** The alternatives of `SpinContext`'s site. */
+/*
+ * The alternatives of `SpinContext`'s site.
+ */
 type SpinContext = "body" | "entry" | "prop" | "subject";
 
-/** The record of `IOfProps`'s site. */
+/*
+ * The record of `IOfProps`'s site.
+ */
 type IOfProps = {
   context: Pick<IAutoMovieMotionHumanActionContext, OfPropsContext>;
   side: AutoMovieHumanSide;
@@ -205,5 +219,7 @@ type IOfProps = {
   prop?: string;
 };
 
-/** The alternatives of `OfPropsContext`'s site. */
+/*
+ * The alternatives of `OfPropsContext`'s site.
+ */
 type OfPropsContext = "body" | "entry" | "prop" | "subject";

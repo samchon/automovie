@@ -2,16 +2,20 @@ import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
 import { reliefWeightFragment } from "./reliefWeightFragment.js";
 import { reliefWeightVertex } from "./reliefWeightVertex.js";
 
-/**
+/*
  * One relief-weight operation for the material compile hook. The callback
  * changes only the vertex and fragment source; uniforms and the native program
  * configuration remain with the caller and other registered operations.
  */
 export const createReliefWeightShaderPatch: () => {
-  /** Stable program-cache contribution for this operation. */
+  /*
+   * Stable program-cache contribution for this operation.
+   */
   key: string;
 
-  /** Adds relief interpolation and base-normal modulation to shader source. */
+  /*
+   * Adds relief interpolation and base-normal modulation to shader source.
+   */
   apply: (
     shader: Pick<
       IMaterialShaderSource,
@@ -19,10 +23,14 @@ export const createReliefWeightShaderPatch: () => {
     >,
   ) => void;
 } = (): {
-  /** Stable program-cache contribution for this operation. */
+  /*
+   * Stable program-cache contribution for this operation.
+   */
   key: string;
 
-  /** Adds relief interpolation and base-normal modulation to shader source. */
+  /*
+   * Adds relief interpolation and base-normal modulation to shader source.
+   */
   apply: (
     shader: Pick<
       IMaterialShaderSource,

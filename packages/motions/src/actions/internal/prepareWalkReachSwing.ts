@@ -16,7 +16,7 @@ import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 import type { walkReach } from "./walkReach";
 
-/**
+/*
  * How far under the floor, metres, a swinging foot's lowest point may stay once
  * its lift is settled, and the width the lift's bisection stops at: a
  * micrometre, a numeric tolerance far under the toe's 15 mm clearance
@@ -24,15 +24,14 @@ import type { walkReach } from "./walkReach";
  */
 const SETTLED: number = 1e-6;
 
-/**
+/*
  * Prepare one body's swing reach bounds and heel socket for changing feet.
- *
- * @param body The fixed body and leg lengths.
- * @param side The swinging foot.
- * @param bounds The walking reach owner's fixed joint/phase bounds.
- * @returns The swing constraint reader over a settled pelvis and foot: given a
- *   lift solved in preparation, it places the foot there and only raises it by
- *   what still sinks under the clearance, with no search.
+ * Parameter body: The fixed body and leg lengths.
+ * Parameter side: The swinging foot.
+ * Parameter bounds: The walking reach owner's fixed joint/phase bounds.
+ * Returns: The swing constraint reader over a settled pelvis and foot: given a
+ * lift solved in preparation, it places the foot there and only raises it by
+ * what still sinks under the clearance, with no search.
  */
 export function prepareWalkReachSwing(
   body: IAutoMovieMotionHumanBody,
@@ -315,7 +314,9 @@ export function prepareWalkReachSwing(
     return { ankle: joined, rotation: turned, toes: foot.toes, lift: raised };
   };
 
-  /** The sole socket lowest in a placement, the heel winning a tie. */
+  /*
+   * The sole socket lowest in a placement, the heel winning a tie.
+   */
   function lowestSocket(
     placement: IAutoMovieMotionHumanFoot.IPlacement,
     toes: number,
@@ -332,17 +333,16 @@ export function prepareWalkReachSwing(
     return best;
   }
 }
-/**
+/*
  * The lift that puts a ranged foot's lowest point on its target: lift by each
  * pass's penetration while a pass at least halves it, as fast as a bisection
  * step; a slower pass (a gain over a half, nearing one at a straight leg) hands
  * over to a bisection on the lift, between the last lift and the lift to hip
  * height, where the foot hangs clear of any floor.
- *
- * @param placed The foot at a lift.
- * @param target The lowest point's target height, metres.
- * @param ceiling The lift to hip height, metres.
- * @returns The foot at the lift found.
+ * Parameter placed: The foot at a lift.
+ * Parameter target: The lowest point's target height, metres.
+ * Parameter ceiling: The lift to hip height, metres.
+ * Returns: The foot at the lift found.
  */
 function search(
   placed: (lift: number) => IPlacedFoot,
@@ -380,13 +380,12 @@ function search(
   return read;
 }
 
-/**
+/*
  * A ranged foot raised by what its lowest point still sinks under its target,
  * the closed-form last step of search.
- *
- * @param read The foot at a lift.
- * @param target The lowest point's target height, metres.
- * @returns The foot, its lowest point no lower than the target.
+ * Parameter read: The foot at a lift.
+ * Parameter target: The lowest point's target height, metres.
+ * Returns: The foot, its lowest point no lower than the target.
  */
 function raise(read: IPlacedFoot, target: number): IPlacedFoot {
   return read.low >= target - SETTLED
@@ -398,53 +397,79 @@ function raise(read: IPlacedFoot, target: number): IPlacedFoot {
       };
 }
 
-/** The reader's result. */
+/*
+ * The reader's result.
+ */
 export namespace prepareWalkReachSwing {
-  /** A foot as reached, with the lift its search found or was given. */
+  /*
+   * A foot as reached, with the lift its search found or was given.
+   */
   export interface IReached extends walkFoot.IEnd {
-    /** How far the ankle was lifted to clear the floor, metres. */
+    /*
+     * How far the ankle was lifted to clear the floor, metres.
+     */
     lift: number;
   }
 }
 
-/** Fixed physical bounds supplied by the walking reach rule's owner. */
+/*
+ * Fixed physical bounds supplied by the walking reach rule's owner.
+ */
 interface IBounds {
-  /** Minimum knee flexion, degrees. */
+  /*
+   * Minimum knee flexion, degrees.
+   */
   knee: number;
 
-  /** Maximum thigh extension, degrees. */
+  /*
+   * Maximum thigh extension, degrees.
+   */
   extension: number;
 
-  /** Maximum ankle side lean, degrees. */
+  /*
+   * Maximum ankle side lean, degrees.
+   */
   side: number;
 
-  /** Maximum hip twist, degrees. */
+  /*
+   * Maximum hip twist, degrees.
+   */
   twist: number;
 
-  /** Swing share over which the ranges enter or leave. */
+  /*
+   * Swing share over which the ranges enter or leave.
+   */
   fade: number;
 }
 
-/** The record of `IPrepareWalkReachSwingRead`'s site. */
+/*
+ * The record of `IPrepareWalkReachSwingRead`'s site.
+ */
 type IPrepareWalkReachSwingRead = {
   ankle: IAutoMovieVector3;
   rotation: IAutoMovieQuaternion;
   low: number;
 };
 
-/** The record of `IPrepareWalkReachSwingPlacedResult`'s site. */
+/*
+ * The record of `IPrepareWalkReachSwingPlacedResult`'s site.
+ */
 type IPrepareWalkReachSwingPlacedResult = {
   ankle: IAutoMovieVector3;
   rotation: IAutoMovieQuaternion;
   low: number;
 };
 
-/** The record of `IPrepareWalkReachSwingPlaced`'s site. */
+/*
+ * The record of `IPrepareWalkReachSwingPlaced`'s site.
+ */
 type IPrepareWalkReachSwingPlaced = {
   ankle: IAutoMovieVector3;
   rotation: IAutoMovieQuaternion;
   low: number;
 };
 
-/** A ranged foot at a lift: its ankle, rotation and lowest point's height. */
+/*
+ * A ranged foot at a lift: its ankle, rotation and lowest point's height.
+ */
 type IPlacedFoot = IPrepareWalkReachSwingRead;

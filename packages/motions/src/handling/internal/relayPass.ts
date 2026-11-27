@@ -37,7 +37,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * A relay baton pass, one role of it, performed over a run (`HumanChain.over`):
  * the outgoing runner's hand goes back, open, palm back, and the incoming
  * runner pushes the baton's end into it at a film second both roles state alike
@@ -60,27 +60,35 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * close on the baton.
  */
 export namespace relayPass {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "relayPass";
 
-  /** Cancel table: either role may be left once its arm is back on the run. */
+  /*
+   * Cancel table: either role may be left once its arm is back on the run.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** A pass is performed over a run: it claims one arm and its hand. */
+  /*
+   * A pass is performed over a run: it claims one arm and its hand.
+   */
   export const overlay: boolean = true;
 
-  /**
+  /*
    * Seconds each arm takes to leave the run's swing for the pass, and to go
    * back (provisional).
    */
   export const REACH: number = 0.4;
 
-  /** Seconds the hands stay together after `at` (provisional). */
+  /*
+   * Seconds the hands stay together after `at` (provisional).
+   */
   export const HOLD: number = 0.25;
 
-  /**
+  /*
    * The outgoing wrist's place from the shoulder, shares of the arm: down and
    * behind (provisional, the upsweep).
    */
@@ -89,14 +97,13 @@ export namespace relayPass {
     back: 0.5,
   };
 
-  /**
+  /*
    * Plan one role of a baton pass.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When `at` lies before this action can reach, a baton
-   *   is named without its end, or the runner is outside the named takeover
-   *   zone at `at`.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When `at` lies before this action can reach, a baton
+   * is named without its end, or the runner is outside the named takeover
+   * zone at `at`.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRelayPass.IParams>,
@@ -367,5 +374,7 @@ export namespace relayPass {
   }
 }
 
-/** The record of `IBACKItem`'s site. */
+/*
+ * The record of `IBACKItem`'s site.
+ */
 type IBACKItem = { down: number; back: number };

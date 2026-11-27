@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryChartBoxSolve } from "@automovie/interface";
 
-/**
+/*
  * Minimize sum_axis(0.5*x' H x - rhs' x) on the supplied original control box.
  * H is an exactly symmetric sparse positive-semidefinite Gram matrix supplied
  * by the caller. This helper validates finite entries, distinct sparse

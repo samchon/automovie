@@ -22,19 +22,18 @@ import { manipulateFacing } from "./manipulateFacing";
 import { manipulateReach } from "./manipulateReach";
 import { manipulateShape } from "./manipulateShape";
 
-/**
+/*
  * Prepare the keyed contacts once and evaluate only each hand's active press.
  * Wrist placement, digit shape, elbow hint and activation windows depend on the
  * immutable body, entry posture, contacts and skill interval of this plan. Each
  * posture still supplies fresh mutable joint, limb and digit records.
- *
- * @param body The performer whose measured digits place the wrist.
- * @param hold The posture held throughout the sequence.
- * @param presses Resolved contacts in authored order, with world points and
- *   seconds.
- * @param span The skill-derived press interval, seconds.
- * @param reach The share of the interval spent approaching each contact.
- * @returns The plan with its original press events and ground contacts.
+ * Parameter body: The performer whose measured digits place the wrist.
+ * Parameter hold: The posture held throughout the sequence.
+ * Parameter presses: Resolved contacts in authored order, with world points and
+ * seconds.
+ * Parameter span: The skill-derived press interval, seconds.
+ * Parameter reach: The share of the interval spent approaching each contact.
+ * Returns: The plan with its original press events and ground contacts.
  */
 export function manipulatePlan(
   body: IAutoMovieMotionHumanBody,
@@ -227,14 +226,18 @@ export function manipulatePlan(
   };
 }
 
-/** The alternatives of `ManipulatePlanContactsPart`'s site. */
+/*
+ * The alternatives of `ManipulatePlanContactsPart`'s site.
+ */
 type ManipulatePlanContactsPart = "leftFoot" | "rightFoot";
 
-/** One immutable contact's placement and hand shape. */
+/*
+ * One immutable contact's placement and hand shape.
+ */
 interface IPress {
   press: IAutoMovieMotionHumanManipulate.IPress;
   wrist: IAutoMovieVector3;
-  /**
+  /*
    * Wrist-local pressed tip used to preserve contact when wrist rotation is
    * limited.
    */
@@ -244,7 +247,9 @@ interface IPress {
   digit: AutoMovieHumanDigit;
 }
 
-/** A hand's contact windows and geometry, owned by its sequence plan. */
+/*
+ * A hand's contact windows and geometry, owned by its sequence plan.
+ */
 interface IHand {
   side: AutoMovieHumanSide;
   rotation: IAutoMovieQuaternion;
@@ -253,13 +258,17 @@ interface IHand {
   windows: readonly IWindow[];
 }
 
-/** The last authored contact active from this time onward, in seconds. */
+/*
+ * The last authored contact active from this time onward, in seconds.
+ */
 interface IWindow {
   from: number;
   index: number;
 }
 
-/** Find the last begun approach; the first contact is the pre-approach default. */
+/*
+ * Find the last begun approach; the first contact is the pre-approach default.
+ */
 function active(windows: readonly IWindow[], time: number): number {
   let low: number = 0;
   let high: number = windows.length;

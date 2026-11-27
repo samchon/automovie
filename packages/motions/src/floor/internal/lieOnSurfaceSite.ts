@@ -5,7 +5,9 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** A named affordance of a kind on the prop, or a refusal. */
+/*
+ * A named affordance of a kind on the prop, or a refusal.
+ */
 export function lieOnSurfaceSite(
   reader: { prop: Pick<IAutoMovieMotionHumanProp, "affordances"> },
   id: string,

@@ -15,7 +15,7 @@ import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieSolidJoinCrossing } from "./construction/internal/AutoMovieSolidJoinCrossing";
 import { AutoMovieSolidJoinNormalCheck } from "./construction/internal/AutoMovieSolidJoinNormalCheck";
 
-/**
+/*
  * Shared vector operations preserve the existing arithmetic and allocation
  * owners.
  */
@@ -71,7 +71,7 @@ export namespace AutoMovieSolidJoin {
       input.host,
     );
 
-    /**
+    /*
      * Append this failed premise without claiming rollback of any caller-owned
      * body.
      */
@@ -99,7 +99,7 @@ export namespace AutoMovieSolidJoin {
     // parameters (the traced points' and the columns', bitwise the same values), and callers only read them.
     const rails: Map<number, IAutoMovieSolidRail.IRail | null> = new Map();
 
-    /**
+    /*
      * Map numeric-key equality reuses a rail or null failure for this join's
      * lifetime.
      */
@@ -132,7 +132,9 @@ export namespace AutoMovieSolidJoin {
       return solved;
     };
 
-    /** The same solve as `rail`, explained. */
+    /*
+     * The same solve as `rail`, explained.
+     */
     const explain: IAutoMovieSolidJoin.IJoin["explain"] = (
       t: number,
     ): IAutoMovieSolidRail.IExplanation | null => {
@@ -153,7 +155,7 @@ export namespace AutoMovieSolidJoin {
           );
     };
 
-    /**
+    /*
      * Why the column at t is missing: the rail's failed premise and its
      * quantities, or the ribbons when the rail solved.
      */
@@ -171,7 +173,7 @@ export namespace AutoMovieSolidJoin {
         : `${read.refusal} (${numbers})`;
     };
 
-    /**
+    /*
      * Rebuild both surface ribbons at the cached rail; columns themselves are
      * not cached.
      */
@@ -184,7 +186,9 @@ export namespace AutoMovieSolidJoin {
         : ribbons(input.part, host.faces[r.hostFace]!, r);
     };
 
-    /** Read the host rail loop at uniform curve parameters from the seed. */
+    /*
+     * Read the host rail loop at uniform curve parameters from the seed.
+     */
     const loop: IAutoMovieSolidJoin.IJoin["loop"] = (
       count: number,
     ): [number, number][] | null => {
@@ -253,7 +257,7 @@ export namespace AutoMovieSolidJoin {
     if (normalCheck !== null)
       return fail(normalCheck.contract, normalCheck.detail);
 
-    /**
+    /*
      * Read the original chord laws; a fixed-station part has no varying part
      * chord.
      */
@@ -278,7 +282,7 @@ export namespace AutoMovieSolidJoin {
     };
   }
 
-  /**
+  /*
    * Build host-first and part-last ribbons from the rail's preimages and the
    * two source jets, scaled to their chord. Returns the original rail and
    * host-oriented outward vector; nonzero cross-speeds remain a premise.

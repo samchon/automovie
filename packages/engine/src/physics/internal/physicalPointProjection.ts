@@ -12,7 +12,7 @@ import { Vector3 } from "../../math/Vector3";
 import { physicalShapeSurfaceAnchor } from "./physicalShapeSurfaceAnchor";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
-/**
+/*
  * Evaluate one scalar relationship with coherent same-body motion and an actual
  * external reference. The shape direction is converted from world to bone-local
  * coordinates.

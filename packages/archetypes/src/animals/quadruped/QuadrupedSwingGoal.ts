@@ -9,76 +9,113 @@ import { QuadrupedHoofTrack } from "./QuadrupedHoofTrack";
 import type { QuadrupedPoleSwing } from "./QuadrupedPoleSwing";
 import type { QuadrupedRidePose } from "./QuadrupedRidePose";
 
-/**
+/*
  * One limb's ride goal at a sample: its hoof track's foothold or swing point,
  * carried by the flying body in a jump's flight, lifted by its gait's arc, the
  * footing's extra lift and the poles it crosses, and folded at the carpus or
  * hock by its gait.
  */
 export namespace QuadrupedSwingGoal {
-  /**
+  /*
    * A limb's step at a phase: its stance, whether it is planted, its swing's
    * progress and rise (`QuadrupedHoofTrack.step`).
    */
   export type Step = ReturnType<typeof QuadrupedHoofTrack.step>;
 
-  /** The end of the body a limb belongs to, as the gait's lift and fold name it. */
+  /*
+   * The end of the body a limb belongs to, as the gait's lift and fold name it.
+   */
   export type End = keyof AutoMovieArchetypeQuadrupedGait.IGait["lift"];
 
-  /** One limb's state at a sample. */
+  /*
+   * One limb's state at a sample.
+   */
   export interface IInput {
-    /** The limb. */
+    /*
+     * The limb.
+     */
     limb: AutoMovieArchetypeQuadrupedBody.Limb;
-    /** The landing index of the stance it is in or has just left. */
+    /*
+     * The landing index of the stance it is in or has just left.
+     */
     index: number;
-    /** The gait of that stance's stride. */
+    /*
+     * The gait of that stance's stride.
+     */
     gait: AutoMovieArchetypeQuadrupedGait.IGait;
-    /** The animal's height at the withers, metres. */
+    /*
+     * The animal's height at the withers, metres.
+     */
     withers: number;
-    /** The limb's five neutral joints, model metres. */
+    /*
+     * The limb's five neutral joints, model metres.
+     */
     rest: readonly IAutoMovieVector3[];
-    /** The limb's step. */
+    /*
+     * The limb's step.
+     */
     step: Step;
-    /** The stance a swing goes to; absent while planted. */
+    /*
+     * The stance a swing goes to; absent while planted.
+     */
     following: QuadrupedHoofTrack.IStance | undefined;
-    /** Whether footholds are anchored in the world. */
+    /*
+     * Whether footholds are anchored in the world.
+     */
     worldAnchors: boolean;
-    /** The authored footing, absent on level ground. */
+    /*
+     * The authored footing, absent on level ground.
+     */
     ground: AutoMovieArchetypeQuadrupedFooting.IPlan | undefined;
-    /**
+    /*
      * Whether this is a jump's trial assembly, which reads no footing for its
      * footholds.
      */
     trial: boolean;
-    /** The hoof's foothold mover, clear of the footing's concave edges. */
+    /*
+     * The hoof's foothold mover, clear of the footing's concave edges.
+     */
     clear: (point: IAutoMovieVector3) => IAutoMovieVector3;
-    /** Whether the swing is carried by the flying body of a jump. */
+    /*
+     * Whether the swing is carried by the flying body of a jump.
+     */
     carried: boolean;
-    /** The course state at a second with the body's displayed placement. */
+    /*
+     * The course state at a second with the body's displayed placement.
+     */
     shown: (seconds: number) => AutoMovieArchetypeCourse.IState;
-    /** The current course state with the body's displayed placement. */
+    /*
+     * The current course state with the body's displayed placement.
+     */
     current: AutoMovieArchetypeCourse.IState;
-    /** The swing's liftoff second. */
+    /*
+     * The swing's liftoff second.
+     */
     off: number;
-    /** The swing's landing second. */
+    /*
+     * The swing's landing second.
+     */
     on: number;
-    /** The share of the gait's lift and fold the speed calls for, 0 to 1. */
+    /*
+     * The share of the gait's lift and fold the speed calls for, 0 to 1.
+     */
     going: number;
-    /**
+    /*
      * The share of a stance's peak load the hoof bears, 0 to 1
      * (`QuadrupedRidePose.IGoal.load`); a flying hoof bears none whatever is
      * given.
      */
     load: number;
-    /** The ride's pole apexes, absent when its footing has no poles. */
+    /*
+     * The ride's pole apexes, absent when its footing has no poles.
+     */
     crossings: QuadrupedPoleSwing.Crossings | undefined;
   }
 
-  /**
+  /*
    * The limb's pose goal.
-   *
-   * @param input The limb's state at the sample.
-   * @returns The goal.
+   * Parameter input: The limb's state at the sample.
+   * Returns: The goal.
    */
   export function of(input: IInput): QuadrupedRidePose.IGoal {
     const { gait, rest, step, carried, going, off, on }: IInput = input;

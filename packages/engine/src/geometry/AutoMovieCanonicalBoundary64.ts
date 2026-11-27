@@ -269,14 +269,14 @@ export namespace AutoMovieCanonicalBoundary64 {
     return { atoms, diagnostics };
   }
 
-  /**
+  /*
    * An integer times a power of two, normalized to an odd numerator or zero.
    * This private pair represents binary64 inputs and their affine products
    * exactly for addition, canonical keys and rational inversion.
    */
   type Dyadic = { n: bigint; e: number };
 
-  /**
+  /*
    * Admit exactly the finite normalized scalar domain with constant scalar
    * comparisons. Invalid values throw; no clamp or epsilon broadens admission.
    */
@@ -285,7 +285,7 @@ export namespace AutoMovieCanonicalBoundary64 {
       throw new Error("Boundary phases must be finite in [0,1]");
   }
 
-  /**
+  /*
    * Distinct admitted endpoints define an invertible directed affine interval.
    * Two scalar admissions and one equality refuse invalid or equal endpoints
    * without perturbing either endpoint or acquiring retained state.
@@ -297,7 +297,7 @@ export namespace AutoMovieCanonicalBoundary64 {
       throw new Error("Boundary interval endpoints must differ");
   }
 
-  /**
+  /*
    * Remove factors of two without rounding to give signed dyadics one identity:
    * zero has one representation and every nonzero numerator is odd. At most W
    * trailing-zero shifts process O(W)-bit integers; only the new pair escapes.
@@ -311,7 +311,7 @@ export namespace AutoMovieCanonicalBoundary64 {
     return { n, e };
   }
 
-  /**
+  /*
    * Decode the admitted nonnegative IEEE binary64 exponent and significand
    * exactly, identifying both signed zeros mathematically. The fixed eight-byte
    * DataView and bounded significand normalization are invocation-local; no
@@ -329,7 +329,7 @@ export namespace AutoMovieCanonicalBoundary64 {
     );
   }
 
-  /**
+  /*
    * Align to a common power of two and return the normalized signed difference.
    * Two O(W)-bit shifts and integer subtraction avoid binary64 cancellation;
    * the new pair serves affine arithmetic, range tests and inversion without
@@ -340,7 +340,7 @@ export namespace AutoMovieCanonicalBoundary64 {
     return normalize((a.n << BigInt(a.e - e)) - (b.n << BigInt(b.e - e)), e);
   }
 
-  /**
+  /*
    * Encode the normalized nonnegative numerator in hexadecimal with its binary
    * exponent. O(W)-bit formatting supplies both production identity and parsed
    * canonical-spelling checks; numeric rounding never supplies the key.
@@ -349,7 +349,7 @@ export namespace AutoMovieCanonicalBoundary64 {
     return `d:${value.n.toString(16)}p${value.e}`;
   }
 
-  /**
+  /*
    * Validate canonical spelling and exact unit range before numeric inversion.
    * Affine products of normalized binary64 inputs have exponent at least -2148;
    * this gives the 550-character/exponent bounds, without a geometry tolerance
@@ -373,7 +373,7 @@ export namespace AutoMovieCanonicalBoundary64 {
     return value;
   }
 
-  /**
+  /*
    * Round a private nonnegative rational times a power of two, exactly in
    * [0,1]. Quotient/remainder quantization at the normal 53-bit or subnormal
    * 2^-1074 grid implements nearest-even without intermediate Number division
@@ -399,7 +399,7 @@ export namespace AutoMovieCanonicalBoundary64 {
     return Number(quotient) * 2 ** grid;
   }
 
-  /**
+  /*
    * Order exact JavaScript strings without locale collation, visiting at most
    * the first unequal position. Authority/use ordering therefore depends on
    * neither input order nor object identity and retains no state.

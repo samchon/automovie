@@ -5,16 +5,15 @@ import {
 
 import { resolveAutoMovieDeliveryCrop } from "./resolveAutoMovieDeliveryCrop";
 
-/**
+/*
  * Validate one delivery crop and restate it in the uncropped frame's normalized
  * device coordinates.
  *
  * An omitted crop is the whole gate. A malformed one throws the `RangeError` of
- * {@link resolveAutoMovieDeliveryCrop} rather than being clamped, so a frustum
+ * resolveAutoMovieDeliveryCrop rather than being clamped, so a frustum
  * test never silently clips against a window nobody could deliver.
- *
- * @param crop The delivery crop, or `undefined` for the whole gate.
- * @returns A new NDC restatement of the crop.
+ * Parameter crop: The delivery crop, or `undefined` for the whole gate.
+ * Returns: A new NDC restatement of the crop.
  */
 export function deliveryCropNdc(
   crop: IAutoMovieDeliveryCrop | undefined,

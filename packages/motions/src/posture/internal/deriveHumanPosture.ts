@@ -12,20 +12,19 @@ import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { resolveHumanPostureSource } from "./resolveHumanPostureSource";
 import { turnHumanPosture } from "./turnHumanPosture";
 
-/**
+/*
  * The assembly of a posture, built from the assembly of another posture of the
  * same body: every bone whose direct angles are exactly the other posture's
  * keeps that assembly's clamped record, and only the others are clamped again.
  * A plan that reads one instant under several variations (an arm let out, a
  * root shifted) assembles the instant once and derives the rest.
- *
- * @param body The performer's body.
- * @param assembled An assembly of this body
- *   (`resolveHumanPostureSource.assemble`), left unchanged.
- * @param posture The posture to assemble.
- * @returns The posture's assembly: the pose `assemble` gives it, value for
- *   value, sharing every record whose bone's angles did not change, and the
- *   root itself when the root and heading did not.
+ * Parameter body: The performer's body.
+ * Parameter assembled: An assembly of this body
+ * (`resolveHumanPostureSource.assemble`), left unchanged.
+ * Parameter posture: The posture to assemble.
+ * Returns: The posture's assembly: the pose `assemble` gives it, value for
+ * value, sharing every record whose bone's angles did not change, and the
+ * root itself when the root and heading did not.
  */
 export function deriveHumanPosture(
   body: IAutoMovieMotionHumanBody,
@@ -95,14 +94,20 @@ export function deriveHumanPosture(
   };
 }
 
-/** Companion of {@link deriveHumanPosture}. */
+/*
+ * Companion of deriveHumanPosture.
+ */
 export namespace deriveHumanPosture {
-  /** A completed cold fit: the assembly it ran on and what it returned. */
+  /*
+   * A completed cold fit: the assembly it ran on and what it returned.
+   */
   export interface ISolved {
-    /** The assembly the fit ran on. */
+    /*
+     * The assembly the fit ran on.
+     */
     assembled: resolveHumanPostureSource.IAssembled;
 
-    /**
+    /*
      * What `resolveHumanPostureSource.fit` returned for that assembly's own
      * goals, with no nearby seed.
      */

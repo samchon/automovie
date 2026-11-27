@@ -3,7 +3,7 @@ import {
   IAutoMovieConstraintViolation,
 } from "@automovie/interface";
 
-/**
+/*
  * Construct a fresh constraint row with supplied fields, optional overshoot and
  * caller severity defaulting to error.
  */

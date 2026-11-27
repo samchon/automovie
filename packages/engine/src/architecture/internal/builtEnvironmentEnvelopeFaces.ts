@@ -16,7 +16,7 @@ import { AUTOMOVIE_ENVELOPE_FACADE_LIMIT } from "../AUTOMOVIE_ENVELOPE_FACADE_LI
 import { ObservationGeometry } from "./ObservationGeometry";
 import { outlineCentroid } from "./outlineCentroid";
 
-/**
+/*
  * Every exposed separation of every building unit, placed in world space.
  *
  * A face is exposed when its boundary separates exactly one declared space.

@@ -14,7 +14,7 @@ import { intersectsPerspectiveFrustumBox } from "./intersectsPerspectiveFrustumB
 import { projectToNdc } from "./projectToNdc";
 import { resolveCameraAt } from "./resolveCameraAt";
 
-/**
+/*
  * Grade the live camera at one shot-local second against the contract's
  * required subjects: how many resolve to a placement, how many of their world
  * boxes the frustum holds, and the depth precision the camera's clip planes
@@ -139,27 +139,43 @@ export function realizeShotCameraOutcome(
   };
 }
 
-/** Input and result contracts for one camera grade on the shot clock. */
+/*
+ * Input and result contracts for one camera grade on the shot clock.
+ */
 export namespace realizeShotCameraOutcome {
-  /** What the camera grade reads from the realization's props. */
+  /*
+   * What the camera grade reads from the realization's props.
+   */
   export interface IInput {
-    /** The contract's required camera subjects. */
+    /*
+     * The contract's required camera subjects.
+     */
     requiredSubjects: readonly string[];
 
-    /** The staged cameras. */
+    /*
+     * The staged cameras.
+     */
     cameras: readonly IAutoMovieCamera[];
 
-    /** The shot's live camera id. */
+    /*
+     * The shot's live camera id.
+     */
     camera: string;
 
-    /** The shot's camera move, or null for a locked-off camera. */
+    /*
+     * The shot's camera move, or null for a locked-off camera.
+     */
     cameraMotion: IAutoMovieClip | null;
 
-    /** The raster the camera is graded on, or undefined without one. */
+    /*
+     * The raster the camera is graded on, or undefined without one.
+     */
     frameFormat: IAutoMovieRealizeShotContractProps["frameFormat"];
   }
 
-  /** One graded camera sample. */
+  /*
+   * One graded camera sample.
+   */
   export type IOutcome =
     IAutoMovieCompiledContractRealization["camera"][number];
 }

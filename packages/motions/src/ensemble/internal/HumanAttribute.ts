@@ -8,7 +8,7 @@ import type {
 
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 
-/**
+/*
  * A group member's attributes: the named qualities a group's distribution gives
  * each member a number of, and the keyed draws that give them.
  *
@@ -22,23 +22,24 @@ import { HumanSkill } from "../../skill/internal/HumanSkill";
  * `HUMAN_ATTRIBUTE_EFFECTS`'s; an attribute never decides an outcome.
  */
 export namespace HumanAttribute {
-  /** Every attribute name, as data. */
+  /*
+   * Every attribute name, as data.
+   */
   export const NAMES: readonly IAutoMovieMotionHumanAttribute.Name[] = [
     "discipline",
     "fatigue",
     "morale",
   ];
 
-  /**
+  /*
    * The stream of one member's quantity: keyed by the chain seed, the ensemble,
    * the member's index and the quantity's name.
-   *
-   * @param seed The chain seed.
-   * @param ensemble The ensemble's id.
-   * @param index The member's index.
-   * @param name The quantity drawn: an attribute, `proficiency`, `body`,
-   *   `role`, or a name a caller keys its own draw by.
-   * @returns The stream.
+   * Parameter seed: The chain seed.
+   * Parameter ensemble: The ensemble's id.
+   * Parameter index: The member's index.
+   * Parameter name: The quantity drawn: an attribute, `proficiency`, `body`,
+   * `role`, or a name a caller keys its own draw by.
+   * Returns: The stream.
    */
   export function stream(
     seed: string,
@@ -51,18 +52,17 @@ export namespace HumanAttribute {
     );
   }
 
-  /**
+  /*
    * One member's value of a quantity drawn from a distribution, clipped to [0,
    * 1].
-   *
-   * @param seed The chain seed.
-   * @param ensemble The ensemble's id.
-   * @param index The member's index.
-   * @param name The quantity drawn.
-   * @param distribution The group's distribution.
-   * @returns The value, in [0, 1].
-   * @throws {Error} When the mean lies outside [0, 1] or the spread is
-   *   negative.
+   * Parameter seed: The chain seed.
+   * Parameter ensemble: The ensemble's id.
+   * Parameter index: The member's index.
+   * Parameter name: The quantity drawn.
+   * Parameter distribution: The group's distribution.
+   * Returns: The value, in [0, 1].
+   * When the mean lies outside [0, 1] or the spread is
+   * negative.
    */
   export function draw(
     seed: string,
@@ -89,14 +89,13 @@ export namespace HumanAttribute {
     return Math.min(1, Math.max(0, mean + spread * deviate));
   }
 
-  /**
+  /*
    * An effect's value at an attribute's value (`HUMAN_ATTRIBUTE_EFFECTS`):
    * linear between its ends; the neutral value when the attribute is absent.
-   *
-   * @param effect The effect.
-   * @param value The attribute, in [0, 1]; absent reads `neutral`.
-   * @param neutral The value an absent attribute reads as.
-   * @returns The effect's value.
+   * Parameter effect: The effect.
+   * Parameter value: The attribute, in [0, 1]; absent reads `neutral`.
+   * Parameter neutral: The value an absent attribute reads as.
+   * Returns: The effect's value.
    */
   export function effect(
     effect: IAutoMovieMotionHumanAttributeEffects.IEffect,

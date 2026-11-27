@@ -13,7 +13,7 @@ import { HumanTrunk } from "./HumanTrunk";
 import { seated } from "./seated";
 import { seatedLumbarTransfer } from "./seatedLumbarTransfer";
 
-/**
+/*
  * Prepare a sit's descent: the seat socket travels back on the caller's
  * balanced share and down from `down` to `contact`, the heading turns over
  * `across`, and the trunk flexes to its peak by `flexed` and holds it until the
@@ -21,11 +21,10 @@ import { seatedLumbarTransfer } from "./seatedLumbarTransfer";
  * additions by `descent` (Kralj, Jaeger and Munih 1990). The root follows from
  * the socket and the trunk's pitch, and the planted legs lower it where they
  * cannot reach their feet.
- *
- * @param props The body, the socket's start and goal, the timing in seconds and
- *   the leg writer.
- * @returns A posture reader at a second and a back share, optionally borrowing
- *   one synchronous FK source for the hip reading of its lowering.
+ * Parameter props: The body, the socket's start and goal, the timing in seconds and
+ * the leg writer.
+ * Returns: A posture reader at a second and a back share, optionally borrowing
+ * one synchronous FK source for the hip reading of its lowering.
  */
 export function prepareSitLowering(
   props: IProps,
@@ -137,63 +136,93 @@ export function prepareSitLowering(
   return read;
 }
 
-/** The record of `IPropsFinal`'s site. */
+/*
+ * The record of `IPropsFinal`'s site.
+ */
 type IPropsFinal = {
   pitch: number;
   joints: IAutoMovieMotionHumanPosture["joints"];
 };
 
-/** The sitting law's unchanged entry, target and descent geometry. */
+/*
+ * The sitting law's unchanged entry, target and descent geometry.
+ */
 interface IProps {
-  /** The body whose socket and planted legs are read. */
+  /*
+   * The body whose socket and planted legs are read.
+   */
   body: IAutoMovieMotionHumanBody;
 
-  /** Initial heading, degrees about world +Y. */
+  /*
+   * Initial heading, degrees about world +Y.
+   */
   yaw: number;
 
-  /** The sitting law's admitted heading change, degrees. */
+  /*
+   * The sitting law's admitted heading change, degrees.
+   */
   turn: number;
 
-  /** Seconds the descent takes, when the back has settled. */
+  /*
+   * Seconds the descent takes, when the back has settled.
+   */
   descent: number;
 
-  /**
+  /*
    * Time when the seat starts bearing, seconds; the back settles from it to
    * `descent`.
    */
   contact: number;
 
-  /** Seconds over which the socket travels back and the heading turns. */
+  /*
+   * Seconds over which the socket travels back and the heading turns.
+   */
   across: number;
 
-  /**
+  /*
    * Time when the socket starts down, seconds; it reaches the seat at
    * `contact`.
    */
   down: number;
 
-  /** Time when the trunk reaches its peak flexion, seconds. */
+  /*
+   * Time when the trunk reaches its peak flexion, seconds.
+   */
   flexed: number;
 
-  /** Peak trunk inclination, degrees. */
+  /*
+   * Peak trunk inclination, degrees.
+   */
   peak: number;
 
-  /** Initial seat-socket point, world metres. */
+  /*
+   * Initial seat-socket point, world metres.
+   */
   start: IAutoMovieVector3;
 
-  /** Final seat-socket point, world metres. */
+  /*
+   * Final seat-socket point, world metres.
+   */
   goal: IAutoMovieVector3;
 
-  /** Direct standing angles before the final-back additions. */
+  /*
+   * Direct standing angles before the final-back additions.
+   */
   joints: IAutoMovieMotionHumanPosture["joints"];
 
-  /** Final back inclination and additive clinical joint angles, degrees. */
+  /*
+   * Final back inclination and additive clinical joint angles, degrees.
+   */
   final: IPropsFinal;
 
-  /** Both original planted ankle points used by the pelvis limit, world metres. */
+  /*
+   * Both original planted ankle points used by the pelvis limit, world metres.
+   */
   feet: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
-  /** Actual current leg goals, including the sitting law's crossed-foot course. */
+  /*
+   * Actual current leg goals, including the sitting law's crossed-foot course.
+   */
   legs(
     root: IAutoMovieVector3,
     yaw: number,

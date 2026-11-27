@@ -9,7 +9,7 @@ import { Vector3 } from "../../math/Vector3";
 import { PhysicalRotationVector as Rotation } from "../PhysicalRotationVector";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 
-/**
+/*
  * Post-stabilize a returning segment's parent-relative state onto its joint's
  * limits (Cline and Pai 2003, "Post-stabilization for rigid body simulation
  * with contact and constraints", ICRA): finite solver iterations leave a joint
@@ -17,10 +17,9 @@ import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
  * projected back onto it, each limited coordinate to its nearest bound in
  * closed form (`projectPhysicalJointRotation`). The origin and the velocities
  * are kept.
- *
- * @param drifted The solved parent-relative state.
- * @param joint The segment's joint; none for the root.
- * @returns The projected state and the radians the joint rotation moved.
+ * Parameter drifted: The solved parent-relative state.
+ * Parameter joint: The segment's joint; none for the root.
+ * Returns: The projected state and the radians the joint rotation moved.
  */
 export function stabilizePhysicalJointReturn(
   drifted: IAutoMovieSamplePhysicalTarget.IResult,
@@ -53,20 +52,22 @@ export function stabilizePhysicalJointReturn(
   };
 }
 
-/** Companion types of {@link stabilizePhysicalJointReturn}. */
+/*
+ * Companion types of stabilizePhysicalJointReturn.
+ */
 export namespace stabilizePhysicalJointReturn {
-  /**
+  /*
    * A parent-relative state projected onto its joint's limits, and the
    * projection's angle.
    */
   export interface IResult {
-    /**
+    /*
      * The projected state; the drifted one unchanged for a segment without a
      * joint.
      */
     result: IAutoMovieSamplePhysicalTarget.IResult;
 
-    /**
+    /*
      * Radians the joint rotation moved; zero within the limits or without a
      * joint.
      */

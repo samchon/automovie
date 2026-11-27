@@ -1,6 +1,6 @@
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 
-/**
+/*
  * The swivel of a hinged two-bone chain found from its pole: the swivel at
  * which the mid joint lies toward the bend hint, which two-bone IK takes as the
  * elbow's or knee's direction in closed form, then the local minimum of the
@@ -28,12 +28,16 @@ import type { IAutoMovieQuaternion } from "@automovie/interface";
  * when legal).
  */
 export namespace hingedSwivelPole {
-  /** One bend branch as the search reads it. */
+  /*
+   * One bend branch as the search reads it.
+   */
   export interface IBranch<T> {
-    /** The branch's scored candidate at a swivel, degrees. */
+    /*
+     * The branch's scored candidate at a swivel, degrees.
+     */
     probe: (angle: number) => T;
 
-    /**
+    /*
      * The branch's bone-local root and mid rotations at a swivel, degrees,
      * which the start reads.
      */
@@ -42,21 +46,20 @@ export namespace hingedSwivelPole {
       lower: IAutoMovieQuaternion;
     };
 
-    /**
+    /*
      * Whether every swivel from `low` to `high` degrees certainly overshoots;
      * null when nothing is refused.
      */
     refused: ((low: number, high: number) => boolean) | null;
   }
 
-  /**
+  /*
    * Search every branch from its pole.
-   *
-   * @param props The branches, the start (read from each branch's poser), the
-   *   ordering, the refinement, the step and whether the score is the start's
-   *   term alone.
-   * @returns The best branch result; null when a branch has no pole (a straight
-   *   limb), so the caller's general search decides.
+   * Parameter props: The branches, the start (read from each branch's poser), the
+   * ordering, the refinement, the step and whether the score is the start's
+   * term alone.
+   * Returns: The best branch result; null when a branch has no pole (a straight
+   * limb), so the caller's general search decides.
    */
   export function search<T>(props: {
     branches: readonly IBranch<T>[];

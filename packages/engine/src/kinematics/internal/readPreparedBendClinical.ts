@@ -10,11 +10,10 @@ import type { AutoMovieEngineKinematicsTypes } from "../AutoMovieEngineKinematic
 import { HUMANOID_REST_FRAME } from "../../rom/HUMANOID_REST_FRAME";
 import { HUMANOID_JOINT_AXES } from "../HUMANOID_JOINT_AXES";
 
-/**
+/*
  * Capture the current clinical words consumed by an ordinary elbow sweep.
- *
- * @param input Already selected bone names, axes and clinical ranges.
- * @returns Exact scalar words in their native order.
+ * Parameter input: Already selected bone names, axes and clinical ranges.
+ * Returns: Exact scalar words in their native order.
  */
 export function readPreparedBendClinical(
   input: AutoMovieEngineKinematicsTypes.IReadPreparedBendClinicalInput,
@@ -43,22 +42,30 @@ export function readPreparedBendClinical(
   return words;
 }
 
-/** Clinical directions and channels in their comparison order. */
+/*
+ * Clinical directions and channels in their comparison order.
+ */
 const AXES = ["flexion", "abduction", "twist"] as const;
 
 
 
-/** Flat words with explicit absence and record boundaries. */
+/*
+ * Flat words with explicit absence and record boundaries.
+ */
 type AutoMovieClinicalWords = (number | string | null | undefined)[];
 
-/** Append the three direction vectors and optional basis conventions. */
+/*
+ * Append the three direction vectors and optional basis conventions.
+ */
 function axes(value: IAutoMovieJointAxes, words: AutoMovieClinicalWords): void {
   for (const axis of AXES)
     words.push(value[axis].x, value[axis].y, value[axis].z);
   words.push(value.twistPlacement, value.rotationOrder);
 }
 
-/** Append a current constraint and its optional swing/twist gate. */
+/*
+ * Append a current constraint and its optional swing/twist gate.
+ */
 function range(
   value: IAutoMovieJointConstraint | null,
   words: AutoMovieClinicalWords,
@@ -79,7 +86,9 @@ function range(
   words.push(gate.reach);
 }
 
-/** Append a nullable interval of the current chart. */
+/*
+ * Append a nullable interval of the current chart.
+ */
 function interval(
   value: IAutoMovieAngleRange | null,
   words: AutoMovieClinicalWords,
@@ -88,7 +97,9 @@ function interval(
   else words.push(value.min, value.max);
 }
 
-/** Append each current clinical affine map, preserving absent axes. */
+/*
+ * Append each current clinical affine map, preserving absent axes.
+ */
 function frame(
   value: IAutoMovieRestFrame | undefined,
   words: AutoMovieClinicalWords,

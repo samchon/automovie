@@ -61,16 +61,18 @@ const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
  * parameter running on as the strip's mean chord.
  */
 export namespace AutoMovieHumanArmLaw {
-  /** Length of the walk past the wrist, world mm: beyond the heel's last cut. */
+  /*
+   * Length of the walk past the wrist, world mm: beyond the heel's last cut.
+   */
   const RUN_ON: number = 120;
 
-  /**
+  /*
    * Length past the heel's join over which the sections turn from the hand's
    * axis onto the forearm's, world mm.
    */
   const WRIST_TURN: number = 50;
 
-  /**
+  /*
    * Widest spacing of the arm's own layers along the walk, world mm: finer than
    * the 3.5 mm plane spacing of the MetaHuman reference asset's bone-normal arm
    * sections (f1, 151 stations over 526 mm), so the arm never carries fewer
@@ -78,38 +80,48 @@ export namespace AutoMovieHumanArmLaw {
    */
   const LAYER_STEP: number = 3;
 
-  /**
+  /*
    * Half the walk length over which the tube's jet is read at the arm's last
    * own section, world mm: half the widest layer spacing, so the root strip
    * arrives with the curvature the arm's own layers carry there.
    */
   const JET_READ: number = LAYER_STEP / 2;
 
-  /** Phases averaged for the centre of the section at the wrist crease. */
+  /*
+   * Phases averaged for the centre of the section at the wrist crease.
+   */
   const CREASE_PHASES: number = 256;
 
-  /** Phases of a tape's section across the forearm. */
+  /*
+   * Phases of a tape's section across the forearm.
+   */
   const GIRTH_PHASES: number = 256;
 
-  /**
+  /*
    * Unit sections' hull perimeters by walk length, per placed arm, kept across
    * the hand's solve rounds.
    */
   const HULLS: Map<string, Map<number, number>> = new Map();
 
-  /**
+  /*
    * Distance off its plane at which a cut is settled, world mm: far under the
    * 0.05 mm step the layers' slopes are read over.
    */
   const CUT_TOLERANCE: number = 1e-6;
 
-  /** Most secant steps of a cut before it bisects its bracket instead. */
+  /*
+   * Most secant steps of a cut before it bisects its bracket instead.
+   */
   const CUT_STEPS: number = 12;
 
-  /** Length of a cut's first secant step along the walk, world mm. */
+  /*
+   * Length of a cut's first secant step along the walk, world mm.
+   */
   const CUT_PROBE: number = 1;
 
-  /** Halvings of a bracket: the walk's 600 mm to under a micrometre. */
+  /*
+   * Halvings of a bracket: the walk's 600 mm to under a micrometre.
+   */
   const BISECTIONS: number = 40;
 
   /**
@@ -144,11 +156,10 @@ export namespace AutoMovieHumanArmLaw {
     return [centre[0] + shift[0], centre[1] + shift[1], centre[2] + shift[2]];
   }
 
-  /**
+  /*
    * A bind bone direction of the prior as a unit vector.
-   *
-   * @param v The direction's three numbers.
-   * @returns The unit direction.
+   * Parameter v: The direction's three numbers.
+   * Returns: The unit direction.
    */
   function direction(v: readonly number[]): AutoMovieVector3Tuple {
     return unit([v[0]!, v[1]!, v[2]!]);

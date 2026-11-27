@@ -1,13 +1,12 @@
 import type { IAutoMovieMotionHumanPosture } from "@automovie/interface";
 
-/**
+/*
  * Return the posture the support merit actually read. Preserve a previous key's
  * identity when the same root, joint map and auxiliary goals were read, so a
  * held interval can keep its existing stationary course.
- *
- * @param candidate The source key whose fitted coordinates were read.
- * @param written The certified posture written over the fit's preference.
- * @returns The certified posture, or its exactly equivalent original key.
+ * Parameter candidate: The source key whose fitted coordinates were read.
+ * Parameter written: The certified posture written over the fit's preference.
+ * Returns: The certified posture, or its exactly equivalent original key.
  */
 export function admittedSupportPosture(
   candidate: IAutoMovieMotionHumanPosture,
@@ -50,7 +49,9 @@ export function admittedSupportPosture(
   return candidate;
 }
 
-/** Clinical triples indexed by their written bone names. */
+/*
+ * Clinical triples indexed by their written bone names.
+ */
 type JointEntries = Readonly<
   Record<string, readonly [number, number, number] | undefined>
 >;

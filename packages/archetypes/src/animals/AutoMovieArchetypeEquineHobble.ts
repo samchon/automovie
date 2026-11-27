@@ -13,7 +13,9 @@ import {
 import { AnnularFitting } from "./fittings/AnnularFitting";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
-/** The pose's frame: the hobble is posed in world coordinates. */
+/*
+ * The pose's frame: the hobble is posed in world coordinates.
+ */
 const WORLD: IAutoMovieTransform = AutoMovieArchetypeFrame.upright({
   x: 0,
   y: 0,
@@ -80,7 +82,9 @@ export namespace AutoMovieArchetypeEquineHobble {
     };
   }
 
-  /** A cuff's world frame on a fore cannon of a sample. */
+  /*
+   * A cuff's world frame on a fore cannon of a sample.
+   */
   function cuff<Id extends string, D extends string>(
     sample: AutoMovieArchetypeRide.ISample<Id, D>,
     limb: AutoMovieArchetypeQuadrupedBody.Limb,

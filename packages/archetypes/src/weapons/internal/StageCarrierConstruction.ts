@@ -14,7 +14,9 @@ import {
 } from "../../core";
 import { AutoMovieArchetypeHolster } from "../AutoMovieArchetypeHolster";
 
-/** The readable name of each kind. */
+/*
+ * The readable name of each kind.
+ */
 const NAMES: Readonly<Record<AutoMovieArchetypeHolster.Kind, string>> = {
   holster: "belt holster",
   scabbard: "scabbard",
@@ -23,19 +25,18 @@ const NAMES: Readonly<Record<AutoMovieArchetypeHolster.Kind, string>> = {
   pouch: "cartridge box",
 };
 
-/**
+/*
  * Assemble a display carrier from its stored form.
  *
  * Draw the selected fit, mount height and slot count before attaching that
  * carrier's geometry and scene contacts.
- *
- * @param kind The selected carrier form.
- * @param build Adds the selected carrier geometry and wear contacts.
- * @param params The accepted dimensions and choices of the selected carrier.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter kind: The selected carrier form.
+ * Parameter build: Adds the selected carrier geometry and wear contacts.
+ * Parameter params: The accepted dimensions and choices of the selected carrier.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function StageCarrierConstruction(
   kind: AutoMovieArchetypeHolster.Kind,
@@ -142,9 +143,13 @@ export function StageCarrierConstruction(
   return builder.build(d.mass!);
 }
 
-/** Geometry callback for the display carrier catalogue. */
+/*
+ * Geometry callback for the display carrier catalogue.
+ */
 export namespace StageCarrierConstruction {
-  /** Draws one carrier in its own local wear frame. */
+  /*
+   * Draws one carrier in its own local wear frame.
+   */
   export type Build = (
     builder: AutoMovieArchetypeBuilder<
       AutoMovieArchetypeHolster.Affordance,
@@ -154,7 +159,9 @@ export namespace StageCarrierConstruction {
     slots: number,
   ) => void;
 
-  /** Turn a wear site at the given metres x, y, z toward the actor. */
+  /*
+   * Turn a wear site at the given metres x, y, z toward the actor.
+   */
   export function facingWearer(at: IAutoMovieVector3): IAutoMovieTransform {
     return AutoMovieArchetypeFrame.facing(
       at,

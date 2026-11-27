@@ -13,10 +13,12 @@ import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovi
 import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 import { autoMovieSubjectMaterials } from "./autoMovieSubjectMaterials";
 
-/** World up, the axis an instance set's heading turns about. */
+/*
+ * World up, the axis an instance set's heading turns about.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
+/*
  * Describe one compiled instance set as a subject.
  *
  * The set's model is the first tier of its own LOD list, its transform is the
@@ -26,14 +28,13 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * than a list, because a compact set stores a count and not its members: the
  * page is the slots from `memberOffset`, clamped to the count, up to
  * `AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT` of them, addressed by
- * {@link autoMovieInstanceAddress} and sorted in render-id order.
- *
- * @param set Compiled set to describe.
- * @param models Runtime models by id, compiled and environment-owned.
- * @param space Address of the space the set is placed in, or null.
- * @param revision Revision of the artifact being described.
- * @param memberOffset Rank of the first member to name, a whole number from 0.
- * @returns The set's description.
+ * autoMovieInstanceAddress and sorted in render-id order.
+ * Parameter set: Compiled set to describe.
+ * Parameter models: Runtime models by id, compiled and environment-owned.
+ * Parameter space: Address of the space the set is placed in, or null.
+ * Parameter revision: Revision of the artifact being described.
+ * Parameter memberOffset: Rank of the first member to name, a whole number from 0.
+ * Returns: The set's description.
  */
 export const describeAutoMovieInstanceSetSubject = (
   set: IAutoMovieCompiledInstanceSet,

@@ -37,8 +37,12 @@ export namespace AutoMovieHumanFootMalleolusBump {
   }
 }
 
-/** The one-dimensional profile of the net: three outer zeros each side. Convention. */
+/*
+ * The one-dimensional profile of the net: three outer zeros each side. Convention.
+ */
 const PROFILE: readonly number[] = [0, 0, 0, 0.6, 1, 0.6, 0, 0, 0];
 
-/** The bump's peak after interpolation, over its centre value: measured on the loft's cubic over this profile. */
+/*
+ * The bump's peak after interpolation, over its centre value: measured on the loft's cubic over this profile.
+ */
 const PEAK: number = 0.75;

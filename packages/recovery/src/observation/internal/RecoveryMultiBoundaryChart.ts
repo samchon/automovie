@@ -6,7 +6,7 @@ import type {
 
 import { analyzeRecoveryMultiBoundarySurface } from "../../geometry/internal/analyzeRecoveryMultiBoundarySurface";
 
-/**
+/*
  * Open one coherent genus-zero private observation mesh into a triangle disk.
  * Complete oriented boundary cycles have no repeated final vertex. The longest
  * measured perimeter is the root, with stable-key ties; repeated multi-source

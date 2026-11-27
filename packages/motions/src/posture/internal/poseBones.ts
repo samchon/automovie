@@ -6,7 +6,7 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 
-/**
+/*
  * Every bone of a canonical pose placed in the world, by name: forward
  * kinematics with the canonical joint axes and rest frames, the reading the
  * performance and the capture use, so a law that reads a pose it resolved
@@ -19,14 +19,13 @@ import type {
  * outputs. The prepare companion binds this same body to a snapshot of
  * requested names once, then returns the same fresh map representation for
  * changing poses.
- *
- * @param body The body and its topology for the same, unchanged skeleton.
- * @param pose The pose.
- * @param prepared Optional exact FK reader owned and released by this
- *   synchronous motion evaluation.
- * @param requested Optional output bone set; omitted, all reachable bones are
- *   returned in parent-first order.
- * @returns Resolved bones by rig bone.
+ * Parameter body: The body and its topology for the same, unchanged skeleton.
+ * Parameter pose: The pose.
+ * Parameter prepared: Optional exact FK reader owned and released by this
+ * synchronous motion evaluation.
+ * Parameter requested: Optional output bone set; omitted, all reachable bones are
+ * returned in parent-first order.
+ * Returns: Resolved bones by rig bone.
  */
 export function poseBones(
   body: IAutoMovieMotionHumanBody,
@@ -37,9 +36,11 @@ export function poseBones(
   return body.poseResolution.resolveMap(pose, prepared, requested);
 }
 
-/** Bound canonical pose readers with fixed bone-name demand. */
+/*
+ * Bound canonical pose readers with fixed bone-name demand.
+ */
 export namespace poseBones {
-  /**
+  /*
    * Bind one body's fixed names for two-phase directly authored tuple FK. The
    * first call snapshots all entries, then all tuple F/A/T scalars before the
    * caller constructs its root or requests a lazy operation workspace. The
@@ -60,18 +61,17 @@ export namespace poseBones {
     return body.poseResolution.prepareTuples(requested);
   }
 
-  /**
+  /*
    * A pose admitted once and handed on as a value (`IRig.read`): the pose's
    * producer makes one reading and every reader of that pose's bones takes them
    * from it, so the pose is admitted and each bone composed once however many
    * read it.
-   *
-   * @param body The body, unchanged while the reading is held.
-   * @param pose The pose, complete; its records are read now, in order.
-   * @param prepared Optional FK reader of the synchronous evaluation that
-   *   produced the pose, whose conversions the admission shares.
-   * @returns The reading; it holds the admitted values, so a later edit of the
-   *   pose does not reach it.
+   * Parameter body: The body, unchanged while the reading is held.
+   * Parameter pose: The pose, complete; its records are read now, in order.
+   * Parameter prepared: Optional FK reader of the synchronous evaluation that
+   * produced the pose, whose conversions the admission shares.
+   * Returns: The reading; it holds the admitted values, so a later edit of the
+   * pose does not reach it.
    */
   export function read(
     body: IAutoMovieMotionHumanBody,
@@ -81,14 +81,13 @@ export namespace poseBones {
     return body.poseResolution.read(pose, prepared);
   }
 
-  /**
+  /*
    * Bind one body's requested bone set once for readings (`read`) of changing
    * poses: each call returns that set's bones of one reading, fresh, without
    * sorting the names again.
-   *
-   * @param body The body.
-   * @param requested The names, copied now.
-   * @returns The bound reader of this body's readings.
+   * Parameter body: The body.
+   * Parameter requested: The names, copied now.
+   * Returns: The bound reader of this body's readings.
    */
   export function prepareRead(
     body: IAutoMovieMotionHumanBody,
@@ -105,7 +104,7 @@ export namespace poseBones {
       demand.read(reading);
   }
 
-  /**
+  /*
    * Prepare one body's requested bone set once for repeated complete poses.
    * Later edits to that set do not change the captured demand. Every query
    * still admits all current authored records and returns a fresh map/frames.

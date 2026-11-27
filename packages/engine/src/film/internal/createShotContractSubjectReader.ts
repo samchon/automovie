@@ -28,8 +28,8 @@ import { formationSubjectBox } from "./formationSubjectBox";
 import { nodeSubjectBox } from "./nodeSubjectBox";
 import { nodeSubjectExtent } from "./nodeSubjectExtent";
 
-/**
- * Build the subject reader one {@link realizeShotContract} call grades through.
+/*
+ * Build the subject reader one realizeShotContract call grades through.
  *
  * The compiled scene nodes, models, formations, shot performances, motions and
  * world landmarks are each indexed once by id, keeping the first record of a
@@ -41,10 +41,9 @@ import { nodeSubjectExtent } from "./nodeSubjectExtent";
  * artifacts, world landmarks and fallback rig lookup answers stable for this
  * one grading call. This reader is not a live view across edits; changed inputs
  * require a new reader.
- *
- * @param props The grading inputs; read, never mutated.
- * @returns A reader over `props` that holds its indexes and caches until the
- *   caller drops it.
+ * Parameter props: The grading inputs; read, never mutated.
+ * Returns: A reader over `props` that holds its indexes and caches until the
+ * caller drops it.
  */
 export function createShotContractSubjectReader(
   props: IAutoMovieRealizeShotContractProps,
@@ -268,7 +267,9 @@ export function createShotContractSubjectReader(
   };
 }
 
-/** Rotation of a placement whose orientation is never read. */
+/*
+ * Rotation of a placement whose orientation is never read.
+ */
 const IDENTITY_ROTATION: IAutoMovieTransform["rotation"] = {
   x: 0,
   y: 0,
@@ -276,10 +277,14 @@ const IDENTITY_ROTATION: IAutoMovieTransform["rotation"] = {
   w: 1,
 };
 
-/** Scale of a placement whose size is never read, and of a pose root. */
+/*
+ * Scale of a placement whose size is never read, and of a pose root.
+ */
 const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
-/** Index records by key, keeping the first record of a repeated key. */
+/*
+ * Index records by key, keeping the first record of a repeated key.
+ */
 function indexFirst<T>(
   records: readonly T[],
   key: (record: T) => string,

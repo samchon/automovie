@@ -1,6 +1,6 @@
 import type { IAutoMovieInspectorPathNode } from "../IAutoMovieInspectorPathNode.js";
 
-/**
+/*
  * Arrange identity paths into the tree of their names, for the selection panel.
  *
  * Each distinct path becomes one node marked `drawn`, and each prefix of it a

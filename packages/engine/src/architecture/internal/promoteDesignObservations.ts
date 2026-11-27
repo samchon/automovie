@@ -16,7 +16,7 @@ import { designFrameScale } from "./designFrameScale";
 import { designReferenceWorldPoint } from "./designReferenceWorldPoint";
 import { validateDesignReference } from "./validateDesignReference";
 
-/**
+/*
  * Ask one reference for metric geometry, and get back what it can honestly
  * give.
  *
@@ -37,12 +37,11 @@ import { validateDesignReference } from "./validateDesignReference";
  * then `unknown-scale`. A promoted candidate carries one world-metre outline
  * per primitive it reads, in the candidate's primitive order. Candidates,
  * withholdings and skips keep the reference's declaration order. An invalid
- * reference, refused by {@link validateDesignReference}, or a floor outside [0,
+ * reference, refused by validateDesignReference, or a floor outside [0,
  * 1] throws an `Error` naming the first defect.
- *
- * @param props.reference Observed reference whose candidates are judged.
- * @param props.minimumConfidence Inclusive confidence floor, default `1`.
- * @returns The promoted, withheld and skipped readings.
+ * Parameter props.reference: Observed reference whose candidates are judged.
+ * Parameter props.minimumConfidence: Inclusive confidence floor, default `1`.
+ * Returns: The promoted, withheld and skipped readings.
  */
 export function promoteDesignObservations(
   props: IAutoMoviePromoteDesignObservations.IProps,
@@ -193,7 +192,9 @@ export function promoteDesignObservations(
   return promotion;
 }
 
-/** Primitive families that carry promotable metric geometry. */
+/*
+ * Primitive families that carry promotable metric geometry.
+ */
 const GEOMETRIC_PRIMITIVES: ReadonlySet<string> = new Set([
   "line",
   "polyline",

@@ -15,7 +15,9 @@ import type {
 
 import { HumanChainStriking } from "./HumanChainStriking";
 
-/** The extinguisher's safety pin's pull, metres: `createFireExtinguisher`'s. */
+/*
+ * The extinguisher's safety pin's pull, metres: `createFireExtinguisher`'s.
+ */
 const PIN: number = 0.04;
 
 /**

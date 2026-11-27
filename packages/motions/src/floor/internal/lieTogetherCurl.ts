@@ -11,7 +11,7 @@ import type {
 import { AutoMovieMotionHumanRange } from "../../compose/internal/AutoMovieMotionHumanRange";
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 
-/**
+/*
  * The curl of a spooning body onto its partner's back: the lumbar spine flexes
  * so the chest's sternum region comes onto the back where the slide stopped
  * short of it, because the pelvis meets the partner's before the chest does. A
@@ -30,31 +30,36 @@ import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
  * back's normal, which the hips hold).
  */
 export namespace lieTogetherCurl {
-  /** The curl and the slide it adds. */
+  /*
+   * The curl and the slide it adds.
+   */
   export interface ICurl {
-    /** Forward flexion of the lumbar joint, clinical degrees. */
+    /*
+     * Forward flexion of the lumbar joint, clinical degrees.
+     */
     flexion: number;
 
-    /**
+    /*
      * The slide's correction across the floor along the partner's back, world
      * metres.
      */
     shift: IAutoMovieVector3;
   }
 
-  /** No curl. */
+  /*
+   * No curl.
+   */
   export const NONE: ICurl = { flexion: 0, shift: { x: 0, y: 0, z: 0 } };
 
-  /**
+  /*
    * Solve the curl that lays the sternum on a point.
-   *
-   * @param body The spooning body.
-   * @param posture Its posture slid up to the partner.
-   * @param target Where the sternum region rests, world metres.
-   * @param normal The partner's back's outward normal there.
-   * @param partner The partner's body.
-   * @param bones The partner's world bones.
-   * @returns The curl.
+   * Parameter body: The spooning body.
+   * Parameter posture: Its posture slid up to the partner.
+   * Parameter target: Where the sternum region rests, world metres.
+   * Parameter normal: The partner's back's outward normal there.
+   * Parameter partner: The partner's body.
+   * Parameter bones: The partner's world bones.
+   * Returns: The curl.
    */
   export function solve(
     body: IAutoMovieMotionHumanBody,
@@ -175,13 +180,12 @@ export namespace lieTogetherCurl {
     };
   }
 
-  /**
+  /*
    * A posture curled by a share of a curl.
-   *
-   * @param posture The posture.
-   * @param curl The curl.
-   * @param share Its share, 0 to 1.
-   * @returns The curled posture.
+   * Parameter posture: The posture.
+   * Parameter curl: The curl.
+   * Parameter share: Its share, 0 to 1.
+   * Returns: The curled posture.
    */
   export function apply(
     posture: IAutoMovieMotionHumanPosture,

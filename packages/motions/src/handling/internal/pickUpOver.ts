@@ -27,7 +27,7 @@ import { pickUpAlong } from "./pickUpAlong";
 import { pickUpPosture } from "./pickUpPosture";
 import { pickUpSearch } from "./pickUpSearch";
 
-/**
+/*
  * A pick-up performed over a carrier (`pickUp` as an overlay): a seated rider
  * takes a revolver from its holster, a carbine from its boot or an arrow from
  * its quiver while the carrier action keeps the body. The grasp is the standing
@@ -41,20 +41,19 @@ import { pickUpSearch } from "./pickUpSearch";
  * the body's up at the entry.
  */
 export namespace pickUpOver {
-  /**
+  /*
    * The load phase between contact and lift-off, seconds: the standing
    * pick-up's.
    */
   export const LOAD: number = 0.15;
 
-  /**
+  /*
    * Plan a pick-up over a carrier.
-   *
-   * @param context The action's context, its carrier present.
-   * @returns The plan.
-   * @throws {HumanRefusal} On `prop` when the grip lies beyond the arm from the
-   *   carried body, and on `lift` for a second hand asked to lift
-   *   independently.
+   * Parameter context: The action's context, its carrier present.
+   * Returns: The plan.
+   * On `prop` when the grip lies beyond the arm from the
+   * carried body, and on `lift` for a second hand asked to lift
+   * independently.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPickUp.IParams>,
@@ -254,7 +253,7 @@ export namespace pickUpOver {
     };
   }
 
-  /**
+  /*
    * The bone of this performer the prop rides: worn on it, or mounted on a
    * carrier worn on it; none for a prop in the world.
    */

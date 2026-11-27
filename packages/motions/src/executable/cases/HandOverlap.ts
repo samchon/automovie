@@ -10,22 +10,21 @@ import type {
 
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 
-/**
+/*
  * How deep two people's right hands enter each other, the rule the handshake
  * and handover cases measure interpenetration by: every right-hand phalanx
  * collider, the right palm's and the right forearm's of one person against
  * those of the other, whatever kind the profile gives them.
  */
 export namespace HandOverlap {
-  /**
+  /*
    * The deepest overlap between two people's right-hand phalanx, palm and
    * forearm colliders, by the engine's shape pair distance.
-   *
-   * @param a One person.
-   * @param aBones Their posed bones, world frame.
-   * @param b The other person.
-   * @param bBones Their posed bones, world frame.
-   * @returns Metres, negative when overlapping; positive when apart.
+   * Parameter a: One person.
+   * Parameter aBones: Their posed bones, world frame.
+   * Parameter b: The other person.
+   * Parameter bBones: Their posed bones, world frame.
+   * Returns: Metres, negative when overlapping; positive when apart.
    */
   export function deepest(
     a: IAutoMovieMotionHumanBody,
@@ -45,16 +44,24 @@ export namespace HandOverlap {
   }
 }
 
-/** One collider with the posed frame of the segment that carries it. */
+/*
+ * One collider with the posed frame of the segment that carries it.
+ */
 interface IPlaced {
-  /** The segment's posed frame, world metres. */
+  /*
+   * The segment's posed frame, world metres.
+   */
   pose: IAutoMovieRigidTransform;
 
-  /** The shape, placed by `pose` composed with its own transform. */
+  /*
+   * The shape, placed by `pose` composed with its own transform.
+   */
   shape: IAutoMoviePhysicalShape;
 }
 
-/** A person's right-hand phalanx, palm and forearm colliders, placed. */
+/*
+ * A person's right-hand phalanx, palm and forearm colliders, placed.
+ */
 function colliders(
   body: IAutoMovieMotionHumanBody,
   bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,

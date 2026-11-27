@@ -14,7 +14,7 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeSeesaw } from "../AutoMovieArchetypeSeesaw";
 
-/**
+/*
  * A seesaw rocked by its riders' push-offs on the ride's clock: the beam model
  * (`createSeesaw.beam`) turns about the pivot axis, positive lowering the front
  * end at `+z`.
@@ -24,13 +24,12 @@ import type { AutoMovieArchetypeSeesaw } from "../AutoMovieArchetypeSeesaw";
  * half the beam. Each push-off is a rider's legs driving the low end up: the
  * beam turns from that limit to the other one over `swing` seconds on a
  * minimum-jerk profile, so it leaves and reaches each end at rest.
- *
- * @param seesaw The installed seesaw post.
- * @param placement Its world placement.
- * @param ride The push-off seconds and each rock's duration.
- * @returns The beam's angle, its frame and the low end at each ride second.
- * @throws {AutoMovieArchetypeRefusal} For push-offs out of order, or closer
- *   than one rock.
+ * Parameter seesaw: The installed seesaw post.
+ * Parameter placement: Its world placement.
+ * Parameter ride: The push-off seconds and each rock's duration.
+ * Returns: The beam's angle, its frame and the low end at each ride second.
+ * For push-offs out of order, or closer
+ * than one rock.
  */
 export function rideSeesaw(
   seesaw: AutoMovieArchetype<
@@ -85,8 +84,12 @@ export function rideSeesaw(
   };
 }
 
-/** A unit scale: the rides move rigid frames. */
+/*
+ * A unit scale: the rides move rigid frames.
+ */
 const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
-/** The pivot axis: the beam rocks about `+X`. */
+/*
+ * The pivot axis: the beam rocks about `+X`.
+ */
 const AXIS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };

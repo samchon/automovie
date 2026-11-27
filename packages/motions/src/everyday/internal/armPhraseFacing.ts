@@ -8,15 +8,14 @@ import type {
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/**
+/*
  * Face a hand against a target normal, keeping its fingers as near upright as
  * that normal allows. A vertical normal, which leaves no upright direction in
  * its plane, points the fingers along the performer's forward.
- *
- * @param side The hand whose anatomical axes are aligned.
- * @param normal The target's outward world normal.
- * @param yaw The performer's heading, degrees about +Y.
- * @returns The world hand rotation.
+ * Parameter side: The hand whose anatomical axes are aligned.
+ * Parameter normal: The target's outward world normal.
+ * Parameter yaw: The performer's heading, degrees about +Y.
+ * Returns: The world hand rotation.
  */
 export function armPhraseFacing(
   side: AutoMovieHumanSide,
@@ -39,7 +38,7 @@ export function armPhraseFacing(
   return HumanHand.rotation(side, { fingers, palm: Vector3.scale(n, -1) });
 }
 
-/**
+/*
  * The projected length of world up under which a normal counts as vertical: the
  * sine of the angle between them, 1e-6 rad, a numeric guard far below any
  * authored tilt.

@@ -12,13 +12,12 @@ import { AutoMovieArchetypeQuadrupedSkeleton } from "../../animals/AutoMovieArch
 import { QuadrupedRestFloor } from "../../animals/quadruped/QuadrupedRestFloor";
 import type { AutoMovieArchetype } from "../../core/index";
 
-/**
+/*
  * Prepare quadruped bone, attachment, sole and floor observations.
- *
- * @param reference Immutable neutral source, absent for unrelated rides.
- * @returns Marks for one posed model, named scene anchor and optional
- *   same-sample producer terminal goals. Non-quadrupeds produce none.
- * @throws {RangeError} For an incomplete source or missing/non-bar posed bone.
+ * Parameter reference: Immutable neutral source, absent for unrelated rides.
+ * Returns: Marks for one posed model, named scene anchor and optional
+ * same-sample producer terminal goals. Non-quadrupeds produce none.
+ * For an incomplete source or missing/non-bar posed bone.
  */
 export function archetypeQuadrupedMarks(
   reference: AutoMovieArchetype | undefined,
@@ -183,7 +182,9 @@ export function archetypeQuadrupedMarks(
     }
     return marks;
 
-    /** Keep every diagnostic in its model's frame and stable named mark family. */
+    /*
+     * Keep every diagnostic in its model's frame and stable named mark family.
+     */
     function mark(
       suffix: string,
       label: string,
@@ -204,17 +205,27 @@ export function archetypeQuadrupedMarks(
   };
 }
 
-/** A primitive's two axis endpoints and joint frame, in model metres. */
+/*
+ * A primitive's two axis endpoints and joint frame, in model metres.
+ */
 interface Bar {
-  /** Lower local-Y endpoint: the generic joint origin. */
+  /*
+   * Lower local-Y endpoint: the generic joint origin.
+   */
   from: IAutoMovieVector3;
-  /** Upper local-Y endpoint: the bar's distal axis end. */
+  /*
+   * Upper local-Y endpoint: the bar's distal axis end.
+   */
   to: IAutoMovieVector3;
-  /** Rigid frame at from, with the part rotation. */
+  /*
+   * Rigid frame at from, with the part rotation.
+   */
   frame: IAutoMovieTransform;
 }
 
-/** Decode the part directly so a disconnected posed chain remains observable. */
+/*
+ * Decode the part directly so a disconnected posed chain remains observable.
+ */
 function bar(part: IAutoMovieModelPart | undefined): Bar {
   if (
     part === undefined ||
@@ -241,12 +252,16 @@ function bar(part: IAutoMovieModelPart | undefined): Bar {
   };
 }
 
-/** Copy a model-metre point into the native mark's packed coordinate convention. */
+/*
+ * Copy a model-metre point into the native mark's packed coordinate convention.
+ */
 function xyz(point: IAutoMovieVector3): number[] {
   return [point.x, point.y, point.z];
 }
 
-/** The cylinder rim or capsule support in -Y, rather than an axis-end proxy. */
+/*
+ * The cylinder rim or capsule support in -Y, rather than an axis-end proxy.
+ */
 function sole(part: IAutoMovieModelPart): IAutoMovieVector3 {
   if (
     part.geometry.type !== "primitive" ||

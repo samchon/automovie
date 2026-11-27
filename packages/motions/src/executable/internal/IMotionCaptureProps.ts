@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * One motion case as the draw page receives it: everything the page needs to
  * draw the case, computed in Node where the case is built and judged, and
  * handed over as JSON before the page loads.
@@ -16,40 +16,50 @@ import type {
  * of the canonical frame (+Y up), colours sRGB hex.
  */
 export interface IMotionCaptureProps extends IAutoMovieMotionHumanMotionCaptureOverlays {
-  /** The case's name, which is the subject's name. */
+  /*
+   * The case's name, which is the subject's name.
+   */
   name: string;
 
-  /** Frames per second of the case's grid. */
+  /*
+   * Frames per second of the case's grid.
+   */
   fps: number;
 
-  /**
+  /*
    * Running time in seconds, a whole number of grid frames past the last
    * instant.
    */
   durationSeconds: number;
 
-  /**
+  /*
    * The seconds the figures are posed at: the case's instants in its order,
    * then the grid's other frames; `poses` align with them.
    */
   seconds: number[];
 
-  /**
+  /*
    * The instants drawn, each named by the case's label, as
    * `planMotionCaptureInstants` plans them.
    */
   instants: IMotionCapturePropsInstantsItem[];
 
-  /** Width and height in pixels of every still. */
+  /*
+   * Width and height in pixels of every still.
+   */
   raster: IMotionCapturePropsRaster;
 
-  /** Solid figures. */
+  /*
+   * Solid figures.
+   */
   performers: IMotionCaptureProps.IFigure[];
 
-  /** Translucent figures. */
+  /*
+   * Translucent figures.
+   */
   ghosts: (IMotionCaptureProps.IFigure & IMotionCapturePropsGhostsItem)[];
 
-  /**
+  /*
    * Static boxes the figures meet, such as a bag or a seat: centre and half
    * extents, metres.
    */
@@ -57,36 +67,56 @@ export interface IMotionCaptureProps extends IAutoMovieMotionHumanMotionCaptureO
 }
 
 export namespace IMotionCaptureProps {
-  /** One figure: its body, its colour and its pose at every instant. */
+  /*
+   * One figure: its body, its colour and its pose at every instant.
+   */
   export interface IFigure {
-    /** Stable id, the figure's object name. */
+    /*
+     * Stable id, the figure's object name.
+     */
     id: string;
 
-    /** The canonical body drawn. */
+    /*
+     * The canonical body drawn.
+     */
     body: IAutoMovieHumanCanonicalBody.IBody;
 
-    /** SRGB hex colour of every part, or null for clay. */
+    /*
+     * SRGB hex colour of every part, or null for clay.
+     */
     color: number | null;
 
-    /** The canonical pose at each of the case's seconds, in their order. */
+    /*
+     * The canonical pose at each of the case's seconds, in their order.
+     */
     poses: IAutoMoviePose[];
   }
 }
 
-/** The record of `IMotionCapturePropsBoxesItem`'s site. */
+/*
+ * The record of `IMotionCapturePropsBoxesItem`'s site.
+ */
 type IMotionCapturePropsBoxesItem = {
   centre: IAutoMovieVector3;
   half: IAutoMovieVector3;
   color: number;
 };
 
-/** The record of `IMotionCapturePropsGhostsItem`'s site. */
+/*
+ * The record of `IMotionCapturePropsGhostsItem`'s site.
+ */
 type IMotionCapturePropsGhostsItem = {
-  /** Opacity in (0, 1]. */
+  /*
+   * Opacity in (0, 1].
+   */
   opacity: number;
 };
 
-/** The record of `IMotionCapturePropsRaster`'s site. */
+/*
+ * The record of `IMotionCapturePropsRaster`'s site.
+ */
 type IMotionCapturePropsRaster = { width: number; height: number };
-/** The record of `IMotionCapturePropsInstantsItem`'s site. */
+/*
+ * The record of `IMotionCapturePropsInstantsItem`'s site.
+ */
 type IMotionCapturePropsInstantsItem = { seconds: number; label: string };

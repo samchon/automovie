@@ -25,15 +25,15 @@ import { bakedTransformFromClipsAt } from "./bakedTransformFromClipsAt";
 import { compileAttach } from "./compileAttach";
 import { handoffEvents } from "./handoffEvents";
 
-/**
+/*
  * Bake the object couplings a shot carries, the per-beat `attachTo` handoffs
  * and the persistent staged `mounts` (#674), into follow clips once the
  * parents' poses have compiled.
  *
  * `attachTo`, already validated by `performShot`'s action scan, rides the child
  * on the parent's bone in scene space and emits the grab, attach, detach and
- * release {@link handoffEvents}. Each staged mount descends through the same
- * baker, {@link compileAttach}, spanning the whole shot, so a rider rides every
+ * release handoffEvents. Each staged mount descends through the same
+ * baker, compileAttach, spanning the whole shot, so a rider rides every
  * beat without re-issuing `attachTo`; an explicit `attachTo` for the same child
  * this shot replaces its mount, and a mount emits no handoff events because it
  * is standing scene state. A mount's parent rig and bone are validated here,
@@ -44,7 +44,7 @@ import { handoffEvents } from "./handoffEvents";
  * such as a rider mounted on an animal and carrying a pole, is baked first, and
  * its riders compose onto its baked frame per sample through any depth. That
  * frame is read from all of the parent's baked clips through
- * {@link bakedTransformFromClipsAt}, the channel authority playback uses, so
+ * bakedTransformFromClipsAt, the channel authority playback uses, so
  * before the parent's first coupling starts its riders follow its staged
  * placement and across a handoff they follow whichever coupling is in effect. A
  * coupling cycle has no world composition, so its members are reported in one
@@ -176,43 +176,63 @@ export function coupleObjects(
   return { clips, events, violations: out.items };
 }
 
-/** A coupled parent's world frame over shot time, null where none moves it. */
+/*
+ * A coupled parent's world frame over shot time, null where none moves it.
+ */
 type ParentPath = (t: number) => IAutoMovieTransform | null;
 
-/** The per-node lookups and sinks a follow bake shares within one call. */
+/*
+ * The per-node lookups and sinks a follow bake shares within one call.
+ */
 interface ICoupleContext {
-  /** Scene nodes by id; every coupling parent is one. */
+  /*
+   * Scene nodes by id; every coupling parent is one.
+   */
   nodes: ReadonlyMap<string, IAutoMovieSceneNode>;
 
-  /** Compiled pose motions by node id; a missing entry holds the rest pose. */
+  /*
+   * Compiled pose motions by node id; a missing entry holds the rest pose.
+   */
   motions: Record<string, IAutoMovieMotion>;
 
-  /** A node's rig, or null when it has none. */
+  /*
+   * A node's rig, or null when it has none.
+   */
   skeleton: (node: string) => IAutoMovieSkeleton | null;
 
-  /** A node's clinical-axis remap; absent, the humanoid table applies. */
+  /*
+   * A node's clinical-axis remap; absent, the humanoid table applies.
+   */
   jointAxes?: (
     node: string,
   ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> | undefined;
 
-  /** A node's clinical rest-frame remap; absent, the rig's own frames apply. */
+  /*
+   * A node's clinical rest-frame remap; absent, the rig's own frames apply.
+   */
   restFrames?: (
     node: string,
   ) => Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>> | undefined;
 
-  /**
+  /*
    * Optional genuine static-rig producer supplied after the owning shot's
    * admission.
    */
   prepareRig?: typeof prepareSkeletonPoseResolution.run;
 
-  /** The shot's length in seconds. */
+  /*
+   * The shot's length in seconds.
+   */
   duration: number;
 
-  /** The baked world path of a parent that is itself coupled, else undefined. */
+  /*
+   * The baked world path of a parent that is itself coupled, else undefined.
+   */
   parentPathOf: (parent: string) => ParentPath | undefined;
 
-  /** Records one baked clip as driving `child`. */
+  /*
+   * Records one baked clip as driving `child`.
+   */
   keep: (child: string, clip: IAutoMovieClip) => void;
 }
 
@@ -220,7 +240,7 @@ function childrenOf(action: IAutoMovieActionCall): string[] {
   return typeof action.actor === "string" ? [action.actor] : action.actor;
 }
 
-/**
+/*
  * Bake one child's per-beat `attachTo` follows and their handoff events. A
  * handoff, the same child attached to two parents over disjoint spans, would
  * otherwise bake two clips with one `attach:<child>` id, an uncommittable
@@ -271,9 +291,9 @@ function bakeAttachFollows(
   });
 }
 
-/**
+/*
  * Bake one persistent staged mount (#674): the rider descends through
- * {@link compileAttach} over the whole shot. Staging validated that the parent
+ * compileAttach over the whole shot. Staging validated that the parent
  * is a placed actor; the parent's rig and the saddle bone are validated here.
  */
 function bakeMountFollow(
@@ -323,7 +343,7 @@ function bakeMountFollow(
   );
 }
 
-/**
+/*
  * Add genuine immutable prerequisites only when the admitted owner explicitly
  * lends their producer.
  */

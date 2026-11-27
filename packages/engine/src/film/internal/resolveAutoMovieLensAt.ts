@@ -7,7 +7,7 @@ import type {
 
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Resolve the lens a directly rendered frame draws at one shot-local second:
  * the authored stop and the focused depth.
  *
@@ -26,9 +26,8 @@ import { Vector3 } from "../../math/Vector3";
  * `start` the first mark holds and after `end` the second. Marks are world
  * points recorded when the shot was compiled, so a subject that walks away from
  * its mark goes soft: there is no follow focus.
- *
- * @param props The shot's intents, the second and the camera's placement.
- * @returns The stop and the focused depth, or null.
+ * Parameter props: The shot's intents, the second and the camera's placement.
+ * Returns: The stop and the focused depth, or null.
  */
 export function resolveAutoMovieLensAt(
   props: IAutoMovieResolveLensAt.IProps,

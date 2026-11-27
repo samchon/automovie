@@ -107,7 +107,9 @@ export namespace AutoMovieHumanLimbRest {
   }
 }
 
-/** Place one leg from public dimensions and its common frame datum. */
+/*
+ * Place one leg from public dimensions and its common frame datum.
+ */
 function leg(
   stature: number,
   inputs: IAutoMovieHumanLegConstruction.IInputs,
@@ -140,7 +142,9 @@ function leg(
   };
 }
 
-/** Normalize the original observed bind directions. */
+/*
+ * Normalize the original observed bind directions.
+ */
 function unit(direction: readonly number[]): AutoMovieVector3Tuple {
   const length: number = Math.hypot(...direction);
   if (!(length > 0))

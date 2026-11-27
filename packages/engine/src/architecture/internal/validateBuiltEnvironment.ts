@@ -32,7 +32,7 @@ import { validateBuiltPopulation } from "./validateBuiltPopulation";
 import { validateBuiltSpaces } from "./validateBuiltSpaces";
 import { validateBuiltStagedConfigurations } from "./validateBuiltStagedConfigurations";
 
-/**
+/*
  * Validate the graph, geometry references, and spatial topology of a building.
  *
  * Checks, in order: schema version 1 and metre units; owned models through
@@ -51,9 +51,8 @@ import { validateBuiltStagedConfigurations } from "./validateBuiltStagedConfigur
  * universal non-throw guarantee for arbitrary runtime values or resource
  * exhaustion. Guarded lowering and downstream consumers refuse a rejected
  * record.
- *
- * @param props.environment Building record to validate.
- * @returns Success with any warnings, or every violation found.
+ * Parameter props.environment: Building record to validate.
+ * Returns: Success with any warnings, or every violation found.
  */
 export function validateBuiltEnvironment(
   props: IAutoMovieValidateBuiltEnvironment.IProps,
@@ -351,7 +350,7 @@ const CONNECTOR_KINDS: readonly IAutoMovieBuiltConnector["kind"][] = [
   "other",
 ];
 
-/**
+/*
  * Append a nested validation's findings, warnings included, re-rooting each
  * `$input` path onto this record.
  */

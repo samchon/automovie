@@ -8,7 +8,7 @@ import { describeInvalidValue } from "../../validation/internal/describeInvalidV
 import { CAMERA_FRAMINGS } from "../CAMERA_FRAMINGS";
 import { CAMERA_MOVES } from "../CAMERA_MOVES";
 
-/**
+/*
  * Refuse a camera framing or move the framing grammar cannot compile, and say
  * which of the two are usable.
  *
@@ -16,17 +16,16 @@ import { CAMERA_MOVES } from "../CAMERA_MOVES";
  * intent reach `performShot` in-process without the transport's structural
  * gate. Each unknown value is one `type` violation at `<path>.framing` or
  * `<path>.move` listing the accepted values, the members of
- * {@link CAMERA_FRAMINGS} and {@link CAMERA_MOVES} in declaration order.
+ * CAMERA_FRAMINGS and CAMERA_MOVES in declaration order.
  *
  * A refused value whose string conversion throws is described as `an
  * uninspectable value`; its original reference remains in the finding and the
  * other vocabulary is still checked.
- *
- * @param out Collector the violations are pushed into.
- * @param path Violation path of the action or intent.
- * @param framing The framing as authored.
- * @param move The move as authored.
- * @returns Whether the framing and the move are each one the grammar accepts.
+ * Parameter out: Collector the violations are pushed into.
+ * Parameter path: Violation path of the action or intent.
+ * Parameter framing: The framing as authored.
+ * Parameter move: The move as authored.
+ * Returns: Whether the framing and the move are each one the grammar accepts.
  */
 export function validatePerformShotFraming(
   out: IAutoMovieViolationAppendSink,

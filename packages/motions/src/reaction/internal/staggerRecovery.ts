@@ -17,13 +17,12 @@ import { staggerLimit } from "./staggerLimit";
 import { staggerPendulumEntry } from "./staggerPendulumEntry";
 import { staggerRecover } from "./staggerRecover";
 
-/**
+/*
  * Admit a stagger: read its push and lay the recovery that catches it.
- *
- * @param context The stagger's context.
- * @returns The push, the entry geometry and the recovery, null when no `STEPS`
- *   recovery steps catch the push.
- * @throws {Error} When the speed is not positive or the manner is out of range.
+ * Parameter context: The stagger's context.
+ * Returns: The push, the entry geometry and the recovery, null when no `STEPS`
+ * recovery steps catch the push.
+ * When the speed is not positive or the manner is out of range.
  */
 export function staggerRecovery(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStagger.IParams>,
@@ -67,7 +66,7 @@ export function staggerRecovery(
   return { push, righting, fixed, recovery };
 }
 
-/**
+/*
  * A stagger's admission: the push it reads and the recovery steps that catch
  * it, or none.
  *
@@ -78,31 +77,42 @@ export function staggerRecovery(
  * fastest push this body catches that way, while `perturb` reads it as a fall.
  */
 export namespace staggerRecovery {
-  /** The prepared entry geometry `staggerPendulumEntry.prepare` returns. */
+  /*
+   * The prepared entry geometry `staggerPendulumEntry.prepare` returns.
+   */
   export type Fixed = ReturnType<typeof staggerPendulumEntry.prepare>;
 
-  /** A stagger's push, its prepared entry geometry and its recovery. */
+  /*
+   * A stagger's push, its prepared entry geometry and its recovery.
+   */
   export interface IAdmitted {
-    /** The push's floor direction, world, unit length. */
+    /*
+     * The push's floor direction, world, unit length.
+     */
     push: IAutoMovieVector3;
 
-    /** The righting's seconds, the manner's tempo applied. */
+    /*
+     * The righting's seconds, the manner's tempo applied.
+     */
     righting: number;
 
-    /** The entry geometry the recovery and its limit read. */
+    /*
+     * The entry geometry the recovery and its limit read.
+     */
     fixed: Fixed;
 
-    /** The recovery's steps and courses, or null when no steps catch the push. */
+    /*
+     * The recovery's steps and courses, or null when no steps catch the push.
+     */
     recovery: staggerRecover.IRecovery | null;
   }
 
-  /**
+  /*
    * The refusal of a push no `STEPS` recovery steps catch: a fall, with the
    * fastest push this body catches that way.
-   *
-   * @param context The stagger's context.
-   * @param admitted The admission that found no recovery.
-   * @returns The `parameter` refusal on `speed`.
+   * Parameter context: The stagger's context.
+   * Parameter admitted: The admission that found no recovery.
+   * Returns: The `parameter` refusal on `speed`.
    */
   export function refusal(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStagger.IParams>,

@@ -27,10 +27,12 @@ import { lieDownPoses } from "./lieDownPoses";
 import { logRollTurns } from "./logRollTurns";
 import { lyingTurn } from "./lyingTurn";
 
-/** Seconds of each half turn (provisional). */
+/*
+ * Seconds of each half turn (provisional).
+ */
 const HALF: number = 0.7;
 
-/**
+/*
  * The straight log: legs extended, arms overhead along the long axis
  * (provisional angles).
  */
@@ -46,7 +48,7 @@ const LOG: IAutoMovieMotionHumanPosture["joints"] = {
   rightLowerArm: [10, 0, 0],
 };
 
-/**
+/*
  * Log-roll across the floor. The lying body straightens into a log, legs
  * extended and arms overhead, and rolls about its long axis (`lyingTurn`)
  * toward the named side, half a turn per `HALF` seconds. It rolls without
@@ -67,7 +69,7 @@ export const logRoll: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLogRol
     plan: planLogRoll,
   };
 
-/**
+/*
  * Log-roll across the floor. The lying body straightens into a log, legs
  * extended and arms overhead, and rolls about its long axis (`lyingTurn`)
  * toward the named side, half a turn per `HALF` seconds. It rolls without

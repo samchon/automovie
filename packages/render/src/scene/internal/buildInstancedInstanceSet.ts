@@ -26,7 +26,7 @@ import { flattenInstancedObject } from "./flattenInstancedObject.js";
 import { regenerateInstanceSlot } from "./regenerateInstanceSlot.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
-/**
+/*
  * Build one non-formation crowd, vegetation, prop, facade, or ornament set.
  *
  * Matrices, colors, scales, and numeric trait attributes are regenerated from
@@ -467,48 +467,70 @@ export const buildInstancedInstanceSet: (
   );
 };
 
-/**
+/*
  * One chunk's prototype tier meshes and the hysteretic tier selected by its
  * last update.
  */
 interface IInstancePrototypeChunkObject {
-  /** Supplied unscaled prototype radius estimate used by projected-size LOD. */
+  /*
+   * Supplied unscaled prototype radius estimate used by projected-size LOD.
+   */
   projectionRadius: number;
 
-  /** Visible authored slots assigned to this prototype in the chunk. */
+  /*
+   * Visible authored slots assigned to this prototype in the chunk.
+   */
   count: number;
 
-  /** Compiled tier policy read by the existing selector. */
+  /*
+   * Compiled tier policy read by the existing selector.
+   */
   lod: IAutoMovieCompiledInstanceSet["lod"];
 
-  /** Chunk-owned meshes toggled in place when the selected tier changes. */
+  /*
+   * Chunk-owned meshes toggled in place when the selected tier changes.
+   */
   tiers: Map<IAutoMovieCompiledFormationLod["tier"], THREE.InstancedMesh>;
 
-  /** Previous selected tier for hysteresis; null before the first update. */
+  /*
+   * Previous selected tier for hysteresis; null before the first update.
+   */
   selected: IAutoMovieCompiledFormationLod["tier"] | null;
 }
 
-/** One flattened prototype tier ready to be cloned into a chunk batch. */
+/*
+ * One flattened prototype tier ready to be cloned into a chunk batch.
+ */
 interface IInstanceRepresentation {
-  /** Flattened rest geometry cloned separately for each chunk batch. */
+  /*
+   * Flattened rest geometry cloned separately for each chunk batch.
+   */
   geometry: THREE.BufferGeometry;
 
-  /** Owned instance-only materials shared by the prototype's chunk meshes. */
+  /*
+   * Owned instance-only materials shared by the prototype's chunk meshes.
+   */
   materials: THREE.Material[];
 }
 
-/** One compiled chunk and its persistent prototype visibility state. */
+/*
+ * One compiled chunk and its persistent prototype visibility state.
+ */
 interface IInstanceChunkObject {
-  /** Immutable compiled member span, bounds and centroid. */
+  /*
+   * Immutable compiled member span, bounds and centroid.
+   */
   runtime: IAutoMovieCompiledInstanceSet["chunks"][number];
 
-  /**
+  /*
    * Metre radius of the chunk's slot-origin bounds before prototype
    * enlargement.
    */
   radius: number;
 
-  /** Chunk-owned tier meshes and selection state, updated in the existing order. */
+  /*
+   * Chunk-owned tier meshes and selection state, updated in the existing order.
+   */
   prototypes: IInstancePrototypeChunkObject[];
 }
 
@@ -541,7 +563,7 @@ const instanceMatrix: (
       : vector(slot.scale3),
   );
 
-/**
+/*
  * The largest axis scale any slot of one set can reach.
  *
  * An explicit block states each slot's scale outright, so its own transforms
@@ -589,7 +611,7 @@ const boundsRadius: (
     ),
   );
 
-/**
+/*
  * One instance set's base heading in radians, to the last bit.
  *
  * Not `THREE.MathUtils.degToRad`. That multiplies by a rounded `PI / 180`,
@@ -607,7 +629,7 @@ const vector: (value: IAutoMovieVector3) => THREE.Vector3 = (
   value: IAutoMovieVector3,
 ): THREE.Vector3 => new THREE.Vector3(value.x, value.y, value.z);
 
-/**
+/*
  * Instance colors multiply the material's diffuse color in Three.js. General
  * instance palettes are exact overrides, so instance-only materials use white
  * as the neutral multiplier while retaining roughness and other channels.

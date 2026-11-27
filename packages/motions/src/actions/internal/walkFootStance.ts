@@ -9,7 +9,7 @@ import type {
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import type { humanFootOffset } from "../../posture/internal/humanFootOffset";
 
-/**
+/*
  * Prepare a foot in stance on a footprint: heel rocker after its strike, flat,
  * forefoot rocker before its toe-off.
  *
@@ -21,30 +21,29 @@ import type { humanFootOffset } from "../../posture/internal/humanFootOffset";
  * The forefoot rocker starts at rest and ends still turning (`LEAVE`), the rate
  * the swing then carries on from (`walkFoot.prepareSwing`). Both pivots are
  * prepared here, so a read evaluates one minimum-jerk share and one pivot.
- *
- * @param body The foot's fixed body.
- * @param side The foot.
- * @param flat The footprint.
- * @param heading Its fixed heading, degrees.
- * @param strike Its strike, seconds, or `-Infinity` for the opening stance,
- *   which stands from the take's start at second 0.
- * @param toeOff Its toe-off, seconds, or `Infinity` for the closing stance.
- * @param push Its toe-off pitch, degrees, negative toes down.
- * @param typical The gait's cruising stance, seconds, from a heel strike to the
- *   same foot's toe-off: the length the rockers of an opening or closing
- *   stance, which has only one of the two ends, take their shares of.
- * @param raised How far the heel is held off the floor through the stance,
- *   degrees about the toes' joint; 0 when absent, a flat foot that lands heel
- *   first. A raised foot lands on its ball with no heel rocker; the opening
- *   stance rises to it and the closing stance settles from it over `RISE`
- *   seconds.
- * @param backward Whether the stance is a backward step's: the forward stance
- *   played backward, the foot landing on its ball pitched toes-down and
- *   settling flat over the forefoot rocker's share, and leaving rolled toes-up
- *   about its heel over the heel rocker's share (provisional: the time reversal
- *   backward walking is described as, not read from a measurement of its
- *   rockers). False when absent.
- * @returns The planted foot at each second.
+ * Parameter body: The foot's fixed body.
+ * Parameter side: The foot.
+ * Parameter flat: The footprint.
+ * Parameter heading: Its fixed heading, degrees.
+ * Parameter strike: Its strike, seconds, or `-Infinity` for the opening stance,
+ * which stands from the take's start at second 0.
+ * Parameter toeOff: Its toe-off, seconds, or `Infinity` for the closing stance.
+ * Parameter push: Its toe-off pitch, degrees, negative toes down.
+ * Parameter typical: The gait's cruising stance, seconds, from a heel strike to the
+ * same foot's toe-off: the length the rockers of an opening or closing
+ * stance, which has only one of the two ends, take their shares of.
+ * Parameter raised: How far the heel is held off the floor through the stance,
+ * degrees about the toes' joint; 0 when absent, a flat foot that lands heel
+ * first. A raised foot lands on its ball with no heel rocker; the opening
+ * stance rises to it and the closing stance settles from it over `RISE`
+ * seconds.
+ * Parameter backward: Whether the stance is a backward step's: the forward stance
+ * played backward, the foot landing on its ball pitched toes-down and
+ * settling flat over the forefoot rocker's share, and leaving rolled toes-up
+ * about its heel over the heel rocker's share (provisional: the time reversal
+ * backward walking is described as, not read from a measurement of its
+ * rockers). False when absent.
+ * Returns: The planted foot at each second.
  */
 export function walkFootStance(
   body: humanFootOffset.IBody,
@@ -150,21 +149,23 @@ export function walkFootStance(
   };
 }
 
-/** The stance rockers' angles, shares and rates. */
+/*
+ * The stance rockers' angles, shares and rates.
+ */
 export namespace walkFootStance {
-  /**
+  /*
    * The pitch a foot strikes the floor with, degrees toes-up (provisional,
    * inside Perry and Burnfield's heel rocker).
    */
   export const STRIKE: number = 15;
 
-  /**
+  /*
    * Seconds a walk on the balls of the feet takes to raise the heels from a
    * flat start and to set them down at a flat stop (provisional).
    */
   export const RISE: number = 0.3;
 
-  /**
+  /*
    * The rate the forefoot rocker ends with, in push pitches per rocker duration
    * (provisional): the foot is still plantarflexing when the toes leave the
    * floor (Perry and Burnfield), and at 2 the minimum-jerk rise with the
@@ -173,13 +174,13 @@ export namespace walkFootStance {
    */
   export const LEAVE: number = 2;
 
-  /**
+  /*
    * The share of a stance its heel rocker takes (provisional; loading response
    * is the first 10 to 12 % of the cycle, Perry and Burnfield).
    */
   export const HEEL_SHARE: number = 0.12;
 
-  /**
+  /*
    * The share of a stance the forefoot rocker takes, from the heel's rise to
    * toe-off: in Perry's phases the heel rises as terminal stance begins, at 30
    * % of the gait cycle, and the toes leave at 60 %, the end of pre-swing, so
@@ -189,5 +190,7 @@ export namespace walkFootStance {
   export const PUSH_SHARE: number = (60 - 30) / 60;
 }
 
-/** The foot point a stance rocker turns about. */
+/*
+ * The foot point a stance rocker turns about.
+ */
 type WalkFootPivot = "heel" | "mtp";

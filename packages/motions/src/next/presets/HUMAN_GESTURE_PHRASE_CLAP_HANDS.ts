@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `clapHands` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. Clapping: both palms meet ahead of the chest and
  * part, out and in.

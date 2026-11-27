@@ -4,7 +4,7 @@ import type {
   IAutoMovieRecoveryObservedMeshTopology,
 } from "@automovie/interface";
 
-/**
+/*
  * Create the feature-cut topology observer with its original failure and
  * edge-key policy.
  */

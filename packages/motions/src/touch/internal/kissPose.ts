@@ -8,19 +8,18 @@ import type {
 import { AutoMovieMotionHumanHead } from "../../compose/internal/AutoMovieMotionHumanHead";
 import { kissBody } from "./kissBody";
 
-/**
+/*
  * Build each kiss-search candidate: the kiss's body at its full share
  * (`kissBody`, the model the displayed kiss writes), with the neck's flexion
  * and the head's turn added.
- *
- * @param body The unchanged canonical body for this synchronous search.
- * @param entry The entry posture the kiss is written over.
- * @param stance The standing placements every candidate rises from.
- * @param twist The fixed head twist, degrees.
- * @param seated Whether a seat bears the body, so it neither rises nor is
- *   lowered onto the feet.
- * @returns A fresh complete candidate posture for a pitch, roll, flexion and
- *   raise.
+ * Parameter body: The unchanged canonical body for this synchronous search.
+ * Parameter entry: The entry posture the kiss is written over.
+ * Parameter stance: The standing placements every candidate rises from.
+ * Parameter twist: The fixed head twist, degrees.
+ * Parameter seated: Whether a seat bears the body, so it neither rises nor is
+ * lowered onto the feet.
+ * Returns: A fresh complete candidate posture for a pitch, roll, flexion and
+ * raise.
  */
 export function kissPose(
   body: IAutoMovieMotionHumanBody,
@@ -74,13 +73,19 @@ export function kissPose(
   };
 }
 
-/** The alternatives of `KissPoseHeldBone2`'s site. */
+/*
+ * The alternatives of `KissPoseHeldBone2`'s site.
+ */
 type KissPoseHeldBone2 = "neck" | "head";
 
-/** The alternatives of `KissPoseHeldBone`'s site. */
+/*
+ * The alternatives of `KissPoseHeldBone`'s site.
+ */
 type KissPoseHeldBone = "neck" | "head";
 
-/** The alternatives of `KissPoseS`'s site. */
+/*
+ * The alternatives of `KissPoseS`'s site.
+ */
 type KissPoseS =
   | "pitch"
   | "roll"
@@ -92,7 +97,9 @@ type KissPoseS =
   | "advance"
   | "bearing";
 
-/** The alternatives of `KissPoseSResult`'s site. */
+/*
+ * The alternatives of `KissPoseSResult`'s site.
+ */
 type KissPoseSResult =
   | "pitch"
   | "roll"

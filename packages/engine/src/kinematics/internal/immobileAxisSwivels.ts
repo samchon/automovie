@@ -10,7 +10,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { swivelArcs } from "../swivelArcs";
 import { swivelJointReadings } from "../swivelJointReadings";
 
-/**
+/*
  * The swivels at which a joint with one immobile axis can take the rotation
  * asked of it, in closed form.
  *
@@ -31,29 +31,30 @@ import { swivelJointReadings } from "../swivelJointReadings";
  * still lie outside their intervals there, and a reading inside the
  * decomposition's gimbal band is pinned instead, so the caller scores each and
  * keeps a candidate only when its own measure finds the rotation met.
- *
- * @param props The joint and the rotation demanded of it by swivel.
- * @returns The candidate swivels, degrees in [0, 360), none when the axis never
- *   reads neutral; null when the joint has no range, a swing-twist gate, or not
- *   exactly one immobile axis, so this analysis does not apply.
+ * Parameter props: The joint and the rotation demanded of it by swivel.
+ * Returns: The candidate swivels, degrees in [0, 360), none when the axis never
+ * reads neutral; null when the joint has no range, a swing-twist gate, or not
+ * exactly one immobile axis, so this analysis does not apply.
  */
 export function immobileAxisSwivels(props: {
-  /** The joint's clinical basis, admitted and normalized (`normalizeJointAxes`). */
+  /*
+   * The joint's clinical basis, admitted and normalized (`normalizeJointAxes`).
+   */
   basis: IAutoMovieJointAxes;
 
-  /**
+  /*
    * The rest frame lifting the joint's rest-relative angles to clinical ones;
    * omitted, they are clinical.
    */
   frame?: IAutoMovieRestFrame | undefined;
 
-  /**
+  /*
    * The joint's resolved range of motion; an axis with a `null` interval is
    * immobile at its clinical zero.
    */
   constraint: IAutoMovieJointConstraint | null;
 
-  /**
+  /*
    * The bone-local rotation demanded of the joint at a swivel, degrees: a fixed
    * rotation turned about a fixed axis by the swivel.
    */

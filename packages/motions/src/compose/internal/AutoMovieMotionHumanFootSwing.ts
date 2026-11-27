@@ -9,7 +9,7 @@ import type {
 
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 
-/**
+/*
  * A stepping foot's placement through its swing: it travels and turns on a
  * minimum-jerk share of the swing's time (Flash and Hogan 1985), and its sole's
  * lowest point rises by `clearance sin(pi u)` of that time `u` above the line
@@ -27,14 +27,13 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
  * or at touch-down. A curve whose rise follows the travel's own share (a
  * parabola of it) keeps the sole within a few millimetres of the support while
  * the foot already slides, and the toes on the floor drag.
- *
- * @param body The body.
- * @param side The swinging foot.
- * @param from The placement the foot leaves.
- * @param to The placement it lands on.
- * @param clearance The sole's greatest rise above its line, metres.
- * @param time How far through the swing in time, 0 to 1.
- * @returns The placement.
+ * Parameter body: The body.
+ * Parameter side: The swinging foot.
+ * Parameter from: The placement the foot leaves.
+ * Parameter to: The placement it lands on.
+ * Parameter clearance: The sole's greatest rise above its line, metres.
+ * Parameter time: How far through the swing in time, 0 to 1.
+ * Returns: The placement.
  */
 export function AutoMovieMotionHumanFootSwing(
   body: IAutoMovieMotionHumanBody,

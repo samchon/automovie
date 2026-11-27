@@ -3,15 +3,14 @@ import type { IAutoMovieMotionHumanClimbStairsFlight } from "@automovie/interfac
 import { HumanFrame } from "../../../posture/internal/HumanFrame";
 import type { IMotionCaptureCase } from "../../internal/IMotionCaptureCase";
 
-/**
+/*
  * The drawn boxes of a stair flight: each tread a 0.9 m wide block from the
  * flight's bottom (2 cm below the floor or the lowest tread) to its own height,
  * the last tread running on a second tread's depth as the top landing, and,
  * going down, the floor 0.8 m behind the first nosing.
- *
- * @param flight The flight: its frame, direction, tread count, riser, tread
- *   depth and first nosing.
- * @returns The boxes, in the flight's frame turned into the world.
+ * Parameter flight: The flight: its frame, direction, tread count, riser, tread
+ * depth and first nosing.
+ * Returns: The boxes, in the flight's frame turned into the world.
  */
 export function stairsCaseBoxes(
   flight: IAutoMovieMotionHumanClimbStairsFlight.IFlight,

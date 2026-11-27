@@ -5,16 +5,15 @@ import type {
 
 import { dive } from "./dive";
 
-/**
+/*
  * Each foot's toe-off roll, solved by secant steps on the planted take-off
  * itself from the flat take-off's dorsiflexion past the unloaded limit
  * (`ANKLE_DORSIFLEXION.unloaded`); none for a slide, whose feet stay on the
  * floor.
  *
  * Part of `dive.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `lift`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `lift`.
  */
 export function diveLift(prepared: diveLift.IPrepared): dive.Lift {
   const { kind, excess, rolled }: diveLift.IPrepared = prepared;
@@ -55,17 +54,27 @@ export function diveLift(prepared: diveLift.IPrepared): dive.Lift {
   })();
 }
 
-/** The `lift` of `dive.plan`, built from what that plan prepared. */
+/*
+ * The `lift` of `dive.plan`, built from what that plan prepared.
+ */
 export namespace diveLift {
-  /** What `dive.plan` prepared for its `lift`. */
+  /*
+   * What `dive.plan` prepared for its `lift`.
+   */
   export interface IPrepared {
-    /** The `kind` `dive.plan` prepared. */
+    /*
+     * The `kind` `dive.plan` prepared.
+     */
     kind: IAutoMovieMotionHumanDive.Kind;
 
-    /** The `excess` `dive.plan` prepared. */
+    /*
+     * The `excess` `dive.plan` prepared.
+     */
     excess: (on?: dive.Feet) => dive.Lift;
 
-    /** The `rolled` `dive.plan` prepared. */
+    /*
+     * The `rolled` `dive.plan` prepared.
+     */
     rolled: (lift: dive.Lift) => dive.Feet;
   }
 }

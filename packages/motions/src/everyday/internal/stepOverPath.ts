@@ -20,7 +20,7 @@ import { stepOver } from "./stepOver";
 import { stepOverLanding } from "./stepOverLanding";
 import { stepOverPathSwing } from "./stepOverPathSwing";
 
-/**
+/*
  * The swings' windows as shares of the action: the lead from 8 % to 42 %, the
  * trail from 50 % to 82 % (provisional, as `stepOver` states).
  */
@@ -28,45 +28,44 @@ const WINDOWS: readonly [number, number, number, number] = [
   0.08, 0.42, 0.5, 0.82,
 ];
 
-/**
+/*
  * How far beyond the far side the lead heel lands, as a share of the foot's
  * length (provisional, as `stepOver` states).
  */
 const BEYOND: number = 0.1;
 
-/**
+/*
  * The highest obstacle a standing step clears, as a share of the hip height
  * (provisional, as `stepOver` states).
  */
 const HIGH: number = 0.55;
 
-/**
+/*
  * A step's longest stride as a share of twice the leg's horizontal reach at a
  * hip lowered to `LOW` of its height (provisional).
  */
 const STRIDE: number = 0.95;
 
-/**
+/*
  * The hip's height over the stride's widest step, as a share of its standing
  * height (provisional).
  */
 const LOW: number = 0.9;
 
-/**
+/*
  * How far into the lead swing the trail heel has risen, as a share of the swing
  * (provisional).
  */
 const RISE: number = 0.4;
 
-/**
+/*
  * The footprints, timing and swings of a step over.
- *
- * @param context The action's context.
- * @returns What the plan's pelvis and postures read: the body, the feet's
- *   sides, the heading, the start, the footprints, the timing and the feet at a
- *   second.
- * @throws {HumanRefusal} When the prop declares no edge or depth, or the
- *   obstacle is too far, behind, too high or too deep to cross in one step.
+ * Parameter context: The action's context.
+ * Returns: What the plan's pelvis and postures read: the body, the feet's
+ * sides, the heading, the start, the footprints, the timing and the feet at a
+ * second.
+ * When the prop declares no edge or depth, or the
+ * obstacle is too far, behind, too high or too deep to cross in one step.
  */
 export function stepOverPath(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStepOver.IParams>,
@@ -339,71 +338,101 @@ export function stepOverPath(
   };
 }
 
-/**
+/*
  * A step over's footprints, timing and swings (`stepOver`): the obstacle's
  * checks, where each foot starts and lands, the swings' windows, and each
  * swing's shortest path over what its sole must clear, the taut string over the
  * obstacle (`AutoMovieMotionHumanClearance`).
  */
 export namespace stepOverPath {
-  /** The fixed footprint geometry and random-access readers of one crossing. */
+  /*
+   * The fixed footprint geometry and random-access readers of one crossing.
+   */
   export interface IPlan {
-    /** The performer and its unchanged geometry. */
+    /*
+     * The performer and its unchanged geometry.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The two feet in crossing order. */
+    /*
+     * The two feet in crossing order.
+     */
     lead: AutoMovieHumanSide;
 
-    /** The foot that follows the lead. */
+    /*
+     * The foot that follows the lead.
+     */
     trail: AutoMovieHumanSide;
 
-    /** The fixed heading, degrees. */
+    /*
+     * The fixed heading, degrees.
+     */
     yaw: number;
 
-    /** Starting ankles, world metres. */
+    /*
+     * Starting ankles, world metres.
+     */
     feet: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
-    /** Each foot's fixed rest lateral coordinate, metres. */
+    /*
+     * Each foot's fixed rest lateral coordinate, metres.
+     */
     restX: (side: AutoMovieHumanSide) => number;
 
-    /** Ending ankles, world metres. */
+    /*
+     * Ending ankles, world metres.
+     */
     end: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
-    /** A flat foot at the given actual ankle, world metres. */
+    /*
+     * A flat foot at the given actual ankle, world metres.
+     */
     flat: (
       side: AutoMovieHumanSide,
       ankle: IAutoMovieVector3,
     ) => IAutoMovieMotionHumanFoot.IPlacement;
 
-    /** Total action seconds. */
+    /*
+     * Total action seconds.
+     */
     duration: number;
 
-    /** Toe-off and contact action seconds. */
+    /*
+     * Toe-off and contact action seconds.
+     */
     windows: Record<AutoMovieHumanSide, [number, number]>;
 
-    /** A foot pitched in degrees about its actual flat MTP contact. */
+    /*
+     * A foot pitched in degrees about its actual flat MTP contact.
+     */
     heeled: (
       side: AutoMovieHumanSide,
       ankle: IAutoMovieVector3,
       pitch: number,
     ) => IAutoMovieMotionHumanFoot.IPlacement;
 
-    /** The same bounded minimum-jerk share over a scalar interval. */
+    /*
+     * The same bounded minimum-jerk share over a scalar interval.
+     */
     smooth: (x: number, a: number, b: number) => number;
 
-    /** The trail heel's rise share at an action second. */
+    /*
+     * The trail heel's rise share at an action second.
+     */
     rising: (seconds: number) => number;
 
-    /**
+    /*
      * The settled lead foot's rocker share as the trailing ankle lifts over the
      * obstacle.
      */
     rocker: (ankleHeight: number) => number;
 
-    /** The actual placement and bearing state at an action second. */
+    /*
+     * The actual placement and bearing state at an action second.
+     */
     footAt: (side: AutoMovieHumanSide, seconds: number) => IPlanFootAt;
 
-    /**
+    /*
      * Required world height at a fitted socket, including the approach and
      * landing ramps for the lead foot.
      */
@@ -413,7 +442,7 @@ export namespace stepOverPath {
       point: IAutoMovieVector3,
     ) => number;
 
-    /**
+    /*
      * Forward correction on the trail socket's landing ramp past the far face,
      * infinity elsewhere.
      */
@@ -425,13 +454,17 @@ export namespace stepOverPath {
   }
 }
 
-/** The record of `IOfFootAtResult`'s site. */
+/*
+ * The record of `IOfFootAtResult`'s site.
+ */
 type IOfFootAtResult = {
   placement: IAutoMovieMotionHumanFoot.IPlacement;
   planted: boolean;
 };
 
-/** The record of `IPlanFootAt`'s site. */
+/*
+ * The record of `IPlanFootAt`'s site.
+ */
 type IPlanFootAt = {
   placement: IAutoMovieMotionHumanFoot.IPlacement;
   planted: boolean;

@@ -9,7 +9,7 @@ import type {
 import { poseBones } from "../../posture/internal/poseBones";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
-/**
+/*
  * The reader of another performer a placed action's context gives
  * (`IAutoMovieMotionHumanActionContext.performer`): the performer's body, and
  * its bones, root and posture at a film second as the performance shows them, a
@@ -17,14 +17,13 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * actions (`meetings`); the action's own performer is read as it entered the
  * action (`ownBones`), since its displayed bones there are the posture still
  * being solved.
- *
- * @param self The resolving performance.
- * @param own The placed action's performer.
- * @param ownBones The performer's own entry bones.
- * @param meetings The partners read no later than their placed actions' end.
- * @param named The parameter an id was named through, for a refusal.
- * @returns The reader by performer.
- * @throws {HumanRefusal} When no performer has the subject.
+ * Parameter self: The resolving performance.
+ * Parameter own: The placed action's performer.
+ * Parameter ownBones: The performer's own entry bones.
+ * Parameter meetings: The partners read no later than their placed actions' end.
+ * Parameter named: The parameter an id was named through, for a refusal.
+ * Returns: The reader by performer.
+ * When no performer has the subject.
  */
 export function HumanPerformancePlacePerformer(
   self: IAutoMovieMotionHumanPerformanceState,

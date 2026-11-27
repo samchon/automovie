@@ -16,7 +16,7 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanPropHold } from "./HumanPropHold";
 
-/**
+/*
  * A prop's world frame as the grips that hold it carry it: the reader
  * `HumanPerformanceRead.prop` documents and delegates to, split from it so the
  * hold's reading, with a grip's in-hand motion, has a file of its own.
@@ -29,17 +29,16 @@ import { HumanPropHold } from "./HumanPropHold";
  * when the grip closes.
  */
 export namespace HumanPerformanceHold {
-  /**
+  /*
    * A prop's world frame at a film second (`HumanPerformanceRead.prop`).
-   *
-   * @param self The performance's state.
-   * @param subject The prop.
-   * @param seconds Film seconds.
-   * @param own The performer reading the prop and their own bones, for a prop
-   *   they may carry.
-   * @returns Its frame.
-   * @throws {HumanRefusal} If the selected socket chain revisits a prop at the
-   *   same film second.
+   * Parameter self: The performance's state.
+   * Parameter subject: The prop.
+   * Parameter seconds: Film seconds.
+   * Parameter own: The performer reading the prop and their own bones, for a prop
+   * they may carry.
+   * Returns: Its frame.
+   * If the selected socket chain revisits a prop at the
+   * same film second.
    */
   export function prop(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -50,7 +49,9 @@ export namespace HumanPerformanceHold {
     return read(self, subject, seconds, own);
   }
 
-  /** The active mounted carrier, provided no newer flight has taken custody. */
+  /*
+   * The active mounted carrier, provided no newer flight has taken custody.
+   */
   export function mount(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
@@ -69,15 +70,14 @@ export namespace HumanPerformanceHold {
       : undefined;
   }
 
-  /**
+  /*
    * The hand holding a prop at a film second, by the same custody the frame is
    * read by: the latest grip still holding it, when it is a hand's and no
    * flight has taken the prop since.
-   *
-   * @param self The performance's state.
-   * @param subject The prop.
-   * @param seconds Film seconds.
-   * @returns The holding performer and hand, or none.
+   * Parameter self: The performance's state.
+   * Parameter subject: The prop.
+   * Parameter seconds: Film seconds.
+   * Returns: The holding performer and hand, or none.
    */
   export function holder(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -99,16 +99,15 @@ export namespace HumanPerformanceHold {
       : { subject: active.subject, side: active.side };
   }
 
-  /**
+  /*
    * Resolve a frame while keeping the current chain of socket samples, for a
    * mounted carrier read along that chain (`HumanPerformanceHoldKit`).
-   *
-   * @param self The performance's state.
-   * @param subject The prop.
-   * @param seconds Film seconds.
-   * @param own The performer reading the prop and their own bones, if any.
-   * @param path The socket chain's samples read so far.
-   * @returns Its frame.
+   * Parameter self: The performance's state.
+   * Parameter subject: The prop.
+   * Parameter seconds: Film seconds.
+   * Parameter own: The performer reading the prop and their own bones, if any.
+   * Parameter path: The socket chain's samples read so far.
+   * Returns: Its frame.
    */
   export function frame(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -120,16 +119,15 @@ export namespace HumanPerformanceHold {
     return read(self, subject, seconds, own, path);
   }
 
-  /**
+  /*
    * The offset a span holds its prop at from its carrier, kept from the span's
    * start: the performance solves it once for every span, in film order, when
    * it is prepared (`IAutoMovieMotionHumanPerformanceState.IGrip.offset`).
-   *
-   * @param self The performance's state.
-   * @param subject The prop.
-   * @param grips The prop's spans in film order.
-   * @param w The span.
-   * @returns The prop's frame in the carrier's frame.
+   * Parameter self: The performance's state.
+   * Parameter subject: The prop.
+   * Parameter grips: The prop's spans in film order.
+   * Parameter w: The span.
+   * Returns: The prop's frame in the carrier's frame.
    */
   export function seat(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -147,7 +145,9 @@ export namespace HumanPerformanceHold {
     ).seat(w);
   }
 
-  /** Resolve a frame while keeping the current chain of socket samples. */
+  /*
+   * Resolve a frame while keeping the current chain of socket samples.
+   */
   function read(
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
@@ -268,5 +268,7 @@ export namespace HumanPerformanceHold {
   }
 }
 
-/** The alternatives of `MountResult`'s site. */
+/*
+ * The alternatives of `MountResult`'s site.
+ */
 type MountResult = "prop" | "point";

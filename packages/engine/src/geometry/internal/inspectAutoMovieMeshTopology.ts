@@ -6,7 +6,7 @@ import {
 import { createMeshEdgeKey } from "../../math/internal/createMeshEdgeKey";
 import { weldAutoMovieMeshCorners } from "./weldAutoMovieMeshCorners";
 
-/**
+/*
  * Measure a mesh's triangle topology and signed volume from its actual buffers
  * instead of assuming them.
  *
@@ -28,9 +28,8 @@ import { weldAutoMovieMeshCorners } from "./weldAutoMovieMeshCorners";
  * declaration, and `validateModel` runs it on every mesh a model carries. A
  * malformed index buffer and invalid physical correspondence throw their own
  * named refusals. The mesh is only read.
- *
- * @param mesh Mesh to measure.
- * @returns Counts, degenerate ordinals, closure and volume.
+ * Parameter mesh: Mesh to measure.
+ * Returns: Counts, degenerate ordinals, closure and volume.
  */
 export const inspectAutoMovieMeshTopology: (
   mesh: IAutoMovieMesh,

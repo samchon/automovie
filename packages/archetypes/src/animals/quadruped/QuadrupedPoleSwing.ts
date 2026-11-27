@@ -13,16 +13,18 @@ import type { AutoMovieArchetypeQuadrupedFooting } from "../AutoMovieArchetypeQu
 import { AutoMovieArchetypeQuadrupedMotion } from "../AutoMovieArchetypeQuadrupedMotion";
 import type { EquineFlightClock } from "../equine/EquineFlightClock";
 
-/**
+/*
  * Shares of a swing read for its pole crossings: about two per centimetre of a
  * metre-long swing's arc.
  */
 const SHARES: number = 48;
 
-/** Points read along the terminal bar's axis at each share, its ends included. */
+/*
+ * Points read along the terminal bar's axis at each share, its ends included.
+ */
 const BAR: number = 4;
 
-/**
+/*
  * A swing's lift over the authored poles its hoof crosses: the arc's apex that
  * keeps the terminal bar clear of each pole where the hoof's path passes over
  * it.
@@ -40,7 +42,9 @@ const BAR: number = 4;
  * its gait's apex.
  */
 export namespace QuadrupedPoleSwing {
-  /** One swing's pole apex, metres above the ground, read once per swing. */
+  /*
+   * One swing's pole apex, metres above the ground, read once per swing.
+   */
   export type Crossings = (
     limb: AutoMovieArchetypeQuadrupedBody.Limb,
     index: number,
@@ -50,29 +54,36 @@ export namespace QuadrupedPoleSwing {
     on: number,
   ) => number;
 
-  /** The hoof track's goal at a course state and a swing share. */
+  /*
+   * The hoof track's goal at a course state and a swing share.
+   */
   export type Aim = (
     moment: AutoMovieArchetypeCourse.IState,
     amount: number,
   ) => EquineFlightClock.IAim;
 
-  /** The terminal bar at a share of a swing, before its lift. */
+  /*
+   * The terminal bar at a share of a swing, before its lift.
+   */
   export interface IBar {
-    /** The endpoint on the ground beneath it, world metres. */
+    /*
+     * The endpoint on the ground beneath it, world metres.
+     */
     ground: IAutoMovieVector3;
-    /** The bar's axis from the endpoint to the fetlock, world metres. */
+    /*
+     * The bar's axis from the endpoint to the fetlock, world metres.
+     */
     axis: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * Prepare a ride's swing apexes over its footing's poles.
-   *
-   * @param ground The admitted footing.
-   * @param parts The animal's parts, for each terminal's radius.
-   * @param shown The course state at a second with the body's displayed
-   *   placement.
-   * @returns The reader, cached per swing; none when the footing has no poles,
-   *   so no other ride pays for it.
+   * Parameter ground: The admitted footing.
+   * Parameter parts: The animal's parts, for each terminal's radius.
+   * Parameter shown: The course state at a second with the body's displayed
+   * placement.
+   * Returns: The reader, cached per swing; none when the footing has no poles,
+   * so no other ride pays for it.
    */
   export function crossings(
     ground: AutoMovieArchetypeQuadrupedFooting.IPlan | undefined,
@@ -124,16 +135,15 @@ export namespace QuadrupedPoleSwing {
     };
   }
 
-  /**
+  /*
    * The apex a swing needs to clear the poles it crosses.
-   *
-   * @param poles The footing's poles.
-   * @param radius The terminal bar's radius, metres.
-   * @param path The terminal bar at a share of the swing, 0 to 1, before its
-   *   lift.
-   * @param rise The swing's rise at a share, 0 to 1.
-   * @returns The apex, metres above the ground; zero when the swing crosses no
-   *   pole.
+   * Parameter poles: The footing's poles.
+   * Parameter radius: The terminal bar's radius, metres.
+   * Parameter path: The terminal bar at a share of the swing, 0 to 1, before its
+   * lift.
+   * Parameter rise: The swing's rise at a share, 0 to 1.
+   * Returns: The apex, metres above the ground; zero when the swing crosses no
+   * pole.
    */
   export function apex(
     poles: readonly AutoMovieArchetypeQuadrupedFooting.IPole[],
@@ -168,19 +178,23 @@ export namespace QuadrupedPoleSwing {
     return needed;
   }
 
-  /**
+  /*
    * A point's horizontal distance to a pole's axis, and the axis's height at
    * its point nearest it.
    */
   interface ICrossing {
-    /** Horizontal distance, metres. */
+    /*
+     * Horizontal distance, metres.
+     */
     distance: number;
 
-    /** The pole axis's world height there, metres. */
+    /*
+     * The pole axis's world height there, metres.
+     */
     height: number;
   }
 
-  /**
+  /*
    * A point's horizontal distance to a pole's axis and the axis's height at its
    * nearest point.
    */
@@ -210,7 +224,9 @@ export namespace QuadrupedPoleSwing {
     };
   }
 
-  /** A limb's terminal radius: its round bar's, as the ride pose admits it. */
+  /*
+   * A limb's terminal radius: its round bar's, as the ride pose admits it.
+   */
   function round(
     limb: AutoMovieArchetypeQuadrupedBody.Limb,
     parts: readonly IAutoMovieModelPart[],
@@ -228,7 +244,7 @@ export namespace QuadrupedPoleSwing {
     return terminal.geometry.shape.radius;
   }
 
-  /**
+  /*
    * The ground's model height beneath a goal's footprint: its support plane's
    * there, the nominal floor when absent.
    */

@@ -20,7 +20,7 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import type { strikingStepSupport } from "./strikingStepSupport";
 
-/**
+/*
  * How the body carries a kick (Gavagan and Sayers 2017 phases; kickboxing
  * research): the support foot pivots on its ball with the heel raised, the
  * pelvis turns over into the kick, the root travels over the support foot, and
@@ -35,39 +35,57 @@ import type { strikingStepSupport } from "./strikingStepSupport";
  * chamber key, and the root rides it.
  */
 export namespace KickCarriage {
-  /** What a kick's carriage is built from. */
+  /*
+   * What a kick's carriage is built from.
+   */
   export interface IProps {
-    /** The kicking body. */
+    /*
+     * The kicking body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The posture the kick starts from. */
+    /*
+     * The posture the kick starts from.
+     */
     entry: IAutoMovieMotionHumanPosture;
 
-    /**
+    /*
      * The entry joints with the fixed fighting hand/neck posture already
      * applied, when prepared by the kick planner.
      */
     joints?: IAutoMovieMotionHumanPosture["joints"];
 
-    /** The feet the kick starts on. */
+    /*
+     * The feet the kick starts on.
+     */
     feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
-    /** The kicking side. */
+    /*
+     * The kicking side.
+     */
     side: AutoMovieHumanSide;
 
-    /** The horizontal unit line toward the target. */
+    /*
+     * The horizontal unit line toward the target.
+     */
     line: IAutoMovieVector3;
 
-    /** The kick's timing. */
+    /*
+     * The kick's timing.
+     */
     timing: IAutoMovieMotionHumanKickGeometry.ITiming;
 
-    /** The skill's range share: how much of the support foot's pivot is shown. */
+    /*
+     * The skill's range share: how much of the support foot's pivot is shown.
+     */
     amplitude: number;
 
-    /** Pending touchdowns from the cut, completed by the launch. */
+    /*
+     * Pending touchdowns from the cut, completed by the launch.
+     */
     recovery?: strikingStepSupport.ISupport;
 
-    /**
+    /*
      * How far the entry's support hip stands below its standing height, metres,
      * never negative: the kick rises onto its support leg by this much, so a
      * kick thrown from a sunk stance has the hip height its range was read at.
@@ -75,27 +93,34 @@ export namespace KickCarriage {
     rise: number;
   }
 
-  /** The scalar timing driving the three independent carriage motions. */
+  /*
+   * The scalar timing driving the three independent carriage motions.
+   */
   export interface IMotion {
-    /** Share of the turn, lean and shift onto the support foot. */
+    /*
+     * Share of the turn, lean and shift onto the support foot.
+     */
     weight: number;
 
-    /** Travel retained after the support foot has stepped, metres. */
+    /*
+     * Travel retained after the support foot has stepped, metres.
+     */
     stepped: number;
 
-    /** Travel of the pelvis ahead of the support foot, metres. */
+    /*
+     * Travel of the pelvis ahead of the support foot, metres.
+     */
     driven: number;
   }
 
-  /**
+  /*
    * Read the carriage's three minimum-jerk tracks. The step remains on the
    * original clock when a withdrawal reverses the turn or drive.
-   *
-   * @param timing The phase boundaries, seconds since launch of the action.
-   * @param carriage The step and drive at their full displacements, metres.
-   * @param seconds Seconds on the step's clock.
-   * @param turning Seconds on the turn and drive's clock.
-   * @returns The share of the plate's turn and the two travel displacements.
+   * Parameter timing: The phase boundaries, seconds since launch of the action.
+   * Parameter carriage: The step and drive at their full displacements, metres.
+   * Parameter seconds: Seconds on the step's clock.
+   * Parameter turning: Seconds on the turn and drive's clock.
+   * Returns: The share of the plate's turn and the two travel displacements.
    */
   export function motion(
     timing: Pick<IAutoMovieMotionHumanKickGeometry.ITiming, "prep" | "chamber" | "impact" | "duration">,
@@ -118,22 +143,21 @@ export namespace KickCarriage {
     return { weight, stepped, driven };
   }
 
-  /**
+  /*
    * The body's posture without the kicking leg's goal.
-   *
-   * @param props The kick's body, entry, feet, side, line and timing.
-   * @param carriage The carriage shown in full between the chamber key and the
-   *   contact.
-   * @param seconds Seconds since the kick's start: the clock of the support
-   *   foot's step.
-   * @param turning The second the turn, tilt and travel are read at; `seconds`
-   *   when absent.
-   * @param resolution Optional exact FK workspace borrowed from this
-   *   synchronous person's evaluation.
-   * @param projection Optional genuine same-body ROM metadata borrowed only
-   *   within this synchronous unchanged-table operation.
-   * @returns The posture, lowered until the planted support leg reaches its
-   *   foot; the kicking leg holds its entry foot, unplanted.
+   * Parameter props: The kick's body, entry, feet, side, line and timing.
+   * Parameter carriage: The carriage shown in full between the chamber key and the
+   * contact.
+   * Parameter seconds: Seconds since the kick's start: the clock of the support
+   * foot's step.
+   * Parameter turning: The second the turn, tilt and travel are read at; `seconds`
+   * when absent.
+   * Parameter resolution: Optional exact FK workspace borrowed from this
+   * synchronous person's evaluation.
+   * Parameter projection: Optional genuine same-body ROM metadata borrowed only
+   * within this synchronous unchanged-table operation.
+   * Returns: The posture, lowered until the planted support leg reaches its
+   * foot; the kicking leg holds its entry foot, unplanted.
    */
   export function posture(
     props: IProps,
@@ -238,17 +262,16 @@ export namespace KickCarriage {
     );
   }
 
-  /**
+  /*
    * A hip joint under a posture's trunk.
-   *
-   * @param body The body.
-   * @param posture The posture; its limbs are not read.
-   * @param side The hip's side.
-   * @param resolution Optional exact FK workspace borrowed from this
-   *   synchronous evaluation.
-   * @param projection Optional genuine same-body ROM metadata borrowed only
-   *   within this synchronous unchanged-table operation.
-   * @returns The hip joint, world metres.
+   * Parameter body: The body.
+   * Parameter posture: The posture; its limbs are not read.
+   * Parameter side: The hip's side.
+   * Parameter resolution: Optional exact FK workspace borrowed from this
+   * synchronous evaluation.
+   * Parameter projection: Optional genuine same-body ROM metadata borrowed only
+   * within this synchronous unchanged-table operation.
+   * Returns: The hip joint, world metres.
    */
   export function hip(
     body: IAutoMovieMotionHumanBody,
@@ -266,7 +289,7 @@ export namespace KickCarriage {
     ).get(`${side}UpperLeg`)!.worldPosition;
   }
 
-  /**
+  /*
    * Tilt a posture about a world axis through its support hip: the root
    * rotation is turned about the axis, and the root moved so the support hip
    * stays where it was.
@@ -303,7 +326,7 @@ export namespace KickCarriage {
   }
 }
 
-/**
+/*
  * Immutable requested outputs; each hip query still admits every authored
  * joint.
  */

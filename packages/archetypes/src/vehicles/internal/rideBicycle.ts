@@ -10,7 +10,7 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeBicycle } from "../AutoMovieArchetypeBicycle";
 
-/**
+/*
  * A bicycle ridden along a course: its root on the path, leaned into each turn,
  * its wheels rolling by distance and its crank following powered travel.
  *
@@ -19,26 +19,25 @@ import type { AutoMovieArchetypeBicycle } from "../AutoMovieArchetypeBicycle";
  * the distance over the development: the crank's angle integrates the path's
  * speed by the gear. The ride adds the instants `leftTopDeadCentre` and
  * `rightTopDeadCentre`, each time a crank arm passes straight up.
- *
- * @param bicycle The bicycle.
- * @param course The course its root follows, or its plan, such as a timed
- *   course's.
- * @param maximumLean The admitted lean limit, in degrees.
- * @param gear Teeth in use and optional freewheel intervals in course metres,
- *   such as a road coast or the stretches a bicycle is wheeled by hand. The
- *   default teeth are 34 and 17, a ratio of 2 from the compact road chainsets
- *   and 11 to 28 tooth cassettes Wikipedia's Bicycle gearing article lists
- *   (https://en.wikipedia.org/wiki/Bicycle_gearing). Omit coasting for
- *   fixed-drive behavior. UCI article 1.3.025 separates competition road and
- *   track drive equipment,
- *   https://www.uci.org/regulations/3MyLDDrwJCJJ0BGGOFzOat .
- * @returns The ride.
- * @throws {AutoMovieArchetypeRefusal} When a tooth count is not a positive
- *   whole number, a leg is reversed (a bicycle freewheels backward, so its
- *   crank would run back by the distance, which no rider does), a bend at the
- *   fastest the course lets it be taken needs more than `maximumLean`
- *   degrees of lean (as `AutoMovieArchetypeCourse.admitLean` refuses), or the
- *   course is malformed.
+ * Parameter bicycle: The bicycle.
+ * Parameter course: The course its root follows, or its plan, such as a timed
+ * course's.
+ * Parameter maximumLean: The admitted lean limit, in degrees.
+ * Parameter gear: Teeth in use and optional freewheel intervals in course metres,
+ * such as a road coast or the stretches a bicycle is wheeled by hand. The
+ * default teeth are 34 and 17, a ratio of 2 from the compact road chainsets
+ * and 11 to 28 tooth cassettes Wikipedia's Bicycle gearing article lists
+ * (https://en.wikipedia.org/wiki/Bicycle_gearing). Omit coasting for
+ * fixed-drive behavior. UCI article 1.3.025 separates competition road and
+ * track drive equipment,
+ * https://www.uci.org/regulations/3MyLDDrwJCJJ0BGGOFzOat .
+ * Returns: The ride.
+ * When a tooth count is not a positive
+ * whole number, a leg is reversed (a bicycle freewheels backward, so its
+ * crank would run back by the distance, which no rider does), a bend at the
+ * fastest the course lets it be taken needs more than `maximumLean`
+ * degrees of lean (as `AutoMovieArchetypeCourse.admitLean` refuses), or the
+ * course is malformed.
  */
 export function rideBicycle(
   bicycle: AutoMovieArchetype<
@@ -127,7 +126,9 @@ export function rideBicycle(
     },
   );
 
-  /** Distance of chain-driven travel up to a course position, metres. */
+  /*
+   * Distance of chain-driven travel up to a course position, metres.
+   */
   const pedalled = (distance: number): number =>
     coasts.reduce(
       (driven: number, coast: AutoMovieArchetypeBicycle.ICoastInterval): number =>
@@ -139,7 +140,9 @@ export function rideBicycle(
       distance,
     );
 
-  /** The course position at a distance of chain-driven travel, metres. */
+  /*
+   * The course position at a distance of chain-driven travel, metres.
+   */
   const position = (powered: number): number =>
     coasts.reduce(
       (distance: number, coast: AutoMovieArchetypeBicycle.ICoastInterval): number =>
@@ -202,14 +205,16 @@ export function rideBicycle(
   );
 }
 
-/** Whether a coast value is one span rather than a list of spans. */
+/*
+ * Whether a coast value is one span rather than a list of spans.
+ */
 function single(
   coast: AutoMovieArchetypeBicycle.IRideCoast,
 ): coast is AutoMovieArchetypeBicycle.ICoastInterval {
   return !Array.isArray(coast);
 }
 
-/**
+/*
  * The bicycle lean limit, the drive gear and an airborne take over a grounded
  * ride.
  */

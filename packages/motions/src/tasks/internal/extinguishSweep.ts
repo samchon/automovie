@@ -3,20 +3,19 @@ import type { IAutoMovieMotionClock } from "@automovie/interface";
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * An extinguisher's sweep, the last S of OSHA's PASS: the nozzle is brought
  * onto the fire's base over `AIM` seconds, swept side to side about the
  * vertical, `span` degrees in all, `sweeps` times on a `SWEEP` each, and
  * released over another `AIM`; the yaw from the aim at a second is `span / 2
  * sin(2 pi sweeps u)` over the sweeps' progress `u`. A slower tempo lengthens
  * every span.
- *
- * @param sweeps The sweeps asked, rounded; `SWEEPS` when absent.
- * @param span The sweep's full angle, degrees; `SPAN` when absent.
- * @param tempo The performer's tempo factor.
- * @returns The sweep's clock and its yaw at a second.
- * @throws {HumanRefusal} When the sweeps round to none or the span is not
- *   between 0 and 180 degrees.
+ * Parameter sweeps: The sweeps asked, rounded; `SWEEPS` when absent.
+ * Parameter span: The sweep's full angle, degrees; `SPAN` when absent.
+ * Parameter tempo: The performer's tempo factor.
+ * Returns: The sweep's clock and its yaw at a second.
+ * When the sweeps round to none or the span is not
+ * between 0 and 180 degrees.
  */
 export function extinguishSweep(
   sweeps: number | undefined,
@@ -55,30 +54,43 @@ export function extinguishSweep(
   };
 }
 
-/** The extinguisher's sweep. */
+/*
+ * The extinguisher's sweep.
+ */
 export namespace extinguishSweep {
-  /** Seconds to bring the nozzle onto the fire's base: provisional. */
+  /*
+   * Seconds to bring the nozzle onto the fire's base: provisional.
+   */
   export const AIM: number = 0.5;
 
-  /** Seconds of one full sweep, side to side and back: provisional. */
+  /*
+   * Seconds of one full sweep, side to side and back: provisional.
+   */
   export const SWEEP: number = 1.2;
 
-  /** Sweeps when none are asked. */
+  /*
+   * Sweeps when none are asked.
+   */
   export const SWEEPS: number = 3;
 
-  /** The sweep's full angle when none is asked, degrees. */
+  /*
+   * The sweep's full angle when none is asked, degrees.
+   */
   export const SPAN: number = 40;
 
-  /** The sweep's timing and its yaw. */
+  /*
+   * The sweep's timing and its yaw.
+   */
   export interface ISweep {
-    /** The aim, the sweeps and the release. */
+    /*
+     * The aim, the sweeps and the release.
+     */
     clock: IAutoMovieMotionClock;
 
-    /**
+    /*
      * The sweep's yaw from the aim at a second.
-     *
-     * @param seconds Action seconds.
-     * @returns Degrees about +Y.
+     * Parameter seconds: Action seconds.
+     * Returns: Degrees about +Y.
      */
     yaw(seconds: number): number;
   }

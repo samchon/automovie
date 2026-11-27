@@ -8,7 +8,7 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Compose one bone through the same parent-first FK used by resolvePose.
  * Rotations must be unit quaternions; rest scale is ignored. All returned
  * transforms are newly owned, including when an input is an identity.

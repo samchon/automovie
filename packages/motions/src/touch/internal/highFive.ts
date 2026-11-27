@@ -43,7 +43,7 @@ import { HumanSeatedReach } from "./HumanSeatedReach";
 import { highFiveContact } from "./highFiveContact";
 import { touchReach } from "./touchReach";
 
-/**
+/*
  * A high five, a low five or a fist bump between two standing partners: both
  * bring one hand to one shared point between them and meet there at one shared
  * instant, the mutual goal the handshake uses (`AutoMovieMotionMeeting`).
@@ -75,10 +75,14 @@ import { touchReach } from "./touchReach";
  * both partners share `meet`.
  */
 export namespace highFive {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "highFive";
 
-  /** Cancel table. */
+  /*
+   * Cancel table.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
@@ -86,7 +90,9 @@ export namespace highFive {
       walk: ["fromRelax", "smooth"],
     });
 
-  /** Each variant's meeting height. */
+  /*
+   * Each variant's meeting height.
+   */
   export const HEIGHTS: Readonly<
     Record<
       IAutoMovieMotionHumanHighFive.Kind,
@@ -94,10 +100,12 @@ export namespace highFive {
     >
   > = { high: "crown", low: "waist", fist: "chest" };
 
-  /** How long the hands stay together, seconds (provisional). */
+  /*
+   * How long the hands stay together, seconds (provisional).
+   */
   export const REBOUND: number = 0.1;
 
-  /**
+  /*
    * How a held prop is brought to the meeting: stood upright in the closed
    * hand, the side of its rim the palm faces toward the partner.
    */
@@ -112,13 +120,12 @@ export namespace highFive {
     point: "lip",
   };
 
-  /**
+  /*
    * The meeting kind of a variant for a hand.
-   *
-   * @param kind The variant.
-   * @param side The hand both roles use.
-   * @param bare Whether the acting surfaces are the hands themselves.
-   * @returns The kind.
+   * Parameter kind: The variant.
+   * Parameter side: The hand both roles use.
+   * Parameter bare: Whether the acting surfaces are the hands themselves.
+   * Returns: The kind.
    */
   export function meeting(
     kind: IAutoMovieMotionHumanHighFive.Kind,
@@ -150,13 +157,12 @@ export namespace highFive {
     };
   }
 
-  /**
+  /*
    * Plan one role of a high five.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} A `reach` refusal on `partner` when no point lies
-   *   within both partners' arms.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * A `reach` refusal on `partner` when no point lies
+   * within both partners' arms.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHighFive.IParams>,
@@ -402,14 +408,13 @@ export namespace highFive {
       : HumanHeld.kept(context, waited, side, p.prop);
   }
 
-  /**
+  /*
    * A plan begun later: the body holds the plan's first posture for `lead`
    * seconds, then performs it.
-   *
-   * @param plan The plan.
-   * @param lead Seconds of waiting before it, positive.
-   * @returns The longer plan, its events and contact windows at the same film
-   *   seconds after the wait.
+   * Parameter plan: The plan.
+   * Parameter lead: Seconds of waiting before it, positive.
+   * Returns: The longer plan, its events and contact windows at the same film
+   * seconds after the wait.
    */
   export function delayed(
     plan: IAutoMovieMotionHumanActionPlan,
@@ -443,14 +448,22 @@ export namespace highFive {
   }
 }
 
-/** The alternatives of `PlanLay`'s site. */
+/*
+ * The alternatives of `PlanLay`'s site.
+ */
 type PlanLay = "upright" | "tangent";
 
-/** The shared motion's fixed obstruction reading. */
+/*
+ * The shared motion's fixed obstruction reading.
+ */
 interface IObstacles {
-  /** The other body's shapes outside the acting arm. */
+  /*
+   * The other body's shapes outside the acting arm.
+   */
   clear: IAutoMovieMotionHumanColliders.IPlaced[];
 
-  /** The contacting hand is handled by the shared frame. */
+  /*
+   * The contacting hand is handled by the shared frame.
+   */
   rests: IAutoMovieMotionHumanColliders.IPlaced[];
 }

@@ -4,7 +4,7 @@ import type {
   IAutoMovieSimplexMinimum,
 } from "@automovie/interface";
 
-/**
+/*
  * Minimize half ||sum(lambda_i_a_i)||^2 + sum(lambda_i_b_i) on the simplex.
  * Pairwise Frank-Wolfe transfers mass from the most expensive occupied atom to
  * the cheapest atom, with exact quadratic line search and complete pricing.

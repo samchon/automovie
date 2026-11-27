@@ -5,7 +5,7 @@ import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import type { IAutoMovieInspectionMeasured } from "../../IAutoMovieInspectionMeasured.js";
 import { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry.js";
 
-/**
+/*
  * Find the meshes an inspection draws and measure on them the kinds it measures
  * itself and the request asks for: the `edge` kind and the `defect/<kind>`
  * kinds.
@@ -62,7 +62,9 @@ export function measureAutoMovieInspectionMeshesImplementation(
   return { meshes, measured };
 }
 
-/** Whether an object and every ancestor are visible. */
+/*
+ * Whether an object and every ancestor are visible.
+ */
 function shown(object: THREE.Object3D): boolean {
   for (
     let current: THREE.Object3D | null = object;

@@ -8,18 +8,17 @@ import type {
 import { Vector3 } from "../../math/Vector3";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
-/**
+/*
  * The authored capture point and its rate, the command the plan phase follows
  * where IHMC follows its planner's (`physicalBalancePlan`): xi_a = c_a + c_a' /
  * omega, rate c_a' + c_a'' / omega, from the authored centre of mass
  * (`physicalAuthoredCapture.center`), its velocity and acceleration
  * (`trackPhysicalWorld`); without them, as in a recording made before they were
  * read, the centre at rest.
- *
- * @param sense The body's readings.
- * @param state The recovery's state.
- * @param omega The pendulum's rate, per second.
- * @returns The capture point and its rate, world x and z.
+ * Parameter sense: The body's readings.
+ * Parameter state: The recovery's state.
+ * Parameter omega: The pendulum's rate, per second.
+ * Returns: The capture point and its rate, world x and z.
  */
 export function physicalAuthoredCapture(
   sense: physicalAuthoredCapture.ISense,
@@ -45,14 +44,20 @@ export function physicalAuthoredCapture(
   };
 }
 
-/** The authored command's types and its centre. */
+/*
+ * The authored command's types and its centre.
+ */
 export namespace physicalAuthoredCapture {
-  /** A planned capture point and its rate. */
+  /*
+   * A planned capture point and its rate.
+   */
   export type IDesired = NonNullable<
     IAutoMoviePhysicalRecoveryState["desired"]
   >;
 
-  /** What the capture reads of the body's readings. */
+  /*
+   * What the capture reads of the body's readings.
+   */
   export type ISense = Pick<
     AutoMovieEnginePhysicalBalanceTypes.ISense,
     "command" | "targets"
@@ -60,14 +65,13 @@ export namespace physicalAuthoredCapture {
     profile: Pick<AutoMovieEnginePhysicalBalanceTypes.ISense["profile"], "segments" | "mass">;
   };
 
-  /**
+  /*
    * The authored centre of mass moved by the landed root offset, as the
    * authored goals are: the command's (`trackPhysicalWorld`), else the authored
    * segments' centre.
-   *
-   * @param sense The body's readings.
-   * @param state The recovery's state.
-   * @returns The centre, world metres.
+   * Parameter sense: The body's readings.
+   * Parameter state: The recovery's state.
+   * Returns: The centre, world metres.
    */
   export function center(
     sense: ISense,

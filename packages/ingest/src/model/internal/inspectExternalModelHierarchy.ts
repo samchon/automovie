@@ -1,7 +1,9 @@
 import { object } from "./object";
 import { optionalArray } from "./optionalArray";
 
-/** Establish a unique-parent acyclic glTF node forest. */
+/*
+ * Establish a unique-parent acyclic glTF node forest.
+ */
 export function inspectExternalModelHierarchy(
   values: unknown[],
 ): Array<number | undefined> {

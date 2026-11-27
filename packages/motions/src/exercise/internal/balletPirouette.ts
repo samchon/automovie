@@ -25,7 +25,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { ExerciseKey } from "./ExerciseKey";
 import { balletPositions } from "./balletPositions";
 
-/**
+/*
  * A pirouette from fourth. The dancer takes fourth in plié by the first beat,
  * the supporting foot in front and the working foot behind, and holds the plié
  * on both feet over the next beat; over `RISE` of a beat the supporting foot
@@ -42,31 +42,34 @@ import { balletPositions } from "./balletPositions";
  * 2002, for the support over the ball).
  */
 export namespace balletPirouette {
-  /** The rise to demi-pointe and the landing, a share of a beat (provisional). */
+  /*
+   * The rise to demi-pointe and the landing, a share of a beat (provisional).
+   */
   export const RISE: number = 0.4;
 
-  /**
+  /*
    * The retiré's turnout, degrees: the side of the heading the knee bends
    * toward (provisional).
    */
   export const TURNOUT: number = 45;
 
-  /** The retiré's pointed foot, degrees of plantar flexion (provisional). */
+  /*
+   * The retiré's pointed foot, degrees of plantar flexion (provisional).
+   */
   export const POINT: number = 45;
 
-  /**
+  /*
    * How far before the standing knee the retiré's toe rests, a share of the
    * stature (provisional).
    */
   export const TOUCH: number = 0.06;
 
-  /**
+  /*
    * The course of a pirouette.
-   *
-   * @param context The action's context.
-   * @param beats The beat clock.
-   * @param turnout Each foot's turn out, degrees.
-   * @returns The course.
+   * Parameter context: The action's context.
+   * Parameter beats: The beat clock.
+   * Parameter turnout: Each foot's turn out, degrees.
+   * Returns: The course.
    */
   export function course(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBallet.IParams>,
@@ -422,7 +425,9 @@ export namespace balletPirouette {
     return course;
   }
 
-  /** A share held within [0, 1]. */
+  /*
+   * A share held within [0, 1].
+   */
   function clamp(share: number): number {
     return Math.max(0, Math.min(1, share));
   }

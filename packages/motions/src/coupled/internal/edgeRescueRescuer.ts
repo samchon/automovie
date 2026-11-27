@@ -23,7 +23,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { stuntFallPose } from "../../reaction/internal/stuntFallPose";
 import { edgeRescueScene } from "./edgeRescueScene";
 
-/**
+/*
  * The rescuer's part in an edge rescue on the shared support law: from
  * standing, down onto the knees and hands at the lip, then prone with the right
  * arm hanging straight down over the lip to the grip by the release; holding
@@ -32,11 +32,10 @@ import { edgeRescueScene } from "./edgeRescueScene";
  * end. From the catch to the end of the haul the right hand's goal follows the
  * scene's grip path exactly, so both hands share one grip frame. A missed catch
  * ends prone, the hand empty.
- *
- * @param context The rescuer's context, standing on the top behind the lip.
- * @param p The parameters.
- * @param scene The shared scene.
- * @returns The rescuer's plan.
+ * Parameter context: The rescuer's context, standing on the top behind the lip.
+ * Parameter p: The parameters.
+ * Parameter scene: The shared scene.
+ * Returns: The rescuer's plan.
  */
 export function edgeRescueRescuer(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanEdgeRescue.IParams>,
@@ -322,19 +321,27 @@ export function edgeRescueRescuer(
   return { ...plan, posture, contacts, base: { kind: "kneeling" } };
 }
 
-/** A staged point on the ledge's top: its world point and its normal. */
+/*
+ * A staged point on the ledge's top: its world point and its normal.
+ */
 interface IStaged {
-  /** World metres. */
+  /*
+   * World metres.
+   */
   point: IAutoMovieVector3;
 
-  /** Outward normal. */
+  /*
+   * Outward normal.
+   */
   normal: IAutoMovieVector3;
 }
 
-/** The knees' half spacing across the edge, metres (provisional). */
+/*
+ * The knees' half spacing across the edge, metres (provisional).
+ */
 const KNEES: number = 0.12;
 
-/**
+/*
  * Lying prone reaching over the lip: the right arm hanging straight down to the
  * grip, the elbow nearly straight, the left arm resting along the body, out
  * clear of the hips (provisional angles, degrees).
@@ -349,7 +356,7 @@ const REACHING: IAutoMovieMotionHumanLieDown.IPose = {
   },
 };
 
-/**
+/*
  * The free hand's place along the edge from the grip, metres (provisional: a
  * shoulder's width).
  */

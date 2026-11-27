@@ -20,18 +20,26 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 import { prepareGlideSlope } from "./prepareGlideSlope";
 
-/** Fixed traversal order of the two independently fitted feet. */
+/*
+ * Fixed traversal order of the two independently fitted feet.
+ */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
-/** Up and right of the tangent-plane frame before it is turned to the entry. */
+/*
+ * Up and right of the tangent-plane frame before it is turned to the entry.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** Right of the tangent-plane frame before it is turned to the entry. */
+/*
+ * Right of the tangent-plane frame before it is turned to the entry.
+ */
 const RIGHT: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
-/** Forward of the tangent-plane frame before it is turned to the entry. */
+/*
+ * Forward of the tangent-plane frame before it is turned to the entry.
+ */
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-/**
+/*
  * One continuous bilateral glide for ice and snow. An authored arc travels in a
  * level or inclined plane and the two ankles travel with that frame. The loaded
  * stance lowers and the trunk leans into the turn. The speed profile, crouch
@@ -43,64 +51,94 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * https://doi.org/10.1371/journal.pone.0176975
  */
 export namespace HumanSurfaceGlide {
-  /**
+  /*
    * Fraction of the action used to reach nominal speed from the entry
    * (provisional staging, as the speed profile is).
    */
   export const ACQUIRE: number = 0.2;
 
-  /**
+  /*
    * Fraction of the action used to decelerate when a stop is requested
    * (provisional staging, as the speed profile is).
    */
   export const BRAKE: number = 0.35;
 
-  /** Authored duration and speed of the glide, with an optional stop. */
+  /*
+   * Authored duration and speed of the glide, with an optional stop.
+   */
   export type IClockInput = Pick<
     IAutoMovieMotionHumanSurface.ISnowGlideParams,
     "duration" | "speed" | "stop"
   >;
 
-  /** The admitted clock and its preparation for an entering speed. */
+  /*
+   * The admitted clock and its preparation for an entering speed.
+   */
   export interface IClock {
-    /** Action length, seconds. */
+    /*
+     * Action length, seconds.
+     */
     seconds: number;
 
-    /** Nominal speed, metres per second. */
+    /*
+     * Nominal speed, metres per second.
+     */
     speed: number;
 
-    /** Time used to acquire nominal speed, seconds. */
+    /*
+     * Time used to acquire nominal speed, seconds.
+     */
     acquire: number;
 
-    /** Final braking span, seconds. Zero without a stop. */
+    /*
+     * Final braking span, seconds. Zero without a stop.
+     */
     braking: number;
 
-    /** Prepare the clock's integrated distance from the entering speed. */
+    /*
+     * Prepare the clock's integrated distance from the entering speed.
+     */
     prepare(enteredSpeed: number): ICourse;
   }
 
-  /** The phase-conditioned speed integral. */
+  /*
+   * The phase-conditioned speed integral.
+   */
   export interface ICourse {
-    /** Total travel, metres, used to set the arc curvature. */
+    /*
+     * Total travel, metres, used to set the arc curvature.
+     */
     travel: number;
 
-    /** Current displacement and phase shares on the glide's duration. */
+    /*
+     * Current displacement and phase shares on the glide's duration.
+     */
     sample(seconds: number): ISample;
   }
 
-  /** Distance and shape weights at one action second. */
+  /*
+   * Distance and shape weights at one action second.
+   */
   export interface ISample {
-    /** Integrated displacement, metres. */
+    /*
+     * Integrated displacement, metres.
+     */
     distance: number;
 
-    /** Progress through the acquisition, held at its ends. */
+    /*
+     * Progress through the acquisition, held at its ends.
+     */
     acquired: number;
 
-    /** Progress through braking, held at its ends. */
+    /*
+     * Progress through braking, held at its ends.
+     */
     braked: number;
   }
 
-  /** Admit and prepare the analytic clock before placing either foot. */
+  /*
+   * Admit and prepare the analytic clock before placing either foot.
+   */
   export function clock(params: IClockInput): IClock {
     const seconds: number = HumanBound.above(
       "duration",
@@ -138,15 +176,14 @@ export namespace HumanSurfaceGlide {
     };
   }
 
-  /**
+  /*
    * Plan a straight glide or one arc on the plane of the entered stance; a
    * descent bears its skis on the slope the scene names (`slope`).
-   *
-   * @param context The entered stance, body and authored speed and arc.
-   * @returns The bearing windows, speed events and pure posture query.
-   * @throws {HumanRefusal} For a non-standing entry, missing ground support, a
-   *   grade with no slope named, infeasible arc radius or parameters outside
-   *   the authored bounds.
+   * Parameter context: The entered stance, body and authored speed and arc.
+   * Returns: The bearing windows, speed events and pure posture query.
+   * For a non-standing entry, missing ground support, a
+   * grade with no slope named, infeasible arc radius or parameters outside
+   * the authored bounds.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISnowGlideParams>,
@@ -415,10 +452,14 @@ export namespace HumanSurfaceGlide {
   }
 }
 
-/** Integral on [0, u] of the cubic speed ramp with zero endpoint slopes. */
+/*
+ * Integral on [0, u] of the cubic speed ramp with zero endpoint slopes.
+ */
 function rampIntegral(u: number): number {
   return u * u * u * (1 - u / 2);
 }
 
-/** The alternatives of `PlanPart`'s site. */
+/*
+ * The alternatives of `PlanPart`'s site.
+ */
 type PlanPart = "leftLeg" | "rightLeg";

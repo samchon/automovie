@@ -3,7 +3,7 @@ import { IAutoMovieProductionFrameRate } from "@automovie/interface";
 import { canonicalProductionFrameRate } from "../../film/internal/canonicalProductionFrameRate";
 import { AutoMovieFilmEffectRuntimeError } from "../AutoMovieFilmEffectRuntimeError";
 
-/**
+/*
  * Reduce one film-effect frame rate, or refuse it under the caller's code.
  *
  * A positive safe integer `n` becomes `n/1`, and a rational with positive

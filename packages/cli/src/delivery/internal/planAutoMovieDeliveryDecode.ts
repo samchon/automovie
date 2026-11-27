@@ -2,7 +2,7 @@ import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 
 import { planAutoMovieDeliveryInput } from "./planAutoMovieDeliveryInput";
 
-/**
+/*
  * Plans a read-only FFmpeg pass over the primary decoded video stream.
  *
  * The native freeze detector starts early so a freeze extending to EOF can
@@ -11,13 +11,12 @@ import { planAutoMovieDeliveryInput } from "./planAutoMovieDeliveryInput";
  *
  * The same plan measures the encoder's own image-sequence input when given the
  * input options the encoder used, such as its `-framerate`.
- *
- * @param path The delivery file, or the encoder's input pattern, to decode.
- * @param frameRate The commissioned rational delivery frame rate.
- * @param thresholds The delivery audit's detector settings.
- * @param inputOptions Demuxer options placed before the input, empty for a
- *   delivery file.
- * @returns Arguments for a shell-free invocation with evidence on stderr.
+ * Parameter path: The delivery file, or the encoder's input pattern, to decode.
+ * Parameter frameRate: The commissioned rational delivery frame rate.
+ * Parameter thresholds: The delivery audit's detector settings.
+ * Parameter inputOptions: Demuxer options placed before the input, empty for a
+ * delivery file.
+ * Returns: Arguments for a shell-free invocation with evidence on stderr.
  */
 export function planAutoMovieDeliveryDecode(
   path: string,

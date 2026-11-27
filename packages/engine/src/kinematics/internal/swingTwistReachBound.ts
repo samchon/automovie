@@ -9,7 +9,7 @@ import type {
 
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * A certified upper bound of the farthest swing along one great circle that a
  * joint's flexion and abduction intervals reach with no twist, in closed form,
  * so `swingTwistRegion`'s scan from the far end starts at the bound instead of
@@ -29,54 +29,55 @@ import { Vector3 } from "../../math/Vector3";
  * it.
  */
 export namespace swingTwistReachBound {
-  /**
+  /*
    * How far past its closed-form end an admitted interval is taken, degrees:
    * past the rounding of the scan's own reading of a direction, far under the
    * scan's half-degree step.
    */
   export const MARGIN: number = 1e-6;
 
-  /**
+  /*
    * What the scan's grid can read of a ray's reached swings, written beside the
    * bound for a caller that gives the grid's step.
    */
   export interface ISpan {
-    /** The scan grid's step, degrees; given by the caller. */
+    /*
+     * The scan grid's step, degrees; given by the caller.
+     */
     grid: number;
 
-    /**
+    /*
      * The farthest grid step, at most half a turn less one step, that lies
      * inside an interval of reached swings, to the margins; 0 when none does.
      * No grid step past it is reached.
      */
     cell: number;
 
-    /**
+    /*
      * The least swing of the interval of reached swings that holds `cell`,
      * joined with those overlapping it; NaN when no interval is reported.
      */
     low: number;
 
-    /**
+    /*
      * That interval's greatest swing; NaN when none is reported: the circle
      * passes the abduction axis, where the longitude's closed form does not
      * hold, or another interval reaches into the cell past it.
      */
     high: number;
   }
-  /**
+  /*
    * Prepare a joint's bound.
-   *
-   * @param constraint The constraint, with flexion and abduction intervals in
-   *   clinical degrees.
-   * @param frame The rest frame its clinical angles are lifted by.
-   * @param basis The joint's swing frame.
-   * @param across `(f x u) . a` of that frame.
-   * @returns For a great circle's azimuth cosine and sine, an upper bound in
-   *   degrees within [0, 180] of every swing the intervals reach on it, 0 when
-   *   none is reached, and, when a span is given, what the scan's grid can read
-   *   of them ({@link ISpan}); null when an interval is absent or the basis is
-   *   not orthonormal to rounding, so the chart's closed forms do not hold.
+   * Parameter constraint: The constraint, with flexion and abduction intervals in
+   * clinical degrees.
+   * Parameter frame: The rest frame its clinical angles are lifted by.
+   * Parameter basis: The joint's swing frame.
+   * Parameter across: `(f x u) . a` of that frame.
+   * Returns: For a great circle's azimuth cosine and sine, an upper bound in
+   * degrees within [0, 180] of every swing the intervals reach on it, 0 when
+   * none is reached, and, when a span is given, what the scan's grid can read
+   * of them (ISpan); null when an interval is absent or the basis is
+   * not orthonormal to rounding, so the chart's closed forms do not hold.
    */
   export function prepare(
     constraint: IAutoMovieJointConstraint,
@@ -225,31 +226,41 @@ export namespace swingTwistReachBound {
   }
 }
 
-/** A closed interval of degrees. */
+/*
+ * A closed interval of degrees.
+ */
 interface IInterval {
-  /** Its least. */
+  /*
+   * Its least.
+   */
   low: number;
 
-  /** Its greatest. */
+  /*
+   * Its greatest.
+   */
   high: number;
 }
 
-/**
+/*
  * How far two intervals of reached swings must overlap to be joined as one,
  * degrees: far above their margins, so the join never bridges a gap the margins
  * hide.
  */
 const OVERLAP: number = 0.01;
 
-/** Degrees per radian. */
+/*
+ * Degrees per radian.
+ */
 const DEG: number = 180 / Math.PI;
 
-/** Whether a vector is unit to rounding. */
+/*
+ * Whether a vector is unit to rounding.
+ */
 function unit(v: IAutoMovieVector3): boolean {
   return Math.abs(Vector3.dot(v, v) - 1) < 1e-9;
 }
 
-/**
+/*
  * The rig angles within `[from, to]` whose clinical reading (`sign * rig +
  * neutral`) has a full-turn alias inside the interval: one rig interval and its
  * full-turn aliases, each widened by the margin.
@@ -280,7 +291,7 @@ function admitted(
   return out;
 }
 
-/**
+/*
  * The swings in [0, 180] at which `asin(k sin s)`, degrees, lies in an interval
  * within [-90, 90]: `sin s` between the interval's sines over `k`, which is a
  * swing interval and its mirror about a quarter turn.
@@ -305,7 +316,7 @@ function swingsOfLatitude(f: IInterval, k: number): IInterval[] {
   ];
 }
 
-/**
+/*
  * The swings in [0, 180] at which the abduction lies in a rig interval within
  * [-180, 180]. On the near reading the abduction is `atan2(c sin s, cos s)`,
  * whose size on `c`'s side runs monotonically from 0 to half a turn as the

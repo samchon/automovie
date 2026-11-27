@@ -20,24 +20,24 @@ import { headRestAim } from "./headRestAim";
 import { kissBody } from "./kissBody";
 import { requireOtherPerformer } from "./requireOtherPerformer";
 
-/**
+/*
  * How far the hand on the partner's side slides down its thigh toward the knee,
  * metres (provisional: about a hand's length).
  */
 const SLIDE: number = 0.12;
 
-/**
+/*
  * The miss under which the head rests on the region, metres (provisional: a
  * skin contact).
  */
 const NEAR: number = 0.01;
 
-/**
+/*
  * The part of the head and neck's weight a resting head lays on the partner
  * (provisional: the other half is held by the neck's own muscles).
  */
 const RESTING: number = 0.5;
-/**
+/*
  * Rest the head on a partner. The resting head's own region, the temple on the
  * side the partner's region lies unless named, is brought to the partner's
  * region. The body leans from the hips as a kiss does (`kissBody`, seated or on
@@ -296,7 +296,7 @@ function planHeadRest(
   return result;
 }
 
-/**
+/*
  * Rest the head on a partner. The resting head's own region, the temple on the
  * side the partner's region lies unless named, is brought to the partner's
  * region. The body leans from the hips as a kiss does (`kissBody`, seated or on
@@ -323,7 +323,7 @@ export const headRest: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHeadR
     plan: planHeadRest,
   };
 
-/**
+/*
  * The share of the body's weight a resting head lays on the partner: `RESTING`
  * of the head and neck segments' share of the body's own mass model.
  */
@@ -343,7 +343,7 @@ function load(body: IAutoMovieMotionHumanActionContext["body"]): number {
   return (RESTING * head) / model.mass;
 }
 
-/**
+/*
  * The aim at each second. A bearing contact reads current material, whereas
  * free transport gradually restores the feedback delay.
  */
@@ -371,7 +371,9 @@ function following(
   };
 }
 
-/** The temple on the side of the performer the partner's region lies. */
+/*
+ * The temple on the side of the performer the partner's region lies.
+ */
 function side(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHeadRest>,
   at: IAutoMovieVector3,
@@ -390,8 +392,12 @@ function side(
     : "templeRight";
 }
 
-/** The alternatives of `PlanAddedBone`'s site. */
+/*
+ * The alternatives of `PlanAddedBone`'s site.
+ */
 type PlanAddedBone = "neck" | "head";
 
-/** The alternatives of `PlanHeadRestPlanLimb`'s site. */
+/*
+ * The alternatives of `PlanHeadRestPlanLimb`'s site.
+ */
 type PlanHeadRestPlanLimb = "leftArm" | "rightArm";

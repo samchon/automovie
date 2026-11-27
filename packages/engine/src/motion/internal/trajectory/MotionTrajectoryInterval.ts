@@ -1,15 +1,14 @@
 import type { MotionTrajectoryRead } from "./MotionTrajectoryRead";
 
-/**
+/*
  * Locate one completed dense interval for the full and quaternion-only readers.
- *
- * @param t0 The held left endpoint, seconds.
- * @param t1 The held right endpoint, seconds.
- * @param steps Completed forward steps, sorted by their actual start times.
- * @returns An integration-free reader of raw requested seconds. A held right
- *   end or NaN returns undefined; other reads lend one mutable location for
- *   synchronous use. Both consumers immediately read its step/share and never
- *   retain it in public output.
+ * Parameter t0: The held left endpoint, seconds.
+ * Parameter t1: The held right endpoint, seconds.
+ * Parameter steps: Completed forward steps, sorted by their actual start times.
+ * Returns: An integration-free reader of raw requested seconds. A held right
+ * end or NaN returns undefined; other reads lend one mutable location for
+ * synchronous use. Both consumers immediately read its step/share and never
+ * retain it in public output.
  */
 export function MotionTrajectoryInterval(
   t0: number,
@@ -17,9 +16,13 @@ export function MotionTrajectoryInterval(
   steps: readonly MotionTrajectoryRead.IDenseStep[],
 ): (time: number) =>
   | {
-      /** The internally borrowed accepted step. */
+      /*
+       * The internally borrowed accepted step.
+       */
       step: MotionTrajectoryRead.IDenseStep;
-      /** The requested time's dimensionless share of that step. */
+      /*
+       * The requested time's dimensionless share of that step.
+       */
       u: number;
     }
   | undefined {

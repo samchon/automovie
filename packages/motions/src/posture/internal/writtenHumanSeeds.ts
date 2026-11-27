@@ -11,7 +11,7 @@ import type {
 import { HumanLimbFit } from "./HumanLimbFit";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
-/**
+/*
  * The placement a resolve of a posture's limb goals takes where no fit of an
  * earlier second is at hand: each goal limb at the swivel and bend branch the
  * posture's own joints give it (`HumanLimbFit.seed`, in closed form on the
@@ -24,11 +24,10 @@ import { resolveHumanPosture } from "./resolveHumanPosture";
  * then pays a closed-form placement a limb per read instead of a sweep, and the
  * bones it reads are a function of the posture alone, the same in any reading
  * order.
- *
- * @param body The body.
- * @param posture The posture, its joints written and its goals unread.
- * @returns Each goal limb's prescribed swivel and branch; none for a limb whose
- *   written chain gives no seed.
+ * Parameter body: The body.
+ * Parameter posture: The posture, its joints written and its goals unread.
+ * Returns: Each goal limb's prescribed swivel and branch; none for a limb whose
+ * written chain gives no seed.
  */
 export function writtenHumanSeeds(
   body: IAutoMovieMotionHumanBody,

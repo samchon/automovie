@@ -2,7 +2,7 @@ import type * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
-/**
+/*
  * Collect the resources a subtree owner may retire, before any disposal event
  * can mutate that subtree. Geometry, standard materials, custom shadow
  * materials and skinned meshes' skeletons are distinct by object identity,

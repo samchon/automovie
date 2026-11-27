@@ -13,7 +13,7 @@ import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation";
 import { solvePhysicalTargetStep } from "./solvePhysicalTargetStep";
 
-/**
+/*
  * Fit metre residuals across one or more fixed-root articulation trees. The
  * caller supplies admitted topology and globally unique joint and bone names.
  * Coordinates are bounded joint radians. The projected poses keep each pivot.
@@ -37,7 +37,9 @@ export function solvePhysicalTargetForest(
     throw new Error("Invalid articulated target solve");
   const selected: Set<string> = new Set(input.bones);
   let rows: number | undefined;
-  /** Residual dimensions and finiteness remain invariant during every probe. */
+  /*
+   * Residual dimensions and finiteness remain invariant during every probe.
+   */
   const measure: (
     poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
   ) => number[] = (
@@ -289,7 +291,9 @@ export function solvePhysicalTargetForest(
   }
   return { targets, residual: Math.hypot(...errors), iterations };
 
-  /** Compile each actual tree branch once for this admitted profile invocation. */
+  /*
+   * Compile each actual tree branch once for this admitted profile invocation.
+   */
   function subtree(bone: string): string[] {
     const previous: string[] | undefined = subtrees.get(bone);
     if (previous) return previous;
@@ -303,7 +307,7 @@ export function solvePhysicalTargetForest(
     return result;
   }
 
-  /**
+  /*
    * Admit the seed once, then own only branches changed from the accepted pose.
    * The shared setter replaces vectors on mutable pose shells, so unchanged
    * accepted branches remain borrowed and untouched.
@@ -382,7 +386,9 @@ export function solvePhysicalTargetForest(
   }
 }
 
-/** Admitted articulation trees with unique names in the same candidate pose map. */
+/*
+ * Admitted articulation trees with unique names in the same candidate pose map.
+ */
 type IPhysicalTargetForestInput = Omit<
   IAutoMovieSolvePhysicalArticulationTargets.IInput,
   "profile"
@@ -391,7 +397,9 @@ type IPhysicalTargetForestInput = Omit<
   readonly joints: readonly IAutoMoviePhysicalJoint[];
 };
 
-/** The best finite candidate and its number of attempted bounded updates. */
+/*
+ * The best finite candidate and its number of attempted bounded updates.
+ */
 type IPhysicalTargetForestResult =
   IAutoMovieSolvePhysicalArticulationTargets.IResult & {
     readonly iterations: number;

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-/**
+/*
  * Copy an admitted resolved metre-space vector into a newly owned Three vector,
  * preserving its three components and frame.
  */

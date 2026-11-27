@@ -5,7 +5,7 @@ import type {
   IAutoMovieSequenceRenderResult,
 } from "@automovie/interface";
 
-/**
+/*
  * Render a prepared sequence manifest: capture each resolved frame sample in
  * order, then encode the planned frame sequence with the planned ffmpeg args.
  * This is the sequence-level analogue of `renderVideo`, but the capture host

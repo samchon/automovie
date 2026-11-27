@@ -45,19 +45,27 @@ import { accumulateAutoMovieFilmSamples } from "./accumulateAutoMovieFilmSamples
  * `dispose` releases them all.
  */
 export class AutoMovieDrawBeauty {
-  /** The stage giving a subject's optics their response. */
+  /*
+   * The stage giving a subject's optics their response.
+   */
   private readonly response_: AutoMovieFilmResponseStage =
     new AutoMovieFilmResponseStage();
 
-  /** The stage measuring a subject's indirect shading around each sample. */
+  /*
+   * The stage measuring a subject's indirect shading around each sample.
+   */
   private readonly indirect_: AutoMovieFilmIndirectStage =
     new AutoMovieFilmIndirectStage();
 
-  /** The camera a lens sample is drawn through, its eye on the aperture. */
+  /*
+   * The camera a lens sample is drawn through, its eye on the aperture.
+   */
   private readonly lens_: THREE.PerspectiveCamera =
     new THREE.PerspectiveCamera();
 
-  /** The held layers of a transition. */
+  /*
+   * The held layers of a transition.
+   */
   private readonly displays_: AutoMovieTransitionDisplays =
     new AutoMovieTransitionDisplays();
 
@@ -250,7 +258,7 @@ export class AutoMovieDrawBeauty {
     this.displays_.dispose();
   }
 
-  /**
+  /*
    * Run one render of a layer with the scene's backdrop left undrawn when the
    * picture is transparent, restoring it afterwards even on failure. The
    * backdrop is held out around each render rather than once per call, so a
@@ -276,7 +284,9 @@ export class AutoMovieDrawBeauty {
   }
 }
 
-/** Types of `AutoMovieDrawBeauty`. */
+/*
+ * Types of `AutoMovieDrawBeauty`.
+ */
 export namespace AutoMovieDrawBeauty {
   /** One layer of a film picture, as `sample` places and accumulates it. */
   export interface ILayer {

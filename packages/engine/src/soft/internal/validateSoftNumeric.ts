@@ -1,6 +1,6 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
 
-/**
+/*
  * Append a range violation for a non-finite scalar or an open/closed interval
  * failure.
  */

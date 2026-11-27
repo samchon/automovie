@@ -9,17 +9,16 @@ import type {
 import { AutoMovieMotionHumanHand } from "../../compose/internal/AutoMovieMotionHumanHand";
 import { bendFloorThumb } from "./bendFloorThumb";
 
-/**
+/*
  * Open the working hand against its palmar plane as it arrives at the floor:
  * the flat shape with its thumb's metacarpal turned by the twist that clears
  * the palm (`bendFloorThumb`), both written by the same weight.
- *
- * @param body The body.
- * @param shape The posture whose root and heading the thumb is read in.
- * @param side The hand.
- * @param to The film second the hand is flat by.
- * @param weight The share of the flat hand at a film second, 0 to 1.
- * @returns The hand's writer.
+ * Parameter body: The body.
+ * Parameter shape: The posture whose root and heading the thumb is read in.
+ * Parameter side: The hand.
+ * Parameter to: The film second the hand is flat by.
+ * Parameter weight: The share of the flat hand at a film second, 0 to 1.
+ * Returns: The hand's writer.
  */
 export function bendFloorHand(
   body: IAutoMovieMotionHumanBody,

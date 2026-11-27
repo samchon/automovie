@@ -241,11 +241,17 @@ export namespace HumanCue {
   }
 }
 
-/** The record of `IInstantsI2`'s site. */
+/*
+ * The record of `IInstantsI2`'s site.
+ */
 type IInstantsI2 = { label: string; seconds: number };
 
-/** The record of `IInstantsI`'s site. */
+/*
+ * The record of `IInstantsI`'s site.
+ */
 type IInstantsI = { label: string };
 
-/** The record of `IOrdersTrackItem`'s site. */
+/*
+ * The record of `IOrdersTrackItem`'s site.
+ */
 type IOrdersTrackItem = { cue: IAutoMovieScheduleCue; order: number };

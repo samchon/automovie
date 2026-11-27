@@ -3,7 +3,9 @@ import type {
   IAutoMovieHumanPoseChannels,
 } from "@automovie/interface";
 
-/** Existing head, neck, shoulder and thumb rows preserve literal joint identities. */
+/*
+ * Existing head, neck, shoulder and thumb rows preserve literal joint identities.
+ */
 const INITIAL = [
   ["head.eyes.<side>.vertical", "<side>Eye", "flexion", 1, -30, 30],
   ["head.eyes.<side>.horizontal", "<side>Eye", "twist", 1, -45, 45, true],
@@ -103,14 +105,18 @@ const INITIAL = [
   number,
   boolean?,
 ])[];
-/** Existing finger construction inputs are shared by runtime rows and their joint types. */
+/*
+ * Existing finger construction inputs are shared by runtime rows and their joint types.
+ */
 const FINGERS = [
   ["index", "Index"],
   ["middle", "Middle"],
   ["ring", "Ring"],
   ["little", "Little"],
 ] as const satisfies readonly (readonly [string, string])[];
-/** Existing axial, pelvis, leg and foot rows preserve literal joint identities. */
+/*
+ * Existing axial, pelvis, leg and foot rows preserve literal joint identities.
+ */
 const AXIAL = [
   ["spine.thoracic.flexion", "chest", "flexion", 1, -10, 30],
   ["spine.thoracic.lateralFlexion", "chest", "abduction", -1, -15, 15],
@@ -175,7 +181,9 @@ const AXIAL = [
   number,
   number,
 ])[];
-/** Existing toe construction inputs are shared by runtime rows and their joint types. */
+/*
+ * Existing toe construction inputs are shared by runtime rows and their joint types.
+ */
 const TOES = [
   ["second", 2],
   ["third", 3],

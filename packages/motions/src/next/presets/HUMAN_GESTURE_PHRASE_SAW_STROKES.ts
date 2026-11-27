@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `sawStrokes` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. Sawing: the fist that holds the saw draws forward
  * and back over the target.

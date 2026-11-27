@@ -5,7 +5,7 @@ import type {
 
 import { AutoMovieEngineSpace } from "../AutoMovieEngineSpace";
 
-/**
+/*
  * Is `(x, z)` on the surface the footprint describes?
  *
  * The region is closed: the outer rim and every hole rim belong to it, because

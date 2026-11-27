@@ -19,34 +19,39 @@ import type { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralB
 import { AutoMovieHumanoidSurfaceExtents } from "./AutoMovieHumanoidSurfaceExtents";
 import { AutoMovieHumanoidSurfacePlacement } from "./AutoMovieHumanoidSurfacePlacement";
 
-/** Companion types and helpers of {@link resolveAutoMovieHumanoidSurfaces}. */
+/*
+ * Companion types and helpers of resolveAutoMovieHumanoidSurfaces.
+ */
 export namespace resolveAutoMovieHumanoidSurfaces {
-  /** Execute the operation without merging a callable with this namespace. */
+  /*
+   * Execute the operation without merging a callable with this namespace.
+   */
   export const run = resolveAutoMovieHumanoidSurfacesRun;
-  /**
+  /*
    * Fresh world point, metres, without normal/forward reads or rotations. Uses
    * place's original local-to-world expression; inputs are admitted.
    */
   export const point: typeof AutoMovieHumanoidSurfacePlacement.point =
     AutoMovieHumanoidSurfacePlacement.point;
 
-  /** Fresh world normal without observing point, parent position or forward. */
+  /*
+   * Fresh world normal without observing point, parent position or forward.
+   */
   export const normal: typeof AutoMovieHumanoidSurfacePlacement.normal =
     AutoMovieHumanoidSurfacePlacement.normal;
 
-  /**
+  /*
    * Fresh world point and normal, without observing an unused forward
    * direction.
    */
   export const pointNormal: typeof AutoMovieHumanoidSurfacePlacement.pointNormal =
     AutoMovieHumanoidSurfacePlacement.pointNormal;
 
-  /**
+  /*
    * A surface frame's world point and normal under a posed bone.
-   *
-   * @param frame The bone-local frame.
-   * @param bone The bone's resolved world placement.
-   * @returns World point (metres) and unit normal.
+   * Parameter frame: The bone-local frame.
+   * Parameter bone: The bone's resolved world placement.
+   * Returns: World point (metres) and unit normal.
    */
   export function place(
     frame: IAutoMovieHumanoidSurfaces.IFrame,
@@ -55,18 +60,17 @@ export namespace resolveAutoMovieHumanoidSurfaces {
     return AutoMovieHumanoidSurfacePlacement.run(frame, bone);
   }
 
-  /**
+  /*
    * Whether a region is placed by a ray, so `offset` accepts it.
-   *
-   * @param region The region.
-   * @returns False for the palms, soles, heels, seat and the digits' tips and
-   *   pads, which take a socket's point or a phalanx's line.
+   * Parameter region: The region.
+   * Returns: False for the palms, soles, heels, seat and the digits' tips and
+   * pads, which take a socket's point or a phalanx's line.
    */
   export function rayed(region: AutoMovieHumanoidRegion): boolean {
     return AutoMovieHumanoidSurfaceRegions.TABLE[region] !== undefined;
   }
 
-  /**
+  /*
    * A point of a region's surface beside the region's own point.
    *
    * The region's ray leaves its station along its direction and meets the
@@ -75,15 +79,14 @@ export namespace resolveAutoMovieHumanoidSurfaces {
    * ray from the same station through the offset point leaves the colliders,
    * with the colliders' outward normal there, so it lies on the body's surface
    * for any offset and equals the region's frame at zero.
-   *
-   * @param skeleton The canonical rig.
-   * @param profile Its physical profile, segments keyed by rig bones.
-   * @param region A region placed by a ray: every region but the palms, soles,
-   *   heels, seat and the digits' tips and pads.
-   * @param tangent The offset on the region's tangent plane.
-   * @returns The bone-local frame of the surface point.
-   * @throws {Error} When the region is not placed by a ray, or a bone or
-   *   segment it needs is missing.
+   * Parameter skeleton: The canonical rig.
+   * Parameter profile: Its physical profile, segments keyed by rig bones.
+   * Parameter region: A region placed by a ray: every region but the palms, soles,
+   * heels, seat and the digits' tips and pads.
+   * Parameter tangent: The offset on the region's tangent plane.
+   * Returns: The bone-local frame of the surface point.
+   * When the region is not placed by a ray, or a bone or
+   * segment it needs is missing.
    */
   export function offset(
     skeleton: IAutoMovieSkeleton,
@@ -131,12 +134,11 @@ export namespace resolveAutoMovieHumanoidSurfaces {
     return local(def.station.bone, hit.point, hit.normal);
   }
 
-  /**
+  /*
    * The right twin a left region is the mirror of: the same name on the right,
    * and the liver for the spleen; none for a right or median region.
-   *
-   * @param region The region.
-   * @returns Its right twin, when it is a left region.
+   * Parameter region: The region.
+   * Returns: Its right twin, when it is a left region.
    */
   export function twin(
     region: AutoMovieHumanoidRegion,
@@ -147,12 +149,11 @@ export namespace resolveAutoMovieHumanoidSurfaces {
       : undefined;
   }
 
-  /**
+  /*
    * Whether a region lies on the median plane, its own mirror image: neither
    * sided nor one of the liver and spleen pair.
-   *
-   * @param region The region.
-   * @returns Whether it is median.
+   * Parameter region: The region.
+   * Returns: Whether it is median.
    */
   export function median(region: AutoMovieHumanoidRegion): boolean {
     return (
@@ -163,13 +164,12 @@ export namespace resolveAutoMovieHumanoidSurfaces {
     );
   }
 
-  /**
+  /*
    * A median frame on the median plane to the bit: its point's, normal's and
    * forward's lateral components nought, the frame and its mirror image
    * averaged.
-   *
-   * @param frame The frame.
-   * @returns The frame, its own mirror image.
+   * Parameter frame: The frame.
+   * Returns: The frame, its own mirror image.
    */
   export function centred(
     frame: IAutoMovieHumanoidSurfaces.IFrame,
@@ -187,15 +187,14 @@ export namespace resolveAutoMovieHumanoidSurfaces {
     };
   }
 
-  /**
+  /*
    * A frame's mirror image in the median plane: on the other side's bone, its
    * point, normal and forward with their lateral component negated. A rest
    * frame mirrored across the median plane (`M R M`) maps a bone-local vector
    * to the same vector with its lateral component negated, so the mirror is
    * exact.
-   *
-   * @param frame The frame.
-   * @returns Its mirror image.
+   * Parameter frame: The frame.
+   * Returns: Its mirror image.
    */
   export function mirrored(
     frame: IAutoMovieHumanoidSurfaces.IFrame,
@@ -219,7 +218,7 @@ export namespace resolveAutoMovieHumanoidSurfaces {
   }
 }
 
-/**
+/*
  * Resolve every anatomical region and contact socket of a canonical humanoid
  * onto its collision shapes, as bone-local frames that follow any pose.
  *
@@ -262,14 +261,13 @@ export namespace resolveAutoMovieHumanoidSurfaces {
  * spleen, the liver's twin) is its right twin's frame mirrored in the median
  * plane (`mirrored`), on the opposite bone, so a left act reads a frame that is
  * the mirror of the right one to the bit, as the rig's own rest is.
- *
- * @param skeleton The canonical rig.
- * @param profile Its physical profile, segments keyed by rig bones.
- * @param neutral Optional genuine internal unchanged-profile bounds epoch,
- *   owned and released by measureAutoMovieHumanoidBody.withSurfaces.
- * @returns Every region and socket.
- * @throws {Error} When a bone or segment a definition needs is missing, or a
- *   ray misses its colliders.
+ * Parameter skeleton: The canonical rig.
+ * Parameter profile: Its physical profile, segments keyed by rig bones.
+ * Parameter neutral: Optional genuine internal unchanged-profile bounds epoch,
+ * owned and released by measureAutoMovieHumanoidBody.withSurfaces.
+ * Returns: Every region and socket.
+ * When a bone or segment a definition needs is missing, or a
+ * ray misses its colliders.
  */
 function resolveAutoMovieHumanoidSurfacesRun(
   skeleton: IAutoMovieSkeleton,
@@ -444,19 +442,19 @@ function resolveAutoMovieHumanoidSurfacesRun(
   return { regions, sockets };
 }
 
-/**
+/*
  * Radius of a 50 mm handle, the optimal power-grip size (Grant, Habes and
  * Steward 1992), metres.
  */
 const GRIP_RADIUS: number = 0.025;
 
-/**
+/*
  * Radius of the third metacarpal head, the fist's striking surface ahead of the
  * knuckle joint, metres.
  */
 const KNUCKLE_RADIUS: number = 0.012;
 
-/**
+/*
  * Metres a station may sit outside a collider and still count as on it: the
  * colliders are closed sets, so a station on a face or a cap must not miss by
  * rounding.

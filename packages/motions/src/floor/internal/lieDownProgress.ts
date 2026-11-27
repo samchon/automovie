@@ -5,14 +5,13 @@ import type {
 
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 
-/**
+/*
  * Each route phase's prepared progress on the clock
  * (`AutoMovieMotionClock.prepare`), from its phase to the next.
  *
  * Part of `lieDown.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `progress`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `progress`.
  */
 export function lieDownProgress(
   prepared: lieDownProgress.IPrepared,
@@ -31,17 +30,27 @@ export function lieDownProgress(
   );
 }
 
-/** The `progress` of `lieDown.plan`, built from what that plan prepared. */
+/*
+ * The `progress` of `lieDown.plan`, built from what that plan prepared.
+ */
 export namespace lieDownProgress {
-  /** What `lieDown.plan` prepared for its `progress`. */
+  /*
+   * What `lieDown.plan` prepared for its `progress`.
+   */
   export interface IPrepared {
-    /** The `route` `lieDown.plan` prepared. */
+    /*
+     * The `route` `lieDown.plan` prepared.
+     */
     route: readonly [string, string][];
 
-    /** The `clock` `lieDown.plan` prepared. */
+    /*
+     * The `clock` `lieDown.plan` prepared.
+     */
     clock: IAutoMovieMotionClock;
 
-    /** The `phases` `lieDown.plan` prepared. */
+    /*
+     * The `phases` `lieDown.plan` prepared.
+     */
     phases: IAutoMovieMotionClockPhase[];
   }
 }

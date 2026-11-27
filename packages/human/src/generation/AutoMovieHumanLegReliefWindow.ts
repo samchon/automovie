@@ -96,7 +96,9 @@ export namespace AutoMovieHumanLegReliefWindow {
   }
 }
 
-/** Angle reduced to `[0, 2 pi)`. */
+/*
+ * Angle reduced to `[0, 2 pi)`.
+ */
 function wrap(t: number): number {
   const r: number = t % (2 * Math.PI);
   return r < 0 ? r + 2 * Math.PI : r;

@@ -19,7 +19,7 @@ import { AutoMovieMotionHumanAuditTangleMargin as Margin } from "./AutoMovieMoti
 import { AutoMovieMotionHumanAuditTangleModel as M } from "./AutoMovieMotionHumanAuditTangleModel";
 import type { IAutoMovieMotionHumanAuditExemption as IExemption } from "./IAutoMovieMotionHumanAuditExemption";
 
-/**
+/*
  * How deep a displayed body's own parts pass into one another: the tangle a
  * limb crossing through the trunk, a hand buried in the head or two legs run
  * through each other shows on screen.
@@ -71,30 +71,29 @@ import type { IAutoMovieMotionHumanAuditExemption as IExemption } from "./IAutoM
  * far as it gives, and no deeper.
  */
 export namespace AutoMovieMotionHumanAuditTangle {
-  /**
+  /*
    * The reference overlap beyond which two segments' surfaces are one volume by
    * their build, metres: the 10 mm a pressed skin gives, the audit's own limit
    * for a tangle. Two colliders deeper in each other than that while the body
    * stands at rest cannot be told apart by their corners.
    */
   export const BUILT: number = AutoMovieMotionHumanAuditSkin.BUILT;
-  /**
+  /*
    * Read a person's self-penetration over the whole motion.
    *
    * The result is the one reading every pair at every grid instant gives
-   * ({@link pose} at each instant, each pair keeping its deepest, first instant
+   * (pose at each instant, each pair keeping its deepest, first instant
    * on a tie), from fewer pair readings: a pair read at an instant is read
    * again only at the first instant its margin does not certify
    * (`AutoMovieMotionHumanAuditTangleMargin`, `advanceAutoMovieGrid`), the
    * margin being how far its depth can grow before it would add to the pair's
    * record and the bound how far its two segments can have moved, measured from
    * the motion's own poses on the grid.
-   *
-   * @param motion The motion.
-   * @param subject The person.
-   * @param body Their body.
-   * @param rate Grid samples per second.
-   * @returns The deepest pair and every pair.
+   * Parameter motion: The motion.
+   * Parameter subject: The person.
+   * Parameter body: Their body.
+   * Parameter rate: Grid samples per second.
+   * Returns: The deepest pair and every pair.
    */
   export function measure(
     motion: IAutoMovieMotionHumanAuditMotion,
@@ -198,15 +197,14 @@ export namespace AutoMovieMotionHumanAuditTangle {
     };
   }
 
-  /**
+  /*
    * Every pair of segments that pass into each other in one pose.
-   *
-   * @param body The body.
-   * @param bones Its displayed bones.
-   * @param skip Unordered pair keys (`unordered`) not to read.
-   * @param pressed Unordered pair keys read only beyond a depth, metres: a
-   *   declared rest's give.
-   * @returns The pairs, each once, with the deeper direction.
+   * Parameter body: The body.
+   * Parameter bones: Its displayed bones.
+   * Parameter skip: Unordered pair keys (`unordered`) not to read.
+   * Parameter pressed: Unordered pair keys read only beyond a depth, metres: a
+   * declared rest's give.
+   * Returns: The pairs, each once, with the deeper direction.
    */
   export function pose(
     body: IAutoMovieMotionHumanBody,
@@ -223,16 +221,15 @@ export namespace AutoMovieMotionHumanAuditTangle {
     );
   }
 
-  /**
+  /*
    * Every segment of one body that passes into a segment of another body in one
    * pose. Two bodies share no joint and no rest pose, so every pair is read at
    * its full depth.
-   *
-   * @param body The body whose probes are read.
-   * @param bones Its displayed bones.
-   * @param other The body they are read against.
-   * @param otherBones That body's displayed bones.
-   * @returns The pairs, `a` of `body` in `b` of `other`, with `seconds` zero.
+   * Parameter body: The body whose probes are read.
+   * Parameter bones: Its displayed bones.
+   * Parameter other: The body they are read against.
+   * Parameter otherBones: That body's displayed bones.
+   * Returns: The pairs, `a` of `body` in `b` of `other`, with `seconds` zero.
    */
   export function across(
     body: IAutoMovieMotionHumanBody,
@@ -248,29 +245,28 @@ export namespace AutoMovieMotionHumanAuditTangle {
     );
   }
 
-  /**
+  /*
    * How far one arm's segments (the upper arm, the forearm, the hand and its
    * fingers) pass into the rest of the same body beyond their reference depths,
    * as degrees of turn at the shoulder: each probe's excess depth over its
    * distance from the shoulder joint. The reading the tangle audit makes of the
    * arm, in the unit a range of motion overshoot has, so a law that keeps an
    * arm clear keeps it clear by this audit's measure.
-   *
-   * @param body The body.
-   * @param bones Its posed bones.
-   * @param side The arm.
-   * @param prepared Optional exact placement of this body and bone map in the
-   *   same unchanged evaluation, in original profile order; computed here when
-   *   absent.
-   * @param targets The caller's list of the segments already prepared as
-   *   read-in targets (`prepareAutoMovieMotionHumanAuditDepths`), by index in
-   *   `prepared`; an entry must belong to the very placed segment at its index,
-   *   so a caller that replaces a placed segment between reads clears that
-   *   entry. A list of this read's own when absent.
-   * @param exceeded A monotone predicate for an optional lower-bound decision.
-   *   When absent every part is scored for the maximum.
-   * @returns Degrees; 0 when no probe of the arm lies deeper than at rest or in
-   *   the quiet stance.
+   * Parameter body: The body.
+   * Parameter bones: Its posed bones.
+   * Parameter side: The arm.
+   * Parameter prepared: Optional exact placement of this body and bone map in the
+   * same unchanged evaluation, in original profile order; computed here when
+   * absent.
+   * Parameter targets: The caller's list of the segments already prepared as
+   * read-in targets (`prepareAutoMovieMotionHumanAuditDepths`), by index in
+   * `prepared`; an entry must belong to the very placed segment at its index,
+   * so a caller that replaces a placed segment between reads clears that
+   * entry. A list of this read's own when absent.
+   * Parameter exceeded: A monotone predicate for an optional lower-bound decision.
+   * When absent every part is scored for the maximum.
+   * Returns: Degrees; 0 when no probe of the arm lies deeper than at rest or in
+   * the quiet stance.
    */
   export function arm(
     body: IAutoMovieMotionHumanBody,
@@ -359,12 +355,11 @@ export namespace AutoMovieMotionHumanAuditTangle {
     return worst;
   }
 
-  /**
+  /*
    * The key of an unordered pair of bones.
-   *
-   * @param a One bone.
-   * @param b The other.
-   * @returns The same key for either order.
+   * Parameter a: One bone.
+   * Parameter b: The other.
+   * Returns: The same key for either order.
    */
   export function unordered(
     a: AutoMovieHumanoidBone,
@@ -374,7 +369,7 @@ export namespace AutoMovieMotionHumanAuditTangle {
   }
 }
 
-/**
+/*
  * The declared contacts of a person with their own body, as pair keys and
  * spans.
  */

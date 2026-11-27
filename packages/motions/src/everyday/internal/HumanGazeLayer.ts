@@ -9,17 +9,16 @@ import type {
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { HumanGaze } from "./HumanGaze";
 
-/**
+/*
  * A gaze layer (`HumanGaze.layer`): from `from` the eyes, head and trunk turn
  * toward the target on their own timings and track it; from `to` they return. A
  * request that begins while an earlier one still holds the gaze turns the parts
  * on from where that one has them, so the gaze moves from target to target
  * without passing through rest.
- *
- * @param requests The gazes, in time order; each one's `from` after the
- *   previous one's `from`.
- * @param name The layer's name.
- * @returns The layer.
+ * Parameter requests: The gazes, in time order; each one's `from` after the
+ * previous one's `from`.
+ * Parameter name: The layer's name.
+ * Returns: The layer.
  */
 export function HumanGazeLayer(
   requests: readonly IAutoMovieMotionHumanGaze.ILayer[],
@@ -148,35 +147,45 @@ export function HumanGazeLayer(
   };
 }
 
-/** A part of the body a gaze recruits on its own timing. */
+/*
+ * A part of the body a gaze recruits on its own timing.
+ */
 type GazePart = "eyes" | "head" | "trunk";
 
-/** A target's direction from the eyes, degrees. */
+/*
+ * A target's direction from the eyes, degrees.
+ */
 type IStageTowards = { yaw: number; pitch: number };
 
-/**
+/*
  * One request showing at an instant: the request, its target's point, its
  * direction from the posture under the layer and its parts' turn durations,
  * seconds.
  */
 interface IStage {
-  /** The request. */
+  /*
+   * The request.
+   */
   request: IAutoMovieMotionHumanGaze.ILayer;
 
-  /** Where its target is at the instant, world metres. */
+  /*
+   * Where its target is at the instant, world metres.
+   */
   point: IAutoMovieVector3;
 
-  /**
+  /*
    * The target's direction from the eyes on the posture under the layer,
    * degrees.
    */
   towards: IStageTowards;
 
-  /** Each part's onset and return duration, seconds. */
+  /*
+   * Each part's onset and return duration, seconds.
+   */
   durations: Record<GazePart, number>;
 }
 
-/**
+/*
  * A request's weight for one part at a second: its minimum-jerk onset over the
  * part's duration from `from`, less its return over the same duration from
  * `to`.

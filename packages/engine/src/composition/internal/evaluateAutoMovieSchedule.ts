@@ -4,14 +4,13 @@ import type {
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
-/**
+/*
  * The schedule at one instant, pure and seekable: the entries active then with
  * their phase, and each subject's latest state snapshot from an entry already
  * ended. Reading any instant in any order gives the same answer.
- *
- * @param schedule The resolved schedule.
- * @param seconds Film seconds.
- * @returns The active entries and the subjects' states.
+ * Parameter schedule: The resolved schedule.
+ * Parameter seconds: Film seconds.
+ * Returns: The active entries and the subjects' states.
  */
 export function evaluateAutoMovieSchedule(
   schedule: IAutoMovieSchedule,

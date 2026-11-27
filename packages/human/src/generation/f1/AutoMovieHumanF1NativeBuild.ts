@@ -22,19 +22,19 @@ import { AutoMovieHumanF1NativeCalibration as Calibration } from "../AutoMovieHu
 import { AutoMovieHumanF1NativeCourse as LengthCourse } from "../AutoMovieHumanF1NativeCourse";
 import { AutoMovieHumanF1NativeRoots } from "./AutoMovieHumanF1NativeRoots";
 
-/**
+/*
  * Qualified native field/source construction under one immutable original
  * invocation.
  */
 export namespace AutoMovieHumanF1NativeBuild {
-  /**
+  /*
    * The actual complete-source or two-family tape request, never a padded
    * partial figure.
    */
   export type Request =
     | { scope: "all"; fields: IAutoMovieHumanF1NativeLaw.IFields }
     | { scope: "tapes"; fields: IAutoMovieHumanF1NativeLaw.ITapeFields };
-  /**
+  /*
    * Complete assembly or the two exact tape-family definitions from that same
    * builder.
    */
@@ -47,7 +47,7 @@ export namespace AutoMovieHumanF1NativeBuild {
       };
   const { ARM, EXTREMITIES, WALL, profile, ratio, same, translated } =
     Calibration;
-  /**
+  /*
    * Build the shared original source definitions and dependent complete
    * assembly without lofting.
    */
@@ -108,7 +108,7 @@ export namespace AutoMovieHumanF1NativeBuild {
     function stationOf(point: AutoMovieVector3Tuple): number {
       return F.dot(F.sub(point, trunkFrame.origin), tangent);
     }
-    /**
+    /*
      * Retained wall-only datum prior for the leg, head appendages and original
      * fill datums.
      */
@@ -142,7 +142,7 @@ export namespace AutoMovieHumanF1NativeBuild {
         throw new Error("native requested source absent: " + name);
       return result;
     }
-    /**
+    /*
      * The declared bilateral chart map carries source axes and physical2
      * together.
      */
@@ -181,7 +181,7 @@ export namespace AutoMovieHumanF1NativeBuild {
         },
       };
     }
-    /**
+    /*
      * Generate one family and register its original physical station map in
      * this invocation.
      */
@@ -219,7 +219,7 @@ export namespace AutoMovieHumanF1NativeBuild {
       });
       return result;
     }
-    /**
+    /*
      * Resolve actual complete original root targets with the same fixed feature
      * scope.
      */
@@ -282,7 +282,9 @@ export namespace AutoMovieHumanF1NativeBuild {
       "trunk.eyes",
       "trunk.chin",
     ];
-    /** Each named trunk feature keeps its declared anatomical field owner. */
+    /*
+     * Each named trunk feature keeps its declared anatomical field owner.
+     */
     function trunkFeature(net: IAutoMovieLoftRelief): AutoMovieVector2Tuple {
       if (headNets.includes(net.name))
         return ratio(fields.wall.headSkin, zero.wall.headSkin);

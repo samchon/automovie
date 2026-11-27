@@ -10,7 +10,7 @@ import { AutoMovieMotionHumanActionRow } from "../../law/AutoMovieMotionHumanAct
 import { HUMAN_FIREARM_DRAW } from "../../next/presets/HUMAN_FIREARM_DRAW";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
 
-/**
+/*
  * Handling a firearm with the weapon as the effector: presenting it to an aim
  * or a ready position, the shot's recoil, and the draw and the return to a
  * holster.
@@ -34,21 +34,25 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
  * are.
  */
 export namespace HumanWeaponFirearm {
-  /** Present a firearm: `HumanWeaponPresent.present` under its firearm name. */
+  /*
+   * Present a firearm: `HumanWeaponPresent.present` under its firearm name.
+   */
   export const present: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWeaponPresent.IPresent> =
     {
       ...HumanWeaponPresent.present,
       name: "presentFirearm",
     };
 
-  /** Fire one shot: `HumanWeaponPresent.fire` under its firearm name. */
+  /*
+   * Fire one shot: `HumanWeaponPresent.fire` under its firearm name.
+   */
   export const fire: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanWeaponPresent.IWield> =
     {
       ...HumanWeaponPresent.fire,
       name: "fireFirearm",
     };
 
-  /**
+  /*
    * Draw: take the holstered firearm by its grip, the bore continuing the
    * forearm, and lift it clear. The composition gives the firearm (`prop`).
    */
@@ -60,7 +64,7 @@ export namespace HumanWeaponFirearm {
     HUMAN_FIREARM_DRAW,
   );
 
-  /**
+  /*
    * Holster: put the firearm back where the composition says its holster holds
    * it (`prop` and `at`).
    */

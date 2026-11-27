@@ -8,7 +8,7 @@ import type {
   IAutoMovieQuaternion,
 } from "@automovie/interface";
 
-/**
+/*
  * Project the desired world hand rotation across native forearm pronation and
  * wrist axes, writing their clinical coordinates into the trial arm.
  */

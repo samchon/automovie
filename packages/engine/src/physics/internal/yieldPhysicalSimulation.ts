@@ -1,4 +1,4 @@
-/**
+/*
  * Observe completed work and cooperatively release the host at the declared
  * interval.
  */

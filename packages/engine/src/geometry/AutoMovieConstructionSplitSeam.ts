@@ -319,7 +319,9 @@ export namespace AutoMovieConstructionSplitSeam {
     };
   }
 
-  /** 8-point Gauss-Legendre nodes and weights on [-1, 1]. */
+  /*
+   * 8-point Gauss-Legendre nodes and weights on [-1, 1].
+   */
   const GAUSS: [number, number][] = [
     [-0.9602898564975363, 0.1012285362903763],
     [-0.7966664774136267, 0.2223810344533745],

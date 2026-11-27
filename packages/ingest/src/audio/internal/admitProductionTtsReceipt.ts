@@ -9,7 +9,7 @@ import type {
 import { decodeProductionAudioAsset } from "./decodeProductionAudioAsset";
 import { resampleProductionAudio } from "./resampleProductionAudio";
 
-/**
+/*
  * Admit one generated line's receipt against its line and its bytes, and decode
  * the line at the requested rate.
  *
@@ -27,10 +27,9 @@ import { resampleProductionAudio } from "./resampleProductionAudio";
  *
  * Ingest owns this admission because it reads external media bytes, and engine,
  * which ingest depends on, cannot call it.
- *
- * @param props The line, its WAVE and receipt bytes with their paths, and the
- *   output rate.
- * @returns The admitted receipt and the line's samples at `props.sampleRate`.
+ * Parameter props: The line, its WAVE and receipt bytes with their paths, and the
+ * output rate.
+ * Returns: The admitted receipt and the line's samples at `props.sampleRate`.
  */
 export function admitProductionTtsReceipt(
   props: IAutoMovieAdmitProductionTtsReceipt.IProps,
@@ -143,7 +142,7 @@ export function admitProductionTtsReceipt(
   };
 }
 
-/**
+/*
  * Parse the receipt bytes and check the type of every field admission reads or
  * the receipt requires.
  */

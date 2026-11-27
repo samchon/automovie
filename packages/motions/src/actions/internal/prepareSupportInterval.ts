@@ -23,10 +23,12 @@ import { prepareSupportPinFloor } from "./prepareSupportPinFloor";
 import { supportContact } from "./supportContact";
 import { supportKey } from "./supportKey";
 
-/** The world-mode interval needs no material frame observations. */
+/*
+ * The world-mode interval needs no material frame observations.
+ */
 const NO_SITES: readonly IAutoMovieRigidTransform[] = [];
 
-/**
+/*
  * Prepare one support interval: the joint blend between its two keys, the root
  * translation that keeps its common knee or trunk contact, or the first common
  * hand or foot contact, on its achieved point, the floor bound, and an analytic
@@ -47,20 +49,19 @@ const NO_SITES: readonly IAutoMovieRigidTransform[] = [];
  * between them (`prepareSupportLiftCourse`). A held knee or trunk contact has
  * no two-bone chain ending at it and stays held only through the root pin and
  * the floor bound.
- *
- * @param body The unchanged body.
- * @param a The fixed key before the interval.
- * @param b The fixed key after it.
- * @param place The entry-time contact lookup, which may observe an unsettled
- *   schedule.
- * @param socket The sole socket each floor foot holds through its window
- *   (`supportHeldSocket`); the lower of its heel and ball at the key before
- *   when absent.
- * @param bind The exact reader of a shared contact's named material, when
- *   given.
- * @param floor The unchanged body's prepared floor bound, shared by the plan.
- * @returns The interior writer and invalidation of its target observations at
- *   plan settlement.
+ * Parameter body: The unchanged body.
+ * Parameter a: The fixed key before the interval.
+ * Parameter b: The fixed key after it.
+ * Parameter place: The entry-time contact lookup, which may observe an unsettled
+ * schedule.
+ * Parameter socket: The sole socket each floor foot holds through its window
+ * (`supportHeldSocket`); the lower of its heel and ball at the key before
+ * when absent.
+ * Parameter bind: The exact reader of a shared contact's named material, when
+ * given.
+ * Parameter floor: The unchanged body's prepared floor bound, shared by the plan.
+ * Returns: The interior writer and invalidation of its target observations at
+ * plan settlement.
  */
 export function prepareSupportInterval(
   body: IAutoMovieMotionHumanBody,
@@ -299,19 +300,18 @@ export function prepareSupportInterval(
   };
 }
 
-/**
+/*
  * The bounded posture at a share: the blend, the pin carried from where the key
  * before achieved it to where the key after does (so the course meets each
  * key's own posture at its ends), each held hand or foot where the keys hold
  * it, fitted by the limb's own chain, and the floor bound.
- *
- * @param posed The interval's body, blend, pin and floor bound.
- * @param pinned The prepared pin points and held frames.
- * @param s The interval's eased pose share.
- * @param seconds The local action second for the retained material.
- * @param read The FK reader.
- * @param project The ROM projection.
- * @returns The bounded posture.
+ * Parameter posed: The interval's body, blend, pin and floor bound.
+ * Parameter pinned: The prepared pin points and held frames.
+ * Parameter s: The interval's eased pose share.
+ * Parameter seconds: The local action second for the retained material.
+ * Parameter read: The FK reader.
+ * Parameter project: The ROM projection.
+ * Returns: The bounded posture.
  */
 function placed(
   posed: IPosed,
@@ -363,7 +363,7 @@ function placed(
   };
 }
 
-/**
+/*
  * The hands and feet among the contacts both keys hold, one per limb in contact
  * order.
  */
@@ -402,7 +402,9 @@ function heldLimbs(
   return out;
 }
 
-/** Carry a point pair in its named material when one was bound. */
+/*
+ * Carry a point pair in its named material when one was bound.
+ */
 function retainedPoint(
   points: readonly [IAutoMovieVector3, IAutoMovieVector3],
   material: IMaterial | undefined,
@@ -413,7 +415,9 @@ function retainedPoint(
   return (share, sites) => read(sites[material.index]!, share);
 }
 
-/** Rotate a held joint about its retained contact and carry its bend pole. */
+/*
+ * Rotate a held joint about its retained contact and carry its bend pole.
+ */
 function heldGoal(
   frame: prepareSupportHeldFrames.IHeldFrames,
   material: IMaterial | undefined,
@@ -459,24 +463,29 @@ function heldGoal(
     };
   };
 }
-/** The material used by the support interval and its exact local placement. */
+/*
+ * The material used by the support interval and its exact local placement.
+ */
 export namespace prepareSupportInterval {
-  /** The full named frame at an action second. */
+  /*
+   * The full named frame at an action second.
+   */
   export type Site = (seconds: number) => IAutoMovieRigidTransform;
 
-  /** Bind an explicit retained contact to its material frame. */
+  /*
+   * Bind an explicit retained contact to its material frame.
+   */
   export type Material = (
     contact: IAutoMovieMotionHumanSupport.IContact,
   ) => Site | undefined;
 
-  /**
+  /*
    * Carry two achieved endpoint points in their common material frame. Their
    * residual at each solved key stays the same, while the material carries the
    * interval point through its actual intermediate translations and turns.
-   *
-   * @param endpoints The material's world frames at the two solved keys.
-   * @param points The achieved world points at those same keys.
-   * @returns The carried point at a full material frame and eased pose share.
+   * Parameter endpoints: The material's world frames at the two solved keys.
+   * Parameter points: The achieved world points at those same keys.
+   * Returns: The carried point at a full material frame and eased pose share.
    */
   export function materialPoint(
     endpoints: readonly [IAutoMovieRigidTransform, IAutoMovieRigidTransform],
@@ -503,7 +512,9 @@ export namespace prepareSupportInterval {
   }
 }
 
-/** Two angle triples mixed at a share, each component linearly. */
+/*
+ * Two angle triples mixed at a share, each component linearly.
+ */
 function mix(
   a: readonly [number, number, number],
   b: readonly [number, number, number],
@@ -516,34 +527,46 @@ function mix(
   ];
 }
 
-/**
+/*
  * The root lifts at most that clear the held legs of the floor: each removes
  * what the last left sinking, the refit after a lift raising the knee by no
  * more than the lift (provisional).
  */
 const LIFTS: number = 4;
 
-/**
+/*
  * How far under the floor a held leg may read before the root is lifted,
  * metres: a micrometre, far under the floor audit's 5 mm (provisional).
  */
 const SINK: number = 1e-6;
 
-/** A support key's immutable authored posture and contact order. */
+/*
+ * A support key's immutable authored posture and contact order.
+ */
 interface IKey {
-  /** The key's joint-space posture, world metres and clinical degrees. */
+  /*
+   * The key's joint-space posture, world metres and clinical degrees.
+   */
   posture: IAutoMovieMotionHumanPosture;
 
-  /** The ordered contacts that choose the interval's first common pin. */
+  /*
+   * The ordered contacts that choose the interval's first common pin.
+   */
   contacts: readonly IAutoMovieMotionHumanSupport.IContact[];
 
-  /** When the key is reached, seconds since the action's start. */
+  /*
+   * When the key is reached, seconds since the action's start.
+   */
   seconds: number;
 }
 
-/** One interval's writer and standard scheduling invalidation boundary. */
+/*
+ * One interval's writer and standard scheduling invalidation boundary.
+ */
 interface IInterval {
-  /** Read the interior progress and the material at the action's actual second. */
+  /*
+   * Read the interior progress and the material at the action's actual second.
+   */
   write(
     w: number,
     seconds: number,
@@ -551,71 +574,111 @@ interface IInterval {
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieMotionHumanPosture;
 
-  /** Prepare the target-dependent constants again from the placed observations. */
+  /*
+   * Prepare the target-dependent constants again from the placed observations.
+   */
   prepare(): void;
 }
 
-/** A contact the root can keep through an interval. */
+/*
+ * A contact the root can keep through an interval.
+ */
 type Pin = IAutoMovieMotionHumanSupport.IContact | undefined;
-/** What a share's bounded posture reads of its interval. */
+/*
+ * What a share's bounded posture reads of its interval.
+ */
 interface IPosed {
-  /** The unchanged body. */
+  /*
+   * The unchanged body.
+   */
   body: IAutoMovieMotionHumanBody;
 
-  /** The joint blend between the two keys. */
+  /*
+   * The joint blend between the two keys.
+   */
   blend: ReturnType<typeof supportKey.prepareBlended>;
 
-  /** The floor bound. */
+  /*
+   * The floor bound.
+   */
   floor: ReturnType<typeof knockdown.prepareRest>;
 }
 
-/** The pin's prepared points and the held limbs' frames. */
+/*
+ * The pin's prepared points and the held limbs' frames.
+ */
 interface IPinned {
-  /** The pin's achieved points at the two keys and its readers. */
+  /*
+   * The pin's achieved points at the two keys and its readers.
+   */
   fixed: IPrepareSupportIntervalFixed;
 
-  /** The held hands' and feet's prepared goal writers. */
+  /*
+   * The held hands' and feet's prepared goal writers.
+   */
   goals: readonly (readonly [prepareSupportHeldFrames.IHeld["limb"], IGoal])[];
 
-  /** Each distinct retained material frame, in its prepared slot. */
+  /*
+   * Each distinct retained material frame, in its prepared slot.
+   */
   sites: readonly prepareSupportInterval.Site[];
 
-  /** Whether a held foot stands raised above the floor. */
+  /*
+   * Whether a held foot stands raised above the floor.
+   */
   elevatedFoot: boolean;
 }
 
-/** An interval's target-dependent constants, prepared with its observations. */
+/*
+ * An interval's target-dependent constants, prepared with its observations.
+ */
 interface IPrepared {
-  /** The pin's points and held frames; none without a pin. */
+  /*
+   * The pin's points and held frames; none without a pin.
+   */
   pinned?: IPinned;
 
-  /** The held legs' lift course; none without a held leg. */
+  /*
+   * The held legs' lift course; none without a held leg.
+   */
   lifts?: prepareSupportLiftCourse.ICourse;
 }
 
-/** The record of `IPrepareSupportIntervalFixed`'s site. */
+/*
+ * The record of `IPrepareSupportIntervalFixed`'s site.
+ */
 type IPrepareSupportIntervalFixed = {
   point: IPoint;
   originalPoint: ReturnType<typeof supportContact.preparePoints>;
   pinFloor: ReturnType<typeof prepareSupportPinFloor>;
 };
 
-/** The site slot and its world frames at the solved keys. */
+/*
+ * The site slot and its world frames at the solved keys.
+ */
 interface IMaterial {
-  /** The index of the material frame in one interval evaluation. */
+  /*
+   * The index of the material frame in one interval evaluation.
+   */
   index: number;
 
-  /** The material's frame at the departing and arriving keys. */
+  /*
+   * The material's frame at the departing and arriving keys.
+   */
   endpoints: readonly [IAutoMovieRigidTransform, IAutoMovieRigidTransform];
 }
 
-/** Read a prepared contact point from the current interval frames and share. */
+/*
+ * Read a prepared contact point from the current interval frames and share.
+ */
 type IPoint = (
   share: number,
   sites: readonly IAutoMovieRigidTransform[],
 ) => IAutoMovieVector3;
 
-/** Read a prepared held-limb goal from the same interval frames and share. */
+/*
+ * Read a prepared held-limb goal from the same interval frames and share.
+ */
 type IGoal = (
   share: number,
   sites: readonly IAutoMovieRigidTransform[],

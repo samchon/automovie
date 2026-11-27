@@ -12,25 +12,24 @@ import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
-/**
+/*
  * The contact goals held by stopped weapons: a stopped limb holds its end where
  * the action's displayed pose put it at the stop.
  */
 export namespace HumanSegmentStop {
-  /**
+  /*
    * A stopped weapon's planted goal: its limb's end joint and middle joint as
    * the action displays them at the stop. The goal is a constant of the stop,
    * so the performance solves it once when it is prepared
    * (`IAutoMovieMotionHumanSegment.IPrepared.stops`); a display read before
    * that evaluates the stop pose itself.
-   *
-   * @param person The person whose displayed stop pose is read.
-   * @param segment The action whose weapon stopped.
-   * @param weapon The weapon.
-   * @param seconds The stop, film seconds.
-   * @param source Optional same-body preparation borrowed from the reading
-   *   evaluation.
-   * @returns The limb's planted goal.
+   * Parameter person: The person whose displayed stop pose is read.
+   * Parameter segment: The action whose weapon stopped.
+   * Parameter weapon: The weapon.
+   * Parameter seconds: The stop, film seconds.
+   * Parameter source: Optional same-body preparation borrowed from the reading
+   * evaluation.
+   * Returns: The limb's planted goal.
    */
   export function goal(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -63,13 +62,12 @@ export namespace HumanSegmentStop {
     };
   }
 
-  /**
+  /*
    * Every stopped weapon's planted goal of an action whose law does not take
    * its stops itself, by the weapon's id: what the performance prepares.
-   *
-   * @param person The person, with the committed stops installed.
-   * @param segment The action.
-   * @returns The goals.
+   * Parameter person: The person, with the committed stops installed.
+   * Parameter segment: The action.
+   * Returns: The goals.
    */
   export function prepare(
     person: IAutoMovieMotionHumanSegment.IPerson,

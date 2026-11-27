@@ -7,23 +7,22 @@ import { createAutoMovieDeliveryAudioLog } from "./createAutoMovieDeliveryAudioL
 import { createAutoMovieDeliveryAudioScan } from "./createAutoMovieDeliveryAudioScan";
 import { runAutoMovieFfmpeg } from "../../ffmpeg/internal/runAutoMovieFfmpeg";
 
-/**
+/*
  * Runs one FFmpeg audio decode that writes f32le PCM to stdout and an
  * `ashowinfo` frame log to stderr, and feeds both to the frame log and the
  * silence scan, which also feeds the presented PCM to the loudness meter.
- *
- * @param binary The FFmpeg executable already resolved by the delivery host.
- * @param args Decode arguments whose PCM and frame log describe the same
- *   samples.
- * @param streamIndex The stream index reported with the evidence.
- * @param thresholds The audio silence threshold and minimum duration.
- * @param run The established FFmpeg process owner with separate output
- *   consumers.
- * @param presented The container's presented span, or undefined when every
- *   decoded sample is presented.
- * @param meter Creates the render's loudness meter, when the presented PCM's
- *   loudness and true peak are measured.
- * @returns Audio evidence or a reason decoded content is uncovered.
+ * Parameter binary: The FFmpeg executable already resolved by the delivery host.
+ * Parameter args: Decode arguments whose PCM and frame log describe the same
+ * samples.
+ * Parameter streamIndex: The stream index reported with the evidence.
+ * Parameter thresholds: The audio silence threshold and minimum duration.
+ * Parameter run: The established FFmpeg process owner with separate output
+ * consumers.
+ * Parameter presented: The container's presented span, or undefined when every
+ * decoded sample is presented.
+ * Parameter meter: Creates the render's loudness meter, when the presented PCM's
+ * loudness and true peak are measured.
+ * Returns: Audio evidence or a reason decoded content is uncovered.
  */
 export async function decodeAutoMovieDeliveryAudio(
   binary: string,
@@ -91,5 +90,7 @@ export async function decodeAutoMovieDeliveryAudio(
   return audioLog.finish(streamIndex, state.scan.finish(), presented);
 }
 
-/** Caps PCM received before the first matching frame log reaches the other pipe. */
+/*
+ * Caps PCM received before the first matching frame log reaches the other pipe.
+ */
 const MAXIMUM_PENDING_PCM = 1024 * 1024;

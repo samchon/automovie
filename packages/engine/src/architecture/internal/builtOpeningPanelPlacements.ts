@@ -13,31 +13,30 @@ import { Quaternion } from "../../math/Quaternion";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { requireBuiltOpening } from "./requireBuiltOpening";
 
-/**
+/*
  * Where an opening's panels stand, in world space, at one named state.
  *
  * Omitting the state answers for the state the record itself stands in, which
- * is the placement {@link lowerBuiltEnvironment} stages. Naming another one
+ * is the placement lowerBuiltEnvironment stages. Naming another one
  * answers for that state without editing the record, so a shot can ask where
  * the leaf would be when open without a second building.
  *
  * A state is a configuration rather than a moment. A door that swings on screen
  * is a shot `objectMotions` clip over the
- * {@link IAutoMovieOpeningPanelPlacement.node} ids this answers with, so the
+ * IAutoMovieOpeningPanelPlacement.node ids this answers with, so the
  * architecture record never grows a second clock beside the shot's own.
  *
  * Entries follow the opening's panel order, each with the decomposed world
  * transform of the element the panel drives and a normalized rotation. Naming a
  * state applies it to every opening and run that declares a state with that id,
- * through {@link builtEnvironmentWorldMatrices}, so an ancestor leaf of another
+ * through builtEnvironmentWorldMatrices, so an ancestor leaf of another
  * opening moves too. An opening without an operation answers an empty list.
  * Throws an `Error` when the opening does not exist, the named state is not one
  * of its states, or a panel's element is missing from the record.
- *
- * @param environment Building record holding the opening.
- * @param openingId Id of the opening whose panels are placed.
- * @param stateId Operating state to answer for; the record's own when omitted.
- * @returns One placement per panel, in panel order.
+ * Parameter environment: Building record holding the opening.
+ * Parameter openingId: Id of the opening whose panels are placed.
+ * Parameter stateId: Operating state to answer for; the record's own when omitted.
+ * Returns: One placement per panel, in panel order.
  */
 export function builtOpeningPanelPlacements(
   environment: IAutoMovieBuiltEnvironment,

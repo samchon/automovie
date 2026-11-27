@@ -129,24 +129,30 @@ export namespace AutoMovieEnginePhysicalStanceJointTarget {
     velocity: IAutoMovieVector3;
   }
 
-  /** What every role reads. */
+  /*
+   * What every role reads.
+   */
   interface IBase {
-    /**
+    /*
      * The joint's anchor frame rotation on the parent, in the parent's body
      * frame.
      */
     parentFrame: IAutoMovieQuaternion;
 
-    /**
+    /*
      * The joint's anchor frame rotation on the child, in the child's body
      * frame.
      */
     childFrame: IAutoMovieQuaternion;
 
-    /** The bodies as they are. */
+    /*
+     * The bodies as they are.
+     */
     actual: IPair;
 
-    /** The goal pose's bodies. */
+    /*
+     * The goal pose's bodies.
+     */
     goal: IPair;
   }
 }

@@ -6,7 +6,7 @@ import "../constants/LONG_GUN_BANDS";
 import "../constants/LONG_GUN_MODELS";
 import { LongGunLock } from "./LongGunLock";
 
-/**
+/*
  * A long gun as a film prop: a carbine with a sliding stock, a pump shotgun, a
  * flintlock musket, a bolt-action rifle or a lever action. It models no effect;
  * the period and repeating kinds' mechanisms are `LongGunLock`'s.
@@ -19,14 +19,13 @@ import { LongGunLock } from "./LongGunLock";
  * receiver: a carbine's fixed buffer tube, a shotgun's wrist. A carbine's
  * `stock` slides back along its tube to lengthen the pull, carrying the butt; a
  * shotgun's `pump` slides back, carrying the fore-end.
- *
- * @param params The kind, a carbine's model and any dimension the author fixes.
- * @param seed The seed that picks the model left free and draws every dimension
- *   left free inside its band; absent, the first model and the middle of each
- *   band.
- * @returns The long gun.
- * @throws {AutoMovieArchetypeRefusal} For a model not of the kind, a fixed
- *   dimension outside its band, or one the model gives.
+ * Parameter params: The kind, a carbine's model and any dimension the author fixes.
+ * Parameter seed: The seed that picks the model left free and draws every dimension
+ * left free inside its band; absent, the first model and the middle of each
+ * band.
+ * Returns: The long gun.
+ * For a model not of the kind, a fixed
+ * dimension outside its band, or one the model gives.
  */
 export function createLongGun(
   params: AutoMovieArchetypeLongGun.IParams,

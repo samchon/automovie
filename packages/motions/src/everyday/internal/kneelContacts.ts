@@ -9,7 +9,7 @@ import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { kneelKeys } from "./kneelKeys";
 import { prepareKneelFoot } from "./prepareKneelFoot";
 
-/**
+/*
  * A kneel's contact windows: each foot plants while it keeps its floor point
  * between two keys, from when its toes strike as it lands heel up, and until it
  * lifts off its toe pads as it leaves heel up (`prepareKneelFoot.arrival` and
@@ -18,14 +18,13 @@ import { prepareKneelFoot } from "./prepareKneelFoot";
  * it comes down in until a phase lifts it: the first knee from the third key,
  * the second knee from the fourth. Both lie on the floor the entry's feet stand
  * on, so a kneel on a deck bears on the deck.
- *
- * @param context The action's context, read for the feet's supports.
- * @param keys The solved key states.
- * @param phases The ordered phases indexing those keys, each named on the
- *   clock.
- * @param clock The kneel's clock.
- * @param k The knee that goes down first.
- * @returns The windows, as shares of the clock's duration.
+ * Parameter context: The action's context, read for the feet's supports.
+ * Parameter keys: The solved key states.
+ * Parameter phases: The ordered phases indexing those keys, each named on the
+ * clock.
+ * Parameter clock: The kneel's clock.
+ * Parameter k: The knee that goes down first.
+ * Returns: The windows, as shares of the clock's duration.
  */
 export function kneelContacts(
   context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
@@ -112,38 +111,62 @@ export function kneelContacts(
   return contacts;
 }
 
-/** The record of `IKneelContactsPhase4`'s site. */
+/*
+ * The record of `IKneelContactsPhase4`'s site.
+ */
 type IKneelContactsPhase4 = { from: number; to: number };
 
-/** The record of `IKneelContactsPhase3`'s site. */
+/*
+ * The record of `IKneelContactsPhase3`'s site.
+ */
 type IKneelContactsPhase3 = { from: number; to: number };
 
-/** The record of `IKneelContactsPhase2`'s site. */
+/*
+ * The record of `IKneelContactsPhase2`'s site.
+ */
 type IKneelContactsPhase2 = { from: number; to: number };
 
-/** The record of `IKneelContactsPhase`'s site. */
+/*
+ * The record of `IKneelContactsPhase`'s site.
+ */
 type IKneelContactsPhase = { from: number; to: number };
 
-/** The record of `IKneelContactsSpanPhase`'s site. */
+/*
+ * The record of `IKneelContactsSpanPhase`'s site.
+ */
 type IKneelContactsSpanPhase = { name: string; from: number; to: number };
 
-/** The record of `ISpanLeavesPhase2`'s site. */
+/*
+ * The record of `ISpanLeavesPhase2`'s site.
+ */
 type ISpanLeavesPhase2 = { from: number; to: number };
 
-/** The record of `ISpanLandsPhase2`'s site. */
+/*
+ * The record of `ISpanLandsPhase2`'s site.
+ */
 type ISpanLandsPhase2 = { from: number; to: number };
 
-/** The record of `ISpanBearsPhase2`'s site. */
+/*
+ * The record of `ISpanBearsPhase2`'s site.
+ */
 type ISpanBearsPhase2 = { from: number; to: number };
 
-/** The record of `ISpanLeavesPhase`'s site. */
+/*
+ * The record of `ISpanLeavesPhase`'s site.
+ */
 type ISpanLeavesPhase = { from: number; to: number };
 
-/** The record of `ISpanLandsPhase`'s site. */
+/*
+ * The record of `ISpanLandsPhase`'s site.
+ */
 type ISpanLandsPhase = { from: number; to: number };
 
-/** The record of `ISpanBearsPhase`'s site. */
+/*
+ * The record of `ISpanBearsPhase`'s site.
+ */
 type ISpanBearsPhase = { from: number; to: number };
 
-/** The record of `IKneelContactsPhasesItem`'s site. */
+/*
+ * The record of `IKneelContactsPhasesItem`'s site.
+ */
 type IKneelContactsPhasesItem = { name: string; from: number; to: number };

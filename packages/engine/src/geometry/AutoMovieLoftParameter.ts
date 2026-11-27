@@ -96,7 +96,9 @@ export namespace AutoMovieLoftParameter {
     return [cx / (3 * twiceArea), cz / (3 * twiceArea)];
   }
 
-  /** Unwrapped polar angles about the axis point. */
+  /*
+   * Unwrapped polar angles about the axis point.
+   */
   function polar(
     polygon: readonly (readonly [number, number])[],
     axis: readonly [number, number],
@@ -122,7 +124,7 @@ export namespace AutoMovieLoftParameter {
     return out;
   }
 
-  /**
+  /*
    * Arclength phases from the front crossing of the sagittal axis plane.
    *
    * With `halves`, the back crossing is pinned to phase pi and each half is
@@ -174,7 +176,9 @@ export namespace AutoMovieLoftParameter {
       cumulative.push(cumulative[i]! + Math.hypot(b[0] - a[0], b[1] - a[1]));
     }
     const perimeter: number = cumulative[n]!;
-    /** Read a cumulative knot directly, or interpolate inside its edge. */
+    /*
+     * Read a cumulative knot directly, or interpolate inside its edge.
+     */
     const arc: (at: number) => number = (at: number): number => {
       const i: number = Math.floor(at);
 
@@ -185,7 +189,7 @@ export namespace AutoMovieLoftParameter {
       return cumulative[i]! + (at - i) * (cumulative[i + 1]! - cumulative[i]!);
     };
 
-    /**
+    /*
      * Length travelled from `from` to `to` along the orientation, wrapping
      * once.
      */

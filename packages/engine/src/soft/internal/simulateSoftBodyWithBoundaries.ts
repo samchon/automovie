@@ -9,7 +9,7 @@ import {
 
 import { simulateSoftBodyCore } from "./simulateSoftBodyCore";
 
-/**
+/*
  * Replay cloth against a complete resolved moving boundary for every absolute
  * step from zero through the target. Static colliders remain active. Each
  * sample holds every authored moving anchor or releases it; an observer reads

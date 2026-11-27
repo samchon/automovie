@@ -1,4 +1,4 @@
-/**
+/*
  * Read a record's enumerable own string keys in enumeration order while
  * retaining the record's per-key TypeScript type for its consumers. The
  * descriptor snapshot leaves the input object and its prototype untouched.

@@ -30,7 +30,7 @@ import { GymnasticsFlight } from "../../sport/internal/GymnasticsFlight";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { HumanCarriedLiftKnots } from "./HumanCarriedLiftKnots";
 
-/**
+/*
  * The lift into a carry and the set-down out of it: the carried body leaves the
  * posture it was entered in for the carry's over the first `lift` seconds, and
  * over the last `setDown` seconds comes down to stand where the carrier has
@@ -47,14 +47,13 @@ import { HumanCarriedLiftKnots } from "./HumanCarriedLiftKnots";
  * carries publish their held contacts over their steady phase.
  */
 export namespace HumanCarriedLift {
-  /**
+  /*
    * A carried plan with its lift and its set-down.
-   *
-   * @param context The carried person's context.
-   * @param plan The plan of the carry itself, whose posture follows the
-   *   carrier.
-   * @returns The plan with the two phases; `plan` itself when neither is asked.
-   * @throws {HumanRefusal} When a phase is negative.
+   * Parameter context: The carried person's context.
+   * Parameter plan: The plan of the carry itself, whose posture follows the
+   * carrier.
+   * Returns: The plan with the two phases; `plan` itself when neither is asked.
+   * When a phase is negative.
    */
   export function over(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarried.IBorne>,
@@ -435,21 +434,35 @@ export namespace HumanCarriedLift {
     return result;
   }
 
-  /** Original phase lengths and their internal cradle support changes. */
+  /*
+   * Original phase lengths and their internal cradle support changes.
+   */
   export interface IPhase {
-    /** Lift duration, seconds. */
+    /*
+     * Lift duration, seconds.
+     */
     lift: number;
-    /** Set-down duration, seconds. */
+    /*
+     * Set-down duration, seconds.
+     */
     setDown: number;
-    /** Acquisition completes while the feet are still planted, seconds. */
+    /*
+     * Acquisition completes while the feet are still planted, seconds.
+     */
     take: number;
-    /** Floor reacquisition occurs before the arms withdraw, seconds. */
+    /*
+     * Floor reacquisition occurs before the arms withdraw, seconds.
+     */
     land: number;
-    /** The palms withdraw after both feet have accepted the weight. */
+    /*
+     * The palms withdraw after both feet have accepted the weight.
+     */
     release: number;
   }
 
-  /** Both coupled cradle roles share these events on their action clock. */
+  /*
+   * Both coupled cradle roles share these events on their action clock.
+   */
   export function timing(
     params: IAutoMovieMotionHumanCarriedLift.IParams,
     duration: number,
@@ -474,7 +487,9 @@ export namespace HumanCarriedLift {
   }
 }
 
-/** Confirm the two held surfaces at both transfers and the carried endpoint. */
+/*
+ * Confirm the two held surfaces at both transfers and the carried endpoint.
+ */
 function confirm(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarried.IBorne>,
   duration: number,
@@ -583,7 +598,9 @@ function confirm(
   return fitted;
 }
 
-/** Refuse a cradle transfer whose named limbs cannot bear the displayed body. */
+/*
+ * Refuse a cradle transfer whose named limbs cannot bear the displayed body.
+ */
 function cradleRefusal(subject: string, detail?: string): HumanRefusal {
   return new HumanRefusal({
     kind: "reach",

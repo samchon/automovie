@@ -187,7 +187,9 @@ export namespace AutoMovieArchetypeQuadrupedRest {
       sample,
     };
 
-    /** Evaluate the complete independently posed sample from its finite clock. */
+    /*
+     * Evaluate the complete independently posed sample from its finite clock.
+     */
     function sample(
       seconds: number,
     ): AutoMovieArchetypeQuadrupedRestPlan.ISample<Id, Dimension> {
@@ -348,7 +350,9 @@ export namespace AutoMovieArchetypeQuadrupedRest {
       };
     }
 
-    /** Require the source's bar rather than rebuilding a species profile. */
+    /*
+     * Require the source's bar rather than rebuilding a species profile.
+     */
     function bar(
       bone: AutoMovieArchetypeQuadrupedBody.Bone,
     ): IAutoMovieModelPart {
@@ -367,13 +371,17 @@ export namespace AutoMovieArchetypeQuadrupedRest {
   }
 }
 
-/** Admit a positive transition clock without supplying a biological duration. */
+/*
+ * Admit a positive transition clock without supplying a biological duration.
+ */
 function positive(value: number, name: string): number {
   if (!(value > 0)) throw new RangeError(`Rest ${name} must be positive`);
   return value;
 }
 
-/** Copy one normalized movement window; zero-duration movement is not admitted. */
+/*
+ * Copy one normalized movement window; zero-duration movement is not admitted.
+ */
 function window(
   value: AutoMovieArchetypeQuadrupedRestPlan.IWindow,
 ): AutoMovieArchetypeQuadrupedRestPlan.IWindow {
@@ -384,7 +392,7 @@ function window(
   return { startShare: start, endShare: end };
 }
 
-/**
+/*
  * Copy degree carriage as radians in a single-turn chart; terminal bars point
  * down.
  */
@@ -400,7 +408,7 @@ function directions(
   return [(a * Math.PI) / 180, (b * Math.PI) / 180];
 }
 
-/**
+/*
  * A window holds either endpoint outside its movement and follows minimum jerk
  * inside.
  */

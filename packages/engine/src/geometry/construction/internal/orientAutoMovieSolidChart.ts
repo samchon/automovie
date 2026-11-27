@@ -1,6 +1,6 @@
 import type { AutoMovieVector2Tuple } from "@automovie/interface";
 
-/**
+/*
  * Exact orientation sign of three represented binary64 chart points.
  *
  * A conservative arithmetic filter accepts a determinant separated from its
@@ -8,13 +8,12 @@ import type { AutoMovieVector2Tuple } from "@automovie/interface";
  * as an integer determinant after the six binary64 inputs are placed on one
  * common dyadic grid. This decides the represented points, without a geometric
  * tolerance, coordinate rounding, snapping or new intersection construction.
- *
- * @param a First finite chart point.
- * @param b Second finite chart point.
- * @param c Third finite chart point.
- * @returns +1 for counterclockwise, -1 for clockwise and 0 for exact
- *   collinearity.
- * @throws RangeError for a nonfinite input coordinate.
+ * Parameter a: First finite chart point.
+ * Parameter b: Second finite chart point.
+ * Parameter c: Third finite chart point.
+ * Returns: +1 for counterclockwise, -1 for clockwise and 0 for exact
+ * collinearity.
+ * RangeError for a nonfinite input coordinate.
  */
 export function orientAutoMovieSolidChart(
   a: Readonly<AutoMovieVector2Tuple>,
@@ -83,21 +82,29 @@ export function orientAutoMovieSolidChart(
   return exact > 0n ? 1 : exact < 0n ? -1 : 0;
 }
 
-/** Exact integer significand multiplied by two to exponent. */
+/*
+ * Exact integer significand multiplied by two to exponent.
+ */
 interface Dyadic {
-  /** Signed integer significand; zero has no relevant exponent. */
+  /*
+   * Signed integer significand; zero has no relevant exponent.
+   */
   significand: bigint;
 
-  /** Binary exponent of the integer's least significant bit. */
+  /*
+   * Binary exponent of the integer's least significant bit.
+   */
   exponent: number;
 }
 
-/** Whether a value is finite and of at least the smallest normal magnitude. */
+/*
+ * Whether a value is finite and of at least the smallest normal magnitude.
+ */
 function normal(value: number): boolean {
   return Math.abs(value) >= NORMAL;
 }
 
-/**
+/*
  * Decode a finite double without arithmetic on its significand. Calls are
  * synchronous and have no callbacks.
  */
@@ -113,11 +120,13 @@ function decode(value: number): Dyadic {
   };
 }
 
-/**
+/*
  * Smallest normal binary64 magnitude; a representation boundary, not a geometry
  * tolerance.
  */
 const NORMAL: number = 2 ** -1022;
 
-/** Fixed decoding storage, never exposed or retained by an input/result. */
+/*
+ * Fixed decoding storage, never exposed or retained by an input/result.
+ */
 const VIEW: DataView = new DataView(new ArrayBuffer(8));

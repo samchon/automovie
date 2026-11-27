@@ -13,7 +13,7 @@ import { softBodyStepAt } from "./softBodyStepAt";
 import { softBodySurfaceGeometry } from "./softBodySurfaceGeometry";
 import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
 
-/**
+/*
  * Lower one typed furnishing into a cloth surface and explicit
  * rest/solved/not-run/unsupported status. Domain/reference/state/budget
  * failures are reported before solve; unexpected numeric integration failures
@@ -24,7 +24,7 @@ export function lowerSoftFurnishing(
   props: IAutoMovieLowerSoftFurnishing.IProps,
 ): IAutoMovieSoftFurnishingFrame {
   const { furnishing, domain }: typeof props = props;
-  /**
+  /*
    * Create the explicit computation status and unsupported-case report for this
    * furnishing domain.
    */

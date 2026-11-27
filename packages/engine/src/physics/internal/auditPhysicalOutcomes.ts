@@ -5,7 +5,7 @@ import type {
 
 import { admitPhysicalOutcomes } from "./admitPhysicalOutcomes";
 
-/**
+/*
  * Audit authored outcome promises against actual receipts and observed falls. A
  * missing hit is a failure with the action id and measured miss distance; a
  * geometric receipt cannot satisfy a solver-contact promise. Unexpected

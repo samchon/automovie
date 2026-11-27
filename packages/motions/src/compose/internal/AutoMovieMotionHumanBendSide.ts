@@ -3,16 +3,15 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 
-/**
+/*
  * Rank actual elbow candidates on the original bend point's radial side. Cold
  * rankings continue reading all supplied points at every candidate; prepare
  * shares only one explicitly unchanged sweep's axis/hint geometry.
- *
- * @param shoulder World-metre shoulder point.
- * @param wrist World-metre wrist point defining the swivel axis.
- * @param bend World-metre point whose side of that axis the elbow takes.
- * @returns The original legality/strain-first key inside the one-degree side
- *   band and side-distance key outside it.
+ * Parameter shoulder: World-metre shoulder point.
+ * Parameter wrist: World-metre wrist point defining the swivel axis.
+ * Parameter bend: World-metre point whose side of that axis the elbow takes.
+ * Returns: The original legality/strain-first key inside the one-degree side
+ * band and side-distance key outside it.
  */
 export function AutoMovieMotionHumanBendSide(
   shoulder: IAutoMovieVector3,
@@ -36,9 +35,11 @@ export function AutoMovieMotionHumanBendSide(
   };
 }
 
-/** Fixed radial geometry of one actual ranked elbow sweep. */
+/*
+ * Fixed radial geometry of one actual ranked elbow sweep.
+ */
 export namespace AutoMovieMotionHumanBendSide {
-  /**
+  /*
    * The ranking of one sweep about a fixed shoulder, wrist and hint: the axis
    * and the hint's unit across it are computed once, and each candidate's elbow
    * is projected and scored as the cold ranking does.
@@ -65,12 +66,16 @@ export namespace AutoMovieMotionHumanBendSide {
   }
 }
 
-/** The existing actual candidate-to-score function type. */
+/*
+ * The existing actual candidate-to-score function type.
+ */
 type IRank = (
   candidate: AutoMovieMotionHumanBendSearch.ICandidate,
 ) => AutoMovieMotionHumanBendSearch.IScore;
 
-/** Original subtraction followed by removal of the component along the axis. */
+/*
+ * Original subtraction followed by removal of the component along the axis.
+ */
 function across(
   shoulder: IAutoMovieVector3,
   axis: IAutoMovieVector3,
@@ -80,7 +85,9 @@ function across(
   return Vector3.subtract(v, Vector3.scale(axis, Vector3.dot(v, axis)));
 }
 
-/** Original side-band lexicographic score, allocating an independent wrapper. */
+/*
+ * Original side-band lexicographic score, allocating an independent wrapper.
+ */
 function ranked(
   side: number,
   candidate: AutoMovieMotionHumanBendSearch.ICandidate,
@@ -90,5 +97,7 @@ function ranked(
     : { overshoot: 1e9 * (1 + side), deviation: 0 };
 }
 
-/** Original one-degree sweep band's one-minus-cosine discrepancy. */
+/*
+ * Original one-degree sweep band's one-minus-cosine discrepancy.
+ */
 const SIDE: number = 1 - Math.cos(Math.PI / 180);

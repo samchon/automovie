@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 
-/**
+/*
  * A pair of scissors lying flat, its two blades on one pivot.
  *
  * The pivot is at the origin, the blades running along `+Z` and the rings along
@@ -18,9 +18,8 @@ import {
  * `opening` degrees. `fingerRing` is the handle the fingers hold, `thumbRing`
  * the ring the thumb works; `cut` is the fixed blade's edge midway along it,
  * where a cut advances, and `tip` its point.
- *
- * @param params The optional scene id.
- * @returns The scissors and their contacts, metres.
+ * Parameter params: The optional scene id.
+ * Returns: The scissors and their contacts, metres.
  */
 export function createScissors(
   params: AutoMovieArchetypeScissors.IParams = {},
@@ -119,7 +118,7 @@ export function createScissors(
   return builder.build(SIZE.mass);
 }
 
-/**
+/*
  * Household scissors of eight inches overall (8 × 0.0254 m), the blades about
  * the front half. No source is read: every size here, the rings' bore, the
  * blades' opening and the mass are provisional construction estimates.

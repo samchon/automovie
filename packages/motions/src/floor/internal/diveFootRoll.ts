@@ -13,14 +13,13 @@ import type {
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { dive } from "./dive";
 
-/**
+/*
  * A foot's roll about its ball, toes down, by an angle: the foot's placement
  * turned about the axis across its heading through the ball.
  *
  * Part of `dive.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `roll`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `roll`.
  */
 export function diveFootRoll(
   prepared: diveFootRoll.IPrepared,
@@ -54,20 +53,32 @@ export function diveFootRoll(
   };
 }
 
-/** The `roll` of `dive.plan`, built from what that plan prepared. */
+/*
+ * The `roll` of `dive.plan`, built from what that plan prepared.
+ */
 export namespace diveFootRoll {
-  /** What `dive.plan` prepared for its `roll`. */
+  /*
+   * What `dive.plan` prepared for its `roll`.
+   */
   export interface IPrepared {
-    /** The `feet` `dive.plan` prepared. */
+    /*
+     * The `feet` `dive.plan` prepared.
+     */
     feet: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDive.IParams>["entry"]["feet"];
 
-    /** The `body` `dive.plan` prepared. */
+    /*
+     * The `body` `dive.plan` prepared.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The `entry` `dive.plan` prepared. */
+    /*
+     * The `entry` `dive.plan` prepared.
+     */
     entry: IAutoMovieMotionHumanPosture;
 
-    /** The `up` `dive.plan` prepared. */
+    /*
+     * The `up` `dive.plan` prepared.
+     */
     up: IAutoMovieVector3;
   }
 }

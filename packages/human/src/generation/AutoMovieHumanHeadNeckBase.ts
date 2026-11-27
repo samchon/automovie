@@ -81,7 +81,7 @@ export namespace AutoMovieHumanHeadNeckBase {
     const retained: Map<number, IAutoMovieHumanHeadNeckBaseTrial.IOutput> =
       new Map();
 
-    /**
+    /*
      * Reuse only the identical radius and all its actual dependent
      * declarations.
      */
@@ -220,7 +220,7 @@ export namespace AutoMovieHumanHeadNeckBase {
     };
   }
 
-  /**
+  /*
    * Exact scalar-basis inequalities keep the side AP target strictly inside the
    * positive native half. They restrict numerical trial admission, not a tape's
    * value or anatomical validity. Actual native admission still runs.
@@ -270,7 +270,7 @@ export namespace AutoMovieHumanHeadNeckBase {
   }
 }
 
-/**
+/*
  * Read an already prepared original scalar, without a new source or inverse
  * solve.
  */

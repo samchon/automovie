@@ -9,7 +9,7 @@ import { AutoMovieEngineCurveBicubicAtlasEmit64 } from "../../AutoMovieEngineCur
 import { AutoMovieBicubicAtlasPlan64 } from "./AutoMovieBicubicAtlasPlan64";
 import { AutoMovieBicubicAtlasRegistry64 } from "./AutoMovieBicubicAtlasRegistry64";
 
-/**
+/*
  * Tessellate complete bicubic patches with explicit shared control identities.
  * Sixteen controls are row-major: v rows, u columns, all in millimetres.
  * Matching four-ID boundary tuples, including reversals, own one edge; matching

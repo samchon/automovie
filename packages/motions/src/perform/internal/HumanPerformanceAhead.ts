@@ -12,7 +12,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 
-/**
+/*
  * What a performer's next action on a prop demands of a grip an earlier action
  * of theirs is still choosing (`IHumanActionContext.demands`): the goal poses
  * that action will hold the prop in, asked of it before it is planned
@@ -26,7 +26,7 @@ import { HumanPerformanceAim } from "./HumanPerformanceAim";
  * and one that asks nothing (a free put down) ends the question.
  */
 export namespace HumanPerformanceAhead {
-  /**
+  /*
    * The demands reader of an action, the one at `ordinal` in its performer's
    * chain.
    *
@@ -35,11 +35,10 @@ export namespace HumanPerformanceAhead {
    * parameters, the performer's body and skill, the props, and its aiming from
    * the posture the grip leaves the body in, read at the earlier action's
    * start. Candidate-dependent bones are resolved when the target needs them.
-   *
-   * @param self The performance being placed.
-   * @param context The earlier action's context.
-   * @param ordinal Its place among its performer's actions that carry the body.
-   * @returns The reader.
+   * Parameter self: The performance being placed.
+   * Parameter context: The earlier action's context.
+   * Parameter ordinal: Its place among its performer's actions that carry the body.
+   * Returns: The reader.
    */
   export function reader(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -94,17 +93,16 @@ export namespace HumanPerformanceAhead {
     };
   }
 
-  /**
+  /*
    * How an action is cut into its performer's next one
    * (`IHumanActionContext.cut`): the composition's cut at one of the action's
    * own events or shares, with what the next action in walk order plants
    * (`IHumanActionLaw.plants`), read from its resolved parameters.
-   *
-   * @param self The performance being placed.
-   * @param intent The action's intent.
-   * @param ordinal Its place among its performer's actions that carry the body.
-   * @returns The cut; undefined when the action is not cut at its own event or
-   *   share.
+   * Parameter self: The performance being placed.
+   * Parameter intent: The action's intent.
+   * Parameter ordinal: Its place among its performer's actions that carry the body.
+   * Returns: The cut; undefined when the action is not cut at its own event or
+   * share.
    */
   export function cut(
     self: IAutoMovieMotionHumanPerformanceState,
@@ -133,16 +131,22 @@ export namespace HumanPerformanceAhead {
     };
   }
 
-  /** An action asked for its demands: its law and its resolved parameters. */
+  /*
+   * An action asked for its demands: its law and its resolved parameters.
+   */
   interface INext {
-    /** Its law. */
+    /*
+     * Its law.
+     */
     law: ILookAheadLaw;
 
-    /** Its parameters, as its law resolves them. */
+    /*
+     * Its parameters, as its law resolves them.
+     */
     params: ParametersValue;
   }
 
-  /**
+  /*
    * The first of a performer's actions after `ordinal` that names a prop, or
    * null.
    */
@@ -169,15 +173,23 @@ export namespace HumanPerformanceAhead {
 
 }
 
-/** The alternatives of `ReaderContext`'s site. */
+/*
+ * The alternatives of `ReaderContext`'s site.
+ */
 type ReaderContext = "subject" | "body" | "skill" | "prop" | "start";
 
-/** An authored parameter payload after defaulting a missing value. */
+/*
+ * An authored parameter payload after defaulting a missing value.
+ */
 type ParametersValue = NonNullable<unknown>;
 
-/** The methods selected by an authored action's vocabulary key. */
+/*
+ * The methods selected by an authored action's vocabulary key.
+ */
 interface ILookAheadLaw
   extends Pick<IAutoMovieMotionHumanActionLaw<ParametersValue>, "demands" | "plants"> {
-  /** Resolve the composition's payload according to the selected law. */
+  /*
+   * Resolve the composition's payload according to the selected law.
+   */
   resolve?(given: ParametersValue): object;
 }

@@ -4,7 +4,9 @@ import type { AutoMovieArchetypeDrawSession } from "../AutoMovieArchetypeDrawSes
 import type { AutoMovieArchetypeFriction } from "../AutoMovieArchetypeFriction";
 import type { AutoMovieArchetypeMaterial } from "../AutoMovieArchetypeMaterial";
 
-/** The builder's producer identity and primitive-part options. */
+/*
+ * The builder's producer identity and primitive-part options.
+ */
 export namespace ArchetypeBuilderTypes {
   /** A model's identity and its producer's draws. */
   export interface IProps<Dimension extends string> {

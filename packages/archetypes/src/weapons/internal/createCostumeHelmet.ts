@@ -4,18 +4,17 @@ import { ArmourHelmet } from "./ArmourHelmet";
 import { CostumeConstruction } from "./CostumeConstruction";
 
 
-/**
+/*
  * Worn helmet costume.
  *
  * The piece keeps its existing open, closed or brimmed helmet cavity and is
  * fixed at its wear frame on the head.
- *
- * @param params The scene id and optional measurements and model choice of this
- *   costume.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter params: The scene id and optional measurements and model choice of this
+ * costume.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function createCostumeHelmet(
   params: AutoMovieArchetypeCostumeHelmet.IParams,

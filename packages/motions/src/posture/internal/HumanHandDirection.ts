@@ -7,23 +7,24 @@ import type {
 
 import { HumanFrame } from "./HumanFrame";
 
-/** The named axes mirror about the performer's centreline. */
+/*
+ * The named axes mirror about the performer's centreline.
+ */
 const AXES: Readonly<Record<AutoMovieHumanSide, IAxes>> = {
   left: axes(1),
   right: axes(-1),
 };
 
-/**
+/*
  * The world unit vector of a named direction for a hand of a performer heading
  * `yaw`.
- *
- * @param side The acting hand, which `out` and `in` mirror by.
- * @param yaw The performer's heading, degrees about +Y.
- * @param direction The direction, on any rung.
- * @returns The unit vector, world frame.
- * @throws {Error} When a between joins opposite axes or its share lies outside
- *   [0, 1], when explicit components are all zero, or when an explicit source
- *   is empty.
+ * Parameter side: The acting hand, which `out` and `in` mirror by.
+ * Parameter yaw: The performer's heading, degrees about +Y.
+ * Parameter direction: The direction, on any rung.
+ * Returns: The unit vector, world frame.
+ * When a between joins opposite axes or its share lies outside
+ * [0, 1], when explicit components are all zero, or when an explicit source
+ * is empty.
  */
 export function HumanHandDirection(
   side: AutoMovieHumanSide,
@@ -60,20 +61,19 @@ export function HumanHandDirection(
   return HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, unit);
 }
 
-/**
+/*
  * A named direction of a hand as a world vector: how `HumanHand.Direction`, an
  * axis of the performer's floor frame, a share of the way between two axes or
  * explicit components, is read for one hand of a performer.
  */
 export namespace HumanHandDirection {
-  /**
+  /*
    * Prepare a fixed hand's named axes for changing actual headings.
-   *
-   * @param side The unchanged acting hand; the ordinary right-side fallback is
-   *   preserved.
-   * @returns A fresh world vector for each named floor axis and requested
-   *   yaw in degrees. The local axis stays fixed and each query applies its
-   *   own heading.
+   * Parameter side: The unchanged acting hand; the ordinary right-side fallback is
+   * preserved.
+   * Returns: A fresh world vector for each named floor axis and requested
+   * yaw in degrees. The local axis stays fixed and each query applies its
+   * own heading.
    */
   export function prepare(
     side: AutoMovieHumanSide,
@@ -90,7 +90,9 @@ export namespace HumanHandDirection {
   }
 }
 
-/** Bind the six local unit axes for the acting hand's lateral sign. */
+/*
+ * Bind the six local unit axes for the acting hand's lateral sign.
+ */
 function axes(sign: number): IAxes {
   return {
     out: { x: sign, y: 0, z: 0 },
@@ -102,7 +104,9 @@ function axes(sign: number): IAxes {
   };
 }
 
-/** The unchanged floor directions for one side, before turning by yaw. */
+/*
+ * The unchanged floor directions for one side, before turning by yaw.
+ */
 type IAxes = Readonly<
   Record<IAutoMovieMotionHumanHand.Axis, Readonly<IAutoMovieVector3>>
 >;

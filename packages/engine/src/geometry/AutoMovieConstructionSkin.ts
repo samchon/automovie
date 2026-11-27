@@ -112,7 +112,7 @@ export namespace AutoMovieConstructionSkin {
   }
 }
 
-/**
+/*
  * An owned original tip must replay through its value owner, without inventing
  * a physical jet.
  */

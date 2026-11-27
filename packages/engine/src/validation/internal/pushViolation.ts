@@ -2,7 +2,7 @@ import { IAutoMovieConstraintViolation } from "@automovie/interface";
 
 import { violation } from "./violation";
 
-/**
+/*
  * Append a typed artifact fault with the supplied path, expected meaning and
  * actual value.
  */

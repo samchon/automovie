@@ -33,14 +33,22 @@ export namespace AutoMovieHumanSiteConstraints {
   }
 }
 
-/** The last actual numeric constraint and its success/refusal for one named site. */
+/*
+ * The last actual numeric constraint and its success/refusal for one named site.
+ */
 interface IRecord {
-  /** Copied front/left/back/right positive supports, calibration mm. */
+  /*
+   * Copied front/left/back/right positive supports, calibration mm.
+   */
   extents: [number, number, number, number];
 
-  /** Public tape demand, calibration mm. */
+  /*
+   * Public tape demand, calibration mm.
+   */
   girth: number;
 
-  /** Exact original engine response, including its refusal and diagnostics. */
+  /*
+   * Exact original engine response, including its refusal and diagnostics.
+   */
   result: IAutoMovieViewSection.ISolved;
 }

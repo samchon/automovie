@@ -1,4 +1,4 @@
-/**
+/*
  * Intersect two convex planar polygons in one common coordinate unit.
  *
  * Sutherland-Hodgman clipping retains the subject's winding and includes the

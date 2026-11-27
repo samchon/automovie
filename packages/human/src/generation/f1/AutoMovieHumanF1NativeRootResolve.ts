@@ -18,9 +18,11 @@ import { AutoMovieHumanF1NativeRootClock as Clock } from "./AutoMovieHumanF1Nati
 import { AutoMovieHumanF1NativeRootControl as Control } from "./AutoMovieHumanF1NativeRootControl";
 import { AutoMovieHumanF1NativeRootLevel as Level } from "./AutoMovieHumanF1NativeRootLevel";
 
-/** Resolve F1 native root operator correspondences. */
+/*
+ * Resolve F1 native root operator correspondences.
+ */
 export namespace AutoMovieHumanF1NativeRootResolve {
-  /**
+  /*
    * Issue an actual parent-source level loop, the existing native child rail and
    * their actual operator correspondence. Off-surface affine targets survive only
    * as observations of the discarded hypothesis, never as constraints.
@@ -155,7 +157,7 @@ export namespace AutoMovieHumanF1NativeRootResolve {
       },
     );
 
-    /**
+    /*
      * Candidate/final source equality is separate from the discarded-target
      * residual.
      */
@@ -235,7 +237,7 @@ export namespace AutoMovieHumanF1NativeRootResolve {
       );
     };
 
-    /**
+    /*
      * Retain an original search line only under unchanged root and material
      * bindings.
      */
@@ -338,24 +340,38 @@ export namespace AutoMovieHumanF1NativeRootResolve {
   }
 }
 
-/** Complete current sources from one invocation, before lofting or any band. */
+/*
+ * Complete current sources from one invocation, before lofting or any band.
+ */
 interface IInput {
-  /** Borrowed original control, source and actual-clock calibration. */
+  /*
+   * Borrowed original control, source and actual-clock calibration.
+   */
   original: IAutoMovieHumanF1NativeRoot.ICalibration;
-  /** Current complete parent source and its already prepared reader. */
+  /*
+   * Current complete parent source and its already prepared reader.
+   */
   parent: IAutoMovieViewPart;
-  /** Independent caliper ratios in the original directional basis. */
+  /*
+   * Independent caliper ratios in the original directional basis.
+   */
   scale: readonly [number, number];
-  /** Complete current parent, including its source-owned reliefs and shifts. */
+  /*
+   * Complete current parent, including its source-owned reliefs and shifts.
+   */
   reader: IAutoMovieLoftViewFullSource.IReader;
-  /** Independently generated complete child root definition. */
+  /*
+   * Independently generated complete child root definition.
+   */
   candidate: IAutoMovieViewPart;
 }
 
 type V = AutoMovieVector3Tuple;
 const turn: number = 2 * Math.PI;
 
-/** Actual normal/tangent projection, preserving singular physical-source data. */
+/*
+ * Actual normal/tangent projection, preserving singular physical-source data.
+ */
 function components(
   error: V,
   jet: IAutoMovieSolidSurface.IJet,
@@ -373,12 +389,14 @@ function components(
   };
 }
 
-/** Keep the original admission reason without inventing a numeric substitute. */
+/*
+ * Keep the original admission reason without inventing a numeric substitute.
+ */
 function message(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-/**
+/*
  * Add callsite coordinates to the original Point0 refusal, with one reader
  * call.
  */
@@ -396,7 +414,9 @@ function point(
   }
 }
 
-/** Add physical2 callsite context without evaluating Point0 or another jet. */
+/*
+ * Add physical2 callsite context without evaluating Point0 or another jet.
+ */
 function jet(
   reader: IAutoMovieLoftViewFullSource.IReader,
   source: string,
@@ -411,7 +431,9 @@ function jet(
   }
 }
 
-/** Keep nonfinite coordinates explicit rather than losing them to JSON null. */
+/*
+ * Keep nonfinite coordinates explicit rather than losing them to JSON null.
+ */
 function refusal(
   error: unknown,
   source: string,

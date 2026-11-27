@@ -4,7 +4,9 @@ import type {
   IAutoMovieRecoverySceneRegistration,
 } from "@automovie/interface";
 
-/** Describe all requested views against the final accepted component revision. */
+/*
+ * Describe all requested views against the final accepted component revision.
+ */
 export function describeRecoverySceneRegistration(
   result: IAutoMovieRecoveryCameraSceneEstimate,
   support: readonly (readonly IAutoMovieRecoverySceneCandidate[])[],

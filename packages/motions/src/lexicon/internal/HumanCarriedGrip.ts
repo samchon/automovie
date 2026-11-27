@@ -9,7 +9,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { HumanCarriedWristCircle } from "./HumanCarriedWristCircle";
 
-/**
+/*
  * Choose a supporting hand's tangent at its held point in the bearer's anchor.
  * The nominal tangent is kept when the displayed fingers clear the borne body.
  */
@@ -189,5 +189,7 @@ export function HumanCarriedGrip(
   return chosen;
 }
 
-/** A shape's signed distance to a pair of world points. */
+/*
+ * A shape's signed distance to a pair of world points.
+ */
 type Distance = ReturnType<typeof AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance>;

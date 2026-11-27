@@ -7,7 +7,7 @@ import { armPhrase } from "../../everyday/internal/armPhrase";
 import { AutoMovieMotionHumanActionRow } from "../../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_HAND_TO_BODY_TUCK_HAIR } from "../../next/presets/HUMAN_HAND_TO_BODY_TUCK_HAIR";
 
-/**
+/*
  * The relaxed index fingertip sweeps from in front of the same-side ear to
  * behind it and retracts. Register the row with `HumanPerformance` and author
  * it by name, optionally selecting `side` or `manner`.

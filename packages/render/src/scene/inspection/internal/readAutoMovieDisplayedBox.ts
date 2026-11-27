@@ -13,18 +13,22 @@ import { readMaterialShaderPatches } from "../../internal/readMaterialShaderPatc
 import { hasMaterialDisplacement } from "./hasMaterialDisplacement.js";
 import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
 
-/** Program identity from the owned dual-quaternion shader builder. */
+/*
+ * Program identity from the owned dual-quaternion shader builder.
+ */
 const DUAL_QUATERNION_KEY: string =
   createDualQuaternionSkinningShaderPatch().key;
 
-/** The three local coordinates of every box corner. */
+/*
+ * The three local coordinates of every box corner.
+ */
 const AXES = ["x", "y", "z"] as const;
 const IDENTITY = {
   position: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
 } satisfies Geometry.ICollider["pose"];
 
-/**
+/*
  * Read the original twelve triangles as one affine closed box. The caller
  * admits the stock opaque material. The placement defaults to the mesh's
  * current world matrix; an instanced member passes its world times instance
@@ -39,7 +43,9 @@ export function readAutoMovieDisplayedBox(
   return box === null ? null : placeBox(id, box, placement);
 }
 
-/** Prove the twelve local triangles form one closed box. */
+/*
+ * Prove the twelve local triangles form one closed box.
+ */
 function proveLocalBox(geometry: THREE.BufferGeometry): THREE.Box3 | null {
   const points = geometry.getAttribute("position");
   const indices: THREE.BufferAttribute | null = geometry.getIndex();
@@ -103,7 +109,9 @@ function proveLocalBox(geometry: THREE.BufferGeometry): THREE.Box3 | null {
   return box;
 }
 
-/** Represent the actual affine box corners even under a sheared parent. */
+/*
+ * Represent the actual affine box corners even under a sheared parent.
+ */
 function placeBox(
   id: string,
   box: THREE.Box3,
@@ -149,7 +157,7 @@ function placeBox(
   };
 }
 
-/**
+/*
  * Only a finite, nonsingular affine world matrix preserves these
  * representations.
  */
@@ -161,9 +169,13 @@ function finiteAffine(matrix: THREE.Matrix4): boolean {
   );
 }
 
-/** Stock display admission shared with the posed vertex reader. */
+/*
+ * Stock display admission shared with the posed vertex reader.
+ */
 export namespace readAutoMovieDisplayedBox {
-  /** Admit original opaque stock vertex paths with unchanged geometric output. */
+  /*
+   * Admit original opaque stock vertex paths with unchanged geometric output.
+   */
   export function supportsStockMaterial(mesh: THREE.Mesh): boolean {
     const material: THREE.Material | THREE.Material[] = mesh.material;
     return (
@@ -174,7 +186,7 @@ export namespace readAutoMovieDisplayedBox {
     );
   }
 
-  /**
+  /*
    * Admit one opaque stock surface material, leaving its vertex program to the
    * caller.
    */
@@ -196,7 +208,7 @@ export namespace readAutoMovieDisplayedBox {
     );
   }
 
-  /**
+  /*
    * Project the stock skin's owned conservative sphere by each world affine
    * row.
    */
@@ -223,7 +235,7 @@ export namespace readAutoMovieDisplayedBox {
     }
   }
 
-  /**
+  /*
    * A skinned surface must use the same admitted method in its draw path and
    * pose owner.
    */

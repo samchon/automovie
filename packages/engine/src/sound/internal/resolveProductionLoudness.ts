@@ -6,7 +6,7 @@ import type {
 import { AUTOMOVIE_EBU_R128_LOUDNESS } from "../AUTOMOVIE_EBU_R128_LOUDNESS";
 import { AUTOMOVIE_TRUE_PEAK_LIMITER } from "../constants/AUTOMOVIE_TRUE_PEAK_LIMITER";
 
-/**
+/*
  * Resolve the loudness targets a mix applies: the production's intent when it
  * declares one, otherwise `AUTOMOVIE_EBU_R128_LOUDNESS`, with the dialogue
  * target and the limiter ceiling they imply.
@@ -15,10 +15,9 @@ import { AUTOMOVIE_TRUE_PEAK_LIMITER } from "../constants/AUTOMOVIE_TRUE_PEAK_LI
  * its `integratedLufs`. The ceiling is `maximumTruePeakDbtp` less
  * `AUTOMOVIE_TRUE_PEAK_LIMITER.ceilingMarginDb`. It refuses a declared intent
  * with a non-finite value or a negative tolerance, naming the field.
- *
- * @param intent The production's declared loudness intent, if any.
- * @returns The applied targets, their source, the dialogue target and the
- *   ceiling.
+ * Parameter intent: The production's declared loudness intent, if any.
+ * Returns: The applied targets, their source, the dialogue target and the
+ * ceiling.
  */
 export function resolveProductionLoudness(
   intent: IAutoMovieLoudnessIntent | undefined,

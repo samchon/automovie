@@ -14,7 +14,7 @@ import { pushSled } from "./pushSled";
 import { pushSledHandles } from "./pushSledHandles";
 import { pushSledStance } from "./pushSledStance";
 
-/**
+/*
  * A heavy load that is not carried moved by its two handles: a crate, a
  * wardrobe or a car pushed ahead walking forward, pulled toward the body
  * walking backward, or a sack dragged behind walking forward; or pushed and
@@ -46,10 +46,12 @@ import { pushSledStance } from "./pushSledStance";
  * slowing the walk.
  */
 export namespace pushPull {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "pushPull";
 
-  /**
+  /*
    * Cancel table: the haul may be left at any time, the load staying where the
    * hands left it.
    */
@@ -57,15 +59,14 @@ export namespace pushPull {
     any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
-  /**
+  /*
    * Plan a haul.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} A `parameter` refusal on `to` when a moving load has
-   *   nowhere to go, and on `seconds` when a stuck load has no duration; an
-   *   `affordance` refusal when the prop lacks a named handle; and whatever the
-   *   sled push refuses.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * A `parameter` refusal on `to` when a moving load has
+   * nowhere to go, and on `seconds` when a stuck load has no duration; an
+   * `affordance` refusal when the prop lacks a named handle; and whatever the
+   * sled push refuses.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPushPull.IParams>,

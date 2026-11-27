@@ -5,7 +5,7 @@ import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IAutoMovieInstancedGeometry } from "../IAutoMovieInstancedGeometry.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
-/**
+/*
  * Clone rigid parts into world-rest geometry in their shared traversal order.
  * Reject skin, morph and multi-material sources before merging; normalize mixed
  * colour and relief presence on the owned clones while retaining the original

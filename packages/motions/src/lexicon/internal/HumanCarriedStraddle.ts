@@ -11,13 +11,15 @@ import { AutoMovieMotionHumanVerdicts } from "../../audit/AutoMovieMotionHumanVe
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import type { HumanCarriedCouplingFit } from "./HumanCarriedCouplingFit";
 
-/** A knee at either side of the bearer's pelvis, in left-to-right order. */
+/*
+ * A knee at either side of the bearer's pelvis, in left-to-right order.
+ */
 const KNEES: readonly AutoMovieHumanoidBone[] = [
   "leftLowerLeg",
   "rightLowerLeg",
 ];
 
-/**
+/*
  * A straddling carry wraps the borne knees outside the bearer's thighs. This
  * measures the two gaps in the bearer's pelvis frame using the hip socket
  * separation and measured thickness of the touching segments. The thighs can
@@ -50,18 +52,12 @@ export function HumanCarriedStraddle(
   });
 }
 
-/** The exact collision check for the straddling key pose. */
+/*
+ * The exact collision check for the straddling key pose.
+ */
 export namespace HumanCarriedStraddle {
-  /**
+  /*
    * The measured knee clearance when the side envelope is inconclusive.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Defines the exact fallback and its two observed points.
-   * @evidence contracts/development/implementation.md#principled-implementation Place the three bearer segments once and query both borne knee centres against them.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One placed collider reader and two short-circuitable point queries.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses the same skin overlap admitted by the partner verdict.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Only three fitted segment frames and at most two exact point distances are consumed on fallback.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same winning key registration gives both bodies' bones and the map between them.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The collider reader is scoped to this one check.
    */
   export function clear(
     bearer: IAutoMovieMotionHumanBody,

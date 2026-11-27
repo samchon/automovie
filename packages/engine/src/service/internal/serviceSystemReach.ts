@@ -7,7 +7,7 @@ import {
 
 import { portOwners } from "./portOwners";
 
-/**
+/*
  * Which nodes one system's root actually reaches.
  *
  * Reachability is what separates a drawn network from a working one, and its

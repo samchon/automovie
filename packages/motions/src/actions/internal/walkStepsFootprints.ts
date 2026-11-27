@@ -14,15 +14,14 @@ import { walkHeading } from "./walkHeading";
 import { walkStepFoot } from "./walkStepFoot";
 import type { walkStride } from "./walkStride";
 
-/**
+/*
  * A walk's footprints (`walkSteps.plan`): each footfall's side, heel strike,
  * toe-off and flat footprint along the path, turned toward its asked heading,
  * kept apart from the other foot and leaned no further than the ankle holds,
  * with the pelvis's heading at each heel strike midway between the two feet it
  * stands on, read from the plan's body, path, timing, headings and widths.
- *
- * @param scope What the plan lays its footprints from.
- * @returns The footfalls, the heading knots and the in-place heel strikes.
+ * Parameter scope: What the plan lays its footprints from.
+ * Returns: The footfalls, the heading knots and the in-place heel strikes.
  */
 export function walkStepsFootprints(
   scope: walkStepsFootprints.IScope,
@@ -180,131 +179,182 @@ export function walkStepsFootprints(
   return { steps, knots, turnedAt };
 }
 
-/** What a walk's footprints read and what they are. */
+/*
+ * What a walk's footprints read and what they are.
+ */
 export namespace walkStepsFootprints {
-  /** What a walk plan lays its footprints from. */
+  /*
+   * What a walk plan lays its footprints from.
+   */
   export interface IScope {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The body's measure. */
+    /*
+     * The body's measure.
+     */
     m: IAutoMovieMotionHumanBody["measure"];
 
-    /** The walk's path on the floor. */
+    /*
+     * The walk's path on the floor.
+     */
     path: WalkPath;
 
-    /** What the walk faces; its way when absent. */
+    /*
+     * What the walk faces; its way when absent.
+     */
     facing: IAutoMovieMotionHumanWalkFacing.IFacing | undefined;
 
-    /** Whether the walk turns in place. */
+    /*
+     * Whether the walk turns in place.
+     */
     inPlace: boolean;
 
-    /** The foot entered in the air while the other stands, if any. */
+    /*
+     * The foot entered in the air while the other stands, if any.
+     */
     airborne: AutoMovieHumanSide | undefined;
 
-    /** Both feet were airborne at an outgoing running cut. */
+    /*
+     * Both feet were airborne at an outgoing running cut.
+     */
     doubleFlight: boolean;
 
-    /**
+    /*
      * The outgoing flight's first ground plant when its exact frame is
      * available.
      */
     landing: walkStride.IFlight["landing"];
 
-    /** The entered heading, degrees. */
+    /*
+     * The entered heading, degrees.
+     */
     yaw0: number;
 
-    /** The foot that takes the first step. */
+    /*
+     * The foot that takes the first step.
+     */
     lead: AutoMovieHumanSide;
 
-    /** The footfalls before the closing one. */
+    /*
+     * The footfalls before the closing one.
+     */
     n: number;
 
-    /** The opening steps taken before forward travel. */
+    /*
+     * The opening steps taken before forward travel.
+     */
     turning: number;
 
-    /** The footfalls added in place at the arrival. */
+    /*
+     * The footfalls added in place at the arrival.
+     */
     extra: number;
 
-    /** The first toe-off, seconds. */
+    /*
+     * The first toe-off, seconds.
+     */
     first: number;
 
-    /** The swing, seconds. */
+    /*
+     * The swing, seconds.
+     */
     swing: number;
 
-    /** The step period, seconds. */
+    /*
+     * The step period, seconds.
+     */
     T: number;
 
-    /** Half the gait's step width, metres. */
+    /*
+     * Half the gait's step width, metres.
+     */
     half: number;
 
-    /** Each hip's lateral offset from the midline at rest, metres. */
+    /*
+     * Each hip's lateral offset from the midline at rest, metres.
+     */
     hipWidth: Record<AutoMovieHumanSide, number>;
 
-    /**
+    /*
      * A foot's rest separation from the midline.
-     *
-     * @param side The foot.
-     * @returns The separation, metres.
+     * Parameter side: The foot.
+     * Returns: The separation, metres.
      */
     rest: (side: AutoMovieHumanSide) => number;
 
-    /**
+    /*
      * A footfall's distance along the path.
-     *
-     * @param j The footfall, from 1.
-     * @returns The distance, metres.
+     * Parameter j: The footfall, from 1.
+     * Returns: The distance, metres.
      */
     place: (j: number) => number;
 
-    /**
+    /*
      * The pelvis's distance along the path at a second.
-     *
-     * @param t Action seconds.
-     * @returns The distance, metres.
+     * Parameter t: Action seconds.
+     * Returns: The distance, metres.
      */
     progress: (t: number) => number;
 
-    /**
+    /*
      * The path's heading at a distance, nearest the starting heading.
-     *
-     * @param s The distance, metres.
-     * @returns The heading, degrees.
+     * Parameter s: The distance, metres.
+     * Returns: The heading, degrees.
      */
     along$: (s: number) => number;
 
-    /**
+    /*
      * A footfall's asked heading.
-     *
-     * @param j The footfall, from 1.
-     * @returns The heading, degrees.
+     * Parameter j: The footfall, from 1.
+     * Returns: The heading, degrees.
      */
     towardAt: (j: number) => number;
   }
 
-  /** The footfalls and the pelvis's heading knots. */
+  /*
+   * The footfalls and the pelvis's heading knots.
+   */
   export interface IFootprints {
-    /** The footfalls. */
+    /*
+     * The footfalls.
+     */
     steps: walkStepFoot.IStep[];
 
-    /** The pelvis's heading knots. */
+    /*
+     * The pelvis's heading knots.
+     */
     knots: IHeading[];
 
-    /** The heel strikes of the footfalls taken in place at the arrival. */
+    /*
+     * The heel strikes of the footfalls taken in place at the arrival.
+     */
     turnedAt: Set<number>;
   }
-  /** Heading knots of the turn, in action seconds and unwrapped degrees. */
+  /*
+   * Heading knots of the turn, in action seconds and unwrapped degrees.
+   */
   export interface IHeading {
-    /** Action seconds. */
+    /*
+     * Action seconds.
+     */
     seconds: number;
 
-    /** Pelvis heading in degrees. */
+    /*
+     * Pelvis heading in degrees.
+     */
     yaw: number;
   }
 }
 
-/** One footfall (`walkStepFoot.IStep`). */
+/*
+ * One footfall (`walkStepFoot.IStep`).
+ */
 type IStep = walkStepFoot.IStep;
 
-/** A heading knot of the turn (`walkStepsFootprints.IHeading`). */
+/*
+ * A heading knot of the turn (`walkStepsFootprints.IHeading`).
+ */
 type IHeading = walkStepsFootprints.IHeading;

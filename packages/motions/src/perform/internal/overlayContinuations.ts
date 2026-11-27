@@ -8,7 +8,7 @@ import type {
 import { orderHumanLimbs } from "../../posture/internal/orderHumanLimbs";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 
-/**
+/*
  * The matching nearby fits for an overlay leaf tag, or the final contacts
  * without one, keyed by limb in resolution order; none without a nearby
  * record.

@@ -8,7 +8,7 @@ import type {
 import { Vector3 } from "../../math/Vector3";
 import { autoMovieRayObstructed } from "./autoMovieRayObstructed";
 
-/**
+/*
  * Sum the point-light illuminance `I * cos / r^2` of every luminaire that faces
  * a workplane point and reaches it without obstruction.
  *
@@ -20,10 +20,9 @@ import { autoMovieRayObstructed } from "./autoMovieRayObstructed";
  * One luminaire pass and at most one solid-union ray test per fitting reuse the
  * study's solids; only the caller-owned warnings and coincidence ids survive
  * the call.
- *
- * @param props The point and its unit plane normal, the luminaires, the
- *   occluding solids, and the study's warning list and coincident-fitting set.
- * @returns The artificial illuminance at the point, lux.
+ * Parameter props: The point and its unit plane normal, the luminaires, the
+ * occluding solids, and the study's warning list and coincident-fitting set.
+ * Returns: The artificial illuminance at the point, lux.
  */
 export function autoMovieArtificialIlluminance(props: {
   point: IAutoMovieVector3;
@@ -71,5 +70,7 @@ export function autoMovieArtificialIlluminance(props: {
   return total;
 }
 
-/** Distances this short or shorter put a fitting on the sample point. */
+/*
+ * Distances this short or shorter put a fitting on the sample point.
+ */
 const EPSILON: number = 1e-12;

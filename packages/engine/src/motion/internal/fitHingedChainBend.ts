@@ -13,7 +13,7 @@ import { fitHingedChainCandidate } from "./fitHingedChainCandidate";
 import type { prepareChainFit } from "./prepareChainFit";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
 
-/**
+/*
  * Evaluate and admit the actual hinged candidate of a prepared two-bone fit.
  * This owns the same hinge gate, scoring, ROM clamp and post-clamp endpoint
  * check for ordinary cold search and explicit continuous-curve continuation. An
@@ -21,13 +21,12 @@ import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";
  * original residual bucket. It is not a global-score or orientation
  * certificate: final orientation and the curve's current goal checks remain
  * their owners'.
- *
- * @param props Actual model-metre target and unchanged workspace goal/source
- *   fields, including the chosen cold or near policy.
- * @param workspace Matching prepared source, rig and fixed clinical data.
- * @returns The scored candidate and its admitted bend result, or null when no
- *   hinge candidate applies; fitted is null if actual clamped FK misses its
- *   legal shell.
+ * Parameter props: Actual model-metre target and unchanged workspace goal/source
+ * fields, including the chosen cold or near policy.
+ * Parameter workspace: Matching prepared source, rig and fixed clinical data.
+ * Returns: The scored candidate and its admitted bend result, or null when no
+ * hinge candidate applies; fitted is null if actual clamped FK misses its
+ * legal shell.
  */
 export function fitHingedChainBend(
   props: IAutoMovieFitChainToTargetProps,

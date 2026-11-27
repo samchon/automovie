@@ -4,7 +4,7 @@ import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovi
 import { builtSpaceSubtree } from "./builtSpaceSubtree";
 import { requireBuiltSpace } from "./requireBuiltSpace";
 
-/**
+/*
  * Every logical space under one space, including that space itself.
  *
  * The containment fold the space queries perform, published so a caller asking

@@ -21,7 +21,7 @@ import type { prepareHumanPoseResolution } from "../../posture/internal/prepareH
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import type { stepOverPath } from "./stepOverPath";
 
-/**
+/*
  * A step over's swinging leg at a second (`stepOver.plan`): the pelvis lowered
  * as the swinging leg reaches for its landing over the second half of its swing
  * and let go of the lowering it asked from where it left over the first, the
@@ -29,9 +29,8 @@ import type { stepOverPath } from "./stepOverPath";
  * stepped down onto its ball, and the foot's sockets raised or moved along the
  * landing ramp until each clears the obstacle by its margin. Read from the
  * plan's body, feet, swing windows, path readers and foot socket demands.
- *
- * @param scope What the plan's swing is corrected from.
- * @returns The swing's correction of a posture at a second.
+ * Parameter scope: What the plan's swing is corrected from.
+ * Returns: The swing's correction of a posture at a second.
  */
 export function stepOverSwing(
   scope: stepOverSwing.IScope,
@@ -204,67 +203,100 @@ export function stepOverSwing(
   };
 }
 
-/** What a step over's swing reads and what it is. */
+/*
+ * What a step over's swing reads and what it is.
+ */
 export namespace stepOverSwing {
-  /** What a step-over plan corrects its swing from. */
+  /*
+   * What a step-over plan corrects its swing from.
+   */
   export interface IScope {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The leading foot. */
+    /*
+     * The leading foot.
+     */
     lead: AutoMovieHumanSide;
 
-    /** The trailing foot. */
+    /*
+     * The trailing foot.
+     */
     trail: AutoMovieHumanSide;
 
-    /** The heading, degrees. */
+    /*
+     * The heading, degrees.
+     */
     yaw: number;
 
-    /** Each foot's landing ankle (`stepOverPath.IPlan.end`). */
+    /*
+     * Each foot's landing ankle (`stepOverPath.IPlan.end`).
+     */
     end: stepOverPath.IPlan["end"];
 
-    /** Each foot's swing window (`stepOverPath.IPlan.windows`). */
+    /*
+     * Each foot's swing window (`stepOverPath.IPlan.windows`).
+     */
     windows: stepOverPath.IPlan["windows"];
 
-    /** A foot turned about its ball (`stepOverPath.IPlan.heeled`). */
+    /*
+     * A foot turned about its ball (`stepOverPath.IPlan.heeled`).
+     */
     heeled: stepOverPath.IPlan["heeled"];
 
-    /** The minimum-jerk share of a window (`stepOverPath.IPlan.smooth`). */
+    /*
+     * The minimum-jerk share of a window (`stepOverPath.IPlan.smooth`).
+     */
     smooth: stepOverPath.IPlan["smooth"];
 
-    /** A foot at a second (`stepOverPath.IPlan.footAt`). */
+    /*
+     * A foot at a second (`stepOverPath.IPlan.footAt`).
+     */
     footAt: stepOverPath.IPlan["footAt"];
 
-    /** A socket's least height (`stepOverPath.IPlan.needed`). */
+    /*
+     * A socket's least height (`stepOverPath.IPlan.needed`).
+     */
     needed: stepOverPath.IPlan["needed"];
 
-    /** A socket's advance along the ramp (`stepOverPath.IPlan.advance`). */
+    /*
+     * A socket's advance along the ramp (`stepOverPath.IPlan.advance`).
+     */
     advance: stepOverPath.IPlan["advance"];
 
-    /** The lowering one leg asks of the root (`lowerHumanPosture.prepareShort`). */
+    /*
+     * The lowering one leg asks of the root (`lowerHumanPosture.prepareShort`).
+     */
     short: ReturnType<typeof lowerHumanPosture.prepareShort>;
 
-    /** Each foot's socket bones. */
+    /*
+     * Each foot's socket bones.
+     */
     requested: Record<AutoMovieHumanSide, ReadonlySet<AutoMovieHumanoidBone>>;
 
-    /** Each foot's socket bones' reader. */
+    /*
+     * Each foot's socket bones' reader.
+     */
     observe: Record<AutoMovieHumanSide, ReturnType<typeof poseBones.prepare>>;
 
-    /** The heading's forward, on the floor. */
+    /*
+     * The heading's forward, on the floor.
+     */
     forward: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * The swing's correction of a posture at a second.
-   *
-   * @param posture The lowered posture, corrected in place.
-   * @param t Seconds.
-   * @param footings Each foot's placement and plant at the second.
-   * @param toes Each foot's toe extension, degrees.
-   * @param channels The channels demanded of the plan.
-   * @param resolution The forward-kinematics reader.
-   * @param projection The borrowed range-of-motion projector, if any.
-   * @returns The corrected posture.
+   * Parameter posture: The lowered posture, corrected in place.
+   * Parameter t: Seconds.
+   * Parameter footings: Each foot's placement and plant at the second.
+   * Parameter toes: Each foot's toe extension, degrees.
+   * Parameter channels: The channels demanded of the plan.
+   * Parameter resolution: The forward-kinematics reader.
+   * Parameter projection: The borrowed range-of-motion projector, if any.
+   * Returns: The corrected posture.
    */
   export type Swing = (
     posture: IAutoMovieMotionHumanPosture,

@@ -10,7 +10,7 @@ import type {
 
 import { refineAutoMovieContourInteractions64 } from "./refineAutoMovieContourInteractions64";
 
-/**
+/*
  * Reach one shared-boundary refinement state before choosing and freezing any
  * branch slit. A later interaction can refine a course shared with an earlier
  * group, so all groups are revisited until no source restriction changes.

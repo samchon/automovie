@@ -1,7 +1,7 @@
 import { AutoMovieMatrix3 } from "@automovie/engine";
 import type { IAutoMovieRecoveryHomographyErrorsMeasurementOperation } from "@automovie/interface";
 
-/**
+/*
  * Measure the root-mean-square forward/backward homography transfer in pixels.
  * A mapped point on the projective horizon or an unrepresentable transfer is
  * null, which never counts as finite support for the planar competitor.

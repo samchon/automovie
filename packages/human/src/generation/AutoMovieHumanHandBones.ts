@@ -319,32 +319,36 @@ export namespace AutoMovieHumanHandBones {
   }
 }
 
-/** The four fingers, in radial-to-ulnar packing order. */
+/*
+ * The four fingers, in radial-to-ulnar packing order.
+ */
 const NAMES: readonly IAutoMovieHumanHandBones.Finger[] = [
   "Index",
   "Middle",
   "Ring",
   "Little",
 ];
-/** Reddy 2024 total metacarpal lengths over the third, thumb first. */
+/*
+ * Reddy 2024 total metacarpal lengths over the third, thumb first.
+ */
 const METACARPALS: readonly number[] = [0.711, 1.039, 1, 0.883, 0.797];
-/**
+/*
  * Retained third-MC/reach convention across de Leva/Reddy datums; exact
  * aggregation unrecovered.
  */
 const THIRD: number = 0.774;
-/**
+/*
  * De Leva Table 4 WJC-to-MET3 / WJC-to-DAC3, a bony-landmark proxy for MCP3,
  * women and men.
  */
 const MET3: readonly number[] = [78 / 170.1, 86.2 / 187.9];
-/**
+/*
  * Buryanov 2010 Table III, each web's height above its MCP over web-to-tip
  * length.
  */
 const WEB: readonly number[] = [0.1552, 0.1533, 0.1849, 0.2472];
 
-/**
+/*
  * Turn a phalanx toward the palm by its shared bind angle, retaining unit
  * length.
  */

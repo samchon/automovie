@@ -10,15 +10,14 @@ import { AutoMovieMotionManner } from "../../compose/internal/AutoMovieMotionMan
 import type { HumanToolWork } from "./HumanToolWork";
 import { useTool } from "./useTool";
 
-/**
+/*
  * A tool use's clock: the reach, the cycles and the return, timed by the
  * manner. A cycle is a hammer's, a saw's or a screwdriver's own period
  * (`useTool.PERIODS`), or a stir's circle at a tool stroke's speed
  * (`useTool.STROKE_SPEED`); each cycle's first half ends at `ready` or
  * `cycle<k>` and its second at `contact<k>`.
- *
- * @param prepared The plan's prepared values.
- * @returns The clock.
+ * Parameter prepared: The plan's prepared values.
+ * Returns: The clock.
  */
 export function useToolClock(
   prepared: useToolClock.IPrepared,
@@ -45,23 +44,37 @@ export function useToolClock(
   );
 }
 
-/** Companion types of {@link useToolClock}. */
+/*
+ * Companion types of useToolClock.
+ */
 export namespace useToolClock {
-  /** What `useTool.plan` prepared before its clock. */
+  /*
+   * What `useTool.plan` prepared before its clock.
+   */
   export interface IPrepared {
-    /** The work's kind. */
+    /*
+     * The work's kind.
+     */
     kind: IAutoMovieMotionHumanToolWork.Kind;
 
-    /** The work at its point, whose radius a stir circles. */
+    /*
+     * The work at its point, whose radius a stir circles.
+     */
     work: HumanToolWork.IWork;
 
-    /** The reach's and the return's movement time, seconds. */
+    /*
+     * The reach's and the return's movement time, seconds.
+     */
     travel: number;
 
-    /** The cycles worked. */
+    /*
+     * The cycles worked.
+     */
     cycles: number;
 
-    /** The manner's modifiers. */
+    /*
+     * The manner's modifiers.
+     */
     modifiers: IAutoMovieMotionManner.IModifiers;
   }
 }

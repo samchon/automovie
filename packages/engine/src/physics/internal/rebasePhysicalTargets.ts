@@ -3,7 +3,7 @@ import type { IAutoMovieRigidTransform } from "@automovie/interface";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Rigidly carry a copied articulation from its reference root into a declared
  * root frame, preserving every relative joint transform and fixed anchor.
  */

@@ -7,7 +7,7 @@ import { renderCrossDissolveFrames } from "./renderCrossDissolveFrames.js";
 import { renderFadeToBlackFrame } from "./renderFadeToBlackFrame.js";
 import { AutoMovieFilmResponseStage } from "../AutoMovieFilmResponseStage.js";
 
-/**
+/*
  * Render already sampled film layers through one beauty/guide boundary.
  *
  * Layer sample fields are opaque to this owner. An optional preparation

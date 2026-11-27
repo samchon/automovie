@@ -9,7 +9,9 @@ import { createRecoveryMapTriangularMetric } from "./createRecoveryMapTriangular
 import { validateRecoveryMapMetricRow } from "./validateRecoveryMapMetricRow";
 import { validateRecoveryMapMetricScales } from "./validateRecoveryMapMetricScales";
 
-/** Factor one owned scaled arrowhead and preflight all fixed physical rows. */
+/*
+ * Factor one owned scaled arrowhead and preflight all fixed physical rows.
+ */
 export function factorRecoveryMapCurvature(
   blocks: IAutoMovieRecoveryMapCurvatureBlocks,
   cameraScales: readonly number[],

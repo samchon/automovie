@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryChartControlRelations } from "@automovie/interface";
 
-/**
+/*
  * Eliminate acyclic affine control relations without changing their
  * coefficients. Original control IDs remain the independent term addresses;
  * they are never replaced by compact solver slots. Fixed positions and returned

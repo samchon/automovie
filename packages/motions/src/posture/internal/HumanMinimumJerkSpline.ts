@@ -1,4 +1,4 @@
-/**
+/*
  * The minimum-jerk path through via points at given times (Flash and Hogan
  * 1985, "The coordination of arm movements: an experimentally confirmed
  * mathematical model", J. Neurosci. 5(7):1688-1703): the path minimising the
@@ -15,21 +15,26 @@
  * "Matrix Computations", section 4.5.1).
  */
 export namespace HumanMinimumJerkSpline {
-  /** Each via point's velocity and acceleration, per coordinate. */
+  /*
+   * Each via point's velocity and acceleration, per coordinate.
+   */
   export interface IDerivatives {
-    /** Each point's velocity, coordinate units per second. */
+    /*
+     * Each point's velocity, coordinate units per second.
+     */
     velocities: number[][];
 
-    /** Each point's acceleration, coordinate units per second squared. */
+    /*
+     * Each point's acceleration, coordinate units per second squared.
+     */
     accelerations: number[][];
   }
 
-  /**
+  /*
    * Each via point's velocity and acceleration on the minimum-jerk path.
-   *
-   * @param times The points' seconds, strictly ascending.
-   * @param x Each point's coordinates.
-   * @returns The velocities and accelerations, zero at both ends.
+   * Parameter times: The points' seconds, strictly ascending.
+   * Parameter x: Each point's coordinates.
+   * Returns: The velocities and accelerations, zero at both ends.
    */
   export function derivatives(
     times: readonly number[],
@@ -126,16 +131,15 @@ export namespace HumanMinimumJerkSpline {
     return { velocities, accelerations };
   }
 
-  /**
+  /*
    * Each via point's velocity and acceleration on the periodic minimum-jerk
    * path: the same jerk and snap continuity at every point, the last joined to
    * the first across the period, a block-cyclic system solved by Gaussian
    * elimination with partial pivoting (Golub and Van Loan, section 3.4).
-   *
-   * @param times The points' seconds within one period, strictly ascending.
-   * @param x Each point's coordinates.
-   * @param period The period, seconds, longer than the points' span.
-   * @returns The velocities and accelerations.
+   * Parameter times: The points' seconds within one period, strictly ascending.
+   * Parameter x: Each point's coordinates.
+   * Parameter period: The period, seconds, longer than the points' span.
+   * Returns: The velocities and accelerations.
    */
   export function cyclic(
     times: readonly number[],
@@ -220,18 +224,17 @@ export namespace HumanMinimumJerkSpline {
     };
   }
 
-  /**
+  /*
    * The quintic Hermite between two via points at a share of their interval.
-   *
-   * @param p0 The first point.
-   * @param p1 The second point.
-   * @param v0 The first point's velocity.
-   * @param v1 The second point's velocity.
-   * @param a0 The first point's acceleration.
-   * @param a1 The second point's acceleration.
-   * @param h The interval, seconds.
-   * @param u The share of the interval, 0 to 1.
-   * @returns The coordinates there.
+   * Parameter p0: The first point.
+   * Parameter p1: The second point.
+   * Parameter v0: The first point's velocity.
+   * Parameter v1: The second point's velocity.
+   * Parameter a0: The first point's acceleration.
+   * Parameter a1: The second point's acceleration.
+   * Parameter h: The interval, seconds.
+   * Parameter u: The share of the interval, 0 to 1.
+   * Returns: The coordinates there.
    */
   export function quintic(
     p0: readonly number[],
@@ -265,13 +268,19 @@ export namespace HumanMinimumJerkSpline {
   }
 }
 
-/** A pair of numbers: one block row. */
+/*
+ * A pair of numbers: one block row.
+ */
 type Pair = [number, number];
 
-/** A two-by-two matrix, rows first. */
+/*
+ * A two-by-two matrix, rows first.
+ */
 type Block = [[number, number], [number, number]];
 
-/** The product of two blocks. */
+/*
+ * The product of two blocks.
+ */
 function multiply(a: Block, b: Block): Block {
   return [
     [
@@ -285,7 +294,9 @@ function multiply(a: Block, b: Block): Block {
   ];
 }
 
-/** The difference of two blocks. */
+/*
+ * The difference of two blocks.
+ */
 function subtract(a: Block, b: Block): Block {
   return [
     [a[0][0] - b[0][0], a[0][1] - b[0][1]],
@@ -293,7 +304,9 @@ function subtract(a: Block, b: Block): Block {
   ];
 }
 
-/** A block's inverse. */
+/*
+ * A block's inverse.
+ */
 function inverse(a: Block): Block {
   const det: number = a[0][0] * a[1][1] - a[0][1] * a[1][0];
   return [

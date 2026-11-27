@@ -4,7 +4,7 @@ import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadr
 import { AutoMovieArchetypeQuadrupedGait } from "../AutoMovieArchetypeQuadrupedGait";
 import type { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped";
 
-/**
+/*
  * Where a quadruped changes gait with its speed: each gait is changed into from
  * the one below at a change point its species' `Rule` gives, worked from the
  * animal's own dimensions, and past each point by the species' gap that keeps
@@ -47,17 +47,16 @@ export namespace QuadrupedChange {
   /** Closed gait-transition rules, distinguished by their authored kind. */
   export type Rule = IFroudeRule | IMassRule | ISpeedRule | IOverlapRule;
 
-  /**
+  /*
    * The speed at which an animal changes between two neighbouring gaits.
-   *
-   * @param species The species.
-   * @param low The slower gait.
-   * @param high The faster gait, the next in the species' order.
-   * @param dimensions The animal's dimensions: its withers height and mass are
-   *   read.
-   * @param hip The animal's hip joint's height above the ground at rest,
-   *   metres, the leg's length a Froude number is taken on.
-   * @returns The change point, metres per second.
+   * Parameter species: The species.
+   * Parameter low: The slower gait.
+   * Parameter high: The faster gait, the next in the species' order.
+   * Parameter dimensions: The animal's dimensions: its withers height and mass are
+   * read.
+   * Parameter hip: The animal's hip joint's height above the ground at rest,
+   * metres, the leg's length a Froude number is taken on.
+   * Returns: The change point, metres per second.
    */
   export function point(
     species: AutoMovieArchetypeQuadruped.ISpecies,
@@ -102,18 +101,17 @@ export namespace QuadrupedChange {
     );
   }
 
-  /**
+  /*
    * The gait a speed calls for: up at a declared speed boundary plus
    * hysteresis, strictly past other rule boundaries, and down strictly below a
    * boundary minus hysteresis. With zero hysteresis the exact speed boundary
    * belongs to the faster gait independently of the starting gait.
-   *
-   * @param species The species.
-   * @param speed The speed, metres per second.
-   * @param from The gait the animal is in.
-   * @param dimensions The animal's dimensions.
-   * @param hip The animal's hip joint's height at rest, metres.
-   * @returns The gait.
+   * Parameter species: The species.
+   * Parameter speed: The speed, metres per second.
+   * Parameter from: The gait the animal is in.
+   * Parameter dimensions: The animal's dimensions.
+   * Parameter hip: The animal's hip joint's height at rest, metres.
+   * Returns: The gait.
    */
   export function called(
     species: AutoMovieArchetypeQuadruped.ISpecies,

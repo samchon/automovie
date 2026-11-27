@@ -1,14 +1,13 @@
 import type { IAutoMovieViolationCollector } from "@automovie/interface";
 
-/**
+/*
  * Report a declared collection of a soft body that is larger than its budget:
  * its path, its size and how far past the budget it runs.
- *
- * @param out The collector.
- * @param path The collection's path.
- * @param label The collection's name in the message.
- * @param actual The declared size.
- * @param budget The largest size admitted.
+ * Parameter out: The collector.
+ * Parameter path: The collection's path.
+ * Parameter label: The collection's name in the message.
+ * Parameter actual: The declared size.
+ * Parameter budget: The largest size admitted.
  */
 export function validateSoftBounded(
   out: IAutoMovieViolationCollector,

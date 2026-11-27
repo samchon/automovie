@@ -13,7 +13,7 @@ import { linearizePhysicalInterval } from "./linearizePhysicalInterval";
 import { physicalShapeBoundsImplementation } from "./physicalShapeBoundsImplementation";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
-/**
+/*
  * Keep an endpoint's existing XYZ promise and its explicitly declared real
  * support plane in the same solve. Geometry, witnesses and original goals are
  * borrowed only for this invocation.
@@ -146,5 +146,7 @@ export function physicalContactSupportRows(
   ];
 }
 
-/** Borrowed world transforms for one candidate. */
+/*
+ * Borrowed world transforms for one candidate.
+ */
 type Poses = Readonly<Record<string, IAutoMovieRigidTransform>>;

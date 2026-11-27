@@ -1,6 +1,6 @@
 import type { TrueTypeByteReader } from "./TrueTypeByteReader";
 
-/**
+/*
  * Read the horizontal kerning pairs of a `kern` table's format 0 subtables, by
  * glyph index (ISO/IEC 14496-22, section 5.7.4).
  *
@@ -9,13 +9,12 @@ import type { TrueTypeByteReader } from "./TrueTypeByteReader";
  * glyphs along a line. Their values add across subtables, as the format
  * specifies, unless a subtable's override bit replaces the accumulated value.
  * Subtables of other formats are skipped by their declared length.
- *
- * @param reader Bounds-checked reader over the font bytes.
- * @param offset Byte offset of the `kern` table.
- * @returns Adjustment in font units keyed by `left * 65536 + right` glyph
- *   indices. An Apple-format table, whose 32-bit version is 1.0, contributes no
- *   pairs.
- * @throws {Error} A field lies outside the bytes.
+ * Parameter reader: Bounds-checked reader over the font bytes.
+ * Parameter offset: Byte offset of the `kern` table.
+ * Returns: Adjustment in font units keyed by `left * 65536 + right` glyph
+ * indices. An Apple-format table, whose 32-bit version is 1.0, contributes no
+ * pairs.
+ * A field lies outside the bytes.
  */
 export function readTrueTypeKerning(
   reader: TrueTypeByteReader,
@@ -54,19 +53,23 @@ export function readTrueTypeKerning(
   return pairs;
 }
 
-/**
+/*
  * `kern` subtable coverage bit 0 (ISO/IEC 14496-22, section 5.7.4): set when
  * the subtable holds horizontal data, clear for vertical.
  */
 const HORIZONTAL: number = 0x01;
 
-/** Coverage bit 1: set when the subtable holds minimum values, not kerning. */
+/*
+ * Coverage bit 1: set when the subtable holds minimum values, not kerning.
+ */
 const MINIMUM: number = 0x02;
 
-/** Coverage bit 2: set when the kerning is perpendicular to the text flow. */
+/*
+ * Coverage bit 2: set when the kerning is perpendicular to the text flow.
+ */
 const CROSS_STREAM: number = 0x04;
 
-/**
+/*
  * Coverage bit 3: set when the subtable's value replaces the value accumulated
  * so far rather than adding to it.
  */

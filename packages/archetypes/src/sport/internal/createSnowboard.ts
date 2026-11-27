@@ -10,16 +10,15 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 
-/**
+/*
  * A coarse snowboard with distinct binding sites and visible raised ends. The
  * nose is along -Z. The waist, length and stance width follow Burton's 154 cm
  * Custom Camber. Adjacent panels share section vertices. Tip widths, thickness
  * and rise are provisional. Bindings are simple contact pads.
  * https://www.burton.com/en-us/products/mens-burton-custom-camber-snowboard-106881
- *
- * @param params Optional scene id and mass in kilograms.
- * @param seed Draws the mass if the author leaves it open.
- * @returns A board with a deck, binding sites and both edge markers.
+ * Parameter params: Optional scene id and mass in kilograms.
+ * Parameter seed: Draws the mass if the author leaves it open.
+ * Returns: A board with a deck, binding sites and both edge markers.
  */
 export function createSnowboard(
   params: AutoMovieArchetypeSnowboard.IParams = {},
@@ -116,14 +115,18 @@ export function createSnowboard(
   return builder.build(mass);
 }
 
-/** Length, waist and binding spacing of the Burton Custom Camber 154, in metres. */
+/*
+ * Length, waist and binding spacing of the Burton Custom Camber 154, in metres.
+ */
 const SIZE: Readonly<{ length: number; waist: number; stance: number }> = {
   length: 1.54,
   waist: 0.25,
   stance: 0.53,
 };
 
-/** Provisional edge appearance, section thickness and tip rise, in metres. */
+/*
+ * Provisional edge appearance, section thickness and tip rise, in metres.
+ */
 const FORM: Readonly<{
   hip: number;
   tip: number;

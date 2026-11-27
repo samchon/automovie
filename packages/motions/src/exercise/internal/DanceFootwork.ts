@@ -25,7 +25,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 import { pelvisReachHeight } from "../../posture/internal/pelvisReachHeight";
 
-/**
+/*
  * The footwork every keyed dance law shares (tap and ballet, street steps):
  * each foot runs through its keys, dwelling at a key from its arrival to its
  * departure and travelling to the next key between on minimum-jerk progress,
@@ -39,41 +39,43 @@ import { pelvisReachHeight } from "../../posture/internal/pelvisReachHeight";
  * plan (compose).
  */
 export namespace DanceFootwork {
-  /**
+  /*
    * How long either side of a brush its strike touches the floor, seconds
    * (provisional).
    */
   export const BRUSH: number = 0.03;
 
-  /**
+  /*
    * One foot's course: its leg row, its bearing windows and its placement
    * reader.
    */
   export interface IFoot {
-    /** The leg row placing the foot. */
+    /*
+     * The leg row placing the foot.
+     */
     primitive: IAutoMovieMotionHumanPrimitive;
 
-    /** The bearing dwells as contact windows. */
+    /*
+     * The bearing dwells as contact windows.
+     */
     contacts: IAutoMovieMotionHumanContactWindow[];
 
-    /**
+    /*
      * The foot's placement at an action second.
-     *
-     * @param seconds Action seconds.
-     * @returns The placement.
+     * Parameter seconds: Action seconds.
+     * Returns: The placement.
      */
     placed(seconds: number): IAutoMovieMotionHumanFoot.IPlacement;
   }
 
-  /**
+  /*
    * One foot's course through its keys.
-   *
-   * @param body The dancer's body.
-   * @param side Which foot.
-   * @param keys The keys in time order; the first arrives at 0.
-   * @param duration The action's seconds.
-   * @param support What a bearing foot stands on.
-   * @returns The leg row, the contacts and the placement reader.
+   * Parameter body: The dancer's body.
+   * Parameter side: Which foot.
+   * Parameter keys: The keys in time order; the first arrives at 0.
+   * Parameter duration: The action's seconds.
+   * Parameter support: What a bearing foot stands on.
+   * Returns: The leg row, the contacts and the placement reader.
    */
   export function foot(
     body: IAutoMovieMotionHumanBody,
@@ -206,19 +208,18 @@ export namespace DanceFootwork {
     };
   }
 
-  /**
+  /*
    * The carriage row: the hips on the caller's world path and heading, the root
    * back-solved from them, and the caller's joints written over.
-   *
-   * @param body The dancer's body.
-   * @param duration The action's seconds.
-   * @param hips The hips' world point at an action second.
-   * @param yaw The heading at an action second, degrees.
-   * @param joints The joints written at an action second; those of the legs are
-   *   left to the feet's rows.
-   * @param hands The hands' targets at an action second, if the dance places
-   *   them.
-   * @returns The row.
+   * Parameter body: The dancer's body.
+   * Parameter duration: The action's seconds.
+   * Parameter hips: The hips' world point at an action second.
+   * Parameter yaw: The heading at an action second, degrees.
+   * Parameter joints: The joints written at an action second; those of the legs are
+   * left to the feet's rows.
+   * Parameter hands: The hands' targets at an action second, if the dance places
+   * them.
+   * Returns: The row.
    */
   export function carry(
     body: IAutoMovieMotionHumanBody,
@@ -277,15 +278,14 @@ export namespace DanceFootwork {
     };
   }
 
-  /**
+  /*
    * Compose a keyed dance's course into its plan: both feet's rows and
    * contacts, the carriage row, and the clock of its instants.
-   *
-   * @param body The dancer's body.
-   * @param entry The entry posture, the plan's base.
-   * @param course The course.
-   * @param support What a bearing foot stands on.
-   * @returns The plan.
+   * Parameter body: The dancer's body.
+   * Parameter entry: The entry posture, the plan's base.
+   * Parameter course: The course.
+   * Parameter support: What a bearing foot stands on.
+   * Returns: The plan.
    */
   export function compose(
     body: IAutoMovieMotionHumanBody,
@@ -339,17 +339,16 @@ export namespace DanceFootwork {
     });
   }
 
-  /**
+  /*
    * A course's hips set over its feet: the feet's midpoint on the floor plan at
    * the entry's standing height above the entry's feet, lowered by a crouch,
    * and lowered further where feet a stride apart would leave a leg short of
    * its ankle (`pelvisReachHeight`).
-   *
-   * @param body The dancer's body.
-   * @param entry The entry state.
-   * @param course The course, whose feet are read.
-   * @param crouch How far below standing the hips ride, metres.
-   * @returns The hips path.
+   * Parameter body: The dancer's body.
+   * Parameter entry: The entry state.
+   * Parameter course: The course, whose feet are read.
+   * Parameter crouch: How far below standing the hips ride, metres.
+   * Returns: The hips path.
    */
   export function over(
     body: IAutoMovieMotionHumanBody,
@@ -402,7 +401,9 @@ export namespace DanceFootwork {
     };
   }
 
-  /** The joints above the hips: the legs are the feet's rows'. */
+  /*
+   * The joints above the hips: the legs are the feet's rows'.
+   */
   function above(
     joints: IAutoMovieMotionHumanPosture["joints"],
   ): IAutoMovieMotionHumanPosture["joints"] {
@@ -413,10 +414,14 @@ export namespace DanceFootwork {
     );
   }
 
-  /** The bones the leg rows own. */
+  /*
+   * The bones the leg rows own.
+   */
   const LEGS: RegExp = /Leg|Foot|Toes|hips/;
 
-  /** The last key arrived by a second (the first when none has). */
+  /*
+   * The last key arrived by a second (the first when none has).
+   */
   function last(
     keys: readonly IAutoMovieMotionHumanDanceFootKey[],
     t: number,
@@ -432,5 +437,7 @@ export namespace DanceFootwork {
   }
 }
 
-/** The alternatives of `OverCourse`'s site. */
+/*
+ * The alternatives of `OverCourse`'s site.
+ */
 type OverCourse = "duration" | "left" | "right" | "yaw";

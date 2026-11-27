@@ -5,18 +5,17 @@ import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
-/**
+/*
  * Where each hand of a bearer holds, in that bearer's anchor frame: the borne
  * region it holds on the coupling's key pose, left then right; null for a hand
  * that does not hold.
- *
- * @param borne The borne body.
- * @param coupling The coupling.
- * @param row The carry's row.
- * @param role The bearer whose hands and anchor are read.
- * @param key The carry posture builder, called only for a bearer with a hold.
- * @returns The two holds, each the held region's point and outward normal in
- *   that bearer's anchor frame, and the anchor bone.
+ * Parameter borne: The borne body.
+ * Parameter coupling: The coupling.
+ * Parameter row: The carry's row.
+ * Parameter role: The bearer whose hands and anchor are read.
+ * Parameter key: The carry posture builder, called only for a bearer with a hold.
+ * Returns: The two holds, each the held region's point and outward normal in
+ * that bearer's anchor frame, and the anchor bone.
  */
 export function resolveCarriedHoldGeometry(
   borne: IAutoMovieMotionHumanBody,
@@ -158,11 +157,17 @@ export function resolveCarriedHoldGeometry(
   };
 }
 
-/** A bearing contact when that hand is occupied. */
+/*
+ * A bearing contact when that hand is occupied.
+ */
 type MaybeContact = IAutoMovieMotionCoupling.IContact | undefined;
 
-/** A fitted grip when that hand is occupied. */
+/*
+ * A fitted grip when that hand is occupied.
+ */
 type MaybeGrip = IAutoMovieMotionHumanCarriedCouplingPose.IGrip | null;
 
-/** A further bearer's anchor in the shared coupling frame. */
+/*
+ * A further bearer's anchor in the shared coupling frame.
+ */
 type BearerFrame = NonNullable<IAutoMovieMotionCoupling["bearers"]>[string];

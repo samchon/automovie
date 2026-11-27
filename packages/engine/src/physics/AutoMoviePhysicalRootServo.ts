@@ -111,7 +111,7 @@ export namespace AutoMoviePhysicalRootServo {
   }
 }
 
-/**
+/*
  * The yaw the stance feet stand turned by from their planted poses, as each
  * foot's world rotation was latched when its stance began or it last touched
  * again: their mean heading turn about the vertical, identity without a

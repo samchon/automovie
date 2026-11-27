@@ -31,10 +31,12 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { hoseBackup } from "./hoseBackup";
 import { hoseLineReaction } from "./hoseLineReaction";
 
-/** The stream's sweep, degrees in all: provisional. */
+/*
+ * The stream's sweep, degrees in all: provisional.
+ */
 const SPAN: number = 30;
 
-/**
+/*
  * One member of a two-member hose team holding a charged line against its
  * nozzle reaction. Register as `hoseLine`.
  *
@@ -67,7 +69,9 @@ export const hoseLine: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFiref
     plan,
   };
 
-/** Plan the member's role. */
+/*
+ * Plan the member's role.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IHoseLine>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -110,7 +114,7 @@ function plan(
     : hoseBackup(context, p, clock, base);
 }
 
-/**
+/*
  * The operator: the bail open by the free hand, the stream swept by the holding
  * wrist.
  */

@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Tracking: a presented firearm kept on a target that moves. The weapon is
  * presented at where the target is when the action starts, and with `track` the
  * sight line then follows the target for as long as the carriage is held.
@@ -26,16 +26,15 @@ import type {
  * and the tracking has no lag or tremor by skill.
  */
 export namespace HumanWeaponTrack {
-  /**
+  /*
    * The path of a presented weapon: the pose itself, or with `track` the pose
    * turned onto the target at each second.
-   *
-   * @param context The action's context.
-   * @param pose The presented pose, aimed at `aimed`.
-   * @param eye The eye the sight line starts from, world metres.
-   * @param aimed Where the pose is aimed, world metres; null for a carriage
-   *   that does not aim, which is never turned.
-   * @returns The stroke planner's path.
+   * Parameter context: The action's context.
+   * Parameter pose: The presented pose, aimed at `aimed`.
+   * Parameter eye: The eye the sight line starts from, world metres.
+   * Parameter aimed: Where the pose is aimed, world metres; null for a carriage
+   * that does not aim, which is never turned.
+   * Returns: The stroke planner's path.
    */
   export function path(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponTrack.IParams>,

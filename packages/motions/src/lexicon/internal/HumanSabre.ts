@@ -37,7 +37,7 @@ import { HumanSwordGuard } from "./HumanSwordGuard";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 import { humanSabreCharge } from "./humanSabreCharge";
 
-/**
+/*
  * A sabre's slope and engage from the saddle (`IAutoMovieMotionHumanSabre`):
  * carried on the seat contact, the right hand closes on the held sabre's grip
  * and is placed by the sabre's own geometry (`StrikingHeld`) at stations laid
@@ -62,37 +62,39 @@ export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSab
     plan: planHumanSabre,
   };
 
-/** The law's context. */
+/*
+ * The law's context.
+ */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSabre>;
 
-/**
+/*
  * A carriage's station in the seat frame: the grip's place, the way the blade
  * points and the way its true edge faces.
  */
 interface IStation {
-  /** The grip's place, metres. */
+  /*
+   * The grip's place, metres.
+   */
   grip: IAutoMovieVector3;
 
-  /** The way the blade points, a unit vector. */
+  /*
+   * The way the blade points, a unit vector.
+   */
   axis: IAutoMovieVector3;
 
-  /** The way the true edge faces. */
+  /*
+   * The way the true edge faces.
+   */
   edge: IAutoMovieVector3;
 }
 
-/** The alternatives of `StationsEntryItem`'s site. */
+/*
+ * The alternatives of `StationsEntryItem`'s site.
+ */
 type StationsEntryItem = "slope" | "engage";
 
-/**
+/*
  * Admit the carriage and the charge, lay both stations, then sample.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the refusals: a non-seated entry, a transition longer than a gallop stride, a cue with no instant inside the act, and a charge cued while the ride's own gait track does not show the gallop.
- * @evidence contracts/development/implementation.md#principled-implementation Stations are laid from the seated trunk's own right shoulder joint: the slope's by the arm's own segments, the engage's by the ox's row in arm lengths; the slope's loosened grip is the grip window's in-hand turn about the grip socket, the world turn that brings the blade's axis onto the shoulder's front taken into the hand's frame; the goal hangs the elbow from the body and keeps the arm's solution at the decisive station, as the sword strokes do; the charge starts at the cue plus `HumanResponse.latency` for a warned reaction; the horse's gait is the latest change on the ride's own gait track at or before the charge.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the stations, the clock, then the sampler.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A charge before the gallop is refused, never delayed.
- * @evidence contracts/development/implementation.md#efficient-algorithms One shoulder resolve, one turn and one decisive arm fit per plan; a sample reads one seat frame, the two rein contacts and the horse's frame for its shapes, and writes two arm goals, laid together by one course, the sabre arm clear of the horse.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The tool and the stations are shared by every sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the tool and the carrier reader.
  */
 function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanSabre = context.params;

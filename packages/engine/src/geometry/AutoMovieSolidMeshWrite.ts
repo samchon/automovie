@@ -6,7 +6,9 @@ import type {
 
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
-/** Existing vector arithmetic, with its original evaluation order. */
+/*
+ * Existing vector arithmetic, with its original evaluation order.
+ */
 const { cross, dot, norm, sub }: typeof AutoMovieSolidVector =
   AutoMovieSolidVector;
 

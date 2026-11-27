@@ -70,7 +70,9 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
   /** Authored sika trot and/or rotary gallop; an absent gait stays unsupported. */
   export type IDeer = IDeerTrot | IDeerGallop;
 
-  /** Coincident lateral pairs, explicitly constructed for running pace. */
+  /*
+   * Coincident lateral pairs, explicitly constructed for running pace.
+   */
   const PACE: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>> = {
     leftFore: 0,
     rightFore: 0.5,
@@ -78,7 +80,9 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     rightHind: 0.5,
   };
 
-  /** Coincident diagonals; the other diagonal lands half a stride later. */
+  /*
+   * Coincident diagonals; the other diagonal lands half a stride later.
+   */
   const TROT: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>> = {
     leftFore: 0,
     rightFore: 0.5,
@@ -86,7 +90,9 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     rightHind: 0,
   };
 
-  /** Constructed LH→RH→RF→LF rotary order: left fore leads, right hind leads. */
+  /*
+   * Constructed LH→RH→RF→LF rotary order: left fore leads, right hind leads.
+   */
   const ROTARY: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>> =
     {
       leftFore: 0,
@@ -288,7 +294,7 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     };
   }
 
-  /**
+  /*
    * Convert required authored seconds to common gait rows, retaining named walk
    * construction proxies.
    */
@@ -322,7 +328,7 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     };
   }
 
-  /**
+  /*
    * Admit every positive SI clock and copy rows without a caller-owned
    * reference.
    */
@@ -376,7 +382,7 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     );
   }
 
-  /**
+  /*
    * Admit ordered gait ranges and copy the existing owner's closed change-rule
    * vocabulary.
    */
@@ -435,17 +441,21 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     return { kind: "overlap" };
   }
 
-  /** A finite positive SI time, reciprocal frequency, speed or reference length. */
+  /*
+   * A finite positive SI time, reciprocal frequency, speed or reference length.
+   */
   function positive(value: number, axis: string): void {
     if (value <= 0) refuse(axis, value, "supply a finite positive value");
   }
 
-  /** A finite nonnegative range, spread or hysteresis. */
+  /*
+   * A finite nonnegative range, spread or hysteresis.
+   */
   function nonnegative(value: number, axis: string): void {
     if (value < 0) refuse(axis, value, "supply a finite nonnegative value");
   }
 
-  /**
+  /*
    * A finite unit fraction; touchdown phases separately exclude the endpoint
    * one.
    */
@@ -454,7 +464,9 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
       refuse(axis, value, "supply a finite fraction from zero through one");
   }
 
-  /** One structured admission refusal with no hidden fallback. */
+  /*
+   * One structured admission refusal with no hidden fallback.
+   */
   function refuse(axis: string, value: unknown, reason: string): never {
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",

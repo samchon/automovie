@@ -7,7 +7,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditStatics";
 
-/**
+/*
  * Whether a body standing on both feet alone keeps its balance: the margin of
  * stability of Hof, Gazendam and Sinke (2005) at every instant where both feet
  * are declared planted on the ground and nothing else bears the body.
@@ -40,22 +40,21 @@ import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditSta
  * not judged by it.
  */
 export namespace AutoMovieMotionHumanAuditBalance {
-  /**
+  /*
    * Half the span of the velocity's central difference when one instant is read
    * alone, seconds.
    */
   export const STEP: number = 1 / 240;
 
-  /**
+  /*
    * How far the extrapolated centre of mass leaves the feet's hull over the
    * instants where both feet alone bear the body.
-   *
-   * @param motion The motion.
-   * @param subject The person.
-   * @param body Their body.
-   * @param rate Grid samples per second.
-   * @returns Metres outside the hull (zero when it never leaves, or when no
-   *   instant is read), with `both feet` and the second.
+   * Parameter motion: The motion.
+   * Parameter subject: The person.
+   * Parameter body: Their body.
+   * Parameter rate: Grid samples per second.
+   * Returns: Metres outside the hull (zero when it never leaves, or when no
+   * instant is read), with `both feet` and the second.
    */
   export function measure(
     motion: IAutoMovieMotionHumanAuditMotion,
@@ -170,7 +169,9 @@ export namespace AutoMovieMotionHumanAuditBalance {
     return worst;
   }
 
-  /** Locate the first sample at (or strictly after) a second on the film grid. */
+  /*
+   * Locate the first sample at (or strictly after) a second on the film grid.
+   */
   function locate(
     times: HumanAuditMotion.IGrid,
     seconds: number,
@@ -187,19 +188,18 @@ export namespace AutoMovieMotionHumanAuditBalance {
     return from;
   }
 
-  /**
+  /*
    * The margin of stability at one instant, whatever the contacts.
-   *
-   * @param motion The motion.
-   * @param subject The person.
-   * @param body Their body.
-   * @param model The body's mass model.
-   * @param seconds Film seconds.
-   * @param before The earlier instant of the velocity's difference; `STEP`
-   *   before, clamped into the motion, by default.
-   * @param after The later instant of the velocity's difference; `STEP` after,
-   *   clamped into the motion, by default.
-   * @returns Metres, positive inside the feet's hull.
+   * Parameter motion: The motion.
+   * Parameter subject: The person.
+   * Parameter body: Their body.
+   * Parameter model: The body's mass model.
+   * Parameter seconds: Film seconds.
+   * Parameter before: The earlier instant of the velocity's difference; `STEP`
+   * before, clamped into the motion, by default.
+   * Parameter after: The later instant of the velocity's difference; `STEP` after,
+   * clamped into the motion, by default.
+   * Returns: Metres, positive inside the feet's hull.
    */
   export function margin(
     motion: IAutoMovieMotionHumanAuditMotion,
@@ -225,7 +225,9 @@ export namespace AutoMovieMotionHumanAuditBalance {
     );
   }
 
-  /** Read the support and three-point Hof margin on the current bone frames. */
+  /*
+   * Read the support and three-point Hof margin on the current bone frames.
+   */
   function marginAt(
     body: IAutoMovieMotionHumanBody,
     windows: readonly IAutoMovieMotionHumanAuditMotion.IWindow[],
@@ -298,23 +300,24 @@ export namespace AutoMovieMotionHumanAuditBalance {
     );
   }
 
-  /** The feet, the parts a standing base bears on. */
+  /*
+   * The feet, the parts a standing base bears on.
+   */
   const FEET: ReadonlySet<IAutoMovieMotionHumanContactWindow["part"]> = new Set<
     IAutoMovieMotionHumanContactWindow["part"]
   >(["leftFoot", "rightFoot"]);
 
-  /**
+  /*
    * Whether another support takes the body within the hold: a bearing window of
    * a part not bearing now (a seat the body is lowered onto, a hand put down)
    * opens after the instant and by its end. That is the same case as a step
    * being taken: the parts bearing now will not be alone for the hold, whether
    * they are planted feet or feet and knees bearing together.
-   *
-   * @param windows The person's contact windows, film seconds.
-   * @param seconds Film seconds.
-   * @param until The hold's end, film seconds.
-   * @param bearing The parts bearing at the instant.
-   * @returns Whether such a support arrives.
+   * Parameter windows: The person's contact windows, film seconds.
+   * Parameter seconds: Film seconds.
+   * Parameter until: The hold's end, film seconds.
+   * Parameter bearing: The parts bearing at the instant.
+   * Returns: Whether such a support arrives.
    */
   function arriving(
     windows: readonly IAutoMovieMotionHumanAuditMotion.IWindow[],
@@ -335,15 +338,14 @@ export namespace AutoMovieMotionHumanAuditBalance {
     );
   }
 
-  /**
+  /*
    * Whether both feet alone bear the body at an instant: each foot inside a
    * plant window on the ground, and no other contact window open.
-   *
-   * @param windows The person's contact windows, film seconds.
-   * @param seconds Film seconds.
-   * @param until The second both feet must stay planted to, without a gap;
-   *   `seconds` itself when absent.
-   * @returns Whether the instant is read.
+   * Parameter windows: The person's contact windows, film seconds.
+   * Parameter seconds: Film seconds.
+   * Parameter until: The second both feet must stay planted to, without a gap;
+   * `seconds` itself when absent.
+   * Returns: Whether the instant is read.
    */
   export function standing(
     windows: readonly IAutoMovieMotionHumanAuditMotion.IWindow[],
@@ -424,30 +426,42 @@ export namespace AutoMovieMotionHumanAuditBalance {
     return left && right;
   }
 
-  /** One action's candidate interval as indices into the original film grid. */
+  /*
+   * One action's candidate interval as indices into the original film grid.
+   */
   interface ISampledInterval {
     span: HumanPhysics.ISpan;
     from: number;
     to: number;
   }
 
-  /** Displayed bones and their mass centre at one instant of the stencil. */
+  /*
+   * Displayed bones and their mass centre at one instant of the stencil.
+   */
   interface IStencilSample {
-    /** The displayed bones. */
+    /*
+     * The displayed bones.
+     */
     bones: Bones;
 
-    /** Their centre of mass, world metres. */
+    /*
+     * Their centre of mass, world metres.
+     */
     centre: IAutoMovieVector3;
   }
 
-  /** Read or allocate the one sample shared by overlapping stencils. */
+  /*
+   * Read or allocate the one sample shared by overlapping stencils.
+   */
   type StencilAt = (seconds: number, bones?: Bones) => IStencilSample;
 }
 
-/** The displayed bones as owned by the audit's motion. */
+/*
+ * The displayed bones as owned by the audit's motion.
+ */
 type Bones = ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]>;
 
-/**
+/*
  * The mass centre at an actual film second, reusing displayed frames when
  * supplied.
  */

@@ -6,7 +6,7 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { StrikingSkill } from "./StrikingSkill";
 
-/**
+/*
  * Whether a defence is in time, late or fails against one strike, decided from
  * the two performers' timing before any geometry, and how a forced outcome is
  * realised with plausible human timing.
@@ -37,12 +37,11 @@ import { StrikingSkill } from "./StrikingSkill";
  * silently. An implausible reaction time is never used.
  */
 export namespace DefenceOutcome {
-  /**
+  /*
    * Classify a margin.
-   *
-   * @param margin `t_hit - (t_start + T_def)`, seconds.
-   * @param movement `T_def`, seconds.
-   * @returns The outcome.
+   * Parameter margin: `t_hit - (t_start + T_def)`, seconds.
+   * Parameter movement: `T_def`, seconds.
+   * Returns: The outcome.
    */
   export function classify(
     margin: number,
@@ -53,12 +52,11 @@ export namespace DefenceOutcome {
     return "fail";
   }
 
-  /**
+  /*
    * The margin band an outcome occupies, seconds, before plausibility.
-   *
-   * @param outcome The outcome.
-   * @param movement `T_def`, seconds.
-   * @returns `[low, high]`; open ends are infinite.
+   * Parameter outcome: The outcome.
+   * Parameter movement: `T_def`, seconds.
+   * Returns: `[low, high]`; open ends are infinite.
    */
   export function band(
     outcome: IAutoMovieMotionHumanDefenceOutcome.Outcome,
@@ -69,19 +67,18 @@ export namespace DefenceOutcome {
     return [-Infinity, -0.5 * movement];
   }
 
-  /**
+  /*
    * Decide a defence: drawn from the defender's skill, or forced into a band.
-   *
-   * @param input The timing.
-   * @param random The defender's stream for this defence.
-   * @param forced The outcome to force, when the author declares one.
-   * @returns The decision.
-   * @throws {Error} When the contact is not after the launch, the movement time
-   *   is not positive, the telegraph leaves [0, 1] or the stretch band excludes
-   *   1.
-   * @throws {HumanRefusal} A `parameter` refusal on `outcome` when no plausible
-   *   timing inside the attack's stretch band meets the forced outcome, with
-   *   the outcomes it does meet.
+   * Parameter input: The timing.
+   * Parameter random: The defender's stream for this defence.
+   * Parameter forced: The outcome to force, when the author declares one.
+   * Returns: The decision.
+   * When the contact is not after the launch, the movement time
+   * is not positive, the telegraph leaves [0, 1] or the stretch band excludes
+   * 1.
+   * A `parameter` refusal on `outcome` when no plausible
+   * timing inside the attack's stretch band meets the forced outcome, with
+   * the outcomes it does meet.
    */
   export function decide(
     input: IAutoMovieMotionHumanDefenceOutcome.IInput,

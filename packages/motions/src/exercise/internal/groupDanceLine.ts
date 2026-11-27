@@ -16,7 +16,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { ExerciseKey } from "./ExerciseKey";
 
-/**
+/*
  * A line dance's eight counts: a grapevine right (side, behind, side, close)
  * and a grapevine left whose last count closes after a quarter turn to the left
  * on the left foot's ball. The pattern returns the feet to where they stood and
@@ -28,29 +28,38 @@ import { ExerciseKey } from "./ExerciseKey";
  * the stature.
  */
 export namespace groupDanceLine {
-  /** A side step, a share of twice the feet's half spacing (provisional). */
+  /*
+   * A side step, a share of twice the feet's half spacing (provisional).
+   */
   export const STEP: number = 1;
 
-  /** How far behind the crossing foot lands, foot lengths (provisional). */
+  /*
+   * How far behind the crossing foot lands, foot lengths (provisional).
+   */
   export const CROSS: number = 0.45;
 
-  /** A foot's travel into a count, a share of a beat. */
+  /*
+   * A foot's travel into a count, a share of a beat.
+   */
   export const TRAVEL: number = 0.45;
 
-  /** A travelling foot's lift, a share of the stature (provisional). */
+  /*
+   * A travelling foot's lift, a share of the stature (provisional).
+   */
   export const LIFT: number = 0.03;
 
-  /** The pivoting heel's lift through the turn, degrees about the ball. */
+  /*
+   * The pivoting heel's lift through the turn, degrees about the ball.
+   */
   export const PIVOT: number = 10;
 
-  /**
+  /*
    * The line dance's course.
-   *
-   * @param body The member's body.
-   * @param entry The member's entry state.
-   * @param beats The member's beat clock, its offset already in.
-   * @param repeats How many eight-count patterns.
-   * @returns The course.
+   * Parameter body: The member's body.
+   * Parameter entry: The member's entry state.
+   * Parameter beats: The member's beat clock, its offset already in.
+   * Parameter repeats: How many eight-count patterns.
+   * Returns: The course.
    */
   export function course(
     body: IAutoMovieMotionHumanBody,
@@ -200,19 +209,29 @@ export namespace groupDanceLine {
     };
   }
 
-  /** One repeat's quarter turn. */
+  /*
+   * One repeat's quarter turn.
+   */
   interface ITurn {
-    /** When it starts, action seconds. */
+    /*
+     * When it starts, action seconds.
+     */
     from: number;
 
-    /** When it ends. */
+    /*
+     * When it ends.
+     */
     to: number;
 
-    /** The heading before it, degrees. */
+    /*
+     * The heading before it, degrees.
+     */
     yaw: number;
   }
 
-  /** The entry stance's key. */
+  /*
+   * The entry stance's key.
+   */
   function stood(
     entry: IAutoMovieMotionHumanEntryState,
     side: AutoMovieHumanSide,

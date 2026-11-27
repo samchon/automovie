@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Turn a motion case's overlays into inspection marks: trails as polylines,
  * targets as points, and drift samples as points flagged where their drift
  * exceeds their limit.
@@ -20,9 +20,8 @@ import type {
  * `case/drift/<i>/within` or `/beyond`, so the pattern `case` selects them all.
  * Every mark is in world metres and unanchored. A trail of one point is drawn
  * as a point, and an empty trail or drift set gives no mark.
- *
- * @param props The case's overlays.
- * @returns The trail marks, then the targets, then the drift.
+ * Parameter props: The case's overlays.
+ * Returns: The trail marks, then the targets, then the drift.
  */
 export function markMotionCaptureCase(
   props: IAutoMovieMotionHumanMotionCaptureOverlays,
@@ -120,26 +119,34 @@ export function markMotionCaptureCase(
   );
   return marks;
 }
-/**
+/*
  * Colour of the drift kind: a violet no case overlay uses and the inspection
  * reserves for nothing.
  */
 const DRIFT: number = 0x7b4fa8;
 
-/** The record of `IMarkMotionCaptureCaseSamplesSample2`'s site. */
+/*
+ * The record of `IMarkMotionCaptureCaseSamplesSample2`'s site.
+ */
 type IMarkMotionCaptureCaseSamplesSample2 = {
   at: IAutoMovieVector3;
   drift: number;
 };
 
-/** The record of `IMarkMotionCaptureCaseSamplesSample`'s site. */
+/*
+ * The record of `IMarkMotionCaptureCaseSamplesSample`'s site.
+ */
 type IMarkMotionCaptureCaseSamplesSample = {
   at: IAutoMovieVector3;
   drift: number;
 };
 
-/** The alternatives of `MarkMotionCaptureCaseKindResult`'s site. */
+/*
+ * The alternatives of `MarkMotionCaptureCaseKindResult`'s site.
+ */
 type MarkMotionCaptureCaseKindResult = "kind" | "label" | "color";
 
-/** The alternatives of `MarkMotionCaptureCaseKind`'s site. */
+/*
+ * The alternatives of `MarkMotionCaptureCaseKind`'s site.
+ */
 type MarkMotionCaptureCaseKind = "kind" | "label" | "color";

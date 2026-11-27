@@ -250,7 +250,9 @@ export namespace AutoMovieHumanLegProximal {
   }
 }
 
-/** Solve the same implicit X/Z contact equations, rejecting degeneracy. */
+/*
+ * Solve the same implicit X/Z contact equations, rejecting degeneracy.
+ */
 function solve(
   a: AutoMovieVector3Tuple,
   b: AutoMovieVector3Tuple,

@@ -15,16 +15,15 @@ import type { catchObject } from "./catchObject";
 import { readThrowObjectLaunch } from "./readThrowObjectLaunch";
 import { throwObject } from "./throwObject";
 
-/**
+/*
  * Where and when the throw is met.
- *
- * @param context The catch's context.
- * @param frame The catcher's standing floor frame.
- * @param arm The catcher's arm length, metres.
- * @returns The interception.
- * @throws {HumanRefusal} When the anchor is not a throw, a self-toss never
- *   rises to the chest, or another's throw starts within reach or never comes
- *   within it.
+ * Parameter context: The catch's context.
+ * Parameter frame: The catcher's standing floor frame.
+ * Parameter arm: The catcher's arm length, metres.
+ * Returns: The interception.
+ * When the anchor is not a throw, a self-toss never
+ * rises to the chest, or another's throw starts within reach or never comes
+ * within it.
  */
 export function catchObjectApproach(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IParams>,
@@ -102,33 +101,32 @@ export function catchObjectApproach(
   };
 }
 
-/**
+/*
  * The interception of a catch (catchObject): another's throw met where its path
  * first comes within `REACH` arm lengths ahead of the catcher, or the catcher's
  * own toss met as it falls to the chest (`TOSS`).
  */
 export namespace catchObjectApproach {
-  /**
+  /*
    * How far ahead of the root another's throw is met, arm lengths
    * (provisional).
    */
   export const REACH: number = 0.6;
 
-  /**
+  /*
    * The height a self-tossed object is caught at on its way down, a share of
    * the stature: the lower chest (provisional).
    */
   export const TOSS: number = 0.72;
-  /**
+  /*
    * How long a self-toss flies before it falls to the catch: the later root of
    * `fall + vy t - g t² / 2 = 0`.
-   *
-   * @param partner The toss's anchor.
-   * @param vy The toss's rising speed, m/s.
-   * @param fall How far the release stands above the catch, metres.
-   * @returns Seconds.
-   * @throws {HumanRefusal} When the toss does not rise or never reaches the
-   *   catch's height.
+   * Parameter partner: The toss's anchor.
+   * Parameter vy: The toss's rising speed, m/s.
+   * Parameter fall: How far the release stands above the catch, metres.
+   * Returns: Seconds.
+   * When the toss does not rise or never reaches the
+   * catch's height.
    */
   export function tossFlight(
     partner: string,
@@ -147,15 +145,14 @@ export namespace catchObjectApproach {
     return (vy + Math.sqrt(vy * vy + 2 * g * fall)) / g;
   }
 
-  /**
+  /*
    * How long another's throw flies before it comes within reach: the distance
    * ahead over the closing speed.
-   *
-   * @param partner The throw's anchor.
-   * @param ahead How far the release lies beyond the reach, metres.
-   * @param closing The throw's closing speed, m/s.
-   * @returns Seconds.
-   * @throws {HumanRefusal} When the throw starts within reach or never closes.
+   * Parameter partner: The throw's anchor.
+   * Parameter ahead: How far the release lies beyond the reach, metres.
+   * Parameter closing: The throw's closing speed, m/s.
+   * Returns: Seconds.
+   * When the throw starts within reach or never closes.
    */
   export function meetFlight(
     partner: string,

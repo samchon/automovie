@@ -23,7 +23,7 @@ import { pickUp } from "./pickUp";
 import { putDown } from "./putDown";
 import { putDownTarget } from "./putDownTarget";
 
-/**
+/*
  * The wrist a put down lays its prop with: the rigid hand-to-prop offset the
  * grip keeps (the displayed hand and prop at the start), then the hand that
  * holds the prop at its destination by that offset. A declared resting attitude
@@ -32,14 +32,13 @@ import { putDownTarget } from "./putDownTarget";
  * bone or another prop's socket is laid on that frame; a free placement keeps
  * an authored heading, or rests at whichever heading the arm can lay it down at
  * exactly (`HumanGrasp.reachable` over `putDown.HEADINGS`).
- *
- * @param context The put down's context.
- * @param side The holding hand.
- * @param body The performer's body.
- * @param held The entry posture.
- * @returns The hand, the grip's offset, the elbow's hint, the destination's
- *   kind and the chosen wrist.
- * @throws {HumanRefusal} When no destination is named.
+ * Parameter context: The put down's context.
+ * Parameter side: The holding hand.
+ * Parameter body: The performer's body.
+ * Parameter held: The entry posture.
+ * Returns: The hand, the grip's offset, the elbow's hint, the destination's
+ * kind and the chosen wrist.
+ * When no destination is named.
  */
 export function putDownWrist(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPutDown.IParams>,
@@ -202,29 +201,47 @@ export function putDownWrist(
   return { hand, offset, bend, on, onto, attitude, chosen };
 }
 
-/** The records of putDownWrist. */
+/*
+ * The records of putDownWrist.
+ */
 export namespace putDownWrist {
-  /** The wrist a put down lays its prop with, and what it was chosen from. */
+  /*
+   * The wrist a put down lays its prop with, and what it was chosen from.
+   */
   export interface IWrist {
-    /** The holding hand at the start, displayed. */
+    /*
+     * The holding hand at the start, displayed.
+     */
     hand: IAutoMovieResolvedBone;
 
-    /** The prop in the hand's frame, the grip's rigid offset. */
+    /*
+     * The prop in the hand's frame, the grip's rigid offset.
+     */
     offset: IAutoMovieRigidTransform;
 
-    /** The elbow's hint, world. */
+    /*
+     * The elbow's hint, world.
+     */
     bend: IAutoMovieVector3;
 
-    /** The bone of the performer the prop is put on, if any. */
+    /*
+     * The bone of the performer the prop is put on, if any.
+     */
     on: IAutoMovieMotionHumanPutDown.IParams["on"];
 
-    /** The other prop's socket the prop is set on, if any. */
+    /*
+     * The other prop's socket the prop is set on, if any.
+     */
     onto: IAutoMovieMotionHumanPutDown.IParams["onto"];
 
-    /** The authored resting attitude laid exactly, if any. */
+    /*
+     * The authored resting attitude laid exactly, if any.
+     */
     attitude: IAutoMovieQuaternion | undefined;
 
-    /** The placing wrist. */
+    /*
+     * The placing wrist.
+     */
     chosen: IAutoMovieMotionHumanHand.IWrist;
   }
 }

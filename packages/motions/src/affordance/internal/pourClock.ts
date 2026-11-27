@@ -6,16 +6,15 @@ import type {
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * The pour's stage clock: the five authored stages in order, each 0.2 to 3
  * seconds and at most 10 seconds in all, scaled by the performance's tempo. The
  * tilt and lip gap are admitted with it, before the plan reads them.
- *
- * @param params The pour's authored stages, tilt and gap.
- * @param tempo The performance's time scale, positive.
- * @returns The clock of the stages' start events, seconds.
- * @throws {HumanRefusal} For a stage, a total, a tempo, a tilt or a gap out of
- *   its range.
+ * Parameter params: The pour's authored stages, tilt and gap.
+ * Parameter tempo: The performance's time scale, positive.
+ * Returns: The clock of the stages' start events, seconds.
+ * For a stage, a total, a tempo, a tilt or a gap out of
+ * its range.
  */
 export function pourClock(
   params: IAutoMovieMotionHumanPour.IParams,
@@ -55,5 +54,7 @@ export function pourClock(
   return AutoMovieMotionClock.sequence(phases);
 }
 
-/** A pour stage's start event and authored length, seconds. */
+/*
+ * A pour stage's start event and authored length, seconds.
+ */
 type IPourClockPhase = { name: string; seconds: number };

@@ -10,7 +10,7 @@ import { SERVICE_EPSILON } from "../SERVICE_EPSILON";
 import { appendServiceCrossings } from "./appendServiceCrossings";
 import { routeDistanceSquared } from "./routeDistanceSquared";
 
-/**
+/*
  * Check segment connectivity, admitted routes and cited sleeve fit, collecting
  * used penetration ids without changing diagnostic order.
  */

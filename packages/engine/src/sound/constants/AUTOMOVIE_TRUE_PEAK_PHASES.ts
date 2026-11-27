@@ -1,4 +1,4 @@
-/**
+/*
  * Polyphase coefficients of the 4× interpolator that estimates true peak, after
  * ITU-R BS.1770-5 Annex 2.
  *

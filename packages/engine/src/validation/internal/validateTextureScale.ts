@@ -12,7 +12,7 @@ import {
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 import { materialTextureSlots } from "./materialTextureSlots";
 
-/**
+/*
  * Measure mesh UV bounding spans, reject normalized spans over1+1e-9 and warn
  * when repeating surface-metre tile size exceeds the span.
  */
@@ -56,13 +56,13 @@ export function validateTextureScale(
   return out.toValidation();
 }
 
-/**
+/*
  * Absolute slack for normalized UV spans and relative multiplier slack for
  * surface-metre tile comparisons.
  */
 const SCALE_EPSILON: number = 1e-9;
 
-/**
+/*
  * Fold finite resident mesh UV pairs into positive U/V bounding spans.
  *
  * UV coordinates are measured directly rather than inferred from world
@@ -104,7 +104,7 @@ const surfaceSpan: (
   return u > 0 && v > 0 ? { u, v } : null;
 };
 
-/**
+/*
  * Reject excessive normalized spans or warn when1/abs(scale) exceeds a
  * surface-metre span unless clamped.
  *
@@ -134,7 +134,9 @@ const checkBinding: (props: {
 }) => void = (props: {
   binding: IAutoMovieTextureReference;
 
-  /** The slot's path under the material, such as `overlays[0].baseColorTexture`. */
+  /*
+   * The slot's path under the material, such as `overlays[0].baseColorTexture`.
+   */
   slot: string;
   span: { u: number; v: number };
   part: IAutoMovieModelPart;

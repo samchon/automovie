@@ -10,7 +10,9 @@ import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
 import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 import { AutoMovieMotionHumanBendSide } from "./AutoMovieMotionHumanBendSide";
 
-/** Prepare one actual unchanged body/trunk/side for all of its requested sweeps. */
+/*
+ * Prepare one actual unchanged body/trunk/side for all of its requested sweeps.
+ */
 export function AutoMovieMotionHumanBendPreparation(
   fixed: Pick<IAutoMovieMotionHumanBend.ISolve, OfFixed>,
   source?: AutoMovieMotionHumanBendChain.IPrepared,
@@ -71,33 +73,41 @@ export function AutoMovieMotionHumanBendPreparation(
   };
 }
 
-/**
+/*
  * Actual solve/strain sweeps sharing fixed arm geometry and optional paired
  * trunk preparation.
  */
 export namespace AutoMovieMotionHumanBendPreparation {
-  /**
+  /*
    * Variable fields of the existing bend request, after body/trunk/side are
    * fixed.
    */
   export type IGoal = Pick<IAutoMovieMotionHumanBend.ISolve, Goal>;
 
-  /** Two original numerical queries on one fixed body/trunk/side geometry. */
+  /*
+   * Two original numerical queries on one fixed body/trunk/side geometry.
+   */
   export interface IPrepared {
-    /** Run the original legality-first then least-strain sweep for this wrist. */
+    /*
+     * Run the original legality-first then least-strain sweep for this wrist.
+     */
     solve: (goal: IGoal) => IAutoMovieVector3;
 
-    /** Run the original elbow-side-ranked sweep and report its legal strain. */
+    /*
+     * Run the original elbow-side-ranked sweep and report its legal strain.
+     */
     strain: (goal: IGoal, bend: IAutoMovieVector3) => number;
   }
 
-  /** Select the original default elbow ranking for a current moving hand. */
+  /*
+   * Select the original default elbow ranking for a current moving hand.
+   */
   export function defaultBend(
     goal: IAutoMovieMotionHumanBend.ISolve,
   ): IAutoMovieVector3 {
     return AutoMovieMotionHumanBend.solve(goal);
   }
-  /**
+  /*
    * Prepare actual sides of one fixed trunk within one synchronous person
    * operation.
    */
@@ -126,17 +136,27 @@ export namespace AutoMovieMotionHumanBendPreparation {
   }
 }
 
-/** The alternatives of `BothFixed`'s site. */
+/*
+ * The alternatives of `BothFixed`'s site.
+ */
 type BothFixed = "body" | "posture";
 
-/** The alternatives of `OfFound2`'s site. */
+/*
+ * The alternatives of `OfFound2`'s site.
+ */
 type OfFound2 = AutoMovieMotionHumanBendSearch.ICandidate | string;
 
-/** The alternatives of `OfFound`'s site. */
+/*
+ * The alternatives of `OfFound`'s site.
+ */
 type OfFound = AutoMovieMotionHumanBendSearch.ICandidate | string;
 
-/** The alternatives of `OfFixed`'s site. */
+/*
+ * The alternatives of `OfFixed`'s site.
+ */
 type OfFixed = "body" | "posture" | "side";
 
-/** The alternatives of `Goal`'s site. */
+/*
+ * The alternatives of `Goal`'s site.
+ */
 type Goal = "point" | "rotation" | "fallback";

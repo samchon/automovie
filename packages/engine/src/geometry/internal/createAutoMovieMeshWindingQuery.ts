@@ -5,7 +5,7 @@ import type {
 
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
-/**
+/*
  * Compile any triangle surface into a query that tells solid from empty space
  * at one point by the generalized winding number.
  *
@@ -34,9 +34,8 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * are metres in the mesh's frame. Admission throws on a malformed index buffer,
  * a non-finite position and a mesh without triangles. A query throws on a point
  * that is not three finite coordinates.
- *
- * @param mesh Surface to snapshot; only read.
- * @returns The query for one XYZ point in metres.
+ * Parameter mesh: Surface to snapshot; only read.
+ * Returns: The query for one XYZ point in metres.
  */
 export const createAutoMovieMeshWindingQuery: (
   mesh: IAutoMovieMesh,
@@ -135,22 +134,24 @@ export const createAutoMovieMeshWindingQuery: (
   };
 };
 
-/** Numbers stored per kept triangle: three corners, then the normal. */
+/*
+ * Numbers stored per kept triangle: three corners, then the normal.
+ */
 const STRIDE: number = 12;
 
-/**
+/*
  * A triangle whose doubled area, in square metres, is this small has no usable
  * plane.
  */
 const PLANE_NORMAL_EPSILON: number = 1e-12;
 
-/**
+/*
  * Slack, as a share of the triangle's doubled area, within which a point counts
  * as on it.
  */
 const SURFACE_EPSILON: number = 1e-9;
 
-/**
+/*
  * Whether the point lies on the triangle whose corners, seen from the point,
  * are `u`, `v` and `w`, edges and corners included.
  *
@@ -198,7 +199,7 @@ const onTriangle: (
   );
 };
 
-/**
+/*
  * The side of the point on the directed edge from corner `s` to corner `e`,
  * both seen from the point: ((e - s) x (p - s)) . n, which is (e - s) x (-s)
  * dotted with the normal, positive inside a counter-clockwise triangle.

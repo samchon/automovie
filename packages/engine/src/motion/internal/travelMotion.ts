@@ -8,7 +8,7 @@ import type {
 
 import { Quaternion } from "../../math/Quaternion";
 
-/**
+/*
  * Repeat an admitted in-place clip a positive safe-integer number of cycles and
  * add velocity times global seconds to its root. Velocity uses the receiving
  * motion's metre frame, not necessarily the final staged world frame; optional

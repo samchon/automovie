@@ -28,7 +28,7 @@ import { prepareDanceBeats } from "./prepareDanceBeats";
 import { tapDanceFlights } from "./tapDanceFlights";
 import { tapDanceSteps } from "./tapDanceSteps";
 
-/**
+/*
  * Tap dance on the dance law's beat clock. Each step is a table of strikes in
  * quarter beats from its first beat (`tapDanceSteps.STEPS`): which foot (the
  * leading one or the other), how it is set down (on the ball with the heel up
@@ -55,10 +55,12 @@ import { tapDanceSteps } from "./tapDanceSteps";
  * Events: `beat{k}`, each sounding strike's `strike{n}{Side}{Part}`, `relax`.
  */
 export namespace tapDance {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "tapDance";
 
-  /**
+  /*
    * Cancel table: from the last beat, into standing, another tap step or a
    * dance.
    */
@@ -70,31 +72,38 @@ export namespace tapDance {
       walk: ["fromRelax", "smooth"],
     });
 
-  /** The foot's pitch on its ball or its heel, degrees (provisional). */
+  /*
+   * The foot's pitch on its ball or its heel, degrees (provisional).
+   */
   export const PITCH: number = 20;
 
-  /**
+  /*
    * How far a brush or a step reaches ahead or behind, foot lengths
    * (provisional).
    */
   export const REACH: number = 0.4;
 
-  /** The longest travel into a strike, a share of a beat. */
+  /*
+   * The longest travel into a strike, a share of a beat.
+   */
   export const TRAVEL: number = 0.2;
 
-  /** How high a travelling foot lifts, a share of the stature (provisional). */
+  /*
+   * How high a travelling foot lifts, a share of the stature (provisional).
+   */
   export const LIFT: number = 0.03;
 
-  /** How low the hips ride on soft knees, a share of the stature (provisional). */
+  /*
+   * How low the hips ride on soft knees, a share of the stature (provisional).
+   */
   export const CROUCH: number = 0.03;
 
-  /**
+  /*
    * Plan tap steps.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the tempo is not positive, the repeat count is
-   *   not a positive whole number, or the locked track has too few beats.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the tempo is not positive, the repeat count is
+   * not a positive whole number, or the locked track has too few beats.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTapDance.IParams>,
@@ -273,19 +282,23 @@ export namespace tapDance {
       support,
     );
   }
-  /**
+  /*
    * A flat step that takes the weight: when it lands and where its ankle is
    * set.
    */
   interface IFlat {
-    /** Action seconds it lands. */
+    /*
+     * Action seconds it lands.
+     */
     at: number;
 
-    /** Its ankle, world metres. */
+    /*
+     * Its ankle, world metres.
+     */
     ankle: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * The deepest crouch below straight legs at which a foot set down flat keeps
    * its shank within the unloaded ankle's dorsal range, less the walk's margin
    * (`ANKLE_DORSIFLEXION.unloaded − walkLeg.ANKLE`), with the hip `ahead` of
@@ -307,7 +320,9 @@ export namespace tapDance {
     return Math.max(0, straight - least);
   }
 
-  /** The entry stance's key. */
+  /*
+   * The entry stance's key.
+   */
   function stood(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTapDance.IParams>,
     side: AutoMovieHumanSide,
@@ -324,7 +339,9 @@ export namespace tapDance {
     };
   }
 
-  /** The foot set down by a mode where it lands flat. */
+  /*
+   * The foot set down by a mode where it lands flat.
+   */
   function set(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
@@ -344,11 +361,15 @@ export namespace tapDance {
     );
   }
 
-  /** A word with its first letter capital. */
+  /*
+   * A word with its first letter capital.
+   */
   function capital(word: string): string {
     return word.charAt(0).toUpperCase() + word.slice(1);
   }
 }
 
-/** The alternatives of `SetSocket`'s site. */
+/*
+ * The alternatives of `SetSocket`'s site.
+ */
 type SetSocket = "ball" | "heel";

@@ -457,7 +457,9 @@ export namespace AutoMoviePhysicalRootDemand {
   }
 }
 
-/** A stance limb's contact bodies: its endpoint's and its contacts'. */
+/*
+ * A stance limb's contact bodies: its endpoint's and its contacts'.
+ */
 function bodiesOf(
   limbs: readonly IAutoMovieFootfallPattern["limbs"][number][],
   segments: ReadonlyMap<string, AutoMovieXpbdBody>,

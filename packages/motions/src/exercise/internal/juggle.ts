@@ -29,7 +29,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { juggleTiming } from "./juggleTiming";
 
-/**
+/*
  * Toss juggling standing still.
  *
  * The pattern's times follow Shannon's theorem `(F + D) H = (V + D) N` for two
@@ -55,35 +55,43 @@ import { juggleTiming } from "./juggleTiming";
  * Events: `throw{n}`, `catch{n}` for each throw's catch, `relax`.
  */
 export namespace juggle {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "juggle";
 
-  /** Cancel table: once the last ball is down or caught, into standing. */
+  /*
+   * Cancel table: once the last ball is down or caught, into standing.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
       juggle: ["fromRelax", "smooth"],
     });
 
-  /** The dwell ratio, `D / (D + V)`. */
+  /*
+   * The dwell ratio, `D / (D + V)`.
+   */
   export const DWELL: number = 0.75;
 
-  /**
+  /*
    * The shortest vacancy that lets a hand reach its catch, seconds
    * (provisional).
    */
   export const VACANCY: number = 0.12;
 
-  /**
+  /*
    * How far a throw leaves inside the hand's point, a share of the hands'
    * spacing.
    */
   export const INSIDE: number = 0.2;
 
-  /** The scoop's dip, metres (provisional). */
+  /*
+   * The scoop's dip, metres (provisional).
+   */
   export const SCOOP: number = 0.06;
 
-  /**
+  /*
    * The hands' points before the body: half apart, high and ahead, shares of
    * the stature.
    */
@@ -93,17 +101,16 @@ export namespace juggle {
     z: 0.22,
   };
 
-  /**
+  /*
    * Where a hand holds its ball at the start: the ball's centre in world
    * metres. The first ball rests in the right hand, the second in the left and
    * a third on top of the first.
-   *
-   * @param body The juggler's body.
-   * @param root The juggler's root on the floor, world metres.
-   * @param yaw The juggler's heading, degrees.
-   * @param index The ball's place in `balls`, from 0.
-   * @param radius The ball's radius, metres.
-   * @returns The ball's centre.
+   * Parameter body: The juggler's body.
+   * Parameter root: The juggler's root on the floor, world metres.
+   * Parameter yaw: The juggler's heading, degrees.
+   * Parameter index: The ball's place in `balls`, from 0.
+   * Parameter radius: The ball's radius, metres.
+   * Returns: The ball's centre.
    */
   export function start(
     body: IAutoMovieMotionHumanBody,
@@ -120,14 +127,13 @@ export namespace juggle {
     });
   }
 
-  /**
+  /*
    * Plan a juggle.
-   *
-   * @param context The action's context.
-   * @returns The plan with its launches.
-   * @throws {HumanRefusal} When a cascade's count is even, a shower's is not
-   *   two, the height leaves no vacancy for the catch, or the throw count is
-   *   not a positive whole number.
+   * Parameter context: The action's context.
+   * Returns: The plan with its launches.
+   * When a cascade's count is even, a shower's is not
+   * two, the height leaves no vacancy for the catch, or the throw count is
+   * not a positive whole number.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanJuggle.IParams>,
@@ -406,31 +412,47 @@ export namespace juggle {
     return { ...composed, launches };
   }
 
-  /** One ball held in a hand. */
+  /*
+   * One ball held in a hand.
+   */
   interface IHeld {
-    /** The ball's scene id. */
+    /*
+     * The ball's scene id.
+     */
     ball: string;
 
-    /** From when, action seconds. */
+    /*
+     * From when, action seconds.
+     */
     from: number;
 
-    /** Until when. */
+    /*
+     * Until when.
+     */
     to: number;
   }
 
-  /** What a hand does at an event: catch, throw, or rest at its home point. */
+  /*
+   * What a hand does at an event: catch, throw, or rest at its home point.
+   */
   type Moment = "catch" | "throw" | "rest";
 
-  /** A hand's catch or throw. */
+  /*
+   * A hand's catch or throw.
+   */
   interface IEvent {
-    /** When, action seconds. */
+    /*
+     * When, action seconds.
+     */
     at: number;
 
-    /** What happens. */
+    /*
+     * What happens.
+     */
     kind: Moment;
   }
 
-  /**
+  /*
    * A hand's point in the juggler's frame, moved in or out by a share of the
    * hands' spacing.
    */

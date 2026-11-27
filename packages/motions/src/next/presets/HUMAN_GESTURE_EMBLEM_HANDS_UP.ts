@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `handsUp` row of `HumanEmblem` fixes on `gesture`, spread into
  * its parameters. Both hands raised in surrender.
  */

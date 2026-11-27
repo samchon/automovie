@@ -3,19 +3,18 @@ import { Vector3 } from "@automovie/engine";
 
 import { AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
-/**
+/*
  * A walking stilt: a foot platform strapped under the foot on an upright pole
  * that ends in a rubber tip.
  *
  * It stands on its tip at the origin, the pole along `Y`. `foot` is the
  * platform's top at the pole's head, `+Y` up, `+Z` the toes' way: the sole
  * stands there. `tip` is the pole's foot on the floor.
- *
- * @param params Any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The stilt.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * Parameter params: Any dimension the author fixes.
+ * Parameter seed: The seed that draws every dimension left free inside its band;
+ * absent, each takes the middle of its band.
+ * Returns: The stilt.
+ * For a fixed dimension outside its band.
  */
 export function createStilt(
   params: AutoMovieArchetypeStilt.IParams = {},

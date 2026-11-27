@@ -4,15 +4,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * The crawl's posture once down: the hips travelling at a constant speed
  * through the cycles, each limb at its course's place, the trunk at the crawl's
  * full lean.
  *
  * Part of `crawl.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `crawling`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `crawling`.
  */
 export function crawlCrawling(
   prepared: crawlCrawling.IPrepared,
@@ -41,11 +40,17 @@ export function crawlCrawling(
     );
 }
 
-/** The `crawling` of `crawl.plan`, built from what that plan prepared. */
+/*
+ * The `crawling` of `crawl.plan`, built from what that plan prepared.
+ */
 export namespace crawlCrawling {
-  /** What `crawl.plan` prepared for its `crawling`. */
+  /*
+   * What `crawl.plan` prepared for its `crawling`.
+   */
   export interface IPrepared {
-    /** The `kneeling` `crawl.plan` prepared. */
+    /*
+     * The `kneeling` `crawl.plan` prepared.
+     */
     kneeling: (
       posture: IAutoMovieMotionHumanPosture,
       at: (limb: IAutoMovieMotionHumanCrawl.Limb) => IAutoMovieVector3,
@@ -55,22 +60,32 @@ export namespace crawlCrawling {
       palms?: boolean,
     ) => IAutoMovieMotionHumanPosture;
 
-    /** The `place` `crawl.plan` prepared. */
+    /*
+     * The `place` `crawl.plan` prepared.
+     */
     place: (
       limb: IAutoMovieMotionHumanCrawl.Limb,
       seconds: number,
     ) => IAutoMovieVector3;
 
-    /** The `speed` `crawl.plan` prepared. */
+    /*
+     * The `speed` `crawl.plan` prepared.
+     */
     speed: number;
 
-    /** The `cycles` `crawl.plan` prepared. */
+    /*
+     * The `cycles` `crawl.plan` prepared.
+     */
     cycles: number;
 
-    /** The `period` `crawl.plan` prepared. */
+    /*
+     * The `period` `crawl.plan` prepared.
+     */
     period: number;
 
-    /** The `downAt` `crawl.plan` prepared. */
+    /*
+     * The `downAt` `crawl.plan` prepared.
+     */
     downAt: number;
   }
 }

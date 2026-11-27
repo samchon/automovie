@@ -11,7 +11,9 @@ import { crossesAutoMovieFrustumPlane } from "./crossesAutoMovieFrustumPlane.js"
 import { listAutoMovieCameraSubjectMeshes } from "./listAutoMovieCameraSubjectMeshes.js";
 import { sampleAutoMovieCameraOcclusion } from "./sampleAutoMovieCameraOcclusion.js";
 
-/** Observes required-subject framing from the original delivered projection. */
+/*
+ * Observes required-subject framing from the original delivered projection.
+ */
 export function observeAutoMovieCameraInspection(
   props: AutoMovieRenderInspectionCamera.IObserveProps,
 ): IAutoMovieCameraInspection.IResult {
@@ -91,7 +93,9 @@ export function observeAutoMovieCameraInspection(
   });
 }
 
-/** Requires an unsuppressed chain all the way to the supplied beauty scene. */
+/*
+ * Requires an unsuppressed chain all the way to the supplied beauty scene.
+ */
 function isDisplayed(scene: Scene, target: Object3D): boolean {
   for (
     let object: Object3D | null = target;
@@ -104,7 +108,9 @@ function isDisplayed(scene: Scene, target: Object3D): boolean {
   return false;
 }
 
-/** Copies and admits an externally certified enclosing world box. */
+/*
+ * Copies and admits an externally certified enclosing world box.
+ */
 function toBounds(input: IAutoMovieSubjectBox): Box3 | undefined {
   const result: Box3 = new Box3(
     new Vector3(input.min.x, input.min.y, input.min.z),
@@ -113,12 +119,16 @@ function toBounds(input: IAutoMovieSubjectBox): Box3 | undefined {
   return isFiniteBox(result) ? result : undefined;
 }
 
-/** Rejects empty, inverted and non-finite bounds, while allowing flat bounds. */
+/*
+ * Rejects empty, inverted and non-finite bounds, while allowing flat bounds.
+ */
 function isFiniteBox(box: Box3): boolean {
   return !box.isEmpty();
 }
 
-/** Tests the most inward corner with slack scaled to distance arithmetic. */
+/*
+ * Tests the most inward corner with slack scaled to distance arithmetic.
+ */
 function outsidePlane(box: Box3, plane: Plane): boolean {
   const { x, y, z } = plane.normal;
   const xx: number = x * (x >= 0 ? box.max.x : box.min.x);

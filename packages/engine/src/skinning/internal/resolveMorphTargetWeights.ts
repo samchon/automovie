@@ -7,7 +7,7 @@ import {
 
 import { evaluateDrivenCurve } from "../../resolve/internal/evaluateDrivenCurve";
 
-/**
+/*
  * Resolve the weights of a mesh's pose-driven morph targets for one pose.
  *
  * Each driven target reads its driver bone's angle on its driver axis from
@@ -16,10 +16,9 @@ import { evaluateDrivenCurve } from "../../resolve/internal/evaluateDrivenCurve"
  * joints. The weight is `evaluateDrivenCurve` of that angle: piecewise linear
  * between points, holding the end outputs beyond them, unclamped. Targets
  * without a driver are left out, so their weights stay with expressions.
- *
- * @param targets The mesh's morph targets, or just their names and drivers.
- * @param pose The pose being applied.
- * @returns Weight by target name, for driven targets only.
+ * Parameter targets: The mesh's morph targets, or just their names and drivers.
+ * Parameter pose: The pose being applied.
+ * Returns: Weight by target name, for driven targets only.
  */
 export function resolveMorphTargetWeights(
   targets: readonly Pick<IAutoMovieMeshMorphTarget, "name" | "driver">[],

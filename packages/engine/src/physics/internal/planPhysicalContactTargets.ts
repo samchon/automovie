@@ -10,7 +10,7 @@ import { physicalContactTargetBones } from "./physicalContactTargetBones";
 import { preparePhysicalContactTargetRows } from "./preparePhysicalContactTargetRows";
 import { solvePhysicalArticulationTargets } from "./solvePhysicalArticulationTargets";
 
-/**
+/*
  * Fit one body's contact, support, floor and avoidance goals at its actual
  * root. An external receiver stays at the simultaneous actual placement.
  */

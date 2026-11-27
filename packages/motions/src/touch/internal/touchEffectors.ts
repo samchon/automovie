@@ -3,12 +3,14 @@ import type {
   IAutoMovieMotionHumanTouchEffectors,
 } from "@automovie/interface";
 
-/**
+/*
  * The parts of the hand a touch lays on its region (`touch.With`) and each
  * one's effector (`touch.EFFECTORS`).
  */
 export namespace touchEffectors {
-  /** Each part's effector. */
+  /*
+   * Each part's effector.
+   */
   export const TABLE: Readonly<
     Record<
       IAutoMovieMotionHumanTouchEffectors.With,

@@ -30,38 +30,38 @@ import type { jumpState } from "./jumpState";
 import { jumpTakeoff } from "./jumpTakeoff";
 import { standUpright } from "./standUpright";
 
-/**
+/*
  * Offset decay time of a cut out of the settled jump, seconds (a deliberate
  * change of the whole body's action,
  * `AutoMovieMotionHumanInterrupt.BLENDS.deliberate`).
  */
 const BLEND: number = AutoMovieMotionHumanInterrupt.BLENDS.deliberate;
 
-/**
+/*
  * How far the take-off root rises above the entry root, hip heights
  * (provisional).
  */
 const TAKEOFF_RISE: number = 0.03;
 
-/**
+/*
  * How far the take-off root lies ahead of the pushing ball, hip heights
  * (provisional).
  */
 const TAKEOFF_AHEAD: number = 0.25;
 
-/**
+/*
  * The withdrawn free ankle's height above the rig origin, hip heights
  * (provisional).
  */
 const TUCK_HEIGHT: number = 0.3;
 
-/**
+/*
  * The withdrawn free ankle's distance ahead of the rig origin, hip heights
  * (provisional).
  */
 const TUCK_AHEAD: number = 0.1;
 
-/**
+/*
  * A jump to a floor point: a push-off from a planted foot, a ballistic flight
  * and a two-footed landing that absorbs and rises to standing.
  *
@@ -103,7 +103,7 @@ const TUCK_AHEAD: number = 0.1;
  * separation, turned out by the stance angle; the root lands 0.03 hip heights
  * low with the flight's velocity, absorbs toward 0.12 hip heights low on a
  * quintic path that brings that velocity to rest over `ABSORB` seconds, then
- * rises to the upright stand ({@link standUpright}) over `RISE` seconds, both
+ * rises to the upright stand (standUpright) over `RISE` seconds, both
  * scaled by the manner's tempo as the push is. Planted legs are kept reachable
  * by the shared `lowerHumanPosture` rule. The push-off is drawn by `jumpPush`,
  * the landing's places by `jumpLanding` and the paths by `jumpPath`. A
@@ -120,16 +120,18 @@ const TUCK_AHEAD: number = 0.1;
  * likewise prepares distinct approach and push-off phases.
  */
 export namespace jump {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "jump";
 
-  /**
+  /*
    * A jump's content is a take-off, a flight and a landing, so its balance is
    * judged (`IAutoMovieMotionHumanActionLaw.physical`).
    */
   export const physical: boolean = true;
 
-  /**
+  /*
    * Cancel table: once landed and settled, a jump gives way to standing or
    * walking.
    */
@@ -142,7 +144,7 @@ export namespace jump {
     ],
   };
 
-  /**
+  /*
    * The trunk, arms and hands a layup, a jump throw, a spike or a block takes
    * while the jump carries the body by its root and legs; the jump's own trunk
    * and momentum swing show only where no overlay claims them.
@@ -155,26 +157,29 @@ export namespace jump {
     "rightHand",
   ];
 
-  /**
+  /*
    * Push-off duration, seconds (provisional; take-off contact of a one-foot
    * jump from walking).
    */
   export const PUSH: number = 0.3;
-  /** Landing absorption duration, seconds (provisional). */
+  /*
+   * Landing absorption duration, seconds (provisional).
+   */
   export const ABSORB: number = 0.3;
-  /** Rise to standing after the absorption, seconds (provisional). */
+  /*
+   * Rise to standing after the absorption, seconds (provisional).
+   */
   export const RISE: number = 0.45;
 
-  /**
+  /*
    * Plan a jump.
-   *
-   * @param context The action's context.
-   * @param supportFoot The optional planted foot named by a composing sport
-   *   law.
-   * @returns The plan.
-   * @throws {HumanRefusal} When no foot is planted to push off from, or the
-   *   apex is not positive or does not clear a raised landing (jumpFlight), or
-   *   the requested rotating landing is incompatible.
+   * Parameter context: The action's context.
+   * Parameter supportFoot: The optional planted foot named by a composing sport
+   * law.
+   * Returns: The plan.
+   * When no foot is planted to push off from, or the
+   * apex is not positive or does not clear a raised landing (jumpFlight), or
+   * the requested rotating landing is incompatible.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanJump.IParams>,

@@ -18,14 +18,13 @@ import { AutoMovieMotionHumanTarget } from "../../compose/internal/AutoMovieMoti
 import { clinch } from "../../grappling/internal/clinch";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/**
+/*
  * A headbutt's hands on the partner's neck: each palm reaches the opposite side
  * of the neck by the take on a path that bows round the partner's trunk, the
  * elbows tucked, holds it through the impact to the release, following the
  * displayed partner, and comes home over the rest of the recoil.
- *
- * @param props The strike's context, the partner, the take and the duration.
- * @returns The two arms' primitives and their grip windows.
+ * Parameter props: The strike's context, the partner, the take and the duration.
+ * Returns: The two arms' primitives and their grip windows.
  */
 export function CloseStrikeNeck(
   props: CloseStrikeNeck.IProps,
@@ -108,17 +107,18 @@ export function CloseStrikeNeck(
   return { primitives, contacts };
 }
 
-/** Companion types of {@link CloseStrikeNeck}. */
+/*
+ * Companion types of CloseStrikeNeck.
+ */
 export namespace CloseStrikeNeck {
-  /**
+  /*
    * How far the hands have taken the neck at a second: in over `take` on a
    * minimum-jerk share, held to the release, then let go over the rest.
-   *
-   * @param seconds The strike's seconds.
-   * @param take When the hands close on the neck, seconds.
-   * @param release When they let go, seconds.
-   * @param duration The strike's seconds in all.
-   * @returns 0 to 1.
+   * Parameter seconds: The strike's seconds.
+   * Parameter take: When the hands close on the neck, seconds.
+   * Parameter release: When they let go, seconds.
+   * Parameter duration: The strike's seconds in all.
+   * Returns: 0 to 1.
    */
   export function weight(
     seconds: number,
@@ -131,36 +131,54 @@ export namespace CloseStrikeNeck {
       : 1 - AutoMovieEngineMotionSampling.minimumJerkShare((seconds - release) / (duration - release));
   }
 
-  /**
+  /*
    * The hands' path's bow round the partner's trunk, the grapple's arc to a
    * shoulder (`grapple`'s curvature).
    */
   export const ARC: number = 0.62;
 
-  /** The headbutt's hold. */
+  /*
+   * The headbutt's hold.
+   */
   export interface IProps {
-    /** The strike's context. */
+    /*
+     * The strike's context.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCloseStrike.IParams>;
 
-    /** The partner held. */
+    /*
+     * The partner held.
+     */
     subject: string;
 
-    /** When both palms hold the neck, seconds. */
+    /*
+     * When both palms hold the neck, seconds.
+     */
     take: number;
 
-    /** When both palms let go of the neck, seconds. */
+    /*
+     * When both palms let go of the neck, seconds.
+     */
     release: number;
 
-    /** The strike's length, seconds. */
+    /*
+     * The strike's length, seconds.
+     */
     duration: number;
   }
 
-  /** The hold's arms and grips. */
+  /*
+   * The hold's arms and grips.
+   */
   export interface IHeld {
-    /** The two arms' primitives. */
+    /*
+     * The two arms' primitives.
+     */
     primitives: IAutoMovieMotionHumanPrimitive[];
 
-    /** The two palms' grip windows. */
+    /*
+     * The two palms' grip windows.
+     */
     contacts: IAutoMovieMotionHumanContactWindow[];
   }
 }

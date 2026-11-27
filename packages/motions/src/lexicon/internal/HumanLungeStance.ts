@@ -17,13 +17,17 @@ import { StrikingTarget } from "../../striking/internal/StrikingTarget";
 import { step } from "../../striking/internal/step";
 import { HumanLungePivot } from "./HumanLungePivot";
 
-/** Up. */
+/*
+ * Up.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** A swinging foot's peak lift, a share of stature: the step law's. */
+/*
+ * A swinging foot's peak lift, a share of stature: the step law's.
+ */
 const LIFT: number = 0.015;
 
-/**
+/*
  * The lunging handler's stance: the horse's bearing from the circle's centre,
  * read on a grid of half swings and unwrapped from the entry's heading, the
  * pivot steps planned on it (`HumanLungePivot`), and the posture at a second,
@@ -31,12 +35,11 @@ const LIFT: number = 0.015;
  * pivoting round the centre on the schedule, each lifted on a half-sine of
  * `LIFT` of stature while it swings and reached through the stance's leg goals
  * (`StrikingStance.legs`).
- *
- * @param context The lunge's context.
- * @param support The horse's reader.
- * @param seconds The lunge's length, seconds.
- * @param transition The take-up and let-go interval, seconds.
- * @returns The centre, the pivot schedule and the stance by action second.
+ * Parameter context: The lunge's context.
+ * Parameter support: The horse's reader.
+ * Parameter seconds: The lunge's length, seconds.
+ * Parameter transition: The take-up and let-go interval, seconds.
+ * Returns: The centre, the pivot schedule and the stance by action second.
  */
 export function HumanLungeStance(
   context: Context,
@@ -159,23 +162,33 @@ export function HumanLungeStance(
   return { centre, schedule, at: stance };
 }
 
-/** The records of HumanLungeStance. */
+/*
+ * The records of HumanLungeStance.
+ */
 export namespace HumanLungeStance {
-  /** The lunging handler's stance, prepared once per lunge. */
+  /*
+   * The lunging handler's stance, prepared once per lunge.
+   */
   export interface IStance {
-    /**
+    /*
      * The circle's centre between the entry's feet, on the ground, world
      * metres.
      */
     centre: IAutoMovieVector3;
 
-    /** The pivot steps planned on the horse's bearing. */
+    /*
+     * The pivot steps planned on the horse's bearing.
+     */
     schedule: HumanLungePivot.ISchedule;
 
-    /** The stance at an action second. */
+    /*
+     * The stance at an action second.
+     */
     at: (time: number) => IAutoMovieMotionHumanPosture;
   }
 }
 
-/** The lunge's context. */
+/*
+ * The lunge's context.
+ */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLunge>;

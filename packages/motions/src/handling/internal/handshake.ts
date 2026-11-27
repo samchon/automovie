@@ -37,7 +37,7 @@ import { handshakeOffer } from "./handshakeOffer";
 import { handshakePlayback } from "./handshakePlayback";
 import { handshakeStance } from "./handshakeStance";
 
-/**
+/*
  * Shaking hands with a partner: both bring the same hand's palm to one shared
  * point, clasp, pump together and let go.
  *
@@ -106,10 +106,14 @@ import { handshakeStance } from "./handshakeStance";
  * placed first, which `HumanChain.pair` arranges.
  */
 export namespace handshake {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "handshake";
 
-  /** Cancel table: declined before the clasp, or ended after the release. */
+  /*
+   * Cancel table: declined before the clasp, or ended after the release.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
@@ -135,19 +139,22 @@ export namespace handshake {
     ],
   };
 
-  /** Pump frequency, hertz (Tagne et al. 2016, greeting). */
+  /*
+   * Pump frequency, hertz (Tagne et al. 2016, greeting).
+   */
   export const FREQUENCY: number = 2.43;
 
-  /** Pump amplitude about the meeting point, metres; provisional. */
+  /*
+   * Pump amplitude about the meeting point, metres; provisional.
+   */
   export const AMPLITUDE: number = 0.025;
 
-  /**
+  /*
    * Plan a handshake.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the partners stand beyond reach of each other,
-   *   or the pump count is not a positive integer.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the partners stand beyond reach of each other,
+   * or the pump count is not a positive integer.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandshake.IParams>,
@@ -365,14 +372,13 @@ export namespace handshake {
     });
   }
 
-  /**
+  /*
    * A body's chest and shoulder offsets in the stand law's own posture, read on
    * the body itself and not estimated from its measures, so a case or an
    * approach places partners by the geometry the handshake will meet.
-   *
-   * @param body The body.
-   * @param side The acting arm; `right` when absent.
-   * @returns The offsets.
+   * Parameter body: The body.
+   * Parameter side: The acting arm; `right` when absent.
+   * Returns: The offsets.
    */
   export function stance(
     body: IAutoMovieMotionHumanBody,
@@ -381,7 +387,7 @@ export namespace handshake {
     return handshakeStance(body, side);
   }
 
-  /**
+  /*
    * The horizontal sternum-to-sternum gap at which two partners facing each
    * other shake hands, the gap an approach stops at.
    *
@@ -392,15 +398,14 @@ export namespace handshake {
    * and less under the lower, the higher upper arm lowered as that shape says;
    * the two reaches sum to the shoulders' horizontal distance, across which the
    * shaking shoulders sit each to its own side, and each sternum leads its
-   * shoulder as the standing body places them ({@link stance}). Partners whose
+   * shoulder as the standing body places them (stance). Partners whose
    * floor points stand this gap plus both sternum offsets apart therefore meet
    * palm to palm where `handshakeOffer.point` places the point, both upper arms
    * in the offering shape.
-   *
-   * @param a One partner.
-   * @param b The other.
-   * @param side The shaking hand of both; `right` when absent.
-   * @returns Metres.
+   * Parameter a: One partner.
+   * Parameter b: The other.
+   * Parameter side: The shaking hand of both; `right` when absent.
+   * Returns: Metres.
    */
   export function gap(
     a: IAutoMovieMotionHumanBody,
@@ -450,15 +455,14 @@ export namespace handshake {
     );
   }
 
-  /**
+  /*
    * One partner's acting arm for the mutual goal: the shoulder, the comfortable
    * reach to the palm at the handshake's elbow flexion, and the straight arm's
    * reach less the pump's amplitude.
-   *
-   * @param body The body.
-   * @param side The arm.
-   * @param shoulder The shoulder joint, world metres.
-   * @returns The side.
+   * Parameter body: The body.
+   * Parameter side: The arm.
+   * Parameter shoulder: The shoulder joint, world metres.
+   * Returns: The side.
    */
   export function arm(
     body: IAutoMovieMotionHumanBody,

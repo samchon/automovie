@@ -393,13 +393,15 @@ function compute(input: {
   };
 }
 
-/** The 2 x 2 identity. */
+/*
+ * The 2 x 2 identity.
+ */
 const IDENTITY: AutoMovieEnginePhysicalBalanceTypes.IIcpControllerQpMatrix = [
   [1, 0],
   [0, 1],
 ];
 
-/**
+/*
  * Whether the plan's rate is zero: its squared norm under the square of
  * (1e-5)^2 (`ICPControllerHelper.isStationary` l.20, l.78-81).
  */
@@ -408,7 +410,7 @@ function stationary(velocity: Polygon.IPoint): boolean {
   return velocity.x * velocity.x + velocity.y * velocity.y < epsilon * epsilon;
 }
 
-/**
+/*
  * The unit frame of the plan's motion: x along its rate, y = z x x
  * (`Vector2dZUpFrame` l.140-158).
  */
@@ -421,7 +423,7 @@ function motionAxes(velocity: Polygon.IPoint): {
   return { x, y: { x: -x.y, y: x.x } };
 }
 
-/**
+/*
  * Diag(along, across) in the plan's motion frame carried to the caller's, R
  * diag R^T with R's columns the motion axes; at rest the across value both ways
  * (`transformFromDynamicsFrame` l.38-57, `transformValues` l.113-124).
@@ -449,7 +451,7 @@ function fromMotion(
   ];
 }
 
-/**
+/*
  * The rotation from the caller's frame into the plan's motion frame, R^T; the
  * identity at rest (`getTransformToDynamicsFrame` l.59-76).
  */

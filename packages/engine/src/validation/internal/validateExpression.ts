@@ -8,7 +8,9 @@ import {
 
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 
-/** Admit intensity/weight ranges and duplicate ARKit channels. */
+/*
+ * Admit intensity/weight ranges and duplicate ARKit channels.
+ */
 export function validateExpression<Sink extends IAutoMovieViolationAppendRangeSink>(
   props: IAutoMovieValidateExpression.IInjectedProps<Sink>,
 ): Sink;

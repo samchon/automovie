@@ -2,7 +2,7 @@ import { HumanArmPathSimplify as Simplify } from "./HumanArmPathSimplify";
 import { HumanMersenneTwister as MT } from "./HumanMersenneTwister";
 import { HumanRandomSeeds } from "./HumanRandomSeeds";
 
-/**
+/*
  * A valid path between two configurations of a time-indexed joint space:
  * EXOTica's time-indexed RRT-Connect (`OMPLTimeIndexedRRTConnect`,
  * github.com/ipab-slmc/exotica
@@ -37,58 +37,79 @@ import { HumanRandomSeeds } from "./HumanRandomSeeds";
  * repaired state, as the adapter prefixes it.
  */
 export namespace HumanArmConnect {
-  /** A pair of coordinates whose domain is a disc about the origin. */
+  /*
+   * A pair of coordinates whose domain is a disc about the origin.
+   */
   export interface IDisc {
-    /** The first coordinate's index. */
+    /*
+     * The first coordinate's index.
+     */
     x: number;
 
-    /** The second coordinate's index. */
+    /*
+     * The second coordinate's index.
+     */
     y: number;
 
-    /** The disc's radius, coordinate units. */
+    /*
+     * The disc's radius, coordinate units.
+     */
     radius: number;
   }
 
-  /** A query. */
+  /*
+   * A query.
+   */
   export interface IQuery {
-    /** The configuration the path leaves, its time coordinate last. */
+    /*
+     * The configuration the path leaves, its time coordinate last.
+     */
     start: readonly number[];
 
-    /** The configuration it reaches, its time coordinate last. */
+    /*
+     * The configuration it reaches, its time coordinate last.
+     */
     goal: readonly number[];
 
-    /** Each joint coordinate's least value (`RealVectorBounds::low`). */
+    /*
+     * Each joint coordinate's least value (`RealVectorBounds::low`).
+     */
     low: readonly number[];
 
-    /** Each joint coordinate's greatest value (`RealVectorBounds::high`). */
+    /*
+     * Each joint coordinate's greatest value (`RealVectorBounds::high`).
+     */
     high: readonly number[];
 
-    /**
+    /*
      * The coordinate pairs whose domain is a disc about the origin, sampled
      * within the disc rather than its bounding box.
      */
     discs: readonly IDisc[];
 
-    /** Whether a configuration is valid at the time it carries. */
+    /*
+     * Whether a configuration is valid at the time it carries.
+     */
     valid: (q: readonly number[]) => boolean;
 
-    /** The seconds one unit of the time coordinate spans. */
+    /*
+     * The seconds one unit of the time coordinate spans.
+     */
     seconds: number;
 
-    /**
+    /*
      * Each joint coordinate's velocity limit, coordinate units per second
      * (`GetVelocityLimits`).
      */
     velocities: readonly number[];
   }
 
-  /**
+  /*
    * The path from the start to the goal.
-   *
-   * @param query The query.
-   * @returns The path's states from the start to the goal, or `null` when the
-   *   goal is invalid, the start is invalid and no draw repairs it, or the
-   *   trees did not meet before the iteration condition fired.
+   * Parameter query: The query.
+   * Returns: The path's states from the start to the goal, or `null` when the
+   * goal is invalid, the start is invalid and no draw repairs it, or the
+   * trees did not meet before the iteration condition fired.
    */
   export function connect(query: IQuery): number[][] | null {
     const space: ISpace = spaceOf(query);
@@ -153,14 +174,13 @@ export namespace HumanArmConnect {
     return null;
   }
 
-  /**
+  /*
    * The configuration a share of the way from one to another
    * (`StateSpace::interpolate`, component by component).
-   *
-   * @param a The configuration at share 0.
-   * @param b The configuration at share 1.
-   * @param u The share.
-   * @returns The configuration.
+   * Parameter a: The configuration at share 0.
+   * Parameter b: The configuration at share 1.
+   * Parameter u: The share.
+   * Returns: The configuration.
    */
   export function lerp(
     a: readonly number[],
@@ -170,12 +190,11 @@ export namespace HumanArmConnect {
     return a.map((v: number, i: number): number => v + (b[i]! - v) * u);
   }
 
-  /**
+  /*
    * A seeded generator of numbers in [0, 1) (mulberry32), kept for its caller
    * outside the planner (`floor/sleep.ts`).
-   *
-   * @param seed The seed.
-   * @returns The generator; each call returns the next number.
+   * Parameter seed: The seed.
+   * Returns: The generator; each call returns the next number.
    */
   export function generator(seed: number): () => number {
     let s: number = seed >>> 0;
@@ -188,7 +207,7 @@ export namespace HumanArmConnect {
     };
   }
 
-  /**
+  /*
    * OMPL's compound space of the query: its metric, its uniform sampler, its
    * motion validator and a tree's step.
    */
@@ -284,13 +303,12 @@ export namespace HumanArmConnect {
     };
   }
 
-  /**
+  /*
    * EXOTica's `growTree`: the tree's nearest state that the time order admits,
    * the sample's time corrected (`correctTime`), a step of the tree's range
    * toward it, kept where its motion is valid.
-   *
-   * @param check EXOTica's `reverse_check_`: while the other tree connects, a
-   *   sample too near in time is refused rather than moved.
+   * Parameter check: EXOTica's `reverse_check_`: while the other tree connects, a
+   * sample too near in time is refused rather than moved.
    */
   function grow(
     tree: ITree,
@@ -356,7 +374,9 @@ export namespace HumanArmConnect {
     };
   }
 
-  /** A tree's states from one to its root. */
+  /*
+   * A tree's states from one to its root.
+   */
   function branch(tree: ITree, from: number): number[][] {
     const out: number[][] = [];
     for (let i: number = from; i >= 0; i = tree.parent[i]!)
@@ -364,7 +384,7 @@ export namespace HumanArmConnect {
     return out;
   }
 
-  /**
+  /*
    * MoveIt's start repair (`FixStartStateCollision::adaptAndPlan`,
    * moveit/moveit
    * moveit_ros/planning/planning_request_adapter_plugins/src/fix_start_state_collision.cpp
@@ -396,62 +416,94 @@ export namespace HumanArmConnect {
       }
     return null;
   }
-  /** The compound space as the planner reads it. */
+  /*
+   * The compound space as the planner reads it.
+   */
   interface ISpace extends Simplify.ISpace {
-    /** A uniform sample (`CompoundStateSampler::sampleUniform`). */
+    /*
+     * A uniform sample (`CompoundStateSampler::sampleUniform`).
+     */
     sample: (rng: MT.IState) => number[];
 
-    /** Whether a state is valid (`StateValidityChecker::isValid`). */
+    /*
+     * Whether a state is valid (`StateValidityChecker::isValid`).
+     */
     valid: (q: readonly number[]) => boolean;
 
-    /** A tree's step (`maxDistance_`). */
+    /*
+     * A tree's step (`maxDistance_`).
+     */
     range: number;
 
-    /** The time coordinate's bounds, the start's and the goal's. */
+    /*
+     * The time coordinate's bounds, the start's and the goal's.
+     */
     time: [number, number];
 
-    /** The joint coordinates' count; the time coordinate's index. */
+    /*
+     * The joint coordinates' count; the time coordinate's index.
+     */
     dims: number;
 
-    /**
+    /*
      * Each joint coordinate's velocity limit, coordinate units per unit of the
      * time coordinate.
      */
     velocities: number[];
   }
 
-  /** A tree: its states and each one's parent, -1 at its root. */
+  /*
+   * A tree: its states and each one's parent, -1 at its root.
+   */
   interface ITree {
-    /** The states. */
+    /*
+     * The states.
+     */
     nodes: number[][];
 
-    /** Each state's parent's index. */
+    /*
+     * Each state's parent's index.
+     */
     parent: number[];
 
-    /** Whether the tree grows from the start, forward in time. */
+    /*
+     * Whether the tree grows from the start, forward in time.
+     */
     forward: boolean;
   }
 
-  /** What growing a tree did, and the index of the state it added. */
+  /*
+   * What growing a tree did, and the index of the state it added.
+   */
   interface IGrowth {
-    /** `REACHED`, `ADVANCED` or `TRAPPED`. */
+    /*
+     * `REACHED`, `ADVANCED` or `TRAPPED`.
+     */
     state: GrowState;
 
-    /** The added state's index; -1 when trapped. */
+    /*
+     * The added state's index; -1 when trapped.
+     */
     added: number;
   }
 
-  /** A number of two states: a distance or a segment count. */
+  /*
+   * A number of two states: a distance or a segment count.
+   */
   type Metric = (a: readonly number[], b: readonly number[]) => number;
 
-  /** Whether the motion between two states is valid. */
+  /*
+   * Whether the motion between two states is valid.
+   */
   type Motion = (a: readonly number[], b: readonly number[]) => boolean;
 
-  /** EXOTica's and OMPL's `GrowState`. */
+  /*
+   * EXOTica's and OMPL's `GrowState`.
+   */
   type GrowState = "reached" | "advanced" | "trapped";
 }
 
-/**
+/*
  * A tree's step (`maxDistance_`): EXOTica's default `Range` "1"
  * (exotations/solvers/exotica_time_indexed_rrt_connect_solver/init/time_indexed_rrt_connect.in
  * at the same commit), which the solver sets before the planner's setup
@@ -461,19 +513,23 @@ export namespace HumanArmConnect {
  */
 const RANGE: number = 1;
 
-/** A coordinate's unit in radians: the arms' coordinates are near a degree. */
+/*
+ * A coordinate's unit in radians: the arms' coordinates are near a degree.
+ */
 const RADIANS: number = Math.PI / 180;
 
-/**
+/*
  * A motion's check spacing, a share of each component's extent: OMPL's
  * `longestValidSegmentFraction_` default (StateSpace.cpp line 93).
  */
 const LONGEST_VALID: number = 0.01;
 
-/** The distance EXOTica gives a state the time order refuses. */
+/*
+ * The distance EXOTica gives a state the time order refuses.
+ */
 const REFUSED: number = 1e10;
 
-/**
+/*
  * The iteration condition's count: OMPL's own deterministic test of a
  * time-indexed RRT bounds its planner by `IterationTerminationCondition
  * itc(1000)` (tests/geometric/spacetime/STRRTstar_test.cpp line 142 at the same
@@ -484,13 +540,13 @@ const REFUSED: number = 1e10;
  */
 const ITERATIONS: number = 1000;
 
-/**
+/*
  * How far a repaired start's coordinates may move, a share of each one's range:
  * MoveIt's `FixStartStateCollision` default `jiggle_fraction`.
  */
 const JIGGLE: number = 0.02;
 
-/**
+/*
  * The draws a start's repair tries: MoveIt's `FixStartStateCollision` default
  * `max_sampling_attempts`.
  */

@@ -43,7 +43,9 @@ export namespace AutoMovieLoftViewFullSource {
       [...(input.reliefs ?? [])];
     const stations: Station[] = [];
 
-    /** Each capability admits the actual owned physical domain before reading. */
+    /*
+     * Each capability admits the actual owned physical domain before reading.
+     */
     const admit = (s: number): void => {
       if (s < domain[0] || s > domain[1])
         throw new AutoMovieLoftAdmissionError(
@@ -51,7 +53,9 @@ export namespace AutoMovieLoftViewFullSource {
         );
     };
 
-    /** Value preparation requests no physical-station derivatives. */
+    /*
+     * Value preparation requests no physical-station derivatives.
+     */
     const station = (s: number): Station => {
       const prior: Station | undefined = stations.find(
         (entry: Station): boolean => entry.s === s,
@@ -135,15 +139,25 @@ export namespace AutoMovieLoftViewFullSource {
   }
 }
 
-/** A fresh world coordinate or derivative vector. */
+/*
+ * A fresh world coordinate or derivative vector.
+ */
 type V = AutoMovieVector3Tuple;
 
-/** One immutable station's Point0 preparation, without physical derivatives. */
+/*
+ * One immutable station's Point0 preparation, without physical derivatives.
+ */
 interface Station {
-  /** Actual physical station in mm. */
+  /*
+   * Actual physical station in mm.
+   */
   s: number;
-  /** Original axis value at that station. */
+  /*
+   * Original axis value at that station.
+   */
   frame: IAutoMovieLoftSectionFrame;
-  /** A declared collapsed pole has no polar point reader. */
+  /*
+   * A declared collapsed pole has no polar point reader.
+   */
   local: ReturnType<typeof AutoMovieLoftSectionNative.point> | null;
 }

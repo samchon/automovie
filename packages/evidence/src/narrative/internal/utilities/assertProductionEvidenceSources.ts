@@ -6,7 +6,7 @@ import { AUTHORED_LAYERS } from "../AUTHORED_LAYERS";
 import { constructionStage } from "../constructionStage";
 import { productionLayers } from "../productionLayers";
 
-/**
+/*
  * Checks supported narrative routes and stage option shapes before graph
  * creation.
  */

@@ -5,7 +5,9 @@ import { AutoMovieArchetypeFrame } from "../../core";
 import { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import { QuadrupedScapula } from "./QuadrupedScapula";
 
-/** The closed rigid vocabulary; no body or species is reconstructed. */
+/*
+ * The closed rigid vocabulary; no body or species is reconstructed.
+ */
 const BONES: readonly AutoMovieArchetypeQuadrupedBody.Bone[] = [
   "trunk",
   "hindquarters",
@@ -22,16 +24,17 @@ const BONES: readonly AutoMovieArchetypeQuadrupedBody.Bone[] = [
   ),
 ];
 
-/** Internal shared rigid-frame admission and carrier delta arithmetic. */
+/*
+ * Internal shared rigid-frame admission and carrier delta arithmetic.
+ */
 export namespace QuadrupedRigDelta {
-  /**
+  /*
    * Compute one admitted carrier delta per bone.
-   *
-   * @param neutral Complete neutral world frames of the source rig.
-   * @param current Complete current world frames of that same rig.
-   * @returns Fresh rigid maps from original coordinates to current coordinates.
-   * @throws {RangeError} For incomplete/unknown vocabularies, invalid rigid
-   *   frames or unrepresentable derived translations.
+   * Parameter neutral: Complete neutral world frames of the source rig.
+   * Parameter current: Complete current world frames of that same rig.
+   * Returns: Fresh rigid maps from original coordinates to current coordinates.
+   * For incomplete/unknown vocabularies, invalid rigid
+   * frames or unrepresentable derived translations.
    */
   export function between(
     neutral: ReadonlyMap<
@@ -83,16 +86,15 @@ export namespace QuadrupedRigDelta {
     return deltas;
   }
 
-  /**
+  /*
    * Move one part/contact frame by its explicit carrier.
-   *
-   * @param frame Original rigid frame in source-model metres.
-   * @param bone The explicitly declared carrier; undefined is refused.
-   * @param deltas The complete admitted carrier maps.
-   * @param id Source part/contact identity retained in a refusal.
-   * @returns A new current rigid frame without retaining or changing its input.
-   * @throws {RangeError} For missing carriers or invalid/unrepresentable
-   *   frames.
+   * Parameter frame: Original rigid frame in source-model metres.
+   * Parameter bone: The explicitly declared carrier; undefined is refused.
+   * Parameter deltas: The complete admitted carrier maps.
+   * Parameter id: Source part/contact identity retained in a refusal.
+   * Returns: A new current rigid frame without retaining or changing its input.
+   * For missing carriers or invalid/unrepresentable
+   * frames.
    */
   export function move(
     frame: IAutoMovieTransform,
@@ -116,7 +118,9 @@ export namespace QuadrupedRigDelta {
     return current;
   }
 
-  /** Rigid maps cannot ignore scale or report a nonfinite current frame. */
+  /*
+   * Rigid maps cannot ignore scale or report a nonfinite current frame.
+   */
   function rigid(frame: IAutoMovieTransform, id: string): void {
     if (frame === undefined || frame === null)
       throw new RangeError(`Quadruped ${id} has no rigid frame`);

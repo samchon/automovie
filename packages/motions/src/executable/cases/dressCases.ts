@@ -12,7 +12,7 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { dressCaseWearable } from "./internal/dressCaseWearable";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the dressing family, from quiet standing, the item first
  * taken up by its `hold` in the right hand from before the body, for its use:
  * worn on its region (`HumanGraspUse.IUse`, line `worn`): `dress-hat` (the hat
@@ -32,9 +32,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  * al. 2012, the issue's ADL ranges). The elevation is read on the displayed
  * bones, since a joint's clinical flexion and abduction channels alias each
  * other once the arm is raised past the horizontal and turned.
- *
- * @param bodies The sweep bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function dressCases(
   bodies: readonly string[] = ["m-average"],

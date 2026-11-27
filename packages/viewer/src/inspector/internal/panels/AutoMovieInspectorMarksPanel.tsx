@@ -7,25 +7,35 @@ import type { ChangeEvent, JSX } from "react";
 
 import type { IAutoMovieInspectorAction } from "../../IAutoMovieInspectorAction.js";
 
-/**
+/*
  * Controls for available mark kinds and x-ray, with the legend of the current picture.
  *
  * Render lists both declared and styled kinds. A kind is checked when the request holds its name as a mark pattern. Typed patterns keep their own controls. Swatches come from supplied or measured styles, and the legend counts what is drawn now.
  */
 export function AutoMovieInspectorMarksPanel(props: {
-  /** The request shown. */
+  /*
+   * The request shown.
+   */
   request: IAutoMovieCapturePlanRequest;
 
-  /** The marks the subject supplies, from which the kinds are listed. */
+  /*
+   * The marks the subject supplies, from which the kinds are listed.
+   */
   marks: NonNullable<IApplyAutoMovieInspectionProps["marks"]>;
 
-  /** Mark kinds declared for the subject's lifetime. */
+  /*
+   * Mark kinds declared for the subject's lifetime.
+   */
   markKinds?: readonly string[];
 
-  /** The legend of the current picture. */
+  /*
+   * The legend of the current picture.
+   */
   legend: readonly IAutoMovieInspectionLegendEntry[];
 
-  /** Where edits go. */
+  /*
+   * Where edits go.
+   */
   dispatch: (action: IAutoMovieInspectorAction) => void;
 }): JSX.Element {
   const marks: string[] = props.request.inspection.marks;

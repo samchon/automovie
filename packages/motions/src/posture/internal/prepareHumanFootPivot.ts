@@ -9,21 +9,20 @@ import type {
 import { HumanFootRotation } from "./HumanFootRotation";
 import { humanFootOffset } from "./humanFootOffset";
 
-/**
+/*
  * Prepare rigid sole geometry for repeated pitch trials under one fixed
  * heading, toe flexion, roll and default contact. An explicit contact changes
  * only the translation under that same prepared geometry.
- *
- * @param body The body owning the sole socket.
- * @param side The foot.
- * @param pivot Which socket stays fixed.
- * @param at The socket's fixed world position, metres.
- * @param heading The fixed foot heading, degrees about +Y.
- * @param toes The fixed toe flexion, degrees; zero when absent.
- * @param roll The fixed foot roll, degrees; zero when absent.
- * @returns A reader of pitch in degrees, positive toes up, with pivot's
- *   placement; an explicit world contact replaces only the default at under the
- *   same fixed rotation/socket preparation.
+ * Parameter body: The body owning the sole socket.
+ * Parameter side: The foot.
+ * Parameter pivot: Which socket stays fixed.
+ * Parameter at: The socket's fixed world position, metres.
+ * Parameter heading: The fixed foot heading, degrees about +Y.
+ * Parameter toes: The fixed toe flexion, degrees; zero when absent.
+ * Parameter roll: The fixed foot roll, degrees; zero when absent.
+ * Returns: A reader of pitch in degrees, positive toes up, with pivot's
+ * placement; an explicit world contact replaces only the default at under the
+ * same fixed rotation/socket preparation.
  */
 export function prepareHumanFootPivot(
   body: humanFootOffset.IBody,
@@ -52,5 +51,7 @@ export function prepareHumanFootPivot(
   };
 }
 
-/** The alternatives of `PrepareHumanFootPivotPivot`'s site. */
+/*
+ * The alternatives of `PrepareHumanFootPivotPivot`'s site.
+ */
 type PrepareHumanFootPivotPivot = "heel" | "ball" | "toe" | "sole" | "mtp";

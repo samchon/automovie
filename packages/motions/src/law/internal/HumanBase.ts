@@ -3,14 +3,14 @@ import type {
   IAutoMovieMotionHumanEntryState,
 } from "@automovie/interface";
 
-/**
+/*
  * Companion types, the kinds as data and the passing-on rule of
- * {@link HumanBase}.
+ * HumanBase.
  */
 export namespace HumanBase {
-  /**
+  /*
    * The base kinds, as data: the list a page, a test generator and a refusal's
-   * alternatives read, from which {@link Kind} is derived. `airborne` is the
+   * alternatives read, from which Kind is derived. `airborne` is the
    * base between a take-off and a touchdown, which a shape laid over a flight
    * requires; `immersed` is a body the water carries, its root moved by the
    * water's forces.
@@ -27,7 +27,7 @@ export namespace HumanBase {
     "immersed",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanBase.Kind>[];
 
-  /**
+  /*
    * The sides a seat sat astride is got onto and off from, as data: `either`
    * takes both.
    */
@@ -39,12 +39,11 @@ export namespace HumanBase {
     IAutoMovieMotionHumanBase.ISeat["mount"]
   >[];
 
-  /**
+  /*
    * The base a body is on as it leaves an action at a share of it.
-   *
-   * @param props The action's declared base, the base it was entered on, the
-   *   supports open at the instant and the share of the action reached.
-   * @returns The base the next action is entered on.
+   * Parameter props: The action's declared base, the base it was entered on, the
+   * supports open at the instant and the share of the action reached.
+   * Returns: The base the next action is entered on.
    */
   export function after(
     props: IAutoMovieMotionHumanBase.IAfterProps,

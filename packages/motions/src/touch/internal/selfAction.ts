@@ -34,7 +34,7 @@ import { composeAutoMovieMotionHumanAction } from "../../compose/internal/compos
 import { HumanBound } from "../../law/internal/HumanBound";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * A whole-body self action while standing: the yawn-and-stretch with both arms
  * overhead, both arms raised in victory, a fist pump, a neck roll and a
  * shoulder roll. The body-directed touches of the same family (pats, rubs,
@@ -64,10 +64,14 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * Events: the phrase instants.
  */
 export namespace selfAction {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "selfAction";
 
-  /** Cancel table. */
+  /*
+   * Cancel table.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
@@ -77,10 +81,14 @@ export namespace selfAction {
       flinch: ["anytime", "reflex"],
     });
 
-  /** The yawn-and-stretch's whole duration, seconds (Provine 1986, unverified). */
+  /*
+   * The yawn-and-stretch's whole duration, seconds (Provine 1986, unverified).
+   */
   export const YAWN: number = 6;
 
-  /** Each arm action's place for the right hand (the left mirrors). */
+  /*
+   * Each arm action's place for the right hand (the left mirrors).
+   */
   const PLACES: Readonly<
     Record<PLACESEntryItem, IAutoMovieMotionHumanTargetGrid.IGrid>
   > = {
@@ -89,10 +97,12 @@ export namespace selfAction {
     fistPump: { height: "eye", lateral: "outside", distance: "mid" },
   };
 
-  /** May be performed over a carrier: it claims only the parts it moves. */
+  /*
+   * May be performed over a carrier: it claims only the parts it moves.
+   */
   export const overlay: boolean = true;
 
-  /**
+  /*
    * Where the pumping arm's elbow hangs, which the fist's forearm rises from:
    * the knuckles face away from it. With the fist a forearm ahead of the
    * shoulder, the whole drop stays within the elbow's flexion range.
@@ -103,12 +113,11 @@ export namespace selfAction {
     distance: "near",
   };
 
-  /**
+  /*
    * Plan a self action.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the count is not a positive whole number.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the count is not a positive whole number.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSelfAction.IParams>,
@@ -384,27 +393,39 @@ export namespace selfAction {
     });
   }
 
-  /**
+  /*
    * An arm a kind raises: its side, its place, the hand's shape and whether its
    * fist pumps.
    */
   interface IRaised {
-    /** The arm. */
+    /*
+     * The arm.
+     */
     side: AutoMovieHumanSide;
 
-    /** The place of the air the hand goes to. */
+    /*
+     * The place of the air the hand goes to.
+     */
     grid: IAutoMovieMotionHumanTargetGrid.IGrid;
 
-    /** The hand's shape: flat palms or a fist. */
+    /*
+     * The hand's shape: flat palms or a fist.
+     */
     shape: IAutoMovieMotionHumanHand.Shape;
 
-    /** Whether the fist drops and rises over the stroke. */
+    /*
+     * Whether the fist drops and rises over the stroke.
+     */
     pump: boolean;
   }
 }
 
-/** The alternatives of `PlanLiftBone`'s site. */
+/*
+ * The alternatives of `PlanLiftBone`'s site.
+ */
 type PlanLiftBone = "leftShoulder" | "rightShoulder";
 
-/** The alternatives of `PLACESEntryItem`'s site. */
+/*
+ * The alternatives of `PLACESEntryItem`'s site.
+ */
 type PLACESEntryItem = "stretch" | "victory" | "fistPump";

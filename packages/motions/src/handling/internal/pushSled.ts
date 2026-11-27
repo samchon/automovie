@@ -5,7 +5,7 @@ import type {
 
 import { pushSledPlan } from "./pushSledPlan";
 
-/**
+/*
  * A pushed load's handles held in both hands through a walk: a sled push. The
  * trunk leans into the load while the body stands, the hands go to the handles
  * where the load stands, close on them, and from then on are carried with the
@@ -40,30 +40,38 @@ import { pushSledPlan } from "./pushSledPlan";
  * the push's force and the slowing it brings to the walk are not modelled.
  */
 export namespace pushSled {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "pushSled";
 
-  /** Cancel table: the push may be left at any time. */
+  /*
+   * Cancel table: the push may be left at any time.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** Seconds to lean in and take the handles (provisional). */
+  /*
+   * Seconds to lean in and take the handles (provisional).
+   */
   export const SETTLE: number = 0.6;
 
-  /**
+  /*
    * The instants of the push after the grip a grasp is judged at, shares of the
    * push (search resolution: a quarter of it apart).
    */
   export const SAMPLES: readonly number[] = [0.25, 0.5, 0.75, 1];
 
-  /**
+  /*
    * The refinement step of a hand's turn about a round handle, and the spacing
    * of the turns tried first round it, degrees (search resolution: an eighth of
    * a turn, halving to under 6).
    */
   export const TURN: number = 45;
 
-  /** {@link pushSledPlan}, read through this namespace. */
+  /*
+   * pushSledPlan, read through this namespace.
+   */
   export const plan: typeof pushSledPlan = pushSledPlan;
 }

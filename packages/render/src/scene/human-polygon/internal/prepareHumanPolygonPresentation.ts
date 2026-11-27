@@ -9,7 +9,9 @@ import { Quaternion, Vector3 } from "three";
 
 import type { AutoMovieHumanPolygon } from "../../AutoMovieHumanPolygon.js";
 
-/** Prepare rigid visual cues for one polygon drawing on its source clock. */
+/*
+ * Prepare rigid visual cues for one polygon drawing on its source clock.
+ */
 export function prepareHumanPolygonPresentation(
   presentation: AutoMovieHumanPolygon.IPresentation,
   bones: ReadonlyMap<string, IAutoMovieHumanBindBone>,
@@ -219,23 +221,31 @@ export function prepareHumanPolygonPresentation(
   };
 }
 
-/** A complete evaluated pose in registered Human body coordinates. */
+/*
+ * A complete evaluated pose in registered Human body coordinates.
+ */
 type AutoMoviePolygonPose = Pick<IAutoMovieHumanSkeleton.IOutput, "posed">;
 
-/** One evaluated frame retained or used for rigid placement arithmetic. */
+/*
+ * One evaluated frame retained or used for rigid placement arithmetic.
+ */
 interface IAutoMoviePolygonFrame {
   position: Vector3;
   rotation: Quaternion;
 }
 
-/** Shared timing and authored rotation of a prepared visual cue. */
+/*
+ * Shared timing and authored rotation of a prepared visual cue.
+ */
 interface IAutoMoviePolygonCueTiming {
   at: number;
   duration: number;
   rotation: Quaternion;
 }
 
-/** A live bend or a frozen shot-world release with its authored displacement. */
+/*
+ * A live bend or a frozen shot-world release with its authored displacement.
+ */
 type AutoMoviePreparedPolygonCue = IAutoMoviePolygonCueTiming &
   (
     | { kind: "bend"; bone: string }
@@ -247,7 +257,7 @@ type AutoMoviePreparedPolygonCue = IAutoMoviePolygonCueTiming &
       }
   );
 
-/**
+/*
  * Admit a finite quaternion with the same squared-norm tolerance as a polygon
  * pose.
  */
@@ -263,7 +273,7 @@ function unitRotation(
   return new Quaternion(x, y, z, w).normalize();
 }
 
-/**
+/*
  * Copy one source joint frame for arithmetic without mutating the evaluated
  * pose.
  */
@@ -278,7 +288,9 @@ function boneFrame(
   };
 }
 
-/** Read the actor parent frame in shot world or use the fixed identity frame. */
+/*
+ * Read the actor parent frame in shot world or use the fixed identity frame.
+ */
 function actorFrame(
   actorFrameAt: AutoMovieHumanPolygon.IPresentation["actorFrameAt"],
   seconds: number,

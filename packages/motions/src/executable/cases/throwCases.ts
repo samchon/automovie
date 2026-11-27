@@ -18,7 +18,7 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 import { motionCaseSocket } from "./internal/motionCaseSocket";
 
-/**
+/*
  * Capture cases of the throw and catch family: performer `a` throws to
  * performer `b` standing facing it, overarm over 6 m, underarm over 4 m and a
  * toss over 2.5 m, aimed at the place ahead of `b` where its catch meets the
@@ -35,10 +35,9 @@ import { motionCaseSocket } from "./internal/motionCaseSocket";
  * - At `contact` each of `b`'s palm sockets is within 15 mm of the object's
  *   surface (the issue's hand-meets-object bound), and stays within it until
  *   `held`.
- *
- * @param bodies The sweep bodies, each throwing to and catching from itself;
- *   `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies, each throwing to and catching from itself;
+ * `m-average` when absent.
+ * Returns: The cases.
  */
 export function throwCases(
   bodies: readonly string[] = ["m-average"],

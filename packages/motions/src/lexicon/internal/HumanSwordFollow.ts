@@ -1,7 +1,7 @@
 import { Vector3, AutoMovieEngineKinematics, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
 import type { AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanPerformerReader, IAutoMovieMotionHumanSword, IAutoMovieMotionTarget, IAutoMovieSuperposeMinimumJerk, IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * How a blade's landing follows a target that moves after the attack is
  * planned: the displacement to add to the hand at an action second so the
  * landing part meets the target where it is at the decisive instant.
@@ -26,14 +26,13 @@ import type { AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotio
  * being evaluated sees its body without that hand correction, and the mutual
  * reads end there. The target is read once, as the plan is made, the read
  * placing the partner first in the schedule's demand order.
- *
- * @param context The attack's context.
- * @param planned The target point the attack was planned on, read at its start,
- *   world metres.
- * @param contact The decisive instant, seconds since the action's start;
- *   positive.
- * @returns The follower: the displacement at a second since the action's start,
- *   world metres.
+ * Parameter context: The attack's context.
+ * Parameter planned: The target point the attack was planned on, read at its start,
+ * world metres.
+ * Parameter contact: The decisive instant, seconds since the action's start;
+ * positive.
+ * Returns: The follower: the displacement at a second since the action's start,
+ * world metres.
  */
 export function HumanSwordFollow(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.IAttack>,
@@ -81,11 +80,15 @@ export function HumanSwordFollow(
   };
 }
 
-/** Companion types of {@link HumanSwordFollow}. */
+/*
+ * Companion types of HumanSwordFollow.
+ */
 export namespace HumanSwordFollow {
-  /** A blade's landing follower. */
+  /*
+   * A blade's landing follower.
+   */
   export interface IFollower {
-    /**
+    /*
      * The displacement to add to the hand at a second since the action's start,
      * world metres.
      */

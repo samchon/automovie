@@ -11,7 +11,7 @@ import { EquineSwimStroke } from "./EquineSwimStroke";
 import { QuadrupedScapula } from "../quadruped/QuadrupedScapula";
 import type { QuadrupedWorldPose } from "../quadruped/QuadrupedWorldPose";
 
-/**
+/*
  * A floating horse's world pose at one second: the trunk carried level under a
  * placement, the neck raised by an authored angle with the head riding it, and
  * each limb at its own phase of its end's measured stroke
@@ -27,16 +27,15 @@ import type { QuadrupedWorldPose } from "../quadruped/QuadrupedWorldPose";
  * its dorsal side and the hind fetlock on its plantar side. A bar is turned
  * only about the model's lateral axis, so a limb's lateral offset and the bar's
  * own twist are unchanged.
- *
- * @param neutral The source's neutral model-space bone frames
- *   (`QuadrupedWorldPose`).
- * @param placement The trunk's carriage in the world: the neutral trunk frame
- *   placed by it.
- * @param phases Each limb's stroke phase, cycles.
- * @param neck The neck's raise above its neutral carriage about its root,
- *   degrees, positive up.
- * @returns The world pose.
- * @throws {RangeError} For a nonfinite phase or raise.
+ * Parameter neutral: The source's neutral model-space bone frames
+ * (`QuadrupedWorldPose`).
+ * Parameter placement: The trunk's carriage in the world: the neutral trunk frame
+ * placed by it.
+ * Parameter phases: Each limb's stroke phase, cycles.
+ * Parameter neck: The neck's raise above its neutral carriage about its root,
+ * degrees, positive up.
+ * Returns: The world pose.
+ * For a nonfinite phase or raise.
  */
 export function EquineSwimPose(
   neutral: ReadonlyMap<
@@ -132,10 +131,12 @@ export function EquineSwimPose(
   };
 }
 
-/** The model's lateral axis, about which every sagittal swim rotation turns. */
+/*
+ * The model's lateral axis, about which every sagittal swim rotation turns.
+ */
 const LATERAL: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
-/**
+/*
  * The shared quadruped tree's parent of a bone, as
  * `AutoMovieArchetypeQuadrupedSkeleton.of` builds it.
  */

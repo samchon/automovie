@@ -8,14 +8,13 @@ import type {
 
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * A jump push's reaching-foot pass (`jumpPush`): the bump that opens the
  * reaching foot's lateral gap to the take-off shank where it passes along the
  * heading, read from the push's body, heading, reaching foot and take-off
  * foot.
- *
- * @param scope What the push builds the pass from.
- * @returns The bump at a share of the reaching foot's path.
+ * Parameter scope: What the push builds the pass from.
+ * Returns: The bump at a share of the reaching foot's path.
  */
 export function jumpPushPassing(
   scope: jumpPushPassing.IScope,
@@ -69,30 +68,41 @@ export function jumpPushPassing(
   return passing;
 }
 
-/** What a jump push's pass reads and what it is. */
+/*
+ * What a jump push's pass reads and what it is.
+ */
 export namespace jumpPushPassing {
-  /** What a jump push builds its pass from. */
+  /*
+   * What a jump push builds its pass from.
+   */
   export interface IScope {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The jump's heading, degrees. */
+    /*
+     * The jump's heading, degrees.
+     */
     heading: number;
 
-    /** The foot that leaves at once. */
+    /*
+     * The foot that leaves at once.
+     */
     reaching: AutoMovieHumanSide;
 
-    /** The take-off foot as entered. */
+    /*
+     * The take-off foot as entered.
+     */
     support: IAutoMovieMotionHumanFoot.IPlacement;
   }
 
-  /**
+  /*
    * The bump that opens the pass at a share of the reaching foot's path.
-   *
-   * @param from The reaching ankle's start, world metres.
-   * @param into The reaching ankle's end, world metres.
-   * @param s The path's share.
-   * @returns The bump, world metres.
+   * Parameter from: The reaching ankle's start, world metres.
+   * Parameter into: The reaching ankle's end, world metres.
+   * Parameter s: The path's share.
+   * Returns: The bump, world metres.
    */
   export type Passing = (
     from: IAutoMovieVector3,
@@ -100,7 +110,7 @@ export namespace jumpPushPassing {
     s: number,
   ) => IAutoMovieVector3;
 }
-/**
+/*
  * The least forward gap that reads as one foot ahead of the other, metres: a
  * nanometre, the walk's root-solve width (`walkReach`), under which the gap is
  * a rounding of side by side.

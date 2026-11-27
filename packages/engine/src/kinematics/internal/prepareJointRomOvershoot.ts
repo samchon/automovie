@@ -7,7 +7,7 @@ import type {
 
 import { AutoMovieEngineJointRomScan } from "../../rom/internal/AutoMovieEngineJointRomScan";
 import type { swingTwistRange } from "../swingTwistRange";
-  /**
+  /*
    * Prepare the gate's exact overshoot sum for joints of one fixed bone. The
    * bone, constraint and optional frame stay unchanged for the scorer's
    * synchronous operation. A null constraint still scores zero without

@@ -7,7 +7,7 @@ import type * as THREE from "three";
 
 import { readAutoMovieShadowLightSource } from "./readAutoMovieShadowLightSource.js";
 
-/**
+/*
  * Admit an actual scene's punctual shadow casters through the Engine profile.
  * Include hidden lights because their retained targets can participate in a
  * later sample. Runtime names, or native UUIDs when unnamed, identify this

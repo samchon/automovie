@@ -25,24 +25,23 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import type { touchHold } from "./touchHold";
 
-/**
+/*
  * How long a touch's reach must take for its arms to keep within the audit's
  * travel bound (`AutoMovieMotionHumanArmPlanned.reaching`).
  */
 export namespace touchReach {
-  /**
+  /*
    * The shortest reach of a touch's hands: for each, from its arm at the entry
    * to the arm laid on its region with the elbow hung naturally, the longest of
    * them.
-   *
-   * @param body The body.
-   * @param entry The entry pose.
-   * @param reached The posture the arms are solved on at plan time.
-   * @param hands Each hand and its target.
-   * @param effector The part of the hand that touches.
-   * @param region A target's region at a posture and a second.
-   * @param laid How each hand is laid on its target.
-   * @returns Seconds.
+   * Parameter body: The body.
+   * Parameter entry: The entry pose.
+   * Parameter reached: The posture the arms are solved on at plan time.
+   * Parameter hands: Each hand and its target.
+   * Parameter effector: The part of the hand that touches.
+   * Parameter region: A target's region at a posture and a second.
+   * Parameter laid: How each hand is laid on its target.
+   * Returns: Seconds.
    */
   export function duration(
     body: IAutoMovieMotionHumanBody,
@@ -79,20 +78,19 @@ export namespace touchReach {
     return longest;
   }
 
-  /**
+  /*
    * How long a hand's reach to a mutual meeting's point takes: the free-space
    * time of its distance (`AutoMovieMotionHumanTiming.transport`), and at least
    * what its arm's arc needs within the audit's travel bound (`place`) where
    * the performer's posture is known, so the reach the meeting's instant pins
    * meets the bound its arm is laid by.
-   *
-   * @param body The body.
-   * @param bones The performer's world bones where it stands.
-   * @param entry Its posture and pose there, when known.
-   * @param side The hand.
-   * @param surface The surface that meets the point: the palm, or the fist.
-   * @param point The meeting's point, world.
-   * @returns Seconds.
+   * Parameter body: The body.
+   * Parameter bones: The performer's world bones where it stands.
+   * Parameter entry: Its posture and pose there, when known.
+   * Parameter side: The hand.
+   * Parameter surface: The surface that meets the point: the palm, or the fist.
+   * Parameter point: The meeting's point, world.
+   * Returns: Seconds.
    */
   export function meeting(
     body: IAutoMovieMotionHumanBody,
@@ -127,20 +125,19 @@ export namespace touchReach {
         );
   }
 
-  /**
+  /*
    * The shortest reach of one hand to a point: from its arm at the entry to the
    * arm laid there with the elbow hung naturally, its effector's skin on the
    * point and the point's normal looking back at the performer, level, as a
    * mutual meeting lays two hands on their shared point.
-   *
-   * @param body The body.
-   * @param entry The posture and the pose the arm leaves from.
-   * @param side The hand.
-   * @param effector The part of the hand that meets the point.
-   * @param point The point, world.
-   * @param tangent Which tangent the effector lies along.
-   * @param facing The contact's outward normal, when the frame fixes it.
-   * @returns Seconds.
+   * Parameter body: The body.
+   * Parameter entry: The posture and the pose the arm leaves from.
+   * Parameter side: The hand.
+   * Parameter effector: The part of the hand that meets the point.
+   * Parameter point: The point, world.
+   * Parameter tangent: Which tangent the effector lies along.
+   * Parameter facing: The contact's outward normal, when the frame fixes it.
+   * Returns: Seconds.
    */
   export function place(
     body: IAutoMovieMotionHumanBody,
@@ -176,33 +173,38 @@ export namespace touchReach {
   }
 }
 
-/** The record of `IPlaceEntry`'s site. */
+/*
+ * The record of `IPlaceEntry`'s site.
+ */
 type IPlaceEntry = {
   posture: IAutoMovieMotionHumanPosture;
   pose: IAutoMoviePose;
 };
 
-/** The alternatives of `MeetingSurface`'s site. */
+/*
+ * The alternatives of `MeetingSurface`'s site.
+ */
 type MeetingSurface = "palm" | "fist";
-/** The record of `ILaidReachPlace`'s site. */
+/*
+ * The record of `ILaidReachPlace`'s site.
+ */
 type ILaidReachPlace = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 
-/**
+/*
  * The shortest reach of one arm onto a place: from its angles at the entry to
  * the arm laid there with the elbow hung naturally, solved on the posture the
  * arms are solved on, and the audit's travel bound between the two
  * (`touchReach.duration` for a region, `touchReach.place` for a point).
- *
- * @param body The body.
- * @param reached The posture the arm is laid on.
- * @param entry The pose the arm leaves from.
- * @param side The hand.
- * @param effector The part of the hand laid on the place.
- * @param place The place's point and outward normal, world.
- * @param tangent Which tangent the effector lies along.
- * @param read The caller's exact FK workspace, when it lends one.
- * @param project The caller's range-of-motion projector, when it lends one.
- * @returns Seconds.
+ * Parameter body: The body.
+ * Parameter reached: The posture the arm is laid on.
+ * Parameter entry: The pose the arm leaves from.
+ * Parameter side: The hand.
+ * Parameter effector: The part of the hand laid on the place.
+ * Parameter place: The place's point and outward normal, world.
+ * Parameter tangent: Which tangent the effector lies along.
+ * Parameter read: The caller's exact FK workspace, when it lends one.
+ * Parameter project: The caller's range-of-motion projector, when it lends one.
+ * Returns: Seconds.
  */
 function laidReach(
   body: IAutoMovieMotionHumanBody,

@@ -23,9 +23,11 @@ import { AutoMovieEngineMotionTrajectory } from "../AutoMovieEngineMotionTraject
 import { MotionTrajectoryFailure } from "../MotionTrajectoryFailure";
 import { solveAirborneInvariant } from "./solveAirborneInvariant";
 
-/** Private implementation bindings for the airborne rotation owner. */
+/*
+ * Private implementation bindings for the airborne rotation owner.
+ */
 export namespace IntegrateAirborneRotationImplementation {
-  /**
+  /*
    * The root orientation of a body in flight, from its angular momentum about the
    * centre of mass, constant while nothing touches it, and the shape the body
    * takes at each instant (#3426).
@@ -67,11 +69,10 @@ export namespace IntegrateAirborneRotationImplementation {
    * constructor-proved constant history may instead use its supported exact
    * commuting solution. Unsupported controls and derivative requests retain the
    * numerical integrator, including explicit dense physical admission.
-   *
-   * @param props The shape's history, the flight and the momentum.
-   * @returns The flight's orientation, read by time.
-   * @throws {Error} For an invalid failure scope or error budget, a refused
-   *   trajectory interval or step, or a shape/history reduction failure.
+   * Parameter props: The shape's history, the flight and the momentum.
+   * Returns: The flight's orientation, read by time.
+   * For an invalid failure scope or error budget, a refused
+   * trajectory interval or step, or a shape/history reduction failure.
    */
   export function integrateAirborneRotation(
     props: IAutoMovieIntegrateAirborneRotation.IProps,
@@ -94,7 +95,9 @@ export namespace IntegrateAirborneRotationImplementation {
       if (invariant !== undefined) return invariant;
     }
 
-    /** The previous principal rotation's copied numeric key and inverse. */
+    /*
+     * The previous principal rotation's copied numeric key and inverse.
+     */
     let previous:
       | {
           rotation: IAutoMovieQuaternion;
@@ -102,7 +105,9 @@ export namespace IntegrateAirborneRotationImplementation {
         }
       | undefined;
 
-    /** Reuse only exact component values, even when a history mutates a record. */
+    /*
+     * Reuse only exact component values, even when a history mutates a record.
+     */
     const principalInverse: (
       rotation: IAutoMovieQuaternion,
     ) => IAutoMovieQuaternion = (
@@ -243,7 +248,7 @@ export namespace IntegrateAirborneRotationImplementation {
     return AirborneRotationFlight(trajectory, variations.length);
   }
 
-  /**
+  /*
    * Construct a constant root-frame history from the physical owner's copied
    * fixed rig and fully resolved bones, preserving their actual clinical frames.
    * The actual constructor admits whole-curve ownership, zero local kinematic
@@ -256,31 +261,30 @@ export namespace IntegrateAirborneRotationImplementation {
   export const fixed: typeof AirborneConstantShapeHistory =
     AirborneConstantShapeHistory;
 
-  /**
+  /*
    * Create an optional callback-free observer for physical history costs. Pass it
    * explicitly to history(); read returns independent numeric totals. Replacing
    * public members cannot install code in physical evaluation.
+   * Returns: A privately issued numeric observation handle.
    *
-   * @returns A privately issued numeric observation handle.
-   *
-   *   States explicit operation wiring, numeric counters and independent snapshots.
-   *   Delegates to the native observation owner; histories borrow only its
-   *   private counter storage and never invoke a caller method. One factory
-   *   forwards observation ownership without an ambient context or altered
-   *   physical input. No monkeypatch, callback notification, trusted caller flag
-   *   or default instrumentation is introduced. Allocates one fixed-size counter
-   *   record only on this explicit request; ordinary histories allocate no
-   *   observation record. The same explicit handle can accumulate actual history
-   *   epochs; repeated reads copy totals rather than triggering physical work.
-   *   The caller owns the small handle; private weak registration retains no
-   *   observer after callers and histories release it. It contains no body, pose,
-   *   query log or process.
+   * States explicit operation wiring, numeric counters and independent snapshots.
+   * Delegates to the native observation owner; histories borrow only its
+   * private counter storage and never invoke a caller method. One factory
+   * forwards observation ownership without an ambient context or altered
+   * physical input. No monkeypatch, callback notification, trusted caller flag
+   * or default instrumentation is introduced. Allocates one fixed-size counter
+   * record only on this explicit request; ordinary histories allocate no
+   * observation record. The same explicit handle can accumulate actual history
+   * epochs; repeated reads copy totals rather than triggering physical work.
+   * The caller owns the small handle; private weak registration retains no
+   * observer after callers and histories release it. It contains no body, pose,
+   * query log or process.
    */
   export function observe(): AirborneShapeStatistics.IObserver {
     return AirborneShapeStatistics();
   }
 
-  /**
+  /*
    * The half-interval of the shape's central difference, seconds: a millisecond.
    * The stencil is second order for a sufficiently smooth shape; its error
    * depends on that shape's derivatives and is separate from the orientation
@@ -312,7 +316,7 @@ export namespace IntegrateAirborneRotationImplementation {
     clear(): void;
   };
 
-  /**
+  /*
    * A shape's history: at each second, the composite inertia of the posed bones
    * and the relative momentum from the bones `DELTA` either side, second order in
    * `DELTA` for a sufficiently smooth shape. Each query's inertia and relative
@@ -334,47 +338,46 @@ export namespace IntegrateAirborneRotationImplementation {
    * continuous at the centred switch. For continuous interval momenta this adds
    * no switch-induced value jump. An actual shape jump at a boundary can
    * propagate through this stencil.
+   * Parameter model: The body's unchanged mass model for this reuse epoch, or an
+   * admitted planning-owned snapshot released separately after this history is
+   * cleared.
+   * Parameter shape: The posed bones at a second, in the root's own frame (the root
+   * at the origin, unturned): the composed shape without the flight's rotation.
+   * Pure, and read up to `DELTA` outside the flight, or up to `2 DELTA` inside
+   * it at its ends when `span` is given.
+   * Parameter span: The flight's take-off and touchdown, seconds; the shape is read
+   * across them when absent.
+   * Parameter observer: Optional native callback-free work counter from observe();
+   * omitted histories allocate no counter record and retain the ordinary
+   * physical result/error behavior. Explicit handles accumulate across cache
+   * clears.
+   * Returns: The history.
    *
-   * @param model The body's unchanged mass model for this reuse epoch, or an
-   *   admitted planning-owned snapshot released separately after this history is
-   *   cleared.
-   * @param shape The posed bones at a second, in the root's own frame (the root
-   *   at the origin, unturned): the composed shape without the flight's rotation.
-   *   Pure, and read up to `DELTA` outside the flight, or up to `2 DELTA` inside
-   *   it at its ends when `span` is given.
-   * @param span The flight's take-off and touchdown, seconds; the shape is read
-   *   across them when absent.
-   * @param observer Optional native callback-free work counter from observe();
-   *   omitted histories allocate no counter record and retain the ordinary
-   *   physical result/error behavior. Explicit handles accumulate across cache
-   *   clears.
-   * @returns The history.
-   *
-   *   States root-frame shape, millisecond central difference, unchanged boundary
-   *   correction, exact-time memo and separate prepared-model ownership.
-   *   AirborneShapeHistory reduces the same physical tensor and two-pose momentum
-   *   with the unchanged stencil and quadratic boundary correction; only I and h
-   *   enter the flight ODE. The public history entry selects the established
-   *   DELTA and delegates memo, stencil and model reduction to one history owner.
-   *   Every first demanded exact mass node reads its actual pure shape; no time
-   *   grid, shape interpolation, stencil reduction or tolerance change is
-   *   introduced. A new query uses at most four distinct numeric nodes and O(S)
-   *   mass work. Each exact node performs shape/IK/FK only on its first demand,
-   *   even when other queries separate repeated endpoint reads; actual current
-   *   orbital terms, tensor sums and physical checks remain unchanged. Exact time
-   *   under one unchanged model, pure shape and span identifies equivalent I/h
-   *   and numeric mass parts across this operation. Fixed boundary moments are
-   *   separately shared; no time is rounded. A prepared token supplies both model
-   *   reducers without unrelated-model pairing, and no shooting target or IK
-   *   answer enters node storage. For N distinct I/h queries and S fixed model
-   *   parts, at most 3N+6 numeric nodes cost O(N*S), alongside O(N) I/h and two
-   *   boundary moments. Private moments share 3S numeric fields after exact
-   *   checks, leaving at most 8S+3 per node; exact unchanged principal
-   *   quaternions can additionally share their four fields. O(S) last-value
-   *   references and map keys/object/array overhead depend on runtime. clear
-   *   releases every node/shared-vector list/map/inverse registration; no raw
-   *   bone map/full pose is retained. The caller separately releases its borrowed
-   *   O(S) model.
+   * States root-frame shape, millisecond central difference, unchanged boundary
+   * correction, exact-time memo and separate prepared-model ownership.
+   * AirborneShapeHistory reduces the same physical tensor and two-pose momentum
+   * with the unchanged stencil and quadratic boundary correction; only I and h
+   * enter the flight ODE. The public history entry selects the established
+   * DELTA and delegates memo, stencil and model reduction to one history owner.
+   * Every first demanded exact mass node reads its actual pure shape; no time
+   * grid, shape interpolation, stencil reduction or tolerance change is
+   * introduced. A new query uses at most four distinct numeric nodes and O(S)
+   * mass work. Each exact node performs shape/IK/FK only on its first demand,
+   * even when other queries separate repeated endpoint reads; actual current
+   * orbital terms, tensor sums and physical checks remain unchanged. Exact time
+   * under one unchanged model, pure shape and span identifies equivalent I/h
+   * and numeric mass parts across this operation. Fixed boundary moments are
+   * separately shared; no time is rounded. A prepared token supplies both model
+   * reducers without unrelated-model pairing, and no shooting target or IK
+   * answer enters node storage. For N distinct I/h queries and S fixed model
+   * parts, at most 3N+6 numeric nodes cost O(N*S), alongside O(N) I/h and two
+   * boundary moments. Private moments share 3S numeric fields after exact
+   * checks, leaving at most 8S+3 per node; exact unchanged principal
+   * quaternions can additionally share their four fields. O(S) last-value
+   * references and map keys/object/array overhead depend on runtime. clear
+   * releases every node/shared-vector list/map/inverse registration; no raw
+   * bone map/full pose is retained. The caller separately releases its borrowed
+   * O(S) model.
    */
   export function history(
     model:
@@ -389,7 +392,7 @@ export namespace IntegrateAirborneRotationImplementation {
     return AirborneShapeHistory(model, shape, DELTA, span, observer);
   }
 
-  /**
+  /*
    * Build a history from actual simultaneous bone rates where the explicit
    * producer supplies them; unsupported instants retain the original millisecond
    * stencil and general history callbacks are unchanged. Every first numeric-node
@@ -414,7 +417,7 @@ export namespace IntegrateAirborneRotationImplementation {
     return AirborneShapeHistory(model, shape, DELTA, span, observer, analytic);
   }
 
-  /**
+  /*
    * Build a history tabulated once on uniform knots no farther apart than
    * `span.step` seconds and interpolated between them
    * (`AirborneTabulatedShapeHistory`): the shape is read at the knots only,
@@ -447,16 +450,15 @@ export namespace IntegrateAirborneRotationImplementation {
     );
   }
 
-  /**
+  /*
    * The root's angular velocity in its own frame, `I_b⁻¹ (L_b - h_b)`: the
    * momentum the root's own turn must carry once the segments' relative motion
    * has taken its share, divided by the composite inertia, applied through the
    * tensor's principal frame.
-   *
-   * @param instant The shape's inertia and relative momentum at the instant, root
-   *   frame.
-   * @param momentum The whole-body momentum `L_b`, root frame, kg m²/s.
-   * @returns The root's angular velocity in its own frame, radians per second.
+   * Parameter instant: The shape's inertia and relative momentum at the instant, root
+   * frame.
+   * Parameter momentum: The whole-body momentum `L_b`, root frame, kg m²/s.
+   * Returns: The root's angular velocity in its own frame, radians per second.
    */
   export function rate(
     instant: IAutoMovieIntegrateAirborneRotation.IInstant,
@@ -473,7 +475,7 @@ export namespace IntegrateAirborneRotationImplementation {
       : factor.solve(carried);
   }
 
-  /**
+  /*
    * Apply the inverse composite tensor through its principal frame. The first
    * rotation returns an exclusively owned local vector, so dividing it in place
    * preserves each component's arithmetic without another record.

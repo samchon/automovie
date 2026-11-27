@@ -13,14 +13,14 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { resolveCarriedHoldGeometry } from "./resolveCarriedHoldGeometry";
 
-/**
+/*
  * The borne body of a coupled carry placed on its bearer: the carry's key
  * posture, the region places both bodies are read at, the anchor bone the borne
  * body rides, its posture carried by that bone at each instant and the bearer's
  * hold places. `HumanCarriedCoupling` states the coupling these read.
  */
 export namespace HumanCarriedCouplingPose {
-  /**
+  /*
    * The bones `HumanTrunk.resolve` places from a posture's root and joints
    * alone.
    */
@@ -35,13 +35,12 @@ export namespace HumanCarriedCouplingPose {
     "rightShoulder",
   ];
 
-  /**
+  /*
    * The bone a region's place is carried by, as the coupling anchors on it: the
    * region's own bone, a trunk bone or a limb's (a drag's thigh).
-   *
-   * @param body The body.
-   * @param name The region.
-   * @returns The bone.
+   * Parameter body: The body.
+   * Parameter name: The region.
+   * Returns: The bone.
    */
   export function anchor(
     body: IAutoMovieMotionHumanBody,
@@ -50,19 +49,18 @@ export namespace HumanCarriedCouplingPose {
     return body.surfaces.regions[name].bone;
   }
 
-  /**
+  /*
    * A posture's bones as far as the anchor needs them: the trunk's alone
    * (`HumanTrunk.resolve`) for a trunk anchor, the whole fitted pose for a
    * limb's.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @param anchor The anchor bone.
-   * @param resolution The forward-kinematics reader of the posture evaluation
-   *   this call is part of, used for this call only; a fresh one when absent.
-   * @param requested The bones the caller reads; every bone when absent.
-   * @returns The resolved bones, only the requested ones and their ancestors
-   *   when a set is given.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Parameter anchor: The anchor bone.
+   * Parameter resolution: The forward-kinematics reader of the posture evaluation
+   * this call is part of, used for this call only; a fresh one when absent.
+   * Parameter requested: The bones the caller reads; every bone when absent.
+   * Returns: The resolved bones, only the requested ones and their ancestors
+   * when a set is given.
    */
   export function bones(
     body: IAutoMovieMotionHumanBody,
@@ -89,19 +87,18 @@ export namespace HumanCarriedCouplingPose {
     );
   }
 
-  /**
+  /*
    * The borne body's posture at an instant: the key pose carried rigidly by the
    * bearer's anchor bone as displayed, its clinging hands on the bearer's
    * regions.
-   *
-   * @param body The borne body.
-   * @param coupling The coupling.
-   * @param row The carry's row, for its key posture.
-   * @param bearers Each bearer's body and displayed bones at the instant, by
-   *   role.
-   * @returns The posture, with a whole-body rotation.
-   * @throws {HumanRefusal} A `participant` refusal on `by` when a bearer the
-   *   coupling names is not given or lacks its anchor bone.
+   * Parameter body: The borne body.
+   * Parameter coupling: The coupling.
+   * Parameter row: The carry's row, for its key posture.
+   * Parameter bearers: Each bearer's body and displayed bones at the instant, by
+   * role.
+   * Returns: The posture, with a whole-body rotation.
+   * A `participant` refusal on `by` when a bearer the
+   * coupling names is not given or lacks its anchor bone.
    */
   export function posture(
     body: IAutoMovieMotionHumanBody,
@@ -112,7 +109,7 @@ export namespace HumanCarriedCouplingPose {
     return preparePosture(body, coupling, row)(bearers);
   }
 
-  /**
+  /*
    * Prepare the fixed carried key and actual clinging palm geometry. Each
    * request supplies its current bearer frames.
    */
@@ -150,17 +147,16 @@ export namespace HumanCarriedCouplingPose {
       placedPosture(coupling, bearers, keyed, keyTurn, grips);
   }
 
-  /**
+  /*
    * Where each hand of a bearer holds, in that bearer's anchor frame: the borne
    * region it holds on the coupling's key pose, left then right; null for a
    * hand that does not hold.
-   *
-   * @param borne The borne body.
-   * @param coupling The coupling.
-   * @param row The carry's row.
-   * @param role The bearer's role; the coupling's first bearer when absent.
-   * @returns The two holds, each the held region's point and outward normal in
-   *   that bearer's anchor frame, and the anchor bone.
+   * Parameter borne: The borne body.
+   * Parameter coupling: The coupling.
+   * Parameter row: The carry's row.
+   * Parameter role: The bearer's role; the coupling's first bearer when absent.
+   * Returns: The two holds, each the held region's point and outward normal in
+   * that bearer's anchor frame, and the anchor bone.
    */
   export function holds(
     borne: IAutoMovieMotionHumanBody,
@@ -171,17 +167,16 @@ export namespace HumanCarriedCouplingPose {
     return resolveCarriedHoldGeometry(borne, coupling, row, role, key);
   }
 
-  /**
+  /*
    * A bearer at the origin in the performer's actual standing posture
    * (`stand.posture`), lowered as a squat by the stance's depth with the trunk
    * inclined by its angle (`bendLower.lower`). The standing alignment, planted
    * feet and minimum knee bend are the same at zero and at every nonzero
    * inclination or depth, so the stance has no finite jump at zero.
-   *
-   * @param body The bearer's body.
-   * @param bent The stance: the trunk's forward inclination, degrees, and the
-   *   lowering, a share of a squat's drop.
-   * @returns The posture.
+   * Parameter body: The bearer's body.
+   * Parameter bent: The stance: the trunk's forward inclination, degrees, and the
+   * lowering, a share of a squat's drop.
+   * Returns: The posture.
    */
   export function stance(
     body: IAutoMovieMotionHumanBody,
@@ -197,13 +192,12 @@ export namespace HumanCarriedCouplingPose {
     );
   }
 
-  /**
+  /*
    * A bearer's bones in its planted stance (`stance`), including at zero: every
    * trial is resolved by the same whole-body kinematics.
-   *
-   * @param body The bearer's body.
-   * @param bent The stance.
-   * @returns The resolved bones.
+   * Parameter body: The bearer's body.
+   * Parameter bent: The stance.
+   * Returns: The resolved bones.
    */
   export function stood(
     body: IAutoMovieMotionHumanBody,
@@ -212,14 +206,13 @@ export namespace HumanCarriedCouplingPose {
     return poseBones(body, resolveHumanPosture(body, stance(body, bent)));
   }
 
-  /**
+  /*
    * The carry's key posture of the borne body at the origin: the row's heading
    * and tip, and its leg angles or the fitted ones.
-   *
-   * @param row The carry's row.
-   * @param legs Both legs' hip flexion, knee flexion and hip abduction,
-   *   degrees; the row's when absent.
-   * @returns The posture.
+   * Parameter row: The carry's row.
+   * Parameter legs: Both legs' hip flexion, knee flexion and hip abduction,
+   * degrees; the row's when absent.
+   * Returns: The posture.
    */
   export function key(
     row: IAutoMovieMotionHumanCarried.IRow,
@@ -241,15 +234,14 @@ export namespace HumanCarriedCouplingPose {
     };
   }
 
-  /**
+  /*
    * A region's world point on resolved bones.
-   *
-   * @param body The body.
-   * @param bones Its resolved bones.
-   * @param name The region.
-   * @returns World metres.
-   * @throws {HumanRefusal} A `parameter` refusal on `carry` when the rig lacks
-   *   the region's bone.
+   * Parameter body: The body.
+   * Parameter bones: Its resolved bones.
+   * Parameter name: The region.
+   * Returns: World metres.
+   * A `parameter` refusal on `carry` when the rig lacks
+   * the region's bone.
    */
   export function region(
     body: IAutoMovieMotionHumanBody,
@@ -345,7 +337,9 @@ export namespace HumanCarriedCouplingPose {
   }
 }
 
-/** The known bearers and prepared hand geometry for one carried plan. */
+/*
+ * The known bearers and prepared hand geometry for one carried plan.
+ */
 type Bearers = Readonly<
   Record<string, IAutoMovieMotionHumanCarriedCouplingPose.IBearer>
 >;

@@ -1,20 +1,19 @@
 import { type AutoMovieCommand } from "../AutoMovieCommand";
 import { AutoMovieCliScaffold } from "../../scaffold/AutoMovieCliScaffold";
 
-/**
+/*
  * Resolve one complete CLI request before any scaffold publication begins.
  *
  * `args` excludes the node executable and script positions. No arguments, or a
  * lone `-h`/`--help`, means help; a lone `-v`/`--version` means version.
  * `create` and `add` delegate their grammars to
- * {@link AutoMovieCliScaffold.readCreateArguments} and
- * {@link AutoMovieCliScaffold.readAddArguments}. Production operations keep
+ * AutoMovieCliScaffold.readCreateArguments and
+ * AutoMovieCliScaffold.readAddArguments. Production operations keep
  * their tokens for their own option reader. Every refusal throws an `Error`
  * whose message names the correction.
- *
- * @param args The command-line tokens after the executable and script.
- * @returns The admitted request.
- * @throws On an unknown command or any refusal of the delegated grammar.
+ * Parameter args: The command-line tokens after the executable and script.
+ * Returns: The admitted request.
+ * On an unknown command or any refusal of the delegated grammar.
  */
 export function readAutoMovieCommandArguments(
   args: readonly string[],
@@ -38,7 +37,9 @@ export function readAutoMovieCommandArguments(
   );
 }
 
-/** Admit a standalone flag only when no other argument follows it. */
+/*
+ * Admit a standalone flag only when no other argument follows it.
+ */
 function standalone(
   flag: string,
   rest: readonly string[],

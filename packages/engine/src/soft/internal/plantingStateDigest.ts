@@ -1,6 +1,6 @@
 import { IAutoMoviePlantingState } from "@automovie/interface";
 
-/**
+/*
  * Produce a deterministic 32-bit FNV-1a diagnostic of selected branch and leaf
  * geometry encoded as little-endian float64 bytes. Equal digests can collide
  * and omit ids, domain metadata and authored relationships.

@@ -320,7 +320,7 @@ export namespace AutoMovieHumanMassPart {
     }
   }
 
-  /**
+  /*
    * Author C2 radial jets in the same top-root clock as the public source.
    * Embedded and wall knots have the held footprint's exact zero jets.
    * Elsewhere a knot's first derivative uses the smaller incident secant with

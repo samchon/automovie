@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * The shoulder's flexion and abduction as Alt Murphy et al. 2006 measure them
  * for the drinking task, in whose definition `FLEXION` and `ABDUCTION` are
  * bounds: "for shoulder flexion/extension in sagittal plane and
@@ -21,11 +21,10 @@ import type {
  * source's are the laboratory's; the points are the joints' centres, where the
  * source's are skin markers; and the source's own caution holds, that these
  * "are not the true joint angles".
- *
- * @param bones The posed body's bones.
- * @param side The arm.
- * @param yaw The body's heading, degrees.
- * @returns The flexion and the abduction, degrees, unsigned.
+ * Parameter bones: The posed body's bones.
+ * Parameter side: The arm.
+ * Parameter yaw: The body's heading, degrees.
+ * Returns: The flexion and the abduction, degrees, unsigned.
  */
 export function measureDrinkingShoulder(
   bones: ReadonlyMap<

@@ -7,7 +7,7 @@ import type {
   IAutoMovieProductionSoundPlan,
 } from "@automovie/interface";
 
-/**
+/*
  * Admit a film's adopted lines and place each over its speech span on the film
  * clock.
  *
@@ -23,10 +23,9 @@ import type {
  * file `read` cannot supply, naming the path, so a wrong path never plays a
  * stand-in; it refuses a speech span past the film's last frame; and it passes
  * on every refusal of admission and decoding.
- *
- * @param props The sound list, the film clock and the file reader.
- * @returns Each adopted line in list order, with its span, admitted receipt and
- *   48 kHz samples.
+ * Parameter props: The sound list, the film clock and the file reader.
+ * Returns: Each adopted line in list order, with its span, admitted receipt and
+ * 48 kHz samples.
  */
 export async function admitAutoMovieFilmDialogue(
   props: Pick<
@@ -89,10 +88,14 @@ export async function admitAutoMovieFilmDialogue(
   return lines;
 }
 
-/** The mixer's fixed rate; every adopted line is decoded to it. */
+/*
+ * The mixer's fixed rate; every adopted line is decoded to it.
+ */
 const SAMPLE_RATE: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;
 
-/** The line as the sound plan places it, over its speech span. */
+/*
+ * The line as the sound plan places it, over its speech span.
+ */
 const span: (
   line: IAutoMovieFilmSound.ILine,
   endFrame: number,

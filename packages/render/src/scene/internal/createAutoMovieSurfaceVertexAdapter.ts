@@ -3,15 +3,19 @@ import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
-/**
+/*
  * Share one mesh's posed-point queries and inverse skin differential without
  * changing its bones or weights.
  */
 export function createAutoMovieSurfaceVertexAdapter(mesh: THREE.Mesh): {
-  /** Current posed mesh-local position before contact displacement. */ point: (
+  /*
+   * Current posed mesh-local position before contact displacement.
+   */ point: (
     index: number,
   ) => IAutoMovieVector3;
-  /** Convert a posed mesh-local delta back to the source position attribute. */ displacement: (
+  /*
+   * Convert a posed mesh-local delta back to the source position attribute.
+   */ displacement: (
     index: number,
     value: IAutoMovieVector3,
   ) => IAutoMovieVector3;

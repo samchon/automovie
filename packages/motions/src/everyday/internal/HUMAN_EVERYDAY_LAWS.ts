@@ -5,7 +5,7 @@ import { curtsy } from "./curtsy";
 import { headTilt } from "./headTilt";
 import { swipeTouchscreen } from "./swipeTouchscreen";
 
-/**
+/*
  * Installable action laws for everyday gestures. Use the keys to extend an
  * authoring chain, and register the same laws when planning its performance.
  *

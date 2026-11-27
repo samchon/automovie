@@ -5,18 +5,17 @@ import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/ind
 import { StageCarrierConstruction } from "./StageCarrierConstruction";
 
 
-/**
+/*
  * Worn quiver silhouette.
  *
  * The upright tube exposes a common top socket, separate display slots, a belt
  * hook and a strap hook.
- *
- * @param params The scene id, optional display dimensions and this carrier's
- *   own fit options.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter params: The scene id, optional display dimensions and this carrier's
+ * own fit options.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function createStageQuiver(
   params: AutoMovieArchetypeStageQuiver.IParams = {},

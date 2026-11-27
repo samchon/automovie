@@ -4,7 +4,7 @@ import { createAutoMovieClosedSphereGeometry } from "../../internal/createAutoMo
 import type { AutoMovieHumanCartoon } from "../../AutoMovieHumanCartoon.js";
 import { mountHumanCartoonFace } from "./mountHumanCartoonFace.js";
 
-/**
+/*
  * Build a deliberately exaggerated cartoon face for a posed polygon head. The
  * caller adds the returned object to the already posed head group once. Bounds
  * use that group's metres, +X forward, +Y up and +Z anatomical left. Eyes,
@@ -16,34 +16,45 @@ import { mountHumanCartoonFace } from "./mountHumanCartoonFace.js";
  * limits exaggerated brow and jaw travel. Pose values must be finite and
  * already admitted by the caller; this drawing applies no second clinical range
  * limit, including when clamping is disabled.
- *
- * @param head Actual local bounds of the polygon head, metres.
- * @param expression Existing public action-unit input; omission means neutral.
- * @param pose Admitted finite eye/jaw pose; neck motion is already on the
- *   parent.
- * @returns Owned face geometry, explicit unsupported fields and its disposer.
+ * Parameter head: Actual local bounds of the polygon head, metres.
+ * Parameter expression: Existing public action-unit input; omission means neutral.
+ * Parameter pose: Admitted finite eye/jaw pose; neck motion is already on the
+ * parent.
+ * Returns: Owned face geometry, explicit unsupported fields and its disposer.
  */
 export function buildHumanCartoonFace(
   head: {
-    /** Actual head-local minimum in metres. */
+    /*
+     * Actual head-local minimum in metres.
+     */
     min: [number, number, number];
 
-    /** Actual head-local maximum in metres. */
+    /*
+     * Actual head-local maximum in metres.
+     */
     max: [number, number, number];
 
-    /** Most anterior local triangle X at Y/Z; undefined outside its silhouette. */
+    /*
+     * Most anterior local triangle X at Y/Z; undefined outside its silhouette.
+     */
     frontAt: (y: number, z: number) => number | undefined;
   },
   expression?: AutoMovieHumanCartoon.IExpression,
   pose?: AutoMovieHumanCartoon.IHeadPose,
 ): {
-  /** Add once to the polygon head's already posed group. */
+  /*
+   * Add once to the polygon head's already posed group.
+   */
   object: THREE.Group;
 
-  /** Requested fields outside this cartoon's supported subset. */
+  /*
+   * Requested fields outside this cartoon's supported subset.
+   */
   unsupported: readonly string[];
 
-  /** Release every created geometry and material. */
+  /*
+   * Release every created geometry and material.
+   */
   dispose: () => void;
 } {
   const extent: THREE.Vector3 = new THREE.Vector3(...head.max).sub(
@@ -77,7 +88,7 @@ export function buildHumanCartoonFace(
     "eyesClosed",
   ]);
 
-  /**
+  /*
    * Admit one sided action and preserve explicit unsupported reporting.
    *
    * Principled implementation: Enforces finite [0,1] intensity and unique
@@ -142,7 +153,7 @@ export function buildHumanCartoonFace(
       flatShading: true,
     });
 
-  /**
+  /*
    * Release the original face's geometry and three shared materials.
    *
    * Principled implementation: Disposes every recorded geometry and the
@@ -166,7 +177,7 @@ export function buildHumanCartoonFace(
     noseMaterial.dispose();
   };
 
-  /**
+  /*
    * Read an admitted sided action, with omitted units neutral.
    *
    * Principled implementation: Reads the existing bilateral pair or zero,
@@ -183,7 +194,7 @@ export function buildHumanCartoonFace(
     side: number,
   ): number => actions.get(unit)?.[side] ?? 0;
 
-  /**
+  /*
    * Record one original face mark and its owned geometry.
    *
    * Principled implementation: Creates a mesh over the supplied original
@@ -214,7 +225,7 @@ export function buildHumanCartoonFace(
     return part;
   };
 
-  /**
+  /*
    * Preserve the original Catmull-Rom tubular brow/lip stroke.
    *
    * Principled implementation: Uses the original curve, at least eight
@@ -357,7 +368,7 @@ export function buildHumanCartoonFace(
         0.07 * au("lipStretcher", side)),
   );
 
-  /**
+  /*
    * Preserve the sided quadratic mouth-corner displacement.
    *
    * Principled implementation: Uses the original head-height-scaled
@@ -381,7 +392,7 @@ export function buildHumanCartoonFace(
     );
   };
 
-  /**
+  /*
    * Preserve one original local mouth mark point before front mounting.
    *
    * Principled implementation: Combines the original front offset, sided

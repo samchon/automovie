@@ -4,18 +4,17 @@ import { ArmourTorso } from "./ArmourTorso";
 import { CostumeConstruction } from "./CostumeConstruction";
 
 
-/**
+/*
  * Worn mail costume.
  *
  * A torso-mounted costume shirt with a cavity, sleeve openings and existing
  * wear frame.
- *
- * @param params The scene id and optional measurements and model choice of this
- *   costume.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter params: The scene id and optional measurements and model choice of this
+ * costume.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function createCostumeMail(
   params: AutoMovieArchetypeCostumeMail.IParams = {},

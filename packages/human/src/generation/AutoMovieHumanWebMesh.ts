@@ -29,7 +29,9 @@ const {
  * one below it.
  */
 export namespace AutoMovieHumanWebMesh {
-  /** Margin radii from a pinch over which a column leaves the saddle's chart. */
+  /*
+   * Margin radii from a pinch over which a column leaves the saddle's chart.
+   */
   const FADE: number = 3;
 
   /** Write the vertices and cells into the body's mesh.

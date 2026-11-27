@@ -5,13 +5,13 @@ import {
 
 import { requireBuiltSpace } from "./requireBuiltSpace";
 
-/**
+/*
  * Return every boundary that encloses or separates a logical space.
  *
- * {@link builtEnvironmentAdjacentSpaces} keeps only the far-side space ids,
+ * builtEnvironmentAdjacentSpaces keeps only the far-side space ids,
  * which answers which rooms are next to this one and discards what stands
  * between them: the boundary's identity, its `kind`, and the elements realizing
- * it. This answers with what, as {@link builtEnvironmentSpaceConnectors} does
+ * it. This answers with what, as builtEnvironmentSpaceConnectors does
  * for traversal. A slab between two storeys belongs to neither room alone, so a
  * room whose ceiling is owned by its storey reads like a room with no ceiling
  * unless its enclosure can be asked directly.

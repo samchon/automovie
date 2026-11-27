@@ -11,19 +11,18 @@ import {
 import { StageShaftConstruction } from "./StageShaftConstruction";
 import type { AutoMovieArchetypeStageWeaponProp } from "../AutoMovieArchetypeStageWeaponProp";
 
-/**
+/*
  * Padded pole-blade silhouette.
  *
  * Independent stage profiles share a shaft, two actor grip marks and visible
  * outline marks: the `tip`, the main `edge`, the `rear` back of that edge cell,
  * and the side blade's `side-edge`. The form stands along +Y from its origin.
- *
- * @param params The scene identity and optional total display height in metres,
- *   with a choice of profile.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter params: The scene identity and optional total display height in metres,
+ * with a choice of profile.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function createStagePoleBladeProp(
   params: AutoMovieArchetypeStagePoleBladeProp.IParams,
@@ -110,21 +109,27 @@ export function createStagePoleBladeProp(
   );
 }
 
-/**
+/*
  * A section of the padded outline in the XY plane, normalized by display
  * height.
  */
 type Section = readonly [y: number, left: number, right: number];
 
-/** Adjacent sections and the index of the lower section of the marked edge. */
+/*
+ * Adjacent sections and the index of the lower section of the marked edge.
+ */
 interface IBlade {
-  /** Cross sections from shaft to tip. */
+  /*
+   * Cross sections from shaft to tip.
+   */
   sections: readonly Section[];
-  /** First of the two sections defining the main edge mark. */
+  /*
+   * First of the two sections defining the main edge mark.
+   */
   edge: number;
 }
 
-/**
+/*
  * Digital silhouettes based on the Palace Museum's Qing yanyuedao, Royal
  * Armouries XXVIL.50, and Met 49.120.13. The serpent outline is a screen
  * interpretation of the literary name in Romance of the Three Kingdoms, ch. 1.
@@ -169,7 +174,9 @@ const BLADES: Readonly<Record<AutoMovieArchetypeStagePoleBladeProp.Kind, IBlade>
   },
 };
 
-/** Side ornament sharing a narrow overlap with the axial blade. */
+/*
+ * Side ornament sharing a narrow overlap with the axial blade.
+ */
 const SIDE_BLADE: readonly Section[] = [
   [0.69, 0.01, 0.09],
   [0.76, 0.005, 0.102],
@@ -178,10 +185,14 @@ const SIDE_BLADE: readonly Section[] = [
 
 
 
-/** The two cutting edges a pole blade's helper records. */
+/*
+ * The two cutting edges a pole blade's helper records.
+ */
 type BladeEdge = "edge" | "side-edge";
 
-/** Extrude one small convex cell between each pair of adjacent outline sections. */
+/*
+ * Extrude one small convex cell between each pair of adjacent outline sections.
+ */
 function addOutline(
   builder: AutoMovieArchetypeBuilder<
     AutoMovieArchetypeStageWeaponProp.Affordance,
@@ -202,7 +213,7 @@ function addOutline(
   }
 }
 
-/**
+/*
  * Record the midpoint and outward normal of the left boundary of the marked
  * edge cell: the blade's back, facing away from its edge, so a scene can tell
  * the cutting side from the spine.
@@ -234,7 +245,7 @@ function addRear(
   });
 }
 
-/**
+/*
  * Record the midpoint and outward normal of the right edge of a silhouette
  * cell.
  */

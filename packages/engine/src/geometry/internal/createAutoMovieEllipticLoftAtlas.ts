@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Form a shared bicubic atlas from cubic centre and ellipse-radius profiles.
  * Each quarter uses the tangent-matching circular cubic with k = 4 (sqrt(2) -
  *

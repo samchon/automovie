@@ -9,7 +9,7 @@ import {
   type IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
-/**
+/*
  * Check system vocabulary, declared units and root port direction in source
  * order.
  */
@@ -134,7 +134,7 @@ const FLOWS: readonly ["from-root", "to-root", "undirected"] = [
   "undirected",
 ] as const;
 
-/**
+/*
  * Which media each discipline is allowed to carry.
  *
  * `other` sits in every row on purpose: it is the escape a production carrying
@@ -155,7 +155,9 @@ const DISCIPLINE_MEDIA: Record<
   control: ["control-signal", "other"],
 };
 
-/** Which units each medium may be measured in; `other` accepts any of them. */
+/*
+ * Which units each medium may be measured in; `other` accepts any of them.
+ */
 const MEDIUM_UNITS: Record<
   AutoMovieServiceMedium,
   readonly AutoMovieServiceUnit[]

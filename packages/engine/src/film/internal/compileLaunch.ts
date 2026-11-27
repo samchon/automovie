@@ -19,16 +19,16 @@ import { solveBallisticLaunch } from "../../physics/internal/solveBallisticLaunc
 import { solveMovingLaunch } from "../../physics/internal/solveMovingLaunch";
 import { eventTimeKey } from "./eventTimeKey";
 
-/**
+/*
  * Compose the `launch` verb's engine primitives into one result: the
  * projectile's flight and the struck target's reaction, timed to the
  * engine-computed hit rather than a number the model had to guess.
  *
- * It {@link solveBallisticLaunch solves the aim} that connects `origin` to
- * `target` at `action.speed`, {@link projectileTrajectory bakes the flight} into
+ * It solveBallisticLaunchsolves the aim that connects `origin` to
+ * `target` at `action.speed`, projectileTrajectorybakes the flight into
  * the projectile node's clip, and, when the launch carries an `onHit` and
  * strikes a node, schedules that node's `react` at the contact. Pass `targetAt`
- * to lead a moving target: the aim then solves through {@link solveMovingLaunch}
+ * to lead a moving target: the aim then solves through solveMovingLaunch
  * against where the mover will be when the projectile arrives, and `target`
  * only names the fallback sightline.
  *
@@ -174,10 +174,14 @@ export function compileLaunch(
   };
 }
 
-/** The default fall the launch solves against: standard gravity, world −Y. */
+/*
+ * The default fall the launch solves against: standard gravity, world −Y.
+ */
 const DEFAULT_GRAVITY: IAutoMovieVector3 = AutoMovieGravity.DOWN;
 
-/** Below this landing speed in m/s the incoming direction is undefined. */
+/*
+ * Below this landing speed in m/s the incoming direction is undefined.
+ */
 const STILL_SPEED: number = 1e-9;
 
 function firstActor(action: IAutoMovieLaunchAction): string | null {

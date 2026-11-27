@@ -1,6 +1,6 @@
 import type { IAutoMoviePrimitiveShape } from "@automovie/interface";
 
-/**
+/*
  * Analytic solid volume of a primitive, in cubic meters.
  *
  * These are the true solid volumes (a cone is `1/3 π r² h`, a capsule is a

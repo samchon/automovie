@@ -159,7 +159,7 @@ export namespace AutoMovieHumanHeadTapeSource {
     );
   }
 
-  /**
+  /*
    * The unchanged final phase/physical2 reading, with a caller-owned Point0
    * inverse.
    */
@@ -215,7 +215,7 @@ export namespace AutoMovieHumanHeadTapeSource {
     return { station, point: original.point, derivative };
   }
 
-  /**
+  /*
    * Safeguarded value-only plane inverse, preserving exact original anchor
    * stations.
    */

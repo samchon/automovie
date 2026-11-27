@@ -11,10 +11,12 @@ import type { HumanCarriedGripGaps } from "./HumanCarriedGripGaps";
 import { HumanCarriedNeckClear } from "./HumanCarriedNeckClear";
 import { HumanCarriedPitch } from "./HumanCarriedPitch";
 
-/** Bearer and borne region pairs follow the row's left-to-right order. */
+/*
+ * Bearer and borne region pairs follow the row's left-to-right order.
+ */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
-/**
+/*
  * The per-pair solve of a named carry's coupling (`HumanCarriedCoupling`): the
  * key pose that rests the borne body on the bearer, the contacts read on both
  * key bodies, the bearing shares and the capacity, in one record. The meeting
@@ -22,24 +24,36 @@ const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
  * its `couple` here.
  */
 export namespace HumanCarriedCouplingCouple {
-  /** The role names and contact tables supplied by `HumanCarriedCoupling`. */
+  /*
+   * The role names and contact tables supplied by `HumanCarriedCoupling`.
+   */
   export interface IContacts {
-    /** The first bearer's role name. */
+    /*
+     * The first bearer's role name.
+     */
     readonly BEARER: string;
 
-    /** The borne person's role name. */
+    /*
+     * The borne person's role name.
+     */
     readonly BORNE: string;
 
-    /** The trailing surface's role name for a drag. */
+    /*
+     * The trailing surface's role name for a drag.
+     */
     readonly GROUND: string;
 
-    /** The optional second helper's role name. */
+    /*
+     * The optional second helper's role name.
+     */
     readonly SECOND: string;
 
-    /** Default held regions for every carry. */
+    /*
+     * Default held regions for every carry.
+     */
     readonly HOLDS: Readonly<Record<IAutoMovieMotionHumanCarried.Carry, Grip>>;
 
-    /**
+    /*
      * Alternative grips in preference order, only for carries that provide
      * them.
      */
@@ -48,27 +62,26 @@ export namespace HumanCarriedCouplingCouple {
     >;
   }
 
-  /**
+  /*
    * The coupling of a carry between two bodies, refused when the bearer cannot
    * balance the borne mass.
-   *
-   * @param rules The meeting's role names, default grips and nearer grips.
-   * @param bearer The bearer's body.
-   * @param borne The borne body.
-   * @param row The carry's row.
-   * @param carry The carry, for its holds.
-   * @param extra Kilograms the borne person carries besides their body.
-   * @param second A second helper on the carry's other side: its body, its
-   *   side's row and carry; none when absent.
-   * @returns The coupling, its key, holds and centre in the frame of the
-   *   bearer's bone the resting region rides on.
-   * @throws {HumanRefusal} A `participant` refusal on `mass` with the feasible
-   *   borne mass, when no lean of the bearer balances it; a `reach` refusal on
-   *   `carry` when no bearer's stance and borne legs within their ranges bring
-   *   a held region within the bearer's arm (`HumanCarriedCouplingFit.fit`) by
-   *   the carry's described grip nor any of its nearer ones
-   *   (`HumanCarriedCoupling.NEARER`); a `parameter` refusal on `mass` for a
-   *   negative extra mass.
+   * Parameter rules: The meeting's role names, default grips and nearer grips.
+   * Parameter bearer: The bearer's body.
+   * Parameter borne: The borne body.
+   * Parameter row: The carry's row.
+   * Parameter carry: The carry, for its holds.
+   * Parameter extra: Kilograms the borne person carries besides their body.
+   * Parameter second: A second helper on the carry's other side: its body, its
+   * side's row and carry; none when absent.
+   * Returns: The coupling, its key, holds and centre in the frame of the
+   * bearer's bone the resting region rides on.
+   * A `participant` refusal on `mass` with the feasible
+   * borne mass, when no lean of the bearer balances it; a `reach` refusal on
+   * `carry` when no bearer's stance and borne legs within their ranges bring
+   * a held region within the bearer's arm (`HumanCarriedCouplingFit.fit`) by
+   * the carry's described grip nor any of its nearer ones
+   * (`HumanCarriedCoupling.NEARER`); a `parameter` refusal on `mass` for a
+   * negative extra mass.
    */
   export function couple(
     rules: IContacts,
@@ -387,7 +400,9 @@ export namespace HumanCarriedCouplingCouple {
     return coupling;
   }
 
-  /** The contact window part a region's bone belongs to. */
+  /*
+   * The contact window part a region's bone belongs to.
+   */
   const part: (
     body: IAutoMovieMotionHumanBody,
     name: AutoMovieHumanoidRegion,
@@ -421,33 +436,43 @@ export namespace HumanCarriedCouplingCouple {
   };
 }
 
-/** The borne regions held by the bearer's left and right hands. */
+/*
+ * The borne regions held by the bearer's left and right hands.
+ */
 type Grip = Parameters<typeof HumanCarriedCouplingFit.read>[3];
 
-/** A borne region a hand holds, or no grip for that hand. */
+/*
+ * A borne region a hand holds, or no grip for that hand.
+ */
 type HeldRegion = Grip[number];
 
-/** A reachable placement and the grip its reach was checked against. */
+/*
+ * A reachable placement and the grip its reach was checked against.
+ */
 interface IGripFit {
   read: HumanCarriedCouplingFit.IRead;
   held: Grip;
 }
 
-/** The contacts contributed by one bearer. */
+/*
+ * The contacts contributed by one bearer.
+ */
 interface IBearingSide {
   role: string;
   row: IAutoMovieMotionHumanCarried.IRow;
   held: Grip;
 }
 
-/** A borne region and the surface it bears on. */
+/*
+ * A borne region and the surface it bears on.
+ */
 interface IBearingContact {
   role: string;
   region: AutoMovieHumanoidRegion;
   on: AutoMovieHumanoidRegion;
 }
 
-/**
+/*
  * A borne hand that clings to a bearer: the bearer's role, the hand and the
  * bearer's region it holds.
  */
@@ -457,8 +482,12 @@ interface IClingContact {
   cling: AutoMovieHumanoidRegion;
 }
 
-/** A second bearer's anchor in the first bearer's anchor frame. */
+/*
+ * A second bearer's anchor in the first bearer's anchor frame.
+ */
 type Bearer = NonNullable<IAutoMovieMotionCoupling["bearers"]>[string];
 
-/** The key stance's actual resolved bearing frames. */
+/*
+ * The key stance's actual resolved bearing frames.
+ */
 type Bones = HumanCarriedCouplingFit.IRead["theirs"];

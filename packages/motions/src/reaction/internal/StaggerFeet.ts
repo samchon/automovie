@@ -22,7 +22,7 @@ import { staggerLean } from "./staggerLean";
 import type { staggerRecover } from "./staggerRecover";
 import { staggerSwingBow } from "./staggerSwingBow";
 
-/**
+/*
  * A stagger's feet and pelvis at every second of its plan (`stagger`): the
  * pelvis carried by the recovery's centre of mass course, the feet standing
  * where the steps put them, and each step's swing as a walking foot swings,
@@ -46,47 +46,65 @@ import { staggerSwingBow } from "./staggerSwingBow";
  * gives (`shifted`); no arbitrary-time result is retained.
  */
 export class StaggerFeet {
-  /** The feet as the entry stands them. */
+  /*
+   * The feet as the entry stands them.
+   */
   private readonly entered: Record<
     AutoMovieHumanSide,
     IAutoMovieMotionHumanFoot.IPlacement
   >;
 
-  /** The share of a swing a foot rises in (`staggerKnots.risingOf`). */
+  /*
+   * The share of a swing a foot rises in (`staggerKnots.risingOf`).
+   */
   private readonly rising: number;
 
-  /** Each step's bow around the standing foot. */
+  /*
+   * Each step's bow around the standing foot.
+   */
   private readonly bows: Map<staggerRecover.IStep, number> = new Map();
 
-  /** One fixed swing reader and nonzero-travel direction per recovery step. */
+  /*
+   * One fixed swing reader and nonzero-travel direction per recovery step.
+   */
   private readonly swings: Map<staggerRecover.IStep, IStaggerFeetSwingsEntry> =
     new Map();
 
-  /** The entry's posture. */
+  /*
+   * The entry's posture.
+   */
   private readonly posture: IAutoMovieMotionHumanPosture;
 
-  /** The body. */
+  /*
+   * The body.
+   */
   private readonly body: IAutoMovieMotionHumanActionContext["body"];
 
-  /** The recovery. */
+  /*
+   * The recovery.
+   */
   private readonly recovery: staggerRecover.IRecovery;
 
-  /** Each side's body-only swing range and floor-clearance prerequisites. */
+  /*
+   * Each side's body-only swing range and floor-clearance prerequisites.
+   */
   private readonly swingReaches: Record<
     AutoMovieHumanSide,
     ReturnType<typeof walkReach.prepareSwing>
   >;
 
-  /** The trunk's lean and the root carrying it, at a second (`staggerLean`). */
+  /*
+   * The trunk's lean and the root carrying it, at a second (`staggerLean`).
+   */
   private readonly lean: ReturnType<typeof staggerLean>;
 
-  /**
+  /*
    * The plan's level shift of the root at a second (`shifted`); none until the
    * plan gives one.
    */
   private shift: ((seconds: number) => IAutoMovieVector3) | undefined;
 
-  /**
+  /*
    * Take the plan's level shift of the root, and prepare every step's ends,
    * swing and bow under it in place of those prepared under the one before.
    *
@@ -97,22 +115,20 @@ export class StaggerFeet {
    * a foot touched down on a stance some millimetres from the swing's last
    * pose: measured, a body pushed forward showed its stepping leg's knee jump
    * 12.8 mm at the landing, 0.52 s.
-   *
-   * @param shift The shift at a second since the push, world metres, level; the
-   *   same reader the plan's leg row passes to `solve`.
+   * Parameter shift: The shift at a second since the push, world metres, level; the
+   * same reader the plan's leg row passes to `solve`.
    */
   public shifted(shift: (seconds: number) => IAutoMovieVector3): void {
     this.shift = shift;
     this.prepareSteps();
   }
 
-  /**
+  /*
    * Keep one plan's body, entry posture and recovery, and prepare each side's
    * body-only swing reach and every step's endpoints, swing and bow.
-   *
-   * @param body The body.
-   * @param entry The context's entry.
-   * @param recovery The admitted recovery.
+   * Parameter body: The body.
+   * Parameter entry: The context's entry.
+   * Parameter recovery: The admitted recovery.
    */
   public constructor(
     body: IAutoMovieMotionHumanActionContext["body"],
@@ -133,7 +149,7 @@ export class StaggerFeet {
     this.prepareSteps();
   }
 
-  /**
+  /*
    * The pelvis and stances at a second: the root carrying the centre of mass's
    * travel less the trunk lean's shift of it, moved by the plan's balance
    * shift, settled over the feet as the walk settles its pelvis on the hip
@@ -142,18 +158,17 @@ export class StaggerFeet {
    * root and then shifted and tilted, a leg standing at its knee's least bend
    * was asked for a hip some millimetres further than it reaches, and its foot
    * left the floor.
-   *
-   * @param seconds Seconds since the push.
-   * @param feet The scheduled feet at that second.
-   * @param resolution Optional exact FK source borrowed by the same synchronous
-   *   settlement.
-   * @param at The lean's reading at the second (`staggerLean`): the upright
-   *   root before lowering, the trunk's tilt and the reaction's share, over
-   *   which the lowering comes in from the entry's height; read when absent.
-   * @param shift The plan's level shift of the root at the second, world
-   *   metres; none when absent.
-   * @returns The settled pelvis (its root shifted, its rotation the tilted
-   *   one), feet and contacts.
+   * Parameter seconds: Seconds since the push.
+   * Parameter feet: The scheduled feet at that second.
+   * Parameter resolution: Optional exact FK source borrowed by the same synchronous
+   * settlement.
+   * Parameter at: The lean's reading at the second (`staggerLean`): the upright
+   * root before lowering, the trunk's tilt and the reaction's share, over
+   * which the lowering comes in from the entry's height; read when absent.
+   * Parameter shift: The plan's level shift of the root at the second, world
+   * metres; none when absent.
+   * Returns: The settled pelvis (its root shifted, its rotation the tilted
+   * one), feet and contacts.
    */
   public settle(
     seconds: number,
@@ -196,7 +211,9 @@ export class StaggerFeet {
     );
   }
 
-  /** The standing feet, each at the placement its latest landed step supplied. */
+  /*
+   * The standing feet, each at the placement its latest landed step supplied.
+   */
   public standing(
     seconds: number,
   ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanWalkFoot.IScheduled> {
@@ -213,7 +230,9 @@ export class StaggerFeet {
     return out;
   }
 
-  /** The standing schedule with each active walking-foot swing written over it. */
+  /*
+   * The standing schedule with each active walking-foot swing written over it.
+   */
   public scheduled(
     seconds: number,
   ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanWalkFoot.IScheduled> {
@@ -228,17 +247,16 @@ export class StaggerFeet {
     return out;
   }
 
-  /**
+  /*
    * The feet, the pelvis and the reached feet at a second: a swinging foot held
    * inside its leg's ranges under the settled pelvis and off the floor
    * (`walkReach.swing`).
-   *
-   * @param seconds Seconds since the push.
-   * @param resolution Optional parent FK source borrowed only by this
-   *   synchronous settlement.
-   * @param shift The plan's level shift of the root at the second, world
-   *   metres; none when absent.
-   * @returns The scheduled, settled and reached feet.
+   * Parameter seconds: Seconds since the push.
+   * Parameter resolution: Optional parent FK source borrowed only by this
+   * synchronous settlement.
+   * Parameter shift: The plan's level shift of the root at the second, world
+   * metres; none when absent.
+   * Returns: The scheduled, settled and reached feet.
    */
   public solve(
     seconds: number,
@@ -290,7 +308,7 @@ export class StaggerFeet {
     return { feet, settled, reached, trunk, ease: at.ease };
   }
 
-  /**
+  /*
    * The first matching open swing's linear share at action-local seconds, zero
    * outside every swing.
    */
@@ -301,7 +319,7 @@ export class StaggerFeet {
     return 0;
   }
 
-  /**
+  /*
    * A step's raised-start walking swing at action-local seconds and signed
    * lateral bow metres: the foot rises by CLEARANCE over the rising share, then
    * follows the prepared swing plus the 16_share^2_(1-share)^2 lateral bump,
@@ -349,7 +367,7 @@ export class StaggerFeet {
     };
   }
 
-  /**
+  /*
    * The unit a step's bow displaces its ankle along: its travel turned a
    * quarter turn, or the entry's heading for a step in place.
    */
@@ -363,7 +381,7 @@ export class StaggerFeet {
     );
   }
 
-  /**
+  /*
    * Prepare every recovery step's settled endpoints, raised-start walking swing
    * curve, nonzero-travel normal and bow under the plan's current shift, each
    * endpoint settled as the pose settles it.
@@ -428,28 +446,38 @@ export class StaggerFeet {
     }
   }
 
-  /** A step's prepared swing (`prepareSteps`). */
+  /*
+   * A step's prepared swing (`prepareSteps`).
+   */
   private swingOf(step: staggerRecover.IStep): ISwingOfResult {
     return this.swings.get(step)!;
   }
 
-  /** A step's prepared bow (`prepareSteps`). */
+  /*
+   * A step's prepared bow (`prepareSteps`).
+   */
   private bowOf(step: staggerRecover.IStep): number {
     return this.bows.get(step)!;
   }
 }
 
-/** The record of `ISwingOfResult`'s site. */
+/*
+ * The record of `ISwingOfResult`'s site.
+ */
 type ISwingOfResult = {
   from: walkFoot.IEnd;
   normal: IAutoMovieVector3 | undefined;
   at: (share: number) => IAutoMovieMotionHumanWalkFoot.IFoot;
 };
 
-/** The record of `ISolveTrunk`'s site. */
+/*
+ * The record of `ISolveTrunk`'s site.
+ */
 type ISolveTrunk = { pitch: number; roll: number };
 
-/** The record of `ISolveResult`'s site. */
+/*
+ * The record of `ISolveResult`'s site.
+ */
 type ISolveResult = {
   feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanWalkFoot.IScheduled>;
   settled: walkReach.IGround;
@@ -458,13 +486,19 @@ type ISolveResult = {
   ease: number;
 };
 
-/** The record of `ISolveTrunkResult`'s site. */
+/*
+ * The record of `ISolveTrunkResult`'s site.
+ */
 type ISolveTrunkResult = { pitch: number; roll: number };
 
-/** The alternatives of `StaggerFeetBendEntry`'s site. */
+/*
+ * The alternatives of `StaggerFeetBendEntry`'s site.
+ */
 type StaggerFeetBendEntry = "pitch" | "roll";
 
-/** The record of `IStaggerFeetSwingsEntry`'s site. */
+/*
+ * The record of `IStaggerFeetSwingsEntry`'s site.
+ */
 type IStaggerFeetSwingsEntry = {
   from: walkFoot.IEnd;
   normal: IAutoMovieVector3 | undefined;

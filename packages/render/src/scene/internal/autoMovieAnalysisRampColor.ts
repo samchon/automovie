@@ -1,6 +1,6 @@
 import type { IAutoMovieColor } from "@automovie/interface";
 
-/**
+/*
  * Map a normalized `[0, 1]` position on the ramp to a colour.
  *
  * A three-stop blue-green-red ramp, interpolated linearly in each channel. It

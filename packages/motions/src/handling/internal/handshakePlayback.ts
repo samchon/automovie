@@ -15,7 +15,9 @@ import type {
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import type { HumanPrehension } from "./HumanPrehension";
 
-/** Sample the reach, held handshake and withdrawal by their actual events. */
+/*
+ * Sample the reach, held handshake and withdrawal by their actual events.
+ */
 export function handshakePlayback(track: ITrack): IHandshakePlaybackResult {
   const {
     body,
@@ -38,15 +40,21 @@ export function handshakePlayback(track: ITrack): IHandshakePlaybackResult {
   } = track;
   const limb: `${AutoMovieHumanSide}Arm` = `${side}Arm`;
   const radiansPerSecond: number = 2 * Math.PI * frequency;
-  /** The hand transport and grip strength at the requested second. */
+  /*
+   * The hand transport and grip strength at the requested second.
+   */
   interface IHandMotion {
     wrist: IAutoMovieVector3;
     rotation: IAutoMovieQuaternion;
     digits: IAutoMovieMotionHumanPosture["joints"];
-    /** Absent through contact, when the fully anchored grip owns the arm. */
+    /*
+     * Absent through contact, when the fully anchored grip owns the arm.
+     */
     weight?: number;
   }
-  /** One phase evaluates its own transport, not the other phases. */
+  /*
+   * One phase evaluates its own transport, not the other phases.
+   */
   type HandAt = (seconds: number) => IHandMotion;
   const reaching: HandAt = (seconds: number): IHandMotion => ({
     wrist: out.wrist(seconds),
@@ -76,7 +84,9 @@ export function handshakePlayback(track: ITrack): IHandshakePlaybackResult {
       weight: Math.max(0, 1 - share),
     };
   };
-  /** Apply a phase on the actual base at the requested instant. */
+  /*
+   * Apply a phase on the actual base at the requested instant.
+   */
   const write =
     (read: HandAt): IAutoMovieMotionHumanActionPlan["posture"] =>
     (time, _channels, resolution, projection): IAutoMovieMotionHumanPosture => {
@@ -137,7 +147,9 @@ export function handshakePlayback(track: ITrack): IHandshakePlaybackResult {
     ],
   };
 }
-/** The physical clasp, its three transport windows and the base the hand rides. */
+/*
+ * The physical clasp, its three transport windows and the base the hand rides.
+ */
 interface ITrack {
   body: IAutoMovieMotionHumanBody;
   side: AutoMovieHumanSide;
@@ -158,7 +170,9 @@ interface ITrack {
   frequency: number;
 }
 
-/** The record of `IHandshakePlaybackResult`'s site. */
+/*
+ * The record of `IHandshakePlaybackResult`'s site.
+ */
 type IHandshakePlaybackResult = {
   posture: IAutoMovieMotionHumanActionPlan["posture"];
   phases: readonly IAutoMovieMotionHumanPlayback.IPhase[];

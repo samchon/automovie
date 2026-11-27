@@ -1,4 +1,4 @@
-/**
+/*
  * The beat id a shot id names: the text after a leading `shot:`, or the whole
  * id when it has no such prefix.
  *

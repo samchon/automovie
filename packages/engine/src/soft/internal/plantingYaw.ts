@@ -1,6 +1,6 @@
 import { IAutoMovieQuaternion } from "@automovie/interface";
 
-/**
+/*
  * Map a seeded sample to a rational-circle +Y turn, then normalized quaternion
  * interpolation toward identity by the admitted jitter fraction.
  */

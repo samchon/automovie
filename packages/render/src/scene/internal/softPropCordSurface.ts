@@ -6,7 +6,7 @@ import * as THREE from "three";
 
 import { isAutoMovieFloat32Point } from "../inspection/isAutoMovieFloat32Point.js";
 
-/**
+/*
  * Use a ring of the Three.js tube at each distinct adjoining particle. The
  * input is an unindexed one-wide surface in world metres.
  */
@@ -75,14 +75,20 @@ export function softPropCordSurface(
   }
 }
 
-/** A piecewise straight path with one uniformly indexed parameter per particle. */
+/*
+ * A piecewise straight path with one uniformly indexed parameter per particle.
+ */
 class ParticlePath extends THREE.Curve<THREE.Vector3> {
-  /** At least two points, with each consecutive pair distinct. */
+  /*
+   * At least two points, with each consecutive pair distinct.
+   */
   public constructor(private readonly points: readonly THREE.Vector3[]) {
     super();
   }
 
-  /** Interpolate between the adjacent particle indices around this parameter. */
+  /*
+   * Interpolate between the adjacent particle indices around this parameter.
+   */
   public override getPoint(
     t: number,
     target: THREE.Vector3 = new THREE.Vector3(),
@@ -96,7 +102,7 @@ class ParticlePath extends THREE.Curve<THREE.Vector3> {
     );
   }
 
-  /**
+  /*
    * Tube rings use the authored particle spacing in place of arc-length
    * spacing.
    */
@@ -104,7 +110,9 @@ class ParticlePath extends THREE.Curve<THREE.Vector3> {
     return this.getPoint(u, target);
   }
 
-  /** Use the outgoing segment at each SDK ring, with an incoming one at the end. */
+  /*
+   * Use the outgoing segment at each SDK ring, with an incoming one at the end.
+   */
   public override getTangentAt(
     u: number,
     target: THREE.Vector3 = new THREE.Vector3(),

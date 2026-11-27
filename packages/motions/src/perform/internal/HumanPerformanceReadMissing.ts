@@ -2,15 +2,14 @@ import type { IAutoMovieMotionHumanRefusal } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * The missing-performer or missing-prop refusal, listing the performance's own
  * performers or props as its alternatives.
- *
- * @param what Whether a performer or a prop is missing.
- * @param subject The missing subject.
- * @param known The subjects of that kind the performance has.
- * @param axis The refusal's axis; `what` when absent.
- * @returns The refusal.
+ * Parameter what: Whether a performer or a prop is missing.
+ * Parameter subject: The missing subject.
+ * Parameter known: The subjects of that kind the performance has.
+ * Parameter axis: The refusal's axis; `what` when absent.
+ * Returns: The refusal.
  */
 export function HumanPerformanceReadMissing(
   what: HumanPerformanceReadMissing.What,
@@ -28,8 +27,12 @@ export function HumanPerformanceReadMissing(
   });
 }
 
-/** Companion types of {@link HumanPerformanceReadMissing}. */
+/*
+ * Companion types of HumanPerformanceReadMissing.
+ */
 export namespace HumanPerformanceReadMissing {
-  /** The kinds of subject a performance read can miss. */
+  /*
+   * The kinds of subject a performance read can miss.
+   */
   export type What = "performer" | "prop";
 }

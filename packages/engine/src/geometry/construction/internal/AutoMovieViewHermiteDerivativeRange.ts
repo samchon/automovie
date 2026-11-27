@@ -2,7 +2,7 @@ import type { IAutoMovieViewHermite } from "@automovie/interface";
 
 import { adjacentAutoMovieFloat64 as adjacent } from "../../../math/internal/adjacentAutoMovieFloat64";
 
-/**
+/*
  * Enclose the existing Hermite reader's first derivative on its knot span.
  *
  * The immutable preparation is the existing owner's actual binary64 xs, first
@@ -27,10 +27,9 @@ import { adjacentAutoMovieFloat64 as adjacent } from "../../../math/internal/adj
  *
  * This is a sufficient enclosure, not exact extrema or universal finite-input
  * support. It changes no evaluator, parameter, coefficient or input array.
- *
- * @param curve Immutable preparation produced by the existing Hermite owner.
- * @returns Finite lower/upper derivative bounds, or a named
- *   invalid/unrepresentable-proof refusal.
+ * Parameter curve: Immutable preparation produced by the existing Hermite owner.
+ * Returns: Finite lower/upper derivative bounds, or a named
+ * invalid/unrepresentable-proof refusal.
  */
 export function AutoMovieViewHermiteDerivativeRange(
   curve: IAutoMovieViewHermite.ICurve,
@@ -123,27 +122,37 @@ export function AutoMovieViewHermiteDerivativeRange(
   }
 }
 
-/** A closed outward binary64 enclosure; every endpoint must remain finite. */
+/*
+ * A closed outward binary64 enclosure; every endpoint must remain finite.
+ */
 type Interval = readonly [number, number];
 
-/** Admit a stored scalar without rounding or changing its signed value. */
+/*
+ * Admit a stored scalar without rounding or changing its signed value.
+ */
 function point(value: number): Interval {
   return enclose(value, value);
 }
 
-/** A proof that reaches a nonfinite endpoint is unavailable, not unbounded. */
+/*
+ * A proof that reaches a nonfinite endpoint is unavailable, not unbounded.
+ */
 function enclose(lower: number, upper: number): Interval {
   if (!(lower <= upper))
     throw new Error("outward enclosure is not finitely representable");
   return [lower, upper];
 }
 
-/** Round each exact interval sum outward by the existing adjacent-number owner. */
+/*
+ * Round each exact interval sum outward by the existing adjacent-number owner.
+ */
 function add(a: Interval, b: Interval): Interval {
   return enclose(adjacent(a[0] + b[0], false), adjacent(a[1] + b[1], true));
 }
 
-/** All four products cover arbitrary coefficient signs before outward rounding. */
+/*
+ * All four products cover arbitrary coefficient signs before outward rounding.
+ */
 function multiply(a: Interval, b: Interval): Interval {
   const products: number[] = [
     a[0] * b[0],
@@ -157,7 +166,9 @@ function multiply(a: Interval, b: Interval): Interval {
   );
 }
 
-/** Every divisor is an actual positive span or a positive exact basis constant. */
+/*
+ * Every divisor is an actual positive span or a positive exact basis constant.
+ */
 function divide(a: Interval, positive: number): Interval {
   if (!(positive > 0))
     throw new Error("outward division needs a finite positive divisor");

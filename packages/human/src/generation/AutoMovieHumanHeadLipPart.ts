@@ -43,13 +43,13 @@ import { AutoMovieHumanHeadLipContact } from "./AutoMovieHumanHeadLipContact";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned view and its call-owned spline/axis closure survive.
  */
 export namespace AutoMovieHumanHeadLipPart {
-  /**
+  /*
    * Hidden depth inside the face, mm; the existing lip-root construction
    * allowance.
    */
   const INSET: number = 3;
 
-  /**
+  /*
    * Angular intervals in the pole parameter; the named peaks and centre are
    * included independently.
    */
@@ -116,7 +116,7 @@ export namespace AutoMovieHumanHeadLipPart {
         i === 0 || i === INTERVALS ? 0 : height * Math.sin(angle),
       ),
     );
-    /**
+    /*
      * The border height in the engine's two-pole parameter; endpoints are exact
      * shared corners.
      */
@@ -148,7 +148,9 @@ export namespace AutoMovieHumanHeadLipPart {
     const stations: number[] = [...sites.keys()].sort(
       (a: number, b: number): number => a - b,
     );
-    /** Supporting curve at every named section, handed unchanged to the engine. */
+    /*
+     * Supporting curve at every named section, handed unchanged to the engine.
+     */
     function outline(read: (s: number) => number): IAutoMovieViewPart.IOutline {
       return {
         knots: stations.map(
@@ -175,7 +177,9 @@ export namespace AutoMovieHumanHeadLipPart {
     let cachedStation: number | undefined;
     let cachedSection: IAutoMovieHumanHeadLipContact.ISection | undefined;
 
-    /** Retain just the last actual section for paired value/jet and polar reads. */
+    /*
+     * Retain just the last actual section for paired value/jet and polar reads.
+     */
     const section: (s: number) => IAutoMovieHumanHeadLipContact.ISection = (
       s: number,
     ): IAutoMovieHumanHeadLipContact.ISection => {

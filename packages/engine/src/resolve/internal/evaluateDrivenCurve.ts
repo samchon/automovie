@@ -3,7 +3,7 @@ import {
   IAutoMovieDrivenCurvePoint,
 } from "@automovie/interface";
 
-/**
+/*
  * Evaluate a nonlinear driven-key curve.
  *
  * The curve is validated here because it is authored data crossing the engine

@@ -18,7 +18,7 @@ import { AutoMovieSolidMeshLoop } from "../../AutoMovieSolidMeshLoop";
 import { AutoMovieSolidVector } from "../../AutoMovieSolidVector";
 import { domainAutoMovieSolidMesh } from "./domainAutoMovieSolidMesh";
 
-/**
+/*
  * Prepare a trimmed face's sampling grid without changing any mesh buffer.
  *
  * Surface jets are queried in station-major order and copied before the next
@@ -483,10 +483,12 @@ export function gridAutoMovieSolidMesh(
   };
 }
 
-/** Existing vector lengths and analytic chart-cross arithmetic. */
+/*
+ * Existing vector lengths and analytic chart-cross arithmetic.
+ */
 const { cross, norm, sub }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 
-/**
+/*
  * Share of the first-corner split's bend below which a full cell takes its
  * other diagonal (`bend`). A cell whose two splits bend alike, as the nearly
  * square cells over f1's upper lip do, keeps its first corner, so a face is cut
@@ -508,7 +510,7 @@ const { cross, norm, sub }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
  */
 const BEND: number = 0.9;
 
-/**
+/*
  * Relative difference under which a face's two diagonal families count as
  * equally long, and its undecided cells keep the first corner. Summing some
  * thousands of lengths carries a relative rounding near 1e-13, so 1e-9 stands
@@ -518,7 +520,7 @@ const BEND: number = 0.9;
  */
 const DIAGONAL_ROUNDING: number = 1e-9;
 
-/**
+/*
  * The angle between the unit normals of the two triangles a quadrilateral is
  * cut into along its diagonal `p`..`r`, radians, from `(p, q, r)` and `(p, r,
  * s)`; 0 for a planar or degenerate quadrilateral.
@@ -543,7 +545,7 @@ function bend(
   return Math.acos(Math.max(-1, Math.min(1, cosine)));
 }
 
-/**
+/*
  * Copy one coherent reading before a subsequent source call can reuse its
  * storage.
  */
@@ -579,7 +581,7 @@ function copy(
   };
 }
 
-/**
+/*
  * True cuts retain their conservative bound; exactly consumed domain sides do
  * not discard a source grid cell. `candidates` are the indices of the barriers
  * whose station range meets the cell's, in increasing order.
@@ -623,7 +625,9 @@ function touches(
   return false;
 }
 
-/** Locate the closed grid interval used for residual sampling-cell exclusion. */
+/*
+ * Locate the closed grid interval used for residual sampling-cell exclusion.
+ */
 function interval(
   values: readonly number[],
   value: number,

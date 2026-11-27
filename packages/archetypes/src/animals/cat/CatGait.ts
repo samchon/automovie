@@ -2,7 +2,7 @@ import { AutoMovieArchetypeEquineGait } from "../AutoMovieArchetypeEquineGait";
 import type { AutoMovieArchetypeQuadrupedGait } from "../AutoMovieArchetypeQuadrupedGait";
 import { CatBody } from "./CatBody";
 
-/**
+/*
  * The representative overground level walk of an adult domestic cat.
  *
  * Verdugo et al. 2013 (https://doi.org/10.1186/1746-6148-9-129), Table 3,
@@ -22,13 +22,17 @@ import { CatBody } from "./CatBody";
  * used without stature scaling.
  */
 export namespace CatGait {
-  /** Male mean forelimb cycle period in seconds, Verdugo et al., Table 3. */
+  /*
+   * Male mean forelimb cycle period in seconds, Verdugo et al., Table 3.
+   */
   const STRIDE: number = 0.8;
 
-  /** Mean ipsilateral hind-to-fore offset, Audet et al., overground trials. */
+  /*
+   * Mean ipsilateral hind-to-fore offset, Audet et al., overground trials.
+   */
   const FORE_LAG: number = 0.206;
 
-  /**
+  /*
    * Level walking at the measured mean speed in metres per second, with
    * separate diagonal touchdown phases and fore and hind support fractions.
    */

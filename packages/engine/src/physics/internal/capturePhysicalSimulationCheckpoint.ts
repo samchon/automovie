@@ -2,7 +2,7 @@ import type { IAutoMovieContactReceipt } from "@automovie/interface";
 
 import type { IAutoMoviePhysicalSimulationCheckpointCapture } from "../IAutoMoviePhysicalSimulationCheckpointCapture";
 
-/**
+/*
  * Keep, after one completed fixed step, everything a later edit resumes from
  * (`restorePhysicalSimulationCheckpoint` reads it back): the native world's
  * snapshot, the controller's contact and target state and the balance
@@ -13,10 +13,9 @@ import type { IAutoMoviePhysicalSimulationCheckpointCapture } from "../IAutoMovi
  * samples so far, so samples the episode gains later never reach a resumed run.
  * Plans, handoffs and recovery state are cloned, so later steps cannot change
  * them; the sets and lists are copied into new arrays.
- *
- * @param input The run's cache, written; its world and binding after the step;
- *   the open contact episodes by pair key and the softened tracking's end
- *   seconds by body/bone key, both read; and the completed step.
+ * Parameter input: The run's cache, written; its world and binding after the step;
+ * the open contact episodes by pair key and the softened tracking's end
+ * seconds by body/bone key, both read; and the completed step.
  */
 export function capturePhysicalSimulationCheckpoint(input: IAutoMoviePhysicalSimulationCheckpointCapture): void {
   const { cache, world, bound, active, softened, step } = input;

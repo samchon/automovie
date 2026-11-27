@@ -4,19 +4,18 @@ import { Vector3 } from "@automovie/engine";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { ObstacleDraw } from "./ObstacleDraw";
 
-/**
+/*
  * A filled sandbag with a low crossing surface and a grasp at each end.
  *
  * The laid bag's nominal section defines the crossing rise and depth; end
  * grasps keep their own centres. The object stands on Y = 0 and is approached
  * from +Z.
- *
- * @param params The scene identifier and any dimensions to fix inside their
- *   bands.
- * @param seed The seed for the draws the author leaves open.
- * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
- *   selected profile.
+ * Parameter params: The scene identifier and any dimensions to fix inside their
+ * bands.
+ * Parameter seed: The seed for the draws the author leaves open.
+ * Returns: The fixed model with its typed contacts.
+ * If a supplied override lies outside the
+ * selected profile.
  */
 export function createSandbag(
   params: AutoMovieArchetypeSandbag.IParams = {},

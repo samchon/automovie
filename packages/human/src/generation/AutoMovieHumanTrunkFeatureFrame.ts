@@ -129,12 +129,16 @@ export namespace AutoMovieHumanTrunkFeatureFrame {
     };
   }
 
-  /** Dot product. */
+  /*
+   * Dot product.
+   */
   function dot(a: readonly number[], b: readonly number[]): number {
     return a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
   }
 
-  /** Cross product. */
+  /*
+   * Cross product.
+   */
   function cross(
     a: AutoMovieVector3Tuple,
     b: AutoMovieVector3Tuple,
@@ -146,7 +150,9 @@ export namespace AutoMovieHumanTrunkFeatureFrame {
     ];
   }
 
-  /** Unit vector; the zero vector stays zero. */
+  /*
+   * Unit vector; the zero vector stays zero.
+   */
   function unit(a: readonly number[]): AutoMovieVector3Tuple {
     const n: number = Math.hypot(a[0]!, a[1]!, a[2]!) || 1;
 

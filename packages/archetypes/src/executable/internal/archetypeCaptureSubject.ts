@@ -3,18 +3,17 @@ import type { IAutoMovieTransform } from "@automovie/interface";
 import type { AutoMovieArchetype, AutoMovieArchetypeRide } from "../../core";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 
-/**
+/*
  * How the capture catalog makes a subject: a still one from named archetypes,
  * the named archetypes of every kind of a producer, and a moving one from a
  * ride.
  */
 export namespace archetypeCaptureSubject {
-  /**
+  /*
    * A still subject: each archetype as a member under its name, the same at
    * every second.
-   *
-   * @param members The archetypes by name.
-   * @returns The subject.
+   * Parameter members: The archetypes by name.
+   * Returns: The subject.
    */
   export function still(
     members: Record<string, AutoMovieArchetype>,
@@ -33,13 +32,12 @@ export namespace archetypeCaptureSubject {
     };
   }
 
-  /**
+  /*
    * Every kind of a producer, each named by a prefix and its kind.
-   *
-   * @param prefix The name's first part.
-   * @param list The kinds.
-   * @param create The producer for one kind.
-   * @returns The archetypes by `prefix-kind`.
+   * Parameter prefix: The name's first part.
+   * Parameter list: The kinds.
+   * Parameter create: The producer for one kind.
+   * Returns: The archetypes by `prefix-kind`.
    */
   export function kinds<Kind extends string>(
     prefix: string,
@@ -54,15 +52,14 @@ export namespace archetypeCaptureSubject {
     );
   }
 
-  /**
+  /*
    * A moving subject: one member sampled from a ride, with the ride's running
    * time and instants.
-   *
-   * @param name The member's name.
-   * @param ride The ride.
-   * @param reference Immutable neutral model for independent quadruped rig
-   *   marks; optional for unrelated rides.
-   * @returns The subject.
+   * Parameter name: The member's name.
+   * Parameter ride: The ride.
+   * Parameter reference: Immutable neutral model for independent quadruped rig
+   * marks; optional for unrelated rides.
+   * Returns: The subject.
    */
   export function moving<Id extends string, Dimension extends string>(
     name: string,

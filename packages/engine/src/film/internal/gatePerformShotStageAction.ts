@@ -15,7 +15,7 @@ import { POSITIONAL_TARGET_SHAPE } from "../../perform/POSITIONAL_TARGET_SHAPE";
 import { describeInvalidValue } from "../../validation/internal/describeInvalidValue";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 
-/**
+/*
  * Gate the verb-specific fields of one non-`frame` action, and record the
  * `launch` and `attachTo` jobs that pass.
  *
@@ -46,12 +46,11 @@ import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
  * An unbendable arm is refused here because the synthesizer answers such a verb
  * with `null` and the builder skips a `null` clip, so the shot would otherwise
  * succeed having performed nothing.
- *
- * @param context The shot's staged tables and collector.
- * @param plan The plan being built; passing launches and attachments join it.
- * @param action The non-`frame` action.
- * @param actors The actor ids the action names.
- * @param index Position of the action in the performing action list.
+ * Parameter context: The shot's staged tables and collector.
+ * Parameter plan: The plan being built; passing launches and attachments join it.
+ * Parameter action: The non-`frame` action.
+ * Parameter actors: The actor ids the action names.
+ * Parameter index: Position of the action in the performing action list.
  */
 export function gatePerformShotStageAction(
   context: IAutoMovieEnginePerformShotGateContext,
@@ -324,7 +323,9 @@ export function gatePerformShotStageAction(
   }
 }
 
-/** Refuse an arm verb asked of a rig whose elbow cannot bend that arm. */
+/*
+ * Refuse an arm verb asked of a rig whose elbow cannot bend that arm.
+ */
 function refuseUnbendableArm(
   context: IAutoMovieEnginePerformShotGateContext,
   side: "left" | "right",

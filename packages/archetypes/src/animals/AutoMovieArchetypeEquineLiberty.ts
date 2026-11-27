@@ -145,15 +145,21 @@ export namespace AutoMovieArchetypeEquineLiberty {
   }
 }
 
-/** A rest clip, sternal or lateral. */
+/*
+ * A rest clip, sternal or lateral.
+ */
 type Clip<Id extends string, D extends string> =
   | AutoMovieArchetypeQuadrupedRestPlan.IClip<Id, D>
   | AutoMovieArchetypeQuadrupedLateralRestPlan.IClip<Id, D>;
 
-/** A rest clip's sample. */
+/*
+ * A rest clip's sample.
+ */
 type Shown<Id extends string, D extends string> =
   | AutoMovieArchetypeQuadrupedRestPlan.ISample<Id, D>
   | AutoMovieArchetypeQuadrupedLateralRestPlan.ISample<Id, D>;
 
-/** A named instant of a ride. */
+/*
+ * A named instant of a ride.
+ */
 type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

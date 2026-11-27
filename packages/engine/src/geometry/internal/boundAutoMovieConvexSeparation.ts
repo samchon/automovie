@@ -8,7 +8,7 @@ import { closestPointsBetweenSegments } from "../../math/internal/closestPointsB
 import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSeparation";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
-/**
+/*
  * A conservative separation of the convex hulls of nonempty finite XYZ vertex
  * runs. Points, closed segments, filled triangles and convex cells are
  * measured, including degenerate hulls. Coordinates are represented binary64
@@ -113,7 +113,9 @@ export function boundAutoMovieConvexSeparation(
   return best;
 }
 
-/** A vector divided componentwise by a positive scalar. */
+/*
+ * A vector divided componentwise by a positive scalar.
+ */
 const divideVector = (
   vector: IAutoMovieVector3,
   scale: number,
@@ -123,7 +125,7 @@ const divideVector = (
   z: vector.z / scale,
 });
 
-/**
+/*
  * Every vertex pair `(i, j)` with `i < j` of a run of `count` vertices, in
  * nested-loop order; a one-vertex run is its own zero-length pair `(0, 0)`.
  */

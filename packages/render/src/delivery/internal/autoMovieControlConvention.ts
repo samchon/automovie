@@ -7,7 +7,7 @@ import type {
 import { DEPTH_NORMALIZATION_RANGE } from "../../scene/DEPTH_NORMALIZATION_RANGE.js";
 import { EDGE_WIDTH } from "../../scene/EDGE_WIDTH.js";
 
-/**
+/*
  * The pixel convention a control channel was drawn with, as the draw page draws
  * it.
  *

@@ -2,15 +2,14 @@ import type { IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
 
 import type { staggerRecover } from "./staggerRecover";
 
-/**
+/*
  * The feet's contact windows of a stagger: each foot is planted on the ground
  * from the action's start, or from its last landing, until its next recovery
  * step starts, and from its last landing to the end.
- *
- * @param recovery The recovery, whose steps name each swing's foot, start and
- *   landing in seconds since the push.
- * @param duration The action's duration, seconds.
- * @returns The plant windows, as shares of the duration, the left foot's first.
+ * Parameter recovery: The recovery, whose steps name each swing's foot, start and
+ * landing in seconds since the push.
+ * Parameter duration: The action's duration, seconds.
+ * Returns: The plant windows, as shares of the duration, the left foot's first.
  */
 export function staggerContacts(
   recovery: staggerRecover.IRecovery,

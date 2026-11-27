@@ -6,12 +6,11 @@ import type {
 
 import { toolCaseContact } from "./toolCaseContact";
 
-/**
+/*
  * A pot standing on a counter: a 0.24 m wide, 0.2 m deep vessel whose `inside`
  * floor and `rim` are the contacts `createVessel` declares.
- *
- * @param at Where its base stands, world metres.
- * @returns The pot.
+ * Parameter at: Where its base stands, world metres.
+ * Returns: The pot.
  */
 export function toolCasePot(at: IAutoMovieVector3): IAutoMovieMotionHumanProp {
   const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

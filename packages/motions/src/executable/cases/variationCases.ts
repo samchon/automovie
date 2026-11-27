@@ -28,7 +28,7 @@ import { MotionPlaceVerdicts } from "./MotionPlaceVerdicts";
 import { VariationSeries } from "./VariationSeries";
 import { VariationStrikes } from "./VariationStrikes";
 
-/**
+/*
  * Capture cases of the seeded variation of symbolic slots on the polygon men,
  * one per body of `MotionBodies.SWEEP` (`variation-<body>`).
  *
@@ -59,10 +59,9 @@ import { VariationStrikes } from "./VariationStrikes";
  * The partner is the average man, except that the tall man and the small woman
  * face each other. The case draws the proficiency 0 wave at its first strokes
  * and marks every repeat's hand, orange at proficiency 0 and blue at 1.
- *
- * @param only Keeps the cases whose name it accepts, the others not being
- *   built; every case when absent.
- * @returns The cases, each built as it is read.
+ * Parameter only: Keeps the cases whose name it accepts, the others not being
+ * built; every case when absent.
+ * Returns: The cases, each built as it is read.
  */
 export function* variationCases(
   only?: (name: string) => boolean,
@@ -77,53 +76,77 @@ export function* variationCases(
     }
   }
 }
-/**
- * Companion constants of {@link variationCases}: the reach's verdict bound, a
+/*
+ * Companion constants of variationCases: the reach's verdict bound, a
  * provisional value of the variation's acceptance.
  */
 export namespace variationCases {
-  /** The least distance between the two farthest reaches, arm lengths. */
+  /*
+   * The least distance between the two farthest reaches, arm lengths.
+   */
   export const VISIBLE: number = 0.1;
 }
 
-/** One repeat of a gesture, read from the displayed pose. */
+/*
+ * One repeat of a gesture, read from the displayed pose.
+ */
 interface IRepeat {
-  /** The palm at the stroke's middle, from the root on the floor, world metres. */
+  /*
+   * The palm at the stroke's middle, from the root on the floor, world metres.
+   */
   hand: IAutoMovieVector3;
 
-  /** Whether the hand reads back as the names the law states. */
+  /*
+   * Whether the hand reads back as the names the law states.
+   */
   placed: IMotionCaptureCase.IVerdict;
 
-  /** Seconds from the action's start to the stroke's start. */
+  /*
+   * Seconds from the action's start to the stroke's start.
+   */
   prepare: number;
 
-  /** The stroke's length, seconds. */
+  /*
+   * The stroke's length, seconds.
+   */
   stroke: number;
 }
-/** The alternatives of `PLACESEntryItem`'s site. */
+/*
+ * The alternatives of `PLACESEntryItem`'s site.
+ */
 type PLACESEntryItem = "wave" | "stopPalm";
 
-/** The names `wave` and `stopPalm` state. */
+/*
+ * The names `wave` and `stopPalm` state.
+ */
 const PLACES: Readonly<
   Record<PLACESEntryItem, IAutoMovieMotionHumanTargetGrid.IGrid>
 > = {
   wave: { height: "eye", lateral: "outside", distance: "near" },
   stopPalm: { height: "shoulder", lateral: "inside", distance: "far" },
 };
-/** The record of `IBuildStartsRun`'s site. */
+/*
+ * The record of `IBuildStartsRun`'s site.
+ */
 type IBuildStartsRun = { repeats: IRepeat[] };
 
-/** The record of `IBuildHandsRun`'s site. */
+/*
+ * The record of `IBuildHandsRun`'s site.
+ */
 type IBuildHandsRun = { repeats: IRepeat[] };
 
-/** The record of `IBuildTargetsItem`'s site. */
+/*
+ * The record of `IBuildTargetsItem`'s site.
+ */
 type IBuildTargetsItem = {
   at: IAutoMovieVector3;
   radius: number;
   color: number;
 };
 
-/** Build one body's case. */
+/*
+ * Build one body's case.
+ */
 function build(name: string, who: string): IMotionCaptureCase {
   const man: humanPolygonMan.IPolygonMan = MotionBodies.population(who);
   const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
@@ -254,20 +277,28 @@ function build(name: string, who: string): IMotionCaptureCase {
     metrics,
   };
 }
-/** The record of `IGesturesResult`'s site. */
+/*
+ * The record of `IGesturesResult`'s site.
+ */
 type IGesturesResult = {
   performance: IAutoMovieMotionHumanPerformance;
   repeats: IRepeat[];
   middles: number[];
 };
 
-/** The record of `IGesturesManner`'s site. */
+/*
+ * The record of `IGesturesManner`'s site.
+ */
 type IGesturesManner = { variation: number; consistency: number };
 
-/** The alternatives of `GesturesKind`'s site. */
+/*
+ * The alternatives of `GesturesKind`'s site.
+ */
 type GesturesKind = "wave" | "stopPalm";
 
-/** The repeats of one gesture in a row, read at each stroke's middle. */
+/*
+ * The repeats of one gesture in a row, read at each stroke's middle.
+ */
 function gestures(
   body: IAutoMovieMotionHumanBody,
   kind: GesturesKind,
@@ -328,7 +359,7 @@ function gestures(
   return { performance, repeats, middles };
 }
 
-/**
+/*
  * One repeat of a reach to `ahead` on a body standing at the origin: the
  * owner's place for the right hand arriving from where it hangs.
  */

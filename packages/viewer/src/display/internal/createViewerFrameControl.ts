@@ -2,7 +2,7 @@ import { AutoMovieSceneRenderMode } from "@automovie/render";
 import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
 import { createViewerCameraState } from "./createViewerCameraState.js";
 
-/**
+/*
  * Own a mounted frame's camera/time controller and nested playback freezes.
  * Normal ticks run only outside a freeze; explicit redraw and restoration still
  * use the original producer. A producer-owned clock or audio supplies its own

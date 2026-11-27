@@ -5,7 +5,9 @@ import {
 
 import { AutoMovieEngineSpace } from "../AutoMovieEngineSpace";
 
-/** Project a surface's outer ring and optional holes into one footprint record. */
+/*
+ * Project a surface's outer ring and optional holes into one footprint record.
+ */
 export const surfaceFootprint: (
   surface: IAutoMovieSurface,
 ) => IAutoMovieFootprint = (

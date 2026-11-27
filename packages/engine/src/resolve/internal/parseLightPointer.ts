@@ -3,7 +3,7 @@ import type { IAutoMovieLightPointer } from "@automovie/interface";
 import { formatLightPointer } from "./formatLightPointer";
 import { isLightProperty } from "./isLightProperty";
 
-/**
+/*
  * Parse canonical /lights/<id>/<property> addresses, returning null for wrong
  * shape, unsupported property, empty id or invalid/noncanonical RFC-6901
  * escaping. Light ids are stable scene identifiers; actual target existence is
@@ -23,7 +23,9 @@ export function parseLightPointer(
   return { light, property };
 }
 
-/** RFC-6901: `~1` becomes `/` and `~0` becomes `~`, in that order. */
+/*
+ * RFC-6901: `~1` becomes `/` and `~0` becomes `~`, in that order.
+ */
 const unescapePointerSegment: (segment: string) => string = (
   segment: string,
 ): string => segment.replaceAll("~1", "/").replaceAll("~0", "~");

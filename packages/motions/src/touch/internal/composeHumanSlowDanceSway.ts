@@ -6,7 +6,7 @@ import type {
 import { shiftStandingWeight } from "../../everyday/internal/shiftStandingWeight";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Stage a slow dance's sway on planted feet: the weight goes over one foot and
  * back, then over the other and back, `count` times, each half of a sway a beat
  * long, as a couple in a slow dance hold sways to the music. Each shift is
@@ -14,11 +14,10 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * with its return, so the law's own plant and balance checks stand. A partner
  * resting a cheek on this performer's (`headRest`) follows the sway by its felt
  * correction.
- *
- * @param chain The swaying performer's chain.
- * @param params How far the pelvis goes, the beat and how many sways.
- * @returns The same kind of chain with the shifts appended.
- * @throws {HumanRefusal} When the count is not a whole number of one or more.
+ * Parameter chain: The swaying performer's chain.
+ * Parameter params: How far the pelvis goes, the beat and how many sways.
+ * Returns: The same kind of chain with the shifts appended.
+ * When the count is not a whole number of one or more.
  */
 export function composeHumanSlowDanceSway<
   Chain extends IAutoMovieMotionHumanChainCore,

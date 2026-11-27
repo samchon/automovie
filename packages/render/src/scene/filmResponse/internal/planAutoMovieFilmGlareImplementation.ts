@@ -1,7 +1,7 @@
 import { AUTOMOVIE_FILM_GLARE_KERNELS } from "@automovie/engine";
 import type { IAutoMovieFilmGlareKernel } from "../../IAutoMovieFilmGlareKernel.js";
 
-/**
+/*
  * Plan how the final pass blurs a linear frame `height` pixels tall by each
  * glare kernel: the pyramid level it is blurred at and the separable taps it
  * uses there.

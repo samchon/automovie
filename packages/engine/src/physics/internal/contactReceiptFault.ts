@@ -3,14 +3,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Find the first causal fault in a contact receipt, or return null for admitted
  * data. Times are finite, nonnegative film seconds. Samples must occur within
  * their episode, in nondecreasing order. The reader owns its archive bounds,
  * additional identity constraints and diagnostic text.
- *
- * @param receipt Episode with its world-space measurements and completed steps.
- * @returns The first failing contact requirement, or null when all pass.
+ * Parameter receipt: Episode with its world-space measurements and completed steps.
+ * Returns: The first failing contact requirement, or null when all pass.
  */
 export function contactReceiptFault(
   receipt: IAutoMovieContactReceipt,
@@ -67,7 +66,9 @@ export function contactReceiptFault(
   return null;
 }
 
-/** First intrinsic failure in the identity, episode, authority or sample data. */
+/*
+ * First intrinsic failure in the identity, episode, authority or sample data.
+ */
 type ContactReceiptFault =
   | "identity"
   | "episode"
@@ -76,10 +77,14 @@ type ContactReceiptFault =
   | "solver-impulse"
   | "sample";
 
-/** Unit-normal tolerance shared by the live solver and archive readers. */
+/*
+ * Unit-normal tolerance shared by the live solver and archive readers.
+ */
 const NORMAL_TOLERANCE: number = 1e-5;
 
-/** A collider side names its body, segment, shape and material. */
+/*
+ * A collider side names its body, segment, shape and material.
+ */
 function contactSideNamed(side: IAutoMovieContactReceipt["a"]): boolean {
   return (
     side.body.trim().length > 0 &&
@@ -89,7 +94,9 @@ function contactSideNamed(side: IAutoMovieContactReceipt["a"]): boolean {
   );
 }
 
-/** A contact uses a finite world point and unit normal with signed separation. */
+/*
+ * A contact uses a finite world point and unit normal with signed separation.
+ */
 function contactGeometryValid(
   point: IAutoMovieVector3,
   normal: IAutoMovieVector3,
@@ -108,7 +115,9 @@ function contactGeometryValid(
   );
 }
 
-/** A magnitude is a representable scalar at or above zero. */
+/*
+ * A magnitude is a representable scalar at or above zero.
+ */
 function isNonnegativeFinite(value: number): boolean {
   return Number.isFinite(value) && value >= 0;
 }

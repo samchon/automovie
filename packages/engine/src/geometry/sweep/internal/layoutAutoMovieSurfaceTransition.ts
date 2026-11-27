@@ -1,6 +1,6 @@
 import type { IAutoMovieSurfaceCoordinate } from "@automovie/interface";
 
-/**
+/*
  * Lay out the quads of a band that changes a sweep's column count, in the
  * band's own coordinates: `s` round the band from 0 to 1, `t` from the start
  * ring at 0 to the end ring at 1.
@@ -33,14 +33,13 @@ import type { IAutoMovieSurfaceCoordinate } from "@automovie/interface";
  *   second coarse column. A 2-to-1 band has no straight columns and so no
  *   shear; any other ratio shears its straight columns, the price of even
  *   rings. Equal counts give a plain grid.
- *
- * @param start Columns at `t` 0, a positive integer.
- * @param end Columns at `t` 1, a positive integer.
- * @param rows Rows across the band, a positive integer.
- * @returns Quads as four corners in patch coordinates, counterclockwise with
- *   `s` right and `t` up.
- * @throws Error when a count is not a positive integer, the column counts
- *   differ by an odd number, or the finer is more than twice the coarser.
+ * Parameter start: Columns at `t` 0, a positive integer.
+ * Parameter end: Columns at `t` 1, a positive integer.
+ * Parameter rows: Rows across the band, a positive integer.
+ * Returns: Quads as four corners in patch coordinates, counterclockwise with
+ * `s` right and `t` up.
+ * Error when a count is not a positive integer, the column counts
+ * differ by an odd number, or the finer is more than twice the coarser.
  */
 export const layoutAutoMovieSurfaceTransition: (
   start: number,
@@ -159,5 +158,7 @@ export const layoutAutoMovieSurfaceTransition: (
   return quads;
 };
 
-/** A corner of a band quad in the band's own coordinates. */
+/*
+ * A corner of a band quad in the band's own coordinates.
+ */
 type ICorner = Pick<IAutoMovieSurfaceCoordinate, "s" | "t">;

@@ -8,15 +8,14 @@ import type {
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import type { walkFoot } from "./walkFoot";
 
-/**
+/*
  * The stationary sole point a swing departs from (`walkFoot.prepareSwing`): the
  * lowest of the heel, ball and toe sockets in the swing's authored release
  * posture, the heel when they tie.
- *
- * @param body The body.
- * @param side The swinging foot.
- * @param from The foot's stance at release.
- * @returns The lowest socket and its world point, metres.
+ * Parameter body: The body.
+ * Parameter side: The swinging foot.
+ * Parameter from: The foot's stance at release.
+ * Returns: The lowest socket and its world point, metres.
  */
 export function walkFootTakeoff(
   body: IAutoMovieMotionHumanBody,
@@ -43,14 +42,22 @@ export function walkFootTakeoff(
   return anchor;
 }
 
-/** The departure a swing reads. */
+/*
+ * The departure a swing reads.
+ */
 export namespace walkFootTakeoff {
-  /** The actual lowest authored sole socket and its starting position. */
+  /*
+   * The actual lowest authored sole socket and its starting position.
+   */
   export interface IDeparture {
-    /** The socket. */
+    /*
+     * The socket.
+     */
     socket: IAutoMovieMotionHumanFoot.Socket;
 
-    /** Its world point at release, metres. */
+    /*
+     * Its world point at release, metres.
+     */
     point: IAutoMovieVector3;
   }
 }

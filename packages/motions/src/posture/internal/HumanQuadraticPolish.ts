@@ -4,22 +4,21 @@ import { HumanQuadraticRow } from "./HumanQuadraticRow";
 import { HumanQuadraticSubstitute } from "./HumanQuadraticSubstitute";
 import { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace";
 
-/**
+/*
  * The solution polished on its active set (section 4): the rows held on a bound
  * (a hard row whose value and multiplier say so, a soft row resting on its
  * bound with its multiplier below its weight) as equalities, a soft row past
  * its bound with its multiplier fixed at its weight, every other row free; the
  * KKT system of those rows, regularised by `δ`, solved in its banded reduced
  * form and refined `refine` times toward the system without it.
- *
- * @param s The scaled problem.
- * @param z The scaled row values.
- * @param y The scaled multipliers.
- * @param delta The regularisation.
- * @param refine The refinement steps.
- * @param work Disposable ADMM buffers after that phase has ended.
- * @returns Scaled candidate iterates and borrowed products for immediate
- *   residual admission before x, y or A changes.
+ * Parameter s: The scaled problem.
+ * Parameter z: The scaled row values.
+ * Parameter y: The scaled multipliers.
+ * Parameter delta: The regularisation.
+ * Parameter refine: The refinement steps.
+ * Parameter work: Disposable ADMM buffers after that phase has ended.
+ * Returns: Scaled candidate iterates and borrowed products for immediate
+ * residual admission before x, y or A changes.
  */
 export function HumanQuadraticPolish(
   s: B.IScaled,
@@ -90,7 +89,9 @@ export function HumanQuadraticPolish(
     }
   }
 
-  /** Keep the original subtraction order in both fixed-row right-hand sides. */
+  /*
+   * Keep the original subtraction order in both fixed-row right-hand sides.
+   */
   const subtract: (out: Float64Array, r: number, multiplier: number) => void = (
     out: Float64Array,
     r: number,
@@ -193,10 +194,14 @@ export function HumanQuadraticPolish(
   return { x: xs, z: zs, y: fixed, products: work };
 }
 
-/** The record of `IHumanQuadraticPolishSelection`'s site. */
+/*
+ * The record of `IHumanQuadraticPolishSelection`'s site.
+ */
 type IHumanQuadraticPolishSelection = { rows: number[]; bounds: number[] };
 
-/** The record of `IHumanQuadraticPolishResult`'s site. */
+/*
+ * The record of `IHumanQuadraticPolishResult`'s site.
+ */
 type IHumanQuadraticPolishResult = {
   x: Float64Array;
   z: Float64Array;
@@ -204,5 +209,7 @@ type IHumanQuadraticPolishResult = {
   products: Pick<Work.IWork, HumanQuadraticPolishProductsResult>;
 };
 
-/** The alternatives of `HumanQuadraticPolishProductsResult`'s site. */
+/*
+ * The alternatives of `HumanQuadraticPolishProductsResult`'s site.
+ */
 type HumanQuadraticPolishProductsResult = "rows" | "transpose";

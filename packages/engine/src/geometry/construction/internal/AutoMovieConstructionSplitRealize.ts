@@ -27,7 +27,7 @@ import { AutoMovieLoftFrame } from "../../AutoMovieLoftFrame";
 import { AutoMovieSolidMesh } from "../../AutoMovieSolidMesh";
 import { AutoMovieSolidVector } from "../../AutoMovieSolidVector";
 
-/**
+/*
  * Realize a split (`IAutoMovieConstructionSplit`): the host's open end divided
  * by the seam chord into both children's loops, each spanned to its child's
  * rail by a band (`AutoMovieConstructionSplitBand`), all sharing their boundary
@@ -88,7 +88,9 @@ export function AutoMovieConstructionSplitRealize(
   const snapshot: IAutoMovieConstructionState.ISnapshot =
     AutoMovieConstructionState.snap(body, state);
 
-  /** Keep the diagnostic while discarding every post-checkpoint effect. */
+  /*
+   * Keep the diagnostic while discarding every post-checkpoint effect.
+   */
   const fail: (detail: string) => void = (detail: string): void => {
     report(node.name, "split", detail);
     AutoMovieConstructionState.restore(body, state, snapshot);
@@ -451,10 +453,12 @@ export function AutoMovieConstructionSplitRealize(
   }
 }
 
-/** World vector, mm. */
+/*
+ * World vector, mm.
+ */
 type Vec3 = AutoMovieVector3Tuple;
 
-/**
+/*
  * Realize a split into more than two (`IAutoMovieConstructionSplit.outer`): the
  * host's open end divided by its nested seams into the children's loops, each
  * spanned to its child's rail by a band (`AutoMovieConstructionSplitBand.fan`),
@@ -1099,7 +1103,7 @@ function fan(
   }
 }
 
-/**
+/*
  * The grid stations of a band of a split into more than two: from the loop,
  * rows as tall as the loop's columns are apart on average, each half again as
  * tall as the one before until it reaches the declared `length / rows`, then
@@ -1132,52 +1136,70 @@ function graded(length: number, rows: number, loop: readonly Vec3[]): number[] {
     k === stations.length - 1 ? length : s * scale,
   );
 }
-/**
+/*
  * One child's face as the split admits it: realized after the checkpoint, its
  * facing side uncut.
  */
 interface IFace {
-  /** The face's index in the body. */
+  /*
+   * The face's index in the body.
+   */
   index: number;
 
-  /** The face's chain. */
+  /*
+   * The face's chain.
+   */
   chain: IAutoMovieLoftChain;
 
-  /** The face's surface. */
+  /*
+   * The face's surface.
+   */
   surface: IAutoMovieSolidSurface;
 
-  /** The station's sign into the child's kept side. */
+  /*
+   * The station's sign into the child's kept side.
+   */
   into: 1 | -1;
 
-  /** The cycle kind its rail takes. */
+  /*
+   * The cycle kind its rail takes.
+   */
   kind: "start" | "end";
 
-  /** The surface's station domain, mm. */
+  /*
+   * The surface's station domain, mm.
+   */
   domain: [number, number];
 
-  /**
+  /*
    * The child as a cut reads it, or null when its facing end section has no
    * frame.
    */
   read: IAutoMovieConstructionSplitCompose.IChild | null;
 }
 
-/**
+/*
  * A child's rail: its one station, or the curve of its declared or derived cut
  * (`IAutoMovieConstructionSplit.ICut`, `ICompose`).
  */
 interface IRail {
-  /** The one station, or with a cut the middle of the stations it spans, mm. */
+  /*
+   * The one station, or with a cut the middle of the stations it spans, mm.
+   */
   station: number;
 
-  /** The rail's station at a child phase, mm. */
+  /*
+   * The rail's station at a child phase, mm.
+   */
   at: (psi: number) => number;
 
-  /** The cut, when the rail is a curve. */
+  /*
+   * The cut, when the rail is a curve.
+   */
   cut?: IAutoMovieConstructionSkinCut.ICut;
 }
 
-/**
+/*
  * Walk every child and admit its face: realized after the checkpoint and not
  * already cut on the side that faces the host. Returns the faces in the
  * children's order, or the refusal.
@@ -1241,7 +1263,7 @@ function admit(
   return out;
 }
 
-/**
+/*
  * A child's rail from its declaration: its own cut, else the composed end's,
  * else its one station; or the refusal.
  */
@@ -1284,7 +1306,7 @@ function railOf(
   };
 }
 
-/**
+/*
  * A composed end's derived members (`AutoMovieConstructionSplitCompose.derive`)
  * from the admitted faces, or the refusal.
  */
@@ -1311,7 +1333,7 @@ function compose(
   });
 }
 
-/**
+/*
  * The exact readers of a carried band's child seam
  * (`IAutoMovieSolidCycle.IExact`): the band's end cycle maps a point past its
  * end to the child's rail at its clock's correspondence, and the child's rail
@@ -1347,13 +1369,13 @@ function ends(
   };
 }
 
-/**
+/*
  * A point of a band's loop with its first and second derivatives in the band's
  * clock.
  */
 type Loop = (clock: number) => { p: Vec3; d1: Vec3; d2: Vec3 };
 
-/**
+/*
  * The host's end ring at a phase that runs at `rate` radians per radian of
  * clock, as a loop point.
  */
@@ -1371,7 +1393,7 @@ function onRing(
   };
 }
 
-/**
+/*
  * A seam at an arclength share that runs at `rate` shares per radian of clock,
  * as a loop point.
  */
@@ -1389,7 +1411,7 @@ function onSeam(
   };
 }
 
-/**
+/*
  * The loop of a band of a split into more than two as one curve of its clock,
  * by the law its columns are placed with
  * (`AutoMovieConstructionSplitBand.fan`): on an arc the host's ring at a phase
@@ -1427,7 +1449,7 @@ function fanLoop(
   };
 }
 
-/**
+/*
  * The loop of a band of a split in two as one curve of its clock, by the law
  * its columns are placed with (`AutoMovieConstructionSplitBand.create`): over
  * the first half turn the host's arc at a phase linear in the clock, over the
@@ -1464,12 +1486,16 @@ function chordLoop(
   };
 }
 
-/** A real pole cannot be split. */
+/*
+ * A real pole cannot be split.
+ */
 function closed(chain: IAutoMovieLoftChain, side: "bottom" | "top"): boolean {
   return chain.pole?.end === side || chain.opposite?.end === side;
 }
 
-/** A trimmed or shared end has consumed that boundary. */
+/*
+ * A trimmed or shared end has consumed that boundary.
+ */
 function cut(
   body: IAutoMovieSolidBody.IBody,
   index: number,
@@ -1480,7 +1506,9 @@ function cut(
   );
 }
 
-/** The principal end station, mm. */
+/*
+ * The principal end station, mm.
+ */
 function end(chain: IAutoMovieLoftChain, side: "bottom" | "top"): number {
   return chain.layers[side === "bottom" ? 0 : chain.layers.length - 1]!.y;
 }

@@ -4,7 +4,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** A share of the shortest turn taking one direction onto another. */
+/*
+ * A share of the shortest turn taking one direction onto another.
+ */
 export function HumanMountPushTurned(
   from: IAutoMovieVector3,
   to: IAutoMovieVector3,

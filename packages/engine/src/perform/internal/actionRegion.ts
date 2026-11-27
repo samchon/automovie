@@ -4,7 +4,7 @@ import {
   IAutoMovieActionCall,
 } from "@automovie/interface";
 
-/**
+/*
  * Resolve an action's explicit body region, else its gesture-kind default, verb
  * default, or fullBody. Head-only and whole-body gesture defaults match the
  * actual reference gesture channels; explicit overrides remain authoritative.
@@ -20,7 +20,9 @@ export function actionRegion(
   );
 }
 
-/** The body region a verb drives by default, when an action sets none. */
+/*
+ * The body region a verb drives by default, when an action sets none.
+ */
 const REGION_BY_VERB: Partial<
   Record<IAutoMovieActionCall["verb"], AutoMovieBodyRegion>
 > = {
@@ -31,8 +33,8 @@ const REGION_BY_VERB: Partial<
   emote: "face",
 };
 
-/**
- * Per-kind gesture defaults, matching what {@link gestureMotion} actually
+/*
+ * Per-kind gesture defaults, matching what gestureMotion actually
  * authors: `nod`/`shake` drive only head joints, and the whole-body kinds
  * (trunk+legs, or the jump's ballistic root) span regions, so the generic
  * `upperBody` verb default would silently strip their content in

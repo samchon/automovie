@@ -9,7 +9,7 @@ import type {
 
 import { StrikingBody } from "./StrikingBody";
 
-/**
+/*
  * How a punch technique meets its target: the unit direction the striking
  * surface travels at contact, the hand's world rotation and the surface's
  * offset from the wrist in world metres.
@@ -27,15 +27,14 @@ import { StrikingBody } from "./StrikingBody";
  * - `hammerfist` brings the fist's little-finger edge down, the fist upright with
  *   the palm in; the edge is read halfway from the wrist to the little finger's
  *   knuckle on the rest skeleton, inside the hand by its soft tissue.
- *
- * @param body The body.
- * @param side The striking hand.
- * @param technique The technique.
- * @param line The horizontal unit line to the target.
- * @param outward The horizontal unit direction away from the body on the
- *   striking hand's side.
- * @param straight The unit direction from the shoulder to the target.
- * @returns The surface at contact.
+ * Parameter body: The body.
+ * Parameter side: The striking hand.
+ * Parameter technique: The technique.
+ * Parameter line: The horizontal unit line to the target.
+ * Parameter outward: The horizontal unit direction away from the body on the
+ * striking hand's side.
+ * Parameter straight: The unit direction from the shoulder to the target.
+ * Returns: The surface at contact.
  */
 export function punchSurface(
   body: IAutoMovieMotionHumanBody,
@@ -138,19 +137,20 @@ export function punchSurface(
   }
 }
 
-/** Companion types of {@link punchSurface}. */
+/*
+ * Companion types of punchSurface.
+ */
 export namespace punchSurface {
-  /**
+  /*
    * The direction a punch's striking surface drives: along the straight line
    * for the straight, vertical-fist and palm-heel punches; and blended 0.8 to
    * 0.6 with the line for the others: inward for a hook, up for an uppercut,
    * outward for a backfist and down for a hammerfist.
-   *
-   * @param technique The punch.
-   * @param line The strike's line, horizontal unit.
-   * @param outward The punching side's outward, horizontal unit.
-   * @param straight The straight line from the fist to the target, unit.
-   * @returns The unit direction.
+   * Parameter technique: The punch.
+   * Parameter line: The strike's line, horizontal unit.
+   * Parameter outward: The punching side's outward, horizontal unit.
+   * Parameter straight: The straight line from the fist to the target, unit.
+   * Returns: The unit direction.
    */
   export function direction(
     technique: IAutoMovieMotionHumanPunch.Technique,
@@ -175,21 +175,29 @@ export namespace punchSurface {
         );
   }
 
-  /**
+  /*
    * How far a palm heel's fingers lean back toward the striker per unit up, the
    * wrist extended (provisional).
    */
   export const PALM_TILT: number = 0.6;
 
-  /** A technique's striking surface at contact. */
+  /*
+   * A technique's striking surface at contact.
+   */
   export interface ISurface {
-    /** The unit direction the surface travels at contact, world. */
+    /*
+     * The unit direction the surface travels at contact, world.
+     */
     direction: IAutoMovieVector3;
 
-    /** The hand's world rotation at contact. */
+    /*
+     * The hand's world rotation at contact.
+     */
     rotation: IAutoMovieQuaternion;
 
-    /** The striking surface's offset from the wrist, world metres. */
+    /*
+     * The striking surface's offset from the wrist, world metres.
+     */
     socket: IAutoMovieVector3;
   }
 }

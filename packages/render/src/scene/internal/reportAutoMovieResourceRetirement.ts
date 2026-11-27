@@ -1,6 +1,6 @@
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
-/**
+/*
  * Report completed retirement causes synchronously, without opening another
  * settlement window. The existing restoration policy owns cause order and
  * identity; this reporter supplies aggregate descriptions to callers whose
@@ -32,7 +32,9 @@ export function reportAutoMovieResourceRetirement(
   }
 }
 
-/** A diagnostic description must not replace an original unprintable cause. */
+/*
+ * A diagnostic description must not replace an original unprintable cause.
+ */
 function describeCause(cause: unknown): string {
   try {
     return cause instanceof Error ? cause.message : String(cause);

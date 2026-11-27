@@ -8,7 +8,7 @@ import {
 import { readSurfaceHeight } from "../space/world/internal/readSurfaceHeight";
 import { selectGroundSurface } from "../space/world/internal/selectGroundSurface";
 
-/**
+/*
  * Read the first containing world surface at an XZ point in metres; no surface
  * returns height zero, null surface and walkable=false.
  */

@@ -17,11 +17,15 @@ import { physicalShapeHull } from "../../physics/internal/physicalShapeHull";
 import { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
 import { resolveAutoMovieHumanoidSurfaces } from "./resolveAutoMovieHumanoidSurfaces";
 
-/** Sequential measure and surface derivation share only exact neutral bounds. */
+/*
+ * Sequential measure and surface derivation share only exact neutral bounds.
+ */
 export namespace measureAutoMovieHumanoidBody {
-  /** Execute the operation without merging a callable with this namespace. */
+  /*
+   * Execute the operation without merging a callable with this namespace.
+   */
   export const run = measureAutoMovieHumanoidBodyRun;
-  /**
+  /*
    * Derive measure then surfaces with one synchronous unchanged-profile scope.
    * Bound preparation performs no shape work before its original observation;
    * source geometry must remain unchanged for the duration of this call. Both
@@ -51,7 +55,7 @@ export namespace measureAutoMovieHumanoidBody {
   }
 }
 
-/**
+/*
  * Read the anthropometric measure of a canonical humanoid from its rig and
  * physical profile at rest, whatever produced them: a generated Human, a
  * parametric humanoid or an imported character.
@@ -68,13 +72,12 @@ export namespace measureAutoMovieHumanoidBody {
  * the middle fingertip. A limb radius is the largest sphere or capsule radius
  * on its segment, or half the smaller transverse extent of a box. The eye
  * height falls back to the head joint when the rig has no eyes.
- *
- * @param skeleton The canonical rig.
- * @param profile Its physical profile, segments keyed by rig bones.
- * @param neutral Optional genuine internal bounds epoch for this unchanged
- *   profile; withSurfaces owns its preparation and release.
- * @returns The measure, metres and kilograms.
- * @throws {Error} When a bone or segment the measure needs is missing.
+ * Parameter skeleton: The canonical rig.
+ * Parameter profile: Its physical profile, segments keyed by rig bones.
+ * Parameter neutral: Optional genuine internal bounds epoch for this unchanged
+ * profile; withSurfaces owns its preparation and release.
+ * Returns: The measure, metres and kilograms.
+ * When a bone or segment the measure needs is missing.
  */
 function measureAutoMovieHumanoidBodyRun(
   skeleton: IAutoMovieSkeleton,

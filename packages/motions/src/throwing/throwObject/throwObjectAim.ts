@@ -24,17 +24,16 @@ import { throwObjectForm } from "./throwObjectForm";
 import { throwObjectLever } from "./throwObjectLever";
 import { throwObjectRelease } from "./throwObjectRelease";
 
-/**
+/*
  * Resolve the throw's chamber, finish, grip release and launch.
- *
- * @param context The throw's body, entry and authored target.
- * @param body The body whose arm measures determine the hand places.
- * @param style The admitted throwing style.
- * @param side The throwing hand.
- * @param outward The side's lateral sign, positive toward the performer's left.
- * @param arm The combined upper arm and forearm lengths, in metres.
- * @returns The solved release and the geometry needed by the later phases.
- * @throws {HumanRefusal} When the release angle cannot reach the target.
+ * Parameter context: The throw's body, entry and authored target.
+ * Parameter body: The body whose arm measures determine the hand places.
+ * Parameter style: The admitted throwing style.
+ * Parameter side: The throwing hand.
+ * Parameter outward: The side's lateral sign, positive toward the performer's left.
+ * Parameter arm: The combined upper arm and forearm lengths, in metres.
+ * Returns: The solved release and the geometry needed by the later phases.
+ * When the release angle cannot reach the target.
  */
 export function throwObjectAim(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrowObjectParams>,
@@ -173,53 +172,79 @@ export function throwObjectAim(
   };
 }
 
-/** The throw's world-space places, stance and solved release. */
+/*
+ * The throw's world-space places, stance and solved release.
+ */
 interface IThrowObjectAim {
-  /** The entry probe frame from which the throw's places are measured. */
+  /*
+   * The entry probe frame from which the throw's places are measured.
+   */
   frame: IAutoMovieMotionHumanFrame;
 
-  /** The chamber grip point, in world metres. */
+  /*
+   * The chamber grip point, in world metres.
+   */
   chamber: IAutoMovieVector3;
 
-  /** The follow-through grip point, in world metres. */
+  /*
+   * The follow-through grip point, in world metres.
+   */
   finish: IAutoMovieVector3;
 
-  /** The resolved target, in world metres. */
+  /*
+   * The resolved target, in world metres.
+   */
   target: IAutoMovieVector3;
 
-  /** The unit direction toward the target across the floor. */
+  /*
+   * The unit direction toward the target across the floor.
+   */
   toward: IAutoMovieVector3;
 
-  /** World up, used to orient the grip. */
+  /*
+   * World up, used to orient the grip.
+   */
   up: IAutoMovieVector3;
 
-  /** The optional style-specific stance, also used by the trunk primitive. */
+  /*
+   * The optional style-specific stance, also used by the trunk primitive.
+   */
   stance: ReturnType<typeof precisionThrow.stance>;
 
-  /** The grip point at release, in world metres. */
+  /*
+   * The grip point at release, in world metres.
+   */
   release: IAutoMovieVector3;
 
-  /**
+  /*
    * The optional authored implement used to transfer the grip's motion to the
    * projectile.
    */
   implement: IAutoMovieMotionHumanThrowObjectLever.IImplement | undefined;
 
-  /** The released point, its velocity and the grip's share of the launch. */
+  /*
+   * The released point, its velocity and the grip's share of the launch.
+   */
   lever: throwObjectLever.ILever;
 
-  /** The hand velocity carried through release, in world metres per second. */
+  /*
+   * The hand velocity carried through release, in world metres per second.
+   */
   velocity: IAutoMovieVector3;
 
-  /**
+  /*
    * The acceleration phase duration, in seconds, including the carry to
    * release.
    */
   accelerate: number;
 
-  /** The grip point immediately before the release carry, in world metres. */
+  /*
+   * The grip point immediately before the release carry, in world metres.
+   */
   before: IAutoMovieVector3;
 
-  /** The grip point immediately after the release carry, in world metres. */
+  /*
+   * The grip point immediately after the release carry, in world metres.
+   */
   after: IAutoMovieVector3;
 }

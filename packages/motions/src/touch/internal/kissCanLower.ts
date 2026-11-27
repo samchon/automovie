@@ -13,15 +13,14 @@ import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import type { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
-/**
+/*
  * Test the available vertical leg travel above the two original ankle plants.
- *
- * @param body The measured leg lengths and knee domains.
- * @param keyed The candidate trunk before the additional downward shift.
- * @param stance The original ankle positions.
- * @param sink The required downward travel in metres.
- * @param resolution The call's FK reader.
- * @returns Whether both hips remain above reachable planted ankles.
+ * Parameter body: The measured leg lengths and knee domains.
+ * Parameter keyed: The candidate trunk before the additional downward shift.
+ * Parameter stance: The original ankle positions.
+ * Parameter sink: The required downward travel in metres.
+ * Parameter resolution: The call's FK reader.
+ * Returns: Whether both hips remain above reachable planted ankles.
  */
 export function kissCanLower(
   body: IAutoMovieMotionHumanBody,

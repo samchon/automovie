@@ -11,7 +11,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { GymnasticsFlight } from "../../sport/internal/GymnasticsFlight";
 import { seatedPairDepth } from "./seatedPairDepth";
 
-/**
+/*
  * Find how much flexion the thorax must take from the lumbar spine when the
  * seat first bears. The pelvis, feet and total forward inclination stay at the
  * original contact key.

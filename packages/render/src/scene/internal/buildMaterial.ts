@@ -13,7 +13,7 @@ import { AutoMovieRenderProceduralShading } from "../proceduralShading/index.js"
 import { resolveAutoMovieMaterialTexture } from "./resolveAutoMovieMaterialTexture.js";
 import { AutoMovieRenderSubsurfaceShading } from "../subsurfaceShading/index.js";
 
-/**
+/*
  * Build a `three.js` physical PBR material from an automovie material, mapping
  * each optional lobe to the `MeshPhysicalMaterial` property of the same glTF
  * meaning and leaving an omitted lobe at its neutral value. It carries the

@@ -3,7 +3,7 @@ import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 import { SKILLS_ROOT } from "../../internal/SKILLS_ROOT";
 import { STORY_CONTRACTS } from "../../internal/STORY_CONTRACTS";
 
-/**
+/*
  * Creates the claim that holds research studies to the story research
  * principles.
  *
@@ -17,12 +17,10 @@ import { STORY_CONTRACTS } from "../../internal/STORY_CONTRACTS";
  */
 export function createResearchClaims(
   props: {
-    /**
+    /*
      * Reference root of the skills tree holding the story contracts, relative
      * to the directory of `evidence.config.ts` with `/` separators; `..`
      * segments reach a workspace's shared tree.
-     *
-     * @default ".agents/skills"
      */
     skills?: string;
   } = {},

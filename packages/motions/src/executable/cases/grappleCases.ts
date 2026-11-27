@@ -7,7 +7,7 @@ import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the grappling family: performer `a` takes a clinch grip on
  * performer `b`, who stands 0.55 m away facing it, in the plum (`grapple-plum`)
  * and in the collar and sleeve grip (`grapple-collarSleeve`).
@@ -16,10 +16,9 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  * range-of-motion overshoot, and that through every grip window each of `a`'s
  * gripping surfaces (the palm in the plum, the grip otherwise) stays within 10
  * mm of its place on `b`'s displayed region (the issue's M11 grip bound).
- *
- * @param bodies The sweep bodies, each gripping itself; `m-average` when
- *   absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies, each gripping itself; `m-average` when
+ * absent.
+ * Returns: The cases.
  */
 export function grappleCases(
   bodies: readonly string[] = ["m-average"],
@@ -108,5 +107,7 @@ export function grappleCases(
   return out;
 }
 
-/** The record of `IGrappleCasesWorst`'s site. */
+/*
+ * The record of `IGrappleCasesWorst`'s site.
+ */
 type IGrappleCasesWorst = { value: number; where: string };

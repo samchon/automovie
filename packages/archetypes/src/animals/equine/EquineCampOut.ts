@@ -15,40 +15,48 @@ import { EquineBodyPose } from "./EquineBodyPose";
 import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 
-/**
+/*
  * The share of a lifting step spent moving the weight off the hoof before it
  * leaves the floor: authored, as the stance rows' own.
  */
 const LOAD: number = 0.35;
 
-/**
+/*
  * The share of the entry spent lowering the hindquarters before the first hind
  * steps: authored.
  */
 const LOWER: number = 0.2;
 
-/** How far each hind hoof steps back, metres: authored. */
+/*
+ * How far each hind hoof steps back, metres: authored.
+ */
 const BACK: number = 0.2;
 
-/** Its swing's height, metres: authored. */
+/*
+ * Its swing's height, metres: authored.
+ */
 const LIFT: number = 0.06;
 
-/**
+/*
  * How much nearer than at the halt each stepped hind's hip is kept to its
  * ankle, metres: authored room for the weight transfer.
  */
 const ROOM: number = 0.03;
 
-/** The zero vector. */
+/*
+ * The zero vector.
+ */
 const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
-/** The two hinds, in stepping order. */
+/*
+ * The two hinds, in stepping order.
+ */
 const HINDS: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
   "leftHind",
   "rightHind",
 ];
 
-/**
+/*
  * The camped-out stance of urination: the hindquarters lowered, then each hind
  * hoof stepped back in turn.
  *
@@ -63,13 +71,12 @@ const HINDS: readonly AutoMovieArchetypeQuadrupedBody.Limb[] = [
  * step length, swing height and room are authored.
  */
 export namespace EquineCampOut {
-  /**
+  /*
    * Plan the camped-out stance from a state.
-   *
-   * @param body The prepared solver.
-   * @param start The state it starts from.
-   * @param cue The camp row.
-   * @returns Its plan, returning to the start.
+   * Parameter body: The prepared solver.
+   * Parameter start: The state it starts from.
+   * Parameter cue: The camp row.
+   * Returns: Its plan, returning to the start.
    */
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
@@ -201,7 +208,7 @@ export namespace EquineCampOut {
     };
   }
 
-  /**
+  /*
    * The least pitch about the shoulders, degrees, that keeps one hind's hip
    * within its halt distance of its stepped-back ankle, less `ROOM`; zero when
    * it already is.

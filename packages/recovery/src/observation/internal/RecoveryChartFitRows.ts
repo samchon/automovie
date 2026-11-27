@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryChartFitRows } from "@automovie/interface";
 
-/**
+/*
  * Stream one position row and its optional two physical-gradient rows. Signed
  * derivative Bernstein weights are linear observations of coefficients, not
  * additional point positions. Physical operators already contain the leaf

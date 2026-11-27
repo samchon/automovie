@@ -29,7 +29,7 @@ import { transformFormationBounds } from "../populationRuntime/formation/interna
 import { transformFormationPoint } from "../populationRuntime/formation/internal/transformFormationPoint";
 import { readAutoMovieGeometryGround } from "./readAutoMovieGeometryGround";
 
-/**
+/*
  * Measure one materialized formation at shot-local seconds: representative
  * ground contacts, bounds, route clearance and analytic chunk/hero visibility
  * and LOD; inconsistent participating shots throw.

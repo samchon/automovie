@@ -8,46 +8,50 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { PreparedHumanIntervals } from "../../perform/internal/PreparedHumanIntervals";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * Belly-to-earth terminal speed, metres per second (provisional: about 120 mph,
  * the figure the USPA Skydiver's Information Manual teaches for a stable
  * arch).
  */
 const TERMINAL: number = 53;
 
-/**
+/*
  * The forward speed the exit leaves the edge with, metres per second
  * (provisional: a step off).
  */
 const EXIT: number = 1;
 
-/**
+/*
  * Seconds the canopy takes to open (provisional: a ram-air canopy's snatch to
  * full inflation).
  */
 const OPEN: number = 3;
 
-/**
+/*
  * The open canopy's sink and forward speeds, metres per second (provisional: a
  * student canopy).
  */
 const SINK: number = 5;
 const FORWARD: number = 10;
 
-/** The turn rate a held toggle gives, degrees per second (provisional). */
+/*
+ * The turn rate a held toggle gives, degrees per second (provisional).
+ */
 const TURN: number = 30;
 
-/** The height the flare starts at, metres (provisional). */
+/*
+ * The height the flare starts at, metres (provisional).
+ */
 const FLARE: number = 3;
 
-/**
+/*
  * The sink and forward speeds at touchdown after the flare, metres per second
  * (provisional).
  */
 const TOUCH_SINK: number = 1.5;
 const TOUCH_FORWARD: number = 2;
 
-/**
+/*
  * A parachute jump's hips path, closed form phase by phase: the freefall falls
  * with quadratic drag toward `TERMINAL` (`v = vt tanh(g t / vt)`, `drop = vt^2
  * / g ln cosh(g t / vt)`) gliding at the exit and track speed along a heading
@@ -58,56 +62,81 @@ const TOUCH_FORWARD: number = 2;
  * share's integral, `2.5 u^4 - 3 u^5 + u^6`.
  */
 export namespace skydivePath {
-  /** One instant of the path. */
+  /*
+   * One instant of the path.
+   */
   export interface IAt {
-    /** The hips, world metres. */
+    /*
+     * The hips, world metres.
+     */
     hips: IAutoMovieVector3;
 
-    /** The heading, degrees. */
+    /*
+     * The heading, degrees.
+     */
     heading: number;
 
-    /** The phase. */
+    /*
+     * The phase.
+     */
     phase: Phase;
 
-    /** Progress through it, 0 to 1. */
+    /*
+     * Progress through it, 0 to 1.
+     */
     share: number;
   }
 
-  /** The flight's phases. */
+  /*
+   * The flight's phases.
+   */
   export type Phase = "freefall" | "opening" | "canopy" | "flare";
 
-  /** The path. */
+  /*
+   * The path.
+   */
   export interface IPath {
-    /** The opening's start, the deployment. */
+    /*
+     * The opening's start, the deployment.
+     */
     deploy: number;
 
-    /** The canopy's full inflation. */
+    /*
+     * The canopy's full inflation.
+     */
     open: number;
 
-    /** The flare's start. */
+    /*
+     * The flare's start.
+     */
     flare: number;
 
-    /** The touchdown. */
+    /*
+     * The touchdown.
+     */
     touchdown: number;
 
-    /** The touchdown's horizontal velocity, metres per second. */
+    /*
+     * The touchdown's horizontal velocity, metres per second.
+     */
     landing: IAutoMovieVector3;
 
-    /** The path at a time, clamped to the flight. */
+    /*
+     * The path at a time, clamped to the flight.
+     */
     at(seconds: number): IAt;
   }
 
-  /**
+  /*
    * Prepare the path.
-   *
-   * @param p The jump.
-   * @param hips The hips at the exit, world metres.
-   * @param yaw The exit heading, degrees.
-   * @param ground The landing ground's height, world metres.
-   * @returns The path.
-   * @throws {HumanRefusal} If the exit is not above the deployment, the
-   *   deployment leaves too little height for the canopy to open and slow the
-   *   body before the flare, or the toggles overlap.
+   * Parameter p: The jump.
+   * Parameter hips: The hips at the exit, world metres.
+   * Parameter yaw: The exit heading, degrees.
+   * Parameter ground: The landing ground's height, world metres.
+   * Returns: The path.
+   * If the exit is not above the deployment, the
+   * deployment leaves too little height for the canopy to open and slow the
+   * body before the flare, or the toggles overlap.
    */
   export function prepare(
     p: IAutoMovieMotionHumanSkydive.IParams,
@@ -249,28 +278,44 @@ export namespace skydivePath {
     };
   }
 
-  /** The canopy's offset from full inflation and its heading at a time under it. */
+  /*
+   * The canopy's offset from full inflation and its heading at a time under it.
+   */
   interface ICanopy {
-    /** Offset from the opened canopy's hips, metres. */
+    /*
+     * Offset from the opened canopy's hips, metres.
+     */
     offset: IAutoMovieVector3;
 
-    /** Heading, degrees. */
+    /*
+     * Heading, degrees.
+     */
     heading: number;
   }
 
-  /** One straight or turning canopy interval bound at its start. */
+  /*
+   * One straight or turning canopy interval bound at its start.
+   */
   interface ICanopyArc extends ICanopy {
-    /** Seconds from canopy inflation. */
+    /*
+     * Seconds from canopy inflation.
+     */
     start: number;
 
-    /** Signed heading change, degrees per second. */
+    /*
+     * Signed heading change, degrees per second.
+     */
     rate: number;
 
-    /** Displacement from the start of this arc, horizontal world metres. */
+    /*
+     * Displacement from the start of this arc, horizontal world metres.
+     */
     at(seconds: number): IAutoMovieVector3;
   }
 
-  /** Bind the known canopy arcs, keeping the live time inside each arc. */
+  /*
+   * Bind the known canopy arcs, keeping the live time inside each arc.
+   */
   function prepareCanopy(
     heading: number,
     duration: number,
@@ -318,7 +363,7 @@ export namespace skydivePath {
     };
   }
 
-  /**
+  /*
    * The horizontal offset of a constant speed along a heading turning at a
    * constant rate, over a time.
    */
@@ -347,7 +392,7 @@ export namespace skydivePath {
     };
   }
 
-  /**
+  /*
    * The distance share of a speed eased from one value to another by minimum
    * jerk, per unit time, at progress u.
    */
@@ -356,7 +401,9 @@ export namespace skydivePath {
     return from * w + (to - from) * (2.5 * w ** 4 - 3 * w ** 5 + w ** 6);
   }
 
-  /** The jump's refusal. */
+  /*
+   * The jump's refusal.
+   */
   function refusal(axis: string, value: unknown, reason: string): HumanRefusal {
     return new HumanRefusal({
       kind: "reach",

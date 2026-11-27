@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-/**
+/*
  * Read the actual selected offscreen color attachment's native transfer. The
  * caller has bound its destination, so explicit internal formats and SDK
  * storage choices are observed rather than inferred from Texture.colorSpace.

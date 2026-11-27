@@ -1,7 +1,7 @@
 import type { IAutoMovieIntegrateRadialField } from "@automovie/interface";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Integrate a strongest-site equal-radius compact radial field over a convex
  * planar domain.
  *
@@ -92,17 +92,25 @@ export function integrateAutoMovieRadialField(
   };
 }
 
-/** Coordinates on the supplied orthonormal plane, in the caller's common unit. */
+/*
+ * Coordinates on the supplied orthonormal plane, in the caller's common unit.
+ */
 type Point = [number, number];
-/** Sphere centre relative to the supplied plane, in the same coordinate unit. */
+/*
+ * Sphere centre relative to the supplied plane, in the same coordinate unit.
+ */
 type Site = { x: number; y: number; z: number };
 
-/** Signed twice-area of two planar vectors. */
+/*
+ * Signed twice-area of two planar vectors.
+ */
 function cross(a: Point, b: Point): number {
   return a[0] * b[1] - a[1] * b[0];
 }
 
-/** Signed polygon area; input convexity is the caller's clipped-texel premise. */
+/*
+ * Signed polygon area; input convexity is the caller's clipped-texel premise.
+ */
 function area(polygon: Point[]): number {
   let sum: number = 0;
   for (let i: number = 0; i < polygon.length; ++i)
@@ -110,7 +118,9 @@ function area(polygon: Point[]): number {
   return sum / 2;
 }
 
-/** Sutherland-Hodgman clipping against one nearest-site half-plane. */
+/*
+ * Sutherland-Hodgman clipping against one nearest-site half-plane.
+ */
 function clip(polygon: Point[], normal: Point, constant: number): Point[] {
   const result: Point[] = [];
   for (let i: number = 0; i < polygon.length; ++i) {
@@ -127,7 +137,7 @@ function clip(polygon: Point[], normal: Point, constant: number): Point[] {
   return result;
 }
 
-/**
+/*
  * Four-node rule integrates the supported edge polynomials of degree at most
  * six.
  */
@@ -145,7 +155,9 @@ function gauss(read: (t: number) => number, lo: number, hi: number): number {
   );
 }
 
-/** Radial divergence primitive inside the support, polynomial in squared radius. */
+/*
+ * Radial divergence primitive inside the support, polynomial in squared radius.
+ */
 function flux(s: number, q0: number, radius2: number, power: 2 | 3): number {
   const t: number = s / radius2;
   return power === 2
@@ -156,7 +168,7 @@ function flux(s: number, q0: number, radius2: number, power: 2 | 3): number {
         (t * t * t) / 8;
 }
 
-/**
+/*
  * Integrate one sphere over its nearest-site cell, with zero field outside its
  * disk.
  */

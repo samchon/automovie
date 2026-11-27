@@ -205,7 +205,9 @@ export namespace AutoMovieHumanLimbFrame {
     );
   }
 
-  /** Three-point derivative of a list of arrays over unequal stations. */
+  /*
+   * Three-point derivative of a list of arrays over unequal stations.
+   */
   function derivative(
     s: readonly number[],
     values: readonly (readonly number[])[],
@@ -227,7 +229,9 @@ export namespace AutoMovieHumanLimbFrame {
     );
   }
 
-  /** The part of u square to a unit normal, as a unit vector. */
+  /*
+   * The part of u square to a unit normal, as a unit vector.
+   */
   function orthogonal(
     u: AutoMovieVector3Tuple,
     n: AutoMovieVector3Tuple,

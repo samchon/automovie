@@ -14,10 +14,12 @@ import { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedB
 import type { QuadrupedHoofTrack } from "../quadruped/QuadrupedHoofTrack";
 import type { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped";
 
-/** Degrees per radian. */
+/*
+ * Degrees per radian.
+ */
 const DEGREE: number = 180 / Math.PI;
 
-/**
+/*
  * Lateral dressage figures: the body heading turned away from the travel
  * heading on one course leg, entered from and recovered to straight travel.
  *
@@ -40,7 +42,7 @@ const DEGREE: number = 180 / Math.PI;
  * angle the two stance centres set, which is used instead.
  */
 export namespace EquineLateral {
-  /**
+  /*
    * The largest heading offset admitted for leg-yielding and half-pass: the
    * "about 35 degrees" of DR111.2.b, the largest angle the lateral movements
    * prescribe.
@@ -98,39 +100,48 @@ export namespace EquineLateral {
   /** A lateral figure on one course leg. */
   export type Technique = IShoulderIn | ITwoTrack | IPirouette;
 
-  /** One admitted figure on the film clock. */
+  /*
+   * One admitted figure on the film clock.
+   */
   export interface IWindow {
-    /** The figure's name, for its instants. */
+    /*
+     * The figure's name, for its instants.
+     */
     kind: Technique["kind"];
-    /** Film second the leg begins. */
+    /*
+     * Film second the leg begins.
+     */
     from: number;
-    /** Film second the leg ends. */
+    /*
+     * Film second the leg ends.
+     */
     to: number;
-    /** Seconds of each ramp. */
+    /*
+     * Seconds of each ramp.
+     */
     blend: number;
-    /**
+    /*
      * Full heading offset of the body from the travel heading, degrees,
      * positive to the left.
      */
     yaw: number;
   }
 
-  /**
+  /*
    * Admit one figure on its leg and fix its heading offset.
-   *
-   * @param archetype The source archetype name.
-   * @param index The leg's zero-based index.
-   * @param leg The leg.
-   * @param technique The figure.
-   * @param plan The admitted course plan.
-   * @param hooves The neutral hoof endpoints in model metres.
-   * @param centred The stance centres of a moving limb: each neutral hoof
-   *   brought fore and aft under its attachment, in model metres.
-   * @returns The admitted window.
-   * @throws {AutoMovieArchetypeRefusal} For a leg of the wrong shape, a
-   *   reversed or graded leg, an angle outside (0, `MAXIMUM`], a blend that
-   *   does not fit twice in the leg, or a pirouette radius the pivot cannot
-   *   hold.
+   * Parameter archetype: The source archetype name.
+   * Parameter index: The leg's zero-based index.
+   * Parameter leg: The leg.
+   * Parameter technique: The figure.
+   * Parameter plan: The admitted course plan.
+   * Parameter hooves: The neutral hoof endpoints in model metres.
+   * Parameter centred: The stance centres of a moving limb: each neutral hoof
+   * brought fore and aft under its attachment, in model metres.
+   * Returns: The admitted window.
+   * For a leg of the wrong shape, a
+   * reversed or graded leg, an angle outside (0, `MAXIMUM`], a blend that
+   * does not fit twice in the leg, or a pirouette radius the pivot cannot
+   * hold.
    */
   export function admit(
     archetype: string,
@@ -188,7 +199,9 @@ export namespace EquineLateral {
     }
     return { kind: technique.kind, from, to, blend: technique.blend, yaw };
 
-    /** Report the leg that cannot carry the figure. */
+    /*
+     * Report the leg that cannot carry the figure.
+     */
     function refuse(reason: string): never {
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
@@ -202,12 +215,11 @@ export namespace EquineLateral {
     }
   }
 
-  /**
+  /*
    * The body's heading offset from the travel heading at a film second.
-   *
-   * @param windows The admitted figures.
-   * @param seconds The film second.
-   * @returns Degrees, positive to the left; zero outside every figure.
+   * Parameter windows: The admitted figures.
+   * Parameter seconds: The film second.
+   * Returns: Degrees, positive to the left; zero outside every figure.
    */
   export function heading(
     windows: readonly IWindow[],
@@ -220,7 +232,7 @@ export namespace EquineLateral {
     return 0;
   }
 
-  /**
+  /*
    * The crossover of leg-yielding and half-pass: the stances of the legs away
    * from the movement, shifted toward it in the body frame so each lands across
    * its partner's track.
@@ -243,13 +255,12 @@ export namespace EquineLateral {
    * neither of which bounds the shoulder or hip.
    * `AutoMovieArchetypeEquineJointLimits` therefore holds no such bound; the
    * limb reach and the ride's pose fit refuse a shift they cannot take.
-   *
-   * @param windows The admitted figures.
-   * @param limbs The neutral limb points in model metres, the hoof endpoint
-   *   last.
-   * @param parts The neutral model parts, read for each pastern's radius.
-   * @returns The stance shift of a two-track figure's crossing legs, or
-   *   undefined when the ride has no leg-yield or half-pass.
+   * Parameter windows: The admitted figures.
+   * Parameter limbs: The neutral limb points in model metres, the hoof endpoint
+   * last.
+   * Parameter parts: The neutral model parts, read for each pastern's radius.
+   * Returns: The stance shift of a two-track figure's crossing legs, or
+   * undefined when the ride has no leg-yield or half-pass.
    */
   export function crossing(
     windows: readonly IWindow[],
@@ -264,7 +275,9 @@ export namespace EquineLateral {
     );
     if (crossed.length === 0) return undefined;
 
-    /** The pastern radius, metres, of one limb. */
+    /*
+     * The pastern radius, metres, of one limb.
+     */
     const radius = (limb: AutoMovieArchetypeQuadrupedBody.Limb): number => {
       const part: IAutoMovieModelPart | undefined = parts.find(
         (candidate: IAutoMovieModelPart): boolean =>
@@ -309,15 +322,21 @@ export namespace EquineLateral {
     };
   }
 
-  /** One pair's neutral track width and largest pastern radius, metres. */
+  /*
+   * One pair's neutral track width and largest pastern radius, metres.
+   */
   interface IPair {
-    /** Lateral distance between the pair's neutral hoof endpoints. */
+    /*
+     * Lateral distance between the pair's neutral hoof endpoints.
+     */
     width: number;
-    /** The larger pastern radius of the pair. */
+    /*
+     * The larger pastern radius of the pair.
+     */
     radius: number;
   }
 
-  /**
+  /*
    * The minimum-jerk share of a figure at a second inside its leg: zero at the
    * leg's ends, one between its ramps.
    */

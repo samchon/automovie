@@ -99,5 +99,7 @@ export namespace AutoMoviePhysicalGeometry {
   }
 }
 
-/** The three world axes. */
+/*
+ * The three world axes.
+ */
 const AXES: readonly (keyof IAutoMovieVector3)[] = ["x", "y", "z"];

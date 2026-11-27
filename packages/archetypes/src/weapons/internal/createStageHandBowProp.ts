@@ -9,18 +9,17 @@ import {
 import { StageBowConstruction } from "./StageBowConstruction";
 import { AutoMovieArchetypeBow } from "../AutoMovieArchetypeBow";
 
-/**
+/*
  * Hand-held bow silhouette for screen staging.
  *
  * The profile keeps its existing actor handle, resting seat and animated soft
  * display curve.
- *
- * @param params An inert display model, its silhouette dimensions, and the
- *   scene id.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter params: An inert display model, its silhouette dimensions, and the
+ * scene id.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function createStageHandBowProp(
   params: AutoMovieArchetypeStageHandBowProp.IParams,

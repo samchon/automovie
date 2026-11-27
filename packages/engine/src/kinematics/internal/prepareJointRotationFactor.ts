@@ -10,7 +10,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { AutoMovieEngineRigAngle } from "../../rom/internal/AutoMovieEngineRigAngle";
 import type { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 
-/**
+/*
  * Prepare one query's admitted clinical-to-axis-angle factor on a fixed axis.
  * Every call first checks the current clinical value. Fixed-frame readers may
  * share their successful affine operands; mutable readers always run direct
@@ -82,7 +82,9 @@ export function prepareJointRotationFactor(
   };
 }
 
-/** Share only an exact actual match to a finite rig-declared constant. */
+/*
+ * Share only an exact actual match to a finite rig-declared constant.
+ */
 function fixedFactor(
   operation: prepareJointRotationFactor.IOperation,
   key: ClinicalAxis,
@@ -101,41 +103,61 @@ function fixedFactor(
   return operation.fixedFactors?.[key]?.[index] ?? read(angle);
 }
 
-/** Bounded fixed-rig preparation shared by independent actual query readers. */
+/*
+ * Bounded fixed-rig preparation shared by independent actual query readers.
+ */
 export namespace prepareJointRotationFactor {
-  /** Original axis/frame/clinical call order, after the caller's field lookups. */
+  /*
+   * Original axis/frame/clinical call order, after the caller's field lookups.
+   */
   export type IReader = (
     axis: IAutoMovieVector3,
     frame: IAutoMovieAxisFrame | undefined,
     clinical: number | null,
   ) => IAutoMovieQuaternion;
 
-  /** At most two lazy private factors for one axis's declared rig coordinates. */
+  /*
+   * At most two lazy private factors for one axis's declared rig coordinates.
+   */
   export type IFixedReadings = [IAutoMovieQuaternion?, IAutoMovieQuaternion?];
 
-  /** Rig-only scalar/factor/product facts, never changing target data. */
+  /*
+   * Rig-only scalar/factor/product facts, never changing target data.
+   */
   export interface IOperation {
-    /** The three direction/length readers of the basis. */
+    /*
+     * The three direction/length readers of the basis.
+     */
     readonly axisReaders: Record<
       ClinicalAxis,
       ReturnType<typeof Quaternion.prepareAxisAngle>
     >;
-    /** The three immutable affine readers. */
+    /*
+     * The three immutable affine readers.
+     */
     readonly rigAngles: Record<
       ClinicalAxis,
       ReturnType<typeof AutoMovieEngineRigAngle.prepareToRigAngle>
     >;
-    /** Borrowed immutable rig coordinates, at most two per axis. */
+    /*
+     * Borrowed immutable rig coordinates, at most two per axis.
+     */
     fixedAngles?: jointToQuaternionOnBasis.IFixedAngles;
-    /** The factors of the declared angles, at most two per axis. */
+    /*
+     * The factors of the declared angles, at most two per axis.
+     */
     fixedFactors?: Partial<Record<ClinicalAxis, IFixedReadings>>;
-    /** At most four products of two declared factors. */
+    /*
+     * At most four products of two declared factors.
+     */
     fixedInnerProducts?: IAutoMovieQuaternion[];
-    /** Two identity bits per axis among its declared factors. */
+    /*
+     * Two identity bits per axis among its declared factors.
+     */
     identityMasks?: Partial<Record<ClinicalAxis, number>>;
   }
 
-  /**
+  /*
    * Prepare a basis's rig-only facts: its readers and, for declared rig angles,
    * their factors, identity bits and inner products.
    */
@@ -200,5 +222,7 @@ export namespace prepareJointRotationFactor {
   }
 }
 
-/** Clinical coordinates owned by the inverse's resolved-angle representation. */
+/*
+ * Clinical coordinates owned by the inverse's resolved-angle representation.
+ */
 type ClinicalAxis = keyof IAutoMovieResolvedJointAngles;

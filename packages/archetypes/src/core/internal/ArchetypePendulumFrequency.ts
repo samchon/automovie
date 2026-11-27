@@ -3,15 +3,14 @@ import { AutoMovieGravity } from "@automovie/engine";
 import { AutoMovieArchetypeRefusal } from "../AutoMovieArchetypeRefusal";
 import type { AutoMovieArchetypeTrack } from "../AutoMovieArchetypeTrack";
 
-/**
+/*
  * Admit one pendulum's physical figures and compute its angular frequency.
- *
- * @param archetype The consumer's refusal name.
- * @param body Finite positive mass, gravity lever and axis moment, and finite
- *   neutral travel.
- * @returns A finite positive angular frequency, radians per second.
- * @throws {AutoMovieArchetypeRefusal} For invalid physical inputs or an
- *   unrepresentable frequency.
+ * Parameter archetype: The consumer's refusal name.
+ * Parameter body: Finite positive mass, gravity lever and axis moment, and finite
+ * neutral travel.
+ * Returns: A finite positive angular frequency, radians per second.
+ * For invalid physical inputs or an
+ * unrepresentable frequency.
  */
 export function ArchetypePendulumFrequency(
   archetype: string,

@@ -1,6 +1,6 @@
 import type { IAutoMovieSubdivisionTopology } from "@automovie/interface";
 
-/**
+/*
  * Build the edges and vertex fans of polygon rows, refusing anything that is
  * not an oriented manifold.
  *
@@ -12,12 +12,11 @@ import type { IAutoMovieSubdivisionTopology } from "@automovie/interface";
  * faces traverse in the same direction, a vertex in no face, and a vertex whose
  * faces form more than one fan. Rows must already hold valid, distinct vertex
  * indices per face; `subdivideAutoMovieSurface` checks that before calling.
- *
- * @param vertexCount Number of vertices the rows index.
- * @param faceOffsets Row starts, one more entry than faces.
- * @param faceVertices Vertex of every corner.
- * @param sharpnessOf Sharpness of the interior edge between two vertices.
- * @returns The level's connectivity, with boundary edges at sharpness 10.
+ * Parameter vertexCount: Number of vertices the rows index.
+ * Parameter faceOffsets: Row starts, one more entry than faces.
+ * Parameter faceVertices: Vertex of every corner.
+ * Parameter sharpnessOf: Sharpness of the interior edge between two vertices.
+ * Returns: The level's connectivity, with boundary edges at sharpness 10.
  */
 export const buildSubdivisionTopology = (
   vertexCount: number,

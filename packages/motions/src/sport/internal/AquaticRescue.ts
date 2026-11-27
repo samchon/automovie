@@ -10,7 +10,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { AquaticPosture } from "./AquaticPosture";
 import { AquaticRescueBounds } from "./AquaticRescueBounds";
 
-/**
+/*
  * A water rescue as the American Red Cross Lifeguarding manual describes it:
  * the rescuer swims to the victim, takes a cross-chest hold from behind and
  * tows on the side with a scissor kick to a named edge. The victim's root moves
@@ -21,7 +21,9 @@ import { AquaticRescueBounds } from "./AquaticRescueBounds";
  * only the victim's displayed chest.
  */
 export namespace AquaticRescue {
-  /** The rescuer: approach, hold and tow. */
+  /*
+   * The rescuer: approach, hold and tow.
+   */
   export function rescuer(
     context: AquaticPosture.Context,
     water: number,
@@ -326,7 +328,9 @@ export namespace AquaticRescue {
     });
   }
 
-  /** The victim: face up, carried along the tow from the rescuer's hold. */
+  /*
+   * The victim: face up, carried along the tow from the rescuer's hold.
+   */
   export function towed(
     context: AquaticPosture.Context,
     water: number,
@@ -380,7 +384,9 @@ export namespace AquaticRescue {
     };
   }
 
-  /** The tow from the victim's position to `SHORT` before the edge. */
+  /*
+   * The tow from the victim's position to `SHORT` before the edge.
+   */
   function plan(from: IAutoMovieVector3, edge: IAutoMovieVector3): ITow {
     const flat: IAutoMovieVector3 = {
       x: edge.x - from.x,
@@ -401,7 +407,7 @@ export namespace AquaticRescue {
     };
   }
 
-  /**
+  /*
    * Metres along the tow at a second of it, at the tow speed with a
    * minimum-jerk start and stop.
    */
@@ -411,7 +417,9 @@ export namespace AquaticRescue {
     );
   }
 
-  /** The named partner, or a refusal. */
+  /*
+   * The named partner, or a refusal.
+   */
   function partnerOf(
     context: AquaticPosture.Context,
   ): IAutoMovieMotionHumanPerformerReader {
@@ -427,7 +435,9 @@ export namespace AquaticRescue {
     return context.performer(partner);
   }
 
-  /** The edge the tow heads for, or a refusal. */
+  /*
+   * The edge the tow heads for, or a refusal.
+   */
   function edgeOf(context: AquaticPosture.Context): IAutoMovieVector3 {
     const at: IAutoMovieVector3 | undefined = context.params.at;
     if (at === undefined)
@@ -442,38 +452,58 @@ export namespace AquaticRescue {
   }
 }
 
-/**
+/*
  * The rescue's shared geometry, read the same way by the rescuer and the
  * victim.
  */
 interface ITow {
-  /** The victim's root at the hold, world metres. */
+  /*
+   * The victim's root at the hold, world metres.
+   */
   from: IAutoMovieVector3;
 
-  /** Unit horizontal direction toward the edge. */
+  /*
+   * Unit horizontal direction toward the edge.
+   */
   toward: IAutoMovieVector3;
 
-  /** Metres the victim travels. */
+  /*
+   * Metres the victim travels.
+   */
   length: number;
 
-  /** Seconds the tow takes. */
+  /*
+   * Seconds the tow takes.
+   */
   seconds: number;
 }
 
-/** The rescuer's hold in the world, read once where the hold is taken. */
+/*
+ * The rescuer's hold in the world, read once where the hold is taken.
+ */
 interface IHoldWorld {
-  /** The wrist on the victim's sternum, world metres. */
+  /*
+   * The wrist on the victim's sternum, world metres.
+   */
   wrist: IAutoMovieVector3;
 
-  /** The hand's world rotation, its palm into the sternum. */
+  /*
+   * The hand's world rotation, its palm into the sternum.
+   */
   rotation: IAutoMovieQuaternion;
 
-  /** The palm's point in the hand's frame, the contact the goal lays. */
+  /*
+   * The palm's point in the hand's frame, the contact the goal lays.
+   */
   contact: IAutoMovieVector3;
 
-  /** The victim's colliders where the hold is taken, placed in the world. */
+  /*
+   * The victim's colliders where the hold is taken, placed in the world.
+   */
   rests: readonly IAutoMovieMotionHumanColliders.IPlaced[];
 
-  /** The world point the elbow bends toward. */
+  /*
+   * The world point the elbow bends toward.
+   */
   bend: IAutoMovieVector3;
 }

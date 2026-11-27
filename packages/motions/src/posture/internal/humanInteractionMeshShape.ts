@@ -1,15 +1,14 @@
 import type { IAutoMovieMotionHumanInteractionMesh } from "@automovie/interface";
 
-/**
+/*
  * The mesh's aligned shape (`HumanInteractionMesh.adapt`'s start): contact
  * offsets and target-length bones propagated along their reference directions
  * from the first point, the reference centroid preserved.
- *
- * @param bones The mesh's bones and their target lengths.
- * @param contacts The mesh's contacts and their offsets.
- * @param reference The reference points, x then y then z by point.
- * @returns The aligned points, or undefined when the bones and contacts do not
- *   connect every point or a bone has no length.
+ * Parameter bones: The mesh's bones and their target lengths.
+ * Parameter contacts: The mesh's contacts and their offsets.
+ * Parameter reference: The reference points, x then y then z by point.
+ * Returns: The aligned points, or undefined when the bones and contacts do not
+ * connect every point or a bone has no length.
  */
 export function humanInteractionMeshShape(
   bones: readonly IAutoMovieMotionHumanInteractionMesh.IBone[],
@@ -71,11 +70,15 @@ export function humanInteractionMeshShape(
   return result;
 }
 
-/** A fixed Cartesian edge to a mesh point. */
+/*
+ * A fixed Cartesian edge to a mesh point.
+ */
 interface IOffsetEdge {
   index: number;
   by: readonly number[];
 }
 
-/** Cartesian coordinates within each mesh point. */
+/*
+ * Cartesian coordinates within each mesh point.
+ */
 const AXES: readonly number[] = [0, 1, 2];

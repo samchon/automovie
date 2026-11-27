@@ -13,7 +13,7 @@ import { AutoMovieSolidMeshWrite } from "../../AutoMovieSolidMeshWrite";
 import { gridAutoMovieSolidMesh } from "./gridAutoMovieSolidMesh";
 import { openAutoMovieSolidMesh } from "./openAutoMovieSolidMesh";
 
-/**
+/*
  * Prepare one complete source partition, then append its admitted face
  * atomically.
  *
@@ -46,7 +46,7 @@ export function faceAutoMovieSolidMesh(
   const { occupied, directed }: IAutoMovieSolidMesh.ILedger = incidence(mesh);
   const fresh: Set<string> = new Set();
 
-  /**
+  /*
    * Last actual predicate reading; recording it neither changes nor repeats
    * successful queries.
    */
@@ -222,7 +222,7 @@ export function faceAutoMovieSolidMesh(
   return open;
 }
 
-/**
+/*
  * The edge incidence of every triangle a mesh holds now.
  *
  * Each face needs the pairs and directed edges of all earlier faces. Reading
@@ -281,7 +281,7 @@ function incidence(
   return ledger;
 }
 
-/**
+/*
  * Explain a failed reading against the unchanged polyline source, without
  * another surface jet or altered admission.
  */
@@ -349,7 +349,7 @@ function membership(
   });
 }
 
-/**
+/*
  * Named planning refusal differs from arbitrary user/source callback
  * exceptions.
  */

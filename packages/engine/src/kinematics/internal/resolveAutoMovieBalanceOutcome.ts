@@ -7,7 +7,7 @@ import { AutoMovieGravity } from "../../physics/AutoMovieGravity";
 import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 
 
-/**
+/*
  * What an impulse does to a standing body's balance (#3429): it absorbs it
  * within its base, catches it with capture steps, or falls.
  *
@@ -45,11 +45,11 @@ import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
  * with `e` the centre's distance to the base's edge along the push and `lead`
  * the current extrapolated centre's distance from the centre.
  *
- * - @param props The body's state, the impulse and the support.
- *
- * @returns The outcome, the steps and the bounds.
- * @throws {Error} When the mass, the length, the reach or the step time is not
- *   positive, the margin is not finite, or there is no support point.
+ * -
+ * Parameter props: The body's state, the impulse and the support.
+ * Returns: The outcome, the steps and the bounds.
+ * When the mass, the length, the reach or the step time is not
+ * positive, the margin is not finite, or there is no support point.
  */
 export function resolveAutoMovieBalanceOutcome(
   props: IAutoMovieResolveBalanceOutcome.IProps,
@@ -183,14 +183,13 @@ export function resolveAutoMovieBalanceOutcome(
   }
 }
 
-/**
+/*
  * How far a point may move along a direction before it leaves a convex hull on
  * the floor plane.
- *
- * @param hull The hull's corners in order.
- * @param point The point, inside or outside.
- * @param direction A unit horizontal direction.
- * @returns Metres; negative when the point is already outside along it.
+ * Parameter hull: The hull's corners in order.
+ * Parameter point: The point, inside or outside.
+ * Parameter direction: A unit horizontal direction.
+ * Returns: Metres; negative when the point is already outside along it.
  */
 function exit(
   hull: readonly IAutoMovieVector3[],

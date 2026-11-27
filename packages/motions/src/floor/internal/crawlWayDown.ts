@@ -12,16 +12,15 @@ import { crawlDown } from "./crawlDown";
 import { crawlFeet } from "./crawlFeet";
 import { floorEntry } from "./floorEntry";
 
-/**
+/*
  * The way down from standing onto all fours (`crawlDown`), or none when the
  * crawl is entered from the floor: the supports take the body in turn, each
  * foot rolling onto its tucked place, and the sit lowers the hips onto the
  * knees and back over the heels.
  *
  * Part of `crawl.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `down`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `down`.
  */
 export function crawlWayDown(
   prepared: crawlWayDown.IPrepared,
@@ -66,26 +65,42 @@ export function crawlWayDown(
       });
 }
 
-/** The `down` of `crawl.plan`, built from what that plan prepared. */
+/*
+ * The `down` of `crawl.plan`, built from what that plan prepared.
+ */
 export namespace crawlWayDown {
-  /** What `crawl.plan` prepared for its `down`. */
+  /*
+   * What `crawl.plan` prepared for its `down`.
+   */
   export interface IPrepared {
-    /** The `entered` `crawl.plan` prepared. */
+    /*
+     * The `entered` `crawl.plan` prepared.
+     */
     entered: floorEntry.IStart["entered"];
 
-    /** The `body` `crawl.plan` prepared. */
+    /*
+     * The `body` `crawl.plan` prepared.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The `standing` `crawl.plan` prepared. */
+    /*
+     * The `standing` `crawl.plan` prepared.
+     */
     standing: floorEntry.IStart["standing"];
 
-    /** The `context` `crawl.plan` prepared. */
+    /*
+     * The `context` `crawl.plan` prepared.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrawl.IParams>;
 
-    /** The `period` `crawl.plan` prepared. */
+    /*
+     * The `period` `crawl.plan` prepared.
+     */
     period: number;
 
-    /** The `kneeling` `crawl.plan` prepared. */
+    /*
+     * The `kneeling` `crawl.plan` prepared.
+     */
     kneeling: (
       posture: IAutoMovieMotionHumanPosture,
       at: (limb: IAutoMovieMotionHumanCrawl.Limb) => IAutoMovieVector3,
@@ -95,19 +110,27 @@ export namespace crawlWayDown {
       palms?: boolean,
     ) => IAutoMovieMotionHumanPosture;
 
-    /** The `print` `crawl.plan` prepared. */
+    /*
+     * The `print` `crawl.plan` prepared.
+     */
     print: (
       limb: IAutoMovieMotionHumanCrawl.Limb,
       j: number,
     ) => IAutoMovieVector3;
 
-    /** The `pitch` `crawl.plan` prepared. */
+    /*
+     * The `pitch` `crawl.plan` prepared.
+     */
     pitch: number;
 
-    /** The `tucks` `crawl.plan` prepared. */
+    /*
+     * The `tucks` `crawl.plan` prepared.
+     */
     tucks: ReturnType<typeof crawlFeet.planted>["tucks"];
 
-    /** The `bear` `crawl.plan` prepared. */
+    /*
+     * The `bear` `crawl.plan` prepared.
+     */
     bear: boolean;
   }
 }

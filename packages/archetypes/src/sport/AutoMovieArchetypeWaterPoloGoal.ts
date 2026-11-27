@@ -147,7 +147,7 @@ export function create(
   };
 }
 
-/**
+/*
  * The three side surfaces and the top of the pocket use one shared set of
  * corners.
  */

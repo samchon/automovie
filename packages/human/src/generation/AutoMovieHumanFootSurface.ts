@@ -54,17 +54,23 @@ export namespace AutoMovieHumanFootSurface {
   }
 }
 
-/** Exact source chain and material address used before a display ring exists. */
+/*
+ * Exact source chain and material address used before a display ring exists.
+ */
 type IAddress = IAutoMovieHumanFootCourse.IAddress;
 
-/** A bounded phase search result on one actual source course. */
+/*
+ * A bounded phase search result on one actual source course.
+ */
 type IMinimum = IAutoMovieHumanFootCourse.IMinimum;
 
-/** The display reader shares bounded searches and source ring evaluation. */
+/*
+ * The display reader shares bounded searches and source ring evaluation.
+ */
 const { minimum, course }: typeof AutoMovieHumanFootCourse =
   AutoMovieHumanFootCourse;
 
-/**
+/*
  * Prepare rising source stations; each ball is the closest retained plantar
  * sample below its own MTP.
  */
@@ -293,7 +299,9 @@ function side(
   };
 }
 
-/** First source-axis crossing from heel toward toes; no surface is moved. */
+/*
+ * First source-axis crossing from heel toward toes; no surface is moved.
+ */
 function crossing(
   chain: IAutoMovieLoftChain,
   along: (point: AutoMovieVector3Tuple) => number,
@@ -316,7 +324,9 @@ function crossing(
   throw new Error("Canonical foot axis does not cross its own Midfoot joint");
 }
 
-/** Registered Euclidean vector difference. */
+/*
+ * Registered Euclidean vector difference.
+ */
 function sub(
   a: AutoMovieVector3Tuple,
   b: AutoMovieVector3Tuple,
@@ -324,12 +334,16 @@ function sub(
   return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 }
 
-/** Registered Euclidean dot product. */
+/*
+ * Registered Euclidean dot product.
+ */
 function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
-/** Refuse a collapsed anatomical axis rather than inventing a direction. */
+/*
+ * Refuse a collapsed anatomical axis rather than inventing a direction.
+ */
 function unit(vector: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
   const length: number = Math.hypot(...vector);
   if (!(length > 1e-12))
@@ -337,7 +351,7 @@ function unit(vector: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
   return [vector[0] / length, vector[1] / length, vector[2] / length];
 }
 
-/**
+/*
  * Freeze the small source descriptor once so every FK result may borrow it
  * safely.
  */

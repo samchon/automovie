@@ -318,7 +318,7 @@ export namespace AutoMovieCurveMath64 {
     );
   }
 
-  /**
+  /*
    * Reuse ordinary endpoint evaluation on an already admitted cubic, then try
    * endpoint-specific quotient orders only for unresolved components. Inactive
    * zero-times-overflow terms in the old polynomial formula therefore do not

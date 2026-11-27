@@ -25,16 +25,15 @@ import { poseBones } from "./poseBones";
 import type { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import type { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 
-/**
+/*
  * The fits and physical gates of a free-leg curve (`prepareHumanFreeCurve`):
  * the ordinary cold solve, the independent observation of a native output with
  * its ROM admission, and the correction of an actual target from a prior anchor
  * under the original branch, swivel and rotation gates, read from the curve's
  * body, authoring, angular resolution and ROM scorers. The observed bones of
  * each set of leg goals are prepared once here; nothing is stored on a read.
- *
- * @param scope What the curve builds the fits from.
- * @returns The fits.
+ * Parameter scope: What the curve builds the fits from.
+ * Returns: The fits.
  */
 export function HumanFreeCurveFit(
   scope: HumanFreeCurveFit.IScope,
@@ -49,7 +48,7 @@ export function HumanFreeCurveFit(
     right: observedOf(body, ["right"]),
     both: observedOf(body, ["left", "right"]),
   };
-  /**
+  /*
    * Actual current admission/solve remains the ordinary owner in every
    * fallback.
    */
@@ -68,7 +67,7 @@ export function HumanFreeCurveFit(
     );
   }
 
-  /**
+  /*
    * Observe native output independently; no seed or fitted endpoint is a target
    * substitute.
    */
@@ -181,7 +180,9 @@ export function HumanFreeCurveFit(
     return { seeds, rotations };
   }
 
-  /** Whether a joint's coordinates lie within its range of motion. */
+  /*
+   * Whether a joint's coordinates lie within its range of motion.
+   */
   function legal(
     bone: AutoMovieHumanoidBone,
     flexion: number | null,
@@ -194,7 +195,7 @@ export function HumanFreeCurveFit(
     );
   }
 
-  /**
+  /*
    * Fit this actual target and retain the original physical and local-basin
    * gates.
    */
@@ -272,44 +273,56 @@ export function HumanFreeCurveFit(
   return { cold, observe, correct };
 }
 
-/** What the fits of a free-leg curve read and what they are. */
+/*
+ * What the fits of a free-leg curve read and what they are.
+ */
 export namespace HumanFreeCurveFit {
-  /** What a free-leg curve builds its fits from. */
+  /*
+   * What a free-leg curve builds its fits from.
+   */
   export interface IScope {
-    /** The curve's canonical body. */
+    /*
+     * The curve's canonical body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /**
+    /*
      * The curve's authoring at a phase in [0,1].
-     *
-     * @param share The phase.
-     * @returns The authored posture.
+     * Parameter share: The phase.
+     * Returns: The authored posture.
      */
     at: (share: number) => IAutoMovieMotionHumanPosture;
 
-    /** The velocity-continuation angular resolution, degrees. */
+    /*
+     * The velocity-continuation angular resolution, degrees.
+     */
     tolerance: number;
 
-    /** The ROM tolerance, radians. */
+    /*
+     * The ROM tolerance, radians.
+     */
     radians: number;
 
-    /** Each bone's prepared ROM overshoot scorer. */
+    /*
+     * Each bone's prepared ROM overshoot scorer.
+     */
     legality: ReadonlyMap<
       AutoMovieHumanoidBone,
       (joint: IAutoMovieJointPose) => number
     >;
   }
 
-  /** The fits. */
+  /*
+   * The fits.
+   */
   export interface IFits {
-    /**
+    /*
      * The ordinary current admission and solve.
-     *
-     * @param share The phase.
-     * @param resolution The borrowed forward-kinematics source, if any.
-     * @param projection The borrowed range-of-motion projector, if any.
-     * @param raw The authored posture at the phase; read when absent.
-     * @returns The current preparation.
+     * Parameter share: The phase.
+     * Parameter resolution: The borrowed forward-kinematics source, if any.
+     * Parameter projection: The borrowed range-of-motion projector, if any.
+     * Parameter raw: The authored posture at the phase; read when absent.
+     * Returns: The current preparation.
      */
     cold: (
       share: number,
@@ -318,14 +331,13 @@ export namespace HumanFreeCurveFit {
       raw?: IAutoMovieMotionHumanPosture,
     ) => HumanPosturePreparation.IPrepared;
 
-    /**
+    /*
      * The native output observed independently.
-     *
-     * @param prepared The current preparation.
-     * @param raw The authored posture.
-     * @param resolution The borrowed forward-kinematics source, if any.
-     * @param knownSeeds The preparation's seeds, when already read.
-     * @returns The anchor, or undefined when a gate fails.
+     * Parameter prepared: The current preparation.
+     * Parameter raw: The authored posture.
+     * Parameter resolution: The borrowed forward-kinematics source, if any.
+     * Parameter knownSeeds: The preparation's seeds, when already read.
+     * Returns: The anchor, or undefined when a gate fails.
      */
     observe: (
       prepared: HumanPosturePreparation.IPrepared,
@@ -334,15 +346,14 @@ export namespace HumanFreeCurveFit {
       knownSeeds?: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"],
     ) => IAnchor | undefined;
 
-    /**
+    /*
      * The actual target fitted from a prior anchor under the original gates.
-     *
-     * @param share The phase.
-     * @param prior The prior anchor.
-     * @param resolution The borrowed forward-kinematics source, if any.
-     * @param projection The borrowed range-of-motion projector, if any.
-     * @param raw The authored posture at the phase; read when absent.
-     * @returns The correction.
+     * Parameter share: The phase.
+     * Parameter prior: The prior anchor.
+     * Parameter resolution: The borrowed forward-kinematics source, if any.
+     * Parameter projection: The borrowed range-of-motion projector, if any.
+     * Parameter raw: The authored posture at the phase; read when absent.
+     * Returns: The correction.
      */
     correct: (
       share: number,
@@ -352,51 +363,75 @@ export namespace HumanFreeCurveFit {
       raw?: IAutoMovieMotionHumanPosture,
     ) => ICorrection;
   }
-  /**
+  /*
    * The bones a curve observes for one set of leg goals, and the rig's bound
    * demand of them.
    */
   export interface IObserved {
-    /** The legs' hip, knee and ankle bones. */
+    /*
+     * The legs' hip, knee and ankle bones.
+     */
     names: ReadonlySet<AutoMovieHumanoidBone>;
 
-    /** Those bones of a pose, read through the bound demand. */
+    /*
+     * Those bones of a pose, read through the bound demand.
+     */
     read: ReturnType<typeof poseBones.prepare>;
   }
 
-  /** Only primitive fit seeds and native quaternion observations survive a query. */
+  /*
+   * Only primitive fit seeds and native quaternion observations survive a query.
+   */
   export interface IAnchor {
-    /** Actual branch and degree swivel of the validated canonical predecessor. */
+    /*
+     * Actual branch and degree swivel of the validated canonical predecessor.
+     */
     seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"];
-    /** Actual postclamp chain world rotations, in supported goal insertion order. */
+    /*
+     * Actual postclamp chain world rotations, in supported goal insertion order.
+     */
     rotations: readonly IAutoMovieQuaternion[];
   }
 
-  /**
+  /*
    * Only a validated correction carries a current preparation and numerical
    * anchor.
    */
   export type ICorrection = ICorrection2 | ICorrection3;
 }
 
-/** A curve's observed bones (`HumanFreeCurveFit.IObserved`). */
+/*
+ * A curve's observed bones (`HumanFreeCurveFit.IObserved`).
+ */
 type IObserved = HumanFreeCurveFit.IObserved;
 
-/** A curve's numeric anchor (`HumanFreeCurveFit.IAnchor`). */
+/*
+ * A curve's numeric anchor (`HumanFreeCurveFit.IAnchor`).
+ */
 type IAnchor = HumanFreeCurveFit.IAnchor;
 
-/** A curve's correction (`HumanFreeCurveFit.ICorrection`). */
+/*
+ * A curve's correction (`HumanFreeCurveFit.ICorrection`).
+ */
 type ICorrection = HumanFreeCurveFit.ICorrection;
-/** The record of `ICorrection3`'s site. */
+/*
+ * The record of `ICorrection3`'s site.
+ */
 type ICorrection3 = { kind: CorrectionKind };
 
-/** The alternatives of `CorrectionKind`'s site. */
+/*
+ * The alternatives of `CorrectionKind`'s site.
+ */
 type CorrectionKind = "refine" | "unusable";
 
-/** Which legs' goals a posture holds. */
+/*
+ * Which legs' goals a posture holds.
+ */
 type ObservedSide = "left" | "right" | "both";
 
-/** The hip, knee and ankle bones of some legs, and their bound demand. */
+/*
+ * The hip, knee and ankle bones of some legs, and their bound demand.
+ */
 function observedOf(
   body: IAutoMovieMotionHumanBody,
   sides: readonly AutoMovieHumanSide[],
@@ -410,7 +445,9 @@ function observedOf(
   return { names, read: poseBones.prepare(body, names) };
 }
 
-/** The record of `ICorrection2`'s site. */
+/*
+ * The record of `ICorrection2`'s site.
+ */
 type ICorrection2 = {
   kind: "accepted";
   prepared: HumanPosturePreparation.IPrepared;

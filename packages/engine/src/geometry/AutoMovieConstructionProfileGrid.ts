@@ -7,13 +7,13 @@ import type {
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 
-/**
+/*
  * Maximum requested rectangular cells per original loop; exceeding it refuses
  * instead of coarsening.
  */
 const CELLS: number = 1_000_000;
 
-/**
+/*
  * Maximum dyadic refinement levels; an unresolved criterion remains a named
  * refusal.
  */
@@ -54,7 +54,9 @@ export namespace AutoMovieConstructionProfileGrid {
   }
 }
 
-/** Prepare one loop independently, so scratch dies before the next component. */
+/*
+ * Prepare one loop independently, so scratch dies before the next component.
+ */
 function grid(
   prepared: IAutoMoviePreparedConstructionProfile.IPrepared,
   loop: IAutoMovieConstructionProfileLoop,
@@ -95,7 +97,9 @@ function grid(
   }
   const cache: Map<number, Map<string, Map<number, Point>>> = new Map();
 
-  /** Cache only copied successful values of the same immutable original query. */
+  /*
+   * Cache only copied successful values of the same immutable original query.
+   */
   const at: (piece: string, station: number, phase: number) => Point = (
     piece: string,
     station: number,
@@ -241,7 +245,9 @@ function grid(
   );
 }
 
-/** Every added mark lies strictly within its finite original interval. */
+/*
+ * Every added mark lies strictly within its finite original interval.
+ */
 function middle(a: number, b: number): number {
   const value: number = a + (b - a) / 2;
   if (!(value > a && value < b))
@@ -249,7 +255,7 @@ function middle(a: number, b: number): number {
   return value;
 }
 
-/**
+/*
  * Ordered endpoint and midpoint query marks, without changing any original
  * source support.
  */
@@ -260,7 +266,9 @@ function interleave(values: readonly number[]): number[] {
   return result;
 }
 
-/** One finite midpoint-to-chord observation in world millimetres. */
+/*
+ * One finite midpoint-to-chord observation in world millimetres.
+ */
 function deviation(point: Point, a: Point, b: Point): number {
   const value: number = Math.hypot(
     ...point.map((v: number, k: number): number => v - (a[k]! / 2 + b[k]! / 2)),
@@ -268,7 +276,7 @@ function deviation(point: Point, a: Point, b: Point): number {
   return value;
 }
 
-/**
+/*
  * Binary64 evaluation budget for a queried source boundary; never a source fit
  * or global certificate.
  */
@@ -283,7 +291,7 @@ function same(a: Point, b: Point, message: string): void {
     fail(message);
 }
 
-/**
+/*
  * Explicit source/numeric admission leaves original callback failures
  * untouched.
  */
@@ -291,5 +299,7 @@ function fail(message: string): never {
   throw new AutoMovieLoftAdmissionError(message);
 }
 
-/** World millimetres, copied before a cached source reading is retained. */
+/*
+ * World millimetres, copied before a cached source reading is retained.
+ */
 type Point = [number, number, number];

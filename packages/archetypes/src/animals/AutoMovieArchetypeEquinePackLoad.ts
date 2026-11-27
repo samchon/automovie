@@ -85,7 +85,7 @@ export namespace AutoMovieArchetypeEquinePackLoad {
       }),
     };
 
-    /**
+    /*
      * One side's box, admitted against its pad, with its inner face's centre at
      * its model origin.
      */

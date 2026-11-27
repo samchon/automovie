@@ -280,18 +280,26 @@ export class AutoMovieEngineCurveParentContext {
       throw new Error("Stale, forged or wrong anatomical connection");
     return operator.value;
   }
-  /** Resolved world frames owned by this context, keyed by node. */
+  /*
+   * Resolved world frames owned by this context, keyed by node.
+   */
   private readonly frames: Map<string, IAutoMovieCurveHierarchyFrame64> =
     new Map();
 
-  /** Column-major local-to-world matrices reused by point transforms. */
+  /*
+   * Column-major local-to-world matrices reused by point transforms.
+   */
   private readonly matrices: Map<string, number[]> = new Map();
 
-  /** Cloned and frozen routing declarations keyed by boundary ID. */
+  /*
+   * Cloned and frozen routing declarations keyed by boundary ID.
+   */
   private readonly edges: Map<string, IAutoMovieCurveBoundaryEdge64> =
     new Map();
 
-  /** Genuine frozen publications, bounded by the declared edge count. */
+  /*
+   * Genuine frozen publications, bounded by the declared edge count.
+   */
   private readonly published: Map<
     string,
     AutoMovieEngineCurveParentContext.IPublication

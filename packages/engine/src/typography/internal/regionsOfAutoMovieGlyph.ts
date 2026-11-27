@@ -8,12 +8,12 @@ import type {
 
 import { flattenAutoMovieQuadratic } from "./flattenAutoMovieQuadratic";
 
-/**
+/*
  * Flatten a glyph's contours into rings in metres about its origin and group
  * them into regions, each an outer ring with the holes directly inside it.
  *
  * Each segment is scaled to metres, then flattened by
- * {@link flattenAutoMovieQuadratic} within `tolerance`; consecutive equal points
+ * flattenAutoMovieQuadratic within `tolerance`; consecutive equal points
  * are merged. Rings are grouped by containment, not by winding, because fonts
  * disagree on winding and a composite may mirror a component: a ring inside an
  * even number of other rings bounds ink, and one inside an odd number is a hole
@@ -24,14 +24,13 @@ import { flattenAutoMovieQuadratic } from "./flattenAutoMovieQuadratic";
  *
  * Cost is quadratic in the glyph's flattened edges, for the crossing test; a
  * caller lays each distinct code point out once and translates it.
- *
- * @param glyph The decoded glyph, font units.
- * @param scale Metres per font unit.
- * @param tolerance Largest chord error, metres.
- * @returns Regions in the glyph's frame, metres, `+y` up from the baseline;
- *   empty for a glyph with no outline.
- * @throws {Error} Two of the glyph's contours touch or cross, or a contour
- *   flattens to fewer than three points; the message names the code point.
+ * Parameter glyph: The decoded glyph, font units.
+ * Parameter scale: Metres per font unit.
+ * Parameter tolerance: Largest chord error, metres.
+ * Returns: Regions in the glyph's frame, metres, `+y` up from the baseline;
+ * empty for a glyph with no outline.
+ * Two of the glyph's contours touch or cross, or a contour
+ * flattens to fewer than three points; the message names the code point.
  */
 export function regionsOfAutoMovieGlyph(
   glyph: IAutoMovieFontGlyph,
@@ -112,7 +111,9 @@ export function regionsOfAutoMovieGlyph(
   return [...regions.values()];
 }
 
-/** Whether any edge of one ring touches or crosses any edge of the other. */
+/*
+ * Whether any edge of one ring touches or crosses any edge of the other.
+ */
 function ringsMeet(
   a: readonly AutoMovieVector2Tuple[],
   b: readonly AutoMovieVector2Tuple[],
@@ -126,7 +127,9 @@ function ringsMeet(
   return false;
 }
 
-/** Whether two closed segments share any point, by orientation signs. */
+/*
+ * Whether two closed segments share any point, by orientation signs.
+ */
 function segmentsMeet(
   p1: AutoMovieVector2Tuple,
   p2: AutoMovieVector2Tuple,
@@ -146,7 +149,9 @@ function segmentsMeet(
   );
 }
 
-/** Sign of the turn from `a` to `b` to `c`. */
+/*
+ * Sign of the turn from `a` to `b` to `c`.
+ */
 function orient(
   a: AutoMovieVector2Tuple,
   b: AutoMovieVector2Tuple,
@@ -157,7 +162,7 @@ function orient(
   );
 }
 
-/**
+/*
  * Whether `c`, collinear with `a` and `b`, lies on the closed segment between
  * them.
  */
@@ -174,7 +179,9 @@ function within(
   );
 }
 
-/** Even-odd ray test of a point against a ring. */
+/*
+ * Even-odd ray test of a point against a ring.
+ */
 function inside(
   point: AutoMovieVector2Tuple,
   ring: readonly AutoMovieVector2Tuple[],

@@ -10,7 +10,7 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Size declared actuators from the entire neutral downstream load about each
  * joint. The parallel-axis term includes equipment and small coordinate
  * carriers without altering physical masses. These are control assumptions, not

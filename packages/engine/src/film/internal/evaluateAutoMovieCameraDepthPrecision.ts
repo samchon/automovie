@@ -5,7 +5,7 @@ import {
 
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Measure the largest gap between adjacent representable depths that a camera's
  * standard perspective depth buffer leaves inside one required camera-space
  * range, and judge it against an authored maximum.

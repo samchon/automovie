@@ -6,7 +6,7 @@ import type {
   IAutoMovieProductionVideoProfile,
 } from "@automovie/interface";
 
-/**
+/*
  * Refuse every presentation, timing or color fact of a probed H.264-in-MP4
  * video that differs from its delivery profile.
  *
@@ -160,6 +160,8 @@ export const assertProductionVideoProfile: (
     );
 };
 
-/** Whether a sample-clock term is a positive safe integer. */
+/*
+ * Whether a sample-clock term is a positive safe integer.
+ */
 const positiveClock: (value: number) => boolean = (value: number): boolean =>
   value > 0;

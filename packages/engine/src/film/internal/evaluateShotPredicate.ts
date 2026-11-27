@@ -8,7 +8,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Measure one typed shot-contract predicate in the compiled artifacts at a
  * shot-local second and compare it with its declared value.
  *
@@ -26,11 +26,10 @@ import {
  * missing-reference errors are not distinguished from unexpected sampling
  * errors here, so this record alone cannot diagnose the underlying exception.
  * Predicate values, operators and tolerances are caller-admitted finite data.
- *
- * @param reader The subject reader of the grading call.
- * @param predicate The contract predicate to measure.
- * @param time Shot-local seconds to measure at.
- * @returns The predicate, the measured scalar or `null`, and whether it passed.
+ * Parameter reader: The subject reader of the grading call.
+ * Parameter predicate: The contract predicate to measure.
+ * Parameter time: Shot-local seconds to measure at.
+ * Returns: The predicate, the measured scalar or `null`, and whether it passed.
  */
 export function evaluateShotPredicate(
   reader: IAutoMovieShotContractSubjectReader,
@@ -56,7 +55,9 @@ export function evaluateShotPredicate(
   };
 }
 
-/** The scalar a predicate compares; throws when a reference does not resolve. */
+/*
+ * The scalar a predicate compares; throws when a reference does not resolve.
+ */
 function measure(
   reader: IAutoMovieShotContractSubjectReader,
   predicate: IAutoMovieShotPredicate,

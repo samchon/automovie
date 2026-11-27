@@ -4,7 +4,7 @@ import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
 import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 import { AutoMovieRenderDetailNormalShading } from "../../AutoMovieRenderDetailNormalShading.js";
 
-/**
+/*
  * Blend a second tangent-space normal map over a material's normal map: the
  * detail map is sampled over the first UV set through its own texture
  * transform, its slopes scaled by `scale`, and the two combined by whiteout

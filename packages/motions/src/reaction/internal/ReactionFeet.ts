@@ -19,7 +19,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { assembleHumanPosture } from "../../posture/internal/assembleHumanPosture";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/**
+/*
  * The feet of a body going down, held where they stood. A fall that pitches or
  * turns the whole body about its root also turns the feet with it, so a heel or
  * a toe the floor holds swings across it; the feet stay flat and planted at
@@ -30,19 +30,21 @@ import { poseBones } from "../../posture/internal/poseBones";
  * floor instead of the leg falling short of it.
  */
 export namespace ReactionFeet {
-  /** The two feet's contact parts. */
+  /*
+   * The two feet's contact parts.
+   */
   const FEET: readonly IAutoMovieMotionHumanContactWindow["part"][] = [
     "leftFoot",
     "rightFoot",
   ];
 
-  /**
+  /*
    * How long the legs take to leave their planted goals for the fall's shape,
    * seconds: authored.
    */
   export const FADE: number = 0.2;
 
-  /**
+  /*
    * A planted foot whose hip has risen past the leg's full length from its
    * entry ankle, its heel raised about the ball by the least angle that brings
    * the ankle back within the leg's reach, the toes lifting from the foot by
@@ -51,12 +53,11 @@ export namespace ReactionFeet {
    * lateral axis, and the circle meets the sphere of the leg's length about the
    * hip where `A cos θ + B sin θ = c`. Unchanged when the leg reaches it flat;
    * the angle of greatest reach where none reaches.
-   *
-   * @param foot The entry foot: its ankle and rotation.
-   * @param ball The ball's contact point on the floor, world metres.
-   * @param hip The hip joint now, world metres.
-   * @param length The thigh's and the shank's length together, metres.
-   * @returns The placement and the toes' flexion, degrees.
+   * Parameter foot: The entry foot: its ankle and rotation.
+   * Parameter ball: The ball's contact point on the floor, world metres.
+   * Parameter hip: The hip joint now, world metres.
+   * Parameter length: The thigh's and the shank's length together, metres.
+   * Returns: The placement and the toes' flexion, degrees.
    */
   function heeled(
     foot: IAutoMovieMotionHumanEntryState.IFoot,
@@ -115,24 +116,23 @@ export namespace ReactionFeet {
     };
   }
 
-  /**
+  /*
    * A plan whose feet stay planted until a second: its posture with both legs'
    * goals at the entry feet; after it, over `FADE`, each goal travels to where
    * the plan's own legs put the foot, so the legs return to the fall's shape
    * without a jump. Written over the composed posture, so the fall's own leg
    * joints stay one movement.
-   *
-   * @param plan The fall's authored root and joint track, with no limb or digit
-   *   goals before the planted feet are added.
-   * @param entry The entry state, its feet.
-   * @param body The body, for the released feet's displayed frames.
-   * @param until Seconds since the action's start the feet stay planted until.
-   * @param knee How high above the ankle the knee's hint lies, metres; it leans
-   *   ahead along the heading by four tenths of that.
-   * @param heels Whether a held foot whose hip rises past its leg's reach
-   *   raises its heel about the ball (`heeled`), as a body lifted off its feet
-   *   does, instead of leaving the leg short of its foot; false when absent.
-   * @returns The plan with its feet held.
+   * Parameter plan: The fall's authored root and joint track, with no limb or digit
+   * goals before the planted feet are added.
+   * Parameter entry: The entry state, its feet.
+   * Parameter body: The body, for the released feet's displayed frames.
+   * Parameter until: Seconds since the action's start the feet stay planted until.
+   * Parameter knee: How high above the ankle the knee's hint lies, metres; it leans
+   * ahead along the heading by four tenths of that.
+   * Parameter heels: Whether a held foot whose hip rises past its leg's reach
+   * raises its heel about the ball (`heeled`), as a body lifted off its feet
+   * does, instead of leaving the leg short of its foot; false when absent.
+   * Returns: The plan with its feet held.
    */
   export function hold(
     plan: IAutoMovieMotionHumanActionPlan,
@@ -287,11 +287,10 @@ export namespace ReactionFeet {
     };
   }
 
-  /**
+  /*
    * The feet's plant windows until a share of the action.
-   *
-   * @param until The share the feet stay planted until.
-   * @returns Both feet's plant windows.
+   * Parameter until: The share the feet stay planted until.
+   * Returns: Both feet's plant windows.
    */
   export function plants(until: number): IAutoMovieMotionHumanContactWindow[] {
     return FEET.map(
@@ -307,33 +306,47 @@ export namespace ReactionFeet {
     );
   }
 
-  /**
+  /*
    * What a held foot's heel rise reads from the entry: its ball on the floor,
    * world metres, and its leg's full length, metres.
    */
   interface IRaise {
-    /** The ball's contact point, world metres. */
+    /*
+     * The ball's contact point, world metres.
+     */
     ball: IAutoMovieVector3;
-    /** The thigh's and the shank's length together, metres. */
+    /*
+     * The thigh's and the shank's length together, metres.
+     */
     length: number;
   }
 
-  /**
+  /*
    * A planted foot's placement under a heel rise and its toes' flexion,
    * degrees.
    */
   interface IHeeled {
-    /** The ankle, world metres. */
+    /*
+     * The ankle, world metres.
+     */
     ankle: IAutoMovieVector3;
-    /** The foot's world rotation. */
+    /*
+     * The foot's world rotation.
+     */
     rotation: IAutoMovieQuaternion;
-    /** The toes' flexion from the foot, degrees, positive lifting them. */
+    /*
+     * The toes' flexion from the foot, degrees, positive lifting them.
+     */
     toes: number;
   }
 
-  /** Both heels' placements and toe bends at an authored posture. */
+  /*
+   * Both heels' placements and toe bends at an authored posture.
+   */
   type FeetRaised = Readonly<Record<AutoMovieHumanSide, IHeeled>>;
 
-  /** A direct read of both heel placements from the authored hip positions. */
+  /*
+   * A direct read of both heel placements from the authored hip positions.
+   */
   type HeelReader = (posture: IAutoMovieMotionHumanPosture) => FeetRaised;
 }

@@ -16,13 +16,17 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { crossAnkleEntry } from "./crossAnkleEntry";
 import { fitSeatedAnkleCross } from "./fitSeatedAnkleCross";
 
-/** Provisional seconds for lifting or returning the leg. */
+/*
+ * Provisional seconds for lifting or returning the leg.
+ */
 const TRAVEL: number = 0.85;
 
-/** Fitted ankle tolerance, metres, for accepting the staged contact. */
+/*
+ * Fitted ankle tolerance, metres, for accepting the staged contact.
+ */
 const FIT_GAP: number = 0.01;
 
-/**
+/*
  * Make a full-length contact window from the support already under the
  * performer.
  */
@@ -30,7 +34,7 @@ const continueContact = (
   contact: IAutoMovieMotionHumanEntryState.ISupport,
 ): IAutoMovieMotionHumanContactWindow => ({ ...contact, from: 0, to: 1 });
 
-/**
+/*
  * Cross one ankle over the other knee while seated, hold, and put the foot
  * back. Register under `crossAnkleOverKnee` and perform after a completed chair
  * `sit`. The same seat, carrying leg and other active supports continue through
@@ -64,7 +68,7 @@ export const crossAnkleOverKnee: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
     },
     plan: planCrossAnkleOverKnee,
   };
-/**
+/*
  * Cross one ankle over the other knee while seated, hold, and put the foot
  * back. Register under `crossAnkleOverKnee` and perform after a completed chair
  * `sit`. The same seat, carrying leg and other active supports continue through
@@ -203,11 +207,17 @@ function planCrossAnkleOverKnee(
   };
 }
 
-/** The alternatives of `PlanCrossAnkleOverKneeKnee`'s site. */
+/*
+ * The alternatives of `PlanCrossAnkleOverKneeKnee`'s site.
+ */
 type PlanCrossAnkleOverKneeKnee = "leftLowerLeg" | "rightLowerLeg";
 
-/** The alternatives of `PlanCrossAnkleOverKneeSwing`'s site. */
+/*
+ * The alternatives of `PlanCrossAnkleOverKneeSwing`'s site.
+ */
 type PlanCrossAnkleOverKneeSwing = "leftLeg" | "rightLeg";
 
-/** The alternatives of `PlanCrossAnkleOverKneeLifted`'s site. */
+/*
+ * The alternatives of `PlanCrossAnkleOverKneeLifted`'s site.
+ */
 type PlanCrossAnkleOverKneeLifted = "leftFoot" | "rightFoot";

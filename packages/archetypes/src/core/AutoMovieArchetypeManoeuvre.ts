@@ -286,13 +286,13 @@ export namespace AutoMovieArchetypeManoeuvre {
   }
 }
 
-/**
+/*
  * Halvings that place a window's end: forty shrink a one-step bracket below a
  * picosecond.
  */
 const REFINE: number = 40;
 
-/**
+/*
  * An arc's angular rate, radians per second, refusing a window that does not
  * run forward.
  */
@@ -316,7 +316,7 @@ function rate(
   );
 }
 
-/**
+/*
  * Refuse a radius whose even speed, or that of a line `width` beyond it, leaves
  * the range; name the radii it allows.
  */
@@ -342,7 +342,9 @@ function admitSpeed(
   });
 }
 
-/** A floor point at a bearing and distance from a centre. */
+/*
+ * A floor point at a bearing and distance from a centre.
+ */
 function around(
   centre: IAutoMovieVector3,
   radius: number,
@@ -356,7 +358,7 @@ function around(
   };
 }
 
-/**
+/*
  * Samples every `step` seconds from `from` and at `to`, each placed by its
  * fraction of the window.
  */
@@ -376,7 +378,7 @@ function sampled(
   return samples;
 }
 
-/**
+/*
  * The inside end of a bracket between an outside second and an inside one, by
  * bisection.
  */

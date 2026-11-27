@@ -1,4 +1,4 @@
-/**
+/*
  * The file name of output frame `index` in an ffmpeg image sequence, such as
  * `frame_00042.png`.
  *

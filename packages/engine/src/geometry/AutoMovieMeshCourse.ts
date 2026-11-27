@@ -425,7 +425,9 @@ export namespace AutoMovieMeshCourse {
     return scale(sum, 1 / weight);
   }
 
-  /** The four support directions, `+u`, `-u`, `+v`, `-v`. */
+  /*
+   * The four support directions, `+u`, `-u`, `+v`, `-v`.
+   */
   const DIRECTIONS: readonly AutoMovieVector2Tuple[] = [
     [1, 0],
     [-1, 0],
@@ -433,7 +435,7 @@ export namespace AutoMovieMeshCourse {
     [0, -1],
   ];
 
-  /**
+  /*
    * One conic piece's shoulder and reach on its own sub-arc: the piece from P0
    * (tangent T0) to P2 (tangent T2) has its control point where the tangent
    * lines meet, `P0 + a T0 = P2 - b T2`, which must lie ahead of both ends (a,
@@ -459,7 +461,7 @@ export namespace AutoMovieMeshCourse {
     return [crossing(segments, M, A)?.t ?? null, reach];
   }
 
-  /**
+  /*
    * The crests and notches of a closed loop facing direction d: a hysteresis
    * walk of `h = p . d` once around from the global maximum keeps the
    * alternating extrema differing by at least the tolerance; each keeps its
@@ -523,7 +525,7 @@ export namespace AutoMovieMeshCourse {
     );
   }
 
-  /**
+  /*
    * The outermost crossing share `t` of the given segments with `M + t (A -
    * M)`, t in [-1, 1], and the crossed segment's index, or null. A zero-length
    * segment is never crossed.
@@ -554,7 +556,9 @@ export namespace AutoMovieMeshCourse {
     return best;
   }
 
-  /** Even-odd point in polygon. */
+  /*
+   * Even-odd point in polygon.
+   */
   function contains(
     poly: readonly (readonly [number, number])[],
     x: number,
@@ -574,7 +578,9 @@ export namespace AutoMovieMeshCourse {
     return c;
   }
 
-  /** A + b. */
+  /*
+   * A + b.
+   */
   function add(
     a: AutoMovieVector3Tuple,
     b: AutoMovieVector3Tuple,
@@ -582,7 +588,9 @@ export namespace AutoMovieMeshCourse {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
-  /** A - b. */
+  /*
+   * A - b.
+   */
   function sub(
     a: AutoMovieVector3Tuple,
     b: AutoMovieVector3Tuple,
@@ -590,17 +598,23 @@ export namespace AutoMovieMeshCourse {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
   }
 
-  /** A s. */
+  /*
+   * A s.
+   */
   function scale(a: AutoMovieVector3Tuple, s: number): AutoMovieVector3Tuple {
     return [a[0] * s, a[1] * s, a[2] * s];
   }
 
-  /** A . b. */
+  /*
+   * A . b.
+   */
   function dot(a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
   }
 
-  /** A x b. */
+  /*
+   * A x b.
+   */
   function cross(
     a: AutoMovieVector3Tuple,
     b: AutoMovieVector3Tuple,

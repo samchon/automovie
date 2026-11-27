@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanInterruptRow,
 } from "@automovie/interface";
 
-/**
+/*
  * Cancel rows by name: when an action may be cancelled, as a window of its
  * phrase, and how fast the next action blends in.
  *
@@ -15,7 +15,9 @@ import type {
  * ["fromStroke", "smooth"]`.
  */
 export namespace AutoMovieMotionHumanInterrupt {
-  /** The windows of {@link IAutoMovieMotionHumanInterrupt.Window}, as data. */
+  /*
+   * The windows of IAutoMovieMotionHumanInterrupt.Window, as data.
+   */
   export const WINDOWS = [
     "anytime",
     "fromStroke",
@@ -23,7 +25,9 @@ export namespace AutoMovieMotionHumanInterrupt {
     "fromRelax",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanInterrupt.Window>[];
 
-  /** The blends of {@link IAutoMovieMotionHumanInterrupt.Blend}, as data. */
+  /*
+   * The blends of IAutoMovieMotionHumanInterrupt.Blend, as data.
+   */
   export const BLEND_NAMES = [
     "reflex",
     "quick",
@@ -31,7 +35,7 @@ export namespace AutoMovieMotionHumanInterrupt {
     "deliberate",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanInterrupt.Blend>[];
 
-  /**
+  /*
    * The seconds of each blend (the values the reaction and everyday laws
    * shipped with; provisional, no measured blend time of a human transition
    * located): `reflex` 0.08, a blow that overrides what the body was doing;
@@ -49,12 +53,11 @@ export namespace AutoMovieMotionHumanInterrupt {
     deliberate: 0.3,
   };
 
-  /**
+  /*
    * One cancel row.
-   *
-   * @param window When the cancel is allowed.
-   * @param blend How fast the next action blends in.
-   * @returns The row: inertialized, entering the next action at its start.
+   * Parameter window: When the cancel is allowed.
+   * Parameter blend: How fast the next action blends in.
+   * Returns: The row: inertialized, entering the next action at its start.
    */
   export function row(
     window: IAutoMovieMotionHumanInterrupt.Window,
@@ -80,11 +83,10 @@ export namespace AutoMovieMotionHumanInterrupt {
     };
   }
 
-  /**
+  /*
    * A cancel table of one named row per next action.
-   *
-   * @param rows The window and the blend of each next action.
-   * @returns The table a law's `interrupts` takes.
+   * Parameter rows: The window and the blend of each next action.
+   * Returns: The table a law's `interrupts` takes.
    */
   export function table(
     rows: Partial<
@@ -114,14 +116,22 @@ export namespace AutoMovieMotionHumanInterrupt {
   }
 }
 
-/** The alternatives of `TableItem`'s site. */
+/*
+ * The alternatives of `TableItem`'s site.
+ */
 type TableItem = AutoMovieMotionHumanActionKey | "any";
 
-/** The alternatives of `OutEntryItem`'s site. */
+/*
+ * The alternatives of `OutEntryItem`'s site.
+ */
 type OutEntryItem = AutoMovieMotionHumanActionKey | "any";
 
-/** The alternatives of `TableEntryItemResult`'s site. */
+/*
+ * The alternatives of `TableEntryItemResult`'s site.
+ */
 type TableEntryItemResult = AutoMovieMotionHumanActionKey | "any";
 
-/** The alternatives of `RowsEntryItem`'s site. */
+/*
+ * The alternatives of `RowsEntryItem`'s site.
+ */
 type RowsEntryItem = AutoMovieMotionHumanActionKey | "any";

@@ -4,7 +4,7 @@ import { AutoMovieHumanConicSection } from "../AutoMovieHumanConicSection";
 import { AutoMovieHumanF1Joints } from "../AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "../AutoMovieHumanF1Placement";
 
-/**
+/*
  * f1's leg tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
  *
  * Frame: the figure's absolute reference pose, millimetres, forward +X, up +Y, +Z the reference's left. The course runs

@@ -3,17 +3,16 @@ import type { IAutoMovieMotionHumanArmPlanned } from "@automovie/interface";
 import type { HumanArmTrajectory } from "../../posture/internal/HumanArmTrajectory";
 import type { AutoMovieMotionHumanArmPlanned } from "./AutoMovieMotionHumanArmPlanned";
 
-/**
+/*
  * An earlier plan's solution on a new span's seconds: each knot keeps its share
  * of its own phrase, the reach, the hold or the return, so a hold knot stays a
  * hold knot. A path keeps its shape under a change of its time's scale
  * (Hollerbach 1984, "Dynamic scaling of manipulator trajectories"), which is
  * what a replan over a longer span asks.
- *
- * @param earlier The earlier plan's solution and the span it was reached on.
- * @param span The new span.
- * @returns The solution's state on the new span's seconds; none where the knots
- *   would not stay in order, a phrase the new span has no time for.
+ * Parameter earlier: The earlier plan's solution and the span it was reached on.
+ * Parameter span: The new span.
+ * Returns: The solution's state on the new span's seconds; none where the knots
+ * would not stay in order, a phrase the new span has no time for.
  */
 export function AutoMovieMotionHumanArmRetimed(
   earlier: AutoMovieMotionHumanArmPlanned.IWarm,

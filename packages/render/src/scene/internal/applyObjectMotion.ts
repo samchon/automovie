@@ -4,7 +4,7 @@ import type * as THREE from "three";
 
 import { applySampledObjectMotion } from "./applySampledObjectMotion.js";
 
-/**
+/*
  * Drive scene objects from a world-space node clip: a shot's `objectMotion` (a
  * projectile's baked flight, a prop following a bone) or its `cameraMotion`.
  * Sample the clip at `seconds` and write each node channel straight onto the
@@ -12,7 +12,7 @@ import { applySampledObjectMotion } from "./applySampledObjectMotion.js";
  * and scale onto the object's local transform, `weights` onto the morph
  * influences of every morphable mesh beneath it. A node with no object or a
  * non-node channel is skipped. Light changes ride the shot's `lightMotions`
- * through {@link applyLightMotion}; the artifact gate refuses pointer tracks on
+ * through applyLightMotion; the artifact gate refuses pointer tracks on
  * a transform clip.
  *
  * World-space clip values therefore require matching parent coordinates, or a
@@ -22,7 +22,7 @@ import { applySampledObjectMotion } from "./applySampledObjectMotion.js";
  * weights (#1357). Its void-returning switch has no exhaustive-type assertion;
  * adding a path to the interface still requires updating that writer.
  *
- * This is the render side of the engine's clip bakers ({@link compileLaunch},
+ * This is the render side of the engine's clip bakers (compileLaunch,
  * `compileAttach`, `cameraMove`): the object rides its clip each frame, no rig
  * involved. Feeding a shot's `objectMotions` and `cameraMotion` through the
  * same helper keeps every demo's projectile/prop/camera on one code path.

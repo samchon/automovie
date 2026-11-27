@@ -29,7 +29,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { HumanGrip } from "./HumanGrip";
 
-/**
+/*
  * Loads carried at the sides with the arms hanging, performed over a walk
  * (`HumanChain.over`): a farmer's walk. Each hand that holds a prop is let down
  * until its arm hangs nearly straight from the shoulder, a little out from the
@@ -43,44 +43,51 @@ import { HumanGrip } from "./HumanGrip";
  * them through its whole length and leaves them held after.
  */
 export namespace carryHang {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "carryHang";
 
-  /** Cancel table: the arms may be taken over at any time. */
+  /*
+   * Cancel table: the arms may be taken over at any time.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** A carry of the arms is performed over a walk. */
+  /*
+   * A carry of the arms is performed over a walk.
+   */
   export const overlay: boolean = true;
 
-  /**
+  /*
    * How far below the shoulder each wrist hangs, a share of the arm
    * (provisional: nearly straight).
    */
   export const HANG: number = 0.97;
 
-  /**
+  /*
    * How far out from the shoulder each wrist hangs, a share of the half
    * shoulder width (provisional: clear of the thigh with a load).
    */
   export const OUT: number = 0.25;
 
-  /** Seconds the arms take to let the loads down (provisional). */
+  /*
+   * Seconds the arms take to let the loads down (provisional).
+   */
   export const SETTLE: number = 0.5;
 
-  /**
+  /*
    * Seconds a carry lasts when its parameters name none (provisional: a
    * farmer's walk set of a few seconds).
    */
   export const SECONDS: number = 3;
 
-  /**
+  /*
    * Plan a carry with hanging arms.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the carry's length is not positive.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the carry's length is not positive.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCarryHang.IParams>,
@@ -285,10 +292,14 @@ export namespace carryHang {
   }
 }
 
-/** Each carried arm's held angles. */
+/*
+ * Each carried arm's held angles.
+ */
 type Held = Partial<
   Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>
 >;
 
-/** The world's up, the axis a heading turns about. */
+/*
+ * The world's up, the axis a heading turns about.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

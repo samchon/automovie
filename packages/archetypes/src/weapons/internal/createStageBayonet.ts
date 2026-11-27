@@ -11,7 +11,7 @@ import {
 } from "../../core/index";
 import { AutoMovieArchetypeLongGun } from "../AutoMovieArchetypeLongGun";
 
-/**
+/*
  * Fit an inert socket bayonet to a separately generated musket's muzzle.
  *
  * The blade runs along `+Y` from its shoulder at the origin to the `tip`. The
@@ -21,11 +21,10 @@ import { AutoMovieArchetypeLongGun } from "../AutoMovieArchetypeLongGun";
  * `bayonet` frame slides the tube over the muzzle and hangs the blade below the
  * barrel, parallel to it. The `handle` is the tube a hand closes on to draw or
  * fix the bayonet.
- *
- * @param params A generated musket and an optional bayonet id.
- * @returns The bayonet and its model-space contact frames, in metres.
- * @throws {AutoMovieArchetypeRefusal} If the gun is not a generated musket with
- *   a barrel, or the ids coincide.
+ * Parameter params: A generated musket and an optional bayonet id.
+ * Returns: The bayonet and its model-space contact frames, in metres.
+ * If the gun is not a generated musket with
+ * a barrel, or the ids coincide.
  */
 export function createStageBayonet(
   params: AutoMovieArchetypeStageBayonet.IParams,
@@ -137,7 +136,7 @@ export function createStageBayonet(
   return builder.build(MASS);
 }
 
-/**
+/*
  * The bayonet's unread proportions, metres: provisional estimates for a Land
  * Pattern socket bayonet until a measured record is read, such as the
  * Smithsonian's socket-bayonet scabbard (NMAH 1050670), whose page refused
@@ -152,12 +151,16 @@ const ESTIMATES: Readonly<AutoMovieArchetypeStageBayonet.IEstimates> = {
   gap: 0.0005,
 };
 
-/** Authored mass of the inert stand-in, in kilograms. */
+/*
+ * Authored mass of the inert stand-in, in kilograms.
+ */
 const MASS: number = 0.12;
 
 
 
-/** Describe a gun the bayonet cannot fit. */
+/*
+ * Describe a gun the bayonet cannot fit.
+ */
 function refuse(gunId: string | undefined): AutoMovieArchetypeRefusal {
   return new AutoMovieArchetypeRefusal({
     kind: "parameter",

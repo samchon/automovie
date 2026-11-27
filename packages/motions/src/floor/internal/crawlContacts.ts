@@ -4,11 +4,10 @@ import type {
   IAutoMovieMotionHumanCrawl,
 } from "@automovie/interface";
 
-/**
+/*
  * Build the crawl's contact windows from what its plan prepared.
- *
- * @param prepared What the plan prepared.
- * @returns The windows, hands and feet first, then the knees.
+ * Parameter prepared: What the plan prepared.
+ * Returns: The windows, hands and feet first, then the knees.
  */
 export function crawlContacts(
   prepared: crawlContacts.IPrepared,
@@ -78,7 +77,7 @@ export function crawlContacts(
   return contacts;
 }
 
-/**
+/*
  * The crawl's contact windows: each hand from its landing and each foot from
  * the start bear while its limb is in stance, the foot rolling about its toes'
  * tip without unloading (`crawlFeet.prepareRoll`); on the hands and knees each
@@ -86,29 +85,47 @@ export function crawlContacts(
  * holds its knees over the floor, bearing nothing.
  */
 export namespace crawlContacts {
-  /** What `crawl.plan` prepared for its contact windows. */
+  /*
+   * What `crawl.plan` prepared for its contact windows.
+   */
   export interface IPrepared {
-    /** The crawl's cycles. */
+    /*
+     * The crawl's cycles.
+     */
     cycles: number;
 
-    /** Seconds at which the hands are down. */
+    /*
+     * Seconds at which the hands are down.
+     */
     handsDown: number;
 
-    /** Seconds a limb lifts off in its `k`-th cycle. */
+    /*
+     * Seconds a limb lifts off in its `k`-th cycle.
+     */
     lift: (limb: IAutoMovieMotionHumanCrawl.Limb, k: number) => number;
 
-    /** Seconds a limb's swing takes. */
+    /*
+     * Seconds a limb's swing takes.
+     */
     swing: number;
 
-    /** The crawl's seconds. */
+    /*
+     * The crawl's seconds.
+     */
     duration: number;
 
-    /** Seconds at which the knees are down. */
+    /*
+     * Seconds at which the knees are down.
+     */
     kneesDown: number;
 
-    /** Whether it is a bear crawl, its knees held over the floor. */
+    /*
+     * Whether it is a bear crawl, its knees held over the floor.
+     */
     bear: boolean;
-    /** Material inherited from each side's entering plant. */
+    /*
+     * Material inherited from each side's entering plant.
+     */
     support: Record<
       AutoMovieHumanSide,
       IAutoMovieMotionHumanContactWindow.Support

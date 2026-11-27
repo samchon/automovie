@@ -6,7 +6,7 @@ import {
 import { weldMeshVertices } from "../../math/internal/weldMeshVertices";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
-/**
+/*
  * Original ordinals of the triangles whose corners repeat a vertex on the
  * topology weld grid.
  *
@@ -20,10 +20,9 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * answered, without the edge incidence or signed volume of a complete topology
  * report. Positions are local metres; neither the mesh nor its connectivity is
  * changed.
- *
- * @param mesh Mesh to inspect.
- * @returns Ascending ordinals of degenerate triangles.
- * @throws Error when the index run is malformed.
+ * Parameter mesh: Mesh to inspect.
+ * Returns: Ascending ordinals of degenerate triangles.
+ * Error when the index run is malformed.
  */
 export function weldedDegenerateTriangles(mesh: IAutoMovieMesh): number[] {
   const indices: number[] = triangleIndicesOf(mesh, "mesh topology");

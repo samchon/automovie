@@ -4,27 +4,26 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * The paths the jump's phases are drawn on: a quintic Hermite path for the
  * root, a straight interpolation for the feet, and the nearest equivalent of a
  * heading.
  */
 export namespace jumpPath {
-  /**
+  /*
    * A quintic Hermite path from a point and velocity to a point and velocity
    * over a duration, ending at rest acceleration and starting at `a0`, rest
    * when absent: the push-off continues the interrupted motion's own root
    * acceleration, which a planted leg's knee would otherwise show as a step in
    * its flexion rate's slope at the cut.
-   *
-   * @param p0 The start, metres.
-   * @param v0 The start's velocity, metres per second.
-   * @param p1 The end, metres.
-   * @param v1 The end's velocity, metres per second.
-   * @param duration The path's seconds.
-   * @param a0 The start's acceleration, metres per second squared; rest when
-   *   absent.
-   * @returns A point reader at local seconds, held at the path's ends.
+   * Parameter p0: The start, metres.
+   * Parameter v0: The start's velocity, metres per second.
+   * Parameter p1: The end, metres.
+   * Parameter v1: The end's velocity, metres per second.
+   * Parameter duration: The path's seconds.
+   * Parameter a0: The start's acceleration, metres per second squared; rest when
+   * absent.
+   * Returns: A point reader at local seconds, held at the path's ends.
    */
   export function prepare(
     p0: IAutoMovieVector3,
@@ -59,13 +58,12 @@ export namespace jumpPath {
     };
   }
 
-  /**
+  /*
    * A straight interpolation.
-   *
-   * @param a The start.
-   * @param b The end.
-   * @param s The share from `a` to `b`.
-   * @returns The point.
+   * Parameter a: The start.
+   * Parameter b: The end.
+   * Parameter s: The share from `a` to `b`.
+   * Returns: The point.
    */
   export function lerp(
     a: IAutoMovieVector3,
@@ -79,13 +77,12 @@ export namespace jumpPath {
     };
   }
 
-  /**
+  /*
    * The equivalent of a heading nearest another, so a turn takes the shorter
    * way.
-   *
-   * @param angle The heading, degrees.
-   * @param near The heading to stay near, degrees.
-   * @returns The equivalent of `angle` within half a turn of `near`.
+   * Parameter angle: The heading, degrees.
+   * Parameter near: The heading to stay near, degrees.
+   * Returns: The equivalent of `angle` within half a turn of `near`.
    */
   export function unwrap(angle: number, near: number): number {
     return near + AutoMovieEngineMath.wrapDegrees(angle - near);

@@ -19,7 +19,7 @@ import { resolveAutoMovieEnvelopeRequest } from "./resolveAutoMovieEnvelopeReque
 import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
 import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
 
-/**
+/*
  * Solve one envelope for heat and for surface condensation, as two runs.
  *
  * Two runs rather than one because heat and moisture are two domains a report
@@ -378,31 +378,47 @@ export function analyzeAutoMovieEnvelope(
   };
 }
 
-/** One assembly solved for transmittance and interior surface temperature. */
+/*
+ * One assembly solved for transmittance and interior surface temperature.
+ */
 interface ISolvedAssembly {
-  /** Borrowed assembly whose layers and films were used. */
+  /*
+   * Borrowed assembly whose layers and films were used.
+   */
   assembly: IAutoMovieEnvelopeAssembly;
 
-  /** Reciprocal series resistance in W/(m2*K). */
+  /*
+   * Reciprocal series resistance in W/(m2*K).
+   */
   transmittance: number;
 
-  /** Dimensionless 1-U*Rsi factor, independent of air-temperature difference. */
+  /*
+   * Dimensionless 1-U*Rsi factor, independent of air-temperature difference.
+   */
   temperatureFactor: number;
 
-  /** Interior face temperature in degrees Celsius. */
+  /*
+   * Interior face temperature in degrees Celsius.
+   */
   surface: number;
 }
 
-/** One assembly's interior surface margin over the indoor dew point. */
+/*
+ * One assembly's interior surface margin over the indoor dew point.
+ */
 interface IAssemblyMargin {
-  /** Borrowed assembly receiving the margin sample. */
+  /*
+   * Borrowed assembly receiving the margin sample.
+   */
   assembly: IAutoMovieEnvelopeAssembly;
 
-  /** Interior face temperature minus indoor dew point, in kelvins. */
+  /*
+   * Interior face temperature minus indoor dew point, in kelvins.
+   */
   margin: number;
 }
 
-/**
+/*
  * Forward one computed envelope metric to the shared target/gap builder with
  * this run's warning sink. Null values require a gap; finite-value admission
  * and same-unit target matching remain with that owner rather than a second
@@ -442,7 +458,7 @@ const metric: (
     status: props.status,
   });
 
-/**
+/*
  * Serialize both runs' common instant, indoor conditions, ordered
  * assembly/layer/bridge fields and projected targets. The context id and
  * resolved instant identify the read boundary condition; nested

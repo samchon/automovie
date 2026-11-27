@@ -9,7 +9,7 @@ import type {
 import { HumanLimbFit } from "./HumanLimbFit";
 import { HumanPosture } from "./HumanPosture";
 
-/**
+/*
  * Select world limb fits needed by explicit bone observations. All directly
  * authored joints are already clamped/admitted by the caller. Any requested arm
  * solve, attached/reference/external goal or digit context keeps the complete
@@ -68,7 +68,9 @@ export function selectHumanPostureGoals(
   return selected;
 }
 
-/** Admit only the fields whose free-world independence the selector proves. */
+/*
+ * Admit only the fields whose free-world independence the selector proves.
+ */
 function simple(goal: IAutoMovieHumanLimbGoal, leg: boolean): boolean {
   return (
     goal.elbow === undefined &&

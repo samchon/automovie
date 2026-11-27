@@ -1,4 +1,4 @@
-/**
+/*
  * Measure the Euclidean distance between two particle triples in a flat
  * position array.
  */

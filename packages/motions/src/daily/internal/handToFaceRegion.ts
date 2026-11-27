@@ -14,7 +14,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { handToFaceSheet } from "./handToFaceSheet";
 
-/**
+/*
  * The place a hand-to-face task aims a hand at, as a reader of the posture and
  * the action's second: the face region the row names, read on the performer's
  * own body, or the sheet held before the eyes when the row names no region.
@@ -26,13 +26,12 @@ import { handToFaceSheet } from "./handToFaceSheet";
  * a region on a midline bone is read with no limb fitted; a bone of a side
  * keeps the whole solve. A row that stands its effector upright reads the
  * region's normal level, so its tangent `up` is the world's up.
- *
- * @param context The action's context.
- * @param row The task's row.
- * @param bones The entry pose's bones, the reading of a performer no carrier
- *   moves.
- * @returns For a hand's side and the region it aims at (null for the sheet),
- *   the place at a posture and a second of the action.
+ * Parameter context: The action's context.
+ * Parameter row: The task's row.
+ * Parameter bones: The entry pose's bones, the reading of a performer no carrier
+ * moves.
+ * Returns: For a hand's side and the region it aims at (null for the sheet),
+ * the place at a posture and a second of the action.
  */
 export function handToFaceRegion(
   context: IAutoMovieMotionHumanActionContext,
@@ -101,11 +100,17 @@ export function handToFaceRegion(
     };
 }
 
-/** The alternatives of `HandToFaceRegionPlace`'s site. */
+/*
+ * The alternatives of `HandToFaceRegionPlace`'s site.
+ */
 type HandToFaceRegionPlace = "point" | "normal";
 
-/** The alternatives of `HandToFaceRegionResult2`'s site. */
+/*
+ * The alternatives of `HandToFaceRegionResult2`'s site.
+ */
 type HandToFaceRegionResult2 = "point" | "normal";
 
-/** The alternatives of `HandToFaceRegionResult`'s site. */
+/*
+ * The alternatives of `HandToFaceRegionResult`'s site.
+ */
 type HandToFaceRegionResult = "point" | "normal";

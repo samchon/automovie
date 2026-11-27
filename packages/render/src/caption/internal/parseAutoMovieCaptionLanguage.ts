@@ -35,7 +35,7 @@ const ALPHANUMERIC: RegExp = /^[A-Za-z0-9]+$/u;
 
 const DIGIT: RegExp = /^[0-9]+$/u;
 
-/**
+/*
  * Parse one RFC 5646 well-formed language tag without registry semantics, or
  * return null for a malformed tag.
  *

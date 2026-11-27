@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * The thumb of a hand laid flat, from the measured extension of the thumb's
  * trapeziometacarpal joint.
  *
@@ -48,25 +48,33 @@ import type {
  * in the hand's frame, read in the joint's chart (`decomposeJointRotation`).
  */
 export namespace HumanFlatThumb {
-  /** A joint coordinate system's three angles, degrees. */
+  /*
+   * A joint coordinate system's three angles, degrees.
+   */
   export interface IJcs {
-    /** About the proximal bone's radial axis. */
+    /*
+     * About the proximal bone's radial axis.
+     */
     flexion: number;
 
-    /** About the floating axis. */
+    /*
+     * About the floating axis.
+     */
     abduction: number;
 
-    /** About the distal bone's own axis. */
+    /*
+     * About the distal bone's own axis.
+     */
     pronation: number;
   }
 
-  /**
+  /*
    * The trapezium against the third metacarpal (Cooney et al. 1981, Table I,
    * medians), degrees.
    */
   export const TRAPEZIUM: IJcs = { flexion: 48, abduction: 38, pronation: 80 };
 
-  /**
+  /*
    * The first metacarpal against the trapezium in extension (Cooney et al.
    * 1981, Table III, means), degrees.
    */
@@ -76,13 +84,12 @@ export namespace HumanFlatThumb {
     pronation: 2.8,
   };
 
-  /**
+  /*
    * The thumb's joint angles of a flat hand on a body.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @returns The carpometacarpal, metacarpophalangeal and interphalangeal
-   *   joints' clinical angles, degrees.
+   * Parameter body: The body.
+   * Parameter side: The hand.
+   * Returns: The carpometacarpal, metacarpophalangeal and interphalangeal
+   * joints' clinical angles, degrees.
    */
   export function angles(
     body: IAutoMovieMotionHumanBody,
@@ -146,42 +153,62 @@ export namespace HumanFlatThumb {
     };
   }
 
-  /** The thumb's three joints' clinical angles, degrees, by bone. */
+  /*
+   * The thumb's three joints' clinical angles, degrees, by bone.
+   */
   export type IThumb = Partial<Record<AutoMovieHumanoidBone, Triple>>;
 }
 
-/** One joint's clinical angles, degrees. */
+/*
+ * One joint's clinical angles, degrees.
+ */
 type Triple = readonly [number, number, number];
 
-/** A coordinate axis of the third metacarpal's frame. */
+/*
+ * A coordinate axis of the third metacarpal's frame.
+ */
 type Axis = "x" | "y" | "z";
 
-/** A row-major rotation matrix. */
+/*
+ * A row-major rotation matrix.
+ */
 type Matrix = readonly [Triple, Triple, Triple];
 
-/** A frame's three axes in the hand's frame. */
+/*
+ * A frame's three axes in the hand's frame.
+ */
 interface IFrame {
-  /** Volar. */
+  /*
+   * Volar.
+   */
   x: IAutoMovieVector3;
 
-  /** Proximal. */
+  /*
+   * Proximal.
+   */
   y: IAutoMovieVector3;
 
-  /** Radial. */
+  /*
+   * Radial.
+   */
   z: IAutoMovieVector3;
 }
 
-/** The ISB neutral of a thumb joint: its two segments aligned. */
+/*
+ * The ISB neutral of a thumb joint: its two segments aligned.
+ */
 const NEUTRAL: Triple = [0, 0, 0];
 
-/** The identity rotation. */
+/*
+ * The identity rotation.
+ */
 const IDENTITY: Matrix = [
   [1, 0, 0],
   [0, 1, 0],
   [0, 0, 1],
 ];
 
-/**
+/*
  * A frame turned by a joint coordinate system's angles on it, as the ISB
  * composes them (Wu et al. 2005, sections 1, 2.1 and 4.4.1; Grood and Suntay
  * 1983): flexion about Z, then abduction about the floating X, then the
@@ -196,12 +223,14 @@ function composed(frame: Matrix, jcs: HumanFlatThumb.IJcs): Matrix {
   );
 }
 
-/** A matrix's column: a turned frame's axis in the frame it is turned in. */
+/*
+ * A matrix's column: a turned frame's axis in the frame it is turned in.
+ */
 function column(m: Matrix, j: number): IAutoMovieVector3 {
   return { x: m[0][j]!, y: m[1][j]!, z: m[2][j]! };
 }
 
-/**
+/*
  * The image of a hand axis under the rotation carrying one frame onto another:
  * its components on the first frame's axes laid on the second's.
  */
@@ -219,7 +248,9 @@ function carry(
   );
 }
 
-/** The rotation about an axis by degrees. */
+/*
+ * The rotation about an axis by degrees.
+ */
 function about(axis: Axis, degrees: number): Matrix {
   const r: number = (degrees * Math.PI) / 180;
   const c: number = Math.cos(r);
@@ -243,7 +274,9 @@ function about(axis: Axis, degrees: number): Matrix {
         ];
 }
 
-/** The product of two matrices. */
+/*
+ * The product of two matrices.
+ */
 function times(a: Matrix, b: Matrix): Matrix {
   function row(i: number): Triple {
     const r: Triple = a[i]!;
@@ -256,7 +289,7 @@ function times(a: Matrix, b: Matrix): Matrix {
   return [row(0), row(1), row(2)];
 }
 
-/**
+/*
  * The rest offset of a thumb bone from its parent, in the hand's rest frame:
  * the metacarpal's direction at rest (the rig rests the hand and thumb
  * unrotated).

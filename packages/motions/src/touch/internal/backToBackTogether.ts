@@ -1,6 +1,6 @@
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Admit two backs leaning on each other together: each window is when that back
  * bears, from its lean being ready to its relaxing, in shot seconds.
  *
@@ -37,17 +37,27 @@ export function backToBackTogether(
     });
 }
 
-/** The contact windows and frame alignment bound of a shared back support. */
+/*
+ * The contact windows and frame alignment bound of a shared back support.
+ */
 export namespace backToBackTogether {
-  /** When one back bears on the other, shot seconds. */
+  /*
+   * When one back bears on the other, shot seconds.
+   */
   export interface IWindow {
-    /** When its lean is ready. */
+    /*
+     * When its lean is ready.
+     */
     ready: number;
 
-    /** When it starts to sit up. */
+    /*
+     * When it starts to sit up.
+     */
     relax: number;
   }
 
-  /** How far apart the two leans may begin or end, seconds: one 24 Hz frame. */
+  /*
+   * How far apart the two leans may begin or end, seconds: one 24 Hz frame.
+   */
   export const FRAME: number = 1 / 24;
 }

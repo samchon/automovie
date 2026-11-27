@@ -119,7 +119,9 @@ export class AutoMovieInspectorPlayhead {
     );
   }
 
-  /** Replace the snapshot when a member differs, then tell every listener. */
+  /*
+   * Replace the snapshot when a member differs, then tell every listener.
+   */
   private change(patch: Partial<AutoMovieInspectorPlayhead.ISnapshot>): void {
     const next: AutoMovieInspectorPlayhead.ISnapshot = {
       ...this.snapshot_,

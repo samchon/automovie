@@ -1,7 +1,7 @@
 import type { AutoMovieEnginePhysics } from "../AutoMovieEnginePhysics";
 import { solveXpbdDualActiveSet } from "./solveXpbdDualActiveSet";
 
-/**
+/*
  * A small dense strictly convex quadratic program, `min 1/2 x^T H x - h^T x`
  * subject to `A x <= b`, the form IHMC's `ICPControllerQPSolver` hands its
  * dense Goldfarb-Idnani solver (`JavaQuadProgSolver`, Apache-2.0), solved by
@@ -11,11 +11,10 @@ import { solveXpbdDualActiveSet } from "./solveXpbdDualActiveSet";
  * `solveXpbdDualActiveSet` takes (Goldfarb and Idnani 1983), and `x = L^-T y`.
  * The change of variables is a bijection, so the minimizer is the dense
  * program's own.
- *
- * @param problem The objective's symmetric positive definite matrix and linear
- *   term, and the inequality rows `a x <= b`.
- * @returns The minimizer, or null when the matrix is not positive definite, the
- *   rows are infeasible or the method does not finish within its bound.
+ * Parameter problem: The objective's symmetric positive definite matrix and linear
+ * term, and the inequality rows `a x <= b`.
+ * Returns: The minimizer, or null when the matrix is not positive definite, the
+ * rows are infeasible or the method does not finish within its bound.
  */
 export function solveDenseActiveSet(
   problem: AutoMovieEnginePhysics.ISolveDenseActiveSetProblem,

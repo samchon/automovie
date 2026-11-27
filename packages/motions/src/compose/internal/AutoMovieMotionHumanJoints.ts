@@ -9,18 +9,17 @@ import type {
 
 import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 
-/**
+/*
  * Joint primitives: clinical angles written on the joints of a channel
  * directly, for the parts no effector goal places (the head's nod, the shoulder
  * girdle's shrug, the spine's slump).
  */
 export namespace AutoMovieMotionHumanJoints {
-  /**
+  /*
    * The channels a set of angles is written on.
-   *
-   * @param angles Angles by bone.
-   * @returns The channels of its bones, in
-   *   {@link AutoMovieMotionHumanChannel.ORDER}.
+   * Parameter angles: Angles by bone.
+   * Returns: The channels of its bones, in
+   * AutoMovieMotionHumanChannel.ORDER.
    */
   export function channels(
     angles: IAutoMovieMotionHumanJoints.Angles,
@@ -36,13 +35,12 @@ export namespace AutoMovieMotionHumanJoints {
     );
   }
 
-  /**
+  /*
    * Angles added to the joints a posture holds.
-   *
-   * @param props The channels, the window and the angles.
-   * @returns The primitive.
-   * @throws {Error} At a second when an angle is given for a bone outside the
-   *   channels.
+   * Parameter props: The channels, the window and the angles.
+   * Returns: The primitive.
+   * At a second when an angle is given for a bone outside the
+   * channels.
    */
   export function add(
     props: IAutoMovieMotionHumanJoints.IAdd,
@@ -79,17 +77,16 @@ export namespace AutoMovieMotionHumanJoints {
     };
   }
 
-  /**
+  /*
    * Angles added and taken back: their share rises over one window and falls
    * over another on the clock's envelope (a nod, a shrug, a flinch), and the
    * joints are written from the first instant to the last on the channels of
    * the angles' own bones.
-   *
-   * @param clock The action's clock.
-   * @param rise The instants the angles start growing and are full at.
-   * @param fall The instants the angles start shrinking and are gone at.
-   * @param peak The angles at their fullest.
-   * @returns The primitive.
+   * Parameter clock: The action's clock.
+   * Parameter rise: The instants the angles start growing and are full at.
+   * Parameter fall: The instants the angles start shrinking and are gone at.
+   * Parameter peak: The angles at their fullest.
+   * Returns: The primitive.
    */
   export function pulse(
     clock: IAutoMovieMotionClock,

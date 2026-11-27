@@ -54,7 +54,7 @@ import { lieDownRollSide } from "./lieDownRollSide";
 import { lieDownRoutes } from "./lieDownRoutes";
 import { lieDownShift } from "./lieDownShift";
 
-/**
+/*
  * Lying down on the floor from standing into a position: supine, prone, or on
  * the left or right side. Entered on the knees or crouched over the hands, as a
  * crawl ends, the body goes from the posture it displays through the route's
@@ -84,26 +84,38 @@ import { lieDownShift } from "./lieDownShift";
  * De Koninck et al. 1992), rolling over and rising from a bed.
  */
 export namespace lieDown {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "lieDown";
 
-  /** Cancel table: the lying body is cut only once settled. */
+  /*
+   * Cancel table: the lying body is cut only once settled.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     crawl: [
       { window: ["settled", 1], kind: "inertialize", entry: 0, blend: 0.4 },
     ],
   };
 
-  /** Seconds of each phase (provisional). */
+  /*
+   * Seconds of each phase (provisional).
+   */
   export const PHASE: number = 1.2;
 
-  /** Relative hip adduction of parallel legs in side lying, degrees. */
+  /*
+   * Relative hip adduction of parallel legs in side lying, degrees.
+   */
   export const STACKED: number = lieDownPoses.STACKED;
 
-  /** The floor posture keys for the route, in clinical degrees. */
+  /*
+   * The floor posture keys for the route, in clinical degrees.
+   */
   export const POSES: typeof lieDownPoses.POSES = lieDownPoses.POSES;
 
-  /** The sittings whose legs `floorSeat` folds. */
+  /*
+   * The sittings whose legs `floorSeat` folds.
+   */
   const FOLDED: Readonly<
     Partial<Record<IAutoMovieMotionHumanLieDown.Position, floorSeat.Kind>>
   > = {
@@ -111,18 +123,17 @@ export namespace lieDown {
     sitSide: "side",
   };
 
-  /**
+  /*
    * The route of postures to each position, after standing, with each arrival's
    * event.
    */
   export const ROUTES: typeof lieDownRoutes = lieDownRoutes;
 
-  /**
+  /*
    * Plan a lie down.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the hold is negative.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLieDown.IParams>,
@@ -255,7 +266,7 @@ export namespace lieDown {
       landed,
       stood,
     });
-    /**
+    /*
      * Place one raw route key and pin each foot only on the first descending
      * phase.
      */
@@ -315,7 +326,9 @@ export namespace lieDown {
       return lower(plants!(rooted, current), read);
     };
 
-    /** The rolling side's heel of a posture (`rollSide`'s first sole socket). */
+    /*
+     * The rolling side's heel of a posture (`rollSide`'s first sole socket).
+     */
     function rollHeelOf(
       posture: IAutoMovieMotionHumanPosture,
       read: ReturnType<typeof prepareHumanPoseResolution>,

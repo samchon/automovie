@@ -2,7 +2,7 @@ import type { IAutoMovieDecodedProductionAudioAsset } from "@automovie/interface
 
 import { resampleProductionAudio } from "./resampleProductionAudio";
 
-/**
+/*
  * Decode one complete supported RIFF/WAVE file into finite mono samples at a
  * requested rate.
  *
@@ -47,12 +47,11 @@ import { resampleProductionAudio } from "./resampleProductionAudio";
  * `unsupported-wave-layout`. Buffer size follows source frames and the
  * requested rate ratio; this function imposes no product memory budget, so
  * platform allocation errors may propagate outside that refusal format.
- *
- * @param props.path Asset path, used only in refusal messages.
- * @param props.bytes Complete file bytes; they are only read.
- * @param props.sampleRate Output rate in samples per second; a positive safe
- *   integer.
- * @returns The source facts as declared and new mono samples the caller owns.
+ * Parameter props.path: Asset path, used only in refusal messages.
+ * Parameter props.bytes: Complete file bytes; they are only read.
+ * Parameter props.sampleRate: Output rate in samples per second; a positive safe
+ * integer.
+ * Returns: The source facts as declared and new mono samples the caller owns.
  */
 export function decodeProductionAudioAsset(
   props: IAutoMovieDecodedProductionAudioAsset.IProps,
@@ -357,13 +356,17 @@ export function decodeProductionAudioAsset(
   };
 }
 
-/** One RIFF chunk body: its byte offset in the file and its declared size. */
+/*
+ * One RIFF chunk body: its byte offset in the file and its declared size.
+ */
 interface IChunk {
   offset: number;
   size: number;
 }
 
-/** Current deterministic source subset accepted by the production decoder. */
+/*
+ * Current deterministic source subset accepted by the production decoder.
+ */
 const SUPPORTED_AUDIO: string =
   'Supported audio assets are RIFF/WAVE ("*.wav") containers carrying 16-bit PCM or 32-bit IEEE float samples, mono front-center or stereo front-left/front-right.';
 
@@ -373,19 +376,25 @@ const WAVE_FORMAT_FLOAT: number = 0x0003;
 
 const WAVE_FORMAT_EXTENSIBLE: number = 0xfffe;
 
-/** SPEAKER_FRONT_CENTER. */
+/*
+ * SPEAKER_FRONT_CENTER.
+ */
 const MONO_MASK: number = 0x0000_0004;
 
-/** SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT. */
+/*
+ * SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT.
+ */
 const STEREO_MASK: number = 0x0000_0003;
 
-/** SubFormat GUID bytes 2 through 15 shared by every `WAVE_FORMAT_*` GUID. */
+/*
+ * SubFormat GUID bytes 2 through 15 shared by every `WAVE_FORMAT_*` GUID.
+ */
 const SUBFORMAT_TAIL: Uint8Array = Uint8Array.from([
   0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b,
   0x71,
 ]);
 
-/**
+/*
  * Throw the decoder's refusal. The explicit function type on the constant is
  * what lets TypeScript narrow after a statement call, so callers need no
  * non-null assertion.
@@ -407,7 +416,7 @@ function leadingHex(bytes: Uint8Array): string {
   return `0x${hexBytes(bytes, 0, 4)}`;
 }
 
-/**
+/*
  * Canonical GUID text: the first three fields are little-endian in the file,
  * the last two are byte strings.
  */
@@ -415,7 +424,9 @@ function waveGuid(bytes: Uint8Array): string {
   return `${hexBytes(bytes, 3, -1)}-${hexBytes(bytes, 5, 3)}-${hexBytes(bytes, 7, 5)}-${hexBytes(bytes, 8, 10)}-${hexBytes(bytes, 10, 16)}`;
 }
 
-/** Hex digits of `bytes[from]` toward `to` (exclusive), in either direction. */
+/*
+ * Hex digits of `bytes[from]` toward `to` (exclusive), in either direction.
+ */
 function hexBytes(bytes: Uint8Array, from: number, to: number): string {
   const direction: number = to > from ? 1 : -1;
   let text: string = "";

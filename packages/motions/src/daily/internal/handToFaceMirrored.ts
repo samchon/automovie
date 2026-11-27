@@ -3,13 +3,12 @@ import type {
   AutoMovieHumanoidRegion,
 } from "@automovie/interface";
 
-/**
+/*
  * The region a row names for a hand (`handToFace`): the right hand's region,
  * mirrored for the left.
- *
- * @param region The right hand's region.
- * @param side The hand.
- * @returns The region.
+ * Parameter region: The right hand's region.
+ * Parameter side: The hand.
+ * Returns: The region.
  */
 export function handToFaceMirrored(
   region: AutoMovieHumanoidRegion,

@@ -8,17 +8,16 @@ import type {
 
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/**
+/*
  * Rank actual hand frames by the straight-wrist arm's length residual. The
  * canonical grip offset, forearm line and measured segment lengths are read
  * once for the returned closure, while each candidate frame and shoulder is
  * read anew. This is a coarse rank; StrikingRoll still fits the preferred
  * frames.
- *
- * @param body The unchanged canonical body.
- * @param side The holding side.
- * @returns A synchronous candidate rank in metres for a world frame and
- *   shoulder.
+ * Parameter body: The unchanged canonical body.
+ * Parameter side: The holding side.
+ * Returns: A synchronous candidate rank in metres for a world frame and
+ * shoulder.
  */
 export function StrikingStrain(
   body: IAutoMovieMotionHumanBody,
@@ -45,32 +44,43 @@ export function StrikingStrain(
     StrikingStrain.of(frame, shoulder, { grip, fingers, forearm, upperArm });
 }
 
-/** How far a hand frame strains the arm. */
+/*
+ * How far a hand frame strains the arm.
+ */
 export namespace StrikingStrain {
-  /** The arm a hand frame is read against. */
+  /*
+   * The arm a hand frame is read against.
+   */
   export interface IArm {
-    /** The grip's offset in the hand's frame, metres. */
+    /*
+     * The grip's offset in the hand's frame, metres.
+     */
     grip: IAutoMovieVector3;
 
-    /** The fingers' direction in the hand's frame. */
+    /*
+     * The fingers' direction in the hand's frame.
+     */
     fingers: IAutoMovieVector3;
 
-    /** The forearm, metres. */
+    /*
+     * The forearm, metres.
+     */
     forearm: number;
 
-    /** The upper arm, metres. */
+    /*
+     * The upper arm, metres.
+     */
     upperArm: number;
   }
 
-  /**
+  /*
    * The strain of a hand frame: the elbow lies a forearm back along the fingers
    * from the wrist, the wrist the grip's offset back from the held point, and
    * the strain is how far that elbow misses the shoulder by an upper arm.
-   *
-   * @param frame The held point and the hand's attitude.
-   * @param shoulder The shoulder, world metres.
-   * @param arm The grip, the fingers and the arm's lengths.
-   * @returns The strain, metres, 0 for a reachable frame.
+   * Parameter frame: The held point and the hand's attitude.
+   * Parameter shoulder: The shoulder, world metres.
+   * Parameter arm: The grip, the fingers and the arm's lengths.
+   * Returns: The strain, metres, 0 for a reachable frame.
    */
   export function of(
     frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,

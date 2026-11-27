@@ -1,4 +1,4 @@
-/**
+/*
  * Encode a string as UTF-8 bytes without `TextEncoder`.
  *
  * `TextEncoder` is present in Node 22 and in every browser, but not in every

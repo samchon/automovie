@@ -10,15 +10,14 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 
-/**
+/*
  * One coarse hockey skate, resting on the runner with the toe toward +Z. Its
  * intended foot length and runner length are from the CCM 2016 size guide. The
  * boot, holder and steel cross section use provisional outer dimensions.
  * https://www.iceglace.com/catalogues/Catalogue_ICE_CCM_2016.pdf
- *
- * @param params The scene id and optional mass in kilograms.
- * @param seed Draws the mass if the author leaves it open.
- * @returns A skate with a boot socket and three runner contact sites.
+ * Parameter params: The scene id and optional mass in kilograms.
+ * Parameter seed: Draws the mass if the author leaves it open.
+ * Returns: A skate with a boot socket and three runner contact sites.
  */
 export function createIceSkate(
   params: AutoMovieArchetypeIceSkate.IParams = {},
@@ -95,13 +94,17 @@ export function createIceSkate(
   return builder.build(mass);
 }
 
-/** CCM 2016 men's size 6 chart, in metres. */
+/*
+ * CCM 2016 men's size 6 chart, in metres.
+ */
 const FIT: Readonly<{ foot: number; blade: number }> = {
   foot: 0.252,
   blade: 0.263,
 };
 
-/** Provisional outer dimensions of the shell, holder and runner, in metres. */
+/*
+ * Provisional outer dimensions of the shell, holder and runner, in metres.
+ */
 const GEOMETRY: Readonly<{
   width: number;
   sole: number;

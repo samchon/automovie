@@ -10,13 +10,15 @@ import type { MotionTrajectoryRead } from "./MotionTrajectoryRead";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
 import { AutoMovieEngineMotionSampling } from "../../AutoMovieEngineMotionSampling";
 
-/**
+/*
  * Numeric quaternion projections shared by full and orientation-only reads.
  * Returned internal readers may borrow their numeric records; the public
  * trajectory boundary copies every quaternion before returning it.
  */
 export namespace MotionTrajectoryQuaternion {
-  /** Project fixed knots through a cubic with exact endpoint body derivatives. */
+  /*
+   * Project fixed knots through a cubic with exact endpoint body derivatives.
+   */
   export function fixed(
     props: MotionTrajectoryRead.IFixed,
   ): (time: number) => IAutoMovieQuaternion | null {
@@ -62,7 +64,9 @@ export namespace MotionTrajectoryQuaternion {
     });
   }
 
-  /** Project accepted dense rotation coefficients without the vector block. */
+  /*
+   * Project accepted dense rotation coefficients without the vector block.
+   */
   export function dense(
     locate: ReturnType<typeof MotionTrajectoryInterval>,
     end: IAutoMovieQuaternion | null,
@@ -80,7 +84,9 @@ export namespace MotionTrajectoryQuaternion {
     });
   }
 
-  /** Lend one exact requested time; the public owner always copies the result. */
+  /*
+   * Lend one exact requested time; the public owner always copies the result.
+   */
   function remembered(
     read: (time: number) => IAutoMovieQuaternion | null,
   ): (time: number) => IAutoMovieQuaternion | null {

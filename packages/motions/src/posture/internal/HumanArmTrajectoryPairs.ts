@@ -18,7 +18,7 @@ import { HumanArmTrajectoryOverlap } from "./HumanArmTrajectoryOverlap";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanAuditModel } from "./HumanAuditModel";
 
-/**
+/*
  * What the arm trajectory reads at one waypoint (`HumanArmTrajectoryModel`):
  * each segment's deepest collider probe against the body and another body, the
  * body's corners against the arm's own colliders (the audit reads every pair
@@ -27,81 +27,104 @@ import { HumanAuditModel } from "./HumanAuditModel";
  * between read waypoints is the sweeps' (`HumanArmTrajectorySweep`).
  */
 export namespace HumanArmTrajectoryPairs {
-  /**
+  /*
    * A segment's deepest probe in one shape: `short` is how far, millimetres, it
    * lies below what it may (negative when clear).
    */
   export interface IPair {
-    /** The segment's deepest probe. */
+    /*
+     * The segment's deepest probe.
+     */
     probe: number;
 
-    /** The shape, by index in the frame. */
+    /*
+     * The shape, by index in the frame.
+     */
     shape: number;
 
-    /** How far the probe lies below what it may, millimetres. */
+    /*
+     * How far the probe lies below what it may, millimetres.
+     */
     short: number;
 
-    /** Whether the pair is a declared rest (`HumanArmTrajectoryModel.IRest`). */
+    /*
+     * Whether the pair is a declared rest (`HumanArmTrajectoryModel.IRest`).
+     */
     rested: boolean;
   }
 
-  /** The moving-arm pair owned by HumanArmTrajectoryOverlap. */
+  /*
+   * The moving-arm pair owned by HumanArmTrajectoryOverlap.
+   */
   export type ICrossing = HumanArmTrajectoryOverlap.ICrossing;
 
-  /** The reverse collider pair owned by HumanArmTrajectoryOverlap. */
+  /*
+   * The reverse collider pair owned by HumanArmTrajectoryOverlap.
+   */
   export type IEmbedded = HumanArmTrajectoryOverlap.IEmbedded;
 
-  /**
+  /*
    * A site where an iterate puts it: its point, normal and rotation, its
    * touched collider's distance, and the segment it rides on.
    */
   export interface ILocated {
-    /** The site's world point. */
+    /*
+     * The site's world point.
+     */
     point: IAutoMovieVector3;
 
-    /**
+    /*
      * The touched collider's outward normal at the point; none for a site on
      * nothing.
      */
     normal?: IAutoMovieVector3;
 
-    /** The hand's world rotation on the site; free when absent. */
+    /*
+     * The hand's world rotation on the site; free when absent.
+     */
     rotation?: IAutoMovieQuaternion;
 
-    /** The touched collider. */
+    /*
+     * The touched collider.
+     */
     shape?: IAutoMovieMotionHumanArmGeometry.IShape;
 
-    /** The fixed site's prepared signed height in metres, when available. */
+    /*
+     * The fixed site's prepared signed height in metres, when available.
+     */
     height?: number;
 
-    /**
+    /*
      * A world point's signed distance to the touched collider, metres; zero
      * without a surface.
      */
     gap: (p: IAutoMovieVector3) => number;
 
-    /**
+    /*
      * The touched collider's world normal, the site's fallback without one, or
      * zero for a surface-free grip.
      */
     normalAt: (p: IAutoMovieVector3) => IAutoMovieVector3;
 
-    /** The other arm's segment the site rides on, and that segment's origin. */
+    /*
+     * The other arm's segment the site rides on, and that segment's origin.
+     */
     on?: ILocatedOn;
   }
 
-  /** The three world axes. */
+  /*
+   * The three world axes.
+   */
   export const AXES: readonly IAutoMovieVector3[] = [
     { x: 1, y: 0, z: 0 },
     { x: 0, y: 1, z: 0 },
     { x: 0, y: 0, z: 1 },
   ];
 
-  /**
+  /*
    * Two unit directions across a normal.
-   *
-   * @param n The unit normal.
-   * @returns Two unit directions perpendicular to it and to each other.
+   * Parameter n: The unit normal.
+   * Returns: Two unit directions perpendicular to it and to each other.
    */
   export function tangents(
     n: IAutoMovieVector3,
@@ -112,7 +135,7 @@ export namespace HumanArmTrajectoryPairs {
     return [t1, Vector3.cross(n, t1)];
   }
 
-  /**
+  /*
    * How far short of its bound the trajectory reads a pair exactly,
    * millimetres: TrajOpt's contact check reads only pairs within a check
    * distance of their safety distance (Schulman et al. 2014, d_check), and no
@@ -127,7 +150,7 @@ export namespace HumanArmTrajectoryPairs {
    */
   export const CUT: number = T.CHECK;
 
-  /**
+  /*
    * Each segment's deepest collider probe against each shape near it at a
    * waypoint, the tangle audit's pairs: by the audit part the probe belongs to
    * and the shape, a pair the audit does not read (one part, or two that share
@@ -143,18 +166,18 @@ export namespace HumanArmTrajectoryPairs {
    * waypoint, trajopt's per-timestep contact; the course between waypoints is
    * read by the sweeps (`HumanArmTrajectorySweep.links`), each frame step its
    * own reading, so every reading has its own row.
-   *
-   * @param c The context.
-   * @param a The arm.
-   * @param k The waypoint.
-   * @param placed The arm placed there.
-   * @param cut How far short of its bound a pair may be left unread,
-   *   millimetres (`CUT` where the reading's users need no more; negative, how
-   *   little past it, for a reader that refuses only past a slack); every pair
-   *   in reach is read when absent.
-   * @param stop A predicate on an established depth that can only stay true as
-   *   the pair grows deeper, for a reader that needs one rejecting witness.
-   * @returns The pairs by part and shape, through the first such witness if any.
+   * Parameter c: The context.
+   * Parameter a: The arm.
+   * Parameter k: The waypoint.
+   * Parameter placed: The arm placed there.
+   * Parameter cut: How far short of its bound a pair may be left unread,
+   * millimetres (`CUT` where the reading's users need no more; negative, how
+   * little past it, for a reader that refuses only past a slack); every pair
+   * in reach is read when absent.
+   * Parameter stop: A predicate on an established depth that can only stay true as
+   * the pair grows deeper, for a reader that needs one rejecting witness.
+   * Returns: The pairs by part and shape, through the first such witness if any.
+   * ://doi.org/10.1177/0278364914528132
    * @see https://doi.org/10.1177/0278364914528132
    */
   export function deepest(
@@ -248,25 +271,28 @@ export namespace HumanArmTrajectoryPairs {
     return out;
   }
 
-  /** The two moving arms' pairs (HumanArmTrajectoryOverlap.crossing). */
+  /*
+   * The two moving arms' pairs (HumanArmTrajectoryOverlap.crossing).
+   */
   export const crossing: typeof HumanArmTrajectoryOverlap.crossing =
     HumanArmTrajectoryOverlap.crossing;
 
-  /** The reverse body and external pairs (HumanArmTrajectoryOverlap.embedded). */
+  /*
+   * The reverse body and external pairs (HumanArmTrajectoryOverlap.embedded).
+   */
   export const embedded: typeof HumanArmTrajectoryOverlap.embedded =
     HumanArmTrajectoryOverlap.embedded;
 
-  /**
+  /*
    * A site where an iterate puts it: the base's own for a site that rides
    * nothing; the riding segment's frame carried by its arm's iterate
    * otherwise.
-   *
-   * @param c The context.
-   * @param placed A reader of the arms placed at this one waypoint.
-   * @param a The arm whose site it is.
-   * @param k The waypoint.
-   * @param site The site.
-   * @returns The site as placed.
+   * Parameter c: The context.
+   * Parameter placed: A reader of the arms placed at this one waypoint.
+   * Parameter a: The arm whose site it is.
+   * Parameter k: The waypoint.
+   * Parameter site: The site.
+   * Returns: The site as placed.
    */
   export function located(
     c: M.IContext,
@@ -350,20 +376,19 @@ export namespace HumanArmTrajectoryPairs {
     };
   }
 
-  /**
+  /*
    * A probe's point at the next waypoint in a shape's frame at this one: the
    * point carried back by the shape's own motion between the two, so a sweep
    * reads the probe's motion relative to the shape, as continuous collision
    * detection against a moving obstacle does. A body that carries an arm still
    * is then never swept through its own old place.
-   *
-   * @param c The context.
-   * @param a The arm.
-   * @param k The waypoint the sweep starts at.
-   * @param shape The shape's index in the frame at `k` and at `k + 1`.
-   * @param p The probe's point at `k + 1`, world metres.
-   * @returns The point in frame `k`, and the turn that carries a direction
-   *   there from `k + 1`'s frame (the point's derivative in `p`).
+   * Parameter c: The context.
+   * Parameter a: The arm.
+   * Parameter k: The waypoint the sweep starts at.
+   * Parameter shape: The shape's index in the frame at `k` and at `k + 1`.
+   * Parameter p: The probe's point at `k + 1`, world metres.
+   * Returns: The point in frame `k`, and the turn that carries a direction
+   * there from `k + 1`'s frame (the point's derivative in `p`).
    */
   export function relative(
     c: M.IContext,
@@ -377,12 +402,11 @@ export namespace HumanArmTrajectoryPairs {
     return HumanArmTrajectoryHalfStep.relative(c, a, k, shape, p);
   }
 
-  /**
+  /*
    * A hand's contact point in the world.
-   *
-   * @param placed The arm placed.
-   * @param contact The contact in the hand's frame from the wrist.
-   * @returns The point.
+   * Parameter placed: The arm placed.
+   * Parameter contact: The contact in the hand's frame from the wrist.
+   * Returns: The point.
    */
   export function pad(
     placed: ReturnType<typeof G.chain>,
@@ -394,12 +418,11 @@ export namespace HumanArmTrajectoryPairs {
     );
   }
 
-  /**
+  /*
    * The angle between two rotations.
-   *
-   * @param a One rotation.
-   * @param b The other.
-   * @returns Degrees, in [0, 180].
+   * Parameter a: One rotation.
+   * Parameter b: The other.
+   * Returns: Degrees, in [0, 180].
    */
   export function angle(
     a: IAutoMovieQuaternion,
@@ -409,12 +432,11 @@ export namespace HumanArmTrajectoryPairs {
     return (2 * Math.acos(Math.min(1, dot)) * 180) / Math.PI;
   }
 
-  /**
+  /*
    * The rotation vector of `conj(a) b`: the axis scaled by the angle.
-   *
-   * @param a The rotation measured from.
-   * @param b The rotation measured to.
-   * @returns Degrees along the axis.
+   * Parameter a: The rotation measured from.
+   * Parameter b: The rotation measured to.
+   * Returns: Degrees along the axis.
    */
   export function rotationVector(
     a: IAutoMovieQuaternion,
@@ -429,26 +451,42 @@ export namespace HumanArmTrajectoryPairs {
   }
 }
 
-/** The record of `IRelativeResult`'s site. */
+/*
+ * The record of `IRelativeResult`'s site.
+ */
 type IRelativeResult = { point: IAutoMovieVector3; turn: IAutoMovieQuaternion };
 
-/** The record of `ILocatedRotation`'s site. */
+/*
+ * The record of `ILocatedRotation`'s site.
+ */
 type ILocatedRotation = { rotation?: IAutoMovieQuaternion };
 
-/** The alternatives of `LocatedPlaced`'s site. */
+/*
+ * The alternatives of `LocatedPlaced`'s site.
+ */
 type LocatedPlaced = (arm: number) => IAutoMovieMotionHumanArmGeometry.IPlaced;
 
-/** The record of `ILocatedOn`'s site. */
+/*
+ * The record of `ILocatedOn`'s site.
+ */
 type ILocatedOn = {
-  /** Index of the arm carrying the site at this waypoint. */
+  /*
+   * Index of the arm carrying the site at this waypoint.
+   */
   arm: number;
 
-  /** Its rigid segment carrying the site. */
+  /*
+   * Its rigid segment carrying the site.
+   */
   owner: LocatedOnOwner;
 
-  /** That segment's actual world origin, metres. */
+  /*
+   * That segment's actual world origin, metres.
+   */
   origin: IAutoMovieVector3;
 };
 
-/** The alternatives of `LocatedOnOwner`'s site. */
+/*
+ * The alternatives of `LocatedOnOwner`'s site.
+ */
 type LocatedOnOwner = "upper" | "lower" | "hand";

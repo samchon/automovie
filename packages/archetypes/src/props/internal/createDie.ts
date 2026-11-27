@@ -8,15 +8,14 @@ import {
 } from "../../core/index";
 import { TabletopStack } from "./TabletopStack";
 
-/**
+/*
  * One six-sided die resting on a face.
  *
  * The die is a cube, its origin the centre of the face it rests on, `+Y` up. It
  * is picked up, rolled and placed by the shared tabletop contacts
  * (`TabletopStack`).
- *
- * @param params The optional scene id.
- * @returns The inert die and its contact frames, metres.
+ * Parameter params: The optional scene id.
+ * Returns: The inert die and its contact frames, metres.
  */
 export function createDie(
   params: AutoMovieArchetypeDie.IParams = {},
@@ -48,7 +47,7 @@ export function createDie(
   return builder.build(DIE.mass);
 }
 
-/**
+/*
  * A six-sided die: "Common dice are small cubes, most often 1.6 cm (0.63 in)
  * across" (English Wikipedia, Dice, read 2026-11-21). The mass is not read, so
  * it is a provisional estimate.

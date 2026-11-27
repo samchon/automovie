@@ -18,7 +18,7 @@ import { pickUpAdjustTimed } from "./pickUpAdjustTimed";
 import type { pickUpPosture } from "./pickUpPosture";
 import { pickUpStepReach } from "./pickUpStepReach";
 
-/**
+/*
  * A stance that takes one adjustment step toward a grip its arm still misses, a
  * foot stepping toward the wrist's place: the least step whose half, the pelvis
  * riding midway between the feet, brings the shoulder within the arm, up to
@@ -30,22 +30,21 @@ import { pickUpStepReach } from "./pickUpStepReach";
  * of `STEP` unused, and the reaching side's where both reach alike. A grip one
  * step does not bring within reach is none of a reach's: the person steps
  * closer first.
- *
- * @param context The action's body.
- * @param side The reaching arm.
- * @param wrist Where the wrist must go on the grip, world metres.
- * @param stance The stance to step from.
- * @param lifted Where the wrist must also come by the lift's end, world metres:
- *   the step then brings the shoulder within `bendLower.REACH` of the arm of
- *   it, the arm near and not at full extension, or else within the arm
- *   (`pickUpStance`). The grip alone when absent.
- * @param reach How near the shoulder must come to the wrist, metres. The arm's
- *   length when absent.
- * @param accept Optional admission of the actual stepped base, including
- *   another reach adjustment. If the direct step fails, success must stay
- *   monotone up to the permitted maximum.
- * @returns The stepped stance, or null when one step does not reach or the
- *   stance places no foot.
+ * Parameter context: The action's body.
+ * Parameter side: The reaching arm.
+ * Parameter wrist: Where the wrist must go on the grip, world metres.
+ * Parameter stance: The stance to step from.
+ * Parameter lifted: Where the wrist must also come by the lift's end, world metres:
+ * the step then brings the shoulder within `bendLower.REACH` of the arm of
+ * it, the arm near and not at full extension, or else within the arm
+ * (`pickUpStance`). The grip alone when absent.
+ * Parameter reach: How near the shoulder must come to the wrist, metres. The arm's
+ * length when absent.
+ * Parameter accept: Optional admission of the actual stepped base, including
+ * another reach adjustment. If the direct step fails, success must stay
+ * monotone up to the permitted maximum.
+ * Returns: The stepped stance, or null when one step does not reach or the
+ * stance places no foot.
  */
 export function pickUpAdjustStepped(
   context: Pick<IAutoMovieMotionHumanActionContext<object>, "body">,
@@ -120,7 +119,7 @@ export function pickUpAdjustStepped(
   }
   return best === null ? null : best.stance;
 
-  /**
+  /*
    * The least step of a foot that reaches, and its stance; null when one step
    * does not.
    */
@@ -290,31 +289,49 @@ export function pickUpAdjustStepped(
   }
 }
 
-/** A ready stance and the distance its adjustment foot travels, metres. */
+/*
+ * A ready stance and the distance its adjustment foot travels, metres.
+ */
 interface IStep {
-  /** Foot travel along the floor, metres. */
+  /*
+   * Foot travel along the floor, metres.
+   */
   length: number;
 
-  /** The body and its retained step schedule. */
+  /*
+   * The body and its retained step schedule.
+   */
   stance: pickUpPosture.IStance;
 }
 
-/** The requested adjustment may lie beyond a single step. */
+/*
+ * The requested adjustment may lie beyond a single step.
+ */
 type Step = IStep | null;
 
-/** The least foot travel, if its reach intersects the permitted course. */
+/*
+ * The least foot travel, if its reach intersects the permitted course.
+ */
 type Travel = pickUpStepReach.Distance;
 
-/** The opposite ankle is absent when the entry has no placement for it. */
+/*
+ * The opposite ankle is absent when the entry has no placement for it.
+ */
 type Ankle = IAutoMovieHumanLimbGoal | undefined;
 
-/** Whether another admitted reach adjustment can use the stepped base. */
+/*
+ * Whether another admitted reach adjustment can use the stepped base.
+ */
 type Accept = (posture: IAutoMovieMotionHumanPosture) => boolean;
 
-/** A leg goal addressed by the side of its support. */
+/*
+ * A leg goal addressed by the side of its support.
+ */
 type Leg = `${AutoMovieHumanSide}Leg`;
 
-/** Same-person exact FK loan borrowed by an actual adjusted stance invocation. */
+/*
+ * Same-person exact FK loan borrowed by an actual adjusted stance invocation.
+ */
 type IFK = Parameters<pickUpPosture.IStance["at"]>[1];
 
 type IROM = Parameters<pickUpPosture.IStance["at"]>[2];

@@ -6,7 +6,7 @@ import type {
 
 import { physicalShapeHull } from "./physicalShapeHull";
 
-/**
+/*
  * Admit geometry and observed frames without borrowing the native mass/tree
  * contract. Every collider still has a solid shape, material, local frame and
  * known joint carriers.

@@ -20,7 +20,7 @@ import { fkReachableBones } from "./fkReachableBones";
 import { admitMotionSampleRate } from "./admitMotionSampleRate";
 import { validateCapsule } from "./validateCapsule";
 
-/**
+/*
  * Sample FK and compare configured foot points and valid capsule endpoints to
  * scalar/height-source ground minus tolerance. A nonfinite tolerance or a
  * nonfinite or nonpositive rate yields a range finding before the pose sweep.
@@ -163,7 +163,7 @@ const DEFAULT_FOOT_BONES: readonly ["leftFoot", "rightFoot"] = [
   "rightFoot",
 ] as const;
 
-/**
+/*
  * Carry an endpoint's surface height, admitted ground threshold and signed
  * depth.
  *
@@ -188,7 +188,7 @@ interface IPenetration {
   depth: number;
 }
 
-/**
+/*
  * Round a diagnostic quantity to three decimals with
  * Math.round(value*1000)/1000.
  *

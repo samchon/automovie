@@ -1,15 +1,14 @@
 import type { AutoMovieViewerAudio } from "../AutoMovieViewerAudio.js";
 import { planAutoMovieAudioPlayback } from "./planAutoMovieAudioPlayback.js";
 
-/**
+/*
  * Play a cue list through Web Audio from a film instant at a transport rate, as
- * {@link AutoMovieViewerAudio.planPlayback} plans it: one buffer source per sounding
+ * AutoMovieViewerAudio.planPlayback plans it: one buffer source per sounding
  * cue, through a gain and an equal-power stereo panner, started at the
  * context's current time plus its delay. The returned stop releases every
  * started source, so a pause, seek or rate change stops and replans.
- *
- * @param request Context, decoded buffers, cues, film instant and rate.
- * @returns A function stopping every started source once.
+ * Parameter request: Context, decoded buffers, cues, film instant and rate.
+ * Returns: A function stopping every started source once.
  */
 export function playAutoMovieAudioCues(
   request: AutoMovieViewerAudio.IPlayCuesRequest,

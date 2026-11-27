@@ -9,18 +9,17 @@ import {
   AutoMovieArchetypeRefusal,
 } from "../../core";
 import type { AutoMovieArchetypeMovingWalkway } from "../AutoMovieArchetypeMovingWalkway";
-/**
+/*
  * A moving walkway's band running at a constant speed, read on the ride's
  * clock: at second 0 the band model (`AutoMovieArchetypeMovingWalkway.belt`) lies on the
  * walkway. The band translates along the walkway's `+Z` running `forward`, or
  * `-Z` running `backward`, and each handrail moves with it.
- *
- * @param walkway The installed walkway.
- * @param placement Its world placement.
- * @param ride The band speed and running direction.
- * @returns The band and handrail frames on the ride's clock.
- * @throws {AutoMovieArchetypeRefusal} For a speed that is not positive or
- *   exceeds EN 115-1's 0.75 m/s.
+ * Parameter walkway: The installed walkway.
+ * Parameter placement: Its world placement.
+ * Parameter ride: The band speed and running direction.
+ * Returns: The band and handrail frames on the ride's clock.
+ * For a speed that is not positive or
+ * exceeds EN 115-1's 0.75 m/s.
  */
 export function rideMovingWalkway(
   walkway: AutoMovieArchetype<
@@ -69,11 +68,15 @@ export function rideMovingWalkway(
       }),
   };
 }
-/** A unit scale: the rides move rigid frames. */
+/*
+ * A unit scale: the rides move rigid frames.
+ */
 const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
-/** The identity rotation of the level band. */
+/*
+ * The identity rotation of the level band.
+ */
 const LEVEL: IAutoMovieTransform["rotation"] = { x: 0, y: 0, z: 0, w: 1 };
-/**
+/*
  * The greatest pallet band speed EN 115-1 permits, m/s (KONE 5.4,
  * https://www.kone.co.uk/Images/Escalator%20planning%20guide%20GBIR_tcm45-86614.pdf).
  */

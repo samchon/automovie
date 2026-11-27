@@ -15,13 +15,13 @@ import { routeLength } from "./routeLength";
 import { serviceSystemLoad } from "./serviceSystemLoad";
 import { serviceSystemReach } from "./serviceSystemReach";
 
-/**
+/*
  * Project one system to a plan schematic with its totals.
  *
  * Lengths are measured on the authored 3D centre line and only the drawing is
  * flattened, so a riser does not silently become a point of zero pipe. Demand
  * is the system's own declared load, read in the direction the system flows by
- * {@link serviceSystemLoad}, so a drainage stack reports what it carries rather
+ * serviceSystemLoad, so a drainage stack reports what it carries rather
  * than the zero a supply-shaped reading would give it. This report has no
  * current product caller. An unknown system throws and a missing endpoint owner
  * remains the authored port id; validation is separate.

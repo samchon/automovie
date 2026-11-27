@@ -19,17 +19,16 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * The other arm brought up for a hand to touch a region on it: its forearm held
  * across the front of the waist, the wrist on the body's midline half way from
  * the hips to the shoulders and a forearm's length ahead of the hips, the palm
  * down and the fingers toward the touching hand, the elbow on the hanging arm's
  * side. Null when the region does not ride the other arm.
- *
- * @param context The action's context.
- * @param side The touching hand.
- * @param target The touch's target.
- * @returns The presented arm, or null.
+ * Parameter context: The action's context.
+ * Parameter side: The touching hand.
+ * Parameter target: The touch's target.
+ * Returns: The presented arm, or null.
  */
 export function touchPresented(
   context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
@@ -86,20 +85,19 @@ export function touchPresented(
   };
 }
 
-/**
+/*
  * The other arm brought up so a hand can touch a region on it: the touch law's
  * presentation of a forearm, a wrist or a hand to be scratched, patted or
  * looked at.
  */
 export namespace touchPresented {
-  /**
+  /*
    * Carry the presented arm through the touch's entry, hold and return.
-   *
-   * @param body The touching body.
-   * @param entry Its actual entry pose.
-   * @param shown The presented arm already planned on that entry.
-   * @param clock The touch's phrase clock.
-   * @returns The arm primitive with the original explicit carry span.
+   * Parameter body: The touching body.
+   * Parameter entry: Its actual entry pose.
+   * Parameter shown: The presented arm already planned on that entry.
+   * Parameter clock: The touch's phrase clock.
+   * Returns: The arm primitive with the original explicit carry span.
    */
   export function carry(
     body: IAutoMovieMotionHumanActionContext["body"],
@@ -125,18 +123,28 @@ export namespace touchPresented {
     });
   }
 
-  /** An arm brought up to be touched. */
+  /*
+   * An arm brought up to be touched.
+   */
   export interface IPresented {
-    /** The arm. */
+    /*
+     * The arm.
+     */
     side: AutoMovieHumanSide;
 
-    /** Its goal, world, on the entry posture. */
+    /*
+     * Its goal, world, on the entry posture.
+     */
     goal: IAutoMovieHumanLimbGoal;
 
-    /** The body's bones with that arm at its goal. */
+    /*
+     * The body's bones with that arm at its goal.
+     */
     bones: ReturnType<typeof poseBones>;
   }
 }
 
-/** The alternatives of `OfContext`'s site. */
+/*
+ * The alternatives of `OfContext`'s site.
+ */
 type OfContext = "body" | "entry";

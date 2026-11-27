@@ -19,7 +19,7 @@ import { HumanArmFrame } from "./HumanArmFrame";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanJacobian } from "./HumanJacobian";
 
-/**
+/*
  * The analytic Jacobian of the arm planner's coordinates: for each free
  * coordinate, the twist of the upper arm, the forearm and the hand, so a point
  * riding a segment moves at `v_origin + ω × (p − origin)`.
@@ -35,16 +35,15 @@ import { HumanJacobian } from "./HumanJacobian";
  * with it.
  */
 export namespace HumanArmJacobian {
-  /**
+  /*
    * Each free coordinate's column at an arm placed in a frame.
-   *
-   * @param setup The arm.
-   * @param at The frame.
-   * @param c The coordinates.
-   * @param placed The arm's actual chain placed at them
-   *   (`HumanArmGeometry.chain`, also included in placed).
-   * @param free The free coordinates, in order.
-   * @returns One column per free coordinate.
+   * Parameter setup: The arm.
+   * Parameter at: The frame.
+   * Parameter c: The coordinates.
+   * Parameter placed: The arm's actual chain placed at them
+   * (`HumanArmGeometry.chain`, also included in placed).
+   * Parameter free: The free coordinates, in order.
+   * Returns: One column per free coordinate.
    */
   export function columns(
     setup: IAutoMovieMotionHumanArmGeometry.ISetup,
@@ -163,20 +162,19 @@ export namespace HumanArmJacobian {
       };
     });
   }
-  /**
+  /*
    * One arm of a body on a pose, read at an arm moved by an offset in the
    * planner's coordinates: every coordinate's column, and the chain at any
    * coordinates, the forward kinematics the columns differentiate.
-   *
-   * @param body The body.
-   * @param side The arm.
-   * @param pose The pose the arm is read on.
-   * @param arm The arm's clinical triples, encoded clamped
-   *   (`HumanArmGeometry.encode`).
-   * @param offset Added to each of the nine coordinates, so a coordinate may
-   *   lie past its range; none when absent.
-   * @returns The coordinates read at, the free ones (a hinge's fixed angle is
-   *   not), their columns in that order and the chain.
+   * Parameter body: The body.
+   * Parameter side: The arm.
+   * Parameter pose: The pose the arm is read on.
+   * Parameter arm: The arm's clinical triples, encoded clamped
+   * (`HumanArmGeometry.encode`).
+   * Parameter offset: Added to each of the nine coordinates, so a coordinate may
+   * lie past its range; none when absent.
+   * Returns: The coordinates read at, the free ones (a hinge's fixed angle is
+   * not), their columns in that order and the chain.
    */
   export function read(
     body: IAutoMovieMotionHumanBody,
@@ -209,16 +207,20 @@ export namespace HumanArmJacobian {
     };
   }
 
-  /** A segment that does not move. */
+  /*
+   * A segment that does not move.
+   */
   const STILL: IAutoMovieMotionHumanJacobian.ITwist = {
     angular: { x: 0, y: 0, z: 0 },
     linear: { x: 0, y: 0, z: 0 },
   };
 
-  /** A joint's angles by index: flexion, abduction, twist. */
+  /*
+   * A joint's angles by index: flexion, abduction, twist.
+   */
   const AXES: readonly AXESItem[] = [0, 1, 2];
 
-  /**
+  /*
    * Fixed variable labels of the canonical arms, borrowed only by the read-only
    * Jacobian consumer.
    */
@@ -232,7 +234,7 @@ export namespace HumanArmJacobian {
     right: jointVariables("rightLowerArm", "rightHand"),
   };
 
-  /**
+  /*
    * The original six-variable order, also used for a setup with noncanonical
    * bone identities.
    */
@@ -249,10 +251,12 @@ export namespace HumanArmJacobian {
     );
   }
 
-  /** The chart's step, coordinate units. */
+  /*
+   * The chart's step, coordinate units.
+   */
   const STEP: number = 1e-3;
 
-  /**
+  /*
    * The world angular velocity that carries one rotation to another over a
    * span, radians per unit.
    */
@@ -277,5 +281,7 @@ export namespace HumanArmJacobian {
   };
 }
 
-/** The alternatives of `AXESItem`'s site. */
+/*
+ * The alternatives of `AXESItem`'s site.
+ */
 type AXESItem = 0 | 1 | 2;

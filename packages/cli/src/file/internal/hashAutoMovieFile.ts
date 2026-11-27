@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
 
-/**
+/*
  * Streams the file's bytes into a lowercase SHA-256 digest and rejects a failed
  * read.
  */

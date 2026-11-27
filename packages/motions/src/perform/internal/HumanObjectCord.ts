@@ -11,7 +11,9 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** Build a one-wide, world-space soft body from a model's declared span. */
+/*
+ * Build a one-wide, world-space soft body from a model's declared span.
+ */
 export function HumanObjectCord(
   model: IAutoMovieMotionHumanObject.ISpanModel,
   id: string,
@@ -150,18 +152,12 @@ export function HumanObjectCord(
   };
 }
 
-/** The span cord's seed construction, shared by authoring and placement. */
+/*
+ * The span cord's seed construction, shared by authoring and placement.
+ */
 export namespace HumanObjectCord {
-  /**
+  /*
    * Sample a two-leg rest polyline at the supplied world-space endpoints.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the world frame and its two equal rest legs.
-   * @evidence contracts/development/implementation.md#principled-implementation Pythagoras gives the height of two half-length legs over the endpoint chord. Projected gravity chooses the plane.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the chord, compute its midpoint and sag, then sample the two legs.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An invalid or overextended chord refuses except for rounding of the world-space transform.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Linear in links, with one point per joint.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The result uses this placement's endpoints and has no cache.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns only its new flat coordinate buffer.
    */
   export function rest(
     id: string,
@@ -223,7 +219,9 @@ export namespace HumanObjectCord {
   }
 }
 
-/** Use projected gravity, or the least parallel basis axis when it vanishes. */
+/*
+ * Use projected gravity, or the least parallel basis axis when it vanishes.
+ */
 function sagDirection(
   chord: IAutoMovieVector3,
   gravity: IAutoMovieVector3,

@@ -9,7 +9,7 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
 import { planPhysicalSupportTargets } from "./planPhysicalSupportTargets";
 import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
 
-/**
+/*
  * Correct support joint goals for the root's actual placement, so root tracking
  * error does not become foot sliding.
  */

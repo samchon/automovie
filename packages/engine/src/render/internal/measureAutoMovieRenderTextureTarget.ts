@@ -3,7 +3,7 @@ import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
 import { autoMovieTextureFormatBytes } from "./autoMovieTextureFormatBytes";
 import { measureAutoMovieTextureStorage } from "./measureAutoMovieTextureStorage";
 
-/**
+/*
  * Bound resolved color mips and color/depth sample attachments across target
  * faces. Four-byte depth bounds D24 and D24S8 storage; a reported custom depth
  * width replaces that profile. Unknown attachments and unsafe sums remain null.

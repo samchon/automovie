@@ -11,7 +11,7 @@ import { RecoverySlabGraph } from "../../geometry/RecoverySlabGraph";
 import { critical } from "./critical";
 import { prepareRecoveryCriticalBrackets } from "./prepareRecoveryCriticalBrackets";
 
-/**
+/*
  * Observe actual distal extrema and PL critical brackets from existing
  * source-loop incidence. The open half-space is bounded above by the next
  * representable value beyond the source maximum. Private vertex-face probes let

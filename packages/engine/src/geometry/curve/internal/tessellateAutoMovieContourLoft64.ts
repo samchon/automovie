@@ -9,7 +9,7 @@ import { AutoMovieCurveMath64 as M } from "../../AutoMovieCurveMath64";
 import { computeAutoMovieContourNormals64 } from "./computeAutoMovieContourNormals64";
 import { generateAutoMovieContourLoft64 } from "./generateAutoMovieContourLoft64";
 
-/**
+/*
  * Materialize the original contour kernel into its existing memory result.
  * Source-free coefficients and declared incidence retain their original
  * ordering. Normals use the original face/corner reduction, with no

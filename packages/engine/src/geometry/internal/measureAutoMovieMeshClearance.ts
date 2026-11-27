@@ -7,7 +7,7 @@ import {
 import { triangleIndicesOf } from "./triangleIndicesOf";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Measure front-minus-back depth along one axis over the complete projected
  * overlap of two triangle meshes.
  *
@@ -26,12 +26,11 @@ import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
  * those inequalities and not only the violated ones. Throws on an invalid axis,
  * a malformed index buffer, a non-finite position, and projected area, clipping
  * or depth arithmetic that overflows.
- *
- * @param front Mesh that should lie in front.
- * @param back Mesh that should lie behind.
- * @param axis Depth axis; larger values are farther front.
- * @param visit Optional receiver of every overlap witness.
- * @returns Minimum depth gap per overlapping front triangle, in ordinal order.
+ * Parameter front: Mesh that should lie in front.
+ * Parameter back: Mesh that should lie behind.
+ * Parameter axis: Depth axis; larger values are farther front.
+ * Parameter visit: Optional receiver of every overlap witness.
+ * Returns: Minimum depth gap per overlapping front triangle, in ordinal order.
  */
 export function measureAutoMovieMeshClearance(
   front: IAutoMovieMesh,
@@ -78,34 +77,50 @@ export function measureAutoMovieMeshClearance(
   return result;
 }
 
-/** One triangle projected to the clearance plane, depth as the third value. */
+/*
+ * One triangle projected to the clearance plane, depth as the third value.
+ */
 interface IProjectedTriangle {
-  /** Corners as `[u, v, depth]`. */
+  /*
+   * Corners as `[u, v, depth]`.
+   */
   points: number[][];
 
-  /** Original vertex indices of the corners. */
+  /*
+   * Original vertex indices of the corners.
+   */
   vertices: number[];
 
-  /** Original triangle ordinal. */
+  /*
+   * Original triangle ordinal.
+   */
   ordinal: number;
 
-  /** Twice the signed projected area; zero for a triangle parallel to the axis. */
+  /*
+   * Twice the signed projected area; zero for a triangle parallel to the axis.
+   */
   area: number;
 
-  /** Projected box as `[minU, minV, maxU, maxV]`. */
+  /*
+   * Projected box as `[minU, minV, maxU, maxV]`.
+   */
   bounds: number[];
 }
 
-/** A node of the back-triangle tree: a leaf of triangles or two children. */
+/*
+ * A node of the back-triangle tree: a leaf of triangles or two children.
+ */
 type ITriangleTree = {
-  /** Projected box as `[minU, minV, maxU, maxV]` enclosing the subtree. */
+  /*
+   * Projected box as `[minU, minV, maxU, maxV]` enclosing the subtree.
+   */
   bounds: number[];
 } & (
   | { triangles: IProjectedTriangle[] }
   | { children: [ITriangleTree, ITriangleTree] }
 );
 
-/**
+/*
  * Build a balanced index over projected triangles by widest-axis median. Eight
  * triangles per leaf is a traversal cost choice, never a geometry sample count:
  * every leaf triangle still receives its own inclusive bounds test. Halved
@@ -143,11 +158,15 @@ const triangleTree = (list: IProjectedTriangle[]): ITriangleTree | null => {
   };
 };
 
-/** Inclusive overlap preserves boundary contacts and rejects only proven gaps. */
+/*
+ * Inclusive overlap preserves boundary contacts and rejects only proven gaps.
+ */
 const overlaps = (a: number[], b: number[]): boolean =>
   a[0]! <= b[2]! && a[2]! >= b[0]! && a[1]! <= b[3]! && a[3]! >= b[1]!;
 
-/** Every tree triangle whose projected box overlaps `bounds`, inclusively. */
+/*
+ * Every tree triangle whose projected box overlaps `bounds`, inclusively.
+ */
 function* overlappingTriangles(
   tree: ITriangleTree | null,
   bounds: number[],
@@ -161,14 +180,18 @@ function* overlappingTriangles(
       yield* overlappingTriangles(child, bounds);
 }
 
-/** The projected `[u, v, depth]` component order for one depth axis. */
+/*
+ * The projected `[u, v, depth]` component order for one depth axis.
+ */
 const depthAxes = (axis: "x" | "y" | "z"): readonly number[] => {
   if (axis !== "x" && axis !== "y" && axis !== "z")
     throw new Error("Mesh clearance needs an X, Y or Z depth axis.");
   return { x: [1, 2, 0], y: [2, 0, 1], z: [0, 1, 2] }[axis];
 };
 
-/** Admit a mesh and project each of its triangles. */
+/*
+ * Admit a mesh and project each of its triangles.
+ */
 const triangles = (
   mesh: IAutoMovieMesh,
   axes: readonly number[],
@@ -207,11 +230,15 @@ const triangles = (
   return result;
 };
 
-/** Twice the signed area of `(a, b, p)` in the projection plane. */
+/*
+ * Twice the signed area of `(a, b, p)` in the projection plane.
+ */
 const side = (a: number[], b: number[], p: number[]): number =>
   (b[0]! - a[0]!) * (p[1]! - a[1]!) - (b[1]! - a[1]!) * (p[0]! - a[0]!);
 
-/** Barycentric weights of a projected point in a projected triangle. */
+/*
+ * Barycentric weights of a projected point in a projected triangle.
+ */
 const barycentric = (triangle: IProjectedTriangle, p: number[]): number[] => {
   const a: number[] = triangle.points[0]!;
   const b: number[] = triangle.points[1]!;
@@ -221,13 +248,15 @@ const barycentric = (triangle: IProjectedTriangle, p: number[]): number[] => {
   return [1 - beta - gamma, beta, gamma];
 };
 
-/** The triangle's depth at the given barycentric weights. */
+/*
+ * The triangle's depth at the given barycentric weights.
+ */
 const depth = (triangle: IProjectedTriangle, weights: number[]): number =>
   triangle.points[0]![2]! * weights[0]! +
   triangle.points[1]![2]! * weights[1]! +
   triangle.points[2]![2]! * weights[2]!;
 
-/**
+/*
  * Sutherland-Hodgman clipping of a projected polygon against one triangle,
  * keeping the inclusive inside so touching boundaries survive.
  */

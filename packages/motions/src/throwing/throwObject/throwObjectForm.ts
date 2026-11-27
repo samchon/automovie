@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * The throw's form: every coefficient of its launch, its clock, its trunk and
  * its hand's places by style, each with its source or marked provisional where
  * no study read gives the value. Read by `throwObject`.
@@ -15,7 +15,9 @@ import type {
  * provisional staging values.
  */
 export namespace throwObjectForm {
-  /** Release angle above the horizontal by style, degrees (provisional). */
+  /*
+   * Release angle above the horizontal by style, degrees (provisional).
+   */
   export const ANGLE: Readonly<
     Record<IAutoMovieMotionHumanThrowObjectForm.Style, number>
   > = {
@@ -30,13 +32,15 @@ export namespace throwObjectForm {
     gridironSnap: 22,
   };
 
-  /**
+  /*
    * Seconds before and after the release through which the hand holds the
    * launch velocity (provisional).
    */
   export const CARRY: number = 0.01;
 
-  /** Windup seconds by style (provisional). */
+  /*
+   * Windup seconds by style (provisional).
+   */
   export const WINDUP: Readonly<
     Record<IAutoMovieMotionHumanThrowObjectForm.Style, number>
   > = {
@@ -51,7 +55,7 @@ export namespace throwObjectForm {
     gridironSnap: 0.24,
   };
 
-  /**
+  /*
    * The trunk's turn toward the throwing side in the windup, degrees
    * (provisional).
    */
@@ -69,7 +73,7 @@ export namespace throwObjectForm {
     gridironSnap: 0,
   };
 
-  /**
+  /*
    * The trunk's forward inclination at release by style, degrees: about 30
    * degrees in the overarm throw (Fleisig, Barrentine, Zheng, Escamilla and
    * Andrews 1999, J Biomech 32:1371). No study read gives the underarm throw's
@@ -89,7 +93,7 @@ export namespace throwObjectForm {
     gridironSnap: 52,
   };
 
-  /**
+  /*
    * The throwing elbow's flexion at release by style, degrees, where a study
    * gives it: about 20 to 25 degrees in the overarm throw, so the middle of
    * that range (Fleisig et al. 1999). A style without one keeps its `PLACES`
@@ -102,7 +106,7 @@ export namespace throwObjectForm {
     gridironPass: 35,
   };
 
-  /**
+  /*
    * The hand's grip places around the throwing shoulder, in arm lengths of the
    * performer's floor frame: `x` toward the throwing side, `y` up, `z` forward
    * (provisional). The chamber and the finish are read from the standing
@@ -166,5 +170,7 @@ export namespace throwObjectForm {
   };
 }
 
-/** The alternatives of `EntryEntryItem`'s site. */
+/*
+ * The alternatives of `EntryEntryItem`'s site.
+ */
 type EntryEntryItem = "chamber" | "release" | "finish";

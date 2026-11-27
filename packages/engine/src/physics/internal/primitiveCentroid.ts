@@ -3,7 +3,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Centroid of a primitive in its own local frame (meters).
  *
  * Only the cone is asymmetric along its axis: a solid cone's centroid sits a

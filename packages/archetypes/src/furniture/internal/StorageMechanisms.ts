@@ -7,7 +7,9 @@ import { STORAGE_MODELS } from "../constants/STORAGE_MODELS";
 import { StorageConstruction } from "./StorageConstruction";
 import { AutoMovieArchetypeStorage } from "../AutoMovieArchetypeStorage";
 
-/** The name each kind's model carries. */
+/*
+ * The name each kind's model carries.
+ */
 const NAMES: Readonly<Record<AutoMovieArchetypeStorage.Kind, string>> = {
   wardrobe: "wardrobe",
   chest: "chest of drawers",
@@ -16,7 +18,7 @@ const NAMES: Readonly<Record<AutoMovieArchetypeStorage.Kind, string>> = {
   bookcase: "bookcase",
 };
 
-/**
+/*
  * Pick the recorded hinge or slide model and use its figures in the saved
  * dimension stream.
  */
@@ -51,15 +53,19 @@ function draw<Id extends AutoMovieArchetypeStorage.Affordance>(
   return { builder, d };
 }
 
-/**
+/*
  * Furniture construction selections with hinged, sliding and open storage
  * mechanisms.
  */
 export namespace StorageMechanisms {
-  /** The contact ids {@link hinged} builds or reads. */
+  /*
+   * The contact ids hinged builds or reads.
+   */
   export type HingedKind = "wardrobe" | "locker";
 
-  /** The contact ids {@link hinged} builds or reads. */
+  /*
+   * The contact ids hinged builds or reads.
+   */
   export type HingedContact =
     | "push"
     | "top"
@@ -70,7 +76,9 @@ export namespace StorageMechanisms {
     | "rightPull"
     | "door";
 
-  /** Build a hinged wardrobe or locker with the matching supported travel. */
+  /*
+   * Build a hinged wardrobe or locker with the matching supported travel.
+   */
   export function hinged(
     kind: HingedKind,
     params: Omit<AutoMovieArchetypeStorage.IParams, "kind">,
@@ -82,17 +90,23 @@ export namespace StorageMechanisms {
     return builder.build(d.mass!, kind === "locker" ? { rests: "steel" } : {});
   }
 
-  /** The values {@link sliding} accepts at this place in its signature. */
+  /*
+   * The values sliding accepts at this place in its signature.
+   */
   export type SlidingKind = "chest" | "filingCabinet";
 
-  /** The contact ids {@link sliding} builds or reads. */
+  /*
+   * The contact ids sliding builds or reads.
+   */
   export type SlidingContact =
     | "push"
     | "top"
     | `drawer${number}`
     | `pull${number}`;
 
-  /** Build a unit with drawers and carried pull grips. */
+  /*
+   * Build a unit with drawers and carried pull grips.
+   */
   export function sliding(
     kind: SlidingKind,
     params: Omit<AutoMovieArchetypeStorage.IParams, "kind">,
@@ -104,10 +118,14 @@ export namespace StorageMechanisms {
     return builder.build(d.mass!);
   }
 
-  /** The contact ids {@link bookcase} builds or reads. */
+  /*
+   * The contact ids bookcase builds or reads.
+   */
   export type BookcaseContact = "push" | "top" | `shelf${number}`;
 
-  /** Build a bookcase with open, visible shelf supports. */
+  /*
+   * Build a bookcase with open, visible shelf supports.
+   */
   export function bookcase(
     params: Omit<AutoMovieArchetypeStorage.IParams, "kind">,
     seed?: number,
@@ -119,20 +137,30 @@ export namespace StorageMechanisms {
   }
 }
 
-/** The model-space construction for the selected contact IDs. */
+/*
+ * The model-space construction for the selected contact IDs.
+ */
 type Builder<Id extends AutoMovieArchetypeStorage.Affordance> = AutoMovieArchetypeBuilder<
   Id,
   AutoMovieArchetypeStorage.Dimension
 >;
 
-/** Model dimensions in the legacy family's recorded units. */
+/*
+ * Model dimensions in the legacy family's recorded units.
+ */
 type Dimensions = Partial<Record<AutoMovieArchetypeStorage.Dimension, number>>;
 
-/** A started construction: its builder and its drawn dimensions. */
+/*
+ * A started construction: its builder and its drawn dimensions.
+ */
 interface IDrawn<Id extends AutoMovieArchetypeStorage.Affordance> {
-  /** The model-space builder for the selected contact ids. */
+  /*
+   * The model-space builder for the selected contact ids.
+   */
   builder: Builder<Id>;
 
-  /** The drawn and fixed dimensions in the family's recorded units. */
+  /*
+   * The drawn and fixed dimensions in the family's recorded units.
+   */
   d: Dimensions;
 }

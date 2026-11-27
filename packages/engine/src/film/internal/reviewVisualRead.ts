@@ -20,7 +20,7 @@ import { grammarDiagnosticsToReviewNotes } from "./grammarDiagnosticsToReviewNot
 import { projectToNdc } from "./projectToNdc";
 import { resolveCameraAt } from "./resolveCameraAt";
 
-/**
+/*
  * Engine-computed visual-read metrics for one compiled shot, filed as advisory
  * `tier: "visual"` review notes after any film-grammar findings passed in. They
  * never fail a gate; they give the review backlog measurable facts about
@@ -48,10 +48,9 @@ import { resolveCameraAt } from "./resolveCameraAt";
  * 180)` degrees and `far > near`; without one they are skipped. A root is a
  * point, so a subject whose body is in frame while its root is not is reported;
  * that approximation holds for all three metrics.
- *
- * @param props The shot, its scene and motions, the metric parameters, and the
- *   grammar findings to file first.
- * @returns The grammar notes followed by the visual-read notes.
+ * Parameter props: The shot, its scene and motions, the metric parameters, and the
+ * grammar findings to file first.
+ * Returns: The grammar notes followed by the visual-read notes.
  */
 export function reviewVisualRead(
   props: IAutoMovieReviewVisualRead.IProps,
@@ -155,34 +154,54 @@ export function reviewVisualRead(
   return notes;
 }
 
-/** Assumed render aspect (width / height); the scene camera carries none. */
+/*
+ * Assumed render aspect (width / height); the scene camera carries none.
+ */
 const DEFAULT_ASPECT: number = 16 / 9;
 
-/** Default visual-read sampling rate, in samples per second. */
+/*
+ * Default visual-read sampling rate, in samples per second.
+ */
 const DEFAULT_SAMPLE_RATE: number = 12;
 
-/** Default body radius, in metres, a contact point must land within. */
+/*
+ * Default body radius, in metres, a contact point must land within.
+ */
 const DEFAULT_CONTACT_RADIUS: number = 1.0;
 
-/** Default silhouette half-width, in metres, a torso-sized radius. */
+/*
+ * Default silhouette half-width, in metres, a torso-sized radius.
+ */
 const DEFAULT_SILHOUETTE_RADIUS: number = 0.35;
 
-/** A performance whose node and motion both resolved. */
+/*
+ * A performance whose node and motion both resolved.
+ */
 interface IPerformer {
-  /** Scene-node identity used in advisory note text. */
+  /*
+   * Scene-node identity used in advisory note text.
+   */
   name: string;
 
-  /** Borrowed staged placement folded with the sampled pose root. */
+  /*
+   * Borrowed staged placement folded with the sampled pose root.
+   */
   node: IAutoMovieSceneNode;
 
-  /** Borrowed compiled motion sampled for this performance. */
+  /*
+   * Borrowed compiled motion sampled for this performance.
+   */
   motion: IAutoMovieMotion;
 
-  /** Shot-local seconds subtracted before sampling the pose-local clock. */
+  /*
+   * Shot-local seconds subtracted before sampling the pose-local clock.
+   */
   offset: number;
 }
 
-/** The framing and silhouette notes, from one table of cameras and roots. */
+/*
+ * The framing and silhouette notes, from one table of cameras and roots.
+ */
 function cameraNotes(props: {
   beat: string;
   shot: IAutoMovieShot;
@@ -261,7 +280,9 @@ function cameraNotes(props: {
   return notes;
 }
 
-/** The note for a contact event that lands outside its target's body radius. */
+/*
+ * The note for a contact event that lands outside its target's body radius.
+ */
 function missNote(
   beat: string,
   event: IAutoMovieInteractionEvent,
@@ -276,7 +297,7 @@ function missNote(
   };
 }
 
-/**
+/*
  * A performer's world root at shot time `t`: its clip has advanced `max(0, t -
  * startOffset)`, the convention the beat snapshots use.
  */
@@ -287,7 +308,9 @@ function worldRootAt(performer: IPerformer, t: number): IAutoMovieVector3 {
   ).translation;
 }
 
-/** Whether `point` is inside the camera's frustum, near and far included. */
+/*
+ * Whether `point` is inside the camera's frustum, near and far included.
+ */
 function inFrame(
   resolved: IAutoMovieResolvedCamera,
   point: IAutoMovieVector3,

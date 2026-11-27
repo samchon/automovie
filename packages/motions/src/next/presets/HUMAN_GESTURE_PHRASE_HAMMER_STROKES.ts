@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `hammerStrokes` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. Hammering: the fist that holds the hammer strikes
  * down and back on the target, up and down.

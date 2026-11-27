@@ -21,7 +21,7 @@ import { HumanSword } from "./HumanSword";
 import { HumanSwordFollow } from "./HumanSwordFollow";
 import { HumanSwordTiming } from "./HumanSwordTiming";
 
-/**
+/*
  * The thrust of blade work: the point driven straight onto the target, from
  * where the fencer stands or carried by a step or a lunge, then recovered.
  *
@@ -45,13 +45,13 @@ import { HumanSwordTiming } from "./HumanSwordTiming";
  * values are provisional but the speeds.
  */
 export namespace HumanSwordThrust {
-  /**
+  /*
    * The chamber's upper arm held out from the trunk, degrees of abduction from
    * hanging, so its girth clears the trunk's (provisional).
    */
   export const CHAMBER: number = 25;
 
-  /**
+  /*
    * The least share of the arm's length the hand stands before the shoulder as
    * the point lands for a pose the arm cannot hold to be blamed on the hold
    * (provisional): nearer, the refusal names its cause, a target inside the
@@ -59,7 +59,7 @@ export namespace HumanSwordThrust {
    */
   export const NEAR: number = 0.3;
 
-  /**
+  /*
    * Thrust: the point driven straight onto the target at the decisive instant
    * (`stroke`), with a step or a lunge when asked, then recovered. A target
    * beyond the arm with the chosen advance, or so near that the hand would land
@@ -298,7 +298,7 @@ export namespace HumanSwordThrust {
     };
 }
 
-/**
+/*
  * How far the chamber draws the hand back from its landing along the stroke's
  * line, metres: as deep as the hilt's chamber by the side lies along the line,
  * but never nearer the shoulder than that chamber holds the hand.
@@ -311,13 +311,12 @@ export namespace HumanSwordThrust {
  * shoulder, the nearer root of |from − line·d| = r (a quadratic in d); a line
  * that never comes that near keeps the whole draw, and a landing already inside
  * the sphere is not drawn nearer.
- *
- * @param shoulder The thrusting shoulder, world metres.
- * @param hilt The chamber's hilt by the side, world metres.
- * @param reached Where the hand lands, as the entry's shoulder stands, world
- *   metres.
- * @param line The stroke's unit direction.
- * @returns The draw, metres, not negative.
+ * Parameter shoulder: The thrusting shoulder, world metres.
+ * Parameter hilt: The chamber's hilt by the side, world metres.
+ * Parameter reached: Where the hand lands, as the entry's shoulder stands, world
+ * metres.
+ * Parameter line: The stroke's unit direction.
+ * Returns: The draw, metres, not negative.
  */
 function chamberDepth(
   shoulder: IAutoMovieVector3,

@@ -16,41 +16,47 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { AquaticPosture } from "./AquaticPosture";
 
-/**
+/*
  * Fin kick frequency, hertz: provisional until a measured fin-swimming study is
  * read.
  */
 const KICK: number = 0.6;
 
-/** Fin-tip heave, metres either way: provisional. */
+/*
+ * Fin-tip heave, metres either way: provisional.
+ */
 const HEAVE: number = 0.15;
 
-/** Thrust coefficient of a kicking fin blade: provisional. */
+/*
+ * Thrust coefficient of a kicking fin blade: provisional.
+ */
 const THRUST: number = 0.5;
 
-/** Fresh water's density, kg/m^3. */
+/*
+ * Fresh water's density, kg/m^3.
+ */
 const WATER_DENSITY: number = 1000;
 
-/**
+/*
  * Descent and ascent speeds of a breath-hold dive, metres per second:
  * provisional.
  */
 const DESCENT: number = 1;
 const ASCENT: number = 0.8;
 
-/**
+/*
  * Breath-hold seconds when none is authored: provisional, a recreational free
  * diver.
  */
 const BREATH: number = 30;
 
-/**
+/*
  * Seconds of the pike, the legs' lift and the bottom turn of a duck dive:
  * provisional.
  */
 const PIKE: number = 0.8;
 
-/**
+/*
  * Seconds a flutter kick takes to grow in from still legs: provisional, half a
  * kick.
  */
@@ -58,7 +64,7 @@ const KICK_IN: number = 0.4;
 const LIFT: number = 0.6;
 const TURN: number = 1;
 
-/**
+/*
  * Swimming with fins after PADI's Open Water Diver Manual: a flutter kick with
  * the arms along the body at horizontal trim, under water at neutral buoyancy
  * (`finSwim`), face down at the surface breathing through a snorkel
@@ -70,7 +76,9 @@ const TURN: number = 1;
  * provisional. A dive deeper than the breath-hold reaches is refused.
  */
 export namespace AquaticFin {
-  /** Plan one of the fin kinds. */
+  /*
+   * Plan one of the fin kinds.
+   */
   export function plan(
     context: AquaticPosture.Context,
     water: number,
@@ -312,7 +320,9 @@ export namespace AquaticFin {
     };
   }
 
-  /** The two worn fins' blade area, square metres, from the named fin's `blade`. */
+  /*
+   * The two worn fins' blade area, square metres, from the named fin's `blade`.
+   */
   function blade(context: AquaticPosture.Context): number {
     const id: string | undefined = context.params.prop;
     const face: IAutoMovieAffordance | undefined =
@@ -332,7 +342,9 @@ export namespace AquaticFin {
     return face.width * face.depth;
   }
 
-  /** Alternating flutter-kick hip and knee joints at a kick phase. */
+  /*
+   * Alternating flutter-kick hip and knee joints at a kick phase.
+   */
   function legs(phase: number): IAutoMovieMotionHumanPosture["joints"] {
     const hip: number = 10 * Math.sin(phase);
     const knee: number = 15 * Math.sin(phase + 0.6);

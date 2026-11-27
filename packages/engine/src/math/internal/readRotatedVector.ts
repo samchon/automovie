@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Read the original quaternion-vector rotation's completed X/Y/Z values. A unit
  * quaternion rotates v in its frame without normalization. When the direct
  * computation overflows, split the vector into an exactly rescalable part and
@@ -37,14 +37,14 @@ export function readRotatedVector<Result, Context>(
   return read(x, y, z, context);
 }
 
-/**
+/*
  * For quaternion components bounded by one, the first cross terms are at
  * most 4 times the largest vector component. The final sum is bounded by
  * 1 + 4 + 8 times that component. Sixteen is the first power of two above it.
  */
 const RESCALE: number = 16;
 
-/**
+/*
  * Reapply the homogeneous vector formula with enough range for its maximum
  * intermediate. Keep the subnormal remainder displaced by downscaling so an
  * axis unaffected by a large component retains its own small value.
@@ -106,7 +106,9 @@ function recoverRotation(
   };
 }
 
-/** Keep a completed partial rotation for the extreme-range recovery. */
+/*
+ * Keep a completed partial rotation for the extreme-range recovery.
+ */
 function rotationRecord(x: number, y: number, z: number): IAutoMovieVector3 {
   return { x, y, z };
 }

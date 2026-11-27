@@ -13,18 +13,17 @@ import { Vector3 } from "../../math/Vector3";
 import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 
-/**
+/*
  * Prepare generic rigid FK without a species or humanoid-bone branch.
- *
- * @param rig A connected rigid tree with explicit axes and declared degree
- *   boxes.
- * @returns An independent prepared reader; later mutation of rig data cannot
- *   rewrite it.
- * @throws {Error} For malformed graph, transform, basis or limits, or when a
- *   read names an absent bone or violates a declared box.
- * @throws {RangeError} When a composed world position is nonfinite or its
- *   quaternion is nonfinite or zero, even if all source transforms were
- *   finite.
+ * Parameter rig: A connected rigid tree with explicit axes and declared degree
+ * boxes.
+ * Returns: An independent prepared reader; later mutation of rig data cannot
+ * rewrite it.
+ * For malformed graph, transform, basis or limits, or when a
+ * read names an absent bone or violates a declared box.
+ * When a composed world position is nonfinite or its
+ * quaternion is nonfinite or zero, even if all source transforms were
+ * finite.
  */
 export function prepareArticulatedRig<Bone extends string>(
   rig: IAutoMovieArticulatedRig<Bone>,
@@ -151,24 +150,38 @@ export function prepareArticulatedRig<Bone extends string>(
   };
 }
 
-/** The three local degree coordinates, independent of a humanoid bone name. */
+/*
+ * The three local degree coordinates, independent of a humanoid bone name.
+ */
 type Rotation = Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">;
 
-/** One admitted owned joint in parent-first order. */
+/*
+ * One admitted owned joint in parent-first order.
+ */
 interface IPrepared<Bone extends string> {
-  /** Semantic bone identity. */
+  /*
+   * Semantic bone identity.
+   */
   bone: Bone;
-  /** Parent identity or sole root. */
+  /*
+   * Parent identity or sole root.
+   */
   parent: Bone | null;
-  /** Owned normalized neutral transform. */
+  /*
+   * Owned normalized neutral transform.
+   */
   rest: IAutoMovieTransform;
-  /** Owned normalized basis. */
+  /*
+   * Owned normalized basis.
+   */
   axes: IAutoMovieJointAxes;
-  /** Explicit copied boxes or unknown limits. */
+  /*
+   * Explicit copied boxes or unknown limits.
+   */
   limits: IAutoMovieArticulatedRig<Bone>["bones"][number]["limits"];
 }
 
-/**
+/*
  * Admit source or composed rigid data before normalizing its finite nonzero
  * quaternion.
  */
@@ -209,7 +222,7 @@ function rigid(raw: IAutoMovieTransform): IAutoMovieTransform {
   };
 }
 
-/**
+/*
  * Copy an explicit finite ordered degree interval, keeping null as an immobile
  * axis.
  */

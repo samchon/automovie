@@ -351,7 +351,7 @@ export namespace AutoMovieHumanBodySurfaceLoft {
   /** Samples of a root loop when testing cells against it. */
   export const LOOP: number = 256;
 
-  /**
+  /*
    * Read the actual explicit regular section, independently of physical station
    * jets. Native conic principal sections have distinct cardinal values.
    * Genuine legacy absence keeps its previous endpoint policy; no retained

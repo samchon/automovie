@@ -14,25 +14,24 @@ import { AutoMovieMotionHumanTouchEffector } from "../../compose/internal/AutoMo
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/**
+/*
  * Prepare the effector of a held prop's point (`HumanHeld.effector`): the point
  * and its directions in the hand's frame, read once at the entry, and for an
  * upright vessel the ring of its rim, turned per call.
- *
- * @param context The body, the entry that holds the prop and the prop reader,
- *   unchanged through the search.
- * @param row The act's use: hand surface and shape, the act's directions and
- *   whether the vessel stands upright.
- * @param side The holding hand.
- * @param subject The held prop's subject id.
- * @param point The contact id; the row's own when absent.
- * @param namedRim Start the rim at the named material point for a grasp taken
- *   to present that contact.
- * @returns The effector at a degree turn round an upright vessel's rim; a prop
- *   not upright gives the same effector at every turn.
- * @throws {HumanRefusal} When the hand does not hold the prop at the entry
- *   (`AutoMovieMotionHumanHeld`), no point is named, or the prop lacks the
- *   contact.
+ * Parameter context: The body, the entry that holds the prop and the prop reader,
+ * unchanged through the search.
+ * Parameter row: The act's use: hand surface and shape, the act's directions and
+ * whether the vessel stands upright.
+ * Parameter side: The holding hand.
+ * Parameter subject: The held prop's subject id.
+ * Parameter point: The contact id; the row's own when absent.
+ * Parameter namedRim: Start the rim at the named material point for a grasp taken
+ * to present that contact.
+ * Returns: The effector at a degree turn round an upright vessel's rim; a prop
+ * not upright gives the same effector at every turn.
+ * When the hand does not hold the prop at the entry
+ * (`AutoMovieMotionHumanHeld`), no point is named, or the prop lacks the
+ * contact.
  */
 export function HumanHeldEffector(
   context: Pick<IAutoMovieMotionHumanActionContext, HumanHeldEffectorContext>,
@@ -123,9 +122,13 @@ export function HumanHeldEffector(
   });
 }
 
-/** The alternatives of `HumanHeldEffectorContext`'s site. */
+/*
+ * The alternatives of `HumanHeldEffectorContext`'s site.
+ */
 type HumanHeldEffectorContext = "body" | "entry" | "prop";
-/** The record of `IGeometryRing`'s site. */
+/*
+ * The record of `IGeometryRing`'s site.
+ */
 type IGeometryRing = {
   centre: IAutoMovieVector3;
   radius: number;
@@ -133,46 +136,64 @@ type IGeometryRing = {
   across: IAutoMovieVector3;
 };
 
-/** The alternatives of `GeometryAxesEntry`'s site. */
+/*
+ * The alternatives of `GeometryAxesEntry`'s site.
+ */
 type GeometryAxesEntry = "fingers" | "palm" | "thumb";
 
-/** A held contact's hand-local geometry. */
+/*
+ * A held contact's hand-local geometry.
+ */
 interface IGeometry {
-  /** The hand surface the effector is measured from. */
+  /*
+   * The hand surface the effector is measured from.
+   */
   surface: IAutoMovieMotionHumanHand.Surface;
 
-  /** The hand form. */
+  /*
+   * The hand form.
+   */
   shape: IAutoMovieMotionHumanHand.Shape;
 
-  /** The contact point from the wrist in hand axes, metres, before any rim turn. */
+  /*
+   * The contact point from the wrist in hand axes, metres, before any rim turn.
+   */
   at: IAutoMovieVector3;
 
-  /** The contact's outward unit direction in hand axes. */
+  /*
+   * The contact's outward unit direction in hand axes.
+   */
   normal: IAutoMovieVector3;
 
-  /**
+  /*
    * The act's along direction laid across the normal, or the vessel's axis when
    * upright.
    */
   along: IAutoMovieVector3;
 
-  /** The hand surface's point from the wrist in hand axes, metres. */
+  /*
+   * The hand surface's point from the wrist in hand axes, metres.
+   */
   offset: IAutoMovieVector3;
 
-  /** One over the body's hand length, for tool weights in hand lengths. */
+  /*
+   * One over the body's hand length, for tool weights in hand lengths.
+   */
   scale: number;
 
-  /** The hand's three orthonormal anatomical axes. */
+  /*
+   * The hand's three orthonormal anatomical axes.
+   */
   axes: Record<GeometryAxesEntry, IAutoMovieVector3>;
 
-  /**
+  /*
    * An upright vessel's rim: centre, radius and the two in-plane directions;
    * absent for other props.
    */
   ring: IGeometryRing | undefined;
 }
 
-/**
+/*
  * The least share of a unit direction left after projecting out the contact's
  * normal for the direction to be laid across it, the sine of the angle between
  * them (provisional: about 17.5 degrees; nearer the normal the projection's
@@ -180,10 +201,12 @@ interface IGeometry {
  * normal is taken instead).
  */
 const ACROSS: number = 0.3;
-/** The alternatives of `AcrossSpareAxis`'s site. */
+/*
+ * The alternatives of `AcrossSpareAxis`'s site.
+ */
 type AcrossSpareAxis = "fingers" | "palm" | "thumb";
 
-/**
+/*
  * A direction laid across the normal: its projection, or the hand axis least
  * along the normal when too little is left.
  */
@@ -213,7 +236,7 @@ function across(
   return Vector3.normalize(flat(spare));
 }
 
-/**
+/*
  * The effector at a turn round the rim: the point and facing turned, then
  * weighed on the hand's axes.
  */
@@ -244,10 +267,14 @@ function turning(
     };
   };
 }
-/** The alternatives of `WeightsEntryResult`'s site. */
+/*
+ * The alternatives of `WeightsEntryResult`'s site.
+ */
 type WeightsEntryResult = "fingers" | "palm" | "thumb";
 
-/** A vector's components along the hand's anatomical axes. */
+/*
+ * A vector's components along the hand's anatomical axes.
+ */
 function weights(
   vector: IAutoMovieVector3,
   axes: IGeometry["axes"],

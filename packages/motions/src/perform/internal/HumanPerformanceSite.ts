@@ -12,7 +12,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 
-/**
+/*
  * A named point of a prop as a world frame at a film second: where the prop
  * itself places a part it moves (`IAutoMovieMotionHumanProp.point`, a pedal on
  * its crank, a stirrup on a trotting horse), its rotation the part's own or
@@ -20,14 +20,13 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * point's own frame on the externally posed material, the driven articulation,
  * or the rest model. A contact planted on a moving part is held in that part's
  * frame. A point the prop names without a frame keeps the prop's own rotation.
- *
- * @param self The performance.
- * @param subject The prop.
- * @param id The point's name.
- * @param seconds Film seconds.
- * @param frame The action's displayed prop reader when it has a carrier view.
- * @returns The point's world frame, metres.
- * @throws {HumanRefusal} When the prop or its point is unknown.
+ * Parameter self: The performance.
+ * Parameter subject: The prop.
+ * Parameter id: The point's name.
+ * Parameter seconds: Film seconds.
+ * Parameter frame: The action's displayed prop reader when it has a carrier view.
+ * Returns: The point's world frame, metres.
+ * When the prop or its point is unknown.
  */
 export function HumanPerformanceSite(
   self: IAutoMovieMotionHumanPerformanceState,

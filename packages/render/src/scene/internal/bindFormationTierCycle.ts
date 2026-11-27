@@ -3,7 +3,7 @@ import type * as THREE from "three";
 import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
 import { selectFormationShadowPalette } from "./selectFormationShadowPalette.js";
 
-/**
+/*
  * Bind one resident tier's cycle to its mesh and supported shadow projections.
  * Structural overrides discover the same cycle through mesh metadata; shadow
  * dispatch consumes the tier-owned pair. Static tiers keep Three's defaults.

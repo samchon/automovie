@@ -13,23 +13,22 @@ import { AutoMovieMotionHumanArm } from "../../compose/internal/AutoMovieMotionH
 import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotionHumanBend";
 import { StrikingHeld } from "./StrikingHeld";
 
-/**
+/*
  * The other hand's goal on a tool held in both hands, shared by a stroke, its
  * decisive-pose judgement and the demands an earlier grasp must hold. A support
  * hand being replanned is judged at its new goal, not left as an obstacle at
  * the previous action's handle.
  */
 export namespace StrikingSupport {
-  /**
+  /*
    * Where the supporting hand grips a held tool: the support's offset laid
    * along the tool's axis, its edge and their cross product, in the hand's
    * frame, from the held point.
-   *
-   * @param frame The held point and the hand's attitude.
-   * @param tool The tool's axis and edge, in the hand's frame.
-   * @param offset The support's offset along axis, edge and their cross,
-   *   metres.
-   * @returns World metres.
+   * Parameter frame: The held point and the hand's attitude.
+   * Parameter tool: The tool's axis and edge, in the hand's frame.
+   * Parameter offset: The support's offset along axis, edge and their cross,
+   * metres.
+   * Returns: World metres.
    */
   export function point(
     frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
@@ -56,15 +55,14 @@ export namespace StrikingSupport {
     );
   }
 
-  /**
+  /*
    * The supporting hand on the tool at a frame of the holding hand.
-   *
-   * @param body The body.
-   * @param posture The body beneath the hands.
-   * @param tool The held tool.
-   * @param frame Its holding hand's grip frame, world.
-   * @param support The other handle in the tool's own axis-edge basis.
-   * @returns The other arm's goal, with its elbow left to the fit.
+   * Parameter body: The body.
+   * Parameter posture: The body beneath the hands.
+   * Parameter tool: The held tool.
+   * Parameter frame: Its holding hand's grip frame, world.
+   * Parameter support: The other handle in the tool's own axis-edge basis.
+   * Returns: The other arm's goal, with its elbow left to the fit.
    */
   export function goal(
     body: IAutoMovieMotionHumanBody,
@@ -102,15 +100,14 @@ export namespace StrikingSupport {
     };
   }
 
-  /**
+  /*
    * The body with its supporting hand on that handle, unchanged for one hand.
-   *
-   * @param body The body.
-   * @param posture The body beneath the hands.
-   * @param tool The held tool.
-   * @param frame The holding hand's grip frame.
-   * @param support The support contact, or null for one hand.
-   * @returns The posture with the supporting arm's goal.
+   * Parameter body: The body.
+   * Parameter posture: The body beneath the hands.
+   * Parameter tool: The held tool.
+   * Parameter frame: The holding hand's grip frame.
+   * Parameter support: The support contact, or null for one hand.
+   * Returns: The posture with the supporting arm's goal.
    */
   export function posture(
     body: IAutoMovieMotionHumanBody,

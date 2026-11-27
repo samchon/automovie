@@ -6,7 +6,7 @@ import type {
 import { AutoMoviePhysicsCache as Cache } from "../AutoMoviePhysicsCache";
 import { physicalProfileWithoutHulls } from "./physicalProfileWithoutHulls";
 
-/**
+/*
  * An unchanged prefix is established from actual data, never from an edit-time
  * assertion.
  */

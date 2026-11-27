@@ -12,7 +12,7 @@ import { crutchSitDown } from "./crutchSitDown";
 import { crutchSitKit } from "./crutchSitKit";
 import { crutchSitUp } from "./crutchSitUp";
 
-/**
+/*
  * Sit down onto a chair with two crutches, or rise from it, in the prescribed
  * order (Cornell Health and HealthLinkBC, Using crutches).
  *
@@ -37,7 +37,7 @@ export const HumanCrutchSit: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
     plan: planHumanCrutchSit,
   };
 
-/**
+/*
  * Sit down onto a chair with two crutches, or rise from it, in the prescribed
  * order (Cornell Health and HealthLinkBC, Using crutches).
  *

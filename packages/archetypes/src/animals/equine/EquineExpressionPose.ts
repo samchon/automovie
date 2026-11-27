@@ -20,7 +20,9 @@ import type { EquineHeadReach } from "./EquineHeadReach";
 import { QuadrupedRigDelta } from "../quadruped/QuadrupedRigDelta";
 import { QuadrupedScapula } from "../quadruped/QuadrupedScapula";
 
-/** The rig's own bones, which carry themselves. */
+/*
+ * The rig's own bones, which carry themselves.
+ */
 const BONES: readonly AutoMovieArchetypeQuadrupedBody.Bone[] = [
   "trunk",
   "hindquarters",
@@ -36,10 +38,12 @@ const BONES: readonly AutoMovieArchetypeQuadrupedBody.Bone[] = [
   ),
 ];
 
-/** The identity turn. */
+/*
+ * The identity turn.
+ */
 const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
-/**
+/*
  * Re-pose one sample of an equid's ride through its rig: the neck and head,
  * each ear about its root, the jaw about its hinge, the upper lip about its
  * root and the tail about its dock.
@@ -56,92 +60,125 @@ const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
  * point.
  */
 export namespace EquineExpressionPose {
-  /** What one sample's channels ask for, already weighted by their cues' shares. */
+  /*
+   * What one sample's channels ask for, already weighted by their cues' shares.
+   */
   export interface IChannels {
-    /** The neck's and head's full turns and the share of them shown. */
+    /*
+     * The neck's and head's full turns and the share of them shown.
+     */
     head?: IHead;
 
-    /**
+    /*
      * Each ear's target carriage, a direction in the rest model's space for the
      * left ear (the right mirrors X), and its share.
      */
     ears: Partial<Record<AutoMovieArchetypeEquineExpressionCue.Side, IEar>>;
 
-    /** The jaw's opening about its hinge, degrees, ventral positive. */
+    /*
+     * The jaw's opening about its hinge, degrees, ventral positive.
+     */
     jaw: number;
 
-    /**
+    /*
      * The upper lip's curl about its root on the head's lateral axis, degrees,
      * dorsal positive.
      */
     lip: number;
 
-    /**
+    /*
      * The neck's roll about its own bar at its root, carrying the head,
      * degrees.
      */
     roll: number;
 
-    /**
+    /*
      * The tail's raise about the trunk's lateral axis and its swing about the
      * trunk's long axis, degrees.
      */
     tail: ITail;
   }
 
-  /** The head channel's turns and share. */
+  /*
+   * The head channel's turns and share.
+   */
   export interface IHead {
-    /** The full turns. */
+    /*
+     * The full turns.
+     */
     turn: EquineHeadReach.ITurn;
 
-    /** The share shown, 0 to 1. */
+    /*
+     * The share shown, 0 to 1.
+     */
     share: number;
   }
 
-  /** One ear's target and share. */
+  /*
+   * One ear's target and share.
+   */
   export interface IEar {
-    /** The carriage's direction for the left ear, rest model space. */
+    /*
+     * The carriage's direction for the left ear, rest model space.
+     */
     direction: IAutoMovieVector3;
 
-    /** The share shown, 0 to 1. */
+    /*
+     * The share shown, 0 to 1.
+     */
     share: number;
   }
 
-  /** The tail's raise and swing. */
+  /*
+   * The tail's raise and swing.
+   */
   export interface ITail {
-    /** Raise, degrees: positive lifts a tail that hangs back. */
+    /*
+     * Raise, degrees: positive lifts a tail that hangs back.
+     */
     raise: number;
 
-    /** Swing, degrees, about the trunk's long axis. */
+    /*
+     * Swing, degrees, about the trunk's long axis.
+     */
     swing: number;
   }
 
-  /** The source's rest frames and carriers, prepared once. */
+  /*
+   * The source's rest frames and carriers, prepared once.
+   */
   export interface IPrepared {
-    /** The trunk bar's rest rotation. */
+    /*
+     * The trunk bar's rest rotation.
+     */
     trunk: IAutoMovieQuaternion;
 
-    /** The head bar's rest rotation. */
+    /*
+     * The head bar's rest rotation.
+     */
     head: IAutoMovieQuaternion;
 
-    /** The carrier of each non-bone part. */
+    /*
+     * The carrier of each non-bone part.
+     */
     parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>;
 
-    /** The carrier of each contact. */
+    /*
+     * The carrier of each contact.
+     */
     contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>;
   }
 
-  /**
+  /*
    * Re-pose one sample.
-   *
-   * @param sample The base ride's sample.
-   * @param current The sample's own bone frames, as the shared FK reader reads
-   *   them from its model.
-   * @param prepared The source's rest frames and carriers.
-   * @param channels The channels' values.
-   * @returns The re-posed sample, at the base sample's placement.
-   * @throws {RangeError} As the shared FK reader and carrier deltas refuse a
-   *   malformed model.
+   * Parameter sample: The base ride's sample.
+   * Parameter current: The sample's own bone frames, as the shared FK reader reads
+   * them from its model.
+   * Parameter prepared: The source's rest frames and carriers.
+   * Parameter channels: The channels' values.
+   * Returns: The re-posed sample, at the base sample's placement.
+   * As the shared FK reader and carrier deltas refuse a
+   * malformed model.
    */
   export function pose<Id extends string, D extends string>(
     sample: AutoMovieArchetypeRide.IPose<Id, D>,
@@ -313,7 +350,7 @@ export namespace EquineExpressionPose {
     };
   }
 
-  /**
+  /*
    * Turn an ear about its root toward its carriage, carried into the current
    * head's frame.
    */
@@ -345,7 +382,7 @@ export namespace EquineExpressionPose {
     );
   }
 
-  /**
+  /*
    * The end of a part's local +Y from which it hangs: a bar's start, a plate's
    * root.
    */
@@ -367,7 +404,9 @@ export namespace EquineExpressionPose {
     );
   }
 
-  /** A rigid turn of a frame about a pivot. */
+  /*
+   * A rigid turn of a frame about a pivot.
+   */
   function about(
     frame: IAutoMovieTransform,
     pivot: IAutoMovieVector3,

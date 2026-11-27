@@ -243,7 +243,9 @@ export namespace AutoMovieHumanCanonicalBody {
   ];
 }
 
-/** One bind joint in Human's frame, metres. */
+/*
+ * One bind joint in Human's frame, metres.
+ */
 interface IBind {
   bone: string;
   parent: string | null;
@@ -252,7 +254,9 @@ interface IBind {
   radius: number;
 }
 
-/** Reflect bind joints into the canonical frame, straighten them into the T-pose, floor them and build the rig and profile. */
+/*
+ * Reflect bind joints into the canonical frame, straighten them into the T-pose, floor them and build the rig and profile.
+ */
 function canonical(
   bind: readonly IBind[],
   options: { mass: number; id: string; person: AutoMovieHumanJointStrength.IPerson },
@@ -499,17 +503,23 @@ function canonical(
   };
 }
 
-/** The reflection `(x, y, z) -> (z, y, x)` from Human's frame to the canonical one. */
+/*
+ * The reflection `(x, y, z) -> (z, y, x)` from Human's frame to the canonical one.
+ */
 function reflect(v: IAutoMovieVector3): IAutoMovieVector3 {
   return { x: v.z, y: v.y, z: v.x };
 }
 
-/** A rotation conjugated by the reflection: its axis reflects and its sense reverses. */
+/*
+ * A rotation conjugated by the reflection: its axis reflects and its sense reverses.
+ */
 function reflectRotation(q: IAutoMovieQuaternion): IAutoMovieQuaternion {
   return { x: -q.z, y: -q.y, z: -q.x, w: q.w };
 }
 
-/** Every humanoid bone id, telling Human's own joints apart. */
+/*
+ * Every humanoid bone id, telling Human's own joints apart.
+ */
 const HUMANOID: ReadonlySet<string> = new Set<string>([
   "hips",
   "spine",
@@ -542,13 +552,17 @@ const HUMANOID: ReadonlySet<string> = new Set<string>([
   ),
 ]);
 
-/** The side of a toe joint, or null for any other joint. */
+/*
+ * The side of a toe joint, or null for any other joint.
+ */
 function toeSide(bone: string): string | null {
   const m: RegExpExecArray | null = /^(left|right)(Hallux|Toe\d)/.exec(bone);
   return m === null ? null : m[1]!;
 }
 
-/** A tuple as a vector. */
+/*
+ * A tuple as a vector.
+ */
 function vector(p: readonly number[]): IAutoMovieVector3 {
   return { x: p[0]!, y: p[1]!, z: p[2]! };
 }

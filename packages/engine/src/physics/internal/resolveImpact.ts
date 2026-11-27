@@ -43,9 +43,9 @@ function assertImpactBody(
   assertImpactCoefficient(label, "penetrability", body.penetrability);
 }
 
-/**
+/*
  * Resolve a collision between bodies `a` and `b` across unit contact `normal`
- * (pointing from `a` to `b`) into an abstracted {@link IAutoMovieImpact}.
+ * (pointing from `a` to `b`) into an abstracted IAutoMovieImpact.
  *
  * Impulse is the textbook normal response, `jn = (1+e)·closing / (1/mₐ +
  * 1/m_b)`, but the **effective restitution and a qualitative kind** come from a

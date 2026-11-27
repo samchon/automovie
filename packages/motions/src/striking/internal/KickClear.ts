@@ -20,17 +20,16 @@ import type { KickLaunch } from "./KickLaunch";
 import { StrikingTarget } from "./StrikingTarget";
 import { StrikingWeapon } from "./StrikingWeapon";
 
-/**
+/*
  * A launch whose way to the contact is clear of the person kicked at, the
  * support foot stepped back for it where that clears it.
- *
- * @param context The kick's context.
- * @param timing The kick's timing.
- * @param t0 Film second of the kick's time zero.
- * @param launch The launch.
- * @returns The launch, its contact solved again on a step further back when the
- *   leg met the partner early and the step clears it; the launch itself
- *   otherwise.
+ * Parameter context: The kick's context.
+ * Parameter timing: The kick's timing.
+ * Parameter t0: Film second of the kick's time zero.
+ * Parameter launch: The launch.
+ * Returns: The launch, its contact solved again on a step further back when the
+ * leg met the partner early and the step clears it; the launch itself
+ * otherwise.
  */
 export function KickClear(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
@@ -175,28 +174,35 @@ export function KickClear(
     : { ...launch, chamber: tight, launched: cleared };
 }
 
-/** Clearing a kick's chamber of the target. */
+/*
+ * Clearing a kick's chamber of the target.
+ */
 export namespace KickClear {
-  /** A planned kick's step and fit, as the retreat reads them. */
+  /*
+   * A planned kick's step and fit, as the retreat reads them.
+   */
   export interface IStepped {
-    /** The carriage's step along the line, metres. */
+    /*
+     * The carriage's step along the line, metres.
+     */
     carriage: { step: number };
 
-    /** Whether the kick still reaches. */
+    /*
+     * Whether the kick still reaches.
+     */
     fit: { status: IAutoMovieMotionHumanStrikingReach.ISolution["status"] };
   }
 
-  /**
+  /*
    * Step a kick back a stride at a time until its chamber clears the target:
    * replanned at each step back, giving up once the step would pass the
    * furthest or the kick falls short.
-   *
-   * @param from The folded kick the retreat starts from.
-   * @param stride How far each step goes back, metres.
-   * @param furthest The furthest step back, metres along the line (negative).
-   * @param plan The kick replanned at a step from the last plan.
-   * @param clear Whether a planned kick's chamber clears the target.
-   * @returns The first plan that clears, or `undefined`.
+   * Parameter from: The folded kick the retreat starts from.
+   * Parameter stride: How far each step goes back, metres.
+   * Parameter furthest: The furthest step back, metres along the line (negative).
+   * Parameter plan: The kick replanned at a step from the last plan.
+   * Parameter clear: Whether a planned kick's chamber clears the target.
+   * Returns: The first plan that clears, or `undefined`.
    */
   export function retreat<Planned extends IStepped>(
     from: Planned,

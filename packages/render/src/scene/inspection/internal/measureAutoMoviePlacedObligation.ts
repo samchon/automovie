@@ -17,7 +17,7 @@ import type { IAutoMoviePlacedObligation } from "../IAutoMoviePlacedObligation.j
 import { isAutoMovieAffineMatrix } from "./isAutoMovieAffineMatrix.js";
 import { readAutoMovieNativeRigidFrame } from "./readAutoMovieNativeRigidFrame.js";
 
-/**
+/*
  * Measure one placed obligation with Engine's canonical predicates.
  *
  * A raw track reports its prepared clip findings. A native support or grip
@@ -26,12 +26,11 @@ import { readAutoMovieNativeRigidFrame } from "./readAutoMovieNativeRigidFrame.j
  * unsupported. A measured relation's witness carries the observed point and
  * each measure with its limit and unit; a continuous step's witness also
  * carries its film interval.
- *
- * @param scene The settled scene that owns the native nodes.
- * @param matrices A request-local index of displayed matrices, shared across
- *   obligations.
- * @param input The obligation's observations and limits.
- * @returns The measured violations and witness, or the coverage reason.
+ * Parameter scene: The settled scene that owns the native nodes.
+ * Parameter matrices: A request-local index of displayed matrices, shared across
+ * obligations.
+ * Parameter input: The obligation's observations and limits.
+ * Returns: The measured violations and witness, or the coverage reason.
  */
 export function measureAutoMoviePlacedObligation(
   scene: Object3D,
@@ -56,14 +55,16 @@ type IMeasurement = IAutoMovieInspectionDiagnostics.IMeasurement;
 
 type IInput = IObserveAutoMoviePlacedSceneCheck["input"];
 
-/** A checked outcome without a witness. */
+/*
+ * A checked outcome without a witness.
+ */
 function checked(
   violations: readonly IAutoMovieConstraintViolation[],
 ): IAutoMoviePlacedObligation {
   return { status: "checked", violations, witness: {} };
 }
 
-/**
+/*
  * The canonical contact request of a native support or grip, with its sample
  * only when every referenced node has a displayed rigid placement.
  */
@@ -125,7 +126,7 @@ function nativeContact(
     : { ...request, sample: { hand, prop, expected: sample.expected } };
 }
 
-/**
+/*
  * The displayed world matrix of a node beneath `scene`, as the host settled it,
  * or undefined when the node is elsewhere or its matrix is not affine.
  */
@@ -147,7 +148,7 @@ function placedMatrix(
   return matrix;
 }
 
-/**
+/*
  * Measure a support or grip and witness it with the observed point and each
  * measure against its limit.
  */
@@ -202,7 +203,7 @@ function measureContact(
   };
 }
 
-/**
+/*
  * Measure a transform, step or custody rule, witnessing a failed continuous
  * step with its incoming point, film interval and measured motion.
  */

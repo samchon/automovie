@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `handsClaspedBehind` row of `HumanUpperRows` fixes on
  * `armPhrase`, spread into its parameters. Hands clasped behind: both palms
  * meet behind the lower back and stay.

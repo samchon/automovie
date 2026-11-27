@@ -5,14 +5,13 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Wrap a transport in the object-returning path record.
  *
  * The record reads the transport as it stands at each query, so it follows a
  * later `update`, except `length`, which is copied when wrapped.
- *
- * @param transport An updated transport with frames, retained.
- * @returns The path.
+ * Parameter transport: An updated transport with frames, retained.
+ * Returns: The path.
  */
 export const pathAutoMovieSweepTransport: (
   transport: IAutoMovieSweepTransport,

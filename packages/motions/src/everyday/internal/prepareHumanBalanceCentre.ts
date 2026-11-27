@@ -8,13 +8,12 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Prepare one body's actual mass-bearing FK demand for changing postures.
- *
- * @param body The unchanged body owning the canonical profile and classic mass
- *   model.
- * @returns A world-metre mass-centre reader, optionally borrowing its current
- *   synchronous operation's exact FK workspace and genuine ROM projector.
+ * Parameter body: The unchanged body owning the canonical profile and classic mass
+ * model.
+ * Returns: A world-metre mass-centre reader, optionally borrowing its current
+ * synchronous operation's exact FK workspace and genuine ROM projector.
  */
 export function prepareHumanBalanceCentre(
   body: IAutoMovieMotionHumanBody,

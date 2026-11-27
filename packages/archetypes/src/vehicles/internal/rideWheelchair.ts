@@ -6,7 +6,7 @@ import {
 import { CourseWheelTravel } from "./CourseWheelTravel";
 import type { AutoMovieArchetypeWheelchair } from "../AutoMovieArchetypeWheelchair";
 
-/**
+/*
  * A wheelchair moved along a course: its root on the path and its rear wheels,
  * with a self-propelled chair's handrims riding them, rolling with the
  * distance.
@@ -16,12 +16,11 @@ import type { AutoMovieArchetypeWheelchair } from "../AutoMovieArchetypeWheelcha
  * half-width times the heading change in radians. For a staged sitter's stroke,
  * pass the ride through `AutoMovieArchetypeWheelchair.handrimFrame` and register
  * `HumanHandrimStroke`.
- *
- * @param chair The wheelchair.
- * @param course The course its root follows, or its plan.
- * @returns The ride, with the course's instants.
- * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetypeRide.along` does
- *   for a malformed course.
+ * Parameter chair: The wheelchair.
+ * Parameter course: The course its root follows, or its plan.
+ * Returns: The ride, with the course's instants.
+ * As `AutoMovieArchetypeRide.along` does
+ * for a malformed course.
  */
 export function rideWheelchair(
   chair: AutoMovieArchetype<
@@ -54,7 +53,9 @@ export function rideWheelchair(
           ),
         );
 
-  /** Signed tyre travel into the wheel's nonnegative knob range. */
+  /*
+   * Signed tyre travel into the wheel's nonnegative knob range.
+   */
   const spin = (travel: number): number =>
     ((((travel / circumference) * 360) % 360) + 360) % 360;
   return AutoMovieArchetypeRide.articulated(

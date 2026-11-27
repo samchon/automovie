@@ -11,7 +11,7 @@ import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
 import type { staggerRecover } from "./staggerRecover";
 
-/**
+/*
  * One recovery step of a stagger (`staggerRecover`): the weight shifts onto the
  * stance foot over both feet, then the foot swings in its direction's measured
  * step time and lands the sole point it lands on as near the extrapolated
@@ -35,30 +35,33 @@ import type { staggerRecover } from "./staggerRecover";
  * legs hold the steps.
  */
 export namespace staggerStep {
-  /** A step's outcome. */
+  /*
+   * A step's outcome.
+   */
   export interface IResult {
-    /**
+    /*
      * Whether the body is caught after it; null when the legs admit no landing
      * in its region.
      */
     done: boolean | null;
 
-    /** Whether the landing crosses the stance foot. */
+    /*
+     * Whether the landing crosses the stance foot.
+     */
     crossing: boolean;
   }
 
-  /**
+  /*
    * Take one step on the pendulum.
-   *
-   * @param pendulum The pendulum, advanced through the step.
-   * @param side The stepping foot.
-   * @param reaction Seconds both feet bear before the weight shifts.
-   * @param unloaded Whether this is a sideways push's first step with the leg
-   *   it unloads (`staggerBounds.LATERAL`).
-   * @param admit Whether the legs hold a candidate step at the given instants,
-   *   whose feet cross when the flag says so (`staggerAdmission`); every
-   *   landing is the aimed one when absent, the pendulum alone.
-   * @returns Whether it catches the body, and whether the landing crosses.
+   * Parameter pendulum: The pendulum, advanced through the step.
+   * Parameter side: The stepping foot.
+   * Parameter reaction: Seconds both feet bear before the weight shifts.
+   * Parameter unloaded: Whether this is a sideways push's first step with the leg
+   * it unloads (`staggerBounds.LATERAL`).
+   * Parameter admit: Whether the legs hold a candidate step at the given instants,
+   * whose feet cross when the flag says so (`staggerAdmission`); every
+   * landing is the aimed one when absent, the pendulum alone.
+   * Returns: Whether it catches the body, and whether the landing crosses.
    */
   export function take(
     pendulum: StaggerPendulum,

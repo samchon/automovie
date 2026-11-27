@@ -6,7 +6,7 @@ import type { IAutoMovieFramebufferRenderer } from "../IAutoMovieFramebufferRend
 import { captureAutoMovieFramebufferRestore } from "./captureAutoMovieFramebufferRestore.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
-/**
+/*
  * Read a native cube shadow target's owned depth handle through its
  * framebuffer. The target is a retained shadow draw resource, not an
  * unallocated authored target. The SDK exposes shadow maps as generic

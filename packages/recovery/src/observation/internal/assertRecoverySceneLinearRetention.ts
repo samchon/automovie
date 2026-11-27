@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryCameraSceneBudget } from "@automovie/interface";
 
-/**
+/*
  * Check logical numerical retention before incremental designs are allocated.
  * The shared joint bound covers copied blocks, reduced factors and landmarks; a
  * caller adds transient point or resection factors retained during growth.

@@ -5,15 +5,14 @@ import type {
 
 import { validateColor } from "./validateColor";
 
-/**
+/*
  * Admit one material's wear record: a safe-integer seed within [0, 2³² − 1], at
  * least one of `edge` and `grime`, and in each present layer a linear colour, a
  * roughness within [0, 1], a width above zero and an amount within (0, 1]. An
  * absent record is left alone; findings are reported at each field's own path.
- *
- * @param wear The `wear` field.
- * @param path Diagnostic path of the field.
- * @param collector Caller-owned sink receiving findings in field order.
+ * Parameter wear: The `wear` field.
+ * Parameter path: Diagnostic path of the field.
+ * Parameter collector: Caller-owned sink receiving findings in field order.
  */
 export function validateMaterialWear(
   wear: IAutoMovieMaterialWear | undefined,

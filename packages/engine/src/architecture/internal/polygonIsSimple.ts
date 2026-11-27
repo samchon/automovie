@@ -2,7 +2,7 @@ import { IAutoMoviePlanarPoint } from "@automovie/interface";
 
 import { segmentsTouch } from "./segmentsTouch";
 
-/**
+/*
  * Whether no two non-adjacent edges of a closed ring touch.
  *
  * Building outlines require a simple boundary, rather than selecting a fill
@@ -10,13 +10,12 @@ import { segmentsTouch } from "./segmentsTouch";
  * corner is expected; consequently this function does not detect adjacent
  * backtracking or overlapping adjacent segments.
  *
- * Contact uses {@link segmentsTouch}'s scale-relative `PLANAR_EPSILON`; a vertex
+ * Contact uses segmentsTouch's scale-relative `PLANAR_EPSILON`; a vertex
  * on a non-adjacent edge counts as touching. Point count, adjacent degeneracy
  * and area are separate caller checks: even a two- or three-point ring returns
  * true here if no non-adjacent pair exists.
- *
- * @param polygon Closed ring of corners, the last joined back to the first.
- * @returns True when no two non-adjacent edges share a point.
+ * Parameter polygon: Closed ring of corners, the last joined back to the first.
+ * Returns: True when no two non-adjacent edges share a point.
  */
 export function polygonIsSimple(
   polygon: readonly IAutoMoviePlanarPoint[],

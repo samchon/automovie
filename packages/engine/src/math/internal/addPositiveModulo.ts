@@ -1,6 +1,6 @@
 import { positiveModulo } from "./positiveModulo";
 
-/**
+/*
  * Add an offset on a positive cyclic domain without perturbing an ordinary
  * phase when the offset is zero or a whole period.
  *

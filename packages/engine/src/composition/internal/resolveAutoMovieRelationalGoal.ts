@@ -9,20 +9,19 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { fitPhysicalWholeBodyTarget } from "../../physics/internal/fitPhysicalWholeBodyTarget";
 
-/**
+/*
  * Realize a relational goal at one instant: read the target subject's region
  * from its actual pose (at the window's start for `freeze`, at the instant for
  * `track`), then bend the performer's prior pose toward it by the whole-body
- * fit ({@link fitPhysicalWholeBodyTarget}) from its held support, inside every
+ * fit (fitPhysicalWholeBodyTarget) from its held support, inside every
  * declared ROM, with an optional approach for the effector. Outside the window
  * the prior is returned unchanged with no residual.
  *
  * Bodies are engine-level: a physical profile, a pose at any instant (the
  * production's shape prior, such as an authored or keyed pose) and named
  * regions; no figure package is needed.
- *
- * @param input The performer, the goal, the bodies and the instant.
- * @returns The performer's fitted pose and residual report.
+ * Parameter input: The performer, the goal, the bodies and the instant.
+ * Returns: The performer's fitted pose and residual report.
  */
 export function resolveAutoMovieRelationalGoal(
   input: IAutoMovieResolveRelationalGoal.IInput,

@@ -9,7 +9,7 @@ import * as THREE from "three";
 import { AUTO_MOVIE_INSPECTION_KINDS } from "../../AUTO_MOVIE_INSPECTION_KINDS.js";
 import type { IAutoMovieInspectionMeasured } from "../../IAutoMovieInspectionMeasured.js";
 
-/**
+/*
  * Measure a mesh's defects and return them as marks lying on the mesh as it is
  * posed.
  *
@@ -91,7 +91,7 @@ export function measureAutoMovieInspectionDefectsImplementation(
   return { anchor: mesh, marks, refresh };
 }
 
-/**
+/*
  * Measure one geometry's defects on its stored positions, naming the mesh's
  * path when the engine refuses the buffers.
  */

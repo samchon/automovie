@@ -37,9 +37,9 @@ import { setPieceTransform } from "../staging/internal/setPieceTransform";
 import { validateLightPlacementShape } from "../staging/internal/validateLightPlacementShape";
 import { validateStageCamera } from "../staging/internal/validateStageCamera";
 
-/**
+/*
  * The STAGING consumer: fold the script's cast and the staging write's
- * placements into the {@link IAutoMovieScene} every later stage performs into,
+ * placements into the IAutoMovieScene every later stage performs into,
  * or return every violation for the correction round.
  *
  * Referential integrity is the core check: every placement names a cast member,
@@ -57,25 +57,24 @@ import { validateStageCamera } from "../staging/internal/validateStageCamera";
  *
  * Conversions: an actor's `facingDeg`, about `+Y` with 0 facing `+Z`, becomes
  * its rotation; a set piece becomes a static node through
- * {@link setPieceTransform}; a camera's `lookAt` resolves to a point and the
+ * setPieceTransform; a camera's `lookAt` resolves to a point and the
  * level-horizon look basis aims its `-Z` there; a light lowers through
- * {@link lowerLightPlacement} to the scene light its `type` names.
+ * lowerLightPlacement to the scene light its `type` names.
  *
  * The optional `space`, the ground's walkable meaning, is accepted by
- * {@link validateSpace} with its paths re-rooted under `$input.space`, and is
+ * validateSpace with its paths re-rooted under `$input.space`, and is
  * composed as `space: null` when omitted, the scalar ground plane. An authored
  * `fog` lowers verbatim, while `fogVisibility` solves the density from
- * camera-axis depth and transmittance. {@link resolveStagedFog} admits one form
+ * camera-axis depth and transmittance. resolveStagedFog admits one form
  * and leaves fog absent when neither is authored. A `medium` is admitted by
- * {@link resolveStagedMedium}, refused beside either fog form, and lowered
+ * resolveStagedMedium, refused beside either fog form, and lowered
  * verbatim. The optional `environment` is checked by
- * {@link validateSceneEnvironment} against the staged lights and lowered
+ * validateSceneEnvironment against the staged lights and lowered
  * verbatim.
- *
- * @param script The screenplay whose cast staging must place.
- * @param staging The staging write.
- * @returns The composed scene with its persistent mounts and authored actor
- *   support scopes, or every violation.
+ * Parameter script: The screenplay whose cast staging must place.
+ * Parameter staging: The staging write.
+ * Returns: The composed scene with its persistent mounts and authored actor
+ * support scopes, or every violation.
  */
 export function stageScene(
   script: IAutoMovieScript,
@@ -302,13 +301,19 @@ export function stageScene(
   };
 }
 
-/** World up, the axis an actor's `facingDeg` turns about. */
+/*
+ * World up, the axis an actor's `facingDeg` turns about.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** Largest accepted deviation of a set rotation's length from one. */
+/*
+ * Largest accepted deviation of a set rotation's length from one.
+ */
 const UNIT_QUATERNION_TOLERANCE: number = 1e-6;
 
-/** A delegated validator's violation with its `$input` root moved to `root`. */
+/*
+ * A delegated validator's violation with its `$input` root moved to `root`.
+ */
 function reRooted(
   item: IAutoMovieConstraintViolation,
   root: string,

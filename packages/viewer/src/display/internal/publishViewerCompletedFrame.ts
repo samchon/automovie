@@ -1,6 +1,6 @@
 import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
 
-/**
+/*
  * Notify a supported canvas subscriber from the actual draw-completion owner.
  * The application explicitly subscribes with the public canvas attribute;
  * ordinary unobserved renders allocate no event. Native synchronous DOM

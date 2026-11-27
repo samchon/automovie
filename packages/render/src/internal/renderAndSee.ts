@@ -5,7 +5,7 @@ import type {
 
 import { renderVideo } from "./renderVideo.js";
 
-/**
+/*
  * Render a clip and return the encoded output plus explicit frame artifacts.
  * The function still performs only deterministic orchestration over injected
  * host I/O; its value is the metadata contract that lets an agent inspect what

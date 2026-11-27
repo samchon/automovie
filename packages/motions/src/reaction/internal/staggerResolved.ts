@@ -12,16 +12,15 @@ import { HumanLimbIncumbent } from "../../posture/internal/HumanLimbIncumbent";
 import { deriveHumanPosture } from "../../posture/internal/deriveHumanPosture";
 import { resolveHumanPostureSource } from "../../posture/internal/resolveHumanPostureSource";
 
-/**
+/*
  * The poses a stagger's plan reads at its samples, resolved on one assembly a
  * sample: the arms' carriage reads the sample's posture, and each balance pass
  * reads that posture again with the arms let out, or with the root shifted. The
  * carriage's posture is assembled and fitted once; a balance pass's posture is
  * derived from that assembly (`deriveHumanPosture`) and fitted afresh.
- *
- * @param body The body.
- * @returns The sample readers: `carriage` first for a sample, then `centre` any
- *   number of times.
+ * Parameter body: The body.
+ * Returns: The sample readers: `carriage` first for a sample, then `centre` any
+ * number of times.
  */
 export function staggerResolved(
   body: IAutoMovieMotionHumanBody,
@@ -88,11 +87,15 @@ export function staggerResolved(
   };
 }
 
-/** The reader's type. */
+/*
+ * The reader's type.
+ */
 export namespace staggerResolved {
-  /** A stagger plan's sample readers. */
+  /*
+   * A stagger plan's sample readers.
+   */
   export interface IReader {
-    /**
+    /*
      * Each arm's added abduction that keeps it clear in the sample's posture,
      * degrees (`HumanArmSwing.carriage` at one instant); resolves the posture
      * and keeps its assembly and fit for the sample.
@@ -102,7 +105,7 @@ export namespace staggerResolved {
       posture: IAutoMovieMotionHumanPosture,
     ): Record<AutoMovieHumanSide, number>;
 
-    /**
+    /*
      * The whole-body centre of mass of a posture of the sample, world metres
      * (`HumanBalance.centre`), resolved on the sample's kept assembly; resolved
      * plainly when the sample has none.

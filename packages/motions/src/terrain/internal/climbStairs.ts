@@ -49,7 +49,7 @@ import { climbStairsSwing } from "../stairs/climbStairsSwing";
 import { climbStairsToes } from "../stairs/climbStairsToes";
 import { climbStairsWeight } from "../stairs/climbStairsWeight";
 
-/**
+/*
  * Climbing a flight of stairs up or down from standing before its first nosing,
  * step over step (one foot per tread) or step by step (both feet on each
  * tread), ending with both feet on the last tread.
@@ -98,16 +98,18 @@ import { climbStairsWeight } from "../stairs/climbStairsWeight";
  * A following walk can turn on the landing.
  */
 export namespace climbStairs {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "climbStairs";
 
-  /**
+  /*
    * The legs and trunk carry the climb while the head, arms and hands remain
    * free.
    */
   export const yields: IAutoMovieMotionHumanActionLaw["yields"] = walk.yields;
 
-  /**
+  /*
    * Cancel table: the climb ends into standing or walking once both feet are on
    * the last tread.
    */
@@ -130,37 +132,44 @@ export namespace climbStairs {
     ],
   };
 
-  /**
+  /*
    * How far above an edge a swinging sole passes it, metres (provisional; the
    * issue's 20 mm toe clearance is the bound the capture checks).
    */
   export const CLEARANCE: number = 0.05;
 
-  /**
+  /*
    * The least distance along the flight a planted sole's heel and toe keep from
    * an edge, metres (provisional).
    */
   export const EDGE: number = 0.025;
 
-  /** Steps a minute (Mian et al. 2007). */
+  /*
+   * Steps a minute (Mian et al. 2007).
+   */
   export const CADENCE: number = 90;
 
-  /** The share of a step the foot swings (provisional). */
+  /*
+   * The share of a step the foot swings (provisional).
+   */
   export const SWING: number = 0.8;
 
-  /** The flight's surface height under a point (`climbStairsFlight.surface`). */
+  /*
+   * The flight's surface height under a point (`climbStairsFlight.surface`).
+   */
   export const surface: typeof climbStairsFlight.surface =
     climbStairsFlight.surface;
 
-  /** The flight a set of parameters describes (`climbStairsFlight.flight`). */
+  /*
+   * The flight a set of parameters describes (`climbStairsFlight.flight`).
+   */
   export const flight: typeof climbStairsFlight.flight =
     climbStairsFlight.flight;
-  /**
+  /*
    * Plan a climb.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {Error} When `flight` refuses the stairs.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When `flight` refuses the stairs.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClimbStairs.IParams>,
@@ -479,9 +488,13 @@ export namespace climbStairs {
     );
   }
 
-  /** The record of `IPrintsItemEntry`'s site. */
+  /*
+   * The record of `IPrintsItemEntry`'s site.
+   */
   type IPrintsItemEntry = { print: IPrint; step: number };
 
-  /** A footprint: the foot's placement and the tread it is on, 0 for the floor. */
+  /*
+   * A footprint: the foot's placement and the tread it is on, 0 for the floor.
+   */
   type IPrint = climbStairsPrints.IPrint;
 }

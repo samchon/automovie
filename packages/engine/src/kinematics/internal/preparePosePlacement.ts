@@ -6,7 +6,7 @@ import type {
 
 import { PoseResolutionSnapshot } from "./PoseResolutionSnapshot";
 
-/**
+/*
  * Snapshot current root placement into one private prepared-FK operation.
  * Translation and rotation references are read in raw FK order; exact scalar
  * comparisons then select existing private operands or copy changed values. The
@@ -44,19 +44,27 @@ export function preparePosePlacement(
   ++state.rootRevision;
 }
 
-/** Private operation placement; neither this state nor its operands may escape. */
+/*
+ * Private operation placement; neither this state nor its operands may escape.
+ */
 interface IPlacement {
-  /** Owned quaternion, never mutated after selection. */
+  /*
+   * Owned quaternion, never mutated after selection.
+   */
   rootRotation: IAutoMovieQuaternion;
 
-  /** Owned metre translation, never mutated after selection. */
+  /*
+   * Owned metre translation, never mutated after selection.
+   */
   rootTranslation: IAutoMovieVector3;
 
-  /** Revision advanced only after an actual exact placement change. */
+  /*
+   * Revision advanced only after an actual exact placement change.
+   */
   rootRevision: number;
 }
 
-/**
+/*
  * Copy exact changed root components; only the owning operation can reach the
  * result.
  */
@@ -64,7 +72,9 @@ function copyQuaternion(input: IAutoMovieQuaternion): IAutoMovieQuaternion {
   return { x: input.x, y: input.y, z: input.z, w: input.w };
 }
 
-/** Copy exact changed root metres in the original property order. */
+/*
+ * Copy exact changed root metres in the original property order.
+ */
 function copyVector(input: IAutoMovieVector3): IAutoMovieVector3 {
   return { x: input.x, y: input.y, z: input.z };
 }

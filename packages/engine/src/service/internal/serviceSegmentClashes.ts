@@ -10,7 +10,7 @@ import { propBoundsOverlap } from "../../film/internal/propBoundsOverlap";
 import { portOwners } from "./portOwners";
 import { serviceSegmentSpanBounds } from "./serviceSegmentSpanBounds";
 
-/**
+/*
  * Every pair of runs whose occupied volumes overlap.
  *
  * Two runs that share any endpoint node are exempt as a whole pair: the query

@@ -16,7 +16,7 @@ import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * The laid foot of a wheel's bearing window (`GymnasticsWheelPlants`): the foot
  * bears on its ball where it came down, pivots there as the body turns over it
  * (a round-off's quarter turn, read off the posture's heading), and where its
@@ -25,13 +25,12 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * `HumanFoot.edge`). A rolled forefoot whose colliders would reach below the
  * floor is raised by as much, so the foot rests on the floor rather than in it.
  * The plants read it once per key.
- *
- * @param body The body.
- * @param side The foot.
- * @param down The carried foot where its window opens.
- * @param yaw The posture's heading there, degrees.
- * @param edge The edge the window declares held, if any.
- * @returns The leg goal at a posture.
+ * Parameter body: The body.
+ * Parameter side: The foot.
+ * Parameter down: The carried foot where its window opens.
+ * Parameter yaw: The posture's heading there, degrees.
+ * Parameter edge: The edge the window declares held, if any.
+ * Returns: The leg goal at a posture.
  */
 export function layGymnasticsWheelFoot(
   body: IAutoMovieMotionHumanBody,

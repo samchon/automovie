@@ -5,7 +5,7 @@ import type {
 
 import { stepSubdivisionRing } from "./stepSubdivisionRing";
 
-/**
+/*
  * The limit point and two tangent vectors of a ring's vertex, from the dominant
  * left eigenvectors of the ring's own subdivision matrix.
  *
@@ -24,10 +24,9 @@ import { stepSubdivisionRing } from "./stepSubdivisionRing";
  * the published masks assume. The tangent search converges at the ratio of the
  * third to the second dominant zero-sum eigenvalue, about 0.94 for a dart of
  * valence 12, so `EIGEN_STEPS` iterations reach rounding.
- *
- * @param ring A one-ring whose sharpness is only 0 or 10.
- * @returns The limit point and two vectors spanning the tangent plane,
- *   unoriented.
+ * Parameter ring: A one-ring whose sharpness is only 0 or 10.
+ * Returns: The limit point and two vectors spanning the tangent plane,
+ * unoriented.
  */
 export const subdivisionRingEigenbasis = (
   ring: IAutoMovieSubdivisionRing,
@@ -91,10 +90,14 @@ export const subdivisionRingEigenbasis = (
   return { limit: apply(limit), tangents: [apply(first), apply(second)] };
 };
 
-/** Iterations of both eigenvector searches. */
+/*
+ * Iterations of both eigenvector searches.
+ */
 const EIGEN_STEPS: number = 512;
 
-/** The mask minus its mean, so its weights sum to zero. */
+/*
+ * The mask minus its mean, so its weights sum to zero.
+ */
 const zeroSum: (w: readonly number[]) => number[] = (
   w: readonly number[],
 ): number[] => {
@@ -103,14 +106,18 @@ const zeroSum: (w: readonly number[]) => number[] = (
   return w.map((x: number): number => x - mean);
 };
 
-/** The dot product of two masks. */
+/*
+ * The dot product of two masks.
+ */
 const dot: (a: readonly number[], b: readonly number[]) => number = (
   a: readonly number[],
   b: readonly number[],
 ): number =>
   a.reduce((sum: number, x: number, i: number): number => sum + x * b[i]!, 0);
 
-/** The mask scaled to unit Euclidean length. */
+/*
+ * The mask scaled to unit Euclidean length.
+ */
 const normalise: (w: readonly number[]) => number[] = (
   w: readonly number[],
 ): number[] => {

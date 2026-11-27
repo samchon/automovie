@@ -4,37 +4,45 @@ import type {
   IAutoMovieConstructionPortLoop,
 } from "@automovie/interface";
 
-/**
+/*
  * The native root's sole periodic-clock, radial reparameterization and
  * target-clock2 owner.
  */
 export namespace AutoMovieHumanF1NativeRootClock {
-  /**
+  /*
    * A periodic new-P ordinate and a strictly monotone one-turn angular
    * coordinate.
    */
   export interface IGraph {
-    /**
+    /*
      * New periodic ordinate and strictly monotone unwrapped phase at clock
      * radians.
      */
     at: (clock: number) => readonly [number, number];
-    /** Original-control clock recovered on the admitted one-turn phase branch. */
+    /*
+     * Original-control clock recovered on the admitted one-turn phase branch.
+     */
     clock: (phase: number) => number;
   }
-  /**
+  /*
    * One existing radial loop and the original target parameter used by each
    * emitted column.
    */
   export interface IReclock {
-    /** Existing-pole radial controls, in public metres/radians. */
+    /*
+     * Existing-pole radial controls, in public metres/radians.
+     */
     loop: IAutoMovieConstructionPortLoop;
-    /** Original target parameter recovered for each emitted radial column. */
+    /*
+     * Original target parameter recovered for each emitted radial column.
+     */
     clocks: number[];
   }
   const turn: number = 2 * Math.PI;
 
-  /** One unwrapped branch under the original increasing/decreasing winding. */
+  /*
+   * One unwrapped branch under the original increasing/decreasing winding.
+   */
   export function unwrap(values: readonly number[], what: string): number[] {
     const result: number[] = [values[0]!];
     for (let k: number = 1; k < values.length; k++) {
@@ -45,7 +53,7 @@ export namespace AutoMovieHumanF1NativeRootClock {
     return result;
   }
 
-  /**
+  /*
    * Actual periodic cubic plus a linear winding; derivative extrema certify its
    * clock before inversion.
    */
@@ -151,7 +159,7 @@ export namespace AutoMovieHumanF1NativeRootClock {
     return { at, clock };
   }
 
-  /**
+  /*
    * Reclock around the original pole; positive radial coefficients and monotone
    * angular clock are admitted.
    */
@@ -205,7 +213,7 @@ export namespace AutoMovieHumanF1NativeRootClock {
     };
   }
 
-  /**
+  /*
    * The actual new periodic C2 target-control interpolant; it is not an exact
    * source-surface pullback.
    */
@@ -221,7 +229,7 @@ export namespace AutoMovieHumanF1NativeRootClock {
       return [p[0], p[1], Spline.jet(zz, values.length, c)[0]];
     };
   }
-  /**
+  /*
    * New periodic target clock2, in mm per radian and per squared radian of
    * original target clock.
    */
@@ -246,5 +254,7 @@ export namespace AutoMovieHumanF1NativeRootClock {
   }
 }
 
-/** World-space target controls; physical dimensions are owned by RootTypes. */
+/*
+ * World-space target controls; physical dimensions are owned by RootTypes.
+ */
 type V = AutoMovieVector3Tuple;

@@ -14,13 +14,15 @@ import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 import { autoMovieSubjectMaterials } from "./autoMovieSubjectMaterials";
 import { autoMovieSubjectPlacedBounds } from "./autoMovieSubjectPlacedBounds";
 
-/** World up, the axis an instance set's heading turns about. */
+/*
+ * World up, the axis an instance set's heading turns about.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
+/*
  * Describe one compact instance-set member as a subject, regenerating it.
  *
- * The member is regenerated through {@link instanceSlot}, so it cannot drift
+ * The member is regenerated through instanceSlot, so it cannot drift
  * from the member the compiled set was measured with, and it is refused
  * wherever that regenerator refuses, such as a slot outside the set or a set
  * whose variation derives a non-finite value. Its model is the first LOD tier
@@ -30,14 +32,13 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  * scale on all three axes, which is how the viewer draws it. The content box is
  * the model's vertices placed by that transform, in world metres, or null when
  * the model is not in `models`. The member has no members.
- *
- * @param set Compiled set the member belongs to.
- * @param slot Zero-based member slot.
- * @param models Runtime models by id, compiled and environment-owned.
- * @param space Address of the space the set is placed in, or null.
- * @param revision Revision of the artifact being described.
- * @param points Model-frame vertices of a model, memoized by the caller.
- * @returns The member's description.
+ * Parameter set: Compiled set the member belongs to.
+ * Parameter slot: Zero-based member slot.
+ * Parameter models: Runtime models by id, compiled and environment-owned.
+ * Parameter space: Address of the space the set is placed in, or null.
+ * Parameter revision: Revision of the artifact being described.
+ * Parameter points: Model-frame vertices of a model, memoized by the caller.
+ * Returns: The member's description.
  */
 export const describeAutoMovieInstanceSubject = (
   set: IAutoMovieCompiledInstanceSet,

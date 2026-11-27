@@ -16,13 +16,13 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 
-/**
+/*
  * Prepare or evaluate the correction of a joint-space arm carry. The live carry
  * takes the current solved arm and planning pose. A fixed course owns endpoint
  * triples, the arrival clearance geometry and its correction knots.
  */
 export namespace AutoMovieMotionHumanArmCarryCourse {
-  /**
+  /*
    * Prepare a carry whose selected arms are set directly to the same arrival
    * triples on every source posture and have no limb goals at any share. The
    * law supplies an invariant arrival posture and still owns the actual posture
@@ -76,7 +76,7 @@ export namespace AutoMovieMotionHumanArmCarryCourse {
     };
   }
 
-  /**
+  /*
    * Build the arm courses from the exact goals and plan pose. With fixed input
    * the plans are compiled before return. Otherwise the readers are scoped to
    * one current carry evaluation.
@@ -247,13 +247,17 @@ export namespace AutoMovieMotionHumanArmCarryCourse {
   }
 }
 
-/** An arm's blended joint triples at a unitless share. */
+/*
+ * An arm's blended joint triples at a unitless share.
+ */
 type Arm = (share: number) => IAutoMovieMotionHumanArmClearance.IArm;
 
-/** A hand's finger angles at a share of the carry, read on a pose. */
+/*
+ * A hand's finger angles at a share of the carry, read on a pose.
+ */
 type Fingers = IAutoMovieMotionHumanArmAngles.IAngles["fingers"];
 
-/**
+/*
  * A pose with one hand's fingers at a share of their way from the held shape to
  * the arrival's, each angle blended by the share as the carry shapes them; the
  * pose unchanged where either shape is not known.
@@ -280,5 +284,7 @@ function fingersAt(
   return HumanArmClearance.fingered(pose, side, blended);
 }
 
-/** One joint's clinical angles, degrees. */
+/*
+ * One joint's clinical angles, degrees.
+ */
 type Triple = readonly [number, number, number];

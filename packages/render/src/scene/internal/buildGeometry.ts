@@ -10,7 +10,7 @@ import * as THREE from "three";
 import { AutoMovieGeometryPhysicalVertices } from "../AutoMovieGeometryPhysicalVertices.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 
-/**
+/*
  * Build a `three.js` geometry from a automovie geometry node: tessellating a
  * parametric primitive or bicubic atlas through its engine owner, or uploading
  * raw mesh arrays. Finite partial atlas output remains drawable with its

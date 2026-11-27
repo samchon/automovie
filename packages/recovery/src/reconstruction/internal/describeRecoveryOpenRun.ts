@@ -3,7 +3,7 @@ import type {
   IAutoMovieRecoveryOpenRunDescriptionOperation,
 } from "@automovie/interface";
 
-/**
+/*
  * Gather saved open-run metadata without preempting its local numerical
  * refusal. Known names and confirmed fit misses remain literal observations; a
  * negative estimate counts as unqualified and leaves no maximum.

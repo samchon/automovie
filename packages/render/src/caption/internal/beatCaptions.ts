@@ -6,7 +6,7 @@ import type {
 
 import { screenplaySceneSlug } from "../../screenplay/internal/screenplaySceneSlug.js";
 
-/**
+/*
  * Index each beat's caption and enclosing scene slug from the screenplay tree,
  * keyed by beat id: `AutoMovieRenderCaption.planSidecar` consults it per span.
  *

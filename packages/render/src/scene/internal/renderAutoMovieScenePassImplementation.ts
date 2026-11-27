@@ -15,7 +15,7 @@ import { readAutoMovieSceneMedium } from "../medium/internal/readAutoMovieSceneM
 import { resetAutoMovieSceneShadowTargets } from "./resetAutoMovieSceneShadowTargets.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
-/**
+/*
  * Draw a scene sample under reversible environment and material-pass owners. A
  * beauty pass of a scene carrying a medium is refused before anything changes,
  * because the medium is drawn only in a film's linear target. Both owners are

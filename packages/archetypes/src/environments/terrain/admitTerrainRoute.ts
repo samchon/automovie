@@ -9,15 +9,14 @@ import type {
 
 import type { prepareTerrainGrades } from "./prepareTerrainGrades";
 
-/**
+/*
  * Check a named route against the accepted support surface.
- *
- * @param path Resolved world-metre waypoints, fixed heights and optional slope
- *   limit.
- * @param footprint Closed rectangular parcel with its excluded hole rings.
- * @param rule World height authority retained for staging and rendering.
- * @throws If the prescribed width misses support, a waypoint misses its fixed
- *   height or the slope is infeasible.
+ * Parameter path: Resolved world-metre waypoints, fixed heights and optional slope
+ * limit.
+ * Parameter footprint: Closed rectangular parcel with its excluded hole rings.
+ * Parameter rule: World height authority retained for staging and rendering.
+ * If the prescribed width misses support, a waypoint misses its fixed
+ * height or the slope is infeasible.
  */
 export function admitTerrainRoute(
   path: IPath,
@@ -70,10 +69,14 @@ export function admitTerrainRoute(
   }
 }
 
-/** A named path with world-metre waypoints and applicable grade limits. */
+/*
+ * A named path with world-metre waypoints and applicable grade limits.
+ */
 type IPath = ReturnType<typeof prepareTerrainGrades>["paths"][number];
 
-/** A butt-ended strip can meet a rim at a door or parcel boundary. */
+/*
+ * A butt-ended strip can meet a rim at a door or parcel boundary.
+ */
 function stripFits(
   segment: IPath["segments"][number],
   radius: number,
@@ -129,7 +132,9 @@ function stripFits(
   return true;
 }
 
-/** Radius of the largest clearance disk before meeting this closed ring's rim. */
+/*
+ * Radius of the largest clearance disk before meeting this closed ring's rim.
+ */
 function distanceToRim(
   ring: IAutoMovieFootprintRing,
   point: IAutoMovieVector3,
@@ -149,7 +154,7 @@ function distanceToRim(
   return distance;
 }
 
-/**
+/*
  * Bound centerline slope by evaluating the derivative of each crossed cell's
  * quadratic.
  */
@@ -185,7 +190,9 @@ function routeGrade(
   return max;
 }
 
-/** Insert only lattice boundaries strictly between the two axis coordinates. */
+/*
+ * Insert only lattice boundaries strictly between the two axis coordinates.
+ */
 function addAxisCuts(
   cuts: Set<number>,
   from: number,

@@ -7,7 +7,7 @@ import type {
 import { unionSubjectBoxes } from "../../film/internal/unionSubjectBoxes";
 import { physicalShapeBoundsImplementation } from "../../physics/internal/physicalShapeBoundsImplementation";
 
-/**
+/*
  * Measure external interpenetration from the film owner's evaluated parts.
  *
  * Same-layer paths and explicit group ownership govern comparisons. The widest
@@ -17,10 +17,9 @@ import { physicalShapeBoundsImplementation } from "../../physics/internal/physic
  * supported pairs without resampling the film. Tangency, native-precision
  * uncertainty and any overlap involving an enclosing or proxy solid are
  * candidates; separation of an enclosing solid proves clearance.
- *
- * @param props Current world parts, local time, supplied convex query and work
- *   budget.
- * @returns Stable measured findings, comparison counts and remaining coverage.
+ * Parameter props: Current world parts, local time, supplied convex query and work
+ * budget.
+ * Returns: Stable measured findings, comparison counts and remaining coverage.
  */
 export function measureAutoMovieSceneCollision(
   props: Collision.IProps,
@@ -53,7 +52,9 @@ export function measureAutoMovieSceneCollision(
   let remaining: number = props.maxComparisons;
   let budgetExhausted: boolean = false;
 
-  /** Account for an actual attempted comparison, before reading its result. */
+  /*
+   * Account for an actual attempted comparison, before reading its result.
+   */
   const spend = (kind: keyof typeof compared): boolean => {
     if (remaining === 0) {
       budgetExhausted = true;
@@ -64,7 +65,9 @@ export function measureAutoMovieSceneCollision(
     return true;
   };
 
-  /** Refine a surviving group or region with the common leaf predicate. */
+  /*
+   * Refine a surviving group or region with the common leaf predicate.
+   */
   const visitParts = (left: IRegion, right: IRegion): void => {
     for (const a of left.parts)
       for (const b of right.parts) {
@@ -138,7 +141,7 @@ export function measureAutoMovieSceneCollision(
       }
   };
 
-  /**
+  /*
    * Visit region pairs only when refinement was requested, building them on
    * first overlap.
    */
@@ -182,36 +185,56 @@ export function measureAutoMovieSceneCollision(
   };
 }
 
-/** A finite world box prepared once for this part. */
+/*
+ * A finite world box prepared once for this part.
+ */
 interface IPreparedPart {
-  /** Borrowed evaluated geometry and stable path. */
+  /*
+   * Borrowed evaluated geometry and stable path.
+   */
   source: Collision.IPart;
-  /** Conservative box used only to reject candidate pairs. */
+  /*
+   * Conservative box used only to reject candidate pairs.
+   */
   bounds: IAutoMovieSubjectBox;
-  /** Native-query precision margin in metres at this coordinate scale. */
+  /*
+   * Native-query precision margin in metres at this coordinate scale.
+   */
   margin: number;
 }
 
-/** Candidate refinement over parts that share a world envelope. */
+/*
+ * Candidate refinement over parts that share a world envelope.
+ */
 interface IRegion {
-  /** Stable key used to order deterministic refinement. */
+  /*
+   * Stable key used to order deterministic refinement.
+   */
   id: string;
-  /** Union of all conservative part bounds. */
+  /*
+   * Union of all conservative part bounds.
+   */
   bounds: IAutoMovieSubjectBox;
-  /** Prepared members in stable path order. */
+  /*
+   * Prepared members in stable path order.
+   */
   parts: IPreparedPart[];
 }
 
-/** One independent part or an explicitly managed group. */
+/*
+ * One independent part or an explicitly managed group.
+ */
 interface IGroup extends IRegion {
-  /**
+  /*
    * Narrower envelopes inside this group: null without refinement, undefined
    * until an external overlap needs them.
    */
   regions: IRegion[] | null | undefined;
 }
 
-/** Prepare one reusable envelope per admitted leaf and group. */
+/*
+ * Prepare one reusable envelope per admitted leaf and group.
+ */
 function prepareGroups(
   parts: readonly Collision.IPart[],
   refine: boolean,
@@ -269,7 +292,7 @@ function prepareGroups(
   );
 }
 
-/**
+/*
  * Fold per-part bounds into the source's named regions for a second broad
  * phase.
  */
@@ -293,7 +316,9 @@ function regionsOf(parts: IPreparedPart[]): IRegion[] {
   ).sort((a: IRegion, b: IRegion): number => comparePaths(a.id, b.id));
 }
 
-/** Apply the native query's coordinate-scale allowance before culling. */
+/*
+ * Apply the native query's coordinate-scale allowance before culling.
+ */
 function preparePart(part: Collision.IPart): IPreparedPart | null {
   const source: Collision.IPart["geometry"] = part.geometry;
   if (
@@ -349,7 +374,7 @@ function preparePart(part: Collision.IPart): IPreparedPart | null {
   return { source: part, bounds: padded, margin };
 }
 
-/**
+/*
  * Validate declared windows and retain the tightest active whole-part depth per
  * pair.
  */
@@ -386,7 +411,9 @@ function activeAllowances(
   return active;
 }
 
-/** Keep contact candidates at inclusive boundaries. */
+/*
+ * Keep contact candidates at inclusive boundaries.
+ */
 function overlaps(a: IAutoMovieSubjectBox, b: IAutoMovieSubjectBox): boolean {
   return (
     a.min.x <= b.max.x &&
@@ -398,12 +425,16 @@ function overlaps(a: IAutoMovieSubjectBox, b: IAutoMovieSubjectBox): boolean {
   );
 }
 
-/** Compare paths without environment-specific collation. */
+/*
+ * Compare paths without environment-specific collation.
+ */
 function comparePaths(a: string, b: string): number {
   return a < b ? -1 : a > b ? 1 : 0;
 }
 
-/** Order pairs by their stable first and second paths. */
+/*
+ * Order pairs by their stable first and second paths.
+ */
 function comparePairs(
   a: { first: string; second: string },
   b: { first: string; second: string },
@@ -411,7 +442,9 @@ function comparePairs(
   return comparePaths(a.first, b.first) || comparePaths(a.second, b.second);
 }
 
-/** Encode an unordered pair without ambiguity from path punctuation. */
+/*
+ * Encode an unordered pair without ambiguity from path punctuation.
+ */
 function pairKey(first: string, second: string): string {
   return JSON.stringify(
     comparePaths(first, second) < 0 ? [first, second] : [second, first],

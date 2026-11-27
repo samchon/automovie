@@ -6,7 +6,7 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Read the independent slider and its opposing working and supporting sites
  * from a fixed pouch with coupled geometry.
  */
@@ -56,9 +56,13 @@ export function zipSites(
   return { thumb, index, brace, slider };
 }
 
-/** Admission for a pouch's slider and contact sites. */
+/*
+ * Admission for a pouch's slider and contact sites.
+ */
 export namespace zipSites {
-  /** The surfaces and independent slider for one closure. */
+  /*
+   * The surfaces and independent slider for one closure.
+   */
   export interface ISites {
     thumb: IAutoMovieAffordance;
     index: IAutoMovieAffordance;
@@ -66,7 +70,9 @@ export namespace zipSites {
     slider: IAutoMovieAffordance;
   }
 
-  /** Admit the terminal slider state between its two mechanical stops. */
+  /*
+   * Admit the terminal slider state between its two mechanical stops.
+   */
   export function admitStop(
     subject: string,
     slider: Pick<IAutoMovieAffordance, "reverse" | "travel">,
@@ -76,7 +82,9 @@ export namespace zipSites {
       throw refusal(subject, "the requested travel passes a zipper stop");
   }
 
-  /** Explain why the pouch cannot perform its requested closure. */
+  /*
+   * Explain why the pouch cannot perform its requested closure.
+   */
   export function refusal(subject: string, reason: string): HumanRefusal {
     return new HumanRefusal({
       kind: "affordance",
@@ -88,10 +96,14 @@ export namespace zipSites {
   }
 }
 
-/** The opposing tab and its free-standing brace, by site names. */
+/*
+ * The opposing tab and its free-standing brace, by site names.
+ */
 type SiteNames = "pouch" | "thumb" | "index" | "brace";
 
-/** The staged pouch fields that determine its suitability for the closure. */
+/*
+ * The staged pouch fields that determine its suitability for the closure.
+ */
 type FixedPouch =
   | "affordances"
   | "fixed"

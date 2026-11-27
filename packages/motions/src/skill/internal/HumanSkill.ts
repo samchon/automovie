@@ -7,7 +7,7 @@ import type {
   IAutoMovieReactionTimeDistribution,
 } from "@automovie/interface";
 
-/**
+/*
  * A performer's skill as numbers laws read: each proficiency axis resolved to
  * [0, 1], the interpolation every family's quantities use, the seeded draw
  * streams, and the few variability laws that hold across tasks.
@@ -37,7 +37,7 @@ import type {
  * another's draws. Skill never raises a range of motion.
  */
 export namespace HumanSkill {
-  /**
+  /*
    * The named levels' values: the scale is Fitts and Posner's (1967, Human
    * Performance) three stages of skill learning, cognitive, associative and
    * autonomous, laid end to end. A novice begins the cognitive stage (0), an
@@ -56,7 +56,9 @@ export namespace HumanSkill {
     elite: 1,
   };
 
-  /** Every axis. */
+  /*
+   * Every axis.
+   */
   export const AXES: readonly IAutoMovieProficiency.Axis[] = [
     "timing",
     "path",
@@ -70,12 +72,11 @@ export namespace HumanSkill {
     "sequencing",
   ];
 
-  /**
+  /*
    * Resolve a proficiency.
-   *
-   * @param proficiency A level or a value, with optional axis overrides.
-   * @param seed The chain seed text.
-   * @returns The skill.
+   * Parameter proficiency: A level or a value, with optional axis overrides.
+   * Parameter seed: The chain seed text.
+   * Returns: The skill.
    */
   export function resolve(
     proficiency: IAutoMovieProficiency,
@@ -106,14 +107,13 @@ export namespace HumanSkill {
     return { p, axes, seed };
   }
 
-  /**
+  /*
    * A quantity between its novice and elite values on one axis.
-   *
-   * @param skill The skill.
-   * @param axis The axis that governs the quantity.
-   * @param novice The value at 0.
-   * @param elite The value at 1.
-   * @returns `lerp(novice, elite, smoothstep(axis))`.
+   * Parameter skill: The skill.
+   * Parameter axis: The axis that governs the quantity.
+   * Parameter novice: The value at 0.
+   * Parameter elite: The value at 1.
+   * Returns: `lerp(novice, elite, smoothstep(axis))`.
    */
   export function quantity(
     skill: IAutoMovieMotionHumanSkill,
@@ -126,15 +126,14 @@ export namespace HumanSkill {
     return novice + (elite - novice) * s;
   }
 
-  /**
+  /*
    * The draw stream of one channel of one action instance.
-   *
-   * @param skill The skill, carrying the chain seed.
-   * @param subject The performer's id.
-   * @param action The action's stable id (its anchor or its name).
-   * @param instance Which occurrence of that id in the performer's chain.
-   * @param channel The quantity drawn.
-   * @returns The stream.
+   * Parameter skill: The skill, carrying the chain seed.
+   * Parameter subject: The performer's id.
+   * Parameter action: The action's stable id (its anchor or its name).
+   * Parameter instance: Which occurrence of that id in the performer's chain.
+   * Parameter channel: The quantity drawn.
+   * Returns: The stream.
    */
   export function stream(
     skill: IAutoMovieMotionHumanSkill,
@@ -154,15 +153,14 @@ export namespace HumanSkill {
     );
   }
 
-  /**
+  /*
    * The draw stream one channel shares across every instance of an action, for
    * a sequence indexed by the instance.
-   *
-   * @param skill The skill, carrying the chain seed.
-   * @param subject The performer's id.
-   * @param action The action's stable id (its anchor or its name).
-   * @param channel The quantity drawn.
-   * @returns The stream.
+   * Parameter skill: The skill, carrying the chain seed.
+   * Parameter subject: The performer's id.
+   * Parameter action: The action's stable id (its anchor or its name).
+   * Parameter channel: The quantity drawn.
+   * Returns: The stream.
    */
   export function series(
     skill: IAutoMovieMotionHumanSkill,
@@ -175,12 +173,11 @@ export namespace HumanSkill {
     );
   }
 
-  /**
+  /*
    * A standard normal draw from a stream index pair (Box-Muller transform).
-   *
-   * @param random The stream.
-   * @param index The first of the two indices it reads.
-   * @returns A draw from N(0, 1).
+   * Parameter random: The stream.
+   * Parameter index: The first of the two indices it reads.
+   * Returns: A draw from N(0, 1).
    */
   export function normal(random: IAutoMovieRandom, index: number): number {
     const u: number = Math.max(1e-12, random.float(index));
@@ -188,19 +185,18 @@ export namespace HumanSkill {
     return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
   }
 
-  /**
+  /*
    * One simple reaction time drawn from an ex-Gaussian, the distribution simple
    * reaction times follow (Hohle 1965): a normal of mean `mu` and standard
    * deviation `sigma` plus an exponential of mean `tau`. The family that reacts
    * gives the three parameters from its own studies (orienting in `look`,
    * combat in `StrikingSkill`, a command's answer in `HumanResponse`) and its
    * own floor or band; this is the one draw.
-   *
-   * @param law The ex-Gaussian's parameters, seconds.
-   * @param random The stream; reads indices `index`, `index + 1` (the normal)
-   *   and `index + 2` (the exponential).
-   * @param index The first index read; 0 when absent.
-   * @returns Seconds, unfloored.
+   * Parameter law: The ex-Gaussian's parameters, seconds.
+   * Parameter random: The stream; reads indices `index`, `index + 1` (the normal)
+   * and `index + 2` (the exponential).
+   * Parameter index: The first index read; 0 when absent.
+   * Returns: Seconds, unfloored.
    */
   export function reaction(
     law: IAutoMovieReactionTimeDistribution,
@@ -212,15 +208,14 @@ export namespace HumanSkill {
     return law.mu + law.sigma * normal(random, index) + exponential;
   }
 
-  /**
+  /*
    * Endpoint scatter of a movement, metres: impulse variability's `k D / T`
    * (Schmidt et al. 1979), k from 0.012 s (novice) to 0.004 s (elite) on the
    * `path` axis, provisional constants.
-   *
-   * @param skill The skill.
-   * @param distance Movement distance, metres.
-   * @param seconds Movement time, seconds; positive.
-   * @returns The standard deviation of the endpoint, metres.
+   * Parameter skill: The skill.
+   * Parameter distance: Movement distance, metres.
+   * Parameter seconds: Movement time, seconds; positive.
+   * Returns: The standard deviation of the endpoint, metres.
    */
   export function scatter(
     skill: IAutoMovieMotionHumanSkill,
@@ -230,18 +225,17 @@ export namespace HumanSkill {
     return (quantity(skill, "path", 0.012, 0.004) * distance) / seconds;
   }
 
-  /**
+  /*
    * Postural sway scale on the `balance` axis: 1.6 for a novice to 1.0 for an
    * elite (Perrin et al. 2002; provisional factor).
-   *
-   * @param skill The skill.
-   * @returns The factor on a family's sway amplitude.
+   * Parameter skill: The skill.
+   * Returns: The factor on a family's sway amplitude.
    */
   export function sway(skill: IAutoMovieMotionHumanSkill): number {
     return quantity(skill, "balance", 1.6, 1);
   }
 
-  /**
+  /*
    * A duration with timing variability: a log-normal draw whose mean is the
    * planned `T` and whose standard deviation is Wing and Kristofferson's
    * two-level `sigma = sqrt(motor^2 + (CV T)^2)`. A duration is positive and
@@ -251,12 +245,11 @@ export namespace HumanSkill {
    * normal whose tail crosses zero: with `s^2 = ln(1 + sigma^2 / T^2)` and `m =
    * ln T - s^2 / 2`, the draw is `exp(m + s N(0, 1))`, which has the two-level
    * model's mean and variance exactly and needs no floor.
-   *
-   * @param skill The skill.
-   * @param random The stream.
-   * @param seconds The planned duration.
-   * @returns The realised duration, positive for a positive plan; a plan of no
-   *   time is returned as given.
+   * Parameter skill: The skill.
+   * Parameter random: The stream.
+   * Parameter seconds: The planned duration.
+   * Returns: The realised duration, positive for a positive plan; a plan of no
+   * time is returned as given.
    */
   export function jitter(
     skill: IAutoMovieMotionHumanSkill,
@@ -274,5 +267,7 @@ export namespace HumanSkill {
   }
 }
 
-/** The alternatives of `LEVELSEntryItem`'s site. */
+/*
+ * The alternatives of `LEVELSEntryItem`'s site.
+ */
 type LEVELSEntryItem = "novice" | "amateur" | "trained" | "elite";

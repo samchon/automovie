@@ -4,18 +4,17 @@ import { AutoMovieArchetypeBoat } from "../AutoMovieArchetypeBoat";
 import { BoatConstruction } from "./BoatConstruction";
 import { BoatHull } from "./BoatHull";
 
-/**
+/*
  * Pulling boat.
  *
  * A launch hull with five fixed thwarts facing aft. The waterline origin and
  * bow along +Z define its boarding and crew frame.
- *
- * @param params The scene identity and this hull's accepted dimensions and
- *   catalogue choices.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter params: The scene identity and this hull's accepted dimensions and
+ * catalogue choices.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function createPullingBoat(
   params: AutoMovieArchetypePullingBoat.IParams = {},
@@ -29,7 +28,9 @@ export function createPullingBoat(
 
 
 
-/** Record this hull's fixed seats. */
+/*
+ * Record this hull's fixed seats.
+ */
 function outfit(
   builder: Parameters<BoatConstruction.Outfit>[0],
   { beam, gunwale }: BoatConstruction.IHull,

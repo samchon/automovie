@@ -6,7 +6,7 @@ import type {
 
 import { admitRecoveryCameraPair } from "./admitRecoveryCameraPair";
 
-/**
+/*
  * Prepare the three-view map's supplied charts before image allocation. The
  * seed pair is prepared as a pair, and the third view's chart with the map's
  * aggregate pixel ceiling, without fitting a pair; the ceiling then bounds all
@@ -42,6 +42,8 @@ export function admitRecoveryCameraMap(
   return [...first.charts, third.charts[1]];
 }
 
-/** The supplied charts and pixel count of a prepared view pair. */
+/*
+ * The supplied charts and pixel count of a prepared view pair.
+ */
 type PreparedPair =
   ReturnType<IAutoMovieRecoveryCameraPairAdmissionOperation.Operation>;

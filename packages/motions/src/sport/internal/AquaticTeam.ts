@@ -9,35 +9,34 @@ import { AquaticPosture } from "./AquaticPosture";
 import { AquaticTeamBase } from "./AquaticTeamBase";
 import { aquaticArtisticSchedule } from "./aquaticArtisticSchedule";
 
-/**
+/*
  * Seconds a support contact blends in before its grip and out after its
  * release.
  */
 const CONTACT_BLEND: number = 0.22;
 
-/**
+/*
  * Seconds a base's support arm takes to reach into its palm offer and back out:
  * provisional, an unhurried sculling arm.
  */
 const BASE_REACH: number = 0.5;
-/**
+/*
  * An artistic figure with optional team support. Flat and vertical sculls
  * follow the form distinctions measured by Homma et al. (PMID 31718520). The
  * supported figure uses the separate support and featured roles of the World
  * Aquatics Artistic Swimming Manual, Group B. The timing and contact depths
  * here are authored for this film figure.
- *
+ * ://resources.fina.org/fina/document/2026/02/26/e04faca7-a6bd-4b2b-ba86-0354ee34dd82/AQUA-AS_MANUAL_February-2026.pdf
  * @see https://resources.fina.org/fina/document/2026/02/26/e04faca7-a6bd-4b2b-ba86-0354ee34dd82/AQUA-AS_MANUAL_February-2026.pdf
  */
 export namespace AquaticTeam {
-  /**
+  /*
    * Prepare a flat layout, sculling rise, figure and recovery.
-   *
-   * @param context The performer, role, beat and the named swimmers.
-   * @param water The shared world water height in metres.
-   * @returns The plan with named support and release events for assisted roles.
-   * @throws {HumanRefusal} For absent or repeated bases, or when a named
-   *   support is not an upward submerged palm during the bearing interval.
+   * Parameter context: The performer, role, beat and the named swimmers.
+   * Parameter water: The shared world water height in metres.
+   * Returns: The plan with named support and release events for assisted roles.
+   * For absent or repeated bases, or when a named
+   * support is not an upward submerged palm during the bearing interval.
    */
   export function artistic(
     context: AquaticPosture.Context,
@@ -316,8 +315,12 @@ export namespace AquaticTeam {
   }
 }
 
-/** A provisional cos(36.9°) minimum for a submerged palm bearing upward. */
+/*
+ * A provisional cos(36.9°) minimum for a submerged palm bearing upward.
+ */
 const UPWARD: number = 0.8;
 
-/** The alternatives of `PlanLimbIndex`'s site. */
+/*
+ * The alternatives of `PlanLimbIndex`'s site.
+ */
 type PlanLimbIndex = 0 | 1;

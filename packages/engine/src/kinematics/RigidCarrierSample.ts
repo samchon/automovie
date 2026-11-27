@@ -143,7 +143,7 @@ export namespace RigidCarrierSample {
     return current(prop)?.playback;
   }
 
-  /**
+  /*
    * The prop's still-current own callback pair, checked without calling
    * getters.
    */

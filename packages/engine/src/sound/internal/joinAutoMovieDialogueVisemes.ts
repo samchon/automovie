@@ -6,7 +6,7 @@ import type {
   IAutoMovieJoinDialogueVisemes,
 } from "@automovie/interface";
 
-/**
+/*
  * Bind a line's timed visemes to its speaker's actor and place them on the
  * emission clock.
  *
@@ -16,10 +16,9 @@ import type {
  * Pauses between visemes become `sil` ranges, so a pause inside a line closes
  * the mouth. The weights layer over the actor's authored expression
  * (`mouth-layer-over-authored-expression`).
- *
- * @param props The line, the film's speaker bindings, the timed visemes and the
- *   two rates.
- * @returns The join outcome, with the timeline when it is available.
+ * Parameter props: The line, the film's speaker bindings, the timed visemes and the
+ * two rates.
+ * Returns: The join outcome, with the timeline when it is available.
  */
 export function joinAutoMovieDialogueVisemes(
   props: IAutoMovieJoinDialogueVisemes.IProps,
@@ -98,7 +97,7 @@ export function joinAutoMovieDialogueVisemes(
   };
 }
 
-/**
+/*
  * The 15 MPEG-4 visemes; a timed viseme a receipt reports is checked against
  * them at runtime.
  */

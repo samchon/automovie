@@ -4,37 +4,42 @@ import type { QuadrupedRideClock } from "./QuadrupedRideClock";
 import { QuadrupedTimedCues } from "./QuadrupedTimedCues";
 import type { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped";
 
-/**
+/*
  * The route a quadruped ride follows: an authored course of legs, or a planned
  * course such as a timed one ridden as given.
  */
 export namespace QuadrupedTimedRoute {
-  /** A ride's admitted route. */
+  /*
+   * A ride's admitted route.
+   */
   export interface IRoute {
-    /** The plan the ride samples. */
+    /*
+     * The plan the ride samples.
+     */
     plan: AutoMovieArchetypeCourse.IPlan;
-    /** The course of legs its admission and clock read. */
+    /*
+     * The course of legs its admission and clock read.
+     */
     course: AutoMovieArchetypeQuadruped.IRideCourse;
 
-    /**
+    /*
      * Each timed halt from its stop to the next departure, which holds the hoof
      * clock; none for a course of legs.
      */
     holds: QuadrupedRideClock.IHold[];
   }
 
-  /**
+  /*
    * Admit a route: plan an authored course, or read a planned one with its
    * halts, restarts and stop ramps.
-   *
-   * @param species The ride's species and table.
-   * @param route The authored course, a planned course, or a planned course
-   *   with named-gait cues (`QuadrupedTimedCues`).
-   * @param withers The animal's withers height, metres.
-   * @param gait The ride's fixed gait, which names every leg naming none.
-   * @returns The plan and its course of legs.
-   * @throws {AutoMovieArchetypeRefusal} As AutoMovieArchetypeCourse.plan
-   *   refuses a malformed course.
+   * Parameter species: The ride's species and table.
+   * Parameter route: The authored course, a planned course, or a planned course
+   * with named-gait cues (`QuadrupedTimedCues`).
+   * Parameter withers: The animal's withers height, metres.
+   * Parameter gait: The ride's fixed gait, which names every leg naming none.
+   * Returns: The plan and its course of legs.
+   * As AutoMovieArchetypeCourse.plan
+   * refuses a malformed course.
    */
   export function of(
     species: AutoMovieArchetypeQuadruped.ISpecies,

@@ -6,7 +6,9 @@ import type {
   IAutoMovieRecoveryMapJointPreparation,
 } from "@automovie/interface";
 
-/** Prepare original point qualification and one current scaled block design. */
+/*
+ * Prepare original point qualification and one current scaled block design.
+ */
 export function prepareRecoveryMapJointBlocks(
   blocks: readonly IAutoMovieRecoveryMapJointBlock[],
   minimumRatio: number,

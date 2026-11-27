@@ -16,7 +16,7 @@ import { HumanPhysicsInvalid } from "./HumanPhysicsInvalid";
 import { HumanPhysicsMissing } from "./HumanPhysicsMissing";
 import { HumanRefusal } from "../HumanRefusal";
 
-/**
+/*
  * The one reader of the balance option (`IAutoMovieMotionHumanBalance`): the
  * shift an action applies, by how much at a film second, and whether the audit
  * judges the body's balance over it. Absent on the params, none: a posed,
@@ -31,85 +31,117 @@ import { HumanRefusal } from "../HumanRefusal";
  * prepared window has positive weight.
  */
 export namespace HumanPhysics {
-  /** An action's params as the option reads them: the balance, when given. */
+  /*
+   * An action's params as the option reads them: the balance, when given.
+   */
   export interface IBalanced {
-    /** The balancing shift; none when absent. */
+    /*
+     * The balancing shift; none when absent.
+     */
     balance?: IAutoMovieMotionHumanBalance;
   }
 
-  /** An action's law as the option reads it. */
+  /*
+   * An action's law as the option reads it.
+   */
   export interface ILaw {
-    /**
+    /*
      * Whether the law's content is a staged physical outcome
      * (`IAutoMovieMotionHumanActionLaw.physical`).
      */
     physical?: boolean;
 
-    /**
+    /*
      * The law's recommended shift, every field set
      * (`IAutoMovieMotionHumanActionLaw.balance`); none when absent.
      */
     balance?: IAutoMovieMotionHumanBalance;
   }
 
-  /**
+  /*
    * An action as the audit reads it, a placed action also carrying its law and
    * params.
    */
   export interface ISpan extends IAutoMovieMotionHumanAuditMotion.ISpan {
-    /** The placed action's law, when the span is one. */
+    /*
+     * The placed action's law, when the span is one.
+     */
     law?: ILaw;
 
-    /** The placed action's params, when the span is one. */
+    /*
+     * The placed action's params, when the span is one.
+     */
     params?: IBalanced;
   }
 
-  /** A shift with its author bounds' names and admitted numeric terms. */
+  /*
+   * A shift with its author bounds' names and admitted numeric terms.
+   */
   export interface IShift {
-    /** The part moved to keep the centre of mass over the support. */
+    /*
+     * The part moved to keep the centre of mass over the support.
+     */
     by: IAutoMovieMotionHumanBalance.Part;
 
-    /** The share of the full shift applied, 0 to 1. */
+    /*
+     * The share of the full shift applied, 0 to 1.
+     */
     weight: number;
 
-    /** The instant it starts. */
+    /*
+     * The instant it starts.
+     */
     from: IAutoMovieMotionHumanBalance.IBound;
 
-    /** The instant it ends. */
+    /*
+     * The instant it ends.
+     */
     to: IAutoMovieMotionHumanBalance.IBound;
 
-    /** The blend durations in seconds, zero at each end if omitted. */
+    /*
+     * The blend durations in seconds, zero at each end if omitted.
+     */
     ramp: IAutoMovieMotionHumanBalance.IRamp;
   }
 
-  /** The shift an action applies (`shift`), or none. */
+  /*
+   * The shift an action applies (`shift`), or none.
+   */
   export type Shift = IShift | null;
 
-  /**
+  /*
    * The resolver of a scheduled instant, film seconds
    * (`HumanPerformance.instant`).
    */
   export type Instant = IAutoMovieMotionHumanActionContext.Instant;
 
-  /**
+  /*
    * An action's named events and duration are sufficient to resolve its own
    * bounds.
    */
   export interface ITiming {
-    /** The full duration of the action in seconds. */
+    /*
+     * The full duration of the action in seconds.
+     */
     duration: number;
 
-    /** The events on that clock, in order and expressed as duration shares. */
+    /*
+     * The events on that clock, in order and expressed as duration shares.
+     */
     events: readonly IAutoMovieMotionEvent[];
   }
 
-  /** The duration and named events a correction can read from its clock. */
+  /*
+   * The duration and named events a correction can read from its clock.
+   */
   export type IClock = Pick<IAutoMovieMotionClock, "duration" | "events">;
 
-  /** The prepared window, or null when a correction cannot contribute. */
+  /*
+   * The prepared window, or null when a correction cannot contribute.
+   */
   export type Window = IAutoMovieMotionHumanBalance.Window;
 
-  /**
+  /*
    * Name the requested part when the action cannot balance it on its actual
    * supports.
    */
@@ -127,7 +159,7 @@ export namespace HumanPhysics {
     });
   }
 
-  /**
+  /*
    * Admit absent and zero-weight requests on a planner whose contact
    * constraints own all movable parts.
    */
@@ -136,7 +168,7 @@ export namespace HumanPhysics {
     if (request !== null && request.weight > 0) unsupported(request.by, reason);
   }
 
-  /**
+  /*
    * A registered planner or composite must publish the window it actually
    * applies when an author requests balance.
    */
@@ -153,7 +185,7 @@ export namespace HumanPhysics {
       );
   }
 
-  /**
+  /*
    * Only a planner which received the option declares its result, including an
    * explicitly inactive window.
    */
@@ -164,21 +196,27 @@ export namespace HumanPhysics {
     return params.balance === undefined ? {} : { balanceWindow: window };
   }
 
-  /** A candidate interval of a placed span, in film seconds. */
+  /*
+   * A candidate interval of a placed span, in film seconds.
+   */
   export interface IJudgedInterval {
-    /** First candidate second. */
+    /*
+     * First candidate second.
+     */
     from: number;
-    /** Last candidate second. */
+    /*
+     * Last candidate second.
+     */
     to: number;
   }
 
-  /**
+  /*
    * A signed distance along the requested direction, or null if its line misses
    * the support hull.
    */
   export type SupportOffset = number | null;
 
-  /**
+  /*
    * Project the centre onto the closest part of its support hull reachable
    * along a horizontal unit direction. A point already inside moves zero.
    */
@@ -205,15 +243,14 @@ export namespace HumanPhysics {
     return from <= to ? Math.max(from, Math.min(0, to)) : null;
   }
 
-  /**
+  /*
    * The shift an action applies: none when its params give no balance; given,
    * each field the caller's where given, else the law's.
-   *
-   * @param params The action's params; none when absent.
-   * @param law The action's law; it recommends none when absent.
-   * @returns The shift, or null for none.
-   * @throws {HumanRefusal} When a part or bound is missing, or a supplied term
-   *   is outside its domain.
+   * Parameter params: The action's params; none when absent.
+   * Parameter law: The action's law; it recommends none when absent.
+   * Returns: The shift, or null for none.
+   * When a part or bound is missing, or a supplied term
+   * is outside its domain.
    */
   export function shift(params?: IBalanced, law?: ILaw): Shift {
     const given: IAutoMovieMotionHumanBalance | undefined = params?.balance;
@@ -250,7 +287,7 @@ export namespace HumanPhysics {
     return { by, weight, from: { ...from }, to: { ...to }, ramp: { ...ramp } };
   }
 
-  /**
+  /*
    * Resolve a requested window once for all evaluations of the placed plan. The
    * law's own events use its plan clock and other anchors use film seconds.
    */
@@ -264,7 +301,7 @@ export namespace HumanPhysics {
     return prepareWindow(shift(params, law), start, timing, resolve);
   }
 
-  /**
+  /*
    * Borrow a named clock, materializing its events only if a positive request
    * names a local event.
    */
@@ -285,7 +322,7 @@ export namespace HumanPhysics {
     );
   }
 
-  /**
+  /*
    * The needed shift's share at one action second. Only the active edge's
    * minimum-jerk polynomial is evaluated. Overlapping ramps are shortened
    * proportionally, so the two eased edges meet at full weight.
@@ -307,7 +344,7 @@ export namespace HumanPhysics {
     return window.weight;
   }
 
-  /**
+  /*
    * Does any instant of a closed action-local interval carry a positive
    * requested weight?
    */
@@ -326,7 +363,7 @@ export namespace HumanPhysics {
     return a < b || (a === b && weightAt(window, a) > 0);
   }
 
-  /**
+  /*
    * Limit the requested correction to a support phase while preserving the
    * author's easing origins.
    */
@@ -341,13 +378,12 @@ export namespace HumanPhysics {
       : { ...window, phase };
   }
 
-  /**
+  /*
    * A bound as the scheduled instants name theirs: the event of the action or
    * cue it names, this action's when it names none.
-   *
-   * @param bound The bound.
-   * @param own This action's id (`IAutoMovieMotionHumanSegment.id`).
-   * @returns The scheduled instant the performance resolves.
+   * Parameter bound: The bound.
+   * Parameter own: This action's id (`IAutoMovieMotionHumanSegment.id`).
+   * Returns: The scheduled instant the performance resolves.
    */
   export function instant(
     bound: IAutoMovieMotionHumanBalance.IBound,
@@ -361,17 +397,16 @@ export namespace HumanPhysics {
     };
   }
 
-  /**
+  /*
    * The share of the full balancing shift applied at a film second: the shift's
    * weight between its two resolved bounds, 0 outside them or where no shift
    * applies. The shift is one closed-form evaluation scaled by this, never
    * iterated.
-   *
-   * @param resolved The action's shift (`shift`).
-   * @param seconds Film seconds.
-   * @param own This action's id, for bounds that name no action.
-   * @param resolve The scheduled-instant resolver (`HumanPerformance.instant`).
-   * @returns The weight applied there, 0 to 1.
+   * Parameter resolved: The action's shift (`shift`).
+   * Parameter seconds: Film seconds.
+   * Parameter own: This action's id, for bounds that name no action.
+   * Parameter resolve: The scheduled-instant resolver (`HumanPerformance.instant`).
+   * Returns: The weight applied there, 0 to 1.
    */
   export function weight(
     resolved: Shift,
@@ -385,17 +420,16 @@ export namespace HumanPhysics {
     return weightAt(HumanPhysicsAdmitWindow(resolved, from, to), seconds);
   }
 
-  /**
+  /*
    * Whether the audit judges the body's balance over an action: the span says
    * so (`IAutoMovieMotionHumanAuditMotion.ISpan.physical`), or, for a placed
    * action read as a span, its law stages a physical outcome or it applies a
    * shift.
-   *
-   * @param span The action as the audit reads it.
-   * @param seconds The film second being judged. Omit to ask whether any of the
-   *   action is judged.
-   * @returns Whether its balance is judged.
-   * @throws {HumanRefusal} As `shift` does.
+   * Parameter span: The action as the audit reads it.
+   * Parameter seconds: The film second being judged. Omit to ask whether any of the
+   * action is judged.
+   * Returns: Whether its balance is judged.
+   * As `shift` does.
    */
   export function judged(span: ISpan, seconds?: number): boolean {
     if (
@@ -426,7 +460,7 @@ export namespace HumanPhysics {
     return false;
   }
 
-  /**
+  /*
    * The parts of the placed span that can contribute to a balance audit.
    * `judged` still checks the precise weight at the individual sample.
    */
@@ -451,7 +485,9 @@ export namespace HumanPhysics {
   }
 }
 
-/** Resolve the opening before asking a named clock for a closing event. */
+/*
+ * Resolve the opening before asking a named clock for a closing event.
+ */
 function prepareWindow(
   active: HumanPhysics.Shift,
   start: number,

@@ -12,7 +12,7 @@ import {
 import { lowerSkeletonNodes } from "./lowerSkeletonNodes";
 import { placementNodePrefix } from "./placementNodePrefix";
 
-/**
+/*
  * Lower scene rest placements, cameras/lights and registered
  * skeleton/prop-articulation subtrees into general nodes. Supplied registries
  * must resolve each required model and may not conflict; explicit partial-model
@@ -109,7 +109,7 @@ export function sceneToNodes(
   return nodes;
 }
 
-/**
+/*
  * Lower a prop's articulation joints under its placement: ids and parent refs
  * take the placement prefix, a `null` parent seats directly under the placement
  * group (props declare their own root joint: no synthetic root is added, unlike

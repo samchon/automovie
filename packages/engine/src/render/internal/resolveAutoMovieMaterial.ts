@@ -6,7 +6,7 @@ import type {
 
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
-/**
+/*
  * Resolve one cross-model material id to one complete material definition.
  *
  * A model part resolves its material inside its own model. Simulated surfaces
@@ -72,12 +72,16 @@ export function resolveAutoMovieMaterial(
   return candidates[0]!.material;
 }
 
-/** Canonical structural identity, independent of object property insertion. */
+/*
+ * Canonical structural identity, independent of object property insertion.
+ */
 const materialSignature: (material: IAutoMovieMaterial) => string = (
   material: IAutoMovieMaterial,
 ): string => JSON.stringify(canonicalObject(material));
 
-/** Sort every record key recursively; material records contain no arrays. */
+/*
+ * Sort every record key recursively; material records contain no arrays.
+ */
 const canonicalObject: (value: unknown) => unknown = (
   value: unknown,
 ): unknown =>

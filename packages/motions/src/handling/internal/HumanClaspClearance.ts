@@ -12,32 +12,39 @@ import type {
 import { HumanColliders } from "../../posture/internal/HumanColliders";
 import { HumanGrip } from "./HumanGrip";
 
-/**
+/*
  * The geometry of the clasp's clearance test (`HumanClasp.choose`): each
  * candidate hand's phalanx capsules and the partner candidate's forearm
  * collider, placed once per candidate, and the least signed gap between them,
  * queried per pair.
  */
 export namespace HumanClaspClearance {
-  /** One phalanx capsule of a candidate's displayed hand. */
+  /*
+   * One phalanx capsule of a candidate's displayed hand.
+   */
   export interface IPhalanx {
-    /** Proximal world point, metres. */
+    /*
+     * Proximal world point, metres.
+     */
     from: IAutoMovieVector3;
 
-    /** Distal world point, metres. */
+    /*
+     * Distal world point, metres.
+     */
     to: IAutoMovieVector3;
 
-    /** Capsule radius, metres. */
+    /*
+     * Capsule radius, metres.
+     */
     radius: number;
   }
 
-  /**
+  /*
    * Prepare a body's digit capsules for its candidate poses.
-   *
-   * @param body The body, unchanged through the search.
-   * @param side The hand.
-   * @returns A reader of a candidate's displayed bones that places its fifteen
-   *   phalanx segments, world metres, in power-grip closing order.
+   * Parameter body: The body, unchanged through the search.
+   * Parameter side: The hand.
+   * Returns: A reader of a candidate's displayed bones that places its fifteen
+   * phalanx segments, world metres, in power-grip closing order.
    */
   export function prepareDigits(
     body: IAutoMovieMotionHumanBody,
@@ -67,12 +74,11 @@ export namespace HumanClaspClearance {
     ): readonly IPhalanx[] => placedDigits(bones, chain);
   }
 
-  /**
+  /*
    * The bones the clasp's digit, forearm and closure geometry reads: one side's
    * lower arm, hand and power-grip digit bones.
-   *
-   * @param side The hand.
-   * @returns A fresh name set.
+   * Parameter side: The hand.
+   * Returns: A fresh name set.
    */
   export function bones(
     side: AutoMovieHumanSide,
@@ -87,13 +93,12 @@ export namespace HumanClaspClearance {
     ]);
   }
 
-  /**
+  /*
    * A candidate's forearm collider, placed for the pair search.
-   *
-   * @param body The forearm's owner.
-   * @param bones That person's displayed bones, world frame.
-   * @param side The forearm.
-   * @returns The placed collider's distance reader.
+   * Parameter body: The forearm's owner.
+   * Parameter bones: That person's displayed bones, world frame.
+   * Parameter side: The forearm.
+   * Returns: The placed collider's distance reader.
    */
   export function forearm(
     body: IAutoMovieMotionHumanBody,
@@ -104,12 +109,11 @@ export namespace HumanClaspClearance {
     return HumanColliders.reading(body, new Map([[bone, bones.get(bone)!]]));
   }
 
-  /**
+  /*
    * The least signed gap from a hand's phalanges to a forearm collider.
-   *
-   * @param phalanges The hand's placed phalanx segments.
-   * @param geometry The forearm's distance reader.
-   * @returns Metres, negative inside.
+   * Parameter phalanges: The hand's placed phalanx segments.
+   * Parameter geometry: The forearm's distance reader.
+   * Returns: Metres, negative inside.
    */
   export function between(
     phalanges: readonly IPhalanx[],
@@ -125,7 +129,7 @@ export namespace HumanClaspClearance {
   }
 }
 
-/**
+/*
  * Place every phalanx capsule of the power-grip digits from a candidate's
  * frames, in closing order.
  */

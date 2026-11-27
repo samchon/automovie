@@ -1,6 +1,6 @@
 import { IAutoMoviePlanarPoint } from "@automovie/interface";
 
-/**
+/*
  * Whether a point lies inside a closed ring by the even-odd rule, casting a ray
  * along +X.
  *
@@ -8,10 +8,9 @@ import { IAutoMoviePlanarPoint } from "@automovie/interface";
  * already refused ring contact, so the point they probe never lies on an edge.
  * The ring may be wound either way. Unlike the architecture graph's
  * `pointInPolygon`, a boundary point is not classified as inside.
- *
- * @param point Point to classify.
- * @param ring Closed ring, the last corner joined back to the first.
- * @returns True when the ray crosses the ring an odd number of times.
+ * Parameter point: Point to classify.
+ * Parameter ring: Closed ring, the last corner joined back to the first.
+ * Returns: True when the ray crosses the ring an odd number of times.
  */
 export const pointInPlanarRing = (
   point: IAutoMoviePlanarPoint,

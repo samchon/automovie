@@ -1,6 +1,8 @@
 import type { IAutoMovieClipShapeFault } from "@automovie/interface";
 
-/** Return the first sampler-duration fault or null for nonnegative seconds. */
+/*
+ * Return the first sampler-duration fault or null for nonnegative seconds.
+ */
 export function clipDurationFault(
   duration: number,
 ): IAutoMovieClipShapeFault | null {

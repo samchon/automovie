@@ -5,14 +5,13 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * An action's reader of the performance's cue tracks
  * (`HumanPerformancePlace.place`).
- *
- * @param self The performance's state.
- * @param named The parameter through which the reading action named an id.
- * @returns The reader of a cue track by name.
- * @throws {HumanRefusal} When the performance has no cue track of a read name.
+ * Parameter self: The performance's state.
+ * Parameter named: The parameter through which the reading action named an id.
+ * Returns: The reader of a cue track by name.
+ * When the performance has no cue track of a read name.
  */
 export function HumanPerformancePlaceCue(
   self: IAutoMovieMotionHumanPerformanceState,

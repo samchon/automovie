@@ -126,21 +126,23 @@ export namespace AutoMovieHumanLegSourceFamily {
   }
 }
 
-/**
+/*
  * One actual bone chart and its independently prepared calf/ankle scalar
  * family.
  */
 interface ILocal {
-  /** Original unsolved site inputs and bone/share station map. */
+  /*
+   * Original unsolved site inputs and bone/share station map.
+   */
   chart: IAutoMovieHumanWalkPart.ISource;
 
-  /**
+  /*
    * Shared local C2 coefficients, independent site constraints and full-source
    * connection.
    */
   controls: IAutoMovieHumanSiteRegionControls.IOutput;
 
-  /**
+  /*
    * Same bounded contact authority retained by the leg and foot, without
    * full-parent demand.
    */

@@ -10,11 +10,13 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** The roof hatch read. */
+/*
+ * The roof hatch read.
+ */
 const BILCO: string =
   'Bilco Type S ladder access roof hatch product data: size "(width x length)" 36 x 30 in (914 x 762 mm), S-20 steel 183 lb (83 kg) and S-50 aluminum 110 lb (50 kg); the section drawing across the 3\'-0" (914 mm) width with the HINGE at one side and the cover held open at 70 degrees (https://www.buildsite.com/pdf/bilco/Type-S-Roof-Hatch-Ladder-Access-Product-Data-B32903.pdf)';
 
-/**
+/*
  * A Bilco Type S hatch's sizes, metres and degrees, from the maker's sheet: the
  * opening's `width` from the ladder's side to the hinge and `length` along the
  * hinge, "36 x 30" as "(width x length)", Bilco's guide specifications saying

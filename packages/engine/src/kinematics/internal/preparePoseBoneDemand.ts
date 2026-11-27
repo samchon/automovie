@@ -1,6 +1,6 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
-/**
+/*
  * Copy a live requested-name set into this immutable rig's parent-first output
  * indices. An omitted set selects every indexed node; unreachable names are
  * absent. The returned list is private prepared input, kept unchanged by its

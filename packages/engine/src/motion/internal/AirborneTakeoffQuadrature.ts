@@ -1,7 +1,7 @@
 import { AirborneQuadratureAggregate } from "./AirborneQuadratureAggregate";
 import type { AirborneQuadratureAggregateTypes } from "./AirborneQuadratureAggregateTypes";
 
-/**
+/*
  * Adaptive Simpson integration of a shooting seed's vector integrand.
  *
  * A panel compares one Simpson rule with two half-panel rules. Their difference
@@ -18,34 +18,41 @@ import type { AirborneQuadratureAggregateTypes } from "./AirborneQuadratureAggre
  * computed sum there. So a budget below the arithmetic's resolution ends once
  * every panel is resolved, instead of splitting every panel toward machine
  * width.
- *
- * @param props The finite interval, pure integrand, output-error measure and
- *   budget.
- * @returns The Richardson-corrected integral vector.
- * @throws {Error} When data are non-finite, dimensions change, the budget is
- *   invalid, or a required panel cannot be bisected at machine resolution.
+ * Parameter props: The finite interval, pure integrand, output-error measure and
+ * budget.
+ * Returns: The Richardson-corrected integral vector.
+ * When data are non-finite, dimensions change, the budget is
+ * invalid, or a required panel cannot be bisected at machine resolution.
  */
 export function AirborneTakeoffQuadrature(props: {
-  /** Interval start, seconds. */
+  /*
+   * Interval start, seconds.
+   */
   t0: number;
 
-  /** Interval end after t0, seconds. */
+  /*
+   * Interval end after t0, seconds.
+   */
   t1: number;
 
-  /** Pure finite integrand with one fixed positive vector dimension. */
+  /*
+   * Pure finite integrand with one fixed positive vector dimension.
+   */
   read: (seconds: number) => readonly number[];
 
-  /** Nonnegative output-error budget in the measure's unit. */
+  /*
+   * Nonnegative output-error budget in the measure's unit.
+   */
   tolerance: number;
 
-  /**
+  /*
    * Pure nonnegative norm-like measure of one panel's absolute component
    * errors, using the current whole integral. Infinity requests refinement; NaN
    * and negative errors are invalid.
    */
   error: (value: readonly number[], error: readonly number[]) => number;
 
-  /**
+  /*
    * Optional exact decomposition
    * error(value,e)=dot(weights(value),components(e)), with nonnegative
    * fixed-dimension coordinates. The caller owns this mathematical premise;
@@ -54,48 +61,74 @@ export function AirborneTakeoffQuadrature(props: {
    * through error.
    */
   separable?: {
-    /**
+    /*
      * Fixed nonnegative panel-error coordinates independent of the whole
      * integral.
      */
     components: (error: readonly number[]) => readonly number[];
-    /** Current nonnegative coordinate weights, recomputed once per integral. */
+    /*
+     * Current nonnegative coordinate weights, recomputed once per integral.
+     */
     weights: (value: readonly number[]) => readonly number[];
   };
 }): number[] {
-  /** One leaf's samples, half rules and corrected integral/error vectors. */
+  /*
+   * One leaf's samples, half rules and corrected integral/error vectors.
+   */
   interface IPanel {
-    /** Start, seconds. */
+    /*
+     * Start, seconds.
+     */
     a: number;
 
-    /** End, seconds. */
+    /*
+     * End, seconds.
+     */
     b: number;
 
-    /** Integrand at a. */
+    /*
+     * Integrand at a.
+     */
     fa: readonly number[];
 
-    /** Integrand at the midpoint. */
+    /*
+     * Integrand at the midpoint.
+     */
     fm: readonly number[];
 
-    /** Integrand at b. */
+    /*
+     * Integrand at b.
+     */
     fb: readonly number[];
 
-    /** Integrand at the first quarter. */
+    /*
+     * Integrand at the first quarter.
+     */
     fl: readonly number[];
 
-    /** Integrand at the third quarter. */
+    /*
+     * Integrand at the third quarter.
+     */
     fr: readonly number[];
 
-    /** Left half's Simpson integral. */
+    /*
+     * Left half's Simpson integral.
+     */
     left: number[];
 
-    /** Right half's Simpson integral. */
+    /*
+     * Right half's Simpson integral.
+     */
     right: number[];
 
-    /** Richardson-corrected integral. */
+    /*
+     * Richardson-corrected integral.
+     */
     value: number[];
 
-    /** Absolute componentwise Richardson error estimates. */
+    /*
+     * Absolute componentwise Richardson error estimates.
+     */
     error: number[];
   }
   if (!(props.t1 > props.t0))

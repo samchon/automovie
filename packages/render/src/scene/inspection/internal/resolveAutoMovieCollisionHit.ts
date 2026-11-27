@@ -3,17 +3,16 @@ import type { IAutoMovieSceneCollision as Collision } from "@automovie/interface
 import type { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry.js";
 import { findAutoMovieCollisionWitness } from "./findAutoMovieCollisionWitness.js";
 
-/**
+/*
  * Resolve one candidate pair of the Engine layer search into evidence.
  *
  * A permitted pair stays permitted. Exact shapes touching within the native
  * query's precision are clear. A confirmed exact pair keeps its measured
  * witness. Any other pair is decided by a drawn-surface witness, a complete
  * search proving clearance, an exhausted budget or an incomplete search.
- *
- * @param props The hit, the frame's parts and surfaces, the solid memo, the
- *   named windows and the shared budget.
- * @returns The resolution of the pair.
+ * Parameter props: The hit, the frame's parts and surfaces, the solid memo, the
+ * named windows and the shared budget.
+ * Returns: The resolution of the pair.
  */
 export function resolveAutoMovieCollisionHit(
   props: resolveAutoMovieCollisionHit.IProps,
@@ -37,31 +36,49 @@ export function resolveAutoMovieCollisionHit(
   });
 }
 
-/** Inputs and resolutions of one candidate pair. */
+/*
+ * Inputs and resolutions of one candidate pair.
+ */
 export namespace resolveAutoMovieCollisionHit {
-  /** One hit and the frame state that decides it. */
+  /*
+   * One hit and the frame state that decides it.
+   */
   export interface IProps {
-    /** The Engine search's observation of the pair. */
+    /*
+     * The Engine search's observation of the pair.
+     */
     readonly hit: Collision.IFinding;
-    /** Lazy drawn surfaces by part. */
+    /*
+     * Lazy drawn surfaces by part.
+     */
     readonly surfaces: AutoMovieRenderInspectionGeometry.IResult["surfaces"];
-    /** Memoized solid of a part. */
+    /*
+     * Memoized solid of a part.
+     */
     readonly solidOf: findAutoMovieCollisionWitness.IProps["solidOf"];
-    /** The layer's named windows. */
+    /*
+     * The layer's named windows.
+     */
     readonly allowances: readonly Collision.IAllowance[];
-    /** Layer-local seconds of the placement. */
+    /*
+     * Layer-local seconds of the placement.
+     */
     readonly seconds: number;
-    /** Comparisons and triangle visits the observation may still spend. */
+    /*
+     * Comparisons and triangle visits the observation may still spend.
+     */
     readonly budget: findAutoMovieCollisionWitness.IProps["budget"];
   }
 
-  /** A permitted pair, or the witness search's outcome. */
+  /*
+   * A permitted pair, or the witness search's outcome.
+   */
   export type IResolution =
     | { readonly kind: "permitted" }
     | findAutoMovieCollisionWitness.IOutcome;
 }
 
-/**
+/*
  * The allowed depth of a witness on one part's surface: the tightest named
  * window active now for the pair whose scope admits the joint labelling the
  * witness on each side, or zero when none does. An unlabelled side meets only

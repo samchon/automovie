@@ -10,19 +10,23 @@ import { Vector3 } from "../../math/Vector3";
 import { AutoMovieEngineKinematics } from "../AutoMovieEngineKinematics";
 import { solveTwoBoneIK } from "./solveTwoBoneIK";
 
-/** World-down, the direction the default bend displaces the mid joint toward. */
+/*
+ * World-down, the direction the default bend displaces the mid joint toward.
+ */
 const POLE: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
 
-/** Bend-plane axis used when the reach axis is parallel to `POLE`. */
+/*
+ * Bend-plane axis used when the reach axis is parallel to `POLE`.
+ */
 const POLE_FALLBACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
-/**
+/*
  * The bone-local articulation of a resolved two-segment chain that lands its
  * end effector on `target`: the leg plant's solve.
  *
  * Segment lengths and rest directions are measured from the chain's resolved
  * world positions. The upper segment is lifted off the root-to-target axis by
- * {@link solveTwoBoneIK}'s `lift`, turning about the bend-plane normal: the
+ * solveTwoBoneIK's `lift`, turning about the bend-plane normal: the
  * caller's `bendNormal` when given, otherwise `axis × world-down` so the mid
  * joint is displaced toward world-down, or `axis × +Z` when the axis is
  * vertical. The root's world change is lowered to bone-local as `restWorld⁻¹ ·
@@ -32,7 +36,7 @@ const POLE_FALLBACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  *
  * The mid rotation is a free swing, so it may carry abduction and twist; a
  * caller whose mid joint is a hinge passes the hinge axis as `bendNormal` to
- * keep the solve in its plane. The arm reach uses {@link hingedArmArticulation}
+ * keep the solve in its plane. The arm reach uses hingedArmArticulation
  * instead, which turns the elbow about its hinge by construction. Which bones
  * form the chain and how the deltas become clinical angles stay with the
  * caller.
@@ -43,7 +47,9 @@ const POLE_FALLBACK: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * and a target fixed across normals.
  */
 export namespace twoBoneChainArticulation {
-  /** Solve the admitted two-bone chain toward its target point. */
+  /*
+   * Solve the admitted two-bone chain toward its target point.
+   */
   export function run(props: IProps): IAutoMovieTwoBoneArticulation | null {
     const source: ISource | null = readSource(props);
     if (source === null) return null;
@@ -51,30 +57,34 @@ export namespace twoBoneChainArticulation {
     return target === null ? null : evaluate(source, target, props.bendNormal);
   }
 
-  /** Exact source and target geometry shared within one unchanged chain fit. */
+  /*
+   * Exact source and target geometry shared within one unchanged chain fit.
+   */
 
-  /**
+  /*
    * Fixed source geometry, valid only while its resolved frames and end point
    * remain unchanged.
    */
   export interface IPrepared {
-    /**
+    /*
      * Prepare the actual target triangle, or null at the original root-distance
      * gate; release it after that target's bend search.
      */
     target(point: IAutoMovieVector3): IPreparedTarget | null;
   }
 
-  /** One unchanged target's geometry; no candidate articulation is retained. */
+  /*
+   * One unchanged target's geometry; no candidate articulation is retained.
+   */
   export interface IPreparedTarget {
-    /**
+    /*
      * Compute this bend normal's actual upper/lower deltas, with fresh
      * quaternion outputs.
      */
     solve(bendNormal?: IAutoMovieVector3): IAutoMovieTwoBoneArticulation;
   }
 
-  /**
+  /*
    * Prepare fixed lengths and rest directions at the first actual geometric
    * solve. The source frames/end must stay unchanged until caller release. Each
    * target prepares its own reach axis and law-of-cosines lift; a root target
@@ -111,7 +121,7 @@ export namespace twoBoneChainArticulation {
   }
 }
 
-/**
+/*
  * Keep length degeneracy before rest directions or any target read, as in the
  * direct solve.
  */
@@ -152,7 +162,7 @@ function readSource(
   };
 }
 
-/**
+/*
  * Keep root-distance degeneracy before the scalar solver's length/distance
  * validation.
  */
@@ -169,7 +179,7 @@ function readTarget(
   return { goal, axis, lift };
 }
 
-/**
+/*
  * Compute one actual candidate using the same original expression grouping and
  * admission order.
  */
@@ -226,65 +236,91 @@ function evaluate(
   return { upper, lower };
 }
 
-/**
+/*
  * Direct source/target inputs in resolved world coordinates (the interface
  * contract).
  */
 type IProps = IAutoMovieTwoBoneChainArticulation.IProps;
 
-/**
+/*
  * One fixed source, with inverses first completed at their original evaluation
  * sites.
  */
 interface ISource {
-  /**
+  /*
    * Original frame owner, retaining each late world-rotation read at its
    * original site.
    */
   frames: Pick<IProps, "upper" | "lower" | "end">;
 
-  /** Source root point in world metres. */
+  /*
+   * Source root point in world metres.
+   */
   root: IAutoMovieVector3;
 
-  /** Actual root-to-mid segment length. */
+  /*
+   * Actual root-to-mid segment length.
+   */
   l1: number;
 
-  /** Actual mid-to-end segment length. */
+  /*
+   * Actual mid-to-end segment length.
+   */
   l2: number;
 
-  /** Original normalized upper-segment direction. */
+  /*
+   * Original normalized upper-segment direction.
+   */
   restUpperDir: IAutoMovieVector3;
 
-  /** Original normalized fore-segment direction. */
+  /*
+   * Original normalized fore-segment direction.
+   */
   restForeDir: IAutoMovieVector3;
 
-  /** Exact inverse of the source upper world rotation. */
+  /*
+   * Exact inverse of the source upper world rotation.
+   */
   upperInverse: IAutoMovieQuaternion;
 
-  /** Exact inverse of the source lower world rotation. */
+  /*
+   * Exact inverse of the source lower world rotation.
+   */
   lowerInverse: IAutoMovieQuaternion;
 
-  /** Fixed fore direction lowered through that same inverse. */
+  /*
+   * Fixed fore direction lowered through that same inverse.
+   */
   localFore: IAutoMovieVector3;
 
-  /** Actual aim from the unchanged source upper direction. */
+  /*
+   * Actual aim from the unchanged source upper direction.
+   */
   aimUpper: ReturnType<typeof AutoMovieEngineKinematics.prepareAimRotation>;
 
-  /** Actual aim from the unchanged lowered fore direction. */
+  /*
+   * Actual aim from the unchanged lowered fore direction.
+   */
   aimLower: ReturnType<typeof AutoMovieEngineKinematics.prepareAimRotation>;
 }
 
-/** One fixed target's triangle data, before selecting any bend normal. */
+/*
+ * One fixed target's triangle data, before selecting any bend normal.
+ */
 interface ITarget {
-  /**
+  /*
    * Original point owner, retaining the second target read at the candidate's
    * fore-direction stage.
    */
   goal: Pick<IProps, "target">;
 
-  /** Original normalized source-root-to-target direction. */
+  /*
+   * Original normalized source-root-to-target direction.
+   */
   axis: IAutoMovieVector3;
 
-  /** Original solveTwoBoneIK lift, degrees. */
+  /*
+   * Original solveTwoBoneIK lift, degrees.
+   */
   lift: number;
 }

@@ -26,13 +26,19 @@ const { linePoint, lineTangent }: typeof AutoMovieHumanHandDigitLaw =
  * stands clear of its arcs and crests.
  */
 export namespace AutoMovieHumanHandWeb {
-  /** How far a part's first own section stands past its webs' crests, beyond the margin's radius, mm of the form. */
+  /*
+   * How far a part's first own section stands past its webs' crests, beyond the margin's radius, mm of the form.
+   */
   const CREST_CLEARANCE: number = 2;
 
-  /** How far it stands past every point of its arcs, mm of the form. */
+  /*
+   * How far it stands past every point of its arcs, mm of the form.
+   */
   const ARC_CLEARANCE: number = 2;
 
-  /** Samples of each arc read for that clearance. */
+  /*
+   * Samples of each arc read for that clearance.
+   */
   const ARC_SAMPLES: number = 32;
 
   /** A digit's first ring at its web: its arcs of the parent's ring, closed by bridges. */

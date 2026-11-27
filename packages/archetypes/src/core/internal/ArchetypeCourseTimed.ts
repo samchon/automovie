@@ -10,7 +10,7 @@ import { AutoMovieArchetypeRefusal } from "../AutoMovieArchetypeRefusal";
 import { AutoMovieArchetypeUnits } from "../AutoMovieArchetypeUnits";
 import { limitMonotoneTangents } from "./limitMonotoneTangents";
 
-/**
+/*
  * A timed course interpolates the samples with continuous position and
  * velocity. Equal consecutive marks keep a constant position and the arrival
  * facing, or the departure facing at the start. A moving root faces along its
@@ -19,13 +19,13 @@ import { limitMonotoneTangents } from "./limitMonotoneTangents";
  * `AutoMovieArchetypeCourse.timed` is its one caller.
  */
 export namespace ArchetypeCourseTimed {
-  /**
+  /*
    * Pieces each sample interval is cut into for the arc-length table and the
    * bend scan.
    */
   export const PIECES: number = 16;
 
-  /**
+  /*
    * Gauss-Legendre nodes on [-1, 1] and their weights, five points: exact for
    * polynomials to degree nine.
    */
@@ -49,17 +49,16 @@ export namespace ArchetypeCourseTimed {
     ],
   ];
 
-  /**
+  /*
    * A timed course made ready to sample, as `AutoMovieArchetypeCourse.timed`
    * documents it.
-   *
-   * @param archetype The name a refusal carries.
-   * @param samples The samples.
-   * @returns The plan: `depart` at the first sample's second and `stop` at the
-   *   last, a bend per sample interval where the path turns hardest and one
-   *   where its balance is worst, and the samplers.
-   * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetypeCourse.timed`
-   *   states.
+   * Parameter archetype: The name a refusal carries.
+   * Parameter samples: The samples.
+   * Returns: The plan: `depart` at the first sample's second and `stop` at the
+   * last, a bend per sample interval where the path turns hardest and one
+   * where its balance is worst, and the samplers.
+   * As `AutoMovieArchetypeCourse.timed`
+   * states.
    */
   export function plan(
     archetype: string,
@@ -482,14 +481,18 @@ export namespace ArchetypeCourseTimed {
   }
 }
 
-/**
+/*
  * Which way a course's root faces: its heading about `+Y` and its climb, both
  * degrees.
  */
 interface IFacing {
-  /** Degrees about `+Y` from `+Z`, positive toward `+X`. */
+  /*
+   * Degrees about `+Y` from `+Z`, positive toward `+X`.
+   */
   heading: number;
 
-  /** Degrees above the floor, positive climbing. */
+  /*
+   * Degrees above the floor, positive climbing.
+   */
   climb: number;
 }

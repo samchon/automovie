@@ -18,7 +18,7 @@ import { HumanSegmentEntry } from "./HumanSegmentEntry";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 
-/**
+/*
  * One placed action of one person, and how a person's displayed pose is
  * evaluated from their placed actions.
  *
@@ -44,12 +44,11 @@ import type { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
  * owners.
  */
 export namespace HumanSegment {
-  /**
+  /*
    * A weapon's key among its person's stops.
-   *
-   * @param segment The action.
-   * @param id The weapon's id within its plan.
-   * @returns The key.
+   * Parameter segment: The action.
+   * Parameter id: The weapon's id within its plan.
+   * Returns: The key.
    */
   export function weapon(
     segment: Pick<IAutoMovieMotionHumanSegment, "index">,
@@ -58,12 +57,11 @@ export namespace HumanSegment {
     return `${segment.index}:${id}`;
   }
 
-  /**
+  /*
    * Whether a plan drives a hand: it has a contact window on it or names it.
-   *
-   * @param plan The plan.
-   * @param side The hand.
-   * @returns Whether it drives the hand.
+   * Parameter plan: The plan.
+   * Parameter side: The hand.
+   * Returns: Whether it drives the hand.
    */
   export function drives(
     plan: Pick<IAutoMovieMotionHumanActionPlan, "contacts" | "hands">,
@@ -77,26 +75,25 @@ export namespace HumanSegment {
     );
   }
 
-  /**
+  /*
    * How long an overlay takes to come in over its carrier and to give its
    * channels back, seconds (provisional, the voluntary blend of a cancel row
    * doubled so both ends fit a short gesture).
    */
   export const FADE: number = 0.2;
 
-  /**
+  /*
    * The interrupt row that legalises entering an action at a second, or
    * undefined when nothing is interrupted.
-   *
-   * @param subject The person, for messages.
-   * @param previous The person's previous action.
-   * @param before Its schedule entry.
-   * @param name The action entered.
-   * @param start The entry second.
-   * @param accepts The entered action's own table of what may be cut into it.
-   * @returns The row, or undefined for a first action, a gap or a natural end.
-   * @throws {Error} When the previous action is cut outside every legal window,
-   *   listing them.
+   * Parameter subject: The person, for messages.
+   * Parameter previous: The person's previous action.
+   * Parameter before: Its schedule entry.
+   * Parameter name: The action entered.
+   * Parameter start: The entry second.
+   * Parameter accepts: The entered action's own table of what may be cut into it.
+   * Returns: The row, or undefined for a first action, a gap or a natural end.
+   * When the previous action is cut outside every legal window,
+   * listing them.
    */
   export function row(
     subject: string,
@@ -118,12 +115,11 @@ export namespace HumanSegment {
     );
   }
 
-  /**
+  /*
    * A share of a plan from a share or one of its event names.
-   *
-   * @param at A share or an event name.
-   * @param plan The plan.
-   * @returns The share.
+   * Parameter at: A share or an event name.
+   * Parameter plan: The plan.
+   * Returns: The share.
    */
   export function share(
     at: ShareAt,
@@ -146,15 +142,14 @@ export namespace HumanSegment {
     return event.share;
   }
 
-  /**
+  /*
    * The state a person enters an action from at a second.
-   *
-   * @param person The person.
-   * @param previous Their previous action, if any.
-   * @param seconds The entry second.
-   * @param blend The inertialization the cut into the action decays over,
-   *   seconds; absent for an action entered over another.
-   * @returns The entry state.
+   * Parameter person: The person.
+   * Parameter previous: Their previous action, if any.
+   * Parameter seconds: The entry second.
+   * Parameter blend: The inertialization the cut into the action decays over,
+   * seconds; absent for an action entered over another.
+   * Returns: The entry state.
    */
   export function entry(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -165,12 +160,11 @@ export namespace HumanSegment {
     return HumanSegmentEntry.entry(person, previous, seconds, blend);
   }
 
-  /**
+  /*
    * A person's displayed pose at a film second.
-   *
-   * @param person The person.
-   * @param seconds Film seconds.
-   * @returns The pose.
+   * Parameter person: The person.
+   * Parameter seconds: Film seconds.
+   * Returns: The pose.
    */
   export function displayed(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -182,5 +176,7 @@ export namespace HumanSegment {
   }
 }
 
-/** The alternatives of `ShareAt`'s site. */
+/*
+ * The alternatives of `ShareAt`'s site.
+ */
 type ShareAt = number | string;

@@ -5,7 +5,7 @@ import { PRODUCTION_CONTRACTS } from "../../../internal/PRODUCTION_CONTRACTS";
 import { STORY_CONTRACTS } from "../../../internal/STORY_CONTRACTS";
 import { resolveSkillsDirectory } from "../../../internal/resolveSkillsDirectory";
 
-/**
+/*
  * Resolves the absolute contract tree that owns one contract family.
  *
  * Ownership decides the tree. The `shared` family ships with the bundled
@@ -14,12 +14,11 @@ import { resolveSkillsDirectory } from "../../../internal/resolveSkillsDirectory
  * own `.agents/skills`. The `work` and `language` families are contracts the
  * production itself adopts, so they always resolve under its own
  * `docs/contracts`, whichever tree holds the shared ones.
- *
- * @param contracts The production location and optional shared tree; read, not
- *   retained.
- * @param scope The contract family whose owner is wanted.
- * @returns The absolute tree holding that family's folder; the family folder is
- *   not appended.
+ * Parameter contracts: The production location and optional shared tree; read, not
+ * retained.
+ * Parameter scope: The contract family whose owner is wanted.
+ * Returns: The absolute tree holding that family's folder; the family folder is
+ * not appended.
  */
 export function createContractDirectory(
   contracts: IContractLocation,

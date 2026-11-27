@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A swinging foot's path over a barrier: the ankle leaves one placement, passes
  * a stated placement at the path's middle and reaches another, the ankle on a
  * quadratic Bezier curve timed by minimum-jerk progress, the foot turning on
@@ -16,26 +16,31 @@ import type {
  * 2` puts the curve through the middle ankle at progress one half.
  */
 export namespace AthleticsSwing {
-  /** A swing's three places. */
+  /*
+   * A swing's three places.
+   */
   export interface IPath {
-    /** The placement the swing leaves. */
+    /*
+     * The placement the swing leaves.
+     */
     from: IAutoMovieMotionHumanFoot.IPlacement;
 
-    /**
+    /*
      * The placement the swing passes at its middle: the ankle there and the
      * foot's rotation.
      */
     over: IAutoMovieMotionHumanFoot.IPlacement;
 
-    /** The placement the swing reaches. */
+    /*
+     * The placement the swing reaches.
+     */
     to: IAutoMovieMotionHumanFoot.IPlacement;
   }
 
-  /**
+  /*
    * Prepare a swing's placement by progress.
-   *
-   * @param path The swing.
-   * @returns The placement at a progress in [0, 1], clamped.
+   * Parameter path: The swing.
+   * Returns: The placement at a progress in [0, 1], clamped.
    */
   export function prepare(
     path: IPath,

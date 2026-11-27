@@ -5,18 +5,17 @@ import type {
 
 import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
 
-/**
+/*
  * The handspring's two body-dependent key shapes, shared by its wheel and
  * flight. Their provisional joint angles are the handspring's existing lunge
  * and arched line; unspecified angles belong to the body's standing.
  */
 export namespace handspringKeys {
-  /**
+  /*
    * The lunge with the left leg leading, its knee bent, the trailing leg
    * extended and both arms overhead (provisional angles).
-   *
-   * @param body The body.
-   * @returns The key.
+   * Parameter body: The body.
+   * Returns: The key.
    */
   export function lunged(
     body: IAutoMovieMotionHumanBody,
@@ -30,12 +29,11 @@ export namespace handspringKeys {
     );
   }
 
-  /**
+  /*
    * The arched line, the legs together and arms overhead, used on support and
    * in flight (provisional angles).
-   *
-   * @param body The body.
-   * @returns The key.
+   * Parameter body: The body.
+   * Returns: The key.
    */
   export function arched(
     body: IAutoMovieMotionHumanBody,

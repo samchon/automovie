@@ -7,7 +7,7 @@ import type {
 import { dot } from "../../internal/mesh-observations/dot";
 import { norm } from "../../internal/mesh-observations/norm";
 
-/**
+/*
  * Classifies generic PL height vertices by connected lower and upper links.
  * Equal heights use a private symbolic address order without perturbing
  * physical coordinates. Bremer et al. 2004, sections II.C and III.A:

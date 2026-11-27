@@ -5,20 +5,19 @@ import { HumanFitBalanceBase } from "./HumanFitBalanceBase";
 import { HumanFoot } from "./HumanFoot";
 import { HumanJacobian } from "./HumanJacobian";
 
-/**
+/*
  * The balance of a posed body.
- *
- * @param body The body.
- * @param bones Its resolved bones.
- * @param points The points that bear, world metres, whose convex hull on the
- *   floor is the base; the feet's bearing outline (`HumanFoot.base`) when
- *   absent.
- * @param com Optional already computed centre for this unchanged body and
- *   bones, borrowed without mutation; computed here when absent.
- * @param owners The bone each of `points` rides, in their order: the base's
- *   corners then move with the posture (`IReading.riders`); absent, the base is
- *   read as fixed in the world.
- * @returns The reading.
+ * Parameter body: The body.
+ * Parameter bones: Its resolved bones.
+ * Parameter points: The points that bear, world metres, whose convex hull on the
+ * floor is the base; the feet's bearing outline (`HumanFoot.base`) when
+ * absent.
+ * Parameter com: Optional already computed centre for this unchanged body and
+ * bones, borrowed without mutation; computed here when absent.
+ * Parameter owners: The bone each of `points` rides, in their order: the base's
+ * corners then move with the posture (`IReading.riders`); absent, the base is
+ * read as fixed in the world.
+ * Returns: The reading.
  */
 export function HumanFitBalance(
   body: IAutoMovieMotionHumanBody,
@@ -61,7 +60,7 @@ export function HumanFitBalance(
   };
 }
 
-/**
+/*
  * A posed body's static balance as rows of a whole-body fit (`HumanBodyFit`):
  * its centre of mass over the floor kept inside the outline of the feet where
  * they bear (`HumanFoot.base`), the base of support (Winter, Biomechanics and
@@ -86,74 +85,85 @@ export function HumanFitBalance(
  * function).
  */
 export namespace HumanFitBalance {
-  /** A posed body's balance. */
+  /*
+   * A posed body's balance.
+   */
   export interface IReading {
-    /**
+    /*
      * The centre of mass, world metres; may share the same reading's positional
      * goal value and is not mutated by balance consumers.
      */
     com: IAutoMovieVector3;
 
-    /**
+    /*
      * A point on the floor each half-plane of the base of support passes
      * through: a hull's corners in order round it, a segment's first end thrice
      * and its second, or a point four times.
      */
     anchors: IReadingAnchorsItem[];
 
-    /** Each half-plane's unit inward direction, in the anchors' order. */
+    /*
+     * Each half-plane's unit inward direction, in the anchors' order.
+     */
     normals: IReadingNormalsItem[];
 
-    /**
+    /*
      * Each half-plane's signed distance of the centre inside it, metres, in the
      * anchors' order.
      */
     inside: number[];
 
-    /**
+    /*
      * The base's corners as points riding the bones they bear through, in hull
      * order, where the bearing points' bones were given (`of`'s `owners`);
      * absent, the base is read as fixed in the world.
      */
     riders?: IRider[];
 
-    /**
+    /*
      * Each half-plane's corners among `riders`, in the anchors' order, present
      * with `riders`.
      */
     through?: IThrough[];
   }
 
-  /**
+  /*
    * A corner of the base: a bearing point riding its bone, which moves with the
    * posture as the centre does.
    */
   export interface IRider {
-    /** The bone the point rides. */
+    /*
+     * The bone the point rides.
+     */
     bone: AutoMovieHumanoidBone;
 
-    /** The point in the bone's frame, metres. */
+    /*
+     * The point in the bone's frame, metres.
+     */
     local: IAutoMovieVector3;
 
-    /** The point in the world at the reading, metres. */
+    /*
+     * The point in the world at the reading, metres.
+     */
     world: IAutoMovieVector3;
   }
 
-  /** Which corners a half-plane passes through (`HumanFitBalanceBase.IThrough`). */
+  /*
+   * Which corners a half-plane passes through (`HumanFitBalanceBase.IThrough`).
+   */
   export type IThrough = HumanFitBalanceBase.IThrough;
 
-  /**
+  /*
    * A half-plane's signed distance of a centre at another posture, its base's
    * corners carried by their bones there (`IReading.riders`): a side's line
    * through its two corners as they are placed, a cap across the segment as
    * placed, a point's axes through its corner. Without riders the base is the
    * reading's own, fixed.
-   *
-   * @param reading The balance read at the linearisation.
-   * @param k The half-plane.
-   * @param bones The other posture's resolved bones.
-   * @param com The centre at the other posture, world metres.
-   * @returns Metres, positive inside.
+   * Parameter reading: The balance read at the linearisation.
+   * Parameter k: The half-plane.
+   * Parameter bones: The other posture's resolved bones.
+   * Parameter com: The centre at the other posture, world metres.
+   * Returns: Metres, positive inside.
    */
   export function at(
     reading: IReading,
@@ -192,15 +202,14 @@ export namespace HumanFitBalance {
     return sign * (-t.z * (com.x - p.x) + t.x * (com.z - p.z));
   }
 
-  /**
+  /*
    * A point's signed distance inside one half-plane of a reading's base.
-   *
-   * @param anchors The reading's half-plane anchors (`IReading.anchors`).
-   * @param k The half-plane.
-   * @param point The point, world metres; its height is not read.
-   * @param normal The half-plane's unit inward direction
-   *   (`IReading.normals[k]`).
-   * @returns Metres, positive inside.
+   * Parameter anchors: The reading's half-plane anchors (`IReading.anchors`).
+   * Parameter k: The half-plane.
+   * Parameter point: The point, world metres; its height is not read.
+   * Parameter normal: The half-plane's unit inward direction
+   * (`IReading.normals[k]`).
+   * Returns: Metres, positive inside.
    */
   export function distance(
     anchors: readonly IDistanceAnchorsItem[],
@@ -212,17 +221,16 @@ export namespace HumanFitBalance {
     return normal.x * (point.x - a.x) + normal.z * (point.z - a.z);
   }
 
-  /**
+  /*
    * Each edge's row slope: how fast each variable moves the centre inside that
    * edge, metres per the variable's unit.
-   *
-   * @param body The body.
-   * @param bones The resolved bones the motions were read on.
-   * @param motions The variables' motions.
-   * @param reading The balance read on those bones.
-   * @param columns Optional current centre velocities for these same body,
-   *   bones and ordered motions; computed here when absent.
-   * @returns One slope row per edge, one entry per variable.
+   * Parameter body: The body.
+   * Parameter bones: The resolved bones the motions were read on.
+   * Parameter motions: The variables' motions.
+   * Parameter reading: The balance read on those bones.
+   * Parameter columns: Optional current centre velocities for these same body,
+   * bones and ordered motions; computed here when absent.
+   * Returns: One slope row per edge, one entry per variable.
    */
   export function slopes(
     body: IAutoMovieMotionHumanBody,
@@ -286,12 +294,11 @@ export namespace HumanFitBalance {
     });
   }
 
-  /**
+  /*
    * The body's segmental centre in world metres.
-   *
-   * @param body The body and its physical profile.
-   * @param bones The resolved bones.
-   * @returns World metres.
+   * Parameter body: The body and its physical profile.
+   * Parameter bones: The resolved bones.
+   * Returns: World metres.
    */
   export function centre(
     body: IAutoMovieMotionHumanBody,
@@ -300,13 +307,12 @@ export namespace HumanFitBalance {
     return AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(body.massModel, bones);
   }
 
-  /**
+  /*
    * The mass centre's velocity under each posture variable.
-   *
-   * @param body The body and its mass model.
-   * @param bones The bones on which the motions were derived.
-   * @param motions The geometric Jacobian's variable motions.
-   * @returns World metres per variable unit, in motion order.
+   * Parameter body: The body and its mass model.
+   * Parameter bones: The bones on which the motions were derived.
+   * Parameter motions: The geometric Jacobian's variable motions.
+   * Returns: World metres per variable unit, in motion order.
    */
   export function velocities(
     body: IAutoMovieMotionHumanBody,
@@ -358,7 +364,9 @@ export namespace HumanFitBalance {
     );
   }
 
-  /** A side's unit direction from its first corner to its second at the reading. */
+  /*
+   * A side's unit direction from its first corner to its second at the reading.
+   */
   function side(reading: IReading, through: IThrough): ISideResult {
     const p: IAutoMovieVector3 = reading.riders![through.p]!.world;
     const q: IAutoMovieVector3 = reading.riders![through.q]!.world;
@@ -367,42 +375,68 @@ export namespace HumanFitBalance {
   }
 }
 
-/** The record of `ISideResult`'s site. */
+/*
+ * The record of `ISideResult`'s site.
+ */
 type ISideResult = { x: number; z: number };
 
-/** The record of `ISlopesT`'s site. */
+/*
+ * The record of `ISlopesT`'s site.
+ */
 type ISlopesT = { x: number; z: number };
 
-/** The record of `ISlopesN`'s site. */
+/*
+ * The record of `ISlopesN`'s site.
+ */
 type ISlopesN = { x: number; z: number };
 
-/** The record of `ISlopes`'s site. */
+/*
+ * The record of `ISlopes`'s site.
+ */
 type ISlopes = { x: number; z: number };
 
-/** The record of `IDistanceA`'s site. */
+/*
+ * The record of `IDistanceA`'s site.
+ */
 type IDistanceA = { x: number; z: number };
 
-/** The record of `IDistanceNormal`'s site. */
+/*
+ * The record of `IDistanceNormal`'s site.
+ */
 type IDistanceNormal = { x: number; z: number };
 
-/** The record of `IDistanceAnchorsItem`'s site. */
+/*
+ * The record of `IDistanceAnchorsItem`'s site.
+ */
 type IDistanceAnchorsItem = { x: number; z: number };
 
-/** The record of `IAtWas`'s site. */
+/*
+ * The record of `IAtWas`'s site.
+ */
 type IAtWas = { x: number; z: number };
 
-/** The record of `IAtT`'s site. */
+/*
+ * The record of `IAtT`'s site.
+ */
 type IAtT = { x: number; z: number };
 
-/** The record of `IAtN`'s site. */
+/*
+ * The record of `IAtN`'s site.
+ */
 type IAtN = { x: number; z: number };
 
-/** The record of `IOf`'s site. */
+/*
+ * The record of `IOf`'s site.
+ */
 type IOf = { x: number; z: number };
 
-/** The record of `IReadingNormalsItem`'s site. */
+/*
+ * The record of `IReadingNormalsItem`'s site.
+ */
 type IReadingNormalsItem = { x: number; z: number };
 
-/** The record of `IReadingAnchorsItem`'s site. */
+/*
+ * The record of `IReadingAnchorsItem`'s site.
+ */
 type IReadingAnchorsItem = { x: number; z: number };
 

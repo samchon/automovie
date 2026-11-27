@@ -4,7 +4,7 @@ import { AutoMovieHumanF1Joints } from "../AutoMovieHumanF1Joints";
 import { AutoMovieHumanF1Placement } from "../AutoMovieHumanF1Placement";
 import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
 
-/**
+/*
  * f1's trunk tape wall.
  *
  * Frame: the figure's absolute reference pose, millimetres, forward +X, up +Y, +Z the reference's left. The course runs

@@ -33,7 +33,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { floorEntry } from "./floorEntry";
 import { lieDown } from "./lieDown";
 
-/**
+/*
  * Getting up from the floor to standing: from lying on the back or the front,
  * from the hands and knees or crouched, as a crawl ends.
  *
@@ -68,25 +68,31 @@ import { lieDown } from "./lieDown";
  * kneel out of the symmetric squat, VanSant's other adult variants.
  */
 export namespace getUp {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "getUp";
 
-  /** Cancel table: once standing, into anything a stand can become. */
+  /*
+   * Cancel table: once standing, into anything a stand can become.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [{ window: ["standing", 1], kind: "inertialize", entry: 0 }],
   };
-  /** The patterns of {@link Pattern}, as data. */
+  /*
+   * The patterns of Pattern, as data.
+   */
   export const PATTERNS: readonly ["symmetric", "rotation"] = [
     "symmetric",
     "rotation",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanGetUp.Pattern>[];
-  /**
+  /*
    * The share of the trained young adult's supine-to-stand time a body takes,
    * seconds (Ulbrich et al. 2000: 2.6 s).
    */
   export const SECONDS: number = 2.6;
 
-  /**
+  /*
    * The postures of the routes, after `lieDown`'s floor postures (provisional
    * angles): the deep squat with the trunk forward and the arms reaching ahead,
    * the shanks leaning to the ankle's dorsiflexion range; the half kneel on the
@@ -118,7 +124,7 @@ export namespace getUp {
     stood: { pitch: 0, roll: 0, joints: {} },
   };
 
-  /**
+  /*
    * What each posture of the routes bears on (VanSant 1988's regions): the
    * seat, the heels and both hands pushing while sitting up, the feet in the
    * squat and standing, the front lying prone, the hands, knees and toes on the
@@ -142,7 +148,9 @@ export namespace getUp {
     halfKneel: ["trail", "leftFoot", "rightFoot"],
     stood: ["leftFoot", "rightFoot"],
   };
-  /** The routes, each a list of postures with the event of its arrival. */
+  /*
+   * The routes, each a list of postures with the event of its arrival.
+   */
   export const ROUTES: Readonly<
     Record<
       IAutoMovieMotionHumanGetUp.Pattern,
@@ -162,16 +170,15 @@ export namespace getUp {
     ],
   };
 
-  /**
+  /*
    * Plan a rise from the floor: the route's postures as stances of the support
    * planner (`support`), each resting on the parts its posture bears on
    * (`BEARS`), keyed by its posture (`POSES`) and lasting its share of the
    * rise.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} `base` when the body already stands, sits on a seat
-   *   or hangs, and what the support planner refuses.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * `base` when the body already stands, sits on a seat
+   * or hangs, and what the support planner refuses.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGetUp.IParams>,
@@ -312,13 +319,12 @@ export namespace getUp {
     planned.base = { kind: "standing" };
     return planned;
   }
-  /**
+  /*
    * Standing as the stand law's quiet stance, the posture every performer
    * starts from, by its resolved joints: the stated posture a support sequence
    * ends standing in.
-   *
-   * @param body The body.
-   * @returns The tilt, none, and the joints.
+   * Parameter body: The body.
+   * Returns: The tilt, none, and the joints.
    */
   export function quiet(
     body: IAutoMovieMotionHumanBody,
@@ -338,7 +344,7 @@ export namespace getUp {
     }
     return { pitch: 0, roll: 0, joints };
   }
-  /**
+  /*
    * The half-kneeling key with the specified leading foot. The other knee is
    * the bearing knee. The same key seeds transfers onto a raised knee.
    */
@@ -348,7 +354,9 @@ export namespace getUp {
     return lead === "left" ? mirrored(POSES.halfKneel) : POSES.halfKneel;
   }
 
-  /** A floor posture from its tilt and symmetric limb angles. */
+  /*
+   * A floor posture from its tilt and symmetric limb angles.
+   */
   function keyed(
     pitch: number,
     a: IKeyedA,
@@ -368,7 +376,9 @@ export namespace getUp {
     return { pitch, roll: 0, joints };
   }
 
-  /** A posture with its left and right sides exchanged. */
+  /*
+   * A posture with its left and right sides exchanged.
+   */
   function mirrored(
     pose: IAutoMovieMotionHumanLieDown.IPose,
   ): IAutoMovieMotionHumanLieDown.IPose {
@@ -386,24 +396,34 @@ export namespace getUp {
   }
 }
 
-/** The record of `IKeyedA`'s site. */
+/*
+ * The record of `IKeyedA`'s site.
+ */
 type IKeyedA = { hip: number; knee: number; ankle: number; shoulder: number };
 
-/** The alternatives of `PlanStancesPart`'s site. */
+/*
+ * The alternatives of `PlanStancesPart`'s site.
+ */
 type PlanStancesPart = IAutoMovieMotionHumanSupport.Part | "lead" | "trail";
 
-/** The alternatives of `ItemEntryItem`'s site. */
+/*
+ * The alternatives of `ItemEntryItem`'s site.
+ */
 type ItemEntryItem = IAutoMovieMotionHumanSupport.Part | "lead" | "trail";
 
-/** The new supports established before the symmetric crouch. */
+/*
+ * The new supports established before the symmetric crouch.
+ */
 type FootTargets = Partial<Record<AutoMovieHumanSide, IFootTarget>>;
 
-/** A newly placed foot's fixed world target. */
+/*
+ * A newly placed foot's fixed world target.
+ */
 interface IFootTarget {
   target: IAutoMovieMotionTarget;
 }
 
-/**
+/*
  * Place the unplanted feet at the sit key's preferred centre with their
  * eventual quiet stance's separation. Only the new placement is set here; the
  * same two contacts persist through squat and stand.
@@ -453,7 +473,9 @@ function symmetricFeet(
   };
 }
 
-/** Prone key with both elbows near right angles as the palms take the press. */
+/*
+ * Prone key with both elbows near right angles as the palms take the press.
+ */
 const PUSH: IAutoMovieMotionHumanLieDown.IPose = {
   ...lieDown.POSES.prone,
   joints: {

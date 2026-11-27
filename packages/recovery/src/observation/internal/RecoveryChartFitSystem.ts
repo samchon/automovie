@@ -5,7 +5,9 @@ import type {
 
 import { RecoveryChartFitRows as O } from "./RecoveryChartFitRows";
 
-/** Assemble the same sparse weighted system and its bounded rank diagnostics. */
+/*
+ * Assemble the same sparse weighted system and its bounded rank diagnostics.
+ */
 export function RecoveryChartFitSystem(
   input: Parameters<IAutoMovieRecoveryChartFitSystem.Operation>[0],
   prepared: Parameters<IAutoMovieRecoveryChartFitSystem.Operation>[1],

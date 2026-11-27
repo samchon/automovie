@@ -8,7 +8,7 @@ import type {
   IAutoMovieMotionHumanQuadraticProgram,
 } from "@automovie/interface";
 
-/**
+/*
  * The variables a whole-body fit (`HumanBodyFit`) moves a posture by, as the
  * Jacobian names them (`HumanJacobian.IVariable`): read from a posture and
  * written back over it, with each one's range, the unit it is solved in, its
@@ -20,7 +20,7 @@ import type {
  * much.
  */
 export namespace HumanFitVariables {
-  /**
+  /*
    * The joint angles of the whole body a fit moves: the trunk, the neck, the
    * head and the four limbs, each a bone and its axis (flexion, abduction,
    * twist). The trunk is the spine and the chest: the polygon man's rig carries
@@ -57,7 +57,7 @@ export namespace HumanFitVariables {
     ),
   ];
 
-  /**
+  /*
    * The whole body's variables, the set a fit moves when none is given: the
    * root's place, its pitch and roll (the heading the law faces kept), then the
    * angles.
@@ -80,42 +80,41 @@ export namespace HumanFitVariables {
     ),
   ];
 
-  /**
+  /*
    * How far one step may move a variable, metres or degrees: the
    * linearisation's widest trust region.
    */
   const STEP: readonly [number, number] = [0.08, 12];
 
-  /**
+  /*
    * A variable's resolution, metres or degrees: a change under it is no change
    * of the posture a film shows.
    */
   const RESOLUTION: readonly [number, number] = [0.002, 0.25];
 
-  /**
+  /*
    * The unit a variable is solved in, in its own: a place in centimetres, an
    * angle in degrees.
    */
   const UNIT: readonly [number, number] = [0.01, 1];
 
-  /**
+  /*
    * A place's weight per square metre, a heading's per square degree and a
    * joint's per square degree.
    */
   const WEIGHT: readonly [number, number, number] = [1e4, 2, 1];
 
-  /**
+  /*
    * The existing absent-joint clinical zero, borrowed only while constructing a
    * fresh owned tuple.
    */
   const ZERO_JOINT: readonly [number, number, number] = [0, 0, 0];
 
-  /**
+  /*
    * A posture's variables.
-   *
-   * @param variables The variables.
-   * @param posture The posture, written by its joint angles alone.
-   * @returns Each variable's value, in its own unit.
+   * Parameter variables: The variables.
+   * Parameter posture: The posture, written by its joint angles alone.
+   * Returns: Each variable's value, in its own unit.
    */
   export function vector(
     variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
@@ -132,13 +131,12 @@ export namespace HumanFitVariables {
     );
   }
 
-  /**
+  /*
    * The posture the variables write over another.
-   *
-   * @param variables The variables.
-   * @param posture The posture written over.
-   * @param x The values.
-   * @returns The posture with the values written, by its joint angles alone.
+   * Parameter variables: The variables.
+   * Parameter posture: The posture written over.
+   * Parameter x: The values.
+   * Returns: The posture with the values written, by its joint angles alone.
    */
   export function written(
     variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
@@ -177,15 +175,14 @@ export namespace HumanFitVariables {
     return { ...posture, root, ...heading, joints, limbs: {} };
   }
 
-  /**
+  /*
    * Each variable's rows for one step, in solved units: within its range and
    * the trust region. An axis the table locks, or one set outside its range
    * (which the resolver clamps), does not move.
-   *
-   * @param variables The variables.
-   * @param x The values the step starts from.
-   * @param radius The trust region's share of its widest.
-   * @returns One row per variable.
+   * Parameter variables: The variables.
+   * Parameter x: The values the step starts from.
+   * Parameter radius: The trust region's share of its widest.
+   * Returns: One row per variable.
    */
   export function bounds(
     variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
@@ -213,13 +210,12 @@ export namespace HumanFitVariables {
     );
   }
 
-  /**
+  /*
    * Whether a step, in solved units, reached the edge of its trust region.
-   *
-   * @param variables The variables.
-   * @param moved The step.
-   * @param radius The region's share of its widest.
-   * @returns Whether some variable moved to within a hundredth of its reach.
+   * Parameter variables: The variables.
+   * Parameter moved: The step.
+   * Parameter radius: The region's share of its widest.
+   * Returns: Whether some variable moved to within a hundredth of its reach.
    */
   export function edge(
     variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
@@ -232,22 +228,20 @@ export namespace HumanFitVariables {
     );
   }
 
-  /**
+  /*
    * A variable's step in the widest trust region, in its own unit: the most
    * `bounds` lets it move at a radius of one.
-   *
-   * @param v The variable.
-   * @returns The step, metres or degrees.
+   * Parameter v: The variable.
+   * Returns: The step, metres or degrees.
    */
   export function reach(v: IAutoMovieMotionHumanJacobian.IVariable): number {
     return v.kind === "place" ? STEP[0] : STEP[1];
   }
 
-  /**
+  /*
    * A variable's resolution.
-   *
-   * @param v The variable.
-   * @returns The resolution, in the variable's own unit.
+   * Parameter v: The variable.
+   * Returns: The resolution, in the variable's own unit.
    */
   export function resolution(
     v: IAutoMovieMotionHumanJacobian.IVariable,
@@ -255,21 +249,19 @@ export namespace HumanFitVariables {
     return v.kind === "place" ? RESOLUTION[0] : RESOLUTION[1];
   }
 
-  /**
+  /*
    * A variable's solved unit.
-   *
-   * @param v The variable.
-   * @returns The unit, in the variable's own.
+   * Parameter v: The variable.
+   * Returns: The unit, in the variable's own.
    */
   export function unit(v: IAutoMovieMotionHumanJacobian.IVariable): number {
     return v.kind === "place" ? UNIT[0] : UNIT[1];
   }
 
-  /**
+  /*
    * A variable's weight in the objective.
-   *
-   * @param v The variable.
-   * @returns The weight, per square of the variable's own unit.
+   * Parameter v: The variable.
+   * Returns: The weight, per square of the variable's own unit.
    */
   export function weight(v: IAutoMovieMotionHumanJacobian.IVariable): number {
     return v.kind === "place"
@@ -279,7 +271,7 @@ export namespace HumanFitVariables {
         : WEIGHT[2];
   }
 
-  /**
+  /*
    * A variable's range: unbounded for the root, the table's for a joint, null
    * for an axis the table locks.
    */
@@ -300,7 +292,7 @@ export namespace HumanFitVariables {
     return span ?? null;
   }
 
-  /**
+  /*
    * One private read-only interval for root variables; joint intervals remain
    * the current table's own records.
    */
@@ -310,17 +302,27 @@ export namespace HumanFitVariables {
   };
 }
 
-/** The record of `IWrittenHeading`'s site. */
+/*
+ * The record of `IWrittenHeading`'s site.
+ */
 type IWrittenHeading = { yaw: number; pitch: number; roll: number };
 
-/** The record of `IWrittenRoot`'s site. */
+/*
+ * The record of `IWrittenRoot`'s site.
+ */
 type IWrittenRoot = { x: number; y: number; z: number };
 
-/** The alternatives of `BODY2`'s site. */
+/*
+ * The alternatives of `BODY2`'s site.
+ */
 type BODY2 = 0 | 1 | 2;
 
-/** The alternatives of `ANGLESItemResult`'s site. */
+/*
+ * The alternatives of `ANGLESItemResult`'s site.
+ */
 type ANGLESItemResult = 0 | 1 | 2;
 
-/** The alternatives of `ANGLESItem`'s site. */
+/*
+ * The alternatives of `ANGLESItem`'s site.
+ */
 type ANGLESItem = 0 | 1 | 2;

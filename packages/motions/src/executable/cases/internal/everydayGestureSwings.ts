@@ -1,11 +1,10 @@
-/**
+/*
  * How many swings a sampled gesture signal makes: its interior local maxima,
  * each rising from the sample before and not below the sample after, that stand
  * above a quarter of the signal's range from its least value, so a tremor near
  * the trough is not counted as a beat.
- *
- * @param signal The samples in time order.
- * @returns The count.
+ * Parameter signal: The samples in time order.
+ * Returns: The count.
  */
 export function everydayGestureSwings(signal: readonly number[]): number {
   const low: number = Math.min(...signal);

@@ -352,5 +352,7 @@ export namespace AutoMovieHumanLegWalk {
   }
 }
 
-/** A calibration-mm point or a unit course direction. */
+/*
+ * A calibration-mm point or a unit course direction.
+ */
 type Vec3 = AutoMovieVector3Tuple;

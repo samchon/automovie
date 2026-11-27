@@ -20,7 +20,7 @@ import type { AutoMovieArchetypeEquineExpressionCue } from "../AutoMovieArchetyp
 import { EquineBlend } from "./EquineBlend";
 import { QuadrupedRestFloor } from "../quadruped/QuadrupedRestFloor";
 
-/**
+/*
  * Lateral recumbency with the limbs extended, as a mare lies during the
  * expulsion of a foal (MSD Veterinary Manual, parturition in horses), and the
  * rise from it.
@@ -50,16 +50,15 @@ export namespace EquineRecumbency {
     hold: number;
   }
 
-  /**
+  /*
    * Lie a halted horse on its side with its limbs extended, then raise it.
-   *
-   * @param animal The equid at rest, as its producer built it.
-   * @param ride Its ride, halted where it lies.
-   * @param cue When and how.
-   * @returns The ride with the recumbency over its halt.
-   * @throws {AutoMovieArchetypeRefusal} For a start before the halt or a
-   *   transition or hold that is not finite and positive (the hold may be
-   *   zero).
+   * Parameter animal: The equid at rest, as its producer built it.
+   * Parameter ride: Its ride, halted where it lies.
+   * Parameter cue: When and how.
+   * Returns: The ride with the recumbency over its halt.
+   * For a start before the halt or a
+   * transition or hold that is not finite and positive (the hold may be
+   * zero).
    */
   export function after<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,
@@ -175,5 +174,7 @@ export namespace EquineRecumbency {
   }
 }
 
-/** A named instant of a ride. */
+/*
+ * A named instant of a ride.
+ */
 type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];

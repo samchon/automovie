@@ -5,12 +5,11 @@ import type {
 
 import { physicalRecoverySwing } from "./physicalRecoverySwing";
 
-/**
+/*
  * The limbs a recovery swing has lifted: under way and no longer seated, which
  * the stance and support tracking no longer carry.
- *
- * @param state The recovery's state, if any.
- * @returns Their endpoint bones, the swing's first.
+ * Parameter state: The recovery's state, if any.
+ * Returns: Their endpoint bones, the swing's first.
  */
 export function physicalRecoveryLifted(
   state: IAutoMoviePhysicalRecoveryState | undefined,

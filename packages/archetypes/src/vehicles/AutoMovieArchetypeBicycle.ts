@@ -15,7 +15,9 @@ import {
 } from "../core";
 import { rideBicycle } from "./internal/rideBicycle";
 
-/** A provisional band in metres from a secondary source. */
+/*
+ * A provisional band in metres from a secondary source.
+ */
 const m = (
   minimum: number,
   maximum: number,
@@ -23,7 +25,9 @@ const m = (
 ): IAutoMovieArchetypeBand =>
   AutoMovieArchetypeBand.of("m", minimum, maximum, source, true);
 
-/** Frame geometry no source gave. */
+/*
+ * Frame geometry no source gave.
+ */
 const GEOMETRY: string =
   "typical road frame geometry; maker geometry charts could not be opened";
 
@@ -588,7 +592,9 @@ export namespace AutoMovieArchetypeBicycle {
       gravity: { x: 0, y: -gravity, z: 0 },
     };
 
-    /** Add the shared flight height while leaving the supported pose intact. */
+    /*
+     * Add the shared flight height while leaving the supported pose intact.
+     */
     const lift = (
       placement: IAutoMovieTransform,
       film: number,

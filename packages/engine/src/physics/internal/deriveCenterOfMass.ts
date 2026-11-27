@@ -12,10 +12,10 @@ import { physicalModelRestTransforms } from "./physicalModelRestTransforms";
 import { primitiveCentroid } from "./primitiveCentroid";
 import { primitiveVolume } from "./primitiveVolume";
 
-/**
+/*
  * Volume-weighted center of mass of a model's primitive geometry, in the
  * model's local frame: the fallback the engine uses when
- * {@link IAutoMovieBody.centerOfMass} is left `null`.
+ * IAutoMovieBody.centerOfMass is left `null`.
  *
  * Uniform density is assumed: each primitive part contributes its analytic
  * solid volume (scaled by its part transform) at its transformed centroid.
@@ -62,12 +62,16 @@ export function deriveCenterOfMass(
 
 const IDENTITY: IAutoMovieTransform = Transform.identity();
 
-/** How much a transform's scale multiplies a solid's volume. */
+/*
+ * How much a transform's scale multiplies a solid's volume.
+ */
 const scaleVolume: (t: IAutoMovieTransform) => number = (
   t: IAutoMovieTransform,
 ): number => t.scale.x * t.scale.y * t.scale.z;
 
-/** Apply a full TRS transform to a local point. */
+/*
+ * Apply a full TRS transform to a local point.
+ */
 const applyTransform: (
   t: IAutoMovieTransform,
   p: IAutoMovieVector3,

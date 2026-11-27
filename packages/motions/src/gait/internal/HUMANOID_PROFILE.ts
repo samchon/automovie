@@ -2,9 +2,9 @@ import type { IAutoMovieProfile } from "@automovie/interface";
 
 import { HUMANOID_GAITS } from "./HUMANOID_GAITS";
 
-/**
+/*
  * The canonical humanoid profile fixture: the same locomotion vocabulary as
- * {@link HUMANOID_GAITS}, packaged as reusable profile data so a host can bind
+ * HUMANOID_GAITS, packaged as reusable profile data so a host can bind
  * it onto any humanoid skeleton without hand-authored TypeScript clips.
  *
  * Object.values allocates the gait array once at module load in declared key

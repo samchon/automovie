@@ -21,10 +21,12 @@ import { StrikingStepTransition } from "./StrikingStepTransition";
 import { StrikingTarget } from "./StrikingTarget";
 import { strikingStepSupport } from "./strikingStepSupport";
 
-/** Both canonical feet, in contact publication order. */
+/*
+ * Both canonical feet, in contact publication order.
+ */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
-/**
+/*
  * Fighting-stance footwork: steps that keep the stance, the foot on the side of
  * travel moving first and the other following to restore the stance without
  * crossing (IBA coaching manual pp. 36 to 39: forward, the lead foot then the
@@ -45,10 +47,12 @@ const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
  * next step's own clock.
  */
 export namespace step {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "step";
 
-  /**
+  /*
    * Cancel table: footwork chains into strikes, defences and more footwork at
    * any time.
    */
@@ -60,7 +64,7 @@ export namespace step {
     defend: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
   };
 
-  /**
+  /*
    * One step's period in pendulum units, `T / sqrt(l / g)` with `l` the hip
    * height: bodies of different size step alike at equal Froude number
    * (Alexander 1984), so a step's time is a share of the leg's own pendulum
@@ -72,12 +76,11 @@ export namespace step {
   export const PERIOD: number =
     0.35 / Math.sqrt(0.93 / AutoMovieGravity.STANDARD);
 
-  /**
+  /*
    * A body's step period, seconds: `PERIOD` pendulum units of its own hip
    * height.
-   *
-   * @param body The body.
-   * @returns Seconds.
+   * Parameter body: The body.
+   * Returns: Seconds.
    */
   export function period(
     body: {
@@ -89,19 +92,18 @@ export namespace step {
     );
   }
 
-  /**
+  /*
    * Share of a stance length one step covers (IBA: the following foot restores
    * the stance without crossing).
    */
   export const STEP_SHARE: number = 0.5;
 
-  /**
+  /*
    * Plan footwork.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When count, travel or turn exceeds its documented
-   *   range.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When count, travel or turn exceeds its documented
+   * range.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStep.IParams>,
@@ -260,27 +262,34 @@ export namespace step {
     };
   }
 
-  /** Preparation of a straight sequence's swing and support windows. */
+  /*
+   * Preparation of a straight sequence's swing and support windows.
+   */
   export interface IPlants {
-    /** Each foot's swing in a regular beat. */
+    /*
+     * Each foot's swing in a regular beat.
+     */
     windows: SwingWindows;
 
-    /** Each foot's swing in the first beat, which can finish a cut. */
+    /*
+     * Each foot's swing in the first beat, which can finish a cut.
+     */
     opening: SwingWindows;
 
-    /** The stationary spans, as shares of the complete sequence. */
+    /*
+     * The stationary spans, as shares of the complete sequence.
+     */
     contacts: IAutoMovieMotionHumanContactWindow[];
   }
 
-  /**
+  /*
    * Prepare the stationary intervals between swings. On a cut, the airborne
    * foot finishes landing before the bearing foot lifts. An inherited overlap
    * continues without a bearing foot until the first landing.
-   *
-   * @param first The foot due to swing first in a regular beat.
-   * @param count The positive integer number of beats.
-   * @param support The entry's still-airborne feet and any bearing foot.
-   * @returns The regular and opening swing windows and the complementary contacts.
+   * Parameter first: The foot due to swing first in a regular beat.
+   * Parameter count: The positive integer number of beats.
+   * Parameter support: The entry's still-airborne feet and any bearing foot.
+   * Returns: The regular and opening swing windows and the complementary contacts.
    */
   export function supportWindows(
     first: AutoMovieHumanSide,
@@ -327,7 +336,9 @@ export namespace step {
   }
 }
 
-/** The record of `IPlanProgressResult`'s site. */
+/*
+ * The record of `IPlanProgressResult`'s site.
+ */
 type IPlanProgressResult = {
   travelled: number;
   swinging: boolean;
@@ -335,5 +346,7 @@ type IPlanProgressResult = {
   first: boolean;
 };
 
-/** Each foot's swing interval as shares of one step. */
+/*
+ * Each foot's swing interval as shares of one step.
+ */
 type SwingWindows = Readonly<Record<AutoMovieHumanSide, readonly [number, number]>>;

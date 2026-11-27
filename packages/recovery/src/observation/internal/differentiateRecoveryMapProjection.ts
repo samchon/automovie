@@ -6,7 +6,7 @@ import type {
 
 import { differentiateRecoveryMapTangent } from "./differentiateRecoveryMapTangent";
 
-/**
+/*
  * Differentiate the map's current-radius pinhole chart at current pixels. A
  * null tangent denotes six ordinary camera coordinates; an empty tangent
  * denotes the fixed camera, and two directions denote the seed sphere chart.
@@ -197,7 +197,9 @@ export function differentiateRecoveryMapProjection(
   return { pixel, jacobian, hessians };
 }
 
-/** Whether a derivative entry overflowed binary64. */
+/*
+ * Whether a derivative entry overflowed binary64.
+ */
 function overflowed(value: number): boolean {
   return value === Infinity || value === -Infinity;
 }

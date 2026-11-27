@@ -28,7 +28,7 @@ import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";
 import { validateUniqueIds } from "./validateUniqueIds";
 
-/**
+/*
  * Admit shot/scene/camera references, performances, motion clips, polygon body
  * cue, practical surface track, flame cue, surface graphic track and font
  * source staged-node references, a bound flame's light clip, a feed camera
@@ -47,7 +47,7 @@ export const validateShotArtifact: (
 ) => IAutoMovieValidation = (
   shot: IAutoMovieShot,
   scene: IAutoMovieScene,
-  /**
+  /*
    * Ids the shot's `performances[].motion` may reference, or `null` to skip
    * that cross-check. The caller resolves the registry: the engine knows what a
    * valid reference IS, not where a host keeps its clips.
@@ -238,7 +238,7 @@ export const validateShotArtifact: (
   return toValidation(violations);
 };
 
-/**
+/*
  * Index scene lights by their authored kind for the light channel gate.
  * Duplicate ids use last map assignment; scene admission owns uniqueness.
  */

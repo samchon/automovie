@@ -26,7 +26,7 @@ import { dance } from "./dance";
 import { danceGrooveEnvelope } from "./danceGrooveEnvelope";
 import { prepareDanceBeats } from "./prepareDanceBeats";
 
-/**
+/*
  * Street grooves on the dance law's beat clock.
  *
  * - Rock: the knees give `BOUNCE` of the stature on every beat; the chest
@@ -48,10 +48,14 @@ import { prepareDanceBeats } from "./prepareDanceBeats";
  * Events: `beat{k}`, the rock's `hit{n}`, the moonwalk's `slide{k}`, `relax`.
  */
 export namespace streetDance {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "streetDance";
 
-  /** Cancel table: from the last beat, into standing, another groove or a dance. */
+  /*
+   * Cancel table: from the last beat, into standing, another groove or a dance.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
@@ -60,40 +64,49 @@ export namespace streetDance {
       walk: ["fromRelax", "smooth"],
     });
 
-  /** The rock's knee give, a share of the stature (provisional). */
+  /*
+   * The rock's knee give, a share of the stature (provisional).
+   */
   export const BOUNCE: number = 0.015;
 
-  /** The chest's side isolation, degrees (provisional). */
+  /*
+   * The chest's side isolation, degrees (provisional).
+   */
   export const CHEST: number = 12;
 
-  /** The head's counter isolation, degrees (provisional). */
+  /*
+   * The head's counter isolation, degrees (provisional).
+   */
   export const HEAD: number = 10;
 
-  /** A hit's rise, a share of a beat: short, so it stops sharp (provisional). */
+  /*
+   * A hit's rise, a share of a beat: short, so it stops sharp (provisional).
+   */
   export const RISE: number = 0.15;
 
-  /**
+  /*
    * How low the hips ride in the moonwalk, a share of the stature: enough for
    * the sliding leg to reach the floor behind (provisional).
    */
   export const CROUCH: number = 0.025;
 
-  /** The moonwalk's standing heel lift, degrees about the ball (provisional). */
+  /*
+   * The moonwalk's standing heel lift, degrees about the ball (provisional).
+   */
   export const HEEL: number = 35;
 
-  /**
+  /*
    * The moonwalk's slide, foot lengths ahead of and behind the standing foot
    * (provisional).
    */
   export const STEP: number = 0.5;
 
-  /**
+  /*
    * Plan a groove.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the tempo, the beat count or the variation is
-   *   not admitted.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the tempo, the beat count or the variation is
+   * not admitted.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStreetDance.IParams>,
@@ -399,7 +412,9 @@ export namespace streetDance {
     );
   }
 
-  /** Two joint sets mixed by a share. */
+  /*
+   * Two joint sets mixed by a share.
+   */
   function blend(
     a: IAutoMovieMotionHumanPosture["joints"],
     b: IAutoMovieMotionHumanPosture["joints"],

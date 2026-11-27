@@ -14,7 +14,7 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-/**
+/*
  * A displayed pose with the solver's bones laid over it: every bone whose
  * segment the solver owns at the instant takes its articulation from the solved
  * state, and every other bone keeps the kinematic pose's own.
@@ -59,15 +59,14 @@ import type {
  * tolerance, is not displayed, so a displayed distal end may lie off its solved
  * collider by the drift the reduced readout drops. A pose with no owned bone is
  * returned as given.
- *
- * @param body The performer's body, the rig the pose articulates.
- * @param codec The rig's joint codec, built with the body's joint axes and the
- *   humanoid rest frames.
- * @param profile The profile the window solved, its joints' free axes.
- * @param kinematic The pose the window replaces, at the same instant.
- * @param frame The solver's world states of this performer's segments, by bone.
- * @param owned The bones the solver owns at the instant.
- * @returns The displayed pose.
+ * Parameter body: The performer's body, the rig the pose articulates.
+ * Parameter codec: The rig's joint codec, built with the body's joint axes and the
+ * humanoid rest frames.
+ * Parameter profile: The profile the window solved, its joints' free axes.
+ * Parameter kinematic: The pose the window replaces, at the same instant.
+ * Parameter frame: The solver's world states of this performer's segments, by bone.
+ * Parameter owned: The bones the solver owns at the instant.
+ * Returns: The displayed pose.
  */
 export function readHumanSimulatedPose(
   body: IAutoMovieMotionHumanBody,
@@ -234,7 +233,9 @@ export function readHumanSimulatedPose(
   };
 }
 
-/** A clinical axis's rest, degrees: the angle whose rig angle is zero. */
+/*
+ * A clinical axis's rest, degrees: the angle whose rig angle is zero.
+ */
 function rest(
   bone: AutoMovieHumanoidBone,
   axis: AutoMovieClinicalAxis,
@@ -242,7 +243,7 @@ function rest(
   return HUMANOID_REST_FRAME[bone]?.[axis]?.neutral ?? 0;
 }
 
-/**
+/*
  * A fewer-axis joint's clinical record from the solver's free coordinates: each
  * free axis's coordinate `2 atan(q.axis / w)` in degrees, mapped to its
  * clinical axis as `rest + coordinateSign * angle`, the inverse of the

@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotion,
 } from "@automovie/interface";
 
-/**
+/*
  * Concatenate nonempty admitted same-skeleton clips in seconds. Durations must
  * be finite and positive; later time-zero seam frames transfer their easing to
  * the retained previous endpoint. Pose and expression values remain borrowed.

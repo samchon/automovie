@@ -13,7 +13,7 @@ import type {
 import { AutoMovieMotionHumanBase } from "../../compose/internal/AutoMovieMotionHumanBase";
 import { humanForceRespond } from "./humanForceRespond";
 
-/**
+/*
  * A partner's response to a pull through grips, the outcomes of `perturb` a
  * sustained force decides: `resist`, `yield` and `thrown`.
  *
@@ -52,21 +52,20 @@ import { humanForceRespond } from "./humanForceRespond";
  * while the body tips, and the body is rigid through the swing and the flight.
  */
 export namespace HumanForceResponse {
-  /**
+  /*
    * Plan the response.
-   *
-   * @param context The action's context, `perturb`'s.
-   * @param chosen The author's outcome.
-   * @param outcome The engine's balance outcome of the impulses at the start,
-   *   which `perturb` computed.
-   * @returns The plan.
-   * @throws {HumanRefusal} A `parameter` refusal on `outcome` when an impulse
-   *   at the start already fells the body that is asked to resist, when no pull
-   *   acts at the start, when a resisted pull passes the base, or when the pull
-   *   ends before the base breaks, each with its feasible force; a
-   *   `participant` refusal on `fulcrum` for a throw with no thrower, fulcrum
-   *   or placed thrower posture; a `parameter` refusal on `outcome` when the
-   *   swing stops before the vertical.
+   * Parameter context: The action's context, `perturb`'s.
+   * Parameter chosen: The author's outcome.
+   * Parameter outcome: The engine's balance outcome of the impulses at the start,
+   * which `perturb` computed.
+   * Returns: The plan.
+   * A `parameter` refusal on `outcome` when an impulse
+   * at the start already fells the body that is asked to resist, when no pull
+   * acts at the start, when a resisted pull passes the base, or when the pull
+   * ends before the base breaks, each with its feasible force; a
+   * `participant` refusal on `fulcrum` for a throw with no thrower, fulcrum
+   * or placed thrower posture; a `parameter` refusal on `outcome` when the
+   * swing stops before the vertical.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanForceResponse.IParams>,

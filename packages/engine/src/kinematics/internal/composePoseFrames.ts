@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Compose every bone's frame of one rooted rig from its articulations, in
  * place, on numeric tables: one parent-first pass with no name lookup and no
  * record made.
@@ -22,22 +22,21 @@ import type {
  * The expressions are those of `Quaternion.multiply`, `Quaternion.rotateVector`
  * and `Vector3.add`, in their grouping, so a frame has the components the
  * record forms of the same operands give.
- *
- * @param tables The rig's rows (`composePoseFrames.tables`).
- * @param articulations Each bone's rest-relative articulation, four numbers a
- *   bone (x, y, z, w) in the rig's row order.
- * @param rootRotation The rotation the rootless bones stand under.
- * @param rootTranslation Their origin, model metres.
- * @param frames The workspace the frames are written to
- *   (`composePoseFrames.frames`).
- * @param from The first row composed; 0 when absent. The rows before it must
- *   already hold this pose's frames.
- * @param indices Optional parent-first row selection. When supplied, from and
- *   to index this selection, and each selected parent must already be composed
- *   or precede its child.
- * @param to The row after the last composed; every row when absent. A prefix of
- *   the rows is complete in itself, since every row's ancestors come before
- *   it.
+ * Parameter tables: The rig's rows (`composePoseFrames.tables`).
+ * Parameter articulations: Each bone's rest-relative articulation, four numbers a
+ * bone (x, y, z, w) in the rig's row order.
+ * Parameter rootRotation: The rotation the rootless bones stand under.
+ * Parameter rootTranslation: Their origin, model metres.
+ * Parameter frames: The workspace the frames are written to
+ * (`composePoseFrames.frames`).
+ * Parameter from: The first row composed; 0 when absent. The rows before it must
+ * already hold this pose's frames.
+ * Parameter indices: Optional parent-first row selection. When supplied, from and
+ * to index this selection, and each selected parent must already be composed
+ * or precede its child.
+ * Parameter to: The row after the last composed; every row when absent. A prefix of
+ * the rows is complete in itself, since every row's ancestors come before
+ * it.
  */
 export function composePoseFrames(
   tables: composePoseFrames.ITables,
@@ -128,63 +127,91 @@ export function composePoseFrames(
   }
 }
 
-/** The tables, the workspace and the record view of {@link composePoseFrames}. */
+/*
+ * The tables, the workspace and the record view of composePoseFrames.
+ */
 export namespace composePoseFrames {
-  /** One rooted rig as numeric rows, parent first. */
+  /*
+   * One rooted rig as numeric rows, parent first.
+   */
   export interface ITables {
-    /** The count of rooted bones. */
+    /*
+     * The count of rooted bones.
+     */
     count: number;
 
-    /** Each bone's name, as its public record carries it. */
+    /*
+     * Each bone's name, as its public record carries it.
+     */
     names: readonly AutoMovieHumanoidBone[];
 
-    /** Each bone's parent row, -1 for a bone without one. */
+    /*
+     * Each bone's parent row, -1 for a bone without one.
+     */
     parents: Int32Array;
 
-    /**
+    /*
      * Each bone's rest rotation in its parent's frame, four numbers a bone (x,
      * y, z, w).
      */
     rests: Float64Array;
 
-    /**
+    /*
      * Each bone's rest offset in its parent's frame, metres, three numbers a
      * bone.
      */
     offsets: Float64Array;
   }
 
-  /** The frames of one composed pose, in the rig's row order. */
+  /*
+   * The frames of one composed pose, in the rig's row order.
+   */
   export interface IFrames {
-    /** Each bone's local rotation, rest times articulation, four numbers a bone. */
+    /*
+     * Each bone's local rotation, rest times articulation, four numbers a bone.
+     */
     local: Float64Array;
 
-    /** Each bone's world rotation, four numbers a bone. */
+    /*
+     * Each bone's world rotation, four numbers a bone.
+     */
     rotation: Float64Array;
 
-    /** Each bone's world position, model metres, three numbers a bone. */
+    /*
+     * Each bone's world position, model metres, three numbers a bone.
+     */
     position: Float64Array;
   }
 
-  /**
+  /*
    * What a rig's node gives its row: the name, the parent's row and the rest
    * transform's rotation and translation.
    */
   export interface INode {
-    /** The bone's name. */
+    /*
+     * The bone's name.
+     */
     name: AutoMovieHumanoidBone;
 
-    /** The parent's row, -1 for none. */
+    /*
+     * The parent's row, -1 for none.
+     */
     parent: number;
 
-    /** The rest translation in the parent's frame, metres. */
+    /*
+     * The rest translation in the parent's frame, metres.
+     */
     translation: IAutoMovieVector3;
 
-    /** The rest rotation in the parent's frame. */
+    /*
+     * The rest rotation in the parent's frame.
+     */
     rotation: IAutoMovieQuaternion;
   }
 
-  /** A rig's tables, built from its parent-first nodes. */
+  /*
+   * A rig's tables, built from its parent-first nodes.
+   */
   export function tables(nodes: readonly INode[]): ITables {
     const count: number = nodes.length;
     const built: ITables = {
@@ -208,7 +235,9 @@ export namespace composePoseFrames {
     return built;
   }
 
-  /** A fresh workspace for a rig of `count` bones. */
+  /*
+   * A fresh workspace for a rig of `count` bones.
+   */
   export function frames(count: number): IFrames {
     return {
       local: new Float64Array(4 * count),
@@ -217,14 +246,16 @@ export namespace composePoseFrames {
     };
   }
 
-  /** The articulations of a rig at rest: the identity for every bone. */
+  /*
+   * The articulations of a rig at rest: the identity for every bone.
+   */
   export function identities(count: number): Float64Array {
     const rows: Float64Array = new Float64Array(4 * count);
     for (let index: number = 0; index < count; ++index) rows[4 * index + 3] = 1;
     return rows;
   }
 
-  /**
+  /*
    * One composed bone as a fresh public record, no value of which aliases the
    * workspace or another record.
    */

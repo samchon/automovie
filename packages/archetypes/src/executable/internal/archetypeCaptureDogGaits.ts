@@ -2,10 +2,9 @@ import { AutoMovieArchetypeQuadruped, AutoMovieArchetypeDog } from "../../animal
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
-/**
+/*
  * Inspect the coarse dog rides at their faster experimental point speeds.
- *
- * @returns Trot and transverse-gallop subjects from the canonical pet cohort.
+ * Returns: Trot and transverse-gallop subjects from the canonical pet cohort.
  */
 export function archetypeCaptureDogGaits(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>

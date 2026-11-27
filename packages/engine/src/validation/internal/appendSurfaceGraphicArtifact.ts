@@ -6,7 +6,7 @@ import type {
 
 import { validateColor } from "./validateColor";
 
-/**
+/*
  * Append the findings of one surface graphic at `path`: its emission, its
  * background and every layer with its face-fraction box.
  *
@@ -25,13 +25,19 @@ export function appendSurfaceGraphicArtifact(
   path: string,
   collector: IAutoMovieViolationCollector,
   context: {
-    /** Ids of the shot's font sources; absent, the font id is not resolved. */
+    /*
+     * Ids of the shot's font sources; absent, the font id is not resolved.
+     */
     fonts?: ReadonlySet<string>;
 
-    /** Ids of the scene's cameras; absent, the feed camera is not resolved. */
+    /*
+     * Ids of the scene's cameras; absent, the feed camera is not resolved.
+     */
     cameras?: ReadonlySet<string>;
 
-    /** The shot's own camera, which no feed may show. */
+    /*
+     * The shot's own camera, which no feed may show.
+     */
     camera?: string;
   } = {},
 ): void {
@@ -61,7 +67,7 @@ export function appendSurfaceGraphicArtifact(
   );
 }
 
-/**
+/*
  * Check one text layer's own fields: an optional font id the shot lists,
  * nonempty text, a positive em size in face heights, a valid colour, and an
  * optional positive line height. Whether the font maps every code point and the
@@ -111,7 +117,7 @@ function appendTextLayer(
     );
 }
 
-/**
+/*
  * Check one layer's face-fraction box: a negative corner, a nonpositive size
  * and an edge past the face's right or bottom each raise their own finding.
  */
@@ -149,7 +155,7 @@ function appendBox(
   }
 }
 
-/**
+/*
  * Check one feed layer: a camera the scene stages other than the shot's own,
  * and an integer height in pixels from 1 to 2048.
  */

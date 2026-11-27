@@ -227,23 +227,31 @@ export namespace AutoMovieHumanFootBody {
 
 type Vec2 = AutoMovieVector2Tuple;
 
-/**
+/*
  * Control points of each of the body's five pieces: dorsal-lateral,
  * lateral-plantar, the contact, the medial arch, dorsal-medial. Fixed, so every
  * guide stands at a fixed phase on every section.
  */
 const SHARES: readonly number[] = [51, 46, 56, 52, 51];
 
-/** The body's construction level, the base envelope's (`construction-levels.md`). */
+/*
+ * The body's construction level, the base envelope's (`construction-levels.md`).
+ */
 const BASE_LEVEL: number = 2;
 
-/** Steps over the stations' whole range a degraded section searches for its nearest valid station. */
+/*
+ * Steps over the stations' whole range a degraded section searches for its nearest valid station.
+ */
 const SEARCH_STEPS: number = 256;
 
-/** Layers of the yaw fan and the turn fan, and the grading toward the web ring. Convention. */
+/*
+ * Layers of the yaw fan and the turn fan, and the grading toward the web ring. Convention.
+ */
 const YAW_LAYERS: number = 10;
 const YAW_GRADE: number = 1.5;
 const TURN_LAYERS: number = 28;
 
-/** Points of each piece before arclength resampling. */
+/*
+ * Points of each piece before arclength resampling.
+ */
 const POINTS: number = 192;

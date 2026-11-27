@@ -8,7 +8,7 @@ import {
 } from "../../core/index";
 import { StagePeriodGunConstruction } from "./StagePeriodGunConstruction";
 
-/**
+/*
  * An inert percussion rifle silhouette for the screen.
  *
  * The gun lies along `+Z` from its butt plate to its muzzle, as
@@ -16,9 +16,8 @@ import { StagePeriodGunConstruction } from "./StagePeriodGunConstruction";
  * of the breech that falls on the `nipple`, the cone a percussion cap sits on;
  * the `hammer` is the thumb's place on its spur. No mechanism moves: the prop
  * is exterior geometry for the camera.
- *
- * @param params The optional scene id.
- * @returns The inert model and its contact frames, metres.
+ * Parameter params: The optional scene id.
+ * Returns: The inert model and its contact frames, metres.
  */
 export function createStagePercussionRifle(
   params: AutoMovieArchetypeStagePercussionRifle.IParams = {},
@@ -70,7 +69,7 @@ export function createStagePercussionRifle(
   return StagePeriodGunConstruction.build(builder, PROFILE);
 }
 
-/**
+/*
  * The Metropolitan Museum of Art 1974.10, Carl Stiegele, Munich, percussion
  * rifle, ca. 1865, steel, walnut, gold, glass and silver: "L. 43 3/8 in. (110.2
  * cm); L. of barrel 27 5/8 in. (70.2 cm); Cal. .45 in. (11.4 mm); Wt. 8 lb. 1

@@ -7,14 +7,13 @@ import type {
 
 import { stand } from "../../actions/internal/stand";
 
-/**
+/*
  * Prepare the two feet drawn beneath a seated body before rising. Each foot has
  * its original fixed swing interval, minimum-jerk travel and sine clearance;
  * the current root still determines its planted leg goal.
- *
- * @param props Fixed entry/drawn ankles in world metres, swing seconds,
- *   positive draw seconds, lift metres and the standing law's leg builder.
- * @returns Fresh leg goals at a root and second, with swinging feet unplanted.
+ * Parameter props: Fixed entry/drawn ankles in world metres, swing seconds,
+ * positive draw seconds, lift metres and the standing law's leg builder.
+ * Returns: Fresh leg goals at a root and second, with swinging feet unplanted.
  */
 export function prepareRiseFeet(
   props: IPrepareRiseFeetProps,
@@ -29,7 +28,9 @@ export function prepareRiseFeet(
     left: Vector3.prepareLerp(props.feet.left, props.drawn.left),
     right: Vector3.prepareLerp(props.feet.right, props.drawn.right),
   };
-  /** Read one original foot swing together with its planted endpoint rule. */
+  /*
+   * Read one original foot swing together with its planted endpoint rule.
+   */
   function footAt(side: AutoMovieHumanSide, t: number): IFootAtResult {
     const swing: readonly [number, number] | undefined = props.swings[side];
     if (swing === undefined || t <= swing[0])
@@ -64,29 +65,47 @@ export function prepareRiseFeet(
   };
 }
 
-/** The alternatives of `PrepareRiseFeetLimb`'s site. */
+/*
+ * The alternatives of `PrepareRiseFeetLimb`'s site.
+ */
 type PrepareRiseFeetLimb = "leftLeg" | "rightLeg";
 
-/** The record of `IFootAtResult`'s site. */
+/*
+ * The record of `IFootAtResult`'s site.
+ */
 type IFootAtResult = { ankle: IAutoMovieVector3; planted: boolean };
 
-/** The record of `IPrepareRiseFeetProps`'s site. */
+/*
+ * The record of `IPrepareRiseFeetProps`'s site.
+ */
 type IPrepareRiseFeetProps = {
-  /** The entry's ankle points, world metres. */
+  /*
+   * The entry's ankle points, world metres.
+   */
   feet: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
-  /** The ankles drawn beneath the pelvis, world metres. */
+  /*
+   * The ankles drawn beneath the pelvis, world metres.
+   */
   drawn: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 
-  /** Liftoff/touchdown seconds of each moving foot; absent feet stay planted. */
+  /*
+   * Liftoff/touchdown seconds of each moving foot; absent feet stay planted.
+   */
   swings: Partial<Record<AutoMovieHumanSide, readonly [number, number]>>;
 
-  /** Positive seconds of each swing. */
+  /*
+   * Positive seconds of each swing.
+   */
   draw: number;
 
-  /** The sine clearance's height, metres. */
+  /*
+   * The sine clearance's height, metres.
+   */
   lift: number;
 
-  /** Fixed-yaw standing geometry with current-root knee goals. */
+  /*
+   * Fixed-yaw standing geometry with current-root knee goals.
+   */
   legged: ReturnType<typeof stand.prepareLegs>;
 };

@@ -4,12 +4,11 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-/**
+/*
  * Admit a rigid environment frame before it can move geometry or a contact.
- *
- * @param frame Translation in metres, unit rotation and unit scale.
- * @param path Source path used in the diagnostic.
- * @throws If the transform has a malformed component or a scale other than one.
+ * Parameter frame: Translation in metres, unit rotation and unit scale.
+ * Parameter path: Source path used in the diagnostic.
+ * If the transform has a malformed component or a scale other than one.
  */
 export function requireEnvironmentFrame(
   frame: IAutoMovieTransform,

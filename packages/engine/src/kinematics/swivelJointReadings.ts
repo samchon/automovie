@@ -384,26 +384,34 @@ export namespace swivelJointReadings {
   }
 }
 
-/**
+/*
  * The ranges a swing cone's two cosines read over an interval of swivels: the
  * middle cosine `ρ = sqrt(1 - s²)` from the range of its sine `s`, and the
  * outer vector `x`, each sinusoid's range read in closed form.
  */
 interface IConeRange {
-  /** The least middle cosine. */
+  /*
+   * The least middle cosine.
+   */
   rhoLow: number;
 
-  /** The greatest middle cosine. */
+  /*
+   * The greatest middle cosine.
+   */
   rhoHigh: number;
 
-  /** The least outer vector. */
+  /*
+   * The least outer vector.
+   */
   xLow: number;
 
-  /** The greatest outer vector. */
+  /*
+   * The greatest outer vector.
+   */
   xHigh: number;
 }
 
-/**
+/*
  * A swing cone's cosine ranges over the swivels from `low` to `high` degrees;
  * none where the middle cosine may vanish, which leaves the outer cosine
  * unbounded.

@@ -5,7 +5,7 @@ import "../equine/EquineSegments";
 import "../equine/HORSE_BANDS";
 import "../horse/createHorse";
 
-/**
+/*
  * A pony of a measured breed, with its tack: the horse's build
  * (`AutoMovieArchetypeEquine.equid`) at that breed's size and proportions,
  * under a riding saddle, in a driving harness or under a pack saddle, with the
@@ -26,16 +26,15 @@ import "../horse/createHorse";
  * 600 kg, so Kubo's horse shares hold for a pony. It rides as the horse does,
  * its timing the horse's measured table scaled to its height by dynamic
  * similarity (`AutoMovieArchetypeQuadrupedGait.scale`).
- *
- * @param params The breed, the tack and any dimension the author fixes.
- * @param seed The seed that draws the breed and every dimension left free
- *   inside its band; absent, the Shetland, and each dimension the middle of its
- *   band.
- * @returns The pony.
- * @throws {AutoMovieArchetypeRefusal} For a breed not in `MEASURES`, a fixed
- *   dimension outside its band (the height and the girth are the breed's own,
- *   so fixing either is refused), or a tack that is not one of
- *   `AutoMovieArchetypeEquine.TACKS`.
+ * Parameter params: The breed, the tack and any dimension the author fixes.
+ * Parameter seed: The seed that draws the breed and every dimension left free
+ * inside its band; absent, the Shetland, and each dimension the middle of its
+ * band.
+ * Returns: The pony.
+ * For a breed not in `MEASURES`, a fixed
+ * dimension outside its band (the height and the girth are the breed's own,
+ * so fixing either is refused), or a tack that is not one of
+ * `AutoMovieArchetypeEquine.TACKS`.
  */
 export function createPony(
   params: AutoMovieArchetypePony.IParams = {},

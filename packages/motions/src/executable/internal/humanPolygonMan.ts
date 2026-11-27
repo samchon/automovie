@@ -3,7 +3,7 @@ import { AutoMovieEngineKinematics } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type { IAutoMovieBodyMeasure, IAutoMovieHumanCanonicalBody, IAutoMovieHumanParameters } from "@automovie/interface";
 
-/**
+/*
  * A polygon man of any Human parameters on the canonical rig, for local motion
  * checks and captures.
  *
@@ -15,11 +15,10 @@ import type { IAutoMovieBodyMeasure, IAutoMovieHumanCanonicalBody, IAutoMovieHum
  * `AutoMovieEngineKinematics.measureAutoMovieHumanoidBody`. Nothing is kept between calls or on disk: a
  * preparation costs less than reading and checking a stored one against the
  * sources it depends on.
- *
- * @param id Stable body id, used as the skeleton id.
- * @param params Human's parameters.
- * @param mass Body mass, kilograms.
- * @returns The canonical body and its measure.
+ * Parameter id: Stable body id, used as the skeleton id.
+ * Parameter params: Human's parameters.
+ * Parameter mass: Body mass, kilograms.
+ * Returns: The canonical body and its measure.
  */
 export function humanPolygonMan(
   id: string,
@@ -35,17 +34,27 @@ export function humanPolygonMan(
   };
 }
 
-/** Companion types of {@link humanPolygonMan}. */
+/*
+ * Companion types of humanPolygonMan.
+ */
 export namespace humanPolygonMan {
-  /** A prepared polygon man. */
+  /*
+   * A prepared polygon man.
+   */
   export interface IPolygonMan {
-    /** Stable id. */
+    /*
+     * Stable id.
+     */
     id: string;
 
-    /** The canonical body. */
+    /*
+     * The canonical body.
+     */
     body: IAutoMovieHumanCanonicalBody.IBody;
 
-    /** Its measure. */
+    /*
+     * Its measure.
+     */
     measure: IAutoMovieBodyMeasure;
   }
 }

@@ -11,7 +11,7 @@ import { unionSubjectBoxes } from "../../film/internal/unionSubjectBoxes";
 import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 import { autoMovieSubjectMemberSummary } from "./autoMovieSubjectMemberSummary";
 
-/**
+/*
  * Describe one building unit of a built environment as a subject.
  *
  * The unit's content box, in world metres, unions the part boxes of every
@@ -23,14 +23,13 @@ import { autoMovieSubjectMemberSummary } from "./autoMovieSubjectMemberSummary";
  * nothing contributes. Its members are the two roots a walk starts from, the
  * root element and the root space. It has no owner, model, transform or
  * materials.
- *
- * @param environment Environment the unit belongs to.
- * @param building Unit to describe.
- * @param boxes Part boxes of every drawn element of `environment` by element
- *   id, as `builtEnvironmentPartBoxes` returns them.
- * @param revision Revision of the artifact being described.
- * @param memberOffset Rank of the first member to name, a whole number from 0.
- * @returns The unit's description.
+ * Parameter environment: Environment the unit belongs to.
+ * Parameter building: Unit to describe.
+ * Parameter boxes: Part boxes of every drawn element of `environment` by element
+ * id, as `builtEnvironmentPartBoxes` returns them.
+ * Parameter revision: Revision of the artifact being described.
+ * Parameter memberOffset: Rank of the first member to name, a whole number from 0.
+ * Returns: The unit's description.
  */
 export const describeAutoMovieBuildingSubject = (
   environment: IAutoMovieBuiltEnvironment,

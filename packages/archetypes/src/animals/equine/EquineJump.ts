@@ -13,7 +13,7 @@ import type { QuadrupedStridePlan } from "../quadruped/QuadrupedStridePlan";
 import type { AutoMovieArchetypeQuadruped } from "../AutoMovieArchetypeQuadruped";
 import { spotEquineTakeoff } from "./spotEquineTakeoff";
 
-/**
+/*
  * One horse jump over the obstacles authored in the course's footing, and the
  * scripted baulk that stops before them.
  *
@@ -43,7 +43,7 @@ import { spotEquineTakeoff } from "./spotEquineTakeoff";
  * (`EquineFlightClock.swing`).
  */
 export namespace EquineJump {
-  /**
+  /*
    * The highest admitted obstacle top above the ground, metres: FEI Jumping
    * Rules, "no obstacle may exceed 1.70 m in height" (FEI 2020 jumping rule
    * update,
@@ -51,33 +51,33 @@ export namespace EquineJump {
    */
   export const HEIGHT: number = 1.7;
 
-  /**
+  /*
    * The widest admitted rail spread, metres: the FEI's 2.00 m spread limit for
    * spread obstacles (same source).
    */
   export const SPREAD: number = 2;
 
-  /**
+  /*
    * The widest admitted dry ditch, metres: the FEI water jump's 4.00 m maximum,
    * the widest open obstacle the rules ask a horse to clear (same source),
    * provisional for a dry ditch.
    */
   export const DITCH: number = 4;
 
-  /**
+  /*
    * Stride share between the first and the trailing hind landing at takeoff, so
    * the hinds push off together: authored, provisional, no measured interval
    * having been read.
    */
   export const GAP: number = 0.05;
 
-  /**
+  /*
    * Stride share between final hind liftoff and the non-leading fore landing,
    * outside the held flight: authored, provisional.
    */
   export const FORE: number = 0.05;
 
-  /**
+  /*
    * The nominal flight whose middle posture a candidate's closed form reads,
    * seconds: the longest aerial time Clayton, St George, Sinclair and Hobbs
    * 2021 (J Equine Vet Sci 104:103698, Table 1) measured over Olympic fences,
@@ -87,14 +87,14 @@ export namespace EquineJump {
    */
   export const LONGEST: number = 0.73;
 
-  /**
+  /*
    * Takeoff spots tried on each side of a candidate stride's own, evenly across
    * the approach's admitted adjustment: authored, a resolution; the rounds then
    * measure the chosen spot.
    */
   export const SPOTS: number = 10;
 
-  /**
+  /*
    * Rounds in which the ride measures its flown body over the obstacles and
    * adjusts the held flight: a shortfall extends it, a surplus shortens it by
    * half, so the closed form's flight, read with untucked fores at one held
@@ -103,7 +103,7 @@ export namespace EquineJump {
    */
   export const ROUNDS: number = 10;
 
-  /**
+  /*
    * Seconds of surplus flight a settled jump may keep: the 5 ms between the
    * flight samples `EquineObstacle.shortfall` reads, finer than which the
    * measurement does not resolve.
@@ -130,75 +130,110 @@ export namespace EquineJump {
   /** A jump or a baulk on one leg. */
   export type Technique = IJump | IBaulk;
 
-  /** An admitted jump before its flight is planned. */
+  /*
+   * An admitted jump before its flight is planned.
+   */
   export interface IRequest {
-    /** Zero-based leg index. */
+    /*
+     * Zero-based leg index.
+     */
     index: number;
-    /** Course distance of the leg's start, metres. */
+    /*
+     * Course distance of the leg's start, metres.
+     */
     start: number;
-    /** Course distance of the leg's end, metres. */
+    /*
+     * Course distance of the leg's end, metres.
+     */
     end: number;
-    /** Authored clearance, metres. */
+    /*
+     * Authored clearance, metres.
+     */
     clearance: number;
-    /** The obstacles, ordered along the leg. */
+    /*
+     * The obstacles, ordered along the leg.
+     */
     obstacles: readonly EquineObstacle.IObstacle[];
   }
 
-  /** One trial assembly of the ride, on which a takeoff candidate is measured. */
+  /*
+   * One trial assembly of the ride, on which a takeoff candidate is measured.
+   */
   export interface ITrial {
-    /** The stride plan. */
+    /*
+     * The stride plan.
+     */
     strides: QuadrupedStridePlan.IPlan;
-    /** The clock it was built on. */
+    /*
+     * The clock it was built on.
+     */
     clock: QuadrupedRideClock.IClock;
-    /** The animal's rest centre of mass, model metres. */
+    /*
+     * The animal's rest centre of mass, model metres.
+     */
     centre: IAutoMovieVector3;
-    /**
+    /*
      * The displayed model parts, in model space, and the root's world placement
      * at a film second.
      */
     sample: (seconds: number) => EquineObstacle.ISample;
   }
 
-  /** The planned flight. */
+  /*
+   * The planned flight.
+   */
   export interface IFlight {
-    /** The takeoff stride's moved landings. */
+    /*
+     * The takeoff stride's moved landings.
+     */
     moved: readonly QuadrupedStridePlan.IMoved[];
-    /** The hoof-clock hold inside the flight. */
+    /*
+     * The hoof-clock hold inside the flight.
+     */
     hold: QuadrupedRideClock.IHold;
-    /**
+    /*
      * The approach's stride adjustment that brings the takeoff to its spot,
      * spread over the leg before the push-off; absent when the strides keep
      * their clock.
      */
     stretch?: QuadrupedRideClock.IHold;
-    /** The phase the hold stands at. */
+    /*
+     * The phase the hold stands at.
+     */
     phase: number;
-    /** Phase of final hind liftoff. */
+    /*
+     * Phase of final hind liftoff.
+     */
     takeoff: number;
-    /** Phase of the first fore landing. */
+    /*
+     * Phase of the first fore landing.
+     */
     landing: number;
-    /** Phase of the approach cue, one stride before takeoff. */
+    /*
+     * Phase of the approach cue, one stride before takeoff.
+     */
     approach: number;
-    /**
+    /*
      * Phase of the recovery cue, the leading fore's second landing after the
      * flight.
      */
     recovery: number;
-    /**
+    /*
      * Phase the push-off begins: the trailing hind's takeoff landing, both
      * hinds then down.
      */
     push: number;
-    /** Phase the landing is absorbed: the end of the first fore's stance. */
+    /*
+     * Phase the landing is absorbed: the end of the first fore's stance.
+     */
     absorb: number;
   }
 
-  /**
+  /*
    * A planned flight's hoof-clock holds: the approach's stride adjustment, when
    * it has one, and the flight's own.
-   *
-   * @param flight The planned flight.
-   * @returns The holds in film order.
+   * Parameter flight: The planned flight.
+   * Returns: The holds in film order.
    */
   export function holds(flight: IFlight): QuadrupedRideClock.IHold[] {
     return flight.stretch === undefined
@@ -206,20 +241,19 @@ export namespace EquineJump {
       : [flight.stretch, flight.hold];
   }
 
-  /**
+  /*
    * Admit a jump or a baulk on its leg.
-   *
-   * @param archetype The source archetype name.
-   * @param index The leg's index.
-   * @param leg The leg.
-   * @param technique The technique.
-   * @param plan The admitted course plan.
-   * @param footing The authored footing.
-   * @returns The jump request, or undefined for an admitted baulk.
-   * @throws {AutoMovieArchetypeRefusal} For a leg that is not a level forward
-   *   straight, a jump without obstacles or beyond the FEI's height, spread or
-   *   ditch width, a negative clearance, or a baulk that does not end at a halt
-   *   with a pause.
+   * Parameter archetype: The source archetype name.
+   * Parameter index: The leg's index.
+   * Parameter leg: The leg.
+   * Parameter technique: The technique.
+   * Parameter plan: The admitted course plan.
+   * Parameter footing: The authored footing.
+   * Returns: The jump request, or undefined for an admitted baulk.
+   * For a leg that is not a level forward
+   * straight, a jump without obstacles or beyond the FEI's height, spread or
+   * ditch width, a negative clearance, or a baulk that does not end at a halt
+   * with a pause.
    */
   export function admit(
     archetype: string,
@@ -278,7 +312,9 @@ export namespace EquineJump {
       obstacles,
     };
 
-    /** Report the leg that cannot carry the technique. */
+    /*
+     * Report the leg that cannot carry the technique.
+     */
     function refuse(reason: string): never {
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
@@ -292,19 +328,18 @@ export namespace EquineJump {
     }
   }
 
-  /**
+  /*
    * Plan the flight: choose the takeoff stride and the hold that clear every
    * obstacle.
-   *
-   * @param archetype The source archetype name.
-   * @param request The admitted jump.
-   * @param plan The course plan.
-   * @param species The ride's species.
-   * @param trial Assemble the ride with moved landings, without a hold or with
-   *   a flight's.
-   * @returns The flight.
-   * @throws {AutoMovieArchetypeRefusal} When no canter stride on the leg can
-   *   take off before the obstacle and land within the leg at constant speed.
+   * Parameter archetype: The source archetype name.
+   * Parameter request: The admitted jump.
+   * Parameter plan: The course plan.
+   * Parameter species: The ride's species.
+   * Parameter trial: Assemble the ride with moved landings, without a hold or with
+   * a flight's.
+   * Returns: The flight.
+   * When no canter stride on the leg can
+   * take off before the obstacle and land within the leg at constant speed.
    */
   export function plan(
     archetype: string,
@@ -366,35 +401,59 @@ export namespace EquineJump {
     return best.flight;
   }
 
-  /** One candidate's best takeoff spot: its flight and that flight's seconds. */
+  /*
+   * One candidate's best takeoff spot: its flight and that flight's seconds.
+   */
   export interface ISpot {
-    /** The planned flight. */
+    /*
+     * The planned flight.
+     */
     flight: IFlight;
-    /** Its seconds from final hind liftoff to first fore landing. */
+    /*
+     * Its seconds from final hind liftoff to first fore landing.
+     */
     seconds: number;
   }
 
-  /** One candidate takeoff stride's moved landings and event phases. */
+  /*
+   * One candidate takeoff stride's moved landings and event phases.
+   */
   export interface ICandidate {
-    /** The moved landings. */
+    /*
+     * The moved landings.
+     */
     moved: readonly QuadrupedStridePlan.IMoved[];
-    /** Phase of final hind liftoff. */
+    /*
+     * Phase of final hind liftoff.
+     */
     takeoff: number;
-    /** Phase of the first fore landing. */
+    /*
+     * Phase of the first fore landing.
+     */
     landing: number;
-    /** Phase the hold stands at. */
+    /*
+     * Phase the hold stands at.
+     */
     hold: number;
-    /** Phase of the approach cue. */
+    /*
+     * Phase of the approach cue.
+     */
     approach: number;
-    /** Phase of the recovery cue. */
+    /*
+     * Phase of the recovery cue.
+     */
     recovery: number;
-    /** Phase the push-off begins. */
+    /*
+     * Phase the push-off begins.
+     */
     push: number;
-    /** Phase the landing is absorbed. */
+    /*
+     * Phase the landing is absorbed.
+     */
     absorb: number;
   }
 
-  /**
+  /*
    * The takeoff stride's moved landings and event phases, when its order
    * permits a flight.
    */

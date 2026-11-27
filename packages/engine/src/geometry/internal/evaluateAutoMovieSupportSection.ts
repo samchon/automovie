@@ -2,7 +2,7 @@ import type { IAutoMovieEvaluateSupportSection } from "@automovie/interface";
 
 import { createAutoMovieSupportSectionQuery } from "./createAutoMovieSupportSectionQuery";
 
-/**
+/*
  * Intersect oriented unit half-planes in an admitted finite XZ chart. Enumerate
  * boundary pairs and retain intersections satisfying every inequality. Tight
  * constraints, rather than coordinate proximity, identify a common vertex. A

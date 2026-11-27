@@ -18,7 +18,7 @@ import { manoeuvreCrossings } from "./manoeuvreCrossings";
 import { manoeuvreSteered } from "./manoeuvreSteered";
 import { manoeuvreWheel } from "./manoeuvreWheel";
 
-/**
+/*
  * Manoeuvres planned as each member's own travel, and appended to the members'
  * chains.
  *
@@ -38,35 +38,34 @@ import { manoeuvreWheel } from "./manoeuvreWheel";
  * latency, drawn when the sync places it.
  */
 export namespace HumanManoeuvre {
-  /**
+  /*
    * Seconds between two blocks or ranks stepping off in turn: one step at the
    * drill's quick time, 60 over `HumanGait.MARCH.cadence` (provisional: the
    * drill books give the order, not the interval).
    */
   export const INTERVAL: number = 60 / HumanGait.MARCH.cadence;
 
-  /**
+  /*
    * Seconds between two kept points of a steered way (provisional: about a
    * stride).
    */
   export const STEERED: number = 0.5;
 
-  /**
+  /*
    * How many times the longest straight way's walking time a steered re-form is
    * given (provisional: room to go round).
    */
   export const SPAN: number = 3;
 
-  /**
+  /*
    * Plan a manoeuvre: each member's part.
-   *
-   * @param ensemble The ensemble, member `i` standing in slot `i` of `from`.
-   * @param manoeuvre The manoeuvre.
-   * @returns The parts, by member index.
-   * @throws {HumanRefusal} When the target holds too few slots, a deployment's
-   *   column has more blocks than its line, a wheel's target is not its
-   *   formation turned about the pivot, or two ways cross under a rule that
-   *   does not steer, naming both members, the instant and the distance.
+   * Parameter ensemble: The ensemble, member `i` standing in slot `i` of `from`.
+   * Parameter manoeuvre: The manoeuvre.
+   * Returns: The parts, by member index.
+   * When the target holds too few slots, a deployment's
+   * column has more blocks than its line, a wheel's target is not its
+   * formation turned about the pivot, or two ways cross under a rule that
+   * does not steer, naming both members, the instant and the distance.
    */
   export function plan(
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -240,14 +239,13 @@ export namespace HumanManoeuvre {
     return parts;
   }
 
-  /**
+  /*
    * Append a member's part to its chain: its travel synced to the word plus its
    * drill delay, then its arrival posture.
-   *
-   * @param chain The member's chain.
-   * @param part Its part.
-   * @param manoeuvre The manoeuvre.
-   * @returns The chain.
+   * Parameter chain: The member's chain.
+   * Parameter part: Its part.
+   * Parameter manoeuvre: The manoeuvre.
+   * Returns: The chain.
    */
   export function append<C extends IAutoMovieMotionHumanChainCore>(
     chain: C,
@@ -284,10 +282,12 @@ export namespace HumanManoeuvre {
   }
 }
 
-/** The alternatives of `PlanPartsArrive`'s site. */
+/*
+ * The alternatives of `PlanPartsArrive`'s site.
+ */
 type PlanPartsArrive = "stand" | "kneel";
 
-/**
+/*
  * A way by the flank: along the target line's front to the member's own file,
  * at the depth it stands at, then straight up into its place; the corner is
  * left out where either leg is empty. Files march to a flank and front on the
@@ -319,7 +319,7 @@ function flanked(
     : [from, corner, to];
 }
 
-/**
+/*
  * The block of one member a stationed straight way is read on: its one slot
  * stands at the block's origin.
  */
@@ -332,10 +332,12 @@ const ALONE: IAutoMovieMotionHumanFormation.IBlock = {
   },
   count: 1,
 };
-/** The record of `ITravelSpeedsDrill`'s site. */
+/*
+ * The record of `ITravelSpeedsDrill`'s site.
+ */
 type ITravelSpeedsDrill = { cadence: number; step: number };
 
-/**
+/*
  * Each member's speed in the manoeuvre's travel at its leg length, m/s: the
  * walk's or the run's Froude speed, or the drill's step times its cadence.
  */

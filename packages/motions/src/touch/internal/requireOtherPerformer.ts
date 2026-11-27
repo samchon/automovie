@@ -1,12 +1,11 @@
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Admit a distinct performer for a partner-only action.
- *
- * @param subject The performer taking the action.
- * @param partner The requested other performer.
- * @param reason The action-specific reason the roles cannot coincide.
- * @throws {HumanRefusal} When the roles name the same performer.
+ * Parameter subject: The performer taking the action.
+ * Parameter partner: The requested other performer.
+ * Parameter reason: The action-specific reason the roles cannot coincide.
+ * When the roles name the same performer.
  */
 export function requireOtherPerformer(
   subject: string,

@@ -8,16 +8,15 @@ import {
   AutoMovieArchetypeFrame,
 } from "../../core/index";
 
-/**
+/*
  * An inert spent rifle casing for the screen.
  *
  * The case stands along `+Y` from its rim at the origin to its open mouth. The
  * `grip` is a precision pinch across the body and the `mouth` the open end,
  * facing `+Y`. It is brass-coloured exterior geometry with no primer, powder or
  * projectile.
- *
- * @param params The optional scene id.
- * @returns The inert casing and its contact frames, metres.
+ * Parameter params: The optional scene id.
+ * Returns: The inert casing and its contact frames, metres.
  */
 export function createStageCasing(
   params: AutoMovieArchetypeStageCasing.IParams = {},
@@ -81,7 +80,7 @@ export function createStageCasing(
   return builder.build(CASE.mass);
 }
 
-/**
+/*
  * A spent .30-06 Springfield case, the M1903's ammunition: "Case length 2.494
  * in (63.3 mm)", "Base diameter .4708 in (11.96 mm)", "Rim diameter .4740 in
  * (12.04 mm)", "Neck diameter .3404 in (8.65 mm)" (English Wikipedia infobox,

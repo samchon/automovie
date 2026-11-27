@@ -14,7 +14,7 @@ import { Quaternion } from "../../math/Quaternion";
 import type { prepareChainFit } from "./prepareChainFit";
 import { prepareChainRigConstants } from "./prepareChainRigConstants";
 
-/**
+/*
  * Own lazy rig preparation for every target of one unchanged source chain. Axes
  * must already use skeleton-declared precedence, and a nonnull geometry must
  * belong to the same source root, ancestors, intermediate pose and rig. Every
@@ -105,7 +105,7 @@ export function prepareChainFitRig(
   return rig;
 }
 
-/**
+/*
  * Query-local first-record reference and weight; neither belongs to the fixed
  * source rig.
  */

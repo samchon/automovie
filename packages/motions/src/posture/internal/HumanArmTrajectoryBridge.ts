@@ -3,17 +3,16 @@ import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import { HumanArmRefine } from "./HumanArmRefine";
 import type { HumanArmTrajectoryEffector } from "./HumanArmTrajectoryEffector";
 
-/**
+/*
  * Lay each arm on its carrier-relative contact path. A gap outside its
  * articulated domain follows the playback Hermite interpolant between the
  * surrounding reachable configurations. The caller admits the entire path.
- *
- * @param times Increasing frame seconds from lift to arrival.
- * @param ends The unchanged joint coordinates at both ends, in arm order.
- * @param solvers The prepared two-bone reach for each arm.
- * @param reference The joint-space transport defining the bend preference.
- * @returns Frame coordinates per arm when each moving arm has a reachable
- *   interior frame.
+ * Parameter times: Increasing frame seconds from lift to arrival.
+ * Parameter ends: The unchanged joint coordinates at both ends, in arm order.
+ * Parameter solvers: The prepared two-bone reach for each arm.
+ * Parameter reference: The joint-space transport defining the bend preference.
+ * Returns: Frame coordinates per arm when each moving arm has a reachable
+ * interior frame.
  */
 export function HumanArmTrajectoryBridge(
   times: readonly number[],

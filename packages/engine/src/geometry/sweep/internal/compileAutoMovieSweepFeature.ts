@@ -6,13 +6,17 @@ import type {
 
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 
-/** Dense samples per curve segment that seed the nearest-point search. */
+/*
+ * Dense samples per curve segment that seed the nearest-point search.
+ */
 const DENSITY: number = 16;
 
-/** Newton steps that refine the nearest point on the curve. */
+/*
+ * Newton steps that refine the nearest point on the curve.
+ */
 const NEWTON: number = 4;
 
-/**
+/*
  * Compile one feature curve of a sweep into the radius change it makes at a
  * point of the sweep's domain.
  *
@@ -38,12 +42,11 @@ const NEWTON: number = 4;
  * the declared radius less the surface's radius at the curve or the declared
  * offset, times `(1 - (d / width)^2)^3` within `width`, a falloff with
  * continuous curvature at the band's edge.
- *
- * @param feature The feature, validated, only read.
- * @param scale The spine's length and the sweep's mean radius, metres, which
- *   set the knot spacing.
- * @returns The shared course in domain coordinates and the displacement at `u`
- *   and `angle`, given the local radius, spine length and pre-feature radius.
+ * Parameter feature: The feature, validated, only read.
+ * Parameter scale: The spine's length and the sweep's mean radius, metres, which
+ * set the knot spacing.
+ * Returns: The shared course in domain coordinates and the displacement at `u`
+ * and `angle`, given the local radius, spine length and pre-feature radius.
  */
 export const compileAutoMovieSweepFeature: (
   feature: IAutoMovieSweep.IFeature,

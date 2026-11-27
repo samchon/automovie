@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * The speed bounds a performance states to the engine's contact scan
  * (`IAutoMovieResolveContactEvents.IWeapon.speed`, `IBody.speed`), each on one
  * search's grid, so the scan reads no grid second a clear gap rules out and
@@ -19,16 +19,15 @@ import type {
  * bound, so a moving pose has no certified one.
  */
 export namespace HumanPerformanceContactSpeed {
-  /**
+  /*
    * A weapon's bound on a search's grid, from its own path.
-   *
-   * @param read The weapon's axis at a second: its centre or first end, and its
-   *   capsule's other end.
-   * @param from The weapon's live start, seconds.
-   * @param to The weapon's live end, seconds.
-   * @param grid The search's grid.
-   * @returns The bound between two grid seconds of the live window; undefined
-   *   at a second off the grid.
+   * Parameter read: The weapon's axis at a second: its centre or first end, and its
+   * capsule's other end.
+   * Parameter from: The weapon's live start, seconds.
+   * Parameter to: The weapon's live end, seconds.
+   * Parameter grid: The search's grid.
+   * Returns: The bound between two grid seconds of the live window; undefined
+   * at a second off the grid.
    */
   export function weapon(
     read: (

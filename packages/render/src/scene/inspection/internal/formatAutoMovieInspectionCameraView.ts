@@ -2,7 +2,7 @@ import type { IAutoMovieInspectionCamera } from "@automovie/interface";
 
 import { formatAutoMovieInspectionView } from "./formatAutoMovieInspectionView.js";
 
-/**
+/*
  * Write the view text that draws a resolved camera again: a fixed view at its
  * eye looking at its target, with `@ortho=<metres per pixel>` for an
  * orthographic camera and `@up=` when world `+Y` would roll the picture
@@ -57,7 +57,7 @@ export function formatAutoMovieInspectionCameraView(
   });
 }
 
-/**
+/*
  * Tolerance on unit vectors below which two up directions are one, or a line of
  * sight counts as vertical.
  */

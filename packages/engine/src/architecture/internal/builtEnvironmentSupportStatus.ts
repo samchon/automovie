@@ -22,7 +22,7 @@ import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
 import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../AUTOMOVIE_SUPPORT_TOLERANCE";
 import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 
-/**
+/*
  * Classify one project-authored bearing or suspension relation.
  *
  * Bearing delegates to the prop placement kernel's two-sided footprint probes,
@@ -57,11 +57,10 @@ import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
  * The delegated gap uses finite footprint and ring-corner probes. Thin overlaps
  * or deeper relief between probes can be missed; box proxies and a resting
  * verdict do not certify continuous mesh contact.
- *
- * @param props.environment Building record holding both sides.
- * @param props.query The subject, the claimed support, the relation kind and an
- *   optional tolerance.
- * @returns The verdict, the signed gap, the unresolved sides and both bases.
+ * Parameter props.environment: Building record holding both sides.
+ * Parameter props.query: The subject, the claimed support, the relation kind and an
+ * optional tolerance.
+ * Returns: The verdict, the signed gap, the unresolved sides and both bases.
  */
 export function builtEnvironmentSupportStatus(
   props: IAutoMovieBuiltEnvironmentSupportStatus.IProps,
@@ -121,23 +120,29 @@ export function builtEnvironmentSupportStatus(
   };
 }
 
-/** A resolved support: the face it bears on and how that face was derived. */
+/*
+ * A resolved support: the face it bears on and how that face was derived.
+ */
 interface IResolvedSupport {
-  /** Polygon and height rule sampled by the gap query. */
+  /*
+   * Polygon and height rule sampled by the gap query.
+   */
   face: IAutoMoviePropSupportFace;
 
-  /** Provenance of the support's measured proxy. */
+  /*
+   * Provenance of the support's measured proxy.
+   */
   basis: AutoMovieBuiltPlacementBasis;
 }
 
-/**
+/*
  * The face a support bears on, or null when it does not resolve.
  *
  * A support's union box puts the bearing face at the highest point of the whole
  * body, which for a shelf is the back panel rather than the board an object
  * rests on, so a correctly seated object would read as floating by the height
  * of a part it is nowhere near. The face is therefore the top of the part
- * {@link bearingSolid} picks.
+ * bearingSolid picks.
  */
 const resolveSupport: (
   environment: IAutoMovieBuiltEnvironment,
@@ -186,7 +191,7 @@ const resolveSupport: (
   };
 };
 
-/**
+/*
  * The solid a subject bears on, chosen from the solids it stands over.
  *
  * Nearest underside rather than highest: a subject resting on a low board and a

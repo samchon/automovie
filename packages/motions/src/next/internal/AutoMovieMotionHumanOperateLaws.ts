@@ -9,12 +9,12 @@ import { longTool as longToolLaw } from "../../tasks/internal/longTool";
 import { useTool as useToolLaw } from "../../tasks/internal/useTool";
 import { wipe as wipeLaw } from "../../tasks/internal/wipe";
 
-/**
+/*
  * The operate family's laws, each the shipped function under its family name
  * (`AutoMovieMotionHumanOperate`), with its own comment.
  */
 export namespace AutoMovieMotionHumanOperateLaws {
-  /**
+  /*
    * Operating an articulated thing with one hand while standing: pressing a
    * button along its axis, turning a knob about its axis, pulling or pushing a
    * drawer along its slide, or swinging a hinged door by its handle.
@@ -68,7 +68,7 @@ export namespace AutoMovieMotionHumanOperateLaws {
    */
   export import operate = operateLaw;
 
-  /**
+  /*
    * A registered, stationary-base pour. Bring the held source above a fixed
    * recipient, tip about its rim lip, transfer, right it and retreat. Register
    * `pour` in `HumanPerformance` and call `registered(pour.name, params)`.
@@ -80,7 +80,7 @@ export namespace AutoMovieMotionHumanOperateLaws {
    */
   export import pour = pourLaw;
 
-  /**
+  /*
    * A keyed contact sequence: digits of one hand or both pressing sites of a
    * prop one after another, timed by the caller or by skill. Typing, a piano's
    * keys, a guitar's frets, a phone's keypad and a dial are the same structure
@@ -115,7 +115,7 @@ export namespace AutoMovieMotionHumanOperateLaws {
    */
   export import manipulate = manipulateLaw;
 
-  /**
+  /*
    * Work a prop the hand already holds without letting go: the fingers drive
    * its articulations (scissor blades closed by their rings, a folding knife's
    * blade swung open on its pivot, a chopstick pinched), the hand may first
@@ -144,7 +144,7 @@ export namespace AutoMovieMotionHumanOperateLaws {
    */
   export const workHeld: typeof workHeldLaw = workHeldLaw;
 
-  /**
+  /*
    * Working with a one-handed tool held in the hand, in cycles over a work
    * point while standing: hammering, sawing, stirring or turning a
    * screwdriver.
@@ -160,7 +160,7 @@ export namespace AutoMovieMotionHumanOperateLaws {
    * tool on it: a hammer's face and a saw's teeth turned down onto the work, a
    * screwdriver and a spoon with the palm inward, as a saw and a screwdriver
    * run on with the forearm. The saw's slope is the one of `SLOPES` the arm
-   * holds with the least strain ({@link AutoMovieMotionHumanBend.strain}). A
+   * holds with the least strain (AutoMovieMotionHumanBend.strain). A
    * hammer turns about the wrist up to `RAISE` degrees and strikes back down
    * onto the work point once a cycle; a saw pushes and pulls its teeth along
    * its line over the work point by a stroke of half the forearm; a spoon
@@ -184,7 +184,7 @@ export namespace AutoMovieMotionHumanOperateLaws {
    */
   export import useTool = useToolLaw;
 
-  /**
+  /*
    * Work with a long tool in two hands, standing, in cycles at a work point
    * (`IAutoMovieMotionHumanLongTool`): the trailing hand holds the tool rigid
    * near the shaft's end, so the face is a fixed offset in that hand's frame
@@ -207,7 +207,7 @@ export namespace AutoMovieMotionHumanOperateLaws {
    */
   export import longTool = longToolLaw;
 
-  /**
+  /*
    * Typing a text on a keyboard from the posture the performer is in (seated at
    * a desk, or standing at a counter), pressing each key with an index
    * fingertip. The keyboard is the scene's prop: its `homeRow` contact places
@@ -247,7 +247,7 @@ export namespace AutoMovieMotionHumanOperateLaws {
    */
   export import typeText = typeTextLaw;
 
-  /**
+  /*
    * Wiping a table, counter or other level surface with the flat palm in
    * circles, standing before it: a household task that the composed laws
    * lacked, the palm's circling stroke on a work surface.
@@ -272,7 +272,7 @@ export namespace AutoMovieMotionHumanOperateLaws {
    */
   export import wipe = wipeLaw;
 
-  /**
+  /*
    * A heavy load that is not carried moved by its two handles: a crate, a
    * wardrobe or a car pushed ahead walking forward, pulled toward the body
    * walking backward, or a sack dragged behind walking forward; or pushed and
@@ -305,7 +305,7 @@ export namespace AutoMovieMotionHumanOperateLaws {
    */
   export import pushPull = pushPullLaw;
 
-  /**
+  /*
    * A pushed load's handles held in both hands through a walk: a sled push. The
    * trunk leans into the load while the body stands, the hands go to the
    * handles where the load stands, close on them, and from then on are carried

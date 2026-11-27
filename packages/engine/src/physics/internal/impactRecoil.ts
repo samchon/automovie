@@ -11,18 +11,18 @@ import type {
 import { clampJointRom } from "../../rom/internal/clampJointRom";
 import { getConstraint } from "../../rom/internal/getConstraint";
 
-/**
+/*
  * Build the **flinch** a struck body yields under an impact: the reactive
  * `push` (a deflection driven by the impulse) propagates down a `chain` of
  * bones (from the contact bone toward the body) losing strength by `falloff`
  * each link, and **each joint only yields as far as its ROM allows**
- * ({@link IAutoMovieJointConstraint}). So what the hit _does_ to the body is
+ * (IAutoMovieJointConstraint). So what the hit _does_ to the body is
  * bounded by the same joint ranges the engine already validates against: a neck
  * can only snap so far, a spine only bend so much.
  *
  * This is the ROM-aware half of collision response: the reactive force decides
  * how hard the push is, the joint ROM decides how far the body actually goes.
- * The caller maps an {@link IAutoMovieImpact}'s impulse to the `push`
+ * The caller maps an IAutoMovieImpact's impulse to the `push`
  * magnitude.
  */
 export const impactRecoil: (
@@ -67,7 +67,7 @@ export const impactRecoil: (
   return { skeleton: skeleton.id, root: null, joints };
 };
 
-/**
+/*
  * Scale one input deflection down the recoil chain. An absent or zero push is
  * represented as `null`, the pose model's resting axis, so a zero-excluding ROM
  * does not drag an untouched axis to its minimum and the resulting pose remains

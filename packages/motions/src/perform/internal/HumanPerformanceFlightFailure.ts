@@ -11,26 +11,25 @@ import type {
 
 import { poseBones } from "../../posture/internal/poseBones";
 
-/**
+/*
  * Explain a failed flight with the same performance's takeoff boundary shape.
  *
  * The takeoff and its immediately adjacent binary64 seconds are diagnostic
  * requests only. Their rounded action-local times and raw goals accompany
  * post-final-plant displayed joints and root-identity FK. Adjacent film times
  * can map to the same action branch; these samples do not certify continuity.
- *
- * @param error The owned trajectory failure already enriched with mass history.
- * @param body The same unchanged body used by the failed flight.
- * @param plan Its original pure action plan, before any flight rotation
- *   handback.
- * @param start The action's placed start in film seconds.
- * @param takeoff The flight's actual takeoff in film seconds.
- * @param unturned The same composed displayed-pose reader used by its history.
- * @param resolution Optional original FK supplier borrowed for these
- *   synchronous full-bone diagnostic reads only.
- * @returns The same error, with copied boundary numbers in its fields and
- *   message; a secondary read failure is recorded without masking the
- *   original.
+ * Parameter error: The owned trajectory failure already enriched with mass history.
+ * Parameter body: The same unchanged body used by the failed flight.
+ * Parameter plan: Its original pure action plan, before any flight rotation
+ * handback.
+ * Parameter start: The action's placed start in film seconds.
+ * Parameter takeoff: The flight's actual takeoff in film seconds.
+ * Parameter unturned: The same composed displayed-pose reader used by its history.
+ * Parameter resolution: Optional original FK supplier borrowed for these
+ * synchronous full-bone diagnostic reads only.
+ * Returns: The same error, with copied boundary numbers in its fields and
+ * message; a secondary read failure is recorded without masking the
+ * original.
  */
 export function HumanPerformanceFlightFailure(
   error: Error,
@@ -112,12 +111,18 @@ export function HumanPerformanceFlightFailure(
   return Object.assign(error, { takeoffBoundary: boundary });
 }
 
-/** Metres, or a raw action's heading/pitch/roll in degrees. */
+/*
+ * Metres, or a raw action's heading/pitch/roll in degrees.
+ */
 type Vector = [number, number, number];
-/** Quaternion components in x/y/z/w order. */
+/*
+ * Quaternion components in x/y/z/w order.
+ */
 type Rotation = [number, number, number, number];
 
-/** The record of `IShapeRawLimbsItem`'s site. */
+/*
+ * The record of `IShapeRawLimbsItem`'s site.
+ */
 type IShapeRawLimbsItem = {
   limb: string;
   point: Vector;
@@ -127,34 +132,54 @@ type IShapeRawLimbsItem = {
   planted: boolean | null;
   on: string | null;
 };
-/** Owned raw-law and final displayed-shape numbers at one requested second. */
+/*
+ * Owned raw-law and final displayed-shape numbers at one requested second.
+ */
 interface IShape {
-  /** The law's world root in metres, before composition and fitting. */
+  /*
+   * The law's world root in metres, before composition and fitting.
+   */
   rawRoot: Vector;
 
-  /** Degrees in yaw/pitch/roll order. */
+  /*
+   * Degrees in yaw/pitch/roll order.
+   */
   rawHeading: Vector;
 
-  /** Directly authored bone and clinical degree triples. */
+  /*
+   * Directly authored bone and clinical degree triples.
+   */
   rawJoints: [string, number, number, number][];
 
-  /** Named world goals and their contact/plant branch, with owned tuples. */
+  /*
+   * Named world goals and their contact/plant branch, with owned tuples.
+   */
   rawLimbs: IShapeRawLimbsItem[];
 
-  /** Displayed world root position before its removal from shape FK. */
+  /*
+   * Displayed world root position before its removal from shape FK.
+   */
   rootPosition: Vector | null;
 
-  /** Displayed world root rotation before its removal from shape FK. */
+  /*
+   * Displayed world root rotation before its removal from shape FK.
+   */
   rootRotation: Rotation | null;
 
-  /** Final displayed clinical degrees, retaining neutral nulls. */
+  /*
+   * Final displayed clinical degrees, retaining neutral nulls.
+   */
   joints: [string, number | null, number | null, number | null][];
 
-  /** Final root-frame bone position in metres and quaternion x/y/z/w. */
+  /*
+   * Final root-frame bone position in metres and quaternion x/y/z/w.
+   */
   bones: [string, Vector, Rotation][];
 }
 
-/** The record of `IHumanPerformanceFlightFailureBoundaryItem`'s site. */
+/*
+ * The record of `IHumanPerformanceFlightFailureBoundaryItem`'s site.
+ */
 type IHumanPerformanceFlightFailureBoundaryItem = {
   time: number;
   local: number;
@@ -162,24 +187,34 @@ type IHumanPerformanceFlightFailureBoundaryItem = {
   error: string | null;
 };
 
-/** Preserve all three numbers without retaining the source vector. */
+/*
+ * Preserve all three numbers without retaining the source vector.
+ */
 function vector(value: IAutoMovieVector3): Vector {
   return [value.x, value.y, value.z];
 }
 
-/** Preserve the frame's four numbers without retaining the source quaternion. */
+/*
+ * Preserve the frame's four numbers without retaining the source quaternion.
+ */
 function rotation(value: IAutoMovieQuaternion): Rotation {
   return [value.x, value.y, value.z, value.w];
 }
 
-/** Copy one resolved bone's root-frame physical transform. */
+/*
+ * Copy one resolved bone's root-frame physical transform.
+ */
 function boneNumbers(bone: IAutoMovieResolvedBone): IShape["bones"][number] {
   return [bone.bone, vector(bone.worldPosition), rotation(bone.worldRotation)];
 }
-/** The alternatives of `NeighbourDirection`'s site. */
+/*
+ * The alternatives of `NeighbourDirection`'s site.
+ */
 type NeighbourDirection = -1 | 1;
 
-/** Adjacent finite-film time by IEEE encoding, without an authored time offset. */
+/*
+ * Adjacent finite-film time by IEEE encoding, without an authored time offset.
+ */
 function neighbour(
   value: number,
   direction: NeighbourDirection,

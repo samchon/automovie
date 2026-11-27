@@ -7,7 +7,7 @@ import {
 import { rotateFormationLocalOffset } from "./rotateFormationLocalOffset";
 import { transformFormationPoint } from "./transformFormationPoint";
 
-/**
+/*
  * Compose a unit's cue and one member's own cue into that member's placement.
  *
  * One owner for the whole composition, because four consumers ask this question

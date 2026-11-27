@@ -1,18 +1,21 @@
 import type { IAutoMovieMotionHumanSegment } from "@automovie/interface";
 
-/** Select a placed carrier for an exact film second in placement order. */
+/*
+ * Select a placed carrier for an exact film second in placement order.
+ */
 export namespace HumanSegmentSelection {
-  /** What a selection reads of an action: when it becomes active. */
+  /*
+   * What a selection reads of an action: when it becomes active.
+   */
   export type IEntered = Pick<IAutoMovieMotionHumanSegment, "entryTime">;
 
-  /**
+  /*
    * The last placed segment entered by a second, with the existing endpoint
    * allowance. State construction and placement own the dense segment list.
-   *
-   * @param segments The unchanged placement-order array, initialized empty and
-   *   populated by placement pushes.
-   * @param seconds Film seconds.
-   * @returns The last matching segment reference, or none before any entry.
+   * Parameter segments: The unchanged placement-order array, initialized empty and
+   * populated by placement pushes.
+   * Parameter seconds: Film seconds.
+   * Returns: The last matching segment reference, or none before any entry.
    */
   export function last<Segment extends IEntered>(
     segments: readonly Segment[],

@@ -19,7 +19,7 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanSampledCourse } from "../../posture/internal/prepareHumanSampledCourse";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * Measure the held knee/shin exterior at the nominal landing, stance and
  * release of a kneel or crawl. Prepare a small pelvis correction where an
  * actual surface receives it, leaving toe and hand IK goals on their existing
@@ -235,16 +235,22 @@ export function prepareDryKneeSupport(
   };
 }
 
-/** A fixed body and its articulated support snapshot at the action's start. */
+/*
+ * A fixed body and its articulated support snapshot at the action's start.
+ */
 type Context = Pick<
   IAutoMovieMotionHumanActionContext,
   "body" | "prop" | "start"
 >;
 
-/** A potential point of bearing measured on the knee/shin exterior. */
+/*
+ * A potential point of bearing measured on the knee/shin exterior.
+ */
 type Measure = NonNullable<IAutoMovieMotionHumanContactWindow["material"]>;
 
-/** Displayed channels needed by the actual knee and shin. */
+/*
+ * Displayed channels needed by the actual knee and shin.
+ */
 const CHANNELS: readonly AutoMovieMotionHumanChannel[] = [
   "root",
   "trunk",
@@ -252,26 +258,44 @@ const CHANNELS: readonly AutoMovieMotionHumanChannel[] = [
   "rightLeg",
 ];
 
-/** One declared window, prepared to measure its displayed support. */
+/*
+ * One declared window, prepared to measure its displayed support.
+ */
 interface IContact {
-  /** The admitted support's frame. */
+  /*
+   * The admitted support's frame.
+   */
   window: IAutoMovieMotionHumanContactWindow;
-  /** The side bearing. */
+  /*
+   * The side bearing.
+   */
   side: AutoMovieHumanSide;
-  /** Window bounds on the action clock. */
+  /*
+   * Window bounds on the action clock.
+   */
   from: number;
   to: number;
-  /** Read the displayed clearance in the prepared support frame. */
+  /*
+   * Read the displayed clearance in the prepared support frame.
+   */
   sample(posture: IAutoMovieMotionHumanPosture): Measure | undefined;
-  /** Return the copied point in world metres. */
+  /*
+   * Return the copied point in world metres.
+   */
   world(point: IAutoMovieVector3): IAutoMovieVector3;
-  /** World-Y normal component used by the pelvis correction. */
+  /*
+   * World-Y normal component used by the pelvis correction.
+   */
   up: number;
-  /** Optional moving finite support. */
+  /*
+   * Optional moving finite support.
+   */
   site?: HumanMaterialContact.ISite;
 }
 
-/** Translate the pelvis vertically without reauthoring any world IK targets. */
+/*
+ * Translate the pelvis vertically without reauthoring any world IK targets.
+ */
 function translate(
   posture: IAutoMovieMotionHumanPosture,
   offset: number,

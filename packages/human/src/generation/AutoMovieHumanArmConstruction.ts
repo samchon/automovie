@@ -53,10 +53,12 @@ const { sided }: typeof AutoMovieHumanHandSide = AutoMovieHumanHandSide;
  * left's with `v` turned over.
  */
 export namespace AutoMovieHumanArmConstruction {
-  /** Chains an arm owns. */
+  /*
+   * Chains an arm owns.
+   */
   const OWNED: RegExp = /^(arm|hand|thumb|finger)\./;
 
-  /**
+  /*
    * The latest hand builds by the arm's placement: the skeleton reads the
    * bones and the arms are lofted on the skeleton's elbow, which is the bones'
    * own, so both read one solve of the hand.
@@ -66,7 +68,9 @@ export namespace AutoMovieHumanArmConstruction {
     IAutoMovieHumanHandConstruction.IBuilt<IAutoMovieHumanArmLaw>
   > = new Map();
 
-  /** Builds kept: both sides of one person. */
+  /*
+   * Builds kept: both sides of one person.
+   */
   const KEPT: number = 2;
 
   /**
@@ -163,17 +167,16 @@ export namespace AutoMovieHumanArmConstruction {
     };
   }
 
-  /**
+  /*
    * One side: the law and the hand in the left frame, and from them the
    * chains in their bone frames, the poles and the landmarks, reflected for the
    * right side.
-   *
-   * @param calibration Calibration holding the shoulders.
-   * @param inputs Lengths and tapes.
-   * @param side Side.
-   * @param skeleton The bind skeleton, if any.
-   * @param lofted Whether to build the chains; the skeleton needs only bones.
-   * @returns The side's chains, poles and landmarks.
+   * Parameter calibration: Calibration holding the shoulders.
+   * Parameter inputs: Lengths and tapes.
+   * Parameter side: Side.
+   * Parameter skeleton: The bind skeleton, if any.
+   * Parameter lofted: Whether to build the chains; the skeleton needs only bones.
+   * Returns: The side's chains, poles and landmarks.
    */
   function limb(
     calibration: IAutoMovieHumanBodyCalibration,
@@ -313,12 +316,11 @@ export namespace AutoMovieHumanArmConstruction {
     };
   }
 
-  /**
+  /*
    * Keep a build, the oldest dropped past `KEPT`.
-   *
-   * @param key The build's placement key.
-   * @param built The build.
-   * @returns The build.
+   * Parameter key: The build's placement key.
+   * Parameter built: The build.
+   * Returns: The build.
    */
   function remember(
     key: string,
@@ -329,13 +331,12 @@ export namespace AutoMovieHumanArmConstruction {
     return built;
   }
 
-  /**
+  /*
    * A side's elbow from a skeleton, in the left frame.
-   *
-   * @param skeleton The bind skeleton, if any.
-   * @param side Side.
-   * @param sign 1 for the left, -1 for the right.
-   * @returns The elbow, or undefined without a skeleton.
+   * Parameter skeleton: The bind skeleton, if any.
+   * Parameter side: Side.
+   * Parameter sign: 1 for the left, -1 for the right.
+   * Returns: The elbow, or undefined without a skeleton.
    */
   function elbowOf(
     skeleton: readonly IAutoMovieHumanCalibrationBone[] | undefined,
@@ -352,18 +353,28 @@ export namespace AutoMovieHumanArmConstruction {
     return sided(bone.position, sign);
   }
 
-  /** One side's chains, poles and bone landmarks. */
+  /*
+   * One side's chains, poles and bone landmarks.
+   */
   interface ILimb {
-    /** The arm's, palm's and digits' chains. */
+    /*
+     * The arm's, palm's and digits' chains.
+     */
     chains: IAutoMovieLoftChain[];
 
-    /** The digits' poles. */
+    /*
+     * The digits' poles.
+     */
     poles: IAutoMovieHumanSurfacePole[];
 
-    /** The digits' nail plates. */
+    /*
+     * The digits' nail plates.
+     */
     nails: IAutoMovieHumanNailWindow[];
 
-    /** The bone landmarks. */
+    /*
+     * The bone landmarks.
+     */
     bones: IAutoMovieHumanArmConstruction.IBones;
   }
 }

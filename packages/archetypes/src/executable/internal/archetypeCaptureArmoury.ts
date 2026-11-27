@@ -4,14 +4,13 @@ import { AutoMovieArchetypePracticeBaton, AutoMovieArchetypeStageBallProp, AutoM
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
-/**
+/*
  * The capture catalog's armoury: the firearms, their holsters and magazines,
  * the projectiles, bows, cannon and clubs, and the blades, shields, polearms
  * and pell, each every kind of its producers at the middle of their bands. The
  * stage carriers, tokens, bows and clubs are built by their named producers
  * under their saved kind names.
- *
- * @returns The subjects by name, in the catalog's order.
+ * Returns: The subjects by name, in the catalog's order.
  */
 export function archetypeCaptureArmoury(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
@@ -88,7 +87,9 @@ export function archetypeCaptureArmoury(): Readonly<
   };
 }
 
-/** The named carrier for each saved holster kind. */
+/*
+ * The named carrier for each saved holster kind.
+ */
 function carrier(kind: AutoMovieArchetypeHolster.Kind): AutoMovieArchetype {
   if (kind === "scabbard" || kind === "sheath")
     return AutoMovieArchetypeStageBladeCarrier.create({ kind });
@@ -97,7 +98,9 @@ function carrier(kind: AutoMovieArchetypeHolster.Kind): AutoMovieArchetype {
   return AutoMovieArchetypeStageHolster.create();
 }
 
-/** The named inert token for each saved projectile kind. */
+/*
+ * The named inert token for each saved projectile kind.
+ */
 function token(kind: AutoMovieArchetypeProjectile.Kind): AutoMovieArchetype {
   if (kind === "arrow" || kind === "bolt")
     return AutoMovieArchetypeStageShaftToken.create({ kind });
@@ -108,14 +111,18 @@ function token(kind: AutoMovieArchetypeProjectile.Kind): AutoMovieArchetype {
   return AutoMovieArchetypeStageStoneProp.create();
 }
 
-/** The named bow silhouette for each saved bow kind. */
+/*
+ * The named bow silhouette for each saved bow kind.
+ */
 function bow(kind: AutoMovieArchetypeBow.Kind): AutoMovieArchetype {
   return kind === "crossbow"
     ? AutoMovieArchetypeStageStockBowProp.create()
     : AutoMovieArchetypeStageHandBowProp.create({ kind });
 }
 
-/** The named bat or baton for each saved club kind. */
+/*
+ * The named bat or baton for each saved club kind.
+ */
 function club(kind: AutoMovieArchetypeClub.Kind): AutoMovieArchetype {
   return kind === "bat" ? AutoMovieArchetypeBaseballBat.create() : AutoMovieArchetypePracticeBaton.create();
 }

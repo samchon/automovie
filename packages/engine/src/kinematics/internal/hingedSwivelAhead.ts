@@ -1,4 +1,4 @@
-/**
+/*
  * Compare actual hinged swivel candidates under the articulation's existing
  * legality, deferred deviation and optional second-key policy. Zero legality
  * remains exact; only two positive overshoots within 1e-9 degree tie. A lazy
@@ -13,12 +13,11 @@
  * separated mirrored poses by fourteen degrees; the existing positive-only band
  * prevents that while keeping every legal zero ahead of even a tiny actual
  * violation.
- *
- * @param a Candidate proposed ahead of b, with a pure unchanged objective.
- * @param b Existing candidate under the same score and target.
- * @param tie Positive width of the deviation's buckets, its own unit; omitted,
- *   compare deviations strictly.
- * @returns Whether a is strictly ahead; complete ties retain b.
+ * Parameter a: Candidate proposed ahead of b, with a pure unchanged objective.
+ * Parameter b: Existing candidate under the same score and target.
+ * Parameter tie: Positive width of the deviation's buckets, its own unit; omitted,
+ * compare deviations strictly.
+ * Returns: Whether a is strictly ahead; complete ties retain b.
  */
 export function hingedSwivelAhead(a: IScore, b: IScore, tie?: number): boolean {
   const tied: boolean =
@@ -59,9 +58,11 @@ export function hingedSwivelAhead(a: IScore, b: IScore, tie?: number): boolean {
   return hingedSwivelAhead.second(a) < hingedSwivelAhead.second(b);
 }
 
-/** Shared reads of a candidate's actual deferred objective and second key. */
+/*
+ * Shared reads of a candidate's actual deferred objective and second key.
+ */
 export namespace hingedSwivelAhead {
-  /**
+  /*
    * Read the exact deviation once, or the already exact deviation without a
    * callback.
    */
@@ -71,7 +72,7 @@ export namespace hingedSwivelAhead {
     return scored.known;
   }
 
-  /**
+  /*
    * The bucket of a deviation under a tie width: `floor(deviation / tie)`, the
    * quantisation `fitChainBend` ranks its residuals by. Monotone, so a lower
    * bound's bucket is at most its exact value's.
@@ -80,7 +81,7 @@ export namespace hingedSwivelAhead {
     return Math.floor(deviation / tie);
   }
 
-  /**
+  /*
    * Read the actual second key once; an absent reader means the original zero
    * key.
    */
@@ -91,24 +92,38 @@ export namespace hingedSwivelAhead {
   }
 }
 
-/**
+/*
  * Scalar score state supplied and retained by the articulation's bounded
  * search.
  */
 interface IScore {
-  /** Actual legality excess in degrees, compared first. */
+  /*
+   * Actual legality excess in degrees, compared first.
+   */
   overshoot: number;
-  /** Actual deviation, or its certified lower bound when exact is supplied. */
+  /*
+   * Actual deviation, or its certified lower bound when exact is supplied.
+   */
   deviation: number;
-  /** Pure exact deviation under this candidate's unchanged objective. */
+  /*
+   * Pure exact deviation under this candidate's unchanged objective.
+   */
   exact?: () => number;
-  /** Completed actual exact reading. */
+  /*
+   * Completed actual exact reading.
+   */
   known?: number;
-  /** Pure optional second key under the same unchanged objective. */
+  /*
+   * Pure optional second key under the same unchanged objective.
+   */
   tiebreak?: () => number;
-  /** Completed actual second key. */
+  /*
+   * Completed actual second key.
+   */
   second?: number;
 }
 
-/** Existing positive-overshoot chart rounding, degrees; zero never uses a band. */
+/*
+ * Existing positive-overshoot chart rounding, degrees; zero never uses a band.
+ */
 const OVERSHOOT_ROUNDING: number = 1e-9;

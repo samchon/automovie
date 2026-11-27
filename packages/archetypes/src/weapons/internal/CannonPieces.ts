@@ -8,7 +8,7 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeCannon } from "../AutoMovieArchetypeCannon";
 
-/**
+/*
  * The naval gun, the mortar and the swivel gun, built on their read figures: a
  * 32-pounder of 56 cwt on a four-truck carriage, a mortar on its bed at its
  * fixed 45 degrees, and a swivel gun on its yoke. Every size the sources do not
@@ -22,7 +22,7 @@ import type { AutoMovieArchetypeCannon } from "../AutoMovieArchetypeCannon";
  * degrees.
  */
 export namespace CannonPieces {
-  /**
+  /*
    * The sizes no source read gives, each an estimate:
    *
    * - `tube`: a tube's outside radius over its bore's, a ratio.
@@ -75,15 +75,14 @@ export namespace CannonPieces {
     swivel: { pin: 0.15, arm: 0.12, spread: 0.12, tilt: 30, tiller: 0.4 },
   };
 
-  /**
+  /*
    * Lay a swivel gun: its pin standing in a socket at the origin, the Y-shaped
    * yoke on it, the tube on the yoke's arms and the tiller behind the breech.
    * The `traverse` hinge turns the pin about the vertical, and the `elevation`
    * hinge, riding it, tilts the tube on the arms: a hinge riding a hinge, so
    * the gun pans and tilts.
-   *
-   * @param builder The cannon under construction.
-   * @param d The cannon's dimensions.
+   * Parameter builder: The cannon under construction.
+   * Parameter d: The cannon's dimensions.
    */
   export function swivel(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -186,7 +185,7 @@ export namespace CannonPieces {
     });
   }
 
-  /**
+  /*
    * A mortar's fixed elevation, degrees: mortars are fired "under the constant
    * angle of 45°, and the charge is varied according to the range required"
    * (Roberts, The Hand-Book of Artillery, 1861, p. 66,
@@ -195,11 +194,10 @@ export namespace CannonPieces {
    */
   export const MORTAR_ELEVATION: number = 45;
 
-  /**
+  /*
    * Lay a naval gun on its four-truck carriage.
-   *
-   * @param builder The cannon under construction.
-   * @param d The cannon's dimensions.
+   * Parameter builder: The cannon under construction.
+   * Parameter d: The cannon's dimensions.
    */
   export function naval(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -281,11 +279,10 @@ export namespace CannonPieces {
     });
   }
 
-  /**
+  /*
    * Lay a mortar on its bed, its tube fixed at 45 degrees.
-   *
-   * @param builder The cannon under construction.
-   * @param d The cannon's dimensions.
+   * Parameter builder: The cannon under construction.
+   * Parameter d: The cannon's dimensions.
    */
   export function mortar(builder: Builder, d: Drawn): void {
     const v: typeof Vector3.create = Vector3.create;
@@ -330,11 +327,15 @@ export namespace CannonPieces {
   }
 }
 
-/** A cannon under construction. */
+/*
+ * A cannon under construction.
+ */
 type Builder = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeCannon.Affordance,
   AutoMovieArchetypeCannon.Dimension
 >;
 
-/** A cannon's drawn and read dimensions. */
+/*
+ * A cannon's drawn and read dimensions.
+ */
 type Drawn = Readonly<Partial<Record<AutoMovieArchetypeCannon.Dimension, number>>>;

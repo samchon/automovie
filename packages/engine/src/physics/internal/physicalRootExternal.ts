@@ -8,18 +8,17 @@ import { Vector3 } from "../../math/Vector3";
 import { AutoMoviePhysicalTracking as Tracking } from "../AutoMoviePhysicalTracking";
 import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
 
-/**
+/*
  * The root's demand under an external wrench: the servo toward the root's goal
  * (`AutoMoviePhysicalTracking.force`), with the body's weight compensated and
  * the total held within the strength's share of the maximum root force; and the
  * trunk servo's moment with the gravity compensation moment, each axis held
  * within the strength's share of the maximum root torque.
- *
- * @param input The simulation's settings, the simulated body, its root body,
- *   the root's goal and intent, the tracking strength, the trunk servo's
- *   moment, the gravity compensation moment about the root and the integration
- *   duration, seconds.
- * @returns The force, world newtons, and moment, world N m, to apply.
+ * Parameter input: The simulation's settings, the simulated body, its root body,
+ * the root's goal and intent, the tracking strength, the trunk servo's
+ * moment, the gravity compensation moment about the root and the integration
+ * duration, seconds.
+ * Returns: The force, world newtons, and moment, world N m, to apply.
  */
 export function physicalRootExternal(input: {
   settings: Pick<IAutoMoviePhysicalSimulationInput.IInput, "gravity" | "floor">;

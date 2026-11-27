@@ -1,4 +1,6 @@
-/** Require a safe nonnegative glTF byte offset. */
+/*
+ * Require a safe nonnegative glTF byte offset.
+ */
 export function nonNegativeInteger(value: unknown, path: string): void {
   if (
     typeof value !== "number" ||

@@ -6,7 +6,7 @@ import type {
 
 import { readHumanBone } from "../../body/internal/readHumanBone";
 
-/**
+/*
  * How far a torque through the arm bends a trunk that resists it: the share of
  * the trunk's side-bending range at which its stiffness holds the torque, the
  * share `HumanTrunkTurn.turned` takes.
@@ -32,26 +32,25 @@ import { readHumanBone } from "../../body/internal/readHumanBone";
  * relaxed trunk would give, not one braced by its muscles.
  */
 export namespace HumanForceTrunk {
-  /**
+  /*
    * The trunk's lateral bending stiffness by quarter of its range, N m per
    * degree (Watt, Callaway and Williams 2022, Table 6).
    */
   export const LATERAL: readonly number[] = [0.32, 0.83, 2.03, 5.03];
 
-  /**
+  /*
    * The shoulder's eccentric internal-rotation peak torque per body mass, N m
    * per kilogram (Tasiopoulos et al. 2018, Table 2; male controls at 60 degrees
    * a second, provisional otherwise).
    */
   export const ROTATION: number = 0.65;
 
-  /**
+  /*
    * The trunk's side-bending range toward a side: the spine's and the chest's
    * ranges from upright to their ends on that side, together.
-   *
-   * @param body The body.
-   * @param side The side bent toward.
-   * @returns Degrees.
+   * Parameter body: The body.
+   * Parameter side: The side bent toward.
+   * Returns: Degrees.
    */
   export function range(
     body: Pick<IAutoMovieMotionHumanBody, "bones">,
@@ -73,12 +72,11 @@ export namespace HumanForceTrunk {
     return sum;
   }
 
-  /**
+  /*
    * The share of the side-bending range at which the trunk holds a torque.
-   *
-   * @param torque Newton metres.
-   * @param range The side-bending range, degrees.
-   * @returns The share, in [0, 1].
+   * Parameter torque: Newton metres.
+   * Parameter range: The side-bending range, degrees.
+   * Returns: The share, in [0, 1].
    */
   export function share(torque: number, range: number): number {
     if (!(torque > 0) || !(range > 0)) return 0;

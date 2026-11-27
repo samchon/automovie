@@ -30,8 +30,12 @@ export namespace AutoMovieHumanFootToePulp {
   }
 }
 
-/** Share of a toe's line where its pulp starts to widen. Convention. */
+/*
+ * Share of a toe's line where its pulp starts to widen. Convention.
+ */
 const FROM: number = 0.5;
 
-/** Share of a toe's line where its pulp reaches its ratio. Convention. */
+/*
+ * Share of a toe's line where its pulp reaches its ratio. Convention.
+ */
 const AT: number = 0.82;

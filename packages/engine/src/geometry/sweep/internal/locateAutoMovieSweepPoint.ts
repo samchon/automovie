@@ -4,14 +4,16 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Even samples of the spine parameter a sign change of the plane distance is
  * bracketed between.
  */
 const SAMPLES: number = 128;
-/** Bisection steps that place the plane on the point; each halves the bracket. */
+/*
+ * Bisection steps that place the plane on the point; each halves the bracket.
+ */
 const BISECTIONS: number = 48;
-/**
+/*
  * Locate a point against a direction-correspondence sweep's sampled section
  * planes.
  *
@@ -23,14 +25,13 @@ const BISECTIONS: number = 48;
  * match the surface parameter only for direction correspondence; parameter
  * correspondence is rejected. Offset is signed in-plane radial distance, not
  * Euclidean distance to the surface or a global closest-point certificate.
- *
- * @param props.surface The compiled sweep, only read.
- * @param props.point The point, metres.
- * @returns `u`, the spine parameter of the section plane holding the point, 0
- *   to 1; `v`, the point's polar direction in that plane, a turn from 0 to 1;
- *   and `offset`, its distance outside the surface along that direction in
- *   metres, negative inside.
- * @throws Error when the point is not finite or correspondence is parameter.
+ * Parameter props.surface: The compiled sweep, only read.
+ * Parameter props.point: The point, metres.
+ * Returns: `u`, the spine parameter of the section plane holding the point, 0
+ * to 1; `v`, the point's polar direction in that plane, a turn from 0 to 1;
+ * and `offset`, its distance outside the surface along that direction in
+ * metres, negative inside.
+ * Error when the point is not finite or correspondence is parameter.
  */
 export const locateAutoMovieSweepPoint: (
   props: IAutoMovieLocateSweepPoint.IProps,

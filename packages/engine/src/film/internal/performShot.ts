@@ -61,9 +61,9 @@ import { gatePerformShotScript } from "./gatePerformShotScript";
 import { memoizePerformShotSynthesis } from "./memoizePerformShotSynthesis";
 import { plantPerformShotStanceFeet } from "./plantPerformShotStanceFeet";
 
-/**
- * Fold one beat's action calls into an {@link IAutoMovieShot} through
- * {@link compilePerformance}, gating both sides of the seam.
+/*
+ * Fold one beat's action calls into an IAutoMovieShot through
+ * compilePerformance, gating both sides of the seam.
  *
  * The performing list is `revise.final` when the revise pass produced one and
  * `draft` otherwise. The stages run in order, and the first stage group that
@@ -71,31 +71,31 @@ import { plantPerformShotStanceFeet } from "./plantPerformShotStanceFeet";
  *
  * 1. Input: unique script beat ids, the shot's `lightMotions` against the staged
  *    lights and its polygon body cues against staged rigs, flame cues by
- *    {@link admitPerformShotFlames}, a planned beat, a positive duration,
- *    authored editorial markers, every action by {@link gatePerformShotActions},
- *    the live camera's moves by {@link gatePerformShotFrameOverlaps}, same-actor
- *    content overlaps by {@link gatePerformShotRegionOverlaps}, the blocking by
- *    {@link gatePerformShotBlocking}, the cameras by
- *    {@link gatePerformShotCamera}, and then practical surface and surface
+ *    admitPerformShotFlames, a planned beat, a positive duration,
+ *    authored editorial markers, every action by gatePerformShotActions,
+ *    the live camera's moves by gatePerformShotFrameOverlaps, same-actor
+ *    content overlaps by gatePerformShotRegionOverlaps, the blocking by
+ *    gatePerformShotBlocking, the cameras by
+ *    gatePerformShotCamera, and then practical surface and surface
  *    graphic tracks against the staged nodes, the registered models and the
- *    live camera that gate chose by {@link admitPerformShotSurfaces}, so a feed
+ *    live camera that gate chose by admitPerformShotSurfaces, so a feed
  *    of the shot's own camera is an authoring finding.
  * 2. Launches: each flight is solved and its recoil scheduled by
- *    {@link compilePerformShotLaunches}.
+ *    compilePerformShotLaunches.
  * 3. Performance: the stage list compiles, stance feet are planted by
- *    {@link plantPerformShotStanceFeet}, every channel a region mask would drop
+ *    plantPerformShotStanceFeet, every channel a region mask would drop
  *    is reported at the author's `region` (or `onHit`) field, and every clip
  *    must pass `validateMotion` against its rig, both by
- *    {@link gatePerformShotCompiledMotions}.
+ *    gatePerformShotCompiledMotions.
  * 4. Coupling: per-beat `attachTo` handoffs and staged mounts are baked by
- *    {@link coupleObjects}.
- * 5. Authored object clips are gated by {@link gateAuthoredObjectMotions}.
+ *    coupleObjects.
+ * 5. Authored object clips are gated by gateAuthoredObjectMotions.
  * 6. Practical lights bind staged emitters to the final object clips and share
  *    light channel admission with authored clips.
  * 7. Cameras: the live camera's move and each coverage take compile through the
  *    framing grammar, subjects measured by
- *    {@link createPerformShotSubjectFramer}, and any physical clearance envelope
- *    is checked by {@link compileCameraClearanceReports}.
+ *    createPerformShotSubjectFramer, and any physical clearance envelope
+ *    is checked by compileCameraClearanceReports.
  *
  * A shot with no frame action is locked off on the scene's first camera.
  * Positional targets resolve against every staged placement, cameras included,
@@ -425,7 +425,9 @@ export function performShot(
   return { success: true, shot, motions, plants };
 }
 
-/** Event order at one instant: cause before effect, pickup before release. */
+/*
+ * Event order at one instant: cause before effect, pickup before release.
+ */
 const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
   contact: 0,
   hit: 1,

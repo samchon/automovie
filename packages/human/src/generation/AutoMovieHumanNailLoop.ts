@@ -21,7 +21,9 @@ export namespace AutoMovieHumanNailLoop {
   /** A lofted chain, as the engine publishes it. */
   export type Chain = NonNullable<IAutoMovieViewLoft.IResult["chain"]>;
 
-  /** Phases a plate's ring is scanned at for its side extreme. */
+  /*
+   * Phases a plate's ring is scanned at for its side extreme.
+   */
   const SCAN: number = 24;
 
   /**

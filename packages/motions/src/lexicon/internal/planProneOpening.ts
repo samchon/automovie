@@ -18,17 +18,16 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/**
+/*
  * Move a prone entry through a low aperture with alternating palm support. The
  * chest stays low on its incoming floor pose. Each palm advances, supports the
  * moving torso while it stays at a world point, then releases to the next
  * stroke. Rise with the existing floor get-up.
- *
- * @param context The actor's displayed entry and canonical body.
- * @param frame The level opening's world passage frame.
- * @param near The near side, opening-local metres.
- * @param far The far side, opening-local metres.
- * @returns A low passage exiting prone and clear of the solid.
+ * Parameter context: The actor's displayed entry and canonical body.
+ * Parameter frame: The level opening's world passage frame.
+ * Parameter near: The near side, opening-local metres.
+ * Parameter far: The far side, opening-local metres.
+ * Returns: A low passage exiting prone and clear of the solid.
  */
 export function planProneOpening(
   context: IAutoMovieMotionHumanActionContext<object>,
@@ -201,49 +200,61 @@ export function planProneOpening(
   };
 }
 
-/**
+/*
  * How far beyond the solid the crawl ends, statures (provisional: the feet
  * clear of the far side).
  */
 const BEYOND: number = 0.7;
 
-/** The root's advance per palm stroke, forearm lengths (provisional). */
+/*
+ * The root's advance per palm stroke, forearm lengths (provisional).
+ */
 const STROKE: number = 0.65;
 
-/**
+/*
  * Seconds per stroke for a body of hip height STROKE_HIP, scaled by the square
  * root of the hip height (provisional; Froude-similar timing).
  */
 const STROKE_SECONDS: number = 0.48;
 
-/**
+/*
  * The hip height at which a stroke takes STROKE_SECONDS, metres (provisional:
  * an average adult).
  */
 const STROKE_HIP: number = 0.93;
 
-/** The share of each stroke its palm bears, centred on the stroke (provisional). */
+/*
+ * The share of each stroke its palm bears, centred on the stroke (provisional).
+ */
 const BEAR: number = 0.5;
 
-/**
+/*
  * How far into its stroke's advance the palm is placed ahead of the shoulder,
  * strokes (provisional: ahead of the pull's middle).
  */
 const REACH: number = 0.72;
 
-/** The palm's lift between strokes, metres (provisional). */
+/*
+ * The palm's lift between strokes, metres (provisional).
+ */
 const LIFT: number = 0.035;
 
-/**
+/*
  * The least downward component of the trunk's forward axis for a prone entry
  * (provisional: about 45 degrees face down).
  */
 const PRONE: number = 0.7;
-/** One palm stroke: its hand and wrist goal. */
+/*
+ * One palm stroke: its hand and wrist goal.
+ */
 interface IPalmPlacement {
-  /** The bearing hand. */
+  /*
+   * The bearing hand.
+   */
   side: AutoMovieHumanSide;
 
-  /** Its wrist goal with the palm flat on the floor. */
+  /*
+   * Its wrist goal with the palm flat on the floor.
+   */
   wrist: IAutoMovieMotionHumanHand.IWrist;
 }

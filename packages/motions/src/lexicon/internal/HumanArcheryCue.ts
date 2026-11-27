@@ -17,7 +17,7 @@ import { AutoMovieMotionHumanTiming } from "../../compose/internal/AutoMovieMoti
 import { composeAutoMovieMotionHumanAction } from "../../compose/internal/composeAutoMovieMotionHumanAction";
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Hand the staged arrow or bolt to a scene-authored animation carrier on the
  * same cue that returns the visible string to its rest pose. The carrier
  * supplies all post-cue prop movement. The performer keeps the carrier's pose.
@@ -156,13 +156,15 @@ export function HumanArcheryCue(
   };
 }
 
-/**
+/*
  * Provisional screen-continuity allowance between the two displayed contact
  * points, in metres.
  */
 const SEATING_TOLERANCE: number = 0.002;
 
-/** Place an authored local mark on a displayed prop frame. */
+/*
+ * Place an authored local mark on a displayed prop frame.
+ */
 function worldPoint(
   frame: IAutoMovieRigidTransform,
   local: IAutoMovieVector3,
@@ -173,7 +175,9 @@ function worldPoint(
   );
 }
 
-/** Report a missing or inconsistent subject in the staged transfer. */
+/*
+ * Report a missing or inconsistent subject in the staged transfer.
+ */
 function refusal(value: string, reason: string): HumanRefusal {
   return new HumanRefusal({
     kind: "affordance",

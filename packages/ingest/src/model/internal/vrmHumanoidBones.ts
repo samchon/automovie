@@ -7,7 +7,7 @@ import { optionalObject } from "./optionalObject";
 import { requiredArray } from "./requiredArray";
 import { validNodeIndex } from "./validNodeIndex";
 
-/**
+/*
  * Read declared VRM humanoid mappings using version-specific thumb migration.
  *
  * VRMC_vrm takes precedence when both metadata families exist and emits
@@ -91,7 +91,7 @@ export function vrmHumanoidBones(
   return [];
 }
 
-/**
+/*
  * Read a VRM 0.x bone name as its VRM 1.0 slot. VRM 1.0 renamed the thumb
  * chain, so 0.x `ThumbProximal` is the 1.0 `ThumbMetacarpal` and 0.x
  * `ThumbIntermediate` the 1.0 `ThumbProximal`; every other name is shared.
@@ -113,7 +113,9 @@ const VRM0_THUMB_NAMES: Readonly<Record<string, AutoMovieHumanoidBone>> = {
   rightThumbIntermediate: "rightThumbProximal",
 };
 
-/** Every humanoid slot; the `Record` type requires exactly the union's keys. */
+/*
+ * Every humanoid slot; the `Record` type requires exactly the union's keys.
+ */
 const HUMANOID_BONES: Readonly<Record<AutoMovieHumanoidBone, true>> = {
   hips: true,
   spine: true,

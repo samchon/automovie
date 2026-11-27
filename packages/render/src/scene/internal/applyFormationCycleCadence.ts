@@ -4,7 +4,7 @@ import type { IAutoMovieFormationCadence } from "../IAutoMovieFormationCadence.j
 import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
 import { formationCycleCadence } from "./formationCycleCadence.js";
 
-/**
+/*
  * Write one unit's current cadence into the cells its materials read.
  *
  * Cadence integration selects a take and absolute advance/turn, then writes two

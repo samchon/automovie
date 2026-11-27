@@ -3,21 +3,20 @@ import { Vector3 } from "@automovie/engine";
 
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
-/**
+/*
  * An exercise mat laid on the floor: a thin yoga mat or a thicker gym mat.
  *
  * It lies flat, centred over the origin, its length along `Z`. `surface` is its
  * top, where a body lies, kneels or stands for a floor exercise.
- *
- * @param params The kind, a yoga mat's length and any dimension the author
- *   fixes.
- * @param seed The seed that draws a yoga mat's length when it is not given and
- *   every dimension left free inside its band; absent, the first length and the
- *   middle of each band.
- * @returns The mat.
- * @throws {AutoMovieArchetypeRefusal} For a length Manduka does not list with a
- *   mass, or one named for a gym mat, a fixed dimension outside its band, or
- *   one only the other kind has.
+ * Parameter params: The kind, a yoga mat's length and any dimension the author
+ * fixes.
+ * Parameter seed: The seed that draws a yoga mat's length when it is not given and
+ * every dimension left free inside its band; absent, the first length and the
+ * middle of each band.
+ * Returns: The mat.
+ * For a length Manduka does not list with a
+ * mass, or one named for a gym mat, a fixed dimension outside its band, or
+ * one only the other kind has.
  */
 export function createExerciseMat(
   params: AutoMovieArchetypeExerciseMat.IParams,

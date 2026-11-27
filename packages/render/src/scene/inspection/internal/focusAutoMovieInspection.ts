@@ -10,7 +10,7 @@ import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js"
 import type { AutoMovieRenderInspection } from "../../AutoMovieRenderInspection.js";
 import { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry.js";
 
-/**
+/*
  * Measure the world-space box a view's focus frames: the drawn objects and
  * marks a path pattern matches, or every drawn flagged mark, so a close-up on a
  * part or on a defect's region is one request.

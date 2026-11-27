@@ -15,7 +15,7 @@ import type {
 import type { Object3D } from "three";
 
 
-/**
+/*
  * Select the production's declared checks active at one placed sample, for
  * `AutoMovieRenderInspection.observePlacedScene`.
  *
@@ -31,9 +31,8 @@ import type { Object3D } from "three";
  *
  * Nothing depends on a previous call, so a sample yields the same checks
  * whether it is reached forward, backward or by a jump.
- *
- * @param props The placed sample, the output rate and the declarations.
- * @returns The observer's checks for this sample, in declaration order.
+ * Parameter props: The placed sample, the output rate and the declarations.
+ * Returns: The observer's checks for this sample, in declaration order.
  */
 export function selectAutoMoviePlacedChecks(
   props: ISelectAutoMoviePlacedChecksProps,
@@ -129,7 +128,9 @@ type IScheduleEntry = ISelectAutoMoviePlacedChecksCustody["schedule"][number];
 
 type IEnvelope = Pick<ICheck, "key" | "required" | "paths" | "observedContact">;
 
-/** Whether a half-open window owns the film second. */
+/*
+ * Whether a half-open window owns the film second.
+ */
 function contains(
   window: { readonly from: number; readonly to: number },
   seconds: number,
@@ -137,7 +138,7 @@ function contains(
   return window.from <= seconds && seconds < window.to;
 }
 
-/**
+/*
  * The observer envelope of a rule at a film second, with its received evidence
  * when the producer has some.
  */
@@ -154,7 +155,7 @@ function envelope(
   };
 }
 
-/**
+/*
  * The nearest declared holder carrying the prop, null when the prop hangs from
  * the scene without one, and undefined when the prop is not displayed beneath
  * the scene.
@@ -180,7 +181,7 @@ function holderOf(
   return undefined;
 }
 
-/**
+/*
  * A track's record check at the live shot clock and, after the first output
  * frame, its step from the previous output frame with source-time limits.
  */
@@ -276,7 +277,7 @@ function trackChecks(
   ];
 }
 
-/**
+/*
  * The record's transform when it is present and passes the canonical transform
  * admission, else undefined.
  */

@@ -7,18 +7,17 @@ import type {
 import { HumanBound } from "../../../law/internal/HumanBound";
 import { HumanRefusal } from "../../../law/HumanRefusal";
 
-/**
+/*
  * Admit an optional ski edge transfer or Nordic stroke before planning the
  * glide. An edge transfer occurs strictly inside the glide, counters by at most
  * 35 degrees, and switches to the opposite cant. Each edge stays within 45
  * degrees, and each pivot coordinate stays within one metre of the foot
  * origin.
- *
- * @param duration The authored glide duration in seconds.
- * @param transfer The requested edge transfer, if present.
- * @param stroke The requested Nordic stroke, if present.
- * @throws {HumanRefusal} When both techniques are requested or an edge transfer
- *   lies outside its allowed range.
+ * Parameter duration: The authored glide duration in seconds.
+ * Parameter transfer: The requested edge transfer, if present.
+ * Parameter stroke: The requested Nordic stroke, if present.
+ * When both techniques are requested or an edge transfer
+ * lies outside its allowed range.
  */
 export function admitSnowGlide(
   duration: number,
@@ -85,5 +84,7 @@ export function admitSnowGlide(
   }
 }
 
-/** Both feet checked against each set of ski edges. */
+/*
+ * Both feet checked against each set of ski edges.
+ */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];

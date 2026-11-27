@@ -20,7 +20,7 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmTrajectoryDistal } from "./HumanArmTrajectoryDistal";
 import { HumanArmTrajectoryLiftTurn } from "./HumanArmTrajectoryLiftTurn";
 
-/**
+/*
  * Prepare a straight wrist path in the shoulder parent's moving frame. A hand
  * on an attitude turns from its start to its end attitude over the path's
  * progress, starting once a hand low over a surface has lifted clear of it
@@ -30,14 +30,13 @@ import { HumanArmTrajectoryLiftTurn } from "./HumanArmTrajectoryLiftTurn";
  * translates or turns. The compiler uses the path only when the whole transport
  * passes the ordinary trajectory admission, with the hard limits checked after
  * projection.
- *
- * @param setup The arm's unchanged rig and clinical domains.
- * @param from The starting shoulder-parent frame and arm coordinates.
- * @param to The destination shoulder-parent frame and arm coordinates.
- * @param contact Hand-local offset of the oriented contact point, when the goal
- *   specifies an attitude.
- * @returns The arm's projected coordinates at the progress, or no analytic
- *   result at that point.
+ * Parameter setup: The arm's unchanged rig and clinical domains.
+ * Parameter from: The starting shoulder-parent frame and arm coordinates.
+ * Parameter to: The destination shoulder-parent frame and arm coordinates.
+ * Parameter contact: Hand-local offset of the oriented contact point, when the goal
+ * specifies an attitude.
+ * Returns: The arm's projected coordinates at the progress, or no analytic
+ * result at that point.
  */
 export function HumanArmTrajectoryEffector(
   setup: IAutoMovieMotionHumanArmGeometry.ISetup,
@@ -199,40 +198,64 @@ export function HumanArmTrajectoryEffector(
   };
 }
 
-/** Endpoint types of the carrier-relative arm course. */
+/*
+ * Endpoint types of the carrier-relative arm course.
+ */
 export namespace HumanArmTrajectoryEffector {
-  /** The endpoint's shoulder frame and the arm placed in it. */
+  /*
+   * The endpoint's shoulder frame and the arm placed in it.
+   */
   export interface IEnd {
-    /** This endpoint's shoulder-parent frame. */
+    /*
+     * This endpoint's shoulder-parent frame.
+     */
     frame: IAutoMovieMotionHumanArmGeometry.IFrame;
 
-    /** The trajectory chart's nine coordinates. */
+    /*
+     * The trajectory chart's nine coordinates.
+     */
     coordinates: readonly number[];
   }
 }
 
-/** Inner product of unit quaternions or their half-angle coefficients. */
+/*
+ * Inner product of unit quaternions or their half-angle coefficients.
+ */
 function dot(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number {
   return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 }
 
-/** A hinge root that reaches the wrist, read against the reference shoulder. */
+/*
+ * A hinge root that reaches the wrist, read against the reference shoulder.
+ */
 interface IReached {
-  /** The root's hinge flexion, radians. */
+  /*
+   * The root's hinge flexion, radians.
+   */
   theta: number;
 
-  /** Its shoulder swivel harmonic. */
+  /*
+   * Its shoulder swivel harmonic.
+   */
   turn: IAutoMovieHingedArmSwivel.IHarmonic;
 
-  /** The reference shoulder's dot with the harmonic's cosine coefficient. */
+  /*
+   * The reference shoulder's dot with the harmonic's cosine coefficient.
+   */
   cos: number;
 
-  /** The reference shoulder's dot with the harmonic's sine coefficient. */
+  /*
+   * The reference shoulder's dot with the harmonic's sine coefficient.
+   */
   sin: number;
 
-  /** How near the reference the root's best swivel comes: the two dots' norm. */
+  /*
+   * How near the reference the root's best swivel comes: the two dots' norm.
+   */
   match: number;
 }
 
-/** The geometry of an arm before placing any collision probes. */
+/*
+ * The geometry of an arm before placing any collision probes.
+ */
 type Chain = ReturnType<typeof G.chain>;

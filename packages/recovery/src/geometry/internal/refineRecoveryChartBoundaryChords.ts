@@ -3,7 +3,7 @@ import type {
   IAutoMovieRecoveryChartBoundaryChordsRefinementOperation,
 } from "@automovie/interface";
 
-/**
+/*
  * Subdivide private interior edges whose fixed endpoints share one square side.
  * Such a chord has zero transverse UV extent under square Dirichlet data and
  * can collapse an incident ear even for a valid PL disk. Its source-PL midpoint

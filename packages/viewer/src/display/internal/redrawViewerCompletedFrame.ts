@@ -1,6 +1,6 @@
 import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
 
-/**
+/*
  * Admit an original synchronous redraw only from a new completed observation.
  * Explicit completion is preferred. A legacy void callback may instead expose a
  * new completed-frame record; an unchanged prior record cannot attest a draw.

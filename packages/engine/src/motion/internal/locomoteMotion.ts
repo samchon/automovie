@@ -9,11 +9,13 @@ import { Vector3 } from "../../math/Vector3";
 import { timeScaleMotion } from "./timeScaleMotion";
 import { travelMotion } from "./travelMotion";
 
-/** Rotations about the fixed world-up axis. */
+/*
+ * Rotations about the fixed world-up axis.
+ */
 const yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> =
   Quaternion.prepareAxisAngle({ x: 0, y: 1, z: 0 });
 
-/**
+/*
  * Carry an admitted gait over a positive metre distance in a finite nonzero
  * direction at a requested positive speed. Whole cycles determine duration; a
  * trip shorter than half a nominal stride compresses one cycle, and optional

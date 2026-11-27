@@ -9,7 +9,7 @@ import { polygonDoubleArea } from "../../architecture/internal/polygonDoubleArea
 import { autoMovieBoundaryFacePoint } from "./autoMovieBoundaryFacePoint";
 import { triangulateAutoMoviePolygon } from "./triangulateAutoMoviePolygon";
 
-/**
+/*
  * The closed solid one boundary's declared face stands for, as world triangles.
  *
  * A separation is a slab, not a sheet: the face outline swept along its own
@@ -19,15 +19,14 @@ import { triangulateAutoMoviePolygon } from "./triangulateAutoMoviePolygon";
  * where one silhouette belongs.
  *
  * The outline may be concave, so the caps are ear-clipped by
- * {@link triangulateAutoMoviePolygon} rather than fanned from one corner, which
+ * triangulateAutoMoviePolygon rather than fanned from one corner, which
  * would put triangles outside an L-shaped soffit. Every triangle is wound
  * outward, which the silhouette pass reads as facing. The face must be the
  * validated record: an outline that is not a simple polygon of at least three
  * corners makes the triangulation throw.
- *
- * @param face Boundary face giving the rigid frame, outline and thickness.
- * @returns `2n` side triangles and `2(n - 2)` cap triangles for an `n`-corner
- *   outline, in world metres.
+ * Parameter face: Boundary face giving the rigid frame, outline and thickness.
+ * Returns: `2n` side triangles and `2(n - 2)` cap triangles for an `n`-corner
+ * outline, in world metres.
  */
 export const autoMovieBoundaryShellTriangles = (
   face: IAutoMovieBoundaryFace,

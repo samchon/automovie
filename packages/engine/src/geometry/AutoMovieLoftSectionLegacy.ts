@@ -148,7 +148,7 @@ export namespace AutoMovieLoftSectionLegacy {
   }
 }
 
-/**
+/*
  * Admit only the required returned total-order components, never unused higher
  * partials.
  */
@@ -156,7 +156,9 @@ function admit<T extends IAutoMovieLoftSectionPhase>(out: T): T {
   return out;
 }
 
-/** One product or sum, refused with its own message where it overflows. */
+/*
+ * One product or sum, refused with its own message where it overflows.
+ */
 function representable(
   result: number,
   message: string = "The declared basis extension has no finite value row.",

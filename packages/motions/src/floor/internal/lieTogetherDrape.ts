@@ -23,13 +23,13 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { StrikingBody } from "../../striking/internal/StrikingBody";
 import { touchHoldRests } from "../../touch/internal/touchHoldRests";
 
-/**
+/*
  * How far off the partner's skin the palm rests, metres (provisional: a skin
  * contact, as `lieTogether`'s `REST`).
  */
 const REST: number = 0.005;
 
-/**
+/*
  * The spooning body's free arm draped over its partner. The arm a spooning body
  * does not lie on otherwise hangs from its upper shoulder into the partner it
  * lies behind (its fingers met the partner's forearm 22 mm deep); here it is
@@ -44,43 +44,56 @@ const REST: number = 0.005;
  * (`courseArmGoal`), never fitted afresh each second.
  */
 export namespace lieTogetherDrape {
-  /** The free arm's rest on the partner. */
+  /*
+   * The free arm's rest on the partner.
+   */
   export interface IDrape {
-    /** The draping arm. */
+    /*
+     * The draping arm.
+     */
     side: AutoMovieHumanSide;
 
-    /** The arm's limb. */
+    /*
+     * The arm's limb.
+     */
     limb: courseArmGoal.Limb;
 
-    /** The arm's hand part, as a contact names it. */
+    /*
+     * The arm's hand part, as a contact names it.
+     */
     part: IAutoMovieMotionHumanContactWindow["part"];
 
-    /** The hand's palm region. */
+    /*
+     * The hand's palm region.
+     */
     palm: AutoMovieHumanoidRegion;
 
-    /** The partner's region the palm rests on. */
+    /*
+     * The partner's region the palm rests on.
+     */
     region: AutoMovieHumanoidRegion;
 
-    /**
+    /*
      * The arm's goal at the plan's start, world metres, with its rests and
      * obstacles.
      */
     goal: IAutoMovieHumanLimbGoal;
 
-    /** The flat hand's finger joints the palm is placed with, clinical degrees. */
+    /*
+     * The flat hand's finger joints the palm is placed with, clinical degrees.
+     */
     fingers: IAutoMovieMotionHumanPosture["joints"];
   }
 
-  /**
+  /*
    * A posture with the rest's goal and its hand flattened at a share: the
    * fingers laid flat as the arm reaches, so the hand lies on the partner as
    * the goal places it (a relaxed hand's curled fingers sank 24 mm into the
    * partner's arm).
-   *
-   * @param posture The lying posture.
-   * @param drape The rest.
-   * @param k The share of the settle.
-   * @returns The posture with the goal and the blended fingers.
+   * Parameter posture: The lying posture.
+   * Parameter drape: The rest.
+   * Parameter k: The share of the settle.
+   * Returns: The posture with the goal and the blended fingers.
    */
   export function write(
     posture: IAutoMovieMotionHumanPosture,
@@ -108,15 +121,14 @@ export namespace lieTogetherDrape {
     };
   }
 
-  /**
+  /*
    * The free arm's rest on a partner lying on the same side.
-   *
-   * @param body The spooning body.
-   * @param settled The body settled against the partner, its arm free.
-   * @param side The free arm, the one away from the floor.
-   * @param partner The partner's body.
-   * @param bones The partner's bones at the plan's start.
-   * @returns The rest.
+   * Parameter body: The spooning body.
+   * Parameter settled: The body settled against the partner, its arm free.
+   * Parameter side: The free arm, the one away from the floor.
+   * Parameter partner: The partner's body.
+   * Parameter bones: The partner's bones at the plan's start.
+   * Returns: The rest.
    */
   export function solve(
     body: IAutoMovieMotionHumanBody,
@@ -191,33 +203,42 @@ export namespace lieTogetherDrape {
     };
   }
 
-  /** The course's members beside the plan. */
+  /*
+   * The course's members beside the plan.
+   */
   export interface ICourse {
-    /**
+    /*
      * The spooning body and the pose it lies down from, whose arm the course
      * leaves from (courseArmGoal.IContext).
      */
     context: courseArmGoal.IContext;
 
-    /** The lying plan, whose posture writes the rest's goal throughout. */
+    /*
+     * The lying plan, whose posture writes the rest's goal throughout.
+     */
     plan: IAutoMovieMotionHumanActionPlan;
 
-    /** The rest. */
+    /*
+     * The rest.
+     */
     drape: IDrape;
 
-    /** When the body has settled, seconds: the arm is on the partner by then. */
+    /*
+     * When the body has settled, seconds: the arm is on the partner by then.
+     */
     settle: number;
 
-    /** The partner's name. */
+    /*
+     * The partner's name.
+     */
     partner: string;
   }
 
-  /**
+  /*
    * The lying plan with the free arm laid onto its rest as one course, the hand
    * bearing on the partner from the settle.
-   *
-   * @param props The plan, the rest and the course's span.
-   * @returns The coursed plan.
+   * Parameter props: The plan, the rest and the course's span.
+   * Returns: The coursed plan.
    */
   export function course(props: ICourse): IAutoMovieMotionHumanActionPlan {
     const duration: number = props.plan.duration;

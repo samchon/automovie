@@ -7,7 +7,7 @@ import type {
 import { AutoMovieCurveLengthQuadrature64 } from "../../AutoMovieCurveLengthQuadrature64";
 import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Measure original three-dimensional source derivatives by composite
  * eight-point Gauss-Legendre quadrature, retaining each piece's parameter and
  * millimetres. The derivative is dP/dparameter in mm per parameter unit; its
@@ -23,13 +23,12 @@ import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
  * features can escape both rules, and errors of different pieces can cancel.
  * This uses the existing cubic-length rule (NIST DLMF 3.5(v)); finite inputs
  * also require representable widths, quadrature nodes and intermediate sums.
- *
- * @param pieces Original derivative readers and finite increasing domains,
- *   nonempty.
- * @param subdivisions Equal panels per piece, an integer in [1,1024].
- * @returns Finer length and the absolute coarse/fine difference, both mm.
- * @throws Invalid data, nonfinite/underflowing arithmetic or collapsed nodes;
- *   callback exceptions propagate unchanged.
+ * Parameter pieces: Original derivative readers and finite increasing domains,
+ * nonempty.
+ * Parameter subdivisions: Equal panels per piece, an integer in [1,1024].
+ * Returns: Finer length and the absolute coarse/fine difference, both mm.
+ * Invalid data, nonfinite/underflowing arithmetic or collapsed nodes;
+ * callback exceptions propagate unchanged.
  */
 export function measureAutoMovieCurveLength64(
   pieces: IAutoMovieMeasureCurveLength64.IPieces,

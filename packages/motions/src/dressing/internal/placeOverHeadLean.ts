@@ -23,16 +23,15 @@ import type { pickUpPosture } from "../../handling/internal/pickUpPosture";
 import type { placeOverHeadPath } from "./placeOverHeadPath";
 import type { placeOverHeadStance } from "./placeOverHeadStance";
 
-/**
+/*
  * A neck-loop dresser's composed and leaned plan (`placeOverHead`): the base, a
  * stepped stance's step in over the reach and back over the return, both hands'
  * strokes along the loop's path in one composition, and past the crown the
  * least hinge at the hips that keeps both wrists within their arms, solved at
  * the path's key points and ridden on its progress. Read from the plan's
  * context, arms, stance, clock, origins and path.
- *
- * @param scope What the plan composes from.
- * @returns The leaned plan and the arms' span.
+ * Parameter scope: What the plan composes from.
+ * Returns: The leaned plan and the arms' span.
  */
 export function placeOverHeadLean(
   scope: placeOverHeadLean.IScope,
@@ -195,54 +194,86 @@ export function placeOverHeadLean(
   return { leaned, span };
 }
 
-/** What a neck-loop dresser's composed plan reads and what it is. */
+/*
+ * What a neck-loop dresser's composed plan reads and what it is.
+ */
 export namespace placeOverHeadLean {
-  /** What a neck-loop plan composes from. */
+  /*
+   * What a neck-loop plan composes from.
+   */
   export interface IScope {
-    /** The action's context. */
+    /*
+     * The action's context.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPlaceOverHead>;
 
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The hand that holds the loop at entry. */
+    /*
+     * The hand that holds the loop at entry.
+     */
     side: AutoMovieHumanSide;
 
-    /** The hand that takes the loop's other handle. */
+    /*
+     * The hand that takes the loop's other handle.
+     */
     other: AutoMovieHumanSide;
 
-    /** The dresser's chosen stance (`placeOverHeadStance`). */
+    /*
+     * The dresser's chosen stance (`placeOverHeadStance`).
+     */
     stance: placeOverHeadStance.IStance;
 
-    /** The context as a stance (`placeOverHeadStance`). */
+    /*
+     * The context as a stance (`placeOverHeadStance`).
+     */
     on: placeOverHeadStance.IChosen["on"];
 
-    /** The phrase's clock. */
+    /*
+     * The phrase's clock.
+     */
     clock: IAutoMovieMotionClock;
 
-    /** Each hand's place before and after. */
+    /*
+     * Each hand's place before and after.
+     */
     origins: Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmTarget.IOrigin>;
 
-    /** The loop's path. */
+    /*
+     * The loop's path.
+     */
     path: placeOverHeadPath.IPath;
 
-    /** The holding hand's target (`placeOverHeadStance.IScope.holding`). */
+    /*
+     * The holding hand's target (`placeOverHeadStance.IScope.holding`).
+     */
     holding: placeOverHeadStance.IScope["holding"];
 
-    /** The other hand's target (`placeOverHeadStance.IScope.grasping`). */
+    /*
+     * The other hand's target (`placeOverHeadStance.IScope.grasping`).
+     */
     grasping: placeOverHeadStance.IScope["grasping"];
   }
 
-  /** The leaned plan and the arms' span. */
+  /*
+   * The leaned plan and the arms' span.
+   */
   export interface ILean {
-    /** The composed plan, leaned at the hips past the crown. */
+    /*
+     * The composed plan, leaned at the hips past the crown.
+     */
     leaned: IAutoMovieMotionHumanActionPlan;
 
-    /** The arms' course span. */
+    /*
+     * The arms' course span.
+     */
     span: IAutoMovieMotionHumanArmPlanned.ISpan;
   }
 }
-/**
+/*
  * How many even pieces of the loop's path the hip hinge is solved at the ends
  * of, once per plan (provisional: the path's few key frames, each piece a
  * fraction of the descent over the head).

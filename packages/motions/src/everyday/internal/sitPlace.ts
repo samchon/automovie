@@ -15,13 +15,13 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { lowerHumanPosture } from "../../posture/internal/lowerHumanPosture";
 import { seated } from "./seated";
 
-/**
+/*
  * Where and how a sit sits: the backs it settles into, the feet the seated legs
  * reach and the turn the performer stands at from the seat's heading, the last
  * two refused with the range that works.
  */
 export namespace sitPlace {
-  /**
+  /*
    * Seated pitch and trunk angles of each back the sit settles into, degrees:
    * `upright`, `lean` (back onto a backrest) and `slump` (provisional).
    */
@@ -31,7 +31,7 @@ export namespace sitPlace {
     slump: { pitch: -10, joints: { chest: [12, 0, 0], spine: [8, 0, 0] } },
   };
 
-  /**
+  /*
    * The distances from a hip joint at which a leg places its ankle, metres: the
    * knee flexed to the range table's limit (`AutoMovieMotionHumanRange`) at the
    * near end, and at the far end the knee kept at the least flexion of a
@@ -39,11 +39,10 @@ export namespace sitPlace {
    * initial contact), each by the law of cosines on the thigh and the shank.
    * Sitting, getting onto a high seat and getting off it place feet within this
    * one band.
-   *
-   * @param body The body.
-   * @param side The leg.
-   * @returns The least and the greatest distance.
-   * @throws {Error} When the range table gives the knee no flexion limit.
+   * Parameter body: The body.
+   * Parameter side: The leg.
+   * Returns: The least and the greatest distance.
+   * When the range table gives the knee no flexion limit.
    */
   export function band(
     body: { measure: Pick<IAutoMovieBodyMeasure, "thigh" | "shank"> },
@@ -64,17 +63,16 @@ export namespace sitPlace {
     return [chord(limit), chord(lowerHumanPosture.KNEE)];
   }
 
-  /**
+  /*
    * Refuse feet the legs cannot reach from the seated hips: each ankle must lie
    * within the leg's reachable band from its hip joint (`band`).
-   *
-   * @param body The body.
-   * @param seat The seat.
-   * @param goal The socket's point on the seat.
-   * @param feet The planted ankles.
-   * @param pitch The seated pitch, degrees.
-   * @throws {HumanRefusal} When a foot is out of reach, with the reachable
-   *   distances ahead of the front edge.
+   * Parameter body: The body.
+   * Parameter seat: The seat.
+   * Parameter goal: The socket's point on the seat.
+   * Parameter feet: The planted ankles.
+   * Parameter pitch: The seated pitch, degrees.
+   * When a foot is out of reach, with the reachable
+   * distances ahead of the front edge.
    */
   export function reach(
     body: IAutoMovieMotionHumanBody,
@@ -116,11 +114,10 @@ export namespace sitPlace {
     }
   }
 
-  /**
+  /*
    * An angle wrapped into (-180, 180].
-   *
-   * @param degrees The angle.
-   * @returns The same turn within (-180, 180].
+   * Parameter degrees: The angle.
+   * Returns: The same turn within (-180, 180].
    */
   export function turn(degrees: number): number {
     let a: number = degrees % 360;
@@ -130,7 +127,9 @@ export namespace sitPlace {
   }
 }
 
-/** The record of `IBACKSEntryItem`'s site. */
+/*
+ * The record of `IBACKSEntryItem`'s site.
+ */
 type IBACKSEntryItem = {
   pitch: number;
   joints: Partial<
@@ -138,5 +137,7 @@ type IBACKSEntryItem = {
   >;
 };
 
-/** The alternatives of `BACKSEntryItem`'s site. */
+/*
+ * The alternatives of `BACKSEntryItem`'s site.
+ */
 type BACKSEntryItem = "upright" | "lean" | "slump";

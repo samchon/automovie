@@ -11,7 +11,7 @@ import { HumanBound } from "../../law/internal/HumanBound";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 
-/**
+/*
  * The places of the air around a performer by name: the heights, lateral
  * offsets and distances a law states a hand's place with, the three rungs of a
  * place (a name, a nudged or in-between name, an explicit share record), the
@@ -21,10 +21,10 @@ import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
  * (`nearest`).
  */
 export namespace AutoMovieMotionHumanTargetGrid {
-  /**
+  /*
    * Every height, lowest first: the order `nearest` breaks a tie by and a nudge
    * names a neighbour from, and the list
-   * {@link IAutoMovieMotionHumanTargetGrid.Height} is read from.
+   * IAutoMovieMotionHumanTargetGrid.Height is read from.
    */
   export const HEIGHTS = [
     "floor",
@@ -39,15 +39,15 @@ export namespace AutoMovieMotionHumanTargetGrid {
     "overhead",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanTargetGrid.Height>[];
 
-  /**
+  /*
    * How far above the shoulder a hand raised overhead stands, as a share of the
    * arm (provisional: the arm nearly straight, from the `raiseHand` and `cheer`
    * gestures, checked by their "hand above the head" verdicts).
    */
   export const OVERHEAD: number = 0.92;
 
-  /**
-   * The lateral places of {@link IAutoMovieMotionHumanTargetGrid.Lateral}, as
+  /*
+   * The lateral places of IAutoMovieMotionHumanTargetGrid.Lateral, as
    * data.
    */
   export const LATERAL_NAMES = [
@@ -57,7 +57,7 @@ export namespace AutoMovieMotionHumanTargetGrid {
     "outside",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanTargetGrid.Lateral>[];
 
-  /**
+  /*
    * The share of the half shoulder width each lateral name is, toward the
    * acting hand's side: `centre` on the midline
    * (`AutoMovieMotionHumanTarget.DEFAULTS`), `inside` at 0.6 (`stopPalm`),
@@ -74,7 +74,9 @@ export namespace AutoMovieMotionHumanTargetGrid {
     outside: 1.5,
   };
 
-  /** The distances of {@link IAutoMovieMotionHumanTargetGrid.Distance}, as data. */
+  /*
+   * The distances of IAutoMovieMotionHumanTargetGrid.Distance, as data.
+   */
   export const DISTANCE_NAMES = [
     "close",
     "near",
@@ -82,7 +84,7 @@ export namespace AutoMovieMotionHumanTargetGrid {
     "far",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanTargetGrid.Distance>[];
 
-  /**
+  /*
    * The share of the arm (upper arm and forearm) each distance name is: `close`
    * at 0.1 (`raiseHand`), `near` at 0.25 (`wave`), `mid` at 0.6
    * (`AutoMovieMotionHumanTarget.DEFAULTS.desk`), `far` at 0.8
@@ -97,18 +99,17 @@ export namespace AutoMovieMotionHumanTargetGrid {
     far: 0.8,
   };
 
-  /**
+  /*
    * The largest size of a nudge's component, as a share of the arm
    * (provisional).
    */
   export const NUDGE: number = 0.25;
 
-  /**
+  /*
    * A height name as a share of the stature.
-   *
-   * @param body The body.
-   * @param name The height.
-   * @returns The share of the stature.
+   * Parameter body: The body.
+   * Parameter name: The height.
+   * Returns: The share of the stature.
    */
   export function height(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,
@@ -141,17 +142,16 @@ export namespace AutoMovieMotionHumanTargetGrid {
     }
   }
 
-  /**
+  /*
    * The share record a place resolves to on a body, for the acting side.
-   *
-   * @param body The body.
-   * @param side The acting hand, which the lateral names and a nudge's `out`
-   *   mirror by.
-   * @param place The place, on any rung.
-   * @returns The share record `fallback` and `resolve` take.
-   * @throws {Error} When a nudge's component exceeds `NUDGE`, a between share
-   *   lies outside [0, 1] or joins two facings, or an explicit place has an
-   *   empty source.
+   * Parameter body: The body.
+   * Parameter side: The acting hand, which the lateral names and a nudge's `out`
+   * mirror by.
+   * Parameter place: The place, on any rung.
+   * Returns: The share record `fallback` and `resolve` take.
+   * When a nudge's component exceeds `NUDGE`, a between share
+   * lies outside [0, 1] or joins two facings, or an explicit place has an
+   * empty source.
    */
   export function place(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,
@@ -202,16 +202,15 @@ export namespace AutoMovieMotionHumanTargetGrid {
     return named(body, side, place);
   }
 
-  /**
+  /*
    * The names of the place a world point falls in, for the acting side: the
    * nearest `Height`, `Lateral` and `Distance` of the body as it stands in the
    * posture.
-   *
-   * @param body The body.
-   * @param posture The root and the heading; the root's own height is not read.
-   * @param side The acting hand, which the lateral names mirror by.
-   * @param point The point, world metres.
-   * @returns The three names; a tie goes to the name listed first in its union.
+   * Parameter body: The body.
+   * Parameter posture: The root and the heading; the root's own height is not read.
+   * Parameter side: The acting hand, which the lateral names mirror by.
+   * Parameter point: The point, world metres.
+   * Returns: The three names; a tie goes to the name listed first in its union.
    */
   export function nearest(
     body: Pick<IAutoMovieMotionHumanBody, "measure">,
@@ -250,17 +249,23 @@ export namespace AutoMovieMotionHumanTargetGrid {
   }
 }
 
-/** The alternatives of `NearestResult`'s site. */
+/*
+ * The alternatives of `NearestResult`'s site.
+ */
 type NearestResult = "height" | "lateral" | "distance";
 
-/** The alternatives of `NearestPosture`'s site. */
+/*
+ * The alternatives of `NearestPosture`'s site.
+ */
 type NearestPosture = "root" | "yaw";
-/** The alternatives of `NamedBase`'s site. */
+/*
+ * The alternatives of `NamedBase`'s site.
+ */
 type NamedBase =
   | IAutoMovieMotionHumanTarget.Name
   | IAutoMovieMotionHumanTargetGrid.IGrid;
 
-/**
+/*
  * The share record of a whole place name or of three grid names, the lateral
  * mirrored by the side.
  */
@@ -280,16 +285,20 @@ function named(
         facing: base.facing ?? "performer",
       };
 }
-/** The alternatives of `NudgedComponentAxis`'s site. */
+/*
+ * The alternatives of `NudgedComponentAxis`'s site.
+ */
 type NudgedComponentAxis = "out" | "up" | "forward";
 
-/** The alternatives of `NudgedBase`'s site. */
+/*
+ * The alternatives of `NudgedBase`'s site.
+ */
 type NudgedBase =
   | IAutoMovieMotionHumanTarget.Name
   | IAutoMovieMotionHumanTargetGrid.IGrid
   | undefined;
 
-/**
+/*
  * A share record moved by a nudge, each component converted from arm lengths to
  * its axis's unit; a component past the bound throws and names the neighbouring
  * name of `base`, when it has one.
@@ -347,7 +356,9 @@ function nudged(
   };
 }
 
-/** The name whose length is nearest to a value; the first listed wins a tie. */
+/*
+ * The name whose length is nearest to a value; the first listed wins a tie.
+ */
 function closest<T extends string>(
   names: readonly T[],
   length: (name: T) => number,

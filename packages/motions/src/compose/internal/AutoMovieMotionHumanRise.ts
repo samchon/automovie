@@ -12,7 +12,7 @@ import type {
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
 
-/**
+/*
  * A rise onto the toes: both feet turn about their toes' joints, which stay
  * where they stand with the toes flat, so each heel and ankle rises and the
  * body with them. A law that needs height it cannot lean for (a kiss on a
@@ -24,14 +24,13 @@ import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
  * 129 mm behind the toes' joint).
  */
 export namespace AutoMovieMotionHumanRise {
-  /**
+  /*
    * A foot with its heel raised about its toes' joint.
-   *
-   * @param body The body.
-   * @param side The foot.
-   * @param flat The foot as it stands flat.
-   * @param degrees The heel's raise, degrees.
-   * @returns The raised foot's placement.
+   * Parameter body: The body.
+   * Parameter side: The foot.
+   * Parameter flat: The foot as it stands flat.
+   * Parameter degrees: The heel's raise, degrees.
+   * Returns: The raised foot's placement.
    */
   export function foot(
     body: IAutoMovieMotionHumanBody,
@@ -49,14 +48,13 @@ export namespace AutoMovieMotionHumanRise {
     );
   }
 
-  /**
+  /*
    * How far the root moves with the ankles of a rise: the mean of both ankles'
    * travel.
-   *
-   * @param body The body.
-   * @param stance Both feet as they stand flat.
-   * @param degrees The heels' raise, degrees.
-   * @returns The travel, world metres.
+   * Parameter body: The body.
+   * Parameter stance: Both feet as they stand flat.
+   * Parameter degrees: The heels' raise, degrees.
+   * Returns: The travel, world metres.
    */
   export function lift(
     body: IAutoMovieMotionHumanBody,
@@ -71,13 +69,12 @@ export namespace AutoMovieMotionHumanRise {
     return Vector3.scale(Vector3.add(travel("left"), travel("right")), 0.5);
   }
 
-  /**
+  /*
    * The legs of a rise: each foot's goal on its raised placement, planted, with
    * the toes bent back flat on the floor.
-   *
-   * @param props The body, the flat stance, the window in seconds since the
-   *   action's start and the heels' raise in degrees at a second.
-   * @returns One primitive per leg.
+   * Parameter props: The body, the flat stance, the window in seconds since the
+   * action's start and the heels' raise in degrees at a second.
+   * Returns: One primitive per leg.
    */
   export function legs(
     props: IAutoMovieMotionHumanRise.ILegsProps,

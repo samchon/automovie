@@ -29,7 +29,7 @@ import { sampleClip } from "./sampleClip";
 import { sampleClipSequence } from "./sampleClipSequence";
 import { stepSpring } from "./stepSpring";
 
-/**
+/*
  * Resolve a numerical frame by sampling, profile binding, value driving,
  * ordered clamping, matrix composition and world driving. Optional explicit
  * spring state advances afterward; otherwise springs remain deferred. Results
@@ -163,13 +163,13 @@ export function resolveFrame(
   return { world, weights, violations, deferredDrivers };
 }
 
-/**
+/*
  * Seed a spring chain's non-root joints from the state's post-spring positions
  * of the previous frame. A host loop carries its mutated world map across
  * steps; `resolveFrame` composes fresh from the animation every frame, so
  * without this the spring would restart from the animated pose each time and
  * never accumulate sag. Rotation/scale stay animated: spring only owns the
- * position, exactly like {@link stepSpring}'s own write.
+ * position, exactly like stepSpring's own write.
  */
 const seedSprungPositions: (
   chain: readonly string[],
@@ -193,7 +193,9 @@ const seedSprungPositions: (
   }
 };
 
-/** One limit to apply, tagged with the profile it came from (null = direct). */
+/*
+ * One limit to apply, tagged with the profile it came from (null = direct).
+ */
 interface ILimitEntry {
   limit: IAutoMovieChannelLimit;
   profile: string | null;

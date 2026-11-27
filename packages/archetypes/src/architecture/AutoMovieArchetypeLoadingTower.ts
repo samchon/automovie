@@ -9,7 +9,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 
-/** Colour and banding references for the fictional scenery. */
+/*
+ * Colour and banding references for the fictional scenery.
+ */
 const OAK_AND_IRON: string =
   "The Met, Chest with Iron Banding (https://www.metmuseum.org/art/collection/search/463632)";
 /** Creates a deterministic loading tower fixture and exposes its construction parameters. */

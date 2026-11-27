@@ -108,45 +108,69 @@ export namespace AutoMovieLoftJet {
     return l > 1e-12 ? [n[0] / l, n[1] / l, n[2] / l] : null;
   }
 
-  /** One interval's endpoint arrays, weights and combined derivative rows. */
+  /*
+   * One interval's endpoint arrays, weights and combined derivative rows.
+   */
   interface IControls {
-    /** Lower endpoint, unchanged for the immutable chain's lifetime. */
+    /*
+     * Lower endpoint, unchanged for the immutable chain's lifetime.
+     */
     a: IAutoMovieStationHermite.IEnd;
-    /** Upper endpoint. */
+    /*
+     * Upper endpoint.
+     */
     b: IAutoMovieStationHermite.IEnd;
-    /** Value, slope and curvature interpolation weights. */
+    /*
+     * Value, slope and curvature interpolation weights.
+     */
     weights: number[][];
-    /**
+    /*
      * Three coefficient rows; lazy rows contain holes until their support is
      * read.
      */
     c: number[][];
   }
 
-  /** A station's plane, section controls and optional lift controls. */
+  /*
+   * A station's plane, section controls and optional lift controls.
+   */
   interface IStation {
-    /**
+    /*
      * Actual basis controls only on the legacy branch; no fabricated rows on a
      * native station.
      */
     controls: IControls | null;
-    /** Actual local total2 generator, absent only on the existing basis branch. */
+    /*
+     * Actual local total2 generator, absent only on the existing basis branch.
+     */
     native: ((phi: number) => IAutoMovieLoftSectionJet) | null;
-    /** Plane and its first and second station derivatives. */
+    /*
+     * Plane and its first and second station derivatives.
+     */
     f: number[][];
-    /** One byte per spline control; absent for the original eager path. */
+    /*
+     * One byte per spline control; absent for the original eager path.
+     */
     filled?: Uint8Array;
-    /** Lift preparation, independent of phase. */
+    /*
+     * Lift preparation, independent of phase.
+     */
     lift?: ILift;
   }
 
-  /** Lift rows use identical x/z blocks for the existing spline reader. */
+  /*
+   * Lift rows use identical x/z blocks for the existing spline reader.
+   */
   interface ILift extends IControls {
-    /** Normal direction and its first two station derivatives. */
+    /*
+     * Normal direction and its first two station derivatives.
+     */
     directions: AutoMovieVector3Tuple[];
   }
 
-  /** A station's part of a jet: its section, plane and lift controls. */
+  /*
+   * A station's part of a jet: its section, plane and lift controls.
+   */
   function stationOf(chain: IAutoMovieLoftChain, s: number): IStation {
     const cap: IAutoMovieLoftCapRead.IJetResult = AutoMovieLoftCapRead.jet(
       chain,
@@ -282,7 +306,7 @@ export namespace AutoMovieLoftJet {
     return station;
   }
 
-  /**
+  /*
    * Keep malformed lift layouts on the old doubled-row path; this does not
    * reject an input.
    */
@@ -294,7 +318,7 @@ export namespace AutoMovieLoftJet {
     );
   }
 
-  /**
+  /*
    * Fill the same periodic support read by SplineCurve.jet, without changing
    * its arithmetic.
    */
@@ -321,7 +345,7 @@ export namespace AutoMovieLoftJet {
     }
   }
 
-  /**
+  /*
    * One component, in exactly StationHermite.combine's left-associated
    * summation order.
    */
@@ -342,10 +366,12 @@ export namespace AutoMovieLoftJet {
   }
 }
 
-/** A section's `[x, z, x_t, z_t, x_tt, z_tt]` at one phase. */
+/*
+ * A section's `[x, z, x_t, z_t, x_tt, z_tt]` at one phase.
+ */
 type J = [number, number, number, number, number, number];
 
-/**
+/*
  * Read exactly the required local total2 from the unchanged complete legacy
  * basis.
  */
@@ -367,7 +393,7 @@ function section(
   };
 }
 
-/**
+/*
  * Add the lift `h(s, t) w(s)` and its derivatives to a jet, `w = v x u`; the
  * lift takes the quintic rule where both layers carry its curvatures, with `w'
  * = v' x u + v x u'` and `w'' = v'' x u + 2 v' x u' + v x u''`.
@@ -400,19 +426,25 @@ function lift(
   jet.tt = sum(jet.tt, scale(w0, h[0]![4]));
 }
 
-/** Sum of vectors. */
+/*
+ * Sum of vectors.
+ */
 function sum(...vs: AutoMovieVector3Tuple[]): AutoMovieVector3Tuple {
   const out: AutoMovieVector3Tuple = [0, 0, 0];
   for (const v of vs) for (let k: number = 0; k < 3; k++) out[k] += v[k]!;
   return out;
 }
 
-/** Vector times a scalar. */
+/*
+ * Vector times a scalar.
+ */
 function scale(v: readonly number[], k: number): AutoMovieVector3Tuple {
   return [v[0]! * k, v[1]! * k, v[2]! * k];
 }
 
-/** Cross product. */
+/*
+ * Cross product.
+ */
 function cross(
   a: AutoMovieVector3Tuple,
   b: AutoMovieVector3Tuple,

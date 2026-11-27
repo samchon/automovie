@@ -19,7 +19,7 @@ import { productionFilmEffectFrameRate } from "./productionFilmEffectFrameRate";
 import { sortProductionFilmEffectCues } from "./sortProductionFilmEffectCues";
 import { validateProductionFilmEffectIdentity } from "./validateProductionFilmEffectIdentity";
 
-/**
+/*
  * Materialize normalized film cues into current, deterministic effect streams.
  *
  * Every cue becomes one `IAutoMovieCompiledFilmEffect` in start-frame then
@@ -27,9 +27,9 @@ import { validateProductionFilmEffectIdentity } from "./validateProductionFilmEf
  * reduced `frameRate`, its half-open frame interval and a digest of all of
  * them. The inner stream steps one frame at a time, spans the exact boundary
  * seconds of the interval, holds the cue's intensity constant, and takes its
- * seed from the film seed protocol of {@link materializeCompiledEffects}.
+ * seed from the film seed protocol of materializeCompiledEffects.
  *
- * Every refusal throws {@link AutoMovieFilmEffectRuntimeError}: a malformed
+ * Every refusal throws AutoMovieFilmEffectRuntimeError: a malformed
  * identity, rate, world id, shot interval or cue, or a repeated cue id, is
  * `film-effect-input-invalid`; a cue on an unknown zone is
  * `film-effect-zone-missing`; a zone whose recipe is unknown is
@@ -170,7 +170,9 @@ const validateCue = (cue: FilmEffectCue): void => {
     );
 };
 
-/** Validate every shot interval and group them by zone in input order. */
+/*
+ * Validate every shot interval and group them by zone in input order.
+ */
 const groupShotIntervals = (
   intervals: readonly IAutoMovieShotEffectFilmInterval[],
 ): Map<string, IAutoMovieShotEffectFilmInterval[]> => {

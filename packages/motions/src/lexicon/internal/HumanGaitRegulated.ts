@@ -7,7 +7,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { HUMAN_DRILL_CADENCES } from "./HUMAN_DRILL_CADENCES";
 import { HumanGait } from "./HumanGait";
 
-/**
+/*
  * A march's cadence and step in metres: its regulation's time and pace, or TC
  * 3-21.5's quick time.
  */
@@ -33,7 +33,9 @@ export function HumanGaitRegulated(
   return { cadence, step: row.pace };
 }
 
-/** The record of `IRegulatedResult`'s site. */
+/*
+ * The record of `IRegulatedResult`'s site.
+ */
 type IRegulatedResult = {
   cadence: number;
   step: number;

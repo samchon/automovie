@@ -3,7 +3,7 @@ import type { IAutoMovieConstructionPortLoop } from "@automovie/interface";
 import { adjacentAutoMovieFloat64 } from "../../../math/internal/adjacentAutoMovieFloat64";
 import { AutoMovieConstructionPortAddress } from "./AutoMovieConstructionPortAddress";
 
-/**
+/*
  * A finite inward radial endpoint whose literal port address stays admitted.
  *
  * `station` is the actual closed source domain in kernel mm; `phase` is the
@@ -48,7 +48,7 @@ export function AutoMovieConstructionPortRadialRange(
       "Port radial range needs finite increasing closed source and phase bounds.",
     );
 
-  /**
+  /*
    * Certify the actual composed Float64 address without reading or moving a
    * source.
    */
@@ -68,7 +68,7 @@ export function AutoMovieConstructionPortRadialRange(
   };
   admit(originalShare, "original control");
 
-  /**
+  /*
    * Bound one original multiply-multiply-add coordinate. The amplitude is
    * positive; a zero final direction has no upper limit. Negative sense in
    * phase is an exact sign change, not a regrouping of the address evaluator.

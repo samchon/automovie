@@ -3,7 +3,7 @@ import type * as THREE from "three";
 import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
-/**
+/*
  * Release owned tier geometry, material objects and every declared gait table.
  * Host-owned promoted heroes and model input declarations are never disposed.
  * Shared material identities are released once across the supplied tiers.

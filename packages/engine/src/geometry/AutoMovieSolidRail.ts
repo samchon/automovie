@@ -329,7 +329,7 @@ export namespace AutoMovieSolidRail {
     };
   }
 
-  /**
+  /*
    * Unit normal of the plane spanned by the preimage jet j's surface normal and
    * the world image of square chart direction e; failed normalization returns
    * [0,0,0].
@@ -342,7 +342,7 @@ export namespace AutoMovieSolidRail {
     return unit(cross(cross(j.u, j.v), d)) ?? [0, 0, 0];
   }
 
-  /**
+  /*
    * From a nearby chart start, solve (S-from).m=0 and |S-from|²=width² with
    * world point from and positive chord width in mm and unit plane normal m;
    * return a chart pair or null on failed Newton/degenerate direction. An
@@ -366,7 +366,7 @@ export namespace AutoMovieSolidRail {
     );
   }
 
-  /**
+  /*
    * From surface jet j and preimage chart tangent (u',v'), return the
    * inverse-metric square chart direction at unit world speed, signed along
    * world direction toward for side=1 and against it for -1; return null for a
@@ -408,7 +408,7 @@ export namespace AutoMovieSolidRail {
     return [e[0] * turn, e[1] * turn];
   }
 
-  /**
+  /*
    * Solve chart distance l along the jet callback along(l) and chart direction
    * d at positive world chord width from world point from, both in mm. The
    * initial remaining-chord guess is start or width, divided by world speed;

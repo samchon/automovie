@@ -1,6 +1,6 @@
 import type { IAutoMovieSelectTriangleRegion } from "@automovie/interface";
 
-/**
+/*
  * Select the connected triangle patch on the inward side of an oriented mesh
  * boundary.
  *
@@ -14,14 +14,13 @@ import type { IAutoMovieSelectTriangleRegion } from "@automovie/interface";
  * three distinct vertices. A boundary edge missing from the mesh is refused, a
  * loop that does not separate the surface is refused, and on an open surface
  * the patch may not reach a free edge outside the supplied boundary.
- *
- * @param props.indices Triangle corner indices, three per triangle.
- * @param props.boundary Distinct vertex indices of the closed loop, at least
- *   three, wound like the selected faces.
- * @returns Sorted original triangle ordinals of the patch, suitable for removal
- *   without renumbering.
- * @throws Error naming the failed requirement when the input or boundary breaks
- *   any rule above.
+ * Parameter props.indices: Triangle corner indices, three per triangle.
+ * Parameter props.boundary: Distinct vertex indices of the closed loop, at least
+ * three, wound like the selected faces.
+ * Returns: Sorted original triangle ordinals of the patch, suitable for removal
+ * without renumbering.
+ * Error naming the failed requirement when the input or boundary breaks
+ * any rule above.
  */
 export function selectAutoMovieTriangleRegion(
   props: IAutoMovieSelectTriangleRegion.IProps,
@@ -121,7 +120,9 @@ export function selectAutoMovieTriangleRegion(
   return [...selected].sort((a: number, b: number): number => a - b);
 }
 
-/** One directed use of an undirected edge by a source triangle. */
+/*
+ * One directed use of an undirected edge by a source triangle.
+ */
 interface IEdgeUse {
   triangle: number;
   a: number;

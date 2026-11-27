@@ -11,19 +11,20 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { resolveHumanPostureSource } from "../../posture/internal/resolveHumanPostureSource";
 import { rangeSteppingFoot } from "./rangeSteppingFoot";
 
-/** The rotating push and landing have two direct arms to clear, in this order. */
+/*
+ * The rotating push and landing have two direct arms to clear, in this order.
+ */
 const ARMS: readonly AutoMovieHumanSide[] = ["left", "right"];
-/**
+/*
  * Fit the reaching foot during push-off and clear the arms against the bent
  * legs.
- *
- * @param body The jumping body's limb lengths and collision geometry.
- * @param posture The ground phase's actual lowered posture and world goals.
- * @param phase The reaching side during push-off, or the two-foot landing.
- * @param read The operation's FK reader, shared with lowering and fitting.
- * @param solved The stepping foot's prepared pitch (`rangeSteppingFoot.pitch`).
- * @returns Corrected ground-phase demands for both endpoint construction and
- *   playback.
+ * Parameter body: The jumping body's limb lengths and collision geometry.
+ * Parameter posture: The ground phase's actual lowered posture and world goals.
+ * Parameter phase: The reaching side during push-off, or the two-foot landing.
+ * Parameter read: The operation's FK reader, shared with lowering and fitting.
+ * Parameter solved: The stepping foot's prepared pitch (`rangeSteppingFoot.pitch`).
+ * Returns: Corrected ground-phase demands for both endpoint construction and
+ * playback.
  */
 export function jumpGroundPosture(
   body: IAutoMovieMotionHumanBody,
@@ -49,9 +50,13 @@ export function jumpGroundPosture(
   );
 }
 
-/** Native observation of the ground writer and its same-instant leg fit. */
+/*
+ * Native observation of the ground writer and its same-instant leg fit.
+ */
 export namespace jumpGroundPosture {
-  /** Prepare the arm clearance hints over a fixed push or landing phase. */
+  /*
+   * Prepare the arm clearance hints over a fixed push or landing phase.
+   */
   export function course(
     body: IAutoMovieMotionHumanBody,
     from: number,
@@ -83,17 +88,16 @@ export namespace jumpGroundPosture {
     );
   }
 
-  /**
+  /*
    * The ground writer's sample: the legs lowered onto the stepping foot's
    * range, fitted, and both arms cleared of those fitted legs.
-   *
-   * @param body The body.
-   * @param posture The ground posture.
-   * @param phase The stepping foot, or the landing.
-   * @param read The forward-kinematics reader.
-   * @param projection The range-of-motion projector, if borrowed.
-   * @param solved The stepping foot's solved range, if any.
-   * @returns The sample.
+   * Parameter body: The body.
+   * Parameter posture: The ground posture.
+   * Parameter phase: The stepping foot, or the landing.
+   * Parameter read: The forward-kinematics reader.
+   * Parameter projection: The range-of-motion projector, if borrowed.
+   * Parameter solved: The stepping foot's solved range, if any.
+   * Returns: The sample.
    */
   export function sample(
     body: IAutoMovieMotionHumanBody,
@@ -125,8 +129,12 @@ export namespace jumpGroundPosture {
     return { posture: cleared };
   }
 }
-/** The alternatives of `JumpGroundPosturePhase`'s site. */
+/*
+ * The alternatives of `JumpGroundPosturePhase`'s site.
+ */
 type JumpGroundPosturePhase = "left" | "right" | "landing";
 
-/** The alternatives of `JumpGroundPostureSamplePhase`'s site. */
+/*
+ * The alternatives of `JumpGroundPostureSamplePhase`'s site.
+ */
 type JumpGroundPostureSamplePhase = "left" | "right" | "landing";

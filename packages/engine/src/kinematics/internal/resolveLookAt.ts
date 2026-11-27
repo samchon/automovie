@@ -11,12 +11,12 @@ import {
 
 import { GAZE_PRESET_CHANNELS } from "../GAZE_PRESET_CHANNELS";
 
-/**
+/*
  * Turn the gaze channels of a sampled expression into eye-bone rotations, for a
- * model whose {@link IAutoMovieLookAt} is `"bone"`.
+ * model whose IAutoMovieLookAt is `"bone"`.
  *
  * Each eye channel's weight is its gaze preset's expansion
- * ({@link GAZE_PRESET_CHANNELS}) times the preset intensity, replaced by the
+ * (GAZE_PRESET_CHANNELS) times the preset intensity, replaced by the
  * expression's own blendshape for that channel when it lists one, and clamped
  * to `[0, 1]` with a non-finite value read as `0`, the rules the viewer's morph
  * expansion applies. A weight scales the declared range in its direction
@@ -37,9 +37,8 @@ import { GAZE_PRESET_CHANNELS } from "../GAZE_PRESET_CHANNELS";
  * Returns `sample` itself when `lookAt` is absent or `"expression"`, or when
  * the expression carries no gaze channel; otherwise a new sample that shares
  * the untouched joints and root with `sample`.
- *
- * @param sample A sampled pose and expression, as from `sampleMotion`.
- * @param lookAt The model's gaze declaration, or `undefined` for none.
+ * Parameter sample: A sampled pose and expression, as from `sampleMotion`.
+ * Parameter lookAt: The model's gaze declaration, or `undefined` for none.
  */
 export function resolveLookAt(
   sample: IAutoMovieMotionSample,
@@ -147,18 +146,28 @@ export function resolveLookAt(
   };
 }
 
-/** One eye's four gaze channels. */
+/*
+ * One eye's four gaze channels.
+ */
 interface IEyeChannels {
-  /** Turns the eye up. */
+  /*
+   * Turns the eye up.
+   */
   up: AutoMovieArkitChannel;
 
-  /** Turns the eye down. */
+  /*
+   * Turns the eye down.
+   */
   down: AutoMovieArkitChannel;
 
-  /** Turns the eye toward the nose. */
+  /*
+   * Turns the eye toward the nose.
+   */
   in: AutoMovieArkitChannel;
 
-  /** Turns the eye away from the nose. */
+  /*
+   * Turns the eye away from the nose.
+   */
   out: AutoMovieArkitChannel;
 }
 
@@ -181,12 +190,16 @@ const GAZE_CHANNELS: ReadonlySet<AutoMovieArkitChannel> = new Set([
   ...Object.values(RIGHT),
 ]);
 
-/** Add a turn to an authored angle, keeping `null` (at rest) for no turn. */
+/*
+ * Add a turn to an authored angle, keeping `null` (at rest) for no turn.
+ */
 const add: (angle: number | null, turn: number) => number | null = (
   angle: number | null,
   turn: number,
 ): number | null => (angle === null && turn === 0 ? null : (angle ?? 0) + turn);
 
-/** Clamp a weight to `[0, 1]`. */
+/*
+ * Clamp a weight to `[0, 1]`.
+ */
 const unit: (value: number) => number = (value: number): number =>
   Math.max(0, Math.min(1, value));

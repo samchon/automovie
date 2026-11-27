@@ -15,22 +15,21 @@ import { autoMovieEnvironmentInstant } from "./autoMovieEnvironmentInstant";
 import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
 import { validateAutoMovieEnvironmentContext } from "./validateAutoMovieEnvironmentContext";
 
-/**
+/*
  * Refuse a daylight request no honest study can be made from, and resolve the
  * instant and the workplane frame it names.
  *
  * Authoring mistakes throw rather than becoming an `unsupported` run: an
  * unsupported run is a true statement about the host's capability, and using it
  * for a degenerate grid would turn a bug report into a capability claim. The
- * refused inputs are those {@link IAutoMovieDaylightRequest} lists, checked in
+ * refused inputs are those IAutoMovieDaylightRequest lists, checked in
  * field order, and the first one throws an `Error` naming it.
  *
  * The returned axes are the normalized workplane axes, and the normal is their
  * normalized right-handed cross product, the face the study measures. The
  * instant is the context's own record, or `null` when the request names none.
- *
- * @param request Daylight or artificial-light study to check.
- * @returns The resolved instant and the unit frame of the workplane.
+ * Parameter request: Daylight or artificial-light study to check.
+ * Returns: The resolved instant and the unit frame of the workplane.
  */
 export function resolveAutoMovieDaylightRequest(
   request: IAutoMovieDaylightRequest,
@@ -123,5 +122,7 @@ export function resolveAutoMovieDaylightRequest(
   return { instant, normal: Vector3.normalize(normal), axisU, axisV };
 }
 
-/** Directions this short or shorter are degenerate. */
+/*
+ * Directions this short or shorter are degenerate.
+ */
 const EPSILON: number = 1e-12;

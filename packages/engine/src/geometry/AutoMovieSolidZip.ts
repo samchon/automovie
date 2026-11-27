@@ -102,10 +102,12 @@ export namespace AutoMovieSolidZip {
   }
 }
 
-/** A whole turn. */
+/*
+ * A whole turn.
+ */
 const TWO_PI: number = 2 * Math.PI;
 
-/**
+/*
  * An angle step reduced to `[-pi, pi)` under ordinary representable turn
  * arithmetic.
  */
@@ -113,13 +115,17 @@ function wrap(t: number): number {
   return t - TWO_PI * Math.round(t / TWO_PI);
 }
 
-/** An angle reduced to `[0, 2 pi)`. */
+/*
+ * An angle reduced to `[0, 2 pi)`.
+ */
 function reduce(t: number): number {
   const r: number = t % TWO_PI;
   return r < 0 ? r + TWO_PI : r;
 }
 
-/** An angle step reduced to `[0, 2 pi)`. */
+/*
+ * An angle step reduced to `[0, 2 pi)`.
+ */
 function positive(t: number): number {
   return reduce(t);
 }

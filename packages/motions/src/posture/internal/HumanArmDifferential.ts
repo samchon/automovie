@@ -6,7 +6,7 @@ import type {
 
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 
-/**
+/*
  * Differential inverse kinematics of an arm: the coordinates' step that moves a
  * point the hand carries by a small displacement, by damped least squares
  * (Wampler 1986, "Manipulator inverse kinematic solutions based on vector
@@ -14,18 +14,17 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
  * the hold's seed and the follower map a site's motion onto the arm with.
  */
 export namespace HumanArmDifferential {
-  /**
+  /*
    * One damped least-squares step: `Jᵀ(JJᵀ + λ²I)⁻¹ r`, the contact's Jacobian
    * in the arm's free coordinates by central differences, `λ²` a millionth of
    * the Jacobian's own scale so a singular arm takes a bounded step. A zero
    * displacement gives a zero step.
-   *
-   * @param setup The arm.
-   * @param frame What the arm is read against.
-   * @param q The coordinates.
-   * @param contact The point the hand carries, in its frame from the wrist.
-   * @param r The displacement, metres.
-   * @returns The coordinates' step.
+   * Parameter setup: The arm.
+   * Parameter frame: What the arm is read against.
+   * Parameter q: The coordinates.
+   * Parameter contact: The point the hand carries, in its frame from the wrist.
+   * Parameter r: The displacement, metres.
+   * Returns: The coordinates' step.
    */
   export function step(
     setup: IAutoMovieMotionHumanArmGeometry.ISetup,
@@ -95,7 +94,7 @@ export namespace HumanArmDifferential {
   }
 }
 
-/**
+/*
  * The six symmetric entries and right-hand side of the same three-by-three
  * Cramer expansion, without temporary matrix rows.
  */
@@ -131,7 +130,7 @@ function solve3(
   ];
 }
 
-/**
+/*
  * The original left-to-right determinant expansion, with scalar entries instead
  * of temporary matrix copies.
  */
@@ -149,5 +148,7 @@ function determinant(
   return a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
 }
 
-/** The coordinate step of the Jacobian's central differences, coordinate units. */
+/*
+ * The coordinate step of the Jacobian's central differences, coordinate units.
+ */
 const H: number = 0.05;

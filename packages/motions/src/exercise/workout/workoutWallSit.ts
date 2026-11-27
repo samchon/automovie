@@ -8,14 +8,16 @@ import { HumanMaterialContact } from "../../posture/internal/HumanMaterialContac
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/** The torso bones whose exterior can carry wall reaction. */
+/*
+ * The torso bones whose exterior can carry wall reaction.
+ */
 const TORSO: ReadonlySet<AutoMovieHumanoidBone> = new Set([
   "hips",
   "spine",
   "chest",
 ]);
 
-/**
+/*
  * Fit the held wall sit to its named fixed face and verify the floor friction
  * needed to balance the resulting frictionless-wall reaction. Preserve the
  * lower-body goals through entry, hold and release.
@@ -159,12 +161,12 @@ export function workoutWallSit(
   };
 }
 
-/**
+/*
  * Moment balance for a frictionless wall (Biscarini et al. 2020, Fig. 1 and
  * Eqs. 12–16, doi:10.3390/app10093019).
  */
 export namespace workoutWallSit {
-  /**
+  /*
    * Wall normal divided by body weight. The floor normal equals body weight and
    * the floor's tangential share has the opposite sign. Distances use the
    * horizontal wall-normal axis and metres.
@@ -178,7 +180,7 @@ export namespace workoutWallSit {
   }
 }
 
-/**
+/*
  * Slice the convex floor support through the centre of mass, parallel to the
  * wall normal. Use the actual sole outlines to bound the pressure's sagittal
  * lever when a lateral offset places it near a footprint edge.
@@ -216,7 +218,9 @@ function pressureRange(
     : [Math.min(...bounds), Math.max(...bounds)];
 }
 
-/** Report a fixed-face fit or support failure at the named wall. */
+/*
+ * Report a fixed-face fit or support failure at the named wall.
+ */
 function refusal(face: string, reason: string): HumanRefusal {
   return new HumanRefusal({
     kind: "affordance",

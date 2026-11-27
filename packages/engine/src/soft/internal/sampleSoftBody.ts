@@ -6,7 +6,7 @@ import {
 import { simulateSoftBody } from "./simulateSoftBody";
 import { softBodyStepAt } from "./softBodyStepAt";
 
-/**
+/*
  * Sample the static cloth trajectory at a shot second by snapping to its
  * fixed-clock step. Nonfinite time throws; negative finite time samples rest.
  * This public sampling API currently has no production/viewer caller.

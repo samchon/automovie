@@ -7,7 +7,7 @@ import {
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 
-/**
+/*
  * Validate authored citations from a normalized design to its evidence.
  *
  * A citation may point at an unsettled reading on purpose: recording that a
@@ -22,10 +22,9 @@ import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEng
  * Findings use `$input.evidence[i]` paths and nothing throws. Two references
  * sharing an id are merged into one candidate set here rather than refused; the
  * production builder reports that collision as `design-reference-duplicate`.
- *
- * @param props.references Observed documents the citations may point at.
- * @param props.evidence Authored citations to judge.
- * @returns Success, or every violation found.
+ * Parameter props.references: Observed documents the citations may point at.
+ * Parameter props.evidence: Authored citations to judge.
+ * Returns: Success, or every violation found.
  */
 export function validateDesignEvidence(
   props: IAutoMovieValidateDesignEvidence.IProps,

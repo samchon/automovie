@@ -1,6 +1,6 @@
 import { IAutoMovieProductionFrameRate } from "@automovie/interface";
 
-/**
+/*
  * Estimate a frame from the float product, or `null` when it cannot be exact.
  *
  * The product `seconds * numerator / denominator`, rounded by the caller's

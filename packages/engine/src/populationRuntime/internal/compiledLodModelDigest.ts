@@ -3,7 +3,7 @@ import { IAutoMovieModel } from "@automovie/interface";
 import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 
-/**
+/*
  * Content digest for one LOD tier's model group reference.
  *
  * An absent group hashes a marker naming the missing reference. A group that

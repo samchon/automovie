@@ -12,7 +12,7 @@ import { admitRecoveryCameraMap } from "./admitRecoveryCameraMap";
 import { createRecoveryCameraMap } from "./createRecoveryCameraMap";
 import { observeRecoveryCameraSet } from "./observeRecoveryCameraSet";
 
-/**
+/*
  * Observe three fixed calibrated RGB images and register a sparse camera triad.
  * The first two are the explicit seed; the third is resected against their
  * independently triangulated points before joint reprojection refinement.

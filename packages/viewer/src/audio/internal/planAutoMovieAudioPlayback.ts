@@ -1,6 +1,6 @@
 import type { AutoMovieViewerAudio } from "../AutoMovieViewerAudio.js";
 
-/**
+/*
  * Which cues sound when playback starts at a film instant and runs at a
  * transport rate, and how each is started: a cue already sounding starts at
  * once part-way into its excerpt, a later cue after its film delay divided by
@@ -8,9 +8,8 @@ import type { AutoMovieViewerAudio } from "../AutoMovieViewerAudio.js";
  * the cue's own rate times the elapsed film seconds, and the playback rate
  * multiplies the cue rate by the transport rate. Pure, so a seek and a resume
  * plan the same playback from the same instant.
- *
- * @param request Cues, film instant, transport rate and source lengths.
- * @returns One start per sounding cue, in cue order.
+ * Parameter request: Cues, film instant, transport rate and source lengths.
+ * Returns: One start per sounding cue, in cue order.
  */
 export function planAutoMovieAudioPlayback(
   request: AutoMovieViewerAudio.IPlanPlaybackRequest,

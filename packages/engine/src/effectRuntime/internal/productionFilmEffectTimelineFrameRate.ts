@@ -6,7 +6,7 @@ import {
 import { resolveProductionFrameRate } from "../../film/internal/resolveProductionFrameRate";
 import { AutoMovieFilmEffectRuntimeError } from "../AutoMovieFilmEffectRuntimeError";
 
-/**
+/*
  * Resolve the timeline's exact rate for a film-effect question, or refuse it.
  *
  * The declared `frameRate` is reduced, or `fps` is read as `fps/1` when no

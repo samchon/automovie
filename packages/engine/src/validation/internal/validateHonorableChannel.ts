@@ -6,7 +6,7 @@ import type {
 
 import { pushViolation } from "./pushViolation";
 
-/**
+/*
  * Require node channels, matching transform-clip appliers: the pipeline
  * resolves node channels onto scene nodes and honors no other target on a
  * transform clip.

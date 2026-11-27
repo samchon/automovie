@@ -26,7 +26,7 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel } from "./HumanArmTrajectoryTravel";
 import { placeHumanArmGeometry } from "./placeHumanArmGeometry";
 
-/**
+/*
  * Step a hand contact along a world-space site. Keeping the distal angles fixed
  * turns its offset into part of the elbow-to-contact link. The hinge equation
  * gives both flexion roots and each root's shoulder swivel circle. Search
@@ -35,15 +35,14 @@ import { placeHumanArmGeometry } from "./placeHumanArmGeometry";
  * incoming or authored hand attitude through native distal twist. A candidate's
  * contact is on its site within the region's disc and the model's tolerance,
  * the trajectory admission's own test.
- *
- * @param c Original action geometry and physical bounds.
- * @param a Arm index in course order.
- * @param k The contact frame on the original action clock.
- * @param reference Source coordinates in the native arm chart.
- * @param from The adjacent frame on a continuation, omitted for terminal
- *   components.
- * @returns The nearest admitted continuation or representatives of the
- *   disconnected sampled components.
+ * Parameter c: Original action geometry and physical bounds.
+ * Parameter a: Arm index in course order.
+ * Parameter k: The contact frame on the original action clock.
+ * Parameter reference: Source coordinates in the native arm chart.
+ * Parameter from: The adjacent frame on a continuation, omitted for terminal
+ * components.
+ * Returns: The nearest admitted continuation or representatives of the
+ * disconnected sampled components.
  */
 export function HumanArmTrajectoryContactCircle(
   c: M.IContext,
@@ -344,34 +343,56 @@ export function HumanArmTrajectoryContactCircle(
   return [];
 }
 
-/** A reachable flexion root and its nearest shoulder swivel in degrees. */
+/*
+ * A reachable flexion root and its nearest shoulder swivel in degrees.
+ */
 interface IBranch {
-  /** Clinical elbow flexion, degrees. */
+  /*
+   * Clinical elbow flexion, degrees.
+   */
   angle: number;
-  /** Swivel nearest the incoming shoulder, degrees. */
+  /*
+   * Swivel nearest the incoming shoulder, degrees.
+   */
   center: number;
-  /** Native shoulder pose at a swivel, degrees. */
+  /*
+   * Native shoulder pose at a swivel, degrees.
+   */
   pose: IAutoMovieHingedArmSwivel.IPoseResult;
-  /** World hand attitude for a wrist-targeted circle. */
+  /*
+   * World hand attitude for a wrist-targeted circle.
+   */
   hand?: IAutoMovieQuaternion;
-  /** The elbow's circle about the swivel axis, prepared for continuation. */
+  /*
+   * The elbow's circle about the swivel axis, prepared for continuation.
+   */
   circle?: ICircle;
 }
 
-/** A branch's elbow circle as a continuation reads it. */
+/*
+ * A branch's elbow circle as a continuation reads it.
+ */
 interface ICircle {
-  /** The circle's radius, metres. */
+  /*
+   * The circle's radius, metres.
+   */
   radius: number;
-  /** The elbow's step at the branch's centre from the frame before, metres. */
+  /*
+   * The elbow's step at the branch's centre from the frame before, metres.
+   */
   step: number;
 }
 
-/** Whether an established pair's depth exceeds the same admission slack. */
+/*
+ * Whether an established pair's depth exceeds the same admission slack.
+ */
 function rejectsPair(short: number): boolean {
   return short - T.SKIN > M.TOLERANCE;
 }
 
-/** Inner product of quaternion coefficients in the native swivel harmonic. */
+/*
+ * Inner product of quaternion coefficients in the native swivel harmonic.
+ */
 function dot(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number {
   return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 }

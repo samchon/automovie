@@ -10,7 +10,7 @@ import type {
 import { IDENTITY_FORMATION_SLOT_STATE } from "../../../constants/IDENTITY_FORMATION_SLOT_STATE";
 import { formationSlotPosition } from "./formationSlotPosition";
 
-/**
+/*
  * Turn a level-stage mark sheet into ordinary sparse member-motion cues.
  *
  * Supply the fixed design with its admitted layout. Sets must be in
@@ -22,12 +22,11 @@ import { formationSlotPosition } from "./formationSlotPosition";
  * unit layout and spacing for the named marks to describe exact destinations.
  * This compiles root placement. Existing gait and shot clearance checks retain
  * ownership of foot motion and clearance.
- *
- * @param design The admitted formation design that owns the named slots.
- * @param sets Chronological assignments in shot-local seconds.
- * @returns Fresh member cue records in set and mark order.
- * @throws {RangeError} For conflicting intervals or identity, missing or
- *   promoted slots, and nonfinite marks or offsets.
+ * Parameter design: The admitted formation design that owns the named slots.
+ * Parameter sets: Chronological assignments in shot-local seconds.
+ * Returns: Fresh member cue records in set and mark order.
+ * For conflicting intervals or identity, missing or
+ * promoted slots, and nonfinite marks or offsets.
  */
 export function compileFormationStageMarks(
   design: IAutoMovieFormationDesign,

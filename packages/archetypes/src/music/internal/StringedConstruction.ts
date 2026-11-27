@@ -7,25 +7,30 @@ import {
 } from "../../core";
 import type { AutoMovieArchetypeInstrument } from "../AutoMovieArchetypeInstrument";
 
-/** The shorthand every construction uses. */
+/*
+ * The shorthand every construction uses.
+ */
 const v: typeof Vector3.create = Vector3.create;
 
-/** Varnished wood. */
+/*
+ * Varnished wood.
+ */
 const WOOD: string = "#8a5a2b";
 
-/** An ebony fingerboard. */
+/*
+ * An ebony fingerboard.
+ */
 const EBONY: string = "#1f1a17";
 
-/**
+/*
  * Lay the strings from the nut to the bridge, each a `bar` named `string<n>`,
  * `string1` on the `-Z` edge.
- *
- * @param builder The builder to fill.
- * @param count How many strings.
- * @param nut The nut's middle, where the strings leave it, metres.
- * @param bridge The bridge's middle, where the strings meet it, metres.
- * @param atNut The outer strings' span at the nut, metres.
- * @param atBridge Their span at the bridge, metres.
+ * Parameter builder: The builder to fill.
+ * Parameter count: How many strings.
+ * Parameter nut: The nut's middle, where the strings leave it, metres.
+ * Parameter bridge: The bridge's middle, where the strings meet it, metres.
+ * Parameter atNut: The outer strings' span at the nut, metres.
+ * Parameter atBridge: Their span at the bridge, metres.
  */
 function strings(
   builder: Builder,
@@ -59,8 +64,8 @@ function strings(
   }
 }
 
-/**
- * How {@link createInstrument} builds its stringed instruments: a steel-string
+/*
+ * How createInstrument builds its stringed instruments: a steel-string
  * guitar and a violin, each lying on its back with its neck toward `+X`.
  *
  * Fret positions follow equal temperament: the `n`th fret stands `scale (1 -
@@ -70,13 +75,17 @@ function strings(
  * only parts no act reads.
  */
 export namespace StringedConstruction {
-  /** A steel-string guitar's frets, as the Martin D-28 has them. */
+  /*
+   * A steel-string guitar's frets, as the Martin D-28 has them.
+   */
   export const FRETS: number = 20;
 
-  /** The fret where the guitar's neck meets its body, as the Martin D-28 has it. */
+  /*
+   * The fret where the guitar's neck meets its body, as the Martin D-28 has it.
+   */
   export const JOINT: number = 14;
 
-  /**
+  /*
    * The construction sizes no source read gives, metres, each an estimate no
    * act reads and no band declares: `neck`, a guitar neck's depth under the
    * soundboard's plane; `head`, its headstock's length; `scroll`, a violin's
@@ -92,19 +101,18 @@ export namespace StringedConstruction {
     scroll: 0.09,
   };
 
-  /**
+  /*
    * A fret's distance from the nut along the string.
-   *
-   * @param scale The string's sounding length from the nut to the saddle,
-   *   metres.
-   * @param fret The fret's number, 0 for the nut.
-   * @returns The distance, metres.
+   * Parameter scale: The string's sounding length from the nut to the saddle,
+   * metres.
+   * Parameter fret: The fret's number, 0 for the nut.
+   * Returns: The distance, metres.
    */
   export function fret(scale: number, fret: number): number {
     return scale * (1 - Math.pow(2, -fret / 12));
   }
 
-  /**
+  /*
    * A steel-string guitar lying on its back: the body from its tail at `-X` to
    * the neck joint at the origin's `X`, the neck from there to the nut at the
    * fourteenth fret's distance, and the headstock beyond.
@@ -117,9 +125,8 @@ export namespace StringedConstruction {
    * the nut is wide; `neck` the neck between the nut and the body, gripped by
    * the fretting hand; `body` the soundboard between the neck's end and the
    * saddle, where the strumming hand meets the strings.
-   *
-   * @param builder The builder to fill.
-   * @param d The drawn dimensions.
+   * Parameter builder: The builder to fill.
+   * Parameter d: The drawn dimensions.
    */
   export function guitar(builder: Builder, d: Drawn): void {
     const E: typeof ESTIMATES = ESTIMATES;
@@ -195,7 +202,7 @@ export namespace StringedConstruction {
     });
   }
 
-  /**
+  /*
    * A violin lying on its back: the body as its lower bout, waist and upper
    * bout from the tail at `-X` to the neck's root at the origin's `X`, the rib
    * height deep, the neck to the nut and the pegbox and scroll beyond.
@@ -209,9 +216,8 @@ export namespace StringedConstruction {
    * The strings run their 327 mm from the nut, the neck's 138 mm off the body,
    * so the bridge falls 5 mm short of the 194 mm body stop the sheet also
    * gives: the string length wins, as the length the fingers stop.
-   *
-   * @param builder The builder to fill.
-   * @param d The drawn dimensions.
+   * Parameter builder: The builder to fill.
+   * Parameter d: The drawn dimensions.
    */
   export function violin(builder: Builder, d: Drawn): void {
     const E: typeof ESTIMATES = ESTIMATES;
@@ -271,11 +277,15 @@ export namespace StringedConstruction {
   }
 }
 
-/** The builder every construction fills. */
+/*
+ * The builder every construction fills.
+ */
 type Builder = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeInstrument.Affordance,
   AutoMovieArchetypeInstrument.Dimension
 >;
 
-/** The drawn dimensions. */
+/*
+ * The drawn dimensions.
+ */
 type Drawn = Partial<Record<AutoMovieArchetypeInstrument.Dimension, number>>;

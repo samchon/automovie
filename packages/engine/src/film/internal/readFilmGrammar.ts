@@ -16,7 +16,7 @@ import { inspectGrammarCut } from "./inspectGrammarCut";
 import { measureGrammarShotSize } from "./measureGrammarShotSize";
 import { normalizeGrammarShot } from "./normalizeGrammarShot";
 
-/**
+/*
  * Reads an ordered edit mechanically and reports the film-grammar findings no
  * declared exception excepted, together with the declarations that excepted
  * nothing.
@@ -35,9 +35,8 @@ import { normalizeGrammarShot } from "./normalizeGrammarShot";
  * Shot order is editorial meaning and is kept. Subject order and action-axis
  * endpoint order are canonicalized, so they cannot change the result, and the
  * read uses no seed, clock, scene mutation or renderer.
- *
- * @param props The edited shots and the jump-cut and re-establish thresholds.
- * @returns The unexcepted findings in filing order and the unexercised claims.
+ * Parameter props: The edited shots and the jump-cut and re-establish thresholds.
+ * Returns: The unexcepted findings in filing order and the unexercised claims.
  */
 export function readFilmGrammar(
   props: IAutoMovieGrammarInput,
@@ -141,22 +140,30 @@ export function readFilmGrammar(
   };
 }
 
-/** Default smallest camera-bearing change of a same-size cut, in degrees. */
+/*
+ * Default smallest camera-bearing change of a same-size cut, in degrees.
+ */
 const DEFAULT_MINIMUM_CUT_ANGLE_DEGREES: number = 30;
 
-/** Default primary-subject displacement that demands a wide shot, in metres. */
+/*
+ * Default primary-subject displacement that demands a wide shot, in metres.
+ */
 const DEFAULT_REESTABLISH_DISTANCE: number = 10;
 
-/** A shot's size at one boundary, as `measureGrammarShotSize` answers it. */
+/*
+ * A shot's size at one boundary, as `measureGrammarShotSize` answers it.
+ */
 type Framing = AutoMovieCameraFraming | null;
 
-/** Reads a shot's measured size at one boundary, measuring each pair once. */
+/*
+ * Reads a shot's measured size at one boundary, measuring each pair once.
+ */
 type ShotSizeOf = (
   shot: IAutoMovieNormalizedGrammarShot,
   boundary: "start" | "end",
 ) => Framing;
 
-/**
+/*
  * Shot and intent as one lookup key.
  *
  * Separated by a character no declared intent carries, so two distinct claims
@@ -166,7 +173,7 @@ function claimKey(shot: string, intent: AutoMovieGrammarStyleIntent): string {
   return `${shot}|${intent}`;
 }
 
-/**
+/*
  * A size reader that measures each shot boundary at most once per read; the
  * shot-size check, the jump-cut comparison and both re-establishing checks ask
  * for the same boundaries.
@@ -194,7 +201,9 @@ function memoizedShotSize(): ShotSizeOf {
   };
 }
 
-/** Files a shot-size finding when either boundary misses the declared size. */
+/*
+ * Files a shot-size finding when either boundary misses the declared size.
+ */
 function inspectShotSize(
   diagnostics: IAutoMovieGrammarDiagnostic[],
   shot: IAutoMovieNormalizedGrammarShot,

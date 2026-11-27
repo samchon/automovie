@@ -2,18 +2,17 @@
 import { AutoMovieEngineKinematics } from "../../kinematics/AutoMovieEngineKinematics";
 import { Quaternion } from "../../math/Quaternion";
 
-/**
+/*
  * Sample increasing knot seconds and their posed mass parts over a flight.
- *
- * @param grid Finite flight endpoints and an already validated uniform interval
- *   count. The turn in radians is a shortest-arc bound on the sampled frames.
- *   Infinity disables refinement.
- * @param maxKnots Maximum count representable by the caller's packed table.
- * @param read Pure pose evaluation at a second inside the span.
- * @returns Fresh parallel arrays of knot seconds and poses. Every accepted pair
- *   meets the turn bound when at least four uniform intervals were requested.
- * @throws {Error} If the grid cannot advance in representable seconds, a
- *   measured turn is nonfinite, or the table cannot hold the required knots.
+ * Parameter grid: Finite flight endpoints and an already validated uniform interval
+ * count. The turn in radians is a shortest-arc bound on the sampled frames.
+ * Infinity disables refinement.
+ * Parameter maxKnots: Maximum count representable by the caller's packed table.
+ * Parameter read: Pure pose evaluation at a second inside the span.
+ * Returns: Fresh parallel arrays of knot seconds and poses. Every accepted pair
+ * meets the turn bound when at least four uniform intervals were requested.
+ * If the grid cannot advance in representable seconds, a
+ * measured turn is nonfinite, or the table cannot hold the required knots.
  */
 export function tabulateAirborneShapeKnots(
   grid: IGrid,
@@ -69,7 +68,9 @@ export function tabulateAirborneShapeKnots(
   return { times, knots };
 }
 
-/** Uniform starting grid and the measured endpoint angle bound in radians. */
+/*
+ * Uniform starting grid and the measured endpoint angle bound in radians.
+ */
 interface IGrid {
   readonly from: number;
   readonly to: number;
@@ -77,16 +78,22 @@ interface IGrid {
   readonly turn: number;
 }
 
-/** Parallel owned arrays of increasing seconds and sampled poses. */
+/*
+ * Parallel owned arrays of increasing seconds and sampled poses.
+ */
 interface IKnots {
   times: number[];
   knots: AutoMovieEngineKinematics.IPosedBody[];
 }
 
-/** A posed shape at one representable second. */
+/*
+ * A posed shape at one representable second.
+ */
 type IKnot = readonly [seconds: number, pose: AutoMovieEngineKinematics.IPosedBody];
 
-/** Greatest shortest-arc angle in radians among matching principal frames. */
+/*
+ * Greatest shortest-arc angle in radians among matching principal frames.
+ */
 function maximumTurn(
   a: AutoMovieEngineKinematics.IPosedBody,
   b: AutoMovieEngineKinematics.IPosedBody,

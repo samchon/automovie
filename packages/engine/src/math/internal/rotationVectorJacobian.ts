@@ -2,7 +2,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { determinantAutoMovieMatrix3 } from "./determinantAutoMovieMatrix3";
 
-/**
+/*
  * The SO(3) right Jacobian and its inverse for body rotation vectors.
  *
  * Solà et al., A micro Lie theory, equations 68, 143 and 144:
@@ -12,7 +12,9 @@ import { determinantAutoMovieMatrix3 } from "./determinantAutoMovieMatrix3";
  * https://dlmf.nist.gov/4.19.E1 and https://dlmf.nist.gov/4.19.E2.
  */
 export namespace rotationVectorJacobian {
-  /** Apply Jr(r) to a rotation-vector derivative; return null on overflow. */
+  /*
+   * Apply Jr(r) to a rotation-vector derivative; return null on overflow.
+   */
   export function apply(
     r: IAutoMovieVector3,
     derivative: IAutoMovieVector3,
@@ -37,7 +39,9 @@ export namespace rotationVectorJacobian {
     return transform(r, derivative, -0.5 * sinc * sinc, b);
   }
 
-  /** Apply Jr(r)^-1 to a body rate within the first nonsingular chart. */
+  /*
+   * Apply Jr(r)^-1 to a body rate within the first nonsingular chart.
+   */
   export function inverse(
     r: IAutoMovieVector3,
     rate: IAutoMovieVector3,
@@ -65,7 +69,9 @@ export namespace rotationVectorJacobian {
     return transform(r, rate, 0.5, c);
   }
 
-  /** A rounded-zero cross gives the same zero terms in the finite chart. */
+  /*
+   * A rounded-zero cross gives the same zero terms in the finite chart.
+   */
   function parallel(r: IAutoMovieVector3, v: IAutoMovieVector3): boolean {
     return (
       r.y * v.z - r.z * v.y === 0 &&
@@ -74,7 +80,7 @@ export namespace rotationVectorJacobian {
     );
   }
 
-  /**
+  /*
    * Outside the first chart, only an exact zero cross admits an axial rate. The
    * existing determinant owner sums products of the input doubles exactly when
    * cancellation is uncertain. For these finite matrices its only throw is an
@@ -94,7 +100,9 @@ export namespace rotationVectorJacobian {
     }
   }
 
-  /** Apply I+p[r]+q[r]^2 without allocating the two cross products. */
+  /*
+   * Apply I+p[r]+q[r]^2 without allocating the two cross products.
+   */
   function transform(
     r: IAutoMovieVector3,
     v: IAutoMovieVector3,

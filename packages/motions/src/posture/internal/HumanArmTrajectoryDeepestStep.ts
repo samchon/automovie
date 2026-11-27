@@ -9,7 +9,7 @@ import type { HumanArmTrajectoryLinks } from "./HumanArmTrajectoryLinks";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 
-/**
+/*
  * A part's deepest probe past its allowance over one frame step, as a sweep
  * (`HumanArmTrajectorySweep.links`); none where no probe passes it. The step is
  * TrajOpt's: each probe's chord between the step's two poses, carried into the
@@ -18,17 +18,16 @@ import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
  * chord is bounded first by the shape's bounding sphere and read exactly only
  * where that bound could pass its allowance and the deepest so far (branch and
  * bound).
- *
- * @param c The context.
- * @param a The arm.
- * @param k The interval's first waypoint, whose frame of the shape the probes
- *   are carried into.
- * @param placed The arm placed at every waypoint, with its collider probes.
- * @param link The part.
- * @param shape The shape, by its index in the frame at `k`.
- * @param g0 The step's first waypoint.
- * @param g1 The step's last waypoint.
- * @returns The deepest probe's sweep past its allowance, or none.
+ * Parameter c: The context.
+ * Parameter a: The arm.
+ * Parameter k: The interval's first waypoint, whose frame of the shape the probes
+ * are carried into.
+ * Parameter placed: The arm placed at every waypoint, with its collider probes.
+ * Parameter link: The part.
+ * Parameter shape: The shape, by its index in the frame at `k`.
+ * Parameter g0: The step's first waypoint.
+ * Parameter g1: The step's last waypoint.
+ * Returns: The deepest probe's sweep past its allowance, or none.
  */
 export function HumanArmTrajectoryDeepestStep(
   c: M.IContext,

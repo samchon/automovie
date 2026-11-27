@@ -13,7 +13,7 @@ import { ArchetypeCourseLegs } from "../../core/internal/ArchetypeCourseLegs";
 import { BoatOars } from "./BoatOars";
 import { AutoMovieArchetypeBoat } from "../AutoMovieArchetypeBoat";
 
-/**
+/*
  * A rowboat rowed along a course: its root on the path, its oars swept through
  * the stroke cycle and lifted out of the water on the recovery, at a stroke
  * rate the speed sets, on still water or a seeded sea.
@@ -35,14 +35,13 @@ import { AutoMovieArchetypeBoat } from "../AutoMovieArchetypeBoat";
  * root and socket readers to the prop adapter. Both hold the initial pose
  * before the start. On still water they also hold the final pose strictly after
  * the course ends.
- *
- * @param boat The rowboat.
- * @param course The course its root follows, or its plan.
- * @param options `sea`, a sea the boat rides on (`AutoMovieArchetypeSea`);
- *   still water when absent.
- * @returns The ride.
- * @throws {AutoMovieArchetypeRefusal} When the boat has no oars, or as
- *   `AutoMovieArchetypeCourse.plan` does for a malformed course.
+ * Parameter boat: The rowboat.
+ * Parameter course: The course its root follows, or its plan.
+ * Parameter options: `sea`, a sea the boat rides on (`AutoMovieArchetypeSea`);
+ * still water when absent.
+ * Returns: The ride.
+ * When the boat has no oars, or as
+ * `AutoMovieArchetypeCourse.plan` does for a malformed course.
  */
 export function rowBoat(
   boat: AutoMovieArchetype<AutoMovieArchetypeBoat.Affordance, AutoMovieArchetypeBoat.Dimension>,
@@ -95,7 +94,9 @@ export function rowBoat(
     options.sea === undefined
       ? undefined
       : AutoMovieArchetypeSea.of(options.sea);
-  /** The root pose and sea do not depend on the articulated sockets. */
+  /*
+   * The root pose and sea do not depend on the articulated sockets.
+   */
   const floated = (
     placement: IAutoMovieTransform,
     seconds: number,
@@ -187,13 +188,17 @@ export function rowBoat(
   };
 }
 
-/** Complete rowboat state at a film second. */
+/*
+ * Complete rowboat state at a film second.
+ */
 type Sample = AutoMovieArchetypeRide.ISample<
   AutoMovieArchetypeBoat.Affordance,
   AutoMovieArchetypeBoat.Dimension
 >;
 
-/** A rowboat and its authored clock and articulation readers. */
+/*
+ * A rowboat and its authored clock and articulation readers.
+ */
 type Ride = AutoMovieArchetypeRide.IRide<
   AutoMovieArchetypeBoat.Affordance,
   AutoMovieArchetypeBoat.Dimension

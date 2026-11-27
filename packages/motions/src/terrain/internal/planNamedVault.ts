@@ -31,45 +31,47 @@ import { crossingSurface } from "./crossingSurface";
 import { prepareVaultArmFrames } from "./prepareVaultArmFrames";
 import { stepVaultSupport } from "./stepVaultSupport";
 
-/**
+/*
  * Where the palm bears along the top's depth, from its near edge (provisional:
  * behind the knee's path, ahead of the stepping foot).
  */
 const PALM_DEPTH: number = 0.37;
 
-/** Where the opposite foot bears along the top's depth (provisional). */
+/*
+ * Where the opposite foot bears along the top's depth (provisional).
+ */
 const FOOT_DEPTH: number = 0.73;
 
-/**
+/*
  * The swing waypoints' height above the top, foot lengths (provisional: a toe
  * clearance of about 0.15 m for an average foot).
  */
 const SWING_RISE: number = 0.59;
 
-/**
+/*
  * The swing waypoints' distance outside the near and far edges, foot lengths
  * (provisional).
  */
 const SWING_BUFFER: number = 0.58;
 
-/**
+/*
  * Seconds over which the vault's arm adjustments fade in at the start and out
  * at the end (provisional).
  */
 const EASE: number = 0.4;
 
-/**
+/*
  * Height of the palm's arc over the top on its way to and from it, forearm
  * lengths (provisional).
  */
 const ARC: number = 0.78;
 
-/**
+/*
  * Seconds of the lift that takes the palm clear of the top at its release
  * (provisional).
  */
 const PALM_PEEL: number = 0.05;
-/**
+/*
  * Cross a raised fixed top with one palm and the opposite foot bearing on it:
  * the step vault (`stepVaultSupport`) staged on the named surface. The stepping
  * foot passes waypoints above the near and far edges, the top holds the
@@ -77,14 +79,13 @@ const PALM_PEEL: number = 0.05;
  * flat through its window, peels it off after and lifts the free hand clear of
  * the top, and the clearance of the whole displayed body against the prop's
  * shapes is checked (`crossingClearance`).
- *
- * @param context The action's context.
- * @param frame The crossing frame at the entry.
- * @param ref The top surface.
- * @param hand The bearing hand.
- * @returns The vault, exiting standing beyond the far edge.
- * @throws {HumanRefusal} If the top is out of the hand-and-foot range, a key
- *   misses its contact or the body enters the prop.
+ * Parameter context: The action's context.
+ * Parameter frame: The crossing frame at the entry.
+ * Parameter ref: The top surface.
+ * Parameter hand: The bearing hand.
+ * Returns: The vault, exiting standing beyond the far edge.
+ * If the top is out of the hand-and-foot range, a key
+ * misses its contact or the body enters the prop.
  */
 export function planNamedVault(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrossing.IParams>,
@@ -251,12 +252,18 @@ export function planNamedVault(
   return HumanPreparedPlayback.rebindPosture(plan, supported, body);
 }
 
-/** Admission of the named step vault before any pose fitting. */
+/*
+ * Admission of the named step vault before any pose fitting.
+ */
 export namespace planNamedVault {
-  /** The top's near edge and height above the entering floor. */
+  /*
+   * The top's near edge and height above the entering floor.
+   */
   export type ITop = Pick<crossingSurface.IExtent, "near" | "height">;
 
-  /** Require a top ahead within a leg length and below half the hip height. */
+  /*
+   * Require a top ahead within a leg length and below half the hip height.
+   */
   export function admitTop(deck: ITop, hip: number, id: string): void {
     if (
       deck.near <= 0 ||
@@ -272,7 +279,7 @@ export namespace planNamedVault {
   }
 }
 
-/**
+/*
  * The posture layer over the support plan: the bearing palm eased onto its
  * point from the displayed wrist before its window, held flat there through it
  * and peeled off after it, and the free hand lifted clear of the top. Every
@@ -461,7 +468,9 @@ function prepareVaultLayer(
   };
 }
 
-/** Blend the hand's joints toward a shape by a weight. */
+/*
+ * Blend the hand's joints toward a shape by a weight.
+ */
 function blendJoints(
   posture: IAutoMovieMotionHumanPosture,
   shape: ReturnType<typeof HumanHand.shape>,

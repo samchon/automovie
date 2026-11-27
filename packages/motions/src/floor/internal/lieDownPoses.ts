@@ -6,12 +6,18 @@ import type {
 
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/** The standing-to-floor law's authored posture keys, in clinical degrees. */
+/*
+ * The standing-to-floor law's authored posture keys, in clinical degrees.
+ */
 export namespace lieDownPoses {
-  /** Relative hip adduction of parallel legs in side lying, degrees. */
+  /*
+   * Relative hip adduction of parallel legs in side lying, degrees.
+   */
   export const STACKED: number = 0;
 
-  /** The floor postures (provisional angles). */
+  /*
+   * The floor postures (provisional angles).
+   */
   export const POSES: Readonly<
     Record<Key, IAutoMovieMotionHumanLieDown.IPose>
   > = {
@@ -70,7 +76,7 @@ export namespace lieDownPoses {
     ),
   };
 
-  /**
+  /*
    * A floor posture with its trunk bent to the side at the spine and the chest,
    * degrees of abduction: about the forward axis, so a negative bend tips the
    * trunk to the body's left (`HUMANOID_JOINT_AXES`' default basis). The pelvis
@@ -96,7 +102,7 @@ export namespace lieDownPoses {
     };
   }
 
-  /**
+  /*
    * A floor posture from its whole-body tilt and symmetric limb angles. Lying
    * on a side, no limb spreads away from the trunk into the floor: the arms and
    * both flexed legs remain parallel at the separation of the hips.
@@ -128,23 +134,39 @@ export namespace lieDownPoses {
   }
 }
 
-/** Joint angles of one symmetric floor posture, in clinical degrees. */
+/*
+ * Joint angles of one symmetric floor posture, in clinical degrees.
+ */
 interface IShape {
-  /** Hip flexion. */
+  /*
+   * Hip flexion.
+   */
   hip: number;
-  /** Knee flexion. */
+  /*
+   * Knee flexion.
+   */
   knee: number;
-  /** Shoulder flexion. */
+  /*
+   * Shoulder flexion.
+   */
   shoulder: number;
-  /** Elbow flexion. */
+  /*
+   * Elbow flexion.
+   */
   elbow: number;
-  /** Neck flexion, defaulting to clinical zero. */
+  /*
+   * Neck flexion, defaulting to clinical zero.
+   */
   neck?: number;
-  /** Ankle flexion, defaulting to clinical zero. */
+  /*
+   * Ankle flexion, defaulting to clinical zero.
+   */
   ankle?: number;
 }
 
-/** The intermediate and terminal keys in a floor route. */
+/*
+ * The intermediate and terminal keys in a floor route.
+ */
 type Key =
   | "sit"
   | "kneel"

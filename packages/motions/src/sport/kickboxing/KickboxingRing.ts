@@ -9,15 +9,14 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * The ring a placed prop is.
- *
- * @param prop The ring's prop.
- * @returns Its centre on the canvas, its size between the ropes and its
- *   heading.
- * @throws {HumanRefusal} When the prop declares no canvas, a top rope or a
- *   corner post, its ropes stand no square apart, or a post stands off its
- *   corner.
+ * Parameter prop: The ring's prop.
+ * Returns: Its centre on the canvas, its size between the ropes and its
+ * heading.
+ * When the prop declares no canvas, a top rope or a
+ * corner post, its ropes stand no square apart, or a post stands off its
+ * corner.
  */
 export function KickboxingRing(
   prop: Pick<IAutoMovieMotionHumanProp, OfProp>,
@@ -84,7 +83,7 @@ export function KickboxingRing(
   return ring;
 }
 
-/**
+/*
  * A bounded fighting area: a square ring on the floor, centred on a point and
  * turned by a heading, inside its ropes. Footwork and staging read it to keep
  * the fighters' stances inside the ropes and to find its corners.
@@ -99,7 +98,7 @@ export function KickboxingRing(
  * red, `corner4` and `corner2` the neutral corners.
  */
 export namespace KickboxingRing {
-  /**
+  /*
    * The posts' tops by corner (`AutoMovieArchetypeRing.create`'s `corner1` to `corner4`, counted
    * round from `+X +Z`).
    */
@@ -112,13 +111,12 @@ export namespace KickboxingRing {
     neutralA: "corner4",
   };
 
-  /**
+  /*
    * A corner's floor point, a margin inside the ropes along both sides.
-   *
-   * @param ring The ring.
-   * @param corner Which corner.
-   * @param margin How far inside the ropes, metres.
-   * @returns World metres.
+   * Parameter ring: The ring.
+   * Parameter corner: Which corner.
+   * Parameter margin: How far inside the ropes, metres.
+   * Returns: World metres.
    */
   export function corner(
     ring: IAutoMovieMotionHumanKickboxingRing.IRing,
@@ -139,13 +137,12 @@ export namespace KickboxingRing {
     return world(ring, x, z);
   }
 
-  /**
+  /*
    * Whether a floor point lies at least a margin inside the ropes.
-   *
-   * @param ring The ring.
-   * @param point The point, world metres.
-   * @param margin The margin, metres.
-   * @returns True inside.
+   * Parameter ring: The ring.
+   * Parameter point: The point, world metres.
+   * Parameter margin: The margin, metres.
+   * Returns: True inside.
    */
   export function inside(
     ring: IAutoMovieMotionHumanKickboxingRing.IRing,
@@ -157,14 +154,13 @@ export namespace KickboxingRing {
     return Math.abs(x) <= h + 1e-12 && Math.abs(z) <= h + 1e-12;
   }
 
-  /**
+  /*
    * The nearest floor point at least a margin inside the ropes.
-   *
-   * @param ring The ring.
-   * @param point The point, world metres.
-   * @param margin The margin, metres; below half the size.
-   * @returns World metres, at floor height.
-   * @throws {Error} When the margin is half the size or more.
+   * Parameter ring: The ring.
+   * Parameter point: The point, world metres.
+   * Parameter margin: The margin, metres; below half the size.
+   * Returns: World metres, at floor height.
+   * When the margin is half the size or more.
    */
   export function clamp(
     ring: IAutoMovieMotionHumanKickboxingRing.IRing,
@@ -181,7 +177,9 @@ export namespace KickboxingRing {
     );
   }
 
-  /** A ring-local point in world metres. */
+  /*
+   * A ring-local point in world metres.
+   */
   function world(
     ring: IAutoMovieMotionHumanKickboxingRing.IRing,
     x: number,
@@ -197,7 +195,9 @@ export namespace KickboxingRing {
     };
   }
 
-  /** A world point in ring-local coordinates. */
+  /*
+   * A world point in ring-local coordinates.
+   */
   function local(
     ring: IAutoMovieMotionHumanKickboxingRing.IRing,
     p: IAutoMovieVector3,
@@ -211,5 +211,7 @@ export namespace KickboxingRing {
   }
 }
 
-/** The alternatives of `OfProp`'s site. */
+/*
+ * The alternatives of `OfProp`'s site.
+ */
 type OfProp = "subject" | "frame" | "affordances";

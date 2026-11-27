@@ -1,6 +1,6 @@
 import { overflowsBinary64 } from "./overflowsBinary64";
 
-/**
+/*
  * The binary64 number adjacent to a finite value, one unit in the last place
  * toward positive or negative infinity.
  *
@@ -9,12 +9,11 @@ import { overflowsBinary64 } from "./overflowsBinary64";
  * after a rounded subtraction or division; no spatial tolerance or unit is
  * involved. Zero of either sign steps to the signed smallest subnormal, and a
  * smallest subnormal stepping toward zero returns a zero carrying its sign.
- *
- * @param value Finite value to step from; either infinity throws.
- * @param upper True for the neighbour toward positive infinity, false for the
- *   one toward negative infinity.
- * @returns The adjacent finite value. Stepping beyond `Number.MAX_VALUE` in
- *   either direction throws instead of returning an infinity.
+ * Parameter value: Finite value to step from; either infinity throws.
+ * Parameter upper: True for the neighbour toward positive infinity, false for the
+ * one toward negative infinity.
+ * Returns: The adjacent finite value. Stepping beyond `Number.MAX_VALUE` in
+ * either direction throws instead of returning an infinity.
  */
 export function adjacentAutoMovieFloat64(
   value: number,
@@ -42,5 +41,7 @@ export function adjacentAutoMovieFloat64(
   return result;
 }
 
-/** Eight scratch bytes every call overwrites before it reads them back. */
+/*
+ * Eight scratch bytes every call overwrites before it reads them back.
+ */
 const bits: DataView = new DataView(new ArrayBuffer(8));

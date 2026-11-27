@@ -9,7 +9,7 @@ import {
 
 import { Transform } from "../../math/Transform";
 
-/**
+/*
  * Bake a supported generic gesture or jump over the requested duration using
  * engine-authored clinical stops; targeted strike and unknown kinds return
  * null. Angles fit the default humanoid ROM, while custom rig admission belongs
@@ -93,7 +93,7 @@ function j(
   };
 }
 
-/**
+/*
  * Each generic gesture as a list of `[fraction, joints]` stops over the beat:
  * every angle hand-kept inside the humanoid ROM (bow bends the spine forward, a
  * nod dips the head, a shake twists it, a crouch folds hips and knees). The
@@ -266,7 +266,7 @@ const SHAPES: Record<
   ],
 };
 
-/**
+/*
  * Both arms thrown up in a V, scaled by `s` (a pump raises them higher). The
  * clinical abduction raises either arm alike, so both sides carry the same
  * positive angle (no per-side mirror).
@@ -278,7 +278,9 @@ function celebratePose(s: number): IAutoMovieJointPose[] {
   ];
 }
 
-/** The held draw stance: bow arm forward, string hand back at the cheek. */
+/*
+ * The held draw stance: bow arm forward, string hand back at the cheek.
+ */
 function drawPose(): IAutoMovieJointPose[] {
   return [
     j("leftUpperArm", { flexion: 88, abduction: 8 }),
@@ -289,7 +291,9 @@ function drawPose(): IAutoMovieJointPose[] {
   ];
 }
 
-/** A raised right arm with the forearm at `fore`; the idle left arm hangs down. */
+/*
+ * A raised right arm with the forearm at `fore`; the idle left arm hangs down.
+ */
 function wavePose(fore: number): IAutoMovieJointPose[] {
   return [
     j("rightUpperArm", { abduction: 132, flexion: 6 }),
@@ -308,7 +312,7 @@ function crouchPose(depth: number): IAutoMovieJointPose[] {
   ];
 }
 
-/**
+/*
  * A **jump** as `[fraction, rootY, legFlex]` stops: the body coils (knees bend,
  * hips dip), pushes off, arcs up with the legs tucked, and absorbs the landing.
  * A whole-body verb, so unlike the postural gestures it carries **root**
@@ -325,7 +329,9 @@ const JUMP_STOPS: [number, number, number][] = [
   [1, 0, 0], // recover
 ];
 
-/** The pose at a jump stop: symmetric leg bend + a root risen to `rootY`. */
+/*
+ * The pose at a jump stop: symmetric leg bend + a root risen to `rootY`.
+ */
 function jumpPose(
   skeleton: string,
   rootY: number,

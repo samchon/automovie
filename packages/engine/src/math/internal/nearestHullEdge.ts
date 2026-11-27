@@ -5,7 +5,7 @@ import {
 
 import { closestPointOnSegmentXZ } from "./closestPointOnSegmentXZ";
 
-/**
+/*
  * The hull boundary edge nearest to `point`, the tip-over axis when an object
  * topples over that edge. A single-vertex hull degenerates to a zero-length
  * edge at that vertex. Empty hulls throw because no boundary edge exists.

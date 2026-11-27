@@ -10,7 +10,7 @@ import { GymnasticsFlight } from "../../sport/internal/GymnasticsFlight";
 import { stuntFallPose } from "./stuntFallPose";
 import { vehicleFront } from "./vehicleFront";
 
-/**
+/*
  * Plan a pedestrian struck by a moving car. The pedestrian stands until the
  * car's leading face reaches the legs on its own course
  * (`vehicleFront.contact`); the trajectory class follows Ravani, Brougham and
@@ -26,12 +26,11 @@ import { vehicleFront } from "./vehicleFront";
  * of it, a roof vault rising to clear the roof. It flies a projectile under
  * gravity to the road, turning onto its back with its head against its travel,
  * slides to rest under `SLIDE` (Searle's throw model) and lies.
- *
- * @param context The action's context, standing in the car's course.
- * @returns The plan.
- * @throws {HumanRefusal} When the car has no colliders or course, its course
- *   never meets the legs within the horizon, or a wrapped body is never braked
- *   off the bonnet.
+ * Parameter context: The action's context, standing in the car's course.
+ * Returns: The plan.
+ * When the car has no colliders or course, its course
+ * never meets the legs within the horizon, or a wrapped body is never braked
+ * off the bonnet.
  */
 export function planVehicleHit(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanVehicleHit.IParams>,
@@ -403,36 +402,38 @@ export function planVehicleHit(
   };
 }
 
-/**
+/*
  * The impact speed from which a wrap turns into a roof vault, metres per second
  * (provisional: 50 km/h; Ravani et al. 1981 report roof vaults at the higher
  * impact speeds).
  */
 const ROOF: number = 50 / 3.6;
 
-/**
+/*
  * Friction holding a body on a bonnet, dimensionless (provisional: clothing on
  * painted steel); a car braking harder throws the body off.
  */
 const BONNET: number = 0.3;
 
-/**
+/*
  * Friction of a body sliding to rest on the road, dimensionless: the upper end
  * of the 0.5 to 0.66 range Searle's throw model takes (provisional).
  */
 const SLIDE: number = 0.66;
 
-/**
+/*
  * The share of the car's speed a vaulting body keeps as it leaves over the wing
  * or the roof (provisional).
  */
 const VAULT: number = 0.5;
-/**
+/*
  * The angle above the road a forward-projected body leaves at, degrees
  * (provisional: a shallow launch inside the small angles Searle's throw model
  * admits).
  */
 const PROJECTION: number = 10;
 
-/** The alternatives of `PlanVehicleHitContactsPart`'s site. */
+/*
+ * The alternatives of `PlanVehicleHitContactsPart`'s site.
+ */
 type PlanVehicleHitContactsPart = "leftFoot" | "rightFoot";

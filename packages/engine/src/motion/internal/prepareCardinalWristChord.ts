@@ -7,19 +7,18 @@ import type {
 
 import { Quaternion } from "../../math/Quaternion";
 
-/**
+/*
  * Prepare a squared chord lower bound on the local wrist rotation error for
  * exactly cardinal crossed flexion and abduction axes with zero rig twist. The
  * original rotation is abduction times flexion in either factor order once the
  * twist is identity. With abduction axis n and flexion axis v, R(v) lies on the
  * abduction arc and R⁻¹(n) on the flexion arc. Each direction's chord to its
  * permitted arc bounds the full rotation angle.
- *
- * @param basis The projector's admitted cardinal joint axes.
- * @param flexion The actual sorted rig flexion interval, degrees.
- * @param abduction The actual sorted rig abduction interval, degrees.
- * @returns A squared chord bound for a finite local demand, or undefined for
- *   unsupported axes or intervals.
+ * Parameter basis: The projector's admitted cardinal joint axes.
+ * Parameter flexion: The actual sorted rig flexion interval, degrees.
+ * Parameter abduction: The actual sorted rig abduction interval, degrees.
+ * Returns: A squared chord bound for a finite local demand, or undefined for
+ * unsupported axes or intervals.
  */
 export function prepareCardinalWristChord(
   basis: IAutoMovieJointAxes,
@@ -72,19 +71,25 @@ export function prepareCardinalWristChord(
   };
 }
 
-/** The available cardinal coordinates in quaternion-vector order. */
+/*
+ * The available cardinal coordinates in quaternion-vector order.
+ */
 const AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
 
-/**
+/*
  * Enclose signed sector tests made from rounded endpoint and direction
  * components.
  */
 const SECTOR_ROUNDOFF: number = 32 * Number.EPSILON;
 
-/** Enclose evaluated dot ceilings and the displayed cardinal factor composition. */
+/*
+ * Enclose evaluated dot ceilings and the displayed cardinal factor composition.
+ */
 const DOT_ROUNDOFF: number = 128 * Number.EPSILON;
 
-/** Read the coordinate of an actual signed cardinal vector, or decline. */
+/*
+ * Read the coordinate of an actual signed cardinal vector, or decline.
+ */
 function cardinal(axis: IAutoMovieVector3): number {
   if (Math.abs(axis.x) === 1 && axis.y === 0 && axis.z === 0) return 0;
   if (axis.x === 0 && Math.abs(axis.y) === 1 && axis.z === 0) return 1;
@@ -92,7 +97,9 @@ function cardinal(axis: IAutoMovieVector3): number {
   return -1;
 }
 
-/** The largest dot of a planar direction with any point on a short unit arc. */
+/*
+ * The largest dot of a planar direction with any point on a short unit arc.
+ */
 function arc(
   range: IAutoMovieAngleRange,
   sign: number,

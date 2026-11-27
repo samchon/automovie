@@ -1,6 +1,6 @@
 import type { IAutoMovieViolationAppendSink } from "@automovie/interface";
 
-/**
+/*
  * Collect the ids a list of records declares, reporting each repeated one.
  *
  * Each record's id is checked at `<path>[<index>].id`: an id already seen
@@ -9,12 +9,11 @@ import type { IAutoMovieViolationAppendSink } from "@automovie/interface";
  * set,
  * so references to it resolve and the one defect is reported once, on the
  * declaration.
- *
- * @param records Records in declaration order.
- * @param path Violation path of the list itself, such as `$input.spaces`.
- * @param label Name of one record in the messages, such as `logical space`.
- * @param collector Sink that receives the violations.
- * @returns The set of declared ids, for resolving references.
+ * Parameter records: Records in declaration order.
+ * Parameter path: Violation path of the list itself, such as `$input.spaces`.
+ * Parameter label: Name of one record in the messages, such as `logical space`.
+ * Parameter collector: Sink that receives the violations.
+ * Returns: The set of declared ids, for resolving references.
  */
 export const collectDeclaredIds = <Declared extends { id: string }>(
   records: readonly Declared[],

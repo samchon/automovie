@@ -3,7 +3,7 @@ import type { IAutoMovieSwivelNear } from "@automovie/interface";
 import { hingedArmSwivel } from "../hingedArmSwivel";
 import { refineHingedSwivel } from "./refineHingedSwivel";
 
-/**
+/*
  * The swivel of a hinged chain continued from the seed of a nearby fit
  * (`IAutoMovieSwivelNear`), on the seed's branch: a closed-form candidate
  * inside the start's bracket when one answers, else the start refined within
@@ -29,37 +29,42 @@ import { refineHingedSwivel } from "./refineHingedSwivel";
  * If dividing a positive subnormal tolerance by the initial bracket width
  * underflows, the difference of logarithms keeps the mathematically finite
  * refinement count finite; ordinary ratios retain their original expression.
- *
- * @param props The branch's scorer and ordering, the seed, the branch's
- *   closed-form candidates when the caller has them, and the acceptance of a
- *   candidate.
- * @returns The chosen candidate.
- * @throws {Error} When the seed's tolerance is not positive and finite.
+ * Parameter props: The branch's scorer and ordering, the seed, the branch's
+ * closed-form candidates when the caller has them, and the acceptance of a
+ * candidate.
+ * Returns: The chosen candidate.
+ * When the seed's tolerance is not positive and finite.
  */
 export function hingedSwivelNear<T extends { overshoot: number }>(props: {
-  /** The seed's branch's scored candidate at a swivel, degrees. */
+  /*
+   * The seed's branch's scored candidate at a swivel, degrees.
+   */
   probe: (angle: number) => T;
 
-  /** Whether the first candidate is strictly ahead of the second. */
+  /*
+   * Whether the first candidate is strictly ahead of the second.
+   */
   better: (a: T, b: T) => boolean;
 
-  /** The seed to continue. */
+  /*
+   * The seed to continue.
+   */
   near: IAutoMovieSwivelNear;
 
-  /**
+  /*
    * The swivel the search is centred on, degrees in the seed's own turn: the
    * admissible swivel nearest the seed where the caller knows it; absent, the
    * seed's.
    */
   start?: number;
 
-  /**
+  /*
    * The branch's closed-form candidate swivels, degrees in any turn; absent or
    * null when the caller has none.
    */
   closed?: readonly number[] | null;
 
-  /**
+  /*
    * Whether a legal closed-form candidate meets every requested term; absent,
    * legality alone decides.
    */
@@ -110,5 +115,7 @@ export function hingedSwivelNear<T extends { overshoot: number }>(props: {
   return props.better(moved, stayed) ? moved : stayed;
 }
 
-/** The articulation's swivel step, degrees (`hingedArmSwivel.STEP`). */
+/*
+ * The articulation's swivel step, degrees (`hingedArmSwivel.STEP`).
+ */
 const STEP: number = hingedArmSwivel.STEP;

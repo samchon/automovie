@@ -120,7 +120,7 @@ export namespace AutoMovieAxisDirection {
   }
 }
 
-/**
+/*
  * Smallest normal binary64 magnitude; this is a representation boundary, not an
  * axis length or anatomical tolerance.
  */

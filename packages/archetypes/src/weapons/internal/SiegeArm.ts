@@ -10,7 +10,7 @@ import { SiegeClearance } from "./SiegeClearance";
 import { SiegeStructure } from "./SiegeStructure";
 import type { AutoMovieArchetypeSiegeEngine } from "../AutoMovieArchetypeSiegeEngine";
 
-/**
+/*
  * A throwing engine's frame and arm, and the swing of its arm: the arm turns on
  * its axle across `X` at the frame's top, its long end toward `+Z` at rest,
  * level; a positive travel raises the long end. The engine is cocked by turning
@@ -22,13 +22,13 @@ import type { AutoMovieArchetypeSiegeEngine } from "../AutoMovieArchetypeSiegeEn
  * or drag being read.
  */
 export namespace SiegeArm {
-  /**
+  /*
    * The arm's travel at rest, its long end straight up, its centre of mass on
    * the short side lowest: a quarter turn.
    */
   export const REST: number = 90;
 
-  /**
+  /*
    * Unsourced authored sizes, metres: post and base sections (beam also caps
    * the designed moving diameter), counterweight box, release control and
    * windlass height. Moving arm/cradle radius is designed from their whole
@@ -48,12 +48,11 @@ export namespace SiegeArm {
     winch: 0.6,
   };
 
-  /**
+  /*
    * The arm's pendulum about its axle at rest (level): its moment, its mass,
    * its centre of mass's lever and the travel at which it hangs at rest.
-   *
-   * @param d The engine's dimensions.
-   * @returns The pendulum.
+   * Parameter d: The engine's dimensions.
+   * Returns: The pendulum.
    */
   export function pendulum(d: Drawn): AutoMovieArchetypeTrack.IPendulum {
     const long: number = d.armLength!;
@@ -77,13 +76,12 @@ export namespace SiegeArm {
     };
   }
 
-  /**
+  /*
    * Lay the frame and the arm, its counterweight and the contacts.
-   *
-   * @param builder The engine under construction.
-   * @param d The engine's dimensions.
-   * @param counterweight Whether the arm carries a hanging counterweight (a
-   *   trebuchet) or a cup at the long end (a mangonel).
+   * Parameter builder: The engine under construction.
+   * Parameter d: The engine's dimensions.
+   * Parameter counterweight: Whether the arm carries a hanging counterweight (a
+   * trebuchet) or a cup at the long end (a mangonel).
    */
   export function lay(
     builder: Builder,
@@ -224,7 +222,9 @@ export namespace SiegeArm {
     });
     SiegeStructure.lay(builder, d, e, counterweight, radius);
 
-    /** Admit the whole solid; the ground remains model Y zero. */
+    /*
+     * Admit the whole solid; the ground remains model Y zero.
+     */
     function floor(id: string, minimum: number): void {
       if (!(minimum >= 0))
         throw new RangeError(`Siege ${id} cannot clear the declared floor`);
@@ -232,11 +232,15 @@ export namespace SiegeArm {
   }
 }
 
-/** A siege engine under construction. */
+/*
+ * A siege engine under construction.
+ */
 type Builder = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeSiegeEngine.Affordance,
   AutoMovieArchetypeSiegeEngine.Dimension
 >;
 
-/** A siege engine's dimensions. */
+/*
+ * A siege engine's dimensions.
+ */
 type Drawn = Readonly<Partial<Record<AutoMovieArchetypeSiegeEngine.Dimension, number>>>;

@@ -9,34 +9,36 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * The wrist's extension limit, degrees: the hand's flexion range's far end
  * (`DEFAULT_HUMANOID_ROM`, flexion negative toward the back of the hand).
  */
 const WRIST: number = -DEFAULT_HUMANOID_ROM.leftHand!.flexion!.min;
 
-/**
+/*
  * The knuckles' hyperextension limit, degrees (`DEFAULT_HUMANOID_ROM`, the
  * fingers' proximal joints).
  */
 const KNUCKLE: number = -DEFAULT_HUMANOID_ROM.leftIndexProximal!.flexion!.min;
 
-/**
+/*
  * The thumb's interphalangeal extension limit, degrees
  * (`DEFAULT_HUMANOID_ROM`).
  */
 const THUMB_IP: number = -DEFAULT_HUMANOID_ROM.leftThumbDistal!.flexion!.min;
 
-/** Degrees the wrist is kept inside its limit. */
+/*
+ * Degrees the wrist is kept inside its limit.
+ */
 const MARGIN: number = 5;
 
-/**
+/*
  * The fingers' proximal joints, whose extension keeps the fingers flat as the
  * palm rises.
  */
 const FINGERS: readonly string[] = ["Index", "Middle", "Ring", "Little"];
 
-/**
+/*
  * A palm laid flat on the floor whose wrist would have to extend past its range
  * to hold it: the arm reaches the palm from above, and a straight arm standing
  * over the hand asks the wrist to bend back by the angle the forearm stands up
@@ -46,16 +48,15 @@ const FINGERS: readonly string[] = ["Index", "Middle", "Ring", "Little"];
  * the floor; the rise is no more than the knuckles' own hyperextension allows.
  * The forearm's direction is read as the line from the wrist to the shoulder,
  * the straight arm's.
- *
- * @param side The hand.
- * @param goal The flat palm's arm goal: its wrist point and the hand's
- *   rotation.
- * @param shoulder The shoulder joint, world metres.
- * @param knuckle The knuckles' offset from the wrist in the hand's frame,
- *   metres.
- * @param fingers The fingers' direction along the floor, a unit vector.
- * @returns The goal and the finger joints, unchanged and empty while the wrist
- *   is within range.
+ * Parameter side: The hand.
+ * Parameter goal: The flat palm's arm goal: its wrist point and the hand's
+ * rotation.
+ * Parameter shoulder: The shoulder joint, world metres.
+ * Parameter knuckle: The knuckles' offset from the wrist in the hand's frame,
+ * metres.
+ * Parameter fingers: The fingers' direction along the floor, a unit vector.
+ * Returns: The goal and the finger joints, unchanged and empty while the wrist
+ * is within range.
  */
 export function GymnasticsPalmRise(
   side: AutoMovieHumanSide,
@@ -110,28 +111,33 @@ export function GymnasticsPalmRise(
   };
 }
 
-/**
+/*
  * A palm laid flat on the floor whose wrist would have to extend past its range
  * to hold it rises about the knuckles (`of`), as a foot's heel rises about the
  * toes' joint.
  */
 export namespace GymnasticsPalmRise {
-  /** A palm laid flat whose heel has risen about the knuckles. */
+  /*
+   * A palm laid flat whose heel has risen about the knuckles.
+   */
   export interface IRise {
-    /** The arm goal, the hand turned about the knuckles. */
+    /*
+     * The arm goal, the hand turned about the knuckles.
+     */
     goal: IAutoMovieHumanLimbGoal;
 
-    /** The fingers' proximal joints, extended by the rise so they stay flat. */
+    /*
+     * The fingers' proximal joints, extended by the rise so they stay flat.
+     */
     joints: IAutoMovieMotionHumanPosture["joints"];
   }
 
-  /**
+  /*
    * The knuckles' offset from the wrist in the hand's frame.
-   *
-   * @param hand The posed hand bone.
-   * @param middle The posed middle finger's proximal bone, whose origin is the
-   *   middle knuckle.
-   * @returns Metres in the hand's frame.
+   * Parameter hand: The posed hand bone.
+   * Parameter middle: The posed middle finger's proximal bone, whose origin is the
+   * middle knuckle.
+   * Returns: Metres in the hand's frame.
    */
   export function knuckle(
     hand: IAutoMovieResolvedBone,

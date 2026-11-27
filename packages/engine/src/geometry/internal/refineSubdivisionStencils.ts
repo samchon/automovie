@@ -6,7 +6,7 @@ import type {
 import { subdivisionEdgeSmoothness } from "./subdivisionEdgeSmoothness";
 import { subdivisionVertexMask } from "./subdivisionVertexMask";
 
-/**
+/*
  * Compose one Catmull-Clark refinement with sparse affine source stencils.
  * Vertex, edge and face output order agrees with refineSubdivisionPoints.
  * Coefficients come from topology and sharpness, never from basis probing.

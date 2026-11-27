@@ -94,7 +94,9 @@ export namespace AutoMovieHumanNeckBoundary {
   }
 }
 
-/** Admit the actual numeric scalar in its original parameter. */
+/*
+ * Admit the actual numeric scalar in its original parameter.
+ */
 function prepare(
   outline: IAutoMovieViewPart.IOutline,
 ): IAutoMovieViewOutline.IOutline {
@@ -104,7 +106,9 @@ function prepare(
   return result;
 }
 
-/** Physical station derivatives of the original law, never fitted boundary jets. */
+/*
+ * Physical station derivatives of the original law, never fitted boundary jets.
+ */
 function read(
   outline: IAutoMovieViewOutline.IOutline,
   station: number,

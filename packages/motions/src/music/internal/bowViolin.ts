@@ -37,16 +37,22 @@ import { bowViolinGrip } from "./bowViolinGrip";
 import { bowViolinHairAxis } from "./bowViolinHairAxis";
 import { bowViolinStroke } from "./bowViolinStroke";
 
-/** The bar frame's +X points from bridge to nut. */
+/*
+ * The bar frame's +X points from bridge to nut.
+ */
 const X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
-/** The outward axis of the violin's string bar. */
+/*
+ * The outward axis of the violin's string bar.
+ */
 const Y: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** Raised clearance before and after the stroke in metres, provisional. */
+/*
+ * Raised clearance before and after the stroke in metres, provisional.
+ */
 const CLEARANCE: number = 0.035;
 
-/**
+/*
  * One staged open-string violin stroke with a held bow. Register this law with
  * HumanChain.extend and HumanPerformance.laws. The bow moves to a raised ready
  * pose, lowers to contact, slides frog-to-tip or tip-to-frog during the stroke
@@ -70,7 +76,7 @@ export const bowViolin: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBowV
   plan: planStroke,
 };
 
-/**
+/*
  * Place the bow from its held frame, then pose its hand on the four stroke
  * phases.
  */
@@ -303,7 +309,9 @@ function planStroke(
   });
 }
 
-/** The record of `IBowViolin`'s site. */
+/*
+ * The record of `IBowViolin`'s site.
+ */
 type IBowViolin = {
   name: "bowViolin";
 };

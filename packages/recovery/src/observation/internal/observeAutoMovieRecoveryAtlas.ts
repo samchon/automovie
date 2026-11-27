@@ -18,7 +18,7 @@ import { RecoveryAtlasObservationPublish } from "./RecoveryAtlasObservationPubli
 import { RecoveryAtlasObservationSource } from "./RecoveryAtlasObservationSource";
 import { RecoveryChartBoundary } from "./RecoveryChartBoundary";
 
-/**
+/*
  * Observe orientable genus-zero source components through private disk charts.
  * Supplied automatic levels are immutable observations, not manually authored
  * planes. Every visited cell, component and issue receives a private ownership

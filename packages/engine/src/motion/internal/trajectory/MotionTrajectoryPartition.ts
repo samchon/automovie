@@ -1,17 +1,16 @@
 import type { IAutoMovieMotionTrajectoryPartition } from "@automovie/interface";
 
-/**
+/*
  * Own the exact time partition reused by integrations over one unchanged
  * physical history. A new interval follows the controller's actual proposal; a
  * rejected interval is bisected down to the controller's proposed reduction.
  * Subsequent trials replay those same numeric endpoints and still perform every
  * local and dense physical error check. No state, rate or admitted error is
  * reused.
- *
- * @param t0 The finite first second.
- * @param t1 The finite last second, after t0.
- * @returns Operation-owned interval lookup, rejection refinement and release.
- * @throws {Error} For an invalid interval or a lookup outside its owned span.
+ * Parameter t0: The finite first second.
+ * Parameter t1: The finite last second, after t0.
+ * Returns: Operation-owned interval lookup, rejection refinement and release.
+ * For an invalid interval or a lookup outside its owned span.
  */
 export function MotionTrajectoryPartition(
   t0: number,
@@ -51,8 +50,12 @@ export function MotionTrajectoryPartition(
   };
 }
 
-/** The mutable time-mesh owner passed only between one shooting solve's trials. */
+/*
+ * The mutable time-mesh owner passed only between one shooting solve's trials.
+ */
 export namespace MotionTrajectoryPartition {
-  /** The interface contract (`IAutoMovieMotionTrajectoryPartition.IPartition`). */
+  /*
+   * The interface contract (`IAutoMovieMotionTrajectoryPartition.IPartition`).
+   */
   export type IPartition = IAutoMovieMotionTrajectoryPartition.IPartition;
 }

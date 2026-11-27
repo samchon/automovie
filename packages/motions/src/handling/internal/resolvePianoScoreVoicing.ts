@@ -17,7 +17,7 @@ import { manipulateFacing } from "./manipulateFacing";
 import { manipulateReach } from "./manipulateReach";
 import { manipulateShape } from "./manipulateShape";
 
-/**
+/*
  * Place the wrist for a voicing from the key centers and the performer's finger
  * lengths. The wrist averages individual press placements at the common
  * orientation, with its forward reach set by the digit that needs the wrist
@@ -128,67 +128,78 @@ export function resolvePianoScoreVoicing(
   return { score, notes, normal, arm, shape, ends: [{}, {}] };
 }
 
-/** The key contacts, common arm placement and hand shapes read by pianoScore. */
+/*
+ * The key contacts, common arm placement and hand shapes read by pianoScore.
+ */
 export namespace resolvePianoScoreVoicing {
-  /**
+  /*
    * An authored note with its key validated by the score law.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the admission owner.
-   * @evidence contracts/development/design.md#principled-representation Pairs the authored input with the measured articulation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Supplies the two inputs for resolving key contacts.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the existing affordance and score types.
    */
   export interface Key {
-    /** The authored key assignment and timing. */
+    /*
+     * The authored key assignment and timing.
+     */
     score: IAutoMovieMotionHumanPianoScore.INote;
-    /** The upright model's button with its local frame and positive travel. */
+    /*
+     * The upright model's button with its local frame and positive travel.
+     */
     key: IAutoMovieAffordance;
   }
 
-  /**
+  /*
    * One independently moving fingertip target.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Documents the endpoint order, frame and units.
-   * @evidence contracts/development/design.md#principled-representation Both target endpoints are in world space and come from one articulation.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface The per-key values used by the score drives and poses.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Retains the authored key and the canonical digit identity.
    */
   export interface Note {
-    /** The score's key assignment and timing. */
+    /*
+     * The score's key assignment and timing.
+     */
     score: IAutoMovieMotionHumanPianoScore.INote;
-    /** The button's physical full travel in metres. */
+    /*
+     * The button's physical full travel in metres.
+     */
     dip: number;
-    /** The button's outward surface normal in world coordinates. */
+    /*
+     * The button's outward surface normal in world coordinates.
+     */
     normal: IAutoMovieVector3;
-    /**
+    /*
      * The button's unpressed and fully depressed contact points, in world
      * metres.
      */
     points: readonly [IAutoMovieVector3, IAutoMovieVector3];
-    /** The rig's pressing digit. */
+    /*
+     * The rig's pressing digit.
+     */
     digit: AutoMovieHumanDigit;
   }
 
-  /**
+  /*
    * One or more co-timed key contacts on a hand.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation Describes the shared placement and the transport boundaries.
-   * @evidence contracts/development/design.md#principled-representation Distinguishes a shared wrist goal from independent targets and fitted angles.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Holds the placement and hand shapes read by the score.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts Uses the canonical arm goal and joint shapes.
    */
   export interface Voicing {
-    /** The first note supplies the shared hand and time interval. */
+    /*
+     * The first note supplies the shared hand and time interval.
+     */
     score: IAutoMovieMotionHumanPianoScore.INote;
-    /** The distinct keys and digits pressed together. */
+    /*
+     * The distinct keys and digits pressed together.
+     */
     notes: readonly Note[];
-    /** The first key's outward normal for hand transport. */
+    /*
+     * The first key's outward normal for hand transport.
+     */
     normal: IAutoMovieVector3;
-    /** The common physical wrist goal. */
+    /*
+     * The common physical wrist goal.
+     */
     arm: IAutoMovieHumanLimbGoal;
-    /** The pressing and idle digit seeds for the voicing. */
+    /*
+     * The pressing and idle digit seeds for the voicing.
+     */
     shape: IAutoMovieMotionHumanPosture["joints"];
-    /** At-rest fitted hand shapes for the first contact and final release. */
+    /*
+     * At-rest fitted hand shapes for the first contact and final release.
+     */
     ends: [
       IAutoMovieMotionHumanPosture["joints"],
       IAutoMovieMotionHumanPosture["joints"],
@@ -196,7 +207,9 @@ export namespace resolvePianoScoreVoicing {
   }
 }
 
-/** The least-squares translation for a nonempty set of preferred placements. */
+/*
+ * The least-squares translation for a nonempty set of preferred placements.
+ */
 function mean(points: readonly IAutoMovieVector3[]): IAutoMovieVector3 {
   return Vector3.scale(points.reduce(Vector3.add), 1 / points.length);
 }

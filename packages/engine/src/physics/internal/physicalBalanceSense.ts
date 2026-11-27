@@ -17,20 +17,19 @@ import { physicalSupportFootprint } from "./physicalSupportFootprint";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { AutoMovieEnginePhysicalSwingReference } from "../AutoMovieEnginePhysicalSwingReference";
 
-/**
+/*
  * What the balance controller reads of one body this substep, shared by its
  * phases (`advancePhysicalBalance`): the segments' actual state, the supports'
  * measured loads, the authored placements and the policy's limbs. Every reading
  * is a function of the input alone; nothing here writes a body or the
  * recovery's state, and a reading that depends on the state takes the part of
  * it that it reads as an argument.
- *
- * @param input The body's profile, segments, policy, authored placements and
- *   endpoint velocities, the endpoints authored motion owns, the present local
- *   seconds, the substep, gravity's magnitude, the floor's height and the
- *   supports.
- * @returns The readings: the mass centre's position and velocity and the root
- *   segment found now, the rest computed when asked for.
+ * Parameter input: The body's profile, segments, policy, authored placements and
+ * endpoint velocities, the endpoints authored motion owns, the present local
+ * seconds, the substep, gravity's magnitude, the floor's height and the
+ * supports.
+ * Returns: The readings: the mass centre's position and velocity and the root
+ * segment found now, the rest computed when asked for.
  */
 export function physicalBalanceSense(
   input: AutoMovieEnginePhysicalBalanceTypes.ISenseInput,

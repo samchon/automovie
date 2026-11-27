@@ -7,12 +7,12 @@ import {
 import { formationSlotPosition } from "./formationSlotPosition";
 import { formationSlotRecord } from "./formationSlotRecord";
 
-/**
+/*
  * Regenerate one exact formation slot from its design, in constant memory.
  *
  * Measurement scripts call this on loaded design records. The compiled path,
  * `compiledFormationSlot` behind the source oracle, hands the same
- * {@link formationSlotRecord} identity law and {@link formationSlotPosition}
+ * formationSlotRecord identity law and formationSlotPosition
  * placement a compiled formation, so a slot asked of a design grounded on the
  * compiled terrain snapshot equals the slot the viewer draws. Without `ground`,
  * the member stands at the anchor's height. No filesystem or project state is

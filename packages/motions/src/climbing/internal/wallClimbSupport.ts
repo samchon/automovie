@@ -6,7 +6,7 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * Build the stances for `HumanChain.support` from a route on fixed wall holds.
  * Each stance owns at least three distinct holds. Releasing one foot before the
  * other takes its hold stages a swap without sharing a contact point. Hand
@@ -16,11 +16,10 @@ import { HumanRefusal } from "../../law/HumanRefusal";
  * 10.1016/S0966-6362(99)00024-7). The support planner owns contact placement,
  * timing and reach refusals. Finger closure and wall contact forces are outside
  * the point fit.
- *
- * @param route The starting holds and the ordered one-limb changes.
- * @returns The support parameters for the route.
- * @throws {HumanRefusal} If two limbs claim one hold or an explicit release
- *   would leave fewer than three assignments.
+ * Parameter route: The starting holds and the ordered one-limb changes.
+ * Returns: The support parameters for the route.
+ * If two limbs claim one hold or an explicit release
+ * would leave fewer than three assignments.
  */
 export function wallClimbSupport(
   route: IAutoMovieMotionHumanWallClimb,
@@ -90,7 +89,9 @@ export function wallClimbSupport(
   return { stances };
 }
 
-/** The hands and feet, in a fixed traversal order for each stance. */
+/*
+ * The hands and feet, in a fixed traversal order for each stance.
+ */
 const LIMBS: readonly IAutoMovieMotionHumanClimbLadder.Limb[] = [
   "leftHand",
   "rightHand",
@@ -98,11 +99,10 @@ const LIMBS: readonly IAutoMovieMotionHumanClimbLadder.Limb[] = [
   "rightFoot",
 ];
 
-/**
+/*
  * Equality of one authored hold location before a scene resolves its frame.
- *
- * @param target The named prop point or explicit point in its authored frame.
- * @returns The identity used to detect simultaneous claims to one location.
+ * Parameter target: The named prop point or explicit point in its authored frame.
+ * Returns: The identity used to detect simultaneous claims to one location.
  */
 function holdIdentity(target: IAutoMovieMotionHumanWallClimb.Hold): string {
   return target.kind === "prop"

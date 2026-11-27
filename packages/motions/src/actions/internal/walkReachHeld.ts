@@ -8,22 +8,21 @@ import type {
 
 import { humanPostureHeading } from "../../posture/internal/humanPostureHeading";
 
-/**
+/*
  * The pelvis tilted with the trunk about the hips, the tilt a walk's ground
  * solve settles its lowering on (`walkReach.ground`'s `tilt`).
  */
 export namespace walkReachHeld {
-  /**
+  /*
    * A pelvis tilted with the trunk about the hips, as
    * `AutoMovieMotionHumanLean.pivot` tilts a posture: the hips bone stays and
    * the hip joints turn about it.
-   *
-   * @param body The body.
-   * @param root The upright root, world metres.
-   * @param yaw The heading, degrees.
-   * @param joints The upright hip joints under that root, world metres.
-   * @param trunk The posture's added pitch and roll, degrees.
-   * @returns The pelvis's world rotation and the tilted hip joints.
+   * Parameter body: The body.
+   * Parameter root: The upright root, world metres.
+   * Parameter yaw: The heading, degrees.
+   * Parameter joints: The upright hip joints under that root, world metres.
+   * Parameter trunk: The posture's added pitch and roll, degrees.
+   * Returns: The pelvis's world rotation and the tilted hip joints.
    */
   export function tilt(
     body: IAutoMovieMotionHumanBody,
@@ -61,11 +60,15 @@ export namespace walkReachHeld {
   }
 }
 
-/** The record of `ITiltResult`'s site. */
+/*
+ * The record of `ITiltResult`'s site.
+ */
 type ITiltResult = {
   rotation: IAutoMovieQuaternion;
   hips: Record<AutoMovieHumanSide, IAutoMovieVector3>;
 };
 
-/** The record of `ITiltTrunk`'s site. */
+/*
+ * The record of `ITiltTrunk`'s site.
+ */
 type ITiltTrunk = { pitch: number; roll: number };

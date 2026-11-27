@@ -3,14 +3,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * A hull's planes and edges as flat arrays: per face its normal and offset; per
  * edge, in its face's loop order, its start, its vector, its squared length,
  * its inward direction in the face (normal cross edge) and that direction's
  * product with the start; `starts` bounds each face's edges.
- *
- * @param hull The hull whose faces are flattened.
- * @returns The flat form, built from the faces alone.
+ * Parameter hull: The hull whose faces are flattened.
+ * Returns: The flat form, built from the faces alone.
  */
 export function physicalHullFlat(
   hull: Pick<IAutoMoviePhysicalHullFaces.IHull, "faces">,
@@ -65,8 +64,12 @@ export function physicalHullFlat(
   return { planes, starts, edges };
 }
 
-/** Companion constants of {@link physicalHullFlat}. */
+/*
+ * Companion constants of physicalHullFlat.
+ */
 export namespace physicalHullFlat {
-  /** The numbers stored per edge. */
+  /*
+   * The numbers stored per edge.
+   */
   export const EDGE: number = 11;
 }

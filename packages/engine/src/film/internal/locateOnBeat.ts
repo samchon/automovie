@@ -5,7 +5,7 @@ import {
 
 import { beatNodeOf } from "./beatNodeOf";
 
-/**
+/*
  * Stamp beat-scoped feedback onto the screenplay graph: every violation
  * produced while working `beatId` gains `node`, the id of the beat node that
  * claims it, so `scriptAncestors` can cascade it up the refinement chain.
@@ -14,11 +14,10 @@ import { beatNodeOf } from "./beatNodeOf";
  * shallow copy of the input list with no stamp. Otherwise each violation is
  * copied with `node` set, replacing any `node` it already carried. The input
  * list and its violations are never mutated.
- *
- * @param violations Feedback produced while working the beat.
- * @param tree The script's refinement tree, or nothing when it has none.
- * @param beatId Flat script beat id the feedback belongs to.
- * @returns A new list of the same length and order.
+ * Parameter violations: Feedback produced while working the beat.
+ * Parameter tree: The script's refinement tree, or nothing when it has none.
+ * Parameter beatId: Flat script beat id the feedback belongs to.
+ * Returns: A new list of the same length and order.
  */
 export function locateOnBeat(
   violations: readonly IAutoMovieConstraintViolation[],

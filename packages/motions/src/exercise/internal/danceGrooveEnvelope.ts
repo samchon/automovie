@@ -1,15 +1,14 @@
 import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieMotionHumanDanceBeats } from "@automovie/interface";
 
-/**
+/*
  * A groove's envelope over a dance: rising on a minimum-jerk share (Flash and
  * Hogan 1985) from the start to the first beat, full between the first and the
  * last beat, and falling the same way from the last beat to the end.
- *
- * @param t The second.
- * @param beats The dance's beats.
- * @param end The dance's last second.
- * @returns The envelope, 0 to 1.
+ * Parameter t: The second.
+ * Parameter beats: The dance's beats.
+ * Parameter end: The dance's last second.
+ * Returns: The envelope, 0 to 1.
  */
 export function danceGrooveEnvelope(
   t: number,

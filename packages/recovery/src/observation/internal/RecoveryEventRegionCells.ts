@@ -6,7 +6,9 @@ import type {
   IAutoMovieRecoverySourceCellNode,
 } from "@automovie/interface";
 
-/** Clip one ordered candidate population into fresh private query cells. */
+/*
+ * Clip one ordered candidate population into fresh private query cells.
+ */
 export function RecoveryEventRegionCells(
   source: Parameters<IAutoMovieRecoveryEventRegionCells.Operation>[0],
   prepared: Parameters<IAutoMovieRecoveryEventRegionCells.Operation>[1],

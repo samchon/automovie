@@ -4,7 +4,7 @@ import { HumanPathParameterization as TOPP } from "./HumanPathParameterization";
 import { HumanQuinticSegment } from "./HumanQuinticSegment";
 import { HumanSeidelProgram as LP } from "./HumanSeidelProgram";
 
-/**
+/*
  * The time-optimal timing of one rest-to-rest piece of a knot path under
  * velocity and acceleration limits.
  *
@@ -41,39 +41,49 @@ import { HumanSeidelProgram as LP } from "./HumanSeidelProgram";
  * interval reaches the resolution floor (`floor`).
  */
 export namespace HumanKnotTiming {
-  /** A box on every coordinate's rate and acceleration. */
+  /*
+   * A box on every coordinate's rate and acceleration.
+   */
   export interface ILimit {
-    /** The greatest rate of each coordinate, units per second, positive. */
+    /*
+     * The greatest rate of each coordinate, units per second, positive.
+     */
     velocity: number;
 
-    /**
+    /*
      * The greatest acceleration of each coordinate, units per second squared,
      * positive.
      */
     acceleration: number;
   }
 
-  /** One piece to time. */
+  /*
+   * One piece to time.
+   */
   export interface IProblem {
-    /** The piece's knots, two or more, consecutive knots distinct. */
+    /*
+     * The piece's knots, two or more, consecutive knots distinct.
+     */
     positions: readonly (readonly number[])[];
 
-    /** Each knot interval's limits, one fewer than the knots. */
+    /*
+     * Each knot interval's limits, one fewer than the knots.
+     */
     segments: readonly ILimit[];
 
-    /**
+    /*
      * Each knot's own limits, tightening its intervals' at the knot; null where
      * the knot has none, all null when absent.
      */
     knots?: readonly (ILimit | null)[];
 
-    /**
+    /*
      * The greatest error between the path and its chord over a grid interval,
      * in the coordinates' units (toppra's `maxErrThreshold`).
      */
     precision: number;
 
-    /**
+    /*
      * The greatest share of a limit a coordinate's rate or acceleration may
      * pass it by between gridpoints, positive: the grid is refined until the
      * method's own bound on that excess (`HumanKnotTimingExcess`) is within it
@@ -82,50 +92,69 @@ export namespace HumanKnotTiming {
     overshoot: number;
   }
 
-  /** A timed piece, its time from zero at its start. */
+  /*
+   * A timed piece, its time from zero at its start.
+   */
   export interface ITimed {
-    /** Each knot's path parameter, from zero. */
+    /*
+     * Each knot's path parameter, from zero.
+     */
     stations: number[];
 
-    /**
+    /*
      * The geometric path over each knot interval, its duration the interval's
      * s.
      */
     segments: HumanQuinticSegment.ISegment[];
 
-    /** The TOPP-RA gridpoints in s, the stations among them. */
+    /*
+     * The TOPP-RA gridpoints in s, the stations among them.
+     */
     gridpoints: number[];
 
-    /** The instant each gridpoint is reached, seconds (`ConstAccel::m_ts`). */
+    /*
+     * The instant each gridpoint is reached, seconds (`ConstAccel::m_ts`).
+     */
     times: number[];
 
-    /** The path velocity ṡ at each gridpoint (`m_vs`). */
+    /*
+     * The path velocity ṡ at each gridpoint (`m_vs`).
+     */
     velocities: number[];
 
-    /** The path acceleration over each grid interval (`m_us`). */
+    /*
+     * The path acceleration over each grid interval (`m_us`).
+     */
     accelerations: number[];
 
-    /** The piece's duration, seconds. */
+    /*
+     * The piece's duration, seconds.
+     */
     duration: number;
   }
 
-  /** Toppra's default `maxIteration` of `proposeGridpoints`. */
+  /*
+   * Toppra's default `maxIteration` of `proposeGridpoints`.
+   */
   export const MAX_ITERATION: number = 100;
 
-  /** Toppra's default `maxSegLength` of `proposeGridpoints`, in s. */
+  /*
+   * Toppra's default `maxSegLength` of `proposeGridpoints`, in s.
+   */
   export const MAX_SEG_LENGTH: number = 0.05;
 
-  /** Toppra's default `minNbPoints` of `proposeGridpoints`. */
+  /*
+   * Toppra's default `minNbPoints` of `proposeGridpoints`.
+   */
   export const MIN_NB_POINTS: number = 100;
 
-  /**
+  /*
    * Time one rest-to-rest piece.
-   *
-   * @param problem The knots, their limits and the grid's precision.
-   * @returns The piece's path and time map.
-   * @throws {Error} When two consecutive knots coincide (a hold is a dwell, not
-   *   a repeated knot), TOPP-RA finds the limits infeasible, or the grid's
-   *   refinement cannot meet the overshoot in `MAX_REFINEMENT` passes.
+   * Parameter problem: The knots, their limits and the grid's precision.
+   * Returns: The piece's path and time map.
+   * When two consecutive knots coincide (a hold is a dwell, not
+   * a repeated knot), TOPP-RA finds the limits infeasible, or the grid's
+   * refinement cannot meet the overshoot in `MAX_REFINEMENT` passes.
    */
   export function parametrize(problem: IProblem): ITimed {
     const { positions, segments }: IProblem = problem;
@@ -215,20 +244,19 @@ export namespace HumanKnotTiming {
     }
   }
 
-  /**
+  /*
    * The bisection passes of the grid's error-bounded refinement: each halves
    * every interval still over the requirement, so forty reach 2⁻⁴⁰ of the
    * coarsest, past any requirement the bound's Δ² scaling can be asked for.
    */
   export const MAX_REFINEMENT: number = 40;
 
-  /**
+  /*
    * The position at a second of a timed piece: the path parameter from the
    * constant-acceleration time map (`ConstAccel::evalParams`), then the path.
-   *
-   * @param timed The timed piece.
-   * @param seconds The instant from the piece's start, held within its span.
-   * @returns Each coordinate's position.
+   * Parameter timed: The timed piece.
+   * Parameter seconds: The instant from the piece's start, held within its span.
+   * Returns: Each coordinate's position.
    */
   export function position(timed: ITimed, seconds: number): number[] {
     const s: number = along(timed, seconds)[0];
@@ -239,14 +267,13 @@ export namespace HumanKnotTiming {
     );
   }
 
-  /**
+  /*
    * The state at a second of a timed piece, by the chain rule on q(s(t)): q̇ =
    * q' ṡ, q̈ = q' s̈ + q'' ṡ², and q⃛ = q''' ṡ³ + 3 q'' ṡ s̈, the path
    * acceleration constant over each grid interval.
-   *
-   * @param timed The timed piece.
-   * @param seconds The instant from the piece's start, held within its span.
-   * @returns The state there, in the coordinates' units per second.
+   * Parameter timed: The timed piece.
+   * Parameter seconds: The instant from the piece's start, held within its span.
+   * Returns: The state there, in the coordinates' units per second.
    */
   export function state(
     timed: ITimed,
@@ -272,7 +299,7 @@ export namespace HumanKnotTiming {
     };
   }
 
-  /**
+  /*
    * The shortest grid interval the refinement makes over a piece of length S in
    * s: the larger of two resolution floors, below which an interval's excess is
    * the arithmetic's and not the motion's.
@@ -289,9 +316,8 @@ export namespace HumanKnotTiming {
    *
    * An interval at the floor is accepted whatever its excess: at a rest end it
    * lasts a sub-frame instant.
-   *
-   * @param length The piece's length in s.
-   * @returns The floor, in s.
+   * Parameter length: The piece's length in s.
+   * Returns: The floor, in s.
    */
   export function floor(length: number): number {
     return Math.max(
@@ -301,7 +327,7 @@ export namespace HumanKnotTiming {
   }
 }
 
-/**
+/*
  * The constraints at every gridpoint and the TOPP-RA solve over them: each
  * gridpoint's limits its interval's, and at a knot the tighter of its two
  * intervals' and its own.
@@ -359,7 +385,9 @@ function solve(
   return TOPP.timed(gridpoints, solved.parametrization);
 }
 
-/** The tighter of two limits, coordinate by coordinate. */
+/*
+ * The tighter of two limits, coordinate by coordinate.
+ */
 function tighter(
   a: HumanKnotTiming.ILimit,
   b: HumanKnotTiming.ILimit,
@@ -370,7 +398,7 @@ function tighter(
   };
 }
 
-/**
+/*
  * The last index i at most `last` whose value is at or below x, by binary
  * search over ascending values.
  */
@@ -385,7 +413,7 @@ function below(values: readonly number[], x: number, last: number): number {
   return low;
 }
 
-/**
+/*
  * The path parameter, its rate and its acceleration at a second
  * (`ConstAccel::evalParams`): s_i + ṡ_i τ + u_i τ² / 2 on the grid interval
  * reached.
@@ -405,7 +433,7 @@ function along(
   return [s, Math.max(0, timed.velocities[i]! + u * dt), u];
 }
 
-/**
+/*
  * Toppra's `GeometricPath::proposeGridpoints` from the given initial
  * gridpoints: bisect an interval longer than `MAX_SEG_LENGTH`, else one whose
  * chord error `max |0.5 q''(mid) Δs²|` exceeds the threshold, each bisection's

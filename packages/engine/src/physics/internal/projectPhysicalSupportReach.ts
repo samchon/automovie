@@ -5,7 +5,7 @@ import type {
 
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Bounded cyclic projection of a common root translation onto support-reach
  * balls. Each limb origin translates equally; support goals remain fixed. This
  * produces a kinematic seed, never teleports a simulated body. Convex
@@ -55,7 +55,9 @@ export function projectPhysicalSupportReach(
     converged: maximumExcess <= input.tolerance,
   };
 
-  /** Re-evaluate every original ball after the entire sweep. */
+  /*
+   * Re-evaluate every original ball after the entire sweep.
+   */
   function excess(): number {
     return Math.max(
       0,

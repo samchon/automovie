@@ -16,12 +16,12 @@ import { StrikingStroke as StrikingStrokeSource } from "../../striking/internal/
 import { StrikingTarget as StrikingTargetSource } from "../../striking/internal/StrikingTarget";
 import { StrikingTwist as StrikingTwistSource } from "../../striking/internal/StrikingTwist";
 
-/**
+/*
  * The strike family's owners, rows and tables, each the shipped value under its
  * family name (`AutoMovieMotionHumanStrike`), with its own comment.
  */
 export namespace AutoMovieMotionHumanStrikeRows {
-  /**
+  /*
    * How a strike follows its target: the goal planned at the launch from where
    * the target is predicted to be at contact, and then online corrections, each
    * a minimum-jerk unit superposed on the strike's goal, as the target is seen
@@ -48,7 +48,7 @@ export namespace AutoMovieMotionHumanStrikeRows {
    */
   export import StrikingAim = StrikingAimSource;
 
-  /**
+  /*
    * The body facts striking laws read: where a posture puts the shoulders, hips
    * and head before any limb is solved, where a weapon socket sits relative to
    * its wrist or ankle under a hand or foot rotation, the closed fist's finger
@@ -62,7 +62,7 @@ export namespace AutoMovieMotionHumanStrikeRows {
    */
   export import StrikingBody = StrikingBodySource;
 
-  /**
+  /*
    * When and where a moving weapon first touches a surface of another body.
    *
    * The weapon is a point on its striking surface (the fist's knuckles, the
@@ -85,7 +85,7 @@ export namespace AutoMovieMotionHumanStrikeRows {
    */
   export import StrikingContact = StrikingContactSource;
 
-  /**
+  /*
    * Where a strike lands relative to its aim: the author's declared accuracy
    * plus the performer's seeded endpoint scatter.
    *
@@ -105,7 +105,7 @@ export namespace AutoMovieMotionHumanStrikeRows {
    */
   export import StrikingQuality = StrikingQualitySource;
 
-  /**
+  /*
    * The goal maths of bringing a weapon surface onto a target point: where a
    * two-segment limb's middle joint (elbow or knee) and end joint (wrist or
    * ankle) must be for a point on its distal segment to sit on the target, the
@@ -130,11 +130,11 @@ export namespace AutoMovieMotionHumanStrikeRows {
    * along the distal segment toward the middle joint (a jammed kick lands with
    * the upper shin or the knee) or, where the surface is rigid with the end
    * joint (a fist), the middle joint flexes past the band up to
-   * {@link JAM_FLEXION}.
+   * JAM_FLEXION.
    */
   export import StrikingReach = StrikingReachSource;
 
-  /**
+  /*
    * The striking family's measured timing, speed, reaction and guard numbers,
    * from novice to elite, as `HumanSkill.quantity` reads them. They belong to
    * striking alone: no other action family reads them, and striking reads no
@@ -157,7 +157,7 @@ export namespace AutoMovieMotionHumanStrikeRows {
    */
   export import StrikingSkill = StrikingSkillSource;
 
-  /**
+  /*
    * How far a guard facing a person steps back so that the two fighters'
    * guards, both held, stand clear of each other: no joint of either body
    * inside the other's colliders (the partner verdict's reading,
@@ -178,7 +178,7 @@ export namespace AutoMovieMotionHumanStrikeRows {
    */
   export import StrikingGuardYield = StrikingGuardYieldSource;
 
-  /**
+  /*
    * The fighting stance uses separate tracks, soft knees, a leading shoulder
    * and glove goals measured from the performer's own head.
    *
@@ -204,7 +204,7 @@ export namespace AutoMovieMotionHumanStrikeRows {
    */
   export import StrikingStance = StrikingStanceSource;
 
-  /**
+  /*
    * One strike's end-joint path (the wrist or the ankle), from its launch
    * through an optional via point (a kick's chamber) to its contact and back,
    * as superposed minimum-jerk units, with the target's online corrections and
@@ -212,7 +212,7 @@ export namespace AutoMovieMotionHumanStrikeRows {
    *
    * A strike aims through its target: its delivery unit would end beyond the
    * contact point, at the share where its speed has fallen to the measured
-   * share of its peak at impact ({@link impactShare}), so it lands moving fast
+   * share of its peak at impact (impactShare), so it lands moving fast
    * instead of arriving at rest. The unit's end is placed along the strike's
    * declared impact direction (straight on, across for a hook or a round kick,
    * up for an uppercut), and a correcting unit over the same span puts the
@@ -224,14 +224,14 @@ export namespace AutoMovieMotionHumanStrikeRows {
    */
   export import StrikingStroke = StrikingStrokeSource;
 
-  /**
+  /*
    * The relations every striking law reads from its entry state and its target:
    * which side leads, the line to the target, the feet as placed, and how a
    * foot steps along the line or pivots on its ball.
    */
   export import StrikingTarget = StrikingTargetSource;
 
-  /**
+  /*
    * A strike's trunk turn laid on the trunk it enters with: the spine and the
    * chest each twisted by the given share, their flexion and side bend kept.
    *
@@ -242,7 +242,7 @@ export namespace AutoMovieMotionHumanStrikeRows {
    */
   export import StrikingTwist = StrikingTwistSource;
 
-  /**
+  /*
    * What a planned strike decided, for audits and captures: the landing offset
    * it intended (declared accuracy plus seeded scatter), the goal it planned at
    * its launch, how its reach solve came out, and the second its weapon met a
@@ -255,7 +255,7 @@ export namespace AutoMovieMotionHumanStrikeRows {
    */
   export import StrikingRecord = StrikingRecordSource;
 
-  /**
+  /*
    * A thing held in the hand as the effector of an action: a blade whose point
    * and edge are aimed, a firearm whose muzzle is aimed.
    *
@@ -277,14 +277,14 @@ export namespace AutoMovieMotionHumanStrikeRows {
    */
   export import StrikingHeld = StrikingHeldSource;
 
-  /**
+  /*
    * The stroke of a held tool, shared by every blade and firearm action: the
    * tool is taken from where the hand holds it to a ready pose, carried along a
    * path to its decisive pose, kept there and returned, while the feet stay or
    * the leading foot steps or lunges under it.
    *
    * The action states only tool poses (hand frames built by
-   * {@link StrikingHeld.hand}); this owns the time course and the body. The
+   * StrikingHeld.hand); this owns the time course and the body. The
    * clock is a phrase with the standard instants: the tool leaves the entry
    * hold for the ready pose by `ready`, runs its path from `strokeStart`, is at
    * its decisive pose at `stroke`, follows through to `strokeEnd`, stays until
@@ -300,7 +300,7 @@ export namespace AutoMovieMotionHumanStrikeRows {
    */
   export import StrikingBlade = StrikingBladeSource;
 
-  /**
+  /*
    * Whether the arm can hold a held tool in a pose, and the turn of the tool
    * about its own line where the action leaves it free.
    *
@@ -319,7 +319,7 @@ export namespace AutoMovieMotionHumanStrikeRows {
    */
   export import StrikingRoll = StrikingRollSource;
 
-  /**
+  /*
    * The advance of a stroke: how the body goes with a held tool's cut, thrust
    * or presentation. The leading foot, the one on the tool's side, leaves the
    * floor, lands its travel ahead along a line and comes back; the pelvis is
@@ -331,7 +331,7 @@ export namespace AutoMovieMotionHumanStrikeRows {
    */
   export import StrikingAdvance = StrikingAdvanceSource;
 
-  /**
+  /*
    * The strikes as rows on the grammar: each named technique is a row of the
    * shipped law that owns its geometry and its outcome, the effector and the
    * side fixed, the target and the accuracy the composition's.

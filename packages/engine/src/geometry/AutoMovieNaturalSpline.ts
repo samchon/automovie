@@ -121,7 +121,9 @@ export namespace AutoMovieNaturalSpline {
     return AutoMoviePeriodicCubic.create(values).at;
   }
 
-  /** Same polynomial and tangent arithmetic at an already selected span. */
+  /*
+   * Same polynomial and tangent arithmetic at an already selected span.
+   */
   function valueAt(
     spline: IAutoMovieNaturalCubicSpline,
     x: number,
@@ -151,7 +153,9 @@ export namespace AutoMovieNaturalSpline {
     );
   }
 
-  /** Same derivative and exterior arithmetic at an already selected span. */
+  /*
+   * Same derivative and exterior arithmetic at an already selected span.
+   */
   function derivativeAt(
     spline: IAutoMovieNaturalCubicSpline,
     x: number,
@@ -175,7 +179,7 @@ export namespace AutoMovieNaturalSpline {
     ];
   }
 
-  /**
+  /*
    * First span whose right knot is >=x; failed comparisons retain the old
    * last-span NaN policy.
    */

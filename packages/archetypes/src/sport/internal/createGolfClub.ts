@@ -3,7 +3,7 @@ import { Vector3 } from "@automovie/engine";
 
 import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovieArchetypeDrawSession, AutoMovieArchetypeFrame } from "../../core";
 
-/**
+/*
  * A golf club: a driver, an iron or a putter.
  *
  * It stands on its head's sole at the origin, the shaft straight up along `+Y`
@@ -12,12 +12,11 @@ import { ArchetypeDraw, AutoMovieArchetype, AutoMovieArchetypeBuilder, AutoMovie
  * out of it; `head` the head's centre, its `+Y` running out of the club down
  * the shaft's line: a swing carries `head` through the ball as its working
  * point (`tip`) with `face` leading as its edge (`edge`).
- *
- * @param params The kind and any dimension the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The club.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band.
+ * Parameter params: The kind and any dimension the author fixes.
+ * Parameter seed: The seed that draws every dimension left free inside its band;
+ * absent, each takes the middle of its band.
+ * Returns: The club.
+ * For a fixed dimension outside its band.
  */
 export function createGolfClub(
   params: AutoMovieArchetypeGolfClub.IParams,

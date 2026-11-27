@@ -8,19 +8,18 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { AutoMovieMotionHumanArmObservation } from "./AutoMovieMotionHumanArmObservation";
 
-/**
+/*
  * A planner's reader of its arms' goals (`AutoMovieMotionHumanArmPlanned`):
  * each arm's goal at an instant as the plan perceives it
  * (`AutoMovieMotionHumanArmObservation.aim`), read once an instant. A goal
  * whose hand target places its elbow by the elbow search searches it cold, so
  * its elbow is the circle's least-strain place at that instant whatever the
  * instants read before it.
- *
- * @param carries The planned arms, in the problem's order.
- * @param at The posture so far at an instant.
- * @param resolution The plan's FK reader.
- * @param projection The body's ROM projector.
- * @returns The goal of arm `a` at second `t`.
+ * Parameter carries: The planned arms, in the problem's order.
+ * Parameter at: The posture so far at an instant.
+ * Parameter resolution: The plan's FK reader.
+ * Parameter projection: The body's ROM projector.
+ * Returns: The goal of arm `a` at second `t`.
  */
 export function AutoMovieMotionHumanArmAimed(
   carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[],
@@ -46,7 +45,9 @@ export function AutoMovieMotionHumanArmAimed(
   };
 }
 
-/** The record of `IAutoMovieMotionHumanArmAimedAt`'s site. */
+/*
+ * The record of `IAutoMovieMotionHumanArmAimedAt`'s site.
+ */
 type IAutoMovieMotionHumanArmAimedAt = {
   posture: IAutoMovieMotionHumanPosture;
 };

@@ -13,7 +13,9 @@ import { BODY_ROOT } from "./utilities/BODY_ROOT";
 import { assertProductionEvidenceSources } from "./utilities/assertProductionEvidenceSources";
 import { createEvidenceFiles } from "./utilities/createEvidenceFiles";
 
-/** Composes the complete native narrative and engineering claim array. */
+/*
+ * Composes the complete native narrative and engineering claim array.
+ */
 export function collectProductionClaims(
   props: IProductionConfigProps,
 ): IEvidenceClaim[] {

@@ -133,6 +133,8 @@ export namespace AutoMovieHumanCanonicalSolids {
   }
 }
 
-/** A phalanx of the hand, whose collider stays a capsule. */
+/*
+ * A phalanx of the hand, whose collider stays a capsule.
+ */
 const DIGIT: RegExp =
   /(?:Thumb|Index|Middle|Ring|Little)(?:Metacarpal|Proximal|Intermediate|Distal)$/;

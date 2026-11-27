@@ -3,13 +3,13 @@ import type {
   IAutoMovieMotionHumanTiming,
 } from "@automovie/interface";
 
-/**
+/*
  * The tables every gesture is read from by its kind: its timing and which hands
  * it moves, total records over `gestureStroke.Kind`, split from the stroke so
  * each file holds one responsibility.
  */
 export namespace gestureStrokeTables {
-  /**
+  /*
    * A gesture's timing: cycles in the stroke and the time of one cycle, a named
    * pause or a pause scaled (provisional, read from no measured source except
    * the rates `gestureStroke` and `gestureJoints` cite; the clap's four beats a
@@ -56,7 +56,9 @@ export namespace gestureStrokeTables {
     slump: { cycles: 1, period: "long" },
   };
 
-  /** Which hands each gesture moves: `one` the chosen side, `both`, or `none`. */
+  /*
+   * Which hands each gesture moves: `one` the chosen side, `both`, or `none`.
+   */
   export const HANDS: Readonly<
     Record<IAutoMovieMotionHumanGestureStroke.Kind, HANDSEntryItem>
   > = {
@@ -84,10 +86,14 @@ export namespace gestureStrokeTables {
   };
 }
 
-/** The alternatives of `HANDSEntryItem`'s site. */
+/*
+ * The alternatives of `HANDSEntryItem`'s site.
+ */
 type HANDSEntryItem = "one" | "both" | "none";
 
-/** The record of `IRHYTHMEntryItem`'s site. */
+/*
+ * The record of `IRHYTHMEntryItem`'s site.
+ */
 type IRHYTHMEntryItem = {
   cycles: number;
   period: IAutoMovieMotionHumanTiming.Span;

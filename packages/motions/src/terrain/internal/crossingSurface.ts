@@ -13,40 +13,51 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * The extent of a crossing's named top surface in the crossing's own frame: `x`
  * across the path, `y` up and `z` along it from the entry, in metres. The
  * surface must belong to a fixed prop and lie level and square to the path, so
  * its four edges are the frame's lines.
  */
 export namespace crossingSurface {
-  /** A level top's edges and height in the crossing frame, metres. */
+  /*
+   * A level top's edges and height in the crossing frame, metres.
+   */
   export interface IExtent {
-    /** The edge at the lower x. */
+    /*
+     * The edge at the lower x.
+     */
     left: number;
 
-    /** The edge at the higher x. */
+    /*
+     * The edge at the higher x.
+     */
     right: number;
 
-    /** The edge nearer the entry. */
+    /*
+     * The edge nearer the entry.
+     */
     near: number;
 
-    /** The edge farther along the path. */
+    /*
+     * The edge farther along the path.
+     */
     far: number;
 
-    /** The surface's height above the frame's origin. */
+    /*
+     * The surface's height above the frame's origin.
+     */
     height: number;
   }
 
-  /**
+  /*
    * Read a named surface's extent.
-   *
-   * @param context The action's context, whose props are read at its start.
-   * @param frame The crossing frame.
-   * @param ref The surface.
-   * @returns Its extent.
-   * @throws {HumanRefusal} If the prop moves or the surface is missing,
-   *   undimensioned, sloped or skewed.
+   * Parameter context: The action's context, whose props are read at its start.
+   * Parameter frame: The crossing frame.
+   * Parameter ref: The surface.
+   * Returns: Its extent.
+   * If the prop moves or the surface is missing,
+   * undimensioned, sloped or skewed.
    */
   export function read(
     context: IAutoMovieMotionHumanActionContext,
@@ -106,13 +117,12 @@ export namespace crossingSurface {
     };
   }
 
-  /**
+  /*
    * The crossing's affordance refusal.
-   *
-   * @param axis The refused parameter's path.
-   * @param value The refused value.
-   * @param reason Why it is refused.
-   * @returns The refusal to throw.
+   * Parameter axis: The refused parameter's path.
+   * Parameter value: The refused value.
+   * Parameter reason: Why it is refused.
+   * Returns: The refusal to throw.
    */
   export function refusal(
     axis: string,

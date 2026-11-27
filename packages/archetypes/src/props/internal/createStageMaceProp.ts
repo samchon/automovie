@@ -5,17 +5,16 @@ import { type AutoMovieArchetype } from "../../core/index";
 import { StageShaftConstruction } from "./StageShaftConstruction";
 
 
-/**
+/*
  * Padded round-headed stage prop.
  *
  * A display form with a round ornament above a one-hand shaft grip. Its origin
  * is at the shaft base.
- *
- * @param params The scene identity and optional total display height in metres.
- * @param seed Uses the original named draw session to resolve omitted settings.
- * @returns The digital model and its authored contact frames.
- * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
- *   cannot use.
+ * Parameter params: The scene identity and optional total display height in metres.
+ * Parameter seed: Uses the original named draw session to resolve omitted settings.
+ * Returns: The digital model and its authored contact frames.
+ * For inputs the selected catalogue profile
+ * cannot use.
  */
 export function createStageMaceProp(
   params: AutoMovieArchetypeStageMaceProp.IParams = {},

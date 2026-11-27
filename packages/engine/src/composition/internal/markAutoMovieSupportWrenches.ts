@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Turn the support wrenches governing one second into inspection marks: the
  * force the controller allocated to actual floor witnesses, and any shortfall
  * from what it requested.
@@ -33,12 +33,11 @@ import type {
  * appears.
  *
  * It throws for an interval or a scale that is not positive.
- *
- * @param props.wrenches Support wrench records of a physics cache or playback.
- * @param props.seconds The drawn film second.
- * @param props.interval The cache step each record governs.
- * @param props.metresPerNewton Arrow length per newton.
- * @returns Up to two marks per governed body.
+ * Parameter props.wrenches: Support wrench records of a physics cache or playback.
+ * Parameter props.seconds: The drawn film second.
+ * Parameter props.interval: The cache step each record governs.
+ * Parameter props.metresPerNewton: Arrow length per newton.
+ * Returns: Up to two marks per governed body.
  */
 export function markAutoMovieSupportWrenches(
   props: IAutoMovieMarkSupportWrenches.IProps,
@@ -81,7 +80,7 @@ export function markAutoMovieSupportWrenches(
   return marks;
 }
 
-/**
+/*
  * One unanchored world arrow of a support force from `origin`, scaled to
  * metres.
  */
@@ -114,7 +113,9 @@ function arrow(
   };
 }
 
-/** Euclidean length of a world vector. */
+/*
+ * Euclidean length of a world vector.
+ */
 function norm(vector: IAutoMovieVector3): number {
   return Math.hypot(vector.x, vector.y, vector.z);
 }

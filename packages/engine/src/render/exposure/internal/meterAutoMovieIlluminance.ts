@@ -11,7 +11,7 @@ import { autoMovieSkyIlluminance } from "../../../analysis/internal/autoMovieSky
 import { Quaternion } from "../../../math/Quaternion";
 import { Vector3 } from "../../../math/Vector3";
 
-/**
+/*
  * Meter the illuminance at a point of a scene, as an incident-light meter held
  * there facing `normal` would read the light the beauty pass draws.
  *
@@ -42,11 +42,10 @@ import { Vector3 } from "../../../math/Vector3";
  * `DHI × V` value from `autoMovieSkyIlluminance` over the context's occluders;
  * its beam is never added, because the frame draws the sun only as a staged
  * directional light, which is already one of `lights`.
- *
- * @param props Lights, point, normal, environment and daylight.
- * @returns The total, one contribution per light and the unmetered sources.
- * @throws Error when the point is not finite or the normal is zero or not
- *   finite.
+ * Parameter props: Lights, point, normal, environment and daylight.
+ * Returns: The total, one contribution per light and the unmetered sources.
+ * Error when the point is not finite or the normal is zero or not
+ * finite.
  */
 export function meterAutoMovieIlluminance(
   props: IAutoMovieMeterIlluminance.IProps,
@@ -102,17 +101,19 @@ export function meterAutoMovieIlluminance(
   };
 }
 
-/** A light's local -Z, its direction of travel. */
+/*
+ * A light's local -Z, its direction of travel.
+ */
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: -1 };
 
-/**
+/*
  * Smallest squared distance the beauty pass divides by, in square metres: the
  * renderer's punctual falloff is `1 / max(d², 0.01)`, so a light nearer than
  * 0.1 m does not grow without bound.
  */
 const NEAREST_SQUARED: number = 0.01;
 
-/**
+/*
  * The geometric factor that turns a light's photometric intensity into
  * illuminance at the point: the cosine for a directional light, the windowed
  * inverse square law for point and spot lights, and the projected solid angle
@@ -157,7 +158,7 @@ const incidence: (
   );
 };
 
-/**
+/*
  * The projected solid angle of an area panel seen from the point, clipped to
  * the half-space above the measured plane: the factor that multiplies the
  * panel's luminance to give illuminance (Lambert's polygon formula, after Arvo
@@ -220,7 +221,7 @@ const projectedSolidAngle: (
   return Math.abs(sum) / 2;
 };
 
-/**
+/*
  * Clip a polygon, given as vectors from the point, to the half-space where
  * `dot(v, normal) >= 0` (Sutherland and Hodgman 1974, "Reentrant polygon
  * clipping", CACM).

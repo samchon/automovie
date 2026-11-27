@@ -5,7 +5,7 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 
-/**
+/*
  * A hold instant's inverse kinematics by continuation, for a solution whose
  * basin is narrower than any restart can reach (`HumanArmSeedRestarts`): the
  * site moved in small steps from where the arm at rest puts the hand to the
@@ -18,13 +18,12 @@ import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
  * (`NEEDLE`), so a step moves the solution by less than that share of the arm's
  * coordinates. A step the local solver does not meet ends the continuation: the
  * path has left the feasible set.
- *
- * @param context The instant's context, the hold's waypoint its middle.
- * @param rest Each arm's coordinates the continuation starts from.
- * @param at The instant's context with every site moved a share of the way from
- *   its start to its goal.
- * @param solve The local solve of a context from each arm's coordinates.
- * @returns Each arm's coordinates at the goal; none where a step is not met.
+ * Parameter context: The instant's context, the hold's waypoint its middle.
+ * Parameter rest: Each arm's coordinates the continuation starts from.
+ * Parameter at: The instant's context with every site moved a share of the way from
+ * its start to its goal.
+ * Parameter solve: The local solve of a context from each arm's coordinates.
+ * Returns: Each arm's coordinates at the goal; none where a step is not met.
  */
 export function HumanArmSeedContinuation(
   context: M.IContext,
@@ -77,9 +76,11 @@ export function HumanArmSeedContinuation(
   }
   return q;
 }
-/** Step-size parameter for the inverse-kinematics continuation. */
+/*
+ * Step-size parameter for the inverse-kinematics continuation.
+ */
 export namespace HumanArmSeedContinuation {
-  /**
+  /*
    * The share of a coordinate's range a needle solution's basin stays within:
    * no solve started 0.02 of the range from the hat-on-crown hold instant's
    * solution (6 trials) reconverged to it.
@@ -87,18 +88,30 @@ export namespace HumanArmSeedContinuation {
   export const NEEDLE: number = 0.02;
 }
 
-/** A local solve's result. */
+/*
+ * A local solve's result.
+ */
 interface ISolved {
-  /** Each arm's coordinates. */
+  /*
+   * Each arm's coordinates.
+   */
   x: number[][];
-  /** Whether it meets every term. */
+  /*
+   * Whether it meets every term.
+   */
   met: boolean;
 }
 
-/** Where the arm at rest puts a hand. */
+/*
+ * Where the arm at rest puts a hand.
+ */
 interface IStart {
-  /** The contact point, world metres. */
+  /*
+   * The contact point, world metres.
+   */
   point: ReturnType<typeof P.pad>;
-  /** The hand's attitude. */
+  /*
+   * The hand's attitude.
+   */
   rotation: IAutoMovieQuaternion;
 }

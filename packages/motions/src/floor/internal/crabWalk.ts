@@ -22,10 +22,12 @@ import { mixHumanPosture } from "../../posture/internal/mixHumanPosture";
 import { crabWalkBounds } from "./crabWalkBounds";
 import { crabWalkClock } from "./crabWalkClock";
 
-/** The world's down. */
+/*
+ * The world's down.
+ */
 const DOWN: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
 
-/**
+/*
  * A supine quadrupedal crawl, the crab walk (`IAutoMovieMotionHumanCrabWalk`).
  * The body settles from where it is onto its hands, planted behind the
  * shoulders, and its feet, planted ahead of the hips, with the pelvis lifted to
@@ -42,10 +44,14 @@ const DOWN: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
  * the trunk and stance values are authored.
  */
 export namespace crabWalk {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "crabWalk";
 
-  /** Cancel table: a get-up may cut it once it has settled onto its supports. */
+  /*
+   * Cancel table: a get-up may cut it once it has settled onto its supports.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     getUp: [
       {
@@ -57,41 +63,48 @@ export namespace crabWalk {
     ],
   };
 
-  /**
+  /*
    * How long the body takes to settle onto its four supports, seconds:
    * authored.
    */
   export const SETTLE: number = crabWalkClock.SETTLE;
 
-  /** A stride's length, in statures (`crabWalkClock.STRIDE`). */
+  /*
+   * A stride's length, in statures (`crabWalkClock.STRIDE`).
+   */
   export const STRIDE: number = crabWalkClock.STRIDE;
 
-  /** How long one stride cycle takes, seconds (`crabWalkClock.CYCLE`). */
+  /*
+   * How long one stride cycle takes, seconds (`crabWalkClock.CYCLE`).
+   */
   export const CYCLE: number = crabWalkClock.CYCLE;
 
-  /**
+  /*
    * How far above the floor a planted palm's surface lies, metres: the floor
    * contact's skin.
    */
   export const SKIN: number = 0.005;
 
-  /** How high a swinging end lifts, metres (`crabWalkClock.LIFT`). */
+  /*
+   * How high a swinging end lifts, metres (`crabWalkClock.LIFT`).
+   */
   export const LIFT: number = crabWalkClock.LIFT;
 
-  /** The trunk and the head over the supports, plain and in a full backbend. */
+  /*
+   * The trunk and the head over the supports, plain and in a full backbend.
+   */
   export const SHAPES: Readonly<Record<Variant, IShape>> = {
     plain: { pitch: -70, arch: 0, neck: 25 },
     backbend: { pitch: -95, arch: 70, neck: -45 },
   };
 
-  /**
+  /*
    * Plan a crab walk.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} On `height` outside what the limbs can hold, on `to`
-   *   for a non-finite travel, and on `backbend` for a spine that cannot arch
-   *   that far.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * On `height` outside what the limbs can hold, on `to`
+   * for a non-finite travel, and on `backbend` for a spine that cannot arch
+   * that far.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrabWalk.IParams>,
@@ -296,45 +309,59 @@ export namespace crabWalk {
   }
 }
 
-/**
+/*
  * One limb of the crawl: its channel, its contact part, its diagonal group and
  * where it stands from the pelvis.
  */
 interface ILimb {
-  /** The limb's channel. */
+  /*
+   * The limb's channel.
+   */
   limb: AutoMovieHumanLimb;
 
-  /** The contact part at its end. */
+  /*
+   * The contact part at its end.
+   */
   part: IAutoMovieMotionHumanContactWindow["part"];
 
-  /**
+  /*
    * Its phase in the stride cycle: 0 for the right hand and the left foot, one
    * half for the other pair.
    */
   phase: number;
 
-  /**
+  /*
    * Its end's stance from the pelvis in the crawl's frame (`+z` the travel),
    * metres.
    */
   stance: IAutoMovieVector3;
 
-  /** Its middle joint's hint from the end, in the same frame, metres. */
+  /*
+   * Its middle joint's hint from the end, in the same frame, metres.
+   */
   bend: IAutoMovieVector3;
 }
 
-/** The crawl's two trunk variants. */
+/*
+ * The crawl's two trunk variants.
+ */
 type Variant = "plain" | "backbend";
 
-/** One way of holding the trunk over the four supports. */
+/*
+ * One way of holding the trunk over the four supports.
+ */
 interface IShape {
-  /** The whole body's pitch, degrees: negative tips it onto its back. */
+  /*
+   * The whole body's pitch, degrees: negative tips it onto its back.
+   */
   pitch: number;
 
-  /** The trunk's whole extension, degrees, shared among its bones by their room. */
+  /*
+   * The trunk's whole extension, degrees, shared among its bones by their room.
+   */
   arch: number;
 
-  /**
+  /*
    * The neck's flexion, degrees: positive looks toward the feet, negative hangs
    * the head back.
    */

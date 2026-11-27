@@ -21,7 +21,7 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { carryHumanPosture } from "../../posture/internal/carryHumanPosture";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
-/**
+/*
  * Getting into a car through its door: the person stands in the doorway with
  * the back to the seat, sits down onto it sideways with the legs still outside,
  * then swings round on the seat to face the way the seat faces, and the head is
@@ -54,45 +54,45 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
  * excess the full duck leaves.
  */
 export namespace HumanTravelCar {
-  /**
+  /*
    * Seconds the seated body takes to swing round to face the seat's way
    * (provisional).
    */
   export const SWING: number = 1.2;
 
-  /**
+  /*
    * The least gap kept between the crown and the opening's top, metres
    * (provisional: a hair's thickness and a little more).
    */
   export const CLEAR: number = 0.03;
 
-  /**
+  /*
    * How far outside the door's plane the crown is still ducked, metres
    * (provisional: half a head's depth, the back of a head facing out of the
    * door).
    */
   export const HEAD: number = 0.1;
 
-  /**
+  /*
    * The most the spine flexes forward to duck, degrees (provisional, inside the
    * spine's 80 of flexion).
    */
   export const DUCK: number = 60;
 
-  /**
+  /*
    * Seconds before and after an instant that needs a duck over which the duck
    * grows and fades (provisional).
    */
   export const LEAD: number = 0.4;
 
-  /**
+  /*
    * Instants of the entry at which the duck is solved; each holds its duck
    * until the next, so the crown keeps `CLEAR` between them up to how far it
    * moves in one interval.
    */
   export const SAMPLES: number = 48;
 
-  /**
+  /*
    * Get into a car seat through its door: sit sideways, swing in, the head
    * ducked under the opening's top.
    */
@@ -173,7 +173,9 @@ export namespace HumanTravelCar {
           position: pivot,
           rotation: HumanFrame.turn(0),
         };
-        /** Move the actual seated endpoint around the fixed seat pivot. */
+        /*
+         * Move the actual seated endpoint around the fixed seat pivot.
+         */
         const swung = (u: number): IAutoMovieMotionHumanPosture =>
           carryHumanPosture(end, seatedFrame, {
             position: pivot,
@@ -372,8 +374,12 @@ export namespace HumanTravelCar {
     };
 }
 
-/** The record of `IGetInDuckNeed`'s site. */
+/*
+ * The record of `IGetInDuckNeed`'s site.
+ */
 type IGetInDuckNeed = { at: number; degrees: number };
 
-/** The record of `IGetInNeedsItem`'s site. */
+/*
+ * The record of `IGetInNeedsItem`'s site.
+ */
 type IGetInNeedsItem = { at: number; degrees: number };

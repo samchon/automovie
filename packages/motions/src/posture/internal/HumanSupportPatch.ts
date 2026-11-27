@@ -4,7 +4,7 @@ import type { AutoMovieHumanoidBone, IAutoMovieHumanoidSurfaces, IAutoMovieMotio
 import { HumanContactWindow } from "../../law/internal/HumanContactWindow";
 import { HumanFoot } from "./HumanFoot";
 
-/**
+/*
  * A planted sole contributes its bearing outline, and a named region
  * contributes its touching point.
  */
@@ -33,12 +33,14 @@ export function HumanSupportPatch(
   return [HumanSupportPatch.point(body, bones, contact)];
 }
 
-/**
+/*
  * The geometry of a declared contact on the displayed body, shared by motion
  * and its audit.
  */
 export namespace HumanSupportPatch {
-  /** The authored region, or the part's canonical touching surface. */
+  /*
+   * The authored region, or the part's canonical touching surface.
+   */
   export function frame(
     body: IAutoMovieMotionHumanBody,
     contact: IAutoMovieMotionHumanContactWindow,
@@ -48,7 +50,9 @@ export namespace HumanSupportPatch {
     ];
   }
 
-  /** Place the touching surface's centre in world metres. */
+  /*
+   * Place the touching surface's centre in world metres.
+   */
   export function point(
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,

@@ -13,7 +13,7 @@ import { readAutoMovieCollisionMotion } from "./readAutoMovieCollisionMotion.js"
 import { resolveAutoMovieCollisionHit } from "./resolveAutoMovieCollisionHit.js";
 import type { AutoMovieRenderInspection } from "../../AutoMovieRenderInspection.js";
 
-/**
+/*
  * Check the motion between the preceding output instant and the placed one for
  * crossings that neither placed frame shows, by bounded subdivision.
  *
@@ -27,11 +27,10 @@ import type { AutoMovieRenderInspection } from "../../AutoMovieRenderInspection.
  * bounds apart, or the placement or depth limit is reached. No interval
  * crossing a cut or a declared break is examined. The drawn instant is placed
  * again before returning, so every host keeps drawing it.
- *
- * @param props The span, its continuity, the placement and layer readers, the
- *   contact query and the work limits.
- * @returns Sub-frame findings with their bracketing span, and one coverage row
- *   per layer and per unresolved pair.
+ * Parameter props: The span, its continuity, the placement and layer readers, the
+ * contact query and the work limits.
+ * Returns: Sub-frame findings with their bracketing span, and one coverage row
+ * per layer and per unresolved pair.
  */
 export function observeAutoMovieCollisionMotionImplementation(
   props: IProps,
@@ -160,12 +159,16 @@ type ILimits = AutoMovieRenderInspection.IPlacedSceneCollisionMotionLimits;
 
 type IProps = AutoMovieRenderInspection.IPlacedSceneCollisionMotionProps;
 
-/** One placed instant: the collected parts and their memoized solids per layer. */
+/*
+ * One placed instant: the collected parts and their memoized solids per layer.
+ */
 interface IInstant {
   readonly layers: ReadonlyMap<string, ILayerState>;
 }
 
-/** One layer at one placed instant. */
+/*
+ * One layer at one placed instant.
+ */
 interface ILayerState {
   readonly layer: ILayer;
   readonly collected: AutoMovieRenderInspectionGeometry.IResult;
@@ -175,7 +178,9 @@ interface ILayerState {
   readonly geometry: Pick<Geometry.IQueries, "contact">;
 }
 
-/** Every kind of work an observation may spend. */
+/*
+ * Every kind of work an observation may spend.
+ */
 const LIMIT_KINDS: readonly (keyof ILimits)[] =
   [
     "placements",
@@ -186,7 +191,9 @@ const LIMIT_KINDS: readonly (keyof ILimits)[] =
     "parts",
   ];
 
-/** Result of bisecting one pair's span. */
+/*
+ * Result of bisecting one pair's span.
+ */
 type IOutcome =
   | { kind: "clear" }
   | { kind: "limit"; reason: string }
@@ -199,7 +206,9 @@ type IOutcome =
       separation: number;
     };
 
-/** Collect every layer at the placed instant and record its feature poses. */
+/*
+ * Collect every layer at the placed instant and record its feature poses.
+ */
 function readInstant(
   layers: readonly ILayer[],
   budget: { posedVertices: number; parts?: number },
@@ -248,7 +257,7 @@ function readInstant(
   return { layers: states };
 }
 
-/**
+/*
  * External pairs whose motion over the span can carry one through the other:
  * moving more than half the thinner part's thickness, with overlapping swept
  * bounds. Sorted sweep on X keeps the search near-linear.
@@ -297,7 +306,7 @@ function candidates(
   return pairs;
 }
 
-/**
+/*
  * Bisect a pair's span at placed instants until a witness, clearance or a
  * limit.
  */
@@ -350,7 +359,9 @@ function bisect(
   return { kind: "clear" };
 }
 
-/** Whether the pair's motion over a span can still hide a crossing. */
+/*
+ * Whether the pair's motion over a span can still hide a crossing.
+ */
 function needsSplit(
   pair: { id: string; a: string; b: string },
   begin: IInstant,
@@ -376,7 +387,9 @@ function needsSplit(
   return moved >= Math.min(a1.thickness, b1.thickness) / 2;
 }
 
-/** Whether a placed instant already confirms the pair. */
+/*
+ * Whether a placed instant already confirms the pair.
+ */
 function confirmedAt(
   state: ILayerState,
   a: string,
@@ -386,7 +399,9 @@ function confirmedAt(
   return witnessAt(state, a, b, budget) !== null;
 }
 
-/** The pair's witness at one placed instant, by the placed-frame resolution. */
+/*
+ * The pair's witness at one placed instant, by the placed-frame resolution.
+ */
 function witnessAt(
   state: ILayerState,
   a: string,
@@ -423,7 +438,9 @@ function witnessAt(
   return null;
 }
 
-/** Closed boxes overlap. */
+/*
+ * Closed boxes overlap.
+ */
 function overlaps(a: IAutoMovieSubjectBox, b: IAutoMovieSubjectBox): boolean {
   return (
     a.min.x <= b.max.x &&

@@ -15,33 +15,41 @@ import { EquineBodyPose } from "./EquineBodyPose";
 import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 
-/** A rearing strike's trunk pitch about the hips, degrees: authored. */
+/*
+ * A rearing strike's trunk pitch about the hips, degrees: authored.
+ */
 const STRIKE_PITCH: number = 30;
 
-/**
+/*
  * A double-barrel kick's trunk pitch down about the shoulders, degrees:
  * authored.
  */
 const KICK_PITCH: number = 15;
 
-/**
+/*
  * The folded foreleg's joint turns in a strike, degrees, shoulder first: the
  * stance rows' rear fold.
  */
 const TUCK: readonly [number, number, number, number] = [-40, -10, 100, 20];
 
-/** A moving hoof's path height, metres: authored. */
+/*
+ * A moving hoof's path height, metres: authored.
+ */
 const LIFT: number = 0.08;
 
-/** The zero vector. */
+/*
+ * The zero vector.
+ */
 const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
-/** The kinds of the encounter rows. */
+/*
+ * The kinds of the encounter rows.
+ */
 const KINDS: ReadonlySet<string> = new Set<
   AutoMovieArchetypeEquineEncounterCue.Row["kind"]
 >(["strike", "kick"]);
 
-/**
+/*
  * The encounter's stance rows: a rearing foreleg strike and a double-barrel
  * kick, each bringing hooves onto a point on the other horse.
  *
@@ -56,11 +64,10 @@ const KINDS: ReadonlySet<string> = new Set<
  * authored.
  */
 export namespace EquineEncounterRows {
-  /**
+  /*
    * Whether a stance cue is an encounter row.
-   *
-   * @param cue The cue.
-   * @returns Whether `plan` owns it.
+   * Parameter cue: The cue.
+   * Returns: Whether `plan` owns it.
    */
   export function owns(
     cue: AutoMovieArchetypeEquineStanceCue.Cue,
@@ -68,13 +75,12 @@ export namespace EquineEncounterRows {
     return KINDS.has(cue.kind);
   }
 
-  /**
+  /*
    * Plan one encounter row from a state.
-   *
-   * @param body The prepared solver.
-   * @param start The state it starts from.
-   * @param cue The row.
-   * @returns Its plan, returning to the start.
+   * Parameter body: The prepared solver.
+   * Parameter start: The state it starts from.
+   * Parameter cue: The row.
+   * Returns: Its plan, returning to the start.
    */
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
@@ -180,5 +186,7 @@ export namespace EquineEncounterRows {
   }
 }
 
-/** A limb end of the body. */
+/*
+ * A limb end of the body.
+ */
 type End = "Fore" | "Hind";

@@ -53,14 +53,13 @@ export class AutoMovieArchetypeAssembly<
     never
   >;
 
-  /**
+  /*
    * An assembly at an articulation state.
-   *
-   * @param members The members by key.
-   * @param props The merged model at rest.
-   * @param state The travel of each leader articulation, by prefixed id.
-   * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetype`'s constructor
-   *   does.
+   * Parameter members: The members by key.
+   * Parameter props: The merged model at rest.
+   * Parameter state: The travel of each leader articulation, by prefixed id.
+   * As `AutoMovieArchetype`'s constructor
+   * does.
    */
   private constructor(
     members: M,

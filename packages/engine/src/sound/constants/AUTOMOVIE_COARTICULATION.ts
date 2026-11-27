@@ -1,6 +1,6 @@
 import type { AutoMovieViseme } from "@automovie/interface";
 
-/**
+/*
  * Dominance parameters of the coarticulation sampler,
  * `sampleAutoMovieDialogueVisemeWeights` (Cohen and Massaro, "Modeling
  * coarticulation in synthetic visual speech", 1993).
@@ -36,16 +36,24 @@ import type { AutoMovieViseme } from "@automovie/interface";
  * values fitted to recorded speech.
  */
 export const AUTOMOVIE_COARTICULATION: Readonly<{
-  /** Time constant of a viseme `timeConstantSeconds` does not list, seconds. */
+  /*
+   * Time constant of a viseme `timeConstantSeconds` does not list, seconds.
+   */
   defaultTimeConstantSeconds: number;
 
-  /** Time constant of each viseme's dominance function, seconds. */
+  /*
+   * Time constant of each viseme's dominance function, seconds.
+   */
   timeConstantSeconds: Readonly<Partial<Record<AutoMovieViseme, number>>>;
 
-  /** Dominance magnitude of each viseme; absent visemes take `defaultMagnitude`. */
+  /*
+   * Dominance magnitude of each viseme; absent visemes take `defaultMagnitude`.
+   */
   magnitude: Readonly<Partial<Record<AutoMovieViseme, number>>>;
 
-  /** Dominance magnitude of a viseme `magnitude` does not list. */
+  /*
+   * Dominance magnitude of a viseme `magnitude` does not list.
+   */
   defaultMagnitude: number;
 }> = {
   defaultTimeConstantSeconds: 0.05,

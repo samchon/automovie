@@ -29,33 +29,32 @@ import { StrikingStroke } from "./StrikingStroke";
 import { StrikingTarget } from "./StrikingTarget";
 import type { strikingStepSupport } from "./strikingStepSupport";
 
-/**
+/*
  * Builds a kick's geometry.
  *
- * The contact is decided first, at the launch ({@link KickLaunch}), on the
- * figure itself ({@link KickContact}): the carriage under which the fitted leg
+ * The contact is decided first, at the launch (KickLaunch), on the
+ * figure itself (KickContact): the carriage under which the fitted leg
  * lands its weapon on the planned point with the support foot on its plant. The
  * displayed contact goal is then that fitted leg (its ankle, its knee and its
  * foot rotation), so the figure shows exactly what was judged, and the chamber
- * is the same leg with the knee folded ({@link KickChamber}).
+ * is the same leg with the knee folded (KickChamber).
  *
  * Between its plant, the chamber and the contact the leg travels on the path
- * {@link KickSwing} carries with the pelvis. Each online correction of the
- * target's point ({@link StrikingAim}) is a whole plan of its own, and the
- * figure moves from plan to plan ({@link KickPlans}).
+ * KickSwing carries with the pelvis. Each online correction of the
+ * target's point (StrikingAim) is a whole plan of its own, and the
+ * figure moves from plan to plan (KickPlans).
  */
 export namespace KickGeometry {
-  /**
+  /*
    * Build a kick's geometry.
-   *
-   * @param context The kick's context, its entry being the kick's own start.
-   * @param timing The kick's timing.
-   * @param t0 Film second of the kick's time zero.
-   * @param fixed The contact second the performance committed: null when the
-   *   leg met nothing, undefined when the kick offers no weapon.
-   * @param launch What the kick fixed at its launch (`KickLaunch`): its line,
-   *   its seeded miss, its carriage inputs and its contact.
-   * @returns The geometry.
+   * Parameter context: The kick's context, its entry being the kick's own start.
+   * Parameter timing: The kick's timing.
+   * Parameter t0: Film second of the kick's time zero.
+   * Parameter fixed: The contact second the performance committed: null when the
+   * leg met nothing, undefined when the kick offers no weapon.
+   * Parameter launch: What the kick fixed at its launch (`KickLaunch`): its line,
+   * its seeded miss, its carriage inputs and its contact.
+   * Returns: The geometry.
    */
   export function build(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanKick.IParams>,
@@ -165,7 +164,7 @@ export namespace KickGeometry {
     );
   }
 
-  /**
+  /*
    * Assemble the posture from the body, the kicking leg and the guard.
    *
    * When the leg meets a surface, the whole striking chain (the pelvis's turn
@@ -178,13 +177,12 @@ export namespace KickGeometry {
    * The support foot's step-up stops where the contact found it, so the
    * retraced body stands on the same foot it approached on, and the kicking
    * foot replants by the share of the step the support foot had made.
-   *
-   * @param body The kicking body.
-   * @param timing The kick's timing.
-   * @param t0 Film second of the kick's time zero.
-   * @param parts The geometry's parts.
-   * @param recovery Any open touchdown inherited from the cut into this kick.
-   * @returns The geometry with its posture.
+   * Parameter body: The kicking body.
+   * Parameter timing: The kick's timing.
+   * Parameter t0: Film second of the kick's time zero.
+   * Parameter parts: The geometry's parts.
+   * Parameter recovery: Any open touchdown inherited from the cut into this kick.
+   * Returns: The geometry with its posture.
    */
   export function compose(
     body: IAutoMovieMotionHumanBody,
@@ -322,18 +320,17 @@ export namespace KickGeometry {
     };
   }
 
-  /**
+  /*
    * A kick's foot windows: the kicking foot planted until the launch, unless it
    * is still landing from a step, and back down at the end; the support foot
    * pivoting throughout, or, stepping, pivoting to the launch, bearing to the
    * chamber and pivoting after.
-   *
-   * @param timing The kick's launch, chamber and length, seconds.
-   * @param side The kicking side.
-   * @param support The support side.
-   * @param stepped Whether the support foot steps.
-   * @param recovery The feet still landing from a cut step, if any.
-   * @returns The windows.
+   * Parameter timing: The kick's launch, chamber and length, seconds.
+   * Parameter side: The kicking side.
+   * Parameter support: The support side.
+   * Parameter stepped: Whether the support foot steps.
+   * Parameter recovery: The feet still landing from a cut step, if any.
+   * Returns: The windows.
    */
   export function windows(
     timing: Pick<
@@ -395,12 +392,18 @@ export namespace KickGeometry {
     ];
   }
 
-  /** The body and the kicking leg's goal at one instant. */
+  /*
+   * The body and the kicking leg's goal at one instant.
+   */
   interface IHeld {
-    /** The body's posture without the kicking leg's goal. */
+    /*
+     * The body's posture without the kicking leg's goal.
+     */
     body: IAutoMovieMotionHumanPosture;
 
-    /** The kicking leg's goal. */
+    /*
+     * The kicking leg's goal.
+     */
     leg: IAutoMovieMotionHumanKickGeometry.ILeg;
   }
 }

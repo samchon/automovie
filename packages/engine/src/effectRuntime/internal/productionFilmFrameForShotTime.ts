@@ -8,7 +8,7 @@ import { productionFrameBoundaryToSeconds } from "../../film/internal/production
 import { estimateProductionFilmFrame } from "./estimateProductionFilmFrame";
 import { productionFilmEffectTimelineFrameRate } from "./productionFilmEffectTimelineFrameRate";
 
-/**
+/*
  * Map one shot-local review time to its only realized film frame.
  *
  * A shot page and a review capture know a shot and a second, not a film frame.
@@ -42,7 +42,7 @@ export const productionFilmFrameForShotTime = (
   return segment.startFrame + sourceFrame - segment.sourceInFrame;
 };
 
-/**
+/*
  * The largest frame whose exact boundary time is at or before a nonnegative
  * finite `seconds`, or `null` when no safe-integer frame can own it.
  */

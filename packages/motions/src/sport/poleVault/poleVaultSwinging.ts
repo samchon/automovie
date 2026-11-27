@@ -30,7 +30,7 @@ import { poleVaultBend } from "./poleVaultBend";
 import { poleVaultSwing } from "./poleVaultSwing";
 import { preparePoleVaultLinks } from "./preparePoleVaultLinks";
 
-/**
+/*
  * A vault's swing on its bending pole (`poleVault.plan`): Linthorne's flexible
  * pole (`poleVaultSwing`), the vaulter a point mass at the top hand's grip,
  * swung from the take-off's velocity on a pole as stiff as its rating, the
@@ -39,9 +39,8 @@ import { preparePoleVaultLinks } from "./preparePoleVaultLinks";
  * and the body turned with the chord about the planted tip, its grip on the
  * shown chain's chord, the hands on the pole where the chain puts the held
  * link.
- *
- * @param prepared The vault's prepared values.
- * @returns The swing, the pole's bend and bow, and the swinging posture.
+ * Parameter prepared: The vault's prepared values.
+ * Returns: The swing, the pole's bend and bow, and the swinging posture.
  */
 export function poleVaultSwinging(
   prepared: poleVaultSwinging.IPrepared,
@@ -217,65 +216,107 @@ export function poleVaultSwinging(
   return { swing, bend, bow, swinging, swingGripOffset };
 }
 
-/** Companion types of {@link poleVaultSwinging}. */
+/*
+ * Companion types of poleVaultSwinging.
+ */
 export namespace poleVaultSwinging {
-  /** What `poleVault.plan` prepared before its swing. */
+  /*
+   * What `poleVault.plan` prepared before its swing.
+   */
   export interface IPrepared {
-    /** The vaulter's body. */
+    /*
+     * The vaulter's body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The vault's parameters. */
+    /*
+     * The vault's parameters.
+     */
     p: IAutoMovieMotionHumanPoleVault.IParams;
 
-    /** The pole as the top hand holds it. */
+    /*
+     * The pole as the top hand holds it.
+     */
     held: IAutoMovieMotionHumanHeld.IHeld;
 
-    /** The pole in the hands that hold it. */
+    /*
+     * The pole in the hands that hold it.
+     */
     pole: walkPoleFrame.IPole;
 
-    /** The prop adapter that also displays the articulated material. */
+    /*
+     * The prop adapter that also displays the articulated material.
+     */
     prop: IAutoMovieMotionHumanProp;
 
-    /** The top hand. */
+    /*
+     * The top hand.
+     */
     side: AutoMovieHumanSide;
 
-    /** The plant's posture as solved. */
+    /*
+     * The plant's posture as solved.
+     */
     from: IAutoMovieMotionHumanPosture;
 
-    /** The planted end, world metres. */
+    /*
+     * The planted end, world metres.
+     */
     tipAt: IAutoMovieVector3;
 
-    /** The top hand's grip at the plant, world metres. */
+    /*
+     * The top hand's grip at the plant, world metres.
+     */
     gripAt: IAutoMovieVector3;
 
-    /** The run's unit heading, world. */
+    /*
+     * The run's unit heading, world.
+     */
     ahead: IAutoMovieVector3;
 
-    /** The run's speed, m/s. */
+    /*
+     * The run's speed, m/s.
+     */
     speed: number;
 
-    /** The vault's take-off. */
+    /*
+     * The vault's take-off.
+     */
     takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff;
 
-    /** The reader of the top hand's grip bones. */
+    /*
+     * The reader of the top hand's grip bones.
+     */
     readGrip: ReturnType<typeof poseBones.prepare>;
   }
 
-  /** The swing, the pole's bend and bow, and the swinging posture. */
+  /*
+   * The swing, the pole's bend and bow, and the swinging posture.
+   */
   export interface ISwinging {
-    /** The point-mass swing on the flexible pole. */
+    /*
+     * The point-mass swing on the flexible pole.
+     */
     swing: poleVaultSwing.ISwing;
 
-    /** The pole's elastica on its hinged chain. */
+    /*
+     * The pole's elastica on its hinged chain.
+     */
     bend: poleVaultBend.IBend;
 
-    /** The way the pole's hinges turn, 1 or -1. */
+    /*
+     * The way the pole's hinges turn, 1 or -1.
+     */
     bow: number;
 
-    /** The vaulter's posture at seconds since the take-off. */
+    /*
+     * The vaulter's posture at seconds since the take-off.
+     */
     swinging: (t: number) => IAutoMovieMotionHumanPosture;
 
-    /** Model offset needed to keep the same wrapped material in a hand. */
+    /*
+     * Model offset needed to keep the same wrapped material in a hand.
+     */
     swingGripOffset: (
       side: AutoMovieHumanSide,
       seconds: number,

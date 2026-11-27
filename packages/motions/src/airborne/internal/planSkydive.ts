@@ -22,18 +22,17 @@ import { stuntFallPose } from "../../reaction/internal/stuntFallPose";
 import { skydivePath } from "./skydivePath";
 import { skydivePoses } from "./skydivePoses";
 
-/**
+/*
  * Plan a parachute jump from a named edge to the ground at the world floor: the
  * hips follow `skydivePath`, and the body turns from the stance at the edge
  * into the arch, opens into the hang, turns the canopy with the toggles (each
  * pulled toggle's arm brought down to the flare's), flares, and lands in the
  * parachute landing fall onto the left side, its four later points of contact
  * each a contact window in order, or on the feet.
- *
- * @param context The action's context, standing at the edge facing out.
- * @returns The jump.
- * @throws {HumanRefusal} If the edge is missing or the deployment is refused by
- *   the path.
+ * Parameter context: The action's context, standing at the edge facing out.
+ * Returns: The jump.
+ * If the edge is missing or the deployment is refused by
+ * the path.
  */
 export function planSkydive(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSkydive.IParams>,
@@ -393,17 +392,27 @@ export function planSkydive(
   };
 }
 
-/** Seconds the exit takes to turn from standing into the arch (provisional). */
+/*
+ * Seconds the exit takes to turn from standing into the arch (provisional).
+ */
 const EXIT_TURN: number = 1;
 
-/** Seconds a toggle takes to come down or go back up (provisional). */
+/*
+ * Seconds a toggle takes to come down or go back up (provisional).
+ */
 const PULL: number = 0.3;
 
-/** Seconds of the parachute landing fall (provisional). */
+/*
+ * Seconds of the parachute landing fall (provisional).
+ */
 const PLF: number = 1.2;
 
-/** Seconds a stand-up landing takes to absorb (provisional). */
+/*
+ * Seconds a stand-up landing takes to absorb (provisional).
+ */
 const ABSORB: number = 0.5;
 
-/** The landing fall's events in order. */
+/*
+ * The landing fall's events in order.
+ */
 const POINTS: readonly string[] = ["calf", "thigh", "buttock", "pushUp"];

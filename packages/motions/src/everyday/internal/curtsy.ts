@@ -16,10 +16,12 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { curtsyCross } from "./curtsyCross";
 
-/** Positional tolerance for a solved ankle or sole, in metres. */
+/*
+ * Positional tolerance for a solved ankle or sole, in metres.
+ */
 const FIT: number = 0.006;
 
-/**
+/*
  * A small ceremonial curtsy. The Royal Household describes a small curtsy as a
  * traditional optional greeting
  * (https://www.royal.uk/encyclopedia/greeting-the-king-and-queen). Canadian
@@ -55,7 +57,9 @@ export const curtsy: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCurtsy>
     plan,
   };
 
-/** Plan a single curtsy and reject key poses that fail the displayed foot fit. */
+/*
+ * Plan a single curtsy and reject key poses that fail the displayed foot fit.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCurtsy>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -359,7 +363,9 @@ function plan(
   return planned;
 }
 
-/** Read the same named sole sockets and outline corners from a displayed foot. */
+/*
+ * Read the same named sole sockets and outline corners from a displayed foot.
+ */
 function solePoints(
   body: IAutoMovieMotionHumanBody,
   bones: ReturnType<typeof poseBones>,
@@ -377,7 +383,7 @@ function solePoints(
   ];
 }
 
-/**
+/*
  * Check corresponding footprint points for rotation and translation errors as
  * well as clearance.
  */

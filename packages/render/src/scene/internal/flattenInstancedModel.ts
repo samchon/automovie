@@ -14,7 +14,7 @@ import { flattenRigidParts } from "./flattenRigidParts.js";
 import { instancedModelParts } from "./instancedModelParts.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
-/**
+/*
  * Flatten one runtime model for a chunked instancing consumer.
  *
  * BuildModel creates this entry's materials; the returned representation hands
@@ -28,7 +28,7 @@ import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceReti
  * per member; actual submission counts belong to renderer observation.
  *
  * Passing `bake` additionally bakes the model's whole repertoire
- * ({@link bakeFormationCycle}); a model that declares no gait, or carries no
+ * (bakeFormationCycle); a model that declares no gait, or carries no
  * skeleton to move, returns a null cycle and renders exactly as before. The
  * generated model's original geometries/skeletons are temporary extraction
  * inputs and retire after successful merge/bake; materials and emitted tables

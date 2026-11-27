@@ -9,7 +9,7 @@ import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the crouch, squat and kneel family, each performed alone
  * from quiet standing on the polygon man.
  *
@@ -28,9 +28,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  *   the margin of stability not negative from the start to the end of the step
  *   back (before the knee bears); and for sitting back the knee flexion at
  *   `seatOnHeels` inside the high-flexion band.
- *
- * @param bodies The sweep bodies to run each case on; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies to run each case on; `m-average` when absent.
+ * Returns: The cases.
  */
 export function crouchCases(
   bodies: readonly string[] = ["m-average"],
@@ -169,7 +168,9 @@ export function crouchCases(
   return out;
 }
 
-/** Slip, ROM and the planted feet's height off the floor. */
+/*
+ * Slip, ROM and the planted feet's height off the floor.
+ */
 function common(
   performance: IAutoMovieMotionHumanPerformance,
   who: FamilyCaseKit.IBody,

@@ -1,6 +1,6 @@
 import { AutoMovieEngineKinematics } from "@automovie/engine";
 
-/**
+/*
  * The reader a left limb's mirror-image solve reads through: a fresh reader of
  * its own. A left limb is fitted as the right limb of the mirrored pose
  * (`solveHumanLimbFit`), and a reader keeps its forward-kinematics rows by the
@@ -11,10 +11,9 @@ import { AutoMovieEngineKinematics } from "@automovie/engine";
  * before. A reader that is not the engine's own
  * (`AutoMovieEngineKinematics.preparePoseResolution.isNative`) is returned itself, so its owner observes
  * every call it was lent for.
- *
- * @param reader The operation's reader.
- * @returns A fresh reader for the mirror image, or `reader` itself when it is
- *   not the engine's.
+ * Parameter reader: The operation's reader.
+ * Returns: A fresh reader for the mirror image, or `reader` itself when it is
+ * not the engine's.
  */
 export function mirrorHumanLimbSource(
   _reader: ReturnType<typeof AutoMovieEngineKinematics.preparePoseResolution>,

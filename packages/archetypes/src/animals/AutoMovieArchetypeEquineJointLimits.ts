@@ -176,7 +176,7 @@ export namespace AutoMovieArchetypeEquineJointLimits {
   }
 }
 
-/**
+/*
  * Look up clinical horse joint-angle observations for a distal bone.
  *
  * The bone identifies its proximal joint. Right-side lookup returns the same
@@ -185,9 +185,8 @@ export namespace AutoMovieArchetypeEquineJointLimits {
  * Means, standard deviations and standing extension are not anatomical bounds.
  * Shoulder, hip and axial observations, and every local rotation limit, remain
  * unknown. Skin-marker rays also differ from the model's coarse bone bars.
- *
- * @param bone The bone whose proximal joint is being inspected.
- * @returns Read-only source observations and explicitly unknown runtime limits.
+ * Parameter bone: The bone whose proximal joint is being inspected.
+ * Returns: Read-only source observations and explicitly unknown runtime limits.
  */
 function readEquineJointLimits(
   bone: AutoMovieArchetypeQuadrupedBody.Bone,
@@ -255,7 +254,7 @@ function readEquineJointLimits(
       };
 }
 
-/**
+/*
  * Primary acquisition conditions; source tables supply aggregate observations
  * only.
  */
@@ -303,7 +302,7 @@ const STUDIES: Readonly<
   },
 };
 
-/**
+/*
  * Each angle definition follows its own study; the two methods use different
  * rays.
  */

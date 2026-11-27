@@ -1,18 +1,17 @@
 import { adjacentAutoMovieFloat64 } from "../../math/internal/adjacentAutoMovieFloat64";
 import type { AirborneQuadratureAggregateTypes } from "./AirborneQuadratureAggregateTypes";
 
-/**
+/*
  * Maintain adaptive quadrature sums and a changing nonnegative error measure.
  * Each panel has fixed error components e; its current priority is w(value).e.
  * Internal nodes keep component sums and maxima. The maxima bound every
  * descendant priority for the current weights, so branch-and-bound selects the
  * real maximum without keeping stale scores when the integral changes.
- *
- * @param first The first actual Simpson panel.
- * @param components Fixed nonnegative error components, independent of the
- *   whole integral.
- * @returns A call-owned tree with fresh integral snapshots and borrowed
- *   read-only roundoff totals.
+ * Parameter first: The first actual Simpson panel.
+ * Parameter components: Fixed nonnegative error components, independent of the
+ * whole integral.
+ * Returns: A call-owned tree with fresh integral snapshots and borrowed
+ * read-only roundoff totals.
  */
 export function AirborneQuadratureAggregate<
   Panel extends AirborneQuadratureAggregateTypes.IPanel,
@@ -20,7 +19,9 @@ export function AirborneQuadratureAggregate<
   first: Panel,
   components: (error: readonly number[]) => readonly number[],
 ): AirborneQuadratureAggregateTypes.ITree<Panel> {
-  /** Numeric subtree totals, with an explicit parent for local refresh. */
+  /*
+   * Numeric subtree totals, with an explicit parent for local refresh.
+   */
   interface IBase {
     parent: IBranch | null;
     value: number[];
@@ -29,20 +30,28 @@ export function AirborneQuadratureAggregate<
     maximum: number[];
     first: number;
   }
-  /** An actual live panel and its fixed derived error coordinates. */
+  /*
+   * An actual live panel and its fixed derived error coordinates.
+   */
   interface ILeaf extends IBase {
     kind: "leaf";
     panel: Panel;
   }
-  /** A binary partition whose aggregates enclose both current children. */
+  /*
+   * A binary partition whose aggregates enclose both current children.
+   */
   interface IBranch extends IBase {
     kind: "branch";
     left: INode;
     right: INode;
   }
-  /** The discriminant makes a panel and child pair mutually exclusive. */
+  /*
+   * The discriminant makes a panel and child pair mutually exclusive.
+   */
   type INode = ILeaf | IBranch;
-  /** The live leaves by panel; a replaced panel leaves it, and it dies with the tree. */
+  /*
+   * The live leaves by panel; a replaced panel leaves it, and it dies with the tree.
+   */
   const index: Map<Panel, ILeaf> = new Map<Panel, ILeaf>();
   let width: number | undefined;
   const leaf: (panel: Panel) => ILeaf = (panel: Panel): ILeaf => {
@@ -194,7 +203,7 @@ export function AirborneQuadratureAggregate<
   };
 }
 
-/**
+/*
  * Nonnegative weighted priority, retaining the seed's zero-times-infinity
  * convention.
  */
@@ -208,7 +217,7 @@ function weighted(
   return result;
 }
 
-/**
+/*
  * Enclose an exact sum of two nonnegative bounds, widening only a
  * downward-rounded result.
  */

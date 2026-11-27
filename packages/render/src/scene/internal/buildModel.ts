@@ -21,8 +21,8 @@ import { AutoMovieCollisionSource } from "../AutoMovieCollisionSource.js";
 import { AutoMovieRenderReliefWeightShading } from "../reliefWeightShading/index.js";
 import { AutoMovieRenderWearShading } from "../wearShading/index.js";
 
-/**
- * Build a renderable `three.js` object from an {@link IAutoMovieModel}.
+/*
+ * Build a renderable `three.js` object from an IAutoMovieModel.
  *
  * Constructs the bone hierarchy, then attaches each part. A rigid part is
  * parented to its `attachedBone` and rides that bone. A mesh with skin data and
@@ -37,27 +37,27 @@ import { AutoMovieRenderWearShading } from "../wearShading/index.js";
  * the dual quaternion vertex patch, and its mesh casts shadows through its own
  * patched depth and distance materials, so the shadow deforms like the surface;
  * the mesh is flagged so guide passes patch the materials they swap in. Every
- * skinned part is an {@link AutoMovieSkinnedMesh} of its skin's method, so
+ * skinned part is an AutoMovieSkinnedMesh of its skin's method, so
  * bounds, culling, raycasts and vertex queries read the blend the shader draws.
  * Parts with the same ordered joint slots share one skeleton and bone texture
  * within this model; each mesh retains its own bind matrix and blend method.
  * Separate model builds own independent skeletons and pose state.
  *
  * A mesh's morph targets reach `morphTargetDictionary` by name, so
- * {@link applyExpression} drives them, and its driven targets are recorded on
- * the mesh for {@link applyPose}.
+ * applyExpression drives them, and its driven targets are recorded on
+ * the mesh for applyPose.
  *
- * The returned `bones` map is what {@link applyPose} drives, and the model's
- * `lookAt` rides along so {@link AutoMovieRenderPlayer} can turn its eye bones.
+ * The returned `bones` map is what applyPose drives, and the model's
+ * `lookAt` rides along so AutoMovieRenderPlayer can turn its eye bones.
  *
  * `resolveTexture` is how a declared PBR finish gets its pixels, and it is the
  * host's to supply because this package performs no I/O: the caller decodes the
  * model's bindings first (an `AutoMovieTextureCache` primes them in one pass)
- * and hands over an {@link IAutoMovieTextureResolver} that answers
+ * and hands over an IAutoMovieTextureResolver that answers
  * synchronously. Omitting it builds every material with its scalar coefficients
  * and no maps, which is exactly what a model declaring no texture renders and
  * what every pre-texture production still renders. The resolver must answer
- * with a texture object PER BINDING, because {@link AutoMovieRenderMaterial.build} writes that
+ * with a texture object PER BINDING, because AutoMovieRenderMaterial.build writes that
  * binding's color space, UV transform and sampler onto whatever it is given,
  * and two slots sharing one object would fight over one repeat. Every returned
  * geometry and material is registered as soon as it is acquired, before a later

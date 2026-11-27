@@ -9,7 +9,7 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanObstacle } from "../../perform/internal/HumanObstacle";
 
-/**
+/*
  * Refuses a walked way that goes through something solid: a wall with no
  * opening on the way, an opening narrower than the walker's shoulders or one
  * lower than the walker stands.
@@ -20,10 +20,9 @@ import { HumanObstacle } from "../../perform/internal/HumanObstacle";
  * first that is blocked is refused with the obstacle, where the way meets it,
  * why, and what would pass: the obstacle's openings for a solid, or the measure
  * the opening would need.
- *
- * @param context The walk's context: the walker, where it stands, the places it
- *   passes and its end.
- * @throws {HumanRefusal} A `reach` refusal on `path` when a stretch is blocked.
+ * Parameter context: The walk's context: the walker, where it stands, the places it
+ * passes and its end.
+ * A `reach` refusal on `path` when a stretch is blocked.
  */
 export function walkClear(
   context: IAutoMovieMotionHumanActionContext<IWalkClearContext>,
@@ -82,25 +81,19 @@ export function walkClear(
   }
 }
 
-/** Companion check of {@link walkClear}. */
+/*
+ * Companion check of walkClear.
+ */
 export namespace walkClear {
-  /**
+  /*
    * Refuses a place to stand by a person when something solid lies between the
    * two: a walker escorting, following or meeting someone ends on their side of
    * a wall, not across it.
-   *
-   * @param context The action's context.
-   * @param place Where the walker would stand, world metres.
-   * @param person Where the person is, world metres.
-   * @throws {HumanRefusal} A `reach` refusal on `path` naming the obstacle
-   *   between them.
-   * @evidence contracts/development/common.md#meaningful-documentation States the rule and the refusal.
-   * @evidence contracts/development/implementation.md#principled-implementation The stretch between the two is asked of the performance's obstacles as a body's own passage would be, so an open door wide and high enough for the walker does not count as a wall between them.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One question, one refusal.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Refused, never moved to the person's side: which side to stand on is the composition's.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Linear in the obstacles.
-   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work Nothing to cache.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
+   * Parameter context: The action's context.
+   * Parameter place: Where the walker would stand, world metres.
+   * Parameter person: Where the person is, world metres.
+   * A `reach` refusal on `path` naming the obstacle
+   * between them.
    */
   export function between(
     context: IAutoMovieMotionHumanActionContext<object>,
@@ -124,7 +117,9 @@ export namespace walkClear {
   }
 }
 
-/** The record of `IWalkClearContext`'s site. */
+/*
+ * The record of `IWalkClearContext`'s site.
+ */
 type IWalkClearContext = {
   to: IAutoMovieVector3;
   via?: IAutoMovieVector3[];

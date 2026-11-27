@@ -3,16 +3,15 @@ import type {
   IAutoMovieMotionHumanDive,
 } from "@automovie/interface";
 
-/**
+/*
  * The dive's contact windows: both feet planted through the take-off (on the
  * held ball for a dive), the seat lying from the landing (or from three tenths
  * into a slide's travel), a slide's feet bearing as they slide, and a dive's
  * landing hand planted from the landing.
  *
  * Part of `dive.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `contacts`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `contacts`.
  */
 export function diveContacts(
   prepared: diveContacts.IPrepared,
@@ -64,29 +63,47 @@ export function diveContacts(
   ];
 }
 
-/** The `contacts` of `dive.plan`, built from what that plan prepared. */
+/*
+ * The `contacts` of `dive.plan`, built from what that plan prepared.
+ */
 export namespace diveContacts {
-  /** What `dive.plan` prepared for its `contacts`. */
+  /*
+   * What `dive.plan` prepared for its `contacts`.
+   */
   export interface IPrepared {
-    /** The `share` `dive.plan` prepared. */
+    /*
+     * The `share` `dive.plan` prepared.
+     */
     share: (seconds: number) => number;
 
-    /** The `crouch` `dive.plan` prepared. */
+    /*
+     * The `crouch` `dive.plan` prepared.
+     */
     crouch: number;
 
-    /** The `kind` `dive.plan` prepared. */
+    /*
+     * The `kind` `dive.plan` prepared.
+     */
     kind: IAutoMovieMotionHumanDive.Kind;
 
-    /** The `travel` `dive.plan` prepared. */
+    /*
+     * The `travel` `dive.plan` prepared.
+     */
     travel: number;
 
-    /** The `toLeft` `dive.plan` prepared. */
+    /*
+     * The `toLeft` `dive.plan` prepared.
+     */
     toLeft: number;
   }
 }
 
-/** The alternatives of `PlanContactsPart`'s site. */
+/*
+ * The alternatives of `PlanContactsPart`'s site.
+ */
 type PlanContactsPart = "leftFoot" | "rightFoot";
 
-/** The alternatives of `PlanContactsPart2`'s site. */
+/*
+ * The alternatives of `PlanContactsPart2`'s site.
+ */
 type PlanContactsPart2 = "leftFoot" | "rightFoot";

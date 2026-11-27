@@ -16,7 +16,7 @@ import { softBodyRestConfiguration } from "./softBodyRestConfiguration";
 import { validateAutoMovieSoftFurnishingDomainOwnership } from "./validateAutoMovieSoftFurnishingDomainOwnership";
 import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
 
-/**
+/*
  * Join typed furnishings to domains, supports and room volumes, then inspect
  * held rest particles.
  */

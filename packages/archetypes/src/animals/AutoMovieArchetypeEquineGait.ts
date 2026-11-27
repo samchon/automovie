@@ -250,17 +250,16 @@ export namespace AutoMovieArchetypeEquineGait {
     hind: 0.05,
   };
 
-  /**
+  /*
    * One of the horse's gaits gathered from the measured tables: its rows,
    * phases, bob and nod range, the walk's fold and lift or the trot's for the
    * faster gaits, as the tables state, with its nod's timing and its change
    * rule.
-   *
-   * @param gait The gait.
-   * @param nod When in the stride the head is nose-down, as `NOD` states.
-   * @param change How it is changed into from the gait below, absent for the
-   *   walk.
-   * @returns The gait.
+   * Parameter gait: The gait.
+   * Parameter nod: When in the stride the head is nose-down, as `NOD` states.
+   * Parameter change: How it is changed into from the gait below, absent for the
+   * walk.
+   * Returns: The gait.
    */
   function gathered(
     gait: Gait,
@@ -279,14 +278,14 @@ export namespace AutoMovieArchetypeEquineGait {
     };
   }
 
-  /**
+  /*
    * Reduction of the dressage horses' clocks to `REFERENCE` by the table's own
    * dynamic similarity: their heights are not reported, so the warmblood
    * `WARMBLOOD` height stands for them, provisional.
    */
   const DRESSAGE: number = Math.sqrt(WARMBLOOD / REFERENCE);
 
-  /**
+  /*
    * The collected diagonal gaits' shared clock rows, reduced to `REFERENCE` by
    * `DRESSAGE`. Piaffe: stride 1.11 s (SD 0.10) and stride length 0.37 m, so
    * 0.333 m/s; passage: stride 1.09 s (SD 0.14) and 1.67 m, so 1.532 m/s; both
@@ -318,16 +317,15 @@ export namespace AutoMovieArchetypeEquineGait {
     },
   ];
 
-  /**
+  /*
    * One collected diagonal gait: the shared `COLLECTED` clock, the trot's
    * carriage, fold and lift ranges, and the FEI hoof heights. The FEI's
    * guideline (as Clayton and Hobbs 2019 quote it) raises the fore toe level
    * with the middle of the supporting fore cannon and the hind toe just above
    * the fetlock in both passage and piaffe, so the elevation is 0.5 fore and 0
    * hind along the cannon.
-   *
-   * @param phases When each hoof lands, from the left fore's landing.
-   * @returns The gait.
+   * Parameter phases: When each hoof lands, from the left fore's landing.
+   * Returns: The gait.
    */
   function collected(
     phases: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>>,

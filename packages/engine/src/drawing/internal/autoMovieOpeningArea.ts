@@ -7,7 +7,7 @@ import { polygonDoubleArea } from "../../architecture/internal/polygonDoubleArea
 import { autoMovieOpeningArc } from "./autoMovieOpeningArc";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
-/**
+/*
  * The exact area of an opening's void, in square metres, on the drawing grid.
  *
  * Exact rather than the bounding hull's area, because an area is what glass is
@@ -17,9 +17,8 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * segment `r^2 (sweep - sin sweep) / 2` in closed form, not by sampling the
  * chords the drawing drafts. The result is unsigned, so the outline may wind
  * either way, and the profile must be the validated simple outline.
- *
- * @param profile Opening profile with its outline and optional bulges.
- * @returns The void's area in square metres, rounded to the drawing grid.
+ * Parameter profile: Opening profile with its outline and optional bulges.
+ * Returns: The void's area in square metres, rounded to the drawing grid.
  */
 export const autoMovieOpeningArea = (
   profile: IAutoMovieOpeningProfile,

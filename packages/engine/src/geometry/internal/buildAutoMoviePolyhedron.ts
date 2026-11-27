@@ -2,7 +2,7 @@ import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * Build a boundary representation from planar convex polygonal faces.
  *
  * Extrusion, revolution and sweep each impose a shape on the result; this is
@@ -35,10 +35,9 @@ import { Vector3 } from "../../math/Vector3";
  * the face is fanned from its first corner. Whether the result is a closed
  * shell is the caller's to declare and `inspectAutoMovieMeshTopology`'s to
  * measure.
- *
- * @param faces Each face's corners in metres, counter-clockwise seen from
- *   outside.
- * @returns A mesh with flat normals and metric UVs.
+ * Parameter faces: Each face's corners in metres, counter-clockwise seen from
+ * outside.
+ * Returns: A mesh with flat normals and metric UVs.
  */
 export const buildAutoMoviePolyhedron = (
   faces: ReadonlyArray<readonly IAutoMovieVector3[]>,
@@ -96,7 +95,7 @@ export const buildAutoMoviePolyhedron = (
   return { positions, normals, uvs, indices, skin: null };
 };
 
-/**
+/*
  * The unit normal of a face, taken at its first corner whose two edges span a
  * cross product longer than `FACE_EPSILON`.
  *
@@ -123,7 +122,7 @@ const faceNormal = (
   throw new Error(`polyhedron face[${face}] encloses no area`);
 };
 
-/**
+/*
  * The in-plane metre frame one planar face measures its texture coordinates in,
  * decided by the face's normal and nothing else.
  *
@@ -157,7 +156,9 @@ const surfaceUvFrame = (
   return { u, v: Vector3.cross(normal, u) };
 };
 
-/** One world axis projected into a plane and renormalized. */
+/*
+ * One world axis projected into a plane and renormalized.
+ */
 const inPlaneAxis = (
   axis: IAutoMovieVector3,
   normal: IAutoMovieVector3,
@@ -166,13 +167,13 @@ const inPlaneAxis = (
     Vector3.subtract(axis, Vector3.scale(normal, Vector3.dot(axis, normal))),
   );
 
-/**
+/*
  * How aligned with world up a face normal may be before world up stops being a
  * usable in-plane reference: the cosine of about `0.081` degrees off level.
  */
 const LEVEL_FACE_LIMIT: number = 1 - 1e-6;
 
-/**
+/*
  * Largest edge cross product, out-of-plane distance, or backward turn one
  * authored face may carry and still count as zero.
  */

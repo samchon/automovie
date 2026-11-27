@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanContactWindow,
 } from "@automovie/interface";
 
-/**
+/*
  * One placed action as the audit reads it around the span a solved window owns
  * some of the person's segments (`solvedHumanAuditSpans`): before and after the
  * span as declared, and inside it with the windows of the owned parts removed
@@ -12,12 +12,11 @@ import type {
  * its start, clamped to [0, 1]. Where the solver owns the root, the inside
  * piece takes no balance judgement (`physical: false`). An action that does not
  * overlap the span is read as it is.
- *
- * @param span The placed action, film seconds.
- * @param owned The owned span and whether it takes the root.
- * @param solved The solver's contact episodes of the person, film seconds.
- * @param owns Whether a declared window bears on an owned segment.
- * @returns The pieces, in film order.
+ * Parameter span: The placed action, film seconds.
+ * Parameter owned: The owned span and whether it takes the root.
+ * Parameter solved: The solver's contact episodes of the person, film seconds.
+ * Parameter owns: Whether a declared window bears on an owned segment.
+ * Returns: The pieces, in film order.
  */
 export function splitSolvedHumanAuditSpan(
   span: IAutoMovieMotionHumanAuditMotion.ISpan,
@@ -70,32 +69,52 @@ export function splitSolvedHumanAuditSpan(
   ];
 }
 
-/** Companion types of {@link splitSolvedHumanAuditSpan}. */
+/*
+ * Companion types of splitSolvedHumanAuditSpan.
+ */
 export namespace splitSolvedHumanAuditSpan {
-  /** The span a solved window owns, film seconds. */
+  /*
+   * The span a solved window owns, film seconds.
+   */
   export interface IOwned {
-    /** First film second the solver owns a segment of the person. */
+    /*
+     * First film second the solver owns a segment of the person.
+     */
     from: number;
 
-    /** Last film second it does. */
+    /*
+     * Last film second it does.
+     */
     to: number;
 
-    /** Whether it owns the root segment, the body's whole support. */
+    /*
+     * Whether it owns the root segment, the body's whole support.
+     */
     root: boolean;
   }
 
-  /** A solver contact episode of the person as a bearing window, film seconds. */
+  /*
+   * A solver contact episode of the person as a bearing window, film seconds.
+   */
   export interface IContact {
-    /** The person's part in contact. */
+    /*
+     * The person's part in contact.
+     */
     part: IAutoMovieMotionHumanContactWindow["part"];
 
-    /** What it bears on. */
+    /*
+     * What it bears on.
+     */
     support: IAutoMovieMotionHumanContactWindow.Support;
 
-    /** First film second. */
+    /*
+     * First film second.
+     */
     from: number;
 
-    /** Last film second. */
+    /*
+     * Last film second.
+     */
     to: number;
   }
 }

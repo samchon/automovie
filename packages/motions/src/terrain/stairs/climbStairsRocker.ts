@@ -8,13 +8,12 @@ import type {
 import { walkLeg } from "../../actions/internal/walkLeg";
 import { HumanFoot } from "../../posture/internal/HumanFoot";
 
-/**
+/*
  * Bind rigid stair rocker geometry to each material footprint.
- *
- * @param body The unchanged occupant and its sole sockets.
- * @param prints Each foot's fixed placements at tread contacts.
- * @returns A rocker at the current stance or swinging placement, hip and dorsal
- *   limit.
+ * Parameter body: The unchanged occupant and its sole sockets.
+ * Parameter prints: Each foot's fixed placements at tread contacts.
+ * Returns: A rocker at the current stance or swinging placement, hip and dorsal
+ * limit.
  */
 export function climbStairsRocker(
   body: IAutoMovieMotionHumanBody,
@@ -25,7 +24,9 @@ export function climbStairsRocker(
   hip: IAutoMovieVector3,
   dorsal: number,
 ) => IAutoMovieClimbStairsRocker {
-  /** Prepare the rigid forefoot and rocker geometry of one placement. */
+  /*
+   * Prepare the rigid forefoot and rocker geometry of one placement.
+   */
   function prepare(
     side: AutoMovieHumanSide,
     placement: IAutoMovieMotionHumanFoot.IPlacement,
@@ -68,22 +69,34 @@ export function climbStairsRocker(
     (sources[side].get(placement) ?? prepare(side, placement))(hip, dorsal);
 }
 
-/** One stair foot's placed rotation and toe flexion relative to its asked sole. */
+/*
+ * One stair foot's placed rotation and toe flexion relative to its asked sole.
+ */
 interface IAutoMovieClimbStairsRocker {
-  /** Ankle and sole orientation in world coordinates. */
+  /*
+   * Ankle and sole orientation in world coordinates.
+   */
   placement: IAutoMovieMotionHumanFoot.IPlacement;
 
-  /** Toe flexion replacing the heel rocker's pitch change, degrees. */
+  /*
+   * Toe flexion replacing the heel rocker's pitch change, degrees.
+   */
   flexion: number;
 }
-/** A rocker with a fixed ankle orbit read at its current hip and bearing load. */
+/*
+ * A rocker with a fixed ankle orbit read at its current hip and bearing load.
+ */
 type AutoMovieClimbStairsRockerSource = (
   hip: IAutoMovieVector3,
   dorsal: number,
 ) => IAutoMovieClimbStairsRocker;
 
-/** The record of `IItemEntryItem`'s site. */
+/*
+ * The record of `IItemEntryItem`'s site.
+ */
 type IItemEntryItem = { print: IPrintItemEntry };
 
-/** The record of `IPrintItemEntry`'s site. */
+/*
+ * The record of `IPrintItemEntry`'s site.
+ */
 type IPrintItemEntry = { placement: IAutoMovieMotionHumanFoot.IPlacement };

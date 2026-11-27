@@ -14,7 +14,7 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
 import { planPhysicalSupportTargets } from "./planPhysicalSupportTargets";
 import { AutoMovieEnginePhysicalFloorChainTarget } from "../AutoMovieEnginePhysicalFloorChainTarget";
 
-/**
+/*
  * Fit declared support patches to a plane using their actual convex geometry.
  * Keep authored endpoint goals and their floor constraints in the same fit,
  * retaining any unresolved residual. A shared root-drop budget is consumed
@@ -140,7 +140,9 @@ export function planPhysicalFloorSupportTargets(
   }
   return { targets, goals, residuals, floorErrors, rootDrop };
 
-  /** A patch contains declared colliders, not an assumed species-specific sole. */
+  /*
+   * A patch contains declared colliders, not an assumed species-specific sole.
+   */
   function minimum(limb: IAutoMovieFootfallPattern["limbs"][number]): number {
     const heights: number[] = (limb.contacts ?? [limb.bone]).flatMap(
       (bone: string): number[] => {

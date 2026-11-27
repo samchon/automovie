@@ -1,13 +1,12 @@
 import { parseArgs } from "node:util";
 
-/**
+/*
  * Admit the CLI's production check module, subjects, selected checks and one
  * optional gate. Status is read-only without `--run`. A gate evaluates its
  * whole stage even when `--only` limits execution to named check IDs.
- *
- * @param args The tokens after the command, excluding the executable name.
- * @returns Production-relative module path, selection and output mode.
- * @throws On malformed options, blank values or a repeated single-value option.
+ * Parameter args: The tokens after the command, excluding the executable name.
+ * Returns: Production-relative module path, selection and output mode.
+ * On malformed options, blank values or a repeated single-value option.
  */
 export function readAutoMovieCheckOptions(args: readonly string[]): {
   module: string;

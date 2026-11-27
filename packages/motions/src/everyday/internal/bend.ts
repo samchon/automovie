@@ -20,7 +20,7 @@ import { bendLower } from "./bendLower";
 import { bendLowerSolve } from "./bendLowerSolve";
 import { planBendStrategy } from "./planBendStrategy";
 
-/**
+/*
  * Bending down to bring a hand to a low point (the floor, a low shelf, a note
  * on the ground) with the feet planted, by a stoop, a squat or a semi-squat,
  * then straightening up.
@@ -60,10 +60,14 @@ import { planBendStrategy } from "./planBendStrategy";
  * strategy cannot reach is refused with the lowest height it reaches.
  */
 export namespace bend {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "bend";
 
-  /** Cancel table. */
+  /*
+   * Cancel table.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     stand: [
       {
@@ -82,36 +86,37 @@ export namespace bend {
     putDown: [{ window: ["deepest", 1], kind: "inertialize", entry: 0 }],
   };
 
-  /** A requested shift uses the pelvis over the feet throughout the bend. */
+  /*
+   * A requested shift uses the pelvis over the feet throughout the bend.
+   */
   export const balance: IAutoMovieMotionHumanBalance = {
     by: "hips",
     from: { event: "start" },
     to: { event: "end" },
   };
 
-  /**
+  /*
    * How long the palm holds on the target when the caller names no hold,
    * seconds (provisional: half a second, a brief touch, read from no measured
    * source).
    */
   export const HOLD: number = 0.5;
 
-  /**
+  /*
    * The reaching elbow's outward hint, a share of the upper arm (provisional:
    * read from no measured source).
    */
   export const REACH_OUT: number = 0.2;
 
-  /**
+  /*
    * Plan a bend: choose the strategy, solve the balance shift and the least
    * trunk inclination that brings the palm to the target, time the descent as
    * an aimed movement, and return postures that lower the body, put the palm on
    * the target and the free palm on its thigh, hold, and rise.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the target lies beyond the strategy's reach, or
-   *   the hold is negative.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the target lies beyond the strategy's reach, or
+   * the hold is negative.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBend.IParams>,
@@ -185,35 +190,42 @@ export namespace bend {
     });
   }
 
-  /** One lowering a self-target bend is chosen among. */
+  /*
+   * One lowering a self-target bend is chosen among.
+   */
   export interface ICandidate {
-    /** Whether the trunk aligns with the target. */
+    /*
+     * Whether the trunk aligns with the target.
+     */
     alignTrunk: boolean;
 
-    /** The lowering strategy. */
+    /*
+     * The lowering strategy.
+     */
     strategy: AutoMovieBendStrategy;
 
-    /** How near the shoulder must come to the target, metres. */
+    /*
+     * How near the shoulder must come to the target, metres.
+     */
     reach: number;
   }
 
-  /**
+  /*
    * The lowering that brings a hand within reach of a target: the strategy
    * `choose` gives, solved by `bendLowerSolve`, and for `auto` a squat where
    * the semi-squat cannot reach.
-   *
-   * @param body The body.
-   * @param upright The standing posture lowered.
-   * @param target The target.
-   * @param side The hand.
-   * @param strategy The requested strategy.
-   * @param reach How near the shoulder must come to the target, metres; the
-   *   bend's palm reach when absent.
-   * @param instant Action-local time and the event clock when observing an
-   *   optional balance window on this key.
-   * @returns The solved lowering.
-   * @throws {HumanRefusal} When the strategy, and for `auto` the squat after
-   *   it, cannot reach the target.
+   * Parameter body: The body.
+   * Parameter upright: The standing posture lowered.
+   * Parameter target: The target.
+   * Parameter side: The hand.
+   * Parameter strategy: The requested strategy.
+   * Parameter reach: How near the shoulder must come to the target, metres; the
+   * bend's palm reach when absent.
+   * Parameter instant: Action-local time and the event clock when observing an
+   * optional balance window on this key.
+   * Returns: The solved lowering.
+   * When the strategy, and for `auto` the squat after
+   * it, cannot reach the target.
    */
   export function lowering(
     body: IAutoMovieMotionHumanBody,
@@ -264,14 +276,13 @@ export namespace bend {
     });
   }
 
-  /**
+  /*
    * The strategy for a target: `auto` stoops above mid-shank and semi-squats
    * below (the plan squats instead where the semi-squat cannot reach).
-   *
-   * @param body The body's ankle height and shank.
-   * @param target The target point.
-   * @param strategy The requested strategy.
-   * @returns A concrete strategy.
+   * Parameter body: The body's ankle height and shank.
+   * Parameter target: The target point.
+   * Parameter strategy: The requested strategy.
+   * Returns: A concrete strategy.
    */
   export function choose(
     body: { measure: Pick<IAutoMovieBodyMeasure, "ankleHeight" | "shank"> },
@@ -285,10 +296,14 @@ export namespace bend {
   }
 }
 
-/** The offset-corrected wrist point for a strategy. */
+/*
+ * The offset-corrected wrist point for a strategy.
+ */
 type AutoMovieBendWrist = bendLower.WristAt;
 
-/** One physical lowering strategy selected by the automatic planner. */
+/*
+ * One physical lowering strategy selected by the automatic planner.
+ */
 type AutoMovieBendStrategy = Exclude<
   IAutoMovieMotionHumanBend.Strategy,
   "auto"

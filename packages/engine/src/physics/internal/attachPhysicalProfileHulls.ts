@@ -6,12 +6,11 @@ import type {
 
 import { AutoMoviePhysicalHullFaces } from "../AutoMoviePhysicalHullFaces";
 
-/**
+/*
  * A profile whose hull shapes each carry their hull, built once here so that
  * every later query reads it.
- *
- * @param profile A profile, possibly stored without its derived hulls.
- * @returns A copy whose hull shapes carry a hull, the others unchanged.
+ * Parameter profile: A profile, possibly stored without its derived hulls.
+ * Returns: A copy whose hull shapes carry a hull, the others unchanged.
  */
 export function attachPhysicalProfileHulls(
   profile: IAutoMoviePhysicalProfile,

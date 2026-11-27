@@ -3,7 +3,7 @@ import type { IAutoMovieTransform } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../../core";
 
-/**
+/*
  * The trunk's height and pitch through a jump: the push-off, a flight about the
  * centre of mass, and the landing stance.
  *
@@ -35,38 +35,60 @@ import { AutoMovieArchetypeFrame } from "../../core";
  * rises, so the planted hinds are crouched at takeoff.
  */
 export namespace EquinePitch {
-  /**
+  /*
    * The trunk's nose-down turn through a jump's flight, radians per second:
    * Clayton et al. 2021's average trunk angular velocity over the 1.60 m
    * vertical, 110.38 ± 9.63 degrees per second, Table 1.
    */
   export const TURN: number = (110.38 * Math.PI) / 180;
 
-  /** A point of the trunk in its sagittal plane. */
+  /*
+   * A point of the trunk in its sagittal plane.
+   */
   export interface IPivot {
-    /** Height, metres. */
+    /*
+     * Height, metres.
+     */
     y: number;
-    /** Fore-aft position, metres, positive forward. */
+    /*
+     * Fore-aft position, metres, positive forward.
+     */
     z: number;
   }
 
-  /** A planned jump. */
+  /*
+   * A planned jump.
+   */
   export interface IPlan {
-    /** Film second both hinds are down. */
+    /*
+     * Film second both hinds are down.
+     */
     push: number;
-    /** Film second of final hind liftoff. */
+    /*
+     * Film second of final hind liftoff.
+     */
     takeoff: number;
-    /** Film second of first fore landing. */
+    /*
+     * Film second of first fore landing.
+     */
     landing: number;
-    /** Film second the first fore stance ends. */
+    /*
+     * Film second the first fore stance ends.
+     */
     absorb: number;
-    /** The rest centre of mass. */
+    /*
+     * The rest centre of mass.
+     */
     centre: IPivot;
-    /** Nose-up angle at final hind liftoff, radians. */
+    /*
+     * Nose-up angle at final hind liftoff, radians.
+     */
     rise: number;
-    /** The flight's pitch rate, radians per second, negative nose-down. */
+    /*
+     * The flight's pitch rate, radians per second, negative nose-down.
+     */
     turn: number;
-    /**
+    /*
      * The centre of mass's vertical velocity at final hind liftoff, metres per
      * second.
      */
@@ -86,15 +108,14 @@ export namespace EquinePitch {
     pitch: number;
   }
 
-  /**
+  /*
    * Plan the trunk through a jump.
-   *
-   * @param centre The rest centre of mass.
-   * @param push Both hinds down, film seconds.
-   * @param takeoff Final hind liftoff.
-   * @param landing First fore landing.
-   * @param absorb End of the first fore stance.
-   * @returns The plan.
+   * Parameter centre: The rest centre of mass.
+   * Parameter push: Both hinds down, film seconds.
+   * Parameter takeoff: Final hind liftoff.
+   * Parameter landing: First fore landing.
+   * Parameter absorb: End of the first fore stance.
+   * Returns: The plan.
    */
   export function plan(
     centre: IPivot,
@@ -119,12 +140,11 @@ export namespace EquinePitch {
     };
   }
 
-  /**
+  /*
    * The tilt at a film second.
-   *
-   * @param pitch The plan.
-   * @param seconds The film second.
-   * @returns The tilt; zero outside the push-off, flight and landing stance.
+   * Parameter pitch: The plan.
+   * Parameter seconds: The film second.
+   * Returns: The tilt; zero outside the push-off, flight and landing stance.
    */
   export function at(pitch: IPlan, seconds: number): ITilt {
     const { push, takeoff, landing, absorb, centre, rise, turn, launch } =
@@ -160,15 +180,14 @@ export namespace EquinePitch {
     return { ...turned, y: turned.y + height };
   }
 
-  /**
+  /*
    * The body's world placement: a course placement turned about the body's up
    * axis by a lateral figure's heading offset, then offset and pitched by a
    * tilt in the body's own frame.
-   *
-   * @param placement The course placement.
-   * @param yaw The heading offset, degrees, positive to the left.
-   * @param tilt The tilt, if any.
-   * @returns The placement unchanged without either, else a new one.
+   * Parameter placement: The course placement.
+   * Parameter yaw: The heading offset, degrees, positive to the left.
+   * Parameter tilt: The tilt, if any.
+   * Returns: The placement unchanged without either, else a new one.
    */
   export function place(
     placement: IAutoMovieTransform,
@@ -203,12 +222,11 @@ export namespace EquinePitch {
     };
   }
 
-  /**
+  /*
    * A placement pitched by a lean about its own root on the floor.
-   *
-   * @param placement The placement.
-   * @param degrees The lean, degrees, positive nose-down.
-   * @returns The placement unchanged without a lean, else a new one.
+   * Parameter placement: The placement.
+   * Parameter degrees: The lean, degrees, positive nose-down.
+   * Returns: The placement unchanged without a lean, else a new one.
    */
   export function lean(
     placement: IAutoMovieTransform,
@@ -219,13 +237,12 @@ export namespace EquinePitch {
       : place(placement, 0, about({ y: 0, z: 0 }, (-degrees * Math.PI) / 180));
   }
 
-  /**
+  /*
    * The root's offset and the pitch when the trunk is turned by an angle about
    * a lateral pivot axis.
-   *
-   * @param pivot The pivot axis in model metres.
-   * @param angle Radians, positive nose-up.
-   * @returns The tilt.
+   * Parameter pivot: The pivot axis in model metres.
+   * Parameter angle: Radians, positive nose-up.
+   * Returns: The tilt.
    */
   export function about(pivot: IPivot, angle: number): ITilt {
     return {
@@ -235,13 +252,12 @@ export namespace EquinePitch {
     };
   }
 
-  /**
+  /*
    * How far a tilt moves a point of the trunk forward.
-   *
-   * @param tilt The tilt.
-   * @param point The point, model metres.
-   * @returns The fore-aft displacement in the course's frame, metres, positive
-   *   forward.
+   * Parameter tilt: The tilt.
+   * Parameter point: The point, model metres.
+   * Returns: The fore-aft displacement in the course's frame, metres, positive
+   * forward.
    */
   export function shift(tilt: ITilt, point: IPivot): number {
     return (
@@ -251,7 +267,9 @@ export namespace EquinePitch {
     );
   }
 
-  /** The cubic Hermite value at a share of an interval. */
+  /*
+   * The cubic Hermite value at a share of an interval.
+   */
   function hermite(
     p0: number,
     m0: number,

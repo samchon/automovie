@@ -7,24 +7,38 @@ import type {
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import { QuadrupedRestLimb } from "./QuadrupedRestLimb";
 
-/** Neutral body connections and fixed parent-local attachment observations. */
+/*
+ * Neutral body connections and fixed parent-local attachment observations.
+ */
 export namespace QuadrupedAttachments {
   /** The rigid parent of an upper limb bar. */
   export type Parent = "trunk" | "hindquarters";
 
-  /** A real capsule's cylindrical axis endpoints and complete radius, metres. */
+  /*
+   * A real capsule's cylindrical axis endpoints and complete radius, metres.
+   */
   export interface ICapsule {
-    /** First cap centre, model space. */
+    /*
+     * First cap centre, model space.
+     */
     from: IAutoMovieVector3;
-    /** Second cap centre, model space. */
+    /*
+     * Second cap centre, model space.
+     */
     to: IAutoMovieVector3;
-    /** Positive solid radius. */
+    /*
+     * Positive solid radius.
+     */
     radius: number;
   }
 
-  /** An already admitted parent capsule, with its primitive-centre frame. */
+  /*
+   * An already admitted parent capsule, with its primitive-centre frame.
+   */
   export interface IParent extends ICapsule {
-    /** Parent primitive-centre TRS; unit scale, model space. */
+    /*
+     * Parent primitive-centre TRS; unit scale, model space.
+     */
     frame: IAutoMovieTransform;
   }
 
@@ -38,7 +52,9 @@ export namespace QuadrupedAttachments {
     parentLocal: IAutoMovieVector3;
   }
 
-  /** The torso capsules that both construction and the body layout use. */
+  /*
+   * The torso capsules that both construction and the body layout use.
+   */
   export function solids(
     rig: Pick<
       AutoMovieArchetypeQuadrupedBody.IRig,
@@ -64,7 +80,7 @@ export namespace QuadrupedAttachments {
     };
   }
 
-  /**
+  /*
    * Ground terminal cylinders and connect provisional neutral roots to body
    * solids.
    *
@@ -102,7 +118,9 @@ export namespace QuadrupedAttachments {
     };
   }
 
-  /** Admit physical connections and snapshot their fixed parent-local points. */
+  /*
+   * Admit physical connections and snapshot their fixed parent-local points.
+   */
   export function read(
     limbs: Readonly<
       Record<AutoMovieArchetypeQuadrupedBody.Limb, readonly IAutoMovieVector3[]>
@@ -125,7 +143,9 @@ export namespace QuadrupedAttachments {
     };
   }
 
-  /** Explicit neutral construction in one canonical sagittal capsule section. */
+  /*
+   * Explicit neutral construction in one canonical sagittal capsule section.
+   */
   function connect(
     initial: readonly IAutoMovieVector3[],
     parent: ICapsule,
@@ -212,7 +232,7 @@ export namespace QuadrupedAttachments {
     return QuadrupedRestLimb(source, root, source[4]!, distal, fore ? -1 : 1);
   }
 
-  /**
+  /*
    * Read-only physical membership and primitive-centre inverse rigid
    * conversion.
    */
@@ -247,7 +267,7 @@ export namespace QuadrupedAttachments {
     return { parent, point: { ...point }, parentLocal };
   }
 
-  /**
+  /*
    * Nearest point on the finite axis; endpoint restriction defines a capsule,
    * not a moving-target correction.
    */
@@ -278,12 +298,14 @@ export namespace QuadrupedAttachments {
     };
   }
 
-  /** Bar's sagittal direction, radians from down toward +Z. */
+  /*
+   * Bar's sagittal direction, radians from down toward +Z.
+   */
   function direction(from: IAutoMovieVector3, to: IAutoMovieVector3): number {
     return Math.atan2(to.z - from.z, -(to.y - from.y));
   }
 
-  /**
+  /*
    * Fixed-size rigid geometry arithmetic budget, never an authored gap or
    * contact tolerance.
    */

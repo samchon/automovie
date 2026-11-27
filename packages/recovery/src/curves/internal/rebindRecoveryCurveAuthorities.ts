@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Reissue explicitly bound surface controls from the converted curve authority.
  * The generic converter calls this after copying the record. Original bindings
  * must match exactly before a new basis can supply a control. A Hermite
@@ -22,12 +22,11 @@ import type {
  * together with its curves: a loft and reports, or curve overrides alone (a
  * standalone extension, whose unchanged external curves stay the original
  * bundle's authority).
- *
- * @param original The record as saved.
- * @param converted Its converted copy, whose bound controls are rewritten.
- * @throws {Error} When names are not unique, a binding names no saved curve or
- *   span, a binding's cardinality differs from its curve, or an original
- *   control disagrees with its curve authority.
+ * Parameter original: The record as saved.
+ * Parameter converted: Its converted copy, whose bound controls are rewritten.
+ * When names are not unique, a binding names no saved curve or
+ * span, a binding's cardinality differs from its curve, or an original
+ * control disagrees with its curve authority.
  */
 export function rebindRecoveryCurveAuthorities(
   original: IAutoMovieRecoveryCurveBundle,
@@ -186,7 +185,7 @@ export function rebindRecoveryCurveAuthorities(
   }
 }
 
-/**
+/*
  * A record's named curves as Bernstein spans: from its curve overrides for an
  * external extension, otherwise from its loft loops and report arcs. Names must
  * be unique.
@@ -227,7 +226,9 @@ function named(
   return map;
 }
 
-/** A cubic's Bernstein spans, converting saved Hermite jets. */
+/*
+ * A cubic's Bernstein spans, converting saved Hermite jets.
+ */
 function bernstein(
   curve: IAutoMovieRecoveryCurveBundle.Curve,
 ): readonly AutoMovieCubicBezierControls3[] {

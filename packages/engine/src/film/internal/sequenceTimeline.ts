@@ -6,7 +6,7 @@ import {
 
 import { preparePlaybackTimeline } from "./preparePlaybackTimeline";
 
-/**
+/*
  * Lay the cut onto the output clock, the playback mirror of `cutSequence`'s
  * runtime arithmetic: each entry occupies its retained source duration divided
  * by its playback rate, and a transition pulls its entry forward to overlap the
@@ -18,10 +18,9 @@ import { preparePlaybackTimeline } from "./preparePlaybackTimeline";
  * an empty sequence, a transition on the first entry, a sequence entry whose
  * shot is not supplied, two supplied shots sharing an id, and a nondefault
  * playback rate that cannot produce a representable output span.
- *
- * @param sequence The cut, already accepted by `cutSequence`.
- * @param shots Every shot the cut references; extra shots are allowed.
- * @returns One placement per sequence entry and the total runtime in seconds.
+ * Parameter sequence: The cut, already accepted by `cutSequence`.
+ * Parameter shots: Every shot the cut references; extra shots are allowed.
+ * Returns: One placement per sequence entry and the total runtime in seconds.
  */
 export function sequenceTimeline(
   sequence: IAutoMovieSequence,

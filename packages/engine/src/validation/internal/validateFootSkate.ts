@@ -22,7 +22,7 @@ import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCo
 import { fkReachableBones } from "./fkReachableBones";
 import { admitMotionSampleRate } from "./admitMotionSampleRate";
 
-/**
+/*
  * Sample admitted contact windows, resolve FK and warn when adjacent foot XZ
  * displacement divided by elapsed seconds exceeds the declared speed. Rates
  * must be finite and positive and contact speed limits finite and nonnegative.
@@ -144,7 +144,7 @@ const DEFAULT_SAMPLE_RATE: number = 24;
 
 const DEFAULT_MAX_HORIZONTAL_SPEED: number = 0.02;
 
-/**
+/*
  * Use windowSampleTimes to sample motion/FK and select the admitted contact
  * bone's world position.
  *
@@ -202,7 +202,7 @@ const sampleWindow: (
     },
   );
 
-/**
+/*
  * Divide XZ displacement magnitude by the two samples' elapsed seconds.
  *
  * This measures horizontal skating without treating vertical motion as a slide.
@@ -230,7 +230,7 @@ const horizontalSpeed: (
   return Math.hypot(dx, dz) / (current.time - previous.time);
 };
 
-/**
+/*
  * Round a diagnostic quantity to three decimals with
  * Math.round(value*1000)/1000.
  *

@@ -6,13 +6,12 @@ import type {
 
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 
-/**
+/*
  * Prepare each stair foot's timed swings and select its active interval.
- *
- * @param prints The ordered footprints and step numbers for each side.
- * @param clock The climb's final clock, in action seconds.
- * @param swing The clearance-path builder for two consecutive footprints.
- * @returns Each foot's placement and bearing state at any action second.
+ * Parameter prints: The ordered footprints and step numbers for each side.
+ * Parameter clock: The climb's final clock, in action seconds.
+ * Parameter swing: The clearance-path builder for two consecutive footprints.
+ * Returns: Each foot's placement and bearing state at any action second.
  */
 export function climbStairsFeet(
   prints: Readonly<Record<AutoMovieHumanSide, readonly IItemEntryItem[]>>,
@@ -64,13 +63,17 @@ export function climbStairsFeet(
   };
 }
 
-/** The record of `IClimbStairsFeetResult2`'s site. */
+/*
+ * The record of `IClimbStairsFeetResult2`'s site.
+ */
 type IClimbStairsFeetResult2 = {
   placement: IAutoMovieMotionHumanFoot.IPlacement;
   planted: boolean;
 };
 
-/** The record of `IIntervalsItemEntry`'s site. */
+/*
+ * The record of `IIntervalsItemEntry`'s site.
+ */
 type IIntervalsItemEntry = {
   off: number;
   on: number;
@@ -79,17 +82,23 @@ type IIntervalsItemEntry = {
   read: (share: number) => IAutoMovieMotionHumanFoot.IPlacement;
 };
 
-/** The record of `IClimbStairsFeetResult`'s site. */
+/*
+ * The record of `IClimbStairsFeetResult`'s site.
+ */
 type IClimbStairsFeetResult = {
   placement: IAutoMovieMotionHumanFoot.IPlacement;
   planted: boolean;
 };
 
-/** The record of `IItemEntryItem`'s site. */
+/*
+ * The record of `IItemEntryItem`'s site.
+ */
 type IItemEntryItem = {
   print: IPrintItemEntry;
   step: number;
 };
 
-/** The record of `IPrintItemEntry`'s site. */
+/*
+ * The record of `IPrintItemEntry`'s site.
+ */
 type IPrintItemEntry = { placement: IAutoMovieMotionHumanFoot.IPlacement };

@@ -9,19 +9,18 @@ import {
 import { GoalBuild } from "./GoalBuild";
 import type { AutoMovieArchetypeGoal } from "../AutoMovieArchetypeGoal";
 
-/**
+/*
  * A volleyball net with class-specific height, side antennas and post grips.
  *
  * The net extends along X. Top marks its upper edge and its two posts stand on
  * the floor.
- *
- * @param params The identifier, net class and optional dimensions. The class
- *   supplies the top height.
- * @param seed The seed draws the class and free dimensions. Without a seed, the
- *   men's class and band midpoints apply.
- * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
- *   cannot be realized.
+ * Parameter params: The identifier, net class and optional dimensions. The class
+ * supplies the top height.
+ * Parameter seed: The seed draws the class and free dimensions. Without a seed, the
+ * men's class and band midpoints apply.
+ * Returns: The model with its named contacts in its local frame.
+ * When a supplied dimension or choice
+ * cannot be realized.
  */
 export function createVolleyballNet(
   params: AutoMovieArchetypeVolleyballNet.IParams = {},
@@ -39,43 +38,57 @@ export function createVolleyballNet(
   return builder.build(d.mass!);
 }
 
-/** The builder for this field or court apparatus. */
+/*
+ * The builder for this field or court apparatus.
+ */
 type Builder = AutoMovieArchetypeBuilder<
   AutoMovieArchetypeVolleyballNet.Affordance,
   AutoMovieArchetypeGoal.Dimension
 >;
 
-/** The saved goal dimensions in their local units. */
+/*
+ * The saved goal dimensions in their local units.
+ */
 type Drawn = Partial<Record<AutoMovieArchetypeGoal.Dimension, number>>;
 
-/** Local points in metres. */
+/*
+ * Local points in metres.
+ */
 const v: typeof Vector3.create = Vector3.create;
 
-/**
+/*
  * The half side line spacing of a volleyball court, metres: the net's side
  * bands 9 m apart (FIVB 2.2, its 9.50 m less two 25 cm).
  */
 const VOLLEYBALL_SIDE: number = 4.5;
 
-/**
+/*
  * How far a volleyball antenna stands above the net, metres: FIVB 2.4, its top
  * 80 cm; it reaches the net's lower edge below.
  */
 const ANTENNA_ABOVE: number = 0.8;
 
-/** The shape of {@link ESTIMATES}. */
+/*
+ * The shape of ESTIMATES.
+ */
 interface IEstimates {
-  /** The `post` entry. */
+  /*
+   * The `post` entry.
+   */
   post: number;
 
-  /** The `mesh` entry. */
+  /*
+   * The `mesh` entry.
+   */
   mesh: number;
 
-  /** The `antenna` entry. */
+  /*
+   * The `antenna` entry.
+   */
   antenna: number;
 }
 
-/**
+/*
  * The construction sizes no source read gives, metres, each an estimate no act
  * reads and no band declares: `post`, a volleyball post's diameter; `mesh`, a
  * net's thickness; `antenna`, half of FIVB's 10 mm antenna.
@@ -86,13 +99,12 @@ const ESTIMATES: Readonly<IEstimates> = {
   antenna: 0.005,
 };
 
-/**
+/*
  * Build a volleyball net: the posts outside the side lines, the net hung from
  * its top at the drawn height with its top band, and an antenna over each side
  * line; `top` is the net's top, a ledge along `X`, and the posts are bars.
- *
- * @param builder The builder to fill.
- * @param d The drawn dimensions.
+ * Parameter builder: The builder to fill.
+ * Parameter d: The drawn dimensions.
  */
 function volleyball(builder: Builder, d: Drawn): void {
   const top: number = d.height!;

@@ -17,12 +17,12 @@ import { LongToolStroke as LongToolStrokeSource } from "../../tasks/internal/Lon
 import { composeHumanToolWork as composeHumanToolWorkLaw } from "../../tasks/internal/composeHumanToolWork";
 import { hookSet as hookSetLaw } from "../../tasks/internal/hookSet";
 
-/**
+/*
  * The operate family's further laws, helpers and rows, each the shipped value
  * under its family name (`AutoMovieMotionHumanOperate`), with its own comment.
  */
 export namespace AutoMovieMotionHumanOperateHelpers {
-  /**
+  /*
    * Draw up a clay wall on a turning wheel with both hands. Register as
    * `throwPottery`.
    *
@@ -44,7 +44,7 @@ export namespace AutoMovieMotionHumanOperateHelpers {
    */
   export const throwPottery: typeof throwPotteryLaw = throwPotteryLaw;
 
-  /**
+  /*
    * One fingertip reaches a named touchscreen, swipes in its local X direction
    * and withdraws. `strokeStart` is touch-in, `strokeEnd` (also `relax`) is
    * touch-out. The hand returns to its entry pose at full duration. The stroke
@@ -59,7 +59,7 @@ export namespace AutoMovieMotionHumanOperateHelpers {
   export const swipeTouchscreen: typeof swipeTouchscreenLaw =
     swipeTouchscreenLaw;
 
-  /**
+  /*
    * Move the working point of a held tool along an authored planar stroke.
    *
    * Register the law and perform `registered("write", params)` after taking the
@@ -75,7 +75,7 @@ export namespace AutoMovieMotionHumanOperateHelpers {
    */
   export const write: typeof writeLaw = writeLaw;
 
-  /**
+  /*
    * Brace a fixed garment's rim with the index finger while the opposite thumb
    * pushes its button through the opening. Register as `button`. The same
    * stroke clock moves the button mesh and places the thumb; the drive leaves
@@ -85,7 +85,7 @@ export namespace AutoMovieMotionHumanOperateHelpers {
    */
   export const button: typeof buttonLaw = buttonLaw;
 
-  /**
+  /*
    * Brace a supported pouch and pinch its slider tab through a straight stroke.
    *
    * YKK's usage guidance calls for a straight pull along the zipper chain and
@@ -96,7 +96,7 @@ export namespace AutoMovieMotionHumanOperateHelpers {
    */
   export const zip: typeof zipLaw = zipLaw;
 
-  /**
+  /*
    * Set the hook. The hand holding the rod turns it about the grip, the tip
    * rising by the authored angle on a minimum-jerk course in the authored time
    * (a sharp lift), about the horizontal axis square to the rod; the grip stays
@@ -107,7 +107,7 @@ export namespace AutoMovieMotionHumanOperateHelpers {
    */
   export const hookSet: typeof hookSetLaw = hookSetLaw;
 
-  /**
+  /*
    * Keep both of a walker's hands on a moving implement's two handles, as a
    * ploughman holds a walking plough.
    *
@@ -124,7 +124,7 @@ export namespace AutoMovieMotionHumanOperateHelpers {
    */
   export const holdHandles: typeof HumanHoldHandlesLaw = HumanHoldHandlesLaw;
 
-  /**
+  /*
    * How far the trunk leans when a load is pushed, pulled or dragged by its
    * handles, by the load's declared level and the handles' height.
    *
@@ -149,7 +149,7 @@ export namespace AutoMovieMotionHumanOperateHelpers {
    */
   export import pushPullLean = pushPullLeanLaw;
 
-  /**
+  /*
    * The part an operation moves on a prop that articulates, and the drive the
    * operation publishes for it: the hand and the part follow one function of
    * the stroke's progress, the prop posed at the articulation's travel there.
@@ -169,7 +169,7 @@ export namespace AutoMovieMotionHumanOperateHelpers {
    */
   export import operateDrive = operateDriveLaw;
 
-  /**
+  /*
    * Inserting a held prop along a socket's axis: a rammer down a bore, a sword
    * into its scabbard, a magazine into its well, an arrow back into a quiver, a
    * key into a lock.
@@ -188,7 +188,7 @@ export namespace AutoMovieMotionHumanOperateHelpers {
    */
   export import operateInsert = operateInsertLaw;
 
-  /**
+  /*
    * The path of a long tool through one stroke, as a function of the stroke's
    * share: the trailing grip, the tool's line from that grip toward its face,
    * the face's facing, the lead hand's slide along the line from the trailing
@@ -204,39 +204,37 @@ export namespace AutoMovieMotionHumanOperateHelpers {
    */
   export import LongToolStroke = LongToolStrokeSource;
 
-  /**
+  /*
    * The rotation one hand keeps through a keyed contact sequence
    * (`manipulate`): the fingers toward the hand's first site from the body's
    * root, laid across the site's normal, and the palm against the normal. The
    * plan places the hand with it and the fingering reads every digit's tip
    * where it puts it, so both see one hand.
-   *
-   * @param hold The posture the act is entered with.
-   * @param presses The sequence's sites with their hands, in order.
-   * @param side The hand.
-   * @returns The hand's world rotation from its rest.
+   * Parameter hold: The posture the act is entered with.
+   * Parameter presses: The sequence's sites with their hands, in order.
+   * Parameter side: The hand.
+   * Returns: The hand's world rotation from its rest.
    */
   export const manipulateFacing: typeof manipulateFacingLaw =
     manipulateFacingLaw;
 
-  /**
+  /*
    * The digits of a keyed contact sequence (`manipulate`): each contact's own
    * digit, or the Viterbi path over the five digits of its hand that minimizes
    * the travel of the limiting part over each stroke, accounting for the lift
    * and descent of a reused digit. The wrist stands where the plan places it
    * for that digit's press (`manipulateReach`, in the rotation the hand keeps
    * for the act), so a difference of two such places is the wrist's travel.
-   *
-   * @param body The body.
-   * @param contacts The contacts with their sites.
-   * @param sides Each contact's hand.
-   * @param rotation Each hand's rotation for the act, from its rest.
-   * @returns Each contact's digit.
+   * Parameter body: The body.
+   * Parameter contacts: The contacts with their sites.
+   * Parameter sides: Each contact's hand.
+   * Parameter rotation: Each hand's rotation for the act, from its rest.
+   * Returns: Each contact's digit.
    */
   export const manipulateFingering: typeof manipulateFingeringLaw =
     manipulateFingeringLaw;
 
-  /**
+  /*
    * Where the wrist stands for one press of a keyed contact sequence
    * (`manipulate`): the hand turned as the act keeps it, the pressing digit
    * straight, its tip over the site at typing's hover height (`typeText.HOVER`)
@@ -249,39 +247,37 @@ export namespace AutoMovieMotionHumanOperateHelpers {
    * difference. The knuckle advances along the digit by r - sqrt(r^2 - d^2),
    * and the press is a swing about the first joint that ends on the key, which
    * the digit's own inverse kinematics then fits.
-   *
-   * @param body The body.
-   * @param side The hand.
-   * @param digit The pressing digit, as `manipulate.Finger` names it.
-   * @param site The site, world metres.
-   * @param normal The site's outward unit normal, world.
-   * @param depth The key's travel, metres.
-   * @param rotation The hand's world rotation from its rest for the act.
-   * @returns The wrist's world point.
+   * Parameter body: The body.
+   * Parameter side: The hand.
+   * Parameter digit: The pressing digit, as `manipulate.Finger` names it.
+   * Parameter site: The site, world metres.
+   * Parameter normal: The site's outward unit normal, world.
+   * Parameter depth: The key's travel, metres.
+   * Parameter rotation: The hand's world rotation from its rest for the act.
+   * Returns: The wrist's world point.
    */
   export const manipulateReach: typeof manipulateReachLaw = manipulateReachLaw;
 
-  /**
+  /*
    * The hand's shape while one digit presses in a keyed contact sequence
    * (`manipulate`): that digit straight, as the flat hand holds it, for its
    * inverse kinematics to take down to its key. Other digits retain their
    * relaxed shape when it clears the key plane by the hover height. Each
    * remaining digit takes a clearing shape or lifts its own tip from the
    * achieved wrist frame.
-   *
-   * @param body The rig supplying each shaped tip.
-   * @param wrist The achieved wrist point, in world metres.
-   * @param rotation The achieved wrist rotation.
-   * @param site The key top in world metres.
-   * @param normal The surface's unit outward normal.
-   * @param side The hand.
-   * @param digit The pressing digit, as `manipulate.Finger` names it.
-   * @returns The digit angles and only the additional goals required for
-   *   clearance.
+   * Parameter body: The rig supplying each shaped tip.
+   * Parameter wrist: The achieved wrist point, in world metres.
+   * Parameter rotation: The achieved wrist rotation.
+   * Parameter site: The key top in world metres.
+   * Parameter normal: The surface's unit outward normal.
+   * Parameter side: The hand.
+   * Parameter digit: The pressing digit, as `manipulate.Finger` names it.
+   * Returns: The digit angles and only the additional goals required for
+   * clearance.
    */
   export const manipulateShape: typeof manipulateShapeLaw = manipulateShapeLaw;
 
-  /**
+  /*
    * Keyed contact sequences: the digits pressing the sites of a prop one after
    * another, each a row of `manipulate`. Register the ones a film uses
    * (`HumanPerformance.IInput.laws`, `HumanChain.extend`); `manipulate` itself
@@ -292,7 +288,7 @@ export namespace AutoMovieMotionHumanOperateHelpers {
    */
   export import HumanManipulate = HumanManipulateSource;
 
-  /**
+  /*
    * The tool strokes as rows: each tool of `useTool` under a name of its own,
    * the held prop, the work site, the hand, the cycles and the manner open.
    *
@@ -302,7 +298,7 @@ export namespace AutoMovieMotionHumanOperateHelpers {
    */
   export import HumanToolRows = HumanToolRowsSource;
 
-  /**
+  /*
    * One-handed tool work from a working base composed from shipped actions :
    * kneeling or crouching at floor level, seated at a bench, or standing. The
    * base is taken first, then `useTool` cycles from it, so the base, the pickup

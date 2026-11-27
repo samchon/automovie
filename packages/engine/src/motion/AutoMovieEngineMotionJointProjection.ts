@@ -20,10 +20,14 @@ import { prepareJointProjectionClamp } from "./internal/prepareJointProjectionCl
 import { prepareJointProjectionScores } from "./internal/prepareJointProjectionScores";
 import { prepareJointRotationCoefficientDots } from "./internal/prepareJointRotationCoefficientDots";
 
-/** Fixed coordinate order used only for stable reference and tie bookkeeping. */
+/*
+ * Fixed coordinate order used only for stable reference and tie bookkeeping.
+ */
 const AXES: readonly ClinicalAxis[] = ["flexion", "abduction", "twist"];
 
-/** Exact composition key; null and signed zero remain different coordinates. */
+/*
+ * Exact composition key; null and signed zero remain different coordinates.
+ */
 function sameJoint(a: IAutoMovieJointPose, b: IAutoMovieJointPose): boolean {
   return (
     a.bone === b.bone &&
@@ -188,7 +192,9 @@ export namespace AutoMovieEngineMotionJointProjection {
       twist: AutoMovieEngineClinicalAngle.prepareToClinicalAngle(),
     };
 
-    /** Read the used nonnull affine frames, never candidate answers. */
+    /*
+     * Read the used nonnull affine frames, never candidate answers.
+     */
     const clinical: (axis: ClinicalAxis, angle: number) => number = (
       axis: ClinicalAxis,
       angle: number,
@@ -198,7 +204,9 @@ export namespace AutoMovieEngineMotionJointProjection {
       return clinicalReaders[axis](angle, frame)!;
     };
 
-    /** Compose only if the caller needs a quaternion not already evaluated. */
+    /*
+     * Compose only if the caller needs a quaternion not already evaluated.
+     */
     const finish: (
       joint: IAutoMovieJointPose,
       requested: boolean,
@@ -217,7 +225,9 @@ export namespace AutoMovieEngineMotionJointProjection {
           }
         : joint;
 
-    /** Preserve the existing bounded coordinate search for a non-box domain. */
+    /*
+     * Preserve the existing bounded coordinate search for a non-box domain.
+     */
     const general: (
       local: IAutoMovieQuaternion,
       raw: IAutoMovieJointPose,
@@ -425,7 +435,7 @@ export namespace AutoMovieEngineMotionJointProjection {
       return finish(effector, requested, incumbent?.quaternion);
     };
 
-    /**
+    /*
      * Whether the clamp left the asked reading as it is on every axis, to the
      * general search's own 1e-9 degrees.
      */
@@ -447,7 +457,9 @@ export namespace AutoMovieEngineMotionJointProjection {
         );
       });
 
-    /** Analytic ranking owns its bounded scratch; generic queries never enter it. */
+    /*
+     * Analytic ranking owns its bounded scratch; generic queries never enter it.
+     */
     const scoreBox: ReturnType<typeof prepareJointProjectionScores> | null =
       box && mobile.length > 0
         ? prepareJointProjectionScores({
@@ -458,7 +470,9 @@ export namespace AutoMovieEngineMotionJointProjection {
           })
         : null;
 
-    /** Every target owns its references, candidates and completed compositions. */
+    /*
+     * Every target owns its references, candidates and completed compositions.
+     */
     const evaluate: (
       rotation: IAutoMovieQuaternion,
       requested: boolean,
@@ -500,7 +514,9 @@ export namespace AutoMovieEngineMotionJointProjection {
 
       return scoreBox!(local, reference, pairs, clamp, requested);
     };
-    /** The original paired projection and its independently admitted bound. */
+    /*
+     * The original paired projection and its independently admitted bound.
+     */
     const withQuaternion: AutoMovieEngineMotionJointProjection.IProjector["withQuaternion"] &
       AutoMovieEngineMotionJointProjection.IChorded = Object.assign(
       (
@@ -583,25 +599,35 @@ export namespace AutoMovieEngineMotionJointProjection {
   }
 }
 
-/** The three named clinical coordinates, all measured in degrees. */
+/*
+ * The three named clinical coordinates, all measured in degrees.
+ */
 type ClinicalAxis = "flexion" | "abduction" | "twist";
 
-/**
+/*
  * One of two reusable general-query readings, with a separately owned raw
  * rotation.
  */
 interface IComposed {
-  /** Exact clinical coordinates from this query. */
+  /*
+   * Exact clinical coordinates from this query.
+   */
   joint: IAutoMovieJointPose;
 
-  /** Original joint composition, with its multiplication order unchanged. */
+  /*
+   * Original joint composition, with its multiplication order unchanged.
+   */
   quaternion: IAutoMovieQuaternion;
 
-  /** Existing general-search objective, one minus the absolute dot. */
+  /*
+   * Existing general-search objective, one minus the absolute dot.
+   */
   error: number;
 }
 
-/** Direct joint output, or the explicitly requested joint/raw-quaternion pair. */
+/*
+ * Direct joint output, or the explicitly requested joint/raw-quaternion pair.
+ */
 type IEvaluation =
   | IAutoMovieJointPose
   | AutoMovieEngineMotionJointProjection.IProjection;

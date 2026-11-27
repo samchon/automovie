@@ -10,7 +10,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { deliveryCropNdc } from "./deliveryCropNdc";
 
-/**
+/*
  * Project a world point into the delivered frame's normalized device
  * coordinates.
  *
@@ -21,14 +21,13 @@ import { deliveryCropNdc } from "./deliveryCropNdc";
  * the whole gate does. Behind the lens (`depth <= 0`) the NDC is meaningless
  * and at `depth = 0` it is infinite or `NaN`: this never clamps, and the caller
  * reads `depth`, the near and far bounds and the `[−1, 1]` rectangle to decide.
- * A malformed crop throws the `RangeError` of {@link deliveryCropNdc}.
- *
- * @param camera Camera placement, looking down its local −Z.
- * @param point World point in metres.
- * @param halfY Vertical half-field tangent, `tan(fovY / 2)`.
- * @param aspect Frame width over height.
- * @param crop Delivery crop, or the whole gate when omitted.
- * @returns NDC on both axes and the viewing depth in metres.
+ * A malformed crop throws the `RangeError` of deliveryCropNdc.
+ * Parameter camera: Camera placement, looking down its local −Z.
+ * Parameter point: World point in metres.
+ * Parameter halfY: Vertical half-field tangent, `tan(fovY / 2)`.
+ * Parameter aspect: Frame width over height.
+ * Parameter crop: Delivery crop, or the whole gate when omitted.
+ * Returns: NDC on both axes and the viewing depth in metres.
  */
 export function projectToNdc(
   camera: IAutoMovieResolvedCamera,

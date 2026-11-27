@@ -1,6 +1,6 @@
 import { AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES } from "../AUTOMOVIE_SEMANTIC_MASK_MAX_ENTRIES";
 
-/**
+/*
  * Admit the entity-claim count before allocating palette colours or instance
  * slots. The derivation owner supplies an array length after checking duplicate
  * identities, so the count is a nonnegative safe integer by construction. A

@@ -109,7 +109,7 @@ export namespace AutoMovieHumanNativeProjectionCourse {
     };
   }
 
-  /**
+  /*
    * Place material station s where the current axis puts c + lambda (s - c),
    * over the whole source domain.
    *
@@ -195,7 +195,7 @@ export namespace AutoMovieHumanNativeProjectionCourse {
     return { axis, maximumSpeed, materialBreaks: [] };
   }
 
-  /**
+  /*
    * Read actual available station2 at the rail, midpoint and tip and reject
    * inconsistent constant-direction/frame premises. These finite checks are not
    * a global proof for arbitrary supplied callbacks. Foreign source exceptions

@@ -11,7 +11,7 @@ import { builtPlacedPartBoxes } from "./builtPlacedPartBoxes";
 import { builtSpaceSubtree } from "./builtSpaceSubtree";
 import { requireBuiltSpace } from "./requireBuiltSpace";
 
-/**
+/*
  * The world box the contents of a logical space and its descendants fill.
  *
  * Declared room volume and placed contents answer different questions. This
@@ -19,16 +19,16 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * the room's stated volume or prove that a chosen camera pose is inside the
  * room or has an unobstructed view.
  *
- * What is measured is exactly what {@link builtEnvironmentSpaceNodes} names: the
+ * What is measured is exactly what builtEnvironmentSpaceNodes names: the
  * staged elements that draw a model and the compact populations of this space
  * and every space below it. Each element is measured by the same part boxes as
- * {@link builtEnvironmentElementPartBounds}, where the environment's current
- * operating state puts it, which is where {@link lowerBuiltEnvironment} stages
+ * builtEnvironmentElementPartBounds, where the environment's current
+ * operating state puts it, which is where lowerBuiltEnvironment stages
  * it, so a leaf authored open widens the box by the leaf where it actually
  * rests.
  *
  * A population widens this box. It contributes through
- * {@link builtInstanceSetPlacementBounds}, which measures the region its
+ * builtInstanceSetPlacementBounds, which measures the region its
  * declared placement law spans after folding the population's authored
  * prototype-local box through every scale and rotation that law permits, and
  * throws for an `along-route` layout. The building cannot inspect the model's

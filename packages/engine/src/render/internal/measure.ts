@@ -13,7 +13,7 @@ import { AUTOMOVIE_POSITION_BYTES } from "../AUTOMOVIE_POSITION_BYTES";
 import { AUTOMOVIE_SKIN_BYTES } from "../AUTOMOVIE_SKIN_BYTES";
 import { AUTOMOVIE_UV_BYTES } from "../AUTOMOVIE_UV_BYTES";
 
-/**
+/*
  * Exact geometry cost of one model, memoized by model id.
  *
  * Primitives are measured by tessellating them with the engine's own

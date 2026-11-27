@@ -23,8 +23,8 @@ import type {
 
 import { accessorValues } from "./accessorValues";
 
-/**
- * Map a parsed glTF/GLB {@link Document} onto automovie's core node graph and
+/*
+ * Map a parsed glTF/GLB Document onto automovie's core node graph and
  * animation clips, with no three.js and no humanoid assumptions.
  *
  * Current repository callers exercise this parsed-document mapper through
@@ -42,7 +42,7 @@ import { accessorValues } from "./accessorValues";
  * CUBICSPLINE to `linear`, `step` and `cubicspline` with an absent one read as
  * LINEAR as glTF specifies, and its values decoded from normalized integers
  * where the accessor declares them. Naming-based humanoid skeleton mapping is
- * the separate {@link AutoMovieIngestDocument.humanoidSkeleton} stage.
+ * the separate AutoMovieIngestDocument.humanoidSkeleton stage.
  *
  * Channel checks refuse no target node, no or unknown target path, no sampler,
  * no input or output data, an unknown interpolation, keyframe times that are
@@ -52,9 +52,8 @@ import { accessorValues } from "./accessorValues";
  * model admission: node TRS, graph/resource membership, duplicate target
  * channels, rotation magnitude and weights against the target morph count are
  * caller premises rather than checks performed here.
- *
- * @param doc Parsed document; it is only read.
- * @returns New arrays the caller owns, sharing no storage with the document.
+ * Parameter doc: Parsed document; it is only read.
+ * Returns: New arrays the caller owns, sharing no storage with the document.
  */
 export function ingestDocument(doc: Document): IAutoMovieIngestResult {
   const root: Root = doc.getRoot();
@@ -131,7 +130,9 @@ export function ingestDocument(doc: Document): IAutoMovieIngestResult {
 
 type AutoMovieNodeTrackPath = "translation" | "rotation" | "scale" | "weights";
 
-/** Components per keyframe for each fixed-width path; `weights` varies. */
+/*
+ * Components per keyframe for each fixed-width path; `weights` varies.
+ */
 const COMPONENTS: Readonly<Record<AutoMovieNodeTrackPath, number | null>> = {
   translation: 3,
   rotation: 4,
@@ -145,7 +146,9 @@ const INTERPOLATIONS: Readonly<Record<string, AutoMovieInterpolation>> = {
   CUBICSPLINE: "cubicspline",
 };
 
-/** Map each item to its decimal list index. */
+/*
+ * Map each item to its decimal list index.
+ */
 function indexIds<T>(items: T[]): Map<T, string> {
   const map: Map<T, string> = new Map<T, string>();
   items.forEach((item: T, i: number): void => {

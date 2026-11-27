@@ -7,7 +7,7 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation";
 
-/**
+/*
  * Author a flight's requested turns about its unchanged composed centre.
  *
  * Somersault and twist are signed revolutions in the requested root-frame axes.
@@ -19,12 +19,11 @@ import { HumanPerformanceFlightRotation } from "./HumanPerformanceFlightRotation
  * touchdown. Whole turns return to its unturned stance. A native jump with a
  * planned turned stance checks the returned touchdown orientation before using
  * the same staged rotation curve.
- *
- * @param props Numeric playback data, film/action seconds and authored turns.
- * @returns The action-local rigid turn about the sampled world centre.
- * @throws {HumanRefusal} For a nonfinite/nonpositive span, nonfinite turn
- *   angles, an invalid reference frame or a turn that does not close onto the
- *   law's landing orientation.
+ * Parameter props: Numeric playback data, film/action seconds and authored turns.
+ * Returns: The action-local rigid turn about the sampled world centre.
+ * For a nonfinite/nonpositive span, nonfinite turn
+ * angles, an invalid reference frame or a turn that does not close onto the
+ * law's landing orientation.
  */
 export function HumanPerformanceStagedFlightRotation(
   props: IStagedFlight,
@@ -110,7 +109,7 @@ interface IStagedFlight extends Omit<
   readonly turnedLanding: boolean;
 }
 
-/**
+/*
  * How far below one the closing turn's scalar part may fall and still read as
  * closed: the rounding of a quaternion of whole revolutions.
  */

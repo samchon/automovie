@@ -18,7 +18,7 @@ import { FLUID_MAX_SPRAY_PARTICLES } from "../FLUID_MAX_SPRAY_PARTICLES";
 import { FLUID_MAX_STEPS } from "../FLUID_MAX_STEPS";
 import { fluidCourantNumber } from "./fluidCourantNumber";
 
-/**
+/*
  * Validate a fluid domain's lattice, budgets, stability, and declared flows.
  *
  * For a structurally typed domain, checks schema/id, safe positive grid counts,
@@ -316,7 +316,7 @@ export function validateFluidDomain(
   return out.toValidation();
 }
 
-/**
+/*
  * Append the shared finite, open-lower-bound range finding; scalar work has the
  * diagnostic conversion costs of validateRange and mutates only the borrowed
  * collector.
@@ -333,7 +333,7 @@ const positive: (
   value: number,
 ): void => validateRange(value, path, 0, Infinity, label, out.items, false);
 
-/**
+/*
  * Require a safe integer inside inclusive bounds; one constant-work predicate
  * appends at most one finding without clamping.
  */
@@ -368,7 +368,7 @@ const integer: (
     );
 };
 
-/**
+/*
  * Compare actual length with the computed cell count, appending at most one
  * finding even for an unusable count; no array is traversed or resized here.
  */
@@ -394,7 +394,7 @@ const length: (
     );
 };
 
-/**
+/*
  * Append one range finding and overshoot when an actual collection length
  * exceeds its named budget; constant scalar work leaves the collection
  * unchanged.
@@ -422,7 +422,7 @@ const count: (
     );
 };
 
-/**
+/*
  * Check blank text and sibling duplication, then add the exact id to the
  * call-owned set. Text trimming/hashing scales with id length; blank siblings
  * receive blank findings without duplicate findings.
@@ -445,7 +445,7 @@ const identity: (
   seen.add(id);
 };
 
-/**
+/*
  * Check each safe integer coordinate before reading solidity; an in-grid solid
  * site appends a separate finding. Constant work borrows the domain and
  * collector without retaining them.
@@ -485,7 +485,7 @@ const site: (
     );
 };
 
-/**
+/*
  * Constant-work safe-index predicate used before solidity lookup; the limit is
  * the authored count and is admitted separately. No state is retained.
  */
@@ -498,7 +498,7 @@ const inside: (value: number, limit: number) => boolean = (
   value <= Number.MAX_SAFE_INTEGER &&
   Math.floor(value) === value;
 
-/**
+/*
  * Check finite nonnegative endpoints and strict end-after-start ordering; null
  * end is unbounded. Scalar checks append their own findings without mutating
  * the window or repeating ordering errors for non-finite endpoints.

@@ -189,7 +189,9 @@ export namespace AutoMovieConicArcField {
     return finish(orient(ops, geometry, ray.reverse), ray);
   }
 
-  /** Preserve the original pre-velocity operation order and normalization. */
+  /*
+   * Preserve the original pre-velocity operation order and normalization.
+   */
   function pointBasis<T>(
     ops: IAutoMovieAlgebra<T>,
     a: T,
@@ -215,7 +217,9 @@ export namespace AutoMovieConicArcField {
     return { a: A, b: B, gauge, left, right, denominator };
   }
 
-  /** The same final point operations occur after velocity work in evaluate. */
+  /*
+   * The same final point operations occur after velocity work in evaluate.
+   */
   function restorePoint<T>(
     ops: IAutoMovieAlgebra<T>,
     basis: Basis<T>,

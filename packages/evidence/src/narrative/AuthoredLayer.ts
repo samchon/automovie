@@ -1,6 +1,6 @@
 import type { NarrativeLayer } from "./NarrativeLayer";
 
-/**
+/*
  * Names every authored layer: the canon the narrative layers inherit and the
  * narrative layers themselves.
  *

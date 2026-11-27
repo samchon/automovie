@@ -5,7 +5,7 @@ import type {
   IAutoMoviePhysicalSegment,
 } from "@automovie/interface";
 
-/**
+/*
  * Admit shared support geometry before tracking or recovery can dereference a
  * carrier.
  */

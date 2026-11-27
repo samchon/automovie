@@ -16,7 +16,7 @@ import { AutoMovieMotionHumanAuditLimits } from "./AutoMovieMotionHumanAuditLimi
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 import { AutoMovieMotionHumanAuditTangle } from "./AutoMovieMotionHumanAuditTangle";
 
-/**
+/*
  * The generic audit of a displayed human motion: every check that holds for any
  * action whatever it means to do, read from the displayed bones alone.
  *
@@ -36,12 +36,16 @@ import { AutoMovieMotionHumanAuditTangle } from "./AutoMovieMotionHumanAuditTang
  * action's own tests.
  */
 export namespace AutoMovieMotionHumanAudit {
-  /** The default limits (`AutoMovieMotionHumanAuditLimits`). */
+  /*
+   * The default limits (`AutoMovieMotionHumanAuditLimits`).
+   */
   export const LIMITS: Readonly<
     Record<IAutoMovieMotionHumanAudit.Check, number>
   > = AutoMovieMotionHumanAuditLimits;
 
-  /** The checks in report order. */
+  /*
+   * The checks in report order.
+   */
   export const CHECKS: readonly IAutoMovieMotionHumanAudit.Check[] = [
     "tangle",
     "floor",
@@ -53,17 +57,16 @@ export namespace AutoMovieMotionHumanAudit {
     "balance",
   ];
 
-  /**
+  /*
    * Audit one person of a motion.
    *
    * The checks share one grid, so the displayed bones of each of its instants
    * are evaluated once, before the checks, and passed to all of them.
-   *
-   * @param source The motion.
-   * @param subject The person.
-   * @param body Their body.
-   * @param options The grid and the limits.
-   * @returns The readings and the findings.
+   * Parameter source: The motion.
+   * Parameter subject: The person.
+   * Parameter body: Their body.
+   * Parameter options: The grid and the limits.
+   * Returns: The readings and the findings.
    */
   export function run(
     source: IAutoMovieMotionHumanAuditMotion,
@@ -149,12 +152,11 @@ export namespace AutoMovieMotionHumanAudit {
     return { measures, pairs, findings };
   }
 
-  /**
+  /*
    * One line per finding, for a failed assertion's message.
-   *
-   * @param report An audit's report.
-   * @returns The findings in millimetres (metres per second for `speed`), or
-   *   `clean`.
+   * Parameter report: An audit's report.
+   * Returns: The findings in millimetres (metres per second for `speed`), or
+   * `clean`.
    */
   export function describe(report: IAutoMovieMotionHumanAudit.IReport): string {
     if (report.findings.length === 0) return "clean";
@@ -168,7 +170,7 @@ export namespace AutoMovieMotionHumanAudit {
   }
 }
 
-/**
+/*
  * The same motion with the audited person's bones at every instant of the
  * checks' shared grid evaluated once, before any check reads them, and passed
  * to each; any other read evaluates the source directly.

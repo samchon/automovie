@@ -9,7 +9,7 @@ import type {
 
 import { walk } from "../../gait/internal/walk";
 
-/**
+/*
  * Horror and fantasy gaits as screen exaggerations of pathological walks (Perry
  * and Burnfield, Gait Analysis, 2nd ed., 2010): the shamble drags a stiff leg
  * whose foot barely clears the floor and stands on it briefly, the trunk
@@ -21,30 +21,42 @@ import { walk } from "../../gait/internal/walk";
  * provisional stage reading.
  */
 export namespace HumanHorrorGait {
-  /**
+  /*
    * The factors of the three gaits (provisional stage readings): each gait's
    * Froude number, its step as a share of the walking step, its trunk lean in
    * degrees, its pelvis drop in hip heights and its arms' swing as a share of a
    * walk's.
    */
   export interface IFactors {
-    /** The gait's Froude number. */
+    /*
+     * The gait's Froude number.
+     */
     froude: number;
 
-    /** The step, a share of the walking step at that Froude number. */
+    /*
+     * The step, a share of the walking step at that Froude number.
+     */
     step: number;
 
-    /** The trunk's forward lean, degrees. */
+    /*
+     * The trunk's forward lean, degrees.
+     */
     lean: number;
 
-    /** How far the pelvis rides below a walk's, hip heights. */
+    /*
+     * How far the pelvis rides below a walk's, hip heights.
+     */
     drop: number;
 
-    /** The arms' swing, a share of a walk's. */
+    /*
+     * The arms' swing, a share of a walk's.
+     */
     swing: number;
   }
 
-  /** Each gait's factors (provisional). */
+  /*
+   * Each gait's factors (provisional).
+   */
   export const SHAMBLE: IFactors = {
     froude: 0.05,
     step: 0.7,
@@ -53,13 +65,15 @@ export namespace HumanHorrorGait {
     swing: 0.15,
   };
 
-  /**
+  /*
    * How far a shambler's speed scatters about the shamble's, a share either way
    * (provisional stage reading).
    */
   export const SCATTER: number = 0.15;
 
-  /** The lurch's factors (provisional). */
+  /*
+   * The lurch's factors (provisional).
+   */
   export const LURCH: IFactors = {
     froude: 0.06,
     step: 0.8,
@@ -68,7 +82,9 @@ export namespace HumanHorrorGait {
     swing: 0,
   };
 
-  /** The stalk's factors (provisional): the prowl's crouch with a hunched trunk. */
+  /*
+   * The stalk's factors (provisional): the prowl's crouch with a hunched trunk.
+   */
   export const STALK: IFactors = {
     froude: 0.08,
     step: 0.75,
@@ -77,7 +93,7 @@ export namespace HumanHorrorGait {
     swing: 0.2,
   };
 
-  /**
+  /*
    * A shamble: a dragged stiff leg stood on briefly, the trunk leaning and the
    * arms hanging.
    */
@@ -101,7 +117,9 @@ export namespace HumanHorrorGait {
       },
     );
 
-  /** A lurch: one knee held stiff at a slow cadence, the arms held still. */
+  /*
+   * A lurch: one knee held stiff at a slow cadence, the arms held still.
+   */
   export const lurch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.ILimp> =
     styled(
       "lurch",
@@ -113,11 +131,13 @@ export namespace HumanHorrorGait {
       }),
     );
 
-  /** A stalk: a hunched creep on deeply bent knees. */
+  /*
+   * A stalk: a hunched creep on deeply bent knees.
+   */
   export const stalk: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGait.IParams> =
     styled("stalk", (): IAutoMovieMotionHumanWalkGait => gait(STALK));
 
-  /**
+  /*
    * The walking gait at a factor record's Froude number with its step, lean,
    * drop and arms.
    */
@@ -138,7 +158,7 @@ export namespace HumanHorrorGait {
     };
   }
 
-  /**
+  /*
    * A walk in a gait of its own, under a name: the walk's cuts and yields,
    * planned by its stepping plan.
    */

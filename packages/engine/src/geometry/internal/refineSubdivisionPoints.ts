@@ -7,7 +7,7 @@ import type {
 import { subdivisionEdgeSmoothness } from "./subdivisionEdgeSmoothness";
 import { subdivisionVertexMask } from "./subdivisionVertexMask";
 
-/**
+/*
  * Apply one Catmull-Clark step to vertex positions: every vertex, edge and face
  * point of the next level.
  *
@@ -18,10 +18,9 @@ import { subdivisionVertexMask } from "./subdivisionVertexMask";
  * `subdivisionEdgeSmoothness`, so boundary and sharp edges take the midpoint. A
  * vertex point applies `subdivisionVertexMask` to the vertex, its edge
  * neighbours and the new face points of its fan.
- *
- * @param topology Connectivity of the current level.
- * @param positions Packed positions of the current level.
- * @returns Packed next-level points and the vertex mask used for each vertex.
+ * Parameter topology: Connectivity of the current level.
+ * Parameter positions: Packed positions of the current level.
+ * Returns: Packed next-level points and the vertex mask used for each vertex.
  */
 export const refineSubdivisionPoints = (
   topology: IAutoMovieSubdivisionTopology,

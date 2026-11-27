@@ -35,7 +35,9 @@ import { AutoMovieHumanFootGuide } from "./AutoMovieHumanFootGuide";
  * published value.
  */
 export namespace AutoMovieHumanFootColumn {
-  /** Each border's knots. */
+  /*
+   * Each border's knots.
+   */
   const KNOTS: Readonly<
     Record<"lateral" | "medial", readonly IAutoMovieHumanFootGuide.IFanKnot[]>
   > = {
@@ -58,7 +60,9 @@ export namespace AutoMovieHumanFootColumn {
     ],
   };
 
-  /** Each border's plan law over its knots' heights in lateral malleolus heights, built once. */
+  /*
+   * Each border's plan law over its knots' heights in lateral malleolus heights, built once.
+   */
   const LAWS: Readonly<
     Record<"lateral" | "medial", Singleton<IAutoMovieHumanFootColumnLaw.IPlan>>
   > = {
@@ -117,11 +121,10 @@ export namespace AutoMovieHumanFootColumn {
     return frame.at(plan.along(height), plan.across(height), height * frame.H);
   }
 
-  /**
+  /*
    * A border's plan law through its knots.
-   *
-   * @param which The border.
-   * @returns The law, built on first use.
+   * Parameter which: The border.
+   * Returns: The law, built on first use.
    */
   function law(
     which: "lateral" | "medial",

@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `hairCombing` row of `HumanUpperRows` fixes on `armPhrase`,
  * spread into its parameters. Combing: the hand that holds the comb draws it
  * back over the crown.

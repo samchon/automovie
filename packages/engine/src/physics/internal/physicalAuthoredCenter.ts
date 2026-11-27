@@ -7,15 +7,14 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * The authored pose's centre of mass and its velocity, world: each segment's
  * centre of mass carried by its sampled authored pose, p + R c, and moving with
  * its sampled linear and angular velocity, v + w x (R c), weighted by the
  * segment's share of the body's mass.
- *
- * @param profile The body's provider profile.
- * @param goals The authored targets sampled this substep, by bone.
- * @returns The centre, metres, and its velocity, metres per second.
+ * Parameter profile: The body's provider profile.
+ * Parameter goals: The authored targets sampled this substep, by bone.
+ * Returns: The centre, metres, and its velocity, metres per second.
  */
 export function physicalAuthoredCenter(
   profile: IAutoMoviePhysicalProfile,

@@ -7,10 +7,12 @@ import * as THREE from "three";
 
 import type { AutoMovieRenderInspectionGeometry } from "../../AutoMovieRenderInspectionGeometry.js";
 
-/** Four pi steradians, the solid angle of a whole sphere. */
+/*
+ * Four pi steradians, the solid angle of a whole sphere.
+ */
 const FOUR_PI: number = 4 * Math.PI;
 
-/**
+/*
  * Search the drawn surface of each part of a candidate pair for a point inside
  * the other part's solid deeper than the allowance at that point.
  *
@@ -18,11 +20,10 @@ const FOUR_PI: number = 4 * Math.PI;
  * meet along curves that end where an edge of one crosses the other, so when
  * both directions are searched completely without a witness the drawn surfaces
  * do not penetrate beyond the tolerance, and the pair is clear.
- *
- * @param props The pair, the part solids and surfaces, the allowance law and
- *   the shared work budget.
- * @returns A witness, a proof of clearance, an exhausted budget, or an
- *   incomplete search.
+ * Parameter props: The pair, the part solids and surfaces, the allowance law and
+ * the shared work budget.
+ * Returns: A witness, a proof of clearance, an exhausted budget, or an
+ * incomplete search.
  */
 export function findAutoMovieCollisionWitness(
   props: findAutoMovieCollisionWitness.IProps,
@@ -76,17 +77,27 @@ export function findAutoMovieCollisionWitness(
       : { kind: "incomplete" };
 }
 
-/** Inputs, solids and outcomes of the witness search. */
+/*
+ * Inputs, solids and outcomes of the witness search.
+ */
 export namespace findAutoMovieCollisionWitness {
-  /** The pair, its surfaces and solids, the allowance law and the work budget. */
+  /*
+   * The pair, its surfaces and solids, the allowance law and the work budget.
+   */
   export interface IProps {
-    /** The candidate pair. */
+    /*
+     * The candidate pair.
+     */
     readonly pair: Pick<Collision.IFinding, "first" | "second">;
-    /** Lazy drawn surfaces by part. */
+    /*
+     * Lazy drawn surfaces by part.
+     */
     readonly surfaces: AutoMovieRenderInspectionGeometry.IResult["surfaces"];
-    /** Memoized solid of a part. */
+    /*
+     * Memoized solid of a part.
+     */
     readonly solidOf: (id: string) => ISolid | null | "budget";
-    /**
+    /*
      * Allowed depth for a witness on the mover's surface labelled `moverJoint`
      * inside the holder near `holderJoint`.
      */
@@ -95,11 +106,13 @@ export namespace findAutoMovieCollisionWitness {
       moverJoint: string | undefined,
       holderJoint: string | undefined,
     ) => number;
-    /** Comparisons and triangle visits the frame may still spend. */
+    /*
+     * Comparisons and triangle visits the frame may still spend.
+     */
     readonly budget: { comparisons: number; surfaceTriangles: number };
   }
 
-  /**
+  /*
    * A witness point with its depth, proven clearance, exhausted work, or an
    * incomplete search.
    */
@@ -111,20 +124,28 @@ export namespace findAutoMovieCollisionWitness {
       }
     | { readonly kind: "clear" | "budget" | "incomplete" };
 
-  /** A solid a drawn surface vertex or edge can be tested against. */
+  /*
+   * A solid a drawn surface vertex or edge can be tested against.
+   */
   export interface ISolid {
-    /** World bounds of the solid, or null when its distance is cheap everywhere. */
+    /*
+     * World bounds of the solid, or null when its distance is cheap everywhere.
+     */
     readonly bounds: THREE.Box3 | null;
-    /** Pose error of the solid's surface in world metres. */
+    /*
+     * Pose error of the solid's surface in world metres.
+     */
     readonly error: number;
-    /** Triangle visits one point query costs. */
+    /*
+     * Triangle visits one point query costs.
+     */
     readonly cost: number;
-    /**
+    /*
      * Signed distance of a point, negative inside, with the joint of the
      * nearest surface.
      */
     readonly distance: (point: THREE.Vector3) => IDepth;
-    /**
+    /*
      * The point of a segment deepest inside, or null when the segment cannot
      * pass the limit.
      */
@@ -137,21 +158,26 @@ export namespace findAutoMovieCollisionWitness {
       | null;
   }
 
-  /** A signed depth and the joint owning the nearest holder surface. */
+  /*
+   * A signed depth and the joint owning the nearest holder surface.
+   */
   export interface IDepth {
-    /** Signed distance in metres, negative inside. */
+    /*
+     * Signed distance in metres, negative inside.
+     */
     readonly separation: number;
-    /** Joint of the nearest holder surface, when the holder is a labelled skin. */
+    /*
+     * Joint of the nearest holder surface, when the holder is a labelled skin.
+     */
     readonly joint?: string;
   }
 
-  /**
+  /*
    * Build the solid of an exact displayed shape or a closed drawn surface.
-   *
-   * @param part The part.
-   * @param surface Its lazy drawn surface, when collected.
-   * @returns The solid, null when the part bounds no solid, or "budget" when
-   *   its surface exceeds the vertex allowance.
+   * Parameter part: The part.
+   * Parameter surface: Its lazy drawn surface, when collected.
+   * Returns: The solid, null when the part bounds no solid, or "budget" when
+   * its surface exceeds the vertex allowance.
    */
   export function solid(
     part: Collision.IPart | undefined,
@@ -191,7 +217,7 @@ export namespace findAutoMovieCollisionWitness {
   }
 }
 
-/**
+/*
  * Test one part's drawn vertices, then its drawn edges, against the other's
  * solid.
  */
@@ -270,7 +296,9 @@ function searchDirection(direction: {
   return null;
 }
 
-/** A witness outcome with a plain point. */
+/*
+ * A witness outcome with a plain point.
+ */
 function witness(
   point: THREE.Vector3,
   separation: number,
@@ -282,7 +310,9 @@ function witness(
   };
 }
 
-/** Pose error plus the single-precision allowance at these coordinates. */
+/*
+ * Pose error plus the single-precision allowance at these coordinates.
+ */
 function tolerance(error: number, ...points: THREE.Vector3[]): number {
   let scale: number = 1;
   for (const point of points)
@@ -295,7 +325,9 @@ function tolerance(error: number, ...points: THREE.Vector3[]): number {
   return error + 32 * 2 ** -23 * scale;
 }
 
-/** Distinct undirected edges of the drawn triangles of a posed surface. */
+/*
+ * Distinct undirected edges of the drawn triangles of a posed surface.
+ */
 function drawnEdges(
   surface: AutoMovieRenderInspectionGeometry.ISurface,
 ): readonly (readonly [number, number])[] {
@@ -316,7 +348,7 @@ function drawnEdges(
   return edges;
 }
 
-/**
+/*
  * The deepest point of a segment inside a convex solid. The Engine reads the
  * segment's least signed distance first; along a segment the signed distance to
  * a convex solid is convex, so a bracketing search locates the point.
@@ -346,7 +378,7 @@ function convexDeepest(
   return { point, separation: distance(point, point), cost: 0 };
 }
 
-/**
+/*
  * The deepest point of a segment inside a closed drawn surface. The segment
  * changes side only where it crosses a triangle, so the middle of each span
  * between consecutive crossings is tested for containment and depth.
@@ -403,7 +435,7 @@ function closedDeepest(
   return best === null ? null : { ...best, cost };
 }
 
-/**
+/*
  * Signed distance to a closed drawn surface: the generalized winding number
  * decides inside, independent of triangle orientation, and the nearest drawn
  * triangle gives the magnitude and the joint label.

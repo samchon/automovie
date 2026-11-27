@@ -1,6 +1,6 @@
 import { AutoMovieSemanticMaskVerificationError } from "../AutoMovieSemanticMaskVerificationError";
 
-/**
+/*
  * Return the typed reason from a semantic-mask verifier refusal.
  *
  * Receipt consumers use this instead of parsing error prose, while unrelated

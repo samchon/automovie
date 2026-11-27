@@ -15,24 +15,25 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { HumanSegmentSelection } from "./HumanSegmentSelection";
 
-/** The ordered additive layers of one person's posture at a film second. */
+/*
+ * The ordered additive layers of one person's posture at a film second.
+ */
 export namespace HumanSegmentLayer {
-  /**
+  /*
    * Add the person's active layers in order, fading each contribution by its
    * window's minimum-jerk ramp. Without layers, return the given posture. A
    * retained action reader still reads current placed actions. When an action
    * is present, each query returns fresh records and borrowed contacts.
-   *
-   * @param person The person whose layer windows and draw keys are read.
-   * @param posture The posture before the layers.
-   * @param seconds Film seconds.
-   * @param resolution Optional same-body exact FK getter borrowed for this
-   *   call; each layer receives a revocable synchronous loan.
-   * @param projection Optional genuine same-body ROM projection, lent only
-   *   through a revocable lazy layer getter.
-   * @param phase Display evaluates all active layers. Entry leaves native
-   *   breath for that display evaluation.
-   * @returns The mixed posture, preserving the existing endpoint identities.
+   * Parameter person: The person whose layer windows and draw keys are read.
+   * Parameter posture: The posture before the layers.
+   * Parameter seconds: Film seconds.
+   * Parameter resolution: Optional same-body exact FK getter borrowed for this
+   * call; each layer receives a revocable synchronous loan.
+   * Parameter projection: Optional genuine same-body ROM projection, lent only
+   * through a revocable lazy layer getter.
+   * Parameter phase: Display evaluates all active layers. Entry leaves native
+   * breath for that display evaluation.
+   * Returns: The mixed posture, preserving the existing endpoint identities.
    */
   export function apply(
     person: IAutoMovieMotionHumanSegment.IPerson,
@@ -127,23 +128,33 @@ export namespace HumanSegmentLayer {
   }
 }
 
-/** The alternatives of `ApplyPhase`'s site. */
+/*
+ * The alternatives of `ApplyPhase`'s site.
+ */
 type ApplyPhase = "display" | "entry";
 
-/** A layer may borrow only a same-body exact FK getter during its current apply. */
+/*
+ * A layer may borrow only a same-body exact FK getter during its current apply.
+ */
 type Resolution = NonNullable<
   IAutoMovieMotionHumanLayer.IContext["resolution"]
 >;
 
-/** A genuine direct-joint projector borrowed within this layer application. */
+/*
+ * A genuine direct-joint projector borrowed within this layer application.
+ */
 type Projection = ReturnType<typeof prepareHumanPostureProjection>;
-/** The record of `IBorrowProjectionResult`'s site. */
+/*
+ * The record of `IBorrowProjectionResult`'s site.
+ */
 type IBorrowProjectionResult = {
   read: NonNullable<IAutoMovieMotionHumanLayer.IContext["projection"]>;
   release: () => void;
 };
 
-/** A retained getter cannot retain the parent operation's ROM preparation. */
+/*
+ * A retained getter cannot retain the parent operation's ROM preparation.
+ */
 function borrowProjection(
   body: IAutoMovieMotionHumanBody,
   source: Projection | undefined,
@@ -157,13 +168,17 @@ function borrowProjection(
     },
   };
 }
-/** The record of `IBorrowResolutionResult`'s site. */
+/*
+ * The record of `IBorrowResolutionResult`'s site.
+ */
 type IBorrowResolutionResult = {
   read: Resolution;
   release: () => void;
 };
 
-/** Revoke a synchronous loan even if a layer retains its context or getter. */
+/*
+ * Revoke a synchronous loan even if a layer retains its context or getter.
+ */
 function borrowResolution(
   source: Resolution | undefined,
 ): IBorrowResolutionResult {

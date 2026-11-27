@@ -6,7 +6,7 @@ import type {
 import { perturb } from "../../reaction/internal/perturb";
 import { planEnvironmentRecovery } from "../../reaction/internal/planEnvironmentRecovery";
 
-/**
+/*
  * Resolving a walk's staged trip or slip: the walk is cut at the measured cue
  * and continues into a capture step, a fall or a braced rail catch
  * (`planEnvironmentRecovery`). Register
@@ -19,7 +19,7 @@ import { planEnvironmentRecovery } from "../../reaction/internal/planEnvironment
  * over a kerb, a slip on a wet floor.
  */
 export namespace HumanEnvironmentRecovery {
-  /**
+  /*
    * Respond to a staged walking trip or slip. It accepts the perturbation's
    * entries, cancels nothing and leaves no channel to overlays.
    */

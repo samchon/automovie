@@ -11,19 +11,18 @@ import type { jumpPush } from "./jumpPush";
 import type { jumpPushEnd } from "./jumpPushEnd";
 import type { jumpState } from "./jumpState";
 
-/**
+/*
  * A jump's ballistics and the landing's capture (`jump.plan`): the centre of
  * mass at the achieved take-off and touchdown poses, the flight between them,
  * the touchdown root moved behind the footprints so the extrapolated centre of
  * mass lies over the feet as they land, and the flight solved again to that
  * caught landing. Read from the plan's body, mass model, parameters, heights,
  * landing and endpoint states.
- *
- * @param scope What the plan solves the flight from.
- * @returns The take-off centre, the caught landing, its endpoints and centre,
- *   and the flight to it.
- * @throws {HumanRefusal} When the apex is not positive or does not clear a
- *   raised landing (`jumpFlight`).
+ * Parameter scope: What the plan solves the flight from.
+ * Returns: The take-off centre, the caught landing, its endpoints and centre,
+ * and the flight to it.
+ * When the apex is not positive or does not clear a
+ * raised landing (`jumpFlight`).
  */
 export function jumpCapture(scope: jumpCapture.IScope): jumpCapture.ICapture {
   const {
@@ -121,88 +120,144 @@ export function jumpCapture(scope: jumpCapture.IScope): jumpCapture.ICapture {
   return { comT, caught, caughtEnds, caughtCentre, vy, T, launch, land };
 }
 
-/** What a jump's capture reads and what it gives. */
+/*
+ * What a jump's capture reads and what it gives.
+ */
 export namespace jumpCapture {
-  /** What a jump plan solves its flight from. */
+  /*
+   * What a jump plan solves its flight from.
+   */
   export interface IScope {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The body's mass model. */
+    /*
+     * The body's mass model.
+     */
     model: IAutoMovieResolveCenterOfMass.IModel;
 
-    /** The action's context. */
+    /*
+     * The action's context.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanJump.IParams>;
 
-    /** The hip height, metres. */
+    /*
+     * The hip height, metres.
+     */
     l: number;
 
-    /** The landing surface's height, metres. */
+    /*
+     * The landing surface's height, metres.
+     */
     rise: number;
 
-    /** The destination on the floor. */
+    /*
+     * The destination on the floor.
+     */
     to: IAutoMovieVector3;
 
-    /** The landing's heading, degrees. */
+    /*
+     * The landing's heading, degrees.
+     */
     landingHeading: number;
 
-    /** The upright stand's alignment. */
+    /*
+     * The upright stand's alignment.
+     */
     upright: IAutoMovieMotionHumanStandUpright.IAlignment;
 
-    /** The turn from the take-off heading to the landing's, degrees. */
+    /*
+     * The turn from the take-off heading to the landing's, degrees.
+     */
     headingChange: number;
 
-    /** The push's terminal writer's props. */
+    /*
+     * The push's terminal writer's props.
+     */
     endProps: Parameters<typeof jumpPushEnd>[0];
 
-    /** The take-off root. */
+    /*
+     * The take-off root.
+     */
     rootT: IAutoMovieVector3;
 
-    /** Each foot's landing footprint. */
+    /*
+     * Each foot's landing footprint.
+     */
     landing: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>;
 
-    /** The knee planes at landing. */
+    /*
+     * The knee planes at landing.
+     */
     landingKnee: jumpPush.IProps["knee"];
 
-    /** The achieved take-off state. */
+    /*
+     * The achieved take-off state.
+     */
     startState: jumpState.IState;
 
-    /** The achieved touchdown state. */
+    /*
+     * The achieved touchdown state.
+     */
     endState: jumpState.IState;
   }
 
-  /** The flight to the caught landing. */
+  /*
+   * The flight to the caught landing.
+   */
   export interface ICapture {
-    /** The centre of mass at take-off. */
+    /*
+     * The centre of mass at take-off.
+     */
     comT: IAutoMovieVector3;
 
-    /** The caught landing. */
+    /*
+     * The caught landing.
+     */
     caught: jumpLanding.ILanding;
 
-    /** The endpoints to the caught landing. */
+    /*
+     * The endpoints to the caught landing.
+     */
     caughtEnds: jumpEndpoints.IEnds;
 
-    /** The centre of mass at the caught touchdown. */
+    /*
+     * The centre of mass at the caught touchdown.
+     */
     caughtCentre: IAutoMovieVector3;
 
-    /** The vertical take-off speed, metres a second. */
+    /*
+     * The vertical take-off speed, metres a second.
+     */
     vy: jumpFlight.IFlight["vy"];
 
-    /** The flight's time, seconds. */
+    /*
+     * The flight's time, seconds.
+     */
     T: jumpFlight.IFlight["T"];
 
-    /** The centre's launch velocity. */
+    /*
+     * The centre's launch velocity.
+     */
     launch: jumpFlight.IFlight["launch"];
 
-    /** The centre's landing velocity. */
+    /*
+     * The centre's landing velocity.
+     */
     land: jumpFlight.IFlight["land"];
   }
 }
-/** The record of `IPlanResult`'s site. */
+/*
+ * The record of `IPlanResult`'s site.
+ */
 type IPlanResult = {
   takeoff: IAutoMovieVector3;
   landing: IAutoMovieVector3;
 };
 
-/** The record of `IPlan`'s site. */
+/*
+ * The record of `IPlan`'s site.
+ */
 type IPlan = { takeoff: IAutoMovieVector3; landing: IAutoMovieVector3 };

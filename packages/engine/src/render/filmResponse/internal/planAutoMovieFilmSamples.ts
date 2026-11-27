@@ -3,7 +3,7 @@ import type {
   IAutoMoviePlanFilmSamples,
 } from "@automovie/interface";
 
-/**
+/*
  * Plan the sub-frame samples a directly rendered frame averages with equal
  * weight: when each is placed and where on the aperture its eye sits.
  *
@@ -27,12 +27,11 @@ import type {
  * the blur matches the picture's geometry rather than an authored focal length.
  * Every value depends only on `t`, `fps`, the optics and `fovY`, never on an
  * earlier frame.
- *
- * @param props The frame's second, the frame rate, the optics and the field of
- *   view.
- * @returns `samples` samples in drawing order.
- * @throws Error when the optics has no `samples`, or `fps` or `fovY` is out of
- *   range.
+ * Parameter props: The frame's second, the frame rate, the optics and the field of
+ * view.
+ * Returns: `samples` samples in drawing order.
+ * Error when the optics has no `samples`, or `fps` or `fovY` is out of
+ * range.
  */
 export function planAutoMovieFilmSamples(
   props: IAutoMoviePlanFilmSamples.IProps,
@@ -82,13 +81,17 @@ export function planAutoMovieFilmSamples(
   );
 }
 
-/** Height of the full-frame 36 × 24 mm gate, in metres. */
+/*
+ * Height of the full-frame 36 × 24 mm gate, in metres.
+ */
 const GATE_HEIGHT: number = 0.024;
 
-/** The golden ratio's conjugate, `(√5 − 1) / 2`. */
+/*
+ * The golden ratio's conjugate, `(√5 − 1) / 2`.
+ */
 const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
 
-/**
+/*
  * The base-2 radical inverse of a non-negative integer: its binary digits
  * mirrored about the binary point.
  */
@@ -102,7 +105,7 @@ const radicalInverse: (index: number) => number = (index: number): number => {
   return value;
 };
 
-/**
+/*
  * Shirley and Chiu's concentric map of the unit square onto the unit disk,
  * which keeps strata adjacent and areas proportional.
  */
@@ -120,7 +123,7 @@ const concentricDisk: (u: number, v: number) => [number, number] = (
   return [r * Math.cos(phi), r * Math.sin(phi)];
 };
 
-/**
+/*
  * The integer nearest `target` within `[1, count]` that is coprime to `count`,
  * the lower one on a tie, so `k → a × k mod count` is a permutation.
  */
@@ -135,6 +138,8 @@ const coprimeNear: (count: number, target: number) => number = (
         return candidate;
 };
 
-/** The greatest common divisor of two positive integers. */
+/*
+ * The greatest common divisor of two positive integers.
+ */
 const gcd: (a: number, b: number) => number = (a: number, b: number): number =>
   b === 0 ? a : gcd(b, a % b);

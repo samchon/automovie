@@ -1,4 +1,4 @@
-/**
+/*
  * The least of a function of one variable on an interval, by Brent's method:
  * golden-section search safeguarding successive parabolic interpolation, the
  * procedure `localmin` of Brent 1973, "Algorithms for Minimization without
@@ -13,13 +13,12 @@
  * tolerance), and the search ends once `x` lies within `2 tol` of the bracket's
  * middle less half its width. On a unimodal function the point found is the
  * minimum within `3 tol`; on any other it is a local minimum.
- *
- * @param f The function.
- * @param a The interval's low end.
- * @param b The interval's high end, above `a`.
- * @param t The absolute tolerance, in the variable's own units, from the call
- *   site's requirement.
- * @returns The point found and the function there.
+ * Parameter f: The function.
+ * Parameter a: The interval's low end.
+ * Parameter b: The interval's high end, above `a`.
+ * Parameter t: The absolute tolerance, in the variable's own units, from the call
+ * site's requirement.
+ * Returns: The point found and the function there.
  */
 export function minimizeHumanBrent(
   f: (x: number) => number,
@@ -98,20 +97,32 @@ export function minimizeHumanBrent(
   return { at: x, value: fx };
 }
 
-/** Companion types of {@link minimizeHumanBrent}. */
+/*
+ * Companion types of minimizeHumanBrent.
+ */
 export namespace minimizeHumanBrent {
-  /** The point found and the function there. */
+  /*
+   * The point found and the function there.
+   */
   export interface IMinimum {
-    /** The point. */
+    /*
+     * The point.
+     */
     at: number;
 
-    /** The function's value there. */
+    /*
+     * The function's value there.
+     */
     value: number;
   }
 }
 
-/** The golden section's smaller share, `(3 − √5) / 2`. */
+/*
+ * The golden section's smaller share, `(3 − √5) / 2`.
+ */
 const GOLDEN: number = (3 - Math.sqrt(5)) / 2;
 
-/** The square root of the machine precision, the method's relative tolerance. */
+/*
+ * The square root of the machine precision, the method's relative tolerance.
+ */
 const ROOT_EPSILON: number = Math.sqrt(Number.EPSILON);

@@ -5,7 +5,9 @@ import type {
 
 import { pushViolation } from "./pushViolation";
 
-/** Append located violations for invalid editorial markers on a shot clock. */
+/*
+ * Append located violations for invalid editorial markers on a shot clock.
+ */
 export function appendEditorialMarkersArtifact(
   markers: readonly IAutoMovieEditorialMarker[],
   path: string,

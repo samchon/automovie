@@ -262,7 +262,9 @@ export namespace AutoMovieHumanSiteControls {
   }
 }
 
-/** Retain every named station and the original bounded-spacing subdivision rule. */
+/*
+ * Retain every named station and the original bounded-spacing subdivision rule.
+ */
 function subdivide(kept: readonly number[], gap: number): number[] {
   const out: number[] = [kept[0]!];
   for (let k: number = 1; k < kept.length; k++) {

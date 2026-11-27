@@ -21,7 +21,7 @@ import { HumanLimbFit } from "../../posture/internal/HumanLimbFit";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 
-/**
+/*
  * An arm group's action laid without trajectory optimisation: kept when it
  * meets every bound a solved trajectory meets (`HumanArmTrajectory.admitted`),
  * else the optimiser's seed (`HumanArmTrajectory.solve`).
@@ -46,82 +46,109 @@ import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
  * and goes to the optimiser, whose refusal names the time needed.
  */
 export namespace AutoMovieMotionHumanArmCourse {
-  /** What the planner lends the course. */
+  /*
+   * What the planner lends the course.
+   */
   export interface IProps {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The span's instants and knots, seconds. */
+    /*
+     * The span's instants and knots, seconds.
+     */
     span: IAutoMovieMotionHumanArmPlanned.ISpan;
 
-    /**
+    /*
      * The current duration divided by the law's original duration, for an
      * explicit replan.
      */
     tempo?: number;
 
-    /**
+    /*
      * Each arm's side, rest, return, the bone of another arm its grip rides and
      * the seed of the law's own fit of its hold's first goal, in the group's
      * order.
      */
     arms: readonly IArm[];
 
-    /**
+    /*
      * The posture so far and its pose with the group's arms left out, at an
      * instant.
      */
     at: (seconds: number) => IAt;
 
-    /** An arm's goal at an instant, as the plan perceives it. */
+    /*
+     * An arm's goal at an instant, as the plan perceives it.
+     */
     aimed: (arm: number, seconds: number) => IAutoMovieHumanLimbGoal;
 
-    /** The trajectory problem on given waypoints, the optimiser's own. */
+    /*
+     * The trajectory problem on given waypoints, the optimiser's own.
+     */
     problem: (times: readonly number[]) => HumanArmTrajectory.IProblem;
 
-    /** The plan's exact FK reader. */
+    /*
+     * The plan's exact FK reader.
+     */
     resolution: ReturnType<typeof prepareHumanPoseResolution>;
   }
 
-  /**
+  /*
    * One arm of the group: its side, rest, return, the bone of another arm its
    * grip rides and the seed of the law's own fit of its hold's first goal.
    */
   export interface IArm {
-    /** The arm. */
+    /*
+     * The arm.
+     */
     side: AutoMovieHumanSide;
 
-    /** The arm's angles as the course leaves. */
+    /*
+     * The arm's angles as the course leaves.
+     */
     rest: IAutoMovieMotionHumanArmAngles.IAngles;
 
-    /** The arm's angles the course returns to; the rest when absent. */
+    /*
+     * The arm's angles the course returns to; the rest when absent.
+     */
     back?: IAutoMovieMotionHumanArmAngles.IAngles;
 
-    /** The bone of another arm of the group whose grip this one rides. */
+    /*
+     * The bone of another arm of the group whose grip this one rides.
+     */
     on?: string;
 
-    /** The seed of the law's own fit of the hold's first goal. */
+    /*
+     * The seed of the law's own fit of the hold's first goal.
+     */
     hold?: IAutoMovieSwivelSeed;
   }
 
-  /** The posture so far at an instant and its pose without the group's arms. */
+  /*
+   * The posture so far at an instant and its pose without the group's arms.
+   */
   export interface IAt {
-    /** The posture so far. */
+    /*
+     * The posture so far.
+     */
     posture: IAutoMovieMotionHumanPosture;
 
-    /** Its pose with the group's arms left out. */
+    /*
+     * Its pose with the group's arms left out.
+     */
     pose: IAutoMoviePose;
   }
 
-  /**
+  /*
    * The group's course: its trajectories and whether the model admits them;
    * none when the span holds no instant on the hold.
-   *
-   * @param props The planner's readers.
-   * @param inheritedPace The original coupled speed limits for a separate trial
-   *   of one member.
-   * @returns The trajectories in the group's order and the admission; none
-   *   without a hold instant.
+   * Parameter props: The planner's readers.
+   * Parameter inheritedPace: The original coupled speed limits for a separate trial
+   * of one member.
+   * Returns: The trajectories in the group's order and the admission; none
+   * without a hold instant.
    */
   export function course(
     props: IProps,
@@ -207,7 +234,7 @@ export namespace AutoMovieMotionHumanArmCourse {
     return HumanArmTrajectoryContactContinuation(held, read, props.tempo);
   }
 
-  /**
+  /*
    * The frame grid, seconds: the finest the optimiser's waypoints are spaced
    * (`HumanArmTrajectory`), the course's instants and the grid a law's arm
    * chain continues on (`AutoMovieMotionHumanArmChain`): the optimiser's own
@@ -215,7 +242,7 @@ export namespace AutoMovieMotionHumanArmCourse {
    */
   export const STEP: number = 1 / 30;
 
-  /**
+  /*
    * A span's frame grid, seconds: the span's four instants and its knots
    * (`ISpan.knots`) inside it are instants of the grid, and each interval
    * between two of them is cut into equal pieces no longer than `STEP`, so a
@@ -223,9 +250,8 @@ export namespace AutoMovieMotionHumanArmCourse {
    * timestep (github.com/joschu/trajopt, `src/trajopt/problem_description.cpp`,
    * pose terms with a `timestep`; Schulman et al. 2014, IJRR 33:1251, section
    * VII-B). With no knots it is the phrases' own grid.
-   *
-   * @param span The span, with its knots.
-   * @returns The grid, ascending, from the start to the end.
+   * Parameter span: The span, with its knots.
+   * Returns: The grid, ascending, from the start to the end.
    */
   export function grid(span: IAutoMovieMotionHumanArmPlanned.ISpan): number[] {
     const breaks: number[] = [span.start];
@@ -249,28 +275,38 @@ export namespace AutoMovieMotionHumanArmCourse {
   }
 }
 
-/**
+/*
  * The arms an instant's fit laid, the seeds it reports for each and the pose
  * they stand in.
  */
 interface ISolved {
-  /** Each arm's clinical triples, in the group's order. */
+  /*
+   * Each arm's clinical triples, in the group's order.
+   */
   arms: IAutoMovieMotionHumanArmClearance.IArm[];
 
-  /** Each fitted arm's seed, refined to the cold sweep's resolution. */
+  /*
+   * Each fitted arm's seed, refined to the cold sweep's resolution.
+   */
   near: IAutoMovieMotionHumanResolveHumanPosture.INear;
 
-  /** The pose with every arm fitted. */
+  /*
+   * The pose with every arm fitted.
+   */
   pose: IAutoMoviePose;
 }
 
-/** One hold instant's fit: its index on the frame grid and what was laid there. */
+/*
+ * One hold instant's fit: its index on the frame grid and what was laid there.
+ */
 interface IHeldFit extends ISolved {
-  /** The instant's index in the course's instants. */
+  /*
+   * The instant's index in the course's instants.
+   */
   k: number;
 }
 
-/**
+/*
  * The posture solve of every arm's goal at an instant, continued from (or
  * placed at) the seeds given.
  */
@@ -367,19 +403,23 @@ function solver(
   };
 }
 
-/**
+/*
  * What a hold's first instant continues: the seeds of its arms' fits, and the
  * arms posed in first where they stand on the course's own arms.
  */
 interface IEntered {
-  /** Each continued arm's seed. */
+  /*
+   * Each continued arm's seed.
+   */
   near: IAutoMovieMotionHumanResolveHumanPosture.INear;
 
-  /** The arms posed in before the fit, in the group's order; none when absent. */
+  /*
+   * The arms posed in before the fit, in the group's order; none when absent.
+   */
   arms?: readonly IAutoMovieMotionHumanArmClearance.IArm[];
 }
 
-/**
+/*
  * What a hold's first instant continues. An arm whose law gives the seed of its
  * own fit of the hold's first goal (`hold`, the grasp the law chose) continues
  * that fit, one model between the law's search and its course. With no reach
@@ -391,8 +431,7 @@ interface IEntered {
  * the same hand with the elbow elsewhere: with no reach between them that
  * difference is a step. After a reach, an arm with no seed of its law's is
  * fitted on its own, the reader laying the way to it.
- *
- * @returns The continuation; none where every arm is fitted on its own.
+ * Returns: The continuation; none where every arm is fitted on its own.
  */
 function entered(
   props: AutoMovieMotionHumanArmCourse.IProps,

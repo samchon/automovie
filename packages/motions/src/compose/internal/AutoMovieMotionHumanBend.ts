@@ -18,7 +18,7 @@ import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch
 import { AutoMovieMotionHumanBendTurn } from "./AutoMovieMotionHumanBendTurn";
 import { AutoMovieMotionHumanKneeBend } from "./AutoMovieMotionHumanKneeBend";
 
-/**
+/*
  * Bend hints: the world point an elbow or a knee bends toward, from a named
  * preset on a posture.
  *
@@ -39,7 +39,9 @@ import { AutoMovieMotionHumanKneeBend } from "./AutoMovieMotionHumanKneeBend";
  * `AutoMovieMotionHumanBendChain` prepares.
  */
 export namespace AutoMovieMotionHumanBend {
-  /** The arm holds of {@link IAutoMovieMotionHumanBend.Arm}, as data. */
+  /*
+   * The arm holds of IAutoMovieMotionHumanBend.Arm, as data.
+   */
   export const ARMS = [
     "hang",
     "tucked",
@@ -51,7 +53,7 @@ export namespace AutoMovieMotionHumanBend {
     "raised",
   ] as const satisfies readonly NonNullable<IAutoMovieMotionHumanBend.Arm>[];
 
-  /**
+  /*
    * The elbow presets (provisional shares, each the value its first user was
    * captured with):
    *
@@ -79,17 +81,16 @@ export namespace AutoMovieMotionHumanBend {
     raised: { out: 0.9, up: 0.5, forward: 0.3 },
   };
 
-  /**
+  /*
    * An elbow's bend hint.
-   *
-   * @param body The body.
-   * @param posture The root and the heading that carry the trunk; a pitch and a
-   *   roll left out count as 0.
-   * @param side The arm.
-   * @param preset A named preset or the shares themselves.
-   * @param out Extra outward share of the upper arm, for a wider elbow than the
-   *   preset's; 0 by default.
-   * @returns The world point, metres.
+   * Parameter body: The body.
+   * Parameter posture: The root and the heading that carry the trunk; a pitch and a
+   * roll left out count as 0.
+   * Parameter side: The arm.
+   * Parameter preset: A named preset or the shares themselves.
+   * Parameter out: Extra outward share of the upper arm, for a wider elbow than the
+   * preset's; 0 by default.
+   * Returns: The world point, metres.
    */
   export function arm(
     body: IAutoMovieMotionHumanBody,
@@ -121,14 +122,13 @@ export namespace AutoMovieMotionHumanBend {
     );
   }
 
-  /**
+  /*
    * The hint of an unloaded arm: the `hang` preset, widened by a share.
-   *
-   * @param body The body.
-   * @param posture The root and the heading that carry the trunk.
-   * @param side The arm.
-   * @param out Extra outward share of the upper arm; 0 by default.
-   * @returns The world point, metres.
+   * Parameter body: The body.
+   * Parameter posture: The root and the heading that carry the trunk.
+   * Parameter side: The arm.
+   * Parameter out: Extra outward share of the upper arm; 0 by default.
+   * Returns: The world point, metres.
    */
   export function hang(
     body: IAutoMovieMotionHumanBody,
@@ -140,18 +140,17 @@ export namespace AutoMovieMotionHumanBend {
     return arm(body, posture, side, "hang", out);
   }
 
-  /**
+  /*
    * A knee's bend hint: one metre ahead of the knee's rest place along a
    * heading.
-   *
-   * @param body The body.
-   * @param posture The root and the heading that carry the knee's rest place.
-   * @param side The leg.
-   * @param heading Where the foot points, degrees about +Y; the posture's
-   *   heading when absent.
-   * @param splay Degrees the knee opens away from the midline past that
-   *   heading; 0 by default.
-   * @returns The world point, metres.
+   * Parameter body: The body.
+   * Parameter posture: The root and the heading that carry the knee's rest place.
+   * Parameter side: The leg.
+   * Parameter heading: Where the foot points, degrees about +Y; the posture's
+   * heading when absent.
+   * Parameter splay: Degrees the knee opens away from the midline past that
+   * heading; 0 by default.
+   * Returns: The world point, metres.
    */
   export function knee(
     body: IAutoMovieMotionHumanBody,
@@ -163,7 +162,7 @@ export namespace AutoMovieMotionHumanBend {
     return AutoMovieMotionHumanKneeBend.at(body, posture, side, heading, splay);
   }
 
-  /**
+  /*
    * Prepare the original knee hint for a fixed foot heading and moving body
    * frame.
    */
@@ -176,14 +175,16 @@ export namespace AutoMovieMotionHumanBend {
     return AutoMovieMotionHumanKneeBend.prepare(body, side, heading, splay);
   }
 
-  /** Prepare a fixed body's trunk and side for actual solve/strain queries. */
+  /*
+   * Prepare a fixed body's trunk and side for actual solve/strain queries.
+   */
   export function prepare(
     fixed: Pick<IAutoMovieMotionHumanBend.ISolve, PrepareFixed>,
   ): AutoMovieMotionHumanBendPreparation.IPrepared {
     return AutoMovieMotionHumanBendPreparation(fixed);
   }
 
-  /**
+  /*
    * Share genuine trunk geometry across actual sides within one person
    * evaluation.
    */
@@ -193,7 +194,7 @@ export namespace AutoMovieMotionHumanBend {
   ): ReturnType<typeof AutoMovieMotionHumanBendPreparation.both> {
     return AutoMovieMotionHumanBendPreparation.both(fixed, resolution);
   }
-  /**
+  /*
    * The elbow place of least joint strain for a hand goal.
    *
    * A wrist's place leaves the elbow free on a circle about the line from the
@@ -212,11 +213,10 @@ export namespace AutoMovieMotionHumanBend {
    * either hand), is one where the hand cannot make the rotation with room to
    * spare; it ranks behind every place that makes it, by the degrees left
    * unmade.
-   *
-   * @param props The request.
-   * @returns The elbow's place, world metres, usable as a bend hint.
-   * @throws When the wrist is farther from the shoulder than the arm is long,
-   *   or no place on the circle is allowed, and no `fallback` is given.
+   * Parameter props: The request.
+   * Returns: The elbow's place, world metres, usable as a bend hint.
+   * When the wrist is farther from the shoulder than the arm is long,
+   * or no place on the circle is allowed, and no `fallback` is given.
    */
   export function solve(
     props: IAutoMovieMotionHumanBend.ISolve,
@@ -224,17 +224,16 @@ export namespace AutoMovieMotionHumanBend {
     return prepare(props).solve(props);
   }
 
-  /**
+  /*
    * The elbow place that holds the upper arm level for a hand goal: on the
    * circle the wrist's place leaves the elbow, the allowed place whose height
    * is nearest the shoulder's, as a salute, a toast and a shading hand hold the
    * arm. Where two places are as near, the one of less strain.
-   *
-   * @param props The request.
-   * @returns The elbow's place, world metres, usable as a bend hint.
-   * @throws {HumanRefusal} A `reach` refusal on `elbow` that offers the
-   *   `natural` elbow, when the wrist is out of reach or no place on the circle
-   *   is allowed, and no `fallback` is given.
+   * Parameter props: The request.
+   * Returns: The elbow's place, world metres, usable as a bend hint.
+   * A `reach` refusal on `elbow` that offers the
+   * `natural` elbow, when the wrist is out of reach or no place on the circle
+   * is allowed, and no `fallback` is given.
    */
   export function level(
     props: IAutoMovieMotionHumanBend.ISolve,
@@ -274,13 +273,12 @@ export namespace AutoMovieMotionHumanBend {
     });
   }
 
-  /**
+  /*
    * The strain of a hand goal with its elbow toward a given point.
-   *
-   * @param props The request; its `fallback` is not read.
-   * @param bend The point the elbow bends toward, world metres.
-   * @returns The strain `solve` minimises, a unitless number; `Infinity` when
-   *   the wrist is out of reach or that elbow place is not allowed.
+   * Parameter props: The request; its `fallback` is not read.
+   * Parameter bend: The point the elbow bends toward, world metres.
+   * Returns: The strain `solve` minimises, a unitless number; `Infinity` when
+   * the wrist is out of reach or that elbow place is not allowed.
    */
   export function strain(
     props: IAutoMovieMotionHumanBend.ISolve,
@@ -289,16 +287,15 @@ export namespace AutoMovieMotionHumanBend {
     return prepare(props).strain(props, bend);
   }
 
-  /**
+  /*
    * An elbow place turned about the line from the shoulder to the wrist.
-   *
-   * @param props The request; its `fallback` is not read.
-   * @param elbow The elbow's place, world metres.
-   * @param degrees The turn, counter-clockwise seen from the wrist looking at
-   *   the shoulder.
-   * @returns The turned place, world metres, at the same distance from the
-   *   line; the place itself when the rig has no such arm or the elbow lies on
-   *   the line.
+   * Parameter props: The request; its `fallback` is not read.
+   * Parameter elbow: The elbow's place, world metres.
+   * Parameter degrees: The turn, counter-clockwise seen from the wrist looking at
+   * the shoulder.
+   * Returns: The turned place, world metres, at the same distance from the
+   * line; the place itself when the rig has no such arm or the elbow lies on
+   * the line.
    */
   export function turn(
     props: IAutoMovieMotionHumanBend.ISolve,
@@ -308,17 +305,16 @@ export namespace AutoMovieMotionHumanBend {
     return AutoMovieMotionHumanBendTurn(props, elbow, degrees);
   }
 
-  /**
+  /*
    * The strain `solve` ranks elbow places by, for a limb fit that takes its
    * elbow's hint from its own swivel sweep (`fitChainToTarget`'s `strain`): the
    * fit's legal candidate of least strain is the place `solve` would take, read
    * on the fit's own chain.
-   *
-   * @param props The body, the arm and the hand's world rotation, when its turn
-   *   counts as strain.
-   * @returns The strain of a candidate from its upper arm's bone-local rotation
-   *   and its lower arm's world rotation, or null when the rig has no arm
-   *   chain.
+   * Parameter props: The body, the arm and the hand's world rotation, when its turn
+   * counts as strain.
+   * Returns: The strain of a candidate from its upper arm's bone-local rotation
+   * and its lower arm's world rotation, or null when the rig has no arm
+   * chain.
    */
   export function strainOf(
     props: IAutoMovieMotionHumanHand.IStrainOfProps,
@@ -336,17 +332,16 @@ export namespace AutoMovieMotionHumanBend {
     );
   }
 
-  /**
+  /*
    * The shoulder angles of a body's unloaded hanging arm, the angles the strain
    * `solve` minimises is measured from: the wrist under the relaxed elbow, the
    * elbow on the `hang` preset's side of an upright trunk at the origin
    * (`AutoMovieMotionHumanBendSearch.hanging`). A body reads it once per side
    * (`IAutoMovieMotionHumanBody.hanging`).
-   *
-   * @param body The body.
-   * @param side The arm.
-   * @returns The clinical angles, degrees, or null when the rig has no arm
-   *   chain.
+   * Parameter body: The body.
+   * Parameter side: The arm.
+   * Returns: The clinical angles, degrees, or null when the rig has no arm
+   * chain.
    */
   export function hanging(
     body: IAutoMovieMotionHumanBody,
@@ -360,31 +355,49 @@ export namespace AutoMovieMotionHumanBend {
   }
 }
 
-/** The alternatives of `LevelFound`'s site. */
+/*
+ * The alternatives of `LevelFound`'s site.
+ */
 type LevelFound = AutoMovieMotionHumanBendSearch.ICandidate | string;
 
-/** The alternatives of `PrepareBothFixed`'s site. */
+/*
+ * The alternatives of `PrepareBothFixed`'s site.
+ */
 type PrepareBothFixed = "body" | "posture";
 
-/** The alternatives of `PrepareFixed`'s site. */
+/*
+ * The alternatives of `PrepareFixed`'s site.
+ */
 type PrepareFixed = "body" | "posture" | "side";
 
-/** The alternatives of `KneePosture`'s site. */
+/*
+ * The alternatives of `KneePosture`'s site.
+ */
 type KneePosture = "root" | "yaw";
 
-/** The alternatives of `HangPostureItem`'s site. */
+/*
+ * The alternatives of `HangPostureItem`'s site.
+ */
 type HangPostureItem = "pitch" | "roll";
 
-/** The alternatives of `HangPosture`'s site. */
+/*
+ * The alternatives of `HangPosture`'s site.
+ */
 type HangPosture = "root" | "yaw";
 
-/** The alternatives of `ArmPreset`'s site. */
+/*
+ * The alternatives of `ArmPreset`'s site.
+ */
 type ArmPreset =
   | IAutoMovieMotionHumanBend.Arm
   | IAutoMovieMotionHumanBend.IShares;
 
-/** The alternatives of `ArmPostureItem`'s site. */
+/*
+ * The alternatives of `ArmPostureItem`'s site.
+ */
 type ArmPostureItem = "pitch" | "roll";
 
-/** The alternatives of `ArmPosture`'s site. */
+/*
+ * The alternatives of `ArmPosture`'s site.
+ */
 type ArmPosture = "root" | "yaw";

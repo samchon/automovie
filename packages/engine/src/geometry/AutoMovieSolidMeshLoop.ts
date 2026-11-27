@@ -210,25 +210,37 @@ export namespace AutoMovieSolidMeshLoop {
       : backward;
   }
 
-  /** The numerical fields the parity and metric readings consume. */
+  /*
+   * The numerical fields the parity and metric readings consume.
+   */
   type Chart = Pick<IAutoMovieSolidMesh.ILoop, "kind" | "chart">;
 
-  /** One loop's readings prepared for a face, never published into a body. */
+  /*
+   * One loop's readings prepared for a face, never published into a body.
+   */
   interface IState {
-    /** Copied numerical chart. */ chart: Chart;
-    /** Existing kept-side predicate over that copy. */ side: (
+    /*
+     * Copied numerical chart.
+     */ chart: Chart;
+    /*
+     * Existing kept-side predicate over that copy.
+     */ side: (
       u: number,
       v: number,
     ) => boolean;
-    /** Metric segment differences, dx/dy per edge. */ deltas: Float64Array;
-    /**
+    /*
+     * Metric segment differences, dx/dy per edge.
+     */ deltas: Float64Array;
+    /*
      * The copied chart's box: lowest and highest station, then the middle and
      * half width of its unwrapped phases, an Infinity half width when they span
      * half a period or more.
      */ box: readonly [number, number, number, number];
   }
 
-  /** Copy one loop's chart and prepare its side, differences and box. */
+  /*
+   * Copy one loop's chart and prepare its side, differences and box.
+   */
   function state(
     loop: IAutoMovieSolidMesh.ILoop,
     period: number | undefined,
@@ -275,7 +287,7 @@ export namespace AutoMovieSolidMeshLoop {
     };
   }
 
-  /**
+  /*
    * Live metric reading after kept-side acceptance, preserving its original
    * operation order.
    */
@@ -293,7 +305,7 @@ export namespace AutoMovieSolidMeshLoop {
     return distance(loop, u, v, E, F, G, period) >= margin;
   }
 
-  /**
+  /*
    * Full segment minimum; optional differences are the same subtractions
    * prepared once.
    */
@@ -333,7 +345,9 @@ export namespace AutoMovieSolidMeshLoop {
     return least;
   }
 
-  /** The metric distance from a chart offset to a chart segment, mm. */
+  /*
+   * The metric distance from a chart offset to a chart segment, mm.
+   */
   function segment(
     px: number,
     py: number,

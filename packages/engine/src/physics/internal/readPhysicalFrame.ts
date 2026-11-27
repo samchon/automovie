@@ -5,7 +5,9 @@ import type {
 
 import type { IAutoMoviePhysicalBinding as Bound } from "../IAutoMoviePhysicalBinding";
 
-/** Copy display state without retaining solver bodies or changing solver order. */
+/*
+ * Copy display state without retaining solver bodies or changing solver order.
+ */
 export function readPhysicalFrame(
   bound: Bound,
   seconds: number,

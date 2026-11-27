@@ -17,16 +17,15 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { StrikingHeld } from "../../striking/internal/StrikingHeld";
 
-/**
+/*
  * Orient a held racket at the strike and recover the actual entry wrist,
  * rigidly carried by the current chest. The grip remains fixed to the hand.
- *
- * @param context The body and its displayed entry pose.
- * @param tool The already held racket, with face and longitudinal axis.
- * @param axis The world direction of the racket's long axis at contact.
- * @param face The world face normal at contact.
- * @param bend The arm fit's world-space elbow hint.
- * @returns The contact offset and a goal reader for the wrist path.
+ * Parameter context: The body and its displayed entry pose.
+ * Parameter tool: The already held racket, with face and longitudinal axis.
+ * Parameter axis: The world direction of the racket's long axis at contact.
+ * Parameter face: The world face normal at contact.
+ * Parameter bend: The arm fit's world-space elbow hint.
+ * Returns: The contact offset and a goal reader for the wrist path.
  */
 export function courtRacketWrist(
   context: Pick<IAutoMovieMotionHumanActionContext, CourtRacketWristContext>,
@@ -108,26 +107,20 @@ export function courtRacketWrist(
     },
   };
 }
-/** Reads a racket's actual held frame for wrist fitting. */
+/*
+ * Reads a racket's actual held frame for wrist fitting.
+ */
 export namespace courtRacketWrist {
-  /**
+  /*
    * Read the finite face point and orient it by the racket's perpendicular face
    * and long axes.
-   *
-   * @param context The entering holds and prop readers for this performer.
-   * @param side The hitting hand.
-   * @param implement The racket subject already held by that hand.
-   * @returns The face point, working normal and shaft direction in the retained
-   *   grip frame.
-   * @throws {HumanRefusal} When the racket is absent from the hand or lacks the
-   *   named affordances.
-   * @evidence contracts/development/common.md#meaningful-documentation Names the held subject, affordances, frame and failure.
-   * @evidence contracts/development/implementation.md#principled-implementation The face and sweet spot supply their own directions in the actual held frame.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Read the hold and working point, then attach the two racket directions.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The held transform and the named racket surfaces supply the working geometry.
-   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Reads three named affordances at preparation only.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Shares the held transform and the striking affordance reader.
-   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Holds no data beyond the returned tool.
+   * Parameter context: The entering holds and prop readers for this performer.
+   * Parameter side: The hitting hand.
+   * Parameter implement: The racket subject already held by that hand.
+   * Returns: The face point, working normal and shaft direction in the retained
+   * grip frame.
+   * When the racket is absent from the hand or lacks the
+   * named affordances.
    */
   export function read(
     context: IAutoMovieMotionHumanActionContext,
@@ -155,11 +148,15 @@ export namespace courtRacketWrist {
   }
 }
 
-/** The racket face at contact and the grip-preserving goal on a wrist path. */
+/*
+ * The racket face at contact and the grip-preserving goal on a wrist path.
+ */
 interface IRacketWrist {
-  /** World displacement from the wrist to the face at the contact orientation. */
+  /*
+   * World displacement from the wrist to the face at the contact orientation.
+   */
   readonly faceOffset: IAutoMovieVector3;
-  /**
+  /*
    * Fit the strike approach and carry the entry wrist with the moving chest
    * during recovery.
    */
@@ -171,8 +168,12 @@ interface IRacketWrist {
   ) => IAutoMovieHumanLimbGoal;
 }
 
-/** The alternatives of `CourtRacketWristHand`'s site. */
+/*
+ * The alternatives of `CourtRacketWristHand`'s site.
+ */
 type CourtRacketWristHand = "rightHand" | "leftHand";
 
-/** The alternatives of `CourtRacketWristContext`'s site. */
+/*
+ * The alternatives of `CourtRacketWristContext`'s site.
+ */
 type CourtRacketWristContext = "body" | "entry";

@@ -14,7 +14,7 @@ import { collectDeclaredIds } from "../../validation/internal/collectDeclaredIds
 import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 import { validateDeclaredReferences } from "../../validation/internal/validateDeclaredReferences";
 
-/**
+/*
  * Validate the derived artifacts of one design lineage: their identity, their
  * freshness, and the fairness of every comparison they take part in.
  *
@@ -32,13 +32,12 @@ import { validateDeclaredReferences } from "../../validation/internal/validateDe
  *
  * Findings are pushed to `out` with `<root>.derived[i]` paths, in artifact
  * order and then decision order for the fairness check; nothing throws.
- *
- * @param props.lineage Lineage whose `derived` list is judged.
- * @param props.subjectIds Declared subject ids, which artifact ids must avoid.
- * @param props.phaseIds Declared construction phase ids.
- * @param props.variants Declared variants by id.
- * @param props.root Violation path of the lineage itself.
- * @param props.out Sink that receives the violations.
+ * Parameter props.lineage: Lineage whose `derived` list is judged.
+ * Parameter props.subjectIds: Declared subject ids, which artifact ids must avoid.
+ * Parameter props.phaseIds: Declared construction phase ids.
+ * Parameter props.variants: Declared variants by id.
+ * Parameter props.root: Violation path of the lineage itself.
+ * Parameter props.out: Sink that receives the violations.
  */
 export function validateDesignLineageDerived(
   props: IAutoMovieValidateDesignLineageDerived.IProps,
@@ -217,7 +216,9 @@ export function validateDesignLineageDerived(
   }
 }
 
-/** Report every imported input read without citing its current bytes once. */
+/*
+ * Report every imported input read without citing its current bytes once.
+ */
 const appendCitationDefects: (
   artifact: IAutoMovieDerivedArtifact,
   subjectBytes: ReadonlyMap<string, string>,
@@ -273,7 +274,9 @@ const appendCitationDefects: (
       );
 };
 
-/** Whether two stamps name the same revision, variant, phase and configuration. */
+/*
+ * Whether two stamps name the same revision, variant, phase and configuration.
+ */
 const sameStamp: (
   a: IAutoMovieDesignStamp,
   b: IAutoMovieDesignStamp,

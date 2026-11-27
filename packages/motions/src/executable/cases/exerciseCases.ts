@@ -18,7 +18,7 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the standing exercises, three repetitions each from quiet
  * standing.
  *
@@ -36,9 +36,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  * - `exercise-highKnees`: the raised thigh within 15 degrees of the horizontal at
  *   every `bottom`;
  * - `exercise-jumpingJack`: both wrists above the crown at every `bottom`.
- *
- * @param bodies The bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function exerciseCases(
   bodies: readonly string[] = ["m-average"],

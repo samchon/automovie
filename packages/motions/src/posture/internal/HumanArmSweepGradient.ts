@@ -7,18 +7,17 @@ import type {
 
 import type { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 
-/**
+/*
  * Differentiate the least signed hull distance along a penetrating arm chord.
  * For an interior minimizer between two active face planes, its longitudinal
  * stationarity determines their multipliers. The resulting covector is not
  * generally unit length. Unique or unresolved face readings keep the native
  * distance query's normal.
- *
- * @param shape The waypoint obstacle with its placed physical solid.
- * @param nearest The native segment witness and signed distance.
- * @param span The relative endpoint displacement in world metres.
- * @param u The nearest point's position along the segment.
- * @returns The world covector used for endpoint gradients.
+ * Parameter shape: The waypoint obstacle with its placed physical solid.
+ * Parameter nearest: The native segment witness and signed distance.
+ * Parameter span: The relative endpoint displacement in world metres.
+ * Parameter u: The nearest point's position along the segment.
+ * Returns: The world covector used for endpoint gradients.
  */
 export function HumanArmSweepGradient(
   shape: Placement,
@@ -75,16 +74,18 @@ export function HumanArmSweepGradient(
   );
 }
 
-/** The swept distance's gradient in the coordinates of its two endpoints. */
+/*
+ * The swept distance's gradient in the coordinates of its two endpoints.
+ */
 export namespace HumanArmSweepGradient {
-  /**
+  /*
    * Distribute the closest chord point's gradient by its two affine weights
    * (Schulman et al. 2014, §4.2 equations 17–20), then carry each covector
    * from the obstacle's encounter frame back to the endpoint's frame.
-   *
-   * @param shape The placed obstacle in its encounter frame.
-   * @param sweep The probe chord and nearest signed-distance witness.
-   * @returns The covectors in the start and end frames, in that order.
+   * Parameter shape: The placed obstacle in its encounter frame.
+   * Parameter sweep: The probe chord and nearest signed-distance witness.
+   * Returns: The covectors in the start and end frames, in that order.
+   * ://doi.org/10.1177/0278364914528132
    * @see https://doi.org/10.1177/0278364914528132
    */
   export function ends(
@@ -123,16 +124,20 @@ export namespace HumanArmSweepGradient {
   }
 }
 
-/**
+/*
  * Forward rounding bound for the two rigid transforms, plane dot and
  * subtraction (fewer than 64 serial rounded operations).
  */
 const ROUNDING: number = (64 * Number.EPSILON) / (1 - 64 * Number.EPSILON);
 
-/** The placed shape parts needed by the signed-distance gradient. */
+/*
+ * The placed shape parts needed by the signed-distance gradient.
+ */
 type Placement = Pick<IAutoMovieMotionHumanArmGeometry.IShape, "pose" | "shape">;
 
-/** The chord, its nearest witness and the endpoint frames. */
+/*
+ * The chord, its nearest witness and the endpoint frames.
+ */
 type Witness = Pick<
   HumanArmTrajectorySweep.ISwept,
   "start" | "to" | "near" | "first" | "turn"

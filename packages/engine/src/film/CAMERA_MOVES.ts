@@ -1,6 +1,8 @@
 import { IAutoMovieCameraAction } from "@automovie/interface";
 
-/** One key per move; the record type rejects a missing or unknown move. */
+/*
+ * One key per move; the record type rejects a missing or unknown move.
+ */
 const MOVES: Record<IAutoMovieCameraAction["move"], true> = {
   static: true,
   follow: true,

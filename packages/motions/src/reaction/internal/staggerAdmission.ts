@@ -27,7 +27,7 @@ import { staggerKnots } from "./staggerKnots";
 import { staggerLean } from "./staggerLean";
 import type { staggerRecover } from "./staggerRecover";
 
-/**
+/*
  * Whether a stagger's legs hold its recovery at the given instants
  * (`staggerRecover`): at each, the pelvis carried by the centre of mass's
  * course less the trunk's shift of it (`staggerLean`; the hips read upright,
@@ -47,18 +47,17 @@ import type { staggerRecover } from "./staggerRecover";
  * The admission decides every instant it reads: each test is a closed-form
  * reading of the legs under one pelvis, so no instant is left undecided and no
  * stance course is solved.
- *
- * @param body The body.
- * @param entry The posture the push meets.
- * @param walk The recovery's steps, the centre of mass's course from the
- *   entry's, the extrapolated centre of mass and the entry's centre, at seconds
- *   since the action's start.
- * @param bend The centre of mass's shift per sine of the trunk's pitch and roll
- *   (`staggerKnots.bending`).
- * @param instants The seconds to read, since the action's start.
- * @param crossing Whether the feet cross at these instants, so the two planted
- *   legs' clearance is read.
- * @returns Whether every planted leg holds at every instant.
+ * Parameter body: The body.
+ * Parameter entry: The posture the push meets.
+ * Parameter walk: The recovery's steps, the centre of mass's course from the
+ * entry's, the extrapolated centre of mass and the entry's centre, at seconds
+ * since the action's start.
+ * Parameter bend: The centre of mass's shift per sine of the trunk's pitch and roll
+ * (`staggerKnots.bending`).
+ * Parameter instants: The seconds to read, since the action's start.
+ * Parameter crossing: Whether the feet cross at these instants, so the two planted
+ * legs' clearance is read.
+ * Returns: Whether every planted leg holds at every instant.
  */
 export function staggerAdmission(
   body: IAutoMovieMotionHumanActionContext["body"],
@@ -344,17 +343,23 @@ export function staggerAdmission(
   return true;
 }
 
-/** The record of `IPartsItemEntry`'s site. */
+/*
+ * The record of `IPartsItemEntry`'s site.
+ */
 type IPartsItemEntry = {
   from: IAutoMovieVector3;
   to: IAutoMovieVector3;
   radius: number;
 };
 
-/** The alternatives of `StaggerAdmissionBendEntry`'s site. */
+/*
+ * The alternatives of `StaggerAdmissionBendEntry`'s site.
+ */
 type StaggerAdmissionBendEntry = "pitch" | "roll";
 
-/** The record of `IStaggerAdmissionWalk`'s site. */
+/*
+ * The record of `IStaggerAdmissionWalk`'s site.
+ */
 type IStaggerAdmissionWalk = {
   steps: readonly staggerRecover.IStep[];
   course: (seconds: number) => IAutoMovieVector3;

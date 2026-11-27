@@ -16,7 +16,7 @@ import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
 import { AutoMovieMotionHumanTouchStanceMoves } from "./AutoMovieMotionHumanTouchStanceMoves";
 import { AutoMovieMotionHumanTouchStancePrimitives } from "./AutoMovieMotionHumanTouchStancePrimitives";
 
-/**
+/*
  * What the body behind the arm does so a hand reaches a region its arm alone
  * does not: the shoulder girdle lifted and a rise onto the toes for a region
  * above the shoulder, then a lean from the hips for what is still beyond the
@@ -41,27 +41,26 @@ import { AutoMovieMotionHumanTouchStancePrimitives } from "./AutoMovieMotionHuma
  * that side and neither crosses the body.
  */
 export namespace AutoMovieMotionHumanTouchStance {
-  /**
+  /*
    * The most the heels rise, degrees (provisional, the kiss law's limit: past
    * it the foot stands on the toes' tips).
    */
   export const RAISE: number = 35;
 
-  /**
+  /*
    * The share of the shoulder girdle's range of elevation a reach lifts it by
    * at most (provisional: Inman, Saunders and Abbott 1944 give the scapula a
    * third of the arm's elevation; the share was not read from a source).
    */
   export const GIRDLE: IAutoMovieMotionHumanRange.Level = "half";
 
-  /**
+  /*
    * Solve the stance of a stroke.
-   *
-   * @param props The body, the standing posture, the feet, the hand, the share
-   *   and the wrist's goal.
-   * @returns The stance.
-   * @throws {HumanRefusal} When the wrist is beyond the kept share at the
-   *   lean's limit, on the first read of the lean.
+   * Parameter props: The body, the standing posture, the feet, the hand, the share
+   * and the wrist's goal.
+   * Returns: The stance.
+   * When the wrist is beyond the kept share at the
+   * lean's limit, on the first read of the lean.
    */
   export function solve(
     props: IAutoMovieMotionHumanTouchStance.IProps,
@@ -222,7 +221,7 @@ export namespace AutoMovieMotionHumanTouchStance {
     };
   }
 
-  /**
+  /*
    * Choose among a law's stances, steps, strategies or grips as Algorithm 1 of
    * Vahrenkamp, Asfour and Dillmann 2013 ("Robot placement based on
    * reachability inversion", ICRA, pp. 1970-1975, §V) tests base poses: each
@@ -234,11 +233,10 @@ export namespace AutoMovieMotionHumanTouchStance {
    * clearance, and a reach refusal it raises is a failed try; the first passing
    * candidate is the choice, and the candidates after it are not tried. A
    * refusal of another kind, or any other error, propagates.
-   *
-   * @param props The candidates in the law's order and the check of one.
-   * @returns The first candidate's stance that reaches.
-   * @throws {HumanRefusal} When no candidate reaches: the first candidate's
-   *   refusal, its reason followed by every other candidate's.
+   * Parameter props: The candidates in the law's order and the check of one.
+   * Returns: The first candidate's stance that reaches.
+   * When no candidate reaches: the first candidate's
+   * refusal, its reason followed by every other candidate's.
    */
   export function choose<Candidate, Stance>(
     props: IChoice<Candidate, Stance>,
@@ -264,15 +262,14 @@ export namespace AutoMovieMotionHumanTouchStance {
     return refuse(first, refused);
   }
 
-  /**
+  /*
    * Algorithm 1's try of one pose (Vahrenkamp et al. 2013, §V): the candidate's
    * stance when its check passes, nothing when it refuses the reach, for a law
    * whose later candidates build on whether this one reached.
-   *
-   * @param reach The check of one candidate.
-   * @param candidate The candidate.
-   * @returns The stance, or undefined on a reach refusal.
-   * @throws {HumanRefusal} A refusal of any other kind, as raised.
+   * Parameter reach: The check of one candidate.
+   * Parameter candidate: The candidate.
+   * Returns: The stance, or undefined on a reach refusal.
+   * A refusal of any other kind, as raised.
    */
   export function attempt<Candidate, Stance>(
     reach: (candidate: Candidate) => Stance,
@@ -281,13 +278,12 @@ export namespace AutoMovieMotionHumanTouchStance {
     return reached(reach, candidate, []);
   }
 
-  /**
+  /*
    * Whether one candidate passes Algorithm 1's try (Vahrenkamp et al. 2013,
    * §V), for a law whose own search asks a yes or no of each place it tries.
-   *
-   * @param reach The check of one candidate.
-   * @param candidate The candidate.
-   * @returns True when the check passes, false on a reach refusal.
+   * Parameter reach: The check of one candidate.
+   * Parameter candidate: The candidate.
+   * Returns: True when the check passes, false on a reach refusal.
    */
   export function reaches<Candidate, Stance>(
     reach: (candidate: Candidate) => Stance,
@@ -296,19 +292,23 @@ export namespace AutoMovieMotionHumanTouchStance {
     return attempt(reach, candidate) !== undefined;
   }
 
-  /** A law's declared candidates and the check of one. */
+  /*
+   * A law's declared candidates and the check of one.
+   */
   export interface IChoice<Candidate, Stance> {
-    /** The candidates, in the law's declared order of preference. */
+    /*
+     * The candidates, in the law's declared order of preference.
+     */
     candidates: readonly Candidate[];
 
-    /**
+    /*
      * Algorithm 1's check of one candidate: its stance when the arm reaches
      * clear, a reach refusal when it does not.
      */
     reach: (candidate: Candidate) => Stance;
   }
 
-  /**
+  /*
    * A candidate's stance, or nothing with its reach refusal kept: Algorithm 1's
    * try of one base pose. Any other error propagates.
    */
@@ -327,7 +327,7 @@ export namespace AutoMovieMotionHumanTouchStance {
     }
   }
 
-  /**
+  /*
    * The refusal of a choice none of whose candidates reaches: the first
    * candidate's facts, its reason followed by the others'.
    */
@@ -349,46 +349,64 @@ export namespace AutoMovieMotionHumanTouchStance {
   }
 }
 
-/** The alternatives of `SolveShoulder`'s site. */
+/*
+ * The alternatives of `SolveShoulder`'s site.
+ */
 type SolveShoulder = "leftShoulder" | "rightShoulder";
 
-/** The two facings a one-handed stance is chosen between. */
+/*
+ * The two facings a one-handed stance is chosen between.
+ */
 type Facing = "ahead" | "turned";
 
-/** A stance's trunk turn and the lean solved on it. */
+/*
+ * A stance's trunk turn and the lean solved on it.
+ */
 interface ITurned {
-  /** The trunk's turn, degrees. */
+  /*
+   * The trunk's turn, degrees.
+   */
   turn: number;
 
-  /** The lean on the turned trunk. */
+  /*
+   * The lean on the turned trunk.
+   */
   lean: IAutoMovieMotionHumanLeanInto.ILean;
 
-  /** The lean's pitch at the stroke's start. */
+  /*
+   * The lean's pitch at the stroke's start.
+   */
   arrival: number;
 }
 
-/**
+/*
  * The most turn-and-lean passes a two-handed facing takes before it keeps its
  * last turn (provisional).
  */
 const FACING: number = 6;
 
-/** The change of turn below which a facing has settled, degrees (provisional). */
+/*
+ * The change of turn below which a facing has settled, degrees (provisional).
+ */
 const SETTLED: number = 0.5;
 
-/**
+/*
  * A wrist's place against the arm on a posture, metres: beyond the kept share
  * of the arm's length, and above the shoulder joint.
  */
 interface IReach {
-  /** How far the wrist lies beyond the kept share; not positive within it. */
+  /*
+   * How far the wrist lies beyond the kept share; not positive within it.
+   */
   beyond: number;
 
-  /** How far the wrist lies above the shoulder joint; negative below it. */
+  /*
+   * How far the wrist lies above the shoulder joint; negative below it.
+   */
   above: number;
 }
 
-/**
+/*
  * The least angle of one freedom that closes a reach upward, degrees: 0 when
  * the wrist is within the share, not above the shoulder, or no nearer at the
  * limit; the limit when even it leaves the wrist beyond the share and above the

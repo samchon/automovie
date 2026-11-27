@@ -9,7 +9,7 @@ import type {
 
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/**
+/*
  * Hand primitives: the fingers and the thumb of one hand formed into a shape,
  * on the hand's own channel, whatever its arm does (a fist clenched at the
  * side, a point held while the arm swings, fingers spread in surprise).
@@ -20,14 +20,13 @@ import { HumanHand } from "../../posture/internal/HumanHand";
  * two.
  */
 export namespace AutoMovieMotionHumanHand {
-  /**
+  /*
    * The finger joints of a hand on its way to a shape.
-   *
-   * @param side The hand.
-   * @param shape The shape at weight 1.
-   * @param curl Extra flexion of the fingers over the shape, degrees.
-   * @param weight How far from the relaxed cascade to the shape, in [0, 1].
-   * @returns Angles for every finger and thumb segment of that hand.
+   * Parameter side: The hand.
+   * Parameter shape: The shape at weight 1.
+   * Parameter curl: Extra flexion of the fingers over the shape, degrees.
+   * Parameter weight: How far from the relaxed cascade to the shape, in [0, 1].
+   * Returns: Angles for every finger and thumb segment of that hand.
    */
   export function fingers(
     side: AutoMovieHumanSide,
@@ -55,13 +54,12 @@ export namespace AutoMovieMotionHumanHand {
     return out;
   }
 
-  /**
+  /*
    * Prepare one side's fixed named finger shape for varying curl and weight.
-   *
-   * @param side The hand whose named fifteen-joint shapes are read.
-   * @param shape The unchanged working shape at weight one.
-   * @returns Fresh clinical finger triples for each actual curl in degrees and
-   *   weight in [0,1]; weight admission remains with the caller.
+   * Parameter side: The hand whose named fifteen-joint shapes are read.
+   * Parameter shape: The unchanged working shape at weight one.
+   * Returns: Fresh clinical finger triples for each actual curl in degrees and
+   * weight in [0,1]; weight admission remains with the caller.
    */
   export function prepareFingers(
     side: AutoMovieHumanSide,
@@ -74,14 +72,13 @@ export namespace AutoMovieMotionHumanHand {
     ): IAutoMovieMotionHumanPosture["joints"] => shaped(fixed, curl, weight);
   }
 
-  /**
+  /*
    * Prepare the same fixed finger interpolation for an owned output joint map.
-   *
-   * @param side The fixed moving hand.
-   * @param shape The fixed named working shape.
-   * @returns A writer of fifteen fresh triples into its caller-owned joint
-   *   record at the actual curl degrees and weight; unrelated keys remain
-   *   untouched and weight admission stays with the caller.
+   * Parameter side: The fixed moving hand.
+   * Parameter shape: The fixed named working shape.
+   * Returns: A writer of fifteen fresh triples into its caller-owned joint
+   * record at the actual curl degrees and weight; unrelated keys remain
+   * untouched and weight admission stays with the caller.
    */
   export function prepareFingerWriter(
     side: AutoMovieHumanSide,
@@ -100,11 +97,10 @@ export namespace AutoMovieMotionHumanHand {
       written(fixed, joints, curl, weight);
     };
   }
-  /**
+  /*
    * A hand shaped by a weight.
-   *
-   * @param props The hand, the shape, the window and the weight.
-   * @returns The primitive, on the hand's channel.
+   * Parameter props: The hand, the shape, the window and the weight.
+   * Returns: The primitive, on the hand's channel.
    */
   export function shape(
     props: IAutoMovieMotionHumanHand.IShape,
@@ -135,19 +131,18 @@ export namespace AutoMovieMotionHumanHand {
     };
   }
 
-  /**
+  /*
    * A hand formed into a shape and released: the weight rises over one window
    * and falls over another on the clock's envelope, and the hand is written
    * from the first instant to the last.
-   *
-   * @param clock The action's clock.
-   * @param side The hand.
-   * @param rise The instants the shape starts forming and is formed at.
-   * @param fall The instants the shape starts releasing and is released at.
-   * @param asked The shape.
-   * @param curl Extra flexion of the fingers over the shape, degrees; 0 by
-   *   default.
-   * @returns The primitive.
+   * Parameter clock: The action's clock.
+   * Parameter side: The hand.
+   * Parameter rise: The instants the shape starts forming and is formed at.
+   * Parameter fall: The instants the shape starts releasing and is released at.
+   * Parameter asked: The shape.
+   * Parameter curl: Extra flexion of the fingers over the shape, degrees; 0 by
+   * default.
+   * Returns: The primitive.
    */
   export function form(
     clock: IAutoMovieMotionClock,
@@ -168,7 +163,9 @@ export namespace AutoMovieMotionHumanHand {
   }
 }
 
-/** Fixed scalar values of one named finger segment, in original shape order. */
+/*
+ * Fixed scalar values of one named finger segment, in original shape order.
+ */
 interface IFinger {
   bone: AutoMovieHumanoidBone;
   asked: number;
@@ -176,7 +173,9 @@ interface IFinger {
   curls: boolean;
 }
 
-/** Compile only unchanged named-shape scalars; every output remains independent. */
+/*
+ * Compile only unchanged named-shape scalars; every output remains independent.
+ */
 function entries(
   side: AutoMovieHumanSide,
   shape: IAutoMovieMotionHumanHand.Shape,
@@ -199,7 +198,7 @@ function entries(
   );
 }
 
-/**
+/*
  * The original curl-then-subtract interpolation shared by cold and prepared
  * reads.
  */
@@ -213,7 +212,7 @@ function shaped(
   return out;
 }
 
-/**
+/*
  * Populate one owned output record with fresh triples: each segment from the
  * flexion the record already holds for it, the posture the hand is shaped over
  * (a palm the entry laid flat on a thigh, a grip an earlier action closed), to
@@ -238,7 +237,9 @@ function written(
     );
 }
 
-/** Preserve the original curl addition, subtraction and multiplication grouping. */
+/*
+ * Preserve the original curl addition, subtraction and multiplication grouping.
+ */
 function interpolated(
   asked: number,
   relaxed: number,

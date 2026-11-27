@@ -14,19 +14,18 @@ import type { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
-/**
+/*
  * A waypoint's record, built: the arm resting there placed (`resting`) and its
  * colliders, and each site's touched collider and outward normal, the collider
  * nearest the site's point when the point lies on it, among the riding arm's
  * own segment's for a site that rides an arm.
- *
- * @param problem The trajectory's problem.
- * @param setups Each arm's setup.
- * @param resting Each arm resting at the waypoint, coordinates: the rest arm,
- *   or at a fixed last waypoint the arm the action leaves to.
- * @param frames Each arm's frame there.
- * @param sites Each arm's site there, on the hold.
- * @returns The record.
+ * Parameter problem: The trajectory's problem.
+ * Parameter setups: Each arm's setup.
+ * Parameter resting: Each arm resting at the waypoint, coordinates: the rest arm,
+ * or at a fixed last waypoint the arm the action leaves to.
+ * Parameter frames: Each arm's frame there.
+ * Parameter sites: Each arm's site there, on the hold.
+ * Returns: The record.
  */
 export function HumanArmTrajectoryWaypoint(
   problem: HumanArmTrajectoryContext.IProblem,
@@ -118,12 +117,12 @@ export function HumanArmTrajectoryWaypoint(
   };
 }
 
-/**
+/*
  * What an arms' trajectory reads at one waypoint, built once per waypoint by
  * its context (`HumanArmTrajectoryContext`).
  */
 export namespace HumanArmTrajectoryWaypoint {
-  /**
+  /*
    * What a context holds at one waypoint for every arm, built once with the
    * context: its frames and sites, the arm resting there placed and its
    * colliders, each site's touched collider and normal, and the shapes the arm
@@ -131,27 +130,37 @@ export namespace HumanArmTrajectoryWaypoint {
    * (`HumanArmTrajectoryAllowances`).
    */
   export interface IWaypoint {
-    /** Each arm's frame. */
+    /*
+     * Each arm's frame.
+     */
     frames: IAutoMovieMotionHumanArmGeometry.IFrame[];
-    /** Each arm's site, on the hold. */
+    /*
+     * Each arm's site, on the hold.
+     */
     sites: (M.ISite | undefined)[];
-    /**
+    /*
      * Each arm resting at the waypoint, placed: the rest arm, or at a fixed
      * last waypoint the arm the action leaves to, which the waypoint holds.
      */
     placed: IAutoMovieMotionHumanArmGeometry.IPlaced[];
-    /**
+    /*
      * Each arm's colliders resting there, which the other arm's probes are read
      * against.
      */
     colliders: IAutoMovieMotionHumanArmGeometry.IShape[][];
-    /** Each arm's site's touched collider; -1 where none. */
+    /*
+     * Each arm's site's touched collider; -1 where none.
+     */
     touched: number[];
-    /** Signed height of a fixed site over that collider, metres. */
+    /*
+     * Signed height of a fixed site over that collider, metres.
+     */
     heights: (number | undefined)[];
-    /** Each arm's site's outward normal. */
+    /*
+     * Each arm's site's outward normal.
+     */
     normals: (IAutoMovieVector3 | undefined)[];
-    /**
+    /*
      * Each arm's frame's shapes any placement of the arm can come within the
      * pairs' reach of, ascending (`HumanArmShapes.reachable`).
      */
@@ -159,11 +168,17 @@ export namespace HumanArmTrajectoryWaypoint {
   }
 }
 
-/** The alternatives of `NormalsOwnersResult`'s site. */
+/*
+ * The alternatives of `NormalsOwnersResult`'s site.
+ */
 type NormalsOwnersResult = "upper" | "lower" | "hand";
 
-/** The alternatives of `OwnersItemResult`'s site. */
+/*
+ * The alternatives of `OwnersItemResult`'s site.
+ */
 type OwnersItemResult = "upper" | "lower" | "hand";
 
-/** The alternatives of `NormalsOwnersItem`'s site. */
+/*
+ * The alternatives of `NormalsOwnersItem`'s site.
+ */
 type NormalsOwnersItem = "upper" | "lower" | "hand";

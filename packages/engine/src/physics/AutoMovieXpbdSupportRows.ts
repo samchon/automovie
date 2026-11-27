@@ -403,7 +403,9 @@ export namespace AutoMovieXpbdSupportRows {
     return Complementarity.run(input);
   }
 
-  /** Two unit tangents completing a unit normal to a right-handed basis. */
+  /*
+   * Two unit tangents completing a unit normal to a right-handed basis.
+   */
   function tangents(n: IAutoMovieVector3): IAutoMovieVector3[] {
     const seed: IAutoMovieVector3 =
       Math.abs(n.x) < Math.SQRT1_2

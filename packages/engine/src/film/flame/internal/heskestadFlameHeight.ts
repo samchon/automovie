@@ -1,4 +1,4 @@
-/**
+/*
  * Heskestad's mean luminous flame height of a turbulent diffusion flame, `L =
  * 0.235 Q^(2/5) − 1.02 D`, in metres, for a heat release rate `Q` in kW over a
  * fuel bed of diameter `D` in metres (Heskestad, "Luminous heights of turbulent

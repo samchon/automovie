@@ -40,7 +40,7 @@ import type { pickUpSearch } from "./pickUpSearch";
 import { pickUpStance } from "./pickUpStance";
 import { preparePickUpDigitCourse } from "./preparePickUpDigitCourse";
 
-/**
+/*
  * Plan a pick-up's reach, grasp and lift from the action context and an
  * optional resolved interception: the posture, contacts, events and hold.
  *
@@ -233,7 +233,9 @@ export function planPickUpGrasp(
       reach,
     );
   const peak: number = HumanPrehension.peak(context.random("peak"));
-  /** Add the support's remaining displacement as the fingers close, then brake. */
+  /*
+   * Add the support's remaining displacement as the fingers close, then brake.
+   */
   const interceptionOffset = (
     velocity: IAutoMovieVector3,
     at: number,
@@ -348,7 +350,9 @@ export function planPickUpGrasp(
           ? raisedAt(raise.share * m, m, resolution, projection)
           : lowered!.at(m, resolution, projection);
       }
-      /** The wrist's transport, lift and optional conveyor displacement. */
+      /*
+       * The wrist's transport, lift and optional conveyor displacement.
+       */
       const point = (at: number): IAutoMovieVector3 => {
         const wrist: IAutoMovieVector3 =
           at < reach

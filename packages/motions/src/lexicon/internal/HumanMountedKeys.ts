@@ -21,7 +21,7 @@ import { HumanMountedPaths } from "./HumanMountedPaths";
 import { HumanMountedSeats } from "./HumanMountedSeats";
 import { HumanMountedStirrups } from "./HumanMountedStirrups";
 
-/**
+/*
  * A mounted performance's keys, solved once in the carrier contact's frame as
  * it stands at the start: each figure's key posture (`HumanMountedSeats`,
  * `HumanMountedStirrups`), its trunk leant forward as far as brings its holding
@@ -29,15 +29,14 @@ import { HumanMountedStirrups } from "./HumanMountedStirrups";
  * (`HumanMountedBank`), the hips at each key, each transfer's leg arcs over the
  * carrier (`HumanMountedPaths.arcs`) and the ball each foot kept on its rest
  * pivots about.
- *
- * @param context The mounted performance's context.
- * @param support The carrier's reader.
- * @param origin The carrier contact's frame at the start, world.
- * @param placed The carrier's own frame at the start, world.
- * @param entry The entry posture in the contact's frame, unarmed.
- * @param slack How far the carrier strays from its stride-averaged path.
- * @param planted The entry's planted feet.
- * @returns The seat context, the keys and their transfer paths.
+ * Parameter context: The mounted performance's context.
+ * Parameter support: The carrier's reader.
+ * Parameter origin: The carrier contact's frame at the start, world.
+ * Parameter placed: The carrier's own frame at the start, world.
+ * Parameter entry: The entry posture in the contact's frame, unarmed.
+ * Parameter slack: How far the carrier strays from its stride-averaged path.
+ * Parameter planted: The entry's planted feet.
+ * Returns: The seat context, the keys and their transfer paths.
  */
 export function HumanMountedKeys(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanMounted>,
@@ -146,26 +145,38 @@ export function HumanMountedKeys(
   return { seats, keys, middles, arcs, pivots };
 }
 
-/** The records of HumanMountedKeys. */
+/*
+ * The records of HumanMountedKeys.
+ */
 export namespace HumanMountedKeys {
-  /**
+  /*
    * A mounted performance's keys and their transfer paths, in the carrier
    * contact's frame at the start.
    */
   export interface IKeys {
-    /** The seats' reading context. */
+    /*
+     * The seats' reading context.
+     */
     seats: HumanMountedSeats.IContext;
 
-    /** Each figure's key posture. */
+    /*
+     * Each figure's key posture.
+     */
     keys: IAutoMovieMotionHumanPosture[];
 
-    /** The hips at each key, metres. */
+    /*
+     * The hips at each key, metres.
+     */
     middles: IAutoMovieVector3[];
 
-    /** Each transfer's leg arcs over the carrier, metres, by side. */
+    /*
+     * Each transfer's leg arcs over the carrier, metres, by side.
+     */
     arcs: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>[];
 
-    /** The ball each foot kept on its rest pivots about, metres, by side. */
+    /*
+     * The ball each foot kept on its rest pivots about, metres, by side.
+     */
     pivots: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>>[];
   }
 }

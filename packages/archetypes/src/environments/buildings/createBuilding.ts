@@ -9,18 +9,17 @@ import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 import { assembleBuilding } from "./assembleBuilding";
 import { buildingPlans } from "./buildingPlans";
 
-/**
+/*
  * Prepare a placed building from metre floor plans or an exterior footprint.
  *
  * Drafts and checks its levels once. Each module placement constructs a
  * separately identified building in a world-upright frame. Room anchors are
  * named `<level>/<room>` and openings `<level>/<opening>`, with their +Z
  * pointing from the first room toward the second or outdoors.
- *
- * @param props Floor plans or an exterior shell.
- * @returns A reusable environment module.
- * @throws Error for malformed plans, unresolved openings or non-upright
- *   placements.
+ * Parameter props: Floor plans or an exterior shell.
+ * Returns: A reusable environment module.
+ * Error for malformed plans, unresolved openings or non-upright
+ * placements.
  */
 export function createBuilding(
   props: AutoMovieEnvironment.IBuildingProps,

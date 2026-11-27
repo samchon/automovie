@@ -151,7 +151,9 @@ export namespace AutoMovieConstructionLocalScaleMinorant {
     return { kind: "accepted", field, alpha, limitingIndices };
   }
 
-  /** Adjacent smaller nonnegative binary64 value, for a finite positive input. */
+  /*
+   * Adjacent smaller nonnegative binary64 value, for a finite positive input.
+   */
   function previous(value: number): number {
     const view: DataView = new DataView(new ArrayBuffer(8));
     view.setFloat64(0, value, false);
@@ -159,7 +161,9 @@ export namespace AutoMovieConstructionLocalScaleMinorant {
     return view.getFloat64(0, false);
   }
 
-  /** Preserve the failing numerical stage and the geometry owner's reason. */
+  /*
+   * Preserve the failing numerical stage and the geometry owner's reason.
+   */
   function refuse(
     stage: Extract<
       IAutoMovieConstructionLocalScaleMinorant.Result,

@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanHandToBody } from "@automovie/interface";
 
-/**
+/*
  * The wipe-tears preset: no other prop handle, and one rub of the right cheek
  * (mirrored for the left hand) by a flat palm, going up and down once with no
  * hold, the head unmoved, the arrival event `atCheek`. Spread into

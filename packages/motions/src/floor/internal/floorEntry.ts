@@ -21,7 +21,7 @@ import { knockdown } from "../../reaction/internal/knockdown";
 import { GymnasticsFlight } from "../../sport/internal/GymnasticsFlight";
 import { floorArmRoom } from "./floorArmRoom";
 
-/**
+/*
  * How a law that gets the body down onto the floor (a crawl, an inchworm, a lie
  * down) starts from the base it is entered on.
  *
@@ -34,13 +34,12 @@ import { floorArmRoom } from "./floorArmRoom";
  * composition never jumps from one base to another.
  */
 export namespace floorEntry {
-  /**
+  /*
    * Require both feet to bear before a law whose first phase crouches on them.
-   *
-   * @param left Whether the left foot is planted in the entry.
-   * @param right Whether the right foot is planted in the entry.
-   * @param reason The law's explanation of its entry demand.
-   * @param fix The law's correction for an unsupported entry.
+   * Parameter left: Whether the left foot is planted in the entry.
+   * Parameter right: Whether the right foot is planted in the entry.
+   * Parameter reason: The law's explanation of its entry demand.
+   * Parameter fix: The law's correction for an unsupported entry.
    */
   export function bothFeet(
     left: boolean,
@@ -59,7 +58,7 @@ export namespace floorEntry {
     });
   }
 
-  /**
+  /*
    * The bases a floor law starts from: standing by its own way down, kneeling
    * and crouched by a blend from the displayed entry.
    */
@@ -69,15 +68,14 @@ export namespace floorEntry {
     "crouched",
   ];
 
-  /**
+  /*
    * Whether a floor law is entered standing, refusing a base it has no way down
    * from.
-   *
-   * @param context The action's context.
-   * @param action The law's name, for the refusal.
-   * @returns `true` standing, `false` kneeling or crouched.
-   * @throws {HumanRefusal} `base` on `base` for any other base, naming it and
-   *   the accepted ones.
+   * Parameter context: The action's context.
+   * Parameter action: The law's name, for the refusal.
+   * Returns: `true` standing, `false` kneeling or crouched.
+   * `base` on `base` for any other base, naming it and
+   * the accepted ones.
    */
   export function standing(
     context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
@@ -96,33 +94,34 @@ export namespace floorEntry {
     });
   }
 
-  /** Where a floor law starts. */
+  /*
+   * Where a floor law starts.
+   */
   export interface IStart {
-    /**
+    /*
      * The standing posture the law measures from: the stance it stands in, or
      * one over the entry when it does not stand.
      */
     standing: IAutoMovieMotionHumanPosture;
 
-    /**
+    /*
      * The displayed entry the way down blends from; null when the body enters
      * standing, since the law's own way down starts there.
      */
     entered: IAutoMovieMotionHumanPosture | null;
   }
 
-  /**
+  /*
    * Where a floor law starts: entered standing, the stance it stands in;
    * entered kneeling or crouched, an upright stance over the entry for its
    * geometry and the displayed entry for its way down.
-   *
-   * @param context The action's context.
-   * @param action The law's name, for the refusal.
-   * @param over What the stance off the feet stands over.
-   * @param stood The stance a standing entry stands in.
-   * @returns The start.
-   * @throws {HumanRefusal} `base` for a base the law has no way down from
-   *   (`standing`).
+   * Parameter context: The action's context.
+   * Parameter action: The law's name, for the refusal.
+   * Parameter over: What the stance off the feet stands over.
+   * Parameter stood: The stance a standing entry stands in.
+   * Returns: The start.
+   * `base` for a base the law has no way down from
+   * (`standing`).
    */
   export function start(
     context: Pick<IAutoMovieMotionHumanActionContext, StartContext>,
@@ -135,20 +134,19 @@ export namespace floorEntry {
     return { standing: referenceFrom(context, over, entered), entered };
   }
 
-  /**
+  /*
    * A floor law's posture with its way down taken from the entry: the law's own
    * posture once its way down is done or when it was entered standing, and
    * before that the blend from the displayed entry to the law's posture at the
    * end of its way down, which is prepared here over the base the law is
    * written over.
-   *
-   * @param body The body.
-   * @param entered The displayed entry; null when the law was entered standing.
-   * @param at The law's second at the end of its way down.
-   * @param weight How far down the body is at a second, in [0, 1].
-   * @param posture The law's posture at a second over a base posture.
-   * @param base The base posture the law is written over at `at`.
-   * @returns The posture at a second over a base posture.
+   * Parameter body: The body.
+   * Parameter entered: The displayed entry; null when the law was entered standing.
+   * Parameter at: The law's second at the end of its way down.
+   * Parameter weight: How far down the body is at a second, in [0, 1].
+   * Parameter posture: The law's posture at a second over a base posture.
+   * Parameter base: The base posture the law is written over at `at`.
+   * Returns: The posture at a second over a base posture.
    */
   export function down(
     body: IAutoMovieMotionHumanBody,
@@ -188,13 +186,12 @@ export namespace floorEntry {
     };
   }
 
-  /**
+  /*
    * The posture the entry displays, written by its joint angles alone: its
    * root, its heading read off the root's rotation and every joint's clinical
    * angles, so it resolves to the displayed pose itself.
-   *
-   * @param context The action's context.
-   * @returns The posture, with no limb goal.
+   * Parameter context: The action's context.
+   * Returns: The posture, with no limb goal.
    */
   export function displayed(
     context: Pick<IAutoMovieMotionHumanActionContext, "entry">,
@@ -210,7 +207,7 @@ export namespace floorEntry {
     return { ...displayedFrame(context), joints, limbs: {} };
   }
 
-  /**
+  /*
    * Prepare a transition between two fixed postures written by joint angles
    * alone: every joint's angles, the heading the short way round and the tips
    * go by the weight, and the hips joint travels on the straight line between
@@ -306,7 +303,7 @@ export namespace floorEntry {
     };
   }
 
-  /**
+  /*
    * An upright stance at the entry, the reference a floor law measures its
    * geometry from when the body is not standing: over the floor under the
    * entry's hips, or under the middle of its ankles, heading the entry's way.
@@ -335,7 +332,7 @@ export namespace floorEntry {
     );
   }
 
-  /**
+  /*
    * Read the original displayed root/heading without copying unrelated joints
    * for a reference-only observation.
    */
@@ -357,7 +354,7 @@ export namespace floorEntry {
         };
   }
 
-  /**
+  /*
    * Where a posture's hips joint is: its root plus the hips' rest place turned
    * by its heading.
    */
@@ -375,23 +372,37 @@ export namespace floorEntry {
   }
 }
 
-/** The alternatives of `HipsPosture`'s site. */
+/*
+ * The alternatives of `HipsPosture`'s site.
+ */
 type HipsPosture = "root" | "yaw" | "pitch" | "roll";
 
-/** The alternatives of `BetweenHeading`'s site. */
+/*
+ * The alternatives of `BetweenHeading`'s site.
+ */
 type BetweenHeading = "yaw" | "pitch" | "roll";
 
-/** The alternatives of `DisplayedFrameResult`'s site. */
+/*
+ * The alternatives of `DisplayedFrameResult`'s site.
+ */
 type DisplayedFrameResult = "root" | "yaw" | "pitch" | "roll";
 
-/** The alternatives of `ReferenceFromOver`'s site. */
+/*
+ * The alternatives of `ReferenceFromOver`'s site.
+ */
 type ReferenceFromOver = "hips" | "feet";
 
-/** The alternatives of `ReferenceFromContext`'s site. */
+/*
+ * The alternatives of `ReferenceFromContext`'s site.
+ */
 type ReferenceFromContext = "body" | "entry";
 
-/** The alternatives of `StartOver`'s site. */
+/*
+ * The alternatives of `StartOver`'s site.
+ */
 type StartOver = "hips" | "feet";
 
-/** The alternatives of `StartContext`'s site. */
+/*
+ * The alternatives of `StartContext`'s site.
+ */
 type StartContext = "body" | "entry";

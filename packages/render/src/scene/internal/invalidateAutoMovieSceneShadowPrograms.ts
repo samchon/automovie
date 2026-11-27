@@ -2,7 +2,7 @@ import type * as THREE from "three";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
-/**
+/*
  * Invalidate unique scene materials after the effective shadow enablement or
  * filter changes. Three's program keys include shadow state, but changing the
  * renderer flag alone does not always reevaluate an existing material program.

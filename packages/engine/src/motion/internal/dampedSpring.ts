@@ -3,7 +3,7 @@ import type {
   IAutoMovieSpringStep,
 } from "@automovie/interface";
 
-/**
+/*
  * Advance a one-dimensional damped spring one fixed timestep (semi-implicit
  * Euler): a generic numeric integrator for **secondary motion**, a value that
  * lags, overshoots, and settles toward a moving target instead of snapping to
@@ -14,7 +14,7 @@ import type {
  *
  * `force = stiffness·(target − current) − damping·velocity`, integrated as
  * `velocity += force·dt; value += velocity·dt`. Unlike the world-space
- * {@link stepSpring} (VRM SpringBone, for the Node/Channel core), this works in
+ * stepSpring (VRM SpringBone, for the Node/Channel core), this works in
  * the humanoid pose path's angle space. Finite inputs, nonnegative coefficients
  * and positive dt are required. The caller chooses a timestep appropriate to
  * the coefficients; the explicit step does not guarantee stability for

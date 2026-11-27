@@ -1,6 +1,6 @@
 import { PACKAGE_DOCS_ROOT } from "./PACKAGE_DOCS_ROOT";
 
-/**
+/*
  * Names the docs subtree that holds every authored narrative body.
  *
  * Every authored claim hosts this tree, and every inherited reference selects

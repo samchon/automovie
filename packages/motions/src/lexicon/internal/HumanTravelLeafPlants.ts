@@ -3,13 +3,12 @@ import type {
   IAutoMovieMotionHumanContactWindow,
 } from "@automovie/interface";
 
-/**
+/*
  * The walk's plants, read on the action's clock.
  *
  * Part of `HumanTravelLeaf.openDoor`'s plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `plants`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `plants`.
  */
 export function HumanTravelLeafPlants(
   prepared: HumanTravelLeafPlants.IPrepared,
@@ -39,17 +38,27 @@ export function HumanTravelLeafPlants(
   return plants;
 }
 
-/** The `plants` of `HumanTravelLeaf.openDoor`'s plan and what it reads. */
+/*
+ * The `plants` of `HumanTravelLeaf.openDoor`'s plan and what it reads.
+ */
 export namespace HumanTravelLeafPlants {
-  /** What `HumanTravelLeaf.openDoor`'s plan prepared for its `plants`. */
+  /*
+   * What `HumanTravelLeaf.openDoor`'s plan prepared for its `plants`.
+   */
   export interface IPrepared {
-    /** The standing plan. */
+    /*
+     * The standing plan.
+     */
     standing: IAutoMovieMotionHumanActionPlan;
 
-    /** The walk round with the leaf, or none when standing holds. */
+    /*
+     * The walk round with the leaf, or none when standing holds.
+     */
     walked: IAutoMovieMotionHumanActionPlan | null;
 
-    /** The action's seconds. */
+    /*
+     * The action's seconds.
+     */
     seconds: number;
   }
 }

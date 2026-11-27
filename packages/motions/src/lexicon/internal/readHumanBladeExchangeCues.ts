@@ -4,19 +4,18 @@ import type {
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
-/**
+/*
  * Read a staged blade exchange's editing cues from a resolved film schedule.
  * The `opening` cue is the opening's decisive instant, `block` is the
  * responder's stroke event and `reply` is the optional follow-through's start.
  * Cues are in film seconds. A cut that removes an instant also removes its cue.
  * An instant at the cut remains.
- *
- * @param schedule Placed schedule containing the exchange.
- * @param cue Cue id passed to composeHumanBladeExchange, without a phase
- *   suffix.
- * @returns A cue track in time order, with the opening before the block on a
- *   tie.
- * @throws {Error} When either of the exchange's required phases is absent.
+ * Parameter schedule: Placed schedule containing the exchange.
+ * Parameter cue: Cue id passed to composeHumanBladeExchange, without a phase
+ * suffix.
+ * Returns: A cue track in time order, with the opening before the block on a
+ * tie.
+ * When either of the exchange's required phases is absent.
  */
 export function readHumanBladeExchangeCues(
   schedule: IAutoMovieSchedule,

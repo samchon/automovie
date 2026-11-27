@@ -10,7 +10,7 @@ import type {
 import { prepareSurface } from "../../../space/internal/prepareSurface";
 import { preparedSurfaceContains } from "../../../space/internal/preparedSurfaceContains";
 
-/**
+/*
  * Admit actors' optional support windows against the prepared walkable set.
  * Check the opening footprint before preserving the placement. Performance
  * checks the windows against its own duration and the sampled actor path.

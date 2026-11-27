@@ -19,16 +19,18 @@ import { EquineHoofRows } from "./EquineHoofRows";
 import type { EquineStanceRows } from "./EquineStanceRows";
 import { EquineStanceSupport } from "./EquineStanceSupport";
 
-/** The zero vector. */
+/*
+ * The zero vector.
+ */
 const ZERO: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
-/**
+/*
  * The share of a lifting row's entry spent moving the weight off the hoof
  * before it leaves the floor: authored.
  */
 const LOAD: number = 0.35;
 
-/**
+/*
  * A resting hind hoof's tip onto its toe, its terminal bar's lower end turned
  * this many degrees behind vertical so the rim's front is lowest; its forward
  * set and lift, metres; the hips' tilt, degrees: authored.
@@ -40,15 +42,19 @@ const REST: Readonly<IRestShape> = {
   arc: 0.04,
 };
 
-/** A trunk shake's roll, degrees, and rate, Hz: authored. */
+/*
+ * A trunk shake's roll, degrees, and rate, Hz: authored.
+ */
 const SHAKE: Readonly<IShakeShape> = { roll: 6, hertz: 3 };
 
-/** The comfort rows' kinds. */
+/*
+ * The comfort rows' kinds.
+ */
 const KINDS: ReadonlySet<string> = new Set<
   AutoMovieArchetypeEquineComfortCue.Row["kind"]
 >(["rest", "paw", "stamp", "cowKick", "shake", "camp"]);
 
-/**
+/*
  * The comfort rows of the stance: the standing rest on a tipped hind hoof,
  * pawing, stamping, the cow-kick, the trunk shake and the camped-out stance.
  *
@@ -65,11 +71,10 @@ const KINDS: ReadonlySet<string> = new Set<
  * start through its exit. All amplitudes are authored.
  */
 export namespace EquineComfortRows {
-  /**
+  /*
    * Whether a stance cue is a comfort row.
-   *
-   * @param cue The cue.
-   * @returns Whether `plan` owns it.
+   * Parameter cue: The cue.
+   * Returns: Whether `plan` owns it.
    */
   export function owns(
     cue: AutoMovieArchetypeEquineStanceCue.Cue,
@@ -77,15 +82,14 @@ export namespace EquineComfortRows {
     return KINDS.has(cue.kind);
   }
 
-  /**
+  /*
    * Plan one comfort row from a state.
-   *
-   * @param body The prepared solver.
-   * @param start The state it starts from.
-   * @param cue The row.
-   * @returns Its plan, returning to the start.
-   * @throws {RangeError} For a paw whose strokes are not a positive whole
-   *   number.
+   * Parameter body: The prepared solver.
+   * Parameter start: The state it starts from.
+   * Parameter cue: The row.
+   * Returns: Its plan, returning to the start.
+   * For a paw whose strokes are not a positive whole
+   * number.
    */
   export function plan<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
@@ -100,7 +104,7 @@ export namespace EquineComfortRows {
     return EquineCampOut.plan(body, start, cue);
   }
 
-  /**
+  /*
    * The standing rest: load the locked hind, tilt the hips about its hip joint
    * and set the resting hoof down on its toe.
    */
@@ -199,7 +203,9 @@ export namespace EquineComfortRows {
     };
   }
 
-  /** A trunk shake: whole roll cycles over four planted hooves through the hold. */
+  /*
+   * A trunk shake: whole roll cycles over four planted hooves through the hold.
+   */
   function shake<Id extends string, D extends string>(
     body: EquineBodyPose.IPrepared<Id, D>,
     start: EquineStanceRows.IState,
@@ -250,26 +256,42 @@ export namespace EquineComfortRows {
   }
 }
 
-/** The standing rest's authored shape. */
+/*
+ * The standing rest's authored shape.
+ */
 interface IRestShape {
-  /** Degrees behind vertical the resting hoof's terminal bar points down. */
+  /*
+   * Degrees behind vertical the resting hoof's terminal bar points down.
+   */
   tip: number;
 
-  /** Metres it is set forward. */
+  /*
+   * Metres it is set forward.
+   */
   forward: number;
 
-  /** Degrees the hips tilt to the resting side. */
+  /*
+   * Degrees the hips tilt to the resting side.
+   */
   tilt: number;
 
-  /** Metres it is lifted on its way. */
+  /*
+   * Metres it is lifted on its way.
+   */
   arc: number;
 }
 
-/** The trunk shake's authored shape. */
+/*
+ * The trunk shake's authored shape.
+ */
 interface IShakeShape {
-  /** Degrees of roll. */
+  /*
+   * Degrees of roll.
+   */
   roll: number;
 
-  /** Rolls per second. */
+  /*
+   * Rolls per second.
+   */
   hertz: number;
 }

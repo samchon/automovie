@@ -8,20 +8,19 @@ import type {
 import { AutoMoviePhysicalInertiaTensor } from "../AutoMoviePhysicalInertiaTensor";
 import { physicalPrincipalAxes } from "./physicalPrincipalAxes";
 
-/**
+/*
  * Combine rotated inertia tensors using the parallel-axis theorem. A
  * dimensionless Jacobi solve (`physicalPrincipalAxes`) preserves relative
  * precision across SI scales. Refuse nonfinite aggregates and nonpositive
  * computed principal moments; finite component admission does not promise
  * arbitrary-precision arithmetic.
- *
- * @param parts Rigid parts in one common frame, with positive finite SI masses
- *   and principal moments, finite centres and unit principal rotations within
- *   1e-6 of unit length.
- * @returns Fresh aggregate mass properties in that same frame; moments are
- *   ascending.
- * @throws {Error} When parts are empty or invalid, or aggregate arithmetic
- *   produces nonfinite or nonpositive principal properties.
+ * Parameter parts: Rigid parts in one common frame, with positive finite SI masses
+ * and principal moments, finite centres and unit principal rotations within
+ * 1e-6 of unit length.
+ * Returns: Fresh aggregate mass properties in that same frame; moments are
+ * ascending.
+ * When parts are empty or invalid, or aggregate arithmetic
+ * produces nonfinite or nonpositive principal properties.
  */
 export function combinePhysicalMassProperties(
   parts: readonly IAutoMovieCombinePhysicalMassProperties.IPart[],
@@ -67,7 +66,9 @@ export function combinePhysicalMassProperties(
   return { mass, centerOfMass, inertia, inertiaRotation };
 }
 
-/** Whether each principal moment is positive. */
+/*
+ * Whether each principal moment is positive.
+ */
 function positiveMoments(value: IAutoMovieVector3): boolean {
   return value.x > 0 && value.y > 0 && value.z > 0;
 }

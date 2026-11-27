@@ -15,26 +15,25 @@ import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { ROOM_CLEARANCES } from "./ROOM_CLEARANCES";
 import { furnishRoom } from "./furnishRoom";
 
-/**
+/*
  * Furnish a bedroom: a bed with its head centred on the `-z` wall, and a
  * wardrobe and a chest on the `+z` wall facing the bed's foot.
  *
  * The roles are `bed`, `wardrobe` and `chest`; each producer affordance is
  * `<role>/<affordance id>`, such as `bed/surface`. The bed keeps the clear
- * floor of {@link ROOM_CLEARANCES}.bedSide beside both long sides, the 2010 ADA
+ * floor of ROOM_CLEARANCES.bedSide beside both long sides, the 2010 ADA
  * Standards' parallel approach of 806.2.3, named `left side` and `right side`.
  * The wardrobe starts at the `+z` wall's run corner and the chest follows it
  * `chestGap` metres along the run; each keeps the forward-approach clear floor
- * of {@link ROOM_CLEARANCES}.clearFloor in front, named `forward approach`. A
+ * of ROOM_CLEARANCES.clearFloor in front, named `forward approach`. A
  * room narrower than the bed plus both side clearances is refused naming the
  * bed's side clearance, and one shallower than the bed plus the wardrobe and
  * its clear floor is refused naming the wardrobe. The figures are a coarse
  * layout rule, not an accessibility or code compliance claim.
- *
- * @param params The room layout, the bed size and the wardrobe-to-chest gap.
- * @returns The placed-room module.
- * @throws When a piece or clearance leaves the room or overlaps another piece,
- *   clearance or `keepClear` area, naming the role and clearance.
+ * Parameter params: The room layout, the bed size and the wardrobe-to-chest gap.
+ * Returns: The placed-room module.
+ * When a piece or clearance leaves the room or overlaps another piece,
+ * clearance or `keepClear` area, naming the role and clearance.
  */
 export function createBedroomKit(
   params: AutoMovieEnvironmentFurnishing.IBedroomKitParams,

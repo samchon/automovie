@@ -10,7 +10,7 @@ import { AutoMovieMotionHumanInterrupt } from "../../compose/internal/AutoMovieM
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { prepareInstancePosture } from "./prepareInstancePosture";
 
-/**
+/*
  * An instanced member: a performer that displays a template member's placed
  * posture, read whole film frames earlier and moved rigidly by the offset it
  * stands at from the template, so a rear rank marching with its front rank
@@ -36,19 +36,25 @@ import { prepareInstancePosture } from "./prepareInstancePosture";
  * moved, and the slip of an instance is the template's own.
  */
 export namespace instance {
-  /** The law's name. */
+  /*
+   * The law's name.
+   */
   export const name: AutoMovieMotionHumanActionKey = "instance";
 
-  /**
+  /*
    * Degrees the template may turn over the span before the move is no longer
    * rigid (provisional: a degree moves a member a metre out by under 2 cm).
    */
   export const TURN: number = 1;
 
-  /** The film's frame rate, frames a second, the unit of `shift`. */
+  /*
+   * The film's frame rate, frames a second, the unit of `shift`.
+   */
   export const RATE: number = 24;
 
-  /** The cuts: any action may follow it at any instant, inertialized. */
+  /*
+   * The cuts: any action may follow it at any instant, inertialized.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     any: [
       {
@@ -60,13 +66,12 @@ export namespace instance {
     ],
   };
 
-  /**
+  /*
    * Plan an instance.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the template is on another body, turns over the
-   *   span, or carries a goal kept clear of world colliders.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the template is on another body, turns over the
+   * span, or carries a goal kept clear of world colliders.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanInstance.IParams>,

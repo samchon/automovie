@@ -41,7 +41,7 @@ export namespace AutoMovieHumanKnotRule {
     basis: "run" | "site" | "extremum";
   }
 
-  /**
+  /*
    * Thirds taken off an extremum's bracket: forty take a bracket of a few millimetres under 1e-6 mm. The search cannot place it finer
    * than the outline lets it: beside an extremum the values within `sqrt(2 eps f / |f''|)` of it are one double, a few thousandths of a
    * micrometre to a few micrometres for a body's outline, far under any knot's use.

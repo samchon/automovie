@@ -3,7 +3,7 @@ import type {
   AutoMovieHumanoidBone,
 } from "@automovie/interface";
 
-/**
+/*
  * Bone frames whose colliders the forearm clearance reads: the trunk and both
  * whole legs, the segments the tangle audit reads an arm against, plus each
  * already placed arm's three segments.
@@ -19,9 +19,11 @@ export function HumanArmObstacleBones(
   return SETS[mask]!;
 }
 
-/** The existing trunk-only clearance membership, shared with obstacle demand. */
+/*
+ * The existing trunk-only clearance membership, shared with obstacle demand.
+ */
 export namespace HumanArmObstacleBones {
-  /**
+  /*
    * Original axial collider names; leave this shared set unchanged.
    *
    * Defines the borrowed canonical trunk names shared by trunk filtering and
@@ -38,7 +40,7 @@ export namespace HumanArmObstacleBones {
     ]);
 }
 
-/**
+/*
  * Both legs' segments, whole: the tangle audit reads an arm against every
  * segment of the body, so a fit that clears only the thighs lays a hand's
  * digits in a shank or a foot the audit refuses.
@@ -54,17 +56,23 @@ const LEGS: readonly AutoMovieHumanoidBone[] = [
   "rightToes",
 ];
 
-/** The left arm's obstacle bones. */
+/*
+ * The left arm's obstacle bones.
+ */
 const LEFT_ARM: readonly AutoMovieHumanoidBone[] = [
   "leftUpperArm", "leftLowerArm", "leftHand",
 ];
 
-/** The right arm's obstacle bones. */
+/*
+ * The right arm's obstacle bones.
+ */
 const RIGHT_ARM: readonly AutoMovieHumanoidBone[] = [
   "rightUpperArm", "rightLowerArm", "rightHand",
 ];
 
-/** Four fixed membership subsets; actual placement retains profile order. */
+/*
+ * Four fixed membership subsets; actual placement retains profile order.
+ */
 const SETS: readonly ReadonlySet<AutoMovieHumanoidBone>[] = Array.from(
   { length: 4 },
   (_: unknown, mask: number): ReadonlySet<AutoMovieHumanoidBone> =>

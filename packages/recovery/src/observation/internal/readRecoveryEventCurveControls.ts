@@ -8,7 +8,7 @@ import type {
 
 import { readRecoveryEventCurveParent } from "./readRecoveryEventCurveParent";
 
-/**
+/*
  * Derive oriented occurrence controls directly from their sole native curve.
  * Optional native endpoint evaluation preserves the compiler's declared
  * boundary policy while every interior control uses the same original-curve

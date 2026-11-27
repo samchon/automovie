@@ -11,7 +11,7 @@ import { getUp } from "../../floor/internal/getUp";
 import { treeClimbRouteForms } from "./treeClimbRouteForms";
 import { treeLimbs } from "./treeLimbs";
 
-/**
+/*
  * A tree climb's stances on staged points of the tree, one hand or foot moving
  * at a time: the route up grips the lowest branch from the ground, walks the
  * feet up the bole, hooks a heel over the branch and stands on it, then for
@@ -21,71 +21,102 @@ import { treeLimbs } from "./treeLimbs";
  * contacts.
  */
 export namespace treeClimbRoute {
-  /** A staged hold. */
+  /*
+   * A staged hold.
+   */
   export interface IHold {
-    /** The body part. */
+    /*
+     * The body part.
+     */
     part: IAutoMovieMotionHumanSupport.IContact["part"];
 
-    /** How it touches. */
+    /*
+     * How it touches.
+     */
     kind: HoldKind;
 
-    /** The staged point's name. */
+    /*
+     * The staged point's name.
+     */
     key: string;
 
-    /** The point, world metres. */
+    /*
+     * The point, world metres.
+     */
     point: IAutoMovieVector3;
 
-    /** Its surface's outward normal. */
+    /*
+     * Its surface's outward normal.
+     */
     normal: IAutoMovieVector3;
 
-    /**
+    /*
      * The branch it loads and how far out, or undefined on the bole or the
      * ground.
      */
     branch?: ILoad;
   }
 
-  /** Where a hold loads a branch. */
+  /*
+   * Where a hold loads a branch.
+   */
   export interface ILoad {
-    /** The branch, from 0. */
+    /*
+     * The branch, from 0.
+     */
     index: number;
 
-    /** Metres out from the trunk face. */
+    /*
+     * Metres out from the trunk face.
+     */
     out: number;
   }
 
-  /** The expanded route. */
+  /*
+   * The expanded route.
+   */
   export interface IRoute {
-    /** The support stances. */
+    /*
+     * The support stances.
+     */
     stances: IAutoMovieMotionHumanSupport.IStance[];
 
-    /** Every staged hold by its key. */
+    /*
+     * Every staged hold by its key.
+     */
     staged: Map<string, IHold>;
   }
 
-  /** A stance of holds. */
+  /*
+   * A stance of holds.
+   */
   export interface IStance {
-    /** The holds. */
+    /*
+     * The holds.
+     */
     holds: IHold[];
 
-    /** The event the stance is held at. */
+    /*
+     * The event the stance is held at.
+     */
     event: string;
 
-    /** The pose the stance's solve stays nearest. */
+    /*
+     * The pose the stance's solve stays nearest.
+     */
     prefer?: IAutoMovieMotionHumanLieDown.IPose;
   }
 
-  /**
+  /*
    * The stances from the ground to standing on a branch, before expansion.
-   *
-   * @param body The canonical motion body.
-   * @param tree The tree.
-   * @param ground The feet's standing holds at the start.
-   * @param toward Unit horizontal from the bole's axis toward the climber.
-   * @param top The branch stood on at the end.
-   * @returns The stances.
-   * @throws {HumanRefusal} If the lowest branch is beyond the standing reach or
-   *   the branch does not exist.
+   * Parameter body: The canonical motion body.
+   * Parameter tree: The tree.
+   * Parameter ground: The feet's standing holds at the start.
+   * Parameter toward: Unit horizontal from the bole's axis toward the climber.
+   * Parameter top: The branch stood on at the end.
+   * Returns: The stances.
+   * If the lowest branch is beyond the standing reach or
+   * the branch does not exist.
    */
   export function up(
     body: IAutoMovieMotionHumanBody,
@@ -383,15 +414,14 @@ export namespace treeClimbRoute {
     return stances;
   }
 
-  /**
+  /*
    * Sit astride a branch from standing on it: the hands keep their holds above
    * while the feet leave the branch, the body hanging from them, then the seat
    * comes down onto the branch's seat with the legs either side.
-   *
-   * @param tree The tree.
-   * @param standing The stance stood in on the branch.
-   * @param index The branch.
-   * @returns The hang and the astride stance.
+   * Parameter tree: The tree.
+   * Parameter standing: The stance stood in on the branch.
+   * Parameter index: The branch.
+   * Returns: The hang and the astride stance.
    */
   export function sit(
     tree: treeLimbs.ITree,
@@ -427,5 +457,7 @@ export namespace treeClimbRoute {
   }
 }
 
-/** The alternatives of `HoldKind`'s site. */
+/*
+ * The alternatives of `HoldKind`'s site.
+ */
 type HoldKind = "bear" | "grip";

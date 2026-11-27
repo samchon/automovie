@@ -24,10 +24,14 @@ const { dot, mean, norm, scale, sub, TWO_PI }: typeof AutoMovieHumanHandVector =
  * left's mirror, its phase reversed.
  */
 export namespace AutoMovieHumanArmLayers {
-  /** Parameter step of the carried frame. */
+  /*
+   * Parameter step of the carried frame.
+   */
   const CARRY: number = 0.5;
 
-  /** Parameter step of a layer's slopes. */
+  /*
+   * Parameter step of a layer's slopes.
+   */
   const SLOPE_STEP: number = 0.05;
 
   /**

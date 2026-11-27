@@ -186,10 +186,14 @@ export namespace AutoMovieMotionHumanBody {
   }
 }
 
-/** The alternatives of `CreateHumanBody`'s site. */
+/*
+ * The alternatives of `CreateHumanBody`'s site.
+ */
 type CreateHumanBody = "measure" | "surfaces";
 
-/** The body's fields solved in stages from the records before them. */
+/*
+ * The body's fields solved in stages from the records before them.
+ */
 type CreateHumanBodySolved =
   | "upright"
   | "relaxed"
@@ -197,7 +201,7 @@ type CreateHumanBodySolved =
   | "hanging"
   | "flatThumb";
 
-/**
+/*
  * The flat thumbs' twists before they are solved. Their own solve
  * (`bendFloorThumb`) reads none.
  */
@@ -206,7 +210,7 @@ const UNTURNED: IAutoMovieMotionHumanBody["flatThumb"] = {
   right: 0,
 };
 
-/**
+/*
  * A posture at the origin the flat thumbs are solved in: the thumb's clearance
  * reads only the hand's own frame.
  */
@@ -219,7 +223,7 @@ const ORIGIN_POSTURE: IAutoMovieMotionHumanPosture = {
   limbs: {},
 };
 
-/**
+/*
  * The hanging arms before they are solved. Their own solve
  * (`AutoMovieMotionHumanBend.hanging`) reads none.
  */
@@ -228,7 +232,7 @@ const UNHUNG: IAutoMovieMotionHumanBody["hanging"] = {
   right: null,
 };
 
-/**
+/*
  * The tangle model before it is built: no segment. No solve before the model's
  * own reads a body's tangle model (`AutoMovieMotionHumanAuditTangleModel`).
  */
@@ -241,7 +245,7 @@ const UNTANGLED: IAutoMovieMotionHumanBody["tangle"] = {
   baseline: [],
 };
 
-/**
+/*
  * The rig's rest column, unaligned: the trunk, neck and head at their rest
  * angles and no forward lean, the record the quiet-stance alignment is solved
  * from (`standUpright.align`).

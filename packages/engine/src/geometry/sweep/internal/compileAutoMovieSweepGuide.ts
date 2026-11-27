@@ -5,13 +5,12 @@ import type {
 
 import { compileAutoMovieSweepProfile } from "./compileAutoMovieSweepProfile";
 
-/**
+/*
  * Compile one silhouette guide's angle and positive radius profile.
- *
- * @param guide Authored guide, read without mutation
- * @param index Its index for refusal diagnostics
- * @returns A wrapped angle and compiled positive finite radius query
- * @throws Error for a non-finite angle or an invalid profile or profile query
+ * Parameter guide: Authored guide, read without mutation
+ * Parameter index: Its index for refusal diagnostics
+ * Returns: A wrapped angle and compiled positive finite radius query
+ * Error for a non-finite angle or an invalid profile or profile query
  */
 export function compileAutoMovieSweepGuide(
   guide: IAutoMovieSweep.IGuide,

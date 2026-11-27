@@ -1,6 +1,6 @@
 import { bracketedCrossing } from "../../math/internal/bracketedCrossing";
 
-/**
+/*
  * Evaluate a CSS-style cubic Bézier easing `[x1, y1, x2, y2]` at progress `t`.
  *
  * Solves the parametric x(s) = t for the curve parameter `s` (Newton with a
@@ -64,5 +64,7 @@ export function cubicBezierEasing(
   return bez(y1, y2, s);
 }
 
-/** The bisections whose final bracket width the fallback closes to. */
+/*
+ * The bisections whose final bracket width the fallback closes to.
+ */
 const HALVINGS: number = 32;

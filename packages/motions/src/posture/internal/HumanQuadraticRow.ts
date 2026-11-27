@@ -1,6 +1,6 @@
 import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
 
-/**
+/*
  * Add one weighted row outer product to a banded reduced system. The ADMM and
  * polishing systems both use this operation (Stellato et al. 2020, sections 3.1
  * and 4). An ordered row begins at its first equal column, retaining earlier
@@ -8,13 +8,12 @@ import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
  * column/original-position order: every K(i,j) cell sees the same a-at-i/b-at-j
  * sequence, while other cells' writes commute. Original CSR dot products remain
  * untouched, and absent metadata keeps the original unsorted traversal.
- *
- * @param s Admitted scaled rows, with ordering metadata for their unchanged CSR
- *   sequence.
- * @param k Owned upper-band system, distinct from the read-only scaled
- *   matrices.
- * @param r Row index in the scaled problem.
- * @param w Current rho or polishing row weight, multiplied on the left.
+ * Parameter s: Admitted scaled rows, with ordering metadata for their unchanged CSR
+ * sequence.
+ * Parameter k: Owned upper-band system, distinct from the read-only scaled
+ * matrices.
+ * Parameter r: Row index in the scaled problem.
+ * Parameter w: Current rho or polishing row weight, multiplied on the left.
  */
 export function HumanQuadraticRow(
   s: B.IScaled,

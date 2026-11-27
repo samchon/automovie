@@ -5,7 +5,7 @@ import type {
 import { AutoMovieTransitionDisplays, type IAutoMovieDrawScene, AutoMovieRenderDraw } from "@automovie/render";
 import type * as THREE from "three";
 
-/**
+/*
  * The inspector's placement of a subject at a painted second and its half of a
  * film picture inside a transition, so the Viewer paints the frame and keeps
  * the records the draw page delivers and captures at the same second.
@@ -33,59 +33,87 @@ import type * as THREE from "three";
  * lens, not by its transitions.
  */
 export class AutoMovieInspectorTransition {
-  /** The held layers of the planned picture and its overlay. */
+  /*
+   * The held layers of the planned picture and its overlay.
+   */
   private readonly displays_: AutoMovieTransitionDisplays =
     new AutoMovieTransitionDisplays();
 
-  /** The layers of the picture being composited, or null for one layer. */
+  /*
+   * The layers of the picture being composited, or null for one layer.
+   */
   private layers_: IAutoMoviePlaybackLayer[] | null = null;
 
-  /** The shown layer of the planned second, or null outside a transition. */
+  /*
+   * The shown layer of the planned second, or null outside a transition.
+   */
   private shown_: IAutoMoviePlaybackLayer | null = null;
 
-  /** The compositor of the picture being painted, or null. */
+  /*
+   * The compositor of the picture being painted, or null.
+   */
   private compositor_: THREE.WebGLRenderer | null = null;
 
-  /** Whether `dispose` ran, after which nothing is painted or held. */
+  /*
+   * Whether `dispose` ran, after which nothing is painted or held.
+   */
   private disposed_: boolean = false;
 
-  /** Whether the picture being painted composites a transition's layers. */
+  /*
+   * Whether the picture being painted composites a transition's layers.
+   */
   public get composites(): boolean {
     return this.layers_ !== null;
   }
 
-  /** Whether the shown layer was placed by `seekShot`, off the film clock. */
+  /*
+   * Whether the shown layer was placed by `seekShot`, off the film clock.
+   */
   public get byShot(): boolean {
     return this.shown_ !== null && !this.shown_.live;
   }
 
-  /** The scene a composited picture's witness cubes are attached to. */
+  /*
+   * The scene a composited picture's witness cubes are attached to.
+   */
   public get overlay(): THREE.Scene {
     return this.displays_.overlay;
   }
 
-  /**
+  /*
    * Plan the picture at `seconds`, place, paint and hold every other layer of a
    * composited transition, and place the shown layer last. Resolves once the
    * shown layer is ready; a refused plan throws at once.
    */
   public async place(props: {
-    /** The subject's name, which a refusal names. */
+    /*
+     * The subject's name, which a refusal names.
+     */
     name: string;
 
-    /** The created subject. */
+    /*
+     * The created subject.
+     */
     instance: IAutoMovieDrawScene;
 
-    /** The inspection the picture is drawn with. */
+    /*
+     * The inspection the picture is drawn with.
+     */
     request: IAutoMovieInspectionRequest;
 
-    /** The WebGL renderer that composites, or null when there is none. */
+    /*
+     * The WebGL renderer that composites, or null when there is none.
+     */
     compositor: THREE.WebGLRenderer | null;
 
-    /** The second painted. */
+    /*
+     * The second painted.
+     */
     seconds: number;
 
-    /** Paint the placed scene's beauty picture onto the canvas. */
+    /*
+     * Paint the placed scene's beauty picture onto the canvas.
+     */
     paint: () => void;
   }): Promise<void> {
     const { instance, seconds, compositor }: typeof props = props;
@@ -112,7 +140,7 @@ export class AutoMovieInspectorTransition {
     await AutoMovieRenderDraw.placeAutoMovieDrawLayer(props.name, instance, this.shown_, seconds);
   }
 
-  /**
+  /*
    * Composite a planned transition after the shown layer's records: paint the
    * shown layer through `paint` when it has weight, hold it and composite the
    * held layers. Returns whether it composited; otherwise the mount paints.
@@ -146,19 +174,25 @@ export class AutoMovieInspectorTransition {
     return true;
   }
 
-  /** Draw `overlay` over the composite through `camera`, without clearing. */
+  /*
+   * Draw `overlay` over the composite through `camera`, without clearing.
+   */
   public over(camera: THREE.Camera): void {
     if (this.compositor_ !== null)
       this.displays_.over(this.compositor_, camera);
   }
 
-  /** Release the held layers; a placement still pending then paints nothing. */
+  /*
+   * Release the held layers; a placement still pending then paints nothing.
+   */
   public dispose(): void {
     this.disposed_ = true;
     this.displays_.dispose();
   }
 
-  /** The composited layers of positive weight, outgoing first. */
+  /*
+   * The composited layers of positive weight, outgoing first.
+   */
   private drawn(): IAutoMoviePlaybackLayer[] {
     return (this.layers_ ?? []).filter(
       (layer: IAutoMoviePlaybackLayer): boolean => layer.weight > 0,
@@ -166,7 +200,9 @@ export class AutoMovieInspectorTransition {
   }
 }
 
-/** The slot a transition layer is held in: the outgoing 0, the live 1. */
+/*
+ * The slot a transition layer is held in: the outgoing 0, the live 1.
+ */
 function slotOf(layer: IAutoMoviePlaybackLayer): number {
   return layer.live ? 1 : 0;
 }

@@ -11,7 +11,7 @@ import { PHYSICAL_TARGET_LIMITS } from "./PHYSICAL_TARGET_LIMITS";
 import { physicalContactTargetBones } from "./physicalContactTargetBones";
 import { physicalCoupledTargetDependencies } from "./physicalCoupledTargetDependencies";
 
-/**
+/*
  * Admit explicit coupled groups on top of the already admitted individual
  * motion inputs. Returns undefined when no output interval requested a group.
  */
@@ -92,7 +92,9 @@ type Body = IAutoMoviePhysicalSimulationInput.IBody;
 
 type Target = IAutoMoviePhysicalSimulationInput.ITarget;
 
-/** Establish the group's fixed identities and count its movable coordinates. */
+/*
+ * Establish the group's fixed identities and count its movable coordinates.
+ */
 function admitGroup(
   step: number,
   group: string,
@@ -175,7 +177,7 @@ function admitGroup(
   return result;
 }
 
-/**
+/*
  * Name a member policy the shared fit cannot honour for the whole interval.
  * Native tracking writes balance and support plans during each body's own turn,
  * so a group fit on an earlier member's turn would miss a later member's plans

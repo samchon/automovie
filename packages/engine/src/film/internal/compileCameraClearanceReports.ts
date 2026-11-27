@@ -32,19 +32,19 @@ import { foldRoot } from "./foldRoot";
 import { nodeSubjectBox } from "./nodeSubjectBox";
 import { resolveCameraAt } from "./resolveCameraAt";
 
-/**
+/*
  * Check that no camera body or parent rig in a performed shot touches a staged
  * node, and return one clear report per envelope-bearing take.
  *
  * The hero take and every coverage take whose staged camera declares
  * `clearance` are inspected; the others are skipped, and a shot with none
  * returns `undefined` without reading `runtime`. Each such take is sampled at
- * {@link cameraClearanceSampleTimes}, and every staged node is an obstacle: a
+ * cameraClearanceSampleTimes, and every staged node is an obstacle: a
  * node nothing animates is its rest box through its placement
- * ({@link nodeSubjectBox}), and an animated one is a box around its current root
- * holding {@link cameraClearanceDeformationRadius} scaled by its largest
+ * (nodeSubjectBox), and an animated one is a box around its current root
+ * holding cameraClearanceDeformationRadius scaled by its largest
  * absolute scale component, which stays valid under any rotation or pose.
- * {@link evaluateCameraClearance} then sweeps each interval.
+ * evaluateCameraClearance then sweeps each interval.
  *
  * Every refusal is pushed to `out` with an author-facing path, and the result
  * is then `undefined`: a hero or coverage camera the scene does not stage, a
@@ -232,37 +232,57 @@ export function compileCameraClearanceReports(
   return refused() ? undefined : reports;
 }
 
-/** One take's input to the evaluator. */
+/*
+ * One take's input to the evaluator.
+ */
 type IEvaluation = [IAutoMovieCameraClearanceEvaluation][0];
 
-/** One obstacle's world box at one instant, as the evaluator reads it. */
+/*
+ * One obstacle's world box at one instant, as the evaluator reads it.
+ */
 type IObstacleState = IEvaluation["samples"][number]["obstacles"][number];
 
-/** A staged node with its measured bound. */
+/*
+ * A staged node with its measured bound.
+ */
 interface IMeasuredObstacle {
-  /** The staged node. */
+  /*
+   * The staged node.
+   */
   node: IAutoMovieScene["nodes"][number];
 
-  /** World box of a node nothing animates, fixed for the whole shot. */
+  /*
+   * World box of a node nothing animates, fixed for the whole shot.
+   */
   bounds: IAutoMovieSubjectBox | null;
 
-  /** Model-space radius holding the model in any pose, for a moving node. */
+  /*
+   * Model-space radius holding the model in any pose, for a moving node.
+   */
   radius: number;
 }
 
-/** One camera that plays in the shot and declares a clearance envelope. */
+/*
+ * One camera that plays in the shot and declares a clearance envelope.
+ */
 interface ITake {
-  /** The staged camera, with its envelope. */
+  /*
+   * The staged camera, with its envelope.
+   */
   camera: IAutoMovieCamera;
 
-  /** Index of the camera in the staged scene, for violation paths. */
+  /*
+   * Index of the camera in the staged scene, for violation paths.
+   */
   index: number;
 
-  /** The take's camera clip, or null for a locked-off camera. */
+  /*
+   * The take's camera clip, or null for a locked-off camera.
+   */
   motion: IAutoMovieShot["cameraMotion"];
 }
 
-/**
+/*
  * Validate and bound every staged node once, pushing a refusal for each node
  * whose model is absent, invalid, empty or unboundable.
  */
@@ -344,7 +364,7 @@ function measureObstacles(props: {
   return measured;
 }
 
-/**
+/*
  * The box around a moving node's current root that holds its deformation radius
  * scaled by its largest absolute scale component.
  */
@@ -384,7 +404,9 @@ function movingBounds(
   };
 }
 
-/** Address a take whose clock or evaluation threw. */
+/*
+ * Address a take whose clock or evaluation threw.
+ */
 function refuseEvaluation(
   out: IAutoMovieViolationAppendSink,
   take: ITake,
@@ -398,7 +420,9 @@ function refuseEvaluation(
   );
 }
 
-/** Describe a thrown value without letting a hostile coercion escape. */
+/*
+ * Describe a thrown value without letting a hostile coercion escape.
+ */
 function safeThrownDescription(error: unknown): string {
   try {
     return String(error);

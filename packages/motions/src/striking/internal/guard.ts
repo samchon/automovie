@@ -25,7 +25,7 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { strikingStepSupport } from "./strikingStepSupport";
 
-/**
+/*
  * The fighting stance taken and held: from whatever the performer stands in,
  * each foot steps to its stance place in turn, cleared from the floor before it
  * travels and pointed in the air (the rear foot first, so the lead foot stays a
@@ -35,7 +35,7 @@ import { strikingStepSupport } from "./strikingStepSupport";
  * takes the first swing and the existing bearing foot holds through that
  * landing.
  *
- * The stance itself is {@link StrikingStance}: measured on the body, so any
+ * The stance itself is StrikingStance: measured on the body, so any
  * stature takes its own. A foot already within 1 cm of its place stays planted.
  * The line faces the `facing` target when one is given (read at the start),
  * otherwise it keeps the entry's line: a performer already in a stance keeps
@@ -52,10 +52,14 @@ import { strikingStepSupport } from "./strikingStepSupport";
  * share) with no located measurement.
  */
 export namespace guard {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "guard";
 
-  /** Cancel table: from a guard every striking action may start at any time. */
+  /*
+   * Cancel table: from a guard every striking action may start at any time.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] = {
     guard: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.15 }],
     punch: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
@@ -64,26 +68,31 @@ export namespace guard {
     step: [{ window: [0, 1], kind: "inertialize", entry: 0, blend: 0.1 }],
   };
 
-  /** Seconds to step into the stance. */
+  /*
+   * Seconds to step into the stance.
+   */
   export const SET: number = 0.6;
 
-  /** A stepping foot's clearance at mid-step, a share of stature (provisional). */
+  /*
+   * A stepping foot's clearance at mid-step, a share of stature (provisional).
+   */
   export const STEP_LIFT: number = 0.03;
 
-  /**
+  /*
    * The shares of a step between which the foot travels, after it clears the
    * floor and before it lands (provisional).
    */
   export const STEP_TRAVEL: readonly [number, number] = [0.25, 0.75];
 
-  /** Bounce rate, per second (provisional). */
+  /*
+   * Bounce rate, per second (provisional).
+   */
   export const BOUNCE_RATE: number = 2;
 
-  /**
+  /*
    * Plan a guard.
-   *
-   * @param context The action's context.
-   * @returns The plan.
+   * Parameter context: The action's context.
+   * Returns: The plan.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuard.IParams>,
@@ -120,18 +129,22 @@ export namespace guard {
     };
   }
 
-  /** A built guard. */
+  /*
+   * A built guard.
+   */
   interface IGeometry {
-    /**
+    /*
      * The complete posture at action-relative seconds, with same-call FK/ROM
      * borrowing and no retained query source.
      */
     posture: IAutoMovieMotionHumanActionPlan["posture"];
-    /** The feet's contact windows. */
+    /*
+     * The feet's contact windows.
+     */
     contacts: IAutoMovieMotionHumanContactWindow[];
   }
 
-  /**
+  /*
    * Build the stance from the entry and the line, stepped back from a faced
    * person's guard.
    */
@@ -206,7 +219,9 @@ export namespace guard {
       : lay(context, duration, joints, stance, from, Vector3.add(centre, back));
   }
 
-  /** Lay the stance about a centre on the floor. */
+  /*
+   * Lay the stance about a centre on the floor.
+   */
   function lay(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuard.IParams>,
     duration: number,
@@ -421,7 +436,7 @@ export namespace guard {
     };
   }
 
-  /**
+  /*
    * The entry's arms blended toward the guard by a share: from the hands' entry
    * goals, or the guard alone when the entry wrote none.
    */
@@ -449,18 +464,26 @@ export namespace guard {
     return out;
   }
 
-  /** The horizontal forward of a heading. */
+  /*
+   * The horizontal forward of a heading.
+   */
   function forwardOf(yaw: number): IAutoMovieVector3 {
     const r: number = (yaw * Math.PI) / 180;
     return { x: Math.sin(r), y: 0, z: Math.cos(r) };
   }
 }
 
-/** The alternatives of `BlendArmsOut`'s site. */
+/*
+ * The alternatives of `BlendArmsOut`'s site.
+ */
 type BlendArmsOut = "leftArm" | "rightArm";
 
-/** The alternatives of `BlendArmsResult`'s site. */
+/*
+ * The alternatives of `BlendArmsResult`'s site.
+ */
 type BlendArmsResult = "leftArm" | "rightArm";
 
-/** The alternatives of `BlendArmsHands`'s site. */
+/*
+ * The alternatives of `BlendArmsHands`'s site.
+ */
 type BlendArmsHands = "leftArm" | "rightArm";

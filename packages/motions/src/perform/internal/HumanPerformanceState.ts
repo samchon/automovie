@@ -42,7 +42,7 @@ import { prepareHumanPerformance } from "./prepareHumanPerformance";
 import { prepareHumanPerformancePlans } from "./prepareHumanPerformancePlans";
 import { validateInitialPropMounts } from "./validateInitialPropMounts";
 
-/**
+/*
  * Everything a performance resolves and its readers share: the people with
  * their placed actions, the props, the laws, the cue tracks and the schedule,
  * built once by the constructor.
@@ -54,25 +54,33 @@ import { validateInitialPropMounts } from "./validateInitialPropMounts";
  * package does not export it.
  */
 export class HumanPerformanceState {
-  /** The resolved schedule. */
+  /*
+   * The resolved schedule.
+   */
   public readonly schedule: IAutoMovieSchedule;
 
-  /** Seconds from 0 to the last action's end. */
+  /*
+   * Seconds from 0 to the last action's end.
+   */
   public readonly duration: number;
 
-  /** The people, as the performance was given them. */
+  /*
+   * The people, as the performance was given them.
+   */
   public readonly performers: readonly IAutoMovieMotionHumanPerformer[];
 
-  /**
+  /*
    * The people with their placed actions, holds, layers and pose caches, by
    * subject.
    */
   public readonly people: Map<string, IAutoMovieMotionHumanSegment.IPerson>;
 
-  /** The props, by subject. */
+  /*
+   * The props, by subject.
+   */
   public readonly props: Map<string, IAutoMovieMotionHumanProp>;
 
-  /**
+  /*
    * The lines between props by the far prop each runs to, built once from the
    * props (`HumanPerformanceTether.index`).
    */
@@ -81,7 +89,7 @@ export class HumanPerformanceState {
     readonly IAutoMovieMotionHumanPerformanceState.ITethered[]
   >;
 
-  /**
+  /*
    * The placed actions that carry an anchor, by the anchor, with their
    * performer.
    */
@@ -90,7 +98,7 @@ export class HumanPerformanceState {
     IAutoMovieMotionHumanSegment & IHumanPerformanceStateAnchorsEntry
   >;
 
-  /**
+  /*
    * The spans in which each prop is held or worn, by the prop: who holds it in
    * which hand or wears it on which bone, from when to when and at which offset
    * from the hand or the bone; solved once when the performance is prepared.
@@ -100,32 +108,36 @@ export class HumanPerformanceState {
     IAutoMovieMotionHumanPerformanceState.IGrip[]
   > = new Map();
 
-  /**
+  /*
    * The meetings of the mutual actions, by their kind, start and performers:
    * the performer who computed each and the meeting every role reads.
    */
   public readonly meetings: Map<string, IHumanPerformanceStateMeetingsEntry> =
     new Map();
 
-  /**
+  /*
    * Every law the performance runs, by name: the vocabulary's and the ones it
    * was given.
    */
   public readonly laws: Map<string, IAutoMovieMotionHumanActionLaw<never>>;
 
-  /**
+  /*
    * The schedule entries that are overlays, by walk-order index: they ride a
    * carrier and never follow or precede one.
    */
   public readonly riding: Set<number> = new Set();
 
-  /** What stands in the performers' way. */
+  /*
+   * What stands in the performers' way.
+   */
   public readonly obstacles: readonly IAutoMovieMotionHumanObstacle[];
 
-  /** The forces on the performers (`HumanPerformance.IInput.forces`). */
+  /*
+   * The forces on the performers (`HumanPerformance.IInput.forces`).
+   */
   public readonly forces: readonly IAutoMovieMotionHumanForce[];
 
-  /**
+  /*
    * Resolved authored-turn policy; explicitly supplied momentum remains
    * physical in either mode.
    */
@@ -133,83 +145,87 @@ export class HumanPerformanceState {
     IAutoMovieMotionHumanPerformance.IInput["flight"]
   >;
 
-  /** The cue tracks, by name. */
+  /*
+   * The cue tracks, by name.
+   */
   public readonly cues: Readonly<
     Record<string, readonly IAutoMovieScheduleCue[]>
   >;
 
-  /**
+  /*
    * Where an action aligned into its performer's previous one ended that one,
    * by the previous one's schedule entry.
    */
   public readonly clipped: Map<number, number> = new Map();
 
-  /**
+  /*
    * The instants of every anchored layer, by its anchor: those known before the
    * schedule from the start, the others once it is placed.
    */
   public readonly layered: Map<string, readonly IAutoMovieScheduleCue[]> =
     new Map();
 
-  /**
+  /*
    * The actions that carry the body the composition gives each person, overlays
    * aside, in walk order: a person's placed ones are its first as many as they
    * have placed, and the rest are still to come.
    */
   public readonly intended: Map<string, IAutoMovieIntent[]> = new Map();
 
-  /** The scene's blasts (`HumanPerformance.IInput.blasts`). */
+  /*
+   * The scene's blasts (`HumanPerformance.IInput.blasts`).
+   */
   public readonly blasts: readonly IAutoMovieMotionHumanBlast.IBlast[];
 
-  /**
+  /*
    * The resolved first contacts of every person's striking weapons, in time
    * order, kept for the hit record (`HumanPerformanceHits`).
    */
   public readonly strikes: IAutoMovieMotionHumanPerformanceState.IStrike[] = [];
 
-  /**
+  /*
    * Whether the schedule is still being resolved: until every action is placed,
    * a pose may read people not placed yet.
    */
   public resolving: boolean = true;
 
-  /**
+  /*
    * The resolver's demand placement while an action is timed
    * (`IAutoMovieMotionHumanPerformanceState.demand`).
    */
   public demand: IAutoMovieScheduleContext["demand"] = undefined;
 
-  /**
+  /*
    * The start up to which a subject holds their last placed pose while an
    * action is timed (`IAutoMovieMotionHumanPerformanceState.horizon`).
    */
   public horizon: IAutoMovieScheduleContext["horizon"] = undefined;
 
-  /**
+  /*
    * The start of a parallel group a read subject shares with the action timed
    * (`IAutoMovieMotionHumanPerformanceState.meeting`).
    */
   public meeting: IAutoMovieScheduleContext["meeting"] = undefined;
 
-  /**
+  /*
    * The placement of an anchor's waiting part while an action is timed
    * (`IAutoMovieMotionHumanPerformanceState.demandAnchor`).
    */
   public demandAnchor: IAutoMovieScheduleContext["demandAnchor"] = undefined;
 
-  /**
+  /*
    * How many actions and overlays have been placed so far: two instants with
    * the same count have the same placed state.
    */
   public placements: number = 0;
 
-  /**
+  /*
    * The plan the last alignment trial made (`HumanPerformancePlace.place` with
    * `trial`), kept until the next placement reads or drops it; none otherwise.
    */
   public trial: IAutoMovieMotionHumanPerformanceTrial | undefined;
 
-  /**
+  /*
    * The arm seeds continued by later trials of the same intent in this
    * schedule.
    */
@@ -219,7 +235,7 @@ export class HumanPerformanceState {
       IAutoMovieMotionHumanActionContext.IHandover["last"]
     >();
 
-  /**
+  /*
    * Each soft prop's solved lattice, by the prop, solved once when the
    * performance is prepared (`HumanPerformanceSoft`).
    */
@@ -228,7 +244,7 @@ export class HumanPerformanceState {
     IAutoMovieMotionHumanPerformanceSoft.ISolved
   > = new Map();
 
-  /**
+  /*
    * Each prop's articulation writers in film order, by the prop, solved once
    * when the performance is prepared (`HumanPerformanceObject.writers`).
    */
@@ -237,7 +253,7 @@ export class HumanPerformanceState {
     readonly IAutoMovieMotionHumanPerformanceState.IWriter[]
   > = new Map();
 
-  /**
+  /*
    * Each launched prop's flights, by the prop, solved once when the performance
    * is prepared (`HumanPropFlight.flights`).
    */
@@ -246,7 +262,7 @@ export class HumanPerformanceState {
     readonly IAutoMovieMotionHumanPropFlight.IFlight[]
   > = new Map();
 
-  /**
+  /*
    * The flights of each prop being found, so a launch reading its prop sees the
    * flights before it.
    */
@@ -255,22 +271,21 @@ export class HumanPerformanceState {
     IAutoMovieMotionHumanPropFlight.IFlight[]
   > = new Map();
 
-  /**
+  /*
    * Every hit of the placed performance in time order
    * (`HumanPerformanceHits.hits`), solved once when the performance is
    * prepared.
    */
   public hits: readonly IAutoMovieInteractionEvent[] | undefined;
 
-  /**
+  /*
    * Resolve a performance.
-   *
-   * @param input The chain seed, the performers, the props and the composition.
-   * @param flight The same admitted effective policy captured for this input's
-   *   structural key, without rereading input.flight.
-   * @param observation Optional native numeric observer forwarded only during
-   *   this physical planning operation; it is never stored in the resulting
-   *   state.
+   * Parameter input: The chain seed, the performers, the props and the composition.
+   * Parameter flight: The same admitted effective policy captured for this input's
+   * structural key, without rereading input.flight.
+   * Parameter observation: Optional native numeric observer forwarded only during
+   * this physical planning operation; it is never stored in the resulting
+   * state.
    */
   public constructor(
     input: IAutoMovieMotionHumanPerformance.IInput,
@@ -426,16 +441,22 @@ export class HumanPerformanceState {
   }
 }
 
-/** The alternatives of `HumanPerformanceStateLayer2`'s site. */
+/*
+ * The alternatives of `HumanPerformanceStateLayer2`'s site.
+ */
 type HumanPerformanceStateLayer2 =
   | IAutoMovieMotionHumanLayer
   | IAutoMovieMotionHumanLayer.IScheduled;
 
-/** The record of `IHumanPerformanceStateMeetingsEntry`'s site. */
+/*
+ * The record of `IHumanPerformanceStateMeetingsEntry`'s site.
+ */
 type IHumanPerformanceStateMeetingsEntry = {
   subject: string;
   meeting: IAutoMovieMotionMeeting;
 };
 
-/** The record of `IHumanPerformanceStateAnchorsEntry`'s site. */
+/*
+ * The record of `IHumanPerformanceStateAnchorsEntry`'s site.
+ */
 type IHumanPerformanceStateAnchorsEntry = { subject: string };

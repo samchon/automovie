@@ -5,7 +5,7 @@ import type {
 
 import { MESH_WELD_GRID } from "../../constants/MESH_WELD_GRID";
 
-/**
+/*
  * List every defect of a triangle mesh with the vertices that carry it, so an
  * inspection can draw each one where it is instead of reading a count.
  *
@@ -45,28 +45,35 @@ import { MESH_WELD_GRID } from "../../constants/MESH_WELD_GRID";
  * finite, a vertex whose lattice coordinate is not finite, and more than 94 906
  * 265 vertices. Only edge incidence is measured: a vertex where two fans touch
  * and surfaces that cross each other are not found here.
- *
- * @param mesh Position and index buffers to measure.
- * @param options `weld` is the lattice's cells per unit of length, default
- *   `MESH_WELD_GRID`. `sliver` is the aspect limit above which a triangle is a
- *   sliver; absent, no sliver is reported.
- * @returns The defects, empty for a closed, consistently wound mesh without
- *   degenerate triangles.
+ * Parameter mesh: Position and index buffers to measure.
+ * Parameter options: `weld` is the lattice's cells per unit of length, default
+ * `MESH_WELD_GRID`. `sliver` is the aspect limit above which a triangle is a
+ * sliver; absent, no sliver is reported.
+ * Returns: The defects, empty for a closed, consistently wound mesh without
+ * degenerate triangles.
  */
 export function measureAutoMovieMeshDefects(
   mesh: IAutoMovieMeasureMeshDefects.IMesh,
   options?: IAutoMovieMeasureMeshDefects.IOptions,
 ): IAutoMovieMeshDefect[] {
-  /** Flat xyz buffer, read in place. */
+  /*
+   * Flat xyz buffer, read in place.
+   */
   const positions: ArrayLike<number> = mesh.positions;
 
-  /** Triangle corners, or null when every three vertices are one triangle. */
+  /*
+   * Triangle corners, or null when every three vertices are one triangle.
+   */
   const indices: ArrayLike<number> | null = mesh.indices;
 
-  /** Lattice cells per unit of length. */
+  /*
+   * Lattice cells per unit of length.
+   */
   const weld: number = options?.weld ?? MESH_WELD_GRID;
 
-  /** Aspect limit, or undefined when slivers are not asked about. */
+  /*
+   * Aspect limit, or undefined when slivers are not asked about.
+   */
   const sliver: number | undefined = options?.sliver;
 
   // Refuse malformed buffers and options before anything is allocated.
@@ -75,10 +82,12 @@ export function measureAutoMovieMeshDefects(
       `measureAutoMovieMeshDefects: positions hold ${positions.length} components, not whole xyz triples`,
     );
 
-  /** Vertices in the position buffer. */
+  /*
+   * Vertices in the position buffer.
+   */
   const vertexCount: number = positions.length / 3;
 
-  /**
+  /*
    * Triangle corners in the index run, or in the position run for a non-indexed
    * list.
    */
@@ -102,50 +111,64 @@ export function measureAutoMovieMeshDefects(
       `measureAutoMovieMeshDefects: ${vertexCount} vertices exceed the 94906265 that edge keys stay exact for`,
     );
 
-  /**
+  /*
    * The stored vertex index at a corner slot, which for a non-indexed list is
    * the slot itself.
    */
   const vertexAt: (slot: number) => number = (slot: number): number =>
     indices === null ? slot : indices[slot]!;
 
-  /** Welded corner id of every vertex. */
+  /*
+   * Welded corner id of every vertex.
+   */
   const cellOf: Int32Array = weldCells(positions, vertexCount, weld);
 
-  /** Triangles in the measured run. */
+  /*
+   * Triangles in the measured run.
+   */
   const triangleCount: number = cornerCount / 3;
 
-  /** Shape state per triangle: `SOUND`, `DEGENERATE` or `SLIVER`. */
+  /*
+   * Shape state per triangle: `SOUND`, `DEGENERATE` or `SLIVER`.
+   */
   const shape: Uint8Array = new Uint8Array(triangleCount);
 
-  /**
+  /*
    * Per corner slot, the ordinal of the edge leaving that corner; unread for a
    * degenerate triangle.
    */
   const edgeOf: Int32Array = new Int32Array(cornerCount);
 
-  /** Edge ordinal by packed pair of welded ids, lower id first. */
+  /*
+   * Edge ordinal by packed pair of welded ids, lower id first.
+   */
   const edges: Map<number, number> = new Map();
 
-  /** Per edge ordinal, how many triangles use the edge. */
+  /*
+   * Per edge ordinal, how many triangles use the edge.
+   */
   const uses: number[] = [];
 
-  /**
+  /*
    * Per edge ordinal, how many of those uses run from the lower welded id to
    * the higher.
    */
   const forward: number[] = [];
 
-  /** The current triangle's stored vertex indices, reused across triangles. */
+  /*
+   * The current triangle's stored vertex indices, reused across triangles.
+   */
   const corner: [number, number, number] = [0, 0, 0];
 
-  /** The current triangle's welded ids, reused across triangles. */
+  /*
+   * The current triangle's welded ids, reused across triangles.
+   */
   const cell: [number, number, number] = [0, 0, 0];
 
   // Census: classify each triangle's shape and count every edge's uses and directions.
   for (let triangle: number = 0; triangle < triangleCount; ++triangle) {
     for (let k: number = 0; k < 3; ++k) {
-      /**
+      /*
        * Stored vertex index of this corner, admitted before it addresses a
        * buffer.
        */
@@ -164,13 +187,19 @@ export function measureAutoMovieMeshDefects(
       continue;
     }
     for (let k: number = 0; k < 3; ++k) {
-      /** Welded id the edge leaves. */
+      /*
+       * Welded id the edge leaves.
+       */
       const from: number = cell[k]!;
 
-      /** Welded id the edge reaches. */
+      /*
+       * Welded id the edge reaches.
+       */
       const to: number = cell[(k + 1) % 3]!;
 
-      /** Ordinal of the undirected edge, new when it equals the count so far. */
+      /*
+       * Ordinal of the undirected edge, new when it equals the count so far.
+       */
       const edge: number = intern(
         edges,
         Math.min(from, to) * vertexCount + Math.max(from, to),
@@ -190,10 +219,12 @@ export function measureAutoMovieMeshDefects(
       shape[triangle] = SLIVER;
   }
 
-  /** The located defects, in the documented order. */
+  /*
+   * The located defects, in the documented order.
+   */
   const defects: IAutoMovieMeshDefect[] = [];
 
-  /**
+  /*
    * Per edge ordinal, 1 once its first using triangle is reached, so a
    * defective edge is listed there only.
    */
@@ -201,7 +232,9 @@ export function measureAutoMovieMeshDefects(
 
   // Emission: walking triangles in ascending order puts every defect at its first carrying triangle.
   for (let triangle: number = 0; triangle < triangleCount; ++triangle) {
-    /** First corner slot of this triangle. */
+    /*
+     * First corner slot of this triangle.
+     */
     const base: number = 3 * triangle;
     if (shape[triangle] !== SOUND)
       defects.push({
@@ -210,12 +243,16 @@ export function measureAutoMovieMeshDefects(
       });
     if (shape[triangle] === DEGENERATE) continue;
     for (let k: number = 0; k < 3; ++k) {
-      /** Ordinal of the edge leaving corner `k`. */
+      /*
+       * Ordinal of the edge leaving corner `k`.
+       */
       const edge: number = edgeOf[base + k]!;
       if (listed[edge] === 1) continue;
       listed[edge] = 1;
 
-      /** The edge's defect class, or null for a sound edge. */
+      /*
+       * The edge's defect class, or null for a sound edge.
+       */
       const kind: IAutoMovieMeshDefect.Kind | null = edgeKindOf(
         uses[edge]!,
         forward[edge]!,
@@ -232,22 +269,24 @@ export function measureAutoMovieMeshDefects(
   return defects;
 }
 
-/**
+/*
  * Shape state of a triangle with three distinct cells whose aspect is within
  * the limit, or was not asked about.
  */
 const SOUND: number = 0;
 
-/** Shape state of a triangle whose corners weld onto fewer than three cells. */
+/*
+ * Shape state of a triangle whose corners weld onto fewer than three cells.
+ */
 const DEGENERATE: number = 1;
 
-/**
+/*
  * Shape state of a triangle on three distinct cells whose aspect exceeds the
  * limit.
  */
 const SLIVER: number = 2;
 
-/**
+/*
  * Welded corner id of every vertex: vertices whose three rounded lattice
  * indices agree share one id, numbered from zero in first-seen order.
  *
@@ -256,35 +295,46 @@ const SLIVER: number = 2;
  * `first * vertexCount + second`. Both factors are below the vertex count, so
  * distinct pairs never share a key. A `Map` treats `-0` and `0` as one key, so
  * a coordinate that rounds to negative zero welds with zero.
- *
- * @param positions Flat xyz buffer.
- * @param vertexCount Vertices in it, whose square is a safe integer.
- * @param weld Lattice cells per unit of length, positive and finite.
- * @returns One id per vertex.
+ * Parameter positions: Flat xyz buffer.
+ * Parameter vertexCount: Vertices in it, whose square is a safe integer.
+ * Parameter weld: Lattice cells per unit of length, positive and finite.
+ * Returns: One id per vertex.
  */
 function weldCells(
   positions: ArrayLike<number>,
   vertexCount: number,
   weld: number,
 ): Int32Array {
-  /** The result, one welded id per vertex. */
+  /*
+   * The result, one welded id per vertex.
+   */
   const cellOf: Int32Array = new Int32Array(vertexCount);
 
-  /** Ordinal by lattice index, one table per axis. */
+  /*
+   * Ordinal by lattice index, one table per axis.
+   */
   const axes: [Map<number, number>, Map<number, number>, Map<number, number>] =
     [new Map(), new Map(), new Map()];
 
-  /** Ordinal by packed x and y ordinals. */
+  /*
+   * Ordinal by packed x and y ordinals.
+   */
   const pairs: Map<number, number> = new Map();
 
-  /** Welded id by packed pair ordinal and z ordinal. */
+  /*
+   * Welded id by packed pair ordinal and z ordinal.
+   */
   const cells: Map<number, number> = new Map();
 
-  /** The current vertex's three axis ordinals, reused across vertices. */
+  /*
+   * The current vertex's three axis ordinals, reused across vertices.
+   */
   const ordinal: [number, number, number] = [0, 0, 0];
   for (let vertex: number = 0; vertex < vertexCount; ++vertex) {
     for (let axis: number = 0; axis < 3; ++axis) {
-      /** Nearest whole cell along this axis. */
+      /*
+       * Nearest whole cell along this axis.
+       */
       const lattice: number = Math.round(positions[3 * vertex + axis]! * weld);
 
       // A NaN, an infinity, a hole in the buffer and a product past the binary64 range all have no cell.
@@ -299,28 +349,31 @@ function weldCells(
   return cellOf;
 }
 
-/**
+/*
  * The ordinal of a key in an interning table, assigned from zero in first-seen
  * order.
- *
- * @param table Ordinal by key; a new key is added with the table's size as its
- *   ordinal.
- * @param key Key to look up.
- * @returns The key's ordinal, which equals the table's former size when the key
- *   is new.
+ * Parameter table: Ordinal by key; a new key is added with the table's size as its
+ * ordinal.
+ * Parameter key: Key to look up.
+ * Returns: The key's ordinal, which equals the table's former size when the key
+ * is new.
  */
 function intern(table: Map<number, number>, key: number): number {
-  /** The ordinal already assigned, if any. */
+  /*
+   * The ordinal already assigned, if any.
+   */
   const known: number | undefined = table.get(key);
   if (known !== undefined) return known;
 
-  /** The next free ordinal. */
+  /*
+   * The next free ordinal.
+   */
   const next: number = table.size;
   table.set(key, next);
   return next;
 }
 
-/**
+/*
  * A triangle's aspect: its longest edge squared divided by twice its area,
  * dimensionless.
  *
@@ -328,12 +381,11 @@ function intern(table: Map<number, number>, key: number): number {
  * `L` the longest edge and `h` the height standing on it, twice the area is `L
  * h`, so the aspect is `L / h`. Collinear corners give a zero cross product and
  * an infinite aspect.
- *
- * @param positions Flat xyz buffer.
- * @param a First corner's vertex index.
- * @param b Second corner's vertex index.
- * @param c Third corner's vertex index.
- * @returns The aspect, at least `2 / sqrt(3)`.
+ * Parameter positions: Flat xyz buffer.
+ * Parameter a: First corner's vertex index.
+ * Parameter b: Second corner's vertex index.
+ * Parameter c: Third corner's vertex index.
+ * Returns: The aspect, at least `2 / sqrt(3)`.
  */
 function aspectOf(
   positions: ArrayLike<number>,
@@ -341,21 +393,25 @@ function aspectOf(
   b: number,
   c: number,
 ): number {
-  /** Edge vector from `a` to `b`. */
+  /*
+   * Edge vector from `a` to `b`.
+   */
   const ab: [number, number, number] = [
     positions[3 * b]! - positions[3 * a]!,
     positions[3 * b + 1]! - positions[3 * a + 1]!,
     positions[3 * b + 2]! - positions[3 * a + 2]!,
   ];
 
-  /** Edge vector from `a` to `c`. */
+  /*
+   * Edge vector from `a` to `c`.
+   */
   const ac: [number, number, number] = [
     positions[3 * c]! - positions[3 * a]!,
     positions[3 * c + 1]! - positions[3 * a + 1]!,
     positions[3 * c + 2]! - positions[3 * a + 2]!,
   ];
 
-  /**
+  /*
    * Squared length of the longest of the three edges, the third being `ac -
    * ab`.
    */
@@ -365,7 +421,9 @@ function aspectOf(
     (ac[0] - ab[0]) ** 2 + (ac[1] - ab[1]) ** 2 + (ac[2] - ab[2]) ** 2,
   );
 
-  /** Twice the area: the length of `ab x ac`. */
+  /*
+   * Twice the area: the length of `ab x ac`.
+   */
   const twiceArea: number = Math.hypot(
     ab[1] * ac[2] - ab[2] * ac[1],
     ab[2] * ac[0] - ab[0] * ac[2],
@@ -374,14 +432,13 @@ function aspectOf(
   return longest / twiceArea;
 }
 
-/**
+/*
  * The defect class of an edge from its incidence, or null when it is sound.
- *
- * @param uses Triangles using the edge, at least one.
- * @param forward How many of them traverse it from the lower welded id to the
- *   higher.
- * @returns `open` for one use, `non-manifold` for more than two, `inconsistent`
- *   for two in the same direction, null for two in opposite directions.
+ * Parameter uses: Triangles using the edge, at least one.
+ * Parameter forward: How many of them traverse it from the lower welded id to the
+ * higher.
+ * Returns: `open` for one use, `non-manifold` for more than two, `inconsistent`
+ * for two in the same direction, null for two in opposite directions.
  */
 function edgeKindOf(
   uses: number,

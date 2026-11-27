@@ -5,7 +5,7 @@ import { DOOR_BANDS } from "./constants/DOOR_BANDS";
 import { DOOR_SIZES } from "./constants/DOOR_SIZES";
 import { createDoorMeasures as parts } from "./internal/createDoorMeasures";
 
-/**
+/*
  * Radius of a lever arm or a pull bar, metres: a 20 to 25 mm bar, the pull's
  * diameter seen only in a listing.
  */
@@ -90,7 +90,9 @@ export function create(
       : -1;
   const variant: AutoMovieArchetypeDoor.Hardware | "sliding" =
     kind === "sliding" ? "sliding" : hardware;
-  /** One axis of the door's read sizes, given or picked whole. */
+  /*
+   * One axis of the door's read sizes, given or picked whole.
+   */
   const axis = <Name extends string>(
     name: string,
     given: Name | undefined,
@@ -170,7 +172,9 @@ export function create(
     height,
   });
 
-  /** One face's hardware: the part or parts and the contact a hand takes. */
+  /*
+   * One face's hardware: the part or parts and the contact a hand takes.
+   */
   const face = (id: "pull" | "push", z: 1 | -1): void => {
     const out: IAutoMovieVector3 = Vector3.create(0, 0, z);
     const on: number = (z * thick) / 2;

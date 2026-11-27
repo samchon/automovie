@@ -1,4 +1,4 @@
-/**
+/*
  * Interpolate the mesh's reliefWeight attribute into the fragment stage. The
  * owning mesh supplies the attribute; this transformation adds no fallback
  * value that could conceal an absent per-vertex input.

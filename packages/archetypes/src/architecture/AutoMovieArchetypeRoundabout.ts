@@ -9,17 +9,19 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** Construction sizes no source read gives, provisional. */
+/*
+ * Construction sizes no source read gives, provisional.
+ */
 const ESTIMATE: string =
   "Coarse playground construction estimate; no source read gives it";
 
-/**
+/*
  * Grab bar height above the platform and its distance inboard of the rim,
  * metres (provisional construction estimate).
  */
 const BAR: number = 0.7;
 
-/**
+/*
  * The grab bar's distance inboard of the rim, metres (provisional construction
  * estimate).
  */

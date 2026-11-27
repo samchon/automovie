@@ -13,7 +13,7 @@ import type { IAutoMoviePlacedObligation } from "../IAutoMoviePlacedObligation.j
 import { inspectAutoMovieNativePlacement } from "./inspectAutoMovieNativePlacement.js";
 import { measureAutoMoviePlacedObligation } from "./measureAutoMoviePlacedObligation.js";
 
-/**
+/*
  * Audit the actual visible native placement and any independent source rules.
  * Default coverage reads active native transforms and the available physical
  * snapshot. Unavailable source intent is reported as optional coverage.
@@ -124,13 +124,19 @@ type IIdentity = {
   readonly required: boolean;
 };
 
-/** Check name of the native placement and physical frame findings. */
+/*
+ * Check name of the native placement and physical frame findings.
+ */
 const NATIVE_CHECK: string = "placed-transform";
 
-/** Check name of a rule's received contact evidence. */
+/*
+ * Check name of a rule's received contact evidence.
+ */
 const RECEIVED_CHECK: string = "received-contact";
 
-/** Check name of each obligation kind. */
+/*
+ * Check name of each obligation kind.
+ */
 const CHECK_NAMES: Readonly<Record<IInput["kind"], string>> = {
   support: "support",
   "scene-support": "support",
@@ -142,7 +148,7 @@ const CHECK_NAMES: Readonly<Record<IInput["kind"], string>> = {
   track: "authored-track",
 };
 
-/**
+/*
  * Source checks reported as optional and unsupported when no rule supplies
  * them.
  */
@@ -154,7 +160,7 @@ const SOURCE_CHECKS: readonly string[] = [
   "authored-track",
 ];
 
-/**
+/*
  * The optional coverage row of a rule's received contact evidence at this
  * clock: checked when measured or confirmed absent under complete observation,
  * unsupported with the producer's reason when the pair was unobservable.
@@ -178,7 +184,7 @@ function receivedCoverage(
     : { ...identity, status: "checked" };
 }
 
-/**
+/*
  * The witness with the rule's received evidence at this clock: a zero contact
  * count when confirmed absent, the received separation when measured, and the
  * normal impulse when the measured pair touched with solver evidence.
@@ -216,7 +222,7 @@ function withReceivedContact(
   };
 }
 
-/**
+/*
  * Append one confirmed finding per distinct violation of a rule, merging the
  * expectations of violations that share kind, path and severity, and ranking
  * each by the magnitude of the measure its path names.

@@ -19,7 +19,7 @@ import { humanPostureHeading } from "../../posture/internal/humanPostureHeading"
 import { HumanMount } from "./HumanMount";
 import type { HumanMountedSeats } from "./HumanMountedSeats";
 
-/**
+/*
  * The out-of-saddle seats of a mounted performance: the two-point seat, the
  * racing crouch and standing in the stirrups, each with both soles' balls on
  * their stirrups and the seat clear of the saddle, solved in the carrier
@@ -34,33 +34,39 @@ import type { HumanMountedSeats } from "./HumanMountedSeats";
  * provisional and named in `profile`.
  */
 export namespace HumanMountedStirrups {
-  /** How an out-of-saddle seat stands over its stirrups. */
+  /*
+   * How an out-of-saddle seat stands over its stirrups.
+   */
   export interface IProfile {
-    /**
+    /*
      * The seat socket above the saddle, thigh lengths; absent where `knee` sets
      * the height.
      */
     clear?: number;
 
-    /**
+    /*
      * The knee flexion that sets the height, degrees; absent where `clear`
      * does.
      */
     knee?: number;
 
-    /** The pelvis's forward inclination, degrees. */
+    /*
+     * The pelvis's forward inclination, degrees.
+     */
     pitch: number;
 
-    /** How far the hips stand behind the stirrups, thigh lengths. */
+    /*
+     * How far the hips stand behind the stirrups, thigh lengths.
+     */
     back: number;
 
-    /**
+    /*
      * The share of the carrier's rise and fall the pelvis is kept out of, 0
      * carried with the saddle to 1 level in space.
      */
     decouple: number;
 
-    /**
+    /*
      * How far up the reins toward the bit the hands take them, forearm lengths:
      * the shortened reins of a rider out of the saddle, the hands forward on
      * the neck.
@@ -68,18 +74,17 @@ export namespace HumanMountedStirrups {
     reins: number;
   }
 
-  /**
+  /*
    * The least the seat socket clears the saddle by in any out-of-saddle seat,
    * metres (provisional).
    */
   export const CLEAR: number = 0.03;
 
-  /**
+  /*
    * Whether a seat kind is out of the saddle.
-   *
-   * @param seat The seat kind.
-   * @returns True for the two-point seat, the racing crouch, standing and the
-   *   bank's ascent.
+   * Parameter seat: The seat kind.
+   * Returns: True for the two-point seat, the racing crouch, standing and the
+   * bank's ascent.
    */
   export function free(seat: IAutoMovieMotionHumanMounted.Seat): boolean {
     return (
@@ -90,16 +95,15 @@ export namespace HumanMountedStirrups {
     );
   }
 
-  /**
+  /*
    * A profile quantity blended over a mounted clock's phase: the previous
    * figure's to the current one's by the transfer's share, 0 for a seated
    * figure or before the first.
-   *
-   * @param figures The figures.
-   * @param index The current figure.
-   * @param share How far its transfer has gone.
-   * @param pick The quantity read from a profile.
-   * @returns The blended quantity.
+   * Parameter figures: The figures.
+   * Parameter index: The current figure.
+   * Parameter share: How far its transfer has gone.
+   * Parameter pick: The quantity read from a profile.
+   * Returns: The blended quantity.
    */
   export function blend(
     figures: readonly IAutoMovieMotionHumanMounted.IFigure[],
@@ -112,7 +116,7 @@ export namespace HumanMountedStirrups {
     return at(index - 1) + (at(index) - at(index - 1)) * share;
   }
 
-  /**
+  /*
    * The profile of an out-of-saddle seat (all provisional): the two-point
    * seat's socket 0.12 thighs over the saddle with the pelvis inclined 40
    * degrees, the crouch's 0.2 thighs with the pelvis inclined 55 degrees,
@@ -126,9 +130,8 @@ export namespace HumanMountedStirrups {
    * neck; the crouch keeps the pelvis fully level, as the jockey's crouch does
    * (Pfau et al. 2009), the two-point seat, standing and the ascent half
    * (provisional).
-   *
-   * @param seat An out-of-saddle seat kind.
-   * @returns Its profile.
+   * Parameter seat: An out-of-saddle seat kind.
+   * Returns: Its profile.
    */
   export function profile(seat: IAutoMovieMotionHumanMounted.Seat): IProfile {
     if (seat === "crouch")
@@ -140,20 +143,19 @@ export namespace HumanMountedStirrups {
     return { clear: 0.12, pitch: 40, back: 0.25, decouple: 0.5, reins: 0.5 };
   }
 
-  /**
+  /*
    * An out-of-saddle seat: both balls of the feet on their stirrups, the hips
    * behind them by the profile's share of the thigh, as high as the profile
    * sets, and the pelvis inclined forward.
-   *
-   * @param context The seat's context.
-   * @param supports The figure's supports: `leftFoot` and `rightFoot`.
-   * @param seat The out-of-saddle seat kind.
-   * @returns The posture.
-   * @throws {HumanRefusal} When a stirrup lies outside its leg's band from the
-   *   hip the seat needs, narrowed at both ends by the carrier's slack so the
-   *   leg can follow the stirrup's rise and fall under a level pelvis, as when
-   *   the stirrups are too long to stand clear of the saddle, or when the seat
-   *   socket would not clear the saddle by `CLEAR`.
+   * Parameter context: The seat's context.
+   * Parameter supports: The figure's supports: `leftFoot` and `rightFoot`.
+   * Parameter seat: The out-of-saddle seat kind.
+   * Returns: The posture.
+   * When a stirrup lies outside its leg's band from the
+   * hip the seat needs, narrowed at both ends by the carrier's slack so the
+   * leg can follow the stirrup's rise and fall under a level pelvis, as when
+   * the stirrups are too long to stand clear of the saddle, or when the seat
+   * socket would not clear the saddle by `CLEAR`.
    */
   export function solve(
     context: HumanMountedSeats.IContext,
@@ -317,5 +319,7 @@ export namespace HumanMountedStirrups {
   }
 }
 
-/** The alternatives of `SolveAttitude`'s site. */
+/*
+ * The alternatives of `SolveAttitude`'s site.
+ */
 type SolveAttitude = "yaw" | "pitch" | "roll";

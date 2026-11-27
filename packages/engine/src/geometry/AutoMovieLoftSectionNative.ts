@@ -156,7 +156,7 @@ export namespace AutoMovieLoftSectionNative {
         `Native physical source2: ${source.detail}`,
       );
 
-    /**
+    /*
      * Successful metadata validation of these unexposed, copied numeric
      * records.
      */
@@ -180,20 +180,28 @@ export namespace AutoMovieLoftSectionNative {
   }
 }
 
-/** The same primal point supplies its normalized radial and quarter rotation. */
+/*
+ * The same primal point supplies its normalized radial and quarter rotation.
+ */
 interface Direction {
   p: [number, number];
   radial: [number, number];
   turn: [number, number];
 }
 
-/** A scalar `[value, ds, dss]` in physical station mm. */
+/*
+ * A scalar `[value, ds, dss]` in physical station mm.
+ */
 type Station = IAutoMovieViewSectionField.IStationJet;
 
-/** A chain's phase reader. */
+/*
+ * A chain's phase reader.
+ */
 type Reader = (phi: number) => IAutoMovieViewChain.IReading | null;
 
-/** A source declaring touch offsets, splits or split lists is read as its chain. */
+/*
+ * A source declaring touch offsets, splits or split lists is read as its chain.
+ */
 function declares(inputs: {
   touch?: unknown;
   splits?: unknown;
@@ -206,7 +214,7 @@ function declares(inputs: {
   );
 }
 
-/**
+/*
  * Each quarter's ordered split points: one split as a one-point list, a split
  * list as it stands; a source declaring both is refused.
  */
@@ -222,7 +230,9 @@ function lists<T>(
     : pieces.map((list: readonly T[]): readonly T[] => list);
 }
 
-/** A chain fault is an admission refusal for the readers that require a section. */
+/*
+ * A chain fault is an admission refusal for the readers that require a section.
+ */
 function need<T>(value: T | string): T {
   if (typeof value === "string")
     throw new AutoMovieLoftAdmissionError(
@@ -231,7 +241,9 @@ function need<T>(value: T | string): T {
   return value;
 }
 
-/** A value-only source's chain inputs at constant station jets. */
+/*
+ * A value-only source's chain inputs at constant station jets.
+ */
 function valued(
   inputs: IAutoMovieLoftViewRead.IValues,
 ): IAutoMovieViewChain.IFieldInput | string {
@@ -251,7 +263,7 @@ function valued(
   );
 }
 
-/**
+/*
  * The view source's chain at one station: guide q on its support line at its
  * extent along the chart axis and its touch offset (the `v` of the `+u`/`-u`
  * guides, the `u` of the `+v`/`-v` guides) across it, tangent along that line
@@ -325,7 +337,9 @@ function controls(
   return { points, tangents, shoulders: pieces };
 }
 
-/** The admitted numeric chain of these inputs. */
+/*
+ * The admitted numeric chain of these inputs.
+ */
 function section(
   input: IAutoMovieViewChain.IFieldInput,
 ): IAutoMovieViewChain.ISection {
@@ -339,12 +353,16 @@ function section(
   return chain;
 }
 
-/** The admitted jet reader of these inputs. */
+/*
+ * The admitted jet reader of these inputs.
+ */
 function reader(input: IAutoMovieViewChain.IFieldInput): Reader {
   return need(AutoMovieViewChain.jets(input));
 }
 
-/** A met ray's reading, or the refusal. */
+/*
+ * A met ray's reading, or the refusal.
+ */
 function met(read: Reader, phi: number): IAutoMovieViewChain.IReading {
   const at: IAutoMovieViewChain.IReading | null = read(phi);
   if (at === null)
@@ -354,7 +372,9 @@ function met(read: Reader, phi: number): IAutoMovieViewChain.IReading {
   return at;
 }
 
-/** Point0 of a chain: its ray reader's arc point, with no derivative. */
+/*
+ * Point0 of a chain: its ray reader's arc point, with no derivative.
+ */
 function chainPoint(
   chain: IAutoMovieViewChain.ISection,
 ): (phi: number) => [number, number] {
@@ -371,7 +391,7 @@ function chainPoint(
   };
 }
 
-/**
+/*
  * A chain's point and its first two phase derivatives on its ray reader's
  * direction.
  */
@@ -386,7 +406,7 @@ function chainPhase(read: Reader): (phi: number) => IAutoMovieLoftSectionPhase {
   };
 }
 
-/**
+/*
  * The direction of an arc point, admitted finite and away from the course
  * point.
  */
@@ -400,7 +420,7 @@ function towards(point: readonly [number, number]): Direction {
   return { p: [point[0], point[1]], radial, turn: [-radial[1], radial[0]] };
 }
 
-/**
+/*
  * The six Cartesian vectors of a radial Hessian `[r, s, phi, ss, sphi, phiphi]`
  * along one ray.
  */
@@ -424,7 +444,7 @@ function cartesianJet(
   });
 }
 
-/**
+/*
  * Share one caller-owned numeric station without changing this capability's
  * admission.
  */
@@ -442,7 +462,7 @@ function phaseFrom(
   };
 }
 
-/**
+/*
  * Share one caller-owned numeric station without changing this capability's
  * admission.
  */
@@ -470,7 +490,7 @@ function pointFrom(
   };
 }
 
-/**
+/*
  * The shared geometry-only preparation preserves NUMBER operation and input
  * order.
  */
@@ -497,7 +517,7 @@ function prepare(
   };
 }
 
-/**
+/*
  * Forward the raw requested phase to its one numeric owner, including tiny
  * negative distances.
  */
@@ -516,7 +536,7 @@ function locate(
   return ray;
 }
 
-/**
+/*
  * Quarter rotations are exact sign/swaps; the native inverse has already
  * restored its own reflection.
  */
@@ -531,7 +551,7 @@ function direction(ray: IAutoMovieViewConic.IRay): Direction {
   return { p, radial, turn: [-radial[1], radial[0]] };
 }
 
-/**
+/*
  * Preserve the exact quarter sign/swaps, including signed zero, for both
  * capabilities.
  */
@@ -548,7 +568,7 @@ function cartesian(
         : [z, -x];
 }
 
-/**
+/*
  * Exactly value/phase/phase2 of rho*er; physical source partials are not
  * required here.
  */
@@ -569,7 +589,7 @@ function polarPhase(
   });
 }
 
-/**
+/*
  * Each capability validates exactly its required returned vectors after
  * conversion.
  */

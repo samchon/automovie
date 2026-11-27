@@ -13,7 +13,7 @@ import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanBend } from "./AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanBendWalk } from "./AutoMovieMotionHumanBendWalk";
 
-/**
+/*
  * Make a primitive's elbow track.
  *
  * The knots stand every `STEP` from `from`, and at `to`. A knot continued from
@@ -29,9 +29,8 @@ import { AutoMovieMotionHumanBendWalk } from "./AutoMovieMotionHumanBendWalk";
  * interpolated linearly. Where a knot is missing, the two differ in bend
  * branch, the continued place is not allowed or no preparation was made, the
  * read is `AutoMovieMotionHumanBend.solve` itself, with the fallback.
- *
- * @param props The body, the arm, the span, the goal and the fallback.
- * @returns The track.
+ * Parameter props: The body, the arm, the span, the goal and the fallback.
+ * Returns: The track.
  */
 export function AutoMovieMotionHumanBendTrack(
   props: AutoMovieMotionHumanBendTrack.IProps,
@@ -121,7 +120,7 @@ export function AutoMovieMotionHumanBendTrack(
   };
 }
 
-/**
+/*
  * The elbow of least strain of an arm a primitive writes over its span
  * (`AutoMovieMotionHumanBend.solve`), solved once when the action is planned
  * and continued through the span, in place of one cold search a posture
@@ -138,55 +137,71 @@ export function AutoMovieMotionHumanBendTrack(
  * second it is a continued solve of that second's own goal.
  */
 export namespace AutoMovieMotionHumanBendTrack {
-  /** The wrist a primitive asks at a second. */
+  /*
+   * The wrist a primitive asks at a second.
+   */
   export interface IGoal {
-    /** The wrist's place, world metres. */
+    /*
+     * The wrist's place, world metres.
+     */
     point: IAutoMovieVector3;
 
-    /**
+    /*
      * The hand's world rotation from its rest; absent, the hand's turn adds no
      * strain.
      */
     rotation?: IAutoMovieQuaternion;
   }
 
-  /** What the track is made of. */
+  /*
+   * What the track is made of.
+   */
   export interface IProps {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The arm. */
+    /*
+     * The arm.
+     */
     side: AutoMovieHumanSide;
 
-    /** Seconds since the action's start from which the primitive writes. */
+    /*
+     * Seconds since the action's start from which the primitive writes.
+     */
     from: number;
 
-    /**
+    /*
      * Seconds since the action's start until which it writes; not before
      * `from`.
      */
     to: number;
 
-    /**
+    /*
      * The wrist asked on the posture so far at a second in [`from`, `to`]; a
      * pure function of both.
      */
     goal: (posture: IAutoMovieMotionHumanPosture, seconds: number) => IGoal;
 
-    /** The preset `solve` returns where no elbow place is allowed. */
+    /*
+     * The preset `solve` returns where no elbow place is allowed.
+     */
     fallback: PropsFallback;
   }
 
-  /** A track's two readers, a primitive's `prepare` and its elbow. */
+  /*
+   * A track's two readers, a primitive's `prepare` and its elbow.
+   */
   export interface ITrack {
-    /**
+    /*
      * Solve the knots on the posture so far
      * (`IAutoMovieMotionHumanPrimitive.prepare`'s reader); called once, when
      * the action is planned.
      */
     prepare: (before: IAutoMovieMotionHumanPrimitive.Reader) => void;
 
-    /**
+    /*
      * The elbow's place at a second on the posture so far there, world metres,
      * usable as a bend hint; `asked` is the goal at that posture and second,
      * which the writer has already read.
@@ -199,18 +214,20 @@ export namespace AutoMovieMotionHumanBendTrack {
   }
 }
 
-/**
+/*
  * The knots' spacing, seconds: the frame grid the planner's holds are sampled
  * on (`AutoMovieMotionHumanArmCourse.STEP`).
  */
 const STEP: number = AutoMovieMotionHumanArmCourse.STEP;
 
-/** The alternatives of `PropsFallback`'s site. */
+/*
+ * The alternatives of `PropsFallback`'s site.
+ */
 type PropsFallback =
   | IAutoMovieMotionHumanBend.Arm
   | IAutoMovieMotionHumanBend.IShares;
 
-/**
+/*
  * A search's candidate with the seed it was chosen at
  * (`AutoMovieMotionHumanBendSearch.continued`'s result when there is one).
  */

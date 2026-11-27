@@ -19,10 +19,12 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { prepareHumanShapeBlend } from "../../posture/internal/prepareHumanShapeBlend";
 import { spacecraftGlideClock } from "./spacecraftGlideClock";
 
-/** Alignment tolerance for directions represented by unit quaternions. */
+/*
+ * Alignment tolerance for directions represented by unit quaternions.
+ */
 const ALIGNMENT: number = 1e-6;
 
-/**
+/*
  * An opt-in law for one coast inside a stationary spacecraft. NASA-STD-3001
  * Volume 2 sections 8.5.2 and 8.5.5 describe handholds as starting and stopping
  * aids in microgravity
@@ -40,7 +42,7 @@ export const spacecraftGlide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHum
     interrupts: {},
     plan,
   };
-/**
+/*
  * Resolve the handrails once, then evaluate an analytic root path and one grip
  * goal.
  */
@@ -290,7 +292,9 @@ function plan(
   };
 }
 
-/** Read a named fixed mobility aid from a prop's affordances. */
+/*
+ * Read a named fixed mobility aid from a prop's affordances.
+ */
 function rail(
   craft: IAutoMovieMotionHumanPropReader,
   id: string,
@@ -313,7 +317,9 @@ function rail(
     });
   return found;
 }
-/** Turn a rail-local axis into the placed spacecraft's world frame. */
+/*
+ * Turn a rail-local axis into the placed spacecraft's world frame.
+ */
 function axis(
   spacecraft: IAutoMovieRigidTransform,
   rail: IAutoMovieAffordance,
@@ -325,8 +331,12 @@ function axis(
   );
 }
 
-/** The alternatives of `PlanPart`'s site. */
+/*
+ * The alternatives of `PlanPart`'s site.
+ */
 type PlanPart = "leftHand" | "rightHand";
 
-/** The alternatives of `RailField`'s site. */
+/*
+ * The alternatives of `RailField`'s site.
+ */
 type RailField = "departure" | "arrival";

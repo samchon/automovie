@@ -18,7 +18,7 @@ import { HumanSupportFrame } from "../../carrier/internal/HumanSupportFrame";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanPoseResolution";
 
-/**
+/*
  * The walk a person takes with a door they pull open, the hand on its handle: a
  * walk that keeps the place relative to the leaf the handle was taken from, at
  * the handle's own pace.
@@ -39,31 +39,43 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
  * 2025, arXiv:2508.11275).
  */
 export namespace HumanTravelLeafWalk {
-  /** The door law's entry, action clock and actual held-handle path. */
+  /*
+   * The door law's entry, action clock and actual held-handle path.
+   */
   export interface IProps {
-    /** The door law's context; its entry is where the walk starts. */
+    /*
+     * The door law's context; its entry is where the walk starts.
+     */
     context: IAutoMovieMotionHumanActionContext<object>;
 
-    /** The action's length, seconds. */
+    /*
+     * The action's length, seconds.
+     */
     seconds: number;
 
-    /** When the hand has taken the handle, seconds from the start. */
+    /*
+     * When the hand has taken the handle, seconds from the start.
+     */
     take: number;
 
-    /**
+    /*
      * Where the hand holds the handle at an action-local second, metres in
      * world coordinates, with the handle's outward world normal.
      */
     handle: (seconds: number) => IPropsHandle;
   }
 
-  /** Readings of the handle's path, seconds apart. */
+  /*
+   * Readings of the handle's path, seconds apart.
+   */
   const TICK: number = 1 / 24;
 
-  /** The spacing of the walk's way points, seconds of the handle's path. */
+  /*
+   * The spacing of the walk's way points, seconds of the handle's path.
+   */
   const SPACING: number = 0.2;
 
-  /**
+  /*
    * The most the handle may hurry the walk, a multiple of its own cadence: the
    * walking gait's cadence at the walk-to-run transition, Froude 0.5 (Kram,
    * Domingo and Ferris 1997, J Exp Biol 200:821), over its normal pace's, since
@@ -72,14 +84,13 @@ export namespace HumanTravelLeafWalk {
    */
   const HURRY: number = (0.5 / walk.FROUDE.normal) ** 0.25;
 
-  /**
+  /*
    * The walk that keeps the take relation, re-timed to the handle; none when
    * the handle does not move.
-   *
-   * @param props The context, the timing and the handle's path.
-   * @returns The plan, in the action's seconds; null when the leaf does not
-   *   turn.
-   * @throws {HumanRefusal} Whatever the walk refuses (an obstacle in the way).
+   * Parameter props: The context, the timing and the handle's path.
+   * Returns: The plan, in the action's seconds; null when the leaf does not
+   * turn.
+   * Whatever the walk refuses (an obstacle in the way).
    */
   export function plan(props: IProps): IAutoMovieMotionHumanActionPlan | null {
     const { context, seconds, take }: IProps = props;
@@ -228,7 +239,7 @@ export namespace HumanTravelLeafWalk {
     return walkPaced(walked, TICK, clock);
   }
 
-  /**
+  /*
    * Match the walk's level datum to the planted feet's floor and return its
    * poses and contacts in world space. The path and obstacle check keep their
    * XZ coordinates, and obstacle heights are already floor-relative.
@@ -316,19 +327,29 @@ export namespace HumanTravelLeafWalk {
   }
 }
 
-/** The record of `IPlanLast`'s site. */
+/*
+ * The record of `IPlanLast`'s site.
+ */
 type IPlanLast = { mid: IAutoMovieVector3; turn: number };
 
-/** The record of `IAskedH`'s site. */
+/*
+ * The record of `IAskedH`'s site.
+ */
 type IAskedH = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 
-/** The record of `IAskedResult`'s site. */
+/*
+ * The record of `IAskedResult`'s site.
+ */
 type IAskedResult = { mid: IAutoMovieVector3; turn: number };
 
-/** The record of `IPlanTaken`'s site. */
+/*
+ * The record of `IPlanTaken`'s site.
+ */
 type IPlanTaken = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 
-/** The record of `IPropsHandle`'s site. */
+/*
+ * The record of `IPropsHandle`'s site.
+ */
 type IPropsHandle = {
   point: IAutoMovieVector3;
   normal: IAutoMovieVector3;

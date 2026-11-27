@@ -18,11 +18,15 @@ import { AutoMovieGravity } from "../../physics/AutoMovieGravity";
 import { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
 import { resolvePose } from "./resolvePose";
 
-/** Companion types and helpers of {@link resolveAutoMovieCenterOfMass}. */
+/*
+ * Companion types and helpers of resolveAutoMovieCenterOfMass.
+ */
 export namespace resolveAutoMovieCenterOfMass {
-  /** Execute the operation without merging a callable with this namespace. */
+  /*
+   * Execute the operation without merging a callable with this namespace.
+   */
   export const run = resolveAutoMovieCenterOfMassRun;
-  /**
+  /*
    * Derive this profile's bone-local model against a genuine immutable rig. The
    * producer supplies actual root-null, identity-articulation rest frames with
    * the ordinary parent-first arithmetic, then the same segmental constructor
@@ -40,34 +44,32 @@ export namespace resolveAutoMovieCenterOfMass {
     return fromRest(profile, prepareSkeletonPoseResolution.rest(rig));
   }
 
-  /**
+  /*
    * The inverted pendulum's length in hip heights: the leg length, about 1.34
    * times the trochanteric height (Hof, Gazendam and Sinke 2005, J Biomech
    * 38:1), which `pendulum` takes its length from.
    */
   export const PENDULUM: number = 1.34;
 
-  /**
+  /*
    * The inverted pendulum's length of a body: Hof's leg length, `PENDULUM` hip
    * heights.
-   *
-   * @param hipHeight The body's hip height, metres.
-   * @returns The pendulum's length, metres.
+   * Parameter hipHeight: The body's hip height, metres.
+   * Returns: The pendulum's length, metres.
    */
   export function pendulum(hipHeight: number): number {
     return PENDULUM * hipHeight;
   }
 
-  /**
+  /*
    * The inverted pendulum's eigenfrequency, `?0 = sqrt(g / l)` (Hof, Gazendam
    * and Sinke 2005): its reciprocal is the time a centre of mass takes to cover
    * its own velocity's extrapolation.
-   *
-   * @param length The pendulum's length, metres; positive.
-   * @param gravity Gravitational acceleration, m/s짼; standard gravity
-   *   (`AutoMovieGravity.STANDARD`) when absent.
-   * @returns Radians per second.
-   * @throws {Error} When the length or gravity is not positive.
+   * Parameter length: The pendulum's length, metres; positive.
+   * Parameter gravity: Gravitational acceleration, m/s짼; standard gravity
+   * (`AutoMovieGravity.STANDARD`) when absent.
+   * Returns: Radians per second.
+   * When the length or gravity is not positive.
    */
   export function frequency(
     length: number,
@@ -80,13 +82,12 @@ export namespace resolveAutoMovieCenterOfMass {
     return Math.sqrt(gravity / length);
   }
 
-  /**
+  /*
    * The whole-body centre of mass of a posed body.
-   *
-   * @param model The mass model.
-   * @param bones The posed bones, world frame.
-   * @returns The centre of mass, world metres.
-   * @throws {Error} When a segment's bone is not posed.
+   * Parameter model: The mass model.
+   * Parameter bones: The posed bones, world frame.
+   * Returns: The centre of mass, world metres.
+   * When a segment's bone is not posed.
    */
   export function place(
     model: IAutoMovieResolveCenterOfMass.IModel,
@@ -103,7 +104,7 @@ export namespace resolveAutoMovieCenterOfMass {
     );
   }
 
-  /**
+  /*
    * One segment's bone-local centre posed in the bone's common frame, metres.
    *
    * The caller supplies this segment's bone with a unit world rotation and owns
@@ -127,7 +128,7 @@ export namespace resolveAutoMovieCenterOfMass {
     return posed;
   }
 
-  /**
+  /*
    * The model's mass-weighted centre from already posed segment points.
    *
    * Placement and momentum use the same segment-order sum and total mass. The
@@ -155,7 +156,7 @@ export namespace resolveAutoMovieCenterOfMass {
     return { x: x / model.mass, y: y / model.mass, z: z / model.mass };
   }
 
-  /**
+  /*
    * The extrapolated centre of mass (XCoM) of Hof, Gazendam and Sinke (2005,
    * "The condition for dynamic stability", J. Biomech. 38): the centre of mass
    * plus its velocity over the inverted pendulum's eigenfrequency, `x + v / ?0`
@@ -164,14 +165,13 @@ export namespace resolveAutoMovieCenterOfMass {
    *
    * The scaled velocity is fresh, so the same ordered centre-plus-offset sums
    * reuse it without another vector or any mutation of either input.
-   *
-   * @param com The centre of mass, world metres.
-   * @param velocity Its velocity, metres per second.
-   * @param length The pendulum length, metres; positive.
-   * @param gravity Gravitational acceleration, m/s짼; standard gravity
-   *   (`AutoMovieGravity.STANDARD`) when absent.
-   * @returns The extrapolated centre of mass, world metres.
-   * @throws {Error} When the length or gravity is not positive.
+   * Parameter com: The centre of mass, world metres.
+   * Parameter velocity: Its velocity, metres per second.
+   * Parameter length: The pendulum length, metres; positive.
+   * Parameter gravity: Gravitational acceleration, m/s짼; standard gravity
+   * (`AutoMovieGravity.STANDARD`) when absent.
+   * Returns: The extrapolated centre of mass, world metres.
+   * When the length or gravity is not positive.
    */
   export function extrapolate(
     com: IAutoMovieVector3,
@@ -189,16 +189,15 @@ export namespace resolveAutoMovieCenterOfMass {
     return offset;
   }
 
-  /**
+  /*
    * The margin of stability of Hof et al. (2005): the horizontal distance from
    * a point (the extrapolated centre of mass) to the nearest edge of the base
    * of support, the convex hull of the support points on the floor plane,
    * positive inside the hull and negative outside, metres.
-   *
-   * @param point The point, world metres; its height is ignored.
-   * @param support The support contact points, world metres.
-   * @returns The signed margin, metres.
-   * @throws {Error} When there is no support point.
+   * Parameter point: The point, world metres; its height is ignored.
+   * Parameter support: The support contact points, world metres.
+   * Returns: The signed margin, metres.
+   * When there is no support point.
    */
   export function margin(
     point: IAutoMovieVector3,
@@ -212,7 +211,7 @@ export namespace resolveAutoMovieCenterOfMass {
   }
 }
 
-/**
+/*
  * Resolve a body's mass model: every profile segment's mass and centre of mass
  * as a point riding its bone, so the whole-body centre of mass of any pose is
  * the mass-weighted mean of those points (the segmental method of biomechanics,
@@ -222,12 +221,11 @@ export namespace resolveAutoMovieCenterOfMass {
  * relative to its bone's rest joint in the bone's rest frame, the same
  * bone-local convention as the surface frames, so posing it is the bone's world
  * position plus its world rotation applied to the stored point.
- *
- * @param skeleton The rig.
- * @param profile Its physical profile, segments keyed by rig bones.
- * @returns The mass model.
- * @throws {Error} When a segment's bone is not in the rig or the profile has no
- *   positive mass.
+ * Parameter skeleton: The rig.
+ * Parameter profile: Its physical profile, segments keyed by rig bones.
+ * Returns: The mass model.
+ * When a segment's bone is not in the rig or the profile has no
+ * positive mass.
  */
 function resolveAutoMovieCenterOfMassRun(
   skeleton: IAutoMovieSkeleton,
@@ -239,7 +237,7 @@ function resolveAutoMovieCenterOfMassRun(
   );
 }
 
-/**
+/*
  * One segmental construction consumes actual fresh rest FK, never a public
  * derived-value flag.
  */

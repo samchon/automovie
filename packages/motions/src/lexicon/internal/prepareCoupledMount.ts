@@ -18,16 +18,15 @@ import type { prepareMountMaterialSeat } from "./prepareMountMaterialSeat";
 import { prepareMountSeat } from "./prepareMountSeat";
 import { prepareMountTread } from "./prepareMountTread";
 
-/**
+/*
  * Solve the terminal mounted key in the actual seat and tread frames. The
  * pelvis bears on the deck's actual surface. The leg chains share that pelvis
  * and the tread frames. Verify the finite bearing features before publishing
  * any support and carry their actual anchors into the next action.
- *
- * @param body The measured rider.
- * @param support The named material prepared for this mount.
- * @param preferred The original settled posture, with the admitted seat root.
- * @returns The seated key or the constraint that prevented its admission.
+ * Parameter body: The measured rider.
+ * Parameter support: The named material prepared for this mount.
+ * Parameter preferred: The original settled posture, with the admitted seat root.
+ * Returns: The seated key or the constraint that prevented its admission.
  */
 export function prepareCoupledMount(
   body: IAutoMovieMotionHumanBody,
@@ -262,7 +261,9 @@ export function prepareCoupledMount(
   return { key: { posture, feet: { left: near.goal, right: far.goal } } };
 }
 
-/** The current polygon rider accepts millimetre-scale surface error. */
+/*
+ * The current polygon rider accepts millimetre-scale surface error.
+ */
 function admittedFit(
   fit: IAutoMovieMotionHumanBodyFitTypes.IResult,
   seatBone: AutoMovieHumanoidBone,
@@ -283,7 +284,9 @@ function admittedFit(
   );
 }
 
-/** Recover the ankle from the real witness, which can belong to the toes. */
+/*
+ * Recover the ankle from the real witness, which can belong to the toes.
+ */
 function prepareAnkle(
   tread: ITread,
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
@@ -324,7 +327,9 @@ function prepareAnkle(
   };
 }
 
-/** Choose the nearest supported station inside both anchored leg's reach shells. */
+/*
+ * Choose the nearest supported station inside both anchored leg's reach shells.
+ */
 function supportedReach(
   body: IAutoMovieMotionHumanBody,
   support: prepareMountMaterialSeat.IContext,
@@ -384,7 +389,9 @@ function supportedReach(
   return Vector3.scale(direction, Number.isFinite(best) ? best : 0);
 }
 
-/** Retain the rig's solved branch without a further endpoint fit. */
+/*
+ * Retain the rig's solved branch without a further endpoint fit.
+ */
 function resolvedJoints(
   posture: IAutoMovieMotionHumanPosture,
   pose: IAutoMoviePose,
@@ -401,7 +408,9 @@ function resolvedJoints(
   };
 }
 
-/** Verify the actual top contact and, for an edge support, the load footprint. */
+/*
+ * Verify the actual top contact and, for an edge support, the load footprint.
+ */
 function supports(
   body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
@@ -442,7 +451,9 @@ function supports(
   );
 }
 
-/** Read actual pairs on the exposing face, excluding contacts on its rim. */
+/*
+ * Read actual pairs on the exposing face, excluding contacts on its rim.
+ */
 function bearingPoints(
   actors: readonly IAutoMovieMotionHumanColliders.IPlaced[],
   site: IAutoMovieRigidTransform,
@@ -485,7 +496,9 @@ function legOverlap(
   );
 }
 
-/** Prefer the placement with the greatest margin to both ends of its interval. */
+/*
+ * Prefer the placement with the greatest margin to both ends of its interval.
+ */
 function footprint(
   body: IAutoMovieMotionHumanBody,
   pose: IAutoMoviePose,
@@ -611,27 +624,37 @@ function admitted(
   };
 }
 
-/** Prepared mounted pose and its associated contact goals. */
+/*
+ * Prepared mounted pose and its associated contact goals.
+ */
 export namespace prepareCoupledMount {
-  /** Positional tolerance for PolygonMan's mounted surface fit, metres. */
+  /*
+   * Positional tolerance for PolygonMan's mounted surface fit, metres.
+   */
   export const PRECISION: number = HumanFitVariables.resolution({
     kind: "place",
     axis: "y",
   });
 
-  /** Whether the posed body meets the material requirements of the key. */
+  /*
+   * Whether the posed body meets the material requirements of the key.
+   */
   export type IResult =
     | { key: IKey; reason?: never }
     | { reason: string; key?: never };
 
-  /** The seated posture and the verified world goals carried by both treads. */
+  /*
+   * The seated posture and the verified world goals carried by both treads.
+   */
   export interface IKey {
     posture: IAutoMovieMotionHumanPosture;
     feet: Readonly<Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal>>;
   }
 }
 
-/** A chosen material anchor and the ankle it holds at the seed rotation. */
+/*
+ * A chosen material anchor and the ankle it holds at the seed rotation.
+ */
 interface IAnchor {
   side: AutoMovieHumanSide;
   frame: IAutoMovieRigidTransform;

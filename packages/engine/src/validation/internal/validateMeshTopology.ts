@@ -7,7 +7,7 @@ import {
 import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCollector";
 import { appendMeshTopology } from "./appendMeshTopology";
 
-/**
+/*
  * Run shared welded topology checks with caller-selected closedness policy and
  * return canonical validation.
  */

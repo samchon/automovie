@@ -1,6 +1,6 @@
 import type { AutoMovieVector2Tuple } from "@automovie/interface";
 
-/**
+/*
  * Replace a quadratic Bézier arc by chords at equal parameter steps, with the
  * fewest steps whose chord error stays within `tolerance`.
  *
@@ -12,13 +12,12 @@ import type { AutoMovieVector2Tuple } from "@automovie/interface";
  * straight piece, whose control is its midpoint, takes one step.
  *
  * Units are the caller's; glyph geometry passes metres.
- *
- * @param start On-curve start `P0`.
- * @param control Control point `P1`.
- * @param end On-curve end `P2`.
- * @param tolerance Positive largest chord error.
- * @returns `n + 1` points from `start` to `end`, both included, as new tuples.
- * @throws {Error} A non-finite point or a nonpositive or non-finite tolerance.
+ * Parameter start: On-curve start `P0`.
+ * Parameter control: Control point `P1`.
+ * Parameter end: On-curve end `P2`.
+ * Parameter tolerance: Positive largest chord error.
+ * Returns: `n + 1` points from `start` to `end`, both included, as new tuples.
+ * A non-finite point or a nonpositive or non-finite tolerance.
  */
 export function flattenAutoMovieQuadratic(
   start: Readonly<AutoMovieVector2Tuple>,

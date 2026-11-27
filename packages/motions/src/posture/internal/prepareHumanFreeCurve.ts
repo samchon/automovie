@@ -19,7 +19,7 @@ import { prepareHumanKnotCourse } from "./prepareHumanKnotCourse";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import type { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 
-/**
+/*
  * Prepare a free-leg curve: the legs' continuation knots solved once, in order,
  * and a pure reader that fits each requested phase from them.
  *
@@ -37,14 +37,13 @@ import type { prepareHumanPostureProjection } from "./prepareHumanPostureProject
  * nearer the origin, and falls back to the ordinary cold fit where the gates
  * fail or no knot reaches. No pose is replayed or interpolated and nothing is
  * stored on a read, so any phase in any order gives the same answer.
- *
- * @param body The curve's canonical body, unchanged while the curve is read.
- * @param at Pure authoring at a phase in [0,1], with fresh records and closed
- *   direct-joint/free-world-leg goals only.
- * @param duration The physical duration in seconds, used by the
- *   velocity-continuation angular-resolution law.
- * @returns The reader of a phase with an optional borrowed native FK source and
- *   ROM projector; a foreign source keeps the ordinary cold fit.
+ * Parameter body: The curve's canonical body, unchanged while the curve is read.
+ * Parameter at: Pure authoring at a phase in [0,1], with fresh records and closed
+ * direct-joint/free-world-leg goals only.
+ * Parameter duration: The physical duration in seconds, used by the
+ * velocity-continuation angular-resolution law.
+ * Returns: The reader of a phase with an optional borrowed native FK source and
+ * ROM projector; a foreign source keeps the ordinary cold fit.
  */
 export function prepareHumanFreeCurve(
   body: IAutoMovieMotionHumanBody,
@@ -116,9 +115,11 @@ export function prepareHumanFreeCurve(
   };
 }
 
-/** The free-leg curve's reader. */
+/*
+ * The free-leg curve's reader.
+ */
 export namespace prepareHumanFreeCurve {
-  /**
+  /*
    * Fit the authored goals at a normalized phase, with an optional same-read FK
    * source and joint projection.
    */
@@ -131,34 +132,48 @@ export namespace prepareHumanFreeCurve {
   }
 }
 
-/** A curve's numeric anchor (`HumanFreeCurveFit.IAnchor`). */
+/*
+ * A curve's numeric anchor (`HumanFreeCurveFit.IAnchor`).
+ */
 type IAnchor = HumanFreeCurveFit.IAnchor;
 
-/** A curve's prepared knots and the swivel course through them. */
+/*
+ * A curve's prepared knots and the swivel course through them.
+ */
 interface IPrepared {
-  /** The origin's phase, 0 or 0.5. */
+  /*
+   * The origin's phase, 0 or 0.5.
+   */
   pivot: number;
 
-  /** Each knot's phase, ascending, the origin among them. */
+  /*
+   * Each knot's phase, ascending, the origin among them.
+   */
   shares: readonly number[];
 
-  /** Each knot's anchor. */
+  /*
+   * Each knot's anchor.
+   */
   anchors: readonly IAnchor[];
 
-  /** The legs whose swivels are coursed, in the course's coordinate order. */
+  /*
+   * The legs whose swivels are coursed, in the course's coordinate order.
+   */
   limbs: readonly AutoMovieHumanLimb[];
 
-  /**
+  /*
    * Each knot's unwrapped swivels less its own, degrees: the whole turns the
    * course adds to each leg's swivel there.
    */
   turns: readonly (readonly number[])[];
 
-  /** The minimum-jerk course of the unwrapped swivels in phase. */
+  /*
+   * The minimum-jerk course of the unwrapped swivels in phase.
+   */
   course: prepareHumanKnotCourse.ICourse;
 }
 
-/**
+/*
  * The origin and the knots toward each end, solved with the native FK source,
  * and the swivel course through them; none where no origin is observable.
  */
@@ -272,7 +287,7 @@ function prepareKnots(
   };
 }
 
-/**
+/*
  * The prior a phase inside the knots is corrected from: the knot nearer the
  * origin of the phase's knot interval, its legs' swivels moved to the course's
  * at the phase, in that knot's own turn.

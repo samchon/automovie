@@ -12,7 +12,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../../core/index";
 
-/**
+/*
  * A rigid, fictional ship for people on deck. The root sits at the still-water
  * line, with the bow toward +Z and +Y up. The boarding side and its passage are
  * along +X. The deck and boarding frames lie on the deck top. Boarding faces
@@ -25,13 +25,12 @@ import {
  * or swell. Hull solids, fixed oars and sails, and a wheelhouse with an open
  * aft entry model film silhouettes. The model has no interior below deck or
  * propulsion simulation.
- *
- * @param params Profile, scene id and optional sizes within the profile's
- *   provisional staging band.
- * @param seed Optional number or text used to draw unfixed sizes.
- * @returns The ship and its deck, boarding and crew contacts.
- * @throws {AutoMovieArchetypeRefusal} When the profile is unknown or a
- *   dimension falls outside its band.
+ * Parameter params: Profile, scene id and optional sizes within the profile's
+ * provisional staging band.
+ * Parameter seed: Optional number or text used to draw unfixed sizes.
+ * Returns: The ship and its deck, boarding and crew contacts.
+ * When the profile is unknown or a
+ * dimension falls outside its band.
  */
 export function createScenicShip(
   params: AutoMovieArchetypeScenicShip.IParams,
@@ -336,7 +335,7 @@ export function createScenicShip(
   return builder.build(d.mass);
 }
 
-/**
+/*
  * Length, beam, draft and freeboard bands for fictional sets. All dimensions
  * and masses are provisional scene estimates.
  */
@@ -376,7 +375,9 @@ const PROFILES: Readonly<
   },
 };
 
-/** Rail and boarding passage dimensions in metres for the actor set. */
+/*
+ * Rail and boarding passage dimensions in metres for the actor set.
+ */
 const PASSAGE: Readonly<{
   gap: number;
   width: number;
@@ -389,7 +390,9 @@ const PASSAGE: Readonly<{
   radius: 0.035,
 };
 
-/** Upper-deck furnishing dimensions in metres for seated performers. */
+/*
+ * Upper-deck furnishing dimensions in metres for seated performers.
+ */
 const BENCH: Readonly<{
   height: number;
   depth: number;
@@ -402,7 +405,9 @@ const BENCH: Readonly<{
   thickness: 0.07,
 };
 
-/** SI units for the recorded staging dimensions. */
+/*
+ * SI units for the recorded staging dimensions.
+ */
 const UNITS: Readonly<
   Record<AutoMovieArchetypeScenicShip.Dimension, AutoMovieArchetypeDrawSession.Unit>
 > = {
@@ -413,7 +418,7 @@ const UNITS: Readonly<
   mass: "kg",
 };
 
-/**
+/*
  * Size intervals for scenery staging. The cited vessel establishes the
  * reference silhouette and the interval describes the fictional set.
  */

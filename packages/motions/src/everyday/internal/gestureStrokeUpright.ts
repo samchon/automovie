@@ -17,19 +17,18 @@ import { gestureSignal } from "./gestureSignal";
 import { gestureStroke } from "./gestureStroke";
 import { gestureTouch } from "./gestureTouch";
 
-/**
+/*
  * A hand's goal for an upright body, in its heading frame
  * (`gestureStroke.hand`): where each gesture's hand surface goes, turned which
  * way and in which shape, at a share of its stroke.
- *
- * @param kind The gesture.
- * @param side The hand.
- * @param u The stroke's progress, 0 to 1.
- * @param cycles The stroke's repetitions over its progress.
- * @param input The stroke input: the body, its base posture, the extent and the
- *   variation of a named place.
- * @returns The hand's goal.
- * @throws {Error} For a gesture that moves no hand.
+ * Parameter kind: The gesture.
+ * Parameter side: The hand.
+ * Parameter u: The stroke's progress, 0 to 1.
+ * Parameter cycles: The stroke's repetitions over its progress.
+ * Parameter input: The stroke input: the body, its base posture, the extent and the
+ * variation of a named place.
+ * Returns: The hand's goal.
+ * For a gesture that moves no hand.
  */ export function gestureStrokeUpright(
   kind: IAutoMovieMotionHumanGestureStroke.Kind,
   side: AutoMovieHumanSide,
@@ -256,13 +255,17 @@ import { gestureTouch } from "./gestureTouch";
   }
 }
 
-/** A direction in the performer's own frame: out, up and forward. */
+/*
+ * A direction in the performer's own frame: out, up and forward.
+ */
 type IPRAYER = { out: number; up: number; forward: number };
 
-/** The named axes of a place's offset. */
+/*
+ * The named axes of a place's offset.
+ */
 type PutOffsetKey = "lateral" | "height" | "range";
 
-/**
+/*
  * Where the fingers of two palms held together point: up and forward, 30
  * degrees above the horizontal (provisional).
  */

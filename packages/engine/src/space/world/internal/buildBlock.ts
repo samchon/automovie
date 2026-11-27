@@ -8,7 +8,7 @@ import { Transform } from "../../../math/Transform";
 import { srgbHexToLinearColor } from "../../../math/internal/srgbHexToLinearColor";
 import { productionRuntimeModelId } from "../../../model/internal/productionRuntimeModelId";
 
-/**
+/*
  * Build a box model group, placed node and bounds from a grounded base and
  * size. Each span of the resulting world bounds must be positive and
  * representable at the block's placed coordinates. Its Y center must also

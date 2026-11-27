@@ -1,4 +1,4 @@
-/**
+/*
  * Positive rescaling for up to four squared binary64 components, or one when
  * the original normalization arithmetic is safe. Finite positive magnitudes
  * below 2^-511 or above 2^510 need rescaling. Zero and nonfinite components

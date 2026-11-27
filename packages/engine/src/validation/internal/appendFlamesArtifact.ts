@@ -10,7 +10,7 @@ import type {
 import { heskestadFlameHeight } from "../../film/flame/internal/heskestadFlameHeight";
 import { validateColor } from "./validateColor";
 
-/**
+/*
  * Check a shot's flame cues, appending findings under `$input.flames`.
  *
  * Every cue has an id unique in the shot, a staged node, a nonnegative
@@ -34,13 +34,19 @@ export function appendFlamesArtifact(
   duration: number,
   collector: IAutoMovieViolationCollector,
   context: {
-    /** The registered models the cues' nodes stage. */
+    /*
+     * The registered models the cues' nodes stage.
+     */
     models?: readonly FlameEmitterModel[];
 
-    /** The shot's practical light bindings, at performance admission. */
+    /*
+     * The shot's practical light bindings, at performance admission.
+     */
     bindings?: readonly IAutoMoviePracticalLightBinding[];
 
-    /** Ids of the compiled shot's light clips, at the artifact boundary. */
+    /*
+     * Ids of the compiled shot's light clips, at the artifact boundary.
+     */
     lights?: ReadonlySet<string>;
   } = {},
 ): void {
@@ -145,10 +151,12 @@ export function appendFlamesArtifact(
   });
 }
 
-/** A flame uses its registered model only to find the declared emitter. */
+/*
+ * A flame uses its registered model only to find the declared emitter.
+ */
 type FlameEmitterModel = Pick<IAutoMovieModel, "id" | "affordances">;
 
-/**
+/*
  * Smallest open-fire diameter, metres: `(1.5 / 7.5)²`, where the puffing
  * frequency `1.5 D^(−1/2)` reaches 7.5 Hz, the most the 1/120 s light key grid
  * resolves at 16 keys per period. Written as the literal 0.04 because the
@@ -156,7 +164,7 @@ type FlameEmitterModel = Pick<IAutoMovieModel, "id" | "affordances">;
  */
 const MIN_OPEN_DIAMETER: number = 0.04;
 
-/**
+/*
  * Check a cue's node and emitter: a staged node, and with the registry a
  * registered model carrying the emitter as a fixed affordance.
  */
@@ -198,7 +206,7 @@ function appendPlace(
     );
 }
 
-/**
+/*
  * Check a bound cue's `light`: an id no other cue names, and with the caller's
  * context a binding on the cue's node and emitter burning over the same
  * interval, or a light clip of the compiled shot.
@@ -260,7 +268,7 @@ function appendLight(
   else context.bound.add(light);
 }
 
-/**
+/*
  * Check one flame size: positive finite dimensions, and for an open fire a
  * diameter of at least 0.04 m and a positive Heskestad height.
  */

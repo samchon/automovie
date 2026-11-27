@@ -10,7 +10,7 @@ import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDige
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 import { samplePhysicalContactEvents } from "./samplePhysicalContactEvents";
 
-/**
+/*
  * Compile contact-driven spray through the existing effect stream and sampler.
  * Colour, accumulation and physical coefficients belong to the provider or
  * production; Engine has no skin, coat, blood or species preset. Each stream

@@ -11,40 +11,50 @@ import { resolveHumanPosture } from "./resolveHumanPosture";
 import { resolveHumanPostureSource } from "./resolveHumanPostureSource";
 import { turnHumanPosture } from "./turnHumanPosture";
 
-/**
+/*
  * One canonical free-leg solve or direct-joint projection, prepared once and
  * read as placed: a translated, rigidly placed or turned posture is handed on
  * with the solve placed with it (`IPlaced.fit`), so a reader takes that solve
  * instead of solving the posture again.
  */
 export namespace HumanPosturePreparation {
-  /**
+  /*
    * One preparation's public pose and the source it was solved from: values, as
    * the authoring is. Neither is changed once prepared.
    */
   export interface IPrepared {
-    /**
+    /*
      * The canonical output of the source resolution, a value the caller does
      * not change.
      */
     pose: IAutoMoviePose;
 
-    /** The authoring and its solve. */
+    /*
+     * The authoring and its solve.
+     */
     readonly source: ISource;
   }
 
-  /** The authoring a preparation solved and the solve itself. */
+  /*
+   * The authoring a preparation solved and the solve itself.
+   */
   export interface ISource {
-    /** The body solved on. */
+    /*
+     * The body solved on.
+     */
     readonly body: IAutoMovieMotionHumanBody;
 
-    /** The authoring, a value. */
+    /*
+     * The authoring, a value.
+     */
     readonly raw: IAutoMovieMotionHumanPosture;
 
-    /** Its solve. */
+    /*
+     * Its solve.
+     */
     readonly solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded;
 
-    /**
+    /*
      * Whether the solve may be placed with a rigid motion of the authoring:
      * solved by a native reader, on free leg goals and direct joints alone
      * (`HumanPostureRaw.eligible`).
@@ -52,24 +62,29 @@ export namespace HumanPosturePreparation {
     readonly placeable: boolean;
   }
 
-  /** A posture placed from a preparation, and its solve placed with it. */
+  /*
+   * A posture placed from a preparation, and its solve placed with it.
+   */
   export interface IPlaced {
-    /** The placed authoring. */
+    /*
+     * The placed authoring.
+     */
     posture: IAutoMovieMotionHumanPosture;
 
-    /** The preparation's source. */
+    /*
+     * The preparation's source.
+     */
     source: ISource;
 
-    /**
+    /*
      * The placed posture's solve: the source's solve moved with the posture
      * where the source is placeable, the posture's own solve otherwise.
-     *
-     * @returns A fresh solve.
+     * Returns: A fresh solve.
      */
     fit(): IAutoMovieMotionHumanResolveHumanPosture.ISeeded;
   }
 
-  /**
+  /*
    * Solve authoring at this explicit preparation boundary. The authoring is a
    * value: the caller does not change it once it is prepared, so the
    * preparation keeps it as given, and its public pose is the solve's own,
@@ -91,7 +106,9 @@ export namespace HumanPosturePreparation {
     );
   }
 
-  /** Prepare an owned curve's current target from deterministic seeds. */
+  /*
+   * Prepare an owned curve's current target from deterministic seeds.
+   */
   export function continued(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -109,14 +126,16 @@ export namespace HumanPosturePreparation {
     );
   }
 
-  /** Copy only the per-limb branch/swivel data of a preparation. */
+  /*
+   * Copy only the per-limb branch/swivel data of a preparation.
+   */
   export function seeds(
     prepared: IPrepared,
   ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"] {
     return structuredClone(prepared.source.solved.seeds);
   }
 
-  /**
+  /*
    * Snapshot a placeable preparation's canonical source facts: its joints'
    * clinical values in order and its demanded bones.
    */
@@ -154,17 +173,25 @@ export namespace HumanPosturePreparation {
     };
   }
 
-  /** Independent observations of one canonical preparation source. */
+  /*
+   * Independent observations of one canonical preparation source.
+   */
   export interface IObservation {
-    /** Canonical bone at each flat clinical slot, in the source joint order. */
+    /*
+     * Canonical bone at each flat clinical slot, in the source joint order.
+     */
     names: readonly AutoMovieHumanoidBone[];
-    /** Three exact nullable clinical-degree coordinates per ordered bone. */
+    /*
+     * Three exact nullable clinical-degree coordinates per ordered bone.
+     */
     values: readonly (number | null)[];
-    /** Fresh demanded FK under this preparation's canonical rig and pose. */
+    /*
+     * Fresh demanded FK under this preparation's canonical rig and pose.
+     */
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   }
 
-  /**
+  /*
    * Observe a preparation's solve through FK without exposing its pose; a
    * foreign reader or an unplaceable source reads the authoring's ordinary cold
    * resolution.
@@ -191,7 +218,9 @@ export namespace HumanPosturePreparation {
     return poseBones(fixed.body, pose, resolution(), requested);
   }
 
-  /** Place a prepared solve at a world-metre centre of mass. */
+  /*
+   * Place a prepared solve at a world-metre centre of mass.
+   */
   export function placed(
     prepared: IPrepared,
     model: IAutoMovieResolveCenterOfMass.IModel,
@@ -211,7 +240,7 @@ export namespace HumanPosturePreparation {
     });
   }
 
-  /**
+  /*
    * Translate the raw root and world demands by one world-metre displacement.
    * Attached goals and external colliders keep their own frames.
    */
@@ -222,7 +251,7 @@ export namespace HumanPosturePreparation {
     return placedAt(prepared.source, Raw.translated(prepared.source.raw, root));
   }
 
-  /**
+  /*
    * Carry a placed solve through a numeric rigid turn: the posture takes the
    * rotation, and its solve the turned root.
    */
@@ -252,14 +281,13 @@ export namespace HumanPosturePreparation {
     };
   }
 
-  /**
+  /*
    * A placed posture as the articulation its solve reached: the placed root,
    * heading and turn, every bone at the solve's clinical angles and no goal, so
    * a reader evaluates it by forward kinematics alone instead of solving the
    * placed goals again. A neutral (null) coordinate reads as zero.
-   *
-   * @param placed The placed posture and its solve.
-   * @returns A fresh joints-only posture.
+   * Parameter placed: The placed posture and its solve.
+   * Returns: A fresh joints-only posture.
    */
   export function articulated(placed: IPlaced): IAutoMovieMotionHumanPosture {
     const solved: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
@@ -283,7 +311,9 @@ export namespace HumanPosturePreparation {
     };
   }
 
-  /** Construct a fresh rigid placement of a prepared joint-only shape. */
+  /*
+   * Construct a fresh rigid placement of a prepared joint-only shape.
+   */
   export function rigid(
     prepared: IPrepared,
     root: IAutoMovieVector3,
@@ -305,7 +335,7 @@ export namespace HumanPosturePreparation {
     return placed;
   }
 
-  /**
+  /*
    * Construct the same rigid shape, declining a source that is not placeable or
    * has limb goals.
    */
@@ -326,7 +356,9 @@ export namespace HumanPosturePreparation {
     return placedAt(source, raw);
   }
 
-  /** Solve the given authoring, a value, with the one source solver. */
+  /*
+   * Solve the given authoring, a value, with the one source solver.
+   */
   function prepareCurrent(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -360,7 +392,9 @@ export namespace HumanPosturePreparation {
     };
   }
 
-  /** Public cold preparation runs the ordinary owned source solve. */
+  /*
+   * Public cold preparation runs the ordinary owned source solve.
+   */
   function coldSource(
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
@@ -379,7 +413,7 @@ export namespace HumanPosturePreparation {
   }
 }
 
-/**
+/*
  * A posture placed from a source, and its solve: the source's solve with the
  * placed root, read when asked, or the posture's ordinary solve where the
  * source is not placeable.
@@ -404,7 +438,9 @@ function placedAt(
   };
 }
 
-/** A posture's ordinary cold solve. */
+/*
+ * A posture's ordinary cold solve.
+ */
 function ordinary(
   body: IAutoMovieMotionHumanBody,
   posture: IAutoMovieMotionHumanPosture,

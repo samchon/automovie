@@ -3,7 +3,9 @@ import * as path from "node:path";
 
 import { readAutoMovieErrorCode } from "../../file/internal/readAutoMovieErrorCode";
 
-/** Check filesystem identity for two spellings of the same native review path. */
+/*
+ * Check filesystem identity for two spellings of the same native review path.
+ */
 export async function sameAutoMovieReviewFile(
   left: string,
   right: string,

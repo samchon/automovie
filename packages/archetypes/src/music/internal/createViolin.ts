@@ -4,19 +4,18 @@ import { InstrumentBuild } from "./InstrumentBuild";
 import { StringedConstruction } from "./StringedConstruction";
 
 
-/**
+/*
  * A violin with four bowed-string contacts and a neck grasp.
  *
  * The violin lies on its back with the neck along +X and string1 on its -Z
  * edge. The bow is made separately with AutoMovieArchetypeInstrument.createViolinBow.
- *
- * @param params The optional identifier and dimensions fixed within their
- *   recorded bands.
- * @param seed The seed for free dimensions. The band midpoints apply without a
- *   seed.
- * @returns The model with its named contacts in its local frame.
- * @throws {AutoMovieArchetypeRefusal} When a supplied dimension or choice
- *   cannot be realized.
+ * Parameter params: The optional identifier and dimensions fixed within their
+ * recorded bands.
+ * Parameter seed: The seed for free dimensions. The band midpoints apply without a
+ * seed.
+ * Returns: The model with its named contacts in its local frame.
+ * When a supplied dimension or choice
+ * cannot be realized.
  */
 export function createViolin(
   params: AutoMovieArchetypeViolin.IParams = {},

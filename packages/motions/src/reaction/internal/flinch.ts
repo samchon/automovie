@@ -39,7 +39,7 @@ import { StrikingQuality } from "../../striking/internal/StrikingQuality";
 import { StrikingTarget } from "../../striking/internal/StrikingTarget";
 import { ReactionSource } from "./ReactionSource";
 
-/**
+/*
  * A flinch: the protective startle away from a sudden threat or a blow, the
  * head and trunk pulled away from it, the shoulders raised and the hands
  * brought up before the face, then a return to what the body held.
@@ -66,10 +66,14 @@ import { ReactionSource } from "./ReactionSource";
  * at any time.
  */
 export namespace flinch {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "flinch";
 
-  /** Cancel table: a flinch flows into a guard, a defence or a stagger. */
+  /*
+   * Cancel table: a flinch flows into a guard, a defence or a stagger.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       guard: ["fromStroke", "smooth"],
@@ -78,41 +82,48 @@ export namespace flinch {
       knockdown: ["anytime", "reflex"],
     });
 
-  /**
+  /*
    * A reaction interrupts whatever the body was doing, at any instant, as a
    * reflex.
    */
   export const accepts: IAutoMovieMotionHumanActionLaw["accepts"] = {
     any: [AutoMovieMotionHumanInterrupt.row("anytime", "reflex")],
   };
-  /** The rise to the startle's peak, a measured reflex time. */
+  /*
+   * The rise to the startle's peak, a measured reflex time.
+   */
   export const RISE: IAutoMovieMotionHumanTiming.Span = {
     seconds: 0.2,
     source: "Brown et al. 1991, Brain 114:1891",
   };
 
-  /** The return from the peak (provisional). */
+  /*
+   * The return from the peak (provisional).
+   */
   export const RETURN: IAutoMovieMotionHumanTiming.Span = "beat";
 
-  /** The trunk's lean away from the threat at full intensity (provisional). */
+  /*
+   * The trunk's lean away from the threat at full intensity (provisional).
+   */
   export const LEAN: IAutoMovieMotionHumanRange.Amount = "light";
 
-  /**
+  /*
    * The root's shift away from the threat at full intensity, as a share of the
    * stature (provisional).
    */
   export const SHIFT: number = 0.018;
 
-  /** The neck's added flexion at full intensity (provisional). */
+  /*
+   * The neck's added flexion at full intensity (provisional).
+   */
   export const DUCK: IAutoMovieMotionHumanRange.Amount = "light";
 
-  /**
+  /*
    * A flinch's timetable: no preparation, the rise `RISE` to the `stroke` and
    * the return `RETURN`, the manner's tempo stretching both but never the
    * stroke's start, and no hold.
-   *
-   * @param modifiers The manner's timing.
-   * @returns The phrase clock.
+   * Parameter modifiers: The manner's timing.
+   * Returns: The phrase clock.
    */
   export function timetable(
     modifiers: IAutoMovieMotionManner.IModifiers,
@@ -129,13 +140,12 @@ export namespace flinch {
       { holds: [], fixed: ["strokeStart"] },
     );
   }
-  /**
+  /*
    * Plan a flinch.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {Error} When the intensity lies outside (0, 1], or the manner is
-   *   out of range.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the intensity lies outside (0, 1], or the manner is
+   * out of range.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFlinch.IParams>,

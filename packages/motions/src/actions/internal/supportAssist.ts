@@ -9,16 +9,20 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { supportContact } from "./supportContact";
 import { supportKey } from "./supportKey";
 
-/** Contacts and instants of a paired support. */
+/*
+ * Contacts and instants of a paired support.
+ */
 const ROLES: readonly IAutoMovieMotionHumanSupport.AssistRole[] = [
   "helper",
   "helped",
 ];
 
-/** Taking the lying palm, sitting under it, and transferring to the squat. */
+/*
+ * Taking the lying palm, sitting under it, and transferring to the squat.
+ */
 const CONTACTS: readonly ["take", "seat", "lift"] = ["take", "seat", "lift"];
 
-/**
+/*
  * Build a meeting from the lying palm and the two subsequent shoulder
  * configurations.
  */
@@ -88,7 +92,7 @@ function kind(side: AutoMovieHumanSide): IAutoMovieMotionMeetingKind {
   };
 }
 
-/**
+/*
  * A role's actual entry or its neutral stance when no full posture was
  * supplied.
  */
@@ -106,7 +110,9 @@ function posture(
   );
 }
 
-/** Lower or rise about the foot locations established in the preceding stance. */
+/*
+ * Lower or rise about the foot locations established in the preceding stance.
+ */
 function squat(
   role: IAutoMovieMotionMeetingRole,
   from: IAutoMovieMotionHumanPosture,
@@ -138,7 +144,7 @@ function squat(
   );
 }
 
-/**
+/*
  * One posed shoulder, its right-angle working reach and its full arm length in
  * metres.
  */
@@ -163,11 +169,10 @@ function shoulder(
   };
 }
 
-/**
+/*
  * The synchronized grip's point at the current support key.
- *
- * @param context The support action's context.
- * @returns The grip reader if assistance is authored.
+ * Parameter context: The support action's context.
+ * Returns: The grip reader if assistance is authored.
  */
 export function supportAssist(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupport.IParams>,
@@ -209,34 +214,41 @@ export function supportAssist(
   };
 }
 
-/**
+/*
  * The common hand course of two supports during an assisted rise. First the
  * helper takes the supported person's displayed palm where it lies. Then both
  * bring the clasp up through sitting as the helped person takes weight on the
  * feet. The ordinary support planner owns the transitions.
  */
 export namespace supportAssist {
-  /**
+  /*
    * Seconds per key, one equal part of the measured young adult floor rise.
-   *
-   * @returns A stance's share in seconds.
+   * Returns: A stance's share in seconds.
    */
   export function step(): number {
     return getUp.SECONDS / (CONTACTS.length + 1);
   }
 }
 
-/** The authored phase has a shared grip only while the hand is holding. */
+/*
+ * The authored phase has a shared grip only while the hand is holding.
+ */
 type GripPoint = IAutoMovieVector3 | undefined;
 
-/** Find a partner's grip at a whole or fractional phase index. */
+/*
+ * Find a partner's grip at a whole or fractional phase index.
+ */
 type GripReader = (
   contact: IAutoMovieMotionHumanSupport.IContact,
   phase: number,
 ) => GripPoint;
 
-/** Ordinary support has no shared grip reader. */
+/*
+ * Ordinary support has no shared grip reader.
+ */
 type OptionalGripReader = GripReader | undefined;
 
-/** Lowered and rising keys of the holding hand. */
+/*
+ * Lowered and rising keys of the holding hand.
+ */
 type Phase = (typeof CONTACTS)[number];

@@ -173,7 +173,7 @@ export namespace AutoMovieConstructionViews {
     return [p.x, p.y, p.z];
   }
 
-  /**
+  /*
    * An original length-valued outline in millimetres, with its source parameter
    * preserved.
    *
@@ -189,7 +189,7 @@ export namespace AutoMovieConstructionViews {
     return AutoMovieViewOutline.scale(outline, SCALE, SCALE);
   }
 
-  /**
+  /*
    * An original dimensionless outline, with only station and parameter-endpoint
    * lengths converted to millimetres.
    *
@@ -205,7 +205,9 @@ export namespace AutoMovieConstructionViews {
     return AutoMovieViewOutline.scale(outline, SCALE, 1);
   }
 
-  /** A scalar course of lengths in millimetres. */
+  /*
+   * A scalar course of lengths in millimetres.
+   */
   function knots(
     outline: IAutoMovieConstructionOutline,
   ): IAutoMovieViewAxis.IAxisKnot1[] {
@@ -217,14 +219,18 @@ export namespace AutoMovieConstructionViews {
     );
   }
 
-  /** A view's two edges in millimetres. */
+  /*
+   * A view's two edges in millimetres.
+   */
   function pair(
     p: IAutoMovieConstructionOutlinePair,
   ): IAutoMovieViewPart.IPair {
     return { positive: length(p.positive), negative: length(p.negative) };
   }
 
-  /** The fullness owner in the operator's records. */
+  /*
+   * The fullness owner in the operator's records.
+   */
   function fullness(
     f: IAutoMovieConstructionFullness,
   ): IAutoMovieViewPart.Fullness {

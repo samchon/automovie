@@ -9,7 +9,7 @@ import type {
 import { playbackEntryAt } from "./playbackEntryAt";
 import { playbackSampleAt } from "./playbackSampleAt";
 
-/**
+/*
  * The shots a picture of a sequence draws at one output instant, outgoing
  * first, each with its compositing weight.
  *
@@ -29,11 +29,10 @@ import { playbackSampleAt } from "./playbackSampleAt";
  * Each layer's time is its entry's clock at `seconds`. The precondition is
  * `resolveFromTimeline`'s: a timeline from a sequence that passed
  * `cutSequence`.
- *
- * @param sequence The cut the timeline was built from.
- * @param timeline The cut laid onto the output clock.
- * @param seconds Output-clock seconds.
- * @returns One or two new layers, outgoing first.
+ * Parameter sequence: The cut the timeline was built from.
+ * Parameter timeline: The cut laid onto the output clock.
+ * Parameter seconds: Output-clock seconds.
+ * Returns: One or two new layers, outgoing first.
  */
 export function playbackLayersAt(
   sequence: IAutoMovieSequence,

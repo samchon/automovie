@@ -1,11 +1,11 @@
 import { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * Turn a unit-local displacement into the frame a unit's members are placed in.
  *
  * A member's offset is authored in its unit's own frame: `+x` is the unit's
  * left-to-right and `+z` its front-to-back, whichever way the unit happens to
- * be pointing. {@link transformFormationPoint} rotates a unit's interior by the
+ * be pointing. transformFormationPoint rotates a unit's interior by the
  * same total heading, so an offset joins a placed point only after this turns
  * it, and a member that stepped aside keeps stepping aside once its unit
  * turns.

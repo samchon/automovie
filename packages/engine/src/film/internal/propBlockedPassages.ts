@@ -5,7 +5,7 @@ import type {
 
 import { createPropPassageBlocker } from "./createPropPassageBlocker";
 
-/**
+/*
  * Every opening and connector a world volume intrudes on, openings first, each
  * group in declaration order.
  *
@@ -28,12 +28,11 @@ import { createPropPassageBlocker } from "./createPropPassageBlocker";
  * no length, sweeps nothing: an unstated width is not a width of zero, and
  * `validateBuiltEnvironment` refuses that record on its own path.
  *
- * Intrusion is {@link propBoundsOverlap}, so a volume that only touches a
+ * Intrusion is propBoundsOverlap, so a volume that only touches a
  * passage does not block it.
- *
- * @param props.environment The building whose passages are checked.
- * @param props.bounds The intruding world volume, in metres.
- * @returns One blockage per intruded passage.
+ * Parameter props.environment: The building whose passages are checked.
+ * Parameter props.bounds: The intruding world volume, in metres.
+ * Returns: One blockage per intruded passage.
  */
 export function propBlockedPassages(
   props: IAutoMoviePropBlockedPassages.IProps,

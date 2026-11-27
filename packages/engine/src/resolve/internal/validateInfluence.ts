@@ -1,4 +1,6 @@
-/** Require a finite solver influence within the closed unit interval. */
+/*
+ * Require a finite solver influence within the closed unit interval.
+ */
 export function validateInfluence(label: string, influence: number): void {
   if (influence < 0)
     throw new Error(

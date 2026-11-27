@@ -2,7 +2,7 @@ import type { IAutoMovieAngleRange } from "@automovie/interface";
 
 import { nearestAngleAlias } from "./nearestAngleAlias";
 
-/**
+/*
  * Candidate full angles for maximizing the absolute bilinear form
  * `[cos(x/2),sin(x/2)] M [cos(y/2),sin(y/2)]^T` on a degree-valued box. Matrix
  * entries are row-major. Reference coordinates are clipped to the box. The list
@@ -39,7 +39,9 @@ export function bilinearAngleBoxCandidates(
   return evaluateBox(matrix, ranges, reference);
 }
 
-/** One enumeration owner; optional metadata contains only unchanged box data. */
+/*
+ * One enumeration owner; optional metadata contains only unchanged box data.
+ */
 function evaluateBox(
   matrix: readonly [number, number, number, number],
   ranges: readonly [IAutoMovieAngleRange, IAutoMovieAngleRange],
@@ -53,7 +55,7 @@ function evaluateBox(
   );
 }
 
-/**
+/*
  * Preserve existing fresh tuple output after the entire shared enumeration
  * finishes.
  */
@@ -65,7 +67,9 @@ function pairsOf(flat: number[] | null): [number, number][] | null {
   return pairs;
 }
 
-/** Shared finite-input enumeration; scalar callers need no argument tuples. */
+/*
+ * Shared finite-input enumeration; scalar callers need no argument tuples.
+ */
 function enumerateBox(
   m00: number,
   m01: number,
@@ -96,7 +100,9 @@ function enumerateBox(
   const bounded: readonly [boolean, boolean] | undefined = prepared?.bounded;
   let representable: boolean = true;
 
-  /** Select the admitted full-turn alias nearest this coordinate's reference. */
+  /*
+   * Select the admitted full-turn alias nearest this coordinate's reference.
+   */
   const lift: (angle: number, axis: 0 | 1) => number | null = (
     angle: number,
     axis: 0 | 1,
@@ -173,7 +179,9 @@ function enumerateBox(
     return result;
   };
 
-  /** Admit an actual pair once; no coordinate is clamped into the interval. */
+  /*
+   * Admit an actual pair once; no coordinate is clamped into the interval.
+   */
   const append: (x: number, y: number) => void = (
     x: number,
     y: number,
@@ -255,7 +263,9 @@ function enumerateBox(
     append(anchorX, y);
   }
 
-  /** Add the closest reference point of each feasible orthogonal-family line. */
+  /*
+   * Add the closest reference point of each feasible orthogonal-family line.
+   */
   const family: (sign: 1 | -1, phase: number) => void = (
     sign: 1 | -1,
     phase: number,
@@ -310,7 +320,9 @@ function enumerateBox(
   return representable ? points : null;
 }
 
-/** Keep a one-degree margin from a half-turn and bound all lift intermediates. */
+/*
+ * Keep a one-degree margin from a half-turn and bound all lift intermediates.
+ */
 function narrow(range: IAutoMovieAngleRange): boolean {
   return (
     Math.abs(range.min) <= 1024 &&
@@ -319,7 +331,9 @@ function narrow(range: IAutoMovieAngleRange): boolean {
   );
 }
 
-/** Whether the ranges are ordered, read from the preparation when one exists. */
+/*
+ * Whether the ranges are ordered, read from the preparation when one exists.
+ */
 function admitRanges(
   ranges: readonly [IAutoMovieAngleRange, IAutoMovieAngleRange],
   prepared: IBoxState | undefined,
@@ -330,12 +344,16 @@ function admitRanges(
   );
 }
 
-/** Share identical boundaries while keeping distinct signed zeros. */
+/*
+ * Share identical boundaries while keeping distinct signed zeros.
+ */
 function endpoints(range: IAutoMovieAngleRange): number[] {
   return Object.is(range.min, range.max) ? [range.min] : [range.min, range.max];
 }
 
-/** Read fixed trigonometry only at its original boundary-use site. */
+/*
+ * Read fixed trigonometry only at its original boundary-use site.
+ */
 function boundary(
   angle: number,
   axis: 0 | 1,
@@ -353,11 +371,15 @@ function boundary(
   return result;
 }
 
-/** Fixed-box preparation with query-local matrices, references and candidates. */
+/*
+ * Fixed-box preparation with query-local matrices, references and candidates.
+ */
 export namespace bilinearAngleBoxCandidates {
-  /** A fresh candidate list or refusal for each matrix/reference on this box. */
+  /*
+   * A fresh candidate list or refusal for each matrix/reference on this box.
+   */
   export interface IPrepared {
-    /**
+    /*
      * Preserve direct enumeration, candidate order and query-local alias
      * ownership.
      */
@@ -366,7 +388,7 @@ export namespace bilinearAngleBoxCandidates {
       reference: Parameters<typeof bilinearAngleBoxCandidates>[2],
     ): ReturnType<typeof bilinearAngleBoxCandidates>;
 
-    /**
+    /*
      * Completed [x0,y0,x1,y1,...] list in the same order, without per-pair
      * tuples.
      */
@@ -379,7 +401,7 @@ export namespace bilinearAngleBoxCandidates {
       referenceY: number,
     ): number[] | null;
 
-    /**
+    /*
      * Same row-major objective and reference, without allocating argument
      * tuples.
      */
@@ -393,7 +415,7 @@ export namespace bilinearAngleBoxCandidates {
     ): ReturnType<typeof bilinearAngleBoxCandidates>;
   }
 
-  /**
+  /*
    * Borrow an unchanged rig-angle box for one operation's repeated queries.
    * Retains one range-admission flag, two bounded-index facts, two endpoint
    * arrays, four lazy half-angle readings, four raw endpoint lift bounds and
@@ -462,67 +484,109 @@ export namespace bilinearAngleBoxCandidates {
   }
 }
 
-/** Raw tuple adapters keep their original delayed live component reads. */
+/*
+ * Raw tuple adapters keep their original delayed live component reads.
+ */
 interface IRawInputs {
-  /** Original matrix, read by its two original map operations after anchor lift. */
+  /*
+   * Original matrix, read by its two original map operations after anchor lift.
+   */
   matrix: readonly [number, number, number, number];
-  /** Original reference, read inside each corresponding anchor expression. */
+  /*
+   * Original reference, read inside each corresponding anchor expression.
+   */
   reference: readonly [number, number];
 }
 
-/** Fixed endpoint data owned by one unchanged box operation, never a target. */
+/*
+ * Fixed endpoint data owned by one unchanged box operation, never a target.
+ */
 interface IBoxState {
-  /** Finite/ordered admission of the fixed ranges. */
+  /*
+   * Finite/ordered admission of the fixed ranges.
+   */
   admitted: boolean;
 
-  /** Whether each finite interval fits the exact bounded-index proof. */
+  /*
+   * Whether each finite interval fits the exact bounded-index proof.
+   */
   bounded: readonly [boolean, boolean];
 
-  /** Whether each fixed axis proves one possible nearest turn. */
+  /*
+   * Whether each fixed axis proves one possible nearest turn.
+   */
   tight: readonly [boolean, boolean];
 
-  /** Exact endpoint order; signed-zero endpoints remain distinct. */
+  /*
+   * Exact endpoint order; signed-zero endpoints remain distinct.
+   */
   ends: [number[], number[]];
 
-  /** At most two lazy boundary readings for each axis. */
+  /*
+   * At most two lazy boundary readings for each axis.
+   */
   trigonometry: [Array<IBoundary | undefined>, Array<IBoundary | undefined>];
 
-  /** Range-only min/max lift prefixes; reference-nearest turn stays query-local. */
+  /*
+   * Range-only min/max lift prefixes; reference-nearest turn stays query-local.
+   */
   aliasBounds: [
     Array<IAliasBounds | undefined>,
     Array<IAliasBounds | undefined>,
   ];
 
-  /** Each limiting family's fixed feasible line-intercept interval. */
+  /*
+   * Each limiting family's fixed feasible line-intercept interval.
+   */
   familyIntervals: Partial<Record<1 | -1, IFamilyInterval>>;
 }
 
-/** Range-only line-intercept limits before the target's phase is subtracted. */
+/*
+ * Range-only line-intercept limits before the target's phase is subtracted.
+ */
 interface IFamilyInterval {
-  /** Least x-sign*y on the unchanged rectangle, using the original grouping. */
+  /*
+   * Least x-sign*y on the unchanged rectangle, using the original grouping.
+   */
   minimum: number;
 
-  /** Greatest x-sign*y on the same rectangle, including nonfinite overflow. */
+  /*
+   * Greatest x-sign*y on the same rectangle, including nonfinite overflow.
+   */
   maximum: number;
 }
 
-/** Original raw whole-turn bounds and their unchanged safe-index admission. */
+/*
+ * Original raw whole-turn bounds and their unchanged safe-index admission.
+ */
 interface IAliasBounds {
-  /** Ceil((range.min-fixedAngle)/360), with its original signed zero. */
+  /*
+   * Ceil((range.min-fixedAngle)/360), with its original signed zero.
+   */
   first: number;
 
-  /** Floor((range.max-fixedAngle)/360), before the original safe-index guard. */
+  /*
+   * Floor((range.max-fixedAngle)/360), before the original safe-index guard.
+   */
   last: number;
 
-  /** Exact result of the two range-only safe-integer checks. */
+  /*
+   * Exact result of the two range-only safe-integer checks.
+   */
   safe: boolean;
 }
 
-/** One fixed full angle's half-angle components, used only as coefficients. */
+/*
+ * One fixed full angle's half-angle components, used only as coefficients.
+ */
 interface IBoundary {
-  /** Cosine, evaluated before the matching sine. */
+  /*
+   * Cosine, evaluated before the matching sine.
+   */
   cosine: number;
 
-  /** Sine of the same original angle-times-halfRadians expression. */
+  /*
+   * Sine of the same original angle-times-halfRadians expression.
+   */
   sine: number;
 }

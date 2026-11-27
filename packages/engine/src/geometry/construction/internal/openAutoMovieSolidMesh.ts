@@ -8,7 +8,9 @@ import type {
 
 import { AutoMovieSolidMeshIncidence } from "../../AutoMovieSolidMeshIncidence";
 
-/** Read exposed source-domain cycles from the complete positive index plan. */
+/*
+ * Read exposed source-domain cycles from the complete positive index plan.
+ */
 export function openAutoMovieSolidMesh(
   chart: ReadonlyMap<number, readonly [number, number]>,
   triangles: readonly IAutoMovieSolidMeshPlan.ITriangle[],
@@ -141,12 +143,18 @@ export function openAutoMovieSolidMesh(
   return { cycles, partial };
 }
 
-/** A directed boundary occurrence in an explicit native cover. */
+/*
+ * A directed boundary occurrence in an explicit native cover.
+ */
 interface Edge extends IAutoMovieSolidMeshConstraints.ISegment {
-  /** Whether this exposed edge belongs only to the sampling domain. */ domain: boolean;
+  /*
+   * Whether this exposed edge belongs only to the sampling domain.
+   */ domain: boolean;
 }
 
-/** Unoriented original-ID edge identity includes its relative cover turn. */
+/*
+ * Unoriented original-ID edge identity includes its relative cover turn.
+ */
 function key(edge: IAutoMovieSolidMeshConstraints.ISegment): string {
   return edge.a < edge.b || (edge.a === edge.b && edge.turn > 0)
     ? `${edge.a}/${edge.b}/${edge.turn}`

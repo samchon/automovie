@@ -14,16 +14,16 @@ import { Quaternion } from "../../math/Quaternion";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { requireBuiltConnector } from "./requireBuiltConnector";
 
-/**
+/*
  * Where a run's carriages stand, in world space, at one named state.
  *
  * Omitting the state answers for the state the record itself stands in, which
- * is the placement {@link lowerBuiltEnvironment} stages. Naming another one
+ * is the placement lowerBuiltEnvironment stages. Naming another one
  * answers for that state without editing the record, so a shot can ask where
  * the car would be at the top landing while the design still holds it at the
  * bottom. Naming a state applies it to every opening and run that declares a
  * state with that id, and a member without such a state stands at rest, as
- * {@link builtEnvironmentWorldMatrices} states. The space each carriage serves
+ * builtEnvironmentWorldMatrices states. The space each carriage serves
  * is handed back beside its placement, because "where the car is" and "which
  * floor that is" are one answer and making a caller rejoin them invites two.
  *

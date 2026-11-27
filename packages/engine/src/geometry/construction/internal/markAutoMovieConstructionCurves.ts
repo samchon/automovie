@@ -3,7 +3,7 @@ import type {
   IAutoMovieMark,
 } from "@automovie/interface";
 
-/**
+/*
  * Turn the construction curves of one built form into inspection marks that
  * follow the scene object the form was built into.
  *
@@ -27,12 +27,11 @@ import type {
  *   "hero",
  * );
  * ```
- *
- * @param curves The curves of one form, as `sampleAutoMovieConstructionCurves`
- *   returns them.
- * @param anchor Path of the scene object the form was built into, or the empty
- *   string for the scene root.
- * @returns One mark per curve, in the curves' order.
+ * Parameter curves: The curves of one form, as `sampleAutoMovieConstructionCurves`
+ * returns them.
+ * Parameter anchor: Path of the scene object the form was built into, or the empty
+ * string for the scene root.
+ * Returns: One mark per curve, in the curves' order.
  */
 export function markAutoMovieConstructionCurves(
   curves: readonly IAutoMovieConstructionCurve[],
@@ -51,7 +50,7 @@ export function markAutoMovieConstructionCurves(
   );
 }
 
-/**
+/*
  * Legend text and colour of each curve kind, keyed so the compiler refuses a
  * kind without one.
  */

@@ -3,7 +3,7 @@ import type { IAutoMovieFilmEffectCurrentIdentity } from "@automovie/interface";
 import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 import { AutoMovieFilmEffectRuntimeError } from "../AutoMovieFilmEffectRuntimeError";
 
-/**
+/*
  * Refuse a current film-effect identity that cannot address a runtime.
  *
  * Both builder identities must be exact lowercase SHA-256 content digests. The

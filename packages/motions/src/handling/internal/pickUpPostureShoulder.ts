@@ -8,7 +8,9 @@ import type {
 
 import { HumanTrunk } from "../../everyday/internal/HumanTrunk";
 
-/** The shoulder joint of an arm in a posture, world metres. */
+/*
+ * The shoulder joint of an arm in a posture, world metres.
+ */
 export function pickUpPostureShoulder(
   context: IAutoMovieMotionHumanActionContext<object>,
   side: AutoMovieHumanSide,

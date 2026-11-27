@@ -4,15 +4,15 @@ import * as THREE from "three";
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { applyTransform } from "./applyTransform.js";
 
-/**
- * Write one {@link IAutoMovieLight}'s value onto the `three.js` light that plays
+/*
+ * Write one IAutoMovieLight's value onto the `three.js` light that plays
  * it: its PLACEMENT for every kind, colour and intensity for every kind,
  * falloff distance for the two that have one, the cone half-angle (degrees on
  * the artifact, radians in `three.js`) for a spot, and the panel extent for an
  * area source.
  *
- * The one place the mapping lives. {@link buildLight} calls it to place a staged
- * light and {@link applyLightMotion} calls it to move that same light over time,
+ * The one place the mapping lives. buildLight calls it to place a staged
+ * light and applyLightMotion calls it to move that same light over time,
  * so an animated light and a static one can never disagree about what `range`
  * or `coneAngle` means.
  *
@@ -22,7 +22,7 @@ import { applyTransform } from "./applyTransform.js";
  * `/lights/<id>/rotation` track could resolve to a new orientation every frame
  * and the `three.js` light would keep the one it was staged with forever. Both
  * callers now go through one writer, so the rendered placement is the resolved
- * placement by construction; {@link aimLight} keeps the light's target as a
+ * placement by construction; aimLight keeps the light's target as a
  * CHILD for exactly the same reason, so a turning light turns what it aims at
  * with it.
  *

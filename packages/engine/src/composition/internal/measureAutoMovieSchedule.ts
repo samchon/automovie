@@ -4,17 +4,16 @@ import type {
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
-/**
+/*
  * Measure a schedule's pacing against the production's own classification:
  * actions per minute, the share of actions that follow the same subject's
  * previous action within the combination gap, each subject's lateral share of
  * displacement and idle seconds over its presence, and the share of time a
  * camera entry moves with the cut cadence. Targets for these numbers stay in
  * the production's research; the engine only counts.
- *
- * @param schedule The resolved schedule.
- * @param classify The production's classification of entries.
- * @returns The measurements.
+ * Parameter schedule: The resolved schedule.
+ * Parameter classify: The production's classification of entries.
+ * Returns: The measurements.
  */
 export function measureAutoMovieSchedule(
   schedule: IAutoMovieSchedule,
@@ -85,7 +84,9 @@ export function measureAutoMovieSchedule(
   };
 }
 
-/** Total length of a union of intervals. */
+/*
+ * Total length of a union of intervals.
+ */
 function union(intervals: [number, number][]): number {
   const sorted: [number, number][] = intervals
     .filter(([a, b]: [number, number]): boolean => b > a)

@@ -8,7 +8,7 @@ import type {
 
 import { AutoMovieConstructionViews } from "../../AutoMovieConstructionViews";
 
-/**
+/*
  * Sample the construction lines of every lofted chain of a realization as
  * polylines in metres: its section rings, its four guide rails and its axis, so
  * an inspection can draw what a form was built from.
@@ -47,13 +47,12 @@ import { AutoMovieConstructionViews } from "../../AutoMovieConstructionViews";
  * 8 that four divides, for `steps` that is not a positive whole number, for a
  * chain with no surface of its name, and for a chain whose owned range is not
  * finite and ordered. An error thrown by the surface itself propagates.
- *
- * @param realization The chains, their surfaces and the diagnostics of one
- *   realization. It is read and not changed.
- * @param options `phases` is the samples per ring, default 48. `steps` is the
- *   subdivisions of each station interval along a guide and the axis, default
- *   8.
- * @returns The curves of every chain, in the documented order.
+ * Parameter realization: The chains, their surfaces and the diagnostics of one
+ * realization. It is read and not changed.
+ * Parameter options: `phases` is the samples per ring, default 48. `steps` is the
+ * subdivisions of each station interval along a guide and the axis, default
+ * 8.
+ * Returns: The curves of every chain, in the documented order.
  */
 export function sampleAutoMovieConstructionCurves(
   realization: Pick<
@@ -62,10 +61,14 @@ export function sampleAutoMovieConstructionCurves(
   >,
   options?: IAutoMovieSampleConstructionCurves.IOptions,
 ): IAutoMovieConstructionCurve[] {
-  /** Samples per ring. */
+  /*
+   * Samples per ring.
+   */
   const phases: number = options?.phases ?? 48;
 
-  /** Subdivisions of each station interval along a guide and the axis. */
+  /*
+   * Subdivisions of each station interval along a guide and the axis.
+   */
   const steps: number = options?.steps ?? 8;
 
   // Four must divide the phase count so that every quarter phase is one of the ring's own samples.
@@ -78,11 +81,13 @@ export function sampleAutoMovieConstructionCurves(
       `sampleAutoMovieConstructionCurves: steps ${steps} is not a positive whole number`,
     );
 
-  /** Names of the nodes a diagnostic was reported on. */
+  /*
+   * Names of the nodes a diagnostic was reported on.
+   */
   const blamed: Set<string> = new Set();
   for (const diagnostic of realization.diagnostics) blamed.add(diagnostic.node);
 
-  /**
+  /*
    * Surface by name; the first of a name wins, which is the chain's own, listed
    * before any blend's.
    */
@@ -90,10 +95,14 @@ export function sampleAutoMovieConstructionCurves(
   for (const surface of realization.surfaces)
     if (!surfaces.has(surface.name)) surfaces.set(surface.name, surface);
 
-  /** Every chain's curves, in the realization's chain order. */
+  /*
+   * Every chain's curves, in the realization's chain order.
+   */
   const curves: IAutoMovieConstructionCurve[] = [];
   for (const chain of realization.chains) {
-    /** The chain's lofted surface. */
+    /*
+     * The chain's lofted surface.
+     */
     const surface: IAutoMovieSolidSurface | undefined = surfaces.get(
       chain.name,
     );
@@ -113,18 +122,17 @@ export function sampleAutoMovieConstructionCurves(
   return curves;
 }
 
-/**
+/*
  * The curves of one chain: its sections in layer order, its guides by quarter,
  * then its axis, without any curve left with fewer than two points.
- *
- * @param chain The chain, whose layers give the principal stations in
- *   millimetres.
- * @param surface Its lofted surface.
- * @param phases Samples per ring, a multiple of four.
- * @param steps Subdivisions of each station interval.
- * @param blamed Whether a diagnostic names this chain, which flags every curve
- *   from the start.
- * @returns The chain's curves in metres.
+ * Parameter chain: The chain, whose layers give the principal stations in
+ * millimetres.
+ * Parameter surface: Its lofted surface.
+ * Parameter phases: Samples per ring, a multiple of four.
+ * Parameter steps: Subdivisions of each station interval.
+ * Parameter blamed: Whether a diagnostic names this chain, which flags every curve
+ * from the start.
+ * Returns: The chain's curves in metres.
  */
 function sampleChain(
   chain: IAutoMovieLoftChain,
@@ -133,10 +141,14 @@ function sampleChain(
   steps: number,
   blamed: boolean,
 ): IAutoMovieConstructionCurve[] {
-  /** Lowest owned station, mm: the surface's own bound, else the first layer. */
+  /*
+   * Lowest owned station, mm: the surface's own bound, else the first layer.
+   */
   const low: number | undefined = surface.domain?.[0] ?? chain.layers[0]?.y;
 
-  /** Highest owned station, mm: the surface's own bound, else the last layer. */
+  /*
+   * Highest owned station, mm: the surface's own bound, else the last layer.
+   */
   const high: number | undefined =
     surface.domain?.[1] ?? chain.layers[chain.layers.length - 1]?.y;
   if (low === undefined || high === undefined || !(low <= high))
@@ -144,7 +156,7 @@ function sampleChain(
       `sampleAutoMovieConstructionCurves: chain "${chain.name}" owns no station range, from ${low} to ${high}`,
     );
 
-  /**
+  /*
    * Ascending stations of the guides and the axis, and per station its layer
    * ordinal or -1.
    */
@@ -155,10 +167,14 @@ function sampleChain(
     steps,
   );
 
-  /** Section rings met so far, which is layer order because stations ascend. */
+  /*
+   * Section rings met so far, which is layer order because stations ascend.
+   */
   const sections: IAutoMovieConstructionCurve[] = [];
 
-  /** The four rails, by quarter. */
+  /*
+   * The four rails, by quarter.
+   */
   const guides: IAutoMovieConstructionCurve[] = [0, 1, 2, 3].map(
     (quarter: number): IAutoMovieConstructionCurve => ({
       id: `${chain.name}/guide/${quarter}`,
@@ -170,7 +186,9 @@ function sampleChain(
     }),
   );
 
-  /** The centroid line of the sampled rings. */
+  /*
+   * The centroid line of the sampled rings.
+   */
   const axis: IAutoMovieConstructionCurve = {
     id: `${chain.name}/axis`,
     kind: "axis",
@@ -180,14 +198,18 @@ function sampleChain(
     flagged: blamed,
   };
 
-  /** The current station's ring in metres, flat xyz; reused across stations. */
+  /*
+   * The current station's ring in metres, flat xyz; reused across stations.
+   */
   const ring: Float64Array = new Float64Array(3 * phases);
   for (let s: number = 0; s < stations.length; ++s) {
     sampleRing(surface, stations[s]!, ring);
 
     // A principal layer station publishes its whole ring as a section.
     if (ordinals[s]! >= 0) {
-      /** The ring's samples in phase order. */
+      /*
+       * The ring's samples in phase order.
+       */
       const points: number[] = Array.from(ring);
       sections.push({
         id: `${chain.name}/section/${ordinals[s]}`,
@@ -201,15 +223,21 @@ function sampleChain(
 
     // Every station extends each rail by the ring's sample at that rail's quarter.
     for (let quarter: number = 0; quarter < 4; ++quarter) {
-      /** Offset of the quarter's sample in the ring. */
+      /*
+       * Offset of the quarter's sample in the ring.
+       */
       const at: number = 3 * quarter * (phases / 4);
 
-      /** The rail this quarter extends. */
+      /*
+       * The rail this quarter extends.
+       */
       const guide: IAutoMovieConstructionCurve = guides[quarter]!;
       guide.points.push(ring[at]!, ring[at + 1]!, ring[at + 2]!);
     }
 
-    /** Sum of the ring's samples per axis. */
+    /*
+     * Sum of the ring's samples per axis.
+     */
     const sum: [number, number, number] = [0, 0, 0];
     for (let k: number = 0; k < phases; ++k) {
       sum[0] += ring[3 * k]!;
@@ -223,7 +251,7 @@ function sampleChain(
   );
 }
 
-/**
+/*
  * The ascending stations a chain's guides and axis are sampled at, with the
  * layer ordinal of each station that is a principal layer.
  *
@@ -231,14 +259,13 @@ function sampleChain(
  * end, without repeats; between consecutive knots the interval is cut into
  * `steps` equal parts. A layer on an end of the range gives that end its
  * ordinal.
- *
- * @param layers The chain's layers, stations strictly increasing.
- * @param low Lowest owned station, mm.
- * @param high Highest owned station, mm, at least `low`.
- * @param steps Subdivisions of each interval between knots, a positive whole
- *   number.
- * @returns The stations in millimetres and, index for index, the layer ordinal
- *   or -1 for a station that is not a layer.
+ * Parameter layers: The chain's layers, stations strictly increasing.
+ * Parameter low: Lowest owned station, mm.
+ * Parameter high: Highest owned station, mm, at least `low`.
+ * Parameter steps: Subdivisions of each interval between knots, a positive whole
+ * number.
+ * Returns: The stations in millimetres and, index for index, the layer ordinal
+ * or -1 for a station that is not a layer.
  */
 function stationsOf(
   layers: IAutoMovieLoftChain.ILayer[],
@@ -246,13 +273,19 @@ function stationsOf(
   high: number,
   steps: number,
 ): [number[], number[]] {
-  /** Knot stations, starting at the low end. */
+  /*
+   * Knot stations, starting at the low end.
+   */
   const knots: number[] = [low];
 
-  /** Layer ordinal of each knot, or -1. */
+  /*
+   * Layer ordinal of each knot, or -1.
+   */
   const owners: number[] = [-1];
   for (let ordinal: number = 0; ordinal < layers.length; ++ordinal) {
-    /** This layer's station, mm. */
+    /*
+     * This layer's station, mm.
+     */
     const station: number = layers[ordinal]!.y;
     if (!(station >= low && station <= high)) continue;
     if (station === knots[knots.length - 1])
@@ -267,16 +300,22 @@ function stationsOf(
     owners.push(-1);
   }
 
-  /** Every sampled station, ascending. */
+  /*
+   * Every sampled station, ascending.
+   */
   const stations: number[] = [knots[0]!];
 
-  /** Layer ordinal of each sampled station, or -1. */
+  /*
+   * Layer ordinal of each sampled station, or -1.
+   */
   const ordinals: number[] = [owners[0]!];
   for (let k: number = 1; k < knots.length; ++k) {
-    /** Lower knot of this interval. */
+    /*
+     * Lower knot of this interval.
+     */
     const from: number = knots[k - 1]!;
 
-    /**
+    /*
      * Upper knot of this interval, written as itself so a layer station is not
      * rounded.
      */
@@ -291,31 +330,32 @@ function stationsOf(
   return [stations, ordinals];
 }
 
-/**
+/*
  * Evaluate one ring of a surface at uniform phases into a buffer in metres.
- *
- * @param surface The surface, read through `point` when it has one and
- *   `jet(...).p` otherwise.
- * @param station The ring's station, mm.
- * @param ring Flat xyz buffer of three components per phase; its length sets
- *   the phase count.
+ * Parameter surface: The surface, read through `point` when it has one and
+ * `jet(...).p` otherwise.
+ * Parameter station: The ring's station, mm.
+ * Parameter ring: Flat xyz buffer of three components per phase; its length sets
+ * the phase count.
  */
 function sampleRing(
   surface: IAutoMovieSolidSurface,
   station: number,
   ring: Float64Array,
 ): void {
-  /** Samples around the ring. */
+  /*
+   * Samples around the ring.
+   */
   const phases: number = ring.length / 3;
 
   for (let k: number = 0; k < phases; ++k) {
-    /**
+    /*
      * Phase of this sample, radians; `4 k / phases` is a whole number at each
      * quarter, so a quarter is exactly `q pi / 2`.
      */
     const phase: number = (Math.PI / 2) * ((4 * k) / phases);
 
-    /**
+    /*
      * The surface's point there, mm; possibly a vector the surface reuses, so
      * it is read at once.
      */

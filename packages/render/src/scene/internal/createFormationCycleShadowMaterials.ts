@@ -5,7 +5,7 @@ import { applyFormationCycleMaterial } from "./applyFormationCycleMaterial.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 
-/**
+/*
  * Own the two shadow projections of one tier's already-resolved cycle.
  *
  * Three copies the current beauty group's alpha, side, clipping and

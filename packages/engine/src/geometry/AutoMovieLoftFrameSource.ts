@@ -209,7 +209,7 @@ export namespace AutoMovieLoftFrameSource {
     );
   }
 
-  /**
+  /*
    * Validate both explicit records and distinguish a common source from an
    * ordinary mixed-source boundary.
    */
@@ -227,10 +227,12 @@ export namespace AutoMovieLoftFrameSource {
   }
 }
 
-/** Frame component triple. */
+/*
+ * Frame component triple.
+ */
 type Vec3 = [number, number, number];
 
-/**
+/*
  * Independent numeric copy permits value-preserving layer copies without
  * reference-identity semantics.
  */
@@ -238,7 +240,7 @@ function copy(frame: IAutoMovieLoftSectionFrame): IAutoMovieLoftSectionFrame {
   return { origin: [...frame.origin], u: [...frame.u], v: [...frame.v] };
 }
 
-/**
+/*
  * Exact component equality of copied layer data, with absence distinct from a
  * supplied source jet.
  */

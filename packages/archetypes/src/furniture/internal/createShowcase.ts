@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeUnits,
 } from "../../core/index";
 
-/**
+/*
  * A glass showcase counter: a case with a glass top and front, shown to the
  * customer at `+Z` and served from the clerk's side at `-Z`.
  *
@@ -17,13 +17,12 @@ import {
  * is one of the maker's two showcases read, whole: the model given, or one
  * drawn from the seed. `top` is the glass top, leaned on or set on; `edge` is
  * its customer-side edge, where hands and forearms rest.
- *
- * @param params The model, if the author fixes it.
- * @param seed The seed that draws the model when it is not given; absent, the
- *   first.
- * @returns The showcase.
- * @throws {AutoMovieArchetypeRefusal} For a model the maker's sheet does not
- *   list.
+ * Parameter params: The model, if the author fixes it.
+ * Parameter seed: The seed that draws the model when it is not given; absent, the
+ * first.
+ * Returns: The showcase.
+ * For a model the maker's sheet does not
+ * list.
  */
 export function createShowcase(
   params: AutoMovieArchetypeShowcase.IParams = {},
@@ -80,7 +79,7 @@ export function createShowcase(
   return builder.build(model.figures.mass!);
 }
 
-/**
+/*
  * A Full Vision showcase's depth and height, metres, the same for both models:
  * the sheet's "20" deep x 38" high".
  */

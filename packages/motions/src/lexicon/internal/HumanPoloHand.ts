@@ -9,13 +9,12 @@ import type {
 
 import { HumanHand } from "../../posture/internal/HumanHand";
 
-/**
+/*
  * Read a held tool in the hand's rest frame.
- *
- * @param body The body.
- * @param side The holding hand.
- * @param tool The held tool.
- * @returns The hand frame and the working point in it.
+ * Parameter body: The body.
+ * Parameter side: The holding hand.
+ * Parameter tool: The held tool.
+ * Returns: The hand frame and the working point in it.
  */
 export function HumanPoloHand(
   body: IAutoMovieMotionHumanBody,
@@ -51,77 +50,98 @@ export function HumanPoloHand(
   };
 }
 
-/**
+/*
  * The held tool's geometry in the hand's own rest frame, and one instant of a
  * swing it places (`HumanPolo`).
  */
 export namespace HumanPoloHand {
-  /** A held tool in the hand's rest frame. */
+  /*
+   * A held tool in the hand's rest frame.
+   */
   export interface IHand {
-    /** Where the fingers point at rest, unit. */
+    /*
+     * Where the fingers point at rest, unit.
+     */
     fingers: IAutoMovieVector3;
 
-    /** The tool's axis at rest, made square to the fingers, unit. */
+    /*
+     * The tool's axis at rest, made square to the fingers, unit.
+     */
     shaft: IAutoMovieVector3;
 
-    /** The working point from the wrist along the fingers, metres. */
+    /*
+     * The working point from the wrist along the fingers, metres.
+     */
     along: number;
 
-    /** The working point from the wrist along the tool's axis, metres. */
+    /*
+     * The working point from the wrist along the tool's axis, metres.
+     */
     out: number;
 
-    /**
+    /*
      * The working point from the wrist across both, along the fingers cross the
      * axis, metres.
      */
     across: number;
   }
 
-  /**
+  /*
    * One instant of a swing: where the wrist is, how the hand is turned and
    * where the tool's working point is.
    */
   export interface IStation {
-    /** The wrist joint, metres. */
+    /*
+     * The wrist joint, metres.
+     */
     wrist: IAutoMovieVector3;
 
-    /** The hand's rotation from its rest. */
+    /*
+     * The hand's rotation from its rest.
+     */
     rotation: IAutoMovieQuaternion;
 
-    /** The working point, metres. */
+    /*
+     * The working point, metres.
+     */
     head: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * A swing's plane: the angle 0 direction, the direction of travel at 0, and
    * their cross.
    */
   export interface IPlane {
-    /** The direction at angle 0, unit. */
+    /*
+     * The direction at angle 0, unit.
+     */
     u: IAutoMovieVector3;
 
-    /** The direction of travel at angle 0, unit, square to `u`. */
+    /*
+     * The direction of travel at angle 0, unit, square to `u`.
+     */
     w: IAutoMovieVector3;
 
-    /** `u` cross `w`. */
+    /*
+     * `u` cross `w`.
+     */
     normal: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * Place the arm and the held tool as one in a swing's plane: the wrist a
    * distance out from the shoulder along the arm's angle, the fingers turned
    * from the arm's line by the deviation and the tool behind them, the whole
    * set off the plane by the working point's own offset across the hand so the
    * working point turns in the plane through the shoulder.
-   *
-   * @param hand The held tool in the hand's frame.
-   * @param plane The swing's plane.
-   * @param shoulder The shoulder joint, metres.
-   * @param wrist The wrist's distance from the shoulder within the plane,
-   *   metres.
-   * @param arm The arm's angle in the plane from `u` toward `w`, radians.
-   * @param deviation The wrist's deviation, radians, positive ulnar.
-   * @returns The wrist, the hand's rotation and the working point.
+   * Parameter hand: The held tool in the hand's frame.
+   * Parameter plane: The swing's plane.
+   * Parameter shoulder: The shoulder joint, metres.
+   * Parameter wrist: The wrist's distance from the shoulder within the plane,
+   * metres.
+   * Parameter arm: The arm's angle in the plane from `u` toward `w`, radians.
+   * Parameter deviation: The wrist's deviation, radians, positive ulnar.
+   * Returns: The wrist, the hand's rotation and the working point.
    */
   export function place(
     hand: IHand,
@@ -173,24 +193,29 @@ export namespace HumanPoloHand {
     };
   }
 
-  /** The working point in a swing's plane against the arm's line. */
+  /*
+   * The working point in a swing's plane against the arm's line.
+   */
   export interface IPlanar {
-    /** From the shoulder along the arm's line, metres. */
+    /*
+     * From the shoulder along the arm's line, metres.
+     */
     outward: number;
 
-    /** Across the arm's line along its way round, metres; negative behind it. */
+    /*
+     * Across the arm's line along its way round, metres; negative behind it.
+     */
     sideways: number;
   }
 
-  /**
+  /*
    * Where the working point lies against the arm's line, the wrist a distance
    * from the shoulder on it, the hand's fingers in the plane turned from the
    * line by a deviation and the tool behind them.
-   *
-   * @param hand The held tool in the hand's frame.
-   * @param wrist The wrist's distance from the shoulder along the line, metres.
-   * @param deviation The wrist's deviation, radians, positive ulnar.
-   * @returns The working point's coordinates in the plane.
+   * Parameter hand: The held tool in the hand's frame.
+   * Parameter wrist: The wrist's distance from the shoulder along the line, metres.
+   * Parameter deviation: The wrist's deviation, radians, positive ulnar.
+   * Returns: The working point's coordinates in the plane.
    */
   export function planar(
     hand: IHand,
@@ -207,15 +232,14 @@ export namespace HumanPoloHand {
     };
   }
 
-  /**
+  /*
    * The deviation that puts the working point a distance from the shoulder, the
    * wrist on the arm's line at its own distance (`planar`).
-   *
-   * @param hand The held tool in the hand's frame.
-   * @param wrist The wrist's distance from the shoulder, metres.
-   * @param distance The working point's distance asked, metres.
-   * @returns The deviation, radians, positive ulnar; NaN when no deviation
-   *   gives that distance.
+   * Parameter hand: The held tool in the hand's frame.
+   * Parameter wrist: The wrist's distance from the shoulder, metres.
+   * Parameter distance: The working point's distance asked, metres.
+   * Returns: The deviation, radians, positive ulnar; NaN when no deviation
+   * gives that distance.
    */
   export function deviation(
     hand: IHand,

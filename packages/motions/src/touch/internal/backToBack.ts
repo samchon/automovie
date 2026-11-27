@@ -36,7 +36,7 @@ import { backToBackLoad } from "./backToBackLoad";
 import { backToBackTogether } from "./backToBackTogether";
 import { kissBody } from "./kissBody";
 
-/**
+/*
  * The most a seated trunk leans back, degrees: the normal thoracolumbar
  * extension, 25 degrees (Physiopedia, Range of Motion Normative Values,
  * https://www.physio-pedia.com/Range_of_Motion_Normative_Values), as
@@ -44,12 +44,12 @@ import { kissBody } from "./kissBody";
  */
 const BACK: number = 25;
 
-/**
+/*
  * How near the upper back comes to the meeting point, metres (provisional: a
  * skin contact, as `headRest`'s).
  */
 const NEAR: number = 0.01;
-/**
+/*
  * Lean back against a seated partner's back. Each of the two reads its own and
  * the other's upper back on the displayed bodies at the start and leans its
  * trunk back from the hips over the seat (the kiss's lean, `kissBody`, seated)
@@ -345,7 +345,7 @@ function planBackToBack(
   return result;
 }
 
-/**
+/*
  * Lean back against a seated partner's back. Each of the two reads its own and
  * the other's upper back on the displayed bodies at the start and leans its
  * trunk back from the hips over the seat (the kiss's lean, `kissBody`, seated)
@@ -369,5 +369,7 @@ export const backToBack: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBac
     plan: planBackToBack,
   };
 
-/** The alternatives of `PlanAddedBone`'s site. */
+/*
+ * The alternatives of `PlanAddedBone`'s site.
+ */
 type PlanAddedBone = "neck" | "head";

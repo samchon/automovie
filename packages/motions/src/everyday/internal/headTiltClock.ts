@@ -6,15 +6,14 @@ import type {
 import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionClock";
 import { HumanBound } from "../../law/internal/HumanBound";
 
-/**
+/*
  * A head tilt's clock: the phrase, 0.9 seconds when unstated and at least 0.6,
  * in thirds, the roll rising to its peak at `stroke` over the first, holding
  * through the second and returning from `relax` over the last. The 0.6 second
  * minimum leaves 0.2 seconds for the carrier's fade at each end.
- *
- * @param params The authored tilt; only its duration is read.
- * @returns The clock with the phrase's instants.
- * @throws {HumanRefusal} If the duration is below 0.6 seconds.
+ * Parameter params: The authored tilt; only its duration is read.
+ * Returns: The clock with the phrase's instants.
+ * If the duration is below 0.6 seconds.
  */
 export function headTiltClock(
   params: Pick<IAutoMovieMotionHumanHeadTilt, "duration">,

@@ -11,7 +11,7 @@ import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "./normalizeJointAxes";
 import { resolvePoseBone } from "./resolvePoseBone";
 
-/**
+/*
  * Own pure joint-composition work within one synchronous motion evaluation. Raw
  * records retain their complete original getter, validation and arithmetic
  * order. Immutable prepared rigs additionally use this reader's identity to
@@ -23,7 +23,9 @@ export function preparePoseResolution(): IAutoMoviePoseResolution {
   return { joint: READER.joint, bone: READER.bone };
 }
 
-/** The factory's reader: its two methods as own data properties. */
+/*
+ * The factory's reader: its two methods as own data properties.
+ */
 const READER: IReader = {
   joint: (
     joint: IAutoMovieJointPose,
@@ -41,7 +43,7 @@ const READER: IReader = {
   bone: resolvePoseBone,
 };
 
-/**
+/*
  * Raw ordered FK operations and the identity lent to immutable prepared rigs:
  * the interface contract.
  */

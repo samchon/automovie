@@ -5,7 +5,7 @@ import type {
 
 import { AutoMovieRenderRasterSheet } from "../../picture/AutoMovieRenderRasterSheet.js";
 
-/**
+/*
  * Lay out a capture's cells on contact sheets for a stated reader: every
  * sheet's longest edge within `budget.longest`, every cell's shorter edge at
  * least `budget.smallest`, and the cells as large as those two bounds allow.
@@ -145,7 +145,7 @@ export function planAutoMovieCaptureLayout(
   };
 }
 
-/**
+/*
  * Slack for the rounding of a pixel size that is a whole number in exact
  * arithmetic, such as 720 × 200 / 720.
  */

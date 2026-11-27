@@ -44,7 +44,9 @@ export namespace AutoMovieHumanArmRootArc {
   /** A quarter turn's arc over its chord: `pi / (2 sqrt 2)`. Derived. */
   export const QUARTER: number = Math.PI / (2 * Math.SQRT2);
 
-  /** The largest lateral share a crossing takes: the quadrant's slope runs to infinity at the widest point. */
+  /*
+   * The largest lateral share a crossing takes: the quadrant's slope runs to infinity at the widest point.
+   */
   const LIMIT: number = 0.985;
 
   /**
@@ -122,14 +124,13 @@ export namespace AutoMovieHumanArmRootArc {
     };
   }
 
-  /**
+  /*
    * The lateral share of a torso quadrant at a forward place: the share at
    * which the quadrant passes through it, kept clear of the widest point.
-   *
-   * @param s The section.
-   * @param side The quadrant.
-   * @param x Forward place, mm.
-   * @returns The lateral share.
+   * Parameter s: The section.
+   * Parameter side: The quadrant.
+   * Parameter x: Forward place, mm.
+   * Returns: The lateral share.
    */
   function share(
     s: IAutoMovieHumanTrunkSection,
@@ -150,26 +151,24 @@ export namespace AutoMovieHumanArmRootArc {
     return Math.min(LIMIT, (1 - xi ** n) ** (1 / n));
   }
 
-  /**
+  /*
    * Distance between two section points.
-   *
-   * @param a One point `[x, z]`.
-   * @param b The other.
-   * @returns The distance, mm.
+   * Parameter a: One point `[x, z]`.
+   * Parameter b: The other.
+   * Returns: The distance, mm.
    */
   function chord(a: readonly number[], b: readonly number[]): number {
     return Math.hypot(a[0]! - b[0]!, a[1]! - b[1]!);
   }
 
-  /**
+  /*
    * One sector between two of the arc's guides.
-   *
-   * @param a The first guide's jet.
-   * @param b The second guide's jet.
-   * @param k0 The first guide's knot.
-   * @param k1 The second guide's knot.
-   * @param speeds The two guides' speeds, mm per radian.
-   * @returns The sector as a function of phase.
+   * Parameter a: The first guide's jet.
+   * Parameter b: The second guide's jet.
+   * Parameter k0: The first guide's knot.
+   * Parameter k1: The second guide's knot.
+   * Parameter speeds: The two guides' speeds, mm per radian.
+   * Returns: The sector as a function of phase.
    */
   function sector(
     a: IAutoMovieArcLengthJet,

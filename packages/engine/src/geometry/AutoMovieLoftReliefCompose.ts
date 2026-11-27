@@ -91,7 +91,7 @@ export namespace AutoMovieLoftReliefCompose {
 /** A fresh mutable world vector, in mm per the named derivative order. */
 type V = AutoMovieVector3Tuple;
 
-/**
+/*
  * A retained collapsed pole requires every feature's value/first orders to
  * vanish.
  */
@@ -102,7 +102,9 @@ function admitPole(height: readonly number[], collapsed: boolean): void {
     );
 }
 
-/** Preserve LoftJet's left-associated zero-initialized vector sum exactly. */
+/*
+ * Preserve LoftJet's left-associated zero-initialized vector sum exactly.
+ */
 function sum(...vectors: V[]): V {
   const out: V = [0, 0, 0];
   for (const vector of vectors)
@@ -110,7 +112,9 @@ function sum(...vectors: V[]): V {
   return out;
 }
 
-/** The original component-wise scalar multiplication, without regrouping. */
+/*
+ * The original component-wise scalar multiplication, without regrouping.
+ */
 function scale(vector: readonly number[], factor: number): V {
   return [vector[0]! * factor, vector[1]! * factor, vector[2]! * factor];
 }

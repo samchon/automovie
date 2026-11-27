@@ -23,7 +23,7 @@ import { prepareAutoMovieContourDocument64 } from "./prepareAutoMovieContourDocu
 import { sampleAutoMovieContourRing64 } from "./sampleAutoMovieContourRing64";
 import { splitAutoMovieContourLeaf64 } from "./splitAutoMovieContourLeaf64";
 import { tessellateAutoMovieContourStrip64 } from "./tessellateAutoMovieContourStrip64";
-/**
+/*
  * Generate an indexed contour loft from actual cubic coefficients and declared
  * signed topology.
  *
@@ -489,14 +489,20 @@ export function generateAutoMovieContourLoft64(
   };
 }
 
-/** Physical mutable vector used only during this generation. */
+/*
+ * Physical mutable vector used only during this generation.
+ */
 type V3 = AutoMovieVector3Tuple;
-/** Strip work and quality before attaching its slab and group address. */
+/*
+ * Strip work and quality before attaching its slab and group address.
+ */
 type StripObservation = Omit<
   NonNullable<IAutoMovieContourLoft64.IResult["stripObservations"]>[number],
   "beforeMm" | "afterMm" | "group"
 >;
-/** Local document views preserve the preparation owner's structural records. */
+/*
+ * Local document views preserve the preparation owner's structural records.
+ */
 type Document = IAutoMoviePrepareContourDocument64Document;
 type Slice = Document["slices"][number];
 type Observation = Slice["loops"][number];

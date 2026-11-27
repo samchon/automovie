@@ -10,26 +10,32 @@ import type {
 
 import { mountCastObstruction } from "./mountCastObstruction";
 
-/** From the pelvis towards the deck, in the material axes. */
+/*
+ * From the pelvis towards the deck, in the material axes.
+ */
 const DOWN: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
 
-/** The seat's longitudinal translation axis in the material axes. */
+/*
+ * The seat's longitudinal translation axis in the material axes.
+ */
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 
-/** Box face normals, one for each pair of parallel opposing faces. */
+/*
+ * Box face normals, one for each pair of parallel opposing faces.
+ */
 const BOX_AXES: readonly IAutoMovieVector3[] = [
   { x: 1, y: 0, z: 0 },
   { x: 0, y: 1, z: 0 },
   FORWARD,
 ];
 
-/**
+/*
  * Roundoff for frame transforms, their support-plane witnesses, and their
  * pairwise differences. It scales with the deck and pelvis coordinates.
  */
 const FRAME_ROUNDOFF: number = 64 * Number.EPSILON;
 
-/**
+/*
  * A centred astride position supported on the actual seat deck. The pelvis
  * rests on its lowest feature and slides only along the deck's sagittal line.
  * A translated solid sweeps exactly its two-placement convex hull
@@ -40,10 +46,9 @@ const FRAME_ROUNDOFF: number = 64 * Number.EPSILON;
  * angled ramp does not remove a clear interval. The centre of the widest such
  * interval gives a neutral bearing region (Elmeua González and Šarabon 2022,
  * Fig. 1C, https://doi.org/10.7717/peerj.14438).
- *
- * @param input The deck, the positioned pelvis at its socket and the solids
- *   around it, all in the deck's material axes.
- * @returns A clear region and its plane-bearing point, when found.
+ * Parameter input: The deck, the positioned pelvis at its socket and the solids
+ * around it, all in the deck's material axes.
+ * Returns: A clear region and its plane-bearing point, when found.
  */
 export function prepareMountSeat(
   input: prepareMountSeat.IInput,
@@ -119,7 +124,9 @@ export function prepareMountSeat(
   return undefined;
 }
 
-/** The roundoff shared by sagittal admission and a single support witness. */
+/*
+ * The roundoff shared by sagittal admission and a single support witness.
+ */
 function seatPrecision(
   support: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeBounds>,
   rise: number,
@@ -136,7 +143,9 @@ function seatPrecision(
   );
 }
 
-/** The real contact patch and its supported socket projection at one pose. */
+/*
+ * The real contact patch and its supported socket projection at one pose.
+ */
 function bearsPatch(
   deck: prepareMountSeat.ISolid,
   pelvis: readonly prepareMountSeat.ISolid[],
@@ -167,7 +176,9 @@ function bearsPatch(
   );
 }
 
-/** A box's oriented feature axes, in the seat's material axes. */
+/*
+ * A box's oriented feature axes, in the seat's material axes.
+ */
 function boxFaces(
   part: prepareMountSeat.ISolid,
 ): readonly IAutoMovieVector3[] | undefined {
@@ -182,7 +193,9 @@ function boxFaces(
   );
 }
 
-/** Remove the interior of the remaining obstructed interval. */
+/*
+ * Remove the interior of the remaining obstructed interval.
+ */
 function without(range: Span, from: number, to: number): Span[] {
   if (from >= range[1] || to <= range[0]) return [range];
   const kept: Span[] = [];
@@ -191,16 +204,17 @@ function without(range: Span, from: number, to: number): Span[] {
   return kept;
 }
 
-/** Inputs and the prepared seat-domain result. */
+/*
+ * Inputs and the prepared seat-domain result.
+ */
 export namespace prepareMountSeat {
-  /**
+  /*
    * Check the deck bearing at one already selected pelvis socket. The
    * opposing features must coincide at the actual deck top and their planar
    * contact patch must contain the socket's projection.
-   *
-   * @param input The deck and the pelvis solids relative to the zero socket.
-   * @param point The selected socket in the deck's material axes, metres.
-   * @returns Whether the common contact patch supports that socket.
+   * Parameter input: The deck and the pelvis solids relative to the zero socket.
+   * Parameter point: The selected socket in the deck's material axes, metres.
+   * Returns: Whether the common contact patch supports that socket.
    */
   export function bears(
     input: Pick<IInput, "deck" | "pelvis">,
@@ -220,36 +234,58 @@ export namespace prepareMountSeat {
     );
   }
 
-  /** An actual convex collider placed in the seat's material axes. */
+  /*
+   * An actual convex collider placed in the seat's material axes.
+   */
   export interface ISolid {
-    /** The collider's parent frame in the seat's axes. */
+    /*
+     * The collider's parent frame in the seat's axes.
+     */
     pose: IAutoMovieRigidTransform;
 
-    /** The independent shape in its parent's frame. */
+    /*
+     * The independent shape in its parent's frame.
+     */
     shape: IAutoMoviePhysicalShape;
   }
 
-  /** One fixed loading orientation over the material's sagittal line. */
+  /*
+   * One fixed loading orientation over the material's sagittal line.
+   */
   export interface IInput {
-    /** The finite seat deck whose exposed upper face bears the pelvis. */
+    /*
+     * The finite seat deck whose exposed upper face bears the pelvis.
+     */
     deck: ISolid;
 
-    /** The pelvis colliders at its zero socket in the loading orientation. */
+    /*
+     * The pelvis colliders at its zero socket in the loading orientation.
+     */
     pelvis: readonly ISolid[];
 
-    /** The surrounding material, excluding the deck. */
+    /*
+     * The surrounding material, excluding the deck.
+     */
     obstacles: readonly ISolid[];
   }
 
-  /** A neutral bearing and the connected interval certified around it. */
+  /*
+   * A neutral bearing and the connected interval certified around it.
+   */
   export interface ISeat {
-    /** The anatomically posed socket in the seat's local frame, metres. */
+    /*
+     * The anatomically posed socket in the seat's local frame, metres.
+     */
     point: IAutoMovieVector3;
 
-    /** The sagittal nonpenetration interval at the same height, metres. */
+    /*
+     * The sagittal nonpenetration interval at the same height, metres.
+     */
     range: Span;
   }
 }
 
-/** A range along the deck's forward axis, metres. */
+/*
+ * A range along the deck's forward axis, metres.
+ */
 type Span = readonly [number, number];

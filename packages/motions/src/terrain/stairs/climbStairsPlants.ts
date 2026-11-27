@@ -4,18 +4,17 @@ import type {
   IAutoMovieMotionHumanContactWindow,
 } from "@automovie/interface";
 
-/**
+/*
  * A stair climb's plant windows: each foot bears between its swings, from the
  * tread contact that brings it to a print to the next toe-off that leaves it,
  * on the floor at level 0 and on the flight above it, a flight on a named prop
  * bearing on that prop.
- *
- * @param prints Each foot's prints in order, with the step that brings it.
- * @param clock The climb's clock.
- * @param duration The climb's length, seconds.
- * @param flight The flight's floor height, its riser, its direction's sign and
- *   the prop it belongs to.
- * @returns The plant windows, as shares of the climb.
+ * Parameter prints: Each foot's prints in order, with the step that brings it.
+ * Parameter clock: The climb's clock.
+ * Parameter duration: The climb's length, seconds.
+ * Parameter flight: The flight's floor height, its riser, its direction's sign and
+ * the prop it belongs to.
+ * Returns: The plant windows, as shares of the climb.
  */
 export function climbStairsPlants(
   prints: Readonly<
@@ -56,29 +55,47 @@ export function climbStairsPlants(
   return contacts;
 }
 
-/** What a climb's plant windows read. */
+/*
+ * What a climb's plant windows read.
+ */
 export namespace climbStairsPlants {
-  /** A print and the step that brings a foot to it. */
+  /*
+   * A print and the step that brings a foot to it.
+   */
   export interface IPrinted {
-    /** The print's level on the flight. */
+    /*
+     * The print's level on the flight.
+     */
     print: { level: number };
 
-    /** The step, 0 for the entry's print. */
+    /*
+     * The step, 0 for the entry's print.
+     */
     step: number;
   }
 
-  /** The flight's heights and owner. */
+  /*
+   * The flight's heights and owner.
+   */
   export interface IFlight {
-    /** The flight's floor height, world metres. */
+    /*
+     * The flight's floor height, world metres.
+     */
     floor: number;
 
-    /** One riser, metres. */
+    /*
+     * One riser, metres.
+     */
     riser: number;
 
-    /** 1 climbing up, -1 down. */
+    /*
+     * 1 climbing up, -1 down.
+     */
     sign: number;
 
-    /** The prop the flight belongs to; none on a fixed flight. */
+    /*
+     * The prop the flight belongs to; none on a fixed flight.
+     */
     on?: string;
   }
 }

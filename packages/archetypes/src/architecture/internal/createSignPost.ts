@@ -5,7 +5,7 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { StreetFixtureDraw } from "./StreetFixtureDraw";
 
-/**
+/*
  * An upright square post carrying a STOP sign blank above its grip span.
  *
  * The sign faces +Z, and its measured lower edge bounds the upright post
@@ -15,13 +15,12 @@ import { StreetFixtureDraw } from "./StreetFixtureDraw";
  * across-flats size and whose outline is the octagon, so graphics placed in the
  * square's four corners are clipped at the blank's edge. The legend is not
  * drawn here; a production letters it on `face` with its own font.
- *
- * @param params The scene identifier, model choice and supported dimension
- *   overrides.
- * @param seed The seed for the draws the author leaves open.
- * @returns The fixed model with its typed contacts.
- * @throws {AutoMovieArchetypeRefusal} If a supplied override lies outside the
- *   selected profile.
+ * Parameter params: The scene identifier, model choice and supported dimension
+ * overrides.
+ * Parameter seed: The seed for the draws the author leaves open.
+ * Returns: The fixed model with its typed contacts.
+ * If a supplied override lies outside the
+ * selected profile.
  */
 export function createSignPost(
   params: AutoMovieArchetypeSignPost.IParams = {},
@@ -106,5 +105,7 @@ export function createSignPost(
   return builder.build(d.mass!);
 }
 
-/** The estimated thickness of the sign blank, metres. */
+/*
+ * The estimated thickness of the sign blank, metres.
+ */
 const BLANK_THICKNESS: number = 0.003;

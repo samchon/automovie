@@ -18,10 +18,12 @@ import { EquineHarness } from "./equine/EquineHarness";
 import { AutoMovieArchetypeHorseRide } from "./AutoMovieArchetypeHorseRide";
 import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
 
-/** Points a slack trace is laid through, ends included. */
+/*
+ * Points a slack trace is laid through, ends included.
+ */
 const SAG_POINTS: number = 9;
 
-/**
+/*
  * A harnessed horse put to a two-wheeled cart, drawing it and taken out again,
  * on one film clock: it backs between the parked cart's shafts, stands while
  * the traces are hooked, draws the cart through the authored legs, brakes into
@@ -50,16 +52,15 @@ const SAG_POINTS: number = 9;
  * trace sags `sag` metres at its middle along a parabola through `SAG_POINTS`
  * points; this is a look, not a cable simulation or a measured draught force.
  * The driving lines are laid while the horse stands in the shafts.
- *
- * @param horse A horse in `harness` tack.
- * @param cart A `cart` kind built for that horse.
- * @param params The course stages, their durations, the trace sag and optional
- *   footing.
- * @returns The take.
- * @throws {AutoMovieArchetypeRefusal} For a horse without the harness's hitch,
- *   a cart whose coupling or single tree does not fit the horse's hitch and
- *   points of draft, nonpositive stage values, and as the ride and the towing
- *   refuse.
+ * Parameter horse: A horse in `harness` tack.
+ * Parameter cart: A `cart` kind built for that horse.
+ * Parameter params: The course stages, their durations, the trace sag and optional
+ * footing.
+ * Returns: The take.
+ * For a horse without the harness's hitch,
+ * a cart whose coupling or single tree does not fit the horse's hitch and
+ * points of draft, nonpositive stage values, and as the ride and the towing
+ * refuse.
  */
 function equineDraft(
   horse: AutoMovieArchetype<
@@ -230,7 +231,9 @@ function equineDraft(
 
   return { duration: ride.duration, events, ride, at };
 
-  /** One displayed second. */
+  /*
+   * One displayed second.
+   */
   function at(
     seconds: number,
   ): AutoMovieArchetypeEquineDraftPlan.ISample<
@@ -290,7 +293,9 @@ function equineDraft(
     };
   }
 
-  /** A trace hanging below its chord on a parabola of the authored sag. */
+  /*
+   * A trace hanging below its chord on a parabola of the authored sag.
+   */
   function slack(
     line: AutoMovieArchetypeRide.ILineState,
   ): AutoMovieArchetypeRide.ILineState {
@@ -305,7 +310,7 @@ function equineDraft(
     };
   }
 
-  /**
+  /*
    * Refuse a cart whose coupling and single tree were not built for this
    * horse's hitch and points of draft.
    */

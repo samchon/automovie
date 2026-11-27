@@ -10,19 +10,18 @@ import { autoMovieEnvironmentInstant } from "./autoMovieEnvironmentInstant";
 import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
 import { validateAutoMovieEnvironmentContext } from "./validateAutoMovieEnvironmentContext";
 
-/**
+/*
  * Refuse an envelope request no honest study can be made from, and resolve the
  * instant it names.
  *
- * The refused inputs are those {@link IAutoMovieEnvelopeRequest} lists, checked
+ * The refused inputs are those IAutoMovieEnvelopeRequest lists, checked
  * in field order: header strings, the context, the instant, the indoor air, the
  * assemblies with their films, area, position and layers, the bridges, and the
  * targets. The first one throws an `Error` naming it. Ids must be unique within
  * their own list, and a bridge must run along a declared assembly.
- *
- * @param request Envelope study to check.
- * @returns The context's own instant record, or `null` when the request names
- *   none.
+ * Parameter request: Envelope study to check.
+ * Returns: The context's own instant record, or `null` when the request names
+ * none.
  */
 export function resolveAutoMovieEnvelopeRequest(
   request: IAutoMovieEnvelopeRequest,

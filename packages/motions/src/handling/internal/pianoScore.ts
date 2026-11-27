@@ -35,10 +35,12 @@ import { pianoScoreEvents } from "./pianoScoreEvents";
 import { pianoScoreHand } from "./pianoScoreHand";
 import { resolvePianoScoreVoicing } from "./resolvePianoScoreVoicing";
 
-/** The default entry transition in HumanPerformancePlace, seconds. */
+/*
+ * The default entry transition in HumanPerformancePlace, seconds.
+ */
 const READY: number = 0.25;
 
-/**
+/*
  * Play named keys on a fixed upright piano from a seated base. The authored
  * score fixes each digit, hand, depression and release. The moving key and its
  * fingertip share the same travel fraction, so a note can be held while the
@@ -56,7 +58,9 @@ export const pianoScore: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPia
     plan,
   };
 
-/** Resolve the score over the seated entry's existing supports. */
+/*
+ * Resolve the score over the seated entry's existing supports.
+ */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPianoScore>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -338,7 +342,9 @@ function plan(
     },
   };
 }
-/** Minimum-jerk progress from the undepressed surface to the key's stop. */
+/*
+ * Minimum-jerk progress from the undepressed surface to the key's stop.
+ */
 function depression(
   score: IAutoMovieMotionHumanPianoScore.INote,
   seconds: number,
@@ -354,7 +360,9 @@ function depression(
   return Math.min(1, AutoMovieEngineMotionSampling.minimumJerkShare(share));
 }
 
-/** Read the wrist and elbow goals shared by planning and playback. */
+/*
+ * Read the wrist and elbow goals shared by planning and playback.
+ */
 function movingArm(
   { note, previous, transport }: pianoScoreHand.ISample,
   entry: IAutoMovieResolvedBone,
@@ -384,7 +392,9 @@ function movingArm(
   };
 }
 
-/** Place one hand's digits while preserving the other hand's goals. */
+/*
+ * Place one hand's digits while preserving the other hand's goals.
+ */
 function sampleFingers(
   posture: IAutoMovieMotionHumanPosture,
   { note, previous, transport }: pianoScoreHand.ISample,
@@ -419,7 +429,9 @@ function sampleFingers(
   }
 }
 
-/** The moving button's top meets the active fingertip. */
+/*
+ * The moving button's top meets the active fingertip.
+ */
 function goal(
   point: IAutoMovieVector3,
   normal: IAutoMovieVector3,
@@ -427,7 +439,9 @@ function goal(
   return { point, normal, surface: "tip", contact: true };
 }
 
-/** Report the score field and its corrected authoring direction. */
+/*
+ * Report the score field and its corrected authoring direction.
+ */
 function refuse(axis: string, value: RefuseValue, fix: string): never {
   throw new HumanRefusal({
     kind: "parameter",
@@ -438,25 +452,41 @@ function refuse(axis: string, value: RefuseValue, fix: string): never {
   });
 }
 
-/** A hand placement shared by every key in a voicing. */
+/*
+ * A hand placement shared by every key in a voicing.
+ */
 type IVoicing = resolvePianoScoreVoicing.Voicing;
 
-/** The record of `IPlanContactsItem`'s site. */
+/*
+ * The record of `IPlanContactsItem`'s site.
+ */
 type IPlanContactsItem = { voicing: IVoicing; end?: ContactsEndItem };
 
-/** The alternatives of `ContactsEndItem`'s site. */
+/*
+ * The alternatives of `ContactsEndItem`'s site.
+ */
 type ContactsEndItem = 0 | 1;
 
-/** The record of `IPlanCheckedItem`'s site. */
+/*
+ * The record of `IPlanCheckedItem`'s site.
+ */
 type IPlanCheckedItem = { seconds: number; end?: CheckedEndItem };
 
-/** The alternatives of `CheckedEndItem`'s site. */
+/*
+ * The alternatives of `CheckedEndItem`'s site.
+ */
 type CheckedEndItem = 0 | 1;
 
-/** The record of `IBoundariesItemEntry`'s site. */
+/*
+ * The record of `IBoundariesItemEntry`'s site.
+ */
 type IBoundariesItemEntry = { voicing: IVoicing; end?: EndItemEntry };
-/** The alternatives of `EndItemEntry`'s site. */
+/*
+ * The alternatives of `EndItemEntry`'s site.
+ */
 type EndItemEntry = 0 | 1;
 
-/** The alternatives of `RefuseValue`'s site. */
+/*
+ * The alternatives of `RefuseValue`'s site.
+ */
 type RefuseValue = string | number;

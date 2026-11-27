@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanHandToBody } from "@automovie/interface";
 
-/**
+/*
  * The cover-face preset: the right hand, one cover, no prop, no grasp and no
  * other hand, and the hold on the right and the left cheek as one row (bare
  * flat palms with the fingers upward, the head bowed 15 degrees, the pose

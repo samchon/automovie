@@ -20,7 +20,7 @@ import { AutoMovieEnginePopulationFormation } from "../../populationRuntime/Auto
 import { autoMovieModelColumns } from "./autoMovieModelColumns";
 import { engineDiagnostic } from "./engineDiagnostic";
 
-/**
+/*
  * Place sampled members in a spatial grid and compare both same-unit and
  * cross-unit distances against height-overlapping runtime columns across every
  * LOD pair.
@@ -227,7 +227,7 @@ export function validateAutoMovieFormationOverlap(
   );
 }
 
-/**
+/*
  * Round a diagnostic quantity to three decimals with
  * Math.round(value*1000)/1000.
  *
@@ -251,19 +251,19 @@ function round(value: number): number {
   return Math.round(value * 1_000) / 1_000;
 }
 
-/**
+/*
  * Measure the first 4096 slots per unit; members beyond that prefix can overlap
  * without being sampled.
  */
 const FORMATION_OVERLAP_MEMBER_LIMIT: number = 4096;
 
-/**
+/*
  * Interior sample budget of 16; every authored endpoint remains even when
  * endpoint count exceeds the budget.
  */
 const FORMATION_OVERLAP_SAMPLE_LIMIT: number = 16;
 
-/**
+/*
  * Describe one staged unit with source order, borrowed placement, selected
  * members and every tier's columns.
  *
@@ -282,22 +282,30 @@ const FORMATION_OVERLAP_SAMPLE_LIMIT: number = 16;
  * source data.
  */
 interface IFormationOverlapUnit {
-  /** Position in the shot's own order, which is the order refusals come in. */
+  /*
+   * Position in the shot's own order, which is the order refusals come in.
+   */
   index: number;
 
-  /** The staged unit itself. */
+  /*
+   * The staged unit itself.
+   */
   formation: IAutoMovieFormationPlacement & {
     lod: ReadonlyArray<{ runtimeModel: string }>;
   };
 
-  /** Where each measured member stands at rest, with the slot it is. */
+  /*
+   * Where each measured member stands at rest, with the slot it is.
+   */
   members: ReadonlyArray<{ slot: number; point: IAutoMovieVector3 }>;
 
-  /** Columns of every runtime one of its members may be drawn as. */
+  /*
+   * Columns of every runtime one of its members may be drawn as.
+   */
   tiers: ReadonlyArray<readonly IAutoMovieModelColumn[]>;
 }
 
-/**
+/*
  * Pair one sampled member world point with its unit and slot identity.
  *
  * The row lets the grid recover the same tier-aware unit pair.
@@ -314,17 +322,23 @@ interface IFormationOverlapUnit {
  * retained.
  */
 interface IFormationOverlapPlacement {
-  /** Unit this member stands in. */
+  /*
+   * Unit this member stands in.
+   */
   unit: IFormationOverlapUnit;
 
-  /** Zero-based slot it is. */
+  /*
+   * Zero-based slot it is.
+   */
   slot: number;
 
-  /** Where it stands at the sampled time. */
+  /*
+   * Where it stands at the sampled time.
+   */
   point: IAutoMovieVector3;
 }
 
-/**
+/*
  * Enumerate the first min(count,4096) designed slot points.
  *
  * This caps crowd placement work while preserving slot identities.
@@ -351,7 +365,7 @@ function formationOverlapMembers(
   return members;
 }
 
-/**
+/*
  * Keep zero and every cue endpoint, then distribute remaining16-sample budget
  * evenly among gaps.
  *
@@ -411,7 +425,7 @@ function formationOverlapSampleTimes(
   ];
 }
 
-/**
+/*
  * For every LOD tier pair, find the widest radius sum whose vertical intervals
  * strictly overlap, then take the tier-pair minimum.
  *

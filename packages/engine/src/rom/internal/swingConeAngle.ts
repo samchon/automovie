@@ -1,4 +1,4 @@
-/**
+/*
  * Compute combined orthogonal-axis swing as 2 * acos(cos(flexion/2) *
  * cos(abduction/2)), with degree inputs/output. Finite representable arithmetic
  * returns the closed range [0, 360]; multi-turn inputs are periodic and are not

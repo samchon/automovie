@@ -9,7 +9,7 @@ import type { IAutoMovieInspectionPath } from "../../IAutoMovieInspectionPath.js
 import { listAutoMovieInspectionKindOptions } from "./listAutoMovieInspectionKindOptions.js";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 
-/**
+/*
  * Check kind patterns before measuring scene geometry. Return the remaining
  * path and colour check for the drawn paths, measured marks and selected
  * supplied kinds. Both checks throw with the unmatched patterns before the

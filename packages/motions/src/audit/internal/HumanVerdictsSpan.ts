@@ -4,15 +4,14 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-/**
+/*
  * A motion's span from `from` to `to` as a motion of its own: its seconds start
  * at `from`, and its actions' spans are moved by as much (`AutoMovieMotionHumanVerdicts`).
- *
- * @param motion The motion, in film seconds.
- * @param from The span's first film second.
- * @param to The span's last film second, at or after `from`.
- * @returns The motion itself for its whole film, otherwise a motion of `to -
- *   from` seconds that reads `motion` at `from` plus its own seconds.
+ * Parameter motion: The motion, in film seconds.
+ * Parameter from: The span's first film second.
+ * Parameter to: The span's last film second, at or after `from`.
+ * Returns: The motion itself for its whole film, otherwise a motion of `to -
+ * from` seconds that reads `motion` at `from` plus its own seconds.
  */
 export function HumanVerdictsSpan(
   motion: IAutoMovieMotionHumanAuditMotion,

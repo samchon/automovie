@@ -6,11 +6,10 @@ import { EquineSaddle } from "../../animals/equine/EquineSaddle";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
-/**
+/*
  * Canonical coarse rig poses with their carried tack and contact marks.
- *
- * @returns Rest, neck-turn and head-turn views of the same seeded horse with
- *   riding and harness tack.
+ * Returns: Rest, neck-turn and head-turn views of the same seeded horse with
+ * riding and harness tack.
  */
 export function archetypeCaptureAnimals(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
@@ -39,7 +38,7 @@ export function archetypeCaptureAnimals(): Readonly<
       parts[part.id] = head.has(part.id) ? "head" : "trunk";
   for (const contact of horse.affordances) contacts[contact.id] = "trunk";
 
-  /**
+  /*
    * An authored test angle isolates each axial control without changing the
    * rest input.
    */

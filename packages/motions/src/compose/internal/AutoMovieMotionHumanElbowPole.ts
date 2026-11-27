@@ -9,17 +9,16 @@ import type {
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * The pole of an arm.
- *
- * @param body The body.
- * @param posture The posture whose arm is read, its limb goals stripped.
- * @param lower The forearm bone, whose joint is the elbow.
- * @param hand The hand bone.
- * @param at The hand's world point in the posture.
- * @param elbow The elbow's world point in the posture.
- * @returns The pole, world metres; the elbow itself where the flexion moves no
- *   hand.
+ * Parameter body: The body.
+ * Parameter posture: The posture whose arm is read, its limb goals stripped.
+ * Parameter lower: The forearm bone, whose joint is the elbow.
+ * Parameter hand: The hand bone.
+ * Parameter at: The hand's world point in the posture.
+ * Parameter elbow: The elbow's world point in the posture.
+ * Returns: The pole, world metres; the elbow itself where the flexion moves no
+ * hand.
  */
 export function AutoMovieMotionHumanElbowPole(
   body: IAutoMovieMotionHumanBody,
@@ -59,7 +58,7 @@ export function AutoMovieMotionHumanElbowPole(
   );
 }
 
-/**
+/*
  * The bend pole of an arm laid on a goal: its elbow pushed out along the
  * olecranon. A nearly straight arm's elbow lies on the line from the shoulder
  * to the hand, so as a bend hint it names no side and the arm's solve may take
@@ -69,12 +68,14 @@ export function AutoMovieMotionHumanElbowPole(
  * degrees.
  */
 export namespace AutoMovieMotionHumanElbowPole {
-  /**
+  /*
    * How far the pole stands out along the olecranon, a share of the forearm
    * (provisional).
    */
   export const POLE: number = 0.5;
 
-  /** The elbow flexion read for the olecranon's direction, degrees. */
+  /*
+   * The elbow flexion read for the olecranon's direction, degrees.
+   */
   export const FLEX: number = 10;
 }

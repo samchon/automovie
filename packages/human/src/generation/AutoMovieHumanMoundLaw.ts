@@ -50,7 +50,9 @@ export namespace AutoMovieHumanMoundLaw {
    */
   export const BASE_EXPONENT: number = 0.17;
 
-  /** Halvings of the projection's bracket: sixty take a bracket of a few hundred millimetres under one unit of a double. */
+  /*
+   * Halvings of the projection's bracket: sixty take a bracket of a few hundred millimetres under one unit of a double.
+   */
   const HALVINGS: number = 60;
 
   const sum = (radii: IRadii): number => radii.medial + radii.lateral + radii.inferior;

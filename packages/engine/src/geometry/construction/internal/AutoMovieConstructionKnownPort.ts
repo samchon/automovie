@@ -9,7 +9,7 @@ import type {
 
 import { AutoMovieLoftAdmissionError } from "../../AutoMovieLoftAdmissionError";
 
-/**
+/*
  * Actual-field C2 band using a quintic partition of unity, without contact
  * recovery.
  *
@@ -66,7 +66,7 @@ export function AutoMovieConstructionKnownPort(
     )
       fail("A known port map does not own the complete band rectangle.");
 
-  /**
+  /*
    * Preserve actual open limits; a period is metadata, not permission to change
    * clocks.
    */
@@ -128,10 +128,12 @@ export function AutoMovieConstructionKnownPort(
   };
 }
 
-/** Kernel world vector, in millimetres per the indicated band derivatives. */
+/*
+ * Kernel world vector, in millimetres per the indicated band derivatives.
+ */
 type Vector = [number, number, number];
 
-/**
+/*
  * Existing kernel consumers make the second coordinate periodic; all mixed
  * orders stay exact.
  */
@@ -148,7 +150,7 @@ function transpose(
   };
 }
 
-/**
+/*
  * Resolve explicit original owners and material/binding references without
  * inferred aliases.
  */
@@ -174,7 +176,7 @@ function side(
   return { field: field!, map: map! };
 }
 
-/**
+/*
  * Read one actual chart and preserve original field Point0 separately from its
  * total2.
  */
@@ -192,7 +194,7 @@ function point(
   return [...value];
 }
 
-/**
+/*
  * Full second-order chain rule of the actual neighboring function with its own
  * C2 map.
  */
@@ -217,14 +219,18 @@ function pullback(
   for (const key of ["p", "u", "v", "uu", "uv", "vv"] as const)
     vector(field[key]);
 
-  /** First-order pullback preserves actual map direction and scale. */
+  /*
+   * First-order pullback preserves actual map direction and scale.
+   */
   const first: (a: readonly number[]) => Vector = (
     a: readonly number[],
   ): Vector =>
     [0, 1, 2].map(
       (k: number): number => field.u[k]! * a[0]! + field.v[k]! * a[1]!,
     ) as Vector;
-  /** Hessian pullback includes both original mixed terms and the map Hessian. */
+  /*
+   * Hessian pullback includes both original mixed terms and the map Hessian.
+   */
   const second: (
     a: readonly number[],
     b: readonly number[],
@@ -252,7 +258,9 @@ function pullback(
   };
 }
 
-/** Actual source domains reject trials before calling original functions. */
+/*
+ * Actual source domains reject trials before calling original functions.
+ */
 function chartPoint(
   field: IAutoMovieSolidSurface,
   point: readonly number[],
@@ -265,7 +273,7 @@ function chartPoint(
     fail("A known port map leaves its actual neighboring field domain.");
 }
 
-/**
+/*
  * No query with nonfinite total2 or a collapsed tangent plane is a regular band
  * point.
  */
@@ -285,7 +293,7 @@ function regular(
   return jet;
 }
 
-/**
+/*
  * Require every actual world component; no missing field is interpreted as
  * zero.
  */
@@ -294,7 +302,7 @@ function vector(value: readonly number[]): void {
     fail("A known port requires complete finite actual world vectors.");
 }
 
-/**
+/*
  * Exact polynomial endpoint-flat weight and its two normalized transverse
  * derivatives.
  */
@@ -306,7 +314,7 @@ function weights(v: number): readonly [number, number, number] {
   ];
 }
 
-/**
+/*
  * Convex point blend uses the actual fields, without extrapolated boundary
  * jets.
  */
@@ -316,7 +324,7 @@ function combine(a: Vector, b: Vector, h: number): Vector {
   ) as Vector;
 }
 
-/**
+/*
  * Product-rule differences carry the weight derivatives in physical world
  * units.
  */
@@ -326,17 +334,23 @@ function difference(a: Vector, b: Vector, factor: number): Vector {
   ) as Vector;
 }
 
-/** Add product-rule contributions without retaining either input. */
+/*
+ * Add product-rule contributions without retaining either input.
+ */
 function add(a: Vector, b: Vector): Vector {
   return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 }
 
-/** A finite positive interval must also have a representable span. */
+/*
+ * A finite positive interval must also have a representable span.
+ */
 function interval(domain: readonly [number, number]): boolean {
   return domain[1] > domain[0];
 }
 
-/** Keep numeric admission separate from original callback exception identity. */
+/*
+ * Keep numeric admission separate from original callback exception identity.
+ */
 function fail(message: string): never {
   throw new AutoMovieLoftAdmissionError(message);
 }

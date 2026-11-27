@@ -210,36 +210,50 @@ export namespace AutoMovieViewJointedCourse {
     return sum;
   }
 
-  /**
+  /*
    * One value-only course walk; derivative vectors are allocated only by the
    * analytic jet query.
    */
   interface ISample {
-    /** Actual quadrature-origin frame value. */
+    /*
+     * Actual quadrature-origin frame value.
+     */
     value: IAutoMovieLoftSectionFrame;
 
-    /** Analytic unit tangent at that station. */
+    /*
+     * Analytic unit tangent at that station.
+     */
     tangent: AutoMovieVector3Tuple;
 
-    /** Active nonzero turn, absent on a straight run or turn endpoint. */
+    /*
+     * Active nonzero turn, absent on a straight run or turn endpoint.
+     */
     active: IAutoMovieViewJointedCourse.ITurn | undefined;
 
-    /** Unit turn share when active, zero otherwise. */
+    /*
+     * Unit turn share when active, zero otherwise.
+     */
     offset: number;
   }
 }
 
-/** Shared vector arithmetic preserves the original jointed course's order. */
+/*
+ * Shared vector arithmetic preserves the original jointed course's order.
+ */
 const { add, cross, dot, scale, sub }: typeof AutoMovieSolidVector =
   AutoMovieSolidVector;
 
-/** Quintic smoothstep, constant outside its closed unit span. */
+/*
+ * Quintic smoothstep, constant outside its closed unit span.
+ */
 function smoothstep(x: number): number {
   const c: number = Math.min(1, Math.max(0, x));
   return c * c * c * (10 + c * (-15 + 6 * c));
 }
 
-/** Rodrigues rotation about an admitted unit axis. */
+/*
+ * Rodrigues rotation about an admitted unit axis.
+ */
 function rotate(
   a: AutoMovieVector3Tuple,
   axis: AutoMovieVector3Tuple,
@@ -253,7 +267,9 @@ function rotate(
   );
 }
 
-/** Original ten-point Gauss-Legendre nodes and weights on [-1,1]. */
+/*
+ * Original ten-point Gauss-Legendre nodes and weights on [-1,1].
+ */
 const GAUSS: readonly (readonly [number, number])[] = [
   [-0.9739065285171717, 0.0666713443086881],
   [-0.8650633666889845, 0.1494513491505806],
@@ -267,5 +283,7 @@ const GAUSS: readonly (readonly [number, number])[] = [
   [0.9739065285171717, 0.0666713443086881],
 ];
 
-/** Original fixed number of displacement quadrature panels. */
+/*
+ * Original fixed number of displacement quadrature panels.
+ */
 const PANELS: number = 8;

@@ -7,16 +7,15 @@ import type {
 import { StrikingRide } from "./StrikingRide";
 import { StrikingWeapon } from "./StrikingWeapon";
 
-/**
+/*
  * A strike's committed stop and the stopped limb's ride on the body it met
  * (`StrikingRide`): the performance commits the first contact the weapon made
  * (`IAutoMovieMotionHumanActionPlan.stop`), and the plan's preparation solves
  * the ride on it; before that, and on a strike that met nothing, a posture is
  * shown as the strike's own course gives it.
- *
- * @param ride Solves the ride on a committed contact, from the strike's
- *   prepared geometry.
- * @returns The stop.
+ * Parameter ride: Solves the ride on a committed contact, from the strike's
+ * prepared geometry.
+ * Returns: The stop.
  */
 export function StrikingStopRide(
   ride: (met: IAutoMovieMotionWeaponContact) => StrikingRide.IRide,
@@ -44,35 +43,38 @@ export function StrikingStopRide(
   };
 }
 
-/** Companion types of {@link StrikingStopRide}. */
+/*
+ * Companion types of StrikingStopRide.
+ */
 export namespace StrikingStopRide {
-  /** A strike's stop and ride. */
+  /*
+   * A strike's stop and ride.
+   */
   export interface IStop {
-    /**
+    /*
      * The contact the performance committed.
-     *
-     * @returns The contact, or null when the weapon met nothing.
+     * Returns: The contact, or null when the weapon met nothing.
      */
     met(): IAutoMovieMotionWeaponContact | null;
 
-    /**
+    /*
      * Commit the weapon's contacts: the first is the stop.
-     *
-     * @param found The contacts the performance resolved.
-     * @returns The stop's film second, or null when the weapon met nothing.
+     * Parameter found: The contacts the performance resolved.
+     * Returns: The stop's film second, or null when the weapon met nothing.
      */
     stop(found: readonly IAutoMovieMotionWeaponContact[]): number | null;
 
-    /** Solve the ride on the committed stop, after the geometry is prepared. */
+    /*
+     * Solve the ride on the committed stop, after the geometry is prepared.
+     */
     prepare(): void;
 
-    /**
+    /*
      * A posture carried by the ride, or as given before it is solved.
-     *
-     * @param posture The strike's posture.
-     * @param limb The stopped limb.
-     * @param seconds Film seconds.
-     * @returns The posture.
+     * Parameter posture: The strike's posture.
+     * Parameter limb: The stopped limb.
+     * Parameter seconds: Film seconds.
+     * Returns: The posture.
      */
     carry(
       posture: IAutoMovieMotionHumanPosture,

@@ -4,14 +4,13 @@ import type {
   IAutoMovieMotionClock,
 } from "@automovie/interface";
 
-/**
+/*
  * The fraction of body weight the right foot bears along the stair clock. A
  * single support bears all the weight. During double support the performer
  * transfers it between the two feet, entering and leaving in a balanced stand.
- *
- * @param sides The foot lifted on each step in event order.
- * @param clock The final clock that also schedules the footprints.
- * @returns Right-foot load from zero to one at a local action second.
+ * Parameter sides: The foot lifted on each step in event order.
+ * Parameter clock: The final clock that also schedules the footprints.
+ * Returns: Right-foot load from zero to one at a local action second.
  */
 export function climbStairsWeight(
   sides: readonly AutoMovieHumanSide[],
@@ -47,7 +46,7 @@ export function climbStairsWeight(
   };
 }
 
-/**
+/*
  * One support boundary in local seconds with a dimensionless right-foot weight
  * share.
  */

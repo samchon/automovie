@@ -1,13 +1,12 @@
 import type { IAutoMovieMotionHumanCrawl } from "@automovie/interface";
 
-/**
+/*
  * The limbs' mean placement share where the crawl lands, the stride's offset
  * its first prints take.
  *
  * Part of `crawl.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `landed`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `landed`.
  */
 export function crawlLanded(prepared: crawlLanded.IPrepared): number {
   const { limbs, centred }: crawlLanded.IPrepared = prepared;
@@ -18,14 +17,22 @@ export function crawlLanded(prepared: crawlLanded.IPrepared): number {
   );
 }
 
-/** The `landed` of `crawl.plan`, built from what that plan prepared. */
+/*
+ * The `landed` of `crawl.plan`, built from what that plan prepared.
+ */
 export namespace crawlLanded {
-  /** What `crawl.plan` prepared for its `landed`. */
+  /*
+   * What `crawl.plan` prepared for its `landed`.
+   */
   export interface IPrepared {
-    /** The `limbs` `crawl.plan` prepared. */
+    /*
+     * The `limbs` `crawl.plan` prepared.
+     */
     limbs: IAutoMovieMotionHumanCrawl.Limb[];
 
-    /** The `centred` `crawl.plan` prepared. */
+    /*
+     * The `centred` `crawl.plan` prepared.
+     */
     centred: (limb: IAutoMovieMotionHumanCrawl.Limb, j: number) => number;
   }
 }

@@ -14,18 +14,17 @@ import { buildOxBody } from "./buildOxBody";
 import { OX_BODY_MEASURES } from "./constants/OX_BODY_MEASURES";
 import { createCohortQuadruped } from "../quadruped/createCohortQuadruped";
 
-/**
+/*
  * A coarse Kathani working-ox reference with horns and authored equipment,
  * declaring the roper's targets: `head` at the poll, `horns` between the horns'
  * bases and `hind` between the hocks.
- *
- * @param params Authored whole-model kilograms, optional lead and yoke/pack
- *   dimensions.
- * @param seed Independent construction seed and declared timing-spread
- *   coordinate.
- * @returns The shared quadruped model; mass/foot coefficients are not inferred.
- * @throws {AutoMovieArchetypeRefusal} For invalid mass, tempo or equipment
- *   dimensions.
+ * Parameter params: Authored whole-model kilograms, optional lead and yoke/pack
+ * dimensions.
+ * Parameter seed: Independent construction seed and declared timing-spread
+ * coordinate.
+ * Returns: The shared quadruped model; mass/foot coefficients are not inferred.
+ * For invalid mass, tempo or equipment
+ * dimensions.
  */
 export function createOx(
   params: AutoMovieArchetypeOx.IParams,

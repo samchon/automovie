@@ -22,24 +22,36 @@ import { resolveHumanPostureSource } from "../../posture/internal/resolveHumanPo
 import type { fixedSeatWorkingPostures } from "./fixedSeatWorkingPostures";
 
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-/**
+/*
  * The native working-seat ride. It proposes torso articulation only when
  * keeping the original feet requires it. A complete actual pair judgement and
  * both actual sole positions admit a candidate. A single bare display leaf can
  * consume the very result that decided this law sample.
  */
 export class WorkingSeatRidePlan implements WorkingSeatRidePlan.IPlan {
-  /** Duration of the original ride. */
+  /*
+   * Duration of the original ride.
+   */
   readonly duration: Plan["duration"];
-  /** The carrier law's named events. */
+  /*
+   * The carrier law's named events.
+   */
   readonly events: Plan["events"];
-  /** The original ride's declared support and grip windows. */
+  /*
+   * The original ride's declared support and grip windows.
+   */
   readonly contacts: Plan["contacts"];
-  /** The original seat on which the ride ends. */
+  /*
+   * The original seat on which the ride ends.
+   */
   readonly base?: Plan["base"];
-  /** The native ride reader; a direct observation owns a fresh, mutable posture. */
+  /*
+   * The native ride reader; a direct observation owns a fresh, mutable posture.
+   */
   readonly posture: Reader;
-  /** The same selected posture and carrier frame for a composed ride action. */
+  /*
+   * The same selected posture and carrier frame for a composed ride action.
+   */
   readonly postureWithFrame: Frame;
   readonly #body: IAutoMovieMotionHumanBody;
   readonly #design: Design;
@@ -101,7 +113,9 @@ export class WorkingSeatRidePlan implements WorkingSeatRidePlan.IPlan {
     });
   }
 
-  /** Select the exact working-seat variant for the instantaneous demands. */
+  /*
+   * Select the exact working-seat variant for the instantaneous demands.
+   */
   #sample<T>(
     written: WorkingSeatRidePlan.IWritten,
     publish: Publish<T>,
@@ -170,7 +184,9 @@ export class WorkingSeatRidePlan implements WorkingSeatRidePlan.IPlan {
     }
   }
 
-  /** Check ankle and material sole at the angular resolution of this rig. */
+  /*
+   * Check ankle and material sole at the angular resolution of this rig.
+   */
   #grounded(raw: Posture, solved: Seeded): boolean {
     const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
       this.#body,
@@ -206,26 +222,40 @@ export class WorkingSeatRidePlan implements WorkingSeatRidePlan.IPlan {
   }
 }
 export namespace WorkingSeatRidePlan {
-  /** A ride plan whose composition can sample posture and carrier together. */
+  /*
+   * A ride plan whose composition can sample posture and carrier together.
+   */
   export interface IPlan extends Plan {
-    /** Select a posture with the carrier frame that placed it. */
+    /*
+     * Select a posture with the carrier frame that placed it.
+     */
     postureWithFrame: Frame;
   }
 
-  /** The original posture and the exact carrier frame that placed it. */
+  /*
+   * The original posture and the exact carrier frame that placed it.
+   */
   export interface IWritten {
-    /** The current original authoring. */
+    /*
+     * The current original authoring.
+     */
     posture: Posture;
-    /** The carrier read used to produce that authoring. */
+    /*
+     * The carrier read used to produce that authoring.
+     */
     frame: IAutoMovieRigidTransform;
   }
 
-  /** A normal ride has no use for the carrier frame after authoring. */
+  /*
+   * A normal ride has no use for the carrier frame after authoring.
+   */
   export function postureOnly(posture: Posture): Posture {
     return posture;
   }
 
-  /** A working ride's alternative borrows the carrier frame read by its author. */
+  /*
+   * A working ride's alternative borrows the carrier frame read by its author.
+   */
   export function withFrame(
     posture: Posture,
     frame: IAutoMovieRigidTransform,

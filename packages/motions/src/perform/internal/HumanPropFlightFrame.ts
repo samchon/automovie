@@ -16,9 +16,11 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPropFrame } from "./HumanPropFrame";
 import { HumanPropOutcome } from "./HumanPropOutcome";
 
-/** The displayed origin of a prop already in flight and its frame at a contact. */
+/*
+ * The displayed origin of a prop already in flight and its frame at a contact.
+ */
 export namespace HumanPropFlightFrame {
-  /**
+  /*
    * Read the displayed world frame at film seconds from an already selected
    * flight.
    */
@@ -65,7 +67,7 @@ export namespace HumanPropFlightFrame {
       : HumanPropFrame.compose(carrier, contact.offset);
   }
 
-  /**
+  /*
    * Place the contact on the film clock and express the displayed rest relative
    * to what it struck.
    */
@@ -105,7 +107,9 @@ export namespace HumanPropFlightFrame {
     };
   }
 
-  /** Convert a projectile's centre back to the displayed prop origin. */
+  /*
+   * Convert a projectile's centre back to the displayed prop origin.
+   */
   function originFrame(
     sphere: IAutoMovieMotionPropLaunch["sphere"],
     position: IAutoMovieVector3,
@@ -123,7 +127,7 @@ export namespace HumanPropFlightFrame {
     };
   }
 
-  /**
+  /*
    * The world frame of what a flight struck at a second: a bone's, a prop's, or
    * none for the floor.
    */

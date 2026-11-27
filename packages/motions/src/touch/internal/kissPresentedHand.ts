@@ -18,24 +18,23 @@ import { kissCanLower } from "./kissCanLower";
 import { kissHandClearance } from "./kissHandClearance";
 import { kissPose } from "./kissPose";
 
-/**
+/*
  * Fit the lips to the staged back of a hand while the feet stay planted.
- *
- * @param body The kisser's measured actor.
- * @param entry The posture before the bow.
- * @param stance The two unchanged foot placements.
- * @param hip The planted hip pivot in world metres.
- * @param at The staged back-of-hand skin point.
- * @param lifted The current anatomical candidate whose pitch seeds the bow.
- * @param heldHand The presented skin normal, shared clock and held colliders.
- * @param postureAt The same head, pelvis and legs written by the law.
- * @param mouth Read the displayed mouth from a candidate posture.
- * @param resolution The current call's FK workspace.
- * @param NEAR The law's contact tolerance, metres.
- * @param RAISE The permitted heel rise, degrees.
- * @param ROLL The permitted coronal hip lean, degrees.
- * @returns A pose admitted on the original contact and skin limits, or
- *   undefined.
+ * Parameter body: The kisser's measured actor.
+ * Parameter entry: The posture before the bow.
+ * Parameter stance: The two unchanged foot placements.
+ * Parameter hip: The planted hip pivot in world metres.
+ * Parameter at: The staged back-of-hand skin point.
+ * Parameter lifted: The current anatomical candidate whose pitch seeds the bow.
+ * Parameter heldHand: The presented skin normal, shared clock and held colliders.
+ * Parameter postureAt: The same head, pelvis and legs written by the law.
+ * Parameter mouth: Read the displayed mouth from a candidate posture.
+ * Parameter resolution: The current call's FK workspace.
+ * Parameter NEAR: The law's contact tolerance, metres.
+ * Parameter RAISE: The permitted heel rise, degrees.
+ * Parameter ROLL: The permitted coronal hip lean, degrees.
+ * Returns: A pose admitted on the original contact and skin limits, or
+ * undefined.
  */
 export function kissPresentedHand(
   body: IAutoMovieMotionHumanBody,
@@ -257,9 +256,13 @@ export function kissPresentedHand(
   return worst <= AutoMovieMotionHumanAuditSkin.BUILT ? best : undefined;
 }
 
-/** The already displayed hand and the real timing of the recipient's bow. */
+/*
+ * The already displayed hand and the real timing of the recipient's bow.
+ */
 export namespace kissPresentedHand {
-  /** The target normal and held geometry for this plan only. */
+  /*
+   * The target normal and held geometry for this plan only.
+   */
   export interface IHand {
     clock: IAutoMovieMotionClock;
     start: number;
@@ -268,7 +271,9 @@ export namespace kissPresentedHand {
   }
 }
 
-/** A candidate's displayed contact point and the sampled shape overlaps, metres. */
+/*
+ * A candidate's displayed contact point and the sampled shape overlaps, metres.
+ */
 interface ISkin {
   point: IAutoMovieVector3;
   depths: number[];

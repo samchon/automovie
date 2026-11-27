@@ -18,7 +18,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { validateBuiltEnvironment } from "./validateBuiltEnvironment";
 
-/**
+/*
  * Lower one building record to ordinary subject contributions.
  *
  * Visible element transforms are composed parent-to-child and flattened into
@@ -44,10 +44,9 @@ import { validateBuiltEnvironment } from "./validateBuiltEnvironment";
  * contribution shares the environment's own model, surface and population
  * objects rather than copying them. A record that fails
  * `validateBuiltEnvironment` throws an `Error` naming its first violation.
- *
- * @param environment Building record to lower.
- * @returns The models, set pieces, stage spaces, building record and compact
- *   populations the building contributes.
+ * Parameter environment: Building record to lower.
+ * Returns: The models, set pieces, stage spaces, building record and compact
+ * populations the building contributes.
  */
 export function lowerBuiltEnvironment(
   environment: IAutoMovieBuiltEnvironment,
@@ -100,7 +99,9 @@ export function lowerBuiltEnvironment(
   };
 }
 
-/** One stage space per logical space, carrying its own support patches. */
+/*
+ * One stage space per logical space, carrying its own support patches.
+ */
 const stageSpaces: (
   environment: IAutoMovieBuiltEnvironment,
 ) => IAutoMovieSpace[] = (

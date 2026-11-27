@@ -10,7 +10,7 @@ import type {
 import { convertAutoMovieRecoveryCurves } from "../../curves/internal/convertAutoMovieRecoveryCurves";
 import { RecoveryBezierFit } from "../../fitting/RecoveryBezierFit";
 
-/**
+/*
  * Fit one caller-ordered polyline through the shared tangent-constrained cubic
  * solver. Closure and correspondence are input facts. The result bounds only
  * the supplied finite polyline, not an unknown continuous surface. Adaptive

@@ -6,12 +6,12 @@ import { knee as kneeLaw } from "../../striking/internal/knee";
 import { punch as punchLaw } from "../../striking/internal/punch";
 import { step as stepLaw } from "../../striking/internal/step";
 
-/**
+/*
  * The strike family's laws, each the shipped function under its family name
  * (`AutoMovieMotionHumanStrike`), with its own comment.
  */
 export namespace AutoMovieMotionHumanStrikeLaws {
-  /**
+  /*
    * A punch: the fist's knuckles brought onto the target along a measured path
    * and returned to the guard, with the trunk turning and the feet stepping or
    * pivoting to carry the shoulder.
@@ -24,8 +24,8 @@ export namespace AutoMovieMotionHumanStrikeLaws {
    * the fist point less the hand-rotated socket offset, the elbow bend hint and
    * the shoulder carried by the trunk turn shape the arm, and the engine's limb
    * fit solves the joints. The target is tracked online with the visuomotor
-   * latency ({@link StrikingAim}); the fist stops on the first surface of the
-   * struck body it meets ({@link StrikingStroke}), so a guard on the line is
+   * latency (StrikingAim); the fist stops on the first surface of the
+   * struck body it meets (StrikingStroke), so a guard on the line is
    * struck instead of the face it covers, and two punches thrown at once meet
    * whichever arm or head is in the way.
    *
@@ -38,7 +38,7 @@ export namespace AutoMovieMotionHumanStrikeLaws {
    * and pivots the rear foot on its ball; a lead hook turns the other way. A
    * body punch lowers the root through the knees. When the arm's band falls
    * short, the lead foot steps in by up to one stance length, never past the
-   * room in front of the arms ({@link StrikingRoom}) and never toward a target
+   * room in front of the arms (StrikingRoom) and never toward a target
    * that no place on the line brings within the band, and the rear foot drags
    * from mid-delivery to mid-return (the IBA stepping jab), so no planted foot
    * is left behind a travelling hip; the trunk's turn is shared by the pelvis
@@ -53,7 +53,7 @@ export namespace AutoMovieMotionHumanStrikeLaws {
    * 0.35 s between alternating hands and 0.45 s for the same hand at elite
    * skill (Piorkowski et al. 2011), counted from that contact. The return to
    * the guard takes one alternating interval. Skill scales them
-   * ({@link StrikingSkill}): the delivery and both intervals by the strike
+   * (StrikingSkill): the delivery and both intervals by the strike
    * phase's factor, the intervals' scaling derived and provisional
    * (`StrikingSkill.interval`), and a seeded guard drop may hold the returning
    * glove low before it reaches the guard. A feint shows a share of the
@@ -61,7 +61,7 @@ export namespace AutoMovieMotionHumanStrikeLaws {
    */
   export import punch = punchLaw;
 
-  /**
+  /*
    * A kick: the round kick's lower shin or the push kick's ball of the foot
    * brought onto the target, through a chamber, and recoiled to the replant.
    *
@@ -69,16 +69,16 @@ export namespace AutoMovieMotionHumanStrikeLaws {
    * minimum-jerk units from its plant through the chamber to the contact and
    * back through a re-chamber, the knee's bend hint and the foot's rotation
    * riding along, and the engine's limb fit solves the leg. The contact is
-   * decided on the fitted figure ({@link KickGeometry}): the two-segment solve
-   * ({@link StrikingReach}) puts the lower shin (seven tenths of the way from
+   * decided on the fitted figure (KickGeometry): the two-segment solve
+   * (StrikingReach) puts the lower shin (seven tenths of the way from
    * the knee) or the ball of the foot on the target point with the knee between
    * 5 and 40 degrees of flexion (35 for the push kick), and the body's carriage
-   * ({@link KickCarriage}) leans the least that lets the fitted leg hold that
+   * (KickCarriage) leans the least that lets the fitted leg hold that
    * solve inside the hip's range of motion. A target nearer than the band is
    * met higher up the shin, as a jammed kick lands; one beyond it, after a
    * step-up of the support foot by up to half a stance, is missed at the fitted
    * leg's own reach. The chamber is the contact's leg with the knee folded
-   * ({@link KickChamber}).
+   * (KickChamber).
    *
    * Both gloves keep their guard (the kick-guard decision of the kickboxing
    * research).
@@ -87,21 +87,21 @@ export namespace AutoMovieMotionHumanStrikeLaws {
    * extension 11 % of the 1.02 s execution, recoil 0.65 s; the round kick lands
    * at 0.55 of its peak foot speed. Skill scales chamber and recoil by 1.4 to 1
    * and the strike phase by 1.06 to 1, and the chamber's fold and the pelvis's
-   * turn by its range share ({@link StrikingSkill}). Every phase applies to low,
+   * turn by its range share (StrikingSkill). Every phase applies to low,
    * body and high kicks alike, an approximation the source states (it timed
    * head kicks).
    *
    * A round kick may be redirected before its chamber key into another round
-   * kick ({@link KickRedirect}).
+   * kick (KickRedirect).
    */
   export import kick = kickLaw;
 
-  /**
+  /*
    * A knee strike: the knee driven up and forward onto the target while the
    * hands hold the opponent's head or neck (the clinch) or stay at the guard.
    *
    * The knee is the weapon, and the thigh carries it on a circle about the hip
-   * ({@link KneeReach}). The hips square to the thigh's heading, the support
+   * (KneeReach). The hips square to the thigh's heading, the support
    * foot pivoting on its ball with them; the pelvis travels along the line
    * until the knee's front is on the target, lowered as far as the planted
    * support leg needs to keep its foot, and the knee is solved from the hip
@@ -111,17 +111,17 @@ export namespace AutoMovieMotionHumanStrikeLaws {
    * body.
    *
    * The knee is lifted, then the hips are driven in
-   * ({@link KneeForm.LIFT_SHARE}): the thigh swings about the hip from where the
+   * (KneeForm.LIFT_SHARE): the thigh swings about the hip from where the
    * stance had it to its solved elevation on an early clock, the pelvis travels
    * on a late one, and the way back mirrors it. The shank folds under the knee
-   * and the toes point down along it ({@link KneeForm.FLEXION},
-   * {@link KneeForm.PLANTAR}), so the foot trails behind the knee instead of
+   * and the toes point down along it (KneeForm.FLEXION,
+   * KneeForm.PLANTAR), so the foot trails behind the knee instead of
    * leading it into the opponent's legs. The trunk leans back slightly to keep
    * the centre of mass over the pivoting support foot.
    *
    * The thigh, shank and foot are contact capsules on the shown leg
-   * ({@link StrikingWeapon}); first contact stops the knee for its dwell, then
-   * it gives way before the met body ({@link StrikingRide}) and retraces its
+   * (StrikingWeapon); first contact stops the knee for its dwell, then
+   * it gives way before the met body (StrikingRide) and retraces its
    * approach.
    *
    * Timing (kickboxing research): the knee rises through the round kick's
@@ -133,7 +133,7 @@ export namespace AutoMovieMotionHumanStrikeLaws {
    */
   export import knee = kneeLaw;
 
-  /**
+  /*
    * The close strikes (`IAutoMovieMotionHumanCloseStrike`): an elbow, a
    * spinning elbow or backfist, or a headbutt, out to the target on the punch's
    * measured delivery and back to the guard over its hand recovery.
@@ -152,7 +152,7 @@ export namespace AutoMovieMotionHumanStrikeLaws {
    */
   export import closeStrike = closeStrikeLaw;
 
-  /**
+  /*
    * The foot strikes (`IAutoMovieMotionHumanFootStrike`): the kicking ankle
    * from its plant through a chamber to the contact and back, the support leg
    * planted on its ball, the pelvis turned, spun or lifted as the technique and
@@ -173,7 +173,7 @@ export namespace AutoMovieMotionHumanStrikeLaws {
    */
   export import footStrike = footStrikeLaw;
 
-  /**
+  /*
    * Fighting-stance footwork: steps that keep the stance, the foot on the side
    * of travel moving first and the other following to restore the stance
    * without crossing (IBA coaching manual pp. 36 to 39: forward, the lead foot
@@ -196,7 +196,7 @@ export namespace AutoMovieMotionHumanStrikeLaws {
    */
   export import step = stepLaw;
 
-  /**
+  /*
    * Martial-art forms other than kickboxing: the karate horse stance
    * (kiba-dachi), alternating straight punches from it (choku-zuki) and the tai
    * chi push in a bow stance.

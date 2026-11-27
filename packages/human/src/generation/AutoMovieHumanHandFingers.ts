@@ -25,7 +25,9 @@ const { STYLION }: typeof AutoMovieHumanHandJoints = AutoMovieHumanHandJoints;
  * runs past it.
  */
 export namespace AutoMovieHumanHandFingers {
-  /** Each finger's webs, as indices of the form's crests from the index side, index to little. */
+  /*
+   * Each finger's webs, as indices of the form's crests from the index side, index to little.
+   */
   const WEBS: readonly (readonly number[])[] = [[0], [0, 1], [1, 2], [2]];
 
   /**

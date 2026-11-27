@@ -15,7 +15,7 @@ import { AutoMovieLoftSectionNative } from "../../AutoMovieLoftSectionNative";
 import { AutoMovieLoftViewRead } from "../../AutoMovieLoftViewRead";
 import { AutoMovieLoftViewSource } from "../../AutoMovieLoftViewSource";
 
-/**
+/*
  * Exact native-source adapter to the original piecewise-profile reader.
  *
  * No raw loft or compatibility coefficients are constructed. Existing scalar,
@@ -90,7 +90,9 @@ export function AutoMovieConstructionNativeProfile(
     revisions: { ...identity.revisions },
   };
 
-  /** Caller lifetime bounds reuse to the latest immutable station only. */
+  /*
+   * Caller lifetime bounds reuse to the latest immutable station only.
+   */
   let latest: Station | undefined;
   const at: (station: number) => Station = (station: number): Station => {
     if (station < source.domain[0] || station > source.domain[1])
@@ -151,19 +153,29 @@ export function AutoMovieConstructionNativeProfile(
   };
 }
 
-/** One caller-owned actual station preparation, independent of output density. */
+/*
+ * One caller-owned actual station preparation, independent of output density.
+ */
 interface Station {
-  /** Physical station, kernel millimetres. */
+  /*
+   * Physical station, kernel millimetres.
+   */
   at: number;
-  /** Existing numeric Point0 closure; a collapsed original has no regular curve. */
+  /*
+   * Existing numeric Point0 closure; a collapsed original has no regular curve.
+   */
   point: ((phase: number) => [number, number]) | null;
-  /**
+  /*
    * Same immutable original values for the independently requested phase
    * capability.
    */
   values: IAutoMovieLoftViewRead.IValues;
-  /** Lazy original phase2 does not require physical station2. */
+  /*
+   * Lazy original phase2 does not require physical station2.
+   */
   phase: ((phi: number) => IAutoMovieLoftSectionPhase) | undefined;
-  /** Lazily prepared actual physical2; failures are never cached as success. */
+  /*
+   * Lazily prepared actual physical2; failures are never cached as success.
+   */
   jet: ((phi: number) => IAutoMovieLoftSectionJet) | undefined;
 }

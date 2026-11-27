@@ -1,6 +1,6 @@
 import { IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * The axis-aligned bound of one local box carried through a column-major affine
  * matrix.
  *
@@ -9,10 +9,9 @@ import { IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
  * negative scale on an axis still yields an ordered box. The matrix's last row
  * is ignored, so a projective matrix is treated as affine. A `NaN` entry or
  * corner propagates into the result.
- *
- * @param box Local box, `min` and `max` corners in the matrix's source frame.
- * @param matrix Sixteen numbers, column-major, as `Matrix4` stores them.
- * @returns A new world box.
+ * Parameter box: Local box, `min` and `max` corners in the matrix's source frame.
+ * Parameter matrix: Sixteen numbers, column-major, as `Matrix4` stores them.
+ * Returns: A new world box.
  */
 export const transformedBoxBounds = (
   box: IAutoMovieSubjectBox,

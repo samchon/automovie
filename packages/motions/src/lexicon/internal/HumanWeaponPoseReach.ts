@@ -1,7 +1,7 @@
 import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * The signed step along a line from a point to where the line meets a sphere
  * about a centre on its far side: the larger root of `|d + s u|^2 = r^2` for
  * the point's offset `d` from the centre and the unit direction `u`; undefined

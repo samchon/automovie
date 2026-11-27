@@ -2,7 +2,7 @@ import type { IAutoMovieInspectionView } from "@automovie/interface";
 import { type IAutoMovieDrawScene, type IAutoMovieInspectionHandle, AutoMovieRenderInspectionCamera, AutoMovieRenderInspectionRequest } from "@automovie/render";
 import type * as THREE from "three";
 
-/**
+/*
  * The camera the inspector draws a placed second through: the request's view,
  * written as `text`, resolved against the subject's delivery camera and named
  * views at `seconds`, a named view with a focus framed on what the inspection
@@ -13,16 +13,24 @@ import type * as THREE from "three";
  * whatever the canvas's shape.
  */
 export function resolveAutoMovieInspectorCamera(props: {
-  /** The created subject, placed at `seconds`. */
+  /*
+   * The created subject, placed at `seconds`.
+   */
   instance: IAutoMovieDrawScene;
 
-  /** The view's text, the request's first view. */
+  /*
+   * The view's text, the request's first view.
+   */
   text: string;
 
-  /** The applied inspection, whose bounds frame a focused named view. */
+  /*
+   * The applied inspection, whose bounds frame a focused named view.
+   */
   inspection: IAutoMovieInspectionHandle;
 
-  /** The placed second. */
+  /*
+   * The placed second.
+   */
   seconds: number;
 }): THREE.Camera {
   const { instance, text }: typeof props = props;

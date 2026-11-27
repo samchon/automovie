@@ -18,7 +18,7 @@ import { orderHumanLimbs } from "./orderHumanLimbs";
 import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
-/**
+/*
  * Fit one person's already placed pose in attachment order, with independent
  * arms handled by the same coupled pair solver. The first goal prepares a lazy
  * reader getter, and the first FK demand creates or borrows its reader. An
@@ -38,23 +38,22 @@ export function refitHumanPosture(
   return fitted(body, pose, limbs, near, resolution, applyHumanLimbFit);
 }
 
-/**
+/*
  * The refit routes of an assembly's own pose and of the owned continuous curve,
  * both on the direct solve.
  */
 export namespace refitHumanPosture {
-  /**
+  /*
    * The refit of a pose a base-free assembly just made, one clamped record a
    * rig bone: the same ordered direct solves, with the whole pose's admission
    * skipped where every record is already well formed (`fitted`).
-   *
-   * @param body The performer's body.
-   * @param pose The assembly's pose.
-   * @param limbs The goals, world goals already turned.
-   * @param near Each limb's nearby fit to continue.
-   * @param resolution Optional FK reader or lazy supplier of the same
-   *   synchronous evaluation.
-   * @returns The pose, seeds and values; untouched records are the assembly's.
+   * Parameter body: The performer's body.
+   * Parameter pose: The assembly's pose.
+   * Parameter limbs: The goals, world goals already turned.
+   * Parameter near: Each limb's nearby fit to continue.
+   * Parameter resolution: Optional FK reader or lazy supplier of the same
+   * synchronous evaluation.
+   * Returns: The pose, seeds and values; untouched records are the assembly's.
    */
   export function constructed(
     body: IAutoMovieMotionHumanBody,
@@ -76,7 +75,7 @@ export namespace refitHumanPosture {
     );
   }
 
-  /**
+  /*
    * Correct an actual owned free-leg curve under its explicit continuous
    * policy.
    *
@@ -112,7 +111,7 @@ export namespace refitHumanPosture {
   }
 }
 
-/**
+/*
  * Keep the original limb-order loop once; only the entry's limb fit differs. An
  * `assembled` pose is the base-free assembly's own, one clamped record a rig
  * bone.

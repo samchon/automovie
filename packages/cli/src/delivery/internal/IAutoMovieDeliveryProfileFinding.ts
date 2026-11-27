@@ -1,4 +1,4 @@
-/**
+/*
  * One way an encoded delivery file differs from the profile it must carry, as
  * `auditAutoMovieDeliveryProfile` records it in the render report.
  *
@@ -10,15 +10,23 @@
  * them.
  */
 export interface IAutoMovieDeliveryProfileFinding {
-  /** The track the finding concerns. */
+  /*
+   * The track the finding concerns.
+   */
   media: "video" | "audio";
 
-  /** The profile field that differs. */
+  /*
+   * The profile field that differs.
+   */
   field: string;
 
-  /** The value the profile requires. */
+  /*
+   * The value the profile requires.
+   */
   expected: string;
 
-  /** The value the file holds. */
+  /*
+   * The value the file holds.
+   */
   observed: string;
 }

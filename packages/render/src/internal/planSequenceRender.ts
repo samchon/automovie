@@ -16,7 +16,7 @@ import { framePattern } from "../framePattern.js";
 import { frameTimes } from "./frameTimes.js";
 import { renderPathStem } from "../renderPathStem.js";
 
-/**
+/*
  * Build the render-layer manifest for a committed sequence. The output FPS is
  * controlled by the render spec; the cut's fps is preserved as editorial
  * metadata. Trim, playback-rate and transition arithmetic is delegated to the
@@ -116,10 +116,10 @@ const transitionSpans: (
     },
   );
 
-/**
+/*
  * Resolve every output frame in one forward sweep. Frame times come from
- * {@link frameTimes} (`i / fps`, strictly increasing), so a single
- * {@link playbackCursor} walks the timeline once, O(frames + entries) instead of
+ * frameTimes (`i / fps`, strictly increasing), so a single
+ * playbackCursor walks the timeline once, O(frames + entries) instead of
  * a per-frame scan, landing on the same live entry a per-frame resolve would,
  * so the samples are byte-identical.
  */

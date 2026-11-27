@@ -17,7 +17,7 @@ import { solveRecoveryMapJointStep } from "./solveRecoveryMapJointStep";
 import { stepRecoveryMapPose } from "./stepRecoveryMapPose";
 import { stepRecoveryMapSeedPose } from "./stepRecoveryMapSeedPose";
 
-/**
+/*
  * Jointly refine calibrated cameras and registered landmarks in one gauge. The
  * first pose must be identity at the origin and stays fixed; the seed
  * translation retains its admitted near-unit current radius, and all later

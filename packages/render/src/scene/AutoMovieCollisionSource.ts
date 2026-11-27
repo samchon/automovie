@@ -1,10 +1,12 @@
 import type { IAutoMovieSceneCollision } from "@automovie/interface";
 import * as THREE from "three";
 
-/** The userData key every generator writes and the collision collector reads. */
+/*
+ * The userData key every generator writes and the collision collector reads.
+ */
 const KEY: string = "automovieCollisionSource";
 
-/**
+/*
  * The userData key of a rigid assembly's record on its root: each part's uuid
  * and built placement relative to the root, plain data that survives Three's
  * JSON clone of userData; a clone's parts carry new uuids, so it reads as no
@@ -151,16 +153,24 @@ export namespace AutoMovieCollisionSource {
   }
 }
 
-/** One part of a rigid assembly record: its uuid and built placement. */
+/*
+ * One part of a rigid assembly record: its uuid and built placement.
+ */
 interface IAssemblyPart {
-  /** The part object's uuid. */
+  /*
+   * The part object's uuid.
+   */
   readonly uuid: string;
 
-  /** Its placement relative to the root at build time, column-major. */
+  /*
+   * Its placement relative to the root at build time, column-major.
+   */
   readonly built: readonly number[];
 }
 
-/** This module's own tagged record on a drawn object. */
+/*
+ * This module's own tagged record on a drawn object.
+ */
 type IRecord =
   | { kind: "instances"; source: AutoMovieCollisionSource.IInstances }
   | { kind: "cord"; source: AutoMovieCollisionSource.ICord };

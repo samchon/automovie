@@ -4,7 +4,7 @@ import * as fs from "node:fs/promises";
 import { AutoMovieMp4Boxes } from "../../delivery/internal/AutoMovieMp4Boxes";
 import type { IAutoMovieDeliveryProfileFinding } from "../../delivery/internal/IAutoMovieDeliveryProfileFinding";
 
-/**
+/*
  * Check that a transparent render's `.mov` holds the drawn frame files
  * themselves: one video sample per frame, each sample's bytes hashing to its
  * frame file's SHA-256, and no audio track.
@@ -14,18 +14,23 @@ import type { IAutoMovieDeliveryProfileFinding } from "../../delivery/internal/I
  * holds, and `stco` or `co64` where each chunk starts, samples lying back to
  * back within a chunk. Each sample is read from the file and hashed with
  * SHA-256, then compared with the hash of the frame file at the same index.
- * @see https://www.iso.org/standard/85596.html
+ * ://www.iso.org/standard/85596.html
  *
  * It returns the findings in the profile-finding form the render report keeps,
  * empty when the file conforms: `track` for an audio track, `sampleCount` for a
  * count other than the frames', `sample[<i>].sha256` for the first sample whose
  * bytes differ, or `probe` when the boxes cannot be read.
+ * @see https://www.iso.org/standard/85596.html
  */
 export async function auditAutoMovieAlphaSamples(props: {
-  /** The wrapped `.mov` file. */
+  /*
+   * The wrapped `.mov` file.
+   */
   path: string;
 
-  /** The drawn frame files, in frame order. */
+  /*
+   * The drawn frame files, in frame order.
+   */
   frames: readonly string[];
 }): Promise<IAutoMovieDeliveryProfileFinding[]> {
   let samples: { offset: number; size: number }[];
@@ -110,11 +115,13 @@ export async function auditAutoMovieAlphaSamples(props: {
   return findings;
 }
 
-/** The box readers the audit walks the movie box with. */
+/*
+ * The box readers the audit walks the movie box with.
+ */
 const { children, field, handler, only }: typeof AutoMovieMp4Boxes =
   AutoMovieMp4Boxes;
 
-/**
+/*
  * Every sample's file offset and size from a track's `stsz`, `stsc` and `stco`
  * or `co64`.
  */
@@ -196,7 +203,9 @@ function sampleTable(
   return samples;
 }
 
-/** SHA-256 of bytes as 64 lowercase hexadecimal digits. */
+/*
+ * SHA-256 of bytes as 64 lowercase hexadecimal digits.
+ */
 function sha256(bytes: Uint8Array): string {
   return createHash("sha256").update(bytes).digest("hex");
 }

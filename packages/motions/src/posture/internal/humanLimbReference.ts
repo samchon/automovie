@@ -8,15 +8,14 @@ import type {
 
 import { HumanLimbFit } from "./HumanLimbFit";
 
-/**
+/*
  * A limb's reference solution read off a pose: the clinical angles of its
  * upper and lower bones. A law solves the limb once at the instant its action
  * is about (the grasp, the clasp, the placement) and hands the result to
  * every goal of the stroke as `HumanPosture.IGoal.reference`.
- *
- * @param pose The pose the limb was solved in.
- * @param limb The limb.
- * @returns The reference.
+ * Parameter pose: The pose the limb was solved in.
+ * Parameter limb: The limb.
+ * Returns: The reference.
  */
 export function humanLimbReference(
   pose: IAutoMoviePose,

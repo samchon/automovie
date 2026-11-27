@@ -6,9 +6,9 @@ import type {
 import { workout } from "../../exercise/internal/workout";
 import { AutoMovieMotionHumanActionRow } from "../../law/AutoMovieMotionHumanActionRow";
 
-/**
+/*
  * A swing on a bar. Default 3 repetitions of 1.9 s after a 1 s entry;
- * provisional ({@link WorkoutHanging.KINDS}).
+ * provisional (WorkoutHanging.KINDS).
  */
 export const HumanSportWorkoutBarSwing: IAutoMovieMotionHumanActionLaw<
   IAutoMovieMotionHumanLexiconParams["sportWorkout"]["barSwing"]

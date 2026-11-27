@@ -51,7 +51,7 @@ export namespace AutoMovieConstructionProfileBody {
       const rowCount: number = grid.stations.length;
       const known: Map<string, number> = new Map();
 
-      /**
+      /*
        * Boundary equality was checked against both source endpoints before one
        * authority is assigned.
        */

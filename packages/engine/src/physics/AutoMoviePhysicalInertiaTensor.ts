@@ -198,25 +198,33 @@ export namespace AutoMoviePhysicalInertiaTensor {
   }
 }
 
-/** Last intrinsic tensor key and entries, with no part or caller record held. */
+/*
+ * Last intrinsic tensor key and entries, with no part or caller record held.
+ */
 interface IRotated {
-  /** False until all nine entries finish from this actual captured key. */
+  /*
+   * False until all nine entries finish from this actual captured key.
+   */
   ready: boolean;
 
-  /**
+  /*
    * Copied principal moments in the caller's tensor unit, forming the exact
    * intrinsic key.
    */
   moments: IAutoMovieVector3;
 
-  /** Copied principal-to-common quaternion coordinates, without normalization. */
+  /*
+   * Copied principal-to-common quaternion coordinates, without normalization.
+   */
   rotation: IAutoMovieQuaternion;
 
-  /** Nine row-major intrinsic entries, before any current parallel-axis shift. */
+  /*
+   * Nine row-major intrinsic entries, before any current parallel-axis shift.
+   */
   tensor: number[];
 }
 
-/**
+/*
  * Share only identical moment/quaternion scalar dependencies at this part
  * index.
  */
@@ -266,7 +274,7 @@ function readRotated(
   return value;
 }
 
-/**
+/*
  * Apply all current parallel-axis terms before the same tensor or spin
  * consumer.
  */
@@ -295,7 +303,7 @@ function preparedComponents<T, Context>(
   );
 }
 
-/**
+/*
  * Prepare just the intrinsic portion, before any parallel-axis addition. Its
  * nine expressions retain the scalar kernel's independent row/column products;
  * caching them does not fold unequal off-diagonal rounding.
@@ -328,7 +336,9 @@ function rotated(value: IRotated): void {
   value.tensor[8] = 0 + az * a.z + bz * b.z + cz * c.z;
 }
 
-/** A row-major scalar tensor consumer that needs no intermediate row arrays. */
+/*
+ * A row-major scalar tensor consumer that needs no intermediate row arrays.
+ */
 type Consume<T, Context> = (
   context: Context,
   xx: number,
@@ -342,7 +352,9 @@ type Consume<T, Context> = (
   zz: number,
 ) => T;
 
-/** Add one part in model order to this call's exclusively owned tensor. */
+/*
+ * Add one part in model order to this call's exclusively owned tensor.
+ */
 function addTensor(
   tensor: number[][],
   xx: number,
@@ -367,7 +379,9 @@ function addTensor(
   return undefined;
 }
 
-/** Borrow the interval's velocity and return the original three row products. */
+/*
+ * Borrow the interval's velocity and return the original three row products.
+ */
 function spinVector(
   velocity: IAutoMovieVector3,
   xx: number,
@@ -387,16 +401,22 @@ function spinVector(
   };
 }
 
-/** Immutable canonical columns, read only by pure quaternion rotation. */
+/*
+ * Immutable canonical columns, read only by pure quaternion rotation.
+ */
 const BASIS_X: Readonly<IAutoMovieVector3> = { x: 1, y: 0, z: 0 };
 
-/** The second immutable canonical column. */
+/*
+ * The second immutable canonical column.
+ */
 const BASIS_Y: Readonly<IAutoMovieVector3> = { x: 0, y: 1, z: 0 };
 
-/** The third immutable canonical column. */
+/*
+ * The third immutable canonical column.
+ */
 const BASIS_Z: Readonly<IAutoMovieVector3> = { x: 0, y: 0, z: 1 };
 
-/**
+/*
  * Read one part's nine entries with the same association as tensor assembly.
  * The consumer runs once and retains no part or scratch owned by this call.
  */

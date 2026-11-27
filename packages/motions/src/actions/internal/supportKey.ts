@@ -27,30 +27,29 @@ import { stand } from "./stand";
 import { supportContact } from "./supportContact";
 import { supportKeyHeels } from "./supportKeyHeels";
 
-/**
+/*
  * A support planner's key postures (`support`): one solved on a stance's
  * contacts by the whole-body fit, and the course between two of them.
  */
 export namespace supportKey {
-  /**
+  /*
    * The key posture on a set of contacts, refused where a contact misses.
-   *
-   * @param body The body.
-   * @param preferred The posture kept nearest.
-   * @param from The key before, the seed.
-   * @param contacts The contacts.
-   * @param at Each contact's target point.
-   * @param label The key's name, for the refusal.
-   * @param miss How far a contact may miss its target, millimetres.
-   * @param swings The targets of the parts stepping, which bear on nothing;
-   *   none when absent.
-   * @param form The contact frames for the plan's unchanged body, including its
-   *   measured quiet-foot normals.
-   * @param held Whether the preceding transfer already established this
-   *   stance's preference and exact contact set.
-   * @returns The posture.
-   * @throws {HumanRefusal} A `reach` refusal on `stances` when a placed contact
-   *   misses by more than `miss`.
+   * Parameter body: The body.
+   * Parameter preferred: The posture kept nearest.
+   * Parameter from: The key before, the seed.
+   * Parameter contacts: The contacts.
+   * Parameter at: Each contact's target point.
+   * Parameter label: The key's name, for the refusal.
+   * Parameter miss: How far a contact may miss its target, millimetres.
+   * Parameter swings: The targets of the parts stepping, which bear on nothing;
+   * none when absent.
+   * Parameter form: The contact frames for the plan's unchanged body, including its
+   * measured quiet-foot normals.
+   * Parameter held: Whether the preceding transfer already established this
+   * stance's preference and exact contact set.
+   * Returns: The posture.
+   * A `reach` refusal on `stances` when a placed contact
+   * misses by more than `miss`.
    */
   export function solved(
     body: IAutoMovieMotionHumanBody,
@@ -234,20 +233,19 @@ export namespace supportKey {
     return result.posture;
   }
 
-  /**
+  /*
    * A stance's preferred posture: its stated posture (`prefer`) over the key
    * before it, turned by the stance's turn and rested on the floor by its
    * lowest collider and moved across the floor so its contacts that already
    * have a place lie over them, a seed the fit then places by what bears; the
    * posture the body entered with when the stance states none.
-   *
-   * @param body The body.
-   * @param base The posture the body entered with, by its joint angles.
-   * @param stance The stance.
-   * @param from The key before.
-   * @param place Each contact's place, world metres, or null for one without;
-   *   none placed when absent.
-   * @returns The posture.
+   * Parameter body: The body.
+   * Parameter base: The posture the body entered with, by its joint angles.
+   * Parameter stance: The stance.
+   * Parameter from: The key before.
+   * Parameter place: Each contact's place, world metres, or null for one without;
+   * none placed when absent.
+   * Returns: The posture.
    */
   export function preferred(
     body: IAutoMovieMotionHumanBody,
@@ -319,16 +317,15 @@ export namespace supportKey {
     };
   }
 
-  /**
+  /*
    * Prepare interpolation between two joint-space support keys the caller holds
    * unchanged: each joint on its own range (`blendHumanJoint`), the root
    * linearly and the heading the shorter way. Reads take the share unclipped;
    * outputs carry no limb goals.
-   *
-   * @param body The unchanged body and its canonical axes/ranges.
-   * @param a The fixed key at zero progress, in world metres and degrees.
-   * @param b The fixed key at full progress in the same frame.
-   * @returns A reader of the share, with a fresh posture and joint map.
+   * Parameter body: The unchanged body and its canonical axes/ranges.
+   * Parameter a: The fixed key at zero progress, in world metres and degrees.
+   * Parameter b: The fixed key at full progress in the same frame.
+   * Returns: A reader of the share, with a fresh posture and joint map.
    */
   export function prepareBlended(
     body: IAutoMovieMotionHumanBody,
@@ -386,22 +383,32 @@ export namespace supportKey {
     };
   }
 
-  /** The solver's measured miss of one target. */
+  /*
+   * The solver's measured miss of one target.
+   */
   type Residual =
     IAutoMovieMotionHumanBodyFitTypes.IResult["residuals"][number];
 
-  /** One fixed union joint; absent tuples keep their original fresh-zero rule. */
+  /*
+   * One fixed union joint; absent tuples keep their original fresh-zero rule.
+   */
   interface IBlendPair {
-    /** The canonical joint name in original union order. */
+    /*
+     * The canonical joint name in original union order.
+     */
     bone: AutoMovieHumanoidBone;
 
-    /** Its authored first tuple, absent for clinical zero. */
+    /*
+     * Its authored first tuple, absent for clinical zero.
+     */
     from: readonly [number, number, number] | undefined;
 
-    /** Its authored second tuple, absent for clinical zero. */
+    /*
+     * Its authored second tuple, absent for clinical zero.
+     */
     to: readonly [number, number, number] | undefined;
 
-    /**
+    /*
      * The joint owner's fixed-endpoint reader, absent when an endpoint falls
      * back to clinical zero.
      */
@@ -409,16 +416,22 @@ export namespace supportKey {
   }
 }
 
-/** A contact with no authored or previously laid world position yet. */
+/*
+ * A contact with no authored or previously laid world position yet.
+ */
 type ContactPoint = IAutoMovieVector3 | null;
 
-/** The record of `IAnchorsItemResult`'s site. */
+/*
+ * The record of `IAnchorsItemResult`'s site.
+ */
 type IAnchorsItemResult = {
   contact: IAutoMovieMotionHumanSupport.IContact;
   at: IAutoMovieVector3;
 };
 
-/** The record of `IPreferredAnchorsItem`'s site. */
+/*
+ * The record of `IPreferredAnchorsItem`'s site.
+ */
 type IPreferredAnchorsItem = {
   contact: IAutoMovieMotionHumanSupport.IContact;
   at: IAutoMovieVector3;

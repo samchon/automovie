@@ -344,7 +344,7 @@ export namespace AutoMovieHumanHeadMassPart {
     );
   }
 
-  /**
+  /*
    * One actual front point and its analytic planar curvature share the original
    * section and inverse.
    */
@@ -388,7 +388,9 @@ export namespace AutoMovieHumanHeadMassPart {
     };
   }
 
-  /** Prepare the original source section shared by anatomical point readers. */
+  /*
+   * Prepare the original source section shared by anatomical point readers.
+   */
   function sectionAt(
     part: IAutoMovieViewPart,
     y: number,

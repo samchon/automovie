@@ -5,7 +5,7 @@ import type {
   IAutoMovieRecoverySourceComponent,
 } from "@automovie/interface";
 
-/**
+/*
  * Observe original component crease edges with the existing oriented source
  * normals.
  */

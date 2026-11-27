@@ -5,7 +5,7 @@ import type {
 
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 
-/**
+/*
  * Decide the legend text and colour of every mark kind drawn in one picture,
  * and refuse a picture whose colours would be ambiguous.
  *
@@ -61,7 +61,9 @@ export function resolveAutoMovieInspectionColors(
   return kinds;
 }
 
-/** Six-digit hex of an sRGB colour. */
+/*
+ * Six-digit hex of an sRGB colour.
+ */
 function hex(color: number): string {
   return color.toString(16).padStart(6, "0");
 }

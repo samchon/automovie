@@ -6,10 +6,12 @@ import type {
 
 import { AutoMovieArchetypeRefusal } from "../../core";
 
-/** Degrees per radian. */
+/*
+ * Degrees per radian.
+ */
 const DEGREES: number = 180 / Math.PI;
 
-/**
+/*
  * The neck and head turns that face a target or bring the muzzle onto it, in
  * closed form.
  *
@@ -24,49 +26,64 @@ const DEGREES: number = 180 / Math.PI;
  * rule).
  */
 export namespace EquineHeadReach {
-  /** The current neck and head bars and the trunk's turn, in model space. */
+  /*
+   * The current neck and head bars and the trunk's turn, in model space.
+   */
   export interface IBars {
-    /** The neck's root, its bar's origin. */
+    /*
+     * The neck's root, its bar's origin.
+     */
     root: IAutoMovieVector3;
 
-    /** The neck bar's rotation. */
+    /*
+     * The neck bar's rotation.
+     */
     neck: IAutoMovieQuaternion;
 
-    /** The poll, the head bar's origin. */
+    /*
+     * The poll, the head bar's origin.
+     */
     poll: IAutoMovieVector3;
 
-    /** The head bar's rotation. */
+    /*
+     * The head bar's rotation.
+     */
     head: IAutoMovieQuaternion;
 
-    /**
+    /*
      * The head's link from the poll to the muzzle's surface, metres: the head
      * bar's length plus its radius.
      */
     muzzle: number;
 
-    /** The trunk's rotation from its rest. */
+    /*
+     * The trunk's rotation from its rest.
+     */
     body: IAutoMovieQuaternion;
   }
 
-  /**
+  /*
    * Rotation deltas, in model space, to pre-multiply the neck's and head's
    * current rotations by.
    */
   export interface ITurn {
-    /** The neck bar's delta, about the neck's root. */
+    /*
+     * The neck bar's delta, about the neck's root.
+     */
     neck: IAutoMovieQuaternion;
 
-    /** The head bar's delta, about the moved poll. */
+    /*
+     * The head bar's delta, about the moved poll.
+     */
     head: IAutoMovieQuaternion;
   }
 
-  /**
+  /*
    * Turn the neck about the vertical so the head faces a target, keeping both
    * bars' elevations.
-   *
-   * @param bars The current bars.
-   * @param target The target, model space.
-   * @returns The neck's yaw, which the head shares.
+   * Parameter bars: The current bars.
+   * Parameter target: The target, model space.
+   * Returns: The neck's yaw, which the head shares.
    */
   export function face(bars: IBars, target: IAutoMovieVector3): ITurn {
     const local: IAutoMovieVector3 = toBody(
@@ -83,18 +100,17 @@ export namespace EquineHeadReach {
     return { neck: turn, head: turn };
   }
 
-  /**
+  /*
    * Bring the muzzle's surface to a target, short of it by a clearance.
-   *
-   * @param bars The current bars.
-   * @param target The target, model space.
-   * @param gap The held clearance, metres, nonnegative.
-   * @param archetype The animal's producer name, for a refusal.
-   * @param under Whether the poll bends down under the line from the root to
-   *   the target, as a foal reaches up to an udder; it bends up otherwise.
-   * @returns The neck's and head's turns.
-   * @throws {AutoMovieArchetypeRefusal} When the target lies outside the two
-   *   links' band from the neck's root.
+   * Parameter bars: The current bars.
+   * Parameter target: The target, model space.
+   * Parameter gap: The held clearance, metres, nonnegative.
+   * Parameter archetype: The animal's producer name, for a refusal.
+   * Parameter under: Whether the poll bends down under the line from the root to
+   * the target, as a foal reaches up to an udder; it bends up otherwise.
+   * Returns: The neck's and head's turns.
+   * When the target lies outside the two
+   * links' band from the neck's root.
    */
   export function reach(
     bars: IBars,
@@ -157,16 +173,15 @@ export namespace EquineHeadReach {
     };
   }
 
-  /**
+  /*
    * Pitch the neck and the head in the trunk's sagittal plane by held angles, a
    * carriage rather than a target.
-   *
-   * @param bars The current bars.
-   * @param neck Degrees the neck turns about the trunk's lateral axis at its
-   *   root, positive lowering it.
-   * @param head Degrees the head turns further about the same axis at the moved
-   *   poll, positive lowering the muzzle.
-   * @returns The turns.
+   * Parameter bars: The current bars.
+   * Parameter neck: Degrees the neck turns about the trunk's lateral axis at its
+   * root, positive lowering it.
+   * Parameter head: Degrees the head turns further about the same axis at the moved
+   * poll, positive lowering the muzzle.
+   * Returns: The turns.
    */
   export function pitched(bars: IBars, neck: number, head: number): ITurn {
     const lateral: IAutoMovieVector3 = Quaternion.rotateVector(bars.body, {
@@ -180,17 +195,23 @@ export namespace EquineHeadReach {
     };
   }
 
-  /** A bar's +Y axis. */
+  /*
+   * A bar's +Y axis.
+   */
   function axis(rotation: IAutoMovieQuaternion): IAutoMovieVector3 {
     return Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 });
   }
 
-  /** A model-space vector in the trunk's frame. */
+  /*
+   * A model-space vector in the trunk's frame.
+   */
   function toBody(bars: IBars, vector: IAutoMovieVector3): IAutoMovieVector3 {
     return Quaternion.rotateVector(Quaternion.inverse(bars.body), vector);
   }
 
-  /** A trunk-frame rotation in model space. */
+  /*
+   * A trunk-frame rotation in model space.
+   */
   function toModel(
     bars: IBars,
     rotation: IAutoMovieQuaternion,
@@ -201,7 +222,7 @@ export namespace EquineHeadReach {
     );
   }
 
-  /**
+  /*
    * The delta taking a bar from its bearing and elevation to new ones: unturn
    * its bearing, pitch in the forward plane, turn to the new bearing.
    */

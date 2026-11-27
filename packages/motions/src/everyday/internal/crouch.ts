@@ -34,7 +34,7 @@ import { crouchAngles } from "./crouchAngles";
 import { crouchLegs } from "./crouchLegs";
 import { prepareHumanTrunkBalance } from "./prepareHumanTrunkBalance";
 
-/**
+/*
  * A crouch or a squat held in place: the hips sink over the planted feet to a
  * knee flexion the depth names, the trunk inclines over the feet, the hands
  * come to rest on the thighs above the knees, the body holds, then stands
@@ -78,10 +78,12 @@ import { prepareHumanTrunkBalance } from "./prepareHumanTrunkBalance";
  * `ascend`.
  */
 export namespace crouch {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "crouch";
 
-  /**
+  /*
    * Cancel table: a crouch stands up at any time, and kneels or handles a low
    * thing from its lowest pose.
    */
@@ -121,7 +123,7 @@ export namespace crouch {
     ],
   };
 
-  /**
+  /*
    * Knee flexion at the lowest pose by depth, degrees (Escamilla 2001; the
    * range table's end for `full`).
    */
@@ -132,7 +134,7 @@ export namespace crouch {
     full: 150,
   };
 
-  /**
+  /*
    * Forward inclination at the lowest pose, degrees from standing. The parallel
    * squat takes the measured 34.7° mean at 107.2° knee flexion (Kasahara et al.
    * 2024, doi:10.5114/jhk/183066). The deep squat takes the 33.2° and 32.6°
@@ -145,19 +147,19 @@ export namespace crouch {
     full: (33.2 + 32.6) / 2,
   };
 
-  /**
+  /*
    * The ankle's dorsiflexion in a crouch, degrees: `bendLower.ANKLE`, the most
    * measured while crouching (Hyodo et al. 2017).
    */
   export const ANKLE: number = bendLower.ANKLE;
 
-  /**
+  /*
    * The heel lift of `heels: "up"`, degrees about the toes' joint: the bend
    * law's squat lift (`bendLower.HEEL.squat`, no source found).
    */
   export const HEEL: number = bendLower.HEEL.squat;
 
-  /**
+  /*
    * Kasahara et al. (2024) observed the trunk's inclination peaking near the
    * deepest posture. Use the trunk alone while the low pose is held.
    */
@@ -167,7 +169,7 @@ export namespace crouch {
     to: { event: "ascend" },
   };
 
-  /**
+  /*
    * Descent seconds by depth for a `REFERENCE_HIP` hip height: a partial
    * squat's half of a self-paced bodyweight squat, 1.92 +- 0.27 s a repetition
    * (Hannan and King 2022, Int J Sports Phys Ther 17:1075), so about 1 s down;
@@ -183,7 +185,7 @@ export namespace crouch {
     full: 1.0 * Math.sqrt(KNEE.full / KNEE.partial),
   };
 
-  /**
+  /*
    * The hip height `DESCENT` is stated for, metres, from which other bodies'
    * descents scale by its square root: the walk law's reference hip
    * (`walkRoot.REFERENCE_HIP`), the one every dynamically similar timing is
@@ -191,13 +193,12 @@ export namespace crouch {
    */
   export const REFERENCE_HIP: number = walkRoot.REFERENCE_HIP;
 
-  /**
+  /*
    * Plan a crouch.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative, or the depth leaves the
-   *   hip's flexion range no room with the heels asked for.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the hold is negative, or the depth leaves the
+   * hip's flexion range no room with the heels asked for.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrouch.IParams>,

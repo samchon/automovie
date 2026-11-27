@@ -16,7 +16,7 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { weldHumanSimulationProfile } from "./weldHumanSimulationProfile";
 
-/**
+/*
  * The grips one simulated performer holds on another inside a window, each as
  * the solver's collider relationship: a hand's contact window of kind `grip`
  * whose support is a person the window also simulates.
@@ -29,16 +29,15 @@ import { weldHumanSimulationProfile } from "./weldHumanSimulationProfile";
  * colliders, wherever they ride, and the receiver's, the pair nearest each
  * other in the sampled poses at the grip's first step is the pair bound, the
  * pair the authored grip actually closes.
- *
- * @param performance The performance the window samples.
- * @param bodies The simulated performers' bodies, by subject.
- * @param profiles The profiles the window solves, by subject: the bodies' with
- *   their welds applied.
- * @param targets Each simulated performer's sampled segment poses, by step.
- * @param clock The window's first film second, interval count and rate.
- * @returns The grips, in performer then placement order.
- * @throws {HumanRefusal} When a gripping arm has no actuator segment in the
- *   profile.
+ * Parameter performance: The performance the window samples.
+ * Parameter bodies: The simulated performers' bodies, by subject.
+ * Parameter profiles: The profiles the window solves, by subject: the bodies' with
+ * their welds applied.
+ * Parameter targets: Each simulated performer's sampled segment poses, by step.
+ * Parameter clock: The window's first film second, interval count and rate.
+ * Returns: The grips, in performer then placement order.
+ * When a gripping arm has no actuator segment in the
+ * profile.
  */
 export function bindHumanSimulationGrips(
   performance: IAutoMovieMotionHumanPerformance,
@@ -131,64 +130,94 @@ export function bindHumanSimulationGrips(
   return grips;
 }
 
-/** Companion types of {@link bindHumanSimulationGrips}. */
+/*
+ * Companion types of bindHumanSimulationGrips.
+ */
 export namespace bindHumanSimulationGrips {
-  /**
+  /*
    * A window's grid: its first film second, interval count and intervals per
    * second.
    */
   export interface IClock {
-    /** First film second, step zero. */
+    /*
+     * First film second, step zero.
+     */
     from: number;
 
-    /** Intervals in the window. */
+    /*
+     * Intervals in the window.
+     */
     count: number;
 
-    /** Intervals per second. */
+    /*
+     * Intervals per second.
+     */
     rate: number;
   }
 
-  /** A collider on a segment, by bone and shape id. */
+  /*
+   * A collider on a segment, by bone and shape id.
+   */
   export interface ICollider {
-    /** The segment's bone. */
+    /*
+     * The segment's bone.
+     */
     bone: string;
 
-    /** The shape's id within the segment. */
+    /*
+     * The shape's id within the segment.
+     */
     shape: string;
   }
 
-  /** One grip of one simulated performer on another. */
+  /*
+   * One grip of one simulated performer on another.
+   */
   export interface IGrip {
-    /** The gripping performer. */
+    /*
+     * The gripping performer.
+     */
     subject: string;
 
-    /** The gripped performer. */
+    /*
+     * The gripped performer.
+     */
     partner: string;
 
-    /** The gripping hand. */
+    /*
+     * The gripping hand.
+     */
     side: AutoMovieHumanSide;
 
-    /**
+    /*
      * The actuator chain, proximal to distal, ending at the segment carrying
      * the hand.
      */
     chain: string[];
 
-    /** The hand's collider, on the segment that carries it. */
+    /*
+     * The hand's collider, on the segment that carries it.
+     */
     source: ICollider;
 
-    /** The partner's collider. */
+    /*
+     * The partner's collider.
+     */
     target: ICollider;
 
-    /** First step the grip holds. */
+    /*
+     * First step the grip holds.
+     */
     from: number;
 
-    /** Last step the grip holds. */
+    /*
+     * Last step the grip holds.
+     */
     to: number;
   }
 }
 
-/**
+/*
  * The first and last steps of a contact window inside the window's grid; the
  * first exceeds the last when it holds at none.
  */
@@ -216,7 +245,7 @@ function steps(
   return [first, last];
 }
 
-/**
+/*
  * The profile segment that carries a rig bone: the bone's own, or its nearest
  * ancestor's.
  */
@@ -234,7 +263,9 @@ function carrier(
   return at.bone;
 }
 
-/** A rig bone and every bone below it. */
+/*
+ * A rig bone and every bone below it.
+ */
 function subtree(
   body: IAutoMovieMotionHumanBody,
   root: AutoMovieHumanoidBone,
@@ -250,7 +281,7 @@ function subtree(
   return found;
 }
 
-/**
+/*
  * The nearest pair of colliders of two segments in their sampled poses, the
  * first segment's colliders limited to those `keep` admits.
  */

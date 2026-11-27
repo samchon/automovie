@@ -17,7 +17,7 @@ import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * The stance a sled push (`pushSled`) takes its handles from: how far the trunk
  * inclines into the load and how far the body sinks onto bent knees.
  *
@@ -37,7 +37,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * the hands keep their handles through the gait's rise and fall.
  */
 export namespace pushSledStance {
-  /**
+  /*
    * The torso's flexion from upright standing at the subject's hip, midway and
    * shoulder handle heights, degrees, at the highest push force (Lim, Case and
    * D'Souza 2016, motion capture means). The study gives the midway handle no
@@ -49,41 +49,46 @@ export namespace pushSledStance {
     shoulder: 18.7,
   };
 
-  /**
+  /*
    * The steepest incline a push takes, degrees: the hip-height mean and two of
    * its standard deviations, 45.0 + 2 x 14.3 (Lim, Case and D'Souza 2016),
    * which leaves out the steepest fortieth of pushers.
    */
   export const RANGE: number = 45.0 + 2 * 14.3;
 
-  /** The rate the walk's rise is read at, per second: the display's 30 frames. */
+  /*
+   * The rate the walk's rise is read at, per second: the display's 30 frames.
+   */
   export const RATE: number = 30;
 
-  /**
+  /*
    * The trunk's incline from the vertical, degrees, and the body's sink onto
    * bent knees, metres.
    */
   export interface IStance {
-    /** Degrees from the vertical, from the push's lean to `RANGE`. */
+    /*
+     * Degrees from the vertical, from the push's lean to `RANGE`.
+     */
     incline: number;
 
-    /** Metres, not negative. */
+    /*
+     * Metres, not negative.
+     */
     sink: number;
   }
 
-  /**
+  /*
    * Solve the stance.
-   *
-   * @param body The body.
-   * @param walk The walk the push is written over.
-   * @param settle The second of the walk the handles are taken at.
-   * @param feet Each foot at the entry, whose lower sole is the floor.
-   * @param handles Each hand's handle frame.
-   * @param lean The least incline, degrees from the vertical.
-   * @param incline The incline asked outright, degrees from the vertical,
-   *   negative leaning back, which replaces the measured one and `lean` (a haul
-   *   at a declared load, `pushPullLean`); the measured one when absent.
-   * @returns The stance.
+   * Parameter body: The body.
+   * Parameter walk: The walk the push is written over.
+   * Parameter settle: The second of the walk the handles are taken at.
+   * Parameter feet: Each foot at the entry, whose lower sole is the floor.
+   * Parameter handles: Each hand's handle frame.
+   * Parameter lean: The least incline, degrees from the vertical.
+   * Parameter incline: The incline asked outright, degrees from the vertical,
+   * negative leaning back, which replaces the measured one and `lean` (a haul
+   * at a declared load, `pushPullLean`); the measured one when absent.
+   * Returns: The stance.
    */
   export function solved(
     body: IAutoMovieMotionHumanBody,
@@ -168,13 +173,12 @@ export namespace pushSledStance {
     return { incline: inclined, sink };
   }
 
-  /**
+  /*
    * The floor a push stands on: the height of the entry's lower sole, world
    * metres, from which a handle's height is read.
-   *
-   * @param body The body.
-   * @param feet Each foot at the entry.
-   * @returns The floor's height, world metres.
+   * Parameter body: The body.
+   * Parameter feet: Each foot at the entry.
+   * Returns: The floor's height, world metres.
    */
   export function floor(
     body: IAutoMovieMotionHumanBody,
@@ -193,10 +197,12 @@ export namespace pushSledStance {
   }
 }
 
-/** The alternatives of `INCLINESEntryItem`'s site. */
+/*
+ * The alternatives of `INCLINESEntryItem`'s site.
+ */
 type INCLINESEntryItem = "hip" | "midway" | "shoulder";
 
-/**
+/*
  * The display-rate rise observes only the current world's authored root
  * position.
  */

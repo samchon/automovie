@@ -64,7 +64,9 @@ export namespace AutoMoviePhysicalSupportFit {
   }
 }
 
-/** Geodesic angle between one joint's relative rotations in two pose records. */
+/*
+ * Geodesic angle between one joint's relative rotations in two pose records.
+ */
 function angle(
   first: Readonly<Record<string, IAutoMovieRigidTransform>>,
   second: Readonly<Record<string, IAutoMovieRigidTransform>>,

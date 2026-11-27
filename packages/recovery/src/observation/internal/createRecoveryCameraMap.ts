@@ -20,7 +20,7 @@ import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 import { refineRecoveryCameraMap } from "./refineRecoveryCameraMap";
 import { triangulateRecoveryCameraPoint } from "../../geometry/internal/triangulateRecoveryCameraPoint";
 
-/**
+/*
  * Build one conditional three-camera map from automatic shared observations.
  * Only qualified seed pairs create 3D points. Third-image observations cannot
  * influence those points before resection, preventing circular registration.

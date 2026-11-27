@@ -1,6 +1,6 @@
 import type { IAutoMovieFilmTimeline } from "@automovie/interface";
 
-/**
+/*
  * Spell the identity of one timeline segment occurrence as
  * `occurrence:<index>:<startFrame>-<endFrame>:<shot>`.
  *

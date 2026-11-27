@@ -1,7 +1,9 @@
 import { integerIndex } from "./integerIndex";
 import { requiredArray } from "./requiredArray";
 
-/** Validate every index in an optional glTF reference array. */
+/*
+ * Validate every index in an optional glTF reference array.
+ */
 export function integerIndices(
   value: unknown,
   length: number,

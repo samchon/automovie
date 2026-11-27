@@ -13,7 +13,7 @@ import { restClasped } from "./restClasped";
 import { restCrossedArms } from "./restCrossedArms";
 import { restElbowSupport } from "./restElbowSupport";
 
-/**
+/*
  * Both hands' rest goals on a posture.
  *
  * Each place states where the elbow points, as a bend preset of
@@ -31,13 +31,12 @@ import { restElbowSupport } from "./restElbowSupport";
  * neck. A flat resting hand clears the posed surface envelope and its own
  * material depth. At the waistband that envelope includes the pelvis and the
  * region's bearing segment.
- *
- * @param body The body.
- * @param posture The standing posture.
- * @param places Each hand's place.
- * @returns The goals of the hands that move.
- * @throws {Error} When the trunk has no surface where a clasp is laid
- *   (`restClasped`).
+ * Parameter body: The body.
+ * Parameter posture: The standing posture.
+ * Parameter places: Each hand's place.
+ * Returns: The goals of the hands that move.
+ * When the trunk has no surface where a clasp is laid
+ * (`restClasped`).
  */
 export function restGoals(
   body: IAutoMovieMotionHumanBody,
@@ -350,10 +349,12 @@ export function restGoals(
   return out;
 }
 
-/** The alternatives of `RestGoalsSuffix`'s site. */
+/*
+ * The alternatives of `RestGoalsSuffix`'s site.
+ */
 type RestGoalsSuffix = "Left" | "Right";
 
-/**
+/*
  * The posture's neck alone, posed, for a ray that meets the throat and nothing
  * of the head above it.
  */
@@ -370,27 +371,29 @@ function necked(
   return new Map([["neck", bones.get("neck")!]]);
 }
 
-/**
+/*
  * A pocketed hand's fingers in the performer's frame: down along the thigh,
  * tipped forward with it (provisional).
  */
 const POCKET: IAutoMovieVector3 = { x: 0, y: -1, z: 0.35 };
 
-/**
+/*
  * An akimbo hand's fingers in the performer's frame: forward and down over the
  * hip (provisional).
  */
 const AKIMBO: IAutoMovieVector3 = { x: 0, y: -0.6, z: 0.8 };
 
-/**
+/*
  * How far up a palm behind the head points its fingers, against one unit across
  * toward the midline (provisional).
  */
 const NAPE: number = 0.6;
-/** The alternatives of `BENDSEntryItem`'s site. */
+/*
+ * The alternatives of `BENDSEntryItem`'s site.
+ */
 type BENDSEntryItem = "side" | "crossed";
 
-/**
+/*
  * The elbow's bend preset of `AutoMovieMotionHumanBend` by place, one per place
  * that has an elbow hint.
  */

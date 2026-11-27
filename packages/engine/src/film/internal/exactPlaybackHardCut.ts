@@ -3,7 +3,7 @@ import type {
   IAutoMovieSequence,
 } from "@automovie/interface";
 
-/**
+/*
  * Resolve the shared source boundary of a precise adjacent same-shot hard cut.
  *
  * A cut is precise when either entry carries an explicit rate or exact symbolic

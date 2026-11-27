@@ -11,7 +11,7 @@ import { AutoMovieEngineAnalysis } from "../../analysis/AutoMovieEngineAnalysis"
 import { Vector3 } from "../../math/Vector3";
 import { SHA256_DIGEST_PATTERN } from "../../validation/SHA256_DIGEST_PATTERN";
 
-/**
+/*
  * Derive a closed room-path receipt from explicit space bindings and an
  * acoustic profile.
  */
@@ -143,7 +143,7 @@ export function deriveAutoMovieInteriorAcousticResponse(
   };
 }
 
-/**
+/*
  * Read one fixed analyzer metric key and return null for a sealed metric gap;
  * the analyzer's complete fixed-key population is required.
  */
@@ -161,7 +161,7 @@ const metricValue: (
     (metric: IAutoMovieAnalysisMetric): boolean => metric.key === key,
   )!.value ?? null;
 
-/**
+/*
  * Read the corresponding fixed-key gap reason only after the response branch
  * established that metric is unavailable.
  */

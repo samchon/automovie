@@ -4,14 +4,13 @@ import type {
   IAutoMovieMotionHumanActionPlan,
 } from "@automovie/interface";
 
-/**
+/*
  * The timing the schedule reads of a placed or trial action
  * (`HumanPerformancePlace.place`): the part of the plan left after the share it
  * enters at, its contact and events on that part.
- *
- * @param plan The action's plan.
- * @param share The share of the plan the action enters at.
- * @returns The timing.
+ * Parameter plan: The action's plan.
+ * Parameter share: The share of the plan the action enters at.
+ * Returns: The timing.
  */
 export function HumanPerformancePlaceTiming(
   plan: Pick<

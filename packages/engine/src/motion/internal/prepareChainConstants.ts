@@ -15,7 +15,7 @@ import { normalizeJointAxes } from "../../kinematics/internal/normalizeJointAxes
 import { getConstraint } from "../../rom/internal/getConstraint";
 import { prepareChainRigConstants } from "./prepareChainRigConstants";
 
-/**
+/*
  * What a parent-child two-bone chain's articulation-free frames depend on in
  * the rig alone, read once for a rig and placed under any pose by
  * `placeChainPlant`.
@@ -30,24 +30,29 @@ import { prepareChainRigConstants } from "./prepareChainRigConstants";
  * (`prepareChainRigConstants`), built here over the same skeleton, axes and
  * rest frames, so that a chain placed from the record brings them to its fit
  * instead of the fit building them again.
- *
- * @param props The rig, the chain and the clinical axes and rest frames the fit
- *   reads.
- * @returns The constants; null when a bone is missing or the chain is not
- *   parent to child twice (a chain with a fixed bone between two of its own
- *   keeps `prepareChainPlant`).
+ * Parameter props: The rig, the chain and the clinical axes and rest frames the fit
+ * reads.
+ * Returns: The constants; null when a bone is missing or the chain is not
+ * parent to child twice (a chain with a fixed bone between two of its own
+ * keeps `prepareChainPlant`).
  */
 export function prepareChainConstants(props: {
-  /** The rig, unchanged for the record's life. */
+  /*
+   * The rig, unchanged for the record's life.
+   */
   skeleton: IAutoMovieSkeleton;
 
-  /** The chain: its root, mid and end bones. */
+  /*
+   * The chain: its root, mid and end bones.
+   */
   chain: IAutoMoviePlantChain;
 
-  /** The merged clinical axes the fit reads the mid joint's hinge by. */
+  /*
+   * The merged clinical axes the fit reads the mid joint's hinge by.
+   */
   jointAxes?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
 
-  /**
+  /*
    * The rest frames every fit of a chain placed from this record passes; the
    * record's fit readers (`rig`) are built for them.
    */

@@ -3,7 +3,7 @@ import type { IAutoMovieProductionSoundPlan } from "@automovie/interface";
 import { productionFrameBoundaryToGridTick } from "../../film/internal/productionFrameBoundaryToGridTick";
 import { resolveProductionFrameRate } from "../../film/internal/resolveProductionFrameRate";
 
-/**
+/*
  * A dialogue line's frame levels: for each film frame of its span, the RMS
  * amplitude of the line's own samples inside that frame interval.
  *
@@ -13,12 +13,11 @@ import { resolveProductionFrameRate } from "../../film/internal/resolveProductio
  * rule the mixer places the line with. Samples past the line's end count as
  * silence, so a frame after the last sample has level 0. The level is a linear
  * amplitude; `20 log10` of it is the frame level in dBFS.
- *
- * @param clock The film clock and sample rate of the plan the line belongs to.
- * @param line The line's span on the film clock.
- * @param samples The line's mono samples at `clock.sampleRate`.
- * @returns One linear RMS amplitude per frame from `line.startFrame` to
- *   `line.endFrame − 1`.
+ * Parameter clock: The film clock and sample rate of the plan the line belongs to.
+ * Parameter line: The line's span on the film clock.
+ * Parameter samples: The line's mono samples at `clock.sampleRate`.
+ * Returns: One linear RMS amplitude per frame from `line.startFrame` to
+ * `line.endFrame − 1`.
  */
 export function productionDialogueFrameLevels(
   clock: Pick<

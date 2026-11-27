@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/**
+/*
  * Where the feet stand at the entry: their ankles' midpoint on the floor, world
  * metres.
  */

@@ -121,7 +121,9 @@ export namespace AutoMovieHumanHandParentRead {
   }
 }
 
-/** The same actual parent-frame result used by the attachment owner. */
+/*
+ * The same actual parent-frame result used by the attachment owner.
+ */
 type Frame = ReturnType<IAutoMovieViewPart["axis"]["at"]>;
 /** Four original support/fullness values in material order. */
 type Quarters = [number, number, number, number];

@@ -32,10 +32,12 @@ import { swingTwistRegion } from "./swingTwistRegion";
 
 const DEG: number = swingTwistBasis.DEG;
 
-/** The twist `swingTwist` gives where the projection vanishes: the identity. */
+/*
+ * The twist `swingTwist` gives where the projection vanishes: the identity.
+ */
 const IDENTITY_TWIST: IAutoMovieQuaternion = Quaternion.identity();
 
-/**
+/*
  * The humanoid tables' own frame of every bone whose default constraint gates
  * it by swing and twist, prepared once with its region.
  */
@@ -419,7 +421,7 @@ export namespace swingTwistRange {
     const share: number = at - Math.floor(at);
     return table[before]! + (table[after]! - table[before]!) * share;
   }
-  /**
+  /*
    * Original chart expressions, shared without a second interpolation
    * algorithm.
    */

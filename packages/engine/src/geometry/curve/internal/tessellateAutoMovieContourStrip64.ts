@@ -6,7 +6,7 @@ import type {
 import { AutoMovieContourLoftCurves64 } from "../../AutoMovieContourLoftCurves64";
 import { AutoMovieCurveMath64 } from "../../AutoMovieCurveMath64";
 
-/**
+/*
  * Finds a fixed-seam periodic tiling and reports sheet qualification separately
  * from displayable geometry. The first seam lies on its exterior; the other
  * starts at its nearest existing knot. This discrete dynamic-program optimum

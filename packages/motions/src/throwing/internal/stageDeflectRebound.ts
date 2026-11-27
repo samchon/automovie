@@ -3,19 +3,18 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * A deflected ball's rebound off a palm facing it: the incoming velocity at the
  * touch, read from the ball's flight over the same short span the staged catch
  * samples its approach (`min(contact / 2, 1e-4)` s), comes back as `v - (1 +
  * e)(v . n) n = -e v`, the normal impact of a sphere on a surface held still
  * through the touch.
- *
- * @param object The ball's centre at a second of the catch.
- * @param contact The touch, seconds.
- * @param restitution The ball's coefficient of restitution.
- * @param intercept The authored touch, for the refusal.
- * @returns The outgoing velocity, m/s.
- * @throws {HumanRefusal} When the ball is not moving at the touch.
+ * Parameter object: The ball's centre at a second of the catch.
+ * Parameter contact: The touch, seconds.
+ * Parameter restitution: The ball's coefficient of restitution.
+ * Parameter intercept: The authored touch, for the refusal.
+ * Returns: The outgoing velocity, m/s.
+ * When the ball is not moving at the touch.
  */
 export function stageDeflectRebound(
   object: (seconds: number) => IAutoMovieVector3,

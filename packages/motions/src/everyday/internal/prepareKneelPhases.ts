@@ -8,17 +8,16 @@ import type {
 import { kneelKeys } from "./kneelKeys";
 import { prepareKneelFoot } from "./prepareKneelFoot";
 
-/**
+/*
  * Prepare the two foot courses and fixed root line or seated-back arc for each
  * existing kneeling phase. The clock and body solves retain their owners.
- *
- * @param body The unchanged body used by every phase.
- * @param keys The immutable solved authored keys.
- * @param phases Ordered intervals indexing those keys.
- * @param clearance The original swinging-foot clearance, metres.
- * @param pivot The fixed knee pivot for seated-back arcs, world metres.
- * @param sitBack Whether the route includes the seated-back key at index four.
- * @returns Geometry readers in the same phase order, with no time state.
+ * Parameter body: The unchanged body used by every phase.
+ * Parameter keys: The immutable solved authored keys.
+ * Parameter phases: Ordered intervals indexing those keys.
+ * Parameter clearance: The original swinging-foot clearance, metres.
+ * Parameter pivot: The fixed knee pivot for seated-back arcs, world metres.
+ * Parameter sitBack: Whether the route includes the seated-back key at index four.
+ * Returns: Geometry readers in the same phase order, with no time state.
  */
 export function prepareKneelPhases(
   body: IAutoMovieMotionHumanBody,
@@ -58,21 +57,31 @@ export function prepareKneelPhases(
   });
 }
 
-/** Fixed key indices for one existing kneeling clock interval. */
+/*
+ * Fixed key indices for one existing kneeling clock interval.
+ */
 interface IPair {
-  /** The starting key's index. */
+  /*
+   * The starting key's index.
+   */
   from: number;
 
-  /** The destination key's index. */
+  /*
+   * The destination key's index.
+   */
   to: number;
 }
 
-/** Body-derived geometry prepared for one kneeling interval. */
+/*
+ * Body-derived geometry prepared for one kneeling interval.
+ */
 interface IPhase {
-  /** Each foot's unchanged pivot/arc owner. */
+  /*
+   * Each foot's unchanged pivot/arc owner.
+   */
   feet: Record<AutoMovieHumanSide, ReturnType<typeof prepareKneelFoot>>;
 
-  /**
+  /*
    * The fixed line or seated-back arc, absent while the dynamic balance course
    * owns the root.
    */

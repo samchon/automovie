@@ -15,7 +15,7 @@ import { refitHumanPosture } from "./refitHumanPosture";
 import { selectHumanPostureGoals } from "./selectHumanPostureGoals";
 import { turnHumanPosture } from "./turnHumanPosture";
 
-/**
+/*
  * Assemble, fit and finish a canonical source with independent public output.
  * The companion owned entry serves only constructors whose actual fresh
  * assembly and nonescaping source establish copy-on-write ownership.
@@ -43,9 +43,11 @@ export function resolveHumanPostureSource(
   );
 }
 
-/** Actual constructor-owned entry to the same numerical source operation. */
+/*
+ * Actual constructor-owned entry to the same numerical source operation.
+ */
 export namespace resolveHumanPostureSource {
-  /**
+  /*
    * A posture's direct part, assembled once: what does not depend on which limb
    * goals are then fitted. It carries the authored posture, the canonical pose
    * of its root and clamped direct joints before any fit, and its own limb
@@ -54,45 +56,44 @@ export namespace resolveHumanPostureSource {
    * resolve runs read all three members.
    */
   export interface IAssembled {
-    /**
+    /*
      * The posture as authored; its root, heading and rotation turn goals given
      * later, and its digits are fitted after the limbs.
      */
     posture: IAutoMovieMotionHumanPosture;
 
-    /**
+    /*
      * The root and every rig bone's clamped direct joint, before any limb fit;
      * fits share its records and leave them unchanged.
      */
     pose: IAutoMoviePose;
 
-    /**
+    /*
      * The posture's own limb goals, world goals turned by its whole-body
      * rotation.
      */
     limbs: IAutoMovieMotionHumanPosture["limbs"];
 
-    /**
+    /*
      * The pose whose joints stood in for unset bones, when the assembly was
      * made on one.
      */
     base?: IAutoMoviePose;
   }
 
-  /**
+  /*
    * Assemble a posture's direct part (`assembleHumanPosture`).
+   * Parameter body: The performer's body.
+   * Parameter posture: The posture.
+   * Parameter base: A pose whose joints replace clinical zero for unset bones.
+   * Parameter projection: A projector the caller passes along; the body's own
+   * projects.
+   * Returns: The assembly.
    *
-   * @param body The performer's body.
-   * @param posture The posture.
-   * @param base A pose whose joints replace clinical zero for unset bones.
-   * @param projection A projector the caller passes along; the body's own
-   *   projects.
-   * @returns The assembly.
-   *
-   *   Root, heading, direct joints and their ROM projection do not depend on the
-   *   limb goals, so one assembly serves every fit of the same direct posture.
-   *   One O(B) assembly and projection; the caller owns the result and nothing
-   *   is retained.
+   * Root, heading, direct joints and their ROM projection do not depend on the
+   * limb goals, so one assembly serves every fit of the same direct posture.
+   * One O(B) assembly and projection; the caller owns the result and nothing
+   * is retained.
    */
   export function assemble(
     body: IAutoMovieMotionHumanBody,
@@ -110,24 +111,23 @@ export namespace resolveHumanPostureSource {
     };
   }
 
-  /**
+  /*
    * Fit limb goals and the assembly's digits on an assembly, as the owned
    * resolve does after assembling.
+   * Parameter body: The performer's body.
+   * Parameter assembled: The assembly; left unchanged.
+   * Parameter limbs: Goals replacing the assembled posture's own, authored in the
+   * same world as they are (turned here by the posture's whole-body
+   * rotation); absent, the posture's own.
+   * Parameter near: Each limb's nearby fit to continue.
+   * Parameter resolution: Optional FK reader or lazy supplier of the same
+   * synchronous evaluation.
+   * Returns: The pose with the goals and digits fitted, and each fitted limb's
+   * seed and value.
    *
-   * @param body The performer's body.
-   * @param assembled The assembly; left unchanged.
-   * @param limbs Goals replacing the assembled posture's own, authored in the
-   *   same world as they are (turned here by the posture's whole-body
-   *   rotation); absent, the posture's own.
-   * @param near Each limb's nearby fit to continue.
-   * @param resolution Optional FK reader or lazy supplier of the same
-   *   synchronous evaluation.
-   * @returns The pose with the goals and digits fitted, and each fitted limb's
-   *   seed and value.
-   *
-   *   The same ordered refit and digit fit as `owned`, so fitting the posture's
-   *   own goals on its assembly is the owned resolve of that posture. Each call
-   *   pays its fits only; the assembly's records are shared, never written.
+   * The same ordered refit and digit fit as `owned`, so fitting the posture's
+   * own goals on its assembly is the owned resolve of that posture. Each call
+   * pays its fits only; the assembly's records are shared, never written.
    */
   export function fit(
     body: IAutoMovieMotionHumanBody,
@@ -158,7 +158,7 @@ export namespace resolveHumanPostureSource {
     );
   }
 
-  /**
+  /*
    * Transfer fresh assembled and fitted records within their owning operation.
    * The caller supplies no borrowed base, and its reader is absent or lent:
    * assembly creates every result record from the raw demands, which it only
@@ -199,7 +199,7 @@ export namespace resolveHumanPostureSource {
     );
   }
 
-  /**
+  /*
    * Resolve the owned free-curve snapshot with current hinged correction.
    *
    * States private snapshot/native-reader premises and the curve's explicit
@@ -237,7 +237,9 @@ export namespace resolveHumanPostureSource {
   }
 }
 
-/** Keep canonical composition and current requested-goal admission in one owner. */
+/*
+ * Keep canonical composition and current requested-goal admission in one owner.
+ */
 function solve(
   body: IAutoMovieMotionHumanBody,
   raw: IAutoMovieMotionHumanPosture,
@@ -260,7 +262,7 @@ function solve(
   );
 }
 
-/**
+/*
  * The second half of the composition: the assembly's goals fitted in order,
  * then its digits.
  */

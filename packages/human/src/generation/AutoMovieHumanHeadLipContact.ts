@@ -40,7 +40,7 @@ export namespace AutoMovieHumanHeadLipContact {
     const source: IAutoMovieLoftViewSource.ISource = admitted.source;
     const frame: IAutoMovieLoftSectionFrame = parent.axis.at(height);
 
-    /**
+    /*
      * Read X=F(Y,Z) from the original forward branch, preserving its available
      * total2.
      */
@@ -216,13 +216,17 @@ export namespace AutoMovieHumanHeadLipContact {
     };
   }
 
-  /** The same native field with optional implicit-coordinate total2. */
+  /*
+   * The same native field with optional implicit-coordinate total2.
+   */
   interface IField extends IAutoMovieHumanHeadLipContact.IReading {
-    /** Fy, Fz, Fyy, Fyz, Fzz for world X=F(world Y,world Z). */
+    /*
+     * Fy, Fz, Fyy, Fyz, Fzz for world X=F(world Y,world Z).
+     */
     derivatives: [number, number, number, number, number] | null;
   }
 
-  /**
+  /*
    * Differentiate the same native chord equation and secant, never its sampled
    * values.
    */

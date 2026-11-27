@@ -35,7 +35,7 @@ import { humanRideWindows } from "./humanRideWindows";
 import { placeRideFeet } from "./placeRideFeet";
 import { prepareHumanEquestrianRide } from "./prepareHumanEquestrianRide";
 
-/**
+/*
  * Riding: a seated person carried by a support that moves by itself, such as a
  * car, a bicycle or a horse given to the performance as a moving prop
  * (`HumanObject.prop` with a motion).
@@ -59,16 +59,20 @@ import { prepareHumanEquestrianRide } from "./prepareHumanEquestrianRide";
  * as its base for dismounting.
  */
 export namespace HumanRide {
-  /** Seconds a hand takes to reach the point it is to hold (provisional). */
+  /*
+   * Seconds a hand takes to reach the point it is to hold (provisional).
+   */
   export const TAKE: number = 0.6;
 
-  /**
+  /*
    * How far a rising trot lifts the seat off the saddle, thigh lengths
    * (provisional: no rider kinematics were read).
    */
   export const POST: number = 0.25;
 
-  /** Ride a moving support, seated on it. */
+  /*
+   * Ride a moving support, seated on it.
+   */
   export const ride = {
     name: "ride",
     interrupts: {
@@ -442,14 +446,22 @@ export namespace HumanRide {
   } satisfies IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanRide.IParams>;
 }
 
-/** The alternatives of `RideWrittenTipped`'s site. */
+/*
+ * The alternatives of `RideWrittenTipped`'s site.
+ */
 type RideWrittenTipped = "yaw" | "pitch" | "roll";
 
-/** The record of `IRideStridesC`'s site. */
+/*
+ * The record of `IRideStridesC`'s site.
+ */
 type IRideStridesC = { seconds: number };
 
-/** The alternatives of `RideRising`'s site. */
+/*
+ * The alternatives of `RideRising`'s site.
+ */
 type RideRising = number | IRideRising | undefined;
 
-/** The record of `IRideRising`'s site. */
+/*
+ * The record of `IRideRising`'s site.
+ */
 type IRideRising = { cue: string };

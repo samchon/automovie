@@ -1,20 +1,28 @@
 import { AutoMovieArchetypeUnits } from "../../core";
 
-/** The 1862 Ordnance Manual, read at its scan. */
+/*
+ * The 1862 Ordnance Manual, read at its scan.
+ */
 const ORDNANCE: string =
   "Ordnance Manual for the Use of the Officers of the United States Army, 3rd ed., Lippincott, Philadelphia 1862 (https://archive.org/details/ordnancemanualfo00unitrich)";
 
-/** Gibbon's manual, read at its scan. */
+/*
+ * Gibbon's manual, read at its scan.
+ */
 const GIBBON: string =
   "John Gibbon, The Artillerist's Manual, Van Nostrand, New York 1860 (https://archive.org/details/bub_gb_8FEkwTZd9FMC)";
 
-/** An inch, metres. */
+/*
+ * An inch, metres.
+ */
 const IN: number = AutoMovieArchetypeUnits.INCH;
 
-/** A yard, metres: three feet. */
+/*
+ * A yard, metres: three feet.
+ */
 const YARD: number = 3 * AutoMovieArchetypeUnits.FOOT;
 
-/**
+/*
  * The 6-pdr bronze field gun, Model 1839-1844, on its M1841 carriage, as the
  * 1862 Ordnance Manual gives them, in metres, kilograms and degrees: kept apart
  * from `createCannon` so each file stays within its size, and drawn by
@@ -27,13 +35,15 @@ const YARD: number = 3 * AutoMovieArchetypeUnits.FOOT;
  * undimensioned plate, is provisional.
  */
 export namespace FIELD_GUN {
-  /**
+  /*
    * The tube's table (p. 19), the carriage's (p. 74), the wheel's and axle's
    * (p. 68), the vent (p. 16), Plate 2, and Gibbon's vent and trunnions.
    */
   export const SOURCE: string = `${ORDNANCE}: Principal Dimensions and Weights of Guns, Model 1839-1844, brass field 6-pdr, p. 19; Principal Dimensions and Weights of Field-Gun Carriages and Limbers, 6-pdr gun, p. 74; Wheels No. 1 and Axle-Trees No. 1, p. 68; the vent, p. 16; Plate 2, Field Carriage, undimensioned; ${GIBBON}, pp. 60, 62 and 306`;
 
-  /** The tube (p. 19). */
+  /*
+   * The tube (p. 19).
+   */
   export const TUBE: Readonly<
     Record<
       | "bore"
@@ -51,39 +61,61 @@ export namespace FIELD_GUN {
       number
     >
   > = {
-    /** The bore's diameter, 3.67 in. */
+    /*
+     * The bore's diameter, 3.67 in.
+     */
     bore: 3.67 * IN,
-    /** The bore's length, 57.5 in. */
+    /*
+     * The bore's length, 57.5 in.
+     */
     boreLength: 57.5 * IN,
-    /** From the rear of the base-ring to the face of the muzzle, 60 in. */
+    /*
+     * From the rear of the base-ring to the face of the muzzle, 60 in.
+     */
     baseRing: 60 * IN,
-    /**
+    /*
      * The whole length of the piece, 65.6 in; the cascabel is the rest behind
      * the base-ring.
      */
     whole: 65.6 * IN,
-    /** The base-ring's diameter, 10.3 in. */
+    /*
+     * The base-ring's diameter, 10.3 in.
+     */
     breech: 10.3 * IN,
-    /** The swell of the muzzle's diameter, twice its 4.125 in semi-diameter. */
+    /*
+     * The swell of the muzzle's diameter, twice its 4.125 in semi-diameter.
+     */
     swell: 2 * 4.125 * IN,
-    /** The trunnions' diameter, 3.67 in. */
+    /*
+     * The trunnions' diameter, 3.67 in.
+     */
     trunnion: 3.67 * IN,
-    /** Each trunnion's length, 2.8 in. */
+    /*
+     * Each trunnion's length, 2.8 in.
+     */
     trunnionLength: 2.8 * IN,
-    /** Between the rimbases, 9.5 in. */
+    /*
+     * Between the rimbases, 9.5 in.
+     */
     rimbases: 9.5 * IN,
-    /** From the trunnions' axis to the face of the muzzle, 34.91 in. */
+    /*
+     * From the trunnions' axis to the face of the muzzle, 34.91 in.
+     */
     trunnionToFace: 34.91 * IN,
-    /** The piece's weight, 884 lb. */
+    /*
+     * The piece's weight, 884 lb.
+     */
     mass: 884 * AutoMovieArchetypeUnits.POUND,
-    /**
+    /*
      * Its preponderance, 47 lb: the weight the breech bears on a support at the
      * rear of the base-ring, the piece hung on its trunnions (p. 15).
      */
     preponderance: 47 * AutoMovieArchetypeUnits.POUND,
   };
 
-  /** The carriage (pp. 68 and 74). */
+  /*
+   * The carriage (pp. 68 and 74).
+   */
   export const CARRIAGE: Readonly<
     Record<
       | "trunnionHeight"
@@ -105,50 +137,76 @@ export namespace FIELD_GUN {
       number
     >
   > = {
-    /** The trunnions' axis above the ground, 43.1 in. */
+    /*
+     * The trunnions' axis above the ground, 43.1 in.
+     */
     trunnionHeight: 43.1 * IN,
-    /**
+    /*
      * The trunnions' axis behind the axle-tree's, the piece in battery on level
      * ground, 0.5 in.
      */
     trunnionBehind: 0.5 * IN,
-    /**
+    /*
      * Between the points where the trail and the wheels touch the ground, 74.4
      * in.
      */
     trailContact: 74.4 * IN,
-    /**
+    /*
      * From the front of the wheels to the end of the trail, the piece in
      * battery, 116.6 in.
      */
     trailEnd: 116.6 * IN,
-    /** Between the insides of the trunnion-plates, 9.6 in. */
+    /*
+     * Between the insides of the trunnion-plates, 9.6 in.
+     */
     plates: 9.6 * IN,
-    /** The gun's vertical field of fire above the horizontal, 12 degrees. */
+    /*
+     * The gun's vertical field of fire above the horizontal, 12 degrees.
+     */
     elevation: 12,
-    /** And below it, 8 degrees. */
+    /*
+     * And below it, 8 degrees.
+     */
     depression: 8,
-    /** The wheel's height, 57 in. */
+    /*
+     * The wheel's height, 57 in.
+     */
     wheel: 57 * IN,
-    /** The track of the wheels, 60 in. */
+    /*
+     * The track of the wheels, 60 in.
+     */
     track: 60 * IN,
-    /** The axle-tree's whole length, 78.84 in. */
+    /*
+     * The axle-tree's whole length, 78.84 in.
+     */
     axle: 78.84 * IN,
-    /** The axle-tree's arm at the shoulder, 3 in across. */
+    /*
+     * The axle-tree's arm at the shoulder, 3 in across.
+     */
     arm: 3 * IN,
-    /** Wheel No. 1's tire, 2.75 in wide. */
+    /*
+     * Wheel No. 1's tire, 2.75 in wide.
+     */
     tyre: 2.75 * IN,
-    /** Wheel No. 1's spokes, 14. */
+    /*
+     * Wheel No. 1's spokes, 14.
+     */
     spokes: 14,
-    /** The gun-carriage without wheels, 540 lb. */
+    /*
+     * The gun-carriage without wheels, 540 lb.
+     */
     mass: 540 * AutoMovieArchetypeUnits.POUND,
-    /** One wheel, 180 lb. */
+    /*
+     * One wheel, 180 lb.
+     */
     wheelMass: 180 * AutoMovieArchetypeUnits.POUND,
-    /** Axle-tree No. 1, 116 lb, part of the carriage's 540. */
+    /*
+     * Axle-tree No. 1, 116 lb, part of the carriage's 540.
+     */
     axleMass: 116 * AutoMovieArchetypeUnits.POUND,
   };
 
-  /**
+  /*
    * The vent (p. 16): it "is in the vertical plane passing through the axis,
    * and makes an angle of 80° with it. It enters the bore at a distance from
    * the bottom equal to one-fourth the diameter of the bore"; its outer end
@@ -157,7 +215,7 @@ export namespace FIELD_GUN {
    */
   export const VENT: number = 80;
 
-  /**
+  /*
    * The elevating screw (Mordecai, Artillery for the United States Land
    * Service, 1849, p. 73,
    * https://archive.org/details/artilleryforunit00unitrich): the field
@@ -176,7 +234,7 @@ export namespace FIELD_GUN {
     pitch: IN / 10,
   };
 
-  /**
+  /*
    * The gun's service, read at the 1861 Ordnance Manual and Gibbon: the 6-pdr's
    * shot, 3.58 in and 6.1 lb (p. 34); its muzzle velocity at the 1.25 lb
    * service charge, 1439 ft/s, from the Washington Arsenal's ballistic pendulum
@@ -212,7 +270,7 @@ export namespace FIELD_GUN {
     handspike: 53 * IN,
   };
 
-  /**
+  /*
    * Construction estimates, read by no act, each sizing a part the manual gives
    * no figure for:
    *

@@ -6,7 +6,7 @@ import type {
 import { triangleIndicesOf } from "./triangleIndicesOf";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Index a resident mesh for repeated axis-aligned depth queries.
  *
  * The returned sampler takes a point `(u, v)` in the plane perpendicular to
@@ -22,10 +22,9 @@ import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
  * never change an answer. Creation throws on an invalid axis, a malformed index
  * buffer, a non-finite position, or projected area or extent arithmetic that
  * overflows; a query throws on a non-finite coordinate or depth.
- *
- * @param mesh Resident surface, snapshotted.
- * @param axis Depth axis.
- * @returns The depth query.
+ * Parameter mesh: Resident surface, snapshotted.
+ * Parameter axis: Depth axis.
+ * Returns: The depth query.
  */
 export function createAutoMovieMeshDepthSampler(
   mesh: IAutoMovieMesh,
@@ -135,17 +134,27 @@ export function createAutoMovieMeshDepthSampler(
   };
 }
 
-/** One triangle projected to the query plane, with depth as its third value. */
+/*
+ * One triangle projected to the query plane, with depth as its third value.
+ */
 interface IProjectedTriangle {
-  /** First corner as `[u, v, depth]`. */
+  /*
+   * First corner as `[u, v, depth]`.
+   */
   a: number[];
 
-  /** Second corner as `[u, v, depth]`. */
+  /*
+   * Second corner as `[u, v, depth]`.
+   */
   b: number[];
 
-  /** Third corner as `[u, v, depth]`. */
+  /*
+   * Third corner as `[u, v, depth]`.
+   */
   c: number[];
 
-  /** Twice the signed projected area, nonzero. */
+  /*
+   * Twice the signed projected area, nonzero.
+   */
   area: number;
 }

@@ -11,9 +11,11 @@ import { Vector3 } from "../../math/Vector3";
 import { projectileAt } from "./projectileAt";
 import { ProjectileDragFlightImplementation } from "./ProjectileDragFlightImplementation";
 
-/** Private implementation of the projectile operation and its related readers. */
+/*
+ * Private implementation of the projectile operation and its related readers.
+ */
 export namespace ProjectileContinueImplementation {
-  /**
+  /*
    * What a projectile does after a contact, by the outcome the caller decided:
    *
    * - `stick`: it stops at the contact, its point carried `depth` on along its
@@ -46,14 +48,13 @@ export namespace ProjectileContinueImplementation {
    * explicit roll with outward normal gravity is rejected: an unbound surface
    * cannot hold that body against gravity. Neutral normal gravity permits a
    * zero-resistance roll; it does not turn a bounce into one.
-   *
-   * @param projectile The flight that made contact.
-   * @param hit Its contact, with the surface's normal.
-   * @param outcome What happens.
-   * @returns The segment that follows, timed from the original flight's launch.
-   * @throws {RangeError} When the hit has no normal, a coefficient is negative or
-   *   not finite, restitution or speed loss exceeds one, or an explicit roll
-   *   would need a surface to pull against outward gravity.
+   * Parameter projectile: The flight that made contact.
+   * Parameter hit: Its contact, with the surface's normal.
+   * Parameter outcome: What happens.
+   * Returns: The segment that follows, timed from the original flight's launch.
+   * When the hit has no normal, a coefficient is negative or
+   * not finite, restitution or speed loss exceeds one, or an explicit roll
+   * would need a surface to pull against outward gravity.
    */
   export function projectileContinue(
     projectile: IAutoMovieProjectile,
@@ -269,14 +270,13 @@ export namespace ProjectileContinueImplementation {
     }
   }
 
-  /**
+  /*
    * A segment's centre and velocity at a second since the original launch: a
    * flight read from its own time zero, a roll's constant deceleration to rest,
    * a rest's place.
-   *
-   * @param segment The segment.
-   * @param seconds Seconds since the original launch, at or after `from`.
-   * @returns The state.
+   * Parameter segment: The segment.
+   * Parameter seconds: Seconds since the original launch, at or after `from`.
+   * Returns: The state.
    */
   export function continuedProjectileAt(
     segment: IAutoMovieProjectileContinue.Segment,
@@ -319,10 +319,12 @@ export namespace ProjectileContinueImplementation {
   }
 
 
-  /** A surface at rest and a ball that does not turn. */
+  /*
+   * A surface at rest and a ball that does not turn.
+   */
   const STILL: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
-  /**
+  /*
    * The projectile launched on again from a new state: its launch fields replaced
    * and, when it has drag, its flight built afresh from them, so no reader finds
    * the flight of the earlier launch.

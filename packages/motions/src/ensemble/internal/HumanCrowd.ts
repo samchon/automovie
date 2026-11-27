@@ -20,7 +20,7 @@ import { HumanSkill } from "../../skill/internal/HumanSkill";
 import { HUMAN_ATTRIBUTE_EFFECTS } from "./HUMAN_ATTRIBUTE_EFFECTS";
 import { HumanAttribute } from "./HumanAttribute";
 
-/**
+/*
  * A crowd that keeps no formation, steered: each member (or each walking group,
  * as one agent) heads for its goals at its own drawn speed and avoids the
  * others and the obstacles, by one plan-time pass of the engine's
@@ -40,61 +40,72 @@ import { HumanAttribute } from "./HumanAttribute";
  * it) but never their draws.
  */
 export namespace HumanCrowd {
-  /**
+  /*
    * The coefficient of variation of desired walking speeds: 0.26 over 1.34 m/s
    * (Helbing and Molnar 1995).
    */
   export const SPREAD: number = 0.26 / 1.34;
 
-  /**
+  /*
    * The least share of its gait's speed a member's draw may give: one half,
    * about 2.6 `SPREAD`s below the mean (provisional: a floor that keeps the
    * normal draw's far tail from a walker who barely moves).
    */
   export const SLOWEST: number = 0.5;
 
-  /**
+  /*
    * Seconds between two samples of a steered course, and between two checks of
    * a manoeuvre's spacing: the 24 frames a second the motion's checks are read
    * at (provisional: no film's own rate is known to the laws).
    */
   export const STEP: number = 1 / 24;
 
-  /** What a member's desire reads of its ensemble: the seed and the id. */
+  /*
+   * What a member's desire reads of its ensemble: the seed and the id.
+   */
   export interface IDesiredEnsemble {
-    /** The ensemble's seed and id. */
+    /*
+     * The ensemble's seed and id.
+     */
     input: Pick<IAutoMovieMotionHumanEnsemble.IInput, "seed" | "id">;
   }
 
-  /** What a member's desire reads of it. */
+  /*
+   * What a member's desire reads of it.
+   */
   export interface IDesiredMember
     extends Pick<
       IAutoMovieMotionHumanEnsemble.IMember,
       "index" | "proficiency" | "attributes"
     > {
-    /** The member's hip height. */
+    /*
+     * The member's hip height.
+     */
     body: { measure: Pick<IAutoMovieBodyMeasure, "hipHeight"> };
   }
 
-  /** What a member's half breadth reads of it. */
+  /*
+   * What a member's half breadth reads of it.
+   */
   export interface IHalfMember {
-    /** The member's shoulder half width and upper arm radius. */
+    /*
+     * The member's shoulder half width and upper arm radius.
+     */
     body: {
       measure: Pick<IAutoMovieBodyMeasure, "shoulderHalfWidth" | "upperArmRadius">;
     };
   }
 
-  /**
+  /*
    * A member's desired speed and delay as the pass draws them: its gait's speed
    * at its leg length scaled by its keyed normal draw (floored at `SLOWEST`,
    * its spread widened in flight by low morale's fluctuation,
    * `HUMAN_ATTRIBUTE_EFFECTS.morale.fluctuation`), by fatigue and in flight by
    * morale, and its response latency when the request names one.
-   *
-   * @param ensemble The ensemble.
-   * @param m The member.
-   * @param request The request.
-   * @returns The member's desire.
+   * Parameter ensemble: The ensemble.
+   * Parameter m: The member.
+   * Parameter request: The request.
+   * Returns: The member's desire.
    */
   export function desired(
     ensemble: IDesiredEnsemble,
@@ -158,17 +169,16 @@ export namespace HumanCrowd {
     return { speed, delay };
   }
 
-  /**
+  /*
    * Plan the crowd's routes and sample all leaders together on the 24 Hz course
    * grid. A group shares its leader's route and arrival. The combined breadth
    * disc is a steering proxy; placed members' clearances depend on their
    * formation offsets and course heading.
-   *
-   * @param ensemble The ensemble.
-   * @param request The goals, the gait, the cue and the obstacles.
-   * @returns The course frames and arrivals.
-   * @throws {HumanRefusal} When two steering proxies, or a proxy and an
-   *   obstacle, overlap at two successive integration knots.
+   * Parameter ensemble: The ensemble.
+   * Parameter request: The goals, the gait, the cue and the obstacles.
+   * Returns: The course frames and arrivals.
+   * When two steering proxies, or a proxy and an
+   * obstacle, overlap at two successive integration knots.
    */
   export function steer(
     ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
@@ -294,12 +304,11 @@ export namespace HumanCrowd {
     };
   }
 
-  /**
+  /*
    * A member's half breadth at the shoulders: the shoulder joint's half width
    * plus the upper arm's radius, metres.
-   *
-   * @param member The member.
-   * @returns The half breadth.
+   * Parameter member: The member.
+   * Returns: The half breadth.
    */
   export function half(member: IHalfMember): number {
     return (
@@ -308,5 +317,7 @@ export namespace HumanCrowd {
   }
 }
 
-/** The alternatives of `DesiredRequest`'s site. */
+/*
+ * The alternatives of `DesiredRequest`'s site.
+ */
 type DesiredRequest = "gait" | "latency" | "flight";

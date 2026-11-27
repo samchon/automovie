@@ -379,7 +379,9 @@ export namespace AutoMovieArchetypeEquineLunge {
     };
   }
 
-  /** Half the hooves' lateral spacing at rest, metres: the fore pair's. */
+  /*
+   * Half the hooves' lateral spacing at rest, metres: the fore pair's.
+   */
   function halfTrack<Id extends string, D extends string>(
     animal: AutoMovieArchetype<Id, D>,
   ): number {
@@ -391,7 +393,7 @@ export namespace AutoMovieArchetypeEquineLunge {
     );
   }
 
-  /**
+  /*
    * A limb's terminal endpoint in the model's space: the far end of its last
    * bar.
    */
@@ -416,7 +418,9 @@ export namespace AutoMovieArchetypeEquineLunge {
     );
   }
 
-  /** A placement's heading, degrees, 0 along +Z, positive toward +X. */
+  /*
+   * A placement's heading, degrees, 0 along +Z, positive toward +X.
+   */
   function headingOf(placement: IAutoMovieTransform): number {
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(
       placement.rotation,
@@ -425,7 +429,9 @@ export namespace AutoMovieArchetypeEquineLunge {
     return (Math.atan2(forward.x, forward.z) * 180) / Math.PI;
   }
 
-  /** A refusal of a malformed lunge. */
+  /*
+   * A refusal of a malformed lunge.
+   */
   function refuse(
     archetype: string,
     axis: string,
@@ -444,14 +450,22 @@ export namespace AutoMovieArchetypeEquineLunge {
   }
 }
 
-/** A named instant of a ride. */
+/*
+ * A named instant of a ride.
+ */
 type Instant = AutoMovieArchetypeRide.IRide<string, string>["instants"][number];
 
-/** One rein's ride and the film second it takes over. */
+/*
+ * One rein's ride and the film second it takes over.
+ */
 interface ISegment<Id extends string, D extends string> {
-  /** The film second the rein begins. */
+  /*
+   * The film second the rein begins.
+   */
   from: number;
 
-  /** The rein's ride, its halt and turns included. */
+  /*
+   * The rein's ride, its halt and turns included.
+   */
   ride: AutoMovieArchetypeRide.IRide<Id, D>;
 }

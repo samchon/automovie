@@ -1,7 +1,7 @@
 import { binary64SumProductsSign } from "./binary64SumProductsSign";
 import { wrapDegrees } from "./wrapDegrees";
 
-/**
+/*
  * Propose the isolated swivels where a quaternion circle has two-axis rank one.
  * The inputs are C^T qCos and C^T qSin, in mask 0,1,2,3 order, for
  * q(psi)=qCos_cos(psi/2)+qSin_sin(psi/2). The caller supplies unit coefficient
@@ -98,7 +98,9 @@ export function bilinearQuaternionSwivelRoots(
   return first === second ? [first] : [first, second];
 }
 
-/** Apply the two Gram block adjugates after scaling, without their divisor. */
+/*
+ * Apply the two Gram block adjugates after scaling, without their divisor.
+ */
 function adjugate(
   d: readonly [number, number, number, number],
   scale: number,
@@ -122,7 +124,7 @@ function adjugate(
   return [d0 + cross * d3, d1 - cross * d2, d2 - cross * d1, d3 + cross * d0];
 }
 
-/**
+/*
  * Exact sign of the determinant form after the two Gram block adjugates. For
  * equal vectors this is twice D(Ta); otherwise it is the circle's mixed
  * coefficient. Expansion uses original binary64 factors, without rounding Ta.

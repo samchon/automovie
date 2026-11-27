@@ -5,7 +5,7 @@ import {
 
 import { resolveBeatSnapshot } from "./resolveBeatSnapshot";
 
-/**
+/*
  * The state a later beat resumes from: every scene actor at the exclusive end
  * of the compiled shot, `shot.duration` seconds in.
  *
@@ -17,14 +17,13 @@ import { resolveBeatSnapshot } from "./resolveBeatSnapshot";
  * throw landed ends at that baked transform, not at its staged spot.
  * `compileDefinedShot` returns it as the closing continuity, and
  * `validateFilmContinuity` compares it with the next beat's
- * {@link resolveBeatOpening}.
+ * resolveBeatOpening.
  *
  * Throws on duplicated motion ids, performance nodes, mounts or plant entries,
  * and on a motion reference `props.motions` does not supply.
- *
- * @param props The compiled shot, its staged scene and motions, and the mount
- *   and plant facts to carry.
- * @returns One end state per scene node, in scene order.
+ * Parameter props: The compiled shot, its staged scene and motions, and the mount
+ * and plant facts to carry.
+ * Returns: One end state per scene node, in scene order.
  */
 export function resolveBeatEnd(
   props: IAutoMovieResolveBeatProps,

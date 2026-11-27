@@ -4,12 +4,11 @@ import type {
   IAutoMoviePhysicalShape,
 } from "@automovie/interface";
 
-/**
+/*
  * A profile as authored: the hull a hull shape carries is derived from its
  * points, so it takes no part in a digest or a comparison of inputs.
- *
- * @param profile The profile, its hull shapes possibly carrying their hulls.
- * @returns A copy whose hull shapes carry points only.
+ * Parameter profile: The profile, its hull shapes possibly carrying their hulls.
+ * Returns: A copy whose hull shapes carry points only.
  */
 export function physicalProfileWithoutHulls(
   profile: IAutoMoviePhysicalProfile,

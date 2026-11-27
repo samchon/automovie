@@ -14,18 +14,17 @@ import { AutoMovieMotionClock } from "../../compose/internal/AutoMovieMotionCloc
 import { AutoMovieMotionHumanLeg } from "../../compose/internal/AutoMovieMotionHumanLeg";
 import { racketStanceTransfer } from "./racketStanceTransfer";
 
-/**
+/*
  * Prepare the support intervals and knee loading for ready and split-step
  * racket phrases.
- *
- * @param context Entry posture and feet of the performer.
- * @param clock The existing phrase clock, with its existing public events.
- * @param lead The first foot out, on the racket side.
- * @param leftward The local left direction in world space.
- * @param split Whether to add a simultaneous hop between outward and recovery
- *   steps.
- * @param extent The authored movement extent multiplier for the jump.
- * @returns Pelvis and leg primitives, with their ground contacts.
+ * Parameter context: Entry posture and feet of the performer.
+ * Parameter clock: The existing phrase clock, with its existing public events.
+ * Parameter lead: The first foot out, on the racket side.
+ * Parameter leftward: The local left direction in world space.
+ * Parameter split: Whether to add a simultaneous hop between outward and recovery
+ * steps.
+ * Parameter extent: The authored movement extent multiplier for the jump.
+ * Returns: Pelvis and leg primitives, with their ground contacts.
  */
 export function racketStance(
   context: IAutoMovieMotionHumanActionContext,
@@ -200,15 +199,19 @@ export function racketStance(
   return { primitives, contacts };
 }
 
-/** Absolute action-local endpoints of a phase in seconds. */
+/*
+ * Absolute action-local endpoints of a phase in seconds.
+ */
 type Window = racketStanceTransfer.Window;
-/**
+/*
  * The height of each ready or recovery step above its ground baseline as a
  * fraction of stature.
  */
 const CLEARANCE: number = 0.025;
 
-/** The record of `IRacketStanceResult`'s site. */
+/*
+ * The record of `IRacketStanceResult`'s site.
+ */
 type IRacketStanceResult = {
   primitives: IAutoMovieMotionHumanPrimitive[];
   contacts: IAutoMovieMotionHumanContactWindow[];

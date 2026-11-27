@@ -31,7 +31,7 @@ import { courtStroke } from "./courtStroke";
 import { racketClock } from "./racketClock";
 import { racketStance } from "./racketStance";
 
-/**
+/*
  * Racket stroke dispatch and the original solo racket or golf positions. The
  * following positions use an implied handle.
  *
@@ -55,10 +55,14 @@ import { racketStance } from "./racketStance";
  * racket's frame and targets a timed contact.
  */
 export namespace AutoMovieMotionHumanRacket {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "racket";
 
-  /** Cancel table. */
+  /*
+   * Cancel table.
+   */
   export const interrupts: IAutoMovieMotionHumanActionLaw["interrupts"] =
     AutoMovieMotionHumanInterrupt.table({
       stand: ["fromRelax", "smooth"],
@@ -67,18 +71,17 @@ export namespace AutoMovieMotionHumanRacket {
       run: ["fromRelax", "smooth"],
     });
 
-  /**
+  /*
    * How far below the shoulders the golfer's upper hand grips, arm lengths
    * (provisional): the elbows a little soft.
    */
   export const HANG: number = 0.8;
 
-  /**
+  /*
    * Plan a racket or golf position.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When the hold is negative.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When the hold is negative.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRacket.IParams>,
@@ -264,8 +267,12 @@ export namespace AutoMovieMotionHumanRacket {
   }
 }
 
-/** The alternatives of `PlanGripBend2`'s site. */
+/*
+ * The alternatives of `PlanGripBend2`'s site.
+ */
 type PlanGripBend2 = "front" | "forward";
 
-/** The alternatives of `PlanGripBend`'s site. */
+/*
+ * The alternatives of `PlanGripBend`'s site.
+ */
 type PlanGripBend = "front" | "forward";

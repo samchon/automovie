@@ -7,25 +7,26 @@ import type {
 import { HumanRefusal } from "../../law/HumanRefusal";
 import { HumanCrowd } from "./HumanCrowd";
 
-/** World-metre tolerance for floating-point projection onto the queue line. */
+/*
+ * World-metre tolerance for floating-point projection onto the queue line.
+ */
 const LINE_TOLERANCE: number = 1e-8;
 
-/**
+/*
  * Admit a single-file service queue's release (`humanQueueAdvance`): the queue
  * is ordered head first on one level, straight line toward the head's exit,
  * every rank fully performed, the wait nonnegative, and each pair of neighbours
  * clears their summed shoulder radii (`HumanCrowd.half`) both where they stand
  * and where they stand after the release, each follower on the mark vacated
  * ahead of it and the head on the exit.
- *
- * @param members The queue's members, head first.
- * @param request The release's exit and wait.
- * @returns Each member's distance along the queue line from the head toward the
- *   exit, metres.
- * @throws {HumanRefusal} If the queue is empty, the wait is negative or not a
- *   number, the exit is not a distinct mark at the head's level, a rank is off
- *   the line or not fully performed, or two neighbours are out of order or too
- *   close at either layout.
+ * Parameter members: The queue's members, head first.
+ * Parameter request: The release's exit and wait.
+ * Returns: Each member's distance along the queue line from the head toward the
+ * exit, metres.
+ * If the queue is empty, the wait is negative or not a
+ * number, the exit is not a distinct mark at the head's level, a rank is off
+ * the line or not fully performed, or two neighbours are out of order or too
+ * close at either layout.
  */
 export function humanQueueMarks(
   members: readonly humanQueueMarks.IMember[],
@@ -117,9 +118,13 @@ export function humanQueueMarks(
   return marks;
 }
 
-/** Companion types of {@link humanQueueMarks}. */
+/*
+ * Companion types of humanQueueMarks.
+ */
 export namespace humanQueueMarks {
-  /** What the queue reads of a member: its name, mark, detail and breadth. */
+  /*
+   * What the queue reads of a member: its name, mark, detail and breadth.
+   */
   export interface IMember
     extends
       Pick<

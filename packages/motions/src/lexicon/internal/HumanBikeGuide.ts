@@ -34,28 +34,34 @@ import { HumanBikeGuidePlace } from "./HumanBikeGuidePlace";
 import { HumanBikeGuidePrint } from "./HumanBikeGuidePrint";
 import type { IHumanBikeGuidePrint } from "./IHumanBikeGuidePrint";
 
-/** Path samples per second of the bicycle's course read at planning, Hz. */
+/*
+ * Path samples per second of the bicycle's course read at planning, Hz.
+ */
 const RATE: number = 60;
 
-/**
+/*
  * The guiding station's root outward of the grip, metres: provisional, a
  * shoulder's reach beside the handlebar.
  */
 const STATION: number = 0.15;
 
-/** The guiding station's root behind the grip, metres: provisional. */
+/*
+ * The guiding station's root behind the grip, metres: provisional.
+ */
 const BEHIND: number = 0.1;
 
-/** Seconds to move from the entered place to the guiding station: provisional. */
+/*
+ * Seconds to move from the entered place to the guiding station: provisional.
+ */
 const ADJUST: number = 0.8;
 
-/**
+/*
  * Seconds the hand takes to reach the grip: it closes as the athlete arrives at
  * the station.
  */
 const REACH: number = ADJUST;
 
-/**
+/*
  * Wheel a bicycle by hand beside it, as a triathlete does through the
  * transition lane. The scene's course rolls the bicycle, with any stop it
  * makes; the athlete keeps the entered place beside it, so the root follows the
@@ -81,7 +87,7 @@ export const HumanBikeGuide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
     plan: planHumanBikeGuide,
   };
 
-/**
+/*
  * Wheel a bicycle by hand beside it, as a triathlete does through the
  * transition lane. The scene's course rolls the bicycle, with any stop it
  * makes; the athlete keeps the entered place beside it, so the root follows the
@@ -98,8 +104,6 @@ export const HumanBikeGuide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
  *
  * Events: `take` when the hand closes on the grip, `step{k}` at each landing
  * and `release` at the end.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States who owns the path, the step rule with its sources and provisional values, the landing and swing timing, the pelvis rule and the events.
  */
 function planHumanBikeGuide(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBikeGuide>,
@@ -412,5 +416,7 @@ function planHumanBikeGuide(
   });
 }
 
-/** The world up axis. */
+/*
+ * The world up axis.
+ */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

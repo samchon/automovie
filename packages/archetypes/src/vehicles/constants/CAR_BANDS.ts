@@ -6,7 +6,9 @@ import {
 import type { AutoMovieArchetypeCar } from "../AutoMovieArchetypeCar";
 import { CAR_MODELS } from "./CAR_MODELS";
 
-/** A band in degrees. */
+/*
+ * A band in degrees.
+ */
 const deg = (
   minimum: number,
   maximum: number,
@@ -15,26 +17,38 @@ const deg = (
 ): IAutoMovieArchetypeBand =>
   AutoMovieArchetypeBand.of("degrees", minimum, maximum, source, provisional);
 
-/** Two hatchbacks read at their maker's specification pages. */
+/*
+ * Two hatchbacks read at their maker's specification pages.
+ */
 const HATCH: string =
   "Honda Jazz Hybrid and Civic Hybrid specifications (https://www.honda.co.uk/cars/new/jazz-hybrid/specifications.html, https://www.honda.co.uk/cars/new/civic-hybrid/specifications.html)";
 
-/** A panel van read at its maker's technical specification. */
+/*
+ * A panel van read at its maker's technical specification.
+ */
 const VAN: string =
   "Ford Transit Custom 2023 technical specification, L1H1 van (https://www.fordpers.be/content/documents/news/2023/2023_10_09_transit_custom_2023_technical_specification_eu.pdf)";
 
-/** A crew-cab pickup read at its maker's technical specification. */
+/*
+ * A crew-cab pickup read at its maker's technical specification.
+ */
 const PICKUP: string =
   "2025 Ford Ranger technical specifications, SuperCrew 4x2 and 4x4 (https://www.fromtheroad.ford.com/content/dam/fordmediasite/us/en/library/2025/specs/2025_Ford_Ranger_Technical_Specifications.pdf)";
 
-/** The interior packaging standard. */
+/*
+ * The interior packaging standard.
+ */
 const J1100: string =
   "SAE J1100 (2001) (https://archive.org/stream/gov.law.sae.j1100.2001/sae.j1100.2001_djvu.txt)";
 
-/** Interior positions the standard defines without giving values. */
+/*
+ * Interior positions the standard defines without giving values.
+ */
 const PACKAGE: string = `${J1100} defines this dimension without a value; the figure is a typical package, not read at a source`;
 
-/** The bands every class shares. */
+/*
+ * The bands every class shares.
+ */
 const SHARED: Readonly<
   Record<
     | "steeringDiameter"
@@ -78,12 +92,11 @@ const SHARED: Readonly<
   ),
 };
 
-/**
+/*
  * The least and the greatest of the hatchbacks' read grades' figures of one
  * dimension, for a band a class whose models state none borrows.
- *
- * @param dimension The dimension.
- * @returns The least and the greatest figure.
+ * Parameter dimension: The dimension.
+ * Returns: The least and the greatest figure.
  */
 function hatchbacks(
   dimension: AutoMovieArchetypeCar.Dimension,
@@ -102,7 +115,7 @@ function hatchbacks(
   return [Math.min(...figures), Math.max(...figures)];
 }
 
-/**
+/*
  * The turns lock to lock of a class whose models state none: the span of the
  * hatchbacks' read grades, borrowed for want of the class's own.
  */
@@ -113,7 +126,9 @@ const TURNS: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.of(
   true,
 );
 
-/** The bands of the classes that are passenger cars. */
+/*
+ * The bands of the classes that are passenger cars.
+ */
 const CAR: Readonly<
   Record<"seatHeight" | "steeringRatio" | "bootSwing", IAutoMovieArchetypeBand>
 > = {
@@ -137,7 +152,7 @@ const CAR: Readonly<
   ),
 };
 
-/**
+/*
  * The seat height of the light commercial classes, read with the passenger-car
  * band.
  */
@@ -148,7 +163,7 @@ const COMMERCIAL_SEAT: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
   true,
 );
 
-/**
+/*
  * The band of each free dimension of a car, by class, with the source it was
  * read at; `AutoMovieArchetypeCar.BANDS` is this table. A class lacks the
  * dimensions of the parts it does not have: only the sedan and the hatchback

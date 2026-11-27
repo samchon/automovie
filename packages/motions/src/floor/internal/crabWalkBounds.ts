@@ -8,41 +8,50 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/**
+/*
  * What the crab walk's body can hold: the pelvis heights its bent arms and legs
  * reach, and the trunk extension its spine and chest allow.
  */
 export namespace crabWalkBounds {
-  /** The trunk's bones that arch, from the pelvis up. */
+  /*
+   * The trunk's bones that arch, from the pelvis up.
+   */
   export const TRUNK: readonly AutoMovieHumanoidBone[] = [
     "spine",
     "chest",
     "upperChest",
   ];
 
-  /** The lowest pelvis height, statures: authored. */
+  /*
+   * The lowest pelvis height, statures: authored.
+   */
   export const LOWEST: number = 0.1;
 
-  /** The highest pelvis height, hip heights: authored. */
+  /*
+   * The highest pelvis height, hip heights: authored.
+   */
   export const HIGHEST: number = 0.6;
 
-  /** What the arch reads of a body: its trunk bones' constraints. */
+  /*
+   * What the arch reads of a body: its trunk bones' constraints.
+   */
   export interface IBones {
-    /** The rig's bones by name. */
+    /*
+     * The rig's bones by name.
+     */
     bones: ReadonlyMap<
       AutoMovieHumanoidBone,
       Pick<IAutoMovieBone, "constraint">
     >;
   }
 
-  /**
+  /*
    * The pelvis's height over the floor.
-   *
-   * @param measure The body's stature and hip height.
-   * @param share The authored height, statures.
-   * @returns The height, metres.
-   * @throws {HumanRefusal} On `height` below `LOWEST` statures or above
-   *   `HIGHEST` hip heights.
+   * Parameter measure: The body's stature and hip height.
+   * Parameter share: The authored height, statures.
+   * Returns: The height, metres.
+   * On `height` below `LOWEST` statures or above
+   * `HIGHEST` hip heights.
    */
   export function height(
     measure: Pick<IAutoMovieBodyMeasure, "stature" | "hipHeight">,
@@ -72,15 +81,14 @@ export namespace crabWalkBounds {
     return metres;
   }
 
-  /**
+  /*
    * The trunk's extension shared among its bones by the room each has (its
    * flexion range's extension side).
-   *
-   * @param body The body's bones.
-   * @param degrees The whole extension, degrees.
-   * @returns Each trunk bone's flexion, degrees, negative extending.
-   * @throws {HumanRefusal} On `backbend` for more extension than the trunk
-   *   holds.
+   * Parameter body: The body's bones.
+   * Parameter degrees: The whole extension, degrees.
+   * Returns: Each trunk bone's flexion, degrees, negative extending.
+   * On `backbend` for more extension than the trunk
+   * holds.
    */
   export function arch(
     body: IBones,

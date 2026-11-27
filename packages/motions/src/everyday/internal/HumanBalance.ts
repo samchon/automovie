@@ -11,19 +11,19 @@ import { HumanBalanceExtrapolated } from "./HumanBalanceExtrapolated";
 import { HumanBalanceReading } from "./HumanBalanceReading";
 import { prepareHumanBalanceCentre } from "./prepareHumanBalanceCentre";
 
-/**
+/*
  * Backward hip travel to support the body's segmental centre (Winter, ch. 4).
  * The closest boundary suffices (Hof et al. 2005). The planted legs may move
  * during fitting, so a rigid correction is checked on the actual pose.
  */
 export namespace HumanBalance {
-  /**
+  /*
    * How far back the balance search looks unless told otherwise, hip heights:
    * the shift of a trunk pitched over hips that stand over the feet.
    */
   export const RANGE: number = 0.4;
 
-  /**
+  /*
    * How far back the balance search looks for a posture whose hips may stand
    * anywhere the planted legs let them, hip heights: a leg's length ahead of
    * the feet, about one hip height, back to a foot's length behind them, about
@@ -31,13 +31,13 @@ export namespace HumanBalance {
    */
   export const REACH: number = 1.3;
 
-  /**
+  /*
    * The resolution a balance search solves a shift or a travel to, metres: half
    * a millimetre, under the millimetre the margins are reported in.
    */
   export const TOLERANCE: number = 5e-4;
 
-  /**
+  /*
    * The hips' backward shift that puts the whole-body centre of mass over the
    * base of support along the heading, the feet where they bear
    * (`HumanFoot.base`): over its middle (`offset`), or a stated distance ahead
@@ -46,17 +46,16 @@ export namespace HumanBalance {
    * Where fitting changes support, a feasible endpoint brackets the first
    * supported shift to `TOLERANCE`. If the heel cannot bear, the forefoot
    * bears, and a missing crossing leaves the nearer endpoint for the audit.
-   *
-   * @param body The body.
-   * @param build The posture for a backward shift of the hips, metres; a
-   *   negative shift moves them forward.
-   * @param range How far the search looks either way, hip heights; `RANGE` when
-   *   absent, and `REACH` for a posture whose hips do not start over the feet.
-   * @param target How far ahead of the base's middle the centre is put, metres.
-   *   Without a target, first keep a supported posture or try the nearest
-   *   boundary.
-   * @returns The shift, metres, negative forward; 0 when the centre lies inside
-   *   the base no farther ahead than the target without one.
+   * Parameter body: The body.
+   * Parameter build: The posture for a backward shift of the hips, metres; a
+   * negative shift moves them forward.
+   * Parameter range: How far the search looks either way, hip heights; `RANGE` when
+   * absent, and `REACH` for a posture whose hips do not start over the feet.
+   * Parameter target: How far ahead of the base's middle the centre is put, metres.
+   * Without a target, first keep a supported posture or try the nearest
+   * boundary.
+   * Returns: The shift, metres, negative forward; 0 when the centre lies inside
+   * the base no farther ahead than the target without one.
    */
   export function shift(
     body: IAutoMovieMotionHumanBody,
@@ -200,15 +199,14 @@ export namespace HumanBalance {
     }
   }
 
-  /**
+  /*
    * The static margin of stability of a posture: the horizontal distance from
    * the engine's whole-body centre of mass to the edge of the hull of base of
    * support, the feet's outlines where they bear (`HumanFoot.base`) (Hof et al.
    * 2005, with zero velocity), positive inside.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @returns Metres.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Returns: Metres.
    */
   export function margin(
     body: IAutoMovieMotionHumanBody,
@@ -221,20 +219,19 @@ export namespace HumanBalance {
     return AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassMargin(placed.centre, placed.base);
   }
 
-  /**
+  /*
    * Whole-body mass centre of the actual solved posture, without foot-support
    * geometry for callers that only need the centre's position.
-   *
-   * @param body The unchanged body owning its prepared classic mass model.
-   * @param posture The actual posture with every limb and digit goal retained.
-   * @param resolution Optional exact FK workspace or lazy supplier borrowed
-   *   from the same synchronous body operation.
-   * @param projection Optional genuine same-body ROM projector borrowed only
-   *   from that synchronous operation; unissued functions keep ordinary
-   *   admission.
-   * @param resolved The cold resolve of this very posture when its caller
-   *   already holds it, read in place of solving the posture here.
-   * @returns The whole-body centre, world metres.
+   * Parameter body: The unchanged body owning its prepared classic mass model.
+   * Parameter posture: The actual posture with every limb and digit goal retained.
+   * Parameter resolution: Optional exact FK workspace or lazy supplier borrowed
+   * from the same synchronous body operation.
+   * Parameter projection: Optional genuine same-body ROM projector borrowed only
+   * from that synchronous operation; unissued functions keep ordinary
+   * admission.
+   * Parameter resolved: The cold resolve of this very posture when its caller
+   * already holds it, read in place of solving the posture here.
+   * Returns: The whole-body centre, world metres.
    */
   export function centre(
     body: IAutoMovieMotionHumanBody,
@@ -263,7 +260,7 @@ export namespace HumanBalance {
     );
   }
 
-  /**
+  /*
    * Fixed-body centre observations owned by prepareHumanBalanceCentre. Its
    * actual profile-name producer prepares only immutable FK demand; each reader
    * call keeps complete fitting, current mass placement and optional
@@ -272,17 +269,16 @@ export namespace HumanBalance {
   export const prepareCentre: typeof prepareHumanBalanceCentre =
     prepareHumanBalanceCentre;
 
-  /**
+  /*
    * The dynamic margin of stability at an instant of a movement (Hof, Gazendam
    * and Sinke 2005): the engine's whole-body centre of mass plus its velocity
    * (a central difference over 1/240 s) over the inverted pendulum's
    * eigenfrequency `sqrt(g / l)` with `l` 1.34 hip heights (Hof's leg length),
    * measured to the edge of the feet's base, positive inside.
-   *
-   * @param body The body.
-   * @param at The movement's posture at a second.
-   * @param seconds The instant.
-   * @returns Metres.
+   * Parameter body: The body.
+   * Parameter at: The movement's posture at a second.
+   * Parameter seconds: The instant.
+   * Returns: Metres.
    */
   export function extrapolated(
     body: IAutoMovieMotionHumanBody,
@@ -292,7 +288,7 @@ export namespace HumanBalance {
     return HumanBalanceExtrapolated(body, at, seconds);
   }
 
-  /**
+  /*
    * Fixed-body dynamic margin reader owned by HumanBalanceExtrapolated.prepare.
    * Every t-h, t+h and t callback/full fit remains actual; current callbacks
    * may synchronously borrow FK/ROM metadata and no sample enters retained
@@ -301,17 +297,16 @@ export namespace HumanBalance {
   export const prepareExtrapolated: typeof HumanBalanceExtrapolated.prepare =
     HumanBalanceExtrapolated.prepare;
 
-  /**
+  /*
    * The engine's whole-body centre of mass of a posture and the support points
    * of its feet (the bearing outline of each, `HumanFoot.base`), world metres.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @param resolution Optional exact FK workspace or lazy supplier borrowed
-   *   only from this synchronous same-body operation.
-   * @param projection Optional genuine same-body ROM metadata; every current
-   *   joint and goal still receives ordinary complete admission.
-   * @returns The centre and the support points.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Parameter resolution: Optional exact FK workspace or lazy supplier borrowed
+   * only from this synchronous same-body operation.
+   * Parameter projection: Optional genuine same-body ROM metadata; every current
+   * joint and goal still receives ordinary complete admission.
+   * Returns: The centre and the support points.
    */
   export function support(
     body: IAutoMovieMotionHumanBody,
@@ -335,18 +330,17 @@ export namespace HumanBalance {
     };
   }
 
-  /**
+  /*
    * The margin of stability along one horizontal direction: how far a point may
    * move that way before it leaves the convex hull of the support points, the
    * margin against a perturbation pushing it that way (Hof et al. 2005 measure
    * the margin along the perturbation's direction).
-   *
-   * @param point The point (a centre of mass or its extrapolation), world
-   *   metres; its height is ignored.
-   * @param points The support points.
-   * @param direction The direction, horizontal; normalized here.
-   * @returns Metres to the hull's edge along the direction; negative when the
-   *   point is outside the hull.
+   * Parameter point: The point (a centre of mass or its extrapolation), world
+   * metres; its height is ignored.
+   * Parameter points: The support points.
+   * Parameter direction: The direction, horizontal; normalized here.
+   * Returns: Metres to the hull's edge along the direction; negative when the
+   * point is outside the hull.
    */
   export function along(
     point: IAutoMovieVector3,
@@ -377,16 +371,15 @@ export namespace HumanBalance {
       : -Math.abs(exit);
   }
 
-  /**
+  /*
    * How far the whole-body centre of mass lies ahead of the middle of the base
    * of support along a posture's heading, metres: the middle between the
    * rearmost and the foremost point of the feet where they bear
    * (`HumanFoot.base`), so a heel lifted off the floor moves the middle forward
    * over the forefoot the body then stands on.
-   *
-   * @param body The body.
-   * @param posture The posture.
-   * @returns Metres; positive ahead.
+   * Parameter body: The body.
+   * Parameter posture: The posture.
+   * Returns: Metres; positive ahead.
    */
   export function offset(
     body: IAutoMovieMotionHumanBody,
@@ -399,11 +392,17 @@ export namespace HumanBalance {
   }
 }
 
-/** The record of `IShiftDown`'s site. */
+/*
+ * The record of `IShiftDown`'s site.
+ */
 type IShiftDown = { found: boolean; back: number };
 
-/** The record of `IShiftFirstResult`'s site. */
+/*
+ * The record of `IShiftFirstResult`'s site.
+ */
 type IShiftFirstResult = { found: boolean; back: number };
 
-/** The record of `IShiftFirst`'s site. */
+/*
+ * The record of `IShiftFirst`'s site.
+ */
 type IShiftFirst = { found: boolean; back: number };

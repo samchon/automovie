@@ -20,25 +20,24 @@ import { HumanWeaponPoseReach } from "./HumanWeaponPoseReach";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
 import type { IHumanWeaponPosePosed } from "./IHumanWeaponPosePosed";
 
-/**
+/*
  * The most passes a held frame is stepped back along the line to bring the
  * wrist within the arm's length; each re-chooses the frame's roll
  * (provisional).
  */
 const PASSES: number = 3;
-/**
+/*
  * A presentation's stance and pose with the weapon as a setup holds it.
- *
- * @param context The presentation's parameters, body and aiming.
- * @param entry The posture the presentation begins from.
- * @param start The film second it begins, the instant its target is read at.
- * @param s The setup.
- * @param seated Whether the performer sits a mount, whose trunk then turns
- *   toward the target (`HumanMountedPresentation`).
- * @returns The stance and the pose.
- * @throws {HumanRefusal} On `target` when the target lies more than `TURN`
- *   degrees off the heading, or past a seated performer's trunk turn and
- *   `TURN`, or an extended arm's line of aim passes beyond its reach.
+ * Parameter context: The presentation's parameters, body and aiming.
+ * Parameter entry: The posture the presentation begins from.
+ * Parameter start: The film second it begins, the instant its target is read at.
+ * Parameter s: The setup.
+ * Parameter seated: Whether the performer sits a mount, whose trunk then turns
+ * toward the target (`HumanMountedPresentation`).
+ * Returns: The stance and the pose.
+ * On `target` when the target lies more than `TURN`
+ * degrees off the heading, or past a seated performer's trunk turn and
+ * `TURN`, or an extended arm's line of aim passes beyond its reach.
  */
 export function HumanWeaponPose(
   context: Pick<
@@ -465,7 +464,7 @@ export function HumanWeaponPose(
   };
 }
 
-/**
+/*
  * The pose a presentation strokes to (`HumanWeaponPresent.present`) and the
  * posture it is judged on: the stance no grip changes (the entry, a long gun's
  * bladed trunk, the eye on the sight line, the target and its line) and the
@@ -475,9 +474,13 @@ export function HumanWeaponPose(
  * holds.
  */
 export namespace HumanWeaponPose {
-  /** {@link IHumanWeaponPosePosed}, read through this namespace. */
+  /*
+   * IHumanWeaponPosePosed, read through this namespace.
+   */
   export type IPosed = IHumanWeaponPosePosed;
 }
 
-/** The alternatives of `OfContext`'s site. */
+/*
+ * The alternatives of `OfContext`'s site.
+ */
 type OfContext = "params" | "body" | "aim";

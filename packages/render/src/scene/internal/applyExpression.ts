@@ -21,7 +21,7 @@ const EXPRESSION_RESET_NAMES: readonly string[] = [
   ...AUTOMOVIE_ARKIT_CHANNELS,
 ];
 
-/**
+/*
  * Apply a sampled automovie expression to a viewer model.
  *
  * VRM-style expression targets receive preset and ARKit names directly.
@@ -57,7 +57,7 @@ export const applyExpression: (
   }
 };
 
-/**
+/*
  * Layer viseme weights over an expression's channels: the mouth layer's sums
  * replace the authored values of every channel it sets.
  */
@@ -72,7 +72,9 @@ const layerVisemes: (
     weights.set(name, clamp01(weight));
 };
 
-/** Convert a semantic expression into direct channel weights. */
+/*
+ * Convert a semantic expression into direct channel weights.
+ */
 const expressionWeights: (
   expression: IAutoMovieExpression | null,
 ) => Map<string, number> = (

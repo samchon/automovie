@@ -5,28 +5,35 @@ import type {
 
 import { lieDownPoses } from "./lieDownPoses";
 
-/** The seated key `lieOnSurface` starts and ends on, on a support's edge. */
+/*
+ * The seated key `lieOnSurface` starts and ends on, on a support's edge.
+ */
 export namespace lieOnSurfaceSeat {
-  /** The seated key and whether its soles reach the floor. */
+  /*
+   * The seated key and whether its soles reach the floor.
+   */
   export interface IKey {
-    /** The tilt and the joints. */
+    /*
+     * The tilt and the joints.
+     */
     pose: IAutoMovieMotionHumanLieDown.IPose;
 
-    /** Whether the feet rest on the floor. */
+    /*
+     * Whether the feet rest on the floor.
+     */
     planted: boolean;
   }
 
-  /**
+  /*
    * The seated key on the edge: upright, the thighs level along the seat and
    * each shank leaning forward from upright by as much as brings its ankle to
    * its height over the floor, `acos((hip - ankle) / shank)`, so the soles rest
    * on the floor; a seat higher than the shank and the ankle leaves the shanks
    * upright and the feet hanging.
-   *
-   * @param body The body.
-   * @param hip The seated hips' height, world metres.
-   * @param floor The floor's height, world metres.
-   * @returns The key and whether its soles reach the floor.
+   * Parameter body: The body.
+   * Parameter hip: The seated hips' height, world metres.
+   * Parameter floor: The floor's height, world metres.
+   * Returns: The key and whether its soles reach the floor.
    */
   export function key(
     body: IAutoMovieMotionHumanBody,

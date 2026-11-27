@@ -8,7 +8,7 @@ import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { compareDesignVariants } from "./compareDesignVariants";
 import { requireValidDesignLineage } from "./requireValidDesignLineage";
 
-/**
+/*
  * Compare every pair of alternatives one decision holds open.
  *
  * Pairs come out in ascending option order so a three-way study reads the same
@@ -17,13 +17,12 @@ import { requireValidDesignLineage } from "./requireValidDesignLineage";
  * the comparison that produced it.
  *
  * Each pair puts the lower option id on the left and is the same comparison
- * {@link designLineageCompare} answers for it. The lineage is validated once for
+ * designLineageCompare answers for it. The lineage is validated once for
  * the whole decision. An invalid lineage, a decision id the lineage does not
  * declare, or options on different base revisions throws an `Error`.
- *
- * @param lineage Lineage declaring the decision.
- * @param decision Id of the decision whose options are compared.
- * @returns One comparison per unordered option pair, k(k-1)/2 for k options.
+ * Parameter lineage: Lineage declaring the decision.
+ * Parameter decision: Id of the decision whose options are compared.
+ * Returns: One comparison per unordered option pair, k(k-1)/2 for k options.
  */
 export function designLineageDecisionComparisons(
   lineage: IAutoMovieDesignLineage,

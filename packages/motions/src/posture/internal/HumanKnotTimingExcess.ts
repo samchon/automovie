@@ -1,6 +1,6 @@
 import { HumanQuinticSegment } from "./HumanQuinticSegment";
 
-/**
+/*
  * The method's own bound on how far a TOPP-RA grid interval's acceleration and
  * squared speed pass the larger of their values at its two gridpoints (Pham and
  * Pham 2018; `HumanKnotTiming`).
@@ -14,15 +14,14 @@ import { HumanQuinticSegment } from "./HumanQuinticSegment";
  * over the interval is bounded the same way from its own ends, the quintic's
  * fifth derivative constant, so the bound is closed-form and never below the
  * true excess.
- *
- * @param segment The path's quintic over the interval, its duration in s.
- * @param a The interval's start in the quintic's own s.
- * @param b Its end.
- * @param xa The squared path velocity at its start.
- * @param xb At its end.
- * @param u The constant path acceleration over it.
- * @returns The acceleration's and the squared speed's greatest excess over the
- *   coordinates.
+ * Parameter segment: The path's quintic over the interval, its duration in s.
+ * Parameter a: The interval's start in the quintic's own s.
+ * Parameter b: Its end.
+ * Parameter xa: The squared path velocity at its start.
+ * Parameter xb: At its end.
+ * Parameter u: The constant path acceleration over it.
+ * Returns: The acceleration's and the squared speed's greatest excess over the
+ * coordinates.
  */
 export function HumanKnotTimingExcess(
   segment: HumanQuinticSegment.ISegment,
@@ -72,14 +71,22 @@ export function HumanKnotTimingExcess(
   return { acceleration, speed };
 }
 
-/** Companion types of {@link HumanKnotTimingExcess}. */
+/*
+ * Companion types of HumanKnotTimingExcess.
+ */
 export namespace HumanKnotTimingExcess {
-  /** A grid interval's bound on its excess between gridpoints. */
+  /*
+   * A grid interval's bound on its excess between gridpoints.
+   */
   export interface IExcess {
-    /** The acceleration's, the coordinate's units per second squared. */
+    /*
+     * The acceleration's, the coordinate's units per second squared.
+     */
     acceleration: number;
 
-    /** The squared speed's, the coordinate's units squared per second squared. */
+    /*
+     * The squared speed's, the coordinate's units squared per second squared.
+     */
     speed: number;
   }
 }

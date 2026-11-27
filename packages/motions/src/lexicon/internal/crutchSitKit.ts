@@ -23,12 +23,11 @@ import { AutoMovieMotionHumanBend } from "../../compose/internal/AutoMovieMotion
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { crutchSitPath } from "./crutchSitPath";
 
-/**
+/*
  * Read the kit.
- *
- * @param context The crutch sit's context.
- * @returns The kit.
- * @throws {HumanRefusal} When a crutch declares no grip or no tip.
+ * Parameter context: The crutch sit's context.
+ * Returns: The kit.
+ * When a crutch declares no grip or no tip.
  */
 export function crutchSitKit(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrutchSit>,
@@ -104,50 +103,68 @@ export function crutchSitKit(
   };
 }
 
-/**
+/*
  * What the crutch sit's two orders share: the sides, the crutches and their
  * staged frames, the hand goal that holds a crutch on a frame, the writing of
  * the arms and the injured leg over the body's posture, and the order's result
  * the law courses.
  */
 export namespace crutchSitKit {
-  /** The crutch sit's shared reads. */
+  /*
+   * The crutch sit's shared reads.
+   */
   export interface IKit {
-    /** The body. */
+    /*
+     * The body.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The posture the act starts from. */
+    /*
+     * The posture the act starts from.
+     */
     entry: IAutoMovieMotionHumanPosture;
 
-    /**
+    /*
      * The injured side, whose leg is held off the floor and whose hand holds
      * both crutches seated.
      */
     injured: AutoMovieHumanSide;
 
-    /** The sound side. */
+    /*
+     * The sound side.
+     */
     sound: AutoMovieHumanSide;
 
-    /** Each side's crutch. */
+    /*
+     * Each side's crutch.
+     */
     crutch: Record<AutoMovieHumanSide, crutchSitPath.ICrutch>;
 
-    /** A side's crutch subject. */
+    /*
+     * A side's crutch subject.
+     */
     subject: (side: AutoMovieHumanSide) => string;
 
-    /** A side's crutch contacts. */
+    /*
+     * A side's crutch contacts.
+     */
     affordances: (side: AutoMovieHumanSide) => readonly IAutoMovieAffordance[];
 
-    /** A side's crutch's world frame at the act's start. */
+    /*
+     * A side's crutch's world frame at the act's start.
+     */
     start: (side: AutoMovieHumanSide) => IAutoMovieRigidTransform;
 
-    /** The goal of a hand that holds a crutch, by its offset, on a world frame. */
+    /*
+     * The goal of a hand that holds a crutch, by its offset, on a world frame.
+     */
     goal: (
       hand: AutoMovieHumanSide,
       held: IAutoMovieMotionHumanHeld.IHeld,
       frame: IAutoMovieRigidTransform,
     ) => IAutoMovieHumanLimbGoal;
 
-    /**
+    /*
      * The posture with both arms' goals and the injured leg's angles written
      * over it.
      */
@@ -157,61 +174,80 @@ export namespace crutchSitKit {
       leg: IAutoMovieHumanLimbReference,
     ) => IAutoMovieMotionHumanPosture;
 
-    /** An event's second in a plan, its end when the plan has none. */
+    /*
+     * An event's second in a plan, its end when the plan has none.
+     */
     at: (plan: IAutoMovieMotionHumanActionPlan, name: string) => number;
   }
 
-  /** One order's plan before the arms are coursed. */
+  /*
+   * One order's plan before the arms are coursed.
+   */
   export interface IOrder {
-    /** Seconds. */
+    /*
+     * Seconds.
+     */
     duration: number;
 
-    /** Second the hands hold the crutches, from which the arms follow the goals. */
+    /*
+     * Second the hands hold the crutches, from which the arms follow the goals.
+     */
     ready: number;
 
-    /** The posture at a second, the arms' goals and the injured leg written. */
+    /*
+     * The posture at a second, the arms' goals and the injured leg written.
+     */
     posture: (seconds: number) => IAutoMovieMotionHumanPosture;
 
-    /** Contact windows. */
+    /*
+     * Contact windows.
+     */
     contacts: IAutoMovieMotionHumanContactWindow[];
 
-    /** Events. */
+    /*
+     * Events.
+     */
     events: IAutoMovieMotionEvent[];
 
-    /** Holds kept after the act. */
+    /*
+     * Holds kept after the act.
+     */
     holds: IAutoMovieMotionPropHold[];
 
-    /** Props worn on a bone. */
+    /*
+     * Props worn on a bone.
+     */
     wears: IAutoMovieMotionPropWear[];
 
-    /** The base the act leaves. */
+    /*
+     * The base the act leaves.
+     */
     base: IAutoMovieMotionHumanActionPlan["base"];
   }
 
-  /**
+  /*
    * How far apart the two crutches stand in one hand, metres (provisional: two
    * shafts side by side).
    */
   export const SPACING: number = 0.035;
 
-  /**
+  /*
    * How far ahead of the chest's front the gathered crutches stand, metres
    * (provisional: the underarm pad's half length and a hand's breadth clear of
    * the chest).
    */
   export const AHEAD: number = 0.2;
 
-  /**
+  /*
    * A crutch's upright frame where both crutches are gathered into the injured
    * side's hand, before a body standing on a posture: on the floor `AHEAD`
    * before the chest's front, the injured side's crutch half the hip's half
    * width toward the injured side, the sound side's crutch `SPACING` inside it,
    * so the sound hand reaches in front of the body and never across it.
-   *
-   * @param kit The kit.
-   * @param posture The standing posture, its root and heading.
-   * @param side The crutch's side.
-   * @returns The crutch's world frame, upright.
+   * Parameter kit: The kit.
+   * Parameter posture: The standing posture, its root and heading.
+   * Parameter side: The crutch's side.
+   * Returns: The crutch's world frame, upright.
    */
   export function gathered(
     kit: IKit,
@@ -237,13 +273,12 @@ export namespace crutchSitKit {
     );
   }
 
-  /**
+  /*
    * A held leg's angles on a minimum-jerk share between two.
-   *
-   * @param share The share, clamped to 0 to 1.
-   * @param from The angles left.
-   * @param to The angles reached.
-   * @returns The angles.
+   * Parameter share: The share, clamped to 0 to 1.
+   * Parameter from: The angles left.
+   * Parameter to: The angles reached.
+   * Returns: The angles.
    */
   export function leg(
     share: number,
@@ -265,13 +300,12 @@ export namespace crutchSitKit {
     };
   }
 
-  /**
+  /*
    * A limb goal on a minimum-jerk share between two.
-   *
-   * @param a The goal left.
-   * @param b The goal reached.
-   * @param share The share, clamped to 0 to 1.
-   * @returns The goal.
+   * Parameter a: The goal left.
+   * Parameter b: The goal reached.
+   * Parameter share: The share, clamped to 0 to 1.
+   * Returns: The goal.
    */
   export function blend(
     a: IAutoMovieHumanLimbGoal,
@@ -291,12 +325,11 @@ export namespace crutchSitKit {
     };
   }
 
-  /**
+  /*
    * A heading's level unit vector to one side, world.
-   *
-   * @param yaw The heading, degrees about +Y.
-   * @param side The side.
-   * @returns The unit vector.
+   * Parameter yaw: The heading, degrees about +Y.
+   * Parameter side: The side.
+   * Returns: The unit vector.
    */
   export function lateral(
     yaw: number,
@@ -307,11 +340,10 @@ export namespace crutchSitKit {
     return { x: sign * Math.cos(r), y: 0, z: -sign * Math.sin(r) };
   }
 
-  /**
+  /*
    * A heading's level forward unit vector, world.
-   *
-   * @param yaw The heading, degrees about +Y.
-   * @returns The unit vector.
+   * Parameter yaw: The heading, degrees about +Y.
+   * Returns: The unit vector.
    */
   export function forward(yaw: number): IAutoMovieVector3 {
     const r: number = (yaw * Math.PI) / 180;

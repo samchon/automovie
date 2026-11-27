@@ -6,7 +6,7 @@ import type {
 import { pointSegmentDistance } from "../../math/internal/pointSegmentDistance";
 import { segmentSegmentDistance } from "../../math/internal/segmentSegmentDistance";
 
-/**
+/*
  * Find a triangle mesh's convex and concave feature edges and, for each
  * triangle, the ones within reach of it.
  *
@@ -36,9 +36,8 @@ import { segmentSegmentDistance } from "../../math/internal/segmentSegmentDistan
  * with T triangles and E feature edges; meshes this measures are generated sets
  * of at most tens of thousands of triangles, measured once when a model is
  * built.
- *
- * @throws When `reach` is not finite and above zero, or an index is out of
- *   range.
+ * When `reach` is not finite and above zero, or an index is out of
+ * range.
  */
 export function measureAutoMovieFeatureEdges(
   props: IAutoMovieMeasureFeatureEdges.IProps,
@@ -152,16 +151,20 @@ export function measureAutoMovieFeatureEdges(
   return { edges, triangles, reach };
 }
 
-/**
+/*
  * Feature edges bend the surface by more than this angle between face normals,
  * 30°.
  */
 const FEATURE_COSINE: number = Math.cos(Math.PI / 6);
 
-/** Most feature edges one triangle keeps. */
+/*
+ * Most feature edges one triangle keeps.
+ */
 const LIST_LIMIT: number = 16;
 
-/** Exact distance from segment `ab` to a triangle. */
+/*
+ * Exact distance from segment `ab` to a triangle.
+ */
 function segmentTriangleDistance(
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
@@ -187,7 +190,7 @@ function segmentTriangleDistance(
   );
 }
 
-/**
+/*
  * Distance from a point to a triangle: to its plane when it projects inside,
  * else to its nearest side.
  */
@@ -211,7 +214,9 @@ function pointTriangleDistance(
   );
 }
 
-/** Whether a point of the triangle's plane lies inside or on the triangle. */
+/*
+ * Whether a point of the triangle's plane lies inside or on the triangle.
+ */
 function inside(
   x: IAutoMovieVector3,
   p: IAutoMovieVector3,
@@ -226,27 +231,37 @@ function inside(
   );
 }
 
-/** `a + b`. */
+/*
+ * `a + b`.
+ */
 function add(a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 {
   return { x: a.x + b.x, y: a.y + b.y, z: a.z + b.z };
 }
 
-/** `a − b`. */
+/*
+ * `a − b`.
+ */
 function sub(a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 {
   return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
 }
 
-/** `a × s`. */
+/*
+ * `a × s`.
+ */
 function scale(a: IAutoMovieVector3, s: number): IAutoMovieVector3 {
   return { x: a.x * s, y: a.y * s, z: a.z * s };
 }
 
-/** `a · b`. */
+/*
+ * `a · b`.
+ */
 function dot(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
   return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
-/** `a × b`. */
+/*
+ * `a × b`.
+ */
 function cross(a: IAutoMovieVector3, b: IAutoMovieVector3): IAutoMovieVector3 {
   return {
     x: a.y * b.z - a.z * b.y,

@@ -2,7 +2,7 @@ import type { IEvidenceReference } from "@wrtnlabs/evidence";
 
 import { referenceLocation } from "../utilities/referenceLocation";
 
-/**
+/*
  * Creates a reference to the treatment units a partitioned layer realizes.
  *
  * Event units and release units are different axes: one event may run across

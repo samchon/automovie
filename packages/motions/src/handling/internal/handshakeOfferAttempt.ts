@@ -7,15 +7,14 @@ import type {
 import { handshakeOffer } from "./handshakeOffer";
 import type { handshakeReach } from "./handshakeReach";
 
-/**
+/*
  * The meeting, or the bound it missed: `point` without the refusal, which the
  * refusal reads again to find the band of gaps that would plan.
- *
- * @param a One partner's body and acting shoulder joint in world metres.
- * @param b The other's.
- * @param side The shaking hand of both.
- * @param pump How far the hands travel below the point after meeting, metres.
- * @returns The meeting, or the bound it missed with its measured value.
+ * Parameter a: One partner's body and acting shoulder joint in world metres.
+ * Parameter b: The other's.
+ * Parameter side: The shaking hand of both.
+ * Parameter pump: How far the hands travel below the point after meeting, metres.
+ * Returns: The meeting, or the bound it missed with its measured value.
  */
 export function handshakeOfferAttempt(
   a: handshakeOffer.ISide,
@@ -255,29 +254,47 @@ export function handshakeOfferAttempt(
   };
 }
 
-/** The alternatives of `AttemptOther`'s site. */
+/*
+ * The alternatives of `AttemptOther`'s site.
+ */
 type AttemptOther = 0 | 1;
 
-/** The alternatives of `AttemptTop`'s site. */
+/*
+ * The alternatives of `AttemptTop`'s site.
+ */
 type AttemptTop = 0 | 1;
 
-/** The alternatives of `AttemptDeepI`'s site. */
+/*
+ * The alternatives of `AttemptDeepI`'s site.
+ */
 type AttemptDeepI = 0 | 1;
 
-/** The record of `IAttemptDeepReads2`'s site. */
+/*
+ * The record of `IAttemptDeepReads2`'s site.
+ */
 type IAttemptDeepReads2 = { distance: number; reach: number };
 
-/** The record of `IAttemptDeepReads`'s site. */
+/*
+ * The record of `IAttemptDeepReads`'s site.
+ */
 type IAttemptDeepReads = { distance: number; reach: number };
 
-/** The record of `IAttemptWithinRead`'s site. */
+/*
+ * The record of `IAttemptWithinRead`'s site.
+ */
 type IAttemptWithinRead = { distance: number; reach: number };
 
-/** The alternatives of `AttemptWithinI`'s site. */
+/*
+ * The alternatives of `AttemptWithinI`'s site.
+ */
 type AttemptWithinI = 0 | 1;
 
-/** The record of `IAttemptBottomResult`'s site. */
+/*
+ * The record of `IAttemptBottomResult`'s site.
+ */
 type IAttemptBottomResult = { distance: number; reach: number };
 
-/** The alternatives of `AttemptBottomI`'s site. */
+/*
+ * The alternatives of `AttemptBottomI`'s site.
+ */
 type AttemptBottomI = 0 | 1;

@@ -8,7 +8,7 @@ import type {
 import { triangleIndicesOf } from "./triangleIndicesOf";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
-/**
+/*
  * Index a resident mesh for repeated ray queries.
  *
  * The mesh is copied into typed arrays at creation, so later caller mutations
@@ -40,9 +40,8 @@ import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
  * overflows or is subnormal is normalized after the same scaling, and a
  * subnormal direction component whose reciprocal is infinite uses direct slab
  * division; ordinary inputs keep plain arithmetic.
- *
- * @param mesh Resident surface, snapshotted.
- * @returns The three ray queries over one shared index.
+ * Parameter mesh: Resident surface, snapshotted.
+ * Returns: The three ray queries over one shared index.
  */
 export function createAutoMovieMeshRayCaster(
   mesh: IAutoMovieMesh,
@@ -228,31 +227,47 @@ export function createAutoMovieMeshRayCaster(
   };
 }
 
-/** The flat hierarchy and edge table the ray queries read. */
+/*
+ * The flat hierarchy and edge table the ray queries read.
+ */
 interface IRayHierarchy {
-  /** Six bounds per node: XYZ minimum, then XYZ maximum. */
+  /*
+   * Six bounds per node: XYZ minimum, then XYZ maximum.
+   */
   box: Float64Array;
 
-  /** Left child per node, or -1 for a leaf. */
+  /*
+   * Left child per node, or -1 for a leaf.
+   */
   leftChild: Int32Array;
 
-  /** Right child per node, or -1 for a leaf. */
+  /*
+   * Right child per node, or -1 for a leaf.
+   */
   rightChild: Int32Array;
 
-  /** First position in `order` of a leaf's triangles. */
+  /*
+   * First position in `order` of a leaf's triangles.
+   */
   first: Int32Array;
 
-  /** Number of a leaf's triangles; zero for an interior node. */
+  /*
+   * Number of a leaf's triangles; zero for an interior node.
+   */
   span: Int32Array;
 
-  /** Original triangle ordinal at each traversal position. */
+  /*
+   * Original triangle ordinal at each traversal position.
+   */
   order: Int32Array;
 
-  /** First corner and two edges, nine values per traversal position. */
+  /*
+   * First corner and two edges, nine values per traversal position.
+   */
   edge: Float64Array;
 }
 
-/**
+/*
  * Build the median-split hierarchy and the per-triangle edge table.
  *
  * Kept outside the caster's closure so the corner table and the growable
@@ -338,7 +353,7 @@ const buildRayHierarchy = (
   };
 };
 
-/**
+/*
  * One triangle's centroid coordinate on one axis. A mean of finite values stays
  * bounded by them even when their plain sum overflows, so an overflowing sum is
  * averaged after scaling by the largest magnitude.
@@ -353,7 +368,7 @@ const centroid = (corner: Float64Array, t: number, axis: number): number => {
   return ((a / scale + b / scale + c / scale) / 3) * scale;
 };
 
-/**
+/*
  * Travel along one axis from a coordinate to a box bound. A subnormal nonzero
  * direction component can have an infinite reciprocal while the quotient is
  * finite, so that case divides directly instead of multiplying.

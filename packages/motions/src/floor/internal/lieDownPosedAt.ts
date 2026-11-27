@@ -6,16 +6,15 @@ import type {
 
 import { floorEntry } from "./floorEntry";
 
-/**
+/*
  * The route's posture at key `index` and share `u` toward the next key: the
  * keys' pitch and roll interpolated and the joints from the prepared blend, the
  * root at the origin, and on the last key turned about the body's long axis
  * toward the roll side.
  *
  * Part of `lieDown.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `posedAt`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `posedAt`.
  */
 export function lieDownPosedAt(
   prepared: lieDownPosedAt.IPrepared,
@@ -43,23 +42,37 @@ export function lieDownPosedAt(
   });
 }
 
-/** The `posedAt` of `lieDown.plan`, built from what that plan prepared. */
+/*
+ * The `posedAt` of `lieDown.plan`, built from what that plan prepared.
+ */
 export namespace lieDownPosedAt {
-  /** What `lieDown.plan` prepared for its `posedAt`. */
+  /*
+   * What `lieDown.plan` prepared for its `posedAt`.
+   */
   export interface IPrepared {
-    /** The `standing` `lieDown.plan` prepared. */
+    /*
+     * The `standing` `lieDown.plan` prepared.
+     */
     standing: floorEntry.IStart["standing"];
 
-    /** The `keys` `lieDown.plan` prepared. */
+    /*
+     * The `keys` `lieDown.plan` prepared.
+     */
     keys: IAutoMovieMotionHumanLieDown.IPose[];
 
-    /** The `rollSide` `lieDown.plan` prepared. */
+    /*
+     * The `rollSide` `lieDown.plan` prepared.
+     */
     rollSide: AutoMovieHumanSide | undefined;
 
-    /** The `route` `lieDown.plan` prepared. */
+    /*
+     * The `route` `lieDown.plan` prepared.
+     */
     route: readonly [string, string][];
 
-    /** The `blend` `lieDown.plan` prepared. */
+    /*
+     * The `blend` `lieDown.plan` prepared.
+     */
     blend: ((weight: number) => IAutoMovieMotionHumanPosture["joints"])[];
   }
 }

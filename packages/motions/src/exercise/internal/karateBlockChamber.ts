@@ -5,12 +5,11 @@ import type {
 
 import { ExerciseKey } from "./ExerciseKey";
 
-/**
+/*
  * A karate block's chamber: the fists at the hips, the blocking arm folded
  * across.
- *
- * @param body The body.
- * @returns The chamber's exercise key.
+ * Parameter body: The body.
+ * Returns: The chamber's exercise key.
  */
 export function karateBlockChamber(
   body: IAutoMovieMotionHumanBody,

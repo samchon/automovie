@@ -9,7 +9,7 @@ import { AutoMovieArchetypeSeat, AutoMovieArchetypeTable } from "../../furniture
 import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { furnishRoom } from "./furnishRoom";
 
-/**
+/*
  * Furnish a room with a service counter and dining groups of one table and two
  * chairs.
  *
@@ -20,10 +20,9 @@ import { furnishRoom } from "./furnishRoom";
  * `table-1/stack` is the support for a cup and `table-1/chair-near/seat` is a
  * sitting contact. The grid, aisle and approach reservations remain in the room
  * frame when the room is rotated.
- *
- * @param params The room layout and positive number of dining tables.
- * @returns The placed-room module, with both stage nodes and prop claims.
- * @throws When the room cannot accommodate the tables and clear approaches.
+ * Parameter params: The room layout and positive number of dining tables.
+ * Returns: The placed-room module, with both stage nodes and prop claims.
+ * When the room cannot accommodate the tables and clear approaches.
  */
 export function createCafeKit(
   params: AutoMovieEnvironmentFurnishing.ICafeKitParams,

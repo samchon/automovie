@@ -4,20 +4,19 @@ import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
 import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
 import { AutoMoviePhysicalRootBounds } from "../AutoMoviePhysicalRootBounds";
 
-/**
+/*
  * The support transitions a root task carries (`trackPhysicalRoot`): the force
  * bounds of the contacts of the limbs leaving and entering the stance
  * (`AutoMoviePhysicalRootBounds`), on their carriers' bodies; the lifted limbs'
  * contacts released to the contact passes, so their swings move them off the
  * floor; and every stance limb's carriers kept the task's stance whatever
  * their load, so their legs keep their posture rows.
- *
- * @param input The body's support pattern, its segments by bone, the stance
- *   limbs, the limbs asked to step that have not lifted, the lifted limbs, the
- *   feet's seating shares and the vertical force the stance is asked for,
- *   newtons.
- * @returns The task's bounds, released contacts and stance, each present only
- *   when not empty.
+ * Parameter input: The body's support pattern, its segments by bone, the stance
+ * limbs, the limbs asked to step that have not lifted, the lifted limbs, the
+ * feet's seating shares and the vertical force the stance is asked for,
+ * newtons.
+ * Returns: The task's bounds, released contacts and stance, each present only
+ * when not empty.
  */
 export function physicalRootTransitions(input: {
   pattern: readonly IAutoMovieFootfallPattern["limbs"][number][];

@@ -4,19 +4,18 @@ import { Vector3 } from "@automovie/engine";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../../core/index";
 import { WornPropDraw } from "./WornPropDraw";
 
-/**
+/*
  * Wristwatch resting dial up with a straight band.
  *
  * The band runs along model Z. The dial's 12 o'clock lies toward model `-Z`, so
  * `face` reads with model `-Z` as its top.
- *
- * @param params The optional scene ID and any fixed free dimension in metres or
- *   kilograms.
- * @param seed The seed for the recorded recipe. Without a seed, the draw uses
- *   the original defaults.
- * @returns The model with its named contact frames in model space.
- * @throws {AutoMovieArchetypeRefusal} When the model or a fixed parameter lies
- *   outside its admitted recipe.
+ * Parameter params: The optional scene ID and any fixed free dimension in metres or
+ * kilograms.
+ * Parameter seed: The seed for the recorded recipe. Without a seed, the draw uses
+ * the original defaults.
+ * Returns: The model with its named contact frames in model space.
+ * When the model or a fixed parameter lies
+ * outside its admitted recipe.
  */
 export function createWatch(
   params: Pick<

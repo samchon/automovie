@@ -12,7 +12,7 @@ import type {
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { turnHumanPosture } from "./turnHumanPosture";
 
-/**
+/*
  * Assemble and clamp a posture's direct canonical joints before limb fitting.
  * Last base records supply unset joints, and clinical zero supplies the rest.
  * Whole-body turning retains its original pre-clamp goal admission order.
@@ -112,7 +112,9 @@ export function assembleHumanPosture(
   };
 }
 
-/** The record of `IAssembleHumanPostureResult`'s site. */
+/*
+ * The record of `IAssembleHumanPostureResult`'s site.
+ */
 type IAssembleHumanPostureResult = {
   pose: IAutoMoviePose;
   limbs: IAutoMovieMotionHumanPosture["limbs"];

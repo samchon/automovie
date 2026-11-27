@@ -21,7 +21,7 @@ import { AutoMovieMotionHumanTouchEffector } from "./AutoMovieMotionHumanTouchEf
 import { AutoMovieMotionHumanTouchLaid } from "./AutoMovieMotionHumanTouchLaid";
 import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpright";
 
-/**
+/*
  * How far a vessel is leaned toward the face at the lips, and turned there, so
  * the arm that brings it holds it as a person drinks: the least lean, in
  * `LEAN_STEP` degrees up to `LEAN`, whose fitted arm drinks with the vessel
@@ -34,20 +34,20 @@ import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpr
  * low (Murphy, Willén and Sunnerhagen 2011).
  */
 export namespace AutoMovieMotionHumanTouchDrink {
-  /**
+  /*
    * The step between the leans toward the face a held vessel is tried at,
    * degrees (provisional).
    */
   export const LEAN_STEP: number = AutoMovieMotionHumanDrinkingLean.STEP;
 
-  /**
+  /*
    * The most a held vessel is leaned toward the face, degrees: the lean that
    * lays its wall level (`AutoMovieMotionHumanDrinkingLean.MOST` states the
    * basis).
    */
   const LEAN: number = AutoMovieMotionHumanDrinkingLean.MOST;
 
-  /**
+  /*
    * The facing and the lean the arm brings the vessel at: the least lean toward
    * the face, in `LEAN_STEP` degrees up to `LEAN`, at which a candidate
    * facing's fitted arm drinks (`admitted`), with the facing whose hand meets
@@ -59,24 +59,23 @@ export namespace AutoMovieMotionHumanTouchDrink {
    * bracket. Held exactly upright at the lips the vessel asked the elbow up to
    * the shoulder's height with the forearm at its turn's end, whatever its turn
    * about its axis: a drinker tilts the glass at the lips.
-   *
-   * @param body The body.
-   * @param posture The posture the arm is solved on.
-   * @param side The hand.
-   * @param effector The effector, whose along direction is the vessel's axis.
-   * @param place The region.
-   * @param hint The elbow's hint each candidate starts from, world; moved into
-   *   the drinking range where it lies outside
-   *   (`AutoMovieMotionHumanDrinkingSwivel`).
-   * @param after Where the vessel is held while the drinker drinks; the arrival
-   *   alone when absent.
-   * @param pool The preparation a search over several sides of a vessel's rim
-   *   shares (`handToFaceVessel`), whose nearest arm then spans every side
-   *   tried; this search's own when absent.
-   * @returns The facing, the lean, the tilt and the elbow's hint the arm was
-   *   admitted with.
-   * @throws {HumanRefusal} When no lean up to `LEAN` and no facing holds a
-   *   drinking arm.
+   * Parameter body: The body.
+   * Parameter posture: The posture the arm is solved on.
+   * Parameter side: The hand.
+   * Parameter effector: The effector, whose along direction is the vessel's axis.
+   * Parameter place: The region.
+   * Parameter hint: The elbow's hint each candidate starts from, world; moved into
+   * the drinking range where it lies outside
+   * (`AutoMovieMotionHumanDrinkingSwivel`).
+   * Parameter after: Where the vessel is held while the drinker drinks; the arrival
+   * alone when absent.
+   * Parameter pool: The preparation a search over several sides of a vessel's rim
+   * shares (`handToFaceVessel`), whose nearest arm then spans every side
+   * tried; this search's own when absent.
+   * Returns: The facing, the lean, the tilt and the elbow's hint the arm was
+   * admitted with.
+   * When no lean up to `LEAN` and no facing holds a
+   * drinking arm.
    */
   export function drinking(
     body: IAutoMovieMotionHumanBody,
@@ -135,7 +134,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
     );
   }
 
-  /**
+  /*
    * Whether a lean admits a drinking arm, and with which facing: every
    * candidate facing is screened by its arm fitted on the posture alone, head
    * on first and then alternately either way, and the best of those that drink
@@ -144,20 +143,19 @@ export namespace AutoMovieMotionHumanTouchDrink {
    * stroke's reference, and admitted only if that arm drinks too and, with
    * `after`, the arm still holds the vessel at its asked axis in the drinking
    * phase.
-   *
-   * @param body The body.
-   * @param posture The posture the arm is solved on.
-   * @param side The hand.
-   * @param effector The effector, whose along direction is the vessel's axis.
-   * @param place The region.
-   * @param hint The elbow's hint each candidate starts from, world; moved into
-   *   the drinking range where it lies outside
-   *   (`AutoMovieMotionHumanDrinkingSwivel`).
-   * @param lean The lean toward the face, degrees.
-   * @param after Where the vessel is held while the drinker drinks; the arrival
-   *   alone when absent.
-   * @returns The facing, the lean, the tilt and the elbow's hint; none when the
-   *   lean admits no arm.
+   * Parameter body: The body.
+   * Parameter posture: The posture the arm is solved on.
+   * Parameter side: The hand.
+   * Parameter effector: The effector, whose along direction is the vessel's axis.
+   * Parameter place: The region.
+   * Parameter hint: The elbow's hint each candidate starts from, world; moved into
+   * the drinking range where it lies outside
+   * (`AutoMovieMotionHumanDrinkingSwivel`).
+   * Parameter lean: The lean toward the face, degrees.
+   * Parameter after: Where the vessel is held while the drinker drinks; the arrival
+   * alone when absent.
+   * Returns: The facing, the lean, the tilt and the elbow's hint; none when the
+   * lean admits no arm.
    */
   export function admitted(
     body: IAutoMovieMotionHumanBody,
@@ -181,7 +179,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
       after,
     );
   }
-  /**
+  /*
    * The least lean toward the face at which a vessel the hand holds by a kept
    * grasp is brought to the region by a drinking arm, and the wrist's goal
    * there. The grasp fixes the vessel in the hand, so only its lean is free:
@@ -192,19 +190,18 @@ export namespace AutoMovieMotionHumanTouchDrink {
    * the first admitting bracket up to `LEAN`, each screened by its fit on the
    * posture and admitted by its fit held to its own reference, the arm the
    * stroke shows.
-   *
-   * @param body The body.
-   * @param posture The posture the arm is solved on.
-   * @param side The hand.
-   * @param effector The effector: the vessel's point in the hand.
-   * @param place The region.
-   * @param hint The elbow's hint, world.
-   * @param rotation The hand's rotation the grasp presents the vessel at the
-   *   region with, world.
-   * @param after Where the vessel is held while the drinker drinks; the arrival
-   *   alone when absent.
-   * @returns The least admitted lean and the wrist's goal at it.
-   * @throws {HumanRefusal} When no lean up to `LEAN` holds a drinking arm.
+   * Parameter body: The body.
+   * Parameter posture: The posture the arm is solved on.
+   * Parameter side: The hand.
+   * Parameter effector: The effector: the vessel's point in the hand.
+   * Parameter place: The region.
+   * Parameter hint: The elbow's hint, world.
+   * Parameter rotation: The hand's rotation the grasp presents the vessel at the
+   * region with, world.
+   * Parameter after: Where the vessel is held while the drinker drinks; the arrival
+   * alone when absent.
+   * Returns: The least admitted lean and the wrist's goal at it.
+   * When no lean up to `LEAN` holds a drinking arm.
    */
   export function held(
     body: IAutoMovieMotionHumanBody,
@@ -321,7 +318,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
     );
   }
 
-  /**
+  /*
    * One lean of `drinking`'s search (`admitted`), each screened arm shown to
    * `seen` with where it was tried.
    */
@@ -456,7 +453,7 @@ export namespace AutoMovieMotionHumanTouchDrink {
       : undefined;
   }
 
-  /**
+  /*
    * Whether a fitted arm drinks (`AutoMovieMotionHumanDrinkingArm.drinks`) with
    * the vessel where it was asked: the reached axis within one `LEAN_STEP` of
    * the asked one, so an arm whose hand cannot reach the asked lean is not
@@ -467,23 +464,37 @@ export namespace AutoMovieMotionHumanTouchDrink {
   }
 }
 
-/** The alternatives of `TrialLaidAt`'s site. */
+/*
+ * The alternatives of `TrialLaidAt`'s site.
+ */
 type TrialLaidAt = "point" | "normal";
 
-/** The alternatives of `TrialAnatomyName2`'s site. */
+/*
+ * The alternatives of `TrialAnatomyName2`'s site.
+ */
 type TrialAnatomyName2 = "fingers" | "palm" | "thumb";
 
-/** The alternatives of `TrialAnatomyName`'s site. */
+/*
+ * The alternatives of `TrialAnatomyName`'s site.
+ */
 type TrialAnatomyName = "fingers" | "palm" | "thumb";
 
-/** The alternatives of `TrialPlace`'s site. */
+/*
+ * The alternatives of `TrialPlace`'s site.
+ */
 type TrialPlace = "point" | "normal";
 
-/** The alternatives of `HeldPlace`'s site. */
+/*
+ * The alternatives of `HeldPlace`'s site.
+ */
 type HeldPlace = "point" | "normal";
 
-/** The alternatives of `AdmittedPlace`'s site. */
+/*
+ * The alternatives of `AdmittedPlace`'s site.
+ */
 type AdmittedPlace = "point" | "normal";
 
-/** The alternatives of `DrinkingPlace`'s site. */
+/*
+ * The alternatives of `DrinkingPlace`'s site.
+ */
 type DrinkingPlace = "point" | "normal";

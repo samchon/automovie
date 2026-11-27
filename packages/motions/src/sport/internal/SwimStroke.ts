@@ -16,7 +16,7 @@ import { ExerciseKey } from "../../exercise/internal/ExerciseKey";
 import { HumanPreparedPlayback } from "../../perform/internal/HumanPreparedPlayback";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 
-/**
+/*
  * The swimming strokes written as keyed postures on the water plane : the
  * breaststroke, the backstroke and floating on the back.
  *
@@ -47,15 +47,19 @@ import { HumanFrame } from "../../posture/internal/HumanFrame";
  * the key's head lift, not solved against the plane.
  */
 export namespace SwimStroke {
-  /** The hip joints, which the plane carries. */
+  /*
+   * The hip joints, which the plane carries.
+   */
   const HIPS: readonly AutoMovieHumanoidBone[] = [
     "leftUpperLeg",
     "rightUpperLeg",
   ];
-  /** The pin mean reads only the two hip origins after full canonical admission. */
+  /*
+   * The pin mean reads only the two hip origins after full canonical admission.
+   */
   const HIP_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set(HIPS);
 
-  /**
+  /*
    * A backstroke key: one arm's shoulder flexion and abduction, the other's,
    * and which leg is up.
    */
@@ -74,11 +78,10 @@ export namespace SwimStroke {
     );
   }
 
-  /**
+  /*
    * The strokes on a body (provisional angles, seconds and speeds).
-   *
-   * @param body The body.
-   * @returns Each stroke.
+   * Parameter body: The body.
+   * Returns: Each stroke.
    */
   export function strokes(
     body: IAutoMovieMotionHumanBody,
@@ -95,7 +98,7 @@ export namespace SwimStroke {
     };
   }
 
-  /**
+  /*
    * Build only the selected stroke's keys; the public table requests each row
    * explicitly.
    */
@@ -185,15 +188,14 @@ export namespace SwimStroke {
     };
   }
 
-  /**
+  /*
    * Plan a keyed stroke.
-   *
-   * @param props The body, entry posture, stroke, water height, cycles and
-   *   tempo.
-   * @param supineClearance Minimum mouth height above the plane in metres for a
-   *   surface backstroke or float. Absent when a buoyancy model places the
-   *   body.
-   * @returns The plan.
+   * Parameter props: The body, entry posture, stroke, water height, cycles and
+   * tempo.
+   * Parameter supineClearance: Minimum mouth height above the plane in metres for a
+   * surface backstroke or float. Absent when a buoyancy model places the
+   * body.
+   * Returns: The plan.
    */
   export function plan(
     props: IAutoMovieMotionHumanSwimStroke.IPlanProps,
@@ -261,7 +263,9 @@ export namespace SwimStroke {
       ),
       { name: "relax", share: 1 },
     ];
-    /** The actual time determines both the cyclic shape and the moving pin. */
+    /*
+     * The actual time determines both the cyclic shape and the moving pin.
+     */
     const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
       seconds: number,
       _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],

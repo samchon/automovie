@@ -23,16 +23,15 @@ import { GymnasticsPalmRise } from "./GymnasticsPalmRise";
 import { layGymnasticsWheelFoot } from "./layGymnasticsWheelFoot";
 import { solveGymnasticsLaidArm } from "./solveGymnasticsLaidArm";
 
-/**
+/*
  * The writer of a wheel's bearing limbs.
- *
- * @param body The body.
- * @param contacts The wheel's bearing windows, shares of the duration.
- * @param duration The action's seconds.
- * @param carried The wheel's rigid posture at an action second.
- * @param fingers The laid fingers' directions on the floor, by the hands' order
- *   of contact.
- * @returns A writer of the laid limbs into a carried posture at a second.
+ * Parameter body: The body.
+ * Parameter contacts: The wheel's bearing windows, shares of the duration.
+ * Parameter duration: The action's seconds.
+ * Parameter carried: The wheel's rigid posture at an action second.
+ * Parameter fingers: The laid fingers' directions on the floor, by the hands' order
+ * of contact.
+ * Returns: A writer of the laid limbs into a carried posture at a second.
  */
 export function GymnasticsWheelPlants(
   body: IAutoMovieMotionHumanBody,
@@ -366,7 +365,7 @@ export function GymnasticsWheelPlants(
   };
 }
 
-/**
+/*
  * The bearing limbs of a wheel (`GymnasticsWheel`): a rigid turn carries the
  * hands and feet with the shape, so a joint that bears would turn about itself
  * and its sole or palm would lift, skate or pass into the floor. While a spoke
@@ -391,10 +390,12 @@ export function GymnasticsWheelPlants(
  * the solve has a side to bend to.
  */
 export namespace GymnasticsWheelPlants {
-  /** A prepared bracket of two solutions and the share toward its end. */
+  /*
+   * A prepared bracket of two solutions and the share toward its end.
+   */
   export type Window<Key> = (seconds: number) => readonly [Key, Key, number];
 
-  /**
+  /*
    * Solve only the finite interval: the opening, its interior knots at the
    * requested spacing, and the exact close. The shortened last interval
    * interpolates over its own length. Reads clamp to the prepared ends.
@@ -437,92 +438,130 @@ export namespace GymnasticsWheelPlants {
     };
   }
 
-  /**
+  /*
    * The share of the action over which a limb takes its laid place before its
    * contact and leaves it after, provisional.
    */
   export const LEAD: number = 0.06;
 
-  /** The directions the laid fingers point along the floor, unit vectors. */
+  /*
+   * The directions the laid fingers point along the floor, unit vectors.
+   */
   export interface IFingers {
-    /** The first hand down: along the travel. */
+    /*
+     * The first hand down: along the travel.
+     */
     first: IAutoMovieVector3;
 
-    /**
+    /*
      * The second hand down: a quarter turn from the first, toward the way the
      * body faced.
      */
     second: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * How many keys a lead holds: a window's laid limb is solved at keys this far
    * apart and read between them.
    */
   export const KEYS: number = 16;
 }
 
-/** One bearing window with its laid place. */
+/*
+ * One bearing window with its laid place.
+ */
 interface ILaid {
-  /** The bearing bone. */
+  /*
+   * The bearing bone.
+   */
   bone: AutoMovieHumanoidBone;
 
-  /** Its side. */
+  /*
+   * Its side.
+   */
   side: AutoMovieHumanSide;
 
-  /** Whether a hand. */
+  /*
+   * Whether a hand.
+   */
   hand: boolean;
 
-  /** The window's first and last action seconds. */
+  /*
+   * The window's first and last action seconds.
+   */
   from: number;
   to: number;
 
-  /** Whether it begins with the action or ends with it, so takes no blend there. */
+  /*
+   * Whether it begins with the action or ends with it, so takes no blend there.
+   */
   opens: boolean;
   closes: boolean;
 
-  /** The laid fingers' direction, for a hand. */
+  /*
+   * The laid fingers' direction, for a hand.
+   */
   fingers: IAutoMovieVector3;
 
-  /**
+  /*
    * The forefoot edge a foot's window declares held, in the foot's rest frame;
    * none when it bears flat.
    */
   edge?: IAutoMovieVector3;
 
-  /** The laid limb goal, given the posture it is written into. */
+  /*
+   * The laid limb goal, given the posture it is written into.
+   */
   goal(posture: IAutoMovieMotionHumanPosture): IAutoMovieHumanLimbGoal;
 }
 
-/** A window's weight at a second. */
+/*
+ * A window's weight at a second.
+ */
 interface IWeighted {
-  /** The window. */
+  /*
+   * The window.
+   */
   laid: IPrepared;
 
-  /** Its weight, in (0, 1]. */
+  /*
+   * Its weight, in (0, 1].
+   */
   weight: number;
 }
 
-/** The bearing window with its finite, completed set of laid solves. */
+/*
+ * The bearing window with its finite, completed set of laid solves.
+ */
 interface IPrepared extends ILaid {
-  /** Read the two surrounding solved states and their interpolation share. */
+  /*
+   * Read the two surrounding solved states and their interpolation share.
+   */
   at: GymnasticsWheelPlants.Window<IKeyed>;
 }
 
-/**
+/*
  * One window's laid limb solved at one key second, from the carried posture
  * there.
  */
 interface IKeyed {
-  /** The carried end joint's place and turn. */
+  /*
+   * The carried end joint's place and turn.
+   */
   end: IAutoMovieResolvedBone;
 
-  /** A foot's laid goal; none for a hand. */
+  /*
+   * A foot's laid goal; none for a hand.
+   */
   goal?: IAutoMovieHumanLimbGoal;
 
-  /** A foot's toes extension; zero for a hand. */
+  /*
+   * A foot's toes extension; zero for a hand.
+   */
   toes: number;
 
-  /** A hand's laid arm and fingers: the joints the laid solve changes. */
+  /*
+   * A hand's laid arm and fingers: the joints the laid solve changes.
+   */
   joints: Map<AutoMovieHumanoidBone, readonly [number, number, number]>;
 }

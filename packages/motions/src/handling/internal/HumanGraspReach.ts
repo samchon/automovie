@@ -12,22 +12,21 @@ import { stand } from "../../actions/internal/stand";
 import { HumanFrame } from "../../posture/internal/HumanFrame";
 import type { HumanGrasp } from "./HumanGrasp";
 
-/**
+/*
  * Where another person's arm is predicted from and how a grip turns about its
  * handle: the standing posture a person settles into, and a target turned about
  * its wrapped axis. `HumanGrasp` passes these through by name.
  */
 export namespace HumanGraspReach {
-  /**
+  /*
    * The standing posture a person settles into from where they stand: the stand
    * law's posture centred over the person's displayed feet, facing the way the
    * pelvis faces. A law predicting another person's arm (a handshake's partner,
    * a handover's receiver) reads it, so the prediction starts from the same
    * root the partner's own stand law will hold.
-   *
-   * @param body The person's body.
-   * @param bones The person's displayed world bones.
-   * @returns The posture.
+   * Parameter body: The person's body.
+   * Parameter bones: The person's displayed world bones.
+   * Returns: The posture.
    */
   export function standing(
     body: IAutoMovieMotionHumanBody,
@@ -52,24 +51,27 @@ export namespace HumanGraspReach {
     );
   }
 
-  /**
+  /*
    * A target turned about its wrapped axis through the axis point, as a
    * cylinder's grip may be taken from any side.
-   *
-   * @param target The target.
-   * @param turn Degrees about the wrapped axis.
-   * @returns The turned target.
+   * Parameter target: The target.
+   * Parameter turn: Degrees about the wrapped axis.
+   * Returns: The turned target.
    */
   export function around(
     target: IAutoMovieMotionHumanGrasp.ITarget,
     turn: number,
   ): IAutoMovieMotionHumanGrasp.ITarget;
-  /** The same wrapped-axis rotation for the hand-only target view. */
+  /*
+   * The same wrapped-axis rotation for the hand-only target view.
+   */
   export function around(
     target: HumanGrasp.IFrame,
     turn: number,
   ): HumanGrasp.IFrame;
-  /** Preserve all supplied target fields while turning only its approach. */
+  /*
+   * Preserve all supplied target fields while turning only its approach.
+   */
   export function around(
     target: HumanGrasp.IFrame,
     turn: number,
@@ -84,5 +86,7 @@ export namespace HumanGraspReach {
   }
 }
 
-/** The alternatives of `StandingBonesEntry`'s site. */
+/*
+ * The alternatives of `StandingBonesEntry`'s site.
+ */
 type StandingBonesEntry = "worldPosition" | "worldRotation";

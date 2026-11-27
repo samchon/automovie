@@ -80,21 +80,27 @@ export namespace AutoMovieHumanConstructionView {
     return AutoMovieViewOutline.scale(outline, METRES, METRES);
   }
 
-  /** A complete share-valued curve: station/parameter lengths change units; values, normalized-parameter jets and ranges keep theirs. */
+  /*
+   * A complete share-valued curve: station/parameter lengths change units; values, normalized-parameter jets and ranges keep theirs.
+   */
   function share(
     outline: IAutoMovieViewPart.IOutline,
   ): IAutoMovieConstructionOutline {
     return AutoMovieViewOutline.scale(outline, METRES, 1);
   }
 
-  /** A view's two edges in metres. */
+  /*
+   * A view's two edges in metres.
+   */
   function pair(
     p: IAutoMovieViewPart.IPair,
   ): IAutoMovieConstructionOutlinePair {
     return { positive: length(p.positive), negative: length(p.negative) };
   }
 
-  /** Four quarters' share curves. */
+  /*
+   * Four quarters' share curves.
+   */
   function quarters(
     q: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline>,
   ): [
@@ -106,7 +112,9 @@ export namespace AutoMovieHumanConstructionView {
     return [share(q[0]), share(q[1]), share(q[2]), share(q[3])];
   }
 
-  /** The fullness owner as the tree's record. */
+  /*
+   * The fullness owner as the tree's record.
+   */
   function fullness(
     f: IAutoMovieViewPart.Fullness,
   ): IAutoMovieConstructionFullness {

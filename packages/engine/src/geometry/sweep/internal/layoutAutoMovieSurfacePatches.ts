@@ -5,7 +5,7 @@ import type {
   IAutoMovieSurfaceNetwork,
 } from "@automovie/interface";
 
-/**
+/*
  * Create the face layout of a network's cage.
  *
  * Each emitted patch adds its faces row by row from `t` 0, each row from `s` 0,
@@ -17,9 +17,8 @@ import type {
  * faces are no grid, a transition band, gives each corner its own coordinates
  * instead, and corners at the same coordinates share a UV value. `check` then
  * requires every directed edge to appear once.
- *
- * @param network The network, only read.
- * @returns The empty layout.
+ * Parameter network: The network, only read.
+ * Returns: The empty layout.
  */
 export const layoutAutoMovieSurfacePatches: (
   network: IAutoMovieSurfaceNetwork,

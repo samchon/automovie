@@ -21,73 +21,82 @@ import { AutoMovieMotionHumanArmPlannedReads } from "./AutoMovieMotionHumanArmPl
 import { AutoMovieMotionHumanArmPlannedSolve } from "./AutoMovieMotionHumanArmPlannedSolve";
 import { AutoMovieMotionHumanArmStated } from "./AutoMovieMotionHumanArmStated";
 
-/**
+/*
  * The farthest probe's travel between two waypoints of a reach first cut,
  * metres (provisional: a sampling density, not a bound; the solve splits any
  * interval its frame-grid reading fails in).
  */
 const SPACING: number = 0.08;
 
-/**
+/*
  * A daily reach's peak hand speed, metres a second (J NeuroEng Rehabil 2006
  * 3:18).
  */
 const PEAK: number = 0.55;
 
-/**
+/*
  * An arm's whole action planned as one trajectory (`HumanArmTrajectory`): its
  * reach from rest, its hold on the goal's site and its return, read off the
  * posture so far and solved once, alone or with the other arm of the same
  * span.
  */
 export namespace AutoMovieMotionHumanArmPlanned {
-  /**
+  /*
    * An earlier plan's solution of a group's arms, handed to the next plan of
    * the same action (`IAutoMovieMotionHumanArmPlanned.IWarm`).
    */
   export type IWarm = IAutoMovieMotionHumanArmPlanned.IWarm;
 
-  /** The group of a plan whose solve refused (`within`). */
+  /*
+   * The group of a plan whose solve refused (`within`).
+   */
   export interface IRefusal {
-    /**
+    /*
      * The refusing group's handover key (`IWarm`'s key with its ordinal);
      * absent until a group of the plan refuses.
      */
     group?: string;
 
-    /** What that group's solve threw. */
+    /*
+     * What that group's solve threw.
+     */
     error?: unknown;
   }
 
-  /** One instant of a hold to check: the arms holding there and the second. */
+  /*
+   * One instant of a hold to check: the arms holding there and the second.
+   */
   export interface IStill {
-    /** The arms, each with its goal on its hold at the second. */
+    /*
+     * The arms, each with its goal on its hold at the second.
+     */
     carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[];
 
-    /** The second, the plan's own. */
+    /*
+     * The second, the plan's own.
+     */
     seconds: number;
   }
 
-  /**
+  /*
    * The least waypoints a second of a reach, a return or a hold: a site moving
    * as fast as a daily reach's peak travels at most `SPACING` between two of
    * them.
    */
   export const LEAST: number = Math.ceil(PEAK / SPACING);
 
-  /**
+  /*
    * A group for arms moved together.
-   *
-   * @param handover The action's handover between its plans
-   *   (`IHumanActionContext.handover`): the group reads the last plan's
-   *   solutions from it and writes its own into it. Absent, the group takes the
-   *   handover of the action whose plan is in scope (`within`), and hands
-   *   nothing on outside one.
-   * @param stretches Whether the group's span is its law's own, lengthened by a
-   *   slower tempo (`ITogether.stretches`).
-   * @param tempo The explicit replanning multiplier on elapsed time, 1 by
-   *   default.
-   * @returns The empty group.
+   * Parameter handover: The action's handover between its plans
+   * (`IHumanActionContext.handover`): the group reads the last plan's
+   * solutions from it and writes its own into it. Absent, the group takes the
+   * handover of the action whose plan is in scope (`within`), and hands
+   * nothing on outside one.
+   * Parameter stretches: Whether the group's span is its law's own, lengthened by a
+   * slower tempo (`ITogether.stretches`).
+   * Parameter tempo: The explicit replanning multiplier on elapsed time, 1 by
+   * default.
+   * Returns: The empty group.
    */
   export function together(
     handover?: IAutoMovieMotionHumanActionContext.IHandover,
@@ -111,7 +120,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
     };
   }
 
-  /**
+  /*
    * Run one plan of an action with its handover in scope: every group the plan
    * makes (`together`, the default group of a carry included) reads the
    * action's last plan's solutions and writes its own, keyed by its place among
@@ -120,13 +129,12 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * groups are its own, and the enclosing scope is restored on return or throw.
    * A group of the plan whose solve refuses names itself in `refusal`, so the
    * replan can tell one group's need from another's.
-   *
-   * @param handover The action's handover (`IHumanActionContext.handover`);
-   *   absent, the plan runs with no scope.
-   * @param run The plan.
-   * @param refusal Where the group whose solve refused is named; absent, none
-   *   is named.
-   * @returns What the plan returns.
+   * Parameter handover: The action's handover (`IHumanActionContext.handover`);
+   * absent, the plan runs with no scope.
+   * Parameter run: The plan.
+   * Parameter refusal: Where the group whose solve refused is named; absent, none
+   * is named.
+   * Returns: What the plan returns.
    */
   export function within<T>(
     handover: IAutoMovieMotionHumanActionContext.IHandover | undefined,
@@ -147,10 +155,12 @@ export namespace AutoMovieMotionHumanArmPlanned {
     }
   }
 
-  /** The plan in scope, while one runs (`within`). */
+  /*
+   * The plan in scope, while one runs (`within`).
+   */
   let scope: IScope | undefined;
 
-  /**
+  /*
    * The span a carry's weight states, its four instants read off the weight's
    * crossings of 0 and 1 (`AutoMovieMotionHumanArmStated`, which states the
    * precision and the weights that state no span). The alias transforms no
@@ -159,7 +169,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
   export const stated: typeof AutoMovieMotionHumanArmStated =
     AutoMovieMotionHumanArmStated;
 
-  /**
+  /*
    * Physical reach-duration observation, shared with touch-law planning.
    *
    * AutoMovieMotionHumanArmObservation.reaching owns the unchanged actual arc
@@ -168,18 +178,17 @@ export namespace AutoMovieMotionHumanArmPlanned {
    */
   export const reaching: typeof AutoMovieMotionHumanArmObservation.reaching =
     AutoMovieMotionHumanArmObservation.reaching;
-  /**
+  /*
    * Whether the arms can hold at one instant: the course's own still problem
    * there (`HumanArmSeed.held`), on the bases, sites and starts the course
    * would read at that instant (`planned` with `still`), so what a law admits
    * by it is what the course can place.
-   *
-   * @param body The body.
-   * @param still The arms and the second.
-   * @param before The prefix posture at any second, the arms' goals read off
-   *   it.
-   * @returns Whether a configuration holds every hand on its site with every
-   *   arm clear there.
+   * Parameter body: The body.
+   * Parameter still: The arms and the second.
+   * Parameter before: The prefix posture at any second, the arms' goals read off
+   * it.
+   * Returns: Whether a configuration holds every hand on its site with every
+   * arm clear there.
    */
   export function stands(
     body: IAutoMovieMotionHumanBody,
@@ -213,7 +222,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
     }
   }
 
-  /**
+  /*
    * Arms solved as one trajectory problem over their span
    * (`HumanArmTrajectory`), against the posture so far with every one of them
    * left out: a carry's, and a whole-body law's that writes its arms itself (a
@@ -234,25 +243,24 @@ export namespace AutoMovieMotionHumanArmPlanned {
    * many as its motion needs. On the hold each arm's site is its goal's contact
    * in the world; a site on a segment of another arm of the group rides that
    * arm as it is solved.
-   *
-   * @param body The body.
-   * @param span The span's instants.
-   * @param carries The arms.
-   * @param before The prefix posture at any second, accepting this same-body
-   *   plan's synchronous FK/ROM loans through the shared posture signature.
-   * @param plan The group's handover: its `warm` read for an earlier plan's
-   *   solution of these arms, its `last` written with this plan's own when the
-   *   optimiser ran, or with the path a refusal for time was reached at
-   *   (`IMirrorTold.state`), which the replan at the slower time starts from.
-   *   Absent, nothing is read or kept.
-   * @param inheritedPace Exact original group pace, supplied only for a trial
-   *   of one member.
-   * @param still Whether only the hold's instant (`span.ready`) is solved as
-   *   the course's still problem, refusing as the course would there, and no
-   *   course is laid (`stands`).
-   * @returns Each arm's trajectory.
-   * @throws {HumanRefusal} When no trajectory meets the constraints
-   *   (`HumanArmTrajectory.solve`).
+   * Parameter body: The body.
+   * Parameter span: The span's instants.
+   * Parameter carries: The arms.
+   * Parameter before: The prefix posture at any second, accepting this same-body
+   * plan's synchronous FK/ROM loans through the shared posture signature.
+   * Parameter plan: The group's handover: its `warm` read for an earlier plan's
+   * solution of these arms, its `last` written with this plan's own when the
+   * optimiser ran, or with the path a refusal for time was reached at
+   * (`IMirrorTold.state`), which the replan at the slower time starts from.
+   * Absent, nothing is read or kept.
+   * Parameter inheritedPace: Exact original group pace, supplied only for a trial
+   * of one member.
+   * Parameter still: Whether only the hold's instant (`span.ready`) is solved as
+   * the course's still problem, refusing as the course would there, and no
+   * course is laid (`stands`).
+   * Returns: Each arm's trajectory.
+   * When no trajectory meets the constraints
+   * (`HumanArmTrajectory.solve`).
    */
   export function planned(
     body: IAutoMovieMotionHumanBody,
@@ -377,7 +385,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
     });
   }
 
-  /**
+  /*
    * Observed target motion since the plan perceived it, in world metres.
    *
    * AutoMovieMotionHumanArmObservation.moved owns the original same-base
@@ -387,27 +395,35 @@ export namespace AutoMovieMotionHumanArmPlanned {
   export const moved: typeof AutoMovieMotionHumanArmObservation.moved =
     AutoMovieMotionHumanArmObservation.moved;
 
-  /**
+  /*
    * The plan in scope (`within`): its action's handover, how many groups it has
    * made and where a refusing group is named.
    */
   interface IScope {
-    /** The action's handover. */
+    /*
+     * The action's handover.
+     */
     handover: IAutoMovieMotionHumanActionContext.IHandover;
 
-    /** The groups the plan has made so far. */
+    /*
+     * The groups the plan has made so far.
+     */
     made: number;
 
-    /** Where a refusing group is named. */
+    /*
+     * Where a refusing group is named.
+     */
     refusal?: IRefusal;
   }
 }
 
-/**
+/*
  * The spacing of the trajectory's waypoints, seconds at most: the frame grid
  * (`AutoMovieMotionHumanArmCourse.STEP`).
  */
 const STEP: number = AutoMovieMotionHumanArmCourse.STEP;
 
-/** The alternatives of `PlannedPlan`'s site. */
+/*
+ * The alternatives of `PlannedPlan`'s site.
+ */
 type PlannedPlan = "warm" | "last" | "stretches" | "tempo" | "ordinal";

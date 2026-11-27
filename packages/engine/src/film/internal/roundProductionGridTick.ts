@@ -1,4 +1,4 @@
-/**
+/*
  * Round an exact signed production tick to nearest, choosing the higher tick on
  * a tie.
  */

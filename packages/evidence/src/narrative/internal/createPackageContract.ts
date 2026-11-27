@@ -6,7 +6,7 @@ import type { AutoMovieEvidenceProductionStage } from "../AutoMovieEvidenceProdu
 import { createPackageChecklistClaim } from "./createPackageChecklistClaim";
 import { createUnitFiles } from "./utilities/createUnitFiles";
 
-/**
+/*
  * Creates one adopted contract's claims, one per layer that answers it.
  *
  * A work rule usually binds several layers in the same terms, and writing that

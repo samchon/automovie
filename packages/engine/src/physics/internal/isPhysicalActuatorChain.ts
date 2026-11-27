@@ -4,7 +4,7 @@ import type {
   IAutoMoviePhysicalSegment,
 } from "@automovie/interface";
 
-/**
+/*
  * Relationship fitting must own a real contiguous path with at least one
  * articulated joint.
  */

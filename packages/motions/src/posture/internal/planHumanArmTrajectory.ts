@@ -24,7 +24,7 @@ import { HumanArmTrajectoryStretch as Stretch } from "./HumanArmTrajectoryStretc
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
 
-/**
+/*
  * The work of `HumanArmTrajectory.solve`: one solve per span. A refused
  * course's hold whose hand pose its law prescribes is first tracked frame by
  * frame on the swivel, the arm's one freedom there (Tolani, Goswami and Badler
@@ -32,23 +32,15 @@ import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
  * Otherwise solve the hold poses before optimising the trajectory between them.
  * It records in `told` whether it reads the mirror image, so `solve` can tell a
  * refusal in the author's names.
- *
- * @param read The problem on given waypoints' seconds.
- * @param times The first knots' seconds, ascending, on the frame grid.
- * @param course A laid course the model refused, when one was read.
- * @param warm An earlier solution of this action on this span's seconds.
- * @param stretches Whether the span is its law's own, lengthened by a replan.
- * @param told Set when the problem is solved in its mirror image.
- * @returns Each arm's trajectory, in the problem's order, and the solution.
- * @throws {HumanRefusal} When no trajectory meets the constraints at its knots
- *   and on the frame grid.
- * @evidence contracts/development/common.md#meaningful-documentation States the inputs, the mirror record and the refusal; HumanArmTrajectory.solve documents the method.
- * @evidence contracts/development/implementation.md#principled-implementation TrajOpt's few knots with a continuous reading between them through every frame (Schulman et al. 2014), the whole span solved once from the sampling planner's path, as MoveIt's optimiser adapter seeds every optimisation (`OptimizerAdapter::adaptAndPlan`, moveit/moveit moveit_planners/chomp/chomp_optimizer_adapter/src/chomp_optimizer_adapter.cpp lines 177-209 at commit 811328b1ba700f5d2dff69afc9737ac6cab66c9b, BSD-3-Clause), or from an earlier solution of the same action on refined waypoints.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The tracked hold, the memoised solution, then one solve per span; solve keeps only the mirror-name translation.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A trajectory is returned only when its frame-grid reading admits it; otherwise the refusal stands. A rest inside a body, the span's fixed first instant no solve moves, is refused at that instant before any solve. A prescribed hold's frame that no swivel clears at the exact asked attitude leaves the course as laid: the hold's task limits bound points within metres, so the optimiser trades the attitude within them, and the course's own reading refuses what they cannot hold.
- * @evidence contracts/development/implementation.md#efficient-algorithms One solve per span, no restart and no nested solve, its knots split only in the intervals whose course between knots fails; the optimiser's variables are the knots' and its clearance reads the knots and their intervals.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work A warm solution and a laid course's reading (its knot times, its tracked hold and its pace) are reused only for this action's span.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returned readers retain only the setups, final times and solution state.
+ * Parameter read: The problem on given waypoints' seconds.
+ * Parameter times: The first knots' seconds, ascending, on the frame grid.
+ * Parameter course: A laid course the model refused, when one was read.
+ * Parameter warm: An earlier solution of this action on this span's seconds.
+ * Parameter stretches: Whether the span is its law's own, lengthened by a replan.
+ * Parameter told: Set when the problem is solved in its mirror image.
+ * Returns: Each arm's trajectory, in the problem's order, and the solution.
+ * When no trajectory meets the constraints at its knots
+ * and on the frame grid.
  */
 export function planHumanArmTrajectory(
   read: (times: readonly number[]) => HumanArmTrajectory.IProblem,
@@ -307,7 +299,7 @@ export function planHumanArmTrajectory(
   }
   return Stretch.played(solved);
 }
-/**
+/*
  * The refusal of a span whose fixed first instant, each arm's rest, lies inside
  * a body past what the admission allows: the reading the solve makes at every
  * inner waypoint (`HumanArmTrajectoryPairs`: each part's deepest probe, the
@@ -360,7 +352,7 @@ function restInside(
   return undefined;
 }
 
-/**
+/*
  * Whether every arm's site at a frame prescribes the hand's pose: a site with
  * its asked attitude, on nothing that moves with another arm.
  */
@@ -378,7 +370,7 @@ function prescribed(c: M.IContext, g: number): boolean {
   );
 }
 
-/**
+/*
  * An arm's configuration at a prescribed hold's first frame: of the clear
  * swivels there, the one nearest the course's own; none where no swivel is
  * clear.

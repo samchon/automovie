@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanGesture } from "@automovie/interface";
 
-/**
+/*
  * The values the `countOne` row of `HumanEmblem` fixes on `gesture`, spread
  * into its parameters. Counting one on the fingers, from the forefinger on (one
  * convention; cultures differ).

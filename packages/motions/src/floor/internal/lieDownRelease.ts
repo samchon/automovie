@@ -8,15 +8,14 @@ import { prepareHumanPostureProjection } from "../../posture/internal/prepareHum
 import { GymnasticsFlight } from "../../sport/internal/GymnasticsFlight";
 import { floorEntry } from "./floorEntry";
 
-/**
+/*
  * The release from a standing entry's first phase into the second
  * (`floorEntry.between`): from the frozen posture placed at the first phase's
  * end to the posture placed at the second's; none for an entry already down.
  *
  * Part of `lieDown.plan`, which prepares it once per plan.
- *
- * @param prepared What the plan prepared for it.
- * @returns The plan's `release`.
+ * Parameter prepared: What the plan prepared for it.
+ * Returns: The plan's `release`.
  */
 export function lieDownRelease(
   prepared: lieDownRelease.IPrepared,
@@ -42,20 +41,32 @@ export function lieDownRelease(
     : undefined;
 }
 
-/** The `release` of `lieDown.plan`, built from what that plan prepared. */
+/*
+ * The `release` of `lieDown.plan`, built from what that plan prepared.
+ */
 export namespace lieDownRelease {
-  /** The first unplanted phase begins at its actual released joints. */
+  /*
+   * The first unplanted phase begins at its actual released joints.
+   */
   export type Release = ReturnType<typeof floorEntry.between> | undefined;
 
-  /** What `lieDown.plan` prepared for its `release`. */
+  /*
+   * What `lieDown.plan` prepared for its `release`.
+   */
   export interface IPrepared {
-    /** The `entered` `lieDown.plan` prepared. */
+    /*
+     * The `entered` `lieDown.plan` prepared.
+     */
     entered: floorEntry.IStart["entered"];
 
-    /** The `body` `lieDown.plan` prepared. */
+    /*
+     * The `body` `lieDown.plan` prepared.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The `placed` `lieDown.plan` prepared. */
+    /*
+     * The `placed` `lieDown.plan` prepared.
+     */
     placed: (
       index: number,
       u: number,
@@ -63,10 +74,14 @@ export namespace lieDownRelease {
       project: ReturnType<typeof prepareHumanPostureProjection>,
     ) => IAutoMovieMotionHumanPosture;
 
-    /** The `readAtPlan` `lieDown.plan` prepared. */
+    /*
+     * The `readAtPlan` `lieDown.plan` prepared.
+     */
     readAtPlan: ReturnType<typeof prepareHumanPoseResolution>;
 
-    /** The `projectAtPlan` `lieDown.plan` prepared. */
+    /*
+     * The `projectAtPlan` `lieDown.plan` prepared.
+     */
     projectAtPlan: ReturnType<typeof prepareHumanPostureProjection>;
   }
 }

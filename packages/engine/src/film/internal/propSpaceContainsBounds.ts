@@ -9,7 +9,7 @@ import { builtSpaceStatesVolume } from "../../architecture/internal/builtSpaceSt
 import { builtSpaceSubtree } from "../../architecture/internal/builtSpaceSubtree";
 import { requireBuiltSpace } from "../../architecture/internal/requireBuiltSpace";
 
-/**
+/*
  * Whether a world volume lies inside a logical space or the spaces below it.
  *
  * Each of the box's eight corners must lie in some space of the subtree, read
@@ -24,11 +24,10 @@ import { requireBuiltSpace } from "../../architecture/internal/requireBuiltSpace
  * invent a geometric claim the author never made. An undeclared space throws
  * the `Error` of `requireBuiltSpace`. The prop placement gate and the service
  * network gate judge `in-space` containment with it.
- *
- * @param props.environment The building that declares the space.
- * @param props.space Id of the logical space.
- * @param props.bounds World volume to test, in metres.
- * @returns True when every corner is inside, or the subtree states no volume.
+ * Parameter props.environment: The building that declares the space.
+ * Parameter props.space: Id of the logical space.
+ * Parameter props.bounds: World volume to test, in metres.
+ * Returns: True when every corner is inside, or the subtree states no volume.
  */
 export function propSpaceContainsBounds(
   props: IAutoMoviePropSpaceContainsBounds.IProps,

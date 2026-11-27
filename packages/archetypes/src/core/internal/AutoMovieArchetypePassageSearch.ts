@@ -8,9 +8,11 @@ import type { AutoMovieArchetypeCourse } from "../AutoMovieArchetypeCourse";
 import type { AutoMovieArchetypePassage } from "../AutoMovieArchetypePassage";
 import { AutoMovieArchetypeRefusal } from "../AutoMovieArchetypeRefusal";
 
-/** Admission, footprint distances and interval search for passage conflicts. */
+/*
+ * Admission, footprint distances and interval search for passage conflicts.
+ */
 export namespace AutoMovieArchetypePassageSearch {
-  /**
+  /*
    * Where a steering obstacle stands at a second: its world position and its yaw
    * in degrees.
    */
@@ -18,66 +20,90 @@ export namespace AutoMovieArchetypePassageSearch {
     NonNullable<IAutoMovieCrowdAgent.IObstacle["motion"]>
   >;
 
-  /**
+  /*
    * Halvings that place an interval's end, and golden-section steps that place a
    * minimum: forty shrink a one-frame bracket below a picosecond, past which a
    * film second carries no meaning.
    */
   export const REFINE: number = 40;
 
-  /** The golden section's inner ratio, (sqrt 5 - 1) / 2. */
+  /*
+   * The golden section's inner ratio, (sqrt 5 - 1) / 2.
+   */
   export const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
 
-  /** A body's admitted footprint: its hull, radius and margin. */
+  /*
+   * A body's admitted footprint: its hull, radius and margin.
+   */
   export interface IHull {
-    /** The convex hull's points on the floor, counter-clockwise, y 0. */
+    /*
+     * The convex hull's points on the floor, counter-clockwise, y 0.
+     */
     points: IAutoMovieVector3[];
 
-    /** The footprint's radius, metres. */
+    /*
+     * The footprint's radius, metres.
+     */
     radius: number;
 
-    /** The body's margin, metres. */
+    /*
+     * The body's margin, metres.
+     */
     margin: number;
   }
 
-  /** Two bodies measured together. */
+  /*
+   * Two bodies measured together.
+   */
   export interface IPair {
-    /** The earlier-listed participant's name. */
+    /*
+     * The earlier-listed participant's name.
+     */
     subject: string;
 
-    /** The later-listed participant's or the obstacle's name. */
+    /*
+     * The later-listed participant's or the obstacle's name.
+     */
     other: string;
 
-    /** The margin the pair keeps, metres. */
+    /*
+     * The margin the pair keeps, metres.
+     */
     required: number;
 
-    /**
+    /*
      * The pair's clearance at any film second.
-     *
-     * @param seconds The film second.
-     * @returns Metres.
+     * Parameter seconds: The film second.
+     * Returns: Metres.
      */
     at(seconds: number): number;
 
-    /**
+    /*
      * The pair's clearance at a measured instant, from the shared placements.
-     *
-     * @param k The instant's index.
-     * @returns Metres.
+     * Parameter k: The instant's index.
+     * Returns: Metres.
      */
     sampled(k: number): number;
   }
 
-  /** A located minimum of a pair's clearance. */
+  /*
+   * A located minimum of a pair's clearance.
+   */
   export interface IMinimum {
-    /** The film second. */
+    /*
+     * The film second.
+     */
     seconds: number;
 
-    /** The clearance there, metres. */
+    /*
+     * The clearance there, metres.
+     */
     clearance: number;
   }
 
-  /** Refuse a window that does not run forward or a step that is not positive. */
+  /*
+   * Refuse a window that does not run forward or a step that is not positive.
+   */
   export function admitWindow(
     archetype: string,
     from: number,
@@ -106,7 +132,9 @@ export namespace AutoMovieArchetypePassageSearch {
       });
   }
 
-  /** Admit one body's name, margin and footprint, and hull its outline. */
+  /*
+   * Admit one body's name, margin and footprint, and hull its outline.
+   */
   export function admitBody(
     archetype: string,
     axis: string,
@@ -159,7 +187,9 @@ export namespace AutoMovieArchetypePassageSearch {
     };
   }
 
-  /** A hull carried by a plan's placement at a second, projected onto the floor. */
+  /*
+   * A hull carried by a plan's placement at a second, projected onto the floor.
+   */
   export function place(
     plan: AutoMovieArchetypeCourse.IPlan,
     points: readonly IAutoMovieVector3[],
@@ -176,7 +206,7 @@ export namespace AutoMovieArchetypePassageSearch {
     });
   }
 
-  /**
+  /*
    * The least distance between two convex floor hulls: over every pair of edges,
    * a single point or segment being its own edge, and zero when one holds a
    * vertex of the other.
@@ -200,12 +230,14 @@ export namespace AutoMovieArchetypePassageSearch {
     return least > 0 && (inside(a[0]!, b) || inside(b[0]!, a)) ? 0 : least;
   }
 
-  /** How many edges a hull has: one for a point or a segment, else one per vertex. */
+  /*
+   * How many edges a hull has: one for a point or a segment, else one per vertex.
+   */
   export function sides(hull: readonly IAutoMovieVector3[]): number {
     return hull.length < 3 ? 1 : hull.length;
   }
 
-  /**
+  /*
    * Whether a point lies inside a counter-clockwise hull of at least three
    * vertices: on the left of, or on, every edge.
    */
@@ -224,7 +256,7 @@ export namespace AutoMovieArchetypePassageSearch {
     });
   }
 
-  /**
+  /*
    * One pair's conflicts: each run of instants inside the margin, and each
    * sampled minimum whose refinement dips inside it.
    */
@@ -298,7 +330,7 @@ export namespace AutoMovieArchetypePassageSearch {
     return found;
   }
 
-  /**
+  /*
    * The refused end of a bracket between an admitted second and a refused one, by
    * bisection.
    */
@@ -317,7 +349,7 @@ export namespace AutoMovieArchetypePassageSearch {
     return within;
   }
 
-  /**
+  /*
    * The least clearance in a bracket by golden-section search, or the sampled one
    * when no inner reading is lower.
    */
@@ -352,7 +384,9 @@ export namespace AutoMovieArchetypePassageSearch {
     return best.clearance < sampled.clearance ? best : sampled;
   }
 
-  /** A conflict record of a pair over an interval. */
+  /*
+   * A conflict record of a pair over an interval.
+   */
   export function conflict(
     pair: IPair,
     from: number,
@@ -370,7 +404,7 @@ export namespace AutoMovieArchetypePassageSearch {
     };
   }
 
-  /**
+  /*
    * A counter-clockwise hull grown outward by a distance with mitred corners,
    * which holds every point within that distance of the hull; a point or a
    * segment grows into a square or a rectangle about it.

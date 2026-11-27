@@ -63,7 +63,9 @@ export namespace AutoMovieHumanFootCrestForefoot {
   }
 }
 
-/** The region's knots, front first: `[a, u, y / L]`. Reference median. */
+/*
+ * The region's knots, front first: `[a, u, y / L]`. Reference median.
+ */
 const KNOTS: readonly (readonly [number, number, number])[] = [
   [0.86, 0.19, 0.1],
   [0.8, 0.19, 0.121],

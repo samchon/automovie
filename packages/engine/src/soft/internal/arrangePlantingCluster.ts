@@ -9,7 +9,7 @@ import { builtPointBounds } from "../../architecture/internal/builtPointBounds";
 import { seededValue } from "../../math/internal/seededValue";
 import { plantingYaw } from "./plantingYaw";
 
-/**
+/*
  * Generate seeded full-TRS members in authored slot order, counting slots
  * rejected after their attempt limit. A minSpacing grid tests nearby accepted
  * positions; returned bounds enclose placement origins, not scaled plant
@@ -107,7 +107,7 @@ const SALT_PLACE_YAW: number = 0x79617700;
 
 const SALT_PLACE_SCALE: number = 0x73636c00;
 
-/**
+/*
  * The uniform-grid key one ground position falls in.
  *
  * The neighbourhood walk offsets the two integer indices rather than the two
@@ -121,7 +121,7 @@ const cell: (side: number, x: number, z: number) => [number, number] = (
   z: number,
 ): [number, number] => [Math.floor(x / side), Math.floor(z / side)];
 
-/**
+/*
  * Whether an accepted member already stands closer than the minimum spacing.
  *
  * The grid side is the spacing itself, so a member within that distance can
@@ -159,7 +159,9 @@ const crowded: (
   return false;
 };
 
-/** One sample mapped into `[min, max]`. */
+/*
+ * One sample mapped into `[min, max]`.
+ */
 const between: (min: number, max: number, sample: number) => number = (
   min: number,
   max: number,

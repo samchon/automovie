@@ -29,7 +29,7 @@ import { compareHumanLimbPair } from "./compareHumanLimbPair";
 import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
-/**
+/*
  * Two arms with goals fitted as one coupled problem, symmetric in the two arms
  * by construction.
  *
@@ -60,32 +60,33 @@ import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
  * arm's seed and its `near` are that arm's whichever representative is taken.
  */
 export namespace HumanLimbPair {
-  /**
+  /*
    * Observe the returned two-arm fit during this static posture request. In
    * analytic mode a trial that needs the general optimiser returns its direct
    * result and reports that result's residual for the caller to reject.
    */
   export interface Assessment {
-    /**
+    /*
      * Read the complete native model at the returned pair. Consume the
      * evaluation during the call if a stable observation is needed.
      */
     inspect(reading: Readonly<M.IEvaluation>): void;
-    /** Only certified ordinary analytic branches can win a speculative trial. */
+    /*
+     * Only certified ordinary analytic branches can win a speculative trial.
+     */
     analytic: boolean;
   }
 
-  /**
+  /*
    * The pose with both arms fitted.
-   *
-   * @param body The body.
-   * @param pose The pose before the arms, its legs fitted.
-   * @param goals Each arm's goal.
-   * @param near Each arm's nearby fit to continue, if any.
-   * @param resolution Optional parent-owned exact reader or lazy supplier; a
-   *   standalone pair creates a reader only on first actual FK demand.
-   * @returns The pose with both arms fitted, and the seed each arm's own fit
-   *   was chosen at.
+   * Parameter body: The body.
+   * Parameter pose: The pose before the arms, its legs fitted.
+   * Parameter goals: Each arm's goal.
+   * Parameter near: Each arm's nearby fit to continue, if any.
+   * Parameter resolution: Optional parent-owned exact reader or lazy supplier; a
+   * standalone pair creates a reader only on first actual FK demand.
+   * Returns: The pose with both arms fitted, and the seed each arm's own fit
+   * was chosen at.
    */
   export function fitted(
     body: IAutoMovieMotionHumanBody,
@@ -129,15 +130,21 @@ export namespace HumanLimbPair {
     };
   }
 
-  /** Both arms fitted, with the seed each arm's own fit was chosen at. */
+  /*
+   * Both arms fitted, with the seed each arm's own fit was chosen at.
+   */
   export interface IFitted {
-    /** The pose with both arms fitted. */
+    /*
+     * The pose with both arms fitted.
+     */
     pose: IAutoMoviePose;
 
-    /** Each arm's seed. */
+    /*
+     * Each arm's seed.
+     */
     seeds: Record<AutoMovieHumanSide, IAutoMovieSwivelSeed | null>;
 
-    /**
+    /*
      * Each arm's own fit's value (`IAutoMovieSeededChainFit.value`); absent
      * where the coupled solve replaced the arms' own fits.
      */
@@ -145,7 +152,7 @@ export namespace HumanLimbPair {
   }
 }
 
-/**
+/*
  * The pair fitted on the representative: independent fits, or the coupled solve
  * where they meet.
  */

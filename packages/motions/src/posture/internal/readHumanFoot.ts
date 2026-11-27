@@ -4,12 +4,11 @@ import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieHumanoidSurfa
 
 import { HumanFoot } from "./HumanFoot";
 
-/**
+/*
  * Share actual foot socket/outline placement within one synchronous reading.
- *
- * @param body The unchanged body supplying its sole frames.
- * @param bones Its unchanged displayed bone map for this one evaluation.
- * @returns Bound base and socket readers; release them with this evaluation.
+ * Parameter body: The unchanged body supplying its sole frames.
+ * Parameter bones: Its unchanged displayed bone map for this one evaluation.
+ * Returns: Bound base and socket readers; release them with this evaluation.
  */
 export function readHumanFoot(
   body: IAutoMovieMotionHumanBody,
@@ -19,7 +18,9 @@ export function readHumanFoot(
     new Map();
   const outlines: Map<AutoMovieHumanSide, IAutoMovieVector3[]> = new Map();
 
-  /** Place a side's actual sockets on its bound displayed bones once. */
+  /*
+   * Place a side's actual sockets on its bound displayed bones once.
+   */
   function sockets(
     side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanFoot.ISocket[] {
@@ -64,14 +65,16 @@ export function readHumanFoot(
   };
 }
 
-/** Borrowed geometry readers for one unchanged displayed body evaluation. */
+/*
+ * Borrowed geometry readers for one unchanged displayed body evaluation.
+ */
 interface IReading {
-  /**
+  /*
    * The original bearing base; sides keep their given order and default to
    * both.
    */
   base(sides?: readonly AutoMovieHumanSide[]): IAutoMovieVector3[];
-  /**
+  /*
    * A side's borrowed placed sockets, heel first; do not mutate them during
    * this reading.
    */

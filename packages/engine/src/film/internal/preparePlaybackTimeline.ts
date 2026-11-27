@@ -6,7 +6,7 @@ import {
   IAutoMovieShot,
 } from "@automovie/interface";
 
-/**
+/*
  * Build a playback layout and the shot index shared by frame, event and
  * editorial marker consumers.
  *
@@ -16,8 +16,7 @@ import {
  * first-entry transition and nondefault rates that cannot produce a
  * representable output interval. Extra supplied shots are indexed but do not
  * add playback entries.
- *
- * @returns The output-clock timeline and its unambiguous supplied-shot index.
+ * Returns: The output-clock timeline and its unambiguous supplied-shot index.
  */
 export function preparePlaybackTimeline(
   sequence: IAutoMovieSequence,

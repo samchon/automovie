@@ -2,9 +2,11 @@ import type { IAutoMovieMinimumJerk } from "@automovie/interface";
 
 import { bracketedBisection } from "../../math/internal/bracketedBisection";
 
-/** Private minimum-jerk evaluations used by the Motion Sampling owner. */
+/*
+ * Private minimum-jerk evaluations used by the Motion Sampling owner.
+ */
 export namespace minimumJerk {
-  /**
+  /*
    * The minimum-jerk normalized profile and its first two derivatives: the share
    * of a point-to-point movement completed at normalized time `u`.
    *
@@ -23,15 +25,14 @@ export namespace minimumJerk {
    * a profile record. The position uses `s(u) = 1 - s(1 - u)` above one half to
    * keep the share in [0, 1] even at representable times immediately before the
    * endpoint.
-   *
-   * @param u Normalized time, any finite number.
-   * @returns The share `s`, its rate `ds` and its acceleration `dds`.
+   * Parameter u: Normalized time, any finite number.
+   * Returns: The share `s`, its rate `ds` and its acceleration `dds`.
    */
   export function profile(u: number): IAutoMovieMinimumJerk.IProfile {
     return evaluate(u, "profile") as IAutoMovieMinimumJerk.IProfile;
   }
 
-  /**
+  /*
    * The same normalized displacement fraction s, without derivative work or a
    * profile record. Any finite time is admitted and outside [0,1] holds the
    * corresponding endpoint; nonfinite time keeps the original refusal.
@@ -39,7 +40,7 @@ export namespace minimumJerk {
   export function share(u: number): number {
     return evaluate(u, "share") as number;
   }
-  /**
+  /*
    * The first derivative ds with respect to normalized time, without the
    * displacement, second derivative or profile record. Finite times outside
    * [0,1] return literal zero; nonfinite time keeps the original refusal.
@@ -48,7 +49,7 @@ export namespace minimumJerk {
     return evaluate(u, "rate") as number;
   }
 
-  /**
+  /*
    * The normalized time at which the profile has covered a share of its travel,
    * the inverse of `share`: 0 for a share of none or less, 1 for the whole
    * travel or more, and otherwise the time `share` reaches it at, by bisection
@@ -66,12 +67,16 @@ export namespace minimumJerk {
     );
   }
 
-    /** Actual output demands selected only by this module's public reads. */
+    /*
+     * Actual output demands selected only by this module's public reads.
+     */
   type IDemand = "profile" | "share" | "rate";
 
   type IReading = IAutoMovieMinimumJerk.IProfile | number;
 
-  /** One admission/clipping/polynomial owner, evaluating only demanded fields. */
+  /*
+   * One admission/clipping/polynomial owner, evaluating only demanded fields.
+   */
   function evaluate(u: number, demand: IDemand): IReading {
     if (u <= 0) return demand === "profile" ? { s: 0, ds: 0, dds: 0 } : 0;
     if (u >= 1)

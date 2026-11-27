@@ -22,7 +22,9 @@ import { AutoMovieRenderSemanticMask } from "../semanticMask/index.js";
 import { applyAutoMovieGraphicsMode } from "../surfaceGraphic/internal/applyAutoMovieGraphicsMode.js";
 import { hideAutoMovieSurfaceGraphics } from "../surfaceGraphic/internal/hideAutoMovieSurfaceGraphics.js";
 
-/** A renderable that is NOT a mesh: a line/grid/helper, points, or a sprite. */
+/*
+ * A renderable that is NOT a mesh: a line/grid/helper, points, or a sprite.
+ */
 const isNonMeshRenderable: (object: THREE.Object3D) => boolean = (
   object: THREE.Object3D,
 ): boolean =>
@@ -30,7 +32,7 @@ const isNonMeshRenderable: (object: THREE.Object3D) => boolean = (
   AutoMovieThreeKind.isPoints(object) ||
   AutoMovieThreeKind.isSprite(object);
 
-/**
+/*
  * Hide every currently-visible non-mesh renderable in the scene (grids and
  * other `LineSegments`/`Line` helpers, `Points`, `Sprite`s) and return a
  * restore that makes them visible again. A structural guide pass segments only
@@ -56,7 +58,7 @@ const hideNonMeshRenderables: (scene: THREE.Scene) => () => void = (
   };
 };
 
-/**
+/*
  * Apply one diffusion-guide render mode to a built scene, returning the restore
  * handle. A capture applies the override at snapshot time and reverses it right
  * after, so the viewer stays a thin projection of the engine result. A caller
@@ -66,7 +68,7 @@ const hideNonMeshRenderables: (scene: THREE.Scene) => () => void = (
  *
  * - `beauty`: no override (the ordinary shaded render).
  * - `depth`: meshes use clamp(1-viewZ/range,0,1) with camera-space depth and a
- *   shared {@link DEPTH_NORMALIZATION_RANGE}, independent of near/far
+ *   shared DEPTH_NORMALIZATION_RANGE, independent of near/far
  *   normalization. Camera changes can change a world point's viewZ; black is
  *   the far-range/background convention.
  * - `mask`: the segmentation pass. A scene handed its palette by
@@ -79,7 +81,7 @@ const hideNonMeshRenderables: (scene: THREE.Scene) => () => void = (
  * - `normal`: every mesh swapped to `MeshNormalMaterial`: the unlit
  *   surface-normal conditioning pass (#1166).
  * - `outline`: black fills plus inverted-hull back-face shells extruded by
- *   {@link EDGE_WIDTH} in model space, leaving white contours on black.
+ *   EDGE_WIDTH in model space, leaving white contours on black.
  *   Object/instance scaling and camera projection affect world thickness and
  *   screen line weight.
  * - `pose`: meshes hidden, and a line-segment overlay of every bone→child bone
@@ -91,7 +93,7 @@ const hideNonMeshRenderables: (scene: THREE.Scene) => () => void = (
  * Surface graphics from `prepareAutoMovieSurfaceGraphics` draw in `beauty`,
  * `mask` and `graphics` only; every other pass hides them for its duration.
  *
- * - `graphics`: {@link applyAutoMovieGraphicsMode}: the surface graphics as beauty
+ * - `graphics`: applyAutoMovieGraphicsMode: the surface graphics as beauty
  *   draws them, every other mesh writing depth only, no backdrop, with the
  *   scene's fog and image lighting kept.
  *
@@ -120,16 +122,16 @@ export const applyRenderMode: (
   scene: THREE.Scene,
   mode: AutoMovieGuidePass,
   options?: {
-    /**
+    /*
      * Metric range (m) the depth pass normalizes onto. Defaults to
-     * {@link DEPTH_NORMALIZATION_RANGE} (20). Direct callers only: the capture
+     * DEPTH_NORMALIZATION_RANGE (20). Direct callers only: the capture
      * path keeps the scene-stable default (see above).
      */
     depthRange?: number;
 
-    /**
+    /*
      * Model-space normal extrusion for the outline pass; defaults to
-     * {@link EDGE_WIDTH} (0.02). Object/instance scale changes its world
+     * EDGE_WIDTH (0.02). Object/instance scale changes its world
      * thickness; the capture path keeps the default.
      */
     edgeWidth?: number;
@@ -242,7 +244,7 @@ export const applyRenderMode: (
   };
 };
 
-/**
+/*
  * Take the scene's fog off for the duration of a structural pass, and put it
  * back exactly as it was.
  *
@@ -270,7 +272,7 @@ const suspendFog: (scene: THREE.Scene) => () => void = (
   };
 };
 
-/**
+/*
  * Remove image lighting and its background while a structural pass renders.
  *
  * Normal materials ignore the environment as a light source but would still

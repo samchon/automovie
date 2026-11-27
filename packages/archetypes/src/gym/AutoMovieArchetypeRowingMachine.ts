@@ -11,7 +11,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** Concept2's published RowErg figures, read. */
+/*
+ * Concept2's published RowErg figures, read.
+ */
 const CONCEPT2: string =
   "Concept2 RowErg (https://www.concept2.com/ergs/rowerg)";
 

@@ -14,7 +14,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { operateInsert } from "./operateInsert";
 import { operateLongInsert } from "./operateLongInsert";
 
-/**
+/*
  * Route an operation: an insertion's depth resolved from its socket when not
  * given (`IAutoMovieAffordance.depth`), and planned by `operateLongInsert` when
  * the holding hand grips the tool on its working line (within its half breadth,
@@ -23,13 +23,12 @@ import { operateLongInsert } from "./operateLongInsert";
  * the hand would otherwise have to enter the bore. A grip off the line (a
  * pistol's) never meets the bore. Any other operation passes through
  * unchanged.
- *
- * @param context The operation's context.
- * @param constants The operation's reach share, stroke pace and aimed width.
- * @returns The long plan when it applies, and the context with the depth
- *   resolved.
- * @throws {HumanRefusal} When an insertion names no depth and its socket
- *   declares none.
+ * Parameter context: The operation's context.
+ * Parameter constants: The operation's reach share, stroke pace and aimed width.
+ * Returns: The long plan when it applies, and the context with the depth
+ * resolved.
+ * When an insertion names no depth and its socket
+ * declares none.
  */
 export function operateInsertRoute(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams>,
@@ -95,26 +94,42 @@ export function operateInsertRoute(
   };
 }
 
-/** The records of {@link operateInsertRoute}. */
+/*
+ * The records of operateInsertRoute.
+ */
 export namespace operateInsertRoute {
-  /** The operation's own constants a long insertion reads. */
+  /*
+   * The operation's own constants a long insertion reads.
+   */
   export interface IConstants {
-    /** The share of the arm's length a hand holds within. */
+    /*
+     * The share of the arm's length a hand holds within.
+     */
     reach: number;
 
-    /** The stroke's pace, metres per second. */
+    /*
+     * The stroke's pace, metres per second.
+     */
     pace: number;
 
-    /** The width a hand aims at, metres. */
+    /*
+     * The width a hand aims at, metres.
+     */
     width: number;
   }
 
-  /** A routed operation. */
+  /*
+   * A routed operation.
+   */
   export interface IRouted {
-    /** The context, an insertion's depth resolved. */
+    /*
+     * The context, an insertion's depth resolved.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanOperate.IParams>;
 
-    /** The long insertion's plan, when it applies. */
+    /*
+     * The long insertion's plan, when it applies.
+     */
     plan?: IAutoMovieMotionHumanActionPlan;
   }
 }

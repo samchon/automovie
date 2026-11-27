@@ -1,6 +1,6 @@
 import { HumanMountOnPlan } from "./HumanMountOnPlan";
 
-/**
+/*
  * Getting onto a high seat, or a seat sat astride, from standing beside or in
  * front of it: what `sit` plans where the feet cannot stay on the floor.
  *
@@ -49,6 +49,8 @@ import { HumanMountOnPlan } from "./HumanMountOnPlan";
  * do not hold the seat, a pommel or a bar.
  */
 export namespace HumanMountOn {
-  /** {@link HumanMountOnPlan}, read through this namespace. */
+  /*
+   * HumanMountOnPlan, read through this namespace.
+   */
   export const plan: typeof HumanMountOnPlan = HumanMountOnPlan;
 }

@@ -474,7 +474,7 @@ function computePlan(
   };
 }
 
-/**
+/*
  * A double-support plan over the final transfer (l.611-620): the double-support
  * cubic between two capture points and rates (`ICPPlannerTrajectoryGenerator`
  * l.39-105), its start attached to the given frame and its end to the mid-feet

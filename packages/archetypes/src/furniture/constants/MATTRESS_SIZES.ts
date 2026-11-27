@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeBed } from "../AutoMovieArchetypeBed";
 
-/**
+/*
  * A loose mattress's sizes by the UK bed size it fits, by kind, metres, the
  * default first: the National Bed Federation's "single 90 x 190 cm" and "double
  * 135 x 190 cm"

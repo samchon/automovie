@@ -8,7 +8,7 @@ import type { IMotionCaptureCase } from "../internal/IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./internal/everydayVerdicts";
 
-/**
+/*
  * Capture cases of the load-carriage family: a 2.5 m walk ahead carrying a load
  * of 15 % of the body's mass in each way: `carry-oneHand` (right hand),
  * `carry-twoHands`, `carry-hip` (left hip) and `carry-push`.
@@ -25,9 +25,8 @@ import { everydayVerdicts } from "./internal/everydayVerdicts";
  *   by at most 1 mm once the hold is taken (a rigid load, the issue's
  *   object-within-1-mm bound), and each surface stays within 10 mm of its hold
  *   place.
- *
- * @param bodies The sweep bodies; `m-average` when absent.
- * @returns The cases.
+ * Parameter bodies: The sweep bodies; `m-average` when absent.
+ * Returns: The cases.
  */
 export function carryCases(
   bodies: readonly string[] = ["m-average"],

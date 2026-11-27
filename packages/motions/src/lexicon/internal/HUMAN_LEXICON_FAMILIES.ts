@@ -4,7 +4,7 @@ import { HUMAN_LEXICON_ARMS_LAWS } from "./HUMAN_LEXICON_ARMS_LAWS";
 import { HUMAN_LEXICON_BODY_LAWS } from "./HUMAN_LEXICON_BODY_LAWS";
 import { HUMAN_LEXICON_HAND_LAWS } from "./HUMAN_LEXICON_HAND_LAWS";
 
-/**
+/*
  * Every lexicon family's laws, by export key: each family's record names its
  * laws one by one, so the registry (`HUMAN_LEXICON`) reads them without probing
  * what a namespace exports; a namespace's other members (a gait's `MARCH`, its

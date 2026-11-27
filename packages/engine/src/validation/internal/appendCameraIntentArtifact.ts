@@ -6,7 +6,9 @@ import type {
 import { pushViolation } from "./pushViolation";
 import { validateRange } from "./validateRange";
 
-/** Append camera-intent span, focus and focal-length findings. */
+/*
+ * Append camera-intent span, focus and focal-length findings.
+ */
 export function appendCameraIntentArtifact(
   intents: readonly IAutoMovieCameraIntent[],
   path: string,

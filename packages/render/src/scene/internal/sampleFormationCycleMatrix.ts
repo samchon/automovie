@@ -3,7 +3,7 @@ import * as THREE from "three";
 import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
 import type { IAutoMovieFormationCycleTake } from "../IAutoMovieFormationCycleTake.js";
 
-/**
+/*
  * Read and linearly mix two neighboring canonical baked samples into a CPU
  * rest-to-posed matrix, closing the last sample back into the first. Valid
  * finite position, positive sample count and complete selected take are

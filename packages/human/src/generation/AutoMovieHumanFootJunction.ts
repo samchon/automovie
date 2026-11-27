@@ -55,5 +55,7 @@ export namespace AutoMovieHumanFootJunction {
   }
 }
 
-/** An along distance below which a neighbour gives no ellipse, mm. */
+/*
+ * An along distance below which a neighbour gives no ellipse, mm.
+ */
 const EPSILON: number = 1e-6;

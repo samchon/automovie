@@ -5,7 +5,7 @@ import type {
 
 import { adjacentAutoMovieFloat64 as outward } from "../../math/internal/adjacentAutoMovieFloat64";
 
-/**
+/*
  * Enclose each point's projection onto a stored direction in an outward rounded
  * interval, relative to an origin.
  *
@@ -22,11 +22,10 @@ import { adjacentAutoMovieFloat64 as outward } from "../../math/internal/adjacen
  * the origin or the direction, and, through `adjacentAutoMovieFloat64`, on a
  * difference or enclosure step that overflows. Projection separation and
  * attachment contact are the two consumers.
- *
- * @param points Points to project, read only.
- * @param raw Stored direction, read only.
- * @param origin Reference point the projections are measured from.
- * @returns One owned interval per point and the norm enclosure.
+ * Parameter points: Points to project, read only.
+ * Parameter raw: Stored direction, read only.
+ * Parameter origin: Reference point the projections are measured from.
+ * Returns: One owned interval per point and the norm enclosure.
  */
 export function measureAutoMovieProjectionIntervals(
   points: readonly IAutoMovieVector3[],
@@ -81,9 +80,13 @@ export function measureAutoMovieProjectionIntervals(
   return { intervals, normUpper };
 }
 
-/** The three coordinate names, read in a fixed order. */
+/*
+ * The three coordinate names, read in a fixed order.
+ */
 const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
 
-/** Whether a slot holds a vector with three finite coordinates. */
+/*
+ * Whether a slot holds a vector with three finite coordinates.
+ */
 const finite = (point: IAutoMovieVector3 | undefined | null): boolean =>
   point !== undefined && point !== null;

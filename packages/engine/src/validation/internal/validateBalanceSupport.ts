@@ -19,7 +19,7 @@ import { AutoMovieEngineViolationCollector } from "../AutoMovieEngineViolationCo
 import { fkReachableBones } from "./fkReachableBones";
 import { admitMotionSampleRate } from "./admitMotionSampleRate";
 
-/**
+/*
  * Sample FK within valid support windows, project a single-bone or weighted
  * joint-position center onto XZ, and warn beyond the support hull plus a finite
  * nonnegative margin in metres. Invalid rates and margins give range findings.
@@ -198,7 +198,7 @@ const DEFAULT_MARGIN: number = 0.02;
 
 const DEFAULT_SAMPLE_RATE: number = 24;
 
-/**
+/*
  * Fixed relative weights for the proximal-joint mass approximation, normalized
  * over resolved bones; minor bones use the 0.2 fallback.
  */
@@ -223,7 +223,9 @@ const SEGMENT_MASS_FRACTION: Partial<Record<AutoMovieHumanoidBone, number>> = {
   rightFoot: 1.45,
 };
 
-/** Mass fraction for a minor bone the table omits (clavicle, toe, eye, finger). */
+/*
+ * Mass fraction for a minor bone the table omits (clavicle, toe, eye, finger).
+ */
 const DEFAULT_SEGMENT_MASS_FRACTION: number = 0.2;
 
 const CENTER_BONE_EXPECTED: string =
@@ -243,7 +245,7 @@ const SUPPORT_BONE_EXPECTED: string =
 const SUPPORT_BONE_REACHABLE: string =
   "support bone is declared but not reachable from a root bone via forward kinematics";
 
-/**
+/*
  * Compute a weighted mean of resolved joint world positions using the fixed
  * segment table and0.2 fallback.
  *
@@ -282,7 +284,7 @@ const weightedCenterOfMass: (
   return { x: x / mass, y: y / mass, z: z / mass };
 };
 
-/**
+/*
  * Round a diagnostic quantity to three decimals with
  * Math.round(value*1000)/1000.
  *

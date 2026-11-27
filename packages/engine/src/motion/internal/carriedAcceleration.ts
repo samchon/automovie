@@ -1,8 +1,8 @@
-/**
+/*
  * What an acceleration at a cut adds to a path that starts without one, so the
  * sum leaves the cut with that acceleration.
  *
- * The companion of {@link carriedRate} one derivative up: the quintic Hermite
+ * The companion of carriedRate one derivative up: the quintic Hermite
  * basis of a unit initial acceleration over `duration` seconds, `D^2 u^2 (1 -
  * u)^3 / 2` with `u = elapsed / D`, the one quintic with zero value and slope
  * and unit acceleration at the start and zero value, slope and acceleration at
@@ -13,12 +13,11 @@
  * sets the acceleration a path arrives with; an acceleration keeps its sign
  * under that mirror, where a rate changes it. The term rises to `PEAK` times
  * the squared duration at two fifths of it and returns without crossing zero.
- *
- * @param duration Seconds over which the acceleration is carried; positive.
- * @param elapsed Seconds since the cut; clamped into the duration.
- * @returns Seconds squared: the displacement per unit acceleration.
- * @throws {Error} When the duration is not positive and finite, or the elapsed
- *   time is not finite.
+ * Parameter duration: Seconds over which the acceleration is carried; positive.
+ * Parameter elapsed: Seconds since the cut; clamped into the duration.
+ * Returns: Seconds squared: the displacement per unit acceleration.
+ * When the duration is not positive and finite, or the elapsed
+ * time is not finite.
  */
 export function carriedAcceleration(duration: number, elapsed: number): number {
   if (!(duration > 0))

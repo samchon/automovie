@@ -3,7 +3,7 @@ import * as fs from "node:fs/promises";
 
 import { hashAutoMovieFile } from "../../file/internal/hashAutoMovieFile";
 
-/**
+/*
  * Reuse a media digest within one verification while the file identity is
  * unchanged.
  */

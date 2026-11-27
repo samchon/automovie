@@ -3,7 +3,7 @@ import type { HumanKnot } from "./HumanKnot";
 import { prepareHumanAdaptiveKnots } from "./prepareHumanAdaptiveKnots";
 import { prepareHumanKnotCourse } from "./prepareHumanKnotCourse";
 
-/**
+/*
  * Prepare a value solved in preparation as a knot course over an interval, its
  * knots placed by AutoKnots (Vitenti et al. 2024, arXiv:2412.13423;
  * `prepareHumanAdaptiveKnots`) to the call site's own requirement, so no knot
@@ -18,10 +18,9 @@ import { prepareHumanKnotCourse } from "./prepareHumanKnotCourse";
  * the piece its second lies in and holds the interval's end values outside it.
  * Forced knots nearer than `GAP` to each other or to an end are one, and an
  * interval no longer than `GAP` holds the value at its start.
- *
- * @param props The interval, its forced knots, the value, the tolerance and the
- *   knot limit.
- * @returns The value at a second.
+ * Parameter props: The interval, its forced knots, the value, the tolerance and the
+ * knot limit.
+ * Returns: The value at a second.
  */
 export function prepareHumanSampledCourse(
   props: prepareHumanSampledCourse.IProps,
@@ -84,44 +83,55 @@ export function prepareHumanSampledCourse(
   };
 }
 
-/** The course's inputs, its knots' spacing and the course through knots. */
+/*
+ * The course's inputs, its knots' spacing and the course through knots.
+ */
 export namespace prepareHumanSampledCourse {
-  /** The least gap between two knots, seconds: a microsecond. */
+  /*
+   * The least gap between two knots, seconds: a microsecond.
+   */
   export const GAP: number = 1e-6;
 
-  /** What a sampled course is prepared from. */
+  /*
+   * What a sampled course is prepared from.
+   */
   export interface IProps {
-    /** The interval's first second. */
+    /*
+     * The interval's first second.
+     */
     from: number;
 
-    /** Its last second. */
+    /*
+     * Its last second.
+     */
     to: number;
 
-    /**
+    /*
      * The seconds a contact changes at while the value runs on, each a knot the
      * course passes without stopping; none when absent.
      */
     marks?: readonly number[];
 
-    /**
+    /*
      * The seconds the value's own rule changes at, each a knot the course is
      * split at, at rest on both sides; none when absent.
      */
     breaks?: readonly number[];
 
-    /**
+    /*
      * The exact value at a second, one number per component; each call is a
      * knot.
-     *
-     * @param seconds The second.
-     * @returns The value.
+     * Parameter seconds: The second.
+     * Returns: The value.
      */
     sample(seconds: number): readonly number[];
 
-    /** The acceptance tolerance, the call site's own requirement. */
+    /*
+     * The acceptance tolerance, the call site's own requirement.
+     */
     tolerance: prepareHumanAdaptiveKnots.Tolerance;
 
-    /**
+    /*
      * The finest spacing a stretch is knotted at, seconds (`limit`): the site's
      * own resolution, or the grid the display reads the value on, so a rule
      * that never meets the tolerance (a step inside a stretch) stops there.
@@ -129,16 +139,15 @@ export namespace prepareHumanSampledCourse {
     step: number;
   }
 
-  /**
+  /*
    * The most knots a stretch may take for its spacing to come down to a step
    * and no further: AutoKnots starts from six uniform knots and halves a
    * sub-interval at a time, so its spacings are the stretch's fifth halved `k`
    * times, and the limit is the knots of the fewest halvings that bring that
    * spacing to the step or under it, `5 * 2^k + 1`.
-   *
-   * @param width The stretch's length, seconds.
-   * @param step The finest spacing asked, seconds.
-   * @returns The knot limit.
+   * Parameter width: The stretch's length, seconds.
+   * Parameter step: The finest spacing asked, seconds.
+   * Returns: The knot limit.
    */
   export function limit(width: number, step: number): number {
     const halvings: number = Math.max(
@@ -148,22 +157,27 @@ export namespace prepareHumanSampledCourse {
     return INITIAL_SPANS * 2 ** halvings + 1;
   }
 
-  /** One knot: its second and its exact value there. */
+  /*
+   * One knot: its second and its exact value there.
+   */
   export interface IKnot {
-    /** The knot's second. */
+    /*
+     * The knot's second.
+     */
     seconds: number;
 
-    /** The value there. */
+    /*
+     * The value there.
+     */
     position: readonly number[];
   }
 
-  /**
+  /*
    * The course through values already solved at their own seconds, each a
    * physical instant the caller names: a knot nearer than `GAP` to the one
    * before is dropped, and a single knot holds its value.
-   *
-   * @param knots The knots, their seconds ascending.
-   * @returns The value at a second.
+   * Parameter knots: The knots, their seconds ascending.
+   * Returns: The value at a second.
    */
   export function through(
     knots: readonly IKnot[],
@@ -192,14 +206,22 @@ export namespace prepareHumanSampledCourse {
   }
 }
 
-/** The sub-intervals of AutoKnots' six uniform starting knots. */
+/*
+ * The sub-intervals of AutoKnots' six uniform starting knots.
+ */
 const INITIAL_SPANS: number = 5;
 
-/** One piece of a sampled course, between two of its breaks. */
+/*
+ * One piece of a sampled course, between two of its breaks.
+ */
 interface IPiece {
-  /** The piece's last second. */
+  /*
+   * The piece's last second.
+   */
   to: number;
 
-  /** Its course through all its knots. */
+  /*
+   * Its course through all its knots.
+   */
   course: (seconds: number) => number[];
 }

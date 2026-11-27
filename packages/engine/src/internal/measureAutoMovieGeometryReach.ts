@@ -19,7 +19,7 @@ import { Transform } from "../math/Transform";
 import { Vector3 } from "../math/Vector3";
 import { validatePose } from "../validation/internal/validatePose";
 
-/**
+/*
  * Measure each available arm's rest-chain reach gap in model metres at
  * shot-local seconds; report solved-pose ROM separately and refuse degenerate
  * node scale or absent arm chains.
@@ -108,13 +108,19 @@ export function measureAutoMovieGeometryReach(
   };
 }
 interface IArmReachMeasurement {
-  /** Positive rest-chain deficit in model metres, or zero within radial reach. */
+  /*
+   * Positive rest-chain deficit in model metres, or zero within radial reach.
+   */
   gap: number;
 
-  /** Whether the radial deficit is at most 1e-6 model metres. */
+  /*
+   * Whether the radial deficit is at most 1e-6 model metres.
+   */
   reachable: boolean;
 
-  /** Whether the independently solved pose passes the current rig's ROM gate. */
+  /*
+   * Whether the independently solved pose passes the current rig's ROM gate.
+   */
   poseWithinRom: boolean;
 }
 

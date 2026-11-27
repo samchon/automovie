@@ -17,7 +17,7 @@ import type {
 
 import { HumanObject } from "../HumanObject";
 
-/**
+/*
  * What stands in a person's way: a wall, a piece of furniture, a door frame,
  * each a solid of the scene with the openings a person may pass through.
  *
@@ -34,7 +34,7 @@ import { HumanObject } from "../HumanObject";
  * own path gives the way.
  */
 export namespace HumanObstacle {
-  /**
+  /*
    * Why a path is blocked, as data: a solid with no opening on the path, an
    * opening narrower than the body, or one lower than it.
    */
@@ -46,18 +46,17 @@ export namespace HumanObstacle {
     IAutoMovieMotionHumanObstacle.IBlock["cause"]
   >[];
 
-  /**
+  /*
    * A straight wall as an obstacle.
-   *
-   * @param subject Its subject id.
-   * @param from One end of its centre line on the floor, world metres.
-   * @param to The other end.
-   * @param thickness Its thickness, metres.
-   * @param height Its height, metres.
-   * @param apertures Its openings.
-   * @returns The obstacle.
-   * @throws {Error} When the two ends coincide, or the thickness or the height
-   *   is not positive.
+   * Parameter subject: Its subject id.
+   * Parameter from: One end of its centre line on the floor, world metres.
+   * Parameter to: The other end.
+   * Parameter thickness: Its thickness, metres.
+   * Parameter height: Its height, metres.
+   * Parameter apertures: Its openings.
+   * Returns: The obstacle.
+   * When the two ends coincide, or the thickness or the height
+   * is not positive.
    */
   export function wall(
     subject: string,
@@ -89,15 +88,14 @@ export namespace HumanObstacle {
     };
   }
 
-  /**
+  /*
    * The openings an object declares, placed in the world: each `aperture`
    * affordance with its width along the contact's `+X` and its height along
    * `+Y`, as the affordance record states them.
-   *
-   * @param model The object.
-   * @param placement Where the scene puts it.
-   * @returns Its openings; an `aperture` that states no width or no height is
-   *   left out, since nothing says how much it clears.
+   * Parameter model: The object.
+   * Parameter placement: Where the scene puts it.
+   * Returns: Its openings; an `aperture` that states no width or no height is
+   * left out, since nothing says how much it clears.
    */
   export function apertures(
     model: IAutoMovieMotionHumanObject.IModel,
@@ -138,7 +136,7 @@ export namespace HumanObstacle {
     return out;
   }
 
-  /**
+  /*
    * The least horizontal part of an opening's unit width axis that states a
    * heading across it: a width axis turned straight up keeps a horizontal part
    * of the order of the rounding of its turn, about 1e-16, which names no
@@ -146,14 +144,14 @@ export namespace HumanObstacle {
    */
   const LEVEL: number = 1e-9;
 
-  /**
+  /*
    * How far the polygon that stands for a round collider's outline on the floor
    * may lie outside it, metres (provisional: a millimetre, under any clearance
    * a passage is judged by).
    */
   export const ROUND: number = 0.001;
 
-  /**
+  /*
    * A placed object as an obstacle, from its own colliders and openings.
    *
    * The footprint is the convex hull, on the floor plan, of the object's
@@ -164,14 +162,13 @@ export namespace HumanObstacle {
    * `ROUND` of it, so the footprint never leaves out any of the solid. The
    * bottom and the top are the colliders' least and greatest heights, and the
    * openings are the object's `aperture` affordances (`apertures`).
-   *
-   * @param subject Its subject id.
-   * @param model The object, whose colliders (`shapes`) say where its solid
-   *   stands.
-   * @param placement Where the scene puts it.
-   * @returns The obstacle.
-   * @throws {Error} When the object has no colliders, or its colliders cover no
-   *   area of the floor plan.
+   * Parameter subject: Its subject id.
+   * Parameter model: The object, whose colliders (`shapes`) say where its solid
+   * stands.
+   * Parameter placement: Where the scene puts it.
+   * Returns: The obstacle.
+   * When the object has no colliders, or its colliders cover no
+   * area of the floor plan.
    */
   export function object(
     subject: string,
@@ -237,7 +234,7 @@ export namespace HumanObstacle {
     };
   }
 
-  /**
+  /*
    * Adds the corners of the regular polygon whose edges touch a ball's disc on
    * the floor plan, with enough sides that they stand within `ROUND` of it.
    */
@@ -261,7 +258,7 @@ export namespace HumanObstacle {
     }
   };
 
-  /**
+  /*
    * The convex hull of points on the floor plan, its corners in order with none
    * on a straight run (Andrew's monotone chain); `y` is 0.
    */
@@ -276,15 +273,14 @@ export namespace HumanObstacle {
     );
   };
 
-  /**
+  /*
    * The first obstacle a straight stretch of a path cannot pass, if any.
-   *
-   * @param obstacles The scene's obstacles.
-   * @param from Where the stretch starts on the floor, world metres.
-   * @param to Where it ends.
-   * @param need What the body needs of a passage.
-   * @returns The nearest block along the stretch, or null when the stretch is
-   *   free.
+   * Parameter obstacles: The scene's obstacles.
+   * Parameter from: Where the stretch starts on the floor, world metres.
+   * Parameter to: Where it ends.
+   * Parameter need: What the body needs of a passage.
+   * Returns: The nearest block along the stretch, or null when the stretch is
+   * free.
    */
   export function blocking(
     obstacles: readonly IAutoMovieMotionHumanObstacle[],
@@ -324,7 +320,7 @@ export namespace HumanObstacle {
     return nearest;
   }
 
-  /**
+  /*
    * Why a path that enters an obstacle is blocked by it, or null when it goes
    * through an opening that clears the body.
    */
@@ -373,7 +369,7 @@ export namespace HumanObstacle {
     return solid;
   };
 
-  /**
+  /*
    * The share of a path at which it enters a convex footprint, or null when it
    * misses it.
    */
@@ -415,5 +411,7 @@ export namespace HumanObstacle {
   };
 }
 
-/** The record of `IObjectBounds`'s site. */
+/*
+ * The record of `IObjectBounds`'s site.
+ */
 type IObjectBounds = { min: IAutoMovieVector3; max: IAutoMovieVector3 };

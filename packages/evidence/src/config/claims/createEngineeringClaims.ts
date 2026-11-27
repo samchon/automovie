@@ -2,7 +2,7 @@ import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 
 import { SKILLS_ROOT } from "../../internal/SKILLS_ROOT";
 
-/**
+/*
  * Creates fresh source/test claims against the project's own checklists.
  *
  * Use the result when extending, rather than replacing, the default engineering
@@ -29,30 +29,32 @@ import { SKILLS_ROOT } from "../../internal/SKILLS_ROOT";
  */
 export function createEngineeringClaims(
   props: {
-    /**
+    /*
      * Shared documentation checklist path from `skills`, answered by every
      * selected source declaration and test; `null` selects none.
      */
     common?: string | null;
 
-    /** Design checklist path from `skills`, answered by source types. */
+    /*
+     * Design checklist path from `skills`, answered by source types.
+     */
     design?: string;
 
-    /**
+    /*
      * Implementation checklist path from `skills`, answered by source
      * functions.
      */
     implementation?: string;
 
-    /** Testing checklist path from `skills`, answered by tests. */
+    /*
+     * Testing checklist path from `skills`, answered by tests.
+     */
     tests?: string;
 
-    /**
+    /*
      * Reference root of the skills tree holding the checklists, relative to the
      * directory of `evidence.config.ts` with `/` separators; `..` segments
      * reach a workspace's shared tree.
-     *
-     * @default ".agents/skills"
      */
     skills?: string;
   } = {},

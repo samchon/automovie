@@ -38,7 +38,7 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
 import { handGoals } from "./handGoals";
 import { restGoals } from "./restGoals";
 
-/**
+/*
  * Standing with the hands at rest places: in the front pockets, on the hips,
  * arms crossed, clasped in front or behind, behind the head, or the chin on a
  * fist, each hand moved there and held.
@@ -46,7 +46,7 @@ import { restGoals } from "./restGoals";
  * Every rest place is an effector goal on the body's own surface: a hand
  * surface is laid on a region with the palm facing into it; the palm and fist
  * sockets lie on the hand's own collider surface, so a laid hand touches the
- * region rather than sinking into it ({@link HumanHand}). The places, with the
+ * region rather than sinking into it (HumanHand). The places, with the
  * surface and region each uses:
  *
  * - `side`: no goal; the arm hangs relaxed as the stand law holds it.
@@ -87,10 +87,12 @@ import { restGoals } from "./restGoals";
  * breathing and sway carry the hands with it. A hand at `side` is not moved.
  */
 export namespace rest {
-  /** The action's name. */
+  /*
+   * The action's name.
+   */
   export const name: AutoMovieMotionHumanActionName = "rest";
 
-  /**
+  /*
    * Cancel table: holding a rest place has no stroke, so it can be cut
    * anywhere.
    */
@@ -109,13 +111,15 @@ export namespace rest {
     rest: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
   };
 
-  /**
+  /*
    * A rest may be performed over a carrier: it claims the arms it places, with
    * their hands.
    */
   export const overlay: boolean = true;
 
-  /** Places that hold both hands together, so both hands must name them. */
+  /*
+   * Places that hold both hands together, so both hands must name them.
+   */
   export const PAIRED: readonly IAutoMovieMotionHumanRest.Place[] = [
     "crossed",
     "claspedFront",
@@ -123,13 +127,12 @@ export namespace rest {
     "behindHead",
   ];
 
-  /**
+  /*
    * Plan a rest.
-   *
-   * @param context The action's context.
-   * @returns The plan.
-   * @throws {HumanRefusal} When a paired place names one hand only, or the time
-   *   is not positive.
+   * Parameter context: The action's context.
+   * Returns: The plan.
+   * When a paired place names one hand only, or the time
+   * is not positive.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRest.IParams>,
@@ -328,7 +331,9 @@ export namespace rest {
     const carrier: AutoMovieMotionHumanArmJointCourse.ICarrier =
       AutoMovieMotionHumanArmJointCourse.carrier(body);
 
-    /** Write the live base and finger envelope before the selected arm course. */
+    /*
+     * Write the live base and finger envelope before the selected arm course.
+     */
     const write = (
       seconds: number,
       resolution: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
@@ -456,14 +461,13 @@ export namespace rest {
     return plan;
   }
 
-  /**
-   * Both hands' rest goals on a posture ({@link restGoals}).
-   *
-   * @param body The body.
-   * @param posture The standing posture.
-   * @param places Each hand's place.
-   * @returns The goals of the hands that move.
-   * @throws {Error} When the trunk has no surface where a clasp is laid.
+  /*
+   * Both hands' rest goals on a posture (restGoals).
+   * Parameter body: The body.
+   * Parameter posture: The standing posture.
+   * Parameter places: Each hand's place.
+   * Returns: The goals of the hands that move.
+   * When the trunk has no surface where a clasp is laid.
    */
   export function goals(
     body: IAutoMovieMotionHumanBody,
@@ -474,16 +478,24 @@ export namespace rest {
   }
 }
 
-/** The alternatives of `PlanWriteKept`'s site. */
+/*
+ * The alternatives of `PlanWriteKept`'s site.
+ */
 type PlanWriteKept = "joints" | "limbs";
 
-/** The alternatives of `PlanHoldingResult`'s site. */
+/*
+ * The alternatives of `PlanHoldingResult`'s site.
+ */
 type PlanHoldingResult = "joints" | "limbs";
 
-/** The alternatives of `PlanHolding`'s site. */
+/*
+ * The alternatives of `PlanHolding`'s site.
+ */
 type PlanHolding = "joints" | "limbs";
 
-/** The record of `IBeginEntryItem`'s site. */
+/*
+ * The record of `IBeginEntryItem`'s site.
+ */
 type IBeginEntryItem = {
   angles: IAutoMovieMotionHumanArmAngles.IAngles;
   travel: number;

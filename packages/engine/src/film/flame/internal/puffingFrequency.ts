@@ -1,4 +1,4 @@
-/**
+/*
  * Puffing frequency of a buoyant pool fire, `f = 1.5 D^(−1/2)` in hertz for a
  * fuel bed of diameter `D` in metres (Cetegen and Ahmed, "Experiments on the
  * periodic instability of buoyant plumes and pool fires", Combustion and Flame

@@ -18,13 +18,17 @@ import { preparePoseReading } from "./preparePoseReading";
 import { preparePoseResolutionChanges } from "./preparePoseResolutionChanges";
 import type { preparePoseTupleScan } from "./preparePoseTupleScan";
 
-/** Private identity operands; no returned transform aliases them. */
+/*
+ * Private identity operands; no returned transform aliases them.
+ */
 const IDENTITY: IAutoMovieQuaternion = Quaternion.identity();
 
-/** Private root-relative origin. */
+/*
+ * Private root-relative origin.
+ */
 const ORIGIN: IAutoMovieVector3 = Vector3.create();
 
-/**
+/*
  * Own the dynamic FK rows of one operation on one immutable prepared rig.
  *
  * A pose is admitted record by record, in order, by the joint admission; its
@@ -119,9 +123,11 @@ export function preparePoseResolutionState(
   };
 }
 
-/** Internal immutable rig inputs and actual dynamic-reader producer contracts. */
+/*
+ * Internal immutable rig inputs and actual dynamic-reader producer contracts.
+ */
 export namespace preparePoseResolutionState {
-  /**
+  /*
    * Immutable rest data and the parent-first index of one reachable bone.
    *
    * The static producer numbers rooted bones in traversal order; -1 is a
@@ -129,23 +135,33 @@ export namespace preparePoseResolutionState {
    * their exact quaternion components. No pose or rig-specific case is stored.
    */
   export interface INode {
-    /** Original name, preserved in outputs and joint lookup. */
+    /*
+     * Original name, preserved in outputs and joint lookup.
+     */
     name: AutoMovieHumanoidBone;
 
-    /** Parent index, or -1 for a null-parent root. */
+    /*
+     * Parent index, or -1 for a null-parent root.
+     */
     parent: number;
 
-    /** Exclusive end of this actual depth-first rooted subtree. */
+    /*
+     * Exclusive end of this actual depth-first rooted subtree.
+     */
     subtreeEnd: number;
 
-    /** Snapshot of the parent-frame rest translation in metres. */
+    /*
+     * Snapshot of the parent-frame rest translation in metres.
+     */
     translation: IAutoMovieVector3;
 
-    /** Snapshot of the parent-frame rest rotation; scale remains unused. */
+    /*
+     * Snapshot of the parent-frame rest rotation; scale remains unused.
+     */
     rotation: IAutoMovieQuaternion;
   }
 
-  /**
+  /*
    * Immutable clinical inputs and their lazy successful basis admission.
    *
    * Fixed raw axes and optional affine degree frames define clinical reading.
@@ -154,7 +170,7 @@ export namespace preparePoseResolutionState {
    */
   export type IConvention = preparePoseJointResolution.IConvention;
 
-  /**
+  /*
    * Fresh-output FK of complete changing poses on the same immutable rig.
    *
    * The pose supplies clinical degrees/root placement and optional demand
@@ -162,7 +178,7 @@ export namespace preparePoseResolutionState {
    * remain private; no source pose or target answer escapes.
    */
   export interface IReader {
-    /**
+    /*
      * Actually admit one current joint on the same static convention, sharing
      * only successful exact conversion and returning a fresh quaternion. This
      * constant-size read completes no pose/membership selection or FK; later
@@ -170,7 +186,7 @@ export namespace preparePoseResolutionState {
      */
     joint(joint: IAutoMovieJointPose): IAutoMovieQuaternion;
 
-    /**
+    /*
      * Actually admit and snapshot a fixed source/root once, with optional bound
      * names. The shared producer reuses only exact completed joint conversion
      * from this operation; it never presumes source admission. O(J+B) baseline
@@ -182,7 +198,7 @@ export namespace preparePoseResolutionState {
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
     ): IOverlayReader;
 
-    /**
+    /*
      * Admit every complete-pose record in order, then return the requested
      * rooted frames as fresh records. Internal demand indices come only from
      * this rig's actual name-demand producer. No input or result is retained.
@@ -193,7 +209,7 @@ export namespace preparePoseResolutionState {
       demand?: readonly number[],
     ): IAutoMovieResolvedBone[];
 
-    /**
+    /*
      * The same complete ordered admission and composition as resolve, directly
      * into a fresh name map; callers own the map and all nested values.
      */
@@ -203,14 +219,14 @@ export namespace preparePoseResolutionState {
       demand?: readonly number[],
     ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-    /**
+    /*
      * Admit a complete pose in order once and return its articulations and root
      * as a reading whose bones any number of readers take without another
      * admission; later edits of the pose do not reach it.
      */
     read(pose: IAutoMoviePose): preparePoseReading.IReading;
 
-    /**
+    /*
      * Admit every genuinely staged scalar after root construction, then compose
      * and copy as an ordinary read does.
      */
@@ -221,13 +237,13 @@ export namespace preparePoseResolutionState {
     ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
   }
 
-  /**
+  /*
    * A fixed source answering edits
    * (`IAutoMovieSkeletonPoseResolution.IOverlayReader`).
    */
   export type IOverlayReader = IAutoMovieSkeletonPoseResolution.IOverlayReader;
 
-  /**
+  /*
    * Admit one fixed source and own the frames of its appended query edits.
    *
    * Ordinary ordered admission produces the last source articulation per bone;
@@ -302,7 +318,9 @@ export namespace preparePoseResolutionState {
   }
 }
 
-/** Allocate one operation's rows, without retaining any authored input. */
+/*
+ * Allocate one operation's rows, without retaining any authored input.
+ */
 function createState(
   tables: composePoseFrames.ITables,
   indices: ReadonlyMap<AutoMovieHumanoidBone, number>,
@@ -326,7 +344,7 @@ function createState(
   };
 }
 
-/**
+/*
  * Both output representations begin with the same original ordered
  * admission/root phases.
  */
@@ -336,7 +354,7 @@ function admitPose(state: IState, pose: IAutoMoviePose): IState {
   return state;
 }
 
-/**
+/*
  * Complete every current appended edit before either output representation
  * reads FK.
  */
@@ -349,7 +367,7 @@ function admitEdits(
   state.changes.complete();
 }
 
-/**
+/*
  * Compose the frames when the selection or the root changed, then make a fresh
  * record per demanded bone, parent first.
  */
@@ -393,7 +411,7 @@ function readFrames<
   return result;
 }
 
-/**
+/*
  * Compose newly required parent-first rows, sharing completed ancestors across
  * reads.
  */
@@ -464,7 +482,9 @@ function composeDemand(
   }
 }
 
-/** Append one fresh record to an array result. */
+/*
+ * Append one fresh record to an array result.
+ */
 function appendArray(
   result: IAutoMovieResolvedBone[],
   frame: IAutoMovieResolvedBone,
@@ -472,7 +492,7 @@ function appendArray(
   result.push(frame);
 }
 
-/**
+/*
  * Index one fresh record by its name, retaining original last-name
  * precedence/order.
  */
@@ -483,46 +503,76 @@ function appendMap(
   result.set(frame.bone, frame);
 }
 
-/** The immutable rooted node representation owned by this state producer. */
+/*
+ * The immutable rooted node representation owned by this state producer.
+ */
 type INode = preparePoseResolutionState.INode;
-/** The static clinical convention shared by this rig's operation states. */
+/*
+ * The static clinical convention shared by this rig's operation states.
+ */
 type IConvention = preparePoseResolutionState.IConvention;
 
-/** The dynamic rows of one live operation reader, never of a pose's identity. */
+/*
+ * The dynamic rows of one live operation reader, never of a pose's identity.
+ */
 interface IState {
-  /** The selection of the last completed admission, as numbers. */
+  /*
+   * The selection of the last completed admission, as numbers.
+   */
   changes: preparePoseResolutionChanges.ITracker;
 
-  /** Ordered joint admission and successful current scalar/composition rows. */
+  /*
+   * Ordered joint admission and successful current scalar/composition rows.
+   */
   joints: preparePoseJointResolution.IReader;
 
-  /** The frames composed from the selection and the root. */
+  /*
+   * The frames composed from the selection and the root.
+   */
   frames: composePoseFrames.IFrames;
 
-  /** The selection's version the frames were composed at; -1 before any. */
+  /*
+   * The selection's version the frames were composed at; -1 before any.
+   */
   composed: number;
 
-  /** The root's revision the frames were composed at. */
+  /*
+   * The root's revision the frames were composed at.
+   */
   placed: number;
 
-  /** Rows completed for this selection and root. */
+  /*
+   * Rows completed for this selection and root.
+   */
   rows: Uint8Array;
 
-  /** The last immutable bound demand whose parent-first closure was derived. */
+  /*
+   * The last immutable bound demand whose parent-first closure was derived.
+   */
   planned?: readonly number[];
 
-  /** The rooted indices required by that bound demand. */
+  /*
+   * The rooted indices required by that bound demand.
+   */
   ancestors?: readonly number[];
 
-  /** The number of completed rows for this selection and root. */
+  /*
+   * The number of completed rows for this selection and root.
+   */
   completed: number;
 
-  /** Private immutable root quaternion, reused only while actual scalars match. */
+  /*
+   * Private immutable root quaternion, reused only while actual scalars match.
+   */
   rootRotation: IAutoMovieQuaternion;
 
-  /** Private immutable root translation, separate from root rotation changes. */
+  /*
+   * Private immutable root translation, separate from root rotation changes.
+   */
   rootTranslation: IAutoMovieVector3;
 
-  /** Revision of that exact root tuple. */
+  /*
+   * Revision of that exact root tuple.
+   */
   rootRevision: number;
 }

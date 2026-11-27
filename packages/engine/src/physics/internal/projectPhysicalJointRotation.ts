@@ -8,7 +8,7 @@ import { swingTwistRange } from "../../kinematics/swingTwistRange";
 import { Quaternion } from "../../math/Quaternion";
 import { AutoMoviePhysicalJointChart } from "../AutoMoviePhysicalJointChart";
 
-/**
+/*
  * Admit a relative joint rotation to the joint's one admitted set. A ball joint
  * gated by swing and twist (`range`) is admitted on that gate, the set the
  * range-of-motion gate and the take's range verdict read: the bone's

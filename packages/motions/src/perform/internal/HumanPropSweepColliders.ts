@@ -12,14 +12,14 @@ import type {
 
 import { HumanPropOutcome } from "./HumanPropOutcome";
 
-/**
+/*
  * The colliders a prop's flight sweep reads (`HumanPropSweep`): how far a prop
  * reaches, a collider read only where its distance bound allows a contact, a
  * separating start contact, a carried point's velocity, and the thinnest
  * collider the sweep may meet.
  */
 export namespace HumanPropSweepColliders {
-  /**
+  /*
    * How far a prop's shapes reach from its frame's origin, metres: the largest
    * over its shapes of the shape's offset and its own bounding radius.
    */
@@ -44,7 +44,7 @@ export namespace HumanPropSweepColliders {
     return far;
   }
 
-  /**
+  /*
    * A collider read only where a cheap lower bound on its distance allows a
    * contact: farther than the projectile's radius by the bound, the bound
    * stands for the distance, as the person's root reject does.
@@ -81,7 +81,7 @@ export namespace HumanPropSweepColliders {
     };
   }
 
-  /**
+  /*
    * A contact at the sweep's start that the flight leaves, classified by the
    * surface's own motion: the flight's velocity relative to the surface's at
    * its nearest point points out along the normal (a separating contact, Baraff
@@ -128,7 +128,7 @@ export namespace HumanPropSweepColliders {
       : undefined;
   }
 
-  /**
+  /*
    * The velocity of a point a moving frame carries, world metres per second:
    * the point fixed in the frame where it lies at a second, its central
    * difference over a contact's time resolution.
@@ -159,7 +159,7 @@ export namespace HumanPropSweepColliders {
     );
   }
 
-  /**
+  /*
    * The thinnest collider a flight may meet, metres: the least diameter of a
    * round shape, least full extent of a box or inscribed width of a hull among
    * the people but the launcher, finger bones aside, and the props that do not
@@ -186,7 +186,7 @@ export namespace HumanPropSweepColliders {
     return least === Infinity ? Number.MAX_VALUE : least;
   }
 
-  /**
+  /*
    * A shape's least thickness, metres: a round shape's diameter, a box's least
    * full extent, a hull's inscribed width (`width`).
    */
@@ -203,7 +203,7 @@ export namespace HumanPropSweepColliders {
         : width(shape);
   }
 
-  /**
+  /*
    * A hull's least width bound, metres: twice its vertices' centroid's depth
    * inside it, the diameter of the largest ball about that point within the
    * hull, which no width of the hull is less than. A flat hull, whose centroid
@@ -229,16 +229,22 @@ export namespace HumanPropSweepColliders {
     return found;
   }
 
-  /** A surface's outward normal and velocity at its point nearest a segment. */
+  /*
+   * A surface's outward normal and velocity at its point nearest a segment.
+   */
   export interface ISurface {
-    /** The outward unit normal there, world. */
+    /*
+     * The outward unit normal there, world.
+     */
     normal: IAutoMovieVector3;
 
-    /** The surface point's velocity, world metres per second. */
+    /*
+     * The surface point's velocity, world metres per second.
+     */
     velocity: IAutoMovieVector3;
   }
 
-  /**
+  /*
    * A lower bound on a collider's distance from a flight segment at seconds
    * since the sweep's zero, metres; minus infinity where none is known.
    */
@@ -248,7 +254,7 @@ export namespace HumanPropSweepColliders {
     seconds: number,
   ) => number;
 
-  /**
+  /*
    * Read a collider's surface at its point nearest a flight segment, at seconds
    * since the sweep's zero.
    */
@@ -258,12 +264,16 @@ export namespace HumanPropSweepColliders {
     seconds: number,
   ) => ISurface;
 
-  /** The world frame, a shape's parent placed at the origin unturned. */
+  /*
+   * The world frame, a shape's parent placed at the origin unturned.
+   */
   const ORIGIN: IAutoMovieRigidTransform = {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0, w: 1 },
   };
 
-  /** The finger bones, whose colliders a fast flight may pass. */
+  /*
+   * The finger bones, whose colliders a fast flight may pass.
+   */
   const FINGER: RegExp = /(Thumb|Index|Middle|Ring|Little)/;
 }

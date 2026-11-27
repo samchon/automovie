@@ -25,7 +25,7 @@ import { AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS } from "../AUTOMOVIE_QUANTITY_MAX_C
 import { AUTOMOVIE_QUANTITY_SUBJECTS } from "../AUTOMOVIE_QUANTITY_SUBJECTS";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
-/**
+/*
  * Measure everything the design can answer for, and name everything it cannot.
  *
  * Throws an `Error` when `maxContributors` is not a positive safe integer or
@@ -37,17 +37,16 @@ import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
  * openings by kind and model occurrences by model. Nothing is looked up,
  * defaulted or carried over from a previous revision.
  *
- * Every subject in {@link AUTOMOVIE_QUANTITY_SUBJECTS} gets one finding, so an
+ * Every subject in AUTOMOVIE_QUANTITY_SUBJECTS gets one finding, so an
  * absent quantity is a stated zero rather than a missing row. A finding names
  * its largest owners up to the bound, counts and sums the rest, and says
  * whether its total is exact; the space-volume total is approximate because
  * overlapping cells are summed. What cannot be measured is a gap. The digest is
  * SHA-256 over the canonical JSON of every other field.
- *
- * @param props.environment Design the quantities are measured from.
- * @param props.maxContributors Owners named per finding; defaults to
- *   {@link AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS}.
- * @returns The quantity report.
+ * Parameter props.environment: Design the quantities are measured from.
+ * Parameter props.maxContributors: Owners named per finding; defaults to
+ * AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS.
+ * Returns: The quantity report.
  */
 export function measureAutoMovieQuantities(
   props: IAutoMovieMeasureQuantities.IProps,
@@ -194,7 +193,9 @@ export function measureAutoMovieQuantities(
   };
 }
 
-/** The unit each subject is measured in; the mapped type covers every subject. */
+/*
+ * The unit each subject is measured in; the mapped type covers every subject.
+ */
 const UNITS: { [subject in AutoMovieQuantitySubject]: AutoMovieQuantityUnit } =
   {
     "space-floor-area": "m2",
@@ -206,7 +207,9 @@ const UNITS: { [subject in AutoMovieQuantitySubject]: AutoMovieQuantityUnit } =
     "model-occurrence-count": "count",
   };
 
-/** Statements every report carries about take-offs it never performs. */
+/*
+ * Statements every report carries about take-offs it never performs.
+ */
 const FIXED_GAPS: readonly IAutoMovieDrawingGap[] = [
   {
     subject: "material-quantity",
@@ -250,7 +253,7 @@ const FIXED_GAPS: readonly IAutoMovieDrawingGap[] = [
   },
 ];
 
-/**
+/*
  * Turn one subject's owner tally into its bounded finding.
  *
  * Owners are ordered by rounded value descending, then by id. The total is
@@ -307,7 +310,7 @@ const finding: (
   };
 };
 
-/**
+/*
  * Fold every contributor's already-rounded value in list order, preserving the
  * same accounting for total and omitted suffix. O(N) binary64 summation uses
  * constant extra storage and can round or overflow; no list or sum is retained

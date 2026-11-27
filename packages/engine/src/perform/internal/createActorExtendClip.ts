@@ -4,7 +4,7 @@ import {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-/**
+/*
  * Build a non-looping rest-to-arm-pose clip that reaches its supplied clinical
  * pose halfway through a positive second duration, then holds. The endpoint
  * pose is borrowed; the empty rest pose is local.

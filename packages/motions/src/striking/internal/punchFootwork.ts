@@ -19,7 +19,7 @@ import { StrikingTwist } from "./StrikingTwist";
 import type { punchGeometry } from "./punchGeometry";
 import { strikingStepSupport } from "./strikingStepSupport";
 
-/**
+/*
  * A punch's root, heading and feet: the lead foot steps in by the advance with
  * a small lift, the rear foot drags after it from mid-delivery to mid-return
  * (the IBA stepping jab: the rear foot follows at once), and a rear-hand punch
@@ -36,43 +36,51 @@ import { strikingStepSupport } from "./strikingStepSupport";
  * foot is twisted under a hip turning back over it.
  */
 export namespace punchFootwork {
-  /**
+  /*
    * Rear heel raise of a rear-hand punch's ball pivot at contact, degrees
    * (provisional reading of the IBA cross drawing's released heel).
    */
   export const HEEL_RAISE: number = 15;
 
-  /**
+  /*
    * The pelvis's share of the trunk's turn: two fifths, the heading turns by
    * it.
    */
   export const PELVIS_SHARE: number = 0.4;
 
-  /**
+  /*
    * Each of the lumbar and the thoracic spine's share of the trunk's turn:
    * three tenths.
    */
   export const SPINE_SHARE: number = 0.3;
 
-  /**
+  /*
    * The least step along the line the feet take, metres: a launch plan's step
    * no longer than this keeps both feet planted (provisional, a rounding-sized
    * step).
    */
   export const STEP: number = 0.02;
 
-  /** What the footwork is built from. */
+  /*
+   * What the footwork is built from.
+   */
   export interface IProps {
-    /** The punch's context. */
+    /*
+     * The punch's context.
+     */
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPunch.IParams>;
 
-    /** The punch's timing. */
+    /*
+     * The punch's timing.
+     */
     timing: punchGeometry.ITiming;
 
-    /** The horizontal unit line to the target. */
+    /*
+     * The horizontal unit line to the target.
+     */
     line: IAutoMovieVector3;
 
-    /**
+    /*
      * The step along the line by a second since the start, metres: positive
      * steps in, the lead foot first and the rear foot dragging after it;
      * negative steps back, the rear foot first and the lead foot after it. The
@@ -82,34 +90,43 @@ export namespace punchFootwork {
      */
     advance(seconds: number): number;
 
-    /** The trunk turn at contact, degrees. */
+    /*
+     * The trunk turn at contact, degrees.
+     */
     turn: number;
 
-    /** How far the root lowers at contact, metres. */
+    /*
+     * How far the root lowers at contact, metres.
+     */
     dip: number;
 
-    /**
+    /*
      * The committed stop's second, null when the arm met nothing, undefined
      * when the punch offers no weapon.
      */
     fixed: number | null | undefined;
 
-    /** The share of the way out at seconds since the start. */
+    /*
+     * The share of the way out at seconds since the start.
+     */
     out(seconds: number): number;
 
-    /** The share of the way back at seconds since the start. */
+    /*
+     * The share of the way back at seconds since the start.
+     */
     back(seconds: number): number;
   }
 
-  /** A punch's built footwork. */
+  /*
+   * A punch's built footwork.
+   */
   export interface IFootwork {
-    /**
+    /*
      * The posture without the punching arm.
-     *
-     * @param seconds Seconds since the start, the feet's clock.
-     * @param clock The trunk turn's clock; the feet's own when absent.
-     * @param resolution Optional exact FK supplier borrowed only during this
-     *   synchronous base/lowering evaluation.
+     * Parameter seconds: Seconds since the start, the feet's clock.
+     * Parameter clock: The trunk turn's clock; the feet's own when absent.
+     * Parameter resolution: Optional exact FK supplier borrowed only during this
+     * synchronous base/lowering evaluation.
      */
     base(
       seconds: number,
@@ -117,16 +134,17 @@ export namespace punchFootwork {
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     ): IAutoMovieMotionHumanPosture;
 
-    /** The feet's contact windows, as shares of the punch. */
+    /*
+     * The feet's contact windows, as shares of the punch.
+     */
     contacts: IAutoMovieMotionHumanContactWindow[];
   }
 
-  /**
+  /*
    * The share of its drag the rear foot has made.
-   *
-   * @param timing The punch's timing.
-   * @param seconds Seconds since the start.
-   * @returns The share in [0, 1].
+   * Parameter timing: The punch's timing.
+   * Parameter seconds: Seconds since the start.
+   * Returns: The share in [0, 1].
    */
   export function drag(
     timing: Pick<punchGeometry.ITiming, "shown" | "recoil">,
@@ -137,11 +155,10 @@ export namespace punchFootwork {
     return AutoMovieEngineMotionSampling.minimumJerkShare((seconds - from) / (to - from));
   }
 
-  /**
+  /*
    * The share of the step the root has carried the shoulder by the contact.
-   *
-   * @param timing The punch's timing.
-   * @returns The share in [0.5, 1].
+   * Parameter timing: The punch's timing.
+   * Returns: The share in [0.5, 1].
    */
   export function carried(
     timing: Pick<punchGeometry.ITiming, "shown" | "recoil">,
@@ -149,11 +166,10 @@ export namespace punchFootwork {
     return 0.5 * (1 + drag(timing, timing.shown));
   }
 
-  /**
+  /*
    * Build a punch's footwork.
-   *
-   * @param props The context, the timing and the contact solution's values.
-   * @returns The footwork.
+   * Parameter props: The context, the timing and the contact solution's values.
+   * Returns: The footwork.
    */
   export function create(props: IProps): IFootwork {
     const { context, timing, line, advance, turn, dip, fixed, out, back } =
@@ -393,51 +409,74 @@ export namespace punchFootwork {
       });
     return { base, contacts };
   }
-  /** When a punch's feet move, as its contacts read them. */
+  /*
+   * When a punch's feet move, as its contacts read them.
+   */
   export interface ISchedule {
-    /** The punch's seconds. */
+    /*
+     * The punch's seconds.
+     */
     duration: number;
 
-    /** When the punch is shown at full reach, seconds. */
+    /*
+     * When the punch is shown at full reach, seconds.
+     */
     shown: number;
 
-    /** The foot that steps first. */
+    /*
+     * The foot that steps first.
+     */
     first: AutoMovieHumanSide;
 
-    /** The foot that follows. */
+    /*
+     * The foot that follows.
+     */
     next: AutoMovieHumanSide;
 
-    /** The rear foot. */
+    /*
+     * The rear foot.
+     */
     rear: AutoMovieHumanSide;
 
-    /** Whether the lead or the rear hand punches. */
+    /*
+     * Whether the lead or the rear hand punches.
+     */
     which: punchGeometry.ITiming["which"];
 
-    /** Whether the feet step. */
+    /*
+     * Whether the feet step.
+     */
     stepping: boolean;
 
-    /** When the first foot leaves, seconds. */
+    /*
+     * When the first foot leaves, seconds.
+     */
     firstStart: number;
 
-    /** When the following foot leaves, seconds. */
+    /*
+     * When the following foot leaves, seconds.
+     */
     dragFrom: number;
 
-    /** When the following foot lands, seconds. */
+    /*
+     * When the following foot lands, seconds.
+     */
     dragTo: number;
 
-    /** When each foot still landing from a cut step lands, seconds. */
+    /*
+     * When each foot still landing from a cut step lands, seconds.
+     */
     landing: Record<AutoMovieHumanSide, number>;
   }
 
-  /**
+  /*
    * A punch's foot contacts: the rear foot pivots under a rear-hand punch, the
    * others plant; without a step each foot bears from its landing to the end;
    * stepping, the first foot bears until it leaves and from the shown reach,
    * and the following foot bears from its landing until it leaves, then plants
    * from its own landing.
-   *
-   * @param s The schedule.
-   * @returns The windows, shares of the punch.
+   * Parameter s: The schedule.
+   * Returns: The windows, shares of the punch.
    */
   export function contacts(s: ISchedule): IAutoMovieMotionHumanContactWindow[] {
     const out: IAutoMovieMotionHumanContactWindow[] = [];

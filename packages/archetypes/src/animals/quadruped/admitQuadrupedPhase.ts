@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeRefusal } from "../../core";
 
-/**
+/*
  * Admit one phase-cell advance before the ride enumerates stride boundaries.
  *
  * The planner evaluates one gait clock per cell and permits at most one stride
@@ -12,15 +12,14 @@ import { AutoMovieArchetypeRefusal } from "../../core";
  * records at most S+2. Four limbs publish at most 4(S+1) landings and at most S
  * gait/lead changes: 5S+4 animal events, plus the course's own C input events.
  * Neither the analysis nor the fluid solver's unrelated budgets apply here.
- *
- * @param archetype The producer named by a structured refusal.
- * @param phase Previously admitted cumulative cycles, initially zero.
- * @param seconds Positive finite width of this plan's phase cell, seconds.
- * @param stride Positive finite effective period at the cell, seconds.
- * @param cells Positive safe-integer count of cells in the phase plan.
- * @returns The strictly advancing, finite cumulative phase within capacity.
- * @throws {AutoMovieArchetypeRefusal} Before enumeration for nonrepresentable
- *   arithmetic or a plan requiring more than one complete cycle per cell.
+ * Parameter archetype: The producer named by a structured refusal.
+ * Parameter phase: Previously admitted cumulative cycles, initially zero.
+ * Parameter seconds: Positive finite width of this plan's phase cell, seconds.
+ * Parameter stride: Positive finite effective period at the cell, seconds.
+ * Parameter cells: Positive safe-integer count of cells in the phase plan.
+ * Returns: The strictly advancing, finite cumulative phase within capacity.
+ * Before enumeration for nonrepresentable
+ * arithmetic or a plan requiring more than one complete cycle per cell.
  */
 export function admitQuadrupedPhase(
   archetype: string,

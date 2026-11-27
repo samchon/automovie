@@ -4,17 +4,16 @@ import { planMotionCaptureInstants } from "../../capture/internal/planMotionCapt
 import type { IMotionCaptureCase } from "./IMotionCaptureCase";
 import type { IMotionCaptureProps } from "./IMotionCaptureProps";
 
-/**
+/*
  * Turn a built motion case into the data its draw page receives: every
  * performer and ghost posed at each of the case's instants and at every frame
  * of a 32 fps grid up to the last instant, so stills draw the case's beats and
  * a video draws every frame of its clock; the clock, `N / 32` seconds with `N`
  * the frames up to the last instant; the instants drawn with their labels from
  * `planMotionCaptureInstants`; and the case's overlays as they are.
- *
- * @param capture The built case.
- * @param raster Width and height in pixels of every still.
- * @returns The page's props.
+ * Parameter capture: The built case.
+ * Parameter raster: Width and height in pixels of every still.
+ * Returns: The page's props.
  */
 export function planMotionCaptureProps(
   capture: IMotionCaptureCase,
@@ -65,12 +64,14 @@ export function planMotionCaptureProps(
     boxes: capture.boxes ?? [],
   };
 }
-/**
+/*
  * Frames per second of a case's grid: 32, a power of two, so every frame second
  * `k / 32` and the clock `N / 32` are exact binary fractions, which a video's
  * whole-frame check needs and a seek's match of seconds relies on.
  */
 const FPS: number = 32;
 
-/** The record of `IPlanMotionCapturePropsRaster`'s site. */
+/*
+ * The record of `IPlanMotionCapturePropsRaster`'s site.
+ */
 type IPlanMotionCapturePropsRaster = { width: number; height: number };

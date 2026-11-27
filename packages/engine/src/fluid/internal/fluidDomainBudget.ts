@@ -5,7 +5,7 @@ import {
 
 import { fluidCourantNumber } from "./fluidCourantNumber";
 
-/**
+/*
  * Declared lattice, state-payload and spray counts derived from one fluid
  * domain.
  *

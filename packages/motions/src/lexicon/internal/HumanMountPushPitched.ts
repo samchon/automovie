@@ -7,14 +7,13 @@ import type {
 
 import type { HumanMountPush } from "./HumanMountPush";
 
-/**
+/*
  * A goal's foot turned about a point of its own (`pitch`).
- *
- * @param goal The leg's goal.
- * @param rotation The foot's world rotation.
- * @param pivot The point it turns about, world metres.
- * @param turn The turn.
- * @returns The goal with its ankle and foot turned.
+ * Parameter goal: The leg's goal.
+ * Parameter rotation: The foot's world rotation.
+ * Parameter pivot: The point it turns about, world metres.
+ * Parameter turn: The turn.
+ * Returns: The goal with its ankle and foot turned.
  */
 export function HumanMountPushPitched(
   goal: IAutoMovieHumanLimbGoal,

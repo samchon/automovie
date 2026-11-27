@@ -1,4 +1,4 @@
-/**
+/*
  * Run every release step of an inspector mount in order, then throw every
  * failure together: the one failure as it was, several as one `AggregateError`,
  * so a failed step never keeps a later resource alive.

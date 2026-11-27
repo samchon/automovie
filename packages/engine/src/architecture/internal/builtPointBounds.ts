@@ -1,6 +1,6 @@
 import { IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
 
-/**
+/*
  * The smallest axis-aligned box containing every given point, or null when
  * there is none.
  *

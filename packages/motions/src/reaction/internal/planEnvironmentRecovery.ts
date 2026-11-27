@@ -29,7 +29,7 @@ import { environmentRailCatch } from "./environmentRailCatch";
 import { environmentRecoveryCue } from "./environmentRecoveryCue";
 import { perturb } from "./perturb";
 
-/**
+/*
  * Cut a walk at a staged trip or slip and resolve the lost support. The cue is
  * measured on the displayed entry before anything is published: a trip needs
  * the swinging foot's toe at the named obstruction and moving forward, a slip a
@@ -40,11 +40,10 @@ import { perturb } from "./perturb";
  * (`environmentRailCatch`). The plan starts at the cut with the events
  * `<kind>:<source>` and `supportLost`, the lost foot's contact ends by
  * `RELEASE`, and a slipping sole glides over it.
- *
- * @param context The walk's cut and the named cause.
- * @returns The response on the same film clock, starting at the support loss.
- * @throws {HumanRefusal} When the entry is not a walk, the cue is not met at
- *   this cut, or the outcome is incompatible.
+ * Parameter context: The walk's cut and the named cause.
+ * Returns: The response on the same film clock, starting at the support loss.
+ * When the entry is not a walk, the cue is not met at
+ * this cut, or the outcome is incompatible.
  */
 export function planEnvironmentRecovery(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanEnvironmentRecovery.IParams>,
@@ -167,16 +166,20 @@ export function planEnvironmentRecovery(
   };
 }
 
-/**
+/*
  * The longest interval over which the lost foot is released, seconds
  * (provisional).
  */
 const RELEASE: number = 0.14;
 
-/** How far a slipping sole glides before release, foot lengths (provisional). */
+/*
+ * How far a slipping sole glides before release, foot lengths (provisional).
+ */
 const GLIDE: number = 0.09;
 
-/** Admit a trip: the swinging toe at the obstruction and moving forward. */
+/*
+ * Admit a trip: the swinging toe at the obstruction and moving forward.
+ */
 function trip(
   context: IAutoMovieMotionHumanActionContext,
   asked: IAutoMovieMotionHumanEnvironmentRecovery.ITrip,
@@ -221,7 +224,9 @@ function trip(
   );
 }
 
-/** Admit a slip: a bearing foot whose required friction exceeds the coefficient. */
+/*
+ * Admit a slip: a bearing foot whose required friction exceeds the coefficient.
+ */
 function slip(
   context: IAutoMovieMotionHumanActionContext,
   asked: IAutoMovieMotionHumanEnvironmentRecovery.ISlip,

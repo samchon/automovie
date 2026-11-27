@@ -19,28 +19,38 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGraspUse } from "./HumanGraspUse";
 
-/**
+/*
  * The search a held support's grip runs: grip stations along the support's
  * material span, and the palm and finger colliders a candidate grip is measured
  * with.
  */
 export namespace heldSupportGrip {
-  /** One grip candidate along the held support's material span. */
+  /*
+   * One grip candidate along the held support's material span.
+   */
   export interface IStation {
-    /** The grip target at this station. */
+    /*
+     * The grip target at this station.
+     */
     grip: IAutoMovieMotionHumanGrasp.ITarget;
 
-    /** The station along the span, as a fraction of its length from the middle. */
+    /*
+     * The station along the span, as a fraction of its length from the middle.
+     */
     station: number;
 
-    /** The oblique wrist tilt tried, degrees. */
+    /*
+     * The oblique wrist tilt tried, degrees.
+     */
     tilt: number;
 
-    /** The roll turns tried about the grip axis, degrees. */
+    /*
+     * The roll turns tried about the grip axis, degrees.
+     */
     turns: readonly number[];
   }
 
-  /**
+  /*
    * Try the authored station before extending the search along its measured
    * material span. The caller admits each station with the same material and
    * whole-arm bounds and keeps the first station with a clear grip.
@@ -72,15 +82,23 @@ export namespace heldSupportGrip {
     }
   }
 
-  /** A physical shape and the frame of its carrying bone. */
+  /*
+   * A physical shape and the frame of its carrying bone.
+   */
   export interface IMaterial {
-    /** The carried shape in bone-local metres. */
+    /*
+     * The carried shape in bone-local metres.
+     */
     shape: IAutoMoviePhysicalShape;
-    /** The bone's rigid frame in wrist-local or world metres. */
+    /*
+     * The bone's rigid frame in wrist-local or world metres.
+     */
     pose: IAutoMovieRigidTransform;
   }
 
-  /** The actual palm and phalanx colliders in their posed world frames. */
+  /*
+   * The actual palm and phalanx colliders in their posed world frames.
+   */
   export function handMaterial(
     body: IAutoMovieMotionHumanBody,
     bones: ReturnType<typeof poseBones>,
@@ -101,7 +119,7 @@ export namespace heldSupportGrip {
       );
   }
 
-  /**
+  /*
    * Retain a solved palm and fingers' wrist-local materials for one grip
    * search.
    */

@@ -19,7 +19,9 @@ import { measureSurfaceGlide } from "../../carrier/internal/measureSurfaceGlide"
 import { planSnowGlide } from "../../carrier/snow/internal/planSnowGlide";
 import { swungArms } from "../../carrier/internal/swungArms";
 
-/** The channels a surface carrier leaves to a tool action or a gaze layer. */
+/*
+ * The channels a surface carrier leaves to a tool action or a gaze layer.
+ */
 const YIELDS: IAutoMovieMotionHumanActionLaw["yields"] = [
   "leftArm",
   "rightArm",
@@ -29,21 +31,27 @@ const YIELDS: IAutoMovieMotionHumanActionLaw["yields"] = [
   "trunkTurn",
 ];
 
-/** Preserve the supported feet and inertialize free joints at an end cut. */
+/*
+ * Preserve the supported feet and inertialize free joints at an end cut.
+ */
 const AT_END: IAutoMovieMotionHumanActionLaw["interrupts"] = {
   any: [{ window: [1, 1], kind: "inertialize", entry: 0 }],
 };
 
-/**
+/*
  * Surface travel under the performer. The ice and snow laws own their paths. A
  * board ride reads an animated prop and keeps the entered stance on it.
  * Upper-body overlays can work during any of the three actions.
  */
 export namespace HumanSurface {
-  /** Read a pair of displayed equipment samples against the authored surface. */
+  /*
+   * Read a pair of displayed equipment samples against the authored surface.
+   */
   export const measureGlide: typeof measureSurfaceGlide = measureSurfaceGlide;
 
-  /** Glide, transfer blade supports, turn or ease to rest on level ice. */
+  /*
+   * Glide, transfer blade supports, turn or ease to rest on level ice.
+   */
   export const skate: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSurface.ISkateParams> =
     {
       name: "skate",
@@ -53,7 +61,7 @@ export namespace HumanSurface {
         swungArms(HumanIceGlide.skate(context), context.body),
     };
 
-  /**
+  /*
    * Slide on a flat leading shoe with a trailing forefoot for a curling
    * delivery.
    */
@@ -65,7 +73,9 @@ export namespace HumanSurface {
       plan: HumanIceGlide.curl,
     };
 
-  /** Traverse a snow plane through an edge change or a Nordic pole stroke. */
+  /*
+   * Traverse a snow plane through an edge change or a Nordic pole stroke.
+   */
   export const snowGlide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSurface.ISnowGlideParams> =
     {
       name: "snowGlide",
@@ -85,7 +95,9 @@ export namespace HumanSurface {
         ),
     };
 
-  /** Carry the acquired stance on a moving deck. */
+  /*
+   * Carry the acquired stance on a moving deck.
+   */
   export const boardRide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSurface.IBoardRideParams> =
     {
       name: "boardRide",
@@ -95,18 +107,22 @@ export namespace HumanSurface {
         swungArms(HumanSurfaceBoard(context), context.body),
     };
 
-  /** Publish the skateboard's support cues for the independently posed deck. */
+  /*
+   * Publish the skateboard's support cues for the independently posed deck.
+   */
   export const SKATEBOARD: typeof HumanSurfaceBoard.SKATEBOARD =
     HumanSurfaceBoard.SKATEBOARD;
 
-  /**
+  /*
    * Publish the surfboard's entry and transfer cues for the authored board
    * path.
    */
   export const SURFBOARD: typeof HumanSurfaceBoard.SURFBOARD =
     HumanSurfaceBoard.SURFBOARD;
 
-  /** Push, pop, land and recover on an authored skateboard track. */
+  /*
+   * Push, pop, land and recover on an authored skateboard track.
+   */
   export const skateboardPhrase: typeof HumanSurfaceBoard.skateboardPhrase = {
     ...HumanSurfaceBoard.skateboardPhrase,
     plan: (
@@ -115,11 +131,13 @@ export namespace HumanSurface {
       swungArms(HumanSurfaceBoard.skateboardPhrase.plan(context), context.body),
   };
 
-  /** Enter, paddle and transfer from the palms to the surfboard stance. */
+  /*
+   * Enter, paddle and transfer from the palms to the surfboard stance.
+   */
   export const surfboardPhrase: typeof HumanSurfaceBoard.surfboardPhrase =
     HumanSurfaceBoard.surfboardPhrase;
 
-  /**
+  /*
    * Pump a swing from its seat, leaning back on the forward swing and tucking
    * on the backward one.
    */
@@ -131,7 +149,9 @@ export namespace HumanSurface {
       plan: HumanSwingPump,
     };
 
-  /** Ride a seesaw seat with the feet on the ground at the low end. */
+  /*
+   * Ride a seesaw seat with the feet on the ground at the low end.
+   */
   export const seesawRide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPlayground.ISeesawRideParams> =
     {
       name: "seesawRide",
@@ -140,7 +160,9 @@ export namespace HumanSurface {
       plan: HumanSeesawRide,
     };
 
-  /** Run alongside a roundabout with a hand on its moving grab bar. */
+  /*
+   * Run alongside a roundabout with a hand on its moving grab bar.
+   */
   export const roundaboutPush: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPlayground.IRoundaboutPushParams> =
     {
       name: "roundaboutPush",
@@ -149,7 +171,9 @@ export namespace HumanSurface {
       plan: HumanRoundaboutPush,
     };
 
-  /** Leap off a moving swing seat on its velocity and land standing. */
+  /*
+   * Leap off a moving swing seat on its velocity and land standing.
+   */
   export const swingLeap: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPlayground.ISwingLeapParams> =
     {
       name: "swingLeap",
@@ -158,7 +182,9 @@ export namespace HumanSurface {
       plan: HumanSwingLeap,
     };
 
-  /** Step from one support onto another, either of which may move. */
+  /*
+   * Step from one support onto another, either of which may move.
+   */
   export const supportStep: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSurface.ISupportStepParams> =
     {
       name: "supportStep",
@@ -167,7 +193,9 @@ export namespace HumanSurface {
       plan: HumanSupportStep,
     };
 
-  /** Walk through water, snow, sand or mud, or into a steady wind. */
+  /*
+   * Walk through water, snow, sand or mud, or into a steady wind.
+   */
   export const mediumWalk: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanMedium.IWalkParams> =
     {
       name: "mediumWalk",
@@ -176,7 +204,7 @@ export namespace HumanSurface {
       plan: HumanMediumWalk,
     };
 
-  /**
+  /*
    * The swing angle one seated pumping turn adds for a body
    * (`HumanSwingPump.increment`).
    */

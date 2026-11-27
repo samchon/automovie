@@ -4,7 +4,7 @@ import type { IExternalModelAccessorReader } from "./IExternalModelAccessorReade
 import { accessorElementByteLength } from "./accessorElementByteLength";
 import { object } from "./object";
 
-/**
+/*
  * Resolve one admitted accessor's resident component reader.
  *
  * The caller has already checked buffer indices, dense ranges and vector/scalar

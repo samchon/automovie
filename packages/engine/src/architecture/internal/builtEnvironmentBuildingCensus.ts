@@ -17,7 +17,7 @@ import { builtSpaceStatesVolume } from "./builtSpaceStatesVolume";
 import { builtSpaceSubtree } from "./builtSpaceSubtree";
 import { requireBuiltSpace } from "./requireBuiltSpace";
 
-/**
+/*
  * The complete observation topology of every building unit in one environment.
  *
  * This is the building aggregate a review counts against. A building is not the
@@ -26,8 +26,8 @@ import { requireBuiltSpace } from "./requireBuiltSpace";
  * cross it beside the spaces, and every one of those populations is derived
  * from the record rather than declared by whoever writes the review.
  *
- * Faces and corners are those of {@link builtEnvironmentEnvelopeFaces} and
- * {@link builtEnvironmentEnvelopeCorners} owned by the building. Entrances are
+ * Faces and corners are those of builtEnvironmentEnvelopeFaces and
+ * builtEnvironmentEnvelopeCorners owned by the building. Entrances are
  * the openings on the building's exposed boundaries, spaces are the descendants
  * of its root that state a volume, and connectors are those stopping at any
  * descendant space, volume or not, each listed once. Every id list and the

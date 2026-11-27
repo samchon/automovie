@@ -8,7 +8,7 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 
-/**
+/*
  * Limb goals between two goals: the one owner of how an arm or a leg leaves the
  * goal an action's base gives it for the goal a primitive asks.
  *
@@ -20,14 +20,13 @@ import type {
  * the same bone.
  */
 export namespace AutoMovieMotionHumanGoal {
-  /**
+  /*
    * A goal a share of the way from one goal to another.
-   *
-   * @param from The goal at weight 0.
-   * @param to The goal at weight 1.
-   * @param weight How far, clamped to [0, 1].
-   * @returns `from` at 0, `to` at 1, and the mixed goal between.
-   * @throws {Error} When the goals are attached to different frames.
+   * Parameter from: The goal at weight 0.
+   * Parameter to: The goal at weight 1.
+   * Parameter weight: How far, clamped to [0, 1].
+   * Returns: `from` at 0, `to` at 1, and the mixed goal between.
+   * When the goals are attached to different frames.
    */
   export function mix(
     from: IAutoMovieHumanLimbGoal,
@@ -62,15 +61,14 @@ export namespace AutoMovieMotionHumanGoal {
     };
   }
 
-  /**
+  /*
    * The goal of a limb driven toward a goal at a second.
-   *
-   * @param props The limb, its goal, its origin and its weight.
-   * @param posture The posture so far at this second.
-   * @param seconds Seconds since the action's start.
-   * @returns The goal.
-   * @throws {Error} When no origin is given and the posture holds no goal for
-   *   the limb.
+   * Parameter props: The limb, its goal, its origin and its weight.
+   * Parameter posture: The posture so far at this second.
+   * Parameter seconds: Seconds since the action's start.
+   * Returns: The goal.
+   * When no origin is given and the posture holds no goal for
+   * the limb.
    */
   export function toward(
     props: IAutoMovieMotionHumanGoal.IToward,
@@ -88,13 +86,12 @@ export namespace AutoMovieMotionHumanGoal {
     return mix(origin, props.goal(posture, seconds), props.weight(seconds));
   }
 
-  /**
+  /*
    * A limb driven toward a goal by a weight: the primitive for the limbs an
    * action places by a goal of its own making (a fist on a striking path, a
    * glove before the face, a foot on a kick's arc).
-   *
-   * @param props The limb, its window, its goal, its origin and its weight.
-   * @returns The primitive, on the limb's channel.
+   * Parameter props: The limb, its window, its goal, its origin and its weight.
+   * Returns: The primitive, on the limb's channel.
    */
   export function drive(
     props: IAutoMovieMotionHumanGoal.IToward,
@@ -116,19 +113,18 @@ export namespace AutoMovieMotionHumanGoal {
     };
   }
 
-  /**
+  /*
    * A limb taken to a goal and brought back: the goal's share rises over one
    * window and falls over another on the clock's envelope, and the limb is
    * written from the first instant to the last.
-   *
-   * @param clock The action's clock.
-   * @param limb The limb.
-   * @param rise The instants the limb leaves its origin and arrives at.
-   * @param fall The instants the limb starts back and is back at.
-   * @param goal The goal at the envelope's full share.
-   * @param origin The goal left and returned to; the posture's own when absent.
-   * @param size The envelope's scale, in (0, 1]; 1 when absent.
-   * @returns The primitive.
+   * Parameter clock: The action's clock.
+   * Parameter limb: The limb.
+   * Parameter rise: The instants the limb leaves its origin and arrives at.
+   * Parameter fall: The instants the limb starts back and is back at.
+   * Parameter goal: The goal at the envelope's full share.
+   * Parameter origin: The goal left and returned to; the posture's own when absent.
+   * Parameter size: The envelope's scale, in (0, 1]; 1 when absent.
+   * Returns: The primitive.
    */
   export function pulse(
     clock: IAutoMovieMotionClock,

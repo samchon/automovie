@@ -15,7 +15,7 @@ import { channelKey } from "../../resolve/internal/channelKey";
 import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 
-/**
+/*
  * Check declared prop channels across adjoining plays of the same staged set.
  * Layout admission must already have checked spans, ids and references. Report
  * missing, unreadable or discontinuous samples and differences beyond the
@@ -108,12 +108,16 @@ export function checkCutPropContinuity(
   }
 }
 
-/** One declared prop-channel requirement. */
+/*
+ * One declared prop-channel requirement.
+ */
 type PropRequirement = NonNullable<
   IAutoMovieEditPlan["requiredPropContinuity"]
 >[number];
 
-/** One boundary sample, or the sampling fault that prevented it. */
+/*
+ * One boundary sample, or the sampling fault that prevented it.
+ */
 type Boundary =
   | {
       channels: Map<string, IAutoMovieSampledChannel>;
@@ -121,38 +125,56 @@ type Boundary =
     }
   | { fault: string };
 
-/** A hard cut's two shot-local reads, shared by every valid requirement on it. */
+/*
+ * A hard cut's two shot-local reads, shared by every valid requirement on it.
+ */
 interface IBoundaryDemand {
-  /** Object clips from the shot leaving the cut. */
+  /*
+   * Object clips from the shot leaving the cut.
+   */
   outgoing: readonly IAutoMovieClip[];
 
-  /** Shot-local end of the outgoing play, in seconds. */
+  /*
+   * Shot-local end of the outgoing play, in seconds.
+   */
   end: number;
 
-  /** Object clips from the shot entering the cut. */
+  /*
+   * Object clips from the shot entering the cut.
+   */
   incoming: readonly IAutoMovieClip[];
 
-  /** Shot-local start of the incoming play, in seconds. */
+  /*
+   * Shot-local start of the incoming play, in seconds.
+   */
   start: number;
 }
 
-/** The two once-sampled reads and their source times for reporting. */
+/*
+ * The two once-sampled reads and their source times for reporting.
+ */
 interface IBoundaryPair {
-  /** The outgoing sample and its local time in seconds. */
+  /*
+   * The outgoing sample and its local time in seconds.
+   */
   left: Boundary;
   end: number;
 
-  /** The incoming sample and its local time in seconds. */
+  /*
+   * The incoming sample and its local time in seconds.
+   */
   right: Boundary;
   start: number;
 }
 
-/** One plan item in original order, ready to compare or report. */
+/*
+ * One plan item in original order, ready to compare or report.
+ */
 type Check =
   | { path: string; requirement: PropRequirement }
   | { violations: IAutoMovieConstraintViolation[] };
 
-/**
+/*
  * Validate one requirement and bind the two source times and clip lists it asks
  * to sample.
  */
@@ -215,7 +237,7 @@ function compileBoundaryDemand(
   };
 }
 
-/**
+/*
  * Sample the boundary once and mark outgoing channels whose inclusive sample
  * cannot establish their left limit.
  */
@@ -257,7 +279,9 @@ function sampleBoundary(
   }
 }
 
-/** A STEP track changes at every key after its first, including its last key. */
+/*
+ * A STEP track changes at every key after its first, including its last key.
+ */
 function stepsAt(track: IAutoMovieTrack, time: number): boolean {
   return (
     track.interpolation === "step" &&
@@ -266,7 +290,9 @@ function stepsAt(track: IAutoMovieTrack, time: number): boolean {
   );
 }
 
-/** Refuse absent, unreadable or non-finite values at the addressed boundary. */
+/*
+ * Refuse absent, unreadable or non-finite values at the addressed boundary.
+ */
 function readBoundary(
   boundary: Boundary,
   key: string,
@@ -302,7 +328,7 @@ function readBoundary(
   return undefined;
 }
 
-/**
+/*
  * Compare magnitudes in channel units, using the sign-invariant short rotation
  * arc for unit quaternions.
  */

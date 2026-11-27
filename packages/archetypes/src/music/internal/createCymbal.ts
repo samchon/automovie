@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeUnits,
 } from "../../core";
 
-/**
+/*
  * A stationary 16-inch crash cymbal on a straight tripod stand. The diameter
  * and raised bell follow Zildjian's cymbal anatomy
  * (https://ae.zildjian.com/wp-content/uploads/Zildjian_Drum_Method_Lesson_11.pdf).
@@ -16,10 +16,9 @@ import {
  * (https://usa.yamaha.com/products/musical_instruments/drums/ac_drums/hardware/cymbal_stands/specs.html).
  * The plate thickness, bell and stand proportions and assembly mass are scenic
  * estimates for the rigid prop.
- *
- * @param params The model id, supplied as an option or as a positional string.
- * @returns The mounted cymbal with the upward-facing `edge` on the rim at local
- *   −Z and `bell` at the raised center.
+ * Parameter params: The model id, supplied as an option or as a positional string.
+ * Returns: The mounted cymbal with the upward-facing `edge` on the rim at local
+ * −Z and `bell` at the raised center.
  */
 export function createCymbal(
   params: { id?: string } | string = {},

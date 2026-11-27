@@ -7,7 +7,7 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 
-/**
+/*
  * The span of a two-bone chain whose mid joint bends only about its own hinge,
  * as a sinusoid of the hinge angle: `hingedArmSwivel` reads its bend branches
  * off it. Splitting the far segment into the part along the hinge and the part
@@ -19,24 +19,30 @@ import { Vector3 } from "../../math/Vector3";
  * hinge alone, not on the root's frame or a target.
  */
 export namespace hingedArmSpan {
-  /** A chain's rest records the span depends on. */
+  /*
+   * A chain's rest records the span depends on.
+   */
   export interface IChain {
-    /**
+    /*
      * Mid bone's rest offset from the chain root, in the root's bone frame,
      * metres.
      */
     midOffset: IAutoMovieVector3;
 
-    /** Mid bone's rest rotation relative to the chain root. */
+    /*
+     * Mid bone's rest rotation relative to the chain root.
+     */
     midRest: IAutoMovieQuaternion;
 
-    /**
+    /*
      * Effector's rest offset from the mid joint, in the mid bone's frame,
      * metres.
      */
     endOffset: IAutoMovieVector3;
 
-    /** The mid joint's flexion axis in the mid bone's frame; any length. */
+    /*
+     * The mid joint's flexion axis in the mid bone's frame; any length.
+     */
     hinge: IAutoMovieVector3;
   }
 
@@ -46,16 +52,17 @@ export namespace hingedArmSpan {
   /** The interface contract (`IAutoMovieHingedArmSpan.ISpan`). */
   export type ISpan = IAutoMovieHingedArmSpan.ISpan;
 
-  /**
+  /*
    * Make an empty holder.
-   *
-   * @returns An empty record for a caller without shared span geometry.
+   * Returns: An empty record for a caller without shared span geometry.
    */
   export function empty(): ISpan {
     return {};
   }
 
-  /** Prepare the segment-length gate and the admitted chain's fixed span. */
+  /*
+   * Prepare the segment-length gate and the admitted chain's fixed span.
+   */
   export function prepare(chain: IChain): ISpan {
     const valid: boolean = !(
       Vector3.length(chain.midOffset) < 1e-6 ||
@@ -64,12 +71,11 @@ export namespace hingedArmSpan {
     return { valid, geometry: valid ? of(chain) : null };
   }
 
-  /**
+  /*
    * Read a chain's span coefficients.
-   *
-   * @param chain The chain's rest records.
-   * @returns The coefficients; null for a hinge shorter than 1e-6 or one that
-   *   cannot change the span (amplitude below `SPAN_EPSILON`).
+   * Parameter chain: The chain's rest records.
+   * Returns: The coefficients; null for a hinge shorter than 1e-6 or one that
+   * cannot change the span (amplitude below `SPAN_EPSILON`).
    */
   export function of(chain: IChain): IGeometry | null {
     if (Vector3.length(chain.hinge) < 1e-6) return null;
@@ -115,5 +121,7 @@ export namespace hingedArmSpan {
   }
 }
 
-/** Below this the mid joint cannot change the chain's span at all. */
+/*
+ * Below this the mid joint cannot change the chain's span at all.
+ */
 const SPAN_EPSILON: number = 1e-9;

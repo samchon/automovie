@@ -1,6 +1,6 @@
 import type { HumanPopulationSurvey } from "./HumanPopulationSurvey";
 
-/**
+/*
  * ANSUR 1988 working databases, every subject with all 38 measures (2,208
  * women, 1,774 men; `packages/human/docs/sources/ansur-1988-boundary-people.md`
  * lists each column). Mass is the survey's weight in kg. Read through

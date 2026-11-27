@@ -6,23 +6,22 @@ import { StrikingBody } from "./StrikingBody";
 import { StrikingGuardBones } from "./StrikingGuardBones";
 import { StrikingStance } from "./StrikingStance";
 
-/**
+/*
  * Place the fighting guard's two glove goals on the current trunk: both at
  * their ear's height the same short distance ahead of their jaw, the rear glove
  * outside its ear and the lead glove before its own shoulder (`StrikingStance`
  * gives the sources).
- *
- * @param body The unchanged canonical body.
- * @param posture The current base carrying the guard.
- * @param stance The leading side.
- * @param drop Each glove's downward displacement, metres.
- * @param posed Optional trunk frames already read from this exact body/posture.
- * @param resolution Optional exact FK reader borrowed only by this synchronous
- *   evaluation.
- * @param style The authored sporting guard. When absent, use the original open
- *   guard.
- * @param leadBlend From the named lead (zero) to the other lead (one).
- * @returns The two actual world-metre glove goals.
+ * Parameter body: The unchanged canonical body.
+ * Parameter posture: The current base carrying the guard.
+ * Parameter stance: The leading side.
+ * Parameter drop: Each glove's downward displacement, metres.
+ * Parameter posed: Optional trunk frames already read from this exact body/posture.
+ * Parameter resolution: Optional exact FK reader borrowed only by this synchronous
+ * evaluation.
+ * Parameter style: The authored sporting guard. When absent, use the original open
+ * guard.
+ * Parameter leadBlend: From the named lead (zero) to the other lead (one).
+ * Returns: The two actual world-metre glove goals.
  */
 export function StrikingGuard(
   body: IAutoMovieMotionHumanBody,
@@ -121,50 +120,73 @@ export function StrikingGuard(
   return out;
 }
 
-/** Where a striking guard holds its fists. */
+/*
+ * Where a striking guard holds its fists.
+ */
 export namespace StrikingGuard {
-  /** What a fist's place in the guard is read from. */
+  /*
+   * What a fist's place in the guard is read from.
+   */
   export interface IFist {
-    /** The jaw's point on this side, world metres. */
+    /*
+     * The jaw's point on this side, world metres.
+     */
     jaw: IAutoMovieVector3;
 
-    /** The jaw's horizontal outward, unit. */
+    /*
+     * The jaw's horizontal outward, unit.
+     */
     outward: IAutoMovieVector3;
 
-    /** The ear's point on this side, world metres. */
+    /*
+     * The ear's point on this side, world metres.
+     */
     ear: IAutoMovieVector3;
 
-    /** The shoulder, world metres. */
+    /*
+     * The shoulder, world metres.
+     */
     shoulder: IAutoMovieVector3;
 
-    /** The face's horizontal forward, unit. */
+    /*
+     * The face's horizontal forward, unit.
+     */
     forward: IAutoMovieVector3;
 
-    /** The forearm's radius, metres. */
+    /*
+     * The forearm's radius, metres.
+     */
     forearmRadius: number;
 
-    /** The forearm, metres. */
+    /*
+     * The forearm, metres.
+     */
     forearm: number;
 
-    /** How far this is the leading hand, 0 (rear) to 1 (lead). */
+    /*
+     * How far this is the leading hand, 0 (rear) to 1 (lead).
+     */
     leading: number;
 
-    /** Whether the guard is a boxing guard. */
+    /*
+     * Whether the guard is a boxing guard.
+     */
     boxing: boolean;
 
-    /** How far the fist drops, metres. */
+    /*
+     * How far the fist drops, metres.
+     */
     drop: number;
   }
 
-  /**
+  /*
    * A guarding fist: a forearm's girth and a quarter forearm ahead of the jaw;
    * a rear hand at ear height a forearm radius outside the ear, a lead hand in
    * front of the shoulder, blended between; a boxing guard between jaw and ear
    * height, half a radius nearer, hugging the ear more the more it leads; then
    * dropped.
-   *
-   * @param at The face, the shoulder, the arm and the guard.
-   * @returns The fist, world metres.
+   * Parameter at: The face, the shoulder, the arm and the guard.
+   * Returns: The fist, world metres.
    */
   export function fist(at: IFist): IAutoMovieVector3 {
     const near: number = 2 * at.forearmRadius + 0.25 * at.forearm;
@@ -197,7 +219,7 @@ export namespace StrikingGuard {
   }
 }
 
-/**
+/*
  * The existing horizontal-normal convention, with +Z when horizontal length is
  * at most 1e-9.
  */
@@ -206,7 +228,11 @@ function horizontal(v: IAutoMovieVector3): IAutoMovieVector3 {
   return Vector3.length(h) > 1e-9 ? Vector3.normalize(h) : { x: 0, y: 0, z: 1 };
 }
 
-/** The alternatives of `StrikingGuardOut`'s site. */
+/*
+ * The alternatives of `StrikingGuardOut`'s site.
+ */
 type StrikingGuardOut = "leftArm" | "rightArm";
-/** The alternatives of `StrikingGuardResult`'s site. */
+/*
+ * The alternatives of `StrikingGuardResult`'s site.
+ */
 type StrikingGuardResult = "leftArm" | "rightArm";

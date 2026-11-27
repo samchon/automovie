@@ -17,7 +17,7 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { prepareHumanPostureProjection } from "../../posture/internal/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 
-/**
+/*
  * The legs of a body seated on the floor with them folded: crossed in front of
  * it (tailor sitting), or both folded to its right with the knees to its left
  * and a hand on the floor at its left (side sitting).
@@ -32,24 +32,32 @@ import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture"
  * flexion, which these places give a leg of equal thigh and shank).
  */
 export namespace floorSeat {
-  /** A folded sitting. */
+  /*
+   * A folded sitting.
+   */
   export type Kind = "crossed" | "side";
 
-  /**
+  /*
    * A place in the pelvis's floor frame, from the floor point under the middle
    * of the hip joints: to the body's left, up and ahead, thigh lengths.
    */
   export interface IPlace {
-    /** To the body's left; negative to its right. */
+    /*
+     * To the body's left; negative to its right.
+     */
     left: number;
 
-    /** Above the floor. */
+    /*
+     * Above the floor.
+     */
     up: number;
 
-    /** Ahead of the hip joints. */
+    /*
+     * Ahead of the hip joints.
+     */
     ahead: number;
   }
-  /**
+  /*
    * Tailor sitting, by leg: each ankle on the floor past the other hip, the
    * left shank in front of the right, each knee out, ahead and a little up
    * (provisional).
@@ -67,7 +75,7 @@ export namespace floorSeat {
     },
   };
 
-  /**
+  /*
    * Side sitting, by leg: both ankles to the right, the left one ahead of the
    * right hip and the right one out beside it, both knees ahead and to the
    * left, low (provisional).
@@ -82,35 +90,34 @@ export namespace floorSeat {
       knee: { left: 0.4, up: 0.1, ahead: 1 },
     },
   };
-  /**
+  /*
    * The share of the arm's length, shoulder to wrist, at which the supporting
    * hand of side sitting is set down: nearly straight, as an arm leant on is
    * (provisional).
    */
   export const REACH: number = 0.95;
 
-  /**
+  /*
    * The height of a folded leg's ankle joint over the floor, in standing ankle
    * heights: the foot lies on its side, so the joint is about half the ankle's
    * breadth up (provisional).
    */
   export const ANKLE: number = 0.5;
 
-  /**
+  /*
    * A posture's legs moved a share of the way from where its joints hold them
    * to a folded sitting, and for side sitting its left hand to the floor.
-   *
-   * @param body The body.
-   * @param posture The posture, its root placed and its legs set by joints.
-   * @param kind The sitting.
-   * @param share 0 where the joints hold the legs to 1 folded.
-   * @param resolution Optional exact FK source borrowed only during this
-   *   current placement.
-   * @param projection Optional genuine same-body ROM metadata from the current
-   *   query.
-   * @returns The posture with the leg goals, and the hand's for side sitting;
-   *   the posture itself at no share. The hand bears (`planted`) once it is
-   *   down.
+   * Parameter body: The body.
+   * Parameter posture: The posture, its root placed and its legs set by joints.
+   * Parameter kind: The sitting.
+   * Parameter share: 0 where the joints hold the legs to 1 folded.
+   * Parameter resolution: Optional exact FK source borrowed only during this
+   * current placement.
+   * Parameter projection: Optional genuine same-body ROM metadata from the current
+   * query.
+   * Returns: The posture with the leg goals, and the hand's for side sitting;
+   * the posture itself at no share. The hand bears (`planted`) once it is
+   * down.
    */
   export function place(
     body: IAutoMovieMotionHumanBody,
@@ -124,14 +131,13 @@ export namespace floorSeat {
     return prepare(body, kind)(posture, share, resolution, projection);
   }
 
-  /**
+  /*
    * Prepare a fixed body's folded-sitting targets and actual FK demand. Each
    * changing posture still supplies its own hips, limbs and heading.
-   *
-   * @param body The unchanged body/rest/surface geometry of this floor plan.
-   * @param kind The unchanged authored crossed or side sitting.
-   * @returns A current posture/share writer with optional nonescaping
-   *   same-query FK/ROM loans; nonpositive share returns its input unchanged.
+   * Parameter body: The unchanged body/rest/surface geometry of this floor plan.
+   * Parameter kind: The unchanged authored crossed or side sitting.
+   * Returns: A current posture/share writer with optional nonescaping
+   * same-query FK/ROM loans; nonpositive share returns its input unchanged.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
@@ -258,15 +264,23 @@ export namespace floorSeat {
     };
   }
 
-  /** The record of `ICROSSEDEntryItem`'s site. */
+  /*
+   * The record of `ICROSSEDEntryItem`'s site.
+   */
   type ICROSSEDEntryItem = { ankle: IPlace; knee: IPlace };
-  /** The record of `ISIDEEntryItem`'s site. */
+  /*
+   * The record of `ISIDEEntryItem`'s site.
+   */
   type ISIDEEntryItem = { ankle: IPlace; knee: IPlace };
 
-  /** The record of `ITableEntryItem`'s site. */
+  /*
+   * The record of `ITableEntryItem`'s site.
+   */
   type ITableEntryItem = { ankle: IPlace; knee: IPlace };
 
-  /** Joint-space origins needed by both folded-leg placements. */
+  /*
+   * Joint-space origins needed by both folded-leg placements.
+   */
   const LEG_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
     "leftUpperLeg",
     "rightUpperLeg",
@@ -276,7 +290,9 @@ export namespace floorSeat {
     "rightFoot",
   ]);
 
-  /** Side sitting also measures its supporting shoulder, elbow and wrist. */
+  /*
+   * Side sitting also measures its supporting shoulder, elbow and wrist.
+   */
   const SIDE_BONES: ReadonlySet<AutoMovieHumanoidBone> = new Set([
     ...LEG_BONES,
     "leftUpperArm",
@@ -285,7 +301,9 @@ export namespace floorSeat {
   ]);
 }
 
-/** The record of `IPrepareTargetsEntry`'s site. */
+/*
+ * The record of `IPrepareTargetsEntry`'s site.
+ */
 type IPrepareTargetsEntry = {
   ankle: IAutoMovieVector3;
   knee: IAutoMovieVector3;

@@ -15,7 +15,7 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 import { stageCatch } from "./stageCatch";
 import { stageDeflectRebound } from "./stageDeflectRebound";
 
-/**
+/*
  * A deliberate deflection of an incoming ball: the staged interception of
  * `stageCatch`, whose hand meets the ball on its actual flight at the authored
  * instant, hands the same ball straight back instead of closing on it. The
@@ -36,7 +36,7 @@ export const stageDeflect: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanC
     plan: planStageDeflect,
   };
 
-/**
+/*
  * A deliberate deflection of an incoming ball: the staged interception of
  * `stageCatch`, whose hand meets the ball on its actual flight at the authored
  * instant, hands the same ball straight back instead of closing on it. The

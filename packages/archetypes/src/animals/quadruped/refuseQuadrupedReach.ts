@@ -1,6 +1,6 @@
 import { AutoMovieArchetypeRefusal } from "../../core/index";
 
-/**
+/*
  * Turn a pose solver's geometric failure at one sample into the ride's typed
  * refusal, naming the film second.
  *
@@ -8,12 +8,11 @@ import { AutoMovieArchetypeRefusal } from "../../core/index";
  * interval as a RangeError. A ride sampled by a consumer must instead refuse as
  * the ride contract states, with the course second at fault, so a timed route
  * or authored course can be corrected there.
- *
- * @param archetype The archetype name.
- * @param seconds The film second sampled.
- * @param error The solver's error.
- * @returns The typed refusal for a RangeError.
- * @throws {unknown} Any other error, unchanged.
+ * Parameter archetype: The archetype name.
+ * Parameter seconds: The film second sampled.
+ * Parameter error: The solver's error.
+ * Returns: The typed refusal for a RangeError.
+ * Any other error, unchanged.
  */
 export function refuseQuadrupedReach(
   archetype: string,

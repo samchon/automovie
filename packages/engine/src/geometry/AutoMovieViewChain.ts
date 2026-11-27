@@ -421,7 +421,7 @@ export namespace AutoMovieViewChain {
     ];
   }
 
-  /**
+  /*
    * Atan2 of a point jet as a jet: first partials `B x B_i / |B|^2`, second
    * partials by the quotient rule.
    */
@@ -447,7 +447,9 @@ export namespace AutoMovieViewChain {
     ];
   }
 
-  /** A x b, the z component. */
+  /*
+   * A x b, the z component.
+   */
   function cross(a: AutoMovieVector2Tuple, b: AutoMovieVector2Tuple): number {
     return a[0] * b[1] - a[1] * b[0];
   }

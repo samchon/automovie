@@ -8,17 +8,16 @@ import { prepareHumanPoseResolution } from "../../posture/internal/prepareHumanP
 import { resolveHumanPosture } from "../../posture/internal/resolveHumanPosture";
 import { handGoals } from "./handGoals";
 
-/**
+/*
  * The supporting hand's rest goal: its palm under the other arm's elbow (the
  * olecranon region) as that arm holds its chin-rest goal, fingers toward the
  * outside of that elbow.
- *
- * @param body The body.
- * @param posture The standing posture.
- * @param side The supporting hand.
- * @param chin The other hand's chin-rest goal.
- * @param elbow The supporting arm's bend hint, world metres.
- * @returns The goal.
+ * Parameter body: The body.
+ * Parameter posture: The standing posture.
+ * Parameter side: The supporting hand.
+ * Parameter chin: The other hand's chin-rest goal.
+ * Parameter elbow: The supporting arm's bend hint, world metres.
+ * Returns: The goal.
  */
 export function restElbowSupport(
   body: IAutoMovieMotionHumanBody,

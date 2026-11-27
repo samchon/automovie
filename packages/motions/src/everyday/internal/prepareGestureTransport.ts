@@ -11,16 +11,15 @@ import type {
 import { HumanHand } from "../../posture/internal/HumanHand";
 import { poseBones } from "../../posture/internal/poseBones";
 
-/**
+/*
  * Measure the farthest entry-to-stroke hand transport while sharing only the
  * fixed action-entry pose's demanded FK. Named and varied stroke probes still
  * evaluate every actual goal; a changed surface adds its real frame demand.
- *
- * @param body The unchanged body supplying actual hand-surface metadata.
- * @param entry The fixed canonical pose at the action's exact entry event.
- * @param sides The hands moved by this gesture.
- * @returns A reader of actual stroke goals returning farthest travel in metres,
- *   using the original relaxed reference hand shape.
+ * Parameter body: The unchanged body supplying actual hand-surface metadata.
+ * Parameter entry: The fixed canonical pose at the action's exact entry event.
+ * Parameter sides: The hands moved by this gesture.
+ * Returns: A reader of actual stroke goals returning farthest travel in metres,
+ * using the original relaxed reference hand shape.
  */
 export function prepareGestureTransport(
   body: IAutoMovieMotionHumanBody,
@@ -71,13 +70,17 @@ export function prepareGestureTransport(
   };
 }
 
-/** The record of `IPrepareGestureTransportGoalsResult`'s site. */
+/*
+ * The record of `IPrepareGestureTransportGoalsResult`'s site.
+ */
 type IPrepareGestureTransportGoalsResult = {
   side: AutoMovieHumanSide;
   hand: IAutoMovieMotionHumanGestureStroke.IHand;
 };
 
-/** The record of `IPrepareGestureTransportGoalsItem`'s site. */
+/*
+ * The record of `IPrepareGestureTransportGoalsItem`'s site.
+ */
 type IPrepareGestureTransportGoalsItem = {
   side: AutoMovieHumanSide;
   hand: IAutoMovieMotionHumanGestureStroke.IHand;

@@ -10,21 +10,25 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core/index";
 
-/** The tripod turnstile read. */
+/*
+ * The tripod turnstile read.
+ */
 const TRILOCK: string =
   "Boon Edam Trilock 60 product data sheet: cabinet 178 mm wide, 965 mm high, 686 mm long; passage 457, 508 or 559 mm; barrier height 838 mm; arm reach 416 mm and 32 mm across on the drawing (https://websaweprd.blob.core.windows.net/cms-assets-us/2021-02/BEI_PDS_Trilock%2060.pdf)";
 
-/** The swing speed gate read. */
+/*
+ * The swing speed gate read.
+ */
 const SPEEDLANE: string =
   "Boon Edam Lifeline Speedlane Swing brochure: cabinet 106 mm wide, 1035 mm high, 1776 mm long; passage 615 mm, wide 915 mm; wing height 940 mm (https://www.barbourproductsearch.info/BEL_Lifeline%20Speedlane%20Swing_A4%20Brochure_2023-file133773.pdf)";
 
-/**
+/*
  * A speed gate wing's lower edge above the floor, metres: the Speedlane Swing
  * elevation's 200 mm.
  */
 const WING_FOOT: number = 0.2;
 
-/**
+/*
  * The construction sizes no source read gives, metres, each an estimate no act
  * reads and no band declares: `wing`, a swing gate's wing thickness.
  */

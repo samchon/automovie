@@ -6,7 +6,9 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-/** Explicit complete native ownership, material sampling bounds and source scope. */
+/*
+ * Explicit complete native ownership, material sampling bounds and source scope.
+ */
 export namespace AutoMovieHumanNativeSourceAuthority {
   /** Axis-origin speed bound and material breaks; neither is a surface-chord bound. */
   export interface ISampling {
@@ -23,7 +25,9 @@ export namespace AutoMovieHumanNativeSourceAuthority {
     /** Nonidentity course sampling only; absence preserves the requested/cap grid. */
     sampling?: ISampling;
   }
-  /** A right-handed reflected chart reverses its local v as well as phase. */
+  /*
+   * A right-handed reflected chart reverses its local v as well as phase.
+   */
   export function reflected(axis: IAutoMovieViewAxis.IAxis): IAutoMovieViewAxis.IAxis {
     const flip = (
       p: readonly number[],
@@ -51,7 +55,9 @@ export namespace AutoMovieHumanNativeSourceAuthority {
     };
   }
 
-  /** Actual radial closure ownership for every scalar source. */
+  /*
+   * Actual radial closure ownership for every scalar source.
+   */
   export function ends(part: IAutoMovieViewPart): { bottom?: number; top?: number } {
     return {
       ...(part.pole === "bottom" || part.pole === "both"
@@ -63,7 +69,9 @@ export namespace AutoMovieHumanNativeSourceAuthority {
     };
   }
 
-  /** Read an exact named source; a missing twin never borrows the primary. */
+  /*
+   * Read an exact named source; a missing twin never borrows the primary.
+   */
   export function named(spec: ISpec, name: string): IAutoMovieViewPart {
     const source: IAutoMovieViewPart | undefined = spec.sources.get(name);
     if (source === undefined || source.name !== name)
@@ -71,7 +79,9 @@ export namespace AutoMovieHumanNativeSourceAuthority {
     return source;
   }
 
-  /** Numeric family controls form a binding, independently of display density/features. */
+  /*
+   * Numeric family controls form a binding, independently of display density/features.
+   */
   export function controls(a: IAutoMovieHumanConicLoft.IFamily, b: IAutoMovieHumanConicLoft.IFamily): boolean {
     return a.values.length === b.values.length &&
       a.values.every((row: number[], f: number): boolean =>
@@ -81,14 +91,18 @@ export namespace AutoMovieHumanNativeSourceAuthority {
       JSON.stringify(a.layout) === JSON.stringify(b.layout);
   }
 
-  /** Cap shape and material scope are independent of caller pitch, phase and relief visibility. */
+  /*
+   * Cap shape and material scope are independent of caller pitch, phase and relief visibility.
+   */
   export function capEqual(a: IAutoMovieHumanConicLoft.ITip | null | undefined, b: IAutoMovieHumanConicLoft.ITip | null | undefined): boolean {
     return a === b || (a !== null && a !== undefined && b !== null && b !== undefined &&
       a.from === b.from && a.tip === b.tip && a.own === b.own && a.covered === b.covered &&
       a.rings === b.rings && a.centre?.[0] === b.centre?.[0] && a.centre?.[1] === b.centre?.[1]);
   }
 
-  /** Admit the selected source against the invocation's unchanged material/cap binding. */
+  /*
+   * Admit the selected source against the invocation's unchanged material/cap binding.
+   */
   export function select(spec: ISpec, family: IAutoMovieHumanConicLoft.IFamily, expected: IAutoMovieHumanConicLoft.IFamily,
     originals: ReadonlyMap<string, IAutoMovieViewPart>): IAutoMovieViewPart {
     const source: IAutoMovieViewPart = named(spec, family.name);
@@ -102,7 +116,9 @@ export namespace AutoMovieHumanNativeSourceAuthority {
     return source;
   }
 
-  /** Refine only emitted rows; every original cap row and requested course break survives. */
+  /*
+   * Refine only emitted rows; every original cap row and requested course break survives.
+   */
   export function rows(metadata: ISampling | undefined, stations: number[],
     domain: readonly [number, number]): number[] {
     if (metadata === undefined) return stations;

@@ -22,7 +22,7 @@ const quaternion: (
   w: value.w,
 });
 
-/**
+/*
  * Snapshot local source translation, quaternion and scale before formation
  * updates overwrite the host's scene wrapper. Translation is metres and the
  * quaternion is XYZW. Every component is copied, so later writes cannot turn

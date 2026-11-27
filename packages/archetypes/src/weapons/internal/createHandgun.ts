@@ -6,7 +6,7 @@ import "../constants/HANDGUN_BANDS";
 import "../constants/HANDGUN_MODELS";
 import { HandgunActions } from "./HandgunActions";
 
-/**
+/*
  * A handgun as a film prop: a self-loading pistol, a slide over a frame with a
  * grip, a trigger and sights; a revolver, its hammer cocking and its cylinder
  * turning; or a flintlock pistol with the musket's lock (`HandgunActions`). It
@@ -18,16 +18,15 @@ import { HandgunActions } from "./HandgunActions";
  * `triggerReach` ahead of the backstrap, as makers measure it; the `slide` runs
  * back on its slider. `sight` and `frontSight` give the line of aim, `muzzle`
  * the end of the barrel and `magazine` the well under the grip.
- *
- * @param params The frame size, the model and a GLOCK's sights, whether it is
- *   loaded and any dimension the author fixes.
- * @param seed The seed that picks the model and the sights left free and draws
- *   every dimension left free inside its band; absent, the first model, the
- *   first sights and the middle of each band.
- * @returns The handgun.
- * @throws {AutoMovieArchetypeRefusal} For a model not of the frame, sights on a
- *   pistol without them, a fixed dimension outside its band, or one the model
- *   or the sights give.
+ * Parameter params: The frame size, the model and a GLOCK's sights, whether it is
+ * loaded and any dimension the author fixes.
+ * Parameter seed: The seed that picks the model and the sights left free and draws
+ * every dimension left free inside its band; absent, the first model, the
+ * first sights and the middle of each band.
+ * Returns: The handgun.
+ * For a model not of the frame, sights on a
+ * pistol without them, a fixed dimension outside its band, or one the model
+ * or the sights give.
  */
 export function createHandgun(
   params: AutoMovieArchetypeHandgun.IParams,

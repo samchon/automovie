@@ -18,7 +18,9 @@ import { FurnishingRect } from "./FurnishingRect";
 import { createEnvironmentProp } from "./internal/createEnvironmentProp";
 import { resolveFurnishingPieces } from "./resolveFurnishingPieces";
 
-/** Room-frame point on each wall's inner face and its unit normal into the room. */
+/*
+ * Room-frame point on each wall's inner face and its unit normal into the room.
+ */
 const WALL_FACES: Readonly<
   Record<
     AutoMovieFurnishingWall,
@@ -46,7 +48,7 @@ const WALL_FACES: Readonly<
   ],
 };
 
-/**
+/*
  * Furnish a rectangular room with related pieces and a grid of repeated prop
  * groups.
  *
@@ -60,13 +62,12 @@ const WALL_FACES: Readonly<
  * wall relation hangs them higher. Authored overrides stay where given when a
  * different seed changes a prototype's dimensions. An infeasible layout names
  * the role or capacity that failed and never stages a partial room.
- *
- * @param context The room's resolved world frame and occurrence id.
- * @param params The useful room, related pieces and any repeated group.
- * @returns Models, prop specs, stage placements, each role's anchors and the
- *   wall each wall piece stands on.
- * @throws If room input, capacity, relations, clearances or overrides cannot be
- *   satisfied.
+ * Parameter context: The room's resolved world frame and occurrence id.
+ * Parameter params: The useful room, related pieces and any repeated group.
+ * Returns: Models, prop specs, stage placements, each role's anchors and the
+ * wall each wall piece stands on.
+ * If room input, capacity, relations, clearances or overrides cannot be
+ * satisfied.
  */
 export function furnishRoom(
   context: IAutoMovieEnvironmentModule.IContext,
@@ -213,7 +214,7 @@ export function furnishRoom(
   };
 }
 
-/**
+/*
  * Fill the grid's missing roles slot by slot: a slot is taken when the whole
  * group box fits the room and every missing member's box enters no blocked
  * rectangle.
@@ -299,7 +300,7 @@ function placeGrid(
   }
 }
 
-/**
+/*
  * Build the role of one occurrence from its group's stable ordinal and the
  * part's local suffix.
  */
@@ -307,7 +308,7 @@ function roleAt(prefix: string, index: number, part: string): string {
   return part === "" ? `${prefix}-${index}` : `${prefix}-${index}/${part}`;
 }
 
-/**
+/*
  * Name the failing count and the capacity already available when grid placement
  * stops.
  */
@@ -322,19 +323,19 @@ function capacityError(
   );
 }
 
-/**
+/*
  * The planner's default aisle, its item, grid and parameter records, and its
  * rest-box measure.
  */
 export namespace furnishRoom {
-  /**
+  /*
    * The 915 mm walking width in U.S. Access Board §403.5.1
    * (https://www.access-board.gov/ada/chapter/ch04/), used here as a layout
    * default and not as a compliance claim.
    */
   export const DEFAULT_AISLE: number = 0.915;
 
-  /**
+  /*
    * One prop prototype positioned in the repeated group.
    *
    * The rest bounds describe the model's occupied extents before the authored
@@ -342,65 +343,90 @@ export namespace furnishRoom {
    * origin from the floor.
    */
   export interface IItem {
-    /** Suffix appended to the group's role. Empty selects the group role. */
+    /*
+     * Suffix appended to the group's role. Empty selects the group role.
+     */
     role: string;
 
-    /** Renderable rigid model with its authored affordances. */
+    /*
+     * Renderable rigid model with its authored affordances.
+     */
     model: IAutoMovieModel;
 
-    /** Measured model-local bounds, in metres. */
+    /*
+     * Measured model-local bounds, in metres.
+     */
     bounds: IAutoMoviePropBox;
 
-    /** X metres in the group. */
+    /*
+     * X metres in the group.
+     */
     x: number;
 
-    /** Z metres in the group. */
+    /*
+     * Z metres in the group.
+     */
     z: number;
 
-    /** Rotation about local +Y in degrees. */
+    /*
+     * Rotation about local +Y in degrees.
+     */
     heading: number;
   }
 
-  /** A repeated group laid on the room's grid. */
+  /*
+   * A repeated group laid on the room's grid.
+   */
   export interface IGrid {
-    /** Positive integer number of repeated groups. */
+    /*
+     * Positive integer number of repeated groups.
+     */
     count: number;
 
-    /** Name by which the kit exposes the count parameter. */
+    /*
+     * Name by which the kit exposes the count parameter.
+     */
     capacity: string;
 
-    /** Role prefix for the repeated groups. */
+    /*
+     * Role prefix for the repeated groups.
+     */
     prefix: string;
 
-    /**
+    /*
      * Nonempty props of one group, positioned relative to one grid point and
      * named by local suffix.
      */
     group: readonly IItem[];
   }
 
-  /** The room, its related pieces and any repeated group. */
+  /*
+   * The room, its related pieces and any repeated group.
+   */
   export interface IParams {
-    /** Room and override declarations. */
+    /*
+     * Room and override declarations.
+     */
     layout: IAutoMovieFurnishingLayout;
 
-    /**
+    /*
      * Pieces placed by relation, by role, resolved in record order before the
      * grid.
      */
     pieces?: Readonly<Record<string, resolveFurnishingPieces.IPiece>>;
 
-    /** The repeated group, when the room has one. */
+    /*
+     * The repeated group, when the room has one.
+     */
     grid?: IGrid;
   }
 
-  /**
+  /*
    * Measure a kit prototype's visible rest extent in its own frame, in metres,
    * using the same geometry as film framing.
-   *
-   * @param model The equipment model selected by the producer.
-   * @returns Model-local bounds used for footprint and floor seating.
-   * @throws If the model has no measurable rest extent.
+   * Parameter model: The equipment model selected by the producer.
+   * Returns: Model-local bounds used for footprint and floor seating.
+   * If the model has no measurable rest extent.
    */
   export function measure(model: IAutoMovieModel): IAutoMoviePropBox {
     const result: IAutoMoviePropBox | null = AutoMovieEngineFilm.computeModelRestExtent(model);
@@ -410,11 +436,17 @@ export namespace furnishRoom {
   }
 }
 
-/** One member of the repeated group, placed at the group's own origin. */
+/*
+ * One member of the repeated group, placed at the group's own origin.
+ */
 interface IGroupPart {
-  /** Local role suffix; empty selects the group role. */
+  /*
+   * Local role suffix; empty selects the group role.
+   */
   role: string;
 
-  /** The member's placement relative to the group origin. */
+  /*
+   * The member's placement relative to the group origin.
+   */
   placement: FurnishingRect.IPlacement;
 }

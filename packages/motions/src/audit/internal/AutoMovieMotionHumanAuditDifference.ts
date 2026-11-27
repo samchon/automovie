@@ -9,7 +9,7 @@ import type {
 
 import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovieMotionHumanAuditMotion";
 
-/**
+/*
  * How far two displayed motions are apart: the largest distance between the
  * same joint centre of both at the same film second.
  *
@@ -28,15 +28,14 @@ import { AutoMovieMotionHumanAuditMotion as HumanAuditMotion } from "./AutoMovie
  * while both last still differ when one is longer.
  */
 export namespace AutoMovieMotionHumanAuditDifference {
-  /**
+  /*
    * Read how far two motions are apart.
-   *
-   * @param a The first motion.
-   * @param b The second motion.
-   * @param subject The person in the first motion.
-   * @param options The second person, the reflection and the grid.
-   * @returns The largest distance and the difference of lengths.
-   * @throws {Error} When the second motion lacks a bone of the first.
+   * Parameter a: The first motion.
+   * Parameter b: The second motion.
+   * Parameter subject: The person in the first motion.
+   * Parameter options: The second person, the reflection and the grid.
+   * Returns: The largest distance and the difference of lengths.
+   * When the second motion lacks a bone of the first.
    */
   export function measure(
     a: IAutoMovieMotionHumanAuditMotion,
@@ -79,11 +78,10 @@ export namespace AutoMovieMotionHumanAuditDifference {
     return { distance, duration: Math.abs(a.duration - b.duration) };
   }
 
-  /**
+  /*
    * The bone on the other side of the body.
-   *
-   * @param bone A bone.
-   * @returns Its left or right twin, or the bone itself on the midline.
+   * Parameter bone: A bone.
+   * Returns: Its left or right twin, or the bone itself on the midline.
    */
   export function opposite(bone: AutoMovieHumanoidBone): AutoMovieHumanoidBone {
     if (bone.startsWith("left"))

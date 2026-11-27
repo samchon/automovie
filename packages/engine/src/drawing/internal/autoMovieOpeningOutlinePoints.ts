@@ -7,12 +7,12 @@ import {
 import { autoMovieOpeningArc } from "./autoMovieOpeningArc";
 import { AUTOMOVIE_DRAWING_ARC_STEP } from "../AUTOMOVIE_DRAWING_ARC_STEP";
 
-/**
+/*
  * Flatten a profile outline into the points a drawing drafts it through.
  *
  * Each edge contributes its start point, and a bulged edge then contributes the
  * interior chord points of its arc at a fixed angular step of
- * {@link AUTOMOVIE_DRAWING_ARC_STEP}, so the returned ring is an implicitly
+ * AUTOMOVIE_DRAWING_ARC_STEP, so the returned ring is an implicitly
  * closed polyline in the profile's planar frame. The density is fixed rather
  * than adaptive so a drawing's linework, and its digest, depend on the design
  * and not on the size of the arc.
@@ -20,9 +20,8 @@ import { AUTOMOVIE_DRAWING_ARC_STEP } from "../AUTOMOVIE_DRAWING_ARC_STEP";
  * This is drafting, not measurement: the schedule reads the hull through
  * `autoMovieOpeningExtent` and the take-off reads the exact area through
  * `autoMovieOpeningArea`, and neither reads these chords.
- *
- * @param profile Opening profile with its outline and optional bulges.
- * @returns The drafted ring, in profile-frame metres.
+ * Parameter profile: Opening profile with its outline and optional bulges.
+ * Returns: The drafted ring, in profile-frame metres.
  */
 export const autoMovieOpeningOutlinePoints = (
   profile: IAutoMovieOpeningProfile,

@@ -9,7 +9,9 @@ import { prepareSpace } from "./prepareSpace";
 import { surfaceAt } from "./surfaceAt";
 import { surfaceHeightAt } from "./surfaceHeightAt";
 
-/** Project supplied footprint points onto the topmost authored support surface. */
+/*
+ * Project supplied footprint points onto the topmost authored support surface.
+ */
 export const supportContactsFor: (
   space: IAutoMovieSpace,
   footprint: readonly IAutoMovieVector3[],

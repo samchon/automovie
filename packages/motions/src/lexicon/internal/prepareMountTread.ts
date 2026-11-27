@@ -10,13 +10,17 @@ import { poseBones } from "../../posture/internal/poseBones";
 import { mountCastObstruction } from "./mountCastObstruction";
 import type { prepareMountSeat } from "./prepareMountSeat";
 
-/** Translation across the named tread. */
+/*
+ * Translation across the named tread.
+ */
 const ACROSS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 
-/** From the riding foot towards the plate. */
+/*
+ * From the riding foot towards the plate.
+ */
 const DOWN: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
 
-/**
+/*
  * Prepare supported placements of a posed foot within a named stirrup. Carry
  * its actual foot and toe shapes about its anatomical ball; their relative
  * articulation stays as displayed. Keep the requested rotation and fixed
@@ -27,10 +31,9 @@ const DOWN: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
  * finite metal. A heel below the plane can clear when it is outside the plate.
  * Both paths require the actual plate and an actual foot or toe collider to
  * share a positive face patch within the existing `HumanFoot.BEARING` band.
- *
- * @param input The posed foot and the matched physical parts in tread axes.
- * @returns The admitted ankle, anatomical ball, paired patch witness and
- *   certified iron clearance range for each supported choice.
+ * Parameter input: The posed foot and the matched physical parts in tread axes.
+ * Returns: The admitted ankle, anatomical ball, paired patch witness and
+ * certified iron clearance range for each supported choice.
  */
 export function prepareMountTread(
   input: prepareMountTread.IInput,
@@ -204,7 +207,9 @@ export function prepareMountTread(
   });
 }
 
-/** Exact placed pairs, with native GJK separating the easy ones first. */
+/*
+ * Exact placed pairs, with native GJK separating the easy ones first.
+ */
 function clearsPlaced(
   actors: readonly ICell[],
   plate: prepareMountTread.IPlate,
@@ -252,7 +257,9 @@ function clearsPlaced(
   return true;
 }
 
-/** The paired witness nearest the ball in this cell's positive top patch. */
+/*
+ * The paired witness nearest the ball in this cell's positive top patch.
+ */
 function onPlate(
   actor: prepareMountSeat.ISolid,
   plate: prepareMountTread.IPlate,
@@ -296,86 +303,142 @@ function onPlate(
     : undefined;
 }
 
-/** Material, source pose and the retained local placement. */
+/*
+ * Material, source pose and the retained local placement.
+ */
 export namespace prepareMountTread {
-  /** The actual plate, already associated with its named contact. */
+  /*
+   * The actual plate, already associated with its named contact.
+   */
   export interface IPlate extends prepareMountSeat.ISolid {
-    /** The finite box in the named tread's axes. */
+    /*
+     * The finite box in the named tread's axes.
+     */
     shape: PlateShape;
   }
 
-  /** The footprint and hardware observed once during preparation. */
+  /*
+   * The footprint and hardware observed once during preparation.
+   */
   export interface IInput {
-    /** The rider's canonical profile. */
+    /*
+     * The rider's canonical profile.
+     */
     body: IAutoMovieMotionHumanBody;
 
-    /** The side that will bear. */
+    /*
+     * The side that will bear.
+     */
     side: AutoMovieHumanSide;
 
-    /** The displayed key supplying the foot and toes' relative geometry. */
+    /*
+     * The displayed key supplying the foot and toes' relative geometry.
+     */
     pose: IAutoMoviePose;
 
-    /** The physical plate in the named tread's local axes. */
+    /*
+     * The physical plate in the named tread's local axes.
+     */
     plate: IPlate;
 
-    /** All other iron pieces in those same axes, excluding the tread. */
+    /*
+     * All other iron pieces in those same axes, excluding the tread.
+     */
     iron: readonly prepareMountSeat.ISolid[];
 
-    /** The exact desired ankle rotation in the named tread's axes. */
+    /*
+     * The exact desired ankle rotation in the named tread's axes.
+     */
     rotation: IAutoMovieQuaternion;
 
-    /** The ball's authored fore/aft coordinate in the named tread, metres. */
+    /*
+     * The ball's authored fore/aft coordinate in the named tread, metres.
+     */
     depth: number;
 
-    /** Test this exact lateral abscissa in the legal interval when given. */
+    /*
+     * Test this exact lateral abscissa in the legal interval when given.
+     */
     x?: number;
 
-    /** Actual local height of the verified ball, zero when omitted. */
+    /*
+     * Actual local height of the verified ball, zero when omitted.
+     */
     y?: number;
   }
 
-  /** One physically supported local ankle placement. */
+  /*
+   * One physically supported local ankle placement.
+   */
   export interface ICandidate {
-    /** The anatomical ball on the finite tread, local metres. */
+    /*
+     * The anatomical ball on the finite tread, local metres.
+     */
     ball: IAutoMovieVector3;
 
-    /** The ankle pose in the same material axes. */
+    /*
+     * The ankle pose in the same material axes.
+     */
     ankle: IAutoMovieRigidTransform;
 
-    /** The ball as carried by the ankle, bone-local metres. */
+    /*
+     * The ball as carried by the ankle, bone-local metres.
+     */
     contact: IAutoMovieVector3;
 
-    /** The corresponding actor and material points of the bearing patch. */
+    /*
+     * The corresponding actor and material points of the bearing patch.
+     */
     anchor: IAnchor;
 
-    /** Clear lateral interval, or the singleton for a verified placed foot. */
+    /*
+     * Clear lateral interval, or the singleton for a verified placed foot.
+     */
     range: Span;
   }
 
-  /** One paired witness on the cell that bears the foot. */
+  /*
+   * One paired witness on the cell that bears the foot.
+   */
   export interface IAnchor {
-    /** The foot or toe bone owning the actor witness. */
+    /*
+     * The foot or toe bone owning the actor witness.
+     */
     bone: AutoMovieHumanoidBone;
 
-    /** The actor witness in its owner's bone-local axes, metres. */
+    /*
+     * The actor witness in its owner's bone-local axes, metres.
+     */
     point: IAutoMovieVector3;
 
-    /** The other witness on the named tread's top, tread-local metres. */
+    /*
+     * The other witness on the named tread's top, tread-local metres.
+     */
     material: IAutoMovieVector3;
   }
 }
 
-/** A lateral interval in tread-native metres. */
+/*
+ * A lateral interval in tread-native metres.
+ */
 type Span = readonly [number, number];
 
-/** The physical box whose exposed upper face is the named tread. */
+/*
+ * The physical box whose exposed upper face is the named tread.
+ */
 type PlateShape = Extract<IAutoMoviePhysicalShape, { kind: "box" }>;
 
-/** A placed profile cell and its actual axis projections. */
+/*
+ * A placed profile cell and its actual axis projections.
+ */
 interface ICell extends prepareMountSeat.ISolid {
-  /** The bone the actual cell follows. */
+  /*
+   * The bone the actual cell follows.
+   */
   bone: AutoMovieHumanoidBone;
 
-  /** Its bounds in the tread's own frame. */
+  /*
+   * Its bounds in the tread's own frame.
+   */
   bounds: IAutoMoviePhysicalShapeBounds.IResult;
 }

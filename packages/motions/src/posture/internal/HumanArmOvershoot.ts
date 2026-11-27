@@ -10,30 +10,29 @@ import { AutoMovieMotionHumanAuditSkin } from "../../audit/internal/AutoMovieMot
 import { HumanArmOvershootRoom } from "./HumanArmOvershootRoom";
 import { HumanShapeFraming } from "./HumanShapeFraming";
 
-/**
+/*
  * How far a forearm lies inside the room it needs, as degrees of upper arm
  * turn, the unit a range of motion overshoot has.
- *
- * @param body The body, for the forearm's radius and the upper arm's length.
- * @param shapes The trunk's placed colliders (`trunk`).
- * @param elbow The elbow, world metres.
- * @param wrist The wrist, world metres.
- * @param side The arm.
- * @param others Placed colliders the wrist has no goal on (another body's);
- *   none when absent.
- * @param goal Whether the wrist is where a goal put it, which excuses its own
- *   depth in `shapes`; a carried arm between its ends has none.
- * @param rival The world point the other arm's goal will put its wrist at,
- *   while that arm is still to be fitted: the plane keeps that arm's room only
- *   when it lies on this arm's side; absent, the room is kept unless the other
- *   arm's colliders are among `shapes`.
- * @param hint The world point the goal hints the elbow toward, which the elbow
- *   may follow across the median plane by up to the forearm's radius beyond it;
- *   none when absent.
- * @param rests Placed colliders of another body the goal lays the hand on (the
- *   partner's segment a palm rests on); none when absent.
- * @returns Degrees; 0 when the forearm clears every shape and the elbow keeps
- *   its side.
+ * Parameter body: The body, for the forearm's radius and the upper arm's length.
+ * Parameter shapes: The trunk's placed colliders (`trunk`).
+ * Parameter elbow: The elbow, world metres.
+ * Parameter wrist: The wrist, world metres.
+ * Parameter side: The arm.
+ * Parameter others: Placed colliders the wrist has no goal on (another body's);
+ * none when absent.
+ * Parameter goal: Whether the wrist is where a goal put it, which excuses its own
+ * depth in `shapes`; a carried arm between its ends has none.
+ * Parameter rival: The world point the other arm's goal will put its wrist at,
+ * while that arm is still to be fitted: the plane keeps that arm's room only
+ * when it lies on this arm's side; absent, the room is kept unless the other
+ * arm's colliders are among `shapes`.
+ * Parameter hint: The world point the goal hints the elbow toward, which the elbow
+ * may follow across the median plane by up to the forearm's radius beyond it;
+ * none when absent.
+ * Parameter rests: Placed colliders of another body the goal lays the hand on (the
+ * partner's segment a palm rests on); none when absent.
+ * Returns: Degrees; 0 when the forearm clears every shape and the elbow keeps
+ * its side.
  */
 export function HumanArmOvershoot(
   body: IAutoMovieMotionHumanBody,
@@ -58,13 +57,13 @@ export function HumanArmOvershoot(
   );
 }
 
-/**
+/*
  * How far a forearm lies inside the room it needs, the reading
  * `HumanArmClearance.overshoot` gives: the chest's median plane for the elbow's
  * side, and the forearm's tapering capsule against placed colliders.
  */
 export namespace HumanArmOvershoot {
-  /**
+  /*
    * Read varying elbow/wrist candidates against one unchanged room during a
    * synchronous fit. The lists, their placed geometry, body measurements and
    * goal metadata must remain unchanged until the caller releases the reader.
@@ -87,22 +86,32 @@ export namespace HumanArmOvershoot {
   }
 }
 
-/** A framed shape of a reading's room (HumanArmOvershootRoom.IShape). */
+/*
+ * A framed shape of a reading's room (HumanArmOvershootRoom.IShape).
+ */
 type IShape = HumanArmOvershootRoom.IShape;
 
-/** A reading's room (HumanArmOvershootRoom.IRoom). */
+/*
+ * A reading's room (HumanArmOvershootRoom.IRoom).
+ */
 type IRoom = HumanArmOvershootRoom.IRoom;
 
-/** An opaque fixed-geometry reader with no retained point or distance. */
+/*
+ * An opaque fixed-geometry reader with no retained point or distance.
+ */
 type IDistanceReader = ReturnType<typeof AutoMovieEnginePhysics.preparePhysicalShapeSegmentDistance>;
 
-/** Operation-local holder, populated only when a candidate needs exact geometry. */
+/*
+ * Operation-local holder, populated only when a candidate needs exact geometry.
+ */
 interface IQueries {
-  /** Readers for unchanged shapes, without queried points or results. */
+  /*
+   * Readers for unchanged shapes, without queried points or results.
+   */
   readers?: Map<IShape, IDistanceReader>;
 }
 
-/**
+/*
  * Evaluate one candidate, sharing only operation-owned unchanged geometry. A
  * hinged fit calls it at every candidate: the near shapes and the axis samples
  * are the call's own, and the shapes' distance readers are prepared once per
@@ -241,7 +250,7 @@ function evaluate(
   return degrees(depth, body.measure.upperArm);
 }
 
-/**
+/*
  * A point's signed offset from the chest's median plane toward the arm's side,
  * metres.
  */
@@ -257,12 +266,14 @@ function own(
   );
 }
 
-/** A depth as degrees of turn at the shoulder, over the upper arm's length. */
+/*
+ * A depth as degrees of turn at the shoulder, over the upper arm's length.
+ */
 function degrees(metres: number, upperArm: number): number {
   return ((metres / upperArm) * 180) / Math.PI;
 }
 
-/**
+/*
  * A shape's signed distance to a point, its fixed-geometry reader made once per
  * operation.
  */
@@ -280,7 +291,9 @@ function distance(
   return query(point, point);
 }
 
-/** A point's distance from a segment, metres, by the clamped projection. */
+/*
+ * A point's distance from a segment, metres, by the clamped projection.
+ */
 function along(
   a: IAutoMovieVector3,
   b: IAutoMovieVector3,
@@ -307,20 +320,20 @@ function along(
   );
 }
 
-/**
+/*
  * How far, metres, a bound must clear what it is compared with before a query
  * is spared: far above the rounding of a body-scale distance, far below
  * anything a forearm's room reads.
  */
 const MARGIN: number = 1e-9;
 
-/**
+/*
  * How far a forearm's skin may press into a surface, metres: the skin the
  * tangle audit allows (`AutoMovieMotionHumanAuditSkin.BUILT`), its one owner.
  */
 const TISSUE: number = AutoMovieMotionHumanAuditSkin.BUILT;
 
-/**
+/*
  * The intervals a forearm's axis is sampled in, from the elbow to short of the
  * wrist.
  */

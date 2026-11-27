@@ -11,7 +11,7 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { segmentIndex } from "../../math/internal/segmentIndex";
 
-/**
+/*
  * Bake an admitted in-place gait along an authored world XZ polyline, ignoring
  * waypoint Y and sampling height from optional ground. Whole cycles nearest
  * requested speed determine exact-arrival duration; yaw follows the tangent
@@ -132,7 +132,9 @@ const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** Rotations about the fixed world-up axis. */
+/*
+ * Rotations about the fixed world-up axis.
+ */
 const yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> =
   Quaternion.prepareAxisAngle(UP);
 
@@ -144,27 +146,41 @@ const MIN_SEGMENT: number = 1e-9;
 
 const DEFAULT_TURN_WINDOW: number = 0.5;
 
-/** One straight XZ stretch of the polyline, arc-length addressed. */
+/*
+ * One straight XZ stretch of the polyline, arc-length addressed.
+ */
 interface ISegment {
-  /** Start of the stretch on the ground plan. */
+  /*
+   * Start of the stretch on the ground plan.
+   */
   x: number;
   z: number;
 
-  /** Unit XZ direction. */
+  /*
+   * Unit XZ direction.
+   */
   dirX: number;
   dirZ: number;
 
-  /** Facing of this stretch, degrees about +Y. */
+  /*
+   * Facing of this stretch, degrees about +Y.
+   */
   yawDeg: number;
 
-  /** Stretch length, meters. */
+  /*
+   * Stretch length, meters.
+   */
   length: number;
 
-  /** Cumulative arc length at the stretch start. */
+  /*
+   * Cumulative arc length at the stretch start.
+   */
   from: number;
 }
 
-/** Validate the waypoints and cut them into arc-length-addressed stretches. */
+/*
+ * Validate the waypoints and cut them into arc-length-addressed stretches.
+ */
 const buildSegments: (waypoints: readonly IAutoMovieVector3[]) => ISegment[] = (
   waypoints: readonly IAutoMovieVector3[],
 ): ISegment[] => {
@@ -195,7 +211,7 @@ const buildSegments: (waypoints: readonly IAutoMovieVector3[]) => ISegment[] = (
   return segments;
 };
 
-/**
+/*
  * Half-width of the yaw blend at each corner (indexed by the segment the corner
  * starts): capped so adjacent corners' windows never overlap past a stretch
  * midpoint. Index 0 (the path start) has no corner.
@@ -219,7 +235,9 @@ const cornerHalfWindows: (
   return halves;
 };
 
-/** The stretch containing arc length `s`; boundaries go to the earlier one. */
+/*
+ * The stretch containing arc length `s`; boundaries go to the earlier one.
+ */
 const segmentIndexAt: (segments: readonly ISegment[], s: number) => number = (
   segments: readonly ISegment[],
   s: number,
@@ -235,7 +253,9 @@ const segmentIndexAt: (segments: readonly ISegment[], s: number) => number = (
   );
 };
 
-/** Facing at arc length `s`, linearly blended inside a corner window. */
+/*
+ * Facing at arc length `s`, linearly blended inside a corner window.
+ */
 const yawAt: (
   segments: readonly ISegment[],
   halfWindows: readonly number[],
@@ -271,14 +291,18 @@ const yawAt: (
   return seg.yawDeg;
 };
 
-/** Blend from `a` toward `b` (degrees) along the shortest angular arc. */
+/*
+ * Blend from `a` toward `b` (degrees) along the shortest angular arc.
+ */
 const blendYaw: (a: number, b: number, t: number) => number = (
   a: number,
   b: number,
   t: number,
 ): number => a + (((((b - a) % 360) + 540) % 360) - 180) * t;
 
-/** Ground height at a plan point: scalar plane, callback, or flat 0. */
+/*
+ * Ground height at a plan point: scalar plane, callback, or flat 0.
+ */
 const groundHeightAt: (
   ground: AutoMoviePathGround | undefined,
   x: number,

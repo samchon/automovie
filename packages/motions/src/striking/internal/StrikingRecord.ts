@@ -3,11 +3,10 @@ import type {
   IAutoMovieMotionHumanStrikingRecord,
 } from "@automovie/interface";
 
-/**
+/*
  * A planned strike's record.
- *
- * @param plan A plan.
- * @returns Its record, or undefined for a plan that is not a strike.
+ * Parameter plan: A plan.
+ * Returns: Its record, or undefined for a plan that is not a strike.
  */
 export function StrikingRecord(
   plan: IAutoMovieMotionHumanActionPlan,
@@ -15,7 +14,7 @@ export function StrikingRecord(
   return plan.record?.();
 }
 
-/**
+/*
  * What a planned strike decided, for audits and captures: the landing offset it
  * intended (declared accuracy plus seeded scatter), the goal it planned at its
  * launch, how its reach solve came out, and the second its weapon met a
@@ -28,11 +27,10 @@ export function StrikingRecord(
  * or wrapped by a spread keeps it.
  */
 export namespace StrikingRecord {
-  /**
+  /*
    * Whether a plan carries a strike's record.
-   *
-   * @param plan A plan.
-   * @returns True for a strike's plan.
+   * Parameter plan: A plan.
+   * Returns: True for a strike's plan.
    */
   export function carries(
     plan: IAutoMovieMotionHumanActionPlan,

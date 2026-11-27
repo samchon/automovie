@@ -5,7 +5,7 @@ import type {
   IAutoMovieRecoveryOpenContinuationEdge,
 } from "@automovie/interface";
 
-/**
+/*
  * Prepare immutable saved open-arc continuation maps before local surface
  * emission.
  */

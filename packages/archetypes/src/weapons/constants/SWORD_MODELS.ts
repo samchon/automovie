@@ -1,6 +1,6 @@
 import type { AutoMovieArchetypeSword } from "../AutoMovieArchetypeSword";
 
-/**
+/*
  * The read swords of each kind that has them, whole, the default first, with
  * the source each was read at; `createSword.MODELS` is this table.
  *

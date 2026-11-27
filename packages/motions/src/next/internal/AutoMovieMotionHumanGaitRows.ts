@@ -16,12 +16,12 @@ import { HUMAN_GAIT_STROLL } from "../presets/HUMAN_GAIT_STROLL";
 import { HUMAN_GAIT_SWAGGER } from "../presets/HUMAN_GAIT_SWAGGER";
 import { HUMAN_GAIT_TRUDGE } from "../presets/HUMAN_GAIT_TRUDGE";
 
-/**
+/*
  * The gait family's lexicon rows, tables and presets, each the shipped data
  * under its family name (`AutoMovieMotionHumanGait`), with its own comment.
  */
 export namespace AutoMovieMotionHumanGaitRows {
-  /**
+  /*
    * Named ways of going somewhere on foot; the composition gives the
    * destination. Register the ones a film uses.
    *
@@ -53,7 +53,7 @@ export namespace AutoMovieMotionHumanGaitRows {
    */
   export import HumanGait = HumanGaitSource;
 
-  /**
+  /*
    * Travel relative to another person, each a row of `approach`: the
    * composition gives the person as the target. Register the ones a film uses.
    *
@@ -73,7 +73,7 @@ export namespace AutoMovieMotionHumanGaitRows {
    */
   export import HumanPursuit = HumanPursuitSource;
 
-  /**
+  /*
    * Going through a doorway: travel that squares up before a named opening of
    * one of the performance's obstacles, passes through its middle and comes out
    * beyond it. Register `HumanTravelDoor.passThrough` to use it.
@@ -94,7 +94,7 @@ export namespace AutoMovieMotionHumanGaitRows {
    */
   export import HumanTravelDoor = HumanTravelDoorSource;
 
-  /**
+  /*
    * The walk of a frail older person, graded by `severity` from the ordinary
    * walk (0) to a shuffle (1): each feature is the ordinary walk's own value
    * carried linearly toward its frail end.
@@ -124,7 +124,7 @@ export namespace AutoMovieMotionHumanGaitRows {
    */
   export import HumanFrailWalk = HumanFrailWalkSource;
 
-  /**
+  /*
    * The race walk: a walk driven to a run's speed without a flight. World
    * Athletics rule TR54.2 defines it: one foot is always on the ground, and the
    * advancing leg is straight from its first contact until it passes under the
@@ -141,7 +141,7 @@ export namespace AutoMovieMotionHumanGaitRows {
    */
   export import HumanRaceGait = HumanRaceGaitSource;
 
-  /**
+  /*
    * Sit down onto a chair with two crutches, or rise from it, in the prescribed
    * order (Cornell Health and HealthLinkBC, Using crutches).
    *
@@ -162,7 +162,7 @@ export namespace AutoMovieMotionHumanGaitRows {
   export const HumanCrutchSit: typeof HumanCrutchSitSource =
     HumanCrutchSitSource;
 
-  /**
+  /*
    * Climbing stairs on two crutches: "up with the good, down with the bad"
    * (HealthLinkBC, Using crutches). The hands take the handgrips on both feet,
    * then the injured leg is held off the steps (`HELD`), its foot first lifted
@@ -189,7 +189,7 @@ export namespace AutoMovieMotionHumanGaitRows {
   export const HumanCrutchStairs: typeof HumanCrutchStairsSource =
     HumanCrutchStairsSource;
 
-  /**
+  /*
    * Interpersonal distance: the gaps people keep, by relationship and purpose,
    * as the chest-to-target gap an approach stops at.
    *
@@ -223,10 +223,10 @@ export namespace AutoMovieMotionHumanGaitRows {
    */
   export import HumanProxemics = HumanProxemicsSource;
 
-  /**
+  /*
    * The five canonical humanoid gaits, the locomotion the `locomote` verb's
    * `gait` enum names (`walk`/`run`/`sprint`/`sneak`/`march`), as ready
-   * {@link IAutoMovieGait} data a host drops into an actor context. Same role as
+   * IAutoMovieGait data a host drops into an actor context. Same role as
    * the engine's other canonical humanoid tables (ROM, joint axes): the shapes
    * are fixed, a body is what varies.
    *
@@ -257,7 +257,7 @@ export namespace AutoMovieMotionHumanGaitRows {
   export const HUMANOID_GAITS: typeof HUMANOID_GAITSSource =
     HUMANOID_GAITSSource;
 
-  /**
+  /*
    * The stroll preset: the `slow` walk (about 0.82 m/s at the reference hip) on
    * steps 0.9 times the pace's, about 94 steps a minute, the arms swung 0.8;
    * leisure, waiting about, a quiet street. Spread into `walk`'s parameters
@@ -266,7 +266,7 @@ export namespace AutoMovieMotionHumanGaitRows {
    */
   export const STROLL: typeof HUMAN_GAIT_STROLL = HUMAN_GAIT_STROLL;
 
-  /**
+  /*
    * The hurry preset: the `fast` walk (about 1.72 m/s at the reference hip) on
    * steps 1.1 times the pace's, about 125 steps a minute, the arms swung 1.3;
    * late for something, a purposeful errand that is not a run. Spread into
@@ -276,7 +276,7 @@ export namespace AutoMovieMotionHumanGaitRows {
    */
   export const HURRY: typeof HUMAN_GAIT_HURRY = HUMAN_GAIT_HURRY;
 
-  /**
+  /*
    * The trudge preset: the `slow` walk (about 0.82 m/s at the reference hip) on
    * steps 0.8 times the pace's, about 106 steps a minute, the arms swung 0.4;
    * exhaustion, defeat, a long march home. Spread into `walk`'s parameters with
@@ -285,7 +285,7 @@ export namespace AutoMovieMotionHumanGaitRows {
    */
   export const TRUDGE: typeof HUMAN_GAIT_TRUDGE = HUMAN_GAIT_TRUDGE;
 
-  /**
+  /*
    * The swagger preset: the ormal`walk (about 1.5 m/s at the reference hip),
    * the arms swung 1.5 and the elbows held 20 degrees out; confidence, a
    * challenge, showing off. Spread into`walk`'s parameters with the
@@ -294,7 +294,7 @@ export namespace AutoMovieMotionHumanGaitRows {
    */
   export const SWAGGER: typeof HUMAN_GAIT_SWAGGER = HUMAN_GAIT_SWAGGER;
 
-  /**
+  /*
    * The follow preset: come up behind the person (`from: "behind"`) to the
    * social distance (`at: "social"`, `HumanProxemics.GAPS`), matching their
    * speed on the way (`track: "pace"`), as a follower closes the gap. Spread
@@ -303,7 +303,7 @@ export namespace AutoMovieMotionHumanGaitRows {
    */
   export const FOLLOW: typeof HUMAN_GAIT_FOLLOW = HUMAN_GAIT_FOLLOW;
 
-  /**
+  /*
    * The escort preset: come to the person's left side (`from: "left"`) at the
    * personal distance (`at: "personal"`, `HumanProxemics.GAPS`), matching their
    * speed on the way (`track: "pace"`), as an escort takes station. Spread into
@@ -312,7 +312,7 @@ export namespace AutoMovieMotionHumanGaitRows {
    */
   export const ESCORT: typeof HUMAN_GAIT_ESCORT = HUMAN_GAIT_ESCORT;
 
-  /**
+  /*
    * The confront preset: step up in front of the person (`from: "front"`) face
    * to face (`at: "faceToFace"`, `HumanProxemics.GAPS`), as a confrontation
    * begins. Spread into `approach`'s parameters with the person; the `confront`
@@ -320,9 +320,9 @@ export namespace AutoMovieMotionHumanGaitRows {
    */
   export const CONFRONT: typeof HUMAN_GAIT_CONFRONT = HUMAN_GAIT_CONFRONT;
 
-  /**
+  /*
    * The canonical humanoid profile fixture: the same locomotion vocabulary as
-   * {@link HUMANOID_GAITS}, packaged as reusable profile data so a host can bind
+   * HUMANOID_GAITS, packaged as reusable profile data so a host can bind
    * it onto any humanoid skeleton without hand-authored TypeScript clips.
    *
    * Object.values allocates the gait array once at module load in declared key
